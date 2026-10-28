@@ -14,7 +14,7 @@ Linux ve macOS: port tablosu /proc/net/tcp ya da lsof, süreç bilgisi ps; istem
 config.txt'si, değiştirilmez), port_80_sorunu kullanıcıya bir kerelik izin komutunu söyler. macOS'ta bir şey gerekmez: düşük portlar
 0.0.0.0'da açılır, yalnız yerel bağlantılar kabul edilir (uyum.py).
 """
-import json, os, signal, socket, subprocess, sys, threading, time
+import json, os, secrets, signal, socket, subprocess, sys, threading, time
 
 from dil import t as _
 
@@ -22,8 +22,8 @@ PANEL_DIR = os.path.dirname(os.path.abspath(__file__))
 SERVER = os.path.dirname(PANEL_DIR)
 NO_WINDOW = 0x08000000 if os.name == 'nt' else 0
 PORT_80_KOMUTU = 'echo net.ipv4.ip_unprivileged_port_start=80 | sudo tee /etc/sysctl.d/90-openorbit.conf && sudo sysctl --system'
-PORTS = {'web': (8090, 80), 'oyun': (8081, 7771)}
-PORT_ADLARI = {8090: 'Web girişi', 80: 'Web API', 8081: 'Oyun', 7771: 'Sohbet', 8099: 'Kontrol kanalı'}
+PORTS = {'web': (8090, 80), 'oyun': (8081, 7771, 8098)}
+PORT_ADLARI = {8090: 'Web girişi', 80: 'Web API', 8081: 'Oyun', 7771: 'Sohbet', 8098: 'Panel yönetim kanalı', 8099: 'Kontrol kanalı'}
 SCRIPTS = {'web': 'web.py', 'oyun': 'game.py'}
 ERKEN_KAPANMA_SN = 15
 
@@ -366,6 +366,7 @@ class Yonetici:
         self.istemci_basla = None
         self.istemci_son = None             # {'sure_sn', 'erken', 'kod'}
         self.on_client_exit = None          # panel bağlar: (erken) -> None
+        self.yonetim_anahtar = secrets.token_urlsafe(32)
 
     # ------------------------------------------------------------ sunucular
     def servers_alive(self):
@@ -429,9 +430,10 @@ class Yonetici:
                 if ad == 'oyun':
                     durdur = os.path.join(self.logs, '.durdur_oyun')
                     cmd += ['--ayarlar=%s' % ayarlar, '--durdur=%s' % durdur] + (['--kontrol'] if kontrol else [])
+                    ortam = {'DO_YONETIM_ANAHTAR': self.yonetim_anahtar}
                     if ortam_json:
                         cmd.append('--cok-oyunculu')
-                        ortam = {'DO_COK_OYUNCULU': ortam_json}
+                        ortam['DO_COK_OYUNCULU'] = ortam_json
                 self.sunucular[ad] = Surec(ad, cmd, os.path.join(self.logs, '%s_konsol.log' % ad), durdur, ortam).start()
                 started.append(ad)
             self.profil, self.slot, self.arkadas, self.coklu = profil, slot, bool(arkadas), bool(coklu and not arkadas)

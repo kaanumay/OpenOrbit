@@ -66,6 +66,7 @@ import yeni_sistemler as YS  # noqa: E402
 import sohbet as SH        # noqa: E402
 import sosyal as SO        # noqa: E402
 import kontrol as KT       # noqa: E402
+import yonetim as YONETIM  # noqa: E402
 import ayar as AY          # noqa: E402
 import siralama as SR      # noqa: E402
 import gm_konsol as GMK    # noqa: E402
@@ -1490,9 +1491,11 @@ def main():
         adres = CO.AYAR['adres']
         KL.configure(os.path.join(YOL.SAVE, 'klanlar.json'))     # ortak klanlar: çevrimdışı üyeye olanlar sonraki girişte
     SOHBET = SH.Sohbet(log, adres=adres)
+    SOHBET.oyun = sys.modules[__name__]
     SOHBET.start()                # yerel sohbet (7771); istemci girişteki ChatParamCommand ile buraya bağlanır
     threading.Thread(target=autosave, daemon=True).start()
     CD.start(sys.modules[__name__], LOG_DIR, log)     # panelin canlı durum sayfası (<günlükler>/canli_durum.json)
+    YONETIM.start(sys.modules[__name__], os.environ.get('DO_YONETIM_ANAHTAR'))
     if KONTROL:
         KT.Kontrol(sys.modules[__name__]).start()
         SOHBET.iz = KT.sohbet_iz          # sohbet çerçeveleri de izde ("Sohbet:<tür>")

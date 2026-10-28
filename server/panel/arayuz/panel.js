@@ -204,6 +204,7 @@ function popMenu(anchor, items) {
 // ------------------------------------------------------------------ sayfalar ve çerçeve
 const PAGES = [
   { id: 'oyna', ad: N('Oyna'), ic: 'play', sub: N('Kaydını gör, ayarlarını kontrol et ve oyunu başlat.') },
+  { id: 'oyuncular', ad: N('Oyuncu Yönetimi'), ic: 'shield', sub: N('Bağlı oyuncuların envanteri: eşya ver, herkese ver, eşya çıkar. Çıkarmalar denetim günlüğüne yazılır.') },
   { id: 'arkadas', ad: N('Arkadaşlarınla Oyna'), ic: 'users', sub: N('Sunucu kur (Host) ya da arkadaşının sunucusuna katıl (Join). Herkes kendi kaydıyla oynar.') },
   { id: 'kayitlar', ad: N('Kayıtlar'), ic: 'save', sub: N('Kayıt yuvaları, yedekler, kopyalama, içe ve dışa aktarma.') },
   { id: 'ayarlar', ad: N('Oyun Ayarları'), ic: 'sliders', sub: N('Çarpanlar ve kurallar. Kendiliğinden kaydedilir; çoğu oyun açıkken anında uygulanır.') },
@@ -459,6 +460,185 @@ function meter(label, v, max, cls) {
   const pct = max ? Math.max(0, Math.min(100, v * 100 / max)) : 0;
   return h('div', { class: 'meter ' + (cls || '') }, h('div', { class: 'row between small' }, h('span', { class: 'muted' }, label), h('b', null, fmtN(v) + ' / ' + fmtN(max))),
     h('div', { class: 'meter-bar' }, h('span', { style: { width: pct + '%' } })));
+}
+function lootPicker(placeholder) {
+  const input = h('input', { class: 'input', placeholder, autocomplete: 'off' });
+  const results = h('div', { class: 'loot-results', hidden: true });
+  const wrap = h('div', { class: 'loot-picker' }, input, results);
+  let items = [];
+  const close = () => { results.hidden = true; results.replaceChildren(); };
+  const terms = value => String(value).toLocaleLowerCase().replace(/[_-]+/g, ' ').split(/\s+/).filter(Boolean);
+  const draw = () => {
+    const query = terms(input.value);
+    if (!query.length || input.value.trim().length < 2) return close();
+    const rows = items.filter(([id, name]) => {
+      const haystack = (id + ' ' + name).toLocaleLowerCase();
+      return query.every(term => haystack.includes(term));
+    }).slice(0, 12);
+    results.replaceChildren(...rows.map(([id, name]) => h('button', { type: 'button', onclick: () => {
+      input.value = id; close(); input.focus();
+    } }, h('b', { class: 'mono' }, id), name ? h('span', null, name) : null)));
+    results.hidden = !rows.length;
+  };
+  input.addEventListener('input', draw);
+  input.addEventListener('focus', draw);
+  input.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+  api('/api/esya_listesi').then(r => { items = r.esyalar || []; draw(); }).catch(() => {});
+  return { input, el: wrap };
+}
+// ---- Oyuncu Yönetimi (yonetim.py, /api/oyuncular): Aternos tarzı oyuncu listesi; eşya verme ve çıkarma yalnız burada (Canlı durumda yok)
+const OY = { veri: null, sec: null, env: null, sekme: 'envanter', ara: '', tur: '', denetim: null, gorunum: 'izgara', yok: new Set() };
+const OY_TUR = { ekipman: N('Ekipman'), cephane: N('Cephane'), cevher: N('Cevher'), kaynak: N('Kaynak'), gemi: N('Gemi'), dron: N('Dron') };
+const OY_ISLEM = { ver: [N('Verildi'), 'ok'], herkese_ver: [N('Herkese verildi'), 'info'], cikar: [N('Çıkarıldı'), 'err'] };
+
+async function renderOyuncular() {
+  $('#content').replaceChildren(h('div', { class: 'stack', id: 'oyuncular' }));
+  await oyLoad(true);
+  S.timers.push(setInterval(() => { if (document.visibilityState === 'visible' && !document.querySelector('.modal')) oyLoad(false); }, 3000));
+}
+async function oyLoad(force) {
+  let v;
+  try { v = await api('/api/oyuncular'); } catch (e) { if (force) toast(e.message, 'err'); return; }
+  if (S.page !== 'oyuncular') return;
+  const online = v.oyuncular.filter(p => p.cevrimici);
+  if (OY.sec && !online.some(p => p.id === OY.sec)) { OY.sec = null; OY.env = null; }
+  if (!OY.sec && online.length) OY.sec = online[0].id;
+  OY.env = null;
+  if (OY.sec) { try { OY.env = await api('/api/oyuncular/envanter?oyuncu=' + encodeURIComponent(OY.sec)); } catch (e) { OY.env = null; } }
+  if (OY.sekme === 'denetim' && v.sunucu_acik) { try { OY.denetim = (await api('/api/oyuncular/denetim')).kayitlar; } catch (e) { /* kanal yanıt vermedi */ } }
+  if (S.page !== 'oyuncular') return;
+  OY.veri = v;
+  const sig = JSON.stringify([v, OY.env, OY.denetim, OY.sec, OY.sekme]);
+  if (!force && S.sig.oy === sig) return;
+  S.sig.oy = sig; oyDraw();
+}
+function oySelect(id) { OY.sec = id; OY.env = null; OY.ara = ''; OY.tur = ''; oyLoad(true); }
+function oyDraw() {
+  const focus = document.activeElement && document.activeElement.id === 'oy-ara' ? document.activeElement.selectionStart : null;
+  const root = $('#oyuncular'); if (!root) return;
+  root.replaceChildren(h('div', { class: 'pm' }, oyList(), oyDetail()));
+  const inp = $('#oy-ara');
+  if (focus != null && inp) { inp.focus(); inp.setSelectionRange(focus, focus); }
+}
+function oyList() {
+  const v = OY.veri, online = v.oyuncular.filter(p => p.cevrimici), offline = v.oyuncular.length - online.length;
+  const row = p => h('div', { class: 'pm-row' + (p.cevrimici ? ' can' : '') + (p.id && p.id === OY.sec ? ' on' : ''), onclick: p.cevrimici ? () => oySelect(p.id) : null },
+    dot(p.cevrimici ? 'ok' : ''), h('div', { class: 'grow' }, h('b', null, p.ad || '?'), ' ',
+      p.seviye ? h('span', { class: 'small muted' }, lvl(p.seviye)) : null, p.firma ? [' ', badge(p.firma, firmaCls(p.firma))] : null),
+    p.cevrimici ? badge(T('Çevrimiçi'), 'ok') : [badge(T('Çevrimdışı'), ''), btn('', ev => { ev.stopPropagation(); go('kayitlar'); }, 'sm ghost', 'save', { title: T('Kayıt düzenleyici') })]);
+  return h('div', { class: 'card' },
+    h('div', { class: 'row between wrap' }, h('h2', null, icon('users'), T('Oyuncular')),
+      btn(T('Herkese eşya ver'), () => oyGiveModal(null), 'sm', 'plus', { disabled: !online.length })),
+    !v.sunucu_acik ? h('p', { class: 'desc' }, T('Oyun sunucusu kapalı: canlı işlemler için önce OYNA ile sunucuyu başlatın.')) : null,
+    v.hata ? h('div', { class: 'alert hata' }, icon('alert'), h('div', null, v.hata)) : null,
+    v.oyuncular.length ? h('div', { class: 'stack', style: { gap: '6px', marginTop: '10px' } }, v.oyuncular.map(row))
+      : h('p', { class: 'desc' }, T('Henüz oyuncu ya da kayıt yok.')),
+    offline ? h('p', { class: 'small muted', style: { marginTop: '10px' } }, T('Çevrimdışı kayıtlar canlı düzenlenemez: sunucu durmuşken Kayıtlar sayfasındaki kayıt düzenleyiciyi kullanın.')) : null);
+}
+function oyDetail() {
+  const env = OY.env;
+  if (!env) return h('div', { class: 'card' }, h('div', { class: 'empty' }, T('Bağlı oyuncu yok.')));
+  const tabs = h('div', { class: 'seg' }, [['envanter', T('Envanter')], ['denetim', T('Denetim günlüğü')]].map(([k, t]) =>
+    h('button', { class: OY.sekme === k ? 'on info' : '', onclick: () => { OY.sekme = k; S.sig.oy = null; oyLoad(true); } }, t)));
+  const m = env.para;
+  const stats = h('div', { class: 'stats', style: { marginTop: '12px' } },
+    [[T('Seviye'), m.seviye, ''], [T('Kredi'), m.kredi, 'cr'], [T('Uridyum'), m.uridyum, 'ur'], [T('Onur'), m.onur, 'hn']].map(([a, val, c]) =>
+      h('div', { class: 'stat' }, h('div', { class: 'k' }, a), h('div', { class: 'v ' + c }, fmtN(val)))));
+  return h('div', { class: 'card' },
+    h('div', { class: 'row between wrap' }, h('h2', null, icon('ship'), env.oyuncu, ' ', badge(T('Çevrimiçi'), 'ok')),
+      btn(T('Eşya ver'), () => oyGiveModal({ id: env.id, ad: env.oyuncu }), 'sm', 'plus')),
+    stats, h('div', { class: 'row', style: { marginTop: '14px' } }, tabs),
+    OY.sekme === 'envanter' ? oyInventory() : oyAudit());
+}
+function oyInventory() {
+  const ara = h('input', { class: 'input', id: 'oy-ara', placeholder: T('Eşya ara…'), value: OY.ara, autocomplete: 'off',
+    oninput: ev => { OY.ara = ev.currentTarget.value; $('#oy-table').replaceChildren(oyTable()); } });
+  const tur = h('select', { class: 'input', style: { width: 'auto' }, onchange: ev => { OY.tur = ev.currentTarget.value; $('#oy-table').replaceChildren(oyTable()); } },
+    h('option', { value: '' }, T('Tüm türler')), Object.entries(OY_TUR).map(([k, n]) => h('option', { value: k, selected: OY.tur === k }, T(n))));
+  return h('div', null, h('div', { class: 'pm-tools' }, ara, tur,
+    h('div', { class: 'seg' }, [['izgara', T('Izgara')], ['liste', T('Liste')]].map(([k, t]) =>
+      h('button', { class: OY.gorunum === k ? 'on info' : '', onclick: () => { OY.gorunum = k; S.sig.oy = null; oyLoad(true); } }, t)))),
+    h('div', { id: 'oy-table' }, oyTable()),
+    h('p', { class: 'small muted', style: { marginTop: '10px' } }, T('Takılı ekipman çıkarılamaz: oyuncu önce hangardan çıkarmalı. Çıkarılanlar denetim günlüğüne yazılır, sohbette duyurulmaz.')));
+}
+function oyTable() {
+  const env = OY.env, q = OY.ara.trim().toLocaleLowerCase();
+  const rows = env.esyalar.filter(r => (!OY.tur || r.tur === OY.tur) && (!q || r.esya.toLocaleLowerCase().includes(q)))
+    .sort((a, b) => a.tur === b.tur ? (a.esya < b.esya ? -1 : 1) : (a.tur < b.tur ? -1 : 1));
+  if (!rows.length) return h('p', { class: 'desc' }, env.esyalar.length ? T('Filtreye uyan eşya yok.') : T('Envanter boş.'));
+  if (OY.gorunum === 'izgara') return oyGrid(rows);
+  return h('div', { class: 'pm-scroll' }, h('table', { class: 'table' },
+    h('thead', null, h('tr', null, [T('Eşya'), T('Tür'), T('Adet'), T('Takılı'), ''].map(x => h('th', null, x)))),
+    h('tbody', null, rows.map(r => h('tr', null,
+      h('td', null, h('span', { class: 'mono' }, r.esya)), h('td', null, badge(T(OY_TUR[r.tur] || r.tur), '')), h('td', null, fmtN(r.adet)),
+      h('td', null, r.takili ? fmtN(r.takili) : '—'),
+      h('td', { style: { textAlign: 'right' } }, r.silinebilir > 0
+        ? btn(T('Çıkar'), () => oyRemove(r), 'sm danger', 'trash')
+        : btn(T('Çıkar'), null, 'sm', 'trash', { disabled: true, title: T('Takılı ekipman çıkarılamaz.') })))))));
+}
+// Izgara: Aternos gibi kutular; simge ikonlar/<lootId>.png (tools/ikon_cikar.py istemciden çıkarır), yoksa türe göre renkli harf kutusu
+function oyGrid(rows) {
+  const short = id => (id.split('_').pop() || id).slice(0, 7).toUpperCase();
+  return h('div', { class: 'pm-scroll' }, h('div', { class: 'pm-grid' }, rows.map(r => {
+    const can = r.silinebilir > 0;
+    const tile = h('div', { class: 'pm-slot ' + r.tur + (can ? ' can' : ''), title: r.esya + ' · ' + T(OY_TUR[r.tur] || r.tur) + (can ? '' : ' · ' + T('Takılı ekipman çıkarılamaz.')),
+      onclick: can ? () => oyRemove(r) : null }, h('span', { class: 'pm-fb' }, short(r.esya)));
+    if (!OY.yok.has(r.esya)) {
+      const img = h('img', { src: 'ikonlar/' + encodeURIComponent(r.esya) + '.png', alt: '' });
+      img.addEventListener('error', () => { OY.yok.add(r.esya); img.remove(); });
+      tile.prepend(img);
+    }
+    if (r.adet > 1) tile.append(h('span', { class: 'pm-n' }, fmtN(r.adet)));
+    if (r.takili) tile.append(h('span', { class: 'pm-eq' }, icon('check')));
+    return tile;
+  })));
+}
+function oyAudit() {
+  const rows = OY.denetim || [];
+  if (!rows.length) return h('p', { class: 'desc', style: { marginTop: '12px' } }, T('Henüz kayıt yok.'));
+  return h('div', { class: 'pm-scroll', style: { marginTop: '12px' } }, h('table', { class: 'table' },
+    h('thead', null, h('tr', null, [T('Zaman'), T('İşlem'), T('Oyuncu'), T('Eşya'), T('Adet')].map(x => h('th', null, x)))),
+    h('tbody', null, rows.map(r => { const [ad, cls] = OY_ISLEM[r.islem] || [r.islem, '']; return h('tr', null,
+      h('td', null, r.zaman), h('td', null, badge(T(ad), cls)), h('td', null, r.oyuncu || (r.oyuncular || []).join(', ')),
+      h('td', null, h('span', { class: 'mono' }, r.esya)), h('td', null, fmtN(r.adet))); }))));
+}
+function oyGiveModal(player) {         // player: { id, ad } ya da null (bağlı herkes)
+  const online = OY.veri.oyuncular.filter(p => p.cevrimici);
+  const picker = lootPicker(T('lootId — ör. ammunition_laser_lcb-10'));
+  const amount = h('input', { class: 'input', type: 'number', min: 1, value: 1, style: { width: '120px' } });
+  const m = modal({ title: player ? T('Eşya ver: {0}', player.ad) : T('Herkese eşya ver'), wide: true,
+    sub: player ? T('Başarılı veriliş herkesin sohbetine duyurulur.')
+      : T('Bağlı {0} oyuncunun hepsine verilir. Başarılı veriliş herkesin sohbetine duyurulur.', online.length),
+    body: [field(T('Eşya'), picker.el), field(T('Adet'), amount)],
+    foot: [btn(T('Vazgeç'), () => m.close(), 'ghost'), btn(T('Ver ve duyur'), async ev => {
+      const loot = picker.input.value.trim();
+      if (!loot) return toast(T('Bir eşya seçin.'), 'err');
+      const b = ev.currentTarget; b.disabled = true;
+      const body = { esya: loot, adet: amount.value };
+      const r = await act(() => player ? api('/api/oyuncular/ver', Object.assign(body, { oyuncu: player.id })) : api('/api/oyuncular/herkese_ver', body),
+        x => player ? T('{0} oyuncusuna {1} x{2} verildi ve duyuruldu.', x.oyuncu, x.esya, fmtN(x.adet))
+          : T('{0} oyuncuya {1} x{2} verildi ve duyuruldu.', x.oyuncular.length, x.esya, fmtN(x.adet)));
+      b.disabled = false; if (r) { m.close(); oyLoad(true); }
+    }, 'primary', 'plus')],
+  });
+}
+function oyRemove(row) {                // çıkarma ayrı ve iki adımlı: adet seç, sonra oyuncu + eşya + adedi adıyla onayla
+  const who = { id: OY.env.id, ad: OY.env.oyuncu }, max = row.silinebilir;
+  const amount = h('input', { class: 'input', type: 'number', min: 1, max, value: 1, style: { width: '120px' } });
+  const m = modal({ title: T('Eşya çıkar'), sub: T('{0} oyuncusundan alınır; geri verilmez. Sohbette duyurulmaz, denetim günlüğüne yazılır.', who.ad),
+    body: [h('div', { class: 'mono' }, row.esya), field(T('Çıkarılacak adet'), amount, h('div', { class: 'small muted' }, T('En çok {0} adet', fmtN(max))))],
+    foot: [btn(T('Vazgeç'), () => m.close(), 'ghost'), btn(T('Devam'), async () => {
+      const n = Math.floor(Number(amount.value));
+      if (!(n >= 1 && n <= max)) return toast(T('Adet 1 ile {0} arasında olmalı.', fmtN(max)), 'err');
+      m.close();
+      const ok = await confirmBox(T('Eşyayı çıkar?'), T('{0} oyuncusundan {1} x{2} çıkarılacak. Bu işlem geri alınamaz.', who.ad, row.esya, fmtN(n)),
+        { ok: T('Çıkar'), danger: true });
+      if (!ok) return;
+      const r = await act(() => api('/api/oyuncular/cikar', { oyuncu: who.id, esya: row.esya, adet: n }),
+        x => T('{0} oyuncusundan {1} x{2} çıkarıldı.', x.oyuncu, x.esya, fmtN(x.adet)));
+      if (r) oyLoad(true);
+    }, 'danger', 'trash')],
+  });
 }
 function liveCard() {
   const r = S.live;
@@ -2027,7 +2207,7 @@ const WZ_PAGES = {
   },
 };
 
-const RENDER = { oyna: renderOyna, arkadas: renderArkadas, kayitlar: renderKayitlar, ayarlar: renderAyarlar, etkinlikler: () => renderEtkinlikler(), istemci: () => renderIstemci(),
+const RENDER = { oyna: renderOyna, oyuncular: renderOyuncular, arkadas: renderArkadas, kayitlar: renderKayitlar, ayarlar: renderAyarlar, etkinlikler: () => renderEtkinlikler(), istemci: () => renderIstemci(),
   takvim: enterTakvim, sunucu: renderSunucu, panel: renderPanel };
 
 // ------------------------------------------------------------------ başlangıç

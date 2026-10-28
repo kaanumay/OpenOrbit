@@ -416,6 +416,14 @@ button.chip:hover { border-color: var(--accent); color: #fff; }
 .menu button.danger { color: #ff8b96; } .menu button.danger svg { color: #ff8b96; }
 .menu hr { border: 0; border-top: 1px solid var(--line); margin: 4px 2px; }
 .kbd { font: 11px var(--mono); padding: 1px 6px; border-radius: 5px; border: 1px solid var(--line-2); background: #0a1222; color: var(--muted); }
+.loot-picker { position: relative; flex: 1 1 260px; min-width: 0; }
+.loot-picker .input { width: 100%; }
+.loot-results { position: absolute; z-index: 5; top: calc(100% + 5px); left: 0; right: 0; max-height: 260px; overflow: auto; padding: 5px;
+  border: 1px solid var(--line-2); border-radius: 11px; background: #142039; box-shadow: var(--shadow); animation: pop .12s ease-out; }
+.loot-results button { display: grid; gap: 2px; width: 100%; padding: 8px 10px; border: 0; border-radius: 8px; background: transparent; color: var(--text); text-align: left; cursor: pointer; }
+.loot-results button:hover { background: rgba(255, 255, 255, .06); }
+.loot-results b { font-size: 12px; color: #fff; }
+.loot-results span { color: var(--muted); font-size: 11px; }
 
 /* ---------------------------------------------------------------- kurulum sihirbazı (ilk açılış) */
 .wizard { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: 24px; overflow: auto; animation: fade .2s ease-out;
@@ -539,7 +547,33 @@ button.chip:hover { border-color: var(--accent); color: #fff; }
   text-overflow: ellipsis; }
 .tk-kv b { white-space: normal; text-align: left; }
 
+/* Oyuncu Yönetimi */
+.pm { display: grid; grid-template-columns: minmax(280px, 340px) minmax(0, 1fr); gap: 16px; align-items: start; }
+.pm-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px;
+  background: rgba(6, 10, 19, .35); }
+.pm-row.can { cursor: pointer; }
+.pm-row.can:hover { border-color: var(--line-2); }
+.pm-row.on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.pm-row .grow { flex: 1; min-width: 0; }
+.pm-tools { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+.pm-tools .input { max-width: 280px; }
+.pm-scroll { max-height: 60vh; overflow: auto; }
+.pm-grid { display: grid; grid-template-columns: repeat(auto-fill, 56px); gap: 6px; }
+.pm-slot { position: relative; width: 56px; height: 56px; border: 2px solid var(--line-2); border-radius: 6px; background: rgba(6, 10, 19, .6);
+  display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.pm-slot.can { cursor: pointer; }
+.pm-slot.can:hover { border-color: var(--err); box-shadow: 0 0 0 1px var(--err); }
+.pm-slot img { position: absolute; inset: 3px; width: calc(100% - 6px); height: calc(100% - 6px); object-fit: contain; image-rendering: auto; }
+.pm-slot img + .pm-fb { display: none; }
+.pm-fb { font-size: 10px; font-weight: 700; letter-spacing: .02em; color: var(--muted); text-align: center; word-break: break-all; padding: 2px; }
+.pm-slot.ekipman { border-color: #3b82f6; } .pm-slot.cephane { border-color: #f59e0b; } .pm-slot.cevher { border-color: #a78bfa; }
+.pm-slot.kaynak { border-color: #34d399; } .pm-slot.gemi, .pm-slot.dron { border-color: #94a3b8; }
+.pm-n { position: absolute; right: 3px; bottom: 1px; font-size: 12px; font-weight: 800; color: #fff; text-shadow: 0 0 3px #000, 0 0 3px #000, 1px 1px 0 #000; }
+.pm-eq { position: absolute; left: 3px; top: 3px; width: 14px; height: 14px; color: #34d399; filter: drop-shadow(0 0 2px #000); }
+.pm-eq svg { width: 14px; height: 14px; }
+
 @media (max-width: 1100px) {
+  .pm { grid-template-columns: 1fr; }
   .g3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .hero { grid-template-columns: 1fr; }
   .set-row { grid-template-columns: 1fr; }

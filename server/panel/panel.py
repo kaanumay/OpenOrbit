@@ -23,7 +23,7 @@ zenity), macOS'ta AppleScript (Tk orada yalnız ana iş parçacığında çalı�
 """
 import datetime, json, os, re, secrets, shlex, shutil, subprocess, sys, threading, time, traceback
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, quote, urlparse
 from urllib.request import Request, urlopen
 
 PANEL_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -162,6 +162,30 @@ def write_json(path, d):
     with open(tmp, 'w', encoding='utf8', newline='\n') as fh:
         json.dump(d, fh, ensure_ascii=False, indent=1)
     os.replace(tmp, path)
+
+
+def owner_request(path, body=None):
+    """Call the game server's loopback-only, Panel-authenticated owner channel."""
+    if not YON.running():
+        raise Hata(_('Oyun sunucusu açık değil.'))
+    data = None if body is None else json.dumps(body).encode('utf8')
+    request = Request('http://127.0.0.1:8098' + path, data=data,
+                      headers={'X-OpenOrbit-Owner': YON.yonetim_anahtar, 'Content-Type': 'application/json'},
+                      method='POST' if body is not None else 'GET')
+    try:
+        with urlopen(request, timeout=3) as response:
+            return json.loads(response.read().decode('utf8'))
+    except Exception as exc:
+        if getattr(exc, 'code', None) and hasattr(exc, 'read'):      # kanal işlemi reddetti: nedeni (oyuncu bağlı değil, adet fazla …)
+            try:
+                body = json.loads(exc.read().decode('utf8'))
+            except (ValueError, OSError):
+                body = {}
+            if body.get('kalip'):
+                raise Hata(_(body['kalip'], *body.get('arg', [])))
+            if body.get('hata'):
+                raise Hata(_(body['hata']))
+        raise Hata(_('Panel yönetim kanalı yanıt vermedi: %s', exc))
 
 
 def settings_file(slot=None):
@@ -1033,6 +1057,36 @@ def profile_values(sid):
             'kullanimda': KAY.in_use(sid)}
 
 
+def api_players():
+    """Oyuncu Yönetimi listesi: bağlı pilotlar (sunucunun yönetim kanalından) ve çevrimdışı kayıtlar (kayıt yuvaları). Canlı işlemler
+    yalnız bağlı oyunculara; çevrimdışı olanlar Kayıtlar sayfasındaki kayıt düzenleyiciyle (sunucu durmuşken) düzenlenir."""
+    running, online, hata = YON.running(), [], None
+    if running:
+        try:
+            online = owner_request('/oyuncular')['oyuncular']
+        except Hata as e:
+            hata = str(e)
+    try:
+        saves = [k for k in KAY.list() if not k.get('bozuk')]
+    except (OSError, KayitHatasi):
+        saves = []
+    by_pilot = {str(k.get('pilot') or '').casefold(): k for k in saves}
+    rows, seen = [], set()
+    for p in online:
+        k = by_pilot.get(p['ad'].casefold())
+        seen.add(p['ad'].casefold())
+        rows.append({'id': p['id'], 'ad': p['ad'], 'cevrimici': True, 'kayit': k['id'] if k else None,
+                     'seviye': k.get('seviye') if k else None, 'firma': k.get('firma') if k else None})
+    for k in saves:
+        key = str(k.get('pilot') or '').casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        rows.append({'id': None, 'ad': k.get('pilot'), 'cevrimici': False, 'kayit': k['id'], 'kayit_adi': k.get('ad'),
+                     'seviye': k.get('seviye'), 'firma': k.get('firma')})
+    return {'sunucu_acik': running, 'hata': hata, 'oyuncular': rows}
+
+
 def h_get(path, q):
     if path == '/api/durum':
         return status()
@@ -1087,6 +1141,12 @@ def h_get(path, q):
         import takvim as TK
         d['etkinlik_adlari'] = [_(TK.EVENTS.get(k, {}).get('ad', k)) for k in d.get('etkinlikler', [])]
         return {'var': True, 'sunucu_acik': True, 'yas': max(0, time.time() - d.get('zaman', 0)), 'durum': d}
+    if path == '/api/oyuncular':                    # Oyuncu Yönetimi: bağlı ve çevrimdışı oyuncular
+        return api_players()
+    if path == '/api/oyuncular/envanter':           # bağlı bir oyuncunun envanteri (salt okunur)
+        return owner_request('/envanter?oyuncu=' + quote(str(q.get('oyuncu') or ''), safe=''))
+    if path == '/api/oyuncular/denetim':            # yönetim işlemlerinin denetim günlüğü
+        return owner_request('/denetim')
     if path == '/api/arkadas':                      # Arkadaşlarınla Oyna: Host (sunucu, adresler, misafirler) ve Join (oturum)
         canli = read_json(os.path.join(YOL.LOGS, 'canli_durum.json'), None) if YON.running() else None
         return {'host': ARK.host_durumu(canli), 'misafir': ARK.durum(), 'kayitlar': KAY.list(), 'aktif': KAY.active(),
@@ -1169,6 +1229,12 @@ def h_post(path, b):
         time.sleep(0.5)
         return YON.foreign_ports()
     # ---- oyun ayarları
+    if path == '/api/oyuncular/ver':                # bir bağlı oyuncuya eşya ver (sohbette duyurulur)
+        return owner_request('/ver', b)
+    if path == '/api/oyuncular/herkese_ver':        # bağlı herkese eşya ver (sohbette duyurulur)
+        return owner_request('/herkese_ver', b)
+    if path == '/api/oyuncular/cikar':              # bağlı bir oyuncudan eşya çıkar (yalnız denetim günlüğüne yazılır)
+        return owner_request('/cikar', b)
     if path == '/api/ayarlar':
         vals = game_settings()
         for k, v in (b.get('degerler') or {}).items():
