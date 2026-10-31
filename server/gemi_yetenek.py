@@ -317,9 +317,15 @@ class Motor:
                 and math.hypot(*(a - b for a, b in zip(n.mover.pos(now), (hx, hy)))) <= radius]
 
     def heal_bot(self, n, hp=0, shield=0):
+        h0, s0 = n.hp, n.shield
         n.hp, n.shield = min(n.d['hp'], n.hp + hp), min(n.d['kalkan'], n.shield + shield)
+        # oyuncu bildirimi 2026-11-01: onarım görünmüyordu; botun üstünde "+miktar" (dunya.heal_msgs'in HL satırı, iyileştiren kahraman)
+        msgs = [legacy('0|A|HL|%d|%d|%s|%d|%d' % (self.w.hid, n.id, kind, int(v), int(v) - int(v0)))
+                for kind, v0, v in (('HPT', h0, n.hp), ('SHD', s0, n.shield)) if int(v) > int(v0)]
         if self.w.target == n.id:
-            self.w.send([self.w.selection(n)])
+            msgs.append(self.w.selection(n))
+        if msgs:
+            self.w.send(msgs)
 
     def foes(self, now, e=None, radius=None):
         """Yeteneğin etkilediği düşman oyuncular: alan (radius ya da alan_yavaslat) içindekiler, saldırı kuralı geçerliyse."""

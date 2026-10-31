@@ -863,7 +863,9 @@ def npc_bota(w, m, now):
     tx, ty = t.mover.pos(now)
     mx, my = m.mover.pos(now)
     dist = math.hypot(tx - mx, ty - my)
-    if dist > 2500:
+    post = w.ward_of(m)
+    if dist > 2500 or (post and w.leashed(m, post, tx, ty, now)):
+        # koruyucu (Cubikon'un Protegit'leri) botu çağıranından uzağa, portala dek kovalamaz: oyuncudaki tasmayla (dunya.leashed) aynı
         m.bot_hedef = None
         return False
     if w.in_peace(tx, ty) and t.id not in m.attackers:

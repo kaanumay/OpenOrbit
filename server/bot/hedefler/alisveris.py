@@ -123,7 +123,13 @@ def aday(bot):
     t = bot.o('tutumluluk')
     hedefi = next((c for c in tum if c[3] == bot.k.get('birikim')), None)
     if hedefi is not None:                       # kendi seçtiği biriktirme hedefi (ajanın biriktir aracı): yalnız onu alır
-        return (hedefi if para[hedefi[1]] >= hedefi[2] else None), hedefi
+        if para[hedefi[1]] >= hedefi[2]:
+            return hedefi, hedefi
+        # hedefin birikimini geciktirmeyen alımlar serbest (başka para birimi ya da hedefin üstünde kalan para): önceden yalnız
+        # hedefe bakıyordu, 80.000 U'luk gemiye biriktiren bot 66M kredisiyle kalkan/motor almadan duruyordu (oyuncu bildirimi 2026-11-01)
+        serbest = [c for c in tum if c[1] != hedefi[1] and para[c[1]] >= c[2] * (1 + 0.3 * bot.o('tutumluluk'))
+                   or c[1] == hedefi[1] and para[c[1]] - c[2] >= hedefi[2]]
+        return max(serbest, key=lambda c: c[0], default=None), hedefi
     yetisir = [c for c in tum if para[c[1]] >= c[2] * (1 + 0.3 * t)]        # tutumlu bot biraz yedek bırakır
     g = gelir(bot)
     ufuk = 1.0 + 1.5 * t
