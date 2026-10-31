@@ -881,7 +881,8 @@ class Profil:
         n = min(len(self.config().get('upgrades', [])), row.get('modul_azami', 0))
         for k, v in row.get('modul_basina', {}).items():
             out[k] = out.get(k, 0) + v * n
-        hp = LAZER.hp_bonus(self.d.get('ekipman', {}).get('laser', []))      # LF-4 Hyperplasmoid: lazer başına can +%0,5
+        hp = LAZER.hp_bonus(self.d.get('ekipman', {}).get('laser', [])       # LF-4 Hyperplasmoid: lazer başına can +%0,5 (dronlarda da)
+                            + [l for _, loots in self.d.get('dron_ekipman', []) for l in loots])
         if hp:
             out['can'] = out.get('can', 0) + hp
         kj = esya()['kalkan_jeneratorleri']                                  # Fusion Shield: takılı başına kalkan yenilenmesi +%6,25
