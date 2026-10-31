@@ -95,6 +95,7 @@ class Coklu:
             if len(self.canli()) >= n:
                 raise CokluHatasi(_('En çok %d ek istemci açılabilir (İstemci > Çoklu istemci).', n))
             self.acik[slot] = {'proc': None, 'oturum': None, 'uid': None, 'basla': time.time(), 'pilot': '', 'gunluk': None}
+        out = None
         try:
             summary = self.kay.summary(slot)
             if summary.get('bozuk'):
@@ -113,6 +114,11 @@ class Coklu:
         except Exception:
             with self.lock:
                 self.acik.pop(slot, None)
+            if out and out.get('oturum'):            # sunucuya kaydolduysa bırakılsın (yoksa kayıt düzenlenebilir sanılıyordu)
+                try:
+                    self.istek('/yerel/cikar', {'oturum': out['oturum']})
+                except Exception:
+                    pass
             raise
         pilot = summary.get('pilot') or slot
         with self.lock:

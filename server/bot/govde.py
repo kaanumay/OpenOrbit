@@ -371,7 +371,9 @@ def vuruldu(w, n, attacker=None):
     """hit_npc: vuruş geçerli mi; geçerliyse bot saldıranı (kahraman ya da P.E.T.'i) hatırlar."""
     now = time.time()
     from . import aktif as AK
-    if saldiri_hatasi(w, n, now) or AK.korumali(n, now):        # Insta-Shield süresinde ya da gizliyken vurulmaz
+    # Insta-Shield süresinde vurulmaz; gizliyken yalnız onu seçmiş olan vurur (wiki: "Cloaked ships can still be attacked (if
+    # targeted)"; oyuncu bildirimi 2026-10-31: gizlenen bota saldırılamıyordu)
+    if saldiri_hatasi(w, n, now) or now < n.__dict__.get('dokunulmaz', 0) or (n.__dict__.get('gizli') and w.target != n.id):
         return False
     n.saldiran[w.hid] = now
     n.son_hasar = now

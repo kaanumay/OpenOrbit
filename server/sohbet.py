@@ -226,7 +226,7 @@ class Baglanti:
                         self.srv.on_message(self, body)
                     elif kind != P_PONG:
                         self.srv.log('sohbet: bilinmeyen çerçeve 0x%02x (%d bayt) %r' % (kind, len(body), bytes(body[:60])))
-        except (OSError, ValueError) as e:
+        except Exception as e:                  # bozuk çerçeve (struct.error, IndexError…) de: yoksa bağlantı conns'ta kalıyordu
             self.srv.log('sohbet: bağlantı hatası %r' % e)
         self.alive = False
         self.srv.drop(self)

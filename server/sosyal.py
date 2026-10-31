@@ -43,6 +43,7 @@ class Sosyal:
 
     def attach(self, world):
         self.world = world
+        self.isinlama.busy = None     # geri sayım eski dünyanın zamanlayıcısıydı: harita değişince ışınlama hep "meşgul" kalıyordu
 
     # -------------------------------------------------------- istekler
     def handle(self, name, f, now):

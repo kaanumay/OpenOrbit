@@ -561,7 +561,8 @@ class Profil:
             RT.money(self, 'uridyum', uridyum, neden, detay, adet)
         if uridyum > 0:
             BANK.accrue(self, uridyum, neden)       # Uridium Bank: kazanılan uridyumun aynısı birikir (banka.py)
-        self.ach('gain', ep=ep, onur=onur, kredi=kredi, uridyum=uridyum)
+        if neden != 'auction_bookMoneyBack':      # müzayede iadesi kazanç değil (başarım sayacı teklif/iade ile şişiyordu)
+            self.ach('gain', ep=ep, onur=onur, kredi=kredi, uridyum=uridyum)
         if tot['seviye_atladi']:
             self.ach('level', deger=tot['seviye'])
         return tot

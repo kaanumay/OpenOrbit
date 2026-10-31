@@ -167,11 +167,13 @@ def period_key(qid, now=None):
 def offered(now=None):
     """Bugünün günlük ve bu haftanın haftalık görevleri: zorluk başına biri, kayıttaki günün seçiminden sırayla ilerler; seviye
     havuzlarından (3, 10, 15, 17) her gün rastgele biri (tarih ve seviyeden türeyen sabit seçim: gün içinde ve yeniden açılışta aynı)."""
-    d = datetime.date.fromtimestamp(time.time() if now is None else now)
+    t = time.time() if now is None else now
+    d = datetime.date.fromtimestamp(t)
+    dz = datetime.date.fromtimestamp(t - 6.5 * 3600)    # zorluk havuzları 06:30'da döner (period_key ile aynı; yoksa 00:00-06:30 arası tekrar alınıyordu)
     out = set()
     for kind in ('gunluk', 'haftalik'):
         d0 = datetime.date.fromisoformat(EK[kind]['tarih'])
-        steps = (d - d0).days if kind == 'gunluk' else ((d - d0).days + d0.weekday() - d.weekday()) // 7
+        steps = (dz - d0).days if kind == 'gunluk' else ((dz - d0).days + d0.weekday() - dz.weekday()) // 7
         for first in EK[kind]['secilen']:
             pool = POOLS[(kind, QUESTS[first]['havuz']['zorluk'])]
             out.add(pool[(pool.index(first) + steps) % len(pool)])
@@ -234,7 +236,7 @@ class Gorevler:
         q = QUESTS[qid]
         if q.get('kapali') and str(qid) not in self.st['aktif']:
             return False                                    # Dünya Editörü'nde kapatılan görev (sürüyorsa bitirilebilir)
-        if q.get('kampanya') and str(qid) not in self.st['aktif'] and time.time() >= self.p.d.get('kampanya', -KAMPANYA_SN) + KAMPANYA_SN:
+        if q.get('kampanya') and str(qid) not in self.st['aktif'] and not AY.get('kampanya') and time.time() >=self.p.d.get('kampanya', -KAMPANYA_SN) + KAMPANYA_SN:
             return False                                    # başlangıç kampanyası: yeni kayıtta seçildiyse ilk ay (sürüyorsa bitirilebilir)
         if q.get('havuz') and qid not in offer and str(qid) not in self.st['aktif']:
             return False

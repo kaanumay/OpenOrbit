@@ -137,7 +137,13 @@ def hedef(k, now):
 def konum(k, now):
     p = k.profil
     w = k.world
-    x, y = w.hero_pos(now) if w is not None else (p.d['konum'].get('x', 0), p.d['konum'].get('y', 0))
+    n = getattr(getattr(k.oturum, 'bot', None), 'govde', None)         # bot: haritadaki gemisi (kayıttaki konum eski kalır)
+    if w is not None:
+        x, y = w.hero_pos(now)
+    elif n is not None and n.alive:
+        x, y = n.mover.pos(now)
+    else:
+        x, y = p.d['konum'].get('x', 0), p.d['konum'].get('y', 0)
     return int(p.d['konum'].get('mapId', 0)), int(x), int(y)
 
 
@@ -262,7 +268,9 @@ def handle(k, name, f, now=None):
         elif name == 'FollowRequest':
             g, u = grubu(k.uid), int(f.get('memberId') or 0)
             o = TP.bul(uid=u) if g is not None and u in g.uyeler else None
-            if o is not None and o.world is not None and k.world is not None and konum(o, now)[0] == konum(k, now)[0]:
+            # bot üyenin dünyası yok (oturumu sahte): çevrimiçiyse konumu gemisinden (oyuncu bildirimi 2026-10-31: "Go to!" botta
+            # "location unknown: wrong map" diyordu)
+            if o is not None and o.oturum is not None and k.world is not None and konum(o, now)[0] == konum(k, now)[0]:
                 _, x, y = konum(o, now)
                 _ekle(cikis, k.uid, ('HeroMoveCommand', {'x': x, 'y': y}))
             else:
@@ -344,6 +352,10 @@ def _kabul(b, a, cikis, now):
     eski = list(g.uyeler)
     g.uyeler.append(b.uid)
     UYE[b.uid] = g.id
+    if _bot(g.lider) and not _bot(b.uid):        # bot liderliğinde oyuncu: lider o olur (botlar davet kipini, atmayı kullanmaz;
+        g.lider = b.uid                          # oyuncu bildirimi 2026-10-31: "Change invite settings" çalışmıyordu)
+        for x in eski:
+            _ekle(cikis, x, ('LeaderChangeCommand', {'leaderId': g.lider}))
     init = grup_cmd(g, kisiler, now)
     _ekle(cikis, b.uid, init)
     if yeni:
@@ -353,6 +365,10 @@ def _kabul(b, a, cikis, now):
         for x in eski:
             _ekle(cikis, x, ('GroupMemberInitializationCommand', {k: v for k, v in uye.items() if k != '_'}),
                   stm('msg_grp_new_member', name=b.ad))
+
+
+def _bot(uid):
+    return TP.BOTLAR is not None and uid in TP.BOTLAR()
 
 
 def _ayril(u, neden, cikis):

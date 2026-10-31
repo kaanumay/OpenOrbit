@@ -736,8 +736,13 @@ class Kayitlar:
         with self.lock:
             p = self._backup_path(slot, name)
             validate_profile(_read_json(p))
-            safety = self.backup(slot, 'once', _('Geri yükleme öncesi (%s)', name))
-            _copy_atomic(p, self.profile(slot))
+            kopya = p + '.geri'                       # en eski 'once' yedeği geri yüklenirken güvenlik yedeğinin döndürmesi onu siliyordu
+            shutil.copy2(p, kopya)
+            try:
+                safety = self.backup(slot, 'once', _('Geri yükleme öncesi (%s)', name))
+                _copy_atomic(kopya, self.profile(slot))
+            finally:
+                os.remove(kopya)
             return safety
 
     def backup_as_new(self, slot, name, ad=None):

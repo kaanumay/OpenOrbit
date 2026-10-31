@@ -123,22 +123,33 @@ def guc_puani(dps, ehp):
 
 
 # ------------------------------------------------------------------------------------------------------------ haritalar
+_npc_onbellek = {}
+_harita_npc_onbellek = {}
+
+
 def npc_degeri(tip):
+    """Uzaylının bot için değerleri (salt okunur; npc.json içe aktarmada bir kez yüklenir, sonuç önbellekte)."""
+    if tip in _npc_onbellek:
+        return _npc_onbellek[tip]
     t = NPC['tipler'].get(tip)
-    if not t:
-        return None
-    return dict(tip=tip, ad=t['ad'], ehp=t['hp'] + t['kalkan'], dps=t['hasar'] * t.get('isabet', SAVAS['npc_isabet'])
-                / t.get('atis_aralik_sn', NPC_ARALIK), saldirgan=bool(t.get('saldirgan')), odul=t['odul'], hiz=t['hiz'],
-                kimlik=t.get('npc_kimlik', 0))
+    v = None if not t else dict(
+        tip=tip, ad=t['ad'], ehp=t['hp'] + t['kalkan'], dps=t['hasar'] * t.get('isabet', SAVAS['npc_isabet'])
+        / t.get('atis_aralik_sn', NPC_ARALIK), saldirgan=bool(t.get('saldirgan')), odul=t['odul'], hiz=t['hiz'],
+        kimlik=t.get('npc_kimlik', 0))
+    _npc_onbellek[tip] = v
+    return v
 
 
 def harita_npcleri(map_id):
-    """[(npc değeri, adet)]: haritanın sürekli uzaylıları (npc.json haritalar)."""
+    """[(npc değeri, adet)]: haritanın sürekli uzaylıları (npc.json haritalar; salt okunur, önbellekte)."""
+    if map_id in _harita_npc_onbellek:
+        return _harita_npc_onbellek[map_id]
     out = []
     for r in (NPC['haritalar'].get(str(map_id)) or {}).get('npc', []):
         v = npc_degeri(r['tip'])
         if v and r.get('adet', 0) > 0:
             out.append((v, r['adet']))
+    _harita_npc_onbellek[map_id] = out
     return out
 
 

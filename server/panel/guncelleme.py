@@ -207,7 +207,7 @@ class Guncelleyici:
     def check(self):
         """Son sürümü denetle -> durum: guncel | var | yerel_degisiklik | yerelde_ileri | hata."""
         with self.lock:
-            if self.d['calisiyor']:
+            if self.d['calisiyor'] or self.d.get('durum') == 'kuruldu':     # kuruldu: yeniden başlatma bekliyor, 'guncel' onu iptal ederdi
                 return json.loads(json.dumps(self.d))
             self.d.update(calisiyor=True, hata=None)
         try:
@@ -332,7 +332,8 @@ class Guncelleyici:
             shutil.copy2(src, dst)
 
         changed = removed = 0
-        for rel, info in sorted(files.items()):
+        # sürüm damgası en son: yarıda kalan kurulum kendini "güncel" sanmasın (yeniden denensin)
+        for rel, info in sorted(files.items(), key=lambda x: (x[0] == SURUM_DOSYASI.replace(os.sep, '/'), x[0])):
             new = z.read(info)                            # CRC zipfile'da denetlenir
             dest = os.path.join(self.root, *rel.split('/'))
             if os.path.isfile(dest):

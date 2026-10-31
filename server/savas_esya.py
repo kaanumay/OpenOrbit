@@ -1103,7 +1103,8 @@ class Esyalar:
         ammo, n = loaded(p)
         msgs = []
         if n and ammo != sel:                  # cephane değişti: yüklüler geri
-            p.add_ammo(ammo, n)
+            if not AY.get('sonsuz_cephane'):   # sonsuz cephanede yüklerken harcanmadı: iade bedava roket olurdu
+                p.add_ammo(ammo, n)
             msgs += w.ammo_msgs(ammo)
             ammo, n = sel, 0
             self.store(ammo, 0)

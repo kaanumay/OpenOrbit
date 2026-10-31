@@ -359,6 +359,8 @@ class Yetenekler:
                 self.match_speed(n, now)
             if n.bot_hedef is not None and not n.engaged:
                 self.bota_yetenekler(n, now)
+        self.dot_tick(now)          # tik başına bir kez (bota_yetenekler'in sonunda kalınca Singularity hasarı ve kapsüller hiç işlemiyordu)
+        self.capsule_tick(now)
 
     # ------------------------------------------------------------ bota karşı (uzaylı bir botla savaşırken)
     def bota_yetenekler(self, n, now):
@@ -430,8 +432,6 @@ class Yetenekler:
                 room = e['en_cok'] - sum(1 for c in n.children if w.npcs[c].tip == e['tur'])
                 if room > 0:
                     self.summon(n, e['tur'], min(e['adet'], room), now)
-        self.dot_tick(now)
-        self.capsule_tick(now)
 
     def expire(self, n):
         """Ömrü biten (sahte Emperor): sessizce kalkar."""

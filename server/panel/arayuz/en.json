@@ -518,6 +518,7 @@
 "Sen yokken ilerleme (saat)": "Progress while you're away (hours)",
 "Sezonları ilk sezondan sırayla aç": "Unlock seasons in order from the first",
 "Başlangıç kampanyası": "Starter campaign",
+"Görev penceresinde \"Level N\" başlangıç görevleri hep görünür. Kapalıyken yalnız yeni kayıtta seçildiyse ilk ay görünür; süren görev her durumda bitirilebilir.": "The \"Level N\" starter quests are always shown in the quest window. When off, they show only for the first month and only if chosen when the save was created; a running quest can always be finished.",
 "Yeni sunucu açılışındaki \"Level 1\", \"Level 5\" … \"Level 25\" görevleri: seviyene ulaştıkça yüksek ödüller (gemiler, ekipman, uridyum, Premium). Kaydın açılışından itibaren 30 gün görev listesinde durur. Kapalıysa bu görevler hiç görünmez.": "The new-server \"Level 1\", \"Level 5\" … \"Level 25\" quests: big rewards (ships, equipment, uridium, Premium) as you reach each level. They stay in the quest list for 30 days from when the save is created. When off, these quests never appear.",
 "Silindi.": "Deleted.",
 "Sohbet modelle": "Chat with model",

@@ -144,7 +144,8 @@ def karar(bot, y, now=None):
     if niyet and niyet.get('bitis', 0) < now:
         niyet = bot.k['niyet'] = None
     sure = now - bot.hedef_bas
-    if simdiki is not None and not simdiki.bitti(bot, b) and sure < simdiki.en_az_sn and not niyet:
+    kosu = simdiki is not None and simdiki.ad in ('kapi', 'mod') and not bot.plan.get('bitti')   # niyet koşuyu bölmesin: oradan yol yok
+    if simdiki is not None and not simdiki.bitti(bot, b) and (kosu or sure < simdiki.en_az_sn and not niyet):
         acil = [h for h in HEDEFLER.values() if h.acil and h is not simdiki and izinli(h, y) and h.uygun(bot, b)]
         if not acil:
             return simdiki
@@ -164,8 +165,10 @@ def karar(bot, y, now=None):
         return simdiki
     sicaklik = 0.05 + 0.12 * (1 - bot.o('sabir'))
     sec = KS.softmax_sec(adaylar, sicaklik, bot.r)
-    if sec is not simdiki:
-        if simdiki is not None:
+    if sec is not simdiki or sec.bitti(bot, b):
+        # biten hedef yeniden seçilince yeniden başlar: önceden yalnız sıkılma artıyordu, alışverişi biten bot hep "alışverişte"
+        # kalıp bir daha hiçbir şey almıyordu (oyuncu bildirimi 2026-10-31: milyonlarca uridyumla yükseltme almıyorlardı)
+        if simdiki is not None and sec is not simdiki:
             ruh.it(sikilma=-0.35)
         bot.hedef, bot.hedef_bas, bot.plan = sec, now, {}
         bot.k['hedef'] = sec.ad

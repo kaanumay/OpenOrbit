@@ -881,6 +881,13 @@ def ticker():
             log('zamanlayıcı hatası: %s' % traceback.format_exc())
 
 
+def istemci_bekle(sn=8):
+    """stop_client yalnız sinyal gönderir: istemci kapanana dek bekle (yoksa shutdown sunucuları açık bırakıp çıkıyordu)."""
+    son = time.time() + sn
+    while YON.client_alive() and time.time() < son:
+        time.sleep(0.2)
+
+
 def shutdown():
     if STATE['kapaniyor']:
         return
@@ -951,6 +958,7 @@ def watch_window(proc):
     if CFG.get('pencere_kapaninca') == 'kapat':
         YON.stop_client()
         COK.hepsini_kapat(bekle=8)                   # ek istemcilerin son kaydı sunucuya bırakılsın
+        istemci_bekle()
         shutdown()
     STATE['pencere_kapandi'] = True
 
@@ -1854,7 +1862,7 @@ def h_post(path, b):
         if (YON.client_alive() or COK.canli()) and not b.get('zorla'):
             raise Hata(_('Oyun açık: önce oyunu kapatın.'))
         YON.stop_client()
-        threading.Thread(target=lambda: (COK.hepsini_kapat(bekle=8), shutdown()), daemon=True).start()
+        threading.Thread(target=lambda: (COK.hepsini_kapat(bekle=8), istemci_bekle(), shutdown()), daemon=True).start()
         return {}
     raise Hata(_('Bilinmeyen istek: %s', path))
 

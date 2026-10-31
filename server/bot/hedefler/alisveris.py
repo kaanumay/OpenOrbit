@@ -9,6 +9,7 @@ from .. import katalog as K
 from .. import kisilik as KS
 
 KUR = 100                 # 1 uridyum kaç kredi (fiyatlar.json kur)
+SEFER_ALIM = 15           # bir alışveriş seferinde en çok bu kadar eşya
 try:
     import json, os
     KUR = json.load(open(os.path.join(K.HERE, 'data', 'fiyatlar.json'), encoding='utf8')).get('kur', KUR)
@@ -157,9 +158,13 @@ class Alisveris(Hedef):
         return min(1.6, 0.45 + artis / max(1.0, bot.deger()['guc']) * 3 + 0.2 * bot.o('hirs'))
 
     def basla(self, bot, b):
+        # bir alışveriş seferinde parası yettikçe sırayla alır (en çok SEFER_ALIM): önceden sefer başına tek eşya alıyordu, 10M
+        # kredili bot bir saatte 8 eşya alıp paranın %80'ini harcamadan duruyordu (oyuncu bildirimi 2026-10-31)
         c = b.alisveris[0]
-        artis, para, fiyat, loot = c
-        if bot.ode(para, fiyat):
+        for _ in range(SEFER_ALIM):
+            artis, para, fiyat, loot = c
+            if not bot.ode(para, fiyat):
+                break
             bot.ekle(loot)
             bot.ist('alim')
             bot.ruh.it(moral=0.12 + min(0.3, artis / max(1.0, bot.deger()['guc'])))
@@ -168,6 +173,10 @@ class Alisveris(Hedef):
                 bot.olay('yeni_gemi', esya=loot)
             if bot.k.get('birikim') == loot:
                 bot.k['birikim'] = None                  # biriktirdiği şeye kavuştu (ajanın biriktir aracı)
+            bot._adaylar = None                          # (gemi değişmese de kalan yuvalar ve para değişti)
+            c = aday(bot)[0]
+            if c is None:
+                break
         bot.plan['bitti'] = True
 
     def bitti(self, bot, b):

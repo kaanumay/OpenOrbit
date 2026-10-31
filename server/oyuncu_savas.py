@@ -21,11 +21,12 @@ def attack_error(w, other, now):
     Recheck this at every shot/impact: a target can enter DMZ, cloak, jump,
     change diplomacy, or disconnect after the attack request.
     """
+    # gizli gemiyi yalnız onu seçmiş olan vurur (wiki: "Cloaked ships can still be attacked (if targeted)"; oyuncu bildirimi 2026-10-31)
     if (other is None or other is w or w.ortak is None or other.ortak is not w.ortak
             or not w.running or not other.running or w.map_id != other.map_id
             or w.hero_dead or other.hero_dead or w.jumping or other.jumping
             or w.reload_pending or other.reload_pending
-            or w.oyuncu(other.hid) is not other or other.gizli(now)):
+            or w.oyuncu(other.hid) is not other or (other.gizli(now) and w.target != other.hid)):
         return _denied()
     if w.grup_uyesi(other.hid) or other.grup_uyesi(w.hid):
         return _denied()

@@ -286,7 +286,7 @@ def iceri(veri):
         for f, y in sira:
             try:
                 temiz[f][y] = temizle(did, f, y, temiz[f][y])
-            except (DunyaHatasi, KeyError, IndexError, TypeError, ValueError, AttributeError) as e:
+            except (DunyaHatasi, KeyError, IndexError, TypeError, ValueError, AttributeError, ArithmeticError) as e:
                 del temiz[f][y]
                 sorunlar.append('%s %s: %s' % (f, y, e))
         d['yamalar'] = {f: ys for f, ys in temiz.items() if ys}
@@ -373,7 +373,7 @@ def dunya_verisi(did, dosya):
 def _int(v, alt=0, ust=10 ** 9):
     try:
         return max(alt, min(ust, int(round(float(v)))))
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, OverflowError):      # 1e999 / Infinity (içe aktarılan dünya kodu)
         raise DunyaHatasi(_('Sayı bekleniyordu.'))
 
 

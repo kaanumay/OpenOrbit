@@ -479,7 +479,8 @@ class Kuyruk:
         self.boyut = 0
         self.kapali = False
         self.bitir = False
-        threading.Thread(target=self.calis, daemon=True).start()
+        self.thread = threading.Thread(target=self.calis, daemon=True)
+        self.thread.start()
 
     def put(self, data):
         with self.cond:
@@ -520,6 +521,7 @@ class Kuyruk:
 
     def _kes(self, shutdown=False):
         self.kapali = True
+        self.cond.notify_all()                   # bekleyen calis uyansın (taşmada takılı kalıyordu)
         try:
             if shutdown:
                 self.sock.shutdown(socket.SHUT_RDWR)
@@ -630,7 +632,7 @@ def http(c, addr, game):
         if u.path not in ('/misafir/profil', '/yerel/oturum'):
             log('arkadaş: %s %s <- %s -> %d' % (method, u.path, ip, code))
         _yanit(c, code, out, gz)
-    except (OSError, ValueError) as e:
+    except (OSError, ValueError, zlib.error) as e:      # bozuk gzip gövdesi de (yanıtsız kopuyordu)
         log('arkadaş: istek hatası %s: %r' % (addr[0], e))
     finally:
         try:

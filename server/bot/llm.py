@@ -561,10 +561,19 @@ class Beyin:
         threading.Thread(target=self._ac, name='llm-acilis', daemon=True).start()
 
     def _ac(self):
-        try:
-            self.sunucu.baslat()
-        except Exception as e:
-            self.log('   botlar: dil modeli açılamadı, Normal kip gibi sürüyor: %s' % e)
+        for bekle in (30, 60, 120, 240, 480, None):        # geçici hata (429, 5xx, ağ) tek denemede bütün oturumu kapatmasın
+            try:
+                self.sunucu.baslat()
+                break
+            except Exception as e:
+                kod = getattr(e, 'kod', None)
+                kalici = isinstance(self.sunucu, LS.Sunucu) or kod is not None and 400 <= kod < 500 and kod not in (408, 429)   # yerel model ya da anahtar/model yanlış
+                if kalici or bekle is None or not self.calisiyor:
+                    self.log('   botlar: dil modeli açılamadı, Normal kip gibi sürüyor: %s' % e)
+                    return
+                self.log('   botlar: dil modeli açılamadı (%s), %d sn sonra yeniden denenecek' % (e, bekle))
+                time.sleep(bekle)
+        if not self.calisiyor:
             return
         self.hazir = True
         for i in range(self.yuva):
@@ -625,8 +634,16 @@ class Beyin:
                 if not self.calisiyor:
                     return
                 _, _, is_ = heapq.heappop(self.kuyruk)
-            if time.time() - is_.get('t', time.time()) > 90:
-                continue                                   # bayatladı (oyuncu çoktan unuttu)
+            if time.time() - is_.get('t', time.time()) > 90:      # bayatladı (oyuncu çoktan unuttu)
+                with self.y.lock:
+                    for k in ('iptal', 'yedek'):              # ajanın uyanma sebebi geri; sohbet işi kalıp yanıtla (hiç yanıtsız kalmasın)
+                        if is_.get(k):
+                            try:
+                                is_[k]()
+                            except Exception:
+                                self.log('   botlar: bayat iş geri alınamadı:\n' + traceback.format_exc(limit=3))
+                            break
+                continue
             try:
                 is_['fn'](is_)
             except Exception:
@@ -1068,6 +1085,7 @@ class Beyin:
             if '_llm_karar' not in b.__dict__:               # ilk düşünme anları dağılsın (hepsi birden açılışta düşünmesin)
                 b._llm_karar = now - b.r.uniform(0, 0.8) * dk * 60
             uzak = id(b) not in yakin
+            geri = AJ.uyandirma_durumu(b)                    # iş kuyruğa giremez ya da bayatlarsa sebep kaybolmasın
             sebep = AJ.uyandiranlar(y, b, now, olaylar=not uzak)
             carpan = 0.5 if b.govde is not None else 4.0 if uzak else 1.0
             # (kendine hatırlatıcı kurmuş bot ne zaman düşüneceğini seçmiş: ayrıca dönemsel düşünmez)
@@ -1076,8 +1094,9 @@ class Beyin:
             if not sebep:
                 continue
             b._llm_karar = b._ajan_mesgul = now
-            if not self.ekle(KARAR, {'t': now, 'fn': self._ajan, 'bot': b, 'sebep': sebep}):
+            if not self.ekle(KARAR, {'t': now, 'fn': self._ajan, 'bot': b, 'sebep': sebep, 'iptal': geri}):
                 b._ajan_mesgul = 0
+                geri()
                 return
             n += 1
             if n >= 2:

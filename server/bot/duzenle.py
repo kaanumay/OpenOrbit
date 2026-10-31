@@ -36,6 +36,8 @@ def katalog():
            'haritalar': [{'id': m, 'ad': H.name(m)} for m in K.HARITALAR]}
     for kat, anahtar in KATEGORI.items():
         out[kat] = [{'loot': l, 'ad': _kisa(l)} for l in E[anahtar]]
+    for x in out['ekstra']:                  # ekstranın sayısı adet değil kalan hak (bot/ekstra.py): eklenince tam hakla takılır
+        x['hak'] = int((E['ekstralar'][x['loot']] or {}).get('hak', 1))
     return out
 
 

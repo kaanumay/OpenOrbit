@@ -518,6 +518,7 @@
 "Sen yokken ilerleme (saat)": "Progression pendant votre absence (heures)",
 "Sezonları ilk sezondan sırayla aç": "Débloquer les saisons dans l'ordre depuis la première",
 "Başlangıç kampanyası": "Campagne de départ",
+"Görev penceresinde \"Level N\" başlangıç görevleri hep görünür. Kapalıyken yalnız yeni kayıtta seçildiyse ilk ay görünür; süren görev her durumda bitirilebilir.": "Les quêtes de départ « Level N » sont toujours affichées dans la fenêtre des quêtes. Désactivé, elles n'apparaissent que le premier mois et seulement si elles ont été choisies à la création de la sauvegarde ; une quête en cours peut toujours être terminée.",
 "Yeni sunucu açılışındaki \"Level 1\", \"Level 5\" … \"Level 25\" görevleri: seviyene ulaştıkça yüksek ödüller (gemiler, ekipman, uridyum, Premium). Kaydın açılışından itibaren 30 gün görev listesinde durur. Kapalıysa bu görevler hiç görünmez.": "Les quêtes « Level 1 », « Level 5 » … « Level 25 » d'ouverture de serveur : grosses récompenses (vaisseaux, équipement, uridium, Premium) à chaque niveau atteint. Elles restent dans la liste des quêtes 30 jours après la création de la sauvegarde. Désactivé, ces quêtes n'apparaissent jamais.",
 "Silindi.": "Supprimé.",
 "Sohbet modelle": "Chat par modèle",

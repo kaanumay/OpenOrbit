@@ -518,6 +518,7 @@
 "Sen yokken ilerleme (saat)": "Progresso enquanto você está fora (horas)",
 "Sezonları ilk sezondan sırayla aç": "Liberar temporadas em ordem desde a primeira",
 "Başlangıç kampanyası": "Campanha inicial",
+"Görev penceresinde \"Level N\" başlangıç görevleri hep görünür. Kapalıyken yalnız yeni kayıtta seçildiyse ilk ay görünür; süren görev her durumda bitirilebilir.": "As missões iniciais \"Level N\" aparecem sempre na janela de missões. Desligado, só aparecem no primeiro mês e só se foram escolhidas ao criar o save; uma missão em andamento sempre pode ser concluída.",
 "Yeni sunucu açılışındaki \"Level 1\", \"Level 5\" … \"Level 25\" görevleri: seviyene ulaştıkça yüksek ödüller (gemiler, ekipman, uridyum, Premium). Kaydın açılışından itibaren 30 gün görev listesinde durur. Kapalıysa bu görevler hiç görünmez.": "As missões \"Level 1\", \"Level 5\" … \"Level 25\" de abertura de servidor: grandes recompensas (naves, equipamento, urídio, Premium) ao atingir cada nível. Ficam na lista de missões por 30 dias desde a criação do save. Desligado, essas missões nunca aparecem.",
 "Silindi.": "Excluído.",
 "Sohbet modelle": "Chat pelo modelo",

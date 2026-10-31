@@ -1131,8 +1131,11 @@ class Magaza:
             if g == PET_LOOT and self.pet.owned:
                 self.log('   satın alma yok: P.E.T. zaten var')
                 return fail('eqt_error_generic')
-        if any(g.startswith('ship_') or g in DRONES or g in FORMS or g in (PET_LOOT, PETM.HULL) for g, n in grants):
-            amount = 1
+        if amount != 1 and any(g.startswith('ship_') or g in DRONES or g in FORMS or g in (PET_LOOT, PETM.HULL) for g, n in grants):
+            amount = 1          # içerik de 1 adede göre (yoksa 1'in parasına amount kat kaynak veriliyordu)
+            grants = self.contents(loot, 1)
+            if pkg:
+                grants, skipped = self.package_fit(grants, owned)
         cur, unit = pr
         cost = math.ceil(unit * amount - 1e-9)
         with self.p.lock:
@@ -1509,6 +1512,8 @@ class Magaza:
         plan = []
         for pk in f.get('itemList') or []:
             iid, q = int(pk.get('itemId') or 0), max(1, int(pk.get('quantity') or 1))
+            if any(iid == x[0] for x in plan):          # aynı eşya iki kez: iki kez ödeniyordu
+                return fail()
             loot = self.p.d['esyalar'].get(str(iid))
             if loot:
                 if iid in equipped:

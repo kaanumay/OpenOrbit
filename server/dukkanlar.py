@@ -118,6 +118,9 @@ class Dukkanlar:
     def bought(self, loot, amount):
         """Mağazadan alım (magaza.on_bought): bir kezlikler, VIP, Pre-BF sayaçları -> mesajlar."""
         ev = next((e for s, e in ((MM_COIN, 'mileage_market'), (VIP_PKG, 'vip_merchant'), (PB_PKG, 'pre_prometheus')) if loot in s), None)
+        entry = self.m.extra_entry.get(loot) or {}
+        if not ev and entry.get('bir_kez') and entry.get('takvim') not in (None, 'returnee'):
+            ev = entry['takvim']     # Return of Hero'nun bir kezlik VIP rozet paketleri (kayıtsız kalınca sınırsız alınıyordu)
         msgs = []
         with self.p.lock:
             if ev:
@@ -338,6 +341,15 @@ class Dukkanlar:
         once = qs[:RH['tekrarsiz_adet']]
         pool = qs[RH['tekrarsiz_adet']:] or qs
         d = self.rh_day(now)
+        st = self.rh()
+        if st.get('gun_no') != d:          # yeni gün: günlük havuzun tamam/ilerlemesi sıfırlanır (yoksa yeniden çıkan görev bitmiş görünür)
+            pool_ids = {q['id'] for q in pool if q not in once}
+            with self.p.lock:
+                st['tamam'] = [i for i in st.get('tamam', []) if i not in pool_ids]
+                for i in pool_ids:
+                    st.get('deger', {}).pop(str(i), None)
+                st['gun_no'] = d
+                self.p.dirty = True
         if d >= RH['gun']:
             return once, []
         rnd = random.Random('%s-%d' % (self.rh().get('baslangic'), d))

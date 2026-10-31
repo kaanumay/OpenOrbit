@@ -190,7 +190,11 @@ def tick(y, now):
         if not b.cevrimici or b.olu_bitis > now:
             continue
         if b.bekleyen:
-            davetler(y, b, now)
+            try:
+                davetler(y, b, now)
+            except Exception as e:            # bir davetin hatası öteki botların sosyal tikini durdurmasın
+                y.log('   botlar: %s davet hatası: %r' % (b.ad, e))
+                b.bekleyen = []
         if now < getattr(b, 'sonraki_sosyal', 0):
             continue
         b.sonraki_sosyal = now + b.r.uniform(20, 70) * (1.5 - b.o('sosyallik'))
@@ -683,6 +687,10 @@ def settle_bot(b, now):
         en = MZ.best(MZ.bids(lot, bd['bitis'])) if lot else None
         del t[key]
         if lot and en and en[3] == b.uid:
+            g = b.k['muzayede'].setdefault('gecmis', [])          # oyuncunun müzayede geçmişi de gösterir (Muzayede.history)
+            g.insert(0, {'grup': lot['grup'], 'kim': b.uid, 'teklif': int(bd['teklif']), 'tarih': MZ.stamp(bd['bitis'] - MZ.SPAN[tur]),
+                         'loot': loot, 'tur': tur, 'ad': b.ad})
+            del g[MZ.D['gecmis_siniri']:]
             if not b.ekle(loot, lot.get('adet', 1)):
                 b.kazan(kredi=int(bd['teklif']) // 2)       # işine yaramayan: satar (yarı değer)
             b.olay('muzayede_kazandi', now, esya=loot)

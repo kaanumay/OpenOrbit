@@ -61,6 +61,7 @@ class Skylab:
         self.m = None                 # mağaza (para ve kargo güncellemeleri; oturum bağlar)
         self.send = None              # zamanla biten işler (yükseltme, taşıma) için bildirim (oturum bağlar)
         self.quest = None             # görev olayı (UPDATE_SKYLAB_TO_LEVEL; oturum bağlar) -> mesajlar
+        self.bekleyen_gorev = []      # (modül, seviye): görev olayı profil kilidi bırakılınca (gorev_takip de o kilidi alır)
         self.next_tick = 0.0
 
     # ------------------------------------------------------------ durum
@@ -156,7 +157,17 @@ class Skylab:
                     break
             st['son'] = now
             self.p.dirty = True
+        self.gorev_bildir()
         return out
+
+    def gorev_bildir(self):
+        """Biten yükseltmelerin görev olayı: kilit dışında (kilit altında çağrılınca threading.Lock kendini bekliyordu)."""
+        while self.bekleyen_gorev:
+            key, lv = self.bekleyen_gorev.pop(0)
+            if self.quest and self.send:                     # görev: "Prometium collector'ı 1. seviyeye yükselt" (Ö1)
+                msgs = self.quest(modul=key, seviye=lv)
+                if msgs:
+                    self.send(msgs)
 
     def produce(self, hours):
         dep = self.st['depo']
@@ -203,10 +214,7 @@ class Skylab:
         m = self.module(key)
         m['seviye'] += 1
         m['yukseltme'] = None
-        if self.quest and self.send:                         # görev: "Prometium collector'ı 1. seviyeye yükselt" (Ö1)
-            msgs = self.quest(modul=key, seviye=m['seviye'])
-            if msgs:
-                self.send(msgs)
+        self.bekleyen_gorev.append((key, m['seviye']))      # gorev_bildir: kilit bırakılınca
         others = self.consumption() - (self.energy(key) if self.working(key) else 0)
         if key not in ALWAYS_ON and others + self.energy(key) > self.solar():
             m['etkin'] = False                              # enerji yetmiyor: kapalı kalır
@@ -397,6 +405,7 @@ class Skylab:
             if self.level(key) == 0:
                 self.module(key)['etkin'] = True
             self.finish_upgrade(key, 45)
+        self.gorev_bildir()
         self.log('   Skylab: %s anında yükseltildi (%d U)' % (key, c['uridyum']))
         return [], [45]
 
@@ -410,6 +419,7 @@ class Skylab:
         INV.spend(self.p, {'currency_uridium': price}, reason='buy_SPECIAL', detail='skylab_' + key.lower())
         with self.p.lock:
             self.finish_upgrade(key, 46)
+        self.gorev_bildir()
         self.log('   Skylab: %s yükseltmesi bitirildi (%d U)' % (key, price))
         return [], [45, 46]
 

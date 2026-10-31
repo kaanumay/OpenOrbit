@@ -41,6 +41,8 @@ def cagir(y, bot, ad, arg=None):
         r = a['fn'](y, bot, **{k: v for k, v in (arg or {}).items() if k in a['parametreler']})
     except (TypeError, ValueError, KeyError) as e:
         return {'ok': False, 'mesaj': 'hatalı argüman: %s' % e}
+    except Exception as e:                                  # araç içi hata (AttributeError…) sohbet tikinin kalanını düşürmesin
+        return {'ok': False, 'mesaj': 'araç hatası: %r' % e}
     bot.olay('arac', y.now if y is not None else None, ad=ad, sonuc=r.get('ok'))
     return r
 

@@ -507,7 +507,7 @@ class MmKosu:
         w.later(5.0, boom)
 
     def fail(self, key):
-        if self.phase == 'bitti':
+        if self.phase in ('bitti', 'varis'):         # varıştan sonra süre dolması başarıyı ikinci kez (başarısız) bitirmesin
             return
         self.w.send([legacy('0|A|STM|%s' % key)])
         self.end_run(False)

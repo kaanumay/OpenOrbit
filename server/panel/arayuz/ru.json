@@ -518,6 +518,7 @@
 "Sen yokken ilerleme (saat)": "Прогресс в ваше отсутствие (часы)",
 "Sezonları ilk sezondan sırayla aç": "Открывать сезоны по порядку с первого",
 "Başlangıç kampanyası": "Стартовая кампания",
+"Görev penceresinde \"Level N\" başlangıç görevleri hep görünür. Kapalıyken yalnız yeni kayıtta seçildiyse ilk ay görünür; süren görev her durumda bitirilebilir.": "Стартовые задания «Level N» всегда видны в окне заданий. Если выключено, они видны только первый месяц и только если были выбраны при создании сохранения; начатое задание всегда можно завершить.",
 "Yeni sunucu açılışındaki \"Level 1\", \"Level 5\" … \"Level 25\" görevleri: seviyene ulaştıkça yüksek ödüller (gemiler, ekipman, uridyum, Premium). Kaydın açılışından itibaren 30 gün görev listesinde durur. Kapalıysa bu görevler hiç görünmez.": "Задания открытия сервера \"Level 1\", \"Level 5\" … \"Level 25\": крупные награды (корабли, снаряжение, уридиум, Премиум) по достижении уровня. Они остаются в списке заданий 30 дней с создания сохранения. Если выключено, эти задания не появляются.",
 "Silindi.": "Удалено.",
 "Sohbet modelle": "Чат через модель",

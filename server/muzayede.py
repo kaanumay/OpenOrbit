@@ -236,11 +236,20 @@ class Muzayede:
             'auctionList': [self.data(l, now) for l in LOTS.values() if not self.owned(l)]})
 
     def history(self, now):
-        """Oyuncunun kazandıkları ve kaybettikleri + (rakipler açıksa) son biten dönemlerin rakip kazananları."""
+        """Oyuncunun kazandıkları ve kaybettikleri + sunucudaki öteki oyuncuların ve botların kazandıkları + (rakipler açıksa) son
+        biten dönemlerin rakip kazananları (oyuncu bildirimi 2026-10-31: geçmişte yalnız kendi teklif verdikleri görünüyordu)."""
+        import topluluk as TP
         out = list(self.d['gecmis'])
+        seen = {(h['tur'], h['loot'], h['tarih']) for h in out}
+        for k in TP.hepsi().values():
+            if k.profil is self.p:
+                continue
+            for h in (k.profil.d.get('muzayede') or {}).get('gecmis') or ():
+                if h.get('kim') == k.uid and (h['tur'], h['loot'], h['tarih']) not in seen:
+                    seen.add((h['tur'], h['loot'], h['tarih']))
+                    out.append(h)
         level = rival_level()
         if level:
-            seen = {(h['tur'], h['loot'], h['tarih']) for h in out}
             for kind, span in SPAN.items():
                 end = period_end(kind, now) - span
                 for lot in LOTS.values():
@@ -250,6 +259,7 @@ class Muzayede:
                     if v:
                         out.append({'grup': lot['grup'], 'kim': rid, 'teklif': v, 'tarih': stamp(end - span), 'loot': lot['loot'],
                                     'tur': kind, 'ad': name})
+        out.sort(key=lambda h: h['tarih'], reverse=True)
         return out[:D['gecmis_siniri']]
 
     # -------------------------------------------------------- istekler

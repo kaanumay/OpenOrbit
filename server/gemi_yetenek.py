@@ -309,6 +309,18 @@ class Motor:
         return [o for o in w.ortak.uyeler if o is not w and o.running and not o.hero_dead and w.grup_uyesi(o.hid)
                 and math.hypot(*(a - b for a, b in zip(o.hero_pos(now), (hx, hy)))) <= radius]
 
+    def mate_bots(self, now, radius=GRUP_MENZIL):
+        """Haritada, radius içinde, grubundaki botların gemileri (bot/govde; oyuncu bildirimi 2026-10-31: Solace onları onarmıyordu)."""
+        w = self.w
+        hx, hy = w.hero_pos(now)
+        return [n for n in list(w.npcs.values()) if n.bot is not None and n.alive and w.grup_uyesi(n.bot.uid)
+                and math.hypot(*(a - b for a, b in zip(n.mover.pos(now), (hx, hy)))) <= radius]
+
+    def heal_bot(self, n, hp=0, shield=0):
+        n.hp, n.shield = min(n.d['hp'], n.hp + hp), min(n.d['kalkan'], n.shield + shield)
+        if self.w.target == n.id:
+            self.w.send([self.w.selection(n)])
+
     def foes(self, now, e=None, radius=None):
         """Yeteneğin etkilediği düşman oyuncular: alan (radius ya da alan_yavaslat) içindekiler, saldırı kuralı geçerliyse."""
         w = self.w
@@ -339,6 +351,8 @@ class Motor:
                 s0 = og.get('shield', 0)
                 o.p.set_hull(shield=s0 + amount / dur)
                 o.send([('AttributeShieldUpdateCommand', {'shieldNow': int(og['shield']), 'shieldMax': og.get('shieldMax', 0)})])
+        for n in self.mate_bots(now):
+            self.heal_bot(n, **{('hp' if key == 'can_onar' else 'shield'): amount / dur})
 
     def near(self, radius, now, center=None):
         """Gemiye (ya da center noktasına) radius içindeki canlı uzaylılar."""
@@ -463,6 +477,8 @@ class Motor:
                 h0 = og.get('hitPoints', 0)
                 o.p.set_hull(hp=h0 + og.get('hitMax', 0) * e['can_yuzde'] * factor(p, item, 'etki'))
                 o.send([o.hp_msg()] + o.heal_msgs(h0))
+            for n in self.mate_bots(now):
+                self.heal_bot(n, hp=n.d['hp'] * e['can_yuzde'] * factor(p, item, 'etki'))
         if 'hedef_kalkan_hasari' in e:            # Diminisher Weaken Shields: süre boyunca hedefin kalkanına giden hasar artar (dunya.hit_npc)
             target.etki.add('kalkan_hasari', dur, e['hedef_kalkan_hasari'], item, now)
         if e.get('hedefe_isinla'):                # Keres Sleight: hedefin konumuna ışınlan (Phase Out'taki anlık MoveCommand yolu), ardından hedef yavaşlar

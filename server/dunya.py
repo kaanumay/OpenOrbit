@@ -628,6 +628,8 @@ class World:
             npcs = [n for n in self.npcs.values() if n.alive and not n.gate]
             for n in npcs:
                 n.engaged, n.flee, n.children, n.foe, n.park, n.firing = False, False, set(), None, None, False
+                n.pend_dmg = 0                   # zamanlayıcıları dünyayla gitti: kalırsa uzaylı bir daha hasar vermiyordu (npc_hit_tick)
+                n.ab.pop('cagri_sirada', None)
             WORLD_CACHE[self.cache_key] = dict(an=time.time(), npcs=npcs, boxes=dict(self.boxes), ores=dict(self.ores),
                                             pending=list(self.pending), ore_fields=list(self.ore_fields), next_uid=self.next_uid)
         while len(WORLD_CACHE) > WORLD_CACHE_MAX:
@@ -1754,7 +1756,9 @@ class World:
     def select(self, f):
         with self.lock:
             n = self.npcs.get(f.get('targetId'))
-            if n and n.alive:
+            if n and n.alive and n.bot is not None and time.time() < n.__dict__.get('emp_kilit', 0):
+                self.send([('ShipDeselectionCommand', {})])      # botun EMP'si: hedefleme aygıtı kısa süre çalışmaz (bot/aktif.emp)
+            elif n and n.alive:
                 if self.target not in (None, n.id) and self.p.ship()['lootId'] == 'ship_cyborg' and                         GY.is_active(self.p, 'ability_venom'):           # forum 160373: Cyborg Tekillik II başka hedefe tıklanınca biter
                     self.abilities.end_now('ability_venom', time.time())
                 if self.attacking and self.target != n.id:
@@ -1779,7 +1783,9 @@ class World:
             asset = None if n or pet else self.asset_at(f.get('targetId'))
             player = self.oyuncu(f.get('targetId')) if not n and not asset and not pet else None
             if n is not None and n.bot is not None:
-                denied = BG.saldiri_hatasi(self, n) or ([('ShipDeselectionCommand', {})] if n.__dict__.get('gizli') else [])
+                denied = BG.saldiri_hatasi(self, n) or ([('ShipDeselectionCommand', {})]       # gizli bot: yalnız seçmiş olan vurur
+                                                        if (n.__dict__.get('gizli') and self.target != n.id)
+                                                        or time.time() < n.__dict__.get('emp_kilit', 0) else [])
                 if denied:
                     self.send(denied)
                     return
@@ -2967,13 +2973,6 @@ class World:
         if not n or not n.alive:
             self.attacking = False
             return
-        if n.bot is not None and n.__dict__.get('gizli'):
-            # gizlenen bot (bot/aktif.gizlen): saldırı ve seçim biter; yoksa ateş hasarsız sürüyor, kırmızı hedef işareti kalıyordu
-            # (oyuncu bildirimi 2026-10-30; ortak haritada botun dünyası öteki oyuncunun hedefini temizlemez)
-            self.laser_stop()
-            self.target = None
-            self.send([('ShipDeselectionCommand', {})])
-            return
         hx, hy = self.hero_pos(now)
         nx, ny = n.mover.pos(now)
         rng = self.laser_range()
@@ -3083,10 +3082,8 @@ class World:
             elif act == 0:
                 pass                                # SELECT: öğe çubuğunda tek tıklama (kayıtta gerçek sunucu yanıt vermiyor)
             elif item == 'equipment_extra_repbot_rep':
-                if self.repairing:
-                    self.stop_repair()
-                else:
-                    self.start_repair()
+                # yeniden tıklamak onarımı durdurmaz (oyuncu bildirimi 2026-10-31); savaşta ya da can dolunca kendisi durur (repair_tick)
+                self.start_repair()
             else:
                 self.log('   menü işlemi henüz yok: %s' % item)
 
@@ -3154,8 +3151,9 @@ class World:
                 or now - self.last_combat < ESYA['yenilenme_bekleme_sn']):
             self.send([('UIItemRemoveHighlightCommand', self.repbot_highlight())])     # kayıttaki başarısız deneme yanıtı
             return
+        if not self.repairing:
+            self.next_repair = now + 1.0
         self.repairing = True
-        self.next_repair = now + 1.0
         self.send([('BeaconCommand', self.p.beacon(self.station_at(*self.hero_pos(now)), near_gate=bool(self.near_gate), pos=self.hero_pos(now), repairing=True,
                                                     gate_peace=self.gate_peace, radiation=self.radiation_since is not None,
                                                     void=self.peace_void)),
@@ -3908,13 +3906,15 @@ class World:
             self.log('   saldırı koruması bitti')
 
     def zone_circles(self):
-        """NPC physical exclusion includes every asteroid, even before CBS.attach."""
+        """NPC physical exclusion includes every asteroid, even before CBS.attach. Portals only where they have a DMZ (peace_gates):
+        on 4-5 after the entry window, 4-1..4-4 and foreign maps aliens fly up to the portal (player report 2026-10-31: near the 4-5
+        pirate portal aliens never came close, so they could be shot without circling)."""
         import cbs
         zones = cbs.exclusion_zones(self.map_id)
         if self.station:
             zones.append((self.station['posX'], self.station['posY'], self.station['peaceRadius']))
         return (zones + list(HD.safe_zones(self.map_id)) + self.giver_zones()
-                + [(g['x'], g['y'], HD.gate_peace_radius(self.map_id, H.GATE_PEACE_RADIUS)) for g in self.gates])
+                + [(g['x'], g['y'], HD.gate_peace_radius(self.map_id, H.GATE_PEACE_RADIUS)) for g in self.peace_gates()])
 
     def near_zone(self, x, y, margin):
         return any(math.hypot(x - sx, y - sy) <= radius + margin for sx, sy, radius in self.zone_circles())
@@ -3924,7 +3924,7 @@ class World:
         dx, dy = tx - x, ty - y
         length2 = dx * dx + dy * dy
         zones = (list(HD.safe_zones(self.map_id)) + self.giver_zones()
-                 + [(g['x'], g['y'], HD.gate_peace_radius(self.map_id, H.GATE_PEACE_RADIUS)) for g in self.gates]
+                 + [(g['x'], g['y'], HD.gate_peace_radius(self.map_id, H.GATE_PEACE_RADIUS)) for g in self.peace_gates()]
                  if allow_station else self.zone_circles())
         for sx, sy, radius in zones:
             fraction = max(0.0, min(1.0, ((sx - x) * dx + (sy - y) * dy) / length2)) if length2 else 0.0

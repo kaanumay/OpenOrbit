@@ -111,9 +111,10 @@ def known_loots():
     return out
 
 
-def ver(path, items):
+def ver(path, items, pr=None):
     """Oyunun ödül yolu (görev ve kutu ödülleriyle aynı: magaza.reward) çevrimdışı profilde: gemi hangara, ekipman envantere
-    (boş yuva varsa takılır), dron, cephane, kaynak, booster, tasarım. Bilinmeyen lootId reddedilir."""
+    (boş yuva varsa takılır), dron, cephane, kaynak, booster, tasarım. Bilinmeyen lootId reddedilir. pr: dosya yerine bu profil
+    (kaydedilmez)."""
     import kapi as KAPI
     import yeni_sistemler as YS
     from profil import Profil
@@ -124,14 +125,16 @@ def ver(path, items):
     if bad:
         raise ValueError('Bilinmeyen eşya: %s', ', '.join(bad))
     notes = []
-    pr = Profil(_load('giris.json').get('tohum'), path)
+    kaydet = pr is None
+    pr = pr or Profil(_load('giris.json').get('tohum'), path)
     m = Magaza(pr, _load('yanitlar.json'), notes.append)      # oyundaki şablonlar: takılan ekipmanın HangarShipEquipmentCommand'ı
     m.kapilar = KAPI.Kapilar(pr, notes.append)
     m.yeni = YS.YeniSistemler(pr, m, notes.append)
     before = (len(pr.d.get('esyalar', {})), len(pr.d.get('gemiler', {})), len(pr.d.get('dronlar', [])))
     for loot, n in items:
         m.reward(loot, n)
-    pr.save(force=True)
+    if kaydet:
+        pr.save(force=True)
     after = (len(pr.d.get('esyalar', {})), len(pr.d.get('gemiler', {})), len(pr.d.get('dronlar', [])))
     return {'verilen': [[l, n] for l, n in items], 'esya': after[0] - before[0], 'gemi': after[1] - before[1],
             'dron': after[2] - before[2], 'notlar': [x.strip() for x in notes if x.strip()][-20:]}

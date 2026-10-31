@@ -443,7 +443,9 @@ class WbKosu:
                          field=0, seeker=0)
         if restore and restore.get('fortress'):                   # sürdürülen savaş: canlar, düşmüş ve ölmüş Guardian'lar, evre
             f.hp, f.shield = int(f.d['hp'] * restore['fortress'][0]), int(f.d['kalkan'] * restore['fortress'][1])
-            for g, (alive, downed, ratio) in zip(self.guardians, restore['guardians']):
+            saved = restore['guardians']        # önceki geri dönüşte ölenler süzülmüştü: eksik yuvalar ölü (yoksa fazla Guardian tam canla kalıyordu)
+            saved = saved + [[False, False, 0.0]] * (len(self.guardians) - len(saved))
+            for g, (alive, downed, ratio) in zip(self.guardians, saved):
                 if not alive:
                     w.send(w.remove_npc(g))
                     continue

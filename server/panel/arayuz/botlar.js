@@ -784,10 +784,11 @@ async function btBotDetay(no, sekme = 'profil') {
       const yaz = yeni => { deg.ekip = Object.assign({}, deg.ekip, { [k]: yeni }); isle(); };
       const var_ = Object.entries(sahip).filter(([, n]) => n > 0);
       const takili = x => Object.values(Object.assign({}, e[x], (deg.ekip || {})[x])).reduce((a, n) => a + n, 0);
-      const toplam = yv === 'jen' ? takili('kalkan') + takili('hiz') : takili(k);              // kalkan ve hız aynı jeneratör yuvalarını paylaşır
+      // kalkan ve hız aynı jeneratör yuvalarını paylaşır; ekstranın sayısı kalan hakkı (JP-01 10 hak): her biri bir yuva
+      const toplam = yv === 'jen' ? takili('kalkan') + takili('hiz') : k === 'ekstra' ? var_.length : takili(k);
       return h('div', { class: 'bt-kat' },
         h('div', { class: 'bt-kat-bas' }, h('b', null, T(ad_)), h('span', { class: 'ke-say' }, yv && yuva[yv] != null ? T('{0} / {1} yuva', toplam, yuva[yv]) : fmtN(toplam)),
-          h('span', { class: 'spacer' }), ekleSec(kat[k].filter(x => !sahip[x.loot]), l => { yaz(Object.assign({}, sahip, { [l]: 1 })); ciz(); })),
+          h('span', { class: 'spacer' }), ekleSec(kat[k].filter(x => !sahip[x.loot]), l => { yaz(Object.assign({}, sahip, { [l]: (kat[k].find(x => x.loot === l) || {}).hak || 1 })); ciz(); })),
         var_.length ? h('div', { class: 'bt-esyalar' }, var_.map(([l, n]) => esya(l, n, x => yaz(Object.assign({}, sahip, { [l]: x })),
           () => { const y = Object.assign({}, sahip); delete y[l]; yaz(y); ciz(); }, k === 'ekstra' ? 100000 : k === 'dron' ? 10 : 100))) : bos(T('Takılı bir şey yok.')));
     };

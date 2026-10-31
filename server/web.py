@@ -340,7 +340,7 @@ def cdn_fetch(rel, p):
 
 def cdn_file(base):
     """İstemcinin CDN isteği yerel kopyada varsa (oyunun görselleri ilk istenişte resmî CDN'den iner) -> (içerik türü, baytlar)."""
-    rel = base.lstrip('/')
+    rel = base.replace('\\', '/').lstrip('/')     # Windows'ta ters eğik çizgili '..' ile CDN klasörünün dışına çıkılmasın
     while '//' in rel:
         rel = rel.replace('//', '/')
     if not rel or '..' in rel.split('/'):

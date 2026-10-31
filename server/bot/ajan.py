@@ -471,6 +471,24 @@ def dusun(br, b, sebep, en_cok=ADIM):
     return adimlar
 
 
+def uyandirma_durumu(b):
+    """uyandiranlar'ın tükettiği durum -> geri yükleyen işlev (iş kuyruğa giremezse ya da bayatlarsa hatırlatıcı, kargo/birikim
+    uyarısı ve olaylar kaybolmasın)."""
+    d = {k: b.__dict__[k] for k in ('_ajan_olay_t', '_kargo_uyandi', '_birikim_uyandi') if k in b.__dict__}
+    h = b.k.get('hatirlatici')
+    h = list(h) if h is not None else None
+
+    def geri():
+        for k in ('_ajan_olay_t', '_kargo_uyandi', '_birikim_uyandi'):
+            if k in d:
+                b.__dict__[k] = d[k]
+            else:
+                b.__dict__.pop(k, None)
+        if h is not None:
+            b.k['hatirlatici'] = h + [x for x in b.k.get('hatirlatici') or [] if x not in h]    # arada kurulan yenisi de kalsın
+    return geri
+
+
 def uyandiranlar(y, b, now, olaylar=True):
     """Botu şimdi düşündürecek sebep (olay, hatırlatıcı, biriktirmenin tamamlanması) ya da None. olaylar=False: oyuncudan uzak bot
     yalnız kendi kurduğu hatırlatıcıyla ve birikimiyle uyanır (ajan seyrek; olaylarını kurallı motor karşılar)."""

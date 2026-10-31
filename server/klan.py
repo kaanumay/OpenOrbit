@@ -314,12 +314,20 @@ def ad_degisti(eski, yeni):
                 k['uyeler'][yeni_k] = dict(u, ad=yeni)
                 if k['lider'] == eski:
                     k['lider'] = yeni_k
-                degisti(k)
             for b in k['basvurular']:
                 if b['ad'] == eski:
                     b.update(ad=yeni_k, isim=yeni)
             k['retler'] = [yeni_k if r == eski else r for r in k['retler']]
+            if yeni_k in k['uyeler']:
+                degisti(k)                      # başvurular ve retler de güncellendikten sonra (üyelerin kopyası eski kalıyordu)
         kaydet()
+
+
+def uye_adi_mi(ad, kendi=''):
+    """Bir klanda (çevrimdışı) üyenin adı mı: yeniden adlandırma o üyenin kaydını ezmesin."""
+    ad, kendi = str(ad).strip().lower(), str(kendi).strip().lower()
+    with LOCK:
+        return ad != kendi and any(ad in k['uyeler'] for k in KLANLAR.values())
 
 
 def canli(p):
@@ -1229,6 +1237,8 @@ class Klan:
                'fromName': pl.get('userName', ''), 'moneyType': 'payout', 'reason': str(f.get('reason', ''))[:100]}
         s = kisiler().get(a) if a != self.ben else None
         with LOCK:
+            if amount > k['kasa'] or amount > odeme_siniri(u):   # iki yetkili aynı anda öderse kasa eksiye düşmesin
+                return fail('err_clan_no_money')
             k['kasa'] -= amount
             wk = u.setdefault('odeme_hafta', {})
             hafta = time.strftime('%G-%V')

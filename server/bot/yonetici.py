@@ -399,6 +399,7 @@ class Yonetici(SohbetMotoru):
         b.son_soyut = now
         b.sonraki_karar = now + b.r.uniform(2, 10)
         b.hedef = None
+        b.__dict__.pop('_hata', None)                    # hata sayacı oturumluk (ömürlük sayınca her tek hata botu 1 saat düşürüyordu)
         self.haritada.setdefault(b.harita, set()).add(b)
         b._olay_t = now
         if not sessiz and self.kip != 'basit' and b.r.random() < 0.25 * b.o('konuskanlik'):

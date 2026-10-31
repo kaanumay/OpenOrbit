@@ -141,6 +141,8 @@ class GunlukOdul:
         with self.p.lock:
             self.p.d['aylik_deluxe'] = {'baslangic': start.isoformat(), 'alinan': []}
             self.p.dirty = True
+        if n > 1:
+            self.p.add_resource(DELUXE_ITEM, n - 1)                      # kalan aylar depoda (yoksa yalnız bir ay veriliyordu)
         self.log('   Monthly Deluxe başladı: %s' % start.isoformat())
         return [self.deluxe_info()]
 

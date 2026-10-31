@@ -155,6 +155,8 @@ SCHEMA = [
     _n('en_cok_gorev', 'Aynı anda alınabilen görev', 'dunya', 'Görev penceresinde aynı anda sürdürebileceğin görev sayısı (oyunun '
        'değeri 5). Dolunca yeni görev alınamaz; biri bitince ya da iptal edilince yer açılır. Düşürülürse süren görevler iptal '
        'edilmez.', lo=1, hi=10, varsayilan=5, birim='görev', sinir=100),
+    _b('kampanya', 'Başlangıç kampanyası', 'dunya', 'Görev penceresinde "Level N" başlangıç görevleri hep görünür. Kapalıyken '
+       'yalnız yeni kayıtta seçildiyse ilk ay görünür; süren görev her durumda bitirilebilir.'),
     _b('atlama_sapma', "Atlama CPU'su ara sıra sapar", 'dunya', "Atlama CPU'su küçük bir olasılıkla (%2) seni Cubikon "
        'Mezarlığına götürür (oyundaki gibi). Kapatılırsa hep seçtiğin haritaya.', varsayilan=True),
     _b('paket_siniri', 'Benzersiz paketler bir kez', 'dunya', "Mağazada içinde gemi, gemi tasarımı, formasyon, P.E.T. ya da tekil "

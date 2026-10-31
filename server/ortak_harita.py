@@ -156,8 +156,8 @@ class Harita:
         değişen) kaldır -> mesajlar. Grup üyesi haritanın neresinde olursa olsun görünür (grup.py)."""
         cur = {}
         for m in self.uyeler:
-            if m is w or not m.running or m.hero_dead or m.jumping or m.reload_pending or m.gizli(now):
-                continue
+            if m is w or not m.running or m.hero_dead or m.jumping or m.reload_pending or (m.gizli(now) and w.target != m.hid):
+                continue                   # gizlenen, onu seçmiş olanda kalır (vurulabilir: oyuncu_savas.attack_error)
             mx, my = m.hero_pos(now)
             lim = birakma if m.hid in w.oyuncular else gorus
             if math.hypot(mx - hx, my - hy) <= lim or w.grup_uyesi(m.hid):

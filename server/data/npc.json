@@ -9865,8 +9865,8 @@
     360
    ],
    "80": [
-    300,
-    600
+    120,
+    180
    ],
    "221": [
     900,
@@ -9901,7 +9901,7 @@
     1200
    ]
   },
-  "_yeniden_dogma_ozel": "Boss/Uber, Cubikon (80), Battleray (115), Deadly Battleray (npc121), Invoke XVI (221) ve Mindfire Behemoth (225) sıradan uzaylı gibi 12-25 sn'de dönmesin. Anahtar: tür ya da ada göre \"boss\" (..::{), \"uber\". Battleray 7-10 dk, Deadly Battleray 5-5,5 dk, Behemoth 15-16 dk fandom, Invoke XVI 15 dk (board-fr 127829 s. 69; en çok 3 Invoke); Strokelight Barrage (320) Behemoth gibi; Boss/Uber ve Cubikon uyarlama; The Stinger (330) fandom (Stinger): yok edilince 2 saat sonra yeniden doğar (haritada en çok 1; 85 milyon canlı patron 12 sn'de dönmesin) Demaner Freighter 20 dk (resmî Türk forumu 132357: \"Her 20 dakikada bir\"), I-Hitac 15-20 dk (uyarlama).",
+  "_yeniden_dogma_ozel": "Boss/Uber, Cubikon (80), Battleray (115), Deadly Battleray (npc121), Invoke XVI (221) ve Mindfire Behemoth (225) sıradan uzaylı gibi 12-25 sn'de dönmesin. Anahtar: tür ya da ada göre \"boss\" (..::{), \"uber\". Battleray 7-10 dk, Deadly Battleray 5-5,5 dk, Behemoth 15-16 dk fandom, Invoke XVI 15 dk (board-fr 127829 s. 69; en çok 3 Invoke); Strokelight Barrage (320) Behemoth gibi; Boss/Uber ve Cubikon uyarlama (Cubikon 2-3 dk; oyuncu bildirimi 2026-10-31: 5-10 dk çok uzundu); The Stinger (330) fandom (Stinger): yok edilince 2 saat sonra yeniden doğar (haritada en çok 1; 85 milyon canlı patron 12 sn'de dönmesin) Demaner Freighter 20 dk (resmî Türk forumu 132357: \"Her 20 dakikada bir\"), I-Hitac 15-20 dk (uyarlama).",
   "zamanli_sure_sn": 3600,
   "_zamanli": "Zaman çizelgeli Black Light başıboşları (haritalar.zamanli; wiki saatleri, yerel saat): saatinden sonra bu kadar saniye içinde haritaya gelinirse doğar (uyarlama); ölünce o saat bir daha doğmaz (profil zamanli)."
  },

@@ -27,7 +27,7 @@ Giriş akışı (gerçek sunucunun kaydından, bkz. belgeler/istemci/kayit_anali
   Galaksi Kapıları (kapi.py): GalaxyGateBuilder* istekleri; X-1'deki kapı portalları ve kapı haritasındaki dalgalar dünyaya bağlanır.
 Şablon dosyaları kayit/sablon_cikar.py ile üretilir; yoksa yalnızca profilden en küçük giriş (gemi + LoginResponse) gönderilir.
 """
-import os, re, sys, socket, threading, time, json, math
+import contextlib, os, re, sys, socket, threading, time, json, math
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -589,8 +589,8 @@ class Session:
             why = 'change_pilotname_error_signs_illegal'
         elif KL.yasakli(name):                                    # Oyun Kuralları 7 (resmî forum 131990): personel adı, küfür
             why = 'ad_yasak'
-        elif o is not None and o.profil is not self.profil:
-            why = 'change_pilotname_error_inUse'
+        elif o is not None and o.profil is not self.profil or KL.uye_adi_mi(name, self.profil.d['pilot'].get('userName', '')):
+            why = 'change_pilotname_error_inUse'           # klandaki çevrimdışı üyenin ya da botun adı da (üyelik kaydı ezilmesin)
         elif AY.get('klan_bekleme') and time.time() - last < NAME_WAIT_SN:
             why = 'ad_bekleme'
         else:
@@ -602,6 +602,13 @@ class Session:
                 self.profil.d['ad_degisim'] = time.time()
                 self.profil.dirty = True
             KL.ad_degisti(old, name)
+            import ad_kaydi as AK                          # öteki oyuncuların rehberi (arkadaş, istek, engelli) ve botların hafızası
+            AK.ekle([{'tur': 'ad', 'eski': old, 'yeni': name}])
+            from bot import yonetici as YN
+            if YN.AKTIF is not None:
+                YN.AKTIF.ad_kaydi_uygula()
+            if self.sosyal.sohbet:                         # sohbette yeni adla (yoksa yeniden bağlanana dek eski ad)
+                self.sosyal.sohbet.update_user(kim=str(self.profil.user_id), userId=name)
             log('   pilot adı: %s' % name)
             return ('InternalPilotBioUpdateResultsCommand', {'success': True, 'baseStackCommand': MG.stack_msg('change_pilotname_success')})
         log('   pilot adı değişmedi: %r (%s)' % (name, why))
@@ -899,7 +906,8 @@ class Session:
             self.ekapilar.enter(gate['kapi'])    # etkinlik kapısının girişi: kapı kurulur (canlar, dalga sırası, süre)
             dest = self.ekapilar.dest(gate['kapi'])     # karışık sırada ilk harita (Trial of Terrors)
         self.pve.on_jump(gate)                   # Astral'ın çıkışı: oyuncunun donanımı geri
-        with self.state_lock:
+        w0 = self.world                          # kilit sırası dünya iş parçacığıyla aynı (world.lock, sonra state_lock): paket
+        with (w0.lock if w0 else contextlib.nullcontext()), self.state_lock:     # iş parçacığından tersi kilitleniyordu
             old = self.profil.d['konum']['mapId']
             msgs = SABLON.asset_removes(old)
             if self.world:
@@ -1345,11 +1353,13 @@ class Session:
         if CURRENT is self:
             CURRENT = None
         OTURUMLAR.discard(self)
-        if not self.kuyruk:
-            try:
-                self.c.close()
-            except OSError:
-                pass
+        if self.kuyruk:                              # kuyruktakiler gitsin, sonra soket kapanır (kapanmayınca iş parçacığı + soket sızıyordu)
+            self.kuyruk.kapat()
+            self.kuyruk.thread.join(5)
+        try:
+            self.c.close()
+        except OSError:
+            pass
         m = self.misafir
         if m is not None and m.session is self:      # misafirin son hâli yayımlanır (paneli alır); yeniden bağlanabilir
             self.profil.save(force=True)
