@@ -2693,13 +2693,16 @@ class World:
         now = now or time.time()
         lz = ESYA['lazerler']
         ship = self.lasers()
+        drones = self.drone_lasers()
         vlo = self.tech.laser_bonus(now)                          # Versus Laser Overdrive: lazer başına taban hasara +500 (VoG)
+        # Per-laser abilities also work on drone lasers (overdrive, x3.5 ...); set bonuses, count-based effects (Mortifier/
+        # Asmodeus/Anchorlock sets, Odysseus crit, Anchorlock slow) and Asmodeus Fervor count ship lasers only (wiki "only ship").
         base = sum((LAZER.hit(l, target, pvp=pvp) + vlo) * YK.factor(l, lv, YK.LASER) for l, lv in self.laser_levels()) \
             * (1 + LAZER.set_bonus(ship, pvp=pvp) + self.ofke.bonus(ship, now))
         self.crit = bool(ship) and random.random() < LAZER.crit_chance(ship)
         if self.crit:
             base += LAZER.crit_damage(ship)                       # Odysseus kritiği
-        extra = LAZER.overdrive(ship, target, pvp)
+        extra = LAZER.overdrive(ship + drones, target, pvp)
         if extra and now >= self.next_overdrive:                  # SL-01 +38, Caucasus +100, Prometheus +200 (x3,5 Black Light): 5 sn'de bir
             base += extra
             self.next_overdrive = now + LAZER.OVERDRIVE_SN
@@ -2727,12 +2730,12 @@ class World:
             carpan = LAZER.event_ammo(ammo, target, TKV.is_active) or carpan
         if target is not None and ammo in (target.d.get('cephane_carpani') or {}):          # Ö4: etkinlik uzaylısının cephane bonusu
             carpan = target.d['cephane_carpani'][ammo]
-        flat = LAZER.flat_extra(ship + self.drone_lasers(), pvp) if carpan and (pvp or target is not None) else 0       # Paritydrill / Magmadrill +5, LF-3 +15: çarpanlardan sonra
+        flat = LAZER.flat_extra(ship + drones, pvp) if carpan and (pvp or target is not None) else 0       # Paritydrill / Magmadrill +5, LF-3 +15: çarpanlardan sonra
         return int(base * carpan * r) + flat, int(base * a.get('kalkan_carpan', 0) * r)
 
     def laser_range(self):
-        """Lazer menzili: SL-01 takılıysa -%25 (lazer.py); Momentum/Stockpile'ın biriken yükü (yük başına +5)."""
-        return int(SAVAS['lazer_menzil'] * LAZER.range_factor(self.lasers())) + GY.range_bonus(self.p)
+        """Lazer menzili: SL-01 takılıysa (gemide ya da dronda) -%25 (lazer.py); Momentum/Stockpile'ın biriken yükü (yük başına +5)."""
+        return int(SAVAS['lazer_menzil'] * LAZER.range_factor(self.lasers() + self.drone_lasers())) + GY.range_bonus(self.p)
 
     def other_ammo(self, kind, empty, need):
         """Biten cephanenin yerine eldeki en güçlü sıradan cephane -> lootId (lazer: AUTO_AMMO sırası; roket: hasara göre, özel
