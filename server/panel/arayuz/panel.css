@@ -760,6 +760,7 @@ button.chip:hover { border-color: var(--accent); color: #fff; box-shadow: 0 0 10
   .g2, .g3 { grid-template-columns: 1fr; }
   #kahve .kahve { justify-content: center; padding: 6px; }
   #kahve .kahve span { display: none; }             /* dar kenar çubuğunda yalnız dron */
+  .kahve-serit { display: none; }
   .topbar h1 { font-size: 24px; }
   .wz-langs { grid-template-columns: 1fr; }
   .wz-steps { margin-left: 0; }
@@ -896,6 +897,20 @@ button.chip:hover { border-color: var(--accent); color: #fff; box-shadow: 0 0 10
 .kahve b { color: var(--accent-2); font: 600 12.5px/1.2 var(--display); letter-spacing: .03em; }
 .kahve small { font-size: 11px; }
 .kahve-dron { width: 40px; height: 40px; flex: none; transition: transform .2s; filter: drop-shadow(0 0 6px rgba(255, 165, 74, .3)); }
+/* düğmenin altında son destekçiler: iki kopya yan yana, yarı genişlik kayınca dikişsiz başa döner */
+.kahve-serit {
+  display: block; width: 100%; margin-top: 6px; padding: 4px 0; overflow: hidden; cursor: pointer; border: 0; background: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent); mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+}
+.kahve-kayan { display: flex; width: max-content; animation: kahve-kay 20s linear infinite; }
+.kahve-serit:hover .kahve-kayan { animation-play-state: paused; }
+.kahve-grup { display: flex; }
+.kahve-grup span { padding-right: 18px; color: var(--muted); font: 500 11px/1.4 var(--display); letter-spacing: .04em; white-space: nowrap; transition: color .15s; }
+.kahve-grup span::before { content: ''; display: inline-block; width: 4px; height: 4px; margin: 0 7px 2px 0; vertical-align: middle; border-radius: 50%;
+  background: rgba(255, 165, 74, .8); box-shadow: 0 0 5px rgba(255, 165, 74, .6); }
+.kahve-serit:hover .kahve-grup span { color: var(--accent-2); }
+@keyframes kahve-kay { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .kahve-kayan { animation-duration: 60s !important; } }
 
 /* ---------------------------------------------------------------- eşya ipucu (panel.js esyaIpucu): Hangar, Mağaza, Açık Artırma, karakter editörü */
 .ipucu { position: fixed; z-index: 400; width: 340px; max-height: calc(100vh - 16px); overflow: hidden; pointer-events: none; padding: 12px 14px; display: grid; gap: 8px;
@@ -948,3 +963,5 @@ button.chip:hover { border-color: var(--accent); color: #fff; box-shadow: 0 0 10
 .rp-sure { color: #23a55a; font-variant-numeric: tabular-nums; }
 .rp-dugmeler { display: grid; gap: 8px; margin-top: 12px; }
 .rp-dugmeler span { background: #4e5058; color: #fff; border-radius: 4px; padding: 6px; text-align: center; font-size: 13px; font-weight: 500; }
+.set-row.kosul-kapali { display: none; }
+.set-row[data-kosul] { margin-left: 22px; border-left: 2px solid var(--line-2); padding-left: 12px; }

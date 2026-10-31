@@ -34,10 +34,10 @@ UST_SINIR = 10000.0             # çarpanların elle yazılabilen en büyük de�
 I32 = 2 ** 31 - 1               # istemciye 32 bitlik alanla giden değerlerin üstü (protokol taşırır: can, kalkan, fiyat)
 
 
-def _c(key, ad, grup, aciklama, uygulama='anında', lo=0.0, hi=10.0, adim=0.1, varsayilan=1.0, sinir=UST_SINIR):
-    """Çarpan: panelde sürgü (lo..hi, önerilen) ve sayı kutusu (lo..sinir)."""
+def _c(key, ad, grup, aciklama, uygulama='anında', lo=0.0, hi=10.0, adim=0.1, varsayilan=1.0, sinir=UST_SINIR, kosul=None):
+    """Çarpan: panelde sürgü (lo..hi, önerilen) ve sayı kutusu (lo..sinir). kosul: yalnız o açma kapama ayarı açıkken görünür."""
     return dict(anahtar=key, ad=ad, grup=grup, tur='carpan', varsayilan=varsayilan, min=lo, max=hi, sinir=max(hi, sinir), adim=adim,
-                aciklama=aciklama, uygulama=uygulama)
+                aciklama=aciklama, uygulama=uygulama, **({'kosul': kosul} if kosul else {}))
 
 
 def _b(key, ad, grup, aciklama, uygulama='anında', varsayilan=False):
@@ -214,6 +214,12 @@ SCHEMA = [
        'haritadaki en yakın hedefi gösterir.'),
     _b('assembly_ucretsiz', 'Ücretsiz Assembly', 'ekonomi', 'Assembly ve Upgrade/Disassembly sekmelerinde malzeme harcanmaz; istemci '
        'bütün malzemeleri yeterli gösterir. Üretim ve bekleme süreleri ile günlük kullanım sınırları aynı kalır.'),
+    _b('eski_yukseltme', 'Eski yükseltme sistemi', 'ekonomi', "Eşya yükseltmeleri 2018'deki gibi yalnız uridyumla: Assembly'nin "
+       "Upgrade sekmesinde ABR, Indoctrine Oil, Diametrion gibi malzemeler istenmez. Bedel eski Item Upgrading'in %100 başarılı "
+       "bedeli (seviye 2'ye 3.905 U., her seviye +435; 16'ya toplam 104.250 U.). Oyun açıkken de değişir."),
+    _c('eski_yukseltme_fiyat', 'Eski yükseltme fiyatları', 'ekonomi', 'Eski sistemdeki yükseltmelerin uridyum bedeli (Upgrade '
+       'Hour indirimi de geçerli). 0: bedava.',
+       lo=0.0, hi=5.0, sinir=1000.0, kosul='eski_yukseltme'),
     _c('pet_yakit', 'P.E.T. yakıt tüketimi', 'ekonomi', "P.E.T.'in dakikalık yakıt tüketimi. 0: yakıt harcamaz.", lo=0.0, hi=5.0,
        sinir=100.0),
     _c('skylab_uretim', 'Skylab üretimi', 'ekonomi', 'Skylab toplayıcılarının ve rafinerilerinin saatlik üretimi.', hi=20.0),

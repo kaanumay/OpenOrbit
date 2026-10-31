@@ -321,6 +321,7 @@ class World:
         """paylas: arkadaş sunucusunda normal harita, aynı haritadaki öteki oyuncuların dünyalarıyla ortak (ortak_harita.py)."""
         self.perf = Olcum()                 # döngü adımının süresi (ms): canlı durum ve panel
         self.step_errors = {}               # döngü hatasının son satırı -> en son günlüğe yazıldığı an (step_error)
+        self.adim_baris = None              # adımın uzaylı döngüsünde: kahraman konumu -> güvenli bölgede mi (hero_in_peace)
         self._batch = None                 # döngü adımı sürerken gönderilecekler (adım sonunda tek çerçevede)
         self._loop_ident = None             # döngünün iş parçacığı (defer: oturumun adım içindeki mesajları da sıraya)
         self.cbs_trade = None               # Clan Battle Station'da maden satışı: () -> fiyat çarpanı ya da None (cbs.py)
@@ -4049,6 +4050,16 @@ class World:
             return False
         return bool(n.engaged and when is not None)
 
+    def hero_in_peace(self, hx, hy):
+        """in_peace(kahraman): adımın uzaylı döngüsünde her uzaylı aynı konumu sorar, konum başına bir kez hesaplanır."""
+        memo = self.adim_baris
+        if memo is None:
+            return self.in_peace(hx, hy)
+        r = memo.get((hx, hy))
+        if r is None:
+            r = memo[(hx, hy)] = self.in_peace(hx, hy)
+        return r
+
     def think(self, n, now):
         """NPC yapay zekâsı: dolaş; saldırıya uğrayan ya da saldırgan türse oyuncuyu kovala ve ateş et."""
         if n.bot is not None:
@@ -4073,7 +4084,7 @@ class World:
         dist = math.hypot(hx - nx, hy - ny)
         retaliating = self.npc_retaliating(n)
         # protected zone (station, portal, layout safe zone): nobody attacks the pilot, except the alien he attacked (permission set in hit_npc)
-        zoned = self.in_peace(hx, hy) and not retaliating
+        zoned = self.hero_in_peace(hx, hy) and not retaliating
         cloaked = self.abilities.cloaked(now) or self.items.cloaked()
         hidden = self.hero_dead or self.jumping or YM.izleyici(self.p)       # yönetici izleyici: kimse kovalamaz (yonetici_modu.py)
         hero_safe = zoned or hidden                 # peşini bırakma nedenleri; gizlenme yok: saldıran uzaylı EMP-01'e dek vazgeçmez (oyuncu bildirimi)
@@ -4145,7 +4156,7 @@ class World:
                 # harita içinde: oyuncu kenarda ya da sınırın dışındayken (radyasyon) uzaylı haritadan çıkmasın
                 tx = min(max(tx, 300), self.map_w - 300)
                 ty = min(max(ty, 300), self.map_h - 300)
-                follows = retaliating and self.in_peace(hx, hy)      # the alien the pilot attacked follows him into the zone
+                follows = retaliating and self.hero_in_peace(hx, hy)      # the alien the pilot attacked follows him into the zone
                 if not hunt and not follows and (self.path_near_zone(nx, ny, tx, ty, allow_station=retaliating)
                                                  or (self.near_zone(tx, ty, 0) and not (retaliating and self.station_at(tx, ty)
                                                                                        and not self.near_gate_peace(tx, ty)))):
@@ -4311,9 +4322,13 @@ class World:
             self.labirent.tick(now)
         if self.session_tick:
             self.session_tick(now)
-        for n in list(self.npcs.values()):
-            if self.sahibi(n, now):            # ortak haritada uzaylının sahibi olan dünya (savaştığı ya da en yakın oyuncu)
-                self.think(n, now)
+        self.adim_baris = {}
+        try:
+            for n in list(self.npcs.values()):
+                if self.sahibi(n, now):        # ortak haritada uzaylının sahibi olan dünya (savaştığı ya da en yakın oyuncu)
+                    self.think(n, now)
+        finally:
+            self.adim_baris = None
         for h, b in list(self.boxes.items()) if lider else ():
             if b['bitis'] and now > b['bitis']:
                 del self.boxes[h]

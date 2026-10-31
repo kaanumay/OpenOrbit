@@ -221,12 +221,12 @@ def komsular(map_id, firma):
 
 def yol(kaynak, hedef, firma, seviye):
     """En kısa portal yolu [kaynak, ..., hedef] (girilemeyen haritalardan geçmez) ya da None."""
-    r = _yol(int(kaynak), int(hedef), firma, seviye)
+    r = _yol(int(kaynak), int(hedef), firma, seviye, bool(AY.get('seviye_kisiti_yok')))     # ayar değişirse yeni anahtar (girebilir)
     return list(r) if r is not None else None
 
 
 @functools.lru_cache(maxsize=8192)
-def _yol(kaynak, hedef, firma, seviye):
+def _yol(kaynak, hedef, firma, seviye, _kisitsiz=False):
     if kaynak == hedef:
         return (kaynak,)
     onceki = {kaynak: None}

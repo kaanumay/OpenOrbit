@@ -31,6 +31,11 @@ public class Eklenti : BasePlugin
         Uygula("sohbet moderatörü rengi", () => ModeratorRengi.Uygula(h));
         Uygula("otomatik kuşanma ayarı", () => OtomatikKusanma.Uygula(h));
         Uygula("görev metinleri", () => GorevMetinleri.Uygula(h));
+        Uygula("eski yükseltme sistemi", () =>
+        {
+            EskiYukseltme.Uygula(h);
+            AddComponent<EskiYukseltmeIzci>();
+        });
         Uygula("görsel dökümü", () =>
         {
             GorselDokumu.Log = Log;

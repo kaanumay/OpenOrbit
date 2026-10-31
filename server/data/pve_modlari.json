@@ -11495,27 +11495,6 @@
   "_kaynak": "darkorbitwiki deep-space-echoes-gate (1-40. seviye dalgaları, ilk geçiş ödülleri), resmî SSS (kurallar, seviye türleri), kayıttaki ExpeditionInfoCommand (sıralama ödülleri, koşul metinleri)",
   "_uyarlama": "41-49 dalgaları (31-39 x1,5), 40/45/50 patronları, güçlenme, süre (10 dk), tekrar ödülü, atlama bedeli, korunacak ve eşlik edilecek gemi (EM Freighter, Demaner Freighter görünümü) ve değerleri"
  },
- "harita_ek": {
-  "19": [
-   [
-    "pm_blighted_kristallon",
-    2
-   ]
-  ],
-  "23": [
-   [
-    "pm_blighted_kristallon",
-    2
-   ]
-  ],
-  "27": [
-   [
-    "pm_blighted_kristallon",
-    2
-   ]
-  ],
-  "_kaynak": "darkorbitwiki: Blighted Kristallon X-7 (ölünce 1-3 Blighted Gygerthrall), Alloy Box %50; resmî Türk forumu 154610 (Veba Mutasyonu): X-5, X-6 ve X-7; resmî sunucu kaydı 2026-10-27: 33 haritalık turda yalnız X-7'de (1-7, 2-7, 3-7), X-5 ve X-6'da görülmedi; nüfus uyarlama"
- },
  "ebl": {
   "cpu": "ammunition_ggportal_eternal-blacklight-cpu",
   "haritalar": [
@@ -13650,71 +13629,6 @@
     "uridyum": 0
    },
    "kargo": {}
-  },
-  "pm_blighted_gygerthrall": {
-   "ad": "-=[ Blighted Gygerthrall ]=-",
-   "model": "249",
-   "npc_kimlik": 155,
-   "hp": 240000,
-   "kalkan": 200000,
-   "hasar": 2500,
-   "hiz": 320,
-   "saldirgan": true,
-   "odul": {
-    "ep": 9400,
-    "onur": 45,
-    "kredi": 18800,
-    "uridyum": 24
-   },
-   "kargo": {},
-   "kutu": {
-    "tur": "HYBRID_ALLOY_BOX",
-    "olasilik": 0.5,
-    "omur_sn": 300,
-    "mod": "hepsi",
-    "icerik": [
-     [
-      "resource_collectable_hybrid-alloy",
-      1,
-      100
-     ],
-     [
-      "resource_collectable_hybrid-alloy",
-      1,
-      30
-     ],
-     [
-      "resource_collectable_hybrid-alloy",
-      2,
-      15
-     ]
-    ]
-   }
-  },
-  "pm_blighted_kristallon": {
-   "ad": "-=[ Blighted Kristallon ]=-",
-   "model": "251",
-   "npc_kimlik": 160,
-   "hp": 600000,
-   "kalkan": 400000,
-   "hasar": 4000,
-   "hiz": 240,
-   "saldirgan": true,
-   "odul": {
-    "ep": 65000,
-    "onur": 300,
-    "kredi": 500000,
-    "uridyum": 150
-   },
-   "kargo": {},
-   "davranis": {
-    "olunce_dogur": [
-     {
-      "tur": "pm_blighted_gygerthrall",
-      "adet": 2
-     }
-    ]
-   }
   },
   "pm_ebl_mordon": {
    "ad": "-=[ Mordon ]=-",

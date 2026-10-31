@@ -16,8 +16,15 @@ Assembly penceresi (kayıttaki AssemblyRecipeContentModule'de 17 upgrade_ ve 8 d
       equipped item.")
 Profilde: yukseltme_seviye {itemId: seviye}; dronda kayıt alanı "yukseltme"; süren yükseltmeler assembly.yukseltme {"tarif|hedef": …}.
 Upgrade Hour (esyalar.json yukseltme_saati): o saatte yükseltmelerin uridyum maliyeti %25 az; başlayınca HUD iletisi.
+Eski yükseltme sistemi (panel: eski_yukseltme, kullanıcı isteği 2026-10-31): 2013-2019'un Skylab > Tech Factory > Item Upgrading'i
+Unity istemcisinde yok (yalnız metinleri kalmış: resource_itemUpgradeSystem); Assembly'nin Upgrade sekmesi aynı yükseltmeleri yalnız
+uridyumla yapar. Fiyat: eski sistemin %100 başarı şanslı bedeli (board-en "Upgrading Cost Charts", konu 12614: seviye 2'ye 3.905,
+her seviye +435, 16'ya toplam 104.250 U.; bütün uridyum eşyaları aynı), 17-20 aynı artışla. Eskiden kredili eşyalar (class0: LF-1,
+MP-1, SG3N-A01, Flax) dörtte bir (bugünkü ABR'leri class2'nin ~1/4'ü); CBS modülleri eski toplamlarıyla (iç modüller Hull/Deflector
+402.750, dış modüller 268.500). Çarpan: eski_yukseltme_fiyat. İstemci bedeli kendi tarifinden gösterir: panel eski_tablo()'yu
+istemcinin BepInEx/openorbit/eski_yukseltme.json'una yazar, eklentinin EskiYukseltme yaması tarifleri uridyuma çevirir.
 """
-import datetime, json, math, os, time
+import datetime, json, os, time
 
 import envanter as INV
 import ayar as AY
@@ -43,6 +50,28 @@ BADGE = {LASER: 'damageUpgradeLevel', ROCKET: 'damageUpgradeLevel', SHIELD: 'shi
          'DRIVE_DAMAGE_UPGRADE': 'driveDamageUpgradeLevel', 'DRIVE_DEF_UPGRADE': 'driveDefUpgradeLevel'}
 
 
+ESKI_ILK, ESKI_ARTIS = 3905, 435
+ESKI_ORAN = {'upgrade_upgrade-class0': 0.25, 'upgrade_upgrade-class0-drone': 0.25,
+             'upgrade_upgrade-class3-cbs': 268500 / 104250.0, 'upgrade_upgrade-class4-cbs': 402750 / 104250.0}
+
+
+def eski_tablo(acik=None, carpan=None):
+    """Eski sistemin seviye seviye uridyum bedeli {sınıf: [satır başına U.]} (kapalıysa {}); panel istemciye de yazar."""
+    if not (AY.get('eski_yukseltme') if acik is None else acik):
+        return {}
+    m = AY.carpan('eski_yukseltme_fiyat') if carpan is None else carpan
+    return {k: [int(round((ESKI_ILK + ESKI_ARTIS * i) * ESKI_ORAN.get(k, 1.0) * m)) for i in range(len(c['seviyeler']))]
+            for k, c in UP.items()}
+
+
+def row_cost(key, i):
+    """Yükseltme sınıfının i. satırının (0'dan) bedeli: eski sistem açıksa yalnız uridyum, değilse istemcinin malzemeleri."""
+    if AY.get('eski_yukseltme'):
+        n = eski_tablo()[key][i]
+        return {'currency_uridium': n} if n > 0 else {}
+    return {loot: a for loot, a in UP[key]['seviyeler'][i]['maliyet'].items() if a > 0}
+
+
 def mod(name, **f):
     f['_'] = name
     return f
@@ -66,10 +95,9 @@ def spent(p, iid):
     """Eşyanın yükseltmelerine harcanan malzeme (geri dönüşüm ve Synthesis iadesi; Upgrade Hour indirimi sayılmaz)."""
     k = UP_OF.get(p.d['esyalar'].get(str(iid), ''))
     out = {}
-    for r in (UP[k]['seviyeler'][:item_level(p, iid)] if k else []):
-        for loot, a in r['maliyet'].items():
-            if a > 0:
-                out[loot] = out.get(loot, 0) + a
+    for i in range(item_level(p, iid) if k else 0):
+        for loot, a in row_cost(k, i).items():
+            out[loot] = out.get(loot, 0) + a
     return out
 
 
@@ -99,6 +127,8 @@ class Yukseltme:
         self.send = None
         self.refresh = None           # Assembly'nin tarif listesi (süre bitince panel yeniden çizilsin; H61)
         self.hour_on = bool(bonus_hour())
+        self.eski = self.eski_key()       # eski sistemin ayarları değişince tarif listesi yeniden (tick)
+        self.eski_at = None
 
     @property
     def st(self):
@@ -161,16 +191,20 @@ class Yukseltme:
 
     # ------------------------------------------------------------ yükseltme
     def cost(self, key, cur, n, now=None):
-        """cur seviyesinden n seviye: maliyetlerin toplamı ve süre (Upgrade Hour'da uridyum %25 az)."""
+        """cur seviyesinden n seviye: maliyetlerin toplamı ve süre (Upgrade Hour'da uridyum %25, Premium'da %5 az; eski sistemde
+        yalnız uridyum)."""
         rows = UP[key]['seviyeler'][cur:cur + n]
         need = {}
-        for r in rows:
-            for loot, a in r['maliyet'].items():
-                if a > 0:
-                    need[loot] = need.get(loot, 0) + a
-        off = bonus_hour(now)
-        if off and need.get('currency_uridium'):
-            need['currency_uridium'] = int(math.ceil(need['currency_uridium'] * (1 - off)))
+        for i in range(cur, cur + len(rows)):
+            for loot, a in row_cost(key, i).items():
+                need[loot] = need.get(loot, 0) + a
+        # indirimler istemcinin hesabıyla (DiscountComponentSystem.GetAmountWithDiscount; canlı 2026-11-01): Upgrade Hour ve
+        # UserInventoryModule.activePremiumDiscount (Premium %5 + Shop Discount, magaza.discount) toplanır, uridyum aşağı yuvarlanır,
+        # kredi indirimsiz (LF-3 316 U. -> Premium 300, + Upgrade Hour 221). Önce yalnız Upgrade Hour, yukarı yuvarlanarak alınıyordu:
+        # pencere Premium'la 300 gösterirken 316 alınıyordu
+        pct = int(round((bonus_hour(now) + (self.m.discount() if self.m else 0.0)) * 100))
+        if pct and need.get('currency_uridium'):
+            need['currency_uridium'] = need['currency_uridium'] * max(0, 100 - pct) // 100
         return {} if AY.get('assembly_ucretsiz') else need, AY.sure(sum(r['sure_sn'] for r in rows), 'yukseltme')            # panel: bekleme
 
     def build(self, f, now=None):
@@ -339,10 +373,26 @@ class Yukseltme:
         if not self.m:
             return []
         items = [f['item'] for n, f in self.m.count_msgs()]
-        return [('UserInventoryModule', dict(activePremiumDiscount=0, activeRebateSubDiscount=0, inventoryItemModules=items,
+        return [('UserInventoryModule', dict(activePremiumDiscount=int(round(self.m.discount() * 100)),
+                                             activeRebateSubDiscount=0, inventoryItemModules=items,
                                              activeHappyUpgradeDiscount=int(round(bonus_hour(now) * 100))))]
 
+    @staticmethod
+    def eski_key():
+        return bool(AY.get('eski_yukseltme')), AY.carpan('eski_yukseltme_fiyat')
+
     def tick(self, now):
+        # Eski sistem oyun açıkken açılıp kapanınca ya da fiyatı değişince: istemcinin tarif modelleri bedeli önbellekler (açıktan
+        # kapalıya geçişte pencere uridyumu göstermeyi sürdürüyordu, canlı 2026-11-01); tarif listesi yeniden gönderilince modeller
+        # yeniden kurulur. 2 sn sonra: eklenti panelin yazdığı bedel dosyasına en çok saniyede bir bakar
+        k = self.eski_key()
+        if k != self.eski:
+            self.eski, self.eski_at = k, now + 2.0
+        if self.eski_at and now >= self.eski_at:
+            self.eski_at = None
+            self.log('   eski yükseltme sistemi: %s, fiyat x%g' % ('açık' if k[0] else 'kapalı', k[1]))
+            if self.send and self.refresh:
+                self.send([self.refresh()])
         on = bool(bonus_hour(now))
         if on != self.hour_on:
             self.hour_on = on

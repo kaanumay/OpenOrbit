@@ -58,6 +58,7 @@ from bot import llm_saglayici as SG  # noqa: E402  (dil modelinin sağlayıcıs�
 SURUM = '1.0'
 DISCORD = 'https://discord.com/invite/openorbit'   # topluluk sunucusu (Panel sayfası, README); kalıcı davet
 BAGIS = 'https://buymeacoffee.com/kaanumay'       # destek bağlantısı (kenar çubuğunun en altı)
+BAGIS_API = 'https://app.buymeacoffee.com/api/creators/slug/kaanumay/coffees?web=1&page=1&per_page=20'   # son destekçiler
 PORT = 8077
 ARAYUZ = os.path.join(PANEL_DIR, 'arayuz')
 SABLONLAR = os.path.join(YOL.SAVE, 'ayar_sablonlari.json')
@@ -504,7 +505,7 @@ def try_migrate():
     return moved
 
 
-def warnings():
+def warnings(folder=False):
     out = []
     if STATE.get('tasima_bekliyor'):
         out.append({'tur': 'uyari', 'metin': _('Eski kaydın (server/save/profil.json) kayıt yuvasına taşınması bekliyor: önce dışarıda açık '
@@ -515,7 +516,7 @@ def warnings():
     slot = KAY.active()
     if not slot:
         out.append({'tur': 'hata', 'metin': _('Henüz kayıt yok: Kayıtlar sayfasından yeni bir kayıt oluşturun.'), 'sayfa': 'kayitlar'})
-    c = IST.check(client_folder())
+    c = IST.check(client_folder() if folder is False else folder)
     if not c['gecerli'] and DL.running():
         out.append({'tur': 'uyari', 'metin': _('Oyun istemcisi indiriliyor: %%%d. Bitince oynayabilirsin.', _dl_pct(DL.state())),
                     'sayfa': 'istemci'})
@@ -597,9 +598,10 @@ def status():
     vals = game_settings()
     ev = [e['ad'] for e in event_list() if e['etkin'] and e['tur'] == 'yillik']
     slots = KAY.slots()
+    folder = client_folder()                     # istemci klasörü araması (glob) bir kez: uyarılar ve yanıt
     return {'surecler': YON.status(), 'aktif': aktif, 'kayit_sayisi': len(slots),
             'ayar_ozet': settings_summary(vals), 'etkinlikler': ev,
-            'uyarilar': warnings(), 'oyna': STATE['oyna'], 'istemci_klasoru': client_folder(),
+            'uyarilar': warnings(folder), 'oyna': STATE['oyna'], 'istemci_klasoru': folder,
             'arkadas': {'host': YON.running() and YON.arkadas, 'misafir': ARK.m['durum'], 'adres': ARK.m['adres']},
             'coklu': coklu_durumu(slots),
             'panel': {'surum': SURUM, 'pencere_kapandi': STATE['pencere_kapandi'], 'dil': CFG.get('dil'), 'platform': sys.platform,
@@ -752,6 +754,7 @@ def launch(sadece_sunucu=False, arkadas=False):
                 DW.metinleri_yaz(folder, world_id(slot, arkadas))
             except OSError as e:
                 log('görev metinleri yazılamadı: %s' % e)
+            eski_yukseltme_yaz(folder, slot)
             YON.start_client(folder, cmd, env)
             if YON.coklu or YON.arkadas:              # birden çok istemci olabilir: pencereler pilotun adıyla ayırt edilsin
                 SR.pencere_basligi(YON.istemci.pid, 'DarkOrbit — %s' % KAY.summary(slot).get('pilot', slot))
@@ -1120,6 +1123,22 @@ def _schema_row(s):
     return out
 
 
+def eski_yukseltme_yaz(folder=None, slot=None):
+    """Eski yükseltme sisteminin uridyum bedelleri istemcinin BepInEx klasörüne (eklentinin EskiYukseltme yaması Assembly'nin
+    tariflerini bunlarla değiştirir; kapalıyken {}: istemcinin kendi malzemeleri). OYNA'da ve ayarlar kaydedilince."""
+    folder = folder or client_folder()
+    if not folder or not os.path.isdir(os.path.join(folder, 'BepInEx')):
+        return
+    import yukseltme as YK
+    v = AY.read(settings_file(slot))
+    t = YK.eski_tablo(v.get('eski_yukseltme', AY.DEFAULTS['eski_yukseltme']),
+                      v.get('eski_yukseltme_fiyat', AY.DEFAULTS['eski_yukseltme_fiyat']))
+    try:
+        DW._yaz_dosya(os.path.join(folder, 'BepInEx', 'openorbit', 'eski_yukseltme.json'), t)
+    except OSError as e:
+        log('eski yükseltme bedelleri yazılamadı: %s' % e)
+
+
 def api_settings():
     hazir = {k: dict(p, ad=_(p['ad']), aciklama=_(p['aciklama'])) for k, p in AY.HAZIR.items()}
     slot = KAY.active()
@@ -1433,11 +1452,30 @@ def bot_post(path, b):
     raise Hata(_('Bilinmeyen istek.'))
 
 
+_DESTEKCI = {'zaman': 0, 'adlar': []}
+
+
+def destekciler():
+    """Buy Me a Coffee sayfasının son destekçileri (gizli olanlar hariç; 10 dakika önbellek, bağlantı yoksa boş liste)."""
+    if time.time() - _DESTEKCI['zaman'] > 600:
+        try:
+            with urlopen(Request(BAGIS_API, headers={'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json'}), timeout=6) as r:
+                veri = json.load(r).get('data') or []
+            _DESTEKCI['adlar'] = list(dict.fromkeys(str(x.get('supporter_name') or '').strip() for x in veri
+                                                    if x.get('support_visibility') == 1 and x.get('supporter_name')))
+            _DESTEKCI['zaman'] = time.time()
+        except (OSError, ValueError):
+            return []                                  # çevrimdışı: şerit gizli kalır, sonraki açılışta yeniden denenir
+    return _DESTEKCI['adlar']
+
+
 def h_get(path, q):
     if path.startswith('/api/bot'):                 # Botlar (botlar.py)
         return bot_get(path, q)
     if path.startswith('/api/dunya'):               # Dünya Editörü (dunyalar.py)
         return dunya_get(path, q)
+    if path == '/api/destekciler':                 # kenar çubuğundaki kayan destekçi şeridi
+        return {'adlar': destekciler()}
     if path == '/api/durum':
         return status()
     if path == '/api/ayarlar':
@@ -1629,6 +1667,7 @@ def h_post(path, b):
             if k in AY.BY_KEY:
                 vals[k] = v
         AY.write(settings_file(), vals)
+        eski_yukseltme_yaz()
         return api_settings()
     if path == '/api/ayarlar/kopyala':             # başka bir kaydın ayarları (etkinlik seçimleri dahil) etkin kayda
         slot = KAY.active()
@@ -1636,6 +1675,7 @@ def h_post(path, b):
             raise Hata(_('Kayıt yok.'))
         KAY.copy_settings(str(b.get('kaynak') or ''), slot)
         log('ayarlar kopyalandı: %s -> %s' % (b.get('kaynak'), slot))
+        eski_yukseltme_yaz()
         return api_settings()
     if path == '/api/ayarlar/sifirla':
         vals = game_settings()
@@ -1643,6 +1683,7 @@ def h_post(path, b):
         for k in keys:
             vals.pop(k, None)
         AY.write(settings_file(), vals)
+        eski_yukseltme_yaz()
         return api_settings()
     if path == '/api/ayarlar/hazir':
         name = b.get('ad')
@@ -1653,6 +1694,7 @@ def h_post(path, b):
         vals = {k: v for k, v in game_settings().items() if k not in AY.BY_KEY}     # etkinlik seçimleri kalır
         vals.update(preset)
         AY.write(settings_file(), vals)
+        eski_yukseltme_yaz()
         return api_settings()
     if path == '/api/ayarlar/sablon_kaydet':
         name = (b.get('ad') or '').strip()[:40]

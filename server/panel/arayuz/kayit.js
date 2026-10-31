@@ -235,6 +235,15 @@ async function keUygula(...islemler) {
   return false;
 }
 
+// Arama kutusu: editör (bütün sekme ve eşya döşemeleri) her tuşta değil yazma durunca yeniden kurulur; imleç yerinde kalır
+function keAra(e, ata) {
+  ata(e.target.value); clearTimeout(KE.araT);
+  KE.araT = setTimeout(() => {
+    if (!e.target.isConnected) return;          // bu arada sayfa ya da sekme değişti
+    const pos = e.target.selectionStart; keCiz();
+    const yeni = $('.ke-ana .oy-ara'); if (yeni) { yeni.focus(); yeni.setSelectionRange(pos, pos); }
+  }, 150);
+}
 function keCiz() {
   if (S.page !== 'kayitlar' || !KE.slot || !KE.v) return;
   const v = KE.v, c = $('#content'), sc = c.scrollTop;
@@ -702,8 +711,7 @@ function keEnvanter(v) {
   }));
   return h('div', { class: 'stack' },
     h('div', { class: 'card ke-k' }, h('div', { class: 'row wrap', style: { gap: '10px' } },
-      h('input', { class: 'input oy-ara', placeholder: T('Ara…'), value: KE.ara, oninput: e => { KE.ara = e.target.value; const pos = e.target.selectionStart; keCiz();
-        const yeni = $('.ke-ana .oy-ara'); if (yeni) { yeni.focus(); yeni.setSelectionRange(pos, pos); } } }),
+      h('input', { class: 'input oy-ara', placeholder: T('Ara…'), value: KE.ara, oninput: e => keAra(e, v => { KE.ara = v; }) }),
       h('span', { class: 'spacer' }), ro ? null : btn(T('Eşya ekle'), () => keKatalog({}), 'primary sm', 'plus')),
     turler.length > 1 ? h('div', { class: 'seg', style: { marginTop: '12px', flexWrap: 'wrap' } }, ['hepsi', ...turler].map(t => h('button', { class: t === KE.envTur ? 'on info' : '',
       onclick: () => { KE.envTur = t; keCiz(); } }, t === 'hepsi' ? T('Hepsi') : t === 'tasarim' ? T('Dron tasarımları') : yuvaAdi(t)))) : null),
@@ -738,7 +746,7 @@ function keKaynaklar(v) {
     h('div', { class: 'ke-cepler' }, v.cevherler.map(cevher))),
     keKart(null, null, h('div', { class: 'row wrap between', style: { gap: '10px', marginBottom: '12px' } }, h('h2', { style: { margin: 0 } }, icon('gift'), T('Toplanabilirler ve öbür kaynaklar')),
       h('div', { class: 'row', style: { gap: '8px' } }, h('input', { class: 'input oy-ara', placeholder: T('Ara…'), value: KE.kaynakAra,
-        oninput: e => { KE.kaynakAra = e.target.value; const pos = e.target.selectionStart; keCiz(); const yeni = $('.ke-ana .oy-ara'); if (yeni) { yeni.focus(); yeni.setSelectionRange(pos, pos); } } }),
+        oninput: e => keAra(e, v => { KE.kaynakAra = v; }) }),
       ro ? null : btn(T('Kaynak ekle'), () => keKatalog({ kat: 'kaynak', baslik: T('Kaynaklar') }), 'primary sm', 'plus'))),
     kaynaklar.length ? h('div', { class: 'ke-cepler' }, kaynaklar.map(([l, n]) => h('div', { class: 'ke-cep' }, esyaIkon(l, 44), h('div', { class: 'grow', style: { minWidth: 0 } },
       h('div', { class: 'ke-cep-ad', title: l }, esyaAdi(l)), h('div', { class: 'row', style: { gap: '4px' } }, sayiKutu(n, x => keUygula({ islem: 'kaynak', adetler: { [l]: x } }), { max: 1e12, cls: 'genis' }),

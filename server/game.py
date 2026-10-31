@@ -253,10 +253,6 @@ H.PLAYER_FACTION = PROFIL.d['pilot'].get('factionId')     # 5-X'te yalnız kendi
 KAPI.register_npcs(dunya.CFG['tipler'])     # kapı uzaylıları NPC türleri olarak
 EKP.register_npcs(dunya.CFG['tipler'])      # etkinlik kapılarınınkiler (etkinlik_kapi.py)
 dunya.CFG['tipler'].update(PVM.AR.D['turler'])  # Aşama 8'in modlarının uzaylıları (data/pve_modlari.json)
-for _mid, _rows in PVM.AR.D.get('harita_ek', {}).items():          # X-7'nin Blighted Kristallon'ları (Hybrid Alloy)
-    if not _mid.startswith('_') and _mid in dunya.CFG['haritalar']:
-        _have = {g['tip'] for g in dunya.CFG['haritalar'][_mid]['npc']}
-        dunya.CFG['haritalar'][_mid]['npc'] += [{'tip': t, 'adet': n} for t, n in _rows if t not in _have]
 
 
 # Season Pass, Battle Pass ve günlük ödül pencerelerinin kayıttaki giriş mesajları -> profilden üretilenler

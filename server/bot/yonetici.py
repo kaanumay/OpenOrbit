@@ -6,7 +6,7 @@ tick() çalıştırır. Benzetim betiği (tools/bot_benzetim.py) ve testler ayn�
 Her tick'te yalnız işi olan botlar işlenir: çevrimdışılar dakikada bir "girsem mi" der; çevrimiçiler kendi karar anlarında düşünür,
 soyut etkiler SOYUT_SN'de bir toplu uygulanır. Dünyalar (govde.py) haritalarındaki botları kancalarla öğrenir.
 """
-import json, os, threading, time, traceback
+import json, os, random, threading, time, traceback
 
 import harita as H
 from . import beyin as B
@@ -383,6 +383,7 @@ class Yonetici(SohbetMotoru):
             pay = (p / 45.0 * ort) / (1 + p / 45.0 * ort)
             if b.r.random() < pay:
                 self.giris(b, now, sessiz=True)
+                b.son_soyut = now - random.uniform(0, SOYUT_SN)    # soyut adımlar aynı tickte toplanmasın (5 sn de bir kilitte 100+ ms); botun kendi dizisi (b.r) kaymasın
                 b.oturum_bitis = now + (b.oturum_bitis - now) * b.r.uniform(0.1, 1.0)
                 b.sonraki_karar = now + b.r.uniform(1, 15)
                 n += 1

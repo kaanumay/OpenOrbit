@@ -67,6 +67,15 @@ def atla(bot, hedef, y):
         y.harita_degisti(bot, eski)
 
 
+def _kutu_topla(bot, dt, hiz):
+    """Mermisi yok: kasamaz, oyuncu gibi bonus kutusu toplar (kutudan cephane ve kredi gelir; parası bitmiş bot böyle toparlanır)."""
+    from . import silah as SL
+    k = dt / 3600.0 * hiz * 0.5 * (1 - 0.35 * bot.ruh['yorgunluk'])
+    kutu = BONUS_URI_SAAT * (1 + bot.seviye / 6.0) * k * x1_kesinti(bot)
+    bot.odul('kutu', uridyum=kutu)
+    SL.kutu_cephanesi(bot, kutu / KUTU_URI)
+
+
 def kas(bot, dt, y, hedef_tip=None):
     """dt saniye uzaylı kasma: kazanç, görev ilerlemesi, kargo, cephane tüketimi, ölüm. hedef_tip: görevin istediği uzaylı (yalnız onu
     kovalar: daha yavaş). Cephane ve roket stoktan (silah.py): dayanıklı uzaylıya x2/x3, roket varsa onun hasarı da; mermi biterse
@@ -77,16 +86,14 @@ def kas(bot, dt, y, hedef_tip=None):
     cesaret = max(0.0, min(1.0, 0.3 + 0.6 * bot.o('risk') + 0.2 * bot.ruh['ozguven'] - 0.3))
     r = K.harita_degerlendir(bot.harita, d['dps'], d['ehp'], cesaret)
     if not r['hedefler']:
+        if not SL.lazer_sec(bot) and not SL.roket_sec(bot):
+            _kutu_topla(bot, dt, hiz)        # gücüne uygun uzaylı olmayan haritada da (yoksa mermisiz bot orada hiç toparlanmıyordu)
         return
     nv = K.npc_degeri(hedef_tip) if hedef_tip else None
     ehp_ort = nv['ehp'] if nv else sum(K.npc_degeri(t)['ehp'] * v for t, v in r['oldurme'].items()) / max(1e-9, sum(r['oldurme'].values()))
     lz, rk, dps, lazer_dps = SL.kasma_plani(bot, ehp_ort)
     if not lz and not rk:
-        # mermisi yok: kasamaz, oyuncu gibi bonus kutusu toplar (kutudan cephane ve kredi gelir; parası bitmiş bot böyle toparlanır)
-        k = dt / 3600.0 * hiz * 0.5 * (1 - 0.35 * bot.ruh['yorgunluk'])
-        kutu = BONUS_URI_SAAT * (1 + bot.seviye / 6.0) * k * x1_kesinti(bot)
-        bot.odul('kutu', uridyum=kutu)
-        SL.kutu_cephanesi(bot, kutu / KUTU_URI)
+        _kutu_topla(bot, dt, hiz)
         return
     from . import lab as LB
     ehp = d['ehp'] * (1 + 0.5 * LB.bonus(bot, LB.KALKAN))      # kalkan yükü (kalkan payı ~yarısı)

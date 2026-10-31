@@ -132,8 +132,24 @@ def _tarih(s, fmt):
     return datetime.datetime.strptime(s, fmt)
 
 
+_SPANS = {}                                     # id(dönem listesi) -> (liste, (yıl, döngü), dönemler): etkinlik sorguları sık (botlar)
+
+
 def _spans(entries, t):
-    """t'yi içerebilecek dönemler [(başlangıç, bitiş, saatler)] (datetime; bitiş hariç)."""
+    """t'yi içerebilecek dönemler [(başlangıç, bitiş, saatler)] (datetime; bitiş hariç). Sonuç yalnız t'nin yılına ve 52 haftalık
+    döngüsüne bağlı: liste başına önbellekte (çağıranlar yalnız okur)."""
+    k = (t.year, (t - KNOWN) // CYCLE if t >= KNOWN else None)
+    c = _SPANS.get(id(entries))
+    if c and c[0] is entries and c[1] == k:
+        return c[2]
+    if len(_SPANS) > 512:
+        _SPANS.clear()
+    out = _spans_hesapla(entries, t)
+    _SPANS[id(entries)] = (entries, k, out)
+    return out
+
+
+def _spans_hesapla(entries, t):
     out, dated, once = [], [], []
     for a, b, *h in entries:
         if a[:4].isdigit() and len(a) in (10, 16):          # 'YYYY-AA-GG' ya da 'YYYY-AA-GG SS:DD' (ilk gün saatle: Chromin 10:00)
@@ -361,9 +377,21 @@ def forced(key):
         not st and EVENTS[key].get('dunya_durum') == 'acik')
 
 
+_ACTIVE = [None, None]                  # (anahtar, sonuç): aynı an için (saniyede bir 14 etkinlik modülü ayrı ayrı sorar: ek_etkinlikler)
+
+
 def active(now=None):
+    key = None
+    if now is not None:
+        key = (now, MODE, frozenset(FORCED), tuple(sorted(PASS_RUNS.items())),
+               tuple(sorted((AY._current().get('etkinlikler') or {}).items())))
+        if _ACTIVE[0] == key:
+            return set(_ACTIVE[1])
     on = {k for k in EVENTS if _on(k, now)}
-    return resolve(on, lambda k: _rank(k, now)) | (on & FORCED)
+    r = resolve(on, lambda k: _rank(k, now)) | (on & FORCED)
+    if key is not None:
+        _ACTIVE[:] = key, frozenset(r)
+    return r
 
 
 def has_type(t, now=None):

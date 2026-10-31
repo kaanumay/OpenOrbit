@@ -30,9 +30,19 @@ function applyStatic() {
   const sub = $('#brand-sub'); if (sub) sub.textContent = T('Yerel Sunucu Paneli');
   // kenar çubuğunun en altında destek bağlantısı (Buy Me a Coffee; varsayılan tarayıcıda açılır: /api/bagis)
   const kahve = $('#kahve');
-  if (kahve) kahve.replaceChildren(h('button', { class: 'kahve', type: 'button', title: 'buymeacoffee.com/kaanumay',
-    onclick: () => act(() => api('/api/bagis', {})) }, art('dron_kahve', 'kahve-dron'),
-    h('span', null, h('b', null, T('Bana bir kahve ısmarla')), h('small', null, T("OpenOrbit'i destekle")))));
+  if (!kahve) return;
+  const ac = () => act(() => api('/api/bagis', {}));
+  const dugme = h('button', { class: 'kahve', type: 'button', title: 'buymeacoffee.com/kaanumay', onclick: ac }, art('dron_kahve', 'kahve-dron'),
+    h('span', null, h('b', null, T('Bana bir kahve ısmarla')), h('small', null, T("OpenOrbit'i destekle"))));
+  kahve.replaceChildren(dugme);
+  // altında son destekçiler sola kayarak geçer (sayfadaki Recent supporters; çevrimdışıysa liste boş gelir, şerit hiç çıkmaz)
+  api('/api/destekciler').then(d => {
+    if (!d.adlar || !d.adlar.length || !dugme.isConnected) return;   // dil değişince applyStatic yeniden kurduysa eskisi eklenmesin
+    const grup = () => h('span', { class: 'kahve-grup' }, d.adlar.map(a => h('span', null, a)));
+    const sure = Math.max(12, d.adlar.join('').length * 0.45 + d.adlar.length * 2);   // ad sayısı arttıkça hız sabit kalsın
+    kahve.append(h('button', { class: 'kahve-serit', type: 'button', title: T('Son destekçiler'), 'aria-label': T('Son destekçiler') + ': ' + d.adlar.join(', '), onclick: ac },
+      h('span', { class: 'kahve-kayan', style: { animationDuration: sure + 's' } }, grup(), grup())));
+  }).catch(() => {});
 }
 
 // ------------------------------------------------------------------ simgeler (24x24, çizgi)
@@ -977,6 +987,8 @@ function settingRow(s, v, def) {
   const [tc, tt] = UYGULAMA[s.uygulama] || ['', s.uygulama];
   // alt ayar (s.ust): uygulama etiketi üstünde; yerine etkin çarpan (paintEff). data-v: gösterilen değer (sürgü bırakılmadan da)
   const row = h('div', { class: 'set-row' + (s.ust ? ' sub' : ''), 'data-key': s.anahtar, 'data-v': v });
+  // bağlı ayar (s.kosul): yalnız o açma kapama ayarı açıkken, onun altında görünür
+  if (s.kosul) { row.dataset.kosul = s.kosul; row.classList.toggle('kosul-kapali', !(S.ayar.degerler[s.kosul] ?? S.ayar.varsayilan[s.kosul])); }
   const head = h('div', null, h('div', { class: 'name' }, s.ad, s.ust ? h('span', { class: 'eff' }) : h('span', { class: 'tag ' + tc }, T(tt))),
     h('div', { class: 'help' }, s.aciklama));
   let ctl;
@@ -1010,7 +1022,10 @@ function settingRow(s, v, def) {
     markOver(v);
     ctl = h('div', { class: 'ctl' }, over, num, s.birim ? h('span', { class: 'mult' }, s.birim) : null, reset);
   } else if (s.tur === 'bool') {
-    const cb = h('input', { type: 'checkbox', checked: v, onchange: e => queueSave(s.anahtar, e.target.checked) });
+    const cb = h('input', { type: 'checkbox', checked: v, onchange: e => {
+      queueSave(s.anahtar, e.target.checked);
+      document.querySelectorAll(`.set-row[data-kosul="${s.anahtar}"]`).forEach(c => c.classList.toggle('kosul-kapali', !e.target.checked));
+    } });
     ctl = h('div', { class: 'ctl' }, h('label', { class: 'switch' }, cb, h('span')));
   } else if (s.tur === 'seviye') {
     // seçeneklerin açıklaması ve rengi şemadan (ayar.py: secenek_aciklama, renkler; panel dilinde gelir)
@@ -1583,7 +1598,9 @@ async function renderSunucu() {
 
 function renderServerCards() {
   const box = $('#srv-cards'), d = S.durum; if (!box || !d) return;
-  const s = d.surecler, sig = JSON.stringify([s, d.oyna.calisiyor, Math.floor(Date.now() / 10000)]);
+  // imza ekrandaki süre metniyle (fmtDur): saniyelik sure_sn her yoklamada kartları yeniden kurup fare altındaki düğmenin tıklamasını yutuyordu
+  const s = d.surecler, sure = x => x && Object.assign({}, x, { sure_sn: x.sure_sn == null ? null : fmtDur(x.sure_sn) });
+  const sig = JSON.stringify([Object.assign({}, s, { sunucular: { web: sure(s.sunucular.web), oyun: sure(s.sunucular.oyun) }, istemci: sure(s.istemci) }), d.oyna.calisiyor]);
   if (S.sig.srv === sig) return; S.sig.srv = sig;
   const busy = d.oyna.calisiyor, cl = s.istemci.durum === 'acik';
   const card = (title, ic, st, ports, extra, actions) => h('div', { class: 'card status-card' },

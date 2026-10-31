@@ -683,14 +683,31 @@ def npc_ikon(tip, t):
     return 'npc_%s_icon' % m if m.isdigit() else None
 
 
+def _turler(x):
+    """Davranıştaki uzaylı türleri (olunce_dogur, vurulunca_cagir … 'tur' alanları)."""
+    if isinstance(x, dict):
+        return ([x['tur']] if isinstance(x.get('tur'), str) else []) + [t for v in x.values() for t in _turler(v)]
+    return [t for v in x for t in _turler(v)] if isinstance(x, list) else []
+
+
 def uzaylilar(did):
     w = oku(did)
     npc = dunya_verisi(did, 'npc.json')
     base = ham('npc.json')['tipler']
+    import uzayli as U
     nerede = {}
     for mid, m in npc['haritalar'].items():
-        for g in m.get('npc', []):
-            nerede.setdefault(g['tip'], []).append(harita_adi(mid))
+        for g in m.get('npc', []) + m.get('zamanli', []):          # zamanli: saatli Black Light başıboşları
+            if harita_adi(mid) not in nerede.get(g['tip'], []):
+                nerede.setdefault(g['tip'], []).append(harita_adi(mid))
+    sira = list(nerede)                 # ölünce doğanlar ve çağrılanlar (Blighted Gygerthrall, Lordakium sporu) atasının haritalarında
+    for tip in sira:
+        for alt in _turler(U.of(npc['tipler'].get(tip, {}))):
+            if alt in npc['tipler']:
+                eksik = [x for x in nerede[tip] if x not in nerede.get(alt, [])]
+                if eksik:
+                    nerede.setdefault(alt, []).extend(eksik)
+                    sira.append(alt)
     ys = w['yamalar'].get('npc.json') or {}
     out = []
     for tip, t in npc['tipler'].items():
