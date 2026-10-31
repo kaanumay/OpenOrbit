@@ -1,5 +1,6 @@
-"""Lazerlerin özel nitelikleri (veri esyalar.json "lazerler" ← belgeler/wiki/lasers_ammo.md). Set bonusları ve adede bağlı etkiler yalnız
-gemideki lazerleri sayar (dronlardakiler sayılmaz; wiki "ship only").
+"""Lazerlerin özel nitelikleri (veri esyalar.json "lazerler" ← belgeler/wiki/lasers_ammo.md). Set bonusları ve adede bağlı etkiler (set_bonus,
+pvp_set, kritik, yavaslatma) ve Asmodeus Fervor'u (ofke) yalnız gemideki lazerleri sayar (wiki "only ship"); lazerin kendi nitelikleri (hasar_aralik, uzayli_bonus,
+uzayli_ek, hedef_carpan, ek_hasar_5sn, menzil, can_lazer_basina) dronlardaki lazerlerde de işler.
 
   hasar_aralik      [en az, en çok]: her isabette rastgele (Unstable LF-4 128-220; dağılım bilinmiyor, düzgün alındı)
   uzayli_bonus      uzaylılara oransal bonus (LF-3 +%15, Caucasus +%15 PvE; yalnız tabana, overdrive'a değil: fandom DPS 250 = 200 x 1,15 + 100)
