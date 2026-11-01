@@ -22,7 +22,7 @@ import datetime, json, math, os, random, time
 import settings as SET
 import mode_passes as GC
 import map_links as H
-import galaxy_gates as KAPI
+import galaxy_gates as GALAXY
 import pve_common as PS
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -83,9 +83,9 @@ class Arena:
             return []
         # side by side at the top center of the map (official server record: Trinity Trials portal in 2-1 at (10700, 3000)); if the base
         # is at the top center (2-8) bottom center
-        x, y = KAPI.MAP_W // 2 + 200 - (2 - self.slot) * 1400, 3000
+        x, y = GALAXY.MAP_W // 2 + 200 - (2 - self.slot) * 1400, 3000
         if station and math.hypot(x - station['posX'], y - station['posY']) < 2500:
-            y = KAPI.MAP_H - y
+            y = GALAXY.MAP_H - y
         return [dict(gateId=PORTAL_BASE + self.slot, x=x, y=y, target=0,
                      designId=self.D['portal'], gate=self.key, windowed=self.key, entry=cls)]
 
@@ -123,7 +123,7 @@ class Arena:
         if i == 0 and self.run and self.run['start'] is None:
             self.run['start'] = time.time()
         self.run['wave'] = i
-        self.world.send([KAPI.screen('%s - Wave %d/%d' % (self.name, i + 1, self.wave_count()), big=True)])
+        self.world.send([GALAXY.screen('%s - Wave %d/%d' % (self.name, i + 1, self.wave_count()), big=True)])
 
     def on_death(self):
         """Death on the mode map: the run ends (re-entry required)."""
@@ -140,7 +140,7 @@ class Arena:
 
     def exit_portal(self, world):
         x, y = world.map_w // 2, world.map_h // 2
-        home = KAPI.HOME_MAP.get(self.p.d['pilot'].get('factionId'), 5)
+        home = GALAXY.HOME_MAP.get(self.p.d['pilot'].get('factionId'), 5)
         return dict(gateId=PORTAL_BASE + 50 + self.slot, x=x, y=y, target=home, designId=1, gate=self.key, exit=True,
                     arrival='station')
 
@@ -204,7 +204,7 @@ class Voyagers(Arena):
         lvl, free = int(f.get('instanceLevel') or 1), bool(f.get('isFree'))
         if not 1 <= lvl <= self.opened() or not self.can_enter(where, free):
             self.log('   Voyagers: cannot enter (difficulty %d / open %d, %s)' % (lvl, self.opened(), 'free' if free else 'token'))
-            return None, [self.window(where), KAPI.screen('You cannot enter this difficulty right now.')]
+            return None, [self.window(where), GALAXY.screen('You cannot enter this difficulty right now.')]
         self.start(lvl, where, free, self.D['map'])
         return self.D['map'], None
 
@@ -236,8 +236,8 @@ class Voyagers(Arena):
                     s['on'] = r['difficulty'] + 1
             self.p.dirty = True
         self.p.ach('gate', type='VOYAGERS_GATE')
-        msgs += [KAPI.screen('key:log_msg_gg_completed_voyagersascentrial', big=True),          # the client's text; time and stars
-                 KAPI.screen("Voyagers' Ascent %s completed in %s: %d star%s" % (z['name'], fmt(secs), stars, '' if stars == 1 else 's'))]
+        msgs += [GALAXY.screen('key:log_msg_gg_completed_voyagersascentrial', big=True),          # the client's text; time and stars
+                 GALAXY.screen("Voyagers' Ascent %s completed in %s: %d star%s" % (z['name'], fmt(secs), stars, '' if stars == 1 else 's'))]
         w.add_gate(self.exit_portal(w))
         w.send(msgs + [self.reward_pass.cmd('VoyagersPassCommand')])
         self.log('   Voyagers %s: %d s, %d stars; %s' % (z['name'], secs, stars, ', '.join(got) or '-'))
@@ -316,7 +316,7 @@ class Trinity(Arena):
         free = self.free_left(where) > 0
         if attr not in self.arenas_today(now) or not 1 <= lvl <= self.opened() or not self.can_enter(where, free):
             self.log('   Trinity: cannot enter (arena %d today %s, difficulty %d / %d)' % (attr, self.arenas_today(now), lvl, self.opened()))
-            return None, [self.window(where, now), KAPI.screen('This arena or difficulty is not available right now.')]
+            return None, [self.window(where, now), GALAXY.screen('This arena or difficulty is not available right now.')]
         dest = self.D['maps'][str(attr)][lvl - 1]
         self.start(lvl, where, free, dest)
         self.run['arena'] = attr
@@ -332,7 +332,7 @@ class Trinity(Arena):
             msgs += self.grant(self.D['qp'], k['qp']) + self.grant(self.D['xy'], k['xy'])
             if k['points']:
                 self.reward_pass.add(k['points'])
-            msgs.append(KAPI.screen('Wave %d reward: %d Quantum Prism, %d Xyralith, %d pass points' % (n, k['qp'], k['xy'], k['points'])))
+            msgs.append(GALAXY.screen('Wave %d reward: %d Quantum Prism, %d Xyralith, %d pass points' % (n, k['qp'], k['xy'], k['points'])))
         if n >= self.wave_count():
             msgs += self.complete(z)
             self.world.send(msgs)
@@ -363,8 +363,8 @@ class Trinity(Arena):
         for loot in got:
             msgs += self.grant(loot, 1)
         self.p.ach('gate', type='TRINITY_GATE')
-        msgs += [KAPI.screen('key:log_msg_gg_completed_trinitytrials', big=True),
-                 KAPI.screen('Trinity Trials %s completed! Equipment: %d' % (z['name'], len(got)))]
+        msgs += [GALAXY.screen('key:log_msg_gg_completed_trinitytrials', big=True),
+                 GALAXY.screen('Trinity Trials %s completed! Equipment: %d' % (z['name'], len(got)))]
         w.add_gate(self.exit_portal(w))
         self.log('   Trinity %s finished: %s' % (z['name'], ', '.join(got) or 'no equipment'))
         self.run = None

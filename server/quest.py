@@ -39,7 +39,7 @@ import settings as SET
 import event_calendar as CAL
 
 import map_links as H
-import galaxy_gates as KAPI
+import galaxy_gates as GALAXY
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = GD.load('quests.json')
@@ -128,8 +128,8 @@ def maps_for(spec, faction):
     """"own X-3" / "enemy X-5" / "any enemy map" / "4-5" / "Epsilon Gate" / "LoW" -> map ids (by the player's company;
     gate: the gate's maps, gates.json)."""
     ids = {v: k for k, v in H.NAMES.items()}
-    if spec.endswith(' Gate') and spec.split()[0].lower() in KAPI.KAPI:
-        return list(KAPI.KAPI[spec.split()[0].lower()]['maps'])
+    if spec.endswith(' Gate') and spec.split()[0].lower() in GALAXY.GATES:
+        return list(GALAXY.GATES[spec.split()[0].lower()]['maps'])
     import event_gate as EKP
     g = next((g for g in EKP.GATES.values() if g.get('name') == spec), None)       # by event gate name (Quarantine Zone: Epidemi 512263)
     if g:

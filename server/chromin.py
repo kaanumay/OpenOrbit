@@ -15,7 +15,7 @@ In the profile: chromin {period: timestamp when the event started, cap_warning: 
 import json, os, random, time
 
 import settings as SET
-import galaxy_gates as KAPI
+import galaxy_gates as GALAXY
 import ranks as RT
 import event_calendar as CAL
 from legacy_protocol import legacy
@@ -93,9 +93,9 @@ class Chromin:
 
     def on_kill(self, w, npc, x, y):
         """A Galaxy Gate alien died (under the world lock): a Chromin box while the event runs."""
-        if not active() or int(w.map_id) not in KAPI.BY_MAP or npc.d.get('uncounted'):
+        if not active() or int(w.map_id) not in GALAXY.BY_MAP or npc.d.get('uncounted'):
             return []
-        b = box_for(npc, KAPI.BY_MAP[int(w.map_id)])
+        b = box_for(npc, GALAXY.BY_MAP[int(w.map_id)])
         if not b or random.random() >= SET.chance('drop', D.get('probability', 1.0), 'event'):
             return []
         kind, n = b

@@ -14,7 +14,7 @@ In the profile: pve.ebl {gate, run {wave, points, option [3], weight {type: mult
 import json, math, os, random, time
 
 import settings as SET
-import galaxy_gates as KAPI
+import galaxy_gates as GALAXY
 import rankings as RK
 import pve_common as PS
 
@@ -63,7 +63,7 @@ class Ebl:
             self.st['gate'] = True
             self.p.dirty = True
         self.log('   Eternal CPU: gate at X-BL')
-        return [KAPI.screen('The Eternal Black Light gate has opened.', big=True), self.info_cmd()]
+        return [GALAXY.screen('The Eternal Black Light gate has opened.', big=True), self.info_cmd()]
 
     def portals(self, map_id):
         import map_links as H
@@ -132,7 +132,7 @@ class Ebl:
 
     def wave_started(self, i):
         w, lap = self.wave_in_lap(self.start_done + i)
-        self.world.send([KAPI.screen('Eternal Black Light - Wave %d (lap %d)' % ((lap - 1) * D['type'] + w, lap), big=True)])
+        self.world.send([GALAXY.screen('Eternal Black Light - Wave %d (lap %d)' % ((lap - 1) * D['type'] + w, lap), big=True)])
 
     def wave_done(self, i, now):
         r = self.run
@@ -168,7 +168,7 @@ class Ebl:
     def checkpoint(self, done, pts):
         w = self.world
         self.checkpoint_gates(w)
-        w.send([KAPI.screen('Checkpoint! +%d booster point%s. Continue or leave (your progress is kept).' % (pts, 's' if pts > 1 else ''),
+        w.send([GALAXY.screen('Checkpoint! +%d booster point%s. Continue or leave (your progress is kept).' % (pts, 's' if pts > 1 else ''),
                             big=True), self.booster_cmd(), self.info_cmd(), self.rank_cmd()])
         self.log('   EBL checkpoint: wave %d, +%d points' % (done, pts))
 
@@ -195,7 +195,7 @@ class Ebl:
         self.log('   EBL ended: %d waves; %s' % (done, '%d Blacklight Shard' % tier['part'] if tier and done else 'no reward'))
         if self.m:
             msgs += self.m.apply_stats()             # boosters are gone
-        self.world.send(msgs + [KAPI.screen('Eternal Black Light ended at wave %d.' % done, big=True), self.info_cmd(), self.rank_cmd()])
+        self.world.send(msgs + [GALAXY.screen('Eternal Black Light ended at wave %d.' % done, big=True), self.info_cmd(), self.rank_cmd()])
         return 0
 
     def revive(self):

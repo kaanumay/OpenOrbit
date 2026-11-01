@@ -33,7 +33,7 @@ import clan as KL
 import community as TP
 import world as world_module
 import map_links as H
-import galaxy_gates as KAPI
+import galaxy_gates as GALAXY
 import pve_common as PS
 import paths as PTH
 from legacy_protocol import legacy
@@ -1161,7 +1161,7 @@ class Cbs:
         self.mark()
         msgs = self.near_status(aid, now) if changed else []
         if exhausted and not df['on']:
-            msgs += self.tell(a, [KAPI.screen('The deflector shield of your Battle Station at %s is down!' % ASTEROIDS[aid]['name'])])
+            msgs += self.tell(a, [GALAXY.screen('The deflector shield of your Battle Station at %s is down!' % ASTEROIDS[aid]['name'])])
         return msgs
 
     def near_status(self, aid, now):
@@ -1471,7 +1471,7 @@ class Cbs:
             ms = npc.mover.go(tx, ty, max(150, npc.d.get('speed', 300)), time.time())
             w.send([('MoveCommand', dict(userId=npc.id, x=int(tx), y=int(ty), timeToTarget=ms))])
         self.log('   CBS: %s alien raid (%d)' % (ASTEROIDS[aid]['name'], n))
-        return [KAPI.screen('key:msg_object_under_attack', big=True, ASSET_NAME='Battle Station %s' % ASTEROIDS[aid]['name'])]
+        return [GALAXY.screen('key:msg_object_under_attack', big=True, ASSET_NAME='Battle Station %s' % ASTEROIDS[aid]['name'])]
 
     def raid_power(self, aid, n, now):
         """HP+shield per raider and shot damage per the station (the map's ordinary aliens could not scratch the 1-million satellites; live test: the
@@ -1901,7 +1901,7 @@ class Cbs:
                 n = 8 if MODS[loot]['max_count'] > 1 else 1
                 self.p.add_resource(loot, n)
             self.st
-            msgs.append(KAPI.screen('GM: modül seti envantere'))
+            msgs.append(GALAXY.screen('GM: modül seti envantere'))
         aid = self.near
         if aid and ('build' in what or 'accept' in what):
             a = self.ast(aid)
@@ -1911,7 +1911,7 @@ class Cbs:
                 a['build_end'] = 0
                 if a['state'] == 'vacant':
                     a.update(state='building', build_sec=60)
-            msgs.append(KAPI.screen('GM: kurulum bitti'))
+            msgs.append(GALAXY.screen('GM: kurulum bitti'))
         if aid and 'deflector' in what:
             df = self.ast(aid)['deflector']
             df['on'] = not df.get('on')
@@ -1926,12 +1926,12 @@ class Cbs:
         if aid and 'rival' in what:
             a = self.ast(aid)
             if a['state'] in ('built', 'building') and a.get('owner') != 'rival':
-                msgs.append(KAPI.screen('GM: burada kendi istasyonun var'))
+                msgs.append(GALAXY.screen('GM: burada kendi istasyonun var'))
             else:
                 a.update(rival=D['rival']['clans'][0], rival_progress=1.0, rival_company=1 if self.faction() != 1 else 2)
                 msgs += self.rival_build(aid, a, time.time())
         self.p.dirty = True
-        return msgs or [KAPI.screen('GM battleStation: modules | build | accept | deflector | raid | rival')]
+        return msgs or [GALAXY.screen('GM battleStation: modules | build | accept | deflector | raid | rival')]
 
 
 # ------------------------------------------------------------ the bot clans' race (bot/clan_stations.py)

@@ -20,7 +20,7 @@ import json, os, random, time
 
 import inventory as INV
 import settings as SET
-import galaxy_gates as KAPI
+import galaxy_gates as GALAXY
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'dispatch.json'), encoding='utf8'))
@@ -232,13 +232,13 @@ class Dispatch:
 
     # ------------------------------------------------------------ gates
     def gate_keys(self):
-        return [k for k in KAPI.KAPI if k != 'hades']        # a group gate is not sent (wiki)
+        return [k for k in GALAXY.GATES if k != 'hades']        # a group gate is not sent (wiki)
 
     def gate_list(self, now=None):
         now = now or time.time()
         out = []
         for key in self.gate_keys():
-            g = KAPI.KAPI[key]
+            g = GALAXY.GATES[key]
             if key in self.st['gates']:
                 left = self.st['gates'][key] - now
                 out.append(mod('DispatchGateModule', gateId=g['uid'], status=IN_PROGRESS if left > 0 else READY, timeLeft=max(0, int(left))))
@@ -251,7 +251,7 @@ class Dispatch:
         return [('DispatchGetGateListCommand', {'gateList': out})]
 
     def send_gate(self, f):
-        key = KAPI.BY_ID.get(f.get('gateId'))
+        key = GALAXY.BY_ID.get(f.get('gateId'))
         if not key or key not in self.gate_keys() or key in self.st['gates']:
             return [('DispatchMessageCommand', {'messageType': ERROR_NO_GATE})]
         if not self.k.built(key) or self.k.gate(key)['wave'] != 0:          # built and at wave 1 (forum 160334)
@@ -267,11 +267,11 @@ class Dispatch:
             self.st['gates'][key] = time.time() + SET.duration(D['gate']['duration_sec'], 'dispatch')
             self.k.gate(key)['ready'] = False
             self.p.dirty = True
-        self.log('   Dispatch: gate %s sent' % KAPI.KAPI[key]['name'])
+        self.log('   Dispatch: gate %s sent' % GALAXY.GATES[key]['name'])
         return INV.update_msgs(self.m, self.p, list(cost)) + [('DispatchMessageCommand', {'messageType': SUCCESS_SEND_GATE})] + self.gate_list()
 
     def collect_gate(self, f, now=None):
-        key = KAPI.BY_ID.get(f.get('gateId'))
+        key = GALAXY.BY_ID.get(f.get('gateId'))
         now = now or time.time()
         if not key or key not in self.st['gates']:
             return [('DispatchMessageCommand', {'messageType': ERROR_COLLECT})]

@@ -47,11 +47,11 @@ import settings as SET
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 K = DATA.load('gates.json')
-KAPI = K['gates']
-BY_ID = {v['uid']: k for k, v in KAPI.items()}
-BY_MAP = {m: k for k, v in KAPI.items() for m in v['maps']}
-SIZES = {int(m): tuple(s) for v in KAPI.values() for m, s in v['sizes'].items()}     # gate maps that differ from the standard size
-KRONOS_PARTS = next((v['part'] for v in KAPI.values() if 'sources' in v), 0)
+GATES = K['gates']
+BY_ID = {v['uid']: k for k, v in GATES.items()}
+BY_MAP = {m: k for k, v in GATES.items() for m in v['maps']}
+SIZES = {int(m): tuple(s) for v in GATES.values() for m, s in v['sizes'].items()}     # gate maps that differ from the standard size
+KRONOS_PARTS = next((v['part'] for v in GATES.values() if 'sources' in v), 0)
 # the client's enums (GalaxyGateBuilder*)
 IN_PROGRESS, FINISHED = 0, 1
 ERR_NONE, ERR_MONEY, ERR_OTHER = 0, 1, 2
@@ -113,7 +113,7 @@ def npc_type(key, wave, i):
 def register_npcs(types):
     """Adds the gate aliens as NPC types: name, look (the client's ship type), speed and npcId from gates.json; with gate-specific
     behavior (Kronos's rockets, Kappa Annihilator's closed launcher: alien.of) if there is any."""
-    for key, g in KAPI.items():
+    for key, g in GATES.items():
         for n, w in enumerate(g['waves']):
             for i, a in enumerate(w['alien_spawns']):
                 types[npc_type(key, n, i)] = dict(
@@ -236,7 +236,7 @@ def bonus_selection(now=None):
     """This period's bonus gates -> {gate: (lootId, count)}; fixed within the period (a choice seeded with the period's index)."""
     B = K.get('bonus') or {}
     n = int(SET.get('gate_bonus_count'))
-    gates = [k for k in B.get('gates', []) if k in KAPI]
+    gates = [k for k in B.get('gates', []) if k in GATES]
     pool = B.get('rewards', [])
     if n <= 0 or not gates or not pool:
         return {}
@@ -305,7 +305,7 @@ class Gates:
             other = self.p.d.setdefault('other_items', {})
             for k, n in d.pop('booty').items():
                 other[LOOT_IDS.get(k, k)] = other.get(LOOT_IDS.get(k, k), 0) + n
-        for k, g in KAPI.items():
+        for k, g in GATES.items():
             if k not in d['gates']:
                 d['gates'][k] = fresh(g)
             elif 'sources' in g:
@@ -316,7 +316,7 @@ class Gates:
         return self.d['gates'][key]
 
     def built(self, key):
-        return len(self.gate(key)['parts']) >= KAPI[key]['part']
+        return len(self.gate(key)['parts']) >= GATES[key]['part']
 
     def parts(self, key):
         """The list the parts go to on a spin: the next gate's if a gate is prepared and on the map (player report 2026-10-27: in the real game
@@ -384,7 +384,7 @@ class Gates:
             with self.p.lock:                          # bonus_taken takes the lock itself (the lock cannot be re-entered)
                 taken.append(key)
                 self.p.dirty = True
-        self.log('   %s: gate bonus %s x%d' % (KAPI[key]['name'], loot, n))
+        self.log('   %s: gate bonus %s x%d' % (GATES[key]['name'], loot, n))
         msgs, ship, S = (self.m.reward(loot, n) if self.m else []), None, K['bonus'].get('ship_chance')
         if S and random.random() < SET.chance('drop', S['probability'], 'gate'):
             ship_rec = random.choice(S['ships'])
@@ -392,12 +392,12 @@ class Gates:
             ship = (ship_rec, had)
             if self.m:
                 msgs += self.m.prize('currency_uridium', S['fallback_uridium'], 'gate') if had else self.m.reward(ship_rec, 1)
-            self.log('   %s: bonus ship %s%s' % (KAPI[key]['name'], ship_rec, ' (owned: %d U)' % S['fallback_uridium'] if had else ''))
+            self.log('   %s: bonus ship %s%s' % (GATES[key]['name'], ship_rec, ' (owned: %d U)' % S['fallback_uridium'] if had else ''))
         return msgs, (loot, n), ship
 
     # ------------------------------------------------------------ builder window
     def gate_module(self, tpl, key):
-        G, g = self.gate(key), KAPI[key]
+        G, g = self.gate(key), GATES[key]
         out = dict(tpl)
         if out.get('probabilityModules') and SET.multiplier('gate_part') != 1.0:       # panel: gate part chance (percentages)
             pct = percentages()
@@ -410,7 +410,7 @@ class Gates:
             # Kronos: progress per gate as in the record (the name is what the client shows, "Alpha", "Beta" ...)
             # dictionary: mod()'s first argument is also "name"
             out['multiGateProgressModules'] = [{'_': 'GalaxyGateBuilderMultiGateProgressModule', 'total': n,
-                                                'current': G['source'].get(k, 0), 'name': KAPI[k]['name'].replace(' Gate', '')}
+                                                'current': G['source'].get(k, 0), 'name': GATES[k]['name'].replace(' Gate', '')}
                                                for k, n in g['sources'].items()]
             out['probabilityModules'] = []
         return out
@@ -430,7 +430,7 @@ class Gates:
             key = BY_ID.get(m.get('id'))
             gates.append(self.gate_module(m, key) if key else m)
             have.add(key)
-        for key in KAPI:
+        for key in GATES:
             if key not in have:
                 gates.append(self.gate_module(mod('GalaxyGateBuilderGateModule', bonusGGRewardModules=[], currWave=0, mode=key, currPart=0,
                                                   boosts=[], state=0, probabilityModules=[], lifePrice=-1, id=0, multiplier=0,
@@ -482,7 +482,7 @@ class Gates:
         reply = lambda err, items=(), extra=None: [('GalaxyGateBuilderMultiEnergyCommand', dict(
             gatePartIds=self.part_ids(key) if key else [], items=list(items), spinamount_selected=n, errorCode=err, money=self.money(),
             multiplier=self.d['multiplier'], gateMode=key or '', samples=self.d['energy']))] + (extra or [])
-        if not key or n <= 0 or KAPI[key].get('not_producible'):
+        if not key or n <= 0 or GATES[key].get('not_producible'):
             self.log('   gate builder: no spin (gate %s, %d)' % (gid, n))     # Kronos: its parts come from the other gates
             return reply(ERR_OTHER)
         group = ABG if key in ABG else (key,)    # Alpha/Beta/Gamma: the part goes to one of the three (draw)
@@ -512,11 +512,11 @@ class Gates:
             msgs = self.m.money_msgs() + msgs
         items = self.merge(results)
         self.log('   gate builder %s: %d spins (%d free, %d U), part %s, multiplier %d: %s' % (
-            key, used, free, cost, ', '.join('%s %d/%d' % (k, len(self.gate(k)['parts']), KAPI[k]['part']) for k in group), self.d['multiplier'],
+            key, used, free, cost, ', '.join('%s %d/%d' % (k, len(self.gate(k)['parts']), GATES[k]['part']) for k in group), self.d['multiplier'],
             ', '.join('%s %s' % (k, v) for k, v in sorted(grants.items()))))
         for k in group:
             if not was_built[k] and self.built(k):
-                self.log('   %s gate built' % KAPI[k]['name'])
+                self.log('   %s gate built' % GATES[k]['name'])
         self.sent = self.seen(self.info_cmd()[1])      # the response carries the parts, the energy and the construction (with its notification) to the client
         return reply(ERR_NONE, items, msgs)
 
@@ -524,7 +524,7 @@ class Gates:
         """One spin -> result records. A duplicate part becomes the multiplier (at most 5 = x6; on reaching 5 it is used automatically
         on the next reward). If a part comes up with the multiplier, as many different missing parts as the multiplier; if none are missing, the excess is ammo (client FAQ
         galaxygates_multiplier_multilpier_on_parts_p: "you'll win new parts for the gate")."""
-        d, G, g = self.d, self.gate(key), KAPI[key]
+        d, G, g = self.d, self.gate(key), GATES[key]
         wts = weights()
         gm = self.p.d['ship']
         if int(gm.get('nanoHull', 0)) + grants.get('nano', 0) >= gm.get('maxNanoHull', 0):
@@ -539,7 +539,7 @@ class Gates:
             # Alpha, Beta and Gamma are shared in the builder: the part goes to one of the three regardless of the selected gate, to that gate's progress (official ABG
             # builder; user report 2026-10-24: each gate took parts from its own spin). A part falling on a built gate is a duplicate (multiplier)
             key = random.choice(ABG)
-            G, g = self.gate(key), KAPI[key]
+            G, g = self.gate(key), GATES[key]
         if cat == CAT_PART and d['multiplier'] and (use_mult or d['multiplier'] >= K['max_multiplier']):
             mult = d['multiplier'] + 1
             P = self.parts(key)
@@ -602,7 +602,7 @@ class Gates:
                 key = BY_ID[r['gate_id']]
                 # FINISHED on the last part: the client enables the "Prepare jump" button from the gate's state (live test: when IN_PROGRESS went away the button
                 # stayed disabled until the window was reopened)
-                done = r['current'] >= KAPI[key]['part'] and not self.gate(key)['ready']
+                done = r['current'] >= GATES[key]['part'] and not self.gate(key)['ready']
                 out.append(mod('GalaxyGateBuilderPartItemModule', type=PART, date=now, livesLeft=-1, gate_id=r['gate_id'],
                                state=FINISHED if done else IN_PROGRESS, multiplier_used=r.get('mult', 1) - 1, current=r['current'],
                                part_id=r['part_id'],
@@ -670,12 +670,12 @@ class Gates:
         G = self.gate(key)
         with self.p.lock:
             if not G['ready']:
-                G.update(ready=True, wave=0, hp=SET.count('gate_lives', KAPI[key]['hp']), lives_bought=0)     # panel: gate lives
+                G.update(ready=True, wave=0, hp=SET.count('gate_lives', GATES[key]['hp']), lives_bought=0)     # panel: gate lives
             self.p.dirty = True
         w = self.world()
-        if w and w.map_id == str(self.home()) and not any(x['gateId'] == PORTAL_BASE + KAPI[key]['uid'] for x in w.gates):
+        if w and w.map_id == str(self.home()) and not any(x['gateId'] == PORTAL_BASE + GATES[key]['uid'] for x in w.gates):
             w.add_gate(self.home_portal(key, w.station))
-        self.log('   %s gate ready: %d lives' % (KAPI[key]['name'], G['hp']))
+        self.log('   %s gate ready: %d lives' % (GATES[key]['name'], G['hp']))
         return [('GalaxyGateBuilderSetupGateCommand', dict(livesLeft=G['hp'], lifePrice=self.life_price(key), id=gid, errorCode=0))]
 
     def buy_life(self, f):
@@ -697,7 +697,7 @@ class Gates:
                 G['lives_bought'] += 1
                 self.p.dirty = True
             RT.money(self.p, 'uridium', -price, 'buy_SPECIAL')
-            self.log('   %s gate lives bought (%d U), lives %d' % (KAPI[key]['name'], price, G['hp']))
+            self.log('   %s gate lives bought (%d U), lives %d' % (GATES[key]['name'], price, G['hp']))
         G = self.gate(key) if key else {'hp': -1}
         msgs = [('GalaxyGateBuilderBuyLifeCommand', dict(samples=self.d['energy'], multiplier=self.d['multiplier'], gateId=gid or 0, errorCode=err,
                                                          lifePrice=self.life_price(key) if key else -1, money=self.money(),
@@ -710,10 +710,10 @@ class Gates:
     def home_portal(self, key, station):
         """The gate portal in X-1: next to the base, toward the middle of the map (gates side by side; rings of five). Leads to the map of the wave
         you were on (Zeta, Kuiper)."""
-        g, G = KAPI[key], self.gate(key)
+        g, G = GATES[key], self.gate(key)
         cx, cy = MAP_W // 2, MAP_H // 2
         sx, sy = (station['posX'], station['posY']) if station else (cx, cy)
-        ring, slot = divmod(list(KAPI).index(key), 5)
+        ring, slot = divmod(list(GATES).index(key), 5)
         a = math.atan2(cy - sy, cx - sx) + (-0.45, 0, 0.45, 0.9, -0.9)[slot]
         dist = K['portal_distance'] + ring * 1400
         x, y = int(sx + math.cos(a) * dist), int(sy + math.sin(a) * dist)
@@ -726,18 +726,18 @@ class Gates:
     def home_portals(self, map_id, station):
         if int(map_id) != self.home():
             return []
-        return [self.home_portal(k, station) for k in KAPI if self.gate(k)['ready']]
+        return [self.home_portal(k, station) for k in GATES if self.gate(k)['ready']]
 
     def exit_portal(self, key, map_id, side=False):
         """Return home from the gate: in the middle of the map (to the right of the next wave's portal while it is open)."""
         x, y = center(map_id)
-        return dict(gateId=PORTAL_BASE + 50 + KAPI[key]['uid'], x=x + 700 if side else x, y=y, target=self.home(), designId=1,
+        return dict(gateId=PORTAL_BASE + 50 + GATES[key]['uid'], x=x + 700 if side else x, y=y, target=self.home(), designId=1,
                     gate=key, exit=True, arrival='station')
 
     def next_portal(self, key, map_id, dest):
         """To the next wave (same map; in Zeta and Kuiper after the map's last wave to the next map): left of the middle,
         with the gate's portal design."""
-        g = KAPI[key]
+        g = GATES[key]
         x, y = center(map_id)
         return dict(gateId=PORTAL_BASE + NEXT_PORTAL + g['uid'], x=x - 700, y=y, target=dest, designId=g['portal'], gate=key,
                     arrival=center(dest))
@@ -745,10 +745,10 @@ class Gates:
     def kronos_part(self, key, dispatch=False):
         """Gate completed: Kronos part (1 per completion, 2 on Kronos day, always 1 with Dispatch (forum 160334); at most the number in the wiki per gate)
         -> (arrived, total)."""
-        kronos = next((k for k, g in KAPI.items() if key in g.get('sources', {})), None)
+        kronos = next((k for k, g in GATES.items() if key in g.get('sources', {})), None)
         if not kronos:
             return None
-        g, G = KAPI[kronos], self.gate(kronos)
+        g, G = GATES[kronos], self.gate(kronos)
         import event_calendar as CAL
         n = 2 if CAL.is_active('kronos_day') and not dispatch else 1     # cumartesi (event_calendar.py)
         with self.p.lock:
@@ -760,7 +760,7 @@ class Gates:
                 self.p.dirty = True
         if got <= 0:
             return None
-        self.log('   Kronos part: %s +%d (%d/%d)' % (KAPI[key]['name'], got, len(G['parts']), g['part']))
+        self.log('   Kronos part: %s +%d (%d/%d)' % (GATES[key]['name'], got, len(G['parts']), g['part']))
         return got, len(G['parts'])
 
     def finish(self, key, reward_msgs=None, dispatch=False, multiplier=1):
@@ -773,7 +773,7 @@ class Gates:
         from special events"; Special Booty Days: "This will not be dropped from Dispatch"); the bonus reward and Double Rewards Day are exceptions."""
         import event_calendar as CAL
         import loot as LOOT
-        g, R = KAPI[key], KAPI[key]['reward']
+        g, R = GATES[key], GATES[key]['reward']
         # Double Rewards Day in Dispatch too (by collection time; client dispatch_gate_description, forum 160341). Items: forum and in-game
         # windows: UCB-100, ABR and Schism x1; Kronos's RSB-75/UBR-100/energy x2; for a lucky reward the probability is the same, the count x2
         x2 = 2 if CAL.is_active('gg_double_reward') else 1
@@ -897,7 +897,7 @@ class Run:
 
     def __init__(self, gates, world, key):
         self.k, self.w, self.key = gates, world, key
-        self.g = KAPI[key]
+        self.g = GATES[key]
         self.map = int(world.map_id)
         G = gates.gate(key)
         self.npcs = set()            # this wave's aliens

@@ -26,7 +26,7 @@ import settings as SET
 import world as world_module
 import event_gate as EKP
 import map_links as H
-import galaxy_gates as KAPI
+import galaxy_gates as GALAXY
 import pve_common as PS
 import event_calendar as CAL
 from world_boss import mod, rewards, scale, seg_dist
@@ -180,7 +180,7 @@ class Apotheosis:
             msgs += self.m.prize(loot, n)
         if self.titles:
             msgs += self.titles(row['title'])
-        msgs.append(KAPI.screen('Kristallon Apotheosis weekly rank: %d' % rank, big=True))
+        msgs.append(GALAXY.screen('Kristallon Apotheosis weekly rank: %d' % rank, big=True))
         self.log('   Kristallon Apotheosis weekly ranking %d' % rank)
         return msgs
 
@@ -243,7 +243,7 @@ class Apotheosis:
             self.p.dirty = True
         self.saved = None
         self.log('   Kristallon Apotheosis: target points reached, portals opened')
-        return [legacy('0|A|STM|kristallon_apotheosis_start_portal'), KAPI.screen('key:kristallon_apotheosis_start_portal', big=True)]
+        return [legacy('0|A|STM|kristallon_apotheosis_start_portal'), GALAXY.screen('key:kristallon_apotheosis_start_portal', big=True)]
 
     def collect_rows(self, world):
         return D.get('collecting', {}).get(H.map_class(world.map_id), [])
@@ -277,7 +277,7 @@ class Apotheosis:
         if not active() or self.st.get('state') != 'boss':
             return []
         sx, sy = station['posX'], station['posY']
-        cx, cy = KAPI.MAP_W // 2, KAPI.MAP_H // 2
+        cx, cy = GALAXY.MAP_W // 2, GALAXY.MAP_H // 2
         x, y = int(sx + (cx - sx) * 0.35), int(sy + (cy - sy) * 0.35 - 1200)
         return [dict(gateId=PORTAL_ID, x=x, y=y, target=0, designId=D.get('portal_design', 307), windowed='apotheosis',
                      hint_target=MAP)]
@@ -287,7 +287,7 @@ class Apotheosis:
         if not active() or self.st.get('state') != 'boss':
             w.send([legacy('0|A|STM|kristallon_apotheosis_not_enabled')])
             return
-        go(MAP, (KAPI.MAP_W // 2 + random.randint(-800, 800), KAPI.MAP_H // 2 + 2500))
+        go(MAP, (GALAXY.MAP_W // 2 + random.randint(-800, 800), GALAXY.MAP_H // 2 + 2500))
 
     # ------------------------------------------------------------ world
     def attach(self, world):
@@ -317,7 +317,7 @@ class Apotheosis:
             return []
         self.spawned.discard(npc.id)
         tip, pts = npc.apo
-        msgs = [KAPI.screen('Kristallon Apotheosis: +%d (%d/%d)' % (pts, min(self.st.get('points', 0) + pts, D['target_points']),
+        msgs = [GALAXY.screen('Kristallon Apotheosis: +%d (%d/%d)' % (pts, min(self.st.get('points', 0) + pts, D['target_points']),
                                                                  D['target_points']))] if self.st.get('state') == 'collecting' else []
         msgs += self.add_points(pts)
         if self.st.get('state') == 'collecting':
@@ -426,7 +426,7 @@ class ApoRun:
         if time.time() >= self.boss_at:
             self.spawn_boss()
             return []
-        return [KAPI.screen('Emperor Kristallon arrives in %d s.' % max(1, int(self.boss_at - time.time())), big=True)]
+        return [GALAXY.screen('Emperor Kristallon arrives in %d s.' % max(1, int(self.boss_at - time.time())), big=True)]
 
     def snapshot(self):
         b = self.boss
@@ -458,7 +458,7 @@ class ApoRun:
         now = time.time()
         self.next.update(rift=now + 8, ice=now + 12, radiation=now + 15)
         self.stage = next(i for i, th in reversed(list(enumerate(D['phases'], 1))) if self.left() <= th)
-        w.send([KAPI.screen('Emperor Kristallon has appeared!', big=True)])
+        w.send([GALAXY.screen('Emperor Kristallon has appeared!', big=True)])
         w.log('   Kristallon Apotheosis: Emperor Kristallon arrived (level %d, power %.2f, HP %d + %d)' % (self.lv, self.s, b.hp, b.shield))
 
     def boss_hit(self, dmg):
@@ -470,7 +470,7 @@ class ApoRun:
         for i, th in enumerate(D['phases'][1:], 2):
             if self.stage < i and left <= th:
                 self.stage = i
-                self.w.send([KAPI.screen('Emperor Kristallon: phase %d!' % i, big=True)])
+                self.w.send([GALAXY.screen('Emperor Kristallon: phase %d!' % i, big=True)])
                 self.w.log('   Kristallon Apotheosis: phase %d' % i)
 
     # ------------------------------------------------------------ loop
@@ -552,7 +552,7 @@ class ApoRun:
         sx = min(max(int(self.cx + math.cos(a) * 3000), 800), w.map_w - 800)
         sy = min(max(int(self.cy + math.sin(a) * 2000), 800), w.map_h - 800)
         self.guide = (sx, sy)
-        w.send([self.vm(w.hid, GUIDE, True, extra='%d|%d' % (sx, sy)), KAPI.screen('Radiation surge! Reach the safe zone.', big=True)])
+        w.send([self.vm(w.hid, GUIDE, True, extra='%d|%d' % (sx, sy)), GALAXY.screen('Radiation surge! Reach the safe zone.', big=True)])
 
         def burst():
             self.guide = None
@@ -577,7 +577,7 @@ class ApoRun:
             r = 250 + 120 * (i % 3)
             w.drop_box(k['type'], x + math.cos(a) * r, y + math.sin(a) * r, None, k['lifetime_sec'])
         msgs += [legacy('0|A|STM|kristallon_apotheosis_finisher|%%PLAYER%%|%s' % self.m.p.d['pilot'].get('userName', '')),
-                 legacy('0|A|STM|kristallon_apotheosis_completed'), KAPI.screen('key:kristallon_apotheosis_completed', big=True)]
+                 legacy('0|A|STM|kristallon_apotheosis_completed'), GALAXY.screen('key:kristallon_apotheosis_completed', big=True)]
         with self.m.p.lock:
             self.m.st['state'] = 'finished'
             self.m.p.dirty = True
@@ -588,7 +588,7 @@ class ApoRun:
         w, b = self.w, self.boss
         self.phase = 'finished'
         self.close_at = time.time() + D['closing_sec']
-        msgs = [KAPI.screen('Emperor Kristallon has escaped.', big=True)]
+        msgs = [GALAXY.screen('Emperor Kristallon has escaped.', big=True)]
         if b and self.dealt >= self.boss_max() * D.get('participation_threshold', 0.01):
             msgs += self.m.participation(self.lv)
         if b and b.alive:
@@ -602,7 +602,7 @@ class ApoRun:
     def close(self):
         w = self.w
         self.phase = 'closed'
-        w.send([KAPI.screen('Kristallon Apotheosis is closing.', big=True)])
+        w.send([GALAXY.screen('Kristallon Apotheosis is closing.', big=True)])
         if self.m.change_map and not w.hero_dead:
             home = self.m.k.home() if self.m.k else 5
             w.later(3.0, lambda: self.m.change_map(home, None, 'station'))

@@ -115,7 +115,7 @@ def give(path, items, pr=None):
     """The game's reward path (same as quest and box rewards: shop.reward) on an offline profile: ship to the hangar, equipment to the
     inventory (equipped if there is a free slot), drone, ammo, resource, booster, design. An unknown lootId is rejected. pr: this
     profile instead of the file (not saved)."""
-    import galaxy_gates as KAPI
+    import galaxy_gates as GALAXY
     import new_systems as NS
     from player_profile import Profile
     from shop import Shop
@@ -128,7 +128,7 @@ def give(path, items, pr=None):
     save = pr is None
     pr = pr or Profile(_load('login.json').get('seed'), path)
     m = Shop(pr, _load('responses.json'), notes.append)      # templates in the game: the HangarShipEquipmentCommand of the equipped equipment
-    m.gates = KAPI.Gates(pr, notes.append)
+    m.gates = GALAXY.Gates(pr, notes.append)
     m.new_ = NS.NewSystems(pr, m, notes.append)
     before = (len(pr.d.get('items', {})), len(pr.d.get('ships', {})), len(pr.d.get('drones', [])))
     for loot, n in items:

@@ -25,7 +25,7 @@ In the profile: nova {roster: [{id, section, family, name, energy, t, skills: [{
 import json, os, random, threading, time
 
 import inventory as INV
-import galaxy_gates as KAPI
+import galaxy_gates as GALAXY
 from legacy_protocol import stm
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -49,7 +49,7 @@ def value(kind, base, level):
 
 def where(map_id):
     """The map's place in the perks: 'abg' (Alpha/Beta/Gamma), 'gate' (other gates) or None."""
-    g = KAPI.BY_MAP.get(int(map_id or 0))
+    g = GALAXY.BY_MAP.get(int(map_id or 0))
     return None if not g else 'abg' if g in ('alpha', 'beta', 'gamma') else 'gate'
 
 

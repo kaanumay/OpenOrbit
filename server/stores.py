@@ -502,5 +502,5 @@ class Stores:
 
     @staticmethod
     def info_msg(text):
-        import galaxy_gates as KAPI
-        return KAPI.screen(text)
+        import galaxy_gates as GALAXY
+        return GALAXY.screen(text)

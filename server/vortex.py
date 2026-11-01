@@ -20,7 +20,7 @@ import settings as SET
 import world as world_module
 import event_gate as EKP
 import map_links as H
-import galaxy_gates as KAPI
+import galaxy_gates as GALAXY
 import event_calendar as CAL
 from legacy_protocol import legacy
 
@@ -170,7 +170,7 @@ class Vortex:
         if not it:
             return []
         if sh['vip'] and not self.vip():
-            return [KAPI.screen('VoG Vanguard required.')]
+            return [GALAXY.screen('VoG Vanguard required.')]
         per = period_key(it['limit_type'])
         bought = self.st['claimed'].setdefault(event, {})
         p0, n = bought.get(str(eid), [per, 0])
@@ -201,7 +201,7 @@ class Vortex:
                 or H.company(map_id) != self.p.d['pilot'].get('factionId'):
             return []
         sx, sy = station['posX'], station['posY']
-        cx, cy = KAPI.MAP_W // 2, KAPI.MAP_H // 2
+        cx, cy = GALAXY.MAP_W // 2, GALAXY.MAP_H // 2
         x, y = int(sx + (cx - sx) * 0.45), int(sy + (cy - sy) * 0.45 - 900)
         return [dict(gateId=PORTAL_ID, x=x, y=y, target=0, designId=D.get('portal_design', 1), windowed='vortex',
                      tooltip=D.get('tooltip', 'ttip_jumpgate_sae'))]
@@ -209,7 +209,7 @@ class Vortex:
     def portal_window(self, g, w, go):
         """Jumped to the portal in X-1 (under the world lock): to the map if a session is open."""
         if self.p.d['pilot'].get('level', 1) < D.get('level', 13):
-            w.send([KAPI.screen('You need to reach level %d to enter the Vortex of Greed.' % D.get('level', 13))])
+            w.send([GALAXY.screen('You need to reach level %d to enter the Vortex of Greed.' % D.get('level', 13))])
             return
         open_, a, b, double, nxt = session()
         if not open_:
@@ -424,7 +424,7 @@ class VogRun:
     def collect(self, coins):
         self.score += coins
         self.dirty = True
-        return [self.score_cmd(), KAPI.screen('+%d Stellar Coins' % coins)]
+        return [self.score_cmd(), GALAXY.screen('+%d Stellar Coins' % coins)]
 
     def spawn_boss(self):
         w = self.w
@@ -474,7 +474,7 @@ class VogRun:
         if not self.zone_at(hx, hy):
             if self.inside_since is not None:
                 self.inside_since = None
-                w.send([KAPI.screen('Evacuation interrupted.')])
+                w.send([GALAXY.screen('Evacuation interrupted.')])
             return
         if self.inside_since is None:
             self.inside_since = now
@@ -484,7 +484,7 @@ class VogRun:
             self.evacuate()
         elif left != getattr(self, 'counted', None):
             self.counted = left
-            w.send([KAPI.screen('Evacuating in %d…' % left)])
+            w.send([GALAXY.screen('Evacuating in %d…' % left)])
 
     def evacuate(self):
         w = self.w
@@ -494,13 +494,13 @@ class VogRun:
         if self.m.vip():
             coins = int(coins * D['vip_earnings'])
         msgs = self.m.credit(int(coins), self.holder)
-        msgs += [KAPI.screen('Evacuation successful!', big=True)]
+        msgs += [GALAXY.screen('Evacuation successful!', big=True)]
         self.score = 0
         self.leave(msgs)
 
     def finish(self, text):
         self.score = 0
-        self.leave([KAPI.screen(text, big=True)])
+        self.leave([GALAXY.screen(text, big=True)])
 
     def leave(self, msgs):
         w = self.w

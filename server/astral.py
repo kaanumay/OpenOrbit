@@ -19,7 +19,7 @@ In the profile: pve.astral {gate, run {ship, shipId, sid, rift, type, frenzied, 
 import json, math, os, random, time
 
 import settings as SET
-import galaxy_gates as KAPI
+import galaxy_gates as GALAXY
 import rankings as RK
 import pve_common as PS
 
@@ -64,7 +64,7 @@ class Astral:
             self.st['gate'] = True
             self.p.dirty = True
         self.log('   Astral CPU used: gate in X-1')
-        return [KAPI.screen('The Astral Ascension gate has opened in the center of the map.', big=True), self.cpu_cmd()]
+        return [GALAXY.screen('The Astral Ascension gate has opened in the center of the map.', big=True), self.cpu_cmd()]
 
     def portals(self, map_id):
         import map_links as H
@@ -204,7 +204,7 @@ class Astral:
             if loot == 'resource_collectable_astralite':
                 p.ach('loot', loot=loot, amount=n)                  # Astral Ascension Pass: "collect Astralite" (battle_pass.py)
         self.log('   Astral ended: rift %d, points %d; %s' % (reached, r['points'], ', '.join(got)))
-        msgs.append(KAPI.screen('Astral Ascension ended at rift %d. Score: %d' % (min(reached, 15), r['points']), big=True))
+        msgs.append(GALAXY.screen('Astral Ascension ended at rift %d. Score: %d' % (min(reached, 15), r['points']), big=True))
         return msgs + [self.info_cmd(), self.rank_cmd()]
 
     # ------------------------------------------------------------ rift
@@ -254,7 +254,7 @@ class Astral:
 
     def wave_started(self, i):
         r = self.run                                     # the client's text: "%NAME% - Rift %RIFT% Wave %WAVE%"
-        self.world.send([KAPI.screen('key:log_astralascension_wave_name', big=True, RIFT=r['rift'], WAVE=i + 1,
+        self.world.send([GALAXY.screen('key:log_astralascension_wave_name', big=True, RIFT=r['rift'], WAVE=i + 1,
                                  NAME='Astral Ascension' + (' (Frenzied)' if r['frenzied'] else ''))])
         if self.rift()['boss']:
             self.run['wave_start'] = time.time()
@@ -279,7 +279,7 @@ class Astral:
             r['points'] += pts
             r['cleared'] = True
             self.p.dirty = True
-        msgs = [KAPI.screen('Rift %d cleared! +%d points' % (r['rift'], pts), big=True)]
+        msgs = [GALAXY.screen('Rift %d cleared! +%d points' % (r['rift'], pts), big=True)]
         self.log('   Astral rift %d ended: +%d points (%d)' % (r['rift'], pts, r['points']))
         if r['rift'] >= len(D['rifts']):
             w.send(msgs + self.end_run(16, final=True))
@@ -308,7 +308,7 @@ class Astral:
         lvl_bonus = 3 if r['frenzied'] else 0
         pool = D['pool'].get(t, [])
         if t == 'hp':
-            return self.heal(0.5) + [KAPI.screen('50% of your hit points restored.')]
+            return self.heal(0.5) + [GALAXY.screen('50% of your hit points restored.')]
         if t == 'ammunition':
             msgs = []
             for loot, lo, hi in random.sample(pool, 2):
@@ -316,13 +316,13 @@ class Astral:
                 with self.p.lock:
                     self.p.d['ammunition'][loot] = self.p.d['ammunition'].get(loot, 0) + n
                     self.p.dirty = True
-                msgs.append(KAPI.screen('+%d %s' % (n, loot.rsplit('_', 1)[-1].upper())))
+                msgs.append(GALAXY.screen('+%d %s' % (n, loot.rsplit('_', 1)[-1].upper())))
             return msgs
         if t == 'source':
             loot, lo, hi = pool[0]
             n = int(random.randint(lo, hi) * (1.5 if r['frenzied'] else 1))
             r['atlas'] += n
-            return [KAPI.screen('+%d Atlas Shard (booked at the end of the run)' % n)]
+            return [GALAXY.screen('+%d Atlas Shard (booked at the end of the run)' % n)]
         picks = []
         for loot, lo, hi in random.sample(pool, min(3, len(pool))):
             if t == 'booster':
@@ -389,7 +389,7 @@ class Astral:
         w.send([self.info_cmd(at_gate=True)])
 
     def exit_portal(self, world):
-        home = KAPI.HOME_MAP.get(self.p.d['pilot'].get('factionId'), 5)
+        home = GALAXY.HOME_MAP.get(self.p.d['pilot'].get('factionId'), 5)
         return dict(gateId=PORTAL + 50, x=world.map_w // 2, y=world.map_h // 2 + 1500, target=home, designId=1, gate='astral', exit=True,
                     astral_exit=True, arrival='station')
 

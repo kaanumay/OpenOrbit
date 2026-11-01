@@ -29,7 +29,7 @@ Frozen Labyrinth is separate (labyrinth.py); its entry portal on X-1 is here.
 import datetime, json, math, os, random, time
 
 import map_links as H
-import galaxy_gates as KAPI
+import galaxy_gates as GALAXY
 import rankings as RK
 import event_calendar as CAL
 import settings as SET
@@ -50,8 +50,8 @@ PLUTUS_DONE, PLUTUS_OPEN, PLUTUS_RUNNING = 1, 2, 3
 
 def poi(pid, x, y, r, ptype=4, design=6):
     """MapAddPOICommand (the format of world_boss.poi; ptype 4 / design 6: green healing circle)."""
-    return ('MapAddPOICommand', dict(inverted=False, poiTypeSpecification='', poiType=KAPI.mod('POITypeModule', typeValue=ptype), shape=0,
-                                     active=True, design=KAPI.mod('POIDesignModule', designValue=design), poiId=pid,
+    return ('MapAddPOICommand', dict(inverted=False, poiTypeSpecification='', poiType=GALAXY.mod('POITypeModule', typeValue=ptype), shape=0,
+                                     active=True, design=GALAXY.mod('POIDesignModule', designValue=design), poiId=pid,
                                      shapeCoordinates=[int(x), int(y), int(r)]))
 
 
@@ -93,7 +93,7 @@ def register_npcs(types):
         for name, a in g.get('extra_kinds', {}).items():
             types[extra_type(key, name)] = _tip(a, key)
         for k in [k for k in types if k.startswith(('eg_%s_' % key))]:
-            types[k].setdefault('shield_absorb', KAPI.GATE_ABSORB)      # gate aliens 50% (galaxy_gates.GATE_ABSORB)
+            types[k].setdefault('shield_absorb', GALAXY.GATE_ABSORB)      # gate aliens 50% (galaxy_gates.GATE_ABSORB)
     for k, a in LAB['alien_spawns'].items():
         types[k] = _tip(a, aggressive='meteoroid' not in k and 'synk' not in k)
 
@@ -129,7 +129,7 @@ class EventGates:
         return self.d.setdefault(key, dict(ready=False, wave=0, hp=GATES[key]['hp'], done=0))
 
     def home(self):
-        return KAPI.HOME_MAP.get(self.p.d['pilot'].get('factionId'), 5)
+        return GALAXY.HOME_MAP.get(self.p.d['pilot'].get('factionId'), 5)
 
     # ------------------------------------------------------------ entry
     def allowed(self, key, now=None):
@@ -195,7 +195,7 @@ class EventGates:
         # open portals side by side on an arc above the middle of the map (wiki: the Level Invasion gates are in the middle of the map;
         # official server recording: the event portals on 2-1 are in the middle column, between (10700, 3000) and (11210, 6310)). They used to
         # line up behind the base toward the corner.
-        cx, cy = KAPI.MAP_W // 2, KAPI.MAP_H // 2
+        cx, cy = GALAXY.MAP_W // 2, GALAXY.MAP_H // 2
         for i, g in enumerate(out):
             a = -math.pi / 2 + (i - (len(out) - 1) / 2.0) * 0.55
             g['x'], g['y'] = int(cx + math.cos(a) * 2400), int(cy + math.sin(a) * 2400)
@@ -377,7 +377,7 @@ class EventGates:
                                            filename=''))]
 
 
-class Run(KAPI.Run):
+class Run(GALAXY.Run):
     """Waves on the event gate map: galaxy_gates.Run, with EventGates' wave order, finish and lives."""
 
     def __init__(self, event_gate, world, key):
@@ -400,12 +400,12 @@ class Run(KAPI.Run):
             world.add_gate(event_gate.exit_portal(key, self.map, side=True))
         else:
             wait = self.g.get('rule', {}).get('entry_sec')         # Plutus: Normal 1 s, Easy 15 s (forum 143902)
-            self.phase, self.t = 'intro', now + (KAPI.pace('intro_wait_sec') if wait is None else wait * SET.multiplier('wave_wait'))
+            self.phase, self.t = 'intro', now + (GALAXY.pace('intro_wait_sec') if wait is None else wait * SET.multiplier('wave_wait'))
             world.send(self.say('ongoing' if G['wave'] else 'entry') + self.k.plutus_cmds(key, now))
         world.log('   %s: wave %d/%d, lives %d (%s)' % (self.g['name'], G['wave'] + 1, self.wave_count(), G['hp'], self.phase))
 
     def messages(self):
-        return dict(KAPI.K['messages'], **self.g.get('messages', {}))
+        return dict(GALAXY.K['messages'], **self.g.get('messages', {}))
 
     def points(self, n):
         """This gate's alien died (world.kill): event points from the kind's point range (Plutus)."""
@@ -452,7 +452,7 @@ class Run(KAPI.Run):
             m = spec['radius']
             circles.append((min(max(m, hx + math.cos(a) * d), w.map_w - m), min(max(m, hy + math.sin(a) * d), w.map_h - m)))
         self.rad = dict(circles=circles, end_time=now + spec['warning_sec'] + spec['duration_sec'], next=now + spec['warning_sec'])
-        w.send([KAPI.screen('Plutus: Space Uncertainty! Get into a green circle!', big=True)]
+        w.send([GALAXY.screen('Plutus: Space Uncertainty! Get into a green circle!', big=True)]
                + [poi('plutusSpaceUncertainty%d' % i, x, y, spec['radius']) for i, (x, y) in enumerate(circles)])
         w.log('   %s: radioactive field (%d circles, %d s)' % (self.g['name'], len(circles), spec['duration_sec']))
 
@@ -487,7 +487,7 @@ class Run(KAPI.Run):
                     groups=len(self.wave()['groups']), duration='')
         vals.update(extra)
         m = self.messages().get(event, {})
-        return [KAPI.screen(m[kind].format(**vals), big=kind == 'caps', NAME=self.g['name'], WAVE='%d/%d' % (vals['wave'], vals['total']))
+        return [GALAXY.screen(m[kind].format(**vals), big=kind == 'caps', NAME=self.g['name'], WAVE='%d/%d' % (vals['wave'], vals['total']))
                 for kind in ('caps', 'short') if kind in m]
 
     def cur_map(self):
@@ -556,8 +556,8 @@ class Run(KAPI.Run):
             return
         self.counted = None
         self.w.add_gate(self.k.exit_portal(self.key, self.map))
-        self.w.send(self.say('wave_finished', wave=G['wave'], sec=KAPI.pace('wave_break_sec')) + self.k.plutus_cmds(self.key))
-        self.phase, self.t = 'break', now + KAPI.pace('wave_break_sec')
+        self.w.send(self.say('wave_finished', wave=G['wave'], sec=GALAXY.pace('wave_break_sec')) + self.k.plutus_cmds(self.key))
+        self.phase, self.t = 'break', now + GALAXY.pace('wave_break_sec')
         self.w.log('   %s: wave %s finished' % (self.g['name'], label))
 
     def complete(self):
@@ -580,7 +580,7 @@ class Run(KAPI.Run):
             k.p.dirty = True
         if left <= 0:
             k.end(self.key)
-        self.w.send([KAPI.screen('%s: you lost a life.' % self.g['name']), KAPI.stm('lifes_left', '%!', left)] + k.plutus_cmds(self.key))
+        self.w.send([GALAXY.screen('%s: you lost a life.' % self.g['name']), GALAXY.stm('lifes_left', '%!', left)] + k.plutus_cmds(self.key))
         self.w.log('   %s: life lost, %d left%s' % (self.g['name'], left, ' (gate closed)' if left <= 0 else ''))
         self.before_death = self.phase
         self.phase = 'void' if left <= 0 else 'dead'

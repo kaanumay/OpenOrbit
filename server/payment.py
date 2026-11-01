@@ -106,11 +106,11 @@ class Windows:
 def redirect(shop, item):
     """A payment button was pressed -> the command that opens the shop + on-screen text. When the shop opens the client asks for the Extras list: the product is put
     at the head of the list, the client opens it selected."""
-    import galaxy_gates as KAPI
+    import galaxy_gates as GALAXY
     got = product(item, shop)
     if shop and hasattr(shop, 'feature'):
         shop.feature('extras', got[0] if got else None)
-    return [open_shop(), KAPI.screen(text(item, shop))]
+    return [open_shop(), GALAXY.screen(text(item, shop))]
 
 
 def connecting_pid(addr, port):

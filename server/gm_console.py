@@ -343,23 +343,23 @@ class Console:
             self.say('P.E.T. seviyesi %d' % lv)
 
     def cmd_galaxyGates(self, rows, d):
-        import galaxy_gates as KAPI
+        import galaxy_gates as GALAXY
         k = self.s.gates
         for name, val, sub in rows:
             if name == 'bookGGReward':
                 key = str(val or '').strip().lower()
-                if key not in KAPI.KAPI:
+                if key not in GALAXY.GATES:
                     return self.say('kapı yok: %s' % val)
                 w = self.w
                 msgs, info = k.finish(key, w.reward_msgs if w else None)
-                return msgs + self.say('%s ödülü verildi' % KAPI.KAPI[key]['name'])
+                return msgs + self.say('%s ödülü verildi' % GALAXY.GATES[key]['name'])
             if name in ('setup', 'galaxyGates'):
                 parts = [x.strip() for x in str(val or '').split(',')]
                 key = parts[0].lower() if parts and parts[0] else ''
-                if key not in KAPI.KAPI:
+                if key not in GALAXY.GATES:
                     return self.say('kapı yok: %s' % (parts[0] if parts else ''))
                 flat = dict((n, v) for n, v in flat_items(sub))
-                g = KAPI.KAPI[key]
+                g = GALAXY.GATES[key]
                 lifes = num(flat.get('lifes') or (parts[1] if len(parts) > 1 else 0)) or g['hp']
                 wave = num(flat.get('wave') or (parts[2] if len(parts) > 2 else 0))
                 last = str(flat.get('lastWave') or (parts[3] if len(parts) > 3 else '')).lower() in ('true', '1')

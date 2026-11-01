@@ -14,7 +14,7 @@ Persistent alien (group row, third item True): takes no damage while the others 
 import math, random, time
 
 import settings as SET
-import galaxy_gates as KAPI
+import galaxy_gates as GALAXY
 
 
 def scale_npc(n, hp=1.0, dmg=1.0, reward=1.0, extra=None):
@@ -33,7 +33,7 @@ def scale_npc(n, hp=1.0, dmg=1.0, reward=1.0, extra=None):
 
 
 def screen(text, big=False):
-    return KAPI.screen(text, big=big)
+    return GALAXY.screen(text, big=big)
 
 
 def rank_module(name, p, value, when='', **extra):
@@ -137,7 +137,7 @@ class Run:
                 lair = {'r': lair[2], 'on': False}                   # the group's shared ambush state: when one is attacked, all
             if not keep:
                 count = SET.count('wave_aliens', count)            # panel: the alien count in the waves (one protector)
-            for x, y in KAPI.spread(cx, cy, count, w.map_w, w.map_h):
+            for x, y in GALAXY.spread(cx, cy, count, w.map_w, w.map_h):
                 n = w.spawn_npc_at(tip, x, y, prep=lambda n: self.m.scale(n, self.i, self.wave()), wave=True)   # strengthened and reported
                 n.gate, n.engaged, n.hunt = True, True, True
                 if lair:

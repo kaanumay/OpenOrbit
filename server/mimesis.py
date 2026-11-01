@@ -23,7 +23,7 @@ import settings as SET
 import world as world_module
 import event_gate as EKP
 import map_links as H
-import galaxy_gates as KAPI
+import galaxy_gates as GALAXY
 import rankings as RK
 import event_calendar as CAL
 from legacy_protocol import legacy
@@ -152,7 +152,7 @@ class Mimesis:
                 or H.company(map_id) != self.p.d['pilot'].get('factionId'):
             return []
         sx, sy = station['posX'], station['posY']
-        cx, cy = KAPI.MAP_W // 2, KAPI.MAP_H // 2
+        cx, cy = GALAXY.MAP_W // 2, GALAXY.MAP_H // 2
         x, y = int(sx + (cx - sx) * 0.35), int(sy + (cy - sy) * 0.35 - 1500)
         return [dict(gateId=PORTAL_ID, x=x, y=y, target=0, designId=D.get('portal_design', 1), windowed='mimesis',
                      tooltip=D.get('tooltip', 'ttip_jumpgate_escort'))]
@@ -259,7 +259,7 @@ class Mimesis:
             return []
         self.log('   Mimesis Mutiny: +%d Escort Key%s' % (n, ' (Freighter Protection)' if daily else ''))
         return self.m.resource_msgs(KEY, self.keys(), n) + [self.key_cmd(),
-                                                             KAPI.screen('Freighter Protection completed: +1 Escort Key' if daily
+                                                             GALAXY.screen('Freighter Protection completed: +1 Escort Key' if daily
                                                                          else '+%d Escort Key' % n)]
 
     def finish_run(self, score, success):
@@ -272,7 +272,7 @@ class Mimesis:
             if row:
                 for loot, n in row['rewards']:
                     msgs += self.m.prize(loot, n)
-                msgs.append(KAPI.screen('Escort reward tier: %d+ points' % row['from_'], big=True))
+                msgs.append(GALAXY.screen('Escort reward tier: %d+ points' % row['from_'], big=True))
         msgs.append(('PayloadEscortScoreCommand', dict(totalScore=self.total(), runScore=int(score))))
         self.log('   Mimesis Mutiny run finished: %d points (%s), total %d' % (score, 'succeeded' if success else 'failed', self.total()))
         return msgs + self.m.money_msgs()
@@ -443,7 +443,7 @@ class MmRun:
                 self.arrive(now)
                 return
             self.score += D['waypoint_points']
-            w.send([self.score_cmd(), KAPI.screen('Checkpoint %d cleared!' % self.leg)])
+            w.send([self.score_cmd(), GALAXY.screen('Checkpoint %d cleared!' % self.leg)])
             self.phase = 'route'
         if self.phase == 'wait':
             self.phase = 'route'
@@ -484,7 +484,7 @@ class MmRun:
         if last:
             self.phase = 'beacon'
             self.spawn_wave(D['waves']['beacon'])
-            w.send([KAPI.screen('The signalling beacon is guarded!', big=True)])
+            w.send([GALAXY.screen('The signalling beacon is guarded!', big=True)])
         else:
             self.phase = 'point'
             self.spawn_wave(D['waves']['waypoints'][min(self.leg - 1, len(D['waves']['waypoints']) - 1)])

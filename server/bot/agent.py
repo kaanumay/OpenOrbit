@@ -152,7 +152,7 @@ def observe_events(y, b, arg):
     if y.permission('gate') and b.level >= 10:
         k = GT.can_run(b)
         if k:
-            out.append('Galaxy gate ready to run (run_gate): %s.' % GT.KAPI[k]['name'])
+            out.append('Galaxy gate ready to run (run_gate): %s.' % GT.GATES[k]['name'])
     return ' '.join(out) or 'No mode or gate open for you right now.'
 
 

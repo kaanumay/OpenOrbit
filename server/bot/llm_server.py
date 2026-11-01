@@ -119,17 +119,17 @@ class Server:
 
 
 def test(log=print):
-    """The panel's "Test" button: start the server, ask a short question, stop it -> {ok, startup_sec, sure_sn, response}."""
+    """The panel's "Test" button: start the server, ask a short question, stop it -> {ok, startup_sec, duration_sec, response}."""
     s = Server(slot=1, log=log)
     t0 = time.time()
     try:
         s.launch()
         opening = time.time() - t0
-        response, duration = s.ask('Sen bir uzay oyununda pilotsun. Kısa yanıt ver.',
-                            'Bir arkadaşın "selam, nasılsın?" yazdı. JSON ver: cevap alanına kısa bir Türkçe yanıt, durum alanına "TAMAM".',
+        response, duration = s.ask('You are a pilot in a space game. Answer briefly.',
+                            'A friend wrote "selam, nasılsın?". Give JSON: in answer a short reply in Turkish, in state the word "OK".',
                             schema={'type': 'object', 'properties': {'answer': {'type': 'string'}, 'state': {'type': 'string'}},
                                   'required': ['answer', 'state']}, max_count=80)
-        ok = isinstance(response, dict) and 'TAMAM' in str(response.get('state', '')).upper()
+        ok = isinstance(response, dict) and 'OK' in str(response.get('state', '')).upper()
         return {'ok': ok, 'startup_sec': round(opening, 1), 'duration_sec': round(duration, 2), 'response': response.get('answer') if isinstance(response, dict) else str(response)}
     finally:
         s.stop()

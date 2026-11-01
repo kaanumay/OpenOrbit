@@ -729,9 +729,9 @@ class Shop:
     @staticmethod
     def skipped_msg(skipped):
         """On-screen message for what could not be given from a package (e.g. "Already owned, not given: P.E.T., 8x Iris")."""
-        import galaxy_gates as KAPI
+        import galaxy_gates as GALAXY
         name = lambda g: 'P.E.T.' if g == PET_LOOT else g.rsplit('_', 1)[-1].title()
-        return KAPI.screen('Already owned, not given: ' + ', '.join(('%dx %s' % (n, name(g))) if n > 1 else name(g)
+        return GALAXY.screen('Already owned, not given: ' + ', '.join(('%dx %s' % (n, name(g))) if n > 1 else name(g)
                                                                   for g, n, key in skipped))
 
     def drone_price(self, loot):
@@ -2177,7 +2177,7 @@ class Shop:
         all tied to the ship (hangar). Nothing stays fitted on the source: a ship module that cannot be fitted to the target and a QFC tied to another ship
         go to the inventory, with a warning on screen (user report 2026-10-25: designs, the P.E.T. and these modules stayed on the old ship and did not show in the
         normal inventory when the old ship was not selected). Every slot of the target must take the number of items moved."""
-        import galaxy_gates as KAPI
+        import galaxy_gates as GALAXY
         src, dst = str(f.get('originShipId')), str(f.get('targetShipId'))
         fail = lambda: [('HangarShipImportConfigCommand', {'shipId': int(dst) if dst.isdigit() else 0,
                                                            'errorMessage': stack_msg('error_can_not_equip_to_slot'), 'resultId': 0})]
@@ -2208,7 +2208,7 @@ class Shop:
         msgs = [('HangarShipImportConfigCommand', {'shipId': int(dst), 'errorMessage': None, 'resultId': 1}), self.equipment_cmd(dst)]
         msgs += self.item_updates(touched)                 # the transferred ones are on the target ship, the target's old ones and those that could not be fitted in the inventory
         if dropped:
-            msgs.append(KAPI.screen(REASONS['transfer_inventory'][1 if self.lang == 'tr' else 0]))
+            msgs.append(GALAXY.screen(REASONS['transfer_inventory'][1 if self.lang == 'tr' else 0]))
         if self.p.d['active_ship'] in (src, dst):
             msgs += self.apply_stats() + self.drone_msgs() + self.pet.refresh()
         return msgs

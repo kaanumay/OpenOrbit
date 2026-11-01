@@ -12,7 +12,7 @@ import astral as AS
 import echoes as EC
 import event_gate as EKP
 import map_links as H
-import galaxy_gates as KAPI
+import galaxy_gates as GALAXY
 
 try:
     import ebl as EB
@@ -102,7 +102,7 @@ class PveModes:
                 msgs = self.gate_cpu(w, key)
         if msgs is None:
             w.log('   gate CPU unavailable: %s (%s)' % (item, H.name(w.map_id)))
-            msgs = [KAPI.screen('This CPU cannot be used here.')]
+            msgs = [GALAXY.screen('This CPU cannot be used here.')]
         st = self.p.menu_status(item)
         w.send(msgs + ([('MenuItemStatusCommand', st)] if st else []))
 
@@ -120,13 +120,13 @@ class PveModes:
                 G['hp'] += g['rule']['cpu_hp']
                 self.p.dirty = True
             self.log('   %s: +%d lives (%d)' % (g['name'], g['rule']['cpu_hp'], G['hp']))
-            return [KAPI.screen('%s: %d lives added.' % (g['name'], g['rule']['cpu_hp']), big=True)]
+            return [GALAXY.screen('%s: %d lives added.' % (g['name'], g['rule']['cpu_hp']), big=True)]
         self.k.enter(key)
         for x in self.k.entry_portals(w.map_id, w.station):
             if x['gate'] == key:
                 w.add_gate(x)
         self.log('   %s: %s gate' % (item, g['name']))
-        return [KAPI.screen('The %s gate has opened.' % g['name'], big=True)]
+        return [GALAXY.screen('The %s gate has opened.' % g['name'], big=True)]
 
     # ------------------------------------------------------------ portals with windows
     def window(self, g):
@@ -152,7 +152,7 @@ class PveModes:
                 go(dest, EC.HALL_ARRIVAL)
         elif kind == 'echoes_start':
             if not self.echoes.st['roster']:
-                w.send([KAPI.screen('Choose your ships first (hangar).'), self.echoes.ship_list()])
+                w.send([GALAXY.screen('Choose your ships first (hangar).'), self.echoes.ship_list()])
             else:
                 w.send([self.echoes.roster_cmd()])
         elif kind == 'echoes_ship':
@@ -194,7 +194,7 @@ class PveModes:
             return self.jump(dest) if dest else msgs
         if name == 'RogueLiteSelectShipRequest':
             dest = a.select_ship(f)
-            return self.jump(dest) if dest else [KAPI.screen('This ship cannot be selected.')]
+            return self.jump(dest) if dest else [GALAXY.screen('This ship cannot be selected.')]
         if name == 'RogueLiteSelectRewardRequest':
             return a.select_reward(f)
         if name == 'RogueLiteChangeEquipmentRequest':
@@ -217,7 +217,7 @@ class PveModes:
         if name == 'ExpeditionResetRequest':
             return e.reset()
         if name == 'ExpeditionBackRequest':
-            return self.jump(KAPI.HOME_MAP.get(self.p.d['pilot'].get('factionId'), 5), 'station')       # from Echoes home: to the station
+            return self.jump(GALAXY.HOME_MAP.get(self.p.d['pilot'].get('factionId'), 5), 'station')       # from Echoes home: to the station
         if name == 'EternalBlacklightChooseOptionRequest' and self.ebl:
             return self.ebl.choose(f)
         return []

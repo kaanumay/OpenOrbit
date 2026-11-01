@@ -432,8 +432,8 @@ class Profile:
         f.update(self.seed.get('ShipInitializationCommand') or {})
         f.update(self.d['pilot']); f.update(self.d['ship']); f.update(self.d['position'])
         f['premium'] = self.premium      # not written to Profile
-        import galaxy_gates as KAPI
-        f['galaxyGatesDone'] = KAPI.rings(self)     # gate rings: the bit mask of completed gates
+        import galaxy_gates as GALAXY
+        f['galaxyGatesDone'] = GALAXY.rings(self)     # gate rings: the bit mask of completed gates
         if getattr(self, 'captain_energy', None):
             f.update(self.captain_energy())                  # the energy of the fitted N.O.V.A. (nova.py)
         f['refreshMap'] = True   # on first login set up the ship and move to the map

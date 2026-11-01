@@ -234,14 +234,14 @@ def info():
 # ------------------------------------------------------------------ profile and shop
 def open_save(path):
     """The profile and the game's shop (hangar rules, reward path; like profile_tool.give)."""
-    import galaxy_gates as KAPI
+    import galaxy_gates as GALAXY
     import new_systems as NS
     from player_profile import Profile
     from shop import Shop
     notes = []
     pr = Profile(PA._load('login.json').get('seed'), path)
     m = Shop(pr, PA._load('responses.json'), notes.append)
-    m.gates = KAPI.Gates(pr, notes.append)
+    m.gates = GALAXY.Gates(pr, notes.append)
     m.new_ = NS.NewSystems(pr, m, notes.append)
     return pr, m
 
@@ -338,8 +338,8 @@ def stats(pr):
                     key=lambda x: -x[1])
     roster_row = (pr.d.get('gates') or {}).get('gates') or {}
     duration = pr.d.get('gate_times') or {}
-    gates = [{'key': k, 'name': GT.KAPI[k]['name'], 'done': int((roster_row.get(k) or {}).get('done', 0)), **(duration.get(k) or {})}
-               for k in GT.KAPI if (roster_row.get(k) or {}).get('done') or k in duration]
+    gates = [{'key': k, 'name': GT.GATES[k]['name'], 'done': int((roster_row.get(k) or {}).get('done', 0)), **(duration.get(k) or {})}
+               for k in GT.GATES if (roster_row.get(k) or {}).get('done') or k in duration]
     pve = pr.d.get('pve') or {}
     return {'points': RT.breakdown(pr), 'npc': npc, 'player': player,
             'death': {'enemy': c['death_by_enemy'], 'radiation': c['death_by_radiation'], 'other': c['death_other']},

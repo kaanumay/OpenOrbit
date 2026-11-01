@@ -26,7 +26,7 @@ import settings as SET
 import world as world_module
 import event_gate as EKP
 import map_links as H
-import galaxy_gates as KAPI
+import galaxy_gates as GALAXY
 import event_calendar as CAL
 from legacy_protocol import legacy
 
@@ -205,16 +205,16 @@ class WorldBoss:
                 or H.company(map_id) != self.p.d['pilot'].get('factionId'):
             return []
         sx, sy = station['posX'], station['posY']
-        cx, cy = KAPI.MAP_W // 2, KAPI.MAP_H // 2
+        cx, cy = GALAXY.MAP_W // 2, GALAXY.MAP_H // 2
         x, y = int(sx + (cx - sx) * 0.4), int(sy + (cy - sy) * 0.4 + 1300)
         return [dict(gateId=PORTAL_ID, x=x, y=y, target=0, designId=D.get('portal_design', 1), windowed='world_boss',
                      hint_target=MAP)]                # "This Jump Gate takes you to Treacherous Domain." (the client's map name)
 
     def portal_window(self, g, w, go):
         if not active() or not window()[0]:
-            w.send([KAPI.screen('Treacherous Domain is closed.')])
+            w.send([GALAXY.screen('Treacherous Domain is closed.')])
             return
-        go(MAP, (KAPI.MAP_W // 2 + random.randint(-600, 600), KAPI.MAP_H // 2 + 1500))
+        go(MAP, (GALAXY.MAP_W // 2 + random.randint(-600, 600), GALAXY.MAP_H // 2 + 1500))
 
     # ------------------------------------------------------------ world
     def attach(self, world):
@@ -488,11 +488,11 @@ class WbRun:
             return
         if not g.downed:
             g.downed = True
-            self.w.send([self.field_visual(g, False), KAPI.screen('A Dreadfyre Guardian has fallen.')])
+            self.w.send([self.field_visual(g, False), GALAXY.screen('A Dreadfyre Guardian has fallen.')])
             if self.phase == 1 and not self.active_guardians():
                 self.phase = 2
                 self.next['revive'] = time.time() + 30
-                self.w.send([KAPI.screen('The Fortress is vulnerable!', big=True)])
+                self.w.send([GALAXY.screen('The Fortress is vulnerable!', big=True)])
                 self.w.log('   World Boss: evre 2')
 
     def revive_guardians(self, count):
@@ -504,7 +504,7 @@ class WbRun:
             g.hp, g.shield = g.d['hp'], g.d['shield']
             msgs += [self.field_visual(g, True)]
         if msgs:
-            self.w.send(msgs + [KAPI.screen('A Dreadfyre Guardian has returned!')])
+            self.w.send(msgs + [GALAXY.screen('A Dreadfyre Guardian has returned!')])
 
     def fortress_hit(self, dmg):
         self.dealt += dmg
@@ -522,7 +522,7 @@ class WbRun:
                 self.m.p.dirty = True
             for loot, n in r['rewards']:
                 msgs += self.m.m.prize(loot, n)
-            msgs.append(KAPI.screen('Progress reward %d received!' % k))
+            msgs.append(GALAXY.screen('Progress reward %d received!' % k))
         left = self.fortress_left()
         if self.phase == 2 and left <= 0.5:
             self.phase = 3
@@ -535,7 +535,7 @@ class WbRun:
                 g.hp_floor = 0                      # can now die
             self.revive_guardians(4)
             self.next['radiation'] = time.time() + 10
-            msgs.append(KAPI.screen('The Guardians have returned for the last time!', big=True))
+            msgs.append(GALAXY.screen('The Guardians have returned for the last time!', big=True))
             self.w.log('   World Boss: evre 4')
         for th in D['mine_thresholds']:
             if th not in self.mines_done and left <= th and self.phase in (2, 3, 4):
@@ -730,7 +730,7 @@ class WbRun:
             if self.m.titles:
                 msgs += self.m.titles(D['last_hit']['title'])
             msgs.append(legacy('0|A|STM|log_msg_worldboss_boss_killed|%%USERNAME%%|%s' % self.m.p.d['pilot'].get('userName', '')))
-            msgs.append(KAPI.screen('key:log_msg_gg_completed_world_boss', big=True))
+            msgs.append(GALAXY.screen('key:log_msg_gg_completed_world_boss', big=True))
             msgs += self.rank_rewards(1.0)
             self.clear_adds()
             w.log('   World Boss: Fortress yenildi')
@@ -751,7 +751,7 @@ class WbRun:
                     continue                           # the 1st place's title only if the Fortress was defeated
                 if self.m.titles:
                     msgs += self.m.titles(key)
-        msgs.append(KAPI.screen('Battle rank: %d' % rank, big=True))
+        msgs.append(GALAXY.screen('Battle rank: %d' % rank, big=True))
         self.m.log('   World Boss rank %d (share %.2f)' % (rank, share))
         return msgs
 
@@ -781,7 +781,7 @@ class WbRun:
     def close(self):
         w = self.w
         self.phase = 'closed'
-        w.send([KAPI.screen('Treacherous Domain is closing.', big=True), ('MapRemovePOICommand', {'poiId': POI_HEAL})])
+        w.send([GALAXY.screen('Treacherous Domain is closing.', big=True), ('MapRemovePOICommand', {'poiId': POI_HEAL})])
         if self.m.change_map and not w.hero_dead:
             home = self.m.k.home() if self.m.k else 5
             w.later(3.0, lambda: self.m.change_map(home, None, 'station'))
@@ -811,7 +811,7 @@ class WbRun:
         return [('HitpointInfoCommand', dict(hitpoints=int(g['hitPoints']), hitpointsMax=g.get('hitMax', 0),
                                              nanoHull=int(g.get('nanoHull', 0)), nanoHullMax=g.get('maxNanoHull', 0))),
                 ('AttributeShieldUpdateCommand', {'shieldNow': int(g.get('shield', 0)), 'shieldMax': g.get('shieldMax', 0)}),
-                KAPI.screen('Dreadfyre Box: ' + text)]
+                GALAXY.screen('Dreadfyre Box: ' + text)]
 
     def on_death(self):
         return None

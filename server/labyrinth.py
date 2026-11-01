@@ -18,7 +18,7 @@ import math, random, time
 
 import settings as SET
 import map_links as H
-import galaxy_gates as KAPI
+import galaxy_gates as GALAXY
 import event_calendar as CAL
 import event_gate as EKP
 
@@ -98,7 +98,7 @@ def add_keys(p, n):
         state(p)['key'] = keys(p) + n
         p.dirty = True
     p.ach('loot', loot=FLB_KEY, amount=n)                          # Frozen Labyrinth Pass: "collect Labyrinth Key" (battle_pass.py)
-    return [key_cmd(p), KAPI.screen('+%d Labyrinth Key (%d)' % (n, keys(p)))]
+    return [key_cmd(p), GALAXY.screen('+%d Labyrinth Key (%d)' % (n, keys(p)))]
 
 
 def expire_keys(p, now=None):
@@ -153,11 +153,11 @@ class Labyrinth:
         if not g.get('paid'):
             return True, []
         if not CAL.is_active(L['event']) or not self.open_hours(time.time()):    # the event ended or it is not the gate's hour
-            return False, [KAPI.screen('key:log_msg_flb_not_running')]
+            return False, [GALAXY.screen('key:log_msg_flb_not_running')]
         need = L.get('key_cost', 1)
         if keys(self.p) < need:
             self.log('   labyrinth: no key (%d needed)' % need)
-            return False, [KAPI.screen('key:log_msg_flb_no_accesskey')]
+            return False, [GALAXY.screen('key:log_msg_flb_no_accesskey')]
         with self.p.lock:
             state(self.p)['key'] = keys(self.p) - need
             self.p.dirty = True
@@ -199,7 +199,7 @@ class Labyrinth:
                 z = random.choice(ZONES)
                 for _ in range(L['skoll'].get('count', 1)):   # forum 158403: three Skolls in 5 minutes
                     self.spawn(SKOLL, z)
-                self.w.send([KAPI.screen('key:msg_npc_skoll-labyrinth_spawn_now', big=True, MAP=MAPS[self.map]['name'],
+                self.w.send([GALAXY.screen('key:msg_npc_skoll-labyrinth_spawn_now', big=True, MAP=MAPS[self.map]['name'],
                                          ZONE=ZONES.index(z) + 1)])
                 self.log('   labyrinth: Skoll spawned (%s %s)' % (MAPS[self.map]['name'], z))
         self.synk_check(now)
@@ -255,7 +255,7 @@ class Labyrinth:
         if s['map'] == self.map and now >= s['spawn'] and not alive:
             n = self.spawn(SYNK, s['region'])
             self.synk_id = n.id
-            self.w.send([KAPI.screen('key:msg_npc_synk_spawn_now', big=True, MAP=MAPS[self.map]['name'], ZONE=ZONES.index(s['region']) + 1),
+            self.w.send([GALAXY.screen('key:msg_npc_synk_spawn_now', big=True, MAP=MAPS[self.map]['name'], ZONE=ZONES.index(s['region']) + 1),
                          self.synk_cmd(now)])
             self.log('   labyrinth: Synk spawned (%s %s)' % (MAPS[self.map]['name'], s['region']))
 
@@ -269,7 +269,7 @@ class Labyrinth:
         self.new_synk(now, now + random.uniform(*L['synk']['renew_sec']))
         self.p.ach('synk')
         self.log('   labyrinth: Synk hunted (%d)' % st['hunts'])
-        return [KAPI.screen('key:msg_npc_synk_killed', big=True, PLAYER=self.p.d['pilot'].get('userName', '')),
+        return [GALAXY.screen('key:msg_npc_synk_killed', big=True, PLAYER=self.p.d['pilot'].get('userName', '')),
                 self.synk_cmd(now)] + self.info_msgs(now)
 
     def synk_cmd(self, now=None):

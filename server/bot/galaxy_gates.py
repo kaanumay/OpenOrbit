@@ -14,7 +14,7 @@ import json, math, os, random
 from . import catalog as K
 
 D = json.load(open(os.path.join(K.HERE, 'data', 'gates.json'), encoding='utf8'))
-KAPI = D['gates']
+GATES = D['gates']
 ABG = ('alpha', 'beta', 'gamma')
 ORDER = ('alpha', 'beta', 'gamma', 'lambda', 'hades', 'delta', 'epsilon', 'kappa', 'zeta', 'streuner')
 ENERGY = 'resource_extra-energy'
@@ -36,7 +36,7 @@ def difficulty(gate):
     if gate in _difficulty:
         return _difficulty[gate]
     import ast
-    waves = KAPI[gate].get('waves') or []
+    waves = GATES[gate].get('waves') or []
     if isinstance(waves, str):
         waves = ast.literal_eval(waves)
     out, reward = [], {}
@@ -98,7 +98,7 @@ def _draw(bot, st, gate):
     cat = r.choices(list(PROBABILITY), weights=list(PROBABILITY.values()))[0]
     if cat == 4:
         k = r.choice([x for x in ABG if x not in st['built']] or [gate]) if gate in ABG else gate
-        total = KAPI[k]['part']
+        total = GATES[k]['part']
         var = st['part'].get(k, 0)
         missing = (total - var) / total
         new_ = r.random() < missing + (1 - missing) * 0.5 or st['multiplier'] >= D['max_multiplier']
@@ -108,7 +108,7 @@ def _draw(bot, st, gate):
             st['part'][k] = min(total, var + earn)
             if st['part'][k] >= total and k not in st['built']:
                 st['built'].append(k)
-                bot.event('gate_set_up', gate=KAPI[k]['name'])
+                bot.event('gate_set_up', gate=GATES[k]['name'])
         else:
             st['multiplier'] = min(D['max_multiplier'], st['multiplier'] + 1)
         return
@@ -128,10 +128,10 @@ def target_gate(bot):
     """The gate to collect parts for: not built and the first gate the bot can probably pass (players' order: ABG, then the others)."""
     st = state(bot)
     for k in ORDER:
-        if k in st['built'] or KAPI[k].get('not_producible'):
+        if k in st['built'] or GATES[k].get('not_producible'):
             continue
         duration, death = estimate(bot, k)
-        if death < KAPI[k]['hp'] * 1.5:
+        if death < GATES[k]['hp'] * 1.5:
             return k
     return None
 
@@ -155,13 +155,13 @@ def run_result(bot, gate, rng=random):
     """Result of the run -> (did it succeed, time s)."""
     duration, death = estimate(bot, gate)
     death = rng.gauss(death, 0.3 * death + 0.2)
-    return death < KAPI[gate]['hp'], duration * rng.uniform(1.1, 1.6) + 120
+    return death < GATES[gate]['hp'], duration * rng.uniform(1.1, 1.6) + 120
 
 
 def grant_reward(bot, gate, speed=1.0):
     """The gate's completion reward and its aliens' kill rewards; the Kronos part."""
     from . import weapons as WP
-    o = KAPI[gate].get('reward') or {}
+    o = GATES[gate].get('reward') or {}
     if isinstance(o, str):
         import ast
         o = ast.literal_eval(o)
@@ -180,13 +180,13 @@ def grant_reward(bot, gate, speed=1.0):
             s[loot] = s.get(loot, 0) + n
     st = state(bot)
     if gate != 'kronos':
-        st['kronos'] = min(KAPI['kronos']['part'], st['kronos'] + 1)
-        if st['kronos'] >= KAPI['kronos']['part'] and 'kronos' not in st['built']:
+        st['kronos'] = min(GATES['kronos']['part'], st['kronos'] + 1)
+        if st['kronos'] >= GATES['kronos']['part'] and 'kronos' not in st['built']:
             st['built'].append('kronos')
     if gate not in st.setdefault('done', []):
         st['done'].append(gate)                      # gate ring (appearance.rings)
     bot.ist('gate_done')
-    bot.event('gate_done', gate=KAPI[gate]['name'])
+    bot.event('gate_done', gate=GATES[gate]['name'])
 
 
 def record_duration(save, key, sec):
@@ -201,6 +201,6 @@ def can_run(bot):
     """A built and passable gate or None."""
     st = state(bot)
     for k in st['built']:
-        if estimate(bot, k)[1] < KAPI[k]['hp']:
+        if estimate(bot, k)[1] < GATES[k]['hp']:
             return k
     return None

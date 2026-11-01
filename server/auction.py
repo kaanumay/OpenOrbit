@@ -361,11 +361,11 @@ class Auction:
             self.p.dirty = True
         if not (screen and tip in SCREEN):
             return []
-        import galaxy_gates as KAPI
+        import galaxy_gates as GALAXY
         tr = (getattr(self.m, 'lang', None) or '').startswith('tr')
         text, name = SCREEN[tip][0 if tr else 1], lot['loot'].rsplit('_', 1)[-1].upper()      # the server has no item name: MCB-25
         text = text % (((name, extra['min']) if tr else (extra['min'], name)) if tip == 'ending' else name)
-        return [KAPI.screen(text)]
+        return [GALAXY.screen(text)]
 
     def auto(self, now=None):
         """Auto bids and end alarms (tick) -> messages."""

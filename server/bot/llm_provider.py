@@ -362,15 +362,15 @@ def client(slot=4, log=print):
 
 
 def test(log=print):
-    """The panel's "Test" button (remote provider): a short question, so it also shows whether the bots can speak in the selected language -> {ok, sure, yanit}."""
+    """The panel's "Test" button (remote provider): a short question, so it also shows whether the bots can speak in the selected language -> {ok, startup_sec, duration_sec, response, provider}."""
     c = selected()
     s = Remote(c, log)
     t0 = time.time()
     s.launch()
     opening = time.time() - t0
     response, duration = s.ask('You are a pilot in a space game. Answer briefly.',
-                        'A friend wrote "selam, nasılsın?". Give JSON: in cevap a short reply in Turkish, in durum the word "TAMAM".',
+                        'A friend wrote "selam, nasılsın?". Give JSON: in answer a short reply in Turkish, in state the word "OK".',
                         schema={'type': 'object', 'properties': {'answer': {'type': 'string'}, 'state': {'type': 'string'}},
                               'required': ['answer', 'state']}, max_count=80)
-    ok = 'TAMAM' in str(response.get('state', '')).upper()
+    ok = 'OK' in str(response.get('state', '')).upper()
     return {'ok': ok, 'startup_sec': round(opening, 1), 'duration_sec': round(duration, 2), 'response': response.get('answer'), 'provider': s.name}

@@ -40,7 +40,7 @@ from shop import Shop  # noqa: E402
 import shop as SHP  # noqa: E402
 from quest import Quests  # noqa: E402
 import world               # noqa: E402
-import galaxy_gates as KAPI        # noqa: E402
+import galaxy_gates as GALAXY        # noqa: E402
 import event_gate as EKP  # noqa: E402
 import labyrinth as LAB      # noqa: E402
 import pve_modes as PVM   # noqa: E402
@@ -250,7 +250,7 @@ LOGOUT_SEC = 5.0 if Profile.premium else 19.2
 TEMPLATE = Templates()
 PROFILE = Profile(TEMPLATE.entry.get('seed'), **({'path': PROFILE_PATH} if PROFILE_PATH else {}))
 H.PLAYER_FACTION = PROFILE.d['pilot'].get('factionId')     # in 5-X only the portals of its own company
-KAPI.register_npcs(world.CFG['types'])     # gate aliens as NPC types
+GALAXY.register_npcs(world.CFG['types'])     # gate aliens as NPC types
 EKP.register_npcs(world.CFG['types'])      # those of the event gates (event_gate.py)
 world.CFG['types'].update(PVM.AR.D['kinds'])  # aliens of the stage 8 modes (data/pve_modes.json)
 
@@ -307,7 +307,7 @@ def login_batch(kind, first=True, profile=None):
 HOME_MAP = {1: 1, 2: 5, 3: 9}     # company -> home map (X-1)
 # maps that are the players' shared world on the friend server (shared_maps.py): company, battle and Blacklight maps (1-1 ... 5-4,
 # BL-1..3); gate, mode, event, labyrinth and LoW maps are each player's own copy
-SHARED = {k for k in world.CFG['maps'] if k.isdigit() and re.match(r'(\d|BL)-\d$', H.name(k)) and int(k) not in KAPI.BY_MAP
+SHARED = {k for k in world.CFG['maps'] if k.isdigit() and re.match(r'(\d|BL)-\d$', H.name(k)) and int(k) not in GALAXY.BY_MAP
               and int(k) not in EKP.BY_MAP and int(k) not in LAB.MAPS and int(k) != LOW.MAP}
 NAME_MIN, NAME_MAX, STATUS_MAX = 4, 20, 200    # pilot name 4-20 (the client's change_pilotname_error_signs_number); the status text is an adaptation
 NAME_ILLEGAL = set(' <>@+\'"&%;/\\?|')          # the client's change_pilotname_error_signs_illegal (+ the protocol's separator |)
@@ -364,7 +364,7 @@ class Session:
         self.profile.daily_fields = self.daily.fields
         self.pet = self.shop.pet
         self.pet.send_raw = lambda m: self.send(m, quiet=True)
-        self.gates = KAPI.Gates(self.profile, log)
+        self.gates = GALAXY.Gates(self.profile, log)
         self.gates.m = self.shop
         self.shop.gates = self.gates      # free gate energy in rewards
         self.event_gates = EKP.EventGates(self.profile, log)                    # event gates (Gauntlet of Plutus, Vortex ...)
@@ -702,9 +702,9 @@ class Session:
                                   self.pve.portals(map_id, TEMPLATE.station(map_id)) +              # the modes' gates (stage 8)
                                   self.extra.portals(map_id, TEMPLATE.station(map_id)))                # Ö3: Fiesta Gate
         self.world.start()
-        if int(map_id) in KAPI.BY_MAP:
+        if int(map_id) in GALAXY.BY_MAP:
             with self.world.lock:
-                self.world.gate = KAPI.Run(self.gates, self.world, KAPI.BY_MAP[int(map_id)])
+                self.world.gate = GALAXY.Run(self.gates, self.world, GALAXY.BY_MAP[int(map_id)])
         elif int(map_id) in EKP.BY_MAP:
             with self.world.lock:
                 self.world.gate = EKP.Run(self.event_gates, self.world, EKP.BY_MAP[int(map_id)])
@@ -971,7 +971,7 @@ class Session:
             userId=p.user_id, typeId=(direction and YM.ship(p)) or g.get('typeId', 'ship_liberator'), expansionStage=p.d.get('expansion_stage', 1),
             clanTag=pl.get('clanTag', ''), userName=pl.get('userName', ''), x=x, y=y, factionId=pl.get('factionId', 0),
             clanId=pl.get('clanId', 0), dailyRank=YM.BADGE if direction else pl.get('dailyRank', 0), warnBox=False, clanDiplomacy=world.mod('ClanRelationModule', type=0),
-            galaxyGatesDone=KAPI.rings(p), useSystemFont=pl.get('useSystemFont', True), npc=False, cloaked=False,
+            galaxyGatesDone=GALAXY.rings(p), useSystemFont=pl.get('useSystemFont', True), npc=False, cloaked=False,
             motherShipId=0, positionIndex=0, designSet='', modifier=[], minimapStrategyModule=world.mod('MinimapStrategyModule', minimapStrategy=0),
             specialNpcType=''))
         return [create] + self.achievement.title_msgs() + self.shop.drone_msgs() + [self.shop.module_update()]
@@ -1373,7 +1373,7 @@ class Session:
         if msg:                                       # coupon code or image upload: the shop does not open
             log('   443: non-payment request -> %s' % msg)
             with self.packet_lock:
-                self.send([KAPI.screen(msg)], '443: ekran metni')
+                self.send([GALAXY.screen(msg)], '443: ekran metni')
             return
         item = self.windows.guess()
         log('   payment button -> shop (last window: %s)' % (item or '-'))

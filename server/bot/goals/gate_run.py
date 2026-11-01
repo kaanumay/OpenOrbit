@@ -22,10 +22,10 @@ class GateRun(Goal):
         k = GT.can_run(bot)
         success, duration = GT.run_result(bot, k, bot.r)
         bot.plan.update(gate=k, success=success, end_time=b.now + duration, duration=duration)
-        game_map = GT.KAPI[k].get('map')
+        game_map = GT.GATES[k].get('map')
         if game_map:
             S.jump_to(bot, game_map, b.y)                    # gate map: leaves your map
-        bot.event('entered_gate', gate=GT.KAPI[k]['name'])
+        bot.event('entered_gate', gate=GT.GATES[k]['name'])
 
     def abstract(self, bot, dt, y):
         if bot.plan.get('finished') or y.now < bot.plan.get('end_time', 0):
@@ -42,7 +42,7 @@ class GateRun(Goal):
             GT.record_duration(bot.k, k, bot.plan.get('duration') or 0)
         else:
             bot.ist('gate_lost')
-            bot.event('gate_lost', gate=GT.KAPI[k]['name'])
+            bot.event('gate_lost', gate=GT.GATES[k]['name'])
         S.jump_to(bot, K.ev(bot.company), y)                 # the gate's exit: X-1
         bot.plan['finished'] = True
 

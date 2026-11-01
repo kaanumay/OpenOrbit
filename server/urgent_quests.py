@@ -257,10 +257,10 @@ class UrgentQuests:
         if self.has_quest(now) and not self.st.get('shown', True):
             return self.show(now)
         if not self.has_quest(now):
-            import galaxy_gates as KAPI                    # screen text (MessageCommand; the client is English)
+            import galaxy_gates as GALAXY                    # screen text (MessageCommand; the client is English)
             it = self.p.window_item(ITEM) if hasattr(self.p, 'window_item') else None
             close = [('WindowItemCommand', dict(it, visible=False, maximized=False))] if it else []
-            return close + [KAPI.screen(NO_QUEST_TEXT)]
+            return close + [GALAXY.screen(NO_QUEST_TEXT)]
         return None
 
     def handle(self, name, f):

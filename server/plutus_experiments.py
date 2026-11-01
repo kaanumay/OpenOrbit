@@ -21,7 +21,7 @@ import settings as SET
 import world as world_module
 import event_gate as EKP
 import map_links as H
-import galaxy_gates as KAPI
+import galaxy_gates as GALAXY
 import event_calendar as CAL
 
 D = EKP.D.get('experiment') or {}
@@ -90,8 +90,8 @@ class PlutusExperiment:
     @staticmethod
     def cooldown_msg(left):
         if left >= 60:
-            return KAPI.screen('key:msg_npc_spawning_beacon_cd_min', MINUTES=int(math.ceil(left / 60.0)))
-        return KAPI.screen('key:msg_npc_spawning_beacon_cd_sec', SECONDS=int(math.ceil(left)))
+            return GALAXY.screen('key:msg_npc_spawning_beacon_cd_min', MINUTES=int(math.ceil(left / 60.0)))
+        return GALAXY.screen('key:msg_npc_spawning_beacon_cd_sec', SECONDS=int(math.ceil(left)))
 
     # ------------------------------------------------------------ map and time
     def attach(self, world):
@@ -140,8 +140,8 @@ class PlutusExperiment:
             self.p.dirty = True
         self.enc = dict(risk=risk, tower=n.id, spawned=now, first=None, tooltip=False, warning=False, alien=None)
         self.log('   Plutus’ Experiments: %s beacon tower spawned (%d, %d)' % (D['risks'][risk]['name'], x, y))
-        return [KAPI.screen('key:msg_npc_spawning_beacon_high_risk_spawn') if risk == 'high'
-                else KAPI.screen('A %s beacon has spawned.' % D['risks'][risk]['name'])]
+        return [GALAXY.screen('key:msg_npc_spawning_beacon_high_risk_spawn') if risk == 'high'
+                else GALAXY.screen('A %s beacon has spawned.' % D['risks'][risk]['name'])]
 
     @staticmethod
     def beacon_hit(n, dmg):
@@ -164,18 +164,18 @@ class PlutusExperiment:
             if e['first'] is None:
                 if b.dealt > 0:
                     e['first'] = now
-                    msgs.append(KAPI.screen('key:msg_npc_spawning_beacon_first_shot'))
+                    msgs.append(GALAXY.screen('key:msg_npc_spawning_beacon_first_shot'))
                 elif now >= e['spawned'] + D['fire_sec']:       # not shot within 2 minutes: it escapes
-                    msgs += w.remove_npc(b) + [KAPI.screen('key:msg_npc_spawning_beacon_escaped')]
+                    msgs += w.remove_npc(b) + [GALAXY.screen('key:msg_npc_spawning_beacon_escaped')]
                     self.enc = None
                 return msgs
             t = now - e['first']
             if not e['tooltip'] and t >= D['hint_sec']:
                 e['tooltip'] = True
-                msgs.append(KAPI.screen('key:msg_npc_spawning_beacon_10_sec'))
+                msgs.append(GALAXY.screen('key:msg_npc_spawning_beacon_10_sec'))
             if not e['warning'] and t >= D['wave_sec'] - 10:       # the 35th second of the 45 s timer (forum 143093)
                 e['warning'] = True
-                msgs.append(KAPI.screen('key:msg_npc_spawning_beacon_35_sec'))
+                msgs.append(GALAXY.screen('key:msg_npc_spawning_beacon_35_sec'))
             if t >= D['wave_sec']:
                 msgs += self.release(w, b, e)
         return msgs
@@ -224,10 +224,10 @@ class PlutusExperiment:
             due = [r for r in D['point_exchange'] if st['pp'] >= r['points'] and r['points'] not in st['claimed']]
             st['claimed'] += [r['points'] for r in due]
             self.p.dirty = True
-        msgs = [KAPI.screen('Progression points: +%d (%d)' % (n, st['pp']))]
+        msgs = [GALAXY.screen('Progression points: +%d (%d)' % (n, st['pp']))]
         for r in due:
             for loot, k in r['reward']:
                 msgs += w.grant_loot(loot, k)
-            msgs.append(KAPI.screen('Progression reward (%d points) received.' % r['points'], big=True))
+            msgs.append(GALAXY.screen('Progression reward (%d points) received.' % r['points'], big=True))
             self.log('   Plutus’ Experiments: %d point reward' % r['points'])
         return msgs

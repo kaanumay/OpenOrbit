@@ -118,9 +118,9 @@ class Fiesta:
         import map_links as H
         if not active() or H.map_class(map_id) != 'X-1' or not station:
             return []
-        import galaxy_gates as KAPI
+        import galaxy_gates as GALAXY
         sx, sy = station['posX'], station['posY']
-        cx, cy = KAPI.MAP_W // 2, KAPI.MAP_H // 2         # from the station toward the middle of the map, away from the generator gates
+        cx, cy = GALAXY.MAP_W // 2, GALAXY.MAP_H // 2         # from the station toward the middle of the map, away from the generator gates
         x, y = int(sx + (cx - sx) * 0.3), int(sy + (cy - sy) * 0.3 + 900)
         return [dict(gateId=PORTAL_ID, x=x, y=y, target=0, designId=D.get('portal_design', 15), windowed='fiesta',
                      tooltip=D.get('tooltip', 'ttip_jumpgate_bday2025'))]

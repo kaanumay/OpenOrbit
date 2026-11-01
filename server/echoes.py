@@ -19,7 +19,7 @@ In the profile: pve.echoes {period, level, highest, sure, first [], roster [hang
 """
 import datetime, json, math, os, random, time
 
-import galaxy_gates as KAPI
+import galaxy_gates as GALAXY
 import pve_common as PS
 import qfc as QF
 
@@ -78,13 +78,13 @@ class Echoes:
     def portals(self, map_id):
         import map_links as H
         out = []
-        if H.map_class(map_id) == D['entry'] and int(map_id) == KAPI.HOME_MAP.get(self.p.d['pilot'].get('factionId'), 5):
+        if H.map_class(map_id) == D['entry'] and int(map_id) == GALAXY.HOME_MAP.get(self.p.d['pilot'].get('factionId'), 5):
             w, h = H.map_size(map_id)
             # official server record: in 2-1 this design's (300) portal (11210, 6310), in the middle of the map
             out.append(dict(gateId=PORTAL, x=w // 2 + 710, y=h // 2 - 240, target=D['hall'], designId=D['portal'], gate='echoes',
                             windowed='echoes_entry', arrival=HALL_ARRIVAL))
         elif int(map_id) == D['hall']:
-            home = KAPI.HOME_MAP.get(self.p.d['pilot'].get('factionId'), 5)
+            home = GALAXY.HOME_MAP.get(self.p.d['pilot'].get('factionId'), 5)
             out += [dict(gateId=PORTAL + 1, x=HALL_START[0], y=HALL_START[1], target=0, designId=301, gate='echoes', windowed='echoes_start',
                          tooltip='window_dse_title', in_place=True),
                     dict(gateId=PORTAL + 2, x=HALL_SHIPS[0], y=HALL_SHIPS[1], target=0, gate='echoes', windowed='echoes_ship',
@@ -103,7 +103,7 @@ class Echoes:
     def enter_hall(self):
         """X-1 portal: level requirement -> (destination, messages)."""
         if self.p.d['pilot'].get('level', 1) < D['level_requirement']:
-            return None, [KAPI.screen('Deep Space Echoes requires level %d.' % D['level_requirement'])]
+            return None, [GALAXY.screen('Deep Space Echoes requires level %d.' % D['level_requirement'])]
         return D['hall'], []
 
     # ------------------------------------------------------------ ships
@@ -169,9 +169,9 @@ class Echoes:
         sid = self.sid_of(hid)
         st = self.st
         if hid not in st['roster'] or hid in st['none'] or not sid:
-            return None, [KAPI.screen('This ship cannot be used.')]
+            return None, [GALAXY.screen('This ship cannot be used.')]
         if st['level'] > len(LEVELS):
-            return None, [KAPI.screen('All levels are cleared. Reset to start again.')]
+            return None, [GALAXY.screen('All levels are cleared. Reset to start again.')]
         if not st['run']:
             if self.permits() < 1:
                 return None, [('ExpeditionShowUiCommand', dict(type=UI_TICKET, param0='', param1=''))]
@@ -211,7 +211,7 @@ class Echoes:
         self.level['end_time'] = self.level['start'] + (LEVELS[self.level['map']].get('duration_sec') or D['duration_sec'])
         world.gate = PS.Run(world, self, intro_sec=5, break_sec=4)
         msgs = [('ExpeditionStartInstanceCommand', dict(seconds=int(self.level['end_time'] - self.level['start']))),
-                KAPI.screen('Level %d: %s' % (self.level['no'], {'destroy': 'Destroy all enemies.', 'guard': 'Protect the ship!',
+                GALAXY.screen('Level %d: %s' % (self.level['no'], {'destroy': 'Destroy all enemies.', 'guard': 'Protect the ship!',
                                                                 'escort': 'Escort the ship to its destination!',
                                                                 'boss': 'Destroy the boss!'}.get(self.level['type'], '')), big=True)]
         if self.level['type'] in ('guard', 'escort'):
@@ -304,7 +304,7 @@ class Echoes:
 
     def wave_started(self, i):
         if self.wave_count() > 1:
-            self.world.send([KAPI.screen('Wave %d/%d' % (i + 1, self.wave_count()))])
+            self.world.send([GALAXY.screen('Wave %d/%d' % (i + 1, self.wave_count()))])
 
     def wave_done(self, i, now):
         if i + 1 < self.wave_count():
@@ -343,8 +343,8 @@ class Echoes:
             hx, hy = w.hero_pos(now)
             h = w.drop_box(box, hx + random.uniform(-150, 150), hy + random.uniform(-150, 150), None, None)
             w.boxes[h]['keyed'] = True
-        w.send(msgs + [KAPI.screen('key:log_msg_gg_completed_expedition', big=True),
-                       KAPI.screen('Level %d cleared in %s!' % (n, '%d:%02d' % divmod(secs, 60))), self.info_cmd()])
+        w.send(msgs + [GALAXY.screen('key:log_msg_gg_completed_expedition', big=True),
+                       GALAXY.screen('Level %d cleared in %s!' % (n, '%d:%02d' % divmod(secs, 60))), self.info_cmd()])
         self.log('   Echoes level %d finished: %d s' % (n, secs))
 
     def fail(self, why):
@@ -360,7 +360,7 @@ class Echoes:
             if n:
                 w.alien.expire(n)
         w.add_gate(self.hall_portal(w))
-        w.send([KAPI.screen('Level %d failed: %s' % (lv['no'], why), big=True)])
+        w.send([GALAXY.screen('Level %d failed: %s' % (lv['no'], why), big=True)])
         self.log('   Echoes level %d lost: %s' % (lv['no'], why))
 
     def clear_ally(self):
