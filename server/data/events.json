@@ -73,7 +73,7 @@
    "news_default": "dispatchDay"
   },
   "gate_weekend": {
-   "ad": "Galaksi Kapısı enerjisi hafta sonu indirimi",
+   "ad": "Galaxy Gate energy weekend discount",
    "days": [
     5,
     6
@@ -83,7 +83,7 @@
    "_calendar": "darkorbitwiki galaxy-gates-events: \"Galaxy Gates Materialiser Discount: -15%\" ve GG Special Rewards afişi \"15% cost reduction for each energy spin\" (Cuma-Pazar Special Rewards hafta sonlarıyla birlikte; Weekly Event Calendar 23-25.10.2026 hafta sonunda listeli). bp-calendar'da ayrı bir kayıt yok; her hafta sonu mu yoksa yalnız Special Rewards hafta sonları mı kayıtsız: her Cumartesi-Pazar (uyarlama; Cuma günü kayıtta görülmedi)"
   },
   "kronos_day": {
-   "ad": "Kronos parçası iki kat",
+   "ad": "Double Kronos parts",
    "days": [
     5
    ],
@@ -91,7 +91,7 @@
    "_kaynak": "wiki: cumartesi Kronos parçası 2 (kapi.py)"
   },
   "gold_booty_box": {
-   "ad": "Altın Booty Box",
+   "ad": "Golden Booty Box",
    "days": [
     4
    ],
@@ -2950,7 +2950,7 @@
    "news_default": "chaosProtegit"
   },
   "winter": {
-   "ad": "Doğum günü ve kış (Ice Meteoroids, Santa)",
+   "ad": "Birthday and winter (Ice Meteoroids, Santa)",
    "donemler": [
     [
      "12-01",
@@ -6718,7 +6718,7 @@
    "news_default": "titlefrenzy202508"
   },
   "fever": {
-   "ad": "Fever (gemi güçlenmesi)",
+   "ad": "Fever (ship power-up)",
    "days": [
     0,
     1,
@@ -6855,7 +6855,7 @@
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)"
   },
   "invasion": {
-   "ad": "Invasion (firma yarışı)",
+   "ad": "Invasion (company race)",
    "kinds": [],
    "achievement": [],
    "donemler": [
@@ -9394,7 +9394,7 @@
    ]
   },
   "fever_black_light": {
-   "ad": "Black Light Fever (BL haritaları)",
+   "ad": "Black Light Fever (BL maps)",
    "donemler": [
     [
      "2025-03-12",
@@ -9499,7 +9499,7 @@
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)"
   },
   "snowman": {
-   "ad": "Snowman (yeni yıl)",
+   "ad": "Snowman (new year)",
    "donemler": [
     [
      "12-31",
@@ -9516,7 +9516,7 @@
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)"
   },
   "sunburst": {
-   "ad": "Sunburst Lordakium (özel gün)",
+   "ad": "Sunburst Lordakium (special day)",
    "donemler": [
     [
      "06-21",

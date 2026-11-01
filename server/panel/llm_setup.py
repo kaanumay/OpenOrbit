@@ -111,7 +111,7 @@ class LlmSetup:
             if not self.d['running'] and not self.save():
                 pk = platform_key()
                 if not pk:
-                    raise DownloadError(_('Bu bilgisayarın işlemcisi için hazır dil modeli sunucusu yok.'))
+                    raise DownloadError(_("There is no ready-made language model server for this computer's processor."))
                 self.stop.clear()
                 self.d = dict(self._empty('downloading'), running=True, toplam=MODEL['size'] + SERVERS[pk]['size'])
                 self.samples = []
@@ -124,7 +124,7 @@ class LlmSetup:
 
     def remove(self):
         if self.running():
-            raise DownloadError(_('Kurulum ya da test sürüyor.'))
+            raise DownloadError(_('Setup or test in progress.'))
         shutil.rmtree(self.folder(), ignore_errors=True)
         with self.lock:
             self.d, self.t = self._empty('none'), {'durum': 'none'}
@@ -163,7 +163,7 @@ class LlmSetup:
         f = HttpFile(url, self.stop, self._count, **kw)
         try:
             if f.size != size:
-                raise DownloadError(_('İndirilen dosyanın boyu beklenenden farklı: yeniden dene.'))
+                raise DownloadError(_("The downloaded file's size differs from what was expected: try again."))
             f.seek(var)
             with open(part, 'ab') as out:
                 while f.tell() < f.size:
@@ -176,7 +176,7 @@ class LlmSetup:
             f.close()
         if digest.hexdigest() != sha:
             os.remove(part)
-            raise DownloadError(_('%s beklenen dosya değil (SHA-256 tutmadı): yeniden dene.', os.path.basename(target)))
+            raise DownloadError(_('%s is not the expected file (SHA-256 mismatch): try again.', os.path.basename(target)))
         os.replace(part, target)
 
     def _run(self, pk):
@@ -186,7 +186,7 @@ class LlmSetup:
             empty = shutil.disk_usage(k).free
             need = MODEL['size'] * 1.1 + 300 * 2 ** 20
             if empty < need:
-                raise DownloadError(_('Diskte yer yetmiyor: %.1f GB gerekli, %.1f GB boş.', need / 2 ** 30, empty / 2 ** 30))
+                raise DownloadError(_('Not enough disk space: %.1f GB needed, %.1f GB free.', need / 2 ** 30, empty / 2 ** 30))
             s = SERVERS[pk]
             archive = os.path.join(k, os.path.basename(s['url']))
             self.log('dil modeli sunucusu indiriliyor: %s' % s['url'])
@@ -219,12 +219,12 @@ class LlmSetup:
                 with tarfile.open(archive) as tf:
                     for m in tf.getmembers():
                         if m.name.startswith('/') or '..' in m.name.split('/'):
-                            raise DownloadError(_('Arşivde geçersiz yol: %s', m.name))
+                            raise DownloadError(_('Invalid path in the archive: %s', m.name))
                     tf.extractall(target)
             name = 'llama-server.exe' if sys.platform == 'win32' else 'llama-server'
             server = next((os.path.join(r, name) for r, _d, fs in os.walk(target) if name in fs), None)
             if not server:
-                raise DownloadError(_('Arşivde %s yok.', name))
+                raise DownloadError(_('No %s in the archive.', name))
             if sys.platform != 'win32':
                 os.chmod(server, 0o755)
             os.remove(archive)
@@ -243,7 +243,7 @@ class LlmSetup:
             self.log('dil modeli kurulamadı: %s' % e)
         except (OSError, zipfile.BadZipFile, tarfile.TarError) as e:
             with self.lock:
-                self.d.update(durum='hata', hata=_('Dosya yazılamadı ya da arşiv bozuk: %s', e))
+                self.d.update(durum='hata', hata=_('Could not write the file or the archive is corrupt: %s', e))
             self.log('dil modeli kurulamadı: %r' % e)
         finally:
             with self.lock:
@@ -255,7 +255,7 @@ class LlmSetup:
             if self.t.get('durum') == 'running':
                 return self.state()
             if not self.save():
-                raise DownloadError(_('Önce dil modelini kur.'))
+                raise DownloadError(_('Install the language model first.'))
             self.t = {'durum': 'running', 'start': time.time()}
         threading.Thread(target=self._test, daemon=True).start()
         return self.state()
@@ -265,9 +265,9 @@ class LlmSetup:
         from bot import llm_provider as PRV
         c = PRV.selected()
         if PRV.PROVIDERS[c['kimlik']]['anahtar'] and not c['anahtar']:
-            raise DownloadError(_('Önce API anahtarını gir.'))
+            raise DownloadError(_('Enter the API key first.'))
         if not c['model']:
-            raise DownloadError(_('Önce bir model seç.'))
+            raise DownloadError(_('Choose a model first.'))
         with self.lock:
             if self.t.get('durum') == 'running':
                 return self.state()
@@ -281,7 +281,7 @@ class LlmSetup:
             r = PRV.test(self.log)
             with self.lock:
                 self.t = dict(r, durum='ok' if r['ok'] else 'hata', provider=uid,
-                              hata=None if r['ok'] else _('Model beklenen yanıtı vermedi.'))
+                              hata=None if r['ok'] else _('The model did not give the expected reply.'))
             self.log('dil modeli sağlayıcı testi: %s' % r)
         except Exception as e:
             with self.lock:
@@ -297,7 +297,7 @@ class LlmSetup:
             with open(os.path.join(self.folder(), 'install.json'), 'w', encoding='utf8') as fh:
                 json.dump(k, fh, indent=1, ensure_ascii=False)
             with self.lock:
-                self.t = dict(r, durum='ok' if r['ok'] else 'hata', hata=None if r['ok'] else _('Model beklenen yanıtı vermedi.'))
+                self.t = dict(r, durum='ok' if r['ok'] else 'hata', hata=None if r['ok'] else _('The model did not give the expected reply.'))
             self.log('dil modeli testi: %s' % r)
         except Exception as e:
             with self.lock:

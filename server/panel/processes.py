@@ -23,7 +23,7 @@ SERVER = os.path.dirname(PANEL_DIR)
 NO_WINDOW = 0x08000000 if os.name == 'nt' else 0
 PORT_80_COMMAND = 'echo net.ipv4.ip_unprivileged_port_start=80 | sudo tee /etc/sysctl.d/90-openorbit.conf && sudo sysctl --system'
 PORTS = {'web': (8090, 80), 'oyun': (8081, 7771)}
-PORT_NAMES = {8090: 'Web girişi', 80: 'Web API', 8081: 'Oyun', 7771: 'Sohbet', 8099: 'Kontrol kanalı'}
+PORT_NAMES = {8090: 'Web login', 80: 'Web API', 8081: 'Game', 7771: 'Chat', 8099: 'Control channel'}
 SCRIPTS = {'web': 'web.py', 'oyun': 'game.py'}
 EARLY_EXIT_SEC = 15
 
@@ -120,8 +120,8 @@ def port_80_problem():
             s.bind(('0.0.0.0' if mac else '127.0.0.1', 80))
         except PermissionError:
             if mac:
-                return _('macOS 80 portunu açmaya izin vermedi; oyunun web girişi bu portta (macOS 10.14 ya da daha yenisi gerekir).')
-            return _("Linux 80 portunu yalnız root'a açıyor; oyunun web girişi bu portta. Terminalde bir kez çalıştır (kalıcı): %s",
+                return _("macOS didn't allow port 80, and the game's web login uses it (macOS 10.14 or newer is needed).")
+            return _("Linux opens port 80 only to root, and the game's web login uses it. Run this once in a terminal (it stays set): %s",
                      PORT_80_COMMAND)
         except OSError:
             pass
@@ -437,7 +437,7 @@ class Manager:
         env_json = friend or multi
         with self.lock:
             if self.guest:
-                raise RuntimeError(_('Arkadaşının sunucusundasın: önce oradan ayrıl.'))
+                raise RuntimeError(_("You are on a friend's server: leave it first."))
             if self.needs_restart(profile, friend, multi, world, bot):
                 self.stop_servers()                               # başka kayıt ya da kip: yeniden başlat
             started = []
@@ -450,7 +450,7 @@ class Manager:
                     raise RuntimeError(port_80_problem())
                 busy = [p for p in PORTS[name] if listening(p)]
                 if busy:
-                    raise RuntimeError(_('%s portu (%s) başka bir süreçte açık. Sunucu sayfasından kapatın ya da o programı kapatın.',
+                    raise RuntimeError(_('Port %s (%s) is held by another process. Close it on the Server page or quit that program.',
                                          '/'.join(map(str, busy)), _(PORT_NAMES[busy[0]])))
                 cmd = [py, '-I', os.path.join(SERVER, SCRIPTS[name]), self.logs, '--profile=%s' % profile]
                 stop_file = None
@@ -477,11 +477,11 @@ class Manager:
                 dead = [name for name in ('web', 'oyun') if not self.servers[name].alive]
                 if dead:
                     lines = tail(self.servers[dead[0]].console, 12)
-                    raise RuntimeError(_('%s sunucusu açılırken kapandı:\n%s', _({'web': 'Web', 'oyun': 'Oyun'}[dead[0]]),
+                    raise RuntimeError(_('The %s server closed while starting:\n%s', _({'web': 'Web', 'oyun': 'Game'}[dead[0]]),
                                          '\n'.join(lines)))
                 time.sleep(0.15)
             else:
-                raise RuntimeError(_('Sunucular 20 saniyede dinlemeye başlamadı (günlükleri inceleyin).'))
+                raise RuntimeError(_("The servers didn't start listening within 20 seconds (check the logs)."))
             if started:
                 self.log('sunucular başlatıldı: %s (%s)%s' % (', '.join(started), profile, ' — arkadaş sunucusu' if friend else
                                                                ' — çoklu istemci' if multi else ''))
@@ -491,12 +491,12 @@ class Manager:
         """Misafir: yalnız web.py, arkadaşın sunucusunu gösteren argümanlarla (friends.py). Kendi sunucuların açıksa RuntimeError."""
         with self.lock:
             if any(s.alive for s in self.servers.values()):
-                raise RuntimeError(_('Önce kendi sunucunu durdur (Oyna > Sunucuyu durdur).'))
+                raise RuntimeError(_('First stop your own server (Play > Stop server).'))
             if port_80_problem():
                 raise RuntimeError(port_80_problem())
             busy = [p for p in PORTS['web'] if listening(p)]
             if busy:
-                raise RuntimeError(_('%s portu (%s) başka bir süreçte açık. Sunucu sayfasından kapatın ya da o programı kapatın.',
+                raise RuntimeError(_('Port %s (%s) is held by another process. Close it on the Server page or quit that program.',
                                      '/'.join(map(str, busy)), _(PORT_NAMES[busy[0]])))
             cmd = [python_exe(), '-I', os.path.join(SERVER, SCRIPTS['web']), self.logs, '--profile=%s' % profile] + list(args)
             self.servers['web'] = s = Process('web', cmd, os.path.join(self.logs, 'web_konsol.log')).start()
@@ -505,7 +505,7 @@ class Manager:
             while not listening(PORTS['web'][0]):
                 if not s.alive or time.time() > deadline:
                     self.stop_servers()
-                    raise RuntimeError(_('%s sunucusu açılırken kapandı:\n%s', _('Web'), '\n'.join(tail(s.console, 12))))
+                    raise RuntimeError(_('The %s server closed while starting:\n%s', _('Web'), '\n'.join(tail(s.console, 12))))
                 time.sleep(0.15)
             self.log('misafirin web sunucusu başlatıldı (%s)' % profile)
 
@@ -527,7 +527,7 @@ class Manager:
         """cmd, env: istemci.komut (Linux ve macOS'ta Wine ya da Proton ile)."""
         with self.lock:
             if self.client_alive():
-                raise RuntimeError(_('İstemci zaten açık.'))
+                raise RuntimeError(_('The client is already running.'))
             self.client = open_client(folder, cmd, env, self.logs)
             self.client_started = time.time()
             self.last_client = None

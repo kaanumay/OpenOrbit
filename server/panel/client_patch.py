@@ -275,9 +275,9 @@ class Patcher:
                     with self.lock:
                         self.d['claimed'] += len(b)
         except (OSError, http.client.HTTPException) as e:
-            raise DownloadError(_('İndirme sunucusuna bağlanılamadı (internet bağlantını denetle): %s', e))
+            raise DownloadError(_('Could not connect to the download server (check your internet connection): %s', e))
         if hashlib.sha256(buf).hexdigest() != part['sha256']:
-            raise DownloadError(_('%s beklenen dosya değil (SHA-256 tutmadı): yeniden dene.', part['ad']))
+            raise DownloadError(_('%s is not the expected file (SHA-256 mismatch): try again.', part['ad']))
         return bytes(buf)
 
     def _run(self, folder):
@@ -327,7 +327,7 @@ class Patcher:
             self.log('BepInEx kurulamadı: %s' % e)
         except OSError as e:
             with self.lock:
-                self.d.update(durum='hata', hata=_('Dosya yazılamadı: %s', e))
+                self.d.update(durum='hata', hata=_('Could not write a file: %s', e))
             self.log('BepInEx kurulamadı: %r' % e)
         except Exception as e:
             with self.lock:

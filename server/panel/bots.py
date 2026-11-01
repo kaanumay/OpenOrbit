@@ -75,7 +75,7 @@ def folder():
 
 def _route(pid):
     if not isinstance(pid, str) or not re.fullmatch(r'[a-z0-9_]{1,40}', pid):
-        raise BotError(_('Bot paketi bulunamadı.'))
+        raise BotError(_('Bot pack not found.'))
     return os.path.join(folder(), pid + '.json')
 
 
@@ -107,7 +107,7 @@ def _read_file(p):
 def read(pid):
     d = _read_file(_route(pid))
     if d is None:
-        raise BotError(_('Bot paketi bulunamadı.'))
+        raise BotError(_('Bot pack not found.'))
     return d
 
 
@@ -187,7 +187,7 @@ def clean_settings(a, old=None):
 def _clean_name(name):
     name = ' '.join(str(name or '').split())[:NAME_LENGTH]
     if not name:
-        raise BotError(_('Bot paketine bir ad ver.'))
+        raise BotError(_('Give the bot pack a name.'))
     return name
 
 
@@ -217,7 +217,7 @@ def generate_roster(seed, count, distribution, lang, existing=(), name_lang=None
         try:
             pool = DS.names([name_lang] if name_lang in LANGUAGES[1:] else list(DS.SERVERS))
         except OSError:
-            raise BotError(_("DOStats'a ulaşılamadı. Ad kaynağını Üretilen yap ya da sonra yeniden dene."))
+            raise BotError(_("Could not reach DOStats. Set the name source to Generated or try again later."))
         d['clan_tags'] = DS.tags(pool)[:300]
     return PS.generate_roster(seed, count, company_distribution=distribution, lang=lang if lang in LANGUAGES else 'mixed', existing=existing,
                          name_lang=name_lang if name_lang in LANGUAGES else None, special=special, pool=pool)
@@ -245,9 +245,9 @@ def parse_custom(text, used=()):
             continue
         name = part[0]
         if not PS.NAME_PATTERN.match(name):
-            raise BotError(_('{0}. satır: "{1}" geçerli bir ad değil (3-20 harf, rakam, _ . -).').format(i, name))
+            raise BotError(_('Line {0}: "{1}" is not a valid name (3-20 letters, digits, _ . -).').format(i, name))
         if name.lower() in seen:
-            raise BotError(_('{0}. satır: "{1}" adı zaten kullanılıyor.').format(i, name))
+            raise BotError(_('Line {0}: the name "{1}" is already taken.').format(i, name))
         seen.add(name.lower())
         o = {'ad': name}
         for x in part[1:]:
@@ -259,11 +259,11 @@ def parse_custom(text, used=()):
             elif k in LANGUAGES and k != 'mixed' and 'dil' not in o:
                 o['dil'] = k
             else:
-                raise BotError(_('{0}. satır: "{1}" anlaşılamadı (firma: MMO, EIC, VRU; davranış: {2}; dil: {3}).').format(
+                raise BotError(_('Line {0}: "{1}" not understood (company: MMO, EIC, VRU; behaviour: {2}; language: {3}).').format(
                     i, x, ', '.join(PS.ARCHETYPES), ', '.join(d for d in LANGUAGES if d != 'mixed')))
         out.append(o)
         if len(out) > CUSTOM_MAX:
-            raise BotError(_('En çok {0} özel bot.').format(CUSTOM_MAX))
+            raise BotError(_('At most {0} custom bots.').format(CUSTOM_MAX))
     return out
 
 
@@ -300,7 +300,7 @@ def create(name, description='', world=None, mode='normal', progression='progres
             settings=None, players=(), name_lang_=None, special='', name_source=None):
     """Yeni paket: kadro tohumla üretilir (oyuncuların adları kullanılmaz)."""
     if mode not in MODES:
-        raise BotError(_('Bilinmeyen bot kipi.'))
+        raise BotError(_('Unknown bot mode.'))
     with _LOCK:
         name = _clean_name(name)
         pid = _new_id(name)
@@ -330,7 +330,7 @@ def update(pid, name=None, description=None, mode=None, progression=None, settin
         old_mode = d['mode']
         if mode is not None:
             if mode not in MODES:
-                raise BotError(_('Bilinmeyen bot kipi.'))
+                raise BotError(_('Unknown bot mode.'))
             d['mode'] = mode
         if progression is not None and progression in PROGRESSIONS:
             d['progression'] = progression
@@ -413,16 +413,16 @@ def edit_catalog():
 
 def edit_error(e):
     """bot/duzenle.DuzenlemeHatasi -> panelin dilinde ileti."""
-    return {'value': _('Geçersiz değer: %s', e.area), 'interval': _('Değer sınırların dışında: %s', e.area),
-            'esya': _('Bilinmeyen eşya: %s', e.area), 'none': _('Bulunamadı: %s', e.area),
-            'no_state': _('Bu bot henüz oyunda görünmedi: yalnız kişiliği düzenlenebilir.'),
-            'online': _('Çevrimiçi botun haritası değiştirilemez: çevrimdışı olunca dene.')}.get(e.code, str(e))
+    return {'value': _('Invalid value: %s', e.area), 'interval': _('Value out of range: %s', e.area),
+            'esya': _('Unknown item: %s', e.area), 'none': _('Not found: %s', e.area),
+            'no_state': _('This bot has not appeared in the game yet: only its personality can be edited.'),
+            'online': _("An online bot's map can't be changed: try once it is offline.")}.get(e.code, str(e))
 
 
 def _roster_row(d, no):
     x = next((x for x in d['roster'] if x['no'] == int(no)), None)
     if x is None:
-        raise BotError(_('Bot bulunamadı.'))
+        raise BotError(_('Bot not found.'))
     return x
 
 
@@ -474,14 +474,14 @@ def bot_name(pid, no, name, players=()):
     from bot import personality as PS
     name = str(name or '').strip()
     if not PS.NAME_PATTERN.match(name):
-        raise BotError(_('Ad 3-20 karakter olmalı: harf, rakam, _ . -'))
+        raise BotError(_('The name must be 3-20 characters: letters, digits, _ . -'))
     with _LOCK:
         d = read(pid)
         if any(x['ad'].lower() == name.lower() and x['no'] != no for x in d['roster']) or name.lower() in {str(o).lower() for o in players}:
-            raise BotError(_('Bu ad kullanılıyor.'))
+            raise BotError(_('This name is in use.'))
         x = next((x for x in d['roster'] if x['no'] == int(no)), None)
         if x is None:
-            raise BotError(_('Bot bulunamadı.'))
+            raise BotError(_('Bot not found.'))
         old, x['ad'] = x['ad'], name
         _save(pid, d)
         if old != name:
@@ -503,7 +503,7 @@ def remove(pid):
     """Paket _silinenler'e taşınır; botları her yerden çıkar (klanlar, rehberler: ad_kaydi, oyun sonraki açılışta uygular)."""
     p = _route(pid)
     if not os.path.isfile(p):
-        raise BotError(_('Bot paketi bulunamadı.'))
+        raise BotError(_('Bot pack not found.'))
     NL.add([{'tur': 'delete', 'ad': x['ad']} for x in read(pid)['roster']])
     target = os.path.join(folder(), '_trash')
     os.makedirs(target, exist_ok=True)

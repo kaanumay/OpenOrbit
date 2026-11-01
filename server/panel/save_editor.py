@@ -32,19 +32,19 @@ def _(s):
 COMPANIES = (1, 2, 3)
 # oyunun ret nedenleri (BaseKey adı ya da magaza.NEDENLER anahtarı) -> panelin iletisi
 REJECTS = {
-    'error_can_not_equip_to_slot': _('Bu eşya bu yuvaya takılamaz: oyunun kuralları izin vermiyor (gemiye uygunluk, yuva türü ya da config sınırı).'),
-    'special_generic_hint': _("Bu ekstradan bu config'te zaten var."),
-    'drone_slotCPUinUse': _("Yuva CPU'su kullanımda: önce ekstra yuvalarını boşalt."),
-    'pet_gear_requirement': _("P.E.T.'in seviyesi bu eşya için yetmiyor."),
-    'dse_ship_not_exist': _('Gemi bulunamadı.'),
-    'pet_already': _("Bu eşya P.E.T.'te zaten takılı."),
-    'pet_full': _("P.E.T.'te bu eşya için boş yuva yok."),
-    'other_ship': _('Bu eşya başka bir gemide takılı: önce oradan çıkar.'),
-    'same_cannon': _('Gemide bu türden bir top zaten takılı.'),
-    'qfc_ship': _('Bu Quantum Fluid Core başka bir gemiye bağlı.'),
-    'same_qfc': _('Gemide bu türden bir Quantum Fluid Core zaten takılı.'),
-    'single_slot_cpu': _("Bir config'e yalnız bir Slot CPU takılabilir."),
-    'same_module': _('Bir gemiye her türden (hasar, can, kalkan, özel) yalnız bir modül takılabilir.'),
+    'error_can_not_equip_to_slot': _("This item can't go in this slot: the game's rules don't allow it (ship compatibility, slot type or config limit)."),
+    'special_generic_hint': _("This config already has this extra."),
+    'drone_slotCPUinUse': _("The slot CPU is in use: empty your extra slots first."),
+    'pet_gear_requirement': _("The P.E.T.'s level is too low for this item."),
+    'dse_ship_not_exist': _('Ship not found.'),
+    'pet_already': _("This item is already equipped on the P.E.T."),
+    'pet_full': _("The P.E.T. has no free slot for this item."),
+    'other_ship': _('This item is equipped on another ship: unequip it there first.'),
+    'same_cannon': _('The ship already has a cannon of this type.'),
+    'qfc_ship': _('This Quantum Fluid Core is bound to another ship.'),
+    'same_qfc': _('The ship already has a Quantum Fluid Core of this type.'),
+    'single_slot_cpu': _("Only one Slot CPU can be equipped per config."),
+    'same_module': _('Only one module of each type (damage, HP, shield, special) can be equipped on a ship.'),
 }
 HOME_MAP = PA.HOME_MAP
 AMMO = (('ammunition_laser_', 'lazer'), ('ammunition_rocketlauncher_', 'rocket_launcher'), ('ammunition_rocket_', 'roket'),
@@ -545,7 +545,7 @@ def _int(v, lo, hi):
     try:
         return max(lo, min(hi, int(float(v))))
     except (TypeError, ValueError, OverflowError):
-        raise ValueError('Sayı bekleniyordu: %s', str(v))
+        raise ValueError('A number was expected: %s', str(v))
 
 
 def _result(msgs, name):
@@ -561,7 +561,7 @@ def _result(msgs, name):
             key = {v: k for k, v in SHP.BASEKEY.items()}.get(e.get('enumBaseKey'))
         if key in REJECTS:
             raise ValueError(REJECTS[key])
-        raise ValueError('Oyun bu işleme izin vermedi: %s', key or '?')
+        raise ValueError("The game didn't allow this: %s", key or '?')
 
 
 def op_pilot(pr, m, o):
@@ -570,7 +570,7 @@ def op_pilot(pr, m, o):
         import re
         name = str(o['ad']).strip()
         if not re.fullmatch(r'[\w\-\.\[\]\(\) ]{3,20}', name, re.UNICODE):
-            raise ValueError('Pilot adı 3-20 karakter olmalı.')
+            raise ValueError('The pilot name must be 3-20 characters.')
         pl['userName'] = name
     for key, field, lo, hi in (('kredi', 'credits', 0, 10 ** 12), ('uridyum', 'uridium', 0, 10 ** 12),
                                ('onur', 'honourPoints', -10 ** 12, 10 ** 12)):
@@ -586,7 +586,7 @@ def op_pilot(pr, m, o):
     if 'firma' in o and int(o['firma']) != pl.get('factionId'):
         f = int(o['firma'])
         if f not in COMPANIES:
-            raise ValueError('Firma seçin (MMO, EIC ya da VRU).')
+            raise ValueError('Choose a company (MMO, EIC or VRU).')
         pl['factionId'] = f
         home_base(pr)                                     # öbür firmanın haritasında kalmasın
     pr.dirty = True
@@ -596,7 +596,7 @@ def home_base(pr):
     mid = HOME_MAP.get(pr.d['pilot'].get('factionId'), 5)
     pos = PA.station_pos(mid)
     if not pos:
-        raise ValueError('Ana istasyonun konumu bulunamadı.')
+        raise ValueError("The home station's position was not found.")
     pr.d['position'] = {'mapId': mid, 'x': pos[0], 'y': pos[1]}
     for s in pr.d['ships'].values():                 # gemilerin bekledikleri yer de (etkinleştirince oraya gidilirdi)
         s.pop('position', None)
@@ -611,9 +611,9 @@ def op_give(pr, m, o):
     for loot, n in o.get('esyalar') or []:
         loot = str(loot)
         if loot not in known and not loot.startswith(('ammunition_', 'resource_', 'ship_', 'drone_', 'booster_')):
-            raise ValueError('Bilinmeyen eşya: %s', loot)
+            raise ValueError('Unknown item: %s', loot)
         if '_design_' not in loot and any(s['lootId'] == loot for s in pr.d['ships'].values()):
-            raise ValueError('Bu gemi zaten hangarda: %s', loot)        # oyunda her gemiden bir tane (ödül yolu atlar)
+            raise ValueError('This ship is already in the hangar: %s', loot)        # oyunda her gemiden bir tane (ödül yolu atlar)
         before = set(pr.d['esyalar'])
         m.reward(loot, _int(n, 1, 10 ** 9))
         if not equip:
@@ -635,7 +635,7 @@ def op_give(pr, m, o):
 def op_move(pr, m, o):
     sid = str(o.get('gemi'))
     if sid not in pr.d['ships']:
-        raise ValueError('Gemi bulunamadı.')
+        raise ValueError('Ship not found.')
     equip, target = o.get('direction') == 'equip', o.get('hedef') if o.get('hedef') in ('ship', 'drone', 'pet') else 'ship'
     f = {'items': [int(i) for i in (o.get('esyalar') or [o.get('esya')])], 'source': 'inventory' if equip else target,
          'destination': target if equip else 'inventory', 'configId': int(o.get('config') or 1), 'hangarId': pr.ship(sid)['hangarId'],
@@ -649,7 +649,7 @@ def op_delete(pr, m, o):
     for i in o.get('esyalar') or []:
         i = int(i)
         if i in busy:
-            raise ValueError('Takılı eşya silinemez: önce çıkar.')
+            raise ValueError("An equipped item can't be deleted: unequip it first.")
         pr.d['esyalar'].pop(str(i), None)
         for k in ('item_level', 'upgrade_level'):
             pr.d.get(k, {}).pop(str(i), None)
@@ -696,9 +696,9 @@ def op_delete_ship(pr, m, o):
     """Gemiyi hangardan kaldır; üstündeki donanım envantere iner (takılılık gemilerin config'lerinden hesaplanır)."""
     sid = str(o.get('gemi'))
     if sid not in pr.d['ships']:
-        raise ValueError('Gemi bulunamadı.')
+        raise ValueError('Ship not found.')
     if sid == pr.d['active_ship']:
-        raise ValueError('Etkin gemi kaldırılamaz: önce başka bir gemiyi etkin yap.')
+        raise ValueError("The active ship can't be removed: make another ship active first.")
     del pr.d['ships'][sid]
     pr.dirty = True
 
@@ -707,7 +707,7 @@ def op_drone(pr, m, o):
     import shop as SHP
     x = pr.drone(o.get('drone') or 0)
     if not x:
-        raise ValueError('Dron bulunamadı.')
+        raise ValueError('Drone not found.')
     if 'seviye' in o:                                  # seviye ve puanı: seviyenin eşiği
         x['seviye'] = _int(o['seviye'], 1, len(SHP.LEVELS))
         x['puan'] = max(SHP.LEVELS[x['seviye'] - 1]['puan'], min(int(x.get('puan', 0)),
@@ -723,7 +723,7 @@ def op_delete_drone(pr, m, o):
     """Dronu kaldır (satmadan): her gemide üstündeki eşyalar ve tasarımları envantere iner."""
     x = pr.drone(o.get('drone') or 0)
     if not x:
-        raise ValueError('Dron bulunamadı.')
+        raise ValueError('Drone not found.')
     for s in pr.d['ships'].values():
         for c in s.get('drone_config', {}).values():
             c.pop(str(x['kimlik']), None)
@@ -741,7 +741,7 @@ def op_item_level(pr, m, o):
     i = str(int(o.get('esya') or 0))
     loot = pr.d['esyalar'].get(i)
     if not loot:
-        raise ValueError('Eşya bulunamadı.')
+        raise ValueError('Item not found.')
     if 'upgrade' in o:
         n = _int(o['upgrade'], 0, UPG.max_level(loot))
         lv = pr.d.setdefault('upgrade_level', {})
@@ -765,7 +765,7 @@ def op_ammo(pr, m, o):
     c = pr.d.setdefault('ammunition', {})
     for loot, n in (o.get('counts') or {}).items():
         if not str(loot).startswith('ammunition_'):
-            raise ValueError('Bilinmeyen eşya: %s', loot)
+            raise ValueError('Unknown item: %s', loot)
         c[loot] = _int(n, 0, 10 ** 12)
         pr.item_id(loot)                              # istemcinin sayaç kimliği (yeni cephane türü)
     pr.dirty = True
@@ -785,7 +785,7 @@ def op_resource(pr, m, o):
     d = pr.d.setdefault('other_items', {})
     for loot, n in (o.get('counts') or {}).items():
         if not str(loot).startswith('resource_'):
-            raise ValueError('Bilinmeyen eşya: %s', loot)
+            raise ValueError('Unknown item: %s', loot)
         n = _int(n, 0, 10 ** 12)
         if n:
             d[loot] = n
@@ -800,7 +800,7 @@ def op_booster(pr, m, o):
     b = pr.d.setdefault('boosters', {})
     for loot, sec in (o.get('durations') or {}).items():
         if not BOOSTER.is_booster(loot):
-            raise ValueError('Bilinmeyen eşya: %s', loot)
+            raise ValueError('Unknown item: %s', loot)
         sec = _int(sec, 0, 10 ** 8)
         if sec:
             b[loot] = {'bitis': 0, 'kalan': float(sec)}
@@ -816,7 +816,7 @@ def op_pet(pr, m, o):
         m.grant_pet(str(o.get('ad') or ''))
     d = pr.d.get('pet')
     if not d:
-        raise ValueError('Bu kayıtta P.E.T. yok.')
+        raise ValueError('This save has no P.E.T.')
     if 'ad' in o and str(o['ad']).strip():
         d['ad'] = str(o['ad']).strip()[:24]
     if 'seviye' in o:
@@ -842,7 +842,7 @@ def op_rng(pr, m, o):
     loot = pr.d['esyalar'].get(i)
     t = loot and rng_kind(loot)
     if not t:
-        raise ValueError('Bu eşyanın düzenlenecek rastgele niteliği yok.')
+        raise ValueError('This item has no random attributes to edit.')
     pool = rng_pool(loot)
     if t == 'modul':
         rec = GM.state(pr, i)
@@ -854,20 +854,20 @@ def op_rng(pr, m, o):
         ns = [[str(a), v] for a, v in o['nitelik'] or []]
         names = [a for a, _v in ns]
         if not ns or len(ns) > pool['max_attributes'] or len(set(names)) != len(names) or any(a not in pool['nitelik'] for a in names):
-            raise ValueError('Nitelikler geçersiz: havuzdan, tekrarsız ve en çok %s tane.', str(pool['max_attributes']))
+            raise ValueError('Invalid attributes: they must come from the pool, without repeats, and at most %s.', str(pool['max_attributes']))
         try:
             vals = [max(0.0, min(1.0 if pool['unit'] == 'fraction' else 1000.0, float(v))) for _a, v in ns]
         except (TypeError, ValueError):
-            raise ValueError('Sayı bekleniyordu: %s', str([v for _a, v in ns]))
+            raise ValueError('A number was expected: %s', str([v for _a, v in ns]))
         rec['attributes' if t == 'qfc' else 'nitelik'] = [[a, round(v, 4)] for a, v in zip(names, vals)]
     if 'ships' in o and t == 'modul':
         gs = sorted({str(g) for g in o['ships'] or []})
         if not gs or any(g not in GM.all_ships() for g in gs):
-            raise ValueError('Gemi seçin.')
+            raise ValueError('Choose a ship.')
         rec['ships'] = gs
     if 'gemi' in o and t == 'qfc':
         if str(o['gemi']) not in GM.all_ships():
-            raise ValueError('Gemi seçin.')
+            raise ValueError('Choose a ship.')
         rec['gemi'] = str(o['gemi'])
     if 'seviye' in o and t == 'qfc':
         rec['seviye'] = _int(o['seviye'], 1, pool['max_level'])
@@ -885,7 +885,7 @@ def op_cpu_charges(pr, m, o):
     import shop as SHP
     loot = str(o.get('lootId') or '')
     if 'right' not in SHP.EX.X.get(loot, {}):
-        raise ValueError('Bilinmeyen eşya: %s', loot)
+        raise ValueError('Unknown item: %s', loot)
     pr.d.setdefault('extra_uses', {})[loot] = _int(o.get('right'), 0, 10 ** 6)
     pr.dirty = True
 
@@ -924,7 +924,7 @@ def apply(path, ops, original=None):
     for o in ops:
         fn = OPS.get(o.get('islem'))
         if not fn:
-            raise ValueError('Bilinmeyen işlem: %s', str(o.get('islem')))
+            raise ValueError('Unknown operation: %s', str(o.get('islem')))
         fn(pr, m, o)
     pr.sync_equipment()
     pr.save(force=True)

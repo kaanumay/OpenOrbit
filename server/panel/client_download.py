@@ -46,8 +46,8 @@ class Cancelled(Exception):
 def block(e):
     """CDN'in erişim engeli (403/429): yeniden denemek engeli uzatır."""
     if isinstance(e, HTTPError) and e.code in (403, 429):
-        return DownloadError(_('İndirme sunucusu erişimi geçici olarak engelledi (HTTP %d). Birkaç dakika sonra sürdür: inen '
-                               'dosyalar korunur.', e.code))
+        return DownloadError(_('The download server temporarily blocked access (HTTP %d). Resume in a few minutes: downloaded files '
+                               'are kept.', e.code))
     return None
 
 
@@ -64,13 +64,13 @@ class HttpFile:
         try:
             r = self._request(0, 0)
         except (OSError, http.client.HTTPException) as e:
-            raise block(e) or DownloadError(_('İndirme sunucusuna bağlanılamadı (internet bağlantını denetle): %s', e))
+            raise block(e) or DownloadError(_('Could not connect to the download server (check your internet connection): %s', e))
         cr = r.headers.get('Content-Range') or ''
         r.close()
         try:
             self.size = int(cr.rsplit('/', 1)[1])
         except (IndexError, ValueError):
-            raise DownloadError(_('İndirme sunucusu kaldığı yerden sürdürmeyi desteklemiyor.'))
+            raise DownloadError(_('The download server does not support resuming.'))
 
     def _request(self, start, end=None):
         h = {'Range': 'bytes=%d-%s' % (start, '' if end is None else end), 'User-Agent': 'OpenOrbit'}
@@ -79,7 +79,7 @@ class HttpFile:
         r = self.opener(Request(self.url, headers=h), timeout=TIMEOUT)
         if r.status != 206:
             r.close()
-            raise DownloadError(_('İndirme sunucusu kaldığı yerden sürdürmeyi desteklemiyor ya da arşiv değişti; yeniden başlatın.'))
+            raise DownloadError(_('The download server does not support resuming, or the archive has changed; start again.'))
         self.etag = self.etag or r.headers.get('ETag')
         return r
 
@@ -132,7 +132,7 @@ class HttpFile:
                     raise block(e)
                 tries += 1
                 if tries > RETRIES:
-                    raise DownloadError(_('Bağlantı koptu: %s', e))
+                    raise DownloadError(_('Connection lost: %s', e))
                 if self.stop.wait(cooldown(tries)):
                     raise Cancelled()
                 continue
@@ -156,7 +156,7 @@ def safe_path(base, rel):
     """Arşivdeki yolu klasörün içinde tut (../ ve mutlak yollar geçersiz)."""
     parts = [p for p in rel.replace('\\', '/').split('/') if p not in ('', '.')]
     if not parts or any(p == '..' or ':' in p for p in parts):
-        raise DownloadError(_('Arşivde geçersiz yol: %s', rel))
+        raise DownloadError(_('Invalid path in the archive: %s', rel))
     return os.path.join(base, *parts)
 
 
@@ -207,7 +207,7 @@ class Downloader:
     def discard(self):
         """Yarım kalan indirmenin geçici klasörünü sil (iş durmuşken; yalnız GECICI)."""
         if self.running():
-            raise DownloadError(_('İndirme sürüyor: önce durdurun.'))
+            raise DownloadError(_('The download is running: stop it first.'))
         if os.path.isdir(self.stage):
             shutil.rmtree(self.stage)
             self.log('yarım istemci indirmesi silindi: %s' % self.stage)
@@ -273,7 +273,7 @@ class Downloader:
             need = sum(i.file_size for i, p in items if p not in done)
             free = shutil.disk_usage(self.root).free
             if free < need + PAY:
-                raise DownloadError(_('Diskte yer yetmiyor: %.1f GB gerekli, %.1f GB boş.', (need + PAY) / LT, free / LT))
+                raise DownloadError(_('Not enough disk space: %.1f GB needed, %.1f GB free.', (need + PAY) / LT, free / LT))
             self._set(durum='downloading', toplam=sum(i.compress_size for i, p in items), unpacked_size=sum(i.file_size for i, p in items),
                       claimed=sum(i.compress_size for i, p in items if p in done), file_count=len(items), done_files=len(done))
             self.log('istemci indiriliyor: %s (%d dosya, %d zaten var, %d bağlantı)' % (self.url, len(items), len(done), self.connection))
@@ -316,7 +316,7 @@ class Downloader:
             self._set(durum='verifying', dosya='')
             c = self.check(self.stage)
             if not c['valid']:
-                raise DownloadError(_('İndirilen klasör bir DarkOrbit istemcisi değil: %s', ' '.join(c['issues'])))
+                raise DownloadError(_('The downloaded folder is not a DarkOrbit client: %s', ' '.join(c['issues'])))
             target = self._target(top or os.path.splitext(os.path.basename(self.url))[0])
             for k in range(10):                     # virüs tarayıcısı bir dosyayı tutuyorsa biraz bekle
                 try:
@@ -337,10 +337,10 @@ class Downloader:
             self._set(durum='hata', hata=str(e))
             self.log('istemci indirme hatası: %s' % e)
         except zipfile.BadZipFile as e:
-            self._set(durum='hata', hata=_('Arşiv bozuk geldi (%s). Yeniden başlatın: yalnız eksik dosyalar iner.', e))
+            self._set(durum='hata', hata=_('The archive arrived damaged (%s). Start again: only the missing files are downloaded.', e))
             self.log('istemci indirme: bozuk arşiv: %s' % e)
         except OSError as e:
-            self._set(durum='hata', hata=_('Dosya yazılamadı: %s', e))
+            self._set(durum='hata', hata=_('Could not write a file: %s', e))
             self.log('istemci indirme: yazma hatası: %r' % e)
         except Exception as e:
             self._set(durum='hata', hata=repr(e))

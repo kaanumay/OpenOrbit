@@ -42,8 +42,8 @@ def event(live, setting, _, state):
     if state != 'in_game' or not live:
         if state == 'panel' and not a('in_panel'):
             return None
-        parent, sub = {'giris': (_('Giriş ekranında'), _('Uzaya çıkmak üzere')), 'starting': (_('Oyun başlatılıyor…'), _('Uzaya çıkmak üzere')),
-                    'arkadas': (_('Arkadaşının sunucusunda'), _('Birlikte oynuyor'))}.get(state, (_('Panelde'), _('Oyuna hazırlanıyor')))
+        parent, sub = {'giris': (_('At the login screen'), _('About to launch')), 'starting': (_('Starting the game…'), _('About to launch')),
+                    'arkadas': (_("On a friend's server"), _('Playing together'))}.get(state, (_('In the panel'), _('Getting ready to play')))
         e = {'details': parent, 'state': sub,
              'assets': {'large_image': LOGO, 'large_text': 'OpenOrbit'}}
     else:
@@ -52,26 +52,26 @@ def event(live, setting, _, state):
         if a('gemi') and ship_name(gm.get('ad')):
             parent.append(ship_name(gm['ad']))
         if a('seviye'):
-            parent.append(_('Seviye %s', pl.get('seviye', 1)))
+            parent.append(_('Level %s', pl.get('seviye', 1)))
         gate = world_info.get('kapi')
         if not a('durum'):
             status = None
         elif world_info.get('dead'):
-            status = _('Gemisi parçalandı')
+            status = _('Ship destroyed')
         elif gate:
             status = ' · '.join(str(x) for x in (gate.get('ad'), gate.get('dalga')) if x)
         elif world_info.get('in_combat'):
-            status = _('Savaşta: %s', world_info['hedef']) if world_info.get('hedef') else _('Savaşta')
+            status = _('In combat: %s', world_info['hedef']) if world_info.get('hedef') else _('In combat')
         elif world_info.get('safe'):
-            status = _('Güvenli bölgede')
+            status = _('In a safe zone')
         else:
-            status = _('Uzayda uçuyor')
+            status = _('Flying through space')
         sub = [x for x in (location.get('harita') if a('harita') else None, status) if x]
         firma = FIRMA.get(pl.get('firma'))
-        e = {'details': ' · '.join(x.strip() for x in parent if x.strip()) or _('Uzayda'),
-             'state': ' · '.join(sub) or _('Oyunda'),
+        e = {'details': ' · '.join(x.strip() for x in parent if x.strip()) or _('In space'),
+             'state': ' · '.join(sub) or _('In game'),
              'assets': {'large_image': region(location.get('harita'), gate) if a('harita') else LOGO,
-                        'large_text': (_('%s haritası', location['harita']) if a('harita') and location.get('harita') else 'OpenOrbit')}}
+                        'large_text': (_('%s map', location['harita']) if a('harita') and location.get('harita') else 'OpenOrbit')}}
         if a('firma') and firma:
             e['assets'].update(small_image=BADGE % firma, small_text=firma.upper())
         if a('sure') and live.get('session_start'):
@@ -82,7 +82,7 @@ def event(live, setting, _, state):
     e.update(details_url=GITHUB, state_url=GITHUB)       # kartın yazıları ve görselleri tıklanınca GitHub sayfası
     e['assets'].update({k + '_url': GITHUB for k in ('large', 'small') if k + '_image' in e['assets']})
     if a('buttons'):
-        e['buttons'] = [{'label': _("Discord'a katıl")[:32], 'url': 'https://discord.com/invite/openorbit'},
+        e['buttons'] = [{'label': _("Join Discord")[:32], 'url': 'https://discord.com/invite/openorbit'},
                         {'label': _('OpenOrbit (GitHub)')[:32], 'url': GITHUB}]
     for k in ('details', 'state'):                     # Discord: 2-128 karakter
         e[k] = e[k][:128].ljust(2)

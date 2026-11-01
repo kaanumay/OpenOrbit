@@ -43,7 +43,7 @@ def resolve_address(text):
     s = re.sub(r'^[a-z]+://', '', (text or '').strip(), flags=re.I).split('/')[0]
     m = re.fullmatch(r'([A-Za-z0-9][A-Za-z0-9.\-]*)(?::(\d{1,5}))?', s)
     if not m or not 0 < int(m.group(2) or GAME_PORT) < 65536:
-        raise FriendError(_('Geçersiz adres: arkadaşının IP adresini ya da alan adını yaz (ör. 192.168.1.20 ya da 85.100.20.30).'))
+        raise FriendError(_("Invalid address: enter your friend's IP address or domain name (e.g. 192.168.1.20 or 85.100.20.30)."))
     return m.group(1), int(m.group(2) or GAME_PORT)
 
 
@@ -85,9 +85,9 @@ def public_ip():
     try:
         ip = OPENER.open(PUBLIC_IP_SERVICE, timeout=6).read(64).decode('ascii', 'replace').strip()
     except (OSError, ValueError):
-        raise FriendError(_('Genel IP bulunamadı: internet bağlantısı yok ya da hizmet yanıt vermedi.'))
+        raise FriendError(_('Public IP not found: no internet connection or the service did not reply.'))
     if not re.fullmatch(r'\d{1,3}(\.\d{1,3}){3}', ip):
-        raise FriendError(_('Genel IP bulunamadı: internet bağlantısı yok ya da hizmet yanıt vermedi.'))
+        raise FriendError(_('Public IP not found: no internet connection or the service did not reply.'))
     return ip
 
 
@@ -106,7 +106,7 @@ def request(host, port, method, path, body=None, timeout=10):
         r, code = e, e.code
     except (URLError, OSError) as e:
         reason = getattr(e, 'reason', e)
-        raise FriendError(_('%s:%d adresine bağlanılamadı (%s). Arkadaşının sunucusu açık mı, portlar açık mı?', host, port, reason))
+        raise FriendError(_("Could not connect to %s:%d (%s). Is your friend's server running and are the ports open?", host, port, reason))
     try:
         raw = r.read(RESPONSE_LIMIT + 1)
         if r.headers.get('Content-Encoding') == 'gzip':
@@ -116,12 +116,12 @@ def request(host, port, method, path, body=None, timeout=10):
             raise ValueError('başlık yok')
         out = json.loads(raw.decode('utf8'))
     except (OSError, ValueError, zlib.error):
-        raise FriendError(_('%s:%d bir DarkOrbit arkadaş sunucusu değil (ya da yanıt yarım kaldı).', host, port))
+        raise FriendError(_('%s:%d is not a DarkOrbit friend server (or the reply was cut off).', host, port))
     return code, (out if isinstance(out, dict) else {})
 
 
 def _message(code, out):
-    return out.get('message') or _('Sunucu isteği reddetti (HTTP %s).', code)
+    return out.get('message') or _('The server refused the request (HTTP %s).', code)
 
 
 # ------------------------------------------------------------------ panel tarafı
@@ -158,10 +158,10 @@ class Friend:
 
     def at(self, session):
         if not (self.direction.running() and self.direction.friend):
-            raise FriendError(_('Arkadaş sunucusu açık değil.'))
+            raise FriendError(_('The friend server is not running.'))
         code, out = request('127.0.0.1', GAME_PORT, 'POST', '/yonetim/kick', {'anahtar': self.key, 'oturum': str(session or '')})
         if code != 200:
-            raise FriendError(_('Misafir bulunamadı: çoktan ayrılmış olabilir.'))
+            raise FriendError(_('Guest not found: they may have already left.'))
         self.log('arkadaş sunucusu: misafir çıkarıldı (%s)' % str(session)[:8])
 
     # ------------------------------------------------------------ misafir
@@ -183,7 +183,7 @@ class Friend:
         host, port = resolve_address(address)
         code, info = request(host, port, 'GET', '/misafir/bilgi', timeout=6)
         if code != 200 or info.get('sunucu') != 'darkorbit':
-            raise FriendError(_('%s:%d bir DarkOrbit arkadaş sunucusu değil (ya da yanıt yarım kaldı).', host, port))
+            raise FriendError(_('%s:%d is not a DarkOrbit friend server (or the reply was cut off).', host, port))
         info.update(address='%s:%d' % (host, port), compatible=info.get('protokol') == PROTOCOL)
         return info
 
@@ -198,7 +198,7 @@ class Friend:
         host, port = resolve_address(address)
         with self.lock:
             if self.active():
-                raise FriendError(_('Zaten bir arkadaş sunucusundasın.'))
+                raise FriendError(_("You are already on a friend's server."))
             self.m = self._empty()
             self.m.update(durum='connecting', address='%s:%d' % (host, port), record=slot)
         self.cfg.update({'friend_last_address': address.strip()})
@@ -208,23 +208,23 @@ class Friend:
     def _join(self, host, port, password, slot, client_version, open_client):
         m = self.m
         try:
-            self._step(_('Arkadaşının sunucusu denetleniyor'))
+            self._step(_("Checking your friend's server"))
             info = self.attempt('%s:%d' % (host, port))
             m['sunucu'] = info
             if not info['compatible']:
-                raise FriendError(_('Arkadaşının paneli başka bir sürüm (hesap gönderimi %s, seninki %s): ikiniz de paneli güncelleyin.',
+                raise FriendError(_("Your friend's panel is a different version (account upload %s, yours %s): both of you should update the panel.",
                                       info.get('protokol'), PROTOCOL))
             if info.get('client') and info['client'] != client_version:
-                raise FriendError(_('Oyun sürümleri farklı: arkadaşının sunucusu %s, senin istemcin %s.', info['client'], client_version))
+                raise FriendError(_("Game versions differ: your friend's server %s, your client %s.", info['client'], client_version))
             if not info.get('yer'):
-                raise FriendError(_('Sunucu dolu (en çok %s misafir).', info.get('max_count')))
+                raise FriendError(_('Server full (at most %s guests).', info.get('max_count')))
             self._partial_session(slot)
-            self._step(_('Kayıt yedekleniyor'))
-            self.saves.backup(slot, 'auto', _('Arkadaşın sunucusuna katılmadan önce'))
+            self._step(_('Backing up the save'))
+            self.saves.backup(slot, 'auto', _("Before joining a friend's server"))
             with open(self.saves.profile(slot), encoding='utf8') as fh:
                 d = json.load(fh)
             m['original_uid'] = d['pilot']['userId']
-            self._step(_('Hesap gönderiliyor'))
+            self._step(_('Uploading account'))
             key = secrets.token_urlsafe(24)
             code, r = request(host, port, 'POST', '/misafir/giris', {'surum': PROTOCOL, 'password': password or '', 'anahtar': key,
                                                                     'address': host, 'profil': d}, timeout=60)
@@ -233,16 +233,16 @@ class Friend:
             m.update(oturum=r['oturum'], anahtar=key, uid=r['uid'], surum=r['surum'], dosya=self._file(slot))
             self._mark(slot)
             self.log('arkadaş sunucusuna katılındı: %s:%d (kayıt %s, sunucudaki kimlik %s)' % (host, port, slot, r['uid']))
-            self._step(_('Web girişi hazırlanıyor'))
+            self._step(_('Preparing web login'))
             self.direction.start_guest_web(self.saves.profile(slot), slot, [
                 '--remote=%s:%d' % (host, port), '--chat=%s:%d' % (host, CHAT_PORT), '--session=%s' % r['oturum'], '--uid=%d' % r['uid']])
             threading.Thread(target=self._sync, args=(host, port, slot, r['oturum'], key), daemon=True).start()
-            self._step(_('Oyun açılıyor'))
+            self._step(_('Opening the game'))
             open_client()
             m['durum'] = 'in_game'
-            self._step(_('Arkadaşının sunucusundasın: iyi uçuşlar!'), 'tamam')
+            self._step(_("You are on your friend's server: have a good flight!"), 'tamam')
         except Exception as e:
-            m['hata'] = str(e) if isinstance(e, (FriendError, RuntimeError, OSError)) else _('Beklenmeyen hata: %r', e)
+            m['hata'] = str(e) if isinstance(e, (FriendError, RuntimeError, OSError)) else _('Unexpected error: %r', e)
             self._step(m['hata'], 'hata')
             self.log('arkadaşa katılma hatası: %r' % e)
             if m.get('oturum'):
@@ -309,7 +309,7 @@ class Friend:
                 except OSError as e:
                     self.log('arkadaş sunucusu: kayıt yazılamadı: %r' % e)
             if code == 404 or (code == 200 and r.get('finished')):
-                m['not'] = _('Arkadaşının sunucusu oturumu bitirdi (sunucu kapandı ya da seni çıkardı). Kaydın son hâliyle bilgisayarında.')
+                m['not'] = _("Your friend's server ended the session (it shut down or removed you). Your save is on your computer in its latest state.")
                 if not self.direction.client_alive():
                     self._finish()
                 return
@@ -327,7 +327,7 @@ class Friend:
     def detach(self):
         """Ayrıl düğmesi: istemci açıksa kapatılır (kapanış işi ayrılır), değilse hemen ayrılınır."""
         if not self.active():
-            raise FriendError(_('Bir arkadaş sunucusunda değilsin.'))
+            raise FriendError(_("You are not on a friend's server."))
         if self.direction.client_alive():
             self.direction.stop_client()
         else:
@@ -358,7 +358,7 @@ class Friend:
         except (FriendError, OSError) as e:
             self.log('arkadaş sunucusundan ayrılma: son hâl alınamadı: %r' % e)
             if not m['not']:
-                m['not'] = _('Sunucuya ulaşılamadı: kaydın son eşitlemedeki hâliyle kaldı.')
+                m['not'] = _('Could not reach the server: your save stays as of the last sync.')
         try:
             self.direction.stop_servers()                     # misafirin web sunucusu
         finally:
@@ -379,7 +379,7 @@ class Friend:
         a = self.saves.meta(slot).get('arkadas')
         if not isinstance(a, dict) or not a.get('oturum'):
             return
-        self._step(_('Yarım kalan oturum kapatılıyor'))
+        self._step(_('Closing an unfinished session'))
         try:
             host, port = resolve_address(a.get('address'))
             code, r = request(host, port, 'POST', '/misafir/cikis', {'oturum': a['oturum'], 'anahtar': a.get('anahtar')}, timeout=20)

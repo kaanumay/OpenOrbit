@@ -66,7 +66,7 @@ def _route(did):
     if did == STANDARD:
         return os.path.join(folder(), '_draft.json')
     if not isinstance(did, str) or not re.fullmatch(r'[a-z0-9_]{1,40}', did):
-        raise WorldError(_('Dünya bulunamadı.'))
+        raise WorldError(_('World not found.'))
     return os.path.join(folder(), did + '.json')
 
 
@@ -99,11 +99,11 @@ def read(did):
     """Dünya (standart: taslağın yamalarıyla). Yoksa DunyaHatasi."""
     if did == STANDARD:
         d = _read_file(_route(did)) or {}
-        return {'id': STANDARD, 'ad': _('Standart dünya'), 'aciklama': _('Oyunun kendi içeriği. Düzenlenemez: değişikliklerini yeni bir dünya olarak kaydet.'),
+        return {'id': STANDARD, 'ad': _('Standard world'), 'aciklama': _("The game's own content. It can't be edited: save your changes as a new world."),
                 'cover': 'standard', 'standard': True, 'patches': d.get('patches') or {}}
     d = _read_file(_route(did))
     if d is None:
-        raise WorldError(_('Dünya bulunamadı.'))
+        raise WorldError(_('World not found.'))
     d.setdefault('patches', {})
     d['id'] = did
     return d
@@ -163,7 +163,7 @@ def entries(users=None):
 def _clean_name(name):
     name = ' '.join(str(name or '').split())[:NAME_LENGTH]
     if not name:
-        raise WorldError(_('Dünyaya bir ad ver.'))
+        raise WorldError(_('Give the world a name.'))
     return name
 
 
@@ -197,7 +197,7 @@ def create(name, description='', cover='nebula', source=None, from_draft=False):
 
 def update(did, name=None, description=None, cover=None):
     if did == STANDARD:
-        raise WorldError(_('Standart dünya değiştirilemez.'))
+        raise WorldError(_("The standard world can't be changed."))
     with _LOCK:
         d = read(did)
         if name is not None:
@@ -211,19 +211,19 @@ def update(did, name=None, description=None, cover=None):
 
 def remove(did):
     if did == STANDARD:
-        raise WorldError(_('Standart dünya silinemez.'))
+        raise WorldError(_("The standard world can't be deleted."))
     p = _route(did)
     if not os.path.isfile(p):
-        raise WorldError(_('Dünya bulunamadı.'))
+        raise WorldError(_('World not found.'))
     os.makedirs(os.path.join(folder(), '_trash'), exist_ok=True)
     os.replace(p, os.path.join(folder(), '_trash', '%s_%s.json' % (did, datetime.datetime.now().strftime('%Y%m%d%H%M%S'))))
 
 
 def duplicate(did, name=None):
     d = read(did)
-    return create(name or _('{0} (kopya)').format(d.get('ad') or did)[:NAME_LENGTH], d.get('aciklama', ''), d.get('cover', 'nebula'),
+    return create(name or _('{0} (copy)').format(d.get('ad') or did)[:NAME_LENGTH], d.get('aciklama', ''), d.get('cover', 'nebula'),
                    source=did if did != STANDARD else None, from_draft=False) if did != STANDARD else \
-        create(name or _('Yeni dünya'), '', 'nebula')
+        create(name or _('New world'), '', 'nebula')
 
 
 CODE_PREFIX = 'OODUNYA1:'
@@ -256,11 +256,11 @@ def code(did):
 def from_code(text):
     text = ''.join(str(text or '').split())
     if not text.startswith(CODE_PREFIX):
-        raise WorldError(_('Bu bir OpenOrbit dünya kodu değil.'))
+        raise WorldError(_('This is not an OpenOrbit world code.'))
     try:
         return json.loads(zlib.decompress(base64.urlsafe_b64decode(text[len(CODE_PREFIX):] + '=' * (-len(text) % 4))).decode('utf8'))
     except (ValueError, zlib.error):
-        raise WorldError(_('Dünya kodu bozuk ya da eksik kopyalanmış.'))
+        raise WorldError(_('The world code is corrupt or was copied incompletely.'))
 
 
 def import_(data):
@@ -269,9 +269,9 @@ def import_(data):
     if isinstance(data, dict):
         data = SM.migrate_world(data)                 # eski sürümde paylaşılan dünya: veri dosyası adları ve yollar yeni adlara
     if not isinstance(data, dict) or 'patches' not in data or not isinstance(data['patches'], dict):
-        raise WorldError(_('Bu dosya bir OpenOrbit dünyası değil.'))
+        raise WorldError(_('This file is not an OpenOrbit world.'))
     if int(data.get('openorbit_world') or 1) > VERSION:
-        raise WorldError(_('Bu dünya panelin daha yeni bir sürümüyle hazırlanmış: önce paneli güncelle.'))
+        raise WorldError(_('This world was prepared with a newer version of the panel: update the panel first.'))
     cleared, skipped = {}, 0
     for file, patch_count in data['patches'].items():
         for y, v in (patch_count or {}).items() if isinstance(patch_count, dict) else ():
@@ -279,7 +279,7 @@ def import_(data):
                 cleared.setdefault(file, {})[y] = v
             else:
                 skipped += 1
-    did = create(data.get('ad') or _('İçe aktarılan dünya'), data.get('aciklama', ''), data.get('cover', 'nebula'))
+    did = create(data.get('ad') or _('Imported world'), data.get('aciklama', ''), data.get('cover', 'nebula'))
     issues = []
     with _LOCK:
         d = read(did)
@@ -314,7 +314,7 @@ def allowed(file, route):
 def patch(did, file, route, value):
     """Dünyaya (standartta taslağa) bir değişiklik: tam değer. Standart değere eşitse yama kaldırılır."""
     if not allowed(file, route):
-        raise WorldError(_('Bu içerik düzenlenemez.'))
+        raise WorldError(_("This content can't be edited."))
     value = clean_up(did, file, route, value)
     with _LOCK:
         d = read(did)
@@ -377,7 +377,7 @@ def _int(v, sub=0, parent=10 ** 9):
     try:
         return max(sub, min(parent, int(round(float(v)))))
     except (TypeError, ValueError, OverflowError):      # 1e999 / Infinity (içe aktarılan dünya kodu)
-        raise WorldError(_('Sayı bekleniyordu.'))
+        raise WorldError(_('A number was expected.'))
 
 
 def clean_up(did, file, route, v):
@@ -385,13 +385,13 @@ def clean_up(did, file, route, v):
     part = DATA.path_parts(route)
     if isinstance(v, dict) and v.get(DATA.DELETE):
         if file == 'npc.json' and part[0] == 'types' and not part[1].startswith(NEW_ALIEN):
-            raise WorldError(_('Oyunun uzaylıları silinemez; doğma listelerinden çıkarabilirsin.'))
+            raise WorldError(_("The game's own aliens can't be deleted; you can remove them from spawn lists."))
         if file in ('quests.json', 'quest_extras.json') and int(part[1]) < NEW_QUEST:
-            raise WorldError(_('Oyunun görevleri silinemez; kapatabilirsin.'))
+            raise WorldError(_("The game's own quests can't be deleted; you can switch them off."))
         return {DATA.DELETE: True}
     if file == 'npc.json' and part[0] == 'types':
         if not isinstance(v, dict):
-            raise WorldError(_('Uzaylı verisi bozuk.'))
+            raise WorldError(_('Alien data is corrupt.'))
         v = dict(v)
         v['ad'] = ' '.join(str(v.get('ad') or '').split())[:60] or '?'
         for k in NPC_NUMBERS:
@@ -400,7 +400,7 @@ def clean_up(did, file, route, v):
         v['reward'] = {k: _int((v.get('reward') or {}).get(k, 0), 0, 10 ** 9) for k in REWARD}
         v['kargo'] = {str(_int(k, 0, 99)): _int(n, 0, 100_000) for k, n in (v.get('kargo') or {}).items() if _int(n, 0, 100_000) > 0}
         if part[1].startswith(NEW_ALIEN) and not v.get('model'):
-            raise WorldError(_('Yeni uzaylının bir modeli olmalı.'))
+            raise WorldError(_('The new alien needs a model.'))
         return v
     if file == 'npc.json' and part[0] == 'haritalar':
         types = world_data(did, 'npc.json')['types']
@@ -408,7 +408,7 @@ def clean_up(did, file, route, v):
             return _int(v, 0, 300)
         if len(part) == 3 and part[2] == 'npc':
             if not isinstance(v, list):
-                raise WorldError(_('Doğma listesi bozuk.'))
+                raise WorldError(_('The spawn list is corrupt.'))
             out = []
             for g in v:
                 tip = str(g.get('tip'))
@@ -420,10 +420,10 @@ def clean_up(did, file, route, v):
                     e['region'] = [_int(b[0], 0, 42000), _int(b[1], 0, 26200), _int(b[2], 200, 15000)]
                 out.append(e)
             return out
-        raise WorldError(_('Bu içerik düzenlenemez.'))
+        raise WorldError(_("This content can't be edited."))
     if file == 'map_layout.json':
         if not isinstance(v, dict):
-            raise WorldError(_('Harita düzeni bozuk.'))
+            raise WorldError(_('The map layout is corrupt.'))
         v = copy.deepcopy(v)
         if 'safe' in v:
             v['safe'] = [[_int(a, 0, 42000), _int(b, 0, 26200), _int(r, 100, 6000)] for a, b, r in v['safe']]
@@ -434,7 +434,7 @@ def clean_up(did, file, route, v):
         return v
     if file in ('quests.json', 'quest_extras.json'):
         if not isinstance(v, dict) or 'root' not in v:
-            raise WorldError(_('Görev verisi bozuk.'))
+            raise WorldError(_('Quest data is corrupt.'))
         v = copy.deepcopy(v)
         v['seviye'] = _int(v.get('seviye', 1), 0, 40)
         v['rewards'] = [[str(l), _int(n, 1, 10 ** 9)] for l, n in v.get('rewards', []) if str(l)]
@@ -448,7 +448,7 @@ def clean_up(did, file, route, v):
         return v
     if file == 'shop':
         if not isinstance(v, dict):
-            raise WorldError(_('Ürün verisi bozuk.'))
+            raise WorldError(_('Product data is corrupt.'))
         out = {}
         if v.get('price') is not None:
             out['price'] = _int(v['price'], 0, 10 ** 10)
@@ -459,7 +459,7 @@ def clean_up(did, file, route, v):
     if file == 'npc.json' and part[0] in ('bonus_boxes', 'bonus_box_4x'):
         out = [[str(l), _int(n, 1, 10 ** 7)] for l, n in (v if isinstance(v, list) else []) if str(l)]
         if not out:
-            raise WorldError(_('Bonus kutusunda en az bir ödül olmalı.'))
+            raise WorldError(_('A bonus box needs at least one reward.'))
         return out
     if file == 'boxes.json':
         return _clean_box(part[1], v)
@@ -471,20 +471,20 @@ def clean_up(did, file, route, v):
         # tarayıcı 2^53'ten büyük sayıları yuvarlar (son seviyeler ~10^18): yuvarlama payındaki değer standarttır
         ep = [b[1] if abs(n - b[1]) <= b[1] * 1e-12 else n for n, b in zip(ep, base)]
         if len(ep) != len(base) or ep[0] != 0 or any(b <= a for a, b in zip(ep, ep[1:])):
-            raise WorldError(_('Seviye eşikleri sıfırdan başlayıp artmalı.'))
+            raise WorldError(_('Level thresholds must start at zero and increase.'))
         return [[lv, n] for (lv, _), n in zip(base, ep)]
     if file == 'ranks.json' and part[0] == 'thresholds':
         base = raw('ranks.json')['thresholds']
         n = [_int(x, 0, 10 ** 12) for x in (v if isinstance(v, list) else [])]
         if len(n) != len(base) or n[0] != 0 or any(b <= a for a, b in zip(n, n[1:])):
-            raise WorldError(_('Rütbe eşikleri sıfırdan başlayıp artmalı.'))
+            raise WorldError(_('Rank thresholds must start at zero and increase.'))
         return n
     if file == 'ranks.json' and part[0] == 'formula':
         base = raw('ranks.json')['formula']
         try:
             return {k: max(-10 ** 6, min(10 ** 6, float(v.get(k, d)))) for k, d in base.items()}
         except (AttributeError, TypeError, ValueError):
-            raise WorldError(_('Sayı bekleniyordu.'))
+            raise WorldError(_('A number was expected.'))
     if file == 'events.json':
         return _clean_event(part[1], v, world_data(did, 'npc.json')['types'])
     if file == 'items.json':
@@ -496,7 +496,7 @@ def clean_up(did, file, route, v):
         return out or {'0': 0}                   # hepsi 0: haritada cevher yok (boş sözlük sınıfın değerine düşerdi)
     if file == 'social.json':
         if not isinstance(v, list):
-            raise WorldError(_('Lot listesi bozuk.'))
+            raise WorldError(_('The lot list is corrupt.'))
         out = []
         for l in v:
             loot, kind = str(l[0]), l[2] if l[2] in ('hour', 'day', 'week') else 'hour'
@@ -511,7 +511,7 @@ def _clean_box(kind, v):
     ağırlık]; paket satırı olduğu gibi). Öteki alanlar (anahtar, takvim, mesajlar) standarttan."""
     base = raw('boxes.json')['boxes'].get(kind)
     if base is None or not isinstance(v, dict):
-        raise WorldError(_('Kutu bulunamadı.'))
+        raise WorldError(_('Box not found.'))
     out = copy.deepcopy(base)
     classes = raw('boxes.json')['haritalar']
     if 'adet' in v:
@@ -535,7 +535,7 @@ def _clean_box(kind, v):
             n = sorted(_int(x, 1, 10 ** 7) for x in r[1]) if isinstance(r[1], list) and len(r[1]) == 2 else _int(r[1], 1, 10 ** 7)
             rows.append([str(r[0]), n, w])
         if not rows:
-            raise WorldError(_('Kutuda en az bir ödül olmalı.'))
+            raise WorldError(_('A box needs at least one reward.'))
         out['reward'] = rows
     return out
 
@@ -568,7 +568,7 @@ def _clean_gate(key, v, types=None):
     (adet değişince alt gruplar orantılı ölçeklenir). Dalga ve uzaylı listesinin yapısı standarttan (galaxy_gates.py'nin sayaçları ona bağlı)."""
     base = raw('gates.json')['kapilar'].get(key)
     if base is None or not isinstance(v, dict):
-        raise WorldError(_('Kapı bulunamadı.'))
+        raise WorldError(_('Gate not found.'))
     out = copy.deepcopy(base)
     for k in ('part', 'can'):
         if k in v:
@@ -627,7 +627,7 @@ def _date(x):
             return x
         except ValueError:
             pass
-    raise WorldError(_('Tarih geçersiz: %s', x))
+    raise WorldError(_('Invalid date: %s', x))
 
 
 def event_classes(h, types):
@@ -641,7 +641,7 @@ def _clean_event(key, v, types):
     'tek'), harita bölümü (haritalar, uzaylı adetleri, harita kotaları, patron adedi ve süresi). Öteki alanlar standarttan."""
     base = raw('events.json')['events'].get(key)
     if base is None or not isinstance(v, dict):
-        raise WorldError(_('Etkinlik bulunamadı.'))
+        raise WorldError(_('Event not found.'))
     out = copy.deepcopy(base)
     if v.get('world_status') in ('on', 'off'):
         out['world_status'] = v['world_status']
@@ -652,7 +652,7 @@ def _clean_event(key, v, types):
             if isinstance(r, list) and len(r) >= 2:
                 a, b = _date(r[0]), _date(r[1])
                 if len(a) != len(b):
-                    raise WorldError(_('Dönemin iki ucu da aynı biçimde olmalı (yıllı ya da her yıl).'))
+                    raise WorldError(_('Both ends of the period must use the same format (with a year or every year).'))
                 rows.append([a, b] + list(queue.get((r[0], r[1]), [])))
         out['donemler'] = rows
     h, value_map = out.get('harita'), v.get('harita')
@@ -755,7 +755,7 @@ def game_map(did, mid):
     mid = str(mid)
     npc = world_data(did, 'npc.json')
     if mid not in npc['haritalar']:
-        raise WorldError(_('Harita bulunamadı.'))
+        raise WorldError(_('Map not found.'))
     m = npc['haritalar'][mid]
     layout = world_data(did, 'map_layout.json')['haritalar'].get(mid) or {}
     layout0 = raw('map_layout.json')['haritalar'].get(mid) or {}
@@ -828,7 +828,7 @@ def quests(did):
 def quest(did, qid):
     all_ = _all_quests(did)
     if str(qid) not in all_:
-        raise WorldError(_('Görev bulunamadı.'))
+        raise WorldError(_('Quest not found.'))
     file, q = all_[str(qid)]
     base = raw(file)['quests'].get(str(qid))
     w = read(did)
@@ -845,7 +845,7 @@ def save_quest(did, qid, changes):
     """Görevin düzenlenebilir alanları: seviye, önkoşullar, ödüller, koşulların hedefi ve eşleşmesi, kapalı, ad (yalnız yeni görev)."""
     all_ = _all_quests(did)
     if str(qid) not in all_:
-        raise WorldError(_('Görev bulunamadı.'))
+        raise WorldError(_('Quest not found.'))
     file, q = all_[str(qid)]
     q = copy.deepcopy(q)
     d = changes or {}
@@ -913,22 +913,22 @@ def new_quest(did, name, level, targets, rewards):
     """Yeni görev: hedefler [{tur: avla|topla|kesif|sat|kutu|kargo, eslesme: [...], hedef, harita: [...]}] sırasız, hepsi gerekli.
     Oyundaki başlığı adı (baslik; istemcide metni yok, eklentinin GorevMetinleri yaması gösterir)."""
     if not targets:
-        raise WorldError(_('Göreve en az bir hedef ekle.'))
+        raise WorldError(_('Add at least one objective to the quest.'))
     all_ = _all_quests(did)
     qid = max([NEW_QUEST - 1] + [int(k) for k in all_ if int(k) >= NEW_QUEST]) + 1
     root_id = 1_900_000_000 + (qid - NEW_QUEST) * 100
     mods = []
     for i, x in enumerate(targets[:8]):
         if x.get('tur') not in QUEST_TEMPLATES:
-            raise WorldError(_('Bilinmeyen görev hedefi.'))
+            raise WorldError(_('Unknown quest objective.'))
         kind = QUEST_TEMPLATES[x['tur']][0]
         es = x.get('matches') or []
         if CONDITION[kind] in ('npc', 'esya', 'cevher', 'harita') and not es:
-            raise WorldError(_('Her hedef için ne yapılacağını seç.'))
+            raise WorldError(_('Choose what to do for each objective.'))
         if CONDITION[kind] == 'harita':
             es = [map_match(m) for m in es]
         mods.append(_condition(root_id + 1 + i, kind, es, _int(x.get('hedef', 1), 1, 10 ** 7), x.get('harita') or None))
-    q = {'ad': ' '.join(str(name or '').split())[:60] or _('Yeni görev'), 'seviye': _int(level or 1, 1, 40), 'priority': 500, 'kinds': [2],
+    q = {'ad': ' '.join(str(name or '').split())[:60] or _('New quest'), 'seviye': _int(level or 1, 1, 40), 'priority': 500, 'kinds': [2],
          'icon': 0, 'previous': [], 'kaynak': 'world', 'pvp': False,
          'root': {'_': 'QuestCaseModule', 'id': root_id, 'active': False, 'mandatory': True, 'ordered': False, 'mandatoryCount': len(mods),
                  'modifier': mods},

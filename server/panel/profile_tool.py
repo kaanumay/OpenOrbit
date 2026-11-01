@@ -52,7 +52,7 @@ def level_ep(level):
 
 def new_(path, pilot, firma, kredi=None, uridyum=None, seviye=None, onur=None, lazer=None, roket=None, ilerlemeli=False, kampanya=False):
     if os.path.exists(path):
-        raise ValueError('Bu yolda zaten bir profil var.')
+        raise ValueError('A profile already exists at this path.')
     from player_profile import Profile
     firma = int(firma)
     pr = Profile(_load('login.json').get('seed'), path)
@@ -88,7 +88,7 @@ def home_base(path):
     mid = HOME_MAP.get(d['pilot'].get('factionId'), 5)
     pos = station_pos(mid)
     if not pos:
-        raise ValueError('Ana istasyonun konumu bulunamadı.')
+        raise ValueError("The home station's position was not found.")
     d['position'] = {'mapId': mid, 'x': pos[0], 'y': pos[1]}
     tmp = path + '.tmp'
     with open(tmp, 'w', encoding='utf8', newline='\n') as fh:
@@ -123,7 +123,7 @@ def give(path, items, pr=None):
     items = [(str(l), max(1, min(10 ** 9, int(n)))) for l, n in items]
     bad = [l for l, n in items if l not in known and not l.startswith(('ammunition_', 'resource_', 'ship_', 'drone_', 'booster_'))]
     if bad:
-        raise ValueError('Bilinmeyen eşya: %s', ', '.join(bad))
+        raise ValueError('Unknown item: %s', ', '.join(bad))
     notes = []
     save = pr is None
     pr = pr or Profile(_load('login.json').get('seed'), path)
@@ -170,7 +170,7 @@ def reset_d(d, parts):
         elif part == 'history':                     # seyir defteri ve hesap geçmişi boşalır
             d['logbook'], d['account_history'] = [], []
         else:
-            raise ValueError('Bilinmeyen bölüm: %s', part)
+            raise ValueError('Unknown section: %s', part)
         done.append(part)
     return done
 

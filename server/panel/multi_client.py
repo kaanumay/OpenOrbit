@@ -48,7 +48,7 @@ class MultiClient:
             except ValueError:
                 return e.code, {}
         except (URLError, OSError, ValueError) as e:
-            raise MultiClientError(_('Oyun sunucusuna ulaşılamadı (%s).', getattr(e, 'reason', e)))
+            raise MultiClientError(_("Couldn't reach the game server (%s).", getattr(e, 'reason', e)))
 
     # ------------------------------------------------------------ durum
     def live(self):
@@ -82,30 +82,30 @@ class MultiClient:
     def open_(self, slot, folder, main_slot):
         """Ek istemciyi aç (sunucu çok oturumlu açık olmalı: panel denetler). -> durum."""
         if slot == main_slot:
-            raise MultiClientError(_('Bu kayıt ana istemcide açık: ek istemcide başka bir kayıt seç.'))
+            raise MultiClientError(_('This save is open in the main client: pick another save for the extra client.'))
         if not self.saves.exists(slot):
-            raise MultiClientError(_('Kayıt bulunamadı.'))
+            raise MultiClientError(_('Save not found.'))
         c = IST.check(folder)
         if not c['valid']:
-            raise MultiClientError(_('İstemci klasörü geçersiz: %s', ' '.join(c['issues'])))
+            raise MultiClientError(_('Invalid client folder: %s', ' '.join(c['issues'])))
         with self.lock:
             if slot in self.live():
-                raise MultiClientError(_('Bu kayıt zaten bir ek istemcide açık.'))
+                raise MultiClientError(_('This save is already open in an extra client.'))
             n = self.cfg.get('multi_client_max')
             if len(self.live()) >= n:
-                raise MultiClientError(_('En çok %d ek istemci açılabilir (İstemci > Çoklu istemci).', n))
+                raise MultiClientError(_('At most %d extra clients can be open (Client > Multi-client).', n))
             self.is_open[slot] = {'proc': None, 'oturum': None, 'uid': None, 'start': time.time(), 'pilot': '', 'daily': None}
         out = None
         try:
             summary = self.saves.summary(slot)
             if summary.get('corrupt'):
-                raise MultiClientError(_('Kayıt okunamıyor (bozuk): Kayıtlar > Yedekler\'den geri yükle.'))
+                raise MultiClientError(_("The save can't be read (corrupt): restore it from Saves > Backups."))
             if self.cfg.get('backup_on_launch'):
-                self.saves.backup(slot, 'auto', _('Ek istemci (açılış)'))
+                self.saves.backup(slot, 'auto', _('Extra client (start)'))
             self.last_backup[slot] = time.time()
             code, out = self.request('/yerel/ekle', {'record': slot, 'route': self.saves.profile(slot)})
             if code != 200:
-                raise MultiClientError(out.get('message') or _('Oyun sunucusu kaydı almadı (HTTP %s).', code))
+                raise MultiClientError(out.get('message') or _("The game server didn't take the save (HTTP %s).", code))
             daily = os.path.join(self.logs, 'client_%s.log' % slot)
             import launcher
             launcher.rotate_logs(self.logs, names=(os.path.basename(daily),))
@@ -159,7 +159,7 @@ class MultiClient:
         with self.lock:
             e = self.is_open.get(slot)
         if not e or e['proc'] is None:
-            raise MultiClientError(_('Bu kayıtla açık bir ek istemci yok.'))
+            raise MultiClientError(_('No extra client is open with this save.'))
         if e['proc'].poll() is None:
             e['closed'] = True
             PR.close_client(e['proc'])
@@ -181,5 +181,5 @@ class MultiClient:
             return
         for s in self.live():
             if time.time() - self.last_backup.get(s, 0) >= interval_min * 60:
-                self.saves.backup(s, 'auto', _('Oyun sırasında'))
+                self.saves.backup(s, 'auto', _('During the game'))
                 self.last_backup[s] = time.time()

@@ -91,25 +91,25 @@ def check(folder):
     out = {'route': folder or '', 'valid': False, 'exe': False, 'data': False, 'surum': None, 'compatible': False, 'eski': False,
            'issues': []}
     if not folder:
-        out['issues'].append(_('İstemci klasörü seçilmedi.'))
+        out['issues'].append(_('No client folder selected.'))
         return out
     if not os.path.isdir(folder):
-        out['issues'].append(_('Klasör bulunamadı.'))
+        out['issues'].append(_('Folder not found.'))
         return out
     out['exe'] = os.path.isfile(os.path.join(folder, EXE))
     out['data'] = os.path.isdir(os.path.join(folder, DATA_DIR))
     if not out['exe']:
-        out['issues'].append(_('Klasörde %s yok.', EXE))
+        out['issues'].append(_('The folder has no %s.', EXE))
     if not out['data']:
-        out['issues'].append(_('Klasörde %s klasörü yok.', DATA_DIR))
+        out['issues'].append(_('The folder has no %s folder.', DATA_DIR))
     out['valid'] = out['exe'] and out['data']
     if out['valid']:
         out['surum'] = version_of(folder)
         out['compatible'] = out['surum'] == supported()
         out['eski'] = bool(out['surum']) and vkey(out['surum']) < vkey(supported())
         if out['surum'] and not out['compatible']:
-            out['issues'].append(_('Sunucu %s sürümü için yazıldı; %s sürümünde protokol farklıysa giriş ya da bazı pencereler '
-                                     'çalışmayabilir.', supported(), out['surum']))
+            out['issues'].append(_('The server was written for version %s; if the protocol differs in version %s, the login or some '
+                                   'windows may not work.', supported(), out['surum']))
         out['metadata'] = os.path.isfile(os.path.join(folder, DATA_DIR, 'il2cpp_data', 'Metadata', 'global-metadata.dat'))
     return out
 

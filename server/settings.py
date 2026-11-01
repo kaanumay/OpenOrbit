@@ -26,10 +26,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_PATH = os.path.join(HERE, 'save', 'settings.json')
 REFRESH_SEC = 1.0
 
-GROUPS = (('gemi', 'Gemin'), ('savas', 'Savaş ve uzaylılar'), ('reward', 'Ödüller'), ('progress', 'İlerleme'), ('world', 'Dünya'),
-           ('kapi', 'Kapılar ve modlar'), ('economy', 'Ekonomi'), ('sure', 'Süreler'), ('auction', 'Müzayede'), ('ui', 'Arayüz'),
-           ('manager', 'Yönetici'), ('developer', 'Geliştirici'))
-RIVAL_LEVELS = ('Kapalı', 'Çekingen', 'Ilımlı', 'Rekabetçi', 'Agresif')
+GROUPS = (('gemi', 'Your ship'), ('savas', 'Combat and aliens'), ('reward', 'Rewards'), ('progress', 'Progression'), ('world', 'World'),
+           ('kapi', 'Gates and modes'), ('economy', 'Economy'), ('sure', 'Timers'), ('auction', 'Auction'), ('ui', 'Interface'),
+           ('manager', 'Admin'), ('developer', 'Developer'))
+RIVAL_LEVELS = ('Off', 'Timid', 'Moderate', 'Competitive', 'Aggressive')
 UPPER_LIMIT = 10000.0             # çarpanların elle yazılabilen en büyük değeri ('sinir' verilmemişse)
 I32 = 2 ** 31 - 1               # istemciye 32 bitlik alanla giden değerlerin üstü (protokol taşırır: can, kalkan, fiyat)
 
@@ -52,299 +52,284 @@ def _n(key, name, group, description, apply_mode='anında', lo=0, hi=10, default
 
 SCHEMA = [
     # ---------------------------------------------------------------- gemin
-    _c('ship_hp', 'Geminin canı', 'gemi', 'Geminin azami canı (gövde): formasyon, booster ve laboratuvar bonuslarıyla birlikte. '
-       'Oyun açıkken de değişir.', lo=0.1, limit=1000.0),
-    _c('ship_shield', 'Geminin kalkanı', 'gemi', 'Geminin azami kalkanı (gemideki ve dronlardaki kalkan jeneratörleri, bonuslarla '
-       'birlikte). Oyun açıkken de değişir.', limit=500.0),
-    _c('ship_speed', 'Geminin hızı', 'gemi', 'Geminin uçuş hızı (hız jeneratörleri ve bonuslarla birlikte). Yavaşlatma ve Fortify '
-       'gibi etkiler yine geçerli.', lo=0.25, hi=3.0, limit=10.0),
-    _c('shield_regen', 'Kalkanın dolma hızı', 'gemi', 'Savaş dışında kalkanın kendiliğinden dolması (oyunun değeri saniyede '
-       '%4). 0: kalkan kendiliğinden dolmaz.', limit=100.0),
-    _c('repair_speed', 'Onarım robotu hızı', 'gemi', 'Onarım robotunun (REP) gövdeyi onarma hızı.', lo=0.1, limit=1000.0),
-    _c('player_hit_chance', 'İsabet şansın', 'gemi', "Lazerlerinin, roketlerinin ve P.E.T.'inin isabet olasılığı (oyunun değeri %80, "
-       'en çok %100). x1,25: her atış isabet eder.', lo=0.1, hi=2.0, limit=100.0),
-    _c('rocket_cooldown', 'Roket bekleme süresi', 'gemi', 'Roketlerin ve roket fırlatıcısının bekleme ve dolma süresi. Düşük değer: '
-       'daha sık atış.', lo=0.05, hi=5.0, limit=100.0),
-    _b('immune_until', 'Dokunulmaz gemi', 'gemi', 'Uzaylıların atışları görünür ama gemin can ve kalkan kaybetmez.'),
-    _b('infinite_ammo', 'Sonsuz cephane', 'gemi', 'Lazer cephanesi, roketler, fırlatıcı cephanesi ve mayınlar harcanmaz (en az '
-       'bir tane olmalı).'),
-    _b('infinite_technology', 'Sonsuz teknoloji', 'gemi', 'Teknoloji eşyaları (Energy Leech, Battle Repair Bot, Speed Burst …) '
-       'kullanılınca harcanmaz (en az bir tane olmalı). Bekleme süreleri yine geçerli.'),
-    _b('own_mine', 'Kendi mayınların sana zarar verir', 'gemi', 'Kendi bıraktığın mayının patlaması gemine de hasar verir '
-       '(oyundaki gibi). Kapatılırsa yalnız uzaylılara.', default=True),
-    _n('on_spot_hp', 'Yerinde onarımda can', 'gemi', 'Gemi yok edildikten sonra bulunduğun yerde onarılınca gelen can (oyunun '
-       'değeri %10; kalkan boş başlar).', lo=1, hi=100, default=10, unit='%'),
-    _n('on_spot_protection', 'Yerinde onarım sonrası koruma', 'gemi', 'Bulunduğun yerde onarıldıktan sonra hasar almadığın süre '
-       '(oyunun değeri 10 sn). Ateş edince biter.', lo=0, hi=60, default=10, unit='sn', limit=3600),
+    _c('ship_hp', 'Ship HP', 'gemi', "Your ship's maximum HP (hull), together with formation, booster and lab bonuses. Also changes while "
+                                     'the game is running.', lo=0.1, limit=1000.0),
+    _c('ship_shield', 'Ship shield', 'gemi', "Your ship's maximum shield (shield generators on the ship and drones, with bonuses). Also changes "
+                                             'while the game is running.', limit=500.0),
+    _c('ship_speed', 'Ship speed', 'gemi', "Your ship's flight speed (with speed generators and bonuses). Effects like slowdowns and Fortify "
+                                           'still apply.', lo=0.25, hi=3.0, limit=10.0),
+    _c('shield_regen', 'Shield regeneration', 'gemi', 'How fast the shield refills by itself out of combat (game value 4% per second). 0: the shield never '
+                                                      'refills by itself.', limit=100.0),
+    _c('repair_speed', 'Repair bot speed', 'gemi', 'How fast the repair bot (REP) repairs the hull.', lo=0.1, limit=1000.0),
+    _c('player_hit_chance', 'Your hit chance', 'gemi', "Hit chance of your lasers, rockets and P.E.T. (game value 80%, at most 100%). x1.25: every shot "
+                                                       "hits.", lo=0.1, hi=2.0, limit=100.0),
+    _c('rocket_cooldown', 'Rocket cooldown', 'gemi', 'Cooldown and reload time of rockets and the rocket launcher. Lower value: more frequent shots.', lo=0.05, hi=5.0, limit=100.0),
+    _b('immune_until', 'Invulnerable ship', 'gemi', 'Alien shots are shown, but your ship loses no hit points or shield.'),
+    _b('infinite_ammo', 'Infinite ammo', 'gemi', 'Laser ammo, rockets, launcher ammo and mines are not used up (you need at least one).'),
+    _b('infinite_technology', 'Infinite tech', 'gemi', 'Tech items (Energy Leech, Battle Repair Bot, Speed Burst …) are not used up when activated (you '
+                                                       'need at least one). Cooldowns still apply.'),
+    _b('own_mine', 'Your own mines hurt you', 'gemi', 'The blast of a mine you placed also damages your ship (as in the game). When off, only aliens are '
+                                                      'hit.', default=True),
+    _n('on_spot_hp', 'HP on on-the-spot repair', 'gemi', 'HP you get when you repair on the spot after your ship is destroyed (game value 10%; the shield '
+                                                         'starts empty).', lo=1, hi=100, default=10, unit='%'),
+    _n('on_spot_protection', 'Protection after on-the-spot repair', 'gemi', 'How long you take no damage after repairing on the spot (game value 10 s). Ends when you fire.', lo=0, hi=60, default=10, unit='s', limit=3600),
     # ---------------------------------------------------------------- savaş ve uzaylılar
-    _c('npc_damage', 'Uzaylıların verdiği hasar', 'savas', 'Uzaylıların (NPC) gemine, P.E.T.\'ine ve dost gemilere verdiği hasar. '
-       '0: hiç hasar almazsın.', limit=1000.0),
-    _c('player_damage', 'Verdiğin hasar', 'savas', 'Lazer, roket, fırlatıcı, mayın, Smart Bomb, top, P.E.T. ve yeteneklerle '
-       'uzaylılara, oyunculara ve botlara verdiğin hasar.', lo=0.1, limit=1000.0),
-    _c('npc_can', 'Uzaylıların canı ve kalkanı', 'savas', 'Uzaylıların can ve kalkanı. Düşük değer uzaylıları çabuk '
-       'öldürür.', apply_mode='harita', lo=0.1, limit=100.0),
-    _c('npc_hit_chance', 'Uzaylıların isabet şansı', 'savas', 'Uzaylıların gemine ve P.E.T.\'ine isabet ettirme olasılığı (oyunun '
-       'değeri %60, en çok %100). 0: hiç isabet etmezler.', hi=2.0, limit=100.0),
-    _c('npc_speed', 'Uzaylıların hızı', 'savas', 'Uzaylıların uçuş hızı (hareketsiz olanlar kıpırdamaz).', lo=0.1, hi=3.0, limit=10.0),
-    dict(anahtar='npc_aggression', ad='Uzaylıların saldırganlığı', grup='savas', tur='seviye', default=0,
-         options=['Türüne göre', 'Hepsi saldırgan', 'Hiçbiri saldırgan'], colors=['', 'err', 'ok'], apply_mode='anında',
-         option_description=['Oyundaki gibi: saldırgan türler seni görünce saldırır, ötekiler vurulunca karşılık verir.',
-                           'Bütün uzaylılar seni fark edince kovalar ve saldırır.',
-                           'Hiçbir uzaylı kendiliğinden saldırmaz; vurduğun uzaylı yine karşılık verir.'],
-         aciklama='Uzaylıların seni kendiliğinden kovalayıp kovalamadığı (kapı ve mod dalgalarındakiler dahil).'),
-    _c('npc_notice', 'Uzaylıların fark etme mesafesi', 'savas', 'Saldırgan uzaylıların seni fark edip kovalamaya başladığı uzaklık '
-       '(oyunun değeri 1.000 birim).', lo=0.1, hi=3.0, limit=20.0),
-    _c('npc_range', 'Uzaylıların ateş menzili', 'savas', 'Uzaylıların sana lazer, roket ve bomba atabildiği uzaklık (oyunun '
-       'değeri çoğunda 450, Kristallon türlerinde 550, hareketsizlerde 1.000 birim; dünya patronlarının saldırıları dahil).', lo=0.1, hi=3.0, limit=20.0),
-    _b('slowing_shots', 'Yavaşlatan uzaylı atışları', 'savas', 'Barb, The Stinger, Saboteur ve Mindfire Behemoth gibi '
-       'uzaylıların atışları gemini yavaşlatır. Kapatılırsa yalnız hasar verirler.', default=True),
-    _b('company_pvp', 'Kendi şirketine saldırı', 'savas', 'Aynı şirketten oyunculara ve botlara saldırabilirsin (oyundaki gibi): '
-       'şirketin X-1 ve X-2 haritalarında yasak, yok etmek ceza getirir. Kapatılırsa kendi şirketine saldıramazsın (savaştaki klanlar '
-       'hariç).', default=True),
-    _c('radiation', 'Radyasyon hasarı', 'savas', 'Harita sınırının dışındaki radyasyonun gövdeye verdiği hasar. 0: radyasyon '
-       'zarar vermez.', lo=0.0, hi=5.0, limit=100.0),
-    _c('ksi_can', 'Klan Savaş İstasyonu canı', 'savas', 'Bütün Klan Savaş İstasyonlarının (seninkinin, bot klanlarının ve rakip klanların) '
-       'modüllerinin canı ve kalkanı. Değişince modüllerin mevcut canı oranıyla ölçeklenir; istemcide çubuklar haritaya yeniden '
-       'girince ya da modül vurulunca yenilenir.', apply_mode='harita', lo=0.1, hi=10.0, limit=1000.0),
-    _c('cbs_damage', 'Klan Savaş İstasyonu hasarı', 'savas', 'Bütün Klan Savaş İstasyonlarının silah modüllerinin verdiği hasar '
-       '(uzaylılara ve rakip istasyonun sana).', lo=0.0, hi=10.0, limit=1000.0),
+    _c('npc_damage', 'Damage from aliens', 'savas', 'Damage aliens (NPCs) deal to your ship, your P.E.T. and friendly ships. 0: you take no damage at '
+                                                    'all.', limit=1000.0),
+    _c('player_damage', 'Damage you deal', 'savas', 'Damage you deal to aliens, players and bots with lasers, rockets, launchers, mines, Smart Bomb, '
+                                                    'cannons, the P.E.T. and abilities.', lo=0.1, limit=1000.0),
+    _c('npc_can', 'Alien hit points and shields', 'savas', 'Alien hit points and shields. A lower value kills aliens faster.', apply_mode='harita', lo=0.1, limit=100.0),
+    _c('npc_hit_chance', 'Alien hit chance', 'savas', 'Chance that aliens hit your ship and P.E.T. (game value 60%, at most 100%). 0: they never hit.', hi=2.0, limit=100.0),
+    _c('npc_speed', 'Alien speed', 'savas', 'Flight speed of aliens (stationary ones stay put).', lo=0.1, hi=3.0, limit=10.0),
+    dict(anahtar='npc_aggression', ad='Alien aggression', grup='savas', tur='seviye', default=0,
+         options=['By type', 'All aggressive', 'None aggressive'], colors=['', 'err', 'ok'], apply_mode='anında',
+         option_description=['As in the game: aggressive types attack when they see you, the others fight back when shot.',
+                           'Every alien chases and attacks you once it notices you.',
+                           'No alien attacks on its own; an alien you shoot still fights back.'],
+         aciklama='Whether aliens chase you on their own (including those in gate and mode waves).'),
+    _c('npc_notice', 'Alien detection range', 'savas', 'Distance at which aggressive aliens notice you and start chasing (game value 1,000 units).', lo=0.1, hi=3.0, limit=20.0),
+    _c('npc_range', 'Alien firing range', 'savas', 'Distance from which aliens can fire lasers, rockets and bombs at you (game value 450 for most, 550 '
+                                                   'for Kristallons, 1,000 for stationary ones; world boss attacks included).', lo=0.1, hi=3.0, limit=20.0),
+    _b('slowing_shots', 'Slowing alien shots', 'savas', 'Shots from aliens such as Barb, The Stinger, Saboteur and Mindfire Behemoth slow your ship down. '
+                                                        'When off, they only deal damage.', default=True),
+    _b('company_pvp', 'Attacking your own company', 'savas', "You can attack players and bots from your own company (as in the game): forbidden on your company's "
+                                                             'X-1 and X-2 maps, destroying them brings a penalty. When off, you cannot attack your own company '
+                                                             '(except clans at war).', default=True),
+    _c('radiation', 'Radiation damage', 'savas', 'Hull damage from radiation outside the map border. 0: radiation does no harm.', lo=0.0, hi=5.0, limit=100.0),
+    _c('ksi_can', 'Clan Battle Station HP', 'savas', "Health and shield of every Clan Battle Station module (yours, bot clans' and rival clans'). When "
+                                                     "changed, the modules' current health scales proportionally; in-game bars refresh when you re-enter "
+                                                     'the map or a module is hit.', apply_mode='harita', lo=0.1, hi=10.0, limit=1000.0),
+    _c('cbs_damage', 'Clan Battle Station damage', 'savas', 'Damage dealt by the weapon modules of every Clan Battle Station (to aliens, and by a rival station '
+                                                            'to you).', lo=0.0, hi=10.0, limit=1000.0),
     # ---------------------------------------------------------------- ödüller
-    _c('kredi', 'Kredi kazancı', 'reward', 'Uzaylı, kutu, görev, kapı ve etkinliklerden kazanılan kredi (satış ve iadeler '
-       'hariç).', hi=50.0, limit=100000.0),
-    _c('uridyum', 'Uridyum kazancı', 'reward', 'Uzaylı, kutu, görev, kapı ve etkinliklerden kazanılan uridyum.', hi=50.0,
+    _c('kredi', 'Credit gain', 'reward', 'Credits earned from aliens, boxes, missions, gates and events (sales and refunds excluded).', hi=50.0, limit=100000.0),
+    _c('uridyum', 'Uridium gain', 'reward', 'Uridium earned from aliens, boxes, missions, gates and events.', hi=50.0,
        limit=100000.0),
-    _c('ep', 'Deneyim (EP) kazancı', 'reward', 'Kazanılan deneyim puanı: seviye atlama hızı.', hi=50.0, limit=100000.0),
-    _c('onur', 'Onur kazancı', 'reward', 'Kazanılan onur puanı.', hi=50.0, limit=100000.0),
-    _c('collecting', 'Toplanan eşya miktarı', 'reward', 'Kutulardaki cephane ve eşyalar, uzaylıların kargo kutularındaki ve '
-       'madenden toplanan cevher, uzaylıların ek ödülleri (Palladium, etkinlik paraları …). Kutudan çıkan kredi ve uridyum '
-       'kendi çarpanıyla.', hi=50.0),
-    _c('mode_reward', 'Görev, kapı ve etkinlik eşya ödülleri', 'reward', 'Görevlerin, Galaksi Kapılarının, etkinlik kapılarının, '
-       'modların (Astral, EBL, Mimesis, Galaxy Trek …), Acil Görevlerin ve Dispatch\'in verdiği cephane, kaynak, anahtar ve '
-       'teknoloji eşyası miktarı. Gemi, lazer ve tasarım gibi tek eşyalar bir tane kalır; para ve EP kendi çarpanıyla.', hi=50.0),
-    _c('drop', 'Eşya düşme şansı', 'reward', 'Uzaylılardan booster, ekipman, kaynak ve etkinlik kutusu düşme olasılığı; '
-       'Galaksi Kapısı şanslı ödülleri (en çok %100).', hi=20.0, limit=1000.0),
-    _b('x1_cargo', "X-1'de yüksek seviye kargo ve ödül azalması", 'reward', "X-1 haritalarında seviyen yükseldikçe uzaylıların kargo kutusu "
-       'küçülür (seviye 7: %50, 10 ve üstü: hiç), kendi X-1 haritanda öldürme ödülü de azalır (seviye 15 ve üstü: hiç; oyundaki gibi). '
-       'Kapatılırsa her seviyede tam kargo ve ödül.', default=True),
-    _b('etiket', 'Uzaylı etiketleme', 'reward', 'Uzaylıya ilk ateş eden onu etiketler: ödülü, görev sayımı ve kargo kutusu onun (ya da '
-       'grubunun) olur, başkası bitirse de. Etiket sahibi 15 saniye vurmazsa etiket düşer. Kapatılırsa ödül son vuranın.',
+    _c('ep', 'Experience (EP) gain', 'reward', 'Experience points earned: how fast you level up.', hi=50.0, limit=100000.0),
+    _c('onur', 'Honor gain', 'reward', 'Honor points earned.', hi=50.0, limit=100000.0),
+    _c('collecting', 'Collected item amount', 'reward', 'Ammo and items in boxes, ore in alien cargo boxes and from mining, extra alien rewards (Palladium, '
+                                                        'event currency …). Credits and uridium from boxes use their own multipliers.', hi=50.0),
+    _c('mode_reward', 'Quest, gate and event item rewards', 'reward', 'Amount of ammo, resources, keys and tech items given by quests, Galaxy Gates, event gates, modes '
+                                                                      '(Astral, EBL, Mimesis, Galaxy Trek …), Urgent Missions and Dispatch. Single items such as ships, '
+                                                                      'lasers and designs stay at one; money and EP use their own multipliers.', hi=50.0),
+    _c('drop', 'Item drop chance', 'reward', 'Chance that aliens drop boosters, equipment, resources and event boxes; Galaxy Gate lucky rewards '
+                                             '(at most 100%).', hi=20.0, limit=1000.0),
+    _b('x1_cargo', "Reduced X-1 cargo and rewards at high level", 'reward', "On X-1 maps the aliens' cargo boxes shrink as your level rises (level 7: 50%, 10 and up: none), and "
+                                                                            "on your own X-1 map kill rewards drop too (level 15 and up: none; as in the game). When off, full "
+                                                                            "cargo and rewards at every level.", default=True),
+    _b('etiket', 'Alien tagging', 'reward', 'The first to fire at an alien tags it: its reward, quest count and cargo box belong to them (or '
+                                            'their group), even if someone else finishes it. The tag drops if its owner does not hit for 15 '
+                                            'seconds. If off, the reward goes to whoever lands the last hit.',
        default=True),
-    _b('player_tag', 'Oyuncu bot etiketini alır', 'reward', "Bir botun etiketlediği uzaylıya sen ateş edersen etiket sana geçer: "
-       'ödül, görev sayımı ve kargo kutusu senin olur (aynı gruptaki botlar yine paylaşır). Cubikon, Mindfire Behemoth ve dünya '
-       'patronları gibi birlikte dövüşülen uzaylılarda etiket geçmez: ödül, verilen hasara göre oyuncu ve botlar arasında bölünür; '
-       'kargo kutusu en çok hasar verene gider. Etiket ayarı kapalıysa etkisizdir.', default=False),
-    _b('cargo_ownership', 'Kargo kutusu sahipliği', 'reward', "Uzaylının kargo kutusu yalnız sahibinindir; başkalarına mavi görünür "
-       "(oyunun Ayarlar > Ekran'daki başkalarının kargo kutuları seçeneği açıksa). Aynı firmadan birinin kutusunu toplamak onur "
-       'kaybettirir: o gün ilki 10, her seferinde iki katı. Kapatılırsa herkes toplar, ceza yok.', default=True),
+    _b('player_tag', "Player takes the bot's tag", 'reward', "If you shoot an alien that a bot has tagged, the tag passes to you: reward, quest count and cargo "
+                                                             "box become yours (bots in your group still share). Not for aliens fought together such as Cubikon, "
+                                                             "Mindfire Behemoth and world bosses: there the reward is split between players and bots by damage "
+                                                             "dealt, and the cargo box goes to the top damage dealer. Has no effect while alien tagging is off.", default=False),
+    _b('cargo_ownership', 'Cargo box ownership', 'reward', "An alien's cargo box belongs to its owner only; others see it in blue (if the game's Settings > "
+                                                           "Display option for other players' cargo boxes is on). Collecting the box of someone from your own "
+                                                           "company costs honor: 10 for the first that day, twice as much each time. If off, anyone can collect "
+                                                           "it with no penalty.", default=True),
     # ---------------------------------------------------------------- ilerleme
-    _c('drone_xp', 'Dron deneyimi', 'progress', 'Dronlarının uzaylı öldürünce kazandığı puan: dron seviye atlama hızı.',
+    _c('drone_xp', 'Drone experience', 'progress', 'Points your drones earn when you kill aliens: how fast drones level up.',
        hi=50.0),
-    _c('pet_ep', "P.E.T. deneyimi", 'progress', "P.E.T.'in kazandığı deneyim (oyunun değeri kazandığın EP'nin %5'i): P.E.T. "
-       'seviye atlama hızı.', hi=50.0),
-    _c('season_points', 'Season Pass puanı', 'progress', 'Season Pass görevlerinden kazanılan puan: sezon seviyesi atlama hızı.',
+    _c('pet_ep', "P.E.T. experience", 'progress', "Experience your P.E.T. earns (game value 5% of the EP you earn): how fast the P.E.T. levels up.", hi=50.0),
+    _c('season_points', 'Season Pass points', 'progress', 'Points earned from Season Pass missions: how fast you level up the season.',
        hi=50.0),
-    _n('season_duration', 'Season Pass süresi', 'progress', 'Bir sezonun süresi. Sezon kaydın ilk girişinde 1. günden başlar, bitince '
-       'alınmamış ödüller verilir ve sıradaki sezon başlar (gerçek oyunda ~3 ay). Değişiklik süren sezona da uygulanır.',
-       lo=1, hi=180, default=90, unit='gün', limit=3650),
-    _n('battle_pass_duration', 'Battle Pass süresi', 'progress', "Battle Pass'in süresi. Pass'li bir etkinlik açılınca kaydın pass'i "
-       "1. günden başlar ve bu süre boyunca etkinlikle birlikte sürer (takvimdeki dönemi daha önce bitse de); aynı anda tek "
-       "pass (gerçek oyunda ~2 hafta).", lo=1, hi=60, default=14, unit='gün', limit=365),
-    _c('booster_power', 'Booster etkisi', 'progress', 'Boosterların bonusu (hasar, can, kalkan, EP, onur …) ve türlerin üst '
-       'sınırı. x2: %10 hasar boosterı %20 verir.', hi=10.0, limit=100.0),
+    _n('season_duration', 'Season Pass duration', 'progress', "Length of a season. The season starts from day 1 on the save's first login; when it ends, unclaimed "
+                                                              'rewards are booked and the next season starts (about 3 months in the real game). A change also '
+                                                              'applies to the running season.',
+       lo=1, hi=180, default=90, unit='days', limit=3650),
+    _n('battle_pass_duration', 'Battle Pass duration', 'progress', "Length of the Battle Pass. When an event with a pass opens, the save's pass starts from day 1 and "
+                                                                   "runs together with the event for this long (even if its calendar period ends sooner); one pass at a "
+                                                                   "time (about 2 weeks in the real game).", lo=1, hi=60, default=14, unit='days', limit=365),
+    _c('booster_power', 'Booster strength', 'progress', 'The bonus of boosters (damage, HP, shield, EP, honor …) and the cap of each type. x2: a 10% damage '
+                                                        'booster gives 20%.', hi=10.0, limit=100.0),
     # ---------------------------------------------------------------- dünya
-    _c('box_abundance', 'Bonus kutusu bolluğu', 'world', 'Haritalardaki bonus kutusu sayısı (etkinlik kutuları dahil).',
+    _c('box_abundance', 'Bonus box abundance', 'world', 'Number of bonus boxes on the maps (event boxes included).',
        apply_mode='harita', hi=10.0, limit=100.0),
-    _c('box_respawn', 'Kutuların yeniden çıkma süresi', 'world', 'Toplanan kutunun yerine yenisinin gelme süresi. '
-       'Düşük değer: daha çabuk.', lo=0.01, hi=5.0, limit=100.0),
-    _c('npc_count', 'Uzaylı sayısı', 'world', 'Haritalardaki uzaylı sayısı (patronlar dahil; kapı ve mod dalgaları hariç).',
+    _c('box_respawn', 'Box respawn time', 'world', 'Time until a collected box is replaced. Lower value: sooner.', lo=0.01, hi=5.0, limit=100.0),
+    _c('npc_count', 'Alien count', 'world', 'Number of aliens on the maps (bosses included; gate and mode waves excluded).',
        apply_mode='harita', hi=5.0, limit=50.0),
-    _c('npc_respawn', 'Uzaylıların yeniden doğma süresi', 'world', 'Ölen uzaylının yerine yenisinin gelme süresi. '
-       'Düşük değer: daha çabuk.', lo=0.01, hi=5.0, limit=100.0),
-    _c('ore_abundance', 'Cevher bolluğu', 'world', 'Haritalardaki toplanabilir cevher (Prometium, Endurium, Terbium …) sayısı.',
+    _c('npc_respawn', 'Alien respawn time', 'world', 'Time until a dead alien is replaced. Lower value: sooner.', lo=0.01, hi=5.0, limit=100.0),
+    _c('ore_abundance', 'Ore abundance', 'world', 'Number of collectable ores (Prometium, Endurium, Terbium …) on the maps.',
        apply_mode='harita', hi=10.0, limit=50.0),
-    _c('ore_respawn', 'Cevherlerin yeniden çıkma süresi', 'world', 'Toplanan cevherin yerine yenisinin gelme süresi. Düşük '
-       'değer: daha çabuk.', lo=0.01, hi=5.0, limit=100.0),
-    _n('max_quests', 'Aynı anda alınabilen görev', 'world', 'Görev penceresinde aynı anda sürdürebileceğin görev sayısı (oyunun '
-       'değeri 5). Dolunca yeni görev alınamaz; biri bitince ya da iptal edilince yer açılır. Düşürülürse süren görevler iptal '
-       'edilmez.', lo=1, hi=10, default=5, unit='görev', limit=100),
-    _b('kampanya', 'Başlangıç kampanyası', 'world', 'Görev penceresinde "Level N" başlangıç görevleri hep görünür. Kapalıyken '
-       'yalnız yeni kayıtta seçildiyse ilk ay görünür; süren görev her durumda bitirilebilir.'),
-    _b('jump_deviation', "Atlama CPU'su ara sıra sapar", 'world', "Atlama CPU'su küçük bir olasılıkla (%2) seni Cubikon "
-       'Mezarlığına götürür (oyundaki gibi). Kapatılırsa hep seçtiğin haritaya.', default=True),
-    _b('pack_limit', 'Benzersiz paketler bir kez', 'world', "Mağazada içinde gemi, gemi tasarımı, formasyon, P.E.T. ya da tekil "
-       'dron olan paketler (Defcom-Raven, Stellar, Dusklight …) oyundaki gibi bir kez alınır, sonra listeden kalkar. Kapatılırsa '
-       'tekrar alınabilir (sahip olduğun içerik atlanır).', default=True),
-    _b('portal_hangar', 'Portallarda hangar', 'world', "Portalların güvenli bölgesinde de hangara girip donanım değiştirebilirsin "
-       '(kolaylık; gerçek oyunda yalnız istasyonda). Kapatılırsa yalnız istasyonda.', default=True),
-    _b('clan_cooldown', 'Klan 48 saat kuralları', 'world', 'Klandan ayrılınca 48 saat yeni klan kurulamaz ya da klana katılınamaz; klan '
-       'adı/etiketi iki değişim arası 48 saat bekler. Kapalıyken bekleme yok.', default=True),
+    _c('ore_respawn', 'Ore respawn time', 'world', 'Time until a collected ore is replaced. Lower value: faster.', lo=0.01, hi=5.0, limit=100.0),
+    _n('max_quests', 'Quests at the same time', 'world', 'How many quests you can run at the same time in the quest window (game value 5). When all slots are '
+                                                         'taken, no new quest can be accepted until one is completed or cancelled. Lowering it does not '
+                                                         'cancel running quests.', lo=1, hi=10, default=5, unit='quests', limit=100),
+    _b('kampanya', 'Starter campaign', 'world', 'The "Level N" starter quests are always shown in the quest window. When off, they show only for the '
+                                                'first month and only if chosen when the save was created; a running quest can always be finished.'),
+    _b('jump_deviation', "Jump CPU occasionally misjumps", 'world', "With a small chance (2%) the jump CPU takes you to the Cubikon Graveyard (as in the game). When "
+                                                                    "off, it always goes to the map you picked.", default=True),
+    _b('pack_limit', 'Unique packages once', 'world', "Shop packages containing a ship, ship design, formation, P.E.T. or unique drone (Defcom-Raven, "
+                                                      "Stellar, Dusklight …) can be bought once, as in the game, and then leave the list. When off they "
+                                                      "can be bought again (content you already own is skipped).", default=True),
+    _b('portal_hangar', 'Hangar at portals', 'world', "You can also open the hangar and change equipment in the safe zone of portals (convenience; in the "
+                                                      "real game only at the station). When off, only at the station.", default=True),
+    _b('clan_cooldown', 'Clan 48-hour rules', 'world', 'After leaving a clan you cannot found or join another clan for 48 hours; the clan name/tag can only '
+                                                       'be changed every 48 hours. When off there is no waiting time.', default=True),
     # ---------------------------------------------------------------- kapılar ve modlar
-    _c('gate_part', 'Kapı parçası şansı', 'kapi', 'Galaksi Kapısı üreticisinde bir enerjiyle kapı parçası çıkma olasılığı '
-       '(oyunun değeri %13; pencerenin olasılık listesi de değişir).', lo=0.1, hi=7.0, limit=1000.0),
-    _n('duplicate_to_missing', 'Kopya parçanın eksiğe dönme şansı', 'kapi', 'Elinde olan bir kapı parçası çıkınca onun yerine eksik bir '
-       'parça gelme olasılığı (oyunun değeri %50). %100: hiç kopya parça çıkmaz (kapı kurulana dek).', lo=0, hi=100,
+    _c('gate_part', 'Gate part chance', 'kapi', "Chance of getting a gate part per energy in the Galaxy Gate generator (the game's value is 13%; the "
+                                                "window's odds list changes too).", lo=0.1, hi=7.0, limit=1000.0),
+    _n('duplicate_to_missing', 'Duplicate part becomes a missing one', 'kapi', 'When you draw a gate part you already have, the chance that you get a missing part instead (game '
+                                                                               'value 50%). 100%: no duplicate parts at all (until the gate is built).', lo=0, hi=100,
        default=50, unit='%'),
-    _c('gate_energy', 'Kapı enerjisi miktarı', 'kapi', 'Bonus kutularından çıkan ücretsiz Galaksi Kapısı enerjisinin miktarı '
-       '(5-2 tüccarındaki Palladium takası ve paketler değişmez).', hi=20.0),
-    _c('gate_price', 'Kapı fiyatları', 'kapi', 'Galaksi Kapısı üreticisinde enerjinin ve kapıda ek canların uridyum fiyatı. 0: '
-       'bedava.', hi=5.0, limit=300.0),
-    _c('gate_lives', 'Kapılardaki can sayısı', 'kapi', 'Galaksi Kapılarında ve etkinlik kapılarında (Plutus, Quarantine …) kapı '
-       'hazırlanınca verilen can (oyunun değeri çoğu kapıda 5).', lo=0.2, hi=10.0, limit=1000.0),
-    _b('infinite_lives', 'Kapılarda can harcanmaz', 'kapi', 'Galaksi Kapısında ve etkinlik kapılarında yok edilince can eksilmez: '
-       'kapı hiç kaybolmaz.'),
-    _c('wave_aliens', 'Dalgalardaki uzaylı sayısı', 'kapi', 'Galaksi Kapılarının, etkinlik kapılarının ve modların (Astral, EBL, '
-       'Voyagers, Trinity, Echoes) dalgalarındaki uzaylı sayısı. Koruyan patronlar bir tane kalır.', lo=0.1, hi=5.0, limit=20.0),
-    _c('wave_wait', 'Dalgalar arası bekleme', 'kapi', 'Kapı ve mod dalgalarının başlangıç, alt dalga arası ve mola süreleri '
-       '(Galaksi Kapısında giriş 6, mola 30 sn). 0: bekleme yok.', hi=5.0, limit=100.0),
-    _b('no_entry_limit', 'Kapı ve mod giriş sınırları kapalı', 'kapi', 'Etkinlik kapılarının günlük, yıllık ve tek seferlik '
-       'giriş sınırları ve bekleme süreleri, Voyagers ve Trinity\'nin ücretsiz giriş hakları tükenmez.'),
-    _n('gate_bonus_count', 'Bonuslu Galaksi Kapısı sayısı', 'kapi', 'Kapı penceresinde aynı anda süreli bonus ödülü olan kapı '
-       'sayısı. Kapılar ve ödülleri her dönemin başında rastgele seçilir; kapıyı dönem bitmeden tamamlayınca (Dispatch\'in kapı '
-       'gönderimi dahil) bonus bir kez verilir. 0: bonus yok.', lo=0, hi=11, default=3, unit='kapı'),
-    _c('gate_bonus_multiplier', 'Kapı bonusu miktarı', 'kapi', 'Kapı bonusunun miktarı (onur, uridyum, cephane, log diski, anahtar); '
-       'lazer ve tasarım gibi tek eşyalar bir tane kalır.', lo=0.1, hi=20.0),
-    _n('gate_bonus_hours', 'Kapı bonusu dönemi', 'kapi', 'Bonuslu kapıların değiştiği aralık (gece yarısına hizalı; 24: her gün). '
-       'Değiştirilince seçim hemen yenilenir.', lo=1, hi=168, default=24, unit='saat', limit=8760),
+    _c('gate_energy', 'Gate energy amount', 'kapi', 'Amount of free Galaxy Gate energy from bonus boxes (the Palladium trade at the 5-2 merchant and '
+                                                    "packages don't change).", hi=20.0),
+    _c('gate_price', 'Gate prices', 'kapi', 'Uridium price of energy in the Galaxy Gate generator and of extra lives at a gate. 0: free.', hi=5.0, limit=300.0),
+    _c('gate_lives', 'Lives in gates', 'kapi', 'Lives given when a Galaxy Gate or an event gate (Plutus, Quarantine …) is prepared (game value 5 '
+                                               'for most gates).', lo=0.2, hi=10.0, limit=1000.0),
+    _b('infinite_lives', 'No lives lost in gates', 'kapi', 'Being destroyed in a Galaxy Gate or an event gate costs no life: the gate is never lost.'),
+    _c('wave_aliens', 'Aliens per wave', 'kapi', 'Number of aliens in the waves of Galaxy Gates, event gates and modes (Astral, EBL, Voyagers, '
+                                                 'Trinity, Echoes). Guarding bosses stay single.', lo=0.1, hi=5.0, limit=20.0),
+    _c('wave_wait', 'Pause between waves', 'kapi', 'Start, sub-wave and break times of gate and mode waves (Galaxy Gate: start 6 s, break 30 s). 0: no '
+                                                   'waiting.', hi=5.0, limit=100.0),
+    _b('no_entry_limit', 'No gate and mode entry limits', 'kapi', 'Event gates have no daily, yearly or one-time entry limits and no cooldowns; the free entries of '
+                                                                  'Voyagers and Trinity never run out.'),
+    _n('gate_bonus_count', 'Galaxy Gates with a bonus', 'kapi', 'Number of gates in the gate window that have a timed bonus reward at the same time. Gates and '
+                                                                'rewards are picked at random at the start of each period; finish a gate before the period ends '
+                                                                '(Dispatch gate missions included) to get the bonus once. 0: no bonus.', lo=0, hi=11, default=3, unit='gates'),
+    _c('gate_bonus_multiplier', 'Gate bonus amount', 'kapi', 'Size of the gate bonus (honor, uridium, ammo, log disks, keys); single items such as lasers and '
+                                                             'designs stay at one.', lo=0.1, hi=20.0),
+    _n('gate_bonus_hours', 'Gate bonus period', 'kapi', 'How often the bonus gates change (aligned to midnight; 24: every day). Changing it renews the '
+                                                        'selection right away.', lo=1, hi=168, default=24, unit='hours', limit=8760),
     # ---------------------------------------------------------------- ekonomi
-    _c('shop_price', 'Mağaza fiyatları', 'economy', 'Mağazada kredi ve uridyumla satılan her şeyin fiyatı.', lo=0.0,
+    _c('shop_price', 'Shop prices', 'economy', 'Price of everything sold in the shop for credits and uridium.', lo=0.0,
        hi=5.0, limit=1000.0),
-    _b('event_looks_in_shop', 'Etkinlik görünümleri mağazada', 'economy', "Etkinliklerin gemi, dron ve P.E.T. "
-       "tasarımları (Galactic Strife'ın Arios ve Neikos'u, Trial of Terrors'un Dusklight'ı, geçmiş sezonların tasarımları …) mağazada "
-       'satılır. Kapatılırsa mağazada görünmez ve satılmazlar, yalnız kendi etkinliklerinde kazanılırlar: Battle Pass anahtar '
-       'değişimi, etkinlik ve ganimet kutuları, GG hafta sonu kapıları, Season Pass. Mağazanın kendi tasarımları hep satılır.',
+    _b('event_looks_in_shop', 'Event designs in the shop', 'economy', "Ship, drone and P.E.T. designs from events (Galactic Strife's Arios and Neikos, Trial of Terrors' "
+                                                                      "Dusklight, past seasons' designs …) are sold in the shop. If turned off they are hidden in the shop "
+                                                                      "and can't be bought; they are earned only in their own events: Battle Pass key exchange, event and "
+                                                                      "booty boxes, GG weekend gates, Season Pass. The shop's own designs are always sold.",
        default=True),
-    _c('service_price', 'Hizmet ücretleri', 'economy', "P.E.T. yuvaları, tamiri ve yakıtı; Skylab yükseltmeleri, anında bitirme, "
-       'hızlı taşıma ve robotlar; gemi ışınlama. 0: bedava.', hi=5.0, limit=1000.0),
-    _c('repair_cost', 'Ölüm sonrası tamir ücreti', 'economy', 'Portalda ve bulunduğun yerde tamirin uridyum bedeli.',
+    _c('service_price', 'Service fees', 'economy', "P.E.T. slots, repair and fuel; Skylab upgrades, instant finish, fast transport and robots; ship "
+                                                   "warp. 0: free.", hi=5.0, limit=1000.0),
+    _c('repair_cost', 'Repair cost after death', 'economy', 'Uridium cost of repairing at the portal and on the spot.',
        lo=0.0, hi=5.0, limit=1000.0),
-    _c('ore_price', 'Cevher satış fiyatı', 'economy', 'Rafineride sattığın cevherlerin kredi ve uridyum karşılığı (pencerede de '
-       'görünür).', hi=10.0, limit=10000.0),
-    _c('kargo', 'Kargo kapasitesi', 'economy', "Geminin kargo alanı (Logistics, kargo CPU'su ve P.E.T. protokolüyle birlikte).",
+    _c('ore_price', 'Ore sell price', 'economy', 'Credits and uridium you get for ores sold at the refinery (also shown in the window).', hi=10.0, limit=10000.0),
+    _c('kargo', 'Cargo capacity', 'economy', "The ship's cargo space (together with Logistics, the cargo CPU and the P.E.T. protocol).",
        lo=0.5, hi=10.0, limit=1000.0),
-    _b('infinite_cargo', 'Sonsuz kargo', 'economy', 'Kargo dolmaz: bütün kutular ve cevherler "kargo dolu" uyarısı almadan her zaman toplanır.'),
-    _b('infinite_pet_range', 'Sonsuz P.E.T. bulucu menzili', 'economy', "P.E.T.'in düşman ve kaynak bulucu dişlileri menzil sınırı olmadan "
-       'haritadaki en yakın hedefi gösterir.'),
-    _b('assembly_free', 'Ücretsiz Assembly', 'economy', 'Assembly ve Upgrade/Disassembly sekmelerinde malzeme harcanmaz; istemci '
-       'bütün malzemeleri yeterli gösterir. Üretim ve bekleme süreleri ile günlük kullanım sınırları aynı kalır.'),
-    _b('legacy_upgrade', 'Eski yükseltme sistemi', 'economy', "Eşya yükseltmeleri 2018'deki gibi yalnız uridyumla: Assembly'nin "
-       "Upgrade sekmesinde ABR, Indoctrine Oil, Diametrion gibi malzemeler istenmez. Bedel eski Item Upgrading'in %100 başarılı "
-       "bedeli (seviye 2'ye 3.905 U., her seviye +435; 16'ya toplam 104.250 U.). Oyun açıkken de değişir."),
-    _c('legacy_upgrade_price', 'Eski yükseltme fiyatları', 'economy', 'Eski sistemdeki yükseltmelerin uridyum bedeli (Upgrade '
-       'Hour indirimi de geçerli). 0: bedava.',
+    _b('infinite_cargo', 'Infinite cargo', 'economy', 'Cargo never fills up: every box and ore can always be collected without a "cargo full" warning.'),
+    _b('infinite_pet_range', 'Infinite P.E.T. locator range', 'economy', "The P.E.T.'s enemy and resource locator gears point to the nearest target on the map with no range "
+                                                                         "limit."),
+    _b('assembly_free', 'Free Assembly', 'economy', 'No materials are spent in the Assembly and Upgrade/Disassembly tabs; the client shows every '
+                                                    'material as sufficient. Production and wait times and daily use limits stay the same.'),
+    _b('legacy_upgrade', 'Old upgrade system', 'economy', "Item upgrades as in 2018, with uridium only: the Assembly's Upgrade tab no longer asks for ABR, "
+                                                          "Indoctrine Oil, Diametrion or other materials. The price is the old Item Upgrading's 100% success "
+                                                          "price (3,905 U. for level 2, +435 per level; 104,250 U. in total up to 16). Also changes while the "
+                                                          "game is running."),
+    _c('legacy_upgrade_price', 'Old upgrade prices', 'economy', 'Uridium price of upgrades in the old system (the Upgrade Hour discount still applies). 0: free.',
        lo=0.0, hi=5.0, limit=1000.0, condition='legacy_upgrade'),
-    _c('pet_fuel', 'P.E.T. yakıt tüketimi', 'economy', "P.E.T.'in dakikalık yakıt tüketimi. 0: yakıt harcamaz.", lo=0.0, hi=5.0,
+    _c('pet_fuel', 'P.E.T. fuel use', 'economy', "The P.E.T.'s fuel use per minute. 0: it uses no fuel.", lo=0.0, hi=5.0,
        limit=100.0),
-    _c('skylab_uretim', 'Skylab üretimi', 'economy', 'Skylab toplayıcılarının ve rafinerilerinin saatlik üretimi.', hi=20.0),
-    _c('skylab_storage', 'Skylab depo kapasitesi', 'economy', 'Skylab deposunun her kaynak için kapasitesi.', hi=20.0,
+    _c('skylab_uretim', 'Skylab production', 'economy', 'Hourly output of Skylab collectors and refineries.', hi=20.0),
+    _c('skylab_storage', 'Skylab storage capacity', 'economy', 'Capacity of the Skylab storage for each resource.', hi=20.0,
        limit=1000.0),
     # ---------------------------------------------------------------- süreler
-    _c('cooldown', 'Üretim ve bekleme süreleri', 'sure', 'Assembly üretimi, Skylab yükseltmeleri ve taşıma, Dispatch gönderimleri, '
-       'eşya yükseltmeleri. Düşük değer: daha çabuk (yeni başlayanlara uygulanır).', lo=0.0, hi=5.0, limit=100.0),
-    _c('skill_cooldown', 'Yetenek ve eşya beklemeleri', 'sure', "Gemi yetenekleri, CPU'lar, mayınlar, Smart Bomb, Insta-Shield, "
-       'teknoloji eşyaları ve özel roketlerin bekleme süresi.', lo=0.05, hi=5.0, limit=100.0),
-    _c('booster_sure', 'Booster süresi', 'sure', 'Boosterların etkin kalma süresi (yeni etkinleştirilenlere uygulanır).', lo=0.1,
+    _c('cooldown', 'Crafting and waiting times', 'sure', 'Assembly crafting, Skylab upgrades and transport, Dispatch missions, item upgrades. Lower value: '
+                                                         'faster (applies to newly started ones).', lo=0.0, hi=5.0, limit=100.0),
+    _c('skill_cooldown', 'Ability and item cooldowns', 'sure', "Cooldown of ship abilities, CPUs, mines, Smart Bomb, Insta-Shield, tech items and special rockets.", lo=0.05, hi=5.0, limit=100.0),
+    _c('booster_sure', 'Booster duration', 'sure', 'How long boosters stay active (applies to newly activated ones).', lo=0.1,
        hi=10.0, limit=1000.0),
-    _b('no_level_limit', 'Seviye kısıtları kapalı', 'sure', "Portalların ve atlama CPU'sunun seviye şartı yok: her haritaya "
-       'girebilirsin.'),
-    _b('session_always_open', 'Seanslı etkinlikler hep açık', 'sure', 'Saatle açılan etkinlikler (Vortex of Greed, Treacherous Domain, '
-       'Mimesis Mutiny) etkinlik süresince her an açık: portal hep açık, seans/savaş/sefer girince başlar. Etkinlik uzaylıları '
-       '(Curcubitor, Agatus, Lanatum, Chaos Protegit) da oyundaki saat pencerelerinin dışında doğar.'),
+    _b('no_level_limit', 'No level restrictions', 'sure', "Portals and the jump CPU have no level requirement: you can enter every map."),
+    _b('session_always_open', 'Session events always open', 'sure', 'Events that open at set hours (Vortex of Greed, Treacherous Domain, Mimesis Mutiny) stay open for '
+                                                                    'the whole event: the portal is always open, and a session, battle or run starts when you enter. '
+                                                                    "Event aliens (Curcubitor, Agatus, Lanatum, Chaos Protegit) also spawn outside the game's hourly "
+                                                                    'windows.'),
     # ---------------------------------------------------------------- müzayede
-    dict(anahtar='auction_rivals', ad='Sanal rakipler', grup='auction', tur='seviye', default=0,
+    dict(anahtar='auction_rivals', ad='Virtual rivals', grup='auction', tur='seviye', default=0,
          options=list(RIVAL_LEVELS), colors=['', 'ok', 'ok', 'info', 'err'], apply_mode='anında',
-         option_description=['Rakip yok: teklifleri yalnız sen verirsin.',
-                           'Arada bir küçük teklifler verirler; seni hiç geçmezler, teklif verdiğin lot senin.',
-                           'Daha sık ve biraz daha yüksek teklifler; seni yine geçmezler.',
-                           'Geçtiğinde bir süre sonra karşılık verirler. Bütçelerini aşarsan lot senin; kaybedersen kredin geri gelir.',
-                           'Çok sık, yüksek bütçeli ve hızlı karşılık verirler. Kaptırmamak için iyi teklif ver.'],
-         aciklama='Müzayedede sana rakip olan sanal teklifçiler. Çekingen ve Ilımlı: biraz teklif verirler ama seni hiç geçmezler, '
-                  'teklif verdiğin lot hep senin olur. Rekabetçi ve Agresif: geçtiğinde karşılık verirler; bütçelerini aşmadıkça '
-                  'lotu kaybedebilirsin (kredin geri gelir). Dünyada bot paketi açıkken kapalıdır: teklifleri botlar verir.'),
+         option_description=['No rivals: only you place bids.',
+                           'They place small bids now and then; they never outbid you, so any lot you bid on is yours.',
+                           'More frequent and slightly higher bids; they still never outbid you.',
+                           'When you outbid them they answer after a while. Go past their budget and the lot is yours; if you lose, your credits come back.',
+                           'They answer very often, quickly and with big budgets. Bid well to keep the lot.'],
+         aciklama='Virtual bidders who compete with you at the auction. Timid and Moderate: they bid a little but '
+                  'never outbid you, so any lot you bid on is yours. Competitive and Aggressive: they answer when you '
+                  'outbid them; unless you go past their budget you may lose the lot (your credits come back). Off '
+                  'while a bot pack is running in the world: the bots bid instead.'),
     # ---------------------------------------------------------------- arayüz
-    _b('dark', 'Karanlık haritalar (el feneri)', 'ui', 'Trial of Terrors kapısının haritalarında ekran kararır, yalnız '
-       'geminin baktığı yön aydınlıktır (istemcinin el feneri etkisi). Kapatılırsa haritalar aydınlık.', apply_mode='harita',
+    _b('dark', 'Dark maps (flashlight)', 'ui', 'On the Trial of Terrors gate maps the screen goes dark and only the direction your ship faces is '
+                                               "lit (the client's flashlight effect). Turn it off for bright maps.", apply_mode='harita',
        default=True),
-    _b('cinematic', 'Sinematik patron girişleri', 'ui', 'Etkinlik patronu doğunca ve Galaksi Kapısının son dalgasında kamera '
-       'birkaç saniye patrona döner (kontroller o sürede kilitli), sonra gemine geri gelir.', default=True),
-    _b('hints', 'Yeni başlayan ipuçları', 'ui', 'Bir şey ilk kez olunca (kargo doldu, cephane bitti, başka firmanın haritası) '
-       've seviye atladıkça yeni özellikleri anlatan ipucu pencereleri, süren etkinliğin açıklaması. Her biri bir kez; kapattığın '
-       'ipuçları açılmaz, ipucu arşivinden yeniden okunabilir.', default=True),
-    _b('kill_streak', 'Seri öldürme duyuruları', 'ui', 'Kısa aralıklarla art arda uzaylı yok edince ekranda "Triple Kill", '
-       '"Unstoppable", "Godlike", "Like a Boss" duyurusu ve sesi (3, 6, 10, 15 öldürme; aralık en çok 10 sn).'),
-    _b('no_ads', 'Açılış pencerelerini gösterme', 'ui', 'Girişte kendiliğinden açılan günlük bonus, ipucu ve Season Pass '
-       'pencereleri gönderilmez (menülerden açılabilirler).', apply_mode='giriş'),
+    _b('cinematic', 'Cinematic boss entrances', 'ui', "When an event boss spawns and in a Galaxy Gate's last wave, the camera turns to the boss for a few "
+                                                      'seconds (controls are locked meanwhile), then returns to your ship.', default=True),
+    _b('hints', 'Beginner tips', 'ui', "Tip windows when something happens for the first time (cargo full, out of ammo, another company's "
+                                       'map) and as you level up, plus a description of the running event. Each shows once; tips you closed '
+                                       'stay closed and can be reread in the tip archive.', default=True),
+    _b('kill_streak', 'Kill streak announcements', 'ui', 'Destroy aliens in quick succession to get the "Triple Kill", "Unstoppable", "Godlike", "Like a '
+                                                         'Boss" announcement and sound (3, 6, 10, 15 kills; at most 10 s apart).'),
+    _b('no_ads', 'Hide login pop-ups', 'ui', 'The daily bonus, tip and Season Pass windows that open at login are not sent (you can still open '
+                                             'them from the menus).', apply_mode='giriş'),
     # ---------------------------------------------------------------- yönetici (yonetici_modu.py)
-    _b('admin_mode', 'Yönetici modu', 'manager', 'Oyunda yönetici olursun: adının önünde yönetici rozeti (sarı A), rütbe '
-       'sistemine, Şeref Salonu sıralamalarına ve şirketteki sıraya girmezsin. Botlar seni yönetici olarak tanır: sana saldırmaz, '
-       'sohbetteki uyarılarına uyar, seni görünce tepki verir. Arkadaş sunucusunda yalnız sunucunun oyuncusu için.', apply_mode='giriş'),
-    dict(anahtar='admin_ship', ad='Yönetici gemisi', grup='manager', tur='seviye', default=0,
-         options=['Kendi gemin', 'UFO', 'Polis', 'G-Admincloak', 'Goliath Admin'], colors=['', 'info', 'info', 'info', 'info'],
+    _b('admin_mode', 'Admin mode', 'manager', 'You become an administrator in the game: an admin badge (yellow A) before your name, and you are '
+                                              'left out of the rank system, the Hall of Fame rankings and the company ranking. Bots know you as an '
+                                              'admin: they never attack you, follow your warnings in chat and react when they see you. On a friend '
+                                              'server only for the host player.', apply_mode='giriş'),
+    dict(anahtar='admin_ship', ad='Admin ship', grup='manager', tur='seviye', default=0,
+         options=['Your own ship', 'UFO', 'Police', 'G-Admincloak', 'Goliath Admin'], colors=['', 'info', 'info', 'info', 'info'],
          apply_mode='giriş',
-         option_description=['Yönetici modunda da kendi geminle görünürsün.',
-                           'Yönetici gemisi (ship_admin): oyundaki UFO uzaylısıyla aynı model.',
-                           'Polis gemisi (ship_police).',
-                           'Yöneticinin gizlenme gemisi (ship_g-admincloak).',
-                           'Goliath\'ın yönetici tasarımı (admincloak).'],
-         aciklama='Yönetici modundayken gemin bu görünümde; değerleri (can, hız, donanım) kendi geminin.'),
-    _b('admin_spectator', 'İzleyici (dokunulmaz)', 'manager', 'Yönetici modundayken uzaylılar ve botlar sana saldırmaz, hasar '
-       'almazsın; haritaları rahatça gezip botları izleyebilirsin.', apply_mode='anında'),
-    _b('admin_chat', 'Sohbette yönetici', 'manager', 'Yönetici modundayken sohbet mesajların yönetici olarak (oyunun yönetici '
-       'rengiyle) görünür.', apply_mode='giriş', default=True),
-    _b('gm_console', 'GM konsolu', 'manager', 'Oyunun gizli yönetici penceresi: oyunda Ctrl, ardından Shift, ardından Z. Haritaya '
-       'ışınlanma, uzaylı ve kutu doğurma, eşya ve paket verme, görevleri bitirme, kapı kurma, bekleme sürelerini sıfırlama, '
-       'dokunulmazlık. Açıkken adının önünde yönetici rozeti görünür (istemci yöneticiyi rütbe 6000 ile tanıyor).', apply_mode='giriş'),
+         option_description=['In admin mode you still show your own ship.',
+                           "Admin ship (ship_admin): the same model as the game's UFO alien.",
+                           'Police ship (ship_police).',
+                           "The admin's cloaking ship (ship_g-admincloak).",
+                           "The Goliath's admin design (admincloak)."],
+         aciklama="In admin mode your ship looks like this; its stats (hit points, speed, equipment) are your own ship's."),
+    _b('admin_spectator', 'Spectator (invulnerable)', 'manager', 'In admin mode aliens and bots do not attack you and you take no damage; you can roam the maps '
+                                                                 'freely and watch the bots.', apply_mode='anında'),
+    _b('admin_chat', 'Admin in chat', 'manager', "In admin mode your chat messages show as an admin's (in the game's admin colour).", apply_mode='giriş', default=True),
+    _b('gm_console', 'GM console', 'manager', "The game's hidden admin window: in game press Ctrl, then Shift, then Z. Teleport to maps, spawn "
+                                              'aliens and boxes, give items and packages, finish quests, set up gates, reset cooldowns, '
+                                              'invulnerability. While on, an admin badge shows before your name (the client recognises the admin '
+                                              'by rank 6000).', apply_mode='giriş'),
     # ---------------------------------------------------------------- geliştirici
-    _b('nearby_npc', 'Yakında uzaylı doğur', 'developer', 'Test kolaylığı: ilk dört uzaylı türünden birer tane geminin hemen '
-       'yanında doğar.', apply_mode='harita'),
-    _b('control', 'Canlı test kontrol kanalı', 'developer', 'Geliştirici aracı (control.py, 127.0.0.1:8099): mesaj izi ve '
-       'istek enjeksiyonu.', apply_mode='başlatma'),
+    _b('nearby_npc', 'Spawn aliens nearby', 'developer', 'Testing aid: one of each of the first four alien types spawns right next to your ship.', apply_mode='harita'),
+    _b('control', 'Live test control channel', 'developer', 'Developer tool (control.py, 127.0.0.1:8099): message trace and request injection.', apply_mode='başlatma'),
 ]
 
 # alt ayarlar: üst çarpan -> kaynakları [(kaynak, ad, açıklama)]; oyundaki karşılığı carpan(üst, kaynak) çağıran yerler
-_NPC = ('npc', 'Uzaylılar', 'Uzaylı (NPC) öldürünce.')
-_BOX = ('kutu', 'Kutular ve sandıklar', 'Bonus kutuları, etkinlik kutuları ve ganimet sandıkları.')
-_QUEST = ('gorev', 'Görevler', 'Görev penceresinin görevleri ve Acil Görevler.')
-_GATE = ('kapi', 'Kapılar', "Galaksi Kapıları (Dispatch'in kapı gönderimi dahil) ve etkinlik kapıları (Plutus, Quarantine …) "
-         'tamamlanınca.')
-_MOD = ('mod', 'Modlar ve etkinlikler', 'Astral, EBL, Galaxy Trek, Mimesis, Apotheosis, Voyagers, Trinity, Deep Space Echoes, '
-        'Labirent, dünya patronları, Battle Station, Dispatch ve etkinliklerin ödülleri.')
-_EXTRA = ('ek', 'Uzaylıların ek ödülleri', 'Uzaylı öldürünce gelen Palladium, etkinlik paraları ve kaynaklar.')
-_PLACE = (('harita', 'Haritalarda', 'Haritalarda dolaşan uzaylılar ve patronlar.'),
-        ('dalga', 'Kapı ve mod dalgalarında', 'Galaksi Kapılarının, etkinlik kapılarının ve modların (Astral, EBL, Voyagers, '
-         'Trinity, Mimesis …) dalgalarındaki uzaylılar.'))
+_NPC = ('npc', 'Aliens', 'When you destroy an alien (NPC).')
+_BOX = ('kutu', 'Boxes and chests', 'Bonus boxes, event boxes and booty chests.')
+_QUEST = ('gorev', 'Quests', 'Quests from the quest window and Urgent Missions.')
+_GATE = ('kapi', 'Gates', "When you complete Galaxy Gates (Dispatch gate runs included) and event gates (Plutus, Quarantine "
+                          "…).")
+_MOD = ('mod', 'Modes and events', 'Rewards of Astral, EBL, Galaxy Trek, Mimesis, Apotheosis, Voyagers, Trinity, Deep Space Echoes, the '
+                                   'Labyrinth, world bosses, Battle Station, Dispatch and events.')
+_EXTRA = ('ek', 'Extra alien rewards', 'Palladium, event currency and resources you get for destroying an alien.')
+_PLACE = (('harita', 'On maps', 'Aliens and bosses roaming the maps.'),
+        ('dalga', 'In gate and mode waves', 'Aliens in the waves of Galaxy Gates, event gates and modes (Astral, EBL, Voyagers, Trinity, Mimesis '
+                                            '…).'))
 _MONEY = (_NPC, _BOX, _QUEST, _GATE, _MOD)
 SUBS = {
     'kredi': _MONEY, 'uridyum': _MONEY, 'ep': _MONEY, 'onur': _MONEY,
-    'collecting': (_BOX, ('kargo', 'Uzaylıların kargo kutuları', 'Uzaylının bıraktığı kargo kutusundaki cevher.'),
-                ('ore', 'Cevher toplama', 'Haritadaki cevherlerden toplanan miktar.'), _EXTRA),
+    'collecting': (_BOX, ('kargo', 'Alien cargo boxes', 'Ore in the cargo box an alien leaves behind.'),
+                ('ore', 'Mining', 'Amount collected from ores on the map.'), _EXTRA),
     'mode_reward': (_QUEST, _GATE, _MOD),
-    'drop': (('booster', 'Booster', 'Patron ve Uber uzaylılardan booster düşmesi.'), _EXTRA,
-              ('etkinlik', 'Etkinlik düşmeleri', 'Etkinlik ve etkinlik kapısı uzaylılarının kutuları, Chromin kutuları, Hitac '
-               'piyangosunun harfleri.'),
-              ('kapi', 'Kapılar', 'Galaksi Kapılarının ve etkinlik kapılarının şanslı ödülleri (tasarımlar, LF-4 …).'),
-              ('mod', 'Modlar', "Astral'ın kurtarma çekirdeği ve anahtarları, EBL'nin ek ödülü.")),
+    'drop': (('booster', 'Booster', 'Booster drops from Boss and Uber aliens.'), _EXTRA,
+              ('etkinlik', 'Event drops', 'Boxes from event and event gate aliens, Chromin boxes, Hitac lottery letters.'),
+              ('kapi', 'Gates', 'Lucky rewards of Galaxy Gates and event gates (designs, LF-4 …).'),
+              ('mod', 'Modes', "Astral's salvage core and keys, EBL's extra reward.")),
     'npc_damage': _PLACE, 'npc_can': _PLACE,
-    'player_damage': (('pve', 'Uzaylılara (PvE)', 'Uzaylılara (NPC) verdiğin hasar.'),
-                     ('pvp', 'Oyunculara (PvP)', 'Başka oyunculara lazer ve roketlerle verdiğin hasar.'),
-                     ('bot', 'Botlara', 'Botlara verdiğin hasar.')),
-    'box_abundance': (('bonus', 'Bonus kutuları', 'Haritalara dağılan bonus kutuları.'),
-                    ('booty', 'Ganimet sandıkları', 'Anahtarla açılan ganimet sandıkları.'),
-                    ('etkinlik', 'Etkinlik kutuları', 'Etkinliklerin haritalara getirdiği kutular.')),
-    'npc_count': (('harita', 'Haritaların uzaylıları', 'Haritanın kendi uzaylıları ve patronları.'),
-                 ('etkinlik', 'Etkinlik uzaylıları', 'Etkinliklerin haritalara getirdiği uzaylılar.')),
-    'shop_price': (('kredi', 'Kredi ile satılanlar', 'Mağazada kredi fiyatlı her şey.'),
-                     ('uridyum', 'Uridyum ile satılanlar', 'Mağazada uridyum fiyatlı her şey.')),
-    'service_price': (('pet', 'P.E.T.', "P.E.T.'in yuvaları, tamiri ve yakıtı."),
-                     ('skylab', 'Skylab', 'Yükseltmeler, anında bitirme, hızlı taşıma ve robotlar.'),
-                     ('warp', 'Gemi ışınlama', 'Başka bir gemini hangara gitmeden bulunduğun yere getirme.')),
-    'cooldown': (('assembly', 'Assembly üretimi', "Assembly'de eşya üretimi."),
-                ('skylab', 'Skylab', 'Modül yükseltmeleri ve taşıma.'),
-                ('dispatch', 'Dispatch', 'Gönderimler ve kapı gönderimleri.'),
-                ('upgrade', 'Eşya yükseltmeleri', 'Lazerlerin, jeneratörlerin, dronların ve modüllerin seviye yükseltmeleri.')),
-    'skill_cooldown': (('yetenek', 'Gemi yetenekleri', 'Geminin kendi yetenekleri.'),
-                        ('esya', "Savaş eşyaları ve CPU'lar", "Mayınlar, Smart Bomb, Insta-Shield, EMP, özel roketler ve CPU'lar."),
-                        ('technology', 'Teknoloji eşyaları', 'Energy Leech, Chain Impulse, Battle Repair Bot, Speed Burst …'),
-                        ('particle', 'Parçacık topları ve sürücü', 'Parçacık silahları ve Singularity Drive.')),
+    'player_damage': (('pve', 'Vs aliens (PvE)', 'Damage you deal to aliens (NPCs).'),
+                     ('pvp', 'Vs players (PvP)', 'Damage you deal to other players with lasers and rockets.'),
+                     ('bot', 'Vs bots', 'Damage you deal to bots.')),
+    'box_abundance': (('bonus', 'Bonus boxes', 'Bonus boxes scattered across the maps.'),
+                    ('booty', 'Booty chests', 'Booty chests opened with a key.'),
+                    ('etkinlik', 'Event boxes', 'Boxes that events bring to the maps.')),
+    'npc_count': (('harita', 'Map aliens', "The map's own aliens and bosses."),
+                 ('etkinlik', 'Event aliens', 'Aliens that events bring to the maps.')),
+    'shop_price': (('kredi', 'Sold for credits', 'Everything priced in credits in the shop.'),
+                     ('uridyum', 'Sold for uridium', 'Everything priced in uridium in the shop.')),
+    'service_price': (('pet', 'P.E.T.', "P.E.T. slots, repair and fuel."),
+                     ('skylab', 'Skylab', 'Upgrades, instant finish, fast transport and robots.'),
+                     ('warp', 'Ship warp', 'Bringing another of your ships to you without going to the hangar.')),
+    'cooldown': (('assembly', 'Assembly crafting', "Crafting items in the Assembly."),
+                ('skylab', 'Skylab', 'Module upgrades and transport.'),
+                ('dispatch', 'Dispatch', 'Missions and gate runs.'),
+                ('upgrade', 'Item upgrades', 'Level upgrades of lasers, generators, drones and modules.')),
+    'skill_cooldown': (('yetenek', 'Ship abilities', "Your ship's own abilities."),
+                        ('esya', "Combat items and CPUs", "Mines, Smart Bomb, Insta-Shield, EMP, special rockets and CPUs."),
+                        ('technology', 'Tech items', 'Energy Leech, Chain Impulse, Battle Repair Bot, Speed Burst …'),
+                        ('particle', 'Particle cannons and drive', 'Particle weapons and the Singularity Drive.')),
 }
 SCHEMA = [x for s in SCHEMA for x in [s] + [dict(s, anahtar='%s_%s' % (s['anahtar'], k), ad=name, aciklama=description, default=1.0,
                                                  parent=s['anahtar'], kaynak=k) for k, name, description in SUBS.get(s['anahtar'], ())]]
@@ -355,21 +340,21 @@ EVENT_STATES = ('on', 'off')         # yoksa takvime göre
 
 # hazır ayarlar (panelin "Hazır ayarlar" listesi): yalnız değişen anahtarlar, ötekiler varsayılan
 PRESETS = {
-    'default': {'ad': 'Varsayılan', 'aciklama': 'Oyunun kendi değerleri.', 'values': {}},
-    'casual': {'ad': 'Rahat', 'aciklama': 'Daha az hasar alırsın, ödüller ve kutular bol.',
+    'default': {'ad': 'Default', 'aciklama': "The game's own values.", 'values': {}},
+    'casual': {'ad': 'Relaxed', 'aciklama': 'You take less damage; rewards and boxes are plentiful.',
               'values': {'npc_damage': 0.5, 'kredi': 2.0, 'uridyum': 2.0, 'ep': 2.0, 'onur': 2.0, 'collecting': 2.0, 'drop': 2.0,
                            'box_abundance': 2.0, 'box_respawn': 0.5, 'mode_reward': 2.0, 'drone_xp': 2.0, 'pet_ep': 2.0,
                            'shield_regen': 2.0}},
-    'fast': {'ad': 'Hızlı ilerleme', 'aciklama': 'Ödüller beş kat, uzaylılar kalabalık ve çabuk doğar.',
+    'fast': {'ad': 'Fast progress', 'aciklama': 'Five times the rewards; aliens are plentiful and respawn quickly.',
               'values': {'kredi': 5.0, 'uridyum': 5.0, 'ep': 5.0, 'onur': 5.0, 'collecting': 5.0, 'drop': 3.0, 'box_abundance': 3.0,
                            'box_respawn': 0.3, 'npc_count': 1.5, 'npc_respawn': 0.3, 'shop_price': 0.5, 'mode_reward': 5.0,
                            'drone_xp': 5.0, 'pet_ep': 5.0, 'season_points': 3.0, 'skylab_uretim': 3.0, 'ore_abundance': 2.0,
                            'wave_wait': 0.5}},
-    'hard': {'ad': 'Zorlu', 'aciklama': 'Uzaylılar daha sert vurur ve dayanıklıdır, ödüller az, rakipler agresif.',
+    'hard': {'ad': 'Hard', 'aciklama': 'Aliens hit harder and last longer, rewards are low, rivals are aggressive.',
               'values': {'npc_damage': 2.0, 'npc_can': 1.5, 'kredi': 0.75, 'uridyum': 0.75, 'box_abundance': 0.5,
                            'repair_cost': 2.0, 'auction_rivals': 4, 'npc_hit_chance': 1.25, 'npc_aggression': 1,
                            'shield_regen': 0.5}},
-    'creative': {'ad': 'Yaratıcı', 'aciklama': 'Gemin yok edilmez, cephane bitmez, mağaza ve hizmetler bedava, bekleme yok.',
+    'creative': {'ad': 'Creative', 'aciklama': "Your ship can't be destroyed, ammo never runs out, the shop and services are free, no waiting.",
                  'values': {'immune_until': True, 'infinite_ammo': True, 'infinite_technology': True, 'shop_price': 0.0, 'service_price': 0.0,
                               'gate_price': 0.0, 'repair_cost': 0.0, 'cooldown': 0.0, 'no_level_limit': True,
                               'infinite_lives': True, 'no_entry_limit': True, 'pet_fuel': 0.0, 'assembly_free': True,
@@ -536,7 +521,7 @@ def summary(values=None):
         if s['tur'] == 'carpan':
             out.append((full_name(s), 'x%g' % v))
         elif s['tur'] == 'bool':
-            out.append((s['ad'], 'açık' if v else 'kapalı'))
+            out.append((s['ad'], 'on' if v else 'off'))
         elif s['tur'] == 'sayi':
             out.append((s['ad'], ('%d %s' % (v, s.get('unit', ''))).strip()))
         else:

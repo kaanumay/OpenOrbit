@@ -21,7 +21,7 @@ class Adapter:
     def _start(self, kind, args):
         with self.lock:
             if self.d['running']:
-                raise RuntimeError(_('Protokol aracı zaten çalışıyor.'))
+                raise RuntimeError(_('The protocol tool is already running.'))
             self.d = {'running': True, 'lines': [], 'summary': None, 'hata': None, 'baslangic': time.time(), 'bitis': None,
                       'is': kind}
         threading.Thread(target=self._run, args=(args,), daemon=True).start()
@@ -29,12 +29,12 @@ class Adapter:
 
     def generate(self, folder):
         if not folder or not os.path.isdir(folder):
-            raise RuntimeError(_('İstemci klasörü yok.'))
+            raise RuntimeError(_('No client folder.'))
         return self._start('produce', [folder])
 
     def activate(self, version):
         if not version or not re.match(r'^[0-9A-Za-z._-]+$', version):
-            raise RuntimeError(_('Sürüm geçersiz.'))
+            raise RuntimeError(_('Invalid version.'))
         return self._start('apply', ['--activate=' + version])
 
     def _run(self, args):
@@ -61,7 +61,7 @@ class Adapter:
             code = p.wait()
             if code:
                 with self.lock:
-                    self.d['hata'] = _('Araç hata verdi (çıkış %d); son satırlara bakın.', code)
+                    self.d['hata'] = _('The tool failed (exit %d); see the last lines.', code)
         except Exception as e:
             with self.lock:
                 self.d['hata'] = repr(e)

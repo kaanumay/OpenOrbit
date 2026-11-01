@@ -107,14 +107,14 @@ def _extract(tf, root, target):
         if not parts:
             continue
         if any(p == '..' for p in parts):
-            raise DownloadError(_('Arşivde geçersiz yol: %s', m.name))
+            raise DownloadError(_('Invalid path in the archive: %s', m.name))
         p = os.path.join(target, *parts)
         if m.isdir():
             os.makedirs(p, exist_ok=True)
         elif m.issym():
             t = os.path.normpath(os.path.join(os.path.dirname(p), m.linkname))
             if os.path.isabs(m.linkname) or not os.path.realpath(t).startswith(real_target + os.sep):
-                raise DownloadError(_('Arşivde geçersiz bağ: %s', m.name))
+                raise DownloadError(_('Invalid link in the archive: %s', m.name))
             os.makedirs(os.path.dirname(p), exist_ok=True)
             if os.path.lexists(p):
                 os.remove(p)
@@ -122,7 +122,7 @@ def _extract(tf, root, target):
         elif m.islnk():                                 # sert bağ: hedefi daha önce açıldı (akışta sırayla)
             src = m.linkname[len(on):] if m.linkname.startswith(on) else None
             if not src or '..' in src.split('/'):
-                raise DownloadError(_('Arşivde geçersiz bağ: %s', m.name))
+                raise DownloadError(_('Invalid link in the archive: %s', m.name))
             os.makedirs(os.path.dirname(p), exist_ok=True)
             shutil.copy2(os.path.join(target, *src.split('/')), p)
         elif m.isfile():
@@ -221,11 +221,11 @@ class WineEngine:
                 _extract(tf, part['root'], target)
             summary = src.drain()
         except tarfile.TarError as e:
-            raise DownloadError(_('Arşiv bozuk geldi (%s): yeniden dene.', e))
+            raise DownloadError(_('The archive arrived damaged (%s): try again.', e))
         finally:
             f.close()
         if summary != part['sha256']:
-            raise DownloadError(_('%s arşivi beklenen dosya değil (SHA-256 tutmadı): yeniden dene.', part['ad']))
+            raise DownloadError(_("The %s archive isn't the expected file (SHA-256 mismatch): try again.", part['ad']))
 
     def _run(self):
         temporary = os.path.join(self.root, '.kuruluyor')
@@ -235,7 +235,7 @@ class WineEngine:
             os.makedirs(temporary)
             free = shutil.disk_usage(self.root).free
             if free < 1600 << 20:
-                raise DownloadError(_('Diskte yer yetmiyor: %.1f GB gerekli, %.1f GB boş.', 1.6, free / float(1 << 30)))
+                raise DownloadError(_('Not enough disk space: %.1f GB needed, %.1f GB free.', 1.6, free / float(1 << 30)))
             self.log('Wine motoru indiriliyor: %s, %s' % (ENGINE['url'], DXMT['url']))
             engine, dxmt = os.path.join(temporary, 'engine'), os.path.join(temporary, 'dxmt')
             self._download_extract(ENGINE, engine)
@@ -247,11 +247,11 @@ class WineEngine:
                 if not os.path.isdir(src):
                     continue
                 if not os.path.isdir(dst):
-                    raise DownloadError(_('Wine motorunda %s klasörü yok.', arch))
+                    raise DownloadError(_('The Wine build has no %s folder.', arch))
                 for name in os.listdir(src):
                     shutil.copy2(os.path.join(src, name), os.path.join(dst, name))
             if not os.path.isfile(os.path.join(engine, 'bin', 'wine')):
-                raise DownloadError(_('Wine motorunda bin/wine yok.'))
+                raise DownloadError(_('The Wine build has no bin/wine.'))
             with open(os.path.join(engine, INSTALL_MARKER), 'w', encoding='utf8') as fh:
                 json.dump({'engine': ENGINE['sha256'], 'dxmt': DXMT['sha256'], 'ad': self.name(), 'time': time.strftime('%Y-%m-%d %H:%M:%S')},
                           fh, indent=1)
@@ -276,7 +276,7 @@ class WineEngine:
             self.log('Wine motoru kurulamadı: %s' % e)
         except OSError as e:
             with self.lock:
-                self.d.update(durum='hata', hata=_('Dosya yazılamadı: %s', e))
+                self.d.update(durum='hata', hata=_('Could not write a file: %s', e))
             self.log('Wine motoru kurulamadı: %r' % e)
         except Exception as e:
             with self.lock:
@@ -297,7 +297,7 @@ class WineEngine:
             time.sleep(0.5)
         st = self.state()
         if not st['route']:
-            raise RuntimeError(st['hata'] or _('Wine motoru kurulmadı.'))
+            raise RuntimeError(st['hata'] or _('Wine was not installed.'))
         return st['route']
 
     # ------------------------------------------------------------ Rosetta 2
@@ -312,7 +312,7 @@ class WineEngine:
 
         def run():
             command = '/usr/sbin/softwareupdate --install-rosetta --agree-to-license'
-            prompt = _('OpenOrbit, oyunu açan Wine için Rosetta 2\'yi kuracak.')
+            prompt = _('OpenOrbit will install Rosetta 2 for the Wine that opens the game.')
             script = 'do shell script "%s" with administrator privileges with prompt "%s"' % (command, prompt.replace('"', "'"))
             try:
                 r = subprocess.run(['osascript', '-e', script], capture_output=True, text=True, timeout=1800)
@@ -320,12 +320,12 @@ class WineEngine:
                     ros = {'durum': 'installed', 'hata': None}
                     self.log('Rosetta 2 kuruldu')
                 elif '-128' in r.stderr:
-                    ros = {'durum': 'vacant', 'hata': _('Rosetta kurulumu iptal edildi.')}
+                    ros = {'durum': 'vacant', 'hata': _('The Rosetta installation was cancelled.')}
                 else:
-                    ros = {'durum': 'hata', 'hata': _('Rosetta kurulamadı: %s', (r.stderr or r.stdout).strip()[-300:])}
+                    ros = {'durum': 'hata', 'hata': _('Rosetta could not be installed: %s', (r.stderr or r.stdout).strip()[-300:])}
                     self.log('Rosetta kurulamadı: %s' % (r.stderr or r.stdout).strip()[-300:])
             except (OSError, subprocess.SubprocessError) as e:
-                ros = {'durum': 'hata', 'hata': _('Rosetta kurulamadı: %s', e)}
+                ros = {'durum': 'hata', 'hata': _('Rosetta could not be installed: %s', e)}
             with self.lock:
                 self.ros = ros
         threading.Thread(target=run, daemon=True).start()

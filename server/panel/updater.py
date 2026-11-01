@@ -57,7 +57,7 @@ def parse_version(text):
 def safe_rel(name):
     parts = [p for p in name.replace('\\', '/').split('/') if p not in ('', '.')]
     if not parts or any(p == '..' or ':' in p for p in parts):
-        raise UpdateError(_('Arşivde geçersiz yol: %s', name))
+        raise UpdateError(_('Invalid path in the archive: %s', name))
     return '/'.join(parts)
 
 
@@ -144,19 +144,19 @@ class Updater:
             return self.opener(req, timeout=TIMEOUT)
         except HTTPError as e:
             if e.code == 404:
-                raise UpdateError(_('GitHub deposu bulunamadı (%s): depo özel ya da adı değişmiş olabilir.', REPO))
+                raise UpdateError(_('GitHub repository not found (%s): it may be private or renamed.', REPO))
             if e.code in (403, 429) and (e.headers or {}).get('X-RateLimit-Remaining') == '0':
-                raise UpdateError(_('GitHub istek sınırı doldu; bir saat içinde yeniden denenir.'))
-            raise UpdateError(_('GitHub yanıt vermedi (HTTP %s).', e.code))
+                raise UpdateError(_('GitHub request limit reached; it will try again within an hour.'))
+            raise UpdateError(_('GitHub did not answer (HTTP %s).', e.code))
         except (OSError, http.client.HTTPException) as e:
-            raise UpdateError(_("GitHub'a ulaşılamadı (internet bağlantını denetle): %s", getattr(e, 'reason', e)))
+            raise UpdateError(_("Could not reach GitHub (check your internet connection): %s", getattr(e, 'reason', e)))
 
     def _json(self, url):
         r = self._request(url)
         try:
             return json.loads(r.read().decode('utf8'))
         except ValueError:
-            raise UpdateError(_('GitHub beklenmeyen bir yanıt verdi.'))
+            raise UpdateError(_('GitHub gave an unexpected answer.'))
         finally:
             r.close()
 
@@ -165,7 +165,7 @@ class Updater:
         d = self._json('%s/repos/%s/commits/%s' % (API, REPO, BRANCH))
         c = d.get('commit') or {}
         if not re.match(r'^[0-9a-f]{40}$', d.get('sha') or ''):
-            raise UpdateError(_('GitHub beklenmeyen bir yanıt verdi.'))
+            raise UpdateError(_('GitHub gave an unexpected answer.'))
         return {'surum': d['sha'], 'tarih': (c.get('committer') or {}).get('date'), 'message': (c.get('message') or '').split('\n')[0][:200]}
 
     def tree(self, sha):
@@ -186,10 +186,10 @@ class Updater:
                                errors='replace', timeout=timeout, env=env, creationflags=NO_WINDOW)
         except (OSError, subprocess.TimeoutExpired) as e:
             if check:
-                raise UpdateError(_('git çalıştırılamadı: %s', e))
+                raise UpdateError(_('Could not run git: %s', e))
             return ''
         if check and r.returncode:
-            raise UpdateError(_('git %s başarısız: %s', args[0], (r.stderr or r.stdout).strip()[-300:]))
+            raise UpdateError(_('git %s failed: %s', args[0], (r.stderr or r.stdout).strip()[-300:]))
         return r.stdout.strip()
 
     def _git_ok(self, *args):
@@ -243,9 +243,9 @@ class Updater:
     def install_async(self):
         with self.lock:
             if self.d['running']:
-                raise UpdateError(_('Güncelleme zaten sürüyor.'))
+                raise UpdateError(_('An update is already running.'))
             if self.d['durum'] != 'exists' or not self.d['last']:
-                raise UpdateError(_('Kurulacak yeni sürüm yok.'))
+                raise UpdateError(_('There is no new version to install.'))
             self.d.update(running=True, durum='downloading', hata=None, claimed=0, toplam=0, changed=0, removed=0)
             target = dict(self.d['last'])
         threading.Thread(target=self._install, args=(target,), daemon=True).start()
@@ -264,7 +264,7 @@ class Updater:
             self._set(durum='hata', hata=str(e))
             self.log('güncelleme kurulamadı: %s' % e)
         except Exception as e:
-            self._set(durum='hata', hata=_('Beklenmeyen hata: %r', e))
+            self._set(durum='hata', hata=_('Unexpected error: %r', e))
             self.log('güncelleme kurulamadı: %r' % e)
         finally:
             self._set(running=False)
@@ -273,10 +273,10 @@ class Updater:
         self._set(durum='installing')
         head, remote = self._git_remote()
         if self._go_to('status', '--porcelain', '--untracked-files=no') or self._go_to('rev-parse', '--abbrev-ref', 'HEAD') != BRANCH:
-            raise UpdateError(_('Yerel değişiklikler var: güncellemeyi git ile al.'))
+            raise UpdateError(_('There are local changes: get the update with git.'))
         self._go_to('merge', '--ff-only', '--quiet', remote)
         if self._go_to('rev-parse', 'HEAD') != remote:
-            raise UpdateError(_('git ileri saramadı.'))
+            raise UpdateError(_('git could not fast-forward.'))
         last.update(surum=remote)
 
     def _download(self, sha):
@@ -293,9 +293,9 @@ class Updater:
                 with self.lock:
                     self.d['claimed'] += len(b)
                 if buf.tell() > MAX_SIZE:
-                    raise UpdateError(_('Arşiv beklenenden büyük.'))
+                    raise UpdateError(_('The archive is larger than expected.'))
         except (OSError, http.client.HTTPException) as e:
-            raise UpdateError(_('İndirme yarıda kaldı: %s', e))
+            raise UpdateError(_('The download was interrupted: %s', e))
         finally:
             r.close()
         return buf.getvalue()
@@ -307,11 +307,11 @@ class Updater:
         try:
             z = zipfile.ZipFile(io.BytesIO(data))
         except zipfile.BadZipFile:
-            raise UpdateError(_('İndirilen arşiv bozuk.'))
+            raise UpdateError(_('The downloaded archive is damaged.'))
         infos = [i for i in z.infolist() if not i.is_dir()]
         tops = {i.filename.split('/', 1)[0] for i in infos}
         if len(tops) != 1 or not all('/' in i.filename for i in infos):
-            raise UpdateError(_('Arşivin düzeni beklenmiyor.'))
+            raise UpdateError(_('The archive has an unexpected layout.'))
         top = tops.pop() + '/'
         files = {}
         for i in infos:
@@ -319,7 +319,7 @@ class Updater:
             if not protected(rel):
                 files[rel] = i
         if not all(g in files for g in REQUIRED):
-            raise UpdateError(_('Arşiv bu projenin değil.'))
+            raise UpdateError(_('The archive is not this project.'))
         old = None
         st = self._saved()
         if before['surum'] and st.get('surum') == before['surum'] and isinstance(st.get('files'), list):

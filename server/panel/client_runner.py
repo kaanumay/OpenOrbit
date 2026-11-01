@@ -181,8 +181,8 @@ def rosetta_error():
     from wine_engine import has_rosetta
     if not MAC or has_rosetta():
         return None
-    return _("Rosetta 2 kurulu değil: oyunu açan Wine Apple Silicon'da onunla çalışır. İstemci sayfasından kur (yönetici şifresi "
-             "sorulur).")
+    return _("Rosetta 2 is not installed: on Apple Silicon the Wine that opens the game runs with it. Install it "
+             "on the Client page (your administrator password is asked).")
 
 
 def find(cfg):
@@ -199,19 +199,19 @@ def find(cfg):
     if choice == 'ozel':
         r.update(route=route, prefix=os.path.expanduser(prefix) if prefix else None)
         if not route:
-            r['hata'] = _('Özel komut boş: İstemci sayfasında Wine / Proton kartından yaz.')
+            r['hata'] = _('The custom command is empty: enter it in the Wine / Proton card on the Client page.')
         return r
     r['prefix'] = os.path.expanduser(prefix) if prefix else default_prefix(choice)
     if choice == 'engine':
         if not MAC:
-            r['hata'] = _("Panelin Wine'ı yalnız macOS'ta: Otomatik'i ya da Wine'ı seç.")
+            r['hata'] = _("The panel's Wine is for macOS only: choose Automatic or Wine.")
             return r
         m = engine()
         r.update(route=m.wine(), ad=m.name(), hata=rosetta_error())
         return r
     if choice == 'proton':
         if not LINUX:
-            r['hata'] = _("Proton yalnız Linux'ta çalışır: Wine'ı seç.")
+            r['hata'] = _("Proton runs only on Linux: choose Wine.")
             return r
         found = protons()
         p = found[0] if found else None
@@ -219,11 +219,11 @@ def find(cfg):
             d = os.path.expanduser(route)
             d = os.path.dirname(d) if os.path.basename(d) == 'proton' else d
             if not os.path.isfile(os.path.join(d, 'proton')):
-                r['hata'] = _('Proton bulunamadı: %s klasöründe proton betiği yok.', d)
+                r['hata'] = _('Proton not found: there is no proton script in %s.', d)
                 return r
             p = next((x for x in found if x['route'] == os.path.realpath(d)), {'ad': os.path.basename(d), 'route': d, 'steam': None})
         if not p and not umu:
-            r['hata'] = _("Proton bulunamadı: Steam'de bir Proton sürümü kur (Kütüphane > Araçlar) ya da Wine'ı seç.")
+            r['hata'] = _("Proton not found: install a Proton version in Steam (Library > Tools) or choose Wine.")
             return r
         steam = (p and p['steam']) or next(iter(steam_folders()), None)
         r.update(route=p and p['route'], ad=p['ad'] if p else 'UMU-Proton', umu=umu, steam=steam)
@@ -231,14 +231,14 @@ def find(cfg):
     w = shutil.which(os.path.expanduser(route)) if route else next(iter(wines()), None)
     if not w:
         if route:
-            r['hata'] = _('Wine bulunamadı: %s', route)
+            r['hata'] = _('Wine not found: %s', route)
         elif not LINUX:
-            r['hata'] = _("Wine bulunamadı: Otomatik'i seç (panel oyunu açacak Wine'ı kendisi kurar) ya da wine programının yolunu yaz.")
+            r['hata'] = _("Wine not found: choose Automatic (the panel installs the Wine that opens the game) or enter the path of the wine program.")
         elif cfg.get('runner') == 'auto':
-            r['hata'] = _("Wine ya da Proton bulunamadı: Steam'de bir Proton sürümü kur (Kütüphane > Araçlar) ya da Wine kur (ör. sudo apt "
-                          "install wine).")
+            r['hata'] = _("Neither Wine nor Proton was found: install a Proton version in Steam (Library > Tools) or install "
+                          "Wine (e.g. sudo apt install wine).")
         else:
-            r['hata'] = _("Wine bulunamadı: Wine kur (ör. sudo apt install wine) ya da Proton'u seç.")
+            r['hata'] = _("Wine not found: install Wine (e.g. sudo apt install wine) or choose Proton.")
         return r
     r.update(route=w, ad=wine_version(w) or 'wine', hata=rosetta_error())
     return r
@@ -273,7 +273,7 @@ def command(cfg, exe, args, prepare=True):
         return shlex.split(r['route']) + [exe] + args, env
     if r['tur'] in ('wine', 'engine'):
         if not r['route']:
-            raise RuntimeError(_("Panelin Wine'ı henüz kurulmadı: OYNA'ya bas ya da İstemci sayfasından kur."))
+            raise RuntimeError(_("The panel's Wine isn't installed yet: press PLAY or install it on the Client page."))
         env['WINEPREFIX'] = r['prefix']
         dll_override(env, 'mscoree,mshtml=', 'winhttp=n,b')      # yeni önekte Mono/Gecko kurulum pencereleri çıkmasın; Doorstop winhttp.dll yüklensin
         env.setdefault('WINEDEBUG', 'fixme-all')                 # wine.log yalnız hatalar
