@@ -47,6 +47,7 @@ import muzayede as MZ
 import pet as PETM
 import savas_esya as SE
 import skylab as SKY
+import gm_center as GMC
 
 PORT = 8098
 ANAHTARLAR = {v: k for k, v in MG.BASEKEY.items()}      # BaseKey numarası -> adı (mesaj_anahtarlari.json)
@@ -472,6 +473,94 @@ def olaylar(game, q):
     return {'olaylar': [o for o in s.sosyal.muzayede.d['olaylar'] if o['no'] > son]}
 
 
+
+# ---------------------------------------------------------------- GM Center (yalnız host; okuma / Dispatch yönetimi oyun açıkken)
+def gm_admin(game):
+    s = oturum(game)
+    import gm_konsol as GMK
+    if not GMK.enabled(s.profil):
+        raise Hata(403, 'GM Center kapalı: Geliştirici > GM konsolu ayarını açın.')
+    return s
+
+
+def gm_bootstrap(game, anahtar):
+    # Kanal yalnız 127.0.0.1 üzerinde dinliyor. Bu ilk el sıkışma yalnız arayüzün
+    # oturum anahtarını almasını sağlar; tüm veri/işlem uçları anahtarla korunur.
+    gm_admin(game)
+    return {'enabled': True, 'port': PORT, 'token': anahtar}
+
+
+def gm_players(game):
+    gm_admin(game)
+    import topluluk as TP
+    import harita as H
+    out = []
+    for person in TP.hepsi().values():
+        try:
+            row = GMC.player_snapshot(person)
+            try:
+                row['map_name'] = H.name(row.get('map_id')) if row.get('map_id') is not None else ''
+            except Exception:
+                row['map_name'] = str(row.get('map_id') or '')
+            row['session_ready'] = person.oturum is not None
+            out.append(row)
+        except (AttributeError, KeyError, TypeError, ValueError):
+            continue
+    out.sort(key=lambda x: (not x['online'], x['name'].casefold(), x['uid']))
+    return {'players': out, 'count': len(out)}
+
+
+def gm_dispatch_gates(game, q):
+    gm_admin(game)
+    import topluluk as TP
+    raw_uid = str(q.get('uid') or '').strip()
+    if not raw_uid:
+        raise Hata(400, 'uid')
+    uid = int(raw_uid) if raw_uid.isdigit() else raw_uid
+    person = TP.bul(uid=uid)
+    if person is None:
+        raise Hata(404, 'gracz')
+    return {'target': GMC.player_snapshot(person), 'gates': GMC.dispatch_snapshot(person)}
+
+
+def gm_dispatch_gate(game, b):
+    gm_admin(game)
+    import topluluk as TP
+    import dispatch as DSP
+    raw_uid = str(b.get('uid') or '').strip()
+    if not raw_uid:
+        raise Hata(400, 'uid')
+    uid = int(raw_uid) if raw_uid.isdigit() else raw_uid
+    person = TP.bul(uid=uid)
+    if person is None:
+        raise Hata(404, 'gracz')
+    if person.oturum is None or person.oturum.profil is not person.profil:
+        raise Hata(409, 'gracz jest offline; w tej wersji operacje Dispatch wymagają aktywnej sesji')
+    action = str(b.get('action') or '')
+    try:
+        gate_id = int(b.get('gateId') or 0)
+    except (TypeError, ValueError):
+        raise Hata(400, 'gateId')
+    if action == 'send':
+        request, fields = 'DispatchSendGateRequest', {'gateId': gate_id}
+    elif action == 'collect':
+        request, fields = 'DispatchCollectGateRewardRequest', {'gateId': gate_id}
+    else:
+        raise Hata(400, 'action')
+    s = person.oturum
+    giden = isle(s, request, fields)
+    if action == 'send':
+        cmd = yanit(giden, 'DispatchMessageCommand') or {}
+        message_type = cmd.get('messageType')
+        tamam = message_type == DSP.SUCCESS_SEND_GATE
+    else:
+        cmd = yanit(giden, 'DispatchLootMessageCommand') or {}
+        message_type = cmd.get('messageType')
+        tamam = message_type == DSP.COLLECTED
+    return {'tamam': bool(tamam), 'message_type': message_type, 'gates': GMC.dispatch_snapshot(person)}
+
+
+
 def start(game, folder, log=print):
     anahtar = secrets.token_hex(16)
 
@@ -501,6 +590,15 @@ def start(game, folder, log=print):
         def do_GET(self):
             u = urlparse(self.path)
             q = {k: v[0] for k, v in parse_qs(u.query).items()}
+            if u.path == '/gm/bootstrap':
+                try:
+                    return self._yanit(200, gm_bootstrap(game, anahtar))
+                except Hata as e:
+                    return self._yanit(e.kod, {'hata': str(e)})
+            if u.path == '/gm/players':
+                return self._isle(lambda: gm_players(game))
+            if u.path == '/gm/dispatch/gates':
+                return self._isle(lambda: gm_dispatch_gates(game, q))
             if u.path == '/magaza':
                 return self._isle(lambda: magaza(game))
             if u.path == '/hangar':
@@ -519,7 +617,8 @@ def start(game, folder, log=print):
                 b = json.loads(self.rfile.read(n).decode('utf8') or '{}') if n else {}
             except ValueError:
                 return self._yanit(400, {'hata': 'json'})
-            yollar = {'/magaza/al': al, '/magaza/abone': abone, '/hangar/tasi': tasi, '/hangar/etkin': etkin, '/hangar/tasarim': tasarim,
+            yollar = {'/gm/dispatch/gate': gm_dispatch_gate, '/magaza/al': al, '/magaza/abone': abone,
+                      '/hangar/tasi': tasi, '/hangar/etkin': etkin, '/hangar/tasarim': tasarim,
                       '/hangar/islem': hangar_islem,
                       '/skylab/islem': skylab_islem, '/skylab/robot': robot, '/muzayede/teklif': teklif, '/muzayede/hepsi': hepsi,
                       '/muzayede/anlik': anlik, '/muzayede/oto': lambda g, b: kural(g, b, 'otomatik'),
