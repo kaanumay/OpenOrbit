@@ -1,4 +1,4 @@
-"""Astral Ascension (yol haritası Aşama 8; istemcinin RogueLite* komutları; veri data/pve_modlari.json "astral").
+"""Astral Ascension (yol haritası Aşama 8; istemcinin RogueLite* komutları; veri data/pve_modes.json "astral").
 
 Akış: Astral CPU (kısayol çubuğundan) X-1'de kapıyı açar (portal 86, koşu bitene dek durur). Kapıya atlayınca kiralık gemi seçimi
 (RogueLiteSelectShipCommand: Sentinel, Diminisher, Pusat, Zephyr ve aynı başlangıç yüklemesi) -> RogueLiteSelectShipRequest
@@ -18,13 +18,13 @@ Profilde: pve.astral {kapi, kosu {gemi, sid, rift, tur, cilgin, puan, atlas, env
 """
 import json, math, os, random, time
 
-import ayar as AY
-import kapi as KAPI
-import siralama as SR
-import pve_ortak as PO
+import settings as SET
+import galaxy_gates as KAPI
+import rankings as RK
+import pve_common as PS
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-D = json.load(open(os.path.join(HERE, 'data', 'pve_modlari.json'), encoding='utf8'))['astral']
+D = json.load(open(os.path.join(HERE, 'data', 'pve_modes.json'), encoding='utf8'))['astral']
 PORTAL = 154900000                 # X-1'deki kapı; + 10 + i ödül kapıları; + 50 çıkış
 PICK = ('silah', 'jenerator', 'modul', 'booster')
 SALVAGE_CHANCE, KEY_CHANCE = 1.0, 0.5          # rift sonu: Kurtarma Çekirdeği her seferde (resmî forum); anahtar uyarlama
@@ -36,10 +36,10 @@ def mod(_cls, **f):
 
 
 class Astral:
-    key, ad = 'astral', 'Astral Ascension'
+    key, name = 'astral', 'Astral Ascension'
 
-    def __init__(self, profil, magaza, log=print):
-        self.p, self.m, self.log = profil, magaza, log
+    def __init__(self, profile, shop, log=print):
+        self.p, self.m, self.log = profile, shop, log
         self.world = None
         self.send = None               # oturuma mesaj
         self.pending = None            # seçim bekleyen ödüller [lootId, seviye/adet]
@@ -55,7 +55,7 @@ class Astral:
     # ------------------------------------------------------------ CPU ve kapı
     def use_cpu(self, map_id):
         """Astral CPU: X-1'de kapıyı açar -> mesajlar ya da None (kullanılamaz)."""
-        import harita as H
+        import map_links as H
         if H.map_class(map_id) != D['giris'] or self.st.get('kapi') or self.run:
             return None
         if self.p.use_ammo(D['cpu']) is None:
@@ -67,7 +67,7 @@ class Astral:
         return [KAPI.screen('The Astral Ascension gate has opened in the center of the map.', big=True), self.cpu_cmd()]
 
     def portals(self, map_id):
-        import harita as H
+        import map_links as H
         if H.map_class(map_id) != D['giris'] or not (self.st.get('kapi') or self.run):
             return []
         w, h = H.map_size(map_id)
@@ -82,14 +82,14 @@ class Astral:
                    extAttributes=[], inventoryItemAttributes=[])
 
     def ship_list(self):
-        from magaza import ESYA
+        from shop import ITEMS
         y, out = D['yukleme'], []
         dr = y['dronlar']
         drones = [mod('RogueLiteDroneModule', lootId=dr['tur'], level=6, equipments=[self.item_mod(dr['lazer'], 0)] * dr['dron_basina'])
                   for _ in range(dr['adet'])]
         eq = [self.item_mod(l, lvl - 1, n) for slot in ('laser', 'generators', 'extra') for l, n, lvl in y[slot]]
         for s in D['gemiler']:
-            row = ESYA['gemiler'].get(s['lootId'], {})
+            row = ITEMS['gemiler'].get(s['lootId'], {})
             out.append(mod('RogueLiteShipModule', petEquipments=[], speed=row.get('temel_hiz', 300), drones=drones, lootId=s['lootId'],
                            loadOutId=s['yukleme'], hp=row.get('hp', 0), shipId=s['shipId'], shield=0, equipments=eq, spread=0))
         return ('RogueLiteSelectShipCommand', dict(modifierList=[], shipList=out))
@@ -191,9 +191,9 @@ class Astral:
         row = next((x for x in D['odul'] if x['en_az'] <= reached <= x['en_cok']), D['odul'][0])
         msgs, got = [], []
         give = [('resource_collectable_astralite', row['astralite'])]
-        if random.random() < AY.chance('dusme', SALVAGE_CHANCE, 'mod'):     # panel: düşme şansı
+        if random.random() < SET.chance('dusme', SALVAGE_CHANCE, 'mod'):     # panel: düşme şansı
             give.append(('resource_collectable_salvage-core', row['kurtarma']))
-        keys = sum(1 for _ in range(row['anahtar']) if random.random() < AY.chance('dusme', KEY_CHANCE, 'mod'))
+        keys = sum(1 for _ in range(row['anahtar']) if random.random() < SET.chance('dusme', KEY_CHANCE, 'mod'))
         if keys:
             give.append(('resource_booty-key-astral', keys))
         if r['atlas']:
@@ -229,7 +229,7 @@ class Astral:
         if rf['patron']:
             hp *= o['patron_can'][rf['ad']]
             dmg *= o['patron_hasar'][rf['ad']]
-        return PO.scale_npc(n, hp, dmg, 0)          # Astral'da uzaylılar EP/onur/kredi/uridyum/kargo vermez
+        return PS.scale_npc(n, hp, dmg, 0)          # Astral'da uzaylılar EP/onur/kredi/uridyum/kargo vermez
 
     def attach(self, world):
         self.world = world
@@ -240,17 +240,17 @@ class Astral:
         self.swap_in()
         r['dalga_bas'] = None
         if r.get('temiz'):                         # rift temizlenmiş, kapı seçimi bekliyor (çıkıp dönüldü)
-            world.kapi = PO.Kosu(world, self)
-            world.kapi.phase = 'hold'                  # dalga yok; ölüm yine koşuyu bitirir
+            world.gate = PS.Run(world, self)
+            world.gate.phase = 'hold'                  # dalga yok; ölüm yine koşuyu bitirir
             world.send([self.info_cmd(), self.inventory_cmd()])
             if self.pending:
                 world.send([('RogueLiteSelectRewardCommand', dict(content=[self.item_mod(l, n - 1) for l, n in self.pending], module=[]))])
             else:
                 self.open_gates()
-            return world.kapi
-        world.kapi = PO.Kosu(world, self, break_sn=3)
+            return world.gate
+        world.gate = PS.Run(world, self, break_sec=3)
         world.send([self.info_cmd(), self.inventory_cmd()])
-        return world.kapi
+        return world.gate
 
     def wave_started(self, i):
         r = self.run                                     # istemcinin metni: "%NAME% - Rift %RIFT% Wave %WAVE%"
@@ -359,20 +359,20 @@ class Astral:
 
     def equip(self, iid, loot):
         """Kiralık gemide boş yuvaya tak -> True."""
-        from magaza import ESYA, slot_of
+        from shop import ITEMS, slot_of
         slot = slot_of(loot)
         if not slot:
             return False
         sid = self.run['sid']
         cfg = self.p.config(None, sid)
         cap = {'laser': 'laser', 'generators': 'generators', 'extra': 'extra', 'upgrades': None}
-        row = ESYA['gemiler'].get(self.run['gemi'], {})
+        row = ITEMS['gemiler'].get(self.run['gemi'], {})
         limit = row.get(slot, 0) if slot != 'upgrades' else 3
         if len(cfg.get(slot, [])) >= limit:
             return False
         with self.p.lock:
             cfg.setdefault(slot, []).append(iid)
-            self.p.sync_ekipman()
+            self.p.sync_equipment()
             self.p.dirty = True
         return True
 
@@ -424,13 +424,13 @@ class Astral:
         if not r:
             return mod('RogueLiteCashOutCommand', confirmedList=[], chanceUpList=[])
         row = next((x for x in D['odul'] if x['en_az'] <= r['rift'] <= x['en_cok']), D['odul'][0])
-        sure = [self.item_mod('resource_collectable_astralite', 0, row['astralite'])]
+        duration = [self.item_mod('resource_collectable_astralite', 0, row['astralite'])]
         if r['atlas']:
-            sure.append(self.item_mod('resource_collectable_atlas-shard', 0, r['atlas']))
+            duration.append(self.item_mod('resource_collectable_atlas-shard', 0, r['atlas']))
         chance = [self.item_mod('resource_collectable_salvage-core', 0, row['kurtarma'])]
         if row['anahtar']:
             chance.append(self.item_mod('resource_booty-key-astral', 0, row['anahtar']))
-        return mod('RogueLiteCashOutCommand', confirmedList=sure, chanceUpList=chance)
+        return mod('RogueLiteCashOutCommand', confirmedList=duration, chanceUpList=chance)
 
     def info_cmd(self, at_gate=False):
         r = self.run or {}
@@ -472,15 +472,15 @@ class Astral:
             elif iid in r['envanter'] and self.equip(iid, loot):
                 r['envanter'].remove(iid)
         with self.p.lock:
-            self.p.sync_ekipman()
+            self.p.sync_equipment()
         return self.m.apply_stats() + [self.inventory_cmd()]
 
     def rank_cmd(self):
         """Rank sekmesi: sunucudaki oyuncular (en iyi üç koşunun toplamı)."""
-        import topluluk as TP
+        import community as TP
         row = lambda r: mod('RankModule', lastUpdateTime=int(time.time() * 1000), name=r[1].d['pilot'].get('userName', ''), rank=r[0],
                             points=int(r[2]))
-        top, me = TP.siralama(self.p, lambda x: sum(((x.d.get('pve') or {}).get('astral') or {}).get('kosular', [])[:3]))
+        top, me = TP.ranking(self.p, lambda x: sum(((x.d.get('pve') or {}).get('astral') or {}).get('kosular', [])[:3]))
         info = mod('RogueLiteRankInfoCommand', topRankers=[row(r) for r in top], myRank=row(me))
-        return ('RogueLiteRankEventInfoCommand', dict(playerRankRanges=SR.ranges(SR.ASTRAL), rankInfoCommand=info,
+        return ('RogueLiteRankEventInfoCommand', dict(playerRankRanges=RK.ranges(RK.ASTRAL), rankInfoCommand=info,
                                                          isEventEnabled=True))

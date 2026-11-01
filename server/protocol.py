@@ -232,7 +232,7 @@ class EncodeError(Exception):
 
 
 _INV = {}
-uyari = None        # kodlama uyarısı (sınıra kırpılan int alanı): oyun sunucusu günlük işlevini bağlar
+warning = None        # kodlama uyarısı (sınıra kırpılan int alanı): oyun sunucusu günlük işlevini bağlar
 LIST_MAX = {'byte': 255, 'short': 32767, 'ushort': 65535, 'int': M32}
 
 
@@ -256,8 +256,8 @@ def _enc_prim(out, t, x, v, name=None):
         hi = (1 << 31) - 1 if t == 'int' else M32
         if not -(1 << 31) <= v <= hi:      # sessizce sarılıp eksiye dönerdi (kazanç, puan): sınıra kırpılır
             c = min(max(v, -(1 << 31)), hi)
-            if uyari:
-                uyari('   %s alanı 32 bite sığmadı: %d -> %d' % (name or t, v, c))
+            if warning:
+                warning('   %s alanı 32 bite sığmadı: %d -> %d' % (name or t, v, c))
             v = c
         v &= M32
         if x and x != 'v':
@@ -295,8 +295,8 @@ def _enc_steps(out, steps, f, ctx):
     for s in steps:
         t = s['t']
         if t in ('pid', 'super') and (t == 'pid' or s.get('id', True)):
-            ust = f.get('_ust') or {}
-            v = ust.get(str(ctx['n']), _parent_id(s.get('c')))
+            parent = f.get('_ust') or {}
+            v = parent.get(str(ctx['n']), _parent_id(s.get('c')))
             if v is None:
                 raise EncodeError('üst sınıf kimliği bilinmiyor (%s)' % s.get('c'))
             out += struct.pack('>H', v)

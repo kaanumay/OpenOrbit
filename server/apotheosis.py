@@ -1,4 +1,4 @@
-"""Kristallon Apotheosis (istemci 1.1.115; veri data/buyuk_icerikler.json 'kristallon_apotheosis' <- tools/surum_115.py).
+"""Kristallon Apotheosis (istemci 1.1.115; veri data/major_content.json 'kristallon_apotheosis' <- tools/version_115.py).
 
 Takvimde (21 Ekim 2026 - 2027 sonu: resmî sunucu kaydı) pazartesi-cumartesi üç toplama penceresi (08-10, 14-16, 20-22; panelin
 "Seanslı etkinlikler hep açık" ayarıyla iki saatlik dilimlerle hep açık): X-2..X-8'de etkinlik uzaylıları (Icy, Kristallon, Boss
@@ -10,7 +10,7 @@ Kristallon kopyaları; harita sınıfına göre puan) öldürülerek hedef puan 
   evre 2 (%66-33): + buz (158, attribute oyuncu; 2,2 sn): menzildeki oyuncuya hasar ve yavaşlama (istemci oyuncunun üstünde çizer)
   evre 3 (%33-0): + radyasyon (160 oyuncunun üstünde, "x|y" güvenli nokta: kılavuz oku): süre dolunca güvenli alanın dışına hasar
 Ölmek savaşı bitirmez (üsse döner; portal açıkken geri girilir, patron kaldığı canla). Yenilince: katılım ödülü (patron seviyesinin
-satırı), yenilgi ödülü (tablodan tek eşya), 20 Apotheosis Booty Box (anahtarla; ganimet.py APOTHEOSIS), son vuruş (unvan, 1 anahtar),
+satırı), yenilgi ödülü (tablodan tek eşya), 20 Apotheosis Booty Box (anahtarla; loot.py APOTHEOSIS), son vuruş (unvan, 1 anahtar),
 patron seviyesi +1 (en çok 12). Kaçarsa yalnız katılım ödülü (hasar patron canının %1'ini geçtiyse). Hafta pazartesi sıfırlanır
 (seviye 1); önceki haftanın sanal sırasının ödülleri (yenilgi sayısından) o an verilir.
 Pencere (menü öğesi 'apotheosis', istemcide UIDarkMatterWar): açılınca ApotheosisProgressRequest -> ApotheosisProgressCommand {phase
@@ -20,18 +20,18 @@ Profilde: apotheosis {hafta, seviye, puan, pencere, durum (toplama / patron / bi
 """
 import datetime, json, math, os, random, time
 
-import ayar as AY
-import dunya
-import etkinlik_kapi as EKP
-import harita as H
-import kapi as KAPI
-import pve_ortak as PO
-import takvim as TK
-from dunya_patronu import mod, rewards, scale, seg_dist
-from eski_protokol import legacy
+import settings as SET
+import world as world_module
+import event_gate as EKP
+import map_links as H
+import galaxy_gates as KAPI
+import pve_common as PS
+import event_calendar as CAL
+from world_boss import mod, rewards, scale, seg_dist
+from legacy_protocol import legacy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-_PATH = os.path.join(HERE, 'data', 'buyuk_icerikler.json')
+_PATH = os.path.join(HERE, 'data', 'major_content.json')
 D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('kristallon_apotheosis', {})
 EVENT = D.get('etkinlik', 'kristallon_apotheosis')
 MAP = D.get('harita', 510)
@@ -45,7 +45,7 @@ KEY = 'resource_booty-key-apotheosis'
 
 
 def _register():
-    T = dunya.CFG['tipler']
+    T = world_module.CFG['tipler']
     for rows in D.get('toplama', {}).values():
         for tip, _, _ in rows:
             if tip in T:
@@ -59,7 +59,7 @@ _register()
 
 
 def active(now=None):
-    return EVENT in TK.active(now)
+    return EVENT in CAL.active(now)
 
 
 def _hm(s):
@@ -70,7 +70,7 @@ def _hm(s):
 def window(now=None):
     """(açık mı, başlangıç, bitiş, sonraki başlangıç): pazartesi-cumartesi pencereleri; seans_hep_acik: iki saatlik dilimler."""
     now = time.time() if now is None else now
-    if AY.get('seans_hep_acik'):
+    if SET.get('seans_hep_acik'):
         a = now - now % SLICE
         return True, a, a + SLICE, a + SLICE
     t = datetime.datetime.fromtimestamp(now)
@@ -116,8 +116,8 @@ def rank_row(rank):
 class Apotheosis:
     REQUESTS = ('ApotheosisProgressRequest',)
 
-    def __init__(self, profil, magaza, ekapilar, log=print):
-        self.p, self.m, self.k, self.log = profil, magaza, ekapilar, log
+    def __init__(self, profile, shop, event_gates, log=print):
+        self.p, self.m, self.k, self.log = profile, shop, event_gates, log
         self.world = None
         self.run = None
         self.change_map = None
@@ -205,7 +205,7 @@ class Apotheosis:
             phase=ph, currentPoints=int(min(st.get('puan', 0), D['hedef_puan'])), totalPoints=int(D['hedef_puan']),
             remainingSeconds=max(0, int(left)), hpPercent=int(round(self.boss_left() * 100)), bossLevel=lv,
             rewardStatusIncluded=True, nextResetTime=int(week_end(now) * 1000),     # sıfırlanma anı, ms (kayıt)
-            timeToEventEndSeconds=int(TK.time_left(EVENT, now)) if active(now) else 0,
+            timeToEventEndSeconds=int(CAL.time_left(EVENT, now)) if active(now) else 0,
             participationReward=mod('ApotheosisRewardModule', rewards=probs([r + [100] for r in D['katilim'][lv - 1]]),
                                     claimedCount=int(st.get('katilim', 0)), weeklyLimit=cap.get('katilim', 0)),
             victoryReward=mod('ApotheosisRewardModule', rewards=probs(D['yenilgi']), claimedCount=int(kills),
@@ -253,7 +253,7 @@ class Apotheosis:
         for t, p, n in rows:
             for _ in range(n):
                 x, y = world.random_spot()
-                npc = world.spawn_npc_at('apo_' + t, x, y, prep=lambda c: PO.scale_npc(c, hp=g, dmg=g, reward=g))
+                npc = world.spawn_npc_at('apo_' + t, x, y, prep=lambda c: PS.scale_npc(c, hp=g, dmg=g, reward=g))
                 npc.gate, npc.apo = True, (t, p)
                 self.spawned.add(npc.id)
 
@@ -300,9 +300,9 @@ class Apotheosis:
                 import vortex
                 vortex.send_home(self, world)              # savaş yok (girişte bu haritada doğdu): üsse
                 return msgs
-            self.run = ApoKosu(self, world, self.saved)
+            self.run = ApoRun(self, world, self.saved)
             self.saved = None
-            world.kapi = self.run
+            world.gate = self.run
             return msgs + self.run.enter_msgs()
         if active() and self.st.get('durum') == 'toplama' and self.collect_rows(world):
             self.spawn_collect(world)
@@ -331,7 +331,7 @@ class Apotheosis:
         before = self.st.get('durum')
         msgs = self.ensure(now)
         w = self.world
-        if w and before != self.st.get('durum') and w.kapi is None:
+        if w and before != self.st.get('durum') and w.gate is None:
             if self.st.get('durum') == 'toplama' and self.collect_rows(w):
                 self.spawn_collect(w)                    # oyuncu bir X-2..X-8 haritasındayken pencere açıldı
             elif before == 'toplama':
@@ -389,7 +389,7 @@ class Apotheosis:
         return [legacy('0|A|BKAPO|%d' % self.p.resource(KEY))]
 
 
-class ApoKosu:
+class ApoRun:
     """Harita 510'da patron savaşı (dünyanın 'kapi'sı)."""
     key = 'kristallon_apotheosis'
 
@@ -398,7 +398,7 @@ class ApoKosu:
         self.g = {'ad': 'Kristallon Apotheosis'}
         st = mode.st
         self.boss_at = st.get('patron_basi', time.time()) + D['bekleme_sn']
-        if AY.get('seans_hep_acik'):
+        if SET.get('seans_hep_acik'):
             self.boss_at = min(self.boss_at, time.time() + 30)      # hep açık: kısa bekleme
         self.end = self.boss_at + D['savas_sn']
         if restore:                                  # savaş sürüyordu: patron hemen, kaldığı canla ve süresiyle
@@ -407,7 +407,7 @@ class ApoKosu:
         self.phase = 'bekleme'
         self.boss = None
         self.s = 1.0
-        self.evre = 1
+        self.stage = 1
         self.dealt = restore['hasar'] if restore else 0
         self.restore = restore
         self.lv = mode.level()
@@ -446,16 +446,16 @@ class ApoKosu:
             probe = w.spawn_npc_at(BOSS, self.cx, self.cy)
             self.s = scale(self.m.p, w, probe) * (1 + D.get('seviye_carpani', 0.15) * (self.lv - 1))
             w.remove_npc(probe)
-        b = w.spawn_npc_at(BOSS, self.cx, self.cy - 800, prep=lambda n: PO.scale_npc(n, hp=self.s, dmg=max(0.5, min(1.5, self.s))))
+        b = w.spawn_npc_at(BOSS, self.cx, self.cy - 800, prep=lambda n: PS.scale_npc(n, hp=self.s, dmg=max(0.5, min(1.5, self.s))))
         b.gate, b.engaged = True, True
-        b.hasar_kancasi = self.boss_hit
+        b.damage_hook = self.boss_hit
         if r:
             b.hp, b.shield = max(1, int(b.d['hp'] * r['hp'])), int(b.d['kalkan'] * r['kalkan'])
         self.boss = b
         self.phase = 'savas'
         now = time.time()
         self.next.update(yarik=now + 8, buz=now + 12, radyasyon=now + 15)
-        self.evre = next(i for i, th in reversed(list(enumerate(D['evreler'], 1))) if self.left() <= th)
+        self.stage = next(i for i, th in reversed(list(enumerate(D['evreler'], 1))) if self.left() <= th)
         w.send([KAPI.screen('Emperor Kristallon has appeared!', big=True)])
         w.log('   Kristallon Apotheosis: Emperor Kristallon geldi (seviye %d, güç %.2f, can %d + %d)' % (self.lv, self.s, b.hp, b.shield))
 
@@ -466,8 +466,8 @@ class ApoKosu:
             self.m.p.dirty = True
         left = self.left()
         for i, th in enumerate(D['evreler'][1:], 2):
-            if self.evre < i and left <= th:
-                self.evre = i
+            if self.stage < i and left <= th:
+                self.stage = i
                 self.w.send([KAPI.screen('Emperor Kristallon: phase %d!' % i, big=True)])
                 self.w.log('   Kristallon Apotheosis: evre %d' % i)
 
@@ -490,15 +490,15 @@ class ApoKosu:
         b = self.boss
         if not b or not b.alive or w.hero_dead:
             return
-        sal = D['saldirilar']
+        attacks = D['saldirilar']
         if now >= self.next['yarik']:
-            self.next['yarik'] = now + sal['yarik']['aralik_sn']
+            self.next['yarik'] = now + attacks['yarik']['aralik_sn']
             self.rift(now)
-        if self.evre >= 2 and now >= self.next['buz']:
-            self.next['buz'] = now + sal['buz']['aralik_sn']
+        if self.stage >= 2 and now >= self.next['buz']:
+            self.next['buz'] = now + attacks['buz']['aralik_sn']
             self.ice(now)
-        if self.evre >= 3 and now >= self.next['radyasyon'] and not self.guide:
-            self.next['radyasyon'] = now + sal['radyasyon']['aralik_sn']
+        if self.stage >= 3 and now >= self.next['radyasyon'] and not self.guide:
+            self.next['radyasyon'] = now + attacks['radyasyon']['aralik_sn']
             self.radiation(now)
 
     def vm(self, uid, modifier, on, attr=0, extra=''):

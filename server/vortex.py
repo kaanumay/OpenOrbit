@@ -1,4 +1,4 @@
-"""Vortex of Greed / Strike and Exit (yol haritası Ö4; veri data/buyuk_icerikler.json 'vortex' <- tools/buyuk_icerikler.py).
+"""Vortex of Greed / Strike and Exit (yol haritası Ö4; veri data/major_content.json 'vortex' <- tools/major_content.py).
 
 Seviye 13'ten; takvimde (her ayın 1-20'si) X-1'deki portaldan seans açıkken haritaya (483) girilir. Seanslar günde üç (09:00, 13:00,
 20:00; 15 dk; Salı/Perşembe/Cumartesi 20:00 çift para); panelin "Seanslı etkinlikler hep açık" ayarıyla portal hep açık ve seans
@@ -16,16 +16,16 @@ Profilde: vortex {hafta, kazanc, alinan {dükkân: {eid: [dönem, adet]}}}.
 """
 import datetime, json, math, os, random, time
 
-import ayar as AY
-import dunya
-import etkinlik_kapi as EKP
-import harita as H
-import kapi as KAPI
-import takvim as TK
-from eski_protokol import legacy
+import settings as SET
+import world as world_module
+import event_gate as EKP
+import map_links as H
+import galaxy_gates as KAPI
+import event_calendar as CAL
+from legacy_protocol import legacy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-_PATH = os.path.join(HERE, 'data', 'buyuk_icerikler.json')
+_PATH = os.path.join(HERE, 'data', 'major_content.json')
 D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('vortex', {})
 EVENT = D.get('etkinlik', 'vortex_of_greed')
 MAP = D.get('harita', 483)
@@ -41,12 +41,12 @@ SESSION_WINDOW = 15 * 60                  # "hep açık": her 15 dakikalık dili
 def _register():
     """Vortex uzaylıları NPC türü olarak (normal türlerinden 1,5 kat can; istemci tasarımları 551-554)."""
     for k, v in D.get('uzaylilar', {}).items():
-        dunya.CFG['tipler'][k] = {x: y for x, y in v.items() if x not in ('adet', 'sc', 'kutu')}
+        world_module.CFG['tipler'][k] = {x: y for x, y in v.items() if x not in ('adet', 'sc', 'kutu')}
     if D.get('patron'):
-        dunya.CFG['tipler'][D['patron']['tur']] = {x: y for x, y in D['patron'].items() if x not in ('tur', 'zaman_sn')}
+        world_module.CFG['tipler'][D['patron']['tur']] = {x: y for x, y in D['patron'].items() if x not in ('tur', 'zaman_sn')}
     # tahliye bölgesinin çapası: istemci VisualModifier'ın hedefini gemiler arasında arıyor (UnitHelper.GetShip; varlıkta efekt
     # çıkmadı, canlı tur Ö4): görünmez, dost, hareketsiz bir gemi
-    dunya.CFG['tipler'][ZONE_TYPE] = dict(ad='', model='84', npc_kimlik=0, hp=1, kalkan=0, hasar=0, hiz=0, saldirgan=False, dost=True,
+    world_module.CFG['tipler'][ZONE_TYPE] = dict(ad='', model='84', npc_kimlik=0, hp=1, kalkan=0, hasar=0, hiz=0, saldirgan=False, dost=True,
                                           odul={}, kargo={})
 
 
@@ -54,11 +54,11 @@ _register()
 
 
 def active(now=None):
-    return EVENT in TK.active(now)
+    return EVENT in CAL.active(now)
 
 
 def always_open():
-    return bool(AY.get('seans_hep_acik'))
+    return bool(SET.get('seans_hep_acik'))
 
 
 def _hm(s):
@@ -104,7 +104,7 @@ def period_key(kind, now=None):
     if kind == 3:
         return d.strftime('%Y-%m')
     if kind == 4:
-        return str((TK.period(EVENT, now) or (0,))[0])
+        return str((CAL.period(EVENT, now) or (0,))[0])
     return 'hep'
 
 
@@ -116,8 +116,8 @@ def mod(_cls, **f):
 class Vortex:
     REQUESTS = ('StrikeAndExitInfoRequest', 'ExchangeShopRequest')
 
-    def __init__(self, profil, magaza, ekapilar, log=print):
-        self.p, self.m, self.k, self.log = profil, magaza, ekapilar, log
+    def __init__(self, profile, shop, event_gates, log=print):
+        self.p, self.m, self.k, self.log = profile, shop, event_gates, log
         self.world = None
         self.run = None                           # haritadaki koşu (VogKosu)
         self.change_map = None                    # oturum bağlar
@@ -157,7 +157,7 @@ class Vortex:
             rows.append(mod('ExchangesShopItem', isSpecial=False, costs=[mod('RewardModule', lootId=COIN, amount=it['fiyat'])],
                             limitType=it['sinir_turu'], reward=mod('RewardModule', lootId=it['odul'], amount=it['adet']),
                             maxLimit=it['sinir'], limit=used, eid=it['eid']))
-        left = int(TK.time_left(EVENT)) if active() else 0     # panelden zorlanan etkinliğin de (dönemi yoksa) kalanı
+        left = int(CAL.time_left(EVENT)) if active() else 0     # panelden zorlanan etkinliğin de (dönemi yoksa) kalanı
         asset = mod('InventoryItemModule', upgradeLevel=0, lootId=COIN, amount=int(self.p.resource(COIN)), itemId=0, star=0, isNew=False,
                     hangarId=0, extAttributes=[], inventoryItemAttributes=[])
         return ('ExchangeShopCommand', dict(items=rows, assets=[asset],
@@ -231,8 +231,8 @@ class Vortex:
             if open_ and always_open():                  # "hep açık": seans girişte başlar (dilimin sonunda girilse de 15 dk)
                 a, b = time.time(), time.time() + D['seans_sn']
             if open_:
-                self.run = VogKosu(self, world, a, b, double)
-                world.kapi = self.run
+                self.run = VogRun(self, world, a, b, double)
+                world.gate = self.run
                 msgs += self.run.enter_msgs()
                 self.was_in = True
                 return msgs
@@ -294,7 +294,7 @@ def send_home(mode, world):
         home = mode.k.home() if mode.k else 5
 
         def go():
-            if getattr(world, 'labirent', None) or getattr(world, 'kapi', None) is not None:
+            if getattr(world, 'labyrinth', None) or getattr(world, 'gate', None) is not None:
                 return
             mode.change_map(home, None, 'istasyon')
         world.later(3.0, go)
@@ -306,7 +306,7 @@ def fmt(sec):
     return '%d:%02d:%02d' % (h, m, s) if h else '%d:%02d' % (m, s)
 
 
-class VogKosu:
+class VogRun:
     """Vortex haritasında seans (dünyanın 'kapi'sı): dalgalar, patron, tahliye bölgeleri, taşınan paralar."""
     key = 'vortex'
 
@@ -451,14 +451,14 @@ class VogKosu:
         w = self.w
 
         def prep(n):
-            n.gizli = True                         # ShipCreateCommand.cloaked: gemi görünmez, efekt görünür
+            n.hidden = True                         # ShipCreateCommand.cloaked: gemi görünmez, efekt görünür
         n = w.spawn_npc_at(ZONE_TYPE, x, y, prep=prep)
         n.gate = True
         n.next_think = time.time() + 10 ** 6
         self.zones.append([x, y, n.id])
         vm = ('VisualModifierCommand', dict(userId=n.id, modifier=EXIT_AREA, attribute=D['tahliye']['yaricap'], additionalAttribute='',
                                             count=1, activated=True))
-        n.gorseller = {EXIT_AREA: vm}             # görüşe girince yeniden (dunya.show)
+        n.images = {EXIT_AREA: vm}             # görüşe girince yeniden (dunya.show)
         w.send([vm])
 
     def zone_at(self, x, y):
@@ -556,7 +556,7 @@ class VogKosu:
         w.send([self.score_cmd()])
 
         def ready():                               # 10 sn sonra "Free repairs" seçeneği açılır (geri sayım metni kalkar)
-            if w.hero_dead and w.kapi is self:
+            if w.hero_dead and w.gate is self:
                 w.send([('KillScreenUpdateCommand', {'options': w.repair_options()})])
         w.later(D['dogma_bekleme_sn'] + 0.3, ready)
         return None
@@ -565,7 +565,7 @@ class VogKosu:
         pass
 
     def repair_offers(self):
-        return {dunya.REPAIR_BASE: 0, REPAIR_SAE: 0}
+        return {world_module.REPAIR_BASE: 0, REPAIR_SAE: 0}
 
     def repair_texts(self, kind):
         left = max(0, int(D['dogma_bekleme_sn'] - (time.time() - (self.w.death_time or 0))))

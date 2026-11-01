@@ -1,13 +1,13 @@
 """Yerel web sunucusu: DarkOrbit Unity istemcisinin web girişini taklit eder (links.php, login.php, maps.php).
 
 Kullanım: python -I web.py <log_klasörü> [--profil=<yol>]   (--profil: kayıt yuvasının profili; panel ve canlı testler verir;
-game.py ile aynı olmalı. Verilmezse etkin yuvanınki, yollar.py)
+game.py ile aynı olmalı. Verilmezse etkin yuvanınki, paths.py)
 HTTP: 8090 (gömülü tarayıcı), 80 (unityApi). Bilinmeyen her isteği kaydeder.
-Arkadaş sunucusunun misafiri (panelin "Arkadaşlarınla Oyna"sı, panel/arkadas.py): --uzak=<adres:8081> --sohbet=<adres:7771>
+Arkadaş sunucusunun misafiri (panelin "Arkadaşlarınla Oyna"sı, panel/friends.py): --uzak=<adres:8081> --sohbet=<adres:7771>
 --oturum=<anahtar> --uid=<kimlik> ile istemci oyuna ve sohbete arkadaşın sunucusunda girer (oturum anahtarı profili orada bulur;
 kimlik sunucunun verdiği). --adres: dinlenen yerel adres (öntanımlı 127.0.0.1). macOS'ta 80 ve 843 0.0.0.0'da açılır, yalnız bu
-bilgisayardan gelen bağlantılar kabul edilir (uyum.py: macOS root olmayana 1024'ten küçük portu 127.0.0.1'de açmıyor).
-Çoklu istemci (panel/coklu.py): ek istemci http://127.0.0.1:8090/?oturum=<anahtar>#darkorbit:// ile açılır; anahtar oyun sunucusuna
+bilgisayardan gelen bağlantılar kabul edilir (platform_compat.py: macOS root olmayana 1024'ten küçük portu 127.0.0.1'de açmıyor).
+Çoklu istemci (panel/multi_client.py): ek istemci http://127.0.0.1:8090/?oturum=<anahtar>#darkorbit:// ile açılır; anahtar oyun sunucusuna
 sorulur (GET /yerel/oturum: kaydın profili ve sunucudaki kimliği), giriş sayfası onu dosid çerezine yazar, istemci login.php'ye
 PHPSESSID çereziyle gelir: kimlik, gemi, harita, dil ve 2D o kaydınki. Bilinmeyen ek anahtar ana oyuncuya düşmez (ana istemci
 düşerdi): giriş sayfası uyarı verir, login.php başarısız döner.
@@ -20,8 +20,8 @@ from urllib.request import ProxyHandler, Request, build_opener, urlopen
 HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)              # -I ile çalışınca betiğin klasörü yolda değil
-import uyum as UY                         # noqa: E402
-UY.sertifikalar()                         # macOS: CDN görselleri (HTTPS) için kök sertifikalar
+import platform_compat as CP                         # noqa: E402
+CP.certificates()                         # macOS: CDN görselleri (HTTPS) için kök sertifikalar
 log_dir = [a for a in sys.argv[1:] if not a.startswith('--')][0]
 
 
@@ -29,11 +29,11 @@ def arg(name, default=None):
     return next((a.split('=', 1)[1] for a in sys.argv if a.startswith('--%s=' % name)), default)
 
 
-PROFIL_YOLU = arg('profil')
+PROFILE_PATH = arg('profil')
 os.makedirs(log_dir, exist_ok=True)
 lock = threading.Lock()
 SESSION = arg('oturum', 'localtest')
-ADRES = arg('adres', '127.0.0.1')
+BASE_URL = arg('adres', '127.0.0.1')
 CHAT_HOST = arg('sohbet', '127.0.0.1:7771')
 UID = arg('uid')
 
@@ -44,17 +44,17 @@ def log(name, text):
             fh.write(time.strftime('%H:%M:%S ') + text + '\n')
 
 
-BASE = 'http://%s/' % ADRES
+BASE = 'http://%s/' % BASE_URL
 
 
 def default_profile():
-    import yollar
-    return yollar.profile_path()
+    import paths
+    return paths.profile_path()
 
 
 def profile(path=None):
     """Oyun sunucusunun profili varsa kullanıcı kimliği, gemi, harita ve 2D seçimi oradan gelir."""
-    p = path or PROFIL_YOLU or default_profile()
+    p = path or PROFILE_PATH or default_profile()
     try:
         d = json.load(open(p, encoding='utf8'))
         use2d = bool(((d.get('ayarlar') or {}).get('displaySettingsModule') or {}).get('displayUse2d'))
@@ -65,7 +65,7 @@ def profile(path=None):
 
 def web_settings_path(path=None):
     """Web tarafının ayarları (giriş ekranında seçilen dil) profilin yanında ayrı dosyada: profili oyun sunucusu yazıyor."""
-    p = path or PROFIL_YOLU or default_profile()
+    p = path or PROFILE_PATH or default_profile()
     return os.path.join(os.path.dirname(os.path.abspath(p)), 'web_ayarlari.json')
 
 
@@ -85,42 +85,42 @@ def stored_lang(path=None):
 
 
 # ------------------------------------------------------------------ çoklu istemci: ek istemcilerin oturumları
-OTURUM_RE = re.compile(r'[A-Za-z0-9_\-]{16,64}')
-_ek = {}                                # oturum -> (sorulduğu an, {'uid', 'yol', 'kayit'} ya da None)
-_yonsuz = build_opener(ProxyHandler({}))   # oyun sunucusuna sistemin vekil sunucusu üzerinden gidilmesin
+SESSION_RE = re.compile(r'[A-Za-z0-9_\-]{16,64}')
+_extra = {}                                # oturum -> (sorulduğu an, {'uid', 'yol', 'kayit'} ya da None)
+_direct = build_opener(ProxyHandler({}))   # oyun sunucusuna sistemin vekil sunucusu üzerinden gidilmesin
 
 
-def ek_oturum(sid):
+def extra_session(sid):
     """Çoklu istemcinin ek oturumu: oyun sunucusuna sorulur (GET /yerel/oturum; kısa süre saklanır) -> {'uid', 'yol', 'kayit'}
     ya da None. Arkadaşın sunucusunun misafiriyken (--uid) ek oturum yok."""
-    if not sid or sid == SESSION or UID or not OTURUM_RE.fullmatch(sid):
+    if not sid or sid == SESSION or UID or not SESSION_RE.fullmatch(sid):
         return None
     now = time.time()
     with lock:
-        c = _ek.get(sid)
+        c = _extra.get(sid)
     if c and now - c[0] < (60 if c[1] else 2):
         return c[1]
     try:
-        with _yonsuz.open('http://%s/yerel/oturum?oturum=%s' % (GAME_SERVER, quote(sid)), timeout=3) as r:
+        with _direct.open('http://%s/yerel/oturum?oturum=%s' % (GAME_SERVER, quote(sid)), timeout=3) as r:
             d = json.loads(r.read().decode('utf8'))
         v = {'uid': int(d['uid']), 'yol': str(d['yol']), 'kayit': str(d.get('kayit') or '')}
     except Exception:                   # 404 (bilinmeyen), sunucu tek oyunculu ya da kapalı
         v = None
     with lock:
-        _ek[sid] = (now, v)
+        _extra[sid] = (now, v)
     return v
 
 
-def oturum(sid):
+def session(sid):
     """İsteğin oturumu -> (oturum, profil yolu, sunucudaki kimlik ya da None) ya da None: boş ya da ana anahtar ana oyuncunun,
     başkası ek istemcinin (bilinmeyense None: ana oyuncuya düşmez)."""
     if not sid or sid == SESSION:
-        return SESSION, PROFIL_YOLU or default_profile(), int(UID) if UID else None
-    e = ek_oturum(sid)
+        return SESSION, PROFILE_PATH or default_profile(), int(UID) if UID else None
+    e = extra_session(sid)
     return (sid, e['yol'], e['uid']) if e else None
 
 
-def cerez(h, name):
+def cookie(h, name):
     """İsteğin çerezi (yoksa None)."""
     for part in (h.headers.get('Cookie') or '').split(';'):
         k, _, v = part.strip().partition('=')
@@ -136,7 +136,7 @@ def set_lang(body, sid=None):
     import re
     from urllib.parse import parse_qs
     lang = (parse_qs(body.decode('utf8', 'replace')).get('lang') or [''])[0].strip().lower()
-    o = oturum(sid) if sid else None
+    o = session(sid) if sid else None
     path = o[1] if o else None          # ek istemci: kendi kaydının yanına; bilinmeyen anahtar hiçbir şey yazmaz
     if re.fullmatch(r'[a-z]{2}(_[a-z]{2})?', lang) and (o or not sid):
         d = dict(web_settings(path), lang=lang)
@@ -180,7 +180,7 @@ def login_node(o=None):
     }
 
 
-BILGI = {      # Ayarlar -> Support / Hesap Merkezi … (resmî forum 127724, 150766): resmî sitelerin yerine yerel bilgi sayfası (uyarlama)
+INFO = {      # Ayarlar -> Support / Hesap Merkezi … (resmî forum 127724, 150766): resmî sitelerin yerine yerel bilgi sayfası (uyarlama)
     'forum': ('Forum', 'Bu yerel sunucunun forumu yok. Oyun kuralları ve açıklamalar için belgeler/forum_tr klasörüne bak.'),
     'help': ('Yardım', 'Oyun içi yardım için panelin "Nasıl Oynanır" bölümüne bak.'),
     'credits': ('Emeği geçenler', 'OpenOrbit: tek oyunculu yerel sunucu.'),
@@ -193,37 +193,37 @@ BILGI = {      # Ayarlar -> Support / Hesap Merkezi … (resmî forum 127724, 15
 
 
 def links():
-    return {k: BASE + 'bilgi/' + k for k in BILGI}
+    return {k: BASE + 'bilgi/' + k for k in INFO}
 
 
-def bilgi_page(kind):
-    title, text = BILGI.get(kind, ('OpenOrbit', ''))
+def info_page(kind):
+    title, text = INFO.get(kind, ('OpenOrbit', ''))
     return ('<!doctype html><html><head><meta charset="utf-8"><title>%s</title></head><body style="background:#000;color:#9cf;'
             'font-family:Verdana;padding:24px"><h2>%s</h2><p>%s</p></body></html>' % (title, title, text))
 
 
-_tarayici = {}                          # ek oturum -> tarayıcının internalWebGL'e geldiği an (login.php'si henüz gelmedi)
-TARAYICI_SN = 10
+_browser = {}                          # ek oturum -> tarayıcının internalWebGL'e geldiği an (login.php'si henüz gelmedi)
+BROWSER_SEC = 10
 
 
-def istek_oturumu(h, giris=False):
+def request_session(h, entry=False):
     """login.php ve setLang.php'nin oturumu: PHPSESSID çerezi. İstemci çerezi gömülü tarayıcının deposundan okuyor; istemciler aynı
     tarayıcı klasörünü paylaştığından (Vuplex chromium-cache) ek istemcide okuma ara sıra boş dönüyor, tarayıcının kendi isteği çerezi
     taşısa da: ek istemci ana oyuncu olarak giriyordu (canlı test 2026-10-30). Çerez boşsa son TARAYICI_SN içinde internalWebGL'e gelip
     henüz giriş yapmamış ek oturum (giris: login.php, eşleşen kayıt düşer)."""
-    sid, now = cerez(h, 'PHPSESSID'), time.time()
+    sid, now = cookie(h, 'PHPSESSID'), time.time()
     with lock:
         if not sid:
-            fresh = [(t, s) for s, t in _tarayici.items() if now - t < TARAYICI_SN]
+            fresh = [(t, s) for s, t in _browser.items() if now - t < BROWSER_SEC]
             sid = max(fresh)[1] if fresh else sid
-        if giris and sid:
-            _tarayici.pop(sid, None)
+        if entry and sid:
+            _browser.pop(sid, None)
     return sid
 
 
 def login(sid=None):
     """sid: isteğin PHPSESSID çerezi (ek istemcinin oturumu ya da ana oyuncununki)."""
-    o = oturum(sid)
+    o = session(sid)
     if o is None:                       # bilinmeyen ek oturum (sunucu yeniden başladı, istemci panelden açılmadı): ana oyuncu değil
         return {'success': 0, 'message': 'Session expired: close this game client and open it again from the DarkOrbit panel.'}
     # LoginDataNew { [JsonProperty("data")] string LoginData } -> içindeki JSON metni LoginNodeData olarak ikinci kez ayrıştırılır
@@ -264,9 +264,9 @@ def chance_class(p):
 
 def gate_rewards_xml():
     from xml.sax.saxutils import quoteattr
-    import veri as VERI          # seçili dünyanın kapıları (DO_DUNYA)
+    import game_data as DATA          # seçili dünyanın kapıları (DO_DUNYA)
     try:
-        gates = VERI.yukle('kapilar.json')['kapilar']
+        gates = DATA.load('gates.json')['kapilar']
     except (OSError, ValueError, KeyError):
         gates = {}
     out = []
@@ -308,27 +308,27 @@ ROUTES = {
     '//unityApi/events/ssRewards.php': lambda h: ('text/xml;charset=UTF-8', galaxy_trek_xml('odul')),
     '/unityApi/guide/ggRewards.php': lambda h: ('text/xml;charset=UTF-8', gate_rewards_xml()),
     '/unityApi/links.php': lambda h: ('application/json', json.dumps(links())),
-    '/unityApi/login.php': lambda h: ('application/json', json.dumps(login(istek_oturumu(h, giris=True)))),
-    '/unityApi/setLang.php': lambda h: set_lang(h.body, istek_oturumu(h)),
+    '/unityApi/login.php': lambda h: ('application/json', json.dumps(login(request_session(h, entry=True)))),
+    '/unityApi/setLang.php': lambda h: set_lang(h.body, request_session(h)),
     '/unityApi/agent.php': lambda h: ('text/plain', ''),          # istemcinin olay izleme bildirimi (ör. Unity_ChangeLanguagetr)
 }
 
 CDN_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cdn')
 CDN_TYPES = {'.xml': 'application/xml', '.php': 'text/xml;charset=UTF-8', '.png': 'image/png', '.jpg': 'image/jpeg',
              '.jpeg': 'image/jpeg', '.gif': 'image/gif', '.webp': 'image/webp', '.json': 'application/json', '.webm': 'video/webm'}
-CDN_RESMI = 'https://darkorbit-22.bpsecure.com/'      # oyunun görselleri (Bigpoint'in) depoda yok: ilk istenişte buradan
-cdn_olmayan = set()                                    # inmeyenler (internet yok, resmî CDN'de yok): yeniden denenmez
+CDN_OFFICIAL = 'https://darkorbit-22.bpsecure.com/'      # oyunun görselleri (Bigpoint'in) depoda yok: ilk istenişte buradan
+cdn_missing = set()                                    # inmeyenler (internet yok, resmî CDN'de yok): yeniden denenmez
 
 
 def cdn_fetch(rel, p):
     """Yerelde olmayan oyun görseli (do_img/) resmî CDN'den bir kez indirilip saklanır; olmazsa False (istemci görselsiz)."""
-    if not rel.startswith('do_img/') or rel in cdn_olmayan:
+    if not rel.startswith('do_img/') or rel in cdn_missing:
         return False
     try:
-        with urlopen(Request(CDN_RESMI + rel, headers={'User-Agent': 'Mozilla/5.0'}), timeout=8) as r:
+        with urlopen(Request(CDN_OFFICIAL + rel, headers={'User-Agent': 'Mozilla/5.0'}), timeout=8) as r:
             data = r.read()
     except Exception as e:
-        cdn_olmayan.add(rel)
+        cdn_missing.add(rel)
         log('unknown.log', 'CDN indirilemedi: %s (%s)' % (rel, e))
         return False
     os.makedirs(os.path.dirname(p), exist_ok=True)
@@ -357,7 +357,7 @@ def redirect_page(sid=None):
     "Unity_ChangeLanguage<dil>" mesajı gider: istemci sayfanın konsol iletilerini dinliyor (GameLoadingManager.UpdateMessage,
     ConsoleMessageLogged -> UpdateWebData: WebGlData.message -> Settings.Language). İstemcinin öteki dil kaynağı tarayıcının lang çerezi (OpenWebLogin) ama tarayıcı her açılışta çerezsiz
     başlıyor ve istemcinin çerez okuması boş dönüyor; web girişinin lang alanını da kullanmıyor (canlı test H88)."""
-    o = oturum(sid) if sid else (SESSION, None, None)
+    o = session(sid) if sid else (SESSION, None, None)
     if o is None:
         return ('<!doctype html><html><body style="background:#000;color:#f96;font-family:Verdana">Bu istemcinin oturumu sunucuda '
                 'yok: istemciyi kapatıp paneldeki ek istemci düğmesiyle yeniden aç.<br>This client\'s session is not on the server: '
@@ -391,12 +391,12 @@ class H(BaseHTTPRequestHandler):
             q = parse_qs(path.split('?', 1)[1]) if '?' in path else {}
             ctype, out = 'text/html; charset=utf-8', redirect_page((q.get('oturum') or [None])[0])
         elif base.startswith('/bilgi/'):
-            ctype, out = 'text/html; charset=utf-8', bilgi_page(base[len('/bilgi/'):])
+            ctype, out = 'text/html; charset=utf-8', info_page(base[len('/bilgi/'):])
         elif 'indexInternal.es' in path:
-            o = oturum(cerez(self, 'dosid'))
+            o = session(cookie(self, 'dosid'))
             if o and o[0] != SESSION:
                 with lock:
-                    _tarayici[o[0]] = time.time()
+                    _browser[o[0]] = time.time()
             ctype, out = 'text/plain', o[0] if o else 'gecersiz'
         elif cdn_file(base):
             ctype, out = cdn_file(base)
@@ -419,11 +419,11 @@ class H(BaseHTTPRequestHandler):
         pass
 
 
-class Sunucu(ThreadingHTTPServer):
-    suz = False                         # macOS'ta 0.0.0.0'da açılan düşük port: yalnız bu bilgisayar (uyum.dinleme_adresi)
+class Server(ThreadingHTTPServer):
+    filtered = False                         # macOS'ta 0.0.0.0'da açılan düşük port: yalnız bu bilgisayar (uyum.dinleme_adresi)
 
     def verify_request(self, request, client_address):
-        return not self.suz or UY.yerel_mi(client_address[0])
+        return not self.filtered or CP.is_local(client_address[0])
 
     def handle_error(self, request, client_address):
         """İstemcinin kopardığı bağlantıda http.server'ın yığın dökümü (stderr) yerine errors.log'a tek satır."""
@@ -431,25 +431,25 @@ class Sunucu(ThreadingHTTPServer):
 
 
 def serve_http(port):
-    adres, suz = UY.dinleme_adresi(ADRES, port)
+    address, filtered = CP.listen_address(BASE_URL, port)
     try:
-        srv = Sunucu((adres, port), H)
-        srv.suz = suz
+        srv = Server((address, port), H)
+        srv.filtered = filtered
         srv.serve_forever()
     except OSError as e:
         log('errors.log', 'http %d: %s' % (port, e))
 
 
 def serve_tcp(port):
-    adres, suz = UY.dinleme_adresi(ADRES, port)
+    address, filtered = CP.listen_address(BASE_URL, port)
     try:
         s = socket.socket(); s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        s.bind((adres, port)); s.listen(5)
+        s.bind((address, port)); s.listen(5)
     except OSError as e:
         log('errors.log', 'tcp %d: %s' % (port, e)); return
     while True:
         c, addr = s.accept()
-        if suz and not UY.yerel_mi(addr[0]):
+        if filtered and not CP.is_local(addr[0]):
             c.close()
             continue
         log('tcp.log', 'tcp %d connect from %s' % (port, addr))

@@ -1,5 +1,5 @@
 """Dispatch (yol haritası Aşama 5): toplayıcı gönderimi (Retriever) ve kapı gönderimi (Gate). Veri data/dispatch.json: toplayıcılar
-istemcinin kodundan (tools/il2cpp/istemci_verisi.py), ödül listeleri, yuva fiyatları ve kurallar wiki'den; adetler uyarlama.
+istemcinin kodundan (tools/il2cpp/client_data.py), ödül listeleri, yuva fiyatları ve kurallar wiki'den; adetler uyarlama.
 
 Akış (kayıtta liste isteği ve "kaynak yetmiyor" yanıtı var; ötekiler istemcinin komut ve enum'larından):
   girişte                          DispatchSlotInfoCommand {currentMaxSlotCount, availableSlotCount}
@@ -18,9 +18,9 @@ Profilde: dispatch {yuva, gonderilen: {yuva: {id, bitis}}, kapilar: {kapi: bitis
 """
 import json, os, random, time
 
-import envanter as INV
-import ayar as AY
-import kapi as KAPI
+import inventory as INV
+import settings as SET
+import galaxy_gates as KAPI
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'dispatch.json'), encoding='utf8'))
@@ -42,29 +42,29 @@ def loot(l, n):
 
 
 def dispatch_day(now=None):
-    import takvim as TK                       # takvim.py: dispatch_gunu (pazartesi ve cuma)
-    return TK.is_active('dispatch_gunu', now)
+    import event_calendar as CAL                       # takvim.py: dispatch_gunu (pazartesi ve cuma)
+    return CAL.is_active('dispatch_gunu', now)
 
 
 def gate_day(now=None):
-    import takvim as TK                       # takvim.py: gg_cift_odul (Pazar GG Double Rewards)
-    return TK.is_active('gg_cift_odul', now)
+    import event_calendar as CAL                       # takvim.py: gg_cift_odul (Pazar GG Double Rewards)
+    return CAL.is_active('gg_cift_odul', now)
 
 
-def event_ranges(kod, now=None):
+def event_ranges(code, now=None):
     """Süren etkinliklerin bu toplayıcıya (ya da 'kapi' gönderimine) eklediği kalemler: {lootId: [en az, en çok]} (etkinlik_oduller)."""
-    import takvim as TK
-    return {l: rngs[kod] for ev, items in D['etkinlik_oduller'].items() if TK.is_active(ev, now)
-            for l, rngs in items.items() if kod in rngs}
+    import event_calendar as CAL
+    return {l: rngs[code] for ev, items in D['etkinlik_oduller'].items() if CAL.is_active(ev, now)
+            for l, rngs in items.items() if code in rngs}
 
 
-def event_loot(kod, now=None):
-    return {l: random.randint(*lohi) for l, lohi in event_ranges(kod, now).items()}
+def event_loot(code, now=None):
+    return {l: random.randint(*lohi) for l, lohi in event_ranges(code, now).items()}
 
 
 class Dispatch:
-    def __init__(self, profil, kapilar=None, log=print):
-        self.p, self.k, self.log = profil, kapilar, log
+    def __init__(self, profile, gates=None, log=print):
+        self.p, self.k, self.log = profile, gates, log
         self.m = None                    # mağaza (ödüller ve envanter güncellemesi; oturum bağlar)
 
     @property
@@ -96,7 +96,7 @@ class Dispatch:
     def retriever_list(self, status, now=None):
         now = now or time.time()
         if status == AVAILABLE:
-            lst = [mod('DispatchModule', duration=AY.sure(r['sure_sn'], 'dispatch'), id=int(i), slotId=0) for i, r in sorted(R.items(), key=lambda x: int(x[0]))]
+            lst = [mod('DispatchModule', duration=SET.duration(r['sure_sn'], 'dispatch'), id=int(i), slotId=0) for i, r in sorted(R.items(), key=lambda x: int(x[0]))]
         else:
             lst = [mod('DispatchModule', duration=max(0, int(g['bitis'] - now)), id=g['id'], slotId=int(s))
                    for s, g in sorted(self.st['gonderilen'].items())]
@@ -116,7 +116,7 @@ class Dispatch:
             return [('DispatchLootMessageCommand', dict(messageType=NO_RESOURCE, loots=[loot(l, n) for l, n in miss.items()]))]
         removed = INV.spend(self.p, r['ucret'], reason='buy_SPECIAL', detail=r['kod'])
         with self.p.lock:
-            self.st['gonderilen'][str(slot)] = dict(id=int(rid), bitis=time.time() + AY.sure(r['sure_sn'], 'dispatch'))
+            self.st['gonderilen'][str(slot)] = dict(id=int(rid), bitis=time.time() + SET.duration(r['sure_sn'], 'dispatch'))
             self.p.dirty = True
         self.p.ach('dispatch_send', kod=r['kod'])
         self.log('   Dispatch: %s gönderildi (yuva %d, %d sn)' % (r['kod'], slot, r['sure_sn']))
@@ -247,7 +247,7 @@ class Dispatch:
                 # dispatch_error-no-gate "Please prepare a Gate manually …", dispatch_error-incomplete-gate "… complete the Gate manually
                 # at least once …"). Yalnız uygun kapıları listelemek sekmeyi boş bırakıyordu (oyuncu bildirimi 2026-10-28, img3)
                 out.append(mod('DispatchGateModule', gateId=g['kimlik'], status=AVAILABLE,
-                               timeLeft=AY.sure(D['kapi']['sure_sn'], 'dispatch')))      # gönderilebilirken "Time required" sütunu (canlı test H35)
+                               timeLeft=SET.duration(D['kapi']['sure_sn'], 'dispatch')))      # gönderilebilirken "Time required" sütunu (canlı test H35)
         return [('DispatchGetGateListCommand', {'gateList': out})]
 
     def send_gate(self, f):
@@ -264,7 +264,7 @@ class Dispatch:
             return [('DispatchLootMessageCommand', dict(messageType=NO_RESOURCE, loots=[loot(l, n) for l, n in miss.items()]))]
         INV.spend(self.p, cost)
         with self.p.lock:
-            self.st['kapilar'][key] = time.time() + AY.sure(D['kapi']['sure_sn'], 'dispatch')
+            self.st['kapilar'][key] = time.time() + SET.duration(D['kapi']['sure_sn'], 'dispatch')
             self.k.gate(key)['hazir'] = False
             self.p.dirty = True
         self.log('   Dispatch: %s kapısı gönderildi' % KAPI.KAPI[key]['ad'])

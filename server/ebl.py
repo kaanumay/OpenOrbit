@@ -1,4 +1,4 @@
-"""Eternal Black Light (yol haritası Aşama 8; istemcinin EternalBlacklight* komutları; veri data/pve_modlari.json "ebl").
+"""Eternal Black Light (yol haritası Aşama 8; istemcinin EternalBlacklight* komutları; veri data/pve_modes.json "ebl").
 
 Eternal CPU (kısayol çubuğundan) şirketinin X-BL haritasında kapıyı açar (seviye 17). Sonsuz dalga: bir tur 51 dalga, 6 oda
 (460-465; beşi 10'ar dalga, altıncısı Strokelight Barrage); tur bitince baştan, uzaylıların değerleri ve ödülleri x1,8. Tek can:
@@ -13,13 +13,13 @@ Profilde: pve.ebl {kapi, kosu {dalga, puan, secenek [3], agirlik {tur: çarpan},
 """
 import json, math, os, random, time
 
-import ayar as AY
-import kapi as KAPI
-import siralama as SR
-import pve_ortak as PO
+import settings as SET
+import galaxy_gates as KAPI
+import rankings as RK
+import pve_common as PS
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-D = json.load(open(os.path.join(HERE, 'data', 'pve_modlari.json'), encoding='utf8')).get('ebl')
+D = json.load(open(os.path.join(HERE, 'data', 'pve_modes.json'), encoding='utf8')).get('ebl')
 PORTAL = 156900000           # + 0 X-BL kapısı, + 1 devam, + 2 çıkış
 
 
@@ -29,10 +29,10 @@ def mod(_cls, **f):
 
 
 class Ebl:
-    key, ad = 'ebl', 'Eternal Black Light'
+    key, name = 'ebl', 'Eternal Black Light'
 
-    def __init__(self, profil, magaza, log=print):
-        self.p, self.m, self.log = profil, magaza, log
+    def __init__(self, profile, shop, log=print):
+        self.p, self.m, self.log = profile, shop, log
         self.D = D
         self.world = None
 
@@ -50,7 +50,7 @@ class Ebl:
 
     # ------------------------------------------------------------ CPU ve kapı
     def own_bl(self, map_id):
-        import harita as H
+        import map_links as H
         name = H.name(map_id)                      # sunucunun adı BL-1/2/3 (istemcide 1-BL …)
         return name == 'BL-%s' % self.p.d['pilot'].get('factionId')
 
@@ -66,7 +66,7 @@ class Ebl:
         return [KAPI.screen('The Eternal Black Light gate has opened.', big=True), self.info_cmd()]
 
     def portals(self, map_id):
-        import harita as H
+        import map_links as H
         if not self.own_bl(map_id) or not (self.st.get('kapi') or self.run):
             return []
         w, h = H.map_size(map_id)
@@ -106,7 +106,7 @@ class Ebl:
         w, lap = self.wave_in_lap(self.start_done + i)
         f = D['carpan_tur'] ** (lap - 1)
         k = wave.get('carpan', 1.0)
-        PO.scale_npc(n, f * k, f * k, f * k)
+        PS.scale_npc(n, f * k, f * k, f * k)
         r = self.run
         if r['uridyum'] >= D['uridyum_siniri']:
             n.d['odul']['uridyum'] = 0                  # koşunun uridyum sınırı
@@ -126,9 +126,9 @@ class Ebl:
             world.send([self.info_cmd(), self.booster_cmd(), self.rank_cmd()])
             return None
         self.start_done = self.run['dalga']
-        world.kapi = PO.Kosu(world, self, break_sn=2)
+        world.gate = PS.Run(world, self, break_sec=2)
         world.send([self.info_cmd(), self.booster_cmd()])
-        return world.kapi
+        return world.gate
 
     def wave_started(self, i):
         w, lap = self.wave_in_lap(self.start_done + i)
@@ -187,7 +187,7 @@ class Ebl:
         msgs = []
         if tier and done:
             msgs += self.m.prize(D['parca'], tier['parca'])
-            if tier['iac'] and random.random() < AY.chance('dusme', D['iac'][2], 'mod'):
+            if tier['iac'] and random.random() < SET.chance('dusme', D['iac'][2], 'mod'):
                 msgs += self.m.prize(D['iac'][0], D['iac'][1])
         with self.p.lock:
             self.st['kosu'] = None
@@ -273,12 +273,12 @@ class Ebl:
 
     def rank_cmd(self):
         """Rank sekmesi: sunucudaki oyuncular (en ileri dalga)."""
-        import topluluk as TP
+        import community as TP
         row = lambda r: mod('EternalBlacklightRankModule', waves=int(r[2]), name=r[1].d['pilot'].get('userName', ''), rank=r[0],
                             lastUpdateTime=self.when() if r[1] is self.p else '')
-        top, me = TP.siralama(self.p, lambda x: int(((x.d.get('pve') or {}).get('ebl') or {}).get('en_iyi', 0)))
+        top, me = TP.ranking(self.p, lambda x: int(((x.d.get('pve') or {}).get('ebl') or {}).get('en_iyi', 0)))
         info = mod('EternalBlacklightRankInfoCommand', topRankers=[row(r) for r in top], myRank=row(me))
         # Rank sekmesi yalnız etkinlik sarmalını tanıyor (Astral'ın RogueLiteRankEventInfoCommand'ı gibi); isEventEnabled olmadan
         # "No ranking boards are available at the moment." (canlı test H76)
-        return ('EternalBlacklightRankingEventInfoCommand', dict(playerRankRanges=SR.ranges(SR.EBL), rankInfoCommand=info,
+        return ('EternalBlacklightRankingEventInfoCommand', dict(playerRankRanges=RK.ranges(RK.EBL), rankInfoCommand=info,
                                                                 isEventEnabled=True))

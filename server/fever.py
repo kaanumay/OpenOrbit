@@ -1,4 +1,4 @@
-"""Fever (Ship Boost Event; yol haritası Ö3; veri data/ek_etkinlikler.json 'fever').
+"""Fever (Ship Boost Event; yol haritası Ö3; veri data/extra_events.json 'fever').
 
 İstemci (UIShipBoostSystem, menü öğesi ship_boost_event, pencere 73): ShipBoostEventInfoCommand {shipBoostSlots [ShipBoostEventModule
 {day 1-7 (pazartesi-pazar), startTime, endTime ("SS:DD"), shipTypes (gösterilen gemi adları), eventNameTextKeys (haritaların metin
@@ -14,11 +14,11 @@ takımın yerine geçer (cfg); takvimdeki gibi her 52 haftada (364 gün) tekrarl
 """
 import datetime, json, os, time
 
-import harita as H
-from eski_protokol import legacy
+import map_links as H
+from legacy_protocol import legacy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-_PATH = os.path.join(HERE, 'data', 'ek_etkinlikler.json')
+_PATH = os.path.join(HERE, 'data', 'extra_events.json')
 D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('fever', {})
 EVENT = 'fever'
 # istemcinin etki adı -> profil.mods() anahtarı (uzaylıya hasar: 'npc'; bekleme azalması 'bekleme')
@@ -77,16 +77,16 @@ def map_matches(map_id, now=None):
 
 
 class Fever:
-    def __init__(self, profil, magaza, log=print):
-        self.p, self.m, self.log = profil, magaza, log
+    def __init__(self, profile, shop, log=print):
+        self.p, self.m, self.log = profile, shop, log
         self.was = None
         self.boosted_was = None
         self._mods = {}
-        profil.event_mods = self.mods
+        profile.event_mods = self.mods
 
     def enabled(self):
-        import takvim as TK
-        return TK.is_active(EVENT)
+        import event_calendar as CAL
+        return CAL.is_active(EVENT)
 
     def active(self, now=None):
         return self.enabled() and window(now)[0]

@@ -158,7 +158,7 @@ the rank window, the shop's total), shows your world's quest titles and descript
 icons and item texts in all 8 languages for the panel's Shop, Hangar and character editor.
 
 The client's own files are never changed, and BepInEx is active only when the panel starts the game. The first start after
-installing takes about half a minute longer while BepInEx prepares. The plugin's source is in `server/panel/eklenti/`.
+installing takes about half a minute longer while BepInEx prepares. The plugin's source is in `server/panel/plugin/`.
 
 ## Linux and macOS
 
@@ -284,8 +284,8 @@ Join the **[OpenOrbit Discord](https://discord.com/invite/openorbit)** for annou
 suggestions, with English and Turkish channels, a screenshots channel and a place to find people to play with. You can also
 join from the panel's **Panel** page.
 
-**Translating the panel:** the texts live in `server/panel/arayuz/<code>.json` (the key is the Turkish text). Add the
-language to `DILLER` in `server/panel/dil.py`; `python server/panel/dil.py <code>` lists the texts still missing, with their
+**Translating the panel:** the texts live in `server/panel/ui/<code>.json` (the key is the Turkish text). Add the
+language to `DILLER` in `server/panel/lang.py`; `python server/panel/lang.py <code>` lists the texts still missing, with their
 English. Missing texts fall back to English, so a partial translation already works.
 
 ## Legal

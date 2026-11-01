@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- İstemci düzeltmelerinin BepInEx eklentisi (Patches.cs). Derleme: dotnet build server/panel/plugin -c Release
+       BepInEx'li bir istemci klasörü gerekir (BepInEx/interop'u istemcinin ilk açılışı üretir); başka klasör için -p:ClientDir=<yol>.
+       Çıktı bu klasördeki OpenOrbitPatch.dll'in yerine kopyalanır (panel onu istemcinin BepInEx/plugins'ine koyar). -->
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <AssemblyName>OpenOrbitPatch</AssemblyName>
+    <RootNamespace>OpenOrbit</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Deterministic>true</Deterministic>
+    <DebugType>none</DebugType>
+    <GenerateDependencyFile>false</GenerateDependencyFile>
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
+    <ClientDir Condition="'$(ClientDir)' == ''">$(MSBuildThisFileDirectory)..\..\..\DarkOrbit_Version1.1.116</ClientDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="$(ClientDir)\BepInEx\core\BepInEx.Core.dll" Private="false" />
+    <Reference Include="$(ClientDir)\BepInEx\core\BepInEx.Unity.IL2CPP.dll" Private="false" />
+    <Reference Include="$(ClientDir)\BepInEx\core\0Harmony.dll" Private="false" />
+    <Reference Include="$(ClientDir)\BepInEx\core\Il2CppInterop.Runtime.dll" Private="false" />
+    <Reference Include="$(ClientDir)\BepInEx\interop\Il2Cppmscorlib.dll" Private="false" />
+    <Reference Include="$(ClientDir)\BepInEx\interop\Assembly-CSharp.dll" Private="false" />
+    <Reference Include="$(ClientDir)\BepInEx\interop\darkorbit-protocol.dll" Private="false" />
+    <Reference Include="$(ClientDir)\BepInEx\interop\DOTween.dll" Private="false" />
+    <Reference Include="$(ClientDir)\BepInEx\interop\Unity.TextMeshPro.dll" Private="false" />
+    <Reference Include="$(ClientDir)\BepInEx\interop\UnityEngine.CoreModule.dll" Private="false" />
+    <Reference Include="$(ClientDir)\BepInEx\interop\UnityEngine.UI.dll" Private="false" />
+    <Reference Include="$(ClientDir)\BepInEx\interop\UnityEngine.AssetBundleModule.dll" Private="false" />
+    <Reference Include="$(ClientDir)\BepInEx\interop\UnityEngine.ImageConversionModule.dll" Private="false" />
+  </ItemGroup>
+  <Target Name="Kopyala" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(MSBuildThisFileDirectory)" />
+  </Target>
+</Project>

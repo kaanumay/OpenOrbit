@@ -1,4 +1,4 @@
-"""N.O.V.A. kaptanları (yol haritası Aşama 9; veri data/yeni_sistemler.json 'nova' <- tools/yeni_sistemler.py, kaynak darkorbitwiki).
+"""N.O.V.A. kaptanları (yol haritası Aşama 9; veri data/new_systems.json 'nova' <- tools/new_systems.py, kaynak darkorbitwiki).
 
 İstemcinin N.O.V.A. penceresi (UINovaSystem; istekler istemcinin kodundan): CaptainActionRequest {command, captainId, perkId,
 upgradeLevel}
@@ -24,12 +24,12 @@ Profilde: nova {kadro: [{id, bolum, aile, ad, enerji, t, yetenekler: [{id, tur, 
 """
 import json, os, random, threading, time
 
-import envanter as INV
-import kapi as KAPI
-from eski_protokol import stm
+import inventory as INV
+import galaxy_gates as KAPI
+from legacy_protocol import stm
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-D = json.load(open(os.path.join(HERE, 'data', 'yeni_sistemler.json'), encoding='utf8'))['nova']
+D = json.load(open(os.path.join(HERE, 'data', 'new_systems.json'), encoding='utf8'))['nova']
 PERKS = D['yetenekler']
 CHIP, CALLING = D['cip'], D['cagri_cipi']
 MAX_E, REGEN = D['azami_enerji'], D['dinlenme_sn']
@@ -41,10 +41,10 @@ def mod(_cls, **f):
     return f
 
 
-def value(tur, taban, seviye):
+def value(kind, base, level):
     """Yeteneğin değeri (%): taban kademe + seviye başına artış."""
-    t = PERKS[tur]
-    return round(t['taban'][taban - 1] + t['artis'] * (seviye - 1), 2)
+    t = PERKS[kind]
+    return round(t['taban'][base - 1] + t['artis'] * (level - 1), 2)
 
 
 def where(map_id):
@@ -54,13 +54,13 @@ def where(map_id):
 
 
 class Nova:
-    def __init__(self, profil, log=print):
-        self.p, self.log = profil, log
+    def __init__(self, profile, log=print):
+        self.p, self.log = profile, log
         self.m = None                              # mağaza (para göstergesi); oturum bağlar
         self.at_station = lambda: True             # oturum bağlar: oyuncu istasyonda mı
         self.lock = threading.RLock()              # enerji: profil.mods() profilin kilidi tutulurken de çağrılır (o kilit yeniden girilmez)
-        with profil.lock:
-            self.d = profil.d.setdefault('nova', {'kadro': [], 'aktif': 0, 'sonraki': 1})
+        with profile.lock:
+            self.d = profile.d.setdefault('nova', {'kadro': [], 'aktif': 0, 'sonraki': 1})
         self.resume()
 
     # ------------------------------------------------------------ enerji
@@ -127,8 +127,8 @@ class Nova:
                                            currentCaptainEnergy=h['captainEnergy'])
 
     # ------------------------------------------------------------ edinme
-    def new_captain(self, bolum, rng=random):
-        info = D['bolumler'][bolum]
+    def new_captain(self, section, rng=random):
+        info = D['bolumler'][section]
         pool = dict(info['yetenekler'])
         perks = [rng.choices(list(pool), list(pool.values()))[0]]
         rest = {k: v for k, v in (pool if len(pool) > 1 else D['bolumler']['captain_captain-gen1-neo']['yetenekler']).items()
@@ -140,7 +140,7 @@ class Nova:
         with self.p.lock:
             cid = self.d['sonraki']
             self.d['sonraki'] = cid + 1
-            c = {'id': cid, 'bolum': bolum, 'aile': rng.choice(info['aileler']), 'ad': rng.choice(D['adlar']), 'enerji': float(MAX_E),
+            c = {'id': cid, 'bolum': section, 'aile': rng.choice(info['aileler']), 'ad': rng.choice(D['adlar']), 'enerji': float(MAX_E),
                  't': time.time(), 'yetenekler': []}
             for i, k in enumerate(perks):
                 tier = rng.choices(range(1, 7), D['taban_agirlik'])[0]
@@ -153,18 +153,18 @@ class Nova:
         """Mağaza, Assembly, Battle Pass: captain_captain-generic (Neo ya da Eos) ya da bölümün kendisi. Kadro doluysa 10.000 U."""
         msgs, extra = [], 0
         for _ in range(n):
-            bolum = loot
+            section = loot
             if loot in D['genel']:
                 w = D['genel'][loot]
-                bolum = rng.choices(list(w), list(w.values()))[0]
-            if bolum not in D['bolumler']:
+                section = rng.choices(list(w), list(w.values()))[0]
+            if section not in D['bolumler']:
                 self.log('   N.O.V.A.: bilinmeyen bölüm %s' % loot)
                 continue
             if len(self.d['kadro']) >= D['azami_kadro']:
                 extra += D['fazlasi_uridyum']
                 continue
-            c = self.new_captain(bolum, rng)
-            self.log('   N.O.V.A. alındı: %s %s (%s; %s)' % (c['ad'], c['aile'], bolum, ', '.join(
+            c = self.new_captain(section, rng)
+            self.log('   N.O.V.A. alındı: %s %s (%s; %s)' % (c['ad'], c['aile'], section, ', '.join(
                 '%s %.1f%%' % (y['tur'], value(y['tur'], y['taban'], 1)) for y in c['yetenekler'])))
             msgs.append(stm('captain_received_s'))         # "Recruited: N.O.V.A." (flashres'te yok: CSTM; canlı test H64)
         if extra:
@@ -212,7 +212,7 @@ class Nova:
         return 'CaptainGetResourcesBackCommand', {'amount': INV.count(self.p, CHIP), 'lootId': CHIP}
 
     def handle(self, f):
-        from magaza import stack_msg
+        from shop import stack_msg
         cmd, cid = f.get('command', ''), int(f.get('captainId') or 0)
         if cmd == 'getRosterList':
             return [self.roster_cmd()]
@@ -257,7 +257,7 @@ class Nova:
         return []
 
     def upgrade(self, cid, pid, target):
-        from magaza import stack_msg
+        from shop import stack_msg
         c = self.find(cid)
         y = next((x for x in (c or {}).get('yetenekler', []) if x['id'] == pid), None)
         back = lambda ok, err=None, lv=0: ('CaptainUpgradPerkBackCommand', dict(

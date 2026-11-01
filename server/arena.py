@@ -1,4 +1,4 @@
-"""Zorluk seçmeli arena kapıları (yol haritası Aşama 8; veri data/pve_modlari.json <- tools/pve_modlari.py): Voyagers' Ascent ve
+"""Zorluk seçmeli arena kapıları (yol haritası Aşama 8; veri data/pve_modes.json <- tools/pve_modes.py): Voyagers' Ascent ve
 Trinity Trials.
 
 İkisinin ortak akışı: X-1 ve X-8'de portal; portala atlayınca (J) istemcinin kapı penceresi açılır (VoyagersGateWindowCommand /
@@ -19,14 +19,14 @@ Profilde: pve {voyagers|trinity: {gun, girisler {X-1: n}, bonus, acik (Voyagers)
 """
 import datetime, json, math, os, random, time
 
-import ayar as AY
-import gecis as GC
-import harita as H
-import kapi as KAPI
-import pve_ortak as PO
+import settings as SET
+import mode_passes as GC
+import map_links as H
+import galaxy_gates as KAPI
+import pve_common as PS
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-D = json.load(open(os.path.join(HERE, 'data', 'pve_modlari.json'), encoding='utf8'))
+D = json.load(open(os.path.join(HERE, 'data', 'pve_modes.json'), encoding='utf8'))
 PORTAL_BASE = 153900000
 
 
@@ -41,15 +41,15 @@ def loot_prob(loot, a):
 
 class Arena:
     """Voyagers ve Trinity'nin ortağı. Alt sınıf: key, ad, D, window(), enter_map(), finish …"""
-    key = ad = ''
+    key = name = ''
     slot = 0
 
-    def __init__(self, profil, log=print):
-        self.p, self.log = profil, log
+    def __init__(self, profile, log=print):
+        self.p, self.log = profile, log
         self.m = None                       # mağaza (ödüller)
         self.send = None                    # oturuma mesaj
         self.run = None                     # sürmekte olan koşu: {zorluk, giris (X-1/X-8), ucretsiz, bas}
-        self.gecis = GC.Gecis(profil, self.key, self.D['gecis'], badge=self.D.get('vip'))
+        self.reward_pass = GC.Pass(profile, self.key, self.D['gecis'], badge=self.D.get('vip'))
 
     @property
     def st(self):
@@ -66,7 +66,7 @@ class Arena:
         return self.D['ucretsiz'] + (self.D['vip_ek'] if self.vip() else 0)
 
     def free_used(self, where):
-        if AY.get('giris_siniri_yok'):                  # panel: ücretsiz girişler tükenmez
+        if SET.get('giris_siniri_yok'):                  # panel: ücretsiz girişler tükenmez
             return 0
         return self.st['girisler'].get(where, 0)
 
@@ -92,7 +92,7 @@ class Arena:
     # ------------------------------------------------------------ koşu
     def start(self, difficulty, where, free, dest):
         self.run = dict(zorluk=difficulty, giris=where, ucretsiz=free, bas=None, harita=dest, dalga=0)
-        self.log('   %s: zorluk %d (%s, %s)' % (self.ad, difficulty, where, 'ücretsiz' if free else 'jeton'))
+        self.log('   %s: zorluk %d (%s, %s)' % (self.name, difficulty, where, 'ücretsiz' if free else 'jeton'))
 
     def use_entry(self):
         """Girişin bedeli: ücretsizse günün hakkı (yoksa bonus), değilse bir jeton."""
@@ -123,11 +123,11 @@ class Arena:
         if i == 0 and self.run and self.run['bas'] is None:
             self.run['bas'] = time.time()
         self.run['dalga'] = i
-        self.world.send([KAPI.screen('%s - Wave %d/%d' % (self.ad, i + 1, self.wave_count()), big=True)])
+        self.world.send([KAPI.screen('%s - Wave %d/%d' % (self.name, i + 1, self.wave_count()), big=True)])
 
     def on_death(self):
         """Mod haritasında ölüm: koşu biter (yeniden giriş gerekir)."""
-        self.log('   %s: oyuncu yok edildi, koşu bitti (dalga %d)' % (self.ad, (self.run or {}).get('dalga', 0) + 1))
+        self.log('   %s: oyuncu yok edildi, koşu bitti (dalga %d)' % (self.name, (self.run or {}).get('dalga', 0) + 1))
         self.failed()
         self.run = None
         return 0
@@ -150,8 +150,8 @@ class Arena:
         if not self.run:
             world.add_gate(self.exit_portal(world))
             return None
-        world.kapi = PO.Kosu(world, self, break_sn=4)
-        return world.kapi
+        world.gate = PS.Run(world, self, break_sec=4)
+        return world.gate
 
     def grant(self, loot, n):
         if loot.startswith('currency_') and self.world:
@@ -168,11 +168,11 @@ class Arena:
         return msgs, got
 
     def pass_claim(self, f, cmd_name):
-        out = self.gecis.claim(int(f.get('rewardLevel', 0)), bool(f.get('isVip')), self.reward)
+        out = self.reward_pass.claim(int(f.get('rewardLevel', 0)), bool(f.get('isVip')), self.reward)
         if out is None:
-            self.log('   %s geçişi: alınamaz (seviye %s)' % (self.ad, f.get('rewardLevel')))
+            self.log('   %s geçişi: alınamaz (seviye %s)' % (self.name, f.get('rewardLevel')))
             out = []
-        return out + [self.gecis.cmd(cmd_name)]
+        return out + [self.reward_pass.cmd(cmd_name)]
 
     def reward(self, loot, n):
         return self.m.reward(loot, n) if self.m else []
@@ -180,7 +180,7 @@ class Arena:
 
 # ====================================================================== Voyagers' Ascent
 class Voyagers(Arena):
-    key, ad, D, slot = 'voyagers', "Voyagers' Ascent", D['voyagers'], 1
+    key, name, D, slot = 'voyagers', "Voyagers' Ascent", D['voyagers'], 1
 
     def opened(self):
         return max(1, min(len(self.D['zorluklar']), self.st.get('acik', 1)))
@@ -224,7 +224,7 @@ class Voyagers(Arena):
         msgs, got = [], []
         if stars:
             msgs, got = self.grant_rows(z['oduller'][str(stars)])
-            self.gecis.add(z['puan'][str(stars)])
+            self.reward_pass.add(z['puan'][str(stars)])
         with self.p.lock:
             s = self.st
             best = s.setdefault('en_iyi', {})
@@ -239,7 +239,7 @@ class Voyagers(Arena):
         msgs += [KAPI.screen('key:log_msg_gg_completed_voyagersascentrial', big=True),          # istemcinin metni; süre ve yıldız
                  KAPI.screen("Voyagers' Ascent %s completed in %s: %d star%s" % (z['ad'], fmt(secs), stars, '' if stars == 1 else 's'))]
         w.add_gate(self.exit_portal(w))
-        w.send(msgs + [self.gecis.cmd('VoyagersPassCommand')])
+        w.send(msgs + [self.reward_pass.cmd('VoyagersPassCommand')])
         self.log('   Voyagers %s: %d sn, %d yıldız; %s' % (z['ad'], secs, stars, ', '.join(got) or '-'))
         self.run = None
 
@@ -272,7 +272,7 @@ RARITY_NAMES = ['Common', 'Uncommon', 'Rare', 'Epic', 'Masterpiece', 'Legendary'
 
 
 class Trinity(Arena):
-    key, ad, D, slot = 'trinity', 'Trinity Trials', D['trinity'], 2
+    key, name, D, slot = 'trinity', 'Trinity Trials', D['trinity'], 2
 
     def os_state(self, now=None):
         """OS modülü: süresi dolan yükseltme tamamlanır."""
@@ -331,7 +331,7 @@ class Trinity(Arena):
             k = z['kilometre'][str(n)]
             msgs += self.grant(self.D['kp'], k['qp']) + self.grant(self.D['xy'], k['xy'])
             if k['puan']:
-                self.gecis.add(k['puan'])
+                self.reward_pass.add(k['puan'])
             msgs.append(KAPI.screen('Wave %d reward: %d Quantum Prism, %d Xyralith, %d pass points' % (n, k['qp'], k['xy'], k['puan'])))
         if n >= self.wave_count():
             msgs += self.complete(z)
@@ -368,7 +368,7 @@ class Trinity(Arena):
         w.add_gate(self.exit_portal(w))
         self.log('   Trinity %s bitti: %s' % (z['ad'], ', '.join(got) or 'donanım yok'))
         self.run = None
-        return msgs + [self.gecis.cmd('TrinityTrialsPassCommand')]
+        return msgs + [self.reward_pass.cmd('TrinityTrialsPassCommand')]
 
     # ------------------------------------------------------------ OS modülü
     def drop_level_cmd(self, now=None):
@@ -394,7 +394,7 @@ class Trinity(Arena):
 
     def drop_level_optional(self, f, now=None):
         """Yükselt (Quantum Prism) ya da süreyi atla (Xyralith) -> mesajlar."""
-        from magaza import stack_msg
+        from shop import stack_msg
         now = time.time() if now is None else now
         o = self.os_state(now)
         ok = False
@@ -426,10 +426,10 @@ class Trinity(Arena):
         """TrinityTrialsUIRequest {optionalType: 0 INIT, 1 PASS, 2 DROP_LEVEL} (kayıttaki yanıtlar)."""
         t = int(f.get('optionalType') or 0)
         if t == 1:
-            return [self.gecis.cmd('TrinityTrialsPassCommand', now)]
+            return [self.reward_pass.cmd('TrinityTrialsPassCommand', now)]
         if t == 2:
             return [self.drop_level_cmd(now)]
-        return [self.gecis.cmd('TrinityTrialsPassCommand', now),
+        return [self.reward_pass.cmd('TrinityTrialsPassCommand', now),
                 ('TrinityTrialsRewardDescriptionCommand', dict(rewardDescriptionList=[dict(x) for x in self.D['odul_aciklama']])),
                 self.drop_level_cmd(now)]
 

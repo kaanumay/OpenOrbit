@@ -1,4 +1,4 @@
-"""Chromin Rush (yol haritası Ö3; veri data/ek_etkinlikler.json 'chromin' <- tools/ek_etkinlikler.py).
+"""Chromin Rush (yol haritası Ö3; veri data/extra_events.json 'chromin' <- tools/extra_events.py).
 
 İstemci: menü öğesi chrominEvent (pencere 67, UIChrominRushSystem) ChrominUpdateCommand {currentAmt, maxAmt} gösterir; "GET NOW"
 düğmesi web ödeme sayfası (tek oyunculuda mağazanın Chromin paketleri uridyumla). Metinler (chromin_ttip): Chromin Galaksi Kapısı
@@ -6,7 +6,7 @@ uzaylılarından düşer, en çok 160.000 tutulur; etkinlik sürerken sınırı 
 etkinlik bitince kalan Chromin onura (history_msg_event_chromin_honor_converted). Chromin'le Assembly'nin 49 etkinlik tarifi
 (ON_SCHEDULE; takvimin 'para'sı, assembly.event_recipes) yapılır.
 
-Kaynaklar: Delta, Epsilon, Zeta, Kappa ve Kronos kapılarının (kapi.py) uzaylıları ölünce bir olasılıkla Chromin kutusu düşer
+Kaynaklar: Delta, Epsilon, Zeta, Kappa ve Kronos kapılarının (galaxy_gates.py) uzaylıları ölünce bir olasılıkla Chromin kutusu düşer
 (CHROMIN_BOX_1..3, miktara göre küçük/orta/büyük; istemcinin kutu adları "Chromin"). Miktar kapı başına toplamın (wiki ~2.700)
 uzaylının gücüne (can + kalkan) oranı; kapının bütün uzaylıları öldürülünce beklenen toplam o kadar. Bütün Chromin girişleri (kutu,
 paket, görev, GM) mağazanın ödül yolundan geçer: sınır orada uygulanır (gain).
@@ -14,14 +14,14 @@ Profilde: chromin {donem: etkinliğin başladığı zaman damgası, tavan_uyaris
 """
 import json, os, random, time
 
-import ayar as AY
-import kapi as KAPI
-import rutbe as RT
-import takvim as TK
-from eski_protokol import legacy
+import settings as SET
+import galaxy_gates as KAPI
+import ranks as RT
+import event_calendar as CAL
+from legacy_protocol import legacy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-_PATH = os.path.join(HERE, 'data', 'ek_etkinlikler.json')
+_PATH = os.path.join(HERE, 'data', 'extra_events.json')
 D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('chromin', {})
 LOOT = 'resource_collectable_chromin'
 EVENT = 'chromin'
@@ -31,7 +31,7 @@ HONOR_PER = D.get('onur_orani', 0.05)          # etkinlik sonunda kalan Chromin 
 
 
 def active(now=None):
-    return EVENT in TK.active(now)
+    return EVENT in CAL.active(now)
 
 
 def box_for(npc, gate):
@@ -49,8 +49,8 @@ def box_for(npc, gate):
 
 
 class Chromin:
-    def __init__(self, profil, magaza, log=print):
-        self.p, self.m, self.log = profil, magaza, log
+    def __init__(self, profile, shop, log=print):
+        self.p, self.m, self.log = profile, shop, log
 
     @property
     def st(self):
@@ -76,7 +76,7 @@ class Chromin:
             msgs += self.m.resource_msgs(LOOT, total, got)
         if active() and self.st.get('donem') is None:
             with self.p.lock:
-                self.st['donem'] = TK.period(EVENT)[0] if TK.period(EVENT) else time.time()
+                self.st['donem'] = CAL.period(EVENT)[0] if CAL.period(EVENT) else time.time()
                 self.p.dirty = True
         if extra:
             cr = int(extra * CREDITS_PER)
@@ -96,7 +96,7 @@ class Chromin:
         if not active() or int(w.map_id) not in KAPI.BY_MAP or npc.d.get('sayilmaz'):
             return []
         b = box_for(npc, KAPI.BY_MAP[int(w.map_id)])
-        if not b or random.random() >= AY.chance('dusme', D.get('olasilik', 1.0), 'etkinlik'):
+        if not b or random.random() >= SET.chance('dusme', D.get('olasilik', 1.0), 'etkinlik'):
             return []
         kind, n = b
         h = w.drop_box(kind, x, y, None, D.get('omur_sn', 300))

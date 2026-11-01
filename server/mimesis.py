@@ -1,4 +1,4 @@
-"""Mimesis Mutiny / Payload Escort (yol haritası Ö4; veri data/buyuk_icerikler.json 'mimesis' <- tools/buyuk_icerikler.py).
+"""Mimesis Mutiny / Payload Escort (yol haritası Ö4; veri data/major_content.json 'mimesis' <- tools/major_content.py).
 
 Takvimde (12-26 Mart, 12-26 Kasım) X-1 ve X-8'deki portaldan bir Escort Key'le firmanın Escort haritasına (MMO 433, EIC 436, VRU 430)
 girilir. EM Freighter her tam saatte (10:00-23:00) doğar; ilk 5 dakikada girilir, 45 dakikada hedefe varmalı (panelin "Seanslı
@@ -11,7 +11,7 @@ seferde sefer kademesinin ödülleri (1.000-8.000+). Toplam puan en iyi 10 sefer
 (RankRewardRequest rankType 5; tek oyunculu: oyuncu 1.). Gemi yok olursa ya da süre dolarsa sefer biter. Ölünce yerinde ücretsiz tamir
 (kalırsın) ya da üste dönüş (bu sefere yeniden girilemez).
 Ödüller (wiki aliens / Mimesis Box): uzaylı yok olunca Byte Remnant doğrudan (türün 'byte'ı; npc ek_odul), kutusundan ayrıca; kutu
-toplanınca %30'la Mimesis Chest etkisi (mimesis_sandik.py).
+toplanınca %30'la Mimesis Chest etkisi (mimesis_chest.py).
 Escort Key: günde bir "Freighter Protection" (radyasyon içinde 10.000 birim yol; istemcinin görevi 500483 sunucuda yok, uyarlama),
 seferin seçkin Mimesis'lerinden olasılıkla. En çok 100.
 İstemci: PayloadEscortInfoCommand (girişte, durum değişince, haritaya girip çıkınca), PayloadEscortTimeInfoCommand, KeyInfo, ScoreCommand.
@@ -19,17 +19,17 @@ Profilde: mimesis {donem, seferler [puan], son (girilen sefer), gun, yol, anahta
 """
 import datetime, json, math, os, random, time
 
-import ayar as AY
-import dunya
-import etkinlik_kapi as EKP
-import harita as H
-import kapi as KAPI
-import siralama as SR
-import takvim as TK
-from eski_protokol import legacy
+import settings as SET
+import world as world_module
+import event_gate as EKP
+import map_links as H
+import galaxy_gates as KAPI
+import rankings as RK
+import event_calendar as CAL
+from legacy_protocol import legacy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-_PATH = os.path.join(HERE, 'data', 'buyuk_icerikler.json')
+_PATH = os.path.join(HERE, 'data', 'major_content.json')
 D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('mimesis', {})
 EVENT = D.get('etkinlik', 'mimesis_mutiny')
 MAPS = {int(v): int(k) for k, v in (D.get('haritalar') or {}).items()}       # harita -> firma
@@ -39,7 +39,7 @@ FREIGHTER = 'mm_freighter'
 POI_ZONE = 'payloadEscortProtectionZone'
 RANK_TYPE = 5
 KEY = D.get('anahtar', 'resource_key_access-escort')
-RUN_SN = 3600
+RUN_SEC = 3600
 BYTE = 'resource_collectable_byte-remnant'
 
 
@@ -48,13 +48,13 @@ def _register():
         t = {x: y for x, y in v.items() if x not in ('puan', 'byte')}
         if v.get('byte'):
             t['ek_odul'] = {BYTE: v['byte']}         # wiki aliens: öldürünce doğrudan Byte Remnant (kutudaki ayrıca)
-        dunya.CFG['tipler'][k] = t
+        world_module.CFG['tipler'][k] = t
     g = D.get('gemi')
     if g:
-        dunya.CFG['tipler'][FREIGHTER] = dict(ad=g['ad'], model=g['model'], npc_kimlik=g['npc_kimlik'], hp=g['asgari_can'], kalkan=0,
+        world_module.CFG['tipler'][FREIGHTER] = dict(ad=g['ad'], model=g['model'], npc_kimlik=g['npc_kimlik'], hp=g['asgari_can'], kalkan=0,
                                               hasar=0, hiz=g['hiz'], saldirgan=False, dost=True, odul={}, kargo={})
     if D.get('siralama'):
-        SR.TABLES[RANK_TYPE] = {'araliklar': [dict(den=r['den'], e=r['e'], esyalar=r['oduller'], unvan=r.get('unvan'))
+        RK.TABLES[RANK_TYPE] = {'araliklar': [dict(den=r['den'], e=r['e'], esyalar=r['oduller'], unvan=r.get('unvan'))
                                               for r in D['siralama']]}
 
 
@@ -62,11 +62,11 @@ _register()
 
 
 def active(now=None):
-    return EVENT in TK.active(now)
+    return EVENT in CAL.active(now)
 
 
 def always_open():
-    return bool(AY.get('seans_hep_acik'))
+    return bool(SET.get('seans_hep_acik'))
 
 
 def run_state(now=None):
@@ -95,8 +95,8 @@ def mod(_cls, **f):
 
 
 class Mimesis:
-    def __init__(self, profil, magaza, ekapilar, log=print):
-        self.p, self.m, self.k, self.log = profil, magaza, ekapilar, log
+    def __init__(self, profile, shop, event_gates, log=print):
+        self.p, self.m, self.k, self.log = profile, shop, event_gates, log
         self.world = None
         self.run = None
         self.change_map = None
@@ -130,7 +130,7 @@ class Mimesis:
                    timeToSessionEnd=int(end - now) if end else (D['sure_sn'] if open_ else 0))
 
     def info_cmd(self, in_session=None):
-        return ('PayloadEscortInfoCommand', dict(timeInfoCommand=self.time_cmd(), playerRankRanges=SR.ranges(RANK_TYPE),
+        return ('PayloadEscortInfoCommand', dict(timeInfoCommand=self.time_cmd(), playerRankRanges=RK.ranges(RANK_TYPE),
                                                  totalScore=self.total(), keyInfoCommand=mod('PayloadEscortKeyInfoCommand', keyCount=self.keys()),
                                                  isInSession=bool(self.in_map if in_session is None else in_session)))
 
@@ -188,8 +188,8 @@ class Mimesis:
         if int(world.map_id) in MAPS and active() and getattr(self, 'pending', None):
             key, end = self.pending
             self.pending = None
-            self.run = MmKosu(self, world, end)
-            world.kapi = self.run
+            self.run = MmRun(self, world, end)
+            world.gate = self.run
             world.ally = self.run
             self.in_map = True
             return [self.info_cmd(True)] + self.run.enter_msgs()
@@ -212,7 +212,7 @@ class Mimesis:
         msgs = []
         if self.st.get('donem') is None:
             with self.p.lock:
-                self.st['donem'] = (TK.period(EVENT, now) or (now,))[0]
+                self.st['donem'] = (CAL.period(EVENT, now) or (now,))[0]
                 self.p.dirty = True
         open_ = run_state(now)[1]
         if open_ != self.last_open:
@@ -284,12 +284,12 @@ class Mimesis:
         msgs = []
         total = sum(sorted(st.get('seferler', []), reverse=True)[:D.get('en_iyi_sefer', 10)])
         if total > 0:                             # etkinlik sonu sıralama ödülü (tek oyunculu: 1.)
-            r = SR.TABLES[RANK_TYPE]['araliklar'][0]
+            r = RK.TABLES[RANK_TYPE]['araliklar'][0]
             for loot, n in r['esyalar']:
                 msgs += self.m.prize(loot, n)
             if r.get('unvan') and self.titles:
                 msgs += self.titles(r['unvan'])
-            msgs.append(SR.confirmation(1, SR.PAYLOAD_ESCORT_REWARD, r))
+            msgs.append(RK.confirmation(1, RK.PAYLOAD_ESCORT_REWARD, r))
             self.log('   Mimesis Mutiny bitti: toplam %d, 1. sıra ödülü' % total)
         with self.p.lock:
             self.p.d['mimesis'] = {}
@@ -300,7 +300,7 @@ class Mimesis:
         return self.k.home() if self.k else 5
 
 
-class MmKosu:
+class MmRun:
     """Escort haritasında sefer (dünyanın 'kapi'sı ve eşlik edilen gemi: dunya.ally)."""
     key = 'mimesis'
 
@@ -319,7 +319,7 @@ class MmKosu:
         self.disrupted = None
         self.done_at = None
         self.success = False
-        import dunya_patronu as WB
+        import world_boss as WB
         s = WB.scale(mode.p, world, None)           # oyuncunun gücü (donanımın sürekli lazer hasarı / 60.000, 0,25-2,5)
         k = D['tek_oyuncu']
         self.hp_f = k['can'] * s                     # uyarlama (canlı tur): sabit x0,3 / x0,5'te ilk dalga 356.000 canlık gemiyi 25 sn'de
@@ -355,10 +355,10 @@ class MmKosu:
 
     def ship_hp(self):
         """Gemi en güçlü dalganın ateşine dayanma_sn dayanır (Echoes'un toughen_ally'si; tek oyunculu hasar çarpanıyla)."""
-        T = dunya.CFG['tipler']
+        T = world_module.CFG['tipler']
         waves = D['dalgalar']['noktalar'] + [D['dalgalar']['fener']]
         dps = max(sum(c * float(T.get(t, {}).get('hasar', 0)) for t, c in wv) for wv in waves)
-        dps *= self.dmg_f * 0.5 * 0.85 / dunya.SAVAS['npc_saldiri_aralik_sn']
+        dps *= self.dmg_f * 0.5 * 0.85 / world_module.COMBAT['npc_saldiri_aralik_sn']
         return int(max(D['gemi']['asgari_can'], dps * D['gemi']['dayanma_sn']))
 
     def ship_pos(self, now=None):
@@ -386,8 +386,8 @@ class MmKosu:
         nx, ny = n.mover.pos(now)
         if math.hypot(ax - nx, ay - ny) > w.npc_range(n) + 200:
             return False
-        n.next_shot = now + n.d.get('atis_aralik_sn', dunya.SAVAS['npc_saldiri_aralik_sn'])
-        dmg = int(n.d['hasar'] * random.uniform(0.8, 1.0) * AY.carpan('npc_hasar', 'dalga' if n.hunt else 'harita'))
+        n.next_shot = now + n.d.get('atis_aralik_sn', world_module.COMBAT['npc_saldiri_aralik_sn'])
+        dmg = int(n.d['hasar'] * random.uniform(0.8, 1.0) * SET.multiplier('npc_hasar', 'dalga' if n.hunt else 'harita'))
         a.hp = max(0, a.hp - dmg)
         w.send([('AttackLaserRunCommand', dict(attackerId=n.id, targetId=a.id, laserColor=0, isDiminishedBySkillShield=False,
                                                skilledLaser=False, visualType=0)),
@@ -404,14 +404,14 @@ class MmKosu:
     # ------------------------------------------------------------ dalgalar
     def spawn_wave(self, rows, near=None):
         w = self.w
-        import pve_ortak as PO
+        import pve_common as PS
         cx, cy = near or self.ship_pos()
         for tip, count in rows:
             for _ in range(count):
                 a, r = random.uniform(0, 2 * math.pi), random.uniform(900, 1600)
                 x = min(max(int(cx + math.cos(a) * r), 500), w.map_w - 500)
                 y = min(max(int(cy + math.sin(a) * r), 500), w.map_h - 500)
-                n = w.spawn_npc_at(tip, x, y, prep=lambda n: PO.scale_npc(n, hp=self.hp_f, dmg=self.dmg_f), dalga=True)
+                n = w.spawn_npc_at(tip, x, y, prep=lambda n: PS.scale_npc(n, hp=self.hp_f, dmg=self.dmg_f), wave=True)
                 n.gate, n.engaged, n.hunt = True, True, True
                 n.next_think = 0
                 self.wave.add(n.id)
@@ -545,4 +545,4 @@ class MmKosu:
         pass
 
     def repair_offers(self):
-        return {dunya.REPAIR_BASE: 0, dunya.REPAIR_LOCATION: 0}
+        return {world_module.REPAIR_BASE: 0, world_module.REPAIR_LOCATION: 0}

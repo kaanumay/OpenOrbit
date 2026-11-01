@@ -1,8 +1,8 @@
 """LoW (Lord of War), tek kişilik sürüm (yol haritası Aşama 4). Değerler ve kaynaklar data/low.json'da.
 
-Harita (wiki görseli, emu-dark): giriş sol alt köşede (harita.LOW_START); ortada korsan HQ'su (süs istasyon harita.py LOW_STATION; boss burada
+Harita (wiki görseli, emu-dark): giriş sol alt köşede (harita.LOW_START); ortada korsan HQ'su (süs istasyon map_links.py LOW_STATION; boss burada
 doğar; ilk röle etkinleşince çevresinde iyileştirme bölgesi açılır); dört röle istasyonu sabit yerlerde (role.yerler), ilki girişten beri
-görünür, sonraki bir öncekinin etkinleşmesiyle belirir; kırmızı uçuş yasağı bölgeleri harita_duzeni.json'un 200 kaydında.
+görünür, sonraki bir öncekinin etkinleşmesiyle belirir; kırmızı uçuş yasağı bölgeleri map_layout.json'un 200 kaydında.
 Akış (dünya döngüsünden, kilit altında): rota (low.json): eski korsanlar türlerine göre dalga dalga, sabit doğuş noktalarında (dogma_noktalari);
 dalgaların arasında röle istasyonları sırayla (istemcinin RELAY_STATION varlığı; wiki: "shoot the station until its green indicator
 loads": vurulunca dolar, dünyanın asset_targets'ı; yedek olarak yanında durunca da; haritada korsan varken ya da sırası gelmeden etkinleşmez,
@@ -14,10 +14,10 @@ içinde X-3'teki portaldan dönülürse kaldığı aşamadan sürer (dalganın u
 """
 import json, math, os, random, time
 
-import harita as H
-import uzayli as UZ
-from eski_protokol import legacy
-from kapi import mod, screen
+import map_links as H
+import alien as ALN
+from legacy_protocol import legacy
+from galaxy_gates import mod, screen
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 L = json.load(open(os.path.join(HERE, 'data', 'low.json'), encoding='utf8'))
@@ -149,7 +149,7 @@ class Low:
 
     def relay_msg(self):
         r = self.relay
-        return UZ.asset_create(r['kimlik'], RELAY_STATION, r['x'], r['y'], name='Relay Station %d' % (self.st['role'] + 1))
+        return ALN.asset_create(r['kimlik'], RELAY_STATION, r['x'], r['y'], name='Relay Station %d' % (self.st['role'] + 1))
 
     def show_relay(self):
         """Sıradaki röle istasyonunu sabit yerinde (role.yerler) belirtir (savunanı sırası gelince doğar) -> yaratma iletisi ya da None."""
@@ -197,7 +197,7 @@ class Low:
             self.say('role_ilerleme', no=no, yuzde=pct)
         if r['ilerleme'] < cfg['sn']:
             return
-        msgs = [UZ.asset_remove(r['kimlik'], RELAY_STATION), legacy('0|A|STM|msg_relaisstation_activated')]
+        msgs = [ALN.asset_remove(r['kimlik'], RELAY_STATION), legacy('0|A|STM|msg_relaisstation_activated')]
         if no >= 2 and cfg.get('korsanlar'):                        # forum 126411: 2-4. röle etkinleşince çevresinde korsanlar
             self.spawn(cfg['korsanlar'][0], cfg['korsanlar'][1], at=(r['x'], r['y']))
         self.relay = None
@@ -266,7 +266,7 @@ class Low:
         now, need = self.charge()
         return [('ShipSelectionCommand', dict(userId=int(uid), shipType=0, shield=0, shieldMax=0, hitpoints=now, hitpointsMax=need,
                                               nanoHull=0, maxNanoHull=0, shieldSkill=False)),
-                ('AssetInfoCommand', dict(assetId=int(uid), type=UZ.mod('AssetTypeModule', typeValue=RELAY_STATION), designId=0,
+                ('AssetInfoCommand', dict(assetId=int(uid), type=ALN.mod('AssetTypeModule', typeValue=RELAY_STATION), designId=0,
                                           expansionStage=0, hitpoints=now, maxHitpoints=need, shielded=False, shieldEnergy=0,
                                           maxShieldEnergy=0))]
 
@@ -322,5 +322,5 @@ class Low:
         return ([self.relay_msg()] if self.relay else []) + self.zone_msgs()
 
     def cleanup_msgs(self):
-        return ([UZ.asset_remove(self.relay['kimlik'], RELAY_STATION)] if self.relay else []) + \
+        return ([ALN.asset_remove(self.relay['kimlik'], RELAY_STATION)] if self.relay else []) + \
                ([('MapRemovePOICommand', {'poiId': POI_HQ})] if self.zone_msgs() else [])

@@ -1,4 +1,4 @@
-"""Quantum Fluid Core ve Hyperforge (yol haritası Aşama 9; veri data/yeni_sistemler.json 'qfc' <- tools/yeni_sistemler.py, kaynak
+"""Quantum Fluid Core ve Hyperforge (yol haritası Aşama 9; veri data/new_systems.json 'qfc' <- tools/new_systems.py, kaynak
 darkorbitwiki ve Deep Space Echoes SSS'i).
 
 QFC'ler (equipment_core_ax-10 … df-40) envanterdeki eşyalar: hangarda geminin QUANTUM FLUID CORE yuvalarına takılır
@@ -16,12 +16,12 @@ Profilde: qfc {itemId: {gemi, seviye, nitelikler: [[ad, değer (%)]]}}.
 """
 import json, os, random
 
-import envanter as INV
-from gemi_modul import ATTR_KEYS
+import inventory as INV
+from ship_module import ATTR_KEYS
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-D = json.load(open(os.path.join(HERE, 'data', 'yeni_sistemler.json'), encoding='utf8'))['qfc']
-ITEMS = json.load(open(os.path.join(HERE, 'data', 'istemci_esyalari.json'), encoding='utf8'))['esyalar']
+D = json.load(open(os.path.join(HERE, 'data', 'new_systems.json'), encoding='utf8'))['qfc']
+ITEMS = json.load(open(os.path.join(HERE, 'data', 'client_items.json'), encoding='utf8'))['esyalar']
 TYPES = D['turler']
 LUMI = D['luminaflux']
 SLOT = 'QuantumFluidCore'
@@ -65,7 +65,7 @@ def cost(loot, lv):
 
 
 def echo_box(level):
-    """Deep Space Echoes'un patron seviyesinin düşürdüğü Echo sandığı (kutular.json türü) ya da None."""
+    """Deep Space Echoes'un patron seviyesinin düşürdüğü Echo sandığı (boxes.json türü) ya da None."""
     return D['echo_seviye'].get(str(level))
 
 
@@ -104,11 +104,11 @@ def equip_allowed(p, iid, ship_loot, current):
 
 
 class Qfc:
-    def __init__(self, profil, log=print):
-        self.p, self.log = profil, log
+    def __init__(self, profile, log=print):
+        self.p, self.log = profile, log
         self.m = None                              # mağaza (envanter, değerler); oturum bağlar
-        with profil.lock:
-            profil.d.setdefault('qfc', {})
+        with profile.lock:
+            profile.d.setdefault('qfc', {})
 
     def data(self, iid):
         loot = self.p.d['esyalar'][str(iid)]
@@ -164,7 +164,7 @@ class Qfc:
             iid = self.create(loot, rng=rng)
             if self.m:
                 msgs += [self.m.inv_item(iid, loot, 1), self.m.pack([self.m.hangar_item(iid, loot, 1)])]
-        from eski_protokol import legacy
+        from legacy_protocol import legacy
         return msgs + [legacy('0|LM|ST|LOT|%s|%d' % (loot, n)), self.list_cmd()]
 
     def handle(self, f):
@@ -180,7 +180,7 @@ class Qfc:
         return [self.list_cmd()]
 
     def forge(self, iid, rng=random):
-        from eski_protokol import stm
+        from legacy_protocol import stm
         loot = self.p.d['esyalar'][str(iid)]
         rec = state(self.p, iid)
         price = cost(loot, rec['seviye'])
@@ -203,7 +203,7 @@ class Qfc:
         return msgs + [self.list_cmd()] + self.after(iid)
 
     def recycle(self, iid):
-        from eski_protokol import stm
+        from legacy_protocol import stm
         loot = self.p.d['esyalar'][str(iid)]
         if iid in self.p.equipped_ids():
             self.log('   Hyperforge: takılı QFC geri dönüştürülmez (%s)' % iid)

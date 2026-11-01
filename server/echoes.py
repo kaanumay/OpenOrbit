@@ -1,4 +1,4 @@
-"""Deep Space Echoes (yol haritası Aşama 8; istemcinin Expedition* komutları; veri data/pve_modlari.json "echoes").
+"""Deep Space Echoes (yol haritası Aşama 8; istemcinin Expedition* komutları; veri data/pve_modes.json "echoes").
 
 Seviye 15'ten; X-1'deki portal (300) Command Hall'a (473) götürür. Salonda üç portal: sol (301) seviyeyi başlatır, orta (302)
 gemi seçimi, sağ (1) çıkış. Gemi seçimi: hangardaki gemilerden en çok 5 (ExpeditionShipListCommand -> ExpeditionSelectShipRequest
@@ -14,17 +14,17 @@ Sıfırlama (ExpeditionResetRequest): ilerleme 1. seviyeye, kadro boşalır. Atl
 başına uridyumla. Aylık dönem: ay değişince ilerleme ve sıralama sıfırlanır (ilk geçiş ödülleri kalır; geçen ay seviye geçen oyuncu
 tek oyunculu sıralamanın birincisi: yeni dönemde Cosmic Tyrant unvanı, siralama[].unvan). Sıralama: en yüksek seviye,
 eşitlikte toplam süre (tek oyunculu: yalnız oyuncu). Patron seviyesi (her 5.) bitince Echo sandığı düşer (Aşama 9; qfc.py): renk
-ulaşılan seviyeye göre, açmak için aynı renk Echo Key (anahtarlı kutu sistemi, ganimet.py); içinde Quantum Fluid Core.
+ulaşılan seviyeye göre, açmak için aynı renk Echo Key (anahtarlı kutu sistemi, loot.py); içinde Quantum Fluid Core.
 Profilde: pve.echoes {donem, seviye, en_yuksek, sure, ilk [], kadro [hangarId], yok [hangarId], sira {blok: [seviye …]}, izin}.
 """
 import datetime, json, math, os, random, time
 
-import kapi as KAPI
-import pve_ortak as PO
+import galaxy_gates as KAPI
+import pve_common as PS
 import qfc as QF
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-D = json.load(open(os.path.join(HERE, 'data', 'pve_modlari.json'), encoding='utf8'))['echoes']
+D = json.load(open(os.path.join(HERE, 'data', 'pve_modes.json'), encoding='utf8'))['echoes']
 LEVELS = {l['seviye']: l for l in D['seviyeler']}
 PORTAL = 155900000            # + 0 X-1, + 1 başlat, + 2 gemi seçimi, + 3 çıkış, + 4 salona dönüş
 UI_TICKET, UI_RESET, UI_LEAVE = 1, 2, 5
@@ -50,10 +50,10 @@ def period(now=None):
 
 
 class Echoes:
-    key, ad = 'echoes', 'Deep Space Echoes'
+    key, name = 'echoes', 'Deep Space Echoes'
 
-    def __init__(self, profil, magaza, log=print):
-        self.p, self.m, self.log = profil, magaza, log
+    def __init__(self, profile, shop, log=print):
+        self.p, self.m, self.log = profile, shop, log
         self.world = None
         self.titles = None             # oturum bağlar: unvan_avi.grant_title (dönem sonu sıralama unvanı)
         self.level = None              # oynanan seviyenin kaydı
@@ -76,7 +76,7 @@ class Echoes:
 
     # ------------------------------------------------------------ portallar
     def portals(self, map_id):
-        import harita as H
+        import map_links as H
         out = []
         if H.map_class(map_id) == D['giris'] and int(map_id) == KAPI.HOME_MAP.get(self.p.d['pilot'].get('factionId'), 5):
             w, h = H.map_size(map_id)
@@ -108,9 +108,9 @@ class Echoes:
 
     # ------------------------------------------------------------ gemiler
     def ship_cmd(self, sid, hid=None):
-        from magaza import ESYA
+        from shop import ITEMS
         s = self.p.d['gemiler'][str(sid)]
-        row = ESYA['gemiler'].get(s['lootId'], {})
+        row = ITEMS['gemiler'].get(s['lootId'], {})
         active = str(sid) == self.p.d['aktif_gemi']
         g = self.p.d['gemi'] if active else (s.get('govde') or {})
         cfg = self.p.config(None, sid)
@@ -131,7 +131,7 @@ class Echoes:
 
     def select_ships(self, f):
         """ExpeditionSelectShipRequest {hangarId [...]}: kadro (en çok 5; onaylanınca değişmez)."""
-        from magaza import stack_msg
+        from shop import stack_msg
         ids = [int(x) for x in f.get('hangarId', [])]
         ok = bool(ids) and len(ids) <= D['kadro'] and not self.st['kadro'] and all(self.sid_of(h) for h in ids)
         if ok:
@@ -196,7 +196,7 @@ class Echoes:
     def scale(self, n, i, wave):
         lvl = LEVELS[self.level['harita']]
         f = (1 + D['olcek_seviye'] * (self.level['no'] - 1)) * lvl.get('guc', 1.0)
-        return PO.scale_npc(n, f * lvl.get('can', 1.0), f, 1.0)        # can: yalnız can/kalkan çarpanı (45. seviyenin patronu)
+        return PS.scale_npc(n, f * lvl.get('can', 1.0), f, 1.0)        # can: yalnız can/kalkan çarpanı (45. seviyenin patronu)
 
     def attach(self, world):
         self.world = world
@@ -209,7 +209,7 @@ class Echoes:
             return None
         self.level['bas'] = time.time()
         self.level['bitis'] = self.level['bas'] + (LEVELS[self.level['harita']].get('sure_sn') or D['sure_sn'])
-        world.kapi = PO.Kosu(world, self, intro_sn=5, break_sn=4)
+        world.gate = PS.Run(world, self, intro_sec=5, break_sec=4)
         msgs = [('ExpeditionStartInstanceCommand', dict(seconds=int(self.level['bitis'] - self.level['bas']))),
                 KAPI.screen('Level %d: %s' % (self.level['no'], {'yok_et': 'Destroy all enemies.', 'koru': 'Protect the ship!',
                                                                 'eslik': 'Escort the ship to its destination!',
@@ -217,12 +217,12 @@ class Echoes:
         if self.level['tur'] in ('koru', 'eslik'):
             self.spawn_ally(world)
         world.send(msgs)
-        return world.kapi
+        return world.gate
 
     def spawn_ally(self, w):
         kind = self.level['tur']
         tip = 'pm_dost_' + kind
-        import harita as H
+        import map_links as H
         cx, cy = H.center(w.map_id)
         x, y = (cx, cy) if kind == 'koru' else (2500, cy)
         n = w.spawn_npc_at(tip, x, y)
@@ -233,20 +233,20 @@ class Echoes:
         if kind == 'eslik':
             self.level['hedef'] = (w.map_w - 2500, cy)
 
-    ALLY_SURVIVE_SN = 180           # uyarlama (kaynakta yok): dost gemi seviyenin en güçlü dalgasının ateşine bu kadar dayanır
+    ALLY_SURVIVE_SEC = 180           # uyarlama (kaynakta yok): dost gemi seviyenin en güçlü dalgasının ateşine bu kadar dayanır
 
     def toughen_ally(self, n):
         """Dost geminin canı seviyenin ateş gücüne göre (en az data 'dost' değerleri). Sabit 400.000 + 200.000'de 2. seviyenin 5 Reflector
         Mimesis'i (50.000 hasar) onu 6 sn'de yok ediyordu: koru seviyeleri kazanılamıyordu (canlı test H75)."""
-        import dunya
+        import world as world_module
         f = (1 + D['olcek_seviye'] * (self.level['no'] - 1)) * LEVELS[self.level['harita']].get('guc', 1.0)
         dps = 0.0
         for wave in self.waves():
-            w_dps = sum(c * float(dunya.CFG['tipler'].get(str(t), {}).get('hasar', 0)) for grp in wave['gruplar'] for t, c, *_ in grp)
+            w_dps = sum(c * float(world_module.CFG['tipler'].get(str(t), {}).get('hasar', 0)) for grp in wave['gruplar'] for t, c, *_ in grp)
             dps = max(dps, w_dps)
         # take_shot: atışların yarısı dosta, hasar 0,7-1,0 (ort. 0,85), atış aralığı
-        dps = dps * f * 0.5 * 0.85 / dunya.SAVAS['npc_saldiri_aralik_sn']
-        need = dps * self.ALLY_SURVIVE_SN
+        dps = dps * f * 0.5 * 0.85 / world_module.COMBAT['npc_saldiri_aralik_sn']
+        need = dps * self.ALLY_SURVIVE_SEC
         hp = max(float(D['dost']['can']), need * 2 / 3)
         sh = max(float(D['dost']['kalkan']), need / 3)
         n.d = dict(n.d, hp=int(hp), kalkan=int(sh))         # türün kopyası (tür paylaşılır)
@@ -261,10 +261,10 @@ class Echoes:
         nx, ny = n.mover.pos(now)
         if math.hypot(ax - nx, ay - ny) > w.npc_range(n) + 200:
             return False
-        import dunya
-        n.next_shot = now + n.d.get('atis_aralik_sn', dunya.SAVAS['npc_saldiri_aralik_sn'])
-        import ayar as AY
-        dmg = int(n.d['hasar'] * random.uniform(0.8, 1.0) * AY.carpan('npc_hasar', 'dalga' if n.hunt else 'harita'))      # panel
+        import world as world_module
+        n.next_shot = now + n.d.get('atis_aralik_sn', world_module.COMBAT['npc_saldiri_aralik_sn'])
+        import settings as SET
+        dmg = int(n.d['hasar'] * random.uniform(0.8, 1.0) * SET.multiplier('npc_hasar', 'dalga' if n.hunt else 'harita'))      # panel
         to_shield = min(int(a.shield), int(dmg * 0.7))
         a.shield -= to_shield
         a.hp = max(0, a.hp - (dmg - to_shield))
@@ -336,7 +336,7 @@ class Echoes:
         self.p.ach('gate', tur='EXPEDITION_GATE')
         self.level = None
         self.clear_ally()
-        w.kapi.phase = 'done'
+        w.gate.phase = 'done'
         w.add_gate(self.hall_portal(w))
         box = QF.echo_box(n) if lv['tur'] == 'patron' else None
         if box:                                                     # Echo sandığı (Aşama 9): geminin yanına, anahtarla açılır
@@ -353,9 +353,9 @@ class Echoes:
             return
         self.level = None
         self.clear_ally()
-        if w.kapi:
-            w.kapi.phase = 'done'
-        for nid in list(w.kapi.npcs if w.kapi else []):
+        if w.gate:
+            w.gate.phase = 'done'
+        for nid in list(w.gate.npcs if w.gate else []):
             n = w.npcs.get(nid)
             if n:
                 w.alien.expire(n)
@@ -374,15 +374,15 @@ class Echoes:
     def lair(self, j):
         """Pusu (harita_duzeni 'pusu'; oyuncu bildirimi 2026-10-28): yok et seviyesinde dalganın j. grubu haritanın sabit noktasında
         bekler, oyuncu yaklaşınca saldırır -> (x, y, fark yarıçapı) ya da None."""
-        import harita_duzeni as HD
-        p = HD.of(self.world.map_id).get('pusu') if self.world and self.level and self.level['tur'] == 'yok_et' else None
+        import map_layout as ML
+        p = ML.of(self.world.map_id).get('pusu') if self.world and self.level and self.level['tur'] == 'yok_et' else None
         if not p:
             return None
         x, y = p['noktalar'][j % len(p['noktalar'])]
         return x, y, p['yaricap']
 
     def hall_portal(self, w):
-        import harita as H
+        import map_links as H
         cx, cy = H.center(w.map_id)
         return dict(gateId=PORTAL + 4, x=cx, y=cy + 1500, hedef=D['salon'], designId=301, kapi='echoes',
                     varis=HALL_ARRIVAL)
@@ -443,7 +443,7 @@ class Echoes:
         return ('ExpeditionJumpLevelInfoCommand', dict(levels=lv, costs=[D['atlama']['bedel_blok'] * ((x - 1) // 5) for x in lv]))
 
     def jump(self, f):
-        from magaza import stack_msg
+        from shop import stack_msg
         target = int(f.get('jumpTargetLevel') or 0)
         top = self.st['en_yuksek']
         ok = target in D['atlama']['hedefler'] and self.st['seviye'] < target <= top
@@ -468,7 +468,7 @@ class Echoes:
         return [self.info_cmd()]
 
     def buy_ticket(self):
-        from magaza import stack_msg
+        from shop import stack_msg
         ok = self.p.d['pilot'].get('uridium', 0) >= D['bilet_fiyati']
         if ok:
             self.p.gain(uridyum=-D['bilet_fiyati'], neden='buy_expedition_ticket')

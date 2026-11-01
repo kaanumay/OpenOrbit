@@ -1,4 +1,4 @@
-"""Galaxy Trek (Space Search; yol haritası Ö3; veri data/ek_etkinlikler.json 'galaxy_trek').
+"""Galaxy Trek (Space Search; yol haritası Ö3; veri data/extra_events.json 'galaxy_trek').
 
 İstemci (menü öğesi space_search, pencere 134, UISpaceSearchSystem; görevler ve ödüller UIActivityWindowSystem):
   - Pencere açılırken unityApi/events/spaceSearch.php XML'ini indirir: kök/planets/<planet planetId resKey/>, kök/planetEvents/<event
@@ -20,10 +20,10 @@ değerleri}, biten [kimlik]}.
 import datetime, json, os, random, time
 from xml.sax.saxutils import quoteattr
 
-import takvim as TK
+import event_calendar as CAL
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-_PATH = os.path.join(HERE, 'data', 'ek_etkinlikler.json')
+_PATH = os.path.join(HERE, 'data', 'extra_events.json')
 D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('galaxy_trek', {})
 EVENT = 'galaxy_trek'
 KEY = D.get('anahtar', 'resource_ftl-key')
@@ -32,7 +32,7 @@ QUEST_BY_ID = {q['tanim']['id']: q for q in D.get('gorevler', [])}
 
 
 def active(now=None):
-    return EVENT in TK.active(now)
+    return EVENT in CAL.active(now)
 
 
 def all_events():
@@ -69,12 +69,12 @@ def mod(name, **f):
 class GalaxyTrek:
     REQUESTS = ('SpaceSearchRequest',)
 
-    def __init__(self, profil, magaza, log=print):
-        self.p, self.m, self.log = profil, magaza, log
+    def __init__(self, profile, shop, log=print):
+        self.p, self.m, self.log = profile, shop, log
         self.titles = None                        # ödül unvanı (oturum bağlar: başarımın unvan listesine)
         self.on = None                            # etkinlik sürüyor mu (tick'te saniyede bir)
-        if magaza is not None:
-            magaza.on_bought.append(self.bought)
+        if shop is not None:
+            shop.on_bought.append(self.bought)
 
     def bought(self, loot, amount):
         """Mağazadan FTL Key paketi: açık pencerenin sayacı (UISpaceSearch.Quantity) yalnız UpdateSpaceSearchKeyCommand'la değişir;
@@ -96,11 +96,11 @@ class GalaxyTrek:
     # ------------------------------------------------------------ dönem
     def roll_period(self, now=None):
         """Yeni koşu: ilerleme sıfırlanır (kaynakta düşük güven: her koşu baştan)."""
-        p = TK.period(EVENT, now)
-        donem = int(p[0]) if p else 0
-        if self.p.d.get('galaxy_trek', {}).get('donem') != donem:
+        p = CAL.period(EVENT, now)
+        period = int(p[0]) if p else 0
+        if self.p.d.get('galaxy_trek', {}).get('donem') != period:
             with self.p.lock:
-                self.p.d['galaxy_trek'] = {'donem': donem}
+                self.p.d['galaxy_trek'] = {'donem': period}
                 self.p.dirty = True
 
     def roll_day(self, now=None):
@@ -133,7 +133,7 @@ class GalaxyTrek:
         # istemci satırda "(count/range)" yazar: count biten gezegen, range hedef (canlı: basamak numarası hedef sanılıyordu)
 
     def missions_cmd(self):
-        import gorev_takip as GT
+        import quest_tracker as GT
         st = self.st
         out = []
         for qid in st['gorevler']:
@@ -262,7 +262,7 @@ class GalaxyTrek:
         """Oyun olayı (oturumun başarım/görev olayları): günün görevleri ilerler; biten görevin FTL Key'i hemen verilir."""
         if not (self.on if self.on is not None else active()):
             return []
-        import gorev_takip as GT
+        import quest_tracker as GT
         st = self.st
         msgs = []
         for qid in list(st['gorevler']):

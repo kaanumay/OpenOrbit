@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="panel-token" content="{{BELIRTEC}}">
+<title>OpenOrbit Panel</title>
+<link rel="icon" href="icon.png" type="image/png">
+<link rel="stylesheet" href="panel.css">
+<link rel="stylesheet" href="world_editor.css">
+<link rel="stylesheet" href="saves.css">
+<link rel="stylesheet" href="bots.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="images/amblem.webp" alt="" class="brand-logo">
+      <div>
+        <div class="brand-name">OPENORBIT</div>
+        <div class="brand-sub" id="brand-sub">Yerel Sunucu Paneli</div>
+      </div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-status" id="side-status"></div>
+    <div id="kahve"></div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1 id="page-title"></h1>
+        <div class="page-sub" id="page-sub"></div>
+      </div>
+      <div class="top-right" id="top-right"></div>
+    </header>
+    <div class="content" id="content"></div>
+  </main>
+</div>
+<div class="toasts" id="toasts"></div>
+<div class="modal-root" id="modal-root"></div>
+<script src="panel.js"></script>
+<script src="world_editor.js"></script>
+<script src="saves.js"></script>
+<script src="bots.js"></script>
+</body>
+</html>

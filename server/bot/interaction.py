@@ -1,0 +1,290 @@
+"""Oyuncunun bottan istekleri (grup, yardım, klan, arkadaşlık, "gel / neredesin"): kararı kişiliğe dayalı karar motoru verir,
+eylemi araçlar (agent_tools.py) uygular, sohbet yalnız kararı botun ağzından söyler. Normal kipte kalıplar, Gelişmiş kipte dil modeli
+söyler; ikisinde de söz ile eylem tutarlıdır (küçük model "olur" deyip daveti unutuyordu, "grup olalım"a harita ipucu veriyordu).
+
+karar() -> {'niyet', 'kabul': True | False | None, 'eylem': (araç, argümanlar) | None, 'not': modele İngilizce yönerge,
+            'kalip': (kalıp, alanlar) | None}. uygula() eylemi yapar.
+Sözler (botun belleğinde, 5 dk / 1 sa): "inv me" diyen bot oyuncunun davetini kabul eder (toplum.karar_grup), "klanıma başvur"
+diyen lider başvurusunu kabul eder (toplum.basvuru_karari).
+"""
+import re
+
+import map_links as H
+from . import agent_tools as TL
+from . import catalog as K
+
+INTENTS = ('grup', 'yardim', 'klan', 'arkadas', 'takip', 'duello', 'gorev', 'ozel', 'kapi')
+GATE_LEVEL = (8, 12)                                    # kapı dolgusuna gelen en düşük seviye: ABG gibi kapılar; Hades, LoW, QZ
+_HARD_GATE = re.compile(r'\b(hades|low|legends? of war|qz|quarantine|kronos|kuiper|lambda|kappa|zeta)\b', re.I)
+DUEL_MAP = 16                                       # 4-4: herkesin girebildiği PvP haritası (buluşma yeri önerisi)
+_WHERE = re.compile(r"\b(where (are|r) (you|u)|where u at|wya|nerdesin|neredesin)\b", re.I)
+_MY_CLAN = re.compile(r"\b(join (my|our|us)|my clan|our clan|klan[ıi]ma|klan[ıi]m[ıi]za|bizim klan|benim klan)\b", re.I)
+GROUP_PROMISE_SEC, CLAN_PROMISE_SEC = 300, 3600
+
+
+def _person(name):
+    import community as TP
+    return TP.find(name=name) if name else None
+
+
+def make_promise(b, kind, name, now, duration=None):
+    b.__dict__.setdefault('promises', {})[(kind, str(name).lower())] = now + (duration or (GROUP_PROMISE_SEC if kind == 'grup' else CLAN_PROMISE_SEC))
+
+
+def has_promise(b, kind, name, now):
+    t = b.__dict__.get('promises', {}).get((kind, str(name).lower()))
+    return t is not None and now <= t
+
+
+_YES = re.compile(r"^\s*(y|ya|yes|yep|yup|yeah|sure|ok|okay|k|kk|why not|lets go|let'?s go|inv|inv me|go|evet|olur|tamam|tmm|"
+                   r"tabi|tabii|hadi|gel)\b", re.I)
+_NO = re.compile(r"^\s*(no|nah|nope|not now|later|hay[ıi]r|yok|olmaz|sonra)\b", re.I)
+
+
+def make_offer(b, kind, name, now):
+    """Bot oyuncuya kendiliğinden teklif etti ("gruplaşalım mı"): olumlu yanıt o isteğe dönüşür, söz de verilmiş olur."""
+    b.__dict__.setdefault('offers', {})[str(name).lower()] = (kind, now + 600)
+    make_promise(b, kind, name, now, duration=600)
+
+
+def offer_reply(b, name, text, now):
+    """Oyuncunun yanıtı botun açık teklifine olumlu mu -> teklifin niyeti ('grup' ...) ya da None. Olumsuzsa teklif düşer."""
+    t = b.__dict__.get('offers', {}).get(str(name).lower())
+    if not t or now > t[1]:
+        return None
+    if _NO.search(text or ''):
+        del b.offers[str(name).lower()]
+        return None
+    if _YES.search(text or ''):
+        del b.offers[str(name).lower()]
+        return t[0]
+    return None
+
+
+def _result(intent, accept, not_, template=None, action=None):
+    return {'niyet': intent, 'kabul': accept, 'not': not_, 'kalip': template, 'eylem': action}
+
+
+def decision(y, b, intent, name, who, game_map, text, now, mailer=False):
+    """posta: istek postayla geldi (yanıt dakikalar sonra; grup için hemen davet değil, söz)."""
+    if intent == 'grup':
+        return _group(y, b, name, who, now, mailer)
+    if intent == 'gorev':
+        k = _group(y, b, name, who, now, mailer)          # görev yardımı = gruplanmak: grubun öldürdüğü uzaylı herkesin görevine sayılır
+        k['niyet'] = 'gorev'
+        k['not'] = 'He asks for help with his quest; in a group every kill counts for everyone\'s quest. ' + k['not']
+        return k
+    if intent == 'duello':
+        return _duel(y, b, name, who, game_map, now)
+    if intent == 'kapi':
+        return _gate(y, b, name, who, now, text)
+    if intent == 'ozel':
+        return _private(y, b, name, who, now)
+    if intent == 'takip':
+        return _follow(y, b, name, who, game_map, text, now)
+    if intent == 'arkadas':
+        return _friend(y, b, name, who, now)
+    if intent == 'klan':
+        return _clan(y, b, name, who, text, now)
+    return None
+
+
+# ------------------------------------------------------------------------------------------------------------ grup
+def _group(y, b, name, who, now, mailer=False):
+    import group as GR
+    from . import society
+    if not y.permission('grup'):
+        return _result('grup', False, 'You decided to DECLINE (you play solo). Say no in your own words.', ('cevap_hayir', {}))
+    o = _person(name)
+    other_uid = o.uid if o is not None else int(who.get('id') or 0)
+    bg, other_group = GR.group_of(b.uid), (GR.group_of(other_uid) if other_uid else None)
+    if bg is not None and other_uid in bg.members:
+        return _result('grup', None, 'You are ALREADY in a group with him: no invite needed, just answer as his teammate.')
+    i_am_leader = bg is not None and bg.leader == b.uid and len(bg.members) < GR.MAX_COUNT
+    if bg is not None and not (i_am_leader and other_group is None):
+        return _result('grup', False, 'You are already in another group, so you DECLINE. Say so in your own words.',
+                      ('zaten_grupta', {}))
+    if not society.decide_group(y, b, name, other_uid, now):
+        return _result('grup', False, 'You decided to DECLINE (busy or not in the mood). Say no in your own words, maybe a short '
+                                     'reason.', ('cevap_hayir', {}))
+    if mailer:
+        make_promise(b, 'grup', name, now, duration=6 * 3600)       # postada: davet onun, oyunda karşılaşınca kabul eder
+        return _result('grup', True, 'You decided to ACCEPT: tell him to invite you (or whisper you) when you are both online, you '
+                                    'will join his group.', ('inv_me', {}))
+    if other_group is not None or o is None or o.session is None:
+        make_promise(b, 'grup', name, now)                      # o gruptaysa (ya da çevrimdışı) davet onundur: gelince kabul eder
+        return _result('grup', True, 'You decided to ACCEPT, but HE has to invite you (he is already in a group or offline): tell '
+                                    'him to send you an invite (inv me) and you will join.', ('inv_me', {}))
+    return _result('grup', True, 'You decided to ACCEPT: you are sending him a group invite right now. Say yes in your own words '
+                                '(he should accept your invite).', ('davet_attim', {}), ('grup_davet', {'ad': name}))
+
+
+# ------------------------------------------------------------------------------------------------------------ kapı dolgusu
+def _gate(y, b, name, who, now, text=''):
+    """"Need fillers for Hades": seviyesi yeten, isteyen bot "inv me" der ve söz verir (davet onun: gruba alınca kapıya
+    seninle girer, govde.kapi_tick). Kapıda değilken grup kurulur; oyuncu kapıya girince gruptaki botlar da gelir."""
+    if not (y.permission('kapi_dolgu') and y.permission('grup')):
+        return _result('kapi', False, 'You decided NOT to join (busy). Say no in your own words.', ('cevap_hayir', {}))
+    if b.level < GATE_LEVEL[bool(_HARD_GATE.search(text or ''))]:
+        return _result('kapi', False, 'Your ship is too weak for that gate: say so in your own words.', ('gelemem', {}))
+    if b.target is not None and b.target.name in ('kapi', 'mod', 'duello'):
+        return _result('kapi', False, 'You are busy in your own gate/event now: say so.', ('cevap_hayir', {}))
+    fac = int(who.get('factionId') or 0)
+    p = 0.3 + 0.35 * b.o('sosyallik') + 0.35 * b.o('hirs') + 0.6 * b.memory.relation(name, now) - 0.3 * b.mood['yorgunluk']
+    if fac and fac != b.firma:
+        p -= 0.6
+    if b.r.random() >= p:
+        return _result('kapi', False, 'You decided NOT to join his gate. Say it in your own words.', ('cevap_hayir', {}))
+    make_promise(b, 'grup', name, now, duration=1200)                # davet edince kabul eder
+    return _result('kapi', True, 'You ACCEPT to fill his gate: tell him to invite you (inv me), you will jump in with him.',
+                  ('inv_me', {}))
+
+
+# ------------------------------------------------------------------------------------------------------------ özel mesaj
+def _private(y, b, name, who, now):
+    """"Bana PM at": istekli bot yanıtını kanala değil fısıltıyla yazar ('fisilti': sohbet ve LLM yolları buna bakar)."""
+    if not y.permission('sohbet'):
+        return None
+    fac = int(who.get('factionId') or 0)
+    p = 0.3 + 0.5 * b.o('sosyallik') + 0.3 * b.o('yardimseverlik') + 0.6 * b.memory.relation(name, now) - (0.3 if fac and fac != b.firma
+                                                                                                        else 0)
+    if b.r.random() >= p:
+        return None
+    k = _result('ozel', True, 'He asked someone to send him a private message: you WHISPER him now (this line goes to him '
+                              'privately): a short opener like asking what he needs.', ('pm_cevap', {}))
+    k['fisilti'] = True
+    return k
+
+
+# ------------------------------------------------------------------------------------------------------------ düello
+def _duel(y, b, name, who, game_map, now):
+    """Meydan okumaya karşılık: başka firmadan, saldırgan ve rekabetçi, gücü yeten bot kabul eder; buluşma onun haritası (bot
+    oraya girebiliyorsa) ya da adı geçen harita, değilse 4-4. Aynı firmadan bot düello yapmaz (firmasına saldıramaz)."""
+    fac = int(who.get('factionId') or 0)
+    if fac == b.firma:
+        return _result('duello', False, 'He is in YOUR company: you cannot fight your own company, say so (or joke about it).',
+                      ('duello_ayni', {}))
+    if not (y.permission('pvp') and y.permission('oyuncuya_saldir')):
+        return _result('duello', False, 'You decided NOT to fight him now. Say it in your own words.', ('duello_ret', {}))
+    o = _person(name)
+    if o is None or o.session is None:
+        return None
+    player_level = int(o.profile.d['pilot'].get('level', 1))
+    p = 0.05 + 0.5 * b.o('saldirganlik') + 0.25 * b.o('rekabet') + 0.3 * b.mood['ofke'] - 0.5 * b.memory.relation(name, now) \
+        - 0.07 * max(0, player_level - b.level) + 0.03 * max(0, b.level - player_level)
+    if b.target is not None and b.target.name in ('gorev', 'mod', 'kapi', 'grup'):
+        p -= 0.25
+    if b.r.random() >= p:
+        return _result('duello', False, 'You decided NOT to fight him (busy or not worth it). Answer in character: a short taunt '
+                                       'or a lazy no.', ('duello_ret', {}))
+    candidates = [TL._game_map(game_map) if game_map else None, int(o.profile.d['konum'].get('mapId', 0)), DUEL_MAP]
+    m = next((m for m in candidates if m and m in K.MAPS and K.can_enter(m, b.firma, b.level)
+              and K.route(b.game_map, m, b.firma, b.level)), None)
+    if m is None:
+        return _result('duello', False, 'You would fight him but you cannot reach him (level too low): say so.', ('gelemem', {}))
+    return _result('duello', True, 'You ACCEPT the fight: you are flying to %s to find and attack him. Say it in your own words '
+                                  '(a short confident line naming %s).' % (H.name(m), H.name(m)),
+                  ('duello_kabul', {'harita': H.name(m)}), ('duello', {'ad': name, 'harita': H.name(m)}))
+
+
+# ------------------------------------------------------------------------------------------------------------ takip
+def _follow(y, b, name, who, game_map, text, now):
+    here = H.name(b.game_map)
+    if _WHERE.search(text or ''):
+        return _result('takip', None, 'He asks where you are: you are on %s. Tell him (just the map, no status report).' % here,
+                      ('nerede', {'harita': here}))
+    o = _person(name)
+    m = TL._game_map(game_map) if game_map else (int(o.profile.d['konum'].get('mapId', 0)) if o is not None else None)
+    if not m or m not in K.MAPS:
+        return _result('takip', None, 'He wants you to come but you do not know where he is: ask him which map.')
+    if m == b.game_map:
+        return _result('takip', True, 'You are already on %s too: say so (he can find you there).' % here,
+                      ('nerede', {'harita': here}))
+    if not K.can_enter(m, b.firma, b.level) or not K.route(b.game_map, m, b.firma, b.level):
+        return _result('takip', False, 'You CANNOT go to %s (your level is too low or it is enemy land): say so.' % H.name(m),
+                      ('gelemem', {}))
+    from . import society
+    fac = int(who.get('factionId') or 0)
+    p = 0.2 + 0.5 * b.o('yardimseverlik') + 0.6 * b.memory.relation(name, now) - 0.3 * b.mood['yorgunluk']
+    if fac and fac != b.firma:
+        p -= 0.6
+    if b.target is not None and b.target.name in ('gorev', 'mod', 'kapi'):
+        p -= 0.2
+    if _in_group(b, name):
+        p += 0.4                                         # grup arkadaşı çağırıyor
+    if b.r.random() >= p:
+        return _result('takip', False, 'You decided NOT to come (busy with your own thing). Say it in your own words.',
+                      ('cevap_hayir', {}))
+    return _result('takip', True, 'You decided to COME: you are flying to %s now. Say it in your own words.' % H.name(m),
+                  ('geliyorum', {'harita': H.name(m)}), ('npc_avla', {'harita': H.name(m)}))
+
+
+def _in_group(b, name):
+    import group as GR
+    o = _person(name)
+    g = GR.group_of(b.uid)
+    return g is not None and o is not None and o.uid in g.members
+
+
+# ------------------------------------------------------------------------------------------------------------ arkadaşlık
+def _friend(y, b, name, who, now):
+    import contacts as CT
+    from . import society
+    if not y.permission('arkadas'):
+        return _result('arkadas', False, 'You decided to DECLINE. Say no in your own words.', ('cevap_hayir', {}))
+    r = CT.save(society.profile(b))
+    if CT._var(r.get('arkadas', []), name):
+        return _result('arkadas', None, 'You are already friends with him: say so.')
+    p = 0.25 + 0.5 * b.o('sosyallik') + 0.7 * b.memory.relation(name, now)
+    fac = int(who.get('factionId') or 0)
+    if fac and fac != b.firma:
+        p -= 0.3
+    if b.r.random() >= p:
+        return _result('arkadas', False, 'You decided NOT to add him (you barely know him). Say it in your own words, not rude.',
+                      ('cevap_hayir', {}))
+    tool = 'arkadas_kabul' if CT._var(r.get('gelen', []), name) else 'arkadas_ekle'
+    return _result('arkadas', True, 'You decided YES: you %s now. Say it in your own words.' % (
+        'accept his friend request' if tool == 'arkadas_kabul' else 'send him a friend request'),
+        ('arkadas_tamam', {}), (tool, {'ad': name}))
+
+
+# ------------------------------------------------------------------------------------------------------------ klan
+def _clan(y, b, name, who, text, now):
+    import clan as KL
+    from . import society
+    bot_clan = KL.clan_of(society.profile(b))
+    o = _person(name)
+    ok = KL.clan_of(o.profile) if o is not None else None
+    if ok is not None and _MY_CLAN.search(text or ''):   # "klanıma gel": başvurur mu
+        if bot_clan is not None:
+            return _result('klan', False, 'You are already in the clan [%s] %s and stay loyal: decline in your own words.' % (
+                bot_clan['etiket'], bot_clan['ad']), ('klan_uye', {'etiket': bot_clan['etiket'], 'lider': bot_clan['lider']}))
+        if not y.permission('klan') or society.clan_company(ok) not in (0, b.firma):
+            return _result('klan', False, 'You decided NOT to join his clan. Say it in your own words.', ('cevap_hayir', {}))
+        p = 0.15 + 0.4 * b.o('sosyallik') + 0.7 * b.memory.relation(name, now) - 0.03 * max(0, b.level - int(
+            o.profile.d['pilot'].get('level', 1)) - 4)
+        if b.r.random() >= p:
+            return _result('klan', False, 'You decided NOT to join his clan (not now). Say it in your own words.', ('cevap_hayir', {}))
+        return _result('klan', True, 'You decided to JOIN his clan [%s]: you are sending an application now. Say it in your own words.'
+                      % ok['etiket'], ('klana_basvurdum', {}), ('klana_basvur', {'klan': ok['etiket']}))
+    if bot_clan is None:
+        return _result('klan', None, 'You are not in any clan yourself: say so (maybe you are looking too).', ('klan_yok', {}))
+    if bot_clan['lider'] == b.name.lower():
+        make_promise(b, 'klan', name, now)                       # başvurursa kabul eder
+        return _result('klan', True, 'You LEAD the clan [%s] %s and you are recruiting: tell him to apply, you will accept him.' % (
+            bot_clan['etiket'], bot_clan['ad']), ('klan_basvur', {'etiket': bot_clan['etiket']}))
+    leader = bot_clan['uyeler'].get(bot_clan['lider'], {}).get('ad') or bot_clan['lider']
+    return _result('klan', None, 'You are a member of [%s] %s (leader: %s): tell him he can apply there.' % (
+        bot_clan['etiket'], bot_clan['ad'], leader), ('klan_uye', {'etiket': bot_clan['etiket'], 'lider': leader}))
+
+
+# ------------------------------------------------------------------------------------------------------------ uygulama
+def apply(y, b, k, delay=0.0):
+    """Kararın eylemi (varsa) -> araç sonucu. gecikme: yanıtını yazdıktan sonra yapar ("sure" yazıp sonra davet atar; davet
+    yanıttan önce gelmesin); sohbet motorunun eylem sırasına girer."""
+    if not k or not k.get('eylem'):
+        return None
+    if delay > 0 and hasattr(y, 'actions'):
+        y.actions.append((y.now + delay, b, k['eylem']))
+        return None
+    return TL.call(y, b, *k['eylem'])

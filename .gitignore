@@ -5,8 +5,8 @@
 server/save/
 server/logs/
 
-# Personal login templates; the repository ships shareable ones in server/data/varsayilan/
-# Kişisel giriş şablonları; depodaki paylaşılabilir kopyalar server/data/varsayilan/ altında
+# Personal login templates; the repository ships shareable ones in server/data/defaults/
+# Kişisel giriş şablonları; depodaki paylaşılabilir kopyalar server/data/defaults/ altında
 server/data/giris.json
 server/data/haritalar.json
 server/data/yanitlar.json
@@ -15,15 +15,15 @@ server/data/yanitlar.json
 DarkOrbit_Version*/
 istemci_indiriliyor/
 
-# Protocol versions built by the Client page (tools/il2cpp/protokol_guncelle.py) / İstemci sayfasının ürettiği protokol sürümleri
+# Protocol versions built by the Client page (tools/il2cpp/protocol_update.py) / İstemci sayfasının ürettiği protokol sürümleri
 server/data/protokol/
 
 # Game images, downloaded from the official CDN when the game first asks for them / Oyunun görselleri, oyun ilk istediğinde resmî CDN'den iner
 server/cdn/do_img/
 
-# Build output of the client plugin; the built OpenOrbitYama.dll is in the repository / İstemci eklentisinin derleme çıktısı; derlenmiş OpenOrbitYama.dll depoda
-server/panel/eklenti/bin/
-server/panel/eklenti/obj/
+# Build output of the client plugin; the built OpenOrbitPatch.dll is in the repository / İstemci eklentisinin derleme çıktısı; derlenmiş OpenOrbitPatch.dll depoda
+server/panel/plugin/bin/
+server/panel/plugin/obj/
 
 # macOS Finder
 .DS_Store

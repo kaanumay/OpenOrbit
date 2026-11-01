@@ -1,10 +1,10 @@
-"""Assembly (yol haritası Aşama 5): istemcinin kendi tarifleriyle (data/tarifler.json <- tools/il2cpp/istemci_verisi.py) üretim.
+"""Assembly (yol haritası Aşama 5): istemcinin kendi tarifleriyle (data/recipes.json <- tools/il2cpp/client_data.py) üretim.
 
 Akış (kayıtta giriş listesi var; üretim istekleri istemcinin kodundan):
   girişte                    AssemblyRecipeContentModule: tarifler ve durumları (Available {currentBuildCount, isNew} /
                              Build {buildAmount, remainingTimeMillis, prevBuildCount} / ReadyToCollect {prevBuildCount, buildAmount} /
                              Unavailable {type})
-  AssemblyBuildRequest       {recipeLootId, targetItemId, amount}: malzemeler harcanır (envanter.py), süre başlar -> durum güncellemesi
+  AssemblyBuildRequest       {recipeLootId, targetItemId, amount}: malzemeler harcanır (inventory.py), süre başlar -> durum güncellemesi
                              (AssemblyRecipeStatusUpdateCommand); süre bitince ReadyToCollect
   AssemblyCollectRequest     sonuç x adet verilir (mağazanın ödül işlevi), durum Available ya da kullanım sınırıyla Unavailable
   AssemblyCollectAllRequest  hazır olanların hepsi
@@ -12,7 +12,7 @@ Akış (kayıtta giriş listesi var; üretim istekleri istemcinin kodundan):
   AssemblyRecipeSelectRequest  tarif görüldü (isNew kalkar)
   AssemblySetFilterRequest   pencerenin süzgeci profilde
 Hangi tarifler: kayıttaki listede o gün açık olanlar (ALWAYS_VISIBLE ve takvimdeki ON_SCHEDULE; tek oyunculu: hepsi sürekli açık) ve
-kayıtta olmayanlar (event_recipes): etkinlik parasını isteyenler (takvim.py 'para') etkinlik sürerken ya da elde o paradan varken,
+kayıtta olmayanlar (event_recipes): etkinlik parasını isteyenler (event_calendar.py 'para') etkinlik sürerken ya da elde o paradan varken,
 Champion Token'lılar elde jeton varken, ötekiler (tasarımlar, ONLY_WHEN_OWNED taslakları; tek oyunculu uyarlama) sürekli; kaynağı
 henüz olmayan malzemeyi isteyenler (NO_SOURCE) ve test tarifleri gizli. Etkin etkinliğin parasını isteyen tarif süreli
 (AssemblyRecipeTemporaryTypeModule: etkinliğin kalan süresi); listeden düşen tarif AssemblyRecipeRemoveCommand ile kalkar (üretimi
@@ -25,15 +25,15 @@ suzgec: {}}.
 """
 import json, math, os, time
 
-import envanter as INV
-import ayar as AY
-import teknoloji as TK
-import yukseltme as YK
-import rutbe as RT
-from eski_protokol import legacy
+import inventory as INV
+import settings as SET
+import technology as TECH
+import upgrades as UPG
+import ranks as RT
+from legacy_protocol import legacy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-T = json.load(open(os.path.join(HERE, 'data', 'tarifler.json'), encoding='utf8'))['tarifler']
+T = json.load(open(os.path.join(HERE, 'data', 'recipes.json'), encoding='utf8'))['tarifler']
 INGREDIENTS = {loot for r in T.values() for loot in r.get('parcalar', {})}      # girişte sayaçları gönderilenler (magaza.count_msgs)
 ALREADY_OWNS, ALREADY_USED, ALREADY_USED_LIMIT = 0, 1, 2          # RecipeUnavailableType (istemci)
 # koşulla açılan tarifler (wiki): Spartan dron tasarımı Kronos kapısı tamamlanınca
@@ -54,20 +54,20 @@ BOT = set()                       # Saturn Transmitter (recipe_blueprint-ss-cpu)
 FILTER_TYPES = (2, 1, 0)
 ALL_FILTERS = ['ships_and_designs', 'ammunition', 'weapons', 'pet', 'generators', 'drones', 'extras', 'boosters', 'hardware', 'modules',
                'techs']
-LIST_CHECK_SN = 60                                                # etkinlik başlayınca / bitince tarif listesi
+LIST_CHECK_SEC = 60                                                # etkinlik başlayınca / bitince tarif listesi
 # seviyeli P.E.T. dişlisi/protokolü veren tarifler 4. seviyeyi verir (istemcinin metni: "Obtain Targeting Protocol X Level 4 for your
 # P.E.T."); takmak P.E.T. seviyesine bağlı (pet.level_need). Seviye 1 veriliyordu: hangarda "Level 0", her P.E.T. takabiliyordu
 PET_LEVEL = 4
 
 
 def event_recipes(p, now=None):
-    """Kayıtta olmayan tarifler: etkinlik parasını isteyenler (takvim.py 'para') etkinlik sürerken ya da elde o paradan varken,
+    """Kayıtta olmayan tarifler: etkinlik parasını isteyenler (event_calendar.py 'para') etkinlik sürerken ya da elde o paradan varken,
     Champion Token'lılar elde jeton varken, ötekiler sürekli; kaynağı olmayan malzemeyi isteyenler, test tarifleri, koşulla
     açılanlar (UNLOCK) ve bot oyuncu isteyenler (BOT) dışarıda."""
-    import takvim as TKV
-    para = {l for e in TKV.EVENTS.values() for l in e.get('para', [])} | {CHAMPION}
-    cur = {l for k in TKV.active(now) for l in TKV.EVENTS[k].get('para', [])} | {l for l in para if p.resource(l) > 0}
-    run, chromin = chromin_recipes(now), set(TKV.EVENTS.get('chromin', {}).get('para', []))
+    import event_calendar as CAL
+    currency = {l for e in CAL.EVENTS.values() for l in e.get('para', [])} | {CHAMPION}
+    cur = {l for k in CAL.active(now) for l in CAL.EVENTS[k].get('para', [])} | {l for l in currency if p.resource(l) > 0}
+    run, chromin = chromin_recipes(now), set(CAL.EVENTS.get('chromin', {}).get('para', []))
     out = []
     for k, r in T.items():
         ps = set(r['parcalar'])
@@ -75,18 +75,18 @@ def event_recipes(p, now=None):
             continue
         if run is not None and ps & chromin and k not in run:          # Chromin koşusu: yalnız o koşunun tarifleri
             continue
-        if ps & cur or not ps & para:
+        if ps & cur or not ps & currency:
             out.append(k)
     return sorted(out)
 
 
 def chromin_recipes(now=None):
-    """Süren Chromin Rush koşusunun tarifleri (etkinlikler.json chromin.kosu_tarifleri: resmî forum, her koşuda 6-9 tarif) ya da
+    """Süren Chromin Rush koşusunun tarifleri (events.json chromin.kosu_tarifleri: resmî forum, her koşuda 6-9 tarif) ya da
     None (koşu yok ya da listesi bilinmiyor). Bilinen son günden sonraki koşular 52 haftada bir: önceki yılların günü aranır."""
     import datetime
-    import takvim as TKV
-    span = TKV.period('chromin', now)
-    runs = TKV.EVENTS.get('chromin', {}).get('kosu_tarifleri') or {}
+    import event_calendar as CAL
+    span = CAL.period('chromin', now)
+    runs = CAL.EVENTS.get('chromin', {}).get('kosu_tarifleri') or {}
     if not span or not runs:
         return None
     start = datetime.date.fromtimestamp(span[0])
@@ -98,31 +98,31 @@ def chromin_recipes(now=None):
 
 
 def recipe_event(key, now=None):
-    """Tarifi parasıyla bağlayan etkin etkinlik (takvim.py 'para'; yoksa None)."""
-    import takvim as TKV
+    """Tarifi parasıyla bağlayan etkin etkinlik (event_calendar.py 'para'; yoksa None)."""
+    import event_calendar as CAL
     ps = set(T[key]['parcalar'])
-    return next((k for k in sorted(TKV.active(now)) if ps & set(TKV.EVENTS[k].get('para', []))), None)
+    return next((k for k in sorted(CAL.active(now)) if ps & set(CAL.EVENTS[k].get('para', []))), None)
 
 
 def recorded_end(key, now=None):
-    """Resmî sunucuda süreli tarifin bitişi (tarifler.json gecici: "sezon" Season Pass sezonunun sonu, sayı kayıttaki bitiş) ya da
+    """Resmî sunucuda süreli tarifin bitişi (recipes.json gecici: "sezon" Season Pass sezonunun sonu, sayı kayıttaki bitiş) ya da
     None (süresiz, bitişi geçmiş ya da etkinlik parasıyla: onun süresi yerel takvimden, recipe_event)."""
-    import takvim as TKV
+    import event_calendar as CAL
     g = T[key].get('gecici')
-    if g and set(T[key]['parcalar']) & {l for e in TKV.EVENTS.values() for l in e.get('para', [])}:
+    if g and set(T[key]['parcalar']) & {l for e in CAL.EVENTS.values() for l in e.get('para', [])}:
         return None
     if g == 'sezon':
-        import sezon
-        g = sezon.current_end(now)
+        import season
+        g = season.current_end(now)
     return g if isinstance(g, (int, float)) and g > (now or time.time()) else None
 
 
 def period_of(key, now=None):
     """'Dönemde bir kez / en çok' ve CostScalingFactor'ın dönemi: etkin etkinliğe bağlı tarifte etkinliğin başladığı gün, değilse
     takvim günü (zorla açılmış etkinliğin dönemi yok: gün)."""
-    import takvim as TKV
+    import event_calendar as CAL
     ev = recipe_event(key, now)
-    span = TKV.period(ev, now) if ev else None
+    span = CAL.period(ev, now) if ev else None
     return '%s:%s' % (ev, today(span[0])) if span else today(now)
 
 
@@ -136,14 +136,14 @@ def today(now=None):
 
 
 class Assembly:
-    def __init__(self, profil, log=print):
-        self.p, self.log = profil, log
+    def __init__(self, profile, log=print):
+        self.p, self.log = profile, log
         self.m = None                 # mağaza (ödül ve envanter güncellemeleri; oturum bağlar)
         self.send = None              # zamanlayıcıyla biten üretimin bildirimi (oturum bağlar)
         self.next_tick = self.next_list = 0.0
-        self.free_last = AY.get('assembly_ucretsiz')
+        self.free_last = SET.get('assembly_ucretsiz')
         self.shown = None             # istemcideki tarif listesi (content); etkinlik bitince düşenler kaldırılır
-        self.up = YK.Yukseltme(profil, log)   # Upgrade ve Disassembly sekmeleri (yukseltme.py)
+        self.up = UPG.Upgrade(profile, log)   # Upgrade ve Disassembly sekmeleri (yukseltme.py)
 
     @property
     def st(self):
@@ -181,7 +181,7 @@ class Assembly:
 
     def cost(self, key, amount):
         """Malzemeler x adet; CostScalingFactor: bugünkü her üretimde bir kat daha (1,1 …)."""
-        if AY.get('assembly_ucretsiz'):
+        if SET.get('assembly_ucretsiz'):
             return {}
         r = T[key]
         f = r['olcek'] ** self.used_today(key) if r['olcek'] != 1 else 1
@@ -212,13 +212,13 @@ class Assembly:
         return self.used_today(key)
 
     def recipe(self, key, now=None):
-        """Etkin etkinliğin parasını isteyen tarif süreli (pencerede kalan süre); resmî sunucuda süreli olan (tarifler.json gecici)
+        """Etkin etkinliğin parasını isteyen tarif süreli (pencerede kalan süre); resmî sunucuda süreli olan (recipes.json gecici)
         Season Pass sezonunun sonuna ya da kayıttaki bitişine kadar süreli; öteki tarifler süresiz."""
-        import takvim as TKV
+        import event_calendar as CAL
         now = now or time.time()
         ev = recipe_event(key, now)
         end = None if ev else recorded_end(key, now)
-        typ = (mod('AssemblyRecipeTemporaryTypeModule', remainingTimeMillis=TKV.time_left(ev, now) * 1000) if ev else
+        typ = (mod('AssemblyRecipeTemporaryTypeModule', remainingTimeMillis=CAL.time_left(ev, now) * 1000) if ev else
                mod('AssemblyRecipeTemporaryTypeModule', remainingTimeMillis=int((end - now) * 1000)) if end else
                mod('AssemblyRecipeRegularTypeModule'))
         return mod('AssemblyRecipeModule', recipeLootId=key, targetItemId=0, type=typ, status=self.status(key, now))
@@ -268,7 +268,7 @@ class Assembly:
         removed = INV.spend(self.p, need, reason='buy_SPECIAL', detail=key)
         now = time.time()
         with self.p.lock:
-            self.st['uretim'][key] = dict(adet=amount, bitis=now + AY.sure(r['sure_sn'] * amount, 'assembly'), onceki=self.st['sayac'].get(key, 0))
+            self.st['uretim'][key] = dict(adet=amount, bitis=now + SET.duration(r['sure_sn'] * amount, 'assembly'), onceki=self.st['sayac'].get(key, 0))
             if key not in self.st['gorulen']:
                 self.st['gorulen'].append(key)
             if r['kullanim'] != NO_LIMIT or r['olcek'] != 1:
@@ -302,7 +302,7 @@ class Assembly:
     def grant(self, loot, n):
         """Sonuç: teknoloji eşyası sayaca, ötekiler mağazanın ödül işleviyle (cephane, ekipman, gemi, booster, kaynak …)."""
         if loot.startswith('tech_'):
-            TK.add(self.p, loot, n)
+            TECH.add(self.p, loot, n)
             return INV.update_msgs(self.m, self.p, [loot])
         if self.m:
             return self.m.reward(loot, n, level=PET_LEVEL)
@@ -315,7 +315,7 @@ class Assembly:
         before = self.up_state()
         for c in f.get('allRequests') or []:
             g = dict(recipeLootId=c.get('lootId') or c.get('recipeLootId', ''), targetItemId=c.get('targetId') or c.get('targetItemId', 0))
-            msgs += self.up.collect(g) if g['recipeLootId'] in YK.UP else self.collect(g)
+            msgs += self.up.collect(g) if g['recipeLootId'] in UPG.UP else self.collect(g)
         return msgs + ([self.content()] if self.up_state() != before else [])        # H61
 
     def skip(self, f):
@@ -376,13 +376,13 @@ class Assembly:
         if now < self.next_tick:
             return
         self.next_tick = now + 1.0
-        free = AY.get('assembly_ucretsiz')
+        free = SET.get('assembly_ucretsiz')
         if free != self.free_last:                # ayar değişti: istemcinin malzeme sayaçları yenilenir
             self.free_last = free
             if self.m and self.send:
                 self.send(self.m.count_msgs())
         if now >= self.next_list and self.shown is not None and self.send:
-            self.next_list = now + LIST_CHECK_SN
+            self.next_list = now + LIST_CHECK_SEC
             keys = self.visible()
             gone = sorted(self.shown - set(keys))
             if gone:

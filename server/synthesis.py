@@ -1,5 +1,5 @@
-"""Synthesis penceresi: Intensify, SG Drive ve Cannon Star Up (yol haritası Aşama 9b; tarifler data/parcacik.json 'synthesis' <-
-tools/parcacik.py, kaynak resmî forum SSS'leri ve darkorbitwiki).
+"""Synthesis penceresi: Intensify, SG Drive ve Cannon Star Up (yol haritası Aşama 9b; tarifler data/particle.json 'synthesis' <-
+tools/particle.py, kaynak resmî forum SSS'leri ve darkorbitwiki).
 
 İstemci (UISynthesisSystem; istekler istemcinin kodundan; kayıtta liste hiç gelmemiş, pencere boş açılıyordu):
   SynthesisListCommand {groups: [SynthesisGroupCommand {group, button (çeviri anahtarı), moduleList: [SynthesisModuleListCommand
@@ -14,20 +14,20 @@ tools/parcacik.py, kaynak resmî forum SSS'leri ve darkorbitwiki).
       yeniden çekilir.
 """
 import json, os
-import parcacik as PC
-import envanter as INV
-import rezonator as RZ
+import particle as PC
+import inventory as INV
+import resonator as RS
 
 D = PC.D['synthesis']
 RECIPES = {(r['hedef'], r['yildiz']): r for r in D['tarifler']}
 # Ö6: Assembly'de gösterilemeyen tarifler (istemci tarifi kendi verisinden okur) -> "title_assembly" sekmesi (tools/esyalar_o6.py)
-EXTRA_D = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'esyalar_o6.json'),
+EXTRA_D = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'items_o6.json'),
                          encoding='utf8'))['ek_tarifler']
 EXTRA = {(r['hedef'], r['yildiz']): r for r in EXTRA_D['tarifler']}
 INSTANCE = ('equipment_', 'drone_', 'pet_')                # girdisi eşya örneği: seçilen yuva (certain)
 EXTRA_COUNT = 'ek_tarif_sayac'                             # profil: tarif -> kaç kez (USABLE_ONCE / en_cok)
 REQUESTS = {'SynthesisInventoryRequest', 'SynthesisItemRequest'}
-SOURCES = {r['girdi'] for r in D['tarifler']} | RZ.INPUTS \
+SOURCES = {r['girdi'] for r in D['tarifler']} | RS.INPUTS \
     | {l for r in EXTRA_D['tarifler'] for l in r['girdiler'] if l.startswith(INSTANCE)}   # + Ö6: rezonatörler, AA-1/AAP-1
 TABLE_KEY = 'Synthesis_%s'                                  # table_1 -> Synthesis_table_1 (Nidhogg), drive_1 -> Synthesis_drive_1 …
 ACTION_KEY = {'star': 'synthesis_cannon_star_promote'}     # işlem düğmesi; ötekiler "Synthesis"
@@ -39,8 +39,8 @@ def mod(_cls, **f):
 
 
 class Synthesis:
-    def __init__(self, profil, log=print):
-        self.p, self.log = profil, log
+    def __init__(self, profile, log=print):
+        self.p, self.log = profile, log
         self.m = None                 # mağaza (hangar eşyası, ödüller, para); oturum bağlar
 
     def module(self, r):
@@ -72,7 +72,7 @@ class Synthesis:
         out = [mod('SynthesisGroupCommand', button=ACTION_KEY.get(g, 'Synthesis_button'), group=D['dugmeler'][g], moduleList=[
             mod('SynthesisModuleListCommand', moduleListGroupType=TABLE_KEY % t, modules=[self.module(r) for r in rs])
             for t, rs in sorted(tables.items())]) for g, tables in groups.items()]
-        out.append(RZ.group_cmd(self.p))                    # Ö6: Resonator sekmesi (rezonator.py; C'nin bedeli oyuncunun kaynağından)
+        out.append(RS.group_cmd(self.p))                    # Ö6: Resonator sekmesi (rezonator.py; C'nin bedeli oyuncunun kaynağından)
         out.append(mod('SynthesisGroupCommand', button='Synthesis_button', group=EXTRA_D['grup'], moduleList=[
             mod('SynthesisModuleListCommand', moduleListGroupType=EXTRA_D['tablo'],
                 modules=[self.extra_module(r) for r in EXTRA_D['tarifler']])]))
@@ -80,7 +80,7 @@ class Synthesis:
 
     def cost_loots(self):
         """Pencerede bedel satırı olan kaynaklar (certain=false; para hariç)."""
-        out = {k for r in D['tarifler'] for k in r['bedel']} | set(RZ.SOURCES)
+        out = {k for r in D['tarifler'] for k in r['bedel']} | set(RS.SOURCES)
         out |= {l for r in EXTRA_D['tarifler'] for l in r['girdiler'] if not l.startswith(INSTANCE)}
         return {l for l in out if not l.startswith('currency_')}
 
@@ -112,7 +112,7 @@ class Synthesis:
         return []
 
     def fail(self, why):
-        from eski_protokol import stm
+        from legacy_protocol import stm
         self.log('   Synthesis olmadı: %s' % why)
         return [stm('Synthesis_error')] + self.inventory_cmds()
 
@@ -154,8 +154,8 @@ class Synthesis:
             star = int(parts[2]) if len(parts) > 2 else 0
         except ValueError:
             star = 0
-        if RZ.is_item(parts[0]):
-            return RZ.synth(self, parts[0], f.get('itemIds') or [])
+        if RS.is_item(parts[0]):
+            return RS.synth(self, parts[0], f.get('itemIds') or [])
         if (parts[0], star) in EXTRA:
             return self.extra(EXTRA[(parts[0], star)], [int(x) for x in (f.get('itemIds') or [])])
         r = RECIPES.get((parts[0], star))
@@ -195,6 +195,6 @@ class Synthesis:
                 self.p.add_resource(k, v)
         self.log('   Synthesis: %d x %s -> %s%s (bedel %s%s)' % (len(ids), r['girdi'], r['hedef'], ' %d yıldız' % r['yildiz'] if r['yildiz'] else '',
                                                               r['bedel'], ', iade %s' % refund if refund else ''))
-        from eski_protokol import legacy
-        import gemi_modul as GM                     # yeni top Restabilize listesine (H70)
+        from legacy_protocol import legacy
+        import ship_module as GM                     # yeni top Restabilize listesine (H70)
         return msgs + [legacy('0|LM|ST|LOT|%s|1' % r['hedef'])] + self.inventory_cmds() + [GM.list_cmd(self.p)]

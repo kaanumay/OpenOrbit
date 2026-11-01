@@ -1,22 +1,22 @@
-"""Boosterlar: süreli yüzde bonuslar (profilde "boosterlar"; değerler data/esyalar.json "boosterlar").
+"""Boosterlar: süreli yüzde bonuslar (profilde "boosterlar"; değerler data/items.json "boosterlar").
 
 İstemci (kayıt): AttributeBoosterUpdateCommand {boostedAttributes: [BoosterUpdateModule {attributeType, value}] (10 tür, kayıttaki
 sırayla), boostedDetailsUpdate: [BoosterPlayerDetailModule {lootId, secondsLeft}], boostedDetailsRemove: [BoosterDetailModule
 {lootId}]}. Kayıttaki oyuncunun boosterı yoktu (hepsi 0); değer yüzde sayısı (istemcinin metinleri "+%BOOSTERVALUE%%"), canlıda
 doğrulanmadı. Uzaylıdan düşen booster: BoosterFoundOnMapCommand {lootId, hours}.
 Kurallar (wiki, belgeler/wiki/extras_cpu_tech.md): mağaza boosterı alındığı andan istemcinin saat tablosu kadar sürer (B01/B02 10, DLB
-1, KAPPA 5, EP-50 24 …; esyalar.json boosterlar.saat), çevrimdışı da işler; uzaylıdan düşenler
+1, KAPPA 5, EP-50 24 …; items.json boosterlar.saat), çevrimdışı da işler; uzaylıdan düşenler
 1-10 saat, çevrimdışı durur. Aynı türdekiler toplanır, tür başına üst sınır (hasar %35, can %30, kalkan %80 …). Aynı boosterdan
 birkaç tane alınca süreler eklenir.
 """
 import json, os, random, time
-import ayar as AY
+import settings as SET
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-B = json.load(open(os.path.join(HERE, 'data', 'esyalar.json'), encoding='utf8'))['boosterlar']
-O6 = json.load(open(os.path.join(HERE, 'data', 'esyalar_o6.json'), encoding='utf8'))['boosterlar']     # Ö6 (tools/esyalar_o6.py)
-for _loot, _etki in O6['turler'].items():           # bb-01 bonus kutusu, qr-01 görev ödülü, prm-b01 Hybrid Alloy/Indoctrine Oil miktarı …
-    B['turler'].setdefault(_loot, _etki)
+B = json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))['boosterlar']
+O6 = json.load(open(os.path.join(HERE, 'data', 'items_o6.json'), encoding='utf8'))['boosterlar']     # Ö6 (tools/esyalar_o6.py)
+for _loot, _effect in O6['turler'].items():           # bb-01 bonus kutusu, qr-01 görev ödülü, prm-b01 Hybrid Alloy/Indoctrine Oil miktarı …
+    B['turler'].setdefault(_loot, _effect)
 ALIAS = O6['takma_ad']                              # istemcinin tanımadığı boosterlar -> [[eşdeğer, saat]] (MAX-BP01, NBX, NQR, PCOMB …)
 ATTRS = ['ABILITY_COOLDOWN_TIME', 'COLLECT_RESOURCES', 'COLLECT_RESOURCES_NEWBIE', 'EXPERIENCE_POINTS', 'HITPOINTS', 'HONOUR_POINTS',
          'DAMAGE', 'REPAIR', 'SHIELD', 'SHIELD_REGENERATION']                      # kayıttaki sıra
@@ -55,7 +55,7 @@ def active(p, now=None):
 def values(p, now=None):
     """Tür -> yüzde (etkin boosterların toplamı, türün üst sınırıyla)."""
     out = {}
-    k = AY.carpan('booster_guc')                    # panel: boosterların etkisi (üst sınırları da)
+    k = SET.multiplier('booster_guc')                    # panel: boosterların etkisi (üst sınırları da)
     for loot in active(p, now):
         for a, v in B['turler'].get(loot, {}).items():
             if a in ATTRS:
@@ -88,10 +88,10 @@ def add(p, loot, n=1, seconds=None, hours=None):
         e = state(p).setdefault(loot, {'bitis': 0, 'kalan': 0})
         if seconds is None:
             h = hours or B['saat'].get(loot)
-            sure = h * 3600 if h else B['sure_sn']
-            e['bitis'] = max(e.get('bitis', 0), now) + n * sure * AY.carpan('booster_sure')     # panel: booster süresi
+            duration = h * 3600 if h else B['sure_sn']
+            e['bitis'] = max(e.get('bitis', 0), now) + n * duration * SET.multiplier('booster_sure')     # panel: booster süresi
         else:
-            e['kalan'] = e.get('kalan', 0) + seconds * AY.carpan('booster_sure')
+            e['kalan'] = e.get('kalan', 0) + seconds * SET.multiplier('booster_sure')
         p.dirty = True
 
 
@@ -125,7 +125,7 @@ def drop_for(npc_name):
     Türler eşit ağırlıkla. -> (lootId, saat) ya da None."""
     d = B['dusme']
     kind = 'boss' if npc_name.startswith('..::{') else 'uber' if npc_name.startswith('( Uber') else None
-    if not kind or random.random() >= AY.chance('dusme', d['olasilik'][kind], 'booster'):
+    if not kind or random.random() >= SET.chance('dusme', d['olasilik'][kind], 'booster'):
         return None
     loot, hours = random.choice([(l, None) for l in d['turler']] + [(l, 1) for l in d.get('turler_1sa', ())])     # 1 saatlik türler sabit 1 sa
     return loot, hours or random.randint(*d['saat'])

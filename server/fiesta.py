@@ -1,4 +1,4 @@
-"""Fiesta Gate (Birthday 2025 penceresi; yol haritası Ö3; veri data/ek_etkinlikler.json 'fiesta').
+"""Fiesta Gate (Birthday 2025 penceresi; yol haritası Ö3; veri data/extra_events.json 'fiesta').
 
 İstemci (menü öğesi birthday_2025, UI19thBirthdayGateSystem ve UI19thGateTipsSystem):
   - Puan penceresi: Birthday2025PointRewardRequest {openWindow} -> Birthday2025PointRewardCommand {openWindow, curRewardLevel (ulaşılan
@@ -11,17 +11,17 @@
     açık; Birthday2025GateEnterRequest {level}. Metinler bday2025_*, ttip_jumpgate_bday2025.
 Kurallar (resmî SSS): X-1'den Galaxy Coupon'la; zorluklar sırayla açılır (Tranquil 1 kupon / 5 AP … Mythic 23 / 160); tek can;
 başarısız olunca kupon gider, oyuncu X-1'e döner; kapı bitince AP; AP 50 seviyelik ödül çizgisini doldurur.
-Kapılar etkinlik kapısı motorunda (etkinlik_kapi.py): her zorluk bir kapı (fiesta_1..5, haritalar 494-498); burada kaydedilir.
+Kapılar etkinlik kapısı motorunda (event_gate.py): her zorluk bir kapı (fiesta_1..5, haritalar 494-498); burada kaydedilir.
 Profilde: fiesta {ap, alinan [seviye], acik (açık en yüksek zorluk), donem}.
 """
 import json, os, time
 
-import etkinlik_kapi as EKP
-import takvim as TK
-from kapi import screen
+import event_gate as EKP
+import event_calendar as CAL
+from galaxy_gates import screen
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-_PATH = os.path.join(HERE, 'data', 'ek_etkinlikler.json')
+_PATH = os.path.join(HERE, 'data', 'extra_events.json')
 D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('fiesta', {})
 EVENT = 'fiesta'
 COUPON = D.get('kupon', 'resource_collectable_galaxy-coupon')
@@ -38,7 +38,7 @@ for _k, _g in (D.get('kapilar') or {}).items():
 
 
 def active(now=None):
-    return EVENT in TK.active(now)
+    return EVENT in CAL.active(now)
 
 
 def mod(name, **f):
@@ -49,11 +49,11 @@ def mod(name, **f):
 class Fiesta:
     REQUESTS = ('Birthday2025PointRewardRequest', 'Birthday2025ClaimRequest', 'Birthday2025GateEnterRequest')
 
-    def __init__(self, profil, magaza, ekapilar, log=print):
-        self.p, self.m, self.k, self.log = profil, magaza, ekapilar, log
+    def __init__(self, profile, shop, event_gates, log=print):
+        self.p, self.m, self.k, self.log = profile, shop, event_gates, log
         self.change_map = None                    # oturum bağlar: (hedef, portal, konum)
         self.titles = None                        # oturum bağlar: unvan_avi.grant_title (Epoch Lit)
-        ekapilar.finish_hooks.append(self.on_finish)
+        event_gates.finish_hooks.append(self.on_finish)
 
     @property
     def st(self):
@@ -115,10 +115,10 @@ class Fiesta:
 
     def portals(self, map_id, station):
         """X-1'deki pencereli Fiesta portalı (etkinlik sürerken)."""
-        import harita as H
+        import map_links as H
         if not active() or H.map_class(map_id) != 'X-1' or not station:
             return []
-        import kapi as KAPI
+        import galaxy_gates as KAPI
         sx, sy = station['posX'], station['posY']
         cx, cy = KAPI.MAP_W // 2, KAPI.MAP_H // 2         # istasyondan haritanın ortasına doğru, üretici kapılarından uzakta
         x, y = int(sx + (cx - sx) * 0.3), int(sy + (cy - sy) * 0.3 + 900)
