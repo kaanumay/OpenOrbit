@@ -1,18 +1,18 @@
-"""Fiesta Gate (Birthday 2025 penceresi; yol haritası Ö3; veri data/extra_events.json 'fiesta').
+"""Fiesta Gate (Birthday 2025 window; roadmap Ö3; data data/extra_events.json 'fiesta').
 
-İstemci (menü öğesi birthday_2025, UI19thBirthdayGateSystem ve UI19thGateTipsSystem):
-  - Puan penceresi: Birthday2025PointRewardRequest {openWindow} -> Birthday2025PointRewardCommand {openWindow, curRewardLevel (ulaşılan
-    seviye), curPoints / curLevelPoints (sıradaki seviyenin ilerlemesi), lootShowCommandList [EventLootShowCommand {lootId,
-    lootAmount, bg}] (50 seviyenin ödülü; öğe = sıra + 1), claimedIndexes [alınan seviyeler]}; Birthday2025ClaimRequest {rewardLevel;
-    0 = alınabilenlerin hepsi}.
-  - Giriş penceresi (X-1'deki portala atlayınca): Birthday2025GateWindowCommand {curLevel (açık en yüksek zorluk: 1, 2, 4, 8, 16),
-    curLootAmount (kupon), commandList [Birthday2025GateRewardCommand {level, costAmount, costLootId, lootProbabilityModuleList
-    [{lootId, minLootAmount, maxLootAmount, probabilityPercentage}], lootShowCommandList}]}; "Go Now" düğmesi level <= curLevel iken
-    açık; Birthday2025GateEnterRequest {level}. Metinler bday2025_*, ttip_jumpgate_bday2025.
-Kurallar (resmî SSS): X-1'den Galaxy Coupon'la; zorluklar sırayla açılır (Tranquil 1 kupon / 5 AP … Mythic 23 / 160); tek can;
-başarısız olunca kupon gider, oyuncu X-1'e döner; kapı bitince AP; AP 50 seviyelik ödül çizgisini doldurur.
-Kapılar etkinlik kapısı motorunda (event_gate.py): her zorluk bir kapı (fiesta_1..5, haritalar 494-498); burada kaydedilir.
-Profilde: fiesta {ap, alinan [seviye], acik (açık en yüksek zorluk), donem}.
+Client (menu item birthday_2025, UI19thBirthdayGateSystem and UI19thGateTipsSystem):
+  - Points window: Birthday2025PointRewardRequest {openWindow} -> Birthday2025PointRewardCommand {openWindow, curRewardLevel (level
+    reached), curPoints / curLevelPoints (progress of the next level), lootShowCommandList [EventLootShowCommand {lootId,
+    lootAmount, bg}] (rewards of the 50 levels; item = index + 1), claimedIndexes [claimed levels]}; Birthday2025ClaimRequest {rewardLevel;
+    0 = all that can be claimed}.
+  - Entry window (when jumping into the portal in X-1): Birthday2025GateWindowCommand {curLevel (highest open difficulty: 1, 2, 4, 8, 16),
+    curLootAmount (coupon), commandList [Birthday2025GateRewardCommand {level, costAmount, costLootId, lootProbabilityModuleList
+    [{lootId, minLootAmount, maxLootAmount, probabilityPercentage}], lootShowCommandList}]}; the "Go Now" button is
+    enabled while level <= curLevel; Birthday2025GateEnterRequest {level}. Texts bday2025_*, ttip_jumpgate_bday2025.
+Rules (official FAQ): from X-1 with a Galaxy Coupon; difficulties open in order (Tranquil 1 coupon / 5 AP ... Mythic 23 / 160); single life;
+on failure the coupon is lost, the player returns to X-1; when the gate ends AP; AP fills the 50-level reward line.
+The gates are in the event gate engine (event_gate.py): each difficulty is a gate (fiesta_1..5, maps 494-498); registered here.
+In the profile: fiesta {ap, claimed [level], on (highest open difficulty)}.
 """
 import json, os, time
 
@@ -27,10 +27,10 @@ EVENT = 'fiesta'
 COUPON = D.get('voucher', 'resource_collectable_galaxy-coupon')
 BY_LEVEL = {z['level']: z for z in D.get('difficulties', [])}
 BY_GATE = {z['gate']: z for z in D.get('difficulties', [])}
-PORTAL_ID = EKP.PORTAL_BASE + 90                  # X-1'deki tek Fiesta portalı (pencereli)
-TITLE_TRANQUIL = 'title_fiestagate_dec2025'      # "Epoch Lit" (istemci metni): Tranquil seviyesini tamamlayınca
+PORTAL_ID = EKP.PORTAL_BASE + 90                  # the single Fiesta portal in X-1 (with a window)
+TITLE_TRANQUIL = 'title_fiestagate_dec2025'      # "Epoch Lit" (client text): on completing the Tranquil level
 
-# kapılar etkinlik kapısı motoruna (game.py EKP.register_npcs'den önce içe aktarılır: uzaylı türleri de kaydedilir)
+# the gates go to the event gate engine (imported before game.py EKP.register_npcs: alien types are registered too)
 for _k, _g in (D.get('kapilar') or {}).items():
     EKP.GATES[_k] = _g
     for _m in _g['maps']:
@@ -51,8 +51,8 @@ class Fiesta:
 
     def __init__(self, profile, shop, event_gates, log=print):
         self.p, self.m, self.k, self.log = profile, shop, event_gates, log
-        self.change_map = None                    # oturum bağlar: (hedef, portal, konum)
-        self.titles = None                        # oturum bağlar: unvan_avi.grant_title (Epoch Lit)
+        self.change_map = None                    # the session binds: (target, portal, position)
+        self.titles = None                        # the session binds: title_hunt.grant_title (Epoch Lit)
         event_gates.finish_hooks.append(self.on_finish)
 
     @property
@@ -62,9 +62,9 @@ class Fiesta:
             d.setdefault(k, v)
         return d
 
-    # ------------------------------------------------------------ ödül çizgisi
+    # ------------------------------------------------------------ reward line
     def level(self):
-        """(ulaşılan seviye, sıradaki seviyedeki puan, sıradaki seviyenin puanı)."""
+        """(level reached, points in the next level, the next level's points)."""
         ap, lv = self.st['ap'], 0
         for row in D.get('track', []):
             if ap < row['ap']:
@@ -95,10 +95,10 @@ class Fiesta:
             for loot, n in row['items']:
                 msgs += self.m.prize(loot, n)
         if todo:
-            self.log('   Fiesta Gate ödül çizgisi: %s' % todo)
+            self.log('   Fiesta Gate reward line: %s' % todo)
         return [self.point_cmd(False)] + msgs + self.m.money_msgs()
 
-    # ------------------------------------------------------------ giriş
+    # ------------------------------------------------------------ entry
     def gate_cmd(self):
         cmds = []
         for z in D.get('difficulties', []):
@@ -114,19 +114,19 @@ class Fiesta:
         return ('Birthday2025GateWindowCommand', dict(curLevel=self.st['on'], curLootAmount=self.p.resource(COUPON), commandList=cmds))
 
     def portals(self, map_id, station):
-        """X-1'deki pencereli Fiesta portalı (etkinlik sürerken)."""
+        """The Fiesta portal with a window in X-1 (while the event runs)."""
         import map_links as H
         if not active() or H.map_class(map_id) != 'X-1' or not station:
             return []
         import galaxy_gates as KAPI
         sx, sy = station['posX'], station['posY']
-        cx, cy = KAPI.MAP_W // 2, KAPI.MAP_H // 2         # istasyondan haritanın ortasına doğru, üretici kapılarından uzakta
+        cx, cy = KAPI.MAP_W // 2, KAPI.MAP_H // 2         # from the station toward the middle of the map, away from the generator gates
         x, y = int(sx + (cx - sx) * 0.3), int(sy + (cy - sy) * 0.3 + 900)
         return [dict(gateId=PORTAL_ID, x=x, y=y, target=0, designId=D.get('portal_design', 15), windowed='fiesta',
                      tooltip=D.get('tooltip', 'ttip_jumpgate_bday2025'))]
 
     def portal_window(self, g, w, go):
-        """Portala atlandı (dünya kilidi altında): giriş penceresi."""
+        """Jumped into the portal (under the world lock): the entry window."""
         w.send([self.gate_cmd()])
 
     def enter(self, level):
@@ -139,14 +139,14 @@ class Fiesta:
             return [self.gate_cmd(), screen('key:bday2025_entry_info')]
         self.p.add_resource(COUPON, -z['voucher'])
         self.k.enter(z['gate'])
-        self.log('   Fiesta Gate %s: %d kupon' % (z['name'], z['voucher']))
+        self.log('   Fiesta Gate %s: %d coupons' % (z['name'], z['voucher']))
         msgs = self.m.resource_msgs(COUPON, self.p.resource(COUPON), -z['voucher'])
         if self.change_map:
             self.change_map(z['map'], {'event_gate': True, 'gate': z['gate'], 'arrival': EKP.center(z['map'])}, None)
         return msgs
 
     def on_finish(self, key):
-        """Kapı bitti (etkinlik_kapi.finish): AP ve sıradaki zorluk açılır."""
+        """The gate ended (event_gate.finish): AP and the next difficulty open."""
         z = BY_GATE.get(key)
         if not z:
             return []
@@ -158,7 +158,7 @@ class Fiesta:
                 self.st['on'] = nxt
             self.p.dirty = True
         lv = self.level()[0]
-        self.log('   Fiesta Gate %s bitti: +%d AP (toplam %d, seviye %d)' % (z['name'], z['ap'], self.st['ap'], lv))
+        self.log('   Fiesta Gate %s ended: +%d AP (total %d, level %d)' % (z['name'], z['ap'], self.st['ap'], lv))
         msgs = [screen('+%d Activity Points' % z['ap'], big=True)]
         if z['order'] == 1 and self.titles:          # wiki: "Epoch Lit: Complete the Tranquil level"
             msgs += self.titles(TITLE_TRANQUIL)
@@ -166,7 +166,7 @@ class Fiesta:
             msgs.append(self.point_cmd(False))
         return msgs
 
-    # ------------------------------------------------------------ istekler
+    # ------------------------------------------------------------ requests
     def handle(self, name, f):
         if name == 'Birthday2025PointRewardRequest':
             return [self.point_cmd(f.get('openWindow'))] if active() or f.get('openWindow') else []

@@ -1,24 +1,24 @@
-"""World Boss 2025: Treacherous Domain / Dreadfyre Fortress (yol haritası Ö4; veri data/major_content.json 'dunya_patronu').
+"""World Boss 2025: Treacherous Domain / Dreadfyre Fortress (roadmap Ö4; data data/major_content.json 'world_boss').
 
-Takvimde (17 Haziran - 1 Temmuz) günde altı pencere (09, 11, 16, 19, 20, 22; 30 dk; panelin "Seanslı etkinlikler hep açık" ayarıyla
-portal hep açık ve savaş girişte başlar): X-1 ve X-8'deki geçici portaldan ücretsiz harita 482. İlk 5 dk hazırlık (Harbinger'lar; Dreadfyre Box: can,
-hız, kalkan ya da iyileştirme), sonra Dreadfyre Fortress gelir ve 20 dk kalır:
-  evre 1: Fortress hasar almaz, haritanın ortası çevresinde döner (yolundakine çarpma hasarı); 4 Guardian sabit, manyetik alan; ilk
-          vuruşta Harbinger çağırır; 1 HP'de "düşer". Dördü düşünce
-  evre 2: Fortress vurulabilir; etkin her Guardian %25 hasar azaltma; her 30 sn bir Guardian döner (20 sn ayakta kalan güdümlü roket
-          atar); Fortress roket atar, 20 sn'de bir radyasyon patlaması, %80'de halka mayın tarlası; %50'de
-  evre 3: harita boyu lazer (10 sn'de bir, 3 sn uyarı), %50 ve %30'da mayın, 30 sn'de iki Guardian döner; %10'da
-  evre 4: lazer durur, radyasyon 10 sn'de bir, %10'da mayın, dört Guardian döner ve artık ölür.
-Ortadaki şifa feneri saniyede 30.000 can. Öldürülmezse kaçar; harita 5 dk sonra kapanır. Ödüller: savaş başına ilerleme (Fortress'e
-verilen hasar canının %10/25/50/75/100'ü; her biri günde 3 kez), etkinlik boyu 20 kademe (toplam hasar, kademe başına savaşın Fortress
-canının 0,5-2 katı; 20.'de unvan), son vuruş (777 U, 777 Infiltrator Fragment, 777 UCB-100, Spirefall), savaş sıralaması (tek oyunculu:
-kaldırılan can payından sanal sıra; 1. ve Fortress öldüyse Dread Overlord, ilk 10 Dread Warlord). Canlar oyuncunun gücüyle ölçeklenir
-(donanımın UCB-100 x6 sürekli hasarı / 60.000, 0,25-2,5). Etkinlik bitince Infiltrator Fragment'ler onura (1:1).
-İstemci: PublicWorldBossRequest {action 0} -> PublicWorldBossInfoCommand (pencere 0x82'yi açar), 0,5 sn sonra Raid ve Rank komutları.
-Rankings'in Events sayfası: RankingsEventsInfoRequest {rankType 0 bugün, 1 dün, 2 etkinlik} -> WorldBossRankingInfoCommand (yalnız
-oyuncunun satırı: puan Fortress'e verilen hasar, sıra o dönemin en iyi sanal savaş sırası, timeTaken saniye: istemci FormatTime(sn)).
-Profilde: dunya_patronu {donem, toplam, kademe, h_ref, gun, alinan {tier: adet}, girdi, gunler {date: {hasar, sn, sira}} (bugün ve
-dün), etkinlik {hasar, sn, sira}, son (son vuruş anı)}.
+On the calendar (17 June - 1 July) six windows a day (09, 11, 16, 19, 20, 22; 30 min; with the panel's "Sessioned events always open" setting the
+portal is always open and the battle starts at login): free map 482 through the temporary portal in X-1 and X-8. The first 5 min are preparation (Harbingers; Dreadfyre Box: HP,
+speed, shield or healing), then the Dreadfyre Fortress arrives and stays 20 min:
+  phase 1: the Fortress takes no damage, circles around the middle of the map (collision damage to whatever is in its path); 4 Guardians fixed, magnetic field; on the first
+          hit it calls Harbingers; at 1 HP it "falls". When all four have fallen
+  phase 2: the Fortress can be hit; each active Guardian gives 25% damage reduction; every 30 s a Guardian rotates (one that stays up 20 s fires a homing rocket);
+          the Fortress fires rockets, a radiation burst every 20 s, a ring minefield at 80%; at 50%
+  phase 3: a map-wide laser (every 10 s, 3 s warning), mines at 50% and 30%, two Guardians rotate every 30 s; at 10%
+  phase 4: the laser stops, radiation every 10 s, mines at 10%, four Guardians rotate and can now die.
+The healing beacon in the middle heals 30,000 HP per second. If it is not killed it flees; the map closes after 5 min. Rewards: progress per battle (damage dealt to the
+Fortress is 10/25/50/75/100% of its HP; each 3 times a day), 20 tiers over the event (total damage, per tier 0.5-2 times the battle's Fortress
+HP; a title at the 20th), last hit (777 U, 777 Infiltrator Fragment, 777 UCB-100, Spirefall), battle ranking (single player:
+a virtual rank from the share of HP removed; 1st and, if the Fortress died, Dread Overlord, top 10 Dread Warlord). HP scales with the player's power
+(the equipment's sustained UCB-100 x6 damage / 60,000, 0.25-2.5). When the event ends Infiltrator Fragments go to honor (1:1).
+Client: PublicWorldBossRequest {action 0} -> PublicWorldBossInfoCommand (opens window 0x82), 0.5 s later the Raid and Rank commands.
+Rankings' Events page: RankingsEventsInfoRequest {rankType 0 today, 1 yesterday, 2 event} -> WorldBossRankingInfoCommand (only the
+player's row: score is the damage dealt to the Fortress, rank is the best virtual battle rank of that period, timeTaken seconds: the client's FormatTime(sec)).
+In the profile: world_boss {total, tier, h_ref, day, claimed {tier: count}, input, days {date: {damage, sn, order}} (today and
+yesterday), event {damage, sn, order}, last (moment of the last hit)}.
 """
 import datetime, json, math, os, random, threading, time
 
@@ -35,13 +35,13 @@ _PATH = os.path.join(HERE, 'data', 'major_content.json')
 D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('world_boss', {})
 EVENT = D.get('event', 'world_boss')
 MAP = D.get('map', 482)
-PORTAL_ID = EKP.PORTAL_BASE + 93           # X-1 / X-8'deki geçici portal
-EXIT_ID = EKP.PORTAL_BASE + 94             # haritadaki üsse dönüş
+PORTAL_ID = EKP.PORTAL_BASE + 93           # the temporary portal in X-1 / X-8
+EXIT_ID = EKP.PORTAL_BASE + 94             # return to base on the map
 FORTRESS, GUARDIAN, HARBINGER = 'wb_fortress', 'wb_guardian', 'wb_harbinger'
-ZONE, TELEGRAPH, BOSS_ESCAPE = 121, 122, 133                      # VisualModifierCommand (istemci: halka, roket işareti, kaçış)
+ZONE, TELEGRAPH, BOSS_ESCAPE = 121, 122, 133                      # VisualModifierCommand (client: ring, rocket marker, escape)
 LASER_PREP, LASER_CHARGE, LASER_SHOT = 134, 135, 136
 POI_HEAL = 'worldBossHealingBeacon'
-AMMO_BONUS = {'ammunition_laser_ucb-100': 6, 'ammunition_laser_rsb-75': 7}     # resmî SSS: etkinlikte UCB-100 x6, RSB-75 x7
+AMMO_BONUS = {'ammunition_laser_ucb-100': 6, 'ammunition_laser_rsb-75': 7}     # official FAQ: UCB-100 x6, RSB-75 x7 during the event
 WINDOW = 30 * 60
 
 
@@ -70,7 +70,7 @@ def _hm(s):
 
 
 def window(now=None):
-    """(açık mı, başlangıç, bitiş, sonraki başlangıç)."""
+    """(open, start, end, next start)."""
     now = time.time() if now is None else now
     if SET.get('session_always_open'):
         a = now - now % WINDOW
@@ -111,8 +111,8 @@ class WorldBoss:
         self.run = None
         self.change_map = None
         self.titles = None
-        self.send = lambda msgs: None             # kap bağlar (Raid/Rank pencereden sonra)
-        self.saved = None                         # haritadan çıkınca süren savaşın durumu (aynı pencerede geri dönülünce sürer)
+        self.send = lambda msgs: None             # the holder binds it (Raid/Rank after the window)
+        self.saved = None                         # the state of a battle that continues after leaving the map (continues if returning in the same window)
 
     @property
     def st(self):
@@ -125,14 +125,14 @@ class WorldBoss:
         return d
 
     def h_ref(self):
-        """Kademe birimi: son savaşın Fortress etkin canı (henüz yoksa oyuncunun gücüyle hesaplanan)."""
+        """Tier unit: the last battle's Fortress active HP (if none yet, computed from the player's power)."""
         return self.st['h_ref'] or int(scale(self.p, None) * (D['npcs']['dreadfyre_fortress']['hp'] + D['npcs']['dreadfyre_fortress']['kalkan']))
 
     def tier_need(self, k):
         row = D['tier'][k - 1]
         return int(row['multiplier'] * self.h_ref())
 
-    # ------------------------------------------------------------ pencere
+    # ------------------------------------------------------------ window
     def info_cmd(self, now=None):
         now = time.time() if now is None else now
         open_, a, b, nxt = window(now)
@@ -171,7 +171,7 @@ class WorldBoss:
                                                     rankingInfoList=[me] if me else []))
 
     def tally(self, dmg=0, rank=None):
-        """Rankings ve Hall of Fame için: bugünün ve etkinliğin hasarı, savaşta geçen süre (vuruşlar arası 60 sn'den kısaysa), en iyi sıra."""
+        """For Rankings and Hall of Fame: today's and the event's damage, time spent in battle (if the gap between hits is under 60 s), best rank."""
         now = time.time()
         st = self.st
         today = datetime.date.today()
@@ -192,12 +192,12 @@ class WorldBoss:
     def handle(self, name, f):
         if name == 'RankingsEventsInfoRequest':
             kind = int(f.get('rankType') or 0)
-            return [self.ranking_cmd(kind)] if kind in (0, 1, 2) else []           # 3: Title Frenzy (unvan_avi.py)
+            return [self.ranking_cmd(kind)] if kind in (0, 1, 2) else []           # 3: Title Frenzy (title_hunt.py)
         later = [self.raid_cmd(), self.rank_cmd()]
-        threading.Timer(0.5, lambda: self.send(later)).start()      # pencere kurulduktan sonra (istemci yoksa sessizce düşürür)
+        threading.Timer(0.5, lambda: self.send(later)).start()      # after the window is built (the client silently drops it otherwise)
         return [self.info_cmd()]
 
-    # ------------------------------------------------------------ portallar
+    # ------------------------------------------------------------ portals
     def portals(self, map_id, station):
         if int(map_id) == MAP:
             return []
@@ -208,7 +208,7 @@ class WorldBoss:
         cx, cy = KAPI.MAP_W // 2, KAPI.MAP_H // 2
         x, y = int(sx + (cx - sx) * 0.4), int(sy + (cy - sy) * 0.4 + 1300)
         return [dict(gateId=PORTAL_ID, x=x, y=y, target=0, designId=D.get('portal_design', 1), windowed='world_boss',
-                     hint_target=MAP)]                # "This Jump Gate takes you to Treacherous Domain." (istemcinin harita adı)
+                     hint_target=MAP)]                # "This Jump Gate takes you to Treacherous Domain." (the client's map name)
 
     def portal_window(self, g, w, go):
         if not active() or not window()[0]:
@@ -216,10 +216,10 @@ class WorldBoss:
             return
         go(MAP, (KAPI.MAP_W // 2 + random.randint(-600, 600), KAPI.MAP_H // 2 + 1500))
 
-    # ------------------------------------------------------------ dünya
+    # ------------------------------------------------------------ world
     def attach(self, world):
         if self.run and self.run.w is not world and self.run.phase not in ('finished', 'closed'):
-            self.saved = self.run.snapshot()              # ölüp üste dönünce ya da çıkınca: savaş sürer (resmî: pencere açıkken geri girilir)
+            self.saved = self.run.snapshot()              # on dying and returning to base, or on leaving: the battle continues (official: re-enter while the window is open)
         self.world = world
         self.run = None
         if int(world.map_id) != MAP:
@@ -227,13 +227,13 @@ class WorldBoss:
         open_, a, b, nxt = window()
         if not (open_ and active()):
             import vortex
-            vortex.send_home(self, world)                  # pencere kapalı (girişte bu haritada doğdu): üsse
+            vortex.send_home(self, world)                  # window closed (spawned on this map at login): to base
             return []
         s = self.saved if self.saved and time.time() < self.saved['end'] else None
         self.saved = None
         if s:
             a, b = s['start'], s['end']
-        elif SET.get('session_always_open'):                    # "hep açık": savaş girişte başlar (5 dk hazırlık, 20 dk patron)
+        elif SET.get('session_always_open'):                    # "always open": the battle starts at login (5 min preparation, 20 min boss)
             a, b = time.time(), time.time() + WINDOW
         with self.p.lock:
             self.st['input'] = True
@@ -248,7 +248,7 @@ class WorldBoss:
         return []
 
     def add_damage(self, dmg):
-        """Etkinlik boyu toplam hasar: kademe geçilince ödülleri (oyun içi postası yerine doğrudan)."""
+        """Total damage over the event: rewards when a tier is passed (directly instead of the in-game mail)."""
         st = self.st
         msgs = []
         with self.p.lock:
@@ -265,7 +265,7 @@ class WorldBoss:
             for loot, n in row['rewards']:
                 msgs += self.m.prize(loot, n)
                 if loot == D.get('part', 'resource_collectable_infiltrator-fragment'):
-                    self.p.ach('loot', loot=loot, amount=n)         # Treacherous Domain Pass: "Infiltrator Fragment topla" (savas_bileti.py)
+                    self.p.ach('loot', loot=loot, amount=n)         # Treacherous Domain Pass: "Collect Infiltrator Fragments" (battle_pass.py)
             if row.get('title') and self.titles:
                 msgs += self.titles(row['title'])
             msgs += legacy_line('log_msg_worldboss_tier_increase', BOSSNAME='Dreadfyre Fortress', TIER=k)
@@ -285,12 +285,12 @@ class WorldBoss:
         frag = D.get('part', 'resource_collectable_infiltrator-fragment')
         n = self.p.resource(frag)
         msgs = []
-        if n > 0:                                   # etkinlik bitti: kalan parçalar onura (resmî: 24 sa sonra; oran yok, 1:1)
+        if n > 0:                                   # the event ended: the remaining fragments go to honor (official: after 24 h; no ratio, 1:1)
             self.p.add_resource(frag, -n)
             msgs += self.m.money_msgs()
             tot = self.p.gain(honor=n * D.get('fragment_honor', 1), reason='worldboss_fragments')
             msgs += legacy_line('history_msg_event_infiltrator_fragment_honor_converted', AMOUNT=n)
-            self.log('   World Boss bitti: %d Infiltrator Fragment onura' % n)
+            self.log('   World Boss ended: %d Infiltrator Fragments to honor' % n)
         with self.p.lock:
             self.p.d['world_boss'] = {}
             self.p.dirty = True
@@ -302,7 +302,7 @@ def legacy_line(key, **params):
 
 
 def scale(p, w, target=None):
-    """Oyuncunun gücü s = donanımın sürekli hasarı (UCB-100 x6) / 60.000, 0,25-2,5 (uyarlama)."""
+    """The player's power s = the equipment's sustained damage (UCB-100 x6) / 60,000, 0.25-2.5 (adaptation)."""
     g = D['power']
     if w is None:
         return 1.0
@@ -316,7 +316,7 @@ def scale(p, w, target=None):
 
 
 class WbRun:
-    """Treacherous Domain'de savaş (dünyanın 'kapi'sı)."""
+    """The battle in Treacherous Domain (the world's 'kapi')."""
     key = 'world_boss'
 
     def __init__(self, mode, world, start, end, restore=None):
@@ -333,8 +333,8 @@ class WbRun:
         self.fortress = None
         self.guardians = []
         self.harbingers = set()
-        self.dealt = 0                              # bu savaşta Fortress'e verilen hasar
-        self.paid = set()                           # bu savaşta alınan ilerleme kademeleri
+        self.dealt = 0                              # damage dealt to the Fortress in this battle
+        self.paid = set()                           # progress tiers received in this battle
         self.mines_done = set()
         self.s = 1.0
         self.next = {}
@@ -369,7 +369,7 @@ class WbRun:
         return msgs
 
     def snapshot(self):
-        """Savaşın durumu (oyuncu haritadan çıkınca; aynı pencerede geri dönünce enter_msgs sürdürür)."""
+        """The battle's state (when the player leaves the map; when returning in the same window enter_msgs resumes it)."""
         f = self.fortress
         return dict(start=self.start, end=self.end, boss_at=self.boss_at, escape_at=self.escape_at, phase=self.phase, s=self.s,
                     dealt=self.dealt, paid=sorted(self.paid),
@@ -387,7 +387,7 @@ class WbRun:
         f = self.fortress
         return (f.hp + f.shield) / float(max(1, self.fortress_max())) if f else 0.0
 
-    # ------------------------------------------------------------ doğurma
+    # ------------------------------------------------------------ spawning
     def spot_near(self, x, y, r0, r1):
         a, r = random.uniform(0, 2 * math.pi), random.uniform(r0, r1)
         return (min(max(int(x + math.cos(a) * r), 500), self.w.map_w - 500), min(max(int(y + math.sin(a) * r), 500), self.w.map_h - 500))
@@ -403,22 +403,22 @@ class WbRun:
             self.harbingers.add(n.id)
 
     def scaled(self, n):
-        """Can oyuncunun gücüyle; lazer hasarı da (0,5-1,5 arası; uyarlama: zayıf gemiye Harbinger sürüsü fazla sertti, canlı tur)."""
+        """HP by the player's power; laser damage too (between 0.5 and 1.5; adaptation: the Harbinger swarm was too hard for a weak ship, live tour)."""
         import pve_common as PS
         PS.scale_npc(n, hp=self.s, dmg=max(0.5, min(1.5, self.s)))
 
     def spawn_boss(self, restore=None):
         w = self.w
         if restore and restore.get('fortress'):
-            self.s = restore['s']                                # sürdürülen savaş: aynı güç ölçeği
+            self.s = restore['s']                                # a resumed battle: the same power scale
         else:
-            probe = w.spawn_npc_at(FORTRESS, self.cx, self.cy)    # gücün ölçümü için hedef (cephane bonusu)
+            probe = w.spawn_npc_at(FORTRESS, self.cx, self.cy)    # target for measuring power (ammo bonus)
             self.s = scale(self.m.p, w, probe)
             w.remove_npc(probe)
         x, y = self.orbit_point()
         f = w.spawn_npc_at(FORTRESS, x, y, prep=lambda n: self.scaled(n))
         f.gate, f.engaged = True, True
-        f.next_think = time.time() + 3600                          # hareketi koşu yönetir (yörünge)
+        f.next_think = time.time() + 3600                          # the run manages movement (orbit)
         f.invulnerable = lambda: self.phase in ('prep', 1)
         f.damage_reduction = self.fortress_reduction
         f.damage_hook = self.fortress_hit
@@ -441,9 +441,9 @@ class WbRun:
         self.phase = 1
         self.next.update(rocket=0, radiation=time.time() + 20, laser=time.time() + 10, revive=time.time() + 30, move=0, ram=0,
                          field=0, seeker=0)
-        if restore and restore.get('fortress'):                   # sürdürülen savaş: canlar, düşmüş ve ölmüş Guardian'lar, evre
+        if restore and restore.get('fortress'):                   # resumed battle: HP, fallen and dead Guardians, phase
             f.hp, f.shield = int(f.d['hp'] * restore['fortress'][0]), int(f.d['kalkan'] * restore['fortress'][1])
-            saved = restore['guardians']        # önceki geri dönüşte ölenler süzülmüştü: eksik yuvalar ölü (yoksa fazla Guardian tam canla kalıyordu)
+            saved = restore['guardians']        # those who died on the previous return had been filtered out: missing slots are dead (otherwise the extra Guardians stayed at full HP)
             saved = saved + [[False, False, 0.0]] * (len(self.guardians) - len(saved))
             for g, (alive, downed, ratio) in zip(self.guardians, saved):
                 if not alive:
@@ -455,10 +455,10 @@ class WbRun:
             self.guardians = [g for g in self.guardians if g.alive]
             self.phase = restore['phase'] if restore['phase'] in (1, 2, 3, 4) else 1
             w.send([self.field_visual(g, True) for g in self.active_guardians()])
-            w.log('   World Boss: savaş sürüyor (evre %s, Fortress %%%d)' % (self.phase, self.fortress_left() * 100))
+            w.log('   World Boss: battle continues (phase %s, Fortress %%%d)' % (self.phase, self.fortress_left() * 100))
             return
         w.send([legacy('0|A|STM|log_msg_worldboss_boss_appear')] + [self.field_visual(g, True) for g in self.guardians])
-        w.log('   World Boss: Dreadfyre Fortress geldi (güç %.2f, can %d + %d)' % (self.s, f.hp, f.shield))
+        w.log('   World Boss: Dreadfyre Fortress arrived (power %.2f, HP %d + %d)' % (self.s, f.hp, f.shield))
 
     def orbit_point(self):
         r = D['npcs']['dreadfyre_fortress'].get('orbit_radius', 2500)
@@ -467,10 +467,10 @@ class WbRun:
     def field_visual(self, g, on):
         vm = ('VisualModifierCommand', dict(userId=g.id, modifier=ZONE, attribute=D['attacks']['magnetic']['radius'],
                                             additionalAttribute='', count=1 if on else 0, activated=on))
-        g.images = {ZONE: vm} if on else {}   # görüşe girince yeniden (dunya.show): Guardian görüş dışında doğar
+        g.images = {ZONE: vm} if on else {}   # again when it comes into view (world.show): the Guardian spawns out of view
         return vm
 
-    # ------------------------------------------------------------ Guardian ve Fortress kuralları
+    # ------------------------------------------------------------ Guardian and Fortress rules
     def active_guardians(self):
         return [g for g in self.guardians if g.alive and not g.downed]
 
@@ -479,7 +479,7 @@ class WbRun:
 
     def guardian_hit(self, g):
         if not g.summoned:
-            g.summoned = True                       # ilk vuruşta Harbinger çağırır
+            g.summoned = True                       # calls Harbingers on the first hit
             gx, gy = g.mover.pos(time.time())
             self.spawn_harbingers(D['harbinger_summon'], near=(gx, gy))
 
@@ -509,7 +509,7 @@ class WbRun:
     def fortress_hit(self, dmg):
         self.dealt += dmg
         msgs = self.m.add_damage(dmg)
-        for r in D['progress']:                     # ilerleme ödülleri: bu savaşta kademe başına bir kez, günde 3 kez
+        for r in D['progress']:                     # progress rewards: once per tier in this battle, 3 times a day
             k = r['tier']
             if k in self.paid or self.dealt < self.fortress_max() * r['ratio']:
                 continue
@@ -532,7 +532,7 @@ class WbRun:
         elif self.phase == 3 and left <= 0.1:
             self.phase = 4
             for g in self.guardians:
-                g.hp_floor = 0                      # artık ölür
+                g.hp_floor = 0                      # can now die
             self.revive_guardians(4)
             self.next['radiation'] = time.time() + 10
             msgs.append(KAPI.screen('The Guardians have returned for the last time!', big=True))
@@ -554,9 +554,9 @@ class WbRun:
             a = 2 * math.pi * i / n
             r = random.uniform(*m.get('ring_radius', [1000, 1400]))
             w.items.alien_mine('ammunition_mine_acm-01', fx + math.cos(a) * r, fy + math.sin(a) * r, f.id, now)
-        w.log('   World Boss: halka mayın tarlası')
+        w.log('   World Boss: ring minefield')
 
-    # ------------------------------------------------------------ döngü
+    # ------------------------------------------------------------ loop
     def tick(self, now):
         w = self.w
         if self.phase == 'closed':
@@ -587,7 +587,7 @@ class WbRun:
             return
         max_hp = self.m.p.d['ship'].get('hitMax', 1)
         attacks = D['attacks']
-        if now >= self.next['field']:               # Guardian manyetik alanı (saniyede)
+        if now >= self.next['field']:               # Guardian magnetic field (per second)
             self.next['field'] = now + 1.0
             for g in self.active_guardians():
                 gx, gy = g.mover.pos(now)
@@ -634,7 +634,7 @@ class WbRun:
         self.m.p.set_hull(hp=min(g['hitMax'], hp0 + D['healing_beacon']['hp_per_sec']))
         w.send([('HitpointInfoCommand', dict(hitpoints=int(g['hitPoints']), hitpointsMax=g.get('hitMax', 0),
                                              nanoHull=int(g.get('nanoHull', 0)), nanoHullMax=g.get('maxNanoHull', 0)))])
-        self.m.p.ach('wb_heal', count=g['hitPoints'] - hp0)               # World Boss başarımı (recoverhp)
+        self.m.p.ach('wb_heal', count=g['hitPoints'] - hp0)               # World Boss achievement (recoverhp)
 
     def move_fortress(self, now):
         f = self.fortress
@@ -681,12 +681,12 @@ class WbRun:
                                                    activated=False))])
             if not w.hero_dead and g.alive:
                 ex, ey = w.hero_pos()
-                if math.hypot(ex - hx, ey - hy) <= 400:               # işaretli noktadan kaçılabilir
+                if math.hypot(ex - hx, ey - hy) <= 400:               # one can escape from the marked point
                     w.send(w.hurt_hero(int(self.m.p.d['ship'].get('hitMax', 1) * s['damage_max_hp_ratio']), g, atype=0))
         w.later(1.2, hit)
 
     def map_laser(self, now):
-        """Fortress'ten kilitli hedefe, harita kenarına dek uzanan ışın: 3 sn uyarı, sonra çizgideki gemiye hasar."""
+        """A beam from the Fortress to the locked target, reaching the map edge: 3 s warning, then damage to the ship on the line."""
         w, f = self.w, self.fortress
         L = D['attacks']['laser']
         hx, hy = w.hero_pos(now)
@@ -748,11 +748,11 @@ class WbRun:
                 msgs += self.m.m.prize(loot, n)
             for key in row.get('titles') or []:
                 if 'rank_1_' in key and self.ended != 'death':
-                    continue                           # 1. sıranın unvanı yalnız Fortress yenildiyse
+                    continue                           # the 1st place's title only if the Fortress was defeated
                 if self.m.titles:
                     msgs += self.m.titles(key)
         msgs.append(KAPI.screen('Battle rank: %d' % rank, big=True))
-        self.m.log('   World Boss sırası %d (pay %.2f)' % (rank, share))
+        self.m.log('   World Boss rank %d (share %.2f)' % (rank, share))
         return msgs
 
     def escape(self):
@@ -767,10 +767,10 @@ class WbRun:
             w.send(msgs + self.rank_rewards(share))
             w.later(3.0, lambda: f.alive and w.send(w.remove_npc(f)))
         self.clear_adds()
-        w.log('   World Boss: Fortress kaçtı')
+        w.log('   World Boss: Fortress escaped')
 
     def clear_adds(self):
-        """Savaş bitti: Guardian'lar ve Harbinger'lar çekilir (ödülsüz)."""
+        """The battle ended: Guardians and Harbingers withdraw (no reward)."""
         w = self.w
         for i in [g.id for g in self.guardians] + list(self.harbingers):
             n = w.npcs.get(i)
@@ -821,7 +821,7 @@ class WbRun:
 
 
 def seg_dist(px, py, ax, ay, bx, by, extend=False):
-    """Noktanın doğru parçasına (extend: a'dan b'ye doğru ışına) uzaklığı."""
+    """Distance of the point to the right part of the segment (extend: the ray from a toward b)."""
     vx, vy = bx - ax, by - ay
     L2 = vx * vx + vy * vy
     if not L2:

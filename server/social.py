@@ -1,13 +1,13 @@
-"""Sosyal bölümün oturum düzeyi (yol haritası Aşama 10): sohbet (chat.py; sunucusu oyun sürecinde, game.py başlatır), posta,
-notlar, rehber ve kara liste (mail.py), klan (clan.py; sunucudaki oyuncuların ortak klanları), yerel müzayede (auction.py), gemi
-ışınlama (ship_warp.py).
+"""Session level of the social part (roadmap stage 10): chat (chat.py; its server runs in the game process, game.py starts it), mail,
+notes, contact list and blacklist (mail.py), clan (clan.py; the clans shared by the players on the server), local auction (auction.py), ship
+warp (ship_warp.py).
 
-Oturum bağları: istekler (REQUESTS, handle), girişteki kayıtlı mesajların yerine profildekiler (login_replace: sohbet adresi,
-okunmamış posta sayısı), zamanlı işler (tick: müzayede dönem sonları), ChatAuthenticateUserRequest (sohbete giriş ve odalar).
-Pencere düğmesi bildirimi (UIButtonTriggerRequest) yalnız "açıldı" der (istemci kodu: UIMainCenterNewSystem.SendButtonTriggerRequest
-açılış animasyonunun sonunda); sunucudan pencere açan bir komutun işleyicisi yok. Pencerenin açık/kapalı durumu, konumu ve boyutu
-UIWindowUpdateRequest ile gelir (kapatınca maximized=false) ve profilde saklanır (profil.apply): kapatılan pencere sonraki girişte
-açılmaz (canlı deneme 2026-10-17).
+Session bindings: requests (REQUESTS, handle), the profile's messages in place of the saved ones at login (login_replace: chat address,
+unread mail count), timed jobs (tick: auction period ends), ChatAuthenticateUserRequest (joining chat and the rooms).
+The window button notification (UIButtonTriggerRequest) only says "opened" (client code: UIMainCenterNewSystem.SendButtonTriggerRequest
+at the end of the opening animation); there is no handler for a command that opens a window from the server. The window's open/closed state, position and size
+come with UIWindowUpdateRequest (maximized=false when closed) and are stored in the profile (profile.apply): a closed window is not
+opened at the next login (live trial 2026-10-17).
 """
 import multiplayer as CO
 import group as GR
@@ -32,24 +32,24 @@ class Social:
             x.m = shop
         self.auction.mailer = self.mailer
         self.clan.on_change = self.clan_changed
-        self.clan_rooms = self.clan.rooms()  # sohbette katıldığı klan odası (clan_changed)
+        self.clan_rooms = self.clan.rooms()  # the clan room it joined in chat (clan_changed)
         self.world = None
-        self.send = None                   # oturumun gönderme işlevi (geri sayımla biten ışınlama)
-        self.reload = None                 # gemi değişince haritayı yeniden yükletme (dunya.reload_ship)
-        self.ep = None                     # sohbet uç kimliği (ChatAuthenticateUserRequest)
-        self.chat_host = None              # arkadaş sunucusunun misafiri: sohbet sunucusunun adresi (host:port; game.giris_bagla)
+        self.send = None                   # the session's send function (warp that ends with a countdown)
+        self.reload = None                 # reloading the map when the ship changes (world.reload_ship)
+        self.ep = None                     # chat endpoint id (ChatAuthenticateUserRequest)
+        self.chat_host = None              # guest of a friend server: the chat server's address (host:port; game.bind_login)
         self.welcomed = False
-        self.last_window = (None, 0.0)     # son pencere bildirimi (istemci açılışta iki kez gönderiyor)
+        self.last_window = (None, 0.0)     # last window notification (the client sends it twice at startup)
 
     def attach(self, world):
         self.world = world
-        self.warp.busy = None     # geri sayım eski dünyanın zamanlayıcısıydı: harita değişince ışınlama hep "meşgul" kalıyordu
+        self.warp.busy = None     # the countdown belonged to the old world's timer: after a map change the warp always stayed "busy"
 
-    # -------------------------------------------------------- istekler
+    # -------------------------------------------------------- requests
     def handle(self, name, f, now):
         if name == 'ChatAuthenticateUserRequest':
             if self.m:
-                self.m.lang = f.get('language')          # istemcinin dili: ham ret metinleri (magaza.neden)
+                self.m.lang = f.get('language')          # the client's language: raw rejection texts (shop.reason)
             self.chat_login(f.get('endpointId', ''), f.get('language'))
             return []
         if name in PS.REQUESTS:
@@ -63,8 +63,8 @@ class Social:
         return []
 
     def window(self, item, now=None):
-        """UIButtonTriggerRequest: açılan pencereye göre yanıt (ışınlama penceresi). İstemci açılışta bildirimi iki kez gönderiyor,
-        gerçek sunucu bir kez yanıtlıyor (kayıt); ikincisi yanıtsız (canlı deneme 2026-10-17: ret metni iki kez çıkıyordu)."""
+        """UIButtonTriggerRequest: reply by the window opened (the warp window). The client sends the notification twice at startup,
+        the real server replies once (save); the second goes unanswered (live trial 2026-10-17: the rejection text appeared twice)."""
         import time as _t
         now = _t.time() if now is None else now
         last, at = self.last_window
@@ -82,11 +82,11 @@ class Social:
             self.reload()
 
     def tick(self, now):
-        return self.auction.settle(now) + self.auction.auto(now)     # panelin otomatik teklifleri ve alarmları
+        return self.auction.settle(now) + self.auction.auto(now)     # the panel's auto bids and alarms
 
-    # -------------------------------------------------------- giriş
+    # -------------------------------------------------------- login
     def login_replace(self, name, f):
-        """Giriş demetindeki kayıtlı mesajın yerine (yoksa None): sohbet adresi yerel sunucuya, okunmamış posta profilden."""
+        """In place of the saved message in the login bundle (None if none): the chat address to the local server, unread mail from the profile."""
         if name == 'ChatParamCommand':
             port = self.chat.port if self.chat else 7771
             return [(name, {'moduleList': [dict(m, param1=(self.chat_host or CHAT_HOST % port) if m.get('param0') == 'chat_ip' else
@@ -97,29 +97,29 @@ class Social:
             return [(name, {'userMessageInfoCommand': None, 'unreadCount': self.mailer.unread()})]
         return None
 
-    # -------------------------------------------------------- sohbet
+    # -------------------------------------------------------- chat
     def chat_user(self):
         import admin_mode as YM
         pl = self.p.d['pilot']
         return {'userId': pl.get('userName', ''), 'id': str(self.p.user_id), 'globalId': str(self.p.user_id),
-                'role': YM.chat_role(self.p),                      # yönetici modu: "admin" (istemcinin yönetici rengi)
+                'role': YM.chat_role(self.p),                      # admin mode: "admin" (the client's admin color)
                 'clanTag': pl.get('clanTag', ''), 'factionId': str(pl.get('factionId', 0)), 'instanceId': '1'}
 
     def rooms(self):
         fac = self.p.d['pilot'].get('factionId', 0)
-        g = GR.group_of(self.p.user_id)               # arkadaş sunucusunda grubun odası (istemci gruba girince sohbete yeniden bağlanır)
+        g = GR.group_of(self.p.user_id)               # on the friend server the group's room (the client reconnects to chat when it joins a group)
         return [('global', 'global', 'local'), ('faction', 'faction', str(fac))] + self.clan.rooms() + \
             ([GR.room(g.id)] if g is not None else [])
 
     def chat_login(self, ep, lang):
         if not self.chat:
-            self.log('   sohbet sunucusu yok')
+            self.log('   no chat server')
             return False
         self.ep = ep
         ok = self.chat.authenticate(ep, self.chat_user(), self.rooms(), lang)
-        if ok and not self.welcomed:                  # harita değişiminde istemci yeniden bağlanabilir: duyuru oturumda bir kez
+        if ok and not self.welcomed:                  # on a map change the client may reconnect: the announcement once per session
             self.welcomed = True
-            mode = 'single' if not CO.is_open() else 'friend' if CO.SETTINGS['guest'] else 'multi'    # coklu: çoklu istemci (bu bilgisayar)
+            mode = 'single' if not CO.is_open() else 'friend' if CO.SETTINGS['guest'] else 'multi'    # multi: multi-client (this computer)
             text = {'single': '%s, yerel sunucuya hoş geldin. Burada sohbet, posta, klan ve müzayede tek oyunculudur.',
                     'friend': '%s, arkadaş sunucusuna hoş geldin. Sohbet, posta, grup, rehber, klanlar ve sıralamalar ortak; '
                                'müzayede her oyuncunun kendisinin.',
@@ -134,8 +134,8 @@ class Social:
         return ok
 
     def clan_changed(self):
-        """Klana girdi, çıktı ya da etiket değişti: sohbetteki etiket ve klan odası (eski klanın odası bırakılır; yalnız katılınca
-        ayrılan oyuncu klan sohbetini almaya devam ediyordu)."""
+        """Joined or left a clan, or the tag changed: the tag in chat and the clan room (the old clan's room is left; before, a player who left a clan
+        kept receiving its clan chat because only joining was handled)."""
         if self.chat:
             who = str(self.p.user_id)
             self.chat.update_user(who, clanTag=self.p.d['pilot'].get('clanTag', ''))

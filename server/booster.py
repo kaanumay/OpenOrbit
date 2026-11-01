@@ -1,26 +1,26 @@
-"""Boosterlar: süreli yüzde bonuslar (profilde "boosterlar"; değerler data/items.json "boosterlar").
+"""Boosters: timed percentage bonuses (in the profile "boosters"; values data/items.json "boosters").
 
-İstemci (kayıt): AttributeBoosterUpdateCommand {boostedAttributes: [BoosterUpdateModule {attributeType, value}] (10 tür, kayıttaki
-sırayla), boostedDetailsUpdate: [BoosterPlayerDetailModule {lootId, secondsLeft}], boostedDetailsRemove: [BoosterDetailModule
-{lootId}]}. Kayıttaki oyuncunun boosterı yoktu (hepsi 0); değer yüzde sayısı (istemcinin metinleri "+%BOOSTERVALUE%%"), canlıda
-doğrulanmadı. Uzaylıdan düşen booster: BoosterFoundOnMapCommand {lootId, hours}.
-Kurallar (wiki, belgeler/wiki/extras_cpu_tech.md): mağaza boosterı alındığı andan istemcinin saat tablosu kadar sürer (B01/B02 10, DLB
-1, KAPPA 5, EP-50 24 …; items.json boosterlar.saat), çevrimdışı da işler; uzaylıdan düşenler
-1-10 saat, çevrimdışı durur. Aynı türdekiler toplanır, tür başına üst sınır (hasar %35, can %30, kalkan %80 …). Aynı boosterdan
-birkaç tane alınca süreler eklenir.
+Client (record): AttributeBoosterUpdateCommand {boostedAttributes: [BoosterUpdateModule {attributeType, value}] (10 types, in the
+record's order), boostedDetailsUpdate: [BoosterPlayerDetailModule {lootId, secondsLeft}], boostedDetailsRemove: [BoosterDetailModule
+{lootId}]}. The player in the record had no boosters (all 0); the value is a percentage number (the client's texts "+%BOOSTERVALUE%%"),
+not verified live. Booster dropped by an alien: BoosterFoundOnMapCommand {lootId, hours}.
+Rules (wiki, belgeler/wiki/extras_cpu_tech.md): a shop booster lasts, from the moment it is bought, as long as the client's hour table says
+(B01/B02 10, DLB 1, KAPPA 5, EP-50 24 …; items.json boosters), and also runs offline; ones dropped by aliens last
+1-10 hours and stop while offline. Boosters of the same type are summed, with a per-type cap (damage 35%, HP 30%, shield 80% …). When
+several of the same booster are obtained, their durations add up.
 """
 import json, os, random, time
 import settings as SET
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 B = json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))['boosters']
-O6 = json.load(open(os.path.join(HERE, 'data', 'items_o6.json'), encoding='utf8'))['boosters']     # Ö6 (tools/esyalar_o6.py)
-for _loot, _effect in O6['kinds'].items():           # bb-01 bonus kutusu, qr-01 görev ödülü, prm-b01 Hybrid Alloy/Indoctrine Oil miktarı …
+O6 = json.load(open(os.path.join(HERE, 'data', 'items_o6.json'), encoding='utf8'))['boosters']     # Ö6 (tools/items_o6.py)
+for _loot, _effect in O6['kinds'].items():           # bb-01 bonus box, qr-01 quest reward, prm-b01 amount of Hybrid Alloy/Indoctrine Oil …
     B['kinds'].setdefault(_loot, _effect)
-ALIAS = O6['alias']                              # istemcinin tanımadığı boosterlar -> [[eşdeğer, saat]] (MAX-BP01, NBX, NQR, PCOMB …)
+ALIAS = O6['alias']                              # boosters the client does not know -> [[equivalent, hours]] (MAX-BP01, NBX, NQR, PCOMB …)
 ATTRS = ['ABILITY_COOLDOWN_TIME', 'COLLECT_RESOURCES', 'COLLECT_RESOURCES_NEWBIE', 'EXPERIENCE_POINTS', 'HITPOINTS', 'HONOUR_POINTS',
-         'DAMAGE', 'REPAIR', 'SHIELD', 'SHIELD_REGENERATION']                      # kayıttaki sıra
-# istemcinin türü -> sunucunun bonus anahtarı (profil.mods(): formasyon ve dron tasarımlarıyla toplanır)
+         'DAMAGE', 'REPAIR', 'SHIELD', 'SHIELD_REGENERATION']                      # order in the record
+# client type -> the server's bonus key (player_profile.mods(): summed with formation and drone designs)
 MOD_KEYS = {'DAMAGE': ('laser', 'rocket'), 'HITPOINTS': ('can',), 'SHIELD': ('kalkan',), 'SHIELD_REGENERATION': ('shield_regen',),
             'REPAIR': ('repair',), 'EXPERIENCE_POINTS': ('ep',), 'HONOUR_POINTS': ('honor',), 'COLLECT_RESOURCES': ('cargo',),
             'ABILITY_COOLDOWN_TIME': ('cooldown',)}
@@ -36,7 +36,7 @@ def is_booster(loot):
 
 
 def state(p):
-    """Profildeki boosterlar: lootId -> {end_time: mağazadakinin bittiği an, kalan: uzaylıdan düşenin kalan saniyesi}."""
+    """Boosters in the profile: lootId -> {end_time: the moment a shop one ends, remaining: seconds left of one dropped by an alien}."""
     return p.d.setdefault('boosters', {})
 
 
@@ -53,9 +53,9 @@ def active(p, now=None):
 
 
 def values(p, now=None):
-    """Tür -> yüzde (etkin boosterların toplamı, türün üst sınırıyla)."""
+    """Type -> percentage (sum of the active boosters, capped by the type's limit)."""
     out = {}
-    k = SET.multiplier('booster_power')                    # panel: boosterların etkisi (üst sınırları da)
+    k = SET.multiplier('booster_power')                    # panel: the effect of the boosters (and their caps)
     for loot in active(p, now):
         for a, v in B['kinds'].get(loot, {}).items():
             if a in ATTRS:
@@ -64,12 +64,12 @@ def values(p, now=None):
 
 
 def mods(p, now=None):
-    """Sunucunun bonus anahtarlarıyla (oran): DAMAGE -> lazer ve roket, HITPOINTS -> can …; türü olmayanlar adıyla (isabet, npc)."""
+    """By the server's bonus keys (ratio): DAMAGE -> laser and rocket, HITPOINTS -> HP …; ones without a type by their name (hit, npc)."""
     out = {}
     for a, v in values(p, now).items():
         for k in MOD_KEYS.get(a, ()):
             out[k] = out.get(k, 0) + v / 100.0
-    for l in active(p, now):                       # göstergede türü olmayan etkiler: isabet (DMG-H01), npc (NPC-B01), pet_ep
+    for l in active(p, now):                       # effects without a type in the display: hit (DMG-H01), npc (NPC-B01), pet_ep
         for k, v in B['kinds'][l].items():
             if k not in ATTRS:
                 out[k] = out.get(k, 0) + v / 100.0
@@ -77,8 +77,8 @@ def mods(p, now=None):
 
 
 def add(p, loot, n=1, seconds=None, hours=None):
-    """Mağazadan n tane (süre gerçek zamanla işler; hours: kendi süresi) ya da seconds verilirse uzaylıdan düşen (çevrimdışı durur).
-    Takma ad (istemcinin tanımadığı booster): eşdeğerleri kendi saatleriyle."""
+    """n of them from the shop (the time runs in real time; hours: its own duration), or if seconds is given, one dropped by an alien
+    (stops offline). Alias (a booster the client does not know): the equivalents with their own hours."""
     if loot in ALIAS:
         for other, h in ALIAS[loot]:
             add(p, other, n, hours=h)
@@ -89,14 +89,14 @@ def add(p, loot, n=1, seconds=None, hours=None):
         if seconds is None:
             h = hours or B['hour'].get(loot)
             duration = h * 3600 if h else B['sure_sn']
-            e['end_time'] = max(e.get('end_time', 0), now) + n * duration * SET.multiplier('booster_sure')     # panel: booster süresi
+            e['end_time'] = max(e.get('end_time', 0), now) + n * duration * SET.multiplier('booster_sure')     # panel: booster duration
         else:
             e['remaining'] = e.get('remaining', 0) + seconds * SET.multiplier('booster_sure')
         p.dirty = True
 
 
 def tick(p, now, dt):
-    """Çevrimiçi geçen süre: uzaylıdan düşen boosterın süresi (mağazadaki bitince) azalır. -> süresi biten lootId'ler."""
+    """Time spent online: the duration of a booster dropped by an alien (once the shop one ends) decreases. -> lootIds whose time ran out."""
     gone = []
     with p.lock:
         for loot, e in list(state(p).items()):
@@ -115,17 +115,18 @@ def update_cmd(p, removed=(), now=None):
     return ('AttributeBoosterUpdateCommand', dict(
         boostedAttributes=[mod('BoosterUpdateModule', attributeType=a, value=float(v.get(a, 0))) for a in ATTRS],
         boostedDetailsUpdate=[mod('BoosterPlayerDetailModule', lootId=l, secondsLeft=int(s)) for l, s in sorted(active(p, now).items())],
-        # kaldırılan da BoosterPlayerDetailModule: istemci satırı (sınıf kimliği + lootId) anahtarıyla siler (BoosterModel.RemoveItem);
-        # taban sınıf BoosterDetailModule gidince anahtar tutmuyor, satır süresi donmuş kalıyordu (canlı deneme 2026-10-17)
+        # the removed one is also a BoosterPlayerDetailModule: the client deletes the row by its key (class id + lootId)
+        # (BoosterModel.RemoveItem); when the base class BoosterDetailModule was sent, the key did not match and the row's time stayed
+        # frozen (live test 2026-10-17)
         boostedDetailsRemove=[mod('BoosterPlayerDetailModule', lootId=l, secondsLeft=0) for l in removed]))
 
 
 def drop_for(npc_name):
-    """Boss/Uber uzaylıdan booster düşer mi (wiki: "Boss/Uber-Alien (1-10h)" ve 1 saatlik DLB/NPC/REP-S01 türleri; olasılık uyarlama).
-    Türler eşit ağırlıkla. -> (lootId, saat) ya da None."""
+    """Does a Boss/Uber alien drop a booster (wiki: "Boss/Uber-Alien (1-10h)" and the 1-hour DLB/NPC/REP-S01 types; probability is an
+    adaptation). Types with equal weight. -> (lootId, hours) or None."""
     d = B['drop']
     kind = 'boss' if npc_name.startswith('..::{') else 'uber' if npc_name.startswith('( Uber') else None
     if not kind or random.random() >= SET.chance('drop', d['probability'][kind], 'booster'):
         return None
-    loot, hours = random.choice([(l, None) for l in d['kinds']] + [(l, 1) for l in d.get('kinds_1h', ())])     # 1 saatlik türler sabit 1 sa
+    loot, hours = random.choice([(l, None) for l in d['kinds']] + [(l, 1) for l in d.get('kinds_1h', ())])     # 1-hour types are fixed at 1 h
     return loot, hours or random.randint(*d['hour'])

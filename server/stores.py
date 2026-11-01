@@ -1,25 +1,25 @@
-"""Uridyumla çalışan dükkân pencereleri (yol haritası Ö7; veri data/stores.json <- tools/stores_o7.py, kaynak
-belgeler/wiki/dukkanlar_o7.json). Ö3'ün kabında (ek_etkinlikler.add). Ödeme sayfasını açan *BuyCommand'ler (MileageMarketBuyCommand,
-VIPMerchantExchangeBuyCommand, ReturneeLoginBundleBuyCommand) hiç gönderilmez; pencerelerin "Buy now" düğmeleri (hangi paket olduğu
-istekte yok, onay sorusu yok) mağazayı Extras'ta açar ve bilgi verir (odeme.open_shop): paketler orada uridyumla, etkinlik
-süresince birer kez.
+"""Uridium-based shop windows (roadmap Ö7; data data/stores.json <- tools/stores_o7.py, source
+belgeler/wiki/dukkanlar_o7.json). In Ö3's container (extra_events.add). The *BuyCommands that open the payment page (MileageMarketBuyCommand,
+VIPMerchantExchangeBuyCommand, ReturneeLoginBundleBuyCommand) are never sent; the windows' "Buy now" buttons (the request does not say which
+package it is, and there is no confirmation question) open the shop in Extras and give information (payment.open_shop): the packages are there for
+uridium, once each while the event runs.
 
-  Mileage Market (takvim mileage_market): jeton paketleri mağazada (Mileage Coin verir); penceredeki indirim paketlerine jeton başına
-      %5 (en çok 5 jeton = %25) bir kez uygulanır, sonra indirimli fiyatla uridyumla alınır (MileageMarketExchangeRequest ->
-      MileageMarketPackageBuyRequest). Etkinlik bitince jetonlar silinir.
-  VIP Merchant Exchange (vip_merchant): mağazadaki VIP paketlerinden biri alınınca VIP; takas satırları (oyun içi kaynak + uridyum /
-      kredi) VIP'e açık, satır başına sınır.
-  Returnee Login: kayıtta son oturum 14 günden (ve son kampanyadan 60 günden) eskiyse girişte 15 günlük kampanya: hoş geldin ödülü,
-      7 günlük giriş takvimi, dönüş paketleri mağazada. Süre bitince istemcinin gizleme isteği kampanyayı kapatır.
-  Pre-Prometheus Day Sales (pre_prometheus): alınan farklı Pre-BF paketi sayısı (yalnız bilgi penceresi).
-  Return of Hero (return_of_hero): dönen oyuncu (TRUE / INVITEE); herhangi bir kod sanal bir veterana bağlar, yalnız etkinlikteki ilk
-      girişten 24 saat içinde (SSS); 13 tekrarsız ve günde 5 görev (Season Pass havuzundan) Returnee Key verir; Exchange sekmesinde
-      anahtarla takas (BattlePassKeyExchange*, exchangeType 2; liste SSS'ninki).
-  Stellar Pathfinder: paketler mağazada seviye 5'ten başlayarak hesap başına bir kez (pencerenin _claim düğmesi istemci içi: karşılığı
-      yok). Oyunda 5-14; tek oyunculuda Solaris'in tek yolu olduğu için üst sınır yok (EP çarpanıyla aralık hızla geçiliyor).
-Profilde 'dukkanlar': mileage {donem, indirim {package: adım}, alinan []}, vip {donem, paket, takas {ödül: n}}, returnee {baslangic,
-  hosgeldin, gun, son_gun, kapali, son_kampanya}, pre_bf {donem, alinan []}, rehero {donem, ilk_giris, bagli, veteran, deger, tamam,
-  alinan, gun_gorevleri, takas}, tek_sefer [paket].
+  Mileage Market (calendar mileage_market): token packages are in the shop (they give Mileage Coin); a 5% discount per token (at most 5 tokens = 25%)
+      is applied once to the window's discount packages, then they are bought with uridium at the discounted price (MileageMarketExchangeRequest ->
+      MileageMarketPackageBuyRequest). The tokens are deleted when the event ends.
+  VIP Merchant Exchange (vip_merchant): VIP once one of the shop's VIP packages is bought; the exchange rows (in-game resource + uridium /
+      credits) are open to VIP, with a limit per row.
+  Returnee Login: if the last session in the save is older than 14 days (and the last campaign older than 60 days), a 15-day campaign on login: welcome reward,
+      7-day login calendar, return packages in the shop. When the time is up, the client's hide request closes the campaign.
+  Pre-Prometheus Day Sales (pre_prometheus): the number of different Pre-BF packages bought (information window only).
+  Return of Hero (return_of_hero): the returning player (TRUE / INVITEE); any code ties to a virtual veteran, only within 24 hours of the first
+      login during the event (FAQ); 13 non-repeating and 5 quests a day (from the Season Pass pool) give a Returnee Key; keys are exchanged
+      in the Exchange tab (BattlePassKeyExchange*, exchangeType 2; the list is the FAQ's).
+  Stellar Pathfinder: packages in the shop from level 5, once per account (the window's _claim button is inside the client: no counterpart).
+      5-14 in the game; in single player there is no upper limit because it is Solaris' only way (the range is passed quickly with the EP multiplier).
+In the profile 'stores': mileage {period, discount {package: step}, claimed []}, vip {period, exchange {reward: n}}, returnee {start,
+  welcome, day, last_day, off, last_campaign}, pre_bf {period, claimed []}, rehero {period, first_login, connected, veteran, code, value,
+  done, claimed, day_number, exchange}, one_time [package].
 """
 import datetime, json, os, random, time
 
@@ -31,8 +31,8 @@ import event_calendar as CAL
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'stores.json'), encoding='utf8'))
 MM, VIP, RL, PB, CT, SP = D['mileage'], D['vip'], D['returnee'], D['pre_bf'], D['rehero'], D['stellar']
-_PRICE = json.load(open(os.path.join(HERE, 'data', 'prices.json'), encoding='utf8'))['prices']     # market dengesi
-for _r in MM['discount_packages']:                 # indirim paketleri yalnız pencerede: fiyatları dengeden
+_PRICE = json.load(open(os.path.join(HERE, 'data', 'prices.json'), encoding='utf8'))['prices']     # market balance
+for _r in MM['discount_packages']:                 # the discount packages are only in the window: their prices from the balance
     if _PRICE.get(_r['lootId'], {}).get('currency') == 'U':
         _r['uridium'] = _PRICE[_r['lootId']]['price']
 MM_COIN = {r['lootId'] for r in MM['token_packages']}
@@ -65,12 +65,12 @@ class Stores:
         self.p, self.m, self.log = profile, shop, log
         self.send = None
         self.map_id = None
-        shop.shop_gate = self.shop_gate          # mağazada görünürlük (etkinlik / bir kez / seviye)
+        shop.shop_gate = self.shop_gate          # visibility in the shop (event / once / level)
         shop.on_bought.append(self.bought)
-        self.prev_seen = self.st.get('last_session') # önceki oturumun son anı (Returnee Login; tick yazar)
+        self.prev_seen = self.st.get('last_session') # the last moment of the previous session (Returnee Login; tick writes it)
         self.returnee_check(self.prev_seen)
         if CAL.is_active(CT['calendar']) and 'first_login' not in self.rh():
-            with self.p.lock:                      # Return of Hero'daki ilk giriş: veterana bağlanma süresi buradan
+            with self.p.lock:                      # the first login in Return of Hero: the time to tie to a veteran comes from here
                 self.rh()['first_login'] = time.time()
                 self.p.dirty = True
 
@@ -79,7 +79,7 @@ class Stores:
         return self.p.d.setdefault('stores', {})
 
     def part(self, key, event=None):
-        """Etkinliğe bağlı bölüm: dönem değişince sıfırlanır."""
+        """Event-tied section: reset when the period changes."""
         st = self.st.setdefault(key, {})
         if event:
             per = CAL.period(event)
@@ -93,9 +93,9 @@ class Stores:
     def money(self):
         return self.m.money_msgs() if self.m else []
 
-    # ------------------------------------------------------------ mağaza kancaları
+    # ------------------------------------------------------------ shop hooks
     def shop_gate(self, entry, loot):
-        """ek_magaza satırı şimdi satılır mı (takvim / kampanya, bir kez, Stellar'ın seviyesi)."""
+        """Whether an extra shop row is sold now (calendar / campaign, once, Stellar's level)."""
         ev = entry.get('calendar') if entry else None
         if ev == 'returnee':
             if not self.returnee_active():
@@ -103,7 +103,7 @@ class Stores:
         elif ev and not CAL.is_active(ev):
             return False
         if loot in SP_PKG:
-            lv, (lo, hi) = self.p.d['pilot'].get('level', 1), SP['level']     # hi None: üst sınır yok
+            lv, (lo, hi) = self.p.d['pilot'].get('level', 1), SP['level']     # hi None: no upper limit
             if lv < lo or (hi is not None and lv > hi):
                 return False
         if (entry and entry.get('once')) or loot in SP_PKG:
@@ -116,11 +116,11 @@ class Stores:
         return set(self.st.get('one_time', []))
 
     def bought(self, loot, amount):
-        """Mağazadan alım (magaza.on_bought): bir kezlikler, VIP, Pre-BF sayaçları -> mesajlar."""
+        """Purchase from the shop (shop.on_bought): once-only items, VIP, Pre-BF counters -> messages."""
         ev = next((e for s, e in ((MM_COIN, 'mileage_market'), (VIP_PKG, 'vip_merchant'), (PB_PKG, 'pre_prometheus')) if loot in s), None)
         entry = self.m.extra_entry.get(loot) or {}
         if not ev and entry.get('once') and entry.get('calendar') not in (None, 'returnee'):
-            ev = entry['calendar']     # Return of Hero'nun bir kezlik VIP rozet paketleri (kayıtsız kalınca sınırsız alınıyordu)
+            ev = entry['calendar']     # Return of Hero's once-only VIP badge packages (they were unlimited when unrecorded)
         msgs = []
         with self.p.lock:
             if ev:
@@ -136,7 +136,7 @@ class Stores:
             msgs += [('VIPMerchantExchangePackageUpdateCommand', {'packagesBought': self.vip_bought()}), self.vip_info()]
         if loot in PB_PKG:
             msgs.append(self.pb_info())
-        self.log('   dükkân: %s alındı' % loot)
+        self.log('   shop: %s bought' % loot)
         return msgs
 
     # ------------------------------------------------------------ Mileage Market
@@ -149,8 +149,8 @@ class Stores:
     def mm_module(self, r):
         st = self.part('mileage', MM['calendar'])
         steps = st.get('discount', {}).get(r['id'], 0)
-        # istemci (MileageMarketVo) fiyatı metindeki ilk sayıdan okur, %PRICE%'i eski/indirimli değerle doldurur; düz '40000 U.' ile
-        # indirimli metin de 40000 kalıyordu: TMP'nin görünmez <link>'i sayıyı taşır (canlı Ö7: '40000 U. -> 30000 U.')
+        # the client (MileageMarketVo) reads the price from the first number in the text and fills %PRICE% with the old/discounted value; with a plain '40000 U.' the
+        # discounted text also stayed 40000: TMP's invisible <link> carries the number (live Ö7: '40000 U. -> 30000 U.')
         return mod('MileageMarketPackageModule', packagePrice='<link=%d>%%PRICE%% U.</link>' % r['uridium'],
                    isBought=r['id'] in st.get('claimed', []),
                    imageKey=r['id'], maxDiscountSteps=MM['max_steps'], claimedDiscountSteps=steps, packageId=r['id'],
@@ -171,7 +171,7 @@ class Stores:
         with self.p.lock:
             st.setdefault('discount', {})[pid] = steps
             self.p.dirty = True
-        self.log('   Mileage Market: %s için %d jeton (%%%d)' % (pid, steps, steps * MM['step_percent']))
+        self.log('   Mileage Market: %s: %d tokens (%%%d)' % (pid, steps, steps * MM['step_percent']))
         return [('MileageMarketPackageUpdateCommand', dict(isBought=False, claimedDiscountSteps=steps, packageID=pid)),
                 ('MileageMarketInfoUpdateCommand', {'coinCount': self.mm_coins()}), self.mm_info()] \
             + INV.update_msgs(self.m, self.p, [MM['token']])
@@ -192,16 +192,16 @@ class Stores:
         msgs = []
         for loot, n in r['contents']:
             msgs += self.m.reward(loot, n) if self.m else []
-        self.log('   Mileage Market: %s %d U (%%%d indirim)' % (pid, cost, steps * MM['step_percent']))
+        self.log('   Mileage Market: %s %d U (%%%d discount)' % (pid, cost, steps * MM['step_percent']))
         return msgs + [('MileageMarketPackageUpdateCommand', dict(isBought=True, claimedDiscountSteps=steps, packageID=pid)),
                        self.mm_info()] + self.money()
 
     def mm_expire(self):
-        """Etkinlik bitti: jetonlar silinir (FAQ)."""
+        """Event over: the tokens are deleted (FAQ)."""
         n = INV.count(self.p, MM['token'])
         if n and not CAL.is_active(MM['calendar']):
             INV.spend(self.p, {MM['token']: n}, 'buy_SPECIAL', 'mileage_ended')
-            self.log('   Mileage Market bitti: %d jeton silindi' % n)
+            self.log('   Mileage Market ended: %d tokens deleted' % n)
 
     # ------------------------------------------------------------ VIP Merchant Exchange
     def vip_bought(self):
@@ -233,7 +233,7 @@ class Stores:
             st.setdefault('exchange', {})[loot] = done + 1
             self.p.dirty = True
         msgs = self.m.reward(loot, r['reward'][1]) if self.m else []
-        self.log('   VIP takas: %s x%d (%s)' % (loot, r['reward'][1], r['charge']))
+        self.log('   VIP exchange: %s x%d (%s)' % (loot, r['reward'][1], r['charge']))
         return msgs + INV.update_msgs(self.m, self.p, [l for l, n in r['charge']]) + self.money() + [self.vip_info()]
 
     # ------------------------------------------------------------ Returnee Login
@@ -241,7 +241,7 @@ class Stores:
         return self.st.setdefault('returnee', {})
 
     def returnee_check(self, last_seen, now=None):
-        """Girişte: son oturum bekleme_gun'den eskiyse (ve son kampanyadan tekrar_gun geçtiyse) kampanya başlar."""
+        """On login: if the last session is older than wait_days (and repeat_days have passed since the last campaign), the campaign starts."""
         now = time.time() if now is None else now
         st = self.returnee_state()
         if st.get('start') and not st.get('off') and now < st['start'] + RL['duration_days'] * DAY:
@@ -259,7 +259,7 @@ class Stores:
             self.st['returnee'] = dict(start=now, welcome=False, day=0, last_day='', off=False, last_campaign=now)
             self.st['one_time'] = [x for x in self.st.get('one_time', []) if x not in RL_PKG]
             self.p.dirty = True
-        self.log('   Returnee Login: kampanya başladı (%d gün)' % RL['duration_days'])
+        self.log('   Returnee Login: campaign started (%d days)' % RL['duration_days'])
 
     def returnee_active(self, now=None):
         st = self.returnee_state()
@@ -305,7 +305,7 @@ class Stores:
             st['last_day'] = today().isoformat()
             self.p.dirty = True
         msgs += self.m.reward(l, n) if self.m else []
-        self.log('   Returnee Login: %d. gün %s x%d' % (st['day'], l, n))
+        self.log('   Returnee Login: day %d %s x%d' % (st['day'], l, n))
         return msgs + [('ReturneeLoginRewardDayInfoCommand', dict(daysClaimed=int(st['day']), isClaimable=False))] + self.money()
 
     def returnee_hide(self):
@@ -336,13 +336,13 @@ class Stores:
         return (today(now) - datetime.date.fromisoformat(st['start'])).days
 
     def rh_quests(self, now=None):
-        """(tekrarsız, bugünün günlükleri): ilk 13 görev tekrarsız, kalan havuzdan gün başına 5 (gün tohumuyla)."""
+        """(non-repeating, today's dailies): the first 13 quests are non-repeating, 5 a day from the remaining pool (with the day's seed)."""
         qs = CT['quests']
         once = qs[:CT['once_count']]
         pool = qs[CT['once_count']:] or qs
         d = self.rh_day(now)
         st = self.rh()
-        if st.get('day_number') != d:          # yeni gün: günlük havuzun tamam/ilerlemesi sıfırlanır (yoksa yeniden çıkan görev bitmiş görünür)
+        if st.get('day_number') != d:          # new day: the daily pool's done/progress is reset (otherwise a quest that comes up again looks finished)
             pool_ids = {q['id'] for q in pool if q not in once}
             with self.p.lock:
                 st['done'] = [i for i in st.get('done', []) if i not in pool_ids]
@@ -392,12 +392,12 @@ class Stores:
         if act == 1:
             if st.get('connected'):
                 return [self.rh_cmd(0, 'empty')]
-            if time.time() - st.get('first_login', time.time()) > CT['link_duration_sec']:     # SSS: girişten 24 saat içinde
+            if time.time() - st.get('first_login', time.time()) > CT['link_duration_sec']:     # FAQ: within 24 hours of login
                 return [self.rh_cmd(0, self.m.reason('rh_bond_duration'))]
             with self.p.lock:
                 st.update(connected=True, code=int(f.get('id') or 0), veteran=random.choice(CT['veteran_names']))
                 self.p.dirty = True
-            self.log('   Return of Hero: %s veterana bağlandı' % st['veteran'])
+            self.log('   Return of Hero: %s tied to a veteran' % st['veteran'])
             return [self.rh_cmd(2)]
         if act == 2:
             key = str(f.get('exchange') or '')
@@ -411,14 +411,14 @@ class Stores:
             msgs = []
             for x in r['listOfloot']:
                 msgs += self.m.reward(x['lootId'], x['amount']) if self.m else []
-            self.log('   Return of Hero takas: %s (%d anahtar)' % (key, r['cost']))
+            self.log('   Return of Hero exchange: %s (%d keys)' % (key, r['cost']))
             return msgs + [('BattlePassKeyExchangeUpdateCommand', dict(spcId=0, numOfKeys=int(INV.count(self.p, CT['anahtar'])),
                                                                        claimCount=done + 1, exchangeReward=key, lootId=CT['anahtar'])),
                            self.rh_cmd(1), self.rh_exchange_info()]
         return []
 
     def event(self, kind, kw):
-        """Görev olayları (oturumun quest olayları): Return of Hero görevleri ilerler; biten görev anahtar verir."""
+        """Quest events (the session's quest events): Return of Hero quests progress; a finished quest gives a key."""
         if not CAL.is_active(CT['calendar']) or not self.rh().get('connected'):
             return []
         st = self.rh()
@@ -437,18 +437,18 @@ class Stores:
                 self.p.add_resource(CT['anahtar'], n)
                 msgs.append(('EventQuestCompletedCommand', dict(eventType='ReturnOfHero', repeatableType='DAILY' if q in daily else 'NONE')))
                 msgs += INV.update_msgs(self.m, self.p, [CT['anahtar']])
-                self.log('   Return of Hero görevi bitti: %d (+%d anahtar)' % (q['id'], n))
+                self.log('   Return of Hero quest finished: %d (+%d keys)' % (q['id'], n))
         if any(n == 'EventQuestCompletedCommand' for n, f in msgs):
-            msgs += [self.rh_cmd(1), self.rh_exchange_info()]       # takas satırlarının anahtar sayısı (sekme açılınca yenilenir)
+            msgs += [self.rh_cmd(1), self.rh_exchange_info()]       # the key count of the exchange rows (refreshed when the tab opens)
         return msgs
 
-    # ------------------------------------------------------------ Ö3 kabının yüzü
+    # ------------------------------------------------------------ the Ö3 container's face
     def attach(self, world):
         self.map_id = world.map_id
         return []
 
     def tick(self, now):
-        if now - self.st.get('last_session', 0) >= 60:          # oturumun son anı (bir sonraki girişte Returnee'nin ölçüsü)
+        if now - self.st.get('last_session', 0) >= 60:          # the session's last moment (the next login's yardstick for Returnee)
             with self.p.lock:
                 self.st['last_session'] = now
                 self.p.dirty = True

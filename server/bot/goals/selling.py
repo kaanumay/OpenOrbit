@@ -1,7 +1,7 @@
-"""Satış: kargo dolunca kendi istasyonuna (X-1 ya da X-8) dönüp cevherleri rafineriye satmak (oyunda ticaret yalnız istasyonda).
+"""Selling: when the cargo is full, return to its own station (X-1 or X-8) and sell the ore to the refinery (in the game, trading happens only at the station).
 
-Ne zaman dolu sayıldığı kişiliğe bağlı: sabırlı ve tutumlu oyuncu ağzına kadar doldurur, aceleci yarısında döner. Somutta gemi
-istasyona uçar, yanına varınca satar; soyutta istasyon haritasına varınca satar.
+When it counts as full depends on personality: a patient, frugal player fills to the brim, an impatient one returns at half. In concrete mode the ship
+flies to the station and sells when it arrives; in abstract mode it sells on reaching the station map.
 """
 import math
 
@@ -13,19 +13,19 @@ SELL_DISTANCE = 600
 
 
 def threshold(bot):
-    """Kargonun bu kadarı dolunca satmaya döner."""
+    """It returns to sell once the cargo reaches this much."""
     return min(1.0, 0.55 + 0.3 * bot.o('patience') + 0.15 * bot.o('frugality'))
 
 
 def nearest_station(bot):
-    """Satış haritalarından yolu en kısa olanı."""
+    """The sell map with the shortest route."""
     return min(K.sell_maps(bot.firma), key=lambda m: len(K.route(bot.game_map, m, bot.firma, bot.level) or range(99)))
 
 
 def danger(bot, g, w, now):
-    """Dolu kargoyla eve dönerken dövüşe döner mi: bir oyuncu ya da bot vuruyorsa ya da can yarının altındaysa. Uzaylıların
-    tacizini umursamaz, uçmaya devam eder (canlı test 2026-10-29: 2-1'de saldırgan uzaylılar sırayla vurdukça istasyona hiç
-    varamıyordu)."""
+    """Whether it turns to fight while heading home with a full cargo: if a player or bot is hitting it, or its HP is below half. It
+    ignores harassment by aliens and keeps flying (live test 2026-10-29: at 2-1 the attacking aliens hit it one after another and it
+    never reached the station)."""
     last = [u for u, t in g.attacker.items() if now - t < 6]
     if any(u not in w.npcs or w.npcs[u].bot is not None for u in last):
         return True
@@ -47,7 +47,7 @@ class Selling(Goal):
 
     def start(self, bot, b):
         from .. import extras as EX
-        if EX.use(bot, EX.HM7):                       # HM-7: istasyona gitmeden, olduğu yerde satar (100 hak)
+        if EX.use(bot, EX.HM7):                       # HM-7: sells where it is without going to the station (100 rights)
             bot.sell_cargo()
             bot.plan['finished'] = True
             return
@@ -62,11 +62,11 @@ class Selling(Goal):
             bot.plan['finished'] = True
         else:
             if not S.go(bot, bot.plan.get('map') or nearest_station(bot), y):
-                bot.plan['finished'] = True                 # istasyona yol yok: vazgeçer (sonsuza dek denemez)
+                bot.plan['finished'] = True                 # no route to the station: gives up (cannot try forever)
 
     def concrete(self, bot, g, w, now):
         if bot.en_route or bot.game_map != bot.plan.get('map') or danger(bot, g, w, now):
-            return False                                  # portala uçar ya da oyuncuya/tehlikeye karşılık verir (govde)
+            return False                                  # flies to the portal or responds to a player/danger (govde)
         from .. import ship as BG
         s = w.station
         if not s:

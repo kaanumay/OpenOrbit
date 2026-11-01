@@ -1,47 +1,47 @@
-"""Rütbe, sayaçlar ve kayıtlar (yol haritası Aşama 3). Veri data/ranks.json (tools/ranks.py: uzaylı ve gemi puanları resmi
-sunucunun Hall of Fame ayrıntılarından, gemi türleri istemcinin game.xml'inden, rütbeler ve formül wiki'den).
+"""Rank, counters and records (roadmap stage 3). Data data/ranks.json (tools/ranks.py: alien and ship points from the official
+server's Hall of Fame details, ship types from the client's game.xml, ranks and formula from the wiki).
 
-Profilde:
-  sayaclar        öldürülen uzaylılar (tür başına), öldürülen oyuncu gemileri, ölümler (düşman, radyasyon, öteki), görevler
-  rutbe           günlük rütbe hesabı {gun, puan, gecmis: {gün: {puan, ep, onur}}} (haftalık/aylık sıralama farkları için)
-  seyir_defteri   LogbookDataCommand kayıtları (yeni önce, en çok KAYIT_SINIRI)
-  hesap_gecmisi   BalanceInfoCommand kayıtları (yeni önce)
+In the profile:
+  counters        aliens killed (per type), player ships killed, deaths (enemy, radiation, other), quests
+  rank            daily rank calculation {day, points, history: {day: {points, ep, honor}}} (for weekly/monthly ranking differences)
+  logbook         LogbookDataCommand records (newest first, at most LOG_LIMIT)
+  account_history BalanceInfoCommand records (newest first)
 
-İstemci (1.1.114, araştırma: istemcinin kodu):
-  - rütbe 1-21 (rang_N, gemi etiketinde rankN simgesi), 6000 yönetici, 5000 simgesi. Oyun sırasında güncelleyen mesaj yok:
-    ShipInitializationCommand.dailyRank ile (giriş, harita değişimi; oyun sırasında dunya.badge_refresh). Gerçek oyunda günde bir
-    hesaplanır; burada eşik geçilince hemen (live_rank).
-  - Hall of Fame: HallOfFameTopRequest {type: TopReqType} -> HallOfFameTopDataListCommand. 17 "Rütben" sayfası (myRankingPoints:
-    formülün parçaları; pages npcPointsDetails / playerPointsDetails: points x value), 18/19 ana sayfa (en iyi pilotlar/klanlar),
-    4-7 EP, 8-11 onur, 0-3 ve 16 kullanıcı (rütbe puanı), 12-15 klan; HallOfFamePagesRequest {type 1-3, page} -> HallOfFamePages;
-    HallOfFameDataListRequest {requested} -> etkinlik sıralamaları (etkinlik yok: boş).
-  - Seyir defteri: LogbookDataListRequest {startIndex: 0'dan sayfa} -> 12'şer kayıt; infoText istemcide çevrilir
-    (kill_npcID_<kimlik>, experience_points_<n>, honour_points_<n>, received_item, killed_by_npc_<kimlik>, killed_by_radiation …).
-  - Hesap geçmişi: BalanceInfoListRequest {page: 1'den} -> amountType GOLD/PEARL _PLUS/_MINUS, description istemcinin anahtarı
-    (bonus_abschussAlien, quest_won, buy_BATTERY_id …; internalInfo eşya, infoText adet).
-Yerel uyarlama: rütbe puan eşiklerine göre; Hall of Fame listelerinde sunucudaki oyuncular (tek oyunculuda yalnız oyuncu; çoklu
-istemci ve arkadaş sunucusunda bütün bağlı oyuncular: her istemci aynı listeyi görür), klan listelerinde sunucunun klanları (clan.py;
-puanı üyelerin rütbe puanlarının toplamı).
+Client (1.1.114, research: the client's code):
+  - ranks 1-21 (rang_N, the rankN icon in the ship label), 6000 admin, 5000 icon. There is no message that updates it during play:
+    with ShipInitializationCommand.dailyRank (login, map change; during play world.badge_refresh). In the real game it is
+    calculated once a day; here immediately when a threshold is crossed (live_rank).
+  - Hall of Fame: HallOfFameTopRequest {type: TopReqType} -> HallOfFameTopDataListCommand. 17 "Your rank" page (myRankingPoints:
+    the parts of the formula; pages npcPointsDetails / playerPointsDetails: points x value), 18/19 main page (top pilots/clans),
+    4-7 EP, 8-11 honor, 0-3 and 16 user (rank points), 12-15 clan; HallOfFamePagesRequest {type 1-3, page} -> HallOfFamePages;
+    HallOfFameDataListRequest {requested} -> event rankings (no event: empty).
+  - Logbook: LogbookDataListRequest {startIndex: page from 0} -> 12 records each; infoText is translated in the client
+    (kill_npcID_<id>, experience_points_<n>, honour_points_<n>, received_item, killed_by_npc_<id>, killed_by_radiation ...).
+  - Account history: BalanceInfoListRequest {page: from 1} -> amountType GOLD/PEARL _PLUS/_MINUS, description is the client's key
+    (bonus_abschussAlien, quest_won, buy_BATTERY_id ...; internalInfo item, infoText count).
+Local adaptation: rank by the point thresholds; the players on the server in the Hall of Fame lists (single player: only the player; multi-client
+and friend server: all connected players, every client sees the same list), the server's clans in the clan lists (clan.py;
+points are the sum of the members' rank points).
 """
 import json, math, os, threading, time
 import game_data as DATA
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-R = DATA.load('ranks.json')            # Dünya Editörü: formül ve eşikler
+R = DATA.load('ranks.json')            # World Editor: formula and thresholds
 F = R['formula']
 LOG_LIMIT = 500
-LOGBOOK_PAGE = 12                  # istemcinin sayfa boyu
-ACCOUNT_PAGE = 50                   # resmî sunucu kaydı (2026-10-25): sayfa başına 50 satır
-NPC_PAGE = 250                    # kayıttaki npcPointsDetails sayfaları
+LOGBOOK_PAGE = 12                  # the client's page size
+ACCOUNT_PAGE = 50                   # official server record (2026-10-25): 50 rows per page
+NPC_PAGE = 250                    # npcPointsDetails pages in the save
 TOP = {'exp': (4, 5, 6, 7), 'honor': (8, 9, 10, 11), 'points': (0, 1, 2, 3, 16), 'clan': (12, 13, 14, 15, 19)}
 TOP_WEEK, TOP_CLIMB, TOP_MONTH = (2, 6, 10), (3, 7, 11), (16,)
 ORE_NAMES = {0: 'PROMETIUM', 1: 'ENDURIUM', 2: 'TERBIUM', 3: 'XENOMIT', 4: 'PROMETID', 5: 'DURANIUM', 6: 'PROMERIUM', 7: 'SEPROM',
              8: 'PALLADIUM'}
-# Aylık sıralama (darkorbitwiki events/monthly-ranking; istemci hof_rank_month_info_popup): ilk 50'ye Champion Token (Assembly'nin
-# şampiyon tasarımları) ve unvan: 1. 100 + General of the Month; 2-5. 80, 6-10. 60, 11-25. 40, 26-50. 20 + Acclaimed Pilot.
-# Tek oyunculu uyarlama: sıra yok, oyuncunun sanal derecesi rütbesinden (en üst rütbe 1.; ondan 1-3 aşağısı 2-5., 4-6 aşağısı 6-10.,
-# 7-10 aşağısı 11-25., 11-15 aşağısı 26-50.; daha aşağısı ilk 50 dışı: jeton ve unvan yok). Etkin geçen ay (puan arttı) aranır.
-# Kademe: (en üst rütbeden en çok kaç rütbe aşağıda, jeton, unvan, başarım olayı: basarim.SERVER_SIDE)
+# Monthly ranking (darkorbitwiki events/monthly-ranking; the client's hof_rank_month_info_popup): Champion Token for the top 50 (Assembly's
+# champion designs) and a title: 1st 100 + General of the Month; 2nd-5th 80, 6th-10th 60, 11th-25th 40, 26th-50th 20 + Acclaimed Pilot.
+# Single-player adaptation: there is no ranking, the player's virtual place comes from their rank (the top rank is 1st; 1-3 below it 2nd-5th, 4-6 below 6th-10th,
+# 7-10 below 11th-25th, 11-15 below 26th-50th; lower than that outside the top 50: no token or title). The last active month (points rose) is searched.
+# Tier: (at most how many ranks below the top rank, token, title, achievement event: achievement.SERVER_SIDE)
 CHAMPION, CHAMPION_MAX = 'resource_collectable_champion-token', 100
 MONTHLY = ((0, 100, 'title_monthlyranking-general', 'monthly_general'), (3, 80, 'title_monthlyranking-pilot', 'monthly_pilot'),
            (6, 60, 'title_monthlyranking-pilot', 'monthly_pilot'), (10, 40, 'title_monthlyranking-pilot', 'monthly_pilot'),
@@ -56,10 +56,10 @@ def today(t=None):
     return time.strftime('%Y-%m-%d', time.localtime(t))
 
 
-# ------------------------------------------------------------ sayaçlar
+# ------------------------------------------------------------ counters
 def counters(p):
     c = p.d.setdefault('counters', {})
-    done = len((p.d.get('quests') or {}).get('done', []))          # sayaçlardan önce bitirilen görevler de sayılır
+    done = len((p.d.get('quests') or {}).get('done', []))          # quests finished before the counters also count
     for k, v in (('npc', {}), ('player', {}), ('death_by_enemy', 0), ('death_by_radiation', 0), ('death_other', 0), ('quest', done),
                  ('friendly', 0), ('phoenix', 0)):
         c.setdefault(k, v)
@@ -67,14 +67,14 @@ def counters(p):
 
 
 def event(p, kind, **kw):
-    """Oyun olayları (profil.ach; başarımlarla aynı olaylar) -> sayaçlar."""
+    """Game events (profile.ach; the same events as the achievements) -> counters."""
     if kind not in ('kill', 'death', 'quest'):
         return
     with p.lock:
         c = counters(p)
         if kind == 'kill' and kw.get('avatar', 'NPC') == 'NPC' and kw.get('npc') is not None:
             c['npc'][str(kw['npc'])] = c['npc'].get(str(kw['npc']), 0) + 1
-        elif kind == 'kill' and kw.get('avatar') == 'PLAYER':           # bot oyuncular (Aşama 11)
+        elif kind == 'kill' and kw.get('avatar') == 'PLAYER':           # bot players (stage 11)
             c['player'][kw.get('ship', '')] = c['player'].get(kw.get('ship', ''), 0) + 1
         elif kind == 'death':
             k = {'RADIATION': 'death_by_radiation', 'NPC': 'death_by_enemy', 'PLAYER': 'death_by_enemy'}.get(kw.get('reason'), 'death_other')
@@ -84,7 +84,7 @@ def event(p, kind, **kw):
         p.dirty = True
 
 
-# ------------------------------------------------------------ rütbe puanı
+# ------------------------------------------------------------ rank points
 def days_registered(p, now=None):
     try:
         t0 = time.mktime(time.strptime(p.d.get('created', ''), '%Y-%m-%d %H:%M:%S'))
@@ -94,11 +94,11 @@ def days_registered(p, now=None):
 
 
 def ship_type(p):
-    return R['ship_type'].get(p.ship()['lootId'], 0)        # tabloda olmayan (klasik olmayan) gemi 0 (gerçek kayıt: Sentinel 0)
+    return R['ship_type'].get(p.ship()['lootId'], 0)        # a ship not in the table (non-classic) is 0 (real record: Sentinel 0)
 
 
 def user_score(p):
-    """Şeref Salonu 'En iyi kullanıcı' puanı: TP / 1000 + Şeref / 100 (resmî forum 127509; gerçek kayıt 416.032.909 TP, 27.810 ŞP -> 416.311)."""
+    """Hall of Fame 'Top user' points: EP / 1000 + Honor / 100 (official forum 127509; real record 416,032,909 EP, 27,810 honor -> 416,311)."""
     pl = p.d['pilot']
     return int(pl.get('ep', 0) / 1000 + pl.get('honourPoints', 0) / 100)
 
@@ -116,7 +116,7 @@ def player_points(p):
 
 
 def breakdown(p, now=None):
-    """HallOfFameRankingPoints alanları (rütbe puanı formülünün parçaları, wiki) + rankPoints."""
+    """HallOfFameRankingPoints fields (the parts of the rank points formula, wiki) + rankPoints."""
     c, pl = counters(p), p.d['pilot']
     parts = dict(ExperiencePoints=int(pl.get('ep', 0)), honorPoints=int(pl.get('honourPoints', 0)), playerShotPoints=player_points(p),
                  yourLevel=int(pl.get('level', 1)), daysSinceRegistration=days_registered(p, now), yourShipType=ship_type(p),
@@ -132,18 +132,18 @@ def breakdown(p, now=None):
 
 
 def rank_for(points):
-    """Rütbe puanından rütbe (1-21; tek oyunculu eşikler, ranks.json esikler)."""
+    """Rank from rank points (1-21; single-player thresholds, ranks.json thresholds)."""
     return max(i + 1 for i, t in enumerate(R['thresholds']) if points >= t)
 
 
-# ------------------------------------------------------------ şirket sırası (bot oyuncular)
-# Gerçek sistem (darkorbitwiki guides/ranks; rutbe.json rutbeler): rütbe şirketteki sıraya göre, Chief General 1, General 2, Basic
-# General 3, Chief Colonel 5, Colonel 20 kişi; kalanlar yüzdeyle (Basic Colonel %1 ... Basic Space Pilot %20). Dünyada bot paketi
-# varken bu sıra kullanılır (oyuncu isteği 2026-10-30); eşikler tavan olarak kalır: küçük bir şirkette (paket başına onlarca bot)
-# az puanlı pilotlar general olmasın. Bot yokken eskisi gibi yalnız eşikler.
+# ------------------------------------------------------------ company ranking (bot players)
+# The real system (darkorbitwiki guides/ranks; ranks.json ranks): the rank depends on the place in the company, Chief General 1, General 2, Basic
+# General 3, Chief Colonel 5, Colonel 20 people; the rest by percentage (Basic Colonel 1% ... Basic Space Pilot 20%). While a bot pack is in the world
+# this ranking is used (player request 2026-10-30); the thresholds stay as a ceiling: in a small company (tens of bots per pack)
+# low-scoring pilots must not become generals. Without bots, only the thresholds as before.
 RANKING_SEC = 30
-_RANKING = {}                        # firma -> (zaman, [(puan, kimlik)])
-_LOCAL = threading.local()        # hesap sürerken: topluluk.hepsi() botların profilini günceller, o da rütbeyi sorar
+_RANKING = {}                        # company -> (timestamp, [(points, uid)])
+_LOCAL = threading.local()        # while the account runs: community.all_() updates the bots' profiles, which asks for the rank
 
 
 def _bots():
@@ -153,10 +153,10 @@ def _bots():
 
 
 def _company(company, now):
-    """Şirketin pilotları [(rütbe puanı, kimlik)]: kayıtlı botlar ve sunucunun oyuncuları (SIRA_SN önbellekli)."""
+    """The company's pilots [(rank points, id)]: registered bots and the server's players (cached for RANKING_SEC)."""
     t = _RANKING.get(company)
     if getattr(_LOCAL, 'inside', False):
-        return t[1] if t else []                  # iç içe çağrı (canlı test 2026-10-30: sonsuz özyineleme): eski liste
+        return t[1] if t else []                  # nested call (live test 2026-10-30: infinite recursion): the old list
     if t and now - t[0] < RANKING_SEC:
         return t[1]
     _LOCAL.inside = True
@@ -181,8 +181,8 @@ def _build_company(company, now):
 
 
 def place_rank(order, n):
-    """Şirketin n pilotu arasında sira'ncının (0: en çok puanlı) rütbesi: önce sabit sayılı rütbeler (21'den aşağı), sonra kalanlar
-    yüzdeleriyle (16'dan aşağı; yüzdelerin dışında kalan en alt rütbe)."""
+    """The rank of the one at place `rank` (0: most points) among the company's n pilots: first the ranks with a fixed count (down from 21), then the rest
+    by their percentages (down from 16; the lowest rank left outside the percentages)."""
     fixed = 0
     for r in reversed(R['ranks']):
         if r['type'] == 'fixedPlayersPerCompany':
@@ -199,16 +199,16 @@ def place_rank(order, n):
 
 
 def company_rank(uid, company, points, now=None):
-    """Botlar varken şirketteki sıradan rütbe (uid'nin kendi kaydı yerine güncel puanı) -> rütbe ya da None (bot yok)."""
+    """While bots exist, the rank from the place in the company (the current points instead of uid's own record) -> rank or None (no bots)."""
     if _bots() is None or not company:
         return None
     now = now or time.time()
     others = [x for x in _company(company, now) if x[1] != uid]
-    return place_rank(sum(1 for x in others if (x[0], -x[1]) > (points, -uid)), len(others) + 1)      # eşitlikte önce kayıtlı (küçük kimlik)
+    return place_rank(sum(1 for x in others if (x[0], -x[1]) > (points, -uid)), len(others) + 1)      # on a tie the registered one first (smaller id)
 
 
 def points_to_pass(p, rank, now=None):
-    """Botlar varken rank rütbesine çıkmak için geçilmesi gereken şirket pilotunun puanı (o rütbedeki en alt sıradaki) ya da None."""
+    """While bots exist, the points of the company pilot that must be passed to reach the rank (the one in the lowest place of that rank) or None."""
     if _bots() is None:
         return None
     now = now or time.time()
@@ -219,17 +219,17 @@ def points_to_pass(p, rank, now=None):
 
 
 def rank_of(p, points, now=None):
-    """Oyuncunun rütbesi: eşiklere göre; botlar varken şirketteki sırası da (ikisinin küçüğü)."""
+    """The player's rank: by thresholds; while bots exist also the place in the company (the smaller of the two)."""
     r = rank_for(points)
     s = company_rank(p.user_id, int(p.d['pilot'].get('factionId') or 0), points, now)
     return r if s is None else min(r, s)
 
 
 def daily_rank(p, now=None, force=False):
-    """Günde bir (giriş ve harita değişiminde bakılır): rütbe hesaplanır, pilot.dailyRank'e yazılır -> yeni rütbe ya da None."""
+    """Once a day (checked at login and map change): the rank is computed and written to pilot.dailyRank -> the new rank or None."""
     import admin_mode as YM
     if YM.is_open(p):
-        return None                     # yönetici rütbe sistemine girmez (rozeti profil.ship_init verir)
+        return None                     # an admin is not in the rank system (the badge comes from profile.ship_init)
     day = today(now)
     st = p.d.setdefault('rank', {})
     if st.get('day') == day and not force:
@@ -245,19 +245,19 @@ def daily_rank(p, now=None, force=False):
         hist[day] = dict(points=b['rankPoints'], ep=int(p.d['pilot'].get('ep', 0)), honor=int(p.d['pilot'].get('honourPoints', 0)))
         for old in sorted(hist)[:-40]:
             del hist[old]
-        p.d['pilot']['dailyRank'] = icon           # ShipInitializationCommand.dailyRank (profil.PILOT_FIELDS)
+        p.d['pilot']['dailyRank'] = icon           # ShipInitializationCommand.dailyRank (player_profile.PILOT_FIELDS)
         p.dirty = True
     tier = next((t for t in MONTHLY if len(R['thresholds']) - prev_rank <= t[0]), None) if monthly else None
     if tier:
         _, tokens, title, kind = tier
-        p.ach(kind)                                 # başarım: General of the Month / Acclaimed Pilot sayacı (basarim.SERVER_SIDE)
+        p.ach(kind)                                 # achievement: General of the Month / Acclaimed Pilot counter (achievement.SERVER_SIDE)
         p.add_resource(CHAMPION, tokens)
         grant_title(p, title)
     return icon
 
 
 def grant_title(p, key):
-    """Aylık sıralama unvanı: başarım penceresinde seçilir (tabloda olmayan etkinlik unvanı; basarim.title_id sabit kimlik verir)."""
+    """Monthly ranking title: chosen in the achievement window (an event title not in the table; achievement.title_id gives a fixed id)."""
     import achievement as ACV
     ACV.title_id(key)
     st = ACV.state(p)
@@ -268,17 +268,17 @@ def grant_title(p, key):
 
 
 def rank_icon(p, rank):
-    """Gemideki rütbe simgesi: rütbe, onur -500 ve altındaysa kanun dışı simgesi."""
+    """The rank icon on the ship: the rank, or the outlaw icon if honor is -500 or below."""
     return R['outlaw']['icon'] if p.d['pilot'].get('honourPoints', 0) <= R['outlaw']['honor'] else rank
 
 
 def live_rank(p, now=None):
-    """Rütbe puanı değişince (uzaylı, EP, onur, görev) rütbe hemen: eşiği geçen oyuncu o anda yükselir (kullanıcı bildirimi
-    2026-10-24: puan yetse de rütbe ertesi güne dek değişmiyordu; gerçek oyunda rütbe günde bir, şirketteki sıraya göre verilir,
-    tek oyunculuda sıra yok). Günlük kayıt (geçmiş, aylık ödül) daily_rank'te kalır. -> (eski, yeni) ya da None."""
+    """When the rank points change (alien, EP, honor, quest) the rank at once: a player who crosses a threshold rises at that moment (user report
+    2026-10-24: even with enough points the rank did not change until the next day; in the real game the rank is given once a day, by the place in the company,
+    in single player there is no ranking). The daily record (history, monthly reward) stays in daily_rank. -> (old, new) or None."""
     import admin_mode as YM
     if YM.is_open(p):
-        return None                     # yönetici: rütbe değişmez, "rütbe atladın" yok
+        return None                     # admin: the rank does not change, no "you ranked up"
     pl = p.d['pilot']
     rank = rank_of(p, breakdown(p, now)['rankPoints'], now)
     icon, old = rank_icon(p, rank), pl.get('dailyRank', 1)
@@ -292,14 +292,14 @@ def live_rank(p, now=None):
 
 
 def active_month(hist, month):
-    """Ay içinde rütbe puanı arttı mı (günlük kayıtlardan)."""
+    """Whether the rank points rose within the month (from the daily records)."""
     inside = [hist[d]['points'] for d in sorted(hist) if d.startswith(month)]
     before = [hist[d]['points'] for d in sorted(hist) if d < month]
     return bool(inside) and max(inside) > (before[-1] if before else 0)
 
 
 def _since(p, field, days, now=None):
-    """Son N günde artış (günlük kayıtlardan; en eski kayıt daha yeniyse ondan)."""
+    """Gain in the last N days (from the daily records; if the oldest record is newer, from that)."""
     hist = p.d.get('rank', {}).get('history', {})
     cur = breakdown(p, now)['rankPoints'] if field == 'points' else int(p.d['pilot'].get('ep' if field == 'ep' else 'honourPoints', 0))
     limit = today((now or time.time()) - days * 86400)
@@ -322,17 +322,17 @@ def _zero_points():
 
 
 def ranking_points(p, now=None):
-    """Rütben sayfası: formülün parçaları, rütbe (yourRanking: rang_N), bir üst rütbe için gereken puan (abovePoints) ve bir alt
-    rütbenin puanı (belowPoints: eşiği). İstemci (UIHallOfFameSystem.UpdateDailyRankForServer) "hof_your_rank_below" metnini
+    """The Your rank page: the parts of the formula, the rank (yourRanking: rang_N), the points needed for the next rank up (abovePoints) and the points of the rank
+    below (belowPoints: its threshold). The client (UIHallOfFameSystem.UpdateDailyRankForServer) builds the "hof_your_rank_below" text
     ("The rank directly below yours is that of rang_<yourRanking-1>. Space pilots with this rank have approx. belowPoints rank
-    points.") yourRanking 2-20 iken, 1'de "hof_rank_lowest", 21'de "hof_rank_highest" kurar; aboveRanking/belowRanking'i okumaz. Kurduğu
-    satırı pencereye koymayıp hep "hof_rank_lowest" yazıyor: istemcinin BepInEx eklentisi (panel/plugin/Patches.cs RutbePenceresi)."""
+    points.") when yourRanking is 2-20, "hof_rank_lowest" at 1, "hof_rank_highest" at 21; it does not read aboveRanking/belowRanking. It does not put the
+    line it built into the window and always writes "hof_rank_lowest": the client's BepInEx plugin (panel/plugin/Patches.cs RankWindow)."""
     b = breakdown(p, now)
     rank = rank_of(p, b['rankPoints'], now)
     nxt = R['thresholds'][rank] if rank < len(R['thresholds']) else b['rankPoints']
     rival = points_to_pass(p, rank + 1, now) if rank < len(R['thresholds']) else None
     if rival is not None:
-        nxt = max(nxt, int(rival) + 1)                  # şirkette o rütbenin sınırındaki pilotu geçmek gerek
+        nxt = max(nxt, int(rival) + 1)                  # one must pass the pilot at that rank's boundary in the company
     loot = p.ship()['lootId']
     out = _zero_points()
     out.update(b, yourRanking=rank, aboveRanking=min(rank + 1, 21), abovePoints=max(0, nxt - b['rankPoints']),
@@ -347,20 +347,20 @@ def _page(page_type, rows, total=1, cur=1):
 
 
 def players(p):
-    """Hall of Fame'e girenler: sunucudaki oyuncuların profilleri (tek oyunculuda yalnız oyuncu; sunucuda olmayan profil tek başına)."""
+    """Those entering the Hall of Fame: the profiles of the players on the server (single player: only the player; a profile not on the server stands alone)."""
     import community as TP
     import admin_mode as YM
-    lst = [k.profile for k in TP.all_().values() if not YM.mi(profile=k.profile)]       # yönetici listelerde yok
+    lst = [k.profile for k in TP.all_().values() if not YM.mi(profile=k.profile)]       # an admin is not in the lists
     return lst if any(x is p for x in lst) or YM.mi(profile=p) else [p]
 
 
 def _sorted(p, value):
-    """Oyuncular değere göre (büyükten; eşitte ada göre) -> [(profil, değer)]."""
+    """Players by value (largest first; on a tie by name) -> [(profile, value)]."""
     return sorted(((x, value(x)) for x in players(p)), key=lambda xv: (-xv[1], str(xv[0].d['pilot'].get('userName', '')).lower()))
 
 
 def _ranked(p, value, extra=None):
-    """-> (bütün satırlar, oyuncunun satırı). extra(x, v): satırın value'su (verilmezse değerin kendisi)."""
+    """-> (all rows, the player's row). extra(x, v): the row's value (the value itself if not given)."""
     rows, mine = [], []
     for i, (x, v) in enumerate(_sorted(p, value)):
         row = _row(x, i + 1, v, extra(x, v) if extra else v)
@@ -371,7 +371,7 @@ def _ranked(p, value, extra=None):
 
 
 def hof_sira(p, now=None):
-    """Pilot kartının sırası: sunucudaki oyuncular arasında rütbe puanına göre."""
+    """The pilot card's rank: among the players on the server by rank points."""
     _, mine = _ranked(p, user_score)
     return mine[0]['rank'] if mine else 1
 
@@ -388,13 +388,13 @@ def hof_top(p, f, now=None):
                   'userName': v['name']} for k, v in R['ship_points'].items()]
         out.update(myRankingPoints=ranking_points(p, now),
                    pages=[_page('npcPointsDetails', pg, len(pages), i + 1) for i, pg in enumerate(pages)] + [_page('playerPointsDetails', ships)])
-    elif t == 18:                                                    # ana sayfa: puan, ad, sıra; value firma simgesi
+    elif t == 18:                                                    # main page: points, name, rank; value is the company icon
         rows, mine = _ranked(p, user_score, lambda x, v: x.d['pilot'].get('factionId', 0))
         out.update(allRankList=rows[:50], myRankList=mine)
-    elif t in TOP['clan']:        # sunucunun klanları (klan.py): üyelerin en iyi kullanıcı puanları (forum 127471); gerçek kayıt: points 0,
-        #                             value klan puanı
+    elif t in TOP['clan']:        # the server's clans (clan.py): the members' top-user points (forum 127471); real record: points 0,
+        #                             value is the clan points
         import clan as KL
-        span = {14: 7, 15: 7}.get(t)                                 # 14 haftalık, 15 yükselenler (kullanıcıdaki 2/3 gibi)
+        span = {14: 7, 15: 7}.get(t)                                 # 14 weekly, 15 risers (like 2/3 on user)
         if span:
             who = {KL.name(x): x for x in players(p)}
             with KL.LOCK:
@@ -415,7 +415,7 @@ def hof_top(p, f, now=None):
 
         def value(x):
             days = 7 if t in TOP_WEEK + TOP_CLIMB else 30 if t in TOP_MONTH else None
-            if field == 'points':                                          # En iyi kullanıcı: TP/1000 + ŞP/100 (forum 127509)
+            if field == 'points':                                          # Top user: EP/1000 + honor/100 (forum 127509)
                 return user_score_since(x, days, now) if days else user_score(x)
             if days:
                 return _since(x, field, days, now)
@@ -426,7 +426,7 @@ def hof_top(p, f, now=None):
 
 
 def hof_pages(p, f, now=None):
-    """HallOfFamePagesRequest {type 1 kullanıcı, 2 EP, 3 onur; page} -> HallOfFamePages (satır: sıra, ad, puan, rütbe)."""
+    """HallOfFamePagesRequest {type 1 user, 2 EP, 3 honor; page} -> HallOfFamePages (row: rank, name, points, rank icon)."""
     t = int(f.get('type') or 1)
     value = (user_score if t == 1 else (lambda x: int(x.d['pilot'].get('ep', 0))) if t == 2
              else (lambda x: int(x.d['pilot'].get('honourPoints', 0))))
@@ -442,11 +442,11 @@ def _runs(p, n):
     return sum(sorted((p.d.get('mimesis') or {}).get('trips', []), reverse=True)[:n])
 
 
-HOF_EVENTS = {2: lambda p: (p.d.get('labyrinth') or {}).get('hunts', 0),                   # FrozenLabyrinth: Synk avları
-              3: lambda p: ((p.d.get('pve') or {}).get('ebl') or {}).get('best', 0),     # EternalGate: Eternal Black Light dalgası
-              4: lambda p: _runs(p, 10),                                                   # MimesisMutiny: en iyi 10 sefer (mimesis.total)
-              5: lambda p: _runs(p, 1),                                                    # PayloadEscort: en iyi sefer
-              6: lambda p: min(((p.d.get('world_boss') or {}).get('event') or {}).get('damage', 0), 2 ** 31 - 1)}  # PublicWorldBoss: hasar
+HOF_EVENTS = {2: lambda p: (p.d.get('labyrinth') or {}).get('hunts', 0),                   # FrozenLabyrinth: Synk hunts
+              3: lambda p: ((p.d.get('pve') or {}).get('ebl') or {}).get('best', 0),     # EternalGate: Eternal Black Light waves
+              4: lambda p: _runs(p, 10),                                                   # MimesisMutiny: best 10 runs (mimesis.total)
+              5: lambda p: _runs(p, 1),                                                    # PayloadEscort: best run
+              6: lambda p: min(((p.d.get('world_boss') or {}).get('event') or {}).get('damage', 0), 2 ** 31 - 1)}  # PublicWorldBoss: damage
 
 
 def _ebl_time(p):
@@ -454,13 +454,13 @@ def _ebl_time(p):
     return time.strftime('%Y-%m-%d %H:%M', time.localtime(float(t) / 1000.0)) if t else ''
 
 
-HOF_TIMES = {3: _ebl_time}          # Time sütunu: en ileri dalganın zamanı (boş görünüyordu; canlı test H76)
+HOF_TIMES = {3: _ebl_time}          # Time column: the time of the furthest wave (it showed empty; live test H76)
 
 
 def hof_events(p, f):
-    """HallOfFameDataListRequest {requested: istemcinin HallOfFameType'ı}: etkinlik sıralamaları. Frozen Labyrinth (Synk avları),
-    Eternal Gate (Eternal Black Light'ın en ileri dalgası), Mimesis Mutiny (en iyi 10 seferin toplamı), Payload Escort (en iyi sefer)
-    ve World Boss (etkinlik boyu hasar) listelerinde sunucudaki oyuncular (puanı olanlar); Galactic Strife boş."""
+    """HallOfFameDataListRequest {requested: the client's HallOfFameType}: event rankings. In the lists of Frozen Labyrinth (Synk hunts),
+    Eternal Gate (the furthest wave of Eternal Black Light), Mimesis Mutiny (the sum of the best 10 runs), Payload Escort (the best run)
+    and World Boss (damage over the event) the players on the server (those with points); Galactic Strife is empty."""
     t = int(f.get('requested') or 0)
     rows, mine = [], []
     for x, v in _sorted(p, HOF_EVENTS.get(t, lambda x: 0)):
@@ -473,9 +473,9 @@ def hof_events(p, f):
     return [('HallOfFameDataListCommand', dict(dataList=rows[:50], type=t, pages=[], myList=mine))]
 
 
-# ------------------------------------------------------------ seyir defteri
+# ------------------------------------------------------------ logbook
 def note(p, info_text, info='', count=0, args='{}', quest=0, done=0, t=None):
-    """Seyir defterine kayıt (yeni en üstte)."""
+    """A record in the logbook (newest on top)."""
     with p.lock:
         lst = p.d.setdefault('logbook', [])
         lst.insert(0, dict(quest=quest, info=info, args=args, count=int(count), insertDate=stamp(t), questDone=done, infoText=info_text))
@@ -484,7 +484,7 @@ def note(p, info_text, info='', count=0, args='{}', quest=0, done=0, t=None):
 
 
 def note_kill(p, npc_id, ep, honor):
-    """Uzaylı öldürme: istemcide alt alta "… imha ettin", "XXX TP kazandın", "XXX Şeref Puanı kazandın" (kayıttaki sıra)."""
+    """Alien kill: in the client, stacked: "... imha ettin", "XXX TP kazandın", "XXX Şeref Puanı kazandın" (Turkish client texts; order in the save)."""
     if honor:
         note(p, 'honour_points_%d' % honor)
     if ep:
@@ -493,19 +493,19 @@ def note_kill(p, npc_id, ep, honor):
 
 
 def logbook(p, f):
-    """LogbookDataListRequest {startIndex: sayfa (0'dan)} -> LogbookDataListCommand (12'şer)."""
+    """LogbookDataListRequest {startIndex: page (from 0)} -> LogbookDataListCommand (12 each)."""
     lst = p.d.get('logbook', [])
     page = max(0, int(f.get('startIndex') or 0))
     rows = [dict(e, _='LogbookDataCommand') for e in lst[page * LOGBOOK_PAGE:(page + 1) * LOGBOOK_PAGE]]
     return [('LogbookDataListCommand', dict(startIndex=page, total=len(lst), list=rows))]
 
 
-# ------------------------------------------------------------ hesap geçmişi
+# ------------------------------------------------------------ account history
 CUR = {'credits': 'GOLD', 'credits': 'GOLD', 'uridium': 'PEARL', 'uridium': 'PEARL'}
 
 
 def money(p, cur, amount, description, internal='', qty=0, t=None):
-    """Para hareketi kaydı: cur kredi/uridyum (ya da credits/uridium), amount eksiyse harcama."""
+    """Money movement record: cur credits/uridium (or credits/uridium), if amount is negative it is spending."""
     amount = int(amount)
     if not amount or cur not in CUR:
         return
@@ -516,14 +516,14 @@ def money(p, cur, amount, description, internal='', qty=0, t=None):
         del lst[LOG_LIMIT:]
         p.dirty = True
     if amount < 0 and CUR[cur] == 'PEARL':
-        # tek oyunculu: uridyum harcamak Pass'lerin "Make a payment" görevini (RECHARGE_AMOUNT) ilerletir; gerçek oyunda ödeme
-        # (kullanıcı bildirimi 2026-10-25: Galaxy Trade 0/1 kalıyordu). Uridium Bank'tan alım da sayılır (game.py)
+        # single player: spending uridium advances the Passes' "Make a payment" quest (RECHARGE_AMOUNT); in the real game, a payment
+        # (user report 2026-10-25: Galaxy Trade stayed at 0/1). A purchase from the Uridium Bank counts too (game.py)
         p.ach('recharge')
 
 
-# Eski kayıtların açıklamaları -> istemcinin doğru gösterdiği anahtar (canlı test H27; kontrol kanalıyla tek tek denendi):
-# _id'li buy_* metinlerinde %ITEMNAME%/%AMOUNT% ham kalıyor, _id'siz olanlar "(adet)" ekliyor (kayıttaki "buy_BATTERY" gibi).
-# İstemcide karşılığı olmayan anahtar "Extra purchased" görünüyordu (kazançta da).
+# Descriptions of old records -> the key the client displays correctly (live test H27; tried one by one via the control channel):
+# in the buy_* texts with _id, %ITEMNAME%/%AMOUNT% stay raw, the ones without _id add "(count)" (like "buy_BATTERY" in the save).
+# A key with no counterpart in the client showed "Extra purchased" (in gains too).
 DESC_FIX = {'buy_BATTERY_id': 'buy_BATTERY', 'buy_MINES_id': 'buy_MINES', 'buy_EMP_id': 'buy_EMP', 'buy_ROCKET_id': 'buy_ROCKET',
             'buy_LASER_id': 'buy_LASER', 'buy_ROCKETLAUNCHER_id': 'buy_ROCKETLAUNCHER', 'buy_ROBOT_id': 'buy_ROBOT',
             'buy_CPU_id': 'buy_CPU', 'log_purchased_drone_formation_id': 'buy_SPECIAL', 'buy_DRONE_id': 'buy_DRONE',
@@ -543,7 +543,7 @@ def balance(p, f):
 
 
 def buy_desc(loot):
-    """Satın almanın hesap geçmişindeki açıklaması (istemcinin buy_* anahtarları; adet infoText'ten "(5)" olarak eklenir)."""
+    """A purchase's description in the account history (the client's buy_* keys; the count is added from infoText as "(5)")."""
     if loot.startswith('ammunition_laser_'):
         return 'buy_BATTERY'
     if loot.startswith('ammunition_mine_'):

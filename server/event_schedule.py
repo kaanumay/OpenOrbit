@@ -1,12 +1,12 @@
-"""Panelin etkinlik takvimi (panel.py /api/takvim): etkinliklerin [bas, bit) içindeki açık aralıkları ve seansları.
+"""The panel's event calendar (panel.py /api/takvim): events' open intervals and sessions within [start, bit).
 
-- etkinlik: takvim.intervals (period ile aynı kural; panelin elle seçimi ayrı: panel 'durum' olarak verir)
-- harita bölümleri ('harita', 'harita_ek'): kendi dönemleri ya da doğuş saatleri olanlar (takvim.section_intervals)
-- büyük içeriklerin seansları: data/major_content.json ve extra_events.json. Kural oyundakiyle aynı (vortex.session,
-  dunya_patronu.window, apotheosis.window, mimesis.run_state, unvan_avi.in_window) ama o modüller dünyayı yüklediği için veriden
-  hesaplanır; test_event_calendar.py ikisini karşılaştırır.
-Panelin seans_hep_acik ayarında seanslar ve doğuş saatleri hep açık (hep_acik).
-Zamanlar yerel saatle; çıktı zaman damgası (saniye).
+- event: event_calendar.intervals (same rule as period; the panel's manual choice is separate: the panel passes it as 'statuses')
+- map sections ('map', 'map_extra'): those with their own periods or spawn times (event_calendar.section_intervals)
+- sessions of major content: data/major_content.json and extra_events.json. The rule is the same as in the game (vortex.session,
+  world_boss.window, apotheosis.window, mimesis.run_state, title_hunt.in_window) but since those modules load the world it is
+  computed from the data; test_event_calendar.py compares the two.
+With the panel's session_always_open setting sessions and spawn times are always open (always_open).
+Times in local time; the output is a timestamp (seconds).
 """
 import datetime, json, os
 
@@ -32,7 +32,7 @@ def _hm(s):
 
 
 def _starts(a, b, times, days=range(7), duration=0):
-    """Günlük başlangıçlar [(başlangıç, gün)] — [a, b)'ye dokunan seanslar (önceki günün uzun seansı dahil)."""
+    """Daily starts [(start, day)] — sessions touching [a, b) (including the previous day's long session)."""
     out = []
     for d in CAL._days(a, b):
         if d.weekday() in days:
@@ -41,8 +41,8 @@ def _starts(a, b, times, days=range(7), duration=0):
 
 
 def sessions(a, b):
-    """Büyük içeriklerin seansları: [{'kimlik', 'etkinlik', 'araliklar': [[başlangıç, bitiş, işaret]]}] (datetime; işaret: vortex'te
-    çift ödüllü seans 1, mimesis'te girişin kapanışı)."""
+    """Sessions of major content: [{'uid', 'event', 'ranges': [[start, end, flag]]}] (datetime; flag: in vortex the
+    double-reward session 1, in mimesis the closing of entry)."""
     out = []
     v = BIG_CONTENT.get('vortex')
     if v:
@@ -85,14 +85,14 @@ def _ts(r):
 
 
 def _cut(iv, active):
-    """Seans aralıklarını [başlangıç, bitiş, işaret] etkinliğin açık aralıklarıyla keser (işaret korunur)."""
+    """Cuts session intervals [start, end, flag] with the event's open intervals (the flag is kept)."""
     return [[max(s, p), min(e, q)] + r for s, e, *r in iv for p, q in active if max(s, p) < min(e, q)]
 
 
 def schedule(start, bit, always_open=False, statuses=None):
-    """[bas, bit) (zaman damgası) -> {anahtar: {'araliklar' (takvim), 'etkin' (elle seçimle: 'acik' bütün aralık, 'kapali' boş),
-    'seanslar': [{'kimlik', 'tur', 'haritalar', 'araliklar' [[s, e, işaret]]}]}}. Seanslar yalnız etkinlik açıkken (oyundaki gibi).
-    durumlar: anahtar -> panelin elle seçimi ('acik' / 'kapali'; yoksa takvim)."""
+    """[start, bit) (timestamp) -> {key: {'ranges' (calendar), 'etkin' (with manual choice: 'on' the whole interval, 'off' empty),
+    'sessions': [{'uid', 'type', 'maps', 'ranges' [[s, e, flag]]}]}}. Sessions only while the event is open (as in the game).
+    statuses: key -> the panel's manual choice ('on' / 'off'; if absent the calendar)."""
     a, b = datetime.datetime.fromtimestamp(start), datetime.datetime.fromtimestamp(bit)
     statuses = statuses or {}
     out = {}
@@ -114,7 +114,7 @@ def schedule(start, bit, always_open=False, statuses=None):
 
 
 def next_(key, now, day=400):
-    """Etkinliğin şimdiki ya da sonraki aralığı [başlangıç, bitiş] (zaman damgası; 'gun' gün içinde yoksa None)."""
+    """The event's current or next interval [start, end] (timestamp; None if none within `day` days)."""
     a = datetime.datetime.fromtimestamp(now)
     iv = CAL.intervals(key, a, a + DAY * day)
     return _ts(iv[0]) if iv else None

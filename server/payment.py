@@ -1,28 +1,28 @@
-"""Ödeme düğmeleri -> oyundaki mağaza (kullanıcı 2026-10-18).
+"""Payment buttons -> the in-game shop (user 2026-10-18).
 
-İstemcinin "Buy now" / "Şimdi al" düğmeleri (Battle Pass, Voyagers' Ascent ve Trinity Trials VIP, Season Pass, Monthly Deluxe, Vortex
-of Greed Vanguard, Stellar Pathfinder …) oyun sunucusuna değil web ödeme API'sine gidiyor: JavascriptHelper.OpenWebUrl("PAY_TYPE",
-<tür>) -> PostUrl: Settings.PaymentUrl (giriş verisinin host'u + /unityApi/payment.php) "https://"ye çevrilip POST ediliyor. Hangi
-düğme olduğu şifreli istekte; istemci yamalanmaz (her sürümde yeniden gerekirdi, CANLI_TEST N23). Ama istek 127.0.0.1:443'e bağlanıyor:
-sunucu orayı dinler, bağlantıyı kapatır (istemci "Cannot connect" yazar, başka bir şey yapmaz) ve tıklamayı oyunda karşılar: mağaza
-Extras sekmesinde açılır ve ürünün adı ile fiyatı ekranda yazılır. Ürün, oyuncunun son açtığı pencereden (UIButtonTriggerRequest,
-UIWindowUpdateRequest maximized) bulunur; mağazayı açmak zararsız olduğu için tahmin yanlış olsa da bir şey kaybolmaz.
-Mağazayı açan komut ExpeditionBuyTicketCommand {result False}: istemcinin işleyicisi mağazayı Extras'ta açıyor ("extras,
-resource_key_access-dse"; Echoes biletine uridyum yetmeyince de bu). Mağazanın ürün listesinde ödemeli ürünler uridyumla (shop.py).
-Sunucu MileageMarketBuyCommand, VIPMerchantExchangeBuyCommand, ReturneeLoginBundleBuyCommand, UridiumBankClaimCommand göndermediği için
-(istemci bunlarla da ödeme isteği açıyor) 443'e gelen her bağlantı oyuncunun bir ödeme düğmesine basmasıdır; kupon kodu ve resim
-yükleme de 443'e gidiyor, onlar son açılan pencereden ayrılır (CEVRIMDISI).
-Birden çok istemcide (çoklu istemci, arkadaş sunucusu) tıklayan istemci, bağlanan sürecin kimliğiyle bulunur (baglanan_pid).
+The client's "Buy now" / "Şimdi al" buttons (Battle Pass, Voyagers' Ascent and Trinity Trials VIP, Season Pass, Monthly Deluxe, Vortex
+of Greed Vanguard, Stellar Pathfinder ...) go not to the game server but to the web payment API: JavascriptHelper.OpenWebUrl("PAY_TYPE",
+<type>) -> PostUrl: Settings.PaymentUrl (the login data's host + /unityApi/payment.php) is changed to "https://" and POSTed. Which
+button it is is in the encrypted request; the client is not patched (it would be needed again for every version, CANLI_TEST N23). But the request connects to 127.0.0.1:443:
+the server listens there, closes the connection (the client writes "Cannot connect" and does nothing else) and answers the click in the game: the shop
+opens on the Extras tab and the product's name and price are written on screen. The product is found from the last window the player opened (UIButtonTriggerRequest,
+UIWindowUpdateRequest maximized); opening the shop is harmless, so even if the guess is wrong nothing is lost.
+The command that opens the shop is ExpeditionBuyTicketCommand {result False}: the client's handler opens the shop on Extras ("extras,
+resource_key_access-dse"; this also happens when there is not enough uridium for an Echoes ticket). In the shop's product list paid products are bought with uridium (shop.py).
+Since the server does not send MileageMarketBuyCommand, VIPMerchantExchangeBuyCommand, ReturneeLoginBundleBuyCommand, UridiumBankClaimCommand
+(the client opens a payment request with these too), every connection to 443 is the player pressing a payment button; the coupon code and image
+upload also go to 443, and they are told apart by the last opened window (CEVRIMDISI).
+With several clients (multiple clients, friend server) the client that clicked is found by the connecting process's id (connecting_pid).
 """
 import os, socket, threading, time
 
 import platform_compat as CP
 
 PORT = 443
-INTERVAL_SEC = 2.0              # aynı tıklamanın yeniden denemeleri (TLS) bir sayılır
-WINDOW_SEC = 600             # son açılan pencere bu kadar eskiyse ürün tahmin edilmez
+INTERVAL_SEC = 2.0              # retries of the same click (TLS) count as one
+WINDOW_SEC = 600             # if the last opened window is older than this the product is not guessed
 
-# pencere (menü öğesi) -> (ürün adı, mağazadaki lootId'ler: fiyatı ilk satılanın)
+# window (menu item) -> (product name, lootIds in the shop: the price is that of the first one sold)
 PRODUCTS = {
     'battle_pass': ('Battle Pass', ['resource_battle-pass']),
     'quests': ('Battle Pass', ['resource_battle-pass']),
@@ -38,8 +38,8 @@ PRODUCTS = {
     'recallBattlePass': ('Return VIP Badge', ['package_event-deal-return-pass-vip-badge', 'package_event-deal-return-vip-special']),
 }
 GENERAL = 'Payment pages are offline: packages are sold in the Shop > Extras for uridium.'
-# 443'e giden ödeme dışı istekler (TLS içindeki yol görünmez): kupon kodu (UIVouchersSystem -> JavascriptHelper.PostVoucherUrl),
-# avatar ve klan logosu yükleme (UploadHelper -> /unityApi/upload.php). Son açılan pencere bunlardansa mağaza açılmaz, bu metin yazılır
+# non-payment requests going to 443 (the path inside TLS is not visible): coupon code (UIVouchersSystem -> JavascriptHelper.PostVoucherUrl),
+# avatar and clan logo upload (UploadHelper -> /unityApi/upload.php). If the last opened window is one of these the shop does not open, this text is written
 OFFLINE = {
     'vouchers': 'Voucher codes cannot be redeemed offline.',
     'pilotSheet': 'Image upload is not available offline.',
@@ -48,7 +48,7 @@ OFFLINE = {
 
 
 def open_shop():
-    """Mağazayı Extras sekmesinde açtıran komut (istemci: ExpeditionBuyTicketCommandHandler, result False)."""
+    """The command that makes the shop open on the Extras tab (client: ExpeditionBuyTicketCommandHandler, result False)."""
     return ('ExpeditionBuyTicketCommand', dict(result=False, stack={'_': 'BaseStackCommand', 'type': 0, 'enumBaseKey': 0,
                                                                     'stringBasekey': '', 'argsList': []}))
 
@@ -58,7 +58,7 @@ def money(cur, n):
 
 
 def product(item, shop):
-    """Pencerenin şimdi satılan ürünü -> (lootId, (para, fiyat)) ya da None."""
+    """The product the window sells now -> (lootId, (currency, price)) or None."""
     for loot in (PRODUCTS.get(item) or ('', []))[1]:
         pr = shop.buy_price(loot) if shop else None
         if pr and shop.contents(loot, 1) is not None and shop.gate_ok(loot):
@@ -67,7 +67,7 @@ def product(item, shop):
 
 
 def text(item, shop):
-    """Ekran metni: ürünün adı ve mağazadaki fiyatı; ürünü şimdi satılmıyorsa (etkinlik dışı) söyler; pencere bilinmiyorsa genel."""
+    """On-screen text: the product's name and its price in the shop; says so if the product is not sold now (outside the event); generic if the window is unknown."""
     row = PRODUCTS.get(item)
     if not row:
         return GENERAL
@@ -81,31 +81,31 @@ def text(item, shop):
 
 
 class Windows:
-    """Oyuncunun son açtığı pencereler (ürün tahmini için)."""
+    """The windows the player opened last (for guessing the product)."""
 
     def __init__(self):
-        self.last = {}                # menü öğesi -> açılış zamanı
+        self.last = {}                # menu item -> opening time
 
     def opened(self, item, now=None):
         if item:
             self.last[item] = time.time() if now is None else now
 
     def guess(self, now=None):
-        """Son açılan, ürünü bilinen pencere (PENCERE_SN içinde) ya da None."""
+        """The last opened window whose product is known (within WINDOW_SEC) or None."""
         now = time.time() if now is None else now
         rows = [(t, i) for i, t in self.last.items() if i in PRODUCTS and now - t <= WINDOW_SEC]
         return max(rows)[1] if rows else None
 
     def offline(self, now=None):
-        """Son açılan pencere ödeme dışı bir HTTPS isteğinin penceresiyse (CEVRIMDISI) onun metni, yoksa None."""
+        """The text of the last opened window if it is the window of a non-payment HTTPS request (CEVRIMDISI), otherwise None."""
         now = time.time() if now is None else now
         rows = [(t, i) for i, t in self.last.items() if now - t <= WINDOW_SEC]
         return OFFLINE.get(max(rows)[1]) if rows else None
 
 
 def redirect(shop, item):
-    """Ödeme düğmesine basıldı -> mağazayı açan komut + ekran metni. Mağaza açılınca istemci Extras listesini istiyor: ürün listenin
-    başına alınır, istemci onu seçili açar."""
+    """A payment button was pressed -> the command that opens the shop + on-screen text. When the shop opens the client asks for the Extras list: the product is put
+    at the head of the list, the client opens it selected."""
     import galaxy_gates as KAPI
     got = product(item, shop)
     if shop and hasattr(shop, 'feature'):
@@ -114,8 +114,8 @@ def redirect(shop, item):
 
 
 def connecting_pid(addr, port):
-    """Bu bilgisayardan gelen bağlantının (karşı ucu addr, bu uçtaki port) sürecinin kimliği: Windows TCP tablosundan
-    (GetExtendedTcpTable, TCP_TABLE_OWNER_PID_CONNECTIONS); bulunamazsa None."""
+    """The id of the process of a connection coming from this computer (the far end addr, the port at this end): from the Windows TCP table
+    (GetExtendedTcpTable, TCP_TABLE_OWNER_PID_CONNECTIONS); None if not found."""
     if os.name != 'nt' or not addr:
         return None
     import ctypes
@@ -131,7 +131,7 @@ def connecting_pid(addr, port):
     else:
         return None
     n = ctypes.cast(buf, ctypes.POINTER(wintypes.DWORD))[0]
-    rows = ctypes.cast(ctypes.addressof(buf) + 4, ctypes.POINTER(wintypes.DWORD * 6))   # durum, yerel adres/port, uzak adres/port, pid
+    rows = ctypes.cast(ctypes.addressof(buf) + 4, ctypes.POINTER(wintypes.DWORD * 6))   # state, local address/port, remote address/port, pid
     for i in range(n):
         r = rows[i]
         if socket.ntohs(r[2] & 0xFFFF) == addr[1] and socket.ntohs(r[4] & 0xFFFF) == port:
@@ -140,9 +140,9 @@ def connecting_pid(addr, port):
 
 
 class Listener:
-    """127.0.0.1:443: istemcinin ödeme isteği (TLS) bağlanınca on_click(adres) çağrılır, bağlantı kapatılır (aynı tıklamanın
-    denemeleri bir). on_click bağlantı açıkken çağrılır: tıklayan istemcinin süreci TCP tablosunda görünür (baglanan_pid). macOS'ta
-    0.0.0.0:443, yalnız bu bilgisayardan gelen bağlantılar (uyum.dinleme_adresi)."""
+    """127.0.0.1:443: when the client's payment request (TLS) connects on_click(address) is called and the connection is closed (retries of the same
+    click count as one). on_click is called while the connection is open: the clicking client's process is visible in the TCP table (connecting_pid). On macOS
+    0.0.0.0:443, only connections coming from this computer (platform_compat.listen_address)."""
 
     def __init__(self, on_click, log=print, port=PORT):
         self.on_click, self.log, self.port = on_click, log, port
@@ -157,7 +157,7 @@ class Listener:
             s.bind((address, self.port))
             s.listen(5)
         except OSError as e:
-            self.log('   ödeme düğmeleri: %d dinlenemedi (%s); düğmeler mağazayı açmaz' % (self.port, e))
+            self.log('   payment buttons: could not listen on %d (%s); the buttons will not open the shop' % (self.port, e))
             return None
         self.sock = s
         threading.Thread(target=self.serve, daemon=True).start()
@@ -177,8 +177,8 @@ class Listener:
                 self.last = now
                 try:
                     self.on_click(addr)
-                except Exception as e:                  # noqa: BLE001 (dinleyici düşmesin)
-                    self.log('   ödeme düğmesi hatası: %s' % e)
+                except Exception as e:                  # noqa: BLE001 (so the listener does not die)
+                    self.log('   payment button error: %s' % e)
             try:
                 c.close()
             except OSError:

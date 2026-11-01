@@ -1,25 +1,25 @@
-"""Discord Rich Presence (Panel sayfası > Discord Rich Presence): oyuncunun Discord profilinde oyunun anlık hâli.
+"""Discord Rich Presence (Panel page > Discord Rich Presence): the game's live state on the player's Discord profile.
 
-Panel açık Discord istemcisine yerel IPC'yle bağlanır (Windows: \\\\.\\pipe\\discord-ipc-N; Linux ve macOS: $XDG_RUNTIME_DIR,
-$TMPDIR ya da /tmp altında discord-ipc-N soketi; Flatpak ve Snap Discord'unun klasörleri de denenir). Ek paket gerekmez.
-Durum oyun sunucusunun canlı durum dosyasından (live_status.py) okunur; oyuncu Panel sayfasında neyin görüneceğini seçer
-(config.py rp_* anahtarları). Görseller uygulamanın Developer Portal'daki Rich Presence varlıkları (Orders.md OP-018; adları
-teslim dosyalarınınki); panelin önizlemesi aynı adlarla ui/images/discord/*.webp.
+The panel connects to the open Discord client over local IPC (Windows: \\\\.\\pipe\\discord-ipc-N; Linux and macOS: the discord-ipc-N socket under
+$XDG_RUNTIME_DIR, $TMPDIR or /tmp; the folders of Flatpak and Snap Discord are tried too). No extra package is needed.
+The state is read from the game server's live status file (live_status.py); the player chooses on the Panel page what is shown
+(config.py rp_* keys). The images are the app's Rich Presence assets in the Developer Portal (Orders.md OP-018; the names are
+those of the delivered files); the panel's preview uses the same names with ui/images/discord/*.webp.
 
-Discord etkinlik güncellemesini 20 saniyede 5 kez sınırlar: yalnız değişince ve en sık ARALIK_SN'de bir gönderilir.
+Discord limits activity updates to 5 per 20 seconds: it is sent only on change and at most once per ARALIK_SN.
 """
 import json, os, socket, struct, threading, time, uuid
 
 APPLY_WHEN = '1565840028163248218'
 LOGO = 'oo_rp_logo'
-BADGE = 'oo_rp_badge_%s_r2'                    # firma amblemi (küçük görsel)
+BADGE = 'oo_rp_badge_%s_r2'                    # company emblem (small image)
 GITHUB = 'https://github.com/kaanumay/OpenOrbit'
 INTERVAL_SEC = 15
 FIRMA = {1: 'mmo', 2: 'eic', 3: 'vru'}
 
 
 def region(game_map, gate):
-    """Haritanın büyük görseli: firmanın bölgesi, ortak savaş bölgesi (4-X), üst haritalar (5-X, BL), kapılar."""
+    """The map's large image: the company's region, the shared battle region (4-X), upper maps (5-X, BL), gates."""
     n = str(game_map or '')
     if gate:
         b = 'gate'
@@ -35,8 +35,8 @@ def ship_name(loot):
 
 
 def event(live, setting, _, state):
-    """Panelin durumu -> SET_ACTIVITY'nin etkinliği (None: gösterilecek bir şey yok). Önizleme de bunu gösterir.
-    canli: canli_durum.json (oyun sunucusu açıksa); durum: 'oyunda' | 'arkadas' (arkadaşın sunucusunda) | 'giris' | 'baslatiliyor'
+    """The panel's state -> the SET_ACTIVITY activity (None: nothing to show). The preview shows this too.
+    live: canli_durum.json (if the game server is running); state: 'in_game' | 'friend' (on a friend's server) | 'entry' | 'starting'
     | 'panel'."""
     a = lambda k: setting.get('rp_' + k)
     if state != 'in_game' or not live:
@@ -79,18 +79,18 @@ def event(live, setting, _, state):
         friends = live.get('friend')
         if a('group') and friends and friends.get('guests'):
             e['party'] = {'id': 'openorbit-%s' % (pl.get('name') or 'host'), 'size': [len(friends['guests']) + 1, friends['max_count'] + 1]}
-    e.update(details_url=GITHUB, state_url=GITHUB)       # kartın yazıları ve görselleri tıklanınca GitHub sayfası
+    e.update(details_url=GITHUB, state_url=GITHUB)       # clicking the card's texts and images opens the GitHub page
     e['assets'].update({k + '_url': GITHUB for k in ('large', 'small') if k + '_image' in e['assets']})
     if a('buttons'):
         e['buttons'] = [{'label': _("Join Discord")[:32], 'url': 'https://discord.com/invite/openorbit'},
                         {'label': _('OpenOrbit (GitHub)')[:32], 'url': GITHUB}]
-    for k in ('details', 'state'):                     # Discord: 2-128 karakter
+    for k in ('details', 'state'):                     # Discord: 2-128 characters
         e[k] = e[k][:128].ljust(2)
     return e
 
 
 class Connection:
-    """Discord istemcisinin IPC'si: el sıkışma, sonra kare (işlem kodu, uzunluk, JSON) gönderip yanıtı okuma."""
+    """The Discord client's IPC: handshake, then sending a frame (opcode, length, JSON) and reading the reply."""
 
     def __init__(self):
         self.f = None
@@ -138,7 +138,7 @@ class Connection:
         while len(out) < n:
             k = self.f.read(n - len(out))
             if not k:
-                raise OSError('discord kapandı')
+                raise OSError('discord closed')
             out += k
         return out
 
@@ -157,15 +157,15 @@ class Connection:
 
 
 class Presence:
-    """Arka planda: ayar açıkken Discord'a bağlanır, etkinliği değişince gönderir; kapanınca etkinliği temizler."""
+    """In the background: connects to Discord while the setting is on, sends the activity when it changes; clears the activity when it closes."""
 
     def __init__(self, setting, source, t, log=print):
-        self.setting, self.source, self.t, self.log = setting, source, t, log       # kaynak: () -> (canli, durum)
+        self.setting, self.source, self.t, self.log = setting, source, t, log       # source: () -> (live, state)
         self.b = Connection()
-        self.last = None                         # Discord'a en son giden etkinlik
+        self.last = None                         # the activity last sent to Discord
         self.last_time = 0.0
         self.trial = 0.0
-        self.state = 'off'                   # kapali | discord_yok | bagli | hata
+        self.state = 'off'                   # off | discord_not_running | connected | error
         self.error = None
         self.wake_up = threading.Event()
 
@@ -204,7 +204,7 @@ class Presence:
                 self.state = 'discord_not_running'
                 return
             self.last, self.error = None, None
-            self.log('discord rich presence: bağlandı')
+            self.log('discord rich presence: connected')
         self.state = 'connected'
         e = self.preview()
         if e == self.last or time.monotonic() - self.last_time < INTERVAL_SEC:

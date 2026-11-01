@@ -1,8 +1,8 @@
-"""Görev: oyunun görev zincirinden (quests.json) uzaylı öldürme / oyuncu öldürme / harita ziyareti görevlerini almak ve bitirmek.
+"""Quest: take and finish alien-kill / player-kill / map-visit quests from the game's quest chain (quests.json).
 
-Bot görev vericiden seviyesine uygun, ön koşulları tamam, bitirmediği görevi alır; koşulların haritasına gidip istenen uzaylıyı
-kovalar. Ödüller görevin kendi ödülleri (currency_credits, currency_experience, currency_uridium, currency_honour ve eşyalar).
-Görev verisi değişince (Dünya Editörü) botlar yenisini kendiliğinden kullanır.
+The bot takes from the quest giver a quest that fits its level, whose prerequisites are done and that it has not finished; it goes to the conditions' map and
+chases the requested alien. The rewards are the quest's own (currency_credits, currency_experience, currency_uridium, currency_honour and items).
+When the quest data changes (World Editor) the bots use the new data on their own.
 """
 from ..brain import Goal, target
 from .. import catalog as K
@@ -15,7 +15,7 @@ _id_type = None
 
 
 def quests():
-    """id -> {seviye, onceki, kosullar [{id, tur, hedef, eslesme, haritalar (belirteçler)}], oduller}: yalnız botun yapabildikleri."""
+    """id -> {level, previous, conditions [{id, type, target, matches, maps (tokens)}], rewards}: only what the bot can do."""
     global _quests, _id_type
     if _quests is None:
         import quest as QU
@@ -40,7 +40,7 @@ def quests():
                 conditions.append(dict(id=c['id'], type=c['type'], target=int(c.get('targetValue', 1)), matches=list(c.get('matches', [])),
                                 maps=maps))
             package = any(str(l).startswith('ship_') or (l == 'currency_uridium' and n >= 10000) for l, n in q.get('rewards', []))
-            if ok and conditions and not package:            # hoş geldin paketi (gemi, binlerce uridyum): botlar herkes gibi sıfırdan
+            if ok and conditions and not package:            # welcome package (ship, thousands of uridium): bots start from zero like everyone else
                 out[int(qid)] = dict(level=int(q.get('level', 0)), previous=[int(x) for x in q.get('previous', [])], conditions=conditions,
                                      rewards=q.get('rewards', []), name=q.get('name', ''), ordered=q['root'].get('ordered', False))
         _quests = out
@@ -61,7 +61,7 @@ def npc_types(uid):
 
 
 def eligible(bot):
-    """Botun şimdi alabileceği görevler (seviyeye yakın olanlar önce)."""
+    """Quests the bot can take now (those close to its level first)."""
     done = set(bot.k['done'])
     deferred = bot.k.get('deferred') or {}
     out = []
@@ -74,7 +74,7 @@ def eligible(bot):
 
 
 def next_up(bot):
-    """Süren görevin sıradaki bitmemiş koşulu -> (koşul, haritalar) ya da None."""
+    """The next unfinished condition of the running quest -> (condition, maps) or None."""
     g = bot.k.get('quest')
     if not g:
         return None
@@ -90,7 +90,7 @@ def next_up(bot):
             elif c['type'] == HOME:
                 maps = [K.ev(bot.firma)]
             elif c['type'] == KILL_NPC and not maps:
-                # haritası verilmemiş: o uzaylının çıktığı, girebildiği en yakın harita
+                # no map given: the nearest map where that alien appears and that it can enter
                 types = {t for k in c['matches'] for t in npc_types(k)}
                 maps = [m for m in K.MAPS if K.can_enter(m, bot.firma, bot.level)
                         and any(v['tip'] in types for v, _ in K.map_npcs(m))]
@@ -102,7 +102,7 @@ def next_up(bot):
 
 
 def advance(bot, kind, n=1, npc_id=None, game_map=None, y=None):
-    """Olay görevi ilerletir (kasılmada öldürülen uzaylı, PvP, harita girişi) -> görev bitti mi."""
+    """An event advances the quest (alien killed while grinding, PvP, map entry) -> whether the quest is done."""
     g = bot.k.get('quest')
     if not g:
         return False
@@ -153,8 +153,8 @@ def finish(bot, q, y):
 
 
 def deferred(bot):
-    """Görev şimdilik yapılamıyor (istenen uzaylıya gücü yetmiyor): bırakılır, bir seviye atlayınca yeniden denenir (gerçek
-    oyuncu da görevi iptal edip sonra döner)."""
+    """The quest cannot be done for now (it is not strong enough for the requested alien): it is dropped and retried after a level-up (a real
+    player also cancels the quest and comes back later)."""
     g = bot.k.get('quest')
     if g:
         bot.k.setdefault('deferred', {})[str(g['id'])] = bot.level
@@ -178,10 +178,10 @@ class Quest(Goal):
         o = bot.traits
         p = 0.45 + 0.35 * o['ambition'] * o['patience'] + (0.35 if bot.archetype == 'quester' else 0)
         if bot.k.get('quest'):
-            p += 0.15                     # yarım görev çeker
+            p += 0.15                     # takes a half-done quest
         from .. import weapons as WP
         if not WP.has_laser(bot):
-            p *= 0.3                                      # görevlerin çoğu öldürme ister: cephanesiz ilerlemez
+            p *= 0.3                                      # most quests ask for kills: it does not progress without ammo
         return p * (1 - 0.3 * bot.mood['boredom'])
 
     def start(self, bot, b):
@@ -206,7 +206,7 @@ class Quest(Goal):
         c, maps = s
         types = [t for k in c['matches'] for t in npc_types(k)] if c['type'] == KILL_NPC else []
         if types:
-            # gücünün yettiği (öldürmeye cesaret ettiği) haritalar; hiçbiri yoksa görev güçlenene dek bekler
+            # maps it is strong enough for (that it dares to kill on); if there are none, the quest waits until it gets stronger
             d = bot.value()
             maps = [m for m in maps if set(types) & set(K.evaluate_map(m, d['dps'], d['ehp'], 0.8)['targets'])]
             if not maps:
@@ -230,11 +230,11 @@ class Quest(Goal):
             self._head_to(bot, y)
             return
         if c['type'] in (VISIT_MAP, HOME):
-            if bot.plan.get('visit') != (c['id'], bot.game_map):        # varışta bir kez (her soyut adımda sayılıyordu)
+            if bot.plan.get('visit') != (c['id'], bot.game_map):        # once on arrival (it used to be counted at every abstract step)
                 bot.plan['visit'] = (c['id'], bot.game_map)
                 advance(bot, c['type'], game_map=bot.game_map, y=y)
         elif c['type'] == KILL_PLAYERS:
-            S.farm(bot, dt, y)             # PvP koşulu: haritada dolaşırken karşılaşmalar (yonetici.pvp_tick) sayar
+            S.farm(bot, dt, y)             # PvP condition: encounters while roaming the map (manager.pvp_tick) count
         else:
             S.farm(bot, dt, y, target_kind=bot.plan.get('tip'))
 

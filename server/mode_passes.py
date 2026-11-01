@@ -1,11 +1,11 @@
-"""Mod geçişleri (yol haritası Aşama 8): Voyagers' Ascent ve Trinity Trials'ın puanlı ödül sıraları (istemcinin
-porting.passevent.PassEventCommand'ı: VoyagersPassCommand, TrinityTrialsPassCommand).
+"""Mode passes (roadmap Stage 8): the scored reward tracks of Voyagers' Ascent and Trinity Trials (the client's
+porting.passevent.PassEventCommand: VoyagersPassCommand, TrinityTrialsPassCommand).
 
-Bir geçiş: seviyeler (her seviyenin puan eşiği), ücretsiz ve VIP sıranın ödülleri (seviye başına bir eşya). Puan modun
-bitişlerinden gelir; seviyeye ulaşılınca ödül alınabilir (PassItemModule.statusType: 0 LOCK, 1 CLAIMED, 2 CLAIMABLE,
-3 BELOW_LEVEL; istemcinin PassItemStatusType'ı). VIP geçiş mağazadan uridyumla (tek oyunculu kural); VIP sırası açılır, puanlar
-'vip_puan' oranında artar. The mode's VIP badge (Trinity / Voyagers VIP Badge) in the inventory also opens the VIP track. Dönem takvim ayı: ay değişince puan, seviye ve alınanlar sıfırlanır (VIP de).
-Profilde: gecisler {name: {donem, puan, vip, alinan: {"n": [seviye], "v": [seviye]}}}.
+A pass: levels (each level's point threshold), the rewards of the free and VIP tracks (one item per level). Points come from the mode's
+finishes; when a level is reached the reward can be claimed (PassItemModule.statusType: 0 LOCK, 1 CLAIMED, 2 CLAIMABLE,
+3 BELOW_LEVEL; the client's PassItemStatusType). The VIP pass is bought in the shop with uridium (single-player rule); the VIP track opens, points
+rise by the 'vip_points' ratio. The mode's VIP badge (Trinity / Voyagers VIP Badge) in the inventory also opens the VIP track. The period is the calendar month: when the month changes, points, level and claimed rewards reset (VIP too).
+In the profile: passes {name: {period, points, vip, claimed: {"n": [level], "v": [level]}}}.
 """
 import datetime, time
 
@@ -24,8 +24,8 @@ def seconds_left(now=None):
 
 
 class Pass:
-    """data: {levels: [eşik puan …] (seviye i+1 için toplam puan), ucretsiz: [[seviye, lootId, adet]], vip: [[…]],
-    vip_puan: oran, vip_parametreler: [...]}."""
+    """data: {levels: [threshold points …] (total points for level i+1), ucretsiz: [[level, lootId, count]], vip: [[…]],
+    vip_points: ratio, vip_params: [...]}."""
 
     def __init__(self, profile, name, data, badge=None):
         self.p, self.name, self.D = profile, name, data
@@ -49,7 +49,7 @@ class Pass:
         return sum(1 for t in self.D['levels'] if pts >= t)
 
     def add(self, points):
-        """Puan ekler (VIP oranıyla) -> eklenen."""
+        """Adds points (with the VIP ratio) -> the amount added."""
         s = self.st
         n = int(points * (1 + (self.D.get('vip_points', 0) if self.is_vip() else 0)))
         with self.p.lock:
@@ -79,8 +79,8 @@ class Pass:
                            nextLevelExp=nxt, currentExp=s['points'] - prev))
 
     def claim(self, lvl, vip, grant):
-        """Ödülü al (grant: lootId, adet -> mesajlar) -> mesajlar ya da None (alınamaz). lvl 0: iki sıranın alınabilir bütün
-        ödülleri (istemci hangi ödüle tıklanırsa tıklansın rewardLevel 0, isVip false gönderir; canlı 2026-10-27)."""
+        """Claim the reward (grant: lootId, count -> messages) -> messages or None (cannot be claimed). lvl 0: all claimable rewards of both
+        tracks (whichever reward is clicked, the client sends rewardLevel 0, isVip false; live 2026-10-27)."""
         if lvl == 0:
             out = [self.claim(r[0], v, grant) for v, rows in ((False, self.D['free']), (True, self.D['vip']))
                    for r in rows if self.status(r[0], v) == CLAIMABLE]

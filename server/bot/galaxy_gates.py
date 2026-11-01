@@ -1,13 +1,13 @@
-"""Galaksi Kapıları: üretici (enerji, çekiliş, parça, çarpan) ve kapı koşusu (oyuncunun kuralları ve tabloları: galaxy_gates.py,
+"""Galaxy Gates: the generator (energy, spin, part, multiplier) and the gate run (the player's rules and tables: galaxy_gates.py,
 data/gates.json).
 
-  enerji    bonus kutularından ve ödüllerden (resource_extra-energy) gelir; yoksa çekiliş başına 100 U (kapıcı ve zengin botlar)
-  çekiliş   olasılıklar oyunun: cephane 67, Xenomit 12, kupon 3, parça 13, Nano Hull 4, günlük diski 1; Alpha/Beta/Gamma'nın
-            parçası üçünden birine; kopya parça çarpanı artırır (en çok 5), oyunun "kopya eksiğe" payıyla
-  koşu      kapı kurulunca bot (gücü yetiyorsa) kapı haritasına geçer (senin haritandan kalkar); süre ve başarı dalgaların
-            uzaylılarından: toplam can / botun hasarı, alınan hasar / botun canı x can hakkı. Başarırsa kapının ödülü ve
-            uzaylılarının öldürme ödülleri; başaramazsa kapı (parçalarıyla) kaybolur. Kronos parçası öteki kapılardan.
-Durum bot.k['kapi'] = {'parca': {kapı: adet}, 'kurulu': [kapı …], 'carpan': n, 'kronos': adet}.
+  energy    comes from bonus boxes and rewards (resource_extra-energy); otherwise 100 U per spin (quester and rich bots)
+  spin      the probabilities are the game's: ammo 67, Xenomit 12, voucher 3, part 13, Nano Hull 4, daily disc 1; the part of Alpha/Beta/Gamma
+            goes to one of the three; a duplicate part raises the multiplier (up to 5), with the game's "duplicate to the missing one" share
+  run       when a gate is built the bot (if strong enough) moves to the gate map (leaves your map); time and success come from the
+            waves' aliens: total HP / the bot's damage, damage taken / the bot's HP x number of lives. On success the gate's reward and its
+            aliens' kill rewards; on failure the gate (with its parts) is lost. The Kronos part comes from the other gates.
+State bot.k['kapi'] = {'parca': {gate: count}, 'kurulu': [gate ...], 'carpan': n, 'kronos': count}.
 """
 import json, math, os, random
 
@@ -18,7 +18,7 @@ KAPI = D['kapilar']
 ABG = ('alpha', 'beta', 'gamma')
 ORDER = ('alpha', 'beta', 'gamma', 'lambda', 'hades', 'delta', 'epsilon', 'kappa', 'zeta', 'streuner')
 ENERGY = 'resource_extra-energy'
-PROBABILITY = {c: w for c, w in D['probability']}            # 1 cephane, 2 kaynak, 3 kupon, 4 parça, 5 özel, 6 log
+PROBABILITY = {c: w for c, w in D['probability']}            # 1 ammo, 2 resource, 3 voucher, 4 part, 5 special, 6 log
 _difficulty = {}
 
 
@@ -32,7 +32,7 @@ def stock(bot):
 
 
 def difficulty(gate):
-    """Kapının dalgaları -> ([(dalganın toplam can+kalkanı, aynı anda vuranların saniyede hasarı)], öldürme ödülleri)."""
+    """The gate's waves -> ([(wave's total HP+shield, damage per second of those hitting at the same time)], kill rewards)."""
     if gate in _difficulty:
         return _difficulty[gate]
     import ast
@@ -45,7 +45,7 @@ def difficulty(gate):
         for u in d.get('alien_spawns', []):
             n = u.get('count', 1)
             ehp += n * (u.get('hp', 0) + u.get('kalkan', 0))
-            dps += min(n, 2) * u.get('damage', 0) * K.COMBAT['npc_hit_chance'] * 0.6 / K.NPC_INTERVAL  # oyuncu tek tek çeker, menzilden kaçar
+            dps += min(n, 2) * u.get('damage', 0) * K.COMBAT['npc_hit_chance'] * 0.6 / K.NPC_INTERVAL  # the player pulls them one by one, escapes out of range
             for k, v in (u.get('reward') or {}).items():
                 reward[k] = reward.get(k, 0) + v * n
         out.append((ehp, dps))
@@ -54,14 +54,14 @@ def difficulty(gate):
 
 
 def estimate(bot, gate):
-    """Koşu tahmini -> (süre sn, beklenen ölüm sayısı). Kapıda oyuncular en iyi cephanesini kullanır (stoktaki en güçlü x2-x4);
-    dalga arasında kalkan dolar ve onarılır."""
+    """Run estimate -> (time s, expected number of deaths). In a gate players use their best ammo (the strongest in stock x2-x4);
+    between waves the shield refills and the ship is repaired."""
     from . import weapons as WP
     waves, _ = difficulty(gate)
     d = bot.value()
     s = WP.stock(bot)
     multiplier = max([WP.multiplier(c) for c in ('ammunition_laser_ucb-100', WP.MCB50, WP.MCB25, WP.LCB) if s.get(c, 0) > 1000] or [1])
-    dps = max(1.0, d['dps'] * multiplier * 1.15)                 # roketler
+    dps = max(1.0, d['dps'] * multiplier * 1.15)                 # rockets
     duration = death = 0.0
     for ehp, incoming_dps in waves:
         t = ehp / dps
@@ -70,9 +70,9 @@ def estimate(bot, gate):
     return duration, death
 
 
-# ------------------------------------------------------------------------------------------------------------ üretici
+# ------------------------------------------------------------------------------------------------------------ generator
 def draw(bot, gate, n):
-    """n çekiliş (önce enerji, sonra 100 U) -> yapılan."""
+    """n spins (energy first, then 100 U) -> the number done."""
     st = state(bot)
     s = stock(bot)
     crafted = 0
@@ -125,7 +125,7 @@ def _draw(bot, st, gate):
 
 
 def target_gate(bot):
-    """Parça toplanacak kapı: kurulmamış ve botun tahminen geçebileceği ilk kapı (oyuncuların sırası: ABG, sonra öteki)."""
+    """The gate to collect parts for: not built and the first gate the bot can probably pass (players' order: ABG, then the others)."""
     st = state(bot)
     for k in ORDER:
         if k in st['built'] or KAPI[k].get('not_producible'):
@@ -137,7 +137,7 @@ def target_gate(bot):
 
 
 def generator(bot):
-    """Karar anında: enerjisi varsa çeker; kapıcı ve zengin bot uridyumla da (izin 'kapi', 10. seviyeden)."""
+    """At decision time: spins if it has energy; a quester and a rich bot also with uridium (permission 'kapi', from level 10)."""
     if not bot.permission.get('gate', True) or bot.level < 10:
         return 0
     k = target_gate(bot)
@@ -150,16 +150,16 @@ def generator(bot):
     return draw(bot, k, min(n, 200)) if n else 0
 
 
-# ------------------------------------------------------------------------------------------------------------ koşu
+# ------------------------------------------------------------------------------------------------------------ run
 def run_result(bot, gate, rng=random):
-    """Koşunun sonucu -> (başardı mı, süre sn)."""
+    """Result of the run -> (did it succeed, time s)."""
     duration, death = estimate(bot, gate)
     death = rng.gauss(death, 0.3 * death + 0.2)
     return death < KAPI[gate]['can'], duration * rng.uniform(1.1, 1.6) + 120
 
 
 def grant_reward(bot, gate, speed=1.0):
-    """Kapının tamamlama ödülü ve uzaylılarının öldürme ödülleri; Kronos parçası."""
+    """The gate's completion reward and its aliens' kill rewards; the Kronos part."""
     from . import weapons as WP
     o = KAPI[gate].get('reward') or {}
     if isinstance(o, str):
@@ -184,13 +184,13 @@ def grant_reward(bot, gate, speed=1.0):
         if st['kronos'] >= KAPI['kronos']['part'] and 'kronos' not in st['built']:
             st['built'].append('kronos')
     if gate not in st.setdefault('done', []):
-        st['done'].append(gate)                      # kapı halkası (gorunum.halkalar)
+        st['done'].append(gate)                      # gate ring (appearance.rings)
     bot.ist('gate_done')
     bot.event('gate_done', gate=KAPI[gate]['name'])
 
 
 def record_duration(save, key, sec):
-    """Kapının tamamlanma süresi (istatistik; oyuncu isteği 2026-10-30) -> kayit['kapi_sureleri'][key] {en_iyi, son, sayi} (sn)."""
+    """The gate's completion time (statistics; player request 2026-10-30) -> save['gate_times'][key] {best, last, number} (s)."""
     d = save.setdefault('gate_times', {}).setdefault(key, {'best': 0, 'last': 0, 'number': 0})
     sec = int(max(1, sec))
     d.update(last=sec, number=d['number'] + 1, best=min(d['best'], sec) if d['best'] else sec)
@@ -198,7 +198,7 @@ def record_duration(save, key, sec):
 
 
 def can_run(bot):
-    """Kurulu ve geçilebilir kapı ya da None."""
+    """A built and passable gate or None."""
     st = state(bot)
     for k in st['built']:
         if estimate(bot, k)[1] < KAPI[k]['can']:

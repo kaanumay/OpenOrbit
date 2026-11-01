@@ -1,43 +1,43 @@
-"""Mağaza ve hangar: cephane/ekipman satın alma ve hangarda ekipman takıp çıkarma (kayıttaki ve istemcideki akışlar).
+"""Shop and hangar: buying ammo/equipment and fitting and removing equipment in the hangar (flows from the save and the client).
 
-Satın alma (kayıt: LCB-10 ve MCB-25 alımları, belgeler/istemci/kayit_analizi.md):
-  ShopItemBuyRequest {lootId, category, amount, …} ->
-    [hızlı alım öğelerinin durumu] + 0|A|C|kredi|uridyum + para birimi envanteri + cephane sayacı (MenuItemStatusCommand)
-    + InventoryItemUpdatedCommand + InventoryItemPack + 0|LM|ST|BAT|lootId|adet + ShopItemBuyCommand(resultId 1)
-    + kategorinin güncel ShopItemListCommand'i (maxAmount = paranın yettiği adet, yetmiyorsa -1)
-  Fiyat: price × adet, yukarı yuvarlanır (kayıt: 0,5 U'luk MCB-25'ten 1 adet -> 1 U).
-  Ekipman alımında eşya envantere girer (hangarId 0). Gemide boş yuva varsa ShopItemBuyCommand allowAutoEquip=1 ve
-  hintEquipTo="hint_equip_to_ship" taşır; istemci "Envantere / Otomatik donat" sorar ve onayda aşağıdaki takma isteğini
-  gönderir (istemci kodu: UIShopSystem.SendHangarShipMoveItemsRequest).
-Tek oyunculu: gerçek parayla satılan ("Payment") eşyalar uridyumla satılır (fiyatlar items.json odeme_fiyatlari).
-  Paketlerin içeriği odeme_paketleri tablosundan verilir (gemi paketleri dahil); içeriği sunucuda olmayan eşya listede gösterilmez.
-  Paketin verilemeyen parçaları (sahip olunan gemi, P.E.T., formasyon; dronlar boş yer kadar) atlanır, gerisi verilir, ekranda
-  "Already owned, not given: …" (package_fit); hepsi zaten varsa alım olmaz. Fiyat değişmez.
-Hızlı alım: buy_<lootId> (kayıttaki SELECTION öğesi; MenuActionRequest actionType 1: kısayol çubuğunda tek tık, öğe çubuğunda çift tık;
-  öğe çubuğundaki tek tık actionType 0, gerçek sunucu yanıtlamıyor); adet öğenin sayacı (lazer 1000, roket 100).
+Buying (save: LCB-10 and MCB-25 purchases, belgeler/istemci/kayit_analizi.md):
+  ShopItemBuyRequest {lootId, category, amount, ...} ->
+    [state of the quick-buy items] + 0|A|C|credits|uridium + currency inventory + ammo counter (MenuItemStatusCommand)
+    + InventoryItemUpdatedCommand + InventoryItemPack + 0|LM|ST|BAT|lootId|count + ShopItemBuyCommand(resultId 1)
+    + the category's current ShopItemListCommand (maxAmount = the amount the money affords, -1 if it affords none)
+  Price: price x amount, rounded up (save: 1 piece of the 0.5 U MCB-25 -> 1 U).
+  When equipment is bought the item goes into the inventory (hangarId 0). If the ship has a free slot ShopItemBuyCommand carries allowAutoEquip=1 and
+  hintEquipTo="hint_equip_to_ship"; the client asks "To inventory / Auto-equip" and on confirmation sends the fitting request below
+  (client code: UIShopSystem.SendHangarShipMoveItemsRequest).
+Single player: items sold for real money ("Payment") are sold for uridium (prices items.json payment_prices).
+  The contents of packages are given from the payment_packages table (ship packages included); an item whose content is not on the server is not shown in the list.
+  Parts of a package that cannot be given (an owned ship, P.E.T., formation; drones as many as there is room) are skipped, the rest is given, and the screen shows
+  "Already owned, not given: ..." (package_fit); if all of it is already owned there is no purchase. The price does not change.
+Quick buy: buy_<lootId> (the SELECTION item in the save; MenuActionRequest actionType 1: one click on the shortcut bar, double click on the item bar;
+  a single click on the item bar is actionType 0, the real server does not answer it); the amount is the item's counter (laser 1000, rocket 100).
 Hangar:
-  HangarShipEquipmentRequest -> HangarShipEquipmentCommand (iki config'in eşya kimlikleri profilden)
-  HangarListRequest          -> HangarShipsCommand (envanter: ekipman örnekleri, cephane, cevher)
-  HangarShipDetailRequest    -> HangarShipDetailCommand (lazer sayısı, cephane, jeneratörler, hız)
-  HangarShipMoveItemsRequest {items, source, destination, configId} (istemci: UINewHangarSystem.SendMoveItemRequest;
-    hedef/kaynak "ship" | "inventory", yuvayı eşyanın türü belirler) -> HangarShipMoveItemsCommand(result 1)
-    + eşyaların hangarId güncellemesi + HangarShipEquipmentCommand; etkin config değiştiyse hız/kalkan/görünüm.
-Dronlar (kayıttaki hesapta dron yoktu; biçimler istemcinin kodundan):
-  Mağaza "drone" kategorisi: Flax (kredi), Iris (uridyum); fiyat her dronla artar (items.json dronlar), en çok 8.
-  Formasyonlar mağazadan alınır; kısayol çubuğunun drone_formations kategorisinde görünür olur. Çubuktan seçilince
-  (MenuActionRequest drone_formation_*) DroneFormationChangeCommand + uzaydaki dron dizilimi + bonuslar (hız, kalkan, can).
-  Uzayda: "0|n|d|<kullanıcı>|<formasyon>|" + dron başına "tür|seviye|tasarım|görünüm" (istemci: MapEventsAssemblyHelper.
-    AssembleSetDrones; tür 1 Flax, 2 Iris, 3 Apis, 4 Zeus; seviye 1-6).
-  Hangar: HangarShipsCommand.drones (HangarShipDroneView) ve HangarShipEquipmentCommand.droneConfigs (config başına dron listesi,
-    takılı eşyalar SingleDroneEquipmentMsg.defaults). Dronlara yalnız lazer ve kalkan jeneratörü takılır (Flax 1, Iris 2 yuva);
-    istemci hedef/kaynak "drone" + droneId gönderir (yuva kümesi "default"; istemci: UINewHangarSystem.ReturnDroneId).
-Dron tasarımları (mağaza "customization"; Havoc ve Hercules items.json ek_magaza): dron başına bir "design" (bonuslu,
-  istemcide DroneDesignType) ve bir "visual" (görünüm, DroneCustomizationType) yuvası; config başına (P.E.T. gibi config
-  numarasına bağlı, gemiye değil; dron kaydında tasarim/gorunum {config: eşya kimliği}). Uzayda dron
-  dizgisinin tasarım/görünüm alanları istemcinin game.xml tasarım kimlikleri (items.json dron_tasarimlari).
-P.E.T. (pet.py): mağazada pet_pet10 (bir tane), dişliler (petgear) ve protokoller (protocol) envantere girer; hangarda
-  P.E.T. yuvaları (lasers, generators, gears, protocols) config başına; yuva açma ve ad değiştirme pet.py'de.
-Katalog ve fiyatlar kayıttaki ShopItemListCommand'lerden (data/yanitlar.json); ekipman değerleri data/items.json.
+  HangarShipEquipmentRequest -> HangarShipEquipmentCommand (item ids of the two configs from the profile)
+  HangarListRequest          -> HangarShipsCommand (inventory: equipment instances, ammo, ore)
+  HangarShipDetailRequest    -> HangarShipDetailCommand (laser count, ammo, generators, speed)
+  HangarShipMoveItemsRequest {items, source, destination, configId} (client: UINewHangarSystem.SendMoveItemRequest;
+    destination/source "ship" | "inventory", the item's type determines the slot) -> HangarShipMoveItemsCommand(result 1)
+    + hangarId update of the items + HangarShipEquipmentCommand; if the active config changed, speed/shield/appearance.
+Drones (the account in the save had no drone; formats from the client's code):
+  Shop "drone" category: Flax (credits), Iris (uridium); the price rises with every drone (items.json drones), at most 8.
+  Formations are bought from the shop; they appear in the shortcut bar's drone_formations category. When selected from the bar
+  (MenuActionRequest drone_formation_*) DroneFormationChangeCommand + the drone arrangement in space + bonuses (speed, shield, HP).
+  In space: "0|n|d|<user>|<formation>|" + per drone "type|level|design|appearance" (client: MapEventsAssemblyHelper.
+    AssembleSetDrones; type 1 Flax, 2 Iris, 3 Apis, 4 Zeus; level 1-6).
+  Hangar: HangarShipsCommand.drones (HangarShipDroneView) and HangarShipEquipmentCommand.droneConfigs (drone list per config,
+    fitted items SingleDroneEquipmentMsg.defaults). Only lasers and shield generators are fitted to drones (Flax 1, Iris 2 slots);
+    the client sends destination/source "drone" + droneId (slot set "default"; client: UINewHangarSystem.ReturnDroneId).
+Drone designs (shop "customization"; Havoc and Hercules items.json extra_shop): one "design" (with a bonus,
+  DroneDesignType in the client) and one "visual" (appearance, DroneCustomizationType) slot per drone; per config (like the P.E.T. tied to the
+  config number, not to the ship; in the drone record design/appearance {config: item id}). The design/appearance fields of the drone
+  string in space are the client's game.xml design ids (items.json drone_designs).
+P.E.T. (pet.py): in the shop pet_pet10 (one), gears (petgear) and protocols (protocol) go into the inventory; in the hangar
+  P.E.T. slots (lasers, generators, gears, protocols) per config; opening slots and renaming are in pet.py.
+Catalog and prices from the ShopItemListCommands in the save (data/responses.json); equipment values data/items.json.
 """
 import json, math, os, time
 import game_data as DATA
@@ -62,24 +62,24 @@ import skill_tree as SKL
 HERE = os.path.dirname(os.path.abspath(__file__))
 ITEMS = json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))
 _F = json.load(open(os.path.join(HERE, 'data', 'prices.json'), encoding='utf8'))
-PRICE, EXCHANGE_RATE = _F['prices'], _F['kur']        # market dengesi (tools/market_dengesi.py); KUR: 1 U kaç kredi
-WORLD_SHOP = DATA.load('shop')['products']    # Dünya Editörü: lootId -> {fiyat, para ('C' | 'U'), satista}; oyun açıkken yenile()
+PRICE, EXCHANGE_RATE = _F['prices'], _F['kur']        # market balance (tools/market_balance.py); KUR: how many credits 1 U is
+WORLD_SHOP = DATA.load('shop')['products']    # World Editor: lootId -> {price, currency ('C' | 'U'), on_sale}; refreshed with refresh() while the game is open
 
 
 def refresh():
-    """Dünyanın mağazası değişti (game.dunya_izle): sözlük yerinde güncellenir, sonraki liste ve alım yeni fiyatla."""
+    """The world's shop changed (game.watch_world): the dictionary is updated in place, the next list and purchase use the new price."""
     WORLD_SHOP.clear()
     WORLD_SHOP.update(DATA.load('shop')['products'])
-CONFIG_COOLDOWN_SEC = 5          # config geçişleri arası (kayıtta 2,4 sn sonraki reddedildi; süre uyarlama)
-PREMIUM_CARGO = 500             # Premium: "500 extra units of cargo space" (istemci breakingNewsContent_permPremiumAdvantages)
+CONFIG_COOLDOWN_SEC = 5          # between config switches (in the save the one after 2.4 s was rejected; the duration is an adaptation)
+PREMIUM_CARGO = 500             # Premium: "500 extra units of cargo space" (client breakingNewsContent_permPremiumAdvantages)
 
 CURRENCY = {'virtual': 'credits', 'real': 'uridium'}
 SLOTS = (('equipment_weapon_laser_', 'laser'), ('equipment_weapon_rocketlauncher_', 'rocket'),
          ('equipment_generator_', 'generators'), ('equipment_extra_', 'extra'), ('equipment_shipupgrade_', 'upgrades'),
-         ('equipment_core_', 'QuantumFluidCore'),       # Quantum Fluid Core: geminin özel yuvaları (qfc.py)
-         ('equipment_weapon_cannon_', 'cannon'), ('equipment_cannon_shield_', 'cannonShield'),      # parçacık topu, kırıcı
-         ('equipment_weapon_drive_', 'drive'), ('equipment_lens_', 'lens'))                        # Singularity Drive, mercek
-# hangar panelleri: istemci gemi için "ship" gönderir; yuva adları da kabul edilir
+         ('equipment_core_', 'QuantumFluidCore'),       # Quantum Fluid Core: the ship's special slots (qfc.py)
+         ('equipment_weapon_cannon_', 'cannon'), ('equipment_cannon_shield_', 'cannonShield'),      # particle cannon, breaker
+         ('equipment_weapon_drive_', 'drive'), ('equipment_lens_', 'lens'))                        # Singularity Drive, lens
+# hangar panels: the client sends "ship" for the ship; slot names are also accepted
 PANELS = {'ship': None, 'laser': 'laser', 'lasers': 'laser', 'generator': 'generators', 'generators': 'generators',
           'extra': 'extra', 'extras': 'extra', 'rocket': 'rocket', 'rockets': 'rocket', 'rocketlauncher': 'rocket',
           'upgrades': 'upgrades', 'upgrade': 'upgrades', 'ship_upgrades': 'upgrades', 'shipupgrade': 'upgrades'}
@@ -87,36 +87,36 @@ INVENTORY = ('inventory', '')
 DEFAULT_SLOTS = {'laser': 15, 'generators': 15, 'extra': 3, 'rocket': 1, 'upgrades': 3, 'QuantumFluidCore': 2, 'cannon': 3,
                  'cannonShield': 6, 'drive': 0, 'lens': 0}
 EQUIP_SLOTS = ('laser', 'generators', 'extra', 'rocket', 'upgrades', 'QuantumFluidCore', 'cannon', 'cannonShield', 'drive', 'lens')
-CLIENT_SLOTS = {'laser': 'lasers', 'generators': 'generators'}       # CLIENT_SHIP_SLOTS'taki adları (capacity)
+CLIENT_SLOTS = {'laser': 'lasers', 'generators': 'generators'}       # the names in CLIENT_SHIP_SLOTS (capacity)
 MODULE_TYPE_IDS = {'DAMAGE': 1, 'HP': 2, 'SHIELD': 3, 'SPECIAL': 4}       # ShipUpgradeModuleUpdateCommand.moduleTypeIds (uyarlama)
-ORES = {int(t): loot for t, loot in ITEMS['ores']['kinds'].items()}     # OreType -> eşya (hangar envanteri)
+ORES = {int(t): loot for t, loot in ITEMS['ores']['kinds'].items()}     # OreType -> item (hangar inventory)
 DRONES = ITEMS['drones']
 FORMS = ITEMS['formations']
-FORM_RULES = ITEMS['formation_rules']     # formasyon başına asgari dron sayısı ve satış takvimi
+FORM_RULES = ITEMS['formation_rules']     # minimum drone count per formation and the sales calendar
 LEVELS = ITEMS['drone_levels']
-DRONE_ITEMS = ('equipment_weapon_laser_', 'equipment_generator_shield_')     # dronlara lazer ve kalkan jeneratörü (+ ekstralar: drone_ok)
-REPBOT = 'equipment_extra_repbot_'                                           # onarım robotları: config başına bir tane
+DRONE_ITEMS = ('equipment_weapon_laser_', 'equipment_generator_shield_')     # laser and shield generator for drones (+ extras: drone_ok)
+REPBOT = 'equipment_extra_repbot_'                                           # repair robots: one per config
 LAB = ITEMS['lab']
 DESIGNS = ITEMS['drone_designs']
-DESIGN_SLOTS = {'design': 'design', 'appearance': 'visual'}     # drone record key -> design slot (drone item's "yuva")
+DESIGN_SLOTS = {'design': 'design', 'appearance': 'visual'}     # drone record key -> design slot (drone item's "slot")
 DESIGN_TYPES = {'design': 'net.bigpoint.darkorbit.asset.drone.design.DroneDesignType',
                 'visual': 'net.bigpoint.darkorbit.asset.drone.design.DroneCustomizationType'}
 PET_LOOT = ITEMS['pet']['loot']
 PET_FUEL = 'resource_pet-fuel'
-PACK_MAX = 255             # bayt sayaçlı liste (InventoryItemPack.items): en çok bu kadar eşya
+PACK_MAX = 255             # list with a byte counter (InventoryItemPack.items): at most this many items
 NEW_RESOURCES = ('resource_collectable_evocation-chip', 'resource_collectable_calling-chip',          # N.O.V.A. (nova.py)
                  'resource_collectable_luminaflux-alloy', 'resource_collectable_armory-token',       # Hyperforge (qfc.py), Armory
-                 'resource_collectable_armory-token-mega', 'resource_collectable_optigrad-chip',       # Restabilize (parcacik.py)
-                 'resource_collectable_horizon-shard', 'resource_collectable_containment-node',       # sürücü alt nitelikleri
+                 'resource_collectable_armory-token-mega', 'resource_collectable_optigrad-chip',       # Restabilize (particle.py)
+                 'resource_collectable_horizon-shard', 'resource_collectable_containment-node',       # driver sub-attributes
                  'resource_collectable_pulse-core', 'resource_ignishard-l01', 'resource_beacon-crystal')
 PASS_ITEMS = ('resource_season-pass-point', 'resource_gold-pass', 'resource_ext-gold-pass', 'resource_battle-pass',
               'resource_monthly-deluxe')
-# istemcinin tanımında özelliği (Traits) olmayan eşyalar (data/istemci_esyalari.json'da yalnız tür ve sınıf): kimlikli envanter
-# eşyası olunca Assembly açıkken AssemblyInventoryIndex.UpdateItem NullReferenceException veriyor, eşya listesinin kalanı (girişte
-# UserInventoryModule'ün indirimi dahil) işlenmiyordu (Gold/Extra Gold Pass, Trinity VIP Badge; canlı tur 2). Bu kaynaklar gönderilmez
+# items that have no trait (Traits) in the client's definition (only type and class in data/client_items.json): when one becomes an inventory
+# item with an id, with Assembly open AssemblyInventoryIndex.UpdateItem throws NullReferenceException, and the rest of the item list (including the
+# UserInventoryModule discount at login) was not processed (Gold/Extra Gold Pass, Trinity VIP Badge; live round 2). These resources are not sent
 NO_TRAITS = {l for l, v in UPG.ITEMS.items() if set(v) <= {'type', 'class_name'}}
-EVENT_ITEMS = ('resource_collectable_voyagers-oath-token', 'resource_voyagers-vip-badge',      # Voyagers (pve_modlari.py)
-               'resource_ftl-key', 'resource_collectable_galaxy-coupon', 'resource_lottery-capsule')   # Ö3 etkinlik paraları (market dengesi)
+EVENT_ITEMS = ('resource_collectable_voyagers-oath-token', 'resource_voyagers-vip-badge',      # Voyagers (pve_modes.py)
+               'resource_ftl-key', 'resource_collectable_galaxy-coupon', 'resource_lottery-capsule')   # Ö3 event currencies (market balance)
 
 
 def mod(name, **f):
@@ -124,11 +124,11 @@ def mod(name, **f):
     return f
 
 
-from legacy_protocol import legacy, loot_kind  # noqa: E402,F401  (eski metin protokolü: eski_protokol.py)
+from legacy_protocol import legacy, loot_kind  # noqa: E402,F401  (old text protocol: legacy_protocol.py)
 
 
 def keyed(key, **wild):
-    """İstemcinin yerelleştirme anahtarıyla hata metni (MessageKeyListWildcardCommand)."""
+    """Error text with the client's localization key (MessageKeyListWildcardCommand)."""
     reps = [mod('MessageWildcardReplacementModule', wildcard='%' + k + '%', replacement=v,
                 replacementType=mod('ReplacementTypeModule', typeValue=5 if v.startswith('ttip_') else 0)) for k, v in wild.items()]
     return mod('MessageKeyListWildcardCommand', commandList=[
@@ -139,36 +139,36 @@ def keyed(key, **wild):
 BASEKEY = json.load(open(os.path.join(HERE, 'data', 'message_keys.json'), encoding='utf8'))['keys']
 
 
-# metindeki yer tutucular (istemcinin ArgKey enum'u): ad "_X_" ise metinde %X%, değilse adın kendisi (XXX, YYY, DATETIME)
+# placeholders in the text (the client's ArgKey enum): if the name is "_X_" it is %X% in the text, otherwise the name itself (XXX, YYY, DATETIME)
 ARG_KEYS = {'_COOLDOWN_': 0, '_BOOSTERNAME_': 1, '_module_': 2, '_level_': 3, '_date_': 4, '_userlevel_': 5, '_maxMessages_': 6,
             '_notesLimit_': 7, '_MINIMUM_BID_': 8, '_NAME_': 9, '_AMOUNT_': 10, '_CURRENCY_': 11, 'XXX': 12, 'YYY': 13,
             'DATETIME': 14, '_MAX_BID_': 15}
 
 
 def res(key):
-    """Yer tutucu değerinin istemcide yerelleştirilmesi (ShowCallBackText.ReturnTipByType: ':' ile bölünür, ikinci parça 'res' ise
-    son parça GetTextById ile çevrilir). "res:<anahtar>" çalışmıyordu (canlı test H36: yer tutucu ham kalıyordu)."""
+    """Localization of a placeholder value in the client (ShowCallBackText.ReturnTipByType: split by ':', if the second part is 'res' the
+    last part is translated with GetTextById). "res:<key>" did not work (live test H36: the placeholder stayed raw)."""
     return ':res:' + key
 
 
 def stack_extra(key, extra):
-    """İstemcinin yerelleştirdiği metin (key) ve ardına dilden bağımsız bir ek (sayılar): ham metin "XXX<ek>", XXX istemcide çevrilir
-    (RES_YERINE'deki gibi type 1). Ekteki yer tutucu (_AMOUNT_) bu yolda doldurulmuyor (canlı test 2026-10-30): değerler ekin içinde."""
+    """The text the client localizes (key) followed by a language-independent suffix (numbers): raw text "XXX<suffix>", XXX is translated in the client
+    (type 1 as in RES_YERINE). The placeholder in the suffix (_AMOUNT_) is not filled on this path (live test 2026-10-30): the values go inside the suffix."""
     return mod('BaseStackCommand', type=1, enumBaseKey=0, stringBasekey='XXX' + extra,
                argsList=[mod('ArgStackCommand', type=0, value2=None, key=ARG_KEYS['XXX'], value=res(key))])
 
 
 def stack_msg(key, **args):
-    """Yanıt komutlarındaki hata/başarı metni (ShopItemBuyCommand, HangarShipMoveItemsCommand, HangarShipActivateShipCommand).
-    İstemci BaseStackCommand bekler; başka sınıf InvalidCastException verip bağlantıyı koparır (canlı test).
-    type 0 + enumBaseKey: istemci BaseKey enum adını yerelleştirme anahtarı olarak kullanır (stringBasekey ise ham metin olur).
-    args: yer tutucuların değerleri (ArgStackCommand; istemci ShowCallBackText.ReturnTipString): ör. XXX='Komutan',
-    _MINIMUM_BID_='10,000'. res(<anahtar>) değeri istemcide çevrilir. Verilmezse metinde "XXX" gibi ham yer tutucu kalıyordu
-    (canlı deneme 2026-10-17: "A new rank was created: XXX.")."""
+    """Error/success text in response commands (ShopItemBuyCommand, HangarShipMoveItemsCommand, HangarShipActivateShipCommand).
+    The client expects BaseStackCommand; another class throws InvalidCastException and drops the connection (live test).
+    type 0 + enumBaseKey: the client uses the BaseKey enum name as the localization key (stringBasekey would be raw text).
+    args: values of the placeholders (ArgStackCommand; client ShowCallBackText.ReturnTipString): e.g. XXX='Komutan',
+    _MINIMUM_BID_='10,000'. The value res(<key>) is translated in the client. If not given, a raw placeholder like "XXX" stayed in the text
+    (live trial 2026-10-17: "A new rank was created: XXX.")."""
     lst = [mod('ArgStackCommand', type=0, value2=None, key=ARG_KEYS[k], value=str(v)) for k, v in args.items()]
     if key in RES_REPLACEMENT:
-        # istemcinin yüklemediği kaynaktaki anahtar: ham metin "XXX" + XXX'in yerelleştirilmiş değeri (type 1; ReturnTipString
-        # yer tutucuları sondan başa çevirir: önce XXX, sonra metnin kendi yer tutucuları)
+        # a key in a resource the client does not load: raw text "XXX" + the localized value of XXX (type 1; ReturnTipString
+        # translates the placeholders from the end to the start: first XXX, then the text's own placeholders)
         alias, extra = RES_REPLACEMENT[key]
         lst = [mod('ArgStackCommand', type=0, value2=None, key=ARG_KEYS[k], value=str(v)) for k, v in extra.items()] + lst
         lst.append(mod('ArgStackCommand', type=0, value2=None, key=ARG_KEYS['XXX'], value=res(alias)))
@@ -177,17 +177,17 @@ def stack_msg(key, **args):
 
 
 def raw_msg(text):
-    """Ham metin (type 1: stringBasekey olduğu gibi gösterilir; RES_YERINE gibi)."""
+    """Raw text (type 1: stringBasekey is shown as is; like RES_YERINE)."""
     return mod('BaseStackCommand', type=1, enumBaseKey=0, stringBasekey=text, argsList=[])
 
 
-# istemcinin metinlerinde karşılığı olmayan ret nedenleri (BaseKey'lerde ve 40 metin dosyasında yok; istemci yalnız genel metni
-# gösteriyordu: N4, HAT-7/20) -> (İngilizce, Türkçe); istemcinin dilinde ham metin (Magaza.neden)
+# rejection reasons that have no counterpart in the client's texts (not in the BaseKeys or in the 40 text files; the client showed only the generic text:
+# N4, HAT-7/20) -> (English, Turkish); raw text in the client's language (Shop.reason)
 REASONS = {
     'name_cooldown': ('You can only rename your Pilot once every 48 hours. (Your last name change: %DATETIME%)',     # change_pilotname_error_time
                    'Pilotunun adını en fazla 48 saatte bir değiştirebilirsin. (Son ad değişikliğin: %DATETIME%)'),
     'name_banned': ('This Pilot name is not permitted.', 'Bu Pilot adına izin verilmiyor.'),                       # change_pilotname_error_blacklist
-    'subscribed': ('You have subscribed to this booster. It will be bought again automatically.',            # istemci booster_bought_subscription
+    'subscribed': ('You have subscribed to this booster. It will be bought again automatically.',            # client booster_bought_subscription
                    'Bu güçlendiriciye abone oldun; süresi bitmeden kendiliğinden yeniden alınacak.'),
     'subscription_ended': ('Your booster subscription has been cancelled.', 'Güçlendirici aboneliğin sona erdi.'),
     'pet_already': ('This item is already equipped on your P.E.T.', "Bu eşya P.E.T.'inde zaten takılı."),
@@ -215,37 +215,37 @@ REASONS = {
 }
 
 
-# BaseKey adı istemcide metin bulamayanlar -> yüklenen kaynaktaki eşdeğeri (ve yer tutucuları). İstemci "resource_items_old"
-# kaynağını yüklüyor ama paketteki dosya "resource_item_old" (LocalizationManager): o dosyadaki anahtarlar (drone_have_max)
-# hiç bulunmuyor, hata penceresi boş açılıyordu (canlı test 2026-10-18). clan_errmsg_desc_to_long hiçbir kaynakta yok.
+# BaseKey names for which the client finds no text -> the equivalent in the loaded resource (and its placeholders). The client loads the "resource_items_old"
+# resource but the file in the package is "resource_item_old" (LocalizationManager): the keys in that file (drone_have_max)
+# are never found, the error window opened empty (live test 2026-10-18). clan_errmsg_desc_to_long is in no resource.
 RES_REPLACEMENT = {'drone_have_max': ('items_drone_have_max', {}),
-              'drone_slotCPUinUse': ('drone_slotCPUinUse', {}),        # resource_system_inc'te; BaseKey'lerde yok
+              'drone_slotCPUinUse': ('drone_slotCPUinUse', {}),        # in resource_system_inc; not in the BaseKeys
               'special_generic_hint': ('items_special_generic_hint', {}),
-              'tf_message_not_enough_seprom': ('tf_message_not_enough_seprom', {}),   # "Not enough Seprom available" (yetenek ağacı)
+              'tf_message_not_enough_seprom': ('tf_message_not_enough_seprom', {}),   # "Not enough Seprom available" (skill tree)
               'clan_errmsg_desc_to_long': ('clan_errmsg_to_long', {'_NAME_': res('label_description')})}
 
 
-# Assembly tariflerinde malzeme olan kaynaklar (mağazada satılanlar: Prismatic Socket, Nano Case …; assembly.py)
+# resources that are ingredients in Assembly recipes (those sold in the shop: Prismatic Socket, Nano Case ...; assembly.py)
 ASSEMBLY_PARTS = {l for r in json.load(open(os.path.join(HERE, 'data', 'recipes.json'), encoding='utf8'))['recipes'].values()
                   for l in r['parts'] if l.startswith('resource_')}
 STAT_TABLES = (('lasers', 'damage'), ('shield_generators', 'kalkan'), ('speed_generators', 'speed'))
-# etkisi olmayan, satılmaz (mağazada gizli): Radar CPU'su (diplomasi renkleri: bot oyuncular). Serum CPU'su IM-01 enfeksiyonunu iyileştirir
+# no effect, not sold (hidden in the shop): the Radar CPU (diplomacy colors: bot players). The Serum CPU cures IM-01 infection
 NO_EFFECT = ('equipment_extra_cpu_rd-x',)
 PAY_CURRENCY = {'currency_uridium': ('uridium', 'URI'), 'currency_credits': ('credits', 'CRE'), 'currency_experience': ('ep', 'EP'),
                 'currency_honour': ('honourPoints', 'HON')}
 PRIZE_CURRENCY = {'currency_uridium': 'uridium', 'currency_credits': 'credits', 'currency_experience': 'ep', 'currency_honour': 'honor'}
-SHOP_MAX = 255                     # ShopItemListCommand.itemList'in sayacı bir bayt (protocol.LIST_MAX)
-# bedava ürün (panelin mağaza fiyatı 0, "Yaratıcı"): adet seçicili üründe istemci Buy'u alınabilecek adet >= 1 iken açıyor ve adedi
-# bakiye / price[0] ile buluyor; fiyat 0 ise adet 0 (UIShopSystem.CalculateAffordableAmount, SetRightNumberLevel), Buy kapanıyordu
-# (kullanıcı 2026-10-25). Listede price[0] bu kadar (Decimal'e 1E-09 çevrilir: bakiye / fiyat taşmaz; tutar 2 haneye yuvarlanıp 0
-# görünür), metni (cost) 0; alımın fiyatı buy_price'tan (0). Cephanede adet sınırı BEDAVA_ADET (fiyat x adet hep 0,00 kalır).
-# Tıklamada toplam kutusu fiyatı yuvarlamadan yazıyor ("0.000000001 U."): istemcinin BepInEx eklentisi yuvarlar (panel/plugin/Yamalar.cs MagazaTutari).
+SHOP_MAX = 255                     # the counter of ShopItemListCommand.itemList is one byte (protocol.LIST_MAX)
+# free item (the panel's shop price 0, "Creative"): for an item with an amount selector the client enables Buy when the affordable amount >= 1 and finds the amount
+# as balance / price[0]; if the price is 0 the amount is 0 (UIShopSystem.CalculateAffordableAmount, SetRightNumberLevel), and Buy got disabled
+# (user 2026-10-25). In the list price[0] is this much (converted to 1E-09 in Decimal: balance / price does not overflow; the amount is rounded to 2 digits and
+# shows as 0), its text (cost) 0; the purchase's price is from buy_price (0). For ammo the amount limit is FREE_COUNT (price x amount stays 0.00).
+# On click the total box writes the price without rounding ("0.000000001 U."): the client's BepInEx plugin rounds it (panel/plugin/Patches.cs ShopAmount).
 FREE_PRICE = 1e-9
 FREE_COUNT = 1000000
 
 
 def design_base(loot):
-    """Gemi tasarımı -> ait olduğu gemi (ship_goliath_design_amber -> ship_goliath); tasarım değilse None."""
+    """Ship design -> the ship it belongs to (ship_goliath_design_amber -> ship_goliath); None if it is not a design."""
     return loot.split('_design_')[0] if loot.startswith('ship_') and '_design_' in loot else None
 
 
@@ -254,24 +254,24 @@ def slot_of(loot):
 
 
 def loose_item(loot):
-    """Gemi yuvası olmayan, envantere örnek olarak giren eşya: dron ve P.E.T. tasarımı, P.E.T. dişlisi ve protokolü (hangarda takılır)."""
+    """An item that has no ship slot and enters the inventory as an instance: drone and P.E.T. design, P.E.T. gear and protocol (fitted in the hangar)."""
     return loot in DESIGNS or loot in PETM.DESIGNS or PETM.slot_for(loot) in ('gears', 'protocols')
 
 
 def hidden(loot):
-    """Depoda (diger_esyalar) envanterde görünmeyen ve hiçbir sistemin okumadığı eşya mı. Kaynaklar (resource_) görünür; gemisi yokken
-    gelen gemi tasarımı (pending_designs) ve CBS modülü (cbs.absorb) bilerek bekler. Ödül böyle bir eşyaya düşerse kaybolmuş sayılır
-    (2026-10-22: Season Pass'in dron tasarımları, rezervleri ve Assembly'nin P.E.T. protokolleri böyle kayboluyordu)."""
+    """Is it an item in the store (diger_esyalar) that is not visible in the inventory and that no system reads. Resources (resource_) are visible; a ship design
+    that arrives while the ship is missing (pending_designs) and the CBS module (cbs.absorb) deliberately wait. A reward that falls on such an item counts as lost
+    (2026-10-22: Season Pass's drone designs, reserves and Assembly's P.E.T. protocols were being lost this way)."""
     return not loot.startswith(('resource_', 'module_')) and not design_base(loot)
 
 
 def pet_only(loot):
-    """P.E.T.'e özel lazer/jeneratör (LF-P01, SG3N-P01 …; items.json yalniz_pet)."""
+    """Laser/generator specific to the P.E.T. (LF-P01, SG3N-P01 ...; items.json yalniz_pet)."""
     return bool(ITEMS['lasers'].get(loot, ITEMS['shield_generators'].get(loot, {})).get('pet_only'))
 
 
 ITEM_TYPE = 'net.bigpoint.darkorbit.asset.item.ItemType'
-# istemcinin eşya sınıfları (istemci_esyalari.json 'sinif' kısa ad -> tam ad; istemcinin metin sabitlerinden)
+# the client's item classes (client_items.json 'sinif' short name -> full name; from the client's text constants)
 CLASS_PATHS = {c.split('.')[-1]: 'net.bigpoint.darkorbit.asset.' + c for c in (
     'cannonshield.CannonShieldType', 'weapon.CannonType', 'weapon.DriveType', 'lens.LensType', 'quantum.QuantumFluidCoreType',
     'shipupgrade.ShipUpgradeType', 'extra.ExtraType', 'extra.ModuleType', 'extra.UpgradeType', 'module.StationModuleType',
@@ -279,26 +279,26 @@ CLASS_PATHS = {c.split('.')[-1]: 'net.bigpoint.darkorbit.asset.' + c for c in (
     'pet.PetType', 'pet.design.PetCustomizationType', 'item.HardwareType', 'item.SynthesisResourceType', 'captain.CaptainType')}
 _ist = json.load(open(os.path.join(HERE, 'data', 'client_items.json'), encoding='utf8'))['items']
 CLIENT_CLASS = {k: v['class_name'] for k, v in _ist.items() if v.get('class_name') in CLASS_PATHS}
-# Dronlara takılan ekstralar: istemcinin 'equipable' özelliğinde DRONE olanlar (AGS-X, RG-SL ve PA-X yalnız gemiye). Yuva CPU'ları
-# (SLE-*) şimdilik dışarıda: yuvasını açtığı ekstralar geminin config'indedir, dronda iken çıkarılınca taşma olurdu.
-# HM-7 (MERCHANT_DRONE) da dışarıda: dron yuvasında hangar çizimi düşer (istemci UINewHangarSystem.SetImageSprite NullReference,
-# canlıda görüldü; öteki dron ekstraları sorunsuz), ticaret dronu gemi yuvasında kalır.
+# Extras fitted to drones: those with DRONE in the client's 'equipable' trait (AGS-X, RG-SL and PA-X only to the ship). Slot CPUs
+# (SLE-*) are left out for now: the extras whose slots they open are in the ship's config, removing them while on a drone would cause overflow.
+# HM-7 (MERCHANT_DRONE) is also left out: in a drone slot the hangar drawing breaks (client UINewHangarSystem.SetImageSprite NullReference,
+# seen live; the other drone extras are fine), the trade drone stays in the ship slot.
 DRONE_EXTRAS = frozenset(k for k, v in _ist.items() if k.startswith('equipment_extra_') and 'DRONE' in (v.get('equippable') or ())
                          and v.get('type') != 'MERCHANT_DRONE' and not EX.slot_bonus_of([k]))
-CLIENT_SHIP_SLOTS = {k: v['slots'] for k, v in _ist.items() if v.get('slots')}       # gemi ve tasarım lootId -> istemcinin yuvaları
+CLIENT_SHIP_SLOTS = {k: v['slots'] for k, v in _ist.items() if v.get('slots')}       # ship and design lootId -> the client's slots
 del _ist
 
 
 def drone_ok(loot):
-    """Dron yuvasına takılabilir mi: lazer, kalkan jeneratörü ve ekstralar (istemci SSS: "lasers, shield generators and extras.
-    Speed generators can't be stored on drones"); hız jeneratörü ve roket fırlatıcı takılmaz."""
+    """Can it be fitted to a drone slot: laser, shield generator and extras (client FAQ: "lasers, shield generators and extras.
+    Speed generators can't be stored on drones"); speed generators and rocket launchers cannot be fitted."""
     return loot.startswith(DRONE_ITEMS) or loot in DRONE_EXTRAS
 
 
 def loot_type(loot):
-    """Hangar envanterinin lootType'ı: tasarımlar, items.json loot_turleri (kayıtla doğrulanmış önekler), yoksa istemcinin kendi
-    sınıfı. İstemci hangar envanterini sınıfa göre ayırıyor: genel ItemType giden toplar, sürücüler, mercekler, kırıcılar, QFC'ler
-    ve gemi modülleri envanterde hiç görünmüyordu, hangarda takılamıyordu (canlı test H68)."""
+    """lootType of the hangar inventory: designs, items.json loot_turleri (prefixes verified with the save), otherwise the client's own
+    class. The client separates the hangar inventory by class: with the generic ItemType, outgoing cannons, drivers, lenses, breakers, QFCs
+    and ship modules did not show in the inventory at all and could not be fitted in the hangar (live test H68)."""
     if loot in DESIGNS:
         return DESIGN_TYPES[DESIGNS[loot]['slot']]
     t = next((t for p, t in sorted(ITEMS['loot_types'].items(), key=lambda x: -len(x[0])) if loot.startswith(p)), ITEM_TYPE)
@@ -312,8 +312,8 @@ def copy(x):
 
 
 def catalog(replies):
-    """Standart mağaza kataloğu (panelin Dünya Editörü; profilsiz, dünyasız): kategori -> [{lootId, fiyat, para ('C' | 'U'),
-    sabit (fiyatı kendi kuralıyla: dronlar, seviyeli P.E.T. ürünleri, G-HP1, yakıt)}]."""
+    """Standard shop catalog (the panel's World Editor; no profile, no world): category -> [{lootId, price, currency ('C' | 'U'),
+    fixed (priced by its own rule: drones, P.E.T. products with levels, G-HP1, fuel)}]."""
     m = Shop.__new__(Shop)
     m.lists, m.catalog, m.payment, m.extra_entry, m.credit = {}, {}, {}, {}, {}
     m.build_catalog(copy(replies))
@@ -335,20 +335,20 @@ def catalog(replies):
 class Shop:
     def __init__(self, profile, replies, log=print):
         self.p, self.log = profile, log
-        self.lang = None          # istemcinin dili (ChatAuthenticateUserRequest.language; sosyal): ham ret metinleri (neden)
-        self.gates = None      # Galaksi Kapıları (ödüldeki ücretsiz enerji; oturum bağlar)
-        self.quest = None        # görev olayları (oturum: gorev.event; rafine edilen cevher toplama görevlerine sayılır)
-        self.tickets = None     # (Season Pass, Battle Pass, günlük ödüller): oturum bağlar; pass eşyaları onlara gider
-        self.new_ = None         # Aşama 9'un sistemleri (yeni_sistemler.py): N.O.V.A. ve QFC ödülleri onlara gider
-        self.chromin = None      # Chromin Rush (chromin.py; oturum bağlar): Chromin girişi sınırla
-        self.hitac = None        # Hitac Word Puzzle (hitac_piyango.py; oturum bağlar): kutudaki harf
+        self.lang = None          # the client's language (ChatAuthenticateUserRequest.language; social): raw rejection texts (reason)
+        self.gates = None      # Galaxy Gates (free energy in the reward; the session binds it)
+        self.quest = None        # quest events (session: quest.event; refined ore counts towards ore collection quests)
+        self.tickets = None     # (Season Pass, Battle Pass, daily rewards): the session binds it; pass items go to them
+        self.new_ = None         # the systems of stage 9 (new_systems.py): N.O.V.A. and QFC rewards go to them
+        self.chromin = None      # Chromin Rush (chromin.py; the session binds it): limit Chromin entry
+        self.hitac = None        # Hitac Word Puzzle (hitac_lottery.py; the session binds it): the letter in the box
         self.world = lambda: None  # current World (the session sets it): drone formation wait (formation_wait)
         self.lists, self.catalog = {}, {}
-        self.payment = {}        # tek oyunculu: gerçek parayla satılan ("Payment") eşya -> uridyum fiyatı
-        self.extra_entry = {}    # ek_magaza satırı (takvim / bir_kez: Ö7 dükkânlarının paketleri)
-        self.credit = {}         # market dengesi: kredili "Payment" ürünü -> kredi fiyatı (data/fiyatlar.json)
-        self.shop_gate = None    # (satır, lootId) -> şimdi satılır mı (dukkanlar.py: etkinlik, kampanya, bir kez, seviye)
-        self.on_bought = []      # alımdan sonra (lootId, adet) -> mesajlar (dukkanlar.py: VIP, Pre-BF, Mileage sayaçları)
+        self.payment = {}        # single player: an item sold for real money ("Payment") -> uridium price
+        self.extra_entry = {}    # extra_shop row (calendar / once: the packages of the Ö7 shops)
+        self.credit = {}         # market balance: "Payment" product with credits -> credit price (data/fiyatlar.json)
+        self.shop_gate = None    # (row, lootId) -> is it sold now (stores.py: event, campaign, one time, level)
+        self.on_bought = []      # after the purchase (lootId, count) -> messages (stores.py: VIP, Pre-BF, Mileage counters)
         self.build_catalog(replies)
         first = lambda req, name: next((m for e in replies.get(req, []) for m in e['response'] if m['_m'] == name), None)
         self.equip_tpl = first('HangarShipEquipmentRequest', 'HangarShipEquipmentCommand')
@@ -359,18 +359,18 @@ class Shop:
             for it in pack.get('items', []):
                 self.item_tpl = self.item_tpl or it
                 self.tpl_ids.setdefault(it['lootId'], it['itemid'])
-        self.sent_lists = set()          # bu oturumda istemciye gönderilen mağaza kategorileri
-        self.featured = None             # (kategori, lootId, bitiş): ödeme düğmesinin ürünü listenin başında (odeme.py)
-        self.pet = PETM.Pet(profile, log)  # oturum kendi P.E.T.'ini bağlar (uzaydaki davranış dünyayla)
-        self.pet.on_stats = self.apply_stats       # HEAT bonusu değişince gemi değerleri
+        self.sent_lists = set()          # shop categories sent to the client in this session
+        self.featured = None             # (category, lootId, end): the payment button's product is at the top of the list (payment.py)
+        self.pet = PETM.Pet(profile, log)  # the session binds its own P.E.T. (behavior in space comes with the world)
+        self.pet.on_stats = self.apply_stats       # ship values when the HEAT bonus changes
         for loot, n in list(profile.d.get('other_items', {}).items()):
-            if loot.startswith('pet_designs_'):       # Aşama 6 öncesi depoda saklanan P.E.T. tasarımları -> envanter
+            if loot.startswith('pet_designs_'):       # P.E.T. designs kept in the store before stage 6 -> inventory
                 for _ in range(n):
                     profile.new_item(loot)
                 profile.add_resource(loot, -n)
 
     def build_catalog(self, replies):
-        """Katalog: kayıttaki ShopItemListCommand'ler + ek mağaza + P.E.T. yakıtı; fiyatlar (market dengesi, sonra dünyanın mağazası)."""
+        """Catalog: the ShopItemListCommands in the save + extra shop + P.E.T. fuel; prices (market balance, then the world's shop)."""
         price = ITEMS['payment_prices']
         for e in replies.get('ShopItemListRequest', []):
             for m in e['response']:
@@ -380,21 +380,21 @@ class Shop:
                         self.catalog.setdefault(it['lootId'], it)
                         if it.get('cost') == 'Payment' or it.get('isPaymentItem'):
                             self.payment.setdefault(it['lootId'], price['special'].get(it['lootId'], price.get(m['category'], price['default'])))
-        for cat, extra in ITEMS['extra_shop'].items():     # kayıtta olmayan, tek oyunculuda başka yoldan alınamayan eşyalar
+        for cat, extra in ITEMS['extra_shop'].items():     # items not in the save that cannot be obtained any other way in single player
             lst = self.lists.get(cat) if not cat.startswith('_') else None
             for x in (extra if lst else []):
                 self.extra_entry[x['lootId']] = x
                 tpl = self.catalog.get(x['template'])
                 if tpl and x['lootId'] not in self.catalog:
-                    is_credit = 'credits' in x                    # kredili satır (Liberator 40.000 C: oyuncu isteği 2026-10-30)
+                    is_credit = 'credits' in x                    # credit row (Liberator 40,000 C: player request 2026-10-30)
                     amount = x['credits'] if is_credit else x['uridium']
                     it = dict(copy(tpl), lootId=x['lootId'], price=[float(amount)], currency='virtual' if is_credit else 'real', isPaymentItem=0,
                               cost='{:,} {}'.format(amount, 'C.' if is_credit else 'U.'))
                     lst['itemList'].append(it)
                     self.catalog[x['lootId']] = it
-        # P.E.T. yakıtı PET/GEAR sekmesinde, kısayolun birim fiyatıyla (uridyum: gerçek kayıt 1.000 birim = 250 U, yani birimi 0,25 U),
-        # adet seçilerek (kayıttaki mağazada yok; kullanıcı bildirimi 2026-10-25: yalnız kısayolla ve otomatik alınıyordu). Şablon:
-        # uridyumlu, adet seçilen cephane satırı
+        # P.E.T. fuel on the PET/GEAR tab, at the shortcut's unit price (uridium: real save 1,000 units = 250 U, so the unit is 0.25 U),
+        # with a selected amount (not in the shop in the save; user report 2026-10-25: it was bought only via the shortcut and automatically). Template:
+        # the ammo row with uridium and a selected amount
         lst, tpl = self.lists.get('petgear'), self.catalog.get('ammunition_rocketlauncher_ubr-100')
         if lst and tpl and PET_FUEL not in self.catalog:
             f = PETM.PET['fuel_buy']
@@ -405,8 +405,8 @@ class Shop:
         self.apply_prices()
 
     def apply_prices(self):
-        """Market dengesinin fiyatları (data/prices.json <- tools/market_balance.py): Payment ürünlerinin ve ek mağazanın
-        fiyatı tek ölçekle; içeriği kredi sınıfı olanlar kredili."""
+        """Market balance prices (data/prices.json <- tools/market_balance.py): the price of Payment products and of the extra shop
+        on a single scale; those whose contents are of the credit class are priced in credits."""
         for loot, r in PRICE.items():
             it = self.catalog.get(loot)
             if r['currency'] == 'C':
@@ -428,7 +428,7 @@ class Shop:
     def ship_id(self):
         return int(self.p.d['active_ship'])
 
-    # ------------------------------------------------------------ yardımcılar
+    # ------------------------------------------------------------ helpers
     def handles(self, name, f):
         if name == 'MenuActionRequest':
             mid = f.get('menuItemId', '')
@@ -441,11 +441,11 @@ class Shop:
                         'HangarShipSaveConfigRequest', 'HangarShipLoadConfigRequest', 'HangarShipImportConfigRequest')
 
     def ship_sid(self, ship_id):
-        """İstekteki shipId profilde yoksa etkin gemi."""
+        """The active ship if the shipId in the request is not in the profile."""
         return str(ship_id) if str(ship_id) in self.p.d['ships'] else self.p.d['active_ship']
 
     def handle(self, name, f):
-        """İsteğe yanıt mesajları; None ise kayıtlı yanıta bırakılır."""
+        """Response messages for the request; if None it is left to the recorded response."""
         if name == 'ShopItemListRequest':
             m = self.shop_list(f.get('category', ''))
             if m:
@@ -469,14 +469,14 @@ class Shop:
         if name == 'HangarListRequest':
             if not self.ships_tpl:
                 return None
-            # istemcinin hangar gemi ızgarası mağazanın gemi listesini kullanır; liste gelmeden hangar açılırsa
-            # HangerListCallBack NullReferenceException verir (canlı test). Kayıtta mağaza hep önce açılmıştı.
-            with self.p.lock:          # istemcinin göremediği yuvalarda kalanlar (önceden takılmış) envantere: yoksa hangar açılmıyor
+            # the client's hangar ship grid uses the shop's ship list; if the hangar is opened before the list arrives
+            # HangerListCallBack throws NullReferenceException (live test). In the save the shop was always opened first.
+            with self.p.lock:          # those left in slots the client cannot see (fitted earlier) go to the inventory: otherwise the hangar does not open
                 trimmed = [i for sid in self.p.d['ships'] for i in self.trim_slots(sid)]
                 if trimmed:
                     self.p.sync_equipment()
                     self.p.dirty = True
-                    self.log('   hangar: yuvası olmayan %d eşya envantere indi' % len(trimmed))
+                    self.log('   hangar: %d items without a slot moved to the inventory' % len(trimmed))
             pre = []
             if 'ship' not in self.sent_lists and self.shop_list('ship'):
                 pre.append(self.shop_list('ship'))
@@ -508,12 +508,12 @@ class Shop:
             return self.pet.rename(f)
         return None
 
-    # ------------------------------------------------------------ rafine etme ve yükseltmeler
+    # ------------------------------------------------------------ refining and upgrades
     def lab_cmd(self):
         return ('LabUpdateItemCommand', {'itemsUpdatedInfo': self.p.lab_items()})
 
     def refine(self, f):
-        """LabRefinementRequest {toProduce: {oreType, count}}: tarif kadar hammadde düşer, ürün eklenir (istemcinin game.xml tarifleri)."""
+        """LabRefinementRequest {toProduce: {oreType, count}}: the raw materials of the recipe are deducted, the product is added (recipes from the client's game.xml)."""
         m = f.get('toProduce') or {}
         t, n = (m.get('oreType') or {}).get('typeValue'), int(m.get('count') or 0)
         recipe = LAB['recipes'].get(str(t))
@@ -522,7 +522,7 @@ class Shop:
         need = {int(k): v * n for k, v in recipe.items()}
         short = [k for k, v in need.items() if self.p.ore_count(k) < v]
         if short:
-            self.log('   rafine olmadı: %s x%d (eksik %s)' % (ORES.get(t), n, ', '.join(ORES.get(k, str(k)) for k in short)))
+            self.log('   refining failed: %s x%d (missing %s)' % (ORES.get(t), n, ', '.join(ORES.get(k, str(k)) for k in short)))
             return [('AttributeOreCountUpdateCommand', {'oreCountList': self.p.d['ores']})]
         self.p.remove_ores(need)
         totals = self.p.add_ores({t: n})
@@ -531,21 +531,21 @@ class Shop:
         return msgs + (self.quest('loot', loot=ORES.get(t), amount=n) if self.quest else [])
 
     def upgrade(self, f):
-        """LabUpdateItemRequest {itemToUpdate, updateWith {oreType, count}}: cevher parçaya yüklenir, her cevher LAB['birim']: lazer/
-        roket 10 tur/adet, motor/kalkan 10 dakika (en çok LAB['azami']; artan cevher kargoda kalır). Aynı cevher eklenir, başka cevher
-        öncekini siler (istemci: lab_alert).
-        Hız ve kalkan hemen değişir."""
+        """LabUpdateItemRequest {itemToUpdate, updateWith {oreType, count}}: the ore is loaded into the part, each ore is LAB['unit']: laser/
+        rocket 10 rounds/pieces, engine/shield 10 minutes (at most LAB['maximum']; leftover ore stays in the cargo). The same ore is added, a different ore
+        erases the previous one (client: lab_alert).
+        Speed and shield change immediately."""
         item = (f.get('itemToUpdate') or {}).get('itemValue')
         m = f.get('updateWith') or {}
         t, n = (m.get('oreType') or {}).get('typeValue'), int(m.get('count') or 0)
         if str(item) not in LAB['bonuses'] or str(t) not in LAB['bonuses'][str(item)] or n <= 0 or self.p.ore_count(t) < n:
-            self.log('   yükseltme olmadı: parça %s, cevher %s x%d (elde %d)' % (item, t, n, self.p.ore_count(t) if t is not None else 0))
+            self.log('   upgrade failed: part %s, ore %s x%d (have %d)' % (item, t, n, self.p.ore_count(t) if t is not None else 0))
             return [self.lab_cmd()]
         old = self.p.d.get('upgrades', {}).get(str(item))
         have = old[1] if old and old[0] == t else 0
         n = min(n, max(0, LAB['maximum'] - have) // LAB['unit'][str(item)])
         if n <= 0:
-            self.log('   yükseltme olmadı: parça %s dolu (%d)' % (item, have))
+            self.log('   upgrade failed: part %s is full (%d)' % (item, have))
             return [self.lab_cmd()]
         totals = self.p.remove_ores({t: n})
         with self.p.lock:
@@ -553,7 +553,7 @@ class Shop:
             ups[str(item)] = [t, have + n * LAB['unit'][str(item)]]
             self.p.dirty = True
         key = ('lab_upgrade_laser', 'lab_upgrade_rocket', 'lab_upgrade_speed', 'lab_upgrade_shield')[item]
-        self.log('   yükseltme: parça %d <- %s x%d (toplam %d)' % (item, ORES.get(t), n, ups[str(item)][1]))
+        self.log('   upgrade: part %d <- %s x%d (total %d)' % (item, ORES.get(t), n, ups[str(item)][1]))
         return ([('AttributeOreCountUpdateCommand', {'oreCountList': totals}), self.ore_pack([t]), self.lab_cmd()] + self.apply_stats()
                 + [legacy('0|A|STM|%s' % key)]
                 + (self.quest('ore_update', type=('LASER', 'ROCKET', 'SPEED', 'SHIELD')[item], ore=ORES.get(t)) if self.quest else []))
@@ -562,30 +562,30 @@ class Shop:
         return self.p.d['item_id'].get(loot) or self.tpl_ids.get(loot) or self.p.item_id(loot)
 
     def capacity(self, slot, sid=None, cid=None, extras=None):
-        """Geminin bir yuva türündeki yuva sayısı. Ekstra yuvası config'e göre: o config'teki (cid; yoksa etkin) ya da verilen
-        ekstralardaki (extras: lootId listesi) yuva CPU'suyla (SL-01..04). Önce hep etkin config'in CPU'su sayılıyordu: öteki
-        config'e takılan Slot CPU yuva açmıyordu (kullanıcı bildirimi 2026-10-24)."""
-        if slot == 'upgrades':                                       # gemi modülü yuvası: istemcinin gemi verisi (gemi_modul.py)
+        """The number of slots of a slot type of the ship. Extra slots depend on the config: with the slot CPU (SL-01..04) in that config (cid; the active one if
+        absent) or in the given extras (extras: lootId list). The active config's CPU was always counted first: a Slot CPU fitted to the other
+        config did not open slots (user report 2026-10-24)."""
+        if slot == 'upgrades':                                       # ship module slot: the client's ship data (ship_module.py)
             return GM.slots(self.p.ship(sid)['lootId'])
-        if slot == 'QuantumFluidCore':                               # QFC yuvası: istemcinin gemi verisi (qfc.py)
+        if slot == 'QuantumFluidCore':                               # QFC slot: the client's ship data (qfc.py)
             return QF.slots(self.p.ship(sid)['lootId'])
-        if slot in PC.SLOTS:                                         # top, kırıcı, sürücü, mercek: istemcinin gemi verisi
+        if slot in PC.SLOTS:                                         # cannon, breaker, driver, lens: the client's ship data
             return PC.slots(self.p.ship(sid)['lootId'], slot)
-        ship = self.p.ship_row(sid)                                  # giyilen tasarımın yuvalarıyla (Tyrannos 15 lazer …)
+        ship = self.p.ship_row(sid)                                  # with the slots of the design being worn (Tyrannos 15 lasers ...)
         bonus = 0
         if slot == 'extra':
             bonus = EX.slot_bonus_of(extras) if extras is not None else EX.slot_bonus(self.p, sid, cid)
         if slot == 'extra' and self.equip_tpl and 'extra' not in ship:
             return self.equip_tpl.get('extrasSlotsSize1', DEFAULT_SLOTS['extra']) + bonus
         n = ship.get(slot, DEFAULT_SLOTS[slot]) + bonus
-        if slot in CLIENT_SLOTS:          # istemci bu yuvaları kendi gemi verisinden çizer (HangarShipEquipmentCommand'da sayısı yok):
-            # elle artırılan esyalar.json yuvalarına takılan görünmüyor, ikinci düzenlemede hangar açılmıyordu (oyuncu bildirimi 2026-10-31)
+        if slot in CLIENT_SLOTS:          # the client draws these slots from its own ship data (the count is not in HangarShipEquipmentCommand):
+            # items fitted to hand-increased items.json slots did not show, and on the second edit the hangar did not open (player report 2026-10-31)
             y = CLIENT_SHIP_SLOTS.get(self.p.ship_look(sid)) or CLIENT_SHIP_SLOTS.get(self.p.ship(sid)['lootId']) or {}
             n = min(n, y.get(CLIENT_SLOTS[slot], n))
         return n
 
     def trim_slots(self, sid):
-        """Yuvasından fazla takılı lazer, jeneratör ve fırlatıcı envantere (kilit altında) -> inenlerin kimlikleri."""
+        """Lasers, generators and launchers fitted beyond their slots go to the inventory (under the lock) -> the ids of those that came off."""
         trimmed = []
         for cfg in self.p.ship(sid)['configs'].values():
             for slot in ('laser', 'generators', 'rocket'):
@@ -595,19 +595,19 @@ class Shop:
         return trimmed
 
     def inv_item(self, iid, loot, amount, hangar=0, level=None):
-        lv = UPG.item_level(self.p, iid) if str(iid) in self.p.d['items'] else 0     # yükseltme seviyesi (yukseltme.py)
+        lv = UPG.item_level(self.p, iid) if str(iid) in self.p.d['items'] else 0     # upgrade level (upgrades.py)
         lv = lv if level is None else level
         return ('InventoryItemUpdatedCommand', {'item': mod('InventoryItemModule', upgradeLevel=lv, lootId=loot, amount=amount, itemId=iid,
                                                             star=(PC.state(self.p, iid) or {}).get('star', 0), isNew=False,
                                                             hangarId=hangar, extAttributes=[], inventoryItemAttributes=[])})
 
     def drone_item(self, x):
-        """Dron, istemcinin envanterinde eşya olarak (kimliği dronun kimliği, seviyesi yükseltme seviyesi): Assembly'nin Upgrade
-        sekmesi yükseltilecekleri yalnız envanterdeki eşyalardan seçiyor; dronlar hiç gönderilmediği için Iris, Apis, Zeus (ve Flax)
-        listede yoktu (kullanıcı bildirimi 2026-10-24). Build isteğinin targetItemId'si dronun kimliği (yukseltme.target).
-        Dronun seviyesi (1-6) InventoryItemAttributeKey.LEVEL (1) niteliğinde: Upgrade sekmesi bonus satırını ondan kuruyor
-        (ItemBuff.ParseDrone: lootId + (seviye - 1) adlı seviye verisinin "upgradable"ı). Liste boşken "drone_iris-1" bulunamıyor,
-        satır beyaz simge ve "-1%" gösteriyordu (kullanıcı bildirimi 2026-10-24)."""
+        """The drone as an item in the client's inventory (its id is the drone's id, its level the upgrade level): Assembly's Upgrade
+        tab picks what to upgrade only from the items in the inventory; since drones were never sent, Iris, Apis, Zeus (and Flax) were
+        not in the list (user report 2026-10-24). The Build request's targetItemId is the drone's id (upgrades.target).
+        The drone's level (1-6) is in the InventoryItemAttributeKey.LEVEL (1) attribute: the Upgrade tab builds the bonus row from it
+        (ItemBuff.ParseDrone: the "upgradable" of the level data named lootId + (level - 1)). With the list empty "drone_iris-1" could not be found,
+        the row showed a white icon and "-1%" (user report 2026-10-24)."""
         msg = self.inv_item(x['uid'], x['lootId'], 1, self.hangar_id, level=UPG.drone_level(x))
         msg[1]['item']['inventoryItemAttributes'] = [mod('InventoryItemAttributeModule', key=1, value=str(x['level']))]
         return msg
@@ -619,34 +619,34 @@ class Shop:
             currentHitPoints=1, maxHitPoints=0, asteroidId=-1, level=0, setBonus=False, modifier='', isUnstableShipUpgrade=False, ships='')
         it.update(itemid=iid, lootId=loot, itemCount=count, hangarId=hangar, lootType=loot_type(loot))
         if GM.unstable(loot) and str(iid) in self.p.d['items']:
-            it['isUnstableShipUpgrade'] = True                          # kararsız modül (gemi_modul.py)
-            it['ships'] = GM.ship_ids(GM.state(self.p, iid)['ships'])   # ipucu: "+%5 hasar için Goliath, …"
+            it['isUnstableShipUpgrade'] = True                          # unstable module (ship_module.py)
+            it['ships'] = GM.ship_ids(GM.state(self.p, iid)['ships'])   # hint: "Goliath for +%5 damage, ..."
             it['modifiers'] = GM.modifiers_str(self.p, iid)
         if PC.is_item(loot) and str(iid) in self.p.d['items']:
-            it.update(PC.hangar_fields(self.p, iid, loot))              # top: temel hasar, nitelikler, yıldız, UL'nin gemisi
+            it.update(PC.hangar_fields(self.p, iid, loot))              # cannon: base damage, attributes, star, UL's ship
         elif RS.is_item(loot) and str(iid) in self.p.d['items']:
-            it['modifiers'] = RS.modifiers_str(self.p, iid)             # Xeno Resonator'ın nitelikleri (Ö6)
+            it['modifiers'] = RS.modifiers_str(self.p, iid)             # attributes of the Xeno Resonator (Ö6)
         elif loot.startswith(QF.PREFIX) and QF.state(self.p, iid):
-            it['ships'] = GM.ship_ids([QF.state(self.p, iid)['ship']])  # QFC: bağlı gemi ve nitelikleri (qfc.modifiers_str)
+            it['ships'] = GM.ship_ids([QF.state(self.p, iid)['ship']])  # QFC: linked ship and attributes (qfc.modifiers_str)
             it['modifiers'] = QF.modifiers_str(self.p, iid)
         if EX.attached(self.p, loot):
-            it['attachedAmmo'] = EX.attached(self.p, loot)      # otomatik alım CPU'sunun seçili cephanesi
+            it['attachedAmmo'] = EX.attached(self.p, loot)      # selected ammo of the auto-buy CPU
         if PETM.has_levels(loot):
-            # P.E.T. dişlisi/protokolü: istemci level'ı olduğu gibi "Level: %level%" gösterir (TooltipPreparerFactory.ReturnItemLevel),
-            # açıklamayı level - 1'den arar (ReturnItemTips.ReturnItemTip). Önceden level - 1 gidiyordu: 1. seviye "Level 0", 4. seviye
-            # 3. seviyenin açıklamasıyla (kullanıcı bildirimi 2026-10-24)
+            # P.E.T. gear/protocol: the client shows the level as is, "Level: %level%" (TooltipPreparerFactory.ReturnItemLevel),
+            # and looks up the description at level - 1 (ReturnItemTips.ReturnItemTip). Before, level - 1 was sent: level 1 showed "Level 0", level 4
+            # had the description of level 3 (user report 2026-10-24)
             it['level'] = level if level is not None else self.p.item_level(iid)
         elif UPG.max_level(loot) and str(iid) in self.p.d['items']:
-            it['level'] = UPG.item_level(self.p, iid)               # yükseltme seviyesi (0 = istemcide 1)
-            it['UpgradeLevel'] = UPG.badge(loot, it['level'])       # envanter ve yuvalardaki seviye rozeti
+            it['level'] = UPG.item_level(self.p, iid)               # upgrade level (0 = 1 in the client)
+            it['UpgradeLevel'] = UPG.badge(loot, it['level'])       # level badge in the inventory and slots
         return it
 
     def pack(self, items):
         return ('InventoryItemPack', {'items': items})
 
     def item_updates(self, ids):
-        """Takılı olduğu hangar değişen eşyalar: istemcinin envanteri ve hangar ızgarası (move'daki gibi). Config yükleme ve
-        aktarımda gitmiyordu: yüklenen lazerler hem yuvada hem envanterde, boşa çıkanlar envanterde görünmüyordu (canlı 2026-10-24)."""
+        """Items whose hangar changed because they are fitted: the client's inventory and hangar grid (as in move). They were not sent on config loading and
+        transfer: loaded lasers showed both in the slot and in the inventory, and those freed did not show in the inventory (live 2026-10-24)."""
         es, hm = self.p.d['items'], self.p.hangar_map()
         ids = sorted(i for i in set(ids) if str(i) in es)
         items = [self.hangar_item(i, es[str(i)], 1, hm.get(i, 0)) for i in ids]
@@ -654,13 +654,13 @@ class Shop:
             [self.pack(items[k:k + PACK_MAX]) for k in range(0, len(items), PACK_MAX)]
 
     def ore_pack(self, types):
-        """Cevher sayısı değişince hangar envanterindeki cevher eşyaları (kayıt: toplamada InventoryItemPack, itemCount yeni sayı)."""
+        """Ore items in the hangar inventory when the ore count changes (save: InventoryItemPack on collecting, itemCount is the new count)."""
         return self.pack([self.hangar_item(self.item_id(ORES[t]), ORES[t], self.p.ore_count(t)) for t in types if t in ORES])
 
-    # ------------------------------------------------------------ mağaza
+    # ------------------------------------------------------------ shop
     def drone_slots(self, loot):
-        """Bu türden kaç dron daha alınabilir: Flax/Iris birlikte en çok dron_azami (8); Apis ve Zeus birer tane, sınırın dışında
-        (wiki: en çok 10)."""
+        """How many more drones of this type can be bought: Flax/Iris together at most dron_azami (8); Apis and Zeus one each, outside the limit
+        (wiki: at most 10)."""
         ds = self.p.d['drones']
         if DRONES[loot].get('single'):
             return 0 if any(x['lootId'] == loot for x in ds) else 1
@@ -688,14 +688,14 @@ class Shop:
 
     @staticmethod
     def unique_loot(g):
-        """Bir kez sahip olunan eşya: gemi, gemi tasarımı, drone formasyonu, P.E.T., tekil dron."""
+        """An item owned once: ship, ship design, drone formation, P.E.T., unique drone."""
         return g.startswith('ship_') or g in FORMS or g == PET_LOOT or bool(g in DRONES and DRONES[g].get('single'))
 
     def package_done(self, loot):
-        """Benzersiz paket (içinde gemi, tasarım, formasyon, P.E.T. ya da tekil dron olan; Defcom-Raven, Stellar, Dusklight …) bir kez
-        alınır; alındıysa ya da benzersiz içeriğinin hepsi zaten varsa mağazada görünmez ve alınamaz (oyuncu bildirimi 2026-10-27:
-        Defcom paketi alındıktan sonra listede kalıyordu). Panelin 'paket_siniri' ayarı kapatır (o zaman sahip olunan içerik atlanır,
-        gerisi verilir: package_fit)."""
+        """A unique package (containing a ship, design, formation, P.E.T. or unique drone; Defcom-Raven, Stellar, Dusklight ...) is bought once;
+        if it was bought or all of its unique contents are already owned it does not appear in the shop and cannot be bought (player report 2026-10-27:
+        the Defcom package stayed in the list after it was bought). The panel's 'paket_siniri' setting turns this off (then owned content is skipped,
+        the rest is given: package_fit)."""
         if not SET.get('pack_limit'):
             return False
         unique = [g for g, n in (self.contents(loot, 1) or []) if self.unique_loot(g)]
@@ -704,9 +704,9 @@ class Shop:
         return loot in self.p.d.get('unique_packages', []) or all(self.owned_unique(g) for g in unique)
 
     def package_fit(self, grants, owned):
-        """Paket içeriğinden şimdi verilebilenler: sahip olunan gemi, P.E.T. ve formasyon atlanır, dronlar boş yer kadar verilir
-        -> (verilecekler, [(lootId, atlanan adet, hata anahtarı)])."""
-        fit, skipped, taken = [], [], 0             # taken: bu pakette sayılan Flax/Iris (ortak sınır)
+        """What can be given now from a package's contents: an owned ship, P.E.T. and formation are skipped, drones are given as many as there is room
+        -> (to be given, [(lootId, skipped count, error key)])."""
+        fit, skipped, taken = [], [], 0             # taken: Flax/Iris counted in this package (shared limit)
         for g, n in grants:
             if g.startswith('ship_') and not design_base(g) and g in owned:
                 skipped.append((g, 1, 'items_shop_error_ship_contains_ship'))
@@ -728,35 +728,35 @@ class Shop:
 
     @staticmethod
     def skipped_msg(skipped):
-        """Paketten verilemeyenlerin ekran mesajı (ör. "Already owned, not given: P.E.T., 8x Iris")."""
+        """On-screen message for what could not be given from a package (e.g. "Already owned, not given: P.E.T., 8x Iris")."""
         import galaxy_gates as KAPI
         name = lambda g: 'P.E.T.' if g == PET_LOOT else g.rsplit('_', 1)[-1].title()
         return KAPI.screen('Already owned, not given: ' + ', '.join(('%dx %s' % (n, name(g))) if n > 1 else name(g)
                                                                   for g, n, key in skipped))
 
     def drone_price(self, loot):
-        """Flax/Iris: aynı türden kaçıncı dron olduğuna göre (wiki: Flax 100.000 C'den ikiye katlanır, Iris 15.000 U'dan artar)."""
+        """Flax/Iris: by which drone of the same type it is (wiki: Flax doubles from 100,000 C, Iris rises from 15,000 U)."""
         info = DRONES[loot]
         n = sum(1 for x in self.p.d['drones'] if x['lootId'] == loot)
         return info['currency'], info['prices'][min(n, len(info['prices']) - 1)]
 
     def world_price(self, loot):
-        """Dünya Editörü'nün fiyatı -> (para birimi alanı, fiyat) ya da None; kendi kuralıyla fiyatlananlar (dronlar, G-HP1, yakıt,
-        seviyeli P.E.T. ürünleri) hariç."""
+        """The World Editor's price -> (currency field, price) or None; excluding those priced by their own rule (drones, G-HP1, fuel,
+        P.E.T. products with levels)."""
         w = WORLD_SHOP.get(loot)
         if not w or w.get('price') is None or loot not in self.catalog or loot in DRONES or loot in (PETM.HULL, PET_FUEL) or PETM.level_prices(loot):
             return None
         return ('credits' if w.get('currency') == 'C' else 'uridium'), w['price']
 
     def price(self, loot, level=1):
-        """-> (para birimi alanı, birim fiyat) ya da None (kayıtta olmayan eşya). "Payment" eşyalar uridyumla.
-        P.E.T. dişli/protokolleri seviyeye göre (wiki fiyatları, uridyum). Dünyanın fiyatı önce."""
+        """-> (currency field, unit price) or None (an item not in the save). "Payment" items in uridium.
+        P.E.T. gears/protocols by level (wiki prices, uridium). The world's price comes first."""
         wp = self.world_price(loot)
         if wp:
             return wp
         if loot in DRONES:
             return self.drone_price(loot)
-        if loot == PETM.HULL:                        # G-HP1: kaçıncı yükseltme olduğuna göre (P.E.T. seviyesi kadar)
+        if loot == PETM.HULL:                        # G-HP1: by which upgrade it is (as many as the P.E.T. level)
             u = self.pet.hull_price()
             return ('uridium', u) if u else None
         prices = PETM.level_prices(loot)
@@ -768,28 +768,28 @@ class Shop:
             return 'credits', self.credit[loot]
         it = self.catalog.get(loot)
         if not it or it.get('cost') == 'Payment' or it.get('currency') not in CURRENCY or not it.get('price') or it['price'][0] < 0:
-            return None          # 0 fiyat geçerli: Phoenix mağazada 0 C
+            return None          # a price of 0 is valid: Phoenix is 0 C in the shop
         return CURRENCY[it['currency']], it['price'][0]
 
     def buy_price(self, loot, level=1):
-        """Satın alma fiyatı: price() x panelin mağaza fiyatı çarpanı (satış ve geri dönüşüm değerleri price()'tan, çarpansız); uridyumla
-        alımlarda Shop Discount."""
+        """Purchase price: price() x the panel's shop price multiplier (sale and recycling values come from price(), without the multiplier); for purchases
+        with uridium, Shop Discount."""
         pr = self.price(loot, level)
         uri = bool(pr) and pr[0] == 'uridium'
         k = SET.multiplier('shop_price', 'uridium' if uri else 'credits') * (1 - self.discount() if uri else 1)
         return pr if not pr or k == 1.0 else (pr[0], pr[1] * k)
 
     def discount(self):
-        """Uridyumla alımlarda indirim oranı (items.json magaza_indirimi): Premium %5 (herkes) + Shop Discount sürüyorsa oranı."""
+        """Discount rate for purchases with uridium (items.json shop_discount): Premium 5% (everyone) + the rate if Shop Discount is running."""
         m = ITEMS['shop_discount']
         return round((m['premium_rate'] if self.p.premium else 0.0) + (m['ratio'] if self.p.d.get('shop_discount', 0) > time.time() else 0.0), 4)
 
     def gate_ok(self, loot):
-        if WORLD_SHOP.get(loot, {}).get('on_sale') is False:      # Dünya Editörü: satıştan kaldırılan ürün
+        if WORLD_SHOP.get(loot, {}).get('on_sale') is False:      # World Editor: a product removed from sale
             return False
-        if not EG.in_shop(loot):          # panelin ayarı kapalıyken etkinlik görünümleri yalnız etkinliklerinden
+        if not EG.in_shop(loot):          # when the panel's setting is off, event appearances only from their events
             return False
-        entry = self.extra_entry.get(loot) or FORM_RULES.get(loot)      # Bat yalnız Halloween'de satılır (formasyon_kurallari.takvim; wiki)
+        entry = self.extra_entry.get(loot) or FORM_RULES.get(loot)      # Bat is sold only at Halloween (formation_rules.calendar; wiki)
         return self.shop_gate(entry, loot) if self.shop_gate else True
 
     def shop_list(self, category):
@@ -798,24 +798,24 @@ class Shop:
             return None
         t = copy(t)
         t['currentShipLootId'] = self.p.ship()['lootId']
-        if not self.pet.owned:          # yakıt P.E.T.'le
+        if not self.pet.owned:          # fuel with the P.E.T.
             t['itemList'] = [it for it in t['itemList'] if it['lootId'] != PET_FUEL]
         # unique items already owned are not listed (official shop): the list sent after a purchase drops the item at once
         t['itemList'] = [it for it in t['itemList'] if not self.owned_unique(it['lootId'])]
-        # sunucuda karşılığı olmayanlar (Assembly parçaları, anahtarlar, içeriği tanımlanmamış paketler …) gösterilmez
+        # those with no counterpart on the server (Assembly parts, keys, packages with undefined contents ...) are not shown
         t['itemList'] = [it for it in t['itemList'] if self.contents(it['lootId'], 1) is not None and self.gate_ok(it['lootId'])]
         if category == 'shipdesign':
-            # ek mağazanın gemi tasarımları (E4 ve E11'in kaynaksız tasarımları, ~270) sekmeye sığmaz (SHOP_MAX): yalnız hangardaki
-            # gemilerinki, şimdiki geminin tasarımları önce (fazlası sondan kesilir; kayıttakiler hep)
+            # the extra shop's ship designs (the sourceless designs of E4 and E11, ~270) do not fit in the tab (SHOP_MAX): only those of the ships
+            # in the hangar, the current ship's designs first (the excess is cut from the end; those in the save always stay)
             owned = {s['lootId'] for s in self.p.d['ships'].values()}
             extra = lambda it: it['lootId'] in self.extra_entry
             t['itemList'] = [it for it in t['itemList'] if not extra(it) or design_base(it['lootId']) in owned]
             t['itemList'].sort(key=lambda it: extra(it) and design_base(it['lootId']) != t['currentShipLootId'])
         for it in t['itemList']:
             if (self.extra_entry.get(it['lootId']) or {}).get('once'):
-                it['maxAmount'] = 1                          # Ö7 paketleri: etkinlikte bir kez
+                it['maxAmount'] = 1                          # Ö7 packages: once per event
             elif (self.extra_entry.get(it['lootId']) or {}).get('max_count'):
-                it['maxAmount'] = self.extra_entry[it['lootId']]['max_count']      # forum 109162: Süper Destek Paketi 15
+                it['maxAmount'] = self.extra_entry[it['lootId']]['max_count']      # forum 109162: Super Support Package 15
         t['itemList'] = [it for it in t['itemList'] if it['lootId'] != PETM.HULL or self.pet.hull_price()]
         for it in t['itemList']:
             if it['lootId'] == PETM.HULL:
@@ -828,7 +828,7 @@ class Shop:
             elif it['lootId'] in self.credit:
                 c = self.credit[it['lootId']]
                 it.update(price=[float(c)], currency='virtual', cost='{:,} C.'.format(c), isPaymentItem=0, elite=1)
-        for it in t['itemList']:            # Dünya Editörü'nün fiyatı (oyun açıkken değişebilir: her listede)
+        for it in t['itemList']:            # the World Editor's price (can change while the game is open: in every list)
             wp = self.world_price(it['lootId'])
             if wp:
                 is_credit = wp[0] == 'credits'
@@ -839,14 +839,14 @@ class Shop:
                 cur, u = self.drone_price(it['lootId'])
                 it.update(price=[float(u)], cost='{:,} {}'.format(u, 'U.' if cur == 'uridium' else 'C.'))
             prices = PETM.level_prices(it['lootId'])
-            if prices:                    # seviye seçicisi: seviye başına fiyat
+            if prices:                    # level selector: price per level
                 it.update(price=[float(u) for u in prices])
         credit_mult, uridium_mult, disc = SET.multiplier('shop_price', 'credits'), SET.multiplier('shop_price', 'uridium'), self.discount()
-        if credit_mult != 1.0 or uridium_mult != 1.0 or disc:              # panelin mağaza fiyatı çarpanı ve Shop Discount (uridyum): istemcinin gösterdiği fiyat ve metin
-            for it in t['itemList']:      # (istemci UserInventoryModule.activePremiumDiscount'u fiyata uygulamıyor, canlı tur 2)
+        if credit_mult != 1.0 or uridium_mult != 1.0 or disc:              # the panel's shop price multiplier and Shop Discount (uridium): the price and text the client shows
+            for it in t['itemList']:      # (the client does not apply UserInventoryModule.activePremiumDiscount to the price, live round 2)
                 if it.get('price') and it['price'][0] > 0 and it.get('cost') != 'Payment':
                     price_mult = uridium_mult * (1 - disc) if it.get('currency') == 'real' else credit_mult
-                    if it['lootId'] == PET_FUEL:         # birim 0,25 U: tavana yuvarlanmaz (1 U görünür, 4 kat pahalı sanılırdı)
+                    if it['lootId'] == PET_FUEL:         # unit 0.25 U: not rounded up to the ceiling (it would show 1 U and look 4 times more expensive)
                         it['price'] = [round(u * price_mult, 4) for u in it['price']]
                         it['cost'] = '{:g} U.'.format(round(it['price'][0], 2))
                         continue
@@ -855,11 +855,11 @@ class Shop:
         for it in t['itemList']:
             prices = PETM.level_prices(it['lootId'])
             if prices:
-                # seviye düğmeleri: istemci (UIShopSystem.SetRightNumberLevel) düğme i'yi i <= MaxNum ise açıyor, MaxNum = alınabilecek
-                # adet ile maxAmount'un küçüğü (3 ise hepsi). Kayıttaki maxAmount 1'di (hesapta P.E.T. yoktu), sunucu değiştirmiyordu:
-                # P.E.T. seviyesi ne olursa olsun yalnız 1. seviye seçiliyordu (kullanıcı 2026-10-18). maxAmount = P.E.T.'in izin verdiği
-                # en yüksek seviye (wiki: 2. seviye P.E.T. 4, 3. seviye 8, 3X 20). Satılan 4. kademesi olan dişliler "3X" düğmesiyle
-                # (kayıt: G-EL1/G-RL1 levelGrades [1,2,3,3X]); protokollerin 4. kademesi mağazada satılmaz, kayıttaki gibi [1,2,3]
+                # level buttons: the client (UIShopSystem.SetRightNumberLevel) enables button i if i <= MaxNum, MaxNum = the smaller of the affordable
+                # amount and maxAmount (if 3, all). The maxAmount in the save was 1 (the account had no P.E.T.), the server did not change it:
+                # only level 1 could be selected whatever the P.E.T. level (user 2026-10-18). maxAmount = the highest level the P.E.T. allows
+                # (wiki: level 2 P.E.T. 4, level 3 8, 3X 20). Gears sold with a 4th tier go with the "3X" button
+                # (save: G-EL1/G-RL1 levelGrades [1,2,3,3X]); the 4th tier of protocols is not sold in the shop, [1,2,3] as in the save
                 lv = self.pet.d['level'] if self.pet.owned else 0
                 grades = [str(n) for n in range(1, min(len(prices), 3) + 1)]
                 if len(prices) > 3 and prices[3] and it['lootId'] in PETM.GEARS:
@@ -867,18 +867,18 @@ class Shop:
                 top = min(len(grades), max(n for n in range(1, len(prices) + 1) if lv >= PETM.level_need(n)))
                 it.update(maxAmount=top, maxlevel=top, levelGrades='[%s]' % ','.join(grades))
             if prices and it.get('LevelDataList'):
-                # seviye düğmesinin fiyatı ve metni (ClickToggle: LevelDataList[seviye]) alınanla aynı: kayıttakiler kaldı, G-HR1'de
-                # 15.000 / 32.000 görünüp 32.000 / 55.000 alınıyordu; panelin çarpanı da burada
+                # the level button's price and text (ClickToggle: LevelDataList[level]) are the same as what is bought: the ones in the save stayed, on G-HR1
+                # 15,000 / 32,000 showed while 32,000 / 55,000 was charged; the panel's multiplier is here too
                 rows = it['LevelDataList'] = [dict(r) for r in it['LevelDataList']]
                 for r, u0, u in zip(rows, prices, it['price']):
-                    if u0:                                 # 0: mağazada satılmaz (kayıttaki satır kalır); u çarpanla 0 olabilir (bedava)
+                    if u0:                                 # 0: not sold in the shop (the row in the save stays); u can be 0 with the multiplier (free)
                         r.update(price=int(u), cost='{:,} U.'.format(int(u)))
             if it['lootId'] == PETM.HULL and it.get('LevelDataList'):
-                # G-HP1 G-REP1'in kopyası (ek_magaza sablon): detay paneli ve onay penceresi LevelDataList'ten okuyor, kopyada G-REP1'in
-                # fiyatları kalıyordu (2.500 U. gösterilip 25.000 U. alınıyordu, canlı 2026-10-24): her satırda yükseltmenin fiyatı
+                # G-HP1 is a copy of G-REP1 (ek_magaza template): the detail panel and confirmation window read from LevelDataList, in the copy G-REP1's
+                # prices stayed (2,500 U. was shown and 25,000 U. charged, live 2026-10-24): in each row the upgrade's price
                 it['LevelDataList'] = [dict(r, price=int(it['price'][0]), cost=it['cost']) for r in it['LevelDataList']]
         for it in t['itemList']:
-            if it['lootId'] == PET_FUEL:          # en çok deponun boş yeri ve paranın yettiği kadar
+            if it['lootId'] == PET_FUEL:          # at most the free space of the store and as many as the money affords
                 pr = self.buy_price(PET_FUEL)
                 n = min(self.fuel_room(), int(self.p.d['pilot'].get(pr[0], 0) // pr[1]) if pr[1] > 0 else FREE_COUNT)
                 it['maxAmount'] = n if n >= 1 else -1
@@ -889,34 +889,34 @@ class Shop:
                     n = int(self.p.d['pilot'].get(pr[0], 0) // pr[1])
                     it['maxAmount'] = min(n, 2 ** 31 - 1) if n >= 1 else -1
                 elif pr:
-                    it['maxAmount'] = FREE_COUNT              # bedava: kayıttaki adet (kaydedilen hesabın parasının yettiği) değil
+                    it['maxAmount'] = FREE_COUNT              # free: not the save's amount (what the saved account's money afforded)
         for it in t['itemList']:
             if it.get('amountsSelectable') and it.get('price') and it['price'][0] == 0:
                 it['price'] = [FREE_PRICE] + it['price'][1:]
         if self.featured and self.featured[0] == category and time.time() < self.featured[2]:
-            # ödeme düğmesinden açılan mağaza (odeme.py): istemci mağazayı 'extras,resource_key_access-dse' ile açıp o ürünü, listede
-            # yoksa ilk ürünü seçiyor (ExpeditionBuyTicketCommandHandler, CreateItem): bilet bu listede yok (canlı tur 2)
+            # the shop opened from the payment button (payment.py): the client opens the shop with 'extras,resource_key_access-dse' and selects that product, or the first
+            # product if it is not in the list (ExpeditionBuyTicketCommandHandler, CreateItem): the ticket is not in this list (live round 2)
             t['itemList'] = [it for it in t['itemList'] if it['lootId'] != 'resource_key_access-dse']
             t['itemList'].sort(key=lambda it: it['lootId'] != self.featured[1])
         if len(t['itemList']) > SHOP_MAX:
-            # liste sayacı bir bayt (istemcinin okuması): fazlası kodlanamaz, sekme hiç açılmazdı; sondakiler (ek ürünler) gösterilmez.
-            # Etkinlik satırları (ek_magaza takvim) kesilmez: sekme doluyken etkinliğin anahtar ve paketleri kaybolmasın
-            self.log('   mağaza: %s sekmesinde %d ürün, ilk %d gösteriliyor' % (category, len(t['itemList']), SHOP_MAX))
+            # the list counter is one byte (the client's reading): the excess cannot be encoded, the tab would never open; those at the end (extra products) are not shown.
+            # Event rows (extra_shop calendar) are not cut: so that the event's keys and packages are not lost when the tab is full
+            self.log('   shop: %s tab has %d products, showing the first %d' % (category, len(t['itemList']), SHOP_MAX))
             evt = lambda it: bool((self.extra_entry.get(it['lootId']) or {}).get('calendar'))
             rest = {id(it) for it in [it for it in t['itemList'] if not evt(it)][:max(0, SHOP_MAX - sum(map(evt, t['itemList'])))]}
             t['itemList'] = [it for it in t['itemList'] if evt(it) or id(it) in rest][:SHOP_MAX]
         return ('ShopItemListCommand', t)
 
     def feature(self, category, loot, sec=15.0):
-        """Bu kategorinin sonraki listelerinde (sec saniye) bu ürün başta."""
+        """This product comes first in the next lists (sec seconds) of this category."""
         self.featured = (category, loot, time.time() + sec) if loot else None
 
     def fuel_room(self):
-        """P.E.T.'in yakıt deposunun boş yeri (P.E.T. yoksa 0)."""
+        """Free space in the P.E.T.'s fuel tank (0 if there is no P.E.T.)."""
         return max(0, PETM.PET['max_fuel'] - int(self.pet.d['fuel'])) if self.pet.owned else 0
 
     def reason(self, key):
-        """NEDENLER'den istemcinin dilinde ham metin (Türkçe istemciye Türkçe, ötekilere İngilizce)."""
+        """Raw text from NEDENLER in the client's language (Turkish for a Turkish client, English for the others)."""
         en, tr = REASONS[key]
         return raw_msg(tr if self.lang == 'tr' else en)
 
@@ -927,7 +927,7 @@ class Shop:
                 self.inv_item(self.item_id('currency_credits'), 'currency_credits', pl.get('credits', 0))]
 
     def quick_buy_status(self, menu_id):
-        """Kısayol çubuğundaki hızlı alım öğesi: paranın yetip yetmediğine göre etkin/pasif (kayıt: ttip_currency_missing satırı)."""
+        """Quick-buy item on the shortcut bar: active/inactive depending on whether the money suffices (save: the ttip_currency_missing row)."""
         base = self.p.menu_status_cache.get(menu_id)
         pr = self.buy_price(menu_id[4:])
         if base is None or not pr:
@@ -945,7 +945,7 @@ class Shop:
         return st
 
     def quick_buy_msgs(self, currency=None):
-        """Para değişince hızlı alım öğelerinin güncel durumu (kayıtta her alım ve ödülden sonra gönderilir)."""
+        """Current state of the quick-buy items when money changes (sent after every purchase and reward in the save)."""
         out = []
         for mid in sorted(self.p.menu_status_cache):
             if mid.startswith('buy_'):
@@ -968,9 +968,9 @@ class Shop:
             secondsLeft=int(BOOSTER.left(self.p, loot)) if sub else 0, action='toggleSubscription' if sub else ''))
 
     def toggle_subscription(self, loot, category='', buy_category=''):
-        """Booster aboneliği (resmî forum 127558 Hangar-Güçlendirici: "ABONE OL" / "ABONELİĞİ BİTİR"; istemcinin düğmesi
-        ShopItemBuyRequest action 'toggleSubscription'): abone olunca bir kez alınır; süre bitmeden uridyum yetiyorsa yeniden alınır,
-        yetmiyorsa abonelik para olana dek durur (subscription_tick)."""
+        """Booster subscription (official forum 127558 Hangar-Booster: "ABONE OL" / "ABONELİĞİ BİTİR"; the client's button
+        ShopItemBuyRequest action 'toggleSubscription'): when subscribed it is bought once; before the time runs out it is bought again if the uridium suffices,
+        if not the subscription pauses until there is money (subscription_tick)."""
         if not BOOSTER.is_booster(loot):
             return [self.buy_cmd(loot, category, buy_category, 0, error=stack_msg('shop_item_not_found'))]
         subs = self.p.d.setdefault('booster_subscription', {})
@@ -978,19 +978,19 @@ class Shop:
             with self.p.lock:
                 del subs[loot]
                 self.p.dirty = True
-            self.log('   booster aboneliği bitti: %s' % loot)
+            self.log('   booster subscription ended: %s' % loot)
             return [self.buy_cmd(loot, category, buy_category, 1, success=self.reason('subscription_ended'))]
         msgs = self.buy(loot, 1, category, buy_category)
         if not BOOSTER.left(self.p, loot):
-            return msgs                                  # alınamadı (para yok): abonelik başlamaz
+            return msgs                                  # could not be bought (no money): the subscription does not start
         with self.p.lock:
             subs[loot] = {'state': 'active'}
             self.p.dirty = True
-        self.log('   booster aboneliği: %s' % loot)
+        self.log('   booster subscription: %s' % loot)
         return msgs + [self.buy_cmd(loot, category, buy_category, 1, success=self.reason('subscribed'))]
 
     def subscription_tick(self, now):
-        """Aboneliği süren boosterlar: kalan 60 sn'nin altına inince uridyum yetiyorsa yeniden alınır, yetmiyorsa duraklar."""
+        """Boosters with a running subscription: when under 60 s remain they are bought again if the uridium suffices, otherwise they pause."""
         msgs = []
         for loot, sub in list(self.p.d.get('booster_subscription', {}).items()):
             if BOOSTER.left(self.p, loot, now) > 60:
@@ -1005,16 +1005,16 @@ class Shop:
                     sub['state'] = state
                     self.p.dirty = True
                 if not ok:
-                    self.log('   booster aboneliği durdu (para yok): %s' % loot)
+                    self.log('   booster subscription paused (no money): %s' % loot)
         return msgs
 
     def free_slots(self, slot, cid=None):
         return max(0, self.capacity(slot) - len(self.p.config(cid).get(slot, [])))
 
     def fits(self, slot, iid, loot, pending=()):
-        """Yeni gelen eşya etkin config'e kendiliğinden takılabilir (ya da takılması önerilebilir) mi: move()'un kuralları (modülün
-        gemisi ve türü, yuva CPU'su, onarım robotu); QFC ve parçacık eşyalarını oyuncu takar. pending: aynı alımda takılması önerilen
-        öteki eşyalar. Kullanıcı bildirimi 2026-10-25: ödül modülü etkin geminin olmasa da takılıyordu."""
+        """Can a newly arrived item be fitted to the active config by itself (or suggested): move()'s rules (the module's ship and
+        type, slot CPU, repair robot); the player fits QFC and particle items. pending: other items suggested for fitting in the same purchase.
+        User report 2026-10-25: a reward module was fitted even if it was not the active ship's."""
         cur = list(self.p.config().get(slot, [])) + [i for i in pending if slot_of(self.p.d['items'].get(str(i), '')) == slot]
         loots = [self.p.d['items'].get(str(i), '') for i in cur]
         if slot == 'upgrades':
@@ -1022,77 +1022,77 @@ class Shop:
         if slot == 'QuantumFluidCore' or slot in PC.SLOTS:
             return False
         if slot == 'extra':
-            on_drones = [self.p.d['items'].get(str(i), '') for ids in self.p.drone_config().values() for i in ids]   # dronlardaki de config'in
+            on_drones = [self.p.d['items'].get(str(i), '') for ids in self.p.drone_config().values() for i in ids]   # those in the drones' config too
             return not (EX.slot_bonus_of([loot]) and EX.slot_bonus_of(loots)) and loot not in on_drones and \
                 not (loot.startswith(REPBOT) and any(l.startswith(REPBOT) for l in loots + on_drones))
         return True
 
     @staticmethod
     def contents(loot, amount):
-        """Satın alınınca verilecekler [(lootId, adet)]: cephane, ekipman ve gemi kendisi, paketler items.json odeme_paketleri'nden.
-        None: sunucu bu eşyayı henüz veremiyor (tasarım, anahtar …). Gemi her zaman 1 adet."""
+        """What is given on purchase [(lootId, count)]: ammo, equipment and the ship itself, packages from items.json odeme_paketleri.
+        None: the server cannot give this item yet (design, key ...). A ship is always 1 piece."""
         if loot in NO_EFFECT:
             return None
         pk = ITEMS['payment_packages'].get(loot)
         if pk:
             if any(l.startswith('ship_') and not design_base(l) and l not in ITEMS['ships'] for l, n in pk):
-                return None          # sunucuda olmayan gemi (Paladin, Basilisk …; Aşama 6): paket gösterilmez
+                return None          # a ship that is not on the server (Paladin, Basilisk ...; stage 6): the package is not shown
             return [(l, 1 if l.startswith('ship_') else n * amount) for l, n in pk]
         if loot.startswith('ship_') and (loot in ITEMS['ships'] or design_base(loot)):
             return [(loot, 1)]
         if loot in DRONES or loot in FORMS or loot == PET_LOOT or loot == PETM.HULL:
             return [(loot, 1)]
-        if loot in PETM.DESIGNS:                     # P.E.T. tasarımı: envantere, P.E.T.'in görünüm yuvasına takılır
+        if loot in PETM.DESIGNS:                     # P.E.T. design: into the inventory, fitted to the P.E.T.'s appearance slot
             return [(loot, amount)]
         if BOOSTER.is_booster(loot):
             return [(loot, amount)]
-        if loot == 'resource_logfile' or loot in LOOT.KEYS or loot in ASSEMBLY_PARTS:   # log diski; ganimet anahtarları; Assembly malzemesi
+        if loot == 'resource_logfile' or loot in LOOT.KEYS or loot in ASSEMBLY_PARTS:   # log disc; loot keys; Assembly ingredient
             return [(loot, amount)]
         if loot == 'resource_key_access-dse':        # DSE Travel Permit: Deep Space Echoes'un bileti (echoes.py)
             return [(loot, amount)]
         if loot == PET_FUEL:                         # P.E.T.'in deposuna (_reward)
             return [(loot, amount)]
-        if loot in PASS_ITEMS or loot in EVENT_ITEMS:                                # Gold Pass, Battle Pass, puan, Monthly Deluxe; etkinlik paraları
+        if loot in PASS_ITEMS or loot in EVENT_ITEMS:                                # Gold Pass, Battle Pass, points, Monthly Deluxe; event currencies
             return [(loot, amount)]
-        if loot.startswith(('captain_', 'resource_collectable_energy-')) or loot in NEW_RESOURCES or loot in RS.SOURCES:  # + Ö6 rezonatör kaynakları
+        if loot.startswith(('captain_', 'resource_collectable_energy-')) or loot in NEW_RESOURCES or loot in RS.SOURCES:  # + Ö6 resonator resources
             return [(loot, amount)]
         if loot.startswith('ammunition_') or slot_of(loot) or loot in DESIGNS or PETM.slot_for(loot) in ('gears', 'protocols'):
             return [(loot, amount)]
-        if loot in TECH.ITEMS:                         # teknoloji eşyası (Explosive Charging Blob: ek mağaza)
+        if loot in TECH.ITEMS:                         # technology item (Explosive Charging Blob: extra shop)
             return [(loot, amount)]
         return None
 
     def buy(self, loot, amount, category='', buy_category='', quick=False, pet_name='', level=1):
         amount = max(1, int(amount or 1))
-        try:                                        # 3X düğmesi seviyeyi "3X" gönderir (levelGrades): 4. kademe
+        try:                                        # the 3X button sends the level as "3X" (levelGrades): 4th tier
             level = 4 if str(level).upper() == '3X' else max(1, int(level))
         except (TypeError, ValueError):
             level = 1
         if not PETM.has_levels(loot):
             level = 1
         elif level > len(PETM.level_prices(loot)) or not PETM.level_prices(loot)[level - 1]:
-            # mağazada olmayan kademe: dişlilerin 3X'i, protokollerin AI-ECO dışındaki 4. seviyesi (kayıt; istemci metni "You can't
+            # a tier not in the shop: the 3X of gears, the 4th level of protocols other than AI-ECO (save; client text "You can't
             # purchase this P.E.T. Gear level from the shop")
-            self.log('   satın alma yok: %s seviye %d (mağazada satılmaz)' % (loot, level))
+            self.log('   no purchase: %s level %d (not sold in the shop)' % (loot, level))
             return [] if quick else [self.buy_cmd(loot, category, buy_category, 0, error=stack_msg('pet_gear_shop_level_limit'))]
         elif level > 1 and (not self.pet.owned or self.pet.d['level'] < PETM.level_need(level)):
-            # wiki: 2. seviye dişli/protokol için P.E.T. seviyesi 4, 3. seviye için 8, 4. seviye 20 (istemci: pet_gear_shop_level_limit)
-            self.log('   satın alma yok: %s seviye %d (P.E.T. seviyesi %d gerekir)' % (loot, level, PETM.level_need(level)))
+            # wiki: P.E.T. level 4 for a level 2 gear/protocol, 8 for level 3, 20 for level 4 (client: pet_gear_shop_level_limit)
+            self.log('   no purchase: %s level %d (P.E.T. level %d required)' % (loot, level, PETM.level_need(level)))
             return [] if quick else [self.buy_cmd(loot, category, buy_category, 0, error=stack_msg('pet_gear_shop_level_limit'))]
-        if self.package_done(loot) and loot in self.p.d.get('unique_packages', []):     # benzersiz paket bir kez (panel: paket_siniri;
-            # içeriği zaten varsa aşağıdaki kurallar oyunun kendi hatasını verir: items_shop_error_ship_contains_ship …)
-            self.log('   satın alma yok: %s (benzersiz paket alınmış)' % loot)
+        if self.package_done(loot) and loot in self.p.d.get('unique_packages', []):     # a unique package once (panel: paket_siniri;
+            # if its contents already exist the rules below give the game's own error: items_shop_error_ship_contains_ship ...)
+            self.log('   no purchase: %s (unique package already bought)' % loot)
             return [] if quick else [self.buy_cmd(loot, category, buy_category, 0, error=stack_msg('shop_item_not_found'))]
-        if not self.gate_ok(loot):                  # Ö7: etkinlik dışı, alınmış (bir kez) ya da seviye dışı paket
-            self.log('   satın alma yok: %s (şimdi satılmıyor)' % loot)
+        if not self.gate_ok(loot):                  # Ö7: a package outside its event, already bought (once) or outside the level
+            self.log('   no purchase: %s (not sold now)' % loot)
             return [] if quick else [self.buy_cmd(loot, category, buy_category, 0, error=stack_msg('shop_item_not_found'))]
         if (self.extra_entry.get(loot) or {}).get('once'):
             amount = 1
         elif (self.extra_entry.get(loot) or {}).get('max_count'):
             amount = min(amount, self.extra_entry[loot]['max_count'])
-        if loot == PET_FUEL:                        # deponun boş yeri kadar (fazlasının parası alınmaz)
+        if loot == PET_FUEL:                        # as much as the store's free space (the excess is not charged)
             if self.fuel_room() <= 0:
-                self.log('   satın alma yok: P.E.T. yakıt deposu dolu ya da P.E.T. yok')
+                self.log('   no purchase: P.E.T. fuel tank is full or there is no P.E.T.')
                 return [] if quick else [self.buy_cmd(loot, category, buy_category, 0, error=self.reason('fuel_full'))]
             amount = min(amount, self.fuel_room())
         pr = self.buy_price(loot, level)
@@ -1100,39 +1100,39 @@ class Shop:
         is_ammo = loot.startswith('ammunition_')
         fail = lambda key: [] if quick else [self.buy_cmd(loot, category, buy_category, 0, error=stack_msg(key))]
         if not pr or not grants:
-            self.log('   satın alma yok: %s (%s)' % (loot, 'mağazada değil' if not pr else 'içeriği sunucuda henüz yok'))
+            self.log('   no purchase: %s (%s)' % (loot, 'not in the shop' if not pr else 'contents not on the server yet'))
             return fail('shop_item_not_found')
         owned = {s['lootId'] for s in self.p.d['ships'].values()}
         pkg = loot.startswith(('package_', 'deal_'))
         skipped = []
-        if pkg:      # paket (S-OS-01 = Yamato + Defcom, Stellar): sahip olunan gemi, P.E.T., formasyon ve dron yeri atlanır, gerisi verilir
+        if pkg:      # package (S-OS-01 = Yamato + Defcom, Stellar): an owned ship, P.E.T., formation and drone room are skipped, the rest is given
             grants, skipped = self.package_fit(grants, owned)
             if not grants:
-                self.log('   satın alma yok: %s (içeriğinin hepsi zaten var)' % loot)
+                self.log('   no purchase: %s (all of its contents already exist)' % loot)
                 return fail(skipped[0][2])
         if any(g in owned for g, n in grants if g.startswith('ship_') and not design_base(g)):
-            self.log('   satın alma yok: %s (bu gemi zaten var)' % loot)
-            return fail('items_shop_error_ship_contains_ship')        # oyunun kuralı: her gemi türünden bir tane
+            self.log('   no purchase: %s (this ship already exists)' % loot)
+            return fail('items_shop_error_ship_contains_ship')        # the game's rule: one of each ship type
         for g, n in ([] if pkg else grants):
             base = design_base(g)
             if base and base not in owned:
-                self.log('   satın alma yok: %s (%s yok)' % (g, base))
-                return fail('dse_ship_not_exist')                      # tasarım ancak o gemiye sahipken alınır
+                self.log('   no purchase: %s (%s missing)' % (g, base))
+                return fail('dse_ship_not_exist')                      # a design can only be bought while owning that ship
             if base and any(g in s.get('designs', []) for s in self.p.d['ships'].values()):
-                self.log('   satın alma yok: %s (tasarım zaten var)' % g)
+                self.log('   no purchase: %s (design already exists)' % g)
                 return fail('items_design_already_in_use')
         for g, n in grants:
             if g in DRONES and not self.drone_room(g):
-                self.log('   satın alma yok: %s (en çok %d dron)' % (g, ITEMS['max_drones']))
+                self.log('   no purchase: %s (at most %d drones)' % (g, ITEMS['max_drones']))
                 return fail('drone_have_max')
             if g in FORMS and (g == 'drone_formation_default' or g in self.p.d['formations']):
-                self.log('   satın alma yok: %s (formasyon zaten var)' % g)
+                self.log('   no purchase: %s (formation already exists)' % g)
                 return fail('items_drone_formation_already_in_use')
             if g == PET_LOOT and self.pet.owned:
-                self.log('   satın alma yok: P.E.T. zaten var')
+                self.log('   no purchase: P.E.T. already exists')
                 return fail('eqt_error_generic')
         if amount != 1 and any(g.startswith('ship_') or g in DRONES or g in FORMS or g in (PET_LOOT, PETM.HULL) for g, n in grants):
-            amount = 1          # içerik de 1 adede göre (yoksa 1'in parasına amount kat kaynak veriliyordu)
+            amount = 1          # the contents also by 1 piece (otherwise amount times the resource was given for the price of 1)
             grants = self.contents(loot, 1)
             if pkg:
                 grants, skipped = self.package_fit(grants, owned)
@@ -1141,20 +1141,20 @@ class Shop:
         with self.p.lock:
             pl = self.p.d['pilot']
             if pl.get(cur, 0) < cost:
-                self.log('   para yetmiyor: %s x%d = %d %s (elde %d)' % (loot, amount, cost, cur, pl.get(cur, 0)))
+                self.log('   not enough money: %s x%d = %d %s (have %d)' % (loot, amount, cost, cur, pl.get(cur, 0)))
                 return fail('not_enough_' + cur)
             pl[cur] -= cost
             self.p.dirty = True
-        RT.money(self.p, cur, -cost, RT.buy_desc(loot), loot, amount)           # hesap geçmişi
+        RT.money(self.p, cur, -cost, RT.buy_desc(loot), loot, amount)           # account history
         msgs = self.quick_buy_msgs(cur) + self.money_msgs()
         equip_ids, free = [], 0
         for g, n in grants:
             if design_base(g):
                 sid = self.own_ship(design_base(g))
-                if sid is None:                           # paketteki tasarım, gemi yok: depoda bekler (pending_designs)
+                if sid is None:                           # design in the package, no ship: waits in the store (pending_designs)
                     if not self.p.resource(g):
                         self.p.add_resource(g, 1)
-                    self.log('   tasarım saklandı: %s (%s yok)' % (g, design_base(g)))
+                    self.log('   design stored: %s (%s missing)' % (g, design_base(g)))
                     continue
                 if g in self.p.ship(sid).get('designs', []):
                     continue
@@ -1162,29 +1162,29 @@ class Shop:
                     self.p.ship(sid).setdefault('designs', []).append(g)
                     self.p.dirty = True
                 msgs += [('ShipDesignAddedCommand', {'lootId': g}), legacy('0|LM|ST|LOT|%s|1' % g)]
-                self.log('   yeni tasarım: %s (%s)' % (g, design_base(g)))
+                self.log('   new design: %s (%s)' % (g, design_base(g)))
             elif g.startswith(('resource_', 'currency_', 'tech_', 'pet_designs_', 'captain_')) or (pkg and BOOSTER.is_booster(g)):
-                msgs += self.reward(g, n)                  # paket içeriği: kaynak deposu, para, teknoloji, saatlik booster
+                msgs += self.reward(g, n)                  # package contents: resource store, money, technology, hourly booster
             elif g.startswith('ship_'):
                 sid = self.p.add_ship(g)
                 msgs.append(legacy('0|LM|ST|LOT|%s|1' % g))
-                msgs += self.pending_designs(g)            # gemi yokken gelen tasarımlar (Assembly, kutu, paket)
-                msgs += self.ship_count_msgs([g])          # Plus tarifinin taban gemisi (Assembly sayacı)
-                self.log('   yeni gemi: %s (shipId %d, hangarId %d)' % (g, sid, self.p.ship(sid)['hangarId']))
-            elif g in DRONES:                              # paketteki dronlar (Stellar: 8 Iris) hepsi, yer kadar (package_fit)
+                msgs += self.pending_designs(g)            # designs that arrive while the ship is missing (Assembly, box, package)
+                msgs += self.ship_count_msgs([g])          # base ship of the Plus recipe (Assembly counter)
+                self.log('   new ship: %s (shipId %d, hangarId %d)' % (g, sid, self.p.ship(sid)['hangarId']))
+            elif g in DRONES:                              # all the drones in the package (Stellar: 8 Iris), as many as there is room (package_fit)
                 for _ in range(n):
                     did = self.p.add_drone(g)
-                    msgs.append(self.drone_item(self.p.drone(did)))      # Assembly'de yükseltilebilir
+                    msgs.append(self.drone_item(self.p.drone(did)))      # can be upgraded in Assembly
                 msgs += [legacy('0|LM|ST|LOT|%s|%d' % (g, n))] + self.drone_msgs() + self.formation_status_msgs()
                 self.p.ach('formation', drone=len(self.p.d['drones']))
-                self.log('   yeni dron: %s x%d (kimlik %d, toplam %d)' % (g, n, did, len(self.p.d['drones'])))
+                self.log('   new drone: %s x%d (id %d, total %d)' % (g, n, did, len(self.p.d['drones'])))
             elif g in FORMS:
                 with self.p.lock:
                     self.p.d['formations'].append(g)
                     self.p.dirty = True
                 st = self.p.menu_status(g)
                 msgs += ([('MenuItemStatusCommand', st)] if st else []) + [legacy('0|LM|ST|LOT|%s|1' % g)]
-                self.log('   yeni formasyon: %s' % g)
+                self.log('   new formation: %s' % g)
             elif g.startswith('ammunition_'):
                 before = self.p.ammo(g)
                 total = self.p.add_ammo(g, n)
@@ -1198,22 +1198,22 @@ class Shop:
                 msgs += [self.inv_item(iid, g, total), self.pack([self.hangar_item(iid, g, total)]),
                          legacy('0|LM|ST|%s|%s|%d' % (kind, g, n))]
             elif g == PETM.HULL:
-                msgs += self.pet.upgrade_hull()            # +10.000 azami can (wiki), uzaydaysa gösterge
+                msgs += self.pet.upgrade_hull()            # +10,000 max HP (wiki), gauge if in space
             elif g == PET_LOOT:
                 msgs += self.grant_pet(pet_name)
             elif g == 'resource_logfile':
-                msgs += self.reward(g, n)                  # pilot yetenek ağacının log diski (kapı üreticisinin sayacı)
+                msgs += self.reward(g, n)                  # the pilot skill tree's log disc (the gate generator's counter)
             elif BOOSTER.is_booster(g):
-                BOOSTER.add(self.p, g, n)                  # her biri 10 saat; aynı booster süresine eklenir
+                BOOSTER.add(self.p, g, n)                  # 10 hours each; added to the same booster's duration
                 msgs += [BOOSTER.update_cmd(self.p), legacy('0|LM|ST|LOT|%s|%d' % (g, n))] + self.apply_stats()
-                self.log('   booster: %s x%d (kalan %d sn)' % (g, n, BOOSTER.left(self.p, g)))
+                self.log('   booster: %s x%d (%d s left)' % (g, n, BOOSTER.left(self.p, g)))
             elif not slot_of(g):
-                for _ in range(n):            # dron tasarımı, P.E.T. dişlisi/protokolü: envantere (hangarda takılır)
+                for _ in range(n):            # drone design, P.E.T. gear/protocol: into the inventory (fitted in the hangar)
                     iid = self.p.new_item(g, level)
                     msgs += [self.inv_item(iid, g, 1), self.pack([self.hangar_item(iid, g, 1)])]
                 msgs.append(legacy('0|LM|ST|LOT|%s|%d' % (g, n)))
                 if level > 1:
-                    self.log('   seviye %d: %s' % (level, g))
+                    self.log('   level %d: %s' % (level, g))
             else:
                 room = self.free_slots(slot_of(g))
                 free += room
@@ -1224,49 +1224,49 @@ class Shop:
                     if got < room and self.fits(slot_of(g), iid, g, equip_ids):
                         equip_ids.append(iid)
                         got += 1
-                EX.recharge(self.p, g, n)                  # atlama/gizlenme CPU'su: yeni hak
+                EX.recharge(self.p, g, n)                  # jump/cloak CPU: new use
                 if g == 'equipment_extra_hmd-07':
-                    msgs += self.p.menu_changes([g])      # HM-7: takılmasa da kısayol çubuğunda hemen görünür
+                    msgs += self.p.menu_changes([g])      # HM-7: appears on the shortcut bar immediately even if not fitted
                 msgs.append(legacy('0|LM|ST|LOT|%s|%d' % (g, n)))
-        self.log('   satın alındı: %s x%d = %d %s (kalan %d)' % (loot, amount, cost, cur, self.p.d['pilot'][cur]))
+        self.log('   purchased: %s x%d = %d %s (remaining %d)' % (loot, amount, cost, cur, self.p.d['pilot'][cur]))
         if skipped:
-            self.log('   paketten verilmedi (zaten var): %s' % ', '.join('%s x%d' % (g, n) for g, n, key in skipped))
+            self.log('   not given from the package (already owned): %s' % ', '.join('%s x%d' % (g, n) for g, n, key in skipped))
             msgs.append(self.skipped_msg(skipped))
         if pkg and any(self.unique_loot(g) for g, n in self.contents(loot, 1) or []):
             with self.p.lock:
-                self.p.d.setdefault('unique_packages', []).append(loot)      # bir kez alınır (package_done)
+                self.p.d.setdefault('unique_packages', []).append(loot)      # bought once (package_done)
                 self.p.dirty = True
-        for cb in self.on_bought:                      # Ö7 dükkânları (dukkanlar.py)
+        for cb in self.on_bought:                      # Ö7 shops (stores.py)
             msgs += cb(loot, amount) or []
-        for g, n in grants:                            # ipucu (bir kez): ikinci gemi -> gemi ışınlama, ilk ekipman -> hangarda tak
+        for g, n in grants:                            # hint (once): second ship -> ship warp, first equipment -> fit in the hangar
             msgs += self.p.hint(IP.for_purchase(self.p, g, bool(slot_of(g)) and not g.startswith('ammunition_')))
         if not quick:
             buy = self.buy_cmd(loot, category, buy_category, 1, amount, equip_ids=equip_ids, free=free)
             lst = self.shop_list(category)
-            # istemci liste gelince (ShopItemListCommandHandler -> CreateItem -> OnClickItem) satın alma penceresini gizliyor:
-            # "Geminde boş slotlar var, donatılsın mı?" sorusu görünür görünmez kayboluyordu (canlı test 2026-10-18). Soru
-            # varsa liste önce gider, soru sonra; yoksa kayıttaki sıra (ShopItemBuyCommand, sonra liste).
+            # when the list arrives the client (ShopItemListCommandHandler -> CreateItem -> OnClickItem) hides the purchase window:
+            # the question "You have free slots on your ship, equip it?" vanished as soon as it appeared (live test 2026-10-18). If there is a
+            # question the list goes first, the question after; otherwise the order in the save (ShopItemBuyCommand, then the list).
             msgs += ([lst, buy] if equip_ids else [buy, lst]) if lst else [buy]
         return msgs
 
     def grant_pet(self, name=''):
-        """P.E.T. (mağaza, paket, Assembly, kutu): yoksa verilir; çubukta simgesi, pencerenin düğmeleri."""
+        """P.E.T. (shop, package, Assembly, box): given if missing; icon on the bar, the window's buttons."""
         if self.pet.owned:
             return []
         with self.p.lock:
             self.p.d['pet'] = PETM.new_pet(self.p)
-            if len((name or '').strip()) >= 3:              # mağazadaki "P.E.T. name" alanı
+            if len((name or '').strip()) >= 3:              # the "P.E.T. name" field in the shop
                 self.p.d['pet']['name'] = name.strip()[:20]
             self.p.dirty = True
-        self.log('   yeni P.E.T.: %s' % PET_LOOT)
-        return [('PetPurchasedCommand', {}), self.pet.init_msg(), self.p.generate('@arayuz'),    # çubukta P.E.T. simgesi
+        self.log('   new P.E.T.: %s' % PET_LOOT)
+        return [('PetPurchasedCommand', {}), self.pet.init_msg(), self.p.generate('@arayuz'),    # P.E.T. icon on the bar
                 legacy('0|LM|ST|LOT|%s|1' % PET_LOOT)]
 
     def prize(self, loot, n, source='mod'):
-        """Görev, kapı, mod, etkinlik ve Dispatch ödülü: reward()'ın panelli yolu. Kredi, uridyum, EP ve onur kendi çarpanlarıyla;
-        yığılan eşyalar (cephane, kaynak, anahtar, teknoloji eşyası) 'mod_odul' çarpanıyla; tek eşyalar (gemi, lazer, tasarım,
-        booster, P.E.T., bilet) aynen. kaynak: panelin alt ayarı (gorev, kapi, mod). Mağaza, paket, takas ve GM yolları reward()'ı
-        kullanır (ölçeklenmez)."""
+        """Quest, gate, mode, event and Dispatch reward: reward()'s panel-aware path. Credits, uridium, EP and honor with their own multipliers;
+        stackable items (ammo, resources, keys, technology items) with the 'mod_odul' multiplier; single items (ship, laser, design,
+        booster, P.E.T., ticket) as they are. source: the panel's sub-setting (gorev, kapi, mod). The shop, package, exchange and GM paths use reward()
+        (not scaled)."""
         key = PRIZE_CURRENCY.get(loot)
         if key:
             n = SET.amount(key, n, source)
@@ -1277,55 +1277,55 @@ class Shop:
     def reward(self, loot, n, level=1):
         msgs = self._reward(loot, n, level)
         if loot in (GM.SHARD, GM.CHIP) or PC.restabilizable(loot):
-            # Restabilize sekmesi bedel sayaçlarını ve listeyi bu komuttan alıyor (kayıtta envanter değişince yeniden geliyor);
-            # OptiGrad Chip / Unstable Shard gelince sekme 0 gösterip düğmeyi kapalı tutuyordu (canlı test H70)
+            # the Restabilize tab takes its cost counters and the list from this command (in the save it comes again when the inventory changes);
+            # when an OptiGrad Chip / Unstable Shard arrived the tab showed 0 and kept the button disabled (live test H70)
             msgs = list(msgs or []) + [GM.list_cmd(self.p)]
         return msgs
 
     def _reward(self, loot, n, level=1):
-        """Görev ödülü (kredi/uridyum/EP/onur dışındakiler): cephane, ekipman (boş yuva varsa etkin gemiye takılır; kayıttaki
-        gibi; "Auto-equip new items" kapalıysa takılmaz), gemi, gemi tasarımı, cevher, booster, kapı enerjisi, log diski. Sunucuda karşılığı olmayan ödül (Assembly kaynağı, kupon …)
-        profilde saklanır (diger_esyalar). level: seviyeli P.E.T. dişlisi/protokolünün seviyesi (Assembly tarifleri)."""
+        """Quest reward (other than credits/uridium/EP/honor): ammo, equipment (fitted to the active ship if there is a free slot; as in the save;
+        not fitted if "Auto-equip new items" is off), ship, ship design, ore, booster, gate energy, log disc. A reward with no counterpart on the server (Assembly
+        resource, voucher ...) is kept in the profile (diger_esyalar). level: the level of a P.E.T. gear/protocol with levels (Assembly recipes)."""
         msgs = []
-        RT.note(self.p, 'received_item', loot, n)                              # seyir defteri
-        if loot == PET_LOOT:                       # ödül yolundan P.E.T. depoya düşüp kayboluyordu (canlı test H43)
+        RT.note(self.p, 'received_item', loot, n)                              # logbook
+        if loot == PET_LOOT:                       # on the reward path the P.E.T. fell into the store and vanished (live test H43)
             return self.grant_pet()
         got = SE.reserve(loot, n)
-        if got is not None:                        # Season Pass rezervi: içeriği (sezon.py; önceden görünmez depoya düşüyordu)
+        if got is not None:                        # Season Pass reserve: its contents (season.py; before, it fell into the invisible store)
             for l, k in got:
                 msgs += self.reward(l, k)
-            self.log('   rezerv açıldı: %s x%d -> %s' % (loot, n, ', '.join('%s x%d' % x for x in got)))
+            self.log('   reserve opened: %s x%d -> %s' % (loot, n, ', '.join('%s x%d' % x for x in got)))
             return msgs
-        if loot in PASS_ITEMS and self.tickets:                               # Season Pass puanı, Gold/Extra Gold, Battle Pass, Deluxe
+        if loot in PASS_ITEMS and self.tickets:                               # Season Pass points, Gold/Extra Gold, Battle Pass, Deluxe
             season, bp, go = self.tickets
             if loot == 'resource_battle-pass':
                 return bp.grant_pass(n)
             if loot == 'resource_monthly-deluxe':
                 return go.grant_deluxe(n)
             return season.grant(loot, n)
-        if self.new_ and (loot.startswith(('captain_', QF.PREFIX)) or PC.is_item(loot)):     # N.O.V.A., QFC, top/sürücü (yeni_sistemler.py)
+        if self.new_ and (loot.startswith(('captain_', QF.PREFIX)) or PC.is_item(loot)):     # N.O.V.A., QFC, cannon/driver (new_systems.py)
             got = self.new_.reward(loot, n)
             if got is not None:
                 return got
-        if loot in PAY_CURRENCY:                    # paketteki para / EP (hesap geçmişine ve Uridium Bank'a sayılmaz)
+        if loot in PAY_CURRENCY:                    # money / EP in the package (not counted in the account history or the Uridium Bank)
             field, kind = PAY_CURRENCY[loot]
             with self.p.lock:
                 pl = self.p.d['pilot']
                 pl[field] = pl.get(field, 0) + n
                 self.p.dirty = True
             if loot == 'currency_experience':
-                tot = self.p.gain()                         # seviye EP'ye göre yeniden hesaplanır
+                tot = self.p.gain()                         # the level is recomputed from EP
                 msgs.append(legacy('0|LM|ST|EP|%d|%d|%d' % (n, tot['ep'], tot['level'])))
             else:
                 msgs += self.money_msgs() + [legacy('0|LM|ST|%s|%d|%d' % (kind, n, self.p.d['pilot'][field]))]
             return msgs
-        if loot in ITEMS['shop_discount']['day']:  # Shop Discount (günlük giriş): indirimin süresi eklenir (gösterge sonraki girişte)
+        if loot in ITEMS['shop_discount']['day']:  # Shop Discount (daily login): the discount's duration is added (the gauge at the next login)
             with self.p.lock:
                 d = self.p.d
                 d['shop_discount'] = max(d.get('shop_discount', 0), time.time()) + ITEMS['shop_discount']['day'][loot] * 86400 * n
                 self.p.dirty = True
             return msgs + [legacy('0|LM|ST|LOT|%s|%d' % (loot, n))]
-        if loot.startswith('tech_'):                # teknoloji eşyası (Assembly ve paketler): sayaca
+        if loot.startswith('tech_'):                # technology item (Assembly and packages): to the counter
             TECH.add(self.p, loot, n)
             st = self.p.menu_status(loot)
             return msgs + ([('MenuItemStatusCommand', st)] if st else []) + [legacy('0|LM|ST|LOT|%s|%d' % (loot, n))]
@@ -1339,7 +1339,7 @@ class Shop:
             msgs += [self.inv_item(iid, loot, total), self.pack([self.hangar_item(iid, loot, total)]), legacy('0|LM|ST|%s|%s|%d' % (kind, loot, n))]
         elif slot_of(loot):
             slot, equipped = slot_of(loot), False
-            auto = self.p.d.get('auto_equip', True)     # Ayarlar > Gameplay "Auto-equip new items" (kapalıysa envanterde kalır)
+            auto = self.p.d.get('auto_equip', True)     # Settings > Gameplay "Auto-equip new items" (if off it stays in the inventory)
             for _ in range(n):
                 iid = self.p.new_item(loot)
                 msgs += [self.inv_item(iid, loot, 1), self.pack([self.hangar_item(iid, loot, 1)])]
@@ -1353,7 +1353,7 @@ class Shop:
             if equipped:
                 msgs += [self.equipment_cmd()] + self.apply_stats()
             msgs.append(legacy('0|LM|ST|LOT|%s|%d' % (loot, n)))
-            if GM.unstable(loot):                       # Restabilize listesi (canlı test H41: yalnız girişte geliyordu)
+            if GM.unstable(loot):                       # Restabilize list (live test H41: it came only at login)
                 msgs.append(GM.list_cmd(self.p))
         elif loot.startswith('ship_') and loot in ITEMS['ships']:
             if loot not in {s['lootId'] for s in self.p.d['ships'].values()}:
@@ -1361,31 +1361,31 @@ class Shop:
                 msgs.append(legacy('0|LM|ST|LOT|%s|1' % loot))
                 msgs += self.pending_designs(loot) + self.ship_count_msgs([loot])
                 if self.ships_tpl:
-                    msgs.append(self.ships_cmd())              # hangar listesinde yeni gemi (Assembly, kapı, kutu)
+                    msgs.append(self.ships_cmd())              # new ship in the hangar list (Assembly, gate, box)
         elif design_base(loot) and self.grant_design(loot):
             msgs += [('ShipDesignAddedCommand', {'lootId': loot}), legacy('0|LM|ST|LOT|%s|1' % loot)]
         elif loot in ORES.values():
-            # ödül cevheri kargo dolu da olsa hepsi gelir, kargo azamiyi aşar (resmî Skylab SSS: "transferred to your ship regardless",
-            # "temporarily greater cargo capacity"; 10.000 Seprom ödülü 9.000'lik kargoda). Yer açılana dek cevher/kutu toplanmaz.
-            # Boş yer kadar veriliyordu: Assembly'nin 5.000 Seprom'u dolu kargoda kayboluyordu (kullanıcı bildirimi 2026-10-24)
+            # reward ore all comes even if the cargo is full, the cargo exceeds the maximum (official Skylab FAQ: "transferred to your ship regardless",
+            # "temporarily greater cargo capacity"; a 10,000 Seprom reward in a 9,000 cargo). Ore/boxes are not collected until room is freed.
+            # It used to give only as much as there was room: Assembly's 5,000 Seprom vanished in a full cargo (user report 2026-10-24)
             t = next(k for k, v in ORES.items() if v == loot)
             if n > 0:
                 msgs += [('AttributeOreCountUpdateCommand', {'oreCountList': self.p.add_ores({t: n})}), self.ore_pack([t])]
-        elif loose_item(loot):     # dron / P.E.T. tasarımı, P.E.T. dişlisi ve protokolü (kapı, kutu, Assembly, Pass): envantere, hangarda takılır
+        elif loose_item(loot):     # drone / P.E.T. design, P.E.T. gear and protocol (gate, box, Assembly, Pass): into the inventory, fitted in the hangar
             for _ in range(n):
                 iid = self.p.new_item(loot, level if PETM.level_prices(loot) else 1)
                 msgs += [self.inv_item(iid, loot, 1), self.pack([self.hangar_item(iid, loot, 1)])]
             msgs.append(legacy('0|LM|ST|LOT|%s|%d' % (loot, n)))
-        elif BOOSTER.is_booster(loot):   # ödül boosterı: adet saat, süresi oyundayken işler (günlük giriş, görev)
+        elif BOOSTER.is_booster(loot):   # reward booster: count in hours, runs while in the game (daily login, quest)
             BOOSTER.add(self.p, loot, seconds=n * 3600)
             msgs += [BOOSTER.update_cmd(self.p), legacy('0|LM|ST|LOT|%s|%d' % (loot, n))] + self.apply_stats()
         elif loot == 'resource_extra-energy' and self.gates:
-            msgs += self.gates.bonus_energy(n)       # Galaksi Kapısı üreticisinin ücretsiz enerjisi
-        elif loot in DRONES:                           # Assembly/Dispatch: dron (Flax/Iris en çok dron_azami, Apis/Zeus birer)
+            msgs += self.gates.bonus_energy(n)       # the Galaxy Gate generator's free energy
+        elif loot in DRONES:                           # Assembly/Dispatch: drone (Flax/Iris at most dron_azami, Apis/Zeus one each)
             for _ in range(n):
                 if not self.drone_room(loot):
                     break
-                msgs.append(self.drone_item(self.p.drone(self.p.add_drone(loot))))     # Assembly'de yükseltilebilir
+                msgs.append(self.drone_item(self.p.drone(self.p.add_drone(loot))))     # can be upgraded in Assembly
             msgs += [legacy('0|LM|ST|LOT|%s|%d' % (loot, n))] + self.drone_msgs() + self.formation_status_msgs()
         elif loot in FORMS:
             if loot not in self.p.d['formations']:
@@ -1395,7 +1395,7 @@ class Shop:
             st = self.p.menu_status(loot)
             msgs += ([('MenuItemStatusCommand', st)] if st else []) + [legacy('0|LM|ST|LOT|%s|1' % loot)]
         elif loot == 'resource_repairvoucher' and self.gates:
-            with self.p.lock:                          # onarım kuponu: ölüm ekranında (dunya.vouchers)
+            with self.p.lock:                          # repair voucher: on the death screen (world.vouchers)
                 self.gates.d['voucher'] += n
                 self.p.dirty = True
             msgs.append(legacy('0|LM|ST|LOT|%s|%d' % (loot, n)))
@@ -1405,38 +1405,38 @@ class Shop:
                 self.p.d['pet']['fuel'] = self.p.d['pet'].get('fuel', 0) + add
                 self.p.dirty = True
             if add:
-                msgs += [legacy('0|LM|ST|LOT|%s|%d' % (loot, add)), self.pet.fuel_msg()]     # P.E.T. penceresinin yakıt çubuğu
-            if add < n:                                # depo doldu: istemci log_msg_not_gather_pet_fuel ("cargo is full")
+                msgs += [legacy('0|LM|ST|LOT|%s|%d' % (loot, add)), self.pet.fuel_msg()]     # the P.E.T. window's fuel bar
+            if add < n:                                # storage full: client log_msg_not_gather_pet_fuel ("cargo is full")
                 msgs.append(('PetFuelCargoFullMessage', {}))
         elif loot == 'resource_logfile' and self.gates:
-            with self.p.lock:                          # log diski: pilot puanına çevrilir (yetenek.py)
+            with self.p.lock:                          # log disc: converted to pilot points (skill_tree.py)
                 self.gates.d['log_disk'] += n
                 self.p.dirty = True
             msgs.append(legacy('0|LM|ST|LOT|%s|%d' % (loot, n)))
         elif loot == 'resource_wordpuzzle-letter' and self.hitac:
-            msgs += self.hitac.grant_letter(n)         # Hitac kutusundaki harf: Word Puzzle (hitac_piyango.py)
+            msgs += self.hitac.grant_letter(n)         # the letter in the Hitac box: Word Puzzle (hitac_lottery.py)
         elif loot == 'resource_collectable_chromin' and self.chromin:
-            msgs += self.chromin.gain(n)               # Chromin Rush: 160.000 sınırı, fazlası krediye (chromin.py)
-        else:                            # henüz harcayan sistem yok (Assembly kaynakları, kuponlar …): depoda (profil.add_resource)
+            msgs += self.chromin.gain(n)               # Chromin Rush: 160,000 limit, the excess to credits (chromin.py)
+        else:                            # no system spends it yet (Assembly resources, vouchers ...): in the store (player_profile.add_resource)
             total = self.p.add_resource(loot, n)
             if loot.startswith('resource_'):
                 msgs += self.resource_msgs(loot, total, n)
-            if loot in LOOT.KEYS and LOOT.key_line(self.p, LOOT.KEYS[loot]):         # ganimet anahtarı: HUD sayacı
+            if loot in LOOT.KEYS and LOOT.key_line(self.p, LOOT.KEYS[loot]):         # loot key: HUD counter
                 msgs.append(legacy(LOOT.key_line(self.p, LOOT.KEYS[loot])))
-            if hidden(loot):        # envanterde görünmez, hiçbir sistem okumaz: bu ödül kaybolur (test_odul_yollari yakalar)
-                self.log('   UYARI: ödül tanınmıyor, envanterde görünmeyecek: %s x%d (depoda saklandı, toplam %d)' % (loot, n, total))
+            if hidden(loot):        # invisible in the inventory, no system reads it: this reward is lost (test_odul_yollari catches it)
+                self.log('   WARNING: reward not recognized, will not show in the inventory: %s x%d (kept in the store, total %d)' % (loot, n, total))
             else:
-                self.log('   ödül depoda: %s x%d (toplam %d)' % (loot, n, total))
+                self.log('   reward in the store: %s x%d (total %d)' % (loot, n, total))
         return msgs
 
     def rescue_depot(self):
-        """Ödül yolunda önceden tanınmadığı için görünmez depoya düşmüş eşyaları yerine taşır (2026-10-22: Season Pass'in Hyperion dron
-        tasarımı ve rezervleri, Assembly'nin P.E.T. protokolleri): tasarım, dişli ve protokol envantere; rezervler açılır (aynı
-        içerik birleşir, seyir defteri dolmasın). Hâlâ tanınmayanlar depoda kalır, günlükte uyarılır. Oturum her bağlantıda bir kez,
-        giriş mesajlarından önce çağırır -> taşınan [(lootId, adet)]."""
+        """Moves items that had fallen into the invisible store because they were not recognized earlier on the reward path to where they belong (2026-10-22: Season Pass's Hyperion drone
+        design and reserves, Assembly's P.E.T. protocols): designs, gears and protocols to the inventory; reserves are opened (the same
+        contents are merged so the logbook does not fill up). Those still not recognized stay in the store, with a warning in the log. The session calls this once per connection,
+        before the login messages -> the moved [(lootId, count)]."""
         moved, opened = [], {}
-        # gemisi sonradan alınan tasarımlar: mağazadan alınan gemi bekleyenleri vermiyordu (kullanıcı bildirimi 2026-10-24: Assembly'nin
-        # Spectrum Legend'ı Spectrum alınınca da yoktu)
+        # designs whose ship is bought later: a ship bought from the shop did not hand out the waiting ones (user report 2026-10-24: Assembly's
+        # Spectrum Legend was also missing after Spectrum was bought)
         for base in sorted({s['lootId'] for s in self.p.d['ships'].values()}):
             moved += [(f['lootId'], 1) for n_, f in self.pending_designs(base)]
         for loot, n in sorted(self.p.d.get('other_items', {}).items()):
@@ -1450,30 +1450,29 @@ class Shop:
                 for l, k in SE.reserve(loot, n):
                     opened[l] = opened.get(l, 0) + k
             else:
-                self.log('   UYARI: depoda envanterde görünmeyen eşya: %s x%d' % (loot, n))
+                self.log('   WARNING: item in the store not visible in the inventory: %s x%d' % (loot, n))
                 continue
             self.p.add_resource(loot, -n)
             moved.append((loot, n))
         for l, k in sorted(opened.items()):
             self.reward(l, k)
         if moved:
-            self.log('   depodan kurtarıldı: %s%s' % (', '.join('%s x%d' % x for x in moved),
+            self.log('   rescued from the store: %s%s' % (', '.join('%s x%d' % x for x in moved),
                                                     ' -> %s' % ', '.join('%s x%d' % x for x in sorted(opened.items())) if opened else ''))
         return moved
 
     def resource_msgs(self, loot, total, n):
-        """Depodaki kaynağın sayacı (InventoryItemUpdatedCommand: Assembly malzeme sayaçları buradan; canlı test H31) ve günlük satırı
-        (n > 0 ise "… alındı")."""
+        """Counter of a resource in the store (InventoryItemUpdatedCommand: Assembly ingredient counters come from here; live test H31) and the log line
+        (if n > 0 "... obtained")."""
         iid = self.item_id(loot)
         items = [] if loot in NO_TRAITS else [self.inv_item(iid, loot, total), self.pack([self.hangar_item(iid, loot, total)])]
         return items + ([legacy('0|LM|ST|LOT|%s|%d' % (loot, n))] if n > 0 else [])
 
-    # ------------------------------------------------------------ satış
+    # ------------------------------------------------------------ selling
     def sale_value(self, loot, n=1):
-        """Satış -> (para alanı, tutar) ya da None. İstemcinin kendi değeri (eşyanın "sellable" özelliği, hangarın eşya bilgisinde
-        kredi olarak gösterilen; data/client_items.json); yoksa fiyatın satis_orani'si (uyarlama), mağazada fiyatı olmayanda
-        ref_value. Alış fiyatından pahalıya (ya da aynına) satılmaz: o zaman fiyatın satis_orani'si (SL-01 3.000 U'ya alınıp istemcinin
-        değeri 1.250.000 C'ye satılıyordu)."""
+        """Sale -> (currency field, amount) or None. The client's own value (the item's "sellable" trait, shown as credits in the hangar's item info;
+        data/client_items.json); otherwise the price's satis_orani (adaptation), ref_value for an item with no shop price. It is not sold for more than (or
+        the same as) the purchase price: then the price's satis_orani (SL-01 was bought for 3,000 U and sold for the client's value of 1,250,000 C)."""
         v = UPG.ITEMS.get(loot, {}).get('selling')
         if v:
             pr = self.price(loot)
@@ -1490,8 +1489,8 @@ class Shop:
         return pr[0], int(pr[1] * n * ITEMS['sale_ratio'])
 
     def ref_value(self, loot):
-        """Mağazada olmayan eşyanın değeri (items.json _satis_degerleri): lazer/kalkan/hız aynı tablodaki en güçlü uridyumlu mağaza
-        eşyasına gücüyle oranlanır; ötekiler önek tablosundan."""
+        """Value of an item not in the shop (items.json _satis_degerleri): laser/shield/speed are scaled by power against the strongest uridium shop item
+        in the same table; the others from the prefix table."""
         for table, key in STAT_TABLES:
             row = ITEMS[table].get(loot)
             if row and row.get(key):
@@ -1503,8 +1502,8 @@ class Shop:
         return next((tuple(v) for k, v in ITEMS['sale_values'].items() if loot.startswith(k)), None)
 
     def sell(self, f):
-        """HangarShipSellItemRequest {itemList: [{itemId, quantity}]}: envanterdeki takılı olmayan eşya ya da cephane. Hepsi
-        satılabiliyorsa satılır (InventoryItemRemovedCommand / sayaç güncellemesi + para), yoksa hiçbiri."""
+        """HangarShipSellItemRequest {itemList: [{itemId, quantity}]}: an unfitted item or ammo in the inventory. If all of them
+        can be sold they are sold (InventoryItemRemovedCommand / counter update + money), otherwise none."""
         fail = lambda reason=None: [('HangarShipSellItemCommand', dict(
             errorMessage=self.reason(reason) if reason else stack_msg('eqt_error_generic'), resultId=0))]
         equipped = self.p.equipped_ids()
@@ -1512,15 +1511,15 @@ class Shop:
         plan = []
         for pk in f.get('itemList') or []:
             iid, q = int(pk.get('itemId') or 0), max(1, int(pk.get('quantity') or 1))
-            if any(iid == x[0] for x in plan):          # aynı eşya iki kez: iki kez ödeniyordu
+            if any(iid == x[0] for x in plan):          # the same item twice: it was paid twice
                 return fail()
             loot = self.p.d['items'].get(str(iid))
             if loot:
                 if iid in equipped:
-                    self.log('   satış yok: %s takılı' % loot)
+                    self.log('   no sale: %s is fitted' % loot)
                     return fail('equipped_sale')
-                if loot.startswith(QF.PREFIX):                  # QFC satılmaz, Hyperforge'da geri dönüşür (resmî SSS)
-                    self.log('   satış yok: %s (QFC)' % loot)
+                if loot.startswith(QF.PREFIX):                  # QFC is not sold, it is recycled at the Hyperforge (official FAQ)
+                    self.log('   no sale: %s (QFC)' % loot)
                     return fail('qfc_sale')
                 q = 1
             elif iid in ammo_ids:
@@ -1528,7 +1527,7 @@ class Shop:
                 q = min(q, self.p.ammo(loot))
             val = self.sale_value(loot, q) if loot and q > 0 else None
             if not val:
-                self.log('   satış yok: eşya %s (%s)' % (iid, loot))
+                self.log('   no sale: item %s (%s)' % (iid, loot))
                 return fail()
             plan.append((iid, loot, q, val))
         if not plan:
@@ -1547,8 +1546,8 @@ class Shop:
                 msgs += ([('MenuItemStatusCommand', st)] if st else []) + [self.inv_item(iid, loot, total),
                                                                           self.pack([self.hangar_item(iid, loot, total)])]
             got[cur] = got.get(cur, 0) + amount
-            RT.money(self.p, cur, amount, RT.sell_desc(loot), loot, q)              # hesap geçmişi
-            self.log('   satıldı: %s x%d = %d %s' % (loot, q, amount, cur))
+            RT.money(self.p, cur, amount, RT.sell_desc(loot), loot, q)              # account history
+            self.log('   sold: %s x%d = %d %s' % (loot, q, amount, cur))
         with self.p.lock:
             for cur, amount in got.items():
                 self.p.d['pilot'][cur] = self.p.d['pilot'].get(cur, 0) + amount
@@ -1556,10 +1555,10 @@ class Shop:
         return msgs + self.money_msgs() + [('HangarShipSellItemCommand', dict(errorMessage=None, resultId=1))]
 
     def sell_drone(self, f):
-        """HangarShipSellDroneRequest {droneId}: dron satılır; üstündeki eşyalar ve tasarımı envantere döner. Değer: istemcinin
-        "sellable" değeri (kredi; Flax 100.000, Iris 500.000), yoksa o türden son dronun fiyatının satis_orani'si."""
+        """HangarShipSellDroneRequest {droneId}: the drone is sold; the items on it and its design return to the inventory. Value: the client's
+        "sellable" value (credits; Flax 100,000, Iris 500,000), otherwise the satis_orani of the price of the last drone of that type."""
         x = self.p.drone(f.get('droneId') or 0)
-        if not x or DRONES[x['lootId']].get('single'):        # Apis/Zeus satılmaz (istemcide "sellable" yok)
+        if not x or DRONES[x['lootId']].get('single'):        # Apis/Zeus are not sold (no "sellable" in the client)
             return [('HangarShipSellDroneCommand', dict(resultId=0, errorMessage=stack_msg('eqt_error_generic'), drones=self.drone_views()))]
         info = DRONES[x['lootId']]
         n = sum(1 for y in self.p.d['drones'] if y['lootId'] == x['lootId'])
@@ -1567,7 +1566,7 @@ class Shop:
         cur = info['currency']
         if UPG.ITEMS.get(x['lootId'], {}).get('selling'):
             cur, amount = 'credits', int(UPG.ITEMS[x['lootId']]['selling'])
-        freed = []                    # her gemide dronun eşyaları ve tasarımları envantere
+        freed = []                    # in every ship the drone's items and designs go to the inventory
         with self.p.lock:
             for s in self.p.d['ships'].values():
                 for c in s.get('drone_config', {}).values():
@@ -1579,11 +1578,11 @@ class Shop:
             self.p.sync_equipment()
             self.p.dirty = True
         RT.money(self.p, cur, amount, 'sell_drone', x['lootId'], 1)
-        self.log('   dron satıldı: %s (kimlik %d) = %d %s' % (x['lootId'], x['uid'], amount, cur))
-        # boşalan eşyalar istemcinin envanterinde de takılı değil (hangarId 0): önceden hangar listesi yeniden istenene dek takılı
-        # sayılıp envanterde görünmüyordu
-        form = self.formation_status_msgs()          # satılan dron etkin formasyonun asgari sayısının altına indirdiyse standarda döner
-        return (self.money_msgs() + [('InventoryItemRemovedCommand', {'itemId': x['uid']}),          # Assembly listesinden
+        self.log('   drone sold: %s (id %d) = %d %s' % (x['lootId'], x['uid'], amount, cur))
+        # the freed items are not fitted in the client's inventory either (hangarId 0): before, they counted as fitted until the hangar list was asked for again
+        # and did not show in the inventory
+        form = self.formation_status_msgs()          # if the sold drone brought the count below the active formation's minimum it returns to standard
+        return (self.money_msgs() + [('InventoryItemRemovedCommand', {'itemId': x['uid']}),          # From the Assembly list
                                      ('HangarShipSellDroneCommand', dict(resultId=1, errorMessage=None, drones=self.drone_views()))]
                 + form + self.drone_msgs() + [self.equipment_cmd()] + self.item_updates(freed) + self.apply_stats())
 
@@ -1592,7 +1591,7 @@ class Shop:
         return stack_msg(key)
 
     def grant_design(self, loot):
-        """Gemi tasarımı ödülü: gemi profilde varsa tasarımlarına eklenir -> True; yoksa False (ödül saklanır)."""
+        """Ship design reward: if the ship is in the profile it is added to its designs -> True; otherwise False (the reward is kept)."""
         sid = self.own_ship(design_base(loot))
         if not sid:
             return False
@@ -1601,17 +1600,17 @@ class Shop:
             if loot not in ds:
                 ds.append(loot)
             self.p.dirty = True
-        self.log('   tasarım ödülü: %s' % loot)
+        self.log('   design reward: %s' % loot)
         return True
 
     def own_ship(self, base):
-        """Bu türden sahip olunan gemi (shipId) ya da None. Astral'ın kiralık gemisi sayılmaz: koşu bitince geri alınır, tasarım
-        onunla giderdi."""
+        """The owned ship of this type (shipId) or None. Astral's rented ship does not count: it is taken back when the run ends, the design would go
+        with it."""
         loan = (((self.p.d.get('pve') or {}).get('astral') or {}).get('run') or {}).get('sid')
         return next((k for k, s in self.p.d['ships'].items() if s['lootId'] == base and k != loan), None)
 
     def pending_designs(self, ship_loot):
-        """Gemi alındı: saklanan tasarım ödülleri (gemi yokken gelenler) artık verilir."""
+        """Ship obtained: the stored design rewards (those that arrived while the ship was missing) are now given."""
         msgs = []
         for loot in [l for l in self.p.d.get('other_items', {}) if design_base(l) == ship_loot]:
             if self.grant_design(loot):
@@ -1620,21 +1619,21 @@ class Shop:
         return msgs
 
     def auto_buy(self, loot, n):
-        """Otomatik alım CPU'su (ALB-X, RB-X): mağaza fiyatıyla sessiz alım -> mesajlar (para yetmezse boş)."""
+        """Auto-buy CPU (ALB-X, RB-X): silent purchase at the shop price -> messages (empty if the money does not suffice)."""
         return self.buy(loot, n, quick=True) if self.price(loot) else []
 
     def auto_buy_fail(self, loot, n):
-        """Otomatik alım para yetmediği için olmadıysa istemcinin metni (Ö1): 0|ammobuy_fail_uri / _cre ("Ammo purchase failed! Not
-        enough Uridium." …; NetConnectionHelper.OnData) -> mesajlar ya da boş."""
+        """The client's text (Ö1) if the auto-buy did not happen because the money did not suffice: 0|ammobuy_fail_uri / _cre ("Ammo purchase failed! Not
+        enough Uridium." ...; NetConnectionHelper.OnData) -> messages or empty."""
         pr = self.buy_price(loot, 1) if self.price(loot) else None
         if not pr or self.p.d['pilot'].get(pr[0], 0) >= math.ceil(pr[1] * n - 1e-9):
             return []
         return [legacy('0|ammobuy_fail_%s' % ('uri' if pr[0] == 'uridium' else 'cre'))]
 
     def auto_buy_ammo(self, f):
-        """HangarShipAutoBuyCpuAmmoRequest: otomatik alım CPU'sunun (ALB-X lazer, RB-X roket ve fırlatıcı roketi) alacağı cephane
-        (profilde) -> HangarShipAutoBuyCpuAmmoCommand (istemci envanterdeki eşyanın attachedAmmo'sunu günceller). RB-X'in listesinde
-        fırlatıcı roketleri de var; ECO-10 seçilince hata veriyordu (kullanıcı bildirimi 2026-10-25)."""
+        """HangarShipAutoBuyCpuAmmoRequest: the ammo the auto-buy CPU (ALB-X laser, RB-X rocket and launcher rocket) will buy
+        (in the profile) -> HangarShipAutoBuyCpuAmmoCommand (the client updates the item's attachedAmmo in the inventory). RB-X's list
+        also has the launcher rockets; selecting ECO-10 gave an error (user report 2026-10-25)."""
         iid, ammo = f.get('itemId'), f.get('ammoLootId') or ''
         loot = self.p.d['items'].get(str(iid))
         cfg = EX.X.get(loot, {}).get('auto_pickup')
@@ -1645,19 +1644,19 @@ class Shop:
             with self.p.lock:
                 self.p.d.setdefault('auto_buy_ammo', {})[loot] = ammo
                 self.p.dirty = True
-            self.log('   otomatik alım: %s -> %s' % (loot, ammo))
+            self.log('   auto-buy: %s -> %s' % (loot, ammo))
         return [('HangarShipAutoBuyCpuAmmoCommand', dict(result=1 if ok else 0, cpuItemId=iid or 0, ammoLootId=ammo,
                                                           errorMessage=None if ok else stack_msg('eqt_error_generic')))]
 
     def auto_lab(self, item, ore, best=False):
-        """Otomatik laboratuvar CPU'su (NC-AWL/AWR/AWB/AGB): yükseltme bitince kargodaki aynı (best: en iyi) cevherle yeniden."""
+        """Auto-laboratory CPU (NC-AWL/AWR/AWB/AGB): when an upgrade finishes it starts again with the same ore in the cargo (best: the best one)."""
         opts = LAB['bonuses'].get(str(item), {})
         if best:
             ore = max((int(t) for t in opts if self.p.ore_count(int(t)) > 0), key=lambda t: opts[str(t)], default=None)
         if ore is None or str(ore) not in opts or self.p.ore_count(ore) <= 0:
             return []
         n = min(self.p.ore_count(ore), 10000)
-        self.log('   otomatik yükseltme: parça %d <- %s x%d' % (item, ORES.get(ore), n))
+        self.log('   auto-upgrade: part %d <- %s x%d' % (item, ORES.get(ore), n))
         return self.upgrade({'itemToUpdate': {'itemValue': item}, 'updateWith': {'oreType': {'typeValue': ore}, 'count': n}})
 
     def quick_buy(self, loot):
@@ -1675,7 +1674,7 @@ class Shop:
             for slot in EQUIP_SLOTS:
                 c[slot] = list(pc.get(slot, []))
             c['active'] = c['setId'] == cur
-        # lootId görünümle (tasarım ekli): istemci yuva düzenini gemi listesindeki adla tutup bununla arıyor (ships_cmd)
+        # lootId with appearance (design attached): the client keeps the slot layout under the name in the ship list and looks it up with this (ships_cmd)
         t.update(currentConfigId=cur, lootId=self.p.ship_look(sid), hangarId=ship['hangarId'], shipId=int(sid or self.p.d['active_ship']),
                  extrasSlotsSize1=self.capacity('extra', sid, 1), extrasSlotsSize2=self.capacity('extra', sid, 2),
                  droneConfigs=[self.drone_config_msg(c['setId'], c['setId'] == cur, sid) for c in t['shipConfigs']],
@@ -1683,19 +1682,19 @@ class Shop:
         return ('HangarShipEquipmentCommand', t)
 
     def drone_config_msg(self, cid, active, sid=None):
-        """Bir geminin bir config'inde dronlar ve takılı eşyaları (HangarDroneEquipmentMsg; eşya kimlikleri
-        SingleDroneEquipmentMsg.defaults, tasarım ve görünüm design/visual; tasarımlar geminin config'inde, dron_tasarim)."""
+        """The drones and fitted items in one config of a ship (HangarDroneEquipmentMsg; item ids
+        SingleDroneEquipmentMsg.defaults, design and appearance design/visual; the designs are in the ship's config, dron_tasarim)."""
         dc = self.p.drone_config(cid, sid)
         drones = []
-        team = self.p.design_mods(cid, sid).get('drone_laser', 0)   # Havoc, Cerberus: bütün dronlar o tasarımdayken dron lazerine
+        team = self.p.design_mods(cid, sid).get('drone_laser', 0)   # Havoc, Cerberus: to the drone lasers when all drones have that design
         for i, x in enumerate(self.p.d['drones']):
             lv = LEVELS[x['level'] - 1]
-            shd = DESIGNS.get(self.p.drone_design(x, 'design', cid, sid) or '', {}).get('drone_shield', 0)     # Hercules: o dronun kalkanına
+            shd = DESIGNS.get(self.p.drone_design(x, 'design', cid, sid) or '', {}).get('drone_shield', 0)     # Hercules: to that drone's shield
             look, design = self.p.drone_design_id(x, 'visual', cid, sid), self.p.drone_design_id(x, 'design', cid, sid)
-            # istemci (UINewHangarSystem.CreateItemInfo): "Effect: weaponEffect%/shieldEffect%"; ...Bouns > 0 olan değer mavi.
-            # Seviye, tasarım ve Assembly yükseltmesinin etkisi savaştakiyle aynı (dunya: dron lazeri, magaza: dron kalkanı); 0/0
-            # gidiyordu (canlı tur 2), yükseltme sayılmıyordu (kullanıcı bildirimi 2026-10-24: "yükseltilen dron bonus vermiyor").
-            # "Upgrade lvl. Damage/Shield" istemcide olduğu gibi yazılıyor: Assembly'deki gibi seviye + 1
+            # client (UINewHangarSystem.CreateItemInfo): "Effect: weaponEffect%/shieldEffect%"; a value with ...Bouns > 0 is blue.
+            # The effect of level, design and Assembly upgrade is the same as in combat (world: drone laser, shop: drone shield); 0/0
+            # was being sent (live round 2), the upgrade was not counted (user report 2026-10-24: "the upgraded drone gives no bonus").
+            # "Upgrade lvl. Damage/Shield" is written as in the client: level + 1 as in Assembly
             up = UPG.drone_level(x)
             weapon = ((1 + lv['laser'] + team) * UPG.factor(x['lootId'], up, UPG.DRONE_DAMAGE) - 1) * 100
             shield = ((1 + lv['kalkan'] + shd) * UPG.factor(x['lootId'], up, UPG.DRONE_SHIELD) - 1) * 100
@@ -1707,7 +1706,7 @@ class Shop:
         return mod('HangarDroneEquipmentMsg', setId=int(cid), active=active, position=0, setDroneEquipment=drones)
 
     def drone_views(self):
-        """Hangar listesindeki dronlar: sıra, seviye, puan ve bir sonraki seviyenin puanı."""
+        """Drones in the hangar list: order, level, points and the points of the next level."""
         out = []
         for i, x in enumerate(self.p.d['drones']):
             nxt = LEVELS[min(x['level'], len(LEVELS) - 1)]['points']
@@ -1716,8 +1715,8 @@ class Shop:
         return out
 
     def formation_status_msgs(self):
-        """Dron sayısı değişince: asgari dron isteyen, sahip olunan formasyonların düğmeleri (Arrow, Dome, Heart, Pincer; wiki). Etkin
-        formasyona dron artık yetmiyorsa (dron satıldı) standart formasyona dönülür."""
+        """When the drone count changes: the buttons of owned formations that need a minimum number of drones (Arrow, Dome, Heart, Pincer; wiki). If the drones no longer
+        suffice for the active formation (a drone was sold) it returns to the standard formation."""
         out = []
         cur = next((k for k, v in FORMS.items() if v['id'] == self.p.d.get('formation', 0)), None)
         if FORM_RULES.get(cur, {}).get('min_drones', 0) > len(self.p.d['drones']):
@@ -1733,8 +1732,8 @@ class Shop:
         return out
 
     def drone_msgs(self):
-        """Uzaydaki dronlar: "0|n|d|<kullanıcı>|<formasyon>|tür|seviye|tasarım|görünüm…" (kayıt: başka oyuncuların dronları;
-        tasarım/görünüm istemcinin game.xml tasarım kimlikleri, 0 standart)."""
+        """Drones in space: "0|n|d|<user>|<formation>|type|level|design|appearance..." (save: other players' drones;
+        design/appearance are the client's game.xml design ids, 0 standard)."""
         ds = self.p.d['drones']
         if not ds:
             return []
@@ -1750,24 +1749,24 @@ class Shop:
             loot = ORES.get(m['oreType']['typeValue'])
             if loot and m['count'] > 0:
                 items.append(self.hangar_item(self.item_id(loot), loot, m['count']))
-        for loot, n in sorted(self.p.d.get('other_items', {}).items()):   # saklanan kaynaklar (ABR, Schism, anahtar, kupon …)
+        for loot, n in sorted(self.p.d.get('other_items', {}).items()):   # stored resources (ABR, Schism, key, voucher …)
             if loot.startswith('resource_') and n > 0 and loot not in NO_TRAITS:
                 items.append(self.hangar_item(self.item_id(loot), loot, n))
         return items
 
     def ships_cmd(self):
-        """Hangar listesi: sahip olunan gemiler (etkin olan işaretli), her biri için tasarım listesi, ortak envanter. Gemi adı görünümle
-        (ör. ship_sentinel_design_sentinel-phantasm): istemci (HangarShipsCommandHandlerEvent) yuva düzenini "_design"tan önceki
-        adla bulup bu adı yazıyor, donanım penceresi düzeni HangarShipEquipmentCommand.lootId ile arıyor (CreateTabSlot); taban ad
-        gidince tasarım değişiminden sonraki ilk MANAGE NullReferenceException veriyordu (canlı tur 2)."""
+        """Hangar list: owned ships (the active one marked), a design list for each, the shared inventory. Ship name with appearance
+        (e.g. ship_sentinel_design_sentinel-phantasm): the client (HangarShipsCommandHandlerEvent) finds the slot layout by the name
+        before "_design" and writes this name, the equipment window looks the layout up with HangarShipEquipmentCommand.lootId (CreateTabSlot); when the
+        base name was gone, the first MANAGE after a design change threw NullReferenceException (live round 2)."""
         t = copy(self.ships_tpl)
         t.pop('_m', None)
         sids = sorted(self.p.d['ships'], key=int)
         t['ships'] = [mod('HangarShipBriefCommand', isActive=sid == self.p.d['active_ship'], lootId=self.p.ship_look(sid),
                           shipId=int(sid), isFavorite=bool(self.p.ship(sid).get('favorite'))) for sid in sids]
         t['allDesignPack'] = [mod('ShipDesignPack', designList=self.designs(sid)) for sid in sids]
-        # InventoryItemPack.items sayısı bayt (en çok 255): envanter 255'lik paketlere bölünür. İstemci hepsini okur
-        # (InventoryItemData.RefreshItems: paketler üstünde foreach); 268 eşyalı envanterde liste kodlanamıyordu (canlı 2026-10-19)
+        # the InventoryItemPack.items count is a byte (at most 255): the inventory is split into packs of 255. The client reads all of them
+        # (InventoryItemData.RefreshItems: foreach over the packs); with a 268-item inventory the list could not be encoded (live 2026-10-19)
         items = self.inventory_items()
         t['items'] = [mod('InventoryItemPack', items=items[i:i + PACK_MAX]) for i in range(0, len(items), PACK_MAX)] or \
             [mod('InventoryItemPack', items=[])]
@@ -1776,28 +1775,28 @@ class Shop:
         return ('HangarShipsCommand', t)
 
     def stats(self, sid=None):
-        """Bir geminin etkin config'ine göre gösterilen hız, oyun içi hız, kalkan ve kalkan emme oranı."""
+        """Displayed speed, in-game speed, shield and shield absorption ratio according to a ship's active config."""
         active = sid is None or str(sid) == self.p.d['active_ship']
         eq = self.p.d['equipment'] if active else self.p.loadout(sid)
         gens = eq.get('generators', [])
-        ship = self.p.ship_row(sid) or None                        # giyilen tasarımın temel hızıyla (Centurion 290-315)
+        ship = self.p.ship_row(sid) or None                        # with the base speed of the design being worn (Centurion 290-315)
         display = speed = None
         if ship:
             display = ship['base_speed'] + sum(ITEMS['speed_generators'].get(g, {}).get('speed', 0) for g in gens)
             speed = display - ITEMS['speed_diff']
-        form = self.p.mods()                                # formasyon + dron tasarımları
-        lab = active and self.p.lab_bonus(2)              # motor yükseltmesi (Duranium, Promerium)
+        form = self.p.mods()                                # formation + drone designs
+        lab = active and self.p.lab_bonus(2)              # engine upgrade (Duranium, Promerium)
         if ship:
             display = int((display + form.get('speed_absolute', 0))                                       # Leonov +20
-                          * (1 + form.get('speed', 0)) * (1 + (lab or 0)) * SET.multiplier('ship_speed'))     # panel: geminin hızı
-            if 'floor_speed' in form:                           # Speed Burst (teknoloji.py): en az bu hız
+                          * (1 + form.get('speed', 0)) * (1 + (lab or 0)) * SET.multiplier('ship_speed'))     # panel: the ship's speed
+            if 'floor_speed' in form:                           # Speed Burst (technology.py): at least this speed
                 display = max(display, int(form['floor_speed']))
-            if 'fixed_speed' in form:                         # gemi yetenekleri: Travel 450, Fortify 0 (kıpırdamaz)
+            if 'fixed_speed' in form:                         # ship abilities: Travel 450, Fortify 0 (does not move)
                 display = int(form['fixed_speed'])
-            if 'max_speed' in form:                         # yavaşlatma küresi (Barb, The Stinger, Saboteur): en çok bu hız
+            if 'max_speed' in form:                         # slowing sphere (Barb, The Stinger, Saboteur): at most this speed
                 display = min(display, int(form['max_speed']))
             speed = max(0, display - ITEMS['speed_diff'])
-        # (kalkan, emme): gemideki jeneratörler + dronlardakiler (dron seviyesi bonusuyla, wiki: seviye başına +%4)
+        # (shield, absorption): the generators on the ship + those on the drones (with the drone level bonus, wiki: +4% per level)
         shield_table = ITEMS['shield_generators']
         glv = (self.p.d.get('equipment_level') if active else self.p.loadout_levels(sid) or {}) or {}
         glv = glv.get('generators', [])
@@ -1806,7 +1805,7 @@ class Shop:
         ship_gens = len(shields)
         cid = self.p.ship(sid)['active_config']
         for (x, loots), (dloot, dup, ilv) in zip(self.p.drone_loadout(sid), self.p.drone_levels(sid)):
-            # dron seviyesi ve dronun tasarımı (Hercules: o dronun kalkan jeneratörlerine +%15); dronun ve jeneratörün yükseltmesi
+            # drone level and the drone's design (Hercules: +15% to that drone's shield generators); the drone's and generator's upgrade
             bonus = 1 + LEVELS[x['level'] - 1]['kalkan'] + DESIGNS.get(self.p.drone_design(x, 'design', cid, sid) or '', {}).get('drone_shield', 0)
             bonus *= UPG.factor(dloot, dup, UPG.DRONE_SHIELD)
             shields += [(shield_table[g]['kalkan'] * bonus * UPG.factor(g, ilv[j] if j < len(ilv) else 0, UPG.SHIELD), shield_table[g]['absorb'])
@@ -1815,12 +1814,12 @@ class Shop:
         absorb = sum(k * e for k, e in shields) / total if total else 0.8
         absorb = max(0.0, min(1.0, absorb + form.get('absorb', 0)))
         hp = self.p.ship_row(sid).get('hp')
-        total *= 1 + ((active and self.p.lab_bonus(3)) or 0)     # kalkan yükseltmesi (Duranium, Promerium, Seprom, Osmium)
-        # panelin geminin canı ve kalkanı çarpanları; kalkan istemciye 32 bitle gider (AttributeShieldUpdateCommand)
+        total *= 1 + ((active and self.p.lab_bonus(3)) or 0)     # shield upgrade (Duranium, Promerium, Seprom, Osmium)
+        # the panel's ship HP and shield multipliers; the shield goes to the client as 32 bits (AttributeShieldUpdateCommand)
         shield_max = min(SET.I32, int(total * (1 + form.get('kalkan', 0)) * SET.multiplier('ship_shield')))
         hp_max = max(1, int(hp * (1 + form.get('can', 0)) * SET.multiplier('ship_hp') + form.get('hp_flat', 0))) if hp else None
         if hp_max and active:
-            hp_max = max(1, int(hp_max * form.get('hp_multiplier', 1.0)))   # enfeksiyon: toplam gövdenin %15'i, Pilot Bio dahil
+            hp_max = max(1, int(hp_max * form.get('hp_multiplier', 1.0)))   # infection: 15% of the total hull, Pilot Bio included
         return dict(display=display, speed=speed, shield_max=shield_max, absorb=absorb,
                     lasers=len(eq.get('laser', [])), speed_gens=sum(1 for g in gens if g in ITEMS['speed_generators']),
                     shield_gens=ship_gens, hp_max=hp_max)
@@ -1838,57 +1837,57 @@ class Shop:
             hp = self.p.ship_row(sid).get('hp', 0)
             hull_def = ship.get('hull') or {}
             hull = dict(hp=int(hull_def.get('hitPoints', hp)), maxHp=hp, shield=0, nano=int(hull_def.get('nanoHull', 0)), maxNano=hp)
-        t.update(hull, hull=round(100 * hull['hp'] / max(hull['maxHp'], 1)),          # gövde bütünlüğü % (kayıt: 115.659/116.000 -> 100)
-                 upgradeModuleCount=len(self.p.loadout(sid)['upgrades']),              # takılı gemi yükseltme modülleri
+        t.update(hull, hull=round(100 * hull['hp'] / max(hull['maxHp'], 1)),          # hull integrity % (save: 115,659/116,000 -> 100)
+                 upgradeModuleCount=len(self.p.loadout(sid)['upgrades']),              # fitted ship upgrade modules
                  laserAmmo=sum(n for k, n in c.items() if k.startswith('ammunition_laser_')),
                  rockets=sum(n for k, n in c.items() if k.startswith('ammunition_rocket_')),
                  laserCount=s['lasers'], speedGenerators=s['speed_gens'], shieldGenerators=s['shield_gens'], shipId=int(sid),
                  isActive=sid == self.p.d['active_ship'], isFavorite=bool(ship.get('favorite')), lootId='',
                  curDesignLootId=self.p.ship_look(sid), designList=self.designs(sid),
-                 repairVouchers=int((self.p.d.get('kapilar') or {}).get('voucher', 0)))      # kapıların onarım kuponları
-        t['maxSpeed'] = s['display'] or 0                       # gemi verisinde yoksa kayıttaki 355 değil
+                 repairVouchers=int((self.p.d.get('kapilar') or {}).get('voucher', 0)))      # repair vouchers of the gates
+        t['maxSpeed'] = s['display'] or 0                       # not the 355 in the save if it is absent from the ship data
         return ('HangarShipDetailCommand', t)
 
     def apply_stats(self):
-        """Etkin gemi/config değişti: hız/kalkan/görünüm güncellemesi (kayıt: AttributeShipSpeedUpdateCommand, ShipExtensionsCommand)."""
+        """Active ship/config changed: speed/shield/appearance update (save: AttributeShipSpeedUpdateCommand, ShipExtensionsCommand)."""
         msgs = []
         s = self.stats()
         g = self.p.d['ship']
         with self.p.lock:
-            if s['speed'] is not None and s['speed'] != g.get('speed'):      # 0: Fortify (kıpırdamaz)
+            if s['speed'] is not None and s['speed'] != g.get('speed'):      # 0: Fortify (does not move)
                 g['speed'] = s['speed']
-                self.p.d['shown_speed'] = s['display']      # girişteki hız şablonu da bunu kullanır (profil.patch_template)
+                self.p.d['shown_speed'] = s['display']      # the speed template at login uses this too (player_profile.patch_template)
                 msgs.append(('AttributeShipSpeedUpdateCommand', {'newSpeed': s['speed'], 'displaySpeed': s['display']}))
             if s['hp_max'] and s['hp_max'] != g.get('hitMax'):
-                g['hitMax'] = s['hp_max']                      # formasyonun can bonusu/cezası (Heart, Moth, Diamond …)
+                g['hitMax'] = s['hp_max']                      # the formation's HP bonus/penalty (Heart, Moth, Diamond ...)
                 g['hitPoints'] = min(g.get('hitPoints', 0), s['hp_max'])
                 msgs.append(('HitpointInfoCommand', dict(hitpoints=int(g['hitPoints']), hitpointsMax=g['hitMax'],
                                                          nanoHull=int(g.get('nanoHull', 0)), nanoHullMax=g.get('maxNanoHull', 0))))
             if s['shield_max'] != g.get('shieldMax', 0):
                 old_max = g.get('shieldMax', 0)
-                if getattr(self, 'keep_shield_ratio', False) and old_max > 0:      # formasyon: kalkan yüzdesi korunur
+                if getattr(self, 'keep_shield_ratio', False) and old_max > 0:      # formation: the shield percentage is kept
                     g['shield'] = min(s['shield_max'], g.get('shield', 0) * s['shield_max'] / old_max)
                 else:
                     g['shield'] = min(g.get('shield', 0), s['shield_max'])
                 g['shieldMax'] = s['shield_max']
                 msgs.append(('AttributeShieldUpdateCommand', {'shieldNow': int(g['shield']), 'shieldMax': g['shieldMax']}))
             self.p.d['shield_absorb'] = s['absorb']
-            # kargo alanı: geminin kargosu + Logistics yeteneği (yetenek.py); ShipInitializationCommand'da görünür
+            # cargo space: the ship's cargo + the Logistics skill (skill_tree.py); shown in ShipInitializationCommand
             base = self.p.ship_row().get('cargo', 0) + self.p.mods().get('cargo_absolute', 0)      # Leonov +500
             if base and self.p.premium:
-                base += PREMIUM_CARGO          # wiki: (taban + Premium 500) x2 kargo sıkıştırıcı; çarpanlar bu toplama
+                base += PREMIUM_CARGO          # wiki: (base + Premium 500) x2 cargo compressor; the multipliers apply to this sum
             if base:
-                cargo = int(base * (1 + self.p.mods().get('cargo_space', 0)) * EX.cargo_factor(self.p)    # + kargo CPU'su
-                            * (1 + (self.pet.proto('cargo') if self.pet.owned else 0))      # + AI-CR (P.E.T. uzayda olmasa da)
-                            * SET.multiplier('cargo'))                                       # panel: kargo kapasitesi
+                cargo = int(base * (1 + self.p.mods().get('cargo_space', 0)) * EX.cargo_factor(self.p)    # + cargo CPU
+                            * (1 + (self.pet.proto('cargo') if self.pet.owned else 0))      # + AI-CR (even if the P.E.T. is not in space)
+                            * SET.multiplier('cargo'))                                       # panel: cargo capacity
                 if cargo != g.get('cargoSpaceMax'):
                     g['cargoSpaceMax'] = cargo
                     self.p.sync_cargo()
-                    # istemci (UpdateCargoSpaceCommandHandler: Hero.MaxCargo) yeni azamiyi yoksa harita değişimine dek görmüyordu (Ö1)
+                    # the client (UpdateCargoSpaceCommandHandler: Hero.MaxCargo) did not see the new maximum until a map change otherwise (Ö1)
                     msgs.append(('UpdateCargoSpaceCommand', {'cargoSpaceMax': cargo}))
-            # görünüm: lazer sayısına göre 1-3 (kayıt: 1 lazer -> 1, 2 lazer -> 2). ShipInitializationCommand.expansionStage
-            # kayıtta 1'de kaldı, yalnız ShipExtensionsCommand değişti; bu yüzden ayrı tutulur (login_msgs girişte yeniden gönderir)
-            mm = self.module_update()                          # gemi modüllerinin simgeleri
+            # appearance: 1-3 by laser count (save: 1 laser -> 1, 2 lasers -> 2). ShipInitializationCommand.expansionStage
+            # stayed at 1 in the save, only ShipExtensionsCommand changed; that is why it is kept separate (login_msgs resends it at login)
+            mm = self.module_update()                          # icons of the ship modules
             if mm[1] != self.p.d.get('module_icons'):
                 self.p.d['module_icons'] = mm[1]
                 msgs.append(mm)
@@ -1897,10 +1896,10 @@ class Shop:
                 self.p.d['expansion_stage'] = stage
                 msgs.append(('ShipExtensionsCommand', {'userId': self.p.user_id, 'extensionStage': stage}))
             self.p.dirty = True
-        return msgs + self.p.menu_changes()                    # CPU'lar, Smart Bomb, fırlatıcı, yetenekler (canlı test H21)
+        return msgs + self.p.menu_changes()                    # CPUs, Smart Bomb, launcher, abilities (live test H21)
 
     def module_update(self):
-        """Etkin geminin modül yuvaları ve takılı modüllerin türleri (ShipUpgradeModuleUpdateCommand; kayıtta girişte max 3, boş)."""
+        """The active ship's module slots and the types of fitted modules (ShipUpgradeModuleUpdateCommand; in the save at login max 3, empty)."""
         ids = self.p.config().get('upgrades', [])
         types = [MODULE_TYPE_IDS.get(GM.M.get(self.p.d['items'].get(str(i), ''), {}).get('type'), 1) for i in ids
                  if str(i) in self.p.d['items']]
@@ -1911,26 +1910,26 @@ class Shop:
         return max(1, min(3, math.ceil(3 * n / max(self.capacity('laser'), 1))))
 
     def login_msgs(self):
-        """Harita yüklendikten sonra: ekipmana bağlı görünüm (kayıttaki giriş 1 ile gelir), dronlar ve eşya sayaçları."""
+        """After the map loads: the appearance tied to equipment (comes with login 1 in the save), drones and item counters."""
         stage = self.p.d.get('expansion_stage', 1)
         msgs = [('ShipExtensionsCommand', {'userId': self.p.user_id, 'extensionStage': stage})] if stage != 1 else []
         shield = SKL.shield_cmd(self.p)
         if shield[1]['shieldSkillId']:
-            msgs.append(shield)                     # kalkan yeteneğinin görünümü (yetenek.shield_cmd)
+            msgs.append(shield)                     # appearance of the shield skill (skill_tree.shield_cmd)
         import upgrades as UPG
         counts = self.count_msgs()
         hour, shop = UPG.bonus_hour(), self.discount()
         disc = [('UserInventoryModule', dict(activePremiumDiscount=int(round(shop * 100)), activeRebateSubDiscount=0,
                                              inventoryItemModules=[f['item'] for n, f in counts],
                                              activeHappyUpgradeDiscount=int(round(hour * 100))))] if hour or shop else []
-        # hızlı alım öğeleri: şablonun ipucunda kayıttaki hesabın "ttip_currency_missing" satırı vardı, paraya göre (canlı K7)
-        return msgs + self.drone_msgs() + counts + disc + self.quick_buy_msgs()   # Upgrade Hour (H40) ya da Shop Discount sürüyorsa indirim
+        # quick-buy items: the template's hint had the saved account's "ttip_currency_missing" row, by money (live K7)
+        return msgs + self.drone_msgs() + counts + disc + self.quick_buy_msgs()   # discount if Upgrade Hour (H40) or Shop Discount is running
 
     def count_msgs(self):
-        """Girişte istemcinin eşya sayaçları (InventoryItemUpdatedCommand): Assembly malzemeleri buradan sayılır; kayıttaki girişte
-        yalnız dört kaynak vardı, para ve öteki malzemeler 0 görünüyordu (canlı test H33). Para, tariflerde geçen eldeki eşyalar, depodaki
-        bütün kaynaklar (yükseltme/atlama/Update/Synthesis bedelleri: ABR, Diametrion, Isochronate, Horizon Shard …; yalnız Assembly
-        tarifleri sayılınca bunlar 0 görünüyordu, canlı test H59) ve ekipman örnekleri."""
+        """The client's item counters at login (InventoryItemUpdatedCommand): Assembly ingredients are counted from here; in the save's login
+        there were only four resources, money and the other ingredients showed 0 (live test H33). Money, the items at hand that appear in recipes, all the
+        resources in the store (upgrade/jump/Update/Synthesis costs: ABR, Diametrion, Isochronate, Horizon Shard ...; when only Assembly
+        recipes were counted these showed 0, live test H59) and equipment instances."""
         import assembly as ASM
         import inventory as INV
         held = {k for k, v in self.p.d.get('other_items', {}).items()
@@ -1940,13 +1939,13 @@ class Shop:
         out = []
         for loot in loots:
             if loot.startswith(('equipment_', 'drone_', 'recipe_')):
-                continue                        # örnekli eşyalar hangar envanterinden (HangarShipsCommand)
-            n = INV.client_count(self.p, loot)  # gemiler (Plus tariflerinin taban gemisi) dahil
+                continue                        # items with instances from the hangar inventory (HangarShipsCommand)
+            n = INV.client_count(self.p, loot)  # including ships (the base ship of Plus recipes)
             if free and not loot.startswith('ship_'):
-                n = max(n, 10 ** 6)             # Ücretsiz Assembly: istemci bütün malzemeleri yeterli görür
+                n = max(n, 10 ** 6)             # Free Assembly: the client sees all ingredients as sufficient
             if n > 0 or loot.startswith('currency_'):
                 out.append(self.inv_item(self.item_id(loot), loot, n))
-        # eşya örnekleri (seviye, takılı olduğu hangar): Assembly'nin Upgrade/Disassembly sekmeleri yalnız bunları tanıyor (H38)
+        # item instances (level, the hangar it is fitted in): Assembly's Upgrade/Disassembly tabs recognize only these (H38)
         hm = self.p.hangar_map()
         for iid, loot in sorted(self.p.d['items'].items(), key=lambda kv: int(kv[0])):
             if loot.startswith(('equipment_', 'drone_designs_', 'pet_designs_')):
@@ -1954,9 +1953,9 @@ class Shop:
         return out + [self.drone_item(x) for x in self.p.d['drones']] + self.module_items()
 
     def module_items(self):
-        """Takılı olmayan Clan Battle Station modülleri envanterde (kayıttaki gibi: InventoryItemModule, nitelik 0 = can, upgradeLevel):
-        Assembly'nin Upgrade sekmesi yükseltilecekleri envanterden seçiyor, modüller hiç gönderilmediği için listede yoktu (oyuncu
-        bildirimi 2026-10-27). Build isteğinin targetItemId'si modülün kimliği (yukseltme.target)."""
+        """Unfitted Clan Battle Station modules in the inventory (as in the save: InventoryItemModule, attribute 0 = HP, upgradeLevel):
+        Assembly's Upgrade tab picks what to upgrade from the inventory, and since the modules were never sent they were not in the list (player
+        report 2026-10-27). The Build request's targetItemId is the module's id (upgrades.target)."""
         cbs = getattr(self, 'cbs', None)
         if not cbs:
             return []
@@ -1969,15 +1968,15 @@ class Shop:
         return msg
 
     def ship_count_msgs(self, loots):
-        """Gemi kazanılınca/harcanınca Assembly sayacı (yalnız tariflerde taban gemi olanlar; envanter.client_count)."""
+        """Assembly counter when a ship is gained/spent (only for those that are the base ship in recipes; inventory.client_count)."""
         import assembly as ASM
         import inventory as INV
         return [self.inv_item(self.item_id(l), l, INV.client_count(self.p, l)) for l in sorted(set(loots)) if l in ASM.INGREDIENTS]
 
     def formation_wait(self, loot, now=None):
-        """Wait between two formation changes (items.json savas_esyalari.formasyon; client CooldownType DRONE_FORMATION).
+        """Wait between two formation changes (items.json combat_items.formation; client CooldownType DRONE_FORMATION).
         Returns None while the wait runs, else the messages that start it: the shortcut-bar countdown of group 47. The world's
-        Esyalar keeps the end in the profile and sends the reset when it ends. Without a world nothing is started."""
+        Items keeps the end in the profile and sends the reset when it ends. Without a world nothing is started."""
         import combat_items as CIT
         now = now or time.time()
         group = CIT.item_cooldown(loot)[0]
@@ -1991,18 +1990,18 @@ class Shop:
             return [items.cooldown(loot, now)]
 
     def change_formation(self, loot):
-        """Kısayol çubuğundan formasyon (MenuActionRequest drone_formation_*): DroneFormationChangeCommand, çubukta seçili öğe,
-        uzaydaki dizilim ve formasyonun bonuslarıyla hız/kalkan/can."""
+        """Formation from the shortcut bar (MenuActionRequest drone_formation_*): DroneFormationChangeCommand, the selected item on the bar,
+        the arrangement in space and speed/shield/HP with the formation's bonuses."""
         if loot != 'drone_formation_default' and loot not in self.p.d['formations']:
-            self.log('   formasyon yok: %s' % loot)
+            self.log('   no formation: %s' % loot)
             return []
         old = self.p.d.get('formation', 0)
         new = FORMS[loot]['id']
         if old == new:
             return []
-        need = FORM_RULES.get(loot, {}).get('min_drones', 0)             # Arrow ve Dome 4, Heart ve Pincer 6 dron (wiki)
+        need = FORM_RULES.get(loot, {}).get('min_drones', 0)             # Arrow and Dome 4, Heart and Pincer 6 drones (wiki)
         if len(self.p.d['drones']) < need:
-            self.log('   formasyon yok: %s (en az %d dron gerekir)' % (loot, need))
+            self.log('   no formation: %s (at least %d drones needed)' % (loot, need))
             return []
         wait = self.formation_wait(loot)
         if wait is None:
@@ -2017,36 +2016,36 @@ class Shop:
                 st = self.p.menu_status(k)
                 if st:
                     msgs.append(('MenuItemStatusCommand', st))
-        # kalkan yüzdesi korunur: azami kalkanı artıran formasyon kalkanı doldurmaz (oyuncu bildirimi: düşük kalkanla Heart'tan başka
-        # formasyona geçince kalkan tam doluyordu; kalkanı düşüren formasyona girip çıkmak da kalkan kazandırmaz)
+        # the shield percentage is kept: a formation that raises the maximum shield does not refill the shield (player report: switching from Heart to another
+        # formation with low shield filled the shield completely; entering and leaving a formation that lowers the shield does not gain shield either)
         self.keep_shield_ratio = True
         try:
             msgs += self.drone_msgs() + self.apply_stats()
         finally:
             self.keep_shield_ratio = False
-        self.log('   formasyon: %s (%d)' % (loot, new))
+        self.log('   formation: %s (%d)' % (loot, new))
         self.p.ach('formation', drone=len(self.p.d['drones']))
         return msgs
 
     def favourite(self, f):
-        """HangarShipFavouriteRequest {favourite, shipId}: hangarda yıldız. İstemci gemi ışınlamada yalnız favorileri listeler ("You can
-        only Warp ships that are marked as your favorites!"). resultId 1 başarı (HangarShipFavouriteCommandHandler; canlı deneme
-        2026-10-17: istek hiç işlenmiyordu)."""
+        """HangarShipFavouriteRequest {favourite, shipId}: a star in the hangar. In ship warp the client lists only favorites ("You can
+        only Warp ships that are marked as your favorites!"). resultId 1 is success (HangarShipFavouriteCommandHandler; live trial
+        2026-10-17: the request was not processed at all)."""
         sid = str(f.get('shipId'))
         if sid not in self.p.d['ships']:
             return [('HangarShipFavouriteCommand', {'resultId': 0, 'errorMessage': stack_msg('eqt_error_generic')})]
         favs = sum(1 for k, s in self.p.d['ships'].items() if s.get('favorite') and k != sid)
-        if f.get('favourite') and favs >= ITEMS.get('favorite_ship_limit', 10):      # forum 127436: en çok 10 favori gemi
+        if f.get('favourite') and favs >= ITEMS.get('favorite_ship_limit', 10):      # forum 127436: at most 10 favorite ships
             return [('HangarShipFavouriteCommand', {'resultId': 0, 'errorMessage': stack_msg('items_hangarSlot_max_favs')})]
         with self.p.lock:
             self.p.d['ships'][sid]['favorite'] = bool(f.get('favourite'))
             self.p.dirty = True
-        self.log('   hangar: %s favori %s' % (self.p.ship(sid)['lootId'], 'evet' if f.get('favourite') else 'hayır'))
+        self.log('   hangar: %s favorite %s' % (self.p.ship(sid)['lootId'], 'evet' if f.get('favourite') else 'no'))
         return [('HangarShipFavouriteCommand', {'resultId': 1, 'errorMessage': None}), self.ships_cmd()]
 
     def clear_config(self, f):
-        """HangarShipClearConfigRequest {wipe, configId, shipId}: config'teki bütün eşyalar envantere (gemi yuvaları, dronlar
-        ve P.E.T.). İstemci başarıda (resultId 1) donanımı yeniden ister (HangarShipClearConfigCommandHandler)."""
+        """HangarShipClearConfigRequest {wipe, configId, shipId}: all the items in the config go to the inventory (ship slots, drones
+        and P.E.T.). On success (resultId 1) the client asks for the equipment again (HangarShipClearConfigCommandHandler)."""
         # The client's clear button always sends wipe=0 (gs.log), so drones and P.E.T. are cleared regardless of that flag.
         # Only this config is touched: the other config keeps its ship, drone and P.E.T. items.
         sid = self.ship_sid(f.get('shipId'))
@@ -2055,12 +2054,12 @@ class Shop:
         ids = self.p.ship_items(sid, cid)
         msgs = self.move({'items': ids, 'source': 'ship', 'destination': 'inventory', 'hangarId': ship['hangarId'],
                           'configId': int(cid)}) if ids else []
-        self.log('   hangar: %s config %s temizlendi (%d eşya)' % (ship['lootId'], cid, len(ids)))
+        self.log('   hangar: %s config %s cleared (%d items)' % (ship['lootId'], cid, len(ids)))
         return [('HangarShipClearConfigCommand', {'resultId': 1, 'errorMessage': None})] +             [m for m in msgs if m[0] != 'HangarShipMoveItemsCommand']
 
-    # İstemcinin metinleri: "Saves the equipment equipped on both configuration 1 and 2 for this ship." / "Load the equipment saved …" /
-    # "Transfer this ship's configuration and equipment to another ship with the same number of slots!" (canlı deneme 2026-10-17:
-    # üçü de işlenmiyordu). Kayıt geminin profilinde: kayitli_konfig {config: {yuva: [eşya]}}.
+    # The client's texts: "Saves the equipment equipped on both configuration 1 and 2 for this ship." / "Load the equipment saved ..." /
+    # "Transfer this ship's configuration and equipment to another ship with the same number of slots!" (live trial 2026-10-17:
+    # none of the three were processed). The record is in the ship's profile: saved_config {config: {slot: [item]}}.
     def save_config(self, f):
         sid = self.ship_sid(f.get('shipId'))
         with self.p.lock:
@@ -2072,13 +2071,13 @@ class Shop:
             ship['saved_pet_config'] = {c: {s: list(v) for s, v in cfg.items()} for c, cfg in ship.get('pet_config', {}).items()} \
                 if self.pet.owned else {}
             self.p.dirty = True
-        self.log('   hangar: %s config kaydedildi' % self.p.ship(sid)['lootId'])
+        self.log('   hangar: %s config saved' % self.p.ship(sid)['lootId'])
         return [('HangarShipSaveConfigCommand', {'title': stack_msg('popup_save_success_title'),
                                                  'description': stack_msg('popup_save_success_description'), 'resultId': 1})]
 
     def load_config(self, f):
-        """Kaydı geri takar: önce iki config'in gemi yuvaları boşalır; kayıttaki eşya artık yoksa (satıldı) ya da başka gemide
-        takılıysa atlanır ("Some equipment were not available …")."""
+        """Re-fits the record: first the ship slots of both configs are emptied; an item in the record that no longer exists (sold) or that is
+        fitted on another ship is skipped ("Some equipment were not available ...")."""
         sid = self.ship_sid(f.get('shipId'))
         ship = self.p.ship(sid)
         saved = ship.get('saved_config')
@@ -2125,11 +2124,11 @@ class Shop:
 
             for c, slots in saved.items():
                 cfg = ship['configs'].setdefault(c, {})
-                extras = [self.p.d['items'].get(str(i), '') for i in slots.get('extra', [])]     # kayıttaki Slot CPU'suyla
+                extras = [self.p.d['items'].get(str(i), '') for i in slots.get('extra', [])]     # with the Slot CPU in the record
                 for s, ids in slots.items():
                     for i in ids:
                         if s == 'upgrades' and GM.type_taken(self.p, i, cfg.get(s, [])):
-                            missing += 1                    # her türden bir modül (kural öncesi kaydedilmiş config)
+                            missing += 1                    # one module of each type (a config saved before the rule)
                         elif len(cfg.get(s, [])) < self.capacity(s, sid, extras=extras) and free(i, c):
                             cfg.setdefault(s, []).append(i)
                         else:
@@ -2163,7 +2162,7 @@ class Shop:
                             missing += 1
             self.p.dirty = True
             self.p.sync_equipment()
-        self.log('   hangar: %s config yüklendi (%d eşya bulunamadı)' % (ship['lootId'], missing))
+        self.log('   hangar: %s config loaded (%d items not found)' % (ship['lootId'], missing))
         desc = self.reason('incomplete_load') if missing             else stack_msg('popup_load_success_description')
         msgs = [('HangarShipLoadConfigCommand', {'title': stack_msg('popup_load_success_title'), 'description': desc, 'resultId': 1}),
                 self.equipment_cmd(sid)] + self.item_updates(touched)
@@ -2173,11 +2172,11 @@ class Shop:
         return msgs + (self.pet.refresh() if s_pet is not None else [])
 
     def import_config(self, f):
-        """Transfer System: kaynak geminin takılı her şeyi hedef gemiye taşınır (hedefin eski eşyaları envantere): iki config'in gemi
-        yuvaları, dronlara takılı lazer/jeneratörler (dron_konfig), dron tasarımları (dron_tasarim) ve P.E.T. donanımı (pet_konfig);
-        hepsi gemiye (hangara) bağlı. Kaynakta hiçbir şey takılı kalmaz: hedefe takılamayan gemi modülü ve başka gemiye bağlı QFC
-        envantere iner, ekranda uyarı (kullanıcı bildirimi 2026-10-25: tasarımlar, P.E.T. ve bu modüller eski gemide kalıyordu, eski
-        gemi seçili değilken normal envanterde görünmüyordu). Hedefin her yuvası taşınan eşya sayısını almalı."""
+        """Transfer System: everything fitted on the source ship is moved to the target ship (the target's old items go to the inventory): the ship slots of both
+        configs, lasers/generators fitted to drones (dron_konfig), drone designs (dron_tasarim) and P.E.T. equipment (pet_konfig);
+        all tied to the ship (hangar). Nothing stays fitted on the source: a ship module that cannot be fitted to the target and a QFC tied to another ship
+        go to the inventory, with a warning on screen (user report 2026-10-25: designs, the P.E.T. and these modules stayed on the old ship and did not show in the
+        normal inventory when the old ship was not selected). Every slot of the target must take the number of items moved."""
         import galaxy_gates as KAPI
         src, dst = str(f.get('originShipId')), str(f.get('targetShipId'))
         fail = lambda: [('HangarShipImportConfigCommand', {'shipId': int(dst) if dst.isdigit() else 0,
@@ -2189,10 +2188,10 @@ class Shop:
                              or (s == 'QuantumFluidCore' and QF.equip_allowed(self.p, i, b['lootId'], []) is not None))
         go = {c: {s: [i for i in ids if not drop(s, i)] for s, ids in cfg.items()} for c, cfg in a['configs'].items()}
         for c, cfg in go.items():
-            extras = [self.p.d['items'].get(str(i), '') for i in cfg.get('extra', [])]       # Slot CPU'su da taşınır
+            extras = [self.p.d['items'].get(str(i), '') for i in cfg.get('extra', [])]       # the Slot CPU is moved too
             for s, ids in cfg.items():
                 if len(ids) > self.capacity(s, dst, extras=extras):
-                    self.log('   hangar: aktarım yok: %s %s yuvası %d > %d' % (b['lootId'], s, len(ids), self.capacity(s, dst, extras=extras)))
+                    self.log('   hangar: no transfer: %s %s slots %d > %d' % (b['lootId'], s, len(ids), self.capacity(s, dst, extras=extras)))
                     return fail()
         touched = self.p.ship_items(src) + self.p.ship_items(dst)
         dropped = sum(len(ids) - len(go[c][s]) for c, cfg in a['configs'].items() for s, ids in cfg.items())
@@ -2205,9 +2204,9 @@ class Shop:
                 b[k], a[k] = a.get(k, {}), {}
             self.p.dirty = True
             self.p.sync_equipment()
-        self.log('   hangar: config %s -> %s aktarıldı%s' % (a['lootId'], b['lootId'], ' (%d eşya takılamadı, envantere)' % dropped if dropped else ''))
+        self.log('   hangar: config %s -> %s transferred%s' % (a['lootId'], b['lootId'], ' (%d items could not be fitted, to the inventory)' % dropped if dropped else ''))
         msgs = [('HangarShipImportConfigCommand', {'shipId': int(dst), 'errorMessage': None, 'resultId': 1}), self.equipment_cmd(dst)]
-        msgs += self.item_updates(touched)                 # aktarılanlar hedef gemide, hedefin eskileri ve takılamayanlar envanterde
+        msgs += self.item_updates(touched)                 # the transferred ones are on the target ship, the target's old ones and those that could not be fitted in the inventory
         if dropped:
             msgs.append(KAPI.screen(REASONS['transfer_inventory'][1 if self.lang == 'tr' else 0]))
         if self.p.d['active_ship'] in (src, dst):
@@ -2215,9 +2214,9 @@ class Shop:
         return msgs
 
     def move(self, f):
-        """Takma/çıkarma: istekteki hangarId hangi geminin, configId hangi config'in olduğunu söyler. Hedef/kaynak "ship",
-        "inventory", "drone" (+ droneId; lazer/jeneratör "default", tasarım "design", görünüm "visual") ya da "pet" (yuva kümesi
-        lasers/generators/gears/protocols; yuvayı eşyanın türü belirler)."""
+        """Fitting/removing: the hangarId in the request says which ship, the configId which config. Destination/source "ship",
+        "inventory", "drone" (+ droneId; laser/generator "default", design "design", appearance "visual") or "pet" (slot set
+        lasers/generators/gears/protocols; the item's type determines the slot)."""
         ids = [int(x) for x in f.get('items', [])]
         src, dst = (f.get('source') or '').lower(), (f.get('destination') or '').lower()
         sid = self.p.ship_by_hangar(f.get('hangarId')) or self.p.d['active_ship']
@@ -2237,11 +2236,11 @@ class Shop:
             loots = lambda lst: [self.p.d['items'].get(str(i), '') for i in lst]
 
             def extras_of(lists, skip):
-                """Verilen eşya listelerindeki ekstraların lootId'leri, `skip` eşyası hariç (config başına bir tür kuralı)."""
+                """The lootIds of the extras in the given item lists, excluding the `skip` item (one-per-type rule per config)."""
                 return [l for l in loots([i for lst in lists for i in lst if i != skip]) if l.startswith('equipment_extra_')]
 
             def detach(iid):
-                """Eşyayı bu config'te bulunduğu yerden (gemi yuvası, dron, P.E.T.) ya da dronun tasarım yuvasından çıkarır."""
+                """Removes the item from where it is in this config (ship slot, drone, P.E.T.) or from the drone's design slot."""
                 for lst in list(cfg.values()) + list(dcfg.values()) + list(pcfg.values()):
                     if iid in lst:
                         lst.remove(iid)
@@ -2267,9 +2266,9 @@ class Shop:
                 if not loot:
                     fail('bilinmeyen eşya %s' % iid)
                 elif to_inv:
-                    rest = [i for i in cfg.get('extra', []) if i not in ids]      # aynı istekle çıkarılanlar sayılmaz (clear_config)
+                    rest = [i for i in cfg.get('extra', []) if i not in ids]      # those removed in the same request do not count (clear_config)
                     if iid in cfg.get('extra', []) and len(rest) > self.capacity('extra', sid, extras=loots(rest)):
-                        # açtığı yuvalar doluyken yuva CPU'su çıkmaz (istemcinin metni: "Error: Slot CPU is currently in use.")
+                        # the slot CPU cannot be removed while the slots it opened are full (the client's text: "Error: Slot CPU is currently in use.")
                         fail('%s çıkmaz: ekstra yuvaları dolu' % loot)
                         err = 'drone_slotCPUinUse'
                     elif detach(iid):
@@ -2277,7 +2276,7 @@ class Shop:
                 elif pet_only(loot) and dst != 'pet':
                     fail('%s yalnız P.E.T.\'e takılır' % loot)
                 elif loot in DESIGNS:
-                    # dron tasarımı: dronun "design" ya da "visual" yuvası (eşyanın türüne göre); eskisi envantere döner
+                    # drone design: the drone's "design" or "visual" slot (by the item's type); the old one returns to the inventory
                     if dst != 'drone' or not drone:
                         fail('%s yalnız drona takılır (%r)' % (loot, dst))
                         continue
@@ -2288,7 +2287,7 @@ class Shop:
                         fail('%s başka gemide takılı' % loot, 'other_ship')
                         continue
                     detach(iid)
-                    # yalnız bu geminin bu config'inde (öteki config'in ve öteki gemilerin tasarımı aynı kalır)
+                    # only in this config of this ship (the design of the other config and the other ships stays the same)
                     self.p.set_drone_design(drone, DESIGNS[loot]['slot'], iid, cid, sid)
                     moved.append((iid, loot))
                     if old:
@@ -2296,14 +2295,14 @@ class Shop:
                 elif dst == 'pet':
                     pslot = PETM.slot_for(loot)
                     if (f.get('slotSet') or '').lower() == 'heat' and PETM.heat_slot_ok(loot):
-                        pslot = 'heat'                    # HEAT yuvası: lazer ya da kalkan jeneratörü (HEAT seviyesi 4'ten etkin)
+                        pslot = 'heat'                    # HEAT slot: laser or shield generator (HEAT active from level 4)
                     if not self.pet.owned or not pslot:
                         fail("%s P.E.T.'e takılamaz" % loot)
                         continue
                     lst = pcfg[pslot]
                     if iid in lst:
                         continue
-                    if pslot == 'visual' and lst:         # tek görünüm yuvası: eskisi envantere döner
+                    if pslot == 'visual' and lst:         # single appearance slot: the old one returns to the inventory
                         old = lst.pop()
                         moved.append((old, self.p.d['items'].get(str(old), '')))
                     if busy.get(iid, ship['hangarId']) != ship['hangarId']:
@@ -2316,7 +2315,7 @@ class Shop:
                         fail('%s seviye %d: P.E.T. seviyesi %d gerekir' % (loot, self.p.item_level(iid),
                                                                            PETM.level_need(self.p.item_level(iid))))
                         err = 'pet_gear_requirement'
-                        # istemcinin metni "Required: P.E.T. Level %level%" (canlı test: yer tutucu boş kalıyordu)
+                        # the client's text "Required: P.E.T. Level %level%" (live test: the placeholder stayed empty)
                         err_args = {'_level_': PETM.level_need(self.p.item_level(iid))}
                     else:
                         detach(iid)
@@ -2330,11 +2329,11 @@ class Shop:
                         continue
                     held = extras_of([cfg.get('extra', [])] + list(dcfg.values()), iid) if loot in DRONE_EXTRAS else []
                     if not drone or not drone_ok(loot):
-                        fail('%s drona takılamaz (dron %s)' % (loot, f.get('droneId')))   # lazer, kalkan jeneratörü ve ekstralar
+                        fail('%s drona takılamaz (dron %s)' % (loot, f.get('droneId')))   # laser, shield generator and extras
                     elif busy.get(iid, ship['hangarId']) != ship['hangarId'] or len(lst) >= DRONES[drone['lootId']]['slot']:
                         fail('dron %s dolu ya da eşya başka gemide' % f.get('droneId'))
                     elif loot in held or (loot.startswith(REPBOT) and any(l.startswith(REPBOT) for l in held)):
-                        # config başına her ekstradan bir tane, gemi ve dronlar birlikte (istemci SSS drones_specials_p)
+                        # one of each extra per config, ship and drones together (client FAQ drones_specials_p)
                         fail('%s: config\'te var (gemi ya da dron)' % loot)
                         err = 'special_generic_hint'
                     else:
@@ -2348,26 +2347,26 @@ class Shop:
                     if busy.get(iid, ship['hangarId']) != ship['hangarId']:
                         fail('%s başka gemide takılı' % loot, 'other_ship')
                     elif slot == 'upgrades' and not GM.equip_allowed(self.p, iid, ship['lootId']):
-                        fail('%s bu gemiye takılmaz (%s)' % (loot, ship['lootId']))      # modülün gemileri
+                        fail('%s bu gemiye takılmaz (%s)' % (loot, ship['lootId']))      # the module's ships
                     elif slot == 'upgrades' and GM.type_taken(self.p, iid, lst):
-                        fail('%s: gemide %s türünden modül var' % (loot, GM.kind(loot)), 'same_module')    # her türden bir modül
+                        fail('%s: gemide %s türünden modül var' % (loot, GM.kind(loot)), 'same_module')    # one module of each type
                     elif slot == 'QuantumFluidCore' and QF.equip_allowed(self.p, iid, ship['lootId'], lst):
-                        fail('%s: %s' % (loot, QF.equip_allowed(self.p, iid, ship['lootId'], lst)),     # bağlı gemi, AX/DF birer
+                        fail('%s: %s' % (loot, QF.equip_allowed(self.p, iid, ship['lootId'], lst)),     # linked ship, one each of AX/DF
                              'qfc_ship' if (QF.state(self.p, iid) or {}).get('ship') != ship['lootId'] else 'same_qfc')
                     elif slot in PC.SLOTS and PC.equip_allowed(self.p, iid, slot, lst):
-                        fail('%s: %s' % (loot, PC.equip_allowed(self.p, iid, slot, lst)), 'same_cannon')   # her türden bir top
+                        fail('%s: %s' % (loot, PC.equip_allowed(self.p, iid, slot, lst)), 'same_cannon')   # one cannon of each type
                     elif slot == 'extra' and EX.slot_bonus_of([loot]) and EX.slot_bonus_of(loots(lst)):
-                        fail('%s: config\'te yuva CPU\'su var' % loot, 'single_slot_cpu')       # config başına bir yuva CPU'su (wiki)
+                        fail('%s: config\'te yuva CPU\'su var' % loot, 'single_slot_cpu')       # one slot CPU per config (wiki)
                     elif slot == 'extra' and (loot in extras_of(dcfg.values(), iid) or loot in loots(lst) or loot.startswith(REPBOT)
                                               and any(l.startswith(REPBOT) for l in extras_of([lst] + list(dcfg.values()), iid))):
-                        # config başına bir onarım robotu (kullanıcı bildirimi 2026-10-24: iki tane takılabiliyordu); istemcinin metni
+                        # one repair robot per config (user report 2026-10-24: two could be fitted); the client's text
                         # "Only one of these items is allowed per configuration."
                         fail('%s: config\'te onarım robotu ya da dronda aynı ekstra var' % loot)
                         err = 'special_generic_hint'
                     elif len(lst) >= self.capacity(slot, sid, extras=loots(cfg.get('extra', []))):
                         fail('%s yuvaları dolu' % slot)
                     else:
-                        detach(iid)                                       # dronda ya da P.E.T.'te takılıysa oradan alınır
+                        detach(iid)                                       # if fitted on a drone or P.E.T. it is taken from there
                         lst.append(iid)
                         moved.append((iid, loot))
                 else:
@@ -2378,7 +2377,7 @@ class Shop:
             pet_changed = {k: list(v) for k, v in pcfg.items()} != pet_before
         where = ' (dron %s%s)' % (f.get('droneId'), ' ' + f['slotSet'] if f.get('slotSet') else '') if 'drone' in (src, dst) else ''
         self.log('   hangar %s config %s: %s %s -> %s%s%s' % (ship['lootId'], cid, ', '.join(l.rsplit('_', 1)[-1] for i, l in moved) or '-',
-                                                            src, dst, where, ' (hata: %s)' % err if err else ''))
+                                                            src, dst, where, ' (error: %s)' % err if err else ''))
         ok = bool(moved) or not err
         msg = self.reason(cause) if cause and err == 'error_can_not_equip_to_slot' else stack_msg(err, **err_args) if err else None
         msgs = [('HangarShipMoveItemsCommand', {'result': 1 if ok else 0, 'errorMessage': None if ok else msg})]
@@ -2386,7 +2385,7 @@ class Shop:
             hm = self.p.hangar_map()
             msgs += [self.inv_item(i, l, 1, hm.get(i, 0)) for i, l in moved]
             msgs.append(self.equipment_cmd(sid))
-            # istemcinin envanter ızgarası bu paketle yenilenir (kayıt: takmadan sonra o yuvanın eşyaları hangarId ile)
+            # the client's inventory grid is refreshed with this pack (save: after fitting, the items of that slot with hangarId)
             slots = {slot_of(l) for i, l in moved}
             group = [i for c in ship['configs'].values() for s in slots for i in c.get(s, [])]
             group += [i for k in ('drone_config', 'pet_config') for c in ship.get(k, {}).values() for ids_ in c.values() for i in ids_]
@@ -2396,19 +2395,19 @@ class Shop:
             if active:
                 msgs += self.apply_stats()
             if active and any(l in DESIGNS for i, l in moved):
-                msgs += self.drone_msgs()                  # uzaydaki dronların görünümü
+                msgs += self.drone_msgs()                  # appearance of the drones in space
             if pet_changed and sid == self.p.d['active_ship']:
-                # uzaydaki P.E.T.'in dişlileri ve değerleri: yalnız P.E.T.'in donanımı değişince (gemiye lazer/jeneratör takmak da
-                # P.E.T. yuvası türünden sayılıyordu, her seferinde seviye atlama efekti çıkıyordu)
+                # the P.E.T.'s gears and values in space: only when the P.E.T.'s equipment changes (fitting a laser/generator to the ship was also
+                # counted as a P.E.T. slot type, and the level-up effect appeared every time)
                 msgs += self.pet.refresh()
         return msgs
 
-    # ------------------------------------------------------------ gemi değiştirme ve config geçişi
+    # ------------------------------------------------------------ ship change and config switch
     def activate(self, f, in_station=True, travel=False):
-        """HangarShipActivateShipRequest {shipId} -> HangarShipActivateShipCommand (istemci: result 1 başarı, mesaj penceresi).
-        Oyundaki gibi yalnız istasyonda. Başarılıysa (mesajlar, True): oturum gemiyi yeniden yükletir (ShipInitializationCommand).
-        Her gemi bırakıldığı yerde kalır (forum 127436: hangardan değiştirince "aktüel gemin aktif haritada bulunduğun yerde kalır");
-        travel (hangar) pilotu yeni geminin kayıtlı konumuna götürür, ışınlamada (ship_warp.py) gemi pilota gelir."""
+        """HangarShipActivateShipRequest {shipId} -> HangarShipActivateShipCommand (client: result 1 success, message window).
+        Only at the station as in the game. If successful (messages, True): the session makes the ship reload (ShipInitializationCommand).
+        Each ship stays where it was left (forum 127436: changing in the hangar "your actual ship stays where you are on the active map");
+        travel (hangar) takes the pilot to the new ship's saved position, in warping (ship_warp.py) the ship comes to the pilot."""
         sid = str(f.get('shipId'))
         reply = lambda res, err=None, ok=None: ('HangarShipActivateShipCommand', {
             'errorMessage': err, 'successMessage': ok, 'currentShipLootId': self.p.ship()['lootId'], 'result': res})
@@ -2417,7 +2416,7 @@ class Shop:
         if sid == self.p.d['active_ship']:
             return [reply(1, ok=stack_msg('info_text_switch_active_hangar_success'))], False
         if not in_station:
-            self.log('   gemi değişmedi: istasyonda değil')
+            self.log('   ship not changed: not at the station')
             return [reply(0, stack_msg('info_text_switch_hangar_station_only'))], False
         with self.p.lock:
             g = self.p.d['ship']
@@ -2437,61 +2436,61 @@ class Shop:
             cargo = row.get('cargo', g.get('cargoSpaceMax', 0))
             g.update(typeId=self.p.ship_look(sid), hitMax=hp, maxNanoHull=hp, hitPoints=min(hull_def['hitPoints'], hp), nanoHull=hull_def['nanoHull'],
                      cargoSpaceMax=cargo)
-            self.p.sync_cargo()                                    # boş alan = yeni geminin kargosu - cevherler
+            self.p.sync_cargo()                                    # free space = the new ship's cargo - ores
             self.p.sync_equipment()
             self.p.dirty = True
-        # apply_stats durumları "gönderildi" diye işaretliyor: mesajları atılırsa yeni geminin AJP-01'i (CPUInitializationCommand)
-        # hiç gitmiyordu, uzay haritası eski geminin atlama panelini gösteriyordu (kullanıcı bildirimi 2026-10-25)
+        # apply_stats marks the states as "sent": if its messages were dropped the new ship's AJP-01 (CPUInitializationCommand)
+        # never went out, the space map showed the old ship's jump panel (user report 2026-10-25)
         stats = self.apply_stats()
-        self.log('   gemi değişti: %s -> %s (shipId %s)' % (old, new['lootId'], sid))
+        self.log('   ship changed: %s -> %s (shipId %s)' % (old, new['lootId'], sid))
         return [reply(1, ok=stack_msg('info_text_switch_active_hangar_success'))] + stats, True
 
     def designs(self, sid=None):
-        """Hangardaki tasarım listesi (açılır menü): geminin kendi görünümü + satın alınan tasarımlar."""
+        """Design list in the hangar (drop-down): the ship's own appearance + purchased designs."""
         s = self.p.ship(sid)
         return [s['lootId']] + list(s.get('designs', []))
 
     def change_model(self, f):
-        """HangarShipChangeShipModelRequest {shipId, lootId} (hangardaki tasarım menüsü, UINewHangarSystem.DropdownValueChanged)
-        -> HangarShipChangeShipModelCommand {resultId 1}. Etkin gemide görünüm değişince (mesajlar, True): oturum gemiyi yeniden
-        yükletir (ShipInitializationCommand.typeId = tasarım)."""
+        """HangarShipChangeShipModelRequest {shipId, lootId} (the design menu in the hangar, UINewHangarSystem.DropdownValueChanged)
+        -> HangarShipChangeShipModelCommand {resultId 1}. When the appearance of the active ship changes (messages, True): the session makes the ship
+        reload (ShipInitializationCommand.typeId = design)."""
         sid = str(f.get('shipId'))
         loot = f.get('lootId', '')
         reply = lambda res, err=None: ('HangarShipChangeShipModelCommand', {'resultId': res, 'errorMessage': err})
         if sid not in self.p.d['ships']:
             return [reply(0, stack_msg('dse_ship_not_exist'))], False
         if loot not in self.designs(sid):
-            self.log('   tasarım yok: %s (%s)' % (loot, self.p.ship(sid)['lootId']))
+            self.log('   no design: %s (%s)' % (loot, self.p.ship(sid)['lootId']))
             return [reply(0, stack_msg('eqt_error_generic'))], False
         with self.p.lock:
             ship = self.p.ship(sid)
             old = self.p.ship_look(sid)
             ship['design'] = None if loot == ship['lootId'] else loot
-            trimmed = self.trim_slots(sid)               # tasarımın yuvası azsa (Tyrannos 15 lazer, *-6 roketsiz) fazlası envantere
+            trimmed = self.trim_slots(sid)               # if the design has fewer slots (Tyrannos 15 lasers, *-6 no rockets) the excess goes to the inventory
             active = sid == self.p.d['active_ship']
             if active:
                 self.p.d['ship']['typeId'] = self.p.ship_look(sid)
                 self.p.sync_equipment()
             self.p.dirty = True
-        self.log('   görünüm: %s -> %s' % (old, self.p.ship_look(sid)))
-        # envantere inenler istemcide de takılı değil (önceden hangar listesi yeniden istenene dek takılı görünüyordu)
+        self.log('   appearance: %s -> %s' % (old, self.p.ship_look(sid)))
+        # those that went to the inventory are not fitted in the client either (before, they looked fitted until the hangar list was asked for again)
         freed = [self.equipment_cmd(sid)] + self.item_updates(trimmed) if trimmed else []
-        # tasarımın kendi değerleri (profil.ship_row): hız, can, yuvalar, bonuslar
+        # the design's own values (player_profile.ship_row): speed, HP, slots, bonuses
         return [reply(1)] + freed + (self.apply_stats() if active else []), active and old != self.p.ship_look(sid)
 
     def switch_config(self, n):
-        """İstemcinin "S|CFG|n|…" isteği (kayıt: t≈591 ve 598). Yanıt kayıttaki sırayla: arayüz yenileme, görünüm, can;
-        kalkan, 0|n|e, görünüm, 0|n|INV, 0|S|CFG|n; hız."""
+        """The client's "S|CFG|n|..." request (save: t~591 and 598). The response in the order of the save: interface refresh, appearance, HP;
+        shield, 0|n|e, appearance, 0|n|INV, 0|S|CFG|n; speed."""
         ship = self.p.ship()
         n = int(n)
         if str(n) not in ship['configs']:
             return []
-        if n != 1 and ((self.p.d.get('pve') or {}).get('astral') or {}).get('run'):     # forum 162090: Astral'da yalnız Ayar 1
-            self.log('   Astral: Ayar %d kapalı' % n)
+        if n != 1 and ((self.p.d.get('pve') or {}).get('astral') or {}).get('run'):     # forum 162090: in Astral only Config 1
+            self.log('   Astral: Config %d is closed' % n)
             return [legacy('0|S|CFG|1')]
         now = time.time()
-        if now - getattr(self, 'last_config', 0) < CONFIG_COOLDOWN_SEC:       # kayıt: 2,4 sn sonraki ikinci geçiş reddedildi
-            self.log('   config geçişi bekliyor')
+        if now - getattr(self, 'last_config', 0) < CONFIG_COOLDOWN_SEC:       # save: the second switch after 2.4 s was rejected
+            self.log('   config switch waiting')
             return [legacy('0|A|STM|config_change_failed_time')]
         self.last_config = now
         g = self.p.d['ship']
@@ -2502,8 +2501,8 @@ class Shop:
             ship['active_config'] = n
             self.p.sync_equipment()
             self.p.dirty = True
-        # can, kalkan, hız ve görünüm aşağıda kayıttaki sırayla; ötekiler (config'in CPU'ları ve fırlatıcısı kısayol çubuğunda, modül
-        # simgeleri, kargo) atılıyordu: çubuk eski config'in CPU'larını gösteriyordu
+        # HP, shield, speed and appearance are below in the save's order; the others (the config's CPUs and launcher on the shortcut bar, module
+        # icons, cargo) were being dropped: the bar showed the old config's CPUs
         later = [m for m in self.apply_stats() if m[0] not in ('AttributeShipSpeedUpdateCommand', 'HitpointInfoCommand',
                                                                  'AttributeShieldUpdateCommand', 'ShipExtensionsCommand')]
         with self.p.lock:
@@ -2516,11 +2515,11 @@ class Shop:
                 ('HitpointInfoCommand', dict(hitpoints=int(g.get('hitPoints', 0)), hitpointsMax=g.get('hitMax', 0),
                                              nanoHull=int(g.get('nanoHull', 0)), nanoHullMax=g.get('maxNanoHull', 0))),
                 ('AttributeShieldUpdateCommand', {'shieldNow': int(g.get('shield', 0)), 'shieldMax': g.get('shieldMax', 0)}),
-                # kalkan yeteneğinin görünümü (kayıttaki yeteneksiz hesapta shieldSkillId 0: istemci varsa ShieldEffect'i kaldırır; K3)
+                # appearance of the shield skill (in the save's account without the skill shieldSkillId 0: if the client has it, it removes ShieldEffect; K3)
                 SKL.shield_cmd(self.p),
                 legacy('0|n|e|%d|0|0' % uid), stage, legacy('0|n|INV|%d|0' % uid), legacy('0|S|CFG|%d' % n)]
         if s['speed'] is not None:
             msgs.append(('AttributeShipSpeedUpdateCommand', {'newSpeed': s['speed'], 'displaySpeed': s['display']}))
         self.log('   config %d: %s' % (n, ', '.join('%s %d' % (k, len(v)) for k, v in self.p.d['equipment'].items() if v)))
-        # + dronların bu config'teki tasarımları (uzaydaki görünüm) ve P.E.T.'in bu config'teki donanımı (uzaydaysa)
+        # + the drones' designs in this config (appearance in space) and the P.E.T.'s equipment in this config (if in space)
         return msgs + later + self.drone_msgs() + self.pet.refresh()

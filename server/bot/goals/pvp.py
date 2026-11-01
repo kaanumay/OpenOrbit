@@ -1,13 +1,13 @@
-"""PvP avı: düşman firmanın oyuncularını aramak (4-X, başka firmanın haritaları). Karşılaşmaları yonetici.pvp_tick çözer; avdaki bot
-saldırgan sayılır. Öfke (az önce öldürüldü) ve kin (hafızada onu öldüren) avı çeker: intikam."""
+"""PvP hunt: looking for the players of the enemy company (4-X, other companies' maps). manager.pvp_tick resolves the encounters; a bot on a hunt
+counts as the attacker. Anger (just killed) and grudge (the one who killed it is in memory) draw the hunt: revenge."""
 from ..brain import Goal, target
 from .. import catalog as K
 from .. import abstract_sim as S
 
 
 def find_target(y, name):
-    """Av emrindeki kişi: botlardan ya da gerçek oyunculardan (ad büyük/küçük harf ayrımsız) -> (ad, firma, harita ya da None
-    (çevrimdışı), klan, insan mı) ya da None."""
+    """The person under a hunt order: from the bots or real players (name case-insensitive) -> (name, company, map or None
+    (offline), clan, is human) or None."""
     a = str(name or '').strip().lower()
     if not a:
         return None
@@ -25,7 +25,7 @@ def find_target(y, name):
 
 
 def order_grudge(bot, name, now):
-    """Klan emriyle (klan_emir) verilen av ya da klan odağı: bu kişiye kin gibi davranılır (govde.pvp_hedefi 'kin' terimine eklenir)."""
+    """A hunt given by clan order (clan_orders) or the clan focus: this person is treated like a grudge (added to ship.pvp_target's grudge term)."""
     a = bot.k.get('hunt_order')
     name = str(name).lower()
     if a and now < a['end_time'] and a['name'] == name:
@@ -40,7 +40,7 @@ def order_grudge(bot, name, now):
 
 
 def order_target(bot, y, now):
-    """Sürmekte olan av emrinin (ya da klan odağının) çevrimiçi hedefi -> (ad, harita) ya da None."""
+    """The online target of an ongoing hunt order (or clan focus) -> (name, map) or None."""
     a = bot.k.get('hunt_order')
     if a and now < a['end_time']:
         t = find_target(y, a['name'])
@@ -66,7 +66,7 @@ class PvpHunt(Goal):
     def eligible(self, bot, b):
         from .. import admin_warnings as AW
         from .. import weapons as WP
-        return bot.level >= (b.setting('pvp_level', 6) or 1) and bot.value()['power'] >= 8 and not AW.active(bot, 'pvp', b.now)             and WP.has_laser(bot)                         # cephanesiz oyuncu avlanmaz
+        return bot.level >= (b.setting('pvp_level', 6) or 1) and bot.value()['power'] >= 8 and not AW.active(bot, 'pvp', b.now)             and WP.has_laser(bot)                         # a player without ammo is not hunted
 
     def points(self, bot, b):
         o = bot.traits
@@ -76,7 +76,7 @@ class PvpHunt(Goal):
         if b.y is not None and bot.memory.grudges() and b.y.online_name(bot.memory.grudges()):
             p += 0.25 * o['aggression']
         if b.y is not None and b.y.prime(b.now):
-            p *= float(b.setting('prime_pvp', 2.0) or 1.0)           # akşam yoğun saati: PvP canlanır
+            p *= float(b.setting('prime_pvp', 2.0) or 1.0)           # evening rush hour: PvP picks up
         return p
 
     def start(self, bot, b):
@@ -85,14 +85,14 @@ class PvpHunt(Goal):
         grudge = y.online_name(bot.memory.grudges()) if y is not None else None
         order = order_target(bot, y, b.now) if y is not None else None
         if order is not None:
-            target_map = order[1]                           # klan emri: söylenen kişiyi (ya da odaktaki klanın üyesini) bulmaya gider
+            target_map = order[1]                           # clan order: goes to find the named person (or a member of the focus clan)
             bot.plan['hunt'] = order[0]
             grudge = order
         elif grudge is not None and K.route(bot.game_map, grudge.game_map, bot.firma, bot.level):
-            target_map = grudge.game_map                        # intikam: onu öldüreni bulmaya gider
+            target_map = grudge.game_map                        # revenge: goes to find the one who killed it
             bot.plan['hunt'] = grudge.name
         elif y is not None:
-            # düşmanların olduğu, gidilebilen ve çok güçlü düşmanı olmayan harita
+            # a map where the enemies are, that is reachable and has no overly strong enemy
             power = bot.value()['power']
             candidates = []
             for m, enemy in y.enemy_population(bot).items():
@@ -104,7 +104,7 @@ class PvpHunt(Goal):
                 target_map = max(candidates)[1]
         if (y is not None and grudge is None and y.prime(b.now) and b.setting('big_battle', True) and bot.r.random() < 0.75
                 and K.can_enter(y.front(b.now), bot.firma, bot.level) and K.route(bot.game_map, y.front(b.now), bot.firma, bot.level)):
-            target_map = y.front(b.now)                    # büyük savaş: firmalar yoğun saatin cephesinde toplanır
+            target_map = y.front(b.now)                    # big war: companies gather at the rush hour's front
             call = y.__dict__.setdefault('front_call', {})
             key = (bot.firma, int(b.now // 3600))
             if key not in call and bot.o('talkativeness') + bot.o('aggression') > 1.0:
@@ -118,14 +118,14 @@ class PvpHunt(Goal):
         S.go(bot, target_map, y, b.now)
 
     def concrete(self, bot, g, w, now):
-        """Haritada av (klan emri ya da intikam): avlanan bu haritadaysa görmese de ona doğru uçar, görüşe girince govde.pvp_hedefi
-        saldırır (emir_kini ve kin onu öne alır); başka haritaya geçtiyse peşinden gider (canlı 2026-11-01: bot avın haritasına
-        varıp orada uzaylı kesiyordu). Dövüşteyken, yolda ve avsızken govde'nin olağan davranışı."""
+        """Hunt on the map (clan order or revenge): if the hunted is on this map the bot flies toward it even without seeing it, and when in sight ship.pvp_target
+        attacks (order_grudge and grudge put it first); if it moved to another map it follows (live 2026-11-01: the bot reached the hunted one's map
+        and kept killing aliens there). While fighting, en route and with no hunted target, the ship's usual behavior."""
         from .. import ship as BG
         y = BG.MGR.ACTIVE
         order = order_target(bot, y, now) if y is not None else None
         if order is not None:
-            bot.plan['hunt'] = order[0]                      # süren emir önce gelir (zaten PvP'deyken verilen emirde basla yeniden çalışmaz)
+            bot.plan['hunt'] = order[0]                      # an ongoing order comes first (for an order given while already in PvP, start does not run again)
         name = str(bot.plan.get('hunt') or '').lower()
         if not name or g.target is not None or bot.en_route or any(now - t < 6 for t in g.attacker.values()):
             return False
@@ -139,12 +139,12 @@ class PvpHunt(Goal):
                     and K.route(bot.game_map, t[2], bot.firma, bot.level)):
                 bot._hunt_trail = now + 30
                 bot.plan['map'] = int(t[2])
-                S.go(bot, t[2], y, now)                  # av başka haritaya geçti: peşinden
+                S.go(bot, t[2], y, now)                  # the hunted moved to another map: follow
                 return True
             return False
         t = BG.pvp_target(w, g, now)
         if t is not None:
-            g.target = t                                   # görüşte: saldırır (savaş govde'de)
+            g.target = t                                   # in sight: attacks (the fight is in ship)
             return False
         pos = BG._position(w, uid, now)
         if pos is None:
@@ -156,4 +156,4 @@ class PvpHunt(Goal):
         if S.journey(bot, y):
             return
         if K.map_npcs(bot.game_map) and bot.r.random() < 0.5:
-            S.farm(bot, dt * 0.5, y)        # beklerken uzaylı da keser (yarı verim)
+            S.farm(bot, dt * 0.5, y)        # while waiting it also kills aliens (half efficiency)

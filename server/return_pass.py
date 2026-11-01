@@ -1,32 +1,32 @@
-"""Recall (Return) Battle Pass (istemci 1.1.115; veri data/tickets.json 'donus_pass' <- tools/version_115.py; görev havuzu Season
-Pass'inki, season.py).
+"""Recall (Return) Battle Pass (client 1.1.115; data in data/tickets.json 'return_pass' <- tools/version_115.py; the quest pool is the
+Season Pass's, season.py).
 
-Return of Hero (takvim return_of_hero) süresince menü öğesi 'recallBattlePass'. İstemcinin kodundan (UIRecallBattlePassSystem):
-  açılış      RecallBattlePassActionRequest {action 0 VIEW, requestId} -> RecallBattlePassViewCommand (aynı requestId; specialId > 0;
-              pointsCost seviye başına, seviyelerin requiredExperience'ı birikimli eşik ve listeler aynı uzunlukta olmalı; ödülün adedi
-              0 ise lootId boş olabilir) ve RecallBattlePassPointsInfoCommand {points}: pencere ikisi gelince açılır. Seviye = geçilen
-              eşik sayısı (0'dan başlar). Hata: RecallBattlePassActionResultCommand {result 0 INACTIVE, 3 SERVER_ERROR}
-  ödül        RecallBattlePassRewardClaimRequest {track {type 0 FREE, 1 RETURN, 2 VIP}, level} -> RewardClaimResultCommand {result 0
-              SUCCESS, 1 ALREADY_CLAIMED, 2 INACTIVE, 5 LEVEL_LOCKED, 6 RETURN_INELIGIBLE, 7 VIP_REQUIRED}; istemci satırı kendisi işaretler
-              RecallBattlePassRewardClaimAllRequest -> ClaimAllResultCommand {claimedCount, result}; istemci görünümü yeniden ister
-  seviye      RecallBattlePassLevelPurchaseRequest {amount, expectedPoints, maxUridium, quoteOnly}: önce teklif (quoteOnly), onayla
-              satın alma -> LevelPurchaseCommand {success, result 0 SUCCESS / 6 STALE_POINTS / 7 PRICE_CHANGED / 8 INSUFFICIENT_URIDIUM,
-              originalLevel, targetLevel, currentPoints, resultingPoints, uridiumCost}; satın almada puan resultingPoints olur
-  görevler    RecallBattlePassMissionRequest -> MissionInfoCommand {missionInfoType 0 REPLACE, refreshInfo, missionItems
-              [MissionModule {questDefinitionModule, period 0 DAILY / 1 WEEKLY / 2 SEASON, periodStart, nextReset (unix sn),
+During Return of Hero (calendar return_of_hero) the menu item 'recallBattlePass'. From the client's code (UIRecallBattlePassSystem):
+  opening     RecallBattlePassActionRequest {action 0 VIEW, requestId} -> RecallBattlePassViewCommand (same requestId; specialId > 0;
+              pointsCost per level, the levels' requiredExperience is a cumulative threshold and the lists must be the same length; if a
+              reward's count is 0 the lootId may be empty) and RecallBattlePassPointsInfoCommand {points}: the window opens once both arrive.
+              Level = number of thresholds passed (starts from 0). Error: RecallBattlePassActionResultCommand {result 0 INACTIVE, 3 SERVER_ERROR}
+  reward      RecallBattlePassRewardClaimRequest {track {type 0 FREE, 1 RETURN, 2 VIP}, level} -> RewardClaimResultCommand {result 0
+              SUCCESS, 1 ALREADY_CLAIMED, 2 INACTIVE, 5 LEVEL_LOCKED, 6 RETURN_INELIGIBLE, 7 VIP_REQUIRED}; the client marks the row itself
+              RecallBattlePassRewardClaimAllRequest -> ClaimAllResultCommand {claimedCount, result}; the client asks for the view again
+  level       RecallBattlePassLevelPurchaseRequest {amount, expectedPoints, maxUridium, quoteOnly}: first a quote (quoteOnly), confirm
+              the purchase -> LevelPurchaseCommand {success, result 0 SUCCESS / 6 STALE_POINTS / 7 PRICE_CHANGED / 8 INSUFFICIENT_URIDIUM,
+              originalLevel, targetLevel, currentPoints, resultingPoints, uridiumCost}; on purchase the points become resultingPoints
+  quests      RecallBattlePassMissionRequest -> MissionInfoCommand {missionInfoType 0 REPLACE, refreshInfo, missionItems
+              [MissionModule {questDefinitionModule, period 0 DAILY / 1 WEEKLY / 2 SEASON, periodStart, nextReset (unix s),
               missionStatus {type 0 NORMAL_RUNNING, 1 VIP_RUNNING, 2 VIP_LOCKED_INCOMPLETE, 3 NORMAL_COMPLETED, 4 VIP_COMPLETED,
               5 VIP_LOCKED_COMPLETE}, experience}]}; RecallBattlePassMissionRefreshRequest -> MissionRefreshResultCommand {result 0
-              SUCCESS, 5 NO_FREE_REFRESH, 7 INSUFFICIENT_URIDIUM}; istemci listeyi yeniden ister
-  VIP         penceredeki "Buy" ödeme sayfasını açar (JavascriptHelper.OpenWebUrl PAY_TYPE RecallPassVip): payment.py mağazayı açar,
-              Return VIP Badge (resource_recall-pass-vip-badge) paketten; the badge is used up as soon as it is bought (bought) or
+              SUCCESS, 5 NO_FREE_REFRESH, 7 INSUFFICIENT_URIDIUM}; the client asks for the list again
+  VIP         opens the "Buy" payment page in the window (JavascriptHelper.OpenWebUrl PAY_TYPE RecallPassVip): payment.py opens the shop,
+              Return VIP Badge (resource_recall-pass-vip-badge) from the pack; the badge is used up as soon as it is bought (bought) or
               found in the inventory (ensure), and the open window gets a fresh view with its last requestId (refresh_msgs)
-Seviyeler, bedeller, specialId ve görevler resmî sunucu kaydından (2026-10-25). Tek oyunculu: oyuncu dönen kahraman (HeroState
-TRUE; Return of Hero'da veterana bağlanınca INVITEE), so the Return track is open; a non-returnee (FALSE) gets RETURN_INELIGIBLE.
-Görevler kayıttakiler:
-günlük 3 + 2 VIP her gün, haftalık 5 + 3 VIP pazartesi, 12 sezonluk dönem boyunca; yenilemede yerine gelen Season Pass havuzundan
-(kimlikleri kaydırılmış; Gold görevleri VIP görevi, deneyimi Season Pass puanı). Yenileme günde bir ücretsiz, sonra 500 U (haftalık 500 U).
-Profilde: donus_pass {donem, surum, puan, vip, alinan {0: [], 1: [], 2: []}, gun, gunluk, hafta, haftalik, sezonluk, deger, tamam,
-yenileme}.
+Levels, costs, specialId and quests are from the official server recording (2026-10-25). Single player: the player is a returning hero (HeroState
+TRUE; in Return of Hero, when tied to a veteran, INVITEE), so the Return track is open; a non-returnee (FALSE) gets RETURN_INELIGIBLE.
+The quests are those in the recording:
+daily 3 + 2 VIP every day, weekly 5 + 3 VIP on Monday, throughout the 12-season period; on refresh the replacement comes from the Season Pass pool
+(ids shifted; Gold quests are the VIP quests, the experience is Season Pass points). Refresh is free once a day, then 500 U (weekly 500 U).
+In the profile: return_pass {period, version, points, vip, claimed {0: [], 1: [], 2: []}, day, daily, week, weekly, seasonal, value, done,
+renewal}.
 """
 import datetime, json, os, random, time
 
@@ -39,7 +39,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 R = json.load(open(os.path.join(HERE, 'data', 'tickets.json'), encoding='utf8'))['return_pass']
 EVENT, SPECIAL, VIP_ITEM = R['calendar'], R['special_id'], R['vip']
 COST, UCOST = R['point_cost'], R['uridium_cost']
-LEVELS = {r[0]: r[1:] for r in R['levels']}               # seviye -> [[free], [return], [vip]]
+LEVELS = {r[0]: r[1:] for r in R['levels']}               # level -> [[free], [return], [vip]]
 MAX_LEVEL = len(COST)
 OFS = R['quest_id_offset']
 FREE, RETURN, VIP = 0, 1, 2
@@ -54,7 +54,7 @@ def mod(name, **f):
 
 
 def shifted(node):
-    """Season Pass görevinin tanımı, kimlikleri kaydırılmış (iki pencerede ayrı görev) ve ödülsüz (deneyim MissionModule'de)."""
+    """A Season Pass quest's definition, ids shifted (separate quests in the two windows) and without reward (the experience is in MissionModule)."""
     if isinstance(node, dict):
         out = {k: shifted(v) for k, v in node.items() if k != 'rewards'}
         if isinstance(out.get('id'), int) and out['id'] > 0:
@@ -65,7 +65,7 @@ def shifted(node):
     return node
 
 
-REAL = {m['definition']['id']: m for m in R['quests']}              # kayıttaki görevler (sourceQuestId: 'kaynak')
+REAL = {m['definition']['id']: m for m in R['quests']}              # the quests in the recording (sourceQuestId: 'source')
 MISSIONS = {**{q + OFS: dict(m, definition=shifted(m['definition']), source=q + OFS) for q, m in SE.MISSIONS.items()}, **REAL}
 VERSION = R['quest_version']
 
@@ -87,7 +87,7 @@ def pool(qtype, gold):
 
 
 def listed(qtype):
-    """Dönemin görevleri: kayıttakiler, kayıttaki sırayla."""
+    """The period's quests: those in the recording, in the recording's order."""
     return [q for q, m in REAL.items() if m['type'] == qtype]
 
 
@@ -106,9 +106,9 @@ class ReturnPass:
 
     def __init__(self, profile, shop, log=print):
         self.p, self.m, self.log = profile, shop, log
-        self.hero = None                 # oturum bağlar: Return of Hero'da veterana bağlı mı (dukkanlar.py)
+        self.hero = None                 # the session binds it: whether tied to a veteran in Return of Hero (shops.py)
         self.returning = True            # single player: the player is always the returning hero (Return track open)
-        self.open = False                # pencere açıldı mı (puan değişince PointsInfoCommand)
+        self.open = False                # whether the window is open (PointsInfoCommand when the points change)
         self.rid = {'view': 0, 'mission': None}   # last requestIds of the open window (pushed refreshes reuse them)
         if shop is not None:
             shop.on_bought.append(self.bought)
@@ -131,7 +131,7 @@ class ReturnPass:
                 st.update(period=key, points=0, vip=False, claimed={str(t): [] for t in (FREE, RETURN, VIP)}, value={}, done=[],
                           renewal={'day': 0, 'week': 0})
                 self.p.dirty = True
-        if st.get('version') != VERSION:          # yeni dönem ya da görevler değişti (2026-10-25: kayıttakiler): listeler baştan
+        if st.get('version') != VERSION:          # new period or the quests changed (2026-10-25: those in the recording): lists from the start
             self.reset_list('seasonal', SE.SEASON)
             with self.p.lock:
                 st.update(version=VERSION, day=None, week=None)
@@ -145,8 +145,8 @@ class ReturnPass:
                 st['vip'] = True
                 self.p.dirty = True
             pend = sum(MISSIONS[q]['points'] for q in st['done'] if MISSIONS[q]['gold'])
-            self.add_points(pend)                                 # VIP görevlerinin bekleyen deneyimi
-            self.log('   Recall Battle Pass: VIP etkin (%d bekleyen puan)' % pend)
+            self.add_points(pend)                                 # pending experience of the VIP quests
+            self.log('   Recall Battle Pass: VIP active (%d pending points)' % pend)
             return True
         return False
 
@@ -162,7 +162,7 @@ class ReturnPass:
         return msgs
 
     def bought(self, loot, amount):
-        """Shop purchase (magaza.on_bought): a package with the Return VIP Badge turns VIP on right away and refreshes the open
+        """Shop purchase (shop.on_bought): a package with the Return VIP Badge turns VIP on right away and refreshes the open
         window (before this, the badge waited for the next request and the window kept its "Buy" button)."""
         if not self.active() or VIP_ITEM not in {g for g, n in (self.m.contents(loot, amount) or [])}:
             return []
@@ -203,7 +203,7 @@ class ReturnPass:
 
     def hero_state(self):
         if self.hero and self.hero():
-            return HERO_INVITEE                                     # veterana bağlı dönen kahraman
+            return HERO_INVITEE                                     # returning hero tied to a veteran
         return HERO_TRUE if self.returning else HERO_FALSE
 
     def view_cmd(self, rid, now=None):
@@ -240,7 +240,7 @@ class ReturnPass:
         now = time.time() if now is None else now
         st = self.st
         spans = {0: (day_start(now), day_start(now) + 86400), 1: (week_start(now), week_start(now) + 7 * 86400),
-                 2: (0, 0)}                                         # sezonluk: ikisi de 0 (kayıt)
+                 2: (0, 0)}                                         # seasonal: both are 0 (recording)
         items = []
         for q in st.get('daily', []) + st.get('weekly', []) + st.get('seasonal', []):
             p = PERIOD[MISSIONS[q]['type']]
@@ -251,7 +251,7 @@ class ReturnPass:
         return ('RecallBattlePassMissionInfoCommand', dict(requestId=int(rid), specialId=SPECIAL, missionInfoType=0,
                                                            refreshInfo=self.refresh_info(), missionItems=items))
 
-    # ------------------------------------------------------------ istekler
+    # ------------------------------------------------------------ requests
     def handle(self, name, f):
         rid = int(f.get('requestId') or 0)
         if not self.active():
@@ -288,7 +288,7 @@ class ReturnPass:
         return []
 
     def claim(self, track, lv):
-        """-> (sonuç, mesajlar): 0 SUCCESS, 1 ALREADY_CLAIMED, 4 INVALID_REQUEST, 5 LEVEL_LOCKED, 6 RETURN_INELIGIBLE, 7 VIP_REQUIRED."""
+        """-> (result, messages): 0 SUCCESS, 1 ALREADY_CLAIMED, 4 INVALID_REQUEST, 5 LEVEL_LOCKED, 6 RETURN_INELIGIBLE, 7 VIP_REQUIRED."""
         st = self.st
         if lv not in LEVELS or track not in (FREE, RETURN, VIP):
             return 4, []
@@ -304,7 +304,7 @@ class ReturnPass:
         with self.p.lock:
             st['claimed'][str(track)].append(lv)
             self.p.dirty = True
-        self.log('   Recall Battle Pass ödülü: seviye %d %s: %s x%d' % (lv, ('free', 'return', 'vip')[track], loot, n))
+        self.log('   Recall Battle Pass reward: level %d %s: %s x%d' % (lv, ('free', 'return', 'vip')[track], loot, n))
         return 0, (self.m.reward(loot, n) if self.m and n else [])
 
     def purchase(self, f, rid):
@@ -330,14 +330,14 @@ class ReturnPass:
         with self.p.lock:
             st['points'] = th[target - 1]
             self.p.dirty = True
-        self.log('   Recall Battle Pass: %d seviye alındı (%d U) -> %d' % (n, cost, target))
+        self.log('   Recall Battle Pass: %d levels bought (%d U) -> %d' % (n, cost, target))
         return ([('RecallBattlePassLevelPurchaseCommand', dict(res, success=True, result=0, currentPoints=int(st['points'])))]
                 + (self.m.money_msgs() if self.m else []))
 
     def refresh(self, f, rid):
-        """Günlük ya da haftalık görevin yerine havuzdan başkası: 0 SUCCESS, 3 STALE_MISSION, 7 INSUFFICIENT_URIDIUM, 9 NO_REPLACEMENT."""
+        """Another quest from the pool in place of a daily or weekly quest: 0 SUCCESS, 3 STALE_MISSION, 7 INSUFFICIENT_URIDIUM, 9 NO_REPLACEMENT."""
         st, q = self.st, int(f.get('questId') or 0)
-        # istemci kaynak kimliğini (sourceQuestId) ya da tanımınkini gönderebilir
+        # the client may send the source id (sourceQuestId) or the definition's
         q = next((x for x in st.get('daily', []) + st.get('weekly', []) if q in (x, MISSIONS[x]['source'])), q)
         key = 'daily' if q in st.get('daily', []) else 'weekly' if q in st.get('weekly', []) else None
         done = lambda code, extra=(): list(extra) + [('RecallBattlePassMissionRefreshResultCommand',
@@ -359,10 +359,10 @@ class ReturnPass:
             st['value'].pop(str(q), None)
             st['renewal'][stamp] = st['renewal'].get(stamp, 0) + 1
             self.p.dirty = True
-        self.log('   Recall Battle Pass görevi yenilendi: %d -> %d%s' % (q, new, '' if free else ' (%d U)' % REFRESH_U))
+        self.log('   Recall Battle Pass quest refreshed: %d -> %d%s' % (q, new, '' if free else ' (%d U)' % REFRESH_U))
         return done(0, [] if free or not self.m else self.m.money_msgs())
 
-    # ------------------------------------------------------------ görev ilerlemesi
+    # ------------------------------------------------------------ quest progress
     def event(self, kind, kw):
         if not self.p.d.get('return_pass') or not self.active():
             return []
@@ -383,7 +383,7 @@ class ReturnPass:
                 self.p.dirty = True
             locked = MISSIONS[q]['gold'] and not st.get('vip')
             msgs += [] if locked else self.add_points(MISSIONS[q]['points'])
-            self.log('   Recall Battle Pass görevi bitti: %d (%d puan%s)' % (q, MISSIONS[q]['points'], ', VIP bekliyor' if locked else ''))
+            self.log('   Recall Battle Pass quest done: %d (%d points%s)' % (q, MISSIONS[q]['points'], ', VIP pending' if locked else ''))
         return msgs
 
 

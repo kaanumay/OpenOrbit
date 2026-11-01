@@ -1,15 +1,15 @@
-// Eski yükseltme sistemi (panel: eski_yukseltme; kullanıcı isteği 2026-10-31): 2018'in Skylab > Tech Factory > Item Upgrading penceresi
-// Unity istemcisinde yok; yükseltmeler Assembly'nin Upgrade sekmesinde kalır, bedeli yalnız uridyum olur. İstemci bedeli kendi tarifinden
-// gösterir ve yeterliliği ona göre denetler (TargetItemRecipeModel.CollectSteps / GetIngredients: RecipeAttributes.Costs[seviye].Parts;
-// tarifler DarkOrbit.Upgrade.Initialize'da kurulur).
-// Panel OYNA'da ve ayarlar kaydedilince sunucunun bedellerini (yukseltme.eski_tablo) <istemci>/BepInEx/openorbit/eski_yukseltme.json'a
-// yazar: {"upgrade_upgrade-class1": [seviye 1'in U., seviye 2'nin U., ...]}; kapalıyken {}. E1: tarifler kurulunca, tarif modeli
-// kurulunca ve bedel hesaplanmadan önce tarifin Parts listesi tablodaki uridyumla değiştirilir (0: bedava, boş liste); tabloda olmayan tarif istemcinin
-// kendi malzemelerine döner (her seferinde yeni liste). Atlama bedeli (Isochronate) değişmez. Dosyaya saniyede bir bakılır (İzci), değişince
-// bütün tarifler hemen uyarlanır. Tarif modeli malzeme satırlarını (Ingredients) kurucuda tarifin o anki malzemeleriyle kurar; sonra
-// malzeme türü değişirse GetIngredients NullReferenceException atar, pencere eski bedelde kalır (canlı 2026-11-01: açıktan kapalıya
-// geçişte uridyum kalıyordu). Bu yüzden sunucu ayar değişince (2 sn sonra) tarif listesini yeniden gönderir (yukseltme.Yukseltme.tick):
-// modeller güncel tarifle yeniden kurulur.
+// Old upgrade system (panel: eski_yukseltme; user request 2026-10-31): the 2018 Skylab > Tech Factory > Item Upgrading window is
+// not in the Unity client; upgrades stay in the Assembly's Upgrade tab, and the cost is uridium only. The client shows the cost from its own recipe
+// and checks affordability against it (TargetItemRecipeModel.CollectSteps / GetIngredients: RecipeAttributes.Costs[level].Parts;
+// recipes are built in DarkOrbit.Upgrade.Initialize).
+// On PLAY and when settings are saved, the panel writes the server's costs (yukseltme.eski_tablo) to <client>/BepInEx/openorbit/eski_yukseltme.json:
+// {"upgrade_upgrade-class1": [level 1's U., level 2's U., ...]}; {} when off. E1: once recipes are built, once the recipe model is
+// built and before the cost is calculated, the recipe's Parts list is replaced with the uridium from the table (0: free, an empty list); a recipe not in the table returns to the client's
+// own ingredients (a new list each time). The skip cost (Isochronate) does not change. The file is checked once a second (OldUpgradeWatcher), and when it changes
+// all recipes are adapted at once. The recipe model builds the ingredient rows (Ingredients) in its constructor from the recipe's ingredients at that moment; afterwards
+// if the ingredient type changes GetIngredients throws NullReferenceException, the window stays at the old cost (live 2026-11-01: on the switch
+// from on to off uridium stayed). So when the setting changes the server resends the recipe list (after 2 s) (yukseltme.Yukseltme.tick):
+// the models are rebuilt with the current recipe.
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,9 +25,9 @@ static class OldUpgrade
 {
     const string URIDIUM = "currency_uridium";
     static readonly Dictionary<string, int[]> table = new();
-    static readonly Dictionary<IntPtr, (string, int)[]> original = new();       // RecipeCosts -> kendi malzemeleri (her seferinde yeni liste kurulur)
-    static readonly Dictionary<IntPtr, int> applied = new();                                          // RecipeAttributes -> sürüm
-    static readonly Dictionary<string, RecipeAttributes> known = new();   // Upgrade.Initialize'ın tarifleri: dosya değişince hepsi hemen
+    static readonly Dictionary<IntPtr, (string, int)[]> original = new();       // RecipeCosts -> its own ingredients (a new list is built each time)
+    static readonly Dictionary<IntPtr, int> applied = new();                                          // RecipeAttributes -> version
+    static readonly Dictionary<string, RecipeAttributes> known = new();   // Upgrade.Initialize's recipes: all at once when the file changes
     static string route;
     static DateTime lastRead = DateTime.MinValue;
     static long lastCheck;
@@ -141,7 +141,7 @@ static class OldUpgrade
     }
 }
 
-// dosyaya oyun açıkken de saniyede bir bakar (tarif listesi sunucudan yeniden gelmeden önce veri güncel olsun)
+// checks the file once a second even while the game is open (so the data is current before the recipe list comes from the server again)
 public class OldUpgradeWatcher : UnityEngine.MonoBehaviour
 {
     public OldUpgradeWatcher(IntPtr p) : base(p) { }

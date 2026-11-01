@@ -1,15 +1,15 @@
-"""Botun görünüşü: gemi tasarımı, dronları ve formasyonu, unvanı, kapı halkaları. Oyuncunun öteki oyunculara giden mesajlarıyla
-(game.gorunum): ShipCreateCommand.typeId ve galaxyGatesDone, "0|n|t" unvan, "0|n|d" dronlar.
+"""The bot's appearance: ship design, drones and formation, title, gate rings. Built from the messages the player sends to other players
+(game.appearance): ShipCreateCommand.typeId and galaxyGatesDone, "0|n|t" title, "0|n|d" drones.
 
-Tasarım ve formasyon oyuncu gibi mağaza fiyatıyla alınır: birikiminin küçük bir payıysa, gösterişe düşkünlüğüne göre. Tasarım
-yalnız kozmetik olanlardan (bonuslu tasarımlar gücü değiştirir; güç hesabı tasarım bilmez). Formasyon kişiliğe göre kalıcı:
-saldırgan Arrow/Pincer, temkinli Turtle, kasıcı Star. Unvan oyunun başarım eşiklerinden (uzaylı, EP, onur); gösterip
-göstermemek kişiliğe bağlı. Seçimler bot kaydında (ekip['tasarim'], k['formasyon'], k['formasyonlar']).
+Design and formation are bought at the shop price like a player: only if it is a small share of its savings, depending on its love of showing off. The design
+is only from the cosmetic ones (designs with bonuses change strength; the strength calculation does not know designs). The formation is permanent by personality:
+aggressive Arrow/Pincer, cautious Turtle, grinder Star. The title comes from the game's achievement thresholds (alien, EP, honor); whether to
+show it depends on personality. The choices are in the bot's record (gear['design'], k['formation'], k['formations']).
 
-Dron tasarımları (oyuncudaki gibi dron başına, mağaza fiyatıyla): bonuslu Havoc (saldırgan: tüm dronlar Havoc ise +%10 dron lazeri) ve
-Hercules (temkinli: +%20 can), ayrıca kozmetik görünümler. Bot kaydında ekip['dron_tasarim'] = {'tasarim': [loot], 'gorunum': [loot]},
-dronların sıralı dizilimine (loot adına göre, dizgideki sıra) göre; tüm dronlar aynı bonuslu tasarımdaysa güç hesabına katılır
-(katalog.degerler). Bazı botlar birini toplar (eşleşen takım), bazıları parası yetmeyince öbürüyle karıştırır.
+Drone designs (per drone like on the player, at the shop price): Havoc with a bonus (aggressive: +10% drone laser if all drones are Havoc) and
+Hercules (cautious: +20% HP), plus cosmetic looks. In the bot's record gear['drone_design'] = {'design': [loot], 'appearance': [loot]},
+by the ordered layout of the drones (by loot name, the order in the string); if all drones have the same bonus design it takes part in the strength calculation
+(catalog values). Some bots collect one (a matching set), some mix it with the other when money is short.
 """
 import math, zlib
 
@@ -19,7 +19,7 @@ from . import catalog as K
 FORMATION = {'drone_formation_default': 0, 'drone_formation_f-01-tu': 1, 'drone_formation_f-02-ar': 2,
              'drone_formation_f-04-st': 4, 'drone_formation_f-05-pi': 5}
 MIN_DRONES = {'drone_formation_f-02-ar': 4, 'drone_formation_f-05-pi': 6}
-# (unvan, istatistik, eşik): oyunun başarımları (data/basarimlar.json achievement_destroy_aliens, _experience, _honor)
+# (title, statistic, threshold): the game's achievements (data/achievements.json achievement_destroy_aliens, _experience, _honor)
 TITLES = (('title_achievement_honor-2', 'honor', 2500000), ('title_achievement_experience-2', 'ep', 10000000000),
             ('title_achievement_destroy_aliens-2', 'npc', 1000000), ('title_achievement_honor-1', 'honor', 450000),
             ('title_achievement_experience-1', 'ep', 100000000), ('title_achievement_destroy_aliens-1', 'npc', 1000))
@@ -30,16 +30,16 @@ def _stable_hash(bot, salt):
 
 
 def showiness(bot):
-    """Gösterişe düşkünlük (0-1): tutumlu olmayan, rekabetçi ve sosyal olan."""
+    """Love of showing off (0-1): for those who are not thrifty, are competitive and are social."""
     return max(0.0, min(1.0, 0.5 * (1 - bot.o('frugality')) + 0.3 * bot.o('rekabet') + 0.2 * bot.o('sociability')))
 
 
 def _can_afford(bot, currency, price):
-    """Birikiminin küçük bir payıysa (tutumluya göre 4-10 katı varsa)."""
+    """If it is a small share of its savings (if it has 4-10 times as much, depending on thriftiness)."""
     return bot.k['credits' if currency == 'C' else 'uridium'] >= price * (4 + 6 * bot.o('frugality'))
 
 
-# ------------------------------------------------------------------------------------------------------------ satın alma
+# ------------------------------------------------------------------------------------------------------------ purchase
 def cosmetic_designs(ship):
     return sorted(l for l, f in K.prices().items() if l.startswith(ship + '_design_') and l not in K.ITEMS['designs'])
 
@@ -49,12 +49,12 @@ def drone_count(bot):
 
 
 def drone_sequence(bot):
-    """Dronların loot'ları, dizgideki sırayla (loot adına göre)."""
+    """The drones' loots, in string order (by loot name)."""
     return [d for d, k in sorted(bot.k['gear'].get('drone', {}).items()) for _ in range(k) if d in K.ITEMS['drones']]
 
 
 def drone_ids(bot):
-    """Her dron için istemcinin (tasarım, görünüm) kimlikleri (0 standart), dron_dizisi sırasıyla."""
+    """The client's (design, look) ids for each drone (0 standard), in drone-array order."""
     dt = bot.k['gear'].get('drone_design') or {}
     t, g = dt.get('design') or [], dt.get('appearance') or []
     designs = K.ITEMS['drone_designs']
@@ -65,20 +65,20 @@ def drone_ids(bot):
 
 
 def drone_preference(bot):
-    """Bonuslu dron tasarımı: saldırgan Havoc, temkinli Hercules."""
+    """Drone design with a bonus: Havoc for aggressive, Hercules for cautious."""
     return 'drone_designs_havoc' if bot.o('aggression') >= 0.5 else 'drone_designs_hercules'
 
 
 def drone_looks():
-    """Mağazada satılan kozmetik dron görünümleri (etkinlik fiyatlı pahalılar hariç: en çok 100.000)."""
+    """Cosmetic drone looks sold in the shop (except the expensive ones with event prices: at most 100,000)."""
     designs = K.ITEMS['drone_designs']
     return sorted(l for l, v in designs.items() if v.get('slot') == 'visual' and K.price(l) and K.price(l)[1] <= 100000
                   and not v.get('per_event'))
 
 
 def drone_shopping(bot):
-    """Bir dron daha: önce bonuslu tasarım (parası yetince; üçte biri parası yetmeyince öbür bonuslu tasarımla karıştırır), sonra
-    bazen kozmetik görünüm. Çağrı başına en çok bir alım."""
+    """One more drone: first the design with a bonus (when money allows; a third of the time, when money is short, it mixes in the other bonus design), then
+    sometimes a cosmetic look. At most one purchase per call."""
     n = len(drone_sequence(bot))
     if not n:
         return
@@ -100,7 +100,7 @@ def drone_shopping(bot):
                 bot.event('new_design', item=loot)
                 bot.loadout_changed()
                 return
-        break                                            # parası yetmedi: sıradaki dron beklesin, kozmetiğe geç
+        break                                            # not enough money: the next drone waits, move on to cosmetics
     option = drone_looks()
     if option and bot.r.random() < 0.5 * showiness(bot):
         loot = option[_stable_hash(bot, 'appearance') % len(option)]
@@ -113,7 +113,7 @@ def drone_shopping(bot):
 
 
 def formation_preference(bot):
-    """Kişiliğe göre istenen formasyon (dron sayısı yetenlerden ilki)."""
+    """The formation wanted by personality (the first one the drone count allows)."""
     n = drone_count(bot)
     if not n:
         return 'drone_formation_default'
@@ -129,7 +129,7 @@ def formation_preference(bot):
 
 
 def shopping(bot, now):
-    """Yarım saatte bir: tasarım ve formasyon (mağaza izni ve parası yetiyorsa)."""
+    """Every half hour: design and formation (if the shop permission and money allow)."""
     if now < bot.__dict__.get('_cosmetic_t', 0) or not bot.permission.get('shop', True):
         return
     bot._cosmetic_t = now + 1800
@@ -138,7 +138,7 @@ def shopping(bot, now):
     if not designs or not designs.startswith(e['ship'] + '_design_'):
         option = cosmetic_designs(e['ship'])
         if option and bot.r.random() < 0.4 * showiness(bot):
-            loot = option[_stable_hash(bot, e['ship']) % len(option)]          # her botun zevki: aynı gemide hep aynı tasarımı ister
+            loot = option[_stable_hash(bot, e['ship']) % len(option)]          # each bot's taste: always wants the same design on the same ship
             f = K.price(loot)
             if f and _can_afford(bot, *f) and bot.pay(*f):
                 e['design'] = loot
@@ -156,27 +156,27 @@ def shopping(bot, now):
         bot.k['formation'] = 'drone_formation_default'
 
 
-# ------------------------------------------------------------------------------------------------------------ görünüş
+# ------------------------------------------------------------------------------------------------------------ appearance
 def tip(bot):
-    """ShipCreateCommand.typeId: giyilen tasarım ya da gemi."""
+    """ShipCreateCommand.typeId: the design worn or the ship."""
     e = bot.k['gear']
     t = e.get('design')
     return t if t and t.startswith(e['ship'] + '_design_') else e['ship']
 
 
 def rings(bot):
-    """galaxyGatesDone: tamamladığı kapıların bitleri (kapi.RINGS)."""
+    """galaxyGatesDone: the bits of the gates it completed (galaxy_gates.RINGS)."""
     import galaxy_gates as GT
     return sum(GT.RINGS.get(k, 0) for k in set((bot.k.get('gate') or {}).get('done', ())))
 
 
 def drone_level(bot):
-    """Dronlar uzaylı öldürdükçe seviye atlar (oyunda dron puanı): 200, 800, 1.800, 3.200, 5.000 uzaylıda 2-6."""
+    """Drones level up as they kill aliens (drone points in the game): level 2-6 at 200, 800, 1,800, 3,200, 5,000 aliens."""
     return 1 + min(5, int(math.sqrt(bot.k['stats'].get('npc', 0) / 200.0)))
 
 
 def title(bot):
-    """Kazandığı en üst unvan; göstermeyi seçmeyen (gösterişsiz) bot için None."""
+    """The top title it earned; None for a bot that chose not to show it (not showy)."""
     if showiness(bot) < 0.35:
         return None
     st = {'honor': bot.k['honor'], 'ep': bot.k['ep'], 'npc': bot.k['stats'].get('npc', 0)}
@@ -184,7 +184,7 @@ def title(bot):
 
 
 def messages(n):
-    """Gemiyle birlikte giden unvan ve dron mesajları (game.gorunum gibi)."""
+    """Title and drone messages that go out with the ship (like game.appearance)."""
     import achievement as BS
     b = n.bot
     out = []

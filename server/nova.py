@@ -1,26 +1,26 @@
-"""N.O.V.A. kaptanları (yol haritası Aşama 9; veri data/new_systems.json 'nova' <- tools/new_systems.py, kaynak darkorbitwiki).
+"""N.O.V.A. captains (roadmap stage 9; data data/new_systems.json 'nova' <- tools/new_systems.py, source darkorbitwiki).
 
-İstemcinin N.O.V.A. penceresi (UINovaSystem; istekler istemcinin kodundan): CaptainActionRequest {command, captainId, perkId,
+The client's N.O.V.A. window (UINovaSystem; requests taken from the client's code): CaptainActionRequest {command, captainId, perkId,
 upgradeLevel}
   getRosterList          -> CaptainRosterListCommand {captainList: [CaptainCommand]}
   getResources           -> CaptainGetResourcesBackCommand {lootId: Evocation Chip, amount}
-  updateActiveCaptain    {captainId} -> CaptainUpdateActiveBackCommand {result, captainId, errorId}; yalnız istasyonda ("You can
-                         only change your N.O.V.A. at the station."). Aç-kapa: istemcinin EQUIP ve UNEQUIP düğmeleri aynı isteği
-                         (seçili N.O.V.A.'nın kimliğiyle) gönderir, başarı yanıtında da aynı kimlik takılıysa çıkarılmış sayılır
-                         (CaptainData.UpdateEquipRosterData); istemci başarıda listeyi yeniden ister
-  dismissCaptain         {captainId} -> CaptainDismissBackCommand {result, captainId, errorId}: 50 Evocation Chip; takılıyken olmaz
-  upgradePerk            {captainId, perkId, upgradeLevel (hedef + 1)} -> CaptainUpgradPerkBackCommand {result, captainId, perkId, level,
+  updateActiveCaptain    {captainId} -> CaptainUpdateActiveBackCommand {result, captainId, errorId}; only at the station ("You can
+                         only change your N.O.V.A. at the station."). Toggle: the client's EQUIP and UNEQUIP buttons send the same request
+                         (with the id of the selected N.O.V.A.); if the success response has the same id equipped it counts as unequipped
+                         (CaptainData.UpdateEquipRosterData); on success the client asks for the list again
+  dismissCaptain         {captainId} -> CaptainDismissBackCommand {result, captainId, errorId}: 50 Evocation Chip; not possible while equipped
+  upgradePerk            {captainId, perkId, upgradeLevel (target + 1)} -> CaptainUpgradPerkBackCommand {result, captainId, perkId, level,
                          errorId}
-                         (uridyum + Evocation Chip; U.P.S. bölümlerinde Calling Chip de)
-CaptainCommand: captainName (ilk ad) ve captainTypeId (aile; istemci adın arkasına 'captain_<aile>_lastname' çevirisini ekler),
-perkList (CaptainPerkCommand: perkTypeId 'perk_<yetenek>' -> 'captain_perk_<yetenek>_fullname', perkModifier yüzde, perkDrain
-enerji/sn, upgradLevelList seviye başına değer ve bedel), captainEnergy/maxEnergy, sellingPrice (bırakınca çip).
+                         (uridium + Evocation Chip; Calling Chip too in the U.P.S. sections)
+CaptainCommand: captainName (first name) and captainTypeId (family; the client appends the 'captain_<family>_lastname' translation after the name),
+perkList (CaptainPerkCommand: perkTypeId 'perk_<perk>' -> 'captain_perk_<perk>_fullname', perkModifier percent, perkDrain
+energy/s, upgradLevelList value and cost per level), captainEnergy/maxEnergy, sellingPrice (chips when dismissed).
 
-Kurallar (wiki): mağazada 100.000 U (Neo ya da Eos bölümünden rastgele), en çok 30 (fazlası 10.000 U), iki rastgele yetenek, taban
-değer BASE I-VI, seviye 5'e dek yükseltme. Takılı N.O.V.A. saniyede yeteneklerinin harcamalarının toplamı kadar enerji harcar;
-enerji harcamadan azsa yetenekler çalışmaz. Dinlenen (takılı olmayan) N.O.V.A. saniyede 10 dolar. Galaksi Kapısı yetenekleri yalnız
-kapı haritalarında (A/B/G olanlar Alpha, Beta, Gamma'da).
-Profilde: nova {kadro: [{id, bolum, aile, ad, enerji, t, yetenekler: [{id, tur, taban, seviye}]}], aktif, sonraki}.
+Rules (wiki): 100,000 U in the shop (random from the Neo or Eos section), at most 30 (beyond that 10,000 U), two random perks, base
+value BASE I-VI, upgrade up to level 5. An equipped N.O.V.A. spends energy per second equal to the sum of its perks' costs;
+if the energy is less than the cost the perks do not work. A resting (unequipped) N.O.V.A. gains 10 per second. Galaxy Gate perks work only on
+gate maps (those with A/B/G on Alpha, Beta, Gamma).
+In the profile: nova {roster: [{id, section, family, name, energy, t, skills: [{id, type, base, level}]}], active, next}.
 """
 import json, os, random, threading, time
 
@@ -42,13 +42,13 @@ def mod(_cls, **f):
 
 
 def value(kind, base, level):
-    """Yeteneğin değeri (%): taban kademe + seviye başına artış."""
+    """The perk's value (%): base tier + increase per level."""
     t = PERKS[kind]
     return round(t['base'][base - 1] + t['increase'] * (level - 1), 2)
 
 
 def where(map_id):
-    """Haritanın yeteneklerdeki yeri: 'abg' (Alpha/Beta/Gamma), 'kapi' (öteki kapılar) ya da None."""
+    """The map's place in the perks: 'abg' (Alpha/Beta/Gamma), 'gate' (other gates) or None."""
     g = KAPI.BY_MAP.get(int(map_id or 0))
     return None if not g else 'abg' if g in ('alpha', 'beta', 'gamma') else 'gate'
 
@@ -56,16 +56,16 @@ def where(map_id):
 class Nova:
     def __init__(self, profile, log=print):
         self.p, self.log = profile, log
-        self.m = None                              # mağaza (para göstergesi); oturum bağlar
-        self.at_station = lambda: True             # oturum bağlar: oyuncu istasyonda mı
-        self.lock = threading.RLock()              # enerji: profil.mods() profilin kilidi tutulurken de çağrılır (o kilit yeniden girilmez)
+        self.m = None                              # shop (currency display); the session binds it
+        self.at_station = lambda: True             # the session binds it: is the player at the station
+        self.lock = threading.RLock()              # energy: player_profile.mods() is also called while the profile's lock is held (that lock is not re-entered)
         with profile.lock:
             self.d = profile.d.setdefault('nova', {'roster': [], 'active': 0, 'next': 1})
         self.resume()
 
-    # ------------------------------------------------------------ enerji
+    # ------------------------------------------------------------ energy
     def resume(self, now=None):
-        """Oturum açıldı: takılı N.O.V.A. çevrimdışı sürede harcamaz (uyarlama); dinlenenler o sürede doldu."""
+        """Session opened: the equipped N.O.V.A. does not spend during offline time (adaptation); resting ones filled up in that time."""
         c = self.active()
         if c:
             c['t'] = now or time.time()
@@ -91,7 +91,7 @@ class Nova:
         return self.find(self.d['active']) if self.d['active'] else None
 
     def working(self, now=None):
-        """Yetenekleri çalışan N.O.V.A. (takılı ve enerjisi harcamasından çok) ya da None."""
+        """The N.O.V.A. whose perks work (equipped and its energy exceeds its cost) or None."""
         c = self.active()
         if not c:
             return None
@@ -100,7 +100,7 @@ class Nova:
         return c if e > self.drain(c) else None
 
     def mods(self, map_id):
-        """Takılı N.O.V.A.'nın yetenekleri -> profilin bonus anahtarları (kesir); kapı yetenekleri yalnız kendi haritalarında."""
+        """The equipped N.O.V.A.'s perks -> the profile's bonus keys (fraction); gate perks only on their own maps."""
         c = self.working()
         if not c:
             return {}
@@ -112,7 +112,7 @@ class Nova:
         return out
 
     def hud(self):
-        """Göstergedeki enerji (ShipInitializationCommand captainEnergy/maxCaptainEnergy): takılı N.O.V.A.'nınki, yoksa 0."""
+        """Energy on the gauge (ShipInitializationCommand captainEnergy/maxCaptainEnergy): the equipped N.O.V.A.'s, 0 if none."""
         c = self.active()
         if not c:
             return {'captainEnergy': 0, 'maxCaptainEnergy': 0}
@@ -121,7 +121,7 @@ class Nova:
         return {'captainEnergy': int(e), 'maxCaptainEnergy': MAX_E}
 
     def energy_cmd(self):
-        """EnergyUpdateCommand: göstergedeki N.O.V.A. enerjisi ve saniyelik harcaması."""
+        """EnergyUpdateCommand: the N.O.V.A. energy on the gauge and its per-second cost."""
         c, h = self.active(), self.hud()
         return 'EnergyUpdateCommand', dict(maxCaptainEnergy=h['maxCaptainEnergy'], captainEnergyDrain=self.drain(c) if c else 0,
                                            currentCaptainEnergy=h['captainEnergy'])
@@ -150,7 +150,7 @@ class Nova:
         return c
 
     def hire(self, loot, n=1, rng=random):
-        """Mağaza, Assembly, Battle Pass: captain_captain-generic (Neo ya da Eos) ya da bölümün kendisi. Kadro doluysa 10.000 U."""
+        """Shop, Assembly, Battle Pass: captain_captain-generic (Neo or Eos) or the section itself. If the roster is full, 10,000 U."""
         msgs, extra = [], 0
         for _ in range(n):
             section = loot
@@ -158,22 +158,22 @@ class Nova:
                 w = D['general'][loot]
                 section = rng.choices(list(w), list(w.values()))[0]
             if section not in D['sections']:
-                self.log('   N.O.V.A.: bilinmeyen bölüm %s' % loot)
+                self.log('   N.O.V.A.: unknown section %s' % loot)
                 continue
             if len(self.d['roster']) >= D['max_roster']:
                 extra += D['excess_uridium']
                 continue
             c = self.new_captain(section, rng)
-            self.log('   N.O.V.A. alındı: %s %s (%s; %s)' % (c['name'], c['family'], section, ', '.join(
+            self.log('   N.O.V.A. obtained: %s %s (%s; %s)' % (c['name'], c['family'], section, ', '.join(
                 '%s %.1f%%' % (y['type'], value(y['type'], y['base'], 1)) for y in c['skills'])))
-            msgs.append(stm('captain_received_s'))         # "Recruited: N.O.V.A." (flashres'te yok: CSTM; canlı test H64)
+            msgs.append(stm('captain_received_s'))         # "Recruited: N.O.V.A." (not in flashres: CSTM; live test H64)
         if extra:
             self.p.gain(uridium=extra, reason='aktion_system_back')
-            self.log('   N.O.V.A. kadrosu dolu: %d U' % extra)
+            self.log('   N.O.V.A. roster full: %d U' % extra)
             msgs += self.m.money_msgs() if self.m else []
         return msgs
 
-    # ------------------------------------------------------------ pencere
+    # ------------------------------------------------------------ window
     def costs(self, c, level):
         row = next((r for r in D['upgrade'] if r['level'] == level), None)
         if not row:
@@ -184,10 +184,10 @@ class Nova:
         return need
 
     def perk_cmd(self, c, y):
-        # İstemci (CaptainPerkData, UINovaSystem.CreateCostTextItem): liste şimdiki seviyeden başlar (yükseltince baştan siler),
-        # hedef T'nin bedeli listenin ilk T-şimdiki kaydının costList'lerinin toplamı (sırayla, aynı dizinle), satır sayısı hedef
-        # kaydınkinden. Yani L kaydında L -> L+1 bedeli; en üst kayıtta türler için bir öncekinin bedeli. Önce 1'den başlayan liste
-        # ve "L'ye ulaşma" bedeli gidiyordu: Total Cost boş kalıyordu (canlı test H66)
+        # Client (CaptainPerkData, UINovaSystem.CreateCostTextItem): the list starts from the current level (it is cleared from the start when upgraded),
+        # the cost of target T is the sum of the costLists of the list's first T-current entries (in order, with the same index), the row count from the target
+        # entry's. That is, at entry L the L -> L+1 cost; at the top entry, for the types the cost of the previous one. Before, the list starting from 1
+        # and the "reaching L" cost were sent: Total Cost stayed empty (live test H66)
         levels, top = [], D['max_level']
         for lv in range(y['level'], top + 1):
             nxt = self.costs(c, lv + 1) if lv < top else self.costs(c, lv)
@@ -226,19 +226,19 @@ class Nova:
             elif cid and not c:
                 err = 'captain_error_unhandled'
             if err:
-                self.log('   N.O.V.A. değişmedi: %s' % err)
+                self.log('   N.O.V.A. unchanged: %s' % err)
                 return [('CaptainUpdateActiveBackCommand', dict(result=False, captainId=cid, errorId=stack_msg(err)))]
             with self.lock:
                 old = self.active()
                 if old:
-                    self.update(old)                       # harcadığı enerji; bundan sonra dinlenir
+                    self.update(old)                       # the energy it spent; it rests from now on
                 if c and old and old['id'] == c['id']:
-                    c = None                               # takılı olanın kimliği geldi: UNEQUIP (canlı test H65; önce yine takıyordu)
+                    c = None                               # the id of the equipped one arrived: UNEQUIP (live test H65; before, it equipped again)
                 if c:
                     self.update(c)
                 self.d['active'] = cid if c else 0
                 self.p.dirty = True
-            self.log('   N.O.V.A. %s' % ('takıldı: %s %s' % (c['name'], c['family']) if c else 'çıkarıldı'))
+            self.log('   N.O.V.A. %s' % ('equipped: %s %s' % (c['name'], c['family']) if c else 'unequipped'))
             return [('CaptainUpdateActiveBackCommand', dict(result=True, captainId=cid, errorId=None)), self.energy_cmd()] + self.stats()
         if cmd == 'dismissCaptain':
             c = self.find(cid)
@@ -249,11 +249,11 @@ class Nova:
                 self.d['roster'].remove(c)
                 self.p.dirty = True
             self.p.add_resource(CHIP, D['release_chip'])
-            self.log('   N.O.V.A. bırakıldı: %s %s (+%d Evocation Chip)' % (c['name'], c['family'], D['release_chip']))
+            self.log('   N.O.V.A. dismissed: %s %s (+%d Evocation Chip)' % (c['name'], c['family'], D['release_chip']))
             return [('CaptainDismissBackCommand', dict(errorId=None, result=True, captainId=cid)), self.chips_cmd()]
         if cmd == 'upgradePerk':
             return self.upgrade(cid, int(f.get('perkId') or 0), int(f.get('upgradeLevel') or 0))
-        self.log('   N.O.V.A.: bilinmeyen komut %r' % cmd)
+        self.log('   N.O.V.A.: unknown command %r' % cmd)
         return []
 
     def upgrade(self, cid, pid, target):
@@ -266,9 +266,9 @@ class Nova:
             return [back(False, 'captain_error_unhandled')]
         if y['level'] + 1 > D['max_level']:
             return [back(False, 'captain_hangar_error_perk_lvl_cap', y['level'])]
-        # upgradeLevel istemcinin sayacı: açılışta seviye+1, her "+" bir artar ("-" azaltmaz; UINovaSystem.RefreshNotLevelInfo),
-        # yani "+" ile seçilen hedef + 1. Hedef = upgradeLevel - 1 (en çok azami); şimdikinden büyük değilse bir seviye. Önce hep bir
-        # seviye yapılıyordu, pencere ise seçilen hedefin toplam bedelini gösteriyordu (canlı test H67)
+        # upgradeLevel is the client's counter: level+1 on opening, each "+" raises it by one ("-" does not lower it; UINovaSystem.RefreshNotLevelInfo),
+        # so the target chosen with "+" is + 1. Target = upgradeLevel - 1 (at most the maximum); if not greater than the current, one level. Before, it always
+        # went up one level, while the window showed the total cost of the selected target (live test H67)
         nxt = max(y['level'] + 1, min(target - 1, D['max_level']))
         need = {}
         for lv in range(y['level'] + 1, nxt + 1):
@@ -279,17 +279,17 @@ class Nova:
         with self.p.lock:
             y['level'] = nxt
             self.p.dirty = True
-        self.log('   N.O.V.A. %s: %s seviye %d (%.1f%%)' % (c['name'], y['type'], nxt, value(y['type'], y['base'], nxt)))
+        self.log('   N.O.V.A. %s: %s level %d (%.1f%%)' % (c['name'], y['type'], nxt, value(y['type'], y['base'], nxt)))
         return [back(True, None, nxt), self.chips_cmd()] + (self.m.money_msgs() if self.m else []) + self.stats()
 
     def stats(self):
-        """Kargo, hız gibi değerler N.O.V.A. ile değişir: geminin değerleri yeniden (mağaza); oyuncu kutusundaki ipucu."""
+        """Values such as cargo and speed change with N.O.V.A.: the ship's values again (shop); the hint in the player box."""
         return (self.m.apply_stats() if self.m else []) + [self.perk_update_cmd()]
 
     def perk_update_cmd(self):
-        """Oyuncu kutusundaki N.O.V.A. ipucu (Ö1): ActivePerkUpdateCommand {activePerkModuleList [ActivePerkModule {perkTypeId,
-        modifierValue}]}; istemci her satırı ttip_captain_<perkTypeId>_description'dan %VALUE% ile kurar (ActivePerkUpdateCommandHandler;
-        "evasion" geçenleri eksiye çevirir). Takılı N.O.V.A. yoksa boş liste."""
+        """The N.O.V.A. hint in the player box (Ö1): ActivePerkUpdateCommand {activePerkModuleList [ActivePerkModule {perkTypeId,
+        modifierValue}]}; the client builds each row from ttip_captain_<perkTypeId>_description with %VALUE% (ActivePerkUpdateCommandHandler;
+        it makes those containing "evasion" negative). An empty list if no N.O.V.A. is equipped."""
         c = self.active()
         rows = [mod('ActivePerkModule', perkTypeId='perk_' + y['type'], modifierValue=float(value(y['type'], y['base'], y['level'])))
                 for y in (c['skills'] if c else [])]

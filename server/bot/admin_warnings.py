@@ -1,16 +1,16 @@
-"""Botlar ve yönetici (admin_mode.py; kullanıcı isteği 2026-10-30): yöneticiyi tanırlar, sohbetteki uyarısına uyarlar, onu görünce
-tepki verirler.
+"""Bots and the admin (admin_mode.py; user request 2026-10-30): they recognize the admin, heed the admin's warnings in chat, and react
+on seeing the admin.
 
-Uyarı: yöneticinin oda mesajı ya da fısıltısı uyarı sözcüğü içeriyorsa (sekiz dilde: "stop", "warning", "kes", "yeter", "hör auf" …)
-konusu sözcüklerden: sohbet (spam, küfür, büyük harf), pvp (öldürme, acemi avlama, kamp), kutu (kargo kutusu, ganimet çalma); konusu
-yoksa genel (sohbet ve PvP, kısa). Uyarılan botlar: adı geçenler; adı geçen yoksa kanalı dinleyenler. Etkisi süreli (tekrarlandıkça
-iki katı, en çok 8 katı):
-  sohbet  30 dk   konuşma çoğu kez susar (yalnız yanıtlar), hakarete karşılık yok
-  pvp     4 sa    oyuncuya ve bota saldırmaz, PvP avına çıkmaz
-  kutu    24 sa   başkasının kargo kutusunu almaz
-Adı geçen bot kısaca özür diler (Gelişmiş kipte dil modeli: sistem istemi ve persona notu; değilse kalıp). Hafızasında yöneticiyle
-"uyarildim" olayı. Yöneticiyi selamlayana karşılık verirler; haritada yönetici görünce biri firma sohbetinde söyler (harita başına
-YORUM_SN'de bir).
+Warning: if the admin's room message or whisper contains a warning word (in eight languages: "stop", "warning", "kes", "yeter", "hör auf" ...)
+the topic comes from the words: chat (spam, swearing, caps), pvp (killing, preying on newbies, camping), box (cargo box, loot stealing); with
+no topic it is general (chat and PvP, short). Warned bots: those named; if none is named, those listening to the channel. The effect is
+timed (doubles with repetition, up to 8 times):
+  chat    30 min   conversation mostly falls silent (replies only), no retaliation against insults
+  pvp     4 h      does not attack players or bots, does not go out PvP hunting
+  box     24 h     does not take someone else's cargo box
+The named bot briefly apologizes (in Advanced mode the language model: system prompt and persona note; otherwise a stock phrase). In its
+memory a "warned" event with the admin. They return a greeting from the admin; on seeing the admin on the map, one of them says so in
+company chat (one per map per COMMENT_SEC).
 """
 import re, time, unicodedata
 
@@ -34,8 +34,8 @@ def _stem_regex(stems):
     return re.compile(r'(?<!\w)(%s)' % '|'.join(re.escape(_normalize(k)) for k in sorted(stems, key=len, reverse=True)))
 
 
-# güçlü sözcük tek başına uyarıdır; zayıf olan ("dont", "yapma", "pare") ancak bir konu sözcüğüyle (yöneticinin sıradan sohbeti,
-# "dont worry guys", kimseyi cezalandırmasın)
+# a strong word alone is a warning; a weak one ("dont", "yapma", "pare") only together with a topic word (the admin's ordinary chat,
+# "dont worry guys", must not punish anyone)
 STRONG = _stem_regex([
     'warn', 'ban', 'mute', 'rules', 'last time', 'cut it out', 'not allowed', 'uyari', 'uyariyorum', 'son kez', 'kural', 'sustur',
     'yasak', 'verwarn', 'regel', 'advertencia', 'regla', 'avertissement', 'regle', 'interdit', 'ostrzez', 'zasad', 'aviso', 'regra',
@@ -59,7 +59,7 @@ TOPICS = {
 
 
 def topics(text):
-    """Uyarı mı -> konuları (boşsa uyarı değil; konusu yoksa {'genel'})."""
+    """Is it a warning -> its topics (an empty result means not a warning; with no topic {'general'})."""
     k = _normalize(text)
     talk = {name for name, phrase in TOPICS.items() if phrase.search(k)}
     if STRONG.search(k):
@@ -68,13 +68,13 @@ def topics(text):
 
 
 def active(b, topic, now=None):
-    """Bot bu konuda yöneticinin uyarısı altında mı."""
+    """Is the bot under the admin's warning on this topic."""
     u = b.k.get('warning') or {}
     return (now or time.time()) < u.get(topic, 0)
 
 
 def warn(b, talk, now, name=''):
-    """Uyarıyı uygula (süreler tekrarla uzar) -> uygulanan konular."""
+    """Apply the warning (durations grow with repetition) -> the topics applied."""
     u = b.k.setdefault('warning', {})
     u['number'] = n = int(u.get('number', 0)) + 1 if now - u.get('last', 0) < 86400 else 1
     u['last'] = now
@@ -92,7 +92,7 @@ def warn(b, talk, now, name=''):
 
 
 def note(b, now=None):
-    """Persona notu (Gelişmiş kip): yöneticinin süren uyarısı."""
+    """Persona note (Advanced mode): the admin's ongoing warning."""
     now = now or time.time()
     u = b.k.get('warning') or {}
     is_open = [k for k in DURATION_MIN if now < u.get(k, 0)]
@@ -104,7 +104,7 @@ def note(b, now=None):
 
 
 def system_note():
-    """Sistem istemine (llm.py, agent.py): yönetici varken; yoksa boş (önbellek bozulmaz)."""
+    """For the system prompt (llm.py, agent.py): while the admin is present; otherwise empty (the cache is not disturbed)."""
     name = YM.name()
     if not name:
         return ''
@@ -116,8 +116,8 @@ def system_note():
 
 
 def handle(m, g, now):
-    """Sohbet motorunun gelen mesajı (SohbetMotoru.sohbet_isle): yöneticinin uyarısı ya da selamı -> işlendi mi (True: yanıtlar
-    burada ya da dil modelinde, kalıplara gitmez)."""
+    """The chat engine's incoming message (ChatEngine.incoming_chat / incoming_whisper): the admin's warning or greeting -> was it handled (True: the replies
+    happen here or in the language model, they do not go to the stock phrases)."""
     if g[0] == 'whisper':
         _, b, msg, who = g
         listener, mentioned, channel = [b], [b], None
@@ -138,7 +138,7 @@ def handle(m, g, now):
         for b in target:
             warn(b, talk, now, name)
         if m.llm is not None and m.llm.ready:
-            return False                                 # dil modeli yanıtlar (persona notu ve sistem istemi)
+            return False                                 # the language model replies (persona note and system prompt)
         for b in (mentioned or [x for x in target if x.r.random() < 0.15])[:2]:
             m.speak(b, channel or 'whisper', SPC.template(b, 'admin_apology', name=name), recipient=name if channel is None else None, now=now,
                     priority=True)
@@ -152,7 +152,7 @@ def handle(m, g, now):
 
 
 def sight_tick(y, now):
-    """Haritada yönetici: yakınındaki bir bot firma sohbetinde söyler (harita başına YORUM_SN'de bir)."""
+    """Admin on the map: a nearby bot says it in company chat (one per map per COMMENT_SEC)."""
     if not YM.is_open():
         return
     last = y.__dict__.setdefault('_gm_comment', {})

@@ -1,17 +1,17 @@
-"""Synthesis penceresi: Intensify, SG Drive ve Cannon Star Up (yol haritası Aşama 9b; tarifler data/particle.json 'synthesis' <-
-tools/particle.py, kaynak resmî forum SSS'leri ve darkorbitwiki).
+"""Synthesis window: Intensify, SG Drive and Cannon Star Up (roadmap stage 9b; recipes in data/particle.json 'synthesis' <-
+tools/particle.py, sources: official forum FAQs and the darkorbit wiki).
 
-İstemci (UISynthesisSystem; istekler istemcinin kodundan; kayıtta liste hiç gelmemiş, pencere boş açılıyordu):
-  SynthesisListCommand {groups: [SynthesisGroupCommand {group, button (çeviri anahtarı), moduleList: [SynthesisModuleListCommand
+Client (UISynthesisSystem; requests from the client's code; the list never came in the recording, the window opened empty):
+  SynthesisListCommand {groups: [SynthesisGroupCommand {group, button (translation key), moduleList: [SynthesisModuleListCommand
       {moduleListGroupType (Synthesis_table_1 Nidhogg, _2 Helios, _3 Indra; Synthesis_drive_1 IgniDrive, _2 Grav-Lens), modules:
-      [SynthesisModuleCommand {lootId (sonuç), star, moduleGroupType, costs [SynthesisCostLootCommand {lootId, amount, star,
-      certain}], affectedShip (UL gemi topunun gemi kimliği)}]}]}]}   girişte ve pencere açılınca
-  SynthesisInventoryRequest            -> liste + SynthesisInventoryCommand {equipmentInventoryItems: takılı olmayan top, sürücü ve
-                                          mercekler (hangar eşyası biçiminde)}
-  SynthesisItemRequest {synthesisId "lootId|affectedShip|star", itemIds}: seçilen girdiler (aynı tür, aynı yıldız, takılı değil)
-      ve bedel (uridyum, Energy eşyası) harcanır, sonuç eşyası gelir; yükseltilmiş girdinin malzemesinin %50'si geri verilir
-      ("The selected weapon material has been reinforced …"). Star Up: aynı UL topundan iki tane -> bir yıldız fazlası, nitelikler
-      yeniden çekilir.
+      [SynthesisModuleCommand {lootId (result), star, moduleGroupType, costs [SynthesisCostLootCommand {lootId, amount, star,
+      certain}], affectedShip (ship id of the UL ship cannon)}]}]}]}   on login and when the window opens
+  SynthesisInventoryRequest            -> list + SynthesisInventoryCommand {equipmentInventoryItems: unfitted cannons, drives and
+                                          lenses (in hangar item form)}
+  SynthesisItemRequest {synthesisId "lootId|affectedShip|star", itemIds}: the selected inputs (same type, same star, not fitted)
+      and the cost (uridium, Energy item) are spent, the result item arrives; 50% of an upgraded input's material is returned
+      ("The selected weapon material has been reinforced ..."). Star Up: two of the same UL cannon -> one star more, attributes
+      are drawn again.
 """
 import json, os
 import particle as PC
@@ -20,17 +20,17 @@ import resonator as RS
 
 D = PC.D['synthesis']
 RECIPES = {(r['target'], r['star']): r for r in D['recipes']}
-# Ö6: Assembly'de gösterilemeyen tarifler (istemci tarifi kendi verisinden okur) -> "title_assembly" sekmesi (tools/esyalar_o6.py)
+# Ö6: recipes that cannot be shown in Assembly (the client reads a recipe from its own data) -> the "title_assembly" tab (tools/esyalar_o6.py)
 EXTRA_D = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'items_o6.json'),
                          encoding='utf8'))['extra_recipes']
 EXTRA = {(r['target'], r['star']): r for r in EXTRA_D['recipes']}
-INSTANCE = ('equipment_', 'drone_', 'pet_')                # girdisi eşya örneği: seçilen yuva (certain)
-EXTRA_COUNT = 'extra_recipe_counter'                             # profil: tarif -> kaç kez (USABLE_ONCE / en_cok)
+INSTANCE = ('equipment_', 'drone_', 'pet_')                # input is an item instance: the selected slot (certain)
+EXTRA_COUNT = 'extra_recipe_counter'                             # profile: recipe -> how many times (USABLE_ONCE / en_cok)
 REQUESTS = {'SynthesisInventoryRequest', 'SynthesisItemRequest'}
 SOURCES = {r['input'] for r in D['recipes']} | RS.INPUTS \
-    | {l for r in EXTRA_D['recipes'] for l in r['inputs'] if l.startswith(INSTANCE)}   # + Ö6: rezonatörler, AA-1/AAP-1
+    | {l for r in EXTRA_D['recipes'] for l in r['inputs'] if l.startswith(INSTANCE)}   # + Ö6: resonators, AA-1/AAP-1
 TABLE_KEY = 'Synthesis_%s'                                  # table_1 -> Synthesis_table_1 (Nidhogg), drive_1 -> Synthesis_drive_1 …
-ACTION_KEY = {'star': 'synthesis_cannon_star_promote'}     # işlem düğmesi; ötekiler "Synthesis"
+ACTION_KEY = {'star': 'synthesis_cannon_star_promote'}     # action button; the others "Synthesis"
 
 
 def mod(_cls, **f):
@@ -41,12 +41,12 @@ def mod(_cls, **f):
 class Synthesis:
     def __init__(self, profile, log=print):
         self.p, self.log = profile, log
-        self.m = None                 # mağaza (hangar eşyası, ödüller, para); oturum bağlar
+        self.m = None                 # shop (hangar item, rewards, money); binds the session
 
     def module(self, r):
-        # istemci (UISynthesisSystem.SelectNeedItem / OnTypeSelectionChanged): certain=true her kayıt seçilecek bir eşya yuvası
-        # ("Select n / NeedNum", NeedNum = bu kayıtların sayısı), certain=false kayıtlar "eldeki/gereken" malzeme satırı (yetmezse
-        # kırmızı). Önce girdi tek kayıt (adet 5) ve uridyum da certain gidiyordu: pencere "0 / 2" ve iki yuva gösteriyordu (H53)
+        # client (UISynthesisSystem.SelectNeedItem / OnTypeSelectionChanged): certain=true every record is an item slot to select
+        # ("Select n / NeedNum", NeedNum = the number of these records), certain=false records are "held/needed" material rows (red if
+        # short). At first the input was a single record (amount 5) and uridium went certain too: the window showed "0 / 2" and two slots (H53)
         costs = [mod('SynthesisCostLootCommand', lootId=r['input'], amount=1, star=r['input_star'], certain=True)] * r['count']
         costs += [mod('SynthesisCostLootCommand', lootId=k, amount=v, star=0, certain=False) for k, v in r['charge'].items()]
         ship = D['ship_ids'].get(r['ship'], 0) if r['ship'] else 0
@@ -67,19 +67,19 @@ class Synthesis:
         groups = {}
         for r in D['recipes']:
             groups.setdefault(r['group'], {}).setdefault(r['table'], []).append(r)
-        # istemci üst sekmenin adını 'group'tan, sol düğmelerin adını moduleListGroupType'tan, alttaki işlem düğmesini 'button'dan
-        # çeviriyor (hepsi çeviri anahtarı); önce sekmeler ve düğmeler boş görünüyordu (canlı test H52, kontrol kanalıyla denendi)
+        # the client translates the top tab's name from 'group', the left buttons' names from moduleListGroupType, and the action button below from 'button'
+        # (all translation keys); at first the tabs and buttons looked empty (live test H52, tried through the control channel)
         out = [mod('SynthesisGroupCommand', button=ACTION_KEY.get(g, 'Synthesis_button'), group=D['buttons'][g], moduleList=[
             mod('SynthesisModuleListCommand', moduleListGroupType=TABLE_KEY % t, modules=[self.module(r) for r in rs])
             for t, rs in sorted(tables.items())]) for g, tables in groups.items()]
-        out.append(RS.group_cmd(self.p))                    # Ö6: Resonator sekmesi (rezonator.py; C'nin bedeli oyuncunun kaynağından)
+        out.append(RS.group_cmd(self.p))                    # Ö6: Resonator tab (rezonator.py; C's cost from the player's resources)
         out.append(mod('SynthesisGroupCommand', button='Synthesis_button', group=EXTRA_D['group'], moduleList=[
             mod('SynthesisModuleListCommand', moduleListGroupType=EXTRA_D['table'],
                 modules=[self.extra_module(r) for r in EXTRA_D['recipes']])]))
         return 'SynthesisListCommand', {'groups': out}
 
     def cost_loots(self):
-        """Pencerede bedel satırı olan kaynaklar (certain=false; para hariç)."""
+        """Resources that have a cost row in the window (certain=false; except money)."""
         out = {k for r in D['recipes'] for k in r['charge']} | set(RS.SOURCES)
         out |= {l for r in EXTRA_D['recipes'] for l in r['inputs'] if not l.startswith(INSTANCE)}
         return {l for l in out if not l.startswith('currency_')}
@@ -92,15 +92,15 @@ class Synthesis:
         items = []
         if self.m:
             items = [self.m.hangar_item(i, self.p.d['items'][str(i)], 1) for i in self.free_items()]
-            # bedel satırının "eldeki" sayısı: istemci (UISynthesisSystem.OnTypeSelectionChanged) bu listede lootId'yi arar ve
-            # itemCount'unu alır (uridyum Hero'dan); kaynaklar listede yokken Energy, Mucosum … hep "0/n" ve düğme kapalıydı (Ö6)
+            # the cost row's "held" count: the client (UISynthesisSystem.OnTypeSelectionChanged) looks up the lootId in this list and takes its
+            # itemCount (uridium from Hero); when resources were not in the list, Energy, Mucosum ... were always "0/n" and the button disabled (Ö6)
             for loot in sorted(self.cost_loots()):
                 n = INV.count(self.p, loot)
                 if n > 0:
                     items.append(self.m.hangar_item(self.m.item_id(loot), loot, n))
-        # istemci (InventoryItemData.UpdateDetailedItems): remove=false ise listeyi temizleyip yenisini koyar, ama tam bir öğe
-        # geldiyse temizlemeden ekler. Synthesis'ten sonra yalnız yeni eşya boşta kalınca harcanan girdiler pencerede kalıyordu
-        # (canlı test H54): tek öğede önce boş liste (temizler) gider
+        # client (InventoryItemData.UpdateDetailedItems): if remove=false it clears the list and puts the new one, but if a full item
+        # arrived it adds without clearing. After Synthesis, when only the new item was left alone, the spent inputs stayed in the window
+        # (live test H54): for a single item an empty list (which clears) goes first
         cmd = lambda lst: ('SynthesisInventoryCommand', {'equipmentInventoryItems': lst, 'remove': False})
         return ([cmd([])] if len(items) == 1 else []) + [cmd(items)]
 
@@ -113,11 +113,11 @@ class Synthesis:
 
     def fail(self, why):
         from legacy_protocol import stm
-        self.log('   Synthesis olmadı: %s' % why)
+        self.log('   Synthesis failed: %s' % why)
         return [stm('Synthesis_error')] + self.inventory_cmds()
 
     def extra(self, r, ids):
-        """Assembly sekmesinin tarifi: seçilen eşyalar (AA-1 …) ve kaynaklar harcanır, çıktı ödül yoluyla (tasarım, EP, cephane …)."""
+        """The Assembly tab's recipe: the selected items (AA-1 ...) and resources are spent, the output goes via the reward path (design, EP, ammo ...)."""
         p = self.p
         done = p.d.get(EXTRA_COUNT, {}).get(r['recipe'], 0)
         if r.get('max_count') and done >= r['max_count']:
@@ -146,7 +146,7 @@ class Synthesis:
         else:
             p.add_resource(r['target'], r['count'])
         self.log('   Synthesis (Assembly): %s -> %s x%d' % (r['inputs'], r['target'], r['count']))
-        return msgs + [self.list_cmd()] + self.inventory_cmds()        # ödül yolu "aldınız" metnini kendisi gönderir
+        return msgs + [self.list_cmd()] + self.inventory_cmds()        # the reward path sends the "you received" text itself
 
     def synth(self, f):
         parts = str(f.get('synthesisId') or '').split('|')
@@ -166,7 +166,7 @@ class Synthesis:
         ok = lambda i: (i in free and self.p.d['items'].get(str(i)) == r['input']
                         and (PC.state(self.p, i) or {}).get('star', 0) == r['input_star'])
         ids = [i for i in dict.fromkeys(ids) if ok(i)]
-        if len(ids) < r['count']:                    # istemci eksik seçtiyse uygun olanlardan tamamlanır (yükseltilmemişler önce)
+        if len(ids) < r['count']:                    # if the client selected too few, it is completed from the suitable ones (non-upgraded first)
             rest = sorted((i for i in free if ok(i) and i not in ids), key=lambda i: PC.level(self.p, i))
             ids += rest[:r['count'] - len(ids)]
         if len(ids) < r['count']:
@@ -193,8 +193,8 @@ class Synthesis:
         else:
             for k, v in refund.items():
                 self.p.add_resource(k, v)
-        self.log('   Synthesis: %d x %s -> %s%s (bedel %s%s)' % (len(ids), r['input'], r['target'], ' %d yıldız' % r['star'] if r['star'] else '',
-                                                              r['charge'], ', iade %s' % refund if refund else ''))
+        self.log('   Synthesis: %d x %s -> %s%s (cost %s%s)' % (len(ids), r['input'], r['target'], ' %d star' % r['star'] if r['star'] else '',
+                                                              r['charge'], ', refund %s' % refund if refund else ''))
         from legacy_protocol import legacy
-        import ship_module as GM                     # yeni top Restabilize listesine (H70)
+        import ship_module as GM                     # the new cannon to the Restabilize list (H70)
         return msgs + [legacy('0|LM|ST|LOT|%s|1' % r['target'])] + self.inventory_cmds() + [GM.list_cmd(self.p)]

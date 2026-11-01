@@ -1,9 +1,10 @@
-"""Sohbet moderatörleri (oyuncu isteği 2026-10-31): paketin ayarlarında açılır; sabırlı, yardımsever, sadık birkaç bot moderatördür
-(sohbette rolü "mod": istemci moderatör rengiyle çizer). Kurallar panelde açılıp kapanır: BÜYÜK HARF, sel (aynı satır ya da çok hızlı),
-hakaret ve zararlı söz, reklam/bağlantı. Kuralı çiğneyen (insan ya da bot; yönetici ve moderatörler hariç) önce uyarılır, 30 dk
-içinde yine çiğnerse sustur_dk susturulur, yasak_esik susturmadan sonra yasak_saat global ve firma sohbetinden yasaklanır. Kararı
-ancak çevrimiçi bir moderatör verir (gerçek sunucudaki gibi; kimse yoksa sohbet serbest), birkaç saniye sonra kanala yazar.
-Susturulanın global/firma mesajı sohbet sunucusunda düşer (sohbet.Sohbet.engel), kendisine kalan süre sistem mesajıyla bildirilir.
+"""Chat moderators (player request 2026-10-31): enabled in the pack's settings; a few patient, helpful, loyal bots are moderators
+(their chat role is "mod": the client draws them in the moderator color). Rules are toggled in the panel: ALL CAPS, flooding (the same
+line or too fast), insults and harmful speech, ads/links. Someone who breaks a rule (human or bot; admins and moderators excluded) is
+warned first, and if they break it again within 30 min they are muted for mute_min, and after ban_threshold mutes they are banned from
+global and company chat for ban_hours. Only an online moderator makes the decision (as on the real server; if there is none the chat is
+free), and writes to the channel after a few seconds. A muted person's global/company message is dropped on the chat server
+(chat.Chat.block_hook), and the remaining time is reported to them with a system message.
 """
 import math
 import re
@@ -12,9 +13,9 @@ import time
 from . import speech as SPC
 
 RULES = ('caps', 'flood', 'insult', 'ads')
-TAG = 'CM'                    # moderatörün sohbette ve gemisinin üstünde gösterilen etiketi (klanlar alamaz: klan.ayrilmis)
-CHAT_ROLE = 'mod'              # istemci yamasıyla kendi renginde (panel/plugin/Yamalar.cs ModeratorRengi); admin rolü etiketi gizlerdi
-WARNING_SEC = 1800                  # uyarıdan sonra bu süre içindeki ikinci ihlal susturur
+TAG = 'CM'                    # the label shown for the moderator in chat and above their ship (clans cannot take it: clan.is_reserved)
+CHAT_ROLE = 'mod'              # in their own color via the client patch (panel/plugin/Yamalar.cs ModeratorRengi); the admin role would hide the label
+WARNING_SEC = 1800                  # a second violation within this time after a warning mutes
 _LINK = re.compile(r'(https?://|www\.|discord\.gg|\b[\w-]+\.(com|net|org|gg|io|ru|tr|de)\b)', re.I)
 CHANNELS = ('global', 'company')
 NOTICE = {'tr': 'Susturuldun: {0} dk kaldı.', 'en': 'You are muted: {0} min left.', 'de': 'Du bist stummgeschaltet: noch {0} Min.',
@@ -27,7 +28,8 @@ def is_open(y):
 
 
 def sec(y):
-    """Moderatörleri seç (kalıcı: aynı paket hep aynı botları): sabır, yardımseverlik ve sadakati en yüksek, saldırganlığı düşük."""
+    """Pick the moderators (persistent: the same pack always gets the same bots): highest patience, helpfulness and loyalty, low
+    aggression."""
     for b in y.bots:
         b.moderator = False
     if not is_open(y):
@@ -46,7 +48,8 @@ def _registry(y, name):
 
 
 def violation(y, name, msg, now):
-    """Mesaj hangi kuralı çiğniyor -> kural ya da None (açık kurallardan ilki). Sel için kişinin son mesajlarını tutar."""
+    """Which rule does the message break -> the rule or None (the first of the enabled rules). For flooding it keeps the person's recent
+    messages."""
     k = _registry(y, name)
     k['last'] = [x for x in k['last'] if now - x[0] < 60] + [(now, str(msg).strip().lower())]
     letters = [c for c in str(msg) if c.isalpha()]
@@ -65,14 +68,14 @@ def violation(y, name, msg, now):
 
 
 def is_muted(y, name, now=None):
-    """Kalan susturma/yasak süresi (sn) ya da 0."""
+    """Remaining mute/ban time (s) or 0."""
     k = y.__dict__.get('mod_record', {}).get(str(name).lower())
     return max(0.0, k['end_time'] - (now or time.time())) if k else 0.0
 
 
 def moderate(y, name, msg, channel, now, rol='chatter'):
-    """Global/firma sohbetindeki satır (insanın ya da botun): kural çiğnendiyse çevrimiçi bir moderatör yaptırımı uygular ->
-    yaptırım ('uyari' | 'sustur' | 'yasak') ya da None."""
+    """A line in global/company chat (from a human or a bot): if a rule was broken, an online moderator applies the sanction ->
+    sanction ('warning' | 'mute' | 'ban') or None."""
     if not is_open(y) or channel not in CHANNELS or rol in ('admin', 'mod', 'system'):
         return None
     b = y.name_index.get(str(name).lower())
@@ -88,7 +91,7 @@ def moderate(y, name, msg, channel, now, rol='chatter'):
     m = max(modes, key=lambda m: m.o('patience') * m.r.random())
     k = _registry(y, name)
     if k['end_time'] > now:
-        return None                                       # zaten susturulu (satırı zaten düştü)
+        return None                                       # already muted (the line was already dropped)
     if now - k['warning_time'] > WARNING_SEC:
         k['warning'] = 0
     delay = m.r.uniform(2, 8)
@@ -107,12 +110,13 @@ def moderate(y, name, msg, channel, now, rol='chatter'):
     k['end_time'], k['ban'] = now + minutes * 60, False
     y.speak(m, channel, SPC.template(m, 'mod_mute', name=name, min=minutes), now=now + delay, priority=True)
     if b is not None:
-        b.memory.event(m.name, 'insult', now)               # susturulan bot moderatöre biraz kırgın
+        b.memory.event(m.name, 'insult', now)               # the muted bot is a bit resentful toward the moderator
     return 'mute'
 
 
 def block(y, user, path, lang=None):
-    """Sohbet sunucusundan (sohbet iş parçacığı): insanın global/firma mesajı düşsün mü -> oyuncuya bildirim metni ya da None."""
+    """From the chat server (chat thread): should the human's global/company message be dropped -> notification text for the player or
+    None."""
     if not is_open(y) or not (path.startswith('/room/global/') or path.startswith('/room/faction/')):
         return None
     remaining = is_muted(y, user.get('userId', ''))
@@ -122,7 +126,7 @@ def block(y, user, path, lang=None):
 
 
 def remind_rules(y, now):
-    """Arada (45-90 dk) bir moderatör globalde kuralları hatırlatır."""
+    """Every so often (45-90 min) a moderator reminds the rules in global."""
     if not is_open(y) or now < y.__dict__.get('_mod_reminder', 0):
         return
     first = '_mod_hatirlat' not in y.__dict__

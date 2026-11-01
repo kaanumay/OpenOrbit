@@ -1,25 +1,25 @@
-"""Lazerlerin özel nitelikleri (veri items.json "lazerler" ← belgeler/wiki/lasers_ammo.md). Set bonusları ve adede bağlı etkiler (set_bonus,
-pvp_set, kritik, yavaslatma) ve Asmodeus Fervor'u (ofke) yalnız gemideki lazerleri sayar (wiki "only ship"); lazerin kendi nitelikleri (hasar_aralik, uzayli_bonus,
-uzayli_ek, hedef_carpan, ek_hasar_5sn, menzil, can_lazer_basina) dronlardaki lazerlerde de işler.
+"""Special properties of lasers (data items.json "lasers" <- belgeler/wiki/lasers_ammo.md). Set bonuses and effects that depend on the count (set_bonus,
+pvp_set, crit, slow) and Asmodeus Fervor (anger) count only the lasers on the ship (wiki "only ship"); a laser's own properties (damage_range, alien_bonus,
+alien_extra, target_multiplier, extra_damage_5sec, range, hp_per_laser) also work for lasers on drones.
 
-  hasar_aralik      [en az, en çok]: her isabette rastgele (Unstable LF-4 128-220; dağılım bilinmiyor, düzgün alındı)
-  uzayli_bonus      uzaylılara oransal bonus (LF-3 +%15, Caucasus +%15 PvE; yalnız tabana, overdrive'a değil: fandom DPS 250 = 200 x 1,15 + 100)
-  uzayli_ek         uzaylılara düz ek hasar, lazer başına (LF-4 Paritydrill "+5 PvE"; wiki "flat +5 added at the end of all
-                    calculations": cephane çarpanından sonra eklenir, flat_extra)
-  hedef_carpan      {name: çarpan}: adı eşleşen uzaylıya bu lazerin hasarı (Prometheus x3,5 Black Light uzaylılarına, AA-1/AAP-1
-                    yapay zekâ gemilerine: Mimesis ve Cyborg); overdrive'a da işler (fandom Overdrive Mechanism)
-  ek_hasar_5sn      5 sn'de bir sonraki isabete düz ek, lazer başına (SL-01 +38, SL-02 +75, SL-03 +150, Caucasus +100, Prometheus +200)
-  menzil            lazer menzili değişimi (SL-01/02/03 -%25; gemide bir tane bile varsa)
-  can_lazer_basina  gemideki her biri için can bonusu (LF-4 Hyperplasmoid +%0,5)                         profil.ship_mods
-  set_bonus         gemideki adede göre hasar bonusu (adet-1 sırası; sonrası son değer) (LF-5 Mortifier, Asmodeus)
-  ofke              Asmodeus "Fervor": uzaylı öldürdükçe basamak (en çok 5); ilk öldürmeden sonra ilk_sn, sonra sonraki_sn
-                    içinde yeni öldürme gelmezse sıfırlanır
-  kritik            {lazer_basina, set_esik, set, azami, carpan}: Odysseus kritik vuruş şansı ve ek hasarı (lazerin hasarı x carpan)
-  yavaslatma        [[adet, şans, yavaşlatma, sn]]: gemideki adede göre isabette uzaylıyı yavaşlatma (LF-5 Anchorlock)
-  pvp_hasar, pvp_ek, pvp_set   oyunculara (MP-1, SLL, Magmadrill "+5 PvP" düz ek, Anchorlock)
+  damage_range      [min, max]: random on every hit (Unstable LF-4 128-220; the distribution is unknown, taken as uniform)
+  alien_bonus       proportional bonus against aliens (LF-3 +15%, Caucasus +15% PvE; to the base only, not to overdrive: fandom DPS 250 = 200 x 1.15 + 100)
+  alien_extra       flat extra damage against aliens, per laser (LF-4 Paritydrill "+5 PvE"; wiki "flat +5 added at the end of all
+                    calculations": added after the ammo multiplier, flat_extra)
+  target_multiplier {name: multiplier}: this laser's damage against the alien whose name matches (Prometheus x3.5 against Black Light aliens, AA-1/AAP-1
+                    against AI ships: Mimesis and Cyborg); also works on overdrive (fandom Overdrive Mechanism)
+  extra_damage_5sec flat extra to the next hit every 5 s, per laser (SL-01 +38, SL-02 +75, SL-03 +150, Caucasus +100, Prometheus +200)
+  range             change to the laser's range (SL-01/02/03 -25%; if even one is on the ship)
+  hp_per_laser      HP bonus for each one on the ship (LF-4 Hyperplasmoid +0.5%)                         profile.ship_mods
+  set_bonus         damage bonus by the count on the ship (in order of count-1; the last value after that) (LF-5 Mortifier, Asmodeus)
+  anger             Asmodeus "Fervor": a tier as aliens are killed (at most 5); resets if no new kill comes within first_sec after the first
+                    kill, then within next_sec
+  crit              {per_laser, set_threshold, set, maximum, multiplier}: Odysseus critical-hit chance and extra damage (the laser's damage x multiplier)
+  slow              [[count, chance, slow, sec]]: slowing an alien on hit by the count on the ship (LF-5 Anchorlock)
+  pvp_damage, pvp_ek, pvp_set   against players (MP-1, SLL, Magmadrill "+5 PvP" flat extra, Anchorlock)
 
-Etkinlik cephane çarpanları (items.json "etkinlik_cephane"): etkinlik sürerken bir cephane listedeki uzaylılara olağandan fazla
-vurur (Empyrian March, Prosperous Mutation, Protegit Pandemonium, Immortal Union: UCB-100 / CC-C; Hitac Assault: RSB-75); event_ammo.
+Event ammo multipliers (items.json "event_ammo"): while an event runs an ammo hits the aliens in the list harder than usual
+(Empyrian March, Prosperous Mutation, Protegit Pandemonium, Immortal Union: UCB-100 / CC-C; Hitac Assault: RSB-75); event_ammo.
 """
 import json, os, random, re
 
@@ -31,8 +31,8 @@ OVERDRIVE_SEC = 5.0
 
 
 def name_match(table, target):
-    """{name: çarpan} tablosunda hedefin adına uyan ilk çarpan (kelime sınırıyla: Sibelon, Sibelonit'e uymaz; büyük/küçük harf
-    ayrımsız: Demaner, demaNeR'e uyar) ya da None."""
+    """The first multiplier in the {name: multiplier} table that matches the target's name (with a word boundary: Sibelon does not match Sibelonit; case
+    insensitive: Demaner matches demaNeR) or None."""
     if target is None:
         return None
     for name, c in table.items():
@@ -42,7 +42,7 @@ def name_match(table, target):
 
 
 def hit(loot, target=None, pvp=False):
-    """Bir lazerin uzaylıya isabet hasarı (cephane ve formasyon çarpanından önce)."""
+    """A laser's hit damage on an alien (before the ammo and formation multiplier)."""
     d = LS[loot]
     h = random.randint(*d['damage_range']) if 'damage_range' in d else d['damage']
     if pvp:
@@ -53,15 +53,15 @@ def hit(loot, target=None, pvp=False):
 
 
 def flat_extra(loots, pvp=False):
-    """Lazer başına düz ek hasarların toplamı (LF-4 Paritydrill uzaylıya +5, Magmadrill oyuncuya +5). Wiki: "flat +5 added at the end
-    of all calculations" (3 x LF-4-PD, MCB-50: 230 x 3 x 3 + 3 x 5 = 2085): cephane çarpanından sonra eklenir, çarpanlara girmez."""
+    """Sum of the flat extra damage per laser (LF-4 Paritydrill +5 on an alien, Magmadrill +5 on a player). Wiki: "flat +5 added at the end
+    of all calculations" (3 x LF-4-PD, MCB-50: 230 x 3 x 3 + 3 x 5 = 2085): added after the ammo multiplier, not part of the multipliers."""
     key = 'pvp_ek' if pvp else 'alien_extra'
     return sum(LS[l].get(key, 0) for l in loots if l in LS)
 
 
 def event_ammo(ammo, target, is_active):
-    """Etkinlik cephane çarpanı: bu cephane, açık bir etkinlikte hedefe olağandan fazla vuruyorsa çarpanı (en büyüğü), yoksa None.
-    is_active: takvim.is_active. Hedef tür anahtarıyla ("tipler") ya da adıyla ("adlar", name_match) eşlenir."""
+    """Event ammo multiplier: if this ammo hits the target harder than usual in an open event, its multiplier (the largest), otherwise None.
+    is_active: calendar.is_active. The target is matched by type key ("types", the key in npc.json) or by name ("names", name_match)."""
     if target is None:
         return None
     best = None
@@ -97,8 +97,8 @@ def crit_damage(ship):
 
 
 def overdrive(ship, target=None, pvp=False):
-    """5 sn'de bir isabete eklenen düz hasar; lazerin hedef çarpanı (Prometheus x3,5) ona da işler (fandom Overdrive Mechanism:
-    "overdrive damage is also affected by ... Prometheus Laser's x3.5"; Impulse II'de 410 x 3,5 = 1.435). Oransal uzayli_bonus işlemez."""
+    """Flat damage added to a hit every 5 s; the laser's target multiplier (Prometheus x3.5) applies to it too (fandom Overdrive Mechanism:
+    "overdrive damage is also affected by ... Prometheus Laser's x3.5"; for Impulse II 410 x 3.5 = 1,435). The proportional alien_bonus does not apply."""
     return sum(LS[l]['extra_damage_5sec'] * ((None if pvp else name_match(LS[l].get('target_multiplier', {}), target)) or 1)
                for l in ship if LS.get(l, {}).get('extra_damage_5sec'))
 
@@ -112,7 +112,7 @@ def hp_bonus(ship):
 
 
 def slow_proc(ship):
-    """LF-5 Anchorlock: gemideki adede göre -> (şans, yavaşlatma, sn) ya da None."""
+    """LF-5 Anchorlock: by the count on the ship -> (chance, slow, sec) or None."""
     best = None
     for l in set(ship):
         n = ship.count(l)
@@ -127,7 +127,7 @@ def _fervor_cfg(ship):
 
 
 class Fervor:
-    """Asmodeus "Fervor" basamağı (dünya başına; haritadan çıkınca sıfırlanır)."""
+    """The Asmodeus "Fervor" tier (per world; resets when it leaves the map)."""
 
     def __init__(self):
         self.level, self.until = 0, 0.0

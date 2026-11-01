@@ -1,17 +1,17 @@
-"""Xeno Resonator (yol haritası Ö6; veri data/items_o6.json 'rezonator' <- tools/items_o6.py, kaynak belgeler/wiki/items_o6.json).
+"""Xeno Resonator (roadmap Ö6; data data/items_o6.json 'rezonator' <- tools/items_o6.py, source belgeler/wiki/items_o6.json).
 
-İstemci 1.1.114'te yalnız metinleri var (eşya verisi, simgesi ve hangar yuvası yok; yayımlanmamış içerik). Synthesis'in Resonator
-sekmesi sunucu verisiyle çalışıyor (canlı deneme 2026-10-18): SynthesisGroupCommand group synthesis_resonator_title, sol düğmeler
-synthesis_resonator_strike / _aegis; eşyalar "?" simgeli, adları ipucunda istemcinin metinlerinden.
-  C: türün kaynaklarından (resource_attack-* / resource_defensive-*) 3 tane + 1.000 U. Bedel satırı oyuncunun en çok tuttuğu kaynak;
-     rezonatörün niteliği o kaynağın niteliği (C aralığından).
-  UC..UL: 4 alt kalite (seçilen ilki ana rezonatör) + uridyum: ana rezonatörün nitelikleri yeni kalitenin aralığından yeniden çekilir,
-     eksikler türün öteki niteliklerinden tamamlanır (Collapse ile Evernight birlikte gelmez). Başarı %100 (pencerede oran yok).
-Etki (Strike): oyuncunun en iyi Strike Resonator'ı (kalite, sonra nitelik toplamı; hangarda yuvası yok) Singularity alanını değiştirir
-(parcacik.fire_drive): expansion yarıçap, collapse süre -%25 ve toplam hasar +x, evernight süre +%25 ve toplam hasar +x, aftershock
-hasarın %25'i bitişte (yarıçap +x) patlar, stagnation alandakileri yavaşlatır, adhesion alan ilk x sn ana hedefi izler.
-Aegis düşman Singularity alanına karşı korur; tek oyunculuda uzaylılar sürücü kullanmıyor (botlarla anlam kazanır, Aşama 11).
-"""
+In client 1.1.114 only the texts exist (no item data, icon or hangar slot; unreleased content). The Synthesis window's Resonator
+tab works with server data (live test 2026-10-18): SynthesisGroupCommand group synthesis_resonator_title, left buttons
+synthesis_resonator_strike / _aegis; the items have a "?" icon, their names in the tooltip from the client's texts.
+  C: 3 of the type's resources (resource_attack-* / resource_defensive-*) + 1,000 U. The cost row is the resource the player holds most of;
+     the resonator's attribute is that resource's attribute (from the C range).
+  UC..UL: 4 lower qualities (the first selected is the main resonator) + uridium: the main resonator's attributes are re-rolled from the
+     new quality's range, missing ones are filled from the type's other attributes (Collapse and Evernight do not come together). Success
+is 100% (no rate in the window). Effect (Strike): the player's best Strike Resonator (quality, then attribute sum; no slot in the hangar)
+changes the Singularity field (particle.fire_drive): expansion radius, collapse duration -25% and total damage +x, evernight duration +25%
+and total damage +x, aftershock 25% of the damage explodes at the end (radius +x), stagnation slows those in the field, adhesion the field
+follows the main target for the first x s. Aegis protects against an enemy Singularity field; in single player aliens do not use drives
+(it gains meaning with bots, Stage 11). """
 import json, os, random
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -19,7 +19,7 @@ D = json.load(open(os.path.join(HERE, 'data', 'items_o6.json'), encoding='utf8')
 ITEMS, SOURCES, ATTR = D['items'], D['sources'], D['attributes']
 RECIPES = {r['target']: r for r in D['recipes']}
 INPUTS = {r['input'] for r in D['recipes'] if r.get('input')}
-STATE = 'resonators'                  # profil: itemId -> {'nitelik': [[ad, değer], …]}
+STATE = 'resonators'                  # profile: itemId -> {'attribute': [[name, value], …]}
 
 
 def mod(_cls, **f):
@@ -41,7 +41,7 @@ def roll(kind, name, quality, rng=random):
 
 
 def fill(kind, quality, names, n, rng=random):
-    """Nitelik adlarını n'ye tamamlar (türün ötekilerinden, dışlananlar hariç)."""
+    """Fills the attribute names up to n (from the type's others, excluding the excluded)."""
     names = list(names)
     pool = [a for a in ATTR[kind] if a not in names]
     rng.shuffle(pool)
@@ -58,7 +58,7 @@ def state(p, iid):
 
 
 def ensure(p, iid, rng=random):
-    """Niteliksiz gelen rezonatör (ödül, GM): kalitesinin sayısı kadar rastgele nitelik."""
+    """A resonator that arrives without attributes (reward, GM): as many random attributes as its quality number."""
     st = state(p, iid)
     loot = p.d['items'].get(str(iid))
     if st is None and loot in ITEMS:
@@ -78,13 +78,13 @@ def create(p, loot, attrs):
 
 
 def modifiers_str(p, iid):
-    """Hangar ipucunun nitelik satırları (parcacik.modifiers_str biçimi: "AD,değer;…")."""
+    """Attribute rows of the hangar tooltip (particle.modifiers_str format: "NAME,value;…")."""
     st = ensure(p, iid) or {}
     return ';'.join('%s,%g' % (a.upper(), v) for a, v in st.get('attribute', []))
 
 
 def best(p, kind='strike'):
-    """Oyuncunun en iyi rezonatörü (kalite, sonra nitelik toplamı) -> (itemId, {attribute: değer}) ya da (None, {})."""
+    """The player's best resonator (quality, then attribute sum) -> (itemId, {attribute: value}) or (None, {})."""
     rows = []
     for i, loot in p.d['items'].items():
         e = ITEMS.get(loot)
@@ -103,13 +103,13 @@ def strike_mods(p):
 
 
 def source_for(p, kind):
-    """C kalitesinin bedeli: oyuncunun en çok tuttuğu kaynak (eşitlikte sıradaki ilk)."""
+    """The cost of quality C: the resource the player holds most of (the first in order on a tie)."""
     rows = sorted(SOURCES.items())
     have = [(p.d.get('other_items', {}).get(l, 0), -k, l) for k, (l, s) in enumerate(rows) if s['type'] == kind]
     return max(have)[2] if have else None
 
 
-# ---------------------------------------------------------------- Synthesis sekmesi
+# ---------------------------------------------------------------- Synthesis tab
 def modules(p, table_key):
     out = {}
     for r in D['recipes']:
@@ -131,7 +131,7 @@ def group_cmd(p):
 
 
 def synth(sy, loot, ids, rng=random):
-    """sy: synthesis.Synthesis (profil, mağaza, günlük). -> mesajlar."""
+    """sy: synthesis.Synthesis (profile, shop, daily). -> messages."""
     import inventory as INV
     from legacy_protocol import legacy
     p, r = sy.p, RECIPES[loot]
@@ -167,5 +167,5 @@ def synth(sy, loot, ids, rng=random):
     msgs = [('InventoryItemRemovedCommand', {'itemId': i}) for i in removed] + INV.update_msgs(sy.m, p, list(cost))
     if sy.m:
         msgs += [sy.m.inv_item(new, loot, 1), sy.m.pack([sy.m.hangar_item(new, loot, 1)])]
-    sy.log('   Resonator: %s%s -> %s %s' % ('%d x %s' % (len(removed), r['input']) if removed else '', ' bedel %s' % cost, loot, attrs))
+    sy.log('   Resonator: %s%s -> %s %s' % ('%d x %s' % (len(removed), r['input']) if removed else '', ' cost %s' % cost, loot, attrs))
     return msgs + [legacy('0|LM|ST|LOT|%s|1' % loot), sy.list_cmd()] + sy.inventory_cmds()

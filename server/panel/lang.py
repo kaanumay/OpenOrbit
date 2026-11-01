@@ -1,15 +1,15 @@
-"""Panelin dili (ilk açılışta kurulum sihirbazında seçilir; save/panel.json 'dil', Panel sayfasından değişir).
+"""The panel's language (chosen in the setup wizard on first launch; save/panel.json 'dil', changed from the Panel page).
 
-Metinler kodda İngilizce yazılır (kaynak dil); öbür dillerinki ui/<kod>.json'da, anahtar İngilizce metnin kendisi (gettext gibi;
-Türkçe dahil: ui/tr.json). Arayüz (panel.js T()) ve Python (t()) aynı sözlükleri kullanır. Sözlükte olmayan metin İngilizce kalır:
-yarım bir çeviri de kullanılabilir. Biçim: Python metinlerinde %s, arayüzde {0} {1} … Eksik ya da biçimi tutmayan çevirileri
-test/test_panel_lang.py yakalar.
+Texts are written in English in the code (the source language); those of the other languages are in ui/<code>.json, the key being the
+English text itself (like gettext; Turkish included: ui/tr.json). The UI (panel.js T()) and Python (t()) use the same dictionaries. A text
+missing from the dictionary stays English: a partial translation is usable too. Format: %s in Python texts, {0} {1} … in the UI. Missing
+translations or ones whose format does not match are caught by test/test_panel_lang.py.
 
-Yeni dil: LANGUAGES'e ekle, ui/<kod>.json'u yaz. Eksik metinler: python lang.py <kod>
+New language: add it to LANGUAGES, write ui/<code>.json. Missing texts: python lang.py <code>
 """
 import json, os, sys, threading
 
-# kod -> (kendi dilinde adı, tarih/sayı biçimi için yerel ayar)
+# code -> (name in its own language, locale for date/number format)
 LANGUAGES = {
     'tr': ('Türkçe', 'tr-TR'),
     'en': ('English', 'en-US'),
@@ -22,13 +22,13 @@ LANGUAGES = {
 }
 UI_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ui')
 DICTIONARY = os.path.join(UI_DIR, 'tr.json')          # every message id has a Turkish translation
-_selected = None                  # panel bağlar: () -> DILLER'den bir kod | None
+_selected = None                  # the panel binds: () -> a code from DILLER | None
 _dictionary = {}
 _lock = threading.Lock()
 
 
 def bind(fn):
-    """Seçili dili veren işlevi bağla (panel: CFG.get('dil'))."""
+    """Bind the function that returns the selected language (panel: CFG.get('dil'))."""
     global _selected
     _selected = fn
 
@@ -53,7 +53,8 @@ def mapping(code='en'):
 
 
 def entries():
-    """Arayüzün dil seçimi: kod, ad, yerel ayar ve çevrilmiş metin oranı (Türkçe sözlüğe göre: her metnin Türkçesi var)."""
+    """The UI's language choice: code, name, locale and the ratio of translated texts (relative to the Turkish dictionary: every text has
+    its Turkish)."""
     full = len(mapping('tr')) or 1
     return [{'code': k, 'name': name, 'local': local,
              'coverage': 100 if k in ('tr', 'en') else min(100, round(100 * len(mapping(k)) / full))}
@@ -61,14 +62,14 @@ def entries():
 
 
 def t(text, *args):
-    """Metnin seçili dildeki hâli (yoksa kendisi: İngilizce); args varsa % ile biçimlenir."""
+    """The text in the selected language (itself if absent: English); formatted with % if args is given."""
     lang = current()
     if text and lang != 'en':
         text = mapping(lang).get(text) or text
     return text % args if args else text
 
 
-if __name__ == '__main__':      # çevirmenler için: bir dilde eksik metinler (anahtar = İngilizce metin, JSON)
+if __name__ == '__main__':      # for translators: the texts missing in a language (key = English text, JSON)
     code = sys.argv[1] if len(sys.argv) > 1 else ''
     if code not in LANGUAGES or code == 'en':
         sys.exit('kullanım: python lang.py <%s>' % '|'.join(k for k in LANGUAGES if k != 'en'))

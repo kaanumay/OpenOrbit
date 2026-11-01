@@ -347,10 +347,10 @@ def _backup(root, log, files=None, beat=lambda: None, again=False, prefix='v1_ba
                     try:
                         z.write(p, os.path.relpath(p, root))
                     except OSError as e:
-                        log('yedeğe alınamadı: %s (%s)' % (p, e))
+                        log('could not back up: %s (%s)' % (p, e))
                     beat()
     os.replace(tmp, os.path.join(root, name))
-    log('kayıtların yedeği: %s' % os.path.join(root, name))
+    log('backup of the saves: %s' % os.path.join(root, name))
     return name
 
 
@@ -392,7 +392,7 @@ def migrate_data(data_dir, log=lambda *a: None):
             migrate_file(os.path.join(data_dir, f), m=m)
         apply_layout(data_dir, m['layout']['data'], beat=lock.beat)
         _write(os.path.join(data_dir, TEMPLATE_STAMP), {'version': VERSION})
-        log('giriş şablonları yeni biçime taşındı')
+        log('login templates moved to the new format')
         return True
     finally:
         lock.release()
@@ -430,7 +430,7 @@ def ensure(save_dir, data_dir, log=lambda *a: None):
         for p in _expand(save_dir, 'wine_motoru/*/kurulum.json') + _expand(save_dir, 'wine_engine/*/install.json'):
             n += migrate_file(p, m=m)                  # the engine's install record (the rest of the folder is skipped)
         apply_layout(save_dir, m['layout']['save'], beat=lock.beat)
-        log('kayıtlar yeni biçime taşındı (%d dosya)' % n)
+        log('saves moved to the new format (%d files)' % n)
         if not late:
             _write(os.path.join(save_dir, STAMP), {'version': VERSION, 'migrated': time.strftime('%Y-%m-%d %H:%M:%S'), 'backup': backup})
         return True
@@ -449,5 +449,5 @@ def migrate_client(client_dir, log=lambda *a: None):
         changed |= migrate_file(old_index, m=m)
     apply_layout(client_dir, m['layout']['client'], keep=False)
     if changed:
-        log('istemci klasöründeki OpenOrbit dosyaları yeni biçime taşındı')
+        log('OpenOrbit files in the client folder moved to the new format')
     return changed

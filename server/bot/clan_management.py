@@ -1,15 +1,15 @@
-"""Klan yönetimi (kullanıcı isteği 2026-10-31): bot klan lideri (ve hakkı olan subaylar) klanı gerçek bir lider gibi yönetir. Hepsi
-oyunun klan istekleriyle (klan.Klan.handle), oyuncunun klan penceresinden yapabildiği her şey:
-  rütbeler       kuruluşta 3-4 rütbe (botun dilinde) ve hakları; üyelere rol: kıdem, liderin ilişkisi, seviye, katkı
-  açıklama       kuruluşta ve klanın kimliği değişince (PvP'ye döndü, istasyon kurdu, doldu); arada tazelenir
-  duyuru         savaş, ittifak, saldırmazlık, barış, ödeme, haftalık hedef (klan haberleri); savaşta toplu posta
-  vergi          bütçe ihtiyacına göre %0-5 (önceden doğrudan %3-8 yazılıyordu: sınır klan.AZAMI_VERGI)
-  bütçe          kasanın payları k['butce'] {ksi, odeme, savas} (kalanı yedek): istasyonu yoksa KSİ, savaştaysa savaş
-  ödeme          haftada bir, dönemin en çok vergi veren üyelerine kasadan (klan.odeme_siniri ve %10 kesintiyle)
-  üye çıkarma    liderin kin duyduğu ya da uzun süre katkısız üye
-  liderlik devri hevesini yitiren lider en güvendiği subaya bırakır; tek kişi kalan eski klan dağılır
-Kurallı karar toplum.klan_isleri'nden (yonet); Gelişmiş kipte ajan aynı işleri araçlarla yapar (agent_tools.py: klan_*). İşlerin son
-anları klanın kaydında k['yonetim'] (klanlar.json'a da yazılır)."""
+"""Clan management (user request 2026-10-31): the bot clan leader (and officers with the right) runs the clan like a real leader.
+All of it goes through the game's clan requests (clan.Clan.handle), everything a player can do from the clan window:
+  ranks          3-4 ranks at founding (in the bot's language) and their rights; member roles: seniority, the leader's relation, level, contribution
+  description    at founding and when the clan's identity changes (turned PvP, built a station, got full); refreshed now and then
+  announcement   war, alliance, non-aggression, peace, payment, weekly target (clan news); mass mail during a war
+  tax            0-5% depending on the budget need (it used to write 3-8% directly: the limit is clan.MAX_TAX)
+  budget         treasury shares k['budget'] {ksi, payment, combat} (the rest is reserve): CBS if there is no station, war if at war
+  payment        once a week, from the treasury to the period's top tax payers (with clan.payout_limit and a 10% cut)
+  kicking        a member the leader holds a grudge against, or one with no contribution for a long time
+  handover       a leader who has lost interest leaves the clan to the officer they trust most; a clan down to one member is dissolved
+The rule-based decision comes from society.clan_actions; in Advanced mode the agent does the same jobs with tools (agent_tools.py: clan_*).
+The last times of each job are in the clan's record k['management'] (also written to clans.json)."""
 import os, random, time
 
 import clan as KL
@@ -17,7 +17,7 @@ from . import speech as SPC
 from . import society as T
 
 DAY = 86400
-TIER_RIGHTS = (                                   # rütbe katmanı -> hakları (0 subay ... 3 acemi)
+TIER_RIGHTS = (                                   # rank tier -> its rights (0 officer ... 3 rookie)
     ['hiremember', 'firemember', 'news', 'roundmail', 'battle_station_build', 'battle_station_replace_module',
      'battle_station_deflector'],
     ['hiremember', 'news', 'battle_station_replace_module'],
@@ -31,7 +31,7 @@ LOGO_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 
 
 def logos():
-    """Logo havuzu (Orders.md OP-017): panel/ui/images/clan_logo/*.webp adları (uzantısız)."""
+    """Logo pool (Orders.md OP-017): names (without extension) of panel/ui/images/clan_logo/*.webp."""
     try:
         return sorted(f[:-5] for f in os.listdir(LOGO_FOLDER) if f.endswith('.webp'))
     except OSError:
@@ -39,7 +39,7 @@ def logos():
 
 
 def pick_logo(k):
-    """Logosuz bot klanına havuzdan rastgele, başka klanın kullanmadığı bir logo (klan dağılınca havuza döner) -> logo ya da None."""
+    """A random logo from the pool that no other clan uses, for a bot clan without one (it returns to the pool when the clan dissolves) -> logo or None."""
     if k.get('logo'):
         return k['logo']
     with KL.LOCK:
@@ -59,7 +59,7 @@ def is_successful(out):
 
 
 def raw(b, state):
-    """Kalıbın üslupsuz hâli (rütbe adları: botun yazım üslubu "|" ayracını bozmasın)."""
+    """The template without its style (rank names: the bot's writing style must not break the "|" separator)."""
     k = SPC.TEMPLATES.get(state) or {}
     row = k.get(SPC.lang(b)) or k.get('en')
     return b.r.choice(row) if row else None
@@ -70,7 +70,7 @@ def save(k):
 
 
 def is_due(k, job, now, interval=None):
-    """İşin vakti geldiyse (ve şimdi işaretler) -> True."""
+    """If the job's time has come (and now marks it) -> True."""
     y = save(k)
     last = y.get(job, 0)
     if now - last < (interval if interval is not None else INTERVALS[job]):
@@ -80,7 +80,7 @@ def is_due(k, job, now, interval=None):
 
 
 def find_member(k, name):
-    """Üye (ad küçük harf, kayıt) ya da (None, None): adı ya da görünen adı eşleşir."""
+    """A member (name lowercased, record) or (None, None): the name or the display name matches."""
     s = str(name or '').strip().lower()
     for a, u in k['members'].items():
         if s in (a, str(u.get('name', '')).lower()):
@@ -101,7 +101,7 @@ def seniority_days(u, now):
 
 
 def info_summary(k, who=None):
-    """Klanın durumu (ajanın gözlemi): üyeler ve rütbeleri, kasa, vergi, bütçe, diplomasi, başvurular."""
+    """The clan's state (the agent's observation): members and their ranks, treasury, tax, budget, diplomacy, applications."""
     now = time.time()
     ranks = {r['id']: r['name'] for r in k['ranks']}
     sorted_members = sorted(k['members'].items(), key=lambda uid_member: (uid_member[0] != k['leader'], -int(uid_member[1].get('level', 1))))
@@ -132,16 +132,16 @@ def info_summary(k, who=None):
     return '\n'.join(row)
 
 
-# ------------------------------------------------------------------------------------------------------------ işler
+# ------------------------------------------------------------------------------------------------------------ jobs
 def setup_ranks(b, k, kl):
-    """Rütbesiz klana 3-4 rütbe (adları botun dilinde, bir takım halinde) ve katmanlarının hakları."""
+    """3-4 ranks for a clan without ranks (names in the bot's language, as one set) and the rights of their tiers."""
     if k['ranks']:
         return False
     names = [a.strip() for a in (raw(b, 'clan_ranks') or 'Officer|Veteran|Member|Recruit').split('|') if a.strip()][:4]
     if len(names) < 4:
         names += ['Member', 'Recruit'][len(names) - 2:]
     tiers = [0, 1, 2, 3]
-    if b.r.random() < 0.35:                               # kimi lider kıdemli rütbesi açmaz
+    if b.r.random() < 0.35:                               # some leaders do not open the senior rank
         tiers.remove(1)
     elif b.r.random() < 0.3:
         tiers.remove(3)
@@ -160,7 +160,7 @@ def setup_ranks(b, k, kl):
 
 
 def _tier_rank(k, multiplier):
-    """Katmana (ya da yoksa altındaki en yakın katmana) uyan rütbenin kimliği; hiç yoksa 0."""
+    """The id of the rank that fits the tier (or the closest tier below it if missing); 0 if there is none."""
     rank_cats = {int(i): int(v) for i, v in (save(k).get('rank_tier') or {}).items() if any(r['id'] == int(i) for r in k['ranks'])}
     for t in range(multiplier, 4):
         r = next((i for i, v in rank_cats.items() if v == t), None)
@@ -170,8 +170,8 @@ def _tier_rank(k, multiplier):
 
 
 def assign_roles(y, b, k, kl, now):
-    """Üyelere rol: subaylar (üyenin yaklaşık 1/8'i) liderin en güvendikleri arasından, kıdemliler birkaç günlük ve katkılılar,
-    yeniler acemi. Her turda en çok üç değişiklik (bir anda herkes terfi etmesin)."""
+    """Roles for members: officers (about 1/8 of the members) from among those the leader trusts most, seniors are a few days old and
+    contributing, newcomers are rookies. At most three changes per turn (so that not everyone is promoted at once)."""
     if not save(k).get('rank_tier'):
         return 0
     avg = sum(int(u.get('level', 1)) for u in k['members'].values()) / max(1, len(k['members']))
@@ -198,7 +198,7 @@ def assign_roles(y, b, k, kl, now):
 
 
 def write_description(b, k, kl, now, force=False):
-    """Klanın açıklaması: odağı (PvP, PvE, istasyon), kuralı, alım (en düşük seviye ya da dolu). Klanın kimliği değişince yeniden."""
+    """The clan's description: its focus (PvP, PvE, station), rule, intake (minimum level or full). Redone when the clan's identity changes."""
     from . import clan_stations as CBA
     pvp = b.o('aggression') > 0.6 or any(d['type'] == 3 for d in k['diplomacy'])
     cbs = CBA.stations(k)
@@ -223,7 +223,7 @@ def write_description(b, k, kl, now, force=False):
 
 
 def announce(b, kl, state, **f):
-    """Klan haberi (kalıptan) -> yazıldı mı."""
+    """Clan news (from the template) -> was it written."""
     text = SPC.template(b, state, **f)
     return bool(text) and is_successful(kl.handle('ClanAddNewsRequest', {'newsMessage': text}))
 
@@ -234,7 +234,7 @@ def bulk_mail(b, kl, state, **f):
 
 
 def announce_events(y, b, k, kl, now):
-    """Diplomasideki yenilikler (savaş, ittifak, saldırmazlık, biten savaş) haber olur; savaş başlayınca üyelere toplu posta."""
+    """New developments in diplomacy (war, alliance, non-aggression, ended war) become news; when a war starts, mass mail to the members."""
     mgmt = save(k)
     seen = mgmt.setdefault('diplo_seen', {})
     current_time = {str(d['id']): d for d in k['diplomacy']}
@@ -255,8 +255,8 @@ def announce_events(y, b, k, kl, now):
 
 
 def set_budget(b, k, now, cbs=None, payment=None, combat=None):
-    """Kasanın payları (0-1; toplamı en çok 0,9, kalanı yedek). Verilmeyenleri durum ve kişilik belirler: istasyonu yoksa KSİ
-    payı yüksek, savaştaysa savaş; cömert ve az hırslı lider üyelerine daha çok dağıtır."""
+    """Treasury shares (0-1; at most 0.9 in total, the rest is reserve). The ones not given are decided by state and personality: CBS
+    share is high if there is no station, war if at war; a generous, low-ambition leader distributes more to members."""
     from . import clan_stations as CBA
     in_combat = any(d['type'] == 3 for d in k['diplomacy'])
     if cbs is None:
@@ -275,13 +275,13 @@ def set_budget(b, k, now, cbs=None, payment=None, combat=None):
 
 
 def spendable(k, area):
-    """Bütçenin o alana ayırdığı kredi (kasanın payı)."""
+    """The credits the budget sets aside for that area (the treasury's share)."""
     return int(k['treasury'] * float((k.get('budget') or {}).get(area, 0)))
 
 
 def set_tax(b, k, kl, now, ratio=None):
-    """Vergi %0-5 (istekle; hakkı yoksa olmaz): hırslı lider yüksek tutar; bütçenin hedefine (istasyon) para yetmiyorsa artırır,
-    kasa çok dolunca indirir."""
+    """Tax 0-5% (by request; not possible without the right): an ambitious leader keeps it high; raises it if money is short of the
+    budget's goal (station), lowers it when the treasury is very full."""
     from . import clan_stations as CBA
     if ratio is None:
         ratio = 1 + round(3 * b.o('ambition'))
@@ -296,8 +296,8 @@ def set_tax(b, k, kl, now, ratio=None):
 
 
 def make_payout(b, k, kl, now):
-    """Haftalık ödeme: bütçenin ödeme payı, dönemde en çok vergi veren (en çok 3) üyeye katkısıyla orantılı; dönem sıfırlanır.
-    Hiç katkısı olmayan üyenin katkısız sayacı artar (üye çıkarmada)."""
+    """Weekly payment: the budget's payment share goes to the period's top tax payers (at most 3), in proportion to their contribution;
+    the period resets. The no-contribution counter of a member with no contribution grows (for kicking)."""
     pool = spendable(k, 'payment')
     contribution = sorted(((int(u.get('contrib_period', 0)), a, u) for a, u in k['members'].items() if u.get('contrib_period')), key=lambda x: -x[0])[:3]
     paid = []
@@ -319,7 +319,7 @@ def make_payout(b, k, kl, now):
 
 
 def kick(y, b, k, kl, now, name=None):
-    """Üye çıkarma: verilen üye ya da liderin kin duyduğu / üç haftadır katkısız (bot) üye; turda en çok bir."""
+    """Kicking: the given member, or a (bot) member the leader holds a grudge against / with no contribution for three weeks; at most one per turn."""
     if name is None:
         candidate = None
         for a, u in k['members'].items():
@@ -344,8 +344,8 @@ def kick(y, b, k, kl, now, name=None):
 
 
 def hand_over(y, b, k, kl, now, name=None):
-    """Liderliği bırakma: verilen üyeye ya da en güvendiği subaya (yoksa en kıdemli üyeye). Kendiliğinden çok nadir: hevesi
-    kaçan, az hırslı lider."""
+    """Giving up leadership: to the given member or to the most trusted officer (else the most senior member). Very rare on its own: a
+    low-ambition leader who has lost interest."""
     if name is None:
         if len(k['members']) < 3 or b.r.random() > 0.02 * (1.2 - b.o('ambition')) * (0.5 + b.mood['fatigue']):
             return None
@@ -363,7 +363,7 @@ def hand_over(y, b, k, kl, now, name=None):
 
 
 def distribute(y, b, k, kl, now):
-    """Bir haftadır tek kişi kalan klanı lideri dağıtır (nadir)."""
+    """The leader dissolves a clan that has been down to one member for a week (rare)."""
     if len(k['members']) > 1 or seniority_days(k['members'].get(k['leader']) or {}, now) < 7 or b.r.random() > 0.1:
         return False
     if not is_successful(kl.handle('DeleteClanRequest', {})):
@@ -375,7 +375,7 @@ def distribute(y, b, k, kl, now):
 
 
 def weekly_goal(b, k, kl, now):
-    """Bütçenin odağına göre haftanın hedefi haber olur (istasyon için para, kasma, PvP)."""
+    """According to the budget's focus, the week's target becomes news (money for the station, grinding, PvP)."""
     from . import clan_stations as CBA
     budget = k.get('budget') or {}
     if CBA.is_open() and budget.get('ksi', 0) >= max(budget.get('combat', 0), 0.3) and not CBA.stations(k):
@@ -386,15 +386,15 @@ def weekly_goal(b, k, kl, now):
 
 
 def manage(y, b, k, kl, now):
-    """Kurallı yönetim (toplum.klan_isleri'nden, sosyal turda): her iş kendi aralığıyla; lider her şeyi, subay haklarınca."""
+    """Rule-based management (from society.clan_actions, in the social turn): each job at its own interval; the leader does everything, an officer as far as their rights go."""
     leader = k['leader'] == b.name.lower()
     if not leader and (not kl.right('news', k) or k['leader'] not in y.name_index):
-        return                                            # oyuncunun klanında subay bot klanı yönetmez (lider sensin)
+        return                                            # an officer bot does not manage the player's clan (you are the leader)
     if leader:
         if is_due(k, 'rank', now):
             setup_ranks(b, k, kl)
             if not k.get('logo') and pick_logo(k):
-                KL.changed(k)                             # logo klanlar.json'a (panelin Klanlar sekmesi)
+                KL.changed(k)                             # logo to clans.json (the panel's Clans tab)
         if is_due(k, 'rol', now):
             assign_roles(y, b, k, kl, now)
         if is_due(k, 'description', now):
@@ -410,7 +410,7 @@ def manage(y, b, k, kl, now):
         if is_due(k, 'handover', now) and (hand_over(y, b, k, kl, now) or distribute(y, b, k, kl, now)):
             return
     from . import clan_stations as CBA
-    CBA.manage(y, b, k, kl, now)                            # Klan Savaş İstasyonu: yarış, gelişme, savunma (kurma hakkıyla)
+    CBA.manage(y, b, k, kl, now)                            # Clan Battle Station: race, development, defense (with the right to build)
     if is_due(k, 'announcement', now):
         announce_events(y, b, k, kl, now)
     if is_due(k, 'target', now, INTERVALS['target'] * b.r.uniform(0.8, 1.4)):

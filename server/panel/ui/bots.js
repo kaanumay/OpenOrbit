@@ -1,9 +1,9 @@
-/* OpenOrbit paneli — Botlar (bots.py, /api/bot…; belgeler/BOTLAR.md). panel.js'in yardımcılarını kullanır.
-   Bot paketi: kadrosu oluşturulurken bir kez üretilen botlar (ad, firma, kişilik) ve ayarları. Paket bir dünyaya atanır; oyuncu o
-   dünyada oyuna girince botlar devreye girer. Kipler: Basit (haritalarda dolaşan, harita değiştirmeyen), Normal (gerçek oyuncu gibi
-   gelişen, karar veren, sosyal), Gelişmiş (Normal + yerel dil modeli: sohbet ve kararlar).
-   Görünümler: kitaplık (paket kartları), sihirbaz (ad ve dünya -> kip -> ayarlar), editör (sekmeler). Değişiklikler kendiliğinden
-   kaydedilir. */
+/* OpenOrbit panel — Bots (bots.py, /api/bot...; belgeler/BOTLAR.md). Uses panel.js's helpers.
+   Bot pack: bots generated once when the roster is created (name, company, personality) and their settings. A pack is assigned to a world; when the player
+   enters the game in that world the bots come into play. Modes: Simple (wander the maps, do not change maps), Normal (develop like a real player,
+   make decisions, social), Advanced (Normal + local language model: chat and decisions).
+   Views: library (pack cards), wizard (name and world -> mode -> settings), editor (tabs). Changes are saved
+   automatically. */
 'use strict';
 
 Object.assign(ICONS, {
@@ -60,14 +60,14 @@ const BT_PERMS = {
 const BT_CLASS_NAME = s => s === '4-X' ? '4-1…4-4' : s;
 const btFill = (el, ...k) => el.replaceChildren(...k.flat(Infinity).filter(x => x != null && x !== false));
 const btCompany = ['MMO', 'EIC', 'VRU'];
-function btArt(name, backup, cls = 'bt-art') {         // görsel gelmediyse (Orders.md) var olan bir görsel
+function btArt(name, backup, cls = 'bt-art') {         // if the image has not arrived (Orders.md), an existing image
   const im = art(name, cls);
   im.onerror = () => { im.onerror = null; im.src = 'images/' + backup + '.webp'; };
   return im;
 }
 const btWorldName = id => (BT.entries?.worlds || []).find(w => w.id === id)?.name || T('Unassigned');
 
-// ------------------------------------------------------------------ giriş noktası
+// ------------------------------------------------------------------ entry point
 async function renderBots() {
   const r = await act(() => api('/api/botlar')); if (!r || S.page !== 'bots') return;
   BT.entries = r;
@@ -83,7 +83,7 @@ function btCompanyBar(f) {
     f.map((n, i) => h('i', { class: btCompany[i].toLowerCase(), style: { width: (100 * n / top) + '%' } })));
 }
 
-// ================================================================== KİTAPLIK
+// ================================================================== LIBRARY
 function btLibrary() {
   const r = BT.entries;
   const card = p => h('div', { class: 'bt-card', onclick: e => { if (!e.target.closest('button')) btOpen(p.id); } },
@@ -133,7 +133,7 @@ async function btAssign(p, did) {
   if (x) { BT.entries = x; renderBots(); }
 }
 
-// ================================================================== SİHİRBAZ
+// ================================================================== WIZARD
 function btWizard() {
   const r = BT.entries;
   const w = { name: '', description: '', world: (r.worlds.find(d => !r.entries.some(p => p.world === d.id)) || r.worlds[0] || {}).id || null, mode: 'normal',
@@ -196,7 +196,7 @@ function btNumber(value, onchange, { min = 0, max = 999, step = 1, cls = 'num' }
 }
 function btSlider(value, onchange, { min, max, step, fmt = v => v }) {
   const tag = h('span', { class: 'bt-value' }, fmt(value));
-  // dolgu (panel.css: --p) değerle birlikte: parıltı tutamağı izler
+  // the fill (panel.css: --p) together with the value: the glow follows the handle
   const paint = el => el.style.setProperty('--p', (100 * (Number(el.value) - min) / ((max - min) || 1)) + '%');
   const r = h('input', { type: 'range', min, max, step, value: value, class: 'bt-range',
     oninput: e => { tag.textContent = fmt(Number(e.target.value)); paint(e.target); }, onchange: e => onchange(Number(e.target.value)) });
@@ -204,26 +204,26 @@ function btSlider(value, onchange, { min, max, step, fmt = v => v }) {
   return h('div', { class: 'row', style: { gap: '10px' } }, r, tag);
 }
 function btSeg(options, value, onchange) {
-  // seçim hemen görünür (yeniden çizim beklemez: Kadro'da yalnız Uygula'dan sonra görünüyordu)
+  // the selection shows at once (does not wait for a redraw: in Roster it only showed after Apply)
   const el = h('div', { class: 'seg' }, options.map(([v, name]) => h('button', { type: 'button', class: v === value ? 'on' : '', onclick: e => {
     el.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === e.currentTarget)); onchange(v);
   } }, name)));
   return el;
 }
-// adların ve sohbetin dili (bot/languages/<kod>.json); dil adları kendi dillerinde
+// the language of names and chat (bot/languages/<code>.json); language names in their own languages
 const BT_LANGS = [['tr', 'Türkçe'], ['en', 'English'], ['de', 'Deutsch'], ['es', 'Español'], ['fr', 'Français'], ['pl', 'Polski'],
   ['pt', 'Português'], ['ru', 'Русский']];
 function btPickLang(value, onchange, mixedName, locked) {
   return h('select', { class: 'input bt-lang', disabled: !!locked, onchange: e => onchange(e.target.value) },
     [['mixed', mixedName]].concat(BT_LANGS).map(([v, name]) => h('option', { value: v, selected: v === value }, name)));
 }
-// adların kaynağı (panel/botlar.AD_KAYNAKLARI): üretici gerçek sunucuların üslubuyla ya da dostats.info'daki gerçek oyuncular
+// the source of names (panel/botlar.AD_KAYNAKLARI): the generator in the style of real servers, or real players from dostats.info
 const BT_NAME_SOURCE_DESCRIPTION = N("Generated names are decorated like on real servers (-»Λd«-, ツ, ᵀᴹ). With DOStats, names and clan tags are taken from real players on dostats.info (needs internet; applies to newly added bots and regeneration).");
 function btNameSource(value, onchange) {
   return h('select', { class: 'input', onchange: e => onchange(e.target.value) },
     [['uretim', T('Generated')], ['dostats', T('DOStats (real players)')]].map(([v, name]) => h('option', { value: v, selected: v === value }, name)));
 }
-// dahili dil modeli yalnız İngilizce; başka bir sağlayıcı seçiliyse Gelişmiş kipte de dil serbest (bot/llm_provider.py)
+// the built-in language model is English only; if another provider is chosen the language is free in Advanced mode too (bot/llm_provider.py)
 const btLangLocked = mode => mode === 'advanced' && !BT.entries?.llm_multilingual;
 function btChatLang(mode, value, onchange) {
   return btLangLocked(mode) ? btPickLang('en', () => {}, T("Each bot in its name's language"), true) : btPickLang(value, onchange, T("Each bot in its name's language"));
@@ -254,7 +254,7 @@ function btStep3(w, render) {
     field(T('Your own bots (optional)'), btCustomField(w.special, v => { w.special = v; })));
 }
 
-// kullanıcının kendi botları (panel/botlar.ozel_cozumle): satır başına "ad, firma, davranış, dil"; ad dışındakiler isteğe bağlı
+// the user's own bots (panel/botlar.ozel_cozumle): one per line "name, company, behavior, language"; all but the name are optional
 function btCustomField(value, onchange) {
   return h('div', { class: 'stack', style: { gap: '6px' } },
     h('textarea', { class: 'input bt-custom', rows: 5, spellcheck: false, placeholder: 'Kaan\nStarHunter, VRU\nOldMiner, MMO, kasici, tr\nRedBaron, EIC, avci', oninput: e => onchange(e.target.value) }, value || ''),
@@ -275,14 +275,14 @@ function btSimpleSettings(a, render, wizard = false, save = null) {
       h('div', { class: 'small muted' }, T("How many of the bots on a company map are from that map's company (the rest are enemies)."))));
 }
 
-// ================================================================== EDİTÖR
+// ================================================================== EDITOR
 const BT_TABS = [
   ['general', N('Public'), 'sliders'], ['roster', N('Roster'), 'users'], ['behavior', N('Behavior'), 'target'], ['access', N('Permissions'), 'shield'],
   ['sohbet', N('Chat'), 'chat'], ['clans', N('Clans'), 'star'], ['simple', N('Simple mode'), 'bot'], ['advanced', N('Advanced mode'), 'brain'],
 ];
 
 async function btEditor() {
-  const [d] = await Promise.all([act(() => api('/api/bot?id=' + encodeURIComponent(BT.pid))), loadGameImages()]);   // oyunun görselleri: gemi, rütbe
+  const [d] = await Promise.all([act(() => api('/api/bot?id=' + encodeURIComponent(BT.pid))), loadGameImages()]);   // the game's images: ship, rank
   if (!d || S.page !== 'bots') return;
   BT.d = d;
   const tabs = BT_TABS.filter(([k]) => (k !== 'simple' || d.mode === 'simple') && (k !== 'advanced' || d.mode === 'advanced')
@@ -311,7 +311,7 @@ function btSaveStatus(state) {
   el.className = 'we-save-status ' + state;
   btFill(el, ...(state === 'kaydediliyor' ? [h('span', { class: 'spin' }), T('Saving…')] : state === 'kaydedildi' ? [icon('check'), T('Saved')] : []));
 }
-// değişiklik: 450 ms bekleyip tek istekte (ayarlar birleştirilir)
+// a change: waits 450 ms and goes in a single request (settings are merged)
 function btPatch(fields) {
   for (const [k, v] of Object.entries(fields)) {
     if (k === 'settings') BT.pending.settings = Object.assign(BT.pending.settings || {}, v);
@@ -337,7 +337,7 @@ function btKey(value, onchange) {
   return h('label', { class: 'switch' }, h('input', { type: 'checkbox', checked: !!value, onchange: e => onchange(e.target.checked) }), h('span'));
 }
 
-// ------------------------------------------------------------------ Genel
+// ------------------------------------------------------------------ General
 function btGeneral(d) {
   const a = d.settings;
   const name = h('input', { class: 'input', value: d.name, maxlength: 40, onchange: e => btPatch({ name: e.target.value }) });
@@ -378,7 +378,7 @@ function btGeneral(d) {
         }, 'sm danger', 'trash'))));
 }
 
-// ------------------------------------------------------------------ Kadro
+// ------------------------------------------------------------------ Roster
 function btRoster(d) {
   const byArchetype = {};
   d.roster.forEach(b => { byArchetype[b.archetype] = (byArchetype[b.archetype] || 0) + 1; });
@@ -410,8 +410,8 @@ function btRoster(d) {
       btRosterTable(d.roster)));
 }
 
-// Kadro tablosu: ada göre arama, firma ve kişilik süzgeci, sıralama (oyuncu isteği 2026-10-30). Sıralanan değer hep tabloda görünür:
-// kendi sütunu yoksa (EP, onur, kredi …) Seviye'nin yanında vurgulu bir sütun açılır. # süzülmüş ve sıralanmış listedeki yerdir.
+// Roster table: search by name, company and personality filter, sorting (player request 2026-10-30). The sorted value is always visible in the table:
+// if it has no column of its own (EP, honor, credits ...) a highlighted column opens next to Level. # is the place in the filtered and sorted list.
 const BT_SORT = [['name', N('Pilot')], ['level', N('Level')], ['rank', N('Rank')], ['ship', N('Ship')], ['map', N('Map')], ['target', N("What it's doing")],
   ['npc', N('Aliens')], ['player', N('Players')], ['death', N('Deaths')]];
 const BT_SORT_EXTRA = [['ep', N('Experience (EP)')], ['honor', N('Honor')], ['credits', N('Credits')], ['uridium', N('Uridium')], ['gate', N('Galaxy gates finished')],
@@ -427,7 +427,7 @@ function btRosterTable(roster) {
   const s = BT.rosterFilter = BT.rosterFilter || { search: '', company: 0, archetype: '', special: false, order: 'no', reverse: false };
   const table = h('table', { class: 'table bt-roster' }), counter = h('span', { class: 'bt-counter' });
   const value = (b, k) => BT_SORT_VALUE[k] ? BT_SORT_VALUE[k](b) : k === 'no' ? b.no : b[k] ?? '';
-  const highlight = () => BT_SORT_EXTRA.find(([k]) => k === s.order && BT_SORT_NUMBER.has(k));       // sıralanan değerin kendi sütunu yok
+  const highlight = () => BT_SORT_EXTRA.find(([k]) => k === s.order && BT_SORT_NUMBER.has(k));       // the sorted value has no column of its own
   const sortBy = k => { if (s.order === k) s.reverse = !s.reverse; else { s.order = k; s.reverse = !BT_SORT_TEXT.includes(k); } render(); };
   const cell = (b, k) => {
     const f = btCompany[b.company - 1], n = value(b, k);
@@ -492,7 +492,7 @@ function btTraitSummary(o) {
   return en.map(([k]) => T(BT_TRAIT[k] || k)).join(', ');
 }
 
-// ------------------------------------------------------------------ Davranış, Erişimler, Sohbet
+// ------------------------------------------------------------------ Behavior, Permissions, Chat
 function btBehavior(d) {
   const a = d.settings;
   return h('div', { class: 'card' }, h('h2', null, icon('target'), T('Behavior')),
@@ -534,7 +534,7 @@ function btChat(d) {
     btModeration(d));
 }
 
-// bot klanları (bot/clan_management.py, bot/clan_stations.py): logo (Orders.md OP-017; yoksa etiket), lider, kasa, bütçe, istasyon, diplomasi
+// bot clans (bot/clan_management.py, bot/clan_stations.py): logo (Orders.md OP-017; otherwise the tag), leader, vault, budget, station, diplomacy
 const BT_DIPLOMACY = { 1: N('alliance'), 2: N('non-aggression'), 3: N('war') };
 function btClanLogo(k) {
   if (!k.logo) return h('div', { class: 'bt-clan-logo vacant' }, String(k.tag || '?').slice(0, 4));
@@ -559,7 +559,7 @@ function btClans(d) {
       : h('div', { class: 'small muted' }, T('No bot clans yet: leader-minded bots found one once they have the level and the money.'))));
 }
 
-// sohbet moderatörleri (bot/moderation.py): kuralı çiğneyen önce uyarılır, sonra susturulur, sonra yasaklanır
+// chat moderators (bot/moderation.py): whoever breaks the rule is warned first, then muted, then banned
 function btModeration(d) {
   const a = d.settings;
   return h('div', { class: 'card' }, h('h2', null, icon('shield'), T('Chat moderators')),
@@ -583,7 +583,7 @@ function btSimple(d) {
     btSimpleSettings(a, null, false, save));
 }
 
-// botun son düşüncesi (modelin kendi notu, İngilizce); tıklayınca editörün Düşünceler ya da Hafıza bölümü (bot/memories.py, bot/agent.py)
+// the bot's latest thought (the model's own note, in English); clicking opens the editor's Thoughts or Memory section (bot/memories.py, bot/agent.py)
 function btAgentTrace(b) {
   const last = (b.agent || []).filter(x => x.thought).slice(-1)[0];
   if (!last && !b.memory) return null;
@@ -602,7 +602,7 @@ const BT_STATS = { npc: N('Aliens killed'), player: N('Players killed'), death: 
   event_npc: N('Event alien'), event_box: N('Event box'), event_drop: N('Event loot'), pass_quest: N('Battle Pass tasks'),
   battle_pass: N('Battle Pass'), season_level: N('Season Pass levels'), dispatch: N('Dispatch'), galaxy_trek: N('Galaxy Trek'), mine: N('Mines'),
   smart_bomb: N('Smart Bomb'), emp: N('EMP'), salvo: N('Rocket salvos'), hidden: N('Cloaking'), jump_cpu: N("Jump CPU") };
-const BT_STATS_FEATURED = ['npc', 'player', 'death', 'quest', 'gate_done', 'sure_sn'];          // İstatistik bölümünün büyük kutuları
+const BT_STATS_FEATURED = ['npc', 'player', 'death', 'quest', 'gate_done', 'sure_sn'];          // the big boxes of the Statistics section
 const BT_WARNING = { sohbet: N('chat'), pvp: N('PvP'), box: N('cargo box') };
 const seDurationBt = sec => sec ? (sec >= 3600 ? Math.floor(sec / 3600) + ':' : '') + String(Math.floor(sec / 60) % 60).padStart(sec >= 3600 ? 2 : 1, '0') + ':' + String(Math.round(sec) % 60).padStart(2, '0') : '—';
 const btShort = l => String(l || '').split('_').pop().toUpperCase();
@@ -613,7 +613,7 @@ const BT_EVENT = { killed_me: N('shot me down'), i_killed: N('I shot him down'),
   warned: N('warned by the admin') };
 const BT_HABIT = { daytime: N('Daytime player'), evening: N('Evening player'), night_owl: N('Night owl'), devoted: N('Devoted') };
 
-// kişilik radarı: on özellik bir çokgen (0 merkez, 1 dış halka); ayarla(o) şekli kaydırıcıyla birlikte günceller
+// personality radar: ten traits as a polygon (0 center, 1 outer ring); update(o) updates the shape together with the slider
 function btRadar(o) {
   const NS = 'http://www.w3.org/2000/svg', K = Object.keys(BT_TRAIT), R = 92, M = 130;
   const el = (name, a) => { const e = document.createElementNS(NS, name); for (const k in a) e.setAttribute(k, a[k]); return e; };
@@ -637,9 +637,9 @@ function btRadar(o) {
   return { svg, update };
 }
 
-// ------------------------------------------------------------------ bot editörü: kimlik kartı ve bölüm menüsü solda, bölüm sağda
-// (bot/edit.py; /api/bot/detay). Değişiklikler birikir, Kaydet tek istekte yazar. Oyun bu paketle açıkken canlı bot okunur ve
-// düzenleme hemen oyunda geçerli olur.
+// ------------------------------------------------------------------ bot editor: identity card and section menu on the left, section on the right
+// (bot/edit.py; /api/bot/detay). Changes accumulate, Save writes in a single request. While the game is open with this pack the live bot is read and
+// the edit takes effect in the game at once.
 const BT_D_TABS = [['profile', N('Profile'), 'user', N('Name, level, wallet, map and current activity.')],
   ['personality', N('Personality'), 'brain', N('The traits behind its decisions and its current mood.')],
   ['hangar', N('Hangar'), 'ship', N('Ship, equipment, ammo and cargo. The best items go into the slots, the rest stays in storage.')],
@@ -663,7 +663,7 @@ async function btBotDetail(no, tab = 'profile') {
     if (x) { v = x; value = {}; render(); BT.d = await api('/api/bot?id=' + encodeURIComponent(pid)).catch(() => BT.d); }
   }, 'primary', 'check');
   const cancel = btn(T('Cancel'), () => { value = {}; render(); }, 'ghost', 'undo');
-  // değişiklik sayacı (alt çubuk): kaydedilmemiş alan sayısı
+  // change counter (bottom bar): the number of unsaved fields
   const handle = () => {
     const n = Object.keys(value).length;
     save.disabled = lock || !n; cancel.disabled = !n;
@@ -682,7 +682,7 @@ async function btBotDetail(no, tab = 'profile') {
   const percent = (n, on, cls = '') => slider({ min: 0, max: 100, step: 1, value: Math.round(n * 100), disabled: lock, oninput: e => on(+e.target.value / 100) }, cls);
   const now = Date.now() / 1000;
 
-  // ---- sol: kimlik kartı (kayıtlı değerler) ve bölüm menüsü
+  // ---- left: identity card (saved values) and section menu
   function uid() {
     const p = v.profile || {}, f = fc(), e = v.gear || {};
     const sell = (name, n, tag) => h('div', { class: 'se-wallet-row' }, art('source_' + name, 'se-currency-icon'), h('span', null, tag), h('b', null, fmtN(n)));
@@ -746,7 +746,7 @@ async function btBotDetail(no, tab = 'profile') {
         btRow(T('Clan'), null, h('span', null, p.clan ? '[' + p.clan + ']' : '—')))];
   }
 
-  // ---- Kişilik: radar + özellik kaydırıcıları, ruh hâli
+  // ---- Personality: radar + trait sliders, mood
   function personality() {
     const traits = Object.assign({}, v.traits, value.traits);
     const r = btRadar(traits);
@@ -767,7 +767,7 @@ async function btBotDetail(no, tab = 'profile') {
       h('div', { class: 'bt-traits iki' }, Object.entries(BT_MOOD).map(moodRow))) : null];
   }
 
-  // ---- Hangar: gemi, donanım kutuları, cephane, kargo
+  // ---- Hangar: ship, equipment boxes, ammo, cargo
   function hangar() {
     if (!v.var) return [missing()];
     const e = v.gear, f = fc();
@@ -784,7 +784,7 @@ async function btBotDetail(no, tab = 'profile') {
       const write = new_ => { value.gear = Object.assign({}, value.gear, { [k]: new_ }); handle(); };
       const var_ = Object.entries(owner).filter(([, n]) => n > 0);
       const equipped = x => Object.values(Object.assign({}, e[x], (value.gear || {})[x])).reduce((a, n) => a + n, 0);
-      // kalkan ve hız aynı jeneratör yuvalarını paylaşır; ekstranın sayısı kalan hakkı (JP-01 10 hak): her biri bir yuva
+      // shield and speed share the same generator slots; an extra's count is the uses left (JP-01 10 uses): each takes a slot
       const total = slot_info === 'gen' ? equipped('kalkan') + equipped('speed') : k === 'ekstra' ? var_.length : equipped(k);
       return h('div', { class: 'bt-cat' },
         h('div', { class: 'bt-cat-head' }, h('b', null, T(name_)), h('span', { class: 'se-count' }, slot_info && slot[slot_info] != null ? T('{0} / {1} slots', total, slot[slot_info]) : fmtN(total)),
@@ -822,7 +822,7 @@ async function btBotDetail(no, tab = 'profile') {
     ];
   }
 
-  // ---- Hafıza
+  // ---- Memory
   function memory() {
     if (!v.var) return [missing()];
     const deleted = (a, k) => (value[a] || []).includes(k);
@@ -871,7 +871,7 @@ async function btBotDetail(no, tab = 'profile') {
     ];
   }
 
-  // ---- Düşünceler: dil modelinin adımları (yeniden eskiye)
+  // ---- Thoughts: the language model's steps (newest first)
   function thought() {
     const trace = value.clear_agent ? [] : (v.agent || []).slice().reverse();
     const step = x => [h('b', null, x.tool), x.arg && Object.keys(x.arg).length ? ' ' + JSON.stringify(x.arg) : '', x.result ? h('span', { class: 'dim' }, ' → ' + x.result) : null];
@@ -881,7 +881,7 @@ async function btBotDetail(no, tab = 'profile') {
       trace.length ? h('div', { class: 'row', style: { justifyContent: 'flex-end', marginTop: '10px' } }, btn(T('Clear thoughts'), () => { change('clear_agent', true); render(); }, 'ghost sm', 'trash', { disabled: lock })) : null)];
   }
 
-  // ---- İstatistik
+  // ---- Statistics
   function stats() {
     if (!v.var) return [missing()];
     const ist = v.stats || {};
@@ -935,7 +935,7 @@ function btAdvanced(d) {
   return typeof btLlmCard === 'function' ? btLlmCard(d) : h('div', { class: 'card' }, btLlmWarning());
 }
 
-// ------------------------------------------------------------------ Gelişmiş kip: dil modeli (llm_setup.py, /api/bot/llm)
+// ------------------------------------------------------------------ Advanced mode: language model (llm_setup.py, /api/bot/llm)
 function btLlmCard(d) {
   const box = h('div'), right = h('div');
   const a = d.settings;
@@ -951,7 +951,7 @@ function btLlmCard(d) {
       btRow(T('Chat with model'), T('If off, bots talk with templates as in Normal mode; the model is only used for decisions.'), btKey(a.llm_chat, v => btSetting('llm_chat', v))),
       btRow(T('Review decisions (minutes)'), T('Each bot consults the model about its situation this often, in minutes (0: never). Shorter is livelier but heavier.'),
         btNumber(a.llm_decision_min, v => btSetting('llm_decision_min', v), { min: 0, max: 120 })),
-      // araç döngüsü yalnız dahili model dışındaki sağlayıcılarda (bot/agent.py)
+      // the tool loop only for providers other than the built-in model (bot/agent.py)
       btRow(T('Play with tools'), T('With providers other than the built-in model, a bot first looks at its status, the maps, the shop and quests like a player, then decides with tools; it keeps a goal list and sets itself reminders.'),
         btKey(a.llm_agent, v => btSetting('llm_agent', v))),
       btRow(T('Max steps per thought'), T('How many times at most the model is asked in one thought (several tools each time). Most thoughts finish in 1-2 requests; a higher value means more requests.'),
@@ -962,7 +962,7 @@ function btLlmCard(d) {
 
 function btLlmWatch(box, right) {
   let signature = '', selected = null;
-  // sağlayıcı formu yalnız seçim değişince yeniden çizilir (yoklama yazılanı silmesin); alt kutu dahili modelde kurulum, ötekilerde test
+  // the provider form is redrawn only when the choice changes (so polling does not erase what is typed); the lower box is setup for the built-in model, test for the others
   const render = s => {
     signature = JSON.stringify(s);
     if (BT.entries) BT.entries.llm_multilingual = s.provider.multilingual;
@@ -977,7 +977,7 @@ function btLlmWatch(box, right) {
   }, 1000);
 }
 
-// sağlayıcı adları (öteki sağlayıcıların adı kendi markası)
+// provider names (the other providers' names are their own brand)
 const BT_PROVIDER_NAME = { local: N('Built-in local model (Qwen3 4B)'), special: N('Custom (OpenAI-compatible)') };
 function btLlmProvider(provider, new_) {
   const p = provider.entries.find(x => x.uid === provider.selected);
@@ -987,7 +987,7 @@ function btLlmProvider(provider, new_) {
     provider.entries.map(x => h('option', { value: x.uid, selected: x.uid === provider.selected }, BT_PROVIDER_NAME[x.uid] ? T(BT_PROVIDER_NAME[x.uid]) : x.name)));
   const rows = [btRow(T('Provider'), T("The bots' chat and decisions come from this model."), sec)];
   if (provider.selected === 'local') return h('div', null, rows);
-  // model: önce elle yazılır; modeller çekilince açılır liste olur (datalist dolu kutuda süzülüp açılmıyordu)
+  // model: typed by hand first; when models are fetched it becomes a dropdown (a datalist filtered and did not open in a filled box)
   const modelBox = h('div', null, h('input', { class: 'input', value: f.model, oninput: e => { f.model = e.target.value.trim(); } }));
   const load = async () => {
     const x = await act(() => api('/api/bot/llm/models', { uid: provider.selected, address: f.address, anahtar: f.anahtar }), r => T('{0} models found.', r.models.length));
@@ -1023,7 +1023,7 @@ function btLlmRemoteBox(s, render) {
 function btLlmBox(s, render) {
   const call = (route, msg) => act(() => api('/api/bot/llm/' + route, {}), msg).then(x => { if (x) render(x); });
   const pct = s.total ? Math.floor(100 * s.claimed / s.total) : 0;
-  const t = s.test && !s.test.provider ? s.test : {};          // uzak sağlayıcının testi değil
+  const t = s.test && !s.test.provider ? s.test : {};          // not the remote provider's test
   const low = s.memory_gb != null && s.memory_gb < s.min_memory_gb;
   const hardware = h('div', { class: 'small muted' }, T('This computer: {0} GB memory, {1} cores.', s.memory_gb ?? '?', s.cores ?? '?'),
     low ? h('b', { style: { color: 'var(--warn)', marginLeft: '6px' } }, T('Recommended at least {0} GB.', s.min_memory_gb)) : null);
@@ -1051,7 +1051,7 @@ function btLlmBox(s, render) {
     s.state === 'ready' ? h('div', { class: 'alert info' }, icon('info'), h('div', null, T("When the game opens, the model opens too; the bots' chat and decisions come from it. If the model can't keep up, the bots behave as in Normal mode."))) : null);
 }
 
-// ------------------------------------------------------------------ botların oyun ayarı profili (bot/game_settings.py)
+// ------------------------------------------------------------------ the bots' game settings profile (bot/game_settings.py)
 function btGameSettingCard(d) {
   const game_settings = JSON.parse(JSON.stringify(d.settings.game_settings || { profile: 'standard', values: {} }));
   const info = BT.entries?.game_settings || { ready: [], fields: [] };

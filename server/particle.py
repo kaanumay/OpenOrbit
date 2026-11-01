@@ -1,25 +1,25 @@
-"""Parçacık silahları ve Singularity Drive (yol haritası Aşama 9b; veri data/particle.json <- tools/particle.py, kaynak resmî forum
-SSS'leri ve darkorbitwiki).
+"""Particle weapons and Singularity Drive (roadmap Stage 9b; data data/particle.json <- tools/particle.py, source official forum
+FAQs and darkorbitwiki).
 
-Eşyalar envanterde örnek olarak (profil esyalar); hangarda geminin yuvalarına: top 'cannon' (3, her türden bir), kırıcı
-'cannonShield' (6), sürücü 'drive', mercek 'lens' (sayılar istemcinin gemi verisinde). Örnek durumu profilde: parcacik {itemId:
-{nitelik [[ad, değer]], hak (yenileme), yildiz}}; topların ve kırıcıların ek nitelikleri alınınca çekilir (kaliteye göre adet ve
-aralık), sürücü ve merceklerin alt nitelikleri yükseltme seviyesi 5/10/15/20'de açılır. Hangar ipucu: topun temel hasarı
-extAttributes ('baseDamage'), nitelikler modifiers ("değer,ad;…"), UL topun gemisi ships.
-Yenileme: toplar ve kırıcılar Assembly'nin Restabilize sekmesinde (CannonUnstableModuleModule; OptiGrad Chip, geri dönüşümde çip ve
-yükseltme malzemesinin %80'i; UL geri dönüştürülmez), sürücüler ve mercekler Singularity Drive penceresinde (LockAttributeItem*:
-Horizon Shard, kilit Containment Node).
-Uçuşta (Atis, dünyanın döngüsünde):
-  slug (kısayol çubuğu 'cannons'): seçilir ve hedefe ateşlenir (aynı türden top takılıysa; bütün topların tek beklemesi 4 sn,
-      menzil 600); RG-SL açıkken lazer saldırısında seçili slug kendiliğinden. CannonAttackCommand {cannonType, hit, attackerId,
-      attackedId} + AttackHitCommand (attackType CANNON 21, cannonType, strike). Helios: 5 hedefe 275 içinde %40 sıçrama
-      (PlayVisualEffectCommand 8); Nidhogg: 20 sn %5 aşındırma zaafı, 5 kat (VisualModifierCommand 146); Indra: 7 hedefe zincir, her
-      atlamada -%15 (PlayVisualEffectCommand 9).
-  GSP (kısayol çubuğu 'drives'): takılı sürücü sayısı kadar cephane, bekleme 10 sn; ana hedefin çevresinde 600 birimlik alan 8 sn
-      saniyede bir vurur (AttackHitCommand DRIVE 22; görsel DA_SHOT 17-19, alan DA_OUTER_FRIENDLY 152/154/156). Apex ve Prime set
-      çarpanı (3-10 sürücü), 6 Apex/Prime'dan sonra alan 900 (istemcinin paket açıklamaları). AGS-X açıkken lazer saldırısında
-      kendiliğinden.
-Kırıcı ve merceklerin savunması oyuncu silahlarına karşı (bot oyuncularla, Aşama 11).
+Items are instances in the inventory (profile items); in the hangar in the ship's slots: cannon 'cannon' (3, one of each type), breaker
+'cannonShield' (6), drive 'drive', lens 'lens' (the numbers are in the client's ship data). Instance state in the profile: particle {itemId:
+{attribute [[name, value]], right (reroll), star}}; the extra attributes of cannons and breakers are rolled when obtained (count and
+range by quality), the sub-attributes of drives and lenses unlock at upgrade level 5/10/15/20. Hangar tooltip: the cannon's base damage is
+extAttributes ('baseDamage'), attributes modifiers ("value,name;…"), the UL cannon's ship is ships.
+Reroll: cannons and breakers in the Assembly's Restabilize tab (CannonUnstableModuleModule; OptiGrad Chip, 80% of the chip and
+upgrade material on recycling; UL is not recycled), drives and lenses in the Singularity Drive window (LockAttributeItem*:
+Horizon Shard, lock Containment Node).
+In flight (Atis, in the world's loop):
+  slug (shortcut bar 'cannons'): selected and fired at the target (if a cannon of the same type is equipped; one shared 4 s cooldown for all
+      cannons, range 600); with RG-SL on, the selected slug fires on its own on a laser attack. CannonAttackCommand {cannonType, hit,
+      attackerId, attackedId} + AttackHitCommand (attackType CANNON 21, cannonType, strike). Helios: 40% chance to jump to 5 targets
+      within 275 (PlayVisualEffectCommand 8); Nidhogg: 20 s 5% corrosion weakness, 5 stacks (VisualModifierCommand 146); Indra: chain to 7
+      targets, -15% per jump (PlayVisualEffectCommand 9).
+  GSP (shortcut bar 'drives'): as much ammo as the number of equipped drives, cooldown 10 s; a 600-unit field around the main target hits
+      once a second for 8 s (AttackHitCommand DRIVE 22; visual DA_SHOT 17-19, field DA_OUTER_FRIENDLY 152/154/156). Apex and Prime set
+      multiplier (3-10 drives), after 6 Apex/Prime the field is 900 (the client's package descriptions). With AGS-X on, it fires on its
+      own on a laser attack.
+The breakers' and lenses' defense is against player weapons (with bot players, Stage 11).
 """
 import json, math, os, random, time
 
@@ -36,12 +36,12 @@ PREFIX = {'equipment_weapon_cannon_': 'cannon', 'equipment_cannon_shield_': 'can
           'equipment_lens_': 'lens'}
 SHIP_SLOTS = {'cannon': 'cannons', 'cannonShield': 'cannon_shields', 'drive': 'drives', 'lens': 'lenses'}
 SLOTS = tuple(PREFIX.values())
-CANNON_ATTACK, DRIVE_ATTACK = 21, 22                 # istemcinin AttackType'ı
+CANNON_ATTACK, DRIVE_ATTACK = 21, 22                 # the client's AttackType
 VE_THERMAL, VE_ELECTRO, VM_CORROSIVE = 8, 9, 146     # VisualEffectType, VisualModifier
-COOLDOWN_CANNON, COOLDOWN_DRIVE = 60, 61             # CooldownType (kısayol çubuğu grupları)
+COOLDOWN_CANNON, COOLDOWN_DRIVE = 60, 61             # CooldownType (shortcut bar groups)
 CPU_CANNON, CPU_DRIVE = 'equipment_extra_cpu_rg-sl', 'equipment_extra_cpu_ags-x'
 DMG_KEY = {'thermal': 'cannon_damage_thermal', 'corrosive': 'cannon_corrosive_damage', 'electro': 'cannon_electro_damage'}
-DRIVE_SHIP_KEYS = {'drive_experience': 'ep', 'drive_honour': 'honor', 'drive_evasion': 'evasion',     # sürücü/merceğin ve kırıcının gemiye etkisi
+DRIVE_SHIP_KEYS = {'drive_experience': 'ep', 'drive_honour': 'honor', 'drive_evasion': 'evasion',     # the effect of the drive/lens and the breaker on the ship
                    'experience': 'ep', 'honour': 'honor', 'hitpoints': 'can'}
 
 
@@ -67,7 +67,7 @@ def state(p, iid):
 
 
 def tier(loot):
-    """Kalite sırası: top 0-6 (C … UL), kırıcı 0-5 (01 … 06), sürücü/mercek 0."""
+    """Quality order: cannon 0-6 (C … UL), breaker 0-5 (01 … 06), drive/lens 0."""
     row = CANNONS.get(loot) or SHIELDS.get(loot)
     return row['order'] if row else 0
 
@@ -81,7 +81,7 @@ def pool(loot):
 
 
 def roll(loot, rng=random, n=None):
-    """Topun/kırıcının ek nitelikleri: kaliteye göre adet, aralık; tekrarsız."""
+    """The cannon's/breaker's extra attributes: count and range by quality; without repeats."""
     pl = pool(loot)
     if not pl:
         return []
@@ -96,7 +96,7 @@ def rerolls(loot):
 
 
 def create(p, loot, rng=random, star=0):
-    """Yeni örnek -> itemId (top/kırıcının ek nitelikleri çekilir)."""
+    """New instance -> itemId (the cannon's/breaker's extra attributes are rolled)."""
     iid = p.new_item(loot)
     st = {'attribute': roll(loot, rng), 'right': rerolls(loot), 'star': star}
     with p.lock:
@@ -106,13 +106,13 @@ def create(p, loot, rng=random, star=0):
 
 
 def level(p, iid):
-    """Yükseltme seviyesi (istemcinin gösterdiği: 1-20)."""
+    """Upgrade level (as the client shows it: 1-20)."""
     import upgrades as UPG
     return UPG.item_level(p, iid) + 1
 
 
 def ensure(p, iid, rng=random):
-    """Sürücü/merceğin alt nitelikleri: yükseltme seviyesi 5/10/15/20'de birer (en çok 4) -> durum."""
+    """The drive's/lens's sub-attributes: one each at upgrade level 5/10/15/20 (at most 4) -> state."""
     loot = p.d['items'].get(str(iid), '')
     st = state(p, iid)
     if st is None and is_item(loot):
@@ -120,7 +120,7 @@ def ensure(p, iid, rng=random):
         with p.lock:
             p.d.setdefault('particle', {})[str(iid)] = st
             p.dirty = True
-    if st is not None and st['right'] > rerolls(loot):         # değiştirme sınırı düştü (URETIM-4): eski kayıtlardaki kalan hak
+    if st is not None and st['right'] > rerolls(loot):         # the replacement limit was dropped (URETIM-4): the remaining allowance in old saves
         st['right'] = rerolls(loot)
         p.dirty = True
     if st is not None and (loot in DRIVES or loot in LENSES):
@@ -140,9 +140,9 @@ def attrs(p, iid):
 
 
 def modifiers_str(p, iid):
-    """Hangar ipucunun nitelik satırları. İstemci (TooltipPreparerFactory.ReturnModifiers): "AD,değer;…", ad ilk, değer son parça;
-    metin items_equipment_shipupgrade_modifiertype_<ad küçük harf>, ad büyük harfle CANNON_IGNORE_DEF_* / DRIVE_IGNORE_DEF ise değer
-    düz, ötekiler "%". Önce "değer,ad" gidiyordu: ipucu "+cannon_strike_corrosive%" diye ham ad gösteriyordu (canlı test H55)."""
+    """Attribute rows of the hangar tooltip. Client (TooltipPreparerFactory.ReturnModifiers): "NAME,value;…", name first, value the last part;
+    text items_equipment_shipupgrade_modifiertype_<lowercase name>, name in uppercase; for CANNON_IGNORE_DEF_* / DRIVE_IGNORE_DEF the value is
+    plain, the others "%". Before, "value,name" was sent: the tooltip showed the raw name as "+cannon_strike_corrosive%" (live test H55)."""
     st = ensure(p, iid)
     return ';'.join('%s,%d' % (a.upper(), int(round(v))) for a, v in (st or {}).get('attribute', []))
 
@@ -155,24 +155,24 @@ def base_damage(p, iid, ship_loot=None):
     st = state(p, iid) or {}
     dmg = row['base'] * C['star'][st.get('star', 0)]
     if row['ship'] and ship_loot == row['ship']:
-        dmg *= C['ship_specific']                              # UL topun kendi gemisinde
+        dmg *= C['ship_specific']                              # the UL cannon's own ship
     return dmg
 
 
 def hangar_fields(p, iid, loot):
-    """HangarShipEquipmentInventoryItem'a eklenecek alanlar."""
+    """Fields to add to HangarShipEquipmentInventoryItem."""
     st = ensure(p, iid) or {}
     f = {'modifiers': modifiers_str(p, iid), 'star': st.get('star', 0)}
     if loot in CANNONS:
         f['extAttributes'] = [mod('TupleTwoModule', param0='baseDamage', param1=str(int(base_damage(p, iid))))]
         if CANNONS[loot]['ship']:
-            import ship_module as GM                           # ipucunun gemisi sayısal kimlikle (ReturnShips)
+            import ship_module as GM                           # the tooltip's ship by numeric id (ReturnShips)
             f['ships'] = GM.ship_ids([CANNONS[loot]['ship']])
     return f
 
 
 def equip_allowed(p, iid, slot, current):
-    """-> hata metni ya da None: gemide her türden bir top."""
+    """-> error text or None: one cannon of each type on the ship."""
     loot = p.d['items'].get(str(iid), '')
     if slot == 'cannon':
         kind = CANNONS[loot]['type']
@@ -186,17 +186,17 @@ def equipped(p, slot, sid=None, cid=None):
 
 
 def cannon_for(p, element):
-    """Etkin config'te bu türden takılı top -> itemId ya da None."""
+    """The cannon of this type equipped in the active config -> itemId or None."""
     return next((i for i in equipped(p, 'cannon') if CANNONS.get(p.d['items'][str(i)], {}).get('element') == element), None)
 
 
 def shield_npc(p, e):
-    """Takılı kırıcıların uzaylıya e elementi hasar bonusu (puan)."""
+    """Damage bonus (points) of the equipped breakers against aliens of element e."""
     return sum(attrs(p, i).get('cannon_damage_npc_' + e, 0) for i in equipped(p, 'cannonShield'))
 
 
 def mods(p, ship_loot, cfg):
-    """Takılı sürücü ve merceklerin gemiye etkileri (EP, onur, kaçınma)."""
+    """Effects of the equipped drives and lenses on the ship (EP, honor, evasion)."""
     out = {}
     for slot in ('drive', 'lens', 'cannonShield'):
         for iid in cfg.get(slot, []):
@@ -210,7 +210,7 @@ def mods(p, ship_loot, cfg):
 
 
 def migrate(p):
-    """Aşama 9b öncesi depoda saklanan top, kırıcı, sürücü ve mercekler -> envanter örnekleri. -> taşınan adet."""
+    """Cannons, breakers, drives and lenses kept in storage before Stage 9b -> inventory instances. -> number moved."""
     moved = 0
     for loot, n in list(p.d.get('other_items', {}).items()):
         if is_item(loot) and loot in ITEMS and n > 0:
@@ -221,22 +221,22 @@ def migrate(p):
     return moved
 
 
-# ---------------------------------------------------------------- Restabilize (toplar ve kırıcılar; gemi_modul.py)
+# ---------------------------------------------------------------- Restabilize (cannons and breakers; ship_module.py)
 def restabilizable(loot):
     return loot in CANNONS or loot in SHIELDS
 
 
 def upgrade_returns(p, iid, share):
-    """Yükseltme malzemesinin payı (geri dönüşüm ve Synthesis)."""
+    """Share of the upgrade material (recycling and Synthesis)."""
     import upgrades as UPG
     spent = UPG.spent(p, iid) if hasattr(UPG, 'spent') else {}
     return {k: int(v * share) for k, v in spent.items() if int(v * share) > 0}
 
 
 def attr_mods(st):
-    """Restabilize ve Update listelerinin nitelikleri. İstemci (RerollStatsListItem / DriveStatsListItem) adı büyük harfle
-    CANNON_IGNORE_DEF_* / DRIVE_IGNORE_DEF ile karşılaştırıp penetrasyonu düz gösterir, simge ve metin için küçültür; küçük harfle
-    gidince penetrasyon "51.53%" görünüyordu (canlı test H71)."""
+    """Attributes of the Restabilize and Update lists. The client (RerollStatsListItem / DriveStatsListItem) compares the name in uppercase to
+    CANNON_IGNORE_DEF_* / DRIVE_IGNORE_DEF to show penetration plain, and lowercases it for the icon and text; when it went
+    in lowercase, penetration showed as "51.53%" (live test H71)."""
     return [mod('UnstableAttributeModule', attribute=a.upper(), boostValue=float(v)) for a, v in (st or {}).get('attribute', [])]
 
 
@@ -250,7 +250,7 @@ def module_msg(p, iid):
                attributes=attr_mods(st),
                shipDesigns=[CANNONS[loot]['ship']] if CANNONS.get(loot, {}).get('ship') else [], itemId=int(iid), lootId=loot,
                upgradeReturns=[mod('LootModule', lootId=k, amount=v, modifier='') for k, v in back.items()],
-               upgradeLevel=level(p, iid))          # gösterilen seviye (H63 ile aynı: liste olduğu gibi yazar, topta 0 da görünüyordu)
+               upgradeLevel=level(p, iid))          # the displayed level (same as H63: the list writes it as is, on a cannon 0 was shown too)
 
 
 def modules(p):
@@ -258,7 +258,7 @@ def modules(p):
 
 
 def reroll(p, iid, rng=random):
-    """OptiGrad Chip ile ek nitelikler yeniden -> (eski modül, yeni modül) ya da hata anahtarı."""
+    """Attributes re-rolled with an OptiGrad Chip -> (old module, new module) or an error key."""
     loot = p.d['items'].get(str(iid), '')
     st = ensure(p, iid)
     if not restabilizable(loot) or not st:
@@ -278,7 +278,7 @@ def reroll(p, iid, rng=random):
 
 
 def revert(p, iid):
-    """Yenilemeden önceki nitelikler (Restabilize penceresinde eskisini seçmek) -> True: değişti."""
+    """The attributes before the reroll (choosing the old one in the Restabilize window) -> True: it changed."""
     st = state(p, iid)
     if not st or not st.get('previous'):
         return False
@@ -289,7 +289,7 @@ def revert(p, iid):
 
 
 def recycle(p, iid):
-    """Geri dönüşüm -> {lootId: adet} ya da None (takılı)."""
+    """Recycling -> {lootId: count} or None (equipped)."""
     loot = p.d['items'].get(str(iid), '')
     if not restabilizable(loot) or iid in p.equipped_ids():
         return None
@@ -304,13 +304,13 @@ def recycle(p, iid):
     return got
 
 
-# ---------------------------------------------------------------- sürücü ve merceklerin alt nitelikleri (LockAttributeItem*)
+# ---------------------------------------------------------------- sub-attributes of drives and lenses (LockAttributeItem*)
 def lock_module(p, iid):
     loot = p.d['items'][str(iid)]
     st = ensure(p, iid)
     K = D['lock']
-    # upgradeLevel gösterilen seviye (1-20): Restabilize listesi onu olduğu gibi yazar (0'sa gizler), Upgrade sekmesi envanterdekinin
-    # bir fazlasını; önce 0'dan gidiyordu, iki sekme farklı seviye gösteriyordu (canlı test H63). Yuvaların açıklığı attributes'tan
+    # upgradeLevel is the displayed level (1-20): the Restabilize list writes it as is (hides it if 0), the Upgrade tab one more than the
+    # inventory's; it used to start from 0, and the two tabs showed different levels (live test H63). The slots' openness from attributes
     return mod('LockAttributeItemModule', upgradeLevel=level(p, iid), lockCostLootAmounts=K['lock'], lockCostLoot=K['lock_item'],
                restabilizeCostLootAmounts=K['renewal'], restabilizeCostLoot=K['renewal_item'], lootId=loot,
                lockAttributeLevels=K['levels'],
@@ -323,7 +323,7 @@ def lock_list_cmd(p):
 
 
 def lock_reroll(p, iid, locks, rng=random):
-    """Kilitlenmeyen alt nitelikler yeniden (Horizon Shard; kilit başına Containment Node) -> True/False."""
+    """Sub-attributes that are not locked, again (Horizon Shard; Containment Node per lock) -> True/False."""
     loot = p.d['items'].get(str(iid), '')
     st = ensure(p, iid)
     if not st or (loot not in DRIVES and loot not in LENSES) or not st['attribute']:
@@ -352,10 +352,10 @@ def lock_reroll(p, iid, locks, rng=random):
     return True
 
 
-# ---------------------------------------------------------------- uçuş
+# ---------------------------------------------------------------- flight
 def drive_power(p, ids):
-    """Takılı sürücülerin toplam hasarı (seviye, alt nitelik, set çarpanı), alan yarıçapı (Apex ve Prime seti) ve en iyi sürücünün
-    görsel kademesi."""
+    """Total damage of the equipped drives (level, sub-attribute, set multiplier), field radius (Apex and Prime set) and the best drive's
+    visual tier."""
     rows = [(i, p.d['items'][str(i)]) for i in ids]
     big = [l for i, l in rows if DRIVES[l]['shot'] >= 2]
     mult, area = 1.0, DR['area']
@@ -371,12 +371,12 @@ def drive_power(p, ids):
 
 
 class Shot:
-    """Dünyanın parçacık topu ve sürücü atışları (dünya kilidi altında çağrılır)."""
+    """The world's particle cannon and drive shots (called under the world lock)."""
 
     def __init__(self, world):
         self.w, self.p = world, world.p
-        self.zones = []                # [{x, y, bitis, sonraki, hasar, hedef, vm}]
-        self.corrosive = {}              # npc id -> [kat, bitiş]
+        self.zones = []                # [{x, y, end, next, damage, target, vm}]
+        self.corrosive = {}              # npc id -> [stacks, end]
         with self.p.lock:
             sel = self.p.d.setdefault('selected', {})
             sel.setdefault('slug', 'ammunition_slug_ths-d01')
@@ -388,7 +388,7 @@ class Shot:
 
     def cool(self, group, sec, now):
         import combat_items as CIT
-        sec *= SET.multiplier('skill_cooldown', 'particle')     # panel: yetenek ve eşya beklemeleri (top ve sürücü de)
+        sec *= SET.multiplier('skill_cooldown', 'particle')     # panel: ability and item cooldowns (cannon and drive too)
         with self.p.lock:
             self.p.d.setdefault(CIT.TIMERS, {})[str(group)] = [now + sec, int(sec * 1000)]
             self.p.dirty = True
@@ -397,7 +397,7 @@ class Shot:
         self.w.later(sec, lambda: self.w.send([CIT.timer_msg(group, ms, cooling=False)]))
 
     def menu(self, item, act, now=None):
-        """Kısayol çubuğu: slug ya da GSP seçilir ve hedef varsa ateşlenir."""
+        """Shortcut bar: a slug or GSP is selected and fired if there is a target."""
         now = now or time.time()
         kind = 'slug' if item in SLUGS else 'gsp'
         if act not in (0, 1):
@@ -407,7 +407,7 @@ class Shot:
             self.p.d['selected'][kind] = item
             self.p.dirty = True
             self.w.send([('MenuItemStatusCommand', st) for st in (self.p.menu_status(old) if old else None, self.p.menu_status(item)) if st])
-            self.w.log('   %s seçildi: %s' % ('slug' if kind == 'slug' else 'GSP', item))
+            self.w.log('   %s selected: %s' % ('slug' if kind == 'slug' else 'GSP', item))
         if act == 0:
             return  # Category SELECT chooses ammo without firing a cannon/drive.
         n = self.w.npcs.get(self.w.target)
@@ -415,7 +415,7 @@ class Shot:
             (self.fire_cannon if kind == 'slug' else self.fire_drive)(n, now, item)
 
     def auto(self, n, now):
-        """Lazer saldırısında: RG-SL seçili slug'ı, AGS-X seçili GSP'yi kendiliğinden ateşler."""
+        """On a laser attack: RG-SL fires the selected slug, AGS-X fires the selected GSP on its own."""
         import combat_items as CIT
         if CIT.toggled(self.p, CPU_CANNON) and self.ready(COOLDOWN_CANNON, now):
             self.fire_cannon(n, now, self.p.d['selected'].get('slug'), auto=True)
@@ -437,7 +437,7 @@ class Shot:
                     out.append((d, m))
         return [m for d, m in sorted(out, key=lambda x: x[0])]
 
-    # ------------------------------------------------------------ top
+    # ------------------------------------------------------------ cannon
     def fire_cannon(self, n, now, slug, auto=False):
         w, p = self.w, self.p
         if not slug or slug not in SLUGS or w.hero_dead or w.jumping:
@@ -457,7 +457,7 @@ class Shot:
             why = 'menzil dışı'
         if why:
             if not auto:
-                w.log('   top ateşlenmedi (%s): %s' % (slug, why))
+                w.log('   cannon not fired (%s): %s' % (slug, why))
             return False
         p.use_ammo(slug, 1)
         loot = p.d['items'][str(iid)]
@@ -483,14 +483,14 @@ class Shot:
         dmg = int(dmg)
         nx, ny = n.mover.pos(now)
         w.hit_npc(n.id, dmg, CANNON_ATTACK, strike=crit, cannon=row['cannonType'])
-        if e == 'thermal':                                       # Helios: sıçrama
+        if e == 'thermal':                                       # Helios: jump
             S = C['splash']
             near = self.others(nx, ny, S['radius'], {n.id}, now)[:S['target']]
             if near:
                 w.send([('PlayVisualEffectCommand', dict(activatorId=n.id, targetIds=[m.id for m in near], visualEffect=VE_THERMAL))])
                 for m in near:
                     w.hit_npc(m.id, int(dmg * S['ratio']), CANNON_ATTACK, cannon=row['cannonType'])
-        elif e == 'corrosive':                                   # Nidhogg: aşındırma zaafı
+        elif e == 'corrosive':                                   # Nidhogg: corrosion weakness
             A = C['abrasion']
             k = self.corrosive.get(n.id, [0, 0])
             k = [min(A['multiplier'], (k[0] if k[1] > now else 0) + 1), now + A['sn']]
@@ -498,7 +498,7 @@ class Shot:
             if n.alive:
                 w.send([('VisualModifierCommand', dict(userId=n.id, modifier=VM_CORROSIVE, attribute=k[0], additionalAttribute='',
                                                        count=k[0], activated=True))])
-        elif e == 'electro':                                     # Indra: zincir
+        elif e == 'electro':                                     # Indra: chain
             Z = C['chain']
             chain, seen, x, y, d = [], {n.id}, nx, ny, dmg
             while len(chain) < Z['target'] - 1:
@@ -520,7 +520,7 @@ class Shot:
         k = self.corrosive.get(uid)
         return k[0] * C['abrasion']['ratio'] if k and k[1] > now else 0.0
 
-    # ------------------------------------------------------------ sürücü
+    # ------------------------------------------------------------ drive
     def fire_drive(self, n, now, gsp, auto=False):
         w, p = self.w, self.p
         if not gsp or gsp not in GSP or w.hero_dead or w.jumping:
@@ -540,7 +540,7 @@ class Shot:
             why = 'menzil dışı'
         if why:
             if not auto:
-                w.log('   sürücü ateşlenmedi (%s): %s' % (gsp, why))
+                w.log('   drive not fired (%s): %s' % (gsp, why))
             return False
         p.use_ammo(gsp, len(ids))
         self.cool(COOLDOWN_DRIVE, DR['cooldown_sec'], now)
@@ -548,7 +548,7 @@ class Shot:
         shot, vm = DR['effect'][str(best)]
         x, y = n.mover.pos(now)
         import ship_ability as SA
-        bonus = SA.take(p, 'next_gsp')                 # Hyperion Quantum Amplifier: bu atışa +%10
+        bonus = SA.take(p, 'next_gsp')                 # Hyperion Quantum Amplifier: +10% on this shot
         zone = self.resonate({'x': x, 'y': y, 'end_time': now + DR['sure_sn'], 'next': now, 'damage': power * GSP[gsp] * (1 + bonus), 'target': n.id,
                               'vm': vm, 'area': area}, now)
         self.zones.append(zone)
@@ -560,8 +560,8 @@ class Shot:
         return True
 
     def resonate(self, z, now):
-        """En iyi Strike Resonator'ın nitelikleri (resonator.py, Ö6): yarıçap, süre, toplam hasar, artçı patlama, yavaşlatma,
-        ana hedefi izleme. Hasar saniyelik: toplam hasar (süre x saniyelik) çarpanla korunur."""
+        """Attributes of the best Strike Resonator (resonator.py, Ö6): radius, duration, total damage, aftershock, slowdown,
+        following the main target. Damage is per second: the total damage (duration x per-second) is kept with the multiplier."""
         import resonator as RS
         a = RS.strike_mods(self.p)
         if not a:
@@ -573,7 +573,7 @@ class Shot:
             duration, total = duration * 1.25, total * (1 + a['evernight'] / 100.0)
         per = z['damage'] * total * DR['sure_sn'] / duration
         z.update(end_time=now + duration, damage=per, area=z['area'] * (1 + a.get('expansion', 0) / 100.0), resonator=a)
-        if 'aftershock' in a:                       # %75 alan süresince, %25 bitişte (yarıçap +x)
+        if 'aftershock' in a:                       # 75% over the field's duration, 25% at the end (radius +x)
             z['aftershock_dmg'] = per * 0.25 * duration
             z['damage'] = per * 0.75
             z['aftershock_area'] = z['area'] * (1 + a['aftershock'] / 100.0)
@@ -589,12 +589,12 @@ class Shot:
         zones = self.zones
         z['next'] = now + 1.0
         t = self.w.npcs.get(z['target'])
-        if z.get('follow', 0) > now and t is not None and t.alive:       # Adhesion: alan ana hedefle gider
+        if z.get('follow', 0) > now and t is not None and t.alive:       # Adhesion: the field moves with the main target
             z['x'], z['y'] = t.mover.pos(now)
         for m in self.others(z['x'], z['y'], z.get('area', DR['area']), set(), now):
             if self.w.hero_dead or self.zones is not zones:
                 break                                   # a hit can kill the hero or stop the world and clear all zones
-            if z.get('slow'):                                          # Stagnation: alandayken yavaş (çıkınca 1,2 sn'de biter)
+            if z.get('slow'):                                          # Stagnation: slow while in the field (ends 1.2 s after leaving)
                 self.w.npc_effect(m, 'slow', 1.2, z['slow'], source='resonator')
             if random.random() < DR['hit']:
                 self.w.hit_npc(m.id, int(z['damage']), DRIVE_ATTACK)
@@ -621,7 +621,7 @@ class Shot:
                     continue
                 if now >= z['end_time']:
                     self.zones.remove(z)
-                    if z.get('aftershock_dmg'):                                  # Aftershock: kalan %25 bitişte patlar
+                    if z.get('aftershock_dmg'):                                  # Aftershock: the remaining 25% explodes at the end
                         for m in self.others(z['x'], z['y'], z['aftershock_area'], set(), now):
                             if self.w.hero_dead or self.zones is not zones:
                                 break

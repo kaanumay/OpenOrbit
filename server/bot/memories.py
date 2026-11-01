@@ -1,24 +1,27 @@
-"""Botların anı defteri (Gelişmiş kip, güçlü sağlayıcı: llm.GUCLU): kişilerle yaşanan önemli olaylar kısa notlar olarak, kayıtta kalıcı.
+"""The bots' memory journal (Advanced mode, strong provider: llm.STRONG): important events with people as short notes, persistent in the
+save.
 
-Generative Agents (Park ve ark. 2023) düzeni: anı akışı (önem x tazelikle seçilir), kişi başına izlenim (yansıma) ve anılardan doğan
-sonuçlar (takip). Kayıtta:
-  k['anilar']   [{t, kim, ozet, tur, duygu (-1..1), onem (1-3), n, takip}]; ozet modele giden İngilizce not ("Kaan shot me down on 2-4")
-  k['izlenim']  {kim_kucuk: {ad, metin, t}}: kişi hakkında yoğun kanı (konuşma özetiyle model günceller)
-takip: {amac (soz | intikam | tesekkur | rekabet | merak), vade (an), arac (yok | takip_et | grup_davet | duello | yardima_git), harita,
-bitti}. Vakti gelen ve iki taraf da çevrimiçiyse llm.Beyin botun ağzından konuyu açar, aracı çalıştırır (vadesi_gelenler).
+Generative Agents (Park et al. 2023) layout: memory stream (chosen by importance x recency), a per-person impression (reflection) and
+consequences born from memories (follow-up). In the save:
+  k['memories']   [{t, who, summary, type, emotion (-1..1), importance (1-3), n, followup}]; summary is the English note sent to the model
+  ("Kaan shot me down on 2-4")
+  k['impression']  {lowercase name: {name, text, t}}: a dense opinion about a person (the model updates it with the conversation summary)
+follow-up: {purpose (promise | intikam | thanks | rekabet | merak), due (moment), tool (none | follow | group_invite | duel | go_help),
+map, finished}. When its time comes and both sides are online, llm.Brain raises the topic in the bot's own words and runs the tool
+(due_followups).
 
-Kaynaklar: oyunun olayları (Hafiza.olay -> olaydan, şablonla; yalnız gerçek oyuncularla), konuşma sonunda modelin özeti (llm._ani_ozet)
-ve botlar arası dedikodu (duydum). Botlarla bot arasındaki olaylar anı olmaz (çok olur, oyuncu görmez).
+Sources: game events (from_event -> from the event, by template; only with real players), the model's summary at the end of a conversation
+(llm._memory_summary) and gossip between bots (heard). Events between bots are not memories (there are many, the player does not see them).
 """
 import time
 
-MAX_MEMORIES = 60                      # bot başına anı (en az değerli olan düşer)
-MERGE_SEC = 1800              # aynı kişiyle aynı türden olay bu süre içinde tekrarlanırsa sayılır ("x3")
-GRACE_SEC = 6 * 3600            # takibin vadesi geçince bu kadar bekler (kişi çevrimiçi olmadıysa unutulur)
+MAX_MEMORIES = 60                      # memories per bot (the least valuable one drops)
+MERGE_SEC = 1800              # an event of the same type with the same person is counted if repeated within this time ("x3")
+GRACE_SEC = 6 * 3600            # after a follow-up's due time passes it waits this long (if the person did not come online it is forgotten)
 PURPOSES = ('promise', 'intikam', 'thanks', 'rekabet', 'merak')
 FOLLOWUP_TOOLS = ('none', 'follow', 'group_invite', 'duel', 'go_help')
 
-# oyun olayı -> (not, tür, duygu, önem); {ad} oyuncu
+# game event -> (note, type, emotion, importance); {ad} is the player
 TEMPLATE = {
     'killed_me': ('{name} shot me down', 'combat', -0.6, 2),
     'i_killed': ('I shot down {name}', 'combat', 0.2, 1),
@@ -41,12 +44,12 @@ def impressions(b):
 
 
 def _value(a, now):
-    """Anının ağırlığı: önem x tazelik (yarı ömür bir gün; tekrar eden olay biraz daha ağır)."""
+    """The weight of a memory: importance x recency (half-life one day; a repeating event is a bit heavier)."""
     return a['importance'] * (1 + 0.15 * min(5, a.get('n', 1) - 1)) * 0.5 ** (max(0, now - a['t']) / 86400)
 
 
 def add(b, who, summary, kind='not', emotion=0.0, importance=1, now=None, followup=None, merge=True):
-    """Anı ekle; aynı kişiyle aynı türden yakın olay sayılır. -> anı."""
+    """Add a memory; a recent event of the same type with the same person is counted. -> memory."""
     now = now if now is not None else time.time()
     mems = memories(b)
     k = str(who).lower()
@@ -84,14 +87,14 @@ def _line(a, now):
 
 
 def recall(b, who, now, n=6):
-    """Kişiyle en değerli n anı, eskiden yeniye."""
+    """The n most valuable memories with a person, oldest to newest."""
     k = str(who).lower()
     mems = [a for a in memories(b) if a['who'].lower() == k]
     return sorted(sorted(mems, key=lambda a: -_value(a, now))[:n], key=lambda a: a['t'])
 
 
 def text(b, who, now):
-    """İsteme: kişi hakkındaki izlenim ve anılar (yoksa '')."""
+    """Prompt: the impression and memories about a person ('' if none)."""
     out = ''
     trace = impressions(b).get(str(who).lower())
     if trace and trace.get('text'):
@@ -110,7 +113,7 @@ PURPOSE_NAME = {'promise': 'a plan you agreed on', 'intikam': 'you want revenge'
 
 
 def important(b, now, n=3, humans=None):
-    """Botun en değerli anıları (kişi fark etmeksizin; insanlar verilirse yalnız onlarla)."""
+    """The bot's most valuable memories (regardless of person; if humans are given, only with them)."""
     mems = [a for a in memories(b) if humans is None or a['who'].lower() in humans]
     return sorted(mems, key=lambda a: -_value(a, now))[:n]
 
@@ -127,9 +130,9 @@ def set_followup(purpose, now, minutes=10, tool='none', game_map=''):
             'map': str(game_map or '')[:8], 'finished': False}
 
 
-# ------------------------------------------------------------------------------------------------------------ oyun olayları
+# ------------------------------------------------------------------------------------------------------------ game events
 def is_human(y, name):
-    """Gerçek oyuncu mu (bot ya da uzaylı değil)."""
+    """Is it a real player (not a bot or an alien)."""
     if not name or str(name).lower() in getattr(y, 'name_index', {}):
         return False
     try:
@@ -140,7 +143,7 @@ def is_human(y, name):
 
 
 def from_event(y, b, name, kind, now=None):
-    """Hafiza.olay'ın kancası: oyuncuyla yaşanan önemli olay anı olur; bazıları sonuç doğurur (intikam, teşekkür)."""
+    """Hook of from_event: an important event with a player becomes a memory; some have consequences (revenge, thanks)."""
     from . import llm
     if not llm.STRONG or kind not in TEMPLATE or not is_human(y, name):
         return None
@@ -150,7 +153,7 @@ def from_event(y, b, name, kind, now=None):
     if a.get('followup'):
         return a
     if kind == 'killed_me' and a['n'] >= 2 and b.o('aggression') > 0.45 and _firma(name) not in (0, b.firma) and b.permission.get('pvp', True):
-        a['followup'] = set_followup('intikam', now, b.r.uniform(3, 15), 'duel')             # iki kez vurduysa: intikam
+        a['followup'] = set_followup('intikam', now, b.r.uniform(3, 15), 'duel')             # if hit twice: revenge
     elif kind == 'helped_me' and b.r.random() < 0.4 + 0.5 * b.o('sociability'):
         a['followup'] = set_followup('thanks', now, b.r.uniform(2, 8))
     elif kind == 'insult' and a['n'] >= 2 and b.o('rekabet') > 0.5:
@@ -168,7 +171,7 @@ def _firma(name):
 
 
 def due_followups(y, now, online):
-    """[(bot, anı)]: vakti gelmiş, bitmemiş takipler (bot ve kişi çevrimiçi). Süresi çok geçenler bitti sayılır."""
+    """[(bot, memory)]: follow-ups whose time has come and are not finished (bot and person online). Ones long overdue count as finished."""
     out = []
     for b in y.bots:
         for a in memories(b):
@@ -176,21 +179,21 @@ def due_followups(y, now, online):
             if not t or t.get('finished') or now < t['due']:
                 continue
             if now - t['due'] > GRACE_SEC:
-                t['finished'] = True                         # fırsat kaçtı
+                t['finished'] = True                         # the opportunity passed
                 continue
             if b.online and b.dead_until <= now and a['who'].lower() in online:
                 out.append((b, a))
     return out
 
 
-# ------------------------------------------------------------------------------------------------------------ dedikodu
+# ------------------------------------------------------------------------------------------------------------ gossip
 def pick_gossip(b, now, r):
-    """Botların kendi sohbetinde anlatılacak bir oyuncu anısı (önemli, bir günden taze) ya da None."""
+    """A player memory to tell in the bots' own chat (important, fresher than a day) or None."""
     mems = [a for a in memories(b) if a['importance'] >= 2 and now - a['t'] < 86400 and a['type'] != 'heard']
     return r.choice(mems) if mems else None
 
 
 def hear_gossip(listener, narrator, a, now):
-    """Dedikoduyu duyan bot: kişiye ilişkisi hafifçe değişir, düşük önemli "duydum" anısı."""
+    """The bot that heard the gossip: its relationship with the person changes slightly, a low-importance "heard" memory."""
     listener.memory.event(a['who'], 'gossip_good' if a['emotion'] > 0.1 else 'gossip_bad' if a['emotion'] < -0.1 else 'sohbet', now)
     add(listener, a['who'], 'heard from %s: %s' % (narrator.name, a['summary']), 'heard', a['emotion'] * 0.5, 1, now)

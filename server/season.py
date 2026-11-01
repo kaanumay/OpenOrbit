@@ -1,40 +1,40 @@
-"""Season Pass (yol haritası Aşama 7; veri data/tickets.json "sezon" <- tools/tickets.py, kayıttaki pencereden).
+"""Season Pass (roadmap Stage 7; data data/tickets.json "season" <- tools/tickets.py, from the window in the record).
 
-Kayıttaki akışlar ve istemcinin mesajları:
-  giriş              SeasonPassStatusCommand {pointsCost, uridiumCost (seviye başına), goldPass, extGoldPass, seasonName, marketingImage,
-                     timeToEventEnd sn}, SeasonPassRewardInfoCommand (üç ödül sırası, claimed), SeasonPassMissionInfoCommand
+Flows in the record and the client's messages:
+  login              SeasonPassStatusCommand {pointsCost, uridiumCost (per level), goldPass, extGoldPass, seasonName, marketingImage,
+                     timeToEventEnd s}, SeasonPassRewardInfoCommand (three reward tracks, claimed), SeasonPassMissionInfoCommand
                      {refreshInfo, missionItems [SeasonPassMissionModule {missionStatus, questDefinitionModule}]}, SeasonPointsInfoCommand
-  görev ilerlemesi   QuestConditionUpdateCommand (görev motorunun biçimi); bitince "0|A|STM|sp_daily-mission-completed" (weekly, season),
-                     QuestCompletedCommand {id, rating}, başarım olayı (kayıt: achievement_quest_quests_1), SeasonPointsInfoCommand
-  ödül               SeasonPassRewardClaimRequest {level, goldPass, extGoldPass} -> ödül + SeasonPassRewardClaimCommand {claimed}
-                     SeasonPassRewardClaimAllRequest -> alınabilen hepsi
-  seviye satın alma  SeasonPassLevelPurchaseRequest {amount} -> uridyumla (uridiumCost) -> SeasonPassLevelPurchaseCommand {success}
-  görev yenileme     SeasonPassRefreshRequest {questId, costType}: günlük ya da haftalık görevin yerine havuzdan başkası
-Görev durumu (istemcinin MissionStatusType'ı): 0 sürüyor, 1 Gold sürüyor, 2 Gold Pass gerekir, 3 bitti, 4 Gold bitti, 5 Gold Pass
-gerekir ama bitti (puanı Gold Pass alınınca gelir).
-Tek oyunculu uyarlamalar: ödül sırası ve görevler kayıttaki sezonun (her sezon aynı); yalnız sezon tasarımları (dron ve P.E.T.;
-2024-2025 sezonlarında Gold sırasının sonunda gemi tasarımı) sezonun sırasından: 2023-05 Mobius … 2026-08 Cerevisia (kayıttaki),
-sonra baştan (etkinlik_gorunumleri.season_track; geçmiş sezonların tasarımları başka yoldan alınamıyordu).
-Sezonlar gerçek oyunun ayları: şubat, mayıs, ağustos, kasım başı (season_id "2026-08"); bilinen sezonların gerçek tarihleri
-data/tickets.json "sezon.takvim"de (wiki: XIV 01.08.2026 - 25.10.2026 = 86 gün, kayıttaki timeToEventEnd 25.10 23:59'a denk; XV
-26.10.2026'dan, kaynak çıkana dek uyarlama), tabloda olmayanlar ay kuralıyla.
-Sezon bitince alınmamış ödüller verilir (istemcinin metni: "Any unclaimed rewards from the previous season has been booked to you");
-N.O.V.A. kaptanları bekler: sezon sonu penceresi SeasonPassRewardUnclaimedInfoCommand {captainPending, captainOwned, captainLimit,
-captainWarning} (istemcinin ShowEndView'ı; girişte bekleyen varken yine), düğmesi SeasonPassRewardClaimAllRequest. Kadroda yer yoksa
-kaptan ödülü alınmaz, SeasonPassCaptainLimitCommand ("Your N.O.V.A. roster is already full!"); bekleyenler sonraki sezon sonunda yanar.
-Günlük görevler (3 + 2 Gold) her gün, haftalıklar (5 + 3 Gold) pazartesi havuzdan çekilir (wiki havuzu: 48 günlük, 51 haftalık görev;
-"Complete 1 of the following tasks" satırları çok koşullu görev); sezonluklar sezon boyunca. Yenileme: günde 1 ücretsiz, sonra
-satın alınanlar 1-4. 500 U, 5-7. 1.000 U, 8-10. 2.000 U, 11+. 4.000 U (wiki; günlük ve haftalık ayrı sayılır, gün ve hafta başında
-sıfırlanır; kayıttaki refreshInfo sıradaki fiyatı bildirir). Seviye azami olunca satın alınan fazla puan 1 puan = 10 Onur. Gold Pass
-mağazada (resource_gold-pass 400.000 U) ya da paketten; Extra Gold Pass Gold Pass'ten sonra.
-Kayda özgü sezon (geliştirici notu 2026-10-28; oyuncu bildirimi: gerçek takvimin sezonu 25.10'da bitince bilet "kapanıyordu"):
-sezon kaydın ilk girişinde 1. günden başlar ve panelin sezon_suresi günü sürer (takvimden bağımsız; süre değişince süren sezona da
-uygulanır); aynı anda tek sezon. Biten sezonun yerine sıradaki: kayıt "ilerlemeli" oluşturulduysa (profil 'ilerlemeli', panelin yeni
-kayıt penceresi) ilk sezondan (2023-05 Mobius) başlayıp her sezon bitince bir sonrakine, en yeniye dek; sonradan eklenen sezonlar
-sırası gelince açılır, hepsi oynandıysa en yenisi yinelenir. Değilse hep en yeni sezon. Sezonun kimliği tasarımlarının sezonu
-(etkinlik_gorunumleri.SEASONS); başarım grubu ve süreli tariflerin bitişi bu sezondan (ACTIVE). Takvim işlevleri (season_id …)
-gerçek oyunun sezonlarını bilmek için kalır.
-Profilde: sezon {donem, bas, oynanan, puan, gold, ext, alinan, gun, gunluk, hafta, haftalik, deger, tamam, yenileme, bekleyen [[kaptan, adet]]}.
+  quest progress     QuestConditionUpdateCommand (the quest engine's format); when done "0|A|STM|sp_daily-mission-completed" (weekly, season),
+                     QuestCompletedCommand {id, rating}, achievement event (record: achievement_quest_quests_1), SeasonPointsInfoCommand
+  reward             SeasonPassRewardClaimRequest {level, goldPass, extGoldPass} -> reward + SeasonPassRewardClaimCommand {claimed}
+                     SeasonPassRewardClaimAllRequest -> everything that can be claimed
+  level purchase     SeasonPassLevelPurchaseRequest {amount} -> with uridium (uridiumCost) -> SeasonPassLevelPurchaseCommand {success}
+  quest refresh      SeasonPassRefreshRequest {questId, costType}: another one from the pool in place of a daily or weekly quest
+Quest status (the client's MissionStatusType): 0 in progress, 1 Gold in progress, 2 Gold Pass needed, 3 done, 4 Gold done, 5 Gold Pass
+needed but done (its points arrive when the Gold Pass is obtained).
+Single-player adaptations: the reward track and quests are those of the season in the record (the same every season); only the season designs (drone and P.E.T.;
+in the 2024-2025 seasons a ship design at the end of the Gold track) come from the season's track: 2023-05 Mobius ... 2026-08 Cerevisia (in the record),
+then from the start (event_appearances.season_track; designs of past seasons could not be obtained any other way).
+Seasons are in the real game's months: February, May, August, beginning of November (season_id "2026-08"); the real dates of known seasons are in
+data/tickets.json "season.calendar" (wiki: XIV 01.08.2026 - 25.10.2026 = 86 days, the record's timeToEventEnd corresponds to 25.10 23:59; XV
+from 26.10.2026, adaptation until the source appears), those not in the table follow the month rule.
+When a season ends unclaimed rewards are given (the client's text: "Any unclaimed rewards from the previous season has been booked to you");
+N.O.V.A. captains wait: the end-of-season window SeasonPassRewardUnclaimedInfoCommand {captainPending, captainOwned, captainLimit,
+captainWarning} (the client's ShowEndView; also at login while any are pending), its button SeasonPassRewardClaimAllRequest. If there is no room in the roster
+the captain reward is not claimed, SeasonPassCaptainLimitCommand ("Your N.O.V.A. roster is already full!"); the pending ones burn at the end of the next season.
+Daily quests (3 + 2 Gold) are drawn from the pool every day, weeklies (5 + 3 Gold) on Monday (wiki pool: 48 daily, 51 weekly quests;
+the "Complete 1 of the following tasks" rows are multi-condition quests); season quests last the whole season. Refresh: 1 free per day, then
+purchased ones: 1st-4th 500 U, 5th-7th 1,000 U, 8th-10th 2,000 U, 11th+ 4,000 U (wiki; daily and weekly are counted separately, reset at the start of the day and week;
+the record's refreshInfo reports the next price). When the level is at the maximum, extra purchased points: 1 point = 10 Honor. Gold Pass
+in the shop (resource_gold-pass 400,000 U) or from a package; Extra Gold Pass after the Gold Pass.
+Save-specific season (developer note 2026-10-28; player report: when the real calendar's season ended on 25.10 the ticket "closed"):
+the season starts from day 1 at the save's first login and lasts the panel's season_duration days (independent of the calendar; when the duration changes it applies to the running season too);
+a single season at a time. In place of the ended season the next one: if the save was created "progressive" (profile 'progressive', the panel's new
+save window) starting from the first season (2023-05 Mobius), moving to the next each time a season ends, up to the newest; seasons added later
+open when their turn comes, if all were played the newest repeats. Otherwise always the newest season. The season's id is the season of its designs
+(event_appearances.SEASONS); the achievement group and the end of timed recipes come from this season (ACTIVE). The calendar functions (season_id ...)
+remain to know the real game's seasons.
+In the profile: season {period, start, played, points, gold, ext, claimed, day, daily, week, weekly, value, done, seasonal, renewal, pending [[captain, count]]}.
 """
 import datetime, json, os, random, threading, time
 
@@ -50,9 +50,9 @@ COST, UCOST = S['point_cost'], S['uridium_cost']
 MAX_LEVEL = len(COST) - 1
 MISSIONS = {int(k): v for k, v in S['quests'].items()}
 DAILY, WEEKLY, SEASON = 3, 6, 9
-DAILY_N, WEEKLY_N = (3, 2), (5, 3)            # (normal, Gold) (kayıt)
-REFRESH_LADDER = [tuple(x) for x in S['refresh_ladder']]        # (bu sıraya dek yenileme ya da None, bedel U)
-OVERFLOW_HONOR = 10                           # azami seviyenin üstündeki satın alınan puan: 1 puan = 10 Onur (wiki)
+DAILY_N, WEEKLY_N = (3, 2), (5, 3)            # (normal, Gold) (record)
+REFRESH_LADDER = [tuple(x) for x in S['refresh_ladder']]        # (refresh up to this tier or None, cost U)
+OVERFLOW_HONOR = 10                           # purchased points above the maximum level: 1 point = 10 Honor (wiki)
 DONE_TEXT = {DAILY: 'sp_daily-mission-completed', WEEKLY: 'sp_weekly-mission-completed', SEASON: 'sp_season-mission-completed'}
 TRACKS = (('free', False, False), ('gold', True, False), ('ext', False, True))
 GOLD_ITEM, EXT_ITEM, POINT_ITEM = 'resource_gold-pass', 'resource_ext-gold-pass', 'resource_season-pass-point'
@@ -63,10 +63,10 @@ def _reserve_pool(*tracks):
             if r[1].startswith('resource_') and r[1] not in (GOLD_ITEM, EXT_ITEM, POINT_ITEM)]
 
 
-# Season Pass rezervleri (package_seasonpass-*): ödül sıralarında paket olarak gelir, istemci içeriğini vermez (yalnız "A reserve
-# containing useful resources for the average pilot" / "… only the most sought after resources in the galaxy" / "… booty keys").
-# Uyarlama: açılınca aynı sezonun ödül sırasındaki kaynak satırlarından biri (Gold: Gold ve Extra Gold sıraları; dev rezerv üç çekiş),
-# ganimet anahtarı rezervi ücretsiz sıranın 10 anahtarı. Önceden ödül yolunda tanınmayıp görünmez depoya düşüyordu (2026-10-22).
+# Season Pass reserves (package_seasonpass-*): they come as packages in the reward tracks, the client does not give their contents (only "A reserve
+# containing useful resources for the average pilot" / "... only the most sought after resources in the galaxy" / "... booty keys").
+# Adaptation: when opened, one of the resource rows in the same season's reward track (Gold: the Gold and Extra Gold tracks; the giant reserve three draws),
+# the booty key reserve is the free track's 10 keys. Previously it was not recognized in the reward path and fell into the invisible storage (2026-10-22).
 RESERVES = {'package_seasonpass-free': (_reserve_pool('free'), 1),
             'package_seasonpass-gold': (_reserve_pool('gold', 'ext'), 1),
             'package_seasonpass-gold-giant': (_reserve_pool('gold', 'ext'), 3),
@@ -75,7 +75,7 @@ RESERVES = {'package_seasonpass-free': (_reserve_pool('free'), 1),
 
 
 def reserve(loot, n=1):
-    """Rezerv açılınca verilenler [(lootId, adet)] (aynı eşya birleşir) ya da None (rezerv değil)."""
+    """What is given when a reserve is opened [(lootId, count)] (the same item merges) or None (not a reserve)."""
     if loot not in RESERVES:
         return None
     pool, draws = RESERVES[loot]
@@ -95,30 +95,30 @@ def _day(text, plus=0):
     return (datetime.datetime.strptime(text, '%Y-%m-%d') + datetime.timedelta(days=plus)).timestamp()
 
 
-# gerçek tarihleri bilinen sezonlar: ((yıl, ay), başlangıç, bitiş ya da None = ay kuralının sonu); bitiş günü dahil
+# seasons with known real dates: ((year, month), start, end or None = the end of the month rule); the end day is included
 WINDOWS = [(tuple(int(x) for x in w['id'].split('-')), _day(w['start']), _day(w['end_time'], 1) if w.get('end_time') else None)
            for w in S.get('calendar', [])]
 
 
 def formula_end(y, m):
-    """Ay kuralına göre (y, m) sezonunun bitişi: üç ay sonra ayın ilk günü."""
+    """By the month rule the end of season (y, m): the first day of the month three months later."""
     return datetime.datetime(y + (m == 11), (m + 2) % 12 + 1, 1).timestamp()
 
 
 def season_span(now=None):
-    """Zamandaki sezon: ((yıl, ay), bitiş zamanı). Gerçek oyunun sezonları şubat, mayıs, ağustos ve kasım başında
-    (achievement_seasonpass_202608); tablodaki sezonun tarihleri (sezon.takvim) kuralı geçersiz kılar."""
+    """The season at a time: ((year, month), end time). The real game's seasons are at the start of February, May, August and November
+    (achievement_seasonpass_202608); the dates of a season in the table (season.calendar) override the rule."""
     now = time.time() if now is None else now
     t = datetime.datetime.fromtimestamp(now)
     rule = t.year - (t.month < 2), (t.month - 2) % 12 // 3 * 3 + 2
     for ym, a, b in WINDOWS:
-        if a <= now and (now < b if b else rule <= ym):          # bitişsiz sezon, ay kuralı bir sonrakine geçene dek sürer
+        if a <= now and (now < b if b else rule <= ym):          # an open-ended season lasts until the month rule moves to the next one
             return ym, b or formula_end(*ym)
     return rule, formula_end(*rule)
 
 
 def season_start(now=None):
-    """Sezonun başladığı (yıl, ay)."""
+    """The (year, month) the season started."""
     return season_span(now)[0]
 
 
@@ -130,18 +130,18 @@ def season_end(now=None):
     return season_span(now)[1]
 
 
-ACTIVE = {}                 # oynanan sezon {sid, bitis} (Sezon.ensure yazar): başarım grubu ve süreli tarifler (assembly) buna bakar
+ACTIVE = {}                 # the season being played {sid, end_time} (written by Season.ensure): the achievement group and timed recipes (assembly) look at this
 
 
 def current_end(now=None):
-    """Oynanan sezonun bitişi (kayda özgü); bilinmiyorsa takvimin sezonununki."""
+    """The end of the season being played (save-specific); if unknown, that of the calendar's season."""
     return ACTIVE.get('end_time') or season_end(now)
 
 
 def achievement_group(now=None):
-    """Bu sezonun Season Pass başarım grubu (SEASONPASS_Qn; istemcinin LevelAbsolute başarımları: "Gold Season Pass'in 50 / 80
-    seviyesi"). Gerçek oyunun sezonları başlangıç ayıyla adlı (achievement_seasonpass_202608 = Q14); istemcide bu sezonunki yoksa
-    ondan önce başlamış en yeni sezonunki (uyarlama). Oynanan sezon (ACTIVE) varsa onunki."""
+    """This season's Season Pass achievement group (SEASONPASS_Qn; the client's LevelAbsolute achievements: "50 / 80 levels of the
+    Gold Season Pass"). The real game's seasons are named by their start month (achievement_seasonpass_202608 = Q14); if the client has none for this season, that of the
+    newest season that started before it (adaptation). If there is a season being played (ACTIVE), that one's."""
     import re
     import achievement as BS
     start = tuple(int(x) for x in ACTIVE['sid'].split('-')) if ACTIVE.get('sid') else season_start(now)
@@ -191,22 +191,22 @@ def pick(qtype, seed, counts, exclude=()):
 
 
 def refresh_price(n):
-    """Görev yenilemenin bedeli (U): n yenileme satın alınmışken sıradaki (wiki: 1-4. 500, 5-7. 1.000, 8-10. 2.000, sonrası 4.000)."""
+    """The cost of a quest refresh (U): the next one when n refreshes have been purchased (wiki: 1st-4th 500, 5th-7th 1,000, 8th-10th 2,000, after that 4,000)."""
     for last, cost in REFRESH_LADDER:
         if last is None or n < last:
             return cost
 
 
 def seasons(now=None):
-    """Sezonların kimlikleri, eskiden yeniye (etkinlik_gorunumleri.SEASONS: tasarımları bilinenler); gerçek takvimde başlamış
-    daha yeni sezon da (tasarımları tablodan örneklenir: EG.season_track)."""
+    """Ids of the seasons, oldest to newest (event_appearances.SEASONS: those with known designs); also newer seasons that started on the
+    real calendar (their designs are sampled from the table: EG.season_track)."""
     ids = [s['season'] for s in EG.SEASONS]
     cur = season_id(now)
     return ids + [cur] if cur > ids[-1] else ids
 
 
 def next_season(played, progressive, now=None):
-    """Sıradaki sezon: ilerlemelide oynanmamış ilk sezon (yoksa en yeni), değilse en yeni."""
+    """The next season: in progressive mode the first season not yet played (the newest if none), otherwise the newest."""
     ids = seasons(now)
     return next((i for i in ids if i not in played), ids[-1]) if progressive else ids[-1]
 
@@ -222,38 +222,38 @@ def points_of(qid):
 class Season:
     def __init__(self, profile, log=print):
         self.p, self.log = profile, log
-        self.m = None              # mağaza (ödüller, para mesajları; oturum bağlar)
-        self.send = None           # oturuma gönderme (görev ilerlemesi olaylardan gelir)
+        self.m = None              # shop (rewards, money messages; the session binds)
+        self.send = None           # sending to the session (quest progress comes from events)
         self.map_id = None
-        # yalnız aynı iş parçacığında iç içe olayı önler: dünyanın (öldürme, toplama) ve oturumun (alım, satış) aynı anda gelen
-        # olayları ortak bir bayrakla birbirini düşürüyordu
+        # prevents a nested event only within the same thread: events arriving at the same time from the world (kill, collect) and the session (buy, sell)
+        # were knocking each other out with a shared flag
         self.local = threading.local()
 
-    # ------------------------------------------------------------ durum
+    # ------------------------------------------------------------ state
     @property
     def st(self):
         return self.p.d.setdefault('season', {})
 
     def track(self, key):
-        """Sezonun ödül sırası: kayıttakinin sezon tasarımları sezonun sırasındakilerle (etkinlik_gorunumleri.season_track)."""
+        """The season's reward track: the record's with the season designs replaced by those in the season's track (event_appearances.season_track)."""
         return EG.season_track(key, S['reward'][key], self.st.get('period') or seasons()[-1])
 
     def end(self):
-        """Oynanan sezonun bitişi: başlangıcı + panelin süresi."""
+        """The end of the season being played: its start + the panel's duration."""
         return self.st.get('start', time.time()) + duration()
 
     def ended(self, now):
         return bool(self.st.get('period')) and (not self.st.get('start') or now >= self.end())
 
     def ensure(self, now=None):
-        """Sezon, gün ve hafta değiştiyse yenile -> bildirilecek mesajlar."""
+        """If the season, day or week changed, renew -> messages to report."""
         now = time.time() if now is None else now
         st, msgs = self.st, []
-        if '-Q' in st.get('period', ''):             # eski biçim (takvim çeyreği): çeyreğin ilk gününün sezonu (ilerleme silinmesin)
+        if '-Q' in st.get('period', ''):             # old format (calendar quarter): the season of the quarter's first day (so progress is not deleted)
             y, q = st['period'].split('-Q')
             with self.p.lock:
                 st['period'] = season_id(datetime.datetime(int(y), int(q) * 3 - 2, 1).timestamp())
-        if st.get('period') and not st.get('start'):    # takvime bağlı eski kayıt: ilerlemesi kalır, sezonu bugünden sürer
+        if st.get('period') and not st.get('start'):    # old save tied to the calendar: its progress stays, the season continues from today
             with self.p.lock:
                 st['start'] = now
                 st.setdefault('played', [st['period']])
@@ -270,10 +270,10 @@ class Season:
                           claimed={k: [] for k, g, e in TRACKS}, value={}, done=[], seasonal=pool(SEASON, False) + pool(SEASON, True),
                           renewal={'day': 0, 'week': 0}, pending=wait)
                 self.p.dirty = True
-            self.log('   Season Pass sezonu başladı: %s (%s, %d gün)' % (sid, EG.season(sid)['name'], duration() // 86400))
+            self.log('   Season Pass season started: %s (%s, %d days)' % (sid, EG.season(sid)['name'], duration() // 86400))
             msgs += self.activate_items()
         ACTIVE.update(sid=st['period'], end_time=self.end())
-        # havuzdan kalkmış görev kimlikleri (havuz wiki'ye göre yenilendi): liste yeniden çekilir, eski ilerleme silinir
+        # quest ids that were removed from the pool (the pool was renewed per the wiki): the list is drawn again, old progress is deleted
         if any(q not in MISSIONS for q in st.get('daily', [])):
             st['day'] = None
         if any(q not in MISSIONS for q in st.get('weekly', [])):
@@ -304,7 +304,7 @@ class Season:
         return level_of(self.st.get('points', 0))
 
     def image(self):
-        """Pencerenin görseli: oynanan sezonunki (resmî CDN'de olmayanlarda kayıttaki)."""
+        """The window's image: that of the season being played (from the record for those not on the official CDN)."""
         return S['images'].get(self.st.get('period'), S['visual'])
 
     def status_code(self, qid):
@@ -339,7 +339,7 @@ class Season:
                    dailyLeft=free_left, dailyCount=1, nextWeeklyUridium=refresh_price(self.paid_refreshes('weekly')), weeklyLeft=0)
 
     def paid_refreshes(self, key):
-        """Bu gün (günlük) ya da hafta (haftalık) satın alınmış yenileme sayısı (günlüğün ilki ücretsiz)."""
+        """Number of refreshes purchased this day (daily) or week (weekly) (the first of the daily is free)."""
         y = self.st['renewal']
         return max(0, y.get('day', 0) - 1) if key == 'daily' else y.get('week', 0)
 
@@ -355,25 +355,25 @@ class Season:
 
     def login_msgs(self):
         msgs = self.ensure()
-        # showTips: istemci (UIMainCenterNewSystem.InitWindows) girişte pencereyi açar, bayrağı yalnız kendinde siler. Hiç
-        # kaydedilmediği için pencere her girişte açılıyordu (canlı test H56): sezonda bir kez, ipucu yeni sezonda sıfırlanır
+        # showTips: the client (UIMainCenterNewSystem.InitWindows) opens the window at login and clears the flag only on its own side. Since it was never
+        # saved the window opened at every login (live test H56): once per season, the tip is reset in the new season
         tips = not self.st.get('tooltip')
         if tips:
             with self.p.lock:
                 self.st['tooltip'] = True
                 self.p.dirty = True
-        self.level_event()                                          # başarım (eski profiller: seviye zaten 50'yi geçmiş olabilir)
+        self.level_event()                                          # achievement (old profiles: the level may already be past 50)
         return msgs + [self.status_cmd(tips=tips), self.mission_cmd(), self.points_cmd(), self.reward_cmd()] + self.unclaimed_msgs()
 
     def roster(self):
         return len((self.p.d.get('nova') or {}).get('roster', []))
 
     def roster_full(self, loot, n):
-        """N.O.V.A. ödülü için kadroda yer yok mu (nova.py'nin hire'ı kadro doluyken kaptanı uridyuma çevirirdi)."""
+        """Is there no room in the roster for the N.O.V.A. reward (nova.py's hire would turn the captain into uridium when the roster is full)."""
         return loot.startswith('captain_') and self.roster() + n > NV.D['max_roster']
 
     def unclaimed_msgs(self):
-        """Önceki sezondan bekleyen N.O.V.A.'lar varsa sezon sonu penceresi."""
+        """The end-of-season window if there are N.O.V.A.s pending from the previous season."""
         wait = sum(n for l, n in self.st.get('pending', []))
         if not wait:
             return []
@@ -381,9 +381,9 @@ class Season:
                                                               captainOwned=self.roster(), captainWarning=self.roster_full('captain_', wait),
                                                               spcId=0, marketingImage=self.image(), seasonName=S['name']))]
 
-    # ------------------------------------------------------------ puan ve Gold Pass
+    # ------------------------------------------------------------ points and Gold Pass
     def add_points(self, n, bought=False):
-        """Puan ekler. bought: puan paketinden; azami seviyenin üstüne taşan kısmı 1 puan = 10 Onur olur (wiki)."""
+        """Adds points. bought: from a points package; the part that overflows above the maximum level becomes 1 point = 10 Honor (wiki)."""
         old = self.level()
         with self.p.lock:
             total = self.st.get('points', 0) + n
@@ -397,19 +397,19 @@ class Season:
                 msgs += self.m.reward('currency_honour', honor)
             else:
                 self.p.gain(honor=honor)
-            self.log('   Season Pass puanı azami seviyeyi aştı: %d puan -> %d Onur' % (excess, honor))
+            self.log('   Season Pass points exceeded the maximum level: %d points -> %d Honor' % (excess, honor))
         if self.level() > old:
-            self.log('   Season Pass seviyesi %d (%d puan)' % (self.level(), self.st['points']))
+            self.log('   Season Pass level %d (%d points)' % (self.level(), self.st['points']))
             self.level_event()
-            return msgs + [self.points_cmd(), self.reward_cmd()]       # ızgara yalnız ödül listesiyle açılır (canlı test H44)
+            return msgs + [self.points_cmd(), self.reward_cmd()]       # the grid opens only with the reward list (live test H44)
         return msgs + [self.points_cmd()]
 
     def level_event(self):
-        """Başarım: Gold Season Pass'in seviyesi (LevelAbsolute; Gold Pass yoksa 0)."""
+        """Achievement: the Gold Season Pass's level (LevelAbsolute; 0 if no Gold Pass)."""
         self.p.ach('season_level', value=self.level() if self.st.get('gold') else 0, group=achievement_group())
 
     def activate_items(self):
-        """Depodaki Gold / Extra Gold Pass bu sezona (Extra yalnız Gold'dan sonra) -> mesajlar."""
+        """The Gold / Extra Gold Pass in storage to this season (Extra only after Gold) -> messages."""
         msgs = []
         st = self.st
         if not st.get('gold') and self.p.resource(GOLD_ITEM) > 0:
@@ -418,20 +418,20 @@ class Season:
                 st['gold'] = True
                 self.p.dirty = True
             pend = [q for q in self.missions() if MISSIONS[q]['gold'] and q in st['done']]
-            for q in pend:                                          # Gold Pass'ten önce biten Gold görevlerinin puanı
+            for q in pend:                                          # points of Gold quests finished before the Gold Pass
                 msgs += self.add_points(points_of(q))
-            self.log('   Gold Pass etkin (%s)%s' % (st['period'], ', %d görevin puanı' % len(pend) if pend else ''))
-            self.level_event()                                      # Gold Pass'ten önce ulaşılan seviye de sayılır
+            self.log('   Gold Pass active (%s)%s' % (st['period'], ', points of %d quests' % len(pend) if pend else ''))
+            self.level_event()                                      # the level reached before the Gold Pass counts too
         if st.get('gold') and not st.get('ext') and self.p.resource(EXT_ITEM) > 0:
             self.p.add_resource(EXT_ITEM, -1)
             with self.p.lock:
                 st['ext'] = True
                 self.p.dirty = True
-            self.log('   Extra Gold Pass etkin (%s)' % st['period'])
+            self.log('   Extra Gold Pass active (%s)' % st['period'])
         return msgs
 
     def grant(self, loot, n):
-        """Mağaza ödülü: Season Pass puanı ya da Gold/Extra Gold Pass -> mesajlar."""
+        """Shop reward: Season Pass points or Gold/Extra Gold Pass -> messages."""
         self.ensure()
         if loot == POINT_ITEM:
             return self.add_points(n, bought=True)
@@ -439,9 +439,9 @@ class Season:
         msgs = self.activate_items()
         return msgs + [self.status_cmd(), self.mission_cmd(), self.reward_cmd(), self.points_cmd()]
 
-    # ------------------------------------------------------------ görevler
+    # ------------------------------------------------------------ quests
     def event(self, kind, **kw):
-        """Oyun olayı -> görev ilerlemesi (oturuma gönderilir)."""
+        """Game event -> quest progress (sent to the session)."""
         if getattr(self.local, 'busy', False) or not self.p.d.get('season'):
             return []
         self.local.busy = True
@@ -466,7 +466,7 @@ class Season:
                 done.append(q)
         for q in done:
             msgs += self.complete(q)
-        for q in done:                                              # sezon görevleri: N günlük/haftalık bitir
+        for q in done:                                              # season quests: finish N daily/weekly
             msgs += self._event('sp_quest', dict(category=GT.SP_CATEGORY[MISSIONS[q]['type']]))
         return msgs
 
@@ -482,15 +482,15 @@ class Season:
         if not locked:
             bonus = self.p.mods().get('season_points', 0)                     # N.O.V.A. Bonus Hunter / Bonus Slayer (nova.py)
             msgs += self.add_points(int(round(points_of(qid) * (1 + bonus) * SET.multiplier('season_points'))))      # panel
-        if qt == DAILY and self.m:                                          # günlük görev: Armory Token (Aşama 9; armory.py)
+        if qt == DAILY and self.m:                                          # daily quest: Armory Token (Stage 9; armory.py)
             import armory as AU
             msgs += self.m.reward(AU.TOKEN, AU.D['daily_quest_token'])
-        self.p.ach('quest', id=qid)                                  # kayıt: Season Pass görevi başarımlarda sayılır
-        self.log('   Season Pass görevi bitti: %d (%s, %d puan%s)' % (qid, {DAILY: 'günlük', WEEKLY: 'haftalık', SEASON: 'season'}[qt],
-                                                                     points_of(qid), ', Gold Pass bekliyor' if locked else ''))
+        self.p.ach('quest', id=qid)                                  # record: a Season Pass quest counts in the achievements
+        self.log('   Season Pass quest finished: %d (%s, %d points%s)' % (qid, {DAILY: 'daily', WEEKLY: 'weekly', SEASON: 'season'}[qt],
+                                                                     points_of(qid), ', Gold Pass waiting' if locked else ''))
         return msgs
 
-    # ------------------------------------------------------------ istekler
+    # ------------------------------------------------------------ requests
     def claimable(self, key, lv):
         st = self.st
         if lv > self.level() or lv in st['claimed'][key]:
@@ -507,7 +507,7 @@ class Season:
             self.st['claimed'][key].append(lv)
             self.p.dirty = True
         l, n = got
-        self.log('   Season Pass ödülü: seviye %d %s: %s x%d' % (lv, key, l, n))
+        self.log('   Season Pass reward: level %d %s: %s x%d' % (lv, key, l, n))
         return self.m.reward(l, n) if self.m else []
 
     def claim(self, f):
@@ -523,7 +523,7 @@ class Season:
         return msgs + [('SeasonPassRewardClaimCommand', dict(extGoldPass=key == 'ext', goldPass=key == 'gold', claimed=True, level=lv))]
 
     def claim_all(self, f=None):
-        """Claim All ya da sezon sonu penceresinin düğmesi (spcId): önce önceki sezondan bekleyen N.O.V.A.'lar."""
+        """Claim All or the end-of-season window's button (spcId): first the N.O.V.A.s pending from the previous season."""
         self.ensure()
         msgs, n, full = [], 0, False
         for row in list(self.st.get('pending', [])):
@@ -558,19 +558,19 @@ class Season:
         cost = sum(UCOST[cur + 1:cur + 1 + n])
         pl = self.p.d['pilot']
         if not n or pl.get('uridium', 0) < cost:
-            self.log('   Season Pass seviyesi alınamadı: %d seviye, %d U' % (n, cost))
+            self.log('   Season Pass level could not be bought: %d levels, %d U' % (n, cost))
             return [('SeasonPassLevelPurchaseCommand', {'success': False})]
         tot = self.p.gain(uridium=-cost, reason='buy_SPECIAL', detail='season_pass_level')
         with self.p.lock:
             self.st['points'] = max(self.st.get('points', 0), threshold(cur + n))
             self.p.dirty = True
-        self.log('   Season Pass: %d seviye alındı (%d U) -> %d' % (n, cost, self.level()))
+        self.log('   Season Pass: %d levels bought (%d U) -> %d' % (n, cost, self.level()))
         self.level_event()
-        return ([('SeasonPassLevelPurchaseCommand', {'success': True}), self.points_cmd(), self.reward_cmd()]     # ızgara (H44)
+        return ([('SeasonPassLevelPurchaseCommand', {'success': True}), self.points_cmd(), self.reward_cmd()]     # grid (H44)
                 + (self.m.money_msgs() if self.m else []))
 
     def refresh(self, f):
-        """SeasonPassRefreshRequest: günlük/haftalık görevin yerine havuzdan başkası (bitmiş görev yenilenmez)."""
+        """SeasonPassRefreshRequest: another one from the pool in place of a daily/weekly quest (a finished quest is not refreshed)."""
         self.ensure()
         st, qid = self.st, int(f.get('questId') or 0)
         key = 'daily' if qid in st.get('daily', []) else 'weekly' if qid in st.get('weekly', []) else None
@@ -581,7 +581,7 @@ class Season:
         cost = 0 if free else refresh_price(self.paid_refreshes(key))
         qt, gold = MISSIONS[qid]['type'], MISSIONS[qid]['gold']
         cands = [q for q in pool(qt, gold) if q not in st[key]]
-        if not cands:                                              # değişecek görev yok: bedel alınmaz
+        if not cands:                                              # no quest to change: no cost is charged
             return [self.mission_cmd()]
         if cost:
             if self.p.d['pilot'].get('uridium', 0) < cost:
@@ -593,11 +593,11 @@ class Season:
             st['value'].pop(str(qid), None)
             st['renewal'][stamp] = st['renewal'].get(stamp, 0) + 1
             self.p.dirty = True
-        self.log('   Season Pass görevi yenilendi: %d -> %d%s' % (qid, new, '' if free else ' (%d U)' % cost))
+        self.log('   Season Pass quest refreshed: %d -> %d%s' % (qid, new, '' if free else ' (%d U)' % cost))
         return [self.mission_cmd()] + ([] if free or not self.m else self.m.money_msgs())
 
     def close_season(self):
-        """Sezon bitti: ulaşılan seviyelerin alınmamış ödülleri verilir; N.O.V.A.'lar bekler -> (mesajlar, bekleyenler)."""
+        """Season ended: unclaimed rewards of the levels reached are given; N.O.V.A.s wait -> (messages, pending)."""
         msgs, n, wait = [], 0, []
         for key, gold, ext in TRACKS:
             for lv, l, a in self.track(key):
@@ -609,7 +609,7 @@ class Season:
                 if got is not None:
                     msgs += got
                     n += 1
-        self.log('   Season Pass sezonu bitti (%s): %d ödül verildi, %d N.O.V.A. bekliyor' % (self.st.get('period'), n, len(wait)))
+        self.log('   Season Pass season ended (%s): %d rewards given, %d N.O.V.A. pending' % (self.st.get('period'), n, len(wait)))
         return msgs + [legacy('0|A|STM|sp_season-has-ended_description')], wait
 
     def handle(self, name, f):

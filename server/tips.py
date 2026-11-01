@@ -1,22 +1,23 @@
-"""Yeni başlayan ipuçları ve tek seferlik bildirimler (yol haritası Ö2).
+"""Hints for new players and one-time notifications (roadmap stage 2).
 
-İstemci (HintSystemContentProvider): HintWindowAddComand {window {content: HintType}, visibility 0, soundModule, addToList,
-openedFromArchive} ipucu penceresini açar; addToList ile ipucu arşivine de girer (HintWindowListInitCommand girişte arşivi kurar).
-İstemcinin sözlüğünde 39 tür var, CONFIG_SWITCH (15) yok: o gönderilmez. Metinler iki türlü: "gameentry_hintwindow_message_*"
-(bir şey olunca: kargo doldu, cephane bitti, onarım) ve "targeted_hintwindow_message_*" (bir özelliğe davet: Galaksi Kapıları,
-yetenek ağacı, Tech Factory). Kayıtta girişte WELCOME (12), arşivde HOW_TO_FLY ve REQUEST_MISSION (13, 14) vardı.
+Client (HintSystemContentProvider): HintWindowAddComand {window {content: HintType}, visibility 0, soundModule, addToList,
+openedFromArchive} opens the hint window; with addToList it also enters the hint archive (HintWindowListInitCommand sets up the archive on
+login). The client's dictionary has 39 types, without CONFIG_SWITCH (15): that one is not sent. The texts come in two kinds:
+"gameentry_hintwindow_message_*" (when something happens: cargo full, ammo out, repair) and "targeted_hintwindow_message_*" (an invitation
+to a feature: Galaxy Gates, skill tree, Tech Factory). In the recording, WELCOME (12) was on login and HOW_TO_FLY and REQUEST_MISSION
+(13, 14) in the archive.
 
-Tek oyunculu uyarlama: her ipucu bir kez (profilde ipuclari_gosterilen); oyuncunun kapattıkları (ipuclari_kapali, game.py) yeniden
-açılmaz; panelin "ipuclari" ayarı kapalıysa hiç gönderilmez.
-- Olay ipuçları (metnine göre): savaştan hasarlı çıkınca onarım (3 tuşu), ilk cevher (rafineride sat), kargo doldu, cephane
-  bitti (hızlı satın alma), ilk öldürme (XP/onur/kredi kazan), ilk hedef seçme (saldırı tuşları), ilk portala yaklaşma (J), başka
-  firmanın haritası ya da 4-X (PvP uyarısı), PLT-2021 elde varken başka roket atma, mağazadan ilk ekipman (hangarda tak), ikinci gemi
-  (gemi ışınlama).
-- Davet ipuçları seviye atlayınca (LEVELS); özellik zaten kullanılmışsa (used) gösterilmez: Mesela roket fırlatıcısı olan oyuncuya
-  roket fırlatıcı ipucu açılmaz.
+Single-player adaptation: each hint once (tips_shown in the profile); hints the player closed (hints_closed, game.py) do not reopen;
+if the panel's "hints" setting is off, none is sent.
+- Event hints (by their text): repair (the 3 key) after leaving a fight damaged, first ore (sell at the refinery), cargo full, ammo out
+  (quick buy), first kill (earn XP/honor/credits), first target selection (attack keys), first approach to a portal (J), another company's
+  map or 4-X (PvP warning), firing another rocket while holding PLT-2021, first equipment from the shop (equip in the hangar), second ship
+  (ship teleport).
+- Invitation hints on level-up (LEVELS); not shown if the feature is already in use (used): e.g. the rocket launcher hint does not open
+  for a player who already has a rocket launcher.
 
-Etkinlik bildirimi: süren harita etkinliğinin açıklaması (istemcinin <metin>_event_description'ı, ör. curcubitor) etkinlik dönemi
-başına bir kez NormalTipsCommand {messageKey} ile mesaj kutusunda (profilde etkinlik_bildirimi).
+Event notification: the description of the running map event (the client's <text>_event_description, e.g. curcubitor) once per event
+period in a message box via NormalTipsCommand {messageKey} (event_notification in the profile).
 """
 import settings as SET
 
@@ -26,11 +27,11 @@ EQUIP_YOUR_ROCKETS, ATTACK, FULL_CARGO, SECOND_CONFIGURATION, ITEM_UPGRADE = 17,
 GALAXY_GATE, SKILL_TREE, TECH_FACTORY, PALLADIUM, AUCTION_HOUSE, ROCKET_LAUNCHER, EXTRA_CPU, SHIP_DESIGN = 24, 25, 26, 28, 29, 30, 31, 32
 ORE_TRANSFER, PRO_ACTION_BAR_INFO, ASSEMBLY = 35, 37, 39
 PLT_2021 = 'ammunition_rocket_plt-2021'
-CLIENT_TYPES = set(range(40)) - {15}  # istemcinin bildiği türler (HintSystemContentProvider)
-SOUND = 132                           # kayıttaki ipucunun sesi
+CLIENT_TYPES = set(range(40)) - {15}  # the types the client knows (HintSystemContentProvider)
+SOUND = 132                           # the sound of the hint in the recording
 
-# davet ipuçlarının seviyeleri (uyarlama: özellik o seviyede işe yarar hâle gelir; 5-2'nin tüccarı ~10-12, Tech Factory/Assembly
-# orta seviyeler)
+# the levels of the invitation hints (adaptation: the feature becomes useful at that level; the trader of 5-2 ~10-12, Tech Factory/Assembly
+# mid levels)
 LEVELS = {2: (THE_SHOP, PREPARE_BATTLE), 3: (BOOST_YOUR_EQUIP,), 4: (GALAXY_GATE, PRO_ACTION_BAR_INFO),
           5: (SECOND_CONFIGURATION, EXTRA_CPU, AUCTION_HOUSE), 6: (SKILL_TREE, SKYLAB), 7: (ROCKET_LAUNCHER, ITEM_UPGRADE),
           8: (TECH_FACTORY, ASSEMBLY, ORE_TRANSFER), 10: (SHIP_DESIGN,), 12: (PALLADIUM,)}
@@ -41,7 +42,7 @@ def owned_items(p):
 
 
 def used(p, kind):
-    """Özellik zaten kullanılıyor mu (davet ipucu gereksiz)."""
+    """Is the feature already in use (the invitation hint is unnecessary)."""
     items = owned_items(p)
     if kind == EXTRA_CPU:
         return any(i.startswith('equipment_extra_cpu_') for i in items)
@@ -55,7 +56,7 @@ def used(p, kind):
 
 
 def for_purchase(p, loot, first_equipment):
-    """Mağazadan alınan eşya -> ipucu türü ya da None."""
+    """An item bought from the shop -> hint type or None."""
     if loot.startswith('ship_') and '_design_' not in loot and len(p.d.get('ships', {})) >= 2:
         return CHANGING_SHIPS
     if first_equipment:
@@ -71,7 +72,7 @@ class Hints:
         return self.p.d.setdefault('tips_shown', [])
 
     def show(self, kind):
-        """İpucu bir kez -> [HintWindowAddComand] ya da boş (gösterilmiş, kapatılmış, istemcide yok ya da panelde kapalı)."""
+        """A hint once -> [HintWindowAddComand] or empty (already shown, closed, not in the client, or off in the panel)."""
         if kind not in CLIENT_TYPES or not SET.get('hints'):
             return []
         if kind in self.shown() or kind in self.p.d.get('hints_closed', []):
@@ -79,14 +80,14 @@ class Hints:
         with self.p.lock:
             self.shown().append(kind)
             self.p.dirty = True
-        self.log('   ipucu: %d' % kind)
+        self.log('   hint: %d' % kind)
         return [('HintWindowAddComand', dict(paymentLink='', visibility=0, addToList=True, openedFromArchive=False,
                                              soundModule={'_': 'SoundTriggerModule', 'playSound': True, 'soundId': SOUND},
                                              window={'_': 'HintWindowModule', 'content': kind}))]
 
     def level(self, lv):
-        """Seviye atlandı: o seviyeye (ve atlanan alt seviyelere) kadarki davet ipuçlarından gösterilmemiş ilki. Bir seferde bir
-        pencere (üst üste açılmasın); kalanlar sonraki seviyelerde gelir."""
+        """Level-up: the first not-yet-shown one among the invitation hints up to that level (and the levels skipped). One window at a time
+        (so they do not stack); the rest come at later levels."""
         for at in sorted(LEVELS):
             if at > lv:
                 break
@@ -99,8 +100,8 @@ class Hints:
         return []
 
     def event_tips(self, specs, period):
-        """Süren harita etkinliklerinin açıklaması dönem başına bir kez (NormalTipsCommand). specs: [(etkinlik, bölüm)]; period:
-        etkinlik -> dönemin başlangıcı (yoksa 0)."""
+        """The description of running map events once per period (NormalTipsCommand). specs: [(event, section)]; period:
+        event -> start of the period (0 if none)."""
         if not SET.get('hints'):
             return []
         st = self.p.d.setdefault('event_notification', {})
@@ -113,5 +114,5 @@ class Hints:
                 st[k] = period(k)
                 self.p.dirty = True
             out.append(('NormalTipsCommand', {'messageKey': '%s_event_description' % text}))
-            self.log('   etkinlik bildirimi: %s' % k)
+            self.log('   event notification: %s' % k)
         return out

@@ -1,8 +1,8 @@
-/* OpenOrbit paneli — Kayıtlar ve karakter editörü (saves.py, save_editor.py; /api/kayitlar…, /api/editor…). panel.js'in
-   yardımcılarını ve oyunun görsellerini (ogYukle, sprite, esyaSprite, esyaAdi: BepInEx dökümü) kullanır.
-   Kitaplık: etkin kaydın sahnesi (gemi, firma portresi, seviye ilerlemesi, cüzdan), öbür kayıtların kartları, silinenler.
-   Editör: kaydın taslağında (duzenleme.json) çalışır. Her işlem oyunun kurallarıyla (hangar, ödül yolu) taslağa uygulanır ve görünüm
-   yenilenir; Kaydet güvenlik yedeği alıp kayda yazar, Vazgeç taslağı atar. Kayıt oyundaysa salt okunur. */
+/* OpenOrbit panel — Saves and the character editor (saves.py, save_editor.py; /api/kayitlar..., /api/editor...). Uses panel.js's
+   helpers and the game's images (ogYukle, sprite, esyaSprite, esyaAdi: the BepInEx dump).
+   Library: the active save's scene (ship, company portrait, level progress, wallet), cards of the other saves, deleted ones.
+   Editor: works on the save's draft (duzenleme.json). Every action is applied to the draft with the game's rules (hangar, reward path) and the view is
+   refreshed; Save takes a safety backup and writes to the save, Discard throws the draft away. Read-only if the save is in game. */
 'use strict';
 
 Object.assign(ICONS, {
@@ -22,7 +22,7 @@ const companyLower = f => (typeof f === 'number' ? COMPANY_TAG[f] : f || '').toL
 const fmtShort = n => { try { return new Intl.NumberFormat(LOC(), { notation: 'compact', maximumFractionDigits: 1 }).format(n || 0); } catch (e) { return fmtN(n); } };
 const seEmpty = (size, iconEl) => h('span', { class: 'sprite vacant', style: { width: size + 'px', height: size + 'px' } }, icon(iconEl));
 const spr = (name, size, iconEl = 'box') => GI.index?.sprite[name] ? sprite(name, size) : seEmpty(size, iconEl);
-// gemi: tepeden büyük görünüm (_top), yoksa mağaza ikonu; tasarımın kendi görünümü önce (ship_sentinel_design_sentinel-carbonite)
+// ship: large top-down view (_top), otherwise the shop icon; the design's own look first (ship_sentinel_design_sentinel-carbonite)
 function shipSprite(lid, firma) {
   const k = lid.replace(/^ship_/, ''), last = k.split('_').pop(), base = k.split('_')[0];
   for (const c of [last, last + '-' + firma, base, base + '-' + firma]) for (const b of ['_top', '_100x100']) if (GI.index?.sprite[c + b]) return c + b;
@@ -30,10 +30,10 @@ function shipSprite(lid, firma) {
 }
 const shipImage = (lid, size, firma) => {
   const sp = lid && GI.index && shipSprite(lid, firma), el = sp ? sprite(sp, size) : seEmpty(size, 'ship');
-  if (lid) el.dataset.loot = lid;              // eşya ipucu: değerler, yuvalar, bonus (panel.js esyaIpucu)
+  if (lid) el.dataset.loot = lid;              // item tooltip: values, slots, bonus (panel.js itemHint)
   return el;
 };
-// dron: seviyesinin görünümü (iris-4: 5. seviye), yoksa daha düşüğü
+// drone: the look of its level (iris-4: level 5), otherwise a lower one
 function droneSprite(lid, lv) {
   const b = lid.replace(/^drone_/, '');
   for (let n = Math.min(5, (lv || 1) - 1); n >= 0; n--) for (const s of ['_100x100', '_top']) if (GI.index?.sprite[b + '-' + n + s]) return b + '-' + n + s;
@@ -46,7 +46,7 @@ const droneImage = (lid, lv, size) => {
 };
 const petImage = (lv, size) => spr(GI.index?.sprite['pet10-' + (lv || 0) + '_top'] ? 'pet10-' + (lv || 0) + '_top' : 'pet10_100x100', size, 'paw');
 const itemIcon = (lid, size, firma) => gameIcon(lid, size, firma || companyLower(SE.v?.pilot.company), 'box');
-// firmanın oyundaki karakter portresi (CommonUI eic_char), yoksa panelin arması
+// the company's character portrait in the game (CommonUI eic_char), otherwise the panel's crest
 const portrait = (f, cls = 'se-portrait', size = 112) => GI.index?.sprite[companyLower(f) + '_char'] ? h('span', { class: cls }, sprite(companyLower(f) + '_char', size))
   : h('span', { class: cls + ' emblem' }, art('firma_' + (companyLower(f) || 'eic'), 'crest'));
 function epBar(ep, base, next_, cls = '') {
@@ -54,7 +54,7 @@ function epBar(ep, base, next_, cls = '') {
   return h('div', { class: 'se-ep ' + cls, title: next_ ? T('{0} / {1} EP', fmtN(ep), fmtN(next_)) : T('Highest level') }, h('span', { style: { width: (p * 100).toFixed(1) + '%' } }));
 }
 
-// ================================================================== KİTAPLIK
+// ================================================================== LIBRARY
 const KL = { trash: false };
 
 async function renderSaves() {
@@ -76,7 +76,7 @@ async function renderSaves() {
     trash(r.trash)));
 }
 
-// kayıt kartlarının ortak "Diğer" menüsü (ek istemci, ad, not, kopya, dışa aktarma, klasör, silme)
+// the shared "More" menu of the save cards (extra client, name, note, copy, export, folder, delete)
 function saveMenu(k, ev) {
   const c = S.state?.multi, extra = c && c.setting && c.save_count > 1 && (c.saves || []).find(x => x.id === k.id);
   const extraWhy = extra ? (extra.extra || k.id === c.main ? T('Save in use') : extraBlock(S.state, extra)) : null;
@@ -99,7 +99,7 @@ function saveMenu(k, ev) {
 const statusBadges = k => [k.in_use ? badge(T('IN GAME'), 'ok') : null, k.draft ? badge(T('UNSAVED CHANGES'), 'warn') : null,
   k.corrupt ? badge(T('CORRUPT'), 'err') : null];
 
-// etkin kayıt: geniş sahne (gemi, firma portresi, seviye, cüzdan, eylemler)
+// active save: wide scene (ship, company portrait, level, wallet, actions)
 function saveScene(k) {
   const f = companyLower(k.company);
   const currency = (name, n, tag) => h('div', { class: 'se-currency-card' }, art('source_' + name, 'se-currency-icon'), h('div', null, h('span', null, tag), h('b', null, fmtN(n))));
@@ -172,7 +172,7 @@ function trash(entries) {
   return d;
 }
 
-// ================================================================== KARAKTER EDİTÖRÜ
+// ================================================================== CHARACTER EDITOR
 const SE = { slot: null, name: '', v: null, tab: 'pilot', ship: null, config: null, busy: false, catalog: null, search: '', ammoFilled: false, invKind: 'hepsi', resourceSearch: '' };
 const SE_TABS = [
   ['pilot', N('Pilot'), 'user', 'pilotSheet_normal'], ['hangar', N('Hangar'), 'hangar', 'hangar_normal'], ['drones', N('Drones'), 'drone', null],
@@ -212,8 +212,8 @@ async function renderEditor() {
   seRender();
 }
 
-// oyunun görselleri yok (oyun kurulmadı ya da BepInEx ile hiç açılmadı): editör eşyaları ancak oyunun simgeleri ve adlarıyla
-// anlaşılır gösterebilir; kitaplık (kayıt kartları) görselsiz de çalışır
+// no game images (the game is not installed or was never opened with BepInEx): the editor can only show items clearly with the game's icons and
+// names; the library (save cards) works without images too
 function seLock() {
   if (S.page !== 'saves' || !SE.slot) return;
   $('#content').replaceChildren(h('div', { class: 'stack ke-editor' },
@@ -225,7 +225,7 @@ function seLock() {
         btn(T('Try again'), () => renderEditor(), '', 'refresh')))));
 }
 
-// işlemleri taslağa uygula (kayit_editoru.ISLEMLER); başarıda yeni görünüm çizilir -> başarılı mı
+// apply the actions to the draft (save_editor.OPS); on success the new view is drawn -> was it successful
 async function seApply(...ops) {
   if (!SE.v || SE.v.read_only || SE.busy) return false;
   SE.busy = true; document.body.classList.add('se-busy');
@@ -235,11 +235,11 @@ async function seApply(...ops) {
   return false;
 }
 
-// Arama kutusu: editör (bütün sekme ve eşya döşemeleri) her tuşta değil yazma durunca yeniden kurulur; imleç yerinde kalır
+// Search box: the editor (all tabs and item tiles) is rebuilt when typing pauses, not on every key; the cursor stays in place
 function seSearch(e, assign) {
   assign(e.target.value); clearTimeout(SE.searchTimer);
   SE.searchTimer = setTimeout(() => {
-    if (!e.target.isConnected) return;          // bu arada sayfa ya da sekme değişti
+    if (!e.target.isConnected) return;          // meanwhile the page or tab changed
     const pos = e.target.selectionStart; seRender();
     const new_ = $('.se-main .game-search'); if (new_) { new_.focus(); new_.setSelectionRange(pos, pos); }
   }, 150);
@@ -258,7 +258,7 @@ function seRender() {
   c.scrollTop = sc;
 }
 
-// sekme ikonu: panelin görseli (images/ke_<sekme>.webp, Orders.md OP-013: teslim edilenler KE_GORSEL'e), yoksa oyunun menü sprite'ı, o da yoksa çizgi ikon
+// tab icon: the panel's image (images/ke_<tab>.webp, Orders.md OP-013: delivered ones go to SE_IMAGE), otherwise the game's menu sprite, otherwise a line icon
 const SE_IMAGE = new Set(['pilot', 'hangar', 'drones', 'pet', 'inventory', 'ammunition', 'sources', 'boosters', 'maintenance']);
 const seTabIcon = (s, size) => SE_IMAGE.has(s[0]) ? h('span', { class: 'se-tab-icon gorsel' }, art('ke_' + s[0], 'se-tab-art'))
   : s[3] && GI.index?.sprite[s[3]] ? h('span', { class: 'se-tab-icon oyun' }, sprite(s[3], size)) : h('span', { class: 'se-tab-icon' }, icon(s[2]));
@@ -307,7 +307,7 @@ function seMenu(v) {
   seTabIcon(s, 20), h('span', null, T(s[1])), n[s[0]] ? h('span', { class: 'se-count' }, fmtN(n[s[0]])) : s[0] === 'pet' && !v.pet ? h('span', { class: 'se-count none' }, '—') : null)));
 }
 
-// ---- ortak parçalar
+// ---- shared parts
 const seCard = (title, iconEl, ...body) => h('div', { class: 'card se-card' }, title ? h('h2', null, icon(iconEl), title) : null, ...body);
 function numberBox(value, update, { min = 0, max = null, cls = '' } = {}) {
   return h('input', { class: 'input num ' + cls, type: 'number', min, max, step: 1, value: value, disabled: SE.v.read_only,
@@ -315,7 +315,7 @@ function numberBox(value, update, { min = 0, max = null, cls = '' } = {}) {
       const x = Math.max(min, max != null ? Math.min(max, n) : n); if (x !== value) update(x); else e.target.value = value; },
     onkeydown: e => { if (e.key === 'Enter') e.target.blur(); } });
 }
-// kaydırıcı: iz tutamağa kadar dolar (panel.css input[type=range] --p; min ve max value'dan önce verilmeli)
+// slider: the track fills up to the handle (panel.css input[type=range] --p; min and max must be given before value)
 function slider(props, cls = '') {
   const el = h('input', Object.assign({ type: 'range', class: 'se-range ' + cls }, props));
   const filler = () => el.style.setProperty('--p', (el.value - el.min) / Math.max(1e-9, el.max - el.min) * 100 + '%');
@@ -323,7 +323,7 @@ function slider(props, cls = '') {
   filler();
   return el;
 }
-// küçük artı/eksi kutusu: [−] n / azami [+]
+// small plus/minus box: [−] n / max [+]
 function stepBox(n, maximum, update, { min = 0 } = {}) {
   const ro = SE.v.read_only;
   return h('div', { class: 'se-stepper' }, h('button', { type: 'button', disabled: ro || n <= min, onclick: () => update(n - 1) }, icon('minus')),
@@ -335,7 +335,7 @@ function seShip(v) {
   if (!g.configs[SE.config]) SE.config = g.active_config;
   return g;
 }
-// gemi ve config seçimi (Dronlar ve P.E.T. donanımı da geminin config'inde durur)
+// ship and config selection (Drones and P.E.T. equipment also live in the ship's config)
 function shipPicker(v, g) {
   return h('div', { class: 'row wrap se-picker' }, h('span', { class: 'lbl' }, T('Ship')),
     h('select', { class: 'input', onchange: e => { SE.ship = e.target.value; SE.config = null; seRender(); } },
@@ -347,7 +347,7 @@ const moveOp = (id, direction, tgt) => ({ operation: 'carry', direction, target:
 const equipTarget = tgt => ({ target: tgt.target, ship: SE.ship, config: +SE.config, drone: tgt.drone || 0, set: tgt.set || '' });
 const lvlBadge = e => [e.upgrade ? h('span', { class: 'se-badge-lv' }, '+' + e.upgrade) : null, e.level ? h('span', { class: 'se-badge-lv left' }, T('Lv {0}', e.level)) : null];
 
-// eşya simgeli düğme: ipucu örneğin bilgisini (yükseltme, rastgele nitelikler, CPU hakkı) düğmenin _esya'sından okur
+// button with an item icon: the tooltip reads the example's info (upgrade, random attributes, CPU allowance) from the button's _item
 function seItemButton(props, e, ...kids) {
   const b = h('button', props, ...kids);
   b._item = SE.v.rights[e.lootId] ? Object.assign({}, e, { right: SE.v.rights[e.lootId] }) : e;
@@ -374,9 +374,9 @@ function seItemMenu(anchor, e, tgt) {
   ].filter(Boolean));
 }
 
-// ---- eşya düzenleme: yükseltme seviyesi (Assembly), P.E.T. dişlisinin/protokolünün seviyesi, CPU'nun hakkı ve rastgele nitelikler
-// (kararsız modül: nitelikler kesir, gemiler, yeniden çekme hakkı; parçacık silahı: nitelikler yüzde, hak, topun yıldızı; QFC: bağlı
-// gemi, seviye, nitelikler yüzde). Oyunun aralığı ipucu olarak yazılır; değer serbest. Hepsi tek işlem listesiyle taslağa.
+// ---- item editing: upgrade level (Assembly), the level of the P.E.T. gear/protocol, the CPU's allowance and random attributes
+// (unstable module: attributes fraction, ships, re-roll allowance; particle weapon: attributes percent, allowance, the cannon's star; QFC: linked
+// ship, level, attributes percent). The game's range is written as a hint; the value is free. All in a single action list to the draft.
 function seEdit(e) {
   const v = SE.v, pool = v.pools[e.lootId], r = e.rng || {}, right = v.rights[e.lootId], fraction = pool?.unit === 'fraction';
   const st = { upgrade: e.upgrade || 0, level: e.level, cpu: right ? right[0] : null, attribute: (r.attribute || []).map(([a, x]) => [a, fraction ? x * 100 : x]),
@@ -466,7 +466,7 @@ function seEdit(e) {
     }, 'primary', 'check')] });
 }
 
-// envanteri gruplar: aynı lootId ve seviyedekiler tek kutuda (adet); rastgele nitelikliler (modül, top, QFC) tek tek
+// groups the inventory: those with the same lootId and level in one box (count); those with random attributes (module, cannon, QFC) one by one
 // item equipped somewhere (its ship and configs); the game lets another config of the same ship use it too
 const seIsEquipped = e => !!(e.configs && e.configs.length);
 const seIsUsable = e => !seIsEquipped(e) || (e.ship === SE.ship && !e.configs.includes(String(SE.config)));
@@ -475,7 +475,7 @@ function groupItems(entries) {
   for (const e of entries) { const k = [e.lootId, e.upgrade || 0, e.level || 0, e.rng ? e.id : ''].join('|'); (gr[k] = gr[k] || []).push(e); }
   return Object.values(gr).sort((a, b) => itemName(a[0].lootId).localeCompare(itemName(b[0].lootId)));
 }
-// boş yuvaya tak: envanterde uyanlar ya da katalogdan ver ve tak
+// put in an empty slot: those in the inventory that fit, or give from the catalog and put in
 function sePickEquip(tgt) {
   const v = SE.v;
   const eligible = v.inventory.filter(e => seIsUsable(e) && (tgt.target === 'ship' ? e.targets.includes('ship') && e.slot === tgt.slot
@@ -493,7 +493,7 @@ function sePickEquip(tgt) {
   foot: [btn(T('Close'), () => m.close(), 'ghost')] });
 }
 
-// ---- katalog: eklenebilecek her şey, kategoriler, arama, adet (oyunun ödül yolu)
+// ---- catalog: everything that can be added, categories, search, count (the game's reward path)
 async function seCatalog(o = {}) {
   if (!SE.catalog) { const r = await act(() => api('/api/editor/katalog')); if (!r) return; SE.catalog = r; }
   let entries = SE.catalog.items;
@@ -510,7 +510,7 @@ async function seCatalog(o = {}) {
       icon(SE_CATEGORY_ICON[k] || 'box'), h('span', null, T(SE_CATEGORY[k] || k)), h('small', null, fmtN(k === 'hepsi' ? entries.length : tally[k])))));
     const its = entries.filter(([l, k]) => (st.multiplier === 'hepsi' || k === st.multiplier) && (!st.search || l.includes(st.search) || itemName(l).toLowerCase().includes(st.search)));
     const visible = its.slice(0, 300);
-    // seçim yalnız sınıfı değiştirir (ızgara yeniden çizilirse kaydırma başa dönerdi)
+    // the selection only changes the class (if the grid were redrawn the scroll would go back to the top)
     const sec = (l, el) => { st.sec = l; grid.querySelectorAll('.se-cat-item.on').forEach(x => x.classList.remove('on')); el.classList.add('on'); renderSub(); };
     grid.replaceChildren(...[...visible.map(([l]) => h('button', { class: 'se-cat-item' + (st.sec === l ? ' on' : ''), type: 'button', title: l,
       onclick: e => sec(l, e.currentTarget), ondblclick: e => { sec(l, e.currentTarget); add(); } }, itemIcon(l, 52), h('span', null, itemName(l)))),
@@ -795,7 +795,7 @@ function seMaintenance(v) {
 const SE_RENDER = { pilot: sePilot, hangar: seHangar, drones: seDrones, pet: sePet, inventory: seInventory, ammunition: seAmmo, sources: seResources,
   boosters: seBoosters, maintenance: seMaintenance, stats: seStats };
 
-// İstatistik (salt okunur; kayit_editoru.istatistik): rütbe puanı, öldürmeler, ölümler, kapılar ve süreleri, modların en iyileri
+// Statistics (read-only; save_editor.stats): rank points, kills, deaths, gates and their times, best results of the modes
 const SE_POINTS = [['ExperiencePoints', N('Experience (EP)')], ['honorPoints', N('Honor')], ['yourLevel', N('Level')], ['npcShotPoints', N('Alien points')],
   ['playerShotPoints', N('Player points')], ['missionsCompleted', N('Quests finished')], ['daysSinceRegistration', N('Days since registration')],
   ['DestroyedByEnemies', N('Destroyed by enemies')], ['DestroyedByRadiationZone', N('Radiation deaths')], ['friendlyPlayersDestroyed', N('Friendly kills')]];
@@ -823,7 +823,7 @@ function seStats(v) {
       table([T('Ship'), T('Killed')], (s.player || []).map(([name, n]) => h('tr', null, h('td', null, name), h('td', { class: 'num' }, fmtN(n)))), T('No players destroyed yet.'))));
 }
 
-// ---- değişiklik özeti, kaydet, vazgeç
+// ---- summary of changes, save, discard
 function seChanges() {
   const f = SE.v.diff, ro = SE.v.read_only;
   const value = (k, x) => x == null ? '—' : k === 'company' ? COMPANY_TAG[x] || x : k === 'active_ship' ? itemName(x) : k === 'premium' ? (x ? T('On') : T('Off'))

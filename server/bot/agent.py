@@ -1,15 +1,15 @@
-"""Botun ajanı (Gelişmiş kip, güçlü sağlayıcı: llm.GUCLU): model, Claude Code'un araç döngüsü gibi oyunu araçlarla oynar.
+"""The bot's agent (Advanced mode, strong provider: llm.STRONG): like Claude Code's tool loop, the model plays the game with tools.
 
-Her düşünme anında (dusun) model adım adım ilerler: kısa düşünce -> bir araç -> aracın sonucu -> sonraki adım; en çok
-llm_ajan_adim adım, "bitir" ile biter. Araçlar üç türlü:
-  gözlem    salt okunur: durum, haritalar, magaza, gorevler, etkinlikler, cevre, klan, defter, anilar (bakmadan karar vermesin)
-  eylem     agent_tools.py'nin araçları (hedef niyetleri, alışveriş, görev, mod, kapı, sosyal ...): paketin izinleri aynen geçerli
-  kendini yönetme: defter (uzun vadeli hedefler), hatirlat (kendini N dakika sonra uyandırır), not_al (anı defterine not)
-Karar araçları kurallı karar motoruna güçlü niyet olarak gider (beyin.zorla): uçuş, savaş ve ayrıntı yine govde/soyut'ta.
+At each thinking moment (think) the model proceeds step by step: short thought -> a tool -> the tool's result -> next step; at most
+llm_agent_steps steps, ends with "finish". Three kinds of tools:
+  observation   read-only: state, maps, shop, quests, events, surroundings, clan, ledger, memories (so it does not decide blind)
+  action        agent_tools.py's tools (goal intents, shopping, quest, mode, gate, social ...): the package's permissions apply as they are
+  self-management: ledger (long-term goals), remind (wakes itself up after N minutes), not_al (note into the memory book)
+Decision tools go to the rule-based decision engine as strong intents (brain.force): flight, combat and detail stay in ship/abstract_sim.
 
-Ne zaman düşünür (llm.Beyin._ajan_tick): llm_karar_dk'da bir; önemli olayda (öldü, seviye, görev bitti, yeni gemi, kargo doldu,
-biriktirdiği para tamam) ve hatırlatıcının vakti gelince. Saatlik istek sınırı (llm_saatlik) aşılınca kurallı motor sürer.
-Botun son adımları k['ajan']'da (izlemek için), defter k['defter'], hatırlatıcılar k['hatirlatici'].
+When it thinks (llm.Brain._agent_tick): once every llm_decision_min; on an important event (died, level, quest done, new ship, cargo full,
+savings goal reached) and when a reminder is due. Once the hourly request limit (llm_hourly) is exceeded the rule-based engine drives.
+The bot's latest steps are in k['agent'] (for watching), the notebook in k['ledger'], the reminders in k['reminder'].
 """
 import json, time
 
@@ -20,13 +20,13 @@ from . import agent_tools as TL
 from . import brain as B
 from . import catalog as K
 
-STEPS = 3                         # düşünme başına en çok istek (adımda birden çok araç)
+STEPS = 3                         # most requests per thinking (several tools in one step)
 WAKE_EVENTS = {'death': 'you just got shot down', 'level': 'you just reached a new level', 'quest_done': 'you just finished a quest',
              'new_ship': 'you just got a new ship', 'i_killed_player': 'you just shot down a player'}
 NOTEBOOK_MAX = 8
 
 
-# ------------------------------------------------------------------------------------------------------------ gözlem
+# ------------------------------------------------------------------------------------------------------------ observation
 def _fmt_money(n):
     return '{:,}'.format(int(n))
 
@@ -39,7 +39,7 @@ def observe_status(y, b, arg):
     from .goals import quest as QU, shopping as SHOP
     from . import weapons as WP
     d = b.value()
-    PF.level_for(0)                                      # seviye eşikleri yüklensin
+    PF.level_for(0)                                      # let the level thresholds load
     next_ = next((need for lv, need in (PF._LEVELS or []) if lv == b.level + 1), None)
     out = ['Level %d (EP %s%s). Ship %s, power %.0f (damage/s %.0f, effective HP %.0f).' % (
         b.level, _fmt_money(b.k['ep']), (' / next level at %s' % _fmt_money(next_)) if next_ else '', _short(b.k['gear']['ship']), d['power'],
@@ -98,7 +98,7 @@ def observe_shop(y, b, arg):
     currency = {'C': b.k['credits'], 'U': b.k['uridium']}
     all_ = SHOP.candidates(b)
     all_candidates = sorted(all_, key=lambda c: -c[0] / max(1.0, c[2] * m * (SHOP.EXCHANGE_RATE if c[1] == 'U' else 1)))[:7]
-    all_candidates += sorted((c for c in all_ if c not in all_candidates), key=lambda c: -c[0])[:3]       # büyük hedefler (gemi ...): biriktirmeye değer
+    all_candidates += sorted((c for c in all_ if c not in all_candidates), key=lambda c: -c[0])[:3]       # big goals (ship ...): worth saving up for
     if not all_candidates:
         return 'Nothing in the shop would improve your ship right now.'
     row = ['%s: +%.0f%% power, %s %s, %s' % (_short(l), 100 * a / power, _fmt_money(f * m), 'uridium' if p == 'U' else 'credits',
@@ -123,7 +123,7 @@ def observe_quests(y, b, arg):
 
 
 def available_quests(b):
-    """Alınabilir görevlerden şu an yeri gidilebilir olanlar (karar motorunun gorev.basla süzgeciyle aynı)."""
+    """Quests available to take whose location is currently reachable (same filter as the decision engine's goals/quest.py start)."""
     from .goals import quest as QU
     if b.k.get('quest'):
         return []
@@ -231,7 +231,7 @@ OBSERVATIONS = {
 }
 
 
-# ------------------------------------------------------------------------------------------------------------ kendini yönetme
+# ------------------------------------------------------------------------------------------------------------ self-management
 def self_notebook(y, b, arg):
     d = b.k.setdefault('ledger', [])
     operation = str(arg.get('operation') or 'add')
@@ -268,7 +268,7 @@ def self_remind(y, b, arg):
     text = ' '.join(str(arg.get('text') or '').split())[:160]
     h = b.k.setdefault('reminder', [])
     same = next((x for x in h if x['text'] == (text or 'check how things are going')), None)
-    if same is not None:                               # aynı hatırlatıcı: yalnız vakti güncellenir
+    if same is not None:                               # same reminder: only its time is updated
         same['due'] = y.now + minutes * 60
         return 'ok: reminder moved to %d min from now' % minutes
     if len(h) >= 5:
@@ -291,7 +291,7 @@ SELF = {
     'not_al': (k_not, 'write a private note into your memory (about ad, optional)', 'metin, ad?'),
 }
 
-# eylem araçları: araclar.py'deki ad -> (İngilizce açıklama, argümanlar); izinler araclar.cagir'da
+# action tools: name in agent_tools.py -> (English description, arguments); permissions are in agent_tools.call
 ACTIONS = {
     'hunt_npcs': ('go farm aliens (on harita if given, one of the maps from haritalar)', 'harita?'),
     'do_quest': ('continue your active quest', ''),
@@ -334,8 +334,8 @@ TOOL_NAMES = list(OBSERVATIONS) + [k for k in SELF if k not in OBSERVATIONS] + l
 
 
 def catalog(y):
-    """Modelin araç listesi (paketin izni kapalı olanlar hariç)."""
-    # durum her düşünmenin başında zaten verilir (Right now): listede yok, model boşuna adım harcamasın
+    """The model's tool list (except those whose package permission is off)."""
+    # the state is already given at the start of every thinking (Right now): not in the list, so the model does not waste steps
     out = ['Look (free, use before deciding):'] + ['- %s(%s): %s' % (k, a, d) for k, (f, d, a) in OBSERVATIONS.items() if k != 'state']
     out.append('Plan yourself:')
     out += ['- %s(%s): %s' % ('ledger' if k == 'ledger' else k, a, d) for k, (f, d, a) in SELF.items()]
@@ -350,7 +350,7 @@ def catalog(y):
 
 
 def run(br, y, b, tool, arg):
-    """Bir adımı yürüt (y.lock altında) -> modele dönen sonuç metni."""
+    """Run one step (under y.lock) -> the result text returned to the model."""
     arg = arg if isinstance(arg, dict) else {}
     if tool == 'ledger' and arg.get('operation') in ('add', 'finish', 'delete'):
         return self_notebook(y, b, arg)
@@ -361,8 +361,8 @@ def run(br, y, b, tool, arg):
     if tool not in ACTIONS:
         return 'failed: unknown tool %s' % tool
     if tool in ('whisper', 'write_chat'):
-        # art arda yazmaz: aynı kişiye yanıtını beklemeden 2 dk'da bir, aynı kanala dakikada bir (sohbet denemesi 2026-10-30: bot
-        # oyuncuya 6 sn arayla iki kez "geliyorum" fısıldadı; bir adımda iki araç ya da yakın iki uyanma)
+        # does not write back to back: to the same person once per 2 min without waiting for their reply, to the same channel once a minute
+        # (chat trial 2026-10-30: the bot whispered "geliyorum" to the player twice 6 s apart; two tools in one step or two close wake-ups)
         target = ('whisper', str(arg.get('name') or '').lower()) if tool == 'whisper' else ('channel', str(arg.get('channel') or 'company'))
         last = b.__dict__.setdefault('_agent_wrote', {})
         t = last.get(target)
@@ -382,10 +382,10 @@ def run(br, y, b, tool, arg):
     return ('ok' if r.get('ok') else 'failed') + (': %s' % r['message'] if r.get('message') else '')
 
 
-# ------------------------------------------------------------------------------------------------------------ döngü
-# Maliyet (kullanıcı 2026-10-30: ajan saatte 1,2M token yaktı): bir adımda birden çok araç; döngü yalnız bir bakma aracı istenince
-# sürer (çoğu düşünme 1-2 istek). Sistem istemi + araç listesi sabit önek, adımlar çok turlu konuşma: sağlayıcının önek önbelleğine
-# girer (DeepSeek'te önbellekteki girdi 50 kat ucuz).
+# ------------------------------------------------------------------------------------------------------------ loop
+# Cost (user 2026-10-30: the agent burned 1.2M tokens an hour): several tools per step; the loop continues only when a look-up tool is
+# requested (most thinking is 1-2 requests). The system prompt + tool list are a fixed prefix, the steps a multi-turn conversation: they
+# go into the provider's prefix cache (on DeepSeek, cached input is 50 times cheaper).
 SYSTEM_PROMPT = ("You are the mind of one pilot in a DarkOrbit-like space MMO: you decide what he does next, exactly like a real human "
           "player with his personality, mood and history would. You act only through tools. Reply with ONE JSON object per step: "
           "{\"thought\": a few words of private thought in English, \"tools\": [up to 4 tool calls {\"tool\": name, \"arg\": "
@@ -400,7 +400,7 @@ SYSTEM_PROMPT = ("You are the mind of one pilot in a DarkOrbit-like space MMO: y
 
 
 def system(y):
-    """Sabit önek: kurallar ve araç listesi (paketin izinleriyle; bütün botlarda aynı -> önbellekte)."""
+    """Fixed prefix: rules and the tool list (with the package's permissions; the same for all bots -> in the cache)."""
     from . import admin_warnings as AW
     return SYSTEM_PROMPT + AW.system_note() + '\n\nTOOLS:\n' + catalog(y)
 
@@ -421,7 +421,7 @@ def schema():
 
 
 def _calls(r):
-    """Modelin yanıtı -> [(araç, arg)] (eski tek araçlı biçim de)."""
+    """The model's reply -> [(tool, arg)] (the old single-tool format too)."""
     xs = r.get('tools') if isinstance(r.get('tools'), list) else [r] if r.get('tool') else []
     return [(str(x.get('tool') or 'finish'), x.get('arg') if isinstance(x.get('arg'), dict) else {}) for x in xs[:4] if isinstance(x, dict)]
 
@@ -431,7 +431,7 @@ def _is_observation(tool, arg):
 
 
 def think(br, b, reason, max_count=STEPS):
-    """Bir düşünme anı: adım adım araç döngüsü (adımda en çok 4 araç). -> [(düşünce, araç, arg, sonuç)]."""
+    """One thinking moment: step-by-step tool loop (at most 4 tools per step). -> [(thought, tool, arg, result)]."""
     from . import llm
     y = br.y
     with y.lock:
@@ -452,7 +452,7 @@ def think(br, b, reason, max_count=STEPS):
             with y.lock:
                 try:
                     result = str(run(br, y, b, tool, arg))
-                except Exception as e:                     # araç hatası modele söylenir, döngü sürer
+                except Exception as e:                     # a tool error is told to the model, the loop continues
                     result = 'failed: %s' % e
             looked = looked or _is_observation(tool, arg)
             steps.append((short_thought, tool, arg, result[:900]))
@@ -460,7 +460,7 @@ def think(br, b, reason, max_count=STEPS):
         if finished and not results:
             steps.append((short_thought, 'finish', {}, ''))
         if finished or not looked or i == max_count - 1:
-            break                                          # yalnız eylem: düşünme biter (ek istek yok)
+            break                                          # action only: thinking ends (no extra request)
         message += [{'role': 'assistant', 'content': json.dumps(r, ensure_ascii=False)},
                   {'role': 'user', 'content': 'Results:\n%s\n\n%s' % ('\n'.join(results), 'This is your LAST step: act now or bitir.'
                                                                     if i == max_count - 2 else 'Your next step as JSON.')}]
@@ -472,8 +472,8 @@ def think(br, b, reason, max_count=STEPS):
 
 
 def wake_state(b):
-    """uyandiranlar'ın tükettiği durum -> geri yükleyen işlev (iş kuyruğa giremezse ya da bayatlarsa hatırlatıcı, kargo/birikim
-    uyarısı ve olaylar kaybolmasın)."""
+    """State consumed by wakers -> function that restores it (so the reminder, the cargo/savings warning and events are not lost if the
+    job cannot enter the queue or goes stale)."""
     d = {k: b.__dict__[k] for k in ('_ajan_olay_t', '_kargo_uyandi', '_birikim_uyandi') if k in b.__dict__}
     h = b.k.get('reminder')
     h = list(h) if h is not None else None
@@ -485,13 +485,13 @@ def wake_state(b):
             else:
                 b.__dict__.pop(k, None)
         if h is not None:
-            b.k['reminder'] = h + [x for x in b.k.get('reminder') or [] if x not in h]    # arada kurulan yenisi de kalsın
+            b.k['reminder'] = h + [x for x in b.k.get('reminder') or [] if x not in h]    # a new one set in the meantime stays too
     return refund
 
 
 def wakers(y, b, now, events=True):
-    """Botu şimdi düşündürecek sebep (olay, hatırlatıcı, biriktirmenin tamamlanması) ya da None. olaylar=False: oyuncudan uzak bot
-    yalnız kendi kurduğu hatırlatıcıyla ve birikimiyle uyanır (ajan seyrek; olaylarını kurallı motor karşılar)."""
+    """The reason to make the bot think now (event, reminder, savings completed) or None. events=False: a bot far from the player wakes
+    only with the reminder it set itself and with its savings (the agent is sparse; the rule-based engine handles its events)."""
     last = b.__dict__.get('_agent_event_t', now)
     b._agent_event_t = now
     for o in reversed(b.events[-8:]) if events else ():
@@ -504,7 +504,7 @@ def wakers(y, b, now, events=True):
     if is_due:
         b.k['reminder'] = [x for x in h if x['due'] > now]
         return 'your reminder: %s' % is_due[0]['text']
-    if events and b.cargo_fill() >= 0.97 and not b.__dict__.get('_cargo_woke'):      # uzak botun kargosunu kurallı motor satar
+    if events and b.cargo_fill() >= 0.97 and not b.__dict__.get('_cargo_woke'):      # the rule-based engine sells a far bot's cargo
         b._cargo_woke = True
         return 'your cargo is full'
     if b.cargo_fill() < 0.5:

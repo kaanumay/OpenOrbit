@@ -1,16 +1,16 @@
-"""Bot adlarının değişim ve silinme kaydı: panelin Botlar sayfası yazar, oyun her yere uygular.
+"""Log of bot name changes and deletions: the panel's Bots page writes it, the game applies it everywhere.
 
-Botun adı oyunun birçok yerinde adıyla tutulur: klanın üyeleri, lideri, başvuruları (clan.py), oyuncunun klan kopyası (profil
-'klan'), rehberler (profil 'rehber': arkadaş, istek, engelli), öteki botların hafızası ve rehberleri. Panel bir botun adını
-değiştirince, kadroyu baştan üretince, bot sayısını azaltınca ya da paketi silince buraya sıralı olaylar ekler:
-  {'n': sıra, 't': zaman, 'tur': 'ad', 'eski': ad, 'yeni': ad}     ad değişti
-  {'n', 't', 'tur': 'sil', 'ad': ad}                                bot artık yok (her yerden çıkar)
-  {'n', 't', 'tur': 'klan_cik', 'ad': ad}                           ilerlemesi sıfırlandı: klanlardan çıkar, tanışıklıkları kalır
-Her tüketici en son uyguladığı sırayı saklar (profil 'bot_ad_kaydi', klan dosyası 'bot_ad_kaydi', paket durum.json) ve yalnız
-yenilerini bir kez uygular: oyun kapalıyken yapılan değişiklik sonraki girişte, açıkken panel kanalıyla (panel_kanali /bot/ad_kaydi)
-hemen uygulanır. Silinen ada sonradan başkası sahip olsa da eski olay ona dokunmaz.
-Ada göre çalışır: kadro baştan üretilince yeni botlar eskilerin kimliğini (1800000000 + sıra) alır.
-Gönderilmiş ve alınmış postalar geçmiştir, olduğu gibi kalır.
+A bot's name is held by name in many places in the game: the clan's members, leader, applications (clan.py), the player's clan copy (profile
+'clan'), contact lists (profile 'contacts': friend, request, blocked), the memory and contacts of the other bots. When the panel renames a bot,
+regenerates the roster, reduces the bot count or deletes the package, it appends ordered events here:
+  {'n': seq, 't': time, 'type': 'name', 'eski': name, 'new': name}   name changed
+  {'n', 't', 'type': 'delete', 'name': name}                        the bot no longer exists (removed from everywhere)
+  {'n', 't', 'type': 'clan_leave', 'name': name}                    its progress was reset: leaves the clans, its acquaintances remain
+Every consumer stores the last sequence it applied (profile 'bot_name_log', clan file 'bot_name_log', package state.json) and applies only the
+new ones once: a change made while the game is closed at the next login, while it is open at once through the panel channel (panel_channel
+/bot/ad_kaydi). Even if someone else later takes a deleted name, the old event does not touch them.
+It works by name: when the roster is regenerated the new bots take the old ones' ids (1800000000 + sequence).
+Mail already sent and received is history and stays as it is.
 """
 import json, os, threading, time
 
@@ -18,7 +18,7 @@ import paths as PTH
 
 LOCK = threading.RLock()
 _cache = {'mtime': None, 'events': []}
-BOT_UID = (1800000000, 1900000000)        # bot kimlikleri (bot/durum.BOT_UID_TABAN ...): klan liderliği insana geçerken
+BOT_UID = (1800000000, 1900000000)        # bot ids (bot/state.BOT_UID_BASE ...): when clan leadership passes to a human
 
 
 def file():
@@ -26,7 +26,7 @@ def file():
 
 
 def read():
-    """Bütün olaylar (dosya değişmedikçe önbellekten)."""
+    """All events (from the cache unless the file changes)."""
     p = file()
     try:
         m = os.path.getmtime(p)
@@ -49,7 +49,7 @@ def last():
 
 
 def add(events):
-    """Panel: olayları ekle (ad değişimi, silinme). -> son sıra."""
+    """Panel: append events (rename, deletion). -> last sequence."""
     events = [x for x in events if x]
     if not events:
         return last()
@@ -73,13 +73,13 @@ def events_since(n):
     return [x for x in read() if x['n'] > int(n or 0)]
 
 
-# ------------------------------------------------------------------------------------------------------------ uygulama
+# ------------------------------------------------------------------------------------------------------------ apply
 def _k(name):
     return str(name or '').strip().lower()
 
 
 def apply_list(lst, events):
-    """Ad listesi (rehber): yeniden adlandırma ve silinme -> yeni liste ya da None (değişmedi)."""
+    """Name list (contacts): rename and deletion -> new list or None (unchanged)."""
     out, changed = list(lst), False
     for e in events:
         if e['type'] == 'name':
@@ -98,8 +98,8 @@ def apply_list(lst, events):
 
 
 def apply_clan(k, events):
-    """Klan kaydı (asıl kayıt ya da profildeki kopya) -> 'bos' (kimse kalmadı), True (değişti) ya da False. Lider giderse liderlik
-    insan üyeye (yoksa sıradakine) geçer."""
+    """Clan record (the main record or the copy in the profile) -> 'vacant' (nobody left), True (changed) or False. If the leader goes, leadership
+    passes to a human member (or the next one if none)."""
     changed = False
     for e in events:
         if e['type'] == 'name':
@@ -114,7 +114,7 @@ def apply_clan(k, events):
                     b.update(name=new_, first_name=e['new'])
                     changed = True
             k['rejected'] = [new_ if _k(r) == old else r for r in k.get('rejected', [])]
-        else:                                            # sil, klan_cik
+        else:                                            # delete, clan_leave
             a = _k(e['name'])
             if a in k['members']:
                 del k['members'][a]
@@ -133,7 +133,7 @@ def apply_clan(k, events):
 
 
 def apply_profile(p):
-    """Profilin rehberine ve klan kopyasına bekleyen olaylar (oturum açılırken, rehber okunurken) -> değişti mi."""
+    """Pending events to the profile's contacts and clan copy (while a session opens, while contacts are read) -> whether changed."""
     new_ = events_since(p.d.get('bot_name_log', 0))
     if not new_:
         return False
@@ -158,7 +158,7 @@ def apply_profile(p):
 
 
 def apply_clans(KL):
-    """Asıl klan kayıtlarına (klan.KLANLAR) bekleyen olaylar; boşalan klan silinir (diplomasisi de) -> değişen klanlar."""
+    """Pending events to the main clan records (clan.CLANS); a clan that empties is deleted (its diplomacy too) -> changed clans."""
     new_ = events_since(KL.BOT_NAME_N)
     if not new_:
         return []
@@ -176,6 +176,6 @@ def apply_clans(KL):
                 out.append(k)
         KL.BOT_NAME_N = new_[-1]['n']
     for k in out:
-        KL.changed(k)                                    # sürüm artar, bağlı üyelerin kopyaları yenilenir
+        KL.changed(k)                                    # the version increases, the connected members' copies are refreshed
     KL.save()
     return out

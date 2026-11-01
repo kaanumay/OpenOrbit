@@ -1,13 +1,13 @@
-"""Eski Invasion: firma yarışı (yol haritası Ö3; veri data/extra_events.json 'istila').
+"""The old Invasion: a company race (roadmap Ö3; data data/extra_events.json 'istila').
 
-İstemci: menü öğesi invasion (pencere 68) InvasionEventInitCommand {score_MMO, score_EIC, score_VRU, waveCount} gösterir; metinler
-title_invasion, atk_wave_started (%COUNT%). Haritalar maps-config 61-69 (MMO / EIC / VRU Invasion).
-Kurallar (2009 haberi, fandom): firmanın ana haritasında, X-3'te ve X-5'te seviye aralığına göre Invasion kapısı (5-9, 10-14, 15+);
-içeride yalnız uzaylılar, 22 dalga (Streuner .. Boss Kucurbium) sonra baştan; çıkış yalnız ölerek, onarım ücretsiz; her uzaylı firmaya
-1 puan; etkinlik sonunda ilk üç firmaya bir hafta +%10 / +%5 / +%3 hasar. Sunucunun Compromising Invasion kapısından ayrı.
-Kapılar etkinlik kapısı motorunda (event_gate.py; kural firma, seviye aralığı, sonsuz). Öteki firmaların puanı sanal.
-Tek oyunculu uyarlama: motorun öteki kapıları gibi dalga arasında çıkış portalı açılır (ölmeden ayrılmak için).
-Profilde: istila {donem, puan {1, 2, 3}, dalga, odul_alindi}.
+Client: the menu item invasion (window 68) shows InvasionEventInitCommand {score_MMO, score_EIC, score_VRU, waveCount}; texts
+title_invasion, atk_wave_started (%COUNT%). Maps maps-config 61-69 (MMO / EIC / VRU Invasion).
+Rules (2009 news, fandom): on the company's home map, on X-3 and on X-5 an Invasion gate by level range (5-9, 10-14, 15+);
+inside only aliens, 22 waves (Streuner .. Boss Kucurbium) then from the start; you leave only by dying, repair is free; each alien gives the company
+1 point; at the end of the event the top three companies get +10% / +5% / +3% damage for a week. Separate from the server's Compromising Invasion gate.
+The gates run in the event gate engine (event_gate.py; rule company, level range, endless). The other companies' points are virtual.
+Single-player adaptation: like the engine's other gates, an exit portal opens between waves (to leave without dying).
+In the profile: invasion {period, points {1, 2, 3}, wave}.
 """
 import json, os, random, time
 
@@ -20,7 +20,7 @@ D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).g
 EVENT = 'invasion'
 MAPS = {int(m): k for k, g in (D.get('kapilar') or {}).items() for m in g['maps']}
 
-for _k, _g in (D.get('kapilar') or {}).items():           # game.py EKP.register_npcs'den önce: uzaylı türleri de kaydedilir
+for _k, _g in (D.get('kapilar') or {}).items():           # before game.py EKP.register_npcs: the alien types are registered too
     EKP.GATES[_k] = _g
     for _m in _g['maps']:
         EKP.BY_MAP[int(_m)] = _k
@@ -72,12 +72,12 @@ class Invasion:
         if not active() or int(w.map_id) not in MAPS or not getattr(npc, 'gate', False):
             return []
         with self.p.lock:
-            self.st['points'][self.faction()] += 1               # uzaylı başına firmaya 1 puan
+            self.st['points'][self.faction()] += 1               # 1 company point per alien
             self.p.dirty = True
         return []
 
     def on_wave(self, key, total):
-        """Dalga bitti (etkinlik kapısı): sayaç ve sıradaki saldırı dalgasının iletisi."""
+        """Wave over (event gate): the counter and the message of the next attack wave."""
         if key not in (D.get('kapilar') or {}):
             return []
         from legacy_protocol import legacy
@@ -94,7 +94,7 @@ class Invasion:
                 self.st['period'] = (CAL.period(EVENT, now) or (now,))[0]
                 self.p.dirty = True
         msgs = []
-        if now >= self.next_score:                         # sanal puanlar: öteki firmalar ve oyuncunun firmasının sanal ekibi
+        if now >= self.next_score:                         # virtual points: the other companies and the virtual team of the player's company
             self.next_score = now + 60
             lo, hi = D.get('minute_points', [20, 60])
             with self.p.lock:
@@ -107,7 +107,7 @@ class Invasion:
         return msgs
 
     def event_end(self, now):
-        """Etkinlik bitti: firmanın sırasına göre hasar boosterı (bir kez)."""
+        """Event over: a damage booster by the company's rank (once)."""
         st = self.p.d.get('invasion')
         if not st or st.get('period') is None:
             return []
@@ -118,7 +118,7 @@ class Invasion:
         if rank < len(rows):
             loot, hours = rows[rank]
             msgs += self.m.reward(loot, hours)
-            self.log('   Invasion bitti: firma %d. (%s), ödül %s %d saat' % (rank + 1, st['points'], loot, hours))
+            self.log('   Invasion over: company rank %d (%s), reward %s %d hours' % (rank + 1, st['points'], loot, hours))
         with self.p.lock:
             self.p.d['invasion'] = {}
             self.p.dirty = True

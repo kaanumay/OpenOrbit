@@ -1,4 +1,4 @@
-"""Minimal PE32 okuyucu + IL2CPP CodeGenModule bulucu (GameAssembly.dll)."""
+"""Minimal PE32 reader + IL2CPP CodeGenModule finder (GameAssembly.dll)."""
 import struct
 
 
@@ -41,7 +41,7 @@ class PE:
         return self.b[o:self.b.index(b'\0', o)].decode('latin1')
 
     def find_codegen_module(self, module_name, expected_count=None):
-        """Il2CppCodeGenModule { moduleName*, methodPointerCount, methodPointers*, ... } yapısını bulur."""
+        """Finds the Il2CppCodeGenModule { moduleName*, methodPointerCount, methodPointers*, ... } structure."""
         needle = module_name.encode() + b'\0'
         res = []
         start = 0

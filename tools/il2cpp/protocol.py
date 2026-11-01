@@ -1,14 +1,14 @@
-"""darkorbit-protocol.dll -> komut tablosu: kimlik, alanlar (tür/ofset) ve write() kodlaması (otomatik çözüm).
+"""darkorbit-protocol.dll -> command table: id, fields (type/offset) and the write() encoding (automatic decoding).
 
-write() kalıbı (x86, BigEndian EndianBinaryWriter sanal çağrıları):
-  vtable +0x100 -> bool, +0x118 -> byte[] (öncesinde short uzunluk = UTF-8 metin), +0x148 -> short, +0x158 -> int,
-  +0x160 -> long, +0x138 -> float?, +0x168 -> double?  (gözlenen ofsetler kayıt altına alınır)
-Alan dönüşümleri: (x >>> a | x << b) bit döndürme, short için ((x>>>a)&mask | x<<b).
+The write() pattern (x86, virtual calls of the BigEndian EndianBinaryWriter):
+  vtable +0x100 -> bool, +0x118 -> byte[] (preceded by a short length = UTF-8 text), +0x148 -> short, +0x158 -> int,
+  +0x160 -> long, +0x138 -> float?, +0x168 -> double?  (observed offsets are recorded)
+Field transforms: (x >>> a | x << b) bit rotation, for short ((x>>>a)&mask | x<<b).
 """
 import sys, re, json, struct
 import capstone
 import os
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))     # python -I ile de: yanındaki modüller
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))     # also with python -I: the neighboring modules
 from symbols import Symbols
 from il2types import describe, S as S2, m as M, type_name
 
@@ -40,7 +40,7 @@ def module_id(cls):
 
 
 def analyze_write(cls, fields_by_off):
-    """write() içindeki yazma çağrılarını sırayla çıkarır: [(tür, alan, dönüşüm)]."""
+    """Extracts the write calls inside write() in order: [(type, field, transform)]."""
     a = S.name2addr.get(cls + '$$write')
     if not a:
         return None

@@ -1,10 +1,10 @@
-"""Bot yöneticisi: paketi yükler, botların çevrimiçi takvimini, kararlarını ve soyut benzetimini yürütür, durumu kaydeder.
+"""Bot manager: loads the pack, runs the bots' online schedule, decisions and abstract simulation, and saves the state.
 
-Oyun sunucusunda tek örnek (BOT): game.py OO_BOT ortam değişkeniyle paketi verir, yönetici kendi iş parçacığında saniyede bir
-tick() çalıştırır. Benzetim betiği (tools/bot_simulation.py) ve testler aynı sınıfı sahte saatle (now parametresi) sürer.
+A single instance on the game server (BOT): game.py provides the pack via the OO_BOT environment variable, and the manager runs tick() once a second in its own
+thread. The simulation script (tools/bot_simulation.py) and the tests drive the same class with a fake clock (the now parameter).
 
-Her tick'te yalnız işi olan botlar işlenir: çevrimdışılar dakikada bir "girsem mi" der; çevrimiçiler kendi karar anlarında düşünür,
-soyut etkiler SOYUT_SN'de bir toplu uygulanır. Dünyalar (ship.py) haritalarındaki botları kancalarla öğrenir.
+On each tick only the bots that have work are processed: offline ones ask "should I log in" once a minute; online ones think at their own decision moments,
+abstract effects are applied in a batch every ABSTRACT_SEC. The worlds (ship.py) learn the bots on their maps through hooks.
 """
 import json, os, random, threading, time, traceback
 
@@ -26,36 +26,36 @@ PVP_SEC = 10.0
 SIGNUP_SEC = 60.0
 LOGIN_RETRY_SEC = 60.0
 VERSION = 1
-ACTIVE = None                   # oyun sunucusunun yöneticisi (game.py kurar; govde.py okur)
-PRIME_POPULATION = 1.3              # yoğun saatte çevrimiçi olma eğilimi çarpanı
+ACTIVE = None                   # the game server's manager (game.py sets it up; ship.py reads it)
+PRIME_POPULATION = 1.3              # multiplier for the tendency to be online in prime time
 FRONTS = (16, 16, 29, 13, 14, 15)        # 4-4 iki kat, 4-5, 4-1, 4-2, 4-3
 
-DEFAULTS = {                 # paketin ayarları (panel/botlar.py aynı anahtarları doğrular)
-    'speed': 1.0,                # ilerleme hızı çarpanı
-    'online_ratio': 0.6,     # botların çevrimiçi olma eğilimi çarpanı
-    'max_online': 0,     # aynı anda en çok çevrimiçi (0: sınırsız)
-    'catchup_hours': 4,          # oyuncu yokken geçen süreden benzetilen en çok saat (0: telafi yok)
-    'catch_up_rate': 0.35,       # telafide ilerleme oranı
-    'signup_sec': 15,            # progressive: her firmaya ortalama bu kadar saniyede bir yeni pilot kayıt olur (0: hepsi baştan)
-    'company_power': [1.0, 1.0, 1.0],        # firmaların gelişim çarpanı (MMO, EIC, VRU)
-    'jumpstart_hours': 60,      # jumpstart: ortalama oyun saati (dağılım lognormal)
+DEFAULTS = {                 # the pack's settings (panel/bots.py validates the same keys)
+    'speed': 1.0,                # progress speed multiplier
+    'online_ratio': 0.6,     # multiplier for the bots' tendency to be online
+    'max_online': 0,     # most online at the same time (0: unlimited)
+    'catchup_hours': 4,          # most hours simulated from the time elapsed while the player was away (0: no catch-up)
+    'catch_up_rate': 0.35,       # progress rate during catch-up
+    'signup_sec': 15,            # progressive: on average one new pilot signs up per company every this many seconds (0: all from the start)
+    'company_power': [1.0, 1.0, 1.0],        # companies' development multiplier (MMO, EIC, VRU)
+    'jumpstart_hours': 60,      # jumpstart: average game hours (lognormal distribution)
     'pvp_level': 6,
-    'foreign_map': True,    # başka firmanın haritalarına girebilir
-    'chat_min': 6,            # global/firma sohbetinde dakikada en çok bot satırı
-    'help_max': 3,        # bir yardım çağrısına gelen en çok bot
-    'max_concrete': 40,        # oyuncunun haritasında gemi olarak gösterilen en çok bot
-    'bots_per_clan': 12,         # kaç bota bir bot klanı
-    'rude_chat': 1,          # laf atma: 0 kapalı, 1 hafif, 2 sert, 3 çok sert (küfür ve gerçek tehdit hiçbirinde yok)
-    'moderator': False,        # sohbet moderatörü botlar (bot/moderasyon.py)
+    'foreign_map': True,    # can enter other companies' maps
+    'chat_min': 6,            # most bot lines per minute in global/company chat
+    'help_max': 3,        # most bots that come to one call for help
+    'max_concrete': 40,        # most bots shown as ships on the player's map
+    'bots_per_clan': 12,         # one bot clan per this many bots
+    'rude_chat': 1,          # trash talk: 0 off, 1 mild, 2 harsh, 3 very harsh (no swearing and no real threats in any of them)
+    'moderator': False,        # chat moderator bots (bot/moderation.py)
     'mod_count': 2,
     'rule_caps': True, 'rule_flood': True, 'rule_insult': True, 'rule_ads': True,
-    'mute_min': 10,           # susturma süresi
-    'ban_threshold': 3,           # bu kadar susturmadan sonra yasak
+    'mute_min': 10,           # mute duration
+    'ban_threshold': 3,           # ban after this many mutes
     'ban_hours': 24,
-    'prime_start': 19,     # akşam yoğun saatleri (yerel saat): çevrimiçi ve PvP artar, firmalar bir haritada toplanır
+    'prime_start': 19,     # evening prime hours (local time): online and PvP rise, companies gather on one map
     'prime_end': 23,
-    'prime_pvp': 2.0,          # yoğun saatte PvP isteği çarpanı (1: fark yok)
-    'big_battle': True,       # yoğun saatte firmaların PvP botları ortak cephe haritasında toplanır
+    'prime_pvp': 2.0,          # multiplier for PvP desire in prime time (1: no difference)
+    'big_battle': True,       # in prime time the companies' PvP bots gather on a shared front map
     'permissions': {'shop': True, 'quest': True, 'pvp': True, 'sohbet': True, 'clan': True, 'clan_found': True, 'friend': True,
                 'group': True, 'auction': True, 'attack_player': True, 'assist': True, 'box_stealing': True, 'cargo': True, 'rocket': True, 'custom_ammunition': True, 'ekstra': True, 'mine': True, 'lab': True, 'skylab': True, 'technology': True, 'booty': True, 'assembly': True, 'gate': True, 'event': True, 'modes': True, 'clan_diplomacy': True, 'clan_order': True, 'gate_filler': True},
 }
@@ -69,24 +69,24 @@ class Manager(ChatEngine):
         self.settings = dict(DEFAULTS, **(package.get('settings') or {}))
         self.settings['permissions'] = dict(DEFAULTS['permissions'], **(self.settings.get('permissions') or {}))
         self.mode = package.get('mode', 'normal')
-        self.game_settings = GS.Profile(self.settings.get('game_settings'))      # botların oyun ayarı profili (oyuncununkinden ayrı)
+        self.game_settings = GS.Profile(self.settings.get('game_settings'))      # the bots' game-setting profile (separate from the player's)
         self.lock = threading.RLock()
         self.bots = []
-        self.name_index = {}                  # ad küçük harf -> Bot
-        self.on_map = {}             # harita -> {Bot}: çevrimiçi botlar
-        self.worlds = []             # govde kancaları: harita_degisti(bot, eski), bot_cevrimici(bot, acik)
-        self.humans = {}             # ad küçük harf -> (ad, harita, firma): sunucudaki gerçek oyuncular (dünyalar bildirir)
-        self.last_pvp = self.last_save = self.now = now or time.time()   # now: benzetimin saati (sahte saatte de doğru)
+        self.name_index = {}                  # name lowercased -> Bot
+        self.on_map = {}             # map -> {Bot}: online bots
+        self.worlds = []             # hooks of ship.py: map_changed(bot, old), bot_online(bot, open)
+        self.humans = {}             # name lowercased -> (name, map, company): real players on the server (the worlds report them)
+        self.last_pvp = self.last_save = self.now = now or time.time()   # now: the simulation's clock (correct with a fake clock too)
         self.running = False
         self._thread = None
-        self.society = False            # oyun sunucusunda topluluğa ve sohbete bağlı (toplum.kaydol)
+        self.society = False            # on the game server tied to the community and chat (society.register)
         self.last_social = 0.0
-        self.signup_queue = {}         # firma -> [Bot]: henüz kayıt olmamış pilotlar (progressive, sırayla katılır)
-        self.next_signup = {}        # firma -> an
+        self.signup_queue = {}         # company -> [Bot]: pilots that have not signed up yet (progressive, they join in turn)
+        self.next_signup = {}        # company -> moment
         self.prepare_chat()
         self.load(now)
 
-    # ------------------------------------------------------------ ayarlar
+    # ------------------------------------------------------------ settings
     def setting(self, name, vars=None):
         return self.settings.get(name, vars)
 
@@ -94,11 +94,11 @@ class Manager(ChatEngine):
         return bool(self.settings['permissions'].get(name, True))
 
     def speed(self, bot):
-        """Botun ilerleme hızı: paketin hızı x firmasının gücü."""
+        """The bot's progress speed: the pack's speed x its company's strength."""
         fg = self.settings.get('company_power') or [1, 1, 1]
         return float(self.settings.get('speed', 1.0)) * float(fg[bot.firma - 1])
 
-    # ------------------------------------------------------------ yükleme / kayıt
+    # ------------------------------------------------------------ loading / saving
     def load(self, now=None):
         now = now or time.time()
         save = {}
@@ -107,12 +107,12 @@ class Manager(ChatEngine):
                 with open(self.state_path, encoding='utf8') as f:
                     save = json.load(f)
             except (OSError, ValueError) as e:
-                self.log('   botlar: durum okunamadı (%s), baştan' % e)
+                self.log('   bots: could not read state (%s), starting over' % e)
         old = {str(k): v for k, v in (save.get('bots') or {}).items()}
         self.name_log_n = int(save.get('name_log') or 0)
         new_ = []
-        # progressive yeni paket: pilotlar oyuna aynı anda değil, gerçek bir sunucuya kayıt olur gibi tek tek katılır (performans,
-        # haritalara doğal dağılım); jumpstart kadrosu zaten oynamış sayılır
+        # progressive new pack: pilots do not join the game all at once but one by one as if signing up on a real server (performance,
+        # natural spread across the maps); the jumpstart cast counts as having already played
         ordered = self.mode != 'simple' and self.package.get('progression') != 'jumpstart' and self.setting('signup_sec', 15) > 0
         from . import llm_provider as PRV
         multilingual = PRV.multilingual()
@@ -122,19 +122,19 @@ class Manager(ChatEngine):
                 k = dict(no=roster_row['no'], name=roster_row['name'], company=roster_row['company'], personality=roster_row['personality'], registered=not ordered)
                 new_.append(k)
             else:
-                k.update(name=roster_row['name'], company=roster_row['company'], personality=roster_row['personality'])      # panelde ad değişmiş olabilir
+                k.update(name=roster_row['name'], company=roster_row['company'], personality=roster_row['personality'])      # the name may have been changed in the panel
             if self.mode == 'advanced' and not multilingual:
-                k['personality'] = dict(k['personality'], lang='en')      # dahili dil modeli yalnız İngilizce (llm.py; başka sağlayıcıda serbest)
+                k['personality'] = dict(k['personality'], lang='en')      # the built-in language model is English only (llm.py; free with other providers)
             b = Bot(k)
             b.permission = self.settings['permissions']
-            b.rude = int(self.setting('rude_chat', 1))       # kaba sohbet düzeyi (llm.tarz, sohbet_motoru)
+            b.rude = int(self.setting('rude_chat', 1))       # rough chat level (llm.style, chat_engine)
             b.hour = lambda: self.now
             b.game_settings = self.game_settings
-            b.memory.listener = (lambda b: lambda name, kind, now: MEM.from_event(self, b, name, kind, now))(b)     # anı defteri (güçlü sağlayıcı)
+            b.memory.listener = (lambda b: lambda name, kind, now: MEM.from_event(self, b, name, kind, now))(b)     # memory book (strong provider)
             b.next_login = now + b.r.uniform(0, 20)
             self.bots.append(b)
             self.name_index[b.name.lower()] = b
-        self.apply_name_log(loading=True)            # oyun kapalıyken panelde adı değişen ya da silinen botlar
+        self.apply_name_log(loading=True)            # bots renamed or deleted in the panel while the game was closed
         if self.mode == 'simple':
             from . import simple
             simple.prepare(self, now)
@@ -154,8 +154,8 @@ class Manager(ChatEngine):
         MOD.sec(self)
 
     def apply_name_log(self, loading=False):
-        """Panelde adı değişen ya da silinen botlar (name_log.py): çalışan botların adı, botların hafızası ve rehberleri; oyun
-        açıkken (panel kanalı) klanlar ve bağlı oyuncuların rehberi de. -> uygulanan olay sayısı."""
+        """Bots renamed or deleted in the panel (name_log.py): the running bots' names, the bots' memory and contact lists; while the game
+        is open (panel channel) also the clans and the connected players' contact lists. -> number of events applied."""
         import name_log as NL
         new_ = NL.events_since(getattr(self, 'name_log_n', 0))
         if not new_:
@@ -175,7 +175,7 @@ class Manager(ChatEngine):
                             if x['no'] == b.k['no']:
                                 x['name'] = e['new']
                         if b.profile is not None:
-                            society.update(b)          # oyundaki adı (gemisi bir sonraki görünüşte yeni adla)
+                            society.update(b)          # its name in the game (its ship gets the new name at the next appearance)
             for b in self.bots:
                 h = b.memory.d
                 for e in new_:
@@ -199,18 +199,18 @@ class Manager(ChatEngine):
             NL.apply_clans(KL)
             for k in list(TP.all_().values()):
                 if k.name.lower() not in self.name_index:
-                    NL.apply_profile(k.profile)           # bağlı oyuncuların rehberi ve klan kopyası
-            self.log('   botlar: ad kaydı uygulandı (%d olay)' % len(new_))
+                    NL.apply_profile(k.profile)           # the connected players' contact lists and the clan copy
+            self.log('   bots: name record applied (%d events)' % len(new_))
         return len(new_)
 
     def save(self, now=None):
         if not self.state_path:
             return
         now = now or time.time()
-        with self.lock:                                  # metin kilit içinde: dünya döngüsü sözlüklere eklerken yarım kalmasın
+        with self.lock:                                  # the text inside the lock: so the world loop does not see it half done while adding to the dicts
             d = dict(version=VERSION, t=now, name_log=self.name_log_n, bots={str(b.k['no']): b.save() for b in self.bots})
             if self.llm is not None:
-                d['llm'] = self.llm.summary()                    # panelin kullanım satırı (son bir saat: istek, token)
+                d['llm'] = self.llm.summary()                    # the panel's usage line (last hour: requests, tokens)
             text = json.dumps(d, ensure_ascii=False, separators=(',', ':'))
         tmp = self.state_path + '.tmp'
         os.makedirs(os.path.dirname(self.state_path), exist_ok=True)
@@ -219,7 +219,7 @@ class Manager(ChatEngine):
         os.replace(tmp, self.state_path)
         self.last_save = now
 
-    # ------------------------------------------------------------ çalıştırma
+    # ------------------------------------------------------------ running
     def launch(self):
         if self._thread:
             return
@@ -231,7 +231,7 @@ class Manager(ChatEngine):
         self.running = False
         try:
             self.save()
-        except Exception as e:                           # kapanışta öteki kayıtlar (misafirler, klan) atlanmasın
+        except Exception as e:                           # on shutdown the other saves (guests, clan) must not be skipped
             self.log('   botlar: kaydedilemedi (%r)' % e)
 
     def _loop(self):
@@ -240,7 +240,7 @@ class Manager(ChatEngine):
             try:
                 self.tick(t0)
             except Exception:
-                self.log('   botlar: tick hatası\n' + traceback.format_exc())
+                self.log('   bots: tick error\n' + traceback.format_exc())
             time.sleep(max(0.05, 1.0 - (time.time() - t0)))
 
     def tick(self, now=None):
@@ -252,7 +252,7 @@ class Manager(ChatEngine):
             for b in self.bots:
                 if not b.saved:
                     continue
-                try:                                     # bir botun hatası (bozuk ya da eski kayıt) ötekileri ve kaydı durdurmasın
+                try:                                     # one bot's error (a broken or old record) must not stop the others and the save
                     if not b.online:
                         if now >= b.next_login:
                             b.next_login = now + LOGIN_RETRY_SEC * b.r.uniform(0.7, 1.3)
@@ -287,10 +287,10 @@ class Manager(ChatEngine):
             society.tick(self, now)
 
     def bot_error(self, b):
-        """Bot başına bir kez günlüğe (her saniye aynı iz dökülmesin); 10 hatadan sonra bot bu oturumda dinlenir."""
+        """Once per bot to the log (so the same trace is not dumped every second); after 10 errors the bot rests in this session."""
         n = b.__dict__['_error'] = b.__dict__.get('_error', 0) + 1
         if n == 1:
-            self.log('   botlar: %s hata verdi (atlandı)\n%s' % (b.name, traceback.format_exc()))
+            self.log('   bots: %s raised an error (skipped)\n%s' % (b.name, traceback.format_exc()))
         if n >= 10:
             b.online = False
             b.next_login = self.now + 3600
@@ -300,14 +300,14 @@ class Manager(ChatEngine):
         c = self.__dict__.setdefault('_errors', {})
         c[name] = c.get(name, 0) + 1
         if c[name] in (1, 100, 10000):
-            self.log('   botlar: %s hatası (%d. kez)\n%s' % (name, c[name], traceback.format_exc()))
+            self.log('   bots: %s error (time %d)\n%s' % (name, c[name], traceback.format_exc()))
 
     def bot_tick(self, b, now):
         self.now = now
         on_run = b.target is not None and b.target.name in ('gate', 'mod') and not b.plan.get('finished')
-        if now >= b.session_end and not b.en_route and b.dead_until <= now and not on_run:   # kapı/mod koşusu bitmeden çıkmaz
+        if now >= b.session_end and not b.en_route and b.dead_until <= now and not on_run:   # does not leave before a gate/mode run is finished
             if b.body is not None and b.body.alive and not b.__dict__.get('logout_ready'):
-                # haritanda görünen bot olduğu yerde yok olmaz: istasyonuna ya da bir portala uçup orada çıkar (govde.cikisa_git)
+                # a bot visible on your map does not vanish where it is: it flies to its station or a portal and leaves there (exit_request)
                 if not b.__dict__.get('exit_request'):
                     b.exit_request = now
                 if now - b.exit_request < 90:
@@ -323,18 +323,18 @@ class Manager(ChatEngine):
         dt = now - b.last_abstract
         if dt >= ABSTRACT_SEC:
             b.last_abstract = now
-            # oturum uzadıkça yorulur (tutkunlar geç)
+            # gets tired as the session drags on (devoted ones late)
             b.mood.it(fatigue=dt / (3600.0 * (1.5 + 3 * (b.k['personality']['habit'] == 'devoted'))))
             b.ist('sure_sn', int(dt))
             from . import events as EV
-            EV.battle_pass(b, min(dt, 60.0))             # pass görevleri ve Season Pass oynadıkça ilerler (uyku sonrası sınırlı)
+            EV.battle_pass(b, min(dt, 60.0))             # pass quests and Season Pass progress as they play (limited after sleep)
             EV.season_pass(b, min(dt, 60.0))
             if b.body is None and b.target is not None:
                 b.target.abstract(b, min(dt, 60.0), self)
 
     def signup_tick(self, now, online, limit):
-        """Sıradaki pilotlar kayıt olur: her firmaya ayrı ayrı, ortalama kayit_sn'de (±%33) bir; yeni kayıt olan hemen oyuna girer
-        (kendi üssünde, 1. seviye) -> giren sayısı."""
+        """The next pilots sign up: for each company separately, one on average every signup_sec (±33%); a new signup enters the game at once
+        (at its own base, level 1) -> number who entered."""
         n = 0
         avg = float(self.setting('signup_sec', 15) or 0)
         for f, order in self.signup_queue.items():
@@ -342,7 +342,7 @@ class Manager(ChatEngine):
                 continue
             b = order.pop(0)
             b.k['registered'] = True
-            b.k['registered_at'] = now                         # rütbe puanı: kayıttan beri gün (toplum.puan)
+            b.k['registered_at'] = now                         # rank points: days since signup (society.points)
             self.next_signup[f] = now + avg * b.r.uniform(0.67, 1.33)
             if online + n < limit:
                 self.entry(b, now)
@@ -352,24 +352,24 @@ class Manager(ChatEngine):
         return n
 
     def prime(self, now=None):
-        """Akşamın yoğun saatleri mi (prime_baslangic-prime_bitis, yerel saat; gece yarısını geçebilir; eşitse yok)."""
+        """Whether it is the evening's prime hours (prime_start-prime_end, local time; may cross midnight; if equal, none)."""
         h = time.localtime(now or self.now).tm_hour
         a, b = int(self.setting('prime_start', 19)), int(self.setting('prime_end', 23))
         return a < b and a <= h < b or a > b and (h >= a or h < b)
 
     def front(self, now=None):
-        """Yoğun saatin büyük savaş haritası: saat saat değişir, üç firmanın PvP botları aynı yerde buluşur (4-4, 4-5, 4-1/2/3)."""
+        """The prime hour's big battle map: changes hour by hour, the PvP bots of the three companies meet in the same place (4-4, 4-5, 4-1/2/3)."""
         return FRONTS[int((now or self.now) // 3600) % len(FRONTS)]
 
     def _should_login(self, b, now):
         hour = time.localtime(now).tm_hour
         p = PS.online_tendency(b.k['personality'], hour) * self.setting('online_ratio', 0.6) * (PRIME_POPULATION if self.prime(now) else 1)
-        # dakikalık deneme: saatlik eğilimi dakikaya böl (ortalama oturum ~1-3 saat; denge çevrimiçi payını eğilime yaklaştırır)
+        # per-minute trial: divide the hourly tendency into minutes (average session ~1-3 hours; the equilibrium brings the online share close to the tendency)
         return b.r.random() < p / 45.0
 
     def initial_population(self, now):
-        """Sunucu açılınca o saatin dengedeki çevrimiçi nüfusu hemen kurulur (gerçek sunucuya giren oyuncu boş bir evren görmez):
-        bot, dakikalık giriş olasılığı ve oturum uzunluğundan çıkan payla çevrimiçidir; oturumunun rastgele bir yerinde, sessizce."""
+        """When the server opens, that hour's equilibrium online population is set up at once (a player joining a real server does not see an empty universe):
+        a bot is online with the share that follows from the per-minute login probability and the session length; at a random point of its session, silently."""
         hour = time.localtime(now).tm_hour
         limit = self.setting('max_online', 0) or len(self.bots)
         n = 0
@@ -383,14 +383,14 @@ class Manager(ChatEngine):
             pay = (p / 45.0 * avg) / (1 + p / 45.0 * avg)
             if b.r.random() < pay:
                 self.entry(b, now, silent=True)
-                b.last_abstract = now - random.uniform(0, ABSTRACT_SEC)    # soyut adımlar aynı tickte toplanmasın (5 sn de bir kilitte 100+ ms); botun kendi dizisi (b.r) kaymasın
+                b.last_abstract = now - random.uniform(0, ABSTRACT_SEC)    # so the abstract steps do not bunch in the same tick (100+ ms under the lock every 5 s); the bot's own sequence (b.r) must not drift
                 b.session_end = now + (b.session_end - now) * b.r.uniform(0.1, 1.0)
                 b.next_decision = now + b.r.uniform(1, 15)
                 n += 1
-        self.log('   botlar: %d bot çevrimiçi başladı' % n)
+        self.log('   bots: %d bots started online' % n)
 
     def entry(self, b, now, silent=False):
-        if b.game_map not in K.MAPS:                  # kapıda (ya da kapanmış bir haritada) çıkmıştı: üste döner
+        if b.game_map not in K.MAPS:                  # it had exited at a gate (or on a closed map): returns to base
             b.k['map'] = K.ev(b.firma)
             b.plan = {}
         b.online = True
@@ -400,7 +400,7 @@ class Manager(ChatEngine):
         b.last_abstract = now
         b.next_decision = now + b.r.uniform(2, 10)
         b.target = None
-        b.__dict__.pop('_error', None)                    # hata sayacı oturumluk (ömürlük sayınca her tek hata botu 1 saat düşürüyordu)
+        b.__dict__.pop('_error', None)                    # the error counter is per session (when it counted for life, every single error took the bot down for 1 hour)
         self.on_map.setdefault(b.game_map, set()).add(b)
         b._event_time = now
         if not silent and self.mode != 'simple' and b.r.random() < 0.25 * b.o('talkativeness'):
@@ -413,7 +413,7 @@ class Manager(ChatEngine):
             self.speak(b, 'global', SPC.template(b, 'exit'), now=now, immediate=True)
             self.chat_tick(now)
         b.online = False
-        b.next_login = now + b.r.uniform(15, 120) * 60          # çıkınca bir süre girmez
+        b.next_login = now + b.r.uniform(15, 120) * 60          # after leaving it does not come in for a while
         b.target = None
         b.k['target'] = None
         b.body = None
@@ -421,7 +421,7 @@ class Manager(ChatEngine):
         for d in list(self.worlds):
             d.bot_online(b, False)
 
-    # ------------------------------------------------------------ kancalar (soyut.py, govde.py)
+    # ------------------------------------------------------------ hooks (abstract_sim.py, ship.py)
     def map_changed(self, b, old):
         if b.online:
             self.on_map.get(old, set()).discard(b)
@@ -440,9 +440,9 @@ class Manager(ChatEngine):
     def bot_died(self, b, killer):
         pass
 
-    # ------------------------------------------------------------ sorgular
+    # ------------------------------------------------------------ queries
     def online_name(self, names):
-        """Adlardan çevrimiçi ilk kişi (bot) ya da None."""
+        """The first online person (bot) among the names, or None."""
         for a in names:
             b = self.name_index.get(str(a).lower())
             if b is not None and b.online:
@@ -450,22 +450,22 @@ class Manager(ChatEngine):
         return None
 
     def enemy_population(self, bot):
-        """harita -> [çevrimiçi düşman firma botları]."""
+        """map -> [online enemy-company bots]."""
         return {m: [x for x in s if x.firma != bot.firma and x.dead_until <= self.now] for m, s in self.on_map.items()}
 
     def state(self):
         with self.lock:
             return [b.summary() for b in self.bots]
 
-    # ------------------------------------------------------------ bot-bot PvP (soyut)
+    # ------------------------------------------------------------ bot-bot PvP (abstract_sim)
     def pvp_tick(self, now):
-        """Her haritada düşman botlar arası karşılaşma: avdaki (pvp hedefi) ya da saldırgan bot, haritadaki düşmanlardan birini
-        bulur (olasılık nüfusla artar). Somut botlar (oyuncunun haritası) burada değil, gerçekten savaşır (govde)."""
+        """Encounters between enemy bots on every map: a hunting bot (pvp target) or an aggressive one finds one of the enemies
+        on the map (probability grows with the population). Concrete bots (the player's map) are not here, they really fight (ship.py)."""
         if not self.permission('pvp'):
             return
         for m, s in list(self.on_map.items()):
             if m not in K.MAPS:
-                continue                                 # kapı haritaları: her botun kendi kopyası
+                continue                                 # gate maps: each bot has its own copy
             live = [b for b in s if b.dead_until <= now and b.body is None and not b.en_route]
             if len(live) < 2 or not K.pvp_map(m, live[0].firma) and len({b.firma for b in live}) < 2:
                 continue
@@ -476,10 +476,10 @@ class Manager(ChatEngine):
                 if a.dead_until > now:
                     continue
                 hunt = a.target is not None and a.target.name == 'pvp'
-                enemy_count = len(live) - len(companies[a.firma])     # her bot için düşman listesi kurmak yerine sayı (büyük paketlerde O(n²))
+                enemy_count = len(live) - len(companies[a.firma])     # a count instead of building an enemy list for each bot (O(n^2) in big packs)
                 if not enemy_count:
                     continue
-                # X-1/X-2'de kendi firmasının haritasında başka firmaya saldırmak serbest; karşılaşma olasılığı
+                # on X-1/X-2, attacking another company on its own company's map is allowed; encounter probability
                 p = (0.12 if hunt else 0.006 * a.o('aggression')) * min(1.0, enemy_count / 3.0)
                 if a.r.random() >= p:
                     continue
@@ -489,21 +489,21 @@ class Manager(ChatEngine):
                     from . import society as TP
                     combat = [h for h in companies[f] if TP.clan_relation(a, h) == 3]
                     if combat:
-                        target = a.r.choice(combat)        # klan savaşı: haritadaki düşman klanın üyesi önce
+                        target = a.r.choice(combat)        # clan war: a member of the enemy clan on the map first
                 if target.dead_until > now or a.k.get('clan') and TP.clan_relation(a, target) in (1, 2):
                     continue
                 ratio = target.value()['power'] / max(0.5, a.value()['power'])
                 if not hunt and ratio > 0.9 + 0.6 * a.o('risk'):
-                    continue                     # avda değilken güçlüye saldırmaz
+                    continue                     # does not attack a stronger one when not hunting
                 if ratio > 1.6 + a.o('risk') + a.mood['anger']:
-                    continue                     # avda bile çok güçlüye saldırmaz
+                    continue                     # does not attack a much stronger one even when hunting
                 result = S.encounter(a, target, self, now)
                 if result and result[0] == 'won' and result[1].k.get('quest'):
                     QU.advance(result[1], QU.KILL_PLAYERS, game_map=result[1].game_map, y=self)
 
-    # ------------------------------------------------------------ hızlı ilerletme
+    # ------------------------------------------------------------ fast-forward
     def fast(self, b, seconds, now, step=900.0, pvp=False):
-        """Botu saniye kadar oynamış gibi ilerletir (jumpstart, telafi): büyük adımlar, kararlar adım başına."""
+        """Advances the bot as if it had played for the given seconds (jumpstart, catch-up): big steps, decisions per step."""
         t = now - seconds
         b.online = True
         b.target = None
@@ -520,7 +520,7 @@ class Manager(ChatEngine):
                         S.jump_to(b, b.en_route.pop(0), None)
                 b.target.abstract(b, dt, self)
             if self.permission('shop'):
-                for _ in range(8):           # büyük adımda biriken parayı harcar (gerçek zamanda ayrı kararlar)
+                for _ in range(8):           # spends the money accumulated in a big step (separate decisions in real time)
                     c = SHOP.candidate(b)[0]
                     if c is None or not b.pay(c[1], c[2]):
                         break
@@ -532,8 +532,8 @@ class Manager(ChatEngine):
         self.now = now
 
     def jumpstart(self, bots, now):
-        """Yeni kadro gerçekçi bir dağılımla başlar: her bota lognormal "oynadığı saat" (çok acemi, çok orta, az güçlü), firma
-        gücüyle çarpılır; bot o kadar oynamış gibi hızlı ilerletilir (donanımı, seviyesi, parası birbiriyle tutarlı)."""
+        """The new cast starts with a realistic distribution: each bot gets a lognormal "hours played" (many beginners, many average, few strong),
+        multiplied by company strength; the bot is fast-forwarded as if it had played that long (its equipment, level and money are consistent with each other)."""
         import math
         avg = max(1.0, float(self.setting('jumpstart_hours', 60)))
         fg = self.setting('company_power', [1, 1, 1])
@@ -545,7 +545,7 @@ class Manager(ChatEngine):
         self.log('   botlar: jumpstart %d bot, %.1f sn' % (len(bots), time.time() - t0))
 
     def catch_up(self, seconds, now):
-        """Oyuncu yokken geçen sürenin bir kısmı: çevrimiçi olma eğilimi kadar bot ilerler."""
+        """Part of the time elapsed while the player was away: bots progress in proportion to their tendency to be online."""
         t0 = time.time()
         for b in self.bots:
             if not b.saved:
@@ -554,18 +554,18 @@ class Manager(ChatEngine):
             s = seconds * pay * b.r.uniform(0.5, 1.5)
             if s > 300:
                 self.fast(b, s, now, step=900.0)
-        self.log('   botlar: çevrimdışı telafi %.0f dk, %.1f sn' % (seconds / 60, time.time() - t0))
+        self.log('   bots: offline catch-up %.0f min, %.1f s' % (seconds / 60, time.time() - t0))
 
 
 def server(route, log=print):
-    """Oyun sunucusu açılırken (game.main, OO_BOT): paketi okur, yöneticiyi arka planda kurar (jumpstart ve çevrimdışı telafi
-    saniyeler sürebilir; oyun beklemez) ve çalıştırır. Paketin durumu paket dosyasının yanındaki <kimlik>/durum.json."""
+    """When the game server opens (game.main, OO_BOT): reads the pack, sets up the manager in the background (jumpstart and offline catch-up
+    can take seconds; the game does not wait) and runs it. The pack's state is in <id>/state.json next to the pack file."""
     global ACTIVE
     try:
         with open(route, encoding='utf8') as f:
             package = json.load(f)
     except (OSError, ValueError) as e:
-        log('   botlar: paket okunamadı (%s): %s' % (route, e))
+        log('   bots: could not read pack (%s): %s' % (route, e))
         return
 
     def rate():
@@ -577,17 +577,17 @@ def server(route, log=print):
         import clan as KL
         import community as TP
         from . import society
-        if not KL.FILE:                                  # bot klanları kalıcı (arkadaş sunucusunda ortak klan dosyası zaten var)
+        if not KL.FILE:                                  # bot clans are permanent (a shared clan file already exists on the friend server)
             KL.configure(os.path.join(os.path.dirname(state), 'clans.json'))
         society.register(y, getattr(TP.GAME, 'CHAT', None))
         y.society = True
         if y.mode == 'advanced':
             from . import llm, llm_provider, llm_server
-            if llm_provider.multilingual() or llm_server.setup() is not None:   # kullanıcının sağlayıcısı ya da kurulu dahili model
-                y.llm = llm.Brain(y, log)                  # model arka planda açılır; hazır olana dek kalıplar
+            if llm_provider.multilingual() or llm_server.setup() is not None:   # the user's provider or the installed built-in model
+                y.llm = llm.Brain(y, log)                  # the model starts in the background; patterns until it is ready
                 y.llm.launch()
             else:
-                log('   botlar: Gelişmiş kip ama dil modeli kurulu değil (Botlar > Gelişmiş kip): Normal kip gibi sürüyor')
+                log('   bots: Advanced mode but no language model installed (Bots > Advanced mode): continuing like Normal mode')
         ACTIVE = y
         y.launch()
         log('botlar: "%s" (%s, %d bot) %.1f sn' % (package.get('name', uid), package.get('mode', 'normal'), len(y.bots), time.time() - t0))
@@ -596,7 +596,7 @@ def server(route, log=print):
 
 
 def close():
-    """Sunucu kapanıyor (game.stop_gracefully): durum kaydedilir."""
+    """The server is shutting down (game.stop_gracefully): the state is saved."""
     if ACTIVE is not None:
         ACTIVE.stop()
         if ACTIVE.llm is not None:

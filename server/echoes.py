@@ -1,21 +1,21 @@
-"""Deep Space Echoes (yol haritası Aşama 8; istemcinin Expedition* komutları; veri data/pve_modes.json "echoes").
+"""Deep Space Echoes (roadmap Stage 8; the client's Expedition* commands; data data/pve_modes.json "echoes").
 
-Seviye 15'ten; X-1'deki portal (300) Command Hall'a (473) götürür. Salonda üç portal: sol (301) seviyeyi başlatır, orta (302)
-gemi seçimi, sağ (1) çıkış. Gemi seçimi: hangardaki gemilerden en çok 5 (ExpeditionShipListCommand -> ExpeditionSelectShipRequest
-{hangarId [...]}); kadro onaylanınca değişmez (sıfırlamaya dek). Sol portal: kadrodan bu seviyenin gemisi (ExpeditionSelectedShip-
-ListCommand -> ExpeditionActivateShipRequest {hangarId}): o gemi etkin olur, seviye haritasına (DSE 1-8, 474-481) gidilir,
-ExpeditionStartInstanceCommand {seconds} süreyi başlatır. Bir koşunun ilk seviyesi bir Travel Permit ister (mağazadan 8.000 U:
+From level 15; the portal in X-1 (300) leads to the Command Hall (473). Three portals in the hall: left (301) starts the level, middle (302)
+ship selection, right (1) exit. Ship selection: at most 5 of the ships in the hangar (ExpeditionShipListCommand -> ExpeditionSelectShipRequest
+{hangarId [...]}); once the roster is confirmed it does not change (until a reset). Left portal: this level's ship from the roster (ExpeditionSelectedShip-
+ListCommand -> ExpeditionActivateShipRequest {hangarId}): that ship becomes active, the player goes to the level map (DSE 1-8, 474-481),
+ExpeditionStartInstanceCommand {seconds} starts the timer. The first level of a run needs a Travel Permit (8,000 U from the shop:
 ExpeditionBuyTicketRequest).
-50 seviye, beşerli bloklar: ilk dördü (yok et, koru, eşlik et; blok içinde rastgele sırayla) ve sabit patron seviyesi. Koru: haritanın
-ortasında duran dost gemi, uzaylılar ona da ateş eder; eşlik et: dost gemi haritanın bir yanından öbürüne gider, varınca kazanılır.
-Dost gemi yok olursa, gemin yok olursa ya da süre dolarsa seviye kaybedilir; yok olan gemi bu koşuda kullanılamaz. Seviye bitince
-ilk geçiş ödülü (bir kez, sıfırlanmaz) ve her geçişte uridyum + UCB-100; salona dönüş portalı açılır.
-Sıfırlama (ExpeditionResetRequest): ilerleme 1. seviyeye, kadro boşalır. Atlama (ExpeditionJumpTargetLevelRequest): ulaşılmış bloğun
-başına uridyumla. Aylık dönem: ay değişince ilerleme ve sıralama sıfırlanır (ilk geçiş ödülleri kalır; geçen ay seviye geçen oyuncu
-tek oyunculu sıralamanın birincisi: yeni dönemde Cosmic Tyrant unvanı, siralama[].unvan). Sıralama: en yüksek seviye,
-eşitlikte toplam süre (tek oyunculu: yalnız oyuncu). Patron seviyesi (her 5.) bitince Echo sandığı düşer (Aşama 9; qfc.py): renk
-ulaşılan seviyeye göre, açmak için aynı renk Echo Key (anahtarlı kutu sistemi, loot.py); içinde Quantum Fluid Core.
-Profilde: pve.echoes {donem, seviye, en_yuksek, sure, ilk [], kadro [hangarId], yok [hangarId], sira {blok: [seviye …]}, izin}.
+50 levels, in blocks of five: the first four (destroy, protect, escort; in random order within the block) and a fixed boss level. Protect: a friendly
+ship stands in the middle of the map, aliens fire at it too; escort: the friendly ship travels from one side of the map to the other, and the level is won on arrival.
+If the friendly ship is destroyed, your ship is destroyed or time runs out the level is lost; a destroyed ship cannot be used in this run. When a level ends there is
+a first-clear reward (once, not reset) and on every clear uridium + UCB-100; the return portal to the hall opens.
+Reset (ExpeditionResetRequest): progress to level 1, the roster is emptied. Jump (ExpeditionJumpTargetLevelRequest): to the start of a reached
+block with uridium. Monthly period: when the month changes progress and ranking are reset (first-clear rewards stay; the player who cleared levels last month is
+first in the single-player ranking: in the new period the Cosmic Tyrant title, ranking[].title). Ranking: highest level,
+ties by total time (single-player: only the player). When a boss level (every 5th) ends an Echo chest drops (Stage 9; qfc.py): the color
+depends on the level reached, to open it the same color Echo Key (keyed box system, loot.py); inside Quantum Fluid Core.
+In the profile: pve.echoes {period, level, highest, sure, first [], roster [hangarId], none [hangarId], order {block: [level ...]}, run}.
 """
 import datetime, json, math, os, random, time
 
@@ -26,16 +26,16 @@ import qfc as QF
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'pve_modes.json'), encoding='utf8'))['echoes']
 LEVELS = {l['level']: l for l in D['levels']}
-PORTAL = 155900000            # + 0 X-1, + 1 başlat, + 2 gemi seçimi, + 3 çıkış, + 4 salona dönüş
+PORTAL = 155900000            # + 0 X-1, + 1 start, + 2 ship selection, + 3 exit, + 4 return to the hall
 UI_TICKET, UI_RESET, UI_LEAVE = 1, 2, 5
-# istemci (ExpeditionShowUiCommandHandler): 3 kadro penceresini, 4 gemi seçim (başlat) penceresini kapatır. Onay ve Save düğmeleri
-# yalnız istek gönderiyor, pencereyi sunucunun bu komutu kapatıyor; önce gönderilmiyordu, iki pencere seviyede de açık kalıyordu
-# (1280x720'de kadro penceresinin X'i ekran dışında; canlı test H74)
+# the client (ExpeditionShowUiCommandHandler): 3 closes the roster window, 4 the ship selection (start) window. The confirm and Save buttons
+# only send a request, the server's command closes the window; it was not sent before, so both windows stayed open even in the level
+# (at 1280x720 the roster window's X is off screen; live test H74)
 UI_CLOSE_ROSTER, UI_CLOSE_START = 3, 4
-# Command Hall düzeni (oyuncu bildirimi 2026-10-28, resmî istemcinin ekran görüntüsü ve mini haritası): portallar salonun ortasında,
-# aynı ekranda; sol başlatır, ortadaki bina (sol alt) gemi seçimi, sağdaki halka çıkış/sıfırlama. Varış oyuncunun durduğu yer.
-# Gemi seçimi bir portal değil, istasyon hangarı (AssetType 48; sarı oklu kollar ekran görüntüsündekiyle aynı, canlı denendi):
-# hangar çizilir, yerindeki tasarımsız giriş J ile pencereyi açar (istemci portal yokken de JumpRequest gönderir).
+# Command Hall layout (player report 2026-10-28, official client screenshot and mini map): the portals are in the middle of the hall,
+# on the same screen; left starts, the building in the middle (lower left) is ship selection, the ring on the right exit/reset. Arrival is where the player stands.
+# Ship selection is not a portal but a station hangar (AssetType 48; the yellow-arrowed arms are the same as in the screenshot, tried live):
+# the hangar is drawn, the design-less entrance in its place opens the window with J (the client sends JumpRequest even when there is no portal).
 HALL_START, HALL_SHIPS, HALL_EXIT, HALL_ARRIVAL = (9270, 6480), (9910, 6840), (10650, 6220), (10000, 6300)
 HANGAR_ASSET, HANGAR_ID = 48, PORTAL + 9
 
@@ -55,8 +55,8 @@ class Echoes:
     def __init__(self, profile, shop, log=print):
         self.p, self.m, self.log = profile, shop, log
         self.world = None
-        self.titles = None             # oturum bağlar: unvan_avi.grant_title (dönem sonu sıralama unvanı)
-        self.level = None              # oynanan seviyenin kaydı
+        self.titles = None             # binds the session: title_hunt.grant_title (end-of-period ranking title)
+        self.level = None              # the record of the level played
         self.ally_npc = None
 
     @property
@@ -66,7 +66,7 @@ class Echoes:
             first, top = s.get('first', []), s.get('highest', 0)
             s.clear()
             s.update(period=period(), level=1, highest=0, sure=0, first=first, roster=[], none=[], order={}, run=False)
-            if top:                    # tek oyunculu sıralamada oynayan birinci: unvan info_cmd'de verilir (st profil kilidi altında da okunur)
+            if top:                    # the first-place player in the single-player ranking: the title is given in info_cmd (st is also read under the profile lock)
                 s['title_pending'] = True
             self.p.dirty = True
         return s
@@ -74,13 +74,13 @@ class Echoes:
     def permits(self):
         return self.p.resource(D['ticket'])
 
-    # ------------------------------------------------------------ portallar
+    # ------------------------------------------------------------ portals
     def portals(self, map_id):
         import map_links as H
         out = []
         if H.map_class(map_id) == D['entry'] and int(map_id) == KAPI.HOME_MAP.get(self.p.d['pilot'].get('factionId'), 5):
             w, h = H.map_size(map_id)
-            # resmî sunucu kaydı: 2-1'de bu tasarımın (300) portalı (11210, 6310), haritanın ortasında
+            # official server record: in 2-1 this design's (300) portal (11210, 6310), in the middle of the map
             out.append(dict(gateId=PORTAL, x=w // 2 + 710, y=h // 2 - 240, target=D['hall'], designId=D['portal'], gate='echoes',
                             windowed='echoes_entry', arrival=HALL_ARRIVAL))
         elif int(map_id) == D['hall']:
@@ -94,19 +94,19 @@ class Echoes:
         return out
 
     def hangar_cmd(self):
-        """Command Hall'ün gemi seçimi binası: istasyon hangarı (EIC görünümü, ekran görüntüsündeki sarı)."""
+        """The Command Hall's ship selection building: a station hangar (EIC look, the yellow one in the screenshot)."""
         return ('AssetCreateCommand', dict(
             assetId=HANGAR_ID, type=mod('AssetTypeModule', typeValue=HANGAR_ASSET), userName='Hangar', factionId=2, clanTag='',
             posX=HALL_SHIPS[0], posY=HALL_SHIPS[1], designId=0, expansionStage=0, invisible=False, visibleOnWarnRadar=False,
             detectedByWarnRadar=True, showBubble=True, clanId=0, clanRelation=mod('ClanRelationModule', type=0), modifier=[]))
 
     def enter_hall(self):
-        """X-1 portalı: seviye şartı -> (hedef, mesajlar)."""
+        """X-1 portal: level requirement -> (destination, messages)."""
         if self.p.d['pilot'].get('level', 1) < D['level_requirement']:
             return None, [KAPI.screen('Deep Space Echoes requires level %d.' % D['level_requirement'])]
         return D['hall'], []
 
-    # ------------------------------------------------------------ gemiler
+    # ------------------------------------------------------------ ships
     def ship_cmd(self, sid, hid=None):
         from shop import ITEMS
         s = self.p.d['ships'][str(sid)]
@@ -130,7 +130,7 @@ class Echoes:
         return ('ExpeditionShipListCommand', dict(shipCommands=[self.ship_cmd(k) for k in sids]))
 
     def select_ships(self, f):
-        """ExpeditionSelectShipRequest {hangarId [...]}: kadro (en çok 5; onaylanınca değişmez)."""
+        """ExpeditionSelectShipRequest {hangarId [...]}: the roster (at most 5; does not change once confirmed)."""
         from shop import stack_msg
         ids = [int(x) for x in f.get('hangarId', [])]
         ok = bool(ids) and len(ids) <= D['roster'] and not self.st['roster'] and all(self.sid_of(h) for h in ids)
@@ -147,9 +147,9 @@ class Echoes:
         return ('ExpeditionSelectedShipListCommand', dict(
             shipCommands=[self.ship_cmd(self.sid_of(h)) for h in self.st['roster'] if self.sid_of(h)], selectedHangarId=cur))
 
-    # ------------------------------------------------------------ seviye
+    # ------------------------------------------------------------ level
     def level_no(self):
-        """Bloğun içinde rastgele sıra: koşunun n. seviyesi hangi seviyenin haritası."""
+        """Random order within the block: which level's map is the run's nth level."""
         n = self.st['level']
         b = (n - 1) // 5
         if n % 5 == 0:
@@ -164,7 +164,7 @@ class Echoes:
         return order[(n - 1) % 5]
 
     def start_level(self, f):
-        """ExpeditionActivateShipRequest {hangarId} -> (hedef harita ya da None, mesajlar)."""
+        """ExpeditionActivateShipRequest {hangarId} -> (target map or None, messages)."""
         hid = int(f.get('hangarId') or 0)
         sid = self.sid_of(hid)
         st = self.st
@@ -184,7 +184,7 @@ class Echoes:
         lvl = LEVELS[self.level_no()]
         self.level = dict(no=st['level'], map=lvl['level'], type=lvl['type'], hid=hid, start=None)
         dest = D['maps'][(st['level'] - 1) % len(D['maps'])]
-        self.log('   Echoes seviye %d (%s, %d. seviyenin haritası) -> %d' % (st['level'], lvl['type'], lvl['level'], dest))
+        self.log('   Echoes level %d (%s, map of level %d) -> %d' % (st['level'], lvl['type'], lvl['level'], dest))
         return dest, [('ExpeditionShowUiCommand', dict(type=UI_CLOSE_START, param0='', param1=''))]
 
     def waves(self):
@@ -196,7 +196,7 @@ class Echoes:
     def scale(self, n, i, wave):
         lvl = LEVELS[self.level['map']]
         f = (1 + D['scale_level'] * (self.level['no'] - 1)) * lvl.get('power', 1.0)
-        return PS.scale_npc(n, f * lvl.get('can', 1.0), f, 1.0)        # can: yalnız can/kalkan çarpanı (45. seviyenin patronu)
+        return PS.scale_npc(n, f * lvl.get('can', 1.0), f, 1.0)        # HP: only the HP/shield multiplier (the boss of level 45)
 
     def attach(self, world):
         self.world = world
@@ -233,27 +233,27 @@ class Echoes:
         if kind == 'escort':
             self.level['target'] = (w.map_w - 2500, cy)
 
-    ALLY_SURVIVE_SEC = 180           # uyarlama (kaynakta yok): dost gemi seviyenin en güçlü dalgasının ateşine bu kadar dayanır
+    ALLY_SURVIVE_SEC = 180           # adaptation (not in the source): the friendly ship withstands this much of the level's strongest wave's fire
 
     def toughen_ally(self, n):
-        """Dost geminin canı seviyenin ateş gücüne göre (en az data 'dost' değerleri). Sabit 400.000 + 200.000'de 2. seviyenin 5 Reflector
-        Mimesis'i (50.000 hasar) onu 6 sn'de yok ediyordu: koru seviyeleri kazanılamıyordu (canlı test H75)."""
+        """The friendly ship's HP by the level's firepower (at least the data 'friendly' values). A fixed 400,000 + the 5 Reflector
+        Mimesis (50,000 damage) of level 2 at 200,000 destroyed it in 6 s: the protect levels could not be won (live test H75)."""
         import world as world_module
         f = (1 + D['scale_level'] * (self.level['no'] - 1)) * LEVELS[self.level['map']].get('power', 1.0)
         dps = 0.0
         for wave in self.waves():
             w_dps = sum(c * float(world_module.CFG['types'].get(str(t), {}).get('damage', 0)) for grp in wave['groups'] for t, c, *_ in grp)
             dps = max(dps, w_dps)
-        # take_shot: atışların yarısı dosta, hasar 0,7-1,0 (ort. 0,85), atış aralığı
+        # take_shot: half the shots go to the friendly, damage 0.7-1.0 (avg. 0.85), shot interval
         dps = dps * f * 0.5 * 0.85 / world_module.COMBAT['npc_attack_interval_sec']
         need = dps * self.ALLY_SURVIVE_SEC
         hp = max(float(D['friendly']['can']), need * 2 / 3)
         sh = max(float(D['friendly']['kalkan']), need / 3)
-        n.d = dict(n.d, hp=int(hp), kalkan=int(sh))         # türün kopyası (tür paylaşılır)
+        n.d = dict(n.d, hp=int(hp), kalkan=int(sh))         # the type's copy (the type is shared)
         n.hp, n.shield = int(hp), int(sh)
 
     def take_shot(self, n, now):
-        """Uzaylının atışı dost gemiye mi (menzildeyse yarı yarıya) -> True."""
+        """Is the alien's shot at the friendly ship (half and half if in range) -> True."""
         a, w = self.ally_npc, self.world
         if not a or not a.alive or random.random() > 0.5:
             return False
@@ -310,7 +310,7 @@ class Echoes:
         if i + 1 < self.wave_count():
             return 'ongoing'
         if self.level['type'] == 'escort' and self.ally_npc and self.ally_npc.alive:
-            return 'halt'                        # eşlik: dalgalar bitti, gemi varınca kazanılır
+            return 'halt'                        # escort: waves are over, it is won on arrival
         self.win(now)
         return 'halt'
 
@@ -339,13 +339,13 @@ class Echoes:
         w.gate.phase = 'done'
         w.add_gate(self.hall_portal(w))
         box = QF.echo_box(n) if lv['type'] == 'boss' else None
-        if box:                                                     # Echo sandığı (Aşama 9): geminin yanına, anahtarla açılır
+        if box:                                                     # Echo chest (Stage 9): next to the ship, opened with a key
             hx, hy = w.hero_pos(now)
             h = w.drop_box(box, hx + random.uniform(-150, 150), hy + random.uniform(-150, 150), None, None)
             w.boxes[h]['keyed'] = True
         w.send(msgs + [KAPI.screen('key:log_msg_gg_completed_expedition', big=True),
                        KAPI.screen('Level %d cleared in %s!' % (n, '%d:%02d' % divmod(secs, 60))), self.info_cmd()])
-        self.log('   Echoes seviye %d bitti: %d sn' % (n, secs))
+        self.log('   Echoes level %d finished: %d s' % (n, secs))
 
     def fail(self, why):
         lv, w = self.level, self.world
@@ -361,7 +361,7 @@ class Echoes:
                 w.alien.expire(n)
         w.add_gate(self.hall_portal(w))
         w.send([KAPI.screen('Level %d failed: %s' % (lv['no'], why), big=True)])
-        self.log('   Echoes seviye %d kaybedildi: %s' % (lv['no'], why))
+        self.log('   Echoes level %d lost: %s' % (lv['no'], why))
 
     def clear_ally(self):
         if self.world:
@@ -372,8 +372,8 @@ class Echoes:
         self.ally_npc = None
 
     def lair(self, j):
-        """Pusu (harita_duzeni 'pusu'; oyuncu bildirimi 2026-10-28): yok et seviyesinde dalganın j. grubu haritanın sabit noktasında
-        bekler, oyuncu yaklaşınca saldırır -> (x, y, fark yarıçapı) ya da None."""
+        """Ambush (map_layout 'lairs'; player report 2026-10-28): on a destroy level the wave's jth group waits at a fixed point on the map,
+        attacks when the player approaches -> (x, y, radius of difference) or None."""
         import map_layout as ML
         p = ML.of(self.world.map_id).get('ambush') if self.world and self.level and self.level['type'] == 'destroy' else None
         if not p:
@@ -388,7 +388,7 @@ class Echoes:
                     arrival=HALL_ARRIVAL)
 
     def on_death(self):
-        """Gemi yok oldu: bu koşuda kullanılamaz, seviye kaybedilir."""
+        """The ship was destroyed: it cannot be used in this run, the level is lost."""
         lv = self.level
         if lv:
             with self.p.lock:
@@ -407,10 +407,10 @@ class Echoes:
             return self.world.grant_loot(loot, n, 'mod')
         return self.m.reward(loot, n) if self.m else []
 
-    # ------------------------------------------------------------ pencereler
+    # ------------------------------------------------------------ windows
     def info_cmd(self):
         st = self.st
-        if st.get('title_pending') and self.titles:             # geçen ayın birincisi (wiki: Cosmic Tyrant)
+        if st.get('title_pending') and self.titles:             # last month's first place (wiki: Cosmic Tyrant)
             self.titles(next(r['title'] for r in D['ranking'] if r['from_'] == 1))
             st.pop('title_pending')
         me = st['highest']
@@ -439,7 +439,7 @@ class Echoes:
 
     def jump_info_cmd(self):
         top = self.st['highest']
-        lv = [x for x in D['jump']['targets'] if self.st['level'] < x <= top]      # yalnız ilerisi: ilerlemede olan oyuncuya geri atlama penceresi açılmaz
+        lv = [x for x in D['jump']['targets'] if self.st['level'] < x <= top]      # forward only: a player who is ahead gets no back-jump window
         return ('ExpeditionJumpLevelInfoCommand', dict(levels=lv, costs=[D['jump']['cost_block'] * ((x - 1) // 5) for x in lv]))
 
     def jump(self, f):
@@ -453,7 +453,7 @@ class Echoes:
             with self.p.lock:
                 self.st['level'] = target
                 self.p.dirty = True
-            self.log('   Echoes: %d. seviyeye atlandı (%d U)' % (target, cost))
+            self.log('   Echoes: skipped to level %d (%d U)' % (target, cost))
         else:
             ok = False
         msgs = [('ExpeditionJumpTargetLevelCommand', dict(result=ok, stack=stack_msg('eqt_error_generic') if not ok else
@@ -464,7 +464,7 @@ class Echoes:
         with self.p.lock:
             self.st.update(level=1, roster=[], none=[], order={}, run=False)
             self.p.dirty = True
-        self.log('   Echoes sıfırlandı')
+        self.log('   Echoes reset')
         return [self.info_cmd()]
 
     def buy_ticket(self):

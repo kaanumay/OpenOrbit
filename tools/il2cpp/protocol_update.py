@@ -1,20 +1,20 @@
-"""Yeni istemci sürümüne protokol uyarlaması (yol haritası "Sürekli işler" > İstemci güncellemesine hazırlık).
+"""Protocol adaptation to a new client version (roadmap "Ongoing work" > preparing for a client update).
 
-Yeni sürümün GameAssembly.dll'inden protokolü yeniden üretir (protocol.py -> protocol.json, read_spec.py -> protocol_read.json;
-istemci klasörü OO_CLIENT ile), sürüm klasörüne koyar (server/data/protokol/<sürüm>/), etkin protokolle karşılaştırıp farkları
-raporlar (belgeler/istemci/protokol_farki_<sürüm>.md) ve istenirse uygular (etkin dosyalar yedeklenir, yenisi server/data/'ya;
-etkin sürüm server/data/protokol/surum.txt'de, panel istemci sürümünü bununla karşılaştırır).
+Regenerates the protocol from the new version's GameAssembly.dll (protocol.py -> protocol.json, read_spec.py -> protocol_read.json;
+client folder via OO_CLIENT), puts it in the version folder (server/data/protocols/<version>/), compares it with the active protocol, reports
+the differences (belgeler/istemci/protokol_farki_<version>.md) and applies on request (the active files are backed up, the new ones go to server/data/;
+the active version is in server/data/protocols/version.txt, which the panel compares the client version with).
 
-Rapor: eklenen / silinen mesajlar, kimliği değişenler, alanları değişenler (eklenen, silinen, sırası ya da türü değişen), kodlaması
-(write) ve okuma adımları (read; bit döndürmeleri) değişenler. Sunucunun kaynağında adı geçen mesajlar "sunucuda kullanılıyor" diye
-işaretlenir: önce onlara bakılmalı. read_spec.py'nin adını kesinleştiremediği alanlar ('ad?') alan listesinde aynı ad varsa ve
-dönüşüm gerektirmiyorsa (metin, bool) kendiliğinden düzeltilir (1.1.114'te elle yapılanın aynısı); kalanlar raporda.
-Doğrulama: 1.1.114 için çalıştırınca etkin protocol.json'la birebir aynı, protocol_read.json'da yalnız elle düzeltilen 3 alan.
+Report: added / deleted messages, ones whose id changed, ones whose fields changed (added, deleted, order or type changed), ones whose
+encoding (write) and read steps (read; bit rotations) changed. Messages named in the server's source are marked "sunucuda kullanılıyor"
+(used on the server): look at those first. Fields whose name read_spec.py could not determine ('ad?') are fixed automatically if the
+field list has the same name and no conversion is needed (text, bool) (the same as what was done by hand in 1.1.114); the rest are in the report.
+Verification: run for 1.1.114 it is identical to the active protocol.json, and in protocol_read.json only the 3 fields fixed by hand differ.
 
-Kullanım (proje kökünden):
-  python -I tools/il2cpp/protocol_update.py <istemci klasörü>            üret ve raporla (etkin dosyalara dokunmaz)
-  python -I tools/il2cpp/protocol_update.py <istemci klasörü> --apply   üret, raporla ve uygula
-  python -I tools/il2cpp/protocol_update.py --activate=<sürüm>              sürüm klasöründeki protokolü etkin yap (--rollback= de olur)
+Usage (from the project root):
+  python -I tools/il2cpp/protocol_update.py <client folder>            generate and report (does not touch the active files)
+  python -I tools/il2cpp/protocol_update.py <client folder> --apply   generate, report and apply
+  python -I tools/il2cpp/protocol_update.py --activate=<version>              make the protocol in the version folder active (--rollback= also works)
 """
 import glob, json, os, re, shutil, subprocess, sys, time
 
@@ -42,7 +42,7 @@ def version_of(folder):
 
 
 def generate(folder, out, log=print):
-    """Yeni istemciden iki dosya -> out/. Alt süreç: sembol önbelleği istemci başına (symbols.py)."""
+    """Two files from the new client -> out/. Subprocess: the symbol cache is per client (symbols.py)."""
     os.makedirs(out, exist_ok=True)
     env = dict(os.environ, OO_CLIENT=os.path.abspath(folder), PYTHONIOENCODING='utf-8')
     py = [sys.executable, '-I', '-X', 'utf8']
@@ -52,11 +52,11 @@ def generate(folder, out, log=print):
         r = subprocess.run(py + args, env=env, capture_output=True, text=True, encoding='utf8', errors='replace')
         if r.returncode:
             raise RuntimeError('%s: %s' % (os.path.basename(args[0]), (r.stderr or r.stdout)[-1500:]))
-        log('   %s: %s (%.0f sn)' % (os.path.basename(args[0]), (r.stdout.strip().splitlines() or [''])[-1], time.time() - t))
+        log('   %s: %s (%.0f s)' % (os.path.basename(args[0]), (r.stdout.strip().splitlines() or [''])[-1], time.time() - t))
 
 
 def normalize(out):
-    """'ad?' alanlarından güvenli olanları düzeltir -> (düzeltilen, kalan) listeleri."""
+    """Fixes the safe ones among the 'ad?' fields -> (fixed, remaining) lists."""
     proto = json.load(open(os.path.join(out, 'protocol.json'), encoding='utf8'))
     rp = os.path.join(out, 'protocol_read.json')
     read = json.load(open(rp, encoding='utf8'))
@@ -84,7 +84,7 @@ def server_names():
 
 
 def compare(old_dir, new_dir):
-    """İki protokol klasörü -> fark sözlüğü."""
+    """Two protocol folders -> difference dict."""
     po = json.load(open(os.path.join(old_dir, 'protocol.json'), encoding='utf8'))
     pn = json.load(open(os.path.join(new_dir, 'protocol.json'), encoding='utf8'))
     ro = {v['name']: v['steps'] for v in json.load(open(os.path.join(old_dir, 'protocol_read.json'), encoding='utf8')).values()}
@@ -133,10 +133,10 @@ def write_report(give, d, fixed, left, used, path):
 
 
 def apply(give, log=print):
-    """Sürüm klasörünü etkin yap: etkin dosyalar kendi sürüm klasörüne yedeklenir."""
+    """Makes the version folder active: the active files are backed up into their own version folder."""
     src = os.path.join(VDIR, give)
     if not all(os.path.exists(os.path.join(src, f)) for f in FILES):
-        raise RuntimeError('%s için protokol dosyaları yok' % give)
+        raise RuntimeError('no protocol files for %s' % give)
     cur = active_version()
     back = os.path.join(VDIR, cur)
     os.makedirs(back, exist_ok=True)
@@ -147,13 +147,13 @@ def apply(give, log=print):
         shutil.copy2(os.path.join(src, f), os.path.join(DATA, f))
     os.makedirs(VDIR, exist_ok=True)
     open(VERSION, 'w', encoding='utf8').write(give + '\n')
-    log('   etkin protokol: %s (önceki %s yedekte: %s)' % (give, cur, back))
+    log('   active protocol: %s (previous %s backed up: %s)' % (give, cur, back))
 
 
 def run(folder, do_apply=False, log=print):
     give = version_of(folder) or os.path.basename(os.path.normpath(folder))
     out = os.path.join(VDIR, give)
-    log('istemci %s -> %s' % (give, out))
+    log('client %s -> %s' % (give, out))
     generate(folder, out, log)
     fixed, left = normalize(out)
     d = compare(DATA, out)
@@ -161,8 +161,8 @@ def run(folder, do_apply=False, log=print):
     write_report(give, d, fixed, left, server_names(), rep)
     summary = {k: len(v) for k, v in d.items()}
     summary.update(duzeltilen=len(fixed), ambiguous=len(left), version=give, report=rep)
-    log('   fark: %s' % json.dumps({k: v for k, v in summary.items() if k not in ('report', 'version')}, ensure_ascii=False))
-    log('   rapor: %s' % rep)
+    log('   diff: %s' % json.dumps({k: v for k, v in summary.items() if k not in ('report', 'version')}, ensure_ascii=False))
+    log('   report: %s' % rep)
     if do_apply:
         apply(give, log)
     return summary

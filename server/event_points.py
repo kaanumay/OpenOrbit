@@ -1,21 +1,21 @@
-"""Etkinlik puanı, ilerleme eşikleri ve etkinlik sonu ödülleri (resmî Türk forumu: Toplama Zamanı / Hatching Out 129632, Karaşimşek
-Dalgası / Blacklight Surge 145819, Korsan Baskını 133215, Evrensel 4 - Europa 177655; veri data/events.json 'puanlama').
+"""Event points, progress thresholds and end-of-event rewards (official Turkish forum: Hatching Out 129632, Blacklight Surge 145819,
+Pirate Raid 133215, Universal 4 - Europa 177655; data in data/events.json 'scoring').
 
-'puanlama' alanları (hepsi isteğe bağlı):
-  npc        {npc_id: puan ya da [kendi firma haritasında, düşman haritasında]}: sıralama puanı; yalnız öldüren alır
-  ilerleme   {npc_id: puan}: ilerleme puanı (Blacklight Surge'ün İlerleme Puanı); kutulardan da gelir: içerik satırı
-             'olay_puani:<etkinlik>' (Hatching Out'un Viral Kutuları: VPP; dunya.grant_loot)
-  kapi       {kapı: ilerleme puanı}: kapı tamamlanınca (Hatching Out: Alpha/Beta/Gamma 160 VPP; Dispatch'te yok, çifte ödül günü
-             etkilemez)
-  esikler    [[ilerleme, [[lootId, adet], …]], …]: eşiğe varınca ödülü (istemcinin EventProgress penceresi 1.1.115'te ölü: ödül
-             doğrudan, ekranda ileti)
-  sifirla    true: son eşikten sonra ilerleme baştan (Hatching Out: "çubuk sıfırlanabilir"); yoksa bir kez (Blacklight Surge)
-  siralama   [{den, e, esyalar, unvan}]: etkinlik bitince sıraya göre ödül (EventRewardConfirmationCommand); tek oyunculuda puanı olan
-             pilot 1. (Mimesis Mutiny gibi); sira_olcut 'katilim': puan yerine etkinlik sırasında girmiş olmak (Europa: seviye ve EP
-             sırası, tek oyuncu 1.)
-  katilim    {esyalar, unvan}: etkinlik sürerken giriş yapan herkese, etkinlik bitince (Europa: talep penceresinden)
-İstemcinin ilerleme satırı '0|LM|ST|EPP|n' ("You received n Progress Points."); sıralama puanının istemcide göstergesi yok.
-Profilde: olay_puan {event: {donem, puan, ilerleme, esik, katildi}} (etkinlik bitip ödülü verilince silinir).
+Fields of 'scoring' (all optional):
+  npc        {npc_id: points or [on own company's map, on enemy map]}: ranking points; only the killer gets them
+  progress   {npc_id: points}: progress points (Blacklight Surge's Progress Points); they also come from boxes: content line
+             'olay_puani:<event>' (Hatching Out's Viral Boxes: VPP; world.grant_loot)
+  gate       {gate: progress points}: when the gate is completed (Hatching Out: Alpha/Beta/Gamma 160 VPP; not in Dispatch, the double-reward day
+             has no effect)
+  thresholds [[progress, [[lootId, count], ...]], ...]: the reward when the threshold is reached (the client's EventProgress window is dead
+             in 1.1.115: the reward is given directly, with an on-screen message)
+  reset      true: progress restarts after the last threshold (Hatching Out: "the bar can reset"); otherwise once (Blacklight Surge)
+  ranking    [{from_, e, items, title}]: when the event ends, a reward by rank (EventRewardConfirmationCommand); in single player the pilot with
+             points is 1st (like Mimesis Mutiny); rank_metric 'participation': having logged in during the event instead of points (Europa:
+             level and EP ranking, the single player is 1st)
+  participation  {items, title}: to everyone who logged in while the event ran, when it ends (Europa: from the claim window)
+The client's progress line is '0|LM|ST|EPP|n' ("You received n Progress Points."); the client has no display for ranking points.
+In the profile: event_points {event: {period, points, progress, threshold, joined}} (deleted once the event has ended and the reward is given).
 """
 import map_links as H
 import event_calendar as CAL
@@ -35,7 +35,7 @@ def events():
 
 
 def state(p, ev, now=None):
-    """Dönemin durumu: yeni dönem başlayınca sıfırdan (bitmiş etkinliğinki ödül verilene dek kalır)."""
+    """State of the period: starts from scratch when a new period begins (a finished event's stays until the reward is given)."""
     per = CAL.period(ev, now) if CAL.is_active(ev, now) else None
     root = p.d.setdefault('event_points', {})
     st = root.get(ev)
@@ -47,7 +47,7 @@ def state(p, ev, now=None):
 
 
 def add(p, ev, n, give, now=None):
-    """İlerleme puanı: eşiklerin ödülleri (give(lootId, adet) -> mesajlar) ve EPP satırı."""
+    """Progress points: the thresholds' rewards (give(lootId, count) -> messages) and the EPP line."""
     c = cfg(ev)
     if not c or n <= 0 or not CAL.is_active(ev, now):
         return []
@@ -65,7 +65,7 @@ def add(p, ev, n, give, now=None):
         for loot, k in items:
             msgs += give(loot, k) if give else []
         msgs.append(screen('%s - %s points reached!' % (CAL.EVENTS[ev]['name'], format(lim, ',')), big=True))
-        if st['threshold'] == len(steps) and c.get('reset'):             # Hatching Out: çubuk dolunca baştan
+        if st['threshold'] == len(steps) and c.get('reset'):             # Hatching Out: restart when the bar fills
             with p.lock:
                 st['progress'] -= steps[-1][0]
                 st['threshold'] = 0
@@ -81,14 +81,14 @@ def score(p, ev, n, now=None):
 
 
 def on_kill(p, map_id, npc_id, give, now=None):
-    """Öldürülen uzaylının puanları (etkin bütün puanlamalı etkinlikler)."""
+    """Points for a killed alien (all active events with scoring)."""
     msgs, key = [], str(npc_id)
     for ev in events():
         c = cfg(ev)
         if not CAL.is_active(ev, now):
             continue
         pts = c.get('npc', {}).get(key)
-        if isinstance(pts, list):                       # Blacklight Surge: kendi firma haritasında çift (1-BL ve 1-8 MMO'nun …)
+        if isinstance(pts, list):                       # Blacklight Surge: double on one's own company's map (1-BL and 1-8 of MMO ...)
             pts = pts[0] if H.company(map_id) == p.d.get('pilot', {}).get('factionId') else pts[1]
         if pts:
             score(p, ev, pts, now)
@@ -97,16 +97,16 @@ def on_kill(p, map_id, npc_id, give, now=None):
 
 
 def gate(p, key, give, now=None):
-    """Kapı tamamlandı (Dispatch hariç): etkinliğin kapı puanı."""
+    """Gate completed (except Dispatch): the event's gate points."""
     return [m for ev in events() for m in add(p, ev, cfg(ev).get('gate', {}).get(key, 0), give, now)]
 
 
 class EventPoints:
-    """Oturum sistemi (ek_etkinlikler): öldürme puanı, katılım ve etkinlik bitince ödüller."""
+    """Session system (extra_events): kill points, participation and rewards when the event ends."""
 
     def __init__(self, profile, shop, log=print):
         self.p, self.m, self.log = profile, shop, log
-        self.titles = None                           # ek_etkinlikler bağlar (unvan_avi.grant_title)
+        self.titles = None                           # extra_events binds it (title_hunt.grant_title)
         self.next = 0.0
 
     def give(self, loot, n):
@@ -132,7 +132,7 @@ class EventPoints:
         return msgs
 
     def finish(self, ev):
-        """Etkinlik bitti: katılım ve sıralama ödülü bir kez (tek oyunculu sıra: 1.)."""
+        """Event ended: the participation and ranking reward once (single-player rank: 1st)."""
         c, st = cfg(ev), self.p.d['event_points'][ev]
         msgs = []
         k = c.get('participation') if st.get('joined') else None
@@ -149,8 +149,8 @@ class EventPoints:
             if r.get('title') and self.titles:
                 msgs += self.titles(r['title'])
             msgs.append(RK.confirmation(1, RK.DEFAULT_REWARD, r))
-        self.log('   %s bitti: puan %d, ilerleme %d%s' % (CAL.EVENTS[ev]['name'], st.get('points', 0), st.get('progress', 0),
-                                                       ', 1. sıra ödülü' if r else ''))
+        self.log('   %s ended: points %d, progress %d%s' % (CAL.EVENTS[ev]['name'], st.get('points', 0), st.get('progress', 0),
+                                                       ', 1st place reward' if r else ''))
         with self.p.lock:
             del self.p.d['event_points'][ev]
             self.p.dirty = True

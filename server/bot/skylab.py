@@ -1,13 +1,14 @@
-"""Botların Skylab'ı: oyuncununkiyle aynı tablolar ve kurallar (data/skylab.json; oyunun skylab.py'si), soyut ve tembel hesap.
+"""The bots' Skylab: the same tables and rules as the player's (data/skylab.json; the game's skylab.py), abstract and lazy computation.
 
-Durum bot.k['skylab'] = {'mod': {modül: seviye}, 'depo': {ore: adet}, 'son': an, 'insa': [modül, bitiş] | None, 'tasima': an}
-  üretim     toplayıcılar ham cevher, Xeno modülü Xenomit, rafineriler depodaki girdilerden sırayla (Prometid/Duranium ->
-             Promerium -> Seprom); depo sınırı depo modülünün seviyesinden; çalışan modüllerin enerjisi güneşi aşamaz (aşan
-             modül en son kurulan sırayla kapalı sayılır)
-  yükseltme  kredi + depodan P/E/T kaynağı, süreli (tek iş); taban modülü tavan, Promerium rafinerisi Xeno modülünü geçemez
-  taşıma     cevher başına 7,2 sn (saatte 500): bot istasyonda satış yaparken birikmiş taşıma hakkı kadar cevher gemiye gelir
-             (değerliler önce), satılır ya da laboratuvara gider (lab.py)
-Yükseltme sırası gerçek oyuncunun sırası: toplayıcılar, enerji yetmezse güneş, depo dolarsa depo, sonra rafineriler ve Xeno.
+State bot.k['skylab'] = {'mod': {module: level}, 'storage': {ore: count}, 'last': time, 'build': [module, end] | None, 'transport': time}
+  production  collectors make raw ore, the Xeno module makes Xenomit, refineries work in order from the inputs in storage (Prometid/Duranium ->
+              Promerium -> Seprom); the storage limit comes from the storage module's level; the energy of running modules cannot exceed
+              the solar module's (the excess modules count as off, latest built first)
+  upgrade     credits + P/E/T resources from storage, timed (one job at a time); the base module is the ceiling, the Promerium refinery
+              cannot exceed the Xeno module
+  transport   7.2 s per ore (500 per hour): while the bot sells at a station, as much ore as its accumulated transport allowance comes to
+              the ship (valuable first) and is sold or goes to the lab (lab.py)
+The upgrade order is the real player's order: collectors, solar if energy is short, storage when it fills, then refineries and Xeno.
 """
 import json, os
 
@@ -17,13 +18,13 @@ S = json.load(open(os.path.join(K.HERE, 'data', 'skylab.json'), encoding='utf8')
 ROW = S['levels']
 MOD = S['modules']
 COSTS = S['costs']
-ORES = S['ores']                       # skylab cevheri -> [ad, depo sütunu, kargo cevheri]
-COLLECTORS = S['collectors']              # modül -> cevher
-REFINERIES = S['refineries']               # modül -> [ürün, girdiler, sütun]
+ORES = S['ores']                       # skylab ore -> [name, storage column, cargo ore]
+COLLECTORS = S['collectors']              # module -> ore
+REFINERIES = S['refineries']               # module -> [product, inputs, column]
 REFINE_ORDER = ('PROMETID_REFINERY', 'DURANIUM_REFINERY', 'PROMERIUM_REFINERY', 'SEPROM_REFINERY')
 XENO = S['xeno']
 TRANSPORT_SEC = S['transport']['unit_sec']
-RESOURCES = ('1', '2', '3')                    # yükseltmenin kaynakları: Prometium, Endurium, Terbium (her birinden 'kaynak' kadar)
+RESOURCES = ('1', '2', '3')                    # upgrade resources: Prometium, Endurium, Terbium (each by the 'resource' amount)
 STEP_SEC = 1800.0
 ORDER = ('PROMETIUM_COLLECTOR', 'ENDURIUM_COLLECTOR', 'TERBIUM_COLLECTOR', 'PROMETID_REFINERY', 'DURANIUM_REFINERY',
         'XENO_MODULE', 'PROMERIUM_REFINERY', 'SEPROM_REFINERY')
@@ -51,7 +52,7 @@ def energy(m, lv):
 
 
 def workers(st):
-    """Enerjisi yeten modüller (güneş, taban, depo, taşıma hep açık; ötekiler SIRA'yla, güneş biterse sonrakiler kapalı)."""
+    """Modules with enough energy (solar, base, storage, transport always on; the others in ORDER, once the solar runs out the rest are off)."""
     solar = row(level(st, 'SOLAR_MODULE'))['solar']
     spent = sum(energy(m, level(st, m)) for m in ('BASE_MODULE', 'STORAGE_MODULE'))
     is_open = set()
@@ -104,9 +105,9 @@ def produce(st, hour, multiplier=1.0):
 
 
 def advance(bot, now):
-    """Son hesaptan bu yana üretim ve biten yükseltme (soyut, adım adım) -> durum."""
+    """Production since the last computation and finished upgrades (abstract, step by step) -> state."""
     st = state(bot, now)
-    t = max(st['last'], now - 24 * 3600)                 # uzun boşlukta en çok bir günlük üretim (telafi sınırı gibi)
+    t = max(st['last'], now - 24 * 3600)                 # after a long gap at most one day of production (like the catch-up limit)
     k = bot.game_settings.multiplier('skylab_uretim')
     while t < now:
         end_time = st['build'][1] if st.get('build') else None
@@ -122,7 +123,7 @@ def advance(bot, now):
     return st
 
 
-# ------------------------------------------------------------------------------------------------------------ yükseltme
+# ------------------------------------------------------------------------------------------------------------ upgrade
 def cost(st, m):
     g, lv = MOD[m]['group'], level(st, m)
     if not g or lv >= MOD[m]['maximum']:
@@ -141,8 +142,8 @@ def upgradable(st, m):
 
 
 def next_up(st):
-    """Gerçek oyuncunun sırası: enerji yetmiyorsa güneş, depo doluysa depo; taban tavana dayandıysa taban; sonra SIRA'daki en
-    düşük seviyeli (toplayıcılar önce)."""
+    """The real player's order: solar if energy is short, storage if it is full; base if it has reached the ceiling; then the lowest-level
+    module in ORDER (collectors first)."""
     solar = row(level(st, 'SOLAR_MODULE'))['solar']
     need = sum(energy(m, level(st, m)) for m in st['mod'] if m != 'SOLAR_MODULE')
     if need > solar * 0.9 and upgradable(st, 'SOLAR_MODULE'):
@@ -159,8 +160,8 @@ def next_up(st):
 
 
 def invest(bot, now):
-    """Skylab'ı yükseltir (izin 'skylab', 3. seviyeden; tek iş): sıradaki modülün kredisi bütçeye (kredinin bir payı, tutumlu
-    daha çok yatırır: uzun vadeli kazanç) ve kaynağı depoya yetiyorsa -> başlatılan modül ya da None."""
+    """Upgrades the Skylab (permission 'skylab', from level 3; one job): if the next module's credit cost fits the budget (a share of the credits,
+    a frugal bot invests more: long-term gain) and its resource fits storage -> the started module or None."""
     if not bot.permission.get('skylab', True) or bot.level < 3:
         return None
     st = advance(bot, now)
@@ -180,13 +181,13 @@ def invest(bot, now):
     return m
 
 
-# ------------------------------------------------------------------------------------------------------------ taşıma
-VALUE = {'14': 0, '13': 1, '4': 2, '11': 3, '12': 4, '3': 5, '2': 6, '1': 7}       # önce değerli: Seprom, Promerium, Xenomit …
+# ------------------------------------------------------------------------------------------------------------ transport
+VALUE = {'14': 0, '13': 1, '4': 2, '11': 3, '12': 4, '3': 5, '2': 6, '1': 7}       # valuable first: Seprom, Promerium, Xenomit ...
 
 
 def carry(bot, now, max_count):
-    """İstasyonda: son taşımadan bu yana hakkı kadar (saatte 3600/7,2) cevher depodan kargoya (değerliler önce; en_cok birim)
-    -> taşınan {kargo cevheri: adet}."""
+    """At a station: as much ore as the allowance since the last transport (3600/7.2 per hour) moves from storage to cargo (valuable first; at most
+    max_count units) -> the transported {cargo ore: count}."""
     if not bot.permission.get('skylab', True):
         return {}
     st = advance(bot, now)

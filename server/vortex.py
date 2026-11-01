@@ -1,18 +1,18 @@
-"""Vortex of Greed / Strike and Exit (yol haritası Ö4; veri data/major_content.json 'vortex' <- tools/major_content.py).
+"""Vortex of Greed / Strike and Exit (roadmap Ö4; data data/major_content.json 'vortex' <- tools/major_content.py).
 
-Seviye 13'ten; takvimde (her ayın 1-20'si) X-1'deki portaldan seans açıkken haritaya (483) girilir. Seanslar günde üç (09:00, 13:00,
-20:00; 15 dk; Salı/Perşembe/Cumartesi 20:00 çift para); panelin "Seanslı etkinlikler hep açık" ayarıyla portal hep açık ve seans
-girişte başlar.
-Her 2 dakikada dalga: 15 kutu (4'er Stellar Coin, toplanmayan önceki dalga kutuları kaybolur) ve uzaylılar 12 Interceptor / 6 Barracuda
-/ 3 Saboteur'e tamamlanır; uzaylı ölünce para kutusu (20 / 46 / 100). 10. dakikada Deadly Battleray: son vuruşu yapan hazine sahibi olur
-(gemide SPOT_LIGHT, HUD'da konumu). 8. dakikada 2, 10. dakikada 1 tahliye bölgesi (EXIT_AREA; görünmez varlık üzerinde): içinde 10 sn
-durulunca paralar hesaba geçer (çift seans x2, Vanguard x1,5; haftalık sınır 11.000, Vanguard 15.400), hazine sahibi ayrıca 500 SC, Cryo-
-Nano Coolant ve "Escape Artist" unvanı; gemi X-1'e döner. Ölünce taşınan paralar kutu olarak düşer (Vanguard %30'unu tutar); ölüm
-ekranında "Free repairs in Vortex of Greed" (10 sn sonra haritada rastgele noktada) ya da üste dönüş. Seans bitince taşınanlar kaybolur.
-İstemci: StrikeAndExitInfoRequest -> StrikeAndExitInfoCommand (pencere 132), haritada StrikeAndExitMapInfoCommand (HUD 131),
-StrikeAndExitScoreCommand / RemoveScoreCommand, ExchangeShopRequest {eventName StrikeAndExit | StrikeAndExitVIP, action 0 liste, 1 al}
--> ExchangeShopCommand. Vanguard (resource_vog-vanguard) mağazada uridyumla; etkinlik bitince düşer.
-Profilde: vortex {hafta, kazanc, alinan {dükkân: {eid: [dönem, adet]}}}.
+From level 13; on the calendar (the 1st-20th of each month) the map (483) is entered through the portal in X-1 when a session is open. Sessions are three a day (09:00, 13:00,
+20:00; 15 min; Tuesday/Thursday/Saturday 20:00 double coins); with the panel's "Sessioned events always open" setting the portal is always open and the session
+starts at login.
+Every 2 minutes a wave: 15 boxes (4 Stellar Coins each, boxes from the previous wave that were not collected vanish) and the aliens are topped up to 12 Interceptors / 6 Barracudas
+/ 3 Saboteurs; when an alien dies a coin box (20 / 46 / 100). At the 10th minute the Deadly Battleray: whoever lands the last hit becomes the treasure holder
+(SPOT_LIGHT on the ship, position on the HUD). At the 8th minute 2, at the 10th minute 1 evacuation zone (EXIT_AREA; on an invisible entity): after standing in it
+10 s the coins are credited (double session x2, Vanguard x1.5; weekly limit 11,000, Vanguard 15,400), the treasure holder also gets 500 SC, Cryo-
+Nano Coolant and the "Escape Artist" title; the ship returns to X-1. On death the carried coins drop as a box (Vanguard keeps 30%); on the death
+screen "Free repairs in Vortex of Greed" (10 s later at a random point on the map) or return to base. When the session ends what is carried is lost.
+Client: StrikeAndExitInfoRequest -> StrikeAndExitInfoCommand (window 132), on the map StrikeAndExitMapInfoCommand (HUD 131),
+StrikeAndExitScoreCommand / RemoveScoreCommand, ExchangeShopRequest {eventName StrikeAndExit | StrikeAndExitVIP, action 0 list, 1 buy}
+-> ExchangeShopCommand. Vanguard (resource_vog-vanguard) is bought in the shop with uridium; it expires when the event ends.
+In the profile: vortex {week, earnings, claimed {shop: {eid: [period, count]}}}.
 """
 import datetime, json, math, os, random, time
 
@@ -29,23 +29,23 @@ _PATH = os.path.join(HERE, 'data', 'major_content.json')
 D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('vortex', {})
 EVENT = D.get('event', 'vortex_of_greed')
 MAP = D.get('map', 483)
-PORTAL_ID = EKP.PORTAL_BASE + 92          # X-1'deki Vortex portalı (pencereli: seans açıksa girer)
-ZONE_TYPE = 'vog_evacuation'                 # tahliye bölgesinin görünmez çapası (gemi)
-EXIT_AREA, SPOT_LIGHT = 142, 143          # VisualModifierCommand (istemci: EscapeZoneEffect 418, işaret 143)
+PORTAL_ID = EKP.PORTAL_BASE + 92          # the Vortex portal in X-1 (windowed: enters if a session is open)
+ZONE_TYPE = 'vog_evacuation'                 # the invisible anchor of the evacuation zone (ship)
+EXIT_AREA, SPOT_LIGHT = 142, 143          # VisualModifierCommand (client: EscapeZoneEffect 418, marker 143)
 REPAIR_SAE = 13                           # KillScreenOptionTypeModule STRIKE_AND_EXIT
 COIN = D.get('currency', 'resource_collectable_stellar-coin')
 NPC_IDS = [D['alien_spawns'][k]['npc_id'] for k in ('vog_interceptor', 'vog_barracuda', 'vog_saboteur')] if D else []
-SESSION_WINDOW = 15 * 60                  # "hep açık": her 15 dakikalık dilim
+SESSION_WINDOW = 15 * 60                  # "always open": every 15-minute slot
 
 
 def _register():
-    """Vortex uzaylıları NPC türü olarak (normal türlerinden 1,5 kat can; istemci tasarımları 551-554)."""
+    """Vortex aliens as NPC types (1.5x the HP of their normal types; client designs 551-554)."""
     for k, v in D.get('alien_spawns', {}).items():
         world_module.CFG['types'][k] = {x: y for x, y in v.items() if x not in ('count', 'sc', 'box')}
     if D.get('boss'):
         world_module.CFG['types'][D['boss']['type']] = {x: y for x, y in D['boss'].items() if x not in ('type', 'time_sec')}
-    # tahliye bölgesinin çapası: istemci VisualModifier'ın hedefini gemiler arasında arıyor (UnitHelper.GetShip; varlıkta efekt
-    # çıkmadı, canlı tur Ö4): görünmez, dost, hareketsiz bir gemi
+    # the evacuation zone's anchor: the client looks for the VisualModifier's target among ships (UnitHelper.GetShip; no effect appeared
+    # on an entity, live tour Ö4): an invisible, friendly, motionless ship
     world_module.CFG['types'][ZONE_TYPE] = dict(name='', model='84', npc_id=0, hp=1, kalkan=0, damage=0, speed=0, aggressive=False, friendly=True,
                                           reward={}, cargo={})
 
@@ -67,7 +67,7 @@ def _hm(s):
 
 
 def session(now=None):
-    """(açık mı, başlangıç, bitiş, çift mi, sonraki başlangıç)."""
+    """(open, start, end, double, next start)."""
     now = time.time() if now is None else now
     if always_open():
         start = now - now % SESSION_WINDOW
@@ -92,7 +92,7 @@ def session(now=None):
 def week_key(now=None):
     d = datetime.date.fromtimestamp(time.time() if now is None else now)
     y, w, _ = d.isocalendar()
-    return '%d-W%02d' % (y, w)                # Pazartesi 00:00'da yenilenir
+    return '%d-W%02d' % (y, w)                # renews on Monday at 00:00
 
 
 def period_key(kind, now=None):
@@ -119,9 +119,9 @@ class Vortex:
     def __init__(self, profile, shop, event_gates, log=print):
         self.p, self.m, self.k, self.log = profile, shop, event_gates, log
         self.world = None
-        self.run = None                           # haritadaki koşu (VogKosu)
-        self.change_map = None                    # oturum bağlar
-        self.titles = None                        # unvan verme (oturum bağlar: unvan_avi.grant_title)
+        self.run = None                           # the run on the map (VogRun)
+        self.change_map = None                    # the session binds it
+        self.titles = None                        # granting a title (the session binds it: title_hunt.grant_title)
         self.was_in = False
 
     @property
@@ -139,7 +139,7 @@ class Vortex:
     def limit(self):
         return D['vip_limit'] if self.vip() else D['weekly_limit']
 
-    # ------------------------------------------------------------ pencere ve dükkân
+    # ------------------------------------------------------------ window and shop
     def info_cmd(self, now=None):
         open_, a, b, double, nxt = session(now)
         now = time.time() if now is None else now
@@ -157,7 +157,7 @@ class Vortex:
             rows.append(mod('ExchangesShopItem', isSpecial=False, costs=[mod('RewardModule', lootId=COIN, amount=it['price'])],
                             limitType=it['limit_type'], reward=mod('RewardModule', lootId=it['reward'], amount=it['count']),
                             maxLimit=it['cap'], limit=used, eid=it['eid']))
-        left = int(CAL.time_left(EVENT)) if active() else 0     # panelden zorlanan etkinliğin de (dönemi yoksa) kalanı
+        left = int(CAL.time_left(EVENT)) if active() else 0     # the remainder of an event forced from the panel too (if it has no period)
         asset = mod('InventoryItemModule', upgradeLevel=0, lootId=COIN, amount=int(self.p.resource(COIN)), itemId=0, star=0, isNew=False,
                     hangarId=0, extAttributes=[], inventoryItemAttributes=[])
         return ('ExchangeShopCommand', dict(items=rows, assets=[asset],
@@ -182,7 +182,7 @@ class Vortex:
             bought[str(eid)] = [per, n + 1]
             self.p.dirty = True
         msgs = self.m.resource_msgs(COIN, self.p.resource(COIN), -it['price']) + self.m.reward(it['reward'], it['count'])
-        self.log('   Vortex dükkânı (%s): %s x%d, %d SC' % (event, it['reward'], it['count'], it['price']))
+        self.log('   Vortex shop (%s): %s x%d, %d SC' % (event, it['reward'], it['count'], it['price']))
         return [self.shop_cmd(event)] + msgs + self.m.money_msgs()
 
     def handle(self, name, f):
@@ -207,7 +207,7 @@ class Vortex:
                      tooltip=D.get('tooltip', 'ttip_jumpgate_sae'))]
 
     def portal_window(self, g, w, go):
-        """X-1'deki portala atlandı (dünya kilidi altında): seans açıksa haritaya."""
+        """Jumped to the portal in X-1 (under the world lock): to the map if a session is open."""
         if self.p.d['pilot'].get('level', 1) < D.get('level', 13):
             w.send([KAPI.screen('You need to reach level %d to enter the Vortex of Greed.' % D.get('level', 13))])
             return
@@ -222,13 +222,13 @@ class Vortex:
         mw, mh = H.map_size(MAP)
         return random.randint(1500, mw - 1500), random.randint(1500, mh - 1500)
 
-    # ------------------------------------------------------------ dünya
+    # ------------------------------------------------------------ world
     def attach(self, world):
         self.world = world
         msgs = []
         if int(world.map_id) == MAP and active():
             open_, a, b, double, nxt = session()
-            if open_ and always_open():                  # "hep açık": seans girişte başlar (dilimin sonunda girilse de 15 dk)
+            if open_ and always_open():                  # "always open": the session starts at login (15 min even if entered at the end of a slot)
                 a, b = time.time(), time.time() + D['session_sec']
             if open_:
                 self.run = VogRun(self, world, a, b, double)
@@ -236,7 +236,7 @@ class Vortex:
                 msgs += self.run.enter_msgs()
                 self.was_in = True
                 return msgs
-        if int(world.map_id) == MAP:                        # seans yok (girişte bu haritada doğdu): üsse
+        if int(world.map_id) == MAP:                        # no session (spawned on this map at login): to base
             send_home(self, world)
         if self.was_in:
             self.was_in = False
@@ -252,13 +252,13 @@ class Vortex:
     def tick(self, now):
         if not active(now):
             vip = D.get('vip_item', 'resource_vog-vanguard')
-            if self.p.resource(vip) > 0:                  # Vanguard etkinlik dönemi içindir
+            if self.p.resource(vip) > 0:                  # Vanguard is for the event period
                 self.p.add_resource(vip, -self.p.resource(vip))
-                self.log('   Vortex of Greed bitti: Vanguard düştü')
+                self.log('   Vortex of Greed ended: Vanguard dropped')
         return []
 
     def credit(self, coins, bounty):
-        """Tahliye: paralar (çift, Vanguard) haftalık sınıra dek hesaba; hazine ödülü -> mesajlar."""
+        """Evacuation: coins (double, Vanguard) are credited up to the weekly limit; treasure reward -> messages."""
         msgs = []
         st = self.st
         room = max(0, self.limit() - st['earnings'])
@@ -279,7 +279,7 @@ class Vortex:
                 msgs += self.m.reward(loot, n)
             if self.titles and D['treasure'].get('title'):
                 msgs += self.titles(D['treasure']['title'])
-        self.log('   Vortex tahliye: %d SC hesaba (bu hafta %d/%d)%s' % (got, st['earnings'], self.limit(), ', hazine' if bounty else ''))
+        self.log('   Vortex evacuation: %d SC credited (this week %d/%d)%s' % (got, st['earnings'], self.limit(), ', hazine' if bounty else ''))
         return msgs + self.m.money_msgs()
 
     def home(self):
@@ -287,9 +287,9 @@ class Vortex:
 
 
 def send_home(mode, world):
-    """Etkinlik haritasında koşu yok (seans kapalıyken girişte orada doğdu): biraz sonra üsse. Harita numarası başka bir modunsa
-    (Frozen Labyrinth 430-445 = Escort ve Eternal Gate haritaları; labirentte 430'a düşen oyuncu 3 sn sonra üsse atılıyordu,
-    test_etkinlik_kapi giriş 430'da) dokunulmaz."""
+    """No run on the event map (spawned there at login while the session was closed): to base shortly. If the map number belongs to another mode
+    (Frozen Labyrinth 430-445 = Escort and Eternal Gate maps; a player landing on 430 in the labyrinth was thrown to base after 3 s,
+    test_event_gate login at 430) it is left alone."""
     if mode.change_map:
         home = mode.k.home() if mode.k else 5
 
@@ -307,7 +307,7 @@ def fmt(sec):
 
 
 class VogRun:
-    """Vortex haritasında seans (dünyanın 'kapi'sı): dalgalar, patron, tahliye bölgeleri, taşınan paralar."""
+    """The session on the Vortex map (the world's `gate`): waves, boss, evacuation zones, carried coins."""
     key = 'vortex'
 
     def __init__(self, mode, world, start, end, double):
@@ -320,7 +320,7 @@ class VogRun:
         self.boss_id = None
         self.boss_done = False
         self.holder = False
-        self.zones = []                            # [x, y, varlık]
+        self.zones = []                            # [x, y, entity]
         self.zone_times = set()
         self.inside_since = None
         self.next_hud = 0.0
@@ -328,9 +328,9 @@ class VogRun:
         self.left = False
         now = time.time()
         k = int((now - start) // D['wave_sec'])
-        self.next_wave = start + k * D['wave_sec']            # geç girilse de dalga hemen
+        self.next_wave = start + k * D['wave_sec']            # the wave comes at once even if entered late
 
-    # dünya arayüzü
+    # world interface
     def wave(self):
         return 'wave'
 
@@ -394,7 +394,7 @@ class VogRun:
     def spawn_wave(self, now):
         w = self.w
         msgs = []
-        for h in list(self.wave_boxes):            # toplanmayan önceki dalga kutuları kaybolur
+        for h in list(self.wave_boxes):            # boxes from the previous wave that were not collected vanish
             if h in w.boxes:
                 del w.boxes[h]
                 msgs.append(('RemoveCollectableCommand', {'collected': False, 'hash': h}))
@@ -414,11 +414,11 @@ class VogRun:
         if msgs:
             w.send(msgs)
         self.dirty = True
-        w.log('   Vortex: dalga (%d kutu, uzaylılar %s)' % (D['wave_box'], self.counts()))
+        w.log('   Vortex: wave (%d boxes, aliens %s)' % (D['wave_box'], self.counts()))
 
     def coin_box(self, h, coins):
         b = self.w.boxes[h]
-        b['no_pet'] = True                        # P.E.T. Vortex kutularını toplayamaz (resmî SSS)
+        b['no_pet'] = True                        # the P.E.T. cannot collect Vortex boxes (official FAQ)
         b['al'] = lambda box, c=coins: self.collect(c)
 
     def collect(self, coins):
@@ -434,7 +434,7 @@ class VogRun:
         self.boss_id = n.id
         self.dirty = True
         w.send([legacy('0|A|STM|strikeandexit_message_boss_spawn')])
-        w.log('   Vortex: Deadly Battleray doğdu (%d,%d)' % (x, y))
+        w.log('   Vortex: Deadly Battleray spawned (%d,%d)' % (x, y))
 
     def spawn_zones(self, count, now):
         w = self.w
@@ -445,20 +445,20 @@ class VogRun:
             self.add_zone(x, y)
         msgs.append(legacy('0|A|STM|strikeandexit_message_escape_zone_spawn'))
         w.send(msgs)
-        w.log('   Vortex: %d tahliye bölgesi %s' % (count, [(z[0], z[1]) for z in self.zones[-count:]]))
+        w.log('   Vortex: %d evacuation zones %s' % (count, [(z[0], z[1]) for z in self.zones[-count:]]))
 
     def add_zone(self, x, y):
         w = self.w
 
         def prep(n):
-            n.hidden = True                         # ShipCreateCommand.cloaked: gemi görünmez, efekt görünür
+            n.hidden = True                         # ShipCreateCommand.cloaked: the ship is invisible, the effect visible
         n = w.spawn_npc_at(ZONE_TYPE, x, y, prep=prep)
         n.gate = True
         n.next_think = time.time() + 10 ** 6
         self.zones.append([x, y, n.id])
         vm = ('VisualModifierCommand', dict(userId=n.id, modifier=EXIT_AREA, attribute=D['evacuation']['radius'], additionalAttribute='',
                                             count=1, activated=True))
-        n.images = {EXIT_AREA: vm}             # görüşe girince yeniden (dunya.show)
+        n.images = {EXIT_AREA: vm}             # again when it comes into view (world.show)
         w.send([vm])
 
     def zone_at(self, x, y):
@@ -536,15 +536,15 @@ class VogRun:
             msgs += [self.spot(True), legacy('0|A|STM|strikeandexit_message_user_bounty|%%USERNAME%%|%s'
                                              % self.m.p.d['pilot'].get('userName', ''))]
             self.dirty = True
-            w.log('   Vortex: hazine sahibi oyuncu')
+            w.log('   Vortex: the player is the treasure holder')
         return msgs
 
-    # ölüm ve ölüm ekranı (dunya.repair_offers / repair_options / kill_screen_repair kancaları)
+    # death and the death screen (world.repair_offers / repair_options / kill_screen_repair hooks)
     def on_death(self):
         w = self.w
         keep = int(self.score * D['vip_kept_on_death']) if self.m.vip() else 0
         drop = self.score - keep
-        if drop > 0:                               # dunya.hero_death bunu ölüm konumunu yazmadan önce çağırır
+        if drop > 0:                               # world.hero_death calls this before it writes the death position
             x, y = w.hero_pos()
             h = w.drop_box(D['ship_box'], int(x), int(y), None, max(1, int(self.end - time.time())))
             self.coin_box(h, drop)
@@ -555,7 +555,7 @@ class VogRun:
         self.dirty = True
         w.send([self.score_cmd()])
 
-        def ready():                               # 10 sn sonra "Free repairs" seçeneği açılır (geri sayım metni kalkar)
+        def ready():                               # after 10 s the "Free repairs" option opens (the countdown text goes away)
             if w.hero_dead and w.gate is self:
                 w.send([('KillScreenUpdateCommand', {'options': w.repair_options()})])
         w.later(D['dogma_cooldown_sec'] + 0.3, ready)
@@ -573,7 +573,7 @@ class VogRun:
                 ('desc_killscreen_option_available_countdown_sae', {'COUNTDOWN': left}) if left else ('', {}))
 
     def repair(self, kind):
-        """STRIKE_AND_EXIT: 10 sn sonra haritada rastgele noktada tam canla -> (x, y) ya da None (bekle)."""
+        """STRIKE_AND_EXIT: after 10 s at a random point on the map with full HP -> (x, y) or None (wait)."""
         if kind != REPAIR_SAE or time.time() - (self.w.death_time or 0) < D['dogma_cooldown_sec'] or self.left:
             return None
         return self.random_spot()

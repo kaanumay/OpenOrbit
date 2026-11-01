@@ -1,28 +1,29 @@
-"""Clan Battle Station (yol haritası Ö5 CBS-1..4; veri data/cbs.json <- tools/cbs.py).
+"""Clan Battle Station (roadmap Ö5 CBS-1..4; data in data/cbs.json <- tools/cbs.py).
 
-CBS-1 Kurma: X-3..X-7, 4-1..4-5 ve X-BL'deki 23 asteroit (AssetCreateCommand tür 35). Klanlı oyuncu yaklaşınca (600) pencere verisi
-(BattleStationBuildingUiInitializationCommand); tıklayınca istemci pencereyi (76) kendisi açar. Modüller sürükle-bırakla 10 yuvaya
-(0 Hull, 1 Deflector merkez; 2-9 uydu), her biri 50 sn'de kurulur (aynı anda tek); on modül takılınca Build (5-60 dk). Kurulunca
-merkez (36) ve uydular (37), deflector açık ve 1440 dk yüklü (resmî forum 127469).
-Klandan ayrılan/atılan üyenin modülleri istasyondan envanterine döner (merkezi çıkarılan istasyon düşer); klan dağılınca istasyonları
-yıkılır, asteroit boşalır (forum 127469; uye_ayrildi, klan_dagildi).
-CBS-2 Yönetim: Deflector açıkken istasyon dokunulmaz ve süre harcar; kapalıyken süre dolar (saatte 120 dk, prime time 18-21'de 600;
-en çok 48 sa); biterse 120 dk zorunlu kapalı; Deactivate 30 dk-8 sa. Boosterlar (onur, EP: her yerde; hasar: istasyonun haritasında)
-takılınca %1'den 20 saatte azamiye (%3-10). İstasyonda maden satışı (%10 pahalı), acil onarım (500 U; 20 sn x 7.500), Engineering Bay
-ya da yavaş kendiliğinden onarım; yok olmuş modül hangarda uridyumla onarılır. Kurulu istasyonda modül değiştirme 4 dk.
-CBS-3 Uzaylı baskınları: prime time'da deflector kapalıyken saatte iki dalga (haritanın seviyesinden 6-12 uzaylı) istasyonu vurur;
-silah modülleri menzildeki uzaylılara ateş eder. Merkez yıkılırsa istasyon düşer, modüller yok olmuş (0 can) envantere döner.
-CBS-4 Sanal rakip klanlar: boş asteroitlerde zamanla ilerleyen rakip (Progress of leading Clan); rakip önce bitirirse düşman istasyonu
-(HOSTILE); deflector'u prime time dışında açık. Rakip modüllerini yıkmak 500-2.600 U, merkezi 5.000 U + 50.000 kredi.
-İstemci: istekler Equip/UnequipModule, BuildStation, DeflectorShieldStatusChange, EmergencyRepair, MapAssetActivation, TradeRequest
-(istasyonda), HangarShipRepairModule; acil onarım 20 dk x 7.500 (forum 127469); klan penceresi ClanBattleStationInfo / BattleStationHistoryList; galaksi haritası
-StarmapStationCommand. Profilde: cbs {moduller {iid: {loot, seviye, can, kalkan}}, asteroitler {id: …}, gunluk [...], istatistik}.
-Çok oyunculu sunucuda (çoklu istemci, arkadaş sunucusu) asteroitler herkes için tek: sunucunun oyuncusunun kaydında (ortak); önce her
-oyuncunun kendi asteroitleri vardı, rakip ve istasyonlar istemciden istemciye farklı görünüyordu (kullanıcı 2026-10-24). İstasyon
-kuranın klanının (klan): klanın üyeleri yönetir (haklar klan.HAKLAR), ötekiler başka klanın istasyonu olarak görür (ilişki: klan
-diplomasisi). Takılan modül yuvaya taşınır (sahibiyle; benzersiz kimlik): herkes görür; çıkarılınca ya da istasyon düşünce sahibine
-döner (çevrimdışıysa sonraki girişinde). Asteroitlerin zamanlı işleri (kurulum, deflector, onarım, rakip) sunucuda bir kez; her
-oturum asteroidin sürümü değişince varlıkları ve penceresini yeniler. Günlük ve sayılar klanın kaydında.
+CBS-1 Building: 23 asteroids in X-3..X-7, 4-1..4-5 and X-BL (AssetCreateCommand type 35). When a clan player approaches (600) the window data is
+sent (BattleStationBuildingUiInitializationCommand); on click the client opens the window (76) itself. Modules are dragged and dropped into
+10 slots (0 Hull, 1 Deflector center; 2-9 satellites), each is installed in 50 s (one at a time); once ten modules are fitted, Build (5-60 min).
+When built, the center (36) and satellites (37), deflector on and charged for 1440 min (official forum 127469).
+The modules of a member who leaves/is kicked from the clan return from the station to their inventory (a station whose center is removed falls);
+when the clan is disbanded its stations are destroyed and the asteroid is emptied (forum 127469; member_left, clan_disbanded).
+CBS-2 Management: while the deflector is on the station is invulnerable and uses up time; while off, time is restored (120 min per hour, 600 at
+prime time 18-21; at most 48 h); when it runs out, 120 min forced off; Deactivate 30 min-8 h. Boosters (honor, EP: everywhere; damage: on the
+station's map) once fitted go from 1% to the maximum (3-10%) over 20 hours. At the station: ore selling (10% more expensive), emergency repair
+(500 U; 20 s x 7,500), Engineering Bay or slow self-repair; a destroyed module is repaired in the hangar with uridium. Replacing a module on a built
+station takes 4 min.
+CBS-3 Alien raids: at prime time while the deflector is off, two waves an hour (6-12 aliens of the map's level) hit the station; the weapon modules
+fire at aliens in range. If the center is destroyed the station falls, the modules return to the inventory destroyed (0 HP).
+CBS-4 Virtual rival clans: on empty asteroids a rival progresses over time (Progress of leading Clan); if the rival finishes first it becomes an
+enemy station (HOSTILE); its deflector is on outside prime time. Destroying a rival's modules gives 500-2,600 U, its center 5,000 U + 50,000 credits.
+Client: requests Equip/UnequipModule, BuildStation, DeflectorShieldStatusChange, EmergencyRepair, MapAssetActivation, TradeRequest (at the
+station), HangarShipRepairModule; emergency repair 20 min x 7,500 (forum 127469); clan window ClanBattleStationInfo / BattleStationHistoryList;
+galaxy map StarmapStationCommand. In the profile: cbs {modules {iid: {loot, level, can, kalkan}}, asteroids {id: ...}, daily [...], stats}.
+On a multiplayer server (several clients, friend server) the asteroids are single for everyone: in the server player's save (shared); at first
+each player had their own asteroids, and the rival and stations looked different from client to client (user 2026-10-24). They belong to the
+clan of whoever built the station (clan): the clan's members manage it (rights clan.RIGHTS), others see it as another clan's station (relation:
+clan diplomacy). A fitted module is moved to the slot (with its owner; unique id): everyone sees it; when removed or when the station falls it
+returns to the owner (at their next login if offline). The asteroids' timed jobs (building, deflector, repair, rival) run once on the server; each
+session refreshes the entities and its window when an asteroid's version changes. The log and the counts are in the clan's record.
 """
 import datetime, functools, json, math, os, random, sys, threading, time, traceback, types
 
@@ -45,32 +46,32 @@ BY_MAP = {}
 for _a in ASTEROIDS.values():
     BY_MAP.setdefault(int(_a['map']), []).append(_a['uid'])
 MODS = D.get('modules', {})
-ASSET_BASE = 157000000                 # + asteroit x 100 (asteroit/merkez), + yuva (uydular)
-ITEM_BASE = 157500000                  # modül örneklerinin itemId'si
+ASSET_BASE = 157000000                 # + asteroid x 100 (asteroid/center), + slot (satellites)
+ITEM_BASE = 157500000                  # itemId of the module instances
 ASTEROID, BATTLESTATION, SATELLITE = 35, 36, 37
-HULL, DEFLECTOR = 0, 1                 # merkez yuvaları
+HULL, DEFLECTOR = 0, 1                 # center slots
 SLOTS = 10
 OWN, NEUTRAL, HOSTILE = 1, 2, 3        # StarmapStationInfo.StationStatus
-DESTRUCTION_BATTLESTATION = 5           # DestructionTypeModule.DestructionCause (ölüm ekranı)
+DESTRUCTION_BATTLESTATION = 5           # DestructionTypeModule.DestructionCause (death screen)
 E = dict(UNSPECIFIED=0, NO_CLAN=1, STATION_ALREADY_BUILDING=2, ITEM_HITPOINTS_ZERO=3, ITEM_ALREADY_EQUIPPED_IN_ANOTHER_ASTEROID=4,
          CONCURRENT_EQUIP=5, REPLACE_RIGHT_MISSING=6, ITEM_NOT_OWNED=7, OUT_OF_RANGE=8, EQUIP_OF_SAME_PLAYER_RUNNING=9,
          SATELLITE_ONLY=10, HUB_ONLY=11, ITEM_NOT_IN_STATION=12, MAX_NUMBER_OF_MODULE_TYPE_EXCEEDED=13, DEFLECTOR_ALREADY_ON=14,
          DEFLECTOR_ALREADY_OFF=15, REPAIR_NO_MODULE=16, REPAIR_NO_MONEY=17, REPAIR_ALREADY_RUNNING=18, ITEM_UPGRADE_RUNNING=19)
 TRADE_BATTLE_STATION = 4
-SHARED_ITEM = ITEM_BASE + 1000000         # ortak yuvadaki modüllerin kimlikleri (oyuncuların sırası ITEM_BASE'den: çakışmasın)
+SHARED_ITEM = ITEM_BASE + 1000000         # ids of the modules in the shared slot (players' order from ITEM_BASE: so they do not collide)
 SHARED = {'lock': threading.Lock(), 'next': 0.0}
 
 
 def with_bots():
-    """Bot paketi açık ve bot klanlarının istasyon kurması izinli (Botlar: klan_ksi): istasyonlar gerçek klanların, sahte rakip
-    yok, asteroitler boş açılır; bot klanları yarışır (bot/clan_stations.py; kullanıcı isteği 2026-10-31)."""
+    """The bot package is on and bot clans are allowed to build stations (Bots: clan_cbs): the stations belong to real clans, there is no
+    fake rival, asteroids open empty; the bot clans compete (bot/clan_stations.py; user request 2026-10-31)."""
     y = getattr(sys.modules.get('bot.manager'), 'ACTIVE', None)
     return y is not None and y.permission('clan') and y.permission('clan_cbs')
 
 
 def shared():
-    """Asteroitlerin ortak kaydı (sunucunun oyuncusunun profili): çok oyunculu sunucuda ve botlar varken (bir bot klanı bir kez
-    istasyona el attıysa kalıcı: bot_klanlari); tek oyunculuda None."""
+    """The asteroids' shared record (the server player's profile): on a multiplayer server and while bots are present (once a bot clan has
+    taken a station it is permanent: bot_clans); None in single player."""
     g = TP.GAME
     h = getattr(g, 'PROFILE', None) if g is not None else None
     if h is None:
@@ -160,8 +161,8 @@ def level_value(row, lv):
 
 
 def hp_sync(m):
-    """Panelin KSİ can çarpanı değişince modülün canı, kalkanı (ve rakipte azamisi) oranıyla ölçeklenir (m['ksi']: kayıttaki değerlerin
-    hangi çarpanla ölçeklendiği; yoksa 1,0)."""
+    """When the panel's CBS HP multiplier changes, a module's HP and shield (and for a rival the maximum) are scaled proportionally (m['ksi']: the
+    multiplier the saved values were scaled with; 1.0 if missing)."""
     k = float(SET.get('ksi_can'))
     old = m.get('ksi', 1.0)
     if k == old:
@@ -174,18 +175,18 @@ def hp_sync(m):
 
 
 def hp_max(m):
-    """Modülün azami canı (rakipte kayıttaki azami): panelin KSİ can çarpanıyla, en çok 32 bit."""
+    """A module's maximum HP (for a rival, the saved maximum): with the panel's CBS HP multiplier, at most 32 bits."""
     hp_sync(m)
     return m.get('maximum') or min(SET.I32, int(level_value(MODS[m['loot']]['can'], m['level']) * float(SET.get('ksi_can'))))
 
 
 def dmg_value(md, lv):
-    """Silah modülünün seviyedeki hasarı: panelin KSİ hasar çarpanıyla (bütün istasyonlar)."""
+    """A weapon module's damage at its level: with the panel's CBS damage multiplier (all stations)."""
     return level_value(md['damage'], lv) * float(SET.get('cbs_damage'))
 
 
 def stm(key, **params):
-    """İstemcinin metni (flashres) yer tutucularıyla: 0|A|STM|anahtar|%AD%|değer…"""
+    """The client's text (flashres) with its placeholders: 0|A|STM|key|%AD%|value..."""
     return legacy('0|A|STM|%s%s' % (key, ''.join('|%%%s%%|%s' % (k, v) for k, v in params.items())))
 
 
@@ -201,17 +202,17 @@ class Cbs:
         self.p, self.m, self.log = profile, shop, log
         self.world = None
         self.near = None                        # menzildeki asteroit
-        self.shown_assets = []                  # bu haritada gönderilen varlıklar
+        self.shown_assets = []                  # entities sent on this map
         self.next_raid = {}
-        self.raiders = {}                       # uzaylı -> asteroit
+        self.raiders = {}                       # alien -> asteroid
         self.next_shot = {}
-        self.tick_err = {}                      # asteroit -> hatası bir kez yazıldı
-        self.starmap_tpl = None                 # girişin StarmapStationCommand şablonu (değişince yeniden gönderilir)
-        self.home = None                        # oturum bağlar: üs haritası
-        self.prime = None                       # son bilinen Prime Time durumu (geçişte duyuru)
-        self.seen = {}                          # ortak asteroitlerin son görülen (sürüm, durum): değişince yenilenir
+        self.tick_err = {}                      # asteroid -> its error was written once
+        self.starmap_tpl = None                 # the login's StarmapStationCommand template (resent when it changes)
+        self.home = None                        # bound per session: base map
+        self.prime = None                       # last known Prime Time state (announcement on transition)
+        self.seen = {}                          # last seen (version, state) of the shared asteroids: refreshed when it changes
 
-    # ------------------------------------------------------------ profil
+    # ------------------------------------------------------------ profile
     @property
     def st(self):
         d = self.p.d.setdefault('cbs', {})
@@ -226,7 +227,7 @@ class Cbs:
         """Upgrade synthetic saved rival capacities once, preserving damage fractions.
 
         Owned inventory/stations never participate. Old rivals stored a reduced
-        capacity in azami, so changing the data table alone could not update them.
+        capacity in maximum, so changing the data table alone could not update them.
         """
         version = 1  # published CBS stats configuration, 2026-10-25
         if state.get('rival_stats_version', 0) == version:
@@ -266,8 +267,8 @@ class Cbs:
         profile.dirty = True
 
     def absorb(self, d):
-        """Ödül yolundan depoya düşen modüller (module_* sayaçları) tek tek örneğe çevrilir (can, kalkan, seviye). Ortak yuvadan
-        çevrimdışıyken dönen modüller (give_back) de."""
+        """Modules that drop into the depot via the reward path (module_* counters) are turned into instances one by one (HP, shield, level). So are
+        modules returned from the shared slot while offline (give_back)."""
         h = self.host
         back = ((h.d.get('cbs') or {}).get('pending') or {}).get(KL.name(self.p)) if h is not None else None
         if back:
@@ -293,7 +294,7 @@ class Cbs:
 
     @property
     def asteroids(self):
-        """Asteroitlerin kaydı: tek oyunculuda oyuncunun, çok oyunculuda ortak (sunucunun oyuncusunun profilinde)."""
+        """The asteroids' record: the player's in single player, the shared one (in the server player's profile) in multiplayer."""
         h = self.host
         if h is None:
             return self.st['asteroids']
@@ -306,10 +307,10 @@ class Cbs:
         return d['asteroids']
 
     def bring(self, h, d):
-        """Ek istemcinin (misafirin) tek oyunculuda kurduğu istasyonlar da ortak olur (embed gibi): boş asteroide yuvadaki modül
-        (sahibiyle, ortak kimlikle), istasyon oyuncunun klanının. Asteroit ortakta doluysa istasyon kurulmaz, modülleri envanterinde
-        kalır. Önce yalnız sunucunun oyuncusununkiler ortaktı: kayıt ek istemcide açılınca kendi istasyonları yoktu (oyuncu bildirimi
-        2026-10-30). Klansızken bekler (klanı bağlanınca)."""
+        """Stations that the extra client (guest) builds in single player also become shared (like embed): the module in the slot onto an empty asteroid
+        (with its owner, shared id), the station belongs to the player's clan. If the asteroid is taken in the shared record, no station is built and
+        its modules stay in the inventory. At first only the server player's were shared: when the save was opened on the extra client it had no
+        stations of its own (player report 2026-10-30). Waits while clanless (until their clan is bound)."""
         own = self.p.d.get('cbs') or {}
         built = [aid for aid, a in own.get('asteroids', {}).items()
                  if a.get('owner') != 'rival' and (a.get('slots') or a.get('state') in ('building', 'built'))]
@@ -323,7 +324,7 @@ class Cbs:
                 a = own['asteroids'].pop(aid)
                 there = shared.get(aid) or {}
                 if there.get('slots') or there.get('state', 'vacant') != 'vacant':
-                    self.log('   CBS: %s ortakta dolu, %s istasyonunun modülleri envantere' % (aid, me))
+                    self.log('   CBS: %s taken in the shared record, modules of the %s station go to the inventory' % (aid, me))
                     continue
                 slots = {}
                 for s, y in a.get('slots', {}).items():
@@ -334,12 +335,13 @@ class Cbs:
                 a.pop('rival', None)
                 a.pop('rival_progress', None)
                 shared[aid] = dict(a, slots=slots, clan=k['id'], version=there.get('version', 0) + 1)
-                self.log('   CBS: %s istasyonu ortakta (%s)' % (aid, me))
+                self.log('   CBS: %s station in the shared record (%s)' % (aid, me))
             h.dirty = True
         self.p.dirty = True
 
     def embed(self, h, d):
-        """Sunucunun oyuncusunun tek oyunculuda kurduğu istasyonlar ortak olur: yuvadaki modül yuvaya (sahibiyle), istasyon klanının."""
+        """Stations that the server's player builds in single player become shared: the module in the slot to the slot (with its owner),
+        the station to their clan."""
         me, cid = KL.name(h), int(h.d['pilot'].get('clanId', 0) or 0)
         with h.lock:
             d.setdefault('asteroids', {})
@@ -368,7 +370,7 @@ class Cbs:
             h.dirty = True
 
     def bump(self, a):
-        """Asteroidin görünümü değişti (ortakta öteki oturumlar yeniler)."""
+        """An asteroid's appearance changed (other sessions refresh in the shared record)."""
         a['version'] = a.get('version', 0) + 1
 
     def ast(self, aid):
@@ -394,7 +396,7 @@ class Cbs:
         return int((k or {}).get('company') or self.p.d['pilot'].get('factionId', 0))
 
     def mine(self, a):
-        """İstasyon (ya da kurulan asteroit) oyuncunun klanının mı: tek oyunculuda rakip dışındakiler."""
+        """Whether the station (or the asteroid being built) belongs to the player's clan: in single player, everything except the rival."""
         if a.get('owner') == 'rival':
             return False
         if self.host is None:
@@ -403,7 +405,7 @@ class Cbs:
         return bool(k) and a.get('clan') in (None, k['id'])
 
     def st_clan(self, a):
-        """Asteroitteki istasyonun klanı (kayıt) ya da None."""
+        """The clan of the station on the asteroid (record) or None."""
         if self.host is None:
             return self.clan()
         return KL.CLANS.get(a.get('clan')) if a.get('clan') else None
@@ -416,7 +418,7 @@ class Cbs:
         return int((k or {}).get('company') or (self.p.d['pilot'].get('factionId', 0) if self.host is None else 0))
 
     def relation(self, a):
-        """Varlığın klan ilişkisi (bakana göre): rakip savaş, kendi klanınki 0, başkasınınki diplomasiye göre (yoksa düşman)."""
+        """The entity's clan relation (from the viewer's side): rival is war, own clan's 0, another's per diplomacy (enemy if none)."""
         if a.get('owner') == 'rival':
             return 3
         if self.mine(a):
@@ -444,8 +446,8 @@ class Cbs:
         return None
 
     def where(self, iid):
-        """Modülün takılı olduğu (asteroit, yuva) ya da None (çok oyunculuda oyuncunun tek oyunculu asteroitleri de: modül iki yerde
-        kullanılmasın)."""
+        """The (asteroid, slot) the module is fitted in, or None (in multiplayer the player's single-player asteroids too: so a module is not used in
+        two places)."""
         stores = [self.asteroids] + ([self.st['asteroids']] if self.host is not None and self.host is not self.p else [])
         for store in stores:
             for aid, a in store.items():
@@ -455,7 +457,7 @@ class Cbs:
         return None
 
     def give_back(self, y):
-        """Ortak yuvadaki modül sahibine (bağlıysa hemen, değilse sonraki girişinde: absorb)."""
+        """The module in the shared slot to its owner (at once if connected, otherwise at their next login: absorb)."""
         m = y.pop('module', None) if y else None
         if m is None:
             return
@@ -473,7 +475,7 @@ class Cbs:
                 h.dirty = True
 
     def tell(self, a, msgs):
-        """İstasyonun klanına duyuru: ortakta klanın bağlı üyelerine gider (asteroitlerin işlerini hangi oturum yürütürse yürütsün)."""
+        """Announcement to the station's clan: in the shared record it goes to the clan's connected members (whichever session runs the asteroids' jobs)."""
         k = KL.CLANS.get(a.get('clan')) if self.host is not None and a.get('clan') else None
         if k is None or not msgs:
             return msgs
@@ -483,7 +485,7 @@ class Cbs:
         return []
 
     def hp(self, right):
-        """Klan hakkı (tek oyunculuda oyuncu lider)."""
+        """Clan right (in single player the player is leader)."""
         return self.host is None or KL.right(self.p, right)
 
     def mx(self, m):
@@ -511,7 +513,7 @@ class Cbs:
         return mod('AvailableModulesCommand', modules=[self.module_cmd(i) for i in free])
 
     def available_msg(self):
-        """Pencerenin envanterini yeniler (istemci UiInitialization'daki listeyi yalnız ilk kez alıyor; canlı tur Ö5)."""
+        """Refreshes the window's inventory (the client takes the list in UiInitialization only the first time; live round Ö5)."""
         return ('AvailableModulesCommand', {'modules': self.available_cmd()['modules']})
 
     def equipped(self, aid, now=None):
@@ -521,7 +523,7 @@ class Cbs:
                                                      if self.module(y['iid'])])
 
     def own_progress(self, aid, now=None):
-        """Asteroitte kuran klanın ilerlemesi (kurulumu biten modüller)."""
+        """The progress of the clan building on the asteroid (modules whose installation is finished)."""
         now = time.time() if now is None else now
         a = self.ast(aid)
         done = sum(1 for y in a['slots'].values() if y.get('install_end', 0) <= now)
@@ -530,9 +532,9 @@ class Cbs:
     def progress_cmd(self, aid, now=None):
         a = self.ast(aid)
         prog = self.own_progress(aid, now)
-        own = prog if self.mine(a) else 0.0                 # ortakta başka klan kuruyorsa onun ilerlemesi en iyi
+        own = prog if self.mine(a) else 0.0                 # if another clan is building in the shared record, its progress is the best
         r, rp = a.get('rival'), a.get('rival_progress', 0) if a.get('rival') else 0
-        leader = race_leader(a)                                # bot klanlarının yarışı (klan_us): önde gideni
+        leader = race_leader(a)                                # the race of the bot clans (clan_stations): the leader
         if leader and leader[1] > rp:
             r, rp = leader
         best = max(prog, rp)
@@ -558,7 +560,7 @@ class Cbs:
             availableModules=self.available_cmd(), buildTimeInMinutesMin=k[0], buildTimeInMinutesMax=k[1], buildTimeInMinutesIncrement=k[2]))
 
     def booster_pct(self, aid, kind, now=None):
-        """Booster modülünün etkisi (%): takılıp kurulduktan sonra %1'den 20 saatte azamiye."""
+        """A booster module's effect (%): once fitted and installed, from 1% to the maximum over 20 hours."""
         now = time.time() if now is None else now
         a = self.ast(aid)
         if a['state'] != 'built':
@@ -630,7 +632,7 @@ class Cbs:
                                                           affiliatedFaction=mod('FactionModule', faction=self.st_faction(a))))
 
     def ui_msgs(self, aid):
-        """Yaklaşınca pencerenin verisi (istemci tıklamada kendisi açar): klansız / asteroit / kuruluyor / kurulu."""
+        """The window's data on approach (the client opens it itself on click): clanless / asteroid / building / built."""
         a = self.ast(aid)
         if not self.clan():
             return [('BattleStationNoClanUiInitializationCommand', {'mapAssetId': asset_id(aid)})]
@@ -639,13 +641,13 @@ class Cbs:
         if a['state'] == 'building':
             return [self.building_state(aid)]
         if a['state'] == 'built':
-            return [self.management_ui(aid)] if self.mine(a) else []        # başka klanın istasyonu
+            return [self.management_ui(aid)] if self.mine(a) else []        # another clan's station
         return [self.building_ui(aid)]
 
     def error(self, kind):
         return [('BattleStationErrorCommand', {'type': E[kind]})]
 
-    # ------------------------------------------------------------ varlıklar
+    # ------------------------------------------------------------ entities
     def asset_cmd(self, aid_asset, kind, x, y, name, design=1, stage=0, clan=None, faction=0, relation=0):
         return ('AssetCreateCommand', dict(designId=design, clanId=int((clan or {}).get('id', 0)), showBubble=True, userName=name,
                                            assetId=aid_asset, expansionStage=stage, modifier=[], type=mod('AssetTypeModule', typeValue=kind),
@@ -668,7 +670,7 @@ class Cbs:
         return (levels[0] << 16) | levels[1]
 
     def map_assets(self, aid):
-        """Asteroidin varlıkları: boşsa asteroit (35); kuruluysa merkez (36) ve uydular (37)."""
+        """The asteroid's entities: the asteroid (35) if empty; the center (36) and satellites (37) if built."""
         a = self.ast(aid)
         x, y = position(aid)
         if a['state'] != 'built':
@@ -753,13 +755,13 @@ class Cbs:
         return msgs
 
     def info_cmd(self, aid, slot, m=None):
-        """Varlığın can/kalkan çubuğu (AssetInfoCommand)."""
+        """The entity's HP/shield bar (AssetInfoCommand)."""
         a = self.ast(aid)
         y = a['slots'].get(str(slot)) or {}
         m = m or (y if a.get('owner') == 'rival' else self.module(y.get('iid')))
         if not m:
             return None
-        mh = hp_max(m)                              # rakipte tek oyunculu çarpanla (azami)
+        mh = hp_max(m)                              # for a rival, with the single-player multiplier (maximum)
         ms = min(SET.I32, int(mh * D['shield_ratio']))
         kind = BATTLESTATION if slot <= DEFLECTOR else SATELLITE
         return ('AssetInfoCommand', dict(assetId=asset_id(aid, slot), type=mod('AssetTypeModule', typeValue=kind),
@@ -768,13 +770,13 @@ class Cbs:
                                          hitpoints=int(m['can']), maxHitpoints=mh, shielded=ms > 0, shieldEnergy=int(m['kalkan']),
                                          maxShieldEnergy=ms))
 
-    # ------------------------------------------------------------ dünya
+    # ------------------------------------------------------------ world
     def attach(self, world):
         self.world = world
         self.near = None
         self.shown_assets = []                 # refreshMap already removed the previous client's assets
         world.cbs_trade = self.trade_mult
-        world.asset_targets = self                      # rakip istasyonun modülleri seçilir ve vurulur (dunya.asset_laser)
+        world.asset_targets = self                      # the rival station's modules are chosen and hit (world.asset_laser)
         msgs = self.show_assets(world.map_id)
         return msgs
 
@@ -803,7 +805,7 @@ class Cbs:
         return None
 
     def starmap_msgs(self):
-        """Yıldız haritasının istasyon durumları değişti (kuruldu, rakip kurdu, yıkıldı): girişteki şablonla yeniden."""
+        """The star map's station states changed (built, rival built, destroyed): resend with the login's template."""
         return self.login_replace('StarmapStationCommand', self.starmap_tpl) if self.starmap_tpl and self.world else []
 
     def login_replace(self, n, f):
@@ -817,7 +819,7 @@ class Cbs:
             if not aid:
                 continue
             a = self.ast(aid)
-            s['lastChangedTimestamp'] = 0               # sahipsiz: kayıttaki hesabın gördüğü değişim zamanı değil (E10)
+            s['lastChangedTimestamp'] = 0               # ownerless: not the change time the recorded account saw (E10)
             if a['state'] in ('built', 'building'):
                 rival = a.get('owner') == 'rival'
                 s.update(status=OWN if self.mine(a) else HOSTILE, clanName=a.get('rival') if rival else self.st_name(a),
@@ -831,24 +833,24 @@ class Cbs:
         st = self.st
         pt = prime_time(now)
         if self.prime is not None and pt != self.prime and self.clan_name():
-            # kayıttaki satır: 0|n|MSG|1|1|msg_primetime_started| ("Activated Battle Station's Prime Time"); bitişi _ended
+            # the recorded line: 0|n|MSG|1|1|msg_primetime_started| ("Activated Battle Station's Prime Time"); its end _ended
             msgs.append(legacy('0|n|MSG|1|1|msg_primetime_%s|' % ('started' if pt else 'ended')))
         self.prime = pt
         shared = self.host is not None
         run = True
-        if shared:                                      # ortak asteroitlerin işleri sunucuda saniyede bir (hangi oturum olursa)
+        if shared:                                      # the shared asteroids' jobs run on the server once a second (whichever session)
             with SHARED['lock']:
                 run = now >= SHARED['next']
                 if run:
                     SHARED['next'] = now + 1.0
         for aid_s, a in list(self.asteroids.items()) if run else []:
-            try:                                        # bir asteroidin hatası ötekileri ve yakınlığı durdurmasın
+            try:                                        # one asteroid's error must not stop the others and the proximity check
                 out = self.tick_asteroid(int(aid_s), a, now)
-                msgs += [] if shared else out           # ortakta görünüm sürümle yenilenir (aşağıda), duyurular klana (tell)
+                msgs += [] if shared else out           # in the shared record the view is refreshed by version (below), announcements go to the clan (tell)
             except Exception:
                 if not self.tick_err.get(aid_s):
                     self.tick_err[aid_s] = True
-                    self.log('   CBS: %s asteroidinde hata:\n%s' % (ASTEROIDS.get(int(aid_s), {}).get('name', aid_s), traceback.format_exc()))
+                    self.log('   CBS: error in asteroid %s:\n%s' % (ASTEROIDS.get(int(aid_s), {}).get('name', aid_s), traceback.format_exc()))
         w = self.world
         if shared and w is not None:
             msgs += self.refresh_changed()
@@ -862,7 +864,7 @@ class Cbs:
                              ('OutOfBattleStationRangeCommand', {'battleStationId': asset_id(self.near)})]
                 if near:
                     msgs += [H.asset_available(asset_id(near), 'ttip_cbs', True)] + self.ui_msgs(near)
-                    msgs += self.p.hint(27) if getattr(self.p, 'hint', None) else []      # CLAN_BATTLE_STATION ipucu
+                    msgs += self.p.hint(27) if getattr(self.p, 'hint', None) else []      # CLAN_BATTLE_STATION hint
                 self.near = near
             if w:
                 msgs += self.raid_tick(now)
@@ -876,8 +878,8 @@ class Cbs:
         return msgs
 
     def refresh_changed(self):
-        """Ortak asteroitlerden sürümü değişenler (başka oturumun işi ya da sunucunun zamanlı işi): haritadakilerin varlıkları,
-        yakınındakinin penceresi; kuruldu/yıkıldı: galaksi haritası."""
+        """Shared asteroids whose version changed (another session's work or the server's timed job): the entities of those on the map,
+        the window of the one nearby; built/destroyed: the galaxy map."""
         msgs, star = [], False
         w = self.world
         for aid_s, a in list(self.asteroids.items()):
@@ -899,7 +901,7 @@ class Cbs:
         w = self.world
         here = w is not None and int(w.map_id) == int(ASTEROIDS[aid]['map'])
         if a.get('owner') != 'rival':
-            done = [y for y in a['slots'].values()            # kurulumu biten modüller: adımda bir kez yenilenir
+            done = [y for y in a['slots'].values()            # modules whose installation finished: refreshed once per step
                     if y.get('install_sec') and not y.get('installed') and now >= y.get('install_end', 0)]
             for y in done:
                 y['installed'] = True
@@ -912,7 +914,7 @@ class Cbs:
                 msgs += self.refresh_assets(aid)
         if a['state'] == 'building' and now >= a.get('build_end', 0):
             msgs += self.finish_build(aid, now)
-        if a['state'] == 'built' and a.get('owner') != 'rival':        # rakibin deflector'ü ve onarımı rival_tick'te
+        if a['state'] == 'built' and a.get('owner') != 'rival':        # the rival's deflector and repair are in rival_tick
             msgs += self.deflector_tick(aid, a, now)
             msgs += self.repair_tick(aid, a, now)
         msgs += self.rival_tick(aid, a, now)
@@ -928,7 +930,7 @@ class Cbs:
             msgs.append(cmd)
         return msgs
 
-    # ------------------------------------------------------------ istekler
+    # ------------------------------------------------------------ requests
     def in_range(self, aid):
         w = self.world
         if not w or int(w.map_id) != int(ASTEROIDS.get(aid, {}).get('map', -1)):
@@ -956,7 +958,7 @@ class Cbs:
         if not self.in_range(aid):
             return self.error('OUT_OF_RANGE')
         if name != 'EquipModuleRequest' and not self.mine(self.ast(aid)):
-            return self.error('CONCURRENT_EQUIP')      # başka klanın istasyonu
+            return self.error('CONCURRENT_EQUIP')      # another clan's station
         out = []
         if name == 'EquipModuleRequest':
             out = self.equip(aid, int(f.get('itemId') or 0), int(f.get('slotId') or 0), bool(f.get('replace')))
@@ -970,7 +972,7 @@ class Cbs:
             out = self.emergency(aid, int(f.get('slotId') or 0))
         a = self.ast(aid)
         if out and out[0][0] != 'BattleStationErrorCommand':
-            self.bump(a)                               # öteki oturumlar yenilesin; bu oturum yanıtla yeniledi
+            self.bump(a)                               # let the other sessions refresh; this session refreshed with the reply
             self.seen[aid] = (a.get('version', 0), a.get('state'))
         return out
 
@@ -1012,7 +1014,7 @@ class Cbs:
         old_loot = (self.module(old['iid']) or {}).get('loot', '') if old else ''
         y = {'iid': iid, 'install_end': now + secs, 'install_sec': secs}
         h = self.host
-        if h is not None:                               # ortak: modül yuvaya (herkes görsün), benzersiz kimlikle
+        if h is not None:                               # shared: module to the slot (everyone sees it), with a unique id
             cbs_h, mods, cid = h.d['cbs'], self.st['modules'], self.clan()['id']
             with self.lock:
                 cbs_h['shared_seq'] = int(cbs_h.get('shared_seq', 0)) + 1
@@ -1027,7 +1029,7 @@ class Cbs:
         if old:
             self.note(aid, 'MODULE_REPLACED', oldModuleType=old_loot,
                       oldModuleLevel=0, newModuleType=m['loot'], newModuleLevel=m['level'], slot=slot if slot > DEFLECTOR else -1)
-        self.log('   CBS: %s %s yuva %d (%d sn)' % (ASTEROIDS[aid]['name'], m['loot'], slot, secs))
+        self.log('   CBS: %s %s slot %d (%d s)' % (ASTEROIDS[aid]['name'], m['loot'], slot, secs))
         msgs = [self.progress_msg(aid, now) if a['state'] == 'vacant' else self.status_msg(aid, now), self.available_msg()]
         if a['state'] != 'vacant':
             msgs += self.refresh_assets(aid)
@@ -1041,13 +1043,13 @@ class Cbs:
         y = a['slots'][hit]
         if y.get('owner', KL.name(self.p)) != KL.name(self.p) and not self.hp('battle_station_replace_module'):
             return self.error('REPLACE_RIGHT_MISSING')
-        # kurulumu sürerken çıkarılan modül: istemcinin "The installation of this Module has been cancelled."
+        # module removed while installing: the client's "The installation of this Module has been cancelled."
         abort = [stm('msg_station_module_install_aborted')] if y.get('install_end', 0) > time.time() else []
         m = self.module(iid)
         with self.lock:
             del a['slots'][hit]
             if not a['slots'] and a['state'] == 'vacant':
-                a.pop('clan', None)                     # boşalan asteroit başka klanın da olabilir
+                a.pop('clan', None)                     # the emptied asteroid may belong to another clan too
             self.mark()
         self.give_back(y)
         self.note(aid, 'MODULE_REMOVED', moduleType=m['loot'] if m else '', moduleLevel=m['level'] if m else 0,
@@ -1075,14 +1077,14 @@ class Cbs:
             a.pop('rival_progress', None)
             race = a.pop('race', None) or {}
             self.mark()
-        for cid, r in race.items():                    # yarışan bot klanlarının modülleri stoklarına (klan_us)
+        for cid, r in race.items():                    # the modules of the competing bot clans to their stock (clan_stations)
             refund_race(cid, r.get('modules'))
         self.note(aid, 'BUILD_START', buildSeconds=minutes * 60)
-        self.log('   CBS: %s kuruluyor (%d dk)' % (ASTEROIDS[aid]['name'], minutes))
+        self.log('   CBS: %s being built (%d min)' % (ASTEROIDS[aid]['name'], minutes))
         return [self.building_state(aid, now), ('VisualModifierCommand', self.construction_modifier(aid))]
 
     def stats(self, a):
-        """İstasyon sayıları: tek oyunculuda profilde, ortakta istasyonun klanının kaydında."""
+        """Station counts: in the profile in single player, in the station's clan record in the shared record."""
         if self.host is None:
             return self.st['stats']
         k = KL.CLANS.get(a.get('clan')) or {}
@@ -1100,7 +1102,7 @@ class Cbs:
             self.bump(a)
             self.mark()
         self.note(aid, 'BUILD_FINISHED')
-        self.log('   CBS: %s kuruldu' % ASTEROIDS[aid]['name'])
+        self.log('   CBS: %s built' % ASTEROIDS[aid]['name'])
         msgs = self.tell(a, [stm('msg_station_accomplished', STATION=ASTEROIDS[aid]['name'], CLAN=self.st_name(a),
                                  MAP=H.name(ASTEROIDS[aid]['map']))]) + self.starmap_msgs()
         w = self.world
@@ -1188,7 +1190,7 @@ class Cbs:
             self.bump(a)
             self.mark()
         self.note(aid, 'DEFLECTOR_OFF', userName=self.p.d['pilot'].get('userName', ''))
-        self.log('   CBS: %s deflector %d dk kapalı' % (ASTEROIDS[aid]['name'], minutes))
+        self.log('   CBS: %s deflector off for %d min' % (ASTEROIDS[aid]['name'], minutes))
         return pending + self.deflector_visuals(aid, now) + [self.status_msg(aid, now), self.management_ui(aid, now)]
 
     def emergency(self, aid, slot):
@@ -1211,7 +1213,7 @@ class Cbs:
         return [self.status_msg(aid, now), stm('msg_emergency_repair_started', STATION=ASTEROIDS[aid]['name'])] + self.m.money_msgs()
 
     def repair_tick(self, aid, a, now):
-        """Acil onarım (7.500/sn), Engineering Bay (bütün modüller) ya da son hasardan 30 sn sonra yavaş onarım; kalkan dolar."""
+        """Emergency repair (7,500/s), Engineering Bay (all modules), or slow repair 30 s after the last damage; the shield refills."""
         rep = 0
         for y in a['slots'].values():
             m = self.module(y['iid'])
@@ -1258,11 +1260,11 @@ class Cbs:
         with self.p.lock:
             m['can'], m['kalkan'] = mh, ms
             self.p.dirty = True
-        self.log('   CBS: modül onarıldı %s (%d U)' % (m['loot'], cost))
+        self.log('   CBS: module repaired %s (%d U)' % (m['loot'], cost))
         return [('HangarShipRepairModuleCommand', dict(errorMessage=stack_msg('empty'), itemId=iid, currentHitPoints=mh, maxHitPoints=mh,
                                                         resultId=0))] + self.m.money_msgs()
 
-    # ------------------------------------------------------------ boosterlar ve ticaret
+    # ------------------------------------------------------------ boosters and trade
     def mods(self):
         """Clan-wide XP/honor stack globally up to 50%; damage applies on the station map."""
         clan = self.clan()
@@ -1283,14 +1285,14 @@ class Cbs:
         return {k: v for k, v in out.items() if v}
 
     def trade_mult(self):
-        """Kendi istasyonunun menzilinde maden satışı (TradeType BATTLE_STATION, fiyat x1,1) -> çarpan ya da None."""
+        """Ore selling within range of one's own station (TradeType BATTLE_STATION, price x1.1) -> multiplier or None."""
         if self.near and self.ast(self.near)['state'] == 'built' and self.mine(self.ast(self.near)):
             return D['ore_multiplier']
         return None
 
-    # ------------------------------------------------------------ hasar ve yıkım (baskın ve rakip)
+    # ------------------------------------------------------------ damage and destruction (raid and rival)
     def damage_module(self, aid, slot, dmg, attacker_name='', shield_only=False, hull_only=False):
-        """Modüle hasar (kalkan %80 emer) -> mesajlar; can 0: yok olur; merkez (Hull) giderse istasyon düşer."""
+        """Damage to a module (shield absorbs 80%) -> messages; HP 0: it is destroyed; if the center (Hull) goes the station falls."""
         a = self.ast(aid)
         y = a['slots'].get(str(slot))
         rival = a.get('owner') == 'rival'
@@ -1318,14 +1320,14 @@ class Cbs:
         msgs = []
         self.note(aid, 'MODULE_DESTROYED', moduleType=m['loot'], moduleLevel=m['level'], slot=slot if slot > DEFLECTOR else -1,
                   opponentClanName=by)
-        if rival or self.bot_demolition(a):                 # oyuncu rakibin (ya da bot klanının) modülünü yıktı: uridyum
+        if rival or self.bot_demolition(a):                 # the player destroyed the rival's (or a bot clan's) module: uridium
             kind = MODS[m['loot']].get('weapon') or 'other'
             u = D['demolish_reward']['base'].get(kind, D['demolish_reward']['base']['other']) + D['demolish_reward']['per_level'] * m['level']
-            u = SET.amount('uridium', u, 'mod')              # panelin uridyum çarpanı
+            u = SET.amount('uridium', u, 'mod')              # the panel's uridium multiplier
             self.p.gain(uridium=u, reason='battlestation_destroy_module')
             msgs += [stm('msg_station_satellite_destruction_reward', AMOUNT=u, MODULE=MODS[m['loot']]['code'], LEVEL=m['level'] + 1,
                          STATION=ASTEROIDS[aid]['name'])] + self.m.money_msgs()
-        elif self.world:                                # oyuncunun modülü yıkıldı: uyarı (ortakta klana)
+        elif self.world:                                # the player's module was destroyed: warning (to the clan in the shared record)
             msgs += self.tell(a, [stm('msg_station_module_destroyed', STATION=ASTEROIDS[aid]['name'], MAP=H.name(ASTEROIDS[aid]['map']),
                                       MODULE=MODS[m['loot']]['code'], LEVEL=m['level'] + 1)])
         self.bump(a)
@@ -1337,7 +1339,7 @@ class Cbs:
         return msgs
 
     def clan_asteroids(self, k):
-        """Klanın modül takılı ya da kurulu asteroitleri (tek oyunculuda oyuncunun rakip dışındakileri)."""
+        """The asteroids of the clan with a module fitted or built (in single player the player's, except the rival)."""
         for aid, a in list(self.asteroids.items()):
             if a.get('owner') == 'rival' or not (a.get('slots') or a.get('state') in ('building', 'built')):
                 continue
@@ -1346,8 +1348,8 @@ class Cbs:
             yield int(aid), a
 
     def member_left(self, k, who):
-        """Klandan ayrılan ya da atılan üyenin modülleri istasyonlardan envanterine döner (forum 127469). Merkezi (Hull) çıkan kurulu
-        istasyon düşer (unequip'teki kural; forumda 1 canla kalır: uyarlama)."""
+        """The modules of a member who leaves or is kicked from the clan return from the stations to their inventory (forum 127469). A built station
+        whose center (Hull) is removed falls (the rule in unequip; on the forum it stays with 1 HP: adaptation)."""
         me, msgs = KL.name(self.p), []
         for aid, a in self.clan_asteroids(k):
             for s, y in list(a['slots'].items()):
@@ -1367,25 +1369,25 @@ class Cbs:
         return msgs + (self.starmap_msgs() if msgs else [])
 
     def clan_disbanded(self, k):
-        """Klan silindi: istasyonları yıkılır, modülleri (yok olmuş) sahiplerine, asteroit boş (forum 127469)."""
+        """The clan was deleted: its stations are destroyed, the modules (destroyed) go to their owners, the asteroid is empty (forum 127469)."""
         msgs = []
         for aid, a in list(self.clan_asteroids(k)):
             msgs += self.destroy(aid, 'clan disbanded')
         return msgs
 
     def bot_demolition(self, a):
-        """Bot klanının istasyonunu bu oturumun oyuncusu mu yıktı (son 30 sn'de vurdu): rakibinki gibi ödül."""
+        """Did this session's player destroy the bot clan's station (hit it in the last 30 s): reward as for a rival's."""
         return (a.get('owner') == 'bot' and self.m is not None and self.world is not None
                 and time.time() - a.get('last_player', 0) < 30 and a.get('last_attacker') == self.p.d['pilot'].get('userName', ''))
 
     def destroy(self, aid, by=''):
-        """İstasyon düştü: modüller (yok olmuş) envantere, asteroit boş."""
+        """The station fell: modules (destroyed) to the inventory, the asteroid empty."""
         a = self.ast(aid)
         rival = a.get('owner') == 'rival'
         msgs = []
         if rival or self.bot_demolition(a):
             r = D['demolish_reward']['center']
-            r = dict(r, uridium=SET.amount('uridium', r['uridium'], 'mod'), credits=SET.amount('credits', r['credits'], 'mod'))     # panelin çarpanları
+            r = dict(r, uridium=SET.amount('uridium', r['uridium'], 'mod'), credits=SET.amount('credits', r['credits'], 'mod'))     # the panel's multipliers
             self.p.gain(uridium=r['uridium'], credits=r['credits'], reason='battlestation_destroy_station')
             msgs += [stm('msg_station_hub_destruction_reward', AMOUNT=r['uridium'], STATION=ASTEROIDS[aid]['name']),
                      stm('msg_station_destroyed_by_clan', DESTROYER=self.clan_name(), LOSER=a.get('rival', '') if rival else self.st_name(a),
@@ -1395,14 +1397,14 @@ class Cbs:
                 m = self.module(y['iid'])
                 if m:
                     m['can'], m['kalkan'] = 0, 0
-                self.give_back(y)                       # ortak: yok olmuş modül sahibine
+                self.give_back(y)                       # shared: destroyed module to its owner
             ist = self.stats(a)
             ist['demolished'] = ist.get('demolished', 0) + 1
             ist['longest_sec'] = max(ist.get('longest_sec', 0), int(time.time() - a.get('founded', time.time())))
             msgs += self.tell(a, [stm('msg_station_destroyed', LOSER=self.st_name(a), STATION=ASTEROIDS[aid]['name'],
                                       MAP=H.name(ASTEROIDS[aid]['map']))])
         self.note(aid, 'DESTROYED', opponentClanName=by)
-        self.log('   CBS: %s istasyonu yıkıldı (%s)' % (ASTEROIDS[aid]['name'], by or 'player'))
+        self.log('   CBS: station %s destroyed (%s)' % (ASTEROIDS[aid]['name'], by or 'player'))
         asteroids = self.asteroids
         with self.lock:
             asteroids[str(aid)] = {'state': 'vacant', 'slots': {}, 'rival_round': a.get('rival_round', 0) + (1 if rival else 0),
@@ -1432,7 +1434,7 @@ class Cbs:
         return ('AttackLaserRunCommand', dict(attackerId=attacker, targetId=target, laserColor=0,
                                              isDiminishedBySkillShield=False, skilledLaser=False, visualType=0))
 
-    # ------------------------------------------------------------ CBS-3: uzaylı baskınları
+    # ------------------------------------------------------------ CBS-3: alien raids
     def raid_tick(self, now):
         w = self.world
         msgs = []
@@ -1441,7 +1443,7 @@ class Cbs:
             if a['state'] != 'built' or a.get('owner') == 'rival':
                 continue
             open_ = not a['deflector']['on']
-            due = a.get('next_raid', 0) if self.host is not None else self.next_raid.get(aid, 0)   # ortakta haritada tek baskın
+            due = a.get('next_raid', 0) if self.host is not None else self.next_raid.get(aid, 0)   # in the shared record one raid on the map
             if open_ and prime_time(now) and now >= due:
                 self.next_raid[aid] = a['next_raid'] = now + D['raid']['interval_min'] * 60
                 msgs += self.spawn_raid(aid)
@@ -1455,7 +1457,7 @@ class Cbs:
         x, y = position(aid)
         n = random.randint(*D['raid']['count'])
         hp_each, dmg_each = self.raid_power(aid, n, time.time())
-        prep = lambda nn: PS.scale_npc(nn, hp=max(1.0, hp_each / max(1, nn.d['hp'] + nn.d['kalkan'])),     # oyuncuya türün hasarı
+        prep = lambda nn: PS.scale_npc(nn, hp=max(1.0, hp_each / max(1, nn.d['hp'] + nn.d['kalkan'])),     # the type's damage to the player
                                        extra={'station_damage': max(nn.d['damage'], int(dmg_each))})
         for _ in range(n):
             a, r = random.uniform(0, 2 * math.pi), random.uniform(900, 1300)
@@ -1463,18 +1465,18 @@ class Cbs:
             ny = min(max(int(y + math.sin(a) * r), 300), w.map_h - 300)
             npc = w.spawn_npc_at(random.choice(kinds), nx, ny, prep=prep)
             npc.gate = True
-            npc.next_think = time.time() + 10 ** 6         # hareketi baskın yönetir (vurulunca oyuncuyla savaşır)
+            npc.next_think = time.time() + 10 ** 6         # the raid controls movement (fights the player when hit)
             self.raiders[npc.id] = aid
             tx, ty = x + random.randint(-300, 300), y + random.randint(-200, 200)
             ms = npc.mover.go(tx, ty, max(150, npc.d.get('speed', 300)), time.time())
             w.send([('MoveCommand', dict(userId=npc.id, x=int(tx), y=int(ty), timeToTarget=ms))])
-        self.log('   CBS: %s uzaylı baskını (%d)' % (ASTEROIDS[aid]['name'], n))
+        self.log('   CBS: %s alien raid (%d)' % (ASTEROIDS[aid]['name'], n))
         return [KAPI.screen('key:msg_object_under_attack', big=True, ASSET_NAME='Battle Station %s' % ASTEROIDS[aid]['name'])]
 
     def raid_power(self, aid, n, now):
-        """Baskıncı başına can+kalkan ve atış hasarı istasyona göre (haritanın sıradan uzaylıları 1 milyonluk uyduları çizemiyordu;
-        canlı test: baskın 10 sn'de bitti): silahlar baskını yardımsız ~sure_sn'de temizler, o sürede baskın modüllerin can+kalkanının
-        ~hasar_orani'nı götürür. Oyuncu da vurursa daha erken biter."""
+        """HP+shield per raider and shot damage per the station (the map's ordinary aliens could not scratch the 1-million satellites; live test: the
+        raid ended in 10 s): the weapons clear the raid unaided in ~sure_sn, and in that time the raid takes ~damage_ratio of the modules'
+        HP+shield. If the player hits too it ends earlier."""
         B = D['raid']
         boost = 1 + self.booster_pct(aid, 'damage', now) / 100.0
         dps = total = 0.0
@@ -1496,23 +1498,23 @@ class Cbs:
         alive = [w.npcs[i] for i, k in list(self.raiders.items()) if k == aid and i in w.npcs and w.npcs[i].alive]
         for i in [i for i, k in list(self.raiders.items()) if k == aid and i not in w.npcs]:
             self.raiders.pop(i, None)
-        # uzaylılar modülleri vurur (oyuncuyla savaşmayanlar)
+        # the aliens hit the modules (those not fighting the player)
         targets = [int(s) for s, slot_info in a['slots'].items() if self.module(slot_info['iid']) and self.module(slot_info['iid'])['can'] > 0]
         for n in alive:
             if n.engaged or now < self.next_shot.get(n.id, 0):
                 continue
             nx, ny = n.mover.pos(now)
-            if math.hypot(nx - x, ny - y) > 700 and math.hypot(n.mover.x1 - x, n.mover.y1 - y) > 700:   # oyuncudan kopan: istasyona döner
-                w.alien_ceasefire(n)                    # istasyona ateş ediyorsa istemcide lazer durumu kapanır (AttackAbortLaserCommand)
+            if math.hypot(nx - x, ny - y) > 700 and math.hypot(n.mover.x1 - x, n.mover.y1 - y) > 700:   # separated from the player: returns to the station
+                w.alien_ceasefire(n)                    # if it fires at the station, the laser state closes on the client (AttackAbortLaserCommand)
                 n.next_think = now + 10 ** 6
                 tx, ty = x + random.randint(-300, 300), y + random.randint(-200, 200)
                 ms = n.mover.go(tx, ty, max(150, n.d.get('speed', 300)), now)
                 w.send([('MoveCommand', dict(userId=n.id, x=int(tx), y=int(ty), timeToTarget=ms))])
                 continue
             if math.hypot(nx - x, ny - y) > 700 or not targets:
-                w.alien_ceasefire(n)                    # menzil dışı ya da hedef kalmadı: lazer bitti
+                w.alien_ceasefire(n)                    # out of range or no target left: laser ended
                 continue
-            n.firing = True                             # istasyona lazer açtı: bırakınca alien_ceasefire AttackAbortLaserCommand yollar
+            n.firing = True                             # fired a laser at the station: on release alien_ceasefire sends AttackAbortLaserCommand
             self.next_shot[n.id] = now + world_module.COMBAT['npc_attack_interval_sec']
             sats = [s for s in targets if s > DEFLECTOR]
             slot = random.choice(sats) if sats else HULL
@@ -1522,7 +1524,7 @@ class Cbs:
             msgs += self.damage_module(aid, slot, dmg, n.d['name'])
             if self.ast(aid)['state'] != 'built':
                 return msgs
-        # silah modülleri menzildeki baskıncılara ateş eder
+        # the weapon modules fire at raiders in range
         dmg_boost = 1 + self.booster_pct(aid, 'damage', now) / 100.0
         for s, slot_info in a['slots'].items():
             m = self.module(slot_info['iid'])
@@ -1547,10 +1549,10 @@ class Cbs:
                 w.send([('AttackMissedCommand', dict(attackType=world_module.attack_type(atype), targetUserId=n.id, skillColorId=0))])
         return msgs
 
-    # ------------------------------------------------------------ CBS-4: sanal rakip klanlar
+    # ------------------------------------------------------------ CBS-4: virtual rival clans
     def rival_tick(self, aid, a, now):
-        """Boş asteroitte rakip klan (tohumlu): ilerler, önce bitirirse düşman istasyonu kurar. Botlar varken sahte rakip yok:
-        kurduğu istasyon ve ilerlemesi bir kez silinir, asteroit boş açılır (yarış bot klanlarının: klan_us)."""
+        """Rival clan on an empty asteroid (seeded): it progresses, and if it finishes first it builds an enemy station. No fake rival while bots are
+        present: the station it built and its progress are deleted once, the asteroid opens empty (the race belongs to the bot clans: clan_stations)."""
         if with_bots():
             if a.get('owner') == 'rival' or a.get('rival') is not None:
                 with self.lock:
@@ -1561,7 +1563,7 @@ class Cbs:
                         a.pop(f, None)
                     self.bump(a)
                     self.mark()
-                self.log('   CBS: %s sahte rakipten temizlendi (botlar var)' % ASTEROIDS[aid]['name'])
+                self.log('   CBS: %s cleared of the fake rival (bots present)' % ASTEROIDS[aid]['name'])
                 return self.starmap_msgs() + (self.refresh_assets(aid) if self.world and int(self.world.map_id) == int(ASTEROIDS[aid]['map'])
                                               else [])
             return []
@@ -1573,14 +1575,14 @@ class Cbs:
                 rnd = random.Random('%s-%s' % (aid, a.get('rival_round', 0)))
                 if rnd.random() < D['rival']['probability']:
                     hours = rnd.uniform(*D['rival']['duration_hours'])
-                    fac = self.faction() if self.host is None else 0          # ortakta rakibin firması oyuncuya göre değil
+                    fac = self.faction() if self.host is None else 0          # in the shared record the rival's company is not relative to the player
                     a.update(rival=rnd.choice(D['rival']['clans']), rival_progress=0.0, rival_speed=1.0 / (hours * 3600),
                              rival_company=rnd.choice([f for f in (1, 2, 3) if f != fac] or [1]), rival_last=now)
                 else:
                     a['rival'] = None
                 self.mark()
             if a.get('rival'):
-                slow = 0.5 if self.own_progress(aid, now) > 0 else 1.0          # oyuncu da kuruyorsa rakip yavaşlar
+                slow = 0.5 if self.own_progress(aid, now) > 0 else 1.0          # the rival slows down if the player is building too
                 a['rival_progress'] = min(1.0, a.get('rival_progress', 0) + (now - a.get('rival_last', now)) * a['rival_speed'] * slow)
                 a['rival_last'] = now
                 if a['rival_progress'] >= 1.0 and self.own_progress(aid, now) < 1.0:
@@ -1598,8 +1600,8 @@ class Cbs:
         return msgs
 
     def rival_repair(self, aid, a, now):
-        """Saldırı kesilince (pasif_onarim.gecikme_sn) rakibin canlı modülleri onarılır, kalkanları dolar; haritadaysa 5 sn'de bir
-        can çubukları."""
+        """When the attack stops (passive_repair.gecikme_sn) the rival's live modules are repaired and their shields refill; if on the map, health bars
+        every 5 s."""
         dt = min(5.0, max(0.0, now - a.get('last_repair', now)))
         a['last_repair'] = now
         po = D['passive_repair']
@@ -1624,8 +1626,8 @@ class Cbs:
         return [c for c in (self.info_cmd(aid, s) for s in changed if s != DEFLECTOR) if c]
 
     def rival_build(self, aid, a, now):
-        """Rakip istasyonu: merkez (Hull, Deflector) ve 8 uydu, seviye 0, oyuncunun modüllerinden bağımsız."""
-        free = [y['iid'] for y in a['slots'].values() if 'iid' in y]       # oyuncunun kurulmamış modülleri
+        """The rival station: center (Hull, Deflector) and 8 satellites, level 0, independent of the player's modules."""
+        free = [y['iid'] for y in a['slots'].values() if 'iid' in y]       # the player's uninstalled modules
         rnd = random.Random('%s-b' % aid)
         sats = ['module_ltm-lr', 'module_ltm-mr', 'module_ltm-hr', 'module_ram-la', 'module_ram-ma', 'module_repm-1', 'module_honm-1',
                 'module_xpm-1']
@@ -1634,16 +1636,16 @@ class Cbs:
             slots[str(s)] = sats[(s - 2) % len(sats)] if s < 4 else rnd.choice(sats[:5])
         slot_info = {}
         for s, loot in slots.items():
-            hp = int(level_value(MODS[loot]['can'], 0) * D['rival']['hp_multiplier'])      # tek oyunculu: tek gemi yıkabilsin
+            hp = int(level_value(MODS[loot]['can'], 0) * D['rival']['hp_multiplier'])      # single player: so one ship can destroy it
             slot_info[s] = dict(loot=loot, level=0, can=hp, kalkan=int(hp * D['shield_ratio']), maximum=hp)
-        for y in list(a['slots'].values()):            # ortak: kurulmamış modüller sahiplerine
+        for y in list(a['slots'].values()):            # shared: uninstalled modules to their owners
             self.give_back(y)
         with self.lock:
             a.update(state='built', owner='rival', slots=slot_info, founded=now, deflector={'on': True})
             a.pop('clan', None)
             self.bump(a)
             self.mark()
-        self.log('   CBS: rakip %s, %s istasyonunu kurdu (oyuncunun %d modülü envantere)' % (a['rival'], ASTEROIDS[aid]['name'], len(free)))
+        self.log('   CBS: rival %s built the %s station (%d player modules to the inventory)' % (a['rival'], ASTEROIDS[aid]['name'], len(free)))
         msgs = [stm('msg_station_built', CLAN=a['rival'], STATION=ASTEROIDS[aid]['name'], MAP=H.name(ASTEROIDS[aid]['map']))] + self.starmap_msgs()
         if self.world and int(self.world.map_id) == int(ASTEROIDS[aid]['map']):
             msgs += self.refresh_assets(aid)
@@ -1654,13 +1656,13 @@ class Cbs:
         return a.get('owner') == 'rival' and a['state'] == 'built' and not (a.get('deflector') or {}).get('on')
 
     def hit_asset(self, asset, dmg):
-        """Oyuncunun rakip istasyonuna vuruşu (varlık kimliği) -> mesajlar."""
+        """The player's hit on the rival station (entity id) -> messages."""
         aid, slot = self.asset_slot(asset)
         if aid is None:
             return []
         return self.asset_attackable(asset) or self.asset_hit(asset, dmg)
 
-    # ------------------------------------------------------------ dünyanın asset_targets arayüzü (dunya.select/laser_start/asset_laser)
+    # ------------------------------------------------------------ the world's asset_targets interface (world.select/laser_start/asset_laser)
     @staticmethod
     def asset_slot(uid):
         try:
@@ -1698,7 +1700,7 @@ class Cbs:
         return [self.info_cmd(aid, slot, m)]
 
     def asset_attackable(self, uid):
-        """[] vurulabilir; deflector açıksa istemcinin uyarısı."""
+        """[] if hittable; the client's warning if the deflector is on."""
         aid, slot = self.asset_slot(uid)
         if self.asset_module(uid):
             a = self.ast(aid)
@@ -1712,7 +1714,7 @@ class Cbs:
         return self.asset_damage(uid, dmg, atype=1)
 
     def assets_near(self, x, y, r):
-        """Bu haritada (x, y)'ye r birimden yakın, vurulabilir modüllerin kimlikleri (P.E.T. kamikazesi: pet.kamikaze)."""
+        """Ids of the hittable modules on this map closer than r units to (x, y) (P.E.T. kamikaze: pet.kamikaze)."""
         out = []
         for aid in ASTEROIDS:
             for slot in range(SLOTS):
@@ -1729,7 +1731,7 @@ class Cbs:
         aid, slot = self.asset_slot(uid)
         a = self.ast(aid)
         a['attack_at'] = time.time()
-        if a.get('owner') == 'bot':                     # bot klanı kimin vurduğunu bilir (savunma, kin: klan_us); yıkım ödülü
+        if a.get('owner') == 'bot':                     # a bot clan knows who hit it (defense, grudge: clan_stations); destruction reward
             a.update(last_player=a['attack_at'], last_attacker=self.p.d['pilot'].get('userName', ''), last_attacker_clan=self.clan_name())
         hit_module = self.asset_module(uid)
         hp_before, shield_before = hit_module['can'], hit_module['kalkan']
@@ -1754,10 +1756,10 @@ class Cbs:
         return [hit, bar] + msgs
 
     def rival_fire(self, now):
-        """Kurulu rakip istasyonun silahları menzildeki oyuncuya tam modül hasarı (rakip.hasar_carpani varsayılan 1,0). Deflector
-        yalnız istasyonu dokunulmaz yapar, silahlar yine ateş eder (fandom Clan Battle Stations: kurulumdan sonra "the module will
-        start to attack"); gizlenmiş gemi hedeflenmez (oyuncu bildirimi 2026-10-30: yalnız deflector kapalıyken ve gizlenmeye bakmadan
-        ateş ediyordu). Ölüm ekranında neden BATTLESTATION; lazer/roket kendi saldırı türünü kullanır."""
+        """A built rival station's weapons deal full module damage to a player in range (rival.damage_multiplier default 1.0). The deflector only makes the
+        station invulnerable, the weapons still fire (fandom Clan Battle Stations: after building "the module will start to attack"); a cloaked ship
+        is not targeted (player report 2026-10-30: it fired only while the deflector was off and without regard to cloaking). Cause of death on the
+        death screen BATTLESTATION; laser/rocket use their own attack type."""
         w = self.world
         if not w or w.hero_dead or getattr(w, 'jumping', False):
             return []
@@ -1767,7 +1769,7 @@ class Cbs:
             a = self.ast(aid)
             bot_st = a.get('owner') == 'bot' and self.host is not None and not self.mine(a) and self.relation(a) == 3
             if (a.get('owner') != 'rival' and not bot_st) or a['state'] != 'built':
-                continue                                # bot klanının istasyonu da düşmanına ateş eder (klan_us)
+                continue                                # a bot clan's station fires at its enemy too (clan_stations)
             tag = a.get('rival', '') if not bot_st else (self.st_clan(a) or {}).get('tag', '')
             for s, slot_info in list(a['slots'].items()):
                 y = slot_info if not bot_st else slot_info.get('module')
@@ -1820,9 +1822,9 @@ class Cbs:
                     w.send([('AttackMissedCommand', dict(attackType=world_module.attack_type(atype), targetUserId=target_uid, skillColorId=0))])
         return []
 
-    # ------------------------------------------------------------ klan sekmesi ve günlük
+    # ------------------------------------------------------------ clan tab and log
     def log_of(self, cid=None):
-        """İstasyon günlüğü: tek oyunculuda profilde, ortakta klanın kaydında (cid; verilmezse oyuncunun klanı)."""
+        """The station log: in the profile in single player, in the clan's record in the shared record (cid; the player's clan if not given)."""
         if self.host is None:
             return self.st['daily']
         k = KL.CLANS.get(cid) if cid else self.clan()
@@ -1863,15 +1865,15 @@ class Cbs:
         longest = max(ist.get('longest_sec', 0), max([int(time.time() - a.get('founded', time.time())) for a in self.asteroids.values()
                                                      if a.get('state') == 'built' and self.mine(a)] or [0]))
         return ('ClanBattleStationInfoCommand', dict(battleStationOverviewInfoCommands=rows,
-                                                     stationOwnedLongestTime=str(int(longest)),     # saniye (istemci biçimler)
+                                                     stationOwnedLongestTime=str(int(longest)),     # seconds (the client formats)
                                                      maxStationAtOnce=int(ist.get('max_count', 0)), destroyedStations=int(ist.get('demolished', 0)),
                                                      stations=len(rows), allStations=int(ist.get('all', 0))))
 
     USER_KINDS = ('BUILD_START', 'DEFLECTOR_ON', 'EMERGENCY_REPAIR', 'MODULE_REPLACED', 'MODULE_REMOVED')
 
     def history_row(self, e):
-        """Günlük satırı istemciye: values'ın her alanı metin (istemci GetLogMessage string'e çevirir: sayı InvalidCastException ile
-        listeyi keser - canlı test), seviye 1'den; oyuncunun yaptığı işlerde ad (metinde %USERNAME%)."""
+        """A log line to the client: every field of values is text (the client's GetLogMessage converts to string: a number cuts the list with
+        InvalidCastException - live test), level from 1; for things the player did, the name (%USERNAME% in the text)."""
         e = dict(e)
         try:
             v = json.loads(e.get('values') or '{}')
@@ -1888,10 +1890,10 @@ class Cbs:
         rows = [self.history_row(e) for e in g[start:start + 20]]
         return ('BattleStationHistoryListCommand', {'commandList': rows, 'startIndex': start, 'total': len(g)})
 
-    # ------------------------------------------------------------ GM konsolu
+    # ------------------------------------------------------------ GM console
     def gm(self, rows, d):
-        """battleStation: buildTime (kurmayı / kurulumları bitir), modules (bir modül seti), accept (yanındaki asteroidi kur),
-        deflector (aç/kapa), raid (baskın), rival (rakip istasyonu kur)."""
+        """battleStation: buildTime (finish building / installations), modules (a set of modules), accept (build the asteroid next to you),
+        deflector (on/off), raid (raid), rival (build the rival station)."""
         what = str(d.get('option') or d.get('name') or (rows[0] if rows else '')).strip().lower()
         msgs = []
         if 'module' in what:
@@ -1932,9 +1934,9 @@ class Cbs:
         return msgs or [KAPI.screen('GM battleStation: modules | build | accept | deflector | raid | rival')]
 
 
-# ------------------------------------------------------------ bot klanlarının yarışı (bot/klan_us.py)
+# ------------------------------------------------------------ the bot clans' race (bot/clan_stations.py)
 def race_leader(a):
-    """Boş asteroitte yarışan bot klanlarından önde gideni: (klanın adı, ilerleme 0-1) ya da None."""
+    """The leading one among the bot clans racing on an empty asteroid: (clan's name, progress 0-1) or None."""
     en = None
     for cid, r in (a.get('race') or {}).items():
         k = KL.CLANS.get(int(cid))
@@ -1945,7 +1947,7 @@ def race_leader(a):
 
 
 def refund_race(cid, modules):
-    """Yarışı kaybeden (ya da bırakan) bot klanının asteroitteki modülleri klanın stoğuna (k['ksi']['stok'])."""
+    """The modules of the bot clan that lost (or quit) the race on the asteroid go to the clan's stock (k['ksi']['stok'])."""
     k = KL.CLANS.get(int(cid))
     if k is None or not modules:
         return
@@ -1954,9 +1956,9 @@ def refund_race(cid, modules):
 
 
 def bot_build(aid, k, modules, minutes, log=print):
-    """Yarışı bitiren bot klanı istasyonu kurmaya başlar: modüller yuvalara (sahibi klan: '@klan:<kimlik>'; yıkılınca bekleyen
-    olarak döner, klan_us stoğa alır), asteroide modül takmış oyuncunun modülleri sahibine, öteki bot klanlarınınkiler stoklarına.
-    -> başladı mı."""
+    """The bot clan that finished the race starts building the station: modules into the slots (owner clan: '@klan:<id>'; when destroyed they return
+    as pending, clan_stations takes them into stock), the modules of a player who fitted modules to the asteroid to their owner, those of the
+    other bot clans to their stocks. -> whether it started."""
     h = shared()
     if h is None:
         return False
@@ -1989,12 +1991,12 @@ def bot_build(aid, k, modules, minutes, log=print):
     for cid, mods in others.items():
         refund_race(cid, mods)
     c.note(aid, 'BUILD_START', buildSeconds=minutes * 60)
-    log('   CBS: [%s] %s istasyonunu kuruyor (%d dk)' % (k['tag'], ASTEROIDS[aid]['name'], minutes))
+    log('   CBS: [%s] %s is building the station (%d min)' % (k['tag'], ASTEROIDS[aid]['name'], minutes))
     return True
 
 
 def bot_demolish(aid, reason='clan disbanded', log=print):
-    """Dağılan bot klanının istasyonu yıkılır (oyuncunun klanı dağılınca klan.Klan.delete'in yaptığı gibi)."""
+    """A disbanded bot clan's station is destroyed (as clan.Clan.delete does when a player's clan is disbanded)."""
     h = shared()
     if h is not None:
         Cbs(h, None, log).destroy(aid, reason)

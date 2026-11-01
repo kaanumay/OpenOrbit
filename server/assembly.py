@@ -1,27 +1,28 @@
-"""Assembly (yol haritası Aşama 5): istemcinin kendi tarifleriyle (data/recipes.json <- tools/il2cpp/client_data.py) üretim.
+"""Assembly (roadmap stage 5): production with the client's own recipes (data/recipes.json <- tools/il2cpp/client_data.py).
 
-Akış (kayıtta giriş listesi var; üretim istekleri istemcinin kodundan):
-  girişte                    AssemblyRecipeContentModule: tarifler ve durumları (Available {currentBuildCount, isNew} /
+Flow (the save holds the login list; production requests come from the client's code):
+  at login                   AssemblyRecipeContentModule: recipes and their states (Available {currentBuildCount, isNew} /
                              Build {buildAmount, remainingTimeMillis, prevBuildCount} / ReadyToCollect {prevBuildCount, buildAmount} /
                              Unavailable {type})
-  AssemblyBuildRequest       {recipeLootId, targetItemId, amount}: malzemeler harcanır (inventory.py), süre başlar -> durum güncellemesi
-                             (AssemblyRecipeStatusUpdateCommand); süre bitince ReadyToCollect
-  AssemblyCollectRequest     sonuç x adet verilir (mağazanın ödül işlevi), durum Available ya da kullanım sınırıyla Unavailable
-  AssemblyCollectAllRequest  hazır olanların hepsi
-  AssemblySkipRequest        kalan süre uridyumla (dakikası 1 U, uyarlama)
-  AssemblyRecipeSelectRequest  tarif görüldü (isNew kalkar)
-  AssemblySetFilterRequest   pencerenin süzgeci profilde
-Hangi tarifler: kayıttaki listede o gün açık olanlar (ALWAYS_VISIBLE ve takvimdeki ON_SCHEDULE; tek oyunculu: hepsi sürekli açık) ve
-kayıtta olmayanlar (event_recipes): etkinlik parasını isteyenler (event_calendar.py 'para') etkinlik sürerken ya da elde o paradan varken,
-Champion Token'lılar elde jeton varken, ötekiler (tasarımlar, ONLY_WHEN_OWNED taslakları; tek oyunculu uyarlama) sürekli; kaynağı
-henüz olmayan malzemeyi isteyenler (NO_SOURCE) ve test tarifleri gizli. Etkin etkinliğin parasını isteyen tarif süreli
-(AssemblyRecipeTemporaryTypeModule: etkinliğin kalan süresi); listeden düşen tarif AssemblyRecipeRemoveCommand ile kalkar (üretimi
-sürenler kalır). Kullanım: ALWAYS_USABLE sınırsız, USABLE_ONCE bir kez, USABLE_ONCE_PER_SCHEDULE / USABLE_LIMIT_PER_SCHEDULE dönemde
-bir / en_cok kez (dönem: tarif etkin bir etkinliğe bağlıysa etkinlik dönemi, değilse takvim günü). CostScalingFactor: aynı dönemde
-her üretimde malzemeler bu oranla artar. Gemi isteyen tarifler (Plus gemileri): taban gemi etkin olmayanlardan harcanır; istemcinin
-sayacına etkin olan da sayılır (envanter.client_count), yalnız etkin gemiyle üretimde oyunun "ship in use" uyarısı.
-Profilde: assembly {uretim: {recipe: {adet, bitis, onceki}}, sayac: {recipe: toplam}, gunluk: {recipe: [gün, adet]}, gorulen: [tarif],
-suzgec: {}}.
+  AssemblyBuildRequest       {recipeLootId, targetItemId, amount}: materials are spent (inventory.py), the timer starts -> status update
+                             (AssemblyRecipeStatusUpdateCommand); when the time is up: ReadyToCollect
+  AssemblyCollectRequest     the result x amount is given (the shop's reward function), state Available or Unavailable by the usage limit
+  AssemblyCollectAllRequest  all that are ready
+  AssemblySkipRequest        remaining time with uridium (1 U per minute, adaptation)
+  AssemblyRecipeSelectRequest  recipe seen (isNew is cleared)
+  AssemblySetFilterRequest   the window's filter in the profile
+Which recipes: those in the save's list that are open that day (ALWAYS_VISIBLE and ON_SCHEDULE on the calendar; single player: all always
+open) and those not in the save (event_recipes): ones that ask for an event currency (event_calendar.py 'currency') while the event runs or
+when the player holds that currency, Champion Token ones while the player holds tokens, the rest (designs, ONLY_WHEN_OWNED drafts;
+single-player adaptation) always; ones that ask for a material with no source yet (NO_SOURCE) and test recipes are hidden. A recipe that
+asks for the currency of an active event is timed (AssemblyRecipeTemporaryTypeModule: the event's remaining time); a recipe that drops off
+the list is removed with AssemblyRecipeRemoveCommand (those with production in progress stay). Usage: ALWAYS_USABLE unlimited, USABLE_ONCE
+once, USABLE_ONCE_PER_SCHEDULE / USABLE_LIMIT_PER_SCHEDULE once / max_uses times per period (period: the event period if the recipe is tied
+to an active event, otherwise the calendar day). CostScalingFactor: within the same period the materials grow by this ratio with every
+production. Recipes that ask for a ship (Plus ships): the base ship is spent from the inactive ones; the client's counter also counts the
+active one (inventory.client_count); only when producing with the active ship does the game show its "ship in use" warning.
+In the profile: assembly {uretim: {recipe: {count, end_time, previous}}, counter: {recipe: total}, daily: {recipe: [day, count]}, seen: [recipe],
+filters: {}}.
 """
 import json, math, os, time
 
@@ -34,36 +35,36 @@ from legacy_protocol import legacy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 T = json.load(open(os.path.join(HERE, 'data', 'recipes.json'), encoding='utf8'))['recipes']
-INGREDIENTS = {loot for r in T.values() for loot in r.get('parts', {})}      # girişte sayaçları gönderilenler (magaza.count_msgs)
-ALREADY_OWNS, ALREADY_USED, ALREADY_USED_LIMIT = 0, 1, 2          # RecipeUnavailableType (istemci)
-# koşulla açılan tarifler (wiki): Spartan dron tasarımı Kronos kapısı tamamlanınca
+INGREDIENTS = {loot for r in T.values() for loot in r.get('parts', {})}      # counters sent at login (shop.count_msgs)
+ALREADY_OWNS, ALREADY_USED, ALREADY_USED_LIMIT = 0, 1, 2          # RecipeUnavailableType (client)
+# recipes unlocked by a condition (wiki): the Spartan drone design once the Kronos gate is completed
 UNLOCK = {'recipe_blueprint-spartan': lambda p: ((p.d.get('kapilar') or {}).get('kapilar', {}).get('kronos') or {}).get('done', 0) > 0,
-          'recipe_blueprint-immunizer-cpu': lambda p: True}        # Quarantine Zone tek oyunculuda kalıcı (Aşama 8)
-SKIP_U_PER_MIN = 1                                                # uyarlama: kalan dakikası 1 uridyum
+          'recipe_blueprint-immunizer-cpu': lambda p: True}        # Quarantine Zone is permanent in single player (stage 8)
+SKIP_U_PER_MIN = 1                                                # adaptation: remaining minutes cost 1 uridium
 NO_LIMIT = 'ALWAYS_USABLE'
-# kaynağı henüz olmayan malzemeler (yol haritası E8: Flower kutu avı): tarifleri gizli. Proxium (Permafrost Fissure'ın UFO ve Ufonit
-# kutuları: etkinlik_kapilari.json 'permafrost') ve ondan çıkan Duothrin, Trittothrin, Quadrothrin'in kaynağı artık var; Opitite ve
-# Tarnom'unki de (Plutus' Experiments: plutus_deney.py)
+# materials with no source yet (roadmap E8: Flower box hunt): their recipes are hidden. The source of Proxium (Permafrost Fissure's UFO and Ufonit
+# boxes: event_gates.json 'permafrost') and of Duothrin, Trittothrin, Quadrothrin made from it now exists; so does that of Opitite and
+# Tarnom (Plutus' Experiments: plutus_experiments.py)
 NO_SOURCE = {'resource_collectable_flower-token'}
-CHAMPION = 'resource_collectable_champion-token'                  # aylık ödül (rutbe.py): jetonlu tarifler elde jeton varken
+CHAMPION = 'resource_collectable_champion-token'                  # monthly reward (rank.py): token recipes while the player holds tokens
 TEST = 'recipe_recipe-test'
-BOT = set()                       # Saturn Transmitter (recipe_blueprint-ss-cpu) açık: Saturn uzaylıları PvP görevinde oyuncu sayılır
-                                  # (resmî forum 127576; savas_esya uzayli_cpu ss-cpu, dunya npc_reward)
-# resmî sunucu kaydı (2026-10-25): girişte tarif listesinden sonra iki boş liste ve pencerenin üç süzgeci (filterType 2, 1, 0;
-# saklanmamışsa bütün kategoriler)
+BOT = set()                       # Saturn Transmitter (recipe_blueprint-ss-cpu) open: Saturn aliens count as players in the PvP quest
+                                  # (official forum 127576; combat_items alien_cpu ss-cpu, world npc_reward)
+# official server record (2026-10-25): at login, after the recipe list, two empty lists and the window's three filters (filterType 2, 1, 0;
+# all categories if none is stored)
 FILTER_TYPES = (2, 1, 0)
 ALL_FILTERS = ['ships_and_designs', 'ammunition', 'weapons', 'pet', 'generators', 'drones', 'extras', 'boosters', 'hardware', 'modules',
                'techs']
-LIST_CHECK_SEC = 60                                                # etkinlik başlayınca / bitince tarif listesi
-# seviyeli P.E.T. dişlisi/protokolü veren tarifler 4. seviyeyi verir (istemcinin metni: "Obtain Targeting Protocol X Level 4 for your
-# P.E.T."); takmak P.E.T. seviyesine bağlı (pet.level_need). Seviye 1 veriliyordu: hangarda "Level 0", her P.E.T. takabiliyordu
+LIST_CHECK_SEC = 60                                                # recipe list when an event starts / ends
+# recipes that give a leveled P.E.T. gear/protocol give level 4 (client text: "Obtain Targeting Protocol X Level 4 for your
+# P.E.T."); equipping depends on the P.E.T. level (pet.level_need). Level 1 used to be given: the hangar showed "Level 0" and every P.E.T. could equip it
 PET_LEVEL = 4
 
 
 def event_recipes(p, now=None):
-    """Kayıtta olmayan tarifler: etkinlik parasını isteyenler (event_calendar.py 'para') etkinlik sürerken ya da elde o paradan varken,
-    Champion Token'lılar elde jeton varken, ötekiler sürekli; kaynağı olmayan malzemeyi isteyenler, test tarifleri, koşulla
-    açılanlar (UNLOCK) ve bot oyuncu isteyenler (BOT) dışarıda."""
+    """Recipes not in the save: ones that ask for an event currency (event_calendar.py 'currency') while the event runs or when the player holds that
+    currency, Champion Token ones while the player holds tokens, the rest always; excluded are ones that ask for a material with no source,
+    test recipes, ones unlocked by a condition (UNLOCK) and ones that ask for a bot player (BOT)."""
     import event_calendar as CAL
     currency = {l for e in CAL.EVENTS.values() for l in e.get('currency', [])} | {CHAMPION}
     cur = {l for k in CAL.active(now) for l in CAL.EVENTS[k].get('currency', [])} | {l for l in currency if p.resource(l) > 0}
@@ -73,7 +74,7 @@ def event_recipes(p, now=None):
         ps = set(r['parts'])
         if 'recorded' in r or k in UNLOCK or k in BOT or k.startswith(TEST) or ps & NO_SOURCE:
             continue
-        if run is not None and ps & chromin and k not in run:          # Chromin koşusu: yalnız o koşunun tarifleri
+        if run is not None and ps & chromin and k not in run:          # Chromin run: only that run's recipes
             continue
         if ps & cur or not ps & currency:
             out.append(k)
@@ -81,8 +82,8 @@ def event_recipes(p, now=None):
 
 
 def chromin_recipes(now=None):
-    """Süren Chromin Rush koşusunun tarifleri (events.json chromin.kosu_tarifleri: resmî forum, her koşuda 6-9 tarif) ya da
-    None (koşu yok ya da listesi bilinmiyor). Bilinen son günden sonraki koşular 52 haftada bir: önceki yılların günü aranır."""
+    """Recipes of the running Chromin Rush run (events.json chromin.run_recipes: official forum, 6-9 recipes per run) or
+    None (no run, or its list is unknown). Runs after the last known day repeat every 52 weeks: the day in earlier years is looked up."""
     import datetime
     import event_calendar as CAL
     span = CAL.period('chromin', now)
@@ -98,15 +99,15 @@ def chromin_recipes(now=None):
 
 
 def recipe_event(key, now=None):
-    """Tarifi parasıyla bağlayan etkin etkinlik (event_calendar.py 'para'; yoksa None)."""
+    """The active event that ties the recipe to its currency (event_calendar.py 'currency'; None if there is none)."""
     import event_calendar as CAL
     ps = set(T[key]['parts'])
     return next((k for k in sorted(CAL.active(now)) if ps & set(CAL.EVENTS[k].get('currency', []))), None)
 
 
 def recorded_end(key, now=None):
-    """Resmî sunucuda süreli tarifin bitişi (recipes.json gecici: "sezon" Season Pass sezonunun sonu, sayı kayıttaki bitiş) ya da
-    None (süresiz, bitişi geçmiş ya da etkinlik parasıyla: onun süresi yerel takvimden, recipe_event)."""
+    """End of a timed recipe on the official server (recipes.json temporary: "season" is the end of the Season Pass season, a number is the end in the save) or
+    None (untimed, end already passed, or tied to an event currency: its duration comes from the local calendar, recipe_event)."""
     import event_calendar as CAL
     g = T[key].get('temporary')
     if g and set(T[key]['parts']) & {l for e in CAL.EVENTS.values() for l in e.get('currency', [])}:
@@ -118,8 +119,8 @@ def recorded_end(key, now=None):
 
 
 def period_of(key, now=None):
-    """'Dönemde bir kez / en çok' ve CostScalingFactor'ın dönemi: etkin etkinliğe bağlı tarifte etkinliğin başladığı gün, değilse
-    takvim günü (zorla açılmış etkinliğin dönemi yok: gün)."""
+    """The period for 'once / at most per period' and for CostScalingFactor: for a recipe tied to an active event, the day the event started;
+    otherwise the calendar day (a forced-open event has no period: the day)."""
     import event_calendar as CAL
     ev = recipe_event(key, now)
     span = CAL.period(ev, now) if ev else None
@@ -138,12 +139,12 @@ def today(now=None):
 class Assembly:
     def __init__(self, profile, log=print):
         self.p, self.log = profile, log
-        self.m = None                 # mağaza (ödül ve envanter güncellemeleri; oturum bağlar)
-        self.send = None              # zamanlayıcıyla biten üretimin bildirimi (oturum bağlar)
+        self.m = None                 # shop (reward and inventory updates; binds the session)
+        self.send = None              # notification of a production finished by the timer (binds the session)
         self.next_tick = self.next_list = 0.0
         self.free_last = SET.get('assembly_free')
-        self.shown = None             # istemcideki tarif listesi (content); etkinlik bitince düşenler kaldırılır
-        self.up = UPG.Upgrade(profile, log)   # Upgrade ve Disassembly sekmeleri (yukseltme.py)
+        self.shown = None             # the recipe list in the client (content); ones that drop off when the event ends are removed
+        self.up = UPG.Upgrade(profile, log)   # Upgrade and Disassembly tabs (upgrades.py)
 
     @property
     def st(self):
@@ -154,8 +155,8 @@ class Assembly:
 
     # ------------------------------------------------------------ tarifler
     def visible(self):
-        """Pencerede görünen tarifler, kayıttaki sırayla; sonra depoda olan ONLY_WHEN_OWNED tarifler, koşulla açılanlar, kayıtta
-        olmayanlar (event_recipes) ve üretimi süren ya da toplanmamış olanlar (etkinlik bitse de)."""
+        """Recipes shown in the window, in the save's order; then ONLY_WHEN_OWNED recipes held in storage, ones unlocked by a condition, ones not in the
+        save (event_recipes) and ones with production in progress or uncollected (even if the event has ended)."""
         out = sorted((k for k, r in T.items() if 'recorded' in r and k not in BOT), key=lambda k: T[k]['recorded'])
         out += sorted(k for k, r in T.items() if 'recorded' not in r and r['visibility'] == 'ONLY_WHEN_OWNED' and self.p.resource(k) > 0)
         out += [k for k, cond in UNLOCK.items() if k not in out and cond(self.p)]
@@ -165,12 +166,12 @@ class Assembly:
         return out + sorted(k for k in self.st['uretim'] if k in T and k not in seen)
 
     def used_today(self, key):
-        """Bu dönemdeki üretim adedi (period_of: etkinlik dönemi ya da gün)."""
+        """Production count in this period (period_of: the event period or the day)."""
         g = self.st['daily'].get(key)
         return g[1] if g and g[0] == period_of(key) else 0
 
     def limit_left(self, key):
-        """Kalan kullanım (None: sınırsız)."""
+        """Remaining uses (None: unlimited)."""
         r = T[key]
         if r['usage'] == NO_LIMIT:
             return None
@@ -180,7 +181,7 @@ class Assembly:
         return max(0, cap - self.used_today(key))
 
     def cost(self, key, amount):
-        """Malzemeler x adet; CostScalingFactor: bugünkü her üretimde bir kat daha (1,1 …)."""
+        """Materials x amount; CostScalingFactor: each production today costs one more layer (1.1 ...)."""
         if SET.get('assembly_free'):
             return {}
         r = T[key]
@@ -202,8 +203,8 @@ class Assembly:
         return mod('AssemblyRecipeAvailableStatusModule', currentBuildCount=self.build_count(key), isNew=key not in self.st['seen'])
 
     def build_count(self, key):
-        """İstemcinin "Crafting Limit: <bu>/<MaxUses>" sayacı; MaxUses'a varınca Build'i kilitler. Sınırsız tariflerde MaxUses bir
-        üretimin en çok adedi (U-LF-4, LF-P01 …): sayaç 0 (canlı test H32: bir üretimden sonra Build kilitleniyordu)."""
+        """The client's "Crafting Limit: <this>/<MaxUses>" counter; reaching MaxUses locks Build. For unlimited recipes MaxUses is the maximum amount of one
+        production (U-LF-4, LF-P01 ...): the counter is 0 (live test H32: Build locked after one production)."""
         r = T[key]
         if r['usage'] == NO_LIMIT:
             return 0
@@ -212,8 +213,8 @@ class Assembly:
         return self.used_today(key)
 
     def recipe(self, key, now=None):
-        """Etkin etkinliğin parasını isteyen tarif süreli (pencerede kalan süre); resmî sunucuda süreli olan (recipes.json gecici)
-        Season Pass sezonunun sonuna ya da kayıttaki bitişine kadar süreli; öteki tarifler süresiz."""
+        """A recipe that asks for the currency of an active event is timed (remaining time in the window); one that is timed on the official server (recipes.json temporary)
+        is timed until the end of the Season Pass season or the end in the save; other recipes are untimed."""
         import event_calendar as CAL
         now = now or time.time()
         ev = recipe_event(key, now)
@@ -224,18 +225,18 @@ class Assembly:
         return mod('AssemblyRecipeModule', recipeLootId=key, targetItemId=0, type=typ, status=self.status(key, now))
 
     def content(self):
-        """Girişteki tarif listesi (kayıttaki komutun yerine)."""
+        """The recipe list at login (in place of the command in the save)."""
         keys = self.visible()
         self.shown = set(keys)
         return ('AssemblyRecipeContentModule', {'recipes': [self.recipe(k) for k in keys] + self.up.recipes()})
 
     def login_msgs(self):
-        """Girişte: tarif listesi, iki boş liste ve süzgeçler (resmî sunucunun sırası)."""
+        """At login: the recipe list, two empty lists and the filters (the official server's order)."""
         return [self.content()] + [('AssemblyRecipeContentModule', {'recipes': []})] * 2 + self.filter_msgs()
 
     def filter_msgs(self):
-        """Pencerenin süzgeçleri (AssemblySetFilterRequest'in modülü, filterType başına; saklanmamışsa bütün kategoriler): girişte
-        geri (E10)."""
+        """The window's filters (the AssemblySetFilterRequest module, per filterType; all categories if none is stored): sent back
+        at login (E10)."""
         return [('AssemblyWindowSettingsModule', {k: v for k, v in m.items() if k != '_'})
                 for m in (self.st['filters'].get(str(t)) or {'filterType': t, 'assemblyItemFilters': list(ALL_FILTERS)}
                           for t in FILTER_TYPES)]
@@ -243,12 +244,12 @@ class Assembly:
     def update(self, key, target=0, now=None):
         return ('AssemblyRecipeStatusUpdateCommand', dict(targetItemId=target, status=self.status(key, now), lootId=key))
 
-    # ------------------------------------------------------------ istekler
+    # ------------------------------------------------------------ requests
     def build(self, f):
         key, amount = f.get('recipeLootId', ''), max(1, int(f.get('amount') or 1))
         r = T.get(key)
         if not r or key not in self.visible() or key in self.st['uretim']:
-            self.log('   Assembly: üretilemez %s (%s)' % (key, 'tarif yok' if not r else 'sürüyor' if key in self.st['uretim'] else 'görünmüyor'))
+            self.log('   Assembly: cannot produce %s (%s)' % (key, 'no such recipe' if not r else 'in progress' if key in self.st['uretim'] else 'not visible'))
             return [self.update(key)] if r else []
         left = self.limit_left(key)
         if left is not None:
@@ -260,10 +261,10 @@ class Assembly:
         need = self.cost(key, amount)
         miss = INV.missing(self.p, need)
         if miss:
-            self.log('   Assembly: malzeme yetmiyor %s x%d (eksik %s)' % (key, amount, miss))
+            self.log('   Assembly: not enough materials %s x%d (missing %s)' % (key, amount, miss))
             in_use = [l for l in miss if l.startswith('ship_') and INV.client_count(self.p, l) >= need[l]]
-            # taban gemi var ama etkin: oyunun kuralı ve metni ("You cannot upgrade a ship that is currently in use. Please change ships
-            # before upgrading."); istemcinin bu uyarıyı gösteren kodu (AssemblyViewSystem.PromptShipChange) hiç çağrılmıyor
+            # the base ship exists but is active: the game's rule and text ("You cannot upgrade a ship that is currently in use. Please change ships
+            # before upgrading."); the client code that shows this warning (AssemblyViewSystem.PromptShipChange) is never called
             return ([legacy('0|A|STM|assembly_warning_ship_in_use')] if in_use else []) + [self.update(key)]
         removed = INV.spend(self.p, need, reason='buy_SPECIAL', detail=key)
         now = time.time()
@@ -275,7 +276,7 @@ class Assembly:
                 self.st['daily'][key] = [period_of(key), self.used_today(key) + amount]
             self.p.dirty = True
         self.p.ach('assembly_build', recipe=key, count=amount)
-        self.log('   Assembly: %s x%d başladı (%d sn; %s)' % (key, amount, r['sure_sn'] * amount, need))
+        self.log('   Assembly: %s x%d started (%d s; %s)' % (key, amount, r['sure_sn'] * amount, need))
         return INV.update_msgs(self.m, self.p, list(need), removed) + [self.update(key, f.get('targetItemId', 0))]
 
     def collect(self, f, now=None):
@@ -292,15 +293,15 @@ class Assembly:
         for loot, n in T[key]['result'].items():
             msgs += self.grant(loot, n * b['count'])
         self.p.ach('assembly_collect', recipe=key, count=b['count'])
-        # seyir defteri (MSJ-10): istemci (ReturnLogBookInfoText) "his_assembly_…" metnini çevirir; %recipename% info'daki lootId'nin
-        # adı (items_<lootId>_fullname; sonucun adı hepsinde var, tarifin adı 35 tarifte yok), %buildamount% count
+        # logbook (MSJ-10): the client (ReturnLogBookInfoText) translates the "his_assembly_..." text; %recipename% is the name of the lootId in info
+        # (items_<lootId>_fullname; the result's name exists for all of them, the recipe's name is missing for 35 recipes), %buildamount% is count
         RT.note(self.p, 'his_assembly_recipe_collected_multi' if b['count'] > 1 else 'his_assembly_recipe_collected',
                 next(iter(T[key]['result'])), b['count'])
-        self.log('   Assembly: %s x%d toplandı (%s)' % (key, b['count'], T[key]['result']))
+        self.log('   Assembly: %s x%d collected (%s)' % (key, b['count'], T[key]['result']))
         return msgs + [self.update(key, f.get('targetItemId', 0))]
 
     def grant(self, loot, n):
-        """Sonuç: teknoloji eşyası sayaca, ötekiler mağazanın ödül işleviyle (cephane, ekipman, gemi, booster, kaynak …)."""
+        """Result: a technology item goes to the counter, the rest via the shop's reward function (ammo, equipment, ship, booster, resource ...)."""
         if loot.startswith('tech_'):
             TECH.add(self.p, loot, n)
             return INV.update_msgs(self.m, self.p, [loot])
@@ -326,13 +327,13 @@ class Assembly:
             return [self.update(key)] if key in T else []
         price = max(1, int(math.ceil((b['end_time'] - now) / 60.0)) * SKIP_U_PER_MIN)
         if INV.missing(self.p, {'currency_uridium': price}):
-            self.log('   Assembly: atlama için uridyum yetmiyor (%d)' % price)
+            self.log('   Assembly: not enough uridium to skip (%d)' % price)
             return [self.update(key)]
         INV.spend(self.p, {'currency_uridium': price}, reason='buy_SPECIAL', detail=key)
         with self.p.lock:
             b['end_time'] = now
             self.p.dirty = True
-        self.log('   Assembly: %s süresi atlandı (%d U)' % (key, price))
+        self.log('   Assembly: %s time skipped (%d U)' % (key, price))
         return INV.update_msgs(self.m, self.p, ['currency_uridium']) + [self.update(key)]
 
     def select(self, f):
@@ -359,9 +360,9 @@ class Assembly:
             before = self.up_state()
             msgs = self.up.handle(name, f)
             if self.up_state() != before:
-                # hedefli yükseltme eklendi, atlandı ya da toplandı: istemci durum güncellemesini yalnız listesindeki (tarif, hedef)
-                # satırına uygular ve Update/Upgrade panelini ancak tarif listesi gelince yeniden çizer (canlı test H39: Build'den
-                # sonra yükseltme görünmüyordu; H61: Skip ve Collect'ten sonra panel eski sayaçta/"Collect"te kalıyordu)
+                # targeted upgrade added, skipped or collected: the client applies the status update only to the (recipe, target) row in its list
+                # and redraws the Update/Upgrade panel only when the recipe list arrives (live test H39: after Build the upgrade was not
+                # shown; H61: after Skip and Collect the panel stayed on the old counter / on "Collect")
                 msgs = msgs + [self.content()]
             return msgs
         fn = {'AssemblyBuildRequest': self.build, 'AssemblyCollectRequest': self.collect, 'AssemblyCollectAllRequest': self.collect_all,
@@ -369,15 +370,15 @@ class Assembly:
               'AssemblySetFilterRequest': self.set_filter}.get(name)
         return fn(f) if fn else None
 
-    # ------------------------------------------------------------ zaman
+    # ------------------------------------------------------------ time
     def tick(self, now):
-        """Saniyede bir: süresi biten üretimler hazır (istemciye ReadyToCollect); dakikada bir tarif listesi (etkinlik bitti:
-        AssemblyRecipeRemoveCommand, başladı: yeni liste)."""
+        """Every second: productions whose time is up become ready (ReadyToCollect to the client); every minute the recipe list (event ended:
+        AssemblyRecipeRemoveCommand, started: new list)."""
         if now < self.next_tick:
             return
         self.next_tick = now + 1.0
         free = SET.get('assembly_free')
-        if free != self.free_last:                # ayar değişti: istemcinin malzeme sayaçları yenilenir
+        if free != self.free_last:                # setting changed: the client's material counters are refreshed
             self.free_last = free
             if self.m and self.send:
                 self.send(self.m.count_msgs())
@@ -388,7 +389,7 @@ class Assembly:
             if gone:
                 self.send([('AssemblyRecipeRemoveCommand', {'recipes': [mod('AssemblyRecipeKeyModule', lootId=k, targetId=0)
                                                                          for k in gone]})])
-                self.log('   Assembly: %d tarif listeden kalktı (%s …)' % (len(gone), gone[0]))
+                self.log('   Assembly: %d recipes dropped off the list (%s ...)' % (len(gone), gone[0]))
             if set(keys) - self.shown:
                 self.send([self.content()])
             self.shown = set(keys)

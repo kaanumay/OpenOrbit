@@ -1,21 +1,21 @@
-"""Hitac'ın Word Puzzle'ı ve Capsule Lottery'si (yol haritası Ö3; veri data/extra_events.json 'hitac_piyango').
+"""Hitac's Word Puzzle and Capsule Lottery (roadmap Ö3; data data/extra_events.json 'hitac_lottery').
 
-İstemci:
-  - Menü öğesi word_puzzle (pencere 115, UIWordPuzzleSystem): WordPuzzleWindowInitCommand {letterCount} kelimenin boyu;
-    WordPuzzleLetterAchievedCommand {letterValues [WordPuzzleLetterModule {letterValue, letterIndex}], complete} toplanan harfler.
-    Metinler: label_wordpuzzle_* ("Collect cargo boxes from the Hitac minions …"), lottery_collected_letter (%LETTER%),
+Client:
+  - Menu item word_puzzle (window 115, UIWordPuzzleSystem): WordPuzzleWindowInitCommand {letterCount} the word's length;
+    WordPuzzleLetterAchievedCommand {letterValues [WordPuzzleLetterModule {letterValue, letterIndex}], complete} the collected letters.
+    Texts: label_wordpuzzle_* ("Collect cargo boxes from the Hitac minions ..."), lottery_collected_letter (%LETTER%),
     lottery_completed_wordpuzzle, log_msg_received_lottery_ticket_s.
-  - Vouchers penceresinin LOTTERY sekmesi: LotteryEventFlushCommand {state, spcId} sekmeyi açar/kapatır (kayıtta girişte false);
+  - The LOTTERY tab of the Vouchers window: LotteryEventFlushCommand {state, spcId} opens/closes the tab (false on login in the record);
     LotteryRequest {quantity} -> LotteryRequestCommand {lotteryLogCommandList [LotteryLogCommand {lotteryLogRewardCommandList
-    [{lootId, amount}], lcId, date, amountCapsules, converter}], change, lotteryItems, quantity}. Metin: payment_lottery_text_hitacconverter,
+    [{lootId, amount}], lcId, date, amountCapsules, converter}], change, lotteryItems, quantity}. Text: payment_lottery_text_hitacconverter,
     lottery_rewards_booked_history "%ITEM% (%AMOUNT%x)".
-Kurallar (resmî SSS ve wiki; sayılar extra_events.json): Hitac Minion'ın kutusunda (HITAC_MINION) 300 MCB-50 ve %50 harf;
-Underling %0,5, Underboss %18 harf kutusu; her zaman eksik harflerden biri; HITAC tamamlanınca bir kapsül
-(resource_lottery-capsule); ana gemi kutusunda (HITAC) bir kapsül; kapsüller mağazadan da gelir; Capsule Converter'da her kapsül
-tablodan (2024-2026, 40 paket) bir ödül. Harfler yalnız Hitac etkinliği sürerken düşer; kapsüller kalıcı, çevirmek de etkinlik sürerken.
-Underling ve Underboss kutusu harfin yanında içerikten bir satır (harf_ek), ana gemi kutusu 50 ACM-1 ve 1.000 PLT-3030 ile şanslı teknoloji
-verir. Etkinlik bitince çevrilen kapsül sayısı kadar hak 'bitis_cekilisi' havuzundan ödül çeker (end_draw).
-Profilde: hitac_piyango {harfler: [toplanan sıra numaraları], gecmis: [{tarih, adet, oduller}], harcanan: çekiliş hakkı}.
+Rules (official FAQ and wiki; numbers in extra_events.json): the Hitac Minion's box (HITAC_MINION) holds 300 MCB-50 and a 50% letter;
+Underling 0.5%, Underboss 18% letter box; always one of the missing letters; when HITAC is completed one capsule
+(resource_lottery-capsule); the mothership's box (HITAC) holds one capsule; capsules also come from the shop; at the Capsule Converter each capsule gives one reward from
+the table (2024-2026, 40 packages). Letters drop only while the Hitac event runs; capsules are permanent, converting them also only while the event runs.
+The Underling's and Underboss's box gives a row from the contents next to the letter (letter_extra), the mothership's box gives 50 ACM-1 and 1,000 PLT-3030 and lucky technology.
+When the event ends, as many entitlements as converted capsules each draw a reward from the 'end_draw' pool.
+In the profile: hitac_lottery {letters: [collected index numbers], history: [{date, count, rewards}], spent: draw entitlements}.
 """
 import json, os, random, time
 
@@ -29,7 +29,7 @@ _PATH = os.path.join(HERE, 'data', 'extra_events.json')
 D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('hitac_lottery', {})
 EVENT = 'hitac'
 WORD = D.get('word', 'HITAC')
-LETTER = 'resource_wordpuzzle-letter'      # kutudaki harf (mağazanın ödül yolu: rastgele eksik harf)
+LETTER = 'resource_wordpuzzle-letter'      # the letter in the box (the shop's reward path: a random missing letter)
 CAPSULE = 'resource_lottery-capsule'
 MINION = D.get('minion', 'event_hitac_minion')
 MOTHERSHIP = D.get('mothership', 'event_hitac_mothership')
@@ -54,7 +54,7 @@ class HitacLottery:
         d.setdefault('history', [])
         return d
 
-    # ------------------------------------------------------------ bulmaca
+    # ------------------------------------------------------------ puzzle
     def letters_cmd(self, complete=False):
         got = sorted(self.st['letters'])
         return ('WordPuzzleLetterAchievedCommand', dict(complete=complete, letterValues=[
@@ -67,7 +67,7 @@ class HitacLottery:
         return msgs
 
     def tick(self, now):
-        """Etkinlik oturum sürerken başladı ya da bitti: sekme ve bulmaca penceresi."""
+        """The event started or ended while the session was running: the tab and the puzzle window."""
         on = active(now)
         if getattr(self, 'was', None) is None:
             self.was = on
@@ -78,17 +78,17 @@ class HitacLottery:
         return self.login_msgs() + msgs
 
     def login_replace(self, n, f):
-        if n == 'LotteryEventFlushCommand':        # kayıttaki false: etkinlik sürerken sekme açık (hazır demetinde ayrıca)
+        if n == 'LotteryEventFlushCommand':        # false in the record: the tab is open while the event runs (separately in the ready bundle)
             return [(n, dict(f, state=active()))]
         return None
 
     def grant_letter(self, n=1):
-        """Kutudan harf (mağazanın ödül yolu): eksiklerden rastgele; tamamlanınca kapsül, bulmaca sıradaki harfte baştan."""
+        """Letter from a box (the shop's reward path): random among the missing; when complete a capsule, the puzzle starts over at the next letter."""
         msgs = []
         for _ in range(max(1, n)):
             st = self.st
             if len(st['letters']) >= len(WORD):
-                st['letters'] = []                 # önceki kelime tamamdı: yeniden başlar
+                st['letters'] = []                 # the previous word was complete: starts over
             missing = [i for i in range(len(WORD)) if i not in st['letters']]
             i = random.choice(missing)
             with self.p.lock:
@@ -102,10 +102,10 @@ class HitacLottery:
                 msgs += self.m.reward(CAPSULE, 1) + [screen('key:lottery_completed_wordpuzzle')]
         return msgs
 
-    # ------------------------------------------------------------ uzaylılar
+    # ------------------------------------------------------------ aliens
     def drop(self, w, kind, x, y, rows, life=300, pool=None, chance=None):
-        """Etkinlik kutusu: 'kesin' satırların hepsi; pool (harf_ek) verilirse eşit ağırlıkla bir satır, sans ([lootId, adet, olasılık]) verilirse
-        her biri kendi olasılığıyla (etkinlik_harita.roll)."""
+        """Event box: all of the 'guaranteed' rows; if pool (letter_extra) is given one row with equal weight, if chance ([lootId, count, probability]) is given
+        each with its own probability (event_maps.roll)."""
         h = w.drop_box(kind, x, y, None, life)
         spec = {'type': kind, 'mod': 'one_of' if pool else 'hepsi', 'guaranteed': rows}
         if pool:
@@ -115,8 +115,8 @@ class HitacLottery:
         w.boxes[h]['event'] = spec
 
     def on_kill(self, w, npc, x, y):
-        """Hitac uzaylısı öldü (dünya kilidi altında): Minion'ın kutusu (MCB-50, %50 harf), Underling (%0,5) ve Underboss'un (%18)
-        harf kutusu, ana geminin kapsül kutusu."""
+        """A Hitac alien died (under the world lock): the Minion's box (MCB-50, 50% letter), the Underling's (0.5%) and Underboss's (18%)
+        letter box, the mothership's capsule box."""
         if not active():
             return []
         if npc.tip in MINIONS:
@@ -125,23 +125,23 @@ class HitacLottery:
             self.drop(w, b['type'], x, y, rows, b.get('lifetime_sec', 300))
         elif npc.tip in MOTHERSHIPS:
             b = D.get('mothership_box', {'type': 'HITAC', 'capsule_at': 1})
-            self.drop(w, b['type'], x, y, [[CAPSULE, b['capsule_at']]] + b.get('guaranteed', []), chance=b.get('chance'))      # + 50 ACM-1, 1.000 PLT-3030, şanslı teknoloji
+            self.drop(w, b['type'], x, y, [[CAPSULE, b['capsule_at']]] + b.get('guaranteed', []), chance=b.get('chance'))      # + 50 ACM-1, 1,000 PLT-3030, lucky technology
         else:
             for prefix, (kind, chance, *pool) in (D.get('letter_extra') or {}).items():
                 if not npc.tip.startswith(prefix):
                     continue
-                rows = [[LETTER, 1]] if random.random() < SET.chance('drop', chance, 'event') else []      # panel: düşme şansı
-                if rows or pool:                   # Underling / Underboss: kutu her zaman düşer, harf şansla, içeriğinden bir satır
+                rows = [[LETTER, 1]] if random.random() < SET.chance('drop', chance, 'event') else []      # panel: drop chance
+                if rows or pool:                   # Underling / Underboss: the box always drops, the letter by chance, a row from its contents
                     self.drop(w, kind, x, y, rows, pool=pool[0] if pool else None)
         return []
 
-    # ------------------------------------------------------------ etkinlik sonu çekilişi
+    # ------------------------------------------------------------ end-of-event draw
     def end_draw(self):
-        """Hitac bitti (extra_events.json 'bitis_cekilisi'; wiki: kullanılan kapsüller etkinlik sonunda çekilişe girer): Capsule Converter'da
-        harcanan her kapsül bir hak, her hak 'paket' kadar havuz ödülü (sahip olunmayanlar; tek oyunculuda çekilişin tek katılımcısı).
-        Etkinlik sürerken yazılan sayaç (profilde 'harcanan'); bitişten sonra ilk adımda (oturum kapalıyken bittiyse girişte) ödenir."""
+        """Hitac ended (extra_events.json 'end_draw'; wiki: used capsules enter a draw at the end of the event): at the Capsule Converter each
+        capsule spent is one entitlement, each entitlement draws 'package' pool rewards (those not owned; in single player the draw's only participant).
+        The counter written while the event runs (profile 'spent'); paid out at the first step after the end (at login if it ended while the session was closed)."""
         c = D.get('end_draw')
-        n = self.p.d.get('hitac_lottery', {}).get('spent', 0)       # her adımda çağrılır: profile boş kayıt açma
+        n = self.p.d.get('hitac_lottery', {}).get('spent', 0)       # called every step: do not open an empty record in the profile
         if not n or active():
             return []
         with self.p.lock:
@@ -156,7 +156,7 @@ class HitacLottery:
             if not pool:
                 break
         if got:
-            self.log('   Hitac bitti: kapsül çekilişi (%d kapsül) -> %s' % (n, ', '.join(got)))
+            self.log('   Hitac ended: capsule draw (%d capsules) -> %s' % (n, ', '.join(got)))
         return msgs + (self.m.money_msgs() if got else [])
 
     # ------------------------------------------------------------ piyango
@@ -168,20 +168,20 @@ class HitacLottery:
     def handle(self, name, f):
         if name != 'LotteryRequest':
             return []
-        # LotteryRequestCommand (canlı): quantity = kalan kapsül (sekmenin sayacı), lotteryItems = dönüştürücünün ortasındaki sayı
-        # (o da kapsül), change > 0 başarı penceresini açar.
-        # Sekme açılınca istemci quantity 0 ile sorar: yalnız bilgi.
+        # LotteryRequestCommand (live): quantity = remaining capsules (the tab's counter), lotteryItems = the number in the middle of the converter
+        # (also capsules), change > 0 opens the success window.
+        # When the tab opens the client asks with quantity 0: info only.
         have = self.p.resource(CAPSULE)
         want = int(f.get('quantity') or 0)
         q = max(0, min(want, have))
         if not active() or not q:
             if want:
-                self.log('   Capsule Converter: %s (kapsül %d)' % ('etkinlik yok' if not active() else 'kapsül yok', have))
+                self.log('   Capsule Converter: %s (capsules %d)' % ('no event' if not active() else 'no capsules', have))
             info = [('LotteryRequestCommand', dict(lotteryLogCommandList=self.log_cmds(), change=0, lotteryItems=have, quantity=have))]
             return info + ([screen('key:payment_lottery_text_dialog_nocapsules')] if want else [])
         self.p.add_resource(CAPSULE, -q)
         with self.p.lock:
-            self.st['spent'] = self.st.get('spent', 0) + q          # etkinlik sonu çekilişinin hakları
+            self.st['spent'] = self.st.get('spent', 0) + q          # entitlements of the end-of-event draw
         got = {}
         for _ in range(q):
             loot, n = self.roll()
@@ -194,7 +194,7 @@ class HitacLottery:
             self.st['history'].insert(0, {'date': time.strftime('%Y-%m-%d %H:%M:%S'), 'count': q, 'rewards': sorted(got.items())})
             del self.st['history'][HISTORY_MAX:]
             self.p.dirty = True
-        self.log('   Capsule Converter: %d kapsül -> %s' % (q, ', '.join('%s x%d' % x for x in sorted(got.items()))))
+        self.log('   Capsule Converter: %d capsules -> %s' % (q, ', '.join('%s x%d' % x for x in sorted(got.items()))))
         return [('LotteryRequestCommand', dict(lotteryLogCommandList=self.log_cmds(), change=q,
                                                lotteryItems=self.p.resource(CAPSULE), quantity=self.p.resource(CAPSULE)))] + msgs
 

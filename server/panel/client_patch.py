@@ -1,21 +1,21 @@
-"""İstemcinin düzeltmeleri BepInEx ile: panel BepInEx 6'yı (Unity IL2CPP, 32 bit) istemci klasörüne kurar ve
-eklenti/OpenOrbitPatch.dll'i BepInEx/plugins'e koyar. Yamalar (müzayede sayacı, rütbe penceresi, mağaza tutarı) eklentinin kaynağında:
-eklenti/Patches.cs. README'deki "istemci yamalanmaz" kuralının kullanıcı onaylı istisnası (2026-10-24; BepInEx'e geçiş 2026-10-25,
-önceki bellek yamalarının yerine).
+"""Client fixes with BepInEx: the panel installs BepInEx 6 (Unity IL2CPP, 32 bit) into the client folder and
+puts plugin/OpenOrbitPatch.dll into BepInEx/plugins. The patches (auction counter, rank window, shop amount) are in the plugin's source:
+plugin/Patches.cs. A user-approved exception (2026-10-24; moved to BepInEx on 2026-10-25, replacing the
+earlier memory patches) to the README's "the client is not patched" rule.
 
-İstemcinin kendi dosyaları değişmez; yanına BepInEx'in dosyaları eklenir (winhttp.dll, doorstop_config.ini, .doorstop_version,
-changelog.txt, BepInEx/, dotnet/). Doorstop ayarda kapalı: panel istemciyi --doorstop-enabled true ile açar (istemci.komut), aynı
-istemci başka yoldan (resmî başlatıcı) açılırsa BepInEx yüklenmez. Linux ve macOS'ta Wine ve Proton öntanımlı olarak kendi yerleşik
-winhttp.dll'ini yüklediği için çalıştırıcı WINEDLLOVERRIDES'a winhttp=n,b ekler (calistirici.dll_override): önce oyun klasöründeki
-Doorstop winhttp.dll yüklenir, o da sistemin yerleşik winhttp.dll'ine yönlendirir. BepInEx'in konsol penceresi ve interop
-derlemelerinin önceden yüklenmesi kapalı (BepInEx/config/BepInEx.cfg; ayar()).
-Eklentinin kopyası her açılışta paneldekiyle aynı mı diye bakılır (panel güncellenince yenilenir).
+The client's own files do not change; BepInEx's files are added next to them (winhttp.dll, doorstop_config.ini, .doorstop_version,
+changelog.txt, BepInEx/, dotnet/). Doorstop is off in the config: the panel starts the client with --doorstop-enabled true (client.command), if the same
+client is started another way (the official launcher) BepInEx is not loaded. On Linux and macOS, because Wine and Proton load their own built-in
+winhttp.dll by default, the runner adds winhttp=n,b to WINEDLLOVERRIDES (client_runner.dll_override): first the Doorstop winhttp.dll in the game folder is
+loaded, which in turn redirects to the system's built-in winhttp.dll. BepInEx's console window and the preloading of the interop
+assemblies are off (BepInEx/config/BepInEx.cfg; setting()).
+On every start it checks whether the plugin's copy is the same as the panel's (renewed when the panel is updated).
 
-Kurulum: kurulum sihirbazının oyun klasörü adımında, istemci indirilince, İstemci sayfasından ya da ilk OYNA'da. BepInEx arşivi ve
-Unity'nin temel kitaplıkları (BepInEx ilk açılışta indirirdi; önceden konunca ilk açılış da internetsiz) belleğe iner, SHA-256'ları
-tutarsa açılır; bitince KAYIT yazılır (yarım kurulum kurulu sayılmaz). BepInEx istemcinin kodundan interop derlemelerini üretir (yarım
-dakika kadar): panel bunu ilk OYNA'da oyundan önce penceresiz bir açılışta yaptırır (isit), sonraki açılışlar hızlı. Kurulamazsa oyun
-düzeltmeler olmadan açılır.
+Installation: in the setup wizard's game-folder step, when the client is downloaded, from the Client page or at the first PLAY. The BepInEx archive and
+Unity's base libraries (BepInEx used to download them on first start; once placed beforehand the first start needs no internet either) are downloaded to memory and unpacked if their SHA-256
+matches; when done INSTALL_MARKER is written (a half installation does not count as installed). BepInEx generates the interop assemblies from the client's code (about half
+a minute): at the first PLAY, before the game, the panel has this done in a windowless start (warm_up), later starts are fast. If it cannot be installed the game
+starts without the fixes.
 """
 import hashlib, http.client, io, json, math, os, shutil, subprocess, sys, threading, time, zipfile
 from urllib.request import Request, urlopen
@@ -28,8 +28,8 @@ from lang import t as _
 from client_download import CHUNK, TIMEOUT, DownloadError, Cancelled, safe_path
 
 PANEL_DIR = os.path.dirname(os.path.abspath(__file__))
-# BepInEx bleeding edge (builds.bepinex.dev): be.788 (2026-09-01) 1.1.115'te denendi (Unity 2022.3.58, IL2CPP metadata v31).
-# Değiştirince sha256 de değişir; kurulu eskisinin üstüne yeniden kurulur.
+# BepInEx bleeding edge (builds.bepinex.dev): be.788 (2026-09-01) tried on 1.1.115 (Unity 2022.3.58, IL2CPP metadata v31).
+# When changed the sha256 changes too; it is reinstalled over the installed older one.
 BEPINEX = {'name': 'BepInEx 6.0.0-be.788',
            'url': 'https://builds.bepinex.dev/projects/bepinex_be/788/BepInEx-Unity.IL2CPP-win-x86-6.0.0-be.788%2B5b766a3.zip',
            'sha256': 'd5954a5993ec39cd1133603d85bff93875d30b6411b712cc13dcf03c8e08a4d3', 'size': 31440336}
@@ -38,14 +38,14 @@ UNITY = {'name': 'Unity 2022.3.58', 'url': 'https://unity.bepinex.dev/libraries/
          'route': 'BepInEx/unity-libs/2022.3.58.zip'}
 PLUGIN = os.path.join(PANEL_DIR, 'plugin', 'OpenOrbitPatch.dll')
 PLUGIN_PATH = 'BepInEx/plugins/OpenOrbitPatch.dll'
-OLD_PLUGIN_PATH = 'BepInEx/plugins/OpenOrbitYama.dll'      # 2026-11-01'den önceki adı (İngilizce geçiş)
+OLD_PLUGIN_PATH = 'BepInEx/plugins/OpenOrbitYama.dll'      # its name before 2026-11-01 (English transition)
 SETTINGS = 'BepInEx/config/BepInEx.cfg'
-INSTALL_MARKER = 'BepInEx/openorbit.json'        # kurulumun bittiğini ve sürümünü söyler
-INTEROP = 'BepInEx/interop/assembly-hash.txt'   # BepInEx interop derlemelerini üretince en son bunu yazar
+INSTALL_MARKER = 'BepInEx/openorbit.json'        # says that the installation finished, and its version
+INTEROP = 'BepInEx/interop/assembly-hash.txt'   # written last, when BepInEx has generated the interop assemblies
 ARGS = ['--doorstop-enabled', 'true']
-WARMUP = ['-batchmode', '-nographics']           # interop üretimi için penceresiz açılış (isit)
-STARTED = 'BepInEx/ErrorLog.log'                # BepInEx açılışta yazar (ısınmanın ilk aşaması biter)
-INTEROP_FILES = 101                              # interop klasörünün dosyaları (be.788, 1.1.115: 99 derleme ve 2 .db)
+WARMUP = ['-batchmode', '-nographics']           # windowless start to generate the interops (warm_up)
+STARTED = 'BepInEx/ErrorLog.log'                # BepInEx writes it at startup (the first stage of the warm-up ends)
+INTEROP_FILES = 101                              # files of the interop folder (be.788, 1.1.115: 99 assemblies and 2 .db)
 
 
 def route(folder, rel):
@@ -53,15 +53,15 @@ def route(folder, rel):
 
 
 def installed(folder):
-    """BepInEx bu klasöre kurulmuş mu (kurulum bitmiş, sürümü güncel)?"""
+    """Is BepInEx installed in this folder (installation finished, version current)?"""
     return _registry(folder).get('bepinex') == BEPINEX['sha256'] and os.path.isfile(os.path.join(folder, 'winhttp.dll'))
 
 
 def plugin(folder):
-    """Eklentinin kopyası paneldekinden farklıysa (yoksa) yenile."""
+    """Renew the plugin's copy if it differs from the panel's (or is missing)."""
     with open(PLUGIN, 'rb') as fh:
         new_ = fh.read()
-    old = route(folder, OLD_PLUGIN_PATH)        # adı değişmeden önceki kopya: iki eklenti birden yüklenip yamalar iki kez uygulanmasın
+    old = route(folder, OLD_PLUGIN_PATH)        # the copy from before the rename: so that two plugins are not loaded at once and the patches applied twice
     if os.path.isfile(old):
         os.remove(old)
     p = route(folder, PLUGIN_PATH)
@@ -77,9 +77,9 @@ def plugin(folder):
 
 
 def setting(folder):
-    """BepInEx.cfg'de interop derlemelerinin önceden yüklenmesini kapat. Açıkken (BepInEx'in öntanımlısı) interop'lar yeni
-    üretildikten sonraki ilk bir iki açılışta istemci ilk sahneyi yüklemeden takılıyordu (Windows beyaz ekran, Proton kod 1; 2026-10-28,
-    kapalıyken 4/4 açıldı); eklenti gereken derlemeleri kendisi yükler. Öteki ayarlara dokunulmaz."""
+    """In BepInEx.cfg turn off preloading of the interop assemblies. When on (BepInEx's default), in the first one or two starts after the interops were freshly
+    generated the client hung before loading the first scene (white screen on Windows, Proton code 1; 2026-10-28,
+    4/4 started with it off); the plugin loads the assemblies it needs itself. Other settings are not touched."""
     p = route(folder, SETTINGS)
     try:
         with open(p, 'rb') as fh:
@@ -98,7 +98,7 @@ def setting(folder):
 
 
 def fingerprint(folder):
-    """Oyun kodunun (GameAssembly.dll) boyutu ve zamanı: istemci yerinde güncellenirse interop'lar yeniden üretilmeli."""
+    """Size and time of the game code (GameAssembly.dll): if the client is updated in place the interops must be regenerated."""
     try:
         st = os.stat(os.path.join(folder, 'GameAssembly.dll'))
     except OSError:
@@ -109,19 +109,19 @@ def fingerprint(folder):
 def _registry(folder):
     try:
         with open(route(folder, INSTALL_MARKER), encoding='utf8') as fh:
-            return SM.migrate_obj(json.load(fh))         # eski sürümün yazdığı işaret (anahtarlar yeni adlara)
+            return SM.migrate_obj(json.load(fh))         # the marker written by the older version (keys to the new names)
     except (OSError, ValueError):
         return {}
 
 
 def generated(folder):
-    """BepInEx interop derlemelerini üretmiş mi?"""
+    """Has BepInEx generated the interop assemblies?"""
     return os.path.isfile(route(folder, INTEROP))
 
 
 def ready(folder):
-    """Interop'lar bu istemci kodu için üretilmiş mi? Isınmanın kaydettiği parmak izi yoksa (önceki panel sürümünün kurulumu)
-    GameAssembly.dll interop'lardan yeniyse istemci güncellenmiş sayılır."""
+    """Were the interops generated for this client code? If there is no fingerprint recorded by the warm-up (installation by an earlier panel version)
+    the client counts as updated if GameAssembly.dll is newer than the interops."""
     if not generated(folder):
         return False
     trace = _registry(folder).get('warmup')
@@ -134,12 +134,12 @@ def ready(folder):
 
 
 def progress(folder, start, seen):
-    """Isınmanın ilerlemesi -> {'asama': 0 istemci açılıyor, 1 derlemeler üretiliyor, 2 dosyalar yazılıyor, 3 bitti; 'yuzde', 'gecen_sn'}.
-    BepInEx üretim bitene kadar günlüğünü diske yazmıyor (Windows ve Wine, 2026-10-28): aşamalar dosyalardan (BASLADI, interop
-    klasörü). Üretim içeriden görünmez: yüzde süreyle yavaşlayarak ilerler, yazmada dosya sayısıyla. gorulen: isit'in tuttuğu durum."""
+    """Warm-up progress -> {'stage': 0 client starting, 1 assemblies being generated, 2 files being written, 3 done; 'percent', 'elapsed_sec'}.
+    BepInEx does not write its log to disk until generation finishes (Windows and Wine, 2026-10-28): the stages are taken from files (STARTED, the interop
+    folder). Generation is invisible from inside: the percentage advances slowing down with time, while writing by the file count. seen: the state warm_up keeps."""
     now = time.time()
     try:
-        started = os.path.getmtime(route(folder, STARTED)) >= start - 1   # önceki açılışınki sayılmaz
+        started = os.path.getmtime(route(folder, STARTED)) >= start - 1   # does not count as the previous start's
     except OSError:
         started = False
     try:
@@ -148,7 +148,7 @@ def progress(folder, start, seen):
         written = 0
     stage = 3 if generated(folder) else 2 if written else 1 if started or now - start > 10 else 0
     t = now - seen.setdefault(stage, now)
-    sub = seen.setdefault('write', seen.get('percent', 0)) if stage == 2 else 0   # yazma, gösterilenden sıçramadan sürer
+    sub = seen.setdefault('write', seen.get('percent', 0)) if stage == 2 else 0   # writing continues without a jump from what is shown
     percent = (100 if stage == 3 else sub + (99 - sub) * min(1, written / INTEROP_FILES) if stage == 2
              else 10 + 80 * (1 - math.exp(-t / 25)) if stage == 1 else 9 * (1 - math.exp(-t / 4)))
     seen['percent'] = max(seen.get('percent', 0), int(percent))
@@ -156,12 +156,12 @@ def progress(folder, start, seen):
 
 
 def warm_up(folder, cmd, env, logs, notify=None, duration=300):
-    """Interop derlemelerini oyundan önce ayrı, penceresiz bir açılışta ürettir -> hazır mı. Üretim oyunun kendi açılışında olursa
-    32 bitlik istemcinin adres alanı tükeniyor: Proton'da oyun ilk sahnede "System out of memory" ile kapanıyordu (2026-10-28).
-    cmd, env: istemci.komut (BepInEx argümanlarıyla); üretim bitince (ya da sure dolunca) bu açılış kapatılır. bildir: ilerleme()'nin
-    sonucu yarım saniyede bir (panelin OYNA adımı)."""
+    """Have the interop assemblies generated before the game in a separate, windowless start -> is it ready. If generation happens in the game's own start
+    the 32-bit client's address space runs out: on Proton the game closed on the first scene with "System out of memory" (2026-10-28).
+    cmd, env: client.command (with the BepInEx arguments); when generation finishes (or duration runs out) this start is closed. notify: progress()'s
+    result every half second (the panel's PLAY step)."""
     start, seen = time.time(), {}
-    shutil.rmtree(route(folder, 'BepInEx/interop'), ignore_errors=True)    # eski istemcinin interop'ları: yeniden üretilsin
+    shutil.rmtree(route(folder, 'BepInEx/interop'), ignore_errors=True)    # the old client's interops: let them be regenerated
     p = PR.open_client(folder, cmd + WARMUP, env, logs)
     last = start + duration
     while time.time() < last and p.poll() is None and not generated(folder):
@@ -175,13 +175,13 @@ def warm_up(folder, cmd, env, logs, notify=None, duration=300):
         p.wait(timeout=30)
     except subprocess.TimeoutExpired:
         PR.kill(p.pid)
-    if generated(folder):                            # hazir(): istemci kodu değişirse yeniden ısınılır
+    if generated(folder):                            # ready(): if the client code changes it warms up again
         d = _registry(folder)
         d['warmup'] = fingerprint(folder)
         with open(route(folder, INSTALL_MARKER), 'w', encoding='utf8') as fh:
             json.dump(d, fh, indent=1)
     last = time.time() + 15
-    while os.name != 'nt' and time.time() < last:   # Wine her Windows sürecini kendi oturumunda açar: grubu kapatmak istemciye ulaşmaz
+    while os.name != 'nt' and time.time() < last:   # Wine starts every Windows process in its own session: closing the group does not reach the client
         remaining = warmup_processes()
         if not remaining:
             break
@@ -192,7 +192,7 @@ def warm_up(folder, cmd, env, logs, notify=None, duration=300):
 
 
 def warmup_processes():
-    """Linux ve macOS: açık ısınma istemcileri (Wine'daki DarkOrbit.exe ... -batchmode)."""
+    """Linux and macOS: the open warm-up clients (DarkOrbit.exe ... -batchmode in Wine)."""
     try:
         r = subprocess.run(['ps', '-A', '-o', 'pid=', '-o', 'args='], capture_output=True, text=True, timeout=10)
     except (OSError, subprocess.SubprocessError):
@@ -202,7 +202,7 @@ def warmup_processes():
 
 
 def arguments(folder):
-    """İstemciyi BepInEx'le açan argümanlar (kurulu değilse yok); eklentinin kopyası ve ayar önce yenilenir."""
+    """The arguments that start the client with BepInEx (none if not installed); the plugin's copy and the setting are renewed first."""
     if not installed(folder):
         return []
     plugin(folder)
@@ -223,7 +223,7 @@ class Patcher:
                 'folder': folder}
 
     def state(self, folder):
-        """folder'daki kurulumun durumu (başka klasörün biten işi sayılmaz)."""
+        """The state of the installation in folder (another folder's finished work does not count)."""
         with self.lock:
             d = dict(self.d)
         if not d['running'] and (not folder or not d['folder'] or os.path.normcase(os.path.abspath(d['folder']))
@@ -239,7 +239,7 @@ class Patcher:
             return self.d['running']
 
     def start(self, folder):
-        """BepInEx'i ve eklentiyi istemci klasörüne kur (sürüyorsa ya da kuruluysa bir şey yapmaz) -> durum."""
+        """Install BepInEx and the plugin into the client folder (does nothing if in progress or installed) -> state."""
         with self.lock:
             if folder and not self.d['running'] and not installed(folder):
                 self.stop.clear()
@@ -251,7 +251,7 @@ class Patcher:
         self.stop.set()
 
     def wait(self, folder, step=None):
-        """Kurulum bitene dek bekle (adim: (yüzde) -> None, ilerleme) -> kuruldu mu."""
+        """Wait until the installation finishes (step: (percent) -> None, progress) -> was it installed."""
         self.start(folder)
         while self.running():
             if step:
@@ -261,7 +261,7 @@ class Patcher:
         return installed(folder)
 
     def _download(self, part):
-        """Arşivi belleğe indir ve SHA-256'sını doğrula -> bayt."""
+        """Download the archive to memory and verify its SHA-256 -> bytes."""
         buf = bytearray()
         try:
             with self.opener(Request(part['url'], headers={'User-Agent': 'OpenOrbit'}), timeout=TIMEOUT) as r:
@@ -295,13 +295,13 @@ class Patcher:
                     os.makedirs(os.path.dirname(p), exist_ok=True)
                     with z.open(m) as src, open(p, 'wb') as out:
                         shutil.copyfileobj(src, out)
-            p = os.path.join(folder, 'doorstop_config.ini')      # Doorstop kapalı: BepInEx'i yalnız panelin argümanı açar
+            p = os.path.join(folder, 'doorstop_config.ini')      # Doorstop off: only the panel's argument starts BepInEx
             with open(p, 'rb') as fh:
                 ini = fh.read()
             with open(p, 'wb') as fh:
                 fh.write(ini.replace(b'enabled = true', b'enabled = false', 1))
             p = route(folder, SETTINGS)
-            if not os.path.isfile(p):                           # konsol penceresi açılmasın (öteki ayarları BepInEx ekler)
+            if not os.path.isfile(p):                           # do not open the console window (BepInEx adds the other settings)
                 os.makedirs(os.path.dirname(p), exist_ok=True)
                 with open(p, 'wb') as fh:
                     fh.write(b'[Logging.Console]\n\nEnabled = false\n')
@@ -316,23 +316,23 @@ class Patcher:
                            'time': time.strftime('%Y-%m-%d %H:%M:%S')}, fh, indent=1)
             with self.lock:
                 self.d.update(state='built', claimed=self.d['total'])
-            self.log('BepInEx kuruldu: %s (%s)' % (BEPINEX['name'], folder))
+            self.log('BepInEx installed: %s (%s)' % (BEPINEX['name'], folder))
         except Cancelled:
             with self.lock:
                 self.d['state'] = 'stopped'
-            self.log('BepInEx kurulumu durduruldu')
+            self.log('BepInEx installation stopped')
         except DownloadError as e:
             with self.lock:
                 self.d.update(state='error', error=str(e))
-            self.log('BepInEx kurulamadı: %s' % e)
+            self.log('BepInEx could not be installed: %s' % e)
         except OSError as e:
             with self.lock:
                 self.d.update(state='error', error=_('Could not write a file: %s', e))
-            self.log('BepInEx kurulamadı: %r' % e)
+            self.log('BepInEx could not be installed: %r' % e)
         except Exception as e:
             with self.lock:
                 self.d.update(state='error', error=repr(e))
-            self.log('BepInEx: beklenmeyen hata: %r' % e)
+            self.log('BepInEx: unexpected error: %r' % e)
         finally:
             with self.lock:
                 self.d['running'] = False

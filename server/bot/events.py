@@ -1,14 +1,15 @@
-"""Etkinlikler, Battle Pass ve Season Pass: botlar takvimdeki etkinliklere oyuncu gibi katılır (oyunun event_maps.py,
-battle_pass.py, season.py ve data/tickets.json kuralları).
+"""Events, Battle Pass and Season Pass: bots join the events on the calendar like players (the rules of the game's event_maps.py,
+battle_pass.py, season.py and data/tickets.json).
 
-  etkinlik    etkin etkinliğin harita bölümü botun haritasını kapsıyorsa: gücü yeten etkinlik uzaylılarını avlar (somutta haritada
-              gerçekten doğanları, soyutta bölümün listesinden), düşmeleri ('dusme': etkinlik parası) alır, haritadaki anahtarsız
-              etkinlik kutularını toplar (içerik oyunun ETK.roll'u); parası Assembly'nin etkinlik tariflerine gider (ganimet.assembly)
-  Battle Pass pass'li etkinlik sürerken oynadıkça pass görevleri biter (oynanan sürenin ve öldürmenin payıyla), her görevin
-              ödülü alınır; pass'i alan (200.000 U, zengin ve hırslı bot) görev başına anahtar da alır; anahtarlar değişim
-              tablosunda değer / anahtar oranı en iyi ödüle harcanır (sınırıyla)
-  Season Pass günlük ve haftalık görevlerden puan (oynanan saatle); seviyenin puan bedeli dolunca ücretsiz sıranın ödülü
-Durum: bot.k['pass'] = {'donem', 'tamam', 'satin', 'degisim': {ödül: adet}}, bot.k['sezon'] = {'donem', 'puan', 'seviye'}.
+  event       if the map section of an active event covers the bot's map: it hunts the event aliens it is strong enough for (in the concrete
+              case those actually spawned on the map, in the abstract case from the section's list), takes their drops ('drop': event
+              currency), collects the keyless event boxes on the map (contents from the game's event_maps.roll); the currency goes to Assembly's
+              event recipes (loot.assembly)
+  Battle Pass while an event with a pass lasts, pass quests are completed as the bot plays (by its share of time played and kills), the
+              reward of each quest is collected; a bot that bought the pass (200,000 U, rich and ambitious bot) also gets a key per quest;
+              keys are spent in the exchange table on the reward with the best value / key ratio (within its limit)
+  Season Pass points from daily and weekly quests (with hours played); when the level's point cost is filled, the free track's reward
+State: bot.k['pass'] = {'period', 'done', 'purchased', 'sure', 'exchange': {reward: count}}, bot.k['season'] = {'period', 'points', 'level'}.
 """
 import json, os, random, time
 
@@ -18,8 +19,8 @@ B = json.load(open(os.path.join(K.HERE, 'data', 'tickets.json'), encoding='utf8'
 SEASON = B['season']
 BT = B['battle_pass']
 PASS_PRICE = 200000
-PASS_QUEST_SEC = 2700            # oynanan ~45 dakikada bir pass görevi
-SEASON_POINTS_PER_HOUR = 30            # oynanan saatte Season Pass puanı (günlük + haftalık görevler)
+PASS_QUEST_SEC = 2700            # one pass quest per ~45 minutes played
+SEASON_POINTS_PER_HOUR = 30            # Season Pass points per hour played (daily + weekly quests)
 _on = {'t': 0, 'section': [], 'active': set()}
 
 
@@ -32,14 +33,14 @@ def _refresh():
 
 
 def sections(game_map):
-    """Bu haritayı kapsayan etkin etkinlik harita bölümleri [(etkinlik, bölüm)]."""
+    """Active event map sections covering this map [(event, section)]."""
     import map_links as H
     klass, name = H.map_class(game_map), H.name(game_map)
     return [(k, s) for k, s in _refresh()['section'] if klass in s.get('maps', ()) or name in s.get('maps', ())]
 
 
 def event_types(bot, game_map):
-    """Gücü yeten etkinlik uzaylısı türleri."""
+    """Event alien types it is strong enough for."""
     d = bot.value()
     out = set()
     for _, s in sections(game_map):
@@ -57,7 +58,7 @@ def map_number(game_map):
 
 
 def drop(bot, game_map, tip):
-    """Etkinlik uzaylısının (ya da haritanın uzaylısının) etkinlik düşmeleri bota (oyunun ETK.roll'u)."""
+    """The event drops of an event alien (or of the map's alien) to the bot (the game's event_maps.roll)."""
     import world as WD
     import event_maps as EM
     from . import loot as LT
@@ -67,12 +68,12 @@ def drop(bot, game_map, tip):
     for _, s in sections(game_map):
         tab = s.get('drop', {})
         for loot, a in (tab.get(tip) or tab.get(b) or {}).items():
-            n = WD.extra_count(a, 1.0)                    # oyunun okuyuşu: sayı, [en az, en çok] ya da {adet, olasilik} (Agatus)
+            n = WD.extra_count(a, 1.0)                    # the game's reading: a number, [min, max] or {count, probability} (Agatus)
             if n > 0:
                 LT.give(bot, loot, n)
                 bot.ist('event_drop', n)
         box_drop = (s.get('box_drop', {}).get(tip) or s.get('box_drop', {}).get(b))
-        if box_drop and random.random() < box_drop.get('probability', 1.0) * 0.8:            # düşen sandığı çoğunlukla toplar
+        if box_drop and random.random() < box_drop.get('probability', 1.0) * 0.8:            # mostly picks up the chest that dropped
             for loot, n in EM.roll(box_drop):
                 LT.give(bot, loot, n)
 
@@ -88,7 +89,7 @@ def open_box(bot, spec):
 
 
 def abstract(bot, dt, y, dps):
-    """Soyut: etkinlik uzaylılarını avlar (düşmeleri ve öldürme ödülü) ve haritanın etkinlik kutularına rastlar."""
+    """Abstract: hunts the event aliens (their drops and kill reward) and comes across the map's event boxes."""
     if not bot.permission.get('event', True):
         return
     bl = sections(bot.game_map)
@@ -103,7 +104,7 @@ def abstract(bot, dt, y, dps):
             v = K.npc_value(tip) if tip else None
             if not v:
                 continue
-            ratio = min(u.get('count', 1) * dt / 60.0 / crowd, dt * 0.25 * dps / max(1.0, v['ehp']))    # etkinlik uzaylısı payı
+            ratio = min(u.get('count', 1) * dt / 60.0 / crowd, dt * 0.25 * dps / max(1.0, v['ehp']))    # event alien share
             n = int(ratio) + (bot.r.random() < ratio - int(ratio))
             for _ in range(n):
                 o = v['reward']
@@ -121,13 +122,13 @@ def abstract(bot, dt, y, dps):
 
 # ------------------------------------------------------------------------------------------------------------ Battle Pass
 def active_pass():
-    """Şu an süren pass'in etkinliği (pass'i olan etkin etkinlik) ya da None."""
+    """The event of the pass currently running (the active event that has a pass) or None."""
     active = _refresh()['active']
     return next((k for k in BT['passes'] if k in active), None)
 
 
 def battle_pass(bot, dt):
-    """Oynadıkça pass görevleri biter; ödül ve (pass alındıysa) anahtar; anahtarlar değişime."""
+    """Pass quests are completed as the bot plays; reward and (if the pass was bought) keys; keys go to the exchange."""
     from . import loot as LT
     if not bot.permission.get('event', True):
         return
@@ -145,7 +146,7 @@ def battle_pass(bot, dt):
         st['purchased'] = True
         bot.ist('battle_pass')
         stock = LT.stock(bot)
-        stock['resource_battle-pass-key'] = stock.get('resource_battle-pass-key', 0) + st['done']     # o ana dek toplananlar
+        stock['resource_battle-pass-key'] = stock.get('resource_battle-pass-key', 0) + st['done']     # collected up to that moment
     st['sure'] += dt
     while st['sure'] >= PASS_QUEST_SEC and st['done'] < len(rewards):
         st['sure'] -= PASS_QUEST_SEC
@@ -161,7 +162,7 @@ def battle_pass(bot, dt):
 
 
 def exchange(bot, st):
-    """Battle Pass anahtarlarını değişim tablosunda en iyi değer / anahtar oranlı ödüle harcar (sınırıyla)."""
+    """Spends Battle Pass keys in the exchange table on the reward with the best value / key ratio (within its limit)."""
     from . import loot as LT
     stock = LT.stock(bot)
     table = (BT['passes'].get(st['period']) or {}).get('key_exchange') or BT['key_exchange']

@@ -1,8 +1,8 @@
-"""Botun eylemleri (araçlar): karar motoru, sohbet ve LLM (Gelişmiş kip) bota yalnız bu araçlarla iş yaptırır.
+"""The bot's actions (tools): the decision engine, chat and the LLM (Advanced mode) make the bot do things only through these tools.
 
-Her araç: ad, açıklama, parametreler (JSON şema; LLM'e verilir), izin (paketin erişim ayarı) ve işlev (yonetici, bot, **arg) ->
-{'ok': bool, 'mesaj': str}. Hedef değiştiren araçlar botun niyetini kurar (beyin.zorla): bot işi kendi aklıyla sürdürür, yarıda
-kalırsa karar motoru devralır. Yeni bir eylem için buraya @arac ile bir işlev eklemek yeter; şema LLM'e kendiliğinden gider.
+Each tool: name, description, parameters (JSON schema; given to the LLM), permission (the pack's access setting) and function (y, bot, **arg) ->
+{'ok': bool, 'message': str}. Tools that change the goal set the bot's intent (brain.force): the bot carries on the job with its own judgment, and if it
+is interrupted the decision engine takes over. For a new action it is enough to add a function here with @tool; the schema goes to the LLM by itself.
 """
 import map_links as H
 from . import brain as B
@@ -19,7 +19,7 @@ def tool(name, description, parameters=None, permission=None):
 
 
 def schema(y=None, names=None):
-    """LLM için araç listesi: [{ad, aciklama, parametreler}] (izni kapalı olanlar hariç)."""
+    """The tool list for the LLM: [{name, description, parameters}] (except those whose permission is off)."""
     out = []
     for a in TOOLS.values():
         if names is not None and a['name'] not in names:
@@ -31,7 +31,7 @@ def schema(y=None, names=None):
 
 
 def call(y, bot, name, arg=None):
-    """Aracı çalıştır -> {'ok', 'mesaj'}. Bilinmeyen araç, kapalı izin ya da hatalı argüman hata döner (bot bir şey yapmaz)."""
+    """Run the tool -> {'ok', 'message'}. An unknown tool, a disabled permission or a bad argument returns an error (the bot does nothing)."""
     a = TOOLS.get(str(name or ''))
     if a is None:
         return {'ok': False, 'message': 'bilinmeyen araç'}
@@ -41,7 +41,7 @@ def call(y, bot, name, arg=None):
         r = a['fn'](y, bot, **{k: v for k, v in (arg or {}).items() if k in a['parameters']})
     except (TypeError, ValueError, KeyError) as e:
         return {'ok': False, 'message': 'hatalı argüman: %s' % e}
-    except Exception as e:                                  # araç içi hata (AttributeError…) sohbet tikinin kalanını düşürmesin
+    except Exception as e:                                  # an error inside a tool (AttributeError...) must not take down the rest of the chat tick
         return {'ok': False, 'message': 'araç hatası: %r' % e}
     bot.event('tool', y.now if y is not None else None, name=name, result=r.get('ok'))
     return r
@@ -64,7 +64,7 @@ def _error(m):
     return {'ok': False, 'message': m}
 
 
-# ------------------------------------------------------------------------------------------------------------ hedefler
+# ------------------------------------------------------------------------------------------------------------ targets
 @tool('hunt_npcs', 'Uzaylı kas (harita verilirse oraya gidip orada).', {'map': 'string, ör. "1-3" (isteğe bağlı)'})
 def hunt_npcs(y, bot, map=None):
     m = _game_map(map) if map else None
@@ -140,7 +140,7 @@ def go_offline(y, bot):
     return _ok()
 
 
-# ------------------------------------------------------------------------------------------------------------ sosyal
+# ------------------------------------------------------------------------------------------------------------ social
 @tool('write_chat', 'Bir kanala yaz.', {'channel': 'global | firma | klan | grup', 'text': 'string'}, permission='sohbet')
 def write_chat(y, bot, channel='company', text=''):
     if channel not in ('global', 'company', 'clan', 'group') or not str(text).strip():
@@ -163,7 +163,7 @@ def group_invite(y, bot, name=''):
     from . import society
     out = GR.handle(society.person(bot), 'InvitationCreationRequest', {'name': name})
     hata = next((m[1].get('error') for m in out or () if m[0] == 'InvitationErrorCommand'), None)
-    if hata is not None:                               # oyuncu başka grupta, çevrimdışı, davet sınırı ...: söz olarak kalır
+    if hata is not None:                               # the player is in another group, offline, invitation limit ...: stays as words
         from . import interaction as IX
         IX.make_promise(bot, 'group', name, y.now if y else 0)
         reason = {GR.GROUP_FULL: 'grup dolu', GR.CANDIDATE_IN_GROUP: 'o zaten bir grupta', GR.CANDIDATE_NONEXISTENT: 'o çevrimiçi değil',
@@ -235,8 +235,8 @@ def apply_to_clan(y, bot, clan=''):
     return _ok() if out and out[0][1].get('success') else _error('başvurulamadı')
 
 
-# ------------------------------------------------------------------------------------------------------------ klan yönetimi
-# (klan_yonetim.py; lider ya da hakkı olan üye: oyunun klan istekleri hakları kendisi denetler)
+# ------------------------------------------------------------------------------------------------------------ clan management
+# (clan_management.py; the leader or a member with the right: the game's clan requests check the rights themselves)
 def _clan(bot):
     import clan as KL
     from . import society
@@ -418,10 +418,10 @@ def none_(y, bot):
     return _ok()
 
 
-# ------------------------------------------------------------------------------------------------------------ ajanın araçları
-# (Gelişmiş kip, güçlü sağlayıcı: bot/ajan.py modele sunar; karar motoru da çağırabilir)
+# ------------------------------------------------------------------------------------------------------------ the agent's tools
+# (Advanced mode, strong provider: bot/agent.py offers them to the model; the decision engine can call them too)
 def _item(bot, item):
-    """Mağaza adayı (artis, para, fiyat, loot): tam loot ya da sonu ("lf-2", "goliath") eşleşir."""
+    """Shop candidate (gain, currency, price, loot): matches the full loot or its ending ("lf-2", "goliath")."""
     from .goals import shopping as SHOP
     s = str(item or '').strip().lower()
     if not s:
@@ -449,7 +449,7 @@ def buy_item(y, bot, item=''):
     if c[3].startswith('ship_'):
         bot.event('new_ship', y.now if y else None, item=c[3])
     if bot.k.get('savings') == c[3]:
-        bot.k['savings'] = None                         # biriktirdiği şeyi aldı
+        bot.k['savings'] = None                         # bought what it had been saving for
     return _ok('%s alındı (%d %s)' % (c[3], c[2], c[1]))
 
 
@@ -464,7 +464,7 @@ def save_up(y, bot, item=''):
         return _error('mağaza listesinde yok')
     bot.k['savings'] = c[3]
     bot._candidates = None
-    bot._savings_woke = False                         # para tamamlanınca ajan bir kez uyanır (ajan.uyandiranlar)
+    bot._savings_woke = False                         # when the money is complete the agent wakes up once (agent.wakers)
     return _ok('%s için biriktiriliyor (%d %s)' % (c[3], c[2], c[1]))
 
 

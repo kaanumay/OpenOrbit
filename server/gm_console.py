@@ -1,28 +1,28 @@
-"""GM konsolu (yol haritası Ö2): istemcinin gizli yönetici penceresi (UIAdminTools, pencere 82) sunucuya bağlanır.
+"""GM console (roadmap Ö2): the client's hidden admin window (UIAdminTools, window 82) connects to the server.
 
-İstemcide (Ghidra: UnitFactory.InitMyUnit, GmComponentSystem, GmComponentSystemAwake, ClientDebugHelper):
-  - Pencere yalnız Hero.Admin iken açılır; Admin = ShipInitializationCommand.dailyRank == 6000. Açma: Ctrl, ardından Shift, ardından Z.
-    Admin olunca istemci ayrıca çıkış sayacını kısaltır ve görev listesinde görev kimliklerini "#id:" diye yazar.
-  - İlk açılışta CCInitRequest -> CCInitCommand {commands: [CCommandModule {name, args: [CCAttributeModule {name, subAttributes,
-    range (CCListRangeModule {valueList}), …}]}]}: istemci yalnız "box" (args 'spawn' > 'boxType' listesi) ve "quest" (args
-    'accept' listesi) komutlarının değer listelerini açılır listelere alır.
-  - Komutlar CCommandRequest {name, attributes: [CCRequestAttributeModule {name, value (CCIntValueModule / CCStringValueModule /
+In the client (Ghidra: UnitFactory.InitMyUnit, GmComponentSystem, GmComponentSystemAwake, ClientDebugHelper):
+  - The window opens only when Hero.Admin; Admin = ShipInitializationCommand.dailyRank == 6000. To open: Ctrl, then Shift, then Z.
+    When admin the client also shortens the exit countdown and writes quest ids as "#id:" in the quest list.
+  - On first open CCInitRequest -> CCInitCommand {commands: [CCommandModule {name, args: [CCAttributeModule {name, subAttributes,
+    range (CCListRangeModule {valueList}), ...}]}]}: the client takes into its dropdown lists only the value lists of the "box" (args 'spawn' > 'boxType' list)
+    and "quest" (args 'accept' list) commands.
+  - Commands are CCommandRequest {name, attributes: [CCRequestAttributeModule {name, value (CCIntValueModule / CCStringValueModule /
     CCItemValueModule / CCBooleanValueModule / CCQuestValueModule), subAttributes}]}:
-      jump      map {x, y}                   haritaya ışınlan
-      kill      range N | viewport | target | unselected | almost | me     uzaylıları öldür (ödülleriyle), canı 1'e indir, kendini
+      jump      map {x, y}                   teleport to the map
+      kill      range N | viewport | target | unselected | almost | me     kill aliens (with their rewards), set HP to 1, oneself
       quest     accept|finish|fail|cancel <id>, finishAll
-      book      item {amount, level, overheatPetGear} | package {amount}     eşya ya da paket ver
-      spawn     npcType {amount}             uzaylı doğur (istemcinin game.xml npcId'si: spawn_type)
-      box       spawn {boxType, amount}      kutu bırak; collect {boxType, amount}: en yakın kutuları topla
-      god       aç/kapa dokunulmazlık
-      cooldown  resetAll                     yetenek ve eşya beklemeleri sıfır
-      pet       petLevel/lv                  P.E.T. seviyesi
-      galaxyGates bookGGReward <ad> | setup <ad> {lifes, wave, lastWave}
-      addEternalBlacklightPoints <n>         EBL koşusuna puan
+      book      item {amount, level, overheatPetGear} | package {amount}     give an item or package
+      spawn     npcType {amount}             spawn an alien (the client's game.xml npcId: spawn_type)
+      box       spawn {boxType, amount}      drop a box; collect {boxType, amount}: collect the nearest boxes
+      god       toggle invulnerability
+      cooldown  resetAll                     reset ability and item cooldowns
+      pet       petLevel/lv                  P.E.T. level
+      galaxyGates bookGGReward <name> | setup <name> {lifes, wave, lastWave}
+      addEternalBlacklightPoints <n>         points to the EBL run
       battleStation                          Clan Battle Station (Ö5)
-    Yanıt komutu yok (protokolde CCommand… yanıtı yok): sonuç ekrana yazılır.
-  - Konsolun Ship Check, Switch Ship, Effects (efekt ve VisualModifier oynatma), Show Assets sayfaları sunucusuz.
-Panelin "GM konsolu" ayarı (gm_konsol, geliştirici) açıkken dailyRank 6000 gider (rütbe simgesi boş görünebilir) ve komutlar çalışır.
+    There is no response command (the protocol has no CCommand... response): the result is written to the screen.
+  - The console's Ship Check, Switch Ship, Effects (playing effects and VisualModifiers), Show Assets pages have no server side.
+When the panel's "GM console" setting (gm_console, developer) is on, dailyRank 6000 is sent (the rank icon may appear blank) and the commands work.
 """
 import json, math, os, random, time
 
@@ -32,22 +32,22 @@ from legacy_protocol import legacy
 REQUESTS = ('CCInitRequest', 'CCommandRequest')
 ADMIN_RANK = 6000
 GM_NPC = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'gm_npc.json'), encoding='utf8'))['npc']
-DERIVED = ('gg_', 'event_', 'pm_', 'apo_', 'experiment_')      # kapı, etkinlik, mod kopyaları: aynı npc_kimlik'te asıl tür önce
-STAND_IN = '79'                                          # sunucuda karşılığı olmayan NPC'nin değerleri (Kristallon)
+DERIVED = ('gg_', 'event_', 'pm_', 'apo_', 'experiment_')      # gate, event, mode copies: the original type first for the same npc_id
+STAND_IN = '79'                                          # values of an NPC that has no counterpart on the server (Kristallon)
 
 
 def enabled(profile=None):
-    """Arkadaş sunucusunda yalnız sunucunun oyuncusu (misafire sunucunun ayarı açık olsa da kapalı)."""
+    """On a friend server only the server's own player (off for a guest even if the server's setting is on)."""
     return bool(SET.get('gm_console')) and getattr(profile, 'guest', None) is None
 
 
 def mod(_cls, **f):
-    f['_'] = _cls                 # 'name' modüllerin kendi alanı
+    f['_'] = _cls                 # 'name' is the modules' own field
     return f
 
 
 def values(attrs):
-    """CCRequestAttributeModule listesi -> [(ad, değer, alt öğeler)] (değer modülünün türüne göre int / str / bool / lootId)."""
+    """CCRequestAttributeModule list -> [(name, value, sub-items)] (value by the value module's type int / str / bool / lootId)."""
     out = []
     for a in attrs or []:
         v = a.get('value') or {}
@@ -57,7 +57,7 @@ def values(attrs):
 
 
 def flat(attrs):
-    """Bütün öğeler tek sözlükte: ad -> değer (ilk görülen)."""
+    """All items in a single dictionary: name -> value (first seen)."""
     d = {}
     for name, val, sub in values(attrs):
         d.setdefault(name, val)
@@ -89,10 +89,10 @@ def _plain(s):
 
 
 def spawn_type(want):
-    """Spawn sayfasının npcId'si -> (tür, model, ad). İstemci game.xml'deki npcId'yi gönderir (data/gm_npc.json); tür anahtarları
-    (Battleray '115') başka NPC'lerin kimlikleriyle çakıştığı için önce npc_kimlik (oyuncu bildirimi 2026-10-30: Emperor Kristallon
-    115 -> Battleray, Ufo 25 -> Boss Saimon). Sunucuda kimliği olmayan: gemi türü bir tür anahtarıysa o, adı bir türünkiyle aynıysa o,
-    yoksa yedek türün değerleriyle istemcinin modeli ve adı (model, ad dolu)."""
+    """The spawn page's npcId -> (type, model, name). The client sends the npcId in game.xml (data/gm_npc.json); since the type keys
+    (Battleray '115') collide with other NPCs' ids, npc_id first (player report 2026-10-30: Emperor Kristallon
+    115 -> Battleray, Ufo 25 -> Boss Saimon). For one with no id on the server: the ship type if it is a type key, the name if it equals a type's,
+    otherwise the fallback type's values with the client's model and name (model, name filled in)."""
     T = world_types()
     same = [k for k, v in T.items() if str(v.get('npc_id')) == want and not k.startswith(('eg_', 'kp_'))]
     if same:
@@ -104,13 +104,13 @@ def spawn_type(want):
     if alike:
         return alike, None, None
     name = name if name.startswith(('-=', '..', '(', '\\', '<')) else '-=[ %s ]=-' % name
-    if kind in T:                            # aynı modelin başka adlı tasarımı (Boss Kucurbium: UberLordakium'un modeli)
+    if kind in T:                            # another-named design of the same model (Boss Kucurbium: UberLordakium's model)
         return kind, None, name
     return STAND_IN, kind, name
 
 
 class Console:
-    """Oturumun GM konsolu (game.Session bağlar: s)."""
+    """The session's GM console (game.Session binds: s)."""
 
     def __init__(self, session, log=print):
         self.s, self.log = session, log
@@ -126,7 +126,7 @@ class Console:
 
     def handle(self, name, f):
         if not enabled(self.s.profile):
-            self.log('   GM konsolu kapalı (panel: Geliştirici > GM konsolu): %s' % name)
+            self.log('   GM console off (panel: Developer > GM console): %s' % name)
             return []
         if name == 'CCInitRequest':
             return [self.init_cmd()]
@@ -136,12 +136,12 @@ class Console:
             return self.say('bilinmeyen komut %s' % cmd)
         try:
             return fn(values(f.get('attributes')), flat(f.get('attributes')))
-        except Exception as e:                      # konsol oyunu düşürmesin
+        except Exception as e:                      # the console must not crash the game
             import traceback
             self.log(traceback.format_exc())
             return self.say('%s hatası: %s' % (cmd, e))
 
-    # ------------------------------------------------------------ açılış listeleri
+    # ------------------------------------------------------------ opening lists
     def init_cmd(self):
         import world
         import loot as LOOT
@@ -171,13 +171,13 @@ class Console:
         else:
             w, h = H.map_size(dest)
             pos = (max(0, min(w, x)), max(0, min(h, y)))
-        self.log('   GM: ışınlanma %s %s' % (dest, pos))
+        self.log('   GM: teleport %s %s' % (dest, pos))
         self.s.change_map(dest, None, pos=pos)
         return []
 
     def cmd_kill(self, rows, d):
-        """Konsolun kill sayfası (istemci "seçenek[,değer]" gönderir): range N (menzildeki uzaylılar), viewport (ekrandakiler), target
-        (seçili), unselected (seçili dışında ekrandakiler), almost (seçili ya da ekrandakilerin canı 1, kalkanı 0), me (oyuncunun gemisi)."""
+        """The console's kill page (the client sends "option[,value]"): range N (aliens in range), viewport (those on screen), target
+        (selected), unselected (those on screen other than the selected), almost (the selected or those on screen: HP 1, shield 0), me (the player's ship)."""
         w = self.w
         if not w:
             return []
@@ -221,7 +221,7 @@ class Console:
         quests = self.s.quest
         msgs = []
         for name, val, sub in rows:
-            name = name.lower()                     # istemcinin sayfası: Accept, Finish, FinishAll, Fail
+            name = name.lower()                     # the client's page: Accept, Finish, FinishAll, Fail
             if name == 'finishall':
                 done = [int(q) for q in list(quests.st['active'])]
                 for q in done:
@@ -257,7 +257,7 @@ class Console:
         msgs = m.reward(loot, n)
         lv = num(d.get('level'))
         if lv > 1:
-            self.log('   GM: seviye %d istendi (yükseltme Assembly\'de)' % lv)
+            self.log('   GM: level %d requested (upgrade in Assembly\'s)' % lv)
         return msgs + m.money_msgs() + self.say('%s x%d' % (loot, n))
 
     def cmd_spawn(self, rows, d):
@@ -286,8 +286,8 @@ class Console:
         kind, n = d.get('boxType') or 'BONUS_BOX', max(1, min(50, num(d.get('amount'), 1)))
         now = time.time()
         if any(name == 'collect' for name, _, _ in rows):
-            # Collect düğmesi (istemci GmComponentSystem.SendCollectBox: 'collect' {boxType, amount}): en yakın kutuları toplar
-            # (oyuncu bildirimi 2026-10-30: Spawn gibi kutu bırakıyordu)
+            # Collect button (client GmComponentSystem.SendCollectBox: 'collect' {boxType, amount}): collects the nearest boxes
+            # (player report 2026-10-30: it dropped boxes like Spawn)
             with w.lock:
                 hx, hy = w.hero_pos(now)
                 near = sorted((math.hypot(b['x'] - hx, b['y'] - hy), h) for h, b in w.boxes.items() if b['tip'] == kind and w.own(b))

@@ -1,26 +1,26 @@
-"""DarkOrbit yerel sunucu yönetim paneli: oyunu başlatır, ayarları, kayıtları ve sunucuları yönetir.
+"""DarkOrbit local server management panel: starts the game, manages settings, saves and servers.
 
-Başlatma: ana dizindeki "OpenOrbit Panel.pyw" (çift tıkla; konsolsuz) ya da python server/panel/panel.py.
-Panel 127.0.0.1:8077'de yerel bir web arayüzü açar ve onu Edge'in (yoksa Chrome'un) uygulama penceresinde gösterir (adres çubuğu
-yok, internet gerekmez). Pencere kapanınca: oyun sürüyorsa istemci kapanana dek bekler (ayar), sonra panelin açtığı sunucuları
-kapatıp çıkar. Panel zaten açıksa ikinci başlatma yalnız pencereyi yeniden açar.
-API: /api/... (JSON). İstekler sayfadaki belirteci (X-Panel-Belirteci) taşımalı: başka sitelerin tarayıcıdan panele istek
-göndermesini engeller. Yalnız 127.0.0.1'e bağlanır.
-Yollar: paths.py (save/kayitlar, save/panel.json, save/ayarlar.json, logs/).
-Dil: lang.py'deki diller (metinler Türkçe yazılır, öbür dillerdekiler arayuz/<kod>.json). İlk açılışta arayüz kurulum sihirbazını
-açar: dil, oyun klasörü, ilk pilot, oyun ayarları (panel.json 'dil', 'kurulum_tamam'). Oyun bilgisayarda bulunamazsa sihirbazın oyun
-klasörü adımı onu indirmeye başlar (client_download.py; İstemci sayfasından da). İstemcinin düzeltmelerini yükleyen BepInEx de
-istemci klasörüne kurulur (client_patch.py: sihirbazın oyun klasörü adımında, istemci inince, İstemci sayfasından ya da ilk OYNA'da).
-Çoklu istemci (multi_client.py): OYNA'dan sonra öteki kayıtlarla ek istemciler aynı sunucuda (en az iki kayıt ve ayar açıksa sunucu çok
-oturumlu açılır); ek istemci açıkken sunucuyu yeniden başlatan işler reddedilir, sunucular son istemci kapanınca kapanır.
-Güncelleme (updater.py): açılıştan biraz sonra ve GUNCELLEME_SN'de bir GitHub'daki son sürüm denetlenir; panel ayarı 'guncelleme'
-otomatikse ve oyun, sunucular, indirme ya da başka bir iş sürmüyorsa kurulur, ardından panel yeniden başlar (yeni süreç aynı portu
-alır, açık pencere sayfayı yeniler).
-Linux ve macOS: istemci Wine ya da Proton ile açılır (client_runner.py, İstemci sayfasının Wine / Proton kartı); macOS'ta Otomatik
-panelin kendi kurduğu Wine + DXMT'dir (wine_engine.py: ilk OYNA'da, istemci indirilirken ya da İstemci sayfasından iner; Apple
-Silicon'da Rosetta 2'yi de panel kurdurur). Pencere Chrome, Edge, Chromium ya da Brave'de; dosya pencereleri Linux'ta tkinter (yoksa
-zenity), macOS'ta AppleScript (Tk orada yalnız ana iş parçacığında çalışır); kısayol Linux'ta .desktop, macOS'ta uygulama paketi (.app).
-"""
+Launch: "OpenOrbit Panel.pyw" in the main directory (double-click; no console) or python server/panel/panel.py.
+The panel opens a local web UI on 127.0.0.1:8077 and shows it in an app window of Edge (or Chrome if absent) (no address bar,
+no internet needed). When the window closes: if the game is running it waits until the client closes (setting), then closes the servers
+the panel opened and exits. If the panel is already open, a second launch only reopens the window.
+API: /api/... (JSON). Requests must carry the page's token (X-Panel-Belirteci): this stops other sites from sending requests
+to the panel from the browser. Binds to 127.0.0.1 only.
+Paths: paths.py (save/slots, save/panel.json, save/settings.json, logs/).
+Language: the languages in lang.py (texts are written in English, those of the other languages are in ui/<code>.json). On first launch the
+UI opens the setup wizard: language, game folder, first pilot, game settings (panel.json 'lang', 'setup_done'). If the game is not found
+on the computer, the wizard's game folder step starts downloading it (client_download.py; from the Client page too). BepInEx, which loads
+the client's fixes, is also installed into the client folder (client_patch.py: in the wizard's game folder step, once the client is
+downloaded, from the Client page, or on the first PLAY). Multi-client (multi_client.py): after PLAY, extra clients with the other saves on
+the same server (with at least two saves and the setting on, the server is opened in multi-session mode); while an extra client is open,
+actions that restart the server are rejected, and the servers close when the last client closes. Update (updater.py): a little after
+launch and every UPDATE_SEC the latest version on GitHub is checked; if the panel setting 'update' is auto and no game,
+servers, download or other job is running, it is installed, then the panel restarts (the new process takes the same port, the open window
+refreshes the page). Linux and macOS: the client is opened with Wine or Proton (client_runner.py, the Client page's Wine / Proton card);
+on macOS, Automatic is the Wine + DXMT the panel installs itself (wine_engine.py: downloaded on the first PLAY, while the client
+downloads, or from the Client page; on Apple Silicon the panel also has Rosetta 2 installed). The window is in Chrome, Edge, Chromium or
+Brave; file dialogs are tkinter on Linux (zenity if absent), AppleScript on macOS (Tk works there only on the main thread); the shortcut
+is a .desktop on Linux, an app bundle (.app) on macOS. """
 import datetime, json, os, re, secrets, shlex, shutil, subprocess, sys, threading, time, traceback
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
@@ -33,7 +33,7 @@ ROOT = os.path.dirname(SERVER)
 sys.path.insert(0, SERVER)
 sys.path.insert(0, PANEL_DIR)
 import platform_compat                   # noqa: E402
-platform_compat.certificates()           # macOS: python.org Python'unun kök sertifikası yoksa sistemin paketi (HTTPS'ten önce; sunucular devralır)
+platform_compat.certificates()           # macOS: if python.org Python's root certificate is missing, the system's bundle (before HTTPS; the servers inherit it)
 import paths as PTH          # noqa: E402
 import save_migration as SM  # noqa: E402
 import settings as SET             # noqa: E402
@@ -51,26 +51,26 @@ from updater import Updater, UpdateError  # noqa: E402
 from friends import Friend, FriendError  # noqa: E402
 from multi_client import MultiClient, MultiClientError  # noqa: E402
 import worlds as WLD          # noqa: E402
-import bots as BT            # noqa: E402  (Botlar sayfası: bot paketleri)
-import llm_setup as LLMS     # noqa: E402  (Gelişmiş bot kipinin dil modeli)
+import bots as BT            # noqa: E402  (Bots page: bot packs)
+import llm_setup as LLMS     # noqa: E402  (language model of the Advanced bot mode)
 import discord_rp as DRP       # noqa: E402  (Discord Rich Presence)
-from bot import llm_provider as PRV  # noqa: E402  (dil modelinin sağlayıcısı: dahili ya da kullanıcının seçtiği)
+from bot import llm_provider as PRV  # noqa: E402  (the language model's provider: built-in or the user's choice)
 
 VERSION = '1.0'
-DISCORD = 'https://discord.com/invite/openorbit'   # topluluk sunucusu (Panel sayfası, README); kalıcı davet
-DONATE_URL = 'https://buymeacoffee.com/kaanumay'       # destek bağlantısı (kenar çubuğunun en altı)
-DONATE_API_URL = 'https://app.buymeacoffee.com/api/creators/slug/kaanumay/coffees?web=1&page=1&per_page=20'   # son destekçiler
+DISCORD = 'https://discord.com/invite/openorbit'   # community server (Panel page, README); permanent invite
+DONATE_URL = 'https://buymeacoffee.com/kaanumay'       # support link (bottom of the sidebar)
+DONATE_API_URL = 'https://app.buymeacoffee.com/api/creators/slug/kaanumay/coffees?web=1&page=1&per_page=20'   # recent supporters
 PORT = 8077
 UI_DIR = os.path.join(PANEL_DIR, 'ui')
 TEMPLATES = os.path.join(PTH.SAVE, 'settings_templates.json')
 BROWSER_PROFILE = os.path.join(os.environ.get('LOCALAPPDATA') or PTH.SAVE, 'DarkOrbitPanel', 'browser')
 LOGS = ('gs.log', 'http.log', 'client.log', 'oyun_konsol.log', 'web_konsol.log', 'panel.log', 'errors.log', 'unknown.log') + (
-    () if os.name == 'nt' else ('wine.log',))      # Linux ve macOS: Wine'ın / Proton'un çıktısı (surecler.istemci_ac)
-EXTRA_LOG = re.compile(r'client_[a-z0-9_]{1,40}\.log')          # çoklu istemcinin ek istemcilerinin günlükleri (coklu.py)
-HEARTBEAT_SEC = 180                      # tarayıcı penceresi izlenemiyorsa: bu kadar istek gelmezse pencere kapandı sayılır (monotonic:
-                                    # macOS ve Linux'ta uykuda geçen süre sayılmaz)
-HANDOVER_SEC = 10                       # tarayıcı süreci bundan önce çıkarsa pencereyi açık bir sürece devretmiştir (watch_window)
-UPDATE_SEC = 6 * 3600            # GitHub'da yeni sürüm denetimi aralığı (başarısızsa bir saat sonra yeniden)
+    () if os.name == 'nt' else ('wine.log',))      # Linux and macOS: output of Wine / Proton (processes.open_client)
+EXTRA_LOG = re.compile(r'client_[a-z0-9_]{1,40}\.log')          # logs of the multi-client's extra clients (multi_client.py)
+HEARTBEAT_SEC = 180                      # if the browser window cannot be watched: if this many requests do not arrive the window is considered closed (monotonic:
+                                    # time spent asleep on macOS and Linux is not counted)
+HANDOVER_SEC = 10                       # if the browser process exits before this, it handed the window over to a running process (watch_window)
+UPDATE_SEC = 6 * 3600            # interval of the new-version check on GitHub (again after an hour if it fails)
 EVENT_DESCRIPTIONS = {
     'upgrade_hour': "Equipment upgrades in the Assembly cost 25% less uridium.",
     'dispatch_day': 'Event day for Dispatch missions.',
@@ -145,14 +145,14 @@ CFG = PanelConfig(PTH.PANEL)
 D.bind(lambda: CFG.get('lang'))
 MANAGER = PR.Manager(PTH.LOGS, log)
 SAV = Saves(CFG, python=PR.python_exe())
-FRD = Friend(CFG, SAV, MANAGER, log, VERSION)                        # Arkadaşlarınla Oyna: Host ve Join (arkadas.py)
-MULTI = MultiClient(CFG, SAV, MANAGER, lambda: FRD.key, PTH.LOGS, log)  # çoklu istemci: öteki kayıtlarla ek istemciler (coklu.py)
+FRD = Friend(CFG, SAV, MANAGER, log, VERSION)                        # Play with Friends: Host and Join (friends.py)
+MULTI = MultiClient(CFG, SAV, MANAGER, lambda: FRD.key, PTH.LOGS, log)  # multi-client: extra clients with the other saves (multi_client.py)
 SAV.in_use = lambda slot: (MANAGER.running() and MANAGER.slot == slot) or FRD.in_use(slot) or MULTI.in_use(slot)
-ADAPTER = Adapter(ROOT, PR.python_exe(), log, PR.NO_WINDOW)    # yeni istemciye protokol uyarlaması (protokol.py)
-UPD = Updater(ROOT, PTH.SAVE, log)                          # GitHub'dan güncelleme (guncelleme.py)
-ENG = RUN.engine()                                                # macOS: panelin kurduğu Wine + DXMT (wine_motoru.py)
+ADAPTER = Adapter(ROOT, PR.python_exe(), log, PR.NO_WINDOW)    # protocol adaptation to a new client (protocol_builds.py)
+UPD = Updater(ROOT, PTH.SAVE, log)                          # update from GitHub (updater.py)
+ENG = RUN.engine()                                                # macOS: the Wine + DXMT the panel installs (wine_engine.py)
 ENG.log = log
-PATCHER = PATCH.Patcher(log)                                           # istemcinin düzeltmelerini yükleyen BepInEx (istemci_yama.py)
+PATCHER = PATCH.Patcher(log)                                           # BepInEx, which loads the client's fixes (client_patch.py)
 TOKEN = secrets.token_hex(16)
 STATE = {'play': {'running': False, 'steps': [], 'error': None, 'finished': None, 'server_only': False},
          'heartbeat': time.monotonic(), 'window_closed': False, 'window_watched': False, 'last_backup': 0.0, 'closing': False,
@@ -160,7 +160,7 @@ STATE = {'play': {'running': False, 'steps': [], 'error': None, 'finished': None
 
 
 def rp_source():
-    """Discord Rich Presence'ın kaynağı (discord_rp.py) -> (canlı durum ya da None, panelin durumu)."""
+    """Source of Discord Rich Presence (discord_rp.py) -> (live status or None, the panel's state)."""
     live = read_json(os.path.join(PTH.LOGS, 'canli_durum.json'), None) if MANAGER.running() else None
     if live and time.time() - live.get('time', 0) > 15:
         live = None
@@ -173,10 +173,10 @@ RP = DRP.Presence(CFG, rp_source, _, log)
 
 
 class Error(Exception):
-    """Kullanıcıya gösterilen hata."""
+    """Error shown to the user."""
 
 
-# ------------------------------------------------------------------ yardımcılar
+# ------------------------------------------------------------------ helpers
 def read_json(path, default):
     try:
         with open(path, encoding='utf8') as fh:
@@ -194,7 +194,7 @@ def write_json(path, d):
 
 
 def world_id(slot, friend=False):
-    """Sunucunun dünyası: arkadaş sunucusunda Host'un seçtiği (panel ayarı arkadas_dunya), yoksa kaydın varsayılan dünyası."""
+    """The server's world: on a friend server the one the Host chose (panel setting friend_world), otherwise the save's default world."""
     choice = CFG.get('friend_world') if friend else None
     if choice and WLD.var(choice):
         return choice
@@ -202,17 +202,17 @@ def world_id(slot, friend=False):
 
 
 def world_file(slot, friend=False):
-    """Sunucunun dünya dosyası (Dünya Editörü; OO_WORLD) ya da None (standart dünya, silinmiş dünya)."""
+    """The server's world file (World Editor; OO_WORLD) or None (standard world, deleted world)."""
     return WLD.file_path(world_id(slot, friend))
 
 
 def bot_file(slot, friend=False):
-    """Sunucunun bot paketi (Botlar sayfası; OO_BOT): kaydın dünyasına atanmış paket ya da None."""
+    """The server's bot pack (Bots page; OO_BOT): the pack assigned to the save's world or None."""
     return BT.file_path(BT.world_pack(world_id(slot, friend) or WLD.STANDARD))
 
 
 def world_info(wid):
-    """Oyna sayfasının dünya çipi: {id, ad, kapak, degisiklik}; silinmiş dünya standart sayılır."""
+    """The Play page's world chip: {id, name, cover, changes}; a deleted world counts as standard."""
     try:
         w = WLD.summary(wid if wid and WLD.var(wid) else WLD.STANDARD)
     except WLD.WorldError:
@@ -221,7 +221,7 @@ def world_info(wid):
 
 
 def world_users():
-    """Dünya -> onu varsayılan yapan kayıtlar [{id, ad, pilot}]."""
+    """World -> the saves that make it their default [{id, ad, pilot}]."""
     out = {}
     for k in SAV.list():
         w = k.get('world') if k.get('world') and WLD.var(k.get('world')) else WLD.STANDARD
@@ -230,7 +230,7 @@ def world_users():
 
 
 def settings_file(slot=None):
-    """Oyun ayarlarının dosyası: kaydın kendi ayarları (etkin kayıt; kayıt yoksa eski ortak dosya)."""
+    """The game settings file: the save's own settings (the active save; the old shared file if there is no save)."""
     slot = slot or SAV.active()
     return SAV.settings(slot) if slot else PTH.SETTINGS
 
@@ -243,11 +243,12 @@ def client_folder():
     return IST.resolve(CFG.get('client_folder'))
 
 
-# ------------------------------------------------------------------ oyun menüleri (Mağaza)
-# Oyun açıkken panel oyunu oyun sunucusunun yerel kanalından değiştirir (server/panel_kanali.py; anahtar günlük klasöründe).
-# Görseller istemcinin BepInEx eklentisinin dökümü (eklenti/Gorseller.cs: <istemci>/BepInEx/openorbit/gorsel), /oyun_gorsel/ altında.
+# ------------------------------------------------------------------ in-game menus (Shop)
+# While the game is open the panel changes the game through the game server's local channel (server/panel_channel.py; the key is in the log
+# folder). The visuals are the dump of the client's BepInEx plugin (plugin/Images.cs: <client>/BepInEx/openorbit/images), under
+# /game_images/.
 def is_pack_running(pid):
-    """Bot paketi şu an çalışan oyunda mı."""
+    """Is the bot pack in the running game now."""
     return bool(MANAGER.running() and getattr(MANAGER, 'bot', None) and BT.file_path(pid)
                 and MANAGER.bot[0] == os.path.normcase(BT.file_path(pid)))
 
@@ -270,16 +271,16 @@ def game_channel(route, body=None):
 
 
 def game_image(name):
-    """Eklentinin döktüğü atlas sayfası, dizin ya da ad dosyası -> yol (yoksa None)."""
+    """The atlas page, index or name file dumped by the plugin -> path (None if absent)."""
     if not re.fullmatch(r'[\w.-]+\.(png|json)', name) or not client_folder():
         return None
-    p = os.path.join(client_folder(), 'BepInEx', 'openorbit', 'images', name)      # eklentinin döktüğü klasör
+    p = os.path.join(client_folder(), 'BepInEx', 'openorbit', 'images', name)      # folder dumped by the plugin
     return p if os.path.isfile(p) else None
 
 
 def _downloaded(path):
-    """İndirme bitti: kullanılan istemci geçersizse ya da güncelleniyorsa yeni klasör kullanılsın (kendiliğinden bulunuyorsa ayar boş
-    kalır); güncellemede eski klasör silinir."""
+    """Download finished: if the client in use is invalid or being updated, the new folder is used (if it is found automatically the
+    setting stays empty); on update the old folder is deleted."""
     old = STATE.pop('old_client', None)
     if old or not IST.check(client_folder())['valid']:
         auto = IST.resolve(None)
@@ -287,25 +288,25 @@ def _downloaded(path):
         CFG.update({'client_folder': None if same else path})
     if old:
         delete_old_client(old, path)
-    PATCHER.start(path)                                   # istemcinin düzeltmeleri için BepInEx (istemci_yama.py)
+    PATCHER.start(path)                                   # BepInEx for the client's fixes (client_patch.py)
 
 
 def delete_old_client(old, new_):
-    """İstemci güncellemesi: eski sürümün klasörünü sil. Yalnız arşivden açılmış DarkOrbit_Version… klasörü: resmî kurulumu kendi
-    başlatıcısı günceller, ona dokunulmaz."""
+    """Client update: delete the old version's folder. Only a DarkOrbit_Version… folder extracted from an archive: the official install is
+    updated by its own launcher, and is not touched."""
     if (os.path.normcase(os.path.normpath(old)) == os.path.normcase(os.path.normpath(new_))
             or not re.match(r'DarkOrbit_Version\d', os.path.basename(os.path.normpath(old))) or not IST.check(old)['valid']):
-        log('eski istemci silinmedi: %s' % old)
+        log('old client not deleted: %s' % old)
         return
     try:
         shutil.rmtree(old)
-        log('eski istemci silindi: %s' % old)
+        log('old client deleted: %s' % old)
     except OSError as e:
-        log('eski istemci silinemedi: %s: %r' % (old, e))
+        log('old client could not be deleted: %s: %r' % (old, e))
 
 
-DL = Downloader(ROOT, IST.check, log, on_done=_downloaded)       # oyun istemcisini indirme (indirme.py)
-LLM = LLMS.LlmSetup(log)                                       # botların dil modeli (llm_kurulum.py)
+DL = Downloader(ROOT, IST.check, log, on_done=_downloaded)       # downloading the game client (client_download.py)
+LLM = LLMS.LlmSetup(log)                                       # the bots' language model (llm_setup.py)
 
 
 def _dl_pct(st):
@@ -316,8 +317,8 @@ _dialog_lock = threading.Lock()
 
 
 def dialog(kind, **kw):
-    """Yerel dosya/klasör penceresi (tkinter; panelin önünde açılır) -> seçilen yol ya da ''. macOS'ta AppleScript, Linux'ta tkinter
-    yoksa zenity."""
+    """Local file/folder dialog (tkinter; opens in front of the panel) -> the chosen path or ''. AppleScript on macOS, zenity on Linux if
+    tkinter is missing."""
     with _dialog_lock:
         if sys.platform == 'darwin':
             q = lambda s: '"%s"' % str(s).replace('\\', '\\\\').replace('"', '\\"')
@@ -358,7 +359,7 @@ def open_folder(path):
         subprocess.Popen(['open' if sys.platform == 'darwin' else 'xdg-open', path])
 
 
-# ------------------------------------------------------------------ etkinlikler
+# ------------------------------------------------------------------ events
 def _period_text(a, b, lang):
     (ma, da), (mb, db) = (a.month, a.day), (b.month, b.day)
     months = MONTHS[lang]
@@ -376,7 +377,7 @@ def event_list():
     out = []
     for key, e in CAL.EVENTS.items():
         yearly = 'periods' in e
-        if yearly:                                      # önümüzdeki yılın dönemleri (takvim.upcoming; bitiş günü dahil)
+        if yearly:                                      # the periods of the coming year (event_calendar.upcoming; end day included)
             spans = CAL.upcoming(key, now)
             when = ', '.join(_period_text(a, b - datetime.timedelta(days=1), lang) for a, b in spans[:4]) + (
                 ' …' if len(spans) > 4 else '') or _('No upcoming dates')
@@ -401,7 +402,7 @@ def event_list():
                     'state': st, 'etkin': (st == 'on') if st else per is not None,
                     'description': _(EVENT_DESCRIPTIONS.get(key, '')),
                     'conflicting': sorted(_(CAL.EVENTS[j].get('name', j)) for j in CAL.CONFLICTS[key])})
-    # çakışma (takvim.resolve): aynı anda açık çakışanlardan elle açılan, yoksa önce başlayan kalır
+    # conflict (event_calendar.resolve): of those open at the same time, the one opened by hand stays, otherwise the one that started first
     rows = {x['anahtar']: x for x in out}
     on = {k for k, x in rows.items() if x['etkin']}
     keep = CAL.resolve(on, lambda k: (rows[k]['state'] != 'on', (CAL.period(k, now) or (0,))[0], k))
@@ -418,7 +419,7 @@ SESSION_NAMES = {'vortex': 'Vortex session', 'world_boss': 'Boss fight', 'krista
 
 
 def api_calendar(q):
-    """Etkinlik takvimi (event_schedule.py): [bas, bit) içindeki takvim ve etkin aralıklar, seanslar, şimdiki ya da sonraki dönem."""
+    """Event calendar (event_schedule.py): the calendar and active ranges within [bas, bit), sessions, the current or next period."""
     import event_schedule as CC
     now = time.time()
     try:
@@ -440,7 +441,7 @@ def api_calendar(q):
 
 
 def settings_summary(values):
-    """Varsayılandan farklı oyun ayarları [{'ad', 'deger'}] (Oyna sayfasının çipleri; ayar.summary'nin panel dilindeki hâli)."""
+    """Game settings that differ from the default [{'name', 'value'}] (the Play page's chips; settings.summary in the panel's language)."""
     d = SET.clean(values)
     out = []
     for s in SET.SCHEMA:
@@ -479,7 +480,7 @@ def set_events(body):
             ev[k] = v
         else:
             ev.pop(k, None)
-        if v == 'on':                             # çakışan elle açıklar takvime döner (takvim.CONFLICTS)
+        if v == 'on':                             # conflicting ones opened by hand go back to the calendar (event_calendar.CONFLICTS)
             for j in CAL.CONFLICTS[k]:
                 if ev.get(j) == 'on':
                     ev.pop(j)
@@ -488,21 +489,22 @@ def set_events(body):
     return event_list()
 
 
-# ------------------------------------------------------------------ uyarılar ve durum
+# ------------------------------------------------------------------ warnings and status
 def try_migrate():
-    """Eski tek kayıt (save/profil.json) varsa yuvaya taşı; portlar açıksa (o profille açılmış bir sunucu olabilir) sonraya."""
+    """If there is an old single save (save/profil.json), move it to a slot; if the ports are open (it may be a server opened with that
+    profile), later."""
     if not os.path.isfile(PTH.LEGACY_PROFILE) or MANAGER.running():
         return None
     table = PR.listeners()
     if any(PR.listening(p, table) for p in (8081, 8090)):
         if not STATE.get('migration_pending'):
-            log('eski kayıt taşınmadı: oyun portları açık (Baslat.bat ile açılmış bir sunucu kullanıyor olabilir)')
+            log('old save not moved: game ports are open (a server opened with Baslat.bat may be in use)')
         STATE['migration_pending'] = True
         return None
     STATE['migration_pending'] = False
     moved = SAV.migrate()
     if moved:
-        log('eski kayıt (save/profil.json) yuvaya taşındı: %s' % moved)
+        log('old save (save/profil.json) moved to a slot: %s' % moved)
     return moved
 
 
@@ -526,7 +528,7 @@ def warnings(folder=False):
     elif not c['valid']:
         out.append({'type': 'error', 'text': _('Game client not found: %s Choose its folder or download the game on the Client page.',
                                               ' '.join(c['issues'])), 'page': 'client'})
-    elif c['eski']:                                                  # yeni sürüm çıktı: tek tıkla güncellenir (/api/istemci/guncelle)
+    elif c['eski']:                                                  # a new version is out: updated with one click (/api/istemci/guncelle)
         dl, sup = DL.state(), IST.supported()
         run = bool(STATE.get('old_client')) and dl['running']
         text = (_('Updating the game to version %s: %d%%. When it is done the old version is deleted and BepInEx is reinstalled.', sup, _dl_pct(dl))
@@ -540,7 +542,7 @@ def warnings(folder=False):
                               'running_text': _('Updating…')}})
     elif not c['compatible']:
         out.append({'type': 'warning', 'text': c['issues'][-1], 'page': 'client'})
-    error = RUN.find(CFG)['error']                                      # Linux ve macOS: Wine ya da Proton (Apple Silicon'da Rosetta)
+    error = RUN.find(CFG)['error']                                      # Linux and macOS: Wine or Proton (Rosetta on Apple Silicon)
     if error:
         w = {'type': 'error', 'text': error, 'page': 'client'}
         if RUN.rosetta_error():
@@ -558,7 +560,7 @@ def warnings(folder=False):
     error = PR.port_80_problem()
     if error:
         out.append({'type': 'error', 'text': error, 'page': 'server'})
-    missing = [n for n in PTH.TEMPLATES if not PTH.template(n)]       # kendi kaydın ya da paylaşılabilir kopya (data/defaults)
+    missing = [n for n in PTH.TEMPLATES if not PTH.template(n)]       # your own record or the shareable copy (data/defaults)
     if missing:
         out.append({'type': 'warning', 'text': _('Login templates are missing (%s): the game starts with a minimal login, some windows and the shop '
                                                  'may be empty.', ', '.join(missing)), 'page': 'server'})
@@ -587,7 +589,7 @@ def warnings(folder=False):
 
 def status():
     STATE['heartbeat'] = time.monotonic()
-    STATE['window_closed'] = False                  # bir pencere yine soruyor (ikinci başlatmanın açtığı da)
+    STATE['window_closed'] = False                  # a window is asking again (the one opened by a second launch too)
     if STATE.get('migration_pending'):
         try_migrate()
     slot = SAV.active()
@@ -600,7 +602,7 @@ def status():
     vals = game_settings()
     ev = [e['name'] for e in event_list() if e['etkin'] and e['type'] == 'yearly']
     slots = SAV.slots()
-    folder = client_folder()                     # istemci klasörü araması (glob) bir kez: uyarılar ve yanıt
+    folder = client_folder()                     # client folder search (glob) once: warnings and the response
     return {'processes': MANAGER.status(), 'active': active, 'save_count': len(slots),
             'settings_summary': settings_summary(vals), 'events': ev,
             'warnings': warnings(folder), 'play': STATE['play'], 'client_folder': folder,
@@ -611,20 +613,20 @@ def status():
                       'uptime_sec': int(time.time() - STATE['opening'])}}
 
 
-# ------------------------------------------------------------------ çoklu istemci (coklu.py)
+# ------------------------------------------------------------------ multi-client (multi_client.py)
 def multi_env():
-    """Çoklu istemcinin oyun sunucusu ayarları (OO_MULTIPLAYER; cok_oyunculu.configure): yalnız bu bilgisayar, misafir yok."""
+    """The multi-client's game server settings (OO_MULTIPLAYER; multiplayer.configure): this computer only, no guests."""
     return json.dumps({'address': '127.0.0.1', 'guest': False, 'anahtar': FRD.key, 'code': VERSION, 'local': FRD.local})
 
 
 def multi_wanted(slot):
-    """OYNA sunucuyu çok oturumlu açsın mı: ayar açık ve en az iki kayıt var (tek kaydı olanın sunucusu tek oyunculu kalır), ya da
-    sunucu bu kayıtla zaten öyle açık."""
+    """Should PLAY open the server in multi-session mode: the setting is on and there are at least two saves (the server of one with a
+    single save stays single player), or the server is already open that way with this save."""
     return bool(CFG.get('multi_client') and len(SAV.slots()) > 1) or (MANAGER.running() and MANAGER.multi and MANAGER.slot == slot)
 
 
 def multi_status(slots):
-    """Oyna sayfasının Çoklu istemci kartı: açık ek istemciler, son kapanışlar ve ek istemcide açılabilecek kayıtlar."""
+    """The Play page's Multi-client card: open extra clients, recent closings and the saves that can be opened in an extra client."""
     live = read_json(os.path.join(PTH.LOGS, 'canli_durum.json'), None) if MULTI.live() else None
     out = dict(MULTI.state(live), setting=CFG.get('multi_client'), max_count=CFG.get('multi_client_max'), save_count=len(slots),
                server=MANAGER.running() and (MANAGER.multi or MANAGER.friend), main=MANAGER.slot if MANAGER.running() else None, saves=[])
@@ -640,8 +642,8 @@ def multi_status(slots):
 
 
 def open_extra(b):
-    """Çoklu istemci: başka bir kayıtla ek istemci. Sunucu çok oturumlu açık olmalı; tek oyunculu açıksa ve oyun kapalıysa öyle
-    yeniden başlatılır."""
+    """Multi-client: an extra client with another save. The server must be open in multi-session mode; if it is open as single player and
+    the game is closed it is restarted that way."""
     slot = str(b.get('record') or '')
     if not slot or not SAV.exists(slot):
         raise Error(_('Save not found.'))
@@ -658,17 +660,17 @@ def open_extra(b):
     if not (MANAGER.multi or MANAGER.friend):
         if MANAGER.client_alive() or MULTI.live():
             raise Error(_('The server started in single-player mode: for an extra client, close the game and press PLAY again.'))
-        log('çoklu istemci: sunucu çok oturumlu yeniden başlatılıyor')
+        log('multi-client: restarting the server in multi-session mode')
         MANAGER.start_servers(SAV.profile(MANAGER.slot), settings_file(MANAGER.slot), control=bool(SET.read(settings_file(MANAGER.slot)).get('control')), slot=MANAGER.slot,
                           multi=multi_env(), world=world_file(MANAGER.slot), bot=bot_file(MANAGER.slot))
     return MULTI.open_(slot, client_folder(), MANAGER.slot)
 
 
 def clients_closed():
-    """Ana istemci ya da bir ek istemci kapandı: hepsi kapandıysa panelin davranışı (sunucuları kapat, pencere kapandıysa çık). Ana
-    istemci bu sunucu oturumunda açılmadıysa (yalnız sunucu) ya da erken kapandıysa sunucular açık kalır."""
+    """The main client or an extra client closed: the panel's behavior if all have closed (close the servers, exit if the window closed).
+    If the main client was not opened in this server session (server only) or closed early, the servers stay open."""
     if MANAGER.client_alive() or MULTI.live():
-        return                                        # bir istemci sürüyor: sunucular açık kalır
+        return                                        # a client is running: the servers stay open
     game, last = MANAGER.servers.get('game'), MANAGER.last_client
     if not (game and game.alive and MANAGER.client_started and MANAGER.client_started >= game.start and last and not last['early']):
         return
@@ -681,7 +683,7 @@ def clients_closed():
 MULTI.on_exit = clients_closed
 
 
-# ------------------------------------------------------------------ oyna
+# ------------------------------------------------------------------ play
 def _step(text, state='running'):
     o = STATE['play']
     if o['steps'] and o['steps'][-1]['state'] == 'running':
@@ -703,7 +705,7 @@ def launch(server_only=False, friend=False):
         if MULTI.in_use(slot):
             raise Error(_('The active save is open in an extra client: close that client first or make another save active.'))
         folder = client_folder()
-        SM.migrate_client(folder, log)                  # eski sürümün istemci klasöründeki dosyaları (görsel dökümü, metinler)
+        SM.migrate_client(folder, log)                  # files in the old version's client folder (visual dump, texts)
         if not server_only:
             c = IST.check(folder)
             if STATE.get('old_client') and DL.running():
@@ -714,26 +716,26 @@ def launch(server_only=False, friend=False):
                 raise Error(_('Invalid client folder: %s', ' '.join(c['issues'])))
             if MANAGER.client_alive():
                 raise Error(_('The game is already running.'))
-            others = IST.running_clients(MULTI.pids())                     # panelin ek istemcileri sayılmaz
+            others = IST.running_clients(MULTI.pids())                     # the panel's extra clients do not count
             if others:
                 raise Error(_('Another DarkOrbit client is running (process %s). Close it first.', ', '.join(map(str, others))))
             r = RUN.find(CFG)
-            if r['type'] == 'engine' and not r['error'] and not r['route']:      # macOS: panelin Wine'ı ilk OYNA'da iner (wine_motoru.py)
+            if r['type'] == 'engine' and not r['error'] and not r['route']:      # macOS: the panel's Wine is downloaded on the first PLAY (wine_engine.py)
                 _step(_('Downloading Wine and DXMT'))
                 ENG.wait(lambda pct: STATE['play']['steps'][-1].update(text=_('Downloading Wine and DXMT: %d%%', pct)))
-            if not PATCH.installed(folder):                   # istemcinin düzeltmeleri: BepInEx sihirbazda kurulmadıysa ilk OYNA'da
+            if not PATCH.installed(folder):                   # the client's fixes: on the first PLAY if BepInEx was not installed in the wizard
                 _step(_('Installing BepInEx'))
                 if not PATCHER.wait(folder, lambda pct: o['steps'][-1].update(text=_('Installing BepInEx: %d%%', pct))):
                     o['steps'][-1].update(text=_('BepInEx could not be installed; the game opens without the fixes: %s',
                                                     PATCHER.state(folder)['error']), state='error')
-            cmd, env = IST.command(CFG, folder, os.path.join(PTH.LOGS, 'client.log'))     # Wine / Proton yoksa sunucular açılmadan hata
-            if PATCH.installed(folder) and not PATCH.ready(folder):  # BepInEx'in interop derlemeleri oyundan önce (istemci_yama.isit)
+            cmd, env = IST.command(CFG, folder, os.path.join(PTH.LOGS, 'client.log'))     # if there is no Wine / Proton, an error before the servers open
+            if PATCH.installed(folder) and not PATCH.ready(folder):  # BepInEx's interop assemblies before the game (client_patch.warm_up)
                 _step(_('Preparing BepInEx for the first launch (about half a minute)'))
                 if not PATCH.warm_up(folder, cmd, env, PTH.LOGS, lambda d: o['steps'][-1].update(progress=d)):
                     o['steps'][-1].update(text=_("BepInEx couldn't be prepared, starting the game anyway"), state='error')
         prof = SAV.profile(slot)
         same = MANAGER.running() and MANAGER.slot == slot
-        friend = friend or (MANAGER.running() and MANAGER.friend)    # açık arkadaş sunucusu Oyna ile kapanmaz (misafirler düşmesin)
+        friend = friend or (MANAGER.running() and MANAGER.friend)    # an open friend server is not closed by Play (so guests are not dropped)
         friend_env = FRD.host_env() if friend else None
         multi = None if friend else (multi_env() if multi_wanted(slot) else None)
         restart = MANAGER.needs_restart(prof, friend_env, multi, world_file(slot, friend), bot_file(slot, friend))
@@ -753,13 +755,13 @@ def launch(server_only=False, friend=False):
                           multi=multi, world=world_file(slot, friend), bot=bot_file(slot, friend))
         if not server_only:
             _step(_('Opening the game'))
-            try:                                      # dünyanın görev başlıkları (eklentinin GorevMetinleri yaması okur)
+            try:                                      # the world's quest titles (read by the plugin's QuestTexts patch)
                 WLD.write_texts(folder, world_id(slot, friend))
             except OSError as e:
-                log('görev metinleri yazılamadı: %s' % e)
+                log('quest texts could not be written: %s' % e)
             write_legacy_upgrade(folder, slot)
             MANAGER.start_client(folder, cmd, env)
-            if MANAGER.multi or MANAGER.friend:              # birden çok istemci olabilir: pencereler pilotun adıyla ayırt edilsin
+            if MANAGER.multi or MANAGER.friend:              # there can be several clients: windows are told apart by the pilot's name
                 PR.window_title(MANAGER.client.pid, 'DarkOrbit — %s' % SAV.summary(slot).get('pilot', slot))
             m = SAV.meta(slot)
             SAV.set_meta(slot, last_played=time.strftime('%Y-%m-%d %H:%M:%S'), play_count=int(m.get('play_count') or 0) + 1)
@@ -768,17 +770,17 @@ def launch(server_only=False, friend=False):
     except (Error, SaveError, RuntimeError, OSError) as e:
         o['error'] = str(e)
         _step(str(e), 'error')
-        log('oyna hatası: %s' % e)
+        log('play error: %s' % e)
     except Exception as e:
         o['error'] = _('Unexpected error: %r', e)
         _step(o['error'], 'error')
-        log('oyna hatası: %s' % traceback.format_exc())
+        log('play error: %s' % traceback.format_exc())
     finally:
         o['running'] = False
 
 
 def migration_error():
-    """Kayıtlar yeni biçime taşınamadıysa (paths.MIGRATION_ERROR) kullanıcıya gösterilen ileti, yoksa None."""
+    """The message shown to the user if the saves could not be migrated to the new format (paths.MIGRATION_ERROR), otherwise None."""
     return _('Your saves could not be moved to the new format (%s). The backup of the old saves is under '
              'server/save (v1_backup_*.zip); the servers will not start.', PTH.MIGRATION_ERROR) if PTH.MIGRATION_ERROR else None
 
@@ -795,7 +797,7 @@ def start_launch(server_only=False, friend=False):
 
 
 def join_friend(b):
-    """Arkadaşlarınla Oyna > Join: denetimler panelde (istemci, açık oyun ve sunucular), katılma arka planda (friends.py)."""
+    """Play with Friends > Join: checks in the panel (client, open game and servers), joining in the background (friends.py)."""
     if migration_error():
         raise Error(migration_error())
     if STATE['play']['running']:
@@ -821,26 +823,26 @@ def join_friend(b):
 
 
 def on_client_exit(early):
-    if FRD.client_closed():                         # arkadaşın sunucusundan ayrılınır, misafirin web sunucusu kapanır
+    if FRD.client_closed():                         # leaves the friend's server, the guest's web server closes
         return
     if early:
         return
-    clients_closed()                              # ek istemciler sürüyorsa sunucular açık kalır
+    clients_closed()                              # if extra clients are running the servers stay open
 
 
 MANAGER.on_client_exit = on_client_exit
 
 
 def idle(strict=False):
-    """Güncelleme kurulabilir mi: oyun, sunucular, başlatma, istemci indirmesi, protokol aracı durmuş (strict: panelin
-    açmadığı DarkOrbit istemcisi de yok; tasklist çalışır)."""
+    """Can an update be installed: game, servers, launch, client download, protocol tool stopped (strict: no DarkOrbit client the panel
+    did not open either; tasklist works)."""
     busy = (MANAGER.running() or MANAGER.client_alive() or STATE['play']['running'] or DL.running() or ADAPTER.state()['running']
             or FRD.active() or MULTI.live() or ENG.running() or PATCHER.running() or LLM.running())
     return not busy and not (strict and IST.running_clients())
 
 
 def update_tick(now):
-    """GitHub denetimi (GUNCELLEME_SN'de bir), otomatik kurulum ve kurulumdan sonra yeniden başlatma (boştayken)."""
+    """GitHub check (every GUNCELLEME_SN), automatic install and restart after installation (when idle)."""
     mode = CFG.get('update')
     st = UPD.state()
     if st['running']:
@@ -859,13 +861,14 @@ def update_tick(now):
 
 
 def restart():
-    """Güncellemeden sonra yeniden başla: yeni süreç (pencere açmadan) eski kapanınca aynı portu alır; açık pencere sayfayı yeniler."""
+    """Restart after an update: the new process (without opening a window) takes the same port when the old one closes; the open window
+    refreshes the page."""
     STATE['closing'] = True
     args = [sys.executable, os.path.join(PANEL_DIR, 'panel.py'), '--no-window', '--updated', '--port=%d' % PORT]
-    log('panel güncellendi: yeniden başlatılıyor')
+    log('panel updated: restarting')
     try:
         if os.name == 'nt':
-            subprocess.Popen(args, cwd=ROOT, close_fds=True, creationflags=0x00000008 | 0x00000200)   # DETACHED, yeni süreç grubu
+            subprocess.Popen(args, cwd=ROOT, close_fds=True, creationflags=0x00000008 | 0x00000200)   # DETACHED, new process group
         else:
             subprocess.Popen(args, cwd=ROOT, close_fds=True, start_new_session=True)
         if STATE['srv']:
@@ -875,7 +878,7 @@ def restart():
 
 
 def ticker():
-    """Oyun sürerken aralıklı yedek; pencere kapandıysa ve iş kalmadıysa çıkış; güncelleme (update_tick)."""
+    """Periodic backup while the game runs; exit if the window closed and no work remains; update (update_tick)."""
     while not STATE['closing']:
         time.sleep(5)
         try:
@@ -884,21 +887,21 @@ def ticker():
             if MANAGER.client_alive() and MANAGER.slot and iv and time.time() - STATE['last_backup'] >= iv * 60:
                 SAV.backup(MANAGER.slot, 'auto', _('During the game'))
                 STATE['last_backup'] = time.time()
-            MULTI.backup(iv)                           # ek istemcilerin kayıtları
+            MULTI.backup(iv)                           # saves of the extra clients
             if not STATE['window_watched'] and time.monotonic() - STATE['heartbeat'] > HEARTBEAT_SEC and not STATE['window_closed']:
                 STATE['window_closed'] = True
-                log('panel penceresi kapandı (sayfa artık sormuyor)')
+                log('panel window closed (the page no longer asks)')
                 if CFG.get('when_window_closes') == 'close':
                     MANAGER.stop_client()
                     MULTI.close_all(wait=8)
             if STATE['window_closed'] and not MANAGER.client_alive() and not MULTI.live() and not STATE['play']['running']:
                 shutdown()
         except Exception:
-            log('zamanlayıcı hatası: %s' % traceback.format_exc())
+            log('timer error: %s' % traceback.format_exc())
 
 
 def wait_for_client(sec=8):
-    """stop_client yalnız sinyal gönderir: istemci kapanana dek bekle (yoksa shutdown sunucuları açık bırakıp çıkıyordu)."""
+    """stop_client only sends a signal: wait until the client closes (otherwise shutdown left the servers open and exited)."""
     last = time.time() + sec
     while MANAGER.client_alive() and time.time() < last:
         time.sleep(0.2)
@@ -908,23 +911,23 @@ def shutdown():
     if STATE['closing']:
         return
     STATE['closing'] = True
-    log('panel kapanıyor')
+    log('panel shutting down')
     try:
-        DL.cancel()                                   # indirme: açılmış dosyalar kalır, sonra kaldığı yerden
+        DL.cancel()                                   # download: extracted files stay, then it resumes from where it left off
         ENG.cancel()
         if not MANAGER.client_alive() and not MULTI.live():
-            FRD.shutdown()                             # arkadaşın sunucusundaysa ayrılınır (son hâl kayda)
+            FRD.shutdown()                             # if on the friend's server, leave (final state to the save)
             MANAGER.stop_servers()
         w = STATE.get('windowed')
-        if w and w.poll() is None:                    # panelin açtığı uygulama penceresi de kapansın
+        if w and w.poll() is None:                    # the app window the panel opened closes too
             w.terminate()
     finally:
         os._exit(0)
 
 
-# ------------------------------------------------------------------ pencere
+# ------------------------------------------------------------------ window
 def browser():
-    """Uygulama penceresini (--app) açabilen tarayıcı: Edge ya da Chrome (Linux ve macOS'ta Chromium ve Brave de) ya da None."""
+    """A browser that can open an app window (--app): Edge or Chrome (Chromium and Brave too on Linux and macOS) or None."""
     if sys.platform == 'darwin':
         cands = ['/Applications/%s.app/Contents/MacOS/%s' % (a, a) for a in ('Microsoft Edge', 'Google Chrome', 'Chromium', 'Brave Browser')]
     elif os.name != 'nt':
@@ -941,18 +944,18 @@ def browser():
 
 
 def open_window(url):
-    """Uygulama penceresi (Edge/Chrome --app, panelin kendi tarayıcı profili) -> izlenebilen süreç ya da None."""
+    """App window (Edge/Chrome --app, the panel's own browser profile) -> a process that can be watched or None."""
     b = browser()
     if not b:
         import webbrowser
         webbrowser.open(url)
         return None
-    old = os.path.join(os.path.dirname(BROWSER_PROFILE), 'tarayici')      # eski adı (2026-11-01 öncesi): pencere boyutu, izinler kalsın
+    old = os.path.join(os.path.dirname(BROWSER_PROFILE), 'tarayici')      # old name (before 2026-11-01): so window size and permissions stay
     if os.path.isdir(old) and not os.path.exists(BROWSER_PROFILE):
         try:
             os.replace(old, BROWSER_PROFILE)
         except OSError:
-            pass                                        # eski pencere açık: yeni profille açılır
+            pass                                        # old window open: opens with the new profile
     os.makedirs(BROWSER_PROFILE, exist_ok=True)
     return subprocess.Popen([b, '--app=%s' % url, '--user-data-dir=%s' % BROWSER_PROFILE, '--window-size=1360,880',
                              '--no-first-run', '--no-default-browser-check', '--disable-features=Translate,msEdgeSidebarV2',
@@ -962,34 +965,35 @@ def open_window(url):
 def watch_window(proc):
     STATE['windowed'] = proc
     if sys.platform == 'darwin':
-        # macOS'ta pencere kapanınca tarayıcı (öteki uygulamalar gibi) Dock'ta açık kalır: süreç beklenemez. Kapanış sayfanın
-        # kapanış işaretinden ve nabzından anlaşılır (/api/kapandi, ticker; tarayıcıdan çıkılınca da işaret gelir); panel kapanınca
-        # bu süreç de kapanır (shutdown)
+        # on macOS when the window closes the browser (like other apps) stays open in the Dock: the process cannot be waited on. Closing
+        # is detected from the page's close mark and heartbeat (/api/kapandi, ticker; the mark also arrives when the browser is quit);
+        # when the panel closes this process closes too (shutdown)
         return
     STATE['window_watched'] = True
     t0 = time.time()
     proc.wait()
     STATE['window_watched'] = False
     if time.time() - t0 < HANDOVER_SEC:
-        # aynı profil klasörüyle açık bir tarayıcı süreci varsa yeni süreç pencereyi ona devredip hemen çıkar (18, 20 ve 22 Ekim:
-        # panel açılır açılmaz "kapandı" sayılıp kapanıyordu): pencere açık, kapanışı sayfanın nabzından anlaşılır (ticker)
+        # if a browser process is open with the same profile folder, the new process hands the window over to it and exits at once (18, 20
+        # and 22 Oct: as soon as the panel opened it was considered "closed" and shut down): the window is open, its closing is detected
+        # from the page's heartbeat (ticker)
         STATE['heartbeat'] = time.monotonic()
-        log('panel penceresi açık bir tarayıcı sürecine devredildi; nabızla izleniyor')
+        log('panel window handed over to a running browser process; watching by heartbeat')
         return
-    log('panel penceresi kapandı')
+    log('panel window closed')
     if CFG.get('when_window_closes') == 'close':
         MANAGER.stop_client()
-        MULTI.close_all(wait=8)                   # ek istemcilerin son kaydı sunucuya bırakılsın
+        MULTI.close_all(wait=8)                   # so the extra clients' final save is released to the server
         wait_for_client()
         shutdown()
     STATE['window_closed'] = True
 
 
-SHORTCUT, OLD_SHORTCUT = 'OpenOrbit.lnk', 'DarkOrbit.lnk'   # eski: 2026-10-24'ten önce konan (kaldırılan "DarkOrbit Panel.pyw"yi açar)
+SHORTCUT, OLD_SHORTCUT = 'OpenOrbit.lnk', 'DarkOrbit.lnk'   # old: one placed before 2026-10-24 (opens the removed "DarkOrbit Panel.pyw")
 
 
 def desktop_dir():
-    """Masaüstü klasörü (OneDrive'a taşınmışsa da; Linux'ta xdg-user-dir'in söylediği)."""
+    """Desktop folder (also if moved to OneDrive; on Linux what xdg-user-dir says)."""
     if os.name != 'nt':
         try:
             d = subprocess.run(['xdg-user-dir', 'DESKTOP'], capture_output=True, text=True, timeout=5).stdout.strip()
@@ -1003,8 +1007,9 @@ def desktop_dir():
 
 
 def old_shortcut():
-    """Masaüstündeki eski adlı kısayolun yolu ya da None: yalnız hedefi bu panelin eski başlatıcısı "DarkOrbit Panel.pyw" olan
-    (oyunun kendi DarkOrbit kısayolu değil). Kısayol kendiliğinden değiştirilmez; kullanıcı "Kısayol oluştur"a basınca yenisi konur."""
+    """Path of the old-named shortcut on the desktop or None: only one whose target is this panel's old launcher "DarkOrbit Panel.pyw"
+    (not the game's own DarkOrbit shortcut). The shortcut is not changed automatically; when the user presses "Create shortcut" the new
+    one is put in place."""
     p = os.path.join(desktop_dir(), OLD_SHORTCUT)
     try:
         with open(p, 'rb') as fh:
@@ -1014,8 +1019,9 @@ def old_shortcut():
 
 
 def mac_shortcut(script):
-    """macOS: masaüstüne OpenOrbit.app (paneli arka planda başlatan küçük uygulama paketi; Terminal penceresi açılmaz, Dock'ta
-    kalmaz; simge panelinki, sips ve iconutil ile) -> yolu. Eski sürümlerin koyduğu OpenOrbit.command kaldırılır."""
+    """macOS: OpenOrbit.app on the desktop (a small app bundle that starts the panel in the background; no Terminal window opens, it does
+    not stay in the Dock; the icon is the panel's, with sips and iconutil) -> its path. The OpenOrbit.command put by old versions is
+    removed."""
     app = os.path.join(desktop_dir(), 'OpenOrbit.app')
     if os.path.isdir(app):
         shutil.rmtree(app)
@@ -1042,12 +1048,12 @@ def mac_shortcut(script):
                 os.remove(old)
     except OSError:
         pass
-    subprocess.run(['touch', app], capture_output=True)      # Finder simgeyi yenilesin
+    subprocess.run(['touch', app], capture_output=True)      # so Finder refreshes the icon
     return app
 
 
 def _mac_icon(out):
-    """Panelin simgesi (arayuz/icon.png, 512x512) -> .icns; olmazsa None (uygulama genel simgeyle açılır)."""
+    """The panel's icon (arayuz/icon.png, 512x512) -> .icns; None if it fails (the app opens with the generic icon)."""
     import tempfile
     try:
         with tempfile.TemporaryDirectory() as tmp:
@@ -1063,9 +1069,9 @@ def _mac_icon(out):
 
 
 def refresh_shortcut(create=None):
-    """Masaüstü kısayolu 2026-11-01'den önceki simge yolunu (server/panel/arayuz/simge.*; İngilizce geçişte arayuz -> ui) gösteriyorsa
-    yeniden oluşturulur; yoksa ya da güncelse dokunulmaz -> yenilendi mi."""
-    if sys.platform == 'darwin':                      # OpenOrbit.app simgeyi kendi içine kopyalar
+    """If the desktop shortcut points to the icon path from before 2026-11-01 (server/panel/arayuz/simge.*; arayuz -> ui in the English
+    migration) it is recreated; if absent or up to date it is not touched -> was it renewed."""
+    if sys.platform == 'darwin':                      # OpenOrbit.app copies the icon into itself
         return False
     if os.name == 'nt':
         p, old = os.path.join(desktop_dir(), SHORTCUT), os.path.join('ui', 'simge.ico').encode('utf-16-le')
@@ -1078,16 +1084,16 @@ def refresh_shortcut(create=None):
             if old not in fh.read():
                 return False
         (create or create_shortcut)()
-        log('kısayol yenilendi (simge yolu)')
+        log('shortcut renewed (icon path)')
         return True
-    except Exception as e:                            # kısayol olmadan da panel çalışır
-        log('kısayol yenilenemedi: %s' % e)
+    except Exception as e:                            # the panel works without a shortcut too
+        log('shortcut could not be renewed: %s' % e)
         return False
 
 
 def unix_shortcut():
-    """Linux: masaüstüne ve uygulama menüsüne openorbit.desktop; macOS: masaüstüne OpenOrbit.app (mac_shortcut) -> masaüstündekinin
-    yolu."""
+    """Linux: openorbit.desktop on the desktop and in the application menu; macOS: OpenOrbit.app on the desktop (mac_shortcut) -> the path
+    of the one on the desktop."""
     script = os.path.join(ROOT, 'OpenOrbit Panel.pyw')
     os.makedirs(desktop_dir(), exist_ok=True)
     if sys.platform == 'darwin':
@@ -1101,13 +1107,13 @@ def unix_shortcut():
         with open(p, 'w', encoding='utf8', newline='\n') as fh:
             fh.write(text)
         os.chmod(p, 0o755)
-    if shutil.which('gio'):                           # GNOME masaüstündeki kısayolu "güvenilir" saymadan açmıyor
+    if shutil.which('gio'):                           # GNOME does not open a desktop shortcut without treating it as "trusted"
         subprocess.run(['gio', 'set', p, 'metadata::trusted', 'true'], capture_output=True, timeout=10)
     return p
 
 
 def create_shortcut():
-    """Masaüstüne OpenOrbit kısayolu; eski adlı kısayol (old_shortcut) varsa kaldırılır -> yeni kısayolun yolu."""
+    """OpenOrbit shortcut on the desktop; an old-named shortcut (old_shortcut), if any, is removed -> the path of the new shortcut."""
     if os.name != 'nt':
         return unix_shortcut()
     target = os.path.join(os.path.dirname(sys.executable), 'pythonw.exe')
@@ -1128,13 +1134,13 @@ def create_shortcut():
     old = old_shortcut()
     if old:
         os.remove(old)
-        log('eski kısayol kaldırıldı: %s' % old)
+        log('old shortcut removed: %s' % old)
     return lnk
 
 
 # ------------------------------------------------------------------ API
 def screen_size():
-    if sys.platform == 'darwin':                      # ana ekranın nokta çözünürlüğü (Wine'ın gösterdiği; Retina'da piksel yarısı)
+    if sys.platform == 'darwin':                      # the main screen's point resolution (what Wine shows; half the pixels on Retina)
         try:
             r = subprocess.run(['system_profiler', 'SPDisplaysDataType', '-json'], capture_output=True, text=True, timeout=10)
             for gpu in json.loads(r.stdout).get('SPDisplaysDataType', []):
@@ -1166,8 +1172,8 @@ def _schema_row(s):
 
 
 def write_legacy_upgrade(folder=None, slot=None):
-    """Eski yükseltme sisteminin uridyum bedelleri istemcinin BepInEx klasörüne (eklentinin EskiYukseltme yaması Assembly'nin
-    tariflerini bunlarla değiştirir; kapalıyken {}: istemcinin kendi malzemeleri). OYNA'da ve ayarlar kaydedilince."""
+    """Uridium costs of the old upgrade system into the client's BepInEx folder (the plugin's EskiYukseltme patch replaces the Assembly's
+    recipes with them; {} when off: the client's own ingredients). On PLAY and when settings are saved."""
     folder = folder or client_folder()
     if not folder or not os.path.isdir(os.path.join(folder, 'BepInEx')):
         return
@@ -1178,7 +1184,7 @@ def write_legacy_upgrade(folder=None, slot=None):
     try:
         WLD._write_file(os.path.join(folder, 'BepInEx', 'openorbit', 'legacy_upgrade.json'), t)
     except OSError as e:
-        log('eski yükseltme bedelleri yazılamadı: %s' % e)
+        log('old upgrade costs could not be written: %s' % e)
 
 
 def api_settings():
@@ -1191,7 +1197,7 @@ def api_settings():
 
 
 def launch_command():
-    """İstemci sayfasında gösterilen başlatma komutu (Linux ve macOS'ta Wine ya da Proton'la; bulunamadıysa yalnız istemcininki)."""
+    """The launch command shown on the Client page (with Wine or Proton on Linux and macOS; only the client's if not found)."""
     if os.name == 'nt':
         folder = client_folder()
         return ['DarkOrbit.exe'] + IST.args(CFG, 'logs\\client.log') + (PATCH.ARGS if folder and PATCH.installed(folder) else [])
@@ -1211,7 +1217,7 @@ def api_client():
 
 
 def extra_logs():
-    """Ek istemcilerin günlükleri (logs/client_<kayıt>.log)."""
+    """Logs of the extra clients (logs/client_<save>.log)."""
     try:
         return tuple(sorted(f for f in os.listdir(PTH.LOGS) if EXTRA_LOG.fullmatch(f)))
     except OSError:
@@ -1257,7 +1263,8 @@ def world_get(path, q):
     if path == '/api/dunya':
         did = world_arg(q)
         is_open = bool(MANAGER.running() and MANAGER.world and WLD.file_path(did) and MANAGER.world[0] == os.path.normcase(WLD.file_path(did)))
-        # yeniden_gerekli: sunucu açıldıktan sonra oyun açıkken uygulanamayan bir değişiklik yapıldı (mağaza ve açık artırma canlı)
+        # yeniden_gerekli: after the server opened, a change that cannot be applied while the game is open was made (shop and auction are
+        # live)
         return dict(WLD.summary(did, world_users()), server_in_this_world=is_open,
                     restart_needed=is_open and PR.world_signature(WLD.file_path(did)) != MANAGER.world)
     if path == '/api/dunya/section':
@@ -1291,7 +1298,7 @@ def world_get(path, q):
 
 
 def world_post(path, b):
-    if path == '/api/kayitlar/dunya':               # kaydın varsayılan dünyası (OYNA bununla açar)
+    if path == '/api/kayitlar/dunya':               # the save's default world (PLAY opens with it)
         sid, did = b.get('id'), b.get('world') or WLD.STANDARD
         if not sid or not SAV.exists(sid):
             raise Error(_('Save not found.'))
@@ -1301,7 +1308,7 @@ def world_post(path, b):
         return worlds_status()
     if path == '/api/dunya/create':
         did = WLD.create(b.get('name'), b.get('description', ''), b.get('cover', 'nebula'), source=b.get('source'), from_draft=bool(b.get('from_draft')))
-        if b.get('record') and SAV.exists(b['record']):  # oluşturunca bu kaydın varsayılanı yap
+        if b.get('record') and SAV.exists(b['record']):  # when created, make it this save's default
             SAV.set_meta(b['record'], world=did)
         return dict(worlds_status(), new=did)
     if path == '/api/dunya/update':
@@ -1310,7 +1317,7 @@ def world_post(path, b):
     if path == '/api/dunya/sil':
         did = b.get('id')
         WLD.remove(did)
-        for k in SAV.list():                        # varsayılanı bu dünya olan kayıtlar standarda döner
+        for k in SAV.list():                        # saves whose default is this world go back to standard
             if k.get('world') == did:
                 SAV.set_meta(k['id'], world=None)
         return worlds_status()
@@ -1328,9 +1335,9 @@ def world_post(path, b):
             return {'cancelled': True}
         write_json(dest, WLD.export(did))
         return {'route': dest}
-    if path == '/api/dunya/kod':                    # paylaşım kodu (Discord'a yapıştırılır)
+    if path == '/api/dunya/kod':                    # share code (pasted into Discord)
         return {'code': WLD.code(world_arg(b))}
-    if path == '/api/dunya/import':                  # paylaşım kodundan ya da dosyadan
+    if path == '/api/dunya/import':                  # from a share code or a file
         if b.get('code'):
             data = WLD.from_code(b['code'])
         else:
@@ -1340,7 +1347,7 @@ def world_post(path, b):
             data = read_json(src, None)
         did, report = WLD.import_(data)
         return dict(worlds_status(), new=did, report=report)
-    if path == '/api/dunya/yama':                   # editörün değişikliği: dosya + yol -> tam değer (standartta taslağa)
+    if path == '/api/dunya/yama':                   # the editor's change: file + path -> full value (to the draft in standard)
         did = world_arg(b)
         WLD.patch(did, b.get('file'), b.get('route'), b.get('value'))
         return world_get('/api/dunya', {'world': did})
@@ -1356,7 +1363,7 @@ def world_post(path, b):
         did = world_arg(b)
         qid = WLD.new_quest(did, b.get('name'), b.get('level'), b.get('targets') or [], b.get('rewards') or [])
         return WLD.quest(did, qid)
-    if path == '/api/dunya/server_restart':         # editörden: dünyanın değişiklikleri için sunucuyu yeniden başlat
+    if path == '/api/dunya/server_restart':         # from the editor: restart the server for the world's changes
         return h_post('/api/sunucu/restart', {})
     raise Error(_('Unknown request.'))
 
@@ -1371,7 +1378,8 @@ def bots_status():
 
 
 def bot_game_settings():
-    """Botların oyun ayarı profilleri (bot/game_settings.py): hazır profiller ve Özel profilin alanları (oyun ayarlarının adlarıyla)."""
+    """The bots' game settings profiles (bot/game_settings.py): ready profiles and the Custom profile's fields (with the names of the game
+    settings)."""
     from bot import game_settings as GS
     ready = [{'id': k, 'name': SET.PRESETS[k]['name'], 'description': SET.PRESETS[k]['description']} for k in GS.PROFILES if k in SET.PRESETS]
     fields = [{'anahtar': k, 'name': SET.BY_KEY[k]['name'], 'description': SET.BY_KEY[k]['description'], 'en_az': SET.BY_KEY[k].get('min', 0),
@@ -1388,7 +1396,7 @@ def bot_get(path, q):
         return bots_status()
     if path == '/api/bot/llm':
         return dict(LLM.state(), provider=PRV.status())
-    if path == '/api/bot/detay':                   # Kadro > bot penceresi: oyun açıkken canlı bot, kapalıyken son kayıt
+    if path == '/api/bot/detay':                   # Roster > bot window: the live bot while the game is open, the last record while closed
         return bot_detail(q.get('id'), int(q.get('no') or 0))
     if path == '/api/bot':
         pid = q.get('id')
@@ -1404,13 +1412,13 @@ def bot_detail(pid, no):
         try:
             return dict(game_channel('/bot/detay', {'no': no}), catalog=BT.edit_catalog(), live=True)
         except Error:
-            # oyun açık ama kanal yanıt vermedi: son kayıt, düzenlenemez (oyun dosyayı yeniden yazar)
+            # game is open but the channel did not respond: last record, cannot be edited (the game rewrites the file)
             return dict(BT.bot_detail(pid, no), catalog=BT.edit_catalog(), live=False, read_only=True)
     return dict(BT.bot_detail(pid, no), catalog=BT.edit_catalog(), live=False)
 
 
 def bot_post(path, b):
-    if path == '/api/bot/detay':                   # botu düzenle (bot/duzenle.py): oyun açıkken canlı, kapalıyken dosyada
+    if path == '/api/bot/detay':                   # edit the bot (bot/edit.py): live while the game is open, in the file while closed
         pid, no, value = b.get('id'), int(b.get('no') or 0), b.get('changes') or {}
         if not isinstance(value, dict) or not value:
             raise Error(_('No changes.'))
@@ -1423,7 +1431,7 @@ def bot_post(path, b):
                 BT.bot_personality(pid, no, value['traits'])
             return dict(r, catalog=BT.edit_catalog(), live=True)
         return dict(BT.edit_bot(pid, no, value), catalog=BT.edit_catalog(), live=False)
-    if path == '/api/bot/llm/saglayici':          # sağlayıcı seçimi: dahili model, OpenAI, Claude ... (bot/llm_saglayici.py)
+    if path == '/api/bot/llm/saglayici':          # provider choice: built-in model, OpenAI, Claude ... (bot/llm_provider.py)
         if b.get('uid') not in PRV.PROVIDERS:
             raise Error(_('Unknown request.'))
         if b.get('address') and not re.fullmatch(r'https?://\S+', str(b['address']).strip()):
@@ -1440,7 +1448,7 @@ def bot_post(path, b):
             return dict(LLM.test_remote(), provider=PRV.status())
         except LLMS.DownloadError as e:
             raise Error(str(e))
-    if path.startswith('/api/bot/llm/'):           # dil modeli: kur, durdur, sil, test
+    if path.startswith('/api/bot/llm/'):           # language model: install, stop, delete, test
         operation = {'kur': LLM.start, 'stop': LLM.cancel, 'delete': LLM.remove, 'test': LLM.test}.get(path.rsplit('/', 1)[1])
         if operation is None:
             raise Error(_('Unknown request.'))
@@ -1459,7 +1467,7 @@ def bot_post(path, b):
     if path == '/api/bot/update':
         BT.update(pid, name=b.get('name'), description=b.get('description'), mode=b.get('mode'), progression=b.get('progression'), settings=b.get('settings'))
         return bot_get('/api/bot', {'id': pid})
-    if path == '/api/bot/assign':                      # paketi dünyaya ata (o dünyanın eski paketi boşa çıkar)
+    if path == '/api/bot/assign':                      # assign the pack to the world (that world's old pack becomes unused)
         did = b.get('world') or None
         if did and not WLD.var(did):
             raise Error(_('World not found.'))
@@ -1467,7 +1475,7 @@ def bot_post(path, b):
         return bots_status()
     if path == '/api/bot/kadro':
         if is_pack_running(pid) and (b.get('regenerate') or int(b.get('count') or 0) < len(BT.read(pid)['roster'])):
-            raise Error(_('This pack is open in the game: close the game first.'))     # çalışan oyun eski kadroyla durumu yeniden yazar
+            raise Error(_('This pack is open in the game: close the game first.'))     # the running game rewrites the state with the old roster
         BT.roster(pid, count=b.get('count'), lang=b.get('lang'), company_distribution=b.get('company_distribution'), regenerate=bool(b.get('regenerate')),
                  players=player_names(), name_lang_=b.get('name_lang'), special=b.get('special') or '', name_source=b.get('name_source'))
         return bot_get('/api/bot', {'id': pid})
@@ -1475,9 +1483,9 @@ def bot_post(path, b):
         BT.bot_name(pid, int(b.get('no') or 0), b.get('name'), players=player_names())
         if is_pack_running(pid):
             try:
-                game_channel('/bot/ad_kaydi', {})           # oyunda hemen: bot, klanlar, rehberler
+                game_channel('/bot/ad_kaydi', {})           # in the game at once: bot, clans, directories
             except Error:
-                pass                                       # oyuna girilmemiş: sonraki açılışta uygulanır
+                pass                                       # not entered the game: applied at the next launch
         return bot_get('/api/bot', {'id': pid})
     if path == '/api/bot/sifirla':
         if is_pack_running(pid):
@@ -1498,7 +1506,7 @@ _SUPPORTERS = {'time': 0, 'names': []}
 
 
 def supporters():
-    """Buy Me a Coffee sayfasının son destekçileri (gizli olanlar hariç; 10 dakika önbellek, bağlantı yoksa boş liste)."""
+    """Recent supporters of the Buy Me a Coffee page (excluding hidden ones; 10 minute cache, an empty list if there is no connection)."""
     if time.time() - _SUPPORTERS['time'] > 600:
         try:
             with urlopen(Request(DONATE_API_URL, headers={'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json'}), timeout=6) as r:
@@ -1507,16 +1515,16 @@ def supporters():
                                                     if x.get('support_visibility') == 1 and x.get('supporter_name')))
             _SUPPORTERS['time'] = time.time()
         except (OSError, ValueError):
-            return []                                  # çevrimdışı: şerit gizli kalır, sonraki açılışta yeniden denenir
+            return []                                  # offline: the strip stays hidden, retried at the next launch
     return _SUPPORTERS['names']
 
 
 def h_get(path, q):
-    if path.startswith('/api/bot'):                 # Botlar (botlar.py)
+    if path.startswith('/api/bot'):                 # Bots (bots.py)
         return bot_get(path, q)
-    if path.startswith('/api/dunya'):               # Dünya Editörü (dunyalar.py)
+    if path.startswith('/api/dunya'):               # World Editor (worlds.py)
         return world_get(path, q)
-    if path == '/api/supporters':                 # kenar çubuğundaki kayan destekçi şeridi
+    if path == '/api/supporters':                 # the sliding supporters strip in the sidebar
         return {'names': supporters()}
     if path == '/api/durum':
         return status()
@@ -1528,11 +1536,11 @@ def h_get(path, q):
         return {'entries': SAV.list(), 'active': SAV.active(), 'trash': SAV.deleted(), 'companies': COMPANIES}
     if path == '/api/save_profile':
         return profile_values(slot_arg(q))
-    if path == '/api/editor':                       # karakter editörü: kaydın taslağı (kayit_editoru.py)
+    if path == '/api/editor':                       # character editor: the save's draft (save_editor.py)
         return SAV.editor_open(slot_arg(q))
-    if path == '/api/editor/katalog':               # karakter editörünün eşya kataloğu
+    if path == '/api/editor/katalog':               # the character editor's item catalog
         return SAV.editor_catalog()
-    if path == '/api/item_info':                   # eşya ipucunun değerleri (Hangar, Mağaza, karakter editörü)
+    if path == '/api/item_info':                   # values of the item tooltip (Hangar, Shop, character editor)
         return {'items': SAV.item_info()}
     if path == '/api/backups':
         sid = slot_arg(q)
@@ -1541,11 +1549,11 @@ def h_get(path, q):
         return api_client()
     if path == '/api/panel_settings':
         return CFG.all()
-    if path == '/api/discord_rp':                   # Discord Rich Presence: bağlantı ve profilde görünecek etkinlik (önizleme)
+    if path == '/api/discord_rp':                   # Discord Rich Presence: the connection and the activity to show on the profile (preview)
         return {'state': RP.state, 'error': RP.error, 'event': RP.preview(), 'settings': CFG.all()}
     if path == '/api/diller':
         return {'languages': D.entries()}
-    if path == '/api/takvim':                       # etkinlik takvimi: ?start=&bit= (zaman damgası, en çok 62 gün)
+    if path == '/api/takvim':                       # event calendar: ?start=&bit= (timestamp, at most 62 days)
         return api_calendar(q)
     if path == '/api/portlar':
         return MANAGER.foreign_ports()
@@ -1559,42 +1567,42 @@ def h_get(path, q):
                 'lines': PR.tail(p, n), 'entries': [{'name': g, 'size': os.path.getsize(os.path.join(PTH.LOGS, g))
                                                        if os.path.isfile(os.path.join(PTH.LOGS, g)) else None}
                                                       for g in LOGS + extra_logs()]}
-    if path == '/api/istemci/indirme':              # istemci indirmenin durumu (indirme.py)
+    if path == '/api/istemci/indirme':              # state of the client download (client_download.py)
         return DL.state()
-    if path == '/api/motor':                        # macOS: panelin Wine'ı ve Rosetta (wine_motoru.py)
+    if path == '/api/motor':                        # macOS: the panel's Wine and Rosetta (wine_engine.py)
         return ENG.state()
-    if path == '/api/yama':                         # istemcinin düzeltmelerini yükleyen BepInEx (istemci_yama.py)
+    if path == '/api/yama':                         # BepInEx, which loads the client's fixes (client_patch.py)
         return PATCHER.state(client_folder())
-    if path == '/api/guncelleme':                   # GitHub'dan güncelleme (guncelleme.py)
+    if path == '/api/guncelleme':                   # update from GitHub (updater.py)
         return dict(UPD.state(), setting=CFG.get('update'), idle=idle())
-    if path == '/api/protokol':                     # protokol uyarlamasının durumu (protokol.py)
+    if path == '/api/protokol':                     # state of the protocol adaptation (protocol_builds.py)
         return dict(ADAPTER.state(), etkin=IST.supported())
-    if path == '/api/item_list':                 # kayıt düzenleyicinin "eşya ver" listesi
+    if path == '/api/item_list':                 # the save editor's "give item" list
         return {'items': SAV.loot_list()}
-    if path == '/api/oyun/magaza':                  # oyun menüleri: mağazanın listesi ve cüzdan (panel_kanali.py)
+    if path == '/api/oyun/magaza':                  # in-game menus: the shop's list and wallet (panel_channel.py)
         return dict(game_channel('/magaza'), visual=bool(game_image('dizin.json')))
-    if path == '/api/oyun/hangar':                  # oyun menüleri: gemiler, config'ler, yuvalar ve envanter (?gemi=)
+    if path == '/api/oyun/hangar':                  # in-game menus: ships, configs, slots and inventory (?ship=)
         return dict(game_channel('/hangar?ship=%s' % re.sub(r'\D', '', str(q.get('ship') or ''))), visual=bool(game_image('dizin.json')))
-    if path == '/api/oyun/muzayede':                # oyun menüleri: açık artırma (lotlar, kurallar, geçmiş, olaylar)
+    if path == '/api/oyun/muzayede':                # in-game menus: auction (lots, rules, history, events)
         return dict(game_channel('/muzayede'), visual=bool(game_image('dizin.json')))
-    if path == '/api/oyun/muzayede/olaylar':        # açık artırmanın yeni olayları (panelin bildirimleri)
+    if path == '/api/oyun/muzayede/olaylar':        # the auction's new events (the panel's notifications)
         return game_channel('/muzayede/olaylar?last=%d' % int(q.get('last') or 0))
-    if path == '/api/oyun/skylab':                  # oyun menüleri: Skylab modülleri, depo, enerji, taşıma
+    if path == '/api/oyun/skylab':                  # in-game menus: Skylab modules, storage, energy, transfer
         return dict(game_channel('/skylab'), visual=bool(game_image('dizin.json')))
-    if path == '/api/canli':                        # canlı durum (oyun sunucusunun canli_durum.json'u; canli_durum.py)
+    if path == '/api/canli':                        # live status (the game server's canli_durum.json; live_status.py)
         p = os.path.join(PTH.LOGS, 'canli_durum.json')
         d = read_json(p, None)
-        if not d or (not MANAGER.running() and time.time() - d.get('time', 0) > 15):    # eski dosya: sunucu kapalı
+        if not d or (not MANAGER.running() and time.time() - d.get('time', 0) > 15):    # old file: the server is closed
             return {'exists': False, 'server_running': MANAGER.running()}
         import event_calendar as CAL
         d['event_names'] = [_(CAL.EVENTS.get(k, {}).get('name', k)) for k in d.get('events', [])]
         return {'exists': True, 'server_running': True, 'age': max(0, time.time() - d.get('time', 0)), 'state': d}
-    if path == '/api/arkadas':                      # Arkadaşlarınla Oyna: Host (sunucu, adresler, misafirler) ve Join (oturum)
+    if path == '/api/arkadas':                      # Play with Friends: Host (server, addresses, guests) and Join (session)
         live = read_json(os.path.join(PTH.LOGS, 'canli_durum.json'), None) if MANAGER.running() else None
         active = SAV.active()
         return {'host': FRD.host_status(live), 'guest': FRD.state(), 'saves': SAV.list(), 'active': active,
                 'client_version': IST.check(client_folder()).get('version') or IST.supported(),
-                # Host'un dünyası (Dünya Editörü): seçim ('' kaydının dünyası), seçilebilenler ve sunucunun açılacağı dünya
+                # the Host's world (World Editor): the choice ('' is the save's world), the selectable ones and the world the server will open
                 'world': {'choice': CFG.get('friend_world') if WLD.var(CFG.get('friend_world') or '') else '',
                           'save_world': world_info(SAV.meta(active).get('world') if active else None), 'valid': world_info(world_id(active, True)),
                           'entries': [{'id': w['id'], 'name': w['name'], 'cover': w['cover'], 'standard': w['standard']} for w in WLD.entries()]}}
@@ -1607,31 +1615,31 @@ def h_get(path, q):
 
 def h_post(path, b):
     if migration_error() and path not in ('/api/kapat', '/api/guncelleme/check', '/api/guncelleme/kur'):
-        raise Error(migration_error())              # kayıtlar taşınamadı: yeni kayıt, ayar ... yazılmaz (yeniden denemede çakışmasın)
-    if path.startswith('/api/bot/'):                # Botlar (botlar.py)
+        raise Error(migration_error())              # saves could not be migrated: no new save, setting ... is written (so it does not conflict on retry)
+    if path.startswith('/api/bot/'):                # Bots (bots.py)
         return bot_post(path, b)
-    if path.startswith('/api/dunya') or path == '/api/kayitlar/dunya':      # Dünya Editörü (dunyalar.py)
+    if path.startswith('/api/dunya') or path == '/api/kayitlar/dunya':      # World Editor (worlds.py)
         return world_post(path, b)
-    if path == '/api/oyun/al':                      # oyun menüleri: mağazadan satın alma (istemcinin isteğiyle aynı yoldan)
+    if path == '/api/oyun/al':                      # in-game menus: buying from the shop (by the same route as the client's request)
         return game_channel('/magaza/al', {k: b.get(k) for k in ('lootId', 'category', 'amount', 'level')})
-    if path == '/api/oyun/magaza/subscribe':            # oyun menüleri: booster aboneliği
+    if path == '/api/oyun/magaza/subscribe':            # in-game menus: booster subscription
         return game_channel('/magaza/subscribe', {'lootId': b.get('lootId'), 'category': b.get('category')})
-    if path == '/api/oyun/hangar/tasi':             # oyun menüleri: envanter <-> gemi, dron ya da P.E.T. yuvası
+    if path == '/api/oyun/hangar/tasi':             # in-game menus: inventory <-> ship, drone or P.E.T. slot
         return game_channel('/hangar/tasi', {k: b.get(k) for k in ('ship', 'config', 'item', 'direction', 'target', 'drone', 'set')})
-    if path == '/api/oyun/hangar/islem':            # oyun menüleri: config, satış, P.E.T., CPU işlemleri (panel_kanali.ISLEMLER)
+    if path == '/api/oyun/hangar/islem':            # in-game menus: config, sale, P.E.T., CPU operations (panel_channel.OPS)
         return game_channel('/hangar/islem', {k: b.get(k) for k in ('operation', 'ship', 'config', 'target_ship', 'favorite', 'items', 'drone',
                                                                     'name', 'slot', 'item', 'ammunition', 'lootId')})
-    if path == '/api/oyun/hangar/tasarim':          # oyun menüleri: geminin görünümü (tasarımı)
+    if path == '/api/oyun/hangar/tasarim':          # in-game menus: the ship's look (design)
         return game_channel('/hangar/tasarim', {'ship': b.get('ship'), 'lootId': b.get('lootId')})
-    if path == '/api/oyun/hangar/etkin':            # oyun menüleri: geminin etkinleştirilmesi (yalnız istasyonda)
+    if path == '/api/oyun/hangar/etkin':            # in-game menus: activating the ship (only at the station)
         return game_channel('/hangar/etkin', {'ship': b.get('ship')})
-    if path == '/api/oyun/skylab/islem':            # oyun menüleri: Skylab yükseltme, aç/kapa, gemiye taşıma
+    if path == '/api/oyun/skylab/islem':            # in-game menus: Skylab upgrade, on/off, transfer to the ship
         return game_channel('/skylab/islem', {k: b.get(k) for k in ('module', 'operation', 'mod', 'amounts')})
-    if path.startswith('/api/oyun/muzayede/') and path.rsplit('/', 1)[1] in ('teklif', 'hepsi', 'anlik', 'oto', 'alarm'):   # açık artırma
+    if path.startswith('/api/oyun/muzayede/') and path.rsplit('/', 1)[1] in ('teklif', 'hepsi', 'anlik', 'oto', 'alarm'):   # auction
         return game_channel('/muzayede/' + path.rsplit('/', 1)[1], {k: b.get(k) for k in ('type', 'loot', 'price', 'lots', 'maximum', 'when_outbid', 'min')})
-    if path == '/api/oyun/skylab/robot':            # oyun menüleri: toplayıcıya robot
+    if path == '/api/oyun/skylab/robot':            # in-game menus: robot to the collector
         return game_channel('/skylab/robot', {'module': b.get('module'), 'tip': b.get('tip')})
-    # ---- oyun ve sunucular
+    # ---- game and servers
     if path == '/api/oyna':
         return start_launch(b.get('server_only'))
     if path == '/api/arkadas/ayarlar':
@@ -1641,7 +1649,7 @@ def h_post(path, b):
         CFG.update({'friend_password': str(b.get('password') if 'password' in b else CFG.get('friend_password') or '')[:64],
                     'friend_max': b.get('max_count', CFG.get('friend_max')), 'friend_world': world})
         return h_get('/api/arkadas', {})
-    if path == '/api/arkadas/host':                 # arkadaş sunucusu: Oyna gibi, oyun sunucusu --cok-oyunculu
+    if path == '/api/arkadas/host':                 # friend server: like Play, the game server --multiplayer
         return start_launch(b.get('server_only'), friend=True)
     if path == '/api/arkadas/public_ip':
         return {'ip': FRD.find_public_ip()}
@@ -1668,7 +1676,7 @@ def h_post(path, b):
             raise Error(_('No save.'))
         if MULTI.live():
             raise Error(_("The server can't be restarted while extra clients are open: close them first."))
-        friend_env = FRD.host_env() if MANAGER.running() and MANAGER.friend else None       # kip korunur (Host, çoklu istemci)
+        friend_env = FRD.host_env() if MANAGER.running() and MANAGER.friend else None       # the mode is kept (Host, multi-client)
         multi = None if friend_env else (multi_env() if (MANAGER.running() and MANAGER.multi) or multi_wanted(slot) else None)
         MANAGER.stop_servers()
         MANAGER.start_servers(SAV.profile(slot), settings_file(slot), control=bool(SET.read(settings_file(slot)).get('control')), slot=slot, friend=friend_env,
@@ -1677,7 +1685,7 @@ def h_post(path, b):
     if path == '/api/istemci/kapat':
         MANAGER.stop_client()
         return MANAGER.status()
-    if path == '/api/coklu/ac':                     # çoklu istemci: başka bir kayıtla ek istemci (coklu.py)
+    if path == '/api/coklu/ac':                     # multi-client: an extra client with another save (multi_client.py)
         return open_extra(b)
     if path == '/api/coklu/kapat':
         MULTI.close(str(b.get('record') or ''))
@@ -1691,7 +1699,7 @@ def h_post(path, b):
         if not (PR.is_our_server(info) or info['name'].lower() == 'darkorbit.exe'):
             raise Error(_("This process (%s) is not the panel's server; the panel won't close it. Close it yourself if needed.", info['name']))
         m = re.search(r'"--stop-file=([^"]+)"|--stop-file=(\S+)', info.get('command') or '')
-        if m:                                       # önceki panelin oyun sunucusu: önce kaydedip kendisi çıksın
+        if m:                                       # the previous panel's game server: let it save first and exit on its own
             try:
                 open(m.group(1) or m.group(2), 'w').close()
                 end = time.time() + 6
@@ -1701,10 +1709,10 @@ def h_post(path, b):
                 pass
         if pid in (PR.listeners() or {}).values() or not m:
             PR.kill(pid)
-        log('eski süreç kapatıldı: %s %s' % (pid, info['name']))
+        log('old process closed: %s %s' % (pid, info['name']))
         time.sleep(0.5)
         return MANAGER.foreign_ports()
-    # ---- oyun ayarları
+    # ---- game settings
     if path == '/api/ayarlar':
         vals = game_settings()
         for k, v in (b.get('values') or {}).items():
@@ -1713,12 +1721,12 @@ def h_post(path, b):
         SET.write(settings_file(), vals)
         write_legacy_upgrade()
         return api_settings()
-    if path == '/api/ayarlar/copy':             # başka bir kaydın ayarları (etkinlik seçimleri dahil) etkin kayda
+    if path == '/api/ayarlar/copy':             # another save's settings (event choices included) to the active save
         slot = SAV.active()
         if not slot:
             raise Error(_('No save.'))
         SAV.copy_settings(str(b.get('source') or ''), slot)
-        log('ayarlar kopyalandı: %s -> %s' % (b.get('source'), slot))
+        log('settings copied: %s -> %s' % (b.get('source'), slot))
         write_legacy_upgrade()
         return api_settings()
     if path == '/api/ayarlar/sifirla':
@@ -1735,7 +1743,7 @@ def h_post(path, b):
         preset = SET.PRESETS.get(name, {}).get('values') if name in SET.PRESETS else (user.get(name) or {}).get('values')
         if preset is None:
             raise Error(_('Preset not found.'))
-        vals = {k: v for k, v in game_settings().items() if k not in SET.BY_KEY}     # etkinlik seçimleri kalır
+        vals = {k: v for k, v in game_settings().items() if k not in SET.BY_KEY}     # event choices stay
         vals.update(preset)
         SET.write(settings_file(), vals)
         write_legacy_upgrade()
@@ -1756,14 +1764,14 @@ def h_post(path, b):
         return api_settings()
     if path == '/api/etkinlikler':
         return set_events(b)
-    # ---- kayıtlar
+    # ---- saves
     if path == '/api/kayitlar/yeni':
         sid = SAV.create(b.get('name'), b.get('pilot'), b.get('company'), b.get('credits'), b.get('uridium'), b.get('level'), b.get('honor'),
                          b.get('laser'), b.get('rocket'), bool(b.get('progressive')), b.get('settings_source') or SAV.active(),
                          campaign=bool(b.get('campaign')))
         if b.get('set_active', True):
             SAV.set_active(sid)
-        log('yeni kayıt: %s' % sid)
+        log('new save: %s' % sid)
         return {'id': sid}
     if path == '/api/kayitlar/aktif':
         return {'id': SAV.set_active(slot_arg(b))}
@@ -1795,17 +1803,17 @@ def h_post(path, b):
         return {'id': SAV.import_file(src)}
     if path == '/api/kayitlar/edit':
         return {'changed': SAV.edit(slot_arg(b), b.get('values') or {})}
-    # ---- karakter editörü (taslak: Kaydet profile yazar, Vazgeç atar)
+    # ---- character editor (draft: Save writes to the profile, Cancel discards)
     if path == '/api/editor/uygula':
         return SAV.editor_apply(slot_arg(b), b.get('ops'))
     if path == '/api/editor/kaydet':
         sid = slot_arg(b)
-        log('karakter editörü: %s kaydedildi' % sid)
+        log('character editor: %s saved' % sid)
         return {'backup': SAV.editor_commit(sid)}
     if path == '/api/editor/discard':
         SAV.editor_discard(slot_arg(b))
         return {}
-    # ---- yedekler
+    # ---- backups
     if path == '/api/backups/al':
         return {'file': SAV.backup(slot_arg(b), 'manual', b.get('not') or '')}
     if path == '/api/backups/restore':
@@ -1818,10 +1826,10 @@ def h_post(path, b):
         return {}
     if path == '/api/backups/new_save':
         return {'id': SAV.backup_as_new(slot_arg(b), b.get('file'), b.get('name'))}
-    # ---- istemci ve panel ayarları
+    # ---- client and panel settings
     if path == '/api/panel_settings':
         CFG.update({k: v for k, v in (b.get('values') or {}).items() if k != 'active_save'})
-        RP.wake_up.set()                               # Discord Rich Presence ayarı değiştiyse hemen
+        RP.wake_up.set()                               # if the Discord Rich Presence setting changed, at once
         return api_client()
     if path == '/api/istemci/select':
         start = client_folder() or ROOT
@@ -1831,7 +1839,7 @@ def h_post(path, b):
         p = os.path.normpath(p)
         c = IST.check(p)
         if not c['valid'] and os.path.basename(p).lower() == IST.DATA_DIR.lower() and IST.check(os.path.dirname(p))['valid']:
-            p = os.path.dirname(p)                    # DarkOrbit_Data seçildiyse üst klasörü
+            p = os.path.dirname(p)                    # if DarkOrbit_Data was chosen, its parent folder
             c = IST.check(p)
         if not c['valid']:
             sub = [x for x in IST.candidates() if os.path.normcase(x['route']).startswith(os.path.normcase(p))]
@@ -1862,18 +1870,18 @@ def h_post(path, b):
         except UpdateError as e:
             raise Error(str(e))
         return h_get('/api/guncelleme', {})
-    if path == '/api/istemci/indir':                # oyunu indir ve proje köküne aç (sürer, kaldığı yerden)
-        if RUN.find(CFG)['type'] == 'engine':          # macOS: oyunu açacak Wine da birlikte iner
+    if path == '/api/istemci/indir':                # download the game and open it in the project root (takes a while, resumes from where it left off)
+        if RUN.find(CFG)['type'] == 'engine':          # macOS: the Wine that will open the game is downloaded too
             ENG.start()
         return DL.start(CFG.get('fast_download'))
-    if path == '/api/istemci/update':             # eski istemci: yeni sürümü indir, eskisini sil; BepInEx yeni klasöre yeniden kurulur
+    if path == '/api/istemci/update':             # old client: download the new version, delete the old one; BepInEx is reinstalled into the new folder
         if MANAGER.client_alive() or IST.running_clients():
             raise Error(_('Close the game first'))
         old = client_folder()
         if not IST.check(old)['eski']:
             raise Error(_('The client is already up to date.'))
         new_ = next((c['route'] for c in IST.candidates() if c['compatible']), None)
-        if new_:                                    # bilgisayarda zaten var
+        if new_:                                    # already on the computer
             CFG.update({'client_folder': new_})
             delete_old_client(old, new_)
             PATCHER.start(new_)
@@ -1889,21 +1897,21 @@ def h_post(path, b):
         return PATCHER.state(client_folder())
     if path == '/api/motor/durdur':
         return ENG.cancel()
-    if path == '/api/rosetta/kur':                  # macOS'un yönetici penceresi açılır
+    if path == '/api/rosetta/kur':                  # macOS's administrator dialog opens
         return ENG.install_rosetta()
     if path == '/api/istemci/download_stop':
         return DL.cancel()
-    if path == '/api/istemci/download_delete':            # yarım indirmenin geçici klasörü
+    if path == '/api/istemci/download_delete':            # temporary folder of a partial download
         try:
             return DL.discard()
         except DownloadError as e:
             raise Error(str(e))
-    if path == '/api/protokol/uret':                # yeni istemciden protokol üret ve farkı raporla (etkin dosyalara dokunmaz)
+    if path == '/api/protokol/uret':                # generate the protocol from the new client and report the difference (does not touch the active files)
         try:
             return ADAPTER.generate(os.path.normpath(b.get('route') or client_folder() or ''))
         except RuntimeError as e:
             raise Error(str(e))
-    if path == '/api/protokol/uygula':              # üretilen sürümü etkin yap (oyun sunucusu yeniden başlatılınca)
+    if path == '/api/protokol/uygula':              # make the generated version active (when the game server is restarted)
         if MANAGER.running():
             raise Error(_('Stop the game server first: the protocol is loaded at startup.'))
         try:
@@ -1934,11 +1942,11 @@ def h_post(path, b):
         else:
             raise Error(_('Unknown folder.'))
         return {}
-    if path == '/api/discord':                      # davet varsayılan tarayıcıda (panel penceresinin profili Discord'a girişli değil)
+    if path == '/api/discord':                      # the invite in the default browser (the panel window's profile is not signed in to Discord)
         import webbrowser
         webbrowser.open(DISCORD)
         return {}
-    if path == '/api/donate':                        # destek sayfası varsayılan tarayıcıda (Buy Me a Coffee)
+    if path == '/api/donate':                        # the support page in the default browser (Buy Me a Coffee)
         import webbrowser
         webbrowser.open(DONATE_URL)
         return {}
@@ -1976,7 +1984,7 @@ class Handler(BaseHTTPRequestHandler):
         try:
             self.end_headers()
             self.wfile.write(data)
-        except (ConnectionError, OSError):          # pencere yenilendi / kapandı: yanıtı bekleyen yok
+        except (ConnectionError, OSError):          # the window was refreshed / closed: nobody is waiting for the response
             pass
 
     def _host_ok(self):
@@ -1991,7 +1999,7 @@ class Handler(BaseHTTPRequestHandler):
         except (Error, SaveError, FriendError, MultiClientError, RuntimeError, ValueError) as e:
             return self._send(400, {'error': str(e)})
         except Exception as e:
-            log('API hatası %s: %s' % (self.path, traceback.format_exc()))
+            log('API error %s: %s' % (self.path, traceback.format_exc()))
             return self._send(500, {'error': _('Unexpected error: %r', e)})
         return self._send(200, out)
 
@@ -2007,7 +2015,7 @@ class Handler(BaseHTTPRequestHandler):
             p = game_image(u.path[len('/game_images/'):])
             if not p:
                 return self._send(404, b'none', 'text/plain')
-            if p.endswith('.png'):                  # atlas sayfaları büyük, değişmez; dizin ve adlar yeniden dökümde değişir: önbelleksiz
+            if p.endswith('.png'):                  # atlas pages are large and do not change; the index and names change on a new dump: no cache
                 return self._send(200, open(p, 'rb').read(), 'image/png', {'Cache-Control': 'max-age=3600'})
             return self._send(200, open(p, 'rb').read(), 'application/json; charset=utf-8')
         name = 'index.html' if u.path in ('/', '/index.html') else u.path.lstrip('/')
@@ -2026,10 +2034,10 @@ class Handler(BaseHTTPRequestHandler):
         u = urlparse(self.path)
         n = int(self.headers.get('Content-Length') or 0)
         raw = self.rfile.read(n) if n else b''
-        if u.path == '/api/goster':                  # ikinci başlatma: pencereyi yeniden aç
+        if u.path == '/api/goster':                  # second launch: reopen the window
             threading.Thread(target=open_window, args=('http://127.0.0.1:%d/' % PORT,), daemon=True).start()
             return self._send(200, {})
-        if u.path == '/api/kapandi':                 # sayfa kapanıyor (sendBeacon): pencere izlenmiyorsa nabız erken düşsün
+        if u.path == '/api/kapandi':                 # the page is closing (sendBeacon): so the heartbeat drops early if the window is not being watched
             if not STATE['window_watched']:
                 STATE['heartbeat'] = time.monotonic() - HEARTBEAT_SEC + 8
             return self._send(200, {})
@@ -2041,11 +2049,11 @@ class Handler(BaseHTTPRequestHandler):
 
 
 class Server(ThreadingHTTPServer):
-    # HTTPServer SO_REUSEADDR açıyor; Windows'ta bu, dinlenen porta ikinci bir süreci de bağlatıyor: ikinci başlatma açık paneli
-    # görmeden aynı portta ikinci bir panel açıyordu (canlı tur 2). Kapalıyken bağlanamaz, açık panelin penceresini açtırır (main).
-    # macOS ve Linux'ta SO_REUSEADDR ikinci dinleyiciyi yine reddeder ama o olmadan açık pencerenin isteklerinden kalan TIME_WAIT
-    # bağlantıları portu yarım dakika tutuyor: güncellemeden sonra yeni panel portu alamayıp başka bir porta açılıyordu (pencere onu
-    # bulamaz)
+    # HTTPServer enables SO_REUSEADDR; on Windows this lets a second process bind to the listening port too: the second launch opened a
+    # second panel on the same port without seeing the open panel (live round 2). While closed it cannot bind, and has the open panel's
+    # window opened (main). On macOS and Linux SO_REUSEADDR still rejects a second listener, but without it TIME_WAIT connections left
+    # from the open window's requests hold the port for half a minute: after an update the new panel could not get the port and opened on
+    # another port (the window cannot find it)
     allow_reuse_address = os.name != 'nt'
 
 
@@ -2053,7 +2061,7 @@ def main():
     global PORT
     PORT = next((int(a.split('=', 1)[1]) for a in sys.argv if a.startswith('--port=') and a.split('=', 1)[1].isdigit()), PORT)
     srv = None
-    if STATE['updated']:                          # güncellemeden sonra: eski süreç portu bırakana dek bekle
+    if STATE['updated']:                          # after an update: wait until the old process releases the port
         for _k in range(75):
             try:
                 srv = Server(('127.0.0.1', PORT), Handler)
@@ -2063,29 +2071,29 @@ def main():
     try:
         srv = srv or Server(('127.0.0.1', PORT), Handler)
     except OSError:
-        try:                                          # panel zaten açık mı?
+        try:                                          # is the panel already open?
             with urlopen('http://127.0.0.1:%d/api/ping' % PORT, timeout=2) as r:
                 if json.load(r).get('panel') == 'darkorbit':
                     urlopen(Request('http://127.0.0.1:%d/api/goster' % PORT, data=b'{}', method='POST'), timeout=5).read()
                     return
         except Exception:
             pass
-        srv = Server(('127.0.0.1', 0), Handler)       # port başka programda: boş bir port
+        srv = Server(('127.0.0.1', 0), Handler)       # the port is in use by another program: a free port
         PORT = srv.server_address[1]
     srv.daemon_threads = True
     STATE['srv'] = srv
-    log('panel açıldı: http://127.0.0.1:%d/ (python %s)%s' % (PORT, sys.version.split()[0], ' (güncellemeden sonra)' if STATE['updated'] else ''))
+    log('panel opened: http://127.0.0.1:%d/ (python %s)%s' % (PORT, sys.version.split()[0], ' (after update)' if STATE['updated'] else ''))
     try_migrate()
     try:
-        SM.migrate_client(client_folder(), log)         # eski sürümün istemci klasöründeki dosyaları
+        SM.migrate_client(client_folder(), log)         # files in the old version's client folder
     except OSError as e:
-        log('istemci klasörü taşınamadı: %s' % e)
+        log('client folder could not be moved: %s' % e)
     threading.Thread(target=refresh_shortcut, daemon=True).start()
     if not CFG.get('active_save') and SAV.slots():
         CFG.update({'active_save': SAV.slots()[0]})
     threading.Thread(target=ticker, daemon=True).start()
     RP.launch()
-    if not {'--no-window', '--pencere-yok'} & set(sys.argv):     # eski adlar: 2026-11-01'den önceki güncelleyici bunlarla yeniden başlatır
+    if not {'--no-window', '--pencere-yok'} & set(sys.argv):     # old names: the updater from before 2026-11-01 restarts with these
         proc = open_window('http://127.0.0.1:%d/' % PORT)
         if proc:
             threading.Thread(target=watch_window, args=(proc,), daemon=True).start()
@@ -2099,7 +2107,7 @@ if __name__ == '__main__':
     try:
         main()
     except Exception:
-        log('panel başlatılamadı: %s' % traceback.format_exc())
+        log('panel could not start: %s' % traceback.format_exc())
         try:
             import ctypes
             ctypes.windll.user32.MessageBoxW(0, _('The panel could not start. Details: server\\logs\\panel.log\n\n%s',

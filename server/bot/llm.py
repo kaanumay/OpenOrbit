@@ -1,24 +1,24 @@
-"""Gelişmiş kip: botların sohbeti ve stratejik kararları yerel dil modeliyle (llm_sunucu: llama-server + Qwen3 4B, düşünme kapalı).
+"""Advanced mode: the bots' chat and strategic decisions with a local language model (llm_server: llama-server + Qwen3 4B, thinking off).
 
-Model oyunun döngüsünü hiç bekletmez: işler öncelikli kuyruğa girer, işçiler (llm_toplu kadar; sunucunun paralel yuvaları) sırayla
-yürütür, sonuç gelince bota uygulanır. Kuyruk dolarsa ya da model kapalıysa yönetici Normal kipin kalıplarına döner (sohbet_motoru).
+The model never holds up the game loop: jobs go into a priority queue, workers (as many as llm_batch; the server's parallel slots) run them in turn,
+and when the result arrives it is applied to the bot. If the queue is full or the model is off, the manager falls back to Normal mode's templates (chat_engine).
 
-Dahili model yalnız İngilizce çalışır (Qwen3 4B Türkçede zayıf; kullanıcı 2026-10-29): istemler İngilizce, botlar İngilizce konuşur.
-Kullanıcı başka bir sağlayıcı seçtiyse (llm_saglayici: OpenAI, Claude, Gemini, Ollama ...) istemler yine İngilizce ama her bot kendi
-sohbet dilinde konuşur (COK_DILLI: persona "Chats in Turkish", süzgeç aksanlı harfi susturmaz, üslup botun dilinde).
-Güçlü sağlayıcıda (GUCLU: dahili model değil) gerçekçilik katmanı açılır: geniş sohbet geçmişi, anı defteri (memories.py: kişilerle yaşanan
-önemli olaylar, izlenimler), konuşma bitince modelin özeti, anılardan doğan sonuçlar (söz, intikam, teşekkür ... vakti gelince bot konuyu
-açar ve eyleme geçer) ve botlar arası dedikodu (oyuncunun itibarı yayılır).
-Botun iç durumu modele sayı olarak verilmez (kredi, güç): verilince model onları sohbete döküyordu ("kredi 438, 3-1'de
-kasilma"); durum niteliksel anlatılır, sistem istemi gerçek oyuncu satırı örnekleri verir.
+The built-in model works in English only (Qwen3 4B is weak in Turkish; user 2026-10-29): prompts are in English, bots speak English.
+If the user chose another provider (llm_provider: OpenAI, Claude, Gemini, Ollama ...) prompts are still in English but each bot speaks in its own
+chat language (MULTILINGUAL: persona "Chats in Turkish", the filter does not silence accented letters, the style is in the bot's language).
+With a strong provider (STRONG: not the built-in model) the realism layer turns on: wide chat history, a memory book (memories.py: important
+events and impressions with people), the model's summary when a conversation ends, consequences born of memories (a promise, revenge, thanks ... when the time comes the bot
+brings up the subject and acts) and gossip between bots (the player's reputation spreads).
+The bot's inner state is not given to the model as numbers (credits, power): when given, the model poured them into chat ("kredi 438, 3-1'de
+kasilma"); the state is described qualitatively, the system prompt gives examples of real player lines.
 
-İşler (öncelik sırasıyla):
-  fisilti     oyuncu bota fısıldadı: bot kişiliğiyle yanıtlar, isterse bir araç kullanır (grup daveti, yardıma gitme, takip ...)
-  oda         oyuncu kanala yazdı: dinleyen birkaç bottan hangilerinin yanıt vereceği ve ne diyeceği TEK istekte (toplu)
-  olay        botun önemli anı (seni öldürdü, öldü, gemi aldı): kısa tepki
-  karar       birkaç botun durumu ve seçenekleri TEK istekte: model hedef seçer (beyin'e niyet olarak; araçlarla)
-  bot_sohbet  aynı kanaldaki 2-3 bot kendi aralarında kısa bir konuşma yapar (dünya canlı dursun)
-Bütün yanıtlar JSON şemasıyla istenir (llama-server dilbilgisiyle zorlar): araç adları şemada enum, bot adları da.
+Jobs (in order of priority):
+  whisper     the player whispered to the bot: the bot replies in its personality, and uses a tool if it wants (group invite, going to help, follow ...)
+  room        the player wrote to a channel: which of the few listening bots will reply and what they will say, in ONE request (batch)
+  event       an important moment for the bot (killed you, died, bought a ship): a short reaction
+  decision    the state and options of several bots in ONE request: the model picks a target (as an intent to brain; with tools)
+  bot_chat    2-3 bots in the same channel have a short talk among themselves (so the world feels alive)
+All replies are requested with a JSON schema (llama-server enforces it with a grammar): tool names are an enum in the schema, and so are bot names.
 """
 import heapq, itertools, re, threading, time, traceback, unicodedata
 
@@ -36,7 +36,7 @@ from . import admin_warnings as AW
 from . import llm_server as LS
 
 WHISPER, ROOM, EVENT, DECISION, BOT_CHAT = 0, 1, 2, 3, 4
-MAIL = EVENT                      # posta acele değil: kuyruk dolarsa kalıpla yanıtlanır
+MAIL = EVENT                      # mail is not urgent: if the queue is full it is answered with a template
 DECISION_GOALS = ('grinding', 'quest', 'pvp', 'shopping', 'resting')
 FIRMA = {1: 'MMO', 2: 'EIC', 3: 'VRU'}
 CHANNEL = {'global': 'global', 'company': 'company', 'clan': 'clan', 'group': 'group'}
@@ -64,44 +64,44 @@ SYSTEM_PROMPT = ("You are a real human player of a DarkOrbit-like space MMO, typ
           "and never agrees to fight his own company or to help another company against it (inside one company people are "
           "teammates). Every pilot sounds different. Only mention shared past events that appear in the memories or chat you were "
           "given; never invent things you did together. Always write in English. Output only the requested JSON.")
-# başka sağlayıcıda: her pilot kendi dilinde (persona'daki "Chats in ...")
+# with another provider: each pilot in its own language ("Chats in ..." in the persona)
 SYSTEM_MULTI = SYSTEM_PROMPT.replace('Always write in English.', "Each pilot writes in his own chat language, given as 'Chats in ...' in his "
                             "description (English if none is given), the casual way native gamers type in that language; game names "
                             "(maps like 2-3, ships, aliens, MMO, EIC, VRU) stay as they are.")
-MULTILINGUAL = False                 # Beyin kurulunca: seçili sağlayıcı dahili model değilse
-STRONG = False                     # aynı koşul: hızlı, geniş bağlamlı model (anı defteri, sonuçlar, dedikodu, geniş geçmiş)
+MULTILINGUAL = False                 # when the Brain is set up: if the selected provider is not the built-in model
+STRONG = False                     # same condition: a fast, wide-context model (memory book, consequences, gossip, wide history)
 LANG_NAME = {'tr': 'Turkish', 'en': 'English', 'de': 'German', 'es': 'Spanish', 'fr': 'French', 'pl': 'Polish', 'pt': 'Portuguese',
           'ru': 'Russian'}
-_FOREIGN = re.compile(r'[^\x00-\x7f -⯿\U0001f000-\U0001faff️]')   # İngilizce dışı harf: satır susar
-_SYMBOL = re.compile(r'[^\x20-\x7e]')            # emoji ve süs: atılır, satır kalır
-_EMOJI = re.compile('[\U0001f000-\U0001faff\u2600-\u27bf\ufe0f\u200d]')    # çok dilli kipte yalnız bunlar atılır
+_FOREIGN = re.compile(r'[^\x00-\x7f -⯿\U0001f000-\U0001faff️]')   # non-English letter: the line is silenced
+_SYMBOL = re.compile(r'[^\x20-\x7e]')            # emoji and decoration: dropped, the line stays
+_EMOJI = re.compile('[\U0001f000-\U0001faff\u2600-\u27bf\ufe0f\u200d]')    # in multilingual mode only these are dropped
 _HARMFUL = re.compile(r'\b(kys|kill (your|ur)self|killyourself|shoot (your|ur)self|hang (your|ur)self|end (your|ur) life|'
                       r'better off dead|wish (you|u) (were )?dead|hope (you|u) die|'
                       r'(go )?die\b|suicide|cancer|retard\w*|f[a4]g\w*|n[i1]gg\w*|whore|slut|rape\w*|nazi|hitler)', re.I)
 
 
 def _normalize(s):
-    """Karşılaştırma için: küçük harf, aksanlar düşer (oyuncular çoğu zaman aksansız yazar: "olsene", "matate")."""
+    """For comparison: lowercase, accents dropped (players often write without accents: "olsene", "matate")."""
     s = str(s or '').lower().replace('ı', 'i').replace('ß', 'ss').replace('ł', 'l')
     return ''.join(c for c in unicodedata.normalize('NFKD', s) if not unicodedata.combining(c))
 
 
 def _lang_expr(promises, extra=False):
-    """ek: sözcüğün ardından ek gelebilir (Türkçe "gemiyi", "lazerler", "haritada": oyun sözcükleri; önce tanınmıyordu)."""
+    """extra: a suffix may follow the word (Turkish "gemiyi", "lazerler", "haritada": game words; they were not recognized before)."""
     promises = sorted({_normalize(w) for w in promises if w}, key=len, reverse=True)
     tail = '' if extra else r'(?!\w)'
     return re.compile(r'(?<!\w)(%s)' % '|'.join(w if '\\' in w else re.escape(w) for w in promises) + tail) if promises else None
 
 
-# öteki dillerin zararlı ifadeleri (kendine zarar, ölüm dileği, ağır hakaret: bot/languages/<kod>.json zararli); botlar o dillerde de
-# konuşur (COK_DILLI), İngilizce süzgeç onları görmez
+# harmful expressions of the other languages (self-harm, death wish, heavy insults: bot/languages/<code>.json harmful); bots also speak
+# those languages (MULTILINGUAL), the English filter does not see them
 _HARMFUL_LANG = _lang_expr([w for d in SPC.LANGUAGES.values() for w in d.get('harmful', ())])
-# mesaj türleri öteki dillerde (bot/languages/<kod>.json tepki): kutlama, veda, dönüş, yoklama; oyun sözcükleri soruyu oyun sorusu yapar
+# message types in the other languages (bot/languages/<code>.json reaction): congratulation, farewell, return, check-in; game words make the question a game question
 _REACTION_LANG = {t: _lang_expr([w for d in SPC.LANGUAGES.values() for w in d.get('reaction', {}).get(t, ())], extra=t == 'game')
               for t in ('congrats', 'farewell', 'welcome_back', 'roll_call', 'game')}
 
 
-# İngilizceye özgü sözcükler (oyun argosu gg, lol, inv, np, ty sayılmaz); öteki dillerde de geçenler o dilde sayılmaz
+# words specific to English (game slang gg, lol, inv, np, ty do not count); those that also occur in the other languages do not count as that language
 _EN_WORDS = frozenset(('the', 'to', 'my', 'you', 'your', 'im', "i'm", 'and', 'with', 'heading', 'coming', 'way', 'save', 'what', 'how',
                      'why', 'where', 'just', 'got', 'going', 'gonna', 'wanna', 'this', 'that', 'are', 'is', 'its', "it's", 'was', 'will',
                      'can', 'for', 'of', 'be', 'have', 'has', 'do', 'dont', "don't", 'yeah', 'yes', 'guys', 'lets', "let's", 'here',
@@ -122,13 +122,13 @@ _GREETING_START = re.compile(r'^\s*(selam(lar)?|slm|merhaba|mrb|hi|hello|hey|yo|
 
 
 def is_english(text, lang):
-    """Satır İngilizce mi (botun dili İngilizce değilken): İngilizceye özgü sözcüklerin oranı. "on my way to 2-1, save me a target"
-    evet; "eic tabii ki, 2-1e gelyrm" ve "gg ez" hayır."""
+    """Whether the line is English (when the bot's language is not English): the share of English-specific words. "on my way to 2-1, save me a target"
+    yes; "eic tabii ki, 2-1e gelyrm" and "gg ez" no."""
     if lang == 'en':
         return False
     words = re.findall(r"[a-z']+", str(text or '').lower())
     if len(words) < 3 or re.search(r'[^\x00-\x7f]', str(text)):
-        return False                                     # kısa argo ya da kendi harfleri olan satır
+        return False                                     # a short slang line or one with its own letters
     avg = _EN_COMMON.get(lang, set())
     n = sum(1 for w in words if w in _EN_WORDS and w not in avg)
     return n >= 3 and n >= 0.45 * len(words)
@@ -139,7 +139,7 @@ def harmful(text):
 
 
 def lang_note(b):
-    """Çok dilli kipte botun sohbet dili (persona'nın sonuna)."""
+    """In multilingual mode, the bot's chat language (at the end of the persona)."""
     if not MULTILINGUAL:
         return ''
     d = SPC.lang(b)
@@ -159,8 +159,8 @@ def _mood(mood):
 
 
 def chat_persona(b, y=None):
-    """Sohbet için kısa tarif: kimlik, gemi, harita, ruh hâli, kişilerle ilişkisi ve son 10 dakikanın olayları (uzun tarif modeli
-    her satırda işinden, parasından söz ettiriyordu)."""
+    """A short description for chat: identity, ship, map, mood, relationship with people and the events of the last 10 minutes (a long description made the model
+    talk about its job and money in every line)."""
     now = y.now if y is not None else time.time()
     relation = ['%s (%s)' % (e['name'], 'friend' if e['d'] > 0 else 'holds a grudge') for e in
               sorted(b.memory.d.values(), key=lambda e: -abs(e['d']))[:3] if abs(e['d']) >= 0.2]
@@ -173,7 +173,7 @@ def chat_persona(b, y=None):
 
 
 def _social(b):
-    """Grubu ve klanı (sorulunca doğru söylesin; "grubun var mı", "klanın ne")."""
+    """The group and clan (so it answers correctly when asked; "grubun var mı", "klanın ne")."""
     out = ''
     try:
         import group as GR
@@ -192,7 +192,7 @@ def _social(b):
 
 
 def persona(b, y=None):
-    """Botun modele tarifi (İngilizce, sayısız): kimlik, gemi, harita, işi, kişiliği, ruh hâli, ilişkileri, son olayları."""
+    """The bot's description to the model (English, numberless): identity, ship, map, job, personality, mood, relationships, recent events."""
     en = sorted(b.traits.items(), key=lambda x: -x[1])
     dominant = ', '.join(TRAIT_NAME[k] for k, v in en[:3])
     weak = ', '.join(TRAIT_NAME[k] for k, v in en[-2:])
@@ -211,7 +211,7 @@ def persona(b, y=None):
 
 
 def _memories_note(b, y):
-    """Güçlü kipte botun en değerli anıları (kin, söz, dostluk): kararları ve tepkileri etkilesin."""
+    """In strong mode the bot's most valuable memories (grudge, promise, friendship): so they affect decisions and reactions."""
     if not STRONG:
         return ''
     now = y.now if y is not None else b.hour()
@@ -245,8 +245,8 @@ def _map_aliens(m):
 
 
 def game_info(f):
-    """Modelin oyun bilgisi, f firmasının oyuncusu için (soru soranın firması: yanıt ona göre doğru olsun). Veriden üretilir
-    (Dünya Editörü'nün değişiklikleri dahil)."""
+    """The model's game knowledge, for the player of company f (the asker's company: so the answer is right for them). Generated from the data
+    (including the World Editor's changes)."""
     f = f if f in FIRMA else 1
     maps = [(f - 1) * 4 + i for i in range(1, 5)] + [16 + (f - 1) * 4 + i for i in range(1, 5)] + [13, 14, 15, 16, 29]
     row = ['%s: %s' % (H.name(m), ', '.join(a)) for m in maps for a in [[x for x in _map_aliens(m) if 'Boss' not in x]]
@@ -266,7 +266,7 @@ def game_info(f):
 QUESTION = re.compile(r'\?\s*$|^\s*(how|what|where|why|who|when|which|can|could|anyone|any|is|are|do|does|did|should|wanna|u|you)\b', re.I)
 GAME = re.compile(r'\b(map|alien|npc|streuner|lordakia|saimon|mordon|sibelon|boss|quest|ship|laser|lf|goliath|bigboy|phoenix|piranha|'
                   r'nostromo|vengeance|leonov|uri|uridium|credit|level|lvl|clan|group|ep|honor|drone|iris|flax|shield|gen|portal|'
-                  r'gate|pvp|farm|start|begin|new|noob|mmo|eic|vru|[1-5]-[1-8x])(e?s)?\b', re.I)    # çoğullar da (bosses, maps)
+                  r'gate|pvp|farm|start|begin|new|noob|mmo|eic|vru|[1-5]-[1-8x])(e?s)?\b', re.I)    # plurals too (bosses, maps)
 KINDS = (
     ('congrats', re.compile(r'\b(gz|gratz|grats|congrats|congratulations|well done|nice one|nice|wp|good job|gj)\b', re.I)),
     ('thanks', re.compile(r'\b(ty|thx|thanks|thank you|tyvm)\b', re.I)),
@@ -295,8 +295,8 @@ SHIPS = ('phoenix', 'liberator', 'piranha', 'nostromo', 'bigboy', 'leonov', 'ven
 
 
 def short_info(f):
-    """Kendiliğinden sohbetlerin (bot_sohbet, grup lafı, özel fısıltı) kısa ve doğru oyun bilgisi: model gemi ve harita
-    uyduruyordu ("viking", "corsair"; EIC botu VRU'nun 3-5'ine "yeni uzaylı" için çağırıyordu)."""
+    """Short and correct game knowledge for spontaneous chats (bot_sohbet, group remark, private whisper): the model made up ships and maps
+    ("viking", "corsair"; an EIC bot called a VRU bot to 3-5 for a "new alien")."""
     f = f if f in FIRMA else 1
     return ('Facts (never invent other ships, maps or aliens): a %s pilot plays on %d-1 to %d-8, MMO maps are 1-x, EIC 2-x, VRU 3-x '
             '(the other companies\' maps are enemy land), 4-1 to 4-5 are shared PvP maps. Ships: %s.') % (
@@ -304,7 +304,7 @@ def short_info(f):
 
 
 def foreign_map(b, text):
-    """Satır başka firmanın haritasından söz ediyor mu (kendiliğinden sohbette: botlar düşman haritasına gezi önermez)."""
+    """Whether the line talks about another company's map (in spontaneous chat: bots do not suggest a trip to an enemy map)."""
     return any(int(a) != b.firma for a, _ in re.findall(r'\b([1-3])-([1-8])\b', str(text or '')))
 
 
@@ -313,7 +313,7 @@ def is_question(msg):
 
 
 def side(b, fac, name):
-    """Pilotun konuşana göre tarafı (küçük model firmaları karıştırıyordu: VRU botu EIC'nin "VRU ile savaşalım" çağrısına katıldı)."""
+    """The pilot's side relative to the speaker (the small model mixed up companies: a VRU bot joined an EIC call "VRU ile savaşalım")."""
     if not fac:
         return ''
     if b.firma == fac:
@@ -327,7 +327,7 @@ COMPANY_NAME = re.compile(r'\b(mmo|eic|vru|mars|earth|venus)\b', re.I)
 
 
 def company_note(msg, fac, candidate):
-    """Mesajda firmalardan söz ediliyorsa (çağrı, övünme, sataşma) her tarafın nasıl tepki vereceğini açıkça yazar."""
+    """If companies are mentioned in the message (a call, boasting, a taunt) it writes explicitly how each side will react."""
     if not COMPANY_NAME.search(msg) or not fac:
         return ''
     friendly = [b.name for b in candidate if b.firma == fac]
@@ -346,7 +346,7 @@ def company_note(msg, fac, candidate):
 
 
 def map_note(msg, fac):
-    """Soruda başka firmanın haritası geçiyorsa modele açık not (küçük model "EIC'yim, 1-1'de nasıl başlarım"a 1-1 diyordu)."""
+    """An explicit note to the model if another company's map appears in the question (the small model answered "EIC'yim, 1-1'de nasıl başlarım" with 1-1)."""
     out = []
     for a, b_ in re.findall(r'\b([1-3])\s*-\s*([1-8])\b', msg):
         owner = int(a)
@@ -360,7 +360,7 @@ _FILLER = {'i', 'u', 'you', 'a', 'the', 'is', 'it', 'to', 'and', 'on', 'in', 'fo
 
 
 def _similar(a, b):
-    """İki satır aynı şeyi mi söylüyor: eşit ya da anlamlı sözcüklerinin çoğu ortak (aynı ipucunu ikinci kez vermek)."""
+    """Whether two lines say the same thing: equal or most of their meaningful words in common (giving the same hint a second time)."""
     if a.lower() == b.lower():
         return True
     x = set(re.findall(r'[\w-]+', a.lower())) - _FILLER
@@ -369,8 +369,8 @@ def _similar(a, b):
 
 
 def message_kind(msg):
-    """Oyuncunun mesajının türü: tepki rehberi (TEPKI) için. İstekler (grup, klan, arkadaşlık, gel) 'istek': kararı interaction.py
-    verir ("who wants to group up?" oyun sorusu sayılıp harita ipucu alıyordu)."""
+    """The type of the player's message: for the reaction guide (REACTION). Requests (group, clan, friendship, come) are 'request': interaction.py
+    decides ("who wants to group up?" used to count as a game question and got a map hint)."""
     n, _ = SPC.intent(msg)
     if n in IX.INTENTS and n != 'assist':
         return 'request'
@@ -378,10 +378,10 @@ def message_kind(msg):
         if rx.search(msg):
             return name
     k = _normalize(msg)
-    for name in ('congrats', 'farewell', 'roll_call', 'welcome_back'):             # öteki diller (bot/languages tepki)
+    for name in ('congrats', 'farewell', 'roll_call', 'welcome_back'):             # other languages (bot/languages reaction)
         rx = _REACTION_LANG[name]
         if rx and rx.search(k) and (name != 'welcome_back' or (len(k.split()) <= 3 and not re.search(r'[1-5]\s*-\s*[1-8]', msg))):
-            # ("2-3'e geldim" dönüş değil, varış)
+            # ("2-3'e geldim" is not a return, it is an arrival)
             return name
     if n == 'thanks':
         return 'thanks'
@@ -427,12 +427,12 @@ REACTION = {
 
 FALLBACK = {'welcome_back': ('wb', 'wb man', 'welcome back'), 'greeting': ('hey', 'yo', 'hi'), 'congrats': ('ty', 'thx', 'thanks man'),
          'roll_call': ('here', 'yo', 'yep'), 'question_personal': ('lol idk', 'haha', 'not telling :p'),
-         'taunt': ('lol ok', 'cry more', 'says the guy in a phoenix', 'k')}     # model yanıtı süzgece takılırsa
+         'taunt': ('lol ok', 'cry more', 'says the guy in a phoenix', 'k')}     # if the model's reply gets caught by the filter
 
 
 def shared_history(b, name):
-    """Botun o kişiyle geçmişi: hafızadaki olay sayıları ("dün birlikte gruplandık", "beni öldürmüştü"); güçlü kipte anılar ve
-    izlenim de."""
+    """The bot's history with that person: counts of events in memory ("dün birlikte gruplandık", "beni öldürmüştü"); in strong mode the memories and
+    impression too."""
     return _numbers(b, name) + (MEM.text(b, name, b.hour()) if STRONG else '')
 
 
@@ -453,9 +453,9 @@ def _numbers(b, name):
 
 
 def chat_history(y, channel=None, names=(), n=6, sec=180, exclude=None, route=None):
-    """Bağlam: aynı kanalın (ya da kişilerin fısıltılarının) son n satırı, son sn saniyeden; en yeni mesaj (haric) hariç. Güçlü
-    kipte üç kat satır, dört kat süre (geniş bağlam). yol: odanın kendisi (firma, klan, grup kanalları firmaya/klana/gruba göre ayrı:
-    önce MMO botu EIC'nin firma kanalındaki "geldim ne kaçırdım"a kendi kanalında yanıt verdi; sohbet denemesi 2026-10-30)."""
+    """Context: the last n lines of the same channel (or of the people's whispers), from the last sec seconds; except the newest message (exclude). In strong
+    mode three times the lines, four times the time (wide context). route: the room itself (company, clan, group channels are separate by company/clan/group:
+    before, the MMO bot answered EIC's "geldim ne kaçırdım" in the company channel in its own channel; chat trial 2026-10-30)."""
     if STRONG:
         n, sec = n * 3, sec * 4
     names = {a.lower() for a in names}
@@ -468,9 +468,9 @@ def chat_history(y, channel=None, names=(), n=6, sec=180, exclude=None, route=No
 
 
 def style(b):
-    """Botun yazış tarzı (kişilikten): modele her pilotun başka konuşması için."""
+    """The bot's writing style (from personality): so each pilot talks differently to the model."""
     o = b.traits
-    rude = b.__dict__.get('rude', 1)                     # paketin kaba sohbet ayarı (0 kapalı ... 3 çok sert)
+    rude = b.__dict__.get('rude', 1)                     # the pack's coarse chat setting (0 off ... 3 very harsh)
     if b.__dict__.get('moderator'):
         t = 'a calm chat moderator of the server, polite, keeps the chat clean'
     elif rude >= 2 and o['aggression'] > 0.75 - 0.15 * rude:
@@ -491,17 +491,17 @@ def style(b):
 
 
 def addressed_bots(y, channel, msg, listener):
-    """Oyuncunun konuştuğu bot(lar): adı geçen; yoksa "you/u", kutlama, teşekkür ya da kısa tepkiyse bu kanalda az önce (90 sn)
-    konuşan son bot. Genel sorular kimseye değildir."""
+    """The bot(s) the player is talking to: those named; if none, for "you/u", congratulation, thanks or a short reaction, the last bot that spoke in this channel
+    a moment ago (90 s). General questions are not to anyone."""
     named = [b for b in listener if NS.is_mentioned(b.name, msg)]
     if named:
         return named
     last = [x for x in y.history[-15:] if x[2] == channel and y.now - x[0] < 90 and str(x[1]).lower() in y.name_index
-           and (len(x) < 5 or not listener or x[1].lower() in {b.name.lower() for b in listener})]      # o kanalı duyanlardan
+           and (len(x) < 5 or not listener or x[1].lower() in {b.name.lower() for b in listener})]      # from those who hear that channel
     kind = message_kind(msg)
     if re.search(r'\b(guys|all|anyone|anybody|everyone|everybody|ppl|people|someone|somebody|yall|y\'all)\b', msg, re.I) \
             or COMPANY_NAME.search(msg) or kind == 'roll_call':
-        return []                                            # herkese ya da bir firmaya ("MMO noobs" son konuşana değil)
+        return []                                            # to everyone or to a company ("MMO noobs" not to the last speaker)
     if last and (re.search(r'\b(you|u|your|ur|yours)\b', msg, re.I) or kind in ('congrats', 'thanks')
                 or (len(msg.split()) <= 3 and kind not in ('question_game', 'greeting', 'farewell'))):
         b = y.name_index.get(str(last[-1][1]).lower())
@@ -520,8 +520,8 @@ TOPICS = ('asks if anyone is farming on his map', 'complains about a boss or a h
 
 
 def pick_topic(b, y):
-    """Botlar arası sohbetin açılış konusu: botun son olayından (varsa) ya da geniş bir konu listesinden (oyun içi ve dışı). Güçlü
-    kipte bazen bir oyuncu hakkındaki anısı (dedikodu: dinleyenler duyar, ani.duydu)."""
+    """The opening topic of a chat between bots: from the bot's last event (if any) or a wide topic list (in game and out). In strong
+    mode sometimes its memory about a player (gossip: listeners hear it, memories.hear_gossip)."""
     if STRONG:
         a = MEM.pick_gossip(b, y.now, b.r)
         if a is not None and b.r.random() < 0.4:
@@ -539,7 +539,7 @@ class Brain:
         self.y, self.log = y, log
         self.slot = int(y.setting('llm_batch', 4) or 4)
         global MULTILINGUAL, STRONG
-        self.server = PRV.client(self.slot, log)              # dahili model ya da kullanıcının sağlayıcısı
+        self.server = PRV.client(self.slot, log)              # the built-in model or the user's provider
         MULTILINGUAL = STRONG = not isinstance(self.server, LS.Server)
         self.ready = False
         self.queue = []
@@ -550,35 +550,35 @@ class Brain:
         self.last_decision = 0.0
         self.last_event = 0.0
         self.stats = {'request': 0, 'error': 0, 'sure': 0.0, 'dropped': 0}
-        self.muted = []             # süzgeçte atılan model satırları
-        self.conversations = {}             # güçlü kip: (bot, oyuncu) -> {b, ad, bas, son, n}: bitince anıya özetlenir
-        self.request_times = []           # son bir saatteki bütün isteklerin anları (llm_saatlik: sohbet, anı, karar hepsi)
-        self.usage_trace = []           # [(an, sağlayıcının token sayacının kopyası)] dakikada bir: son bir saatin kullanımı
+        self.muted = []             # model lines dropped by the filter
+        self.conversations = {}             # strong mode: (bot, player) -> {b, name, start, last, n}: summarized into a memory when finished
+        self.request_times = []           # the moments of all requests in the last hour (llm_hourly: chat, memory, decision, all)
+        self.usage_trace = []           # [(moment, copy of the provider's token counter)] once a minute: the usage of the last hour
         self.last_follow = 0.0
 
-    # ------------------------------------------------------------ yaşam
+    # ------------------------------------------------------------ lifecycle
     def launch(self):
         threading.Thread(target=self._open, name='llm-startup', daemon=True).start()
 
     def _open(self):
-        for wait in (30, 60, 120, 240, 480, None):        # geçici hata (429, 5xx, ağ) tek denemede bütün oturumu kapatmasın
+        for wait in (30, 60, 120, 240, 480, None):        # a transient error (429, 5xx, network) should not close the whole session on a single attempt
             try:
                 self.server.launch()
                 break
             except Exception as e:
                 code = getattr(e, 'code', None)
-                permanent = isinstance(self.server, LS.Server) or code is not None and 400 <= code < 500 and code not in (408, 429)   # yerel model ya da anahtar/model yanlış
+                permanent = isinstance(self.server, LS.Server) or code is not None and 400 <= code < 500 and code not in (408, 429)   # local model, or the key/model is wrong
                 if permanent or wait is None or not self.running:
-                    self.log('   botlar: dil modeli açılamadı, Normal kip gibi sürüyor: %s' % e)
+                    self.log('   bots: language model could not be started, continuing like Normal mode: %s' % e)
                     return
-                self.log('   botlar: dil modeli açılamadı (%s), %d sn sonra yeniden denenecek' % (e, wait))
+                self.log('   bots: language model could not be started (%s), will retry in %d s' % (e, wait))
                 time.sleep(wait)
         if not self.running:
             return
         self.ready = True
         for i in range(self.slot):
             threading.Thread(target=self._worker, name='llm-%d' % i, daemon=True).start()
-        self.log('   botlar: dil modeli hazır (%s, %d yuva)' % (('port %d' % self.server.port) if self.server.port else self.server.name,
+        self.log('   bots: language model ready (%s, %d slots)' % (('port %d' % self.server.port) if self.server.port else self.server.name,
                                                                self.slot))
 
     def stop(self):
@@ -587,12 +587,12 @@ class Brain:
             self.condition.notify_all()
         self.server.stop()
 
-    # ------------------------------------------------------------ bütçe ve kullanım
+    # ------------------------------------------------------------ budget and usage
     def at_limit(self):
-        """Saatlik istek sınırına (llm_saatlik; 0 sınırsız) gelindi mi: gelindiyse yeni iş alınmaz (sohbet kalıplara, kararlar
-        kurallı motora döner)."""
+        """Whether the hourly request limit (llm_hourly; 0 unlimited) has been reached: if so no new job is taken (chat goes back to templates, decisions
+        to the rule-based engine)."""
         if isinstance(self.server, LS.Server):
-            return False                                   # dahili model ücretsiz: sınır yalnız uzak sağlayıcıda
+            return False                                   # the built-in model is free: the limit applies only to a remote provider
         now = time.time()
         self.request_times = [t for t in self.request_times if now - t < 3600]
         limit = self.y.setting('llm_hourly', 200) or 0
@@ -606,7 +606,7 @@ class Brain:
             self.usage_trace.pop(0)
 
     def summary(self):
-        """Panelin kullanım satırı (durum.json'a yazılır): son bir saatin istekleri ve tokenleri, sınır, sağlayıcı."""
+        """The panel's usage line (written to state.json): the requests and tokens of the last hour, the limit, the provider."""
         now = dict(getattr(self.server, 'usage', {}))
         once = self.usage_trace[0][1] if self.usage_trace else {}
         hour = {k: now.get(k, 0) - once.get(k, 0) for k in ('request', 'input', 'cache', 'output')}
@@ -634,21 +634,21 @@ class Brain:
                 if not self.running:
                     return
                 _, _, job = heapq.heappop(self.queue)
-            if time.time() - job.get('t', time.time()) > 90:      # bayatladı (oyuncu çoktan unuttu)
+            if time.time() - job.get('t', time.time()) > 90:      # gone stale (the player has long forgotten)
                 with self.y.lock:
-                    for k in ('cancelled', 'backup'):              # ajanın uyanma sebebi geri; sohbet işi kalıp yanıtla (hiç yanıtsız kalmasın)
+                    for k in ('cancelled', 'backup'):              # the agent's wake-up reason back; a chat job answers with a template (so there is never no reply)
                         if job.get(k):
                             try:
                                 job[k]()
                             except Exception:
-                                self.log('   botlar: bayat iş geri alınamadı:\n' + traceback.format_exc(limit=3))
+                                self.log('   bots: could not take back the stale job:\n' + traceback.format_exc(limit=3))
                             break
                 continue
             try:
                 job['fn'](job)
             except Exception:
                 self.stats['error'] += 1
-                self.log('   botlar: dil modeli işi başarısız:\n' + traceback.format_exc(limit=3))
+                self.log('   bots: language model job failed:\n' + traceback.format_exc(limit=3))
                 backup = job.get('backup')
                 if backup:
                     with self.y.lock:
@@ -657,20 +657,20 @@ class Brain:
     def ask(self, user, schema, max_count=220, temperature=0.85, system=None):
         self.stats['request'] += 1
         self.request_times.append(time.time())
-        system = (system or (SYSTEM_MULTI if MULTILINGUAL else SYSTEM_PROMPT)) + AW.system_note()      # yönetici varken (yonetici_uyari.py)
-        if MULTILINGUAL and system.startswith((SYSTEM_PROMPT, SYSTEM_MULTI)):                # sonda hatırlatma: model İngilizce yazan oyuncuya İngilizce yanıt veriyordu (Qwen3 denemesi)
+        system = (system or (SYSTEM_MULTI if MULTILINGUAL else SYSTEM_PROMPT)) + AW.system_note()      # while an admin is present (admin_warnings.py)
+        if MULTILINGUAL and system.startswith((SYSTEM_PROMPT, SYSTEM_MULTI)):                # a reminder at the end: the model answered a player writing in English in English (Qwen3 trial)
             user += "\n\nEvery line is written ONLY in that pilot's own chat language ('Chats in ...'), whatever language others use."
         try:
             r, duration = self.server.ask(system, user, schema=schema, max_count=max_count, temperature=temperature)
-        except ValueError:                                   # yanıt sınırda kesildi ya da bozuk JSON: bir kez daha, daha sakin
+        except ValueError:                                   # the reply was cut off at the limit or the JSON is broken: once more, calmer
             self.stats['regenerate'] = self.stats.get('regenerate', 0) + 1
             r, duration = self.server.ask(system, user, schema=schema, max_count=int(max_count * 1.5), temperature=0.6)
         self.stats['sure'] += duration
         return r
 
-    # ------------------------------------------------------------ yöneticinin kancaları
+    # ------------------------------------------------------------ the manager's hooks
     def chat(self, y, g, now):
-        """Gelen mesaj modele mi (True) yoksa kalıplara mı."""
+        """Whether the incoming message goes to the model (True) or to the templates."""
         if not self.ready or not y.setting('llm_chat', True) or not y.permission('sohbet'):
             return False
         if g[0] == 'whisper':
@@ -686,7 +686,7 @@ class Brain:
                                'backup': lambda: y.template_room(route, msg, who, y.now)})
 
     def event(self, y, b, o, now):
-        """Botun önemli anı: bazen modele (kısa tepki), değilse kalıplara (False)."""
+        """The bot's important moment: sometimes to the model (a short reaction), otherwise to the templates (False)."""
         if not self.ready or not y.setting('llm_chat', True) or o['type'] not in ('death', 'i_killed_player', 'new_ship', 'level',
                                                                                   'witness', 'i_killed_boss'):
             return False
@@ -694,23 +694,23 @@ class Brain:
         if o['type'] in ('death', 'i_killed_player') and (not human or str(human).lower() in y.name_index):
             return False
         if o['type'] == 'witness':
-            human = None                                    # tanıklık: firma sohbetine, fısıltı değil
+            human = None                                    # witness: to the company chat, not a whisper
         chance = 0.35 + 0.5 * b.o('talkativeness')
         if o['type'] in ('level', 'new_ship'):
-            chance *= 0.3                                      # gerçek oyuncu her seviyeyi ilan etmez
+            chance *= 0.3                                      # a real player does not announce every level
         if b.r.random() > chance or now - self.last_event < 20:
-            return True                                     # bu sefer susar (olay tepkileri sohbeti doldurmasın)
+            return True                                     # stays silent this time (event reactions should not fill the chat)
         self.last_event = now
         return self.add(EVENT, {'t': now, 'fn': self._event, 'bot': b, 'incident': o})
 
     def mailer(self, y, b, r, k):
-        """Bota gelen postaya model yanıtı (toplum.posta_yanitla) -> kuyruğa girdi mi (girmediyse kalıp)."""
+        """A model reply to mail sent to the bot (society.reply_mail) -> whether it entered the queue (if not, a template)."""
         if not y.setting('llm_chat', True):
             return False
         return self.add(MAIL, {'t': y.now, 'fn': self._mail, 'bot': b, 'mailer': r, 'decision': k})
 
     def special(self, y, b, name, purpose):
-        """Botun oyuncuya kendiliğinden fısıltısı (sohbet_motoru.ozel_baslat) -> kuyruğa girdi mi."""
+        """The bot's spontaneous whisper to the player (chat_engine.start_private) -> whether it entered the queue."""
         if not y.setting('llm_chat', True):
             return False
         return self.add(EVENT, {'t': y.now, 'fn': self._private, 'bot': b, 'name': name, 'purpose': purpose})
@@ -721,7 +721,7 @@ class Brain:
         return self.add(EVENT, {'t': y.now, 'fn': self._group_talk, 'bot': b, 'name': name})
 
     def tick(self, now):
-        """Yöneticinin tick'inden: botlar arası sohbet ve stratejik kararlar (seyrek, kuyruk boşken)."""
+        """From the manager's tick: chat between bots and strategic decisions (rare, when the queue is empty)."""
         self._usage_tick(now)
         if not self.ready or len(self.queue) > self.slot:
             return
@@ -734,11 +734,11 @@ class Brain:
         if STRONG:
             self._memories_tick(y, now)
             if y.setting('llm_agent', True):
-                self._agent_tick(y, now, is_open)              # araç döngüsü (ajan.py) tek adımlık kararın yerine
+                self._agent_tick(y, now, is_open)              # the tool loop (agent.py) in place of the single-step decision
                 return
         minutes = y.setting('llm_decision_min', 10) or 0
         if minutes and now - self.last_decision >= 20:
-            # oyuncunun haritasındakiler (gözünün önünde) iki kat sık düşünür
+            # those on the player's map (in sight) think twice as often
             order = [b for b in is_open if now - getattr(b, '_llm_decision', 0) >= minutes * 60 * (0.5 if b.body is not None else 1.0)]
             if order:
                 self.last_decision = now
@@ -747,17 +747,17 @@ class Brain:
                     b._llm_decision = now
                 self.add(DECISION, {'t': now, 'fn': self._decision, 'bots': sec})
 
-    # ------------------------------------------------------------ işler
+    # ------------------------------------------------------------ jobs
     def _whisper(self, job):
         y, b, msg, who = self.y, job['bot'], job['msg'], job['who']
         name = who.get('userId', '')
         fac = int(who.get('factionId') or 0) or b.firma
         schema = {'type': 'object', 'properties': {'text': {'type': 'string', 'maxLength': 90}}, 'required': ['text']}
         rel = b.memory.relation(name)
-        # Rica (grup, yardım) kararını kişiliğe dayalı karar motoru verir, eylemi o uygular; model yalnız kararı botun ağzından
-        # söyler. Küçük model "olur" deyip daveti unutuyordu (canlı 2026-10-29): söz ve eylem böyle hep tutarlı.
+        # The decision on a request (group, help) is made by the personality-based decision engine, which carries out the action; the model only says the decision in the bot's voice.
+        # The small model said "olur" and forgot the invite (live 2026-10-29): this way word and action always agree.
         intent, game_map = SPC.intent(msg)
-        bid = IX.offer_reply(b, name, msg, y.now)       # "gruplaşalım mı?" -> "sure": grup isteği
+        bid = IX.offer_reply(b, name, msg, y.now)       # "gruplaşalım mı?" -> "sure": a group request
         if bid:
             intent = bid
         kind = 'request' if bid else message_kind(msg)
@@ -799,43 +799,43 @@ class Brain:
             listener = y.listeners(channel, who)
             addressed = addressed_bots(y, channel, msg, listener)
             if not addressed and _ONE_WORD.match(msg) and (not listener or listener[0].r.random() < 0.85):
-                return                                   # kimseye yazılmamış "gg", "lol", "xd": gerçek sohbette çoğu kez yanıtsız
-                                                         # ("gg"ye "o senin iyi oynadığın içindi" denmesin; sohbet denemesi 2026-10-30)
+                return                                   # a "gg", "lol", "xd" written to no one: often unanswered in real chat
+                                                         # (so "gg" is not answered with "o senin iyi oynadığın içindi"; chat trial 2026-10-30)
             extra = sorted([b for b in listener if b not in addressed], key=lambda b: -b.o('talkativeness') * b.r.random())[:5 - len(addressed)]
             candidate = (addressed + extra)[:5]
-            # yardım çağrısı: kimin gideceğini karar motoru seçer (kişilik, güç, yol) ve gönderir; model gidenlere söyletir
+            # a call for help: the decision engine chooses who will go (personality, power, route) and sends them; the model makes those who go say it
             responders = y.help_call(name, who, game_map, listener, channel, y.now, silent=True) if intent == 'assist' else []
             candidate = (responders + [b for b in candidate if b not in responders])[:5]
-            decisions = []                                # istek (grup, klan, arkadaş, gel): kim ne karar verdi
+            decisions = []                                # a request (group, clan, friend, come): who decided what
             if kind == 'request':
                 if addressed:
                     decisions = [(b, IX.decision(y, b, intent, name, who, game_map, msg, y.now)) for b in addressed[:1]]
                 elif intent in ('group', 'clan', 'quest', 'duel', 'special', 'gate'):
                     decisions = [(b, b.__dict__.pop('_request_decision', None) or IX.decision(y, b, intent, name, who, game_map, msg, y.now))
                                 for b in y.open_call(intent, name, who, game_map, msg, listener, y.now)]
-                elif intent == 'followup' and channel == 'group':      # grup sohbetinde "follow me / come 2-4": grubun botları
+                elif intent == 'followup' and channel == 'group':      # "follow me / come 2-4" in a group chat: the group's bots
                     decisions = [(b, IX.decision(y, b, intent, name, who, game_map, msg, y.now)) for b in listener[:3]]
                 decisions = [(b, dec) for b, dec in decisions if dec is not None]
                 if not decisions and intent == 'duel':
-                    kind = 'challenge'                       # kimse kabul etmedi: laf atışması (TEPKI meydan)
+                    kind = 'challenge'                       # nobody accepted: banter (REACTION 'challenge')
                 elif not decisions:
-                    return                               # kimse üstlenmedi: gerçek sohbetteki gibi sessizlik
+                    return                               # nobody took it on: silence, as in real chat
                 for b, dec in decisions:
-                    IX.apply(y, b, dec, delay=b.r.uniform(6, 12))     # yanıtı yazdıktan sonra (model ~2 sn + yazma)
+                    IX.apply(y, b, dec, delay=b.r.uniform(6, 12))     # after writing the reply (model ~2 s + typing)
                 candidate = [b for b, _ in decisions] or candidate
             m = COMPANY_NAME.search(msg) if kind == 'roll_call' else None
-            if m:                                        # "any eic online?": yalnız o firmanın pilotları "buradayım" der
+            if m:                                        # "any eic online?": only that company's pilots say "buradayım"
                 f = FIRMA_NO[m.group(1).lower()]
                 candidate = [b for b in listener if b.firma == f][:3]
             elif fac and not addressed and COMPANY_NAME.search(msg):
-                # başka firmadan söz ediliyor ("MMO noobs", "VRU is the best"): o firmanın pilotları ve bir takım arkadaşı tepki verir
+                # another company is mentioned ("MMO noobs", "VRU is the best"): that company's pilots and a teammate react
                 mentioned = {FIRMA_NO[x.lower()] for x in COMPANY_NAME.findall(msg)} - {fac}
                 to_them = [b for b in candidate if b.firma in mentioned] + [b for b in listener if b.firma in mentioned and b not in candidate]
                 candidate = (to_them[:2] + [b for b in candidate if b.firma == fac][:1]) or candidate
             history = chat_history(y, channel, exclude=msg, route=job.get('route'))
         if not candidate:
             return
-        # kim yanıtlayabilir: hitap edilen (yalnız o), yardıma gidenler, yoksa en çok iki pilot
+        # who can answer: the one addressed (only them), those going to help, otherwise at most two pilots
         responder = responders or (candidate if decisions else None) or addressed or candidate
         max_count = min(3, len(responders)) if responders else len(decisions) if decisions else len(addressed) if addressed else \
             1 if kind in ('farewell', 'thanks', 'welcome_back', 'search') else 2
@@ -872,7 +872,7 @@ class Brain:
                 b = y.name_index.get(str(x.get('bot', '')).lower())
                 text = x.get('text')
                 if kind == 'question_game' and not WHERE_QUESTION.search(msg):
-                    text = MAP_SUFFIX.sub('', str(text or ''))   # "is goliath worth it" -> "...worth it" (küçük model harita ekliyordu)
+                    text = MAP_SUFFIX.sub('', str(text or ''))   # "is goliath worth it" -> "...worth it" (the small model added a map)
                 text = self._text(b, text, echo=msg) if b is not None else ''
                 if b is None or not b.online or not text:
                     continue
@@ -881,10 +881,10 @@ class Brain:
                 y.speak(b, 'whisper' if is_whisper else channel, text, recipient=name if is_whisper else None, now=y.now + order * b.r.uniform(2, 6),
                         priority=True)
                 if addressed or decisions or responders:
-                    self._spoke(b, name, y.now)              # doğrudan konuşma (genel yanıt değil): sonunda anıya özetlenir
+                    self._spoke(b, name, y.now)              # direct conversation (not a general reply): summarized into a memory at the end
                 order += 1
             backup = FALLBACK.get(kind)
-            # yanıt gerekiyordu ama hepsi süzgece takıldı: kısa doğal karşılık (yedekler İngilizce)
+            # a reply was needed but all were caught by the filter: a short natural response (the fallbacks are English)
             if not order and min_value and backup and not responders and (not MULTILINGUAL or SPC.lang(responder[0]) == 'en'):
                 b = responder[0]
                 y.speak(b, channel, b.r.choice(backup), now=y.now, priority=True)
@@ -913,7 +913,7 @@ class Brain:
         contents = '%s %s' % (r.get('subject', ''), r.get('text', ''))
         game = message_kind(contents) == 'question_game' or (is_question(contents) and GAME.search(contents))
         fac = int(TP_firma(name) or b.firma)
-        # (boolean "yanıtla" alanı kaldırıldı: model reddi "yanıtlama" sanıp iyi metni de atıyordu)
+        # (the boolean "yanıtla" field was removed: the model took a refusal for "do not reply" and dropped the good text too)
         k = ('%sYou are %s. %s Your style: %s.\nYou feel %s about %s.\n\n%s sent you an in-game MAIL.\nSubject: "%s"\nText: "%s"\n\n%s'
              'Write your answer mail (metin): 1-3 short casual sentences (at least 6 words; give a reason if you say no), like a '
              'gamer writing a quick mail, no greeting formulas like "Dear", no signature. Real players answer personal mails; only '
@@ -928,7 +928,7 @@ class Brain:
             if not dec:
                 return
             from . import society
-            text = society.mail_template(b, dec)                # karar varsa sessiz kalmaz
+            text = society.mail_template(b, dec)                # if there is a decision it does not stay silent
             if not text:
                 return
         with y.lock:
@@ -973,7 +973,7 @@ class Brain:
                 return
             r0 = is_open[0].r
             channel = 'global' if r0.random() < 0.3 and len({b.firma for b in is_open}) > 1 else 'company'
-            if channel == 'global':                         # global: farklı firmalardan, firmalar arası atışma olağan
+            if channel == 'global':                         # global: from different companies, banter between companies is normal
                 companies = r0.sample(sorted({b.firma for b in is_open}), 2)
                 group = [max((b for b in is_open if b.firma == f), key=lambda b: b.o('talkativeness') * b.r.random()) for f in companies]
                 group += sorted([b for b in is_open if b not in group], key=lambda b: -b.o('talkativeness') * b.r.random())[:1]
@@ -1010,12 +1010,12 @@ class Brain:
                 t += b.r.uniform(4, 14)
                 y.speak(b, channel, text, now=t)
             a = group[0].__dict__.pop('_gossip', None)
-            if a is not None and t > y.now:                  # anlattı: dinleyenler duydu (oyuncunun itibarı yayılır)
+            if a is not None and t > y.now:                  # told: the listeners heard (the player's reputation spreads)
                 for d in group[1:]:
                     MEM.hear_gossip(d, group[0], a, y.now)
 
     def _decision(self, job):
-        """Stratejik karar (sohbet yazmaz: model buradaki "söz"leri durum raporuna çeviriyordu; sohbet bot_sohbet'te)."""
+        """Strategic decision (writes no chat: the model turned the "söz"s here into status reports; chat is in bot_chat)."""
         y = self.y
         bots = [b for b in job['bots'] if b.online]
         if not bots:
@@ -1047,11 +1047,11 @@ class Brain:
                 if tool:
                     TL.call(y, b, tool, {'map': x.get('map')} if tool == 'hunt_npcs' and x.get('map') else {})
 
-    # ------------------------------------------------------------ ajan (güçlü kip; ajan.py)
+    # ------------------------------------------------------------ agent (strong mode; agent.py)
     def _nearby(self, y, now):
-        """Oyuncunun dünyasına yakın botlar (ayrıntı düzeyi): haritasında ya da oyuncuyla aynı haritada, oyuncuyla ilişkisi, anısı
-        ya da süren konuşması olanlar. Bunlar tam sıklıkta ve olaylarla düşünür; ötekiler seyrek (kurallı motor oynatır, oyuncu
-        farkı görmez). 30 sn önbellek."""
+        """Bots close to the player's world (level of detail): those on its map or on the same map as the player, with a relationship with the player, a memory
+        or an ongoing conversation. These think at full frequency and on events; the others rarely (the rule-based engine plays them, the player
+        does not notice the difference). 30 s cache."""
         if now - self.__dict__.get('_nearby_time', 0) < 30:
             return self._near
         try:
@@ -1068,9 +1068,9 @@ class Brain:
         return self._near
 
     def _agent_tick(self, y, now, is_open):
-        """Kim düşünsün: olay, hatırlatıcı ya da süre (llm_karar_dk; oyuncunun haritasındakiler iki kat sık, oyuncudan uzak botlar
-        dört kat seyrek ve olaysız). Beş saniyede en çok iki bot; saatlik istek sınırı (llm_saatlik) aşılınca kurallı motor
-        sürer."""
+        """Who should think: an event, a reminder or time (llm_decision_min; those on the player's map twice as often, bots far from the player
+        four times as rarely and without events). At most two bots in five seconds; once the hourly request limit (llm_hourly) is exceeded the rule-based engine
+        continues."""
         if now - self.last_decision < 5:
             return
         self.last_decision = now
@@ -1081,14 +1081,14 @@ class Brain:
         n = 0
         for b in is_open:
             if now - b.__dict__.get('_agent_busy', 0) < 180:
-                continue                                   # düşünüyor
-            if '_llm_karar' not in b.__dict__:               # ilk düşünme anları dağılsın (hepsi birden açılışta düşünmesin)
+                continue                                   # thinking
+            if '_llm_karar' not in b.__dict__:               # so the first thinking moments are spread out (not all thinking at once at start)
                 b._llm_decision = now - b.r.uniform(0, 0.8) * minutes * 60
             far = id(b) not in nearby
-            refund = AGT.wake_state(b)                    # iş kuyruğa giremez ya da bayatlarsa sebep kaybolmasın
+            refund = AGT.wake_state(b)                    # if the job cannot enter the queue or goes stale, the reason should not be lost
             reason = AGT.wakers(y, b, now, events=not far)
             multiplier = 0.5 if b.body is not None else 4.0 if far else 1.0
-            # (kendine hatırlatıcı kurmuş bot ne zaman düşüneceğini seçmiş: ayrıca dönemsel düşünmez)
+            # (a bot that set itself a reminder has chosen when to think: it does not also think periodically)
             if not reason and minutes and not b.k.get('reminder') and now - b._llm_decision >= minutes * 60 * multiplier:
                 reason = 'time to look at how things are going and decide what to do next'
             if not reason:
@@ -1110,9 +1110,9 @@ class Brain:
         finally:
             b._agent_busy = 0
 
-    # ------------------------------------------------------------ anılar (güçlü kip; ani.py)
+    # ------------------------------------------------------------ memories (strong mode; memories.py)
     def _spoke(self, b, name, now):
-        """Bot bir oyuncuyla doğrudan konuştu: konuşma 150 sn susunca anıya özetlenir (_ani_ozet)."""
+        """A bot talked directly with a player: when the conversation is silent for 150 s it is summarized into a memory (_memory_summary)."""
         if not STRONG or not name or str(name).lower() in self.y.name_index:
             return
         e = self.conversations.setdefault((b.name.lower(), str(name).lower()), {'b': b, 'name': str(name), 'start': now, 'n': 0})
@@ -1130,10 +1130,10 @@ class Brain:
         is_open = {k.name.lower() for k in y.online_humans()}
         for b, a in MEM.due_followups(y, now, is_open)[:2]:
             if self.add(EVENT, {'t': now, 'fn': self._follow, 'bot': b, 'memory_log': a}):
-                a['followup']['finished'] = True                   # bir kez (iş kuyruğa girdi)
+                a['followup']['finished'] = True                   # once (the job entered the queue)
 
     def _memory_summary(self, job):
-        """Biten konuşma -> botun anısı (tek cümle), kişi hakkındaki izlenim ve varsa sonucu (takip)."""
+        """A finished conversation -> the bot's memory (one sentence), the impression of the person and, if any, its consequence (follow-up)."""
         y, b, name = self.y, job['bot'], job['name']
         lower = {b.name.lower(), name.lower()}
         with y.lock:
@@ -1180,7 +1180,7 @@ class Brain:
             MEM.add(b, name, summary, 'speech', emotion, importance, y.now, followup=tk, merge=False)
 
     def _follow(self, job):
-        """Anının sonucu: bot oyuncuya konuyu açan bir fısıltı yazar, gerekirse eyleme geçer (düello, davet, takip, yardım)."""
+        """A memory's consequence: the bot writes the player a whisper that brings up the subject, and acts if needed (duel, invite, follow, help)."""
         y, b, a = self.y, job['bot'], job['memory_log']
         t, name = a['followup'], a['who']
         ne = {'promise': 'follow up on what you two agreed, now it is time', 'intikam': 'you are coming for revenge: tell him so (short '
@@ -1192,7 +1192,7 @@ class Brain:
             person = TP.find(name=name)
             game_map = H.name(int(person.profile.d['position'].get('mapId', 0))) if person is not None else ''
         tool = t['tool']
-        if tool in ('duel', 'go_help', 'follow'):     # ulaşamayacağı yere "geliyorum" demesin (canlı: MMO botu EIC'nin 2-1'ine)
+        if tool in ('duel', 'go_help', 'follow'):     # should not say "geliyorum" to a place it cannot reach (live: the MMO bot to EIC's 2-1)
             m = TL._game_map(game_map) if game_map else None
             if m is None or not K.can_enter(m, b.firma, b.level) or not K.route(b.game_map, m, b.firma, b.level):
                 tool = 'none'
@@ -1220,55 +1220,55 @@ class Brain:
                 y.actions.append((y.now + SPC.typing_time(text or 'ok', b) + b.r.uniform(1, 3), b, (tool, arg)))
             t['result'] = text or ''
 
-    # ------------------------------------------------------------ yardımcılar
+    # ------------------------------------------------------------ helpers
     def _text(self, b, text, echo=None):
         out = self._filter_text(b, text, echo)
         if not out and str(text or '').strip():
-            self.muted.append(str(text)[:80])      # tanı (tools/bot_sohbet_deneme.py)
+            self.muted.append(str(text)[:80])      # diagnostics (tools/bot_chat_trial.py)
             del self.muted[:-50]
         return out
 
     def _filter_text(self, b, text, echo=None):
-        """Modelin satırı -> sohbete gidecek metin ya da '' (boş, rakamlı durum raporu ya da İngilizce dışı ise susar). Üslubun yalnız
-        hafif kısmı uygulanır (küçük harf, kısaltma, nadir yazım hatası); büyük harf ve emoji eklenmez."""
+        """The model's line -> text that goes to chat, or '' (silent if empty, a numeric status report or not English). Only the light part of the style
+        is applied (lowercase, abbreviation, rare typo); no capitals or emoji are added."""
         text = ' '.join(str(text or '').split())[:140]
-        text = re.sub(r'''[\s'"}\]{\[,]+$''', '', re.sub(r'''^[\s'"{\[]+''', '', text))     # JSON artığı ('} ...)
+        text = re.sub(r'''[\s'"}\]{\[,]+$''', '', re.sub(r'''^[\s'"{\[]+''', '', text))     # JSON residue ('} ...)
         if not MULTILINGUAL and _FOREIGN.search(text):
             return ''
         if MULTILINGUAL and is_english(text, SPC.lang(b)):
-            return ''                                        # Türkçe konuşan bot İngilizce yazdı (oyuncu bildirimi 2026-10-30)
+            return ''                                        # a Turkish-speaking bot wrote in English (player report 2026-10-30)
         text = ' '.join((_EMOJI if MULTILINGUAL else _SYMBOL).sub('', text).split())
         if not text or re.search(r'\d{3,}\s*(k\b|credits?|cr\b|uri\b|uridium|ep\b|exp\b|xp\b|honou?r|power|hp\b|dmg|damage)|'
                                   r'\b(credits?|uridium|uri|ep|honou?r|power)\s*:?\s*\d{3,}', text, re.I):
-            return ''                                        # durum sayıları (yaş, yıl gibi sayılar serbest)
+            return ''                                        # status numbers (numbers like age, year are free)
         if re.search(r'\b(mood|personality|plays like|not very|own company maps|pilot, level|game facts|newest message)\b', text, re.I):
-            return ''                                        # modelin botun tarifini ya da istemin sözcüklerini sohbete dökmesi
+            return ''                                        # the model pouring the bot's description or the prompt's words into chat
         if len(text.split()) > 16:
-            return ''                                        # sohbette kimse paragraf yazmaz
+            return ''                                        # nobody writes paragraphs in chat
         if '_' in text and any(a in text for a in TL.TOOLS) or re.search(r'\b(assist|assistance|how can i help)\b', text, re.I):
-            return ''                                        # araç adı ya da asistan dili
+            return ''                                        # a tool name or assistant language
         if harmful(text):
-            return ''                                        # kendine zarar, ölüm dileği, ağır hakaret: oyun içi atışma bunlarsız
+            return ''                                        # self-harm, death wish, heavy insults: in-game banter has none of these
         if _LEVEL_ANNOUNCE.search(text) and not (echo and re.search(r'seviye|level|lvl|ka[çc]', str(echo), re.I)):
             if b.__dict__.get('_level_announce') == b.level or b.level < 6:
-                return ''                                    # bu seviyeyi zaten duyurdu (olay tepkisi + ajan: iki kez "lv2 oldum"); ilk
-                #                                              seviyeleri kimse ilan etmez (taze pakette dört bot bir dakikada "lvl 2 oldum")
+                return ''                                    # already announced this level (event reaction + agent: "lv2 oldum" twice); nobody announces the first
+                #                                              levels (in a fresh pack four bots said "lvl 2 oldum" within a minute)
             b._level_announce = b.level
         sel = _GREETING_START.match(text)
         if sel and any(str(x[1]) == b.name and _GREETING_START.match(str(x[3])) and self.y.now - x[0] < 1200 for x in self.y.history[-80:]):
-            text = text[sel.end():].strip()               # bu bot az önce selam verdi: her satıra "selam millet!" diye başlamaz
-            if len(text.split()) < 2:                       # (sohbet denemesi 2026-10-30)
+            text = text[sel.end():].strip()               # this bot just said hello: not every line starts with "selam millet!"
+            if len(text.split()) < 2:                       # (chat trial 2026-10-30)
                 return ''
         previous = [str(x[3]) for x in self.y.history[-25:] if str(x[3]) != echo] + self.y.pending_texts()
-        # (yanıtlanan mesajın kendisi yankı denetimine kalır: "VRU is the best company? you're an EIC noob" gibi alıntılı yanıt geçer)      # yazılmayı bekleyenler de
+        # (the replied message itself is left to the echo check: a quoted reply like "VRU is the best company? you're an EIC noob" passes)      # pending ones too
         if any(_similar(text, x) for x in previous):
-            return ''                                        # az önce biri (aşağı yukarı) aynısını yazdı
-        if echo:                                            # yankı: oyuncunun sözcüklerinin çoğunu tekrarlıyor
+            return ''                                        # someone just wrote (roughly) the same
+        if echo:                                            # echo: repeating most of the player's words
             a, c = set(re.findall(r'[^\W\d_]+', text.lower())), set(re.findall(r'[^\W\d_]+', echo.lower()))
             if len(c) >= 3 and len(a) >= 2 and len(a & c) >= 0.7 * len(a):
-                return ''                                        # başkası az önce aynısını yazdı: gerçek oyuncular tekrarlamaz
+                return ''                                        # someone else just wrote the same: real players do not repeat
         text = re.sub(r'\bmmo+t?\b', 'mmo', re.sub(r'\bvru[d]\b', 'vru', re.sub(r'\biec\b', 'eic', text, flags=re.I), flags=re.I),
-                       flags=re.I)                           # modelin firma adlarını bozması (mmoo, iec)
+                       flags=re.I)                           # the model garbling company names (mmoo, iec)
         u = dict(b.k['personality'].get('style') or {})
         u.update(emoji=0.0, punctuation=0.0, uppercase=0.0, error=u.get('error', 0.05) * 0.4)
         return SPC.apply_style(text, u, b.r, SPC.lang(b) if MULTILINGUAL else 'en')

@@ -1,5 +1,5 @@
-"""Dinlenme: üste ya da güvenli yerde durmak, sohbet etmek, "afk". Yorgun, hırsı az ya da sosyal botlar seçer; yorgunluk azalmaz
-(oturum süresiyle artar), sıkılma ve öfke söner."""
+"""Resting: standing at base or in a safe place, chatting, "afk". Tired, low-ambition or social bots choose it; tiredness does not drop
+(it grows with session time), boredom and anger fade."""
 from ..brain import Goal, target
 from .. import catalog as K
 from .. import abstract_sim as S

@@ -1,19 +1,19 @@
-"""Kayıt editörü (karakter editörü; panel ayrı süreçte çalıştırır, sunucu modüllerini panelin sürecine yüklememek için).
+"""Save editor (character editor; the panel runs it in a separate process so as not to load server modules into the panel's process).
 
-Editör kaydın taslağında çalışır (saves.py: <yuva>/duzenleme.json); takma, çıkarma, gemi etkinleştirme, tasarım, config temizleme
-ve aktarma oyunun kendi hangar kodundan geçer (magaza.Magaza.handle: istemcinin istekleriyle aynı kurallar), eşya ve gemi vermek
-oyunun ödül yolundan (magaza.reward). Adetler (cephane, cevher, kaynak, booster), seviyeler (pilot, dron, P.E.T., eşya yükseltmesi)
-doğrudan profilde değişir.
+The editor works on the save's draft (saves.py: <slot>/edit_base.json); equipping, unequipping, ship activation, design, config cleanup
+and transfer go through the game's own hangar code (shop.Shop.handle: the same rules as the client's requests), giving items and ships goes through
+the game's reward path (shop.reward). Counts (ammo, ore, resources, boosters), levels (pilot, drone, P.E.T., item upgrade)
+change directly in the profile.
 
-  python -I save_editor.py oku <profil.json> [<asıl profil.json>]
-      editörün görünümü; asıl profil verilirse ondan farkların özeti
-  python -I save_editor.py uygula <profil.json> <işlemler JSON> [<asıl profil.json>]
-      işlemleri sırayla uygula, kaydet -> görünüm (işlemler: ISLEMLER)
-  python -I save_editor.py bilgi
-      her eşyanın ipucu satırları (değerler, bonuslar, gemiler, yükseltme, satış; bilgi())
-  python -I save_editor.py katalog
-      eklenebilecek eşyalar: [lootId, kategori, gemi yuvası, P.E.T. yuvası, drona takılır mı]
-Çıktı: son satırda JSON {'ok': true, ...} ya da {'ok': false, 'hata': '...', 'kalip': ..., 'arg': [...]} (profile_tool.py gibi).
+  python -I save_editor.py read <profile.json> [<original profile.json>]
+      the editor's view; if an original profile is given, a summary of the differences from it
+  python -I save_editor.py apply <profile.json> <operations JSON> [<original profile.json>]
+      apply the operations in order, save -> view (operations: OPS)
+  python -I save_editor.py info
+      each item's hint lines (values, bonuses, ships, upgrade, sale; info())
+  python -I save_editor.py catalog
+      items that can be added: [lootId, category, ship slot, P.E.T. slot, can it be fitted to a drone]
+Output: on the last line JSON {'ok': true, ...} or {'ok': false, 'error': '...', 'template': ..., 'arg': [...]} (like profile_tool.py).
 """
 import json, os, sys, time
 
@@ -25,12 +25,12 @@ import profile_tool as PA        # noqa: E402
 
 
 def _(s):
-    """Çevrilecek metin işareti: panel iletiyi kendi dilinde kurar (kayitlar.run_tool, lang.py; test_panel_lang.py toplar)."""
+    """Marker for text to be translated: the panel builds the message in its own language (saves.run_tool, lang.py; test_panel_lang.py collects it)."""
     return s
 
 
 COMPANIES = (1, 2, 3)
-# oyunun ret nedenleri (BaseKey adı ya da magaza.NEDENLER anahtarı) -> panelin iletisi
+# the game's rejection reasons (BaseKey name or shop.REASONS key) -> the panel's message
 REJECTS = {
     'error_can_not_equip_to_slot': _("This item can't go in this slot: the game's rules don't allow it (ship compatibility, slot type or config limit)."),
     'special_generic_hint': _("This config already has this extra."),
@@ -49,7 +49,7 @@ REJECTS = {
 HOME_MAP = PA.HOME_MAP
 AMMO = (('ammunition_laser_', 'laser'), ('ammunition_rocketlauncher_', 'rocket_launcher'), ('ammunition_rocket_', 'rocket'),
            ('ammunition_mine_', 'mine'), ('ammunition_specialammo_', 'special'), ('ammunition_', 'other'))
-# katalog kategorileri: (kimlik, istemcinin eşya sınıfları, lootId önekleri); sıra seçim penceresindeki sıra
+# catalog categories: (id, the client's item classes, lootId prefixes); the order is the order in the selection window
 CATEGORIES = (
     ('ship', ('ShipType',), ()), ('design', ('ShipDesignType',), ()), ('laser', ('LaserType',), ('equipment_weapon_laser_',)),
     ('rocket_launcher', ('HellstormLauncherType',), ('equipment_weapon_rocketlauncher_',)),
@@ -71,7 +71,7 @@ def _ist():
 def category(loot, ist=None):
     ist = _ist() if ist is None else ist
     klass = (ist.get(loot) or {}).get('class_name')
-    if loot.startswith('booster_'):                    # istemcide ExtraType
+    if loot.startswith('booster_'):                    # ExtraType in the client
         return 'booster'
     for k, classes, prefixes in CATEGORIES:
         if klass in classes or loot.startswith(prefixes):
@@ -88,8 +88,8 @@ def catalog():
             'categories': [k for k, _s, _o in CATEGORIES] + ['other']}
 
 
-# ------------------------------------------------------------------ eşya bilgisi (panelin ipucu)
-# sunucunun bonus anahtarı -> istemcinin nitelik adı (metinler_<dil>.json "n": panel o dilde yazar)
+# ------------------------------------------------------------------ item info (the panel's hint)
+# the server's bonus key -> the client's attribute name (metinler_<lang>.json "n": the panel writes in that language)
 ATTRIBUTE_NAME = {'laser': 'dmg_laser', 'rocket': 'dmg_rockets', 'can': 'hitpoints', 'kalkan': 'shield', 'speed': 'speed', 'ep': 'experience',
                'honor': 'honour', 'evasion': 'evasion', 'npc': 'dmg_npc', 'pvp': 'dmg_pvp', 'laser_hit_chance': 'hitchance_laser',
                'rocket_hit_chance': 'hitchance_rocket', 'shield_penetration': 'shield_penetration'}
@@ -97,15 +97,15 @@ BOOSTER_NAME = {'DAMAGE': 'damage', 'HITPOINTS': 'hitpoints', 'SHIELD': 'shield'
 
 
 def info():
-    """Her eşyanın ipucu satırları (istemcinin ve sunucunun eşya verisinden). lootId -> {
-      dg: [[etiket, değer, biçim]]   biçim: n sayı, p yüzde (kesir), x kat, sn saniye, dk dakika, sa saat; etiket panelin metni
-      m: [[nitelik, kesir]]          istemcinin nitelik adıyla bonus (modül, tasarım, gemi, formasyon, booster)
-      gm: [gemi lootId]              modülün geçtiği gemiler (kararsızda öncelikli gemiler)
-      up: [yüzde, azami, tür]        yükseltme (Assembly): seviye başına bonus
-      sat: kredi                     satış değeri
-      yv: {slot: sayı}               geminin ve dronun yuvaları
-      ph: {yer tutucu: değer}        açıklamadaki %HOURS%, %BOOSTERVALUE% …
-      tk: [SHIP, PET, DRONE]         takılabildiği yerler}"""
+    """Each item's hint lines (from the client's and the server's item data). lootId -> {
+      dg: [[label, value, format]]   format: n number, p percent (fraction), x times, sn seconds, dk minutes, sa hours; the label is the panel's text
+      m: [[attribute, fraction]]     bonus with the client's attribute name (module, design, ship, formation, booster)
+      gm: [ship lootId]              ships the module appears in (priority ships when undecided)
+      up: [percent, max, type]       upgrade (Assembly): bonus per level
+      sat: credits                   sale value
+      yv: {slot: count}              slots of the ship and the drone
+      ph: {placeholder: value}       %HOURS%, %BOOSTERVALUE% ... in the description
+      tk: [SHIP, PET, DRONE]         places it can be fitted}"""
     import shop as SHP
     import ship_module as GM
     import particle as PC
@@ -185,7 +185,7 @@ def info():
                 row(l).setdefault('m', []).append([BOOSTER_NAME[k], x / 100.0])
             else:
                 stats(l, 'booster_' + k.lower(), x / 100.0, 'p')
-        h = hour.get(l) or BOOSTER.B['sure_sn'] / 3600          # mağaza boosterının süresi (booster.add)
+        h = hour.get(l) or BOOSTER.B['sure_sn'] / 3600          # duration of a shop booster (booster.add)
         stats(l, 'sure', h, 'sa')
         if effect:
             row(l)['ph'] = {'HOURS': '%g' % h, 'BOOSTERVALUE': next(iter(effect.values()))}
@@ -231,9 +231,9 @@ def info():
     return {'items': out}
 
 
-# ------------------------------------------------------------------ profil ve mağaza
+# ------------------------------------------------------------------ profile and shop
 def open_save(path):
-    """Profil ve oyunun mağazası (hangar kuralları, ödül yolu; profil_araci.ver gibi)."""
+    """The profile and the game's shop (hangar rules, reward path; like profile_tool.give)."""
     import galaxy_gates as KAPI
     import new_systems as NS
     from player_profile import Profile
@@ -259,7 +259,7 @@ def level_of(ep):
 
 
 def _item(p, i):
-    """Takılı ya da envanterdeki eşyanın kısa kaydı: kimlik, lootId, P.E.T. seviyesi (seviyeli dişli ve protokolde), yükseltme seviyesi."""
+    """Short record of a fitted or inventory item: id, lootId, P.E.T. level (gear with a level, and protocol), upgrade level."""
     import pet as PETM
     l = p.d['items'].get(str(i))
     if not l:
@@ -276,9 +276,9 @@ def _item(p, i):
     return out
 
 
-# ------------------------------------------------------------------ rastgele nitelikli eşyalar
+# ------------------------------------------------------------------ items with random attributes
 def rng_kind(l):
-    """Eşyanın rastgele nitelik türü: modul (kararsız modül), pc (parçacık topu, kırıcı, sürücü, mercek), qfc ya da None."""
+    """An item's random attribute type: module (unstable module), pc (particle cannon, breaker, driver, lens), qfc or None."""
     import ship_module as GM
     import particle as PC
     import qfc as QF
@@ -286,7 +286,7 @@ def rng_kind(l):
 
 
 def rng_pool(l):
-    """Düzenleme penceresinin seçenekleri: nitelik adları, birim (kesir ya da yüzde), değer sınırı, hak sınırı, yıldız sınırı."""
+    """Options of the edit window: attribute names, unit (fraction or percent), value limit, uses limit, star limit."""
     import ship_module as GM
     import particle as PC
     import qfc as QF
@@ -313,7 +313,7 @@ def rng_pool(l):
 
 
 def rng_record(p, i, l):
-    """Örneğin rastgele nitelikleri (henüz çekilmediyse yalnız tür: düzenleyince çekilir)."""
+    """An instance's random attributes (if not drawn yet only the type: drawn when edited)."""
     t = rng_kind(l)
     if not t:
         return None
@@ -327,8 +327,8 @@ def rng_record(p, i, l):
 
 
 def stats(pr):
-    """İstatistik sekmesi (salt okunur; oyuncu isteği 2026-10-30): rütbe puanının parçaları, uzaylı ve oyuncu öldürmeleri, ölümler,
-    kapılar (tamamlama ve süreler: kapi.sure_yaz), modların en iyileri."""
+    """Statistics tab (read-only; player request 2026-10-30): the parts of the rank points, alien and player kills, deaths,
+    gates (completion and times: galaxy_gates.record_duration), the best of the modes."""
     import ranks as RT
     import galaxy_gates as GT
     c = RT.counters(pr)
@@ -410,7 +410,7 @@ def appearance(pr, m, original=None):
                  pet_yuva=PETM.slot_for(l), heat=bool(PETM.heat_slot_ok(l)), maximum=maximum(l),
                  ship=place[0] if place else None, configs=sorted(place[1]) if place else [])
         inventory.append(e)
-    for g in ships:                                  # takılı eşyaların yükseltme sınırı (seviye penceresi)
+    for g in ships:                                  # upgrade limit of the fitted items (level window)
         for c in list(g['configs'].values()) + [d for per in g['drones'].values() for d in per.values()] + list((g['pet'] or {}).values()):
             for e in c['items'] if 'items' in c else []:
                 e['maximum'] = maximum(e['lootId'])
@@ -450,7 +450,7 @@ def appearance(pr, m, original=None):
         'sources': [[l, int(n)] for l, n in sorted(p.d.get('other_items', {}).items()) if isinstance(n, (int, float))],
         'boosters': boosters,
         'quests': {'active': len(quests.get('active', {})), 'done': len(quests.get('done', []))},
-        # hakla çalışan CPU'lar (Jump CPU, Cloak …): lootId -> [kalan, bir dolumun hakkı]; hak lootId başına (ekstra.py)
+        # CPUs that work with uses (Jump CPU, Cloak ...): lootId -> [remaining, uses of one refill]; uses per lootId (extras.py)
         'rights': {l: [int(p.d.get('extra_uses', {}).get(l, SHP.EX.X[l]['right'])), SHP.EX.X[l]['right']]
                    for l in sorted(set(p.d['items'].values())) if 'right' in SHP.EX.X.get(l, {})},
         'pools': {l: rng_pool(l) for l in sorted(set(p.d['items'].values())) if rng_kind(l)},
@@ -462,9 +462,9 @@ def appearance(pr, m, original=None):
     return out
 
 
-# ------------------------------------------------------------------ fark özeti (taslak ile asıl kayıt)
+# ------------------------------------------------------------------ difference summary (draft vs. original save)
 def _layout(d):
-    """Takılı eşyaların yeri: (gemi, config, bölüm, eşya) kümesi."""
+    """Where the fitted items are: a set of (ship, config, section, item)."""
     out = set()
     for sid, s in d.get('ships', {}).items():
         for key in ('configs', 'drone_config', 'pet_config'):
@@ -478,8 +478,8 @@ def _layout(d):
 
 
 def diff(a, b):
-    """Asıl kayıttan (a) taslağa (b) değişenler: alanlar [ad, eski, yeni], eklenen/çıkan eşya (lootId -> adet), adet farkları
-    [lootId, eski, yeni], donanım (yeri değişen eşya sayısı), gemiler, dronlar."""
+    """What changed from the original save (a) to the draft (b): fields [name, old, new], added/removed items (lootId -> count), count differences
+    [lootId, old, new], equipment (number of items whose place changed), ships, drones."""
     pa, pb = a.get('pilot', {}), b.get('pilot', {})
     fields = [[k, pa.get(f), pb.get(f)] for k, f in (('name', 'userName'), ('company', 'factionId'), ('level', 'level'), ('ep', 'ep'),
                                                      ('credits', 'credits'), ('uridium', 'uridium'), ('honor', 'honourPoints'),
@@ -525,7 +525,7 @@ def diff(a, b):
             level.append(x['lootId'])
     upgrades_a, upgrades_b = a.get('upgrade_level', {}), b.get('upgrade_level', {})
     level += [b['items'][i] for i in set(upgrades_a) | set(upgrades_b) if upgrades_a.get(i, 0) != upgrades_b.get(i, 0) and i in b.get('items', {})]
-    for key in ('unstable', 'particle', 'qfc'):                    # rastgele nitelikler (düzenleme penceresi)
+    for key in ('unstable', 'particle', 'qfc'):                    # random attributes (edit window)
         ra, rb = a.get(key, {}), b.get(key, {})
         level += [b['items'][i] for i in rb if ra.get(i) and ra[i] != rb[i] and i in b.get('items', {})]
     charges_a, hb = a.get('extra_uses', {}), b.get('extra_uses', {})
@@ -540,7 +540,7 @@ def diff(a, b):
             'number': len(fields) + len(added) + len(leaving) + len(counts) + len(boost) + len(level) + (1 if hardware else 0)}
 
 
-# ------------------------------------------------------------------ işlemler
+# ------------------------------------------------------------------ operations
 def _int(v, lo, hi):
     try:
         return max(lo, min(hi, int(float(v))))
@@ -549,13 +549,13 @@ def _int(v, lo, hi):
 
 
 def _result(msgs, name):
-    """Oyunun yanıt komutundan başarı ya da ret nedeni (BaseKey adı)."""
+    """Success or rejection reason (BaseKey name) from the game's response command."""
     import shop as SHP
     cmd = next((x[1] for x in msgs or [] if isinstance(x, tuple) and x[0] == name), None) or {}
     ok = (cmd.get('resultId') if 'resultId' in cmd else cmd.get('result')) == 1
     if not ok:
         e = cmd.get('errorMessage') or cmd.get('description') or {}
-        if e.get('type') == 1:                         # ham metin: magaza.neden (istemcinin dili yok: İngilizcesi)
+        if e.get('type') == 1:                         # raw text: shop.REASONS (the client has no language here: it's English)
             key = next((k for k, (en, _tr) in SHP.REASONS.items() if en == e.get('stringBasekey')), e.get('stringBasekey'))
         else:
             key = {v: k for k, v in SHP.BASEKEY.items()}.get(e.get('enumBaseKey'))
@@ -576,7 +576,7 @@ def op_pilot(pr, m, o):
                                ('honor', 'honourPoints', -10 ** 12, 10 ** 12)):
         if key in o:
             pl[field] = _int(o[key], lo, hi)
-    if 'level' in o:                                  # seviye: EP o seviyenin eşiği (oyun da seviyeyi EP'den hesaplar)
+    if 'level' in o:                                  # level: EP is that level's threshold (the game also computes the level from EP)
         pl['level'], pl['ep'] = PA.level_ep(_int(o['level'], 1, 10 ** 3))
     if 'ep' in o:
         pl['ep'] = _int(o['ep'], 0, 2 ** 62)
@@ -588,7 +588,7 @@ def op_pilot(pr, m, o):
         if f not in COMPANIES:
             raise ValueError('Choose a company (MMO, EIC or VRU).')
         pl['factionId'] = f
-        home_base(pr)                                     # öbür firmanın haritasında kalmasın
+        home_base(pr)                                     # should not stay on the other company's map
     pr.dirty = True
 
 
@@ -598,14 +598,14 @@ def home_base(pr):
     if not pos:
         raise ValueError("The home station's position was not found.")
     pr.d['position'] = {'mapId': mid, 'x': pos[0], 'y': pos[1]}
-    for s in pr.d['ships'].values():                 # gemilerin bekledikleri yer de (etkinleştirince oraya gidilirdi)
+    for s in pr.d['ships'].values():                 # also the places where the ships wait (on activation one would go there)
         s.pop('position', None)
     pr.dirty = True
 
 
 def op_give(pr, m, o):
-    """Eşya ver (oyunun ödül yolu); tak verilirse ({gemi, konfig, hedef, dron, kume}) yeni eşyalar oraya takılır (ödül yolu boş yuvası
-    olan etkin gemiye takmış olabilir: önce oradan iner). Hedefin yuvası dolunca kalanlar envanterde kalır."""
+    """Give an item (the game's reward path); if equip is given ({ship, config, target, drone, set}) the new items are fitted there (the reward path may have fitted
+    them to an active ship with a free slot: they come off from there first). When the target's slots are full the rest stay in the inventory."""
     known = PA.known_loots()
     equip = o.get('equip')
     for loot, n in o.get('items') or []:
@@ -613,7 +613,7 @@ def op_give(pr, m, o):
         if loot not in known and not loot.startswith(('ammunition_', 'resource_', 'ship_', 'drone_', 'booster_')):
             raise ValueError('Unknown item: %s', loot)
         if '_design_' not in loot and any(s['lootId'] == loot for s in pr.d['ships'].values()):
-            raise ValueError('This ship is already in the hangar: %s', loot)        # oyunda her gemiden bir tane (ödül yolu atlar)
+            raise ValueError('This ship is already in the hangar: %s', loot)        # one of each ship in the game (the reward path skips)
         before = set(pr.d['items'])
         m.reward(loot, _int(n, 1, 10 ** 9))
         if not equip:
@@ -627,7 +627,7 @@ def op_give(pr, m, o):
             try:
                 op_move(pr, m, dict(equip, direction='equip', item=i))
             except ValueError:
-                if not k:                              # hiçbiri takılamadıysa oyunun nedeni
+                if not k:                              # if none could be fitted, the game's reason
                     raise
                 break
 
@@ -644,7 +644,7 @@ def op_move(pr, m, o):
 
 
 def op_delete(pr, m, o):
-    """Takılı olmayan eşyaları sil (satmadan)."""
+    """Delete the items that are not fitted (without selling)."""
     busy = pr.equipped_ids()
     for i in o.get('items') or []:
         i = int(i)
@@ -693,7 +693,7 @@ def op_import(pr, m, o):
 
 
 def op_delete_ship(pr, m, o):
-    """Gemiyi hangardan kaldır; üstündeki donanım envantere iner (takılılık gemilerin config'lerinden hesaplanır)."""
+    """Remove the ship from the hangar; the equipment on it goes to the inventory (fitted state is computed from the ships' configs)."""
     sid = str(o.get('ship'))
     if sid not in pr.d['ships']:
         raise ValueError('Ship not found.')
@@ -708,7 +708,7 @@ def op_drone(pr, m, o):
     x = pr.drone(o.get('drone') or 0)
     if not x:
         raise ValueError('Drone not found.')
-    if 'level' in o:                                  # seviye ve puanı: seviyenin eşiği
+    if 'level' in o:                                  # level and points: the level's threshold
         x['level'] = _int(o['level'], 1, len(SHP.LEVELS))
         x['points'] = max(SHP.LEVELS[x['level'] - 1]['points'], min(int(x.get('points', 0)),
                         SHP.LEVELS[x['level']]['points'] - 1 if x['level'] < len(SHP.LEVELS) else 10 ** 9))
@@ -720,7 +720,7 @@ def op_drone(pr, m, o):
 
 
 def op_delete_drone(pr, m, o):
-    """Dronu kaldır (satmadan): her gemide üstündeki eşyalar ve tasarımları envantere iner."""
+    """Remove the drone (without selling): in every ship the items on it and its designs go to the inventory."""
     x = pr.drone(o.get('drone') or 0)
     if not x:
         raise ValueError('Drone not found.')
@@ -735,7 +735,7 @@ def op_delete_drone(pr, m, o):
 
 
 def op_item_level(pr, m, o):
-    """Eşyanın yükseltme seviyesi (Assembly: 0 = yükseltilmemiş) ya da P.E.T. dişlisinin / protokolünün seviyesi (1-4)."""
+    """An item's upgrade level (Assembly: 0 = not upgraded) or the level of a P.E.T. gear / protocol (1-4)."""
     import upgrades as UPG
     import pet as PETM
     i = str(int(o.get('item') or 0))
@@ -767,7 +767,7 @@ def op_ammo(pr, m, o):
         if not str(loot).startswith('ammunition_'):
             raise ValueError('Unknown item: %s', loot)
         c[loot] = _int(n, 0, 10 ** 12)
-        pr.item_id(loot)                              # istemcinin sayaç kimliği (yeni cephane türü)
+        pr.item_id(loot)                              # the client's counter id (a new ammo type)
     pr.dirty = True
 
 
@@ -795,7 +795,7 @@ def op_resource(pr, m, o):
 
 
 def op_booster(pr, m, o):
-    """Booster süresi (saniye): uzaylıdan düşen booster gibi saklanır (çevrimdışı durur); 0 kaldırır."""
+    """Booster duration (seconds): stored like a booster dropped by an alien (stops while offline); 0 removes it."""
     import booster as BOOSTER
     b = pr.d.setdefault('boosters', {})
     for loot, sec in (o.get('durations') or {}).items():
@@ -834,8 +834,8 @@ def op_pet(pr, m, o):
 
 
 def op_rng(pr, m, o):
-    """Rastgele nitelikli eşyanın kaydı: nitelikler [[ad, değer]] (havuzdan, tekrarsız; modülde kesir, ötekilerde yüzde), modülün
-    gemileri, QFC'nin bağlı gemisi ve seviyesi, yeniden çekme hakkı, topun yıldızı. Kayıt yoksa önce oyundaki gibi çekilir."""
+    """Record of an item with random attributes: attributes [[name, value]] (from the pool, without repeats; fraction in a module, percent in the others), the module's
+    ships, the QFC's linked ship and level, the reroll uses, the cannon's star. If there is no record it is first drawn as in the game."""
     import ship_module as GM
     import particle as PC
     i = str(int(o.get('item') or 0))
@@ -881,7 +881,7 @@ def op_rng(pr, m, o):
 
 
 def op_cpu_charges(pr, m, o):
-    """Hakla çalışan CPU'nun kalan hakkı (ekstra_haklari; lootId başına, oyunda yeniden doldurulur)."""
+    """Remaining uses of a CPU that works with uses (extra_uses; per lootId, refilled in the game)."""
     import shop as SHP
     loot = str(o.get('lootId') or '')
     if 'right' not in SHP.EX.X.get(loot, {}):
@@ -947,7 +947,7 @@ def main(argv):
         return catalog()
     if argv[:1] == ['info'] and len(argv) == 1:
         return info()
-    raise ValueError('kullanım: save_editor.py oku <yol> [asıl] | uygula <yol> <json> [asıl] | katalog')
+    raise ValueError('usage: save_editor.py read <path> [original] | apply <path> <json> [original] | catalog')
 
 
 if __name__ == '__main__':

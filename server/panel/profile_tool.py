@@ -1,37 +1,37 @@
-"""Profil aracı (panel ayrı süreçte çalıştırır; sunucu modüllerini panelin sürecine yüklememek için).
+"""Profile tool (the panel runs it in a separate process, to avoid loading server modules into the panel's process).
 
-  python -I profile_tool.py yeni <profil.json> <pilot adı> <firma 1|2|3> [--kredi=N] [--uridyum=N] [--seviye=N] [--onur=N]
-                                 [--lazer=N] [--roket=N]
-      tohumdan (data/giris.json, yoksa varsayılan pilot) yeni profil: pilot adı, firma, firmanın ana haritasında (X-1) istasyon;
-      isteğe bağlı başlangıç: kredi, uridyum, seviye (EP'si seviyenin eşiği, data/levels.json), onur, LCB-10 ve R-310 adedi
-  python -I profile_tool.py ana_us <profil.json>
-      gemiyi firmasının ana istasyonuna taşı (bozuk ya da takılı kalınan haritadan kurtarma)
-  python -I profile_tool.py ver <profil.json> <JSON [[lootId, adet], ...]>
-      eşya, gemi, dron, cephane, kaynak, booster ver (oyunun ödül yolu: magaza.reward; Ö2)
-  python -I profile_tool.py sifirla <profil.json> <bölüm,bölüm>
-      durum sıfırlama: ipuclari, arayuz (pencere ve çubuk yerleri), oyun_ayarlari, aktif_gorevler, gecmis (seyir defteri ve hesap
-      geçmişi)
-  python -I profile_tool.py liste
-      verilebilecek lootId'ler (istemcinin eşya verisi ve sunucunun eşya tabloları)
-Çıktı: son satırda JSON {'ok': true, ...} ya da {'ok': false, 'hata': '...'}.
+  python -I profile_tool.py new <profile.json> <pilot name> <company 1|2|3> [--credits=N] [--uridium=N] [--level=N] [--honor=N]
+                                 [--laser=N] [--rocket=N]
+      new profile from the seed (data/login.json, else the default pilot): pilot name, company, a station on the company's home map (X-1);
+      optional starting values: credits, uridium, level (its EP is the level's threshold, data/levels.json), honor, count of LCB-10 and R-310
+  python -I profile_tool.py home_base <profile.json>
+      move the ship to its company's home station (rescue from a broken map or one it is stuck on)
+  python -I profile_tool.py give <profile.json> <JSON [[lootId, count], ...]>
+      give items, ships, drones, ammo, resources, boosters (the game's reward path: shop.reward; Ö2)
+  python -I profile_tool.py reset <profile.json> <section,section>
+      reset state: hints, ui (window and bar positions), game_settings, active_quests, history (logbook and account
+      history)
+  python -I profile_tool.py entries
+      the lootIds that can be given (the client's item data and the server's item tables)
+Output: on the last line JSON {'ok': true, ...} or {'ok': false, 'error': '...'}.
 """
 import json, os, sys, time
 
 SERVER = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, SERVER)
 DATA = os.path.join(SERVER, 'data')
-HOME_MAP = {1: 1, 2: 5, 3: 9}             # game.py HOME_MAP: firma -> X-1
-START_AMMO = {'laser': 'ammunition_laser_lcb-10', 'rocket': 'ammunition_rocket_r-310'}     # yeni kaydın başlangıç cephanesi (tohumda da)
+HOME_MAP = {1: 1, 2: 5, 3: 9}             # game.py HOME_MAP: company -> X-1
+START_AMMO = {'laser': 'ammunition_laser_lcb-10', 'rocket': 'ammunition_rocket_r-310'}     # starting ammo of a new save (in the seed too)
 
 
 def _load(name):
     import paths as PTH
-    p = PTH.template(name) if name in PTH.TEMPLATES else os.path.join(DATA, name)     # şablon: kendi kaydın, yoksa paylaşılabilir kopya
+    p = PTH.template(name) if name in PTH.TEMPLATES else os.path.join(DATA, name)     # template: your own save, else a shareable copy
     return json.load(open(p, encoding='utf8')) if p and os.path.exists(p) else {}
 
 
 def station_pos(map_id):
-    """Haritanın istasyonunun konumu (game.Sablonlar.station gibi) ya da None."""
+    """The position of the map's station (like game.Sablonlar.station) or None."""
     import map_links as H
     maps = _load('maps.json')
     rec = maps.get(str(map_id))
@@ -44,7 +44,7 @@ def station_pos(map_id):
 
 
 def level_ep(level):
-    """Seviyenin EP eşiği (data/levels.json; en büyük seviyeye kırpılır) -> (seviye, EP)."""
+    """The level's EP threshold (data/levels.json; clipped to the highest level) -> (level, EP)."""
     table = _load('levels.json').get('levels') or [[1, 0]]
     lv = max(table[0][0], min(int(level), table[-1][0]))
     return lv, next(need for l, need in table if l == lv)
@@ -63,7 +63,7 @@ def new_(path, pilot, company, credits=None, uridium=None, level=None, honor=Non
         pl['credits'] = credits
     if uridium is not None:
         pl['uridium'] = uridium
-    if level is not None:                                  # seviye EP'den hesaplanır (oyun da öyle): EP seviyenin eşiği
+    if level is not None:                                  # the level is computed from EP (the game does the same): EP is the level's threshold
         pl['level'], pl['ep'] = level_ep(level)
     if honor is not None:
         pl['honourPoints'] = honor
@@ -75,9 +75,9 @@ def new_(path, pilot, company, credits=None, uridium=None, level=None, honor=Non
     if pos:
         pr.d['position'] = {'mapId': mid, 'x': pos[0], 'y': pos[1]}
     pr.d['created'] = time.strftime('%Y-%m-%d %H:%M:%S')
-    if progressive:                                          # Season Pass ilk sezondan sırayla (sezon.py)
+    if progressive:                                          # Season Pass in order from the first season (season.py)
         pr.d['progressive'] = True
-    if campaign:                                            # başlangıç kampanyası: "Level N" görevleri (gorev.KAMPANYA_SN boyunca)
+    if campaign:                                            # starter campaign: the "Level N" quests (for quest.CAMPAIGN_SEC)
         pr.d['campaign'] = int(time.time())
     pr.save(force=True)
     return {'map': mid, 'position': pos, 'template': bool(_load('login.json'))}
@@ -98,7 +98,7 @@ def home_base(path):
 
 
 def known_loots():
-    """Verilebilecek lootId -> tür (istemcinin eşya verisi; sunucunun eşya tabloları)."""
+    """The lootId that can be given -> type (the client's item data; the server's item tables)."""
     out = {k: (v.get('type') or '') for k, v in (_load('client_items.json').get('items') or {}).items()
            if not k.startswith(('shipId_', 'paymentItem_'))}
     es = _load('items.json')
@@ -112,9 +112,9 @@ def known_loots():
 
 
 def give(path, items, pr=None):
-    """Oyunun ödül yolu (görev ve kutu ödülleriyle aynı: magaza.reward) çevrimdışı profilde: gemi hangara, ekipman envantere
-    (boş yuva varsa takılır), dron, cephane, kaynak, booster, tasarım. Bilinmeyen lootId reddedilir. pr: dosya yerine bu profil
-    (kaydedilmez)."""
+    """The game's reward path (same as quest and box rewards: shop.reward) on an offline profile: ship to the hangar, equipment to the
+    inventory (equipped if there is a free slot), drone, ammo, resource, booster, design. An unknown lootId is rejected. pr: this
+    profile instead of the file (not saved)."""
     import galaxy_gates as KAPI
     import new_systems as NS
     from player_profile import Profile
@@ -127,7 +127,7 @@ def give(path, items, pr=None):
     notes = []
     save = pr is None
     pr = pr or Profile(_load('login.json').get('seed'), path)
-    m = Shop(pr, _load('responses.json'), notes.append)      # oyundaki şablonlar: takılan ekipmanın HangarShipEquipmentCommand'ı
+    m = Shop(pr, _load('responses.json'), notes.append)      # templates in the game: the HangarShipEquipmentCommand of the equipped equipment
     m.gates = KAPI.Gates(pr, notes.append)
     m.new_ = NS.NewSystems(pr, m, notes.append)
     before = (len(pr.d.get('items', {})), len(pr.d.get('ships', {})), len(pr.d.get('drones', [])))
@@ -154,20 +154,20 @@ def reset(path, parts):
 
 
 def reset_d(d, parts):
-    """Profil sözlüğünde durum sıfırlama (save_editor.py taslakta da kullanır) -> sıfırlanan bölümler."""
+    """Resets state in a profile dict (save_editor.py uses it on the draft too) -> the sections reset."""
     seed = _load('login.json').get('seed') or {}
     done = []
     for part in parts:
-        if part == 'hints':                     # ipucu pencereleri ve etkinlik bildirimleri yeniden (ipucu.py)
+        if part == 'hints':                     # hint windows and event notifications again (tips.py)
             for k in ('tips_shown', 'hints_closed', 'event_notification'):
                 d.pop(k, None)
-        elif part == 'ui':                     # menü çubukları ve pencere yerleri tohumdaki (UILayoutCommand)
+        elif part == 'ui':                     # menu bars and window positions from the seed (UILayoutCommand)
             d['ui'] = seed.get('UILayoutCommand') or {'featureBars': []}
-        elif part == 'game_settings':              # oyunun Ayarlar penceresi (grafik, ses, oynanış) tohumdaki
+        elif part == 'game_settings':              # the game's Settings window (graphics, sound, gameplay) from the seed
             d['settings'] = seed.get('UserSettingsCommand') or {}
-        elif part == 'active_quests':             # alınmış görevler bırakılır (bitenler kalır)
+        elif part == 'active_quests':             # accepted quests are dropped (finished ones stay)
             d.setdefault('quests', {})['active'] = {}
-        elif part == 'history':                     # seyir defteri ve hesap geçmişi boşalır
+        elif part == 'history':                     # logbook and account history are emptied
             d['logbook'], d['account_history'] = [], []
         else:
             raise ValueError('Unknown section: %s', part)
@@ -189,7 +189,7 @@ def main(argv):
         return reset(args[1], [x for x in args[2].split(',') if x])
     if args[:1] == ['entries'] and len(args) == 1:
         return {'items': sorted(known_loots().items())}
-    raise ValueError('kullanım: profile_tool.py yeni <yol> <pilot> <firma> | ana_us <yol> | ver <yol> <json> | sifirla <yol> <bölümler> | liste')
+    raise ValueError('usage: profile_tool.py new <path> <pilot> <company> | home_base <path> | give <path> <json> | reset <path> <sections> | entries')
 
 
 if __name__ == '__main__':
@@ -198,7 +198,7 @@ if __name__ == '__main__':
         out = main(sys.argv[1:])
         print(json.dumps(dict(out, ok=True), ensure_ascii=False))
     except Exception as e:
-        # ValueError(kalıp, *değerler): panel iletiyi kendi dilinde kurar (kayitlar.run_tool, dil.py)
+        # ValueError(template, *values): the panel builds the message in its own language (saves.run_tool, dil.py)
         template = e.args[0] if isinstance(e, ValueError) and e.args and isinstance(e.args[0], str) else None
         msg = (template % e.args[1:] if len(e.args) > 1 else template) if template else str(e)
         print(json.dumps({'ok': False, 'error': '%s: %s' % (type(e).__name__, msg), 'template': template, 'arg': [str(a) for a in e.args[1:]]},

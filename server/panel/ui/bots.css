@@ -1,7 +1,7 @@
-/* OpenOrbit paneli — Botlar (bots.js). Sınıflar bt- önekli; renkler panel.css değişkenlerinden. */
+/* OpenOrbit panel - Bots (bots.js). Classes are prefixed bt-; colors come from the panel.css variables. */
 body[data-page=botlar] .topbar { --hdr: url(images/hdr_botlar.webp); }
 
-/* ---------------------------------------------------------------- kitaplık */
+/* ---------------------------------------------------------------- library */
 .bt-intro { display: flex; align-items: center; gap: 18px; }
 .bt-intro > div { flex: 1; min-width: 0; }
 .bt-intro-art { width: 120px; height: 120px; object-fit: contain; margin: -10px -6px -14px 0; filter: drop-shadow(0 6px 18px rgba(64, 223, 255, .2)); }
@@ -29,7 +29,7 @@ body[data-page=botlar] .topbar { --hdr: url(images/hdr_botlar.webp); }
 .bt-companies i.eic { background: var(--eic); }
 .bt-companies i.vru { background: var(--vru); }
 
-/* ---------------------------------------------------------------- sihirbaz */
+/* ---------------------------------------------------------------- wizard */
 .bt-steps { display: flex; gap: 6px; flex-wrap: wrap; }
 .bt-steps span { display: inline-flex; align-items: center; gap: 7px; padding: 5px 11px 5px 6px; border-radius: 99px; border: 1px solid var(--line-2);
   color: var(--muted); font-size: 12.5px; }
@@ -54,7 +54,7 @@ body[data-page=botlar] .topbar { --hdr: url(images/hdr_botlar.webp); }
   border-radius: var(--radius-sm); background: rgba(4, 9, 18, .5); font-size: 12.5px; }
 .bt-class .input.num { width: 64px; }
 
-/* ---------------------------------------------------------------- editör */
+/* ---------------------------------------------------------------- editor */
 .bt-bar { display: flex; align-items: center; gap: 12px; padding: 10px 14px; }
 .bt-bar-art { width: 40px; height: 40px; object-fit: contain; }
 .bt-bar-name { min-width: 0; }
@@ -85,7 +85,7 @@ body[data-page=botlar] .topbar { --hdr: url(images/hdr_botlar.webp); }
 .bt-custom { font-family: var(--mono, ui-monospace, monospace); font-size: 12.5px; }
 .bt-custom-badge { margin-left: 6px; font-size: 10.5px; vertical-align: middle; }
 
-/* ---------------------------------------------------------------- klanlar (logo: Orders.md OP-017) */
+/* ---------------------------------------------------------------- clans (logo: Orders.md OP-017) */
 .bt-clans { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 12px; }
 .bt-clan { display: flex; gap: 12px; padding: 12px; border: 1px solid var(--line); border-radius: var(--radius);
   background: linear-gradient(180deg, rgba(16, 27, 47, .9), rgba(9, 16, 30, .92)); }
@@ -97,7 +97,7 @@ body[data-page=botlar] .topbar { --hdr: url(images/hdr_botlar.webp); }
 .bt-clan-name b { font: 600 15px/1.2 var(--display); letter-spacing: .02em; }
 .bt-clan-news { font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* ---------------------------------------------------------------- kadro tablosu */
+/* ---------------------------------------------------------------- roster table */
 .bt-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin-bottom: 12px; }
 .bt-filter select.input { width: auto; min-width: 150px; }
 .bt-search { position: relative; display: flex; align-items: center; }
@@ -145,7 +145,7 @@ tr:hover .bt-name { color: var(--accent); }
 .bt-resource-icon { width: 16px; height: 16px; object-fit: contain; }
 .bt-empty { text-align: center; color: var(--muted); padding: 28px 10px !important; }
 
-/* ---------------------------------------------------------------- bot editörü (karakter editörünün kimlik kartı ve menüsüyle: saves.css ke-) */
+/* ---------------------------------------------------------------- bot editor (with the character editor's identity card and menu: saves.css ke-) */
 .modal.bt-detail-modal { width: min(1320px, 100%); height: calc(100vh - 48px); display: flex; flex-direction: column; overflow: hidden; padding-bottom: 16px; }
 .bt-detail-modal .body { flex: 1; min-height: 0; display: block; }
 .bt-detail-modal .foot { align-items: center; margin-top: 14px; padding-top: 14px; }
@@ -170,7 +170,7 @@ tr:hover .bt-name { color: var(--accent); }
 .bt-detail-note { margin: 5px 2px 0; }
 .bt-detail-card .set-row { grid-template-columns: minmax(0, 1fr) minmax(220px, 300px); padding: 11px 0; }
 
-/* kişilik: radar + kaydırıcılar */
+/* personality: radar + sliders */
 .bt-personality { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 22px; align-items: center; }
 .bt-radar-box { display: grid; place-items: center; }
 .bt-radar { width: 100%; max-width: 290px; overflow: visible; }
@@ -215,7 +215,7 @@ tr:hover .bt-name { color: var(--accent); }
 .bt-cargo-bar { flex: 1; height: 8px; border-radius: 2px; background: rgba(4, 9, 18, .85); border: 1px solid var(--line-2); overflow: hidden; }
 .bt-cargo-bar span { display: block; height: 100%; background: linear-gradient(90deg, #b07a22, var(--amber)); box-shadow: 0 0 10px rgba(255, 185, 77, .5); }
 
-/* hafıza */
+/* memory */
 .bt-relation { display: grid; grid-template-columns: minmax(140px, 1fr) minmax(220px, 1.3fr) 52px auto; gap: 12px; align-items: center; padding: 9px 0; border-top: 1px solid var(--line); }
 .bt-detail-card > .desc + .bt-relation { border-top: 0; }
 .bt-relation > b { font: 600 14px var(--display); text-align: right; font-variant-numeric: tabular-nums; }
@@ -236,7 +236,7 @@ tr:hover .bt-name { color: var(--accent); }
 .bt-ledger-no { color: var(--dim); font: 600 12px var(--display); text-align: right; }
 .bt-savings { display: grid; gap: 6px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
 
-/* düşünceler ve istatistik */
+/* thoughts and statistics */
 .bt-thoughts { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
 .bt-thoughts li { padding: 10px 12px; border-radius: var(--radius-sm); background: rgba(4, 9, 18, .5); border: 1px solid var(--line); border-left: 2px solid var(--violet); }
 .bt-step { margin-top: 4px; font: 12px/1.45 var(--mono); color: var(--steel); overflow-wrap: anywhere; }

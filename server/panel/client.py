@@ -1,12 +1,12 @@
-"""Oyun istemcisi (orijinal Unity istemcisi): klasör doğrulama, kendiliğinden bulma, sürüm, başlatma argümanları.
+"""The game client (the original Unity client): folder validation, automatic discovery, version, launch arguments.
 
-Klasör: içinde DarkOrbit.exe ve DarkOrbit_Data/ olan klasör (DarkOrbit_Version1.1.116 gibi). Panel ayarı boşsa proje kökündeki
-en yeni sürüm klasörü kullanılır; güncelleme gelirse ya da klasör taşınırsa panelden seçilir. Bilgisayarda yoksa panel indirir
-(client_download.py; yarım indirmenin geçici klasörü aday sayılmaz). Sunucu 1.1.116'nın protokolüyle
-yazıldı (data/protocol*.json istemcinin kodundan): başka sürümde panel uyarır.
-İstemci dosyaları değiştirilmez; yalnız başlatma argümanı verilir (yerel web girişi 127.0.0.1:8090). İstemcinin yanına
-kurulan BepInEx (client_patch.py) istemcinin düzeltmelerini yükler, kuruluysa argümanla açılır. Linux ve macOS'ta istemci Wine ya da
-Proton ile açılır (client_runner.py).
+Folder: the folder holding DarkOrbit.exe and DarkOrbit_Data/ (like DarkOrbit_Version1.1.116). If the panel setting is empty, the newest
+version folder in the project root is used; if an update arrives or the folder is moved, it is chosen from the panel. If it is not on the
+computer the panel downloads it (client_download.py; the temporary folder of a half-finished download is not a candidate). The server was
+written for the protocol of 1.1.116 (data/protocol*.json from the client's code): with another version the panel warns.
+The client's files are not changed; only a launch argument is passed (local web login 127.0.0.1:8090). The BepInEx installed next to the
+client (client_patch.py) loads the client's fixes, and if installed it is launched with the argument. On Linux and macOS the client is
+opened with Wine or Proton (client_runner.py).
 """
 import glob, os, re, subprocess
 
@@ -20,14 +20,14 @@ SERVER = os.path.dirname(PANEL_DIR)
 ROOT = os.path.dirname(SERVER)
 EXE = 'DarkOrbit.exe'
 DATA_DIR = 'DarkOrbit_Data'
-SUPPORTED = '1.1.116'          # etkin protokolün sürümü yoksa (server/data/protokol/surum.txt; protokol_guncelle.py yazar)
+SUPPORTED = '1.1.116'          # if the active protocol has no version (server/data/protocols/version.txt; written by protocol_update.py)
 VERSION_FILE = os.path.join(SERVER, 'data', 'protocols', 'version.txt')
 
 
 def supported():
-    """Sunucunun etkin protokolünün istemci sürümü: surum.txt ile DESTEKLENEN'in yenisi. surum.txt (protokol aracı yazar) panel
-    güncellemesinde korunur; güncelleme yeni sürümün protokolünü getirdiyse eskide kalır (2026-10-28: 1.1.115 yazan kopyada
-    1.1.116 güncelleme uyarısı çıkmıyordu)."""
+    """The client version of the server's active protocol: the newer of version.txt and SUPPORTED. version.txt (written by the protocol tool) is kept
+    in a panel update; if the update brought the new version's protocol it stays old (2026-10-28: a copy saying 1.1.115 did not
+    show the 1.1.116 update warning)."""
     try:
         v = open(VERSION_FILE, encoding='utf8').read().strip()
     except OSError:
@@ -42,8 +42,8 @@ RESOLUTIONS = [(1280, 720), (1366, 768), (1440, 900), (1600, 900), (1680, 1050),
 
 
 def bundle_version(folder):
-    """Oyunun kendi sürümü (Unity PlayerSettings.bundleVersion) DarkOrbit_Data/globalgamemanagers'tan: 4 bayt LE uzunluk + metin,
-    ardından sıfır dolgu. Unity motorunun sürümü (2022.3.58f1) aynı dosyada ama uzunluk öneki o biçimde değil; bilinmiyorsa None."""
+    """The game's own version (Unity PlayerSettings.bundleVersion) from DarkOrbit_Data/globalgamemanagers: 4-byte LE length + text,
+    then zero padding. The Unity engine's version (2022.3.58f1) is in the same file but the length prefix is not in that format; None if unknown."""
     try:
         with open(os.path.join(folder, DATA_DIR, 'globalgamemanagers'), 'rb') as fh:
             d = fh.read()
@@ -57,8 +57,8 @@ def bundle_version(folder):
 
 
 def version_of(folder):
-    """Sürüm: klasör adından (DarkOrbit_Version1.1.116), yoksa oyunun verisinden (bundle_version; resmî kurulum "DarkOrbit Unity"
-    klasöründe), yoksa exe'nin dosya sürümünden (Unity motorunun sürümüyse, ör. 2022.3.58, sayılmaz); bilinmiyorsa None."""
+    """Version: from the folder name (DarkOrbit_Version1.1.116), otherwise from the game's data (bundle_version; the official install is in the "DarkOrbit Unity"
+    folder), otherwise from the exe's file version (if it is the Unity engine's version, e.g. 2022.3.58, it does not count); None if unknown."""
     m = re.search(r'(\d+\.\d+\.\d+)', os.path.basename(os.path.normpath(folder)))
     if m:
         return m.group(1)
@@ -78,7 +78,7 @@ def version_of(folder):
         ctypes.windll.version.VerQueryValueW(buf, '\\', ctypes.byref(p), ctypes.byref(n))
         ffi = ctypes.cast(p, ctypes.POINTER(wintypes.DWORD * 13)).contents
         ms, ls = ffi[2], ffi[3]
-        if ms >> 16 >= 2000:                      # Unity'nin yıl biçimli motor sürümü, oyunun değil
+        if ms >> 16 >= 2000:                      # Unity's year-style engine version, not the game's
             return None
         return '%d.%d.%d' % (ms >> 16, ms & 0xFFFF, ls >> 16)
     except Exception:
@@ -86,8 +86,8 @@ def version_of(folder):
 
 
 def check(folder):
-    """Klasörü doğrula -> {'gecerli', 'yol', 'exe', 'veri', 'surum', 'uyumlu', 'eski' (desteklenenden eski: panel günceller),
-    'sorunlar' [...], 'boyut_mb'}."""
+    """Validate the folder -> {'valid', 'route', 'exe', 'data', 'version', 'compatible', 'issues' [...], 'size_mb'} plus a flag for a folder
+    older than the supported version (the panel updates)."""
     out = {'route': folder or '', 'valid': False, 'exe': False, 'data': False, 'version': None, 'compatible': False, 'eski': False,
            'issues': []}
     if not folder:
@@ -115,7 +115,7 @@ def check(folder):
 
 
 def candidates():
-    """Olası istemci klasörleri: proje kökü, Program Files, LocalAppData, masaüstü, İndirilenler (en yeni sürüm önce)."""
+    """Possible client folders: project root, Program Files, LocalAppData, desktop, Downloads (newest version first)."""
     pats = [os.path.join(ROOT, 'DarkOrbit*'), os.path.join(ROOT, '*', 'DarkOrbit*')]
     for env in ('PROGRAMFILES', 'PROGRAMFILES(X86)', 'LOCALAPPDATA', 'APPDATA'):
         base = os.environ.get(env)
@@ -140,7 +140,7 @@ def candidates():
 
 
 def resolve(configured):
-    """Ayardaki klasör, yoksa bulunan en uygun klasör (None olabilir)."""
+    """The folder in the setting, otherwise the best folder found (may be None)."""
     if configured:
         return configured
     c = candidates()
@@ -148,13 +148,13 @@ def resolve(configured):
 
 
 def args(cfg, log_file, session=None, window=False):
-    """Unity başlatma argümanları (panel ayarlarından). oturum: çoklu istemcinin ek istemcisi (web.py giriş sayfası ?session= ile
-    kaydını bulur); pencere: ayardan bağımsız pencere kipi (ek istemciler)."""
+    """Unity launch arguments (from the panel settings). session: the extra client of multi-client (the web.py login page finds its
+    record via ?session=); window: a window mode independent of the setting (extra clients)."""
     a = [LOGIN_URL.replace('/#', '/?session=%s#' % session) if session else LOGIN_URL]
     mode = 'windowed' if window else cfg.get('window_mode')
     if mode == 'fullscreen':
         a += ['-screen-fullscreen', '1', '-window-mode', 'exclusive']
-    elif mode == 'borderless':                       # kenarlıksız tam ekran pencere (Unity 2019.3+)
+    elif mode == 'borderless':                       # borderless fullscreen window (Unity 2019.3+)
         a += ['-screen-fullscreen', '1', '-window-mode', 'borderless']
     else:
         a += ['-screen-fullscreen', '0']
@@ -170,21 +170,21 @@ def args(cfg, log_file, session=None, window=False):
 
 
 def command(cfg, folder, log_file, session=None, window=False, prepare=True):
-    """İstemcinin başlatma komutu ve ortamı -> (komut, ortam): Windows'ta DarkOrbit.exe doğrudan, Linux ve macOS'ta Wine ya da Proton
-    ile (client_runner.py; hazirla: önekte istemcinin sürücüsünü kur). BepInEx kuruluysa onu etkinleştiren argümanlar da (client_patch.py).
-    Çalıştırıcı bulunamazsa RuntimeError."""
+    """The client's launch command and environment -> (command, environment): on Windows DarkOrbit.exe directly, on Linux and macOS with Wine or Proton
+    (client_runner.py; prepare: install the client's driver in the prefix). If BepInEx is installed, also the arguments that enable it (client_patch.py).
+    RuntimeError if no runner is found."""
     return RUN.command(cfg, os.path.join(folder, EXE), args(cfg, RUN.win_path(log_file), session, window) + PATCH.arguments(folder),
                      prepare)
 
 
-# Wine sürecinin komut satırı Windows yolu: Z:\...\DarkOrbit.exe ya da S:\<klasör>\DarkOrbit.exe … (Wine'ı ya da Proton'u açan
-# komutlar, steam.exe değil)
+# the Wine process's command line has a Windows path: Z:\...\DarkOrbit.exe or S:\<folder>\DarkOrbit.exe ... (the commands that open Wine or Proton,
+# not steam.exe)
 WINE_CLIENT = re.compile(r'"?[a-z]:\\(?:(?!\.exe).)*\\%s\b' % re.escape(EXE.lower()))
 
 
 def running_clients(exclude=()):
-    """Açık DarkOrbit.exe süreçlerinin kimlikleri (panelin açmadıkları dahil); haric: sayılmayacak süreçler. Linux ve macOS'ta haric
-    süreç grubu da sayılmaz (surecler.istemci_ac grubu açtığı süreçle kurar: Proton'da istemci onun torunu)."""
+    """IDs of the running DarkOrbit.exe processes (including those the panel did not open); exclude: processes not to count. On Linux and macOS the excluded
+    process group is not counted either (processes.open_client creates the group with the process it opens: in Proton the client is its grandchild)."""
     if os.name != 'nt':
         try:
             r = subprocess.run(['ps', '-A', '-o', 'pid=', '-o', 'pgid=', '-o', 'args='], capture_output=True, text=True, timeout=10)

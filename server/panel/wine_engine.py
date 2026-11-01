@@ -1,17 +1,16 @@
-"""macOS: istemciyi açan Wine'ı panel kendisi kurar (calistirici 'motor', macOS'ta Otomatik'in seçimi). Açık kaynak bir Wine derlemesi
-(MOTOR) ve DXMT (Direct3D 11'i Metal'e çeviren katman, github.com/3Shain/dxmt) save/wine_motoru/'na iner; kullanıcı hiçbir şey kurmaz.
-Apple Silicon'da yalnız Rosetta 2 gerekir (Wine x86_64): panelin düğmesi macOS'un yönetici penceresiyle kurar (rosetta_kur).
+"""macOS: the panel itself installs the Wine that opens the client (runner 'engine', what Automatic picks on macOS). An open-source Wine build
+(ENGINE) and DXMT (a layer that translates Direct3D 11 to Metal, github.com/3Shain/dxmt) are downloaded into save/wine_engine/; the user installs nothing.
+On Apple Silicon only Rosetta 2 is needed (Wine x86_64): the panel's button installs it with macOS's admin dialog (install_rosetta).
 
-Neden bu ikisi: istemci 32 bitlik ve yalnız Direct3D 11 (Unity 2022.3). macOS'un OpenGL'i 4.1'de kaldığı için Wine'ın kendi D3D11'i
-(wined3d) açılmıyor; DXVK MoltenVK üzerinde 32 bitte çalışmıyor (GitHub issue #7). DXMT çalışıyor ama Wine'ın winemac.drv'si DXMT'nin
-istediği işlevleri (macdrv_functions) dışa açmalı (WineHQ'nun düz macOS derlemeleri açmıyor) ve gömülü tarayıcı (Vuplex) paylaşılan
-D3D11 dokusu açtığı için Wine 10.18 ya da daha yenisi gerekiyor (D3DKMT; Wine 10.0 tabanlı motorlarda Vuplex çöküyor). MOTOR ikisini
-de karşılar.
+Why these two: the client is 32-bit and Direct3D 11 only (Unity 2022.3). Because macOS's OpenGL stays at 4.1, Wine's own D3D11
+(wined3d) does not start; DXVK does not work in 32-bit on MoltenVK (GitHub issue #7). DXMT works but Wine's winemac.drv must expose the
+functions DXMT wants (macdrv_functions) (WineHQ's plain macOS builds do not), and because the embedded browser (Vuplex) opens a shared
+D3D11 texture, Wine 10.18 or newer is required (D3DKMT; Vuplex crashes on Wine 10.0-based engines). ENGINE meets both.
 
-Arşivler diske kaydedilmez: HTTP'den akarak açılır (indirme.HttpFile; kopan bağlantı aynı bayttan sürer). SHA-256 akarken hesaplanır,
-tutmazsa açılan her şey silinir. Arşivden yalnız 'kok' altı alınır. DXMT'nin builtin DLL'leri motorun lib/wine/<mimari>/ klasörlerine
-kopyalanır: her önekte d3d11, dxgi ve d3d10core DXMT olur (öneğe DLL konmaz, geçersiz kılma gerekmez). Kurulum geçici klasörde
-toplanır, bitince adını alır: yarım kurulum kullanılmaz. Aynı anda tek iş.
+Archives are not saved to disk: they are unpacked while streaming from HTTP (client_download.HttpFile; a dropped connection resumes from the same byte). SHA-256 is
+computed while streaming, and if it does not match everything unpacked is deleted. From the archive only what is under 'root' is taken. DXMT's builtin DLLs
+are copied into the engine's lib/wine/<arch>/ folders: in every prefix d3d11, dxgi and d3d10core become DXMT (no DLL is put in the prefix, no override
+is needed). The install is assembled in a temporary folder and takes its name when done: a half install is not used. One job at a time.
 """
 import functools, hashlib, json, os, platform, shutil, subprocess, sys, tarfile, threading, time
 
@@ -19,10 +18,10 @@ from lang import t as _
 from client_download import CHUNK, HttpFile, DownloadError, Cancelled
 
 MAC = sys.platform == 'darwin'
-# MOTOR: frankea/Whisky'nin Wine çalışma zamanı: CrossOver'ın açık kaynak Wine'ı (winecx) Wine 11.16 tabanında, GitHub'da CI ile
-# derlenir (github.com/frankea/winecx-gptk); arşivden yalnız Wine alınır. 2026-10-25'te Apple M4 / macOS 27'de istemci (Vuplex girişi
-# dahil) bununla açıldı. Sikarugir'in Wine 11.0'ı ve Wine Staging 11.8 + DXMT de DXMT'nin işlevlerini dışa açıyor (denenmedi).
-# Değiştirince sha256 de değişir; eski motor yeni kurulumda silinir.
+# ENGINE: the Wine runtime of frankea/Whisky: CrossOver's open-source Wine (winecx) based on Wine 11.16, built with CI on GitHub
+# (github.com/frankea/winecx-gptk); only Wine is taken from the archive. On 2026-10-25 the client (including the Vuplex login) opened with it on
+# an Apple M4 / macOS 27. Sikarugir's Wine 11.0 and Wine Staging 11.8 + DXMT also expose DXMT's functions (not tried).
+# When changed, the sha256 changes too; the old engine is deleted on the new install.
 ENGINE = {'name': 'Wine 11.16 (winecx)', 'version': 'whisky-4.6.4-beta.1',
          'url': 'https://github.com/frankea/Whisky/releases/download/v4.6.4-beta.1/Libraries.tar.gz',
          'sha256': 'c8e6a10dfeb54fc16d3dd3382ee2e9d2cec3eb1f5641613cad8b07903818cb12', 'size': 481348675, 'root': 'Libraries/Wine'}
@@ -30,12 +29,12 @@ DXMT = {'name': 'DXMT 0.80', 'version': '0.80', 'url': 'https://github.com/3Shai
         'sha256': '8f260e36b5739e68f3bad613381441385c4dc7b85b78ba8de653d5a6a264529d', 'size': 18681669, 'root': 'v0.80'}
 DXMT_ARCHS = ('x86_64-unix', 'x86_64-windows', 'i386-windows')
 MIN_MACOS = (14, 0)                # DXMT: macOS 14 Sonoma
-INSTALL_MARKER = 'install.json'                  # kurulumun bittiğini ve sürümlerini söyler
+INSTALL_MARKER = 'install.json'                  # says that the install is finished and its versions
 
 
 @functools.lru_cache(maxsize=1)
 def apple_silicon():
-    """Apple Silicon Mac mi (Python Rosetta altında x86_64 çalışsa da)?"""
+    """Is this an Apple Silicon Mac (even if Python runs as x86_64 under Rosetta)?"""
     if not MAC:
         return False
     try:
@@ -48,8 +47,8 @@ _rosetta = {'exists': False, 'time': 0.0}
 
 
 def has_rosetta():
-    """Rosetta 2 kurulu mu (Intel Mac'te ve macOS dışında gerekmez: True)? Durum yoklamaları sık: kurulu bulununca hep True, yoksa
-    birkaç saniyede bir yeniden denenir."""
+    """Is Rosetta 2 installed (not needed on an Intel Mac or outside macOS: True)? Status polls are frequent: once found installed it is always True, otherwise
+    retried every few seconds."""
     if not apple_silicon() or _rosetta['exists']:
         return True
     if time.monotonic() - _rosetta['time'] < 3:
@@ -70,8 +69,8 @@ def macos_version():
 
 
 class _Digest:
-    """Okunan baytların SHA-256'sı (tarfile akışının altında). tarfile 10 KB'lık parçalarla okuyor; HTTPS'ten öyle okumak saniyede
-    1 MB'ı geçmiyordu (1 MB'lık okumalarla 40 MB/sn'den çok): okumalar PARCA'lık tampondan verilir (kısa okuma, akış için yeter)."""
+    """SHA-256 of the bytes read (under the tarfile stream). tarfile reads in 10 KB pieces; reading like that over HTTPS did not exceed
+    1 MB per second (with 1 MB reads it is over 40 MB/s): reads are served from a CHUNK-sized buffer (a short read is enough for streaming)."""
 
     def __init__(self, f):
         self.f, self.h = f, hashlib.sha256()
@@ -95,7 +94,7 @@ class _Digest:
 
 
 def _extract(tf, root, target):
-    """tarfile akışından kok/ altını hedefe aç (yollar hedefin içinde kalır; bağlar da)."""
+    """Unpack what is under root/ from the tarfile stream to the target (paths stay inside the target; links too)."""
     on = root.strip('/') + '/'
     os.makedirs(target, exist_ok=True)
     real_target = os.path.realpath(target)
@@ -119,7 +118,7 @@ def _extract(tf, root, target):
             if os.path.lexists(p):
                 os.remove(p)
             os.symlink(m.linkname, p)
-        elif m.islnk():                                 # sert bağ: hedefi daha önce açıldı (akışta sırayla)
+        elif m.islnk():                                 # hard link: its target was unpacked earlier (in order in the stream)
             src = m.linkname[len(on):] if m.linkname.startswith(on) else None
             if not src or '..' in src.split('/'):
                 raise DownloadError(_('Invalid link in the archive: %s', m.name))
@@ -146,12 +145,12 @@ class WineEngine:
     def _blank(state):
         return {'state': state, 'running': False, 'claimed': 0, 'total': 0, 'speed': 0, 'time_left_sec': None, 'error': None, 'part': None}
 
-    # ------------------------------------------------------------ kurulu motor
+    # ------------------------------------------------------------ installed engine
     def folder(self):
         return os.path.join(self.root, ENGINE['version'])
 
     def wine(self):
-        """Kurulu motorun wine programı ya da None (kurulum bitmemiş, sürümü eski)."""
+        """The installed engine's wine program or None (install not finished, its version old)."""
         k = self.folder()
         try:
             with open(os.path.join(k, INSTALL_MARKER), encoding='utf8') as fh:
@@ -180,9 +179,9 @@ class WineEngine:
         with self.lock:
             return self.d['running']
 
-    # ------------------------------------------------------------ kurulum
+    # ------------------------------------------------------------ setup
     def start(self):
-        """Motoru ve DXMT'yi indir ve kur (sürüyorsa ya da kuruluysa bir şey yapmaz) -> durum."""
+        """Download and install the engine and DXMT (does nothing if running or installed) -> status."""
         with self.lock:
             busy = self.d['running']
             if not busy and not self.wine():
@@ -210,7 +209,7 @@ class WineEngine:
                 self.d['time_left_sec'] = int(left / self.d['speed']) if self.d['speed'] > 0 else None
 
     def _download_extract(self, part, target):
-        """Arşivi akarak hedefe aç ve SHA-256'sını doğrula."""
+        """Unpack the archive to the target while streaming and verify its SHA-256."""
         with self.lock:
             self.d['part'] = part['name']
         kw = {'opener': self.opener} if self.opener else {}
@@ -236,13 +235,13 @@ class WineEngine:
             free = shutil.disk_usage(self.root).free
             if free < 1600 << 20:
                 raise DownloadError(_('Not enough disk space: %.1f GB needed, %.1f GB free.', 1.6, free / float(1 << 30)))
-            self.log('Wine motoru indiriliyor: %s, %s' % (ENGINE['url'], DXMT['url']))
+            self.log('Wine engine downloading: %s, %s' % (ENGINE['url'], DXMT['url']))
             engine, dxmt = os.path.join(temporary, 'engine'), os.path.join(temporary, 'dxmt')
             self._download_extract(ENGINE, engine)
             self._download_extract(DXMT, dxmt)
             with self.lock:
                 self.d.update(state='installing', part=None)
-            for arch in DXMT_ARCHS:                 # DXMT builtin DLL'leri motorun kendi DLL'lerinin yerine
+            for arch in DXMT_ARCHS:                 # DXMT builtin DLLs replace the engine's own DLLs
                 src, dst = os.path.join(dxmt, arch), os.path.join(engine, 'lib', 'wine', arch)
                 if not os.path.isdir(src):
                     continue
@@ -259,36 +258,36 @@ class WineEngine:
             if os.path.isdir(target):
                 shutil.rmtree(target)
             os.rename(engine, target)
-            for old in os.listdir(self.root):           # önceki sürümlerin motorları
+            for old in os.listdir(self.root):           # engines of earlier versions
                 p = os.path.join(self.root, old)
                 if old != ENGINE['version'] and not old.startswith('.') and os.path.isdir(p):
                     shutil.rmtree(p, ignore_errors=True)
             with self.lock:
                 self.d.update(state='built', claimed=self.d['total'], time_left_sec=0)
-            self.log('Wine motoru kuruldu: %s (%s)' % (self.name(), target))
+            self.log('Wine engine installed: %s (%s)' % (self.name(), target))
         except Cancelled:
             with self.lock:
                 self.d['state'] = 'stopped'
-            self.log('Wine motoru kurulumu durduruldu')
+            self.log('Wine engine install stopped')
         except DownloadError as e:
             with self.lock:
                 self.d.update(state='error', error=str(e))
-            self.log('Wine motoru kurulamadı: %s' % e)
+            self.log('Wine engine could not be installed: %s' % e)
         except OSError as e:
             with self.lock:
                 self.d.update(state='error', error=_('Could not write a file: %s', e))
-            self.log('Wine motoru kurulamadı: %r' % e)
+            self.log('Wine engine could not be installed: %r' % e)
         except Exception as e:
             with self.lock:
                 self.d.update(state='error', error=repr(e))
-            self.log('Wine motoru: beklenmeyen hata: %r' % e)
+            self.log('Wine engine: unexpected error: %r' % e)
         finally:
             shutil.rmtree(temporary, ignore_errors=True)
             with self.lock:
                 self.d['running'], self.d['speed'], self.d['part'] = False, 0, None
 
     def wait(self, step=None):
-        """Kurulum bitene dek bekle (adim: (yüzde) -> None, ilerleme) -> wine programı. Kurulamazsa RuntimeError."""
+        """Wait until the install finishes (step: (percent) -> None, progress) -> the wine program. RuntimeError if it cannot be installed."""
         self.start()
         while self.running():
             if step:
@@ -302,7 +301,7 @@ class WineEngine:
 
     # ------------------------------------------------------------ Rosetta 2
     def install_rosetta(self):
-        """Rosetta 2'yi macOS'un yönetici penceresiyle kur (arka planda; kullanıcı şifresini o pencereye yazar) -> durum."""
+        """Install Rosetta 2 with macOS's admin dialog (in the background; the user types their password into that dialog) -> status."""
         if has_rosetta():
             return self.state()
         with self.lock:
@@ -318,12 +317,12 @@ class WineEngine:
                 r = subprocess.run(['osascript', '-e', script], capture_output=True, text=True, timeout=1800)
                 if has_rosetta():
                     ros = {'state': 'installed', 'error': None}
-                    self.log('Rosetta 2 kuruldu')
+                    self.log('Rosetta 2 installed')
                 elif '-128' in r.stderr:
                     ros = {'state': 'vacant', 'error': _('The Rosetta installation was cancelled.')}
                 else:
                     ros = {'state': 'error', 'error': _('Rosetta could not be installed: %s', (r.stderr or r.stdout).strip()[-300:])}
-                    self.log('Rosetta kurulamadı: %s' % (r.stderr or r.stdout).strip()[-300:])
+                    self.log('Rosetta could not be installed: %s' % (r.stderr or r.stdout).strip()[-300:])
             except (OSError, subprocess.SubprocessError) as e:
                 ros = {'state': 'error', 'error': _('Rosetta could not be installed: %s', e)}
             with self.lock:

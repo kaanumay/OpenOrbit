@@ -1,12 +1,12 @@
-"""Platform uyumu (yalnız standart kitaplık; web.py, game.py ve panel birlikte kullanır). Windows'ta ve Linux'ta hiçbir şeyi değiştirmez.
+"""Platform compatibility (standard library only; web.py, game.py and the panel use it together). It changes nothing on Windows and Linux.
 
 macOS:
-  Düşük portlar  Mojave'den beri root olmayan süreç 1024'ten küçük bir portu yalnız joker adreste (0.0.0.0) açabiliyor, 127.0.0.1'de
-                 PermissionError. Bu portlar (web API 80, sahte TCP 843, ödeme düğmeleri 443) orada 0.0.0.0'da açılır ve yalnız bu
-                 bilgisayardan gelen bağlantılar kabul edilir (yerel_mi): dinleyiciler yine dışarıya kapalı.
-  Sertifikalar   python.org'un macOS Python'u kendi OpenSSL'iyle gelir; "Install Certificates.command" çalıştırılmadıysa kök sertifikası
-                 yok, HTTPS (istemci indirmesi, CDN görselleri, güncelleme) CERTIFICATE_VERIFY_FAILED verir. O zaman sistemin paketi
-                 (/etc/ssl/cert.pem) SSL_CERT_FILE ile verilir; alt süreçler (web.py, game.py) devralır.
+  Low ports      Since Mojave a non-root process can open a port below 1024 only on the wildcard address (0.0.0.0), on 127.0.0.1
+                 PermissionError. These ports (web API 80, fake TCP 843, payment buttons 443) are opened there on 0.0.0.0 and only connections coming from this
+                 computer are accepted (is_local): the listeners are still closed to the outside.
+  Certificates   python.org's macOS Python comes with its own OpenSSL; if "Install Certificates.command" was not run it has no root certificate,
+                 and HTTPS (client download, CDN images, update) gives CERTIFICATE_VERIFY_FAILED. In that case the system's bundle
+                 (/etc/ssl/cert.pem) is given through SSL_CERT_FILE; child processes (web.py, game.py) inherit it.
 """
 import os, sys
 
@@ -15,24 +15,24 @@ SYSTEM_CERTIFICATES = '/etc/ssl/cert.pem'
 
 
 def listen_address(address, port):
-    """Dinlenecek adres -> (adres, süzülsün mü). macOS'ta 127.0.0.1 ve 1024'ten küçük port: 0.0.0.0, yalnız yerel bağlantılar."""
+    """Address to listen on -> (address, filter or not). On macOS 127.0.0.1 and a port below 1024: 0.0.0.0, only local connections."""
     if MAC and port < 1024 and address in ('127.0.0.1', 'localhost'):
         return '0.0.0.0', True
     return address, False
 
 
 def is_local(ip):
-    """Bağlantı bu bilgisayardan mı (IPv4 ya da IPv6 geri döngü)?"""
+    """Is the connection from this computer (IPv4 or IPv6 loopback)?"""
     ip = str(ip or '')
     return ip.startswith(('127.', '::ffff:127.')) or ip == '::1'
 
 
 def certificates():
-    """macOS'ta Python'un OpenSSL'i kök sertifika bulamıyorsa sistemin paketini ver (SSL_CERT_FILE; ilk HTTPS isteğinden önce)."""
+    """If Python's OpenSSL on macOS cannot find a root certificate, give it the system's bundle (SSL_CERT_FILE; before the first HTTPS request)."""
     if not MAC or os.environ.get('SSL_CERT_FILE'):
         return
     import ssl
-    p = ssl.get_default_verify_paths()              # yollar yoksa None
+    p = ssl.get_default_verify_paths()              # None if the paths do not exist
     if p.cafile or p.capath:
         return
     if os.path.isfile(SYSTEM_CERTIFICATES):

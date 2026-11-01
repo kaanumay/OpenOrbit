@@ -1,10 +1,10 @@
-"""Panelin canlı durum sayfası (yol haritası Ö2): oyun sunucusu birkaç saniyede bir oyunun anlık durumunu bir JSON dosyasına
-(<günlük klasörü>/canli_durum.json) yazar; panel (server/panel/panel.py, /api/canli) okuyup gösterir. Sunucuya ayrı bir kanal açılmaz;
-dosya geçici adla yazılıp yerine konduğu için panel yarım dosya okumaz.
+"""The panel's live status page (roadmap Ö2): every few seconds the game server writes the game's current state to a JSON file
+(<log folder>/canli_durum.json); the panel (server/panel/panel.py, /api/canli) reads and shows it. No separate channel is opened to the
+server; the file is written under a temporary name and moved into place, so the panel never reads a half file.
 
-İçerik: bağlantı, pilot (seviye, EP, kredi, uridyum, onur), gemi (can, kalkan, kargo), konum (harita, x, y), harita
-(canlı uzaylı, kutu ve cevher sayısı, hedef, savaşta mı, güvenli bölgede mi: istasyon ya da portal, kapı/dalga, döngü adımının
-süresi), takvimde süren etkinlikler, oynama süresi.
+Contents: connection, pilot (level, EP, credits, uridium, honor), ship (HP, shield, cargo), position (map, x, y), map
+(live aliens, box and ore counts, target, in combat?, in a safe zone? station or portal, gate/wave, duration of the loop step),
+events running on the calendar, play time.
 """
 import json, os, threading, time
 
@@ -20,7 +20,7 @@ def _world_info(w):
            'dead': bool(w.hero_dead), 'safe': bool(w.in_station())}
     perf = getattr(w, 'perf', None)
     if perf:
-        out['loop'] = perf.summary()               # döngü adımının süresi (ms; dunya.Olcum)
+        out['loop'] = perf.summary()               # duration of the loop step (ms; dunya.Olcum)
     run = getattr(w, 'gate', None)
     g = getattr(run, 'g', None) if run else None
     if g:
@@ -33,7 +33,7 @@ def _world_info(w):
 
 
 def snapshot(game):
-    """game: game.py modülü (PROFIL, CURRENT) -> durum sözlüğü."""
+    """game: the game.py module (PROFIL, CURRENT) -> status dict."""
     import map_links as H
     import event_calendar as CAL
     p = game.PROFILE
@@ -51,18 +51,18 @@ def snapshot(game):
                   'cargo_max': g.get('cargoSpaceMax', 0)},
          'position': {'map': H.name(k.get('mapId')), 'map_id': k.get('mapId'), 'x': int(k.get('x', 0)), 'y': int(k.get('y', 0))},
          'events': sorted(CAL.active()), 'play_sec': int(played),
-         'session_start': s.play_start if s else None}         # Discord Rich Presence'ın süresi (panel/discord_rp.py)
+         'session_start': s.play_start if s else None}         # duration of Discord Rich Presence (panel/discord_rp.py)
     if w:
         try:
             x, y = w.hero_pos()
             d['position'].update(x=int(x), y=int(y))
             d['world'] = _world_info(w)
-        except Exception as e:                   # harita değişirken dünya yarım olabilir
+        except Exception as e:                   # the world may be half-built while the map changes
             d['world'] = {'error': repr(e)}
-    if game.CO.is_open():                           # arkadaş sunucusu: misafirler (panelin "Arkadaşlarınla Oyna" sayfası)
+    if game.CO.is_open():                           # friend server: guests (the panel's "Play with Friends" page)
         d['friend'] = {'max_count': game.CO.SETTINGS['max_count'], 'guests': [
             dict(m.summary(), map=H.name(m.profile.d['position'].get('mapId'))) for m in game.CO.entries()]}
-        d['local_players'] = [dict(y.summary(), map=H.name(y.profile.d['position'].get('mapId')))     # çoklu istemcinin ek oyuncuları
+        d['local_players'] = [dict(y.summary(), map=H.name(y.profile.d['position'].get('mapId')))     # the multi-client's extra players
                          for y in game.CO.local_players()]
     return d
 
@@ -71,7 +71,7 @@ def write(path, data):
     tmp = path + '.tmp'
     with open(tmp, 'w', encoding='utf8') as fh:
         json.dump(data, fh, ensure_ascii=False)
-    for k in range(5):                            # panel dosyayı okurken Windows yerine koymayı reddeder
+    for k in range(5):                            # Windows refuses the replace while the panel is reading the file
         try:
             os.replace(tmp, path)
             return
@@ -92,7 +92,7 @@ def start(game, folder, log=print):
                 warned = False
             except Exception as e:
                 if not warned:
-                    log('   canlı durum yazılamadı: %r' % e)
+                    log('   live status could not be written: %r' % e)
                     warned = True
             time.sleep(INTERVAL_SEC)
 

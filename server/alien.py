@@ -1,35 +1,35 @@
-"""Uzaylı yetenekleri (yol haritası Aşama 4): data/alien_abilities.json'da istemcinin npcId'siyle tanımlı, haritadaki ve Galaksi
-Kapısı'ndaki aynı uzaylıya birlikte uygulanır. world.py çağırır: vuruşta (on_hit), her adımda (tick), uzaylının lazer atışında
-(laser_factor, after_shot, extra_target), ölümde (on_kill).
+"""Alien abilities (roadmap Stage 4): defined in data/alien_abilities.json with the client's npcId, applied together to the same alien on the map and in the
+Galaxy Gate. world.py calls: on a hit (on_hit), every step (tick), on the alien's laser shot
+(laser_factor, after_shot, extra_target), on death (on_kill).
 
-Yetenekler (veri alanları alien_abilities.json'un açıklamasında):
-  çağırma, yenilenme, ölünce doğurma, çağırdıkları yaşarken dokunulmazlık   world.py'deki kancalar (Aşama 1); burada öfkeli çağrı
-  çağırdıkları yaşarken onarım ve öfke (Battleray)     son sure_sn içinde iki ya da daha çok saldıran (oyuncu + P.E.T.)
-  can eşiğinde çağırma (Invoke XVI: 8 Impulse II)      bir kez
-  gizlenme bozma (Mindfire Behemoth)                  yakındaki gizli oyuncu görünür olur
-  yavaşlatan atış (Barb, Stinger, Saboteur, Behemoth)  isabet eden lazer: hız sınırı (küre, 120) ya da oranla yavaşlatma
-  birden çok hedef (Behemoth)                          kritik canda P.E.T.'e de ateş eder
-  roket (StreuneR) ve roket fırlatıcı (Annihilator)    ayrı beklemeyle oyuncuya roket
-  tekillik (The Stinger, Reflector Mimesis)            saniyede hasar, toplam sınırlı, menzil içinde (Reflector'da girdap yok)
-  temasla patlama (Kamikaze Mimesis)                   lazer atmaz; yaklaşınca patlar (bomba hasarı), ödülsüz kalkar
-  kaybolma (Emperor Lordakium)                         belli hasardan sonra uzağa ışınlanır, iki sahte belirir (vurulunca patlar);
-                                                       gizliyken can ve kalkan doldurur
-  can eşiğinde kamikaze (Barracuda)                    canı azalınca kırmızı parlar, yerinde bekler, sonra yaklaşır ve patlar
-  ters kontrol (Boss StreuneR, Boss Saimon)            kalkanı bitince / canı azalınca oyuncunun hareketi bir süre ters
-  ölünce çağırdıkları dağılır (Cubikon)                Protegit'ler kimseyi kovalamadan dolaşır, sonra kaybolur
-  yapışkan bomba (Emperor Kristallon)                  aralıkla gecikmeli büyük hasar (tek oyunculu: grup boyuna bölünür)
-  hız becerisi ve kapsüller (Emperor Sibelon)          kalkanı biterken hızlanır; haritada kapsüller belirir, Emperor toplarsa
-                                                       güçlenir (can, kalkan, hasar), oyuncu yakınından geçerse kapsül yok olur
-  iyileştirme (Streuner Specialist, Aider, Medic Mimesis)  aralıkla yakındaki sınıf uzaylılarının gövdesini onarır (kendini değil)
-  izleme (Aider Streuner)                              Recruit Streuner'in çevresinde dolaşır (koruyucu düzeni: dunya.think)
-  periyodik çağırma (Rocketeer, Strokelight Barrage)   savaşırken vurulmasa da aralıkla çağırır (en çok kadar yaşarken)
-  mayın bırakma (Agatus, Strokelight Barrage)         canı eşiğin altına inince aralıkla ACM-1 mayını bırakır (savas_esya.alien_mine)
-  ölüm ışını (Gygerim Overlord)                       oyuncu uzaktayken (haritanın dışından) aralıkla büyük hasar
-  oyuncunun hızı (Seeker Rocket, Hooligan)             hızı oyuncununkine eşitlenir (+ek; Hooligan'da yalnız kritik canda)
-  ters atış (Streuner Turret)                          isabet eden lazer oyuncunun kontrollerini bir süre ters çevirir
-  EMP darbesi (Obscured Mimesis, Hitac Underboss, Spookfish)  oyuncunun hedefi sıfırlanır, gizlenme biter, mini harita parazitlenir
-  düşük can (dusuk_can; harita başıboşları)            %20'nin altında oyuncunun tersindeki kenar noktasına kaçar (menzildeyse
-                                                       ateş eder), orada durup yenilenir, vurulunca karşılık vermez (fandom Low health, Parking)
+Abilities (the data fields are in alien_abilities.json's description):
+  summoning, regeneration, spawn on death, invulnerability while their summons live   hooks in world.py (Stage 1); here the enraged call
+  repair and rage while their summons live (Battleray)  two or more attackers (player + P.E.T.) within the last sure_sn
+  summon at an HP threshold (Invoke XVI: 8 Impulse II)  once
+  cloak breaking (Mindfire Behemoth)                  a nearby cloaked player becomes visible
+  slowing shot (Barb, Stinger, Saboteur, Behemoth)    a laser that hits: speed cap (sphere, 120) or slowing by a ratio
+  multiple targets (Behemoth)                          at critical HP it also fires at the P.E.T.
+  rocket (StreuneR) and rocket launcher (Annihilator)  a rocket at the player with a separate cooldown
+  singularity (The Stinger, Reflector Mimesis)         damage per second, total limited, within range (no vortex on the Reflector)
+  explosion on contact (Kamikaze Mimesis)              fires no laser; explodes when close (bomb damage), leaves without a reward
+  vanishing (Emperor Lordakium)                        teleports far away after a certain amount of damage, two fakes appear (explode when hit);
+                                                       refills HP and shield while hidden
+  kamikaze at an HP threshold (Barracuda)              glows red when HP drops, waits in place, then approaches and explodes
+  reversed controls (Boss StreuneR, Boss Saimon)       when the shield runs out / HP drops, the player's movement is reversed for a while
+  summons disperse on death (Cubikon)                  the Protegits wander without chasing anyone, then vanish
+  sticky bomb (Emperor Kristallon)                     delayed big damage at intervals (single player: divided by the group size)
+  speed skill and capsules (Emperor Sibelon)           speeds up as the shield runs out; capsules appear on the map, if the Emperor collects them
+                                                       it grows stronger (HP, shield, damage), if a player passes near, the capsule vanishes
+  healing (Streuner Specialist, Aider, Medic Mimesis)  repairs the hulls of aliens of the class nearby at intervals (not itself)
+  following (Aider Streuner)                           wanders around the Recruit Streuner (guard layout: world.think)
+  periodic summoning (Rocketeer, Strokelight Barrage)  summons at intervals while fighting even if not hit (while at most that many live)
+  mine dropping (Agatus, Strokelight Barrage)         when HP falls below the threshold, drops an ACM-1 mine at intervals (combat_items.alien_mine)
+  death ray (Gygerim Overlord)                        big damage at intervals while the player is far away (from outside the map)
+  player's speed (Seeker Rocket, Hooligan)             speed is matched to the player's (+extra; for the Hooligan only at critical HP)
+  reversed shot (Streuner Turret)                      a laser that hits reverses the player's controls for a while
+  EMP pulse (Obscured Mimesis, Hitac Underboss, Spookfish)  the player's target is reset, cloaking ends, the minimap is jammed
+  low HP (low_hp; stray map aliens)                 below 20% it flees to the edge point opposite the player (fires if
+                                                       in range), stops there and regenerates, does not retaliate when hit (fandom Low health, Parking)
 """
 import json, math, os, random, time
 
@@ -41,15 +41,15 @@ from legacy_protocol import legacy
 HERE = os.path.dirname(os.path.abspath(__file__))
 Y = json.load(open(os.path.join(HERE, 'data', 'alien_abilities.json'), encoding='utf8'))
 ABILITIES = {int(k): v for k, v in Y['skills'].items()}
-LOW = Y['low_hp']               # düşük canda kaçış ve park (fandom Low health, Parking)
+LOW = Y['low_hp']               # fleeing and parking at low HP (fandom Low health, Parking)
 CAPSULES = Y['capsule_types']
-BUFF_CAPSULE = 45                  # AssetTypeModule.AssetType (istemci): BUFF_CAPSULE
-RING_RADIUS = 300                  # kapsül toplanınca Emperor'un çevresindeki halka (birim; uyarlama, canlıda ayarlanacak)
-EMP_NOISE_SEC = 5                   # Behemoth'un gizlenme bozan EMP'sinde mini harita paraziti (saniye; uyarlama)
-SINGULARITY_TARGET = 21            # VisualModifierCommand.VisualModifier (istemci): tekilliğin hedefindeki altın girdap
-MIRRORED_CONTROLS = 27             # VisualModifier: istemci oyuncunun hareketini ters çevirir (ters kontrol)
-RED_GLOW = 30                      # VisualModifier: kırmızı parıltı (Barracuda'nın kamikaze beklemesi)
-CAPSULE_BASE = 152000000           # kapsül varlık kimlikleri
+BUFF_CAPSULE = 45                  # AssetTypeModule.AssetType (client): BUFF_CAPSULE
+RING_RADIUS = 300                  # the ring around the Emperor when a capsule is collected (unit; adaptation, to be tuned live)
+EMP_NOISE_SEC = 5                   # minimap jamming from the Behemoth's cloak-breaking EMP (seconds; adaptation)
+SINGULARITY_TARGET = 21            # VisualModifierCommand.VisualModifier (client): the golden vortex on the singularity's target
+MIRRORED_CONTROLS = 27             # VisualModifier: the client reverses the player's movement (reversed controls)
+RED_GLOW = 30                      # VisualModifier: red glow (the Barracuda's kamikaze wait)
+CAPSULE_BASE = 152000000           # capsule entity ids
 
 
 def mod(name, **f):
@@ -58,15 +58,15 @@ def mod(name, **f):
 
 
 def of(d):
-    """NPC türünün yetenekleri: npcId'nin yetenekleri + türün kendi "davranis"ı (ikincisi öncelikli; None o yeteneği kapatır: Kappa
-    Annihilator'ın fırlatıcısı); not alanları ('_') atılır."""
+    """An NPC type's abilities: the npcId's abilities + the type's own "davranis" (the latter takes priority; None turns that ability off: the Kappa
+    Annihilator's launcher); note fields ('_') are dropped."""
     out = {k: v for k, v in ABILITIES.get(d.get('npc_id'), {}).items() if not k.startswith('_')}
     out.update(d.get('behavior') or {})
     return {k: v for k, v in out.items() if v is not None}
 
 
 def asset_create(aid, kind, x, y, name='', design=0):
-    """Haritaya varlık (kapsül): kayıttaki AssetCreateCommand biçimi (2-1 istasyon taretleri)."""
+    """An entity (capsule) on the map: the AssetCreateCommand format in the save (2-1 station turrets)."""
     return ('AssetCreateCommand', dict(designId=design, clanId=0, showBubble=True, userName=name, assetId=aid, expansionStage=0,
                                        modifier=[], type=mod('AssetTypeModule', typeValue=kind), detectedByWarnRadar=True,
                                        invisible=False, posY=int(y), clanRelation=mod('ClanRelationModule', type=0), clanTag='',
@@ -78,19 +78,19 @@ def asset_remove(aid, kind):
 
 
 class Abilities:
-    """Bir dünyanın uzaylı yetenekleri (dunya.World.alien)."""
+    """A world's alien abilities (world.World.alien)."""
 
     def __init__(self, world):
-        import world as world_module                # dunya bu modülü içe aktarır; değerleri dünya kurulurken alınır
+        import world as world_module                # world imports this module; the values are taken when the world is built
         self.w = world
         self.S, self.CFG, self.Mover = world_module.COMBAT, world_module.CFG, world_module.Mover
-        self.capsules = {}          # kapsül kimliği -> {x, y, tur, sahip}
+        self.capsules = {}          # capsule id -> {x, y, type, owner}
         self.next_capsule = CAPSULE_BASE
-        self.hero_dots = []         # oyuncunun üzerindeki tekillikler: {npc, bitis, kalan, sn_hasar, sonraki}
-        self.mirror_end = 0.0       # ters kontrolün bitişi (üst üste gelen ters atışlar süreyi uzatır, görsel erken kapanmaz)
-        self.mirror_gen = 0         # son süre uzatan ters atışın sırası: yalnız onun zamanlayıcısı görseli kapatır
+        self.hero_dots = []         # singularities on the player: {npc, end_time, remaining, damage_per_sec, next}
+        self.mirror_end = 0.0       # end of the reversed controls (overlapping reversed shots extend the time, the visual does not close early)
+        self.mirror_gen = 0         # the sequence number of the last reversed shot to extend the time: only its timer closes the visual
 
-    # ------------------------------------------------------------ yardımcılar
+    # ------------------------------------------------------------ helpers
     def dist(self, n, now):
         hx, hy = self.w.hero_pos(now)
         nx, ny = n.mover.pos(now)
@@ -101,12 +101,12 @@ class Abilities:
         w = self.w
         if w.hero_dead or w.jumping or now < w.invuln_until:
             return False
-        if (w.abilities.cloaked(now) or w.items.cloaked()) and not (n is not None and n.engaged):      # saldıran uzaylı gizlenmeye aldırmaz
+        if (w.abilities.cloaked(now) or w.items.cloaked()) and not (n is not None and n.engaged):      # an attacking alien ignores cloaking
             return False
         return not w.in_peace(*w.hero_pos(now)) or bool(n is not None and w.npc_retaliating(n))
 
     def adopt(self, parent, child):
-        """Uzaylının doğurduğu/çağırdığı: yeniden doğmaz; kapıda dalganın uzaylısı sayılır (dalga o ölmeden bitmez)."""
+        """What the alien spawned/summoned: does not respawn; counts as the wave's alien at the gate (the wave does not end until it dies)."""
         child.summoned, child.gate = True, parent.gate
         k = self.w.gate
         if k and parent.id in k.npcs:
@@ -116,13 +116,13 @@ class Abilities:
         n.attackers[attacker or self.w.hid] = now
 
     def summoner_bot(self, n):
-        """Uzaylıyı son vuran bot gemisi (oyuncu onunla savaşmıyorsa): çağırdıkları ona saldırır (dunya.npc_summon vuran)."""
+        """The bot ship that last hit the alien (if the player is not fighting it): its summons attack it (world.npc_summon vuran)."""
         uid = n.ab.get('summoner')
         t = self.w.npcs.get(uid) if uid is not None else None
         return t if t is not None and t.alive and t.bot is not None and not n.engaged else None
 
     def trigger_attack(self, c, bot, now):
-        """Çağrılan yardımcı hemen saldırır: bot çağırttıysa bota, yoksa oyuncuya."""
+        """A summoned helper attacks at once: the bot if a bot had it summoned, otherwise the player."""
         if bot is not None:
             c.engaged, c.bot_target = False, bot.id
         else:
@@ -130,22 +130,22 @@ class Abilities:
         c.next_think = now
 
     def enraged(self, n, now):
-        """Öfke (Battleray): son sure_sn içinde en az "saldiran" kadar farklı saldıran (oyuncu ve P.E.T. ayrı sayılır)."""
+        """Rage (Battleray): at least "saldiran" different attackers within the last sure_sn (player and P.E.T. count separately)."""
         o = n.behavior.get('anger')
         if not o:
             return False
         return sum(1 for t in n.attackers.values() if now - t <= o.get('sure_sn', 10)) >= o.get('attacker', 2)
 
     def extra_summons(self, n, now):
-        """Öfkeliyken çağırma sınırına eklenen."""
+        """What is added to the summon limit while enraged."""
         return n.behavior['anger'].get('extra_summon', 0) if self.enraged(n, now) else 0
 
-    # ------------------------------------------------------------ vuruş
+    # ------------------------------------------------------------ hit
     def on_hit(self, n, dmg, attacker, now, to_player=True):
-        """Uzaylı vuruldu (hasar uygulandıktan sonra): saldıran, can eşiğinde çağırma, kaybolma. oyuncuya: oyuncuya yönelik etkiler (ters
-        kontrol, EMP) uygulanır mı (bot vurduysa yalnız oyuncu yakındaysa: bot/govde.npc_vur)."""
+        """The alien was hit (after the damage was applied): attacker, summon at an HP threshold, vanishing. to_player: whether effects aimed at the
+        player (reversed controls, EMP) are applied (if a bot hit it, only when the player is nearby: bot/ship.hit_npc)."""
         self.attacked(n, attacker, now)
-        n.ab.pop('hidden', None)                                  # Emperor Lordakium bulundu: dolum durur
+        n.ab.pop('hidden', None)                                  # Emperor Lordakium is found: the refill stops
         for i, c in enumerate(n.behavior.get('summon_at_hp_threshold', [])):
             key = 'esik_%d' % i
             if key not in n.ab and n.hp <= n.d['hp'] * c['ratio']:
@@ -154,9 +154,9 @@ class Abilities:
         t = n.behavior.get('reverse_controls') if to_player else None
         if t and 'reverse' not in n.ab and n.hp > 0 and (n.shield <= n.d['kalkan'] * t['shield_ratio'] if 'shield_ratio' in t
                                                       else n.hp <= n.d['hp'] * t['hp_ratio']):
-            n.ab['reverse'] = now                                   # bir kez
+            n.ab['reverse'] = now                                   # once
             self.reverse_controls(n, t['sn'])
-        if 'emp_on_shield_down' in n.behavior and to_player:      # Obscured Mimesis: kalkanı her bitişinde bir EMP darbesi
+        if 'emp_on_shield_down' in n.behavior and to_player:      # Obscured Mimesis: an EMP pulse every time the shield runs out
             if n.shield > 0:
                 n.ab.pop('emp_shield', None)
             elif 'emp_shield' not in n.ab and n.hp > 0:
@@ -164,12 +164,12 @@ class Abilities:
                 self.emp(n, now)
         c = n.behavior.get('critical_emp') if to_player else None
         if c and 'emp_critical' not in n.ab and 0 < n.hp <= n.d['hp'] * c['hp_ratio']:
-            n.ab['emp_critical'] = now                             # Spookfish: kritik canda EMP (bir kez)
+            n.ab['emp_critical'] = now                             # Spookfish: EMP at critical HP (once)
             self.emp(n, now)
         k = n.behavior.get('disappear')
         if k and dmg > 0 and n.alive and n.hp > 0:
-            # yalnız gövdenin kaybı (darkorbitwiki: "after losing ~1.280.000 HP"); kalkan hasarı da sayılıyordu, 6,8 M kalkanlı patron
-            # neredeyse tam canda kayboluyordu (oyuncu bildirimi 2026-10-30). Gizliyken dolan can sayılmaz
+            # only the hull's loss (darkorbitwiki: "after losing ~1.280.000 HP"); shield damage used to count too, a boss with a 6.8 M shield
+            # vanished at almost full HP (player report 2026-10-30). HP refilled while hidden does not count
             prev = n.ab.get('last_hp', n.d['hp'])
             n.ab['last_hp'] = n.hp
             n.ab['loss'] = n.ab.get('loss', 0) + max(0, prev - n.hp)
@@ -182,12 +182,12 @@ class Abilities:
                                               activated=on))
 
     def reverse_controls(self, n, sec):
-        """Ters kontrol (Boss StreuneR, Boss Saimon, Streuner Turret): oyuncunun hareketi sec saniye ters (istemci çevirir:
-        MIRRORED_CONTROLS). Zaten ters ise süre uzar; görsel son bitişte kapanır."""
+        """Reversed controls (Boss StreuneR, Boss Saimon, Streuner Turret): the player's movement is reversed for sec seconds (the client reverses it:
+        MIRRORED_CONTROLS). If already reversed, the time is extended; the visual closes at the last end."""
         w, now = self.w, time.time()
         if now >= self.mirror_end:
             w.send([self.visual(w.hid, MIRRORED_CONTROLS, True)])
-        if now + sec > self.mirror_end:                              # süreyi uzatan atış: eski kapatma zamanlayıcıları etkisiz kalır
+        if now + sec > self.mirror_end:                              # the shot that extends the time: older closing timers become ineffective
             self.mirror_end = now + sec
             self.mirror_gen += 1
             generation = self.mirror_gen
@@ -197,7 +197,7 @@ class Abilities:
                     self.mirror_end = 0.0
                     w.send([self.visual(w.hid, MIRRORED_CONTROLS, False)])
             w.later(sec, off)
-        w.log('   %s kontrolleri ters çevirdi (%d sn)' % (n.d['name'], sec))
+        w.log('   %s reversed the controls (%d s)' % (n.d['name'], sec))
 
     def summon(self, n, kind, count, now):
         w = self.w
@@ -208,10 +208,10 @@ class Abilities:
             self.adopt(n, c)
             self.trigger_attack(c, self.summoner_bot(n), now)
             n.children.add(c.id)
-        w.log('   %s %d %s çağırdı (can %%%d)' % (n.d['name'], count, self.CFG['types'][kind]['name'], 100 * n.hp // max(1, n.d['hp'])))
+        w.log('   %s summoned %d %s (HP %%%d)' % (n.d['name'], count, self.CFG['types'][kind]['name'], 100 * n.hp // max(1, n.d['hp'])))
 
     def far_spot(self, near, far):
-        """Oyuncudan en az "far" uzakta (yoksa en uzak deneme) bir nokta; near: (x, y) yakınında arar (None: haritanın her yeri)."""
+        """A point at least "far" from the player (otherwise the farthest attempt); near: searches around (x, y) (None: anywhere on the map)."""
         w = self.w
         hx, hy = w.hero_pos()
         best, bid = None, -1
@@ -230,10 +230,10 @@ class Abilities:
         return best
 
     def vanish(self, n, k, now):
-        """Emperor Lordakium: uzağa ışınlanır, iki sahtesi başka yerlerde belirir; oyuncunun seçimi bırakılır."""
+        """Emperor Lordakium: teleports far away, its two fakes appear in other places; the player's choice is left."""
         w = self.w
-        # gerçeği ve sahteleri oyuncunun görüşü içinde, ayrı yönlerde (wiki: "reappears together with two fake Lordakiums"; görüşün
-        # dışına, 2.500 birim öteye gidiyorlardı, haritada görünmüyor, bulunamıyordu: oyuncu bildirimi 2026-10-30)
+        # the real one and the fakes within the player's view, in different directions (wiki: "reappears together with two fake Lordakiums"; they used to go
+        # out of view, 2,500 units away, not visible on the map, could not be found: player report 2026-10-30)
         hx, hy = w.hero_pos(now)
         spots = self.ring_spots(hx, hy, k.get('distance', 1500), k.get('fake', 2) + 1)
         x, y = spots.pop(0)
@@ -254,10 +254,10 @@ class Abilities:
             f = w.spawn_npc_at(fake, fx, fy)
             f.summoned, f.gate = True, n.gate
             f.ab['lifetime'] = now + k.get('fake_lifetime_sec', 90)
-        w.log('   %s kayboldu: (%d,%d), %d sahte' % (n.d['name'], x, y, k.get('fake', 2)))
+        w.log('   %s vanished: (%d,%d), %d fakes' % (n.d['name'], x, y, k.get('fake', 2)))
 
     def ring_spots(self, hx, hy, r, count):
-        """Oyuncunun çevresinde r uzaklıkta, eşit açılarla (rastgele sırayla) count nokta; harita içinde."""
+        """count points around the player at distance r, at equal angles (in random order); within the map."""
         w, a0 = self.w, random.uniform(0, 2 * math.pi)
         out = [(int(min(max(hx + math.cos(a0 + 2 * math.pi * i / count) * r, 500), w.map_w - 500)),
                 int(min(max(hy + math.sin(a0 + 2 * math.pi * i / count) * r, 500), w.map_h - 500))) for i in range(count)]
@@ -265,7 +265,7 @@ class Abilities:
         return out
 
     def fake_type(self, n, k):
-        """Sahte Emperor türü (görünüşü gerçeğinin aynısı; 1 can, ateş etmez, ödülsüz, vurulunca patlar)."""
+        """The fake Emperor type (looks the same as the real one; 1 HP, does not fire, no reward, explodes when hit)."""
         key = 'sahte_' + n.tip
         if key not in self.CFG['types']:
             self.CFG['types'][key] = dict(name=n.d['name'], model=n.model, hp=1, kalkan=0, damage=0, speed=n.d['speed'], aggressive=False,
@@ -274,52 +274,52 @@ class Abilities:
                                                                  'radius': k.get('explosion_radius', 500)}})
         return key
 
-    # ------------------------------------------------------------ uzaylının atışı
+    # ------------------------------------------------------------ the alien's shot
     def laser_factor(self, n, now):
-        """Uzaylının lazer hasarı çarpanı: öfke (Battleray: RSB-75), Emperor Sibelon'un hasar kapsülleri."""
+        """The alien's laser damage multiplier: rage (Battleray: RSB-75), Emperor Sibelon's damage capsules."""
         f = 1 + n.ab.get('damage_bonus', 0)
         if self.enraged(n, now):
             f *= n.behavior['anger'].get('damage_multiplier', 1)
         return f
 
     def laser_color(self, n, now):
-        """Uzaylının lazer görseli (AttackLaserRunCommand.laserColor): öfkeli Battleray RSB-75 atar (wiki: "uses RSB-75 instead of
-        UCB-100"; ofke.lazer_renk, RSB-75 = 6 gibi). Görsel yokken öfke yalnız hasarda kalıyor, oyunda fark edilmiyordu (bildirim
+        """The alien's laser visual (AttackLaserRunCommand.laserColor): the enraged Battleray fires RSB-75 (wiki: "uses RSB-75 instead of
+        UCB-100"; ofke.lazer_renk, RSB-75 = 6 for instance). Without the visual the rage stayed only in the damage and went unnoticed in game (report
         2026-10-28)"""
         if self.enraged(n, now):
             return n.behavior['anger'].get('laser_color', 0)
         return 0
 
     def after_shot(self, n, now, hit):
-        """Uzaylının lazeri oyuncuya isabet etti: ters atış (Streuner Turret), yavaşlatan atış."""
+        """The alien's laser hit the player: reversed shot (Streuner Turret), slowing shot."""
         t = n.behavior.get('reverse_shot')
         if t and hit and not self.w.hero_dead and now >= n.ab.get('reverse_next', 0):
             n.ab['reverse_next'] = now + t['cooldown_sec']
             self.reverse_controls(n, t['sn'])
         s = n.behavior.get('slowing_shots')
-        if not s or not hit or self.w.hero_dead or not SET.get('slowing_shots'):          # panel: kapatılabilir
+        if not s or not hit or self.w.hero_dead or not SET.get('slowing_shots'):          # panel: can be turned off
             return
         if s.get('range') and self.dist(n, now) > s['range']:
             return
         w = self.w
         src = 'slow_%s' % n.tip
         if 'speed' in s:
-            w.hero_effects.remove('speed_limit', source=src)          # yenilenir, birikmez
+            w.hero_effects.remove('speed_limit', source=src)          # renews, does not stack
             w.hero_effect('speed_limit', s['sn'], s['speed'], source=src)
         else:
             w.hero_effects.remove('slow', source=src)
             w.hero_effect('slow', s['sn'], s['ratio'], source=src)
 
     def extra_target(self, n, now):
-        """Birden çok hedef (Mindfire Behemoth): kritik canda P.E.T.'e de ateş eder."""
+        """Multiple targets (Mindfire Behemoth): at critical HP it also fires at the P.E.T."""
         c = n.behavior.get('multi_target')
         return bool(c) and n.hp <= n.d['hp'] * c.get('hp_ratio', 0.25)
 
-    # ------------------------------------------------------------ her adım
+    # ------------------------------------------------------------ every step
     def tick(self, now):
         w = self.w
         for n in list(w.npcs.values()):
-            if not n.alive or not n.behavior and not n.ab or not w.owner(n, now):     # ortak haritada uzaylının sahibi işler
+            if not n.alive or not n.behavior and not n.ab or not w.owner(n, now):     # on a shared map the alien's owner processes it
                 continue
             if 'lifetime' in n.ab and now >= n.ab['lifetime']:
                 self.expire(n)
@@ -359,14 +359,14 @@ class Abilities:
                 self.match_speed(n, now)
             if n.bot_target is not None and not n.engaged:
                 self.bot_abilities(n, now)
-        self.dot_tick(now)          # tik başına bir kez (bota_yetenekler'in sonunda kalınca Singularity hasarı ve kapsüller hiç işlemiyordu)
+        self.dot_tick(now)          # once per tick (when it stayed at the end of bota_yetenekler the Singularity damage and capsules were never processed)
         self.capsule_tick(now)
 
-    # ------------------------------------------------------------ bota karşı (uzaylı bir botla savaşırken)
+    # ------------------------------------------------------------ against a bot (while the alien fights a bot)
     def bot_abilities(self, n, now):
-        """Uzaylı bir bot gemisiyle savaşırken saldırı yetenekleri bota: roket, yapışkan bomba, temasla patlama, kamikaze, tekillik,
-        ölüm ışını, periyodik çağırma (yardımcılar bota). Oyuncuya özgü etkiler (EMP, gizlenme bozma, yavaşlatma, oyuncunun çevresine
-        mayın, hız eşleme) bota uygulanmaz. Önceden yetenekler yalnız oyuncuyla savaşırken çalışıyordu (kullanıcı bildirimi 2026-10-30)."""
+        """While the alien fights a bot ship, the attack abilities against the bot: rocket, sticky bomb, explosion on contact, kamikaze, singularity,
+        death ray, periodic summoning (helpers to the bot). Player-specific effects (EMP, cloak breaking, slowing, mines around the player,
+        speed matching) are not applied to the bot. Previously the abilities worked only while fighting the player (user report 2026-10-30)."""
         from bot import ship as BG
         w, d = self.w, n.behavior
         t = w.npcs.get(n.bot_target)
@@ -434,7 +434,7 @@ class Abilities:
                     self.summon(n, e['type'], min(e['count'], room), now)
 
     def expire(self, n):
-        """Ömrü biten (sahte Emperor): sessizce kalkar."""
+        """One whose life ran out (fake Emperor): leaves silently."""
         w = self.w
         n.alive = False
         w.npcs.pop(n.id, None)
@@ -448,7 +448,7 @@ class Abilities:
         w.send(msgs)
 
     def summon_repair(self, n, now):
-        """Çağırdıkları yaşarken saniyede onarım (Battleray: 600, öfkeliyken 30.000)."""
+        """Repair per second while their summons live (Battleray: 600, 30,000 when enraged)."""
         if now < n.ab.get('repair', 0):
             return
         n.ab['repair'] = now + 1.0
@@ -468,14 +468,14 @@ class Abilities:
         if self.dist(n, now) <= n.behavior['cloak_breaker'].get('range', 1500):
             w.abilities.reveal()
             w.items.reveal()
-            # EMP darbesi (Ö1): istemcinin "EMP Malus Bolt"u mini haritayı parazitler (MapEventsAssemblyHelper.AssembleEmpMalusBolt,
-            # 0|n|EMAL|<saniye>; süre uyarlama)
+            # EMP pulse (Ö1): the client's "EMP Malus Bolt" jams the minimap (MapEventsAssemblyHelper.AssembleEmpMalusBolt,
+            # 0|n|EMAL|<seconds>; the duration is an adaptation)
             from legacy_protocol import legacy
             w.send([legacy('0|n|EMAL|%d' % EMP_NOISE_SEC)])
             w.log('   %s gizlenmeyi bozdu' % n.d['name'])
 
     def rocket(self, n, now):
-        """Uzaylının roketi ya da roket fırlatıcı salvosu: kendi beklemesiyle, ateş menzilinde."""
+        """The alien's rocket or rocket launcher salvo: with its own cooldown, within firing range."""
         w, r = self.w, n.behavior['rocket']
         if (not n.engaged or now < n.ab.get('rocket', 0) or n.effect.frozen(now) or not self.hero_open(now, n)
                 or self.dist(n, now) > w.npc_range(n)):
@@ -488,7 +488,7 @@ class Abilities:
             import combat_items as CIT
             kind = CIT.LAUNCHER_AMMO.get('ammunition_rocketlauncher_eco-10', {}).get('type', 1)
             cnt = r.get('count', 5)
-            flight = CIT.salvo_time(self.dist(n, now), cnt)        # yerel eğri salvo: hasar son roket varınca
+            flight = CIT.salvo_time(self.dist(n, now), cnt)        # local curve salvo: the damage when the last rocket arrives
             w.send([CIT.salvo(n.id, w.hid, hit, cnt, kind)])
         else:
             from legacy_protocol import legacy
@@ -507,35 +507,35 @@ class Abilities:
         w.later(flight, land)
 
     def singularity(self, n, now):
-        """The Stinger'ın tekilliği başlar: oyuncunun üzerinde saniyede hasar (dot_tick)."""
+        """The Stinger's singularity starts: damage per second on the player (dot_tick)."""
         t = n.behavior['singularity']
         rng = t['range'] * SET.multiplier('npc_range')       # panel: alien firing range
         if not n.engaged or now < n.ab.get('singularity', 0) or not self.hero_open(now, n) or self.dist(n, now) > rng:
             return
         n.ab['singularity'] = now + t['cooldown_sec']
-        visual = t.get('visual', True)                     # Reflector Mimesis'in radyasyonu: girdap yok
+        visual = t.get('visual', True)                     # the Reflector Mimesis's radiation: no vortex
         if visual and not any(d_.get('visual') for d_ in self.hero_dots):
-            self.w.send([self.singularity_visual(True)])    # canlı test H30: hasar vardı, görsel yoktu
+            self.w.send([self.singularity_visual(True)])    # live test H30: there was damage, no visual
         self.hero_dots.append(dict(npc=n.id, end_time=now + t['sure_sn'], remaining=t['maximum'], damage_per_sec=t['damage_per_sec'], next=now + 1.0,
                                    range=rng, visual=visual))
-        self.w.log('   %s tekilliği başladı' % n.d['name'])
+        self.w.log('   %s singularity started' % n.d['name'])
 
     def kamikaze(self, n, now):
-        """Kamikaze Mimesis: oyuncuya yaricap kadar yaklaşınca patlar (bomba hasarı) ve ödülsüz kalkar."""
+        """Kamikaze Mimesis: explodes when it gets within yaricap of the player (bomb damage) and leaves without a reward."""
         t, w = n.behavior['explode_on_contact'], self.w
         if not n.engaged or not self.hero_open(now, n) or self.dist(n, now) > t['radius']:
             return
         dmg = t['damage']
-        if 'at_edge' in t:         # Seeker Rocket: hasar patlama anındaki uzaklığa göre (temasta tam, yaricap kenarında "kenarda" kadarı)
+        if 'at_edge' in t:         # Seeker Rocket: damage by the distance at the moment of explosion (full on contact, "kenarda" of it at the edge of yaricap)
             dmg = int(dmg * (1 - (1 - t['at_edge']) * min(1.0, self.dist(n, now) / t['radius'])))
         boom = [('ShipDestroyedCommand', dict(destroyedUserId=n.id, explosionTypeId=0))] if n.id in w.visible else []
         w.send(w.hurt_hero(dmg, n, atype=0) + boom + w.remove_npc(n))
-        w.log('   %s patladı: %d hasar' % (n.d['name'], dmg))
+        w.log('   %s exploded: %d damage' % (n.d['name'], dmg))
 
     def threshold_kamikaze(self, n, now):
-        """Barracuda: canı oran'a inince kırmızı parlar ve bekle_sn yerinde durur (donuk: ateş etmez), sonra oyuncuya yaklaşır;
-        yaricap içindeyse kalan canına göre alan hasarıyla patlar (ödülsüz; haritadaysa yeniden doğar), yaklas_sn içinde
-        ulaşamazsa yeniden parlar (fandom: Barracuda, Kamikaze)."""
+        """Barracuda: when HP drops to ratio it glows red and stays in place for wait_sec (frozen: does not fire), then approaches the player;
+        if within radius it explodes with area damage by its remaining HP (no reward; respawns if on the map), if it cannot
+        reach within approach_sec it glows again (fandom: Barracuda, Kamikaze)."""
         t, w = n.behavior['kamikaze_threshold'], self.w
         until = n.ab.get('kamikaze')
         if until is None:
@@ -544,7 +544,7 @@ class Abilities:
             self.glow(n, t, now)
             return
         if now < until:
-            if now >= n.ab.get('glint', 0):          # parıltı bir anlık (istemci ShipGlowEffect3D): beklerken saniyede bir yanıp söner
+            if now >= n.ab.get('glint', 0):          # the glow is momentary (client ShipGlowEffect3D): while waiting it blinks once a second
                 n.ab['glint'] = now + 1.0
                 w.send([self.visual(n.id, RED_GLOW, True)])
             return
@@ -558,16 +558,16 @@ class Abilities:
             w.send(w.hurt_hero(dmg, n, atype=0) + boom + w.remove_npc(n))
             if not n.gate and not n.summoned:
                 w.schedule(random.uniform(*w.respawn_range(n)), 'npc', n.tip)
-            w.log('   %s kendini patlattı: %d hasar' % (n.d['name'], dmg))
+            w.log('   %s blew itself up: %d damage' % (n.d['name'], dmg))
         elif now >= n.ab['approach']:
-            self.glow(n, t, now)                            # ulaşamadı: yeniden parlar ve bekler
+            self.glow(n, t, now)                            # could not reach: glows again and waits
 
     def glow(self, n, t, now):
         n.ab['kamikaze'], n.ab['glint'] = now + t['wait_sec'], now + 1.0
         n.ab.pop('approach', None)
         self.w.npc_effect(n, 'frozen', t['wait_sec'], source='kamikaze')
         self.w.send([self.visual(n.id, RED_GLOW, True)])
-        self.w.log('   %s kamikazeye hazırlanıyor (can %%%d)' % (n.d['name'], 100 * n.hp // max(1, n.d['hp'])))
+        self.w.log('   %s preparing to kamikaze (HP %%%d)' % (n.d['name'], 100 * n.hp // max(1, n.d['hp'])))
 
     def singularity_visual(self, on):
         return self.visual(self.w.hid, SINGULARITY_TARGET, on)
@@ -593,12 +593,12 @@ class Abilities:
         self.hero_dots = keep
 
     def bomb(self, n, now):
-        """Emperor Kristallon'un yapışkan bombası: aralıkla, gecikmeli; tek oyunculu: hasar grup boyuna bölünür."""
+        """Emperor Kristallon's sticky bomb: at intervals, delayed; single player: the damage is divided by the group size."""
         b, w = n.behavior['sticky_bomb'], self.w
         if not n.engaged or not self.hero_open(now, n) or self.dist(n, now) > w.npc_range(n) * 2:
             return
         if 'bomb' not in n.ab:
-            n.ab['bomb'] = now + b['interval_sec']           # ilk bomba savaş başladıktan aralik_sn sonra
+            n.ab['bomb'] = now + b['interval_sec']           # the first bomb aralik_sn after the battle starts
             return
         if now < n.ab['bomb']:
             return
@@ -613,10 +613,10 @@ class Abilities:
             if not w.hero_dead and not w.jumping:
                 w.send(w.hurt_hero(dmg, w.npcs.get(uid) or n, atype=0))
         w.later(b.get('delay_sec', 2), boom)
-        w.log('   %s yapışkan bomba (%d hasar)' % (n.d['name'], dmg))
+        w.log('   %s sticky bomb (%d damage)' % (n.d['name'], dmg))
 
     def hidden_regen(self, n, now):
-        """Gizli Emperor Lordakium saniyede can ve kalkan doldurur."""
+        """A hidden Emperor Lordakium refills HP and shield per second."""
         if now < n.ab.get('reload', 0):
             return
         n.ab['reload'] = now + 1.0
@@ -624,10 +624,10 @@ class Abilities:
         n.hp = min(n.d['hp'], n.hp + k.get('hp_sec', 0))
         n.shield = min(n.d['kalkan'], n.shield + k.get('shield_per_sec', 0))
 
-    # ------------------------------------------------------------ iyileştirme, izleme, periyodik çağırma, EMP, oyuncunun hızı
+    # ------------------------------------------------------------ healing, following, periodic summoning, EMP, the player's speed
     def heal(self, n, now):
-        """İyileştirme {can_sn | can_orani, bekleme_sn, menzil, hedef [ad parçaları; yoksa her uzaylı]}: bekleme_sn'de bir menzildeki
-        hedef adlı uzaylıların gövdesini onarır; kendini onarmaz (Streuner Specialist: 3 sn'de 6.000; öteki Specialist onu onarır)."""
+        """Healing {hp_sec | hp_ratio, cooldown_sec, range, target [name parts; otherwise every alien]}: every cooldown_sec it repairs the hulls of
+        aliens named in target within range; it does not repair itself (Streuner Specialist: 6,000 per 3 s; the other Specialist repairs it)."""
         h = n.behavior['improvement']
         if now < n.ab.get('improvement', 0):
             return
@@ -649,8 +649,8 @@ class Abilities:
             w.send(msgs)
 
     def follow(self, n, now):
-        """İzleme {hedef (ad parçası), yaricap}: koruyucusu yoksa en yakın hedef adlı uzaylının çevresinde dolaşır (Aider Streuner,
-        Recruit Streuner'i izler); dolaşma dunya.think'in koruyucu düzeni (NPC.guard)."""
+        """Following {target (name part), radius}: if it has no guard, wanders around the nearest alien named target (Aider Streuner
+        follows the Recruit Streuner); the wandering is world.think's guard layout (NPC.guard)."""
         if now < n.ab.get('follow', 0) or self.w.ward_of(n):
             return
         n.ab['follow'] = now + 5.0
@@ -661,8 +661,8 @@ class Abilities:
             n.guard = (min(near)[1], {'radius': f['radius']})
 
     def periodic_summon(self, n, now):
-        """Periyodik çağırma {bekleme_sn, cagrilar [{tur, adet, en_cok}]}: savaşırken, vurulmasa da bekleme_sn'de bir çağırır; her tür
-        en_cok kadar yaşarken yenisini çağırmaz (Rocketeer -> Seeker Rocket; Strokelight Barrage -> Abide I ve Steadfast III)."""
+        """Periodic summoning {cooldown_sec, summons [{type, count, max_count}]}: while fighting, even if not hit, it summons every cooldown_sec; each type
+        is not summoned again while max_count of it live (Rocketeer -> Seeker Rocket; Strokelight Barrage -> Abide I and Steadfast III)."""
         p, w = n.behavior['periodic_summon'], self.w
         if not n.engaged or n.effect.frozen(now) or now < n.ab.get('periodic', 0) or not self.hero_open(now, n):
             return
@@ -674,9 +674,9 @@ class Abilities:
                 self.summon(n, e['type'], min(e['count'], room), now)
 
     def drop_mines(self, n, now):
-        """Mayın bırakma {mayin, can_orani, bekleme_sn, en_cok, hedef, yaricap}: canı can_orani'nın altındayken savaşırken bekleme_sn'de bir
-        mayın bırakır (uzaylının konumuna; hedef: oyuncunun çevresine, yaricap [en az, en çok] uzaklıkta); aynı uzaylının en_cok mayını
-        yaşarken yenisini bırakmaz. Mayın savas_esya.alien_mine'ın uzaylı mayınıdır (kurulunca oyuncu yakındaysa patlar)."""
+        """Mine dropping {mine, hp_ratio, cooldown_sec, max_count, target, radius}: while fighting with HP below hp_ratio it drops a
+        mine every cooldown_sec (at the alien's position; target: around the player, at distance radius [min, max]); it does not drop a new one while
+        the same alien's max_count mines live. The mine is combat_items.alien_mine's alien mine (when placed it explodes if the player is nearby)."""
         m, w = n.behavior['drop_mine'], self.w
         if (w.items is None or not n.engaged or n.effect.frozen(now) or n.hp > n.d['hp'] * m['hp_ratio']
                 or now < n.ab.get('mine', 0) or not self.hero_open(now, n)):
@@ -689,11 +689,11 @@ class Abilities:
             a, r = random.uniform(0, 2 * math.pi), random.uniform(*m['radius'])
             x, y = x + math.cos(a) * r, y + math.sin(a) * r
         w.items.alien_mine(m['mine'], min(max(0, x), w.map_w), min(max(0, y), w.map_h), n.id, now)
-        w.log('   %s mayın bıraktı (%s)' % (n.d['name'], m['mine']))
+        w.log('   %s dropped a mine (%s)' % (n.d['name'], m['mine']))
 
     def death_ray(self, n, now):
-        """Ölüm ışını {hasar, aralik_sn, uzaklik} (Gygerim Overlord): oyuncu uzaklik'tan uzaktayken (ışınlar haritanın dışından gelir) savaşırken
-        aralik_sn'de bir ortalama hasar (%80-120); menzile bağlı değil, yakındaki oyuncuya ışın düşmez."""
+        """Death ray {damage, interval_sec, distance} (Gygerim Overlord): while fighting with the player farther than distance (the rays come from outside the map),
+        every interval_sec an average damage (80-120%); not tied to range, no ray falls on a nearby player."""
         r, w = n.behavior['death_beam'], self.w
         if (not n.engaged or n.effect.frozen(now) or now < n.ab.get('beam', 0) or self.dist(n, now) <= r['distance']
                 or not self.hero_open(now, n)):
@@ -701,10 +701,10 @@ class Abilities:
         n.ab['beam'] = now + r['interval_sec']
         dmg = int(r['damage'] * random.uniform(0.8, 1.2))
         w.send(w.hurt_hero(dmg, n, atype=0))
-        w.log('   %s ölüm ışını (%d hasar)' % (n.d['name'], dmg))
+        w.log('   %s death ray (%d damage)' % (n.d['name'], dmg))
 
     def periodic_emp(self, n, now):
-        """Periyodik EMP {bekleme_sn, menzil}: savaşırken, menzildeyse bekleme_sn'de bir (Hitac Underboss'un EMP Impulse'u)."""
+        """Periodic EMP {cooldown_sec, range}: while fighting, if in range, every cooldown_sec (the Hitac Underboss's EMP Impulse)."""
         e = n.behavior['periodic_emp']
         if not n.engaged or n.effect.frozen(now) or now < n.ab.get('emp_next', 0) or self.dist(n, now) > e['range'] \
                 or not self.hero_open(now, n):
@@ -713,8 +713,8 @@ class Abilities:
         self.emp(n, now)
 
     def emp(self, n, now):
-        """Uzaylının EMP darbesi (Obscured Mimesis, Hitac Underboss, Spookfish): oyuncunun hedefi sıfırlanır, gizlenme biter (EMP-01'in
-        oyuncuya etkisi gibi: hedefleme cihazları kapanır, gizlenme bozulur) ve mini harita parazitlenir."""
+        """The alien's EMP pulse (Obscured Mimesis, Hitac Underboss, Spookfish): the player's target is reset, cloaking ends (like EMP-01's effect on the
+        player: targeting devices turn off, cloaking is broken) and the minimap is jammed."""
         w = self.w
         if w.hero_dead or w.jumping:
             return
@@ -730,19 +730,19 @@ class Abilities:
         w.log('   %s EMP darbesi savurdu' % n.d['name'])
 
     def match_speed(self, n, now):
-        """Oyuncunun hızı {ek, can_orani}: hızı oyuncununkine eşitlenir (+ek). can_orani varsa yalnız canı o orana inince (Hooligan:
-        kritik canda); Seeker Rocket hep (oyuncu + 20)."""
+        """The player's speed {ek, can_orani}: speed is matched to the player's (+ek). With can_orani, only when HP drops to that ratio (Hooligan:
+        critical HP); Seeker Rocket always (player + 20)."""
         h = n.behavior['player_speed']
         if 'hp_ratio' in h and n.hp > n.d['hp'] * h['hp_ratio']:
             n.ab.pop('speed', None)
         else:
             n.ab['speed'] = max(1, int(self.w.p.d['ship'].get('speed', 300)) + h.get('extra', 0))
 
-    # ------------------------------------------------------------ düşük can: kaçış ve park (fandom Low health, Parking)
+    # ------------------------------------------------------------ low HP: fleeing and parking (fandom Low health, Parking)
     def flees(self, n):
-        """Bu uzaylı düşük canda kaçar mı: yalnız haritanın kendi nüfusundaki başıboşlar. Kapı, mod, etkinlik ve çağrılanlar, hareketsizler,
-        mothership ve özel patronlar (yeniden_dogma_ozel), korsan haritaları (5-X), duvarlı haritalar, Barracuda (kamikaze) ve hızı
-        oyuncununkine eşitlenen Hooligan kaçmaz (fandom: mothership ve korsanlar kaçmaz)."""
+        """Whether this alien flees at low HP: only strays in the map's own population. Gate, mode, event and summoned ones, immobile ones,
+        the mothership and special bosses (yeniden_dogma_ozel), pirate maps (5-X), walled maps, the Barracuda (kamikaze) and the Hooligan whose speed is
+        matched to the player's do not flee (fandom: mothership and pirates do not flee)."""
         w = self.w
         if (n.gate or n.summoned or n.hunt or getattr(n, 'passive', False) or n.d['speed'] <= 0 or w.gate or w.low or w.labyrinth
                 or n.tip in self.S.get('respawn_special', {}) or 'kamikaze_threshold' in n.behavior or 'player_speed' in n.behavior
@@ -751,12 +751,12 @@ class Abilities:
         return any(e['tip'] == n.tip for e in w.rules.get('npc', []))
 
     def flee_range(self, n):
-        """Kaçarken ateş menzili: bazı uzaylılarda (Kristallon, Kristallin) düşük canda artar (fandom Low health)."""
+        """Firing range while fleeing: for some aliens (Kristallon, Kristallin) it increases at low HP (fandom Low health)."""
         m, r = LOW['range_boost'], self.w.npc_range(n)
         return r * m['multiplier'] if any(s in n.d['name'].lower() for s in m['name']) else r
 
     def flee_spot(self, n, now):
-        """Oyuncudan en uzak kenar/köşe noktası (güvenli bölgeye ve onun yoluna girmeden); yoksa bulunduğu yer."""
+        """The edge/corner point farthest from the player (without entering the safe zone and its path); otherwise where it is."""
         w, m = self.w, LOW['edge_margin']
         hx, hy = w.hero_pos(now)
         nx, ny = n.mover.pos(now)
@@ -770,9 +770,9 @@ class Abilities:
         self.w.send([('MoveCommand', dict(userId=n.id, x=int(tx), y=int(ty), timeToTarget=ms))])
 
     def low_health(self, n, now):
-        """Düşük can (canı dusuk_can.oran'ın altına inen harita uzaylısı): oyuncunun tersindeki kenar noktasına kaçar ('kac'; menzildeyse
-        hâlâ ateş eder), varınca durur ve kalkanını/canını yeniler ('park'; ateş etmez, vurulunca karşılık vermez, vurulmadıkça
-        yenilenir); donus_orani'na yenilenince normal yapay zekâ. -> 'kac' | 'park' | None (dunya.think)."""
+        """Low HP (a map alien whose HP fell below low_hp.ratio): flees to the edge point opposite the player ('kac'; still fires if in range),
+        stops on arrival and regenerates shield/HP ('park'; does not fire, does not retaliate when hit, regenerates while not hit);
+        normal AI once regenerated to return_ratio. -> 'kac' | 'park' | None (world.think)."""
         st = n.ab.get('flee')
         if n.effect.frozen(now):
             return st['state'] if st else None
@@ -781,7 +781,7 @@ class Abilities:
                 return None
             st = n.ab['flee'] = dict(state='flee', target=self.flee_spot(n, now), reload=0.0)
             self.flee_move(n, st, now)
-            self.w.log('   %s düşük canda kaçıyor (can %%%d)' % (n.d['name'], 100 * n.hp // max(1, n.d['hp'])))
+            self.w.log('   %s fleeing at low HP (HP %%%d)' % (n.d['name'], 100 * n.hp // max(1, n.d['hp'])))
         if n.hp >= n.d['hp'] * LOW['return_ratio'] and n.shield >= n.d['kalkan'] * LOW['return_ratio']:
             del n.ab['flee']                                       # tamamen yenilendi: normal yapay zekâ
             n.next_think = now
@@ -791,11 +791,11 @@ class Abilities:
                 return 'flee'
             x, y = n.mover.pos(now)
             if math.hypot(x - st['target'][0], y - st['target'][1]) > 150:
-                self.flee_move(n, st, now)                         # yolu kesildi (yavaşlatma, donma): yeniden
+                self.flee_move(n, st, now)                         # its path was cut (slowing, freezing): again
                 return 'flee'
             st['state'] = 'park'
-            self.w.log('   %s köşeye park etti: (%d,%d)' % (n.d['name'], x, y))
-        n.engaged = False                                          # park: karşılık vermez
+            self.w.log('   %s parked in the corner: (%d,%d)' % (n.d['name'], x, y))
+        n.engaged = False                                          # park: does not retaliate
         if now >= st['reload']:
             st['reload'] = now + 1.0
             r = LOW['regeneration']
@@ -806,13 +806,13 @@ class Abilities:
                     self.w.send([self.w.selection(n)])
         return 'park'
 
-    # ------------------------------------------------------------ Emperor Sibelon: hız ve kapsüller
+    # ------------------------------------------------------------ Emperor Sibelon: speed and capsules
     def speed_skill(self, n, now):
         h = n.behavior['speed_skill']
         if 'speed' not in n.ab and n.shield <= n.d['kalkan'] * h.get('shield_ratio', 0.1):
             n.ab['speed'] = h['speed']
             n.ab['capsule_at'] = now
-            self.w.log('   %s hızlandı (%d)' % (n.d['name'], h['speed']))
+            self.w.log('   %s sped up (%d)' % (n.d['name'], h['speed']))
         k = n.behavior.get('capsules')
         if 'speed' not in n.ab or not k:
             return
@@ -837,7 +837,7 @@ class Abilities:
         if n.ab.get('capsule') != aid or n.mover.t1 <= now:
             n.ab['capsule'] = aid
             ms = n.mover.go(c['x'], c['y'], n.ab['speed'] * n.effect.speed_factor(now), now)
-            n.next_think = now + ms / 1000.0 + 0.5          # kovalamayı bırakıp kapsüle gider
+            n.next_think = now + ms / 1000.0 + 0.5          # stops chasing and goes to the capsule
             self.w.send([('MoveCommand', dict(userId=n.id, x=int(c['x']), y=int(c['y']), timeToTarget=ms))])
 
     def spawn_capsule(self, n):
@@ -849,7 +849,7 @@ class Abilities:
         self.capsules[aid] = dict(x=x, y=y, type=kind, owner=n.id)
         w.send([asset_create(aid, BUFF_CAPSULE, x, y, name='%s-Buff' % {'can': 'HP', 'kalkan': 'SHD', 'damage': 'DMG'}[kind],
                              design=CAPSULES.index(kind))])
-        w.log('   kapsül belirdi: %s (%d,%d)' % (kind, x, y))
+        w.log('   capsule appeared: %s (%d,%d)' % (kind, x, y))
 
     def drop_capsule(self, aid, why):
         c = self.capsules.pop(aid, None)
@@ -859,10 +859,10 @@ class Abilities:
         if 'collecting' in c:
             msgs.insert(0, ('StopCapsuleCollectCommand', {'collectorId': c['owner']}))
         self.w.send(msgs)
-        self.w.log('   kapsül %s: %s' % (why, c['type']))
+        self.w.log('   capsule %s: %s' % (why, c['type']))
 
     def collect_capsule(self, n, aid, k):
-        """Emperor kapsülü topladı: can/kalkan %10 dolar ya da hasarı artar ve oyuncununki düşer (Emperor ölünce kalkar)."""
+        """The Emperor collected the capsule: HP/shield refills 10% or the damage increases and the player's drops (lifted when the Emperor dies)."""
         w = self.w
         kind = self.capsules[aid]['type']
         if kind == 'can':
@@ -873,8 +873,8 @@ class Abilities:
             n.ab['damage_bonus'] = n.ab.get('damage_bonus', 0) + k['damage']
             w.hero_effect('weakness', 3600, k['damage'], source='kapsul_%d' % n.id)
         self.drop_capsule(aid, 'toplandı')
-        # toplama görseli (Ö1): Emperor'un çevresinde 4 sn'lik parlayan halka; tür 0 hasar (kırmızı), 1 kalkan, 2 can (istemci:
-        # EmperorSibelonBuffRingCommandHandler, çap radius x 2; yarıçap uyarlama)
+        # collection visual (Ö1): a glowing ring around the Emperor for 4 s; type 0 damage (red), 1 shield, 2 HP (client:
+        # EmperorSibelonBuffRingCommandHandler, diameter radius x 2; the radius is an adaptation)
         x, y = n.mover.pos(time.time())
         w.send([('EmperorSibelonBuffRingCommand', dict(avatarId=n.id, type={'damage': 0, 'kalkan': 1, 'can': 2}[kind], radius=RING_RADIUS,
                                                        x=int(x), y=int(y)))])
@@ -882,7 +882,7 @@ class Abilities:
             w.send([w.selection(n)])
 
     def capsule_tick(self, now):
-        """Oyuncu kapsülün yakınından geçerse kapsül yok olur; sahibi ölen kapsüller kalkar."""
+        """If a player passes near the capsule it vanishes; capsules whose owner died are lifted."""
         if not self.capsules:
             return
         w = self.w
@@ -895,13 +895,13 @@ class Abilities:
                 self.drop_capsule(aid, 'oyuncu yok etti')
 
     def capsule_msgs(self):
-        """Harita yeniden yüklenince kapsüller yeniden bildirilir."""
+        """When the map reloads the capsules are announced again."""
         return [asset_create(aid, BUFF_CAPSULE, c['x'], c['y'], design=CAPSULES.index(c['type'])) for aid, c in self.capsules.items()]
 
-    # ------------------------------------------------------------ ölüm
+    # ------------------------------------------------------------ death
     def on_kill(self, n, x, y):
-        """Uzaylı öldü: patlayan (sahte Emperor) yakındaki oyuncuyu vurur; çağırdıkları dağılır (Cubikon); DMG kapsülünün oyuncudaki
-        etkisi kalkar."""
+        """The alien died: one that explodes (fake Emperor) hits a nearby player; its summons disperse (Cubikon); the DMG capsule's effect on the player
+        is lifted."""
         w = self.w
         p = n.behavior.get('explode_on_death')
         msgs = []
@@ -909,19 +909,19 @@ class Abilities:
             hx, hy = w.hero_pos()
             if math.hypot(x - hx, y - hy) <= p['radius']:
                 msgs += w.hurt_hero(p['damage'], n, atype=0)
-                w.log('   %s patladı: %d hasar' % (n.d['name'], p['damage']))
+                w.log('   %s exploded: %d damage' % (n.d['name'], p['damage']))
         g = n.behavior.get('summons_scatter_on_death')
         if g:
             end = time.time()
             for cid in n.children:
                 c = w.npcs.get(cid)
                 if c and c.alive:
-                    c.passive, c.engaged = True, False                    # kimseyi kovalamadan dolaşır (dunya.think)
+                    c.passive, c.engaged = True, False                    # wanders without chasing anyone (world.think)
                     c.ab['lifetime'] = end + random.uniform(*g['lifetime_sec'])
         if w.hero_effects.get('weakness'):
             w.hero_effects.remove('weakness', source='kapsul_%d' % n.id)
         left = [d for d in self.hero_dots if d['npc'] != n.id]
         if any(d.get('visual') for d in self.hero_dots) and not any(d.get('visual') for d in left):
-            msgs.append(self.singularity_visual(False))                 # tekilliğin sahibi öldü: girdap kalkar
+            msgs.append(self.singularity_visual(False))                 # the singularity's owner died: the vortex is lifted
         self.hero_dots = left
         return msgs

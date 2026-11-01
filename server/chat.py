@@ -1,64 +1,64 @@
-"""Yerel sohbet sunucusu (yol haritası Aşama 10): istemcinin "AChat" sohbeti, TCP 7771.
+"""Local chat server (roadmap stage 10): the client's "AChat" chat, TCP 7771.
 
-İstemci sohbet adresini girişteki ChatParamCommand'dan (chat_ip) alır. Kayıttaki şablon resmî sohbet sunucusunu gösteriyordu ve
-istemci yerel oyunda oraya bağlanıyordu (istemci günlüğü: "achat:connected"); artık login_replace ile bu sunucuya yönlenir.
+The client takes the chat address from ChatParamCommand (chat_ip) at login. The template in the save pointed at the official chat server
+and the client connected there in the local game (client log: "achat:connected"); it is now redirected to this server via login_replace.
 
-Bağlantı başında istemci 2 baytlık tanışma gönderir: 0x2A ('*') + 0x01 (TcpEndpoint2ServerNetLayer.Open); sunucu da bir
-0x10 tanışma çerçevesi gönderir (istemcinin görünen adresi, UTF-8). İstemci InitConnector'ı ancak bu çerçeve gelince yollar
-(TcpEndpoint2ServerNetLayer.Write: LowLevelIntroductionMessage -> bağlantı işleyicisi). Canlı deneme 2026-10-17: ikisi de
-eksikti, gerçek istemcide sohbet hiç kurulmuyordu (testlerin sahte istemcisi doğrudan InitConnector gönderiyordu).
-Çerçeve (istemcinin APServiceStorm.Net.Codec.APlay kodlayıcısı): 1 bayt tür + int32 BE uzunluk + yük
-  0x50 'P'  UTF-8 JSON (sunucu -> istemci bunu kullanır)
-  0x53 'S'  ikili JSON (istemci -> sunucu; JSONWriter: nesne = int32 sayı + [int32 uzunluk + UTF-8 ad, değer]…)
-  0x61 'a'  gzip'li JSON (istemci göndermiyor)
-  0x10 tanışma (UTF-8), 0x11 ping (sunucu -> istemci: int64 zaman + int32 gecikme), 0x12 pong (int64)
-İkili JSON değer türleri (tür baytı + değer): 0 null, 1 bool (1/2), 2 dizi (int32 sayı), 3 int32, 4 nesne, 5 metin (int32 + UTF-8),
-6 bayt, 7 int64, 8 float32. Sayılar big-endian.
+At the start of a connection the client sends a 2-byte introduction: 0x2A ('*') + 0x01 (TcpEndpoint2ServerNetLayer.Open); the server also
+sends a 0x10 introduction frame (the address the client sees, UTF-8). The client sends InitConnector only once this frame arrives
+(TcpEndpoint2ServerNetLayer.Write: LowLevelIntroductionMessage -> connection handler). Live trial 2026-10-17: both were
+missing, so chat was never established in the real client (the tests' fake client sent InitConnector directly).
+Frame (the client's APServiceStorm.Net.Codec.APlay encoder): 1 byte type + int32 BE length + payload
+  0x50 'P'  UTF-8 JSON (server -> client uses this)
+  0x53 'S'  binary JSON (client -> server; JSONWriter: object = int32 count + [int32 length + UTF-8 name, value]...)
+  0x61 'a'  gzip JSON (the client does not send it)
+  0x10 introduction (UTF-8), 0x11 ping (server -> client: int64 time + int32 delay), 0x12 pong (int64)
+Binary JSON value types (type byte + value): 0 null, 1 bool (1/2), 2 array (int32 count), 3 int32, 4 object, 5 text (int32 + UTF-8),
+6 byte, 7 int64, 8 float32. Numbers are big-endian.
 
-Infinicast mesajları JSON nesnesi, 't' türü (Connector2Eps/Eps2Connector dönüştürücüleri): 1 Request, 2 RequestResponse,
-3 InitConnector, 8 Message, 14 RemoveHandlers, 15 RegisterHandler; ötekiler (30 GetListeningList …) istek kimliğiyle yanıtlanır.
-Akış (istemcinin AChatGameClientConnection'ı):
-  1. InitConnector {space: achat, role: chatter} -> InitConnector {endpointObject {path: /endpoint/<uç>/, endpoint: <uç>}}
-  2. istemci uç noktasının serverStatus/ ve changePredefinedRoom/ yollarına Message işleyicisi kaydeder (her kayıt
-     RequestResponse {requestId} ile onaylanır); onaylanınca uç kimliğini oyun sunucusuna ChatAuthenticateUserRequest ile bildirir
-  3. oyun sunucusu (game.py) authenticate() çağırır: serverStatus'a {type: loggedIn}, changePredefinedRoom'a her oda için
-     {roomType, roomClass, newRoomName}; istemci /room/<roomClass>/<newRoomName>/ yoluna işleyici kaydeder ve odayı açar
-     (burada roomClass = roomType)
-  4. oyuncunun mesajı: Message {path: oda, data: {msg}} -> odayı dinleyenlere Message {path, data {msg, sentAt},
-     endpointObject {path, endpoint, data: gönderenin bilgisi}}
-Gönderenin bilgisi (ChatUserVo.FromJson): userId = görünen ad, id = sayısal kimlik, globalId, role (chatter/system/mod),
-clanTag, factionId, instanceId. Oda türleri (ChatRoomVo): global, faction, clan, group (sekme adları istemcide çevrilir).
+Infinicast messages are a JSON object with a 't' type (Connector2Eps/Eps2Connector converters): 1 Request, 2 RequestResponse,
+3 InitConnector, 8 Message, 14 RemoveHandlers, 15 RegisterHandler; the others (30 GetListeningList ...) are answered with the request id.
+Flow (the client's AChatGameClientConnection):
+  1. InitConnector {space: achat, role: chatter} -> InitConnector {endpointObject {path: /endpoint/<endpoint>/, endpoint: <endpoint>}}
+  2. the client registers a Message handler on its endpoint's serverStatus/ and changePredefinedRoom/ paths (each registration is
+     acknowledged with RequestResponse {requestId}); once acknowledged it reports the endpoint id to the game server with ChatAuthenticateUserRequest
+  3. the game server (game.py) calls authenticate(): serverStatus gets {type: loggedIn}, changePredefinedRoom gets, for each room,
+     {roomType, roomClass, newRoomName}; the client registers a handler on the /room/<roomClass>/<newRoomName>/ path and opens the room
+     (here roomClass = roomType)
+  4. the player's message: Message {path: room, data: {msg}} -> Message {path, data {msg, sentAt},
+     endpointObject {path, endpoint, data: sender info}} to those listening to the room
+Sender info (ChatUserVo.FromJson): userId = display name, id = numeric id, globalId, role (chatter/system/mod),
+clanTag, factionId, instanceId. Room types (ChatRoomVo): global, faction, clan, group (tab names are translated in the client).
 
-Özel odalar (resmî forum 127334: /create, /close, /invite, /join, /leave; istemcinin AChatGameClientConnection'ı, il2cpp 1.1.115):
-  /create <ad> [kullanıcı] -> Request /roomSvc/usr/createRoom/ {roomName: 'private_<ad>'}; yanıt gelince istemci odayı modelinde
-  arar (GetRoomByName), bu yüzden sunucu önce changePredefinedRoom ile odayı verir (roomType = roomName: tür başına tek oda tutulur,
-  roomClass 'usr'; ChatRoomVo 'private_' önekini atıp adı gösterir). /invite -> inviteUser {roomName, whisperId}; davet edilenin
-  /userRoomInvite/<whisperId>/ yoluna Message {roomName, invitingUserData: gönderenin bilgisi}. Kabul -> acceptInvite {roomName};
-  /close -> close {roomName} (yalnız kurucu); /leave -> removeUser {roomName, whisperId}. Hata yanıtı errorMsg ile (istemcinin
-  ChatIcErrorTranslator'ı: 'Not creator of this channel' -> inviteErrorNotYourRoom, 'user no longer logged in' ->
-  inviteErrorUserNotFound); başarı yanıtı data {success: true}. /report -> Request <oda yolu>/reportUser {targetUserId, targetGlobalId, reason, reasonKey, message}:
-  server/logs/sohbet_raporlari.jsonl dosyasına yazılır (forum 132515).
-Duyurular (duyuru()): sistem kullanıcısının (role system) mesajı. İstemci sistem mesajını yerelleştirme anahtarı sayar
-("anahtar|eski|yeni|…": anahtarın metnini çevirip çiftleri değiştirir; bilinmeyen anahtar boş çıkar). Bu yüzden metin
-'dochat.chat.system' anahtarının çevirisinin ("System"/"Sistem") yerine konur.
+Private rooms (official forum 127334: /create, /close, /invite, /join, /leave; the client's AChatGameClientConnection, il2cpp 1.1.115):
+  /create <name> [user] -> Request /roomSvc/usr/createRoom/ {roomName: 'private_<name>'}; when the response arrives the client looks the room up
+  in its model (GetRoomByName), so the server first hands out the room with changePredefinedRoom (roomType = roomName: one room is kept per
+  type, roomClass 'usr'; ChatRoomVo drops the 'private_' prefix and shows the name). /invite -> inviteUser {roomName, whisperId}; to the invitee's
+  /userRoomInvite/<whisperId>/ path Message {roomName, invitingUserData: sender info}. Accept -> acceptInvite {roomName};
+  /close -> close {roomName} (creator only); /leave -> removeUser {roomName, whisperId}. Error response with errorMsg (the client's
+  ChatIcErrorTranslator: 'Not creator of this channel' -> inviteErrorNotYourRoom, 'user no longer logged in' ->
+  inviteErrorUserNotFound); success response data {success: true}. /report -> Request <room path>/reportUser {targetUserId, targetGlobalId, reason, reasonKey, message}:
+  written to the file server/logs/sohbet_raporlari.jsonl (forum 132515).
+Announcements (announcement()): a message from the system user (role system). The client treats a system message as a localization key
+("key|old|new|...": it translates the key's text and substitutes the pairs; an unknown key comes out empty). That is why the text is put in place of
+the translation of the 'dochat.chat.system' key ("System"/"Sistem").
 """
 import json, os, socket, struct, threading, time
 
 PORT = 7771
 P_JSON, P_BIN, P_GZIP, P_INTRO, P_PING, P_PONG = 0x50, 0x53, 0x61, 0x10, 0x11, 0x12
 T_REQUEST, T_RESPONSE, T_INIT, T_MESSAGE, T_REMOVE, T_REGISTER = 1, 2, 3, 8, 14, 15
-T_LISTENING_LIST = 30             # GetListeningList: sohbetin /users komutu (oda dinleyenleri; Infinicast ListenerQueryExecutor)
+T_LISTENING_LIST = 30             # GetListeningList: the chat's /users command (room listeners; Infinicast ListenerQueryExecutor)
 PING_SEC = 15
 SYSTEM_KEY = 'dochat.chat.system'
-SYSTEM_TEXT = {'en': 'System', 'tr': 'Sistem'}       # istemcinin çevirisi (resource_chat); başka dilde ikisi de denenir
-ROOM_LIMIT = 3                    # oyuncu başına özel oda (uyarlama: istemcinin noMorePrivateRoomsAllowed metni var, sayı yok)
-FLOOD_LIMIT, FLOOD_SEC = 8, 10        # sunucu tarafı sel denetimi: 10 sn'de 8'den çok mesaj atılır (uyarlama; istemci floodWarning kendi uyarır)
+SYSTEM_TEXT = {'en': 'System', 'tr': 'Sistem'}       # the client's translation (resource_chat); in another language both are tried
+ROOM_LIMIT = 3                    # one private room per player (adaptation: the client has the noMorePrivateRoomsAllowed text, but no number)
+FLOOD_LIMIT, FLOOD_SEC = 8, 10        # server-side flood control: more than 8 messages in 10 s are dropped (adaptation; the client's floodWarning warns on its own)
 REPORT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs', 'sohbet_raporlari.jsonl')
 
 
-# ------------------------------------------------------------ APlay çerçevesi ve ikili JSON
+# ------------------------------------------------------------ APlay frame and binary JSON
 def frame(obj):
-    """Sunucu -> istemci: düz JSON çerçevesi."""
+    """Server -> client: plain JSON frame."""
     data = json.dumps(obj, ensure_ascii=False, separators=(',', ':')).encode('utf8')
     return bytes([P_JSON]) + struct.pack('>i', len(data)) + data
 
@@ -95,7 +95,7 @@ def read_value(b, i):
         return struct.unpack_from('>q', b, i)[0], i + 8
     if t == 8:
         return struct.unpack_from('>f', b, i)[0], i + 4
-    raise ValueError('ikili JSON: bilinmeyen tür %d' % t)
+    raise ValueError('binary JSON: unknown type %d' % t)
 
 
 def read_object(b, i=0):
@@ -111,7 +111,7 @@ def read_object(b, i=0):
 
 
 def write_value(v):
-    """İstemcinin JSONWriter'ı (testlerde istemciyi taklit etmek için)."""
+    """The client's JSONWriter (for imitating the client in tests)."""
     if v is None:
         return b'\x00'
     if isinstance(v, bool):
@@ -139,23 +139,23 @@ def write_object(o):
 
 
 def intro_frame(address):
-    """Sunucunun tanışma çerçevesi (0x10 + uzunluk + UTF-8 adres)."""
+    """The server's introduction frame (0x10 + length + UTF-8 address)."""
     data = address.encode('utf8')
     return bytes([P_INTRO]) + struct.pack('>i', len(data)) + data
 
 
 def client_frame(obj):
-    """İstemci -> sunucu çerçevesi ('S' + ikili JSON)."""
+    """Client -> server frame ('S' + binary JSON)."""
     data = write_object(obj)
     return bytes([P_BIN]) + struct.pack('>i', len(data)) + data
 
 
-HANDSHAKE = b'*'                # istemcinin bağlantı başındaki baytları (protokol işareti + sürüm)
+HANDSHAKE = b'*'                # the client's bytes at the start of a connection (protocol marker + version)
 
 
 class FrameDecoder:
-    """Akıştan çerçeveler: feed(bayt) -> [(tür, yük)]; JSON türlerinde yük sözlük. tanisma=True: akışın başındaki istemci
-    tanışması (TANISMA) atlanır (sunucu tarafı); istemci tarafı (testler) False."""
+    """Frames from the stream: feed(bytes) -> [(type, payload)]; for JSON types the payload is a dict. handshake=True: the client
+    introduction (handshake) at the start of the stream is skipped (server side); False on the client side (tests)."""
     def __init__(self, handshake=False):
         self.buf = b''
         self.wait_handshake = handshake
@@ -184,16 +184,16 @@ class FrameDecoder:
         return out
 
 
-# ------------------------------------------------------------ sunucu
+# ------------------------------------------------------------ server
 class Connection:
     def __init__(self, srv, sock, ep):
         self.srv, self.sock, self.ep = srv, sock, ep
         self.send_lock = threading.Lock()
-        self.handlers = set()             # Message işleyicisi kayıtlı yollar
-        self.user = None                  # authenticate() sonrası gönderen bilgisi
+        self.handlers = set()             # paths with a registered Message handler
+        self.user = None                  # sender info after authenticate()
         self.lang = None
-        self.pending = []                 # odası henüz kaydedilmemiş duyurular (oda türü, metin)
-        self.history = []                  # son mesaj zamanları (sel denetimi)
+        self.pending = []                 # announcements whose room is not registered yet (room type, text)
+        self.history = []                  # recent message times (flood control)
         self.alive = True
 
     @property
@@ -204,7 +204,7 @@ class Connection:
         self.send_raw(frame(obj))
 
     def send_raw(self, data):
-        if self.srv.trace:                   # canlı test izi (game.py --kontrol): giden çerçeve
+        if self.srv.trace:                   # live test trace (game.py --control): outgoing frame
             self.srv.trace('->', data[0], data[5:])
         try:
             with self.send_lock:
@@ -225,9 +225,9 @@ class Connection:
                     if kind in (P_BIN, P_JSON):
                         self.srv.on_message(self, body)
                     elif kind != P_PONG:
-                        self.srv.log('sohbet: bilinmeyen çerçeve 0x%02x (%d bayt) %r' % (kind, len(body), bytes(body[:60])))
-        except Exception as e:                  # bozuk çerçeve (struct.error, IndexError…) de: yoksa bağlantı conns'ta kalıyordu
-            self.srv.log('sohbet: bağlantı hatası %r' % e)
+                        self.srv.log('chat: unknown frame 0x%02x (%d bytes) %r' % (kind, len(body), bytes(body[:60])))
+        except Exception as e:                  # a broken frame (struct.error, IndexError...) too: otherwise the connection stayed in conns
+            self.srv.log('chat: connection error %r' % e)
         self.alive = False
         self.srv.drop(self)
 
@@ -235,28 +235,28 @@ class Connection:
 class Chat:
     def __init__(self, log=print, port=PORT, address='127.0.0.1'):
         self.log, self.port = log, port
-        self.address = address                # arkadaş sunucusunda 0.0.0.0 (misafirler başka bilgisayarlardan bağlanır)
+        self.address = address                # 0.0.0.0 on the friend server (guests connect from other computers)
         self.lock = threading.RLock()
-        self.conns = {}                   # uç kimliği -> Baglanti
+        self.conns = {}                   # endpoint id -> Connection
         self.seq = 0
         self.sock = None
         self.running = False
-        self.trace = None                    # canlı test izi: iz(yön, tür, yük) (game.py --kontrol bağlar)
-        self.bot_hook = None             # (yol, mesaj, gönderen) -> None: botlar oda mesajlarını okur (bot/toplum.kaydol)
-        self.bot_whisper_hook = None           # (alıcının adı, mesaj, gönderen) -> alıcı bot muydu
-        self.block_hook = None           # (gönderen, oda yolu, dil) -> bildirim ya da None: susturulan oyuncu (bot/moderasyon.py)
-        self.rooms = {}                  # özel oda adı ('private_<ad>') -> {'kurucu': kimlik, 'uyeler': set, 'davetli': set}
+        self.trace = None                    # live test trace: iz(direction, type, payload) (game.py --control hooks it up)
+        self.bot_hook = None             # (path, message, sender) -> None: bots read room messages (bot/society.register)
+        self.bot_whisper_hook = None           # (recipient's name, message, sender) -> was the recipient a bot
+        self.block_hook = None           # (sender, room path, language) -> notice or None: a muted player (bot/moderation.py)
+        self.rooms = {}                  # private room name ('private_<name>') -> {'creator': id, 'members': set, 'invited': set}
         self.report_path = REPORT_PATH
 
     # -------------------------------------------------------- dinleme
     def start(self):
-        """Dinlemeye başlar -> gerçek port (port 0 verilirse işletim sisteminin seçtiği); port doluysa None."""
+        """Starts listening -> the real port (the one the operating system picks if port 0 is given); None if the port is taken."""
         s = socket.socket()
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         try:
             s.bind((self.address, self.port))
         except OSError as e:
-            self.log('sohbet: %d dinlenemedi (%r)' % (self.port, e))
+            self.log('chat: %d could not listen (%r)' % (self.port, e))
             s.close()
             return None
         s.listen(5)
@@ -264,7 +264,7 @@ class Chat:
         self.port = s.getsockname()[1]
         threading.Thread(target=self.accept_loop, daemon=True).start()
         threading.Thread(target=self.ping_loop, daemon=True).start()
-        self.log('sohbet listening %d' % self.port)
+        self.log('chat listening %d' % self.port)
         return self.port
 
     def stop(self):
@@ -293,8 +293,8 @@ class Chat:
                 ep = 'yerel_sohbet_%d_%d' % (int(time.time()) % 100000, self.seq)
                 c = Connection(self, sock, ep)
                 self.conns[ep] = c
-            self.log('sohbet: bağlantı %s' % ep)
-            c.send_raw(intro_frame('%s:%d' % addr[:2]))       # istemci bunu görmeden InitConnector göndermez
+            self.log('chat: connection %s' % ep)
+            c.send_raw(intro_frame('%s:%d' % addr[:2]))       # the client does not send InitConnector until it sees this
             threading.Thread(target=c.run, daemon=True).start()
 
     def ping_loop(self):
@@ -313,7 +313,7 @@ class Chat:
             c.sock.close()
         except OSError:
             pass
-        self.log('sohbet: bağlantı kapandı %s' % c.ep)
+        self.log('chat: connection closed %s' % c.ep)
 
     # -------------------------------------------------------- Infinicast
     def on_message(self, c, m):
@@ -345,16 +345,16 @@ class Chat:
             c.send({'t': T_RESPONSE, 'requestId': rid})
 
     def listeners(self, path):
-        """Odayı dinleyenler (istemci yanıtın data.list'inden okur: path, endpoint, data = kullanıcı bilgisi)."""
+        """Those listening to the room (the client reads them from the response's data.list: path, endpoint, data = user info)."""
         with self.lock:
             conns = list(self.conns.values())
         return [{'path': x.path, 'endpoint': x.ep, 'data': x.user} for x in conns if x.user and path in x.handlers]
 
     def request(self, c, m):
-        """Oda servisi (/roomSvc/usr/…) ve rapor (<oda>/reportUser) istekleri; hata errorMsg ile, başarı data.success (istemcinin
-        yanıt geri çağrısı json['success']'i okur: yoksa NullReferenceException, canlı 2026-10-26)."""
+        """Room service (/roomSvc/usr/...) and report (<room>/reportUser) requests; errors with errorMsg, success with data.success (the client's
+        response callback reads json['success']: if it is missing, NullReferenceException, live 2026-10-26)."""
         path, d, rid = m.get('path') or '', m.get('data') or {}, m.get('requestId', 0)
-        self.log('sohbet: istek %s %s' % (path, json.dumps(d, ensure_ascii=False)[:200]))
+        self.log('chat: request %s %s' % (path, json.dumps(d, ensure_ascii=False)[:200]))
         if not c.user:
             err = 'user no longer logged in'
         elif path.rstrip('/').endswith('/reportUser'):
@@ -370,13 +370,13 @@ class Chat:
             c.send({'t': T_RESPONSE, 'requestId': rid, 'data': {'success': True}})
 
     def report(self, c, path, d):
-        """Sohbet raporu (/report): sunucu günlüğüne bir satır (forum 132515; tek oyunculuda moderatör yok)."""
+        """Chat report (/report): one line in the server log (forum 132515; there is no moderator in single player)."""
         row = {'time': time.strftime('%Y-%m-%d %H:%M:%S'), 'reporter': c.user.get('userId'), 'room': path.rsplit('/reportUser', 1)[0],
                **{k: d.get(k) for k in ('targetUserId', 'targetGlobalId', 'reason', 'reasonKey', 'message')}}
         os.makedirs(os.path.dirname(self.report_path), exist_ok=True)
         with self.lock, open(self.report_path, 'a', encoding='utf8') as fh:
             fh.write(json.dumps(row, ensure_ascii=False) + '\n')
-        self.log('sohbet: rapor %s -> %s (%s)' % (row['reporter'], row['targetUserId'], row['reasonKey'] or row['reason']))
+        self.log('chat: report %s -> %s (%s)' % (row['reporter'], row['targetUserId'], row['reasonKey'] or row['reason']))
         return None
 
     def room_path(self, name):
@@ -403,7 +403,7 @@ class Chat:
         with self.lock:
             conns = [x for x in self.conns.values() if x.user and x is not c]
         hits = [(x, p) for x in conns for p in x.handlers if p.lower() == want]
-        if not hits:                       # başka örnek kimliği ile dinleyen: adın kendisi (fısıltıdaki gibi)
+        if not hits:                       # listening under another instance id: the name itself (as with whispers)
             room_name = '_' + want[len('/userroominvite/'):].split('_', 1)[-1]
             hits = [(x, p) for x in conns for p in x.handlers if p.lower().startswith('/userroominvite/') and p.lower().endswith(room_name)]
         if not hits:
@@ -441,7 +441,7 @@ class Chat:
         return None
 
     def relay(self, c, path, data):
-        """Oyuncunun oda mesajı: odayı dinleyenlere (kendisi dahil) gönderenin bilgisiyle."""
+        """The player's room message: to those listening to the room (including themselves) with the sender's info."""
         if not c.user or not path.startswith('/room/'):
             return
         msg = str(data.get('msg', ''))[:500]
@@ -450,42 +450,42 @@ class Chat:
         now = time.time()
         c.history = [t for t in c.history if now - t < FLOOD_SEC] + [now]
         if len(c.history) > FLOOD_LIMIT:
-            self.log('sohbet: sel, atıldı %s: %s' % (c.user.get('userId'), msg[:60]))
+            self.log('chat: flood, dropped %s: %s' % (c.user.get('userId'), msg[:60]))
             return
         if self.block_hook is not None:
             notification = self.block_hook(dict(c.user), path, c.lang)
             if notification:
-                self.log('sohbet: susturulu, atıldı %s: %s' % (c.user.get('userId'), msg[:60]))
+                self.log('chat: muted, dropped %s: %s' % (c.user.get('userId'), msg[:60]))
                 self.announcement(notification, path.split('/')[2], who=c.user.get('id'))
                 return
-        self.log('sohbet: %s: %s' % (path, msg))
+        self.log('chat: %s: %s' % (path, msg))
         self.broadcast(path, msg, c.ep, c.user)
         if self.bot_hook is not None:
-            self.bot_hook(path, msg, dict(c.user))      # botlar okur (bot/yonetici.sohbet_gelen)
+            self.bot_hook(path, msg, dict(c.user))      # the bots read it (bot/chat_engine.incoming_chat)
 
     def whisper(self, c, path, data, rid):
-        """Fısıltı: istemci /whisper/<InstanceID>_<alıcının adı>/ yoluna yazar, alıcının istemcisi kendi adıyla bu yolu dinler
-        (AChat, giriş sonrası). Ad büyük/küçük harf ayırmaz. Alıcı yoksa hata yanıtı: istemci "kullanıcı yok ya da çevrimdışı" yazar."""
+        """Whisper: the client writes to the /whisper/<InstanceID>_<recipient's name>/ path, the recipient's client listens to this path under its own name
+        (AChat, after login). The name is case-insensitive. If there is no recipient, an error response: the client writes "user does not exist or is offline"."""
         msg = str(data.get('msg', ''))[:500]
         want = path.lower()
         with self.lock:
             conns = [x for x in self.conns.values() if x.user and x is not c]
         hits = [(x, p) for x in conns for p in x.handlers if p.lower() == want]
-        if not hits:                       # başka örnek kimliği (InstanceID) ile dinleyen: adın kendisi
+        if not hits:                       # listening under another instance id (InstanceID): the name itself
             room_name = '_' + want[len('/whisper/'):].split('_', 1)[-1]
             hits = [(x, p) for x in conns for p in x.handlers if p.startswith('/whisper/') and p.lower().endswith(room_name)]
         if not hits and c.user and msg and self.bot_whisper_hook is not None and                 self.bot_whisper_hook(want[len('/whisper/'):].split('_', 1)[-1].rstrip('/'), msg, dict(c.user)):
-            self.log('sohbet: fısıltı -> bot %s: %s' % (path, msg))       # alıcı bot (bot/yonetici.fisilti_gelen)
+            self.log('chat: whisper -> bot %s: %s' % (path, msg))       # recipient is a bot (bot/chat_engine.incoming_whisper)
             if rid is not None:
                 c.send({'t': T_RESPONSE, 'requestId': rid})
             return
         if not c.user or not msg or not hits:
-            self.log('sohbet: fısıltı yerine ulaşmadı %s' % path)
+            self.log('chat: whisper did not reach its destination %s' % path)
             if rid is not None:
                 c.send({'t': T_RESPONSE, 'requestId': rid, 'errorReason': 'notFound', 'errorMsg': 'no listener',
                         'errorPath': path})
             return
-        self.log('sohbet: fısıltı %s -> %s: %s' % (c.user.get('userId'), path, msg))
+        self.log('chat: whisper %s -> %s: %s' % (c.user.get('userId'), path, msg))
         for x, p in hits:
             x.send({'t': T_MESSAGE, 'path': p, 'data': {'msg': msg, 'sentAt': str(int(time.time() * 1000))},
                     'endpointObject': {'path': c.path, 'endpoint': c.ep, 'data': c.user}})
@@ -493,7 +493,7 @@ class Chat:
             c.send({'t': T_RESPONSE, 'requestId': rid})
 
     def bot_whisper(self, recipient, msg, ep, user):
-        """Bot oyuncuya fısıldar: alıcının kendi fısıltı yolunu dinleyen bağlantılarına (whisper'ın teslimi gibi) -> ulaştı mı."""
+        """A bot whispers to a player: to the connections listening to the recipient's own whisper path (like whisper delivery) -> did it arrive."""
         room_name = '_' + str(recipient).lower() + '/'
         with self.lock:
             hits = [(x, p) for x in self.conns.values() if x.user for p in x.handlers
@@ -506,26 +506,26 @@ class Chat:
     def broadcast(self, path, msg, ep, user):
         out = {'t': T_MESSAGE, 'path': path, 'data': {'msg': msg, 'sentAt': str(int(time.time() * 1000))},
                'endpointObject': {'path': '/endpoint/%s/' % ep, 'endpoint': ep, 'data': user}}
-        with self.lock:      # yalnız giriş yapmış bağlantılar: arkadaş sunucusunda 7771 ağa açık, kaydolan herkes dinliyordu
+        with self.lock:      # only connections that have logged in: on the friend server 7771 is open to the network, and everyone who registered was listening
             conns = [x for x in self.conns.values() if x.user and path in x.handlers]
         for x in conns:
             x.send(out)
         return len(conns)
 
-    # -------------------------------------------------------- oyun sunucusundan
+    # -------------------------------------------------------- from the game server
     def authenticate(self, ep, user, rooms, lang=None):
-        """ChatAuthenticateUserRequest: uç noktası bu oyuncu -> loggedIn ve odalar. rooms: [(roomType, roomClass, ad)]."""
+        """ChatAuthenticateUserRequest: this player owns the endpoint -> loggedIn and rooms. rooms: [(roomType, roomClass, name)]."""
         with self.lock:
             c = self.conns.get(ep)
         if not c:
-            self.log('sohbet: bilinmeyen uç %s' % ep)
+            self.log('chat: unknown endpoint %s' % ep)
             return False
         c.user, c.lang = dict(user), lang
         c.send({'t': T_MESSAGE, 'path': c.path + 'serverStatus/', 'data': {'type': 'loggedIn', 'wordFilter': []},
                 'endpointObject': {'path': c.path, 'endpoint': c.ep, 'data': {}}})
         for room in rooms:
             self.join(c, *room)
-        self.log('sohbet: giriş %s (%s), odalar %s' % (user.get('userId'), ep, [r[0] for r in rooms]))
+        self.log('chat: login %s (%s), rooms %s' % (user.get('userId'), ep, [r[0] for r in rooms]))
         return True
 
     def join(self, c, room_type, room_class, name):
@@ -534,8 +534,8 @@ class Chat:
                 'endpointObject': {'path': c.path, 'endpoint': c.ep, 'data': {}}})
 
     def update_rooms(self, rooms, who=None):
-        """Oda değişimi (klan kuruldu/dağıldı): oyuncunun (kim: kimliği; verilmezse giriş yapmış herkesin) bağlantılarına yeni oda
-        listesi."""
+        """Room change (clan founded/dissolved): the new room list to the player's connections (who: their id; if not given, to everyone who has
+        logged in)."""
         with self.lock:
             conns = [x for x in self.conns.values() if x.user and who in (None, x.user.get('id'))]
         for c in conns:
@@ -543,7 +543,7 @@ class Chat:
                 self.join(c, *room)
 
     def room_drop(self, who, room_class, name):
-        """Oyuncu odadan çıktı (gruptan ayrıldı): bağlantıları o odanın mesajlarını artık almaz."""
+        """The player left a room (left the group): their connections no longer receive that room's messages."""
         prefix = '/room/%s/%s/' % (room_class, name)
         with self.lock:
             for c in self.conns.values():
@@ -557,8 +557,8 @@ class Chat:
                     c.user.update(kw)
 
     def announcement(self, text, room_type='global', who=None):
-        """Sistem duyurusu: oyuncunun (kim: kimliği; verilmezse giriş yapmış herkesin) o türdeki odalarına -> gönderilen mesaj
-        sayısı. Oda henüz kaydedilmemişse (girişin hemen ardı) duyuru bekler, oda kaydı gelince gider."""
+        """System announcement: to the player's rooms of that type (who: their id; if not given, everyone who has logged in) -> number of messages
+        sent. If the room is not registered yet (right after login) the announcement waits and goes out when the room is registered."""
         text = str(text).replace('|', '/')
         n = 0
         with self.lock:

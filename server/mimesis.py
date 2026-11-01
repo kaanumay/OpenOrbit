@@ -1,21 +1,21 @@
-"""Mimesis Mutiny / Payload Escort (yol haritası Ö4; veri data/major_content.json 'mimesis' <- tools/major_content.py).
+"""Mimesis Mutiny / Payload Escort (roadmap Ö4; data in data/major_content.json 'mimesis' <- tools/major_content.py).
 
-Takvimde (12-26 Mart, 12-26 Kasım) X-1 ve X-8'deki portaldan bir Escort Key'le firmanın Escort haritasına (MMO 433, EIC 436, VRU 430)
-girilir. EM Freighter her tam saatte (10:00-23:00) doğar; ilk 5 dakikada girilir, 45 dakikada hedefe varmalı (panelin "Seanslı
-etkinlikler hep açık" ayarıyla sefer girince başlar). Gemi yalnız oyuncu koruma alanının (1.200) içindeyken ilerler; alanın dışı
-radyasyon (ters RADIATION POI'si). Rota dört nokta ve işaret feneri: her noktada Mimesis dalgası, temizlenene dek gemi durur
-(msg_mutiny_escort_disrupted); yolda arada bir Assailant/Raider. Uzaylıların atışlarının yarısı gemiye (Deep Space Echoes'un
-eşlik kalıbı). Fenerde Marker ve taretler; temizlenip varınca 5 sn sonra gemi ve fener patlar, çıkış portalı açılır, harita radyasyon
-olur. Puan: öldürme (türün puanı), nokta (400), varış (3.000 x geminin can oranı); sefer puanı başarısız seferde de saklanır. Başarılı
-seferde sefer kademesinin ödülleri (1.000-8.000+). Toplam puan en iyi 10 seferin toplamı; pencerenin ödül sekmesi sıralama bantları
-(RankRewardRequest rankType 5; tek oyunculu: oyuncu 1.). Gemi yok olursa ya da süre dolarsa sefer biter. Ölünce yerinde ücretsiz tamir
-(kalırsın) ya da üste dönüş (bu sefere yeniden girilemez).
-Ödüller (wiki aliens / Mimesis Box): uzaylı yok olunca Byte Remnant doğrudan (türün 'byte'ı; npc ek_odul), kutusundan ayrıca; kutu
-toplanınca %30'la Mimesis Chest etkisi (mimesis_chest.py).
-Escort Key: günde bir "Freighter Protection" (radyasyon içinde 10.000 birim yol; istemcinin görevi 500483 sunucuda yok, uyarlama),
-seferin seçkin Mimesis'lerinden olasılıkla. En çok 100.
-İstemci: PayloadEscortInfoCommand (girişte, durum değişince, haritaya girip çıkınca), PayloadEscortTimeInfoCommand, KeyInfo, ScoreCommand.
-Profilde: mimesis {donem, seferler [puan], son (girilen sefer), gun, yol, anahtar_gunu}.
+On the calendar (12-26 March, 12-26 November) the company's Escort map (MMO 433, EIC 436, VRU 430) is entered through the portal at X-1 and X-8 with
+an Escort Key. The EM Freighter spawns every full hour (10:00-23:00); it can be entered in the first 5 minutes, and must reach the target in
+45 minutes (with the panel's "Seasonal events always open" setting the run starts once entered). The ship advances only while it is inside the
+player's protection area (1,200); outside the area is radiation (the reverse RADIATION POI). The route is four points and a beacon: at each point
+a Mimesis wave, the ship stops until it is cleared (msg_mutiny_escort_disrupted); on the way an Assailant/Raider now and then. Half of the aliens'
+shots go to the ship (Deep Space Echoes' escort pattern). At the beacon a Marker and turrets; once cleared and arrived, 5 s later the ship and
+beacon explode, the exit portal opens, the map becomes radiation. Score: kills (the type's score), points (400), arrival (3,000 x the ship's HP
+ratio); a run's score is kept even on a failed run. On a successful run the run tier's rewards (1,000-8,000+). Total score is the sum of the best
+10 runs; the window's reward tab has ranking bands (RankRewardRequest rankType 5; single player: the player is 1st). If the ship is destroyed or
+time runs out the run ends. On death, free repair on the spot (you stay) or return to base (this run cannot be re-entered).
+Rewards (wiki aliens / Mimesis Box): when an alien dies, Byte Remnant directly (the type's 'byte'; npc extra_reward), plus from its box; when the box
+is collected, with 30% the Mimesis Chest effect (mimesis_chest.py).
+Escort Key: once a day "Freighter Protection" (10,000 units of travel inside radiation; the client's quest 500483 is not on the server, adaptation),
+by chance from the run's elite Mimesis. At most 100.
+Client: PayloadEscortInfoCommand (on login, on state change, entering/leaving the map), PayloadEscortTimeInfoCommand, KeyInfo, ScoreCommand.
+In the profile: mimesis {period, trips [score], last (run entered), day, route, key_day}.
 """
 import datetime, json, math, os, random, time
 
@@ -32,8 +32,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 _PATH = os.path.join(HERE, 'data', 'major_content.json')
 D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('mimesis', {})
 EVENT = D.get('event', 'mimesis_mutiny')
-MAPS = {int(v): int(k) for k, v in (D.get('maps') or {}).items()}       # harita -> firma
-PORTAL_ID = EKP.PORTAL_BASE + 95                   # X-1 / X-8'deki Escort portalı
+MAPS = {int(v): int(k) for k, v in (D.get('maps') or {}).items()}       # map -> company
+PORTAL_ID = EKP.PORTAL_BASE + 95                   # the Escort portal at X-1 / X-8
 EXIT_ID = EKP.PORTAL_BASE + 96
 FREIGHTER = 'mm_freighter'
 POI_ZONE = 'payloadEscortProtectionZone'
@@ -47,7 +47,7 @@ def _register():
     for k, v in (D.get('kinds') or {}).items():
         t = {x: y for x, y in v.items() if x not in ('points', 'byte')}
         if v.get('byte'):
-            t['extra_reward'] = {BYTE: v['byte']}         # wiki aliens: öldürünce doğrudan Byte Remnant (kutudaki ayrıca)
+            t['extra_reward'] = {BYTE: v['byte']}         # wiki aliens: Byte Remnant directly on kill (the one in the box is extra)
         world_module.CFG['types'][k] = t
     g = D.get('ship')
     if g:
@@ -70,10 +70,10 @@ def always_open():
 
 
 def run_state(now=None):
-    """Seferin durumu -> (anahtar, giriş açık mı, giriş kapanışına kalan, sonraki doğmaya kalan, sefer bitişi)."""
+    """The run's state -> (key, whether entry is open, time left until entry closes, time left until the next spawn, run end)."""
     now = time.time() if now is None else now
     t = datetime.datetime.fromtimestamp(now)
-    if always_open():                                # her giriş yeni bir sefer (bir anahtar)
+    if always_open():                                # every entry is a new run (one key)
         return 'hep-%.3f' % now, True, 300 - now % 300, 0, None
     hours = D.get('hours', [])
     base = t.replace(minute=0, second=0, microsecond=0)
@@ -121,7 +121,7 @@ class Mimesis:
     def keys(self):
         return int(self.p.resource(KEY))
 
-    # ------------------------------------------------------------ pencere
+    # ------------------------------------------------------------ window
     def time_cmd(self, now=None):
         key, open_, close_left, next_left, end = run_state(now)
         now = time.time() if now is None else now
@@ -171,7 +171,7 @@ class Mimesis:
             w.send([legacy('0|A|STM|msg_mutiny_escort_no_key')])
             return
         self.p.add_resource(KEY, -1)
-        self.p.ach('spend', loot=KEY, count=1)                      # Pass görevleri: "Escort Key kullan" (savas_bileti.py)
+        self.p.ach('spend', loot=KEY, count=1)                      # Pass quests: "Use an Escort Key" (battle_pass.py)
         with self.p.lock:
             self.st['last'] = key
             self.p.dirty = True
@@ -180,7 +180,7 @@ class Mimesis:
         x, y = D['route'][0]
         go(self.my_map(), (x - 600, y + 300))
 
-    # ------------------------------------------------------------ dünya
+    # ------------------------------------------------------------ world
     def attach(self, world):
         self.world = world
         self.run = None
@@ -193,7 +193,7 @@ class Mimesis:
             world.ally = self.run
             self.in_map = True
             return [self.info_cmd(True)] + self.run.enter_msgs()
-        if int(world.map_id) in MAPS:                       # sefer yok (girişte bu haritada doğdu): üsse
+        if int(world.map_id) in MAPS:                       # no run (spawned on this map at login): to base
             import vortex
             vortex.send_home(self, world)
         if self.in_map:
@@ -224,7 +224,7 @@ class Mimesis:
         return msgs
 
     def protection_mission(self, now):
-        """Günlük "Freighter Protection" (uyarlama): radyasyon içinde 10.000 birim yol -> 1 Escort Key (günde bir)."""
+        """Daily "Freighter Protection" (adaptation): 10,000 units of travel inside radiation -> 1 Escort Key (once a day)."""
         w = self.world
         st = self.st
         if not w or w.hero_dead or st.get('key_day') == st['day']:
@@ -236,7 +236,7 @@ class Mimesis:
             return []
         if self.last_pos:
             d = math.hypot(pos[0] - self.last_pos[0], pos[1] - self.last_pos[1])
-            if d < 2000:                             # ışınlanma sayılmaz
+            if d < 2000:                             # does not count as teleporting
                 with self.p.lock:
                     st['route'] += d
                     self.p.dirty = True
@@ -274,7 +274,7 @@ class Mimesis:
                     msgs += self.m.prize(loot, n)
                 msgs.append(KAPI.screen('Escort reward tier: %d+ points' % row['from_'], big=True))
         msgs.append(('PayloadEscortScoreCommand', dict(totalScore=self.total(), runScore=int(score))))
-        self.log('   Mimesis Mutiny seferi bitti: %d puan (%s), toplam %d' % (score, 'başarılı' if success else 'başarısız', self.total()))
+        self.log('   Mimesis Mutiny run finished: %d points (%s), total %d' % (score, 'succeeded' if success else 'failed', self.total()))
         return msgs + self.m.money_msgs()
 
     def event_end(self):
@@ -283,14 +283,14 @@ class Mimesis:
             return []
         msgs = []
         total = sum(sorted(st.get('trips', []), reverse=True)[:D.get('best_trip_count', 10)])
-        if total > 0:                             # etkinlik sonu sıralama ödülü (tek oyunculu: 1.)
+        if total > 0:                             # end-of-event ranking reward (single player: 1st)
             r = RK.TABLES[RANK_TYPE]['ranges'][0]
             for loot, n in r['items']:
                 msgs += self.m.prize(loot, n)
             if r.get('title') and self.titles:
                 msgs += self.titles(r['title'])
             msgs.append(RK.confirmation(1, RK.PAYLOAD_ESCORT_REWARD, r))
-            self.log('   Mimesis Mutiny bitti: toplam %d, 1. sıra ödülü' % total)
+            self.log('   Mimesis Mutiny ended: total %d, 1st place reward' % total)
         with self.p.lock:
             self.p.d['mimesis'] = {}
             self.p.dirty = True
@@ -301,7 +301,7 @@ class Mimesis:
 
 
 class MmRun:
-    """Escort haritasında sefer (dünyanın 'kapi'sı ve eşlik edilen gemi: dunya.ally)."""
+    """A run on the Escort map (the world's 'kapi' and the escorted ship: world.ally)."""
     key = 'mimesis'
 
     def __init__(self, mode, world, end):
@@ -309,8 +309,8 @@ class MmRun:
         self.g = {'name': 'Mimesis Mutiny'}
         now = time.time()
         self.end = end or now + D['sure_sn']
-        self.leg = 0                                 # sıradaki rota noktası
-        self.phase = 'wait'                         # bekle, yol, nokta, fener, bitti
+        self.leg = 0                                 # the next route point
+        self.phase = 'wait'                         # wait, route, point, beacon, finished
         self.wave = set()
         self.score = 0
         self.ship = None
@@ -320,10 +320,10 @@ class MmRun:
         self.done_at = None
         self.success = False
         import world_boss as WB
-        s = WB.scale(mode.p, world, None)           # oyuncunun gücü (donanımın sürekli lazer hasarı / 60.000, 0,25-2,5)
+        s = WB.scale(mode.p, world, None)           # the player's strength (the equipment's sustained laser damage / 60,000, 0.25-2.5)
         k = D['single_player']
-        self.hp_f = k['can'] * s                     # uyarlama (canlı tur): sabit x0,3 / x0,5'te ilk dalga 356.000 canlık gemiyi 25 sn'de
-        self.dmg_f = k['damage'] * max(0.5, min(1.5, s))     # yıkıyordu, oyuncu o sürede bir Mimesis'i bitiremiyordu
+        self.hp_f = k['can'] * s                     # adaptation (live round): with fixed x0.3 / x0.5 the first wave destroyed the 356,000-HP ship in 25 s,
+        self.dmg_f = k['damage'] * max(0.5, min(1.5, s))     # and the player could not finish off one Mimesis in that time
 
     @property
     def npcs(self):
@@ -340,7 +340,7 @@ class MmRun:
     def score_cmd(self):
         return ('PayloadEscortScoreCommand', dict(totalScore=self.m.total(), runScore=int(self.score)))
 
-    # ------------------------------------------------------------ gemi
+    # ------------------------------------------------------------ ship
     def spawn_ship(self):
         w = self.w
         x, y = D['route'][0]
@@ -351,10 +351,10 @@ class MmRun:
         n.d = dict(n.d, hp=hp, kalkan=0)
         n.hp, n.shield = hp, 0
         self.ship = n
-        w.log('   Mimesis Mutiny: EM Freighter %d can' % hp)
+        w.log('   Mimesis Mutiny: EM Freighter %d HP' % hp)
 
     def ship_hp(self):
-        """Gemi en güçlü dalganın ateşine dayanma_sn dayanır (Echoes'un toughen_ally'si; tek oyunculu hasar çarpanıyla)."""
+        """The ship withstands the strongest wave's fire for endure_sec (Echoes' toughen_ally; with the single-player damage multiplier)."""
         T = world_module.CFG['types']
         waves = D['waves']['waypoints'] + [D['waves']['beacon']]
         dps = max(sum(c * float(T.get(t, {}).get('damage', 0)) for t, c in wv) for wv in waves)
@@ -371,14 +371,14 @@ class MmRun:
                                          shapeCoordinates=[int(x), int(y), int(D['ship']['protection_radius'])]))
 
     def safe_at(self, x, y, now):
-        """Radyasyon kancası (dunya.radiation_tick): seferde koruma alanının içi, sonra çıkış portalının çevresi güvenli."""
+        """Radiation hook (world.radiation_tick): on a run the inside of the protection area, then the exit portal's surroundings are safe."""
         if self.phase == 'finished':
             return math.hypot(x - self.exit_x, y - self.exit_y) <= 1500
         sx, sy = self.ship_pos(now)
         return math.hypot(x - sx, y - sy) <= D['ship']['protection_radius']
 
     def take_shot(self, n, now):
-        """Uzaylının atışı gemiye mi (menzildeyse yarı yarıya; Echoes'un kalıbı) -> True."""
+        """Does the alien's shot go to the ship (half and half if in range; Echoes' pattern) -> True."""
         a, w = self.ship, self.w
         if not a or not a.alive or self.phase == 'finished' or random.random() > 0.5:
             return False
@@ -401,7 +401,7 @@ class MmRun:
             self.fail('msg_mutiny_escort_failed_destroyed')
         return True
 
-    # ------------------------------------------------------------ dalgalar
+    # ------------------------------------------------------------ waves
     def spawn_wave(self, rows, near=None):
         w = self.w
         import pve_common as PS
@@ -419,7 +419,7 @@ class MmRun:
     def alive_wave(self):
         return [i for i in self.wave if i in self.w.npcs]
 
-    # ------------------------------------------------------------ döngü
+    # ------------------------------------------------------------ loop
     def tick(self, now):
         w = self.w
         if self.phase == 'finished':
@@ -460,7 +460,7 @@ class MmRun:
         hx, hy = w.hero_pos(now)
         ax, ay = a.mover.pos(now)
         if w.hero_dead or math.hypot(hx - ax, hy - ay) > D['ship']['protection_radius']:
-            if a.mover.pos(now) != a.mover.pos(now + 0.5):           # oyuncu alandan çıktı: gemi durur
+            if a.mover.pos(now) != a.mover.pos(now + 0.5):           # the player left the area: the ship stops
                 a.mover.go(ax, ay, D['ship']['speed'], now)
                 w.send([('MoveCommand', dict(userId=a.id, x=int(ax), y=int(ay), timeToTarget=0))])
             self.next_move = now + 0.5
@@ -488,14 +488,14 @@ class MmRun:
         else:
             self.phase = 'point'
             self.spawn_wave(D['waves']['waypoints'][min(self.leg - 1, len(D['waves']['waypoints']) - 1)])
-        w.log('   Mimesis Mutiny: nokta %d%s' % (self.leg, ' (fener)' if last else ''))
+        w.log('   Mimesis Mutiny: point %d%s' % (self.leg, ' (beacon)' if last else ''))
 
     def arrive(self, now):
         w, a = self.w, self.ship
         ratio = a.hp / float(max(1, a.d['hp'])) if a and a.alive else 0
         self.score += int(D['arrival_bonus'] * ratio)
         self.success = True
-        self.phase = 'arrival'                         # 5 sn sonra patlama (zamanlayıcıdan önce: hemen çalışırsa 'bitti' ezilmesin)
+        self.phase = 'arrival'                         # explosion after 5 s (before the timer: so 'ended' is not overwritten if it runs at once)
         w.send([legacy('0|A|STM|msg_mutiny_escort_succeeded'), self.score_cmd()])
 
         def boom():
@@ -507,7 +507,7 @@ class MmRun:
         w.later(5.0, boom)
 
     def fail(self, key):
-        if self.phase in ('finished', 'arrival'):         # varıştan sonra süre dolması başarıyı ikinci kez (başarısız) bitirmesin
+        if self.phase in ('finished', 'arrival'):         # a timeout after arrival must not end the success a second time (as failed)
             return
         self.w.send([legacy('0|A|STM|%s' % key)])
         self.end_run(False)
@@ -532,12 +532,12 @@ class MmRun:
             return []
         self.score += t.get('points', 0)
         msgs = [self.score_cmd()]
-        chance = 0.1 if t.get('points', 0) >= 350 else 0                 # seçkin Mimesis: Escort Key (uyarlama)
+        chance = 0.1 if t.get('points', 0) >= 350 else 0                 # elite Mimesis: Escort Key (adaptation)
         if chance and random.random() < chance:
             msgs += self.m.grant_keys(1)
         return msgs
 
-    # ölüm ekranı: yerinde ücretsiz tamir (kalırsın) ya da üste dönüş
+    # death screen: free repair on the spot (you stay) or return to base
     def on_death(self):
         return None
 

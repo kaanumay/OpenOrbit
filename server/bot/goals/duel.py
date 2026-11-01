@@ -1,7 +1,7 @@
-"""Düello: sohbette meydan okuyan oyuncuya (başka firmadan) karşılık: buluşma haritasına gidip onu bulur ve saldırır. Kararı
-etkilesim._duello verir (saldırganlık, rekabet, öfke, seviye farkı), bu hedef niyetle (beyin.zorla) seçilir. Biri ölünce
-(govde.oyuncu_oldu / olduruldu) ya da oyuncu buluşmaya gelmeyince (niyetin süresi) biter. Oyuncu haritayı değiştirirse peşinden
-gider (girebildiği ve yolu olan bir haritaysa)."""
+"""Duel: a response to a player (from another company) who challenged in chat: go to the meeting map, find them and attack. The decision is made by
+interaction._duel (aggression, rivalry, anger, level difference); this goal is chosen with an intent (brain.force). It ends when one of them dies
+(ship.player_died / killed) or when the player does not show up at the meeting (the intent's duration). If the player changes map the bot follows
+(if it is a map it can enter and has a route)."""
 import math
 
 from ..brain import Goal, target
@@ -38,18 +38,18 @@ class Duel(Goal):
             return
         o = rival(bot)
         if o is None or o.session is None:
-            bot.plan['finished'] = True                     # oyuncu çıktı
+            bot.plan['finished'] = True                     # the player left
             return
         m = int(o.profile.d['position'].get('mapId', 0))
         if m != bot.game_map and m in K.MAPS and K.can_enter(m, bot.firma, bot.level) and K.route(bot.game_map, m, bot.firma,
                                                                                                      bot.level):
             bot.plan['map'] = m
-            S.go(bot, m, y)                             # haritayı değiştirdi: peşinden
+            S.go(bot, m, y)                             # changed map: follow
         elif K.map_npcs(bot.game_map) and bot.r.random() < 0.3:
-            S.farm(bot, dt * 0.3, y)                      # beklerken biraz uzaylı keser
+            S.farm(bot, dt * 0.3, y)                      # kills a few aliens while waiting
 
     def concrete(self, bot, g, w, now):
-        """Rakip bu dünyanın kahramanıysa ona doğru uçar; görüşe girince govde.pvp_hedefi onu seçer (düello hedefi önce)."""
+        """If the rival is a hero of this world it flies toward them; once in sight ship.pvp_target picks them (duel target first)."""
         if g.target is not None or str(bot.plan.get('name', '')).lower() != str(w.p.d['pilot'].get('userName', '')).lower():
             return False
         if w.hero_dead:

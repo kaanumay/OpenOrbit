@@ -1,43 +1,44 @@
-"""Klan (yol haritası Aşama 10): istemcinin klan penceresi (UIClan). Sunucudaki oyuncuların klanları ortak (çoklu istemci, arkadaş
-sunucusu): arama, başvuru, kabul/ret, üyeler, rütbeler, haberler, klan postası, vergi ve kasa, liderlik, diplomasi.
+"""Clan (roadmap Stage 10): the client's clan window (UIClan). The clans of the players on the server are shared (multi-client, friend
+server): search, application, accept/reject, members, ranks, news, clan mail, tax and treasury, leadership, diplomacy.
 
-Klanın asıl kaydı bellekte (KLANLAR); her üyenin profilinde kopyası durur (kayıt yuvası kendi başına yetsin: yedek, dışa aktarma,
-tek oyunculu). Oturum açılınca (Klan kurulurken: bagla) kopya asıl kayıtla birleşir: yenisi (surum) geçer; aynı kimlikli başka klan
-(aynı tohumdan kayıtlar aynı kimlikle kuruyordu) yeni kimlik alır; üyelikten çıkarılan ya da silinen klanın kopyası düşer. Her
-değişiklikte (degisti) bağlı üyelerin kopyaları yenilenir; açık pencerelere LoginInitClanCommand (istemci MyClanDataVo.UpdateAllInfo:
-bütün liste) gider. Çok oyunculuda asıl kayıtlar save/klanlar.json'da da (configure: game.main): çevrimdışıyken çıkarılan üye, kabul
-edilen başvuru, ödeme sonraki girişte uygulanır.
-Üyeler pilot adıyla (küçük harf) tutulur: misafirin sunucudaki kimliği her katılmada başka (cok_oyunculu). Çevrimdışı üyenin
-sayıları son bilinen hâli.
-İstemci: üye listesi, başvurular, haberler, posta için ayrı istek yok (ClanMemberList/ClanApplyInfoList işleyicileri boş); pencere
-LoginInitClanRequest ile hepsini alır. Ayrılan, çıkarılan ya da klanı silinen oyuncunun istemcisi kendi verisini silmez (LeaveClanCommand
-yalnız bilgi penceresi, ClearClanCommand işleyicisi boş): klansız hâli LoginInitMyApplyCommand kurar. Başvurusu kabul edilen oyuncuya
-JoinClanCommand (klan odası: ChatComponentSystem.RefreshMembershipRoom). Gemi etiketi ClanTagChangedCommand (userId'nin gemisi).
-Diplomasi: ittifak (1) ve saldırmazlık (2) karşı klanın onayıyla (ClanEditDiploOfferRequest 'allow'/'deny'), savaş (3) hemen,
-savaşı bitirme isteği (0) onayla. Gemilerin klan ilişkisi (ShipCreateCommand.clanDiplomacy) bakana göre (iliski; ortak_harita).
-Vergi: üyenin uzaylı ödülünden (profil.gain) oranı kadar kredi kasaya.
+The clan's main record is in memory (CLANS); every member's profile keeps a copy (so a save slot is self-sufficient: backup, export,
+single player). On login (when a clan is founded: bind) the copy is merged with the main record: the newer one (version) wins; another clan
+with the same id (saves from the same seed created them with the same id) gets a new id; the copy of a clan the member was removed from or
+that was deleted is dropped. On every change (changed) the connected members' copies are refreshed; open windows get LoginInitClanCommand
+(client MyClanDataVo.UpdateAllInfo: the whole list). In multiplayer the main records are also in save/clans.json (configure: game.main): a
+member removed while offline, an accepted application or a payment is applied at the next login.
+Members are kept by pilot name (lowercase): a guest's id on the server differs on every join (multiplayer). An offline member's numbers
+are the last known state.
+Client: there are no separate requests for the member list, applications, news, mail (the ClanMemberList/ClanApplyInfoList handlers are
+empty); the window gets everything with LoginInitClanRequest. The client of a player who left, was removed or whose clan was deleted does
+not delete its own data (LeaveClanCommand is only an info window, the ClearClanCommand handler is empty): LoginInitMyApplyCommand builds
+the clanless state. The player whose application is accepted gets JoinClanCommand (clan room: ChatComponentSystem.RefreshMembershipRoom).
+Ship tag ClanTagChangedCommand (the ship of userId).
+Diplomacy: alliance (1) and non-aggression (2) with the other clan's approval (ClanEditDiploOfferRequest 'allow'/'deny'), war (3) at once,
+the request to end a war (0) with approval. The clan relation of ships (ShipCreateCommand.clanDiplomacy) depends on the viewer (relation;
+shared_maps). Tax: a rate of the member's alien reward (player_profile.gain) goes to the treasury as credits.
 """
 import copy, json, os, random, secrets, sys, threading, time
 
 import settings as SET
 
 FOUNDING_COST = 300000
-COMPANY_CHANGE_COST = 5000           # şirket değiştirme (istemcide sabit: ClanSubViewCompany.InitUI, changeFaction_infoText)
-X1 = {1: 1, 2: 5, 3: 9}       # firma -> X-1 haritası
+COMPANY_CHANGE_COST = 5000           # changing company (fixed in the client: ClanSubViewCompany.InitUI, changeFaction_infoText)
+X1 = {1: 1, 2: 5, 3: 9}       # company -> X-1 map
 RIGHTS = ['hiremember', 'firemember', 'editranks', 'news', 'roundmail', 'tax', 'payout', 'diplo_start', 'diplo_end',
           'diplo_war', 'battle_station_replace_module', 'battle_station_deflector', 'battle_station_build']      # + Ö5 (CBS)
-MAX_TAX = 5               # resmî forum 127471, 127585: klan vergisi %0-%5
-MAX_MEMBERS = 50                # resmî forum 127471, 127585 (11.2): klan en çok 50 oyuncu (istemci err_clan_full)
-APPLICATION_FEE = 1500         # klana başvuru (forum 127471, 127585 11.4; darkorbitwiki guides/clan): kasaya girmez; kabulde geri
-#                               verilmez, ret ya da geri almada iade
-PAYOUT_FIRST, PAYOUT_INCREASE, PAYOUT_CAP = 5000000, 10000000, 250000000      # kasadan üyeye haftalık sınır (forum 127471): katıldığı hafta
-#                               5 M, her hafta +10 M, en çok 250 M; üyelik başına (klandan çıkınca sıfırlanır)
-WAR_COST, MAX_WARS, WAR_DAYS = 500000, 20, 10      # savaş ilanı (forum 127321): 500.000 kredi (klan kasasından:
-#                               uyarlama), aynı anda en çok 20 ilan, 10 gün sonra kendiliğinden biter
-COMPANY_CBS, COMPANY_NO_CBS = 10, -1          # şirket hiyerarşisi (forum 127469): kurulu KSİ'si olan klan saatte +10, olmayan -1
-COOLDOWN_SEC = 48 * 3600        # klandan ayrılınca yeni klan kurma/katılma yok; klan adı/etiketi iki değişim arası (istemci: clan_user_2dayblock,
-#                               err_clannameChange2Days; darkorbitwiki guides/clan: 48 saat)
-PAYOUT_FEE = 10          # kasadan üyeye ödemede kendiliğinden silinen pay, yüzde (darkorbitwiki guides/clan)
+MAX_TAX = 5               # official forum 127471, 127585: clan tax 0-5%
+MAX_MEMBERS = 50                # official forum 127471, 127585 (11.2): at most 50 players per clan (client err_clan_full)
+APPLICATION_FEE = 1500         # application to a clan (forum 127471, 127585 11.4; darkorbitwiki guides/clan): does not go to the treasury; not returned
+#                               on acceptance, refunded on rejection or withdrawal
+PAYOUT_FIRST, PAYOUT_INCREASE, PAYOUT_CAP = 5000000, 10000000, 250000000      # weekly limit from the treasury to a member (forum 127471): the week they joined
+#                               5 M, +10 M each week, at most 250 M; per membership (reset when leaving the clan)
+WAR_COST, MAX_WARS, WAR_DAYS = 500000, 20, 10      # war declaration (forum 127321): 500,000 credits (from the clan treasury:
+#                               adaptation), at most 20 declarations at once, ends by itself after 10 days
+COMPANY_CBS, COMPANY_NO_CBS = 10, -1          # company hierarchy (forum 127469): a clan with a built CBS gets +10 per hour, one without -1
+COOLDOWN_SEC = 48 * 3600        # after leaving a clan no founding/joining a new clan; clan name/tag between two changes (client: clan_user_2dayblock,
+#                               err_clannameChange2Days; darkorbitwiki guides/clan: 48 hours)
+PAYOUT_FEE = 10          # share automatically deleted on a payout from the treasury to a member, percent (darkorbitwiki guides/clan)
 DIPLO_RIGHTS = {0: 'diplo_end', 1: 'diplo_start', 2: 'diplo_start', 3: 'diplo_war'}
 REQUESTS = {'LoginInitClanRequest', 'ClanFilterSearchRequest', 'ClanSearchNameTagRequest', 'ClanListRequest', 'ShowClanInfoRequest',
             'FoundClanRequest', 'ApplyClanRequest', 'DeleteClanApplyRequest', 'ClanApplyInfoListRequest', 'ApplyAcceptRequest',
@@ -51,10 +52,10 @@ REQUESTS = {'LoginInitClanRequest', 'ClanFilterSearchRequest', 'ClanSearchNameTa
             'BattleStationHistoryListRequest', 'CompanyHierarchyRequest'}
 
 LOCK = threading.RLock()
-CLANS = {}                  # klan kimliği -> asıl kayıt
-DELETED = {}                  # silinen klanın kimliği -> anahtarı (bağlanan üyenin eski kopyası geri gelmesin)
-FILE = None                  # çok oyunculuda asıl kayıtların dosyası (configure)
-BOT_NAME_N = 0                  # bot ad kaydının (ad_kaydi.py) bu kayıtlara uygulanan son sırası
+CLANS = {}                  # clan id -> main record
+DELETED = {}                  # deleted clan's id -> its key (so a connecting member's old copy does not come back)
+FILE = None                  # file of the main records in multiplayer (configure)
+BOT_NAME_N = 0                  # last position of the bot name register (name_log.py) applied to these records
 
 
 def mod(_cls, **f):
@@ -77,7 +78,7 @@ def _res(key):
 
 
 def text(key, **args):
-    """BaseKey'i olmayan metin (istemcinin kaynağındaki anahtar): ham "XXX" + XXX'in yerelleştirilmiş değeri (magaza.RES_YERINE gibi)."""
+    """Text without a BaseKey (a key in the client's source): the raw "XXX" + the localized value of XXX (like shop.RES_REPLACEMENT)."""
     from shop import BASEKEY, ARG_KEYS
     if key in BASEKEY:
         return err(key, **args)
@@ -88,16 +89,16 @@ def text(key, **args):
 
 NEWS_KEYS = {'found': 'clan_found', 'left': 'success_clan_left', 'leader': 'info_clan_changeLeader',
              'war': 'diplo_declare_war_info', 'war2': 'diplo_declare_war_info2', 'peace': 'diplo_stop_war_msg',
-             'peace2': 'diplo_stop_war_msg2'}      # istemci haberi dil anahtarından kurar (%username%, %clanname%)
+             'peace2': 'diplo_stop_war_msg2'}      # the client builds the news from the language key (%username%, %clanname%)
 
 
 def name(p):
     return str(p.d['pilot'].get('userName', '')).strip().lower()
 
 
-# ------------------------------------------------------------ asıl kayıtlar
+# ------------------------------------------------------------ main records
 def configure(path):
-    """Çok oyunculu sunucu (game.main): asıl kayıtlar dosyadan; değiştikçe yazılır."""
+    """Multiplayer server (game.main): main records from file; written as they change."""
     global FILE, BOT_NAME_N
     FILE = path
     try:
@@ -112,7 +113,7 @@ def configure(path):
         DELETED.update({int(i): a for i, a in (d.get('deleted') or {}).items()})
         BOT_NAME_N = max(BOT_NAME_N, int(d.get('bot_name_log') or 0))
     import name_log as NL
-    NL.apply_clans(sys.modules[__name__])        # panelde değişen ya da silinen bot adları (oyun kapalıyken)
+    NL.apply_clans(sys.modules[__name__])        # bot names changed or deleted in the panel (while the game was closed)
 
 
 def save():
@@ -142,7 +143,7 @@ def _no():
 
 
 def _move(k, p):
-    """Tek kişilik klanın kaydı (önceki sürüm) -> üyeli kayıt."""
+    """Record of a one-person clan (previous version) -> record with members."""
     if 'members' in k:
         return
     me = name(p)
@@ -156,7 +157,7 @@ def _move(k, p):
 
 
 def profiles():
-    """Sunucudaki oyuncuların profilleri (ad -> profil)."""
+    """Profiles of the players on the server (name -> profile)."""
     import community as TP
     return {name(x.profile): x.profile for x in TP.all_().values()}
 
@@ -167,7 +168,7 @@ def people():
 
 
 def _copy(k, p):
-    """Profildeki kopya ve gemi etiketi asıl kayda göre (k None: klansız) -> etiket ya da kimlik değişti mi."""
+    """The copy in the profile and the ship tag according to the main record (k None: clanless) -> did the tag or id change."""
     pl = p.d['pilot']
     with p.lock:
         old = (pl.get('clanId', 0), pl.get('clanTag', ''))
@@ -178,8 +179,9 @@ def _copy(k, p):
 
 
 def bind(p, log=print):
-    """Oturum açılırken: profildeki kopya asıl kayıtla birleşir (bkz. modül notu). Önce panelde değişen ya da silinen bot adları
-    kopyaya ve asıl kayıtlara uygulanır (ad_kaydi): silinen paketin botları klandan çıkar, adı değişen yeni adla görünür."""
+    """On login: the copy in the profile is merged with the main record (see the module note). First the bot names changed or deleted in
+    the panel are applied to the copy and the main records (ad_kaydi): the bots of a deleted pack leave the clan, one whose name changed
+    shows with the new name."""
     import name_log as NL
     NL.apply_profile(p)
     NL.apply_clans(sys.modules[__name__])
@@ -196,18 +198,18 @@ def bind(p, log=print):
                 pass
             elif m is None and cid not in CLANS:
                 m = CLANS[cid] = copy.deepcopy(s)
-            elif m is None:                                         # başka klan aynı kimlikle (aynı tohumdan kayıtlar)
+            elif m is None:                                         # another clan with the same id (saves from the same seed)
                 nid = _new_id()
-                log('   klan kimliği çakışıyor: [%s] %s %d -> %d' % (s['tag'], s['name'], cid, nid))
+                log('   clan id conflict: [%s] %s %d -> %d' % (s['tag'], s['name'], cid, nid))
                 m = CLANS[nid] = dict(copy.deepcopy(s), id=nid)
-            elif int(s.get('version', 0)) > int(m.get('version', 0)):     # asıl kayıt eski (dosyası yok): profildeki yeni
+            elif int(s.get('version', 0)) > int(m.get('version', 0)):     # main record is old (no file): the new one in the profile
                 mid = m['id']
                 m.clear()
                 m.update(copy.deepcopy(s), id=mid)
             if m is not None and me not in m['members']:
                 m = None
         else:
-            m = next((k for k in CLANS.values() if me in k['members']), None)   # çevrimdışıyken kabul edilen başvuru
+            m = next((k for k in CLANS.values() if me in k['members']), None)   # application accepted while offline
         if m is not None:
             u = m['members'][me]
             u.update(live(p))
@@ -222,11 +224,12 @@ def bind(p, log=print):
 
 
 def changed(k, extra=()):
-    """Asıl kayıt değişti: sürüm artar, bağlı üyelerin (ve ek profillerin) kopyaları yenilenir -> etiketi değişen profiller."""
+    """The main record changed: the version increases, the connected members' (and extra profiles') copies are refreshed -> profiles whose
+    tag changed."""
     with LOCK:
         k['version'] = int(k.get('version', 0)) + 1
         target = {a: x for a, x in profiles().items() if a in k['members']}
-        for x in extra:                                     # üyeliği yeni biten ya da başlayan
+        for x in extra:                                     # whose membership just ended or started
             s = x.d.get('clan')
             if name(x) in k['members'] or (s and s.get('id') == k['id']):
                 target[name(x)] = x
@@ -236,7 +239,7 @@ def changed(k, extra=()):
 
 
 def clan_of(p):
-    """Profilin klanının asıl kaydı ya da None."""
+    """The profile's clan's main record or None."""
     cid = int(p.d['pilot'].get('clanId', 0) or 0)
     with LOCK:
         k = CLANS.get(cid)
@@ -244,7 +247,7 @@ def clan_of(p):
 
 
 def right(p, right):
-    """Oyuncunun klandaki hakkı (HAKLAR; lider hepsine sahip)."""
+    """The player's right in the clan (HAKLAR; the leader has all of them)."""
     with LOCK:
         k = clan_of(p)
         if not k:
@@ -256,12 +259,12 @@ def right(p, right):
 
 
 def relation(p, q):
-    """p'nin gözünden q'nun gemisinin klan ilişkisi (ClanRelationModule.type): 1 ittifak, 2 saldırmazlık, 3 savaş, 0 yok."""
+    """The clan relation of q's ship from p's point of view (ClanRelationModule.type): 1 alliance, 2 non-aggression, 3 war, 0 none."""
     return clan_relation(int(p.d['pilot'].get('clanId', 0) or 0), int(q.d['pilot'].get('clanId', 0) or 0))
 
 
 def clan_relation(a, b):
-    """a klanının gözünden b klanı (iliski gibi)."""
+    """Clan b from clan a's point of view (like iliski)."""
     if not a or not b or a == b:
         return 0
     with LOCK:
@@ -270,7 +273,7 @@ def clan_relation(a, b):
 
 
 def tax(p, credits):
-    """Uzaylı ödülünden klanın vergisi (profil.gain: kilit dışında) -> kasaya giden kredi."""
+    """The clan's tax from an alien reward (player_profile.gain: outside the lock) -> credits going to the treasury."""
     if credits <= 0 or not p.d['pilot'].get('clanId'):
         return 0
     with LOCK:
@@ -281,7 +284,7 @@ def tax(p, credits):
         if tax:
             k['treasury'] += tax
             k['income'] = int(k.get('income', 0)) + tax
-            for x in profiles().values():               # kopyaların kasası (tek oyunculuda tek kayıt profil)
+            for x in profiles().values():               # treasury of the copies (one profile record in single player)
                 s = x.d.get('clan')
                 if s and s.get('id') == k['id']:
                     s.update(treasury=k['treasury'], income=k['income'])
@@ -295,15 +298,15 @@ BANNED = ('admin', 'moderator', 'gamemaster', 'support', 'bigpoint', 'darkorbit'
 
 
 def is_banned(text):
-    """Oyun Kuralları 7 (resmî forum 131990): personel adına benzeyen, ırkçı, cinsiyetçi ya da müstehcen ad, klan adı ve etiketi.
-    Küçük harf, ayırıcılar atılır, 0/1/3/4/5/7 harfe çevrilir; kısa bir alt dizge listesi (uyarlama)."""
+    """Game Rules 7 (official forum 131990): a name, clan name and tag that resembles staff names or is racist, sexist or obscene.
+    Lowercase, separators dropped, 0/1/3/4/5/7 converted to letters; a short list of substrings (adaptation)."""
     t = str(text or '').lower().translate(str.maketrans('013457', 'oleast'))
     t = ''.join(c for c in t if c.isalnum())
     return any(w in t for w in BANNED) or t in ('gm', 'mod', 'cm')
 
 
 def name_changed(old, new_):
-    """Pilot adı değişti (game.rename): üyelik, liderlik ve başvurular yeni adla."""
+    """Pilot name changed (game.rename): membership, leadership and applications under the new name."""
     old, new_lower = str(old).strip().lower(), str(new_).strip().lower()
     if old == new_lower:
         return
@@ -319,19 +322,19 @@ def name_changed(old, new_):
                     b.update(name=new_lower, first_name=new_)
             k['rejected'] = [new_lower if r == old else r for r in k['rejected']]
             if new_lower in k['members']:
-                changed(k)                      # başvurular ve retler de güncellendikten sonra (üyelerin kopyası eski kalıyordu)
+                changed(k)                      # after the applications and rejections are updated too (the members' copies used to stay old)
         save()
 
 
 def is_member_name(name, own=''):
-    """Bir klanda (çevrimdışı) üyenin adı mı: yeniden adlandırma o üyenin kaydını ezmesin."""
+    """Is it the name of a member in a clan (offline): so that a rename does not overwrite that member's record."""
     name, own = str(name).strip().lower(), str(own).strip().lower()
     with LOCK:
         return name != own and any(name in k['members'] for k in CLANS.values())
 
 
 def live(p):
-    """Üyenin listedeki sayıları (çevrimiçiyken güncellenir)."""
+    """The member's numbers in the list (updated while online)."""
     import ranks as RT
     pl, c = p.d['pilot'], p.d.get('counters') or {}
     return {'name': pl.get('userName', ''), 'uid': p.user_id, 'company': int(pl.get('factionId', 0)), 'ep': int(pl.get('ep', 0)),
@@ -341,7 +344,7 @@ def live(p):
 
 
 def players(p=None):
-    """Sunucudaki bilinen oyuncular (ad -> sayılar): bağlı olanlar canlı, klanların çevrimdışı üyeleri son bilinen hâliyle."""
+    """Known players on the server (name -> numbers): connected ones live, the clans' offline members with their last known state."""
     prof = profiles()
     if p is not None:
         prof.setdefault(name(p), p)
@@ -366,7 +369,7 @@ def points(k, who=None):
 
 
 def payout_limit(u, now=None):
-    """Üyeye bu hafta kasadan verilebilecek kalan (forum 127471; istemci clan_message_error_payout_userMax_reached)."""
+    """What can still be paid to a member from the treasury this week (forum 127471; client clan_message_error_payout_userMax_reached)."""
     now = now or time.time()
     try:
         start = time.mktime(time.strptime(u.get('joined', ''), '%Y-%m-%d %H:%M:%S'))
@@ -382,7 +385,7 @@ def is_war_over(d, now=None):
 
 
 def clear_wars(now=None):
-    """Süresi (10 gün) dolan savaşlar iki klandan da kalkar -> değişen klanlar."""
+    """Wars whose time (10 days) has run out are removed from both clans -> changed clans."""
     out = []
     with LOCK:
         for k in CLANS.values():
@@ -394,8 +397,8 @@ def clear_wars(now=None):
 
 
 def refund_fee(p):
-    """Başvuru ücreti: yanıt bekleyenler dururken; kabul edilen klanınki geri verilmez, reddedilen, geri alınan ya da klanı silinen
-    başvurununki iade (çevrimdışıyken reddedilen sonraki girişte) -> iade edilen kredi."""
+    """Application fee: while those awaiting a reply stay; the accepted clan's is not returned, the rejected, withdrawn or deleted-clan
+    application's is refunded (one rejected while offline at the next login) -> refunded credits."""
     fees, me, back = p.d.get('clan_application_fees') or {}, name(p), 0
     with LOCK:
         for cid, n in list(fees.items()):
@@ -412,7 +415,7 @@ def refund_fee(p):
 
 
 def stations(k, p):
-    """Klanın kurulu Klan Savaş İstasyonları (cbs.py; tek oyunculuda oyuncunun klanınınkiler) -> ['Ad (harita)', …]."""
+    """The clan's built Clan Battle Stations (cbs.py; in single player the player's clan's) -> ['Name (map)', …]."""
     import cbs as CBS
     import map_links as H
     h = CBS.shared()
@@ -428,7 +431,7 @@ def stations(k, p):
 
 
 def company_points(k, p, now=None):
-    """Şirket hiyerarşisi puanı: son güncellemeden beri geçen her tam saat için kurulu KSİ varsa +10, yoksa -1 (en az 0)."""
+    """Company hierarchy points: for each full hour since the last update +10 if there is a built CBS, otherwise -1 (at least 0)."""
     now = now or time.time()
     with LOCK:
         last = k.setdefault('company_time', now)
@@ -440,7 +443,7 @@ def company_points(k, p, now=None):
 
 
 def ranking(who=None):
-    """Klanlar puanına (üyelerin en iyi kullanıcı puanı toplamı) göre (büyükten) -> [(klan, puan)]."""
+    """By the clans' score (sum of the members' best user scores) (largest first) -> [(clan, score)]."""
     who = who if who is not None else players()
     with LOCK:
         lst = [(k, points(k, who)) for k in CLANS.values()]
@@ -448,11 +451,11 @@ def ranking(who=None):
 
 
 
-RESERVED_TAGS = ('cm',)          # sohbet moderatörlerinin etiketi [CM] (bot/moderasyon.py): hiçbir klan alamaz
+RESERVED_TAGS = ('cm',)          # the chat moderators' tag [CM] (bot/moderation.py): no clan can take it
 
 
 def is_reserved(tag):
-    """Ayrılmış etiket mi: büyük/küçük harf ve süslü benzerleri dahil ("Cm", "ϹΜ", "ᴄᴍ")."""
+    """Is it a reserved tag: including upper/lowercase and fancy lookalikes ("Cm", "ϹΜ", "ᴄᴍ")."""
     import unicodedata
     from bot.name_style import plain
     t = ''.join(c for c in unicodedata.normalize('NFKC', str(tag)) if c.isalnum()).lower()
@@ -460,15 +463,15 @@ def is_reserved(tag):
 
 
 def _similar(t):
-    """Latin harfe benzeyen Yunan/Kiril harfleri (Ϲ Μ С М ...)."""
+    """Greek/Cyrillic letters that resemble Latin letters (Ϲ Μ С М ...)."""
     return t.translate(str.maketrans({'ϲ': 'c', 'σ': 'c', 'ς': 'c', 'с': 'c', 'ᴄ': 'c', 'μ': 'm', 'м': 'm', 'ᴍ': 'm'}))
 
 class Clan:
     def __init__(self, profile, log=print):
         self.p, self.log = profile, log
         self.m = None
-        self.on_change = None             # klana girdi/çıktı, etiket: sohbet odaları, gemi etiketi (sosyal.py)
-        self.cbs = None                   # Clan Battle Station (Ö5; cbs.py): istasyon sekmesi ve günlüğü
+        self.on_change = None             # joined/left a clan, tag: chat rooms, ship tag (social.py)
+        self.cbs = None                   # Clan Battle Station (Ö5; cbs.py): the station tab and its log
         bind(profile, log)
 
     @property
@@ -496,16 +499,16 @@ class Clan:
         return any(r['id'] == rid and right in r['rights'] for r in k['ranks'])
 
     def blocked(self):
-        """Klandan ayrıldıktan sonra BEKLEME_SN dolmadan yeni klan kurulamaz, klana katılınamaz."""
+        """After leaving a clan, a new clan cannot be founded and a clan cannot be joined until COOLDOWN_SEC has elapsed."""
         return SET.get('clan_cooldown') and time.time() < self.p.d.get('clan_left_at', 0) + COOLDOWN_SEC
 
     def member_name(self, k, uid):
-        """Üyenin adı (istemci kimlikle sorar) ya da None."""
+        """The member's name (the client asks by id) or None."""
         return next((a for a, u in k['members'].items() if int(u.get('uid', 0)) == int(uid or 0)), None)
 
-    # -------------------------------------------------------- komutlar
+    # -------------------------------------------------------- commands
     def company(self):
-        """Firma bilgisi: sunucudaki oyuncuların firmasınınkiler (üye sayısı, gemi ve uzaylı, EP, onur, rütbe puanı)."""
+        """Company info: of the companies of the players on the server (member count, ships and aliens, EP, honor, rank points)."""
         fac = int(self.p.d['pilot'].get('factionId', 0))
         lst = [u for u in players(self.p).values() if int(u.get('company', 0)) == fac]
         return mod('CompanyDateInfoCommand', members=len(lst), ships=sum(int(u.get('ship', 0)) for u in lst),
@@ -513,15 +516,16 @@ class Clan:
                    hounr=sum(int(u.get('honor', 0)) for u in lst), ranking=sum(int(u.get('points', 0)) for u in lst))
 
     def hierarchy(self):
-        """CompanyHierarchyRequest: firmaların klan sıralaması (sunucudaki klanlar; kayıttaki başka oyuncuların klanları yok, H79)."""
+        """CompanyHierarchyRequest: the companies' clan ranking (clans on the server; the other players' clans in the record are absent,
+        H79)."""
         k, pl = self.k, self.p.d['pilot']
         fac = int(pl.get('factionId', 0))
         own = mod('CompanyHierarchyRankingModule', clanId=-1, rank=0, clanName='', leaderName='', cbsNamesAndLocations='',
                   rankingPoints=0)
         lists = {1: [], 2: [], 3: []}
-        with LOCK:                                          # forum 127469: KSİ şirket puanı; firma başına ilk 9, kendi klanı ayrıca
+        with LOCK:                                          # forum 127469: CBS company points; top 9 per company, one's own clan additionally
             for c, pts in sorted(((c, company_points(c, self.p)) for c in CLANS.values()), key=lambda cp: (-cp[1], cp[0]['id'])):
-                f = int(c['company'] or 0) or int((c['members'].get(c['leader']) or {}).get('company') or 0)    # bütün firmalar: liderinki
+                f = int(c['company'] or 0) or int((c['members'].get(c['leader']) or {}).get('company') or 0)    # all companies: the leader's
                 if f not in lists:
                     continue
                 row = mod('CompanyHierarchyRankingModule', clanId=c['id'], rank=len(lists[f]) + 1, clanName=c['name'],
@@ -556,7 +560,7 @@ class Clan:
         k = k or self.k
         if not k:
             return []
-        players(self.p)                                   # bağlı üyelerin sayıları
+        players(self.p)                                   # the connected members' numbers
         with LOCK:
             order = sorted(k['members'].items(), key=lambda uid_member: (uid_member[0] != k['leader'], uid_member[1].get('joined', ''), uid_member[0]))
             return [self.member_cmd(u) for _, u in order]
@@ -571,8 +575,8 @@ class Clan:
         return [self.rank_cmd(r) for r in self.k['ranks']]
 
     def news_cmd(self, n):
-        """İstemci (MyClanDataVo.AddNews): type "user" ise context düz metin; değilse context bir dil anahtarı (%username%,
-        %clanname% değiştirilir). Kuruluş haberi istemcinin "clan_found" metni (canlı deneme 2026-10-17: ikisi de boş çıkıyordu)."""
+        """Client (MyClanDataVo.AddNews): if type is "user" the context is plain text; otherwise the context is a language key (%username%,
+        %clanname% are replaced). The founding news is the client's "clan_found" text (live test 2026-10-17: both came out empty)."""
         k = self.k
         kind, text = ('user', n['text']) if n['type'] in ('news', 'user') else (n['type'], NEWS_KEYS.get(n['type'], n['text']))
         return mod('ClanNewsInfoCommand', type=kind, clanNewsId=n['id'], userName=n['name'], clanId=k['id'], context=text,
@@ -584,7 +588,7 @@ class Clan:
                    textParams='', subjectParams='')
 
     def mails(self, k=None):
-        """Oyuncunun gördüğü klan postası: herkese gidenler ve ona gelenler (sildikleri hariç)."""
+        """The clan mail the player sees: those sent to everyone and those sent to them (except ones they deleted)."""
         k = k or self.k
         me = self.me
         return [m for m in k['messages'] if m.get('recipient') in (None, me) and me not in m.get('deleted_by', ())]
@@ -629,7 +633,7 @@ class Clan:
         return ('ClanTagChangedCommand', {'clanTag': pl.get('clanTag', ''), 'clanId': pl.get('clanId', 0), 'userId': self.p.user_id})
 
     def no_clan(self):
-        """Klansız pencere: başvurduğu klanlar ve reddedenler."""
+        """Clanless window: the clans they applied to and the ones that rejected."""
         me = self.me
         with LOCK:
             order = ranking()
@@ -642,7 +646,7 @@ class Clan:
         k = k or self.k
         return mod('ClanNameTagInfoCommand', tag=k['tag'], id=k['id'], name=k['name'])
 
-    # -------------------------------------------------------- yardımcılar
+    # -------------------------------------------------------- helpers
     def next_id(self, k=None):
         k = k or self.k
         with LOCK:
@@ -656,13 +660,13 @@ class Clan:
             n = {'id': self.next_id(k), 'type': kind, 'name': pl.get('userName', ''), 'who': (who or self.p).user_id, 'text': text[:500],
                  'date': stamp()}
             if other:
-                n['clan_name'] = other                         # %clanname%: diplomasideki öteki klan
+                n['clan_name'] = other                         # %clanname%: the other clan in the diplomacy
             k['clan_news'].insert(0, n)
             del k['clan_news'][50:]
         return n
 
     def changed(self, k=None, push=True, extra=()):
-        """Asıl kayıt değişti: kopyalar, etiketi değişenlerin gemisi ve sohbeti, açık pencereler (öteki üyeler)."""
+        """The main record changed: copies, the ship and chat of those whose tag changed, open windows (the other members)."""
         k = k or self.k
         moved = changed(k, (self.p,) + tuple(extra))
         for x in moved:
@@ -671,7 +675,7 @@ class Clan:
             self.push(k)
 
     def tag_changed(self, x):
-        """x'in klanı ya da etiketi değişti: kendi istemcisine etiket, sohbetine oda ve etiket."""
+        """x's clan or tag changed: the tag to their own client, the room and tag to their chat."""
         if x is self.p:
             if self.on_change:
                 self.on_change()
@@ -683,7 +687,7 @@ class Clan:
             o.clan_changed()
 
     def push(self, k, extra=None, skip_self=True):
-        """Klanın bağlı öteki üyelerine (açık pencere) güncel klan; extra: ad -> ek mesajlar."""
+        """The current clan to the clan's other connected members (open window); extra: name -> extra messages."""
         for a, s in people().items():
             if (skip_self and a == self.me) or a not in k['members'] or s.session is None:
                 continue
@@ -698,7 +702,7 @@ class Clan:
             self.push(k, skip_self=False)
 
     def kick_out(self, a):
-        """Klandan düşen (çıkarılan, klanı silinen) bağlı oyuncunun istemcisi: klansız pencere, gemi etiketi, sohbet odası."""
+        """The client of a connected player who dropped from the clan (removed, clan deleted): clanless window, ship tag, chat room."""
         s = people().get(a)
         if s is None:
             return
@@ -714,7 +718,7 @@ class Clan:
 
     @staticmethod
     def taken(name, tag, skip=None):
-        """Ad ya da etiket başka klanda -> metin anahtarı ya da None."""
+        """The name or tag is in another clan -> text key or None."""
         with LOCK:
             for c in CLANS.values():
                 if c is skip:
@@ -725,12 +729,12 @@ class Clan:
                     return 'err_clantag_exist'
         return None
 
-    # -------------------------------------------------------- istekler
+    # -------------------------------------------------------- requests
     def handle(self, name, f):
         k = self.k
         if name == 'CompanyHierarchyRequest':
             return [self.hierarchy()]
-        if name == 'ChangeClanFirmaRequest':           # oturum yanıttan sonra oyuncuyu yeni firmanın X-1'ine götürür (game.py)
+        if name == 'ChangeClanFirmaRequest':           # after the reply the session takes the player to the new company's X-1 (game.py)
             return self.switch_company(f)[0]
         if name == 'LoginInitClanRequest':
             return [('LoginInitClanCommand', {'clanAllInfoCommand': self.all_info()})] if k else [self.no_clan()]
@@ -771,7 +775,7 @@ class Clan:
         return self.member_request(name, f)
 
     def search(self, f):
-        """ClanFilterSearchRequest: sunucudaki klanlar (ad/etiket, firma; sıralamaya göre; start/range sayfası)."""
+        """ClanFilterSearchRequest: the clans on the server (name/tag, company; by ranking; start/range page)."""
         q = str(f.get('lookup', '')).strip().lower()
         fac = int(f.get('factionType') or 0)
         with LOCK:
@@ -784,7 +788,7 @@ class Clan:
             return ('ClanFilterSearchInfoCommand', {'list': [self.info(c, order) for c in lst[start:start + n]], 'count': len(lst)})
 
     def no_clan_reply(self, name, f):
-        """Klansızken gelen üye istekleri: istemcinin "klanda değilsin" metni."""
+        """Member requests coming while clanless: the client's "you are not in a clan" text."""
         e = err('err_clan_user_not_in_clan')
         replies = {'LeaveClanRequest': ('LeaveClanCommand', {'errorMsg': e, 'success': False}),
                    'DeleteClanRequest': ('DeleteClanCommand', {'success': False, 'errorMsg': e}),
@@ -793,7 +797,7 @@ class Clan:
                                                                  'applyId': int(f.get('applyId') or 0)}),
                    'ApplyDeclineRequest': ('ApplyDeclineCommand', {'errorMsg': e, 'success': False, 'applyId': int(f.get('applyId') or 0)})}
         r = replies.get(name)
-        self.log('   klan isteği klansız: %s' % name)
+        self.log('   clan request while clanless: %s' % name)
         return [r] if r else []
 
     def found(self, f):
@@ -812,7 +816,7 @@ class Clan:
             return reply(False, 'clan_errmsg_desc_to_long')
         if not self.valid_tag(tag):
             return reply(False, 'clan_errmsg_clantag_not_allowed')
-        if is_banned(cname) or is_banned(tag):                  # Oyun Kuralları 7 (resmî forum 131990)
+        if is_banned(cname) or is_banned(tag):                  # Game Rules 7 (official forum 131990)
             return reply(False, 'clan_name_not_allowed')
         busy = self.taken(cname, tag)
         if busy:
@@ -829,16 +833,17 @@ class Clan:
                                 'ranks': [], 'order': 1, 'leader': me, 'anahtar': secrets.token_hex(8), 'version': 0,
                                 'members': {me: dict(live(self.p), rank=0, joined=stamp())}, 'applications': [], 'rejected': [],
                                 'diplomacy': [], 'diplomacy_requests': [], 'income': 0}
-            for c in CLANS.values():                      # başka klanlara başvuruları düşer
+            for c in CLANS.values():                      # their applications to other clans are dropped
                 c['applications'] = [b for b in c['applications'] if b['name'] != me]
             self.add_news('found', cname, k)
         self.changed(k, push=False)
-        self.log('   klan kuruldu: [%s] %s (%d)' % (tag, cname, cid))
+        self.log('   clan founded: [%s] %s (%d)' % (tag, cname, cid))
         msgs = reply(True, 'empty', cid) + [('JoinClanCommand', {'clanAllInfoCommand': self.all_info()}), self.tag_cmd()]
         return msgs + (self.m.money_msgs() if self.m else [])
 
     def apply(self, name, f):
-        """ApplyClanRequest {clanId, message}: başvuru klanın yetkili üyelerinin penceresine; DeleteClanApplyRequest {applyId}: geri alma."""
+        """ApplyClanRequest {clanId, message}: the application goes to the window of the clan's authorized members; DeleteClanApplyRequest
+        {applyId}: withdrawal."""
         me, cid = self.me, int(f.get('clanId') or 0)
         if name == 'DeleteClanApplyRequest':
             aid = int(f.get('applyId') or 0)
@@ -863,7 +868,7 @@ class Clan:
                 return reply(False, 'err_select_clan')
             if any(b['name'] == me for b in c['applications']):
                 return reply(False, 'err_clan_apply')
-            if c['company'] and int(c['company']) != int(self.p.d['pilot'].get('factionId', 0)):     # firmaya bağlı klan
+            if c['company'] and int(c['company']) != int(self.p.d['pilot'].get('factionId', 0)):     # clan bound to a company
                 return reply(False, 'err_clan_other_fractionID')
             if len(c['members']) >= MAX_MEMBERS:
                 return reply(False, 'err_clan_full')
@@ -879,17 +884,18 @@ class Clan:
             if me in c['rejected']:
                 c['rejected'].remove(me)
         self.changed(c)
-        self.log('   klan başvurusu: %s -> [%s] %s' % (b['first_name'], c['tag'], c['name']))
+        self.log('   clan application: %s -> [%s] %s' % (b['first_name'], c['tag'], c['name']))
         return reply(True, 'err_clan_apply_send', b['id']) + (self.m.money_msgs() if self.m else [])
 
     def switch_company(self, f):
-        """ChangeClanFirmaRequest: oyuncunun şirket değiştirmesi (klan penceresinin COMPANY sekmesi, klanlı ya da klansız; istemci
-        ClanSubViewCompany "Switch company"). Önce klanın firması değişiyordu, klansızken yanıt yoktu: şirket değişmiyordu
-        (kullanıcı 2026-10-24). Kurallar istemcinin metinlerinden: yalnız X-1'de (err_changing_company_tips), açık görev yokken
-        (görevlerin hedefleri firmaya göre: err_clan_firmchange_closeQuest), 5.000 U; yeni firma onurun yarısını tanır, eksi onur
-        kalır (changeFactionText). İstemci başarıda kendi firmasını ve firma sohbet odasını yeniler (UpdateChangeClanFirmaCommand);
-        oyuncuyu yeni firmanın X-1 istasyonuna oturum götürür. Tek üyeli klanın firması liderle birlikte değişir.
-        -> (mesajlar, gidilecek X-1 ya da None)"""
+        """ChangeClanFirmaRequest: the player changing company (the clan window's COMPANY tab, with or without a clan; client
+        ClanSubViewCompany "Switch company"). Before, the clan's company was changing, and there was no reply when clanless: the company did
+        not change (user 2026-10-24). Rules from the client's texts: only in X-1 (err_changing_company_tips), with no open quest
+        (the quests' targets depend on the company: err_clan_firmchange_closeQuest), 5,000 U; the new company recognizes half the honor,
+        negative honor stays (changeFactionText). On success the client refreshes its own company and the company chat room
+        (UpdateChangeClanFirmaCommand); the session takes the player to the new company's X-1 station. A one-member clan's company changes
+        together with the leader.
+        -> (messages, X-1 to go to or None)"""
         pl = self.p.d['pilot']
         old, firm = int(pl.get('factionId', 0)), int(f.get('company') or 0)
 
@@ -916,7 +922,7 @@ class Clan:
                 if int(k.get('company') or 0) == old and len(k['members']) <= 1:
                     k['company'] = firm
             self.changed(k)
-        self.log('   şirket değişti: %d -> %d (onur %d -> %d)' % (old, firm, hon, pl['honourPoints']))
+        self.log('   company changed: %d -> %d (honor %d -> %d)' % (old, firm, hon, pl['honourPoints']))
         return reply(True, 'firmChange_done'), X1[firm]
 
     def member_request(self, name, f):
@@ -984,8 +990,8 @@ class Clan:
         return []
 
     def edit_info(self, f):
-        """EditClanInfoRequest (liderin bilgi formu): ad, etiket, TS, alım ve firma bağlılığı (newFraction: 0 bütün firmalar, 1-3 firma;
-        yok sayılıyordu, bağlılık değişmiyordu: kullanıcı 2026-10-24)."""
+        """EditClanInfoRequest (the leader's info form): name, tag, TS, recruitment and company affiliation (newFraction: 0 all companies,
+        1-3 company; it was ignored, the affiliation did not change: user 2026-10-24)."""
         k = self.k
         tag, cname = str(f.get('clanTag', k['tag'])).strip(), str(f.get('clanName', k['name'])).strip()
         firma = int(f.get('newFraction', k['company']) or 0)
@@ -1016,8 +1022,8 @@ class Clan:
         return reply(True) + [self.tag_cmd()]
 
     def answer(self, name, f):
-        """Başvuruya yanıt (hiremember): kabulde oyuncu üye olur (bağlıysa JoinClanCommand, etiket, klan odası), retle başvurduğu
-        pencerede reddedenler arasında görünür."""
+        """Reply to an application (hiremember): on acceptance the player becomes a member (JoinClanCommand if connected, tag, clan room),
+        on rejection it appears among the rejecters in the window they applied from."""
         k, aid = self.k, int(f.get('applyId') or 0)
         accept = name == 'ApplyAcceptRequest'
         cmd = 'ApplyAcceptCommand' if accept else 'ApplyDeclineCommand'
@@ -1051,8 +1057,8 @@ class Clan:
                 k['rejected'].append(b['name'])
         s = people().get(b['name'])
         self.changed(k, extra=(s.profile,) if s is not None and accept else ())
-        self.log('   klan başvurusu %s: %s -> [%s]' % ('accept' if accept else 'ret', b['first_name'], k['tag']))
-        if s is not None:                                 # bağlı başvuranın ücreti: retle hemen iade (çevrimdışı: sonraki giriş)
+        self.log('   clan application %s: %s -> [%s]' % ('accept' if accept else 'reject', b['first_name'], k['tag']))
+        if s is not None:                                 # the connected applicant's fee: refunded at once on rejection (offline: next login)
             refund_fee(s.profile)
         o = getattr(s.session, 'social', None) if s is not None and s.session is not None else None
         if o is not None:
@@ -1077,7 +1083,7 @@ class Clan:
             n = self.add_news('leader', '', k)
             n.update(name=k['members'][a].get('name', ''), who=uid)
         self.changed(k)
-        self.log('   klan lideri: %s' % k['members'][a].get('name'))
+        self.log('   clan leader: %s' % k['members'][a].get('name'))
         return reply(True, err('success_clan_changeLeader'))
 
     def remove_member(self, f):
@@ -1092,10 +1098,10 @@ class Clan:
             return reply(False, err('err_clan_you_are_leader' if a == k['leader'] else 'err_clan_noRights'))
         with LOCK:
             u = k['members'].pop(a)
-        extra = self.cbs.member_left(k, a) if self.cbs else []      # forum 127469: modülleri envanterine döner
+        extra = self.cbs.member_left(k, a) if self.cbs else []      # forum 127469: the modules return to their inventory
         self.changed(k)
         self.kick_out(a)
-        self.log('   klandan çıkarıldı: %s' % u.get('name'))
+        self.log('   removed from clan: %s' % u.get('name'))
         return reply(True, err('clan_remove_member')) + extra
 
     def leave(self):
@@ -1106,10 +1112,10 @@ class Clan:
             k['members'].pop(self.me, None)
             self.add_news('left', '', k)
         extra = self.cbs.member_left(k, self.me) if self.cbs else []
-        self.p.d['clan_left_at'] = time.time()            # 48 saat yeni klan kurma/katılma yok (blocked)
+        self.p.d['clan_left_at'] = time.time()            # no founding/joining a new clan for 48 hours (blocked)
         self.p.dirty = True
-        self.changed(k)                                   # kendi kopyası düşer (üye değil)
-        self.log('   klandan ayrıldı: [%s]' % k['tag'])
+        self.changed(k)                                   # their own copy is dropped (not a member)
+        self.log('   left clan: [%s]' % k['tag'])
         return [('LeaveClanCommand', {'errorMsg': text('clan_leave_clan_success'), 'success': True}), self.no_clan(), self.tag_cmd()] + extra
 
     def rank_request(self, name, f):
@@ -1215,7 +1221,8 @@ class Clan:
         return []
 
     def payout(self, f):
-        """Kasadan üyeye (payout hakkı; verilen kredinin %10'u silinir): bağlıysa hemen, değilse sonraki girişinde (bagla)."""
+        """From the treasury to a member (payout right; 10% of the credits given is deleted): at once if connected, otherwise at their
+        next login (bagla)."""
         k, pl = self.k, self.p.d['pilot']
         amount, uid = int(f.get('amount') or 0), int(f.get('payoutUserId') or 0)
         a = self.member_name(k, uid) if uid else self.me
@@ -1232,12 +1239,12 @@ class Clan:
             return [('PayoutClanCommand', {'success': False, 'clanTaxLogCommand': None, 'clanInfoCommand': self.info(),
                                            'errorMsg': err('clan_message_error_payout_userMax_reached', _AMOUNT_='{:,}'.format(left),
                                                            _CURRENCY_=_res('currency_credits'))})]
-        net = amount * (100 - PAYOUT_FEE) // 100            # kasadan çıkan tutarın kesintisi silinir
+        net = amount * (100 - PAYOUT_FEE) // 100            # the fee on the amount leaving the treasury is deleted
         log = {'balanceUserId': int(u.get('uid', 0)), 'credits': amount, 'insertDate': stamp(), 'toName': u.get('name', ''),
                'fromName': pl.get('userName', ''), 'moneyType': 'payout', 'reason': str(f.get('reason', ''))[:100]}
         s = people().get(a) if a != self.me else None
         with LOCK:
-            if amount > k['treasury'] or amount > payout_limit(u):   # iki yetkili aynı anda öderse kasa eksiye düşmesin
+            if amount > k['treasury'] or amount > payout_limit(u):   # so the treasury does not go negative if two authorized members pay at once
                 return fail('err_clan_no_money')
             k['treasury'] -= amount
             wk = u.setdefault('payment_week', {})
@@ -1266,12 +1273,12 @@ class Clan:
         cmd = 'DeleteClanCommand' if name == 'DeleteClanRequest' else 'DelClanCommand'
         if k['leader'] != self.me:
             return [(cmd, {'success': False, 'errorMsg': err('err_clan_noRights')})]
-        extra = self.cbs.clan_disbanded(k) if self.cbs else []          # forum 127469: istasyon yıkılır, asteroit boşalır
+        extra = self.cbs.clan_disbanded(k) if self.cbs else []          # forum 127469: the station is destroyed, the asteroid empties
         with LOCK:
             CLANS.pop(k['id'], None)
             DELETED[k['id']] = k['anahtar']
             others = [a for a in k['members'] if a != self.me]
-            for c in CLANS.values():                   # diplomasisi ve istekleri
+            for c in CLANS.values():                   # its diplomacy and requests
                 c['diplomacy'] = [d for d in c['diplomacy'] if d['clan'] != k['id']]
                 c['diplomacy_requests'] = [r for r in c['diplomacy_requests'] if k['id'] not in (r['from_clan'], r['to'])]
             peers = {d['clan'] for d in k['diplomacy']} | {r['from_clan'] for r in k['diplomacy_requests']} | {r['to'] for r in k['diplomacy_requests']}
@@ -1286,10 +1293,10 @@ class Clan:
             if c:
                 self.changed(c)
                 self.push(c, skip_self=False)
-        self.log('   klan silindi: [%s] %s' % (k['tag'], k['name']))
+        self.log('   clan deleted: [%s] %s' % (k['tag'], k['name']))
         return [(cmd, {'success': True, 'errorMsg': err()}), ('ClearClanCommand', {'clanId': k['id']}), self.no_clan(), self.tag_cmd()] + extra
 
-    # -------------------------------------------------------- diplomasi
+    # -------------------------------------------------------- diplomacy
     def diplo(self, name, f):
         k = self.k
         if name == 'ClanNewDiplomacyRequest':
@@ -1308,7 +1315,7 @@ class Clan:
                 self.diplo_sync(r['to'])
             return [('ClanDeleteOpenDiploCommand', {'diploId': did, 'success': ok,
                                                     'errorMsg': err('diplo_request_delete' if ok else 'err_diplo_default')})]
-        with LOCK:                                       # ClanDeleteDiploRequest: ittifak/saldırmazlık biter (savaş isteğle)
+        with LOCK:                                       # ClanDeleteDiploRequest: alliance/non-aggression ends (war with a request)
             d = next((x for x in k['diplomacy'] if x['id'] == did), None)
             if d is None or not self.right('diplo_end', k):
                 e = 'err_clan_noRights' if d is not None else 'err_diplo_default'
@@ -1332,7 +1339,7 @@ class Clan:
                 c['diplomacy_requests'] = [x for x in c['diplomacy_requests'] if x['id'] != r['id']]
 
     def _diplo_set(self, a, b, kind, did, desc, frm):
-        """İki klan arasında diplomasi (tur 0: kalkar)."""
+        """Diplomacy between two clans (type 0: removed)."""
         for c, o in ((a, b), (b, a)):
             c['diplomacy'] = [x for x in c['diplomacy'] if x['clan'] != o['id']]
             if kind:
@@ -1340,7 +1347,8 @@ class Clan:
                                        'from_clan': frm})
 
     def diplo_sync(self, cid):
-        """Öteki klanın kopyaları ve açık pencereleri; iki klanın gemileri bakana göre yeniden (ortak_harita: ilişki imzada)."""
+        """The other clan's copies and open windows; the two clans' ships again depending on the viewer (ortak_harita: the relation is in
+        the signature)."""
         c = CLANS.get(cid)
         if c:
             changed(c)
@@ -1377,14 +1385,15 @@ class Clan:
             if form == 3 and sum(d['type'] == 3 and d['from_clan'] == k['id'] for d in k['diplomacy']) >= MAX_WARS:
                 return fail('err_diplo_default')
             if form == 3 and k['treasury'] < WAR_COST:
-                # bedel klan kasasından (istemcinin metni de "klanının yeterince kredisi yok"); oyuncu kendi kredisini sanıyordu
-                # (oyuncu bildirimi 2026-10-30): kasadaki ve gereken tutar ileti ardında
+                # the cost is from the clan treasury (the client's text also says "your clan does not have enough credits"); the player
+                # thought it was their own credits (player report 2026-10-30): the amount in the treasury and the required amount follow
+                # in the message
                 from shop import stack_extra
                 return [('ClanNewDiplomacyCommand', {'errorMsg': stack_extra('err_clan_no_money', ' ({:,} / {:,} Credits)'.format(
                                                                           int(k['treasury']), WAR_COST)),
                                                      'success': False, 'clanDiploReqInfoCommand': None})]
             did = _no()
-            if form == 3:                                   # savaş hemen: bedel kasadan, 10 gün
+            if form == 3:                                   # war at once: the cost from the treasury, 10 days
                 k['treasury'] -= WAR_COST
                 self._diplo_set(k, t, 3, did, desc, k['id'])
                 for c in (k, t):
@@ -1399,15 +1408,16 @@ class Clan:
             cmd = self.diplo_req_cmd(r, k)
         self.changed(k, push=form == 3)
         self.diplo_sync(tid)
-        self.log('   diplomasi: [%s] -> [%s] tür %d' % (k['tag'], t['tag'], form))
+        self.log('   diplomacy: [%s] -> [%s] type %d' % (k['tag'], t['tag'], form))
         out = [('ClanNewDiplomacyCommand', {'errorMsg': err('clan_newDiploOffer' if form != 3 else 'empty'), 'success': True,
                                             'clanDiploReqInfoCommand': cmd})]
-        if form == 3:                                       # istemci yanıtı isteklere ekler: savaş diplomasilerde (bütün liste)
+        if form == 3:                                       # the client adds the reply to the requests: for war to the diplomacies (the whole list)
             out.append(('LoginInitClanCommand', {'clanAllInfoCommand': self.all_info()}))
         return out
 
     def diplo_answer(self, k, did, status):
-        """ClanEditDiploOfferRequest {status 'allow'/'deny'}: gelen isteğe yanıt (istemci 'allow'da isteği diplomasilere taşır)."""
+        """ClanEditDiploOfferRequest {status 'allow'/'deny'}: reply to an incoming request (on 'allow' the client moves the request to the
+        diplomacies)."""
         allow = status == 'allow'
         fail = lambda key: [('ClanEditDiploOfferCommand', {'status': status, 'success': False, 'clanDiploInfoCommand': None,
                                                            'stack': err(key), 'clanDiploReqInfoCommand': None})]
@@ -1423,7 +1433,7 @@ class Clan:
             info = None
             if allow and o is not None:
                 self._diplo_set(k, o, r['type'], did, r['text'], o['id'])
-                if r['type'] == 0:                          # savaş bitti
+                if r['type'] == 0:                          # war ended
                     self.add_news('peace', '', o, other=k['name'])
                     self.add_news('peace2', '', k, other=o['name'])
                 else:
@@ -1440,7 +1450,7 @@ class Clan:
             out.append(('LoginInitClanCommand', {'clanAllInfoCommand': self.all_info()}))
         return out
 
-    # -------------------------------------------------------- sohbet
+    # -------------------------------------------------------- chat
     def rooms(self):
         k = self.p.d.get('clan')
         return [('clan', 'clan', str(k['id']))] if k else []

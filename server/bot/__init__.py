@@ -1,11 +1,11 @@
-"""Botlar: gerçek oyuncu gibi davranan sunucu tarafı pilotlar (belgeler/BOTLAR.md).
+"""Bots: server-side pilots that behave like real players (belgeler/BOTLAR.md).
 
-kisilik  özellikler, arketipler, ruh hâli, ad üretici, kadro
-katalog  gemi/lazer/jeneratör/dron kataloğu, güç puanı, harita zorluğu ve geliri
-durum    Bot: kalıcı kayıt (Profil biçimi) + geçici alanlar
-araclar  botun eylemleri (karar motoru ve LLM aynı araçları çağırır)
-beyin    fayda yapay zekâsı (hedefler/ modülleri)
-soyut    oyuncunun haritasında olmayan botların benzetimi
-govde    oyuncunun haritasındaki botların gemisi (dunya.World.npcs)
-yonetici paketin yüklenmesi, zamanlayıcı, kayıt
+personality  traits, archetypes, mood, name generator, roster
+catalog      ship/laser/generator/drone catalog, power score, map difficulty and income
+state        Bot: persistent record (Profile format) + temporary fields
+agent_tools  the bot's actions (the decision engine and the LLM call the same tools)
+brain        utility AI (goals/ modules)
+abstract_sim simulation of bots that are not on the player's map
+ship         the ship of bots on the player's map (world.World.npcs)
+manager      loading the package, scheduler, record
 """

@@ -1,5 +1,5 @@
-/* OpenOrbit paneli — Dünya Editörü (world_editor.js). panel.css'in değişkenleri ve bileşenleri üstüne.
-   Kapaklar kodla çizilen geçişler (OP-010 gelince gorsel/dunya_<kapak>.webp); harita tuvali oyun birimli SVG. */
+/* OpenOrbit panel — World Editor (world_editor.js). On top of panel.css's variables and components.
+   Covers are transitions drawn in code (when OP-010 arrives gorsel/dunya_<cover>.webp); the map canvas is SVG in game units. */
 body[data-page=dunya] .topbar { --hdr: url(images/hdr_dunya.webp); }
 body[data-page=dunya] .content > * { max-width: 1400px; }
 
@@ -35,7 +35,7 @@ body[data-page=dunya] .content > * { max-width: 1400px; }
 .we-cover-pick.on { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(64, 223, 255, .3), var(--glow); }
 .we-cover-pick:disabled { cursor: default; opacity: .6; }
 
-/* ---------------------------------------------------------------- kitaplık */
+/* ---------------------------------------------------------------- library */
 .we-intro { display: flex; align-items: center; gap: 20px; overflow: hidden; }
 .we-intro > div:first-child { flex: 1; min-width: 0; }
 .we-intro-art { width: 120px; height: 120px; object-fit: contain; margin: -10px -6px -14px 0; filter: drop-shadow(0 6px 18px rgba(64, 223, 255, .2)); }
@@ -57,7 +57,7 @@ body[data-page=dunya] .content > * { max-width: 1400px; }
   background: var(--accent-soft); box-shadow: var(--glow); margin-bottom: 6px; }
 .we-new-icon svg { width: 26px; height: 26px; }
 
-/* ---------------------------------------------------------------- editör çerçevesi */
+/* ---------------------------------------------------------------- editor frame */
 .we-bar { display: flex; align-items: center; gap: 12px; padding: 10px 14px; }
 .we-bar-name { min-width: 0; }
 .we-bar-name b { font: 600 18px/1.2 var(--display); letter-spacing: .02em; }
@@ -96,7 +96,7 @@ body[data-page=dunya] .content > * { max-width: 1400px; }
 .de-h3 { margin: 0; font: 600 20px/1.2 var(--display); letter-spacing: .02em; display: flex; align-items: center; gap: 8px; }
 .de-h3 svg { width: 17px; height: 17px; color: var(--accent); }
 
-/* ---------------------------------------------------------------- ortak alanlar */
+/* ---------------------------------------------------------------- shared fields */
 .we-number { display: inline-flex; align-items: stretch; border: 1px solid var(--line-2); border-radius: var(--radius-sm); background: rgba(4, 9, 18, .8); }
 .we-number:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(64, 223, 255, .12); }
 .we-number .input.num { border: 0; background: transparent; box-shadow: none; padding: 5px 4px; text-align: center; -moz-appearance: textfield; }
@@ -121,7 +121,7 @@ body[data-page=dunya] .content > * { max-width: 1400px; }
 .we-more { justify-self: center; margin: 8px auto; }
 .we-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--amber); margin-left: 6px; vertical-align: 2px; box-shadow: 0 0 6px var(--amber); }
 
-/* seçiciler (eşya, uzaylı, harita) */
+/* pickers (item, alien, map) */
 .we-picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 8px; max-height: 58vh; overflow: auto; padding: 2px; }
 .we-picker-item { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 6px; border: 1px solid var(--line); border-radius: var(--radius-sm);
   background: rgba(8, 14, 28, .8); color: var(--text); cursor: pointer; font-size: 11.5px; line-height: 1.25; text-align: center; min-height: 104px; }
@@ -136,7 +136,7 @@ body[data-page=dunya] .content > * { max-width: 1400px; }
 .we-map-chip.changed::after { content: ""; position: absolute; top: 3px; right: 3px; width: 5px; height: 5px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 5px var(--amber); }
 .f-mmo { --c: var(--mmo); } .f-eic { --c: var(--eic); } .f-vru { --c: var(--vru); } .f-savas { --c: var(--amber); } .f-korsan { --c: #c58cff; } .f-bl { --c: #8b9bb4; } .f-diger { --c: var(--steel); }
 
-/* genel bakış */
+/* overview */
 .we-overview-card { display: grid; grid-template-columns: minmax(240px, 380px) minmax(0, 1fr); gap: 20px; padding: 0; overflow: hidden; }
 .we-overview-card > .we-cover { height: 100%; aspect-ratio: auto; min-height: 220px; border-radius: var(--radius) 0 0 var(--radius); }
 .we-overview-card > .stack { padding: 18px 20px 18px 0; }
@@ -149,7 +149,7 @@ body[data-page=dunya] .content > * { max-width: 1400px; }
 .we-summary-count { font: 600 13px var(--mono); color: var(--steel); }
 .we-summary-box.full .we-summary-count { color: var(--amber); }
 
-/* ---------------------------------------------------------------- uzaylılar */
+/* ---------------------------------------------------------------- aliens */
 .we-npc-list { display: grid; gap: 4px; max-height: calc(100vh - 330px); min-height: 300px; overflow: auto; padding-right: 4px; }
 .de-npc { display: flex; align-items: center; gap: 10px; padding: 6px 10px 6px 8px; border: 1px solid transparent; border-radius: var(--radius-sm); background: rgba(6, 11, 22, .55);
   color: inherit; cursor: pointer; text-align: left; position: relative; }
@@ -172,7 +172,7 @@ body[data-page=dunya] .content > * { max-width: 1400px; }
 .we-cargo-item.exists { opacity: 1; background: rgba(155, 113, 244, .08); }
 .we-cargo-item > span.small { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* ---------------------------------------------------------------- haritalar */
+/* ---------------------------------------------------------------- maps */
 .we-map-card { padding-bottom: 14px; }
 .we-map { display: grid; grid-template-columns: minmax(0, 1fr) 290px; gap: 14px; margin-top: 12px; align-items: start; }
 .we-map-list { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 12px; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(4, 9, 18, .45); }
@@ -238,7 +238,7 @@ body[data-page=dunya] .content > * { max-width: 1400px; }
 .we-spawn-action .btn.on { color: var(--amber); }
 .we-map-panel .we-field-row > label:first-child { width: 70px; }
 
-/* ---------------------------------------------------------------- görevler */
+/* ---------------------------------------------------------------- quests */
 .we-quest-list { display: grid; gap: 4px; max-height: calc(100vh - 340px); min-height: 300px; overflow: auto; padding-right: 4px; align-content: start; }
 .we-quest-list.short { max-height: 50vh; min-height: 0; }
 .we-quest { display: flex; align-items: center; gap: 10px; padding: 7px 10px 7px 8px; border: 1px solid transparent; border-radius: var(--radius-sm); background: rgba(6, 11, 22, .55);
@@ -287,7 +287,7 @@ body[data-page=dunya] .content > * { max-width: 1400px; }
 .we-template b { font: 600 14px var(--display); letter-spacing: .04em; }
 .we-template:hover { border-color: var(--accent); box-shadow: var(--glow); }
 
-/* ---------------------------------------------------------------- mağaza ve açık artırma */
+/* ---------------------------------------------------------------- shop and auction */
 .we-shop { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
 .we-shop-card { cursor: pointer; color: inherit; font: inherit; position: relative; }
 .we-shop-card.changed { border-color: rgba(255, 185, 77, .45); }
@@ -302,7 +302,7 @@ body[data-page=dunya] .content > * { max-width: 1400px; }
 .we-lot-name { font: 600 13.5px var(--display); letter-spacing: .02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .we-count.mavi { background: var(--accent-soft); color: var(--accent); margin-left: 4px; }
 
-/* ---------------------------------------------------------------- Oyna sayfası: dünya çipi */
+/* ---------------------------------------------------------------- Play page: world chip */
 .game-world { display: inline-flex; align-items: center; gap: 10px; margin-top: 12px; padding: 5px 10px 5px 5px; border: 1px solid var(--line-2); border-radius: var(--radius-sm);
   background: rgba(4, 9, 18, .65); color: var(--text); cursor: pointer; max-width: 100%; }
 .game-world:hover { border-color: var(--line-hi); box-shadow: var(--glow); }
@@ -311,7 +311,7 @@ body[data-page=dunya] .content > * { max-width: 1400px; }
 .game-world-name b { font: 600 14px var(--display); letter-spacing: .02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .game-world > svg { width: 14px; height: 14px; color: var(--muted); flex: none; }
 
-/* ---------------------------------------------------------------- dar pencere */
+/* ---------------------------------------------------------------- narrow window */
 @media (max-width: 1180px) {
   .we-layout { grid-template-columns: minmax(0, 1fr); }
   .de-menu { position: static; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
@@ -329,7 +329,7 @@ body[data-page=dunya] .content > * { max-width: 1400px; }
   .we-intro-art { display: none; }
 }
 
-/* ---------------------------------------------------------------- görseller (OP-008 … OP-012) */
+/* ---------------------------------------------------------------- images (OP-008 ... OP-012) */
 .we-icon { width: 24px; height: 24px; object-fit: contain; flex: none; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .5)); }
 .we-icon.orta { width: 30px; height: 30px; }
 .we-icon.buyuk { width: 30px; height: 30px; margin: -4px 0; }
@@ -345,7 +345,7 @@ body[data-page=dunya] .content > * { max-width: 1400px; }
 .we-tool-icon { width: 20px; height: 20px; }
 .we-legend img { width: 16px; height: 16px; margin-left: 8px; }
 
-/* ---------------------------------------------------------------- kutular, kapılar, cevherler (A3) */
+/* ---------------------------------------------------------------- boxes, gates, ores (A3) */
 .we-box-row { display: grid; grid-template-columns: 34px minmax(0, 1fr) 30px; align-items: center; gap: 10px; padding: 6px 8px;
   border: 1px solid var(--line); border-radius: var(--radius-sm); background: rgba(8, 14, 27, .7); }
 .we-box-name { font: 600 13px var(--display); letter-spacing: .02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -373,7 +373,7 @@ body[data-page=dunya] .content > * { max-width: 1400px; }
 .we-wave-value { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--muted); }
 .we-wave-value .we-number button { width: 20px; }
 
-/* ---------------------------------------------------------------- etkinlikler ve ekonomi (A4) */
+/* ---------------------------------------------------------------- events and economy (A4) */
 .we-period { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: rgba(8, 14, 27, .7); }
 .we-period.history { opacity: .5; }
 .we-period.simdi { border-color: rgba(62, 229, 155, .45); }
@@ -386,7 +386,7 @@ body[data-page=dunya] .content > * { max-width: 1400px; }
 .we-level-grid .we-lv { width: 28px; height: 26px; }
 .we-npc-name .spacer { flex: 1; }
 
-/* ---------------------------------------------------------------- paylaşım (A5) */
+/* ---------------------------------------------------------------- sharing (A5) */
 .we-code { font-size: 11px; word-break: break-all; }
 .we-share-summary { display: flex; align-items: center; gap: 12px; }
 .we-share-paths { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }

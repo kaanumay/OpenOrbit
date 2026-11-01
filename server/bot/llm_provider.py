@@ -1,13 +1,15 @@
-"""Gelişmiş kipin dil modeli sağlayıcısı: dahili yerel model (llm_sunucu: llama-server + Qwen3 4B) ya da kullanıcının seçtiği bir
-sağlayıcı (OpenAI, Anthropic, Gemini, DeepSeek ...; bilgisayardaki Ollama, LM Studio ya da başka bir OpenAI uyumlu sunucu).
+"""Language model provider of Advanced mode: the built-in local model (llm_server: llama-server + Qwen3 4B) or a provider the user picks
+(OpenAI, Anthropic, Gemini, DeepSeek ...; Ollama, LM Studio or another OpenAI-compatible server on the computer).
 
-Seçim tek ve genel: save/llm/saglayici.json {secili, saglayicilar: {uid: {anahtar, adres, model}}}. Anahtarlar bot paketlerine
-girmez; panel onları yalnız maskeli gösterir. Uzak istemci Sunucu ile aynı arayüzü sunar (baslat, sor, durdur): Beyin ikisini ayırt
-etmez. Dahili model yalnız İngilizce konuşur (Türkçede zayıf); öteki sağlayıcılarla botlar kendi dillerinde konuşur (cok_dilli).
+The choice is single and global: save/llm/provider.json {selected, providers: {uid: {anahtar, address, model}}}. Keys never go into the
+bot packages; the panel shows them only masked. The remote client offers the same interface as Server (launch, ask, stop): Brain does
+not tell them apart. The built-in model speaks only English (weak in Turkish); with the other providers the bots speak their own
+languages (multilingual).
 
-JSON yanıt: OpenAI uyumlularda önce response_format json_schema, sağlayıcı reddederse json_object, o da olmazsa şema yalnız istemde;
-inilen basamak istemcide kalır. Sağlayıcının tanımadığı parametre (temperature, max_tokens ...) 400 verirse o parametre bırakılıp
-yeniden sorulur. Anthropic kendi Messages API'siyle (output_config.format) çağrılır.
+JSON reply: for OpenAI-compatibles first response_format json_schema, if the provider rejects it json_object, and if that fails too the
+schema only in the prompt; the step reached stays on the client. If the provider returns 400 for a parameter it does not know
+(temperature, max_tokens ...) that parameter is dropped and the question is asked again. Anthropic is called with its own Messages API
+(output_config.format).
 """
 import json, os, re, threading, time
 from urllib.error import HTTPError, URLError
@@ -16,7 +18,7 @@ from urllib.request import Request, urlopen
 import paths as PTH
 
 LOCAL = 'local'
-# kimlik -> ad, tür ('openai' uyumlu ya da 'anthropic'), varsayılan adres ve model, anahtar gerekir mi, bilgisayarda mı çalışır
+# id -> name, type ('openai' compatible or 'anthropic'), default address and model, whether a key is needed, whether it runs on the computer
 PROVIDERS = {
     LOCAL: dict(name='Dahili yerel model (Qwen3 4B)', type='dahili', address='', model='', anahtar=False, local=True),
     'openai': dict(name='OpenAI', type='openai', address='https://api.openai.com/v1', model='gpt-4.1-mini', anahtar=True, local=False),
@@ -41,7 +43,7 @@ _LOCK = threading.Lock()
 
 
 class ProviderError(RuntimeError):
-    """Kullanıcıya gösterilen hata (anahtar yanlış, model yok, sunucu kapalı ...)."""
+    """Error shown to the user (wrong key, no model, server down ...)."""
 
 
 def _route():
@@ -49,7 +51,7 @@ def _route():
 
 
 def setting():
-    """{secili, saglayicilar: {uid: {anahtar, adres, model}}} (dosya yoksa dahili model)."""
+    """{selected, providers: {uid: {anahtar, address, model}}} (the built-in model if the file does not exist)."""
     try:
         with open(_route(), encoding='utf8') as fh:
             d = json.load(fh)
@@ -62,7 +64,7 @@ def setting():
 
 
 def selected():
-    """Seçili sağlayıcının tam ayarı {kimlik, tur, adres, model, anahtar}."""
+    """The selected provider's full setting {uid, type, address, model, anahtar}."""
     d = setting()
     return full(d['selected'], d['providers'].get(d['selected']) or {})
 
@@ -74,7 +76,7 @@ def full(uid, a):
 
 
 def multilingual(uid=None):
-    """Botlar kendi dillerinde konuşabilir mi (dahili Qwen3 4B yalnız İngilizce)."""
+    """Whether the bots can speak their own languages (the built-in Qwen3 4B is English only)."""
     return (uid or setting()['selected']) != LOCAL
 
 
@@ -83,7 +85,7 @@ def mask(key):
 
 
 def status():
-    """Panelin görünümü: seçili sağlayıcı, her sağlayıcının adresi, modeli ve maskeli anahtarı."""
+    """The panel's view: the selected provider, each provider's address, model and masked key."""
     d = setting()
     out = []
     for k, s in PROVIDERS.items():
@@ -95,7 +97,7 @@ def status():
 
 
 def save(uid, address=None, model=None, key=None, sec=True):
-    """Sağlayıcının ayarını yaz; anahtar None ya da boşsa eskisi kalır ('-' siler)."""
+    """Write the provider's setting; if the key is None or empty the old one stays ('-' deletes)."""
     if uid not in PROVIDERS:
         raise ProviderError('Bilinmeyen sağlayıcı.')
     if address is not None:
@@ -150,7 +152,7 @@ class HttpError(ProviderError):
 
 
 def _human_error(code, text):
-    """Sağlayıcının hata iletisi (dilden bağımsız: panel her dilde gösterir; iletiler çoğunlukla İngilizce)."""
+    """The provider's error message (language independent: the panel shows it in every language; messages are mostly English)."""
     try:
         e = json.loads(text)
         e = e[0] if isinstance(e, list) and e else e
@@ -176,7 +178,7 @@ def _call(c, route, body=None, timestamp=60):
 
 
 def models(uid, address=None, key=None):
-    """Sağlayıcının modelleri (/models). Anahtar verilmezse kayıtlıdır."""
+    """The provider's models (/models). If no key is given the saved one is used."""
     if uid not in PROVIDERS or uid == LOCAL:
         raise ProviderError('Bilinmeyen sağlayıcı.')
     a = dict(setting()['providers'].get(uid) or {})
@@ -191,10 +193,10 @@ def models(uid, address=None, key=None):
     return sorted({re.sub(r'^models/', '', x) for x in names if x})
 
 
-# ------------------------------------------------------------------------------------------------------------ istemci
+# ------------------------------------------------------------------------------------------------------------ client
 def _anthropic_schema(s):
-    """Anthropic yapılandırılmış çıktısının kabul ettiği şema: nesnelerde additionalProperties false; uzunluk ve adet sınırları atılır
-    (istemdeki "kısa" yönergesi ve llm.py'nin süzgeci sınırlar)."""
+    """The schema Anthropic structured output accepts: additionalProperties false on objects; length and count limits are dropped
+    (the "short" directive in the prompt and llm.py's filter bound them)."""
     if isinstance(s, dict):
         out = {k: _anthropic_schema(v) for k, v in s.items() if k not in ('maxLength', 'minLength', 'maxItems', 'minItems')}
         if out.get('type') == 'object':
@@ -206,40 +208,40 @@ def _anthropic_schema(s):
 
 
 def _json(text):
-    """Yanıttaki ilk JSON nesnesi (``` çiti, önündeki laf ya da ardındaki ikinci nesne atılır)."""
+    """The first JSON object in the reply (a ``` fence, chatter before it, or a second object after it is dropped)."""
     text = _THINK.sub('', text or '')
     i = text.find('{')
     if i < 0:
         raise ValueError('yanıtta JSON yok')
-    d = json.JSONDecoder(strict=False).raw_decode(text[i:])[0]       # strict=False: metin içinde ham satır sonu
+    d = json.JSONDecoder(strict=False).raw_decode(text[i:])[0]       # strict=False: raw line break inside the text
     if not isinstance(d, dict):
         raise ValueError('yanıt JSON nesnesi değil')
     return d
 
 
 class Remote:
-    """Seçili uzak ya da bilgisayardaki sağlayıcı (Sunucu'nun arayüzü)."""
+    """The selected remote or on-computer provider (Server's interface)."""
 
     def __init__(self, c, log=print):
         self.c, self.log = c, log
         self.name = '%s · %s' % (PROVIDERS[c['uid']]['name'], c['model'] or '?')
         self.port = None
         self.ready = False
-        self.json_mode = 'schema'              # sema -> nesne -> istem (sağlayıcı reddettikçe)
-        self.jump_to = set()                   # sağlayıcının tanımadığı parametreler
-        self.wait = 0.0                    # 429'dan sonra bu ana dek istek yok (işler kalıplara düşer)
-        self.usage = {'request': 0, 'input': 0, 'cache': 0, 'output': 0}     # token sayımı (önbellekten gelen girdi ayrı)
+        self.json_mode = 'schema'              # schema -> object -> prompt (as the provider rejects)
+        self.jump_to = set()                   # parameters the provider does not know
+        self.wait = 0.0                    # no requests until this moment after a 429 (jobs fall back to templates)
+        self.usage = {'request': 0, 'input': 0, 'cache': 0, 'output': 0}     # token count (cached input counted separately)
 
     def launch(self, wait_sec=None):
         if PROVIDERS[self.c['uid']]['anahtar'] and not self.c['anahtar']:
             raise ProviderError('API anahtarı girilmemiş.')
         if not self.c['model']:
             raise ProviderError('Model seçilmemiş.')
-        try:                                # bağlantı ve anahtar denetimi: HTTP hatası durdurur, modelin tek bozuk yanıtı durdurmaz
+        try:                                # connection and key check: an HTTP error stops, a single bad reply from the model does not
             self.ask('Reply with JSON.', 'Say hi.', schema={'type': 'object', 'properties': {'cevap': {'type': 'string'}},
                                                           'required': ['cevap']}, max_count=40, timestamp=60)
         except ValueError as e:
-            self.log('   botlar: sağlayıcının deneme yanıtı bozuk (%s), yine de açılıyor' % e)
+            self.log('   bots: the provider trial reply is malformed (%s), opening anyway' % e)
         self.ready = True
         return self
 
@@ -247,11 +249,11 @@ class Remote:
         self.ready = False
 
     def ask(self, system, user, schema=None, max_count=220, temperature=0.8, timestamp=60):
-        """Tek çağrı -> (metin ya da JSON nesnesi, süre sn)."""
+        """A single call -> (text or JSON object, duration in s)."""
         if time.time() < self.wait:
             raise ProviderError('istek sınırı: bekleniyor')
         t0 = time.time()
-        for _ in range(4):                  # her 400'de bir parametre ya da JSON basamağı düşer
+        for _ in range(4):                  # on each 400 one parameter or JSON step is dropped
             try:
                 text = (self._anthropic if self.c['type'] == 'anthropic' else self._openai)(system, user, schema, max_count, temperature,
                                                                                             timestamp)
@@ -267,21 +269,21 @@ class Remote:
         return (_json(text) if schema is not None else _THINK.sub('', text).strip()), time.time() - t0
 
     def _adapt(self, text, schema):
-        """400 yanıtına göre isteği değiştir -> yeniden denenebilir mi."""
+        """Change the request according to the 400 reply -> whether it can be retried."""
         m = text.lower()
         if self.c['type'] == 'anthropic' and 'effort' in m and 'output_config' not in self.jump_to:
-            self.jump_to.add('output_config')          # eski model: effort yok (şema da istemde)
+            self.jump_to.add('output_config')          # old model: no effort (schema in the prompt too)
             self.json_mode = 'prompt'
             return True
         for p in ('temperature', 'top_p', 'max_tokens', 'max_completion_tokens'):
             if p in m and p not in self.jump_to:
                 self.jump_to.add(p)
-                self.log('   botlar: sağlayıcı %s kabul etmiyor, onsuz soruluyor' % p)
+                self.log('   bots: provider does not accept %s, asking without it' % p)
                 return True
         if schema is not None and self.json_mode != 'prompt' and re.search(r'response_format|json_schema|json_object|output_config|'
                                                                        r'schema|format', m):
             self.json_mode = 'object' if self.json_mode == 'schema' and self.c['type'] == 'openai' else 'prompt'
-            self.log('   botlar: sağlayıcı JSON şemasını kabul etmiyor, JSON kipi: %s' % self.json_mode)
+            self.log('   bots: provider does not accept the JSON schema, JSON mode: %s' % self.json_mode)
             return True
         return False
 
@@ -294,19 +296,19 @@ class Remote:
 
     @staticmethod
     def _prompt_schema(system, schema):
-        # şema sistem isteminde (değişken kullanıcı metninin önünde): sağlayıcının önek önbelleğine girer
+        # schema in the system prompt (before the variable user text): goes into the provider's prefix cache
         return '%s\n\nReply with only one JSON object (no other text) that follows this JSON schema:\n%s' % (
             system, json.dumps(schema, ensure_ascii=False, sort_keys=True))
 
     @staticmethod
     def _messages(user):
-        """Kullanıcı metni ya da çok turlu konuşma [{role, content}] (ajanın adımları: önek her adımda aynı kalır, önbelleğe girer)."""
+        """User text or multi-turn conversation [{role, content}] (the agent's steps: the prefix stays the same at each step, goes into the cache)."""
         return list(user) if isinstance(user, list) else [{'role': 'user', 'content': user}]
 
     def _openai(self, system, user, schema, max_count, temperature, timestamp):
         if schema is not None and self.json_mode != 'schema':
             system = self._prompt_schema(system, schema)
-        # sınır geniş: düşünen modeller düşünceyi de bu sınırdan harcar (yalnız üretilen kadar ödenir; Qwen3 1024'te kesiliyordu)
+        # wide limit: thinking models spend their thoughts from this limit too (only what is generated is paid for; Qwen3 was cut off at 1024)
         body = {'model': self.c['model'], 'messages': [{'role': 'system', 'content': system}] + self._messages(user),
                  'temperature': temperature, 'max_tokens': max(max_count * 8, 4096)}
         if self.c['uid'] == 'openai' or 'max_tokens' in self.jump_to:
@@ -320,7 +322,7 @@ class Remote:
         d = _call(self.c, '/chat/completions', body, timestamp)
         u = d.get('usage') or {}
         self._count(u.get('prompt_tokens', 0), u.get('prompt_cache_hit_tokens')              # DeepSeek
-                  or (u.get('prompt_tokens_details') or {}).get('cached_tokens', 0), u.get('completion_tokens', 0))   # OpenAI uyumlu
+                  or (u.get('prompt_tokens_details') or {}).get('cached_tokens', 0), u.get('completion_tokens', 0))   # OpenAI-compatible
         ch = (d.get('choices') or [{}])[0]
         text = (ch.get('message') or {}).get('content') or ''
         if not text.strip():
@@ -331,8 +333,8 @@ class Remote:
         if schema is not None and self.json_mode != 'schema':
             system = self._prompt_schema(system, schema)
         body = {'model': self.c['model'], 'max_tokens': max(max_count * 8, 2048), 'system': system,
-                 'messages': self._messages(user), 'cache_control': {'type': 'ephemeral'}}   # önek önbelleği (sistem + adımlar)
-        oc = {'effort': 'low'}              # sohbet satırı: derin düşünme gerekmez (gecikme ve maliyet)
+                 'messages': self._messages(user), 'cache_control': {'type': 'ephemeral'}}   # prefix cache (system + steps)
+        oc = {'effort': 'low'}              # chat line: deep thinking not needed (latency and cost)
         if schema is not None and self.json_mode == 'schema':
             oc['format'] = {'type': 'json_schema', 'schema': _anthropic_schema(schema)}
         body['output_config'] = oc
@@ -351,7 +353,7 @@ class Remote:
 
 
 def client(slot=4, log=print):
-    """Seçili sağlayıcının istemcisi: dahili model için llm_sunucu.Sunucu, öteki her sağlayıcı için Uzak."""
+    """The selected provider's client: llm_server.Server for the built-in model, Remote for every other provider."""
     c = selected()
     if c['uid'] == LOCAL:
         from . import llm_server as LS
@@ -360,7 +362,7 @@ def client(slot=4, log=print):
 
 
 def test(log=print):
-    """Panelin "Test et" düğmesi (uzak sağlayıcı): kısa bir soru, botların seçilen dilde konuşabildiği de görülsün -> {ok, sure, yanit}."""
+    """The panel's "Test" button (remote provider): a short question, so it also shows whether the bots can speak in the selected language -> {ok, sure, yanit}."""
     c = selected()
     s = Remote(c, log)
     t0 = time.time()

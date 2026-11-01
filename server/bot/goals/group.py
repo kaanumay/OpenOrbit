@@ -1,5 +1,6 @@
-"""Grup: bir gruba girince liderin (ya da gruptaki oyuncunun) haritasına gidip yanında avlanmak; liderin saldırdığına saldırır.
-Kabul toplum.davetler'de (niyet olarak bu hedef güçlenir); bağlılık sürdükçe (niyet süresi) seçilir, sonra bot sıkılıp ayrılabilir."""
+"""Group: after joining a group, go to the leader's map (or the group player's map) and hunt next to them; attacks what the leader attacks.
+Acceptance is in society.invitations (this goal gets stronger as an intent); chosen while commitment lasts (intent duration), after which
+the bot may get bored and leave."""
 import math
 
 from ..brain import Goal, target
@@ -8,7 +9,7 @@ from .. import abstract_sim as S
 
 
 def leader(bot):
-    """Gruptaki takip edilecek kişi (insan oyuncu önce, yoksa lider) -> topluluk.Kisi ya da None."""
+    """The person to follow in the group (human player first, otherwise the leader) -> community.Person or None."""
     import group as GR
     import community as TP
     g = GR.group_of(bot.uid)
@@ -59,14 +60,14 @@ class Group(Goal):
         S.farm(bot, dt, y)
 
     def concrete(self, bot, g, w, now):
-        """Liderin yanında kal; lider bu dünyanın kahramanıysa ve saldırıyorsa onun hedefine saldır."""
+        """Stay next to the leader; if the leader is this world's hero and is attacking, attack its target."""
         uid = bot.plan.get('leader')
         if uid != w.hid or w.hero_dead:
             return False
         if w.attacking and w.target in w.npcs and w.npcs[w.target].bot is None:
             g.target = w.target
         from .. import ship as G
-        if g.target is None and G.is_gate_world(w):        # kapı dolgusu: kahramana en yakın uzaylıya (dalgayı birlikte temizler)
+        if g.target is None and G.is_gate_world(w):        # gate filler: to the alien nearest to the hero (clears the wave together)
             hx, hy = w.hero_pos(now)
             nearby = [(math.hypot(hx - p[0], hy - p[1]), u) for u, m in list(w.npcs.items())
                      if m.bot is None and m.alive for p in (m.mover.pos(now),)]

@@ -1,13 +1,13 @@
-"""Çoklu istemci (panel): OYNA'dan sonra bu bilgisayardaki öteki kayıtlarla ek oyun istemcileri.
+"""Multi-client (panel): after PLAY, extra game clients with the other saves on this computer.
 
-Oyun sunucusu çok oturumlu kipte açılır (panel ayarı coklu_istemci açık ve en az iki kayıt varsa; arkadaş sunucusunda zaten öyle).
-Ek istemcinin kaydı sunucuya POST /yerel/ekle ile eklenir (server/multiplayer.py: sunucu yuvanın profil.json'una doğrudan yazar;
-kimliği başka bir oyuncununkiyle aynıysa bellekte geçici kimlik), istemci http://127.0.0.1:8090/?session=<anahtar>#darkorbit:// ile
-açılır (web.py anahtarı sunucuya sorar). İstemci kapanınca POST /yerel/cikar: son hâl yazılır, yuva serbest kalır. Ek istemciler
-pencere kipinde açılır, pencere başlığı pilotun adı; günlükleri logs/client_<kayıt>.log. Ana kayıt, açık bir kayıt, aynı pilot adı
-ve sınırın üstü reddedilir; ek istemci açıkken sunucuyu yeniden başlatan işler panelde engellenir (panel.py).
-Plan ve önceden düşünülen sorunlar: belgeler/COKLU_ISTEMCI.md.
-"""
+The game server is opened in multi-session mode (if the panel setting multi_client is on and there are at least two saves; on a friend
+server it already is). The extra client's save is added to the server with POST /yerel/ekle (server/multiplayer.py: the server writes
+directly to the slot's profile.json; if its id equals another player's, a temporary id in memory), the client is opened with
+http://127.0.0.1:8090/?session=<key>#darkorbit:// (web.py asks the server for the key). When the client closes, POST /yerel/cikar: the
+final state is written, the slot is freed. Extra clients are opened in window mode, the window title is the pilot's name; their logs are
+logs/client_<save>.log. The main save, a save that is open, the same pilot name and going over the limit are rejected; while an extra
+client is open, actions that restart the server are blocked in the panel (panel.py). Plan and problems thought out in advance:
+belgeler/COKLU_ISTEMCI.md. """
 import json, os, threading, time
 from urllib.error import HTTPError, URLError
 from urllib.request import ProxyHandler, Request, build_opener
@@ -17,25 +17,25 @@ import client as IST
 import processes as PR
 
 GAME = 'http://127.0.0.1:8081'
-OPENER = build_opener(ProxyHandler({}))       # yerel sunucuya sistemin vekil sunucusu üzerinden gidilmesin
-EARLY_SEC = 15                                  # bundan önce kapanan istemci: erken kapandı (kartta uyarı)
+OPENER = build_opener(ProxyHandler({}))       # do not go to the local server through the system's proxy
+EARLY_SEC = 15                                  # a client that closes before this: closed early (warning on the card)
 
 
 class MultiClientError(Exception):
-    """Kullanıcıya gösterilen hata."""
+    """Error shown to the user."""
 
 
 class MultiClient:
     def __init__(self, cfg, saves, direction, key, logs, log=print):
-        """anahtar: () -> oyun sunucusunun yönetim anahtarı (arkadas.Arkadas.anahtar; OO_MULTIPLAYER)."""
+        """key: () -> the game server's management key (friends.Friend.key; OO_MULTIPLAYER)."""
         self.cfg, self.saves, self.direction, self.key, self.logs, self.log = cfg, saves, direction, key, logs, log
         self.lock = threading.RLock()
-        self.is_open = {}                 # kayıt -> {'proc', 'oturum', 'uid', 'basla', 'pilot', 'gunluk'} ('proc' None: açılıyor)
-        self.last = {}                  # kayıt -> son kapanış {'sure_sn', 'erken', 'kod', 'zaman', 'bitis'}
-        self.last_backup = {}            # kayıt -> son aralıklı yedek
-        self.on_exit = None            # panel bağlar: () -> None (bir ek istemci kapandı)
+        self.is_open = {}                 # save -> {'proc', 'session', 'uid', 'start', 'pilot', 'daily'} ('proc' None: starting)
+        self.last = {}                  # save -> last close {'sure_sn', 'early', 'code', 'time', 'end_time'}
+        self.last_backup = {}            # save -> last periodic backup
+        self.on_exit = None            # the panel binds: () -> None (an extra client closed)
 
-    # ------------------------------------------------------------ oyun sunucusu
+    # ------------------------------------------------------------ game server
     def request(self, path, body):
         data = json.dumps(dict(body, anahtar=self.key())).encode('utf8')
         req = Request(GAME + path, data=data, headers={'Content-Type': 'application/json'}, method='POST')
@@ -50,10 +50,10 @@ class MultiClient:
         except (URLError, OSError, ValueError) as e:
             raise MultiClientError(_("Couldn't reach the game server (%s).", getattr(e, 'reason', e)))
 
-    # ------------------------------------------------------------ durum
+    # ------------------------------------------------------------ state
     def live(self):
-        """Açık, açılmakta ya da kapanmakta olan ek istemcilerin kayıtları (kapanan istemcinin yuvası sunucuda bırakılınca çıkar:
-        hemen yeniden açılan istemci sunucudaki eski oturuma bağlanıp sonra onunla birlikte bırakılmasın)."""
+        """Saves of the extra clients that are open, opening or closing (a closing client's slot leaves once it is released on the server:
+        so that a client reopened right away does not connect to the old session on the server and then get released with it)."""
         with self.lock:
             return list(self.is_open)
 
@@ -65,7 +65,7 @@ class MultiClient:
             return {e['proc'].pid for e in self.is_open.values() if e['proc'] is not None}
 
     def state(self, live=None):
-        """Panelin listesi: ek istemciler (sunucunun canli_durum.json'undaki 'yereller'le: bağlı mı, harita, seviye)."""
+        """The panel's list: extra clients (with the server's canli_durum.json 'yereller': connected?, map, level)."""
         lv = {y.get('record'): y for y in ((live or {}).get('local_players') or [])}
         now = time.time()
         with self.lock:
@@ -78,9 +78,9 @@ class MultiClient:
                             'connected': bool(y.get('connected')), 'map': y.get('map'), 'level': y.get('level'), 'uid': e['uid']})
             return {'clients': out, 'last': dict(self.last)}
 
-    # ------------------------------------------------------------ açma ve kapatma
+    # ------------------------------------------------------------ opening and closing
     def open_(self, slot, folder, main_slot):
-        """Ek istemciyi aç (sunucu çok oturumlu açık olmalı: panel denetler). -> durum."""
+        """Open the extra client (the server must be open in multi-session mode: the panel checks). -> status."""
         if slot == main_slot:
             raise MultiClientError(_('This save is open in the main client: pick another save for the extra client.'))
         if not self.saves.exists(slot):
@@ -114,7 +114,7 @@ class MultiClient:
         except Exception:
             with self.lock:
                 self.is_open.pop(slot, None)
-            if out and out.get('session'):            # sunucuya kaydolduysa bırakılsın (yoksa kayıt düzenlenebilir sanılıyordu)
+            if out and out.get('session'):            # if it registered with the server, release it (otherwise the save was thought to be editable)
                 try:
                     self.request('/yerel/cikar', {'session': out['session']})
                 except Exception:
@@ -126,8 +126,8 @@ class MultiClient:
         m = self.saves.meta(slot)
         self.saves.set_meta(slot, last_played=time.strftime('%Y-%m-%d %H:%M:%S'), play_count=int(m.get('play_count') or 0) + 1)
         PR.window_title(proc.pid, 'DarkOrbit — %s' % pilot)
-        self.log('ek istemci açıldı: %s (%s), süreç %d, sunucudaki kimlik %s%s' % (slot, pilot, proc.pid, out['uid'],
-                                                                               ' (sürüyor)' if out.get('ongoing') else ''))
+        self.log('extra client opened: %s (%s), process %d, id on the server %s%s' % (slot, pilot, proc.pid, out['uid'],
+                                                                               ' (continuing)' if out.get('ongoing') else ''))
         threading.Thread(target=self._watch, args=(slot, proc), daemon=True).start()
         return self.state()
 
@@ -140,20 +140,20 @@ class MultiClient:
             try:
                 c, out = self.request('/yerel/cikar', {'session': e['session']})
                 if c not in (200, 404):
-                    self.log('ek istemcinin kaydı bırakılamadı (%s): %s' % (c, out))
+                    self.log('extra client save could not be released (%s): %s' % (c, out))
             except MultiClientError as err:
-                self.log('ek istemcinin kaydı bırakılamadı: %s' % err)
+                self.log('extra client save could not be released: %s' % err)
         with self.lock:
             if self.is_open.get(slot, {}).get('proc') is proc:
                 self.is_open.pop(slot, None)
             self.last[slot] = {'sure_sn': int(stop), 'early': stop < EARLY_SEC and not (e or {}).get('closed'), 'code': code,
-                              'time': time.strftime('%H:%M:%S'), 'end_time': time.time()}      # panelden kapatılan erken sayılmaz
-        self.log('ek istemci kapandı: %s (%d sn, kod %s)' % (slot, stop, code))
+                              'time': time.strftime('%H:%M:%S'), 'end_time': time.time()}      # one closed from the panel does not count as early
+        self.log('extra client closed: %s (%d s, code %s)' % (slot, stop, code))
         if self.on_exit:
             try:
                 self.on_exit()
             except Exception as err:                   # noqa: BLE001
-                self.log('ek istemci kapanış işlemi hatası: %r' % err)
+                self.log('extra client close handler error: %r' % err)
 
     def close(self, slot):
         with self.lock:
@@ -165,7 +165,7 @@ class MultiClient:
             PR.close_client(e['proc'])
 
     def close_all(self, wait=0.0):
-        """Bütün ek istemcileri kapat; bekle: kapanışları (sunucuya son kayıt) en çok bu kadar beklenir."""
+        """Close all extra clients; wait: waits at most this long for the closings (the final save to the server)."""
         with self.lock:
             is_open = [e for e in self.is_open.values() if e['proc'] is not None and e['proc'].poll() is None]
         for e in is_open:
@@ -176,7 +176,7 @@ class MultiClient:
             time.sleep(0.1)
 
     def backup(self, interval_min):
-        """Oyun sürerken ek istemcilerin kayıtlarının aralıklı yedeği (panelin zamanlayıcısı)."""
+        """Periodic backup of the extra clients' saves while the game runs (the panel's timer)."""
         if not interval_min:
             return
         for s in self.live():

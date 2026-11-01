@@ -1,41 +1,41 @@
-"""Panelin oyun menüleri (kullanıcı isteği 2026-10-28: OYNA'dan sonra panelde Mağaza, Hangar, Skylab, Açık Artırma) için yerel kanal.
+"""Local channel for the panel's game menus (user request 2026-10-28: after PLAY, Shop, Hangar, Skylab, Auction in the panel).
 
-Oyun açıkken kayıt dosyası düzenlenemez (sunucu her 10 saniyede kaydeder; panel/kayitlar.guard): panel oyunu sunucunun içinden
-değiştirir. İstekler istemci göndermiş gibi oturumun on_packet'inden geçer (fiyat, kural, görev ve başarım sayaçları oyundakiyle aynı);
-sunucunun yanıtları gerçek istemciye de gider, oyundaki pencereler ve HUD anında güncellenir.
+While the game is open the save file cannot be edited (the server saves every 10 seconds; panel/saves.guard): the panel changes the game from
+inside the server. Requests go through the session's on_packet as if the client sent them (price, rules, quest and achievement counters are the same as in game);
+the server's replies also go to the real client, and the windows and HUD in the game update instantly.
 
-HTTP, yalnız 127.0.0.1:PORT. Anahtar her açılışta rastgele: <günlük klasörü>/panel_kanali.json {port, anahtar} (panel okur, istek
-X-Anahtar başlığıyla). Sunucunun kendi oyuncusu (game.CURRENT) bağlı değilse 409.
-  GET  /magaza   kredi, uridyum, kategoriler ve her kategorinin ürünleri (magaza.shop_list: istemcinin gördüğü liste)
-  POST /magaza/al {lootId, category, amount, level}  ShopItemBuyRequest -> {tamam, hata (ShopItemBuyCommand.errorMessage'ın
-                 BaseKey adı ya da ham metni; panel çevirir, istemci kendi ekranında da gösterir), kredi, uridyum}
-  POST /magaza/subscribe {lootId, category}  booster aboneliği aç/kapa (ShopItemBuyRequest action toggleSubscription)
-  GET  /hangar?ship=<kimlik>  gemiler (favori, kayıtlı config), seçili geminin (yoksa etkin) iki config'i: gemi yuvaları, dronlar
-                 (eşyaları, tasarım ve görünüm yuvası), P.E.T. (ad, seviye, yuvalar ve HEAT, yuva açma fiyatları); geminin tasarımları;
-                 CPU'lar (aç/kapa, otomatik alımın cephanesi); envanterde hiçbir yere takılı olmayan eşyalar: takılabildiği yerler
-                 (ship, drone, pet), yükseltme seviyesi, satış değeri; istasyonda mı
-  POST /hangar/tasi {gemi, konfig, esya, yon: tak|cikar, hedef: ship|drone|pet, dron, kume: heat}  HangarShipMoveItemsRequest
-  POST /hangar/etkin {ship}  HangarShipActivateShipRequest (oyundaki gibi yalnız istasyonda) -> {tamam, hata}
-  POST /hangar/tasarim {gemi, lootId}  HangarShipChangeShipModelRequest -> {tamam, hata}
-  POST /hangar/islem {islem, …}  oyunun hangar menüsündeki öteki işlemler (ISLEMLER): config'i etkin yapma, temizleme, kaydetme,
-                 yükleme, başka gemiye aktarma, favori, eşya ve dron satışı, P.E.T. adı ve yuvası, CPU aç/kapa ve otomatik alım cephanesi
-Güvenli bölge: oyunda donanım yalnız istasyonda (panelin "Portallarda hangar" ayarıyla portalın güvenli bölgesinde de) ve savaştan
-  bir süre sonra değişir; bunu istemci denetler (BeaconCommand inStation / inPeaceArea), sunucu takma isteğini konumdan bağımsız
-  işler. Panel istemciyi atladığı için kanal aynı kuralı dünyanın in_station'ıyla uygular (ISTASYON işlemleri; hata 'istasyon').
-  GET  /skylab   modüller (seviye, durum, enerji, üretim, yükseltme bedeli ve kalan süresi), depo, enerji, taşıma; önce biriken
-                 üretim işlenir (istemcinin pencere yenilemesi: SkylabActionRequest, construction boş: istemcide pencere açılmaz)
-  POST /skylab/islem {modul, islem, mod, miktarlar: {cevher kimliği: adet}}  SkylabActionRequest (upgrade, instantUpgrade,
-                 instantFinishUpgrade, abortUpgrade, setActive, setInactive, startTransport) -> {tamam, hatalar, basarilar}
-                 (BaseKey adları; skylab.son_islem)
-  POST /skylab/robot {modul, tip: 1|2}  SkylabPurchaseRobotRequest -> {tamam, hatalar}
-  GET  /muzayede  lotlar (en yüksek teklif ve sahibi, oyuncunun teklifi, önde mi, en düşük geçerli teklif, anında alım, otomatik teklif
-                 ve alarm kuralı), dönemlerin kalan süreleri, geçmiş, olaylar; önce istemcinin listesi gibi (dönem sonu işlenir)
-  POST /muzayede/teklif {tur, loot, fiyat}  AuctionBidRequest -> {tamam, hata}
-  POST /muzayede/hepsi {lots: [[tur, loot]]}  her lota (önde olunmayanlara) en düşük geçerli teklif -> {verilen, tutar, hatalar}
-  POST /muzayede/anlik {tur, loot}  AuctionQuickBuyRequest -> {tamam, hata}
-  POST /muzayede/oto {tur, loot, azami}  otomatik teklif kuralı (azami 0: kapalı; muzayede.oto)
-  POST /muzayede/alarm {tur, loot, gecilince, dk}  alarm kuralı (ikisi de boşsa kalkar)
-  GET  /muzayede/olaylar?last=<no>  bu numaradan sonraki olaylar (panelin bildirimleri)
+HTTP, only 127.0.0.1:PORT. The key is random on every start: <log folder>/panel_kanali.json {port, anahtar} (the panel reads it, requests carry the
+X-Anahtar header). 409 if the server's own player (game.CURRENT) is not connected.
+  GET  /magaza   credits, uridium, categories and each category's products (shop.shop_list: the list the client sees)
+  POST /magaza/al {lootId, category, amount, level}  ShopItemBuyRequest -> {done, error (BaseKey name of ShopItemBuyCommand.errorMessage
+                 or the raw text; the panel translates, the client also shows it on its own screen), credits, uridium}
+  POST /magaza/subscribe {lootId, category}  turn a booster subscription on/off (ShopItemBuyRequest action toggleSubscription)
+  GET  /hangar?ship=<id>  ships (favorite, saved config), the two configs of the selected ship (or the active one): ship slots, drones
+                 (items, design and appearance slot), P.E.T. (name, level, slots and HEAT, slot-unlock prices); the ship's designs;
+                 CPUs (on/off, ammo of the auto-buy); items in the inventory not fitted anywhere: where they can be fitted
+                 (ship, drone, pet), upgrade level, sale value; whether at the station
+  POST /hangar/tasi {ship, config, item, direction: equip|unequip, target: ship|drone|pet, drone, set: heat}  HangarShipMoveItemsRequest
+  POST /hangar/etkin {ship}  HangarShipActivateShipRequest (only at the station, as in game) -> {done, error}
+  POST /hangar/tasarim {ship, lootId}  HangarShipChangeShipModelRequest -> {done, error}
+  POST /hangar/islem {operation, ...}  the other operations of the game's hangar menu (OPS): making a config active, clearing, saving,
+                 loading, transferring to another ship, favorite, selling items and drones, P.E.T. name and slot, CPU on/off and auto-buy ammo
+Safe zone: in game equipment changes only at the station (with the panel's "Hangar at portals" setting also in the portal's safe zone) and some time
+  after combat; the client checks this (BeaconCommand inStation / inPeaceArea), the server handles a fitting request regardless of position.
+  Since the panel bypasses the client, the channel applies the same rule with the world's in_station (STATION operations; error 'station').
+  GET  /skylab   modules (level, state, energy, production, upgrade cost and remaining time), storage, energy, transport; the accumulated
+                 production is processed first (the client's window refresh: SkylabActionRequest, construction empty: no window opens in the client)
+  POST /skylab/islem {module, operation, mod, amounts: {ore id: count}}  SkylabActionRequest (upgrade, instantUpgrade,
+                 instantFinishUpgrade, abortUpgrade, setActive, setInactive, startTransport) -> {done, errors, achievements}
+                 (BaseKey names; skylab.last_operation)
+  POST /skylab/robot {module, tip: 1|2}  SkylabPurchaseRobotRequest -> {done, errors}
+  GET  /muzayede  lots (highest bid and its owner, the player's bid, whether leading, lowest valid bid, instant buy, auto-bid
+                 and alarm rule), remaining times of the periods, history, events; first as in the client's list (the period end is processed)
+  POST /muzayede/teklif {type, loot, price}  AuctionBidRequest -> {done, error}
+  POST /muzayede/hepsi {lots: [[type, loot]]}  the lowest valid bid on every lot (those not leading) -> {given, amount, errors}
+  POST /muzayede/anlik {type, loot}  AuctionQuickBuyRequest -> {done, error}
+  POST /muzayede/oto {type, loot, maximum}  auto-bid rule (maximum 0: off; auction.auto)
+  POST /muzayede/alarm {type, loot, when_outbid, min}  alarm rule (removed if both are empty)
+  GET  /muzayede/olaylar?last=<no>  events after this number (the panel's notifications)
 """
 import json, os, secrets, threading, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -49,7 +49,7 @@ import combat_items as CIT
 import skylab as SKY
 
 PORT = 8098
-KEY_NAMES = {v: k for k, v in SHP.BASEKEY.items()}      # BaseKey numarası -> adı (mesaj_anahtarlari.json)
+KEY_NAMES = {v: k for k, v in SHP.BASEKEY.items()}      # BaseKey number -> name (message_keys.json)
 
 
 class Error(Exception):
@@ -61,14 +61,14 @@ class Error(Exception):
 def session(game):
     s = game.CURRENT
     if s is None or s.profile is None or getattr(s, 'shop', None) is None:
-        raise Error(409, 'oyun bağlı değil')
+        raise Error(409, 'game not connected')
     return s
 
 
 def wallet(s):
     pl = s.profile.d['pilot']
     return {'credits': pl.get('credits', 0), 'uridium': pl.get('uridium', 0), 'in_station': in_station(s),
-            'company': {1: 'mmo', 2: 'eic', 3: 'vru'}.get(pl.get('factionId'), 'eic')}     # gemi simgeleri şirkete göre
+            'company': {1: 'mmo', 2: 'eic', 3: 'vru'}.get(pl.get('factionId'), 'eic')}     # ship icons by company
 
 
 def shop(game):
@@ -84,7 +84,7 @@ def shop(game):
 
 
 def bot_name_log(game, b):
-    """Panel bir botun adını değiştirdi (name_log.py): oyun açıkken hemen uygulanır (botlar, klanlar, bağlı oyuncuların rehberi)."""
+    """The panel renamed a bot (name_log.py): applied immediately while the game is open (bots, clans, the directory of connected players)."""
     from bot import manager as MGR
     y = MGR.ACTIVE
     return {'done': True, 'changed': y.apply_name_log() if y is not None else 0}
@@ -94,26 +94,26 @@ def _bot(b):
     from bot import manager as MGR
     y = MGR.ACTIVE
     if y is None:
-        raise Error(409, 'botlar açık değil')
+        raise Error(409, 'bots are not on')
     bot = next((x for x in y.bots if x.k['no'] == int(b.get('no') or 0)), None)
     roster_row = next((x for x in y.package.get('roster', []) if x['no'] == int(b.get('no') or 0)), None)
     if bot is None or roster_row is None:
-        raise Error(404, 'bot yok')
+        raise Error(404, 'no such bot')
     return y, bot, roster_row
 
 
 def bot_detail(game, b):
-    """Panelin bot penceresi, oyun açıkken: canlı botun durumu (bot/duzenle.gorunum)."""
+    """The panel's bot window, while the game is open: the live bot's state (bot/edit.view)."""
     from bot import edit as ED
     y, bot, roster_row = _bot(b)
     with y.lock:
-        bot.save()                                    # ruh hâli nesneden sözlüğe
+        bot.save()                                    # mood from object to dict
         return ED.appearance(bot.k, roster_row, online=bot.online)
 
 
 def edit_bot(game, b):
-    """Panel bir botu düzenledi, oyun açıkken: canlı bota hemen uygulanır (ruh hâli nesnesi, ekipman önbelleği, profil eşitlenir).
-    Hata kodu yanıtta (panel kendi dilinde iletir)."""
+    """The panel edited a bot, while the game is open: applied to the live bot immediately (mood object, equipment cache, profile synced).
+    The error code is in the reply (the panel reports it in its own language)."""
     from bot import edit as ED, society
     y, bot, roster_row = _bot(b)
     value = b.get('changes') or {}
@@ -132,7 +132,7 @@ def edit_bot(game, b):
 
 
 def handle(s, name, f):
-    """İstemci göndermiş gibi (game.Session.inject gibi) -> o sırada istemciye gönderilen mesajlar."""
+    """As if the client sent it (like game.Session.inject) -> the messages sent to the client in the meantime."""
     outgoing = []
     with s.packet_lock:
         original = s.send
@@ -140,7 +140,7 @@ def handle(s, name, f):
         def capture(msgs, *a, **k):
             outgoing.extend(msgs)
             return original(msgs, *a, **k)
-        s.send = capture              # alt sistemler self.send'i çağrı anında arar (lambda m: self.send(...)): hepsi yakalanır
+        s.send = capture              # subsystems look up self.send at call time (lambda m: self.send(...)): all of them are caught
         try:
             s.on_packet(name, -1, f, None)
         finally:
@@ -166,21 +166,21 @@ def response(outgoing, name):
 
 
 def error_name(e):
-    """Yanıt komutunun BaseStackCommand'i -> BaseKey adı (type 0) ya da ham metin (type 1)."""
+    """The reply command's BaseStackCommand -> BaseKey name (type 0) or raw text (type 1)."""
     if not e:
         return None
     return e.get('stringBasekey') if e.get('type') == 1 else KEY_NAMES.get(e.get('enumBaseKey'))
 
 
 def in_station(s):
-    """Oyunda donanımın değişebildiği yer (dunya.in_station: istasyon, ayara göre portalın güvenli bölgesi; savaştan sonra bekleme).
-    Harita yüklenmemişse (giriş ekranı, hangar) istemci de izin veriyor."""
+    """Where equipment can change in game (world.in_station: station, depending on the setting the portal's safe zone; wait after combat).
+    If no map is loaded (login screen, hangar) the client allows it too."""
     w = getattr(s, 'world', None)
     return w is None or w.in_station()
 
 
 def cpus(s):
-    """Etkin geminin etkin config'indeki (dronlar dahil) aç/kapa CPU'ları ve otomatik alım CPU'ları (seçilebilecek cephaneyle)."""
+    """The on/off CPUs and auto-buy CPUs in the active ship's active config (drones included) (with the ammo that can be chosen)."""
     p, shop = s.profile, s.shop
     equipped = SHP.EX.equipped(p)
     ids = {l: int(i) for i, l in p.d['items'].items() if l in equipped}
@@ -231,7 +231,7 @@ def hangar(game, q):
         for i, l in p.d['items'].items():
             place = places.get(int(i))
             # items on another ship are hidden; items in a config of this ship stay listed for the other config (as in game)
-            if (place and place[0] != sid) or l.startswith(('drone_', 'ship_')):          # dronlar ve gemiler eşya kaydında da durur
+            if (place and place[0] != sid) or l.startswith(('drone_', 'ship_')):          # drones and ships are also kept in the item record
                 continue
             sale = shop.sale_value(l) if not l.startswith(SHP.QF.PREFIX) else None
             if targets(l) or (sale and not place):
@@ -280,13 +280,13 @@ def design(game, b):
 
 
 def result(outgoing, name):
-    """Yanıt komutu -> {tamam, hata}: resultId ya da result 1 başarı; hata errorMessage ya da (yükleme penceresi) description."""
+    """Reply command -> {done, error}: resultId or result 1 is success; the error is errorMessage or (loading window) description."""
     cmd = response(outgoing, name) or {}
     ok = (cmd.get('resultId') if 'resultId' in cmd else cmd.get('result')) == 1
     return {'done': ok, 'error': None if ok else error_name(cmd.get('errorMessage') or cmd.get('description')) or 'eqt_error_generic'}
 
 
-# işlem -> (istek, alanlar(b, profil), yanıt komutu); ISTASYON'dakiler oyunda yalnız istasyonda (donanım değişir)
+# operation -> (request, fields(b, profile), reply command); those in STATION only at the station in game (equipment changes)
 OPS = {
     'clean_up': ('HangarShipClearConfigRequest', lambda b, p: {'wipe': 0, 'configId': int(b.get('config') or 1), 'shipId': str(b.get('ship'))},
                 'HangarShipClearConfigCommand'),
@@ -310,13 +310,13 @@ STATION = ('clean_up', 'load', 'import_action', 'drone_sell')
 def hangar_action(game, b):
     s = session(game)
     operation = b.get('operation')
-    if operation == 'config':                   # kısayol çubuğunun config düğmesi gibi (eski metin isteği S|CFG; oyunda her yerde, beklemeli)
+    if operation == 'config':                   # like the shortcut bar's config button (the old text request S|CFG; anywhere in game, with a wait)
         n = str(int(b.get('config') or 1))
         once = s.profile.ship()['active_config']
         handle(s, 'LegacyModule', {'message': 'S|CFG|%s|%d' % (n, s.profile.user_id)})
         ok = str(s.profile.ship()['active_config']) == n
         return {'done': ok, 'error': None if ok else 'config_change_failed_time' if str(once) != n else None}
-    if operation == 'cpu':                      # aç/kapa CPU'su: kısayol çubuğundaki öğesine tıklamak gibi
+    if operation == 'cpu':                      # on/off CPU: like clicking its item in the shortcut bar
         l = str(b.get('lootId') or '')
         if l not in CIT.TOGGLES or getattr(s, 'world', None) is None:
             raise Error(400, 'cpu')
@@ -342,7 +342,7 @@ def subscriber(game, b):
 def skylab(game):
     s = session(game)
     skylab = s.skylab
-    handle(s, 'SkylabActionRequest', {'construction': '', 'subaction': ''})       # biriken üretim, biten yükseltme ve taşıma
+    handle(s, 'SkylabActionRequest', {'construction': '', 'subaction': ''})       # accumulated production, finished upgrades and transport
     with s.packet_lock:
         now, st = time.time(), skylab.st
         modules = []
@@ -350,7 +350,7 @@ def skylab(game):
             m, c = skylab.module(k), skylab.upgrade_cost(k)
             modules.append({'id': k, 'level': m['level'], 'maximum': SKY.MODULES[k]['maximum'], 'state': skylab.state(k),
                              'energy': skylab.energy(k), 'uretim': skylab.production(k),
-                             'cost': dict(c, sure_sn=SET.duration(c['sure_sn'], 'skylab')) if c else None,     # panelin bekleme çarpanıyla
+                             'cost': dict(c, sure_sn=SET.duration(c['sure_sn'], 'skylab')) if c else None,     # with the panel's wait multiplier
                              'remaining': max(0, int(m['upgrade'] - now)) if m.get('upgrade') else None, 'finish': skylab.finish_price(k, now),
                              'toggleable': k not in SKY.ALWAYS_ON, 'efficiency': skylab.efficiency(k) if k in SKY.COLLECTORS else None,
                              'robot': {'etkin': len(st['robots'].get(k, [])), 'in_storage': len(st['backup'].get(k, [])),
@@ -394,7 +394,7 @@ def robot(game, b):
 def auction(game):
     s = session(game)
     auc = s.social.auction
-    handle(s, 'AuctionListRequest', {})                 # dönem sonu ve geçilen teklifler işlenir; istemcinin listesi de yenilenir
+    handle(s, 'AuctionListRequest', {})                 # the period end and outbid bids are processed; the client's list is refreshed too
     with s.packet_lock:
         now = time.time()
         lots = []
@@ -421,7 +421,7 @@ def bid(game, b):
 
 
 def all_(game, b):
-    """Hepsine katıl: önde olunmayan her lota en düşük geçerli teklif (kredi yetene dek)."""
+    """Join all: the lowest valid bid on every lot not leading (as long as credits last)."""
     s = session(game)
     auc, given, amount, errors = s.social.auction, 0, 0, {}
     for kind, loot in b.get('lots') or []:
@@ -445,7 +445,7 @@ def instant(game, b):
 
 
 def rule(game, b, area):
-    """Otomatik teklif ya da alarm kuralı (profilde; muzayede.oto tick'te uygular)."""
+    """Auto-bid or alarm rule (in the profile; auction.auto applies it on the tick)."""
     s = session(game)
     lot = MZ.LOTS.get((str(b.get('type')), str(b.get('loot'))))
     if not lot:
@@ -495,7 +495,7 @@ def start(game, folder, log=print):
             except Error as e:
                 return self._reply(e.code, {'error': str(e)})
             except Exception as e:
-                log('panel kanalı: %s hatası: %r' % (self.path, e))
+                log('panel channel: error in %s: %r' % (self.path, e))
                 return self._reply(500, {'error': repr(e)})
 
         def do_GET(self):
@@ -532,7 +532,7 @@ def start(game, folder, log=print):
     try:
         srv = ThreadingHTTPServer(('127.0.0.1', PORT), Handler)
     except OSError as e:
-        log('panel kanalı açılamadı (%d): %r' % (PORT, e))
+        log('panel channel could not open (%d): %r' % (PORT, e))
         return None
     srv.daemon_threads = True
     threading.Thread(target=srv.serve_forever, daemon=True).start()

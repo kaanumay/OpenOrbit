@@ -1,9 +1,9 @@
-"""Gelişmiş bot kipinin dil modeli kurulumu (Botlar sayfası > Gelişmiş kip): llama.cpp'nin llama-server'ı ve Qwen3 4B Q4_K_M.
+"""Language model setup for advanced bot mode (Bots page > Advanced mode): llama.cpp's llama-server and Qwen3 4B Q4_K_M.
 
-save/llm/ altına iner: llama-<sürüm>/ (sunucu), Qwen3-4B-Q4_K_M.gguf (model, ~2,5 GB; yarım kalırsa kaldığı yerden sürer),
-kurulum.json (sunucunun yolu, özetler, testin sonucu). İki dosyanın SHA-256'sı indirilirken doğrulanır. "Test et" sunucuyu açıp
-kısa bir soru sorar (bot/llm_sunucu.test); yanıt gelince kurulum tamamdır. Durum: yok, indiriliyor, kuruluyor, kurulu, hazir (test
-geçti), hata, durdu.
+Downloads under save/llm/: llama-<version>/ (the server), Qwen3-4B-Q4_K_M.gguf (the model, ~2.5 GB; if interrupted it resumes where it left off),
+install.json (the server's path, digests, the test result). The SHA-256 of both files is verified while downloading. "Test" starts the server and asks
+a short question (bot/llm_server.test); when an answer arrives the setup is complete. State: none, installing, built, ready (test
+passed), error, stopped.
 """
 import hashlib, json, os, platform, shutil, sys, tarfile, threading, time, zipfile
 
@@ -13,7 +13,7 @@ from client_download import HttpFile, DownloadError, Cancelled
 
 VERSION = 'b11981'
 _GH = 'https://github.com/ggml-org/llama.cpp/releases/download/%s/' % VERSION
-SERVERS = {   # platform -> arşiv (Vulkan: NVIDIA, AMD ve Intel ekran kartlarında; yoksa işlemcide çalışır)
+SERVERS = {   # platform -> archive (Vulkan: on NVIDIA, AMD and Intel graphics cards; otherwise it runs on the CPU)
     'win-x64': dict(url=_GH + 'llama-%s-bin-win-vulkan-x64.zip' % VERSION, size=37346388,
                     sha256='29419511baa97ccb001111a24de4a9e1d62251075749e2a8be56219b51dc21ce'),
     'linux-x64': dict(url=_GH + 'llama-%s-bin-ubuntu-vulkan-x64.tar.gz' % VERSION, size=35475421,
@@ -39,7 +39,7 @@ def platform_key():
 
 
 def memory_gb():
-    """Toplam bellek (GB) ya da None."""
+    """Total memory (GB) or None."""
     try:
         if sys.platform == 'win32':
             import ctypes
@@ -105,7 +105,7 @@ class LlmSetup:
         with self.lock:
             return self.d['running'] or self.t.get('state') == 'running'
 
-    # ------------------------------------------------------------ kurulum
+    # ------------------------------------------------------------ setup
     def start(self):
         with self.lock:
             if not self.d['running'] and not self.save():
@@ -144,7 +144,7 @@ class LlmSetup:
                 self.d['time_left_sec'] = int(remaining / self.d['speed']) if self.d['speed'] > 0 else None
 
     def _download(self, url, target, size, sha):
-        """Dosyayı hedefe (yarım .part'tan sürerek) indir, SHA-256'yı doğrula."""
+        """Download the file to the target (resuming from a partial .part), verify the SHA-256."""
         part = target + '.part'
         digest = hashlib.sha256()
         var = os.path.getsize(part) if os.path.isfile(part) else 0
@@ -189,7 +189,7 @@ class LlmSetup:
                 raise DownloadError(_('Not enough disk space: %.1f GB needed, %.1f GB free.', need / 2 ** 30, empty / 2 ** 30))
             s = SERVERS[pk]
             archive = os.path.join(k, os.path.basename(s['url']))
-            self.log('dil modeli sunucusu indiriliyor: %s' % s['url'])
+            self.log('language model server downloading: %s' % s['url'])
             with self.lock:
                 self.d['part'] = 'llama-server'
             if not os.path.isfile(archive):
@@ -200,7 +200,7 @@ class LlmSetup:
                 self.d['part'] = MODEL['name']
             model = os.path.join(k, MODEL['name'])
             if not os.path.isfile(model):
-                self.log('dil modeli indiriliyor: %s' % MODEL['url'])
+                self.log('language model downloading: %s' % MODEL['url'])
                 self._download(MODEL['url'], model, MODEL['size'], MODEL['sha256'])
             else:
                 self._count(MODEL['size'])
@@ -233,18 +233,18 @@ class LlmSetup:
                            'time': time.strftime('%Y-%m-%d %H:%M:%S')}, fh, indent=1)
             with self.lock:
                 self.d.update(state='built', claimed=self.d['total'], time_left_sec=0)
-            self.log('dil modeli kuruldu: %s' % server)
+            self.log('language model installed: %s' % server)
         except Cancelled:
             with self.lock:
                 self.d['state'] = 'stopped'
         except DownloadError as e:
             with self.lock:
                 self.d.update(state='error', error=str(e))
-            self.log('dil modeli kurulamadı: %s' % e)
+            self.log('language model could not be installed: %s' % e)
         except (OSError, zipfile.BadZipFile, tarfile.TarError) as e:
             with self.lock:
                 self.d.update(state='error', error=_('Could not write the file or the archive is corrupt: %s', e))
-            self.log('dil modeli kurulamadı: %r' % e)
+            self.log('language model could not be installed: %r' % e)
         finally:
             with self.lock:
                 self.d['running'], self.d['speed'], self.d['part'] = False, 0, None
@@ -261,7 +261,7 @@ class LlmSetup:
         return self.state()
 
     def test_remote(self):
-        """Seçili uzak sağlayıcının testi (bot/llm_saglayici.test): kısa bir soru, Türkçe yanıt."""
+        """Test of the selected remote provider (bot/llm_provider.test): a short question, an answer in Turkish."""
         from bot import llm_provider as PRV
         c = PRV.selected()
         if PRV.PROVIDERS[c['uid']]['anahtar'] and not c['anahtar']:
@@ -282,11 +282,11 @@ class LlmSetup:
             with self.lock:
                 self.t = dict(r, state='ok' if r['ok'] else 'error', provider=uid,
                               error=None if r['ok'] else _('The model did not give the expected reply.'))
-            self.log('dil modeli sağlayıcı testi: %s' % r)
+            self.log('language model provider test: %s' % r)
         except Exception as e:
             with self.lock:
                 self.t = {'state': 'error', 'error': str(e), 'provider': uid}
-            self.log('dil modeli sağlayıcı testi başarısız: %r' % e)
+            self.log('language model provider test failed: %r' % e)
 
     def _test(self):
         from bot import llm_server as LS
@@ -298,8 +298,8 @@ class LlmSetup:
                 json.dump(k, fh, indent=1, ensure_ascii=False)
             with self.lock:
                 self.t = dict(r, state='ok' if r['ok'] else 'error', error=None if r['ok'] else _('The model did not give the expected reply.'))
-            self.log('dil modeli testi: %s' % r)
+            self.log('language model test: %s' % r)
         except Exception as e:
             with self.lock:
                 self.t = {'state': 'error', 'error': str(e)}
-            self.log('dil modeli testi başarısız: %r' % e)
+            self.log('language model test failed: %r' % e)

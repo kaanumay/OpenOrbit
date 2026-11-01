@@ -1,20 +1,20 @@
-"""Günlük ödül pencereleri: Mini Client ödülü, Monthly Deluxe, Unity istemcisi ödül görevleri (yol haritası Aşama 7; veri
-data/tickets.json <- tools/tickets.py, kayıttaki pencereler).
+"""Daily reward windows: Mini Client reward, Monthly Deluxe, Unity client reward quests (roadmap Stage 7; data
+data/tickets.json <- tools/tickets.py, the windows in the recording).
 
-Mini Client ödülü (kayıt: MiniClientRewardInfoCommand {rewardList 15 gün, isClaimable, timeToEndEvent sn, daysClaimed};
-  MiniClientRewardClaimRequest -> ödül + MiniClientRewardDayInfoCommand {isClaimable, daysClaimed}): etkinlik süresince (event_calendar.py:
-  'MiniClientReward' türü olan etkinlik: Trial of Terrors, E8'den Prosperous, Protegit, Gauntlet of Plutus, Mimesis, Treacherous
-  Domain, Fiesta, Thanksgiving ve kış takvimi) günde bir; liste kayıttaki Halloween listesi, Thanksgiving ve Prosperous'ta wiki'nin
-  8 günlük listesi (tickets.json mini_istemci_etkinlik; fandom, 2021-2022 koşuları: gerçek 2026 listesi doğrulanamıyor), ötekilerinin
-  listesi kaynakta yok (Halloween'inki).
+Mini Client reward (recording: MiniClientRewardInfoCommand {rewardList 15 days, isClaimable, timeToEndEvent sec, daysClaimed};
+  MiniClientRewardClaimRequest -> reward + MiniClientRewardDayInfoCommand {isClaimable, daysClaimed}): once a day while the event runs (event_calendar.py:
+  events with the 'MiniClientReward' type: Trial of Terrors, Prosperous from E8, Protegit, Gauntlet of Plutus, Mimesis, Treacherous
+  Domain, Fiesta, Thanksgiving and the winter calendar); the list is the Halloween list in the recording, and for Thanksgiving and Prosperous the wiki's
+  8-day list (tickets.json mini_client_event; fandom, 2021-2022 runs: the real 2026 list cannot be verified), the others'
+  list is not in the source (Halloween's is used).
 Monthly Deluxe (MonthlyDeluxeInfoCommand {rewardList 28, dayInfoCommand {today, daysClaimed, isClaimable}, timeInfoCommand
-  {timeToPassEnd}}; MonthlyDeluxeClaimRequest -> MonthlyDeluxeDayInfoCommand): gerçek parayla satılan paket
-  (package_event-deal-month-deluxe -> resource_monthly-deluxe) uridyumla; alındığı günden 28 gün, her gün o günün ödülü.
-Unity istemcisi ödülü (EventUnityClientRewardQuestCommand {nowQuests, afterQuests, beforeQuests}; ClaimUnityClientRewardRequest
-  {questId}; bitince EventQuestCompletedCommand {eventType UnityClientReward, repeatableType DAILY}): 7 günlük program, her gün 3 görev
-  (giriş, bir hedef ve gerçek oyunda ödeme: tek oyunculu uyarlama Uridium Bank'tan alım). Profil başına bir kez, ilk girişten başlar;
-  önceki günlerin bitmiş görevlerinin ödülü sonra da alınır.
-Profilde: mini_istemci {donem, gun, n}, aylik_deluxe {baslangic, alinan}, unity_odul {baslangic, deger, tamam, alinan}.
+  {timeToPassEnd}}; MonthlyDeluxeClaimRequest -> MonthlyDeluxeDayInfoCommand): a package sold for real money
+  (package_event-deal-month-deluxe -> resource_monthly-deluxe) for uridium; 28 days from the day it is bought, each day that day's reward.
+Unity client reward (EventUnityClientRewardQuestCommand {nowQuests, afterQuests, beforeQuests}; ClaimUnityClientRewardRequest
+  {questId}; when finished EventQuestCompletedCommand {eventType UnityClientReward, repeatableType DAILY}): a 7-day schedule, 3 quests each day
+  (login, a goal, and in the real game a payment: the single-player adaptation uses a purchase from the Uridium Bank). Once per profile, starting from the first login;
+  the reward of finished quests from earlier days can be claimed later too.
+In the profile: mini_client {period, day, n}, monthly_deluxe {start, claimed}, unity_reward {start, value, done, claimed}.
 """
 import datetime, json, os, time
 
@@ -24,7 +24,7 @@ import event_calendar as CAL
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'tickets.json'), encoding='utf8'))
 MINI, DELUXE, UNITY = D['mini_client'], D['monthly_deluxe'], D['unity_reward']
-MINI_EVENT = D.get('mini_client_event', {})       # etkinlik -> kendi gün listesi (yoksa MINI)
+MINI_EVENT = D.get('mini_client_event', {})       # event -> its own day list (MINI if none)
 UNITY_Q = {q['id']: q for day in UNITY for q in day}
 DELUXE_ITEM = 'resource_monthly-deluxe'
 
@@ -39,7 +39,7 @@ def today(now=None):
 
 
 def mini_list(now=None):
-    """Süren Mini Client etkinliğinin gün listesi [[lootId, adet, özel]]."""
+    """The day list of the running Mini Client event [[lootId, count, special]]."""
     return MINI_EVENT.get(mini_event(now)[0], MINI)
 
 
@@ -95,7 +95,7 @@ class DailyReward:
             st['n'] += 1
             st['day'] = today().isoformat()
             self.p.dirty = True
-        self.log('   Mini Client ödülü: gün %d %s x%d' % (st['n'], l, n))
+        self.log('   Mini Client reward: day %d %s x%d' % (st['n'], l, n))
         return self.reward(l, n) + [('MiniClientRewardDayInfoCommand', dict(isClaimable=False, daysClaimed=st['n']))]
 
     # ------------------------------------------------------------ Monthly Deluxe
@@ -125,25 +125,25 @@ class DailyReward:
                                             datetime.time()).timestamp()
             left = int(end - now)
         else:
-            left = -int(now)                                          # kayıt: alınmamışken eksi
+            left = -int(now)                                          # recording: negative when unclaimed
         rows = [mod('MonthlyDeluxeRewardModule', lootId=l, amount=n) for l, n in DELUXE]
         return ('MonthlyDeluxeInfoCommand', dict(rewardList=rows, dayInfoCommand=self.deluxe_day_cmd(now),
                                                  timeInfoCommand=mod('MonthlyDeluxeTimeInfoCommand', timeToPassEnd=left)))
 
     def grant_deluxe(self, n=1):
-        """Mağazadan Monthly Deluxe: bugünden 28 gün (sürerken alınırsa bittiği gün başlar)."""
+        """Monthly Deluxe from the shop: 28 days from today (if bought while one is running, it starts the day that one ends)."""
         st = self.p.d.get('monthly_deluxe')
         start = today()
         if st and self.deluxe_day() >= 0:
             start = datetime.date.fromisoformat(st['start']) + datetime.timedelta(days=len(DELUXE))
-            self.p.add_resource(DELUXE_ITEM, n)                          # sıradaki ay depoda (bitince başlar)
+            self.p.add_resource(DELUXE_ITEM, n)                          # the next month is in storage (starts when it ends)
             return []
         with self.p.lock:
             self.p.d['monthly_deluxe'] = {'start': start.isoformat(), 'claimed': []}
             self.p.dirty = True
         if n > 1:
-            self.p.add_resource(DELUXE_ITEM, n - 1)                      # kalan aylar depoda (yoksa yalnız bir ay veriliyordu)
-        self.log('   Monthly Deluxe başladı: %s' % start.isoformat())
+            self.p.add_resource(DELUXE_ITEM, n - 1)                      # the remaining months are in storage (otherwise only one month was given)
+        self.log('   Monthly Deluxe started: %s' % start.isoformat())
         return [self.deluxe_info()]
 
     def deluxe_claim(self, f=None):
@@ -155,11 +155,11 @@ class DailyReward:
         with self.p.lock:
             st['claimed'].append(d)
             self.p.dirty = True
-        self.log('   Monthly Deluxe günü %d: %s x%d' % (d + 1, l, n))
+        self.log('   Monthly Deluxe day %d: %s x%d' % (d + 1, l, n))
         return self.reward(l, n) + [self.deluxe_day_msg()]
 
     def deluxe_roll(self):
-        """Biten aboneliğin yerine depodaki bir sonraki ay."""
+        """The next month in storage in place of the expired subscription."""
         st = self.p.d.get('monthly_deluxe')
         if st and self.deluxe_day() < 0 and self.p.resource(DELUXE_ITEM) > 0:
             self.p.add_resource(DELUXE_ITEM, -1)
@@ -167,7 +167,7 @@ class DailyReward:
                 self.p.d['monthly_deluxe'] = {'start': today().isoformat(), 'claimed': []}
                 self.p.dirty = True
 
-    # ------------------------------------------------------------ Unity istemcisi ödülü
+    # ------------------------------------------------------------ Unity client reward
     @property
     def parent(self):
         st = self.p.d.setdefault('unity_reward', {})
@@ -209,7 +209,7 @@ class DailyReward:
                 st['done'].append(q)
                 self.p.dirty = True
             msgs.append(('EventQuestCompletedCommand', dict(eventType='UnityClientReward', repeatableType='DAILY')))
-            self.log('   Unity istemcisi ödül görevi bitti: %d' % q)
+            self.log('   Unity client reward quest finished: %d' % q)
         if done:
             msgs.append(self.unity_cmd())
         return msgs
@@ -225,10 +225,10 @@ class DailyReward:
         msgs = []
         for r in UNITY_Q[qid]['rewards']:
             msgs += self.reward(r['lootId'], r['amount'])
-        self.log('   Unity istemcisi ödülü alındı: %d' % qid)
+        self.log('   Unity client reward claimed: %d' % qid)
         return msgs + [self.unity_cmd()]
 
-    # ------------------------------------------------------------ oturum
+    # ------------------------------------------------------------ session
     def login_msgs(self):
         self.deluxe_roll()
         msgs = [self.deluxe_info(), self.unity_cmd()]

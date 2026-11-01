@@ -1,28 +1,28 @@
-"""Durum etkileri: bir varlığın (uzaylı ya da oyuncu) süreli etkileri. Gemi yetenekleri, ileride özel roketler, mayınlar, EMP ve
-uzaylı yetenekleri bunları kullanır (world.py uygular).
+"""Status effects: the timed effects of an entity (alien or player). Ship abilities, in future special rockets, mines, EMP and
+alien abilities use them (world.py applies them).
 
-Türler (değer anlamı):
-  yavas        hız çarpanı düşüşü (0.3 = %30 yavaş); birden çoksa en güçlüsü
-  donuk        kıpırdamaz ve ateş etmez
-  isabet       isabet düşüşü (0.4 = %40 daha az isabet); toplanır, en çok 1
-  kalkan_hasari kalkana giden hasar çarpanı (1.5 = kalkan emdiği payın 1,5 katı erir, gövde payı aynı; Diminisher Weaken Shields);
-               birden çoksa en büyüğü
-  hasar_bonus  bu varlığa verilen hasar bonusu (0.05 = +%5; Target Marker); toplanır
-  dokunulmaz   hasar almaz
-  hizlanma     hız en az bu değer (Speed Burst 1.800); oyuncuda ust_hiz
-  zehir        saniyede bir gövdeye hasar: deger (vuruş), artis (her vuruşta artış), en_cok, kalan (toplam sınır), sonraki (zaman)
-  hiz_siniri   hız en çok bu değer (Barb ve The Stinger'ın yavaşlatma küresi: 120); oyuncuda azami_hiz; birden çoksa en küçüğü
-  zayiflik     oyuncunun lazer ve roket hasarı düşüşü (0.1 = %10; Emperor Sibelon'un DMG kapsülü); toplanır
-  yetenek      oyuncuda gemi yeteneği biçiminde etki (ship_abilities.json 'etki': yansit, emme_can, mods); Mimesis Chest'in Revenge,
-               Assimilate ve Flux'u (mimesis_chest.py); mods profil bonuslarına, ability(anahtar) hurt_hero'ya
-Her etkinin kaynağı (ör. yeteneğin menü öğesi) vardır; kaynağa göre erken kaldırılabilir.
+Types (meaning of the value):
+  slow         speed multiplier drop (0.3 = 30% slower); if several, the strongest
+  frozen       cannot move or fire
+  hit          accuracy drop (0.4 = 40% less accuracy); added up, at most 1
+  shield_damage_taken damage multiplier to the shield (1.5 = the share the shield absorbs melts 1.5 times as fast, the hull share the same; Diminisher Weaken Shields);
+               if several, the largest
+  damage_bonus damage bonus dealt to this entity (0.05 = +5%; Target Marker); added up
+  immune_until takes no damage
+  speed_up     speed at least this value (Speed Burst 1,800); on the player floor_speed
+  poison       damage to the hull once a second: value (hit), increase (per hit), max_count, remaining (total limit), next (time)
+  speed_limit  speed at most this value (the slowing sphere of Barb and The Stinger: 120); on the player max_speed; if several, the smallest
+  weakness     drop in the player's laser and rocket damage (0.1 = 10%; Emperor Sibelon's DMG capsule); added up
+  skill        an effect in the form of a ship ability on the player (ship_abilities.json 'effect': mirror, absorb_hp, mods); Mimesis Chest's Revenge,
+               Assimilate and Flux (mimesis_chest.py); mods into the profile bonuses, ability(key) into hurt_hero
+Every effect has a source (e.g. the ability's menu item); it can be removed early by source.
 """
 import time
 
 
 class Effects:
     def __init__(self):
-        self.d = {}                   # tür -> [{bitis, deger, kaynak, ...}]
+        self.d = {}                   # type -> [{end_time, value, source, ...}]
 
     def add(self, kind, sec, value=1.0, source=None, now=None, **extra):
         now = now or time.time()
@@ -31,7 +31,7 @@ class Effects:
         return e
 
     def get(self, kind, now=None):
-        """Süren etkiler (bitenler ayıklanır)."""
+        """Ongoing effects (expired ones are pruned)."""
         now = now or time.time()
         lst = [e for e in self.d.get(kind, []) if now < e['end_time']]
         if lst:
@@ -47,7 +47,7 @@ class Effects:
                 self.d.pop(k, None)
 
     def expired(self, now=None):
-        """Biten türler (süresi dolan etkiler ayıklanır) -> tür kümesi; oyuncunun hızı gibi yeniden hesap gerektirenler için."""
+        """Types that ended (effects whose time is up are pruned) -> set of types; for those needing recalculation, like the player's speed."""
         now = now or time.time()
         out = set()
         for k in list(self.d):
@@ -56,7 +56,7 @@ class Effects:
                 self.get(k, now)
         return out
 
-    # ------------------------------------------------------------ birleşik değerler
+    # ------------------------------------------------------------ combined values
     def slow(self, now=None):
         return max(max((e['value'] for e in self.get('slow', now)), default=0.0),
                    0.1 if self.get('infection', now) else 0.0)
@@ -80,14 +80,14 @@ class Effects:
         return min((e['value'] for e in self.get('speed_limit', now)), default=None)
 
     def ability(self, key, now=None):
-        """Etkin 'yetenek' etkilerinin bir etkisi (yansit, emme_can …) -> değer ya da None (gemi_yetenek.effect'in sandık karşılığı)."""
+        """One effect (mirror, absorb_hp ...) of the active 'skill' effects -> value or None (the chest counterpart of ship_ability.effect)."""
         return next((e['value'][key] for e in self.get('skill', now) if key in e['value']), None)
 
     def speed_factor(self, now=None):
         return 0.0 if self.frozen(now) else 1.0 - self.slow(now)
 
     def poison_due(self, now=None):
-        """Zamanı gelen zehir vuruşları -> [hasar]; vuruş sonrası bir sonraki zaman, artış ve kalan güncellenir."""
+        """Poison hits whose time has come -> [damage]; after a hit the next time, increase and remainder are updated."""
         now = now or time.time()
         hits = []
         for e in self.get('poison', now):
@@ -101,7 +101,7 @@ class Effects:
         return hits
 
     def mods(self, now=None):
-        """Oyuncunun etkileri profil bonuslarına (profil.mods): yavaşlık hiz, donukluk sabit_hiz 0, isabet düşüşü."""
+        """The player's effects into the profile bonuses (player_profile.mods): slowness hiz, immobility sabit_hiz 0, accuracy drop."""
         out = {}
         if self.get('infection', now):
             out.update(laser=0.1, rocket=0.1, hp_multiplier=0.85)

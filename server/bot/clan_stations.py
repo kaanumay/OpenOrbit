@@ -1,15 +1,15 @@
-"""Bot klanlarının Klan Savaş İstasyonları (kullanıcı isteği 2026-10-31): botlar varken sahte rakip yok (cbs.botlu), asteroitler boş
-açılır; bot klanlarının liderleri (ve kurma hakkı olan subaylar) gerçekten yarışır. En hızlı gelişen klan en iyi yeri kapar.
+"""Clan Battle Stations (CBS, "ksi") of bot clans (user request 2026-10-31): with bots present there is no fake rival (cbs.with_bots), asteroids are
+opened empty; the leaders of bot clans (and officers with the right to build) really compete. The fastest-growing clan takes the best spot.
 
-  hedef      en değerli boş asteroit (4-x, X-BL, X-5..7, X-3/4; kendi firmasının haritası öne), önde giden rakip çok öndeyse başkası
-  modül      kasadan, bütçenin KSİ payıyla (klan_yonetim.harcanabilir) alınır; fiyatlar cbs.json bot_klan (uyarlama: oyunda
-             modüller Assembly ile üretilir). Takım liderin tarzına göre: saldırgan lazer/roket, hırslı ve barışçı booster, temkinli
-             onarım modülü
-  yarış      asteroide 50 sn'de bir modül (cbs.json kurulum_sn); ilerleme a['yaris'] (pencerede "önde giden klan"). İlk 10/10 olan
-             kurar (cbs.bot_kur); oyuncu önce kurarsa ya da başka klan kazanırsa modüller stoğa döner
-  gelişme    kurulu istasyonda modüller seviye seviye (0-15) yükselir, yıkılan uydu bütçe yettikçe onarılır: her istasyon başka
-  savunma    oyuncu vurunca lider çevrimiçi üyeleri istasyona yollar (klan_emir 'git'), duyuru ve toplu posta, saldırana kin
-Klanın kaydında k['ksi'] = {hedef, plan, stok: [modül], son_*}; asteroidin kaydı ortak profilde (cbs.ortak)."""
+  target     the most valuable empty asteroid (4-x, X-BL, X-5..7, X-3/4; the map of its own company first), someone else if the leading rival is far ahead
+  module     bought from the treasury, with the CBS share of the budget (clan_management.spendable); prices in cbs.json bot_clan (adaptation: in the game
+             modules are produced with Assembly). The team follows the leader's style: aggressive laser/rocket, ambitious and peaceful booster, cautious
+             repair module
+  race       one module per asteroid every 50 s (cbs.json install_sec); progress a['race'] (the "leading clan" in the window). The first to reach 10/10
+             builds (cbs.bot_build); if a player builds first or another clan wins, the modules go back to stock
+  growth     modules of a built station rise level by level (0-15), a destroyed satellite is repaired as the budget allows: every station is different
+  defense    when a player attacks, the leader sends online members to the station (clan_orders 'git'), announcement and mass mail, grudge against the attacker
+The clan's record holds k['ksi'] = {target, plan, stock: [module], last_*}; the asteroid's record is in the shared profile (cbs.shared)."""
 import random, time
 
 import cbs as CB
@@ -18,7 +18,7 @@ import clan as KL
 from . import clan_management as CMG
 
 DEFAULTS = {'price': {}, 'level_multiplier': 0.35, 'repair_ratio': 0.4, 'upgrade_sec': 3600, 'build_min': [5, 30],
-              'defense_sec': 1800}                     # asıl değerler cbs.json bot_klan
+              'defense_sec': 1800}                     # actual values in cbs.json bot_klan
 WEAPONS = ('module_ltm-lr', 'module_ltm-mr', 'module_ltm-hr', 'module_ram-la', 'module_ram-ma')
 BOOSTER = ('module_honm-1', 'module_xpm-1', 'module_dmgm-1')
 
@@ -38,7 +38,7 @@ def price(loot, level=0):
 
 
 def _registry():
-    """(ortak profil, asteroitler) ya da (None, None): ortak kayıt bir oturumda kurulmuş olmalı (cbs.Cbs.asts: embed)."""
+    """(shared profile, asteroids) or (None, None): the shared record must have been built in a session (cbs.Cbs.asts: embed)."""
     h = CB.shared()
     d = (h.d.get('cbs') or {}) if h is not None else {}
     return (h, d['asteroids']) if h is not None and d.get('shared') and 'asteroids' in d else (None, None)
@@ -52,7 +52,7 @@ def cbs(k):
 
 
 def stations(k):
-    """Klanın kurulu istasyonlarının adları."""
+    """Names of the clan's built stations."""
     h, asteroids = _registry()
     return [CB.ASTEROIDS[int(aid)]['name'] for aid, a in (asteroids or {}).items()
             if a.get('state') == 'built' and a.get('clan') == k['id'] and int(aid) in CB.ASTEROIDS]
@@ -63,7 +63,7 @@ def _mine(asteroids, k):
 
 
 def need(k):
-    """Sıradaki KSİ hedefinin kalan bedeli: istasyonu yoksa eksik modüllerin fiyatı, varsa bir sonraki yükseltme."""
+    """Remaining cost of the next CBS target: the price of the missing modules if there is no station, otherwise the next upgrade."""
     s = k.get('ksi') or {}
     h, asteroids = _registry()
     if asteroids is None:
@@ -83,7 +83,7 @@ def need(k):
 
 
 def summary(k):
-    """Ajanın gözlemi: klanın istasyonları (modüller ve seviyeleri), yarışı, stoğu, sıradaki bedel ve boş asteroitler."""
+    """The agent's observation: the clan's stations (modules and their levels), the race, the stock, the next cost and empty asteroids."""
     if not is_open():
         return ''
     h, asteroids = _registry()
@@ -114,7 +114,7 @@ def summary(k):
 
 
 def set_target(k, name, b):
-    """Ajanın seçtiği asteroit (adıyla): boşsa hedef olur; önceki hedefteki modüller stoğa döner."""
+    """The asteroid the agent chose (by name): if empty it becomes the target; modules of the previous target go back to stock."""
     h, asteroids = _registry()
     aid = next((i for i, a in CB.ASTEROIDS.items() if a['name'].lower() == str(name or '').strip().lower()), None)
     if asteroids is None or aid is None or (asteroids.get(str(aid)) or {}).get('state', 'vacant') != 'vacant':
@@ -133,10 +133,10 @@ def set_target(k, name, b):
     return True
 
 
-# ------------------------------------------------------------------------------------------------------------ karar
+# ------------------------------------------------------------------------------------------------------------ decision
 def value(aid, k):
-    """Asteroidin klana değeri: 4-x en değerli (PvP bölgesi, her firmaya açık), sonra X-BL, X-5..7, X-3/4; kendi firmasının haritası
-    öne, düşman firmanınki geri."""
+    """The asteroid's value to the clan: 4-x is the most valuable (PvP zone, open to every company), then X-BL, X-5..7, X-3/4; the map of its own
+    company first, the enemy company's last."""
     m = int(CB.ASTEROIDS[aid]['map'])
     name = H.name(m)
     on, _, last = name.partition('-')
@@ -147,7 +147,7 @@ def value(aid, k):
 
 
 def build_plan(b):
-    """Takım (merkez + 8 uydu) liderin tarzıyla: saldırgan lazer/roket, hırslı ve barışçı booster, temkinli onarım."""
+    """The team (center + 8 satellites) in the leader's style: aggressive laser/rocket, ambitious and peaceful booster, cautious repair."""
     aggression = b.o('aggression')
     satellite = []
     if b.r.random() < 0.35 + 0.45 * (1 - b.o('risk')):
@@ -168,8 +168,8 @@ def _new_module(loot):
 
 
 def pick_target(k, asteroids, now):
-    """Yeni hedef: klanın istasyon sınırı dolmadıysa en değerli boş asteroit; önde giden rakip 6/10'u geçtiyse ve bizim yoksa o
-    asteroit atlanır (yetişemez)."""
+    """New target: the most valuable empty asteroid if the clan's station limit is not reached; if the leading rival is past 6/10 and we have none,
+    that asteroid is skipped (we cannot catch up)."""
     s = cbs(k)
     limit = 1 + (len(k['members']) >= 20 and k['treasury'] > 40000000)
     if len(_mine(asteroids, k)) >= limit:
@@ -192,7 +192,7 @@ def pick_target(k, asteroids, now):
 
 
 def _to_upgrade(a, b):
-    """Kurulu istasyonda yükseltilecek modül (en düşük seviyeli; saldırgan lider silahları, temkinli merkezi önce)."""
+    """The module to upgrade at a built station (lowest level; an aggressive leader weapons first, a cautious one the center)."""
     candidates = []
     for s, y in a.get('slots', {}).items():
         m = y.get('module')
@@ -214,19 +214,19 @@ def _pay(k, area, cost):
         k['treasury_log'].insert(0, {'balanceUserId': 0, 'credits': -cost, 'insertDate': KL.stamp(), 'toName': '', 'fromName': '',
                                    'moneyType': 'cbs', 'reason': 'battle station'})
         del k['treasury_log'][200:]
-    KL.changed(k)                                        # kasa üyelerin penceresinde ve klanlar.json'da
+    KL.changed(k)                                        # the treasury is in the members' window and in clans.json
     return True
 
 
 def to_stock(k, d):
-    """Yıkılan istasyonun ya da çıkarılan modüllerin (bekleyen '@klan:<kimlik>') klanın stoğuna geçmesi."""
+    """A destroyed station's or removed modules' (pending '@klan:<id>') transfer to the clan's stock."""
     pending = (d.get('pending') or {}).pop('@klan:%d' % k['id'], None)
     if pending:
         cbs(k)['stock'].extend(pending.values())
 
 
 def race_step(y, b, k, h, asteroids, now):
-    """Hedef asteroitte bir adım: stokta sıradaki modül varsa takar (50 sn'de bir), yoksa bütçe yettikçe alır; 10/10 olunca kurar."""
+    """One step at the target asteroid: fits the next module in stock if there is one (every 50 s), otherwise buys as the budget allows; builds at 10/10."""
     s = cbs(k)
     aid = s.get('target')
     if aid and str(aid) not in asteroids:
@@ -235,7 +235,7 @@ def race_step(y, b, k, h, asteroids, now):
     a = asteroids.get(str(aid)) if aid else None
     if a is None or a.get('state', 'vacant') != 'vacant':
         if a is not None and a.get('clan') == k['id']:
-            return                                       # kazandık: kuruluyor ya da kurulu
+            return                                       # we won: being built or built
         if aid:
             b.event('cbs_lost', now, station=CB.ASTEROIDS[int(aid)]['name'])
         s['target'] = None
@@ -266,18 +266,18 @@ def race_step(y, b, k, h, asteroids, now):
     m = next((x for x in s['stock'] if x['loot'] == loot), None)
     if m is None:
         if not _pay(k, 'ksi', price(loot)):
-            return                                       # para birikiyor
+            return                                       # money accumulates
         m = _new_module(loot)
     else:
         s['stock'].remove(m)
-        if m['can'] <= 0:                                # yıkılıp dönmüş modül: önce onarılır
+        if m['can'] <= 0:                                # a module that was destroyed and came back: repaired first
             if not _pay(k, 'ksi', int(price(loot) * setting()['repair_ratio'])):
                 s['stock'].append(m)
                 return
             m.update(_new_module(loot), level=m['level'])
             m['can'] = CB.level_value(CB.MODS[loot]['can'], m['level'])
             m['kalkan'] = int(m['can'] * CB.D['shield_ratio'])
-            m.pop('ksi', None)                           # taban değerler: panelin KSİ can çarpanına cbs.hp_sync ölçekler
+            m.pop('ksi', None)                           # base values: cbs.hp_sync scales them to the panel's CBS HP multiplier
     with h.lock:
         r = a.setdefault('race', {}).setdefault(str(k['id']), {'modules': [], 't': 0})
         r['modules'].append(m)
@@ -288,7 +288,7 @@ def race_step(y, b, k, h, asteroids, now):
 
 
 def develop(y, b, k, h, asteroids, now):
-    """Kurulu istasyonlar: yıkılan uydu onarılır, sonra bir modül bir seviye yükselir (yükseltme_sn'de bir)."""
+    """Built stations: a destroyed satellite is repaired, then one module rises one level (every upgrade_sec)."""
     s = cbs(k)
     for aid, a in _mine(asteroids, k).items():
         if a.get('state') != 'built' or now - a.get('attack_at', 0) < 600:
@@ -309,7 +309,7 @@ def develop(y, b, k, h, asteroids, now):
         if m is None or not _pay(k, 'ksi', price(m['loot'], m['level'] + 1)):
             continue
         with h.lock:
-            ratio = m['can'] / max(1, CB.hp_max(m))          # ölçekli canın oranı (panelin KSİ can çarpanı)
+            ratio = m['can'] / max(1, CB.hp_max(m))          # the scaled HP ratio (the panel's CBS HP multiplier)
             m['level'] += 1
             m['can'] = int(CB.level_value(CB.MODS[m['loot']]['can'], m['level']) * min(1.0, ratio))
             m['kalkan'] = int(CB.level_value(CB.MODS[m['loot']]['can'], m['level']) * CB.D['shield_ratio'] * min(1.0, ratio))
@@ -321,19 +321,19 @@ def develop(y, b, k, h, asteroids, now):
         return
 
 
-DEFENSE_FIRST = 2                  # saldırı başlar başlamaz yollanan üye sayısı
-DEFENSE_WAVE = 1                # sonraki her dalgadaki üye sayısı
-DEFENSE_GAP_SEC = 75.0            # dalgalar arası (sn): üsse yavaş yavaş akarlar, sürü olmaz
-DEFENSE_LAST_SEC = 90              # saldırı bundan eski ise bitmiş sayılır, sıradakiler yollanmaz
+DEFENSE_FIRST = 2                  # number of members sent as soon as the attack starts
+DEFENSE_WAVE = 1                # number of members in each later wave
+DEFENSE_GAP_SEC = 75.0            # between waves (s): they trickle to the base, no swarm
+DEFENSE_LAST_SEC = 90              # an attack older than this counts as over, the queued ones are not sent
 
 
 def defense_quota(attackers):
-    """Bir saldırıda yollanacak en çok üye: saldıran sayısıyla büyür (tek oyuncuya 5, her ek saldırana 3 daha; en çok 12)."""
+    """The most members sent in one attack: grows with the number of attackers (5 for a single player, 3 more per extra attacker; at most 12)."""
     return min(12, 5 + 3 * max(0, attackers - 1))
 
 
 def _wave(y, b, k, st, game_map, n, now):
-    """Sıradaki üyelerden en çok n tanesini istasyonun haritasına yollar (klan_emir 'git') -> yollanan sayısı."""
+    """Sends at most n of the queued members to the station's map (clan_orders 'git') -> the number sent."""
     from . import clan_orders as CO
     outgoing = 0
     while st['queued'] and outgoing < n and st['sent'] < st['quota']:
@@ -348,17 +348,17 @@ def _wave(y, b, k, st, game_map, n, now):
 
 
 def defend(y, b, k, asteroids, now):
-    """İstasyona oyuncu saldırıyor: haber ve toplu posta (savunma_sn'de bir), lider saldırana kin duyar. Çevrimiçi üyeler hepsi birden
-    değil, kademeli yollanır (klan_emir 'git'): ilk SAVUNMA_ILK hemen, kalanı SAVUNMA_ARA_SN'de bir SAVUNMA_DALGA; toplam
-    savunma_kota(saldıran sayısı). Saldırı SAVUNMA_SON_SN'den uzun süredir yoksa sıra bırakılır. Bekleyen sıra klanın kaydında
-    (k['ksi']['savunma'], klanlar.json): sunucu yeniden başlasa da süren saldırıda kalanlar yollanır."""
+    """A player is attacking the station: news and mass mail (every defense_sec), the leader holds a grudge against the attacker. Online members are not
+    all sent at once but in stages (clan_orders 'git'): the first DEFENSE_FIRST immediately, the rest DEFENSE_WAVE every DEFENSE_GAP_SEC; total
+    defense_quota(number of attackers). If there has been no attack for longer than DEFENSE_LAST_SEC the queue is dropped. The pending queue is in the clan's record
+    (k['ksi']['savunma'], clans.json): even if the server restarts, the rest are sent in an ongoing attack."""
     defense_state = cbs(k).setdefault('savunma', {})
     for aid, a in _mine(asteroids, k).items():
         ongoing = now - a.get('last_player', 0) <= DEFENSE_LAST_SEC
         st = defense_state.get(str(aid))
         if st is not None:
             if not ongoing:
-                defense_state.pop(str(aid), None)                      # saldırı bitti: sıradakiler yollanmaz
+                defense_state.pop(str(aid), None)                      # the attack is over: the queued ones are not sent
                 continue
             if a.get('last_attacker') and a['last_attacker'] not in st['attackers']:
                 st['attackers'].append(a['last_attacker'])
@@ -383,14 +383,14 @@ def defend(y, b, k, asteroids, now):
         st = defense_state[str(aid)] = dict(map=game_map, queued=[o.name for o in members], sent=0, quota=defense_quota(1),
                                   attackers=[who] if who else [], next=now + DEFENSE_GAP_SEC)
         outgoing = _wave(y, b, k, st, game_map, DEFENSE_FIRST, now)
-        y.log('   botlar: [%s] %s istasyonu saldırı altında (%s), %d üye savunmaya (kalan %d kademeli)'
+        y.log('   bots: [%s] %s station under attack (%s), %d members to defense (%d left in stages)'
               % (k['tag'], ist, who or '?', outgoing, len(st['queued'])))
         b.event('cbs_defense', now, station=ist, attacker=who)
         return
 
 
 def announce_status(b, k, asteroids, now):
-    """Kuruldu / yıkıldı haberleri (önceki bakıştan bu yana değişenler)."""
+    """Built / destroyed news (changes since the previous look)."""
     s = cbs(k)
     current_time = {str(aid): a.get('state') for aid, a in _mine(asteroids, k).items()}
     once = s.get('seen') or {}
@@ -409,7 +409,7 @@ def announce_status(b, k, asteroids, now):
 
 
 def clean_up(y, h, asteroids):
-    """Dağılmış klanların istasyonları yıkılır, yarışları ve bekleyen modülleri silinir."""
+    """Stations of dissolved clans are destroyed, their races and pending modules deleted."""
     d = h.d['cbs']
     for aid, a in list(asteroids.items()):
         if a.get('owner') == 'bot' and a.get('clan') not in KL.CLANS and a.get('state') in ('building', 'built'):
@@ -424,7 +424,7 @@ def clean_up(y, h, asteroids):
 
 
 def manage(y, b, k, kl, now):
-    """Lider (ya da kurma hakkı olan subay) sosyal turunda: savunma, yarış adımı, gelişme, haberler."""
+    """The leader (or an officer with the right to build) in the social round: defense, race step, growth, news."""
     if not is_open() or not kl.right('battle_station_build', k):
         return
     h, asteroids = _registry()

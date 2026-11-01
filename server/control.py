@@ -1,25 +1,25 @@
-"""Canlı test kontrol kanalı: yalnız `game.py --control` ile açılır (127.0.0.1:8099, satır başına bir JSON istek/yanıt).
+"""Live test control channel: opened only with `game.py --control` (127.0.0.1:8099, one JSON request/response per line).
 
-Canlı denemede sunucuyu yönetmek ve istemcinin ne gönderdiğini görmek için (istemci tarafı araç: test/live.py):
-- iz:     oturumun gelen istekleri (<-) ve giden komutları (->) sıra numarasıyla; enjekte edilen istekler '<='.
-- bekle:  bir mesajın (ad düzenli ifadesi, yön) belli bir sıradan sonra gelmesini bekler.
-- istek:  istemci göndermiş gibi bir isteği işletir; yanıtlar gerçek istemciye gider (pencere, HUD, harita değişimi ekranda
-          görülür). Eksik alanlar protokolün varsayılanlarıyla doldurulur (kodla-çöz turu).
-- gonder: istemciye doğrudan komut ([ad, alanlar]) ya da eski metin protokolü satırı ("0|A|STM|…").
-- py:     sunucu sürecinde Python; ad alanı: S oturum, W dünya, P profil, G game modülü ve hazırlık yardımcıları (para, ver,
-          isinla, uzayli, yakin, temizle, tamir). Son ifadenin değeri ya da `_` döner.
-- durum:  bağlantı, harita, konum, gemi, para, dünyadaki uzaylı/kutu sayısı, son mesaj sırası.
-- alanlar: bir mesajın alan düzeni (protokol tablosu).
-Normal oyunda açılmaz (panelin Geliştirici ayarıyla açılır); yalnız yerel adrese bağlanır.
+For driving the server and seeing what the client sends in a live trial (client-side tool: test/live.py):
+- iz:     the session's incoming requests (<-) and outgoing commands (->) with sequence numbers; injected requests are '<='.
+- wait:   waits for a message (name regex, direction) to arrive after a given sequence number.
+- request: runs a request as if the client had sent it; the replies go to the real client (window, HUD, map change are visible on
+          screen). Missing fields are filled with the protocol's defaults (encode-decode round trip).
+- send:   sends the client a command directly ([name, fields]) or an old text protocol line ("0|A|STM|…").
+- py:     Python in the server process; namespace: S session, W world, P profile, G game module and setup helpers (currency, give,
+          phase_out, alien, nearby, clean_up, repair). The value of the last expression or `_` is returned.
+- state:  connection, map, position, ship, money, number of aliens/boxes in the world, last message sequence.
+- fields: a message's field layout (protocol table).
+It is not opened in normal play (it is opened with the panel's Developer setting); it binds only to the local address.
 """
 import ast, collections, contextlib, io, json, re, socket, threading, time, traceback
 
 PORT = 8099
-NOISE = {'MoveRequest', 'KeepAlive', 'StayinAlive'}      # izde varsayılan olarak gösterilmeyenler (istenirse tam=1)
+NOISE = {'MoveRequest', 'KeepAlive', 'StayinAlive'}      # not shown in the trace by default (full=1 if wanted)
 
 
 class Trace:
-    """Mesaj izi: (sıra, zaman, yön, ad, alanlar) halka tamponu; bekleyenler koşul değişkeniyle uyanır."""
+    """Message trace: (sequence, time, direction, name, fields) ring buffer; waiters are woken by a condition variable."""
 
     def __init__(self, n=30000):
         self.q = collections.deque(maxlen=n)
@@ -42,7 +42,7 @@ class Trace:
             if direction and not e[2].startswith(direction):
                 continue
             if rx and not (rx.search(e[3]) or (isinstance(e[4], dict) and rx.search(str(e[4].get('message', ''))))):
-                continue                    # eski metin protokolü satırları ("0|A|STM|…") içerikleriyle de aranır
+                continue                    # old text protocol lines ("0|A|STM|…") are also searched by their content
             if not noise and not rx and e[3] in NOISE:
                 continue
             out.append(e)
@@ -65,7 +65,7 @@ TRACE = Trace()
 
 
 def chat_trace(direction, kind, body):
-    """Sohbet sunucusunun çerçeveleri (chat.py): JSON olanlar 't' türüyle, ötekiler ham bayt."""
+    """The chat server's frames (chat.py): the JSON ones with type 't', the others raw bytes."""
     if isinstance(body, dict):
         TRACE.add(direction, 'Sohbet:t%s' % body.get('t'), body)
     else:
@@ -95,19 +95,19 @@ class Control:
         self.G, self.port = game, port
         self.ns = {}
 
-    # ------------------------------------------------------------------ yardımcılar
+    # ------------------------------------------------------------------ helpers
     def session(self):
         s = self.G.CURRENT
         if s is None:
-            raise RuntimeError('bağlı istemci yok')
+            raise RuntimeError('no connected client')
         return s
 
     def full_fields(self, field_name, fields):
-        """Eksik alanları protokol varsayılanlarıyla doldurur (istemcinin göndereceği biçim)."""
+        """Fills in missing fields with the protocol defaults (the form the client would send)."""
         P = self.G.P
         mid, name, f, left, err = P.decode_message(P.encode_message(field_name, fields))
         if err:
-            raise ValueError('alanlar çözülemedi: %s' % err)
+            raise ValueError('could not decode fields: %s' % err)
         return f
 
     def state(self):
@@ -128,11 +128,11 @@ class Control:
         return out
 
     def helpers(self):
-        """py ad alanındaki hazırlık yardımcıları (her biri istemciye gerekli güncellemeyi de gönderir)."""
+        """Setup helpers in the py namespace (each also sends the client the update it needs)."""
         G, K = self.G, self
 
         def currency(credits=0, uridium=0, ep=0, honor=0):
-            """Para/EP/onur ekler (eksi verilebilir), HUD'u günceller."""
+            """Adds money/EP/honor (can be negative), updates the HUD."""
             s = K.session()
             tot = G.PROFILE.gain(credits=credits, uridium=uridium, ep=ep, honor=honor)
             msgs = s.world.reward_msgs(tot, ep=ep, honor=honor) if s.world and (ep or honor) else []
@@ -140,7 +140,7 @@ class Control:
             return tot
 
         def give(loot, n=1):
-            """Eşya/kaynak/cephane verir (mağaza ödül yolu) -> gönderilen mesaj sayısı."""
+            """Gives items/resources/ammo (the shop reward path) -> number of messages sent."""
             s = K.session()
             msgs = s.shop.reward(loot, n) or []
             if msgs:
@@ -148,14 +148,14 @@ class Control:
             return len(msgs)
 
         def phase_out(game_map=None, x=None, y=None):
-            """Haritaya ya da aynı haritada bir noktaya (harita yeniden yüklenir)."""
+            """To a map or to a point on the same map (the map is reloaded)."""
             s = K.session()
             dest = int(game_map or G.PROFILE.d['position']['mapId'])
             s.change_map(dest, None, pos=(int(x), int(y)) if x is not None else None)
             return {'map': dest, 'position': [x, y]}
 
         def alien(tip, count=1, far=400, angle=0.0, stop=True):
-            """Geminin çevresinde NPC doğurur -> kimlikler. dur: saldırıya uğrayana dek yerinde durur (ekrandan tıklamak için)."""
+            """Spawns NPCs around the ship -> ids. dur: stands still until attacked (for clicking from the screen)."""
             import math
             w = K.session().world
             out = []
@@ -170,7 +170,7 @@ class Control:
             return out
 
         def nearby(count=5):
-            """En yakın uzaylılar: (uzaklık, kimlik, ad, konum, can, kalkan)."""
+            """Nearest aliens: (distance, id, name, position, HP, shield)."""
             import math
             w = K.session().world
             now = time.time()
@@ -184,7 +184,7 @@ class Control:
             return sorted(rows)[:count]
 
         def clean_up(radius=3000):
-            """Geminin çevresindeki uzaylıları kaldırır (sakin test ortamı) -> kaldırılan sayısı."""
+            """Removes the aliens around the ship (a calm test environment) -> number removed."""
             import math
             w = K.session().world
             now = time.time()
@@ -195,7 +195,7 @@ class Control:
                     x, y = n.mover.pos(now)
                     if math.hypot(x - hx, y - hy) <= radius:
                         n.alive = False
-                        n.summoned = True                          # yeniden doğmasın
+                        n.summoned = True                          # so it does not respawn
                         w.npcs.pop(n.id, None)
                         w.visible.discard(n.id)
                         w.send([('ShipRemoveCommand', {'userId': n.id})])
@@ -203,7 +203,7 @@ class Control:
             return n_out
 
         def repair():
-            """Can ve kalkan dolu."""
+            """HP and shield full."""
             g = G.PROFILE.d['ship']
             G.PROFILE.set_hull(hp=g.get('hitMax'), shield=g.get('shieldMax'))
             w = K.session().world
@@ -230,7 +230,7 @@ class Control:
             val = eval(compile(last, '<kontrol>', 'eval'), ns) if last else ns.get('_')
         return {'output': buf.getvalue(), 'value': _json(val)}
 
-    # ------------------------------------------------------------------ komutlar
+    # ------------------------------------------------------------------ commands
     def handle(self, r):
         k = r.get('command')
         long = r.get('long', 600)
@@ -258,7 +258,7 @@ class Control:
                 if isinstance(m, str):
                     msgs.append(self.G.legacy(m))
                 else:
-                    self.G.P.encode_message(m[0], m[1])          # bilinmeyen alan/tür hatası burada çıksın
+                    self.G.P.encode_message(m[0], m[1])          # an unknown field/type error should surface here
                     msgs.append((m[0], m[1]))
             s.send(msgs, 'kontrol: %d mesaj' % len(msgs))
             return {'sent': len(msgs)}
@@ -267,15 +267,15 @@ class Control:
         if k == 'fields':
             sp = self.G.P.spec().by_class.get(r['name'])
             return {'name': r['name'], 'steps': sp['steps'] if sp else None}
-        raise ValueError('bilinmeyen komut %r' % k)
+        raise ValueError('unknown command %r' % k)
 
-    # ------------------------------------------------------------------ sunucu
+    # ------------------------------------------------------------------ server
     def serve(self):
         s = socket.socket()
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.bind(('127.0.0.1', self.port))
         s.listen(4)
-        self.G.log('kontrol kanalı: 127.0.0.1:%d' % self.port)
+        self.G.log('control channel: 127.0.0.1:%d' % self.port)
         while True:
             c, _ = s.accept()
             threading.Thread(target=self.client, args=(c,), daemon=True).start()

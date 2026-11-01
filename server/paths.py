@@ -1,21 +1,21 @@
-"""Kayıt ve panel yolları (yönetim paneli, panel/): profil, web ayarları, oyun ayarları.
+"""Save and panel paths (management panel, panel/): profile, web settings, game settings.
 
-  save/kayitlar/<kimlik>/profil.json     kayıt yuvasının profili (oyun sunucusu yazar)
-  save/kayitlar/<kimlik>/web_ayarlari.json  giriş ekranının dili (web.py, profilin yanında)
-  save/kayitlar/<kimlik>/kayit.json      yuvanın adı, notu, tarihleri (panel)
-  save/kayitlar/<kimlik>/yedek/          yedekler (panel)
-  save/panel.json                        panel ayarları: etkin yuva, istemci klasörü, görüntü, yedekleme …
-  save/ayarlar.json                      oyun ayarları (settings.py)
-Giriş şablonları (giris.json, haritalar.json, yanitlar.json): kendi kaydından çıkarılanlar data/'da (git'e girmez), yoksa depodaki
-paylaşılabilir kopya data/defaults/'da (tools/template_sharing.py; hesap ve oyuncu kimlikleri takma): sablon().
-Etkin yuva panel.json'un 'aktif_kayit'ı. Eski düzen (save/profil.json) panel ilk açılınca 'ana' yuvasına taşınır; taşınmadıysa ya da
-etkin yuva yoksa profil yolu eski dosyadır (game.py / web.py --profile olmadan çalışınca).
-Yalnız standart kitaplık: web.py, game.py ve panel birlikte kullanır.
+  save/slots/<id>/profile.json           the save slot's profile (the game server writes it)
+  save/slots/<id>/web_settings.json      the login screen's language (web.py, next to the profile)
+  save/slots/<id>/slot.json              the slot's name, note, dates (panel)
+  save/slots/<id>/backups/               backups (panel)
+  save/panel.json                        panel settings: active slot, client folder, display, backups …
+  save/settings.json                     game settings (settings.py)
+Login templates (login.json, maps.json, responses.json): the ones extracted from your own record are in data/ (not committed to git),
+otherwise the shareable copy in the repository is in data/defaults/ (tools/template_sharing.py; account and player ids masked): template().
+The active slot is panel.json's 'active_save'. The old layout (save/profile.json) is moved to the 'main' slot when the panel first opens; if
+it was not moved or there is no active slot, the profile path is the old file (when game.py / web.py run without --profile).
+Standard library only: web.py, game.py and the panel use it together.
 """
 import json, os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SAVE = os.environ.get('OO_SAVE_DIR') or os.path.join(HERE, 'save')      # testler geçici klasör verir
+SAVE = os.environ.get('OO_SAVE_DIR') or os.path.join(HERE, 'save')      # tests provide a temporary folder
 SAVES = os.path.join(SAVE, 'slots')
 TRASH = os.path.join(SAVE, 'trash')
 PANEL = os.path.join(SAVE, 'panel.json')
@@ -37,8 +37,8 @@ except Exception as _e:                                    # disk full, permissi
 
 
 def template(name):
-    """Giriş şablonunun yolu: kendi kaydından çıkarılan (data/<ad>) varsa o, yoksa paylaşılabilir kopya (data/defaults/<ad>);
-    ikisi de yoksa None."""
+    """Path of the login template: the one extracted from your own record (data/<name>) if present, otherwise the shareable copy
+    (data/defaults/<name>); None if neither exists."""
     for p in (os.path.join(DATA, name), os.path.join(DEFAULT_TEMPLATE, name)):
         if os.path.isfile(p):
             return p
@@ -64,13 +64,14 @@ def active_slot(path=PANEL):
 
 
 def profile_path(slot=None):
-    """Yuvanın (verilmezse etkin yuvanın) profil dosyası; yuva yoksa eski save/profil.json."""
+    """The slot's profile file (the active slot's if not given); the old save/profile.json if there is no slot."""
     slot = slot or active_slot()
     return os.path.join(slot_dir(slot), 'profile.json') if slot else LEGACY_PROFILE
 
 
 def settings_path(slot=None):
-    """Yuvanın (verilmezse etkin yuvanın) oyun ayarları (kayda özgü; panel ilk açılışta oluşturur); yoksa eski save/ayarlar.json."""
+    """The slot's game settings (the active slot's if not given) (per save; the panel creates it on first launch); the old
+    save/settings.json if absent."""
     slot = slot or active_slot()
     p = os.path.join(slot_dir(slot), 'settings.json') if slot else None
     return p if p and os.path.isfile(p) else SETTINGS

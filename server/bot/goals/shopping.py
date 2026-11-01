@@ -1,15 +1,15 @@
-"""Alışveriş: parası yeten en verimli yükseltmeyi almak ya da büyük bir hedef için biriktirmek.
+"""Shopping: buy the most efficient upgrade the bot can afford, or save up for a big goal.
 
-Adaylar katalogdan (lazer, kalkan/hız jeneratörü, dron, gemi): her biri için yeni donanımın güç artışı / fiyat (kredi karşılığı,
-1 U = kur kredisi). Tutumlu bot biriktirdiği büyük hedef (Goliath gibi) varken küçük alımlara para harcamaz; dürtüsel bot ara
-sıra en iyisi olmayan bir şey de alır (insan hatası).
+Candidates come from the catalog (laser, shield/speed generator, drone, ship): for each, the new equipment's power gain / price (in credit
+terms, 1 U = kur credits). A thrifty bot with a big saved-up goal (like a Goliath) does not spend on small purchases; an impulsive bot
+occasionally also buys something that is not the best (human error).
 """
 from ..brain import Goal, target
 from .. import catalog as K
 from .. import personality as PS
 
-EXCHANGE_RATE = 100                 # 1 uridyum kaç kredi (fiyatlar.json kur)
-MAX_TRIP_ITEMS = 15           # bir alışveriş seferinde en çok bu kadar eşya
+EXCHANGE_RATE = 100                 # how many credits 1 uridium is worth (fiyatlar.json kur)
+MAX_TRIP_ITEMS = 15           # at most this many items in one shopping trip
 try:
     import json, os
     EXCHANGE_RATE = json.load(open(os.path.join(K.HERE, 'data', 'prices.json'), encoding='utf8')).get('kur', EXCHANGE_RATE)
@@ -18,7 +18,7 @@ except (OSError, ValueError):
 
 
 def candidates(bot):
-    """[(güç artışı, para, fiyat, loot)]: yuvası olan ya da gemisi daha iyi her alım. Donanım değişene dek botta saklanır."""
+    """[(power gain, currency, price, loot)]: every purchase that has a slot or a better ship. Kept on the bot until the equipment changes."""
     if bot._candidates is None:
         bot._candidates = _candidates(bot)
     return bot._candidates
@@ -43,20 +43,20 @@ def _candidates(bot):
             group = 'laser' if loot in K.ITEMS['lasers'] else 'kalkan' if loot in K.ITEMS['shield_generators'] else \
                 'speed' if loot in K.ITEMS['speed_generators'] else 'drone'
             y[group][loot] = y[group].get(loot, 0) + 1
-        if filler:                                        # dronun boş yuvaları sonra alınacak lazerle dolar
+        if filler:                                        # the drone's empty slots get filled by the laser to be bought later
             y['laser'][filler[0]] = y['laser'].get(filler[0], 0) + filler[1]
         new_values = K.values(y, shield_share)
-        increase = new_values['power'] - base + 0.02 * (new_values['speed'] - base_values['speed']) * (0.5 + bot.o('risk'))    # hız güçte yok: kaçmaya, avlanmaya yarar
-        if loot.startswith('ship_'):                     # zevk: sevdiği gemi ailesine yakınlık (herkes aynı gemiye yakınsamasın)
+        increase = new_values['power'] - base + 0.02 * (new_values['speed'] - base_values['speed']) * (0.5 + bot.o('risk'))    # speed is not in power: it helps with escaping and hunting
+        if loot.startswith('ship_'):                     # taste: affinity to the ship family it likes (so that not everyone converges on the same ship)
             increase *= 1.35 if PS.taste(bot.k['personality']) in loot else 0.9
-        if filler:                                        # verim lazerlerin parasıyla birlikte (dronun fiyatına düşen pay)
+        if filler:                                        # efficiency together with the lasers' money (the share falling on the drone's price)
             lf = K.price(filler[0])
             credit_equiv = lambda c: c[1] * (EXCHANGE_RATE if c[0] == 'U' else 1)
             increase *= credit_equiv(f) / (credit_equiv(f) + filler[1] * credit_equiv(lf))
-        if increase > 1e-6 or force:                       # zorla: klan emri (daha iyi olmasa da istenen gemi/eşya)
+        if increase > 1e-6 or force:                       # forced: clan order (the requested ship/item even if not better)
             out.append((max(increase, 1e-3), f[0], f[1], loot))
 
-    # lazer: yuva boşsa ya da en zayıfından iyiyse; fiyat/hasar sırasıyla ilk birkaç
+    # laser: if the slot is empty or better than the weakest; the first few by price/damage order
     lasers = K.lasers()
     for loot in sorted(lasers, key=lasers.get):
         if len(slot['laser']) < slot['laser_slots'] or lasers[loot] > min(slot['laser'] or [0]):
@@ -65,8 +65,8 @@ def _candidates(bot):
         attempt(loot)
     for loot in K.speed_generators():
         attempt(loot)
-    # dron yalnız lazer yuvası açar: yedek lazer yoksa artışı 0 sayılıyor, Flax hiç alınmıyordu (oyuncu bildirimi 2026-10-31);
-    # boş yuvası eldeki en iyi (satın alınabilen) lazerle dolmuş sayılır
+    # a drone only opens laser slots: with no spare laser the gain was counted as 0 and Flax was never bought (player report 2026-10-31);
+    # the empty slots count as filled with the best (purchasable) laser at hand
     backup = sum(e.get('laser', {}).values()) - len(slot['laser'])
     best = max((l for l in e.get('laser', {}) if l in lasers), key=lasers.get, default=None)
     for loot, d in K.ITEMS['drones'].items():
@@ -84,65 +84,65 @@ def _candidates(bot):
             wanted in K.ITEMS[g] for g in ('lasers', 'shield_generators', 'speed_generators', 'drones'))):
         attempt(wanted, e.get('drone', {}).get(wanted, 0), force=True)
     from .. import extras as EX
-    out += EX.candidates(bot)                               # CPU'lar ve onarım robotları (faydası güç payı olarak)
+    out += EX.candidates(bot)                               # CPUs and repair robots (benefit as a power share)
     from .. import technology as TECH
-    out += TECH.candidates(bot)                               # roket fırlatıcısı
+    out += TECH.candidates(bot)                               # rocket launcher
     return out
 
 
 def income(bot):
-    """Saatlik tahmini kazanç {'C': kredi, 'U': uridyum}: bulunduğu haritada kasarsa (katalog.harita_degerlendir)."""
+    """Estimated hourly income {'C': credits, 'U': uridium}: if it grinds on the map it is on (catalog.evaluate_map)."""
     d = bot.value()
     try:
         r = K.evaluate_map(int(bot.game_map), d['dps'], d['ehp'], 0.5)
     except (KeyError, ValueError, TypeError):
         return {'C': 0.0, 'U': 0.0}
-    return {'C': r['credits_per_hour'], 'U': r['uridium_per_hour'] + 25}           # +25: bonus kutuları, görev ödülleri
+    return {'C': r['credits_per_hour'], 'U': r['uridium_per_hour'] + 25}           # +25: bonus boxes, quest rewards
 
 
 def candidate(bot):
-    """-> (şimdi alınacak (artis, para, fiyat, loot) ya da None, biriktirilen hedef ya da None).
+    """-> (what to buy now (power gain, currency, price, loot) or None, the goal being saved for or None).
 
-    Gerçek oyuncu gibi hedefli: yakında (tutumluluğa göre 1-2,5 saatlik kazançla) ulaşabileceği en verimli yükseltme hedeftir;
-    parası yetiyorsa onu alır. Yetmiyorsa ancak hedef kadar verimli (en az %70) küçük bir alım yapar, yoksa biriktirir. Önceden
-    yeten en verimli şeyi hemen alıyordu: SLL-01'e (50.000 C) para biriktirirken sırayla 2.000-8.000 C'lik hız jeneratörleri
-    ve MP-1 alıp tek yuvalı Phoenix'te birbirinin yerine koyuyordu (paket analizi 2026-10-29)."""
+    Goal-driven like a real player: the most efficient upgrade it can reach soon (with 1-2.5 hours of income, by thriftiness) is the goal;
+    if it can afford it, it buys it. If not, it only makes a small purchase that is nearly as efficient as the goal (at least 70%),
+    otherwise it saves. It used to immediately buy the most efficient thing it could afford: while saving for the SLL-01 (50,000 C) it kept
+    buying 2,000-8,000 C speed generators and MP-1 in turn and replacing one with another on a single-slot Phoenix (packet analysis 2026-10-29)."""
     all_candidates = candidates(bot)
     if not all_candidates:
         return None, None
-    m = bot.game_settings.multiplier('shop_price')                  # profilin mağaza fiyatı çarpanı
+    m = bot.game_settings.multiplier('shop_price')                  # the profile's shop price multiplier
     if m != 1.0:
         all_candidates = [(a, p, f * m, l) for a, p, f, l in all_candidates]
     currency = {'C': bot.k['credits'], 'U': bot.k['uridium']}
-    currency['C'] = max(0, currency['C'] - bot.clan_savings())                     # klan kuracak: kuruluş bedelini biriktirir
+    currency['C'] = max(0, currency['C'] - bot.clan_savings())                     # will found a clan: saves the founding fee
     credit_equiv = lambda c: c[2] * (EXCHANGE_RATE if c[1] == 'U' else 1)
-    # verim: artış / (fiyat + servetin çeyreği): az parada kredi başına verim, çok parada artışın büyüklüğü öne geçer (zengin bot
-    # 80M kredi ve 2M uridyumla +3,4 güçlü Apis yerine 2.000 C'lik +0,04'lük hız jeneratörünü seçiyordu; Laya denemesi 2026-10-31)
+    # efficiency: gain / (price + a quarter of wealth): with little money efficiency per credit, with lots of money the size of the gain wins (a rich bot
+    # with 80M credits and 2M uridium chose a 2,000 C +0.04 speed generator over a +3.4 power Apis; Laya trial 2026-10-31)
     wealth = currency['C'] + currency['U'] * EXCHANGE_RATE
     efficiency = lambda c: c[0] / max(1.0, credit_equiv(c) + 0.25 * wealth) * 1e5
     t = bot.o('frugality')
     hedefi = next((c for c in all_candidates if c[3] == bot.k.get('savings')), None)
-    if hedefi is not None:                       # kendi seçtiği biriktirme hedefi (ajanın biriktir aracı): yalnız onu alır
+    if hedefi is not None:                       # its own chosen saving goal (the agent's save-up tool): it buys only that
         if currency[hedefi[1]] >= hedefi[2]:
             return hedefi, hedefi
-        # hedefin birikimini geciktirmeyen alımlar serbest (başka para birimi ya da hedefin üstünde kalan para): önceden yalnız
-        # hedefe bakıyordu, 80.000 U'luk gemiye biriktiren bot 66M kredisiyle kalkan/motor almadan duruyordu (oyuncu bildirimi 2026-11-01)
+        # purchases that do not delay the goal's accumulation are free (another currency, or money left over above the goal): it used to look only
+        # at the goal, a bot saving for an 80,000 U ship stood idle with 66M credits without buying shields/engines (player report 2026-11-01)
         free = [c for c in all_candidates if c[1] != hedefi[1] and currency[c[1]] >= c[2] * (1 + 0.3 * bot.o('frugality'))
                    or c[1] == hedefi[1] and currency[c[1]] - c[2] >= hedefi[2]]
         return max(free, key=lambda c: c[0], default=None), hedefi
-    affordable = [c for c in all_candidates if currency[c[1]] >= c[2] * (1 + 0.3 * t)]        # tutumlu bot biraz yedek bırakır
+    affordable = [c for c in all_candidates if currency[c[1]] >= c[2] * (1 + 0.3 * t)]        # a thrifty bot leaves a little reserve
     g = income(bot)
     horizon = 1.0 + 1.5 * t
     reachable = [c for c in all_candidates if c[2] * (1 + 0.3 * t) <= currency[c[1]] + g[c[1]] * horizon]
     target_candidate = max(reachable, key=efficiency, default=None)
-    # uzak biriktirme hedefi (panel, sohbet): parası yetmeyen en büyük artış
+    # far saving goal (panel, chat): the biggest gain it cannot afford yet
     remaining = [c for c in all_candidates if c not in affordable]
     savings = max(remaining, key=lambda c: c[0] * (0.5 + t) - credit_equiv(c) / 5e6, default=None)
     if target_candidate is not None and target_candidate not in affordable:
         savings = target_candidate
     if not affordable:
         return None, savings
-    if bot.r.random() < 0.05 * (1 - t):                                     # dürtüsel alım (insan hatası)
+    if bot.r.random() < 0.05 * (1 - t):                                     # impulsive purchase (human error)
         return bot.r.choice(affordable), savings
     if target_candidate is None or target_candidate in affordable:
         return max(affordable, key=efficiency), savings
@@ -164,8 +164,8 @@ class Shopping(Goal):
         return min(1.6, 0.45 + increase / max(1.0, bot.value()['power']) * 3 + 0.2 * bot.o('ambition'))
 
     def start(self, bot, b):
-        # bir alışveriş seferinde parası yettikçe sırayla alır (en çok SEFER_ALIM): önceden sefer başına tek eşya alıyordu, 10M
-        # kredili bot bir saatte 8 eşya alıp paranın %80'ini harcamadan duruyordu (oyuncu bildirimi 2026-10-31)
+        # buys in turn as long as the money suffices in one shopping trip (at most MAX_TRIP_ITEMS): it used to buy a single item per trip, a bot with 10M
+        # credits bought 8 items in an hour and stood idle without spending 80% of its money (player report 2026-10-31)
         c = b.shopping[0]
         for _ in range(MAX_TRIP_ITEMS):
             increase, currency, price, loot = c
@@ -178,8 +178,8 @@ class Shopping(Goal):
             if loot.startswith('ship_'):
                 bot.event('new_ship', item=loot)
             if bot.k.get('savings') == loot:
-                bot.k['savings'] = None                  # biriktirdiği şeye kavuştu (ajanın biriktir aracı)
-            bot._candidates = None                          # (gemi değişmese de kalan yuvalar ve para değişti)
+                bot.k['savings'] = None                  # got what it was saving for (the agent's save-up tool)
+            bot._candidates = None                          # (even if the ship did not change, the remaining slots and money did)
             c = candidate(bot)[0]
             if c is None:
                 break

@@ -1,24 +1,24 @@
-"""Oyun ayarları (yönetim paneli, panel/): çarpanlar, etkinlik seçimi, müzayede rakipleri, sunucu seçenekleri.
+"""Game settings (admin panel, panel/): multipliers, event selection, auction rivals, server options.
 
-Ayarların tek tanımı SCHEMA: panel arayüzü bundan kurulur, sunucu değerleri get() ile okur. Değerler save/ayarlar.json'da
-({anahtar: değer, 'etkinlikler': {event: 'acik' | 'kapali'}}); dosyada olmayan anahtar varsayılandır, bilinmeyenler yok sayılır,
-sayılar sınırlara kırpılır, bozuk dosya varsayılanlara döner.
-Sınırlar (2026-10-19, kullanıcı isteği: "uridyum çarpanını 50'den fazla yapamıyorum"): 'min'..'max' panelin sürgüsünün önerilen
-aralığı; sayı kutusuna elle 'sinir'e dek her değer yazılabilir (yoksa UST_SINIR). 'sinir' yalnız güvenlik içindir: istemciye 32 bitlik
-alanla giden değerlerin taşması (can, kalkan, hasar), sunucunun yükü (uzaylı ve kutu sayısı) ya da mantıksal üst (kapı sayısı).
-Dosya değişince (panelden kaydedilince) en geç YENILE_SN içinde yeniden okunur, oyun açıkken de geçerli olur. Her ayarın
-'uygulama' alanı ne zaman etkili olduğunu söyler:
-  anında    bir sonraki olayda (hasar, ödül, kutu içeriği …)
-  harita    harita yeniden kurulunca (harita değişimi, ölüm sonrası doğma): NPC ve kutu sayısı
-  giriş     oyuna yeniden girince (etkinlikler istemciye girişte bildirilir; açılır pencereler)
-  başlatma  sunucu yeniden başlayınca
-Alt ayarlar (2026-10-24, kullanıcı isteği: uridyumu kutulardan, uzaylılardan, kapılardan ayrı ayrı ayarlamak): ALTLAR'daki
-çarpanların kaynaklara göre alt çarpanları var (anahtar <üst>_<kaynak>: uridyum_npc, magaza_fiyat_kredi …; şemada 'ust' ve 'kaynak'
-alanlarıyla üstünün hemen ardında). Etkin çarpan üst x alt: carpan('uridyum', 'npc'); kaynağın alt ayarı yoksa yalnız üst. Aralık,
-sınır ve uygulama üstünden, varsayılan x1; hazır ayarlar yalnız üstleri değiştirir. Panel alt ayarları üstünün altında açılan
-"Kaynağa göre" bölümünde gösterir.
-Oyun sunucusu configure() ile dosyayı bağlar (game.main, --settings=<yol> seçeneği ya da save/ayarlar.json). Bağlanmamışken
-(testler, araçlar) bütün ayarlar varsayılandır: kullanıcının ayarları testleri etkilemez.
+The single definition of the settings is SCHEMA: the panel UI is built from it, the server reads values with get(). Values are in save/settings.json
+({key: value, 'events': {event: 'on' | 'off'}}); a key missing from the file is the default, unknown ones are ignored,
+numbers are clamped to the limits, a corrupt file falls back to the defaults.
+Limits (2026-10-19, user request: "I can't set the uridium multiplier above 50"): 'min'..'max' is the recommended range of the panel's slider;
+any value up to `limit` can be typed by hand into the number box (UPPER_LIMIT if missing). `limit` is for safety only: overflow of values that
+go to the client in a 32-bit field (HP, shield, damage), the server's load (number of aliens and boxes) or a logical upper bound (number of gates).
+When the file changes (saved from the panel) it is re-read within REFRESH_SEC at the latest, and takes effect while the game is open too. Each setting's
+'apply_mode' says when it takes effect:
+  anında    at the next event (damage, reward, box contents ...)
+  harita    when the map is rebuilt (map change, respawn after death): number of NPCs and boxes
+  giriş     when re-entering the game (events are announced to the client at login; popup windows)
+  başlatma  when the server restarts
+Sub-settings (2026-10-24, user request: adjust uridium separately for boxes, aliens, gates): the multipliers in SUBS have sub-multipliers by
+source (key <parent>_<source>: uridium_npc, shop_price_credits ...; in the schema they follow their parent right after it with the 'parent' and 'source'
+fields). The effective multiplier is parent x sub: multiplier('uridium', 'npc'); if the source has no sub-setting, only the parent. Range,
+limit and apply mode come from the parent, default x1; presets change only the parents. The panel shows the sub-settings in the
+"By source" section that opens under the parent.
+The game server binds the file with configure() (game.main, the --settings=<path> option or save/settings.json). While unbound
+(tests, tools) all settings are defaults: the user's settings do not affect the tests.
 """
 import json, os, random, sys, threading, time
 
@@ -30,12 +30,12 @@ GROUPS = (('ship', 'Your ship'), ('combat', 'Combat and aliens'), ('reward', 'Re
            ('gate', 'Gates and modes'), ('economy', 'Economy'), ('sure', 'Timers'), ('auction', 'Auction'), ('ui', 'Interface'),
            ('manager', 'Admin'), ('developer', 'Developer'))
 RIVAL_LEVELS = ('Off', 'Timid', 'Moderate', 'Competitive', 'Aggressive')
-UPPER_LIMIT = 10000.0             # çarpanların elle yazılabilen en büyük değeri ('sinir' verilmemişse)
-I32 = 2 ** 31 - 1               # istemciye 32 bitlik alanla giden değerlerin üstü (protokol taşırır: can, kalkan, fiyat)
+UPPER_LIMIT = 10000.0             # the largest value multipliers can be typed by hand ('limit' if not given)
+I32 = 2 ** 31 - 1               # the upper bound of values that go to the client in a 32-bit field (the protocol would overflow: HP, shield, price)
 
 
 def _c(key, name, group, description, apply_mode='anında', lo=0.0, hi=10.0, step=0.1, default=1.0, limit=UPPER_LIMIT, condition=None):
-    """Çarpan: panelde sürgü (lo..hi, önerilen) ve sayı kutusu (lo..sinir). kosul: yalnız o açma kapama ayarı açıkken görünür."""
+    """Multiplier: a slider (lo..hi, recommended) and a number box (lo..limit) in the panel. condition: visible only while that on/off setting is on."""
     return dict(anahtar=key, name=name, group=group, type='multiplier', default=default, min=lo, max=hi, cap=max(hi, limit), step=step,
                 description=description, apply_mode=apply_mode, **({'condition': condition} if condition else {}))
 
@@ -45,13 +45,13 @@ def _b(key, name, group, description, apply_mode='anında', default=False):
 
 
 def _n(key, name, group, description, apply_mode='anında', lo=0, hi=10, default=1, unit='', limit=None):
-    """Tam sayı (adet, saat): panelde sayı kutusu; hi önerilen üst, sinir elle yazılabilen en büyük (yoksa hi)."""
+    """Integer (count, hours): a number box in the panel; hi is the recommended upper bound, limit the largest that can be typed by hand (hi if missing)."""
     return dict(anahtar=key, name=name, group=group, type='number', default=default, min=lo, max=hi, cap=max(hi, limit or hi),
                 unit=unit, description=description, apply_mode=apply_mode)
 
 
 SCHEMA = [
-    # ---------------------------------------------------------------- gemin
+    # ---------------------------------------------------------------- ship
     _c('ship_hp', 'Ship HP', 'ship', "Your ship's maximum HP (hull), together with formation, booster and lab bonuses. Also changes while "
                                      'the game is running.', lo=0.1, limit=1000.0),
     _c('ship_shield', 'Ship shield', 'ship', "Your ship's maximum shield (shield generators on the ship and drones, with bonuses). Also changes "
@@ -73,7 +73,7 @@ SCHEMA = [
     _n('on_spot_hp', 'HP on on-the-spot repair', 'ship', 'HP you get when you repair on the spot after your ship is destroyed (game value 10%; the shield '
                                                          'starts empty).', lo=1, hi=100, default=10, unit='%'),
     _n('on_spot_protection', 'Protection after on-the-spot repair', 'ship', 'How long you take no damage after repairing on the spot (game value 10 s). Ends when you fire.', lo=0, hi=60, default=10, unit='s', limit=3600),
-    # ---------------------------------------------------------------- savaş ve uzaylılar
+    # ---------------------------------------------------------------- combat and aliens
     _c('npc_damage', 'Damage from aliens', 'combat', 'Damage aliens (NPCs) deal to your ship, your P.E.T. and friendly ships. 0: you take no damage at '
                                                     'all.', limit=1000.0),
     _c('player_damage', 'Damage you deal', 'combat', 'Damage you deal to aliens, players and bots with lasers, rockets, launchers, mines, Smart Bomb, '
@@ -101,7 +101,7 @@ SCHEMA = [
                                                      'the map or a module is hit.', apply_mode='map', lo=0.1, hi=10.0, limit=1000.0),
     _c('cbs_damage', 'Clan Battle Station damage', 'combat', 'Damage dealt by the weapon modules of every Clan Battle Station (to aliens, and by a rival station '
                                                             'to you).', lo=0.0, hi=10.0, limit=1000.0),
-    # ---------------------------------------------------------------- ödüller
+    # ---------------------------------------------------------------- rewards
     _c('credits', 'Credit gain', 'reward', 'Credits earned from aliens, boxes, missions, gates and events (sales and refunds excluded).', hi=50.0, limit=100000.0),
     _c('uridium', 'Uridium gain', 'reward', 'Uridium earned from aliens, boxes, missions, gates and events.', hi=50.0,
        limit=100000.0),
@@ -129,7 +129,7 @@ SCHEMA = [
                                                            "Display option for other players' cargo boxes is on). Collecting the box of someone from your own "
                                                            "company costs honor: 10 for the first that day, twice as much each time. If off, anyone can collect "
                                                            "it with no penalty.", default=True),
-    # ---------------------------------------------------------------- ilerleme
+    # ---------------------------------------------------------------- progress
     _c('drone_xp', 'Drone experience', 'progress', 'Points your drones earn when you kill aliens: how fast drones level up.',
        hi=50.0),
     _c('pet_ep', "P.E.T. experience", 'progress', "Experience your P.E.T. earns (game value 5% of the EP you earn): how fast the P.E.T. levels up.", hi=50.0),
@@ -144,7 +144,7 @@ SCHEMA = [
                                                                    "time (about 2 weeks in the real game).", lo=1, hi=60, default=14, unit='days', limit=365),
     _c('booster_power', 'Booster strength', 'progress', 'The bonus of boosters (damage, HP, shield, EP, honor …) and the cap of each type. x2: a 10% damage '
                                                         'booster gives 20%.', hi=10.0, limit=100.0),
-    # ---------------------------------------------------------------- dünya
+    # ---------------------------------------------------------------- world
     _c('box_abundance', 'Bonus box abundance', 'world', 'Number of bonus boxes on the maps (event boxes included).',
        apply_mode='map', hi=10.0, limit=100.0),
     _c('box_respawn', 'Box respawn time', 'world', 'Time until a collected box is replaced. Lower value: sooner.', lo=0.01, hi=5.0, limit=100.0),
@@ -168,7 +168,7 @@ SCHEMA = [
                                                       "real game only at the station). When off, only at the station.", default=True),
     _b('clan_cooldown', 'Clan 48-hour rules', 'world', 'After leaving a clan you cannot found or join another clan for 48 hours; the clan name/tag can only '
                                                        'be changed every 48 hours. When off there is no waiting time.', default=True),
-    # ---------------------------------------------------------------- kapılar ve modlar
+    # ---------------------------------------------------------------- gates and modes
     _c('gate_part', 'Gate part chance', 'gate', "Chance of getting a gate part per energy in the Galaxy Gate generator (the game's value is 13%; the "
                                                 "window's odds list changes too).", lo=0.1, hi=7.0, limit=1000.0),
     _n('duplicate_to_missing', 'Duplicate part becomes a missing one', 'gate', 'When you draw a gate part you already have, the chance that you get a missing part instead (game '
@@ -193,7 +193,7 @@ SCHEMA = [
                                                              'designs stay at one.', lo=0.1, hi=20.0),
     _n('gate_bonus_hours', 'Gate bonus period', 'gate', 'How often the bonus gates change (aligned to midnight; 24: every day). Changing it renews the '
                                                         'selection right away.', lo=1, hi=168, default=24, unit='hours', limit=8760),
-    # ---------------------------------------------------------------- ekonomi
+    # ---------------------------------------------------------------- economy
     _c('shop_price', 'Shop prices', 'economy', 'Price of everything sold in the shop for credits and uridium.', lo=0.0,
        hi=5.0, limit=1000.0),
     _b('event_looks_in_shop', 'Event designs in the shop', 'economy', "Ship, drone and P.E.T. designs from events (Galactic Strife's Arios and Neikos, Trial of Terrors' "
@@ -224,7 +224,7 @@ SCHEMA = [
     _c('skylab_uretim', 'Skylab production', 'economy', 'Hourly output of Skylab collectors and refineries.', hi=20.0),
     _c('skylab_storage', 'Skylab storage capacity', 'economy', 'Capacity of the Skylab storage for each resource.', hi=20.0,
        limit=1000.0),
-    # ---------------------------------------------------------------- süreler
+    # ---------------------------------------------------------------- timers
     _c('cooldown', 'Crafting and waiting times', 'sure', 'Assembly crafting, Skylab upgrades and transport, Dispatch missions, item upgrades. Lower value: '
                                                          'faster (applies to newly started ones).', lo=0.0, hi=5.0, limit=100.0),
     _c('skill_cooldown', 'Ability and item cooldowns', 'sure', "Cooldown of ship abilities, CPUs, mines, Smart Bomb, Insta-Shield, tech items and special rockets.", lo=0.05, hi=5.0, limit=100.0),
@@ -235,7 +235,7 @@ SCHEMA = [
                                                                     'the whole event: the portal is always open, and a session, battle or run starts when you enter. '
                                                                     "Event aliens (Curcubitor, Agatus, Lanatum, Chaos Protegit) also spawn outside the game's hourly "
                                                                     'windows.'),
-    # ---------------------------------------------------------------- müzayede
+    # ---------------------------------------------------------------- auction
     dict(anahtar='auction_rivals', name='Virtual rivals', group='auction', type='level', default=0,
          options=list(RIVAL_LEVELS), colors=['', 'ok', 'ok', 'info', 'err'], apply_mode='anında',
          option_description=['No rivals: only you place bids.',
@@ -247,7 +247,7 @@ SCHEMA = [
                   'never outbid you, so any lot you bid on is yours. Competitive and Aggressive: they answer when you '
                   'outbid them; unless you go past their budget you may lose the lot (your credits come back). Off '
                   'while a bot pack is running in the world: the bots bid instead.'),
-    # ---------------------------------------------------------------- arayüz
+    # ---------------------------------------------------------------- interface
     _b('dark', 'Dark maps (flashlight)', 'ui', 'On the Trial of Terrors gate maps the screen goes dark and only the direction your ship faces is '
                                                "lit (the client's flashlight effect). Turn it off for bright maps.", apply_mode='map',
        default=True),
@@ -260,7 +260,7 @@ SCHEMA = [
                                                          'Boss" announcement and sound (3, 6, 10, 15 kills; at most 10 s apart).'),
     _b('no_ads', 'Hide login pop-ups', 'ui', 'The daily bonus, tip and Season Pass windows that open at login are not sent (you can still open '
                                              'them from the menus).', apply_mode='giriş'),
-    # ---------------------------------------------------------------- yönetici (yonetici_modu.py)
+    # ---------------------------------------------------------------- admin (admin_mode.py)
     _b('admin_mode', 'Admin mode', 'manager', 'You become an administrator in the game: an admin badge (yellow A) before your name, and you are '
                                               'left out of the rank system, the Hall of Fame rankings and the company ranking. Bots know you as an '
                                               'admin: they never attack you, follow your warnings in chat and react when they see you. On a friend '
@@ -281,12 +281,12 @@ SCHEMA = [
                                               'aliens and boxes, give items and packages, finish quests, set up gates, reset cooldowns, '
                                               'invulnerability. While on, an admin badge shows before your name (the client recognises the admin '
                                               'by rank 6000).', apply_mode='giriş'),
-    # ---------------------------------------------------------------- geliştirici
+    # ---------------------------------------------------------------- developer
     _b('nearby_npc', 'Spawn aliens nearby', 'developer', 'Testing aid: one of each of the first four alien types spawns right next to your ship.', apply_mode='map'),
     _b('control', 'Live test control channel', 'developer', 'Developer tool (control.py, 127.0.0.1:8099): message trace and request injection.', apply_mode='başlatma'),
 ]
 
-# alt ayarlar: üst çarpan -> kaynakları [(kaynak, ad, açıklama)]; oyundaki karşılığı carpan(üst, kaynak) çağıran yerler
+# sub-settings: parent multiplier -> its sources [(source, name, description)]; the counterpart in the game is where multiplier(parent, source) is called
 _NPC = ('npc', 'Aliens', 'When you destroy an alien (NPC).')
 _BOX = ('box', 'Boxes and chests', 'Bonus boxes, event boxes and booty chests.')
 _QUEST = ('quest', 'Quests', 'Quests from the quest window and Urgent Missions.')
@@ -336,9 +336,9 @@ SCHEMA = [x for s in SCHEMA for x in [s] + [dict(s, anahtar='%s_%s' % (s['anahta
 SUB = {(s['parent'], s['source']): s['anahtar'] for s in SCHEMA if s.get('parent')}
 BY_KEY = {s['anahtar']: s for s in SCHEMA}
 DEFAULTS = {s['anahtar']: s['default'] for s in SCHEMA}
-EVENT_STATES = ('on', 'off')         # yoksa takvime göre
+EVENT_STATES = ('on', 'off')         # otherwise by the calendar
 
-# hazır ayarlar (panelin "Hazır ayarlar" listesi): yalnız değişen anahtarlar, ötekiler varsayılan
+# presets (the panel's "Presets" list): only the changed keys, the others are default
 PRESETS = {
     'default': {'name': 'Default', 'description': "The game's own values.", 'values': {}},
     'casual': {'name': 'Relaxed', 'description': 'You take less damage; rewards and boxes are plentiful.',
@@ -366,7 +366,7 @@ _state = {'route': None, 'mtime': None, 'read_at': 0.0, 'd': {}}
 
 
 def clean(raw):
-    """Dosyadan gelen sözlük -> geçerli değerler (bilinmeyen anahtar yok, sayılar sınırda, türler doğru)."""
+    """Dict from the file -> valid values (no unknown keys, numbers at the limits, types correct)."""
     out = {}
     if not isinstance(raw, dict):
         return out
@@ -388,7 +388,7 @@ def clean(raw):
                 v = float(v)
                 if v != v:                                # NaN
                     continue
-                out[key] = int(round(min(s['cap'], max(s['min'], v))))       # sonsuz da sınıra
+                out[key] = int(round(min(s['cap'], max(s['min'], v))))       # infinity also to the limit
         except (TypeError, ValueError):
             continue
     ev = raw.get('events')
@@ -398,7 +398,7 @@ def clean(raw):
 
 
 def read(path):
-    """Dosyadaki ayarlar (temizlenmiş); dosya yoksa ya da bozuksa {}."""
+    """The settings in the file (cleaned); {} if the file is missing or corrupt."""
     try:
         with open(path, encoding='utf8') as fh:
             return clean(json.load(fh))
@@ -407,7 +407,7 @@ def read(path):
 
 
 def write(path, values):
-    """Ayarları atomik yaz (panel). Varsayılana eşit değerler de yazılır: dosya kullanıcının seçimidir."""
+    """Write the settings atomically (panel). Values equal to the default are written too: the file is the user's choice."""
     d = clean(values)
     os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
     tmp = path + '.tmp'
@@ -418,7 +418,7 @@ def write(path, values):
 
 
 def configure(argv=None, path=None):
-    """Ayar dosyasını bağla: path, yoksa --settings=<yol> seçeneği, yoksa save/ayarlar.json. path=False: bağı çöz (varsayılanlar)."""
+    """Bind the settings file: path, otherwise the --settings=<path> option, otherwise save/settings.json. path=False: unbind (defaults)."""
     if path is None:
         argv = sys.argv if argv is None else argv
         path = next((a.split('=', 1)[1] for a in argv if a.startswith('--settings=')), DEFAULT_PATH)
@@ -450,27 +450,27 @@ def get(key):
 
 
 def multiplier(key, source=None):
-    """Çarpan; kaynak verilirse alt ayarıyla çarpılır (carpan('uridyum', 'npc') = uridyum x uridyum_npc). Kaynağın alt ayarı
-    yoksa yalnız üst."""
+    """Multiplier; if source is given it is multiplied by the sub-setting (multiplier('uridium', 'npc') = uridium x uridium_npc). If the source has no
+    sub-setting, only the parent."""
     sub = SUB.get((key, source))
     return float(get(key)) * (float(get(sub)) if sub else 1.0)
 
 
 def version():
-    """Ayar dosyasının sürümü (değiştirilme anı; bağlı değilse None): oyun açıkken değişen ayarı fark etmek için (dunya.settings_tick)."""
+    """Version of the settings file (time of modification; None if unbound): to notice a setting changed while the game is open (world.settings_tick)."""
     _current()
     with _lock:
         return _state['mtime']
 
 
 def price(key, n, source=None):
-    """Fiyatı çarpanla ölçekle (hizmet ücretleri …): tam sayı, en az 0, 32 bitlik alana sığar."""
+    """Scale a price by the multiplier (service fees ...): integer, at least 0, fits a 32-bit field."""
     m = multiplier(key, source)
     return n if m == 1.0 or not n else min(I32, max(0, int(round(n * m))))
 
 
 def count(key, n, source=None):
-    """Sayıyı (uzaylı, kutu adedi) çarpanla ölçekle: yuvarlanır, pozitif sayı en az 1 kalır (patron kaybolmaz); çarpan 0 ise 0."""
+    """Scale a number (aliens, box count) by the multiplier: rounded, a positive number stays at least 1 (a boss does not vanish); 0 if the multiplier is 0."""
     m = multiplier(key, source)
     if m == 1.0 or not n or n < 0:
         return n
@@ -478,8 +478,8 @@ def count(key, n, source=None):
 
 
 def amount(key, n, source=None):
-    """Miktarı (ödül, toplanan eşya) çarpanla ölçekle: kesir olasılıkla yuvarlanır (x1,5 ile 1 -> yarı yarıya 1 ya da 2),
-    beklenen değer tam çarpan kadar."""
+    """Scale an amount (reward, collected item) by the multiplier: the fraction is rounded probabilistically (with x1.5, 1 -> half the time 1 or 2),
+    the expected value is exactly the multiplier."""
     m = multiplier(key, source)
     if m == 1.0 or not n or n < 0:
         return n
@@ -489,29 +489,29 @@ def amount(key, n, source=None):
 
 
 def duration(sec, source=None):
-    """Üretim ve bekleme süresi (panelin 'bekleme' çarpanı; kaynak: assembly, skylab, dispatch, yukseltme) -> saniye (en az 1)."""
+    """Production and cooldown time (the panel's 'cooldown' multiplier; sources: assembly, skylab, dispatch, upgrade) -> seconds (at least 1)."""
     m = multiplier('cooldown', source)
     return sec if m == 1.0 else max(1, int(round(sec * m)))
 
 
 def chance(key, p, source=None):
-    """Olasılığı çarpanla ölçekle (0..1)."""
+    """Scale a probability by the multiplier (0..1)."""
     m = multiplier(key, source)
     return p if m == 1.0 else min(1.0, max(0.0, p * m))
 
 
 def event_state(key):
-    """Oyuncunun etkinlik seçimi: 'acik', 'kapali' ya da None (takvime göre)."""
+    """The player's event choice: 'on', 'off' or None (by the calendar)."""
     return (_current().get('events') or {}).get(key)
 
 
 def full_name(s, name=lambda x: x):
-    """Ayarın özetlerdeki adı: alt ayar üstüyle birlikte ('Uridyum kazancı › Uzaylılar'); ad: çeviri (panel)."""
+    """The setting's name in summaries: a sub-setting together with its parent ('Uridium gain › Aliens'); name: translation (panel)."""
     return name(BY_KEY[s['parent']]['name']) + ' › ' + name(s['name']) if s.get('parent') else name(s['name'])
 
 
 def summary(values=None):
-    """Varsayılandan farklı ayarlar [(ad, değer metni)] (panelin özet çipleri)."""
+    """Settings that differ from the default [(name, value text)] (the panel's summary chips)."""
     d = _current() if values is None else clean(values)
     out = []
     for s in SCHEMA:

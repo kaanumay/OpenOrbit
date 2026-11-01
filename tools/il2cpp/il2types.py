@@ -1,7 +1,7 @@
-"""Il2CppMetadataRegistration -> Il2CppType tablosu; alan/parametre/dönüş türlerini okunur ada çevirir (x86)."""
+"""Il2CppMetadataRegistration -> Il2CppType table; turns field/parameter/return types into readable names (x86)."""
 import struct, sys
 import os
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))     # python -I ile de: yanındaki modüller
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))     # also with python -I: the modules next to it
 from symbols import Symbols
 
 S = Symbols()
@@ -34,7 +34,7 @@ def _scan(data):
             # fieldOffsetsCount, fieldOffsets, typeDefinitionsSizesCount, typeDefinitionsSizes
             c1, p1, c2, p2 = struct.unpack_from('<IIII', b, o)
             if c1 == NT and c2 == NT and pe.va2off(p1) and pe.va2off(p2):
-                base = o - 4 * 10   # 5 çift önce: genericClasses, genericInsts, genericMethodTable, types, methodSpecs
+                base = o - 4 * 10   # first 5 pairs: genericClasses, genericInsts, genericMethodTable, types, methodSpecs
                 vals = struct.unpack_from('<10I', b, base)
                 return dict(genericClassesCount=vals[0], genericClasses=vals[1], genericInstsCount=vals[2], genericInsts=vals[3],
                             genericMethodTableCount=vals[4], genericMethodTable=vals[5], typesCount=vals[6], types=vals[7],

@@ -1,31 +1,31 @@
-"""Yerel oyun sunucusu (TCP 8081): DarkOrbit Unity istemcisinin libcom protokolü.
+"""Local game server (TCP 8081): the libcom protocol of the DarkOrbit Unity client.
 
-Kullanım: python -I game.py <log_klasörü> [--near-npc] [--no-popups] [--invulnerable] [--control] [--profile=<yol>] [--settings=<yol>]
-                                         [--stop-file=<dosya>]
-  Normalde yönetim paneli başlatır (server/panel/): kayıt yuvasının profili, oyun ayarları ve durdurma dosyası onun verdiği.
-  --settings=<yol>: oyun ayarları (settings.py; varsayılan save/ayarlar.json): çarpanlar, etkinlik seçimi, müzayede rakipleri,
-  reklamsız/dokunulmaz/yakın NPC (seçeneklerin panel karşılıkları). Dosya değişince oyun açıkken yeniden okunur.
-  --stop-file=<dosya>: dosya belirince profil kaydedilir ve sunucu kapanır (panelin "Sunucuyu durdur"u).
-  --no-popups: girişte kendiliğinden açılan tanıtım pencereleri (günlük bonus, ipuçları, Season Pass) de gönderilmez.
-  Gerçek parayla alışveriş pencereleri (Helix Blitz kampanyası, paket teklifi) ve Command Center'ın kendiliğinden açılması
-  her zaman kapalıdır; Command Center menüden açılabilir.
-  --near-npc: test kolaylığı, ilk 4 NPC türünden birer tane oyuncunun hemen yakınında doğar.
-  --invulnerable: test kolaylığı, uzaylıların atışları görünür ama gemi can ve kalkan kaybetmez (ör. kapıları ölmeden denemek).
-  --control: canlı test kontrol kanalı (control.py, 127.0.0.1:8099): mesaj izi, istek enjeksiyonu, komut gönderme, durum.
-  --profile=<yol>: etkin kayıt yuvası (paths.py) yerine başka bir profil (panel yuvanınkini verir; canlı testler kopyayla çalışır).
-Çerçeve: istemci -> sunucu ilk paket 4 bayt, sonrakiler 3 bayt BE uzunluk; sunucu -> istemci 3 bayt BE uzunluk.
-Mesajlar protocol.py ile kodlanır/çözülür (tablo: istemcinin kendi read() kodu, server/data/protocol_read.json).
+Usage: python -I game.py <log_folder> [--near-npc] [--no-popups] [--invulnerable] [--control] [--profile=<path>] [--settings=<path>]
+                                         [--stop-file=<file>]
+  Normally the admin panel starts it (server/panel/): the save slot's profile, the game settings and the stop file come from it.
+  --settings=<path>: game settings (settings.py; default save/settings.json): multipliers, event choice, auction rivals,
+  ad-free/invulnerable/near NPC (the panel counterparts of the options). Re-read while the game is open when the file changes.
+  --stop-file=<file>: when the file appears the profile is saved and the server closes (the panel's "Stop server").
+  --no-popups: promotional windows that open on their own at login (daily bonus, hints, Season Pass) are not sent either.
+  Real-money shopping windows (Helix Blitz campaign, package offer) and the Command Center opening on its own
+  are always off; the Command Center can be opened from the menu.
+  --near-npc: a test convenience, one of each of the first 4 NPC types spawns right next to the player.
+  --invulnerable: a test convenience, aliens' shots are visible but the ship loses no HP or shield (e.g. to try gates without dying).
+  --control: live test control channel (control.py, 127.0.0.1:8099): message trace, request injection, sending commands, state.
+  --profile=<path>: another profile instead of the active save slot (paths.py) (the panel passes the slot's; live tests work on a copy).
+Framing: client -> server the first packet has a 4-byte, later ones a 3-byte BE length; server -> client a 3-byte BE length.
+Messages are encoded/decoded with protocol.py (table: the client's own read() code, server/data/protocol_read.json).
 
-Giriş akışı (gerçek sunucunun kaydından, bkz. belgeler/istemci/kayit_analizi.md):
-  LoginRequest  -> data/giris.json "giris" demeti
-  ReadyRequest  -> "hazir" demeti (ilk ReadyRequest'te)
-  Demetlerdeki "@…" işaretleri profilden (save/profil.json) ya da harita verisinden (data/haritalar.json) üretilir.
-  Salt okunur istekler kayıttaki yanıtlarla karşılanır (data/yanitlar.json); ayar/pencere/hareket istekleri profile yazılır.
-  Harita yüklenince dünya simülasyonu başlar (world.py): NPC'ler, savaş, ödüller, kutular.
-  Mağaza ve hangar istekleri (satın alma, ekipman takıp çıkarma) shop.py'de, profil üzerinde işlenir.
-  P.E.T. (pet.py): PetRequest, PetGearActivationRequest; uzaydaki davranışı dünya döngüsünde, harita değişince yeniden çıkar.
-  Galaksi Kapıları (galaxy_gates.py): GalaxyGateBuilder* istekleri; X-1'deki kapı portalları ve kapı haritasındaki dalgalar dünyaya bağlanır.
-Şablon dosyaları kayit/extract_templates.py ile üretilir; yoksa yalnızca profilden en küçük giriş (gemi + LoginResponse) gönderilir.
+Login flow (from the real server's record, see belgeler/istemci/kayit_analizi.md):
+  LoginRequest  -> data/login.json "entry" bundle
+  ReadyRequest  -> "ready" bundle (on the first ReadyRequest)
+  The "@..." markers in the bundles are produced from the profile (profile.json) or the map data (data/maps.json).
+  Read-only requests are answered with the replies in the record (data/responses.json); settings/window/movement requests are written to the profile.
+  When the map loads the world simulation starts (world.py): NPCs, combat, rewards, boxes.
+  Shop and hangar requests (purchases, equipping and unequipping) are handled in shop.py, on the profile.
+  P.E.T. (pet.py): PetRequest, PetGearActivationRequest; its behavior in space is in the world loop, it comes out again on a map change.
+  Galaxy Gates (galaxy_gates.py): GalaxyGateBuilder* requests; the gate portals in X-1 and the waves on the gate map are tied to the world.
+Template files are produced with recording/extract_templates.py; if missing, only the smallest login (ship + LoginResponse) is sent from the profile.
 """
 import contextlib, os, re, sys, socket, threading, time, json, math
 
@@ -85,7 +85,7 @@ import community as TP
 import clan as KL
 import group as GR
 import contacts as CT
-import bot.manager as BOT  # noqa: E402  (bot oyuncular: belgeler/BOTLAR.md)
+import bot.manager as BOT  # noqa: E402  (bot players: belgeler/BOTLAR.md)
 from legacy_protocol import legacy, parse as legacy_parse  # noqa: E402         # noqa: E402
 
 ARGS = [a for a in sys.argv[1:] if not a.startswith('--')]
@@ -101,47 +101,47 @@ def log(text):
 
 
 def encode(msgs):
-    """Mesajları çerçeveler; kodlanamayan mesaj (255'i aşan liste, bilinmeyen alan …) adıyla günlüğe yazılıp atlanır, ötekiler gider."""
+    """Frames the messages; a message that cannot be encoded (a list over 255, an unknown field ...) is written to the log by name and skipped, the others go."""
     out = []
     for n, f in msgs:
         try:
             out.append(P.frame(P.encode_message(n, f)))
         except Exception as e:
-            log('   kodlanamadı, gönderilmedi: %s: %r' % (n, e))
+            log('   could not encode, not sent: %s: %r' % (n, e))
     return b''.join(out)
 
 
 def save_profile(profile=None):
-    """Profil kaydı (verilmezse sunucunun kendi profili); hata (dosya kilitli, disk) günlüğe yazılır, oturumu ve harita değişimini
-    düşürmez; bir sonraki kayıtta yeniden denenir."""
+    """Profile save (the server's own profile if not given); an error (file locked, disk) is written to the log and does not bring down the session or the map change;
+    it is retried at the next save."""
     try:
         (profile or PROFILE).save()
     except Exception as e:
-        log('   profil kaydedilemedi: %r' % e)
+        log('   profile could not be saved: %r' % e)
 
 
 def _load(name, default):
-    p = PTH.template(name) if name in PTH.TEMPLATES else os.path.join(DATA, name)     # şablon: kendi kaydın, yoksa paylaşılabilir kopya
+    p = PTH.template(name) if name in PTH.TEMPLATES else os.path.join(DATA, name)     # template: your own record, otherwise the shareable copy
     return json.load(open(p, encoding='utf8')) if p and os.path.exists(p) else default
 
 
 class Templates:
-    """Kayıttan çıkarılmış giriş demetleri, harita dünyası ve istek yanıtları (kendi kaydın yoksa data/defaults/'daki paylaşılabilir
-    kopya; yollar.sablon)."""
+    """Login bundles extracted from the record, the map world and the request replies (if you have no record of your own, the shareable copy in data/defaults/;
+    paths.template)."""
 
     def __init__(self):
         self.entry = _load('login.json', {})
         self.maps = _load('maps.json', {})
         for w in self.maps.values():
             w['ready'] = [m for m in w.get('ready', []) if not (m['_m'] == 'JumpgateCreateCommand' and m['designId'] in SERVER_GATE_DESIGNS)]
-        # yalnız kullanılanlar (E10): ötekilerin hepsini kod karşılıyor; kayıttaki hesabın verisi (başka oyuncuların adları, klan
-        # listeleri) bir isteğin yedeğinden pencereye çıkmasın. Dosyada kalırlar: araçların kaynağı (rutbe, pve_modlari, sira_odulleri)
+        # only the ones used (E10): the code covers all the others; the record account's data (other players' names, clan
+        # lists) must not leak into the window from a request's backup. They stay in the file: the source of the tools (rank, pve_modes, ranking_rewards)
         self.replies = {k: v for k, v in _load('responses.json', {}).items() if k in USED_RESPONSES}
         self.produced = {}
 
     def map_world(self, map_id):
-        """Haritanın dünya mesajları {'giris', 'hazir'}: kayıttaysa kayıttan; değilse üretilir (istasyonlu haritalarda kayıttaki
-        2-1 istasyonu taşınır, harita.map_world) ve portallar istemcinin spacemap-config.xml'inden."""
+        """The map's world messages {'giris', 'hazir'}: from the record if it is there; otherwise produced (on maps with a station the 2-1 station in the record
+        is moved, map.map_world) and the portals from the client's spacemap-config.xml."""
         rec = self.maps.get(str(map_id))
         if rec is not None:
             return rec
@@ -150,14 +150,14 @@ class Templates:
         return self.produced[str(map_id)]
 
     def station(self, map_id):
-        """Haritanın istasyonu (tamir, doğma, hangar): süs istasyonları (5-2'nin korsan istasyonu) sayılmaz."""
+        """The map's station (repair, spawn, hangar): decorative stations (5-2's pirate station) do not count."""
         for m in self.map_world(map_id).get('ready', []):
             if m['_m'] == 'SpaceStationCommand' and m.get('type') not in H.DECOR_STATION_TYPES:
                 return m
         return None
 
     def batch(self, kind, profile):
-        """'giris' ya da 'hazir' demetini [(ad, alanlar)] olarak üretir."""
+        """Produces the 'giris' or 'hazir' bundle as [(name, fields)]."""
         if not self.entry:
             if kind == 'entry':
                 return [profile.generate('@gemi'), profile.generate('@giris_yaniti')]
@@ -169,8 +169,8 @@ class Templates:
             if mk in DEAD_TEMPLATE or m.get('message') in DEAD_LEGACY:
                 continue
             if mk == 'WindowItemCommand':
-                # kayıtta Contacts ve Ship Warp girişte üçer kez, her hazır demetinde yine üçer kez (kayıttaki yerle, maximized false:
-                # açık pencere kapanır): girişte bir kez, profildeki yer ve görünürlükle (profil.patch_template)
+                # in the record Contacts and Ship Warp come three times at login and again three times in every ready bundle (with the position in the record, maximized false:
+                # an open window closes): once at login, with the position and visibility in the profile (profile.patch_template)
                 if kind == 'ready' or m.get('itemId') in windows:
                     continue
                 windows.add(m.get('itemId'))
@@ -179,30 +179,30 @@ class Templates:
                 out += [(n, f) for n, f in self.world_msgs(map_id, 'entry' if mk == '@harita_giris' else 'ready')
                         if not (n == 'JumpgateCreateCommand' and f['gateId'] == H.TUTORIAL_GATE and lv >= H.TUTORIAL_MAX_LEVEL)]
             elif kind == 'ready' and (mk == 'EquipReadyCommand' or m.get('message', '').startswith('0|n|MSG|3|2|msg_equip_')):
-                continue               # kayıtta her yerde true; dünya istasyon bölgesine girip çıktıkça gönderir (dunya.check_gates)
+                continue               # true everywhere in the record; the world sends it as it enters and leaves the station zone (world.check_gates)
             elif mk.startswith('@'):
-                st = self.station(map_id)               # düşman üssü güvenli bölge değil (dunya.home_station)
+                st = self.station(map_id)               # the enemy base is not a safe zone (world.home_station)
                 g = profile.generate(mk, st if st and st.get('type') == profile.d['pilot'].get('factionId') else None)
                 if g:
                     out.append(g)
             else:
                 out.append((mk, profile.patch_template(mk, m)))
-                if mk == 'EventActivationStateCommand':      # süren etkinliklerin harita süsleri (takvim.mood_cmds)
+                if mk == 'EventActivationStateCommand':      # map decorations of the running events (calendar.mood_cmds)
                     out += CAL.mood_cmds(CAL.active())
         return out
 
     def world_msgs(self, map_id, kind):
-        """Harita dünyası: kayıtta gezilen haritalar için kayıttaki mesajlar, diğerleri için istemcinin portal verisinden."""
+        """Map world: for maps visited in the record the messages in the record, for the others from the client's portal data."""
         return [(w['_m'], {k: v for k, v in w.items() if k != '_m'}) for w in self.map_world(map_id).get(kind, [])]
 
     def asset_removes(self, map_id):
-        """Harita değişiminde eski haritanın istasyon/taret nesnelerini kaldır (kayıttaki AssetRemoveCommand gibi)."""
+        """On a map change remove the old map's station/turret objects (like the AssetRemoveCommand in the record)."""
         return [('AssetRemoveCommand', {'assetType': w['type'], 'uid': w['assetId']}) for w in
                 self.map_world(map_id).get('entry', []) if w['_m'] == 'AssetCreateCommand']
 
     def response(self, name, fields):
-        """Salt okunur isteğe kayıttaki yanıtı bulur: tam eşleşme, yoksa yalnız sayfalama/haber alanları farklı olan kayıt.
-        Tür, modül, sıralama gibi alanlar farklıysa yanıt yok (eskiden başka türün listesi gidiyordu: Hall of Fame, Skylab modülü)."""
+        """Finds the recorded reply for a read-only request: an exact match, otherwise a record that differs only in the paging/news fields.
+        If fields like type, module or sort differ there is no reply (before, another type's list went: Hall of Fame, Skylab module)."""
         entries = self.replies.get(name)
         if not entries:
             return None
@@ -214,70 +214,70 @@ class Templates:
         return [(m['_m'], m) for m in best['response']]
 
 
-LOOSE_FIELDS = {'startIndex', 'page', 'start', 'newsInfo'}       # yanıtın türünü değiştirmeyen istek alanları
-# kayıtlı yanıtlardan sunucunun kullandıkları: yanıt olarak (Command Center, pilot kartı) ve veri şablonu olarak (mağaza, hangar, kapı)
+LOOSE_FIELDS = {'startIndex', 'page', 'start', 'newsInfo'}       # request fields that do not change the reply's type
+# the recorded replies the server uses: as replies (Command Center, pilot card) and as a data template (shop, hangar, gate)
 USED_RESPONSES = {'CommandCenterGetDontShowRequest', 'CommandCenterNewsInfoRequest', 'InternalPilotBioRequest', 'ShopItemListRequest',
                   'HangarShipEquipmentRequest', 'HangarListRequest', 'HangarShipDetailRequest', 'GalaxyGateBuilderInfoRequest'}
-# giriş şablonunun ölü yükü (E10): R-Zone durumu (171 kez; işleyicisi ölü), CTB (istemcide işleyicisi yok), 0|TR ve 0|8
-# (istemcinin OnData'sında dalı yok). POIReadyCommand ölü değil: istemci bölgelerin görünümünü ancak onunla çizer
-# (PoiReadyCommandHandler -> PoiZoneManager.AssemblePoiReady -> UpdateDesign/UpdateDesign2D); gelmeyince 5-X ve X-BL engelleri
-# asteroit/enkaz yerine düz gri tarama görünüyordu (kullanıcı bildirimi 2026-10-25). Kayıttaki gibi haritanın hazır demetinden sonra.
+# dead payload of the login template (E10): R-Zone state (171 times; its handler is dead), CTB (no handler in the client), 0|TR and 0|8
+# (no branch in the client's OnData). POIReadyCommand is not dead: the client draws the zones' appearance only with it
+# (PoiReadyCommandHandler -> PoiZoneManager.AssemblePoiReady -> UpdateDesign/UpdateDesign2D); when it did not arrive the 5-X and X-BL obstacles
+# looked like a plain grey scan instead of asteroids/debris (user report 2026-10-25). After the map's ready bundle as in the record.
 DEAD_TEMPLATE = {'RzoneStatusCommand', 'CTBMatchStateCommand'}
 DEAD_LEGACY = {'0|TR', '0|8'}
-# kayıttaki mod portalları (2-1: Deep Space Echoes 300, Trinity Trials 304): sunucunun kendi portalları (echoes.py, arena.py) aynı yerde
-# ikinci kez gidiyordu (referans karşılaştırması 2026-10-25)
+# the mode portals in the record (2-1: Deep Space Echoes 300, Trinity Trials 304): the server's own portals (echoes.py, arena.py) went a second
+# time at the same place (reference comparison 2026-10-25)
 SERVER_GATE_DESIGNS = {300, 304}
-# gerçek sunucunun da yanıt vermediği istekler (kayıt): günlüğe "yanıtsız" diye düşmesin
+# requests the real server does not answer either (record): so they do not show up as "yanıtsız" in the log
 SILENT = {'TrackVariableRequest',
           'CommandCenterNewsClickedRequest', 'PerformanceTrackingSendInfoRequest',
           'ProActionBarOpenStateChangeRequest', 'QuestGiverWindowClosedRequest', 'CommandCenterUpdateDontShowRequest',
           'EggTriggerRequest'}
-# günlüğe hiç yazılmayan istekler. EggTriggerRequest: istemcinin "harita dışına 6100 birim çıkıldı" sürprizi
-# (ChangePositionSyncGameObjectPos.Run); 2D'de geminin y'si ters eksende tutulduğu için gemi haritanın alt yarısındayken
-# saniyede bir gelir (kullanıcının 2D oturumunda 10 dakikada 103 kez; H82). Yanıtı yok; gizli başarımları ilerletir (E6).
+# requests that are never written to the log. EggTriggerRequest: the client's "went 6100 units outside the map" surprise
+# (ChangePositionSyncGameObjectPos.Run); in 2D the ship's y is kept on the reversed axis, so while the ship is in the lower half of the map it comes
+# every second (103 times in 10 minutes in the user's 2D session; H82). It has no reply; it advances hidden achievements (E6).
 UNLOGGED = ('MoveRequest', 'KeepAlive', 'AttackRocketRequest', 'EggTriggerRequest')
-EGG_TYPES = ('MINIMAP_PING', 'GOING_ROUND_THE_MAP', 'GALAXY_GATE_FIREWORK', 'RAINBOW_LASER')     # istemcinin EggTriggerType'ı
-CHAT = None                # yerel sohbet sunucusu (sohbet.py; main başlatır, port 7771)
-SESSIONS = set()            # oyuncusu belli olan oturumlar (arkadaş sunucusunda birden çok; cok_oyunculu.py)
-CONTROL = '--control' in sys.argv        # canlı test kontrol kanalı (kontrol.py): mesaj izi ve enjeksiyon
-CURRENT = None               # son bağlanan istemcinin oturumu (kontrol kanalı bunu yönetir)
-TP.GAME = sys.modules[__name__]          # sunucudaki oyuncular (grup, rehber, fısıltı, posta): PROFIL, CURRENT
+EGG_TYPES = ('MINIMAP_PING', 'GOING_ROUND_THE_MAP', 'GALAXY_GATE_FIREWORK', 'RAINBOW_LASER')     # the client's EggTriggerType
+CHAT = None                # local chat server (chat.py; main starts it, port 7771)
+SESSIONS = set()            # sessions whose player is known (several on the friend server; multiplayer.py)
+CONTROL = '--control' in sys.argv        # live test control channel (control.py): message trace and injection
+CURRENT = None               # the session of the most recently connected client (the control channel drives it)
+TP.GAME = sys.modules[__name__]          # the players on the server (group, contacts, whisper, mail): PROFILE, CURRENT
 PROFILE_PATH = next((a.split('=', 1)[1] for a in sys.argv if a.startswith('--profile=')), None)
-STOP = next((a.split('=', 1)[1] for a in sys.argv if a.startswith('--stop-file=')), None)    # panel: belirince kaydet ve çık
-# kayıt (Premium'suz hesap): çıkış düğmesinden 19,2 sn sonra 0|l, bağlantı kapanır; Premium'da istemci "Log out ... in just five seconds"
+STOP = next((a.split('=', 1)[1] for a in sys.argv if a.startswith('--stop-file=')), None)    # panel: when it appears save and exit
+# record (account without Premium): 0|l 19.2 s after the exit button, the connection closes; with Premium the client says "Log out ... in just five seconds"
 LOGOUT_SEC = 5.0 if Profile.premium else 19.2
 
 TEMPLATE = Templates()
 PROFILE = Profile(TEMPLATE.entry.get('seed'), **({'path': PROFILE_PATH} if PROFILE_PATH else {}))
-H.PLAYER_FACTION = PROFILE.d['pilot'].get('factionId')     # 5-X'te yalnız kendi firmasının portalları
-KAPI.register_npcs(world.CFG['types'])     # kapı uzaylıları NPC türleri olarak
-EKP.register_npcs(world.CFG['types'])      # etkinlik kapılarınınkiler (etkinlik_kapi.py)
-world.CFG['types'].update(PVM.AR.D['kinds'])  # Aşama 8'in modlarının uzaylıları (data/pve_modlari.json)
+H.PLAYER_FACTION = PROFILE.d['pilot'].get('factionId')     # in 5-X only the portals of its own company
+KAPI.register_npcs(world.CFG['types'])     # gate aliens as NPC types
+EKP.register_npcs(world.CFG['types'])      # those of the event gates (event_gate.py)
+world.CFG['types'].update(PVM.AR.D['kinds'])  # aliens of the stage 8 modes (data/pve_modes.json)
 
 
-# Season Pass, Battle Pass ve günlük ödül pencerelerinin kayıttaki giriş mesajları -> profilden üretilenler
+# the login messages in the record for the Season Pass, Battle Pass and daily reward windows -> the ones produced from the profile
 PASS_LOGIN = dict({n: 'season' for n in ('SeasonPassStatusCommand', 'SeasonPassMissionInfoCommand', 'SeasonPointsInfoCommand',
                                         'SeasonPassRewardInfoCommand')},
                   **{n: 'ticket' for n in ('BattlePassInfoCommand', 'BattlePassKeyExchangeInfoCommand', 'BattlePassWindowSettingsModule')},
                   **{n: 'reward' for n in ('MonthlyDeluxeInfoCommand', 'MiniClientRewardInfoCommand', 'EventUnityClientRewardQuestCommand')})
 DRW_REQUESTS = ('MiniClientRewardClaimRequest', 'MonthlyDeluxeClaimRequest', 'ClaimUnityClientRewardRequest')
-# --reklamsiz: girişte kendiliğinden açılan kampanya/tanıtım pencerelerini gönderme
+# --reklamsiz: do not send campaign/promo windows that open on their own at login
 POPUP_MSGS = {'DisplayOfferCommand', 'HintWindowAddComand', 'HintWindowListInitCommand', 'DailyLoginRewardDayCommand',
               'MonthlyDeluxeInfoCommand', 'CommandCenterDontShowInfoCommand', 'SeasonPassStatusCommand',
               'SeasonPassMissionInfoCommand', 'SeasonPassRewardInfoCommand'}
-# verisi pencereyi açmayan, girişte düzenden (maximized) açılan pencereler: Mini Client ödülü (MiniClientRewardInfoCommandHandler
-# yalnız veriyi yazar). Veri süzülünce pencere boş açılıyordu (H155): veri hep gider, pencere kapalı gider
+# windows whose data does not open the window, that open from the layout (maximized) at login: Mini Client reward (MiniClientRewardInfoCommandHandler
+# only writes the data). When the data was filtered the window opened empty (H155): the data always goes, the window goes closed
 POPUP_WINDOWS = {'miniclient_reward'}
 NO_POPUPS = '--no-popups' in sys.argv
-# her zaman: gerçek parayla alışveriş pencereleri (tek oyunculuda işe yaramaz)
-#   EventPaymentActorCommand: "%400 Helix Blitz" uridyum kampanyası; DisplayOfferCommand: paket teklifi penceresi
+# always: real-money shopping windows (useless in single player)
+#   EventPaymentActorCommand: "%400 Helix Blitz" uridium campaign; DisplayOfferCommand: package offer window
 PAYMENT_POPUPS = {'EventPaymentActorCommand', 'DisplayOfferCommand'}
 
 
 def no_popups(msgs):
-    """Girişte kendiliğinden açılan pencereleri ayıklar. Command Center: istemci CommandCenterDontShowInfoCommand.inspected
-    false gelirse pencereyi açar (CommandCenterDontShowInfoCommandHandler); hep true gönderilir, menüden açılabilir kalır."""
-    popups = NO_POPUPS or SET.get('no_ads')                                                  # seçenek ya da panelin ayarı
+    """Filters out the windows that open on their own at login. Command Center: if the client's CommandCenterDontShowInfoCommand.inspected
+    comes false it opens the window (CommandCenterDontShowInfoCommandHandler); true is always sent, it can still be opened from the menu."""
+    popups = NO_POPUPS or SET.get('no_ads')                                                  # option or the panel's setting
     drop = PAYMENT_POPUPS | (POPUP_MSGS if popups else set())
     out = []
     for n, f in msgs:
@@ -295,27 +295,27 @@ def no_popups(msgs):
 
 
 def login_batch(kind, first=True, profile=None):
-    """first=False: harita değişimi (portal, istasyonda tamir). Girişte kendiliğinden açılan pencereler (günlük bonus, ipuçları,
-    Season Pass) yalnız girişte gelir; arayüz harita değişiminde kalır, veriyi yeniden göndermek pencereleri yeniden açıyordu.
-    profil: oturumun oyuncusu (arkadaş sunucusunda misafirinki; verilmezse sunucunun kendi profili)."""
+    """first=False: map change (portal, repair at the station). Windows that open on their own at login (daily bonus, hints,
+    Season Pass) come only at login; the UI stays across a map change, resending the data used to reopen the windows.
+    profile: the session's player (a guest's on the friend server; the server's own profile if not given)."""
     msgs = no_popups(TEMPLATE.batch(kind, profile or PROFILE))
-    if not first:                    # pencere öğeleri de yalnız girişte: harita değişiminde açık pencereyi kapatıyordu (E10)
+    if not first:                    # window elements also only at login: on a map change they used to close an open window (E10)
         msgs = [(n, f) for n, f in msgs if (n not in POPUP_MSGS or n == 'CommandCenterDontShowInfoCommand') and n != 'WindowItemCommand']
     return msgs
 
 
-HOME_MAP = {1: 1, 2: 5, 3: 9}     # firma -> ana harita (X-1)
-# arkadaş sunucusunda oyuncuların ortak dünyası olan haritalar (ortak_harita.py): firma, savaş ve Blacklight haritaları (1-1 … 5-4,
-# BL-1..3); kapı, mod, etkinlik, labirent ve LoW haritaları her oyuncunun kendi kopyası
+HOME_MAP = {1: 1, 2: 5, 3: 9}     # company -> home map (X-1)
+# maps that are the players' shared world on the friend server (shared_maps.py): company, battle and Blacklight maps (1-1 ... 5-4,
+# BL-1..3); gate, mode, event, labyrinth and LoW maps are each player's own copy
 SHARED = {k for k in world.CFG['maps'] if k.isdigit() and re.match(r'(\d|BL)-\d$', H.name(k)) and int(k) not in KAPI.BY_MAP
               and int(k) not in EKP.BY_MAP and int(k) not in LAB.MAPS and int(k) != LOW.MAP}
-NAME_MIN, NAME_MAX, STATUS_MAX = 4, 20, 200    # pilot adı 4-20 (istemci change_pilotname_error_signs_number); durum yazısı uyarlama
-NAME_ILLEGAL = set(' <>@+\'"&%;/\\?|')          # istemci change_pilotname_error_signs_illegal (+ protokolün ayırıcısı |)
-NAME_WAIT_SEC = 48 * 3600                         # istemci change_pilotname_error_time: "once every 48 hours"
+NAME_MIN, NAME_MAX, STATUS_MAX = 4, 20, 200    # pilot name 4-20 (the client's change_pilotname_error_signs_number); the status text is an adaptation
+NAME_ILLEGAL = set(' <>@+\'"&%;/\\?|')          # the client's change_pilotname_error_signs_illegal (+ the protocol's separator |)
+NAME_WAIT_SEC = 48 * 3600                         # client change_pilotname_error_time: "once every 48 hours"
 
 
 def achievement_groups(now=None):
-    """Başarımların etkin grupları: takvimin etkinlikleri ve bu sezonun Season Pass grubu (SEASONPASS_Qn; season.py)."""
+    """Active groups of the achievements: the calendar's events and this season's Season Pass group (SEASONPASS_Qn; season.py)."""
     sp = SZN.achievement_group(now)
     return CAL.achievement_groups(now) | ({sp} if sp else set())
 
@@ -325,100 +325,100 @@ WORLD_REQUESTS = {'ShipSelectRequest': 'select', 'AttackLaserRequest': 'laser_st
 
 
 class Session:
-    """Bir istemci bağlantısı: giriş akışı, dünya, harita değişimi. Dünya döngüsü de buraya yazdığı için gönderme kilitli.
-    Oturumun oyuncusu self.profil: sunucunun kendi kaydı (PROFIL) ya da arkadaş sunucusunda misafirin gönderdiği kayıt
-    (multiplayer.py). bekle=True: oyuncu girişte (LoginRequest'in sessionID'si) belli olur, sistemler o zaman kurulur (bind)."""
+    """A client connection: login flow, world, map change. Sending is locked since the world loop writes here too.
+    The session's player is self.profile: the server's own record (PROFILE) or, on the friend server, the record the guest sent
+    (multiplayer.py). wait=True: the player becomes known at login (the sessionID of LoginRequest), the systems are set up then (bind)."""
 
     def __init__(self, c, addr, profile=None, wait=False, queue=False):
         self.c, self.addr = c, addr
         self.send_lock = threading.Lock()
-        self.packet_lock = threading.Lock()      # istemcinin paketleri ve kontrol kanalının enjekte ettikleri sırayla işlenir
-        self.play_start = time.time()            # oynama süresi (play_time)
+        self.packet_lock = threading.Lock()      # the client's packets and the ones the control channel injects are processed in order
+        self.play_start = time.time()            # play time (play_time)
         self.state_lock = threading.RLock()
-        self.map_pending = False     # ShipInitializationCommand gönderildi; harita yüklenince (ReadyRequest) hazır demeti + dünya
-        self.ready_n = 0             # karşılanan ReadyRequest sayısı (1: ilk giriş; sonrakiler harita yüklenişleri)
+        self.map_pending = False     # ShipInitializationCommand was sent; when the map loads (ReadyRequest) the ready bundle + world
+        self.ready_n = 0             # number of ReadyRequests answered (1: first login; the later ones are map loads)
         self.world = None
-        self.secrets = set()         # LoginRequest'teki oturum anahtarı: eski metin protokolü de taşır ("S|CFG|2|<kullanıcı>|<anahtar>")
+        self.secrets = set()         # the session key in LoginRequest: the old text protocol carries it too ("S|CFG|2|<user>|<key>")
         self.profile = None
-        self.guest = None          # arkadaş sunucusunda misafirin kaydı (cok_oyunculu.Misafir); sunucunun kendi oyuncusunda None
-        self.local = None            # çoklu istemcinin ek oyuncusu (cok_oyunculu.Yerel)
-        self.client_pid = None      # bağlanan istemcinin süreci (ödeme düğmesi hangi oturumun: odeme.baglanan_pid)
-        self.queue = CO.SendQueue(c) if queue else None     # arkadaş sunucusunda gönderme kuyruğu: yavaş ağ dünya kilidini tutmasın
+        self.guest = None          # the guest's record on the friend server (multiplayer.Guest); None for the server's own player
+        self.local = None            # the extra player of the multi-client (multiplayer.LocalPlayer)
+        self.client_pid = None      # the connecting client's process (which session the payment button belongs to: payment.connecting_pid)
+        self.queue = CO.SendQueue(c) if queue else None     # send queue on the friend server: so a slow network does not hold the world lock
         if not wait:
             self.bind(profile or PROFILE)
 
     def bind(self, profile):
-        """Oturumun sistemlerini oyuncunun profiliyle kurar."""
+        """Sets up the session's systems with the player's profile."""
         global CURRENT
         self.profile = profile
         if profile is PROFILE:
-            CURRENT = self           # kontrol kanalı, canlı durum ve ödeme düğmesi sunucunun kendi oyuncusunun oturumunu izler
+            CURRENT = self           # the control channel, live state and payment button watch the session of the server's own player
         SESSIONS.add(self)
         self.shop = Shop(self.profile, TEMPLATE.replies, log)
         self.quest = Quests(self.profile, log)
         self.quest.grant = self.quest_reward
         self.quest.send = lambda m: self.send(m, 'görev süresi')
-        self.quest.state = lambda: self.world.quest_state() if self.world else {}      # MISCELLANEOUS alt koşulları (gizli, radyasyon, az can)
-        self.shop.quest = self.quest.event                        # toplama görevleri: rafineride üretilen cevher
-        self.daily = DailyLogin(self.profile, self.shop, log)      # günlük giriş takvimi
+        self.quest.state = lambda: self.world.quest_state() if self.world else {}      # MISCELLANEOUS sub-conditions (hidden, radiation, low HP)
+        self.shop.quest = self.quest.event                        # collection quests: ore produced in the refinery
+        self.daily = DailyLogin(self.profile, self.shop, log)      # daily login calendar
         self.profile.daily_fields = self.daily.fields
         self.pet = self.shop.pet
         self.pet.send_raw = lambda m: self.send(m, quiet=True)
         self.gates = KAPI.Gates(self.profile, log)
         self.gates.m = self.shop
-        self.shop.gates = self.gates      # ödüllerdeki ücretsiz kapı enerjisi
-        self.event_gates = EKP.EventGates(self.profile, log)                    # etkinlik kapıları (Gauntlet of Plutus, Vortex …)
+        self.shop.gates = self.gates      # free gate energy in rewards
+        self.event_gates = EKP.EventGates(self.profile, log)                    # event gates (Gauntlet of Plutus, Vortex ...)
         self.event_gates.m = self.shop
-        self.pve = PVM.PveModes(self.profile, self.shop, self.event_gates, log)    # Aşama 8: sonsuz ve rogue-lite PvE modları
+        self.pve = PVM.PveModes(self.profile, self.shop, self.event_gates, log)    # stage 8: endless and rogue-lite PvE modes
         self.pve.send = lambda m: self.send(m, 'mod')
         self.pve.change_map = self.change_map
         self.profile.mode_mods = lambda: self.pve.ebl.mods(self.profile.d['position']['mapId']) if self.pve.ebl else {}
-        self.new_ = NS.NewSystems(self.profile, self.shop, log)     # Aşama 9: N.O.V.A., Armory Unlock, QFC/Hyperforge, otomatik pilot
+        self.new_ = NS.NewSystems(self.profile, self.shop, log)     # stage 9: N.O.V.A., Armory Unlock, QFC/Hyperforge, auto pilot
         self.shop.new_ = self.new_
-        self.shop.world = lambda: getattr(self, 'world', None)    # drone formation wait (magaza.formation_wait)
+        self.shop.world = lambda: getattr(self, 'world', None)    # drone formation wait (shop.formation_wait)
         self.profile.nova_mods = lambda: self.new_.mods(self.profile.d['position']['mapId'])
         self.profile.captain_energy = self.new_.nova.hud
-        self.social = SO.Social(self.profile, self.shop, log, CHAT)   # Aşama 10: sohbet, posta, klan, müzayede, gemi ışınlama
+        self.social = SO.Social(self.profile, self.shop, log, CHAT)   # stage 10: chat, mail, clan, auction, ship warp
         self.social.send = lambda m, note: self.send(m, note)
         self.social.reload = lambda: self.world and self.world.reload_ship()
         self.social_next = 0.0
-        self.skill = Abilities(self.profile, self.shop, self.gates, log)    # pilot yetenek ağacı (log diskleri kapı sayacında)
-        self.assembly = ASM.Assembly(self.profile, log)                            # Assembly (tarifler, üretim)
+        self.skill = Abilities(self.profile, self.shop, self.gates, log)    # pilot skill tree (log disks in the gate counter)
+        self.assembly = ASM.Assembly(self.profile, log)                            # Assembly (recipes, production)
         self.assembly.m = self.shop
         self.assembly.send = lambda m: self.send(m, 'Assembly')
-        self.dispatch = DSP.Dispatch(self.profile, self.gates, log)             # Dispatch (toplayıcı ve kapı gönderimi)
+        self.dispatch = DSP.Dispatch(self.profile, self.gates, log)             # Dispatch (collector and gate dispatch)
         self.dispatch.m = self.shop
-        self.skylab = SKY.Skylab(self.profile, log)                                # Skylab (üretim, yükseltme, taşıma)
+        self.skylab = SKY.Skylab(self.profile, log)                                # Skylab (production, upgrade, transport)
         self.skylab.m = self.shop
         self.skylab.send = lambda m: self.send(m, 'Skylab')
-        self.skylab.quest = lambda **kw: self.quest.event('skylab', **kw)        # görev koşulu UPDATE_SKYLAB_TO_LEVEL (Ö1)
-        self.modules = GM.Modules(self.profile, log)                             # kararsız modüller (Restabilize)
+        self.skylab.quest = lambda **kw: self.quest.event('skylab', **kw)        # quest condition UPDATE_SKYLAB_TO_LEVEL (Ö1)
+        self.modules = GM.Modules(self.profile, log)                             # unstable modules (Restabilize)
         self.modules.m = self.shop
-        self.season = SZN.Season(self.profile, log)                                  # Season Pass (sezon.py)
-        self.ticket = BPS.BattlePass(self.profile, log)                            # Battle Pass ve anahtar değişimi (savas_bileti.py)
-        self.reward = DRW.DailyReward(self.profile, log)                              # Mini Client, Monthly Deluxe, Unity ödülü (gunluk_odul.py)
+        self.season = SZN.Season(self.profile, log)                                  # Season Pass (season.py)
+        self.ticket = BPS.BattlePass(self.profile, log)                            # Battle Pass and key exchange (battle_pass.py)
+        self.reward = DRW.DailyReward(self.profile, log)                              # Mini Client, Monthly Deluxe, Unity reward (daily_rewards.py)
         for _o, _note in ((self.season, 'Season Pass'), (self.ticket, 'Battle Pass'), (self.reward, 'günlük ödül')):
             _o.m = self.shop
             _o.send = (lambda note: lambda m: self.send(m, note))(_note)
         self.shop.tickets = (self.season, self.ticket, self.reward)
-        self.ticket.objective = lambda: self.season.event('objective')     # Season Pass 700023-700025 (etkinlikte 15 Battle Pass görevi)
-        self.shop.quest = self.quest_event                        # toplama görevleri: rafineride üretilen cevher
-        self.bank_sent = None         # istemcinin son gördüğü Uridium Bank birikimi
-        self.cal_sent, self.cal_next = None, 0.0                            # takvim: son bildirilen etkin etkinlikler
-        self.win_sent = {}                                                  # etkinlik pencerelerinin son bildirilen görünürlüğü
+        self.ticket.objective = lambda: self.season.event('objective')     # Season Pass 700023-700025 (15 Battle Pass quests in the event)
+        self.shop.quest = self.quest_event                        # collection quests: ore produced in the refinery
+        self.bank_sent = None         # the Uridium Bank accumulation the client last saw
+        self.cal_sent, self.cal_next = None, 0.0                            # calendar: the active events last reported
+        self.win_sent = {}                                                  # the last reported visibility of the event windows
         ACV.set_events(achievement_groups())
         self.bank_next = 0.0
-        self.achievement = Achievements(self.profile, log)                               # başarımlar ve unvanlar
+        self.achievement = Achievements(self.profile, log)                               # achievements and titles
         self.achievement.send = lambda m: self.send(m, 'başarım')
         self.profile.ach = self.ach_event
         self.gates.world = lambda: self.world
         self.gates.info_tpl = next((m for e in TEMPLATE.replies.get('GalaxyGateBuilderInfoRequest', []) for m in e['response']
                                       if m['_m'] == 'GalaxyGateBuilderInfoCommand'), None)
-        self.logout_timer = None      # çıkış geri sayımı (UIButtonTriggerRequest logout)
-        self.gm = GMC.Console(self, log)   # GM konsolu (panelde açıksa)
-        self.hint = IP.Hints(self.profile, log)   # yeni başlayan ipuçları (bir kez; panelin 'ipuclari' ayarı)
-        self.windows = PAY.Windows()      # son açılan pencereler: ödeme düğmesinin ürünü (odeme.py)
-        self.extra = EXE.ExtraEvents(self.profile, self.shop, self.event_gates, log)   # Ö3'ün etkinlikleri (Chromin Rush …)
+        self.logout_timer = None      # exit countdown (UIButtonTriggerRequest logout)
+        self.gm = GMC.Console(self, log)   # GM console (if enabled in the panel)
+        self.hint = IP.Hints(self.profile, log)   # hints for new players (once; the panel's 'hints' setting)
+        self.windows = PAY.Windows()      # the windows opened last: the payment button's product (payment.py)
+        self.extra = EXE.ExtraEvents(self.profile, self.shop, self.event_gates, log)   # events of Ö3 (Chromin Rush ...)
         if self.extra.fiesta:
             self.extra.fiesta.change_map = self.change_map
             self.extra.fiesta.titles = self.extra.title.grant_title           # Epoch Lit (Tranquil)
@@ -427,40 +427,40 @@ class Session:
         self.extra.add(self.cbs)
         self.social.clan.cbs = self.cbs
         self.profile.cbs_mods = self.cbs.mods
-        self.shop.cbs = self.cbs                 # Assembly: boştaki modüller envanterde, yükseltilebilir (magaza.module_items)
-        self.store = STO.Stores(self.profile, self.shop, log)              # Ö7: uridyumla çalışan dükkân pencereleri
+        self.shop.cbs = self.cbs                 # Assembly: idle modules are in the inventory, upgradeable (shop.module_items)
+        self.store = STO.Stores(self.profile, self.shop, log)              # Ö7: shop windows that run on uridium
         self.extra.add(self.store)
         self.profile.window_hooks['returnee_login'] = self.store.returnee_active
-        self.extra.rbp.hero = lambda: bool(self.store.rh().get('connected'))           # Recall Battle Pass: Return of Hero'daki durum
-        self.profile.window_hooks['diminish_quests'] = self.extra.urgent.menu_visible   # Urgent Missions: yalnız görev varken (acil_gorevler.py)
+        self.extra.rbp.hero = lambda: bool(self.store.rh().get('connected'))           # Recall Battle Pass: the state in Return of Hero
+        self.profile.window_hooks['diminish_quests'] = self.extra.urgent.menu_visible   # Urgent Missions: only while there is a quest (urgent_quests.py)
         for kind, s in (('vortex', self.extra.vortex), ('world_boss', self.extra.boss), ('mimesis', self.extra.mimesis),   # Ö4
                         ('apotheosis', self.extra.apo)):                                                       # 1.1.115
             s.change_map = self.change_map
             self.pve.extra_windows[kind] = s.portal_window
         self.extra.send = lambda m: self.send(m, 'event')
         self.extra.title.base_title = lambda: self.achievement.title_msgs()
-        self.gates.titles = self.extra.title.grant_title           # kapı tamamlama unvanı (wiki: All-Star, Boss Of Bosses, Emperor Of Hades Gate)
-        self.pve.echoes.titles = self.extra.title.grant_title        # Deep Space Echoes dönem sonu sıralama unvanı (Cosmic Tyrant)
+        self.gates.titles = self.extra.title.grant_title           # gate completion title (wiki: All-Star, Boss Of Bosses, Emperor Of Hades Gate)
+        self.pve.echoes.titles = self.extra.title.grant_title        # Deep Space Echoes end-of-period ranking title (Cosmic Tyrant)
         self.extra_next = 0.0
         self.profile.hint = self.hint.show
-        self.shop.rescue_depot()   # görünmez depoya düşmüş ödüller (dron tasarımı, P.E.T. protokolü, Season Pass rezervi) yerine
+        self.shop.rescue_depot()   # in place of rewards that landed in the invisible storage (drone design, P.E.T. protocol, Season Pass reserve)
 
-    # ------------------------------------------------------------ çıkış
+    # ------------------------------------------------------------ exit
     def logout_start(self):
-        """Çıkış düğmesi: istemci kendi geri sayımını gösterir; kayıttaki gibi ~19 sn sonra 0|l ve bağlantı kapanır. Göndermezsek
-        istemci süre bitince bağlantıyı koparıp yeniden giriş yapıyordu (günlük 13:11)."""
+        """Exit button: the client shows its own countdown; as in the record, 0|l after ~19 s and the connection closes. If we do not send it
+        the client used to cut the connection when the time ran out and log in again (log 13:11)."""
         self.logout_cancel()
         t = threading.Timer(LOGOUT_SEC, self.logout_done)
         t.daemon = True
         self.logout_timer = t
         t.start()
-        log('   çıkış: %.1f sn sonra' % LOGOUT_SEC)
+        log('   exit: in %.1f s' % LOGOUT_SEC)
 
     def logout_cancel(self):
         if self.logout_timer:
             self.logout_timer.cancel()
             self.logout_timer = None
-            log('   çıkış iptal')
+            log('   exit cancelled')
 
     def logout_done(self):
         self.logout_timer = None
@@ -472,7 +472,7 @@ class Session:
         self.close()
 
     def close(self):
-        """Bağlantıyı kapat (gönderilenler gittikten sonra): istemcinin okuması biter, oturum kapanır (run)."""
+        """Close the connection (after what was sent has gone): the client's reading ends, the session closes (run)."""
         try:
             if self.queue:
                 self.queue.close()
@@ -482,8 +482,8 @@ class Session:
             pass
 
     def hand_over(self):
-        """Aynı oyuncu yeniden bağlandı (arkadaş sunucusu): eski bağlantı hemen kesilir, dünyası beklemeden durur. Yalnız kapatınca
-        yarı açık bağlantıda gönderim takılıp okuma bitmiyordu; eski dünya ortak haritada kalıyor, oyuncu orada iki kez oluyordu."""
+        """The same player reconnected (friend server): the old connection is cut at once, its world stops without waiting. Only closing
+        left sending stuck on a half-open connection and reading never finished; the old world stayed on the shared map, the player was there twice."""
         try:
             self.c.shutdown(socket.SHUT_RDWR)
         except OSError:
@@ -494,39 +494,39 @@ class Session:
             self.world.stop()
 
     def ach_event(self, kind, **kw):
-        """Oyun olayları: rütbe sayaçları (ranks.py), Pass görevleri, ana görevler (öldürme görev olayından gelir) ve başarımlar
+        """Game events: rank counters (ranks.py), Pass quests, main quests (kills come from the quest event) and achievements
         (achievement.py)."""
         RT.event(self.profile, kind, **kw)
-        if kind != 'map' and not kw.get('dispatch'):     # harita ziyareti görev olayından gelir; Dispatch'in kapısı görev saymaz
+        if kind != 'map' and not kw.get('dispatch'):     # map visits come from the quest event; Dispatch's gate does not count as a quest
             self.pass_event(kind, **kw)
-            msgs = self.extra.event(kind, kw)        # Ö3'ün etkinlik görevleri (Galaxy Trek)
+            msgs = self.extra.event(kind, kw)        # Ö3's event quests (Galaxy Trek)
             if msgs:
                 self.send(msgs, 'etkinlik görevi')
-            msgs = self.quest.event(kind, **kw) if kind != 'kill' else []      # E6: tek ölçüm noktası (gorev_takip.measure)
+            msgs = self.quest.event(kind, **kw) if kind != 'kill' else []      # E6: the single measuring point (quest_tracker.measure)
             if msgs:
                 self.send(msgs, 'görev')
-        if kind == 'death':                       # "ölmeden" görevleri başarısız (gorev.py)
+        if kind == 'death':                       # "without dying" quests fail (quest.py)
             failed = self.quest.broken('death')
             if failed:
                 self.send(failed, 'görev başarısız')
-        if kind == 'level':                       # seviye atlandı: yeni özelliğin davet ipucu (ipucu.py)
+        if kind == 'level':                       # level up: the invitation hint for the new feature (hints.py)
             hint = self.hint.level(kw.get('value', 1))
             if hint:
                 self.send(hint, 'ipucu: seviye')
         return self.achievement.event(kind, **kw)
 
     def event_tips(self, now=None):
-        """Süren harita etkinliklerinin açıklaması dönemde bir kez (tips.py; NormalTipsCommand mesaj kutusu)."""
+        """Description of the running map events once per period (tips.py; NormalTipsCommand message box)."""
         per = lambda k: (CAL.period(k, now) or (0,))[0]
         msgs = self.hint.event_tips(EVM.specs(now), per)
         if msgs:
             self.send(msgs, 'etkinlik bildirimi')
 
     def quest_event(self, kind, **kw):
-        """Dünyanın görev olayları: görevler ve Pass görevleri (öldürme Pass'lere başarım olayından gider; grup üyesinin aynı
-        haritada öldürdüğü uzaylı başarım değil, yalnız görev: Pass, etkinlik ve Urgent Missions görevleri de buradan)."""
+        """The world's quest events: quests and Pass quests (kills go to the Passes from the achievement event; an alien a group member kills on the same
+        map is not an achievement, only a quest: Pass, event and Urgent Missions quests come from here too)."""
         group = kind == 'kill' and kw.get('group')
-        if kind in ('cargo', 'loot', 'sell', 'bonus', 'map', 'ore_update') or group:     # ore_update: Season Pass USE_ORE_UPDATE görevleri
+        if kind in ('cargo', 'loot', 'sell', 'bonus', 'map', 'ore_update') or group:     # ore_update: Season Pass USE_ORE_UPDATE quests
             self.pass_event(kind, **kw)
             msgs = self.extra.event(kind, kw) + (self.extra.urgent.kill(kw.get('npc')) if group else [])
             if msgs:
@@ -534,8 +534,8 @@ class Session:
         return self.quest.event(kind, **kw)
 
     def quest_state_events(self):
-        """Durum koşulları (Ö1): görev kabul edilince şimdiki durum bir kez değerlendirilir (çubuktaki eşya, Skylab modüllerinin
-        seviyeleri), yoksa koşul ancak bir sonraki değişiklikte ilerlerdi."""
+        """State conditions (Ö1): when a quest is accepted the current state is evaluated once (the item in the bar, the levels of the Skylab modules),
+        otherwise the condition would only advance at the next change."""
         tpl = next((m for m in TEMPLATE.entry.get('ready', []) if m['_m'] == 'MenuInitializationCommand'), None)
         msgs = self.quest.event('slot_bar', **self.profile.slot_bar_state(tpl['slotBars'] if tpl else []))
         for key, lv in self.skylab.levels().items():
@@ -545,18 +545,18 @@ class Session:
         return msgs
 
     def pass_event(self, kind, **kw):
-        """Season Pass, Battle Pass ve Unity ödülü görevleri (her biri iletisini kendisi gönderir)."""
+        """Season Pass, Battle Pass and Unity reward quests (each sends its own message)."""
         mid = self.profile.d['position'].get('mapId')
         for o in (self.season, self.ticket, self.reward):
             o.map_id = mid
             try:
                 o.event(kind, **kw)
             except Exception:
-                log('   Pass olayı hatası (%s %s):\n%s' % (kind, kw, traceback.format_exc()))
+                log('   Pass event error (%s %s):\n%s' % (kind, kw, traceback.format_exc()))
 
     def hint_msgs(self, n, f):
-        """İpucu pencereleri: oyuncunun kapattıkları (HintWindowClosedRequest, profilde ipuclari_kapali) girişte yeniden açılmaz,
-        ipucu arşivinin listesine eklenir (canlı deneme 2026-10-17: "New Employee Orientation" her girişte açılıyordu)."""
+        """Hint windows: those the player closed (HintWindowClosedRequest, hints_closed in the profile) do not reopen at login,
+        they are added to the hint archive list (live trial 2026-10-17: "New Employee Orientation" opened at every login)."""
         closed = self.profile.d.get('hints_closed', [])
         if n == 'HintWindowAddComand':
             return [] if (f.get('window') or {}).get('content') in closed else [(n, f)]
@@ -565,7 +565,7 @@ class Session:
                                                                   if c not in have]))]
 
     def play_time(self):
-        """Bağlı kalınan süre profilde (oynama_sn): pilot kartının "Player activity: … hours" satırı (canlı test H28)."""
+        """The time stayed connected is in the profile (play_seconds): the pilot card's "Player activity: ... hours" line (live test H28)."""
         now = time.time()
         start = getattr(self, 'play_start', None) or now
         self.play_start = now
@@ -573,8 +573,8 @@ class Session:
             self.profile.d['play_sec'] = self.profile.d.get('play_sec', 0) + max(0, now - start)
 
     def rename(self, name):
-        """Pilot adını değiştir (ücretsiz). Yeni ad harita değişiminde gemide görünür (istemcinin NameChangeCommand işleyicisi yok).
-        Geçersiz ad ya da sunucudaki başka oyuncunun adı (sohbet, posta, grup, klan oyuncuyu adıyla bulur):
+        """Change the pilot name (free). The new name shows on the ship at the map change (the client has no NameChangeCommand handler).
+        An invalid name or another player's name on the server (chat, mail, group, clan find the player by name):
         InternalPilotBioUpdateResultsCommand success=False."""
         name = str(name or '').strip()
         last = self.profile.d.get('name_change', 0)
@@ -583,10 +583,10 @@ class Session:
             why = 'change_pilotname_error_signs_number'
         elif set(name) & NAME_ILLEGAL or '--' in name or not name.isprintable():
             why = 'change_pilotname_error_signs_illegal'
-        elif KL.is_banned(name):                                    # Oyun Kuralları 7 (resmî forum 131990): personel adı, küfür
+        elif KL.is_banned(name):                                    # Game Rules 7 (official forum 131990): staff names, swearing
             why = 'name_banned'
         elif o is not None and o.profile is not self.profile or KL.is_member_name(name, self.profile.d['pilot'].get('userName', '')):
-            why = 'change_pilotname_error_inUse'           # klandaki çevrimdışı üyenin ya da botun adı da (üyelik kaydı ezilmesin)
+            why = 'change_pilotname_error_inUse'           # also the name of an offline clan member or a bot (so the membership record is not overwritten)
         elif SET.get('clan_cooldown') and time.time() - last < NAME_WAIT_SEC:
             why = 'name_cooldown'
         else:
@@ -598,17 +598,17 @@ class Session:
                 self.profile.d['name_change'] = time.time()
                 self.profile.dirty = True
             KL.name_changed(old, name)
-            import name_log as NL                          # öteki oyuncuların rehberi (arkadaş, istek, engelli) ve botların hafızası
+            import name_log as NL                          # other players' contact lists (friends, requests, blocked) and the bots' memory
             NL.add([{'type': 'name', 'eski': old, 'new': name}])
             from bot import manager as MGR
             if MGR.ACTIVE is not None:
                 MGR.ACTIVE.apply_name_log()
-            if self.social.chat:                         # sohbette yeni adla (yoksa yeniden bağlanana dek eski ad)
+            if self.social.chat:                         # in chat with the new name (otherwise the old name until it reconnects)
                 self.social.chat.update_user(who=str(self.profile.user_id), userId=name)
-            log('   pilot adı: %s' % name)
+            log('   pilot name: %s' % name)
             return ('InternalPilotBioUpdateResultsCommand', {'success': True, 'baseStackCommand': SHP.stack_msg('change_pilotname_success')})
-        log('   pilot adı değişmedi: %r (%s)' % (name, why))
-        if why in SHP.REASONS:                                    # BaseKey'de yok: istemcinin metni ham (change_pilotname_error_*)
+        log('   pilot name not changed: %r (%s)' % (name, why))
+        if why in SHP.REASONS:                                    # not in BaseKey: the client's text is raw (change_pilotname_error_*)
             en, tr = SHP.REASONS[why]
             msg = SHP.raw_msg((tr if self.shop.lang == 'tr' else en).replace('%DATETIME%', time.strftime('%d.%m.%Y %H:%M', time.localtime(last))))
         else:
@@ -616,31 +616,31 @@ class Session:
         return ('InternalPilotBioUpdateResultsCommand', {'success': False, 'baseStackCommand': msg})
 
     def pilot_bio(self, resp, uid=None):
-        """InternalPilotBioRequest: kayıttaki profil kartı + oyuncunun kaydettiği bilgiler (InternalPilotBioUpdateRequest). uid:
-        arkadaş sunucusunda başka oyuncunun kartı (rehber, grup, sohbet menüsü: onun kaydından)."""
+        """InternalPilotBioRequest: the profile card in the record + the information the player saved (InternalPilotBioUpdateRequest). uid:
+        another player's card on the friend server (contacts, group, chat menu: from their record)."""
         o = TP.find(uid=uid) if uid and uid != self.profile.user_id else None
         p = o.profile if o is not None else self.profile
         bio = p.d.get('pilot_bio', {})
         if p is self.profile:
             self.play_time()
-        k = KL.clan_of(p) or {}                                       # ortak klan (klan.py)
+        k = KL.clan_of(p) or {}                                       # shared clan (clan.py)
         order = KL.ranking() if k else []
-        rank = {'rank': p.d['pilot'].get('dailyRank', 1),            # pilot kartındaki rütbe (sayı)
-                'playTime': int(p.d.get('play_sec', 0) // 3600),     # saat
-                'userName': p.d['pilot'].get('userName', ''),          # kayıttaki ad değil, profilinki
-                'userId': p.user_id, 'registrationDate': p.d.get('created', '') + '.0',    # kayıttaki hesabınki değil
-                'ranking': RT.hof_sira(p),                                  # sunucudaki oyuncular arasında (rutbe.hof_top)
+        rank = {'rank': p.d['pilot'].get('dailyRank', 1),            # the rank on the pilot card (number)
+                'playTime': int(p.d.get('play_sec', 0) // 3600),     # clock
+                'userName': p.d['pilot'].get('userName', ''),          # its profile's, not the name in the record
+                'userId': p.user_id, 'registrationDate': p.d.get('created', '') + '.0',    # not the record account's
+                'ranking': RT.hof_sira(p),                                  # among the players on the server (ranks.hof_top)
                 'clanName': k.get('name', ''), 'clanRank': next((i + 1 for i, (c, _) in enumerate(order) if c is k), 0),
                 'clanMemberCount': len(k.get('members', ()))}
         return [(n, dict(f, **{k: v for k, v in dict(bio, **rank).items() if k in f})) if n == 'InternalPilotBioUserProfileCommand'
                 else (n, f) for n, f in resp]
 
     def send(self, msgs, note=None, quiet=False):
-        msgs = INV.client_filter(msgs)                # istemcinin envanter dizinini kıran eşya güncellemeleri (H134)
+        msgs = INV.client_filter(msgs)                # item updates that break the client's inventory index (H134)
         w = getattr(self, 'world', None)
-        if w is not None and w.defer(msgs):           # dünyanın döngü adımında: dünyanın mesajlarıyla aynı sırada adım sonunda
+        if w is not None and w.defer(msgs):           # in the world's loop step: at the end of the step, in the same order as the world's messages
             if note and not quiet:
-                log('-> %s (%d mesaj, adım sonunda)' % (note, len(msgs)))
+                log('-> %s (%d messages, at end of step)' % (note, len(msgs)))
             elif not quiet:
                 for n, f in msgs:
                     log('-> %s %s' % (n, P.fmt(f, 160)))
@@ -648,7 +648,7 @@ class Session:
         data = encode(msgs)
         with self.send_lock:
             if self.queue:
-                self.queue.put(data)             # arkadaş sunucusu: ağ dünya kilidini bekletmesin (cok_oyunculu.Kuyruk)
+                self.queue.put(data)             # friend server: so the network does not hold the world lock (multiplayer.SendQueue)
             else:
                 self.c.sendall(data)
             if CONTROL:
@@ -657,27 +657,27 @@ class Session:
         if quiet:
             return
         if note:
-            log('-> %s (%d mesaj, %d bayt)' % (note, len(msgs), len(data)))
+            log('-> %s (%d messages, %d bytes)' % (note, len(msgs), len(data)))
         else:
             for n, f in msgs:
                 log('-> %s %s' % (n, P.fmt(f, 160)))
 
     def start_world(self):
         map_id = self.profile.d['position']['mapId']
-        shared = CO.is_open() and str(int(map_id)) in SHARED and int(map_id) not in self.pve.maps   # arkadaş sunucusu (ortak_harita.py)
+        shared = CO.is_open() and str(int(map_id)) in SHARED and int(map_id) not in self.pve.maps   # friend server (shared_maps.py)
         self.world = World(self.profile, lambda m: self.send(m, quiet=True), log, map_id, TEMPLATE.station(map_id), keep_state=True,
                            test_near='--near-npc' in sys.argv or SET.get('nearby_npc'), on_jump=self.change_map, shared=shared)
         self.world.appearance = self.appearance
         self.world.is_group_member = lambda uid: uid in GR.members(self.profile.user_id)
         self.world.death = lambda: GR.died(TP.person(self.profile))
-        if CO.is_open() and not shared:                                  # oyuncunun kendi kopyası: saklanan durumu da kendisinin
+        if CO.is_open() and not shared:                                  # the player's own copy: the stored state is its own too
             self.world.cache_key = '%s:%s' % (map_id, self.profile.user_id)
         self.world.invulnerable = '--invulnerable' in sys.argv
-        self.world.dark = int(map_id) in EKP.DARK_MAPS           # Trial of Terrors: el feneri
+        self.world.dark = int(map_id) in EKP.DARK_MAPS           # Trial of Terrors: flashlight
         self.world.quick_buy = self.shop.quick_buy_msgs
-        self.world.auto_buy = self.shop.auto_buy                  # otomatik alım CPU'ları (ekstra.py)
+        self.world.auto_buy = self.shop.auto_buy                  # auto-buy CPUs (extras.py)
         self.world.auto_buy_fail = self.shop.auto_buy_fail
-        self.world.auto_lab = self.shop.auto_lab                  # otomatik laboratuvar CPU'ları
+        self.world.auto_lab = self.shop.auto_lab                  # auto lab CPUs
         self.world.money_msgs = self.shop.money_msgs
         self.world.drone_msgs = self.shop.drone_msgs
         self.world.drone_item = self.shop.drone_item
@@ -690,16 +690,16 @@ class Session:
         self.world.ore_pack = self.shop.ore_pack
         self.world.map_msgs = lambda: TEMPLATE.world_msgs(map_id, 'entry')
         self.world.on_home = self.respawn_home
-        self.world.session_tick = self.tick                        # Assembly, Dispatch, Skylab zamanlayıcıları
-        self.world.grant = self.shop.reward                       # uzaylının ek ödülündeki ekipman (The Stinger: Caucasus)
+        self.world.session_tick = self.tick                        # Assembly, Dispatch, Skylab timers
+        self.world.grant = self.shop.reward                       # the equipment in an alien's extra reward (The Stinger: Caucasus)
         self.world.pet = self.pet
         self.pet.attach(self.world)
         self.world.gg_energy = self.gates.bonus_energy
-        LAB.expire_keys(self.profile)                                     # Frozen Labyrinth bittiyse anahtarlar silinir
-        self.world.extra_gates = (self.gates.home_portals(map_id, TEMPLATE.station(map_id)) +     # X-1'de hazırlanan kapılar
-                                  self.event_gates.entry_portals(map_id, TEMPLATE.station(map_id)) +  # etkinlik kapıları
-                                  LAB.portals(map_id, self.gates.home()) +                    # labirentin bölge portalları
-                                  self.pve.portals(map_id, TEMPLATE.station(map_id)) +              # modların kapıları (Aşama 8)
+        LAB.expire_keys(self.profile)                                     # if Frozen Labyrinth is over, the keys are deleted
+        self.world.extra_gates = (self.gates.home_portals(map_id, TEMPLATE.station(map_id)) +     # gates prepared in X-1
+                                  self.event_gates.entry_portals(map_id, TEMPLATE.station(map_id)) +  # event gates
+                                  LAB.portals(map_id, self.gates.home()) +                    # the labyrinth's zone portals
+                                  self.pve.portals(map_id, TEMPLATE.station(map_id)) +              # the modes' gates (stage 8)
                                   self.extra.portals(map_id, TEMPLATE.station(map_id)))                # Ö3: Fiesta Gate
         self.world.start()
         if int(map_id) in KAPI.BY_MAP:
@@ -710,28 +710,28 @@ class Session:
                 self.world.gate = EKP.Run(self.event_gates, self.world, EKP.BY_MAP[int(map_id)])
         elif int(map_id) in LAB.MAPS:
             with self.world.lock:
-                self.world.labyrinth = LAB.Labyrinth(self.world)        # Frozen Labyrinth (labirent.py)
+                self.world.labyrinth = LAB.Labyrinth(self.world)        # Frozen Labyrinth (labyrinth.py)
         with self.world.lock:
-            self.pve.attach(self.world)                               # mod haritasıysa koşusu; CPU ve pencereli portallar
-            self.new_.attach(self.world)                              # N.O.V.A. (istasyonda mı), otomatik pilot (lazer menzili)
-            self.social.attach(self.world)                            # gemi ışınlama (istasyon, savaş, geri sayım)
-            extra_msgs = self.extra.attach(self.world)                      # Ö3/Ö4'ün etkinlikleri: öldürme kancaları, harita koşuları
+            self.pve.attach(self.world)                               # if it is a mode map, its run; CPU and windowed portals
+            self.new_.attach(self.world)                              # N.O.V.A. (whether at the station), auto pilot (laser range)
+            self.social.attach(self.world)                            # ship warp (station, combat, countdown)
+            extra_msgs = self.extra.attach(self.world)                      # events of Ö3/Ö4: kill hooks, map runs
         if extra_msgs:
-            self.world.send(extra_msgs)                                  # (önce yok sayılıyordu: Vortex'ten çıkınca HUD açık kalıyordu)
+            self.world.send(extra_msgs)                                  # (it used to be ignored: the HUD stayed open after leaving Vortex)
         if int(map_id) == LOW.MAP:
             with self.world.lock:
-                self.world.low = LOW.Low(self.world)              # LoW (tek kişilik sürüm, low.py)
+                self.world.low = LOW.Low(self.world)              # LoW (single-player version, low.py)
         msgs = self.quest_event('map', map=int(map_id))
         comp = H.company(map_id)
         if (comp and comp != self.profile.d['pilot'].get('factionId')) or H.name(map_id).startswith('4-'):
-            msgs += self.hint.show(IP.PVP_WARNING)   # başka firmanın haritası ya da 4-X: PvP uyarısı (bir kez)
+            msgs += self.hint.show(IP.PVP_WARNING)   # another company's map or 4-X: PvP warning (once)
         if msgs:
             self.send(msgs, 'görev: harita')
-        self.profile.ach('map', map=int(map_id))       # başarım: haritaları keşfet
+        self.profile.ach('map', map=int(map_id))       # achievement: discover the maps
 
-    # ------------------------------------------------------------ görevler
+    # ------------------------------------------------------------ quests
     def quest_map(self, map_id):
-        """Görevlerin işaretleri için haritanın görev vericisi ve rafinerisi."""
+        """The map's quest giver and refinery for the quests' markers."""
         g = self.quest
         g.map_id, g.giver, g.trade = int(map_id), None, None
         for n, a in TEMPLATE.world_msgs(map_id, 'entry'):
@@ -741,8 +741,8 @@ class Session:
                 g.trade = (a['posX'], a['posY'])
 
     def with_quests(self, msgs):
-        """Giriş demetindeki kayıtlı görev mesajları yerine profilin görevleri; kayıttaki Assembly tarif listesi, Dispatch yuvaları
-        ve Uridium Bank birikimi yerine profilinkiler."""
+        """The profile's quests in place of the recorded quest messages in the login bundle; the profile's Assembly recipe list, Dispatch slots
+        and Uridium Bank accumulation in place of the recorded ones."""
         self.quest_map(self.profile.d['position']['mapId'])
         out, done, asm, passes = [], False, False, set()
         present = {n for n, f in msgs}
@@ -750,44 +750,44 @@ class Session:
             if n == 'DispatchSlotInfoCommand':
                 out.append(self.dispatch.slot_info())
                 continue
-            if n == 'EventUpdateCommand':             # takvimin etkinlikleri (takvim.py)
+            if n == 'EventUpdateCommand':             # the calendar's events (event_calendar.py)
                 out.append(CAL.event_cmd())
                 continue
-            if n in ('NpcEventInfoCommand', 'NpcEventBossInfoCommand'):    # kayıttaki Halloween göstergesi: harita etkinliği gönderir
+            if n in ('NpcEventInfoCommand', 'NpcEventBossInfoCommand'):    # the Halloween indicator in the record: the map event sends it
                 continue
-            if n == 'ContactListInitializationCommand':  # rehber profilden (rehber.py)
+            if n == 'ContactListInitializationCommand':  # directory from the profile (contacts.py)
                 out.append(CT.login_cmd(self.profile))
                 continue
             if n == 'DailyLoginRewardDayCommand' and self.daily.claimed_today():
-                continue                              # bugünün ödülü alındı: takvim girişte açılmaz (menüden: DailyLoginRewardDayRequest)
+                continue                              # today's reward was claimed: the calendar does not open at login (from the menu: DailyLoginRewardDayRequest)
             if n in ('HintWindowAddComand', 'HintWindowListInitCommand'):
-                out += self.hint_msgs(n, f)           # kapatılan ipuçları yeniden açılmaz, arşive geçer
+                out += self.hint_msgs(n, f)           # closed hints do not reopen, they go to the archive
                 continue
-            rep = self.social.login_replace(n, f)     # sohbet adresi yerel sunucuya, okunmamış posta (Aşama 10)
+            rep = self.social.login_replace(n, f)     # chat address to the local server, unread mail (stage 10)
             if rep is not None:
                 out += rep
                 continue
-            rep = self.new_.login_replace(n)          # N.O.V.A. kadrosu, Evocation Chip, QFC listesi (Aşama 9): profilden
+            rep = self.new_.login_replace(n)          # N.O.V.A. roster, Evocation Chip, QFC list (stage 9): from the profile
             if rep is not None:
                 out += rep
                 continue
-            rep = self.pve.login_replace(n)           # modların göstergeleri (Eternal Black Light, Astral Ascension): profilden
+            rep = self.pve.login_replace(n)           # the modes' indicators (Eternal Black Light, Astral Ascension): from the profile
             if rep is not None:
                 out += rep
                 continue
-            rep = self.extra.login_replace(n, f)         # Ö3'ün etkinlikleri (ek_etkinlikler.py)
+            rep = self.extra.login_replace(n, f)         # events of Ö3 (extra_events.py)
             if rep is not None:
                 out += rep
                 continue
-            group = PASS_LOGIN.get(n)                 # Season Pass, Battle Pass, günlük ödüller: profilden (kayıttaki yerine)
+            group = PASS_LOGIN.get(n)                 # Season Pass, Battle Pass, daily rewards: from the profile (in place of the recorded ones)
             if group:
-                if group not in passes:               # demette kalanlar (harita değişiminde ve --reklamsiz'da pencereler çıkar)
+                if group not in passes:               # what stays in the bundle (windows come out on a map change and with --reklamsiz)
                     passes.add(group)
                     out += [m for m in {'season': self.season, 'ticket': self.ticket, 'reward': self.reward}[group].login_msgs()
                             if m[0] in present or PASS_LOGIN.get(m[0]) != group]
                 continue
             code = str(f.get('message', '')).split('|')[2:3] if n == 'LegacyModule' else []
-            if code and code[0] in LOOT.CODES:          # ganimet anahtarlarının HUD sayaçları (kayıtta hepsi 0; ganimet.py)
+            if code and code[0] in LOOT.CODES:          # HUD counters of the loot keys (all 0 in the record; loot.py)
                 out.append((n, dict(f, message=LOOT.key_line(self.profile, LOOT.CODES[code[0]]))))
                 continue
             if n == 'UnstableModulesListCommand':
@@ -814,37 +814,37 @@ class Session:
         return out
 
     def tick(self, now):
-        """Dünya döngüsünden (saniyede birkaç kez): zamanlı sistemler (Assembly üretimleri, Skylab yükseltme ve taşımaları, Uridium
-        Bank birikimi, takvim)."""
+        """From the world loop (several times a second): timed systems (Assembly productions, Skylab upgrades and transports, Uridium
+        Bank accumulation, calendar)."""
         if now >= self.cal_next:
             self.cal_next = now + 30.0
-            self.season.tick(now)                      # Season Pass: gün, hafta, sezon değişimi
+            self.season.tick(now)                      # Season Pass: day, week, season change
             cur = CAL.active(now)
             if cur != self.cal_sent:
                 items = self.profile.event_window_items()
                 if self.cal_sent is not None:
-                    log('   takvim: %s' % ', '.join(sorted(cur)) or '-')
+                    log('   calendar: %s' % ', '.join(sorted(cur)) or '-')
                     changed = [(n, f) for n, f in items if self.win_sent.get(f['itemId']) != f['visible']]
                     self.send([CAL.event_cmd(now)] + changed + CAL.mood_cmds(cur, self.cal_sent),
-                              quiet=True)      # menü öğesi (canlıda doğrulanacak: Ö1); harita süsleri
+                              quiet=True)      # menu item (to be verified live: Ö1); map decorations
                     self.event_tips(now)
                 self.win_sent = {f['itemId']: f['visible'] for n, f in items}
                 self.cal_sent = cur
                 ACV.set_events(achievement_groups(now))
-        self.quest.tick(now)                          # süreli görevler
+        self.quest.tick(now)                          # timed quests
         if self.profile.d.get('booster_subscription') and now >= getattr(self, 'subscription_next', 0):
             self.subscription_next = now + 5.0
-            msgs = self.shop.subscription_tick(now)     # booster aboneliği (forum 127558)
+            msgs = self.shop.subscription_tick(now)     # booster subscription (forum 127558)
             if msgs:
                 self.send(msgs, 'booster aboneliği')
         if now >= self.extra_next:
             self.extra_next = now + 1.0
-            msgs = self.extra.tick(now)                  # Ö3'ün etkinlikleri: dönem sonları, zamanlı olaylar
+            msgs = self.extra.tick(now)                  # events of Ö3: period ends, timed occurrences
             if msgs:
                 self.send(msgs, 'etkinlik: zaman')
         if now >= self.social_next:
             self.social_next = now + 5.0
-            msgs = self.social.tick(now)              # müzayede: biten dönemlerde kazanılan eşyalar
+            msgs = self.social.tick(now)              # auction: items won in periods that have ended
             if msgs:
                 self.send(msgs, 'müzayede: dönem sonu')
         self.assembly.tick(now)
@@ -861,29 +861,29 @@ class Session:
             cbs = self.profile.cbs_mods() if getattr(self.profile, 'cbs_mods', None) else {}
             if cur[loot] in ('ep', 'honor'):
                 n = int(n * (1 + cbs.get(cur[loot], 0)))
-            n = SET.amount(cur[loot], n, 'quest')           # panelin ödül çarpanları
+            n = SET.amount(cur[loot], n, 'quest')           # the panel's reward multipliers
             tot = self.profile.gain(reason='quest_won', **{cur[loot]: n})
-            pet = self.pet.gain_xp(n) if cur[loot] == 'ep' else []        # forum 127074: P.E.T. görev EP'sinin %5'ini de kazanır
+            pet = self.pet.gain_xp(n) if cur[loot] == 'ep' else []        # forum 127074: the P.E.T. also earns 5% of the quest EP
             return (self.world.reward_msgs(tot, **{cur[loot]: n}) if self.world else []) + (pet or [])
-        return self.shop.prize(loot, n, 'quest')         # eşya ödülü: panelin mod/görev ödülü çarpanı
+        return self.shop.prize(loot, n, 'quest')         # item reward: the panel's mode/quest reward multiplier
 
     def respawn_home(self):
-        """İstasyonsuz haritada istasyonda tamir: firmanın ana haritasında (X-1) istasyonda doğ (gerçek oyundaki gibi); seviye 12+ ve
-        üst haritada (X-5 … X-8, 4-4, 4-5) firmanın X-8'inde (harita.x8_home)."""
+        """Repair at the station on a map with no station: spawn at the station on the company's home map (X-1) (like the real game); at level 12+ and
+        on higher maps (X-5 ... X-8, 4-4, 4-5) at the company's X-8 (map.x8_home)."""
         pl = self.profile.d['pilot']
         dest = H.x8_home(pl.get('factionId'), pl.get('level', 1), self.profile.d['position']['mapId']) or HOME_MAP.get(pl.get('factionId'), 5)
         st = TEMPLATE.station(dest)
         self.change_map(dest, None, pos=(st['posX'], st['posY']) if st else None)
 
     def revive_on_login(self):
-        """Gemi yok edilmişken oyundan çıkılmışsa: istasyonda ücretsiz tamir (gerçek oyunda çıkıştan sonra portalda ve yerinde tamir
-        seçenekleri kalkar, istemcinin ttip_killscreen_logout_1 metni)."""
+        """If the player left the game while the ship was destroyed: free repair at the station (in the real game after leaving the repair at the portal
+        and on the spot options are gone, the client's ttip_killscreen_logout_1 text)."""
         g = self.profile.d['ship']
         if g.get('hitPoints', 1) > 0:
             return
         k = self.profile.d['position']
         st = TEMPLATE.station(k['mapId'])
-        if not st or st.get('type') != self.profile.d['pilot'].get('factionId'):        # düşman üssünde tamir yok: kendi ana haritası
+        if not st or st.get('type') != self.profile.d['pilot'].get('factionId'):        # no repair at the enemy base: its own home map
             pl = self.profile.d['pilot']
             k['mapId'] = H.x8_home(pl.get('factionId'), pl.get('level', 1), k['mapId']) or HOME_MAP.get(pl.get('factionId'), 5)
             st = TEMPLATE.station(k['mapId'])
@@ -891,46 +891,46 @@ class Session:
             k.update(x=st['posX'], y=st['posY'])
         k.pop('at_portal', None)
         self.profile.set_hull(hp=g.get('hitMax', 1), shield=g.get('shieldMax', 0))
-        log('   gemi yok edilmiş hâlde çıkılmıştı: %s istasyonunda tamir edildi' % H.name(k['mapId']))
+        log('   left with the ship destroyed: repaired at the %s station' % H.name(k['mapId']))
 
     def change_map(self, dest, gate, pos=None):
-        """Portal atlaması (kayıttaki akış): eski haritayı temizle, JumpToServerCommand + yeni haritanın giriş demeti.
-        pos verilirse oraya iner (yeniden doğma); verilmezse hedefteki geri dönüş portalının yanına."""
+        """Portal jump (the flow in the record): clear the old map, JumpToServerCommand + the new map's login bundle.
+        If pos is given it lands there (respawn); otherwise next to the return portal at the destination."""
         if gate:
-            self.profile.ach('jump')                   # başarım: portal atlamaları
+            self.profile.ach('jump')                   # achievement: portal jumps
         if gate and gate.get('event_gate'):
-            self.event_gates.enter(gate['gate'])    # etkinlik kapısının girişi: kapı kurulur (canlar, dalga sırası, süre)
-            dest = self.event_gates.dest(gate['gate'])     # karışık sırada ilk harita (Trial of Terrors)
-        self.pve.on_jump(gate)                   # Astral'ın çıkışı: oyuncunun donanımı geri
-        w0 = self.world                          # kilit sırası dünya iş parçacığıyla aynı (world.lock, sonra state_lock): paket
-        with (w0.lock if w0 else contextlib.nullcontext()), self.state_lock:     # iş parçacığından tersi kilitleniyordu
+            self.event_gates.enter(gate['gate'])    # entering an event gate: the gate is set up (lives, wave order, time)
+            dest = self.event_gates.dest(gate['gate'])     # the first map in the random order (Trial of Terrors)
+        self.pve.on_jump(gate)                   # Astral's exit: the player's equipment back
+        w0 = self.world                          # lock order the same as the world thread's (world.lock, then state_lock): from the packet
+        with (w0.lock if w0 else contextlib.nullcontext()), self.state_lock:     # thread the reverse used to deadlock
             old = self.profile.d['position']['mapId']
             msgs = TEMPLATE.asset_removes(old)
             if self.world:
                 msgs = self.world.cleanup_msgs() + msgs
                 self.world.stop()
                 self.world = None
-            self.pet.attach(None)        # etkinse yeni haritada yeniden çıkar
-            pos = pos or (gate or {}).get('arrival')      # kapı portalları: kapı haritasının ortasına / X-1'de kapının yanına
-            if pos == 'station':                        # atlama CPU'su ve kapıdan eve dönüş: hedefin istasyonuna (yoksa portalın yanına)
+            self.pet.attach(None)        # if active it comes out again on the new map
+            pos = pos or (gate or {}).get('arrival')      # gate portals: to the middle of the gate map / next to the gate in X-1
+            if pos == 'station':                        # jump CPU and the return home from a gate: to the destination's station (otherwise next to the portal)
                 st = TEMPLATE.station(dest)
                 pos = (st['posX'], st['posY']) if st else None
-            if pos == 'random':                       # 5-3'ün çıkışları 4-4'te rastgele yere (harita_duzeni.json)
+            if pos == 'random':                       # 5-3's exits go to a random place on 4-4 (map_layout.json)
                 pos = H.random_arrival(dest)
             x, y = pos or H.arrival(old, dest, self.profile.d['pilot'].get('factionId'))
             self.profile.d['position'].update(mapId=dest, x=x, y=y, at_portal=pos is None)
             self.profile.dirty = True
             save_profile(self.profile)
             self.send(msgs + [('JumpToServerCommand', {})], quiet=True)
-            self.map_pending = True      # giriş demetinden önce: istemcinin ReadyRequest'i hemen gelse de kaçmaz
-            RT.daily_rank(self.profile)        # gün değiştiyse rütbe (istemci yalnız ShipInitializationCommand'dan okur)
+            self.map_pending = True      # before the login bundle: even if the client's ReadyRequest comes right away it does not slip through
+            RT.daily_rank(self.profile)        # rank if the day changed (the client reads it only from ShipInitializationCommand)
             self.send(self.with_quests(login_batch('entry', first=False, profile=self.profile)),
                       'harita değişimi: %s -> %s, giriş demeti' % (H.name(old), H.name(dest)))
             self.profile.d['position'].pop('at_portal', None)
 
     def bind_login(self, f):
-        """Arkadaş sunucusu: oturumun oyuncusu LoginRequest'in sessionID'sinden. Misafirin oturum anahtarı (web.py'si verir) ya da
-        yalnız bu bilgisayardan sunucunun kendi oyuncusu (web.py'nin SESSION'ı). Aynı oyuncunun eski bağlantısı kapanır. -> bağlandı mı."""
+        """Friend server: the session's player from the sessionID of LoginRequest. The guest's session key (web.py gives it) or
+        only from this computer the server's own player (web.py's SESSION). The same player's old connection is closed. -> whether connected."""
         sid = f.get('sessionID') or ''
         m = CO.find(sid)
         if m:
@@ -940,16 +940,16 @@ class Session:
             self.guest = m
             self.bind(m.profile)
             self.social.chat_host = '%s:%d' % (m.address or self.addr[0], CHAT.port if CHAT else CO.CHAT_PORT)
-            log('   misafir girişi: %s (%s), sunucudaki kimlik %d' % (m.profile.d['pilot'].get('userName'), self.addr[0], m.uid))
+            log('   guest login: %s (%s), id on the server %d' % (m.profile.d['pilot'].get('userName'), self.addr[0], m.uid))
             return True
         y = CO.find_local(sid) if self.addr[0] in ('127.0.0.1', '::1') else None
-        if y:                                       # çoklu istemcinin ek oyuncusu (bu bilgisayardaki başka bir kayıt)
+        if y:                                       # the multi-client's extra player (another record on this computer)
             old, y.session, y.last = y.session, self, time.time()
             if old is not None and old is not self:
                 old.hand_over()
             self.local = y
             self.bind(y.profile)
-            log('   ek istemci girişi: %s (kayıt %s), sunucudaki kimlik %d' % (y.profile.d['pilot'].get('userName'), y.save, y.uid))
+            log('   extra client login: %s (record %s), id on the server %d' % (y.profile.d['pilot'].get('userName'), y.save, y.uid))
             return True
         if CO.is_local(sid) and self.addr[0] in ('127.0.0.1', '::1'):
             old = CURRENT
@@ -957,16 +957,16 @@ class Session:
                 old.hand_over()
             self.bind(PROFILE)
             return True
-        log('   giriş reddedildi: bilinmeyen oturum (%s)' % (self.addr,))
+        log('   login rejected: unknown session (%s)' % (self.addr,))
         return False
 
     def appearance(self, x, y):
-        """Öteki oyuncuların istemcisinde bu oyuncunun gemisi (shared_maps.py): kayıttaki başka oyuncunun mesajları
-        (ShipCreateCommand, unvan, dronlar, gemi modülleri)."""
+        """This player's ship in the other players' clients (shared_maps.py): the other player's messages in the record
+        (ShipCreateCommand, title, drones, ship modules)."""
         p = self.profile
         pl, g = p.d['pilot'], p.d['ship']
         import admin_mode as YM
-        direction = YM.is_open(p)                     # yönetici: rozet ve yönetici gemisi öteki oyunculara da
+        direction = YM.is_open(p)                     # admin: the badge and admin ship to the other players too
         create = ('ShipCreateCommand', dict(
             userId=p.user_id, typeId=(direction and YM.ship(p)) or g.get('typeId', 'ship_liberator'), expansionStage=p.d.get('expansion_stage', 1),
             clanTag=pl.get('clanTag', ''), userName=pl.get('userName', ''), x=x, y=y, factionId=pl.get('factionId', 0),
@@ -980,10 +980,10 @@ class Session:
         if name == 'LoginRequest':
             P.secrets_of(f, self.secrets)
         if name not in UNLOGGED:
-            log('<- %s(%s) %s%s' % (name, mid, P.fmt(P.redact(f, self.secrets), 300), ' [HATA %s]' % err if err else ''))
+            log('<- %s(%s) %s%s' % (name, mid, P.fmt(P.redact(f, self.secrets), 300), ' [ERROR %s]' % err if err else ''))
         w = self.world
         if self.profile is None and name not in ('VersionRequest', 'LoginRequest', 'KeepAlive'):
-            return                               # arkadaş sunucusu: oyuncu girişte belli olur (giris_bagla)
+            return                               # friend server: the player becomes known at login (bind_login)
         if name == 'VersionRequest':
             self.send([('VersionCommand', {'version': f['version'], 'equal': True})])
         elif name == 'LoginRequest':
@@ -991,38 +991,38 @@ class Session:
                 self.close()
                 return
             self.revive_on_login()
-            RT.daily_rank(self.profile)                     # günlük rütbe (ShipInitializationCommand.dailyRank)
+            RT.daily_rank(self.profile)                     # daily rank (ShipInitializationCommand.dailyRank)
             self.send(self.with_quests(login_batch('entry', profile=self.profile)), 'giriş demeti')
             self.map_pending = True
         elif name == 'ReadyRequest' and (self.map_pending or (w and w.reload_pending)):
-            with self.state_lock:      # dünyaya kilit dışında dokun (harita değişimi dünya iş parçacığından bu kilidi alır)
+            with self.state_lock:      # touch the world outside the lock (a map change takes this lock from the world thread)
                 self.map_pending = False
                 start = self.world is None
                 self.ready_n += 1
-            # Restabilize sekmesinin listesi: kayıtta girişten sonra ve envanter değişince ayrıca geliyor, giriş demetlerinde yok;
-            # yalnız demetteki kaydın yerine konduğu için hiç gitmiyordu, sekme "No Items" diyordu (canlı test H69)
+            # the Restabilize tab's list: in the record it comes separately after login and when the inventory changes, it is not in the login bundles;
+            # since it was only put in place of the record in the bundle it never went, the tab said "No Items" (live test H69)
             unstable = [GM.list_cmd(self.profile)]
             self.send(login_batch('ready', profile=self.profile) + self.shop.login_msgs() + self.pet.login_msgs() + self.achievement.title_msgs()
                       + self.new_.login_msgs() + unstable + self.extra.login_msgs(), 'hazır demeti')
             if start:
                 self.start_world()
-                self.achievement.sync()              # seviye, P.E.T. seviyesi, takılı eşyalar (önceden ulaşılanlar da sayılır)
-                self.pass_event('login')         # "oyuna gir" görevleri (Unity ödülü; kayıt: girişten hemen sonra biter)
+                self.achievement.sync()              # level, P.E.T. level, equipped items (those reached earlier also count)
+                self.pass_event('login')         # "enter the game" quests (Unity reward; record: it finishes right after login)
                 self.pass_event('level', value=self.profile.d['pilot'].get('level', 1))
-                self.event_tips()                # süren etkinliğin açıklaması (dönemde bir kez)
-                group = GR.login_msgs(TP.person(self.profile))     # bağlantı kopup dönen üye: grubu ve bekleyen davetler (grup.py)
+                self.event_tips()                # description of the running event (once per period)
+                group = GR.login_msgs(TP.person(self.profile))     # a member who returns after the connection dropped: the group and pending invitations (group.py)
                 if group:
                     self.send(group, 'grup: giriş')
             else:
                 self.send(self.cbs.attach(self.world), 'CBS: harita yeniden yüklendi')
                 self.world.resend()
-            if self.ready_n > 1:                 # harita yüklendi (portal, ışınlama, yeniden doğma): istemci menüyü yeniden kuruyor
-                self.extra.on_ready()               # (Urgent Missions'ın simgesi, acil_gorevler.py)
+            if self.ready_n > 1:                 # map loaded (portal, warp, respawn): the client rebuilds the menu
+                self.extra.on_ready()               # (the Urgent Missions icon, urgent_quests.py)
             self.pet.on_ready()
         elif name == 'KeepAlive':
             self.send([('StayinAlive', {})], quiet=True)
         elif name == 'MoveRequest':
-            log('<- MoveRequest konum=(%d,%d) hedef=(%d,%d)' % (f['positionX'], f['positionY'], f['targetX'], f['targetY']))
+            log('<- MoveRequest position=(%d,%d) target=(%d,%d)' % (f['positionX'], f['positionY'], f['targetX'], f['targetY']))
             # Moves sent on the old map during a jump countdown or a map change must not overwrite the arrival position
             # (change_map sets it under state_lock, then builds ShipInitializationCommand from it).
             with self.state_lock:
@@ -1030,18 +1030,18 @@ class Session:
                     self.profile.apply(name, f)
             if w:
                 w.on_move(f)     # outside state_lock: the world thread takes world.lock, then state_lock (change_map)
-            # yanıt yok: gerçek sunucu oyuncunun kendi hareketine MoveCommand göndermiyor (kayıt: 876 isteğe 0). Gönderilen
-            # MoveCommand istemcinin "hedefe varınca" işini (cevhere varınca HarvestRequest) kesiyordu.
+            # no reply: the real server does not send MoveCommand for the player's own movement (record: 0 for 876 requests). A MoveCommand that was sent
+            # cut the client's "on arrival" job (HarvestRequest on reaching the ore).
         elif name == 'AttackAbortLaserRequest' and w:
             w.laser_stop()
         elif name == 'JumpRequest':
             if not (w and w.jump(f)):
-                log('   atlama yok: yakında portal değil')
+                log('   no jump: not near a portal')
         elif name == 'QuestAcceptRequest':
             if w and not w.near_giver:
-                # görev ancak görev vericinin (Mission Control) yanında alınır; istemcinin metni "Fly to Mission Control to see if
+                # a quest can only be taken next to the quest giver (Mission Control); the client's text "Fly to Mission Control to see if
                 # there are any missions for you."
-                log('   görev alınamadı: görev vericiden uzakta (%s)' % f.get('questId'))
+                log('   quest not taken: far from the quest giver (%s)' % f.get('questId'))
                 self.send([legacy('0|A|STM|msg_maybe_quest_at_nyx'), self.quest.list_cmd()], 'görev: uzak')
             else:
                 self.send(self.quest.accept(f.get('questId')) + self.quest_state_events(), 'görev: kabul')
@@ -1053,7 +1053,7 @@ class Session:
             self.send([('QuestPrivilegeCommand', {'questId': f.get('questId', 0)})], quiet=True)
         elif name in ('QuestSettingsRequest', 'QuestListRequest'):
             if name == 'QuestSettingsRequest':
-                self.profile.apply(name, f)                 # görev penceresinin süzgeci profilde kalsın
+                self.profile.apply(name, f)                 # the quest window's filter stays in the profile
             self.send([self.quest.list_cmd()], quiet=True)
         elif name == 'QuestGiverApproachedRequest':
             msgs = self.quest.event('giver') if w and w.near_giver == f.get('questGiverId') else []
@@ -1093,18 +1093,18 @@ class Session:
         elif name == 'PetGearActivationRequest':
             self.pet.gear_request(f)
         elif name == 'MapAssetActivationRequest':
-            if self.cbs.handles(name, f):                # Clan Battle Station asteroidi/istasyonu (Ö5): pencere verisi
+            if self.cbs.handles(name, f):                # Clan Battle Station asteroid/station (Ö5): window data
                 self.send(self.cbs.handle(name, f), 'CBS: pencere')
-            # portal için ardından JumpRequest gelir
+            # for a portal JumpRequest follows
         elif name == 'HangarShipActivateShipRequest':
-            # oyundaki gibi yalnız istasyonda; gemi değişince istemci yeni gemiyle haritayı yeniden yükler (yeniden doğma gibi)
+            # only at the station as in the game; when the ship changes the client reloads the map with the new ship (like a respawn)
             k = self.profile.d['position']
             here = (k.get('mapId'), k.get('x'), k.get('y'))
             msgs, changed = self.shop.activate(f, in_station=w.in_station() if w else True, travel=True)
             self.send(msgs, 'hangar: gemi etkinleştirme')
             if changed and w:
-                w.items.reveal()      # üste gemi değiştirmek gizlenme CPU'sunu bitirir (fandom Cloak; Ship Warp hariç: isinlama.py)
-                if k['mapId'] != here[0]:                    # yeni gemi başka haritada bekliyor: oraya geçilir
+                w.items.reveal()      # changing ship at the base ends the cloak CPU (fandom Cloak; except Ship Warp: ship_warp.py)
+                if k['mapId'] != here[0]:                    # the new ship is waiting on another map: switch to it
                     self.change_map(k['mapId'], None, pos=(k['x'], k['y']))
                 else:
                     w.reload_ship(pos=(k['x'], k['y']) if (k['x'], k['y']) != here[1:] else None)
@@ -1112,31 +1112,31 @@ class Session:
             msgs, reload = self.shop.change_model(f)
             self.send(msgs, 'hangar: tasarım')
             if reload and w:
-                w.reload_ship()      # yeni görünümle ShipInitializationCommand (istemci haritayı yeniden yükler)
-        elif name == 'LegacyModule':                  # eski metin protokolü (eski_protokol.py)
+                w.reload_ship()      # ShipInitializationCommand with the new appearance (the client reloads the map)
+        elif name == 'LegacyModule':                  # old text protocol (legacy_protocol.py)
             key, parts = legacy_parse(f)
             if key == 'S|CFG' and len(parts) > 2:
                 msgs = self.shop.switch_config(parts[2])
                 if msgs:
                     self.send(msgs, 'config geçişi')
             elif key == 'i' and len(parts) > 1 and parts[1].isdigit():
-                if w:                                 # istemci bilmediği bir kimliği soruyor (kayıt: gerçek sunucu yeniden gönderir)
+                if w:                                 # the client asks about an id it does not know (record: the real server sends it again)
                     w.info_request(int(parts[1]))
-            elif key == 'JCPU' and CIT.has_ajp(self.profile):  # gelişmiş atlama CPU'su (AJP-01): uzay haritasının atlama paneli
+            elif key == 'JCPU' and CIT.has_ajp(self.profile):  # advanced jump CPU (AJP-01): the space map's jump panel
                 if len(parts) > 1 and parts[1] == 'GET':
                     self.send([CIT.jcpu_list(self.profile), CIT.vouchers_msg(self.profile)], 'gelişmiş atlama listesi')
                 elif w:
                     with w.lock:
                         w.items.jcpu(parts)
             elif key == 'XCP' and len(parts) > 1 and parts[1].isdigit() and w:
-                with w.lock:                          # 5-2 tüccarında Palladium -> kapı enerjisi: istemci "XCP|<adet>" gönderiyor
-                    w.trade_palladium(int(parts[1]))  # (canlı deneme 2026-10-17; TradeSellOreRequest gelmiyor)
-            elif key == 'AEQ' and len(parts) > 1:     # Ayarlar > Gameplay "Auto-equip new items": istemci yaması OtomatikKusanma
-                with self.profile.lock:                 # (istemcinin kendi kutusu hiçbir şey göndermiyor)
+                with w.lock:                          # Palladium at the 5-2 trader -> gate energy: the client sends "XCP|<count>"
+                    w.trade_palladium(int(parts[1]))  # (live trial 2026-10-17; TradeSellOreRequest does not come)
+            elif key == 'AEQ' and len(parts) > 1:     # Settings > Gameplay "Auto-equip new items": client patch AutoEquip
+                with self.profile.lock:                 # (the client's own box sends nothing)
                     self.profile.d['auto_equip'] = parts[1] == '1'
                     self.profile.dirty = True
             elif key in ('LF', 'JCPU'):
-                pass                                  # her girişte LF|c, JCPU|GET; gerçek sunucu da yanıt vermiyor (kayıt)
+                pass                                  # LF|c, JCPU|GET at every login; the real server does not reply either (record)
             else:
                 log('   yanıtsız: LegacyModule %s' % key)
         elif name == 'UIButtonTriggerRequest':
@@ -1144,11 +1144,11 @@ class Session:
             self.windows.opened(item)
             if item == 'logout':
                 self.logout_start()
-            else:                                     # pencere açıldı bildirimi (sosyal.py): gemi ışınlama penceresi
-                resp = self.social.window(item) + self.extra.window(item)       # Ö3: Pursuit of Prestige penceresi …
+            else:                                     # window opened notification (social.py): the ship warp window
+                resp = self.social.window(item) + self.extra.window(item)       # Ö3: Pursuit of Prestige window ...
                 if resp:
                     self.send(resp, 'pencere: %s' % item)
-        elif name == 'HangarShipAutoBuyCpuAmmoRequest':   # hangarda otomatik alım CPU'suna cephane seçimi
+        elif name == 'HangarShipAutoBuyCpuAmmoRequest':   # ammo choice for the auto-buy CPU in the hangar
             self.send(self.shop.auto_buy_ammo(f), 'otomatik alım cephanesi')
         elif name == 'HallOfFameTopRequest':
             self.send(RT.hof_top(self.profile, f), 'Hall of Fame: %s' % f.get('type'))
@@ -1162,7 +1162,7 @@ class Session:
             self.send(RT.balance(self.profile, f), 'hesap geçmişi')
         elif name == 'LogoutCancelRequest':
             self.logout_cancel()
-        elif name == 'HintWindowClosedRequest':      # gerçek sunucu yanıt vermiyor (kayıt); kapatılan ipucu bir daha açılmasın
+        elif name == 'HintWindowClosedRequest':      # the real server does not reply (record); a closed hint must not open again
             c = (f.get('closedWindow') or {}).get('content')
             if c is not None and not f.get('wasOpenedFromArchive'):
                 with self.profile.lock:
@@ -1171,7 +1171,7 @@ class Session:
                         lst.append(c)
                         self.profile.dirty = True
         elif name == 'InternalPilotBioRequest':
-            # kayıtta olmayan kimlik (arkadaş sunucusunda öteki oyuncu): kayıttaki kart şablon olur, alanlar onun profilinden
+            # an id not in the record (another player on the friend server): the card in the record becomes the template, the fields from their profile
             self.send(self.pilot_bio(TEMPLATE.response(name, f) or TEMPLATE.response(name, {}) or [], int(f.get('userId') or 0)), 'pilot kartı')
         elif name == 'InternalPilotBioUpdateRequest':
             with self.profile.lock:
@@ -1180,40 +1180,40 @@ class Session:
                                              **({'statusMessage': old['statusMessage']} if 'statusMessage' in old else {}))
                 self.profile.dirty = True
             self.send([('InternalPilotBioUpdateResultsCommand', {'success': True, 'baseStackCommand': None})], 'pilot kartı: kayıt')
-        elif name == 'InternalPilotBioUpdateStatusRequest':          # pilot kartındaki durum yazısı (Ö1; UIPilotSheetSystem)
+        elif name == 'InternalPilotBioUpdateStatusRequest':          # status text on the pilot card (Ö1; UIPilotSheetSystem)
             with self.profile.lock:
                 self.profile.d.setdefault('pilot_bio', {})['statusMessage'] = str(f.get('statusMessage') or '')[:STATUS_MAX]
                 self.profile.dirty = True
             self.send([('InternalPilotBioUpdateResultsCommand', {'success': True, 'baseStackCommand': None})], 'pilot kartı: durum')
-        elif name == 'InternalPilotBioUpdateUserNameRequest':        # profil düzenlemede ad değiştirme (Ö1; UIEditProfileSystem)
+        elif name == 'InternalPilotBioUpdateUserNameRequest':        # renaming in profile editing (Ö1; UIEditProfileSystem)
             self.send([self.rename(f.get('userName'))], 'pilot kartı: ad')
         elif name == 'GroupInvitationBlockToggleRequest':
-            with self.profile.lock:                         # kayıt: her istekte açılıp kapanır
+            with self.profile.lock:                         # record: opened and closed on every request
                 self.profile.d['invite_block'] = not self.profile.d.get('invite_block', False)
                 self.profile.dirty = True
             self.send([('InvitationBlockModule', {'active': self.profile.d['invite_block']})], 'grup daveti engeli')
         elif name in GR.REQUESTS:
-            # grup (grup.py): arkadaş sunucusunda öteki oyuncular; tek oyunculuda kimse yok (davet: error 2 CANDIDATE_NONEXISTENT)
+            # group (group.py): other players on the friend server; in single player there is nobody (invite: error 2 CANDIDATE_NONEXISTENT)
             resp = GR.handle(TP.person(self.profile), name, f)
             if resp:
                 self.send(resp, 'grup: %s' % name)
-        elif name in CT.REQUESTS:                                    # rehber ve posta penceresinin kişiler sekmesi (rehber.py)
+        elif name in CT.REQUESTS:                                    # the contacts tab of the contacts and mail window (contacts.py)
             resp = CT.handle(TP.person(self.profile), name, f)
             if resp:
                 self.send(resp, 'rehber: %s' % name)
-        elif name == 'CommandCenterNewsClickedRequest':              # haberin tıklanması (E8; yanıtı yok): profildeki sayaç
+        elif name == 'CommandCenterNewsClickedRequest':              # a click on news (E8; it has no reply): the counter in the profile
             with self.profile.lock:
                 c = self.profile.d.setdefault('news_read', {})
                 c[str(f.get('newsId'))] = c.get(str(f.get('newsId')), 0) + 1
                 self.profile.dirty = True
-        elif name == 'CommandCenterNewsInfoRequest':                 # istemcinin haberlerinin tıklanma sayıları (takvim.news)
+        elif name == 'CommandCenterNewsInfoRequest':                 # click counts of the client's news (calendar.news)
             c = self.profile.d.get('news_read', {})
             ids = [dict(_='CommandCenterNewsModule', eventId=x.get('eventId', 0), newsId=x['newsId'], clickCount=c[x['newsId']])
                    for x in f.get('newsInfo') or [] if c.get(x.get('newsId'))]
             self.send([('CommandCenterInfoCommand', {'ids': ids})], 'Command Center: %d haber' % len(f.get('newsInfo') or []))
         elif name in SILENT:
             if name == 'EggTriggerRequest' and 0 <= f.get('eggTriggerType', -1) < len(EGG_TYPES):
-                self.profile.ach('egg', type=EGG_TYPES[f['eggTriggerType']])     # gizli başarımlar (EVENT_SECRET); yanıtı yok
+                self.profile.ach('egg', type=EGG_TYPES[f['eggTriggerType']])     # hidden achievements (EVENT_SECRET); it has no reply
         elif name.startswith(('Assembly', 'Disassembly', 'Dispatch', 'Skylab')):
             sysm = self.assembly if name.startswith(('Assembly', 'Disassembly')) else self.dispatch if name.startswith('Dispatch') \
                 else self.skylab
@@ -1233,18 +1233,18 @@ class Session:
             resp = self.modules.handle(name, f)
             if resp:
                 self.send(resp, 'Restabilize: %s' % name)
-        elif name == 'RankRewardRequest' and RK.reward(f) is not None:     # sıralama ödül tabloları (Ö1; siralama.py)
+        elif name == 'RankRewardRequest' and RK.reward(f) is not None:     # ranking reward tables (Ö1; ranking_rewards.py)
             self.send(RK.reward(f), 'sıralama ödülleri')
-        elif name in GMC.REQUESTS:                                          # GM konsolu (Ö2; gm_konsol.py)
+        elif name in GMC.REQUESTS:                                          # GM console (Ö2; gm_console.py)
             self.send(self.gm.handle(name, f), 'GM konsolu: %s' % (f.get('name') or name))
-        elif name == 'EvoucherHistoryListRequest':                          # kupon penceresinin geçmişi: yerelde kod çözümü yok (Ö1)
+        elif name == 'EvoucherHistoryListRequest':                          # the coupon window's history: there is no code decoding locally (Ö1)
             self.send([('EvoucherHistoryListCommand', {'list': []})], 'kupon geçmişi')
         elif name == 'UridiumBankClaimRequest':
             before = self.profile.d['pilot'].get('uridium', 0)
             self.send(BANK.claim(self.profile, self.shop.money_msgs, log), 'Uridium Bank')
             self.bank_sent = BANK.value(self.profile)
             if self.profile.d['pilot'].get('uridium', 0) > before:
-                self.pass_event('recharge')                # tek oyunculu: Unity ödülünün "yükleme" görevi (gerçek oyunda ödeme)
+                self.pass_event('recharge')                # single player: the Unity reward's "top up" quest (a payment in the real game)
         elif self.shop.handles(name, f):
             resp = self.shop.handle(name, f)
             if resp is None:
@@ -1252,17 +1252,17 @@ class Session:
             if resp:
                 self.send(resp, 'mağaza/hangar: %s' % name)
             if w and name == 'HangarShipMoveItemsRequest' and w.repairing and not w.repair_rate():
-                w.stop_repair()          # onarım robotu çıkarıldı
+                w.stop_repair()          # repair robot removed
             if name == 'HangarShipMoveItemsRequest':
-                self.profile.ach('sync')       # başarım: takılı eşyalar (Champion/Beacon tasarımı)
+                self.profile.ach('sync')       # achievement: equipped items (Champion/Beacon design)
         elif name == 'SlotBarConfigSetRequest':
             tpl = next((m for m in TEMPLATE.entry.get('ready', []) if m['_m'] == 'MenuInitializationCommand'), None)
             if tpl and self.profile.slot_bar_set(f, tpl['slotBars']):
                 self.send([('MenuInitializationCommand', self.profile.patch_template('MenuInitializationCommand', tpl))]
                           + self.quest.event('slot_bar', **self.profile.slot_bar_state(tpl['slotBars'])), 'kısayol çubuğu')
         elif name in PVM.REQUESTS:
-            self.send(self.pve.handle(name, f), 'mod: %s' % name)      # Aşama 8'in modları (pve_modlari.py)
-        elif name == 'ChangeClanFirmaRequest':                         # şirket değiştirme (klan.switch_company): yeni firmanın X-1'i
+            self.send(self.pve.handle(name, f), 'mod: %s' % name)      # stage 8's modes (pve_modes.py)
+        elif name == 'ChangeClanFirmaRequest':                         # switching company (clan.switch_company): the new company's X-1
             msgs, home = self.social.clan.switch_company(f)
             self.send(msgs, 'şirket değişimi')
             if home:
@@ -1271,23 +1271,23 @@ class Session:
                 st = TEMPLATE.station(home)
                 self.change_map(home, None, pos=(st['posX'], st['posY']) if st else None)
         elif name in SO.REQUESTS:
-            resp = self.social.handle(name, f, time.time())             # Aşama 10: sosyal bölüm (sosyal.py)
+            resp = self.social.handle(name, f, time.time())             # stage 10: the social part (social.py)
             if resp:
                 self.send(resp, 'sosyal: %s' % name)
         elif name in NS.REQUESTS:
-            resp = self.new_.handle(name, f)                           # Aşama 9'un sistemleri (yeni_sistemler.py)
+            resp = self.new_.handle(name, f)                           # stage 9's systems (new_systems.py)
             if resp:
                 self.send(resp, 'yeni sistem: %s' % name)
         elif self.extra.handles(name):
-            resp = self.extra.handle(name, f)                             # Ö3'ün etkinlikleri (ek_etkinlikler.py)
+            resp = self.extra.handle(name, f)                             # events of Ö3 (extra_events.py)
             if resp:
                 self.send(resp, 'etkinlik: %s' % name)
         elif name in WORLD_REQUESTS and w:
             getattr(w, WORLD_REQUESTS[name])(f)
         elif self.profile.apply(name, f):
-            log('   profile yazıldı: %s' % name)
+            log('   profile written: %s' % name)
             if name == 'DisplaySettingsRequest':
-                self.profile.ach('display', use2d=f.get('displayUse2d'))      # başarım: 3B görünüm (Uses3D)
+                self.profile.ach('display', use2d=f.get('displayUse2d'))      # achievement: 3D view (Uses3D)
                 # SaveInterfaceSettingsTab changes flags, but the client only applies toolbar visibility on UIBag refresh.
                 tpl = next((m for m in TEMPLATE.entry.get('ready', []) if m['_m'] == 'MenuInitializationCommand'), None)
                 if tpl:
@@ -1296,10 +1296,10 @@ class Session:
             if name == 'UIWindowUpdateRequest':
                 if f.get('maximized'):
                     self.windows.opened(f.get('itemId'))
-                if 'trade' in str(f.get('itemId')) and not f.get('maximized') and w:       # ticaret penceresi kapandı (P.E.T. kargo tüccarı)
+                if 'trade' in str(f.get('itemId')) and not f.get('maximized') and w:       # trade window closed (P.E.T. cargo trader)
                     with w.lock:
                         self.pet.trade_close(time.time())
-                resp = self.extra.window_update(f)        # pencere açıldı/kapandı (UIButtonTriggerRequest göndermeyenler)
+                resp = self.extra.window_update(f)        # window opened/closed (those that do not send UIButtonTriggerRequest)
                 if resp:
                     self.send(resp, 'pencere: %s' % f.get('itemId'))
         else:
@@ -1323,18 +1323,18 @@ class Session:
                     if CONTROL:
                         CTL.TRACE.add('<-', name, f)
                     with self.packet_lock:
-                        try:                      # bir isteğin hatası oturumu düşürmesin: yığın izi günlüğe, istemci bağlı kalır
+                        try:                      # one request's error must not bring down the session: the stack trace to the log, the client stays connected
                             self.on_packet(name, mid, f, err)
                         except ConnectionError:
                             raise
                         except Exception:
-                            log('   istek hatası (%s):\n%s' % (name, traceback.format_exc()))
+                            log('   request error (%s):\n%s' % (name, traceback.format_exc()))
                     if time.time() - last_save > 10:
                         last_save = time.time()
                         self.play_time()
                         save_profile(self.profile)
         except ConnectionError as e:
-            log('   bağlantı kapandı: %r' % e)
+            log('   connection closed: %r' % e)
         except Exception:
             log('error\n%s' % traceback.format_exc())
         if self.world:
@@ -1343,13 +1343,13 @@ class Session:
             self.play_time()
             save_profile(self.profile)
             if not any(s is not self and s.profile is self.profile for s in list(SESSIONS)):
-                CT.forget(self.profile.user_id)              # sonraki girişte rehber baştan gider
+                CT.forget(self.profile.user_id)              # at the next login the contact list is sent from scratch
         log('disconnect %s' % (self.addr,))
         global CURRENT
         if CURRENT is self:
             CURRENT = None
         SESSIONS.discard(self)
-        if self.queue:                              # kuyruktakiler gitsin, sonra soket kapanır (kapanmayınca iş parçacığı + soket sızıyordu)
+        if self.queue:                              # let what is in the queue go, then the socket closes (when it did not close the thread + socket leaked)
             self.queue.close()
             self.queue.thread.join(5)
         try:
@@ -1357,40 +1357,40 @@ class Session:
         except OSError:
             pass
         m = self.guest
-        if m is not None and m.session is self:      # misafirin son hâli yayımlanır (paneli alır); yeniden bağlanabilir
+        if m is not None and m.session is self:      # the guest's final state is published (the panel takes it); can reconnect
             self.profile.save(force=True)
             m.session, m.last = None, time.time()
         y = self.local
-        if y is not None and y.session is self:      # ek oyuncu: istemcisi yeniden açılınca sürer; panel bırakınca kayıttan çıkar
+        if y is not None and y.session is self:      # extra player: continues when its client is reopened; leaves the record when the panel lets go
             with CO.COND:
                 y.session, y.last = None, time.time()
                 if y.finished:
                     CO.LOCAL_PLAYERS.pop(y.session, None)
 
     def payment_click(self):
-        """İstemcinin ödeme düğmesi (odeme.Dinleyici: 127.0.0.1:443'e bağlandı): mağaza Extras'ta açılır, ürün ekranda yazılır."""
+        """The client's payment button (payment.Listener: connected to 127.0.0.1:443): the shop opens at Extras, the product is written on screen."""
         msg = self.windows.offline()
-        if msg:                                       # kupon kodu ya da resim yükleme: mağaza açılmaz
-            log('   443: ödeme dışı istek -> %s' % msg)
+        if msg:                                       # coupon code or image upload: the shop does not open
+            log('   443: non-payment request -> %s' % msg)
             with self.packet_lock:
                 self.send([KAPI.screen(msg)], '443: ekran metni')
             return
         item = self.windows.guess()
-        log('   ödeme düğmesi -> mağaza (son pencere: %s)' % (item or '-'))
+        log('   payment button -> shop (last window: %s)' % (item or '-'))
         with self.packet_lock:
             self.send(PAY.redirect(self.shop, item), 'ödeme düğmesi: mağaza')
 
     def inject(self, name, f):
-        """Kontrol kanalı: istemci göndermiş gibi bir istek (izde '<=')."""
+        """Control channel: a request as if the client sent it ('<=' in the trace)."""
         CTL.TRACE.add('<=', name, f)
-        log('<= (kontrol) %s' % name)
+        log('<= (control) %s' % name)
         with self.packet_lock:
             self.on_packet(name, -1, f, None)
 
 
 def handle(c, addr):
-    """Yeni bağlantı. Arkadaş sunucusunda (--multiplayer) önce ilk baytlara bakılır: HTTP ise misafirin hesap gönderimi
-    (cok_oyunculu.http), değilse oyun istemcisi (oyuncusu girişte belli olur; gönderme kuyruğuyla)."""
+    """New connection. On the friend server (--multiplayer) the first bytes are looked at first: if HTTP, the guest's account submission
+    (multiplayer.http), otherwise the game client (its player becomes known at login; with a send queue)."""
     if not CO.is_open():
         Session(c, addr).run()
         return
@@ -1419,8 +1419,8 @@ def close_session(s):
 
 
 def payment_session(addr):
-    """Ödeme düğmesine basan istemcinin oturumu: tek oturumda (ya da süreç bulunamazsa) sunucunun kendi oyuncusununki; çoklu
-    istemcide bağlanan süreç oturumların istemcileriyle eşlenir (odeme.baglanan_pid; oyun bağlantısı 8081'de)."""
+    """The session of the client that pressed the payment button: with a single session (or if the process is not found) the server's own player's; with multiple
+    clients the connecting process is matched with the sessions' clients (payment.connecting_pid; the game connection is on 8081)."""
     sessions = [s for s in list(SESSIONS) if s.profile is not None]
     if len(sessions) > 1:
         pid = PAY.connecting_pid(addr, PAY.PORT)
@@ -1439,23 +1439,23 @@ def payment_clicked(addr):
 
 
 def server_info():
-    """GET /misafir/bilgi: misafirin paneli bağlanmadan önce gösterir (sunucunun pilotu, oyuncular, şifre, yer, sürümler)."""
+    """GET /misafir/bilgi: shown to the guest's panel before connecting (the server's pilot, players, password, place, versions)."""
     ms = CO.entries()
     names = sorted({s.profile.d['pilot'].get('userName', '?') for s in list(SESSIONS) if s.profile is not None})
     try:
         client = open(os.path.join(DATA, 'protocols', 'version.txt'), encoding='utf8').read().strip() or '1.1.116'
     except OSError:
         client = '1.1.116'
-    client = max(client, '1.1.116', key=lambda v: tuple(int(x) for x in v.split('.')))     # surum.txt güncellemede eskide kalabilir
-    # 'sunucu', 'protokol' ve X-DarkOrbit: arkadas sürüm pazarlığıdır, eski paneller de okur: değişmez
+    client = max(client, '1.1.116', key=lambda v: tuple(int(x) for x in v.split('.')))     # surum.txt may be stale after an update
+    # 'sunucu', 'protokol' and X-DarkOrbit: this is the friend version negotiation, old panels read it too: does not change
     return {'sunucu': 'darkorbit', 'protokol': CO.PROTOCOL, 'code': CO.SETTINGS['code'], 'client': client,
             'pilot': PROFILE.d['pilot'].get('userName', ''), 'players': names, 'guest': len(ms), 'max_count': CO.SETTINGS['max_count'],
             'password': bool(CO.SETTINGS['password']), 'place': len(ms) < CO.SETTINGS['max_count']}
 
 
 def watch_world():
-    """Dünya Editörü: oyun açıkken dünya dosyası değişince mağazanın fiyatları ve açık artırmanın lotları yenilenir (veri.CANLI);
-    öteki değişiklikler sunucu yeniden başlayınca (panel bildirir)."""
+    """World Editor: when the world file changes while the game is open the shop's prices and the auction's lots are refreshed (data.LIVE);
+    other changes when the server restarts (the panel notifies)."""
     import auction as MZ
     while True:
         time.sleep(2)
@@ -1466,15 +1466,15 @@ def watch_world():
             if 'social.json' in changed:
                 MZ.refresh()
             if changed:
-                log('dünya canlı güncellendi: %s' % ', '.join({'shop': 'mağaza', 'social.json': 'açık artırma'}[d] for d in changed))
+                log('world updated live: %s' % ', '.join({'shop': 'shop', 'social.json': 'auction'}[d] for d in changed))
         except Exception:
-            log('dünya izlenemedi: %s' % traceback.format_exc())
+            log('could not watch the world: %s' % traceback.format_exc())
 
 
 def autosave():
-    """Profil 10 sn'de bir diske (değiştiyse). Oturum yalnız istemciden paket gelince kaydediyordu: boşta yapılan son değişiklik
-    (pencere kapatma, kontrol kanalı, NPC ödülü) sunucu penceresi kapatılırsa kayboluyordu (canlı test H57).
-    --stop-file=<dosya> (panel): dosya belirince oynama süresi ve profil kaydedilir, sunucu kapanır (zorla kapatmada son 10 sn gitmesin)."""
+    """The profile to disk every 10 s (if changed). The session used to save only when a packet came from the client: the last change made while idle
+    (closing a window, control channel, NPC reward) was lost if the server window was closed (live test H57).
+    --stop-file=<file> (panel): when the file appears play time and the profile are saved, the server closes (so the last 10 s are not lost on a forced close)."""
     last = time.time()
     while True:
         time.sleep(0.5 if STOP else 10)
@@ -1483,8 +1483,8 @@ def autosave():
         if time.time() - last < 10:
             continue
         last = time.time()
-        save_profile()                    # dosya kilitliyse bir sonraki turda
-        for s in list(SESSIONS):         # arkadaş sunucusu: misafirlerin kayıtları (yeni sürüm panellerine gider)
+        save_profile()                    # if the file is locked, the next round
+        for s in list(SESSIONS):         # friend server: the guests' records (go to the new version panels)
             if s.profile is not None and s.profile is not PROFILE:
                 save_profile(s.profile)
         if CO.is_open():
@@ -1492,22 +1492,22 @@ def autosave():
 
 
 def stop_gracefully():
-    """Panelin durdurma isteği: oturumun oynama süresi ve profil kaydedilir, süreç çıkar."""
+    """The panel's stop request: the session's play time and the profile are saved, the process exits."""
     try:
         if CURRENT is not None:
             CURRENT.play_time()
         PROFILE.save(force=True)
         BOT.close()                       # bot paketinin durumu
-        if CO.is_open():                     # misafirlerin son hâli panellerine (bekleyen yoklamalara) verilir, ek oyuncularınki yuvalarına
+        if CO.is_open():                     # the guests' final state is given to their panels (to pending polls), the extra players' to their slots
             for s in list(SESSIONS):
                 if s.guest is not None or s.local is not None:
                     s.play_time()
             for y in CO.local_players():
                 save_profile(y.profile)
             CO.shutdown()
-        log('panel: durdurma isteği, profil kaydedildi, sunucu kapanıyor')
+        log('panel: stop request, profile saved, server shutting down')
     except Exception as e:
-        log('panel: durdururken kayıt hatası %r' % e)
+        log('panel: save error while stopping %r' % e)
     try:
         os.remove(STOP)
     except OSError:
@@ -1517,41 +1517,41 @@ def stop_gracefully():
 
 def main():
     global CHAT
-    if PTH.MIGRATION_ERROR:                                # kayıtlar yeni biçime taşınamadı: eski biçimle yarım açılmaz
+    if PTH.MIGRATION_ERROR:                                # the records could not be moved to the new format: it does not half-open with the old format
         sys.exit('save migration failed: %s' % PTH.MIGRATION_ERROR)
     P.warning = log
-    SET.configure()              # oyun ayarları (panel): --ayarlar=<yol> ya da save/ayarlar.json; değişince kendiliğinden okunur
-    log('ayarlar: %s | %s' % (SET._state['route'], ', '.join('%s %s' % x for x in SET.summary()) or 'varsayılan'))
-    log(GD.summary())             # Dünya Editörü'nün dünyası (OO_WORLD; veri.py)
+    SET.configure()              # game settings (panel): --settings=<path> or save/settings.json; re-read by itself when changed
+    log('settings: %s | %s' % (SET._state['route'], ', '.join('%s %s' % x for x in SET.summary()) or 'default'))
+    log(GD.summary())             # the World Editor's world (OO_WORLD; data.py)
     address = '127.0.0.1'
-    if '--multiplayer' in sys.argv:  # arkadaş sunucusu: oyun ve sohbet bütün ağlardan (cok_oyunculu.py); ayarlar ortam değişkeninde
+    if '--multiplayer' in sys.argv:  # friend server: game and chat from all networks (multiplayer.py); settings in the environment variable
         CO.configure(os.environ.get('OO_MULTIPLAYER'), log)
         address = CO.SETTINGS['address']
-        KL.configure(os.path.join(PTH.SAVE, 'clans.json'))     # ortak klanlar: çevrimdışı üyeye olanlar sonraki girişte
+        KL.configure(os.path.join(PTH.SAVE, 'clans.json'))     # shared clans: what happened to an offline member applies at the next login
     CHAT = CHT.Chat(log, address=address)
-    CHAT.start()                # yerel sohbet (7771); istemci girişteki ChatParamCommand ile buraya bağlanır
+    CHAT.start()                # local chat (7771); the client connects here with ChatParamCommand at login
     if os.environ.get('OO_BOT'):
-        BOT.server(os.environ['OO_BOT'], log)     # Botlar sayfasının paketi (dünyaya atanmış)
+        BOT.server(os.environ['OO_BOT'], log)     # the Bots page's pack (assigned to the world)
     threading.Thread(target=autosave, daemon=True).start()
     if os.environ.get('OO_WORLD'):
         threading.Thread(target=watch_world, daemon=True).start()
-    CD.start(sys.modules[__name__], LOG_DIR, log)     # panelin canlı durum sayfası (<günlükler>/canli_durum.json)
-    PCH.start(sys.modules[__name__], LOG_DIR, log)     # panelin oyun menüleri (Mağaza, Hangar, Skylab, Açık Artırma): yerel kanal
+    CD.start(sys.modules[__name__], LOG_DIR, log)     # the panel's live state page (<logs>/canli_durum.json)
+    PCH.start(sys.modules[__name__], LOG_DIR, log)     # the panel's in-game menus (Shop, Hangar, Skylab, Auction): local channel
     if CONTROL:
         CTL.Control(sys.modules[__name__]).start()
-        CHAT.trace = CTL.chat_trace          # sohbet çerçeveleri de izde ("Sohbet:<tür>")
-    PAY.Listener(payment_clicked, log).start()     # ödeme düğmeleri -> mağaza (127.0.0.1:443)
+        CHAT.trace = CTL.chat_trace          # chat frames are in the trace too ("Chat:<type>")
+    PAY.Listener(payment_clicked, log).start()     # payment buttons -> shop (127.0.0.1:443)
     s = socket.socket()
     if CO.is_open() and hasattr(socket, 'SO_EXCLUSIVEADDRUSE'):
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)    # Windows: başka süreç aynı portu ele geçiremesin
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)    # Windows: so another process cannot take over the same port
     else:
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind((address, 8081)); s.listen(16)
-    log('gs listening %s:8081 | profil: %s %s harita %s | şablon: %s%s%s' % (
+    log('gs listening %s:8081 | profile: %s %s map %s | template: %s%s%s' % (
         address, PROFILE.d['pilot'].get('userName'), PROFILE.d['ship'].get('typeId'), PROFILE.d['position']['mapId'],
-        TEMPLATE.entry.get('source', 'none'), ' | profil dosyası: %s' % PROFILE.path if PROFILE_PATH else '',
-        (' | arkadaş sunucusu: en çok %d misafir%s' % (CO.SETTINGS['max_count'], ', şifreli' if CO.SETTINGS['password'] else '')
-         if CO.SETTINGS['guest'] else ' | çoklu istemci (yalnız bu bilgisayar)') if CO.is_open() else ''))
+        TEMPLATE.entry.get('source', 'none'), ' | profile file: %s' % PROFILE.path if PROFILE_PATH else '',
+        (' | friend server: at most %d guests%s' % (CO.SETTINGS['max_count'], ', encrypted' if CO.SETTINGS['password'] else '')
+         if CO.SETTINGS['guest'] else ' | multi-client (this computer only)') if CO.is_open() else ''))
     while True:
         c, addr = s.accept()
         threading.Thread(target=handle, args=(c, addr), daemon=True).start()

@@ -1,25 +1,25 @@
-"""Ganimet: anahtarlı kutular, anahtarlar, boosterlar, uzaylıların ek ganimeti ve Assembly (oyuncunun kuralları: loot.py,
-dunya.extra_loot, assembly.py, booster.py).
+"""Loot: key boxes, keys, boosters, aliens' extra loot and Assembly (the player's rules: loot.py, world.extra_loot, assembly.py, booster.py).
 
-  kutu      haritadaki anahtarlı kutuyu türünün anahtarıyla açar; yeşil kutunun anahtarı yoksa uridyumla alır (oyuncudaki
-            autoBuyGreenBootyKeys) ama yalnız kutunun beklenen değeri anahtarın fiyatından yüksekse ve kişiliğe göre (tutumlu bot
-            uridyumunu harcamaz); ödül kutunun tablosundan ağırlıkla
-  ek        uzaylının ek ganimeti (npc.json ek_odul: Scrapium, Mucosum, günlük dosyası …) stoğa
-  assembly  o an görünür tariflerden (tek oyunculu: kayıttaki hepsi; etkinlik parası isteyenler etkinlik sürerken ya da elde para
-            varken) malzemesi elde olan ve sonucu harcadığından değerli olanı üretir: anahtar, teknoloji eşyası, cephane, ekipman
-  booster   10 saat (booster verisi); EP, onur, kaynak, hasar, can, kalkan payları, türün tavanıyla
-Değerler kredi karşılığı (1 U = 100 C): para yüzünden, cephane ve eşya mağaza fiyatından, anahtar kutusunun beklenen değerinden.
+  box       opens a key box on the map with the key of its type; if it has no key for a green box, buys one with uridium (the player's
+            autoBuyGreenBootyKeys) but only if the box's expected value is higher than the key's price and depending on personality (a frugal
+            bot does not spend its uridium); the reward is drawn from the box's table by weight
+  extra     the alien's extra loot (npc.json extra_reward: Scrapium, Mucosum, log file ...) goes to stock
+  assembly  from the recipes visible at that moment (single player: all in the save; those who want event currency while the event runs or
+            while they hold currency) makes the one whose materials it has and whose result is worth more than it spends: key, technology
+            item, ammo, equipment
+  booster   10 hours (booster data); EP, honor, resource, damage, HP, shield shares, capped by the type
+Values are in credit terms (1 U = 100 C): by money, ammo and items by shop price, a key box by its expected value.
 """
 import json, os, random
 
 from . import catalog as K
 
 EXCHANGE_RATE = 100
-import loot as LOOT                                   # noqa: E402  (oyunun ganimet modülü: kutular, haritalar, takvim)
+import loot as LOOT                                   # noqa: E402  (the game's loot module: boxes, maps, calendar)
 
 RECIPES = json.load(open(os.path.join(K.HERE, 'data', 'recipes.json'), encoding='utf8'))['recipes']
 BOOSTER = K.ITEMS['boosters']
-ORE_LOOT = {v: int(k) for k, v in K.ITEMS['ores']['kinds'].items()}     # resource_ore_* -> kargo cevheri
+ORE_LOOT = {v: int(k) for k, v in K.ITEMS['ores']['kinds'].items()}     # resource_ore_* -> cargo ore
 CURRENCY = {'currency_credits': 'credits', 'currency_uridium': 'uridium', 'currency_experience': 'ep', 'currency_honour': 'honor'}
 _ev = {}
 
@@ -29,9 +29,9 @@ def stock(bot):
     return WP.stock(bot)
 
 
-# ------------------------------------------------------------------------------------------------------------ değer
+# ------------------------------------------------------------------------------------------------------------ value
 def value(loot, n=1, depth=0):
-    """Eşyanın bota yaklaşık değeri (kredi)."""
+    """The item's approximate value to the bot (credits)."""
     if loot in CURRENCY:
         return n * {'credits': 1, 'uridium': EXCHANGE_RATE, 'ep': 0.3, 'honor': 3}[CURRENCY[loot]]
     if loot in ORE_LOOT:
@@ -44,12 +44,12 @@ def value(loot, n=1, depth=0):
     f = K.price(loot)
     if f and f[1] > 0:
         v = n * f[1] * (EXCHANGE_RATE if f[0] == 'U' else 1)
-        return v * 0.3 if loot.startswith(('ship_', 'equipment_', 'drone_')) else v     # ganimetten gelen eşya: işine yaramazsa satış değeri
+        return v * 0.3 if loot.startswith(('ship_', 'equipment_', 'drone_')) else v     # item from loot: its sale value if it is of no use
     return 0
 
 
 def box_value(kind, depth=0):
-    """Kutunun beklenen değeri (ödül tablosunun ağırlıklı ortalaması)."""
+    """The box's expected value (weighted average of the reward table)."""
     if kind in _ev:
         return _ev[kind]
     rows = LOOT.BOXES[kind].get('reward') or []
@@ -64,9 +64,9 @@ def box_value(kind, depth=0):
     return _ev[kind]
 
 
-# ------------------------------------------------------------------------------------------------------------ ödül
+# ------------------------------------------------------------------------------------------------------------ reward
 def give(bot, loot, n):
-    """Ödülü bota: para kazanç, cevher kargoya, booster etkin, eşya ve cephane bot.ekle, gerisi (anahtar, kaynak) stoğa."""
+    """The reward to the bot: money is income, ore goes to cargo, booster is activated, items and ammo bot.add, the rest (keys, resources) to stock."""
     if loot in CURRENCY:
         bot.reward('box', **{CURRENCY[loot]: n})
     elif loot in ORE_LOOT:
@@ -81,7 +81,7 @@ def give(bot, loot, n):
 
 
 def booster(bot, loot):
-    """Booster 10 saat: k['booster'] {tür: [değer, bitiş]} (aynı türden ikincisi süreyi uzatır)."""
+    """Booster 10 hours: k['booster'] {type: [value, end]} (a second one of the same type extends the duration)."""
     b = bot.k.setdefault('booster', {})
     now = bot.hour()
     for kind, v in (BOOSTER['kinds'].get(loot) or {}).items():
@@ -97,7 +97,7 @@ def booster_share(bot, kind):
 
 
 def extra_loot(bot, tip, n=1):
-    """Uzaylının ek ganimeti (toplanabilir kaynaklar, günlük dosyası) stoğa."""
+    """The alien's extra loot (collectible resources, log file) to stock."""
     import world as WD
     for loot, spec in ((K.NPC['types'].get(str(tip)) or {}).get('extra_reward') or {}).items():
         c = sum(WD.extra_count(spec) for _ in range(min(int(n), 20))) * (n / min(int(n), 20) if n > 20 else 1)
@@ -105,14 +105,14 @@ def extra_loot(bot, tip, n=1):
             give(bot, loot, int(c))
 
 
-# ------------------------------------------------------------------------------------------------------------ kutular
+# ------------------------------------------------------------------------------------------------------------ boxes
 def key_item(kind):
     return LOOT.BOXES[kind]['anahtar']
 
 
 def can_open(bot, kind):
-    """Kutuyu açabilir mi / açmaya değer mi: anahtarı varsa evet; yeşil kutu için anahtar alabilir (uridyumu ve kişiliği izin
-    veriyorsa ve kutu fiyatından değerliyse). Anahtar alınırsa stoğa eklenir."""
+    """Can it open the box / is it worth opening: yes if it has the key; for a green box it can buy a key (if its uridium and personality
+    allow and the box is worth more than its price). A key that is bought is added to stock."""
     if not bot.permission.get('booty', True):
         return False
     key = key_item(kind)
@@ -133,7 +133,7 @@ def can_open(bot, kind):
 
 
 def open_box(bot, kind, rng=random):
-    """Anahtar harcanır, tablodan ağırlıkla bir ödül -> [(loot, adet)]."""
+    """A key is spent, a reward is drawn from the table by weight -> [(loot, count)]."""
     s = stock(bot)
     key = key_item(kind)
     if s.get(key, 0) <= 0:
@@ -157,7 +157,7 @@ _active = {}
 
 
 def active_boxes(name):
-    """Haritada şimdi doğan anahtarlı kutular [(tür, adet)]: takvim hesabı ağır, dakikada bir (harita başına)."""
+    """The key boxes spawning on the map now [(type, count)]: the calendar computation is heavy, once a minute (per map)."""
     import time
     t = time.time()
     e = _active.get(name)
@@ -167,7 +167,7 @@ def active_boxes(name):
 
 
 def abstract(bot, dt, y):
-    """Soyutta haritanın anahtarlı kutularına rastlama: kutu sayısı / yeniden doğma, haritadaki botlarla paylaşılır."""
+    """Encountering the map's key boxes in abstract mode: box count / respawn, shared with the bots on the map."""
     import map_links as H
     if not bot.permission.get('booty', True):
         return
@@ -208,18 +208,18 @@ def _spend(bot, parts):
 
 
 MATERIALS = [(k, tuple(p for p in r['parts'] if p not in CURRENCY)) for k, r in RECIPES.items()
-           if any(p not in CURRENCY for p in r['parts']) and 'test' not in k]      # test tarifleri oyuncuya da kapalı      # para tarifleri teknoloji.uret'te
+           if any(p not in CURRENCY for p in r['parts']) and 'test' not in k]      # test recipes are closed to the player too      # money recipes are in technology.produce
 
 
 def assembly(bot):
-    """Malzemesi elde olan tariflerden en değerlisini üretir (sonucu harcadığından değerliyse; para harcayanlar teknoloji.uret'te).
-    Kullanım sınırları: USABLE_ONCE bir kez. -> üretilen sonuç ya da None."""
+    """Makes the most valuable of the recipes whose materials it has (if the result is worth more than it spends; those that spend money are in
+    technology.produce). Usage limits: USABLE_ONCE once. -> the result produced or None."""
     if not bot.permission.get('assembly', True):
         return None
     now = bot.hour()
     if now < bot.__dict__.get('_asm_t', 0):
         return None
-    bot._asm_t = now + 600                               # oyuncu Assembly'ye arada bakar: 10 dakikada bir
+    bot._asm_t = now + 600                               # the player checks Assembly now and then: once every 10 minutes
     s = stock(bot)
     if not any(k.startswith('resource_') for k in s):
         return None

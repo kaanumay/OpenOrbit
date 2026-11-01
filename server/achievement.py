@@ -1,18 +1,18 @@
-"""Başarımlar ve unvanlar (profilde "basarimlar"; veri data/achievements.json ← istemcinin başarım XML'leri, tools/achievements.py).
+"""Achievements and titles (profile key "basarimlar"; data data/achievements.json <- the client's achievement XMLs, tools/achievements.py).
 
-Kayıt: AchievementListRequest {displayTitleId} -> AchievementListCommand {list: tamamlanan başarımlar (AchievementInfoCommand
-{achievementId, level: tamamlanan seviye, score: o seviyenin hedefi, lastUpdate}), unlockAchievements1: süren başarımlar (level:
-sıradaki seviye, score: sayaç; yalnız 0'dan büyükler), nextAchievements: bunlardan 7'si, unlockAchievements2 [], displayTitleId
-(-1: unvan yok), titleCommandList [AchievementTitleCommand {key, id}]}. Puanları istemci kendi XML'inden toplar.
-İstemcinin kodundan: kazanınca "0|A|ACG|<başarım>_<derece>|<sayı>" (derece: XML'in grade'i; gemide efekt ve açılır pencere: <anahtar>_name ve
-<anahtar>_description içindeki %COUNT%); pilot sayfasındaki unvan kaydetme düğmesi AchievementListRequest {displayTitleId: seçilen}
-gönderir (0: değişiklik yok sayılır). Gemi üstündeki unvan "0|n|t|<kullanıcı>|<unvan kimliği>|<unvan anahtarı>" (kayıt).
-Olaylar profil.ach(tür, ...) ile gelir (dünya, görevler, kapılar, mağaza, P.E.T.): kill, gain, box, box_ammo, quest, map, jump,
+Record: AchievementListRequest {displayTitleId} -> AchievementListCommand {list: completed achievements (AchievementInfoCommand
+{achievementId, level: completed level, score: that level's target, lastUpdate}), unlockAchievements1: achievements in progress (level:
+next level, score: counter; only those above 0), nextAchievements: 7 of these, unlockAchievements2 [], displayTitleId
+(-1: no title), titleCommandList [AchievementTitleCommand {key, id}]}. The client sums the points from its own XML.
+From the client code: on completion "0|A|ACG|<achievement>_<grade>|<count>" (grade: the XML's grade; effect on the ship and a popup: %COUNT% in
+<key>_name and <key>_description); the title save button on the pilot page sends AchievementListRequest {displayTitleId: selected}
+(0: change ignored). The title on the ship is "0|n|t|<user>|<title id>|<title key>" (record).
+Events arrive through player_profile.ach(type, ...) (world, quests, gates, shop, P.E.T.): kill, gain, box, box_ammo, quest, map, jump,
 distance, shot, damage, minute, formation, equip, gate, death, level, pet_level, ability, laser_types, tutorial, season_level,
-dispatch, event_score, assembly_collect, package, gate_wave; E6: display (görüntü ayarının displayUse2d'si: 3B), egg (istemcinin
-EggTriggerRequest'i), wb_heal / wb_damage (World Boss savaşında onarılan can ve alınan hasar), rekor_ebl / rekor_plutus (şampiyon
-başarımları: tek oyunculu sıralamada kişisel rekor birinciliktir). Karşılığı olmayan koşullar (PvP, WIZ-X ile oyuncu dönüştürme, klan,
-Skylab, ölü modların şampiyonlukları …) veride kalır, ilerlemez.
+dispatch, event_score, assembly_collect, package, gate_wave; E6: display (the display setting's displayUse2d: 3D), egg (the client's
+EggTriggerRequest), wb_heal / wb_damage (HP repaired and damage taken in the World Boss fight), rekor_ebl / rekor_plutus (champion
+achievements: in the single-player ranking the personal record is first place). Conditions with no counterpart (PvP, player conversion with WIZ-X, clan,
+Skylab, champions of dead mods ...) stay in the data and do not progress.
 """
 import json, os, time, zlib
 
@@ -21,13 +21,13 @@ D = json.load(open(os.path.join(HERE, 'data', 'achievements.json'), encoding='ut
 ACH = D['achievements']
 TITLES = D['titles']
 TITLE_KEYS = {v: k for k, v in TITLES.items()}
-EVENT_TITLE_BASE = 2000          # tabloda olmayan (etkinlik) unvanlar: 2000 + crc32 % 30000 (istemcide kimlik short)
+EVENT_TITLE_BASE = 2000          # titles not in the table (event ones): 2000 + crc32 % 30000 (the id is a short in the client)
 CURRENCY = {'CREDITS': 'credits', 'URIDIUM': 'uridium', 'EXPERIENCE': 'ep', 'HONOUR': 'honor'}
-NEXT = 7                         # kayıt: nextAchievements 7 tane
-# etkinlik başarımları (EVENT_* grupları, sezon bileti, etkinlik özniteliği olanlar) yalnız o etkinlik açıkken ilerler; sunucuda
-# etkinlik yok, veri yerinde kalır. Bir etkinlik eklenince grubu (ya da etkinlik adı) buraya.
+NEXT = 7                         # record: nextAchievements is 7 entries
+# event achievements (EVENT_* groups, season pass, those with an event attribute) progress only while that event is open; the server has
+# no events, the data stays in place. When an event is added, add its group (or event name) here.
 ACTIVE_EVENTS = set()
-# koşul sınıfı -> onu ilerleten olaylar (motor yalnız bunlara bakar)
+# condition class -> the events that advance it (the engine looks only at these)
 KINDS = {'Currency': 'gain', 'AvatarTypeKill': 'kill', 'NpcTypeDestroyed': 'kill', 'Collect': 'box', 'AssetCollect': 'box_ammo',
          'Quest': 'quest', 'QuestDeathless': 'quest', 'QuestSelection': 'quest', 'DiscoverMaps': 'map', 'Gatejumps': 'jump',
          'Distance': 'distance', 'AmmoShots': 'shot', 'Damage': 'damage', 'Playtime': 'minute', 'PlaytimeOnEnemyMap': 'minute',
@@ -35,23 +35,23 @@ KINDS = {'Currency': 'gain', 'AvatarTypeKill': 'kill', 'NpcTypeDestroyed': 'kill
          'GalaxyGateDone': 'gate', 'Destruction': 'death', 'KilledByAvatarType': 'death', 'Level': ('level', 'pet_level'),
          'AbilityType': 'ability', 'LaserTypeUsage': 'laser_types', 'TutorialFinished': 'tutorial',
          'PlayerCloaked': 'cloak_minute', 'ChainImpulse': 'chain_kill',
-         # Ö1 (2026-10-18): Season Pass seviyesi (sezon.py), Dispatch (dispatch.py), seçili uzaylı türü (dunya.py, istemcinin ShipIcon
-         # adıyla), etkinlik puanı (Plutus: etkinlik_kapi.py), Assembly'de toplanan üretim (assembly.py), mayın koyma (savas_esya.py: shot MINE), paket ödülü
-         # (kapi.py: Prosperous), EBL dalgası (ebl.py). DesignMutationCount (WIZ-X ile oyuncu dönüştürme) bot oyuncularla.
+         # Ö1 (2026-10-18): Season Pass level (season.py), Dispatch (dispatch.py), selected alien type (world.py, by the client's ShipIcon
+         # name), event score (Plutus: event_gate.py), production collected in Assembly (assembly.py), mine laying (combat_items.py: shot MINE), package reward
+         # (galaxy_gates.py: Prosperous), EBL wave (ebl.py). DesignMutationCount (player conversion with WIZ-X) goes with the bot players.
          'LevelAbsolute': 'season_level', 'Dispatch': 'dispatch', 'NPCSelectionKill': 'kill', 'EventScore': 'event_score',
          'BuildRecipe': 'assembly_collect', 'TriggerMine': 'shot', 'CollectPackage': 'package', 'ClearGalaxyGateWave': 'gate_wave',
          # E6
          'Uses3D': 'display', 'EggTriggerCount': 'egg', 'PublicWorldBossCondition': ('wb_heal', 'wb_damage'),
-         'Influence': 'influence'}       # Battle for Influence: kapı zaferinin nüfuz puanı (kapi.py; resmî forum 131012)
-# takvimsiz etkinlik grupları: hep açık (Eternal Black Light'ın eski adı Eternal Gate; mod her gün açık; gizli Easter Egg'ler)
+         'Influence': 'influence'}       # Battle for Influence: the influence points of a gate victory (galaxy_gates.py; official forum 131012)
+# calendar-less event groups: always open (Eternal Black Light's old name is Eternal Gate; the mod is open every day; hidden Easter Eggs)
 ALWAYS_GROUPS = {'EVENT_ETERNALGATE', 'EVENT_SECRET'}
-# istemcinin ShipIcon adı uzaylının adından çıkmıyorsa (NPCSelectionKill)
+# when the client's ShipIcon name cannot be derived from the alien's name (NPCSelectionKill)
 ICON_ALIASES = {'FRIGHTFUL_CURCUBITOR': 'BOSS_FRIGHTFUL_CURCUBITOR'}
 
 
 def ship_icons(name):
-    """Uzaylının görünen adı -> istemcinin ShipIconModule.ShipIcon adayları ("..::{ Boss StreuneR }::.." -> BOSS_StreuneR,
-    BOSS_STREUNER; enum büyük-küçük harf ayırıyor: StreuneR ve Streuner ayrı türler)."""
+    """The alien's display name -> candidates for the client's ShipIconModule.ShipIcon ("..::{ Boss StreuneR }::.." -> BOSS_StreuneR,
+    BOSS_STREUNER; the enum is case-sensitive: StreuneR and Streuner are separate types)."""
     import re
     words = re.findall(r'[A-Za-z0-9]+', name or '')
     if not words:
@@ -59,10 +59,10 @@ def ship_icons(name):
     exact = '_'.join(w.upper() if w.lower() == 'boss' else w for w in words)
     out = (exact, exact.upper())
     return out + ((ICON_ALIASES[exact.upper()],) if exact.upper() in ICON_ALIASES else ())
-# sunucu tarafı koşullar (IgnoredCondition): başarım -> olay. Aylık sıralama: tek oyunculu uyarlama, rütbe puanı kazanılan her ay;
-# 1. sıra General of the Month, 2-50. sıra Acclaimed Pilot sayacı (rutbe.py daily_rank yeni ayın ilk hesabında, rütbeden sanal sıra)
+# server-side conditions (IgnoredCondition): achievement -> event. Monthly ranking: single-player adaptation, rank points earned each month;
+# rank 1 General of the Month, ranks 2-50 Acclaimed Pilot counter (ranks.py daily_rank at the first account of the new month, virtual rank from the rank)
 SERVER_SIDE = {'achievement_monthlyranking-general': 'monthly_general', 'achievement_monthlyranking-pilot': 'monthly_pilot',
-               # şampiyonlar (E6 uyarlaması): sıralamada tek oyuncu; kişisel rekor (EBL'de en ileri dalga, Plutus'ta en iyi süre)
+               # champions (E6 adaptation): a single player in the ranking; personal record (furthest wave in EBL, best time in Plutus)
                'achievement_event_eternalgate-champion': 'record_ebl', 'achievement_event_gauntletofplutus-champion': 'record_plutus'}
 
 
@@ -71,7 +71,7 @@ def mod(name, **f):
     return f
 
 
-from legacy_protocol import legacy  # noqa: E402,F401  (eski metin protokolü: eski_protokol.py)
+from legacy_protocol import legacy  # noqa: E402,F401  (old text protocol: legacy_protocol.py)
 
 
 def in_season(a):
@@ -97,7 +97,7 @@ BY_KIND = _index()
 
 
 def set_events(names):
-    """Takvimin etkin başarım grupları (event_calendar.py): değişince olay dizini yeniden kurulur -> değişti mi."""
+    """The calendar's active achievement groups (event_calendar.py): when they change the event index is rebuilt -> did it change."""
     global BY_KIND
     names = set(names)
     if names == ACTIVE_EVENTS:
@@ -106,7 +106,7 @@ def set_events(names):
     ACTIVE_EVENTS.update(names)
     BY_KIND = _index()
     return True
-METAS = {}                       # başvurulan başarım -> MetaAchievement'lar (skor: onun tamamlanan seviyesi)
+METAS = {}                       # referenced achievement -> MetaAchievements (score: its completed level)
 for _aid, _a in ACH.items():
     for _c in _a['levels']:
         if _a['etkin'] and _c['class_name'] == 'MetaAchievement':
@@ -119,7 +119,7 @@ def param(c, k):
 
 
 def measure(c, kind, kw):
-    """Koşul bu olayla nasıl ilerler: ('add', n) | ('set', değer) | ('item', küme öğesi) | None."""
+    """How the condition advances with this event: ('add', n) | ('set', value) | ('item', set element) | None."""
     s = c['class_name']
     if s == 'Currency':
         n = kw.get(CURRENCY.get((param(c, 'currencyType') or [''])[0], ''), 0)
@@ -157,7 +157,7 @@ def measure(c, kind, kw):
         return ('add', 1) if 'PET' not in param(c, 'avatar') or kw.get('pet') else None
     if s == 'PlaytimeOnEnemyMap':
         return ('add', 1) if kw.get('enemy_map') else None
-    if s in ('PlayerCloaked', 'ChainImpulse'):            # gizli kalınan dakika; Chain Impulse ile öldürme (teknoloji.py)
+    if s in ('PlayerCloaked', 'ChainImpulse'):            # minutes stayed hidden; kills with Chain Impulse (technology.py)
         return ('add', 1)
     if s == 'MapTypeCheck':
         return ('add', 1) if kw.get('pvp_map') and 'PVP' in param(c, 'mapType') else None
@@ -167,11 +167,11 @@ def measure(c, kind, kw):
         return ('set', kw.get('drone', 0))
     if s == 'EquipItem':
         return ('set', 1) if set(param(c, 'item')) & set(kw.get('items', ())) else None
-    if s == 'LaserTypeUsage':                               # 60 sn içinde kullanılan cephane türleri (dunya.py)
+    if s == 'LaserTypeUsage':                               # ammo types used within 60 s (world.py)
         return ('window', [str(i) for i in kw.get('items', [])])
-    if s == 'TutorialFinished':                             # başlangıç görev zinciri (20000-20003) bitti
+    if s == 'TutorialFinished':                             # starter quest chain (20000-20003) finished
         return ('set', 1)
-    if s == 'AbilityType':                                  # gemi yetenekleri (gemi_yetenek.py)
+    if s == 'AbilityType':                                  # ship abilities (ship_ability.py)
         return ('add', 1) if kw.get('type') in param(c, 'abilityType') else None
     if s == 'GalaxyGateDone':
         return ('add', 1) if kw.get('type') in param(c, 'galaxyGateType') else None
@@ -181,32 +181,32 @@ def measure(c, kind, kw):
         if kw.get('npc') is None or 'NPC' not in param(c, 'avatar') or (param(c, 'id') and str(kw['npc']) not in param(c, 'id')):
             return None
         return ('add', 1)
-    if s == 'Level' and c.get('incident') == 'LEVEL':          # sezon biletinin Level'ları başka olayla (SEASONPASS_Q…)
+    if s == 'Level' and c.get('incident') == 'LEVEL':          # the season pass's Levels through another event (SEASONPASS_Q...)
         who = 'PLAYER' if kind == 'level' else 'PET'
         return ('set', kw.get('value', 0)) if who in param(c, 'avatar') else None
-    if s == 'LevelAbsolute':                                # "Gold Season Pass'in 50 seviyesi": bu sezonun grubu (sezon.py)
+    if s == 'LevelAbsolute':                                # "50 levels of the Gold Season Pass": this season's group (season.py)
         return ('set', kw.get('value', 0)) if c.get('incident') == kw.get('group') else None
     if s == 'Dispatch':                                     # DISPATCH_RETRIEVER / DISPATCH_GATE
         return ('add', 1) if c.get('incident') == kw.get('incident') else None
     if s == 'NPCSelectionKill':
         hit = kw.get('avatar', 'NPC') == 'NPC' and set(ship_icons(kw.get('name'))) & set(param(c, 'npcType'))
         return ('add', 1) if hit else None
-    if s == 'EventScore':                                   # "bir etkinlikte N puan": etkinlik dönemindeki toplam
+    if s == 'EventScore':                                   # "N points in one event": the total over the event period
         return ('set', kw.get('value', 0)) if kw.get('event') in param(c, 'event') and c.get('incident') == 'EVENT_SCORE' else None
     if s == 'BuildRecipe':
         return ('add', kw.get('count', 1)) if kw.get('recipe') in param(c, 'recipeId') else None
-    if s == 'TriggerMine':                                  # "N mayını T saniyede, ölmeden": süre penceresindeki sayı
+    if s == 'TriggerMine':                                  # "N mines in T seconds, without dying": the count within the time window
         limit = next((int(t.get('time', 0)) for t in param(c, 'timeLimit') if isinstance(t, dict)), 0)
         return ('times', limit) if kw.get('weapon') in param(c, 'weaponType') else None
     if s == 'CollectPackage':
         return ('add', 1) if kw.get('package') in param(c, 'packageId') else None
-    if s == 'ClearGalaxyGateWave':                          # "Eternal Gate'te N. dalgaya ulaş": ulaşılan en yüksek dalga
+    if s == 'ClearGalaxyGateWave':                          # "Reach wave N in the Eternal Gate": the highest wave reached
         return ('max', kw.get('wave', 0)) if kw.get('type') in param(c, 'galaxyGateType') else None
-    if s == 'Uses3D':                                       # 3B görünüm (DisplaySettingsModule.displayUse2d false)
+    if s == 'Uses3D':                                       # 3D view (DisplaySettingsModule.displayUse2d false)
         return ('set', 1) if kw.get('use2d') is False else None
     if s == 'EggTriggerCount':
         return ('add', 1) if kw.get('type') in param(c, 'eggTriggerType') else None
-    if s == 'PublicWorldBossCondition':                     # recoverhp / takedamage (unvanın adında); yalnız bu yılın başarımı
+    if s == 'PublicWorldBossCondition':                     # recoverhp / takedamage (in the title's name); only this year's achievement
         want = 'wb_heal' if 'recoverhp' in c.get('title', '') else 'wb_damage'
         year = c.get('incident', '').endswith('_%d' % time.localtime().tm_year)
         return ('add', int(kw.get('count', 0))) if kind == want and year and kw.get('count', 0) > 0 else None
@@ -222,8 +222,8 @@ def target(c):
 
 
 def title_id(key):
-    """Unvanın kimliği. Başarım tablosunda olmayan etkinlik unvanları (World Boss, Mimesis, Strike and Exit, Galaxy Trek, BL/Astral
-    sıralaması) anahtardan sabit kimlik alır: her açılışta aynı, kayıttaki seçili unvan yeniden açılışta da çözülür."""
+    """The title's id. Event titles that are not in the achievement table (World Boss, Mimesis, Strike and Exit, Galaxy Trek, BL/Astral
+    ranking) get a fixed id from the key: the same on every start, so the selected title in the save resolves again after a restart."""
     if key not in TITLES:
         TITLES[key] = EVENT_TITLE_BASE + zlib.crc32(key.encode()) % 30000
         TITLE_KEYS[TITLES[key]] = key
@@ -235,9 +235,9 @@ class Achievements:
         self.p, self.log = profile, log
         for k in state(profile)['titles']:
             title_id(k)
-        self.send = None             # oturum: kendiliğinden giden mesajlar (kazanma bildirimi, güncel liste)
+        self.send = None             # session: messages sent on their own (completion notice, current list)
 
-    # ------------------------------------------------------------ durum
+    # ------------------------------------------------------------ state
     def level(self, aid):
         return state(self.p)['level'].get(aid, 0)
 
@@ -258,16 +258,16 @@ class Achievements:
         s = self.score(aid, c)
         return s > target(c) if c.get('operator') == '>' else s >= target(c)
 
-    # ------------------------------------------------------------ olaylar
+    # ------------------------------------------------------------ events
     def event(self, kind, **kw):
-        """Oyun olayı -> sayaçlar; tamamlanan seviyeler bildirilir. -> [(başarım, seviye)]."""
+        """Game event -> counters; completed levels are reported. -> [(achievement, level)]."""
         if kind == 'sync':
             return self.sync()
         st = state(self.p)
         now = time.strftime('%Y-%m-%d %H:%M:%S')
         changed = []
         with self.p.lock:
-            if kind == 'death':                       # resetOnDeath: ölmeden yapılması gerekenler baştan
+            if kind == 'death':                       # resetOnDeath: those that must be done without dying start over
                 for aid in ACH:
                     c = self.current(aid)
                     if c and c.get('reset_on_death') and (st['score'].get(aid) or st.get('time', {}).get(aid)):
@@ -283,7 +283,7 @@ class Achievements:
                 m = ('add', 1) if c['class_name'] == 'IgnoredCondition' else measure(c, kind, kw)
                 if not m:
                     continue
-                ev = ACH[aid].get('period_reset')             # "ilerleme bir sonraki etkinliğe taşınmaz" (Ölümsüz Tutku; resmî forum)
+                ev = ACH[aid].get('period_reset')             # "progress is not carried over to the next event" (Immortal Passion; official forum)
                 if ev:
                     import event_calendar as CAL
                     span = CAL.period(ev)
@@ -303,12 +303,12 @@ class Achievements:
                     if v <= st['score'].get(aid, 0):
                         continue
                     st['score'][aid] = v
-                elif op == 'times':                  # son v saniyedeki olay sayısı (TriggerMine); ölünce sıfırlanır (olumde_sifir)
+                elif op == 'times':                  # number of events in the last v seconds (TriggerMine); reset on death (olumde_sifir)
                     t = time.time()
                     times = [x for x in st.setdefault('time', {}).get(aid, []) if t - x < v] + [t]
                     st['time'][aid] = times
                     st['score'][aid] = len(times)
-                elif op == 'window':                 # kümenin anlık hâli (süre penceresi): birikmez
+                elif op == 'window':                 # the set's current state (time window): does not accumulate
                     cur = sorted(set(v) & set(c['set']), key=str)
                     if st['set'].get(aid) == cur:
                         continue
@@ -324,7 +324,7 @@ class Achievements:
         return self.advance(changed)
 
     def advance(self, aids):
-        """Koşulu tutan seviyeleri tamamla (birden çok seviye birden geçilebilir); MetaAchievement'ları güncelle; bildir."""
+        """Complete the levels the condition holds for (several levels can be passed at once); update the MetaAchievements; notify."""
         st = state(self.p)
         done, msgs, todo = [], [], list(aids)
         while todo:
@@ -339,23 +339,23 @@ class Achievements:
                     self.p.dirty = True
                 lv = self.level(aid)
                 done.append((aid, lv))
-                # istemci metni ve simgeyi XML'in grade'iyle arar (<başarım>_<grade>_name); bazı başarımlarda sıradan farklı
-                # (achievement_destroy_centuryfalcon tek seviye, grade 2): canlı test H29, boş bildirim kutusu çıkıyordu
+                # the client looks up the text and icon by the XML's grade (<achievement>_<grade>_name); for some achievements it differs from the order
+                # (achievement_destroy_centuryfalcon has one level, grade 2): live test H29, an empty notification box appeared
                 msgs.append(legacy('0|A|ACG|%s_%d|%d' % (aid, c.get('grade', lv), target(c))))
-                self.log('   başarım: %s seviye %d (+%d puan%s)' % (aid, lv, c.get('points', 0),
+                self.log('   achievement: %s level %d (+%d points%s)' % (aid, lv, c.get('points', 0),
                                                                    ', unvan %s' % c['title'] if c.get('title') else ''))
                 for meta in METAS.get(aid, ()):
                     with self.p.lock:
                         st['score'][meta] = lv
                     todo.append(meta)
         if msgs and self.send:
-            # yalnız kazanma satırı (kayıt: liste ancak AchievementListRequest'e). Liste kendiliğinden gönderilince pilot sayfası hiç
-            # açılmamışsa istemci çöküyordu (canlı deneme 2026-10-17: UIPilotSheetSystem.UpdateTotalPoints, NullReference)
+            # only the completion row (record: the list only on AchievementListRequest). When the list was sent on its own and the pilot page had never been
+            # opened the client crashed (live test 2026-10-17: UIPilotSheetSystem.UpdateTotalPoints, NullReference)
             self.send(msgs)
         return done
 
     def sync(self):
-        """Profilden hesaplananlar (store=false): oyuncu ve P.E.T. seviyesi, takılı eşyalar (dron tasarımları dahil)."""
+        """Computed from the profile (store=false): player and P.E.T. level, equipped items (including drone designs)."""
         d = self.p.d
         done = self.event('level', value=d['pilot'].get('level', 1))
         if d.get('pet'):
@@ -365,7 +365,7 @@ class Achievements:
         done += self.event('display', use2d=d.get('settings', {}).get('displaySettingsModule', {}).get('displayUse2d'))
         return done + self.event('equip', items=[x for x in items if x])
 
-    # ------------------------------------------------------------ istemci
+    # ------------------------------------------------------------ client
     def info(self, aid, level, score):
         return mod('AchievementInfoCommand', lastUpdate=state(self.p)['date'].get(aid, ''), achievementId=aid, level=level,
                    score=int(score))
@@ -388,12 +388,12 @@ class Achievements:
                                                titleCommandList=titles, list=done, unlockAchievements1=[x for _, x in running]))
 
     def title_msgs(self):
-        """Gemi üstündeki unvan (kayıt: 0|n|t|<kullanıcı>|<kimlik>|<anahtar>); yoksa boş."""
+        """The title on the ship (record: 0|n|t|<user>|<id>|<key>); empty if none."""
         t = state(self.p)['title']
         return [legacy('0|n|t|%d|%d|%s' % (self.p.user_id, t, TITLE_KEYS[t]))] if t in TITLE_KEYS else []
 
     def request(self, f):
-        """AchievementListRequest {displayTitleId}: 0 liste; -1 unvanı kaldır; sahip olunan unvanın kimliği onu seçer."""
+        """AchievementListRequest {displayTitleId}: 0 list; -1 remove the title; the id of an owned title selects it."""
         st = state(self.p)
         t = int(f.get('displayTitleId') or 0)
         msgs = []
@@ -405,6 +405,6 @@ class Achievements:
                 msgs = self.title_msgs()
                 self.log('   unvan: %s' % (TITLE_KEYS.get(t) or 'none'))
             else:
-                self.log('   unvan seçilemedi: %d sahip olunmuyor' % t)
+                self.log('   title not selected: %d is not owned' % t)
         self.sync()
         return [self.list_cmd()] + msgs

@@ -1,32 +1,32 @@
-"""Posta, notlar, rehber ve kara liste (yol haritası Aşama 10): istemcinin mesajlaşma penceresi (UIMail) profilden.
+"""Mail, notes, contacts and blacklist (roadmap Stage 10): the client's messaging window (UIMail) from the profile.
 
-Mesaj türleri (istemcinin UIMailSystem.ReturnMailInfo'su; AbsUserMessageInfoCommand.type):
-  10  oyuncu mesajı      UserMessageInfoCommand: konu ve metin olduğu gibi gösterilir
-  20  klan mesajı        UserMessageClanInfoCommand (klan etiketi)
-  50  sistem             UserMessageSystemInfoCommand
-  60  müzayede           UserMessageAuctionInfoCommand: msgType 1 "geçildin", 2 "kazandın" (metin istemcide, eşya adıyla)
-  70  bilgi              konu ve metin yerelleştirme anahtarı (messaging_systemMessage_<n>_subject/_body), %PARAM<n>% değiştirmeleri
-Durum: 1 okunmadı, 3 okundu (istemci mesajı açınca UserMessageUpdateStatusRequest status 3). Sayfa 15 mesaj (istemci startIndex =
-(sayfa - 1) * 15). Kutu kimliği (boxId) silme, durum ve ek alma isteklerinde double gelir.
-Ekler (LootModule): mesajla gelen eşyalar; UserMessageLootRequest ile alınır (mağazanın ödül yolu). İstemci (UIMailSystem.SetItemInfo,
-SetMailItemsInfo) ekleri yalnız bilgi (70) mesajında gösterir; isReceived üç durumlu: 0 gönderilen, 1 alınan (Claim düğmesi), 2 ekleri
-alınmış ("Claimed", düğme kapalı). Liste satırındaki hediye simgesi isReceived > 0 iken görünür (1 mavi, 2 sarı): eksiz gelen mesaj
-0 (canlı tur 2, 2026-10-23; 2'de sarı simge kalıyordu, CANLI_TEST N5). UserMessageLootCommand'ın istemcide işleyicisi yok: alınca liste yeniden gönderilir (canlı deneme
-2026-10-17). Ekli mesaj bu yüzden hep bilgi türüyle eklenir (add).
-Alıcı oyuncunun kendisi (kendine not gibi) ya da arkadaş sunucusunda öteki oyuncular (community.py; bağlı değilse kaydı sunucuda
-durdukça): mesaj onun gelen kutusuna, bağlıysa mektup simgesi. Rehber contacts.py'de; kara liste profilde saklanır.
+Message types (the client's UIMailSystem.ReturnMailInfo; AbsUserMessageInfoCommand.type):
+  10  player message     UserMessageInfoCommand: subject and text shown as they are
+  20  clan message       UserMessageClanInfoCommand (clan tag)
+  50  system             UserMessageSystemInfoCommand
+  60  auction            UserMessageAuctionInfoCommand: msgType 1 "you were outbid", 2 "you won" (text in the client, with the item name)
+  70  info               subject and text are a localization key (messaging_systemMessage_<n>_subject/_body), %PARAM<n>% replacements
+Status: 1 unread, 3 read (when the client opens the message UserMessageUpdateStatusRequest status 3). A page is 15 messages (client startIndex =
+(page - 1) * 15). The box id (boxId) arrives as a double in delete, status and attachment-claim requests.
+Attachments (LootModule): items that come with the message; claimed with UserMessageLootRequest (the shop's reward path). The client (UIMailSystem.SetItemInfo,
+SetMailItemsInfo) shows attachments only in an info (70) message; isReceived has three states: 0 sent, 1 received (Claim button), 2 attachments
+claimed ("Claimed", button disabled). The gift icon in the list row is visible while isReceived > 0 (1 blue, 2 yellow): a message without attachments comes with
+0 (live round 2, 2026-10-23; with 2 the yellow icon stayed, CANLI_TEST N5). UserMessageLootCommand has no handler in the client: on claiming the list is sent again (live attempt
+2026-10-17). So a message with attachments is always added with the info type (add).
+The recipient is the player themselves (like a note to self) or, on a friend server, the other players (community.py; if not connected, their record while it stays on the server):
+the message goes to their inbox, and if connected the mail icon. The contact list is in contacts.py; the blacklist is stored in the profile.
 """
 import time
 import community as TP
 
 NOTE_LIMIT = 10
-NOTE_LIMIT_PREMIUM = 50       # resmî forum: Premium üyelerde 50 not (süre bitince fazlası silinmez, yenisi eklenemez)
-MAX_RECIPIENTS = 5               # resmî forum: tek seferde en çok 5 alıcı (spam önlemi; klana gönderimde sınır yok)
-BOX_LIMIT = 500          # gelen ve giden kutusu başına (seyir defteri ve hesap geçmişiyle aynı)
+NOTE_LIMIT_PREMIUM = 50       # official forum: 50 notes for Premium members (when the term ends the excess is not deleted, but no new ones can be added)
+MAX_RECIPIENTS = 5               # official forum: at most 5 recipients at a time (anti-spam; no limit when sending to the clan)
+BOX_LIMIT = 500          # per inbox and outbox (the same as the logbook and account history)
 PAGE = 15
 UNREAD, READ = 1, 3
 USER, CLAN, SYSTEM, AUCTION, INFO = 10, 20, 50, 60, 70
-# gönderme koşulları (kayıttaki UserMessageGetTargetCommand)
+# sending conditions (UserMessageGetTargetCommand in the record)
 TARGETS = [(3, 'condition_level-seven-gap'), (4, 'condition_no-pay-user'), (5, 'condition_no-galaxy-gate'),
            (6, 'condition_premium-extension')]
 REQUESTS = {'UserMessageInitRequest', 'UserMessageGetTargetRequest', 'UserMessageInboxListRequest', 'UserMessageOutboxListRequest',
@@ -51,12 +51,12 @@ def stack(key='empty', **args):
 class Mail:
     def __init__(self, profile, log=print):
         self.p, self.log = profile, log
-        self.m = None                       # mağaza (ekler: ödül yolu)
+        self.m = None                       # shop (attachments: reward path)
         with self.p.lock:
             d = self.p.d.setdefault('mailer', {})
             for k, v in (('order', 1), ('incoming', []), ('outgoing', []), ('notes', []), ('blacklist', [])):
                 d.setdefault(k, v)
-            # eski kayıtlardaki Türkçe "Yerel sunucu" karşılaması (yabancı oyuncular ne olduğunu soruyordu) silinir
+            # the Turkish "Yerel sunucu" greeting in old records (foreign players kept asking what it was) is deleted
             d['incoming'] = [r for r in d['incoming'] if not (r.get('sender') == 'DarkOrbit' and r.get('subject') == 'Yerel sunucu')]
         if not self.d.get('welcome'):
             self.d['welcome'] = True
@@ -66,12 +66,12 @@ class Mail:
     def d(self):
         return self.p.d['mailer']
 
-    # -------------------------------------------------------- mesaj üretme (öbür sistemler de kullanır)
+    # -------------------------------------------------------- message creation (other systems use it too)
     def add(self, kind, subject, body, sender='', sender_id=0, attachments=(), extra=None, inbox=True):
-        """Kutuya yeni mesaj -> kayıt. extra: türe özgü alanlar (müzayede: lootId, auctionType, amount, msgType, auctionId;
-        klan: clanTag; bilgi: degistirmeler)."""
+        """New message in the box -> record. extra: type-specific fields (auction: lootId, auctionType, amount, msgType, auctionId;
+        clan: clanTag; info: degistirmeler)."""
         if attachments:
-            kind = INFO                                # istemci ekleri yalnız bilgi mesajında gösterir
+            kind = INFO                                # the client shows attachments only in an info message
         with self.p.lock:
             mid = self.d['order']
             self.d['order'] += 1
@@ -82,13 +82,13 @@ class Mail:
                 rec.update(extra)
             box = self.d['incoming' if inbox else 'outgoing']
             box.insert(0, rec)
-            if len(box) > BOX_LIMIT:             # sistem iletileri birikir: en eskiler silinir, eki alınmamışlar kalır
+            if len(box) > BOX_LIMIT:             # system messages accumulate: the oldest are deleted, those with unclaimed attachments stay
                 box[BOX_LIMIT:] = [r for r in box[BOX_LIMIT:] if not r.get('attachment_claimed', True)]
             self.p.dirty = True
         return rec
 
     def notify(self, rec):
-        """Yeni mesaj bildirimi (menüdeki mektup simgesi)."""
+        """New message notification (the mail icon in the menu)."""
         return ('UserMessageNewCommand', {'userMessageInfoCommand': self.info(rec, True), 'unreadCount': self.unread()})
 
     def unread(self):
@@ -115,7 +115,7 @@ class Mail:
                    bodyInc='', recipients=names, parentMessage=None, senderAvatar='', versionType=0, subjectInc='',
                    subjectParams='', senderName=r.get('sender', ''))
 
-    # -------------------------------------------------------- istekler
+    # -------------------------------------------------------- requests
     def init_cmd(self):
         return ('UserMessageInitCommand', {'unreadCount': self.unread(), 'outboxCount': len(self.d['outgoing']),
                                            'inboxCount': len(self.d['incoming']), 'noteLimit': self.note_limit()})
@@ -161,7 +161,7 @@ class Mail:
         reply = lambda ok, key, info=None: [('UserMessageSendCommand', {
             'textCommand': stack(key + '_text'), 'success': ok, 'messageInfoCommand': info,
             'titleCommand': stack(key + '_title'), 'captchaStatus': 0})]
-        if f.get('recipientType') == 'clan':                   # klanın sunucudaki üyeleri (çevrimdışı kaydı yüklü olmayan atlanır)
+        if f.get('recipientType') == 'clan':                   # the clan's members on the server (those whose offline record is not loaded are skipped)
             import clan as KL
             k = KL.clan_of(self.p)
             names = [u['name'] for a, u in k['members'].items() if a == KL.name(self.p) or TP.find(name=a) is not None] if k else []
@@ -178,12 +178,12 @@ class Mail:
         if len(body) > 5000:
             return reply(False, 'messaging_errorLayer_bodyTooLong')
         own = me.get('userName', '')
-        recipients = [None if n.lower() == own.lower() else TP.find(name=n) for n in names]     # arkadaş sunucusunda öteki oyuncular
+        recipients = [None if n.lower() == own.lower() else TP.find(name=n) for n in names]     # the other players on a friend server
         if any(n.lower() != own.lower() and k is None for n, k in zip(names, recipients)):
-            self.log('   posta: alıcı yok: %s' % names)
+            self.log('   mail: no recipient: %s' % names)
             return reply(False, 'messaging_errorLayer_noRecipient')
         clan = f.get('recipientType') == 'clan'
-        for k in recipients:                                     # alıcının kara listesi ya da rehberde engeli (forum: kara liste)
+        for k in recipients:                                     # the recipient's blacklist or a block in the contact list (forum: blacklist)
             if k is None:
                 continue
             if any(int(x.get('id', 0)) == self.p.user_id for x in (k.profile.d.get('mailer') or {}).get('blacklist', ())):
@@ -203,8 +203,8 @@ class Mail:
             if k is None:
                 out.append(self.notify(got))
             else:
-                k.send([box.notify(got)], 'posta: %s' % own)        # bağlıysa mektup simgesi
-        self.log('   posta gönderildi: %s -> %s' % (subject[:50], extra['recipients']))
+                k.send([box.notify(got)], 'posta: %s' % own)        # the mail icon if connected
+        self.log('   mail sent: %s -> %s' % (subject[:50], extra['recipients']))
         return out
 
     def delete(self, inbox, ids):
@@ -213,8 +213,8 @@ class Mail:
             box = 'incoming' if inbox else 'outgoing'
             self.d[box] = [r for r in self.d[box] if r['id'] not in drop]
             self.p.dirty = True
-        # messageInfoCommands: istemci listeyi silmeden sonra bunlardan yeniden kuruyor (UserMessageDeleteEventHandler.Run ->
-        # CreateMailItem); boş gidince liste boşalıyordu (canlı deneme 2026-10-17). Kutunun ilk sayfası.
+        # messageInfoCommands: after a deletion the client rebuilds the list from these (UserMessageDeleteEventHandler.Run ->
+        # CreateMailItem); when sent empty the list went empty (live attempt 2026-10-17). The box's first page.
         return [('UserMessageDeleteCommand', {'inbox': inbox, 'count': len(self.d['incoming' if inbox else 'outgoing']),
                                               'textCommand': stack(), 'titleCommand': stack(), 'deleteIds': sorted(drop),
                                               'unreadCount': self.unread(), 'success': bool(drop),
@@ -241,9 +241,9 @@ class Mail:
             for loot, n in r.get('attachments', []):
                 msgs += self.m.reward(loot, int(n)) if self.m else []
             done.append(r['id'])
-            self.log('   posta eki alındı: %s %s' % (r['subject'], r.get('attachments')))
+            self.log('   mail attachments claimed: %s %s' % (r['subject'], r.get('attachments')))
         page = []
-        if done:                                       # istemci Loot yanıtını işlemiyor: "Claimed" görünsün diye mesajın sayfası
+        if done:                                       # the client does not process the Loot response: the message's page so that "Claimed" shows
             pos = next(i for i, r in enumerate(self.d['incoming']) if r['id'] == done[0])
             page = [self.box(True, pos // PAGE * PAGE)]
         return [('UserMessageLootCommand', {'ids': done})] + msgs + page
@@ -288,7 +288,7 @@ class Mail:
                                                       'titleCommand': stack()})]
         return []
 
-    # -------------------------------------------------------- kara liste
+    # -------------------------------------------------------- blacklist
     def note_limit(self):
         return NOTE_LIMIT_PREMIUM if self.p.premium else NOTE_LIMIT
 

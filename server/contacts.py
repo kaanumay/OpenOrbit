@@ -1,14 +1,14 @@
-"""Rehber (istemcinin Kişiler penceresi, ContactsComponentSystem; posta penceresinin kişiler sekmesi): arkadaşlık isteği, kabul,
-ret, isteği geri alma, arkadaşı silme, engelleme ve "davetleri engelle".
+"""Contacts (the client's Contacts window, ContactsComponentSystem; the contacts tab of the mail window): friend request, accept,
+decline, withdrawing a request, removing a friend, blocking and "block invitations".
 
-Arkadaş sunucusunda istekler öteki oyuncunun kaydına da yazılır (bağlı değilse kaydı sunucuda durdukça); tek oyunculuda yalnız
-oyuncunun kendisi var. Rehber profilde ada göre tutulur (misafirin sunucudaki kimliği her katılmada başka): arkadas, gelen (bekleyen
-istek), giden (gönderilen istek), reddeden (isteği reddedilen), engelli. Pencerenin satırı (ContactListEntryModule) oyuncunun
-kimliğiyle; sunucuda olmayan kişiye addan türetilen sabit kimlik verilir (sahte_kimlik). Bir kişi birden çok türde olabilir
+On a friend server, requests are also written to the other player's save (to the save on the server if not connected); in single player only
+the player themselves exists. Contacts are kept in the profile by name (a guest's id on the server differs every join): friend, incoming (pending
+request), outgoing (sent request), declined (whose request was declined), blocked. The window's row (ContactListEntryModule) uses the player's
+id; for a person not on the server a fixed id derived from the name is given (fake_id). A person can be of several types
 (ContactListEntryTypeCommand.contactEntryTypes).
-İstemci her istekten sonra pencereyi kilitler, ContactUiUnblockCommand gelince açar. Listedeki değişiklik: kaldırılanlar
-ContactListRemoveContactsCommand, eklenen ve değişenler ContactListUpdateContactsCommand (gelen istekte istemci bildirim gösterir);
-çevrimiçi, harita ve seviye GUNCELLEME_SN'de bir yoklanır. Günlük metinleri istemcinin (log_msg_contact_*).
+After every request the client locks the window and opens it when ContactUiUnblockCommand arrives. Changes to the list: removals use
+ContactListRemoveContactsCommand, additions and changes ContactListUpdateContactsCommand (on an incoming request the client shows a notification);
+online, map and level are polled every GUNCELLEME_SN. The log texts are the client's (log_msg_contact_*).
 """
 import threading, time, zlib
 import community as TP
@@ -24,7 +24,7 @@ LISTS = (('friend', FRIEND), ('incoming', INCOMING), ('outgoing', OUTGOING), ('d
 FILTER = {'showClanMembers': True, 'showRequests': True, 'showFriends': True, 'showBlacklistPlayers': False}
 
 LOCK = threading.RLock()
-LAST = {}                      # oyuncu kimliği -> {satır kimliği: (ad, ContactListEntryModule)}: istemcinin son gördüğü liste
+LAST = {}                      # player id -> {row id: (name, ContactListEntryModule)}: the list the client saw last
 _thread = None
 
 
@@ -34,13 +34,13 @@ def mod(_cls, **f):
 
 def save(p):
     import name_log as NL
-    NL.apply_profile(p)                                  # panelde adı değişen ya da silinen botlar (ad_kaydi.py)
+    NL.apply_profile(p)                                  # bots whose name was changed or that were deleted in the panel (name_log.py)
     with p.lock:
         return _registry(p)
 
 
 def _registry(p):
-    """Profilin rehberi (p.lock altında)."""
+    """The profile's contacts (under p.lock)."""
     r = p.d.setdefault('contacts', {})
     for target_name, _ in LISTS:
         r.setdefault(target_name, [])
@@ -71,20 +71,20 @@ def _remove(p, entries, target_name):
 
 
 def fake_id(target_name):
-    """Sunucuda olmayan kişinin satır kimliği (addan; misafirlerin 2,0-2,1 milyar aralığının ve gerçek kimliklerin dışında)."""
+    """The row id of a person not on the server (from the name; outside guests' 2.0-2.1 billion range and real ids)."""
     return 2150000000 + zlib.crc32(target_name.lower().encode('utf8')) % 100000000
 
 
-# ------------------------------------------------------------ liste
+# ------------------------------------------------------------ list
 def lines(p, people):
-    """Rehberin satırları: kimlik -> (ad, ContactListEntryModule)."""
+    """The contacts' rows: id -> (name, ContactListEntryModule)."""
     import clan as KL
     r = save(p)
     names = {}
     for entries, kind in LISTS:
         for target_name in r[entries]:
             names.setdefault(target_name.lower(), [target_name, []])[1].append(kind)
-    c = KL.clan_of(p)                                    # klan üyeleri (istemcinin "Clan members" süzgeci)
+    c = KL.clan_of(p)                                    # clan members (the client's "Clan members" filter)
     for low, u in (c or {}).get('members', {}).items():
         if low != KL.name(p):
             names.setdefault(low, [u.get('name', low), []])[1].append(CLAN)
@@ -110,7 +110,7 @@ def lines(p, people):
 
 
 def login_cmd(p):
-    """Girişteki ContactListInitializationCommand (kayıttaki boş listenin yerine)."""
+    """ContactListInitializationCommand at login (in place of the empty list in the save)."""
     r = save(p)
     with LOCK:
         cur = lines(p, TP.all_())
@@ -123,11 +123,11 @@ def login_cmd(p):
 
 
 def refresh(k, people=None):
-    """Oyuncunun istemcisindeki listeyi profildekine getiren mesajlar (değişen yoksa boş)."""
+    """Messages that bring the list on the player's client to that in the profile (empty if nothing changed)."""
     with LOCK:
         cur = lines(k.profile, people if people is not None else TP.all_())
         old = LAST.get(k.uid)
-        if old is None:                  # liste henüz gönderilmedi (giriş demeti gitmeden)
+        if old is None:                  # the list has not been sent yet (before the login bundle goes)
             return []
         LAST[k.uid] = cur
     msgs = []
@@ -141,14 +141,14 @@ def refresh(k, people=None):
 
 
 def forget(uid):
-    """Oyuncunun bağlantısı kapandı: sonraki girişte liste baştan gider."""
+    """The player's connection closed: at the next login the list is sent from scratch."""
     with LOCK:
         LAST.pop(uid, None)
 
 
-# ------------------------------------------------------------ istekler
+# ------------------------------------------------------------ requests
 def handle(k, name, f):
-    """İsteği yapan oyuncu (topluluk.Kisi) -> kendisine giden yanıt; karşı tarafın listesi doğrudan yenilenir."""
+    """The requesting player (community.Person) -> the reply that goes to them; the other side's list is refreshed directly."""
     p = k.profile
     if name == 'ContactListSettingsModule':
         with p.lock:
@@ -161,8 +161,8 @@ def handle(k, name, f):
             p.dirty = True
         return [('ContactListBlockInvitationsModule', {'blockAllInvitations': save(p)['invite_block']})]
     if name == 'ContactListRequest':
-        # posta penceresinin kişiler sekmesi: bekleyen istekler (type 1: Accept/Decline) ve arkadaşlar (type 0: sil, posta yaz;
-        # istemcide denendi 2026-10-24)
+        # the mail window's contacts tab: pending requests (type 1: Accept/Decline) and friends (type 0: remove, write mail;
+        # tried on the client 2026-10-24)
         cur = LAST.get(k.uid) or lines(p, TP.all_())
         kind_of = lambda e, t: any(x['entryType'] == t for x in e['typeCommand']['contactEntryTypes'])
         rows = sorted(cur.items(), key=lambda x: x[1][0].lower())
@@ -173,7 +173,7 @@ def handle(k, name, f):
         return [('ContactListCommand', {'contactList': lst[start:start + 15], 'total': len(lst), 'startIndex': start})]
     kind = int(f.get('contactRequestType', -1))
     target_name = str(f.get('userName') or '').strip()
-    if not target_name:                                 # istemci satırdan kimliğiyle gönderiyor: son gönderilen listeden ada
+    if not target_name:                                 # the client sends it from the row by its id: from the last sent list to the name
         target_name = (LAST.get(k.uid) or {}).get(f.get('userId'), ('', None))[0]
     b = TP.find(name=target_name) if target_name else None
     if b is not None:
@@ -187,13 +187,13 @@ def handle(k, name, f):
             out.append(stm('log_msg_err_already_contact', NAME=target_name))
         elif _var(r['outgoing'], target_name):
             out.append(stm('log_msg_err_already_requested', NAME=target_name))
-        elif _var(r['incoming'], target_name):             # o da istek göndermiş: kabul sayılır
+        elif _var(r['incoming'], target_name):             # they also sent a request: counts as accepted
             return handle(k, name, dict(f, contactRequestType=ACCEPT, userName=target_name))
         else:
             _remove(p, 'declined', target_name)
             _add(p, 'outgoing', target_name)
             rb = save(b.profile)
-            if not rb['invite_block'] and not _var(rb['blocked'], k.name):    # engelleyen görmez
+            if not rb['invite_block'] and not _var(rb['blocked'], k.name):    # the blocker does not see
                 _add(b.profile, 'incoming', k.name)
             out.append(stm('log_msg_contact_invite_sent', NAME=target_name))
     elif kind == ACCEPT and _var(r['incoming'], target_name):
@@ -238,7 +238,7 @@ def handle(k, name, f):
     return out + refresh(k, people) + [('ContactUiUnblockCommand', {})]
 
 
-# ------------------------------------------------------------ çevrimiçi, harita, seviye
+# ------------------------------------------------------------ online, map, level
 def update():
     people = TP.all_()
     for k in people.values():

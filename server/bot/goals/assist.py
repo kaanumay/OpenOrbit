@@ -1,5 +1,5 @@
-"""Yardım: sohbette yardım çağrısı (ya da fısıltıyla rica) üzerine o haritaya gidip düşmanlara saldırmak. Kim gideceğine
-yonetici karar verir (yardımseverlik, firma, güç, ilişki; Gelişmiş kipte LLM); bu hedef niyetle (beyin.zorla) seçilir."""
+"""Assist: on a help call in chat (or a request by whisper), go to that map and attack the enemies. Who goes is decided by
+yonetici (helpfulness, company, strength, relationship; in Advanced mode the LLM); this is chosen as a goal intent (beyin.zorla)."""
 import math
 
 from ..brain import Goal, target
@@ -33,7 +33,7 @@ class Helping(Goal):
             S.farm(bot, dt * 0.5, y)
 
     def concrete(self, bot, g, w, now):
-        """Yardım isteyen bu dünyanın kahramanıysa yanına git (düşmanla savaş govde'nin PvP aklında: avdaymış gibi)."""
+        """If the one asking for help is this world's hero, go to them (fighting the enemy is in govde's PvP logic: as if hunting)."""
         if g.target is not None or bot.plan.get('name', '').lower() != str(w.p.d['pilot'].get('userName', '')).lower():
             return False
         hx, hy = w.hero_pos(now)

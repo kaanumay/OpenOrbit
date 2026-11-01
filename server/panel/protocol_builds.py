@@ -1,7 +1,7 @@
-"""Panelden yeni istemciye protokol uyarlaması (yol haritası "Sürekli işler" > İstemci güncellemesine hazırlık): araç
-tools/il2cpp/protocol_update.py ayrı süreçte (python -I) çalışır; panel ilerleme satırlarını, fark özetini ve raporun yolunu
-gösterir. "Uygula" sürüm klasöründeki protokolü etkin yapar (etkin dosyalar yedeklenir); oyun sunucusu yeniden başlatılınca
-yeni protokolle çalışır. Aynı anda tek iş."""
+"""Protocol adaptation to a new client from the panel (roadmap "Ongoing work" > Preparing for the client update): the tool
+tools/il2cpp/protocol_update.py runs in a separate process (python -I); the panel shows the progress lines, the diff summary and the path of the report.
+"Apply" makes the protocol in the version folder active (the active files are backed up); when the game server is restarted it
+runs with the new protocol. Only one job at a time."""
 import json, os, re, subprocess, threading, time
 
 from lang import t as _
@@ -68,4 +68,4 @@ class Adapter:
         finally:
             with self.lock:
                 self.d['running'], self.d['end_time'] = False, time.time()
-            self.log('protokol aracı bitti: %s' % (self.d['error'] or 'done'))
+            self.log('protocol tool finished: %s' % (self.d['error'] or 'done'))

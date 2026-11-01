@@ -1,13 +1,13 @@
-"""Etkinlik görünümleri (veri data/event_appearances.json <- tools/event_appearances.py): mağazadaki kaynaksız tasarımlardan
-gerçek oyunda bir etkinlikle kazanılanlar ve tek oyunculudaki kazanma yolları.
+"""Event appearances (data data/event_appearances.json <- tools/event_appearances.py): the designs without a source in the shop that
+are won through an event in the real game, and the ways of winning them in single player.
 
-Panelin 'etkinlik_gorunumleri_magazada' ayarı (varsayılan açık): açıkken mağazada satılırlar (E11'deki gibi); kapalıyken mağazada
-görünmez ve satılmazlar (magaza.gate_ok). Yollar ayardan bağımsız hep açık:
-  degisim  savas_bileti: etkinliğin Battle Pass'i sürerken anahtar değişiminde (exchange_rows)
-  kutu     ganimet: kutunun yerel tasarım satırlarına ağırlığıyla (box_rows; wiki tablosundakiler 'tablo', ek satır olmaz)
-  kapi     takvim: GG Special Rewards Weekend'lerin kapı ödüllerine seçimli satır (apply)
-  harita   takvim: etkinliğin harita kutusunun içeriğine (apply)
-  sezon    sezon: ödül sıralarındaki sezon tasarımları sezonun sırasıyla (season_track)
+The panel's 'event_looks_in_shop' setting (default on): when on they are sold in the shop (as in E11); when off they do not
+appear in the shop and are not sold (shop.gate_ok). The ways are always open regardless of the setting:
+  exchange battle_pass: in the key exchange while the event's Battle Pass lasts (exchange_rows)
+  box      loot: into the box's local design rows with their weight (box_rows; those in the wiki table are 'table', no extra row)
+  gate     calendar: an optional row in the gate rewards of GG Special Rewards Weekends (apply)
+  map      calendar: into the contents of the event's map box (apply)
+  season   season: the season designs in the reward tracks, in the season's order (season_track)
 """
 import json, os, re
 
@@ -17,12 +17,12 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'event_appearances.json'), encoding='utf8'))
 ITEMS = D['looks']
 SEASONS = D['seasons']
-RECORDED = SEASONS[-1]                   # kayıttaki sezon (ödül sıralarında onun tasarımları)
+RECORDED = SEASONS[-1]                   # the season in the save (its designs in the reward tracks)
 FIRST = tuple(int(x) for x in SEASONS[0]['season'].split('-'))
 
 
 def in_shop(loot):
-    """Mağazada satılır mı: etkinlik görünümü değilse ya da panelin ayarı açıksa."""
+    """Is it sold in the shop: if it is not an event appearance or the panel's setting is on."""
     return loot not in ITEMS or bool(SET.get(D['setting']))
 
 
@@ -31,9 +31,9 @@ def paths(kind):
 
 
 def exchange_id(loot):
-    """Anahtar değişimi satırının adı, istemcinin biçimiyle (<tema>-<gemi>-ship-design, nobilis-a-elite-pet-design): satırın başlığı
-    istemcinin items_bpk_<ad>_fullname metni (gerçek oyunun değişimlerinde olanların metni var, ötekilerde başlık boş, ödül satırı
-    yine "Obtain 1 … Design")."""
+    """Name of the key exchange row, in the client's format (<theme>-<ship>-ship-design, nobilis-a-elite-pet-design): the row's title is the
+    client's items_bpk_<name>_fullname text (it has texts for the ones in the real game's exchanges, the title is empty for the others, the
+    reward row is still "Obtain 1 ... Design")."""
     if loot.startswith('ship_'):
         base, d = re.match(r'ship_(.+?)_design_(.+)$', loot).groups()
         return '%s-%s-ship-design' % (re.sub(r'^(ship-)?%s-' % re.escape(base), '', d), base)
@@ -43,27 +43,27 @@ def exchange_id(loot):
 
 
 def exchange_rows(event):
-    """Etkinliğin anahtar değişimine eklenen tasarım satırları (BattlePassKeyExchangeRewardModule; kayıttaki tasarımlar gibi özel)."""
+    """Design rows added to an event's key exchange (BattlePassKeyExchangeRewardModule; special like the designs in the save)."""
     return [dict(_='BattlePassKeyExchangeRewardModule', cost=y['charge'], limit=y['cap'], exchangeReward=exchange_id(loot),
                  listOfloot=[dict(_='BattlePassKeyExchangeLootModule', lootId=loot, amount=1)], priority=2, isSpecial=True, claimCount=0)
             for loot, y in paths('exchange') if y['event'] == event]
 
 
 def box_rows(box):
-    """Kutunun yerel tasarım satırları [lootId, 1, ağırlık] (ganimet.pick'te tasarım çekilişine katılır): wiki tablosunda olmayan
-    görünümler ve kutunun eski Red / Blue P.E.T. havuzu ('kutu_ek'); tablosunda zaten olan tasarım ek satır olmaz ('tablo')."""
+    """The box's local design rows [lootId, 1, weight] (they take part in the design draw in loot.pick): appearances not in the wiki table
+    and the box's old Red / Blue P.E.T. pool ('box_extra'); a design already in its table does not become an extra row ('table')."""
     return [[loot, 1, y['weight']] for loot, y in paths('box') if y['box'] == box and not y.get('table')] + \
            [list(r) for r in D.get('box_extra', {}).get(box, [])]
 
 
 def apply(events):
-    """takvim'in etkinliklerine (yerinde): kapıların seçimli ödülü ve harita kutularının içeriği."""
+    """Into the calendar's events (in place): the gates' optional reward and the contents of the map boxes."""
     gates = {}
     for loot, y in paths('gate'):
         gates.setdefault((y['event'], tuple(y['kapilar']), y['probability']), []).append([loot, 1])
     for (ev, keys, chance), rows in gates.items():
         for k, e in events.items():
-            if k.startswith(ev):                               # gg_hafta_sonu_1, _3, _4
+            if k.startswith(ev):                               # gg_weekend_1, _3, _4
                 e.setdefault('gate_reward', []).append(dict(kapilar=list(keys), probability=chance, choice=rows, non_repeating=True))
     for loot, y in paths('map'):
         e = events[y['event']]
@@ -74,15 +74,15 @@ def apply(events):
 
 
 def season(sid):
-    """Sezonun tasarımları ('2026-11' gibi): ilk sezondan (2023-05) sayılarak 14 sezonluk sıra, sonra baştan."""
+    """The season's designs (like '2026-11'): a 14-season order counted from the first season (2023-05), then from the start again."""
     y, m = (int(x) for x in sid.split('-'))
     n = ((y - FIRST[0]) * 12 + m - FIRST[1]) // 3
     return SEASONS[n % len(SEASONS)]
 
 
 def season_track(key, rows, sid):
-    """Ödül sırası ('ucretsiz' | 'gold' | 'ext': [[seviye, lootId, adet]]) -> sezonun tasarımlarıyla: kayıttaki sezonun dron ve P.E.T.
-    tasarımları yerine sezonunkiler; sezonun gemi tasarımı varsa Gold sırasının son ödülü (dev Gold rezervi) yerine."""
+    """Reward track ('ucretsiz' | 'gold' | 'ext': [[level, lootId, count]]) -> with the season's designs: the season's drone and P.E.T.
+    designs instead of those of the season in the save; if the season has a ship design, instead of the Gold track's last reward (the big Gold reserve)."""
     s = season(sid)
     swap = {RECORDED['drone']: s['drone'], RECORDED['pet']: s['pet']}
     out = [[lv, swap.get(l, l), n] for lv, l, n in rows]

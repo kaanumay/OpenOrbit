@@ -1,43 +1,43 @@
-"""Grup (arkadaş sunucusu; istemcinin GroupComponentSystem / UIGroupSystem'i): davet, kabul ve ret, davetin geri alınması, ayrılma,
-atma, liderlik, davet kipi, ping, takip ve üyelerin grup penceresindeki durumu.
+"""Group (friend server; the client's GroupComponentSystem / UIGroupSystem): invite, accept and reject, revoking an invitation, leaving,
+kicking, leadership, invite mode, ping, follow and the members' state in the group window.
 
-Davet ada göre (InvitationCreationRequest: grup penceresi, sohbetin oyuncu menüsü) ya da kimliğe göre (GroupInvitationRequest: rehber).
-Gerçek sunucudaki gibi:
-  - InvitationInitializationCommand davet edene, adaya ve davet edenin grubundakilere gider (istemci üçüncü kişide "%inviter%
-    invited %candidate%." yazar). Davet DAVET_SN sonra düşer (InvitationRemovalCommand TIMEOUT), ret REJECT, geri alma REVOKE,
-    kabul ACKNOWLEDGE.
-  - Kabulde grup yoksa kurulur (lider davet eden): yeni üyeye ve kurulan grubun liderine GroupInitializationCommand (üyeler kendisi
-    dahil; istemci üyeyi kahramanın kimliğiyle karşılaştırır), eski üyelere GroupMemberInitializationCommand.
-  - Ayrılma ve atma herkese MemberLeaveCommand (ayrılana da: istemci grubun sohbet odasını kapatır); liderin yerine sıradaki geçer
-    (LeaderChangeCommand); iki kişiden az kalınca grup dağılır (GroupCloseCommand).
-  - Ping (PingPositionRequest, PingMemberRequest) aynı haritadaki üyelere PingCommand; takip (FollowRequest) üyenin konumuna
-    HeroMoveCommand (istemci kahramanı oraya uçurur). Başka haritadaysa GroupErrorCommand.
-Üyelerin durumu (can, konum, hedef, savaşta mı, gizli mi, çevrimiçi mi, seviye, gemi) GUNCELLEME_SN'de bir karşılaştırılır, değişen
-GroupMemberUpdateCommand ile gider. Misafir bağlantısı kopunca üye "çevrimdışı" kalır (kaydı sunucuda durdukça; aynı anahtarla dönünce
-kimliği aynı); kaydı bitince gruptan düşer. Grup bellekte: sunucu kapanınca dağılır.
-Aynı ortak haritadaki üyeler (shared_maps.py; kapı ve mod haritaları herkesin kendi kopyası, oralarda paylaşım yok):
-  - Birbirini haritanın her yerinde görür (Harita.gorunurluk: görüş mesafesi grup üyesine uygulanmaz; ölü, atlamadaki, gizli yine görünmez).
-  - Bir üyenin öldürdüğü uzaylının ödülü paylaşılır (dunya.World.paydaslar, npc_reward; wiki "Uridium, Cr, XP and honor of kills
-    shared"): ödülü öldürenle birlikte haritada yaşayan, atlamada olmayan üyeler alır (uzaklık önemsiz; asıl oyunun ~20 sn ateş
-    şartı yok). Her paydaşın ödülü kendi çarpanlarıyla hesaplanır, EP, onur, kredi ve uridyum paydaş sayısına bölünür (yukarı
-    yuvarlanır). Ganimet herkese tam ve kendi şansıyla: kargo kutusu ve patron sandıkları her üyeye ayrı düşer, kutu sahibinindir
-    (öteki oyuncular görmez, P.E.T.'leri de toplamaz), ek ödüller (Palladium …), booster ve harita etkinliğinin düşmeleri de.
-  - Görevler: üyelerin öldürdüğü uzaylı herkesin görevine sayılır (wiki "All aliens killed by group members count towards our
-    mission"): ana, günlük ve haftalık görevler, Season/Battle Pass, etkinlik görevleri ve Urgent Missions. Başkasının öldürmesi
-    "şunu öldürme" kısıtını bozmaz; başarımlar, rütbe, seri öldürme, dron EP'si ve etkinlik kancaları (unvan, Hitac …) öldürenindir.
+Invite by name (InvitationCreationRequest: group window, chat's player menu) or by id (GroupInvitationRequest: contact list).
+As on the real server:
+  - InvitationInitializationCommand goes to the inviter, the candidate and the inviter's group members (the client writes "%inviter%
+    invited %candidate%." for a third person). The invitation lapses after INVITE_SEC (InvitationRemovalCommand TIMEOUT), rejection REJECT, revoking REVOKE,
+    acceptance ACKNOWLEDGE.
+  - On acceptance, if there is no group it is created (the inviter is the leader): GroupInitializationCommand to the new member and the leader of the created group (members including
+    themselves; the client compares the member with the hero's id), GroupMemberInitializationCommand to the old members.
+  - Leaving and kicking send MemberLeaveCommand to everyone (to the one leaving too: the client closes the group's chat room); the next one takes the leader's place
+    (LeaderChangeCommand); when fewer than two remain the group dissolves (GroupCloseCommand).
+  - Ping (PingPositionRequest, PingMemberRequest) PingCommand to the members on the same map; follow (FollowRequest) HeroMoveCommand to the member's
+    position (the client flies the hero there). If on another map, GroupErrorCommand.
+The members' state (HP, position, target, in combat, hidden, online, level, ship) is compared every UPDATE_SEC and what changed goes with
+GroupMemberUpdateCommand. When a guest connection drops the member stays "offline" (as long as their record remains on the server; if they return with the same key
+the id is the same); when the record ends they drop out of the group. The group is in memory: it dissolves when the server closes.
+Members on the same shared map (shared_maps.py; gate and mode maps are everyone's own copy, no sharing there):
+  - They see each other everywhere on the map (shared_maps visibility: the view distance does not apply to a group member; dead, jumping, hidden still invisible).
+  - The reward for an alien killed by a member is shared (world.World.tag_sharers, npc_reward; wiki "Uridium, Cr, XP and honor of kills
+    shared"): members who live on the map with the killer and are not jumping receive the reward (distance does not matter; the real game's ~20 s firing
+    requirement does not exist). Each sharer's reward is computed with their own multipliers, EP, honor, credits and uridium are divided by the number of sharers (rounded
+    up). Loot is full for everyone and with their own chance: cargo boxes and boss chests drop separately for each member, the box belongs to its owner
+    (other players do not see it, their P.E.T.s do not collect it), extra rewards (Palladium ...), boosters and the map event's drops too.
+  - Quests: aliens killed by members count toward everyone's quest (wiki "All aliens killed by group members count towards our
+    mission"): main, daily and weekly quests, Season/Battle Pass, event quests and Urgent Missions. Someone else's kill does not break
+    the "kill this" restriction; achievements, rank, kill streak, drone EP and the event hooks (title, Hitac ...) belong to the killer.
 """
 import json, os, threading, time
 import community as TP
 import map_links as H
 from cbs import stm
 
-MAX_COUNT = 8                    # grubun en çok üyesi (gerçek oyun)
-INVITE_SEC = 120                # yanıtlanmayan davetin ömrü
-INVITE_MAX = 10             # bir oyuncunun bekleyen davetleri (gönderdiği ya da aldığı)
+MAX_COUNT = 8                    # most members in a group (real game)
+INVITE_SEC = 120                # lifetime of an unanswered invitation
+INVITE_MAX = 10             # a player's pending invitations (sent or received)
 UPDATE_SEC = 1.0
-COMBAT_SEC = 10.0               # son atış ya da alınan hasardan sonra "savaşta" sayılma süresi
-PING_SEC = 1.0                 # iki ping arası en az
-POSITION_THRESHOLD = 50               # bu kadar yer değiştirmeyen üyenin konumu yeniden gönderilmez
+COMBAT_SEC = 10.0               # how long counts as "in combat" after the last shot or damage taken
+PING_SEC = 1.0                 # minimum between two pings
+POSITION_THRESHOLD = 50               # the position of a member who has not moved this much is not sent again
 # InvitationErrorCommand.error
 GROUP_FULL, CANDIDATE_IN_GROUP, CANDIDATE_NONEXISTENT, INVITER_NONEXISTENT, NO_INVITATION, BOSS_ONLY, MAX_INVITER, \
     MAX_CANDIDATE, CANDIDATE_BLOCKING, DUPLICATE_INVITATION = range(10)
@@ -45,7 +45,7 @@ GROUP_FULL, CANDIDATE_IN_GROUP, CANDIDATE_NONEXISTENT, INVITER_NONEXISTENT, NO_I
 TIMEOUT, REVOKE, REJECT, ACKNOWLEDGE = 1, 2, 3, 4
 # GroupErrorCommand.type
 PING_FAILED, NO_GROUP, FOLLOW_FAILED = 0, 1, 2
-MODE_LEADER, MODE_EVERYONE = 0, 1  # InvitationModeModule.mode: davet yalnız liderden / herkesten
+MODE_LEADER, MODE_EVERYONE = 0, 1  # InvitationModeModule.mode: invitation only from the leader / from everyone
 LEFT, KICKED = 1, 2        # MemberLeaveCommand.reason
 
 REQUESTS = {'InvitationCreationRequest', 'GroupInvitationRequest', 'InvitationAcceptRequest', 'InvitationRejectRequest',
@@ -53,9 +53,9 @@ REQUESTS = {'InvitationCreationRequest', 'GroupInvitationRequest', 'InvitationAc
             'PingPositionRequest', 'PingMemberRequest', 'FollowRequest'}
 
 LOCK = threading.RLock()
-GROUPS = {}                  # grup kimliği -> Grup
-MEMBER = {}                      # oyuncu kimliği -> grup kimliği
-INVITES = {}                 # (davet eden, aday) -> son geçerlilik anı
+GROUPS = {}                  # group id -> Group
+MEMBER = {}                      # player id -> group id
+INVITES = {}                 # (inviter, candidate) -> last valid moment
 _seq = [0]
 _icon = None
 _thread = None
@@ -69,12 +69,12 @@ class Group:
     def __init__(self, leader):
         _seq[0] += 1
         self.id, self.leader, self.members, self.mod = _seq[0], leader, [leader], MODE_LEADER
-        self.state = {}       # üye -> son gönderilen durum (guncelle)
-        self.ping = {}        # üye -> son ping anı
+        self.state = {}       # member -> last state sent (update)
+        self.ping = {}        # member -> last ping moment
 
 
 def room(gid):
-    """Grubun sohbet odası (sosyal.rooms; chat.py)."""
+    """The group's chat room (social.rooms; chat.py)."""
     return ('group', 'group', 'group_%d' % gid)
 
 
@@ -84,9 +84,9 @@ def group_of(uid):
         return g
 
 
-# ------------------------------------------------------------ mesajlar
+# ------------------------------------------------------------ messages
 def icon(loot):
-    """Geminin lootId'si (ship_goliath, ship_g-champion, ship_a-elite) -> ShipIcon değeri (bilinmeyen: DEFAULT)."""
+    """The ship's lootId (ship_goliath, ship_g-champion, ship_a-elite) -> ShipIcon value (unknown: DEFAULT)."""
     global _icon
     if _icon is None:
         _icon = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'ship_icons.json'),
@@ -95,14 +95,14 @@ def icon(loot):
     on, _, last = name.partition('-')
     base = {'a': 'AEGIS', 'c': 'CITADEL', 's': 'SPEARHEAD', 'n': 'NOSTROMO', 'g': 'GOLIATH', 'v': 'VENGEANCE', 'bb': 'BIGBOY',
              'd': 'DEFCOM', 'y': 'YAMATO'}.get(on)
-    # tasarım gemileri: g-champion -> GOLIATH, a-elite -> AEGIS_ELITE, n-envoy -> NOSTROMO_ENVOY, v-adept -> ADEPT
+    # design ships: g-champion -> GOLIATH, a-elite -> AEGIS_ELITE, n-envoy -> NOSTROMO_ENVOY, v-adept -> ADEPT
     candidates = [name.replace('-', '_').upper()] + ([base + '_' + last.replace('-', '_').upper()] if base and last else []) \
         + ([last.replace('-', '_').upper()] if on in ('g', 'v', 'bb') and last else []) + ([base] if base else [])
     return next((_icon[a] for a in candidates if a in _icon), _icon['DEFAULT'])
 
 
 def npc_icon(name):
-    """Uzaylının görünen adı -> ShipIcon değeri (basarim.ship_icons adayları; bulunamazsa DEFAULT)."""
+    """The alien's visible name -> ShipIcon value (achievement.ship_icons candidates; DEFAULT if not found)."""
     from achievement import ship_icons
     icon('')
     return next((_icon[a] for a in ship_icons(name) if a in _icon), _icon['DEFAULT'])
@@ -120,7 +120,7 @@ def ship_hp(p):
 
 
 def target(k, now):
-    """Üyenin seçili hedefi (uzaylı ya da oyuncu) -> TargetModule (hedefsiz: boş)."""
+    """The member's selected target (alien or player) -> TargetModule (no target: empty)."""
     w = k.world
     t = w.target if w is not None and w.running else None
     n = w.npcs.get(t) if t is not None else None
@@ -137,7 +137,7 @@ def target(k, now):
 def position(k, now):
     p = k.profile
     w = k.world
-    n = getattr(getattr(k.session, 'bot', None), 'body', None)         # bot: haritadaki gemisi (kayıttaki konum eski kalır)
+    n = getattr(getattr(k.session, 'bot', None), 'body', None)         # bot: its ship on the map (the position in the record stays old)
     if w is not None:
         x, y = w.hero_pos(now)
     elif n is not None and n.alive:
@@ -148,7 +148,7 @@ def position(k, now):
 
 
 def state(k, now):
-    """Üyenin grup penceresindeki hâli: modül adı -> modül (GroupMemberUpdateCommand'ın parçaları)."""
+    """The member's state in the group window: module name -> module (the parts of GroupMemberUpdateCommand)."""
     p, w = k.profile, k.world
     pl = p.d['pilot']
     m, x, y = position(k, now)
@@ -183,7 +183,7 @@ def group_cmd(g, people, now):
         k = people.get(u)
         if k is not None:
             d = state(k, now)
-            g.state.setdefault(u, d)          # öteki üyelerin gördüğü hâl değişmez: farkı guncelle gönderir (dönen üyenin "online"ı)
+            g.state.setdefault(u, d)          # the state the other members see does not change: update sends the difference (the returning member's "online")
             members.append(member_cmd(k, d))
     return ('GroupInitializationCommand', {'id': g.id, 'leaderId': g.leader, 'maxSize': MAX_COUNT, 'members': members,
                                            'invitationMode': mod('InvitationModeModule', mode=g.mod)})
@@ -204,7 +204,7 @@ def remove(a, b, reason):
 
 
 def distribute(exit):
-    """{uid: [mesaj]} -> her biri bağlıysa istemcisine (kilit dışında)."""
+    """{uid: [message]} -> each to its client if connected (outside the lock)."""
     people = TP.all_()
     for uid, msgs in exit.items():
         k = people.get(uid)
@@ -216,9 +216,9 @@ def _add(exit, uid, *msgs):
     exit.setdefault(uid, []).extend(msgs)
 
 
-# ------------------------------------------------------------ istekler
+# ------------------------------------------------------------ requests
 def handle(k, name, f, now=None):
-    """İsteği yapan oyuncu (topluluk.Kisi) -> kendisine giden yanıt; başkalarına gidenler doğrudan gönderilir."""
+    """The requesting player (community.Person) -> the reply that goes to them; those that go to others are sent directly."""
     now = now or time.time()
     exit = {}
     with LOCK:
@@ -268,8 +268,8 @@ def handle(k, name, f, now=None):
         elif name == 'FollowRequest':
             g, u = group_of(k.uid), int(f.get('memberId') or 0)
             o = TP.find(uid=u) if g is not None and u in g.members else None
-            # bot üyenin dünyası yok (oturumu sahte): çevrimiçiyse konumu gemisinden (oyuncu bildirimi 2026-10-31: "Go to!" botta
-            # "location unknown: wrong map" diyordu)
+            # a bot member has no world (its session is fake): if online, the position from its ship (player report 2026-10-31: "Go to!" on a bot
+            # said "location unknown: wrong map")
             if o is not None and o.session is not None and k.world is not None and position(o, now)[0] == position(k, now)[0]:
                 _, x, y = position(o, now)
                 _add(exit, k.uid, ('HeroMoveCommand', {'x': x, 'y': y}))
@@ -305,7 +305,7 @@ def _invite(a, b, exit, now):
         _add(exit, a.uid, error(a.uid, bid, err))
         return
     INVITES[(a.uid, b.uid)] = now + INVITE_SEC
-    launch()                                                  # süresi dolan davetler ve üyelerin durumu
+    launch()                                                  # lapsed invitations and the members' state
     cmd = invite_cmd(a, b)
     _add(exit, a.uid, cmd, stm('msg_grp_inv_sent', name=b.name))
     _add(exit, b.uid, cmd, stm('msg_grp_inv_received', name=a.name))
@@ -315,7 +315,7 @@ def _invite(a, b, exit, now):
 
 
 def _invite_ended(a, b, reason, exit):
-    """Davet düştü: davet edene, adaya ve davet edenin grubundakilere InvitationRemovalCommand (metni istemci yazar)."""
+    """The invitation lapsed: InvitationRemovalCommand to the inviter, the candidate and the inviter's group members (the client writes the text)."""
     g = group_of(a)
     for x in {a, b} | set(g.members if g is not None else ()):
         _add(exit, x, remove(a, b, reason))
@@ -340,7 +340,7 @@ def _accepted(b, a, exit, now):
         _add(exit, b.uid, error(a, b.uid, GROUP_FULL))
         return
     _invite_ended(a, b.uid, ACKNOWLEDGE, exit)
-    for (x, y) in [d for d in INVITES if d[1] == b.uid]:     # adayın öteki davetleri düşer (artık bir grupta)
+    for (x, y) in [d for d in INVITES if d[1] == b.uid]:     # the candidate's other invitations lapse (now in a group)
         del INVITES[(x, y)]
         _invite_ended(x, y, REJECT, exit)
     people = TP.all_()
@@ -352,8 +352,8 @@ def _accepted(b, a, exit, now):
     old = list(g.members)
     g.members.append(b.uid)
     MEMBER[b.uid] = g.id
-    if _bot(g.leader) and not _bot(b.uid):        # bot liderliğinde oyuncu: lider o olur (botlar davet kipini, atmayı kullanmaz;
-        g.leader = b.uid                          # oyuncu bildirimi 2026-10-31: "Change invite settings" çalışmıyordu)
+    if _bot(g.leader) and not _bot(b.uid):        # a player under a bot's leadership: the player becomes the leader (bots do not use invite mode or kicking;
+        g.leader = b.uid                          # player report 2026-10-31: "Change invite settings" did not work)
         for x in old:
             _add(exit, x, ('LeaderChangeCommand', {'leaderId': g.leader}))
     init = group_cmd(g, people, now)
@@ -380,7 +380,7 @@ def _leave(u, reason, exit):
     g.members.remove(u)
     g.state.pop(u, None)
     MEMBER.pop(u, None)
-    for (x, y) in [d for d in INVITES if d[0] == u]:          # ayrılanın grubu adına davetleri düşer
+    for (x, y) in [d for d in INVITES if d[0] == u]:          # the leaver's invitations lapse on behalf of their group
         del INVITES[(x, y)]
         _invite_ended(x, y, REVOKE, exit)
     leaving = [u]
@@ -423,8 +423,8 @@ def _ping(k, name, f, exit, now):
 
 
 def _leave_chat(gid, uids):
-    """Gruptan çıkanların sohbet bağlantısı grubun odasını artık dinlemesin (istemci odayı kendisi kapatır). Girende gerek yok:
-    istemci GroupInitializationCommand'da sohbete yeniden bağlanır, odaları sosyal.rooms'tan alır (grubunki orada)."""
+    """The chat connection of those who leave the group should no longer listen to the group's room (the client closes the room itself). Not needed for joiners:
+    the client reconnects to chat at GroupInitializationCommand, takes the rooms from social.rooms (the group's is there)."""
     people = TP.all_()
     for u in uids:
         k = people.get(u)
@@ -433,9 +433,9 @@ def _leave_chat(gid, uids):
             sh.room_drop(str(u), *room(gid)[1:])
 
 
-# ------------------------------------------------------------ giriş ve durum güncellemeleri
+# ------------------------------------------------------------ login and state updates
 def login_msgs(k, now=None):
-    """Oyuncu oyuna girdi (ilk ReadyRequest): grubu ve bekleyen davetleri (istemci girişte boş grup penceresiyle başlar)."""
+    """The player entered the game (first ReadyRequest): the group and pending invitations (the client starts with an empty group window at login)."""
     now = now or time.time()
     out = []
     with LOCK:
@@ -452,7 +452,7 @@ def login_msgs(k, now=None):
 
 
 def update(now=None):
-    """Bir adım: süresi dolan davetler, kaydı biten üyeler, üyelerin değişen durumu."""
+    """One step: lapsed invitations, members whose record ended, the members' changed state."""
     now = now or time.time()
     exit = {}
     with LOCK:
@@ -490,14 +490,14 @@ def _nearby(a, b):
 
 
 def died(k):
-    """Üye vuruldu (dunya.hero_death): öteki üyelere "%name% was shot down." (istemci yalnız kendi ölümünü yazar)."""
+    """A member was shot (world.hero_death): "%name% was shot down." to the other members (the client writes only its own death)."""
     g = group_of(k.uid)
     if g is not None:
         distribute({u: [stm('msg_grp_member_killed', name=k.name)] for u in list(g.members) if u != k.uid})
 
 
 def members(uid):
-    """Oyuncunun grubundaki öteki üyelerin kimlikleri (saldırı yasağı, sohbet odası)."""
+    """The ids of the other members in the player's group (attack ban, chat room)."""
     g = group_of(uid)
     return [u for u in g.members if u != uid] if g is not None else []
 
@@ -513,7 +513,7 @@ def _loop():
 
 
 def launch():
-    """Durum güncellemelerinin iş parçacığı (ilk grup kurulunca bir kez)."""
+    """The thread of the state updates (once, when the first group is created)."""
     global _thread
     if _thread is None:
         _thread = threading.Thread(target=_loop, name='group', daemon=True)

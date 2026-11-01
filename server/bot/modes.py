@@ -1,16 +1,16 @@
-"""Etkinliğe özel modlar ve PvE modları: botlar oyuncunun girebildiği her moda aynı kurallarla girer (soyut koşu).
+"""Event-specific modes and PvE modes: bots enter every mode a player can, under the same rules (abstract run).
 
-Her mod (Mod alt sınıfı) oyunun verisinden: açık mı (takvim, saat penceresi), girebilir mi (seviye, bilet/anahtar/CPU, günlük /
-yıllık / bekleme sınırı, firma), bedel (bilet harcanır ya da uridyumla alınır), dalgalar [(can+kalkan, aynı anda vuranların
-saniyede hasarı, uzaylıların öldürme ödülleri)], can hakkı, süre sınırı ve bitiş ödülü (ulaşılan dalgaya göre: yıldız, rift,
-basamak, seviye). Koşu (kos) dalga dalga ilerler: botun en iyi cephanesiyle hasarı (kapi.tahmin'in yöntemi), ölümler can hakkını
-bitirince durur; öldürme ödülleri ulaşılan dalgalarınki, bitiş ödülü modun kuralıyla. Bot koşu boyunca modun haritasındadır
-(senin haritandan kalkar; hedefler/mode_run.py).
+Each mode (a Mod subclass) from the game's data: is it open (calendar, time window), can it enter (level, ticket/key/CPU, daily /
+yearly / cooldown limit, company), cost (a ticket is spent or bought with uridium), waves [(HP+shield, damage per second of those hitting
+at the same time, the aliens' kill rewards)], lives, time limit and finishing reward (by the wave reached: stars, rifts,
+steps, level). The run (kos) advances wave by wave: with the bot's best ammo and damage (the method of galaxy_gates.estimate), it stops when deaths
+use up the lives; kill rewards are those of the waves reached, the finishing reward follows the mode's rule. During the run the bot is on
+the mode's map (leaves your map; goals/mode_run.py).
 
-Modlar: etkinlik kapıları (Gauntlet of Plutus, Trial of Terrors, Birthday, Quarantine Zone, Compromising Invasion, Permafrost,
+Modes: event gates (Gauntlet of Plutus, Trial of Terrors, Birthday, Quarantine Zone, Compromising Invasion, Permafrost,
 The Breach, Devolarium Attack), Voyagers' Ascent, Trinity Trials, Astral Ascension, Eternal Black Light, Deep Space Echoes,
-Battle of LoW, Vortex of Greed, Mimesis Mutiny, World Boss, Kristallon Apotheosis, Frozen Labyrinth. Pasifler (Dispatch,
-Galaxy Trek) pasif() ile karar anında.
+Battle of LoW, Vortex of Greed, Mimesis Mutiny, World Boss, Kristallon Apotheosis, Frozen Labyrinth. Passes (Dispatch,
+Galaxy Trek) via pasif() at decision time.
 """
 import json, os, random, time
 
@@ -31,7 +31,7 @@ def _tech():
 
 
 def kind_value(tip):
-    """Uzaylı türü -> (hp, kalkan, hasar, ödül): PvE türleri, npc.json ya da modun kendi tablosu."""
+    """Alien type -> (hp, shield, damage, reward): PvE types, npc.json or the mode's own table."""
     t = PVE['kinds'].get(tip) or K.NPC['types'].get(str(tip))
     if not t:
         return None
@@ -39,12 +39,12 @@ def kind_value(tip):
 
 
 def wave(groups, health=1.0, damage=1.0, table=None):
-    """[[[tür, adet], …], …] (gruplar) -> (can+kalkan, saniyede gelen hasar, öldürme ödülleri)."""
+    """[[[type, count], ...], ...] (groups) -> (HP+shield, damage taken per second, kill rewards)."""
     ehp = dps = 0.0
     reward = {}
     for group in groups:
         for x in group:
-            tip, n = x[0], x[1]                          # [tür, adet] ya da [tür, adet, patron mu]
+            tip, n = x[0], x[1]                          # [type, count] or [type, count, is it a boss]
             v = (table or {}).get(tip)
             v = (v.get('hp', 0), v.get('kalkan', 0), v.get('damage', 0), v.get('reward') or {}) if v else kind_value(tip)
             if not v:
@@ -58,14 +58,14 @@ def wave(groups, health=1.0, damage=1.0, table=None):
 
 
 def alien_wave(aliens):
-    """Etkinlik kapısı biçimi: [{hp, kalkan, hasar, adet, odul}] -> dalga."""
+    """Event gate format: [{hp, kalkan, damage, count, reward}] -> wave."""
     table = {str(i): u for i, u in enumerate(aliens)}
     return wave([[[str(i), u.get('count', 1)] for i, u in enumerate(aliens)]], table=table)
 
 
-# ------------------------------------------------------------------------------------------------------------ ödül
+# ------------------------------------------------------------------------------------------------------------ reward
 def grant_list(bot, rows, rng=random):
-    """[[loot, adet ya da [en az, en çok]], …] -> bota."""
+    """[[loot, count or [min, max]], ...] -> to the bot."""
     from . import loot as LT
     for r in rows or []:
         loot, n = r[0], r[1]
@@ -75,7 +75,7 @@ def grant_list(bot, rows, rng=random):
 
 
 def grant_reward(bot, o, rng=random, speed=1.0):
-    """Etkinlik kapısı / genel ödül sözlüğü: ep, onur, kredi, uridyum, esyalar, sans [[loot, n, olasılık]], biri [[loot, n, ağırlık]]."""
+    """Event gate / general reward dictionary: ep, honor, credits, uridium, items, chance [[loot, n, probability]], one_of [[loot, n, weight]]."""
     if not o:
         return
     currency = {k: o[k] for k in ('ep', 'honor', 'credits', 'uridium') if o.get(k)}
@@ -98,14 +98,14 @@ def day():
     return time.strftime('%Y-%m-%d')
 
 
-# ------------------------------------------------------------------------------------------------------------ modlar
+# ------------------------------------------------------------------------------------------------------------ modes
 class Mod:
     name = ''
     uid = ''
-    game_map = None              # koşu boyunca botun haritası (senin haritandan kalkar)
+    game_map = None              # the bot's map during the run (leaves your map)
     hp = 1
     level = 1
-    time_limit = None          # koşunun en uzun süresi (sn; süreli modlar)
+    time_limit = None          # the run's maximum duration (s; timed modes)
     tip = 'run'
 
     def is_open(self, now):
@@ -118,7 +118,7 @@ class Mod:
         return True
 
     def affordable(self, bot):
-        """Giriş bedeli şimdi ödenebilir mi (harcamadan): aday seçimi için."""
+        """Can the entry cost be paid now (without spending): for candidate selection."""
         return True
 
     def waves(self, bot):
@@ -146,7 +146,7 @@ def _has_or_can_buy(bot, loot, uridium=None):
 
 
 def _spend_or_take(bot, loot, uridium=None):
-    """Bilet/anahtar/CPU stokta varsa harcar; yoksa uridyumla alınabiliyorsa (fiyat ya da verilen) ve bot zenginse alır."""
+    """Spends the ticket/key/CPU if in stock; otherwise, if it can be bought with uridium (price or given) and the bot is rich, buys it."""
     s = _stock(bot)
     if s.get(loot, 0) > 0:
         s[loot] -= 1
@@ -164,8 +164,8 @@ def _spend_or_take(bot, loot, uridium=None):
 
 
 class EventGate(Mod):
-    """data/event_gates.json kapilar.<anahtar>: etkinlik, kural (gunluk+grup, yillik, donem, bekleme_sn, seviye,
-    azami_seviye, firma, bir_kez, cpu, gorev), can, dalgalar (uzaylilar), odul."""
+    """data/event_gates.json kapilar.<key>: event, rule (daily+group, yearly, period, cooldown_sec, level,
+    max_level, company, once, cpu, quest), can, waves (aliens), reward."""
 
     def __init__(self, k, g):
         self.uid, self.g = 'egate_' + k, g
@@ -303,7 +303,7 @@ class Trinity(Mod):
         return [wave(d['groups']) for d in ar]
 
     def finish(self, bot, reached, total, duration, rng):
-        milestone = reached // 5                                   # 5 dalgada bir kilometre taşı: Quantum Prism ve Xyralith
+        milestone = reached // 5                                   # a milestone every 5 waves: Quantum Prism and Xyralith
         d = self.difficulty(bot) + 1
         if milestone:
             grant_list(bot, [[self.T['kp'], milestone], [self.T['xy'], milestone * 10 * d]], rng)
@@ -359,7 +359,7 @@ class Ebl(Mod):
 
     def waves(self, bot):
         out = []
-        for kind in range(3):                                 # en çok 3 tur (her tur x1,8): çoğu pilot ilkinde düşer
+        for kind in range(3):                                 # at most 3 rounds (x1.8 each round): most pilots fall in the first
             k = self.E['kind_multiplier'] ** kind
             out += [wave(d['groups'], d.get('multiplier', 1) * k, d.get('multiplier', 1) * k) for d in self.E['waves']]
         return out
@@ -409,10 +409,10 @@ class Low(Mod):
     uid, name = 'low', 'Battle of LoW'
     game_map = LOW['map']
     level = 10
-    tip = 'full'                                          # ödülü bitirmekte: yarısını geçemeyeceği koşuya girmez
+    tip = 'full'                                          # about to finish the reward: does not enter a run it cannot get halfway through
 
     def can_enter(self, bot, now):
-        return bot.level >= self.level and now - state(bot, self.uid).get('last', 0) > 6 * 3600     # arada bir
+        return bot.level >= self.level and now - state(bot, self.uid).get('last', 0) > 6 * 3600     # now and then
 
     def waves(self, bot):
         return [wave([[[t, n]]]) for t, n in LOW['waves']] + [wave([[[LOW['boss'], 1]]])]
@@ -448,7 +448,7 @@ class VortexGreed(Mod):
         week = time.strftime('%Y-%W')
         if st.get('week') != week:
             st.update(week=week, coin=0)
-        coin = int(reached * self.V['wave_box'] * self.V['box_sc'] * 0.4)       # kutuların bir payını toplar, tahliye eder
+        coin = int(reached * self.V['wave_box'] * self.V['box_sc'] * 0.4)       # collects a share of the boxes, evacuates
         coin = min(coin, self.V['weekly_limit'] - st['coin'])
         if coin > 0:
             st['coin'] += coin
@@ -504,7 +504,7 @@ class WorldBoss(Mod):
 
     def waves(self, bot):
         f = self.W['npcs'].get('dreadfyre_fortress') or next(iter(self.W['npcs'].values()))
-        pay = 0.02                                           # kalabalık sunucuda botun hasar payı
+        pay = 0.02                                           # the bot's damage share on a crowded server
         return [(((f['hp'] + f['kalkan']) * pay), 0.0, {})]
 
     def finish(self, bot, reached, total, duration, rng):
@@ -593,10 +593,10 @@ def modes():
     return MODES
 
 
-# ------------------------------------------------------------------------------------------------------------ koşu
+# ------------------------------------------------------------------------------------------------------------ run
 def estimate(bot, mod, waves=None):
-    """Koşu tahmini -> (ulaşılan dalga, toplam, süre sn, öldürme ödülleri). Kapıdaki yöntem: en iyi cephane, aynı anda vuranlar,
-    dalga arasında onarım; ölümler can hakkını bitirince durur; süre sınırı varsa orada biter."""
+    """Run estimate -> (wave reached, total, time s, kill rewards). The gate's method: best ammo, simultaneous attackers,
+    repair between waves; stops when deaths use up the lives; ends there if there is a time limit."""
     from . import weapons as WP
     waves = mod.waves(bot) if waves is None else waves
     d = bot.value()
@@ -621,17 +621,17 @@ def estimate(bot, mod, waves=None):
 
 
 def value(bot, mod):
-    """Modun bota beklenen değeri (kredi/saat kabaca): öldürme ödülleri ve bitiş, ilerleme payıyla; geçemeyeceği mod 0."""
+    """The mode's expected value to the bot (credits/hour, roughly): kill rewards and the finish, weighted by progress share; 0 for a mode it cannot pass."""
     ul, top, duration, reward = estimate(bot, mod)
     if top == 0 or ul == 0 or (mod.tip in ('full', 'run') and ul < top * 0.5):
-        return 0.0                                       # ilerlemeyle ödül vermeyen modun yarısını geçemiyorsa girmez
+        return 0.0                                       # does not enter if it cannot get halfway through a mode that gives no reward for progress
     v = reward.get('credits', 0) + reward.get('uridium', 0) * 100 + reward.get('ep', 0) * 0.3 + reward.get('honor', 0) * 3
-    v += 200000 * ul / top                                    # bitiş ödülleri (eşya, kaynak, anahtar) kabaca
+    v += 200000 * ul / top                                    # finishing rewards (items, resources, keys), roughly
     return v / max(600.0, duration) * 3600
 
 
 def candidates(bot, now):
-    """Şu an girilebilecek modlar (açık, koşulu sağlanan, en az ilk dalgayı geçeceği)."""
+    """Modes that can be entered now (open, conditions met, will pass at least the first wave)."""
     if not bot.permission.get('modes', True):
         return []
     out = []
@@ -640,22 +640,22 @@ def candidates(bot, now):
             if m.is_open(now) and m.can_enter(bot, now) and m.affordable(bot) and value(bot, m) > 0:
                 out.append(m)
         except (KeyError, TypeError, ValueError, IndexError):
-            continue                                       # verisi beklenmedik biçimde olan mod: atla
+            continue                                       # a mode whose data is in an unexpected form: skip
     return out
 
 
 def run(bot, mod, rng=random):
-    """Koşunun sonucu -> (ulaşılan, toplam, süre, öldürme ödülleri); süre gerçek koşu payıyla uzatılır."""
+    """Result of the run -> (reached, total, time, kill rewards); the time is extended by the real-run share."""
     waves = mod.waves(bot)
     ul, top, duration, reward = estimate(bot, mod, waves)
     if ul < top and rng.random() < 0.3:
-        ul = min(top, ul + 1)                               # şans
+        ul = min(top, ul + 1)                               # luck
     return ul, top, duration * rng.uniform(1.1, 1.5) + 90, reward
 
 
 # ------------------------------------------------------------------------------------------------------------ pasif
 def dispatch(bot, now):
-    """Dispatch: zengin bot toplayıcı gönderir (kredi ücreti), süresi dolunca listesinden 4 ödül (taban adetlerle)."""
+    """Dispatch: a rich bot sends a gatherer (credit fee), when the time is up 4 rewards from its list (with the base counts)."""
     if not bot.permission.get('modes', True) or bot.level < 10:
         return
     st = state(bot, 'dispatch')
@@ -684,7 +684,7 @@ def dispatch(bot, now):
 
 
 def galaxy_trek(bot, now):
-    """Galaxy Trek: etkinlik sürerken günlük FTL anahtarlarıyla keşif (olaylar tablosundan ödül)."""
+    """Galaxy Trek: while the event lasts, exploration with daily FTL keys (reward from the events table)."""
     g = EX['galaxy_trek']
     if not bot.permission.get('modes', True) or not _tech().is_active('galaxy_trek', now):
         return

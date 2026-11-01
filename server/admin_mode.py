@@ -1,19 +1,20 @@
-"""Yönetici modu (panelin Oyun ayarları > Yönetici; oyuncu isteği 2026-10-30): oyuncu oyunda yönetici olarak görünür.
+"""Admin mode (panel Game settings > Admin; player request 2026-10-30): the player appears in game as an administrator.
 
-İstemcide (canlı test 2026-10-30):
-  - ShipInitializationCommand / ShipCreateCommand dailyRank 6000: adın önünde yönetici rozeti (sarı A; wiki "Administrator") ve
-    istemci oyuncuyu Hero.Admin sayar (GM konsolu penceresi, gm_console.py). Rütbe 22 rozet çizmez.
-  - Yönetici gemileri istemcinin gemi listesinde: ship_admin (ADMIN_SHIP; game.xml'de UFO uzaylısının modeli de bu), ship_police,
-    ship_g-admincloak ve Goliath'ın tasarımı ship_goliath_design_admincloak. Görünüm typeId'den: değerler oyuncunun gemisinin.
-  - Sohbet: gönderenin role alanı ChatUserVo türlerinden (Frida ile okunan statik alanlar): chatter, dev, customerServiceLead,
-    customerService, admin, mod, system, cmd. Yönetici "admin" (istemcinin AdministratorMessageColor'u).
-Kurallar: yönetici rütbe sistemine, Şeref Salonu listelerine ve şirketteki sıraya girmez (ranks.py); izleyici ayarı açıksa uzaylılar
-ve botlar ona saldırmaz, hasar almaz (world.py, bot/ship.py). Botlar yöneticiyi tanır: saldırmaz, sohbetteki uyarısına uyar
-(bot/admin_warnings.py), görünce tepki verir. Arkadaş sunucusunda yalnız sunucunun oyuncusu (misafir değil).
+On the client (live test 2026-10-30):
+  - ShipInitializationCommand / ShipCreateCommand dailyRank 6000: an admin badge in front of the name (yellow A; wiki "Administrator") and
+    the client treats the player as Hero.Admin (GM console window, gm_console.py). Rank 22 draws no badge.
+  - Admin ships in the client's ship list: ship_admin (ADMIN_SHIP; in game.xml the UFO alien's model is this too), ship_police,
+    ship_g-admincloak and Goliath's design ship_goliath_design_admincloak. The look comes from typeId: the values are the player's ship.
+  - Chat: the sender's role field is one of the ChatUserVo types (static fields read with Frida): chatter, dev, customerServiceLead,
+    customerService, admin, mod, system, cmd. Admin uses "admin" (the client's AdministratorMessageColor).
+Rules: the admin does not enter the rank system, the Hall of Fame lists or the standings in the company (ranks.py); with the spectator
+setting on, aliens and bots do not attack the admin and the admin takes no damage (world.py, bot/ship.py). Bots recognize the admin: they
+do not attack, they obey the admin's warning in chat (bot/admin_warnings.py) and react on sight. On a friend server, only the server's
+player (not guests).
 """
 import settings as SET
 
-BADGE = 6000                    # istemcinin yönetici rütbesi (gm_konsol.ADMIN_RANK ile aynı)
+BADGE = 6000                    # the client's admin rank (same as gm_konsol.ADMIN_RANK)
 SHIPS = (None, 'ship_admin', 'ship_police', 'ship_g-admincloak', 'ship_goliath_design_admincloak')
 CHAT_ROLE = 'admin'
 
@@ -25,8 +26,8 @@ def _host():
 
 
 def is_open(profile=None):
-    """Yönetici modu açık mı (profil verilirse: o profil yönetici mi: yalnız sunucunun oyuncusu; misafir ve çoklu istemcinin ek
-    oyuncuları değil; sunucu kurulmadan, ör. testte, profilin kendisi)."""
+    """Whether admin mode is on (if a profile is given: whether that profile is an admin: only the server's player; not guests or the
+    extra players of a multi-client setup; without a server, e.g. in a test, the profile itself)."""
     if not SET.get('admin_mode'):
         return False
     if profile is None:
@@ -36,14 +37,14 @@ def is_open(profile=None):
 
 
 def ship(profile=None):
-    """Yönetici gemisinin görünümü (typeId) ya da None (kendi gemisi)."""
+    """The admin ship's look (typeId) or None (own ship)."""
     if not is_open(profile):
         return None
     return SHIPS[min(len(SHIPS) - 1, max(0, int(SET.get('admin_ship') or 0)))]
 
 
 def spectator(profile=None):
-    """Dokunulmaz izleyici: uzaylılar ve botlar saldırmaz, hasar almaz."""
+    """Untouchable spectator: aliens and bots do not attack, no damage taken."""
     return is_open(profile) and bool(SET.get('admin_spectator'))
 
 
@@ -52,13 +53,13 @@ def chat_role(profile=None, default='chatter'):
 
 
 def name():
-    """Yöneticinin pilot adı (sunucunun oyuncusu) ya da None."""
+    """The admin's pilot name (the server's player) or None."""
     host = _host()
     return str(host.d['pilot'].get('userName', '')) if is_open() and host is not None else None
 
 
 def mi(name_=None, profile=None, uid=None):
-    """Bu pilot yönetici mi (ad, profil ya da kimlik ile)."""
+    """Whether this pilot is the admin (by name, profile or id)."""
     host = _host()
     if not is_open() or host is None:
         return False

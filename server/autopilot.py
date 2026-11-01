@@ -1,24 +1,25 @@
-"""Omega AutoTactic (otomatik pilot; yol haritası Aşama 9; kaynak darkorbitwiki ve istemcinin kodu).
+"""Omega AutoTactic (autopilot; roadmap stage 9; sources: the darkorbit wiki and the client's code).
 
-İstemci kendisi oynar (HangUpAI: uzaylıya saldırı, kutu toplama, cephane alımı ShopItemBuyRequest 'ammunition', yetenekler, düşük
-canda onarım robotu ve güvenli bölge; Galaksi Kapısında sonraki dalgaya atlama); bunlar sunucuya sıradan isteklerle gelir. F12 ya da
-pencerenin APPLY&START düğmesi Premium ister ("You need to purchase the Premium Pack to operater."; tek oyunculuda herkes Premium).
-Sunucunun işi:
-  AutopilotInfoRequest                  -> AutopilotInfoCommand {remainingSeconds, laserRange, result, autopilotInfos (ayarların JSON'u)}
-  AutopilotInfoSaveRequest {autopilotInfos} -> AutopilotInfoSaveCommand {result}; ayarlar profilde
-  AutopilotStatus {status: 0 START, 1 STOP}  istemcinin bildirimi (girişte, hareket edince STOP); günlüğe yazılır, süre sayılır
-Profilde: otopilot {ayar, durum, baslangic, toplam_sn, oturum, secim}.
+The client plays by itself (HangUpAI: attacking aliens, collecting boxes, buying ammo via ShopItemBuyRequest 'ammunition', abilities,
+repair robot at low HP, and the safe zone; jumping to the next wave in a Galaxy Gate); these reach the server as ordinary requests. F12 or
+the window's APPLY&START button requires Premium ("You need to purchase the Premium Pack to operater."; in single player everyone is Premium).
+The server's job:
+  AutopilotInfoRequest                  -> AutopilotInfoCommand {remainingSeconds, laserRange, result, autopilotInfos (the settings' JSON)}
+  AutopilotInfoSaveRequest {autopilotInfos} -> AutopilotInfoSaveCommand {result}; settings are kept in the profile
+  AutopilotStatus {status: 0 START, 1 STOP}  the client's notification (STOP on login and on movement); logged, duration is counted
+In the profile: autopilot {setting, state, start, total_sec, session, selection}.
 
-Seçili uzaylılar ve kutular (2026-10-18, kullanıcı bildirimi: harita değişince seçimler sıfırlanıyor, listede yalnız görüştekiler):
-  - İstemci seçimleri haritaya göre tutuyor (NPCSelectedList / CollectSelectedList: harita -> liste; ayarların kendisi PlayerPrefs
-    "AutoAFKData"da, bilgi gelince yazılıyor). Pencere açılınca bulunduğu haritanın anahtarı yoksa sözlüğü yenisiyle değiştiriyor
-    (UIAssistantSystem.UpdateInfo): öteki haritaların seçimleri siliniyor, kayıtta yalnız yeni harita gidiyordu. Otomatik pilotun
-    kutu süzgeci de anahtarı doğrudan okuyor (UnitComponentSystem.GetCollectables). Sunucu seçimi haritadan bağımsız tutar (secim) ve
-    her haritanın anahtarıyla gönderir: kutular her haritada aynı, uzaylılardan o haritada çıkanlar (npc.json'un tablosu, haritada
-    yaşayanlar, o haritada seçilmişler). Kayıtta her anahtar istemcinin elindekiyle karşılaştırılır; eklenen seçilir, çıkarılan bırakılır.
-  - Sağdaki listeleri istemci yalnız tanıdığı birimlerden ve kutulardan kuruyor (GetNPCIDList, GetBoxList; saniyede bir): görüş
-    mesafesindekiler. Haritanın tümünü listelemek için hepsini bildirmek gerekiyordu; pencere açıkken ve otomatik pilot çalışırken
-    bildiren sürüm (4878be2a) kaldırıldı: menü açılınca oyun çok donuyordu (kullanıcı, 2026-10-18).
+Selected aliens and boxes (2026-10-18, user report: selections reset when the map changes, the list only shows what is in view):
+  - The client keeps selections per map (NPCSelectedList / CollectSelectedList: map -> list; the settings themselves are in PlayerPrefs
+    "AutoAFKData", written when info arrives). When the window opens and the current map's key is missing, it replaces the dictionary
+    with a new one (UIAssistantSystem.UpdateInfo): the selections of the other maps were deleted and only the new map was saved. The
+    autopilot's box filter also reads the key directly (UnitComponentSystem.GetCollectables). The server keeps the selection independent
+    of the map (secim) and sends it with every map's key: boxes are the same on every map, aliens are those that appear on that map
+    (npc.json's table, those living on the map, those selected on that map). On save every key is compared with what the client holds;
+    additions are selected, removals are dropped.
+  - The client builds the lists on the right only from units and boxes it knows (GetNPCIDList, GetBoxList; once a second): those within
+    view range. Listing the whole map required reporting all of them; the version that reported them while the window was open and the
+    autopilot was running (4878be2a) was removed: the game froze badly when the menu opened (user, 2026-10-18).
 """
 import json, os, time
 
@@ -26,18 +27,18 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'new_systems.json'), encoding='utf8'))['autopilot']
 START, STOP = 0, 1
 REQUESTS = {'AutopilotInfoRequest', 'AutopilotInfoSaveRequest', 'AutopilotStatus'}
-NPC_LIST, BOX_LIST = 'NPCSelectedList', 'CollectSelectedList'     # AssistantData: harita -> NpcData {Name, NpcID, NpcType} / "box_<tür>"
-LIMIT = 8000               # gönderilen JSON'un üst sınırı: otomatik pilot ayarları her okumada PlayerPrefs'ten yeniden çözüyor
-                           # (HangUpAI.get_Data); kayıttaki gerçek ayarlar ~0,7 KB
+NPC_LIST, BOX_LIST = 'NPCSelectedList', 'CollectSelectedList'     # AssistantData: map -> NpcData {Name, NpcID, NpcType} / "box_<type>"
+LIMIT = 8000               # upper limit of the JSON sent: the autopilot settings are re-decoded from PlayerPrefs on every read
+                           # (HangUpAI.get_Data); the real settings in a save are ~0.7 KB
 
 
 def _maps(v):
-    """Ayarların harita -> liste sözlüğü (bozuksa boş)."""
+    """The settings' map -> list dictionary (empty if corrupt)."""
     return {str(k): x for k, x in v.items() if isinstance(x, list)} if isinstance(v, dict) else {}
 
 
 def _npc_key(e):
-    return (e.get('Name') or None) if isinstance(e, dict) else None     # istemcinin de eşleştirdiği alan (NpcData.Name)
+    return (e.get('Name') or None) if isinstance(e, dict) else None     # the field the client matches on too (NpcData.Name)
 
 
 def _box_key(e):
@@ -51,16 +52,16 @@ def _num(k):
 class Autopilot:
     def __init__(self, profile, log=print):
         self.p, self.log = profile, log
-        self.laser_range = lambda: D['laser_range']      # oturum bağlar: dünyanın lazer menzili
-        self.maps = lambda: (None, {})                    # oturum bağlar: (bulunulan harita, harita -> orada çıkan uzaylıların adları)
+        self.laser_range = lambda: D['laser_range']      # bound per session: the world's laser range
+        self.maps = lambda: (None, {})                    # bound per session: (current map, map -> names of the aliens that appear there)
         with profile.lock:
             self.d = profile.d.setdefault('autopilot', {'setting': '', 'state': STOP, 'start': 0, 'total_sec': 0, 'session': 0})
-            self.d['state'] = STOP                        # yeni oturum: istemci girişte STOP bildirir
+            self.d['state'] = STOP                        # new session: the client reports STOP on login
 
-    # ------------------------------------------------------------ seçimler
+    # ------------------------------------------------------------ selections
     def selection(self):
-        """Haritadan bağımsız seçim {npc: [NpcData], kutu: [ad], npc_harita: ad -> seçildiği haritalar}. Önceki kayıtta yoksa
-        haritalara göre listelerin birleşimi."""
+        """Map-independent selection {npc: [NpcData], box: [name], npc_map: name -> maps it was selected on}. If missing from the earlier save,
+        the union of the per-map lists."""
         s = self.d.get('choice')
         if s is None:
             s = {'npc': [], 'box': [], 'npc_map': {}}
@@ -74,9 +75,9 @@ class Autopilot:
 
     @staticmethod
     def merge(s, old, new):
-        """Kaydedilen ayarların seçimlerini haritadan bağımsız seçime işler: her haritanın listesi istemcinin elindekiyle (sunucunun
-        son gönderdiği ya da istemcinin son kaydettiği) karşılaştırılır, eklenen seçilir, çıkarılan bırakılır. İstemci yalnız
-        bulunduğu haritanınkini değiştirir; ötekiler aynı geldiğinden bir şey değiştirmez."""
+        """Applies the saved settings' selections to the map-independent selection: each map's list is compared with what the client holds (what
+        the server last sent or the client last saved); additions are selected, removals are dropped. The client changes only the map it is
+        on; the others arrive unchanged, so they change nothing."""
         for field, key, store in ((NPC_LIST, _npc_key, 'npc'), (BOX_LIST, _box_key, 'box')):
             before = _maps(old.get(field))
             for mid, items in _maps(new.get(field)).items():
@@ -97,8 +98,9 @@ class Autopilot:
                         s['npc_map'][k].append(mid)
 
     def info_json(self, cur=None, names=None):
-        """İstemciye gidecek ayarlar: kaydedilenler, seçim listeleri her haritanın anahtarıyla (bulunulan harita cur, sonra seçim
-        yapılanlar, sonra ötekiler; sınıra dek). names: harita -> orada çıkan uzaylıların adları. Hiç ayar yoksa boş (istemci kendi varsayılanını kurar)."""
+        """Settings to send to the client: the saved ones, with selection lists under every map's key (current map cur, then the maps with a
+        selection, then the others; up to the limit). names: map -> names of the aliens that appear there. Empty if there are no settings at all
+        (the client sets up its own defaults)."""
         names = names or {}
         text = self.d.get('setting') or ''
         s = self.selection()
@@ -109,7 +111,7 @@ class Autopilot:
         except ValueError:
             base = {}
         base = base if isinstance(base, dict) else {}
-        mine = {m for ms in s['npc_map'].values() for m in ms}           # seçim yapılan haritalar önce
+        mine = {m for ms in s['npc_map'].values() for m in ms}           # maps with a selection first
         rest = set(names) | set(_maps(base.get(NPC_LIST))) | set(_maps(base.get(BOX_LIST)))
         order = ([cur] if cur else []) + sorted(mine - {cur}, key=_num) + sorted(rest - mine - {cur}, key=_num)
         npcs, boxes = {}, {}
@@ -127,14 +129,14 @@ class Autopilot:
         return json.dumps(base, separators=(',', ':'))
 
     def info_cmd(self):
-        # tek oyunculuda herkes Premium (gerçek parayla satılıyor, uridyumla karşılığı yok): kayıttaki hesabın premium'u false'du,
-        # F12 "You need to purchase the Premium Pack" diyordu (canlı test H72). Kural; profil alanına bakılmaz, profile yazılmaz
+        # in single player everyone is Premium (it is sold for real money, no uridium equivalent): the recorded account's premium was false,
+        # F12 said "You need to purchase the Premium Pack" (live test H72). A rule; the profile field is not consulted or written
         premium = True
-        cur, names = self.maps()                          # dünyanın kilidi profilinkinden önce (dışında) alınır
+        cur, names = self.maps()                          # the world's lock is taken before (outside) the profile's
         with self.p.lock:
             text = self.info_json(cur, names)
             if text != (self.d.get('setting') or ''):
-                self.d['setting'] = text                     # istemcinin elindeki: sonraki kayıt bununla karşılaştırılır
+                self.d['setting'] = text                     # what the client holds: the next save is compared with this
                 self.p.dirty = True
         return 'AutopilotInfoCommand', dict(remainingSeconds=D['premium_sec'] if premium else 0, laserRange=int(self.laser_range()),
                                             result=premium, autopilotInfos=text)
@@ -160,7 +162,7 @@ class Autopilot:
                     self.merge(s, old if isinstance(old, dict) else {}, new if isinstance(new, dict) else {})
                     self.d['setting'] = text
                     self.p.dirty = True
-            self.log('   otomatik pilot ayarları %s (%d karakter)' % ('kaydedildi' if ok else 'geçersiz', len(text)))
+            self.log('   autopilot settings %s (%d characters)' % ('saved' if ok else 'invalid', len(text)))
             return [('AutopilotInfoSaveCommand', {'result': ok})]
         if name == 'AutopilotStatus':
             st = f.get('status')
@@ -169,11 +171,11 @@ class Autopilot:
             with self.p.lock:
                 if st == START and self.d['state'] != START:
                     self.d.update(state=START, start=now, session=self.d.get('session', 0) + 1)
-                    self.log('   otomatik pilot başladı')
+                    self.log('   autopilot started')
                 elif st == STOP and self.d['state'] == START:
                     dt = max(0, int(now - self.d.get('start', now)))
                     self.d.update(state=STOP, total_sec=self.d.get('total_sec', 0) + dt)
-                    self.log('   otomatik pilot durdu (%d sn)' % dt)
+                    self.log('   autopilot stopped (%d s)' % dt)
                 self.p.dirty = True
             return []
         return []

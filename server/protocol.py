@@ -1,29 +1,29 @@
-"""DarkOrbit Unity istemcisinin oyun protokolü: çerçeveleme, sunucu sıkıştırması ve mesaj çözme.
+"""The game protocol of the DarkOrbit Unity client: framing, server compression and message decoding.
 
-Kaynak: istemcinin kendi kodu (tools/il2cpp/read_spec.py -> server/data/protocol_read.json).
-Bağımlılık yok (yalnızca Python standart kitaplığı).
+Source: the client's own code (tools/il2cpp/read_spec.py -> server/data/protocol_read.json).
+No dependencies (only the Python standard library).
 
-Çerçeve:
-  istemci -> sunucu : ilk paket 4 bayt BE uzunluk, sonrakiler 3 bayt BE uzunluk
-  sunucu -> istemci : 3 bayt BE uzunluk
-  yük               : u16 mesaj kimliği + alanlar
-Sunucu sıkıştırması (DarkOrbit.DownstreamCompression, istemci LoginRequest'te "do-lz4-block-v3" önerir):
-  yük = FF FF + sihir (u32 BE) + ham uzunluk (u32 BE) + CRC32 (u32 BE) + LZ4 blok
-  "DOB3": açılan veri 3 bayt uzunluklu iç çerçevelerden oluşur; "DOL4": açılan veri tek bir mesajdır.
+Framing:
+  client -> server : the first packet has a 4-byte BE length, later ones a 3-byte BE length
+  server -> client : 3-byte BE length
+  payload          : u16 message id + fields
+Server compression (DarkOrbit.DownstreamCompression, the client proposes "do-lz4-block-v3" in LoginRequest):
+  payload = FF FF + magic (u32 BE) + raw length (u32 BE) + CRC32 (u32 BE) + LZ4 block
+  "DOB3": the decompressed data consists of inner frames with a 3-byte length; "DOL4": the decompressed data is a single message.
 """
 import json, os, struct, zlib
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SPEC_PATH = os.path.join(HERE, 'data', 'protocol_read.json')
-CLIENT_HASH = '0b64b1b04d103c9ec4b4f121acb7de36'   # protocol_read.json'ın çıkarıldığı istemci (1.1.115; 1.1.116'da aynı) VersionRequest değeri
+CLIENT_HASH = '0b64b1b04d103c9ec4b4f121acb7de36'   # the client protocol_read.json was extracted from (1.1.115; the same in 1.1.116) VersionRequest value
 SECRET_FIELDS = ('sessionid', 'password', 'token', 'secret')
 
-# read_spec.py'nin dönüşümünü bulamadığı alanlar (istemcinin read() sökümünden elle: ham değer a bit sağa döndürülür)
+# fields whose conversion read_spec.py could not find (by hand from the disassembly of the client's read(): the raw value is rotated right by a bits)
 FIXES = {
     ('SkylabModuleProductivityCommand', 'bonus?'): ('bonus', ['or', ['shr', 'v', 8], ['shl', 'v', 24]]),
     ('SkylabModuleProductivityCommand', 'maxActive?'): ('maxActive', ['or', ['shr', 'v', 22], ['shl', 'v', 10]]),
     ('SkylabModuleProductivityCommand', 'inStorage?'): ('inStorage', ['or', ['shr', 'v', 17], ['shl', 'v', 15]]),
-    # read(): CONCAT11((char)v, (char)((ushort)v >> 8)) — 16 bitte 8'lik döndürme; read_spec.py bu kalıbı izlemiyor
+    # read(): CONCAT11((char)v, (char)((ushort)v >> 8)) - a rotation by 8 in 16 bits; read_spec.py does not follow this pattern
     ('PetActivationCommand', 'petLevel'): ('petLevel', ['or', ['and', ['shr', ['zx16', 'v'], 8], 255], ['shl', ['zx16', 'v'], 8]]),
     ('QualitySettingsRequest', 'qualityExplosion'): ('qualityExplosion', ['or', ['and', ['shr', ['zx16', 'v'], 8], 255], ['shl', ['zx16', 'v'], 8]]),
 }
@@ -63,7 +63,7 @@ def spec():
     return _SPEC
 
 
-# ------------------------------------------------------------------ alan dönüşümleri
+# ------------------------------------------------------------------ field conversions
 M32 = 0xFFFFFFFF
 
 
@@ -73,7 +73,7 @@ def _sx(v, bits):
 
 
 def eval_x(e, v):
-    """read() içindeki bit işlemlerini 32 bit işaretsiz aritmetikle uygular."""
+    """Applies the bit operations in read() with 32-bit unsigned arithmetic."""
     if e == 'v':
         return v & M32
     if isinstance(e, int):
@@ -98,7 +98,7 @@ def eval_x(e, v):
     if op == 'sar': return (_sx(a, 32) >> (b & 31)) & M32
     if op == 'rol': return ((a << (b & 31)) | (a >> (32 - (b & 31)))) & M32 if b & 31 else a
     if op == 'ror': return ((a >> (b & 31)) | (a << (32 - (b & 31)))) & M32 if b & 31 else a
-    raise ValueError('bilinmeyen işlem %r' % (op,))
+    raise ValueError('unknown operation %r' % (op,))
 
 
 class DecodeError(Exception):
@@ -111,7 +111,7 @@ class Buf:
 
     def take(self, n):
         if self.o + n > len(self.b):
-            raise DecodeError('veri bitti (%d bayt istendi, %d kaldı)' % (n, len(self.b) - self.o))
+            raise DecodeError('data ended (%d bytes requested, %d left)' % (n, len(self.b) - self.o))
         r = self.b[self.o:self.o + n]; self.o += n
         return r
 
@@ -154,7 +154,7 @@ def _prim(buf, t, x):
         return buf.take(n).decode('utf8', 'replace')
     if t == 'module':
         return decode_module(buf)
-    raise DecodeError('bilinmeyen tür %s' % t)
+    raise DecodeError('unknown type %s' % t)
 
 
 def _steps(buf, steps, out, depth, ctx=None):
@@ -162,7 +162,7 @@ def _steps(buf, steps, out, depth, ctx=None):
     for s in steps:
         t = s['t']
         if t in ('pid', 'super') and (t == 'pid' or s.get('id', True)):
-            # üst sınıf kimliği: beklenen değerden farklıysa "_ust" altında saklanır (yeniden kodlama için)
+            # superclass id: if it differs from the expected value it is kept under "_super" (for re-encoding)
             v = buf.u16()
             if v != _parent_id(s.get('c')):
                 out.setdefault('_super', {})[str(ctx['n'])] = v
@@ -172,14 +172,14 @@ def _steps(buf, steps, out, depth, ctx=None):
         if t == 'super':
             parent = spec().by_class.get(s['c'])
             if parent is None:
-                raise DecodeError('üst sınıf bilinmiyor: %s' % s['c'])
+                raise DecodeError('superclass unknown: %s' % s['c'])
             _steps(buf, parent['steps'], out, depth, ctx)
             continue
         name = s['f'] or '_%s%d' % (t, len(out))
         if t == 'list':
             n = {'byte': buf.u8, 'short': buf.i16, 'ushort': buf.u16, 'int': buf.u32}[s['n']]()
             if n < 0 or n > 100000:
-                raise DecodeError('liste uzunluğu olanaksız: %d (%s)' % (n, name))
+                raise DecodeError('impossible list length: %d (%s)' % (n, name))
             e = s.get('e') or {'t': 'module'}
             out[name] = [_prim(buf, e['t'], e.get('x')) for _ in range(n)]
         else:
@@ -199,16 +199,16 @@ def decode_module(buf, depth=0):
         return None
     m = spec().by_id.get(mid)
     if m is None:
-        raise DecodeError('bilinmeyen alt modül kimliği %d' % mid)
+        raise DecodeError('unknown submodule id %d' % mid)
     out = {'_': m['name'].split('.')[-1]}
     if depth > 30:
-        raise DecodeError('iç içe modül derinliği çok büyük')
+        raise DecodeError('nested module depth too large')
     _steps(buf, m['steps'], out, depth + 1)
     return out
 
 
 def decode_message(payload):
-    """Bir mesaj yükünü çözer -> (kimlik, ad, alanlar, kalan_bayt, hata)."""
+    """Decodes a message payload -> (id, name, fields, remaining_bytes, error)."""
     if len(payload) < 2:
         return None, '?', {}, len(payload), 'kısa yük'
     mid = struct.unpack('>H', payload[:2])[0]
@@ -226,18 +226,18 @@ def decode_message(payload):
     return mid, m['name'].split('.')[-1], out, buf.left, err
 
 
-# ------------------------------------------------------------------ kodlama (çözmenin tersi)
+# ------------------------------------------------------------------ encoding (the reverse of decoding)
 class EncodeError(Exception):
     pass
 
 
 _INV = {}
-warning = None        # kodlama uyarısı (sınıra kırpılan int alanı): oyun sunucusu günlük işlevini bağlar
+warning = None        # encoding warning (an int field clamped to the limit): the game server hooks up the log function
 LIST_MAX = {'byte': 255, 'short': 32767, 'ushort': 65535, 'int': M32}
 
 
 def _inverse_table(t, x):
-    """16/8 bitlik alanlar için tüm ham değerleri çözerek ters tablo kurar (çözücüyle birebir tutarlı)."""
+    """For 16/8-bit fields builds the inverse table by decoding all raw values (exactly consistent with the decoder)."""
     key = (t, json.dumps(x))
     tab = _INV.get(key)
     if tab is None:
@@ -254,16 +254,16 @@ def _enc_prim(out, t, x, v, name=None):
     if t in ('int', 'uint'):
         v = int(v)
         hi = (1 << 31) - 1 if t == 'int' else M32
-        if not -(1 << 31) <= v <= hi:      # sessizce sarılıp eksiye dönerdi (kazanç, puan): sınıra kırpılır
+        if not -(1 << 31) <= v <= hi:      # it would silently wrap to negative (earnings, points): clamped to the limit
             c = min(max(v, -(1 << 31)), hi)
             if warning:
-                warning('   %s alanı 32 bite sığmadı: %d -> %d' % (name or t, v, c))
+                warning('   field %s did not fit in 32 bits: %d -> %d' % (name or t, v, c))
             v = c
         v &= M32
         if x and x != 'v':
-            # read(): değer = (ham >>> a) | (ham << b)  ->  ham = değeri a bit sola döndür
+            # read(): value = (raw >>> a) | (raw << b)  ->  raw = the value rotated left by a bits
             if not (x[0] == 'or' and x[1][0] == 'shr' and x[2][0] == 'shl'):
-                raise EncodeError('ters çevrilemeyen int dönüşümü %r' % (x,))
+                raise EncodeError('int conversion cannot be inverted %r' % (x,))
             a = x[1][2] & 31
             v = ((v << a) | (v >> (32 - a))) & M32 if a else v
         out += struct.pack('>I', v)
@@ -271,7 +271,7 @@ def _enc_prim(out, t, x, v, name=None):
         tab = _inverse_table(t, x)
         b = tab.get(int(v))
         if b is None:
-            raise EncodeError('%s alanına sığmayan değer %r' % (t, v))
+            raise EncodeError('field %s cannot hold value %r' % (t, v))
         out += b
     elif t == 'bool':
         out.append(1 if v else 0)
@@ -288,7 +288,7 @@ def _enc_prim(out, t, x, v, name=None):
         else:
             _enc_module(out, v)
     else:
-        raise EncodeError('bilinmeyen tür %s' % t)
+        raise EncodeError('unknown type %s' % t)
 
 
 def _enc_steps(out, steps, f, ctx):
@@ -298,7 +298,7 @@ def _enc_steps(out, steps, f, ctx):
             parent = f.get('_super') or {}
             v = parent.get(str(ctx['n']), _parent_id(s.get('c')))
             if v is None:
-                raise EncodeError('üst sınıf kimliği bilinmiyor (%s)' % s.get('c'))
+                raise EncodeError('superclass id unknown (%s)' % s.get('c'))
             out += struct.pack('>H', v)
             ctx['n'] += 1
         if t == 'pid':
@@ -314,7 +314,7 @@ def _enc_steps(out, steps, f, ctx):
             v = v or []
             n = len(v)
             if n > LIST_MAX[s['n']]:
-                raise EncodeError('%s listesi %d öğe; sayacı (%s) en çok %d' % (name, n, s['n'], LIST_MAX[s['n']]))
+                raise EncodeError('list %s has %d items; its counter (%s) allows at most %d' % (name, n, s['n'], LIST_MAX[s['n']]))
             out += {'byte': lambda: struct.pack('>B', n), 'short': lambda: struct.pack('>h', n),
                     'ushort': lambda: struct.pack('>H', n), 'int': lambda: struct.pack('>I', n)}[s['n']]()
             e = s.get('e') or {'t': 'module'}
@@ -332,28 +332,28 @@ def _enc_module(out, f):
     cls = f.get('_')
     m = spec().by_class.get(cls)
     if m is None:
-        raise EncodeError('bilinmeyen modül %r' % cls)
+        raise EncodeError('unknown module %r' % cls)
     out += struct.pack('>H', spec().id_of(cls))
     _enc_steps(out, m['steps'], f, {'n': 0})
 
 
 def encode_message(name, fields=None):
-    """Mesaj yükü üretir (kimlik + alanlar); eksik alanlar türün varsayılanını alır."""
+    """Produces a message payload (id + fields); missing fields take the type's default."""
     m = spec().by_class.get(name)
     if m is None:
-        raise EncodeError('bilinmeyen mesaj %r' % name)
+        raise EncodeError('unknown message %r' % name)
     out = bytearray(struct.pack('>H', spec().id_of(name)))
     _enc_steps(out, m['steps'], fields or {}, {'n': 0})
     return bytes(out)
 
 
 def frame(payload):
-    """Sunucu -> istemci çerçevesi: 3 bayt BE uzunluk + yük."""
+    """Server -> client frame: 3-byte BE length + payload."""
     return len(payload).to_bytes(3, 'big') + payload
 
 
 def secrets_of(fields, out=None):
-    """Gizli adlı alanların değerlerini toplar (ör. LoginRequest.sessionID)."""
+    """Collects the values of fields with secret names (e.g. LoginRequest.sessionID)."""
     out = set() if out is None else out
     if isinstance(fields, dict):
         for k, v in fields.items():
@@ -368,8 +368,8 @@ def secrets_of(fields, out=None):
 
 
 def redact(fields, values=()):
-    """Gizli alanları ve bu değerlerin geçtiği her metni gizler (iç içe yapılar dahil).
-    Not: eski metin protokolü de oturum anahtarını taşır (ör. istemcinin "S|CFG|2|<kullanıcı>|<sessionID>")."""
+    """Hides the secret fields and every text where these values appear (nested structures included).
+    Note: the old text protocol also carries the session key (e.g. the client's "S|CFG|2|<user>|<sessionID>")."""
     if isinstance(fields, dict):
         return {k: ('<gizlendi>' if any(s in k.lower() for s in SECRET_FIELDS) and isinstance(v, str) and v else redact(v, values))
                 for k, v in fields.items()}
@@ -382,7 +382,7 @@ def redact(fields, values=()):
     return fields
 
 
-# ------------------------------------------------------------------ sunucu sıkıştırması (LZ4 blok)
+# ------------------------------------------------------------------ server compression (LZ4 block)
 def lz4_block(src, raw_len):
     out = bytearray()
     i, n = 0, len(src)
@@ -399,7 +399,7 @@ def lz4_block(src, raw_len):
             break
         off = src[i] | (src[i + 1] << 8); i += 2
         if off == 0 or off > len(out):
-            raise DecodeError('LZ4: geçersiz uzaklık')
+            raise DecodeError('LZ4: invalid offset')
         ml = token & 15
         if ml == 15:
             while True:
@@ -416,13 +416,13 @@ def lz4_block(src, raw_len):
 
 
 def downstream(payload):
-    """Sunucu yükü sıkıştırılmışsa açar -> [(yük, sıkıştırma_türü)]; değilse [(yük, None)]."""
+    """Decompresses the server payload if it is compressed -> [(payload, compression_type)]; otherwise [(payload, None)]."""
     if len(payload) >= 14 and payload[0] == 0xFF and payload[1] == 0xFF:
         magic, raw_len, crc = struct.unpack('>III', payload[2:14])
         if magic in (MAGIC_BLOCK, MAGIC_LEGACY):
             data = lz4_block(payload[14:], raw_len)
             if zlib.crc32(data) & M32 != crc:
-                raise DecodeError('sıkıştırılmış blok CRC hatası')
+                raise DecodeError('compressed block CRC error')
             if magic == MAGIC_LEGACY:
                 return [(data, 'DOL4')]
             out, i = [], 0
@@ -433,9 +433,9 @@ def downstream(payload):
     return [(payload, None)]
 
 
-# ------------------------------------------------------------------ akış çerçeveleme
+# ------------------------------------------------------------------ stream framing
 class Framer:
-    """Bir TCP yönünün bayt akışını mesaj yüklerine ayırır."""
+    """Splits the byte stream of one TCP direction into message payloads."""
 
     def __init__(self, client_side):
         self.client_side = client_side
@@ -448,7 +448,7 @@ class Framer:
         while True:
             hdr = 3
             if self.client_side and self.first and len(self.buf) >= 6 and self.buf[0] == 0 and self.buf[4:6] == b'\x02\x9a':
-                hdr = 4   # VersionRequest (666) 4 bayt uzunlukla gelir
+                hdr = 4   # VersionRequest (666) comes with a 4-byte length
             if len(self.buf) < hdr:
                 break
             n = int.from_bytes(self.buf[:hdr], 'big')
@@ -461,7 +461,7 @@ class Framer:
 
 
 def messages(payload, server_side):
-    """Bir çerçeve yükünden (gerekirse açarak) mesajları çıkarır -> [(kimlik, ad, alanlar, kalan, hata, sıkıştırma)]."""
+    """Extracts the messages from a frame payload (decompressing if needed) -> [(id, name, fields, remaining, error, compression)]."""
     parts = downstream(payload) if server_side else [(payload, None)]
     res = []
     for p, comp in parts:
@@ -471,7 +471,7 @@ def messages(payload, server_side):
 
 
 def fmt(v, limit=600):
-    """Alanları kısa, okunur tek satıra çevirir."""
+    """Turns the fields into a short, readable single line."""
     def f(x):
         if isinstance(x, dict):
             name = x.get('_', '')

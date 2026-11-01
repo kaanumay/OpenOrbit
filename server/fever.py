@@ -1,16 +1,16 @@
-"""Fever (Ship Boost Event; yol haritası Ö3; veri data/extra_events.json 'fever').
+"""Fever (Ship Boost Event; roadmap Ö3; data data/extra_events.json 'fever').
 
-İstemci (UIShipBoostSystem, menü öğesi ship_boost_event, pencere 73): ShipBoostEventInfoCommand {shipBoostSlots [ShipBoostEventModule
-{day 1-7 (pazartesi-pazar), startTime, endTime ("SS:DD"), shipTypes (gösterilen gemi adları), eventNameTextKeys (haritaların metin
-anahtarı), attributeBoosts [{attribute (ship_boost_effects_modifiertype_<küçük harf>), boostValue (yüzde; ABILITY_COOLDOWN_TIME
-eksiyle gösterilir)}]}], boostUpdateInfo ShipBoostEventUpdateInfoCommand {currentSlot, timeToWindowChange, isBoostActive,
-boostInfo {isShipBoosted}}}. Metinler: ship_boost_announcement_active / inactive, ship_boost_ttip (güçlenme ve ölünce üste ya da en
-yakın portalda ücretsiz onarım), ship_boost_schedule_content_effects_1..9 (günlerin gemileri ve etkileri).
-Asıl oyunda Galactic Strife (PvP) haritalarında; tek oyunculu uyarlama: PvE haritaları (veri 'olaylar': Hitac'ın normal haritaları
-X-2..X-8, Eternal Blacklight, Gauntlet of Plutus) ve oyuncu gemisine verilen hasar yerine uzaylı hasarı (damage_npc). Gemi
-eşleşmesi: gösterilen ad geminin lootId'sinin başı (Aegis -> ship_aegis*, Goliath -> ship_goliath*).
-Tarih aralıklı setler ('setler': bas, bit, haritalar, olaylar, gunler; gerçek oyunun Black Light haftaları): sürerken varsayılan
-takımın yerine geçer (cfg); takvimdeki gibi her 52 haftada (364 gün) tekrarlanır.
+Client (UIShipBoostSystem, menu item ship_boost_event, window 73): ShipBoostEventInfoCommand {shipBoostSlots [ShipBoostEventModule
+{day 1-7 (Monday-Sunday), startTime, endTime ("HH:MM"), shipTypes (displayed ship names), eventNameTextKeys (the maps' text
+keys), attributeBoosts [{attribute (ship_boost_effects_modifiertype_<lowercase>), boostValue (percent; ABILITY_COOLDOWN_TIME
+is shown negative)}]}], boostUpdateInfo ShipBoostEventUpdateInfoCommand {currentSlot, timeToWindowChange, isBoostActive,
+boostInfo {isShipBoosted}}}. Texts: ship_boost_announcement_active / inactive, ship_boost_ttip (boost, and free repair at the top or
+the nearest portal on death), ship_boost_schedule_content_effects_1..9 (the days' ships and effects).
+In the real game it is on Galactic Strife (PvP) maps; single-player adaptation: PvE maps (data 'events': Hitac's normal maps
+X-2..X-8, Eternal Blacklight, Gauntlet of Plutus) and alien damage instead of damage to the player's ship (damage_npc). Ship
+matching: the displayed name is the start of the ship's lootId (Aegis -> ship_aegis*, Goliath -> ship_goliath*).
+Date-ranged sets ('sets': start, bit, maps, events, days; the real game's Black Light weeks): while running they replace the
+default set (cfg); as in the calendar they repeat every 52 weeks (364 days).
 """
 import datetime, json, os, time
 
@@ -21,7 +21,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 _PATH = os.path.join(HERE, 'data', 'extra_events.json')
 D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('fever', {})
 EVENT = 'fever'
-# istemcinin etki adı -> profil.mods() anahtarı (uzaylıya hasar: 'npc'; bekleme azalması 'bekleme')
+# the client's effect name -> profile.mods() key (damage to aliens: 'npc'; cooldown reduction 'cooldown')
 MODS = {'SHIELD': 'kalkan', 'SPEED': 'speed', 'EVASION': 'evasion', 'HITPOINTS': 'can', 'DAMAGE_NPC': 'npc', 'DAMAGE': 'npc',
         'ABILITY_COOLDOWN_TIME': 'cooldown', 'EXPERIENCE_POINTS': 'ep', 'HONOUR_POINTS': 'honor', 'LASER_HIT_CHANCE': 'laser_hit_chance',
         'ROCKET_DAMAGE': 'rocket', 'LASER_DAMAGE_PLAYER': 'laser'}
@@ -33,7 +33,7 @@ def _hm(s):
 
 
 def cfg(now=None):
-    """Geçerli takım: sürmekte olan tarih aralıklı set ('setler'; her 52 haftada tekrar) ya da varsayılan takım (D)."""
+    """The current set: the running date-ranged set ('setler'; repeats every 52 weeks) or the default set (D)."""
     d = datetime.date.fromtimestamp(time.time() if now is None else now)
     for s in D.get('sets', []):
         a, b = datetime.date.fromisoformat(s['start']), datetime.date.fromisoformat(s['bit'])
@@ -43,13 +43,13 @@ def cfg(now=None):
 
 
 def slot_for(now=None):
-    """Bugünün dilimi (gün 1 = pazartesi) ya da None."""
+    """Today's slot (day 1 = Monday) or None."""
     t = datetime.datetime.fromtimestamp(time.time() if now is None else now)
     return next((s for s in cfg(now).get('days', []) if s['day'] == t.isoweekday()), None)
 
 
 def window(now=None):
-    """(şu an sürüyor mu, pencerenin değişmesine kalan saniye)."""
+    """(whether it is running now, seconds left until the window changes)."""
     now = time.time() if now is None else now
     t = datetime.datetime.fromtimestamp(now)
     mins = t.hour * 60 + t.minute + t.second / 60.0
@@ -62,7 +62,7 @@ def window(now=None):
         return True, int((b - mins) * 60)
     if mins < a:
         return False, int((a - mins) * 60)
-    nxt = slot_for((t.replace(hour=12, minute=0, second=0, microsecond=0) + datetime.timedelta(days=1)).timestamp())    # yarın
+    nxt = slot_for((t.replace(hour=12, minute=0, second=0, microsecond=0) + datetime.timedelta(days=1)).timestamp())    # tomorrow
     return False, int((1440 - mins + (_hm(nxt['start']) if nxt else 1440)) * 60)
 
 
@@ -92,13 +92,13 @@ class Fever:
         return self.enabled() and window(now)[0]
 
     def boosted(self, now=None):
-        """Fever şu an oyuncunun gemisine uygulanıyor mu (gün, saat, gemi, harita)."""
+        """Whether Fever applies to the player's ship now (day, hour, ship, map)."""
         s = slot_for(now)
         return bool(s and self.active(now) and ship_matches(s, self.p.ship()['lootId'])
                     and map_matches(self.p.d['position'].get('mapId', 0), now))
 
     def compute(self, now=None):
-        """Gemiye uygulanan etkiler (profil.mods() sıcak yolda: tick'te saniyede bir hesaplanıp saklanır)."""
+        """The effects applied to the ship (profile.mods() on the hot path: computed once a second in the tick and cached)."""
         if not self.boosted(now):
             return {}
         out = {}
@@ -123,7 +123,7 @@ class Fever:
     def update_cmd(self, now=None):
         on, left = window(now)
         s = slot_for(now)
-        return {'_': 'ShipBoostEventUpdateInfoCommand', 'currentSlot': self.module(s, now) if s else None, 'timeToWindowChange': left,   # saniye (canlı)
+        return {'_': 'ShipBoostEventUpdateInfoCommand', 'currentSlot': self.module(s, now) if s else None, 'timeToWindowChange': left,   # seconds (live)
                 'isBoostActive': bool(on and self.enabled()),
                 'boostInfo': {'_': 'ShipBoostEventBoostInfoCommand', 'isShipBoosted': self.boosted(now)}}
 
@@ -147,7 +147,7 @@ class Fever:
         msgs = []
         if self.was is not None and on != self.was:
             msgs += [legacy('0|A|STM|ship_boost_announcement_%s' % ('active' if on else 'inactive')), self.info_cmd(now)]
-            self.log('   Fever %s' % ('başladı' if on else 'finished'))
+            self.log('   Fever %s' % ('started' if on else 'finished'))
         if self.boosted_was is not None and b != self.boosted_was:
             msgs += [('ShipBoostEventBoostInfoCommand', {'isShipBoosted': b})] + self.m.apply_stats()
         self.was, self.boosted_was = on, b
@@ -155,5 +155,5 @@ class Fever:
 
     def attach(self, world):
         world.free_gate_repair = self.free_repair
-        self._mods = self.compute()                    # yeni harita: etki haritaya bağlı
+        self._mods = self.compute()                    # new map: the effect depends on the map
         return []

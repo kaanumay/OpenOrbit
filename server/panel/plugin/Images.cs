@@ -1,13 +1,13 @@
-// Oyun içi görsellerin dökümü (panelin Mağaza / Hangar / Skylab sayfaları; kullanıcı isteği 2026-10-28): simgeler istemcinin
-// Addressables paketindeki sprite atlaslarında (StreamingAssets/aa/BuildTarget/atlas_assets_all.bundle; dokular Crunch / BC7, Python'la
-// çözülemiyor). İstemci açılınca atlas sayfaları bir kez Unity'nin kendisiyle PNG'ye çevrilir: <istemci>/BepInEx/openorbit/images/
-// (oyunun telifli görselleri: depoya girmez, istemci klasörü .gitignore'da). dizin.json en son yazılır: sprite adı -> [sayfa, x, y, g, y,
-// tam g, tam y, ox, oy] (üst sol kökenli piksel; atlaslar dikdörtgen paketli, döndürme yok). Paketin boyutu ve tarihi değişmedikçe
-// (ve atlas listesi) değişmedikçe yeniden dökülmez. Atlasın sprite'ları geç bağlanıyor (Sprite.texture boş): sayfalar SpriteAtlas.GetSprites'ın kopyalarından.
-// Eşya adları da panelin dillerinde: adlar_<dil>.json (lootId -> ad; istemcinin resource_items'ındaki items_<lootId>_fullname).
-// Panelin eşya ipucunun metinleri: metinler_<dil>.json {"e": {lootId: [ad, tür, ipucu açıklaması, açıklama, not, kaynak]},
-// "n": {nitelik: ad}} (items_<lootId>_fullname/_short/_tooltip_description/_description/_hint/_sources; nitelik adları
-// items_equipment_shipupgrade_modifiertype_<nitelik>: kararsız modül, QFC ve parçacık silahı nitelikleri).
+// Dump of the in-game images (the panel's Shop / Hangar / Skylab pages; user request 2026-10-28): the icons are in the client's
+// Addressables bundle, in the sprite atlases (StreamingAssets/aa/BuildTarget/atlas_assets_all.bundle; the textures are Crunch / BC7, cannot be decoded with
+// Python). When the client starts, the atlas pages are converted to PNG once by Unity itself: <client>/BepInEx/openorbit/images/
+// (the game's copyrighted images: not added to the repo, the client folder is in .gitignore). dizin.json is written last: sprite name -> [page, x, y, w, h,
+// full w, full h, ox, oy] (top-left origin pixels; the atlases are rectangle-packed, no rotation). It is not dumped again unless the bundle's size and date change
+// (and the atlas list). The atlas's sprites bind late (Sprite.texture is empty): the pages come from copies of SpriteAtlas.GetSprites.
+// Item names also in the panel's languages: adlar_<lang>.json (lootId -> name; items_<lootId>_fullname in the client's resource_items).
+// Texts of the panel's item tooltip: metinler_<lang>.json {"e": {lootId: [name, type, tooltip description, description, note, source]},
+// "n": {attribute: name}} (items_<lootId>_fullname/_short/_tooltip_description/_description/_hint/_sources; attribute names
+// items_equipment_shipupgrade_modifiertype_<attribute>: unstable module, QFC and particle weapon attributes).
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -26,14 +26,14 @@ public class ImageDump : MonoBehaviour
     public ImageDump(IntPtr p) : base(p) { }
 
     static readonly string[] ATLASES = { "Items", "hanger", "Shop", "UI", "CommonUI", "Misc", "Boosters", "FeatureMenu" };
-    static readonly string[] LANGUAGES = { "tr", "en", "de", "es", "fr", "pl", "pt", "ru" };     // panelin dilleri (panel/lang.py)
+    static readonly string[] LANGUAGES = { "tr", "en", "de", "es", "fr", "pl", "pt", "ru" };     // the panel's languages (panel/lang.py)
 
     internal static BepInEx.Logging.ManualLogSource Log;
     static string folder, version;
     static readonly Queue<Texture2D> pages = new();
     static readonly StringBuilder index = new();
     static readonly StringBuilder sizes = new();
-    static int state;                   // 0 bekliyor, 1 sayfalar yazılıyor, 2 bitti
+    static int state;                   // 0 waiting, 1 writing pages, 2 done
 
     void Update()
     {
@@ -59,7 +59,7 @@ public class ImageDump : MonoBehaviour
     {
         folder = Path.Combine(Paths.BepInExRootPath, "openorbit", "images");
         var fi = new FileInfo(Path.Combine(Application.streamingAssetsPath, "aa", "BuildTarget", "atlas_assets_all.bundle"));
-        version = fi.Length + "-" + fi.LastWriteTimeUtc.Ticks + "-" + string.Join(",", ATLASES) + "-metin1";   // atlas listesi ya da döküm biçimi değişince de yeniden
+        version = fi.Length + "-" + fi.LastWriteTimeUtc.Ticks + "-" + string.Join(",", ATLASES) + "-metin1";   // also when the atlas list or the dump format changes
         string d = Path.Combine(folder, "dizin.json");
         if (File.Exists(d) && File.ReadAllText(d).Contains("\"surum\": \"" + version + "\""))
         {
@@ -74,8 +74,8 @@ public class ImageDump : MonoBehaviour
         state = 1;
     }
 
-    // Addressables yüklediyse (paketin yüklü adı dosyanınki değil: içindeki bir varlıkla bulunur) o; yoksa biz yükler, işimiz bitince
-    // bırakırız (sonra o yükleyebilsin; dokular bellekte kalır)
+    // if Addressables has loaded it (the bundle's loaded name is not the file's: it is found by an asset inside) that one; otherwise we load it and when we are done
+    // we release it (so that it can load it later; the textures stay in memory)
     static void Package(string name, string asset, Action<AssetBundle> job)
     {
         AssetBundle ab = null;
@@ -170,7 +170,7 @@ public class ImageDump : MonoBehaviour
         }
     }
 
-    // ipucu metinleri, metinler_<dil>.json'daki sırayla; _tooltip_description _description'dan önce denenir (ikisi de _description ile biter)
+    // tooltip texts, in the order in metinler_<lang>.json; _tooltip_description is tried before _description (both end with _description)
     static readonly string[] SUFFIXES = { "_fullname", "_short", "_tooltip_description", "_description", "_hint", "_sources" };
     const string ATTRIBUTE = "items_equipment_shipupgrade_modifiertype_";
 

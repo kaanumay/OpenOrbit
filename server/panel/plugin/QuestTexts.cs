@@ -1,9 +1,9 @@
-// Dünya Editörü'nün görev metinleri (2026-10-29): istemci görevin başlığını ve açıklamasını kendi metinlerinden görev kimliğiyle arar
-// (DarkOrbit.QuestLocale.GetTitleEx / GetTitle / GetDescriptionEx / GetDescription; Quest.get_Description önce
-// GetLabelEx("quest_description", görev, ...) dener, boş değilse GetDescription'a inmez); dünyaya eklenen görevlerin metni yoktu (başlık
-// satırı boş, canlı 2026-10-28). Panel OYNA'da dünyanın görev metinlerini <istemci>/BepInEx/openorbit/gorev_metinleri.json'a yazar:
-// {"<görev>": {"title": "...", "description": "..."}} (panel/dunyalar.gorev_metinleri). Dosya değişince yeniden okunur (en çok saniyede
-// bir bakılır); dosyada olmayan görev ve boş alan istemcinin kendi metniyle.
+// The World Editor's quest texts (2026-10-29): the client looks up a quest's title and description by quest id in its own texts
+// (DarkOrbit.QuestLocale.GetTitleEx / GetTitle / GetDescriptionEx / GetDescription; Quest.get_Description first
+// tries GetLabelEx("quest_description", quest, ...) and if non-empty does not fall to GetDescription); quests added to the world had no text (the title
+// line was empty, live 2026-10-28). On PLAY the panel writes the world's quest texts to <client>/BepInEx/openorbit/gorev_metinleri.json:
+// {"<quest>": {"title": "...", "description": "..."}} (panel/dunyalar.gorev_metinleri). It is re-read when the file changes (checked at most once
+// a second); a quest not in the file and an empty field use the client's own text.
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -43,7 +43,7 @@ static class QuestTexts
 
     static bool Description(int __0, ref string __result) => Give(descriptions, __0, ref __result);
 
-    // GetLabelEx(etiket, görev, metin anahtarı, ...): yalnız açıklama etiketi
+    // GetLabelEx(label, quest, text key, ...): only the description label
     static bool Label(string __0, int __1, ref string __result) => __0 != "quest_description" || Give(descriptions, __1, ref __result);
 
     static bool Give(Dictionary<int, string> mapping, int quest, ref string result)

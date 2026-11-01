@@ -1,16 +1,16 @@
-"""Botların oyun ayarı profili: oyuncunun oyun ayarlarından (settings.py) ayrı. Oyuncu kendine kolay ayar seçse de botlar paketin
-profiliyle ilerler (kullanıcı isteği 2026-10-29).
+"""The bots' game-setting profile: separate from the player's game settings (settings.py). Even if the player picks easy settings for themselves, bots go by the pack's
+profile (user request 2026-10-29).
 
-Profil (paketin 'oyun_ayari' ayarı): {'profil': 'standart' | 'oyuncu' | <ayar.HAZIR'daki hazır ayar> | 'ozel', 'degerler': {...}}
-  standart  oyunun kendi değerleri (varsayılan)
-  oyuncu    oyuncunun o anki oyun ayarları (eski davranış gibi değil: önceden botlar hiç çarpan kullanmıyordu)
-  rahat, hizli, zorlu ...  ayar.HAZIR'ın değerleri
-  ozel      paneldeki değerler (ALANLAR)
-carpan(key, kaynak) ayar.carpan gibi: üst çarpan x kaynağın alt çarpanı (ep x ep_npc).
+Profile (the pack's 'game_setting' setting): {'profile': 'standard' | 'player' | <a preset in SET.PRESETS> | 'special', 'values': {...}}
+  standard  the game's own values (default)
+  player    the player's current game settings (not like the old behavior: bots used no multiplier at all before)
+  casual, fast, hard ...  the values of SET.PRESETS
+  special   the values in the panel (FIELDS)
+multiplier(key, source) like SET.multiplier: parent multiplier x the source's sub-multiplier (ep x ep_npc).
 """
 import settings as SET
 
-FIELDS = ('ep', 'credits', 'uridium', 'honor', 'npc_can', 'npc_damage', 'shop_price', 'repair_cost')   # Özel profilin düzenlenenleri
+FIELDS = ('ep', 'credits', 'uridium', 'honor', 'npc_can', 'npc_damage', 'shop_price', 'repair_cost')   # Fields editable in the special profile
 PROFILES = ('standard', 'player', 'casual', 'fast', 'hard', 'special')
 
 

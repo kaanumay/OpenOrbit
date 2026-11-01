@@ -1,22 +1,21 @@
-"""Sunucudaki oyuncular: grup (group.py), rehber (contacts.py), sohbetin fısıltısı, posta ve pilot kartı başka oyuncuyu buradan bulur.
+"""Players on the server: the group (group.py), contacts (contacts.py), chat whispers, mail and the pilot card find another player here.
 
-Tek oyunculuda yalnız oyuncunun kendisi; arkadaş sunucusunda (multiplayer.py) sunucunun kendi oyuncusu ve misafirler, çoklu
-istemcide ek oyuncular (bu bilgisayardaki öteki kayıtlar). Kaydı sunucuda
-olan herkes bilinir (bağlı olmayan misafirin kaydı da bellekte durur: posta ve rehber isteği ona yazılır, son hâli paneline gider);
-oyun bağlantısı olan çevrimiçidir. Misafirin sunucudaki kimliği her katılmada başka (cok_oyunculu._yeni_uid): kalıcı bağlar (rehber)
-ada göre tutulur.
+In single player only the player themselves; on a friend server (multiplayer.py) the server's own player and the guests, with multiple
+clients the extra players (the other saves on this computer). Everyone whose save is on the server is known (a disconnected guest's save
+also stays in memory: mail and contact requests are written to it, its latest state goes to their panel); someone with a game connection
+is online. A guest's id on the server differs at each join (cok_oyunculu._yeni_uid): persistent links (contacts) are kept by name.
 """
 import multiplayer as CO
 
-GAME = None          # game modülü (game.py bağlar): PROFIL, CURRENT
-BOTS = None        # () -> {kimlik: Kisi}: bot paketinin pilotları (bot/toplum.kaydol)
+GAME = None          # the game module (game.py binds): PROFIL, CURRENT
+BOTS = None        # () -> {id: Kisi}: the bot package's pilots (bot/toplum.kaydol)
 
 
 class Person:
     __slots__ = ('profile', 'session')
 
     def __init__(self, profile, session):
-        self.profile, self.session = profile, session       # oturum: bağlı game.Session ya da None
+        self.profile, self.session = profile, session       # session: the bound game.Session or None
 
     @property
     def uid(self):
@@ -32,7 +31,7 @@ class Person:
         return w if w is not None and w.running else None
 
     def send(self, msgs, note=None):
-        """Bağlıysa istemcisine (bağlantı kapanmışsa sessizce düşer) -> gitti mi."""
+        """To its client if connected (silently dropped if the connection is closed) -> whether it went."""
         s = self.session
         if s is None or not msgs:
             return False
@@ -44,7 +43,7 @@ class Person:
 
 
 def all_():
-    """kimlik -> Kisi: sunucunun oyuncusu, bitmemiş misafir oturumları ve çoklu istemcinin ek oyuncuları."""
+    """id -> Kisi: the server's player, unfinished guest sessions and the extra players of multiple clients."""
     g = GAME
     if g is None:
         return {}
@@ -62,7 +61,7 @@ def all_():
 
 
 def find(name=None, uid=None):
-    """Kimliğe ya da ada (büyük/küçük harf ayrımsız) göre oyuncu ya da None."""
+    """The player by id or by name (case-insensitive), or None."""
     people = all_()
     if uid is not None:
         return people.get(uid)
@@ -71,10 +70,10 @@ def find(name=None, uid=None):
 
 
 def ranking(p, value, max_count=10):
-    """Etkinlik sıralaması: sunucudaki oyuncular (değeri olanlar) değere göre -> ([(sıra, profil, değer)] ilk en_cok, oyuncunun
-    (sıra, profil, değer) ya da değeri yoksa (0, p, 0)). Tek oyunculuda yalnız oyuncu."""
+    """Event ranking: the players on the server (those with a value) by value -> ([(rank, profile, value)] first en_cok, the player's
+    (rank, profile, value) or (0, p, 0) if they have no value). In single player only the player."""
     lst = [k.profile for k in all_().values()]
-    if all(x is not p for x in lst):                    # sunucuda olmayan profil tek başına
+    if all(x is not p for x in lst):                    # a profile not on the server stands alone
         lst = [p]
     vals = sorted(((x, value(x)) for x in lst), key=lambda xv: (-xv[1], str(xv[0].d['pilot'].get('userName', '')).lower()))
     rows = [(i + 1, x, v) for i, (x, v) in enumerate(xv for xv in vals if xv[1])]
@@ -83,5 +82,5 @@ def ranking(p, value, max_count=10):
 
 
 def person(profile):
-    """Profilin Kisi'si (oturumuyla) ya da yalnız profille (sunucudan düşmüş)."""
+    """The profile's Kisi (with its session) or only with the profile (dropped from the server)."""
     return all_().get(profile.user_id) or Person(profile, None)

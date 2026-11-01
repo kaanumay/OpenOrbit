@@ -1,18 +1,18 @@
-"""Plutus' Experiments (Plutus Experiment Event, Şubat 2019; yol haritası ETKINLIKLER-34, URETIM-8; veri data/event_gates.json 'deney'
-<- tools/event_gates.py, kaynak belgeler/wiki/etkinlikler/plutus_deney.json).
+"""Plutus' Experiments (Plutus Experiment Event, February 2019; roadmap ETKINLIKLER-34, URETIM-8; data in data/event_gates.json 'experiment'
+<- tools/event_gates.py, source belgeler/wiki/etkinlikler/plutus_deney.json).
 
-Üç risk: Low (kendi X-1 haritaların), Medium (X-5), High (4-4; PvP yerine PvE). Etkinlik sürerken oyuncunun bulunduğu haritada, bekleme
-(Low ve Medium 20 dk, High 30 dk; "atış dahil") dolmuşsa yakında bir işaret kulesi (Plutus Beacon) doğar. Kuleye ilk atış 35 sn'lik sayacı
-başlatır (istemcinin Plutus metinleri: ilk atış, 10. sn "ne kadar çok hasar, o kadar iyi uzaylı", 35. sn); kulenin aldığı hasara göre risk
-basamağının uzaylısı çıkar (Saimon Aberration … Devolarium Aberration; Kristallin Oddity … Uber Kristallon Oddity; Awakened Lordakium,
-Overlord, Devourer). Atışa 2 dakikada başlanmazsa kule kaçar ("escaped"); bekleme yine işler. Uzaylı yok olunca ona verilen hasarın kademesine
-göre kutu düşer (BEACON_LOW_RISK_BOX_0-11, MED_0-12, HIGH_1-8): ilerleme puanı, Tarnom (Low/Medium), Opitite (Medium/High) ve şanslı eşyalar
-(BRB-2, Backup Shield 2, Hecate gemisi, Dusklight Hecate tasarımı; High'ın en üst kademesinde BRB-2 ve Backup Shield 2 kesin).
-Tarnom ve Opitite Assembly'nin 13 tarifinin malzemesi (assembly.NO_SOURCE'tan çıktı). İlerleme puanı eşiklerinin ödülü (1.000 -> 15.000 CC-D,
-5.000 -> 10.000 Seprom, 10.000 -> 15.000 CC-C, 20.000 -> 96 DMG-DLB + 96 SHD-DLB, 50.000 -> NPC Nuke): istemcinin ilerleme penceresi ölü
-olduğundan eşiğe ulaşılınca bir kez, otomatik.
-Takvimde Plutus' Experiments yok: Gauntlet of Plutus penceresinde çalışır (takvimde 'plutus_deney' etkinliği varsa o).
-Profilde: plutus_deney {son: {risk: son işaretin zamanı}, pp, alinan: [verilen eşikler]}. ek_etkinlikler.EkEtkinlikler sistemi (attach, tick,
+Three risks: Low (your own X-1 maps), Medium (X-5), High (4-4; PvE instead of PvP). While the event runs, on the map the player is on, if the cooldown
+(Low and Medium 20 min, High 30 min; "shot included") has elapsed, a beacon tower (Plutus Beacon) spawns nearby. The first shot at the tower starts a
+35 s timer (the client's Plutus texts: first shot, at 10 s "the more damage, the better the alien", at 35 s); depending on the damage the tower took,
+the alien of that risk tier appears (Saimon Aberration ... Devolarium Aberration; Kristallin Oddity ... Uber Kristallon Oddity; Awakened Lordakium,
+Overlord, Devourer). If no shot is fired within 2 minutes the tower escapes ("escaped"); the cooldown still runs. When the alien is destroyed, a box drops by
+the tier of the damage dealt to it (BEACON_LOW_RISK_BOX_0-11, MED_0-12, HIGH_1-8): progress points, Tarnom (Low/Medium), Opitite (Medium/High) and lucky items
+(BRB-2, Backup Shield 2, the Hecate ship, the Dusklight Hecate design; in High's top tier BRB-2 and Backup Shield 2 are certain).
+Tarnom and Opitite are materials of Assembly's 13 recipes (they came out of assembly.NO_SOURCE). The reward of the progress point thresholds (1,000 -> 15,000 CC-D,
+5,000 -> 10,000 Seprom, 10,000 -> 15,000 CC-C, 20,000 -> 96 DMG-DLB + 96 SHD-DLB, 50,000 -> NPC Nuke): since the client's progress window is dead, it is given
+once, automatically, when the threshold is reached.
+Plutus' Experiments is not in the calendar: it runs in the Gauntlet of Plutus window (or the calendar's 'plutus_experiment' event if there is one).
+In the profile: plutus_experiment {last: {risk: time of the last beacon}, pp, claimed: [thresholds given]}. A system of extra_events.ExtraEvents (attach, tick,
 on_kill).
 """
 import math, random, time
@@ -51,7 +51,7 @@ def active(now=None):
 
 
 def risk_of(world, faction):
-    """Bu harita hangi riskin haritası (Low: kendi X-1'lerin, Medium: kendi X-5'lerin, High: 4-4); değilse None."""
+    """Which risk's map this map is (Low: your own X-1s, Medium: your own X-5s, High: 4-4); None if none."""
     m = int(world.map_id)
     for key, r in D.get('risks', {}).items():
         want = r['map_class']
@@ -61,13 +61,13 @@ def risk_of(world, faction):
 
 
 def tier(risk, dealt):
-    """Uzaylıya verilen hasarın kutu kademesi (alt sınırı geçilen en yüksek; alt sınırın altında kutu yok) ya da None."""
+    """The box tier of the damage dealt to the alien (the highest lower bound passed; no box below the lowest bound) or None."""
     got = [t for t in D['risks'][risk]['boxes'] if dealt >= t['from_']]
     return got[-1] if got else None
 
 
 def stage(risk, dealt):
-    """Kuleye verilen hasara göre çıkan uzaylının sırası (eşiği geçilen en güçlü)."""
+    """The rank of the alien that appears by the damage dealt to the tower (the strongest whose threshold is passed)."""
     return max(i for i, a in enumerate(D['risks'][risk]['alien_spawns']) if a['threshold'] <= dealt)
 
 
@@ -75,15 +75,15 @@ class PlutusExperiment:
     def __init__(self, profile, shop, log=print):
         self.p, self.m, self.log = profile, shop, log
         self.world = None
-        self.enc = None                  # süren karşılaşma: {risk, kule, dogdu, ilk, ipucu, uyari, uzayli}
+        self.enc = None                  # the ongoing encounter: {risk, tower, spawned, first, tooltip, warning, alien}
 
     @property
     def st(self):
         return self.p.d.setdefault('plutus_experiment', dict(last={}, pp=0, claimed=[]))
 
-    # ------------------------------------------------------------ bekleme
+    # ------------------------------------------------------------ cooldown
     def cooldown_left(self, risk, now):
-        if SET.get('no_entry_limit'):                       # panel: günlük/yıllık/bir kez ve bekleme süresi yok
+        if SET.get('no_entry_limit'):                       # panel: no daily/yearly/one-time and no cooldown
             return 0
         return max(0.0, self.st['last'].get(risk, 0) + D['risks'][risk]['cooldown_sec'] - now)
 
@@ -93,7 +93,7 @@ class PlutusExperiment:
             return KAPI.screen('key:msg_npc_spawning_beacon_cd_min', MINUTES=int(math.ceil(left / 60.0)))
         return KAPI.screen('key:msg_npc_spawning_beacon_cd_sec', SECONDS=int(math.ceil(left)))
 
-    # ------------------------------------------------------------ harita ve zaman
+    # ------------------------------------------------------------ map and time
     def attach(self, world):
         self.world, self.enc = world, None
         if not D or not active():
@@ -116,7 +116,7 @@ class PlutusExperiment:
         return self.step(w, now)
 
     def end(self, w):
-        """Etkinlik bitti: kule ve süren uzaylı gider."""
+        """Event ended: the tower and the ongoing alien go away."""
         e, self.enc = self.enc, None
         msgs = []
         with w.lock:
@@ -139,20 +139,20 @@ class PlutusExperiment:
             self.st['last'][risk] = now
             self.p.dirty = True
         self.enc = dict(risk=risk, tower=n.id, spawned=now, first=None, tooltip=False, warning=False, alien=None)
-        self.log('   Plutus’ Experiments: %s işaret kulesi doğdu (%d, %d)' % (D['risks'][risk]['name'], x, y))
+        self.log('   Plutus’ Experiments: %s beacon tower spawned (%d, %d)' % (D['risks'][risk]['name'], x, y))
         return [KAPI.screen('key:msg_npc_spawning_beacon_high_risk_spawn') if risk == 'high'
                 else KAPI.screen('A %s beacon has spawned.' % D['risks'][risk]['name'])]
 
     @staticmethod
     def beacon_hit(n, dmg):
-        """Kule yok olmaz: aldığı hasar sayılır, canı yenilenir (dunya.hit_npc'nin hasar kancası)."""
+        """The tower cannot be destroyed: the damage it takes is counted, its HP is restored (the damage hook of world.hit_npc)."""
         n.dealt += dmg
         n.hp, n.shield = n.d['hp'], n.d['kalkan']
 
     def step(self, w, now):
         e, msgs = self.enc, []
         with w.lock:
-            if e['alien']:                                  # uzaylı çıktı: yok olunca karşılaşma biter (kutu on_kill'de)
+            if e['alien']:                                  # the alien appeared: the encounter ends when it is destroyed (the box is in on_kill)
                 n = w.npcs.get(e['alien'])
                 if n is None or not n.alive:
                     self.enc = None
@@ -165,7 +165,7 @@ class PlutusExperiment:
                 if b.dealt > 0:
                     e['first'] = now
                     msgs.append(KAPI.screen('key:msg_npc_spawning_beacon_first_shot'))
-                elif now >= e['spawned'] + D['fire_sec']:       # 2 dakikada atılmadı: kaçar
+                elif now >= e['spawned'] + D['fire_sec']:       # not shot within 2 minutes: it escapes
                     msgs += w.remove_npc(b) + [KAPI.screen('key:msg_npc_spawning_beacon_escaped')]
                     self.enc = None
                 return msgs
@@ -173,7 +173,7 @@ class PlutusExperiment:
             if not e['tooltip'] and t >= D['hint_sec']:
                 e['tooltip'] = True
                 msgs.append(KAPI.screen('key:msg_npc_spawning_beacon_10_sec'))
-            if not e['warning'] and t >= D['wave_sec'] - 10:       # 45 sn'lik sayacın 35. saniyesi (forum 143093)
+            if not e['warning'] and t >= D['wave_sec'] - 10:       # the 35th second of the 45 s timer (forum 143093)
                 e['warning'] = True
                 msgs.append(KAPI.screen('key:msg_npc_spawning_beacon_35_sec'))
             if t >= D['wave_sec']:
@@ -181,7 +181,7 @@ class PlutusExperiment:
         return msgs
 
     def release(self, w, b, e):
-        """35 sn doldu: kulenin aldığı hasara göre uzaylı çıkar, kule gider."""
+        """35 s elapsed: the alien appears by the damage the tower took, the tower leaves."""
         risk = e['risk']
         i = stage(risk, b.dealt)
         x, y = b.mover.pos(time.time())
@@ -190,12 +190,12 @@ class PlutusExperiment:
         n.gate, n.hunt, n.dealt = True, True, 0
         n.damage_hook = lambda dmg, n=n: setattr(n, 'dealt', n.dealt + dmg)
         e['alien'] = n.id
-        self.log('   Plutus’ Experiments: kule %d hasar aldı -> %s' % (b.dealt, D['risks'][risk]['alien_spawns'][i]['name']))
+        self.log('   Plutus’ Experiments: tower took %d damage -> %s' % (b.dealt, D['risks'][risk]['alien_spawns'][i]['name']))
         return msgs
 
-    # ------------------------------------------------------------ ödül
+    # ------------------------------------------------------------ reward
     def on_kill(self, w, npc, x, y):
-        """Deney uzaylısı yok oldu: ona verilen hasarın kademesinin kutusu düşer (kutu toplanınca ödül: collect)."""
+        """The experiment alien was destroyed: the box of the tier of the damage dealt to it drops (reward when the box is collected: collect)."""
         if not npc.tip.startswith(PREFIX) or npc.tip == BEACON:
             return []
         risk = npc.tip[len(PREFIX):].rsplit('_', 1)[0]
@@ -203,11 +203,11 @@ class PlutusExperiment:
         if t:
             h = w.drop_box(t['type'], x, y, None, 900)
             w.boxes[h]['al'] = lambda b, t=t: self.collect(w, t)
-            self.log('   Plutus’ Experiments: %s düştü (%d hasar)' % (t['type'], npc.dealt))
+            self.log('   Plutus’ Experiments: %s dropped (%d damage)' % (t['type'], npc.dealt))
         return []
 
     def collect(self, w, t):
-        """Kutu toplandı: kesin satırlar (Tarnom, Opitite, High'ın en üst kademesinde BRB-2 ve Backup Shield 2), şanslı eşyalar, ilerleme puanı."""
+        """Box collected: the certain rows (Tarnom, Opitite, BRB-2 and Backup Shield 2 in High's top tier), lucky items, progress points."""
         msgs = []
         for loot, n in t['guaranteed']:
             msgs += w.grant_loot(loot, n)
@@ -217,7 +217,7 @@ class PlutusExperiment:
         return msgs + self.add_points(w, t['pp'])
 
     def add_points(self, w, n):
-        """İlerleme puanı: eklenir; eşiğe ulaşılan her satırın ödülü bir kez verilir."""
+        """Progress points: added; the reward of every row whose threshold is reached is given once."""
         st = self.st
         with self.p.lock:
             st['pp'] += n
@@ -229,5 +229,5 @@ class PlutusExperiment:
             for loot, k in r['reward']:
                 msgs += w.grant_loot(loot, k)
             msgs.append(KAPI.screen('Progression reward (%d points) received.' % r['points'], big=True))
-            self.log('   Plutus’ Experiments: %d puan ödülü' % r['points'])
+            self.log('   Plutus’ Experiments: %d point reward' % r['points'])
         return msgs

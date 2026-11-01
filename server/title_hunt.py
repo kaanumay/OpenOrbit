@@ -1,21 +1,20 @@
-"""Pursuit of Prestige / Title Frenzy (yol haritası Ö3; veri data/extra_events.json 'unvan_avi').
+"""Pursuit of Prestige / Title Frenzy (roadmap Ö3; data in data/extra_events.json 'title_hunt').
 
-İstemci (menü öğesi titleFrenzy, pencere 116, UITitleFrenzySystem): TitleFrenzyInfoCommand {schedule TitleFrenzyScheduleUpdateCommand
+Client (menu item titleFrenzy, window 116, UITitleFrenzySystem): TitleFrenzyInfoCommand {schedule TitleFrenzyScheduleUpdateCommand
 {timeToNextWindow, timeToWindowEnd}, timeToEventEnd, titleKey, rankRewards [RankRewardRangeModule], npcIds}, TitleFrenzyOwnerUpdateCommand
-{username, titleId, mapId} (unvanın kimde olduğu; pencerenin "Titles are currently on the following NPCs/Players" listesi),
-TitleFrenzyRankingInfoCommand {isActive, myRank, prevRank, nextRank, rankingInfoList [{username, score, rank}]}; sıralamanın ödül
-sekmesi RankRewardRequest rankType 12 (rankings.py), Rankings'in sayfası RankingsEventsInfoRequest rankType 3. Metinler:
-log_msg_titlefrenzy_takeover (%NAME% %MAP%: uzaylıda), log_msg_titlefrenzy_playertakeover (oyuncuda), titlefrenzy_window-*.
-Kurallar (wiki hitac-assault): 4 Prestige unvanı rastgele Hitac Underling'lerde (X-2..X-8); saatler 07-09, 12-14, 18-20, 22-24;
-unvanı taşıyan uzaylıyı öldüren unvanı alır; ölüm, çıkış, üsse ya da kapıya girme, 30 dk kesintisiz tutma unvanı kaybettirir (unvan
-başka bir uzaylıya geçer); toplam tutma süresi sıralamayı belirler. Unvan tutulurken gemi üstünde görünür (0|n|t).
-Tek oyunculu uyarlama: rakipler sanal (müzayede rakiplerinin adları); uzaylıdaki unvanı arada bir sanal rakip kapar, bir süre tutup
-bırakır; puanları da böyle birikir. Unvan haritada değil başka haritada uzaylıdaysa yalnız listede görünür; oyuncu o haritaya
-gelince bir Underling unvanı taşır (gemi üstünde unvanıyla). Puan: tutulan dakika.
-Profilde: unvan_avi {donem, puan (dk), unvanlar {id: {owner: 'npc'|'oyuncu'|'rakip', harita, ad, bas}}, rakipler {name: puan},
-odul_alindi}.
-Çok oyunculu sunucuda her oyuncunun unvanları kendisinin; ortak haritanın uzaylısındaki unvan oyuncunun adıyla (unvanlar {name: kimlik}):
-iki oyuncu aynı Underling'i kendi unvanının taşıyıcısı sanmasın (önce n.unvan ortaktı). Sıralamada sunucunun öteki oyuncuları da.
+{username, titleId, mapId} (who holds the title; the window's "Titles are currently on the following NPCs/Players" list),
+TitleFrenzyRankingInfoCommand {isActive, myRank, prevRank, nextRank, rankingInfoList [{username, score, rank}]}; the ranking's reward
+tab RankRewardRequest rankType 12 (rankings.py), Rankings' page RankingsEventsInfoRequest rankType 3. Texts:
+log_msg_titlefrenzy_takeover (%NAME% %MAP%: on an alien), log_msg_titlefrenzy_playertakeover (on a player), titlefrenzy_window-*.
+Rules (wiki hitac-assault): 4 Prestige titles on random Hitac Underlings (X-2..X-8); hours 07-09, 12-14, 18-20, 22-24;
+whoever kills the alien carrying the title gets it; death, logging out, entering base or a gate, and holding for 30 min without interruption make
+the title be lost (the title passes to another alien); the total holding time decides the ranking. While a title is held it shows above the ship (0|n|t).
+Single-player adaptation: the rivals are virtual (the auction rivals' names); a virtual rival occasionally grabs the title on an alien, holds it
+for a while and drops it; their scores accumulate this way too. If the title is on an alien on another map, not this one, it appears only
+in the list; when the player gets to that map an Underling carries the title (with the title above the ship). Score: minutes held.
+In the profile: title_hunt {period, points (min), titles {id: {owner: 'npc'|'player', map, class_name, name, start}}, rivals {name: score}}.
+On a multiplayer server each player's titles are their own; a title on an alien of the shared map goes by the player's name (titles {name: id}):
+so two players do not take the same Underling to be the carrier of their own title (a single n.title used to be shared). Other players on the server are in the ranking too.
 """
 import json, os, random, time
 
@@ -36,13 +35,13 @@ REWARD_TITLE = D.get('reward_title', 'title_titlefrenzy-aug2026-reward')
 COUNT = D.get('count', 4)
 HOLD_MAX = D.get('max_hold_sec', 1800)
 CARRIER = D.get('carrier', 'event_hitac_underling_')
-TITLE_ID_BASE = 1500                               # gemi üstündeki unvanın kimliği (istemci anahtarı gösterir)
+TITLE_ID_BASE = 1500                               # id of the title above the ship (the client shows the key)
 if D.get('table'):
     RK.TABLES[RANK_TYPE] = D['table']
 
 
 def register_titles():
-    """Unvanları başarım tablosuna (gemi üstü unvan, başarım penceresinde seçilebilir ödül unvanı)."""
+    """The titles into the achievement table (the title above the ship, a reward title selectable in the achievement window)."""
     import achievement as ACV
     for i, key in enumerate((TITLE_KEY, REWARD_TITLE)):
         if key not in ACV.TITLES:
@@ -51,12 +50,12 @@ def register_titles():
 
 
 def map_id(cls, faction):
-    """X-n haritasının firmaya göre kimliği (harita sınıfı -> kimlik)."""
+    """The id of map X-n by company (map class -> id)."""
     return next((m for m, n in H.NAMES.items() if H.map_class(m) == cls and (H.company(m) in (None, faction))), 0)
 
 
 def in_window(now=None):
-    """(pencere sürüyor mu, pencerenin bitişine/başlangıcına kalan saniye)."""
+    """(whether the window is ongoing, seconds left until the window's end/start)."""
     t = time.localtime(time.time() if now is None else now)
     h = t.tm_hour + t.tm_min / 60.0 + t.tm_sec / 3600.0
     for a, b in WINDOWS:
@@ -72,11 +71,11 @@ class TitleHunt:
     def __init__(self, profile, shop, log=print):
         self.p, self.m, self.log = profile, shop, log
         self.world = None
-        self.attached = 0.0                        # harita açıldığı an (taşıyıcılar biraz sonra atanır)
-        self.shown = None                          # unvanları istemciye gönderilen açılış (attached)
+        self.attached = 0.0                        # the moment the map opens (carriers are assigned a little later)
+        self.shown = None                          # the opening whose titles are sent to the client (attached)
         self.was = None
         self.next_rival = 0.0
-        self.base_title = None                     # başarımın gemi üstü unvanı (oturum bağlar: basarim.title_msgs)
+        self.base_title = None                     # the achievement's title above the ship (binds the session: achievement.title_msgs)
         register_titles()
 
     @property
@@ -87,7 +86,7 @@ class TitleHunt:
         return d
 
     def enabled(self, now=None):
-        """Pursuit of Prestige sürüyor ve Hitac'ın Underling'leri haritalarda (Hitac Assault)."""
+        """Pursuit of Prestige is ongoing and Hitac's Underlings are on the maps (Hitac Assault)."""
         cur = CAL.active(now)
         return EVENT in cur and 'hitac' in cur
 
@@ -108,7 +107,7 @@ class TitleHunt:
 
     def schedule_cmd(self, now=None):
         on, left = in_window(now)
-        # süreler saniye (canlı: milisaniye gönderilince 1 sa 41 dk "70 Days 14 Hrs." görünüyordu)
+        # durations in seconds (live: when milliseconds were sent, 1 h 41 min showed as "70 Days 14 Hrs.")
         return {'_': 'TitleFrenzyScheduleUpdateCommand', 'timeToNextWindow': 0 if on else left,
                 'timeToWindowEnd': left if on else 0}
 
@@ -117,7 +116,7 @@ class TitleHunt:
                                                titleKey=TITLE_KEY, rankRewards=RK.ranges(RANK_TYPE), npcIds=D.get('npc_ids', [299])))
 
     def ranking(self):
-        """Oyuncu, sunucunun öteki oyuncuları ve sanal rakipler, puana göre."""
+        """The player, the server's other players and the virtual rivals, by score."""
         import community as TP
         rows = [(self.p.d['pilot'].get('userName', ''), self.st['points'] + self.held_minutes(), True)]
         for k in TP.all_().values():
@@ -141,11 +140,11 @@ class TitleHunt:
     def login_msgs(self):
         if not self.enabled():
             return []
-        msgs = [self.info_cmd()] + self.owner_cmds()          # sıralama yalnız Rankings açılınca (Hall of Fame'in arayüzüne gider;
-        return msgs + self.ship_title_msgs()                   # pencere kapalıyken InitRankingUI hata veriyordu: canlı tur Ö3)
+        msgs = [self.info_cmd()] + self.owner_cmds()          # the ranking only when Rankings opens (goes to Hall of Fame's UI;
+        return msgs + self.ship_title_msgs()                   # InitRankingUI gave an error while the window was closed: live round Ö3)
 
     def window(self, item):
-        """Pencere açıldı (UIButtonTriggerRequest titleFrenzy)."""
+        """Window opened (UIButtonTriggerRequest titleFrenzy)."""
         if item != 'titleFrenzy' or not self.enabled():
             return []
         return [self.info_cmd()] + self.owner_cmds()
@@ -155,7 +154,7 @@ class TitleHunt:
             return [self.ranking_cmd()]
         return []
 
-    # ------------------------------------------------------------ unvanlar
+    # ------------------------------------------------------------ titles
     def held(self):
         return [tid for tid, t in self.st['titles'].items() if t['owner'] == 'player']
 
@@ -164,13 +163,13 @@ class TitleHunt:
         return sum(max(0, now - t['start']) for t in self.st['titles'].values() if t['owner'] == 'player') / 60.0
 
     def ship_title_msgs(self):
-        """Gemi üstündeki unvan: unvan tutulurken Prestige unvanı, değilse başarımın seçili unvanı (basarim.title_msgs)."""
+        """The title above the ship: the Prestige title while a title is held, otherwise the achievement's selected title (achievement.title_msgs)."""
         if self.held():
             return [legacy('0|n|t|%d|%d|%s' % (self.p.user_id, TITLE_ID_BASE, TITLE_KEY))]
         return []
 
     def to_npc(self, tid, avoid=None, now=None):
-        """Unvan rastgele bir haritadaki Underling'e geçer."""
+        """The title passes to an Underling on a random map."""
         cls = random.choice([m for m in MAPS if m != avoid] or MAPS)
         name = D.get('carrier_name', 'Hitac-Underling')
         with self.p.lock:
@@ -183,7 +182,7 @@ class TitleHunt:
         return next(m for m in self.owner_cmds() if m[1]['titleId'] == int(tid))
 
     def drop(self, why, now=None):
-        """Oyuncu unvanlarını kaybeder (ölüm, çıkış, üs, kapı, 30 dk): süre puana, unvan başka uzaylıya."""
+        """The player loses titles (death, logout, base, gate, 30 min): time to score, the title to another alien."""
         now = time.time() if now is None else now
         msgs = []
         for tid in self.held():
@@ -192,26 +191,26 @@ class TitleHunt:
             with self.p.lock:
                 self.st['points'] += gained
                 self.p.dirty = True
-            self.log('   Prestige unvanı %s bırakıldı (%s): +%.1f dk' % (tid, why, gained))
+            self.log('   Prestige title %s dropped (%s): +%.1f min' % (tid, why, gained))
             msgs += self.to_npc(tid, avoid=t.get('class_name'), now=now)
         if msgs:
             msgs += self.title_reset_msgs()
         return msgs
 
     def title_reset_msgs(self):
-        """Prestige unvanı gitti: başarımın seçili unvanı (yoksa unvansız)."""
+        """The Prestige title is gone: the achievement's selected title (none if no title)."""
         base = self.base_title() if self.base_title else []
         return base or [legacy('0|n|t|%d|0|' % self.p.user_id)]
 
     def attach(self, world):
-        """Harita açıldı: buradaki unvanların taşıyıcıları tick'te atanır (canlı: attach'te haritanın uzaylıları henüz
-        geri yüklenmemişti, unvan hiçbir Underling'e geçmiyordu)."""
+        """Map opened: the carriers of the titles here are assigned in tick (live: at attach the map's aliens had not been
+        restored yet, the title passed to no Underling)."""
         self.world = world
         self.attached = time.time()
         return []
 
     def mark(self, n):
-        """Uzaylının taşıdığı bu oyuncunun unvanı ya da None."""
+        """This player's title carried by the alien, or None."""
         return (getattr(n, 'titles', None) or {}).get(self.key)
 
     @property
@@ -219,9 +218,9 @@ class TitleHunt:
         return str(self.p.d['pilot'].get('userName', '')).strip().lower()
 
     def carriers(self, now):
-        """Bu haritadaki, taşıyıcısı olmayan unvanlar bir Underling'e (gemi üstünde unvanıyla) -> mesajlar."""
+        """Titles on this map without a carrier go to an Underling (with the title above the ship) -> messages."""
         w = self.world
-        if not w or now - self.attached < 2.0:            # uzaylılar istemcide oluşturulduktan sonra
+        if not w or now - self.attached < 2.0:            # after the aliens are created on the client
             return []
         cls = H.map_class(w.map_id)
         mine = [tid for tid, t in self.st['titles'].items() if t['owner'] == 'npc' and t.get('class_name') == cls]
@@ -229,7 +228,7 @@ class TitleHunt:
             return []
         msgs = []
         with w.lock:
-            if self.shown != self.attached:         # haritaya yeniden girildi: geri gelen taşıyıcıların unvanı istemcide yok
+            if self.shown != self.attached:         # the map was re-entered: the returning carriers' title is not on the client
                 self.shown = self.attached
                 msgs += [legacy('0|n|t|%d|%d|%s' % (n.id, TITLE_ID_BASE, TITLE_KEY))
                          for n in w.npcs.values() if n.alive and self.mark(n) in mine]
@@ -252,11 +251,11 @@ class TitleHunt:
                                          'start': time.time()}
             self.p.dirty = True
         name = self.p.d['pilot'].get('userName', '')
-        self.log('   Prestige unvanı %s alındı (%s)' % (tid, H.name(w.map_id)))
+        self.log('   Prestige title %s taken (%s)' % (tid, H.name(w.map_id)))
         return [self.owner_one(tid), legacy('0|A|STM|log_msg_titlefrenzy_playertakeover|%%NAME%%|%s|%%MAP%%|%s' % (name, H.name(w.map_id)))] \
             + self.ship_title_msgs()
 
-    # ------------------------------------------------------------ zaman
+    # ------------------------------------------------------------ time
     def start_window(self, now):
         msgs = []
         with self.p.lock:
@@ -276,7 +275,7 @@ class TitleHunt:
         return msgs + [self.info_cmd(now)] + self.owner_cmds()
 
     def rivals_tick(self, now):
-        """Sanal rakipler: uzaylıdaki unvanı arada bir kapar, bir süre tutup bırakır; puanları birikir."""
+        """Virtual rivals: occasionally grab the title on an alien, hold it for a while and drop it; their scores accumulate."""
         if now < self.next_rival:
             return []
         self.next_rival = now + 60
@@ -323,7 +322,7 @@ class TitleHunt:
         return msgs
 
     def event_end(self, now):
-        """Etkinlik bitti: sıralamaya göre ödül (bir kez) ve durum sıfır."""
+        """Event ended: reward by ranking (once) and the state is reset."""
         if self.st.get('period') is None:
             return []
         msgs = self.drop('etkinlik bitti', now)
@@ -335,8 +334,8 @@ class TitleHunt:
                 msgs += self.m.prize(loot, n)
             if r.get('title'):
                 msgs += self.grant_title(r['title'])
-            msgs.append(RK.confirmation(rank, RK.DEFAULT_REWARD, r))           # RewardType'ta Title Frenzy yok
-            self.log('   Pursuit of Prestige bitti: %d. sıra (%.1f dk), ödül %s' % (rank, self.st['points'], r['items']))
+            msgs.append(RK.confirmation(rank, RK.DEFAULT_REWARD, r))           # Title Frenzy is not in RewardType
+            self.log('   Pursuit of Prestige ended: rank %d (%.1f min), reward %s' % (rank, self.st['points'], r['items']))
         with self.p.lock:
             self.p.d['title_hunt'] = {}
             self.p.dirty = True
@@ -345,11 +344,11 @@ class TitleHunt:
     def grant_title(self, key):
         import achievement as ACV
         st = ACV.state(self.p)
-        ACV.title_id(key)                                  # başarım penceresinde seçilebilsin (tabloda olmayan etkinlik unvanı)
+        ACV.title_id(key)                                  # so it can be selected in the achievement window (an event title not in the table)
         if key not in st['titles']:
             with self.p.lock:
                 st['titles'].append(key)
                 self.p.dirty = True
-        # istemcide "unvan alındı" metni yok; LOT satırı adı eşya kaynağında aradığından seyir defterine "You received ." yazıyordu
-        # (canlı tur 2): satır gönderilmez, unvan başarım penceresinde seçilir
+        # the client has no "title received" text; since the LOT line looks up the name in the item source it wrote "You received ." to the logbook
+        # (live round 2): the line is not sent, the title is selected in the achievement window
         return []

@@ -1,15 +1,15 @@
-"""Somut botun etkin eşyaları ve görselleri: oyuncunun gönderdiği mesajların aynısı botun kimliğiyle (technology.py, combat_items.py).
+"""A concrete bot's active items and visuals: the same messages the player sends, under the bot's identity (technology.py, combat_items.py).
 
-  Backup Shields   0|n|A|S|SBU|bot                kalkan +75.000
-  Battle Repair    VisualModifierCommand 60 açık/kapalı, süre boyunca saniyede can
-  Energy Leech     VisualModifierCommand 59, lazer hasarının %10'u cana (15 dk)
-  Chain Impulse    0|n|ECI|1|bot|hedefler          yalnız kalkana hasar (istemci: "chain reaction of shield damage")
-  Insta-Shield     0|n|ISH|bot                     3 sn dokunulmaz; 10 ACM-01 mayını ya da 100 Xenomit
-  Smart Bomb       0|n|SMB|bot                     600 birimde düşman gemilere can ve kalkanın %20'si; 10 mayın ya da 100 Xenomit
-  EMP-01           0|n|EMP|bot                     ona kilitlenen oyuncunun seçimi düşer (uzaylıların hedefi sıfırlanır)
-  gizlenme CPU'su  0|n|INV|bot|1 / 0              görünmez ve vurulamaz; ateş edince görünür olur
-  AIM CPU          atış başına 10 Xenomit: ıska oranı %25 / %50 az
-Hepsi botun izinlerine (teknoloji, ekstra, mayin) ve stoğuna bağlı; bekleme süreleri oyuncunun değerleri.
+  Backup Shields   0|n|A|S|SBU|bot                shield +75,000
+  Battle Repair    VisualModifierCommand 60 on/off, HP per second for the duration
+  Energy Leech     VisualModifierCommand 59, 10% of laser damage goes to HP (15 min)
+  Chain Impulse    0|n|ECI|1|bot|targets          damages the shield only (client: "chain reaction of shield damage")
+  Insta-Shield     0|n|ISH|bot                    3 s invulnerable; 10 ACM-01 mines or 100 Xenomit
+  Smart Bomb       0|n|SMB|bot                    enemy ships within 600 units lose HP and 20% of shield; 10 mines or 100 Xenomit
+  EMP-01           0|n|EMP|bot                    the selection of the player locked on it drops (aliens' target is reset)
+  cloak CPU        0|n|INV|bot|1 / 0              invisible and cannot be hit; becomes visible when it fires
+  AIM CPU          10 Xenomit per shot: miss rate 25% / 50% lower
+All of them depend on the bot's permissions (technology, extra, mine) and its stock; cooldowns are the player's values.
 """
 import math, random, time
 
@@ -19,7 +19,7 @@ from . import catalog as K
 CIT = K.ITEMS['combat_items']
 TECH_DATA = K.ITEMS['technology']['items']
 EMP = 'ammunition_specialammo_emp-01'
-DCR, RIC = 'ammunition_specialammo_dcr-250', 'ammunition_specialammo_r-ic3'      # yavaşlatma, dondurma (savas_esya.rocket_hit'in etkileri)
+DCR, RIC = 'ammunition_specialammo_dcr-250', 'ammunition_specialammo_r-ic3'      # slow, freeze (effects of combat_items.py rocket hits)
 SLOWERS = (DCR, RIC)
 XENOMIT = '3'
 
@@ -57,14 +57,14 @@ def spend_xenomit(b, n):
 
 
 def cost(b, c):
-    """Insta-Shield ve Smart Bomb'un bedeli: 10 ACM-01 mayını ya da 100 Xenomit -> ödendi mi."""
+    """Cost of Insta-Shield and Smart Bomb: 10 ACM-01 mines or 100 Xenomit -> was it paid."""
     from . import weapons as WP
     if WP.stock(b).get(c['mine'], 0) >= c['mine_count']:
         return WP.spend(b, c['mine'], c['mine_count']) == c['mine_count']
     return spend_xenomit(b, c['xenomit'])
 
 
-# ------------------------------------------------------------------------------------------------------------ teknoloji
+# ------------------------------------------------------------------------------------------------------------ technology
 def backup_shields(w, n, now):
     from . import technology as TECH
     v = TECH_DATA['tech_backup-shields']
@@ -93,7 +93,7 @@ def battle_repair(w, n, now, hp):
 
 
 def energy_leech(w, n, now):
-    """Zor savaşta (dayanıklı uzaylı ya da PvP) etkinleştirilir; süre boyunca lazer hasarının %10'u cana (leech_payi)."""
+    """Activated in a hard fight (tough alien or PvP); for the duration 10% of laser damage goes to HP (leech_payi)."""
     from . import technology as TECH
     v = TECH_DATA['tech_energy-leech']
     if now < n.__dict__.get('leech_end', 0) or not ready(n, 'ela', now) or not TECH.use(n.bot, 'tech_energy-leech'):
@@ -110,7 +110,7 @@ def leech(n, dmg, hp, now):
 
 
 def chain_impulse(w, n, now):
-    """700 birim içinde 3+ uzaylı: en yakın 7'sinin kalkanına 10.000 (beklemesi 60 sn)."""
+    """3+ aliens within 700 units: 10,000 to the shield of the nearest 7 (cooldown 60 s)."""
     from . import technology as TECH
     v = TECH_DATA['tech_chain-impulse']
     if not ready(n, 'eci', now) or TECH._stock(n.bot).get('tech_chain-impulse', 0) <= 0:
@@ -128,7 +128,7 @@ def chain_impulse(w, n, now):
         BG.hit_npc(w, n, m, min(v['damage'], int(m.shield)), now, 5, shield=True)
 
 
-# ------------------------------------------------------------------------------------------------------------ etkin CPU'lar
+# ------------------------------------------------------------------------------------------------------------ active CPUs
 def insta_shield(w, n, now):
     from . import extras as EX
     c = CIT['insta_shield']
@@ -142,7 +142,7 @@ def insta_shield(w, n, now):
 
 
 def smart_bomb(w, n, now, enemies):
-    """dusmanlar: [(kahraman dünyası ya da None, bot gemisi ya da None)] yarıçapta."""
+    """enemies: [(hero world or None, bot ship or None)] within the radius."""
     from . import extras as EX
     c = CIT['smart_bomb']
     b = n.bot
@@ -163,7 +163,7 @@ def smart_bomb(w, n, now, enemies):
 
 
 def emp(w, n, now):
-    """Ona kilitlenen oyuncunun seçimi düşer; botu hedefleyen uzaylılar şaşırır."""
+    """The selection of the player locked on it drops; aliens targeting the bot get confused."""
     from . import weapons as WP
     c = CIT['emp']
     b = n.bot
@@ -174,10 +174,10 @@ def emp(w, n, now):
     wait(n, 'emp', now, c['cooldown_sec'])
     _broadcast(w, [legacy('0|n|EMP|%d' % n.id)], n.id)
     if w.attacking:
-        w.laser_stop()                     # istemcinin lazeri ve kırmızı hedef vurgusu da kalksın
+        w.laser_stop()                     # the client's laser and red target highlight go away too
     w.target, w.attacking = None, False
     w.send([('ShipDeselectionCommand', {})])
-    n.emp_lock = now + c['daze_sec']      # o süre yeniden seçilemez (dunya.select; oyuncu bildirimi 2026-10-31: hemen seçiliyordu)
+    n.emp_lock = now + c['daze_sec']      # cannot be reselected for that time (world.select; player report 2026-10-31: it was selected immediately)
     for m in w.npcs.values():
         if m.bot is None and m.bot_target == n.id:
             m.bot_target = None
@@ -192,8 +192,8 @@ def cloak(w, n, now):
         return False
     n.hidden = True
     _broadcast(w, [legacy('0|n|INV|%d|1' % n.id)], n.id)
-    # onu seçmiş oyuncunun seçimi ve saldırısı sürer, vuruşlar işler (wiki: "Cloaked ships can still be attacked (if targeted)";
-    # oyuncu bildirimi 2026-10-31: gizlenen bota saldırılamıyordu)
+    # a player who has it selected keeps the selection and the attack, hits land (wiki: "Cloaked ships can still be attacked (if targeted)";
+    # player report 2026-10-31: a cloaked bot could not be attacked)
     n.bot.ist('hidden')
     return True
 
@@ -205,12 +205,12 @@ def decloak(w, n):
 
 
 def is_protected(n, now):
-    """Vurulamaz mı: Insta-Shield süresinde ya da gizliyken."""
+    """Cannot be hit: during Insta-Shield or while cloaked."""
     return now < n.__dict__.get('immune_until', 0) or n.__dict__.get('hidden', False)
 
 
 def aim(n, hit, is_hard):
-    """AIM CPU: zor hedefte (PvP ya da dayanıklı uzaylı) atış başına 10 Xenomit, ıska oranı azalır -> yeni isabet olasılığı."""
+    """AIM CPU: against a hard target (PvP or tough alien) 10 Xenomit per shot, the miss rate drops -> new hit probability."""
     from . import extras as EX
     b = n.bot
     cpu = next((c for c in (EX.AIM2, EX.AIM1) if EX.var(b, c)), None)
@@ -219,10 +219,10 @@ def aim(n, hit, is_hard):
     return 1 - (1 - hit) * (1 - K.ITEMS['extras'][cpu]['aim'])
 
 
-# ------------------------------------------------------------------------------------------------------------ karar
+# ------------------------------------------------------------------------------------------------------------ decision
 def combat(w, n, now, d, ratio, attackers):
-    """dusun'un savaş anı: tehlikede savunma (Insta-Shield, Backup Shields, Battle Repair), yakın düşmana Smart Bomb, zor savaşta
-    Energy Leech -> can/kalkan değiştiyse True."""
+    """think's combat moment: defense when in danger (Insta-Shield, Backup Shields, Battle Repair), Smart Bomb on a nearby enemy, Energy Leech
+    in a hard fight -> True if HP/shield changed."""
     from . import ship as BG
     player_or_bot = [u for u in attackers if BG._player(w, u) is not None or (u in w.npcs and w.npcs[u].bot is not None)]
     changed = False
@@ -230,8 +230,8 @@ def combat(w, n, now, d, ratio, attackers):
         changed |= insta_shield(w, n, now)
     if attackers and ratio < 0.4:
         changed |= backup_shields(w, n, now) or battle_repair(w, n, now, d['can'])
-    # PvP: biri ona saldırıyor ya da o bir oyuncuya / bota saldırıyor (karşılık vermeyen oyuncuya saldırırken de: önceden yalnız
-    # vurulunca giriyordu, yavaşlatan roketler hiç atılmıyordu; canlı 2026-11-01)
+    # PvP: someone is attacking it or it is attacking a player / bot (also when attacking a player who does not fight back: it used to start
+    # only when hit, so slowing rockets were never fired; live 2026-11-01)
     pvp_target = n.target is not None and ((n.target in w.npcs and w.npcs[n.target].bot is not None) or BG._player(w, n.target) is not None)
     if player_or_bot or pvp_target:
         energy_leech(w, n, now)
@@ -245,7 +245,7 @@ def combat(w, n, now, d, ratio, attackers):
             for t in list(w.npcs.values()):
                 if t.bot is not None and t is not n and t.bot.firma != n.bot.firma and BG.can_attack_bot(w, n, t, now) \
                         and math.hypot(*(a - c for a, c in zip(t.mover.pos(now), (x, y)))) <= r:
-                    victims.append((None, t))                 # güvenli bölgedeki ve korunan botlara değil
+                    victims.append((None, t))                 # not against bots in a safe zone or under protection
             if len(victims) >= 1 and random.random() < 0.5:
                 smart_bomb(w, n, now, victims)
         o = BG._player(w, n.target) if n.target is not None else None
@@ -255,8 +255,8 @@ def combat(w, n, now, d, ratio, attackers):
 
 
 def slow_down(w, n, o, ratio, now):
-    """Üstüne saldırdığı oyuncuya DCR-250 (hız -%30, 5 sn) ya da canı azaldıysa R-IC3 (2 sn donma): oyuncunun roket etkisi
-    (items.json 'etki', dunya.hero_effect) ve görseli aynen; bekleme süreleri roketinki."""
+    """DCR-250 (speed -30%, 5 s) on the player it is attacking, or R-IC3 (2 s freeze) if its HP dropped: the player's rocket effect
+    (items.json 'effect', world.hero_effect) and visual exactly; cooldowns are the rocket's."""
     from . import weapons as WP, ship as BG
     b = n.bot
     if not b.permission.get('custom_ammunition', True) or not BG.can_attack_player(w, n, o, now):

@@ -1,8 +1,8 @@
-// İstemcinin düzeltmeleri: BepInEx 6 (IL2CPP) eklentisi, Harmony yamaları. Panel BepInEx'i istemci klasörüne kurar, bu klasördeki
-// derlenmiş OpenOrbitPatch.dll'i BepInEx/plugins'e koyar ve Doorstop'u yalnız kendi açtığı istemcide etkinleştirir
-// (panel/client_patch.py). İstemcinin kendi dosyaları değişmez, yamalar bellekte. 1.1.115 için yazıldı: bir yamanın hedeflerinden biri
-// bulunmazsa o yama hiç uygulanmaz; günlük BepInEx/LogOutput.log. README'deki "istemci yamalanmaz" kuralının kullanıcı onaylı istisnası
-// (2026-10-24; BepInEx'e geçiş 2026-10-25).
+// Client fixes: a BepInEx 6 (IL2CPP) plugin, Harmony patches. The panel installs BepInEx into the client folder, puts the compiled
+// OpenOrbitPatch.dll from this folder into BepInEx/plugins and enables Doorstop only in the client it opened itself
+// (panel/client_patch.py). The client's own files do not change, the patches are in memory. Written for 1.1.115: if one of a patch's targets
+// is not found that patch is not applied at all; the log is BepInEx/LogOutput.log. A user-approved exception to the README's "the client is not patched" rule
+// (2026-10-24; the move to BepInEx 2026-10-25).
 using System;
 using System.Reflection;
 using BepInEx;
@@ -56,7 +56,7 @@ public class Plugin : BasePlugin
         }
     }
 
-    // Hedefler bulunmazsa hiçbir şey yamalanmadan hata
+    // If the targets are not found, an error without patching anything
     internal static void Find(params MethodBase[] targets)
     {
         if (Array.IndexOf(targets, null) >= 0)
@@ -64,19 +64,19 @@ public class Plugin : BasePlugin
     }
 }
 
-// Müzayede sayacı (CANLI_TEST H175; istemcinin kendi hatası, sunucu her listede doğru süreyi gönderiyor):
-//   UIAuctionSystem.StartCountdown her çağrıda yeni bir DOTween sayacı kurar, eskisini durdurmaz; sayaçların yazıcısı (b__1) o an seçili
-//   sekmenin alanına ve tek süre yazısına yazar. Sayaç yalnız pencerenin ilk listesinde ve sekme tıklamasında kurulur (sonraki listeler,
-//   yenile ve sayacın bitince istediği liste kurmaz). Sonuç: saatlik dönem bitince saatlik sekmede günlük sayaç görünür (22:57:22), hiç
-//   sekme gezilmediyse 00:00:00'da kalır; sekme tıklaması son listenin bayat süresini kullanır.
-//   P1 SetAuctionInfo: her listede seçili sekmenin sayacı listenin süresiyle yeniden kurulur (OnChickBTN; sekme değişmez)
-//   P2 DOTween.To: StartCountdown'ın kurduğu son sayaç (kapanış nesnesi) kaydedilir
-//   P3, P4 sayacın yazıcısı ve bitişi: son sayaç değilse hiçbir şey yapmaz (eski sayaçlar yazmaz, bitince liste istemez)
-//   P5 OnChickBTN: sekme tıklamasında bayat süreyle kurmak yerine liste ister (RefreshUI); yanıtı P1 kurar
+// Auction counter (CANLI_TEST H175; the client's own bug, the server sends the right time in every list):
+//   UIAuctionSystem.StartCountdown sets up a new DOTween counter on every call and does not stop the old one; the counters' writer (b__1) writes to the selected tab's field
+//   at that moment and to the single time text. The counter is set up only on the window's first list and on a tab click (later lists,
+//   refresh and the list the counter asks for when it ends are not set up). Result: when the hourly period ends the daily counter shows on the hourly tab (22:57:22), if no
+//   tab was browsed it stays at 00:00:00; a tab click uses the last list's stale time.
+//   P1 SetAuctionInfo: in every list the selected tab's counter is set up again with the list's time (OnChickBTN; the tab does not change)
+//   P2 DOTween.To: the last counter StartCountdown set up (the closing object) is recorded
+//   P3, P4 the counter's writer and its end: if it is not the last counter it does nothing (old counters do not write, do not ask for a list when they end)
+//   P5 OnChickBTN: on a tab click, instead of setting up with a stale time it asks for a list (RefreshUI); P1 sets up on the reply
 static class Auction
 {
-    static IntPtr last;                  // son kurulan sayacın kapanış nesnesi
-    static bool inTab, fromList;      // OnChickBTN sürüyor; onu P1 çağırdı
+    static IntPtr last;                  // the closing object of the last counter set up
+    static bool inTab, fromList;      // OnChickBTN is running; P1 called it
 
     internal static void Apply(Harmony h)
     {
@@ -99,7 +99,7 @@ static class Auction
 
     static HarmonyMethod Y(string name) => new HarmonyMethod(typeof(Auction), name);
 
-    // P1: TabType yoksa (ilk liste) istemcinin kendi yolu (ilk sekme; P5 liste ister); varsa sekmenin sırası (0 saat, 1 gün, 2 hafta)
+    // P1: if there is no TabType (first list) the client's own path (first tab; P5 asks for a list); if there is, the tab's order (0 hour, 1 day, 2 week)
     static void InfoBefore(UIAuction self, out string __state) => __state = self.TabType;
 
     static void InfoAfter(UIAuction self, string __state)
@@ -121,7 +121,7 @@ static class Auction
 
     static void TabAfter() => inTab = false;
 
-    // P5: OnChickBTN'un içindeki sayaç P1'den geliyorsa kurulur, sekme tıklamasıysa liste istenir (ShowEndTime'ınki değişmez)
+    // P5: if the counter inside OnChickBTN comes from P1 it is set up, if it is a tab click a list is asked for (ShowEndTime's does not change)
     static bool CounterBefore(UIAuction self)
     {
         if (!inTab || fromList)
@@ -140,10 +140,10 @@ static class Auction
     static bool OnlyLast(UIAuctionSystem.__c__DisplayClass26_0 __instance) => __instance.Pointer == last;
 }
 
-// Rütbe penceresi (Hall of Fame "Your Rank"; kullanıcı bildirimi 2026-10-24: Sergeant olunca da "You currently have the lowest rank."):
-//   UIHallOfFameSystem.UpdateDailyRankForServer alt satırı yourRanking'e göre kurar ("hof_your_rank_below" rütbe 2-20, "hof_rank_lowest" 1,
-//   "hof_rank_highest" 21) ama sonucu atıp metin dizisine hep GetTextById("hof_rank_lowest") koyar. Dizi birleşip MiddleDesc'e yazılır
-//   (ipucu, boş satır, üst rütbe satırı, satır sonu, alt satır, boş satır, ...): R1 metindeki "hof_rank_lowest" satırı kurulan satır olur.
+// Rank window (Hall of Fame "Your Rank"; user report 2026-10-24: even when becoming Sergeant it said "You currently have the lowest rank."):
+//   UIHallOfFameSystem.UpdateDailyRankForServer builds the bottom line according to yourRanking ("hof_your_rank_below" rank 2-20, "hof_rank_lowest" 1,
+//   "hof_rank_highest" 21) but throws the result away and always puts GetTextById("hof_rank_lowest") in the text array. The array is joined and written to MiddleDesc
+//   (hint, empty line, upper rank line, line break, bottom line, empty line, ...): R1 makes the "hof_rank_lowest" line in the text the line that was built.
 static class RankWindow
 {
     internal static void Apply(Harmony h)
@@ -170,14 +170,14 @@ static class RankWindow
     }
 }
 
-// Mağaza tutarı (kullanıcı bildirimi 2026-10-25, CANLI_TEST H233): bedava üründe sunucu price[0]'ı 1e-9 gönderir (magaza.BEDAVA_FIYAT;
-//   0 olsa istemci adet seçicili üründe Buy'u kapatıyor). Ürüne tıklanınca toplam kutusu UIShopSystem.ReturnPriceName'den gelir ve fiyatı
-//   yuvarlamadan biçimler ("0.000000001 U."); adet değişince istemci tutarı 2 haneye yuvarlıyor (CalculatePurchaseCost: Decimal.Round(x,
-//   2, AwayFromZero)). M1: ReturnPriceName'in ReturnCostStr çağrısı aynı yuvarlamadan geçer ("0 U."). Mağazanın öteki fiyatlarında 2
-//   haneden fazla ondalık yok: değişmez.
+// Shop amount (user report 2026-10-25, CANLI_TEST H233): for a free item the server sends price[0] as 1e-9 (shop.FREE_PRICE;
+//   with 0 the client disables Buy on an item with a quantity selector). When an item is clicked the total box comes from UIShopSystem.ReturnPriceName and formats the price
+//   without rounding ("0.000000001 U."); when the quantity changes the client rounds the amount to 2 digits (CalculatePurchaseCost: Decimal.Round(x,
+//   2, AwayFromZero)). M1: ReturnPriceName's ReturnCostStr call goes through the same rounding ("0 U."). The shop's other prices have no more than 2
+//   decimals: unchanged.
 static class ShopAmount
 {
-    static bool inPrice;                // ReturnPriceName sürüyor
+    static bool inPrice;                // ReturnPriceName is running
 
     internal static void Apply(Harmony h)
     {
@@ -201,15 +201,15 @@ static class ShopAmount
     }
 }
 
-// Otomatik pilot kaçışı (Omega AutoTactic; kullanıcı bildirimi 2026-10-28: uzaylıdan hızlı gemi ateş edemeden sonsuza kaçıyordu):
-//   HangUpAI.ExecuteAttackAction hedef attackRange içindeyken ateş eder ve ardından UpdateCloseRangeEscapeMovement'ı çağırır. O, en
-//   yakın tehdit attackRange - 5'ten (birden çok tehditte + 45) yakınsa gemiyi tehditten (aralık - uzaklık) + 120 (çok tehditte 250)
-//   birim, en az o kadar en çok 650 uzağa kaçırır: kaçış her seferinde menzil + 115 / + 290'da biter, hedef menzil dışına düşer, kovalanır,
-//   yine yaklaşınca kaçılır. O1: kaçış hesaplanırken attackRange KACIS_PAYI düşük: kaçış ancak tehdit gerçekten yakınken başlar ve gemiyi
-//   menzil içinde (çok tehditte menzil - 10) bırakır; ateş ve kovalama kendi menzille (finalizer geri koyar).
+// Autopilot escape (Omega AutoTactic; user report 2026-10-28: a ship faster than the alien fled endlessly without being able to fire):
+//   HangUpAI.ExecuteAttackAction fires when the target is within attackRange and then calls UpdateCloseRangeEscapeMovement. If the nearest
+//   threat is closer than attackRange - 5 (+ 45 with multiple threats) it makes the ship flee from the threat (range - distance) + 120 (250 with multiple threats)
+//   units, at least that much, at most 650 away: the escape ends each time at range + 115 / + 290, the target falls out of range, is chased,
+//   and when it comes close again it flees. O1: when computing the escape attackRange is KACIS_PAYI lower: the escape starts only when the threat is really close and leaves the ship
+//   within range (range - 10 with multiple threats); firing and chasing use their own range (the finalizer puts it back).
 static class AutopilotEscape
 {
-    const float ESCAPE_MARGIN = 300f;      // 250 kaçış + 45 grup aralığı + 5 pay
+    const float ESCAPE_MARGIN = 300f;      // 250 escape + 45 group gap + 5 margin
     static float reach = -1f;
 
     internal static void Apply(Harmony h)
@@ -234,10 +234,10 @@ static class AutopilotEscape
     }
 }
 
-// Sohbet moderatörü rengi (kullanıcı isteği 2026-10-31): sunucunun moderatör botları sohbette "mod" rolüyle ve [CM] etiketiyle yazar
-// (server/bot/moderation.py). İstemcinin UIChatSystem.BuildMessageText'i rengi role göre seçer: admin #FF0000 (etiketi gizler, kanal
-// yerine "Yönetici" yazar), system gri, chatter firma rengi, öteki roller (mod dahil) #FFFFFF. R1: "mod" rolündeki göndericinin
-// satırı RENK ile çizilir; etiket ve kanal adı olduğu gibi kalır ("[Global] [CM] Ad").
+// Chat moderator color (user request 2026-10-31): the server's moderator bots write in chat with the "mod" role and the [CM] tag
+// (server/bot/moderation.py). The client's UIChatSystem.BuildMessageText chooses the color by role: admin #FF0000 (hides the tag, writes "Yönetici"
+// instead of the channel), system gray, chatter the company color, other roles (mod included) #FFFFFF. R1: the line of a sender with the "mod" role
+// is drawn with COLOR; the tag and channel name stay as they are ("[Global] [CM] Name").
 static class ModeratorColor
 {
     const string ROLE = "mod", COLOR = "#FFC83D", WHITE = "<color=#FFFFFF>";
@@ -260,11 +260,11 @@ static class ModeratorColor
     }
 }
 
-// Otomatik kuşanma ayarı (kullanıcı bildirimi 2026-10-31: "Auto-equip new items" kapalıyken de ödül eşyaları takılıyordu): Ayarlar >
-//   Gameplay'deki kutu (Tog9GameplayToggle) istemcide yalnız etiketle kurulur (UISettingsSystem.InitGameplay; dinleyicisi yok, kaydedilmez,
-//   GameplaySettingsRequest'te alanı yok), sunucu ödül ekipmanını boş yuvaya hep takıyordu (magaza._reward). K1: InitGameplay'den sonra
-//   kutu PlayerPrefs'teki değerle kurulur (varsayılan açık); değişince kaydedilir. Kurulunca ve değişince sunucuya LegacyModule
-//   "AEQ|1" / "AEQ|0" gider (game.py -> profil otomatik_kusan).
+// Auto-equip setting (user report 2026-10-31: even with "Auto-equip new items" off, reward items were being fitted): the box in Settings >
+//   Gameplay (Tog9GameplayToggle) is set up on the client only with its label (UISettingsSystem.InitGameplay; no listener, not saved,
+//   no field in GameplaySettingsRequest), and the server always fitted reward equipment into an empty slot (shop._reward). K1: after InitGameplay
+//   the box is set up with the value in PlayerPrefs (default on); it is saved when it changes. When set up and when changed it sends the server a LegacyModule
+//   "AEQ|1" / "AEQ|0" (game.py -> player profile auto_equip).
 static class AutoEquip
 {
     const string KEY = "openorbit_autoEquip";

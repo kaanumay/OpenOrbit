@@ -1,16 +1,17 @@
-"""Botların toplumu: oyundaki kimliği (Profil) ve oyunun sosyal sistemlerine bağı.
+"""The bots' society: their in-game identity (Profile) and their link to the game's social systems.
 
-Profil bellekte durur, dosyaya yazılmaz (BotProfil.save boş): kalıcı kayıt paketin durum.json'udur. guncelle() botun ilerlemesini
-profile kopyalar (seviye, para, onur, gemi, dronlar, konum); rehber ve müzayede bölümleri botun kaydıyla aynı sözlüktür (kalıcı).
+The profile lives in memory and is not written to a file (BotProfile.save is empty): the persistent record is the pack's state.json. update()
+copies the bot's progress to the profile (level, money, honor, ship, drones, position); the directory and auction sections are the same dict
+as the bot's save (persistent).
 
-Oyunun bütün "öteki oyuncu" aramaları topluluk.hepsi()'den geçer: botlar oraya sahte oturumla (BotOturum) kaydolunca rehber,
-klan, grup, fısıltı, posta, sıralama ve müzayede onları kendiliğinden görür. Botun kararları tick()'te (yöneticinin iş parçacığı):
-  grup daveti        kabul / ret (sosyallik, ilişki, seviye farkı, süren işi), grupta liderin peşinden (hedefler/group.py)
-  arkadaşlık         gelen isteği kabul / ret; birlikte oynadığı ya da yardım ettiği kişiye istek
-  klan               lider ruhlu, zengin bot klan kurar; öteki botlar kişiliğine uyan klana başvurur; bot lider başvuruları
-                     değerlendirir (oyuncununkiler de); sadakati az olan bot zamanla ayrılabilir
-  müzayede           tüccar ve zengin botlar değerine göre teklif verir, son dakikalarda artırır
-  sohbet             speech.py (Normal) ya da llm.py (Gelişmiş)
+All of the game's "other player" lookups go through community.all_(): once the bots register there with a fake session (BotSession), the
+directory, clan, group, whisper, mail, ranking and auction see them on their own. The bot's decisions are in tick() (the manager's thread):
+  group invite       accept / decline (sociability, relationship, level gap, current job), in the group follows the leader (goals/group.py)
+  friendship         accepts / declines an incoming request; sends a request to someone it played with or helped
+  clan               a leader-minded, rich bot founds a clan; other bots apply to a clan that fits their personality; a bot leader
+                     evaluates applications (the player's too); a bot with little loyalty may leave over time
+  auction            traders and rich bots bid by value, raise in the last minutes
+  chat               speech.py (Normal) or llm.py (Advanced)
 """
 import os, random, re, time
 
@@ -23,7 +24,7 @@ from . import catalog as K
 class BotProfile(PF.Profile):
     def __init__(self, bot):
         self.bot = bot
-        super().__init__({}, path=os.path.join(PTH.LOGS, 'bot_profili_yok.json'), d=_skeleton(bot))   # yol hiç yazılmaz
+        super().__init__({}, path=os.path.join(PTH.LOGS, 'bot_profili_yok.json'), d=_skeleton(bot))   # the path is never written
 
     def save(self, force=False):
         self.dirty = False
@@ -44,7 +45,7 @@ def _skeleton(bot):
 
 
 def profile(bot):
-    """Botun profili (ilk istenince kurulur, her istekte güncellenir)."""
+    """The bot's profile (built on first request, updated on every request)."""
     if bot.profile is None:
         bot.profile = BotProfile(bot)
         import clan as KL
@@ -52,8 +53,8 @@ def profile(bot):
         with KL.LOCK:
             k = next((c for c in KL.CLANS.values() if me in c['members']), None)
             if k is not None:
-                KL._copy(k, bot.profile)          # iskelet klansız (clanId 0) kurulur: oyuncunun klanındaki bot yeniden başlatınca
-                                                   # klansız kalıp emir dinlemiyor, başka klana başvuruyordu (canlı 2026-11-01)
+                KL._copy(k, bot.profile)          # the skeleton is built without a clan (clanId 0): a bot in the player's clan, after a restart,
+                                                   # stayed clanless, did not obey orders and applied to another clan (live 2026-11-01)
     update(bot)
     return bot.profile
 
@@ -65,10 +66,10 @@ def update(bot):
     k, d = bot.k, bot.value()
     pl, g = p.d['pilot'], p.d['ship']
     last = getattr(bot, '_fmt_money', None)
-    if last is not None:                  # oyun profilden harcadı ya da verdi (klan kurma, başvuru ücreti, klan ödemesi): bota geçer
+    if last is not None:                  # the game spent or gave from the profile (founding a clan, application fee, clan payment): passes to the bot
         k['credits'] = max(0, k['credits'] + int(pl.get('credits', 0)) - last[0])
         k['uridium'] = max(0, k['uridium'] + int(pl.get('uridium', 0)) - last[1])
-    k['rank'] = rank(bot)                      # panelin kadrosu da gösterir
+    k['rank'] = rank(bot)                      # the panel's roster shows it too
     pl.update(userName=bot.name, factionId=bot.firma, level=k['level'], ep=k['ep'], honourPoints=k['honor'], credits=k['credits'],
               uridium=k['uridium'], dailyRank=k['rank'])
     bot._fmt_money = (k['credits'], k['uridium'])
@@ -85,34 +86,35 @@ def update(bot):
 
 
 def npc_rank_points(tip):
-    """Uzaylının rütbe puanı (ranks.json npc_puan, npc_kimlik ile; oyuncunun rutbe.npc_points'i gibi)."""
+    """An alien's rank points (ranks.json npc_points, with npc_id; like the player's ranks.npc_points)."""
     import ranks as RT
     uid = K.NPC['types'].get(tip, {}).get('npc_id')
     return RT.R['npc_points'].get(str(uid), {}).get('points', 0)
 
 
 def ship_rank_points(ship):
-    """Yok edilen oyuncu gemisinin rütbe puanı (ranks.json gemi_puan; Goliath 20, Phoenix 1)."""
+    """Rank points of a destroyed player ship (ranks.json ship_points; Goliath 20, Phoenix 1)."""
     import ranks as RT
     return RT.R['ship_points'].get(ship, {}).get('points', 0)
 
 
 def points(bot):
-    """Rütbe puanı, oyuncununkiyle (rutbe.breakdown) aynı wiki formülü: EP/100.000 + onur/100 + oyuncu gemisi puanları x3 + seviye
-    x100 + kayıttan beri gün x6 + gemi türü x1.000 + uzaylı puanları /2 + görev x100 - ölüm x4 (oyuncu bildirimi 2026-10-31: uzun süre
-    oynayan botlar düşük rütbede kalıyordu; uzaylı ve oyuncu öldürmeleri tür puanı yerine adetle, gemi türü yerine gemi puanıyla, gün ve
-    ölüm hiç sayılmıyordu)."""
+    """Rank points, the same wiki formula as the player's (ranks.breakdown): EP/100,000 + honor/100 + player ship points x3 + level
+    x100 + days since the save x6 + ship type x1,000 + alien points /2 + quest x100 - death x4 (player report 2026-10-31: bots that had
+    played a long time stayed at a low rank; alien and player kills were not counted by number instead of type points, the ship type not by
+    ship points, and days and deaths not at all)."""
     import ranks as RT
     F = RT.R['formula']
     k, i = bot.k, bot.k['stats']
-    day = (bot.hour() - k['registered_at']) // 86400 if k.get('registered_at') else i.get('sure_sn', 0) // 86400   # eski kayıt: oynadığı süre
+    day = (bot.hour() - k['registered_at']) // 86400 if k.get('registered_at') else i.get('sure_sn', 0) // 86400   # old save: time played
     return k['ep'] * F['ep'] + k['honor'] * F['honor'] + k['level'] * F['level'] + i.get('npc_points', 0) * F['npc'] \
         + i.get('player_points', 0) * F['player'] + i.get('quest', 0) * F['quest'] + max(0, day) * F['day'] \
         + RT.R['ship_type'].get(k['gear']['ship'], 0) * F['ship'] + i.get('death', 0) * F['death_by_enemy']
 
 
 def rank(bot):
-    """Görünen rütbe simgesi (dailyRank 1-21): eşiklere göre, şirketteki sırayla sınırlı (rutbe.sirket_rutbesi: Chief General 1 ...)."""
+    """The displayed rank icon (dailyRank 1-21): by thresholds, limited by the position in the company (ranks.company_rank: Chief
+    General 1 ...)."""
     import ranks as RT
     p = points(bot)
     threshold = RT.R['thresholds']
@@ -121,9 +123,9 @@ def rank(bot):
     return r if s is None else min(r, s)
 
 
-# ------------------------------------------------------------------------------------------------------------ oturum ve kayıt
+# ------------------------------------------------------------------------------------------------------------ session and save
 class BotSession:
-    """Çevrimiçi botun sahte oturumu (topluluk.Kisi.oturum): oyunun ona gönderdiği mesajlar gelen()'e düşer."""
+    """An online bot's fake session (community.Person.session): the messages the game sends it fall into incoming()."""
     social = None
     shop = None
     world = None
@@ -138,25 +140,25 @@ class BotSession:
 
 
 def incoming(bot, m):
-    """Oyunun bota gönderdiği mesaj: davetler kararı bekler (tick)."""
+    """A message the game sent to the bot: invitations wait for a decision (tick)."""
     if m[0] == 'InvitationInitializationCommand' and m[1].get('candidateId') == bot.uid:
         bot.pending.append(('group', m[1]['inviterId'], m[1].get('inviterName', ''), time.time()))
     elif m[0] in ('GroupInitializationCommand', 'GroupMemberInitializationCommand'):
-        bot.pending.append(('group_formed', 0, '', 0.0))   # (bot davet etti, kabul edildi): liderin yanına (tick)
+        bot.pending.append(('group_formed', 0, '', 0.0))   # (the bot invited, accepted): to the leader's side (tick)
 
 
 _PEOPLE = {'t': 0.0, 'd': {}, 'y': None}
 
 
 def people(y):
-    """uid -> topluluk.Kisi: paketin bütün botları (çevrimdışıların da profili; posta, rehber, klan onları bilir). 2 sn önbellek."""
+    """uid -> community.Person: all the pack's bots (profiles of offline ones too; mail, directory and clan know them). 2 s cache."""
     import community as TP
     now = time.time()
     if now - _PEOPLE['t'] < 2.0 and _PEOPLE['y'] is y:
         return _PEOPLE['d']
     out = {}
     for b in y.bots:
-        if b.saved:                                    # henüz kayıt olmamış pilot sunucuda yok
+        if b.saved:                                    # a pilot that has not registered yet is not on the server
             out[b.uid] = person(b, TP)
     _PEOPLE.update(t=now, d=out, y=y)
     return out
@@ -174,7 +176,7 @@ def person(bot, TP=None):
 
 
 def register(y, chat=None):
-    """Oyun sunucusunda: botlar topluluğa ve sohbete bağlanır."""
+    """On the game server: bots connect to the community and chat."""
     import community as TP
     TP.BOTS = lambda: people(y)
     if chat is not None:
@@ -186,21 +188,21 @@ def register(y, chat=None):
 
 
 def _refund(bot):
-    """Oyunun bot profilinden harcadığı / verdiği para botun kaydına (klan kurma, başvuru ücreti, klan ödemesi)."""
+    """Money the game spent / gave from a bot's profile (founding a clan, application fee, clan payment) to the bot's save."""
     update(bot)
 
 
-# ------------------------------------------------------------------------------------------------------------ kararlar
+# ------------------------------------------------------------------------------------------------------------ decisions
 def tick(y, now):
-    """Yöneticinin tick'inden (5 sn'de bir): çevrimiçi botların sosyal kararları. Her bot kendi aralığıyla (insan gibi gecikmeli)."""
+    """From the manager's tick (every 5 s): the online bots' social decisions. Each bot with its own interval (delayed like a human)."""
     for b in y.bots:
         if not b.online or b.dead_until > now:
             continue
         if b.pending:
             try:
                 invites(y, b, now)
-            except Exception as e:            # bir davetin hatası öteki botların sosyal tikini durdurmasın
-                y.log('   botlar: %s davet hatası: %r' % (b.name, e))
+            except Exception as e:            # one invitation's error must not stop the other bots' social tick
+                y.log('   bots: %s invitation error: %r' % (b.name, e))
                 b.pending = []
         if now < getattr(b, 'next_social', 0):
             continue
@@ -216,14 +218,14 @@ def tick(y, now):
                 auction(y, b, now)
             if y.permission('sohbet'):
                 mail_tasks(y, b, now)
-        except Exception as e:                # bir botun hatası ötekileri durdurmasın
-            y.log('   botlar: %s sosyal hata: %r' % (b.name, e))
+        except Exception as e:                # one bot's error must not stop the others
+            y.log('   bots: %s social error: %r' % (b.name, e))
 
 
 def handshake(y, b, now):
-    """Aynı haritada aynı firmadan kasan biriyle birlikte avlanma (aynı uzaylıya ateş, birbirinin kutusunu bırakma, kısa laflaşma):
-    ikisinin de hafızasına 'birlikte_avlandik'. Çoğunlukla daha önce tanıştığı biri seçilir; ilişki zamanla arkadaşlığa, gruba
-    dönüşür. Önceden ilişki yalnız sohbet ve yardımla doğuyordu: 44 dakikada 499 pilottan 423'ü kimseyle tanışmamıştı."""
+    """Hunting together with a grinder from the same company on the same map (shooting the same alien, not taking each other's box, brief
+    banter): 'hunted_together' in both memories. Mostly someone it met before is chosen; the relationship turns into friendship, a group,
+    over time. Before, relationships arose only from chat and help: in 44 minutes 423 of 499 pilots had met nobody."""
     if b.r.random() > 0.3 * (0.3 + b.o('sociability')) or b.target is None or b.target.name not in ('grinding', 'quest'):
         return
     nearby = [o for o in y.on_map.get(b.game_map, ()) if o is not b and o.firma == b.firma and o.online and o.dead_until <= now]
@@ -261,7 +263,7 @@ def invites(y, b, now):
 
 
 def _group_up(y, b, now):
-    """Bot bir gruba girdi (kendi daveti kabul edildi): grubun insan oyuncusunun yanına gider (hedefler/group.py)."""
+    """The bot joined a group (its own invitation was accepted): goes to the group's human player (goals/group.py)."""
     from .goals import group as GG
     from . import brain as B
     k = GG.leader(b)
@@ -273,8 +275,8 @@ def _group_up(y, b, now):
 
 
 def decide_group(y, b, name, uid, now):
-    """Grup davetini kabul eder mi: sosyallik, davet edene ilişki, seviye farkı, süren işi (görevin ortasında daha az), yorgunluk,
-    firma (başka firmadan davet nadiren). Sohbette "inv me" dediyse (söz) kabul eder."""
+    """Does it accept the group invitation: sociability, relationship with the inviter, level gap, current job (less in the middle of a
+    quest), fatigue, company (rarely an invite from another company). If it said "inv me" in chat (promise) it accepts."""
     from . import interaction as IX
     if IX.has_promise(b, 'group', name, now):
         return True
@@ -310,7 +312,7 @@ def friendship(y, b, now):
             b.event('friend_request', now, name=name)
 
 
-# ------------------------------------------------------------------------------------------------------------ klan
+# ------------------------------------------------------------------------------------------------------------ clan
 _PREFIX = ('Dark', 'Black', 'Red', 'Iron', 'Silent', 'Eternal', 'Royal', 'Shadow', 'Storm', 'Crimson', 'Galactic', 'Void', 'Star')
 _PREFIX_TR = ('Kara', 'Kizil', 'Anadolu', 'Gok', 'Demir', 'Olumsuz', 'Turk', 'Yildiz')
 _SUFFIX = ('Legion', 'Knights', 'Wolves', 'Eagles', 'Raiders', 'Hunters', 'Order', 'Empire', 'Brotherhood', 'Alliance', 'Reapers',
@@ -325,8 +327,8 @@ _TAIL = ('Power', 'Army', 'Force', 'Elite', 'Warriors', 'Family', 'Team', 'Mafia
 
 
 def clan_name(b, r, tags=()):
-    """Gerçek sunuculardaki gibi klan adı ve etiketi: ikili ad, tek sözcük (bazen süslü, küçük harf ya da sarılı), "The X",
-    "Turkish Power"; etiket önce paketin gerçek etiket havuzundan (DOStats), değilse baş harfler, bazen süslü (Λ И Σ)."""
+    """Clan name and tag as on the real servers: two-part name, one word (sometimes fancy, lowercase or wrapped), "The X",
+    "Turkish Power"; the tag first from the pack's real tag pool (DOStats), otherwise initials, sometimes fancy (Λ И Σ)."""
     lang = b.k['personality'].get('name_lang') or b.k['personality'].get('lang')
     tr = lang == 'tr' and r.random() < 0.7
     style = r.choices(('two_word', 'single', 'the', 'country', 'lowercase', 'wrapped'), (35, 20, 10, 15 if lang in _ULKE else 0, 10, 10))[0]
@@ -369,7 +371,7 @@ def clan_actions(y, b, now):
             kl = KL.Clan(p, log=y.log)
             for _ in range(6):
                 name, tag = clan_name(b, r, y.package.get('clan_tags') or ())
-                if KL.Clan.valid_tag(tag) and not kl.taken(name, tag):      # [CM] gibi ayrılmış etiketler olmaz
+                if KL.Clan.valid_tag(tag) and not kl.taken(name, tag):      # separated tags like [CM] do not occur
                     break
             description = 'PvP' if b.o('aggression') > 0.6 else 'PvE & quests'
             out = kl.handle('FoundClanRequest', {'clanTag': tag, 'clanName': name, 'clanDescription': description})
@@ -404,9 +406,9 @@ def clan_actions(y, b, now):
     if y.permission('clan_diplomacy') and kl.right('diplo_start', k):
         diplomacy(y, b, k, kl, now)
     from . import clan_management as CMG
-    CMG.manage(y, b, k, kl, now)                           # rütbeler, açıklama, duyuru, vergi, bütçe, ödeme, üyeler (klan_yonetim)
+    CMG.manage(y, b, k, kl, now)                           # ranks, description, announcement, tax, budget, payment, members (clan_management)
     if KL.clan_of(p) is not k:
-        return                                           # liderliği bıraktı ya da klanı dağıttı
+        return                                           # resigned the leadership or disbanded the clan
     if k['leader'] != b.name.lower() and b.o('loyalty') < 0.3 and b.r.random() < 0.004:
         kl.handle('LeaveClanRequest', {})
         b.k['clan'] = None
@@ -414,13 +416,13 @@ def clan_actions(y, b, now):
 
 
 def clan_relation(a, b):
-    """İki botun klanları arası ilişki (1 ittifak, 2 saldırmazlık, 3 savaş, 0 yok)."""
+    """Relationship between two bots' clans (1 alliance, 2 non-aggression, 3 war, 0 none)."""
     import clan as KL
     return KL.clan_relation(int(a.k.get('clan') or 0), int(b.k.get('clan') or 0))
 
 
 def pay_tax(b, k):
-    """Üyenin son kazancından klanın vergisi kasaya (oyunda uzaylı ödülünden kesilir; klan.vergi)."""
+    """The clan's tax from a member's last earnings into the treasury (deducted from the alien reward in the game; clan.tax)."""
     import clan as KL
     income = b.__dict__.pop('_clan_income', 0)
     pay = income * int(k.get('tax') or 0) // 100
@@ -432,11 +434,11 @@ def pay_tax(b, k):
         k['income'] = int(k.get('income', 0)) + pay
         u = k['members'].get(b.name.lower())
         if u is not None:
-            u['contrib_period'] = int(u.get('contrib_period', 0)) + pay     # haftalık ödemede en çok katkı verenlere (klan_yonetim)
+            u['contrib_period'] = int(u.get('contrib_period', 0)) + pay     # to the biggest contributors at the weekly payout (clan_management)
 
 
 def clan_company(c):
-    """Klanın firması; bütün firmalara açık (0) klanda liderinki (clan.py sıralaması gibi)."""
+    """The clan's company; for a clan open to all companies (0), the leader's (like the ordering in clan.py)."""
     return int(c.get('company') or 0) or int((c.get('members', {}).get(c.get('leader')) or {}).get('company') or 0)
 
 
@@ -445,10 +447,11 @@ def _members(c):
 
 
 def diplomacy(y, b, k, kl, now):
-    """Klan liderinin diplomasisi, oyunun klan diplomasisiyle (ittifak 1, saldırmazlık 2, savaş 3, barış isteği 0): gelen
-    isteklere birkaç dakikada yanıt (senin klanınınkiler dahil), arada kendisi istek gönderir. Aynı firmadan klanlarla
-    ittifak ya da saldırmazlık; başka firmadan, üyelerimizi öldürmüş ya da denk bir klana savaş (500.000 kredi kasadan; kasada
-    yoksa lider yatırır); uzayan savaşta barış. Kişilik: sosyallik ittifakı, saldırganlık savaşı, temkin barışı sever."""
+    """A clan leader's diplomacy, with the game's clan diplomacy (alliance 1, non-aggression 2, war 3, peace request 0): replies to incoming
+    requests within a few minutes (including your clan's), and sends requests itself from time to time. Alliance or non-aggression with
+    clans from the same company; war on a clan from another company that killed our members or is an equal match (500,000 credits from the
+    treasury; if there is none the leader deposits it); peace in a prolonged war. Personality: sociability likes alliance, aggression
+    likes war, caution likes peace."""
     import clan as KL
     incoming = [r for r in k.get('diplomacy_requests', []) if r['to'] == k['id']]
     if incoming and b.r.random() < 0.35:
@@ -457,25 +460,27 @@ def diplomacy(y, b, k, kl, now):
         if o is not None:
             enemy = len(_members(o) & {a.lower() for a in b.memory.grudges(-0.3, now)})
             il = _clan_relation(y, b, o, now)[0]
-            if r['type'] == 0:                       # barış
+            if r['type'] == 0:                       # peace
                 accept = b.r.random() < 0.25 + 0.5 * (1 - b.o('aggression')) - 0.1 * enemy
             else:
-                # başka firmadan da olur, ama oyuncu klanından ve ona kötü bakmıyorsa: saldırmazlık hemen, ittifak için iyi ilişki
+                # it can be from another company too, but if it is the player's clan and it does not think badly of them: non-aggression
+                # right away, a good relationship for an alliance
                 same = (clan_company(o) == clan_company(k)
                         or bool(_humans(y, o)) and il >= (0.2 if r['type'] == 1 else 0.0))
                 accept = same and not enemy and b.r.random() < 0.3 + 0.5 * b.o('sociability') + (0.2 if r['type'] == 2 else 0) + 0.4 * max(0, il)
             kl.handle('ClanEditDiploOfferRequest', {'diploId': r['id'], 'status': 'allow' if accept else 'deny'})
             b.event('diplomacy', now, form=r['type'], clan=o['name'], tag=o.get('tag', ''), accept=accept, incoming=True)
         return
-    # yeni girişim nadir (lider aşağı yukarı saatte bir düşünür); oyuncu klanıyla bir nedeni (yardım, kin) varsa iki kat sık
+    # a new initiative is rare (the leader thinks about it roughly once an hour); twice as often if it has a reason (help, grudge) with
+    # the player's clan
     has_reason = any(_clan_relation(y, b, c, now)[2] for c in list(KL.CLANS.values()) if c['id'] != k['id'] and _humans(y, c))
     if b.r.random() > (0.03 if has_reason else 0.015):
         return
     existing = {d['clan']: d for d in k.get('diplomacy', [])}
-    last = b.k.setdefault('last_diplo', {})            # bir klana teklifi tekrarlamaz: reddedilen ya da yanıtsız kalan 6 saat dinlenir
+    last = b.k.setdefault('last_diplo', {})            # does not repeat an offer to a clan: one that was rejected or left unanswered rests for 6 hours
     pending = {r['to'] for r in k.get('diplomacy_requests', [])} | {r['from_clan'] for r in k.get('diplomacy_requests', [])}
     wars = [d for d in existing.values() if d['type'] == 3]
-    for d in wars:                              # uzayan savaş: barış ister
+    for d in wars:                              # prolonged war: asks for peace
         if d['clan'] not in pending and b.r.random() < 0.15 * (1.2 - b.o('aggression')):
             kl.handle('ClanNewDiplomacyRequest', {'diploClanID': d['clan'], 'diploForm': 0, 'desc': 'gg, peace?'})
             b.event('diplomacy', now, form=0, clan=d.get('name', ''), incoming=False)
@@ -489,12 +494,12 @@ def diplomacy(y, b, k, kl, now):
         if now - last.get(str(c['id']), 0) < 6 * 3600:
             continue
         cc = clan_company(c)
-        if _humans(y, c):                         # oyuncu klanı: boyuna bakılmaz (tek kişilik klan da teklif alır), ilişki belirler
+        if _humans(y, c):                         # player clan: size is not considered (a one-person clan also gets an offer), the relationship decides
             il, grudge, reason = _clan_relation(y, b, c, now)
             if (grudge or il <= -0.3) and cc != firma and cc and b.o('aggression') > 0.4 and len(wars) < 2:
-                candidates.append((0.8 + 0.3 * b.o('aggression') + 0.25 * min(3, grudge), 3, c))        # üyelerimizi öldürdü
+                candidates.append((0.8 + 0.3 * b.o('aggression') + 0.25 * min(3, grudge), 3, c))        # killed our members
             elif il >= 0.2 and (cc == firma or il >= 0.25):
-                candidates.append((0.7 + 0.5 * il + b.r.uniform(0, 0.2), 1 if b.o('sociability') > 0.5 or il >= 0.5 else 2, c))   # yardım etti
+                candidates.append((0.7 + 0.5 * il + b.r.uniform(0, 0.2), 1 if b.o('sociability') > 0.5 or il >= 0.5 else 2, c))   # helped
             elif cc == firma and il > -0.3:
                 candidates.append((0.4 * b.o('sociability') + 0.4 + b.r.uniform(0, 0.3), 1 if b.o('sociability') > 0.6 else 2, c))
             continue
@@ -513,8 +518,8 @@ def diplomacy(y, b, k, kl, now):
     if kind == 3 and k['treasury'] < KL.WAR_COST:
         missing = KL.WAR_COST - k['treasury']
         if b.k['credits'] < missing * 1.5:
-            return                                  # savaşı göze alacak parası yok
-        b.earn(credits=-missing)                       # lider kasaya yatırır
+            return                                  # cannot afford to risk war
+        b.earn(credits=-missing)                       # the leader deposits into the treasury
         with KL.LOCK:
             k['treasury'] += missing
         KL.changed(k)
@@ -526,13 +531,13 @@ def diplomacy(y, b, k, kl, now):
 
 
 def _humans(y, c):
-    """Klandaki gerçek oyuncular (bot olmayan üyeler)."""
+    """The real players in the clan (members who are not bots)."""
     return _members(c) - set(y.name_index)
 
 
 def _clan_relation(y, b, c, now):
-    """Botun bir klana ilişkisi (hafızasındaki üyeleriyle): (en iyi/en kötü ilişki, kinli üye sayısı, sebep var mı). Yardım eden
-    ya da bizimkileri öldüren oyuncunun klanı diplomasi için 'sebepli' sayılır."""
+    """The bot's relationship to a clan (with its members in memory): (best/worst relationship, number of grudge-holding members, is there
+    a reason). A player's clan that helped or killed ours counts as having a "reason" for diplomacy."""
     name = _members(c)
     relations = [b.memory.relation(a, now) for a in name if a in b.memory.d]
     grudge = len(name & {a.lower() for a in b.memory.grudges(-0.3, now)})
@@ -541,8 +546,8 @@ def _clan_relation(y, b, c, now):
 
 
 def pick_clan(y, b, clans):
-    """Botun kişiliğine en uyan klan: aynı firma, üyelerinin ortalama seviyesine yakın, PvP/PvE açıklaması, üye sayısı (kalabalık
-    çeker ama dolu değil). Başvurusu bekleyen ya da reddedilmiş bot yeniden başvurmaz."""
+    """The clan that best fits the bot's personality: same company, close to its members' average level, PvP/PvE description, member count
+    (a crowd attracts but it is not full). A bot with a pending or rejected application does not apply again."""
     candidates = []
     for c in clans:
         if any(str(x.get('name', '')).lower() == b.name.lower() for x in c.get('applications', [])):
@@ -555,13 +560,14 @@ def pick_clan(y, b, clans):
         avg = sum(int(u.get('level', 1)) for u in uy) / max(1, len(uy))
         pvp = 'pvp' in str(c.get('description', '')).lower()
         affinity = 1.0 - abs(avg - b.level) / 12.0 + (0.3 if pvp == (b.o('aggression') > 0.6) else 0) + min(0.3, len(uy) / 30.0)
-        affinity += 2.0 * _friend_member(b, c)[1]             # yardım ettiği, grup olduğu, arkadaş olduğu birinin klanı öne çıkar
+        affinity += 2.0 * _friend_member(b, c)[1]             # the clan of someone it helped, grouped with or befriended stands out
         candidates.append((affinity + b.r.uniform(-0.2, 0.2), c))
     return max(candidates, key=lambda x: x[0])[1] if candidates else None
 
 
 def _friend_member(b, c):
-    """Klanın botun en yakın ilişkideki üyesi: (ad, ilişki 0..1); iyi (>= 0.2) bir ilişki yoksa (None, 0)."""
+    """The clan member the bot has the closest relationship with: (name, relationship 0..1); if there is no good (>= 0.2) relationship
+    (None, 0)."""
     en = (None, 0.0)
     for a, e in b.memory.d.items():
         if a in c.get('members', {}) and b.memory.relation(a) >= max(0.2, en[1]):
@@ -570,8 +576,8 @@ def _friend_member(b, c):
 
 
 def application_text(b, c, now=None):
-    """Klan başvurusunun yazısı (botun dilinde, kalıplardan): tanıdığı bir üye varsa nedeni (yardım etti ya da grup oldular),
-    yoksa seviye ve oyun tarzı."""
+    """The text of the clan application (in the bot's language, from patterns): if it knows a member, the reason (they helped or grouped),
+    otherwise level and play style."""
     from . import speech as SPC
     name, il = _friend_member(b, c)
     lv, style = b.level, ('pvp' if b.o('aggression') > 0.6 else 'pve')
@@ -584,8 +590,8 @@ def application_text(b, c, now=None):
 
 
 def application_decision(y, b, k, bs, now, final=False):
-    """Bot lider başvuruya bakar mı (kesin=False: tepki süresi doldu mu) / kabul eder mi (kesin=True): seviye, ilişki. Oyuncunun
-    başvurusu da böyle değerlendirilir (hemen değil, bir süre sonra)."""
+    """Does the bot leader look at the application (kesin=False: has the reaction time elapsed) / accept it (kesin=True): level,
+    relationship. The player's application is also evaluated this way (not at once, after some time)."""
     if not final:
         t = bs.get('_bot_seen')
         if t is None:
@@ -594,7 +600,7 @@ def application_decision(y, b, k, bs, now, final=False):
         return now - t > b.r.uniform(30, 240)
     from . import interaction as IX
     if IX.has_promise(b, 'clan', bs.get('name', ''), now):
-        return True                                      # sohbette "başvur, kabul ederim" dedi
+        return True                                      # said "apply, I'll accept" in chat
     import community as TP
     o = TP.find(name=bs.get('name'))
     lv = int(o.profile.d['pilot'].get('level', 1)) if o is not None else 1
@@ -604,16 +610,17 @@ def application_decision(y, b, k, bs, now, final=False):
     return b.r.random() < max(0.1, min(0.97, p))
 
 
-# ------------------------------------------------------------------------------------------------------------ müzayede
+# ------------------------------------------------------------------------------------------------------------ auction
 def lot_importance(b, lot):
-    """Lotun bota önemi: 0 istemez; 1 sıradan (cephane, booster, kaynak; tüccar her lota); 2 donanım (lazer, jeneratör, dron); 3 takılı
-    olmayan CPU ya da modül; 4 şimdikinden iyi gemi; 5 biriktirdiği gemi. Müzayedenin asıl değeri CPU'lar ve büyük gemiler:
-    resmî oyunda günlerce uridyum biriktirmek yerine krediyle alınırlar, bu yüzden rekabet onlarda (kullanıcı isteği 2026-10-30)."""
+    """The lot's importance to the bot: 0 does not want it; 1 ordinary (ammo, booster, resource; a trader wants every lot); 2 equipment
+    (laser, generator, drone); 3 unequipped CPU or module; 4 a ship better than the current one; 5 a ship it is saving up for. The
+    auction's real value is CPUs and big ships: in the official game they are bought with credits instead of saving uridium for days, so
+    the competition is for them (user request 2026-10-30)."""
     from . import extras as EX
     loot = lot['loot']
     if loot.startswith('ship_'):
         g, current = K.ITEMS['ships'].get(loot) or {}, K.ITEMS['ships'].get(b.k['gear']['ship']) or {}
-        # yalnız değerleri olan ve şimdikinden iyi olan (yalnız görünüm olan tasarımlar, "goliath_design_jade", gemi değildir)
+        # only those with values and better than the current one (designs that are only appearance, "goliath_design_jade", are not ships)
         if not g.get('hp') or g['hp'] + 20000 * (g['laser'] + g['generators']) <= current.get('hp', 0) + 20000 * (
                 current.get('laser', 0) + current.get('generators', 0)):
             return 0
@@ -628,9 +635,9 @@ def lot_importance(b, lot):
 
 
 def auction(y, b, now):
-    """Teklif: geçilen teklifini her sosyal turda savunur; yoksa ara sıra lotlara bakar, önemli olanı (CPU, iyi gemi) seçer. Tavan lotun
-    anında alım değeri x önem, rekabet, hırs ve dönemin sonuna yakınlık; serbest kredinin hırsa göre bir payı. Sonuçları settle_bot
-    verir (kazanırsa eşya, geçilirse kredi geri)."""
+    """Bid: defends the bid it was outbid on every social round; otherwise looks at lots now and then, picks an important one (CPU, a good
+    ship). The ceiling is the lot's buy-now value x importance, competition, ambition and closeness to the end of the period; a share of
+    free credits by ambition. settle_bot gives the results (the item if it wins, credits back if outbid)."""
     import auction as MZ
     settle_bot(b, now)
     from . import loot as LT
@@ -646,30 +653,31 @@ def auction(y, b, now):
             candidates.append((importance, lot, end, int(own['bid']) if own and own.get('end_time') == end else 0))
     defend = [a for a in candidates if a[3] and a[3] <= (MZ.best(MZ.bids(a[1], a[2], skip=b.profile)) or (0,))[0]]
     if defend:
-        importance, lot, end, old = max(defend, key=lambda a: a[0])           # geçildi: karşılık (oyuncu gibi pencereye geri döner)
+        importance, lot, end, old = max(defend, key=lambda a: a[0])           # outbid: counter (returns to the window like a player)
     else:
         request = (0.6 if b.archetype == 'trader' else 0.2) * (0.5 + b.o('rekabet')) * (0.6 + 0.8 * b.o('ambition'))
         if not candidates or b.r.random() > request:
             return
-        weight = [a[0] ** 3 * (1 + (a[1].get('price') or 0) / 50000.0) for a in candidates]      # önemli ve değerli lot öne
+        weight = [a[0] ** 3 * (1 + (a[1].get('price') or 0) / 50000.0) for a in candidates]      # important and valuable lot first
         importance, lot, end, old = b.r.choices(candidates, weights=weight)[0]
         if old:
-            return                                   # zaten önde
+            return                                   # already in the lead
     loot = lot['loot']
     key = '%s|%s' % (lot['type'], loot)
-    # lotun fiyatı anında alımın uridyumu (tamamı için): krediye çevrilir (eskiden kredi sanılıyordu, ucuz lotlara hiç teklif yoktu)
+    # the lot's price is the uridium of the buy-now (for all of it): converted to credits (it used to be taken as credits, cheap lots got
+    # no bids)
     value = int((lot.get('price') or 0) * LT.EXCHANGE_RATE) or 1000000
     remaining = max(0.0, (end - now) / MZ.SPAN[lot['type']])
     ambition = b.o('ambition')
     cap = value * (0.35 + 0.4 * b.o('rekabet') + 0.25 * (1 - remaining)) * (0.7 + 0.3 * (b.archetype == 'trader'))
     if importance >= 3:
-        cap *= 1 + ambition + 0.25 * (importance - 3)       # CPU ve gemi: hırslı bot anında alım değerinin iki katına kadar çıkar
+        cap *= 1 + ambition + 0.25 * (importance - 3)       # CPU and ship: an ambitious bot goes up to twice the buy-now value
     cap = min(cap, free * (0.5 + (0.45 * ambition if importance >= 3 else 0)))
     rival = MZ.best(MZ.bids(lot, end, skip=b.profile))
     current_time = rival[0] if rival else 0
     bid = max(MZ.D.get('min_bid', 10000), int(current_time * b.r.uniform(1.05, 1.25)) + MZ.D.get('increase', 1000))
     if bid > cap and current_time + MZ.D.get('increase', 1000) <= cap:
-        bid = int(cap)                          # son kuruşuna kadar: tavanı geçmeden en yüksek
+        bid = int(cap)                          # down to its last penny: the highest without exceeding the ceiling
     if bid > cap or not b.pay('C', bid - old):
         return
     b.k['auction']['bids'][key] = {'bid': bid, 'end_time': end, 'time': int(now)}
@@ -685,8 +693,8 @@ def welcome_mail(y, b, k, name):
 
 
 def mail_tasks(y, b, now):
-    """Gelen posta: insanın (paketin botları değil) okunmamış mesajı bir süre sonra okunur; içindeki istek (grup, klan, arkadaşlık,
-    gel) karar motoruyla uygulanır ve postayla yanıt verilir (Gelişmiş kipte metni dil modeli yazar)."""
+    """Incoming mail: a human's (not the pack's bots) unread message is read after a while; the request in it (group, clan, friendship,
+    come) is applied by the decision engine and replied to by mail (in Advanced mode the language model writes the text)."""
     import mail as PS
     p = profile(b)
     with p.lock:
@@ -694,19 +702,19 @@ def mail_tasks(y, b, now):
     for r in incoming:
         if r.get('type') not in (PS.USER, PS.CLAN) or str(r.get('sender', '')).lower() in y.name_index or not r.get('sender'):
             with p.lock:
-                r['state'] = PS.READ                       # sistem, müzayede, bot postası: okunur geçilir
+                r['state'] = PS.READ                       # system, auction, bot mail: read and passed
             continue
         seen = r.setdefault('_bot_seen', now)
         if now - seen < b.k['personality']['reaction_sec'] * 20 + b.r.uniform(30, 300):
-            continue                                         # postaya hemen değil, birkaç dakika sonra bakar
+            continue                                         # looks at mail not at once, but after a few minutes
         with p.lock:
             r['state'] = PS.READ
         reply_mail(y, b, r, now)
-        return                                               # tick başına bir posta
+        return                                               # one mail per tick
 
 
 def mail_template(b, k):
-    """Kararın postaya uygun kalıp metni (sohbet kalıpları postaya fazla kısa: "inv me", "no thx") ya da None."""
+    """The pattern text of the decision suited to mail (chat patterns are too short for mail: "inv me", "no thx") or None."""
     from . import speech as SPC
     if not k:
         return None
@@ -733,30 +741,30 @@ def reply_mail(y, b, r, now):
     b.event('mail_received', now, name=name)
     subject = 'Re: ' + str(r.get('subject', ''))[:46]
     if y.llm is not None and y.llm.ready and y.llm.mailer(y, b, r, k):
-        return                                               # Gelişmiş: metni model yazar (llm._posta)
+        return                                               # Advanced: the model writes the text (llm._mail)
     body = mail_template(b, k) or SPC.template(b, 'mail_reply')
-    if body and (k is not None or b.r.random() < 0.85):           # karar verdiyse sessiz kalmaz
+    if body and (k is not None or b.r.random() < 0.85):           # if it made a decision it does not stay silent
         TL.call(y, b, 'send_mail', {'name': name, 'subject': subject, 'text': body + ('' if len(body) >= 5 else ' :)')})
 
 
 def settle_bot(b, now):
-    """Biten dönemlerdeki bot teklifleri: en yüksekse eşya, değilse kredi geri."""
+    """Bot bids in finished periods: the item if it is the highest, otherwise the credits back."""
     import auction as MZ
     t = b.k['auction']['bids']
     for key, bid in list(t.items()):
         if bid['end_time'] + 120 > now:
-            continue                                     # oyuncunun sonucu (Muzayede.settle) bot teklifini görsün diye biraz sonra
+            continue                                     # a bit later so the player's result (Muzayede.settle) sees the bot's bid
         kind, loot = key.split('|', 1)
         lot = MZ.LOTS.get((kind, loot))
         en = MZ.best(MZ.bids(lot, bid['end_time'])) if lot else None
         del t[key]
         if lot and en and en[3] == b.uid:
-            g = b.k['auction'].setdefault('history', [])          # oyuncunun müzayede geçmişi de gösterir (Muzayede.history)
+            g = b.k['auction'].setdefault('history', [])          # the player's auction history shows it too (Muzayede.history)
             g.insert(0, {'group': lot['group'], 'who': b.uid, 'bid': int(bid['bid']), 'date': MZ.stamp(bid['end_time'] - MZ.SPAN[kind]),
                          'loot': loot, 'type': kind, 'name': b.name})
             del g[MZ.D['history_limit']:]
             if not b.add(loot, lot.get('count', 1)):
-                b.earn(credits=int(bid['bid']) // 2)       # işine yaramayan: satar (yarı değer)
+                b.earn(credits=int(bid['bid']) // 2)       # useless to it: sells (half value)
             b.event('auction_won', now, item=loot)
             b.mood.it(morale=0.15)
         else:

@@ -1,4 +1,4 @@
-"""Keşif: seviyesi yeni bir haritanın kapısını açınca oraya bir göz atmak (merak; sabırsız ve hırslı botlar daha çok)."""
+"""Exploration: when its level opens the gate to a new map, taking a look there (curiosity; impatient and ambitious bots more)."""
 from ..brain import Goal, target
 from .. import catalog as K
 from .. import abstract_sim as S

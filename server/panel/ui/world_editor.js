@@ -1,8 +1,8 @@
-/* OpenOrbit paneli — Dünya Editörü (worlds.py, /api/dunya…; belgeler/DUNYA_EDITORU.md). panel.js'in yardımcılarını kullanır.
-   Dünya: standart oyun verisinin üstüne konan değişiklik katmanı. Standart dünya salt okunur: değişiklikler taslakta durur,
-   "Yeni dünya olarak kaydet" onları bir dünyaya çevirir. Kaydın varsayılan dünyası OYNA'da açılır.
-   Görünümler: kitaplık (dünya kartları, pilotların dünyaları) ve editör (dünya çubuğu, bölüm menüsü, bölüm). Değişiklikler kendiliğinden
-   kaydedilir (yama: dosya + JSON Pointer -> tam değer). */
+/* OpenOrbit panel — World Editor (worlds.py, /api/dunya...; belgeler/DUNYA_EDITORU.md). Uses panel.js's helpers.
+   World: a layer of changes placed on top of the standard game data. The standard world is read-only: changes stay in a draft,
+   "Save as new world" turns them into a world. The save's default world opens on PLAY.
+   Views: library (world cards, pilots' worlds) and editor (world bar, section menu, section). Changes are saved
+   automatically (patch: file + JSON Pointer -> full value). */
 'use strict';
 
 Object.assign(ICONS, {
@@ -22,7 +22,7 @@ Object.assign(ICONS, {
 });
 
 const DE = { entries: null, did: null, section: 'general', summary: null, timer: {}, state: 'ready', items: null, alien: null, sec: {} };
-// bölüm: kimlik, ad, simge, açıklama, hazır mı (yakında olanlar menüde sönük)
+// section: id, name, icon, description, whether ready (those coming soon are dimmed in the menu)
 const WE_SECTIONS = [
   ['general', N('Overview'), 'globe', N("The world's card, a summary of changes and the pilots playing in this world."), true],
   ['maps', N('Maps'), 'map', N('Alien spawn list and zones, bonus boxes, portals, safe zones and lairs.'), true],
@@ -35,9 +35,9 @@ const WE_SECTIONS = [
   ['events', N('Events'), 'calendar', N('Which event is on when in this world; the aliens of map events.'), true],
   ['economy', N('Rewards and Economy'), 'star', N('Level thresholds, rank point formula and rank thresholds.'), true],
 ];
-const weIcon = (id, cls = 'we-icon') => art('ed_' + id, cls);         // bölüm ikonu (images/ed_<bölüm>.webp, OP-009)
-const WE_COVER_IMAGES = new Set(['standard', 'nebula', 'crimson', 'ice', 'mining', 'crystal', 'toxic', 'void']);   // gorsel/dunya_<kapak>.webp (OP-010)
-// replaceChildren null/false'u metin olarak eklerdi ("null"): koşullu çocuklar süzülür
+const weIcon = (id, cls = 'we-icon') => art('ed_' + id, cls);         // section icon (images/ed_<section>.webp, OP-009)
+const WE_COVER_IMAGES = new Set(['standard', 'nebula', 'crimson', 'ice', 'mining', 'crystal', 'toxic', 'void']);   // images/world_<cover>.webp (OP-010)
+// replaceChildren would add null/false as text ("null"): conditional children are filtered out
 const fill = (el, ...k) => el.replaceChildren(...k.flat(Infinity).filter(x => x != null && x !== false));
 const jp = (...p) => p.map(x => '/' + String(x).replace(/~/g, '~0').replace(/\//g, '~1')).join('');   // JSON Pointer (game_data.py)
 const weIsStandard = () => DE.did === 'standard';
@@ -45,11 +45,11 @@ const weIsStandard = () => DE.did === 'standard';
 function weCover(cover, cls = '') {
   const el = h('div', { class: 'we-cover k-' + (cover || 'nebula') + ' ' + cls });
   if (WE_COVER_IMAGES.has(cover)) el.style.backgroundImage = 'url(images/world_' + cover + '.webp)';
-  else el.append(h('i', { class: 'gz' }), h('i', { class: 'hl' }));      // gezegen ve halka (kodla)
+  else el.append(h('i', { class: 'gz' }), h('i', { class: 'hl' }));      // planet and ring (in code)
   return el;
 }
 
-// ------------------------------------------------------------------ giriş noktası
+// ------------------------------------------------------------------ entry point
 async function renderWorld() {
   await loadGameImages();
   const r = await act(() => api('/api/dunyalar')); if (!r || S.page !== 'world') return;
@@ -60,7 +60,7 @@ async function renderWorld() {
 }
 function weOpen(did, section) { DE.did = did; DE.section = section || 'general'; DE.alien = null; DE.sec = {}; renderWorld(); }
 
-// ================================================================== KİTAPLIK
+// ================================================================== LIBRARY
 function weLibrary() {
   const r = DE.entries, special = r.entries.filter(w => !w.standard);
   const card = w => {
@@ -131,7 +131,7 @@ async function weRename(w) {
   const x = await act(() => api('/api/dunya/update', { id: w.id, name }), T('Saved.')); if (x) { DE.entries = x; renderWorld(); }
 }
 
-// yeni dünya: ad, açıklama, kapak, başlangıç (standart ya da bir dünya); taslaktan=true ise standart dünyanın taslağı
+// new world: name, description, cover, start (standard or a world); if taslaktan=true, the standard world's draft
 function weNewWorld({ from_draft = false } = {}) {
   const w = { name: '', description: '', cover: 'nebula', source: 'standard', record: null };
   const active = DE.entries.saves.find(k => k.active);
@@ -158,7 +158,7 @@ function weNewWorld({ from_draft = false } = {}) {
     }, 'primary', 'check')] });
 }
 
-// ================================================================== EDİTÖR
+// ================================================================== EDITOR
 async function weEditor() {
   const summary = await act(() => api('/api/dunya?world=' + encodeURIComponent(DE.did))); if (!summary || S.page !== 'world') return;
   DE.summary = summary;
@@ -236,14 +236,14 @@ function weMenuCount() {
 function weRenderSection() {
   const b = WE_SECTIONS.find(x => x[0] === DE.section) || WE_SECTIONS[0];
   const area = $('#we-field'); if (!area) return;
-  area.parentNode.classList.toggle('dar', b[0] === 'maps');          // harita tuvaline yer: menü simge şeridi
+  area.parentNode.classList.toggle('dar', b[0] === 'maps');          // room for the map canvas: menu icon strip
   fill(area, h('div', { class: 'empty' }, h('div', { class: 'spin', style: { margin: '30px auto' } })));
   ({ general: weGeneral, maps: weMaps, alien_spawns: weAliens, quests: weQuests, shop: weShop, auction: weAuction, boxes: weBoxes, kapilar: weGates, events: weEvents, economy: weEconomy }[b[0]])(area, b);
 }
 const weTitle = (b, ...extras) => h('div', { class: 'row between wrap we-section-head' }, h('div', null, h('h2', null, weIcon(b[0], 'we-icon buyuk'), T(b[1])),
   h('div', { class: 'muted small' }, T(b[3]))), h('div', { class: 'row wrap', style: { gap: '8px' } }, ...extras));
 
-// değişiklik: yama (dosya + yol -> tam değer); standartta taslağa. Gecikmeli (aynı anahtar için son değer gider).
+// change: patch (file + path -> full value); on standard, to the draft. Debounced (for the same key the last value goes).
 function wePatch(file, route, value, { ms = 450, after } = {}) {
   const k = file + route;
   clearTimeout(DE.timer[k]); weSaveStatus('kaydediliyor');
@@ -263,7 +263,7 @@ async function weRevert(file, route, section) {
   return r;
 }
 
-// sayı alanı: −/+ düğmeleri, elle yazım; değişince cb(değer)
+// number field: −/+ buttons, manual entry; cb(value) on change
 function weNumber(v, cb, { min = 0, max = 1e9, step = 1, width = 92 } = {}) {
   const inp = h('input', { class: 'input num', type: 'number', min, max, step: step, value: v, style: { width: width + 'px' } });
   const set = x => { x = Math.max(min, Math.min(max, Math.round(+x || 0))); inp.value = x; cb(x); };
@@ -271,11 +271,11 @@ function weNumber(v, cb, { min = 0, max = 1e9, step = 1, width = 92 } = {}) {
   return h('div', { class: 'we-number' }, h('button', { type: 'button', onclick: () => set(+inp.value - step), tabindex: -1 }, icon('minus')), inp,
     h('button', { type: 'button', onclick: () => set(+inp.value + step), tabindex: -1 }, icon('plus')));
 }
-// "standart: X" ipucu ve tek tıkla geri alma
+// "standard: X" hint and one-click undo
 const weStd = (std, now, back, fmt = fmtN) => std == null || JSON.stringify(std) === JSON.stringify(now) ? null
   : h('button', { type: 'button', class: 'we-standard', title: T('Reset to the standard value'), onclick: back }, icon('undo'), T('Standard: {0}', fmt(std)));
 
-// ================================================================== ORTAK SEÇİCİLER
+// ================================================================== SHARED PICKERS
 const ITEM_CATEGORY = [['hepsi', N('All')], ['ammunition', N('Ammunition')], ['equipment', N('Equipment')], ['ship', N('Ships')],
   ['drone', N('Drones')], ['resource', N('Resources')], ['booster', N('Boosters')], ['currency', N('Currency')], ['other', N('More')]];
 const itemCategory = l => { const p = l.split('_')[0]; return ITEM_CATEGORY.some(k => k[0] === p) ? p : 'other'; };
@@ -345,7 +345,7 @@ async function pickMap(title, selected = [], { multi = true } = {}) {
   });
 }
 
-// ================================================================== GENEL BAKIŞ
+// ================================================================== OVERVIEW
 function weGeneral(area, b) {
   const w = DE.summary;
   const covers = h('div', { class: 'we-covers' });
@@ -394,7 +394,7 @@ async function weAliens(area, b) {
   const entries = await alienList(); if (!entries || DE.section !== 'alien_spawns') return;
   const f = DE.sec.aliens || (DE.sec.aliens = { q: '', filter_by: 'map', selected: null });
   const grid = h('div', { class: 'we-npc-list' }), detail = h('div', { class: 'we-detail' });
-  const maxHp = Math.max(...entries.map(u => u.hp)), scale = v => Math.max(3, Math.log10(1 + v) / Math.log10(1 + maxHp) * 100);   // can/kalkan çubuğu (logaritmik)
+  const maxHp = Math.max(...entries.map(u => u.hp)), scale = v => Math.max(3, Math.log10(1 + v) / Math.log10(1 + maxHp) * 100);   // HP/shield bar (logarithmic)
   const render = () => {
     const s = f.q.trim().toLowerCase();
     const l = entries.filter(u => (f.filter_by === 'hepsi' || (f.filter_by === 'map' ? u.used_in.length || u.new : f.filter_by === 'event' ? u.event
@@ -468,7 +468,7 @@ function alienDetail(u, entries, refresh) {
       }, 'sm danger', 'trash') : null));
 }
 
-// ================================================================== HARİTALAR
+// ================================================================== MAPS
 const MAP_TOOL = [['sec', N('Select and move'), 'move'], ['region', N('Spawn zone'), 'target'], ['in', N('Lair (fixed spawn point)'), 'nest'], ['safe', N('Safe zone'), 'shield']];
 const MAP_LAYER = [['gridline', N('Grid')], ['block', N('Obstacles')], ['safe', N('Safe zones')], ['portal', N('Portals')], ['region', N('Spawn zones')], ['in', N('Lairs')]];
 const MAP_COMPANY = { mmo: N('MMO'), eic: N('EIC'), vru: N('VRU'), combat: N('Battle'), pirate: N('Pirate'), bl: N('Black Light'), other: N('More') };
@@ -502,13 +502,13 @@ function mapEditor(hm, canvas, panel, f) {
     if (!Object.keys(d.portals).length) delete d.portals; wePatch('map_layout.json', jp('maps', hm.id), d); markSelected(); };
   const markSelected = () => { const c = document.querySelector('.we-map-chip.on'); if (c) c.classList.add('changed'); };
 
-  // ---- tuval (SVG, oyun birimleri)
+  // ---- canvas (SVG, game units)
   const svg = document.createElementNS(SVGNS, 'svg');
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('class', 'de-svg');
-  svg.style.setProperty('--s', W / 21000);      // etiketlerin boyu harita ölçeğiyle
+  svg.style.setProperty('--s', W / 21000);      // label size follows the map scale
   const el = (tag, at, ...kids) => { const e = document.createElementNS(SVGNS, tag); for (const [k, v] of Object.entries(at || {})) e.setAttribute(k, v); kids.forEach(k => k && e.append(k)); return e; };
-  const S1 = W / 21000;            // ölçek: 2x haritada işaretler de büyür
-  // tepeden işaret (images/harita_<ad>.webp, OP-011): merkez (x, y), boy oyun birimi
+  const S1 = W / 21000;            // scale: at 2x map the markers grow too
+  // top-down marker (images/map_<name>.webp, OP-011): center (x, y), size in game units
   const beacon = (name, x, y, size) => el('image', { href: 'images/map_' + name + '.webp', x: x - size * S1 / 2, y: y - size * S1 / 2, width: size * S1, height: size * S1, class: 'beacon' });
   const point = e => { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; const q = p.matrixTransform(svg.getScreenCTM().inverse()); return [Math.round(Math.max(0, Math.min(W, q.x))), Math.round(Math.max(0, Math.min(H, q.y)))]; };
   let drag = null;
@@ -558,7 +558,7 @@ function mapEditor(hm, canvas, panel, f) {
       gr.addEventListener('pointerdown', e => f.tool === 'sec' && dragStart(e, { type: 'portal', key: g.key }, ([x, y]) => { g.x = x; g.y = y; layout.portals[g.key] = [x, y]; }, saveLayout));
       svg.append(gr); });
   };
-  // yarıçap tutamacı (seçili daire): sağ kenarından sürükle
+  // radius handle (selected circle): drag from its right edge
   const handle = (z, finished) => { const t = el('circle', { cx: z[0] + z[2], cy: z[1], r: 160 * S1, class: 'handle' });
     t.addEventListener('pointerdown', e => dragStart(e, f.object, ([x, y]) => { z[2] = Math.max(200, Math.round(Math.hypot(x - z[0], y - z[1]))); }, finished)); return t; };
 
@@ -576,7 +576,7 @@ function mapEditor(hm, canvas, panel, f) {
     h('span', { class: 'we-legend' }, art('map_portal'), T('Portal'), art('map_safe'), T('Safe'), h('i', { class: 'l-zone' }), T('Spawn zone'), art('map_in'), T('Lair'), h('i', { class: 'l-obstacle' }), T('Obstacle'))));
   hint(); render();
 
-  // ---- sağ panel: seçili nesne ya da doğma listesi
+  // ---- right panel: selected object or spawn list
   const renderMapPanel = () => {
     const n = f.object, out = [];
     if (n) {
@@ -642,7 +642,7 @@ function popMenuAt(x, y, items) {
   popMenu(a, items); setTimeout(() => a.remove(), 0);
 }
 
-// ================================================================== GÖREVLER
+// ================================================================== QUESTS
 const QU_KIND = { 6: ['alien', N('Kill'), 'npc'], 27: ['alien', N('Kill (total)'), 'npc'], 67: ['box', N('Collect'), 'item'], 34: ['map', N('Go to map'), 'map'],
   52: ['cart', N('Sell ore'), 'ore'], 55: ['gift', N('Collect bonus boxes'), null], 51: ['box', N('Collect cargo boxes'), null], 28: ['users', N('Defeat a player'), null],
   2: ['clock', N('Time limit'), 'sure'], 63: ['clock', N('Real-time duration'), 'sure'], 3: ['clock', N('Stay on the map'), 'sure'], 62: ['flag', N('Return to the quest giver'), null],
@@ -652,13 +652,13 @@ const QU_FILTER = [['hepsi', N('All')], ['main', N('Main quests')], ['repeat', N
 const ORE_OLD = { 1: 'resource_ore_prometium', 2: 'resource_ore_endurium', 3: 'resource_ore_terbium', 4: 'resource_ore_xenomit', 11: 'resource_ore_prometid',
   12: 'resource_ore_duranium', 13: 'resource_ore_promerium', 14: 'resource_ore_seprom', 15: 'resource_ore_palladium', 42: 'resource_ore_osmium' };
 
-// görev eşleşmesindeki harita: "@1-1" -> 1-1; "@own X-3" -> kendi X-3 (firmaya göre çözülür)
+// map in a quest match: "@1-1" -> 1-1; "@own X-3" -> own X-3 (resolved by company)
 function mapLabel(x) {
   x = String(x).replace(/^@/, '');
   const m = x.match(/^(own|enemy|any) (.+)$/);
   return m ? T({ own: N('Own {0}'), enemy: N('Enemy {0}'), any: N('Any {0}') }[m[1]], m[2]) : x;
 }
-// koşulun hedefi (ne): uzaylı, eşya, cevher, harita adları
+// the condition's target (what): alien, item, ore, map names
 function conditionTarget(c) {
   const t = QU_KIND[c.type], es = c.matches || [];
   if (!t) return '';
@@ -792,7 +792,7 @@ async function pickQuest() {
   });
 }
 
-// yeni görev sihirbazı: 1 hedefler, 2 ödüller, 3 ad ve seviye
+// new quest wizard: 1 goals, 2 rewards, 3 name and level
 const QU_TEMPLATE = [['hunt', 'alien', N('Hunt'), N('Kill aliens')], ['collect', 'box', N('Collect'), N('Collect items or ore')], ['exploring', 'map', N('Explore'), N('Go to a map')],
   ['sell', 'cart', N('Trade'), N('Sell ore')], ['box', 'gift', N('Bonus box'), N('Collect bonus boxes')], ['cargo', 'box', N('Cargo'), N('Collect cargo boxes')]];
 function newQuest() {
@@ -850,7 +850,7 @@ function newQuest() {
   render();
 }
 
-// ================================================================== MAĞAZA
+// ================================================================== SHOP
 async function weShop(area, b) {
   const r = await act(() => api('/api/dunya/section?section=shop&world=' + encodeURIComponent(DE.did))); if (!r || DE.section !== 'shop') return;
   const cats = Object.keys(r.categories);
@@ -920,7 +920,7 @@ function bulkPrice(products, refresh) {
     }, 'primary', 'check')] });
 }
 
-// ================================================================== AÇIK ARTIRMA
+// ================================================================== AUCTION
 const WE_AUCTION_KIND = [['hour', N('Hourly')], ['day', N('Log')], ['week', N('Weekly')]];
 async function weAuction(area, b) {
   const r = await act(() => api('/api/dunya/section?section=auction&world=' + encodeURIComponent(DE.did))); if (!r || DE.section !== 'auction') return;
@@ -958,7 +958,7 @@ async function weAuction(area, b) {
   render();
 }
 
-// ---- harita paneli: cevherler (items.json cevherler.haritalar: haritanın adıyla, yoksa harita sınıfınınki)
+// ---- map panel: ores (items.json ores.maps: by the map's name, otherwise the map class's)
 function oreBlock(hm, markSelected) {
   const c = hm.ore, count = Object.assign({}, c.count), box = h('div', { class: 'stack', style: { gap: '6px' } });
   const save = () => { c.special = true; wePatch('items.json', c.route, count); markSelected(); render(); };
@@ -982,10 +982,10 @@ function oreBlock(hm, markSelected) {
   return h('div', { class: 'stack', style: { gap: '8px' } }, h('div', { class: 'we-subtitle' }, T('Ores')), box);
 }
 
-// ================================================================== KUTULAR VE GANİMET
+// ================================================================== BOXES AND LOOT
 const MAP_CLASS_NAME = { 'X-1..X-8': N('Company maps (X-1 – X-8)'), 'X-2..X-8': N('Company maps (X-2 – X-8)'), '4-X': N('Battle maps (4-X)'),
   '5-X': N('Pirate maps (5-1 – 5-3)'), '5-4': '5-4', 'BL': 'Black Light' };
-// kutunun oyundaki görseli (atlas), yoksa anahtarının simgesi
+// the box's in-game image (atlas), otherwise its key's icon
 const BOX_SPRITE = { PIRATE_BOOTY: 'booty_box_green', PIRATE_BOOTY_GOLD: 'booty_box_gold', PIRATE_BOOTY_RED: 'booty_box_red', PIRATE_BOOTY_BLUE: 'booty_box_blue',
   PIRATE_BOOTY_SILVER: 'booty_box_silver', BLACK_BOOTY_BOX: 'blackBooty_100x100', MASQUE_BOOTY_BOX: 'masqueBooty_100x100' };
 const boxIcon = (k, size) => GI.index?.sprite[BOX_SPRITE[k.type]] ? sprite(BOX_SPRITE[k.type], size) : gameIcon(k.anahtar, size, null, 'gift');
@@ -1068,7 +1068,7 @@ function boxDetail(o, r) {
     o.changed ? btn(T('Reset to standard'), async () => { if (await weRevert('boxes.json', route)) weRenderSection(); }, 'sm ghost', 'undo') : null);
 }
 
-// ================================================================== GALAKSİ KAPILARI
+// ================================================================== GALAXY GATES
 const GATE_REWARD_FIELD = [['ep', N('Experience'), 'source_experience'], ['honor', N('Honor'), 'source_honor'], ['uridium', N('Uridium'), 'source_uridium'],
   ['xenomit', N('Xenomit'), 'resource_ore_xenomit'], ['log_disk', N('Log disk'), 'resource_logfile'], ['voucher', N('Coupon'), '']];
 const ROMAN = n => ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV'][n] || String(n + 1);
@@ -1143,7 +1143,7 @@ function gateDetail(g, f) {
     g.changed ? btn(T('Reset the gate to standard'), async () => { if (await weRevert('gates.json', route)) weRenderSection(); }, 'sm ghost', 'undo') : null);
 }
 
-// ================================================================== ETKİNLİKLER
+// ================================================================== EVENTS
 const EVENT_FILTER = [['map', N('Map events')], ['yearly', N('Yearly')], ['weekly', N('Weekly')], ['changed', N('Modified')]];
 const EVENT_STATUS = [['calendar', N('By calendar'), 'info'], ['on', N('Always on'), 'ok'], ['off', N('Off'), 'err']];
 const today = (day = 0) => new Date(Date.now() + day * 86400000).toISOString().slice(0, 10);
@@ -1229,7 +1229,7 @@ function eventDetail(e, r, f) {
   return h('div', { class: 'stack', style: { gap: '12px' } }, out);
 }
 
-// ================================================================== ÖDÜLLER VE EKONOMİ
+// ================================================================== REWARDS AND ECONOMY
 const RANK_FORMULA = [['ep', N('Per experience point')], ['honor', N('Per honor point')], ['level', N('Per level')], ['npc', N('Per alien point')],
   ['quest', N('Per completed quest')], ['player', N("Per defeated player's points")], ['ship', N('Per ship point')], ['day', N('Per day since the save was created')],
   ['friendly', N('Per player destroyed from your own company')], ['death_by_enemy', N('Per defeat by an enemy')], ['death_by_radiation', N('Per death in radiation')],
@@ -1265,7 +1265,7 @@ async function weEconomy(area, b) {
     h('div', { class: 'alert info' }, icon('info'), h('div', null, T("The rewards of the daily login calendar are shown from the game's own file, so they can't be changed here (a changed reward would still look the old way in the calendar).")))));
 }
 
-// ================================================================== PAYLAŞIM (dışa / içe aktarma, paylaşım kodu)
+// ================================================================== SHARING (export / import, share code)
 async function weExport(w) {
   const r = await act(() => api('/api/dunya/kod', { world: w.id })); if (!r) return;
   const long = r.code.length > 1900;
@@ -1309,7 +1309,7 @@ function weImportReport(x) {
     foot: [btn(T('Close'), () => { m.close(); renderWorld(); }, 'ghost'), btn(T('Open the world'), () => { m.close(); weOpen(x.new); }, 'primary', 'chevR')] });
 }
 
-// ================================================================== OYNA SAYFASI: kaydın dünyası
+// ================================================================== PLAY PAGE: the save's world
 function playWorldChip(a) {
   const w = a.world_info;
   return h('button', { type: 'button', class: 'game-world', title: T('PLAY opens this world. Click to change.'), onclick: ev => playWorldMenu(ev.currentTarget, a) },
@@ -1323,7 +1323,7 @@ async function playWorldMenu(anchor, a) {
     '-', { label: T('World Editor'), ic: 'edit', fn: () => { DE.did = a.world_info.id; DE.section = 'general'; go('world'); } }]);
 }
 
-// ARKADAŞLARINLA OYNA > Host: sunucunun dünyası (panel ayarı arkadas_dunya; boş: kaydının dünyası)
+// PLAY WITH FRIENDS > Host: the server's world (panel setting friend_world; empty: the save's world)
 function hostWorldChip(v) {
   const w = v.world.valid;
   return h('button', { type: 'button', class: 'game-world', title: T('The server starts with this world; guests play in it too. Click to change.'),

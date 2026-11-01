@@ -1,11 +1,11 @@
-"""Dünya Editörü'nün deposu ve bölümleri (panel.py'nin /api/dunya… uçları; kullanıcı isteği 2026-10-28, belgeler/DUNYA_EDITORU.md).
+"""The World Editor's store and sections (panel.py's /api/dunya... endpoints; user request 2026-10-28, belgeler/DUNYA_EDITORU.md).
 
-Dünya: standart oyun verisinin (server/data) üstüne konan değişiklik katmanı, save/dunyalar/<kimlik>.json:
-  {surum, ad, aciklama, kapak, olusturma, guncelleme, yamalar: {file: {JSON Pointer: tam değer | {"$delete": true}}}}
-Sunucu onu game_data.py ile uygular (OO_WORLD). Standart dünya ("standart") salt okunur: onda yapılan değişiklikler taslağa
-(save/dunyalar/_taslak.json) yazılır, "Yeni dünya olarak kaydet" taslağı dünyaya çevirir.
-Yalnız izin verilen yollar yazılır (YOLLAR); değerler türüne göre temizlenir (oyun sunucusu bozuk veriyle açılmasın).
-Bölümler (editörün görünümleri): standart değer + dünyanınki + değişti işareti; harita, görev ve mağaza ayrıntıları ayrı.
+World: a layer of changes placed on top of the standard game data (server/data), save/worlds/<id>.json:
+  {version, name, description, cover, created, update, patches: {file: {JSON Pointer: full value | {"$delete": true}}}}
+The server applies it with game_data.py (OO_WORLD). The standard world ("standard") is read-only: changes made on it are written to the draft
+(save/worlds/_draft.json), "Save as new world" turns the draft into a world.
+Only allowed paths are written (PATHS); values are cleaned by type (so the game server does not open with corrupt data).
+Sections (the editor's views): standard value + the world's + a changed marker; map, quest and shop details are separate.
 """
 import base64, copy, datetime, hashlib, json, os, re, threading, zlib
 
@@ -18,10 +18,10 @@ STANDARD = 'standard'
 COVERS = ('standard', 'nebula', 'crimson', 'ice', 'mining', 'crystal', 'toxic', 'void')
 VERSION = 1
 NAME_LENGTH, DESCRIPTION_LENGTH = 40, 240
-NEW_QUEST = 900000              # yeni görevlerin kimliği buradan (oyunun görevleri < 900000; kök durumu ve koşul kimlikleri ayrı aralıkta)
-NEW_ALIEN = 'custom_'            # yeni uzaylı türlerinin anahtarı (ozel_1, ozel_2 …)
-COUNT_MAX = 300                # bir haritada bir türün en çok adedi
-# bölüm -> (dosya, yol öneki) listesi: değişiklik sayısı ve "bölümü standarda döndür"
+NEW_QUEST = 900000              # new quests' ids start here (the game's quests < 900000; root state and condition ids are in a separate range)
+NEW_ALIEN = 'custom_'            # key of new alien types (custom_1, custom_2 ...)
+COUNT_MAX = 300                # most of one type on a map
+# section -> list of (file, path prefix): change count and "revert section to standard"
 SECTIONS = {
     'maps': [('npc.json', '/maps/'), ('map_layout.json', '/maps/'), ('items.json', '/ores/')],
     'alien_spawns': [('npc.json', '/types/')],
@@ -39,23 +39,23 @@ PATHS = [(d, re.compile(r)) for d, r in (
     ('social.json', r'^/auction/lots$'), ('npc.json', r'^/bonus_(boxes|box_4x)$'), ('boxes.json', r'^/boxes/[^/]+$'),
     ('gates.json', r'^/kapilar/[^/]+$'), ('events.json', r'^/events/[^/]+$'),
     ('levels.json', r'^/levels$'), ('ranks.json', r'^/(formula|thresholds)$'), ('items.json', r'^/ores/maps/[^/]+$'), ('items.json', r'^/ores/respawn_sec$'))]
-GATE_REWARD = ('ep', 'honor', 'uridium', 'xenomit', 'log_disk', 'voucher')           # kapı ödülünün düzenlenen sayıları
-GATE_ALIEN = ('count', 'hp', 'kalkan', 'damage', 'speed')                       # dalga uzaylısının düzenlenen değerleri
-PACKAGE = 'package'                                                             # ganimet.PAKET: kutu ödülünde birden çok eşyalı satır
+GATE_REWARD = ('ep', 'honor', 'uridium', 'xenomit', 'log_disk', 'voucher')           # the edited numbers of a gate reward
+GATE_ALIEN = ('count', 'hp', 'kalkan', 'damage', 'speed')                       # the edited values of a wave alien
+PACKAGE = 'package'                                                             # loot.PACKAGE: a row with several items in a box reward
 NPC_NUMBERS = ('hp', 'kalkan', 'damage', 'speed')
 REWARD = ('ep', 'honor', 'credits', 'uridium')
-# görev koşul türleri (gorev.py, gorev_takip.py): editörün anladığı -> eşleşmenin anlamı
+# quest condition types (quest.py, quest_tracker.py): what the editor understands -> the meaning of the match
 CONDITION = {6: 'npc', 27: 'npc', 34: 'map', 67: 'item', 51: 'none', 55: 'none', 52: 'ore', 28: 'none', 53: 'none', 62: 'none',
          35: 'none', 42: 'none', 2: 'sure', 3: 'sure', 63: 'sure', 13: 'none', 12: 'none', 7: 'none', 9: 'none', 80: 'gate'}
 SUB_MAP = 77
-QUEST_TEMPLATES = {          # yeni görevin hedef türü -> (koşul türü, gösterim, eşleşme)
+QUEST_TEMPLATES = {          # a new quest's goal type -> (condition type, display, match)
     'hunt': (6, 6), 'collect': (67, 67), 'exploring': (34, 34), 'sell': (52, 52), 'box': (55, 55), 'cargo': (51, 51),
 }
 _LOCK = threading.Lock()
 
 
 class WorldError(ValueError):
-    """Kullanıcıya gösterilen hata (panel.py 400 döner)."""
+    """Error shown to the user (panel.py returns 400)."""
 
 
 def folder():
@@ -96,7 +96,7 @@ def var(did):
 
 
 def read(did):
-    """Dünya (standart: taslağın yamalarıyla). Yoksa DunyaHatasi."""
+    """The world (standard: with the draft's patches). DunyaHatasi if missing."""
     if did == STANDARD:
         d = _read_file(_route(did)) or {}
         return {'id': STANDARD, 'name': _('Standard world'), 'description': _("The game's own content. It can't be edited: save your changes as a new world."),
@@ -118,12 +118,12 @@ def _save(did, d):
 
 
 def file_path(did):
-    """Sunucuya verilecek dünya dosyası (OO_WORLD); standart ya da olmayan dünya: None."""
+    """The world file to give the server (OO_WORLD); None for the standard or a non-existent world."""
     return _route(did) if did and did != STANDARD and var(did) else None
 
 
 def counts(patches):
-    """Bölüm başına değişiklik sayısı."""
+    """Number of changes per section."""
     out = {b: 0 for b in SECTIONS}
     for file, patch_count in (patches or {}).items():
         for y in patch_count or {}:
@@ -146,7 +146,7 @@ def summary(did, users=None):
 
 
 def entries(users=None):
-    """Standart dünya önce, sonra özel dünyalar (son güncellenen önce)."""
+    """The standard world first, then custom worlds (most recently updated first)."""
     out = []
     if os.path.isdir(folder()):
         for f in os.listdir(folder()):
@@ -179,7 +179,7 @@ def _new_id(name):
 
 
 def create(name, description='', cover='nebula', source=None, from_draft=False):
-    """Yeni dünya: boş (standart), kaynak dünyanın kopyası ya da standart dünyanın taslağından (taslak sonra silinir)."""
+    """New world: empty (standard), a copy of the source world, or from the standard world's draft (the draft is deleted afterwards)."""
     with _LOCK:
         name = _clean_name(name)
         patches = {}
@@ -230,7 +230,7 @@ CODE_PREFIX = 'OODUNYA1:'
 
 
 def data_signature(files):
-    """Standart veri dosyalarının özeti (paylaşılan dünyanın hangi oyun verisiyle hazırlandığı): {file: sha1'in ilk 12'si}."""
+    """Summary of the standard data files (which game data a shared world was prepared with): {file: first 12 of the sha1}."""
     out = {}
     for f in files:
         p = os.path.join(DATA.DATA, f)
@@ -241,14 +241,14 @@ def data_signature(files):
 
 
 def export(did):
-    """Paylaşılacak dünya: ad, açıklama, kapak, yamalar; hazırlandığı veri (veri_imzasi) ve bölüm sayıları (içe aktarırken uyarı)."""
+    """The world to share: name, description, cover, patches; the data it was prepared with (data_signature) and section counts (warning on import)."""
     d = read(did)
     return {'openorbit_world': VERSION, 'name': d.get('name'), 'description': d.get('description', ''), 'cover': d.get('cover', 'nebula'),
             'date': _now(), 'data': data_signature(d['patches']), 'sections': counts(d['patches']), 'patches': d['patches']}
 
 
 def code(did):
-    """Paylaşım kodu: OODUNYA1: + base64(zlib(dünya)); Discord'a ya da sohbete yapıştırılır."""
+    """Share code: OODUNYA1: + base64(zlib(world)); pasted to Discord or chat."""
     raw_ = json.dumps(export(did), ensure_ascii=False, separators=(',', ':')).encode('utf8')
     return CODE_PREFIX + base64.urlsafe_b64encode(zlib.compress(raw_, 9)).decode('ascii')
 
@@ -264,10 +264,10 @@ def from_code(text):
 
 
 def import_(data):
-    """Paylaşılan dünyayı yeni dünya olarak ekler -> (kimlik, rapor). İzinsiz yollar atlanır, her değer düzenleyicinin süzgecinden
-    geçer (bozuk olan atlanır); dünya başka bir oyun verisiyle hazırlandıysa rapor söyler."""
+    """Adds the shared world as a new world -> (id, report). Disallowed paths are skipped, every value passes through the editor's filter
+    (corrupt ones are skipped); the report says if the world was prepared with other game data."""
     if isinstance(data, dict):
-        data = SM.migrate_world(data)                 # eski sürümde paylaşılan dünya: veri dosyası adları ve yollar yeni adlara
+        data = SM.migrate_world(data)                 # a world shared in an old version: data file names and paths to the new names
     if not isinstance(data, dict) or 'patches' not in data or not isinstance(data['patches'], dict):
         raise WorldError(_('This file is not an OpenOrbit world.'))
     if int(data.get('openorbit_world') or 1) > VERSION:
@@ -284,7 +284,7 @@ def import_(data):
     with _LOCK:
         d = read(did)
         d['patches'] = cleared
-        _save(did, d)                          # süzgeç dünyanın kendi türlerini (ozel_*) görsün diye önce olduğu gibi
+        _save(did, d)                          # as they are first, so the filter sees the world's own types (ozel_*)
         order = sorted(((f, y) for f, patch_count in cleared.items() for y in patch_count), key=lambda x: (x[0] != 'npc.json' or not x[1].startswith('/types/'), x))
         for f, y in order:
             try:
@@ -312,7 +312,7 @@ def allowed(file, route):
 
 
 def patch(did, file, route, value):
-    """Dünyaya (standartta taslağa) bir değişiklik: tam değer. Standart değere eşitse yama kaldırılır."""
+    """A change to the world (to the draft on standard): a full value. If equal to the standard value the patch is removed."""
     if not allowed(file, route):
         raise WorldError(_("This content can't be edited."))
     value = clean_up(did, file, route, value)
@@ -329,7 +329,7 @@ def patch(did, file, route, value):
 
 
 def revert(did, file=None, route=None, section=None):
-    """Bir değişikliği (dosya + yol) ya da bölümün bütün değişikliklerini standarda döndürür."""
+    """Reverts one change (file + path) or all of a section's changes to standard."""
     with _LOCK:
         d = read(did)
         for f in list(d['patches']):
@@ -345,7 +345,7 @@ _RAW = {}
 
 
 def raw(file):
-    """Standart veri (önbellekli)."""
+    """Standard data (cached)."""
     if file not in _RAW:
         _RAW[file] = DATA.raw(file)
     return _RAW[file]
@@ -367,7 +367,7 @@ def default_value(file, route):
 
 
 def world_data(did, file):
-    """Dosyanın dünyadaki hâli (standart + yamalar; kopya)."""
+    """The file's state in the world (standard + patches; a copy)."""
     v = copy.deepcopy(raw(file))
     DATA.apply(v, read(did)['patches'].get(file) or {}, file)
     return v
@@ -376,12 +376,12 @@ def world_data(did, file):
 def _int(v, sub=0, parent=10 ** 9):
     try:
         return max(sub, min(parent, int(round(float(v)))))
-    except (TypeError, ValueError, OverflowError):      # 1e999 / Infinity (içe aktarılan dünya kodu)
+    except (TypeError, ValueError, OverflowError):      # 1e999 / Infinity (imported world code)
         raise WorldError(_('A number was expected.'))
 
 
 def clean_up(did, file, route, v):
-    """Değeri oyunun okuyacağı biçime getirir; uymayan değer DunyaHatasi."""
+    """Brings the value to the form the game will read; a value that does not fit raises DunyaHatasi."""
     part = DATA.path_parts(route)
     if isinstance(v, dict) and v.get(DATA.DELETE):
         if file == 'npc.json' and part[0] == 'types' and not part[1].startswith(NEW_ALIEN):
@@ -439,7 +439,7 @@ def clean_up(did, file, route, v):
         v['level'] = _int(v.get('level', 1), 0, 40)
         v['rewards'] = [[str(l), _int(n, 1, 10 ** 9)] for l, n in v.get('rewards', []) if str(l)]
         v['previous'] = [_int(x, 0) for x in v.get('previous', [])]
-        for k, n in (('title', 80), ('description', 600)):          # oyunda görünen metin (eklentinin GorevMetinleri yaması)
+        for k, n in (('title', 80), ('description', 600)):          # text shown in the game (the plugin's QuestTexts patch)
             t = ' '.join(str(v.get(k) or '').split()) if k == 'title' else str(v.get(k) or '').strip()
             if t:
                 v[k] = t[:n]
@@ -468,7 +468,7 @@ def clean_up(did, file, route, v):
     if file == 'levels.json':
         base = raw('levels.json')['levels']
         ep = [_int(x[1] if isinstance(x, list) else x, 0, 10 ** 20) for x in (v if isinstance(v, list) else [])]
-        # tarayıcı 2^53'ten büyük sayıları yuvarlar (son seviyeler ~10^18): yuvarlama payındaki değer standarttır
+        # the browser rounds numbers above 2^53 (last levels ~10^18): a value within the rounding margin is the standard
         ep = [b[1] if abs(n - b[1]) <= b[1] * 1e-12 else n for n, b in zip(ep, base)]
         if len(ep) != len(base) or ep[0] != 0 or any(b <= a for a, b in zip(ep, ep[1:])):
             raise WorldError(_('Level thresholds must start at zero and increase.'))
@@ -493,7 +493,7 @@ def clean_up(did, file, route, v):
             return [lo, hi]
         kinds = raw('items.json')['ores']['kinds']
         out = {str(t): _int(n, 0, 1000) for t, n in (v or {}).items() if str(t) in kinds}
-        return out or {'0': 0}                   # hepsi 0: haritada cevher yok (boş sözlük sınıfın değerine düşerdi)
+        return out or {'0': 0}                   # all 0: no ore on the map (an empty dictionary would fall back to the class's value)
     if file == 'social.json':
         if not isinstance(v, list):
             raise WorldError(_('The lot list is corrupt.'))
@@ -502,13 +502,13 @@ def clean_up(did, file, route, v):
             loot, kind = str(l[0]), l[2] if l[2] in ('hour', 'day', 'week') else 'hour'
             out.append([loot, str(l[1] or 'other'), kind, _int(l[3], 1, 10 ** 7), bool(l[4]), _int(l[5], 0, 10 ** 9)])
         seen = set()
-        return [l for l in out if (l[2], l[0]) not in seen and not seen.add((l[2], l[0]))]      # lot anahtarı (tür, eşya) tek
+        return [l for l in out if (l[2], l[0]) not in seen and not seen.add((l[2], l[0]))]      # the lot key (type, item) is unique
     return v
 
 
 def _clean_box(kind, v):
-    """Anahtarlı kutu: haritalardaki adet, yeniden doğma, harita sınıfları ve ödül tablosu (satır: [eşya, adet | [en az, en çok],
-    ağırlık]; paket satırı olduğu gibi). Öteki alanlar (anahtar, takvim, mesajlar) standarttan."""
+    """Keyed box: count on the maps, respawn, map classes and reward table (row: [item, amount | [min, max],
+    weight]; a package row as it is). The other fields (key, calendar, messages) from the standard."""
     base = raw('boxes.json')['boxes'].get(kind)
     if base is None or not isinstance(v, dict):
         raise WorldError(_('Box not found.'))
@@ -541,7 +541,7 @@ def _clean_box(kind, v):
 
 
 def _groups(groups, i, old, new_):
-    """Dalganın alt gruplarında uzaylı i'nin adetlerini eskiden yeniye orantılı ölçekler (her satır en az 1; toplam yeni)."""
+    """Scales alien i's counts in the wave's subgroups proportionally from old to new (each row at least 1; total new)."""
     place = [(g, k) for g, grp in enumerate(groups) for k, (j, n) in enumerate(grp) if j == i]
     if not place or old <= 0:
         return
@@ -564,8 +564,8 @@ def _groups(groups, i, old, new_):
 
 
 def _clean_gate(key, v, types=None):
-    """Galaksi Kapısı: parça, can, ödül sayıları, cephane ödülü, şanslı ödüllerin olasılığı ve adedi, dalgaların uzaylı değerleri
-    (adet değişince alt gruplar orantılı ölçeklenir). Dalga ve uzaylı listesinin yapısı standarttan (galaxy_gates.py'nin sayaçları ona bağlı)."""
+    """Galaxy Gate: part, HP, reward counts, ammo reward, probability and amount of lucky rewards, the waves' alien values
+    (when a count changes the subgroups scale proportionally). The wave and alien list structure from the standard (galaxy_gates.py's counters depend on it)."""
     base = raw('gates.json')['kapilar'].get(key)
     if base is None or not isinstance(v, dict):
         raise WorldError(_('Gate not found.'))
@@ -594,9 +594,9 @@ def _clean_gate(key, v, types=None):
                 continue
             a = w['alien_spawns'][i]
             kind = str(va.get('type') or a['type'])
-            # yalnız istemcinin gemi türü olan anahtarlar (kapi.register_npcs türü model olarak gönderir: "ozel_1", "etk_…" olmaz)
+            # only keys that are a client ship type (galaxy_gates.register_npcs sends the type as the model: no "custom_1", "event_...")
             if kind != a['type'] and not a.get('permanent') and a['type'] != 'player' and kind.isdigit() and kind in (types or {}):
-                t = types[kind]                          # uzaylıyı başka türle değiştir: türün değerleri, dalgadaki adet ve yer aynı
+                t = types[kind]                          # replace the alien with another type: the type's values, the count and place in the wave stay the same
                 a.update(type=kind, name=re.sub(r'^[-=\[\]:.{}\s]+|[-=\[\]:.{}\s]+$', '', t['name']) or kind, display_name=t['name'],
                          npc_id=t.get('npc_id', a.get('npc_id')), hp=t['hp'], kalkan=t['kalkan'], damage=t['damage'], speed=t['speed'],
                          reward=dict(t.get('reward') or {}), cargo=dict(t.get('cargo') or {}))
@@ -615,11 +615,11 @@ def _clean_gate(key, v, types=None):
     return out
 
 
-MAP_CLASSES = tuple('X-%d' % n for n in range(1, 9))      # harita etkinliklerinin harita sınıfları
+MAP_CLASSES = tuple('X-%d' % n for n in range(1, 9))      # map classes of the map events
 
 
 def _date(x):
-    """Dönem ucu: 'YYYY-AA-GG' ya da her yıl 'AA-GG' (takvim._spans)."""
+    """Period end: 'YYYY-MM-DD' or every year 'MM-DD' (event_calendar._spans)."""
     x = str(x or '').strip()
     for style in ('%Y-%m-%d', '%m-%d'):
         try:
@@ -631,14 +631,14 @@ def _date(x):
 
 
 def event_classes(h, types):
-    """Harita etkinliğinin seçilebilen sınıfları: uzaylılarının ve patronunun o sınıfa özgü türü (etk_<ad>_x<n>) olanlar."""
+    """The selectable classes of a map event: those whose aliens and boss have a type specific to that class (etk_<name>_x<n>)."""
     kinds = [a['type'] for a in h.get('alien_spawns', [])] + list((h.get('boss') or {}).get('kinds', []))
     return [m for m in MAP_CLASSES if all(t.replace('{x}', 'x' + m[2:]) in types for t in kinds)]
 
 
 def _clean_event(key, v, types):
-    """Etkinlik: dünyadaki durum (dunya_durum: acik | kapali | takvim), dönemler ([başlangıç, bitiş] + standart satırın kuyruğu: saatler,
-    'tek'), harita bölümü (haritalar, uzaylı adetleri, harita kotaları, patron adedi ve süresi). Öteki alanlar standarttan."""
+    """Event: the state in the world (world_status: on | off | else the calendar), periods ([start, end] + the standard row's tail: hours,
+    'tek'), the map section (maps, alien counts, map quotas, boss count and duration). The other fields from the standard."""
     base = raw('events.json')['events'].get(key)
     if base is None or not isinstance(v, dict):
         raise WorldError(_('Event not found.'))
@@ -658,7 +658,7 @@ def _clean_event(key, v, types):
     h, value_map = out.get('map'), v.get('map')
     if h and isinstance(value_map, dict):
         if isinstance(value_map.get('maps'), list):
-            permission = event_classes(h, types)          # X-n dışındakiler (Sunburst'ün 4-X'i) olduğu gibi
+            permission = event_classes(h, types)          # those other than X-n (Sunburst's 4-X) as they are
             h['maps'] = [m for m in MAP_CLASSES if m in value_map['maps'] and m in permission] + [m for m in h['maps'] if m not in MAP_CLASSES]
         for i, a in enumerate(value_map.get('alien_spawns') or []):
             if i < len(h.get('alien_spawns', [])) and isinstance(a, dict) and 'count' in a:
@@ -674,9 +674,9 @@ def _clean_event(key, v, types):
     return out
 
 
-# ------------------------------------------------------------------ bölümler
+# ------------------------------------------------------------------ sections
 def _server():
-    """Sunucunun harita ve mağaza modülleri (panel ilk açılışta yüklemez: Dünya Editörü açılınca)."""
+    """The server's map and shop modules (the panel does not load them at first start: only when the World Editor opens)."""
     import map_links as H
     return H
 
@@ -687,7 +687,7 @@ def npc_icon(tip, t):
 
 
 def _kinds(x):
-    """Davranıştaki uzaylı türleri (olunce_dogur, vurulunca_cagir … 'tur' alanları)."""
+    """Alien types in behaviors ('type' fields of spawn_on_death, summon_on_hit ...)."""
     if isinstance(x, dict):
         return ([x['type']] if isinstance(x.get('type'), str) else []) + [t for v in x.values() for t in _kinds(v)]
     return [t for v in x for t in _kinds(v)] if isinstance(x, list) else []
@@ -700,10 +700,10 @@ def aliens(did):
     import alien as U
     used_in = {}
     for mid, m in npc['maps'].items():
-        for g in m.get('npc', []) + m.get('scheduled', []):          # zamanli: saatli Black Light başıboşları
+        for g in m.get('npc', []) + m.get('scheduled', []):          # zamanli: timed Black Light strays
             if map_name(mid) not in used_in.get(g['tip'], []):
                 used_in.setdefault(g['tip'], []).append(map_name(mid))
-    order = list(used_in)                 # ölünce doğanlar ve çağrılanlar (Blighted Gygerthrall, Lordakium sporu) atasının haritalarında
+    order = list(used_in)                 # those spawned on death and those summoned (Blighted Gygerthrall, Lordakium spore) on their ancestor's maps
     for tip in order:
         for sub in _kinds(U.of(npc['types'].get(tip, {}))):
             if sub in npc['types']:
@@ -750,7 +750,7 @@ def maps(did):
 
 
 def game_map(did, mid):
-    """Harita editörünün tuvali: boyut, doğma listesi, portallar, istasyon, düzen (güvenli bölgeler, inler, engeller)."""
+    """The map editor's canvas: size, spawn list, portals, station, layout (safe zones, lairs, obstacles)."""
     H = _server()
     mid = str(mid)
     npc = world_data(did, 'npc.json')
@@ -782,7 +782,7 @@ def game_map(did, mid):
             'ore': ores(did, mid)}
 
 
-# ---- görevler
+# ---- quests
 def _quest_file(qid):
     return 'quests.json' if str(qid) in raw('quests.json')['quests'] else 'quest_extras.json'
 
@@ -794,7 +794,7 @@ def _all_quests(did):
 
 
 def conditions(root):
-    """Görevin koşulları (ağacın yaprakları, sırayla): [{id, tur, gosterim, eslesme, hedef, alt: [{tur, eslesme}]}]."""
+    """The quest's conditions (the tree's leaves, in order): [{id, type, display, matches, target, sub: [{type, matches}]}]."""
     out = []
 
     def walk(case):
@@ -842,7 +842,7 @@ def quest(did, qid):
 
 
 def save_quest(did, qid, changes):
-    """Görevin düzenlenebilir alanları: seviye, önkoşullar, ödüller, koşulların hedefi ve eşleşmesi, kapalı, ad (yalnız yeni görev)."""
+    """The quest's editable fields: level, prerequisites, rewards, the conditions' target and match, closed, name (new quest only)."""
     all_ = _all_quests(did)
     if str(qid) not in all_:
         raise WorldError(_('Quest not found.'))
@@ -877,7 +877,7 @@ def save_quest(did, qid, changes):
                     if 'matches' in y and CONDITION.get(c['type']) in ('npc', 'map', 'item', 'ore'):
                         es = [map_match(x) if CONDITION[c['type']] == 'map' else str(x) for x in y['matches'] if str(x)]
                         c['matches'] = es or c['matches']
-                    if 'map' in y:          # ON_MAP alt koşulu: boş liste -> her haritada
+                    if 'map' in y:          # ON_MAP sub-condition: empty list -> on every map
                         c['subConditions'] = [s for s in c.get('subConditions', []) if s['type'] != SUB_MAP]
                         if y['map']:
                             c['subConditions'].append(_sub_map(c['id'], y['map']))
@@ -889,7 +889,7 @@ def save_quest(did, qid, changes):
 
 
 def map_match(x):
-    """Görev eşleşmesinde harita: ad "@1-1" (gorev.maps_for çözer; "@own X-3" gibi kalıplar olduğu gibi), kimlik olduğu gibi."""
+    """Map in a quest match: name "@1-1" (quest.maps_for resolves; patterns like "@own X-3" stay as they are), id as it is."""
     x = str(x)
     return x if x.startswith('@') or x.isdigit() else '@' + x
 
@@ -910,8 +910,8 @@ def _condition(cid, kind, matches, target, map_list=None):
 
 
 def new_quest(did, name, level, targets, rewards):
-    """Yeni görev: hedefler [{type: avla|topla|kesif|sat|kutu|kargo, eslesme: [...], hedef, harita: [...]}] sırasız, hepsi gerekli.
-    Oyundaki başlığı adı (baslik; istemcide metni yok, eklentinin GorevMetinleri yaması gösterir)."""
+    """New quest: goals [{type: hunt|collect|exploring|sell|box|cargo, matches: [...], target, map: [...]}] unordered, all required.
+    Its in-game title is the name (title; the client has no text for it, the plugin's QuestTexts patch shows it)."""
     if not targets:
         raise WorldError(_('Add at least one objective to the quest.'))
     all_ = _all_quests(did)
@@ -938,7 +938,7 @@ def new_quest(did, name, level, targets, rewards):
     return qid
 
 
-# ---- mağaza ve açık artırma
+# ---- shop and auction
 _CATALOG = {}
 
 
@@ -970,21 +970,21 @@ def auction(did):
 
 
 def item_list():
-    """Eşya seçicinin listesi: istemcinin eşyaları (client_items.json) + para birimleri."""
+    """The item picker's list: the client's items (client_items.json) + currencies."""
     ist = raw('client_items.json')['items']
     return sorted(set(ist) | {'currency_credits', 'currency_uridium', 'currency_honour', 'currency_experience'})
 
 
-# ---- kutular ve ganimet, galaksi kapıları, cevherler
+# ---- boxes and loot, galaxy gates, ores
 def boxes(did):
-    """Bonus kutularının içeriği (eşit olasılıklı satırlar) ve anahtarlı kutular (ağırlıklı ödül tablosu, haritalar, adet)."""
+    """Contents of bonus boxes (equal-probability rows) and keyed boxes (weighted reward table, maps, count)."""
     npc = world_data(did, 'npc.json')
     base = raw('npc.json')
     k = world_data(did, 'boxes.json')
     kb = raw('boxes.json')['boxes']
     out = []
     for kind, b in k['boxes'].items():
-        if not b.get('reward'):                    # Battle Pass Box (etkinliğe göre), içeriği başka yerde olanlar
+        if not b.get('reward'):                    # Battle Pass Box (per event), those whose contents are elsewhere
             continue
         out.append({'type': kind, 'name': b['name'], 'anahtar': b['anahtar'], 'maps': b['maps'], 'count': b['count'], 'renew_sec': b['renew_sec'],
                     'calendar': b.get('calendar'), 'reward': b['reward'], 'changed': b != kb.get(kind), 'spawns': bool(b['maps'] and b['count'])})
@@ -1014,7 +1014,7 @@ def gates(did):
 
 
 def ores(did, mid):
-    """Haritanın cevherleri: haritaya özel değer (dünya) yoksa harita sınıfınınki; türler ve yeniden doğma süresi."""
+    """The map's ores: the map class's if there is no map-specific value (world); types and respawn time."""
     H = _server()
     c = world_data(did, 'items.json')['ores']
     name, klass = map_name(mid), H.map_class(int(mid))
@@ -1024,12 +1024,12 @@ def ores(did, mid):
             'route': DATA.build_path('ores', 'maps', name)}
 
 
-# ---- oyundaki görev metinleri (eklenti: GorevMetinleri.cs)
+# ---- in-game quest texts (plugin: GorevMetinleri.cs)
 TEXT_FILE = os.path.join('BepInEx', 'openorbit', 'quest_texts.json')
 
 
 def quest_texts(did):
-    """Dünyanın görevlerinin oyunda gösterilecek başlık ve açıklamaları: {"<görev>": {baslik, aciklama}}."""
+    """The titles and descriptions to show in the game for the world's quests: {"<quest>": {baslik, aciklama}}."""
     out = {}
     for qid, (_, q) in _all_quests(did).items():
         m = {k: q[k] for k in ('title', 'description') if q.get(k)}
@@ -1039,7 +1039,7 @@ def quest_texts(did):
 
 
 def write_texts(client, did):
-    """OYNA: dünyanın görev metinleri istemcinin BepInEx klasörüne (standart dünyada boş: önceki dünyanınkiler kalmasın)."""
+    """PLAY: the world's quest texts into the client's BepInEx folder (empty in the standard world: so the previous world's do not remain)."""
     if not client or not os.path.isdir(os.path.join(client, 'BepInEx')):
         return 0
     m = quest_texts(did) if did and did != STANDARD and var(did) else {}
@@ -1047,7 +1047,7 @@ def write_texts(client, did):
     return len(m)
 
 
-# ---- etkinlikler
+# ---- events
 def events(did):
     e = world_data(did, 'events.json')['events']
     events_raw = raw('events.json')['events']
@@ -1069,7 +1069,7 @@ def events(did):
     return sorted(out, key=lambda x: ({'map': 0, 'yearly': 1, 'weekly': 2}[x['type']], x['name'].lower()))
 
 
-# ---- ödüller ve ekonomi
+# ---- rewards and economy
 RANK_FORMULA = ('ep', 'honor', 'level', 'npc', 'quest', 'player', 'ship', 'day', 'friendly', 'death_by_enemy', 'death_by_radiation', 'phoenix')
 
 

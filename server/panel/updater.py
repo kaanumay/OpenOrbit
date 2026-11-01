@@ -1,16 +1,16 @@
-"""Panelin güncellemesi (GitHub): DEPO deposunun DAL dalındaki son commit kurulu sürümden farklıysa kurulur.
+"""The panel's update (GitHub): if the last commit on branch BRANCH of repo REPO differs from the installed version, it is installed.
 
-Kurulum biçimi kendiliğinden seçilir:
-  git  proje bir git klonu ve git kurulu: `git fetch` + yalnız ileri sarma (`merge --ff-only`). İzlenen dosyalarda yerel değişiklik,
-       başka dal ya da gönderilmemiş commit varsa (geliştirici kopyası) dokunulmaz, yalnız bildirilir.
-  zip  elle indirilmiş (Code > Download ZIP) ya da git yok: kurulu sürüm SURUM_DOSYASI'ndan (GitHub'ın arşivi .gitattributes'taki
-       export-subst ile commit'i yazar) ya da DURUM'dan (son güncellemenin kaydı). Yeni sürümün arşivi (≈2 MB) indirilir, değişen
-       dosyalar yazılır, yeni sürümde olmayanlar kaldırılır (eski sürümün listesi: son güncellemenin listesi, yoksa GitHub'daki ağacı).
-Kullanıcı verisine hiç dokunulmaz (korunan(): save/, logs/, kişisel giriş şablonları, istemci klasörü, protokol sürümleri, resmî
-CDN'den inen oyun görselleri, .git).
-Değişen ve kaldırılan dosyaların eski hâli save/guncelleme/yedek_<eski sürüm>/'e taşınır (son YEDEK_SAYISI yedek). Kurulumdan sonra
-paneli yeniden başlatmak panelin işi (panel.py). Özel depo için (geliştirici) OO_GITHUB_TOKEN ortam değişkeni; belirteç yalnız
-api.github.com'a gönderilir.
+The install style is chosen automatically:
+  git  the project is a git clone and git is installed: `git fetch` + fast-forward only (`merge --ff-only`). If there are local changes in tracked
+       files, another branch or unpushed commits (a developer copy), nothing is touched, it is only reported.
+  zip  downloaded by hand (Code > Download ZIP) or no git: the installed version comes from VERSION_FILE (GitHub's archive writes the commit via
+       export-subst in .gitattributes) or from the state file (the record of the last update). The new version's archive (about 2 MB) is downloaded, changed
+       files are written, those not in the new version are removed (the old version's list: the last update's list, otherwise the tree on GitHub).
+User data is never touched (protected(): save/, logs/, personal login templates, the client folder, protocol versions, game images from the official
+CDN, .git).
+The old state of changed and removed files is moved to save/update/backup_<old version>/ (the last BACKUP_COUNT backups). Restarting the panel
+after the install is the panel's job (panel.py). For a private repo (developer) the OO_GITHUB_TOKEN environment variable; the token is sent only to
+api.github.com.
 """
 import io, json, os, re, shutil, subprocess, threading, time, zipfile
 import http.client
@@ -22,25 +22,25 @@ from lang import t as _
 REPO = 'kaanumay/OpenOrbit'
 BRANCH = 'main'
 API = 'https://api.github.com'
-VERSION_FILE = os.path.join('server', 'surum.txt')        # "$Format:%H %cI$" -> GitHub arşivinde "<commit> <tarih>"
+VERSION_FILE = os.path.join('server', 'surum.txt')        # "$Format:%H %cI$" -> "<commit> <date>" in GitHub's archive
 BACKUP_COUNT = 2
 TIMEOUT = 30
-MAX_SIZE = 500 << 20                                        # arşiv sınırı (bayt)
-REQUIRED = ('OpenOrbit Panel.pyw', 'server/panel/panel.py', 'server/game.py')   # arşiv bu projenin mi
-# 2026-10-24'ten önceki sürümler 'DarkOrbit Panel.pyw' arıyordu (dosya kaldırıldı): o kurulumlar "Arşiv bu projenin değil"
-# der, ZIP elle yeniden indirilir (README).
+MAX_SIZE = 500 << 20                                        # archive limit (bytes)
+REQUIRED = ('OpenOrbit Panel.pyw', 'server/panel/panel.py', 'server/game.py')   # whether the archive is of this project
+# versions before 2026-10-24 looked for 'DarkOrbit Panel.pyw' (the file was removed): those installs say "The archive is not of this project",
+# the ZIP is downloaded again by hand (README).
 NO_WINDOW = 0x08000000 if os.name == 'nt' else 0
 
 
 class UpdateError(Exception):
-    """Kullanıcıya gösterilen hata."""
+    """Error shown to the user."""
 
 
 def protected(rel):
-    """Güncellemenin hiç yazmadığı ve silmediği yollar (kullanıcı verisi, üretilen dosyalar)."""
+    """Paths the update never writes or deletes (user data, generated files)."""
     r = rel.replace('\\', '/').lstrip('/').lower()
     return (r.startswith(('server/save/', 'server/logs/', 'server/data/protocols/', 'server/data/protokol/', 'server/cdn/do_img/',
-                          '.git/', 'client_downloading/', 'istemci_indiriliyor/'))      # eski adlar: göçten önceki kurulum
+                          '.git/', 'client_downloading/', 'istemci_indiriliyor/'))      # old names: install from before the migration
             or r in ('server/data/login.json', 'server/data/maps.json', 'server/data/responses.json',
                      'server/data/giris.json', 'server/data/haritalar.json', 'server/data/yanitlar.json',
                      'server/data/templates_format.json', '.git')
@@ -49,7 +49,7 @@ def protected(rel):
 
 
 def parse_version(text):
-    """SURUM_DOSYASI'nın içeriği -> (commit, tarih) ya da (None, None) (arşivden gelmemiş: "$Format…$")."""
+    """Contents of VERSION_FILE -> (commit, date) or (None, None) (not from an archive: "$Format...$")."""
     m = re.match(r'\s*([0-9a-f]{40})\s+(\S+)', text or '')
     return (m.group(1), m.group(2)) if m else (None, None)
 
@@ -70,9 +70,9 @@ class Updater:
         self.lock = threading.Lock()
         self.d = {'state': 'bilinmiyor', 'running': False, 'last': None, 'last_check': None, 'error': None, 'claimed': 0, 'total': 0,
                   'changed': 0, 'removed': 0, 'backup': None, 'installed': None}
-        self._inst = (0.0, None)                                 # kurulu sürümün önbelleği (git her yoklamada çalışmasın)
+        self._inst = (0.0, None)                                 # cache of the installed version (so git does not run on every poll)
 
-    # ------------------------------------------------------------ durum
+    # ------------------------------------------------------------ state
     def mode(self):
         return 'git' if self.git_exe and os.path.isdir(os.path.join(self.root, '.git')) else 'zip'
 
@@ -98,7 +98,7 @@ class Updater:
             return ''
 
     def installed(self, fresh=False):
-        """Kurulu sürüm -> {'surum', 'tarih', 'bicim'} (sürüm bilinmiyorsa None); 10 sn önbellekli."""
+        """Installed version -> {'version', 'date', 'style'} (None if the version is unknown); cached for 10 s."""
         t, v = self._inst
         if not fresh and v and time.time() - t < 10:
             return dict(v)
@@ -112,9 +112,9 @@ class Updater:
             sha, date = parse_version(out)
             return {'version': sha, 'date': date, 'style': 'git'}
         txt, st = self._version_text(), self._saved()
-        if st.get('version') and st.get('version_txt') == txt:          # son güncellemeyi bu modül kurdu
+        if st.get('version') and st.get('version_txt') == txt:          # this module installed the last update
             return {'version': st['version'], 'date': st.get('date'), 'style': 'zip'}
-        sha, date = parse_version(txt)                             # elle indirilen arşiv
+        sha, date = parse_version(txt)                             # archive downloaded by hand
         if sha:
             return {'version': sha, 'date': date, 'style': 'zip'}
         return {'version': st.get('version'), 'date': st.get('date'), 'style': 'zip'}
@@ -139,7 +139,7 @@ class Updater:
         req = Request(url, headers={'Accept': accept, 'User-Agent': 'OpenOrbit', 'X-GitHub-Api-Version': '2022-11-28'})
         tok = os.environ.get('OO_GITHUB_TOKEN')
         if tok and url.startswith(API + '/'):
-            req.add_unredirected_header('Authorization', 'Bearer ' + tok)    # yönlendirmede (codeload) gönderilmez
+            req.add_unredirected_header('Authorization', 'Bearer ' + tok)    # not sent on a redirect (codeload)
         try:
             return self.opener(req, timeout=TIMEOUT)
         except HTTPError as e:
@@ -161,7 +161,7 @@ class Updater:
             r.close()
 
     def latest(self):
-        """GitHub'daki son sürüm -> {'surum', 'tarih', 'mesaj'}."""
+        """The latest version on GitHub -> {'version', 'date', 'message'}."""
         d = self._json('%s/repos/%s/commits/%s' % (API, REPO, BRANCH))
         c = d.get('commit') or {}
         if not re.match(r'^[0-9a-f]{40}$', d.get('sha') or ''):
@@ -169,7 +169,7 @@ class Updater:
         return {'version': d['sha'], 'date': (c.get('committer') or {}).get('date'), 'message': (c.get('message') or '').split('\n')[0][:200]}
 
     def tree(self, sha):
-        """Bir sürümün dosyaları (GitHub'ın ağacı) -> küme ya da None (alınamadı/eksik)."""
+        """A version's files (GitHub's tree) -> set or None (could not be fetched/incomplete)."""
         try:
             d = self._json('%s/repos/%s/git/trees/%s?recursive=1' % (API, REPO, sha))
         except UpdateError:
@@ -193,7 +193,7 @@ class Updater:
         return r.stdout.strip()
 
     def _git_ok(self, *args):
-        """git komutu başarılı mı (çıkış kodu 0)."""
+        """Did the git command succeed (exit code 0)."""
         env = dict(os.environ, GIT_TERMINAL_PROMPT='0', GCM_INTERACTIVE='never')
         try:
             return subprocess.run([self.git_exe, '-C', self.root] + list(args), capture_output=True, timeout=60, env=env,
@@ -202,15 +202,15 @@ class Updater:
             return False
 
     def _git_remote(self):
-        """origin'den son sürümü al -> (yerel, uzak commit). Fetch başarısızsa hata."""
+        """Fetch the latest version from origin -> (local, remote commit). An error if the fetch fails."""
         self._go_to('fetch', '--quiet', 'origin', BRANCH)
         return self._go_to('rev-parse', 'HEAD'), self._go_to('rev-parse', 'FETCH_HEAD')
 
-    # ------------------------------------------------------------ denetim
+    # ------------------------------------------------------------ check
     def check(self):
-        """Son sürümü denetle -> durum: guncel | var | yerel_degisiklik | yerelde_ileri | hata."""
+        """Check the latest version -> state: up_to_date | exists | local_changes | local_ahead | error."""
         with self.lock:
-            if self.d['running'] or self.d.get('state') == 'installed':     # kuruldu: yeniden başlatma bekliyor, 'guncel' onu iptal ederdi
+            if self.d['running'] or self.d.get('state') == 'installed':     # installed: waiting for a restart, 'up_to_date' would cancel it
                 return json.loads(json.dumps(self.d))
             self.d.update(running=True, error=None)
         try:
@@ -231,15 +231,15 @@ class Updater:
                 last = self.latest()
                 state = 'up_to_date' if last['version'] == self.installed(fresh=True)['version'] else 'exists'
             self._set(last=last, state=state)
-            self.log('güncelleme denetimi (%s): %s, GitHub %s' % (self.mode(), state, last['version'][:7]))
+            self.log('update check (%s): %s, GitHub %s' % (self.mode(), state, last['version'][:7]))
         except UpdateError as e:
             self._set(state='error', error=str(e))
-            self.log('güncelleme denetimi: %s' % e)
+            self.log('update check: %s' % e)
         finally:
             self._set(running=False, last_check=time.time())
         return self.state()
 
-    # ------------------------------------------------------------ kurulum
+    # ------------------------------------------------------------ installation
     def install_async(self):
         with self.lock:
             if self.d['running']:
@@ -259,13 +259,13 @@ class Updater:
                 self._install_zip(last)
             self._inst = (0.0, None)
             self._set(state='installed', installed=time.time())
-            self.log('güncelleme kuruldu: %s (%s)' % (last['version'][:7], last.get('message', '')))
+            self.log('update installed: %s (%s)' % (last['version'][:7], last.get('message', '')))
         except UpdateError as e:
             self._set(state='error', error=str(e))
-            self.log('güncelleme kurulamadı: %s' % e)
+            self.log('update could not be installed: %s' % e)
         except Exception as e:
             self._set(state='error', error=_('Unexpected error: %r', e))
-            self.log('güncelleme kurulamadı: %r' % e)
+            self.log('update could not be installed: %r' % e)
         finally:
             self._set(running=False)
 
@@ -280,7 +280,7 @@ class Updater:
         last.update(version=remote)
 
     def _download(self, sha):
-        """Sürümün arşivini indir -> bayt (bellekte açılır; ≈2 MB)."""
+        """Download the version's archive -> bytes (opened in memory; about 2 MB)."""
         r = self._request('%s/repos/%s/zipball/%s' % (API, REPO, sha), accept='application/vnd.github+json')
         try:
             self._set(total=int(r.headers.get('Content-Length') or 0))
@@ -328,14 +328,14 @@ class Updater:
             old = self.tree(before['version'])
         backup = os.path.join(self.dir, 'backup_%s_%s' % ((before['version'] or 'bilinmiyor')[:7], time.strftime('%Y%m%d_%H%M%S')))
 
-        def keep(rel):                                    # eski hâli yedeğe
+        def keep(rel):                                    # the old state to the backup
             src = os.path.join(self.root, *rel.split('/'))
             dst = os.path.join(backup, *rel.split('/'))
             os.makedirs(os.path.dirname(dst), exist_ok=True)
             shutil.copy2(src, dst)
 
         changed = removed = 0
-        # sürüm damgası en son: yarıda kalan kurulum kendini "güncel" sanmasın (yeniden denensin)
+        # version stamp last: so an install cut short does not think it is "up to date" (so it is retried)
         for rel, info in sorted(files.items(), key=lambda x: (x[0] == VERSION_FILE.replace(os.sep, '/'), x[0])):
             new = z.read(info)                            # CRC zipfile'da denetlenir
             dest = os.path.join(self.root, *rel.split('/'))
@@ -355,7 +355,7 @@ class Updater:
             if protected(rel) or not os.path.isfile(p):
                 continue
             keep(rel)
-            os.remove(p)                                  # eski hâli yedekte
+            os.remove(p)                                  # the old state in the backup
             removed += 1
             d = os.path.dirname(p)
             while d != self.root and os.path.isdir(d) and not os.listdir(d):

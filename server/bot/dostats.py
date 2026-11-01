@@ -1,7 +1,7 @@
-"""Gerçek oyuncu adları: dostats.info (oyuncu isteği 2026-10-31). Panelde ad kaynağı "DOStats" seçilince kadro adları gerçek
-sunuculardaki oyuncuların adlarından alınır (dilin sunucularından: tr -> Turkey 3/4/5 ...); adların sonundaki [KLAN] etiketleri bot
-klanlarının etiket havuzu olur. Sayfalar sunucu tarafında çizilen tablolar: /rank-changes, /hall-of-fame, /hall-of-gates
-(?server=<kod>&gate=<kapı>); oyuncu bağlantısı <a href="/player/<kimlik>">ad</a>. Önbellek save/botlar/_dostats.json (7 gün).
+"""Real player names: dostats.info (player request 2026-10-31). When the name source "DOStats" is chosen in the panel, the roster names
+are taken from players on real servers (from the language's servers: tr -> Turkey 3/4/5 ...); the [CLAN] tags at the end of names become
+the bots' clan tag pool. The pages are tables rendered on the server side: /rank-changes, /hall-of-fame, /hall-of-gates
+(?server=<code>&gate=<gate>); a player link is <a href="/player/<id>">name</a>. Cache: save/botlar/_dostats.json (7 days).
 """
 import html
 import json
@@ -21,7 +21,7 @@ _TAG = re.compile(r'\[([^\[\]]{1,4})\]$')
 
 
 def extract(page):
-    """Sayfanın HTML'i -> oyuncu adları (sırayla, tekrarsız)."""
+    """The page's HTML -> player names (in order, without repeats)."""
     out = []
     for a in _PLAYER.findall(page):
         name = html.unescape(re.sub(r'<[^>]+>', '', a)).strip()
@@ -42,8 +42,8 @@ def _cache_path():
 
 
 def names(languages, download=None):
-    """{lang: [ad]} (önbellekten ya da siteden; indir verilirse önbelleksiz, testler). Ulaşılamayan sayfa atlanır; hiç ad gelmezse
-    OSError."""
+    """{lang: [name]} (from the cache or the site; if fetch is given, uncached, for tests). A page that cannot be reached is skipped; if no
+    names come at all, OSError."""
     from .personality import NAME_PATTERN
     route = _cache_path() if download is None else None
     registry = {}
@@ -60,7 +60,7 @@ def names(languages, download=None):
         x = registry.get(lang)
         if not x or time.time() - x.get('t', 0) > CACHE_SEC:
             entries = []
-            for s in SERVERS[lang][:1 if len(languages) > 1 else None]:      # karışık: dil başına bir sunucu (panel beklemesin)
+            for s in SERVERS[lang][:1 if len(languages) > 1 else None]:      # mixed: one server per language (so the panel does not wait)
                 for page in PAGES:
                     try:
                         entries += [a for a in extract((download or _download)(page % s)) if a not in entries]
@@ -77,12 +77,12 @@ def names(languages, download=None):
             json.dump(registry, f, ensure_ascii=False)
         os.replace(route + '.tmp', route)
     if not any(out.values()):
-        raise OSError('dostats.info: %s' % (error or 'ad yok'))
+        raise OSError('dostats.info: %s' % (error or 'no names'))
     return out
 
 
 def tags(pool):
-    """Adların sonundaki klan etiketleri ("SILNY[DZL]" -> "DZL"), oyunun etiket kuralına uyanlar."""
+    """Clan tags at the end of names ("SILNY[DZL]" -> "DZL"), those that fit the game's tag rule."""
     out = []
     for entries in pool.values():
         for a in entries:

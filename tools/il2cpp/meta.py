@@ -1,6 +1,6 @@
-"""IL2CPP global-metadata.dat (v31) ayrıştırıcı: imajlar, tipler, metotlar, alanlar, sabit değerler, metin sabitleri.
+"""IL2CPP global-metadata.dat (v31) parser: images, types, methods, fields, constant values, string literals.
 
-Kullanım (modül): from meta import Metadata; m = Metadata(path)
+Usage (module): from meta import Metadata; m = Metadata(path)
 """
 import struct
 

@@ -1,15 +1,15 @@
-"""Teknoloji eşyaları (kısayol çubuğunun tech_items kategorisi): Energy Leech, Chain Impulse, Precision Targeter, Backup Shield 1/2,
+"""Technology items (the shortcut bar's tech_items category): Energy Leech, Chain Impulse, Precision Targeter, Backup Shield 1/2,
 Battle Repair Bot 1/2, Explosive Charging Blob, Burning Trail, NPC Nuke, Anti-AI Emergency Reserves, Frost Field, Anti-Mine
-Transmitter, Speed Burst, Versus Laser Overdrive. Veri items.json "teknoloji" (wiki: belgeler/wiki/extras_cpu_tech.md); adetler profilde
-"teknoloji" (Assembly ile gelir: yol haritası Aşama 5), süre ve beklemeler "teknoloji_durum"da (harita değişince sürer).
+Transmitter, Speed Burst, Versus Laser Overdrive. Data items.json "technology" (wiki: belgeler/wiki/extras_cpu_tech.md); counts in the profile
+"technology" (come with the Assembly: roadmap Stage 5), duration and cooldowns in "technology_state" (persist when the map changes).
 
-İstemci (1.1.114, araştırma: istemcinin kodu):
-  - tıklama MenuActionRequest {menuItemId tech_…, actionType 0 (zamanlayıcı öğesi)}; TechActivationRequest hiç gönderilmez,
-    TechActivationCommand/TechStatusCommand işlenmez.
-  - zamanlayıcı öğe başına MenuItemTimerCommand (bekleme grubu yok): READY 0, ACTIVE 1, COOLING_DOWN 2.
-  - görseller: VisualModifierCommand {userId, modifier, activated} (ELA 59, BRB 60, BRB2 61, ECB 73: kapanınca patlama, SB 95,
-    AMT 96, AAER 100, FRF 102); Backup Shield 0|n|A|S|SBU(2)|uid; Chain Impulse 0|n|ECI|1|saldıran|hedef…; Burning Trail
-    0|n|BT|uid ve NPC Nuke 0|n|NNK|uid: o birimde şok dalgası.
+Client (1.1.114, research: the client's code):
+  - a click sends MenuActionRequest {menuItemId tech_…, actionType 0 (timer item)}; TechActivationRequest is never sent,
+    TechActivationCommand/TechStatusCommand are not handled.
+  - one MenuItemTimerCommand per timer item (no cooldown group): READY 0, ACTIVE 1, COOLING_DOWN 2.
+  - visuals: VisualModifierCommand {userId, modifier, activated} (ELA 59, BRB 60, BRB2 61, ECB 73: explosion on closing, SB 95,
+    AMT 96, AAER 100, FRF 102); Backup Shield 0|n|A|S|SBU(2)|uid; Chain Impulse 0|n|ECI|1|attacker|target…; Burning Trail
+    0|n|BT|uid and NPC Nuke 0|n|NNK|uid: a shock wave on that unit.
 """
 import json, math, os, time
 
@@ -20,7 +20,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 T = json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))['technology']
 ITEMS = T['items']
 READY, ACTIVE, COOLING = 0, 1, 2
-ATTACK_ROCKET, ATTACK_ECI = 0, 5            # istemcinin AttackType'ı
+ATTACK_ROCKET, ATTACK_ECI = 0, 5            # the client's AttackType
 
 
 def mod(name, **f):
@@ -29,9 +29,9 @@ def mod(name, **f):
 
 
 def used_msg(code):
-    """Kullanıldı bildirimi, ekranda ve günlükte (istemci resource.json tech_used_<KOD>, örn. "NPC Nuke used"). resource.json
-    anahtarları yalnız eski protokolün 0|A|STM|anahtar iletisiyle çözülür: MessageCommand (tür 5 flashres, 3-7 eşya) bulamayıp
-    hiçbir şey göstermiyor (canlı deneme 2026-10-26)."""
+    """Used notification, on screen and in the log (client resource.json tech_used_<CODE>, e.g. "NPC Nuke used"). The resource.json
+    keys are resolved only by the old protocol's 0|A|STM|key message: MessageCommand (type 5 flashres, 3-7 item) cannot find them and
+    shows nothing (live test 2026-10-26)."""
     return stm('tech_used_' + code)
 
 
@@ -40,7 +40,7 @@ def count(p, item):
 
 
 def add(p, item, n=1):
-    """Assembly (Aşama 5) ve testler: adet ekle -> yeni adet."""
+    """Assembly (Stage 5) and tests: add count -> new count."""
     with p.lock:
         d = p.d.setdefault('technology', {})
         d[item] = max(0, d.get(item, 0) + n)
@@ -73,7 +73,7 @@ def timer_msg(p, item, now=None):
 
 
 def menu_status(p, item, st):
-    """Elde varsa görünür, sayaçta adet (kayıtta yokken: ttip_visit_tech_factory / ttip_tech_not_owned)."""
+    """Visible if owned, the count on the counter (when not in the save: ttip_visit_tech_factory / ttip_tech_not_owned)."""
     if item not in ITEMS:
         return None
     n = count(p, item)
@@ -81,8 +81,8 @@ def menu_status(p, item, st):
         st.update(visible=False, available=False, activatable=False, counterValue=0)
         return st
     maps = ITEMS[item].get('map_only')
-    usable = not maps or str(p.d['position'].get('mapId', 0)) in map(str, maps)        # Versus Laser Overdrive: yalnız Vortex of Greed haritasında
-    usable = usable and not echoes_map(p.d['position'].get('mapId', 0))              # forum 177095: Yankılar'da teknoloji yok
+    usable = not maps or str(p.d['position'].get('mapId', 0)) in map(str, maps)        # Versus Laser Overdrive: only on the Vortex of Greed map
+    usable = usable and not echoes_map(p.d['position'].get('mapId', 0))              # forum 177095: no technology in Echoes
     lines = [{'_': 'MessageKeyListWildcardModule', 'baseKey': item, 'baseKeyType': {'_': 'ReplacementTypeModule', 'typeValue': 3},
               'textStyle': 0, 'wildCardReplacements': []},
              {'_': 'MessageKeyListWildcardModule', 'baseKey': 'ttip_count', 'baseKeyType': {'_': 'ReplacementTypeModule', 'typeValue': 5},
@@ -97,7 +97,7 @@ def menu_status(p, item, st):
 
 
 def echoes_map(map_id):
-    """Uzayın Derinliklerindeki Yankılar haritaları ve salonu: teknoloji eşyaları kullanılamaz (resmî forum 177095)."""
+    """Echoes in the Depths of Space maps and hall: technology items cannot be used (official forum 177095)."""
     import echoes as EC
     return int(map_id or 0) in set(EC.D['maps']) | {EC.D['hall']}
 
@@ -105,22 +105,22 @@ def echoes_map(map_id):
 class Technology:
     def __init__(self, world):
         self.w, self.p = world, world.p
-        self.ending = {}           # süreli etkin eşya -> bitiş
-        self.waiting = {}          # beklemesi süren -> hazır anı (READY bildirimi)
+        self.ending = {}           # timed active item -> end
+        self.waiting = {}          # one on cooldown -> ready moment (READY notification)
         self.next_tick = 0.0
-        self.charges = []          # Burning Trail yükleri: {x, y, bitis}
-        self.trail_n = 0           # Burning Trail'in geçen saniyeleri (aralik_sn'de bir yük)
-        self.nuke = None           # NPC Nuke: {sonraki, kalan}
+        self.charges = []          # Burning Trail charges: {x, y, end}
+        self.trail_n = 0           # elapsed seconds of Burning Trail (a charge every interval_sec)
+        self.nuke = None           # NPC Nuke: {next, remaining}
         self.started = False
         now = time.time()
         for item, s in state(self.p).items():
             maps = ITEMS.get(item, {}).get('map_only')
             if maps and now < s.get('end_time', 0) and str(world.map_id) not in map(str, maps):
-                s['end_time'] = now                       # Versus Laser Overdrive: gemi Vortex of Greed'den ayrılınca etki silinir (bekleme sürer)
+                s['end_time'] = now                       # Versus Laser Overdrive: when the ship leaves the Vortex of Greed the effect is cleared (cooldown continues)
                 self.p.dirty = True
             if now < s.get('end_time', 0):
                 self.ending[item] = s['end_time']
-                if item == 'tech_npc-nuke':            # harita değişince kalan vuruşlar sürer (vuruşlar başlangıçtan aralik_sn'de bir)
+                if item == 'tech_npc-nuke':            # when the map changes the remaining hits continue (hits every interval_sec from the start)
                     c = ITEMS[item]
                     start, total = s['end_time'] - c['sure_sn'], int(c['sure_sn'] // c['interval_sec'])
                     done = min(total, max(0, int((now - start) // c['interval_sec'])))
@@ -141,7 +141,7 @@ class Technology:
         st = self.p.menu_status(item)
         return [('MenuItemStatusCommand', st)] if st else []
 
-    # ------------------------------------------------------------ sorgular (dunya.py, savas_esya.py)
+    # ------------------------------------------------------------ queries (world.py, combat_items.py)
     def active(self, item, now=None):
         return item in self.ending and is_active(self.p, item, now)
 
@@ -149,18 +149,18 @@ class Technology:
         return self.active('tech_precision-targeter', now)
 
     def hp_floor(self, now=None):
-        """Anti-AI Emergency Reserves: uzaylı hasarı canı bunun altına indiremez (yoksa 0)."""
+        """Anti-AI Emergency Reserves: alien damage cannot bring HP below this (0 if none)."""
         return ITEMS['tech_anti-ai-emergency-reserves']['en_az_can'] if self.active('tech_anti-ai-emergency-reserves', now) else 0
 
     def mine_protected(self, now=None):
         return self.active('tech_anti-mine-transmitter', now)
 
     def laser_bonus(self, now=None):
-        """Versus Laser Overdrive: etkinken her lazerin taban hasarına eklenen düz hasar (yoksa 0)."""
+        """Versus Laser Overdrive: while active, flat damage added to each laser's base damage (0 if none)."""
         return ITEMS['tech_versus-laser-overdrive']['base_laser'] if self.active('tech_versus-laser-overdrive', now) else 0
 
     def leech(self, ammo, dmg):
-        """Energy Leech: sıradan lazer cephanesiyle verilen hasarın %10'u cana."""
+        """Energy Leech: 10% of the damage dealt with ordinary laser ammo goes to HP."""
         if dmg <= 0 or ammo not in T['ammo_types'] or not self.active('tech_energy-leech'):
             return
         g = self.p.d['ship']
@@ -169,21 +169,21 @@ class Technology:
         self.p.set_hull(hp=g.get('hitPoints', 0) + dmg * ITEMS['tech_energy-leech']['laser_hp'])
         self.send([self.w.hp_msg()])
 
-    # ------------------------------------------------------------ etkinleştirme
+    # ------------------------------------------------------------ activation
     def activate(self, item, now=None):
-        """MenuActionRequest tech_…: elde varsa ve hazırsa -> True."""
+        """MenuActionRequest tech_…: if owned and ready -> True."""
         w, p = self.w, self.p
         now = now or time.time()
         c = ITEMS.get(item)
         if not c or count(p, item) <= 0 or w.hero_dead or w.jumping or echoes_map(w.map_id) or                 (c.get('map_only') and str(w.map_id) not in map(str, c['map_only'])):
-            w.log('   teknoloji kullanılamaz: %s' % item)
+            w.log('   technology unavailable: %s' % item)
             return False
         if is_active(p, item, now) or now < state(p).get(item, {}).get('ready', 0):
             self.send([timer_msg(p, item, now)])
             return False
         msgs = self.start(item, c, now)
         if msgs is None:
-            w.log('   teknoloji şimdi işe yaramaz: %s' % item)
+            w.log('   technology useless right now: %s' % item)
             return False
         if not SET.get('infinite_technology'):          # panel: infinite tech (not used up; at least one still needed)
             add(p, item, -1)
@@ -197,11 +197,11 @@ class Technology:
         else:
             self.waiting[item] = now + cd
         self.send(msgs + [timer_msg(p, item, now)] + self.status(item))
-        w.log('   teknoloji: %s (kalan %d)' % (item, count(p, item)))
+        w.log('   technology: %s (%d left)' % (item, count(p, item)))
         return True
 
     def start(self, item, c, now):
-        """Eşyanın başlangıç etkisi -> mesajlar, ya da None (şimdi kullanılamaz: hedef yok, kalkan dolu …)."""
+        """The item's initial effect -> messages, or None (cannot be used now: no target, shield full …)."""
         w, p = self.w, self.p
         g = p.d['ship']
         hx, hy = w.hero_pos(now)
@@ -221,15 +221,15 @@ class Technology:
             msg = legacy('0|n|ECI|1|%d|%s' % (w.hid, '|'.join(str(n.id) for n in targets)))
             def strike():
                 for n in targets:
-                    w.hit_npc(n.id, c['damage'], ATTACK_ECI, shield_only=True)      # istemci: "chain reaction of shield damage"
+                    w.hit_npc(n.id, c['damage'], ATTACK_ECI, shield_only=True)      # client: "chain reaction of shield damage"
                     if not n.alive:
-                        p.ach('chain_kill')                 # başarım ChainImpulse
+                        p.ach('chain_kill')                 # achievement ChainImpulse
             w.later(0.3, strike)
             w.last_combat = now
             return [msg]
         if item == 'tech_npc-nuke':
-            # istemci: "burst of damage to NPCs in an area around your ship once every 10 seconds": hedef gerekmez, gemi çevresindeki
-            # bütün uzaylılara sure_sn / aralik_sn vuruş (nuke_tick)
+            # client: "burst of damage to NPCs in an area around your ship once every 10 seconds": no target needed, sure_sn / interval_sec hits
+            # to all aliens around the ship (nuke_tick)
             self.nuke = dict(next=now + c['interval_sec'], remaining=int(c['sure_sn'] // c['interval_sec']))
             return [used_msg('NNK')]
         if item == 'tech_speed-burst':
@@ -238,11 +238,11 @@ class Technology:
             self.charges, self.trail_n = [], 0
         return self.visual(item, True)
 
-    # ------------------------------------------------------------ döngü
+    # ------------------------------------------------------------ loop
     def tick(self, now):
         w, p = self.w, self.p
         if not self.started:
-            self.started = True                    # harita değişiminde süren görseller yeniden
+            self.started = True                    # visuals that persist across a map change again
             self.send(sum((self.visual(i, True) for i in self.ending), []))
         for item, until in list(self.waiting.items()):
             if now >= until:
@@ -260,7 +260,7 @@ class Technology:
                 self.finish(item, now)
 
     def second(self, item, c, now):
-        """Saniyede bir süren etkiler: Battle Repair Bot, Frost Field, Burning Trail yükü."""
+        """Effects that run every second: Battle Repair Bot, Frost Field, Burning Trail charge."""
         w, p = self.w, self.p
         g = p.d['ship']
         if 'hp_sec' in c and not w.hero_dead:
@@ -299,8 +299,8 @@ class Technology:
                 w.hit_npc(n.id, c['damage'], ATTACK_ROCKET)
 
     def nuke_tick(self, now):
-        """NPC Nuke: aralik_sn'de bir, gemi çevresindeki (yaricap) bütün uzaylılara hasar; şok dalgası geminin kimliğinde.
-        Vuruşlar sayılır (6 x 100.000): son vuruş süre sonuyla aynı ana düşer, tick gecikmesi onu kaybettirmez."""
+        """NPC Nuke: every interval_sec, damage to all aliens around the ship (yaricap); the shock wave is on the ship's id.
+        Hits are counted (6 x 100,000): the last hit falls at the same moment as the end of the duration, a tick delay does not lose it."""
         nk = self.nuke
         if not nk:
             return
@@ -319,7 +319,7 @@ class Technology:
             self.nuke = None
 
     def finish(self, item, now, frac=1.0):
-        """Süre bitti (ya da gemi yok oldu): görsel kalkar, bekleme başlar. Explosive Charging Blob patlar."""
+        """Duration ended (or the ship was destroyed): the visual is removed, cooldown starts. Explosive Charging Blob explodes."""
         self.ending.pop(item, None)
         w, p, c = self.w, self.p, ITEMS[item]
         if item == 'tech_explosive-charging-blob':
@@ -330,7 +330,7 @@ class Technology:
                 nx, ny = n.mover.pos(now)
                 if n.alive and math.hypot(nx - hx, ny - hy) <= c['radius']:
                     w.hit_npc(n.id, dmg, ATTACK_ROCKET)
-            w.log('   Explosive Charging Blob patladı: %d' % dmg)
+            w.log('   Explosive Charging Blob exploded: %d' % dmg)
         if item == 'tech_npc-nuke':
             self.nuke = None
         s = state(p).get(item, {})
@@ -338,7 +338,7 @@ class Technology:
         self.send(self.visual(item, False) + [timer_msg(p, item, now)])
 
     def on_death(self):
-        """Gemi yok oldu: süren etkiler biter (blob o anki dolumla patlar), beklemeler kalır."""
+        """Ship destroyed: running effects end (the blob explodes with its current charge), cooldowns remain."""
         now = time.time()
         for item in list(self.ending):
             s = state(self.p).get(item, {})

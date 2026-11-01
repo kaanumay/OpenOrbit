@@ -1,44 +1,44 @@
-"""Galaksi Kapıları (üreticideki hepsi: Alpha, Beta, Gamma, Delta, Epsilon, Zeta, Kappa, Lambda, Kronos, Hades, Kuiper): kapı
-üreticisi (enerji, parçalar, çarpan), hazırlık, X-1'deki kapı portalı, kapı haritasında dalgalar, canlar ve tamamlama ödülleri.
+"""Galaxy Gates (all of those in the builder: Alpha, Beta, Gamma, Delta, Epsilon, Zeta, Kappa, Lambda, Kronos, Hades, Kuiper): the gate
+builder (energy, parts, multiplier), preparation, the gate portal in X-1, waves on the gate map, lives and completion rewards.
 
-Kayıttaki akış (oturum başında ve üretici penceresinde):
-  GalaxyGateBuilderInfoRequest      -> GalaxyGateBuilderInfoCommand (kapılar, parça sayısı, can, çarpan, enerji fiyatı 100, uridyum
-                                       "money", ücretsiz enerji "samples")
-  GalaxyGateBuilderGetGatePartsRequest {gateId} -> GalaxyGateBuilderGetGatePartsCommand (toplanan parça kimlikleri)
-  GalaxyGateBuilderMultiEnergyRequest {spinAmount, useMultiplier, gateId} -> GalaxyGateBuilderMultiEnergyCommand (sonuçlar:
-                                       GalaxyGateBuilderLootItemModule {type, item_id, amount, spins}: kayıtta ORE 4/13 ve HITPOINTS 1/11000)
-Kayıtta olmayanlar istemcinin koduna ve metinlerine göre (GalaxyGateComponentSystem, UIGalaxyGatesSystem, galaxygates_* metinleri):
-  GalaxyGateBuilderSetupGateRequest -> GalaxyGateBuilderSetupGateCommand {livesLeft, lifePrice}; kapı X-1'de üssün yanında belirir
-  GalaxyGateBuilderBuyLifeRequest   -> GalaxyGateBuilderBuyLifeCommand (can fiyatı her alımda iki katı, wiki)
-  kapı haritasında GalaxyGateBuilderGateWaveUpdateCommand (alt dalga sayacı), GateLifeLostCommand (ölüm), GateCompleteCommand (bitiş)
-  ekran mesajları MessageCommand ile (istemci: MessageCommandHandler; BIG = büyük bildirim + günlük, NORMAL = üstteki kısa mesaj).
-  Kayıtta kapı oynanmadığı için gerçek sunucunun metinleri bilinmiyor: istemcinin kendi metinleri (atk_wave_started,
-  log_galaxygate_wave_name, log_msg_gg_completed_*) ve data/gates.json "mesajlar" (geri sayım, dalga bitti …). İstemcinin
-  geri sayım komutları (EpicFightMessageCommand, CountdownStatusCommand) bu sürümde boş işleyicili, kullanılamıyor.
-Kurulu kapı (2026-10-19, kullanıcı bildirimi: kurulu kapıda enerji "Tanımlanamayan bir hata" veriyordu): istemci enerji düğmesini
-kapının durumundan bağımsız açık tutuyor, yanıtta yalnız 0 / uridyum yetmiyor / "unclassified_error" var (ParseProduceResponse);
-kurulu kapıya çekiliş de kabul edilir: her parça kopyadır (çarpan), öteki ödüller olağan. Kurulu kapının durumu (state FINISHED)
-Prepare jump'ı açar ve istemci onu aldığı her bilgide "Kapı ALPHA inşaatı bitti" bildirimini açar (UIGalaxyGatesSystem.RefProgress);
-bildirim bir kez çıksın diye istemcide aynı bilgi varken pencerenin isteği yanıtsız kalır (info_request). Kapı hazırlanınca
-(PREPARE JUMP, portalı X-1'de) durum IN_PROGRESS gönderilir.
-Kapı haritası: ana dalgalar, her biri alt dalgalar ("gruplar": pencerenin dalga sayacının birimi). Dalga başlayınca bütün
-uzaylıları sıraya girer ve dogma_araligi_sn arayla tek tek, oyuncudan dogma_uzaklik ötede doğup üstüne gelir; hepsi ölünce dalga
-biter (kullanıcı bildirimi 2026-10-28: gerçek oyundaki gibi; halkayla toplu doğuş yığılma ve takılma yapıyordu). Kalkanlı patronun
-(Zeta Devourer) refakat grupları patronun çevresinde toplu doğar (boss_spawn). Ana dalgadan sonra ortada iki portal açılır
-(resmî kapı rehberi): solundaki sonraki dalgaya (aynı haritaya; girince geri sayımla başlar), sağındaki eve. Eve dönülürse
-ilerleme saklanır. Vurulunca üste tamir olunur, can 1 azalır; can kalmazsa kapı (parçalarıyla) kaybolur. Değerler
+The flow in the record (at session start and in the builder window):
+  GalaxyGateBuilderInfoRequest      -> GalaxyGateBuilderInfoCommand (gates, part count, lives, multiplier, energy price 100, uridium
+                                       "money", free energy "samples")
+  GalaxyGateBuilderGetGatePartsRequest {gateId} -> GalaxyGateBuilderGetGatePartsCommand (collected part ids)
+  GalaxyGateBuilderMultiEnergyRequest {spinAmount, useMultiplier, gateId} -> GalaxyGateBuilderMultiEnergyCommand (results:
+                                       GalaxyGateBuilderLootItemModule {type, item_id, amount, spins}: in the record ORE 4/13 and HITPOINTS 1/11000)
+Not in the record, from the client's code and texts (GalaxyGateComponentSystem, UIGalaxyGatesSystem, galaxygates_* texts):
+  GalaxyGateBuilderSetupGateRequest -> GalaxyGateBuilderSetupGateCommand {livesLeft, lifePrice}; the gate appears in X-1 next to the base
+  GalaxyGateBuilderBuyLifeRequest   -> GalaxyGateBuilderBuyLifeCommand (the life price doubles with each purchase, wiki)
+  on the gate map GalaxyGateBuilderGateWaveUpdateCommand (sub-wave counter), GateLifeLostCommand (death), GateCompleteCommand (end)
+  on-screen messages with MessageCommand (client: MessageCommandHandler; BIG = big notification + log, NORMAL = short message at the top).
+  Since the gate was not played in the record, the real server's texts are unknown: the client's own texts (atk_wave_started,
+  log_galaxygate_wave_name, log_msg_gg_completed_*) and data/gates.json "mesajlar" (countdown, wave over ...). The client's
+  countdown commands (EpicFightMessageCommand, CountdownStatusCommand) have empty handlers in this version and cannot be used.
+Built gate (2026-10-19, user report: energy on a built gate gave "An unidentified error"): the client keeps the energy button enabled
+regardless of the gate's state, and the response has only 0 / not enough uridium / "unclassified_error" (ParseProduceResponse);
+a spin on a built gate is also accepted: every part is a duplicate (multiplier), the other rewards as usual. The built gate's state (state FINISHED)
+opens Prepare jump and the client shows the "Gate ALPHA construction finished" notification on every info it receives (UIGalaxyGatesSystem.RefProgress);
+so that the notification appears once, when the client already has the same info the window's request goes unanswered (info_request). When the gate is prepared
+(PREPARE JUMP, its portal in X-1) the state IN_PROGRESS is sent.
+Gate map: main waves, each with sub-waves ("groups": the unit of the window's wave counter). When a wave starts all
+aliens queue up and spawn one by one spawn_interval_sec apart, dogma_uzaklik away from the player, and come at them; when all are dead the wave
+ends (user report 2026-10-28: like the real game; a mass spawn on a ring caused piling up and getting stuck). The escort groups of the shielded boss
+(Zeta Devourer) spawn together around the boss (boss_spawn). After a main wave two portals open in the middle
+(official gate guide): the left one to the next wave (same map; on entering it starts with a countdown), the right one home. If the player goes home
+progress is kept. When hit the player is repaired at base and loses 1 life; with no lives the gate (with its parts) is lost. Values in
 data/gates.json (tools/gates.py).
-Kapıya özgü kurallar:
-  Alpha, Beta, Gamma (ABG): üreticide ortak çekiliş; parça seçilen kapıdan bağımsız üçünden birine düşer (öteki ödüller olağan).
-  Zeta (3 harita) ve Kuiper (5 harita): haritanın son dalgasından sonra soldaki portal sonraki haritaya götürür; X-1'deki kapı
-  portalı kaldığın dalganın haritasına götürür.
-  Zeta Devourer ("kalici"): dalganın başında gelir; refakat grupları onun çevresinde, bir ailenin türleri (normal, Boss, Uber)
-  birlikte doğar; grup yaşarken Insta-Shield'ı açık ve hasar almaz, grup bitince kalkan kalkan_ara_sn (10) iner, sonra sonraki grup
-  (fandom Galaxy Gates); dalga, gelmemiş gruplar beklenmeden Devourer ölünce biter (Kosu.boss_tick).
-  Kronos: üreticide çekiliş yok; parçaları diğer kapıları tamamlayınca gelir (her tamamlamada 1, cumartesi 2; kapı başına en çok
-  wiki'deki sayı: Alpha 4, Beta 3, Gamma 1, Delta 1, Epsilon 4, Zeta 1, Kappa 2, Lambda 5 = 21). Üretici penceresinde kapı başına
-  ilerleme (GalaxyGateBuilderMultiGateProgressModule). "Evil Clone Of Your Ship" oyuncunun kendi görünümüyle gelir.
-  Hades: istemcide yarım boy harita (maps-config.xml scaleFactor 0.5); grup kapısıydı, burada tek oyunculu (botlar gelince grup).
+Gate-specific rules:
+  Alpha, Beta, Gamma (ABG): shared spin in the builder; a part drops to one of the three regardless of the selected gate (the other rewards as usual).
+  Zeta (3 maps) and Kuiper (5 maps): after the map's last wave the left portal leads to the next map; the gate portal in X-1
+  leads to the map of the wave you were on.
+  Zeta Devourer ("kalici"): comes at the start of the wave; the escort groups are around it, the species of one family (normal, Boss, Uber)
+  spawn together; while a group is alive its Insta-Shield is on and it takes no damage, when the group ends the shield drops for shield_gap_sec (10), then the next group
+  (fandom Galaxy Gates); the wave ends when the Devourer dies, without waiting for groups that have not come (Kosu.boss_tick).
+  Kronos: no spin in the builder; its parts come from completing the other gates (1 per completion, 2 on Saturday; at most the number in the wiki per gate:
+  Alpha 4, Beta 3, Gamma 1, Delta 1, Epsilon 4, Zeta 1, Kappa 2, Lambda 5 = 21). Progress per gate in the builder window
+  (GalaxyGateBuilderMultiGateProgressModule). "Evil Clone Of Your Ship" comes with the player's own look.
+  Hades: half-size map in the client (maps-config.xml scaleFactor 0.5); it was a group gate, here single-player (group when bots come).
 """
 import json, math, os, random, time
 import game_data as DATA
@@ -50,26 +50,26 @@ K = DATA.load('gates.json')
 KAPI = K['kapilar']
 BY_ID = {v['uid']: k for k, v in KAPI.items()}
 BY_MAP = {m: k for k, v in KAPI.items() for m in v['maps']}
-SIZES = {int(m): tuple(s) for v in KAPI.values() for m, s in v['sizes'].items()}     # standart boydan farklı kapı haritaları
+SIZES = {int(m): tuple(s) for v in KAPI.values() for m, s in v['sizes'].items()}     # gate maps that differ from the standard size
 KRONOS_PARTS = next((v['part'] for v in KAPI.values() if 'sources' in v), 0)
-# istemcinin enum'ları (GalaxyGateBuilder*)
+# the client's enums (GalaxyGateBuilder*)
 IN_PROGRESS, FINISHED = 0, 1
 ERR_NONE, ERR_MONEY, ERR_OTHER = 0, 1, 2
 BATTERY, ROCKET, MINE, ORE, VOUCHER, PART, HITPOINTS, LOGFILE = 1, 2, 3, 4, 5, 6, 7, 8
 CAT_AMMO, CAT_RES, CAT_VOUCHER, CAT_PART, CAT_SPECIAL, CAT_LOG = 1, 2, 3, 4, 5, 6
-XENOMIT, XENOMIT_ITEM = 3, 4              # sunucunun cevher türü; istemcinin üretici kimliği (kayıt: ORE 4)
-PORTAL_BASE = 150900000                   # kapı portallarının kimliği: + kapı kimliği (X-1), + 50 + kimlik (kapıdan çıkış),
-NEXT_PORTAL = 100                         # + 100 + kimlik (çok haritalı kapıda sonraki harita)
+XENOMIT, XENOMIT_ITEM = 3, 4              # the server's ore type; the client's builder id (record: ORE 4)
+PORTAL_BASE = 150900000                   # gate portal ids: + gate id (X-1), + 50 + id (exit from the gate),
+NEXT_PORTAL = 100                         # + 100 + id (the next map in a multi-map gate)
 HOME_MAP = {1: 1, 2: 5, 3: 9}
-# kapı uzaylılarının kalkan emmesi (türün kendi değeri yoksa): oyuncu bildirimi 2026-10-27, gerçek oyunda kapı uzaylıları %50 (harita
-# uzaylıları %70, npc.json savas.npc_kalkan_emme); Moth formasyonuyla kalkanı bitmeden ölürler. Kaynakta sayı yok
+# shield absorption of gate aliens (if the type has none of its own): player report 2026-10-27, in the real game gate aliens have 50% (map
+# aliens 70%, npc.json savas.npc_kalkan_emme); with the Moth formation they die before their shield runs out. No number in the source
 GATE_ABSORB = 0.5
-ABG = ('alpha', 'beta', 'gamma')        # üreticide ortak çekiliş: parça üçünden birine düşer (Kapilar.draw)
+ABG = ('alpha', 'beta', 'gamma')        # shared spin in the builder: the part drops to one of the three (Kapilar.draw)
 MAP_W, MAP_H = 21000, 13100
-# Kapı halkaları (ShipInitializationCommand / ShipCreateCommand galaxyGatesDone): istemci 7 bitlik maske okur
-# (UnitDataComponentSystem.UpdateIcons: bit i açıksa ad plakasındaki i. halka; simgeler alphaToDelta_gg x4, epsilonZeta_gg x2,
-# kronos_gg; yedisi birden açıksa yalnız taç). Önceden her tamamlamada sayı 1 artıyordu: Gamma'dan sonra 1 Alpha'nın, ardından
-# Alpha'dan sonra 2 Beta'nın halkası görünüyordu (kullanıcı bildirimi 2026-10-25).
+# Gate rings (ShipInitializationCommand / ShipCreateCommand galaxyGatesDone): the client reads a 7-bit mask
+# (UnitDataComponentSystem.UpdateIcons: if bit i is set the ith ring on the name plate; icons alphaToDelta_gg x4, epsilonZeta_gg x2,
+# kronos_gg; if all seven are set only the crown). Previously the count rose by 1 on each completion: after Gamma the ring of 1 Alpha, then
+# after Alpha the ring of 2 Beta was shown (user report 2026-10-25).
 RINGS = {'alpha': 1, 'beta': 2, 'gamma': 4, 'delta': 8, 'epsilon': 16, 'zeta': 32, 'kronos': 64}
 
 
@@ -79,17 +79,17 @@ def mod(name, **f):
 
 
 def rings(profile):
-    """Profilin kapı halkaları (galaxyGatesDone): en az bir kez tamamlanan kapıların bitleri (Dispatch'le tamamlanan da sayılır)."""
+    """The profile's gate rings (galaxyGatesDone): the bits of gates completed at least once (a gate completed via Dispatch counts too)."""
     gates = (profile.d.get('kapilar') or {}).get('kapilar', {})
     return sum(bit for key, bit in RINGS.items() if gates.get(key, {}).get('done'))
 
 
-DISPLAY_BOTH, STYLE_BIG, STYLE_NORMAL = 2, 0, 1       # MessageCommand.DisplayTarget / DisplayStyle (istemci)
-VM_SHIELD = 33                                        # VisualModifier INVINCIBILITY: kalkanlı patronun Insta-Shield'ı (Kosu.shield)
+DISPLAY_BOTH, STYLE_BIG, STYLE_NORMAL = 2, 0, 1       # MessageCommand.DisplayTarget / DisplayStyle (client)
+VM_SHIELD = 33                                        # VisualModifier INVINCIBILITY: the shielded boss's Insta-Shield (Kosu.shield)
 
 
 def screen(text, big=False, **wild):
-    """Ekran mesajı: "key:anahtar" istemcinin çeviri metni (%AD% yer tutucuları wild'dan), değilse düz metin."""
+    """On-screen message: "key:name" is the client's translated text (%AD% placeholders from wild), otherwise plain text."""
     if text.startswith('key:'):
         key, kind = text[4:], 5
         reps = [mod('MessageWildcardReplacementModule', wildcard='%%%s%%' % k, replacement=str(v),
@@ -102,17 +102,17 @@ def screen(text, big=False, **wild):
                                        baseKeyType=mod('ReplacementTypeModule', typeValue=kind), textStyle=0))))
 
 
-from legacy_protocol import legacy, loot_kind, stm  # noqa: E402,F401  (eski metin protokolü: eski_protokol.py)
+from legacy_protocol import legacy, loot_kind, stm  # noqa: E402,F401  (old text protocol: legacy_protocol.py)
 
 
 def npc_type(key, wave, i):
-    """Kapı uzaylısının NPC türü (dunya.CFG tipler'e eklenir): dalgadaki sırasıyla (aynı uzaylı bir dalgada birkaç kez olabilir)."""
+    """The NPC type of a gate alien (added to world.CFG tipler): by its order in the wave (the same alien can appear several times in a wave)."""
     return 'gg_%s_%d_%d' % (key, wave, i)
 
 
 def register_npcs(types):
-    """Kapı uzaylılarını NPC türleri olarak ekler: ad, görünüm (istemcinin gemi türü), hız ve npcId gates.json'dan; kapıya özgü
-    davranış (Kronos'un roketleri, Kappa Annihilator'ın kapalı fırlatıcısı: uzayli.of) varsa."""
+    """Adds the gate aliens as NPC types: name, look (the client's ship type), speed and npcId from gates.json; with gate-specific
+    behavior (Kronos's rockets, Kappa Annihilator's closed launcher: alien.of) if there is any."""
     for key, g in KAPI.items():
         for n, w in enumerate(g['waves']):
             for i, a in enumerate(w['alien_spawns']):
@@ -125,8 +125,8 @@ def register_npcs(types):
 
 
 def spread(cx, cy, count, map_w, map_h):
-    """Grubun doğma noktaları: merkez çevresinde sayıyla genişleyen alanda, aralarında en az grup_aralik birim (kalabalık grup tek
-    noktada üst üste doğmasın)."""
+    """A group's spawn points: in an area around the center that grows with the count, at least group_spacing units apart (so a crowded group does not
+    spawn stacked on a single point)."""
     rad = K['group_radius'][0] + K['group_radius'][1] * math.sqrt(count)
     spots = []
     for _ in range(count):
@@ -140,10 +140,10 @@ def spread(cx, cy, count, map_w, map_h):
 
 
 def ring(hx, hy, groups, map_w, map_h, radius=None):
-    """Kapı dalgasının doğma halkası: oyuncunun çevresinde eşit aralıklı, her türün uzaylıları halka boyunca dağılmış (kullanıcı
-    bildirimi 2026-10-24: alt dalga tek noktada üst üste doğuyordu). Halkaya sığmayanlar (aralık en az grup_aralik) dışta ikinci
-    halkada; halkanın merkezi haritaya sığacak biçimde oyuncuya en yakın nokta. groups: [(anahtar, adet)] -> [(anahtar, x, y)].
-    radius: ilk halkanın yarıçap aralığı (yoksa dogma_uzaklik; Devourer'ın refakatçileri onun çevresinde: kalkan_dogma)."""
+    """A gate wave's spawn ring: evenly spaced around the player, the aliens of each type spread along the ring (user
+    report 2026-10-24: a sub-wave spawned stacked on a single point). Those that do not fit the ring (spacing at least group_spacing) go on a second
+    ring outside; the ring's center is the point closest to the player such that the ring fits the map. groups: [(key, count)] -> [(key, x, y)].
+    radius: the first ring's radius range (dogma_uzaklik if absent; the Devourer's escorts are around it: shield_spawn)."""
     order = [key for _, key in sorted(((j + 0.5) / n, key) for key, n in groups for j in range(n))]
     rings, r, left = [], random.uniform(*(radius or K['spawn_distance'])), len(order)
     while left > 0:
@@ -165,8 +165,8 @@ def ring(hx, hy, groups, map_w, map_h, radius=None):
 
 
 def far_spot(hx, hy, map_w, map_h):
-    """Tek uzaylının doğma noktası: oyuncudan dogma_uzaklik ötede rastgele yönde; harita kenarında kısalan yönlerden kaçınır (hiçbiri
-    yetmezse en uzağı). Uzakta doğan uzaylı oyuncu öncekini keserken ancak yetişir."""
+    """A single alien's spawn point: dogma_uzaklik away from the player in a random direction; avoids directions that get shorter at the map edge (if none
+    suffices, the farthest). An alien that spawns far away only catches up while the player is cutting the previous one down."""
     best = None
     for _ in range(12):
         a, r = random.uniform(0, 2 * math.pi), random.uniform(*K['spawn_distance'])
@@ -186,39 +186,39 @@ def center(map_id):
 
 
 def group_weights(w):
-    """Dalganın gruplarının sayaçtaki payı (grup_sayac; yoksa grup başına 1): Zeta'nın son dalgasında bir refakat grubu türü kadar
-    alt dalga (Streuner grubu ζ30-34: beş tür birlikte gelir)."""
+    """The wave's groups' share of the counter (group_counter; if absent 1 per group): in Zeta's last wave an escort group counts as as many
+    sub-waves as it has species (Streuner group zeta30-34: five species come together)."""
     return w.get('group_counter') or [1] * len(w['groups'])
 
 
 def sub_waves(g, n):
-    """İlk n ana dalganın alt dalga sayısı: istemcinin dalga sayacının birimi (GetGateTotalWaves: Alpha 40 … Hades 12; Hades'in
-    aşaması bundan, dörtte bir). Kalıcı uzaylı (Zeta Devourer) kendi alt dalgası (istemci Zeta 46)."""
+    """The number of sub-waves of the first n main waves: the unit of the client's wave counter (GetGateTotalWaves: Alpha 40 ... Hades 12; Hades's
+    stage is a quarter of this). The persistent alien (Zeta Devourer) is its own sub-wave (client Zeta 46)."""
     return sum(sum(group_weights(w)) + any(a.get('permanent') for a in w['alien_spawns']) for w in g['waves'][:n])
 
 
 def wave_map(g, n):
-    """n. dalganın haritası (bitmiş kapıda son dalganınki)."""
+    """The nth wave's map (the last wave's for a finished gate)."""
     waves = g['waves']
     return waves[min(n, len(waves) - 1)]['map']
 
 
 def pace(name):
-    """Dalga beklemesi (giriş, alt dalga arası, mola; saniye): panelin 'dalga_bekleme' çarpanıyla (etkinlik kapıları da)."""
+    """Wave waiting time (entry, between sub-waves, break; seconds): with the panel's 'wave_wait' multiplier (event gates too)."""
     return int(round(K[name] * SET.multiplier('wave_wait')))
 
 
 def fresh(g, old=None):
     out = {'parts': sorted((old or {}).get('next', [])), 'ready': False, 'wave': 0, 'can': g['can'], 'lives_bought': 0,
-           'done': (old or {}).get('done', 0)}      # hazır kapı sürerken toplanan parçalar (sonraki) yeni kapının
+           'done': (old or {}).get('done', 0)}      # parts collected while a ready gate is in progress (next) go to the new gate
     if 'sources' in g:
-        out['source'] = {}                # Kronos: hangi kapıdan kaç parça geldi
+        out['source'] = {}                # Kronos: how many parts came from which gate
     return out
 
 
-# ------------------------------------------------------------ süreli kapı bonusları
+# ------------------------------------------------------------ timed gate bonuses
 def bonus_period(now=None):
-    """Bonus dönemi -> (sıra, bitiş zamanı): panelin kapi_bonus_saat'i, yerel gece yarısına hizalı."""
+    """Bonus period -> (index, end time): the panel's gate_bonus_hours, aligned to local midnight."""
     now = time.time() if now is None else now
     span = max(1, int(SET.get('gate_bonus_hours'))) * 3600
     off = time.localtime(now).tm_gmtoff or 0
@@ -227,13 +227,13 @@ def bonus_period(now=None):
 
 
 def bonus_amount(n):
-    """Panelin çarpanı (miktarlı ödüller; tek eşya bir tane): kesin, pencerede görünen verilenle aynı."""
+    """The panel's multiplier (rewards with amounts; a single item is one): exact, what is given is the same as what the window shows."""
     m = SET.multiplier('gate_bonus_multiplier')
     return n if n <= 1 or m == 1.0 else max(1, int(round(n * m)))
 
 
 def bonus_selection(now=None):
-    """Bu dönemin bonuslu kapıları -> {kapı: (lootId, adet)}; dönem içinde sabit (dönemin sırasıyla tohumlanmış seçim)."""
+    """This period's bonus gates -> {gate: (lootId, count)}; fixed within the period (a choice seeded with the period's index)."""
     B = K.get('bonus') or {}
     n = int(SET.get('gate_bonus_count'))
     gates = [k for k in B.get('kapilar', []) if k in KAPI]
@@ -244,24 +244,24 @@ def bonus_selection(now=None):
     rng = random.Random('kapi-bonus-%d-%d' % (int(SET.get('gate_bonus_hours')), idx))
     pick = rng.sample(gates, min(n, len(gates)))
     loots = rng.sample(pool, len(pick)) if len(pool) >= len(pick) else [rng.choice(pool) for _ in pick]
-    # EP ve onur aralıklı ([en az, en çok]): dönemin tohumuyla seçilir, dönem içinde sabit
+    # EP and honor as ranges ([min, max]): chosen with the period's seed, fixed within the period
     return {k: (l, bonus_amount(rng.randint(*a) if isinstance(a, list) else a)) for k, (l, a) in zip(pick, loots)}
 
 
 def ammo_type(loot):
-    """Cephane sonucunun türü. Roket ve mayın LootItemModule'le gider (istemci ParseOutputList: tür 2/3, item_id 3 -> PLT-2021,
-    11 -> ACM-01; AmmoOutputVo.ToStr: log_entry_rocket, log_entry_mine_s/p); lazer cephanesi pille."""
+    """The ammo result's type. Rockets and mines go with LootItemModule (client ParseOutputList: type 2/3, item_id 3 -> PLT-2021,
+    11 -> ACM-01; AmmoOutputVo.ToStr: log_entry_rocket, log_entry_mine_s/p); laser ammo as a battery."""
     return ROCKET if loot.startswith('ammunition_rocket_') else MINE if loot.startswith('ammunition_mine_') else BATTERY
 
 
 def weights():
-    """Çekiliş ağırlıkları (kayıttaki olasılıklar); panelin 'kapi_parca' çarpanı parçanınkini değiştirir."""
+    """Spin weights (the probabilities in the record); the panel's 'gate_part' multiplier changes the part's."""
     f = SET.multiplier('gate_part')
     return [[c, w * (f if c == CAT_PART else 1)] for c, w in K['probability']]
 
 
 def percentages():
-    """Penceredeki yüzdeler (toplam 100, en büyük kalan yöntemiyle)."""
+    """The percentages in the window (total 100, by the largest remainder method)."""
     wts = weights()
     tot = sum(w for c, w in wts) or 1
     raw = [(c, 100.0 * w / tot) for c, w in wts]
@@ -271,12 +271,12 @@ def percentages():
     return out
 
 
-# kapı ganimeti -> istemcinin lootId'si (günlük ödüller de aynı adla saklar)
+# gate loot -> the client's lootId (daily rewards store it under the same name)
 LOOT_IDS = {'abr': 'resource_collectable_axion-beam-regulator', 'schism': 'resource_collectable_schism', 'green_key': 'resource_booty-key'}
 
 
 def record_duration(save, key, sec):
-    """Kapının tamamlanma süresi (istatistik; oyuncu isteği 2026-10-30) -> kayit['kapi_sureleri'][key] {en_iyi, son, sayi} (sn)."""
+    """A gate's completion time (statistics; player request 2026-10-30) -> save['gate_times'][key] {best, last, number} (s)."""
     d = save.setdefault('gate_times', {}).setdefault(key, {'best': 0, 'last': 0, 'number': 0})
     sec = int(max(1, sec))
     d.update(last=sec, number=d['number'] + 1, best=min(d['best'], sec) if d['best'] else sec)
@@ -284,24 +284,24 @@ def record_duration(save, key, sec):
 
 
 class Gates:
-    """Oturumun kapı üreticisi (profil: kapilar) ve kapı haritasındaki koşu."""
+    """The session's gate builder (profile: gates) and the run on the gate map."""
 
     def __init__(self, profile, log=print):
         self.p, self.log = profile, log
-        self.m = None                 # mağaza (eşya/para mesajları)
-        self.world = lambda: None     # oturumun güncel dünyası
-        self.info_tpl = None          # kayıttaki GalaxyGateBuilderInfoCommand (diğer kapılar olduğu gibi)
-        self.sent = None              # oturumda istemcinin elindeki kapı bilgisi (info_request)
-        self.titles = None            # kapı tamamlama unvanı (oturum bağlar: unvan_avi.grant_title)
+        self.m = None                 # shop (item/money messages)
+        self.world = lambda: None     # the session's current world
+        self.info_tpl = None          # the GalaxyGateBuilderInfoCommand in the record (other gates as they are)
+        self.sent = None              # the gate info the client holds in the session (info_request)
+        self.titles = None            # gate completion title (the session binds: title_hunt.grant_title)
 
-    # ------------------------------------------------------------ profil
+    # ------------------------------------------------------------ profile
     @property
     def d(self):
-        """Profildeki kapı bölümü (yoksa kurulur). Kilitsiz: profil kilidi yeniden girilemez, çağıranlar kilit içinde kullanır."""
+        """The gate section in the profile (created if absent). Lockless: the profile lock cannot be re-entered, callers use it inside the lock."""
         d = self.p.d.get('kapilar')
         if d is None:
             d = self.p.d['kapilar'] = {'energy': 0, 'multiplier': 0, 'spin': 1, 'log_disk': 0, 'voucher': 0, 'kapilar': {}}
-        if 'booty' in d:                       # eski profil: kapı ganimeti ayrı tutuluyordu -> diger_esyalar (lootId)
+        if 'booty' in d:                       # old profile: gate loot was kept separately -> other_items (lootId)
             other = self.p.d.setdefault('other_items', {})
             for k, n in d.pop('booty').items():
                 other[LOOT_IDS.get(k, k)] = other.get(LOOT_IDS.get(k, k), 0) + n
@@ -319,23 +319,23 @@ class Gates:
         return len(self.gate(key)['parts']) >= KAPI[key]['part']
 
     def parts(self, key):
-        """Çekilişte parçaların gittiği liste: kapı hazırlanıp haritadaysa sonraki kapınınki (oyuncu bildirimi 2026-10-27: gerçek oyunda
-        kurulu kapı haritadayken de parça çıkar; bizde hepsi kopya sayılıp çarpana dönüyordu), değilse kapının kendisi."""
+        """The list the parts go to on a spin: the next gate's if a gate is prepared and on the map (player report 2026-10-27: in the real game
+        parts drop even while a built gate is on the map; ours counted all as duplicates and turned them into the multiplier), otherwise the gate itself."""
         G = self.gate(key)
         return G.setdefault('next', []) if G['ready'] else G['parts']
 
     def state(self, key):
-        """Penceredeki durum: kurulu ve henüz hazırlanmamışsa FINISHED (istemci "Prepare jump"u açar, "inşaatı bitti" bildirimini
-        gösterir); hazırlanmış kapı IN_PROGRESS (portalı X-1'de, bildirim her açılışta çıkmasın)."""
+        """The state in the window: FINISHED if built and not yet prepared (the client opens "Prepare jump" and shows the "construction
+        finished" notification); a prepared gate is IN_PROGRESS (its portal in X-1, so the notification does not appear on every open)."""
         return FINISHED if self.built(key) and not self.gate(key)['ready'] else IN_PROGRESS
 
     def energy_price(self):
-        """Enerji fiyatı: Premium -%5 (tek oyunculuda herkes premium; galaxy_gates.md), Shop Discount (rebate) -%25 sürüyorsa, hafta
-        sonu -%15; indirimler toplanır (wiki: en düşük 55 = 100 - 25 - 5 - 15; istemci galaxygates_costs_discount_p "Premium ve
-        rebate olağan kullanılır"). Oyuncu bildirimi 2026-10-27: rebate + Premium 70 yerine 80 (hafta sonuyla) gösteriyordu."""
+        """Energy price: Premium -5% (everyone is premium in single player; galaxy_gates.md), Shop Discount (rebate) -25% if active, weekend
+        -15%; discounts add up (wiki: lowest 55 = 100 - 25 - 5 - 15; client galaxygates_costs_discount_p "Premium and
+        rebate are used as usual"). Player report 2026-10-27: rebate + Premium showed 80 (with the weekend) instead of 70."""
         import event_calendar as CAL
-        sale = CAL.is_active('gate_weekend')    # cumartesi-pazar (takvim.py)
-        disc = self.m.discount() if self.m else K.get('premium_discount', 0)     # Premium + Shop Discount (magaza.discount)
+        sale = CAL.is_active('gate_weekend')    # Saturday-Sunday (event_calendar.py)
+        disc = self.m.discount() if self.m else K.get('premium_discount', 0)     # Premium + Shop Discount (shop.discount)
         f = (1 - disc - (K['weekend_discount'] if sale else 0)) * SET.multiplier('gate_price')     # panel
         return int(round(K['energy_price'] * f)), sale
 
@@ -344,16 +344,16 @@ class Gates:
         if not G['ready']:
             return -1
         pr = K['life_prices']
-        # sınırdan sonra da son fiyat: -1 giderse istemci (GalaxyGateComponentSystem.ParseGateLifePurchaseResponse) parçaları tam
-        # kapıyı "tamamlandı" sayıyor (oyuncu bildirimi 2026-10-30: 5 can alınca "Galaxy Gate … completed"); fazlası buy_life'ta reddedilir
+        # the final price after the limit too: if -1 goes away the client (GalaxyGateComponentSystem.ParseGateLifePurchaseResponse) counts the fully
+        # collected gate as "completed" (player report 2026-10-30: after buying 5 lives "Galaxy Gate ... completed"); the excess is rejected in buy_life
         return int(round(pr[min(G['lives_bought'], len(pr) - 1)] * SET.multiplier('gate_price')))     # panel
 
     def money(self):
         return self.p.d['pilot'].get('uridium', 0)
 
-    # ------------------------------------------------------------ süreli bonuslar
+    # ------------------------------------------------------------ timed bonuses
     def bonus_taken(self, now=None):
-        """Bu dönemde bonusu alınan kapılar (dönem değişince sıfırlanır). Profil: kapilar.bonus {donem, alinan}."""
+        """Gates whose bonus was taken in this period (reset when the period changes). Profile: gates.bonus {period, claimed}."""
         idx, _ = bonus_period(now)
         with self.p.lock:
             b = self.d.setdefault('bonus', {})
@@ -364,7 +364,7 @@ class Gates:
             return b['claimed']
 
     def bonus_modules(self, key, now=None):
-        """Kapının bonusu (GalaxyGateBuilderBonusGGRewardModule; kayıttaki kalıntılar yerine sunucunun seçimi) ya da []."""
+        """The gate's bonus (GalaxyGateBuilderBonusGGRewardModule; the server's choice instead of the leftovers in the record) or []."""
         now = time.time() if now is None else now
         sel = bonus_selection(now)
         if key not in sel:
@@ -374,17 +374,17 @@ class Gates:
                     countdown=max(0, int(bonus_period(now)[1] - now)), lootId=loot, amount=n)]
 
     def claim_bonus(self, key, now=None, mark=True):
-        """Kapı tamamlandı: dönemin bonusu bu kapıdaysa ve alınmadıysa verilir; ayrıca Cyborg / Hammerclaw / Mimesis gemisi şansı (sahip
-        olunan gemi yerine 10.000 uridyum; istemci msg_bonus_gg_reward_info, wiki) -> (mesajlar, (lootId, adet) | None, (gemi, sahipti) | None)."""
+        """Gate completed: if the period's bonus is on this gate and not taken it is given; also the chance of a Cyborg / Hammerclaw / Mimesis ship (10,000 uridium
+        instead of an owned ship; client msg_bonus_gg_reward_info, wiki) -> (messages, (lootId, count) | None, (ship, was owned) | None)."""
         sel, taken = bonus_selection(now), self.bonus_taken(now)
         if key not in sel or key in taken:
             return [], None, None
         loot, n = sel[key]
         if mark:
-            with self.p.lock:                          # bonus_taken kilidi kendisi alıyor (kilit yeniden girilemez)
+            with self.p.lock:                          # bonus_taken takes the lock itself (the lock cannot be re-entered)
                 taken.append(key)
                 self.p.dirty = True
-        self.log('   %s: kapı bonusu %s x%d' % (KAPI[key]['name'], loot, n))
+        self.log('   %s: gate bonus %s x%d' % (KAPI[key]['name'], loot, n))
         msgs, ship, S = (self.m.reward(loot, n) if self.m else []), None, K['bonus'].get('ship_chance')
         if S and random.random() < SET.chance('drop', S['probability'], 'gate'):
             ship_rec = random.choice(S['ships'])
@@ -392,14 +392,14 @@ class Gates:
             ship = (ship_rec, had)
             if self.m:
                 msgs += self.m.prize('currency_uridium', S['fallback_uridium'], 'gate') if had else self.m.reward(ship_rec, 1)
-            self.log('   %s: bonus gemisi %s%s' % (KAPI[key]['name'], ship_rec, ' (sahipti: %d U)' % S['fallback_uridium'] if had else ''))
+            self.log('   %s: bonus ship %s%s' % (KAPI[key]['name'], ship_rec, ' (owned: %d U)' % S['fallback_uridium'] if had else ''))
         return msgs, (loot, n), ship
 
-    # ------------------------------------------------------------ üretici penceresi
+    # ------------------------------------------------------------ builder window
     def gate_module(self, tpl, key):
         G, g = self.gate(key), KAPI[key]
         out = dict(tpl)
-        if out.get('probabilityModules') and SET.multiplier('gate_part') != 1.0:       # panel: kapı parçası şansı (yüzdeler)
+        if out.get('probabilityModules') and SET.multiplier('gate_part') != 1.0:       # panel: gate part chance (percentages)
             pct = percentages()
             out['probabilityModules'] = [dict(m, percentage=pct.get(m.get('category'), m.get('percentage', 0)))
                                          for m in out['probabilityModules']]
@@ -407,8 +407,8 @@ class Gates:
                    livesLeft=G['can'] if G['ready'] else -1, lifePrice=self.life_price(key), multiplier=self.d['multiplier'], mode=key,
                    id=g['uid'], bonusGGRewardModules=self.bonus_modules(key))
         if 'sources' in g:
-            # Kronos: kayıttaki gibi kapı başına ilerleme (ad istemcinin gösterdiği "Alpha", "Beta" …)
-            # sözlük: mod()'un ilk bağımsız değişkeni de "name"
+            # Kronos: progress per gate as in the record (the name is what the client shows, "Alpha", "Beta" ...)
+            # dictionary: mod()'s first argument is also "name"
             out['multiGateProgressModules'] = [{'_': 'GalaxyGateBuilderMultiGateProgressModule', 'total': n,
                                                 'current': G['source'].get(k, 0), 'name': KAPI[k]['name'].replace(' Gate', '')}
                                                for k, n in g['sources'].items()]
@@ -416,8 +416,8 @@ class Gates:
         return out
 
     def info_cmd(self):
-        """GalaxyGateBuilderInfoCommand: kayıttaki şablon (kapı sırası ve olasılık modülleri), değerler profilden; galaxyGateDay:
-        Pazar GG Double Rewards (event_calendar.py gg_cift_odul; resmî sunucu kaydı 2026-10-25 Pazar: galaxyGateDay true, bonusRewardsDay
+        """GalaxyGateBuilderInfoCommand: the template in the record (gate order and probability modules), values from the profile; galaxyGateDay:
+        Sunday GG Double Rewards (event_calendar.py gg_cift_odul; official server record 2026-10-25 Sunday: galaxyGateDay true, bonusRewardsDay
         false)."""
         import event_calendar as CAL
         price, sale = self.energy_price()
@@ -440,10 +440,10 @@ class Gates:
         return ('GalaxyGateBuilderInfoCommand', t)
 
     def info_request(self):
-        """GalaxyGateBuilderInfoRequest: istemci pencereyi her açışta sorar. Kurulu kapının FINISHED'ı Prepare jump'ı açtığı gibi her
-        bilgide "ALPHA gate completed" bildirimini de yeniden açıyordu, Cancel'dan sonra da (UIGalaxyGatesSystem.RefProgress; Cancel bir
-        şey göndermiyor; kullanıcı, canlı tur 2). İstemcide aynı kapı bilgisi varken yanıt yok: pencere elindekiyle açılıyor (Prepare
-        jump etkin, bildirim yok); o arada yalnız uridyum değiştiyse pencere eskisini gösterir."""
+        """GalaxyGateBuilderInfoRequest: the client asks every time it opens the window. A built gate's FINISHED opened Prepare jump, and on every
+        info it also re-opened the "ALPHA gate completed" notification, even after Cancel (UIGalaxyGatesSystem.RefProgress; Cancel sends
+        nothing; user, live round 2). When the client already has the same gate info there is no reply: the window opens with what it has (Prepare
+        jump enabled, no notification); if only uridium changed in the meantime the window shows the old value."""
         cmd = self.info_cmd()
         seen = self.seen(cmd[1])
         if seen == self.sent and any(g.get('state') == FINISHED for g in cmd[1]['gates']):
@@ -453,7 +453,7 @@ class Gates:
 
     @staticmethod
     def seen(t):
-        """Karşılaştırılan bölüm: kapılar ve enerji; bonus ödülün geri sayımı her saniye azaldığından dışarıda."""
+        """The compared section: gates and energy; left out because the bonus reward's countdown drops every second."""
         gates = [dict(g, bonusGGRewardModules=[{k: v for k, v in m.items() if k != 'countdown'} for m in g.get('bonusGGRewardModules', [])])
                  for g in t['gates']]
         return json.dumps([gates, t['samples']], sort_keys=True)
@@ -474,30 +474,30 @@ class Gates:
                 self.p.dirty = True
         return []
 
-    # ------------------------------------------------------------ çekiliş
+    # ------------------------------------------------------------ spin
     def spin(self, f):
-        """GalaxyGateBuilderMultiEnergyRequest: enerji başına bir çekiliş; önce ücretsiz enerji, sonra uridyum."""
+        """GalaxyGateBuilderMultiEnergyRequest: one spin per energy; free energy first, then uridium."""
         gid, n = f.get('gateId'), int(f.get('spinAmount') or 0)
         key = BY_ID.get(gid)
         reply = lambda err, items=(), extra=None: [('GalaxyGateBuilderMultiEnergyCommand', dict(
             gatePartIds=self.part_ids(key) if key else [], items=list(items), spinamount_selected=n, errorCode=err, money=self.money(),
             multiplier=self.d['multiplier'], gateMode=key or '', samples=self.d['energy']))] + (extra or [])
         if not key or n <= 0 or KAPI[key].get('not_producible'):
-            self.log('   kapı üreticisi: çekiliş yok (kapı %s, %d)' % (gid, n))     # Kronos: parçaları diğer kapılardan
+            self.log('   gate builder: no spin (gate %s, %d)' % (gid, n))     # Kronos: its parts come from the other gates
             return reply(ERR_OTHER)
-        group = ABG if key in ABG else (key,)    # Alpha/Beta/Gamma: parça üçünden birine (draw)
-        was_built = {k: self.built(k) for k in group}   # kurulu kapıda da çekiliş: parçalar kopya (çarpan), öteki ödüller olağan
+        group = ABG if key in ABG else (key,)    # Alpha/Beta/Gamma: the part goes to one of the three (draw)
+        was_built = {k: self.built(k) for k in group}   # a spin on a built gate too: parts are duplicates (multiplier), the other rewards as usual
         price, sale = self.energy_price()
         free = min(n, self.d['energy'])
         cost = (n - free) * price
         if self.money() < cost:
-            self.log('   kapı üreticisi: uridyum yetmiyor (%d U)' % cost)
+            self.log('   gate builder: not enough uridium (%d U)' % cost)
             return reply(ERR_MONEY)
         results, grants = [], {}
         used = 0
         for _ in range(n):
             if any(not was_built[k] and self.built(k) for k in group):
-                break                          # kapı bu çekilişlerde kuruldu: kalan enerji harcanmaz
+                break                          # the gate was built in these spins: the remaining energy is not spent
             used += 1
             results += self.draw(key, f.get('useMultiplier'), grants)
         free = min(used, self.d['energy'])
@@ -511,33 +511,33 @@ class Gates:
         if self.m:
             msgs = self.m.money_msgs() + msgs
         items = self.merge(results)
-        self.log('   kapı üreticisi %s: %d çekiliş (%d ücretsiz, %d U), parça %s, çarpan %d: %s' % (
+        self.log('   gate builder %s: %d spins (%d free, %d U), part %s, multiplier %d: %s' % (
             key, used, free, cost, ', '.join('%s %d/%d' % (k, len(self.gate(k)['parts']), KAPI[k]['part']) for k in group), self.d['multiplier'],
             ', '.join('%s %s' % (k, v) for k, v in sorted(grants.items()))))
         for k in group:
             if not was_built[k] and self.built(k):
-                self.log('   %s kapısı kuruldu' % KAPI[k]['name'])
-        self.sent = self.seen(self.info_cmd()[1])      # yanıt parçaları, enerjiyi ve kurulmayı (bildirimiyle) istemciye taşıyor
+                self.log('   %s gate built' % KAPI[k]['name'])
+        self.sent = self.seen(self.info_cmd()[1])      # the response carries the parts, the energy and the construction (with its notification) to the client
         return reply(ERR_NONE, items, msgs)
 
     def draw(self, key, use_mult, grants):
-        """Bir çekiliş -> sonuç kayıtları. Kopya parça çarpan olur (en çok 5 = x6; 5'e ulaşınca bir sonraki ödülde kendiliğinden
-        kullanılır). Çarpanla parça çıkarsa çarpan kadar farklı eksik parça; eksik kalmadıysa artanı cephane (istemci SSS
+        """One spin -> result records. A duplicate part becomes the multiplier (at most 5 = x6; on reaching 5 it is used automatically
+        on the next reward). If a part comes up with the multiplier, as many different missing parts as the multiplier; if none are missing, the excess is ammo (client FAQ
         galaxygates_multiplier_multilpier_on_parts_p: "you'll win new parts for the gate")."""
         d, G, g = self.d, self.gate(key), KAPI[key]
         wts = weights()
         gm = self.p.d['ship']
         if int(gm.get('nanoHull', 0)) + grants.get('nano', 0) >= gm.get('maxNanoHull', 0):
-            wts = [x for x in wts if x[0] != CAT_SPECIAL]      # aktif gemide Nano Hull dolu: çıkmaz, yerine öteki ödüller (fandom Materializer)
+            wts = [x for x in wts if x[0] != CAT_SPECIAL]      # Nano Hull is full on the active ship: it does not drop, the other rewards instead (fandom Materializer)
         r, cat = random.uniform(0, sum(w for c, w in wts)), CAT_AMMO
-        for c, w in wts:          # kayıttaki olasılıklar: cephane 67, kaynak 12, kupon 3, parça 13, özel 4, log 1
+        for c, w in wts:          # probabilities in the record: ammo 67, resource 12, coupon 3, part 13, special 4, log 1
             r -= w
             if r < 0:
                 cat = c
                 break
         if cat == CAT_PART and key in ABG:
-            # Alpha, Beta ve Gamma üreticide ortak: parça seçilen kapıdan bağımsız üçünden birine, o kapının ilerlemesine (resmî ABG
-            # üreticisi; kullanıcı bildirimi 2026-10-24: her kapı kendi çekilişinden parça alıyordu). Kurulu kapıya düşen parça kopya (çarpan)
+            # Alpha, Beta and Gamma are shared in the builder: the part goes to one of the three regardless of the selected gate, to that gate's progress (official ABG
+            # builder; user report 2026-10-24: each gate took parts from its own spin). A part falling on a built gate is a duplicate (multiplier)
             key = random.choice(ABG)
             G, g = self.gate(key), KAPI[key]
         if cat == CAT_PART and d['multiplier'] and (use_mult or d['multiplier'] >= K['max_multiplier']):
@@ -553,7 +553,7 @@ class Gates:
             out = [dict(type=PART, part_id=pid, duplicate=False, current=have + i + 1, gate_id=g['uid'], mult=mult)
                    for i, pid in enumerate(new)]
             left = mult - len(new)
-            if left:                                       # gerekenden fazlası cephane
+            if left:                                       # the excess over what is needed is ammo
                 loot, iid, amount = random.choice(K['ammunition'])
                 grants[loot] = grants.get(loot, 0) + amount * left
                 out.append(dict(type=ammo_type(loot), item_id=iid, amount=amount * left, mult=left))
@@ -562,7 +562,7 @@ class Gates:
             pid = random.randint(1, g['part'])
             P = self.parts(key)
             missing = [i for i in range(1, g['part'] + 1) if i not in P]
-            if pid in P and missing and random.random() < SET.get('duplicate_to_missing') / 100.0:     # panel (oyunun %50'si)
+            if pid in P and missing and random.random() < SET.get('duplicate_to_missing') / 100.0:     # panel (50% of the game's)
                 pid = random.choice(missing)
             dup = pid in P
             with self.p.lock:
@@ -594,14 +594,14 @@ class Gates:
         return [dict(type=LOGFILE, item_id=1, amount=mult, mult=mult)]
 
     def merge(self, results):
-        """Sonuçları istemcinin günlük satırlarına çevirir: aynı ödüller toplanır (spins), parçalar tek tek."""
+        """Turns the results into the client's log lines: identical rewards are summed (spins), parts one by one."""
         now = int(time.time() * 1000)
         out, loot = [], {}
         for r in results:
             if r['type'] == PART:
                 key = BY_ID[r['gate_id']]
-                # son parçada FINISHED: istemci "Prepare jump" düğmesini kapı durumundan açar (canlı test: IN_PROGRESS gidince düğme
-                # pencere yeniden açılana dek kapalı kaldı)
+                # FINISHED on the last part: the client enables the "Prepare jump" button from the gate's state (live test: when IN_PROGRESS went away the button
+                # stayed disabled until the window was reopened)
                 done = r['current'] >= KAPI[key]['part'] and not self.gate(key)['ready']
                 out.append(mod('GalaxyGateBuilderPartItemModule', type=PART, date=now, livesLeft=-1, gate_id=r['gate_id'],
                                state=FINISHED if done else IN_PROGRESS, multiplier_used=r.get('mult', 1) - 1, current=r['current'],
@@ -610,8 +610,8 @@ class Gates:
                 continue
             k = (r['type'], r['item_id'], r['mult'])
             if k not in loot:
-                # istemci (GalaxyGateComponentSystem.ParseOutputList) cephaneyi BatteryItemModule'e dönüştürür: LootItemModule
-                # gönderilince dönüşüm boş kalıp NullReferenceException veriyordu (canlı test). Diğerleri LootItemModule (kayıt).
+                # the client (GalaxyGateComponentSystem.ParseOutputList) converts ammo to BatteryItemModule: when LootItemModule
+                # was sent the conversion stayed empty and gave a NullReferenceException (live test). The others are LootItemModule (record).
                 cls = 'GalaxyGateBuilderBatteryItemModule' if r['type'] == BATTERY else 'GalaxyGateBuilderLootItemModule'
                 loot[k] = mod(cls, type=r['type'], date=now, multiplier_used=r['mult'] - 1, item_id=r['item_id'],
                               spins=0, multiplier_amount=r['mult'] if r['mult'] > 1 else 0, amount=0)
@@ -623,7 +623,7 @@ class Gates:
         return out
 
     def give(self, grants, note=True):
-        """Ödülleri profile ekler -> arayüz mesajları (cephane sayaçları, envanter, kargo, nano gövde)."""
+        """Adds the rewards to the profile -> UI messages (ammo counters, inventory, cargo, nano hull)."""
         msgs, p = [], self.p
         for loot, n in sorted(grants.items()):
             if loot.startswith('ammunition_'):
@@ -635,7 +635,7 @@ class Gates:
                                                                               self.m.pack([self.m.hangar_item(iid, loot, total)])]
                 if note:
                     msgs.append(legacy('0|LM|ST|%s|%s|%d' % (loot_kind(loot), loot, n)))
-        n = grants.get('xenomit', 0)                                  # Xenomit kargoda yer kaplamaz (profil.CARGO_ORES)
+        n = grants.get('xenomit', 0)                                  # Xenomit takes no cargo space (player_profile.CARGO_ORES)
         if n > 0:
             totals = p.add_ores({XENOMIT: n})
             msgs.append(('AttributeOreCountUpdateCommand', {'oreCountList': totals}))
@@ -643,13 +643,13 @@ class Gates:
                 msgs.append(self.m.ore_pack([XENOMIT]))
             w = self.world()
             if w:
-                msgs += w.quest('loot', loot='resource_ore_xenomit', amount=n)      # toplama görevleri (Alien Ore)
+                msgs += w.quest('loot', loot='resource_ore_xenomit', amount=n)      # collection quests (Alien Ore)
         with p.lock:
             self.d['voucher'] += grants.get('voucher', 0)
             self.d['log_disk'] += grants.get('log_disk', 0)
-            self.d['energy'] += grants.get('energy', 0)           # Kronos: 250 ücretsiz enerji (wiki "Energy")
+            self.d['energy'] += grants.get('energy', 0)           # Kronos: 250 free energy (wiki "Energy")
             p.dirty = True
-        for k, n in (grants.get('booty') or {}).items():          # ABR, Schism, yeşil anahtar: kaynak deposuna (profil)
+        for k, n in (grants.get('booty') or {}).items():          # ABR, Schism, green key: to the resource storage (profile)
             p.add_resource(LOOT_IDS.get(k, k), n)
         if grants.get('nano'):
             gm = p.d['ship']
@@ -659,23 +659,23 @@ class Gates:
                                                      nanoHull=int(gm['nanoHull']), nanoHullMax=gm.get('maxNanoHull', 0))))
         return msgs
 
-    # ------------------------------------------------------------ hazırlık, can, portal
+    # ------------------------------------------------------------ preparation, life, portal
     def setup(self, f):
-        """GalaxyGateBuilderSetupGateRequest: kurulu kapı X-1'de üssün yanında belirir (wiki: "PREPARE JUMP")."""
+        """GalaxyGateBuilderSetupGateRequest: the built gate appears in X-1 next to the base (wiki: "PREPARE JUMP")."""
         gid = f.get('gateId')
         key = BY_ID.get(gid)
         if not key or not self.built(key):
-            self.log('   kapı hazırlanamadı: %s' % gid)
+            self.log('   gate could not be prepared: %s' % gid)
             return [('GalaxyGateBuilderSetupGateCommand', dict(livesLeft=-1, lifePrice=-1, id=gid or 0, errorCode=1))]
         G = self.gate(key)
         with self.p.lock:
             if not G['ready']:
-                G.update(ready=True, wave=0, can=SET.count('gate_lives', KAPI[key]['can']), lives_bought=0)     # panel: kapı canı
+                G.update(ready=True, wave=0, can=SET.count('gate_lives', KAPI[key]['can']), lives_bought=0)     # panel: gate lives
             self.p.dirty = True
         w = self.world()
         if w and w.map_id == str(self.home()) and not any(x['gateId'] == PORTAL_BASE + KAPI[key]['uid'] for x in w.gates):
             w.add_gate(self.home_portal(key, w.station))
-        self.log('   %s kapısı hazır: %d can' % (KAPI[key]['name'], G['can']))
+        self.log('   %s gate ready: %d lives' % (KAPI[key]['name'], G['can']))
         return [('GalaxyGateBuilderSetupGateCommand', dict(livesLeft=G['can'], lifePrice=self.life_price(key), id=gid, errorCode=0))]
 
     def buy_life(self, f):
@@ -683,7 +683,7 @@ class Gates:
         key = BY_ID.get(gid)
         price = self.life_price(key) if key else -1
         if price >= 0 and self.gate(key)['lives_bought'] >= len(K['life_prices']):
-            G = self.gate(key)                       # wiki: beş can satın alınabilir (5.000 … 80.000 U)
+            G = self.gate(key)                       # wiki: five lives can be bought (5,000 ... 80,000 U)
             return [screen('You cannot buy more lives for this gate.'),
                     ('GalaxyGateBuilderBuyLifeCommand', dict(samples=self.d['energy'], multiplier=self.d['multiplier'], gateId=gid or 0,
                                                              errorCode=ERR_NONE, lifePrice=price, money=self.money(), gateMode=key,
@@ -697,7 +697,7 @@ class Gates:
                 G['lives_bought'] += 1
                 self.p.dirty = True
             RT.money(self.p, 'uridium', -price, 'buy_SPECIAL')
-            self.log('   %s kapısına can alındı (%d U), can %d' % (KAPI[key]['name'], price, G['can']))
+            self.log('   %s gate lives bought (%d U), lives %d' % (KAPI[key]['name'], price, G['can']))
         G = self.gate(key) if key else {'can': -1}
         msgs = [('GalaxyGateBuilderBuyLifeCommand', dict(samples=self.d['energy'], multiplier=self.d['multiplier'], gateId=gid or 0, errorCode=err,
                                                          lifePrice=self.life_price(key) if key else -1, money=self.money(),
@@ -708,8 +708,8 @@ class Gates:
         return HOME_MAP.get(self.p.d['pilot'].get('factionId'), 5)
 
     def home_portal(self, key, station):
-        """X-1'deki kapı portalı: üssün yanında, harita ortasına doğru (kapılar yan yana; beşerli halkalar). Kaldığın dalganın
-        haritasına götürür (Zeta, Kuiper)."""
+        """The gate portal in X-1: next to the base, toward the middle of the map (gates side by side; rings of five). Leads to the map of the wave
+        you were on (Zeta, Kuiper)."""
         g, G = KAPI[key], self.gate(key)
         cx, cy = MAP_W // 2, MAP_H // 2
         sx, sy = (station['posX'], station['posY']) if station else (cx, cy)
@@ -718,7 +718,7 @@ class Gates:
         dist = K['portal_distance'] + ring * 1400
         x, y = int(sx + math.cos(a) * dist), int(sy + math.sin(a) * dist)
         fix = K.get('x1_position', {}).get({1: '1', 5: '2', 9: '3'}.get(self.home(), ''), {}).get(key)
-        if fix:                                         # forum 127536: firmanın X-1'inde sabit yer
+        if fix:                                         # forum 127536: a fixed place in the company's X-1
             x, y = fix
         dest = wave_map(g, G['wave'])
         return dict(gateId=PORTAL_BASE + g['uid'], x=x, y=y, target=dest, designId=g['portal'], gate=key, arrival=center(dest))
@@ -729,28 +729,28 @@ class Gates:
         return [self.home_portal(k, station) for k in KAPI if self.gate(k)['ready']]
 
     def exit_portal(self, key, map_id, side=False):
-        """Kapıdan eve dönüş: haritanın ortasında (sonraki dalganın portalı açıkken onun sağında)."""
+        """Return home from the gate: in the middle of the map (to the right of the next wave's portal while it is open)."""
         x, y = center(map_id)
         return dict(gateId=PORTAL_BASE + 50 + KAPI[key]['uid'], x=x + 700 if side else x, y=y, target=self.home(), designId=1,
                     gate=key, exit=True, arrival='station')
 
     def next_portal(self, key, map_id, dest):
-        """Sonraki dalgaya (aynı haritaya; Zeta ve Kuiper'de haritanın son dalgasından sonra sonraki haritaya): ortanın solunda,
-        kapının portal tasarımıyla."""
+        """To the next wave (same map; in Zeta and Kuiper after the map's last wave to the next map): left of the middle,
+        with the gate's portal design."""
         g = KAPI[key]
         x, y = center(map_id)
         return dict(gateId=PORTAL_BASE + NEXT_PORTAL + g['uid'], x=x - 700, y=y, target=dest, designId=g['portal'], gate=key,
                     arrival=center(dest))
 
     def kronos_part(self, key, dispatch=False):
-        """Kapı tamamlandı: Kronos parçası (her tamamlamada 1, Kronos günü 2, Sevkiyatla hep 1 (forum 160334); kapı başına en çok wiki'deki
-        sayı) -> (gelen, toplam)."""
+        """Gate completed: Kronos part (1 per completion, 2 on Kronos day, always 1 with Dispatch (forum 160334); at most the number in the wiki per gate)
+        -> (arrived, total)."""
         kronos = next((k for k, g in KAPI.items() if key in g.get('sources', {})), None)
         if not kronos:
             return None
         g, G = KAPI[kronos], self.gate(kronos)
         import event_calendar as CAL
-        n = 2 if CAL.is_active('kronos_day') and not dispatch else 1     # cumartesi (takvim.py)
+        n = 2 if CAL.is_active('kronos_day') and not dispatch else 1     # cumartesi (event_calendar.py)
         with self.p.lock:
             have = G['source'].get(key, 0)
             got = min(n, g['sources'][key] - have)
@@ -760,30 +760,30 @@ class Gates:
                 self.p.dirty = True
         if got <= 0:
             return None
-        self.log('   Kronos parçası: %s +%d (%d/%d)' % (KAPI[key]['name'], got, len(G['parts']), g['part']))
+        self.log('   Kronos part: %s +%d (%d/%d)' % (KAPI[key]['name'], got, len(G['parts']), g['part']))
         return got, len(G['parts'])
 
     def finish(self, key, reward_msgs=None, dispatch=False, multiplier=1):
-        """Kapı tamamlandı (kapı haritasında son dalga ya da Dispatch'in kapı gönderimi): ödüller (wiki; şanslı ödüller olasılığıyla),
-        Kronos parçası, kapı sıfırlanır (ödüldeki parça yeni kapının ilk parçası). reward_msgs: dünyanın ödül mesajları (yoksa para
-        güncellemesi). dispatch: görevler saymaz, N.O.V.A. bonusu yok (darkorbitwiki dispatch-gate: "boosters don't apply and missions
-        don't count"; başarım sayılır). Pazar GG Double Rewards (event_calendar.py gg_cift_odul; Dispatch'te de): EP, onur, Xenomit, log
-        diski, kupon, yeşil anahtar, Kronos cephanesi/enerjisi ve şanslı ödüllerin adedi iki kat -> (mesajlar, {yeni, kronos, sans}). Dispatch'te etkinliğin
-        kapı ödülleri (Empyrian, Prosperous, Galaxy Trek …) ve Booty Günü Schism'i yok (wiki dispatch-gate: "will not include rewards
-        from special events"; Special Booty Days: "This will not be dropped from Dispatch"); bonus ödülü ve Çift Ödül Günü bunun dışında."""
+        """Gate completed (last wave on the gate map or Dispatch's gate dispatch): rewards (wiki; lucky rewards by their probability),
+        Kronos part, the gate is reset (a part in the reward is the new gate's first part). reward_msgs: the world's reward messages (otherwise the money
+        update). dispatch: quests do not count, no N.O.V.A. bonus (darkorbitwiki dispatch-gate: "boosters don't apply and missions
+        don't count"; the achievement counts). Sunday GG Double Rewards (event_calendar.py gg_cift_odul; in Dispatch too): EP, honor, Xenomit, log
+        disk, coupon, green key, Kronos ammo/energy and the count of lucky rewards doubled -> (messages, {new, kronos, sans}). In Dispatch the event's
+        gate rewards (Empyrian, Prosperous, Galaxy Trek ...) and the Booty Day Schism are absent (wiki dispatch-gate: "will not include rewards
+        from special events"; Special Booty Days: "This will not be dropped from Dispatch"); the bonus reward and Double Rewards Day are exceptions."""
         import event_calendar as CAL
         import loot as LOOT
         g, R = KAPI[key], KAPI[key]['reward']
-        # Çifte Ödül Günü Dispatch'te de (toplama anına göre; istemci dispatch_gate_description, forum 160341). Kalemler: forum ve oyun
-        # içi pencereler: UCB-100, ABR ve Schism x1; Kronos'un RSB-75/UBR-100/enerjisi x2; şanslı ödülde olasılık aynı, adet x2
+        # Double Rewards Day in Dispatch too (by collection time; client dispatch_gate_description, forum 160341). Items: forum and in-game
+        # windows: UCB-100, ABR and Schism x1; Kronos's RSB-75/UBR-100/energy x2; for a lucky reward the probability is the same, the count x2
         x2 = 2 if CAL.is_active('gg_double_reward') else 1
-        first = self.gate(key).get('done', 0) == 0         # ilk tamamlama: Epsilon LF-4, Zeta Havoc, Kronos Spartan kesin (forum)
+        first = self.gate(key).get('done', 0) == 0         # first completion: Epsilon LF-4, Zeta Havoc, Kronos Spartan guaranteed (forum)
         rm =reward_msgs or (lambda tot, **kw: self.m.money_msgs() if self.m else [])
-        self.p.ach('gate', type='%s_GATE' % key.upper(), dispatch=dispatch)      # istemcinin GalaxyGateType'ı (STREUNER_GATE …)
-        if CAL.is_active('battle_for_influence') and not dispatch:          # Nüfuz Savaşı: kapı zaferinin puanı (resmî forum 131012)
+        self.p.ach('gate', type='%s_GATE' % key.upper(), dispatch=dispatch)      # the client's GalaxyGateType (STREUNER_GATE ...)
+        if CAL.is_active('battle_for_influence') and not dispatch:          # Battle for Influence: the points of a gate victory (official forum 131012)
             self.p.ach('influence', points=CAL.EVENTS['battle_for_influence']['influence'].get(key, 0))
         ev_msgs = []
-        if not dispatch and self.m:                                         # etkinlik puanı (Hatching Out: Alpha/Beta/Gamma 160 VPP)
+        if not dispatch and self.m:                                         # event points (Hatching Out: Alpha/Beta/Gamma 160 VPP)
             import event_points as OP
             ev_msgs = OP.gate(self.p, key, lambda l, n: self.m.prize(l, n, 'gate'))
         cbs = self.p.cbs_mods() if not dispatch and getattr(self.p, 'cbs_mods', None) else {}
@@ -793,20 +793,20 @@ class Gates:
         tot = self.p.gain(ep=ep, honor=honor, uridium=uri, reason='galaxy_gate_done')
         msgs = rm(tot, ep=ep, honor=honor, uridium=uri) + ev_msgs
         pet = getattr(self.m, 'pet', None) if self.m else None
-        msgs += (pet.gain_xp(ep) or []) if pet and not dispatch else []      # forum 127074: P.E.T. kapı EP'sinin %5'ini de kazanır
-        q = lambda v: SET.amount('mode_reward', int(round(v * multiplier)), 'gate')      # panel: kapı/mod ödülü çarpanı; Sevkiyat Günü x1,5
+        msgs += (pet.gain_xp(ep) or []) if pet and not dispatch else []      # forum 127074: the P.E.T. also earns 5% of the gate EP
+        q = lambda v: SET.amount('mode_reward', int(round(v * multiplier)), 'gate')      # panel: gate/mode reward multiplier; Dispatch Day x1.5
         grants = {k: q(v * (1 if k == 'ammunition_laser_ucb-100' else x2)) for k, v in R['ammunition'].items()}
         grants.update(xenomit=q(R['xenomit'] * x2), voucher=q(R['voucher'] * x2), log_disk=q(R['log_disk'] * x2), energy=q(R['energy'] * x2),
                       booty={k: q(v * (x2 if k == 'green_key' else 1)) for k, v in (R['booty'] or {}).items()})
-        if not dispatch and key in K.get('schism', {}) and 'AllGatesSchism' in CAL.ALWAYS:   # Booty Günü Schism'i sabitin üstüne (forum 160341)
+        if not dispatch and key in K.get('schism', {}) and 'AllGatesSchism' in CAL.ALWAYS:   # Booty Day Schism on top of the fixed amount (forum 160341)
             grants['booty']['schism'] = grants['booty'].get('schism', 0) + q(random.randint(*K['schism'][key]))
         msgs += self.give(grants)
-        for loot, n in R.get('items', []) if self.m else []:      # Delta 450 Promerium (forum, oyun içi pencere)
+        for loot, n in R.get('items', []) if self.m else []:      # Delta 450 Promerium (forum, in-game window)
             msgs += self.m.prize(loot, q(n * x2), 'gate')
         got = []
         owned = {x['lootId'] for x in self.p.d['ships'].values()}
-        rows = [s for s in R['chance'] if not (x2 > 1 and s.get('no_double_reward'))]        # Hermes çifte günde çıkmaz
-        single = [s for s in rows if s.get('single_spin')]                                   # Kappa: tek çekiliş (LF-4 / Hercules / MultiBooster)
+        rows = [s for s in R['chance'] if not (x2 > 1 and s.get('no_double_reward'))]        # Hermes does not drop on a double day
+        single = [s for s in rows if s.get('single_spin')]                                   # Kappa: a single spin (LF-4 / Hercules / MultiBooster)
         r, pick = random.random(), None
         for s in single:
             r -= SET.chance('drop', s['probability'], 'gate')
@@ -816,8 +816,8 @@ class Gates:
         hit = [s for s in rows if s is pick or not s.get('single_spin') and (
             first and s.get('first_guaranteed') or random.random() < SET.chance('drop', s['probability'], 'gate'))]
         for s in hit:
-            factor = 1 if s['item'].startswith('ship_') or s['item'] == 'design_choice' else x2   # gemi ve gemi tasarımı 1; öteki x2
-            if s['item'] == 'ore_pack':                 # forum 129125: Kyhalon %5 / Tetrathrin %25 / Bifenon %70, adet çifte günde x2
+            factor = 1 if s['item'].startswith('ship_') or s['item'] == 'design_choice' else x2   # ship and ship design 1; the others x2
+            if s['item'] == 'ore_pack':                 # forum 129125: Kyhalon 5% / Tetrathrin 25% / Bifenon 70%, count x2 on a double day
                 u = random.random() * sum(r[2] for r in s['package'])
                 l, n, _ = next((r for r in s['package'] if (u := u - r[2]) < 0), s['package'][-1])
                 msgs += self.m.prize(l, factor * random.randint(*n), 'gate') if self.m else []
@@ -825,34 +825,34 @@ class Gates:
                 continue
             loot = random.choice(s['options']) if s['item'] == 'design_choice' else s['item']
             got.append(loot)
-            if loot in owned and s.get('fallback_uridium'):                # Kuiper: tasarım zaten varsa 10.000 uridyum (wiki)
+            if loot in owned and s.get('fallback_uridium'):                # Kuiper: 10,000 uridium if the design is already owned (wiki)
                 u = SET.amount('uridium', s['fallback_uridium'], 'gate')
                 tot = self.p.gain(uridium=u, reason='galaxy_gate_done')
                 msgs += rm(tot, uridium=u)
             elif self.m:
                 for l, n in [(loot, [s['count'], s['max_count']] if s.get('max_count') else s['count'])] + (
                         [random.choice(s['together'])] if s.get('together') else []):
-                    msgs += self.m.prize(l, factor * (random.randint(*n) if isinstance(n, list) else n), 'gate')     # aralıklı miktar; birlikte: Diametrion + üçünden biri
+                    msgs += self.m.prize(l, factor * (random.randint(*n) if isinstance(n, list) else n), 'gate')     # ranged amount; together: Diametrion + one of the three
                     if l != loot:
                         got.append(l)
-        for loot, n, chance in [] if dispatch else CAL.gate_rewards(key):    # etkinliğin kapı ödülü (Empyrian / Prosperous Fragment, Lucent Key)
+        for loot, n, chance in [] if dispatch else CAL.gate_rewards(key):    # the event's gate reward (Empyrian / Prosperous Fragment, Lucent Key)
             if random.random() < SET.chance('drop', chance, 'gate') and self.m:
                 msgs += self.m.prize(loot, n, 'gate')
                 got.append(loot)
-        for s in [] if dispatch else CAL.gate_choices(key):    # GG Special Rewards Weekend, LF-4 günü: olasılıkla paketten biri
-            rows = [r for r in s['choice'] if not (s.get('non_repeating') and LOOT.gone(self.p, r))]       # sahip olunan gemi, tasarım ya da bütün parçaları sahip olunan paket
-            if s.get('fallback_uridium'):                       # Astral Keşif: hepsinden çekilir, sahip olunan çıkarsa uridyum (forum 162019)
+        for s in [] if dispatch else CAL.gate_choices(key):    # GG Special Rewards Weekend, LF-4 day: one of the packages with a probability
+            rows = [r for r in s['choice'] if not (s.get('non_repeating') and LOOT.gone(self.p, r))]       # an owned ship, a design, or a package all of whose parts are owned
+            if s.get('fallback_uridium'):                       # Astral Exploration: drawn from all of them, uridium if an owned one comes up (forum 162019)
                 rows = s['choice']
             if rows and random.random() < SET.chance('drop', s['probability'], 'gate') and self.m:
-                row = random.choices(rows, [r[2] if len(r) > 2 else 1 for r in rows])[0]               # ağırlık yoksa eşit (Empyrian Reward Package)
+                row = random.choices(rows, [r[2] if len(r) > 2 else 1 for r in rows])[0]               # equal if there are no weights (Empyrian Reward Package)
                 if s.get('fallback_uridium') and LOOT.gone(self.p, row):
                     msgs += self.m.prize('currency_uridium', s['fallback_uridium'], 'gate')
                     got.append('currency_uridium')
                     continue
-                for loot, n in row[1] if row[0] == LOOT.PACKAGE else [row[:2]]:      # ['paket', [[lootId, adet], …]]: kalemlerin hepsi (Collector's Joy 10+1)
+                for loot, n in row[1] if row[0] == LOOT.PACKAGE else [row[:2]]:      # ['package', [[lootId, count], …]]: all of the items (Collector's Joy 10+1)
                     msgs += self.m.prize(loot, n, 'gate')
                     got.append(loot)
-        for s in [] if dispatch else CAL.gate_bundles(key):    # Prosperous Package: olasılıkla paket, kalemleri kendi olasılıklarıyla; başarım
+        for s in [] if dispatch else CAL.gate_bundles(key):    # Prosperous Package: the package with a probability, its items with their own probabilities; achievement
             if random.random() < SET.chance('drop', s['probability'], 'gate'):
                 for loot, n, chance in s['items']:
                     if random.random() < chance and self.m:
@@ -866,18 +866,18 @@ class Gates:
             self.d['kapilar'][key] = new
             self.p.dirty = True
         kronos = self.kronos_part(key, dispatch)
-        bm, bonus, ship = self.claim_bonus(key, mark=not dispatch)   # süreli kapı bonusu; Dispatch'le alınan "alındı" sayılmaz (forum 160334)
+        bm, bonus, ship = self.claim_bonus(key, mark=not dispatch)   # timed gate bonus; one taken via Dispatch does not count as "taken" (forum 160334)
         msgs += bm
         if g.get('title') and self.titles:             # Kappa All-Star, Lambda Boss of Bosses, Hades Emperor of Hades
             msgs += self.titles(g['title'])
-        self.log('   %s kapısı tamamlandı: +%d EP, +%d onur, +%d U, %s%s' % (
-            g['name'], R['ep'], R['honor'], R['uridium'], grants, ', şanslı: %s' % got if got else ''))
+        self.log('   %s gate completed: +%d EP, +%d honor, +%d U, %s%s' % (
+            g['name'], R['ep'], R['honor'], R['uridium'], grants, ', lucky: %s' % got if got else ''))
         return msgs, dict(new=new, kronos=kronos, chance=got, bonus=bonus, bonus_ship=ship, currency=dict(ep=ep, honor=honor, uridium=uri))
 
     def dispatch_complete(self, key, multiplier=1):
-        """Dispatch'in kapı gönderimi bitti: tamamlama ödülleri ve ganimet iletisi (DispatchLootMessageCommand); carpan: Sevkiyat Günü."""
+        """Dispatch's gate dispatch finished: completion rewards and the loot message (DispatchLootMessageCommand); carpan: Dispatch Day."""
         msgs, info = self.finish(key, dispatch=True, multiplier=multiplier)
-        P = info['currency']                                   # verilen (panelin çarpanlarıyla), iletide de o
+        P = info['currency']                                   # given (with the panel's multipliers), the same in the message
         loots = [mod('LootModule', lootId=l, amount=n, modifier='') for l, n in
                  (('currency_experience', P['ep']), ('currency_honour', P['honor']), ('currency_uridium', P['uridium'])) if n]
         return msgs + [('DispatchLootMessageCommand', dict(messageType=1, loots=loots))]
@@ -891,50 +891,50 @@ class Gates:
 
 
 class Run:
-    """Kapı haritasında dalgalar (dünya döngüsünden, kilit altında). phase: intro/break (geri sayım), next (alt dalgalar arası),
-    fight, move (dalga bitti: sonraki dalganın ve evin portalı açık), done, void (kapı yok ya da başka haritada), dead."""
-    cleared = 0                      # bu ana dalgada temizlenen alt dalgalar (istemcinin sayacı alt dalga sayar)
+    """Waves on the gate map (from the world loop, under the lock). phase: intro/break (countdown), next (between sub-waves),
+    fight, move (wave over: the next wave's and home portals are open), done, void (no gate or on another map), dead."""
+    cleared = 0                      # sub-waves cleared in this main wave (the client's counter counts sub-waves)
 
     def __init__(self, gates, world, key):
         self.k, self.w, self.key = gates, world, key
         self.g = KAPI[key]
         self.map = int(world.map_id)
         G = gates.gate(key)
-        self.npcs = set()            # bu dalganın uzaylıları
-        self.keep = set()            # kalıcı uzaylılar (Zeta Devourer): alt dalgalardan bağımsız
-        self.groups = []             # dalganın gruplarının doğan uzaylıları (pencerenin sayacı: cleared_groups)
-        self.queue = []              # doğacak uzaylılar: (uzaylı sırası, grubu)
-        self.due = 0                 # sıradakinin doğma saati
+        self.npcs = set()            # this wave's aliens
+        self.keep = set()            # persistent aliens (Zeta Devourer): independent of sub-waves
+        self.groups = []             # spawned aliens of the wave's groups (the window's counter: cleared_groups)
+        self.queue = []              # aliens to spawn: (alien order, its group)
+        self.due = 0                 # the next one's spawn time
         self.sub = 0
-        self.counted = None          # son gönderilen geri sayım saniyesi
-        self.left = None             # son bildirilen kalan uzaylı sayısı
-        self.exposed = False         # kalıcı uzaylının korumasının kalktığı bildirildi
-        self.boss = ''               # kalıcı uzaylının adı (mesajlar)
-        self.guarding = False        # kalkanlı patron (Zeta Devourer): refakat grubu yaşıyor, patron hasar almaz (boss_tick)
-        self.next_group = 0          # kalkanı inen patronun sonraki refakat grubunun saati
-        self.protected = {}            # Delta: korunan uzaylı -> grubundaki refakat (yaşarken Insta-Shield)
+        self.counted = None          # the last countdown second sent
+        self.left = None             # the last reported number of remaining aliens
+        self.exposed = False         # it was reported that the persistent alien's protection is gone
+        self.boss = ''               # the persistent alien's name (messages)
+        self.guarding = False        # shielded boss (Zeta Devourer): while the escort group is alive the boss takes no damage (boss_tick)
+        self.next_group = 0          # the time of the next escort group of a boss whose shield dropped
+        self.protected = {}            # Delta: protected alien -> the escort in its group (Insta-Shield while alive)
         now = time.time()
         if not G['ready'] or G['can'] <= 0:
-            self.phase, self.t = 'void', now          # kapı yok: yalnız çıkış portalı
+            self.phase, self.t = 'void', now          # no gate: only the exit portal
             world.add_gate(gates.exit_portal(key, self.map))
         elif wave_map(self.g, G['wave']) != self.map:
-            # başka haritanın dalgası (ör. eski haritaya dönüldü): o haritanın portalı ve eve dönüş
+            # another map's wave (e.g. returned to the old map): that map's portal and the return home
             self.phase, self.t = 'void', now
             world.add_gate(gates.next_portal(key, self.map, wave_map(self.g, G['wave'])))
             world.add_gate(gates.exit_portal(key, self.map, side=True))
         else:
             self.phase, self.t = 'intro', now + pace('intro_wait_sec')
             world.send(self.say('ongoing' if G['wave'] else 'entry'))
-            if not G['wave']:                       # süre ilk dalgaya girişten (oturumda; çok haritalı kapıda haritalar arası da)
+            if not G['wave']:                       # time from entering the first wave (in the session; in a multi-map gate across maps too)
                 gates.__dict__.setdefault('start', {})[key] = now
-        world.log('   %s kapısı: dalga %d/%d, can %d (%s)' % (self.g['name'], G['wave'] + 1, len(self.g['waves']), G['can'], self.phase))
+        world.log('   %s gate: wave %d/%d, lives %d (%s)' % (self.g['name'], G['wave'] + 1, len(self.g['waves']), G['can'], self.phase))
 
     def wave(self):
         G = self.k.gate(self.key)
         return self.g['waves'][min(G['wave'], len(self.g['waves']) - 1)]
 
     def say(self, event, wild=None, **extra):
-        """data/gates.json "mesajlar"daki olay -> ekran mesajları (büyük ve/veya kısa; wild: "key:" metnin öteki yer tutucuları)."""
+        """The event in data/gates.json "mesajlar" -> on-screen messages (big and/or short; wild: the text's other placeholders for "key:")."""
         G = self.k.gate(self.key)
         waves = self.g['waves']
         n = min(G['wave'], len(waves) - 1)
@@ -951,45 +951,45 @@ class Run:
         return out
 
     def messages(self):
-        """Ekran mesajları (etkinlik kapıları kendi metinlerini üstüne koyar)."""
+        """On-screen messages (event gates put their own texts on top)."""
         return K['messages']
 
     def wave_msgs(self):
         return [self.wave_msg()]
 
     def sub_msgs(self):
-        """Alt dalga temizlendi: pencerenin dalga sayacı (etkinlik kapıları göndermez)."""
+        """Sub-wave cleared: the window's wave counter (event gates do not send it)."""
         return [self.wave_msg()]
 
     def wave_count(self):
         return len(self.g['waves'])
 
     def countdown(self, now):
-        """Dalgadan önce geri sayım (gates.json geri_sayim saniyelerinde)."""
+        """Countdown before the wave (at gates.json countdown seconds)."""
         left = int(math.ceil(self.t - now))
         if left in K['countdown'] and left != self.counted:
             self.counted = left
             self.w.send(self.say('countdown', sn=left))
 
     def wave_msg(self):
-        """Dalga sayacı alt dalga biriminde (istemci "Wave: {0} / {1}", toplam GetGateTotalWaves; Hades'te aşama bundan)."""
+        """The wave counter in sub-wave units (client "Wave: {0} / {1}", total GetGateTotalWaves; in Hades the stage is a quarter of it)."""
         G = self.k.gate(self.key)
         return ('GalaxyGateBuilderGateWaveUpdateCommand', dict(gateId=self.g['uid'],
                                                                currWave=sub_waves(self.g, G['wave']) + self.cleared))
 
     def pending(self, group):
-        """Grubun doğmamış uzaylısı var mı."""
+        """Does the group have an alien that has not spawned."""
         return any(g is group for _, g in self.queue)
 
     def cleared_groups(self):
-        """Pencerenin dalga sayacı: bütün uzaylıları doğup ölen grupların payı (group_weights)."""
+        """The window's wave counter: the share of groups all of whose aliens have spawned and died (group_weights)."""
         w = self.w
         return sum(n for group, n in zip(self.groups, group_weights(self.wave()))
                    if not self.pending(group) and not any(i in w.npcs for i in group))
 
     def trickle(self, now):
-        """Sıradaki uzaylı: süresi geldiyse oyuncudan uzakta doğar (far_spot); sonraki dogma_araligi_sn sonra (panelin dalga_bekleme
-        çarpanıyla)."""
+        """The next alien: if its time has come it spawns away from the player (far_spot); the next one spawn_interval_sec later (with the panel's wave_wait
+        multiplier)."""
         if not self.queue or now < self.due:
             return
         i, group = self.queue.pop(0)
@@ -1005,7 +1005,7 @@ class Run:
             if self.boss_wave():
                 self.boss_tick(now)
                 return
-            for nid, guarded in list(self.protected.items()):  # korunanın refakati bitti: Insta-Shield iner
+            for nid, guarded in list(self.protected.items()):  # the protected one's escort is over: the Insta-Shield drops
                 if not guarded():
                     del self.protected[nid]
                     if nid in w.npcs:
@@ -1023,7 +1023,7 @@ class Run:
                 return
             boss = [w.npcs[i] for i in self.keep if i in w.npcs]
             if boss:
-                if not self.exposed:              # diğerleri bitti: kalıcı uzaylı artık hasar alır
+                if not self.exposed:              # the others are over: the persistent alien now takes damage
                     self.exposed = True
                     w.send(self.say('protection_ended', name=self.boss))
                 return
@@ -1039,17 +1039,17 @@ class Run:
             self.npcs.clear()
             self.keep.clear()
             w.remove_gate(self.k.exit_portal(self.key, self.map)['gateId'])
-            # geri sayımın sonu, kalan can (istemcinin lifes_left "%! lives left"), dalganın adı (kullanıcının gerçek oyun görüntüsü)
+            # end of the countdown, lives left (the client's lifes_left "%! lives left"), the wave's name (the user's real game footage)
             msgs = (self.wave_msgs() + [legacy('0|A|STM|atk_wave_started|%%COUNT%%|%d' % (G['wave'] + 1))] + self.say('countdown', sn=0)
                     + [stm('lifes_left', '%!', G['can'])] + self.say('wave_started'))
             if G['wave'] == self.wave_count() - 1:
                 msgs += self.say('last_wave')
             w.send(msgs)
-            w.log('   %s kapısı: dalga %s başladı' % (self.g['name'], self.wave()['name']))
+            w.log('   %s gate: wave %s started' % (self.g['name'], self.wave()['name']))
         self.spawn()
-        self.trickle(now)                                            # ilki hemen
+        self.trickle(now)                                            # the first one at once
         if self.phase == 'fight' and G['wave'] == self.wave_count() - 1 and self.sub == 0 and not getattr(self, 'filmed', False):
-            self.filmed = True                                       # son dalga: kamera patrona (Ö2 sinematik giriş)
+            self.filmed = True                                       # last wave: camera on the boss (Ö2 cinematic entrance)
             boss = next((w.npcs[i] for i in list(self.keep) + list(self.npcs) if i in w.npcs), None)
             if boss:
                 w.cinematic(*boss.mover.pos(time.time()))
@@ -1057,8 +1057,8 @@ class Run:
         self.phase = 'fight'
 
     def counts(self, wave, grp):
-        """Grubun [uzaylı, adet]'leri: panelin dalga_npc çarpanıyla (kalıcı patron bir tane); Kronos'ta Evil Iris oyuncunun Iris dronu
-        kadar (wikiwiki.jp Kronos Gate; dronu yoksa wiki'nin 8'i)."""
+        """The group's [alien, count]s: with the panel's wave_aliens multiplier (the persistent boss is one); in Kronos Evil Iris equals the player's Iris drone
+        count (wikiwiki.jp Kronos Gate; the wiki's 8 if there is no drone)."""
         out = []
         for i, count in grp:
             a = wave['alien_spawns'][i]
@@ -1071,8 +1071,8 @@ class Run:
         return out
 
     def spawn(self):
-        """Dalga başladı: bütün grupların uzaylıları sıraya (trickle tek tek doğurur); kalıcı patron önce, grupta korunan önce
-        (refakati arkasından gelir), türler grup içinde karışık. Kalkanlı patronlu dalga (Zeta Devourer) gruplarla: boss_spawn."""
+        """Wave started: the aliens of all groups are queued (trickle spawns them one by one); the persistent boss first, the protected one first in a group
+        (its escort comes after), species mixed within a group. A wave with a shielded boss (Zeta Devourer) with groups: boss_spawn."""
         if self.boss_wave():
             self.boss_spawn()
             return
@@ -1088,9 +1088,9 @@ class Run:
         self.queue, self.due = first + rest, 0
 
     def spawn_one(self, i, group, x, y):
-        """Sıradaki uzaylı (x, y)'de doğar ve oyuncunun peşine düşer. Kalıcı uzaylı diğerleri doğup ölmeden hasar almaz; korunan
-        (Delta) grubunun ötekileri doğup ölmeden Insta-Shield'lı (forum 127543); "oyuncu" görünümlü (Kronos Evil You) oyuncunun
-        gemisiyle gelir."""
+        """The next alien spawns at (x, y) and goes after the player. The persistent alien takes no damage until the others have spawned and died; the protected
+        (Delta) group's others have an Insta-Shield until they spawn and die (forum 127543); one with a "player" look (Kronos Evil You) comes with the player's
+        ship."""
         w, G = self.w, self.k.gate(self.key)
         a = self.wave()['alien_spawns'][i]
         model = self.k.p.ship_look() if a['type'] == 'player' else None
@@ -1112,9 +1112,9 @@ class Run:
         return n
 
     def boss_spawn(self):
-        """Kalkanlı patronlu dalganın grubu (Zeta Devourer): patron dalganın başında oyuncunun çevresinde; refakat grubu patronun
-        çevresinde doğar (de.fandom Zeta Gate: Devourer "sendet"), grup yaşarken patronun Insta-Shield'ı açık (kullanıcı bildirimi
-        2026-10-25: gruplar oyuncunun çevresinde doğuyor, kalkan görünmüyordu); halka_bekleme_sn durup peşine düşerler."""
+        """The group of a wave with a shielded boss (Zeta Devourer): the boss is around the player at the start of the wave; the escort group spawns around
+        the boss (de.fandom Zeta Gate: Devourer "sends"), while the group is alive the boss's Insta-Shield is on (user report
+        2026-10-25: groups spawned around the player, the shield was not visible); they stop for ring_wait_sec and then go after the player."""
         w, G = self.w, self.k.gate(self.key)
         wave = self.wave()
         counts = self.counts(wave, wave['groups'][self.sub])
@@ -1144,30 +1144,30 @@ class Run:
             self.guarding = True
             w.send(self.shield(boss, True) + self.say('protection', name=self.boss))
 
-    # ------------------------------------------------------------ kalkanlı patron (Zeta Devourer)
+    # ------------------------------------------------------------ shielded boss (Zeta Devourer)
     def boss_wave(self):
-        """Dalga kalkanlı patronlu mu: kapının kalkan_ara_sn'si var (Zeta) ve dalgada kalıcı uzaylı (Devourer)."""
+        """Is the wave one with a shielded boss: the gate has shield_gap_sec (Zeta) and the wave has a persistent alien (Devourer)."""
         return 'shield_gap_sec' in self.g and any(a.get('permanent') for a in self.wave()['alien_spawns'])
 
     def boss_npc(self):
         return next((self.w.npcs[i] for i in self.keep if i in self.w.npcs and self.w.npcs[i].alive), None)
 
     def shield(self, n, on):
-        """Patronun Insta-Shield görseli (VisualModifierCommand INVINCIBILITY: istemcinin NPC kalkanı, game.xml invincibilityShield;
-        DarkBot EntityEffect NPC_ISH 16). Görüşte değilse ShipCreateCommand'la gelir (dunya.npc_visual)."""
+        """The boss's Insta-Shield visual (VisualModifierCommand INVINCIBILITY: the client's NPC shield, game.xml invincibilityShield;
+        DarkBot EntityEffect NPC_ISH 16). If not in sight it arrives with ShipCreateCommand (world.npc_visual)."""
         msg = self.w.npc_visual(n, VM_SHIELD, on)
         return [msg] if n.id in self.w.visible else []
 
     def boss_tick(self, now):
-        """Kalkanlı patronlu dalga (fandom Galaxy Gates, Zeta): refakat grubu yaşarken patron hasar almaz; grup bitince kalkan
-        kalkan_ara_sn iner, sonra kalkan yeniden açılır ve sonraki grup patronun çevresinde doğar; son gruptan sonra kalkan hep kapalı.
-        Patron ölünce dalga (son dalgada kapı) hemen biter, gelmemiş gruplar gelmez (kullanıcı bildirimi 2026-10-25: Devourer erken
-        ölünce dalgalar onsuz sürüyordu; grup araları 3 sn'de kalkansız kalıyordu)."""
+        """A wave with a shielded boss (fandom Galaxy Gates, Zeta): while the escort group is alive the boss takes no damage; when the group ends the shield
+        drops for shield_gap_sec, then the shield turns on again and the next group spawns around the boss; after the last group the shield is always off.
+        When the boss dies the wave (the gate on the last wave) ends immediately, groups that have not come do not come (user report 2026-10-25: when the Devourer
+        died early the waves went on without it; the shield was off for the 3 s between groups)."""
         w = self.w
         boss = self.boss_npc()
         if not boss:
             self.guarding = False
-            w.log('   %s kapısı: %s yok edildi (grup %d/%d)' % (self.g['name'], self.boss, self.sub + 1, len(self.wave()['groups'])))
+            w.log('   %s gate: %s destroyed (group %d/%d)' % (self.g['name'], self.boss, self.sub + 1, len(self.wave()['groups'])))
             self.wave_done(now)
             return
         alive = sum(1 for i in self.npcs - self.keep if i in w.npcs)
@@ -1202,18 +1202,18 @@ class Run:
         if G['wave'] >= len(self.g['waves']):
             self.complete()
             return
-        # ortada iki portal: solundaki sonraki dalgaya (çok haritalı kapıda sonraki haritaya), sağındaki eve; sonraki dalga oyuncu
-        # portala girince başlar (resmî kapı rehberi; kullanıcı bildirimi 2026-10-24: yalnız eve dönüş portalı açılıyor, dalga mola
-        # bitince kendiliğinden başlıyordu)
+        # two portals in the middle: the left one to the next wave (in a multi-map gate to the next map), the right one home; the next wave starts when the player
+        # enters the portal (official gate guide; user report 2026-10-24: only the return-home portal opened, the wave started by itself
+        # when the break ended)
         nxt = wave_map(self.g, G['wave'])
         self.w.add_gate(self.k.next_portal(self.key, self.map, nxt))
         self.w.add_gate(self.k.exit_portal(self.key, self.map, side=True))
         self.w.send([self.wave_msg()] + self.say('next_map' if nxt != self.map else 'next_wave', wave=G['wave']))
-        self.phase = 'move'                 # mesajlardan sonra (aşamayı bekleyen mesajları da görsün)
-        self.w.log('   %s kapısı: dalga %s bitti; portallar açık (sonraki %s)' % (self.g['name'], label, nxt))
+        self.phase = 'move'                 # after the messages (so it also sees the messages waiting for the stage)
+        self.w.log('   %s gate: wave %s over; portals open (next %s)' % (self.g['name'], label, nxt))
 
     def complete(self):
-        """Son dalga: ödüller (Kapilar.finish), çıkış portalı, ekran mesajları."""
+        """Last wave: rewards (Kapilar.finish), exit portal, on-screen messages."""
         k, w = self.k, self.w
         t0 = k.__dict__.get('start', {}).pop(self.key, None)
         if t0:
@@ -1223,37 +1223,37 @@ class Run:
         msgs, info = k.finish(self.key, w.reward_msgs)
         out = k.exit_portal(self.key, self.map)
         w.add_gate(out)
-        w.auto_jump(out, K.get('exit_wait_sec', 5))      # forum 127543: ödüllerden sonra X-1'e kendiliğinden
+        w.auto_jump(out, K.get('exit_wait_sec', 5))      # forum 127543: to X-1 by itself after the rewards
         msgs += [('GalaxyGateBuilderGateCompleteCommand', dict(gateId=self.g['uid'], currPart=len(info['new']['parts'])))]
         msgs += self.say('wave_finished', wave=len(self.g['waves']), sn=0)[:1] + self.say('done')
         if info['kronos']:
             got, total = info['kronos']
             msgs += self.say('kronos_part', sk='s' if got == 1 else 'p', wild=dict(COUNT=got))
-            if total >= KRONOS_PARTS:                    # son parça: istemcinin "Kronos Gate erected."
+            if total >= KRONOS_PARTS:                    # last part: the client's "Kronos Gate erected."
                 msgs.append(screen('key:log_msg_gg_build_complete_kronos'))
         w.send(msgs)
         self.phase = 'done'
 
     def on_death(self):
-        """Oyuncu kapıda vuruldu: can 1 azalır; kalmazsa kapı parçalarıyla kaybolur. -> kalan can."""
+        """The player was hit at the gate: loses 1 life; with none left the gate is lost with its parts. -> lives left."""
         if self.phase in ('void', 'done'):
             return None
         k, G = self.k, self.k.gate(self.key)
         with k.p.lock:
-            if not SET.get('infinite_lives'):                    # panel: kapıda can harcanmaz
+            if not SET.get('infinite_lives'):                    # panel: no lives are spent at the gate
                 G['can'] = max(0, G['can'] - 1)
             left = G['can']
             if left <= 0:
                 k.d['kapilar'][self.key] = fresh(self.g, G)
             k.p.dirty = True
         self.w.send([('GalaxyGateBuilderGateLifeLostCommand', dict(gateId=self.g['uid'], livesLeft=left))])
-        self.w.log('   %s kapısında can kaybedildi: kalan %d%s' % (self.g['name'], left, ' (kapı kayboldu)' if left <= 0 else ''))
+        self.w.log('   %s gate life lost: %d left%s' % (self.g['name'], left, ' (gate lost)' if left <= 0 else ''))
         self.before_death = self.phase
-        self.phase = 'void' if left <= 0 else 'dead'      # üste tamirle harita değişir; kapıya yeniden girilince dalga baştan
+        self.phase = 'void' if left <= 0 else 'dead'      # the map changes with a repair at base; on re-entering the gate the wave starts over
         return left
 
     def revive(self):
-        """Hades: kapı haritasında yeniden doğuldu; dalga kaldığı yerden sürer."""
+        """Hades: respawned on the gate map; the wave continues where it left off."""
         if self.phase == 'dead':
             self.phase = getattr(self, 'before_death', 'fight')
-            self.w.log('   %s kapısında yeniden doğuldu: %s' % (self.g['name'], self.phase))
+            self.w.log('   %s gate respawned: %s' % (self.g['name'], self.phase))

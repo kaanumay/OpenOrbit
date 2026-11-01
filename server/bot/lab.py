@@ -1,13 +1,14 @@
-"""Arıtma ve laboratuvar: kargodaki ham cevherden Prometid, Duranium, Promerium arıtıp lazere, rokete ve kalkana yüklemek
-(oyuncu gibi: magaza.upgrade, items.json laboratuvar).
+"""Refining and laboratory: refine raw ore in the cargo into Prometid, Duranium, Promerium and load it onto the laser, rocket and shield
+(like a player: shop.upgrade, items.json laboratuvar).
 
-Tarifler (birim başına): Prometid 20 Prometium + 10 Endurium, Duranium 10 Endurium + 20 Terbium, Promerium 10 Prometid + 10
-Duranium + 1 Xenomit. Yükleme: lazer (0) ve roket (1) Prometid +%15, Promerium +%30, Seprom +%60; kalkan (2) Duranium +%10,
-Promerium +%20. Bir birim cevher lazerde 10 mermi, rokette 10 roket, kalkanda 1 dakika yeter.
-bot.k['lab'] {parça: [cevher, kalan]}: kalan mermi / roket / saniye. Aynı cevher eklenir, başka cevher öncekini siler (oyundaki gibi).
+Recipes (per unit): Prometid 20 Prometium + 10 Endurium, Duranium 10 Endurium + 20 Terbium, Promerium 10 Prometid + 10
+Duranium + 1 Xenomit. Loading: laser (0) and rocket (1) Prometid +15%, Promerium +30%, Seprom +60%; shield (2) Duranium +10%,
+Promerium +20%. One unit of ore lasts 10 shots on the laser, 10 rockets on the rocket, 1 minute on the shield.
+bot.k['lab'] {part: [ore, remaining]}: remaining shots / rockets / seconds. The same ore adds up, a different ore wipes the previous one
+(as in the game).
 
-Kim yükseltir: hırslı, rekabetçi ya da tutumsuz botlar (izin 'lab', 4. seviyeden); tutumlu bot cevherini satar. Arıtılmış cevher
-satışta ham hâlinden ucuz olduğu için yalnız yükleyeceği kadar arıtılır.
+Who upgrades: ambitious, competitive or spendthrift bots (permission 'lab', from level 4); a thrifty bot sells its ore. Refined ore
+sells for less than raw, so only as much as it will load is refined.
 """
 from . import catalog as K
 
@@ -24,13 +25,13 @@ def lab_data(bot):
 
 
 def bonus(bot, part):
-    """Parçanın şimdiki laboratuvar bonusu (0: yüklü değil ya da bitti)."""
+    """The part's current laboratory bonus (0: not loaded or used up)."""
     v = lab_data(bot).get(str(part))
     return BONUS[part].get(int(v[0]), 0.0) if v and v[1] > 0 else 0.0
 
 
 def spend(bot, part, n):
-    """Yükten n birim (mermi, roket ya da saniye) harcar; biterse yük kalkar."""
+    """Spends n units (shots, rockets or seconds) of the load; when it runs out the load is removed."""
     y = lab_data(bot)
     v = y.get(str(part))
     if not v:
@@ -45,7 +46,7 @@ def _cargo(bot):
 
 
 def refine(bot, product, count):
-    """Kargodaki girdilerden en çok adet birim arıtır -> arıtılan."""
+    """Refines at most `count` units from the inputs in the cargo -> amount refined."""
     cargo = _cargo(bot)
     recipe = RECIPES[product]
     n = min([count] + [cargo.get(str(t), 0) // g for t, g in recipe.items()])
@@ -61,7 +62,7 @@ def refine(bot, product, count):
 
 
 def load(bot, part, ore, count):
-    """Kargodan parçaya adet birim cevher yükler (aynı cevher eklenir, başkası öncekini siler) -> yüklenen."""
+    """Loads `count` units of ore from the cargo onto the part (the same ore adds up, a different one wipes the previous) -> amount loaded."""
     cargo = _cargo(bot)
     count = min(count, cargo.get(str(ore), 0))
     if count <= 0:
@@ -84,7 +85,8 @@ def will_upgrade(bot):
 
 
 def _is_promerium_good(bot, need):
-    """Kargoyla Promerium yolu (+%30) Prometid yolundan (+%15) çok mu kazandırır (bonus x mermi): kargonun kopyasında dener."""
+    """Does the Promerium route (+30%) with the cargo gain much more than the Prometid route (+15%) (bonus x shots): tries it on a copy of
+    the cargo."""
     original, counter = dict(_cargo(bot)), bot.k['stats'].get('refining', 0)
     try:
         refine(bot, PROMETID, need * 10)
@@ -99,16 +101,16 @@ def _is_promerium_good(bot, need):
 
 
 def decision(bot, hourly_ammo):
-    """Kargodaki cevherle laboratuvar: yükü azaldıysa arıtıp yükler (lazer önce, sonra kalkan ve roket). Satıştan önce çağrılır:
-    kalan cevher satılır."""
+    """Laboratory with the ore in the cargo: if the load has dropped, refines and loads (laser first, then shield and rocket). Called
+    before selling: the remaining ore is sold."""
     if not will_upgrade(bot):
         return
     cargo = _cargo(bot)
-    target = hourly_ammo * (1 + bot.o('ambition'))                     # yaklaşık bir-iki saatlik mermi
+    target = hourly_ammo * (1 + bot.o('ambition'))                     # about one or two hours of shots
     v = lab_data(bot).get(str(LAZER))
     if not v or v[1] < target * 0.3:
         need = int(target / UNIT[LAZER]) + 1
-        if cargo.get('3', 0) > 0 and _is_promerium_good(bot, need):     # Xenomit varsa ve daha çok kazandırıyorsa Promerium (+%30)
+        if cargo.get('3', 0) > 0 and _is_promerium_good(bot, need):     # Promerium (+30%) if there is Xenomit and it gains more
             refine(bot, PROMETID, need * 10)
             refine(bot, DURANIUM, need * 10)
             if refine(bot, PROMERIUM, need):
@@ -119,7 +121,7 @@ def decision(bot, hourly_ammo):
     v = lab_data(bot).get(str(SHIELD))
     if bot.o('risk') < 0.6 and (not v or v[1] < 1800):
         refine(bot, DURANIUM, 60)
-        load(bot, SHIELD, DURANIUM, 60)                           # bir saatlik kalkan
+        load(bot, SHIELD, DURANIUM, 60)                           # one hour of shield
     v = lab_data(bot).get(str(ROCKET))
     if bot.permission.get('rocket', True) and (not v or v[1] < 50):
         refine(bot, PROMETID, 10)

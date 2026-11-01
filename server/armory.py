@@ -1,17 +1,18 @@
-"""Armory Unlock (yol haritası Aşama 9; veri data/new_systems.json 'armory' <- tools/new_systems.py; havuzlar ve birikimli
-ödüller kayıttaki ArmoryUnlockInfoCommand'dan, kurallar resmî forumun SSS'inden).
+"""Armory Unlock (roadmap stage 9; data in data/new_systems.json 'armory' <- tools/new_systems.py; pools and cumulative
+rewards come from the ArmoryUnlockInfoCommand in the recording, rules from the official forum FAQ).
 
-İstemcinin penceresi (UIArmoryUnlockSystem; istekler istemcinin kodundan):
-  ArmoryUnlockInfoRequest                   -> ArmoryUnlockInfoCommand {normal, specials (3 gemi), claimInfoGroupCommands,
+The client's window (UIArmoryUnlockSystem; requests taken from the client's code):
+  ArmoryUnlockInfoRequest                   -> ArmoryUnlockInfoCommand {normal, specials (3 ships), claimInfoGroupCommands,
                                                selectedClaimInfoGroupCommand, selectedGroup, canReset, eventRemainSeconds}
-  ArmoryUnlockDrawRequest {count, type}     type 1 Lucky Draw (Armory Token), 2 Limited Time Mega Draw (Mega Armory Token); çekiliş
-                                               başına bir jeton -> ArmoryUnlockDrawCommand {count, type, rewardModuleList} + bilgi
-  ArmoryUnlockSelectGroupRequest {group}    Mega Draw'da gemi kilitlenir ("Lock Ship to Draw"); birikimli ödüllerin hepsi alınmadan
-                                               değişmez
-  ArmoryUnlockClaimRequest {index}          birikimli ödül (Mega Draw sayısıyla) -> ArmoryUnlockClaimCommand {claimed, index}
-Mega Draw dönemi 3 gün: listede üç gemi (istemcinin UL toplarının gemileri, sırayla), havuz dönemden döneme Helios ya da Nidhogg.
-1.200 çekilişe ulaşıp ödülü alınmamış basamak varken çekiliş olmaz ("Claim your Cumulative Rewards first!").
-Profilde: armory {kilit: {gemi, top, cekilis, alinan: [index]} | None, lucky: toplam, mega: toplam}.
+  ArmoryUnlockDrawRequest {count, type}     type 1 Lucky Draw (Armory Token), 2 Limited Time Mega Draw (Mega Armory Token); one token
+                                               per draw -> ArmoryUnlockDrawCommand {count, type, rewardModuleList} + info
+  ArmoryUnlockSelectGroupRequest {group}    In the Mega Draw the ship gets locked ("Lock Ship to Draw"); it cannot change until all
+                                               cumulative rewards are claimed
+  ArmoryUnlockClaimRequest {index}          cumulative reward (by Mega Draw count) -> ArmoryUnlockClaimCommand {claimed, index}
+A Mega Draw period lasts 3 days: the list has three ships (the ships of the client's UL balls, in order), and the pool alternates
+between Helios and Nidhogg from period to period.
+No draw is allowed while a tier that reached 1,200 draws has an unclaimed reward ("Claim your Cumulative Rewards first!").
+In the profile: armory {lock: {ship, top, spin, claimed: [index]} | None, lucky: total, mega: total}.
 """
 import json, os, random, time
 
@@ -22,7 +23,7 @@ D = json.load(open(os.path.join(HERE, 'data', 'new_systems.json'), encoding='utf
 TOKEN, MEGA = D['token'], D['mega_token']
 LUCKY, SPECIAL = 1, 2
 PERIOD = D['period_days'] * 86400
-EPOCH = 1767225600                       # 2026-01-01 00:00 UTC: dönemlerin başlangıcı (uyarlama)
+EPOCH = 1767225600                       # 2026-01-01 00:00 UTC: start of the periods (adaptation)
 REQUESTS = {'ArmoryUnlockInfoRequest', 'ArmoryUnlockDrawRequest', 'ArmoryUnlockSelectGroupRequest', 'ArmoryUnlockClaimRequest'}
 
 
@@ -32,21 +33,21 @@ def mod(_cls, **f):
 
 
 def period(now=None):
-    """-> (dönem no, bitişe kalan sn)."""
+    """-> (period number, seconds until it ends)."""
     t = (now or time.time()) - EPOCH
     n = int(t // PERIOD)
     return n, int(PERIOD - (t - n * PERIOD))
 
 
 def rotation(now=None):
-    """Bu dönemin üç gemisi ve topu (çift dönem Helios, tek Nidhogg)."""
+    """This period's three ships and ball (even periods Helios, odd Nidhogg)."""
     n, _ = period(now)
     ships = D['ships']
     return [ships[(n * 3 + i) % len(ships)] for i in range(3)], 'helios' if n % 2 == 0 else 'nidhogg'
 
 
 def fill(loot, ship, ball):
-    """Şablondaki gemiye özgü satır ve havuzun topu: ul-{top}-{ship}; Nidhogg döneminde Helios eşyaları Nidhogg karşılıklarıyla."""
+    """The ship-specific line in the template and the pool's ball: ul-{top}-{ship}; in a Nidhogg period the Helios items use their Nidhogg counterparts."""
     s = loot.replace('{top}', ball).replace('{ship}', ship)
     if ball == 'nidhogg':
         for a, b in D['convert_nidhogg']:
@@ -57,13 +58,13 @@ def fill(loot, ship, ball):
 class Armory:
     def __init__(self, profile, log=print):
         self.p, self.log = profile, log
-        self.m = None                              # mağaza (ödüller, para); oturum bağlar
+        self.m = None                              # shop (rewards, currency); binds the session
         with profile.lock:
             self.d = profile.d.setdefault('armory', {'lock': None, 'lucky': 0, 'mega': 0})
 
-    # ------------------------------------------------------------ durum
+    # ------------------------------------------------------------ state
     def groups(self, now=None):
-        """Mega Draw'daki üç gemi -> [(gemi, top)]: kilitli gemi dönemde yoksa ilk sıraya o (dönem bitince de kilit kalır)."""
+        """The three ships of the Mega Draw -> [(ship, ball)]: if the locked ship is not in the period, it goes first (the lock persists after the period ends)."""
         ships, ball = rotation(now)
         out = [(s, ball) for s in ships]
         k = self.d['lock']
@@ -112,7 +113,7 @@ class Armory:
             selectedClaimInfoGroupCommand=self.claims(*groups[sel - 1]) if sel else [],
             canReset=self.all_claimed(), eventRemainSeconds=period(now)[1], selectedGroup=sel)
 
-    # ------------------------------------------------------------ istekler
+    # ------------------------------------------------------------ requests
     def handle(self, name, f):
         if name == 'ArmoryUnlockInfoRequest':
             return [self.info_cmd()]
@@ -132,13 +133,13 @@ class Armory:
         ship, ball = groups[group - 1]
         k = self.d['lock']
         if k and (k['ship'], k['top']) != (ship, ball) and not self.all_claimed():
-            self.log('   Armory: gemi değişmez, birikimli ödüller alınmadı (%s)' % k['ship'])
+            self.log('   Armory: ship cannot change, cumulative rewards not claimed (%s)' % k['ship'])
             return [legacy('0|A|STM|armoryunlock_draw_prompt'), self.info_cmd(now)]
         if not k or (k['ship'], k['top']) != (ship, ball):
             with self.p.lock:
                 self.d['lock'] = {'ship': ship, 'top': ball, 'spin': 0, 'claimed': []}
                 self.p.dirty = True
-            self.log('   Armory: Mega Draw gemisi %s (%s)' % (ship, ball))
+            self.log('   Armory: Mega Draw ship %s (%s)' % (ship, ball))
         return [self.info_cmd(now)]
 
     def pick(self, rows, ship, ball, rng):
@@ -152,13 +153,13 @@ class Armory:
         k = self.d['lock']
         if kind == SPECIAL:
             if not k:
-                self.log('   Armory: Mega Draw için gemi kilitlenmedi')
+                self.log('   Armory: ship was not locked for the Mega Draw')
                 return [self.info_cmd(now)]
             top_n = D['cumulative'][-1][1]
             if k['spin'] >= top_n and not self.all_claimed():
                 return [legacy('0|A|STM|armoryunlock_draw_prompt'), self.info_cmd(now)]
         if INV.count(self.p, res) < count:
-            self.log('   Armory: jeton yetmiyor (%s %d < %d)' % (res, INV.count(self.p, res), count))
+            self.log('   Armory: not enough tokens (%s %d < %d)' % (res, INV.count(self.p, res), count))
             return [legacy('0|A|STM|ttip_not_enough_resources'), self.info_cmd(now)]
         INV.spend(self.p, {res: count}, 'armory_unlock_draw')
         rows = D['mega']['probability'] if kind == SPECIAL else D['normal']['probability']
@@ -195,5 +196,5 @@ class Armory:
             self.p.dirty = True
         msgs = [('ArmoryUnlockClaimCommand', dict(claimed=True, index=index))]
         msgs += self.m.reward(loot, row[3]) if self.m else []
-        self.log('   Armory birikimli ödül %d (%d çekiliş): %s x%d' % (index, row[1], loot, row[3]))
+        self.log('   Armory cumulative reward %d (%d draws): %s x%d' % (index, row[1], loot, row[3]))
         return msgs + [self.info_cmd(now)]

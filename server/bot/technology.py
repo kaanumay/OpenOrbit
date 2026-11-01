@@ -1,13 +1,13 @@
-"""Teknoloji eşyaları ve roket fırlatıcısı (oyuncu gibi: Assembly tarifleri, savas_esya, technology.py).
+"""Technology items and the rocket launcher (like a player: Assembly recipes, savas_esya, technology.py).
 
-Teknoloji eşyaları Assembly'nin para tarifleriyle üretilir (data/recipes.json: Backup Shields ve Battle Repair Bot 2.800 U,
-Chain Impulse 1.800 U, Energy Leech 6.500 U, Precision Targeter 250 U); etkinlik kaynağı isteyen tarifler botlara kapalı. Stok
-bot.k['stok']'ta. Kullanım:
-  somut  canı %40'ın altına inince Backup Shields (kalkan) ya da Battle Repair Bot (onarım); yakında 3+ uzaylı varken Chain Impulse
-  soyut  PvP karşılaşmasında Backup Shields ve Battle Repair Bot güç katar; dayanıklı uzaylıda Precision Targeter (roketler hep
-         isabet) ve Energy Leech (verim)
-Roket fırlatıcısı (HST-1 kredi, HST-2 uridyum): salvo kapasitesi 3/5, roket başına 1 sn dolum; ECO-10 (kredi) ya da HSTRM-01
-(uridyum) ile dayanıklı uzaylıda ve PvP'de.
+Technology items are produced with Assembly's money recipes (data/recipes.json: Backup Shields and Battle Repair Bot 2,800 U,
+Chain Impulse 1,800 U, Energy Leech 6,500 U, Precision Targeter 250 U); recipes that need event resources are closed to bots. Stock is in
+bot.k['stok']. Usage:
+  concrete  when HP falls below 40% Backup Shields (shield) or Battle Repair Bot (repair); with 3+ aliens nearby Chain Impulse
+  abstract  in a PvP encounter Backup Shields and Battle Repair Bot add power; against a tough alien Precision Targeter (rockets always
+            hit) and Energy Leech (efficiency)
+Rocket launcher (HST-1 credits, HST-2 uridium): salvo capacity 3/5, 1 s reload per rocket; with ECO-10 (credits) or HSTRM-01
+(uridium) against tough aliens and in PvP.
 """
 from . import catalog as K
 
@@ -29,9 +29,9 @@ def allowed(bot):
     return bot.permission.get('technology', True)
 
 
-# ------------------------------------------------------------------------------------------------------------ üretim
+# ------------------------------------------------------------------------------------------------------------ production
 def produce(bot):
-    """Assembly: stokta olmayan işe yarar teknoloji eşyalarını para tarifiyle üretir (8. seviyeden, uridyumu yetiyorsa)."""
+    """Assembly: produces the useful technology items not in stock with the money recipe (from level 8, if its uridium suffices)."""
     if not allowed(bot) or bot.level < 8:
         return {}
     s = _stock(bot)
@@ -65,7 +65,7 @@ def use(bot, e):
 
 
 def pvp_factor(bot):
-    """PvP karşılaşmasında savunma teknolojileri: her biri bir kez harcanır."""
+    """Defense technologies in a PvP encounter: each is spent once."""
     k = 1.0
     for e, v in (('tech_backup-shields', 0.15), ('tech_battle-repair-bot', 0.12)):
         if _stock(bot).get(e, 0) > 0 and use(bot, e):
@@ -73,7 +73,7 @@ def pvp_factor(bot):
     return k
 
 
-# ------------------------------------------------------------------------------------------------------------ fırlatıcı
+# ------------------------------------------------------------------------------------------------------------ launcher
 def launcher(bot):
     f = bot.k['gear'].get('launcher')
     return f if f in LAUNCHER['kinds'] else None
@@ -87,7 +87,7 @@ def pick_launcher_rocket(bot):
 
 
 def salvo(bot):
-    """(kapasite, salvo arası sn)."""
+    """(capacity, seconds between salvos)."""
     f = launcher(bot)
     capacity = LAUNCHER['kinds'][f]['capacity'] if f else 0
     return capacity, capacity * LAUNCHER['refill_sec'] + 1.3
@@ -99,7 +99,7 @@ def launcher_dps(bot, rocket):
 
 
 def candidates(bot):
-    """Alışveriş adayları: fırlatıcı (roket izni, 8./10. seviyeden; faydası güç payı)."""
+    """Shopping candidates: the launcher (rocket permission, from level 8/10; benefit as a power share)."""
     if not bot.permission.get('rocket', True) or launcher(bot) == HST[1]:
         return []
     power = bot.value()['power']
@@ -112,7 +112,7 @@ def candidates(bot):
 
 
 def resupply(bot):
-    """Fırlatıcı roketi: HSTRM-01 (uridyum) zenginse, yoksa ECO-10 (kredi) -> alınan."""
+    """Launcher rocket: HSTRM-01 (uridium) if rich, otherwise ECO-10 (credits) -> the one bought."""
     if not launcher(bot) or not bot.permission.get('rocket', True) or not bot.permission.get('shop', True):
         return {}
     s = _stock(bot)

@@ -1,33 +1,34 @@
-"""Harita etkinlikleri (yol haritası Aşama 7; veri data/events.json "harita", uzaylılar npc.json etk_* <- tools/event_aliens.py).
+"""Map events (roadmap Stage 7; data data/events.json "map", aliens npc.json event_* <- tools/event_aliens.py).
 
-Takvimde etkin bir etkinliğin harita bölümü bu haritanın sınıfını (X-2 … X-8, 4-4 …) kapsıyorsa:
-  - etkinlik uzaylıları haritaya eklenir ('uzaylilar': tür ve adet; "{x}" harita sınıfının sürümü: etk_curcubitor_x5); ölünce yeniden
-    doğarlar, etkinlik bitince doğmazlar
-  - çağırma kotası ('kota'): bu kadar etkinlik uzaylısı ölünce patronlar ('patron': türler, adet, süre; 'sirayla': türler sırayla)
-    doğar; süresinde öldürülmezse kaçarlar (istemcinin metni: msg_curcubitor_ran_away / npc_event_boss_ran_away)
-  - gösterge ('bilgi'): NpcEventInfoCommand / AgatusEventInfoCommand {textKey (istemcinin metinleri: curcubitor, agatusbreach,
-    npc_valentine, npc_chaos-protegit), npcID, bossInfo {bossCount, leftToKill}, timeInfo {timeToNextSpawn, timeToEndSpawn sn}}
-  - düşmeler ('dusme': tür -> {lootId: [en az, en çok]}, harita sürümü etk_x_x5 varsa o, yoksa taban tür; etkinlik parası kaynak
-    deposuna, ganimet günlüğünde) ve Curcubitor'un
-    "Trick or Treat"i: ölünce ya Trick ('hile': olasılık; toplanamayan Curcubitor mayını, kurulunca yakındaysan canın %20'si) ya da
-    Treat (kutu_dusme'deki sandık), ikisi birden değil. 2026-10-18'e dek ikisi bağımsızdı: mayın sandığın altında kalıyor, sandığı
-    toplarken patlıyordu (kullanıcı bildirimi)
-  - kargo kutusu olmayan uzaylılar ('kargo_yok': temel türler; Curcubitor ve Boss Curcubitor yalnız sandıklarını düşürür) -> no_cargo
-  - kargo kutusunun görünümü ('kargo_tur': istemcinin kutu türü, içerik aynı; Thanksgiving'de TURKEY_CARGO) -> cargo_kind
-  - çağıranlar ('cagir' ya da patronun 'cagir'ı): canlıyken aralıkla yanına uzaylı çağırır (Agatus -> Spinel, Ice Meteoroid -> Icy)
-  - av kutuları ('kutular': istemcinin kutu türü, adet, içerik, yeniden doğma) ve uzaylının düşürdüğü kutular ('kutu_dusme': tür ->
-    {kutu türü, olasılık, içerik}; etkinlik türleri ve haritanın sıradan uzaylıları, ör. Empyrian'da Luminium); anahtarsız, P.E.T. de
-    toplar; içerik açılınca: 'kesin' satırların hepsi, 'icerik'ten 'biri' ağırlıkla bir ödül ya da 'hepsi' her biri kendi olasılığıyla
-    ([lootId, adet ya da [en az, en çok], olasılık %]); NPC türünün kendi 'kutu'su da (etkinlik kapıları)
-  - gezgin uzaylı (etkinliğin 'gezgin'i, tek ya da liste: Hitac 2.5 ve E8'den Hitac 2.0): rotadaki haritalarda sırayla sure_sn
-    kalır, oyuncu o haritadaysa belirir, süresi dolunca sonraki haritaya geçer; öldürülünce bekleme_sn sonra rotanın başından
-    (oturum boyunca)
-  - grup ('grup': {turler [[tür, adet]], aralik_sn}): haritanın rastgele bir yerinde bir arada doğan grup; bir sonraki grup ancak
-    hepsi yok edilince ve aralik_sn dolunca (Space Cup'ın 4-4'teki 11 Gezgin Futbol Korsanı, resmî Türk forumu 127757)
-  - ölünce doğanlar ('olunce_dogur': tür -> [{tur, adet (ya da [en az, en çok]), olasilik}]): etkinlik sürerken o tür ölünce yanında
-    doğarlar ve öldüreni hedeflerler (Hatching Out'un yumurtasından 2-5 I-Gygerthrall, Epidemi'de Plagued Kristallin'den Plagued
-    Gygerthrall); kutu_dusme'nin 'adet'i: bir ölümde düşen kutu sayısı (Demaner Freighter: 10 Özel Demaner Kutusu); çağıranın
-    'omur_sn'si: çağrılan bu kadar saniye sonra kaybolur (I-Hitac'ın 30 sn'de bir bıraktığı yumurta 90 sn)
+If the map section of an event that is active on the calendar covers this map's class (X-2 … X-8, 4-4 …):
+  - the event aliens are added to the map ('alien_spawns': type and count; "{x}" is the map class's version: event_curcubitor_x5); they respawn
+    when killed, and do not spawn once the event ends
+  - summoning quota ('quota'): when this many event aliens are killed the bosses ('boss': kinds, count, sure_sn; 'in_order': types in turn)
+    spawn; if not killed in time they flee (the client's text: msg_curcubitor_ran_away / npc_event_boss_ran_away)
+  - indicator ('info'): NpcEventInfoCommand / AgatusEventInfoCommand {textKey (the client's texts: curcubitor, agatusbreach,
+    npc_valentine, npc_chaos-protegit), npcID, bossInfo {bossCount, leftToKill}, timeInfo {timeToNextSpawn, timeToEndSpawn s}}
+  - drops ('drop': type -> {lootId: [min, max]}, the map version event_x_x5 if there is one, otherwise the base type; the event currency
+    goes to the resource storage, in the loot log) and Curcubitor's
+    "Trick or Treat": on death either Trick ('trick': probability; an uncollectable Curcubitor mine, which when planted deals 20% of your
+    HP if you are near) or Treat (the chest in box_drop), not both. Until 2026-10-18 the two were independent: the mine stayed under the
+    chest and exploded while collecting the chest (user report)
+  - aliens without a cargo box ('no_cargo': base types; Curcubitor and Boss Curcubitor drop only their chests) -> no_cargo
+  - the look of the cargo box ('cargo_kind': the client's box type, same contents; TURKEY_CARGO at Thanksgiving) -> cargo_kind
+  - summoners ('call' or the boss's 'call'): while alive they summon aliens next to them at intervals (Agatus -> Spinel, Ice Meteoroid
+  -> Icy)
+  - hunt boxes ('boxes': the client's box type, count, contents, respawn) and boxes dropped by aliens ('box_drop': type ->
+    {box type, probability, contents}; event types and the map's ordinary aliens, e.g. Luminium in Empyrian); no key needed, the P.E.T. also
+    collects them; when the contents open: all 'guaranteed' rows, from 'contents' either 'one_of' one reward by weight or 'hepsi' each with its own
+    probability ([lootId, count or [min, max], probability %]); also the NPC type's own 'box' (event gates)
+  - roaming alien (the event's 'rover', single or a list: Hitac 2.5 and from E8 Hitac 2.0): stays sure_sn in turn on the maps of the route,
+    appears if the player is on that map, moves on to the next map when its time is up; when killed, after cooldown_sec it restarts from the
+    start of the route (during the session)
+  - group ('group': {kinds [[type, count]], interval_sec}): a group spawning together at a random place on the map; the next group only after
+    all are destroyed and interval_sec has elapsed (Space Cup's 11 Roaming Football Pirates in 4-4, official Turkish forum 127757)
+  - spawned on death ('spawn_on_death': type -> [{type, count (or [min, max]), probability}]): while the event runs, when that type dies they
+    spawn next to it and target the killer (2-5 I-Gygerthrall from Hatching Out's egg, Plagued Gygerthrall from Plagued Kristallin
+    in Epidemi); box_drop's 'count': the number of boxes dropped per death (Demaner Freighter: 10 Special Demaner Boxes); the
+    summoner's 'lifetime_sec': the summoned one disappears after this many seconds (the egg I-Hitac drops every 30 s lasts 90 s)
 """
 import math, random, time
 
@@ -37,8 +38,8 @@ import settings as SET
 from legacy_protocol import legacy
 from galaxy_gates import screen
 
-TRICK_MINE = 'curcubitor_mayini'        # istemcinin curcubitorMine modeli (esyalar.json mayinlar)
-TRICK_DELAY = 1.4                         # resmî sunucu kaydı 2026-10-27: mayın ölümden 1,4 sn sonra çıkar
+TRICK_MINE = 'curcubitor_mayini'        # the client's curcubitorMine model (items.json mines)
+TRICK_DELAY = 1.4                         # official server record 2026-10-27: the mine appears 1.4 s after death
 BOSS_TEXT = {'curcubitor': ('curcubitor_boss_spawn', 'msg_curcubitor_ran_away'), 'agatusbreach': ('agatusbreach_boss_spawn', None),
              'npc_valentine': ('npc_valentine_boss_spawn', None), 'npc_hitacAssault': ('npc_hitacAssault_boss_spawn', None)}
 
@@ -49,8 +50,8 @@ def mod(name, **f):
 
 
 def specs(now=None):
-    """Etkin etkinliklerin şu an açık harita bölümleri: [(etkinlik, bölüm)] (bölümün dönemleri ve doğuş saatleri: takvim.window;
-    zorla açılan etkinlikte hepsi)."""
+    """The currently open map sections of the active events: [(event, section)] (the section's periods and spawn times: event_calendar.window;
+    for a forcibly opened event, all of them)."""
     out = []
     for k in sorted(CAL.active(now)):
         e = CAL.EVENTS[k]
@@ -64,15 +65,15 @@ PROXIUM = 'resource_collectable_proxium'
 
 
 def roll(spec, mods=None):
-    """Kutu içeriği -> [(lootId, adet)]: 'kesin' satırların hepsi, 'icerik'ten 'mod'a göre. mods: oyuncunun bonusları (profil.mods());
-    kutu 'proxium' ise (Permafrost Fissure'ın UFO ve Ufonit kutuları) Proxium satırının olasılığı Proxium Drop Booster'ın puanı kadar
-    (proxium_sans: %10 -> %35), adedi Proxium Doubler'ın oranı kadar (proxium: x2) artar."""
+    """Box contents -> [(lootId, count)]: all 'guaranteed' rows, from 'contents' according to 'mod'. mods: the player's bonuses (player_profile.mods());
+    if the box is 'proxium' (Permafrost Fissure's UFO and Ufonit boxes) the Proxium row's probability rises by the Proxium Drop Booster's
+    points (proxium_chance: 10% -> 35%) and its count by the Proxium Doubler's ratio (proxium: x2)."""
     rows = spec.get('contents', [])
     bonus = mods if spec.get('proxium') and mods else {}
     amount = lambda a, l=None: int((random.randint(*a) if isinstance(a, list) else a) * (1 + bonus.get('proxium', 0) if l == PROXIUM else 1))
     pct = lambda l, c: c + bonus.get('proxium_chance', 0) * 100 if l == PROXIUM else c
     out = [(l, amount(a, l)) for l, a, *c in spec.get('guaranteed', [])]
-    out += [(l, amount(a, l)) for l, a, c in spec.get('additional', []) if random.random() * 100 < pct(l, c)]   # ayrı olasılıklı (Permafrost Proxium)
+    out += [(l, amount(a, l)) for l, a, c in spec.get('additional', []) if random.random() * 100 < pct(l, c)]   # with a separate probability (Permafrost Proxium)
     if spec.get('mod', 'one_of') == 'hepsi':
         return out + [(l, amount(a, l)) for l, a, *c in rows if random.random() * 100 < pct(l, c[0] if c and c[0] is not None else 100)]
     weights = [pct(l, c[0] if c and c[0] is not None else 1) for l, a, *c in rows]
@@ -82,24 +83,24 @@ def roll(spec, mods=None):
     return out + [(l, amount(a, l))]
 
 
-ROVER = {}                         # gezgin (rovers) -> rotasının başlangıcı (öldürülünce bekleme sonrası)
+ROVER = {}                         # roamer (rovers) -> the start of its route (after the wait once killed)
 NO_CARGO = {b for e in CAL.EVENTS.values() for s in ([e['map']] if 'map' in e else []) + e.get('map_extra', [])
-            for b in s.get('no_cargo', [])}          # etkinlik bitse de: o türün uzaylısı hiç kargo kutusu düşürmez
+            for b in s.get('no_cargo', [])}          # even after the event ends: that type's alien never drops a cargo box
 
 
 def no_cargo(n):
-    """Bu uzaylı kargo kutusu düşürmez mi (etkinlik verisinin 'kargo_yok'u; Curcubitor yalnız sandığını düşürür)."""
+    """Does this alien not drop a cargo box (the event data's 'no_cargo'; Curcubitor drops only its chest)."""
     return base(n.tip) in NO_CARGO
 
 
 def rovers(k):
-    """Etkinliğin gezginleri [(ROVER anahtarı, gezgin)]: ilki etkinliğin adıyla, ötekiler 'ad#sıra'."""
+    """The event's roamers [(ROVER key, roamer)]: the first under the event's name, the others 'name#index'."""
     g = CAL.EVENTS[k].get('rover') or []
     return [(k if i == 0 else '%s#%d' % (k, i), x) for i, x in enumerate(g if isinstance(g, list) else [g])]
 
 
 def route_at(k, g, now):
-    """Gezginin şu an bulunduğu harita (bekleme sürerken None)."""
+    """The map where the roamer currently is (None while waiting)."""
     start = ROVER.setdefault(k, now)
     if now < start:
         return None
@@ -107,7 +108,7 @@ def route_at(k, g, now):
 
 
 def route_leg(k, g, now):
-    """Gezginin bu haritadaki ayağı: (önceki harita, sonraki harita, bu haritadan ayrılış anı)."""
+    """The roamer's leg on this map: (previous map, next map, moment it leaves this map)."""
     start = ROVER.setdefault(k, now)
     i = int((now - start) // g['sure_sn'])
     r = g['route']
@@ -115,7 +116,7 @@ def route_leg(k, g, now):
 
 
 def gate_to(w, name):
-    """Bu haritada adı verilen haritaya giden portalın yeri ya da None."""
+    """The location of the portal on this map to the given map, or None."""
     g = next((g for g in w.gates if g.get('target') is not None and H.name(g['target']) == name), None)
     return (g['x'], g['y']) if g else None
 
@@ -125,7 +126,7 @@ def fmt(t, mc):
 
 
 def base(tip):
-    """etk_curcubitor_x5 -> etk_curcubitor."""
+    """event_curcubitor_x5 -> event_curcubitor."""
     head, _, tail = tip.rpartition('_')
     return head if tail[:1] == 'x' and tail[1:].isdigit() else tip
 
@@ -134,8 +135,8 @@ class MapEvents:
     def __init__(self, w):
         self.w = w
         self.mc = H.map_class(w.map_id)
-        self.st = {}                   # etkinlik -> {sayac, patron [kimlik], bitis, sira}
-        self.calls = {}                # çağıran uzaylı kimliği -> sonraki çağırma
+        self.st = {}                   # event -> {counter, boss [id], end, order}
+        self.calls = {}                # summoner alien id -> next summoning
         self.next_tick = 0.0
 
     def here(self, now=None):
@@ -148,19 +149,19 @@ class MapEvents:
         return [fmt(u['type'], self.mc) for u in s.get('alien_spawns', [])]
 
     def cargo_kind(self, now=None):
-        """Uzaylının kargo kutusunun etkinlik görünümü (bölümün 'kargo_tur'u: Thanksgiving'de TURKEY_CARGO; içerik aynı) ya da None."""
+        """The event look of the alien's cargo box (the section's 'cargo_kind': TURKEY_CARGO at Thanksgiving; same contents) or None."""
         return next((s['cargo_kind'] for k, s in self.here(now) if s.get('cargo_kind')), None)
 
     def active_type(self, tip, now=None):
-        """Bu etkinlik türü şu an doğabilir mi (etkinlik sürüyor ve bu haritada)."""
+        """Can this event type spawn now (the event is running and on this map)."""
         return any(tip in self.minion_types(s) for k, s in self.here(now))
 
-    # ------------------------------------------------------------ kurulum ve gösterge
+    # ------------------------------------------------------------ setup and indicator
     def box_spec(self, tip, now=None):
         return next((b for k, s in self.here(now) for b in s.get('boxes', []) if b['type'] == tip), None)
 
     def spawn_box(self, tip):
-        """Av kutusu: rastgele yerde, süresiz; toplanınca yeniden_sn sonra yenisi (etkinlik sürüyorsa)."""
+        """Hunt box: at a random place, unlimited time; once collected a new one after renew_sec (if the event is running)."""
         spec = self.box_spec(tip)
         if not spec:
             return None
@@ -170,7 +171,7 @@ class MapEvents:
         return h
 
     def setup(self):
-        """Harita açılınca (ya da etkinlik başlayınca): eksik etkinlik uzaylıları ve av kutuları."""
+        """When the map opens (or the event starts): missing event aliens and hunt boxes."""
         w = self.w
         for k, s in self.here():
             for b in s.get('boxes', []):
@@ -201,8 +202,8 @@ class MapEvents:
                 textKey=b['text'], type=0, npcID=b['npc'],
                 bossInfoCommand=mod(pre + 'BossInfoCommand', bossCount=len(alive), leftToKill=max(0, quota - st['counter']) if quota else 0),
                 timeInfoCommand=mod(pre + 'TimeInfoCommand', timeToNextSpawn=0, timeToEndSpawn=CAL.time_left(k, now)))))
-        # etkinliğin olmadığı haritada da gösterge (Ö1, canlı test): patron ve kalan öldürme 0 -> istemci "There are no %NPC% on this
-        # map" yazar (NpcEventUIData.UpdateDescriptions); göndermeyince pencere boş açılıyordu
+        # the indicator also on a map with no event (Ö1, live test): boss and remaining kills 0 -> the client writes "There are no %NPC%
+        # on this map" (NpcEventUIData.UpdateDescriptions); when it was not sent the window opened empty
         sent = {(c, f['textKey']) for c, f in msgs}
         for k, s in specs(now):
             b = s.get('info')
@@ -216,33 +217,34 @@ class MapEvents:
                                                               timeToEndSpawn=CAL.time_left(k, now)))))
         return msgs
 
-    # ------------------------------------------------------------ olaylar
+    # ------------------------------------------------------------ events
     def on_kill(self, n, x, y, now=None, w=None, pay=None):
-        """w: öldüren dünya (ortak haritada self.w lider; düşmeler ve ek ödüller öldürenin). pay: ödülü paylaşanların dünyaları
-        (öldüren dahil; grup: dunya.paydaslar): düşen kutular ve ek ödüller her birine kendi şansıyla, grupta kutu sahibinin."""
+        """w: the world that killed (on a shared map self.w is the leader; drops and extra rewards are the killer's). pay: the worlds of
+        those sharing the reward (including the killer; group: world.stakeholders): dropped boxes and extra rewards go to each with their own
+        chance, in a group the box owner's."""
         w = w or self.w
         pay = pay or [w]
         owner = lambda v: v.hid if len(pay) > 1 else None
-        box = n.d.get('box')                   # türün kutusu (etkinlik kapıları: dalga kutusu, Plutus'un paketi, Synk'in kutusu)
+        box = n.d.get('box')                   # the type's box (event gates: wave box, Plutus's package, Synk's box)
         for v in pay:
             if box and random.random() < SET.chance('drop', box.get('probability', 1.0), 'event'):
                 h = v.drop_box(box['type'], x, y, None, box.get('lifetime_sec', 300), owner(v))
                 v.boxes[h]['event'] = box
         now = time.time() if now is None else now
         b, msgs = base(n.tip), []
-        by_tip = lambda tab: tab.get(n.tip, tab.get(b))       # haritaya özgü sürüm (etk_chaos_protegit_x5) önce, yoksa taban tür
+        by_tip = lambda tab: tab.get(n.tip, tab.get(b))       # the map-specific version (event_chaos_protegit_x5) first, otherwise the base type
         trick = (n.tip.startswith('event_') and w.items is not None
                  and random.random() < max([s.get('trick', {}).get(b, 0) for k, s in self.here(now)] or [0]))
-        if trick:                                                       # Trick: sandık yerine toplanamayan mayın
+        if trick:                                                       # Trick: an uncollectable mine instead of the chest
             w.later(TRICK_DELAY, lambda: w.items.alien_mine(TRICK_MINE, x, y, n.id, time.time()))
         for k, s in self.here(now):
             roster_row = by_tip(s.get('box_drop', {}))
             for v in pay if roster_row and not trick else ():
-                if random.random() < SET.chance('drop', roster_row.get('probability', 1.0), 'event'):    # uzaylının kutusu (Treat …)
-                    for j in range(roster_row.get('count', 1)):                   # Demaner Freighter: 10 kutu, yan yana
+                if random.random() < SET.chance('drop', roster_row.get('probability', 1.0), 'event'):    # the alien's box (Treat …)
+                    for j in range(roster_row.get('count', 1)):                   # Demaner Freighter: 10 boxes, side by side
                         h = v.drop_box(roster_row['type'], x + 60 * (j % 5), y + 60 * (j // 5), None, roster_row.get('lifetime_sec', 300), owner(v))
                         v.boxes[h]['event'] = roster_row
-            for sp in by_tip(s.get('spawn_on_death', {})) or []:            # etkinlikte ölünce doğanlar: öldüreni hedeflerler
+            for sp in by_tip(s.get('spawn_on_death', {})) or []:            # spawned on death during the event: they target the killer
                 if random.random() >= sp.get('probability', 1.0) or sp['type'] not in w.CFG_TYPES:
                     continue
                 cnt = random.randint(*sp['count']) if isinstance(sp.get('count'), list) else sp.get('count', 1)
@@ -252,12 +254,12 @@ class MapEvents:
                     c.summoned = True
                     c.engaged = True
                     c.next_think = now
-                w.log('   %s öldü: %d x %s doğdu (%s)' % (n.d['name'], cnt, sp['type'], k))
+                w.log('   %s died: %d x %s spawned (%s)' % (n.d['name'], cnt, sp['type'], k))
         for rocket, g in [r for k in sorted(CAL.active(now)) for r in rovers(k)]:
             if n.tip == g['type']:
                 ROVER[rocket] = now + g.get('cooldown_sec', 1800)
                 msgs.append(screen('key:msg_summoning_boss_killed', big=True, NPC_NAME=n.d['name']))      # "… Another will arrive soon!"
-                w.log('   gezgin %s yok edildi (%s)' % (n.d['name'], rocket))
+                w.log('   roamer %s destroyed (%s)' % (n.d['name'], rocket))
         if not n.tip.startswith('event_'):
             return msgs
         for k, s in self.here(now):
@@ -272,7 +274,7 @@ class MapEvents:
                 st['boss'].remove(n.id)
                 if not st['boss']:
                     st['end_time'] = None
-                    w.log('   etkinlik patronları yok edildi (%s)' % k)
+                    w.log('   event bosses destroyed (%s)' % k)
                 msgs += self.info_msgs(now)
             elif n.tip in self.minion_types(s) and s.get('quota', {}).get(self.mc) and not st['boss']:
                 st['counter'] += 1
@@ -283,30 +285,31 @@ class MapEvents:
         return msgs
 
     def rover(self, now):
-        """Gezgin uzaylı bu haritada mı: gelince doğar, rotada ilerleyince ayrılır."""
+        """Is the roaming alien on this map: it spawns on arrival, leaves as it moves along the route."""
         w, out = self.w, []
         name = H.name(w.map_id)
         for k, rocket, g in [(k, rocket, g) for k in sorted(CAL.EVENTS) for rocket, g in rovers(k)]:
             st = self.state(k).setdefault('rover', {})
-            # haritaya yeniden girince harita durumundan gelen gezgin de sayılır (yoksa ikincisi doğuyordu: canlı deneme 2026-10-30)
+            # on re-entering the map the roamer coming from the map state is counted too (otherwise a second one spawned: live test
+            # 2026-10-30)
             alive = [i for i, n in w.npcs.items() if n.alive and (i in st.get(rocket, []) or n.tip == g['type'])]
             at = route_at(rocket, g, now) if CAL.is_active(k, now) else None
             if at == name and not alive and g['type'] in w.CFG_TYPES:
-                # darkorbitwiki (Hitac Mothership): "flies in a straight line between the ports and jumps to another map": önceki
-                # haritanın portalından girer, sonrakinin portalına düz uçar (oyuncu bildirimi 2026-10-30: rastgele yerde doğup
-                # süresi dolunca yok oluyordu). Varış: bu haritadaki süresinin sonu (sure_sn, uyarlama)
+                # darkorbitwiki (Hitac Mothership): "flies in a straight line between the ports and jumps to another map": it enters from
+                # the previous map's portal and flies straight to the next one's portal (player report 2026-10-30: it spawned at a random
+                # place and vanished when its time was up). Arrival: the end of its time on this map (sure_sn, adaptation)
                 prev, nxt, until = route_leg(rocket, g, now)
                 x, y = gate_to(w, prev) or w.random_spot()
                 n = w.spawn_npc_at(g['type'], x, y)
-                n.summoned = True                        # dünya yeniden doğurmaz, etkinlik bitince kalkmaz (rota yönetir)
+                n.summoned = True                        # the world does not respawn it, it is not removed when the event ends (the route manages it)
                 tx, ty = gate_to(w, nxt) or w.random_spot()
                 n.route = (tx, ty, until)
-                w.npc_summon(n, now, hit=False)          # fandom (Hitac-Mothership): altı yardımcısıyla gelir
+                w.npc_summon(n, now, hit=False)          # fandom (Hitac-Mothership): comes with its six helpers
                 for c in n.children:
-                    w.npcs[c].engaged = False            # oyuncu yaklaşınca ya da vurunca saldırırlar (uzaktakini kovalamasınlar)
+                    w.npcs[c].engaged = False            # they attack when the player approaches or hits them (so they do not chase a distant one)
                 alive = [n.id]
                 out.append(screen('key:msg_npc_spawned_map', big=True, NPC_NAME=n.d['name'], MAP=name))
-                w.log('   gezgin %s geldi (%s)' % (n.d['name'], name))
+                w.log('   roamer %s arrived (%s)' % (n.d['name'], name))
             elif alive and at != name:
                 for i in alive:
                     n = w.npcs[i]
@@ -314,7 +317,7 @@ class MapEvents:
                         w.alien.expire(w.npcs[c])
                     w.alien.expire(n)
                     out.append(screen('%s jumped to %s.' % (n.d['name'], at or '?')))
-                    w.log('   gezgin %s ayrıldı -> %s' % (n.d['name'], at))
+                    w.log('   roamer %s left -> %s' % (n.d['name'], at))
                 alive = []
             st[rocket] = alive
         return out
@@ -339,15 +342,15 @@ class MapEvents:
             c.summoned = True
             st['boss'].append(c.id)
         st['end_time'] = now + p.get('sure_sn', 1800)
-        w.log('   etkinlik patronu çağrıldı (%s): %s x%d' % (k, ', '.join(kinds), len(st['boss'])))
+        w.log('   event boss summoned (%s): %s x%d' % (k, ', '.join(kinds), len(st['boss'])))
         first = w.npcs.get(st['boss'][0]) if st['boss'] else None
         if first:
-            w.cinematic(*first.mover.pos(now))                       # sinematik giriş (Ö2; panelden kapatılabilir)
+            w.cinematic(*first.mover.pos(now))                       # cinematic entry (Ö2; can be turned off from the panel)
         text = BOSS_TEXT.get((s.get('info') or {}).get('text'), (None, None))[0]
         return [legacy('0|A|STM|%s' % text)] if text else []
 
     def group(self, k, g, now):
-        """Grubu haritanın rastgele bir yerinde doğurur; sonraki grup ancak bu grup yok edilince ve aralik_sn dolunca."""
+        """Spawns the group at a random place on the map; the next group only when this group is destroyed and interval_sec has elapsed."""
         w, st = self.w, self.state(k).setdefault('group', {'members': [], 'next': 0})
         st['members'] = [i for i in st['members'] if i in w.npcs and w.npcs[i].alive]
         if st['members'] or now < st['next']:
@@ -359,10 +362,10 @@ class MapEvents:
                 continue
             a = 2 * math.pi * i / len(kinds)
             c = w.spawn_npc_at(tip, x + math.cos(a) * 250, y + math.sin(a) * 250)
-            c.summoned = True                            # dünya yeniden doğurmaz; grup yok edilince yenisi
+            c.summoned = True                            # the world does not respawn it; a new one when the group is destroyed
             st['members'].append(c.id)
         st['next'] = now + g.get('interval_sec', 600)
-        w.log('   etkinlik grubu doğdu (%s): %d uzaylı (%d,%d)' % (k, len(st['members']), x, y))
+        w.log('   event group spawned (%s): %d aliens (%d,%d)' % (k, len(st['members']), x, y))
         return []
 
     def tick(self, now):
@@ -375,7 +378,7 @@ class MapEvents:
             st = self.state(k)
             if s.get('group'):
                 msgs += self.group(k, s['group'], now)
-            if st['boss'] and st['end_time'] and now >= st['end_time']:          # süre doldu: patronlar kaçar
+            if st['boss'] and st['end_time'] and now >= st['end_time']:          # time is up: the bosses flee
                 for i in st['boss']:
                     n = w.npcs.get(i)
                     if n and n.alive:
@@ -383,10 +386,10 @@ class MapEvents:
                 st['boss'], st['end_time'] = [], None
                 ran = BOSS_TEXT.get((s.get('info') or {}).get('text'), (None, None))[1] or 'npc_event_boss_ran_away'
                 msgs += [legacy('0|A|STM|%s' % ran)] + self.info_msgs(now)
-                w.log('   etkinlik patronları kaçtı (%s)' % k)
-            callers = {b: (c, False) for b, c in s.get('call', {}).items()}           # her zaman (Ice Meteoroid)
+                w.log('   event bosses fled (%s)' % k)
+            callers = {b: (c, False) for b, c in s.get('call', {}).items()}           # always (Ice Meteoroid)
             if s.get('boss', {}).get('call'):
-                for t in s['boss']['kinds']:                                       # patron: saldırı altındayken (Agatus)
+                for t in s['boss']['kinds']:                                       # boss: while under attack (Agatus)
                     callers[base(fmt(t, self.mc))] = (s['boss']['call'], True)
             for n in list(w.npcs.values()):
                 c, need_fight = callers.get(base(n.tip), (None, False)) if n.alive and n.tip.startswith('event_') else (None, False)
@@ -405,18 +408,18 @@ class MapEvents:
                     ch = w.spawn_npc_at(tip, nx + math.cos(a) * 150, ny + math.sin(a) * 150)
                     ch.summoned = True
                     ch.engaged = n.engaged
-                    if c.get('lifetime_sec'):                     # I-Hitac'ın yumurtası 90 sn sonra kaybolur (uzayli.tick 'omur')
+                    if c.get('lifetime_sec'):                     # I-Hitac's egg disappears after 90 s (alien.tick 'lifetime')
                         ch.ab['lifetime'] = now + c['lifetime_sec']
                     n.children.add(ch.id)
         msgs += self.rover(now)
-        if here != getattr(self, 'last_here', None):        # etkinlik başladı/bitti: uzaylılar ve gösterge
+        if here != getattr(self, 'last_here', None):        # event started/ended: aliens and indicator
             self.last_here = here
             keep = {fmt(u['type'], self.mc) for k, s in here for u in s.get('alien_spawns', [])}
-            for n in list(w.npcs.values()):                  # biten etkinliğin uzaylıları (saklanan harita durumundan) kalkar
+            for n in list(w.npcs.values()):                  # the ended event's aliens (from the saved map state) are removed
                 if n.alive and n.tip.startswith('event_') and not n.summoned and n.tip not in keep and not n.engaged:
                     w.alien.expire(n)
             boxes = {b['type'] for k, s in here for b in s.get('boxes', [])}
-            for h, b in list(w.boxes.items()):                 # biten etkinliğin av kutuları
+            for h, b in list(w.boxes.items()):                 # the ended event's hunt boxes
                 if b.get('event') and b['event'].get('renew_sec') and b['tip'] not in boxes:
                     del w.boxes[h]
                     msgs.append(('RemoveCollectableCommand', {'collected': False, 'hash': h}))

@@ -1,27 +1,27 @@
-"""Etkinlik takvimi (yol haritası Aşama 7, E8; veri data/events.json).
+"""Event calendar (roadmap stage 7, E8; data data/events.json).
 
-Bir etkinlik ya yılın belli günlerinde ('donemler': [[başlangıç, bitiş]], bitiş günü dahil; yılı aşan dönem olabilir) ya da haftanın
-belli günlerinde ve saatlerinde etkindir; saatler yerel saatle. Dönem ucu:
-  - "AA-GG": her yıl
-  - "YYYY-AA-GG": yalnız o yıl (gerçek oyunun koşuları). Bilinen son günden ('takvim_bilinen') sonra son 52 haftanın koşuları 52
-    haftalık adımlarla yinelenir (haftanın günü korunur: Çarşamba başlayan etkinlik yine Çarşamba başlar); üçüncü öğesi "tek" olan
-    dönem yinelenmez (yeni sunucunun Europa sıralaması)
-  - "paskalya+N", "cin_yeni_yili-N", "sukran_gunu+N": o yılın bayramından N gün sonra / önce (Kasım'ın 4. perşembesi)
-Dönemin üçüncü öğesi o günlerin saatleri ([[başlangıç, bitiş]]; 24'ü aşan bitiş ertesi güne taşar). Haftalık: 'gunler'
-(0=pazartesi), 'saatler', 'ay_haftasi' (ayın kaçıncı o günü: [1, 3] = ayın 1. ve 3. cuması), 'hafta_dongu' [n, i] (n haftalık
-döngünün i. haftası, HAFTA_BASI'ndan sayılır), 'birlikte' (yalnız bu etkinliklerden biri sürerken), 'sayilir' (başka bir etkinliğin
-adı: bu etkinlik sürerken o da etkin sayılır; Şükran Günü'nde GG Double Rewards). Harita bölümlerinin de kendi 'donemler'i ve doğuş saatleri ('saatler',
-'saatler_hafta_sonu') olabilir (window; panelin seans_hep_acik ayarı saatleri kaldırır, zorla açılan etkinlikte ikisi de yok).
-Etkin etkinlikler:
-  - istemciye EventUpdateCommand {timestamp, activeCommands [EventModule {type, id, timeLeft, lang}], utcTimeOffset}: süresiz
-    özellik bayrakları ('surekli') ve etkin etkinliklerin istemci türleri (kalan süre dönemin sonuna); Command Center haberleri
-    BE_<haber kimliği> türleriyle (news)
-  - harita süsleri: EventActivationStateCommand (etkinliğin 'sus'u; mood_cmds)
-  - başarımlar (basarim.ACTIVE_EVENTS): etkinliğin 'basarim' grupları
-  - sistemler: Upgrade Hour, Dispatch Day, kapı enerjisi indirimi, Kronos günü, altın kutu, harita etkinlikleri, Battle Pass …
-Oyuncunun seçimi: yönetim panelinin Etkinlikler sayfası (settings.py event_state: her etkinlik için açık / kapalı / takvime göre;
-yıllık ve haftalık etkinliklerin hepsi; oyuna girişte bildirilir) önce gelir. Oyun sunucusu seçeneği: --event ad1,ad2 tarihten
-bağımsız açar (haftalıkları da); --event hepsi bütün yıllık etkinlikleri, --event yok hiçbir yıllık etkinliği açmaz (haftalıklar sürer).
+An event is active either on certain days of the year ('periods': [[start, end]], end day included; a period may span the new year) or on
+certain days of the week and at certain hours; hours are in local time. A period end is:
+  - "MM-DD": every year
+  - "YYYY-MM-DD": that year only (runs of the real game). After the last known day ('known_calendar') the runs of the last 52 weeks repeat
+    in 52-week steps (the weekday is kept: an event that starts on a Wednesday starts on a Wednesday again); a period whose third element is "single"
+    does not repeat (the new server's Europa ranking)
+  - "easter+N", "chinese_new_year-N", "thanksgiving_day+N": N days after / before that year's holiday (Thanksgiving is the 4th Thursday of November)
+A period's third element is the hours of those days ([[start, end]]; an end beyond 24 spills into the next day). Weekly: 'days'
+(0=Monday), 'hours', 'nth_of_month' (which such weekday of the month: [1, 3] = the 1st and 3rd Friday of the month), 'week_cycle' [n, i] (the i-th week of an
+n-week cycle, counted from WEEK_START), 'together' (only while one of these events runs), 'counts_as' (the name of another event:
+while this event runs that one also counts as active; GG Double Rewards on Thanksgiving). Map sections may also have their own 'periods' and spawn hours ('hours',
+'hours_weekend') (window; the panel's session_always_open setting removes the hours, in a forced-open event neither applies).
+Active events:
+  - to the client EventUpdateCommand {timestamp, activeCommands [EventModule {type, id, timeLeft, lang}], utcTimeOffset}: permanent
+    feature flags ('continuous') and the client types of the active events (the remaining time runs to the end of the period); Command Center news
+    with BE_<news id> types (news)
+  - map decorations: EventActivationStateCommand (the event's 'decor'; mood_cmds)
+  - achievements (achievement.ACTIVE_EVENTS): the event's 'achievement' groups
+  - systems: Upgrade Hour, Dispatch Day, gate energy discount, Kronos day, gold box, map events, Battle Pass ...
+The player's choice: the admin panel's Events page (settings.py event_state: for each event on / off / by calendar;
+all yearly and weekly events; reported at login) comes first. Game server option: --event name1,name2 opens them
+regardless of date (weekly ones too); --event hepsi opens all yearly events, --event none opens no yearly event (weekly ones continue).
 """
 import datetime, functools, json, os, sys, time
 import game_data as DATA
@@ -30,26 +30,26 @@ import settings as SET
 import event_appearances as EG
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-D = DATA.load('events.json')       # Dünya Editörü: dönemler, harita bölümü, dünyadaki durum (dunya_durum)
+D = DATA.load('events.json')       # World Editor: periods, map section, state in the world (world_status)
 EVENTS = D['events']
-EG.apply(EVENTS)                        # etkinlik görünümleri: GG hafta sonu kapılarının ve harita kutularının tasarımları
+EG.apply(EVENTS)                        # event appearances: the designs of the GG weekend gates and the map boxes
 ALWAYS = D['continuous']['kinds']
-COUNTED_AS = {}                            # etkinlik -> yerine de sayılan etkinlikler ('sayilir': Şükran Günü'nde gg_cift_odul)
+COUNTED_AS = {}                            # event -> events that also count in its place ('counts_as': gg_double_reward on Thanksgiving)
 for _k, _e in EVENTS.items():
     if _e.get('counts_as'):
         COUNTED_AS.setdefault(_e['counts_as'], []).append(_k)
-FORCED, MODE = set(), 'calendar'          # takvim | hepsi | yok (yıllıklar için)
-# hafta döngüleri ('hafta_dongu') bu pazartesiden sayılır; ISO hafta paritesi 53 haftalık yılda (2026) üç haftalık ara bırakıyordu
+FORCED, MODE = set(), 'calendar'          # calendar | hepsi (all) | none (for yearly ones)
+# week cycles ('week_cycle') are counted from this Monday; ISO week parity left a three-week gap in a 53-week year (2026)
 WEEK_START = datetime.date(2024, 1, 8)
 DAY, CYCLE = datetime.timedelta(days=1), datetime.timedelta(weeks=52)
-KNOWN = datetime.datetime.strptime(D['known_calendar'], '%Y-%m-%d') + DAY     # bilinen son günün sonu (yıla özgü dönemler)
-# Çin Yeni Yılı (ay takvimi; tablo dışındaki yıllarda o dönem yok)
+KNOWN = datetime.datetime.strptime(D['known_calendar'], '%Y-%m-%d') + DAY     # end of the last known day (year-specific periods)
+# Chinese New Year (lunar calendar; in years outside the table that period does not exist)
 CNY = {2020: (1, 25), 2021: (2, 12), 2022: (2, 1), 2023: (1, 22), 2024: (2, 10), 2025: (1, 29), 2026: (2, 17), 2027: (2, 6),
        2028: (1, 26), 2029: (2, 13), 2030: (2, 3), 2031: (1, 23), 2032: (2, 11), 2033: (1, 31), 2034: (2, 19), 2035: (2, 8),
        2036: (1, 28), 2037: (2, 15), 2038: (2, 4), 2039: (1, 24), 2040: (2, 12)}
-EVENT_IDS = {}                        # EventModule.id: tür adı başına sabit
-# Battle Pass'in sürdürdüğü etkinlikler {etkinlik: (pass'in başı, bitişi)} (savas_bileti.ensure): kaydın pass'i 1. günden başlayıp panelin
-# süresince sürer; görevleri etkinliğin içeriğine bağlı olduğundan etkinlik de o süre boyunca açık sayılır (panelde 'kapali' değilse)
+EVENT_IDS = {}                        # EventModule.id: fixed per type name
+# Events kept alive by the Battle Pass {event: (pass start, end)} (battle_pass.ensure): the save's pass starts from day 1 and lasts as long as the panel's
+# duration; since its quests depend on the event's content, the event also counts as open for that time (if it is not 'off' in the panel)
 PASS_RUNS = {}
 
 
@@ -59,8 +59,8 @@ def _pass_run(key, t):
 
 
 def _tags(e):
-    """Etkinliğin tek başına olabilen özellikleri: Battle Pass (kaydın tek pass'i), harita süsü (EventActivationState türü başına
-    bir süs), uzaylı kargo kutusunun görünümü (CandyCargo / kargo_tur: kutu tek görünümde)."""
+    """Features an event can have on its own: Battle Pass (the save's single pass), map decoration (one decoration per EventActivationState type),
+    the look of the alien cargo box (CandyCargo / cargo_kind: the box has a single look)."""
     out = {'pass'} if 'BattlePass' in e.get('kinds', []) else set()
     if 'decor' in e:
         out.add('sus:%s' % e['decor']['type'])
@@ -70,14 +70,14 @@ def _tags(e):
     return out
 
 
-# Çakışan etkinlikler (geliştirici notu 2026-10-28, N1): aynı anda açık olamazlar; ikisi de açık olacaksa öncelikli olan kalır
-# (resolve: panelde elle açılan, sonra kaydın Battle Pass'inin sürdürdüğü, sonra önce başlayan). Panel birini elle açınca
-# çakıştığı elle açılmışlar takvime döner (panel.set_events).
+# Conflicting events (developer note 2026-10-28, N1): they cannot be open at the same time; if both would be open, the higher-priority one stays
+# (resolve: the one opened by hand in the panel, then the one kept alive by the save's Battle Pass, then the one that started first). When the panel opens one by hand
+# those opened by hand that conflict with it return to the calendar (panel.set_events).
 CONFLICTS = {k: {j for j, f in EVENTS.items() if j != k and _tags(e) & _tags(f)} for k, e in EVENTS.items()}
 
 
 def configure(argv=None):
-    """--event seçeneği: 'hepsi', 'yok' ya da virgülle etkinlik adları."""
+    """The --event option: 'hepsi' (all), 'none' or comma-separated event names."""
     global MODE
     argv = sys.argv if argv is None else argv
     FORCED.clear()
@@ -117,7 +117,7 @@ HOLIDAYS = {'easter': _easter, 'thanksgiving_day': _thanksgiving,
 
 
 def _day(s, y):
-    """Yıllık dönem ucu ("AA-GG" ya da "bayram±N") y yılında -> datetime (yoksa None)."""
+    """A yearly period end ("MM-DD" or "holiday±N") in year y -> datetime (None if there is none)."""
     name, sign, n = s.partition('+') if '+' in s else s.partition('-') if s[0].isalpha() else (s, '', '')
     if name in HOLIDAYS:
         d = HOLIDAYS[name](y)
@@ -128,16 +128,16 @@ def _day(s, y):
 
 @functools.lru_cache(maxsize=4096)
 def _date(s, fmt):
-    """Sabit tarih metninin ayrıştırılması (strptime pahalı; etkinlik sorguları saniyede binlerce kez: botlar)."""
+    """Parsing fixed date text (strptime is expensive; event queries run thousands of times per second: bots)."""
     return datetime.datetime.strptime(s, fmt)
 
 
-_SPANS = {}                                     # id(dönem listesi) -> (liste, (yıl, döngü), dönemler): etkinlik sorguları sık (botlar)
+_SPANS = {}                                     # id(period list) -> (list, (year, cycle), periods): event queries are frequent (bots)
 
 
 def _spans(entries, t):
-    """t'yi içerebilecek dönemler [(başlangıç, bitiş, saatler)] (datetime; bitiş hariç). Sonuç yalnız t'nin yılına ve 52 haftalık
-    döngüsüne bağlı: liste başına önbellekte (çağıranlar yalnız okur)."""
+    """Periods that may contain t [(start, end, hours)] (datetime; end excluded). The result depends only on t's year and 52-week
+    cycle: cached per list (callers only read)."""
     k = (t.year, (t - KNOWN) // CYCLE if t >= KNOWN else None)
     c = _SPANS.get(id(entries))
     if c and c[0] is entries and c[1] == k:
@@ -152,7 +152,7 @@ def _spans(entries, t):
 def _compute_spans(entries, t):
     out, dated, once = [], [], []
     for a, b, *h in entries:
-        if a[:4].isdigit() and len(a) in (10, 16):          # 'YYYY-AA-GG' ya da 'YYYY-AA-GG SS:DD' (ilk gün saatle: Chromin 10:00)
+        if a[:4].isdigit() and len(a) in (10, 16):          # 'YYYY-MM-DD' or 'YYYY-MM-DD HH:MM' (first day with an hour: Chromin 10:00)
             s = _date(a, '%Y-%m-%d %H:%M' if len(a) == 16 else '%Y-%m-%d')
             e = _date(b, '%Y-%m-%d %H:%M') if len(b) == 16 else _date(b, '%Y-%m-%d') + DAY
             (once if h[:1] == ['single'] else dated).append((s, e, h[1:] if h[:1] == ['single'] else h))
@@ -161,15 +161,15 @@ def _compute_spans(entries, t):
             s, e = _day(a, y), _day(b, y)
             if s and e:
                 out.append((s, (e if e >= s else _day(b, y + 1)) + DAY, h))
-    if dated and t >= KNOWN:                    # bilinen son günden sonra: son 52 haftanın koşuları 52 haftada bir
+    if dated and t >= KNOWN:                    # after the last known day: the runs of the last 52 weeks repeat every 52 weeks
         n = (t - KNOWN) // CYCLE + 1
         out += [(s + k * CYCLE, e + k * CYCLE, h) for s, e, h in dated if KNOWN - CYCLE <= s < KNOWN for k in (n - 1, n) if k]
     return out + dated + once
 
 
 def _hours(t, hours, first=None, last=None):
-    """t'yi kapsayan saat penceresi (başlangıç, bitiş) ya da None; hours: [[a, b]] ya da gün -> [[a, b]]. Önceki günün 24'ü aşan
-    penceresi de sayılır; first/last: pencerenin başladığı gün bu aralıkta olmalı."""
+    """The hour window that covers t (start, end) or None; hours: [[a, b]] or day -> [[a, b]]. The previous day's window that runs past 24
+    also counts; first/last: the day the window started on must be in this range."""
     day = t.replace(hour=0, minute=0, second=0, microsecond=0)
     for d in (day - DAY, day):
         if first and not first <= d < last:
@@ -189,7 +189,7 @@ def _span_at(entries, t):
 
 
 def _week_day(e, d):
-    """Haftalık etkinlik bu gün var mı ('gunler', 'ay_haftasi', 'hafta_dongu')."""
+    """Whether the weekly event is on this day ('days', 'nth_of_month', 'week_cycle')."""
     if d.weekday() not in e.get('days', range(7)) or (e.get('nth_of_month') and (d.day - 1) // 7 + 1 not in e['nth_of_month']):
         return False
     n, i = e.get('week_cycle', (1, 0))
@@ -197,9 +197,9 @@ def _week_day(e, d):
 
 
 def period(key, now=None):
-    """Etkinliğin şu anki (ya da yoksa None) dönemi: (başlangıç, bitiş) zaman damgası; bitiş hariç."""
+    """The event's current period (None if there is none): (start, end) timestamps; end excluded."""
     e, t = EVENTS[key], _dt(now)
-    if e.get('together') and not any(_on(k, now) for k in e['together']):       # yalnız bu etkinliklerden biri sürerken (Fever)
+    if e.get('together') and not any(_on(k, now) for k in e['together']):       # only while one of these events runs (Fever)
         return None
     if 'periods' in e:
         p = _span_at(e['periods'], t)
@@ -207,12 +207,12 @@ def period(key, now=None):
         p = _hours(t, lambda d: e.get('hours', [[0, 24]]) if _week_day(e, d) else [])
     if p:
         return p[0].timestamp(), p[1].timestamp()
-    return next(filter(None, (period(k, now) for k in COUNTED_AS.get(key, ()))), None)      # 'sayilir': yerine sayılan etkinliğin dönemi
+    return next(filter(None, (period(k, now) for k in COUNTED_AS.get(key, ()))), None)      # 'counts_as': the period of the event that counts in its place
 
 
 def window(s, now=None):
-    """Harita bölümü şu an açık mı: kendi 'donemler'i ve doğuş saatleri ('saatler', hafta sonu 'saatler_hafta_sonu'). Panelin
-    seans_hep_acik ayarı açıksa yalnız dönemler."""
+    """Whether the map section is open now: its own 'periods' and spawn hours ('hours', weekend 'hours_weekend'). If the panel's
+    session_always_open setting is on, only the periods."""
     t = _dt(now)
     if 'periods' in s and not _span_at(s['periods'], t):
         return False
@@ -222,7 +222,7 @@ def window(s, now=None):
 
 
 def upcoming(key, now=None, days=366):
-    """Etkinliğin şimdiden sonraki 'days' gün içindeki dönemleri [(başlangıç, bitiş)] (datetime; günlük saatler hariç; panel)."""
+    """The event's periods within the next 'days' days from now [(start, end)] (datetime; excluding daily hours; panel)."""
     e, t = EVENTS[key], _dt(now)
     if 'periods' not in e:
         return []
@@ -231,7 +231,7 @@ def upcoming(key, now=None, days=366):
     return sorted(found)
 
 
-# ------------------------------------------------------------------ aralıklar (panelin etkinlik takvimi: takvim_cizelge.py)
+# ------------------------------------------------------------------ intervals (the panel's event calendar)
 def _merge(iv):
     out = []
     for s, e in sorted(iv):
@@ -247,7 +247,7 @@ def _clip(iv, a, b):
 
 
 def _intersect(x, y):
-    """İki birleşik aralık listesinin kesişimi."""
+    """Intersection of two merged interval lists."""
     out, i, j = [], 0, 0
     while i < len(x) and j < len(y):
         s, e = max(x[i][0], y[j][0]), min(x[i][1], y[j][1])
@@ -261,7 +261,7 @@ def _intersect(x, y):
 
 
 def _days(a, b):
-    """[a, b)'ye dokunan günlerin başları (önceki gün dahil: 24'ü aşan saatler ertesi güne taşar)."""
+    """Starts of the days touching [a, b) (including the previous day: hours beyond 24 spill into the next day)."""
     d = a.replace(hour=0, minute=0, second=0, microsecond=0) - DAY
     while d < b:
         yield d
@@ -269,15 +269,15 @@ def _days(a, b):
 
 
 def _daily(a, b, hours):
-    """Günlük saat pencereleri [a, b) içinde; hours: gün -> [[başlangıç, bitiş]] (saat)."""
+    """Daily hour windows within [a, b); hours: day -> [[start, end]] (hours)."""
     return _merge(_clip([[d + datetime.timedelta(hours=x), d + datetime.timedelta(hours=y)] for d in _days(a, b) for x, y in hours(d)],
                         a, b))
 
 
 def _span_windows(entries, a, b):
-    """Dönem listesinin [a, b) içindeki açık aralıkları (_span_at ile aynı kural; saatli dönemde günlük saatler)."""
+    """The open intervals of the period list within [a, b) (same rule as _span_at; for a period with hours, the daily hours)."""
     found, t = {}, a - DAY * 7
-    while True:                                   # _spans t'nin yılına ve 52 haftalık döngüsüne bakar: aralık boyunca örneklenir
+    while True:                                   # _spans looks at t's year and 52-week cycle: sampled across the interval
         for s, e, h in _spans(entries, t):
             found[(s, e, json.dumps(h))] = h
         if t >= b:
@@ -292,21 +292,21 @@ def _span_windows(entries, a, b):
 
 
 def intervals(key, a, b):
-    """Etkinliğin takvime göre [a, b) içindeki açık aralıkları [[başlangıç, bitiş]] (datetime; birleşik ve kırpılmış). period ile aynı
-    kural; panelin elle seçimi ve --event sayılmaz ('birlikte': o etkinliklerin takvimdeki aralıklarıyla kesişim)."""
+    """The event's open intervals within [a, b) by the calendar [[start, end]] (datetime; merged and clipped). Same rule as period;
+    the panel's manual choice and --event do not count ('together': intersection with the calendar intervals of those events)."""
     e = EVENTS[key]
     if 'periods' in e:
         iv = _span_windows(e['periods'], a, b)
     else:
         iv = _daily(a, b, lambda d: e.get('hours', [[0, 24]]) if _week_day(e, d) else [])
-    iv = _merge(iv + [x for k in COUNTED_AS.get(key, ()) for x in intervals(k, a, b)])      # 'sayilir': yerine sayılan etkinlikler
+    iv = _merge(iv + [x for k in COUNTED_AS.get(key, ()) for x in intervals(k, a, b)])      # 'counts_as': the events that count in its place
     if e.get('together'):
         iv = _intersect(iv, _merge([x for k in e['together'] for x in intervals(k, a, b)]))
     return iv
 
 
 def section_intervals(s, a, b, always_open=False):
-    """Harita bölümünün [a, b) içindeki açık aralıkları (window ile aynı kural; hep_acik: panelin seans_hep_acik ayarı)."""
+    """The map section's open intervals within [a, b) (same rule as window; always_open: the panel's session_always_open setting)."""
     iv = _span_windows(s['periods'], a, b) if 'periods' in s else [[a, b]]
     if 'hours' in s and not always_open:
         iv = _intersect(iv, _daily(a, b, lambda d: s.get('hours_weekend', s['hours']) if d.weekday() >= 5 else s['hours']))
@@ -314,7 +314,7 @@ def section_intervals(s, a, b, always_open=False):
 
 
 def _rank(key, now):
-    """Çakışmada öncelik (küçük kazanır): elle açılan, Battle Pass'in sürdürdüğü, sonra dönemi önce başlayan."""
+    """Priority on conflict (smaller wins): the one opened by hand, the one kept alive by the Battle Pass, then the one whose period started first."""
     t = time.time() if now is None else now
     if SET.event_state(key) == 'on' or key in FORCED:
         top = 0
@@ -327,7 +327,7 @@ def _rank(key, now):
 
 
 def resolve(on, rank):
-    """Açık etkinliklerden çakışmayanlar: öncelik sırasıyla, kalanın çakıştıkları düşer."""
+    """Non-conflicting ones among the open events: in priority order, those that conflict with the remainder drop out."""
     keep = set(on)
     for k in sorted(on, key=rank):
         if k in keep:
@@ -336,8 +336,8 @@ def resolve(on, rank):
 
 
 def is_active(key, now=None):
-    """Etkinlik açık mı: kendi kuralı (_on) ve çakışma (aynı anda açık çakışanlarından öncelikli olan; bağlı bileşen içinde).
-    --event ile adı verilenler (geliştirici seçeneği) çakışmaya bakmaz."""
+    """Whether the event is open: its own rule (_on) and the conflict (the higher-priority one among those open at the same time that conflict with it; within a connected component).
+    Those named with --event (a developer option) ignore the conflict."""
     if not _on(key, now):
         return False
     if key in FORCED:
@@ -358,7 +358,7 @@ def _on(key, now=None):
     st = SET.event_state(key)
     if st:
         return st == 'on'
-    if e.get('world_status') in ('on', 'off'):     # dünyanın ayarı (kaydın Etkinlikler ayarından sonra)
+    if e.get('world_status') in ('on', 'off'):     # the world's setting (after the save's Events setting)
         return e['world_status'] == 'on'
     yearly = 'periods' in e
     if key in FORCED or (yearly and MODE == 'hepsi'):
@@ -371,13 +371,13 @@ def _on(key, now=None):
 
 
 def forced(key):
-    """Etkinlik tarihten bağımsız açık mı (panelde 'acik', --event ad ya da hepsi): harita bölümlerinin pencereleri sayılmaz."""
+    """Whether the event is open regardless of date ('on' in the panel, --event name or hepsi): map sections' windows do not count."""
     st = SET.event_state(key)
     return st == 'on' or key in FORCED or (MODE == 'hepsi' and 'periods' in EVENTS[key]) or (
         not st and EVENTS[key].get('world_status') == 'on')
 
 
-_ACTIVE = [None, None]                  # (anahtar, sonuç): aynı an için (saniyede bir 14 etkinlik modülü ayrı ayrı sorar: ek_etkinlikler)
+_ACTIVE = [None, None]                  # (key, result): for the same moment (every second 14 event modules ask separately: extra_events)
 
 
 def active(now=None):
@@ -395,35 +395,35 @@ def active(now=None):
 
 
 def has_type(t, now=None):
-    """Etkinlik türü (EventModule.type, ör. CandyCargo) şu an etkin mi."""
+    """Whether the event type (EventModule.type, e.g. CandyCargo) is active now."""
     return t in ALWAYS or any(t in EVENTS[k].get('kinds', []) for k in active(now))
 
 
 def time_left(key, now=None):
-    """Kalan saniye (zorla açılmış etkinlikte 30 gün)."""
+    """Remaining seconds (30 days for a forced-open event)."""
     p = period(key, now)
     now = time.time() if now is None else now
-    if _pass_run(key, now):                             # Battle Pass'in sürdürdüğü etkinlik: pass bitene dek
+    if _pass_run(key, now):                             # event kept alive by the Battle Pass: until the pass ends
         return max(int(PASS_RUNS[key][1] - now), int(p[1] - now) if p else 0)
     return max(0, int(p[1] - now)) if p else 30 * 86400
 
 
 def gate_rewards(key, now=None):
-    """Etkin etkinliklerin Galaksi Kapısı ödülleri ('kapi_odulu'): [(lootId, adet, olasılık)] (Empyrian / Prosperous Fragment …);
-    paketin kalemleri hariç (gate_bundles)."""
+    """Galaxy Gate rewards of the active events ('gate_reward'): [(lootId, count, probability)] (Empyrian / Prosperous Fragment ...);
+    excluding the bundle's items (gate_bundles)."""
     return [tuple(r) for k in sorted(active(now)) for s in EVENTS[k].get('gate_reward', []) if key in s['kapilar'] and not s.get('package')
             for r in s.get('items', [])]
 
 
 def gate_choices(key, now=None):
-    """Etkin etkinliklerin bu kapıdaki seçimli ödülleri ('kapi_odulu' satırının 'secim'i: 'olasilik'la [[lootId, adet(, ağırlık)]]'ten biri, ağırlık yoksa eşit;
-    'yinelenmez': sahip olunan tasarım çıkmaz): GG Special Rewards Weekend paketleri, LF-4 günü."""
+    """The active events' choice rewards at this gate (the 'choice' of a 'gate_reward' row: one of [[lootId, count(, weight)]] with 'probability', equal if there is no weight;
+    'non_repeating': a design the player owns does not drop): GG Special Rewards Weekend bundles, LF-4 day."""
     return [s for k in sorted(active(now)) for s in EVENTS[k].get('gate_reward', []) if key in s['kapilar'] and s.get('choice')]
 
 
 def gate_bundles(key, now=None):
-    """Etkin etkinliklerin bu kapıdaki ödül paketleri ('kapi_odulu' satırı 'paket' adıyla: 'olasilik'la düşer, 'esyalar' kalemleri
-    [lootId, adet, olasılık] kendi olasılıklarıyla; Prosperous Package): düşünce başarımın CollectPackage koşulu da (kapi.finish)."""
+    """The active events' reward bundles at this gate ('gate_reward' row with a 'package' name: drops with 'probability', the 'items' entries
+    [lootId, count, probability] with their own probabilities; Prosperous Package): when it drops the achievement's CollectPackage condition counts too (gate.finish)."""
     return [s for k in sorted(active(now)) for s in EVENTS[k].get('gate_reward', []) if key in s['kapilar'] and s.get('package')]
 
 
@@ -436,8 +436,8 @@ MONTH = ('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August
 
 
 def news(key, now=None):
-    """Etkinliğin bu koşusunun Command Center haberleri (istemcinin resource_news'undaki bn_<kimlik>; tools/calendar_e8.py): 'haber'
-    kalıbı dönemin başlangıcıyla ({Y}, {m}, {Mon}, {mon}, {Month}); istemcide yoksa 'haber_varsayilan'; artı 'haber_ek'."""
+    """The Command Center news of this run of the event (bn_<id> in the client's resource_news; tools/calendar_e8.py): the 'news'
+    pattern with the period's start ({Y}, {m}, {Mon}, {mon}, {Month}); if absent in the client 'news_default'; plus 'news_extra'."""
     e = EVENTS[key]
     if 'clan_news' not in e:
         return []
@@ -456,7 +456,7 @@ def _id(t):
 
 
 def event_cmd(now=None):
-    """EventUpdateCommand (girişte; kayıttaki komutun yerine)."""
+    """EventUpdateCommand (at login; in place of the command in the save)."""
     now = time.time() if now is None else now
     mods, seen = [], set()
     for t in ALWAYS:
@@ -464,22 +464,22 @@ def event_cmd(now=None):
         seen.add(t)
     for k in sorted(active(now)):
         left = time_left(k, now)
-        for t in EVENTS[k].get('kinds', []) + ['BE_' + n for n in news(k, now)]:      # BE_<kimlik>: Command Center haberi
+        for t in EVENTS[k].get('kinds', []) + ['BE_' + n for n in news(k, now)]:      # BE_<news id>: Command Center news
             if t not in seen:
                 seen.add(t)
                 mods.append(dict(_='EventModule', type=t, timeLeft=left, id=_id(t), lang='all'))
-    offset = -time.timezone if not time.localtime(now).tm_isdst else -time.altzone        # saniye (kayıt: 7200)
+    offset = -time.timezone if not time.localtime(now).tm_isdst else -time.altzone        # seconds (save: 7200)
     return ('EventUpdateCommand', dict(timestamp=int(now * 1000), activeCommands=mods, utcTimeOffset=int(offset)))
 
 
 def moods(keys):
-    """Etkinliklerin harita süsleri {istemcinin EventType'ı: 'sus'} (Prometheus hologramı, buzdağları, Paskalya, Carnival, Breach)."""
+    """The events' map decorations {the client's EventType: 'decor'} (Prometheus hologram, icebergs, Easter, Carnival, Breach)."""
     return {EVENTS[k]['decor']['type']: EVENTS[k]['decor'] for k in sorted(keys) if 'decor' in EVENTS[k]}
 
 
 def mood_cmds(keys, before=None):
-    """Süslerin EventActivationStateCommand'ları (hazır demetinde açık olanlar; 'before' verilirse yalnız açılan ve kapananlar).
-    'deger': EventActivationIntegerAttributeModule (buzdağı boyutu)."""
+    """The decorations' EventActivationStateCommands (those open in the ready bundle; if 'before' is given, only those that open and close).
+    'value': EventActivationIntegerAttributeModule (iceberg size)."""
     on, old = moods(keys), moods(before or ())
     cmd = lambda s, a: ('EventActivationStateCommand', dict(type=s['type'], active=a, attributes=[
         dict(_='EventActivationIntegerAttributeModule', value=s['value'])] if 'value' in s else []))

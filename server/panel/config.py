@@ -1,51 +1,51 @@
-"""Panel ayarları (save/panel.json): dil ve kurulum, etkin kayıt yuvası, istemci klasörü ve görüntü, yedekleme, sunucu davranışı,
-Linux ve macOS'ta istemciyi açan Wine ya da Proton.
+"""Panel settings (save/panel.json): language and setup, active save slot, client folder and display, backup, server behavior,
+the Wine or Proton that launches the client on Linux and macOS.
 
-Bilinmeyen anahtarlar korunur (eski/yeni sürümler aynı dosyayı paylaşabilir); türü yanlış değer varsayılana döner.
+Unknown keys are preserved (old/new versions can share the same file); a value of the wrong type falls back to the default.
 """
 import json, os, threading
 
 import lang as D
 
 DEFAULTS = {
-    'lang': None,                    # dil.DILLER'den bir kod; None: henüz seçilmedi (kurulum sihirbazı dil seçimiyle açılır)
-    'setup_done': False,         # ilk açılış sihirbazı bitti (ya da atlandı)
-    'active_save': None,            # save/kayitlar/<kimlik>
-    'client_folder': None,        # None: kendiliğinden (proje kökündeki en yeni DarkOrbit_Version* klasörü)
-    'window_mode': 'windowed',      # pencere | tam_ekran | kenarliksiz
+    'lang': None,                    # a code from dil.DILLER; None: not chosen yet (the setup wizard opens with the language choice)
+    'setup_done': False,         # the first-run wizard is done (or skipped)
+    'active_save': None,            # save/slots/<id>
+    'client_folder': None,        # None: automatic (the newest DarkOrbit_Version* folder in the project root)
+    'window_mode': 'windowed',      # windowed | fullscreen | borderless
     'width': 1440,
     'height': 900,
-    'monitor': 0,                   # 0: Unity'nin seçtiği; 1..: -monitor N
-    'extra_args': '',            # istemciye eklenecek başka Unity argümanları
-    'backup_on_launch': True,         # Oyna'da etkin yuvanın otomatik yedeği
-    'backup_count': 10,             # saklanan otomatik yedek (elle alınanlar silinmez)
-    'backup_interval_min': 30,          # oyun açıkken otomatik yedek aralığı (0: kapalı)
-    'when_client_closes': 'close',   # kapat: panelin açtığı sunucular kapanır | acik: açık kalır
-    'rotate_logs': True,          # büyük günlükler başlatmada .1, .2 … olarak kayar
-    'when_window_closes': 'wait',   # panel penceresi kapanınca: bekle (oyun sürüyorsa bitince kapanır) | kapat (her şeyi kapatır)
-    'update': 'auto',       # GitHub'daki yeni sürüm (guncelleme.py): otomatik kur | bildir (yalnız haber ver) | kapali
-    'fast_download': True,          # istemci indirmesi BAGLANTI bağlantıyla (indirme.py); kapalıyken tek bağlantı
-    'friend_password': '',            # Arkadaşlarınla Oyna > Host: katılma şifresi (boş: şifresiz)
-    'friend_max': 4,            # Host: en çok misafir
-    'friend_world': '',            # Host: sunucunun dünyası (Dünya Editörü; boş: etkin kaydın varsayılan dünyası)
-    'friend_last_address': '',        # Join: son katılınan adres
-    'multi_client': True,          # çoklu istemci: en az iki kayıt varsa OYNA sunucuyu çok oturumlu açar (coklu.py)
-    'multi_client_max': 3,              # en çok ek istemci (her istemci ~600 MB bellek)
-    'runner': 'auto',      # Linux ve macOS: istemciyi açan otomatik | motor | wine | proton | ozel (calistirici.py)
-    'runner_path': '',         # wine programı, Proton klasörü ya da özel komut (boş: kendiliğinden)
-    'wine_prefix': '',                # Wine öneki / Proton veri klasörü (boş: save/wine ya da save/proton)
-    'discord_rp': True,             # Discord Rich Presence (discord_rp.py); rp_*: profilde görünenler
-    'rp_pilot': False,              # pilot adı (gizlilik: varsayılan kapalı)
+    'monitor': 0,                   # 0: the one Unity picks; 1..: -monitor N
+    'extra_args': '',            # extra Unity arguments added to the client
+    'backup_on_launch': True,         # automatic backup of the active slot on PLAY
+    'backup_count': 10,             # automatic backups kept (manual ones are not deleted)
+    'backup_interval_min': 30,          # automatic backup interval while the game is open (0: off)
+    'when_client_closes': 'close',   # close: the servers the panel opened shut down | on: they stay open
+    'rotate_logs': True,          # large logs rotate at startup as .1, .2 ...
+    'when_window_closes': 'wait',   # when the panel window closes: wait (if the game is running, closes when it ends) | close (closes everything)
+    'update': 'auto',       # new version on GitHub (updater.py): auto install | notify (just notify) | off
+    'fast_download': True,          # the client download with CONNECTIONS connections (client_download.py); a single connection when off
+    'friend_password': '',            # Play with Friends > Host: join password (empty: no password)
+    'friend_max': 4,            # Host: most guests
+    'friend_world': '',            # Host: the server's world (World Editor; empty: the active save's default world)
+    'friend_last_address': '',        # Join: last address joined
+    'multi_client': True,          # multi-client: with at least two saves PLAY opens the server multi-session (multi_client.py)
+    'multi_client_max': 3,              # most extra clients (each client ~600 MB of memory)
+    'runner': 'auto',      # Linux and macOS: what launches the client: auto | engine | wine | proton | special (client_runner.py)
+    'runner_path': '',         # the wine program, Proton folder or custom command (empty: automatic)
+    'wine_prefix': '',                # Wine prefix / Proton data folder (empty: save/wine or save/proton)
+    'discord_rp': True,             # Discord Rich Presence (discord_rp.py); rp_*: what shows on the profile
+    'rp_pilot': False,              # pilot name (privacy: off by default)
     'rp_klan': True,
     'rp_gemi': True,
     'rp_seviye': True,
-    'rp_harita': True,              # harita adı ve bölgenin görseli
-    'rp_durum': True,               # savaşta (hedef), kapı dalgası, güvenli bölge, gemi parçalandı
-    'rp_firma': True,               # firmanın amblemi
-    'rp_sure': True,                # oturumun geçen süresi
-    'rp_grup': True,                # Arkadaşlarınla Oyna: grup büyüklüğü
-    'rp_buttons': True,            # Discord sunucusu ve GitHub düğmeleri
-    'rp_in_panel': True,             # oyun kapalıyken de (panelde)
+    'rp_harita': True,              # map name and the area's image
+    'rp_durum': True,               # in combat (target), gate wave, safe zone, ship destroyed
+    'rp_firma': True,               # the company's emblem
+    'rp_sure': True,                # the session's elapsed time
+    'rp_grup': True,                # Play with Friends: group size
+    'rp_buttons': True,            # Discord server and GitHub buttons
+    'rp_in_panel': True,             # even when the game is closed (in the panel)
 }
 CHOICES = {'window_mode': ('windowed', 'fullscreen', 'borderless'), 'when_client_closes': ('close', 'on'),
            'when_window_closes': ('wait', 'close'), 'update': ('auto', 'notify', 'off'),
@@ -55,7 +55,7 @@ LIMITS = {'width': (640, 7680), 'height': (480, 4320), 'monitor': (0, 8), 'backu
 
 
 def clean(key, v):
-    """Değeri doğrula -> geçerli değer ya da ValueError."""
+    """Validate the value -> a valid value or ValueError."""
     if key not in DEFAULTS:
         raise ValueError('bilinmeyen ayar: %s' % key)
     d = DEFAULTS[key]
@@ -102,7 +102,7 @@ class PanelConfig:
         return {k: self.get(k) for k in DEFAULTS}
 
     def update(self, values):
-        """Değerleri doğrulayıp yaz -> güncel ayarlar. Geçersiz değer ValueError (hiçbiri yazılmaz)."""
+        """Validate the values and write -> the current settings. An invalid value raises ValueError (none is written)."""
         new = {k: clean(k, v) for k, v in values.items()}
         with self.lock:
             self.d.update(new)

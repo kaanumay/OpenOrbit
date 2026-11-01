@@ -1,9 +1,9 @@
-"""Ekstralar ve CPU'lar: onarım robotları, R0K-T01, kargo CPU'su, HM-7, atlama, gizlenme, Insta-Shield, Smart Bomb, ekstra yuvası.
+"""Extras and CPUs: repair robots, R0K-T01, cargo CPU, HM-7, jump, cloak, Insta-Shield, Smart Bomb, extra slot.
 
-Takılanlar bot.k['ekip']['ekstra'] {loot: kalan hak (haklıysa) ya da 1}; yuva sayısı gemininki (items.json gemiler.extra) +
-SLE CPU'larının ek_yuva'sı. Alışveriş adayları (alisveris._adaylar): her ekstranın bota faydası güç puanının bir payı olarak,
-kişiliğe, seviyeye ve izinlere göre (gerçek oyuncunun öncelik sırası: önce onarım robotu, sonra işine yarayan CPU'lar).
-Etkiler: govde (onarım), silah (roket beklemesi), katalog (kargo), hedefler/satis (HM-7), soyut (atlama, gizlenme, PvP).
+What is installed is bot.k['gear']['ekstra'] {loot: remaining uses (if it has uses) or 1}; the slot count is the ship's (items.json ships.extra) +
+the extra_slot of the SLE CPUs. Shopping candidates (shopping.candidates): each extra's benefit to the bot as a share of its power score,
+by personality, level and permissions (a real player's priority order: repair robot first, then the CPUs that are useful to it).
+Effects: ship (repair), weapons (rocket cooldown), catalog (cargo), targets/selling (HM-7), abstract_sim (jump, cloak, PvP).
 """
 from . import catalog as K
 
@@ -39,7 +39,7 @@ def right(loot):
 
 
 def use(bot, loot):
-    """Haklı ekstradan bir hak harcar -> harcandı mı (hak bitince yuvadan çıkar)."""
+    """Spends one use of an extra that has uses -> was it spent (when the uses run out it leaves the slot)."""
     t = equipped(bot)
     if t.get(loot, 0) <= 0:
         return False
@@ -51,12 +51,12 @@ def use(bot, loot):
 
 
 def repair_level(bot):
-    """Takılı en iyi onarım robotu 0 (yok) .. 5 (REP-4)."""
+    """Best installed repair robot 0 (none) .. 5 (REP-4)."""
     return max((i + 1 for i, r in enumerate(ORDER) if var(bot, r)), default=0)
 
 
 def repair_sec(bot):
-    """Tam onarım süresi (sn; yoksa None)."""
+    """Full repair time (s; None if there is none)."""
     for r in reversed(ORDER):
         if var(bot, r):
             v = REPAIR_BOTS[r]
@@ -68,9 +68,9 @@ def cargo_multiplier(gear):
     return EXTRAS[CARGO_CPU]['cargo_multiplier'] if (gear.get('ekstra') or {}).get(CARGO_CPU) else 1.0
 
 
-# ------------------------------------------------------------------------------------------------------------ alışveriş
+# ------------------------------------------------------------------------------------------------------------ shopping
 def utility(bot, loot):
-    """Ekstranın bota faydası: güç puanının payı (0: almaz)."""
+    """An extra's benefit to the bot: a share of the power score (0: it does not buy)."""
     trace, lv, o = bot.permission, bot.level, bot.o
     if loot in ORDER:
         i = ORDER.index(loot) + 1
@@ -98,7 +98,7 @@ def utility(bot, loot):
 
 
 def candidates(bot):
-    """Alışveriş adayları [(güç artışı, para, fiyat, loot)]: boş yuva varsa (ya da yuva CPU'su) faydalı ve sahip olunmayan ekstralar."""
+    """Shopping candidates [(power gain, currency, price, loot)]: extras that are useful and not owned, if there is a free slot (or a slot CPU)."""
     if not bot.permission.get('ekstra', True):
         return []
     power = bot.value()['power']
@@ -115,7 +115,7 @@ def candidates(bot):
 
 
 def equip(bot, loot):
-    """Satın alınan ekstra takılır; onarım robotu eskisinin yerine (tek yuva); yuva doluysa en az faydalısı çıkar."""
+    """A purchased extra is installed; a repair robot replaces the old one (single slot); if the slots are full the least useful one is removed."""
     t = equipped(bot)
     if loot in ORDER:
         for r in ORDER:
@@ -130,9 +130,9 @@ def equip(bot, loot):
     bot.loadout_changed()
 
 
-# ------------------------------------------------------------------------------------------------------------ kullanım
+# ------------------------------------------------------------------------------------------------------------ use
 def jump(bot, target):
-    """Atlama CPU'su bu yolculuğu kısaltır mı: hedef üs (X-1), CPU'nun izin verdiği haritadan, hakkı var -> kullanılan CPU ya da None."""
+    """Does the jump CPU shorten this trip: target is the base (X-1), from a map the CPU allows, has uses -> the CPU used or None."""
     if target != K.ev(bot.firma) or not bot.permission.get('ekstra', True):
         return None
     import map_links as H
@@ -151,12 +151,12 @@ def jump(bot, target):
 
 
 def cloak(bot):
-    """Güçlü düşmandan gizlenme CPU'suyla kaçar -> kullanıldı mı."""
+    """Escapes a strong enemy with the cloak CPU -> was it used."""
     if not bot.permission.get('ekstra', True):
         return False
     return any(use(bot, g) for g in CLOAK if var(bot, g))
 
 
 def pvp_factor(bot):
-    """Insta-Shield ve Smart Bomb PvP'de güce katkı."""
+    """Contribution of Insta-Shield and Smart Bomb to power in PvP."""
     return 1.0 + 0.12 * var(bot, ISH) + 0.1 * var(bot, SMB)

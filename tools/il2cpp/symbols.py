@@ -1,11 +1,11 @@
-"""IL2CPP adres <-> metot adı haritası ve isimli disassembly (GameAssembly.dll, x86)."""
+"""IL2CPP address <-> method name map and named disassembly (GameAssembly.dll, x86)."""
 import sys, os, struct, pickle
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from meta import Metadata
 from pe import PE
 
-# İstemci klasörü: OO_CLIENT ortam değişkeni (protokol_guncelle.py yeni sürüm için verir), yoksa 1.1.116. Önbellek istemci başına
-# (1.1.114'ünki eskisi gibi symbols.pkl).
+# Client folder: the OO_CLIENT environment variable (protocol_update.py supplies it for a new version), else 1.1.116. The cache is per client
+# (1.1.114's is symbols.pkl as before).
 _HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.environ.get('OO_CLIENT') or os.path.join(os.path.dirname(os.path.dirname(_HERE)), 'DarkOrbit_Version1.1.116')
 _tag = os.path.basename(os.path.normpath(ROOT))
@@ -55,8 +55,8 @@ class Symbols:
             seen += 1
         return (t['ns'] + '.' if t['ns'] else '') + n
 
-    # IL2CPP v27+: meta veri kullanım globallerinin ilk değeri kodlanmış bir belirteçtir
-    # (tip << 29) | (indeks << 1) | 1 ; tip 5 = metin sabiti, 3 = metot tanımı, 6 = metot referansı
+    # IL2CPP v27+: the initial value of a metadata usage global is an encoded token
+    # (type << 29) | (index << 1) | 1 ; type 5 = string literal, 3 = method definition, 6 = method reference
     def usage(self, p):
         v = self.pe.u32(p)
         if v in self.addr2name:

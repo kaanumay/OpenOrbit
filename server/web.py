@@ -1,16 +1,16 @@
-"""Yerel web sunucusu: DarkOrbit Unity istemcisinin web girişini taklit eder (links.php, login.php, maps.php).
+"""Local web server: imitates the web login of the DarkOrbit Unity client (links.php, login.php, maps.php).
 
-Kullanım: python -I web.py <log_klasörü> [--profile=<yol>]   (--profile: kayıt yuvasının profili; panel ve canlı testler verir;
-game.py ile aynı olmalı. Verilmezse etkin yuvanınki, paths.py)
-HTTP: 8090 (gömülü tarayıcı), 80 (unityApi). Bilinmeyen her isteği kaydeder.
-Arkadaş sunucusunun misafiri (panelin "Arkadaşlarınla Oyna"sı, panel/friends.py): --remote=<adres:8081> --chat=<adres:7771>
---session=<anahtar> --uid=<kimlik> ile istemci oyuna ve sohbete arkadaşın sunucusunda girer (oturum anahtarı profili orada bulur;
-kimlik sunucunun verdiği). --adres: dinlenen yerel adres (öntanımlı 127.0.0.1). macOS'ta 80 ve 843 0.0.0.0'da açılır, yalnız bu
-bilgisayardan gelen bağlantılar kabul edilir (platform_compat.py: macOS root olmayana 1024'ten küçük portu 127.0.0.1'de açmıyor).
-Çoklu istemci (panel/multi_client.py): ek istemci http://127.0.0.1:8090/?session=<anahtar>#darkorbit:// ile açılır; anahtar oyun sunucusuna
-sorulur (GET /yerel/oturum: kaydın profili ve sunucudaki kimliği), giriş sayfası onu dosid çerezine yazar, istemci login.php'ye
-PHPSESSID çereziyle gelir: kimlik, gemi, harita, dil ve 2D o kaydınki. Bilinmeyen ek anahtar ana oyuncuya düşmez (ana istemci
-düşerdi): giriş sayfası uyarı verir, login.php başarısız döner.
+Usage: python -I web.py <log_folder> [--profile=<path>]   (--profile: the save slot's profile; given by the panel and live tests;
+must match game.py. If not given, the active slot's, paths.py)
+HTTP: 8090 (embedded browser), 80 (unityApi). Records every unknown request.
+Guest of a friend server (the panel's "Play with Friends", panel/friends.py): with --remote=<address:8081> --chat=<address:7771>
+--session=<key> --uid=<id> the client enters the game and chat on the friend's server (the session key finds the profile there;
+the id is given by the server). --address: the local address to listen on (default 127.0.0.1). On macOS 80 and 843 are opened on 0.0.0.0 and only connections from this
+computer are accepted (platform_compat.py: macOS does not open ports below 1024 on 127.0.0.1 for non-root).
+Multi-client (panel/multi_client.py): the extra client is opened with http://127.0.0.1:8090/?session=<key>#darkorbit://; the key is asked of the game server
+(GET /yerel/oturum: the save's profile and its id on the server), the login page writes it to the dosid cookie, the client comes to login.php with the
+PHPSESSID cookie: id, ship, map, language and 2D are that save's. An unknown extra key does not fall to the main player (the main client
+would): the login page gives a warning, login.php returns a failure.
 """
 import sys, os, re, threading, socket, time, json
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
@@ -19,9 +19,9 @@ from urllib.request import ProxyHandler, Request, build_opener, urlopen
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
-    sys.path.insert(0, HERE)              # -I ile çalışınca betiğin klasörü yolda değil
+    sys.path.insert(0, HERE)              # with -I the script's folder is not on the path
 import platform_compat as CP                         # noqa: E402
-CP.certificates()                         # macOS: CDN görselleri (HTTPS) için kök sertifikalar
+CP.certificates()                         # macOS: root certificates for CDN images (HTTPS)
 log_dir = [a for a in sys.argv[1:] if not a.startswith('--')][0]
 
 
@@ -53,7 +53,7 @@ def default_profile():
 
 
 def profile(path=None):
-    """Oyun sunucusunun profili varsa kullanıcı kimliği, gemi, harita ve 2D seçimi oradan gelir."""
+    """If the game server's profile exists, the user id, ship, map and 2D choice come from it."""
     p = path or PROFILE_PATH or default_profile()
     try:
         d = json.load(open(p, encoding='utf8'))
@@ -64,7 +64,7 @@ def profile(path=None):
 
 
 def web_settings_path(path=None):
-    """Web tarafının ayarları (giriş ekranında seçilen dil) profilin yanında ayrı dosyada: profili oyun sunucusu yazıyor."""
+    """The web side's settings (the language chosen on the login screen) in a separate file next to the profile: the game server writes the profile."""
     p = path or PROFILE_PATH or default_profile()
     return os.path.join(os.path.dirname(os.path.abspath(p)), 'web_settings.json')
 
@@ -78,21 +78,21 @@ def web_settings(path=None):
 
 
 def stored_lang(path=None):
-    """Kayıtlı giriş dili (doğrulanmış) ya da None."""
+    """The saved login language (validated) or None."""
     import re
     lang = str(web_settings(path).get('lang') or '')
     return lang if re.fullmatch(r'[a-z]{2}(_[a-z]{2})?', lang) else None
 
 
-# ------------------------------------------------------------------ çoklu istemci: ek istemcilerin oturumları
+# ------------------------------------------------------------------ multi-client: sessions of the extra clients
 SESSION_RE = re.compile(r'[A-Za-z0-9_\-]{16,64}')
-_extra = {}                                # oturum -> (sorulduğu an, {'uid', 'yol', 'kayit'} ya da None)
-_direct = build_opener(ProxyHandler({}))   # oyun sunucusuna sistemin vekil sunucusu üzerinden gidilmesin
+_extra = {}                                # session -> (time asked, {'uid', 'route', 'record'} or None)
+_direct = build_opener(ProxyHandler({}))   # so the system's proxy is not used to reach the game server
 
 
 def extra_session(sid):
-    """Çoklu istemcinin ek oturumu: oyun sunucusuna sorulur (GET /yerel/oturum; kısa süre saklanır) -> {'uid', 'yol', 'kayit'}
-    ya da None. Arkadaşın sunucusunun misafiriyken (--uid) ek oturum yok."""
+    """The extra session of multi-client: asked of the game server (GET /yerel/oturum; kept for a short time) -> {'uid', 'route', 'record'}
+    or None. As a guest of a friend's server (--uid) there is no extra session."""
     if not sid or sid == SESSION or UID or not SESSION_RE.fullmatch(sid):
         return None
     now = time.time()
@@ -104,7 +104,7 @@ def extra_session(sid):
         with _direct.open('http://%s/yerel/oturum?session=%s' % (GAME_SERVER, quote(sid)), timeout=3) as r:
             d = json.loads(r.read().decode('utf8'))
         v = {'uid': int(d['uid']), 'route': str(d['route']), 'record': str(d.get('record') or '')}
-    except Exception:                   # 404 (bilinmeyen), sunucu tek oyunculu ya da kapalı
+    except Exception:                   # 404 (unknown), the server is single-player or closed
         v = None
     with lock:
         _extra[sid] = (now, v)
@@ -112,8 +112,8 @@ def extra_session(sid):
 
 
 def session(sid):
-    """İsteğin oturumu -> (oturum, profil yolu, sunucudaki kimlik ya da None) ya da None: boş ya da ana anahtar ana oyuncunun,
-    başkası ek istemcinin (bilinmeyense None: ana oyuncuya düşmez)."""
+    """The request's session -> (session, profile path, id on the server or None) or None: an empty or the main key goes to the main player,
+    any other to the extra client (None if unknown: it does not fall to the main player)."""
     if not sid or sid == SESSION:
         return SESSION, PROFILE_PATH or default_profile(), int(UID) if UID else None
     e = extra_session(sid)
@@ -121,7 +121,7 @@ def session(sid):
 
 
 def cookie(h, name):
-    """İsteğin çerezi (yoksa None)."""
+    """The request's cookie (None if missing)."""
     for part in (h.headers.get('Cookie') or '').split(';'):
         k, _, v = part.strip().partition('=')
         if k == name:
@@ -130,14 +130,14 @@ def cookie(h, name):
 
 
 def set_lang(body, sid=None):
-    """Giriş ekranında dil seçilince istemci (LaunchShow.DropdownValueChanged) POST /unityApi/setLang.php "lang=tr" gönderiyor.
-    Saklanmıyordu, dil her açılışta İngilizceye dönüyordu (canlı test H88, kullanıcı bildirimi): artık web_ayarlari.json'da; giriş
-    sayfası lang çerezi (istemci dili buradan alıyor, redirect_page) ve web girişinin lang alanı olarak verilir."""
+    """When the language is chosen on the login screen the client (LaunchShow.DropdownValueChanged) sends POST /unityApi/setLang.php "lang=tr".
+    It was not stored, the language went back to English on every start (live test H88, user report): now it is in web_settings.json; the login
+    page gives it as the lang cookie (the client takes the language from there, redirect_page) and as the lang field of the web login."""
     import re
     from urllib.parse import parse_qs
     lang = (parse_qs(body.decode('utf8', 'replace')).get('lang') or [''])[0].strip().lower()
     o = session(sid) if sid else None
-    path = o[1] if o else None          # ek istemci: kendi kaydının yanına; bilinmeyen anahtar hiçbir şey yazmaz
+    path = o[1] if o else None          # extra client: next to its own save; an unknown key writes nothing
     if re.fullmatch(r'[a-z]{2}(_[a-z]{2})?', lang) and (o or not sid):
         d = dict(web_settings(path), lang=lang)
         p = web_settings_path(path)
@@ -149,8 +149,8 @@ def set_lang(body, sid=None):
 
 
 def login_node(o=None):
-    """o: (oturum, profil yolu, sunucudaki kimlik) — verilmezse ana oyuncu (oturum())."""
-    # DarkOrbit.LoginNodeData alan türleri il2types.py ile doğrulandı (long/bool/Uri/ServerInfo/Hangars)
+    """o: (session, profile path, id on the server) — if not given, the main player (session())."""
+    # the field types of DarkOrbit.LoginNodeData were verified with il2types.py (long/bool/Uri/ServerInfo/Hangars)
     now = int(time.time())
     sid, path, uid = o or (SESSION, None, int(UID) if UID else None)
     user_id, ship, map_id, use2d = profile(path)
@@ -166,21 +166,21 @@ def login_node(o=None):
         'itemXmlHash': '1', 'eventStreamContext': '', 'resourcesXmlHash': '1', 'allowChat': 0, 'nextAction': 'internalWebGL',
         'requestScheme': 'http', 'resources3dparticlesXmlHash': '1', 'cdn': BASE, 'resourceEventsXmlHash': '1',
         'gameclientAllowedInitDelay': 0, 'gameclientPath': 'spacemap/', 'helpLink': BASE, 'basePath': 'spacemap',
-        # serverInfo: istemci (GameLoadingManager.StartGame) saati "h:mm tt / hh:mm tt / H:mm / HH:mm", tarihi "dd.MM.yyyy" ile
-        # ayrıştırıp oyun saatini kuruyor; saniyeli saat ve ISO tarih ayrıştırılamıyor, HUD saati her girişte 08:47'den başlıyordu
-        # (canlı test N1 -> H78)
+        # serverInfo: the client (GameLoadingManager.StartGame) parses the time as "h:mm tt / hh:mm tt / H:mm / HH:mm" and the date as "dd.MM.yyyy"
+        # and sets the game time; a time with seconds and an ISO date cannot be parsed, the HUD time started from 08:47 on every login
+        # (live test N1 -> H78)
         'fullscreen': 0, 'serverInfo': {'timeStamp': now, 'serverDate': time.strftime('%d.%m.%Y'), 'instanceName': 'Local',
                                         'serverTime': time.strftime('%H:%M')},
-        # display2d: istemci her girişte 2D/3D kipini buradan kurar (GameLoadingManager.UpdateWebData -> Settings, 1 = 3D, 2 = 2D;
-        # yerel force2D ile aynı kodlama). Hep 1 gidiyordu: ayarlarda 2D seçilip yeniden girilince 3D açılıyordu (canlı test H73,
-        # kullanıcı bildirimi). Seçim oyun sunucusunda DisplaySettingsRequest.displayUse2d ile profile yazılıyor
+        # display2d: the client sets the 2D/3D mode from here on every login (GameLoadingManager.UpdateWebData -> Settings, 1 = 3D, 2 = 2D;
+        # the same encoding as local force2D). It always went as 1: choosing 2D in the settings and re-entering opened 3D (live test H73,
+        # user report). The choice is written to the profile on the game server with DisplaySettingsRequest.displayUse2d
         'sharedImages': BASE + 'do_img/', 'display2d': 2 if use2d else 1, 'resourceachievementsXmlHash': '1', 'loadingClaim': '',
         'resources3dXmlHash': '1', 'hangars': {'data': {'faction': '1', 'hangars': [hangar]}}, 'autoStartEnabled': 1,
         'boardLink': BASE, 'crossdomainHash': '1', 'userProfileImage': '',
     }
 
 
-INFO = {      # Ayarlar -> Support / Hesap Merkezi … (resmî forum 127724, 150766): resmî sitelerin yerine yerel bilgi sayfası (uyarlama)
+INFO = {      # Settings -> Support / Account Center ... (official forum 127724, 150766): a local info page in place of the official sites (adaptation)
     'forum': ('Forum', 'Bu yerel sunucunun forumu yok. Oyun kuralları ve açıklamalar için belgeler/forum_tr klasörüne bak.'),
     'help': ('Yardım', 'Oyun içi yardım için panelin "Nasıl Oynanır" bölümüne bak.'),
     'credits': ('Emeği geçenler', 'OpenOrbit: tek oyunculu yerel sunucu.'),
@@ -202,15 +202,15 @@ def info_page(kind):
             'font-family:Verdana;padding:24px"><h2>%s</h2><p>%s</p></body></html>' % (title, title, text))
 
 
-_browser = {}                          # ek oturum -> tarayıcının internalWebGL'e geldiği an (login.php'si henüz gelmedi)
+_browser = {}                          # extra session -> the moment the browser came to internalWebGL (its login.php has not come yet)
 BROWSER_SEC = 10
 
 
 def request_session(h, entry=False):
-    """login.php ve setLang.php'nin oturumu: PHPSESSID çerezi. İstemci çerezi gömülü tarayıcının deposundan okuyor; istemciler aynı
-    tarayıcı klasörünü paylaştığından (Vuplex chromium-cache) ek istemcide okuma ara sıra boş dönüyor, tarayıcının kendi isteği çerezi
-    taşısa da: ek istemci ana oyuncu olarak giriyordu (canlı test 2026-10-30). Çerez boşsa son TARAYICI_SN içinde internalWebGL'e gelip
-    henüz giriş yapmamış ek oturum (giris: login.php, eşleşen kayıt düşer)."""
+    """The session of login.php and setLang.php: the PHPSESSID cookie. The client reads the cookie from the embedded browser's storage; because the clients share the same
+    browser folder (Vuplex chromium-cache), on an extra client the read occasionally comes back empty, even if the browser's own request carried
+    the cookie: the extra client was entering as the main player (live test 2026-10-30). If the cookie is empty, the extra session that came to internalWebGL within the last BROWSER_SEC and
+    has not logged in yet (login: login.php, the matching record drops)."""
     sid, now = cookie(h, 'PHPSESSID'), time.time()
     with lock:
         if not sid:
@@ -222,11 +222,11 @@ def request_session(h, entry=False):
 
 
 def login(sid=None):
-    """sid: isteğin PHPSESSID çerezi (ek istemcinin oturumu ya da ana oyuncununki)."""
+    """sid: the request's PHPSESSID cookie (the extra client's session or the main player's)."""
     o = session(sid)
-    if o is None:                       # bilinmeyen ek oturum (sunucu yeniden başladı, istemci panelden açılmadı): ana oyuncu değil
+    if o is None:                       # unknown extra session (the server restarted, the client was not opened from the panel): not the main player
         return {'success': 0, 'message': 'Session expired: close this game client and open it again from the DarkOrbit panel.'}
-    # LoginDataNew { [JsonProperty("data")] string LoginData } -> içindeki JSON metni LoginNodeData olarak ikinci kez ayrıştırılır
+    # LoginDataNew { [JsonProperty("data")] string LoginData } -> the JSON text inside is parsed a second time as LoginNodeData
     n = login_node(o)
     return dict(n, success=1, message='', data=json.dumps(n), loginData=json.dumps(n))
 
@@ -236,7 +236,7 @@ _MAP_IDS = None
 
 
 def maps_xml():
-    # Harita kimlikleri istemcinin kendi maps-config.xml dosyasından (Unity paketinden çıkarıldı)
+    # Map ids from the client's own maps-config.xml (extracted from the Unity package)
     global _MAP_IDS
     if _MAP_IDS is None:
         import re
@@ -249,10 +249,10 @@ def maps_xml():
     return '<?xml version="1.0" encoding="UTF-8"?><maps>' + body + '</maps>'
 
 
-# Kapı penceresinin "ödüller" rehberi (istemci: UIGalaxyGatesSystem.LoadXmlDataGate -> GalaxyGatesRewardInfo). Kök öğenin her
-# çocuğu bir kapı (name = kapının istemcideki adı: alpha … hades, streuner), içindeki item'lar: id = lootId, chance = olasılık
-# sınıfı 1-5 ("dispatch_tooltip_description_dropChance-N": çok düşük … çok yüksek), min = adet (simge kademesi). Değerler
-# data/kapilar.json'un tamamlama ödülleri (oyunun kendi değerleri; panelin çarpanları uygulanmaz).
+# The Gate window's "rewards" guide (client: UIGalaxyGatesSystem.LoadXmlDataGate -> GalaxyGatesRewardInfo). Each child of the root element
+# is a gate (name = the gate's name in the client: alpha ... hades, streuner), the items inside: id = lootId, chance = probability
+# class 1-5 ("dispatch_tooltip_description_dropChance-N": very low ... very high), min = count (icon tier). The values are the completion rewards in
+# data/gates.json (the game's own values; the panel's multipliers are not applied).
 GATE_LOOT = {'xenomit': 'resource_ore_xenomit', 'log_disk': 'resource_logfile', 'voucher': 'resource_repairvoucher',
              'energy': 'resource_extra-energy', 'abr': 'resource_collectable_axion-beam-regulator',
              'schism': 'resource_collectable_schism', 'green_key': 'resource_booty-key'}
@@ -264,7 +264,7 @@ def chance_class(p):
 
 def gate_rewards_xml():
     from xml.sax.saxutils import quoteattr
-    import game_data as DATA          # seçili dünyanın kapıları (OO_WORLD)
+    import game_data as DATA          # the selected world's gates (OO_WORLD)
     try:
         gates = DATA.load('gates.json')['kapilar']
     except (OSError, ValueError, KeyError):
@@ -278,13 +278,13 @@ def gate_rewards_xml():
         rows += [(GATE_LOOT[k], R.get(k, 0), 1.0) for k in ('xenomit', 'log_disk', 'voucher', 'energy')]
         rows += [(GATE_LOOT.get(k, k), n, 1.0) for k, n in sorted((R.get('booty') or {}).items())]
         for s in R.get('chance', []):
-            if s.get('item') == 'ore_pack':        # forum 129125: kapının cevher paketi, kalemleri ağırlığıyla
+            if s.get('item') == 'ore_pack':        # forum 129125: the gate's ore pack, its items by weight
                 rows += [(loot, n[0], s.get('probability', 0) * w) for loot, n, w in s['package']]
                 continue
             opts = s.get('options') if s.get('item') == 'design_choice' else [s.get('item')]
             rows += [(loot, s.get('count', 1), s.get('probability', 0) / max(1, len(opts))) for loot in opts or []]
-            # Diametrion'la birlikte gelen üç kaynaktan biri (kapi.finish 'birlikte'): rehberin "min" alanı en az miktar (70-80 ve 8-14 gibi
-            # aralıklar yazılamaz), şans sınıfı üçe bölünmüş olasılıktan
+            # one of the three resources that come with Diametrion (gate.finish 'together'): the guide's "min" field is the minimum amount (ranges like 70-80 and 8-14 cannot be
+            # written), the chance class from the probability split three ways
             rows += [(loot, n[0] if isinstance(n, list) else n, s.get('probability', 0) / len(s['together'])) for loot, n in s.get('together', [])]
         items = ''.join('<item id=%s chance="%d" min="%d"/>' % (quoteattr(loot), chance_class(p), n) for loot, n, p in rows
                         if loot and n)
@@ -295,14 +295,14 @@ def gate_rewards_xml():
 def galaxy_trek_xml(kind):
     here = os.path.dirname(os.path.abspath(__file__))
     if here not in sys.path:
-        sys.path.insert(0, here)          # -I ile çalışınca betiğin klasörü yolda değil
+        sys.path.insert(0, here)          # with -I the script's folder is not on the path
     import galaxy_trek as GTR
     return GTR.planets_xml() if kind == 'planet' else GTR.rewards_xml()
 
 
 ROUTES = {
     '/spacemap/xml/maps.php': lambda h: ('text/xml', maps_xml()),
-    '/unityApi/events/spaceSearch.php': lambda h: ('text/xml;charset=UTF-8', galaxy_trek_xml('planet')),    # Galaxy Trek (Ö3)
+    '/unityApi/events/spaceSearch.php': lambda h: ('text/xml;charset=UTF-8', galaxy_trek_xml('planet')),    # Galaxy Trek (stage 3)
     '//unityApi/events/spaceSearch.php': lambda h: ('text/xml;charset=UTF-8', galaxy_trek_xml('planet')),
     '/unityApi/events/ssRewards.php': lambda h: ('text/xml;charset=UTF-8', galaxy_trek_xml('reward')),
     '//unityApi/events/ssRewards.php': lambda h: ('text/xml;charset=UTF-8', galaxy_trek_xml('reward')),
@@ -310,18 +310,18 @@ ROUTES = {
     '/unityApi/links.php': lambda h: ('application/json', json.dumps(links())),
     '/unityApi/login.php': lambda h: ('application/json', json.dumps(login(request_session(h, entry=True)))),
     '/unityApi/setLang.php': lambda h: set_lang(h.body, request_session(h)),
-    '/unityApi/agent.php': lambda h: ('text/plain', ''),          # istemcinin olay izleme bildirimi (ör. Unity_ChangeLanguagetr)
+    '/unityApi/agent.php': lambda h: ('text/plain', ''),          # the client's event-tracking notification (e.g. Unity_ChangeLanguagetr)
 }
 
 CDN_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cdn')
 CDN_TYPES = {'.xml': 'application/xml', '.php': 'text/xml;charset=UTF-8', '.png': 'image/png', '.jpg': 'image/jpeg',
              '.jpeg': 'image/jpeg', '.gif': 'image/gif', '.webp': 'image/webp', '.json': 'application/json', '.webm': 'video/webm'}
-CDN_OFFICIAL = 'https://darkorbit-22.bpsecure.com/'      # oyunun görselleri (Bigpoint'in) depoda yok: ilk istenişte buradan
-cdn_missing = set()                                    # inmeyenler (internet yok, resmî CDN'de yok): yeniden denenmez
+CDN_OFFICIAL = 'https://darkorbit-22.bpsecure.com/'      # the game's images (Bigpoint's) are not in the repo: from here on the first request
+cdn_missing = set()                                    # those that cannot be downloaded (no internet, not on the official CDN): not retried
 
 
 def cdn_fetch(rel, p):
-    """Yerelde olmayan oyun görseli (do_img/) resmî CDN'den bir kez indirilip saklanır; olmazsa False (istemci görselsiz)."""
+    """A game image (do_img/) not available locally is downloaded once from the official CDN and kept; False if it fails (the client shows no image)."""
     if not rel.startswith('do_img/') or rel in cdn_missing:
         return False
     try:
@@ -329,7 +329,7 @@ def cdn_fetch(rel, p):
             data = r.read()
     except Exception as e:
         cdn_missing.add(rel)
-        log('unknown.log', 'CDN indirilemedi: %s (%s)' % (rel, e))
+        log('unknown.log', 'CDN download failed: %s (%s)' % (rel, e))
         return False
     os.makedirs(os.path.dirname(p), exist_ok=True)
     with open(p + '.part', 'wb') as fh:
@@ -339,8 +339,8 @@ def cdn_fetch(rel, p):
 
 
 def cdn_file(base):
-    """İstemcinin CDN isteği yerel kopyada varsa (oyunun görselleri ilk istenişte resmî CDN'den iner) -> (içerik türü, baytlar)."""
-    rel = base.replace('\\', '/').lstrip('/')     # Windows'ta ters eğik çizgili '..' ile CDN klasörünün dışına çıkılmasın
+    """If the client's CDN request is in the local copy (the game's images are downloaded from the official CDN on first request) -> (content type, bytes)."""
+    rel = base.replace('\\', '/').lstrip('/')     # so a backslash '..' on Windows cannot escape the CDN folder
     while '//' in rel:
         rel = rel.replace('//', '/')
     if not rel or '..' in rel.split('/'):
@@ -352,11 +352,11 @@ def cdn_file(base):
 
 
 def redirect_page(sid=None):
-    """Gömülü tarayıcının ilk sayfası: oturum çerezi ve oyun girişine yönlendirme (sid: ek istemcinin ?session= anahtarı; bilinmeyen
-    anahtarda uyarı, ana oyuncuya düşmez). Kayıtlı giriş dili varsa önce istemciye
-    "Unity_ChangeLanguage<dil>" mesajı gider: istemci sayfanın konsol iletilerini dinliyor (GameLoadingManager.UpdateMessage,
-    ConsoleMessageLogged -> UpdateWebData: WebGlData.message -> Settings.Language). İstemcinin öteki dil kaynağı tarayıcının lang çerezi (OpenWebLogin) ama tarayıcı her açılışta çerezsiz
-    başlıyor ve istemcinin çerez okuması boş dönüyor; web girişinin lang alanını da kullanmıyor (canlı test H88)."""
+    """The embedded browser's first page: the session cookie and the redirect to the game login (sid: the extra client's ?session= key; a warning
+    on an unknown key, it does not fall to the main player). If there is a saved login language, the client first gets the message
+    "Unity_ChangeLanguage<lang>": the client listens to the page's console messages (GameLoadingManager.UpdateMessage,
+    ConsoleMessageLogged -> UpdateWebData: WebGlData.message -> Settings.Language). The client's other language source is the browser's lang cookie (OpenWebLogin) but the browser
+    starts without cookies on every start and the client's cookie read comes back empty; it does not use the web login's lang field either (live test H88)."""
     o = session(sid) if sid else (SESSION, None, None)
     if o is None:
         return ('<!doctype html><html><body style="background:#000;color:#f96;font-family:Verdana">Bu istemcinin oturumu sunucuda '
@@ -400,14 +400,14 @@ class H(BaseHTTPRequestHandler):
             ctype, out = 'text/plain', o[0] if o else 'gecersiz'
         elif cdn_file(base):
             ctype, out = cdn_file(base)
-        else:                    # istemcinin bilinen uçları yukarıda; bilinmeyen istek boş 200 yerine 404 (http.log'da görünür)
+        else:                    # the client's known endpoints are above; an unknown request gets 404 instead of an empty 200 (visible in http.log)
             ctype, out, status = 'text/plain', '', 404
             log('unknown.log', '%s :%d %s body=%r' % (self.command, port, self.path, body[:500]))
         out = out.encode('utf8') if isinstance(out, str) else out
         log('http.log', '%s :%d %s cookie=%s body=%r -> %d, %d bytes %s' % (self.command, port, self.path, self.headers.get('Cookie'), body[:300], status, len(out), out[:160]))
         self.send_response(status)
         self.send_header('Content-Type', ctype)
-        self.send_header('X-Custom-Header', 'DarkOrbitUnity')   # GetPost bu başlık olmadan girişi reddediyor
+        self.send_header('X-Custom-Header', 'DarkOrbitUnity')   # GetPost rejects the login without this header
         self.send_header('Content-Length', str(len(out)))
         self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
@@ -420,13 +420,13 @@ class H(BaseHTTPRequestHandler):
 
 
 class Server(ThreadingHTTPServer):
-    filtered = False                         # macOS'ta 0.0.0.0'da açılan düşük port: yalnız bu bilgisayar (uyum.dinleme_adresi)
+    filtered = False                         # a low port opened on 0.0.0.0 on macOS: only this computer (compat.listen_address)
 
     def verify_request(self, request, client_address):
         return not self.filtered or CP.is_local(client_address[0])
 
     def handle_error(self, request, client_address):
-        """İstemcinin kopardığı bağlantıda http.server'ın yığın dökümü (stderr) yerine errors.log'a tek satır."""
+        """On a connection the client dropped, a single line in errors.log instead of http.server's stack dump (stderr)."""
         log('errors.log', 'http %s: %r' % (client_address[0], sys.exc_info()[1]))
 
 
@@ -467,13 +467,13 @@ def serve_tcp(port):
         threading.Thread(target=rd, daemon=True).start()
 
 
-if __name__ == '__main__':          # içe aktarınca (testler) sunucu açılmaz
+if __name__ == '__main__':          # when imported (tests) the server does not start
     import paths as _paths
-    if _paths.MIGRATION_ERROR:      # kayıtlar yeni biçime taşınamadı: eski biçimle yarım açılmaz
+    if _paths.MIGRATION_ERROR:      # the saves could not be moved to the new format: not half-started with the old format
         sys.exit('save migration failed: %s' % _paths.MIGRATION_ERROR)
     for p in (80, 8090):
         threading.Thread(target=serve_http, args=(p,), daemon=True).start()
-    for p in (843, 9339, 8082):         # 7771: yerel sohbet sunucusu oyun sürecinde (sohbet.py)
+    for p in (843, 9339, 8082):         # 7771: the local chat server is in the game process (chat.py)
         threading.Thread(target=serve_tcp, args=(p,), daemon=True).start()
     log('server.log', 'web started')
     while True:

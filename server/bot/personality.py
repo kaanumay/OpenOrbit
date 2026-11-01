@@ -1,8 +1,8 @@
-"""Botun kişiliği: kalıcı özellikler, arketip, oyun alışkanlığı, yazım üslubu, ad; dinamik ruh hâli ve kişilere karşı hafıza.
+"""A bot's personality: lasting traits, archetype, play habit, writing style, name; dynamic mood and memory of other people.
 
-Kadro paket oluşturulurken bir kez üretilir (kadro_uret, tohumlu ve belirlenimci): aynı paket her açılışta aynı botları verir.
-Özellikler 0-1 arası; arketip ortalamaları verir, her bota gürültü eklenir (aynı arketipten iki bot aynı değil). Karar motoru
-(brain.py) hedefleri bu özelliklerle ve ruh hâliyle puanlar.
+The roster is generated once when the pack is created (generate_roster, seeded and deterministic): the same pack gives the same bots on
+every start. Traits are 0-1; the archetype gives the averages and noise is added per bot (two bots of one archetype are never identical).
+The decision engine (brain.py) scores goals with these traits and the mood.
 """
 import math, random, re, time
 
@@ -11,8 +11,8 @@ from . import name_style as NS
 TRAITS = ('aggression', 'rekabet', 'sociability', 'patience', 'risk', 'loyalty', 'helpfulness', 'talkativeness', 'frugality',
               'ambition')
 
-# arketip -> (nüfustaki payı, özellik ortalamaları, açıklama). Paylar gerçek bir sunucunun kabaca dağılımı: çoğunluk uzaylı kasar,
-# az sayıda avcı ve lider; "rahat" oyuncular haftada birkaç saat girip yavaş ilerler.
+# archetype -> (share of the population, trait averages, description). The shares roughly follow a real server's distribution: most
+# players grind aliens, a few are hunters and leaders; "casual" players log in for a few hours a week and progress slowly.
 ARCHETYPES = {
     'grinder':  (0.27, dict(aggression=.35, rekabet=.50, sociability=.35, patience=.85, risk=.30, loyalty=.60, helpfulness=.50,
                            talkativeness=.30, frugality=.60, ambition=.75), 'PvE kasıcı'),
@@ -30,11 +30,11 @@ ARCHETYPES = {
                            talkativeness=.75, frugality=.60, ambition=.85), 'leader'),
 }
 
-# arketipin oyuna ayırdığı zaman (çevrimiçi olma eğilimi çarpanı) ve oynarken verimi (dikkat, optimizasyon)
+# the time the archetype gives the game (online-tendency multiplier) and its efficiency while playing (attention, optimization)
 ACTIVITY = {'grinder': (1.3, 1.15), 'hunter': (1.2, 1.0), 'social': (1.0, 0.8), 'trader': (0.9, 0.95), 'quester': (1.0, 1.0),
             'casual': (0.55, 0.7), 'leader': (1.3, 1.0)}
 
-# oyun alışkanlığı: saat -> çevrimiçi olma eğilimi (0-1) ve oturum uzunluğu (dakika, en az-en çok)
+# play habit: hour -> online tendency (0-1) and session length (minutes, min-max)
 HABITS = {
     'evening':   (0.40, [0.15] * 7 + [0.2] * 5 + [0.3] * 5 + [0.8] * 5 + [0.5] * 2, (40, 150)),
     'night_owl': (0.20, [0.7] * 4 + [0.2] * 8 + [0.25] * 6 + [0.5] * 3 + [0.85] * 3, (60, 240)),
@@ -44,19 +44,19 @@ HABITS = {
 
 EMOTIONS = ('anger', 'morale', 'boredom', 'fatigue', 'confidence')
 EMOTION_BASELINE = dict(anger=0.0, morale=0.6, boredom=0.0, fatigue=0.0, confidence=0.5)
-EMOTION_DECAY_SEC = dict(anger=600, morale=1800, boredom=900, fatigue=1e9, confidence=1200)    # dengeye dönüş süresi (yarı ömür)
+EMOTION_DECAY_SEC = dict(anger=600, morale=1800, boredom=900, fatigue=1e9, confidence=1200)    # time to return to baseline (half-life)
 
 
 def clamp(v, a=0.0, b=1.0):
     return a if v < a else b if v > b else v
 
 
-# ------------------------------------------------------------------------------------------------------------ adlar
+# ------------------------------------------------------------------------------------------------------------ names
 _LEET = {'a': '4', 'e': '3', 'i': '1', 'o': '0', 's': '5', 't': '7'}
 _NUMBERS = ('1', '7', '13', '23', '34', '35', '06', '16', '41', '42', '61', '69', '77', '88', '99', '007', '123', '1903', '1905',
             '1907', '1453', '2000', '2003', '2005', '2010', '666', '777', '1923', '01', '07', '27', '33', '38', '55', '21')
-NAME_PATTERN = re.compile(r'^[^\x00-\x20/|<>\\"\x7f\u200b-\u200f\u2028\u2029]{3,20}$')   # gerçek sunucular gibi süslü adlar
-#                                                  (ad_uslup.py); boşluk, / | < > \ " ve görünmez karakterler yok
+NAME_PATTERN = re.compile(r'^[^\x00-\x20/|<>\\"\x7f\u200b-\u200f\u2028\u2029]{3,20}$')   # fancy names like on real servers
+#                                                  (name_style.py); no spaces, / | < > \ " or invisible characters
 
 
 def _leet(s, r, ratio):
@@ -64,8 +64,8 @@ def _leet(s, r, ratio):
 
 
 def generate_name(r, lang='mixed'):
-    """Gerçek bir MMO sunucusundaki kullanıcı adlarına benzeyen ad, dilin kendi adlarıyla (bot/languages/<kod>.json adlar: parçalar
-    ve ağırlıklı desenler; 'karisik': dosyaların ağırlığıyla bir dil)."""
+    """A name that resembles usernames on a real MMO server, built from the language's own names (bot/languages/<code>.json names: parts
+    and weighted patterns; 'mixed': a language picked by the files' weights)."""
     from .language_data import LANGUAGES, pick_mixed
     d = LANGUAGES.get(lang) or LANGUAGES[pick_mixed(r)]
     a = d['names']
@@ -76,7 +76,7 @@ def generate_name(r, lang='mixed'):
 
 
 def _part(name, parts, r):
-    """Desen alanı: {entries}, {liste_k} küçük, {a|b} iki listeden, {liste?} yarı yarıya boş, {leet:liste}."""
+    """Pattern fields: {entries}, {list_k} lowercase, {a|b} from two lists, {list?} empty half the time, {leet:list}."""
     leet = name.startswith('leet:')
     name = name[5:] if leet else name
     empty = name.endswith('?')
@@ -91,54 +91,54 @@ def _part(name, parts, r):
     return s.lower() if lower else s
 
 
-# ------------------------------------------------------------------------------------------------------------ kadro
+# ------------------------------------------------------------------------------------------------------------ roster
 def _choice(r, table):
-    """{anahtar: (pay, ...)} ya da {anahtar: pay} -> paya göre bir anahtar."""
+    """{key: (share, ...)} or {key: share} -> a key picked by share."""
     ks = list(table)
     ws = [table[k][0] if isinstance(table[k], tuple) else table[k] for k in ks]
     return r.choices(ks, ws)[0]
 
 
 def generate_personality(r, archetype=None, lang='tr'):
-    """Bir botun kalıcı kişiliği: arketip, özellikler (ortalama + gürültü), alışkanlık, üslup, sohbet dili."""
+    """A bot's lasting personality: archetype, traits (average + noise), habit, style, chat language."""
     a = archetype or _choice(r, ARCHETYPES)
     avg = ARCHETYPES[a][1]
     traits = {k: round(clamp(r.gauss(avg[k], 0.14), 0.02, 0.98), 2) for k in TRAITS}
     take = _choice(r, HABITS)
     talk = traits['talkativeness']
     style = dict(
-        lowercase=round(clamp(r.gauss(0.6, 0.25)), 2),       # her şeyi küçük harfle yazar
-        punctuation=round(clamp(r.gauss(0.3, 0.25)), 2),        # cümle sonu noktalama
+        lowercase=round(clamp(r.gauss(0.6, 0.25)), 2),       # writes everything in lowercase
+        punctuation=round(clamp(r.gauss(0.3, 0.25)), 2),        # end-of-sentence punctuation
         abbreviation=round(clamp(r.gauss(0.5, 0.25)), 2),         # "slm", "nbr", "tmm", "gg", "np"
         emoji=round(clamp(r.gauss(0.3 + talk * 0.2, 0.2)), 2),  # ":D", "xD", "^^"
-        error=round(clamp(r.gauss(0.08, 0.06), 0, 0.3), 2),    # yazım hatası
-        uppercase=round(clamp(r.gauss(0.05 + traits['aggression'] * 0.1, 0.05), 0, 0.4), 2),   # BAĞIRIR
+        error=round(clamp(r.gauss(0.08, 0.06), 0, 0.3), 2),    # typo
+        uppercase=round(clamp(r.gauss(0.05 + traits['aggression'] * 0.1, 0.05), 0, 0.4), 2),   # SHOUTS
     )
     return dict(archetype=a, traits=traits, habit=take, style=style, lang=lang,
-                reaction_sec=round(clamp(r.gauss(0.9, 0.35), 0.35, 2.0), 2))   # insan tepki süresi (sn): somut savaşta gecikme
+                reaction_sec=round(clamp(r.gauss(0.9, 0.35), 0.35, 2.0), 2))   # human reaction time (s): delay in concrete combat
 
 
 def generate_roster(seed, count, company_distribution=(1, 1, 1), lang='mixed', existing=(), name_lang=None, special=(), pool=None):
-    """Paketin kadrosu: [{no, ad, firma, kisilik}]. firma_dagilimi: (MMO, EIC, VRU) ağırlıkları. mevcut: kullanılmış adlar
-    (büyük/küçük harf ayrımsız; oyuncunun ve başka botların adlarıyla çakışmasın). Aynı tohum ve girdi aynı kadroyu verir.
-    ad_dili: adların dili ('karisik': dosyaların ağırlığıyla); dil: sohbet dili ('karisik': her bot adının dilinde konuşur).
-    ozel: kullanıcının kendi botları [{ad, firma?, arketip?, dil?}] (oyuncu isteği 2026-10-30): kadronun başında, verilmeyen
-    alanları ötekiler gibi üretilir; firması verilen, dağılımdaki o firmanın bir yerini alır.
-    havuz: gerçek oyuncu adları {lang: [ad]} (bot/dostats.py): adlar önce oradan, bitince üretilir."""
+    """The pack's roster: [{no, name, company, personality}]. company_distribution: (MMO, EIC, VRU) weights. existing: names already used
+    (case-insensitive; must not collide with the player's and other bots' names). Same seed and input give the same roster.
+    name_lang: language of the names ('mixed': by the files' weights); lang: chat language ('mixed': each bot speaks the language of its name).
+    special: the user's own bots [{name, company?, archetype?, lang?}] (player request 2026-10-30): at the head of the roster, missing
+    fields are generated like the others; one with a company takes a slot of that company in the distribution.
+    pool: real player names {lang: [name]} (bot/dostats.py): names come from there first, then are generated once it runs out."""
     from .language_data import LANGUAGES, pick_mixed
     name_lang = name_lang or lang
     r = random.Random(seed)
     used = {str(a).lower() for a in existing}
     special = [o for o in special if str(o['name']).lower() not in used][:count]
     total = sum(company_distribution) or 1
-    # firmaları paylara göre tam sayıya böl (en büyük kalan), sonra karıştır: dağılım küçük kadroda da tutar
+    # split the companies into whole numbers by share (largest remainder), then shuffle: the distribution holds even in a small roster
     shares = [count * f / total for f in company_distribution]
     number = [int(p) for p in shares]
     for i in sorted(range(3), key=lambda i: shares[i] - number[i], reverse=True)[:count - sum(number)]:
         number[i] += 1
     companies = [f + 1 for f in range(3) for _ in range(number[f])]
     r.shuffle(companies)
-    for o in special:                                   # firması verilen özel bot o firmanın bir yerini alır
+    for o in special:                                   # a special bot with a company takes a slot of that company
         if o.get('company') in companies:
             companies.remove(o['company'])
     remaining = iter(companies)
@@ -147,7 +147,7 @@ def generate_roster(seed, count, company_distribution=(1, 1, 1), lang='mixed', e
         o = special[no - 1] if no <= len(special) else {}
         firma = o.get('company') or next(remaining, None) or r.randint(1, 3)
         name_langs = name_lang if name_lang in LANGUAGES else pick_mixed(r)
-        chat = o.get('lang') or (lang if lang in LANGUAGES else name_langs)          # karışık: adı Almanca olan Almanca konuşur
+        chat = o.get('lang') or (lang if lang in LANGUAGES else name_langs)          # mixed: a bot with a German name speaks German
         real = [x for x in (pool or {}).get(name_langs) or [y for v in (pool or {}).values() for y in v]
                   if x.lower() not in used and NS.is_case_safe(x)]
         if o:
@@ -164,14 +164,14 @@ def generate_roster(seed, count, company_distribution=(1, 1, 1), lang='mixed', e
         used.add(name.lower())
         x = dict(no=no, name=name, company=firma, personality=dict(generate_personality(r, archetype=o.get('archetype'), lang=chat), name_lang=o.get('lang') or name_langs))
         if o:
-            x['special'] = True                             # kullanıcının botu (panel: Kadro'da işaretli)
+            x['special'] = True                             # the user's bot (marked in the panel's Roster)
         out.append(x)
     return out
 
 
-# ------------------------------------------------------------------------------------------------------------ ruh hâli
+# ------------------------------------------------------------------------------------------------------------ mood
 class Mood:
-    """Dinamik duygular (0-1): olaylar iter, zamanla dengeye döner (üstel sönüm). Kalıcı kayıtta sözlük olarak durur."""
+    """Dynamic emotions (0-1): events push them, over time they return to baseline (exponential decay). Stored as a dict in the save."""
     __slots__ = ('d', 't')
 
     def __init__(self, d=None, t=None):
@@ -199,27 +199,27 @@ class Mood:
         return {k: round(v, 3) for k, v in self.d.items()}
 
 
-# ------------------------------------------------------------------------------------------------------------ hafıza
-EVENTS = {          # olay -> ilişkiye etkisi
+# ------------------------------------------------------------------------------------------------------------ memory
+EVENTS = {          # event -> effect on the relationship
     'killed_me': -0.35, 'i_killed': -0.05, 'helped_me': 0.25, 'i_helped': 0.1, 'sohbet': 0.03, 'insult': -0.2,
     'praise': 0.12, 'group': 0.08, 'clan': 0.1, 'friend': 0.2, 'reddetti': -0.08, 'hunted_together': 0.05,
-    'gossip_good': 0.06, 'gossip_bad': -0.08,          # başka bottan duyulan (ani.duydu)
+    'gossip_good': 0.06, 'gossip_bad': -0.08,          # heard from another bot (memories.hear_gossip)
 }
 
 
 class Memory:
-    """Kişilere karşı ilişki (-1 kin .. 1 dostluk) ve olay sayıları. Kayıtta {ad_kucuk: {d, n: {incident: sayı}, s: son an}}.
-    Uzun süre görülmeyen ilişki yavaşça sıfıra döner (unutma); en çok HAFIZA_EN_COK kişi tutulur (en eskisi düşer)."""
+    """Relationship toward people (-1 grudge .. 1 friendship) and event counts. In the save: {lowercase name: {d, n: {incident: count}, s: last time}}.
+    A relationship not seen for a long time slowly returns to zero (forgetting); at most MAX_COUNT people are kept (the oldest drops)."""
     MAX_COUNT = 60
     FORGET_SEC = 6 * 3600
 
     def __init__(self, d=None):
         self.d = d if d is not None else {}
-        self.listener = None                # (ad, tür, an) -> olay kancası: güçlü sağlayıcıda anı defteri (ani.olaydan; yönetici bağlar)
+        self.listener = None                # (name, kind, time) -> event hook: the memory journal on the strong provider (memories; the manager binds it)
 
     def event(self, name, kind, now=None, multiplier=1.0):
         if not str(name or '').strip():
-            return 0.0                                     # kimliği bilinmeyen (adsız) biri: hatırlanacak kimse yok
+            return 0.0                                     # someone with an unknown identity (nameless): nobody to remember
         now = now or time.time()
         k = str(name).lower()
         e = self.d.setdefault(k, {'d': 0.0, 'n': {}, 's': now, 'name': str(name)})
@@ -257,8 +257,8 @@ class Memory:
 
 
 def timezone(personality):
-    """Botun saat dilimi farkı (saat): çoğu sunucunun saatinde, bir kısmı komşu ülkelerde, azı uzakta. Kişilikte yoksa adından
-    (eski kayıtlar için kalıcı ve belirlenimci). Herkes aynı saatte yaşasaydı gece sunucu bomboş, akşam tıklım tıklım olurdu."""
+    """The bot's time-zone offset (hours): most are on the server's time, some in neighboring countries, a few far away. If missing from the
+    personality, derived from its name (permanent and deterministic for old saves). If everyone lived on the same time, the server would be empty at night and packed in the evening."""
     d = personality.get('timezone_offset')
     if d is None:
         import zlib
@@ -269,7 +269,7 @@ def timezone(personality):
 
 
 def taste(personality):
-    """Botun kalıcı gemi zevki (gemi ailesi): herkes aynı gemiye yakınsamasın. Kişilikte yoksa adından (eski kayıtlar)."""
+    """The bot's lasting ship taste (ship family): so not everyone converges on the same ship. If missing from the personality, derived from its name (old saves)."""
     z = personality.get('taste')
     if z is None:
         import zlib
@@ -279,7 +279,7 @@ def taste(personality):
 
 
 def online_tendency(personality, hour):
-    """Alışkanlığa ve arketipe göre bu saatte (0-23; botun kendi saat diliminde) çevrimiçi olma eğilimi."""
+    """Online tendency at this hour (0-23; in the bot's own time zone) according to habit and archetype."""
     return HABITS[personality['habit']][1][int(hour + timezone(personality)) % 24] * ACTIVITY[personality['archetype']][0]
 
 
@@ -289,7 +289,7 @@ def session_min(personality, r=random):
 
 
 def softmax_pick(scores, temperature, r=random):
-    """[(anahtar, puan)] -> sıcaklığa göre seçilen anahtar (sıcaklık küçükse hep en yüksek)."""
+    """[(key, score)] -> a key chosen by temperature (at a low temperature always the highest)."""
     if not scores:
         return None
     t = max(0.02, temperature)

@@ -1,17 +1,17 @@
-"""Klan emirleri (oyuncu isteği 2026-10-31): klanındaki botlara klan sohbetinden (ya da fısıltıyla) iş verirsin, gerçek bir klan gibi.
+"""Clan orders (player request 2026-10-31): you give the bots in your clan jobs from clan chat (or by whisper), like a real clan.
 
-  odak    "everyone farm / do quests / go pvp / do gates / sell ore", "herkes görev yapsın"   -> o işe 2 saat ağırlık (beyin niyeti)
-  git     "defend 4-4", "3 of you go to 2-4", "herkes 4-5'e"                               -> o haritaya gider, düşmanla dövüşür
-  gel     "come help me", "regroup", "recall", "yanıma gelin"                              -> senin haritana gelir
-  us      "defend our base / cbs / station"                                                -> klanın istasyonunun haritası (cbs.py)
-  al      "get lf-3", "buy iris", "sg3n-b02 alın"                                          -> onu biriktirip alır (alisveris birikim)
-  gemi    "use goliath", "fly vengeance", "goliath'a geçin"                               -> o gemiyi biriktirir, alınca uçar; zevki o olur
-  yapi    "full shield", "full speed", "balanced"                                          -> jeneratörleri kalkana/hıza dağıtır (kalkan_payi)
-  avla    "hunt Kaan", "x destroyed me, find them", "kill <ad>", "<ad>'i avlayın"            -> o kişiyi arar ve saldırır (30 dk)
-  klan_odak "focus [TAG]", "prioritize <klan>", "focus clan X over Y"                      -> 2 saat o klanın üyeleri kin gibi öncelik
-  dur     "stop", "dismissed", "serbest"                                                   -> emirler kalkar
-"N of you" / "3 kişi" sayısı: en sadık N bot. Uyma olasılığı sadakat, sana ilişki ve liderlik (lider sensen) ile; yorgun bot
-reddedebilir. Yanıt kısa kalıp (emir_tamam, emir_ret, geliyorum). İzin 'klan_emir'.
+  focus   "everyone farm / do quests / go pvp / do gates / sell ore", "herkes görev yapsın"   -> weight on that job for 2 hours (brain intent)
+  git     "defend 4-4", "3 of you go to 2-4", "herkes 4-5'e"                               -> goes to that map and fights the enemy
+  come    "come help me", "regroup", "recall", "yanıma gelin"                              -> comes to your map
+  us      "defend our base / cbs / station"                                                -> the map of the clan's station (cbs.py)
+  al      "get lf-3", "buy iris", "sg3n-b02 alın"                                          -> saves up for it and buys it (shopping savings)
+  ship    "use goliath", "fly vengeance", "goliath'a geçin"                                -> saves up for that ship, flies it once bought; it becomes their taste
+  structure "full shield", "full speed", "balanced"                                        -> distributes generators to shield/speed (shield_share)
+  hunt    "hunt Kaan", "x destroyed me, find them", "kill <name>", "<name>'i avlayın"      -> looks for that person and attacks (30 min)
+  clan_focus "focus [TAG]", "prioritize <clan>", "focus clan X over Y"                      -> for 2 hours that clan's members get priority like a grudge
+  halt    "stop", "dismissed", "serbest"                                                   -> orders are lifted
+The "N of you" / "3 kişi" count: the N most loyal bots. The chance of obeying depends on loyalty, relation to you and leadership (if you
+are the leader); a tired bot may refuse. The reply is a short template (order_done, order_refuse, coming). Permission 'clan_order'.
 """
 import re
 
@@ -65,9 +65,10 @@ _CLAN_AFTER = re.compile(r"\b(over|instead of|rather than|before|not|then|yerine
 
 
 def hunt_name(s, known=None, names=()):
-    """Av emrindeki kişi adı ("hunt Kaan", "x destroyed me, find them", "Kaan'ı avlayın") ya da None. bilinen(ad): öyle biri var mı
-    (olağan sohbet "herkes düşman avlasın" emir sanılmasın diye; verilmezse her ad kabul). adlar: çevrimiçi bilinen adlar; av fiili
-    varken metinde geçen en uzun ad (oyuncu adlarında #, *, (), boşluk, sembol olur: "#Platonik", "亗TÜRK亗"; canlı 2026-11-01)."""
+    """The person's name in a hunt order ("hunt Kaan", "x destroyed me, find them", "Kaan'ı avlayın") or None. known(name): is there
+    such a person (so that ordinary chat like "herkes düşman avlasın" is not taken for an order; if not given, any name is accepted).
+    names: the known online names; while a hunt verb is present, the longest name in the text (player names can contain #, *, (),
+    spaces, symbols: "#Platonik", "亗TÜRK亗"; live 2026-11-01)."""
     candidates = [m.group(1) for rx in (_HUNT_EN, _HUNT_TR) for m in rx.finditer(s)]
     verb = _HUNT_VERB.search(s) or _HUNT_PERSON_VERB.search(s)
     if _HUNT_VERB.search(s):
@@ -85,7 +86,7 @@ def hunt_name(s, known=None, names=()):
 
 
 def find_clan(s, own=None):
-    """Metinde geçen klan (etiket [TAG] ya da adı), "X over Y" ise X; kendi klanın hariç -> klan kaydı ya da None."""
+    """The clan mentioned in the text (tag [TAG] or name), or X for "X over Y"; your own clan excluded -> clan record or None."""
     import clan as KL
     after = _CLAN_AFTER.search(s)
     s = s[:after.start()] if after and after.start() > 2 else s
@@ -103,7 +104,7 @@ def find_clan(s, own=None):
 
 
 def _items():
-    """Kısa ad -> loot: "lf-3", "sg3n-b02", "iris", "goliath" (tasarımsız gemiler)."""
+    """Short name -> loot: "lf-3", "sg3n-b02", "iris", "goliath" (ships without a design)."""
     out = {}
     for group in ('lasers', 'shield_generators', 'speed_generators', 'drones'):
         for loot in K.ITEMS[group]:
@@ -126,11 +127,11 @@ def find_item(text):
 
 
 def parse(text, own_clan=None, known=None, names=()):
-    """Klan emri -> {'tur', 'harita'?, 'hedef'?, 'esya'?, 'yapi'?, 'sayi'?} ya da None (emir değil: olağan sohbet). kendi_klan: emri
-    verenin klanı (klan odağında hariç); bilinen: av emrindeki adın varlığını sınayan işlev (av_adi)."""
+    """Clan order -> {'type', 'map'?, 'target'?, 'item'?, 'structure'?, 'number'?} or None (not an order: ordinary chat). own_clan: the clan of
+    whoever gave the order (excluded in a clan focus); known: the function that checks the name in a hunt order exists (hunt_name)."""
     s = str(text or '')
     if s.rstrip().endswith('?'):
-        return None                                      # soru emir değil ("gates?" "kim kapı yapar?")
+        return None                                      # a question is not an order ("gates?" "kim kapı yapar?")
     m = _NUMBER.search(s)
     count = (int(m.group(1)) if m.group(1).isdigit() else _NUMBER_WORDS.get(m.group(1).lower())) if m else None
     e = {'number': count} if count else {}
@@ -141,7 +142,7 @@ def parse(text, own_clan=None, known=None, names=()):
     for name, rx in _LAYOUT:
         if rx.search(s):
             return dict(e, type='structure', structure=name)
-    item = find_item(s) if _BUY.search(s) or _SHIP_VERB.search(s) else None     # "nice goliath" emir değil
+    item = find_item(s) if _BUY.search(s) or _SHIP_VERB.search(s) else None     # "nice goliath" is not an order
     if item:
         return dict(e, type='ship' if item.startswith('ship_') else 'al', item=item)
     if _CLAN_FOCUS.search(s):
@@ -165,7 +166,7 @@ def parse(text, own_clan=None, known=None, names=()):
 
 
 def base_map(profile):
-    """Klanın kurulu (ya da kurulmakta olan) istasyonunun haritası ya da None."""
+    """The map of the clan's built (or being built) station, or None."""
     import cbs as CB
     import clan as KL
     k = KL.clan_of(profile)
@@ -187,7 +188,7 @@ def will_obey(b, name, leader, now):
 
 
 def apply(y, b, e, name, person, now):
-    """Bir botta emir -> (kalıp, alanlar). Uymadıysa ('emir_ret', {})."""
+    """An order on one bot -> (template, fields). If it does not obey: ('order_refuse', {})."""
     kind = e['type']
     if kind == 'halt':
         b.k['intent'] = None
@@ -203,11 +204,11 @@ def apply(y, b, e, name, person, now):
     if kind in ('al', 'ship'):
         if b.k['gear'].get('ship') == e['item']:
             return 'order_done', {}
-        b.k['savings'] = e['item']                      # alışveriş yalnız onu biriktirir (alisveris.aday)
+        b.k['savings'] = e['item']                      # shopping saves up only for that (shopping.candidate)
         b._candidates = None
         if kind == 'ship':
             family = e['item'][len('ship_'):].split('-')[0]
-            b.k['personality']['taste'] = family               # bundan sonra o gemi ailesini sever
+            b.k['personality']['taste'] = family               # from now on it likes that ship family
         b.k['order'] = {'type': kind, 'item': e['item'], 'who': name, 't': now}
         return 'order_done', {}
     if kind == 'focus':
@@ -220,9 +221,9 @@ def apply(y, b, e, name, person, now):
         if t is None or t[0].lower() == name.lower() or t[0].lower() == b.name.lower():
             return 'order_refuse', {}
         if t[1] == b.firma:
-            return 'duel_same', {}                    # kendi firmasına saldıramaz
+            return 'duel_same', {}                    # cannot attack its own company
         if t[3] is not None and t[3] == b.k.get('clan'):
-            return 'order_refuse', {}                       # klan arkadaşı
+            return 'order_refuse', {}                       # clan mate
         if not y.permission('pvp') or t[4] and not y.permission('attack_player') or b.level < (y.setting('pvp_level', 6) or 1):
             return 'order_refuse', {}
         b.k['hunt_order'] = {'name': t[0].lower(), 'end_time': now + HUNT_SEC, 'who': name}
@@ -254,7 +255,7 @@ def apply(y, b, e, name, person, now):
 
 
 def handle(y, channel, msg, who, listener, now):
-    """Sohbet motorundan: klan kanalındaki (ya da bota fısıltıdaki) mesaj klan emriyse uygular ve yanıtlatır -> işlendi mi."""
+    """From the chat engine: if a message in clan chat (or a whisper to the bot) is a clan order, carries it out and has the bots reply -> was it handled."""
     if not y.permission('clan_order') or channel not in ('clan', 'whisper'):
         return False
     import clan as KL
@@ -283,8 +284,8 @@ def handle(y, channel, msg, who, listener, now):
             accept += template not in ('cant_come', 'duel_same')
         else:
             template, area = 'order_refuse', {}
-        if i < 4 or template == 'coming':                 # herkes yazmaz: ilk birkaçı ve yola çıkanlar
+        if i < 4 or template == 'coming':                 # not everyone writes: the first few and those who set off
             y.speak(b, 'whisper' if channel == 'whisper' else 'clan', SPC.template(b, template, **area), recipient=name if channel == 'whisper' else None,
                     now=now + b.r.uniform(0.5, 3) * (i + 1), priority=True)
-    y.log('   botlar: klan emri %s: %s -> %d/%d bot' % (name, e, accept, len(members)))
+    y.log('   bots: clan order %s: %s -> %d/%d bots' % (name, e, accept, len(members)))
     return True

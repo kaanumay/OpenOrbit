@@ -1,20 +1,20 @@
-"""Dispatch (yol haritası Aşama 5): toplayıcı gönderimi (Retriever) ve kapı gönderimi (Gate). Veri data/dispatch.json: toplayıcılar
-istemcinin kodundan (tools/il2cpp/client_data.py), ödül listeleri, yuva fiyatları ve kurallar wiki'den; adetler uyarlama.
+"""Dispatch (roadmap stage 5): retriever dispatch (Retriever) and gate dispatch (Gate). Data in data/dispatch.json: retrievers from the
+client's code (tools/il2cpp/client_data.py), reward lists, slot prices and rules from the wiki; the amounts are an adaptation.
 
-Akış (kayıtta liste isteği ve "kaynak yetmiyor" yanıtı var; ötekiler istemcinin komut ve enum'larından):
-  girişte                          DispatchSlotInfoCommand {currentMaxSlotCount, availableSlotCount}
-  DispatchGetRetrieverListRequest  {statusType}: 0 gönderilebilenler (toplayıcı tanımları), 1 sürenler (kalan saniye; 0 = toplanabilir)
-                                   -> DispatchGetRetrieverListCommand + DispatchActiveEventCommand (1 Dispatch Day: pazartesi, cuma;
-                                   2 Galaxy Gate Day: Pazar GG Double Rewards, kayıt 2026-10-25)
-  DispatchSendRetrieverRequest     {dispatchId}: boş yuva ve ücret -> DispatchMessageCommand SUCCESS_SEND_RETRIEVER; para yoksa
-                                   DispatchLootMessageCommand NO_RESOURCE {eksikler} (kayıttaki yanıt); yuva yoksa ERROR_NO_SLOT
-  DispatchCollectRetrieverRequest  {slotId}: süresi bittiyse rastgele ödüller -> DispatchLootMessageCommand COLLECTED
-  DispatchInstantCompleteRequest   {slotId}: Prime Coupon (toplayıcının anında bitirme ücreti) -> hemen toplanabilir
-  DispatchBuySlotRequest           sonraki yuva (3. 50.000 U, 4.-5. 100.000 U) -> SUCCESS_ADD_SLOT
-  DispatchGetRewardPackageRequest  {dispatchId}: olası ödüller (DispatchRewardModule lootId/adet/olasılık)
-  DispatchGetGateListRequest       kapılar: kurulu ve dalga 1'deki kapı gönderilebilir (1 GGEU), süren, toplanabilir
-  DispatchSendGateRequest / DispatchCollectGateRewardRequest: kapı gönderimi, bitince kapının tamamlama ödülleri
-Profilde: dispatch {yuva, gonderilen: {slot: {id, bitis}}, kapilar: {gate: bitis}}.
+Flow (the recording has the list request and the "not enough resources" reply; the rest from the client's commands and enums):
+  on login                         DispatchSlotInfoCommand {currentMaxSlotCount, availableSlotCount}
+  DispatchGetRetrieverListRequest  {statusType}: 0 sendable (retriever definitions), 1 in progress (seconds left; 0 = collectable)
+                                   -> DispatchGetRetrieverListCommand + DispatchActiveEventCommand (1 Dispatch Day: Monday, Friday;
+                                   2 Galaxy Gate Day: Sunday GG Double Rewards, recording 2026-10-25)
+  DispatchSendRetrieverRequest     {dispatchId}: free slot and fee -> DispatchMessageCommand SUCCESS_SEND_RETRIEVER; if there is no money
+                                   DispatchLootMessageCommand NO_RESOURCE {loots: the missing items} (the recorded reply); if there is no slot ERROR_NO_SLOT
+  DispatchCollectRetrieverRequest  {slotId}: if time is up, random rewards -> DispatchLootMessageCommand COLLECTED
+  DispatchInstantCompleteRequest   {slotId}: Prime Coupon (the retriever's instant-finish fee) -> collectable at once
+  DispatchBuySlotRequest           next slot (3rd 50,000 U, 4th-5th 100,000 U) -> SUCCESS_ADD_SLOT
+  DispatchGetRewardPackageRequest  {dispatchId}: possible rewards (DispatchRewardModule lootId/amount/probability)
+  DispatchGetGateListRequest       gates: a gate that is built and at wave 1 can be sent (1 GGEU), in progress, collectable
+  DispatchSendGateRequest / DispatchCollectGateRewardRequest: gate dispatch, the gate's completion rewards when done
+In the profile: dispatch {slot, sent: {slot: {id, end_time}}, kapilar: {gate: end_time}}.
 """
 import json, os, random, time
 
@@ -25,7 +25,7 @@ import galaxy_gates as KAPI
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'dispatch.json'), encoding='utf8'))
 R = D['collectors']
-AVAILABLE, IN_PROGRESS, READY = 0, 1, 2                    # StatusType (istemci)
+AVAILABLE, IN_PROGRESS, READY = 0, 1, 2                    # StatusType (client)
 NO_RESOURCE, COLLECTED = 0, 1                             # DispatchLootMessageCommand.MessageType
 (SUCCESS_SEND_RETRIEVER, SUCCESS_SEND_GATE, SUCCESS_ADD_SLOT, ERROR_NO_GATE, ERROR_NO_SLOT, ERROR_NO_RESOURCE, ERROR_NOT_READY,
  ERROR_COLLECT, ERROR_SEND_RETRIEVER, ERROR_SEND_GATE, ERROR_INCOMPLETE_GATE, ERROR_MAX_SLOT) = range(12)   # DispatchMessageCommand
@@ -42,17 +42,17 @@ def loot(l, n):
 
 
 def dispatch_day(now=None):
-    import event_calendar as CAL                       # takvim.py: dispatch_gunu (pazartesi ve cuma)
+    import event_calendar as CAL                       # event_calendar.py: dispatch_day (Monday and Friday)
     return CAL.is_active('dispatch_day', now)
 
 
 def gate_day(now=None):
-    import event_calendar as CAL                       # takvim.py: gg_cift_odul (Pazar GG Double Rewards)
+    import event_calendar as CAL                       # event_calendar.py: gg_double_reward (Sunday GG Double Rewards)
     return CAL.is_active('gg_double_reward', now)
 
 
 def event_ranges(code, now=None):
-    """Süren etkinliklerin bu toplayıcıya (ya da 'kapi' gönderimine) eklediği kalemler: {lootId: [en az, en çok]} (etkinlik_oduller)."""
+    """Items that ongoing events add to this retriever (or to the 'gate' dispatch): {lootId: [min, max]} (event_rewards)."""
     import event_calendar as CAL
     return {l: rngs[code] for ev, items in D['event_rewards'].items() if CAL.is_active(ev, now)
             for l, rngs in items.items() if code in rngs}
@@ -65,7 +65,7 @@ def event_loot(code, now=None):
 class Dispatch:
     def __init__(self, profile, gates=None, log=print):
         self.p, self.k, self.log = profile, gates, log
-        self.m = None                    # mağaza (ödüller ve envanter güncellemesi; oturum bağlar)
+        self.m = None                    # shop (reward and inventory update; binds the session)
 
     @property
     def st(self):
@@ -92,7 +92,7 @@ class Dispatch:
     def login_msgs(self):
         return [self.slot_info()]
 
-    # ------------------------------------------------------------ toplayıcılar
+    # ------------------------------------------------------------ retrievers
     def retriever_list(self, status, now=None):
         now = now or time.time()
         if status == AVAILABLE:
@@ -112,24 +112,24 @@ class Dispatch:
             return [('DispatchMessageCommand', {'messageType': ERROR_NO_SLOT})]
         miss = INV.missing(self.p, r['fee'])
         if miss:
-            self.log('   Dispatch: %s için yetmiyor %s' % (r['code'], miss))
+            self.log('   Dispatch: not enough for %s %s' % (r['code'], miss))
             return [('DispatchLootMessageCommand', dict(messageType=NO_RESOURCE, loots=[loot(l, n) for l, n in miss.items()]))]
         removed = INV.spend(self.p, r['fee'], reason='buy_SPECIAL', detail=r['code'])
         with self.p.lock:
             self.st['sent'][str(slot)] = dict(id=int(rid), end_time=time.time() + SET.duration(r['sure_sn'], 'dispatch'))
             self.p.dirty = True
         self.p.ach('dispatch_send', code=r['code'])
-        self.log('   Dispatch: %s gönderildi (yuva %d, %d sn)' % (r['code'], slot, r['sure_sn']))
-        # liste gönderilmez: istemci her DispatchGetRetrieverListCommand'da (durumu ne olursa olsun) süren gönderimleri kendi
-        # önbelleğinden açık sekmeye çiziyor (DispatchGetRetrieverListUpdateEvent -> CreateUIDispatchProgressItem; yalnız
-        # statusType 1 önbelleği yeniler). Süren listesi Available'a çiziliyordu (H34), Available listesi de eski önbelleği: son
-        # gönderim görünmüyor, sekme seçili değildi (kullanıcı 2026-10-18). IN PROGRESS sekmesi açılınca istemci listeyi ister.
+        self.log('   Dispatch: %s sent (slot %d, %d s)' % (r['code'], slot, r['sure_sn']))
+        # the list is not sent: on every DispatchGetRetrieverListCommand (whatever its state) the client draws the ongoing dispatches from its own
+        # cache onto the open tab (DispatchGetRetrieverListUpdateEvent -> CreateUIDispatchProgressItem; only statusType 1 refreshes the
+        # cache). The in-progress list was drawn into Available (H34), and the Available list drew the old cache: the latest dispatch was not
+        # visible, the tab was not selected (user 2026-10-18). When the IN PROGRESS tab opens the client asks for the list.
         return (INV.update_msgs(self.m, self.p, list(r['fee']), removed)
                 + [('DispatchMessageCommand', {'messageType': SUCCESS_SEND_RETRIEVER}), self.slot_info()])
 
     @staticmethod
     def fixed(r):
-        """Serinin her dönüşteki kalemleri: kademe tablosu (sabit_kademe; forum 160334) ya da eski sabit x doğrusal kademe."""
+        """The series' items on each run: the tier table (fixed_tier; forum 160334) or the old fixed x linear tier."""
         tab = D.get('fixed_tier', {}).get(r['series'])
         if tab:
             return {l: v[r['tier'] - 1] for l, v in tab.items() if v[r['tier'] - 1]}
@@ -138,15 +138,15 @@ class Dispatch:
 
     @staticmethod
     def amount(x, r):
-        """Rastgele kalemin kademedeki adedi: kalem x kademe tablosu (kademe_adet), yoksa tekil 1 ya da taban x doğrusal kademe."""
+        """A random item's amount at the tier: item x tier table (tier_count), otherwise a single 1 or base x linear tier."""
         tab = D.get('tier_count', {}).get(x)
-        if tab and r['tier'] > 1:                  # 1. kademe gerçek kayıttaki taban adetler (R-01: Mucosum 8, yakıt 1.000)
+        if tab and r['tier'] > 1:                  # tier 1 is the base amounts in the real recording (R-01: Mucosum 8, fuel 1,000)
             return tab[r['tier'] - 1]
         return 1 if x in D['single'] else max(1, int(round(D['base_count'][x] * (1 + D['tier_increase'] * (r['tier'] - 1)))))
 
     def rewards(self, rid, now=None):
-        """Bir dönüşün ödülleri (kayıt: sabit kalemler + 4 farklı rastgele kalem): serinin sabit kalemleri (Solidus, EXP), listeden
-        odul_sayisi farklı eşya (seyrekler düşük ağırlıkla); adet kademeyle artar, Dispatch Day x1,5; süren etkinliğin kalemi eklenir."""
+        """The rewards of one run (recording: fixed items + 4 different random items): the series' fixed items (Solidus, EXP), reward_count different
+        items from the list (rare ones with low weight); the amount grows with the tier, Dispatch Day x1.5; the ongoing event's item is added."""
         r = R[str(rid)]
         f = D['dispatch_day_multiplier'] if dispatch_day(now) else 1
         out = {l: max(1, int(round(n * f))) for l, n in Dispatch.fixed(r).items()}
@@ -164,7 +164,7 @@ class Dispatch:
         msgs = []
         for l, n in items.items():
             if self.m:
-                msgs += self.m.prize(l, n)               # panelin ödül çarpanları
+                msgs += self.m.prize(l, n)               # the panel's reward multipliers
             else:
                 self.p.add_resource(l, n)
         return msgs
@@ -182,8 +182,8 @@ class Dispatch:
             del self.st['sent'][slot]
             self.p.dirty = True
         self.p.ach('dispatch_collect', code=R[str(g['id'])]['code'])
-        self.p.ach('dispatch', incident='DISPATCH_RETRIEVER')            # başarım: "N Retriever Dispatch"
-        self.log('   Dispatch: %s toplandı %s' % (R[str(g['id'])]['code'], items))
+        self.p.ach('dispatch', incident='DISPATCH_RETRIEVER')            # achievement: "N Retriever Dispatch"
+        self.log('   Dispatch: %s collected %s' % (R[str(g['id'])]['code'], items))
         return (self.grant(items) + [('DispatchLootMessageCommand', dict(messageType=COLLECTED, loots=[loot(l, n) for l, n in items.items()])),
                                      self.slot_info()] + self.retriever_list(IN_PROGRESS)[:1])
 
@@ -214,7 +214,7 @@ class Dispatch:
         with self.p.lock:
             self.st['slot'] = nxt
             self.p.dirty = True
-        self.log('   Dispatch: %d. yuva açıldı' % nxt)
+        self.log('   Dispatch: slot %d opened' % nxt)
         return INV.update_msgs(self.m, self.p, list(cost)) + [('DispatchMessageCommand', {'messageType': SUCCESS_ADD_SLOT}), self.slot_info()]
 
     def reward_package(self, f):
@@ -230,9 +230,9 @@ class Dispatch:
         lst += [mod('DispatchRewardModule', lootId=l, amount=lohi[0], chance=100) for l, lohi in event_ranges(r['code']).items()]
         return [('DispatchGetRewardPackageCommand', dict(name=r['name'], rewards=lst))]
 
-    # ------------------------------------------------------------ kapılar
+    # ------------------------------------------------------------ gates
     def gate_keys(self):
-        return [k for k in KAPI.KAPI if k != 'hades']        # grup kapısı gönderilmez (wiki)
+        return [k for k in KAPI.KAPI if k != 'hades']        # a group gate is not sent (wiki)
 
     def gate_list(self, now=None):
         now = now or time.time()
@@ -243,20 +243,20 @@ class Dispatch:
                 left = self.st['kapilar'][key] - now
                 out.append(mod('DispatchGateModule', gateId=g['uid'], status=IN_PROGRESS if left > 0 else READY, timeLeft=max(0, int(left))))
             else:
-                # Her kapı listede; kurulmamış ya da hiç tamamlanmamış kapıyı gönderim reddeder (istemcinin metinleri
-                # dispatch_error-no-gate "Please prepare a Gate manually …", dispatch_error-incomplete-gate "… complete the Gate manually
-                # at least once …"). Yalnız uygun kapıları listelemek sekmeyi boş bırakıyordu (oyuncu bildirimi 2026-10-28, img3)
+                # Every gate is in the list; dispatching rejects a gate that is not built or has never been completed (the client's texts
+                # dispatch_error-no-gate "Please prepare a Gate manually ...", dispatch_error-incomplete-gate "... complete the Gate manually
+                # at least once ..."). Listing only suitable gates left the tab empty (player report 2026-10-28, img3)
                 out.append(mod('DispatchGateModule', gateId=g['uid'], status=AVAILABLE,
-                               timeLeft=SET.duration(D['gate']['sure_sn'], 'dispatch')))      # gönderilebilirken "Time required" sütunu (canlı test H35)
+                               timeLeft=SET.duration(D['gate']['sure_sn'], 'dispatch')))      # the "Time required" column while sendable (live test H35)
         return [('DispatchGetGateListCommand', {'gateList': out})]
 
     def send_gate(self, f):
         key = KAPI.BY_ID.get(f.get('gateId'))
         if not key or key not in self.gate_keys() or key in self.st['kapilar']:
             return [('DispatchMessageCommand', {'messageType': ERROR_NO_GATE})]
-        if not self.k.built(key) or self.k.gate(key)['wave'] != 0:          # kurulu ve 1. dalgada (forum 160334)
+        if not self.k.built(key) or self.k.gate(key)['wave'] != 0:          # built and at wave 1 (forum 160334)
             return [('DispatchMessageCommand', {'messageType': ERROR_NO_GATE})]
-        if not self.k.gate(key).get('done', 0):                                 # en az bir kez elle tamamlanmış
+        if not self.k.gate(key).get('done', 0):                                 # completed manually at least once
             return [('DispatchMessageCommand', {'messageType': ERROR_INCOMPLETE_GATE})]
         cost = {D['gate']['ggeu']: 1}
         miss = INV.missing(self.p, cost)
@@ -267,7 +267,7 @@ class Dispatch:
             self.st['kapilar'][key] = time.time() + SET.duration(D['gate']['sure_sn'], 'dispatch')
             self.k.gate(key)['ready'] = False
             self.p.dirty = True
-        self.log('   Dispatch: %s kapısı gönderildi' % KAPI.KAPI[key]['name'])
+        self.log('   Dispatch: gate %s sent' % KAPI.KAPI[key]['name'])
         return INV.update_msgs(self.m, self.p, list(cost)) + [('DispatchMessageCommand', {'messageType': SUCCESS_SEND_GATE})] + self.gate_list()
 
     def collect_gate(self, f, now=None):
@@ -280,11 +280,11 @@ class Dispatch:
         with self.p.lock:
             del self.st['kapilar'][key]
             self.p.dirty = True
-        self.p.ach('dispatch', incident='DISPATCH_GATE')                 # başarım: "N Gate Dispatch"
-        msgs = self.k.dispatch_complete(key, D['dispatch_day_multiplier'] if dispatch_day(now) else 1)     # Sevkiyat Günü kapıda da
-        extra = event_loot('gate', now)                              # Chaos Omen / Protegit: kapı gönderiminden Chaos Fragment
+        self.p.ach('dispatch', incident='DISPATCH_GATE')                 # achievement: "N Gate Dispatch"
+        msgs = self.k.dispatch_complete(key, D['dispatch_day_multiplier'] if dispatch_day(now) else 1)     # Dispatch Day applies to the gate too
+        extra = event_loot('gate', now)                              # Chaos Omen / Protegit: Chaos Fragment from gate dispatch
         if extra:
-            msgs[-1][1]['loots'] += [loot(l, n) for l, n in extra.items()]       # son ileti DispatchLootMessageCommand
+            msgs[-1][1]['loots'] += [loot(l, n) for l, n in extra.items()]       # last message DispatchLootMessageCommand
             msgs = self.grant(extra) + msgs
         return msgs + self.gate_list()
 

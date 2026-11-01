@@ -1,9 +1,9 @@
-"""Yöneticinin sohbet makinesi (Yonetici bundan türer): botların yazdıkları, oyuncunun mesajlarına yanıtlar, yardım çağrıları,
-olaylardan doğan sohbet ve kendiliğinden konuşma.
+"""The Manager's chat engine (Manager derives from it): what the bots write, replies to the player's messages, calls for help,
+chat arising from events and spontaneous talk.
 
-Satırlar insan yazma süresi kadar gecikir (konusma.yazma_suresi), global/firma kanalında dakikada en çok sohbet_dk satır. Oyuncunun
-mesajları sohbet iş parçacığından gelen'e eklenir, yöneticinin tick'inde işlenir. Gelişmiş kipte önce LLM (llm.py) denenir;
-yetişemezse ya da LLM yoksa speech.py'nin kalıpları.
+Lines are delayed by a human typing time (speech.typing_time), and at most chat_min lines per minute go to the global/company channel.
+The player's messages are added to incoming from the chat thread and processed on the manager's tick. In Advanced mode the LLM (llm.py)
+is tried first; if it cannot keep up or there is no LLM, the templates of speech.py are used.
 """
 import random, re, time, traceback
 
@@ -17,22 +17,22 @@ from . import moderation as MOD
 from . import admin_warnings as AW
 
 EVENT_SEC = 5.0
-RECRUIT_CLAN_SEC = 7200.0                   # aynı klanın alım ilanı arası (iki saat)
-RECRUIT_ANY_SEC = 1500.0                  # herhangi bir klanın ilanı arası
-COMPLAINT_SEC = 1800.0                     # lag/uridyum sızlanması arası (tüm sohbette)
-REPEAT_SEC = 2700.0                      # aynı satır bu süre içinde ikinci kez yazılmaz
-BOT_GAP_SEC = 600.0                      # aynı botun kendiliğinden iki lafı arası en az
-RUDE_FACTOR = (0.0, 1.0, 1.6, 2.2)      # kaba_sohbet düzeyine göre hakarete karşılık verme olasılığı çarpanı
+RECRUIT_CLAN_SEC = 7200.0                   # between recruitment ads of the same clan (two hours)
+RECRUIT_ANY_SEC = 1500.0                  # between ads of any clan
+COMPLAINT_SEC = 1800.0                     # between lag/uridium complaints (in the whole chat)
+REPEAT_SEC = 2700.0                      # the same line is not written a second time within this period
+BOT_GAP_SEC = 600.0                      # minimum gap between two spontaneous remarks of the same bot
+RUDE_FACTOR = (0.0, 1.0, 1.6, 2.2)      # multiplier of the probability of answering an insult, by rude_chat level
 FIRMA = {1: 'MMO', 2: 'EIC', 3: 'VRU'}
 
 
 def user(b):
-    """Botun sohbetteki gönderen bilgisi (sosyal.Sosyal.chat_user biçimi)."""
+    """The bot's sender info in the chat (the social.Social.chat_user format)."""
     p = b.profile
     tag = p.d['pilot'].get('clanTag', '') if p is not None else ''
     if b.__dict__.get('moderator'):
-        # [CM] etiketiyle, "mod" rolünde: istemci yaması (panel/plugin/Yamalar.cs ModeratorRengi) onu kendi rengiyle çizer; yamasız
-        # istemcide beyaz (istemci yalnız admin'i renklendirir, o da etiketi gizleyip "Yönetici" yazar)
+        # with the [CM] tag, in the "mod" role: the client patch (panel/plugin/Patches.cs ModeratorColor) draws it in its own color; on an
+        # unpatched client it is white (the client colors only the admin, and that one hides the tag and writes "Manager")
         return {'userId': b.name, 'id': str(b.uid), 'globalId': str(b.uid), 'role': MOD.CHAT_ROLE, 'clanTag': MOD.TAG,
                 'factionId': str(b.firma), 'instanceId': '1'}
     return {'userId': b.name, 'id': str(b.uid), 'globalId': str(b.uid), 'role': 'chatter', 'clanTag': tag, 'factionId': str(b.firma),
@@ -60,27 +60,27 @@ def channel_name(route):
 
 class ChatEngine:
     def prepare_chat(self):
-        self.chat = None             # sohbet.Sohbet (toplum.kaydol)
-        self.llm = None                # Gelişmiş kip: llm.Beyin
-        self.outgoing = []                # [(an, bot, kanal, metin, alıcı, öncelik, ilk an)]: yazılmayı bekleyen satırlar
-        self.incoming = []                # sohbetten gelenler (sohbet iş parçacığı ekler, tick işler)
-        self.history = []               # son sohbet satırları [(an, ad, kanal, metin, oda yolu)]: LLM bağlamı (oda yolu: hangi firmanın,
-        #                                klanın, grubun kanalı; fısıltıda None)
+        self.chat = None             # chat.Chat (society.register)
+        self.llm = None                # Advanced mode: llm.Brain
+        self.outgoing = []                # [(time, bot, channel, text, recipient, priority, first time)]: lines waiting to be written
+        self.incoming = []                # arrivals from the chat (the chat thread adds, tick processes)
+        self.history = []               # recent chat lines [(time, name, channel, text, room path)]: LLM context (room path: which company's,
+        #                                clan's, group's channel; None for a whisper)
         self.last_word = 0.0
-        self.actions = []             # [(an, bot, (araç, argümanlar))]: kararın eylemi, yanıt yazıldıktan sonra (etkilesim.uygula)
-        self._lines = []            # son bir dakikadaki bot satırlarının anları (sohbet_dk)
-        self._last_text = []           # [(an, sadeleşmiş metin)]: son kendiliğinden satırlar (tekrar önleme)
-        self._last_recruit = {}            # klan anahtarı (None: hepsi) -> son alım ilanı anı
+        self.actions = []             # [(time, bot, (tool, arguments))]: the decision's action, after the reply is written (interaction.apply)
+        self._lines = []            # times of the bot lines in the last minute (chat_min)
+        self._last_text = []           # [(time, simplified text)]: recent spontaneous lines (repeat prevention)
+        self._last_recruit = {}            # clan key (None: all) -> time of the last recruitment ad
         self._last_complaint = 0.0
 
     def speak(self, b, channel, text, recipient=None, now=None, immediate=False, priority=False):
-        """Bot yazacak: insan yazma süresi kadar sonra gider (fısıltı: alici). oncelik: oyuncuya yanıt; kanal sınırına takılmaz.
-        Kuyruğa girerse satırın gideceği anı döndürür (konuşma zinciri bunun üstüne yanıt ekler), girmezse None."""
+        """A bot will write: it goes out after a human typing time (whisper: recipient). priority: a reply to the player; not subject to the channel limit.
+        If queued, returns the time the line will go out (the conversation chain adds replies on top of it), otherwise None."""
         if not text or not self.permission('sohbet'):
             return None
         now = now or self.now
         if not priority and AW.active(b, 'sohbet', now) and b.r.random() < 0.75:
-            return None                                  # yönetici sohbet uyarısı: yalnız yanıtlar, çoğu kez susar
+            return None                                  # manager's chat warning: only replies, mostly stays silent
         t = now + (0 if immediate else SPC.typing_time(text, b))
         self.outgoing.append((t, b, channel, text, recipient, priority, t))
         return t
@@ -89,14 +89,14 @@ class ChatEngine:
         return [x[3] for x in self.outgoing]
 
     def chat_tick(self, now):
-        """Zamanı gelen satırlar gönderilir; gelen mesajlar ve olaylar sohbete dönüşür; ara sıra kendiliğinden sohbet."""
+        """Due lines are sent; incoming messages and events turn into chat; occasional spontaneous chat."""
         if self.incoming:
             incoming, self.incoming = self.incoming, []
             for g in incoming:
                 try:
                     self.handle_chat(g, now)
                 except Exception:
-                    self.log('   botlar: sohbet hatası\n' + traceback.format_exc())
+                    self.log('   bots: chat error\n' + traceback.format_exc())
         if now - self.last_word >= EVENT_SEC:
             self.last_word = now
             self.event_tick(now)
@@ -116,7 +116,7 @@ class ChatEngine:
         if self.outgoing:
             is_due = [x for x in self.outgoing if x[0] <= now]
             self.outgoing = [x for x in self.outgoing if x[0] > now]
-            for x in is_due:                              # gonder bekleyeni yeniden ekleyebilir
+            for x in is_due:                              # send may re-add a pending one
                 self.send(x, now)
 
     def send(self, x, now):
@@ -125,15 +125,15 @@ class ChatEngine:
             return
         if channel in ('global', 'company'):
             if MOD.is_muted(self, b.name, now) > 0:
-                return                                   # moderatör susturdu
+                return                                   # a moderator muted
             self._lines = [s for s in self._lines if now - s < 60]
             if len(self._lines) >= self.setting('chat_min', 6) and not priority:
-                if now - first < 60:                       # kanal sınırı: biraz bekler (sohbet sele dönmesin); çok bekleyen düşer
+                if now - first < 60:                       # channel limit: waits a little (so the chat does not flood); those waiting too long are dropped
                     self.outgoing.append((now + b.r.uniform(6, 15), b, channel, text, recipient, priority, first))
                 return
             self._lines.append(now)
         self.history.append((now, b.name, channel if not recipient else 'whisper:' + recipient, text, None if recipient else channel_path(b, channel)))
-        del self.history[:-600]               # fısıltı bağlamı kalabalık sohbette hemen silinmesin (güçlü sağlayıcı saatlerce geriye bakar)
+        del self.history[:-600]               # so the whisper context is not deleted right away in a crowded chat (the strong provider looks back for hours)
         b.event('said', now, channel=channel, text=text, recipient=recipient)
         if self.chat is None:
             return
@@ -143,15 +143,15 @@ class ChatEngine:
         route = channel_path(b, channel)
         if route:
             self.chat.broadcast(route, text, 'bot%d' % b.uid, user(b))
-        MOD.moderate(self, b.name, text, channel, now)       # botlar da kurala uyar (kaba bot susturulabilir)
+        MOD.moderate(self, b.name, text, channel, now)       # bots obey the rule too (a rude bot can be muted)
 
     def incoming_chat(self, route, msg, who):
-        """Sohbet iş parçacığından: oyuncunun oda mesajı (işlenmesi tick'te)."""
+        """From the chat thread: the player's room message (processed on the tick)."""
         self.incoming.append(('room', route, msg, who))
         self.history.append((time.time(), who.get('userId', '?'), channel_name(route) or route, msg, route))
 
     def incoming_whisper(self, name, msg, who):
-        """Sohbet iş parçacığından: oyuncu bir bota fısıldadı -> alıcı çevrimiçi bot mu (değilse istemci "çevrimdışı" yazar)."""
+        """From the chat thread: the player whispered to a bot -> is the recipient an online bot (if not, the client writes "offline")."""
         b = self.name_index.get(str(name).lower())
         if b is None or not b.online:
             return False
@@ -164,10 +164,10 @@ class ChatEngine:
             MOD.moderate(self, g[3].get('userId', ''), g[2], channel_name(g[1]), now, g[3].get('role') or 'chatter')
         from . import clan_orders as CO
         if g[0] == 'room' and channel_name(g[1]) == 'clan' and CO.handle(self, 'clan', g[2], g[3], self.listeners('clan', g[3]), now):
-            return                                       # klan emri (odak, git, gel, savun, al, gemi, yapı, dur)
+            return                                       # clan order (focus, go, come, defend, take, ship, build, stop)
         if g[0] == 'whisper' and CO.handle(self, 'whisper', g[2], g[3], [g[1]], now):
             return
-        if AW.handle(self, g, now):                        # yöneticinin uyarısı ya da selamı (bot/yonetici_uyari.py)
+        if AW.handle(self, g, now):                        # the manager's warning or greeting (bot/admin_warnings.py)
             return
         if self.llm is not None and self.llm.chat(self, g, now):
             return
@@ -219,7 +219,7 @@ class ChatEngine:
         elif kind in ('group', 'clan', 'quest', 'duel', 'special', 'gate'):
             for b in self.open_call(kind, name, who, game_map, msg, listener, now):
                 self.answer_request(b, kind, name, who, game_map, msg, channel, now)
-        elif kind == 'followup' and channel == 'group':              # grup sohbetinde "follow me / come 2-4": grubun botları
+        elif kind == 'followup' and channel == 'group':              # in a group chat "follow me / come 2-4": the group's bots
             for b in listener[:3]:
                 self.answer_request(b, kind, name, who, game_map, msg, channel, now)
         elif kind == 'greeting':
@@ -231,16 +231,16 @@ class ChatEngine:
                 self.speak(b, channel, SPC.template(b, 'reply_question'), now=now)
 
     def help_call(self, name, who, game_map, candidates, channel, now, max_count=None, required=False, silent=False):
-        """Yardım çağrısı: aynı firmadan, yardımsever, o haritaya girebilen ve gidebilen botlardan bazıları gelir -> gelenler.
-        zorunlu: karar başkasında, olasılık atılmaz; sessiz: kalıp yanıt yazılmaz (Gelişmiş kipte yanıtı model söyler)."""
+        """Call for help: some of the helpful bots from the same company that can enter and reach that map come -> those who come.
+        required: the decision is someone else's, no probability roll; silent: no template reply is written (in Advanced mode the model says the reply)."""
         if not self.permission('assist'):
             return []
         fac = int(who.get('factionId') or 0)
         ids = {v: k for k, v in H.NAMES.items()}
         m = ids.get(game_map) if game_map else None
         if m is None:
-            # harita yazılmadı: oyuncunun haritası, ama yalnız gerçekten saldırı altındaysa (son 90 sn'de hasar aldı); yoksa
-            # "help"in başka anlamı var ("help me with quest", şaka) ve kimse savaşa koşmaz (oyuncu bildirimi 2026-10-30)
+            # map not written: the player's map, but only if really under attack (took damage in the last 90 s); otherwise
+            # "help" has another meaning ("help me with quest", a joke) and nobody rushes to the fight (player report 2026-10-30)
             import community as TP
             k = TP.find(name=name)
             w = k.world if k is not None else None
@@ -265,11 +265,11 @@ class ChatEngine:
         return incoming
 
     def open_call(self, kind, name, who, game_map, msg, listener, now):
-        """Kimseye hitap etmeyen istek ("grup olalım mı", "klan alan var mı"): yanıt verecek botlar. Grup: aynı firmadan sosyal
-        botlar sırayla düşünür, kabul eden ilk biri (gerçek sohbette olduğu gibi bir kişi "inv" der). Klan: klanı olan, aynı
-        firmadan en çok iki bot (lider önce)."""
+        """A request addressed to no one ("shall we group", "anyone recruiting for a clan"): the bots that will reply. Group: social bots from the
+        same company think in turn, the first one that accepts (as in a real chat one person says "inv"). Clan: at most two bots from the
+        same company that have a clan (leader first)."""
         fac = int(who.get('factionId') or 0)
-        if kind == 'duel':                               # meydan okumayı başka firmadan biri kabul eder
+        if kind == 'duel':                               # a challenge is accepted by someone from another company
             for b in sorted([b for b in listener if b.firma != fac], key=lambda b: -b.o('aggression') * b.r.uniform(0.5, 1.5))[:4]:
                 k = IX.decision(self, b, 'duel', name, who, game_map, msg, now)
                 if k and k['accept']:
@@ -277,7 +277,7 @@ class ChatEngine:
                     return [b]
             return []
         candidate = [b for b in listener if not fac or b.firma == fac]
-        if kind == 'gate':                                 # kapı dolgusu: istenen sayıda (yoksa 3) kabul eden
+        if kind == 'gate':                                 # gate filler: the requested number (3 if none) who accept
             import re
             m = re.search(r'\b([1-7])\b', msg or '')
             n, out = int(m.group(1)) if m else 3, []
@@ -302,7 +302,7 @@ class ChatEngine:
         return sorted(clan_bots, key=lambda b: (KL.clan_of(b.profile)['leader'] != b.name.lower(), -b.o('talkativeness')))[:2]
 
     def answer_request(self, b, kind, name, who, game_map, msg, channel, now):
-        """Normal kip: kararı (etkilesim) uygula, kalıpla söyle."""
+        """Normal mode: apply the decision (interaction), say it with a template."""
         k = b.__dict__.pop('_request_decision', None) or IX.decision(self, b, kind, name, who, game_map, msg, now)
         if k is None:
             return
@@ -310,13 +310,13 @@ class ChatEngine:
         IX.apply(self, b, k, delay=SPC.typing_time(text or 'ok', b) + b.r.uniform(1, 3))
         if text:
             if k.get('whisper'):
-                channel = 'whisper'                             # "bana PM at": yanıt özelden
+                channel = 'whisper'                             # "pm me": the reply goes by whisper
             self.speak(b, channel, text, recipient=name if channel == 'whisper' else None, now=now)
 
     def template_whisper(self, b, msg, who, now):
         name = who.get('userId', '')
         kind, game_map = SPC.intent(msg)
-        kind = IX.offer_reply(b, name, msg, now) or kind       # "gruplaşalım mı?" -> "sure": grup isteği
+        kind = IX.offer_reply(b, name, msg, now) or kind       # "shall we group?" -> "sure": group request
         b.memory.event(name, 'sohbet', now)
         if kind in IX.INTENTS and kind != 'assist':
             self.answer_request(b, kind, name, who, game_map, msg, 'whisper', now)
@@ -335,7 +335,7 @@ class ChatEngine:
                        recipient=name, now=now)
 
     def event_tick(self, now):
-        """Botların yeni olayları sohbete dönüşür (seviye, yeni gemi, PvP); Gelişmiş kipte LLM'in bağlamına da gider."""
+        """The bots' new events turn into chat (level, new ship, PvP); in Advanced mode they also go into the LLM's context."""
         for b in self.bots:
             if not b.online:
                 continue
@@ -359,7 +359,7 @@ class ChatEngine:
         if kind == 'diplomacy' and (o.get('accept') or not o.get('incoming')) and o.get('form') in (0, 1, 3) and b.r.random() < 0.4 + 0.5 * talk:
             durum = {0: 'peace', 1: 'alliance', 3: 'war_declared'}[o['form']]
             if o['form'] == 0 and not o.get('incoming'):
-                return                                   # barış isteği: kabul edilmeden ilan edilmez
+                return                                   # peace request: not announced until accepted
             self.speak(b, 'global' if o['form'] == 3 else 'company',
                        SPC.template(b, durum, clan=o.get('clan', ''), tag=o.get('tag') or o.get('clan', '')), now=now + b.r.uniform(5, 30))
             return
@@ -372,7 +372,7 @@ class ChatEngine:
             self.speak(b, 'global', SPC.template(b, 'new_ship', ship=str(o.get('item', '')).replace('ship_', '').title()), now=now)
         elif kind in ('death', 'i_killed_player') and now - self.__dict__.setdefault('_last_whisper', {}).get(
                 str(o.get('killer') or o.get('name') or '').lower(), 0) < 60:
-            pass                                         # aynı oyuncuya dakikada en çok bir fısıltı (art arda öldürmede yağmur olmasın)
+            pass                                         # at most one whisper per minute to the same player (so consecutive kills do not rain whispers)
         elif kind == 'death' and o.get('killer') and str(o['killer']).lower() not in self.name_index and b.r.random() < 0.2 + 0.5 * talk:
             self._last_whisper[str(o['killer']).lower()] = now
             rude = self.rude()
@@ -389,7 +389,7 @@ class ChatEngine:
                        now=now + b.r.uniform(20, 120))
 
     def online_humans(self):
-        """Çevrimiçi insan oyuncular (topluluk.Kisi; paketin botları hariç)."""
+        """Online human players (community.Person; except the pack's bots)."""
         import community as TP
         try:
             return [k for k in TP.all_().values() if k.session is not None and k.name.lower() not in self.name_index]
@@ -397,8 +397,8 @@ class ChatEngine:
             return []
 
     def start_private(self, now):
-        """Arkadaş bot oyuncuya kendiliğinden fısıldar: girişinde selam, arada grup teklifi ya da hal hatır (oyuncu başına en çok
-        12 dakikada bir; yalnız aynı firmadan, ona ilişkisi iyi botlar). Grup teklifine olumlu yanıt davete dönüşür (teklif_ver)."""
+        """A friend bot whispers to the player spontaneously: a greeting on login, now and then a group offer or small talk (at most once per
+        12 minutes per player; only bots of the same company with a good relationship to them). A positive reply to a group offer becomes an invite (offer)."""
         if not self.permission('sohbet'):
             return
         seen = self.__dict__.setdefault('human_first', {})
@@ -414,9 +414,9 @@ class ChatEngine:
                 continue
             b = max(friendly, key=lambda b: b.memory.relation(k.name, now) * b.r.uniform(0.6, 1.4))
             if now - first < 300 and not last.get(a):
-                purpose = 'private_greeting'                          # yeni girdi
+                purpose = 'private_greeting'                          # new entry
             elif b.r.random() > 0.35 * (0.5 + b.o('sociability')):
-                last[a] = now - 360                           # bu sefer yazmaz (yarım aralık sonra yine bakar)
+                last[a] = now - 360                           # does not write this time (checks again after half an interval)
                 continue
             elif self.permission('group') and b.target is not None and b.target.name in ('grinding', 'quest') and b.r.random() < 0.6:
                 purpose = 'private_group'
@@ -430,7 +430,7 @@ class ChatEngine:
             self.speak(b, 'whisper', SPC.template(b, purpose, name=k.name, map=H.name(b.game_map)), recipient=k.name, now=now + b.r.uniform(2, 10))
 
     def group_banter_line(self, now):
-        """İnsanla grupta olan bot arada grup sohbetine yazar (nereye gidiyoruz, iyi kestik ...): 4-8 dakikada bir."""
+        """A bot in a group with a human now and then writes to the group chat (where are we going, nice kill ...): once every 4-8 minutes."""
         if not self.permission('sohbet'):
             return
         import group as GR
@@ -444,7 +444,7 @@ class ChatEngine:
             g._bot_banter = now + random.uniform(240, 480)
             if not g.__dict__.get('_bot_banter_first'):
                 g._bot_banter_first = True
-                continue                                     # grup yeni kuruldu: ilk lafı hemen değil
+                continue                                     # the group was just formed: not the first word right away
             b = max(members, key=lambda b: b.o('talkativeness') * b.r.random())
             if self.llm is not None and self.llm.ready and self.llm.group_banter_line(self, b, k.name):
                 continue
@@ -454,11 +454,11 @@ class ChatEngine:
         return int(self.setting('rude_chat', 1) or 0)
 
     def banter(self, b, state):
-        """Sert düzeyde saldırgan bot hakarete sert karşılık verir."""
+        """A bot with a harsh aggression level answers an insult harshly."""
         return 'banter_harsh' if self.rude() >= 2 and b.o('aggression') > 0.5 and not b.__dict__.get('moderator') else state
 
     def throw_banter(self, now):
-        """Sert ve çok sert düzeyde saldırgan botlar globalde başka firmaya ya da çevrimiçi düşman oyuncuya laf atar (kinliler önce)."""
+        """Bots with harsh and very harsh aggression level taunt another company or an online enemy player in global (grudge holders first)."""
         rude = self.rude()
         if rude < 2 or random.random() > 0.05 * (rude - 1):
             return
@@ -477,14 +477,14 @@ class ChatEngine:
                        now=now)
 
     def can_recruit(self, clan, now):
-        """Klan alım ilanı yazılabilir mi (klan başına iki saatte, hepsi birlikte 25 dakikada en çok bir); yazılabilirse sayar."""
+        """Can a clan recruitment ad be written (at most one per clan in two hours, one in 25 minutes across all); if so, it counts."""
         if now - self._last_recruit.get(None, -1e9) < RECRUIT_ANY_SEC or now - self._last_recruit.get(clan, -1e9) < RECRUIT_CLAN_SEC:
             return False
         self._last_recruit[None] = self._last_recruit[clan] = now
         return True
 
     def new_text(self, b, state, now, **f):
-        """Durumun kalıbından, son 45 dakikada yazılmamış bir satır (4 denemede yoksa None)."""
+        """A line from the state's templates not written in the last 45 minutes (None if not found in 4 tries)."""
         self._last_text = [x for x in self._last_text if now - x[0] < REPEAT_SEC]
         for _ in range(4):
             m = SPC.template(b, state, **f)
@@ -497,8 +497,8 @@ class ChatEngine:
         b._last_word = now
 
     def status_line(self, b, now):
-        """Botun gerçekten yaptığı ya da az önce yaptığı bir şeyden (kapı bitti, alışveriş, ölüm, görev, dolu kargo, kasma) bir satır
-        -> (durum, alanlar) ya da None. Seviye ve yeni gemi zaten olay_sohbet'te yazılır; aynı olay iki kez anlatılmaz."""
+        """A line about something the bot actually did or just did (gate finished, shopping, death, quest, full cargo, grinding)
+        -> (state, fields) or None. Level and new ship are already written in event_chat; the same event is not told twice."""
         told = b.__dict__.setdefault('_told', set())
         candidates = []
         for o in b.events[-12:]:
@@ -538,8 +538,8 @@ class ChatEngine:
         return d, f
 
     def start_dialog(self, b, is_open, channel, now):
-        """b bir soru/laf yazar; başka bir çevrimiçi bot (aynı dil, firma kanalında aynı firma) insan gecikmesiyle yanıtlar, bazen
-        b de karşılık verir (en çok 3 satır). Yanıt gelmeyebilir; her satırın gideceği an bir öncekinin üstüne eklenir."""
+        """b writes a question/remark; another online bot (same language, same company in a company channel) replies with a human delay, sometimes
+        b answers back too (at most 3 lines). A reply may not come; the time each line goes out is added on top of the previous one."""
         chat = SPC.dialogue(b)
         if not chat:
             return False
@@ -556,7 +556,7 @@ class ChatEngine:
             return True
         c = max(candidates, key=lambda x: x.o('sociability') * x.r.random())
         if b.r.random() > 0.3 + 0.55 * c.o('sociability'):
-            return True                                  # kimse yanıtlamadı
+            return True                                  # nobody replied
         for i, kind in enumerate(chat[1:]):
             who = c if i % 2 == 0 else b
             m = next((x for x in (take(who, kind) for _ in range(3)) if x and re.sub(r'\W+', '', x.lower()) not in
@@ -570,10 +570,10 @@ class ChatEngine:
         return True
 
     def spontaneous(self, now):
-        """Ara sıra bir bot kendiliğinden yazar: yaptığı şeyden satır, kısa konuşma, grup arama, ticaret, genel laf, nadiren klan alım
-        ilanı ve sızlanma. Kanal sınırı içinde; aynı satır, aynı bot ve aynı klanın ilanı sık tekrarlanmaz."""
+        """Now and then a bot writes spontaneously: a line about what it did, short talk, looking for a group, trade, general remark, rarely a clan recruitment
+        ad and complaints. Within the channel limit; the same line, the same bot and the same clan's ad are not repeated often."""
         if self.llm is not None and self.llm.ready:
-            return                                   # Gelişmiş kipte kendiliğinden sohbeti model yapar (llm.bot_sohbet)
+            return                                   # in Advanced mode the model does the spontaneous chat (llm._bot_chat)
         is_open = [b for b in self.bots if b.online and b.dead_until <= now]
         if not is_open or random.random() > 0.065 * min(1.0, len(is_open) / 10.0):
             return

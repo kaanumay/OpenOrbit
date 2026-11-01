@@ -1,6 +1,6 @@
-/* OpenOrbit yerel sunucu paneli — "Orbital HUD" tasarım dili (çevrimdışı: sistem yazı tipleri, dış kaynak yok).
-   Koyu lacivert cam modüller, camgöbeği köşe parantezleri, pahlı dolu düğmeler, Bahnschrift başlık ve rakamlar, amber OYNA.
-   Görseller arayuz/images/ altında (WebP); asılları ve sipariş defteri masaüstündeki OpenOrbit görsel paketinde (Orders.md). */
+/* OpenOrbit local server panel — the "Orbital HUD" design language (offline: system fonts, no external resources).
+   Dark navy glass modules, cyan corner brackets, chamfered filled buttons, Bahnschrift headings and numerals, amber PLAY.
+   Images are under arayuz/images/ (WebP); their originals and the order ledger are in the OpenOrbit image pack on the desktop (Orders.md). */
 :root {
   --bg: #050a14;
   --bg-2: #08101e;
@@ -55,7 +55,7 @@ body {
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
 }
-body::before {               /* yıldızlar ve ince HUD ızgarası */
+body::before {               /* stars and a fine HUD grid */
   content: ""; position: fixed; inset: 0; pointer-events: none;
   background-image:
     radial-gradient(1px 1px at 12% 18%, rgba(255, 255, 255, .7) 50%, transparent 51%),
@@ -81,14 +81,14 @@ a { color: var(--accent); }
 
 .app { display: grid; grid-template-columns: 248px 1fr; height: 100vh; position: relative; }
 
-/* ---------------------------------------------------------------- kenar çubuğu */
+/* ---------------------------------------------------------------- sidebar */
 .sidebar {
   background: linear-gradient(180deg, rgba(10, 18, 33, .94), rgba(5, 10, 20, .97));
   border-right: 1px solid var(--line);
   display: flex; flex-direction: column; padding: 16px 12px 14px; position: relative; z-index: 2;
   box-shadow: inset -1px 0 0 rgba(64, 223, 255, .05), 8px 0 30px rgba(0, 0, 0, .35);
 }
-.sidebar::after {            /* sağ kenarda ışık çizgisi */
+.sidebar::after {            /* light line on the right edge */
   content: ""; position: absolute; right: -1px; top: 90px; height: 120px; width: 1px;
   background: linear-gradient(180deg, transparent, var(--accent), transparent); opacity: .55;
 }
@@ -100,7 +100,7 @@ a { color: var(--accent); }
   -webkit-background-clip: text; background-clip: text; color: transparent; }
 .brand-sub { color: var(--accent); font: 500 10.5px/1.2 var(--display); letter-spacing: .14em; text-transform: uppercase; margin-top: 5px; opacity: .85; }
 .nav { display: flex; flex-direction: column; gap: 2px; flex: 0 1 auto; min-height: 0; overflow-y: auto;
-  margin: 0 -12px 12px; padding: 0 12px; }      /* kenara taşan etkin çubuğu kırpılmasın */   /* oyun içi bölümle alçak pencerede kayar, telemetriye binmez */
+  margin: 0 -12px 12px; padding: 0 12px; }      /* so the active bar that spills over the edge is not clipped */   /* the in-game section scrolls in a short window, does not overlap the telemetry */
 .nav button {
   display: flex; align-items: center; gap: 11px; padding: 9px 12px; border: 1px solid transparent; border-radius: var(--radius-sm);
   background: transparent; color: var(--muted); cursor: pointer; text-align: left; font-weight: 550; font-size: 13.5px; transition: .15s;
@@ -118,7 +118,7 @@ a { color: var(--accent); }
   content: ""; position: absolute; left: -12px; top: 7px; bottom: 7px; width: 3px;
   background: var(--accent); box-shadow: 0 0 12px var(--accent), 0 0 3px var(--accent);
 }
-.nav button.active::after {  /* sağda küçük HUD çentiği */
+.nav button.active::after {  /* small HUD notch on the right */
   content: ""; position: absolute; right: 8px; top: 50%; width: 5px; height: 5px; margin-top: -3px;
   border-top: 1.5px solid var(--accent); border-right: 1.5px solid var(--accent); transform: rotate(45deg); opacity: .8;
 }
@@ -132,16 +132,16 @@ a { color: var(--accent); }
   margin-top: auto; padding: 12px 12px 10px; display: grid; gap: 7px; font-size: 12.5px; position: relative;
   border: 1px solid var(--line); border-radius: var(--radius); background: rgba(5, 10, 20, .6);
 }
-.side-status::before {       /* telemetri başlığı */
+.side-status::before {       /* telemetry heading */
   content: "TELEMETRY"; position: absolute; top: -7px; left: 10px; padding: 0 6px; background: #070d1a;
   font: 600 9.5px/14px var(--display); letter-spacing: .22em; color: var(--dim);
 }
 .side-status .row { display: flex; align-items: center; justify-content: space-between; color: var(--muted); }
 .side-status .give { color: var(--dim); font: 11px var(--mono); margin-top: 3px; padding-top: 7px; border-top: 1px dashed var(--line); }
 
-/* ---------------------------------------------------------------- ana bölüm */
+/* ---------------------------------------------------------------- main section */
 .main { display: flex; flex-direction: column; min-width: 0; height: 100vh; }
-.topbar {                    /* sayfa başlığı şeridi: solda ad, sağda sayfanın sahnesi (images/hdr_<sayfa>.webp) */
+.topbar {                    /* page header strip: the name on the left, the page's scene on the right (images/hdr_<page>.webp) */
   --hdr: url(images/hdr_oyna.webp);
   position: relative; overflow: hidden; flex: none;
   display: flex; align-items: flex-end; justify-content: space-between; gap: 16px;
@@ -149,18 +149,18 @@ a { color: var(--accent); }
   background:
     linear-gradient(90deg, var(--bg) 0%, rgba(5, 10, 20, .9) 30%, rgba(5, 10, 20, .4) 60%, rgba(5, 10, 20, .08) 100%),
     linear-gradient(0deg, rgba(5, 10, 20, .75), transparent 50%),
-    var(--hdr) right center / auto 150% no-repeat, var(--bg);    /* sahnenin sol kenarı saydam: zemine kendiliğinden karışır */
+    var(--hdr) right center / auto 150% no-repeat, var(--bg);    /* the scene's left edge is transparent: it blends into the background by itself */
 }
-.topbar::before {            /* tarama çizgileri */
+.topbar::before {            /* scan lines */
   content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .35;
   background: repeating-linear-gradient(0deg, rgba(255, 255, 255, .025) 0 1px, transparent 1px 3px);
 }
-.topbar::after {             /* alt kenarda ışıklı HUD çizgisi */
+.topbar::after {             /* glowing HUD line on the bottom edge */
   content: ""; position: absolute; left: 30px; right: 0; bottom: -1px; height: 1px;
   background: linear-gradient(90deg, var(--accent) 0, rgba(64, 223, 255, .4) 120px, var(--line) 40%, transparent);
 }
 .topbar > div { position: relative; z-index: 1; }
-.topbar > div:first-child { flex: 1; min-width: 0; }     /* uzun alt başlık sağdaki rozetlerin altına girmesin */
+.topbar > div:first-child { flex: 1; min-width: 0; }     /* a long subtitle should not go under the badges on the right */
 body[data-page=arkadas] .topbar { --hdr: url(images/hdr_arkadas.webp); }
 body[data-page=kayitlar] .topbar { --hdr: url(images/hdr_kayitlar.webp); }
 body[data-page=ayarlar] .topbar { --hdr: url(images/hdr_ayarlar.webp); }
@@ -171,7 +171,7 @@ body[data-page=sunucu] .topbar { --hdr: url(images/hdr_sunucu.webp); }
 body[data-page=panel] .topbar { --hdr: url(images/hdr_panel.webp); }
 .topbar h1 { margin: 0; font: 600 30px/1.05 var(--display); letter-spacing: .05em; text-transform: uppercase;
   text-shadow: 0 2px 18px rgba(0, 0, 0, .6); }
-.topbar h1::before {         /* başlığın üstünde küçük HUD etiketi */
+.topbar h1::before {         /* small HUD label above the heading */
   content: "// OPENORBIT"; display: block; font: 600 10.5px/1 var(--display); letter-spacing: .3em; color: var(--accent);
   margin-bottom: 8px; opacity: .85;
 }
@@ -180,13 +180,13 @@ body[data-page=panel] .topbar { --hdr: url(images/hdr_panel.webp); }
 .content { flex: 1; overflow: auto; padding: 22px 30px 40px; }
 .content > * { max-width: 1240px; }
 
-/* ---------------------------------------------------------------- yapı taşları */
+/* ---------------------------------------------------------------- building blocks */
 .card {
   background: linear-gradient(180deg, rgba(16, 27, 47, .86), rgba(10, 18, 33, .86));
   border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; position: relative;
   box-shadow: 0 1px 0 rgba(255, 255, 255, .03) inset, 0 10px 30px rgba(0, 0, 0, .25);
 }
-.card::before {              /* HUD köşe parantezleri: sol üst ve sağ alt */
+.card::before {              /* HUD corner brackets: top left and bottom right */
   content: ""; position: absolute; inset: -1px; pointer-events: none; border-radius: inherit;
   background:
     linear-gradient(var(--accent), var(--accent)) left top / 14px 1.5px,
@@ -203,9 +203,9 @@ body[data-page=panel] .topbar { --hdr: url(images/hdr_panel.webp); }
 .g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .gauto { grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); }
-.gauto.saves { grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); }   /* kayıt kartının iki sütunlu bilgisi sığsın */
+.gauto.saves { grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); }   /* so the save card's two-column info fits */
 .stack { display: grid; gap: 16px; }
-.stack > *, .grid > * { min-width: 0; }      /* uzun yollar (istemci klasörü) kartı taşırmasın */
+.stack > *, .grid > * { min-width: 0; }      /* long paths (client folder) should not overflow the card */
 .row { display: flex; align-items: center; gap: 10px; }
 .row.wrap { flex-wrap: wrap; }
 .row.between { justify-content: space-between; }
@@ -232,7 +232,7 @@ hr.sep { border: 0; border-top: 1px solid var(--line); margin: 14px 0; }
   box-shadow: 0 0 0 1px rgba(64, 223, 255, .08), 0 0 14px rgba(64, 223, 255, .12); }
 .btn:active:not(:disabled) { transform: translateY(1px); }
 .btn:disabled { opacity: .42; cursor: not-allowed; }
-.btn.primary, .btn.orange {  /* dolu düğmeler pahlı köşeli */
+.btn.primary, .btn.orange {  /* filled buttons with chamfered corners */
   border: 0; padding: 9px 17px; font: 600 13.5px/1.2 var(--display); letter-spacing: .06em;
   clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
 }
@@ -278,7 +278,7 @@ hr.sep { border: 0; border-top: 1px solid var(--line); margin: 14px 0; }
 
 /* ---------------------------------------------------------------- formlar */
 .field { display: grid; gap: 6px; }
-.grid > .field { align-content: end; }        /* yan yana alanlarda iki satırlık etiket kutuları kaydırmasın */
+.grid > .field { align-content: end; }        /* in side-by-side fields, two-line label boxes should not shift things */
 .field > label, .lbl { font: 600 11.5px/1.3 var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 .input, select.input, textarea.input {
   width: 100%; padding: 8px 11px; border-radius: var(--radius-sm); border: 1px solid var(--line-2); background: rgba(4, 9, 18, .8); color: var(--text);
@@ -301,9 +301,9 @@ select.input option { background: var(--panel-solid); }
 .switch input:checked + span::after { transform: translateX(20px); background: var(--accent); box-shadow: 0 0 8px var(--accent); }
 .switch input:focus-visible + span { box-shadow: 0 0 0 3px rgba(64, 223, 255, .3); }
 .seg { display: inline-flex; padding: 3px; border-radius: var(--radius); background: rgba(4, 9, 18, .8); border: 1px solid var(--line-2); gap: 2px; flex-wrap: wrap; }
-.seg button { border: 0; background: transparent; color: var(--muted); padding: 6.5px 11px;      /* seçim kutusuyla (.input) aynı boy */ border-radius: 3px; cursor: pointer; font-size: 12.5px;
+.seg button { border: 0; background: transparent; color: var(--muted); padding: 6.5px 11px;      /* same height as the select box (.input) */ border-radius: 3px; cursor: pointer; font-size: 12.5px;
   font-weight: 600; transition: .15s; white-space: nowrap; }
-.seg.diller { display: grid; grid-template-columns: repeat(auto-fill, minmax(116px, 1fr)); }   /* Panel > Dil: düzgün sıralar */
+.seg.diller { display: grid; grid-template-columns: repeat(auto-fill, minmax(116px, 1fr)); }   /* Panel > Language: proper ordering */
 .seg button:hover { color: var(--text); background: rgba(110, 160, 220, .06); }
 .seg button.on { background: var(--panel-3); color: #fff; box-shadow: inset 0 0 0 1px var(--line-2); }
 .seg button.on.ok { background: var(--ok-soft); color: var(--ok); box-shadow: inset 0 0 0 1px rgba(62, 229, 155, .4); }
@@ -330,17 +330,17 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rg
 .crest-sm { width: 34px; height: 34px; flex: none; filter: drop-shadow(0 0 8px rgba(0, 0, 0, .6)); }
 .radio-card span { font-size: 12px; color: var(--muted); }
 
-/* ---------------------------------------------------------------- oyna */
+/* ---------------------------------------------------------------- play */
 .hero {
   position: relative; overflow: hidden; border-radius: var(--radius); border: 1px solid rgba(64, 223, 255, .22); padding: 28px 30px;
   background:
     linear-gradient(90deg, rgba(5, 10, 20, .92) 0%, rgba(5, 10, 20, .7) 40%, rgba(5, 10, 20, .2) 62%, transparent 75%),
     linear-gradient(0deg, rgba(5, 10, 20, .6), transparent 50%),
-    url(images/zemin_hero.webp) right center / auto 300px no-repeat, #070d1a;   /* sağ 420 px aynalanmış uzantı: gemi OYNA kutusunun solunda;
-       sabit yükseklik: kart uzayınca gemi büyüyüp yazıların altına girmesin */
+    url(images/zemin_hero.webp) right center / auto 300px no-repeat, #070d1a;   /* right 420 px mirrored extension: the ship is to the left of the PLAY box;
+       fixed height: when the card grows the ship should not grow and go under the text */
   display: grid; grid-template-columns: minmax(0, 560px) auto; justify-content: space-between; gap: 26px; align-items: center; box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, .05);
 }
-.hero::before {              /* büyük köşe parantezleri */
+.hero::before {              /* large corner brackets */
   content: ""; position: absolute; inset: 8px; pointer-events: none;
   background:
     linear-gradient(var(--accent), var(--accent)) left top / 26px 2px, linear-gradient(var(--accent), var(--accent)) left top / 2px 26px,
@@ -358,10 +358,10 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rg
 .hero .pilot .badge { font-size: 12.5px; padding: 3px 9px; }
 .hero .meta { display: flex; flex-wrap: wrap; gap: 8px 20px; color: var(--muted); font-size: 13px; }
 .hero .meta b { color: var(--text); font-weight: 650; }
-.hero > div:first-child, .live-sub { container-type: inline-size; }     /* kaynak kutuları bulundukları yerin genişliğine göre dizilir */
+.hero > div:first-child, .live-sub { container-type: inline-size; }     /* resource boxes are laid out by the width of where they are */
 .live-sub { margin-top: 16px; }
 .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 20px; }
-@container (max-width: 700px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }   /* "37.740.930" dört sütuna sığmaz */
+@container (max-width: 700px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }   /* "37.740.930" does not fit in four columns */
 .stat { background: linear-gradient(180deg, rgba(5, 10, 20, .84), rgba(5, 10, 20, .72)); border: 1px solid var(--line-2); border-radius: var(--radius-sm);
   padding: 10px 13px 10px 50px; position: relative; backdrop-filter: blur(4px); min-height: 56px; }
 .stat::before { content: ""; position: absolute; left: 10px; top: 50%; width: 32px; height: 32px; margin-top: -16px;
@@ -386,7 +386,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rg
   filter: drop-shadow(0 8px 22px rgba(255, 140, 40, .45));
   display: flex; align-items: center; justify-content: center; gap: 12px; transition: .18s; position: relative; overflow: hidden;
 }
-.play-btn::after {           /* parıltı geçişi */
+.play-btn::after {           /* glow transition */
   content: ""; position: absolute; top: 0; bottom: 0; left: -60%; width: 40%; pointer-events: none;
   background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .45), transparent); transform: skewX(-20deg);
   animation: sheen 3.6s ease-in-out infinite;
@@ -400,14 +400,14 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rg
 .play-btn.busy { background: linear-gradient(180deg, #8ef0ff, #2ac0ee 55%, #128fc0); color: #021120; filter: drop-shadow(0 8px 22px rgba(64, 223, 255, .35)); }
 .play-btn.running:disabled, .play-btn.busy:disabled { cursor: default; }
 .play-btn.busy.prep { background: linear-gradient(90deg, transparent var(--p), rgba(2, 17, 32, .55) var(--p)), linear-gradient(180deg, #8ef0ff, #2ac0ee 55%, #128fc0);
-  transition: background .4s; }   /* BepInEx hazırlığı: düğme soldan dolar */
+  transition: background .4s; }   /* BepInEx preparation: the button fills from the left */
 .play-sub { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
 .steps { display: grid; gap: 6px; margin-top: 4px; }
 .step { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
 .step .ic { width: 18px; height: 18px; display: grid; place-items: center; }
 .step.tamam { color: var(--text); } .step.tamam .ic { color: var(--ok); }
 .step.hata { color: var(--err); } .step.running { color: var(--accent); }
-/* BepInEx'in ilk açılış hazırlığı (OYNA adımının altında) */
+/* BepInEx's first-run preparation (under the PLAY step) */
 .prep { display: grid; gap: 10px; margin: 4px 0 6px 28px; padding: 12px 14px; border-radius: var(--radius); border: 1px solid rgba(64, 223, 255, .3);
   background: var(--accent-soft); }
 .prep-head { display: flex; align-items: center; gap: 8px; color: var(--text); font-weight: 650; font-size: 13.5px; }
@@ -442,13 +442,13 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rg
 .alert.warning svg { color: var(--warn); }
 .alert.info { background: var(--accent-soft); border-color: rgba(64, 223, 255, .28); color: #c6f3ff; }
 .alert.info svg { color: var(--accent); }
-.alert > div { flex: 1; min-width: 0; }      /* düğmeler sağda toplansın (iki düğmede biri ortada kalmasın) */
+.alert > div { flex: 1; min-width: 0; }      /* buttons gather on the right (with two buttons one should not be left in the middle) */
 .empty { text-align: center; padding: 34px 20px; color: var(--muted); }
 .empty svg { width: 40px; height: 40px; color: var(--dim); margin-bottom: 8px; }
 .empty .art { width: 112px; height: 112px; display: block; margin: 0 auto 6px; filter: drop-shadow(0 8px 24px rgba(64, 223, 255, .2)); }
 .empty h3 { color: var(--text); margin: 4px 0 6px; font: 600 18px var(--display); letter-spacing: .06em; text-transform: uppercase; }
 
-/* ---------------------------------------------------------------- kayıt kartları */
+/* ---------------------------------------------------------------- save cards */
 .save-card { display: grid; gap: 12px; transition: border-color .15s, box-shadow .15s; }
 .save-card:hover { border-color: var(--line-2); }
 .save-card.active { border-color: rgba(64, 223, 255, .5); box-shadow: 0 0 0 1px rgba(64, 223, 255, .18), 0 10px 34px rgba(64, 223, 255, .1);
@@ -463,7 +463,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rg
   white-space: nowrap; }
 .note { font-size: 12.5px; color: var(--muted); background: rgba(4, 9, 18, .5); border-radius: var(--radius-sm); padding: 7px 10px; border: 1px dashed var(--line-2); }
 .kv.one { grid-template-columns: minmax(0, 1fr); }
-/* canlı durum: can, kalkan, kargo çubukları */
+/* live status: HP, shield, cargo bars */
 .meter .meter-bar { height: 7px; border-radius: 1px; background: rgba(4, 9, 18, .8); border: 1px solid var(--line); overflow: hidden; margin-top: 4px; }
 .meter .meter-bar span { display: block; height: 100%; background: var(--accent); transition: width .4s; box-shadow: 0 0 10px currentColor;
   background-image: repeating-linear-gradient(90deg, transparent 0 6px, rgba(0, 0, 0, .25) 6px 7px); }
@@ -474,7 +474,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rg
 /* testler */
 .ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 0 1 auto; max-width: 52%; }
 .actions { display: flex; gap: 6px; flex-wrap: wrap; }
-/* çoklu istemci kartı: ek istemcide açılabilecek kayıtlar */
+/* multi-client card: the saves that can be opened on an extra client */
 .multi-row { gap: 10px; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: rgba(4, 9, 18, .4); }
 .multi-row .badge { margin: 0 4px; }
 
@@ -487,7 +487,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rg
 .table .num { text-align: right; font-variant-numeric: tabular-nums; }
 .table-wrap { max-height: 52vh; overflow: auto; border: 1px solid var(--line); border-radius: var(--radius); }
 
-/* ---------------------------------------------------------------- ayarlar */
+/* ---------------------------------------------------------------- settings */
 .preset-bar { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
 .preset { border: 1px solid var(--line-2); border-radius: var(--radius); padding: 12px 14px; background: rgba(4, 9, 18, .7); cursor: pointer; text-align: left;
   transition: .15s; display: grid; gap: 3px; align-content: start; position: relative; }
@@ -499,7 +499,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rg
   border-top: 1px solid var(--line); }
 .set-row:first-of-type { border-top: 0; }
 .set-row .name { font-weight: 650; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.set-row .help { color: var(--muted); font-size: 12.5px; margin-top: 2px; overflow-wrap: anywhere; }   /* uzun klasör yolları */
+.set-row .help { color: var(--muted); font-size: 12.5px; margin-top: 2px; overflow-wrap: anywhere; }   /* long folder paths */
 .set-row .ctl { display: flex; align-items: center; gap: 10px; justify-content: flex-end; }
 .set-row.changed .name::before { content: ""; width: 7px; height: 7px; background: var(--accent-2); transform: rotate(45deg);
   box-shadow: 0 0 8px var(--accent-2); }
@@ -520,7 +520,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rg
 button.chip { font: inherit; font-size: 12.5px; color: var(--text); border: 1px solid var(--line-2); cursor: pointer; }
 button.chip:hover { border-color: var(--accent); color: #fff; box-shadow: 0 0 10px rgba(64, 223, 255, .15); }
 .level-desc { font-size: 12.5px; color: var(--muted); margin-top: 8px; }
-/* alt ayarlar: üst ayarın altında açılan bölüm ("Ayrıntılı ayarla"); denetimler üstününkilerle aynı hizada */
+/* sub-settings: a section that opens under the parent setting ("Fine-tune"); controls aligned with those above */
 .set-toggle { margin-top: 8px; display: inline-flex; align-items: center; gap: 6px; padding: 3px 11px 3px 7px; border-radius: 3px;
   border: 1px solid var(--line-2); background: transparent; color: var(--muted); font: inherit; font-size: 12px; font-weight: 600;
   cursor: pointer; transition: .15s; }
@@ -541,14 +541,14 @@ button.chip:hover { border-color: var(--accent); color: #fff; box-shadow: 0 0 10
 .eff { font: 600 11.5px var(--display); letter-spacing: .04em; color: var(--accent); opacity: .85; font-variant-numeric: tabular-nums; }
 .eff:empty { display: none; }
 
-/* ---------------------------------------------------------------- etkinlik satırları */
+/* ---------------------------------------------------------------- event rows */
 .ev-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 13px 0;
   border-top: 1px solid var(--line); }
 .ev-row:first-of-type { border-top: 0; }
 .ev-row .name { font-weight: 650; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .ev-row .when { color: var(--dim); font-size: 12px; }
 
-/* ---------------------------------------------------------------- günlük */
+/* ---------------------------------------------------------------- log */
 .log-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
 .log-view { background: rgba(2, 5, 11, .92); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; height: 52vh; overflow: auto;
   font: 12px/1.55 var(--mono); white-space: pre-wrap; word-break: break-word; color: #b9c6dc;
@@ -556,12 +556,12 @@ button.chip:hover { border-color: var(--accent); color: #fff; box-shadow: 0 0 10
 .log-view .e { color: #ff8b96; } .log-view .w { color: #ffd68a; } .log-view .i { color: #7fe8ff; } .log-view .t { color: var(--dim); }
 .status-card .big { font: 600 16px var(--display); letter-spacing: .04em; display: flex; align-items: center; gap: 8px; }
 .status-card .big svg { width: 19px; height: 19px; flex: none; color: var(--accent); }
-.card.compact .set-row { display: flex; flex-wrap: wrap; justify-content: space-between; column-gap: 18px; row-gap: 10px; }   /* dar kartta denetim alta iner */
+.card.compact .set-row { display: flex; flex-wrap: wrap; justify-content: space-between; column-gap: 18px; row-gap: 10px; }   /* in a narrow card the control wraps below */
 .card.compact .set-row > :first-child { flex: 1 1 240px; min-width: 0; }
 .card.compact .set-row .ctl { flex: none; margin-left: auto; }
 .status-card { display: flex; flex-direction: column; }
-.status-card .actions { margin-top: auto; padding-top: 12px; gap: 4px; }      /* düğmeler yan yana kartlarda aynı hizada */
-.status-card .actions .btn.ghost:not(.icon) { padding-left: 6px; padding-right: 6px; }   /* Günlük, Konsol: dar kartta dört düğme sığsın */
+.status-card .actions { margin-top: auto; padding-top: 12px; gap: 4px; }      /* buttons aligned in side-by-side cards */
+.status-card .actions .btn.ghost:not(.icon) { padding-left: 6px; padding-right: 6px; }   /* Log, Console: so four buttons fit in a narrow card */
 .status-card .ports { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0 12px; }
 .cmd { font: 12px/1.6 var(--mono); background: rgba(2, 5, 11, .9); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 10px 12px; color: #a9d6f0;
   word-break: break-all; }
@@ -572,7 +572,7 @@ button.chip:hover { border-color: var(--accent); color: #fff; box-shadow: 0 0 10
 .path { font-family: var(--mono); font-size: 12.5px; padding: 9px 12px; background: rgba(2, 5, 11, .9); border: 1px solid var(--line); border-radius: var(--radius-sm);
   word-break: break-all; color: #a9d6f0; }
 
-/* ---------------------------------------------------------------- modal ve bildirim */
+/* ---------------------------------------------------------------- modal and notification */
 .modal-root { position: fixed; inset: 0; pointer-events: none; z-index: 50; }
 .modal-back { position: absolute; inset: 0; background: rgba(2, 5, 12, .72); backdrop-filter: blur(4px); pointer-events: auto;
   display: grid; place-items: center; padding: 24px; animation: fade .15s ease-out; }
@@ -608,7 +608,7 @@ button.chip:hover { border-color: var(--accent); color: #fff; box-shadow: 0 0 10
 .menu hr { border: 0; border-top: 1px solid var(--line); margin: 4px 2px; }
 .kbd { font: 11px var(--mono); padding: 1px 6px; border-radius: 3px; border: 1px solid var(--line-2); background: rgba(4, 9, 18, .8); color: var(--muted); }
 
-/* ---------------------------------------------------------------- kurulum sihirbazı (ilk açılış) */
+/* ---------------------------------------------------------------- setup wizard (first run) */
 .wizard { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: 24px; overflow: auto; animation: fade .2s ease-out;
   background:
     radial-gradient(900px 600px at 50% 50%, rgba(5, 10, 20, .55), rgba(5, 10, 20, .9)),
@@ -636,7 +636,7 @@ button.chip:hover { border-color: var(--accent); color: #fff; box-shadow: 0 0 10
 .wz-step.done i { background: var(--ok-soft); border-color: rgba(62, 229, 155, .4); color: var(--ok); }
 .wizard.busy .wz-body { opacity: .55; transition: opacity .2s .15s; }
 .wizard.busy .wz-box { cursor: progress; }
-/* oyunu indirme kutusu (sihirbaz ve İstemci sayfası) */
+/* game download box (wizard and Client page) */
 .dl-wrap { margin-top: 10px; }
 .dl-box { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--line); background: rgba(4, 9, 18, .5); }
 .dl-box.err { border-color: rgba(255, 93, 108, .35); background: var(--err-soft); }
@@ -648,7 +648,7 @@ button.chip:hover { border-color: var(--accent); color: #fff; box-shadow: 0 0 10
 .wz-art { width: 190px; height: 190px; position: sticky; top: 0; filter: drop-shadow(0 12px 30px rgba(64, 223, 255, .22)); animation: float 5s ease-in-out infinite; }
 @keyframes float { 50% { transform: translateY(-8px); } }
 @media (prefers-reduced-motion: reduce) { .wz-art { animation: none; } }
-.wz-body h2 { margin: 0; font: 600 27px/1.15 var(--display); letter-spacing: .02em; }   /* büyük harf yok: "OpenOrbit" Türkçede İ'li olmasın */
+.wz-body h2 { margin: 0; font: 600 27px/1.15 var(--display); letter-spacing: .02em; }   /* no uppercase: so "OpenOrbit" does not get a dotted İ in Turkish */
 .wz-sub { color: var(--muted); margin-top: -8px; }
 .wz-foot { display: flex; align-items: center; gap: 8px; padding: 14px 26px; border-top: 1px solid var(--line); flex-wrap: wrap; background: rgba(4, 9, 18, .35); }
 .wz-langs { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; margin-top: 6px; }
@@ -684,7 +684,7 @@ button.chip:hover { border-color: var(--accent); color: #fff; box-shadow: 0 0 10
 .wz-summary span { color: var(--muted); }
 .wz-summary b { font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* ---------------------------------------------------------------- etkinlik takvimi */
+/* ---------------------------------------------------------------- event calendar */
 .cal-toolbar { padding: 12px 16px; }
 .cal-title { font: 600 16px var(--display); letter-spacing: .05em; margin-left: 6px; white-space: nowrap; }
 .cal-filter { border: 1px solid var(--line-2); background: transparent; color: var(--dim); border-radius: 3px; padding: 4px 11px; font-size: 12.5px;
@@ -741,7 +741,7 @@ button.chip:hover { border-color: var(--accent); color: #fff; box-shadow: 0 0 10
   text-overflow: ellipsis; }
 .cal-kv b { white-space: normal; text-align: left; }
 
-@media (max-width: 1339px) {      /* gemiye OYNA kutusunun solunda yer yok: OYNA kutusunun arkasına çekilir, yazıların altına girmez */
+@media (max-width: 1339px) {      /* no room to the left of the ship's PLAY box: it is pulled behind the PLAY box, does not go under the text */
   .hero { background-position: 0 0, 0 0, calc(100% + 190px) center, 0 0; }
 }
 @media (max-width: 1100px) {
@@ -754,12 +754,12 @@ button.chip:hover { border-color: var(--accent); color: #fff; box-shadow: 0 0 10
 }
 @media (max-width: 820px) {
   .app { grid-template-columns: 72px 1fr; }
-  .brand > div, .nav button > span:not(.sprite), .side-status, .nav-title { display: none; }   /* oyun içi sayfaların simgesi sprite: görünsün */
+  .brand > div, .nav button > span:not(.sprite), .side-status, .nav-title { display: none; }   /* the icon of in-game pages is a sprite: make it visible */
   .brand { justify-content: center; padding: 4px 0 18px; }
   .nav button.active::after { display: none; }
   .g2, .g3 { grid-template-columns: 1fr; }
   #coffee .coffee { justify-content: center; padding: 6px; }
-  #coffee .coffee span { display: none; }             /* dar kenar çubuğunda yalnız dron */
+  #coffee .coffee span { display: none; }             /* in the narrow sidebar only the drone */
   .coffee-strip { display: none; }
   .topbar h1 { font-size: 24px; }
   .wz-langs { grid-template-columns: 1fr; }
@@ -768,7 +768,7 @@ button.chip:hover { border-color: var(--accent); color: #fff; box-shadow: 0 0 10
   .wz-summary b { grid-column: 2; }
 }
 
-/* ---- oyun içi menüler (Mağaza): kenar çubuğunun bölümü ve oyunun sprite'ları (panel.js OYUN İÇİ) */
+/* ---- in-game menus (Shop): the sidebar's section and the game's sprites (panel.js IN-GAME) */
 .nav-game { display: flex; flex-direction: column; gap: 2px; margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line); }
 .nav-title { color: var(--accent-2); font: 600 10px/1 var(--display); letter-spacing: .22em; text-transform: uppercase; padding: 2px 12px 6px; }
 .sprite { display: inline-flex; align-items: center; justify-content: center; flex: none; }
@@ -798,7 +798,7 @@ button.chip:hover { border-color: var(--accent); color: #fff; box-shadow: 0 0 10
 .hg-ship:hover { border-color: rgba(64, 223, 255, .35); color: var(--text); }
 .hg-ship.on { border-color: var(--accent); color: #fff; background: rgba(64, 223, 255, .1); }
 .hg-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-top: 14px; }
-.hg-slot { display: grid; gap: 8px; align-content: start; }      /* aynı satırdaki yuva başlıkları hizalı kalsın */
+.hg-slot { display: grid; gap: 8px; align-content: start; }      /* so slot headings on the same row stay aligned */
 .hg-grid { display: flex; flex-wrap: wrap; gap: 6px; }
 .hg-item {
   width: 54px; height: 54px; display: inline-flex; align-items: center; justify-content: center; position: relative; padding: 0; cursor: pointer;
@@ -830,7 +830,7 @@ button.chip:hover { border-color: var(--accent); color: #fff; box-shadow: 0 0 10
 }
 .hg-drone.on { border-color: var(--accent); background: rgba(64, 223, 255, .07); }
 .hg-drone .grow { min-width: 140px; }
-/* oyun içi sayfaların ortak üst çubuğu: sekmeler (oyunun simgeleriyle), cüzdan, güvenli bölge */
+/* common top bar of in-game pages: tabs (with the game's icons), wallet, safe zone */
 .game-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 10px 14px; }
 .game-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
 .game-tab {
@@ -866,7 +866,7 @@ button.chip:hover { border-color: var(--accent); color: #fff; box-shadow: 0 0 10
 .hg-sell { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-top: 14px; padding: 10px 12px;
   border: 1px solid rgba(64, 223, 255, .25); border-radius: var(--radius-sm); background: rgba(64, 223, 255, .06); }
 .sk-robot { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; padding-top: 8px; border-top: 1px dashed var(--line); }
-/* açık artırma */
+/* auction */
 .auc-top { display: grid; gap: 0; }
 .auc-counter { gap: 8px; }
 .auc-counter b { font-family: var(--mono); }
@@ -877,14 +877,14 @@ button.chip:hover { border-color: var(--accent); color: #fff; box-shadow: 0 0 10
 }
 .auc-card:hover { border-color: rgba(64, 223, 255, .3); }
 .auc-card.leading { border-color: rgba(62, 229, 155, .4); box-shadow: inset 0 0 0 1px rgba(62, 229, 155, .08); }
-.auc-card .input.num { width: auto; flex: 1; min-width: 70px; }      /* teklif satırı dar kartta taşmasın */
+.auc-card .input.num { width: auto; flex: 1; min-width: 70px; }      /* so the bid row does not overflow in a narrow card */
 .auc-card .badge svg { width: 12px; height: 12px; }
 .auc-row { display: flex; justify-content: space-between; font-size: 13px; }
 .auc-me { color: var(--ok); }
 .auc-bottom { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; }
 .auc-list { display: grid; gap: 4px; max-height: 320px; overflow-y: auto; }
 .auc-event { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: var(--radius-sm); background: rgba(8, 14, 28, .5); font-size: 12.5px; }
-/* kenar çubuğunun en altı: destek bağlantısı (kahve fincanlı dron) */
+/* bottom of the sidebar: the support link (drone with a coffee cup) */
 #coffee { margin-top: 10px; }
 .coffee {
   display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; cursor: pointer; text-align: left; color: var(--muted);
@@ -897,7 +897,7 @@ button.chip:hover { border-color: var(--accent); color: #fff; box-shadow: 0 0 10
 .coffee b { color: var(--accent-2); font: 600 12.5px/1.2 var(--display); letter-spacing: .03em; }
 .coffee small { font-size: 11px; }
 .coffee-drone { width: 40px; height: 40px; flex: none; transition: transform .2s; filter: drop-shadow(0 0 6px rgba(255, 165, 74, .3)); }
-/* düğmenin altında son destekçiler: iki kopya yan yana, yarı genişlik kayınca dikişsiz başa döner */
+/* below the button the latest supporters: two copies side by side, shifting by half the width loops back seamlessly */
 .coffee-strip {
   display: block; width: 100%; margin-top: 6px; padding: 4px 0; overflow: hidden; cursor: pointer; border: 0; background: none;
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent); mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
@@ -912,7 +912,7 @@ button.chip:hover { border-color: var(--accent); color: #fff; box-shadow: 0 0 10
 @keyframes kahve-kay { to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) { .coffee-marquee { animation-duration: 60s !important; } }
 
-/* ---------------------------------------------------------------- eşya ipucu (panel.js esyaIpucu): Hangar, Mağaza, Açık Artırma, karakter editörü */
+/* ---------------------------------------------------------------- item tooltip (panel.js esyaIpucu): Hangar, Shop, Auction, character editor */
 .ipucu { position: fixed; z-index: 400; width: 340px; max-height: calc(100vh - 16px); overflow: hidden; pointer-events: none; padding: 12px 14px; display: grid; gap: 8px;
   border: 1px solid var(--line-hi); border-radius: var(--radius); font-size: 12.5px; color: var(--steel);
   background: linear-gradient(180deg, rgba(14, 26, 46, .98), rgba(6, 12, 24, .98)); box-shadow: var(--shadow), 0 0 0 1px rgba(64, 223, 255, .08), var(--glow);
@@ -943,7 +943,7 @@ button.chip:hover { border-color: var(--accent); color: #fff; box-shadow: 0 0 10
 .tip-resource { color: var(--dim); font-size: 11.5px; font-style: italic; }
 .tip-bottom { padding-top: 7px; border-top: 1px solid var(--line); color: var(--dim); font-size: 11.5px; }
 
-/* Discord Rich Presence (Panel sayfası): ayarlar ve profildeki görünüşün önizlemesi (Discord'un etkinlik kartına benzer) */
+/* Discord Rich Presence (Panel page): settings and a preview of the profile appearance (similar to Discord's activity card) */
 .rp-status { margin-left: auto; }
 .rp-fields { display: grid; grid-template-columns: 1fr 1fr; column-gap: 22px; }
 .rp-setting .set-row { grid-template-columns: minmax(0, 1fr) auto; gap: 12px; padding: 10px 0; }

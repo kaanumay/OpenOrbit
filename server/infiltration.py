@@ -1,18 +1,18 @@
-"""Infiltration (yol haritası Ö3; veri data/extra_events.json 'sizma').
+"""Infiltration (roadmap Ö3; data data/extra_events.json 'infiltration').
 
-İstemci: menü öğesi infiltration (pencere 87, "Infiltration Game") InfiltrationStatusCommand {currentNpcs (kalan), maxNpcs,
-secondsRemaining} gösterir ("Infiltrators killed: %COUNT%"). Metinler (flashres): msg_infiltration_spawned_map_single (%MAP%),
-msg_infiltration_success, msg_infiltration_defeat. Gizli gemi ShipCreateCommand.cloaked ile; görünür olması 0|n|INV|<kimlik>|0.
-Kurallar (resmî SSS 2013, fandom): rastgele bir firma haritasında (X-1'de değil) gizli bir komando takımı çıkar; 10 dakikada bulunup
-yok edilmeli, yoksa kaçar. Komandolar ateş etmez, mini haritada sarı nokta; vurulunca (ya da EMP'yle) görünür olurlar; olağan
-uzaylıdan fazla ödül verirler (2x; kaynaklar 2x/4x diyor). Akşam saatlerinde (19-22) turlar ardı ardına; Şükran Günü haftası.
-Tek oyunculu uyarlama: takım oyuncunun firmasının X-2..X-8 haritalarından birinde; oyuncu o haritadaysa (ya da sonradan gelirse)
-kalan komandolar haritanın rastgele bir yerinde doğar. Takım boyu, tur arası ve uzaylı türleri veride (_uyarlama); turun
-'gizli_patron' olasılığıyla komandolardan biri gizli Boss Kristallon'dur (Uber Kristallon'un ganimeti; fandom Infiltration).
-Şirket sıralaması (resmî Türk forumu Sızma SSS: "yan çubukta belirecek"; takımı yok eden şirketine puan): UpdateEventSummaryScoreCommand
-{scoreCommandList: [EventSummaryScoreCommand {score, factionModule}], eventEnd, eventType 'Infiltration'} (istemcinin UIScoreSystem'i
-bu türde sidebar_infiltration_title_long başlığını gösterir; il2cpp 1.1.115). Oyuncunun firması yok ettiği her takımla +1; öteki
-firmalar sanal: her tur sonunda %50 olasılıkla +1 (uyarlama). Puanlar profilde, etkinlik dönemi başına; turlar oturumluk.
+Client: the menu item infiltration (window 87, "Infiltration Game") shows InfiltrationStatusCommand {currentNpcs (remaining), maxNpcs,
+secondsRemaining} ("Infiltrators killed: %COUNT%"). Texts (flashres): msg_infiltration_spawned_map_single (%MAP%),
+msg_infiltration_success, msg_infiltration_defeat. The hidden ship uses ShipCreateCommand.cloaked; becoming visible is 0|n|INV|<id>|0.
+Rules (official FAQ 2013, fandom): a hidden commando team appears on a random company map (not X-1); it must be found and destroyed in 10 minutes,
+otherwise it escapes. The commandos do not shoot, a yellow dot on the minimap; when hit (or by EMP) they become visible; they give more reward than
+a normal alien (2x; sources say 2x/4x). In the evening hours (19-22) rounds follow one another; Thanksgiving week.
+Single-player adaptation: the team is on one of the player's company's X-2..X-8 maps; if the player is on that map (or arrives later)
+the remaining commandos spawn at a random place on the map. Team size, time between rounds and alien types are in the data (_uyarlama); with the
+'hidden_boss' probability of the round one of the commandos is a hidden Boss Kristallon (the loot of the Uber Kristallon; fandom Infiltration).
+Company ranking (official Turkish forum Infiltration FAQ: "will appear in the sidebar"; the company that destroys the team gets points): UpdateEventSummaryScoreCommand
+{scoreCommandList: [EventSummaryScoreCommand {score, factionModule}], eventEnd, eventType 'Infiltration'} (the client's UIScoreSystem
+shows the sidebar_infiltration_title_long title for this type; il2cpp 1.1.115). The player's company gets +1 for every team it destroys; the other
+companies are virtual: at the end of every round +1 with 50% probability (adaptation). Scores are in the profile, per event period; rounds are per session.
 """
 import json, os, random, time
 
@@ -40,15 +40,15 @@ class Infiltration:
     def __init__(self, profile, shop, log=print):
         self.p, self.m, self.log = profile, shop, log
         self.world = None
-        self.round = None                          # {harita, sinif, turler, adet, olen, bitis, dogdu}
+        self.round = None                          # {map, class_name, kinds, count, killed, end_time, spawned}
         self.next_round = 0.0
-        self.outside = 0                          # ortak haritada öteki oyuncuların öldürdüğü komandolar (on_kill; tick sayar)
+        self.outside = 0                          # commandos killed by the other players on the shared map (on_kill; tick counts)
 
     def faction(self):
         return self.p.d['pilot'].get('factionId', 2)
 
     def scores(self, now=None):
-        """Bu etkinlik döneminin şirket puanları {'1','2','3'} (dönem değişince sıfır)."""
+        """The company scores of this event period {'1','2','3'} (zero when the period changes)."""
         span = CAL.period(EVENT, now)
         d = self.p.d.setdefault('infiltration', {})
         if span and d.get('period') != int(span[0]):
@@ -63,7 +63,7 @@ class Infiltration:
             for f in ('1', '2', '3')]})
 
     def round_over(self, won, now=None):
-        """Tur bitti: kazanılırsa oyuncunun firmasına +1; öteki firmalar sanal (%50) -> yan çubuk."""
+        """Round over: if won, +1 to the player's company; the other companies are virtual (50%) -> sidebar."""
         s = self.scores(now)
         with self.p.lock:
             if won:
@@ -79,7 +79,7 @@ class Infiltration:
         now = time.time() if now is None else now
         if not r:
             return ('InfiltrationStatusCommand', {'currentNpcs': 0, 'maxNpcs': 0, 'secondsRemaining': 0})
-        # currentNpcs = kalan komando (istemci "killed" sayısını maxNpcs - currentNpcs yazar; canlı)
+        # currentNpcs = remaining commandos (the client writes the "killed" count as maxNpcs - currentNpcs; live)
         return ('InfiltrationStatusCommand', {'currentNpcs': r['count'] - r['killed'], 'maxNpcs': r['count'],
                                               'secondsRemaining': max(0, int(r['end_time'] - now))})
 
@@ -92,18 +92,18 @@ class Infiltration:
         n = D.get('count', 6)
         kinds = [random.choice(pool) for _ in range(n)]
         boss = D.get('hidden_boss')
-        if boss and random.random() < boss['probability']:      # gizli Boss Kristallon: bir komandonun yerine (Uber Kristallon'un ganimeti)
+        if boss and random.random() < boss['probability']:      # hidden Boss Kristallon: in place of one commando (the loot of the Uber Kristallon)
             kinds[random.randrange(n)] = boss['type']
         self.round = dict(map=self.map_for(cls), class_name=cls, kinds=kinds, count=n, killed=0,
                           end_time=now + D.get('sure_sn', 600), spawned=False)
-        self.log('   Infiltration: komando takımı %s (%d)' % (H.name(self.round['map']), n))
+        self.log('   Infiltration: commando team %s (%d)' % (H.name(self.round['map']), n))
         msgs = [legacy('0|A|STM|msg_infiltration_spawned_map_single|%%MAP%%|%s' % H.name(self.round['map'])), self.status_cmd(now)]
         if self.world and int(self.world.map_id) == self.round['map']:
             self.spawn(self.world)
         return msgs
 
     def spawn(self, w):
-        """Takımın kalan komandoları bu haritada (dünya kilidi altında ya da attach'te)."""
+        """The team's remaining commandos on this map (under the world lock or in attach)."""
         r = self.round
         if not r or r['spawned'] or int(w.map_id) != r['map']:
             return
@@ -118,9 +118,9 @@ class Infiltration:
             def prep(n):
                 n.hidden = True
                 n.reward_multiplier = D.get('reward_multiplier', 2)
-                n.infiltration = self                     # takımın sahibi (arkadaş sunucusunda öteki oyuncu da vurabilir)
-                n.passive = True                     # komandolar ateş etmez (resmî SSS 2013)
-                n.summoned = tip == D.get('hidden_boss', {}).get('type')       # gizli patron ölünce yeniden doğmaz (etkinlik harita kontrolü de silmez)
+                n.infiltration = self                     # the team's owner (on a friend server the other player can hit it too)
+                n.passive = True                     # commandos do not shoot (official FAQ 2013)
+                n.summoned = tip == D.get('hidden_boss', {}).get('type')       # the hidden boss does not respawn when it dies (the event's map check does not delete it either)
             n = w.spawn_npc_at(tip, cx + random.randint(-400, 400), cy + random.randint(-400, 400), prep=prep)
             if n is not None:
                 n.engaged = False
@@ -139,7 +139,7 @@ class Infiltration:
     def on_kill(self, w, npc, x, y):
         owner = getattr(npc, 'infiltration', None)
         if owner is not self:
-            if owner is not None:                # öteki oyuncunun takımı: sayaç onun, mesajları onun turunda (tick)
+            if owner is not None:                # the other player's team: the counter is theirs, the messages in their round (tick)
                 owner.outside += 1
             return []
         return self.killed()
@@ -150,10 +150,10 @@ class Infiltration:
             return []
         r['killed'] += 1
         if r['killed'] >= r['count']:
-            r['end_time'] = time.time()             # sayaç durur, pencere son durumu (n/n) gösterir
+            r['end_time'] = time.time()             # the counter stops, the window shows the final state (n/n)
         msgs = [self.status_cmd()]
         if r['killed'] >= r['count']:
-            self.log('   Infiltration: takım yok edildi')
+            self.log('   Infiltration: team destroyed')
             msgs.append(legacy('0|A|STM|msg_infiltration_success'))
             self.round = None
             self.next_round = time.time() + D.get('interval_sec', 120)
@@ -172,7 +172,7 @@ class Infiltration:
             return []
         r = self.round
         if r and now >= r['end_time']:
-            self.log('   Infiltration: takım kaçtı (%d/%d)' % (r['killed'], r['count']))
+            self.log('   Infiltration: team escaped (%d/%d)' % (r['killed'], r['count']))
             msgs = [legacy('0|A|STM|msg_infiltration_defeat')]
             w = self.world
             if w and r.get('ids'):
@@ -180,7 +180,7 @@ class Infiltration:
                     for uid in r['ids']:
                         n = w.npcs.get(uid)
                         if n and n.alive:
-                            w.send(w.remove_npc(n))        # takım kaçtı
+                            w.send(w.remove_npc(n))        # team escaped
             self.round = None
             self.next_round = now + D.get('interval_sec', 120)
             return msgs + [self.status_cmd(now)] + self.round_over(False, now)

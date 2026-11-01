@@ -1,20 +1,20 @@
-"""Astral Ascension (yol haritası Aşama 8; istemcinin RogueLite* komutları; veri data/pve_modes.json "astral").
+"""Astral Ascension (roadmap Stage 8; the client's RogueLite* commands; data data/pve_modes.json "astral").
 
-Akış: Astral CPU (kısayol çubuğundan) X-1'de kapıyı açar (portal 86, koşu bitene dek durur). Kapıya atlayınca kiralık gemi seçimi
-(RogueLiteSelectShipCommand: Sentinel, Diminisher, Pusat, Zephyr ve aynı başlangıç yüklemesi) -> RogueLiteSelectShipRequest
-{loadoutId}: koşu başlar. 15 rift (466-468 sırayla): her rift üç dalga (5 ve 10 ara patron, 15 son patron, tek dalga); uzaylılar
-rift ilerledikçe güçlenir, ödül (EP, onur, kredi, uridyum, kargo) vermez. Rift bitince iki ödül kapısı (türü rastgele: silah,
-jeneratör, cephane, booster, modül, kaynak, can; çılgın sürümü daha güçlü uzaylı ve daha iyi ödül, 350 puan) ve çıkış portalı.
-Seçilen kapı sonraki riftin türünü belirler; o rift bitince ödül: silah/jeneratör/modül/booster için üçünden biri
-(RogueLiteSelectRewardCommand -> RogueLiteSelectRewardRequest {lootId}; boş yuva varsa takılır, yoksa koşunun envanterine),
-cephane rastgele, kaynak Atlas Shard (bitişte hesaba), can %50. Ara patrondan sonra can %50 dolar.
-Kiralık donanım: koşu süresince geçici bir gemi (gemiler'e eklenir), dronlar (5 Iris, ikişer LF-3) ve cephane oyuncununkilerin
-yerine geçer; çıkış portalından X-1'e dönünce oyuncununkiler geri gelir, kapıdan yeniden girince kiralıklar (koşu kaldığı yerden
-sürer). Koşu ölünce ya da son patronla biter: kiralık her şey silinir, ulaşılan riftin ödülü (Astralite; olasılıkla Salvage Core
-ve Astral Booty Key) ve toplanan Atlas Shard'lar verilir. Puan: rift 300 (çılgın 350), ara patron 400, son patron 450, patron
-savaşında kalan can (%1'e 3, en çok 300) ve süre (450 - 0,25 x sn); sıralama en iyi 3 koşunun toplamı (tek oyunculu: yalnız
-oyuncu).
-Profilde: pve.astral {kapi, kosu {gemi, sid, rift, tur, cilgin, puan, atlas, envanter, yedek, icerde, sonraki}, kosular [puan]}.
+Flow: the Astral CPU (from the shortcut bar) opens the gate in X-1 (portal 86, stays until the run ends). Jumping into the gate brings up the rented ship choice
+(RogueLiteSelectShipCommand: Sentinel, Diminisher, Pusat, Zephyr with the same starting loadout) -> RogueLiteSelectShipRequest
+{loadoutId}: the run starts. 15 rifts (466-468 in turn): each rift has three waves (5 and 10 mid-bosses, 15 final boss, a single wave); aliens
+grow stronger as the rifts advance, and give no rewards (EP, honor, credits, uridium, cargo). When a rift ends, two reward gates (type random: weapon,
+generator, ammo, booster, module, resource, HP; the frenzied version has stronger aliens and better rewards, 350 points) and the exit portal.
+The chosen gate determines the next rift's type; when that rift ends the reward: for weapon/generator/module/booster one of three
+(RogueLiteSelectRewardCommand -> RogueLiteSelectRewardRequest {lootId}; fitted if there is an empty slot, otherwise to the run's inventory),
+ammo random, resource Atlas Shard (to the account at the end), HP 50%. After a mid-boss HP refills 50%.
+Rented equipment: for the run a temporary ship (added to ships), drones (5 Iris, two LF-3 each) and ammo replace the player's;
+on returning to X-1 through the exit portal the player's own come back, and re-entering through the gate brings back the rented ones (the run
+continues where it was). The run ends on death or with the final boss: everything rented is deleted, the reward of the rift reached (Astralite; by chance Salvage Core
+and Astral Booty Key) and the collected Atlas Shards are given. Points: rift 300 (frenzied 350), mid-boss 400, final boss 450, HP left in the
+boss fight (3 per 1%, at most 300) and time (450 - 0.25 x sec); the ranking is the total of the best 3 runs (single player: only the
+player).
+In the profile: pve.astral {gate, run {ship, shipId, sid, rift, type, frenzied, points, atlas, inventory, items, inside, rented, backup}, runs [points]}.
 """
 import json, math, os, random, time
 
@@ -25,9 +25,9 @@ import pve_common as PS
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'pve_modes.json'), encoding='utf8'))['astral']
-PORTAL = 154900000                 # X-1'deki kapı; + 10 + i ödül kapıları; + 50 çıkış
+PORTAL = 154900000                 # the gate in X-1; + 10 + i reward gates; + 50 exit
 PICK = ('weapon', 'generator', 'module', 'booster')
-SALVAGE_CHANCE, KEY_CHANCE = 1.0, 0.5          # rift sonu: Kurtarma Çekirdeği her seferde (resmî forum); anahtar uyarlama
+SALVAGE_CHANCE, KEY_CHANCE = 1.0, 0.5          # at the end of a rift: Salvage Core every time (official forum); the key is an adaptation
 
 
 def mod(_cls, **f):
@@ -41,8 +41,8 @@ class Astral:
     def __init__(self, profile, shop, log=print):
         self.p, self.m, self.log = profile, shop, log
         self.world = None
-        self.send = None               # oturuma mesaj
-        self.pending = None            # seçim bekleyen ödüller [lootId, seviye/adet]
+        self.send = None               # message to the session
+        self.pending = None            # rewards awaiting a choice [lootId, level/count]
 
     @property
     def st(self):
@@ -52,9 +52,9 @@ class Astral:
     def run(self):
         return self.st.get('run')
 
-    # ------------------------------------------------------------ CPU ve kapı
+    # ------------------------------------------------------------ CPU and gate
     def use_cpu(self, map_id):
-        """Astral CPU: X-1'de kapıyı açar -> mesajlar ya da None (kullanılamaz)."""
+        """Astral CPU: opens the gate in X-1 -> messages or None (cannot be used)."""
         import map_links as H
         if H.map_class(map_id) != D['entry'] or self.st.get('gate') or self.run:
             return None
@@ -63,7 +63,7 @@ class Astral:
         with self.p.lock:
             self.st['gate'] = True
             self.p.dirty = True
-        self.log('   Astral CPU kullanıldı: X-1\'de kapı')
+        self.log('   Astral CPU used: gate in X-1')
         return [KAPI.screen('The Astral Ascension gate has opened in the center of the map.', big=True), self.cpu_cmd()]
 
     def portals(self, map_id):
@@ -76,7 +76,7 @@ class Astral:
     def cpu_cmd(self):
         return ('RogueLiteCpuInfoCommand', dict(keys=int(self.p.resource('resource_booty-key-astral')), showCpu=True))
 
-    # ------------------------------------------------------------ gemi seçimi
+    # ------------------------------------------------------------ ship choice
     def item_mod(self, loot, lvl=0, n=1, iid=0):
         return mod('InventoryItemModule', upgradeLevel=lvl, lootId=loot, amount=n, itemId=iid, star=0, isNew=False, hangarId=0,
                    extAttributes=[], inventoryItemAttributes=[])
@@ -95,23 +95,23 @@ class Astral:
         return ('RogueLiteSelectShipCommand', dict(modifierList=[], shipList=out))
 
     def gate_jump(self):
-        """X-1'deki kapıya atlandı: koşu yoksa gemi seçimi, varsa riftine dön -> (hedef harita ya da None, mesajlar)."""
+        """Jumped to the gate in X-1: if there is no run the ship choice, otherwise back to its rift -> (target map or None, messages)."""
         if not self.run:
             return None, [self.ship_list()]
         self.swap_in()
         return self.rift_map(), []
 
     def select_ship(self, f):
-        """RogueLiteSelectShipRequest {loadoutId} -> hedef harita ya da None."""
+        """RogueLiteSelectShipRequest {loadoutId} -> target map or None."""
         ship = next((s for s in D['ships'] if s['loadout'] == f.get('loadoutId')), None)
         if not ship or self.run or not self.st.get('gate'):
             return None
         self.loan(ship)
         return self.rift_map()
 
-    # ------------------------------------------------------------ kiralık donanım
+    # ------------------------------------------------------------ rented equipment
     def loan(self, ship):
-        """Kiralık gemi, eşyalar, dronlar ve cephane; koşu kaydı."""
+        """Rented ship, items, drones and ammo; the run record."""
         p, y = self.p, D['loadout']
         sid = str(p.add_ship(ship['lootId']))
         cfg = p.d['ships'][sid]['configs']['1']
@@ -139,11 +139,11 @@ class Astral:
                                    rented=dict(drones=drones, ammunition=dict(y['ammunition']), selected=None))
             self.st['gate'] = False
             p.dirty = True
-        self.log('   Astral: koşu başladı (%s)' % ship['name'])
+        self.log('   Astral: run started (%s)' % ship['name'])
         self.swap_in()
 
     def swap_in(self):
-        """Kiralık donanım etkin (oyuncununki koşuda saklanır)."""
+        """Rented equipment active (the player's is stored during the run)."""
         r, p = self.run, self.p
         if not r or r['inside']:
             return
@@ -158,10 +158,10 @@ class Astral:
             r['inside'] = True
             p.dirty = True
         self.m.activate({'shipId': r['sid']})
-        self.log('   Astral: kiralık donanım etkin')
+        self.log('   Astral: rented equipment active')
 
     def swap_out(self):
-        """Oyuncunun donanımı geri (kiralıklar koşuda saklanır)."""
+        """The player's equipment back (the rented ones are stored in the run)."""
         r, p = self.run, self.p
         if not r or not r['inside']:
             return
@@ -172,10 +172,10 @@ class Astral:
             r['inside'] = False
             p.dirty = True
         self.m.activate({'shipId': y['active']})
-        self.log('   Astral: oyuncunun donanımı geri')
+        self.log('   Astral: player equipment restored')
 
     def end_run(self, reached, final=False):
-        """Koşu bitti: kiralık her şey silinir, ödüller verilir -> mesajlar."""
+        """The run ended: everything rented is deleted, rewards are given -> messages."""
         r, p = self.run, self.p
         self.swap_out()
         with p.lock:
@@ -191,7 +191,7 @@ class Astral:
         row = next((x for x in D['reward'] if x['en_az'] <= reached <= x['max_count']), D['reward'][0])
         msgs, got = [], []
         give = [('resource_collectable_astralite', row['astralite'])]
-        if random.random() < SET.chance('drop', SALVAGE_CHANCE, 'mod'):     # panel: düşme şansı
+        if random.random() < SET.chance('drop', SALVAGE_CHANCE, 'mod'):     # panel: drop chance
             give.append(('resource_collectable_salvage-core', row['salvage']))
         keys = sum(1 for _ in range(row['anahtar']) if random.random() < SET.chance('drop', KEY_CHANCE, 'mod'))
         if keys:
@@ -202,8 +202,8 @@ class Astral:
             msgs += self.m.prize(loot, n)
             got.append('%s x%d' % (loot, n))
             if loot == 'resource_collectable_astralite':
-                p.ach('loot', loot=loot, amount=n)                  # Astral Ascension Pass: "Astralite topla" (savas_bileti.py)
-        self.log('   Astral bitti: rift %d, puan %d; %s' % (reached, r['points'], ', '.join(got)))
+                p.ach('loot', loot=loot, amount=n)                  # Astral Ascension Pass: "collect Astralite" (battle_pass.py)
+        self.log('   Astral ended: rift %d, points %d; %s' % (reached, r['points'], ', '.join(got)))
         msgs.append(KAPI.screen('Astral Ascension ended at rift %d. Score: %d' % (min(reached, 15), r['points']), big=True))
         return msgs + [self.info_cmd(), self.rank_cmd()]
 
@@ -216,7 +216,7 @@ class Astral:
 
     def waves(self):
         sets = self.rift()['sets']
-        return sets[1 if self.run['frenzied'] and len(sets) > 1 else 0]      # kaynağın iki örnek koşusu: normal ve çılgın
+        return sets[1 if self.run['frenzied'] and len(sets) > 1 else 0]      # the source's two example runs: normal and frenzied
 
     def wave_count(self):
         return len(self.waves())
@@ -229,7 +229,7 @@ class Astral:
         if rf['boss']:
             hp *= o['boss_hp'][rf['name']]
             dmg *= o['boss_damage'][rf['name']]
-        return PS.scale_npc(n, hp, dmg, 0)          # Astral'da uzaylılar EP/onur/kredi/uridyum/kargo vermez
+        return PS.scale_npc(n, hp, dmg, 0)          # in Astral aliens give no EP/honor/credits/uridium/cargo
 
     def attach(self, world):
         self.world = world
@@ -239,9 +239,9 @@ class Astral:
             return None
         self.swap_in()
         r['wave_start'] = None
-        if r.get('cleared'):                         # rift temizlenmiş, kapı seçimi bekliyor (çıkıp dönüldü)
+        if r.get('cleared'):                         # rift cleared, waiting for a gate choice (left and came back)
             world.gate = PS.Run(world, self)
-            world.gate.phase = 'hold'                  # dalga yok; ölüm yine koşuyu bitirir
+            world.gate.phase = 'hold'                  # no waves; death still ends the run
             world.send([self.info_cmd(), self.inventory_cmd()])
             if self.pending:
                 world.send([('RogueLiteSelectRewardCommand', dict(content=[self.item_mod(l, n - 1) for l, n in self.pending], module=[]))])
@@ -253,7 +253,7 @@ class Astral:
         return world.gate
 
     def wave_started(self, i):
-        r = self.run                                     # istemcinin metni: "%NAME% - Rift %RIFT% Wave %WAVE%"
+        r = self.run                                     # the client's text: "%NAME% - Rift %RIFT% Wave %WAVE%"
         self.world.send([KAPI.screen('key:log_astralascension_wave_name', big=True, RIFT=r['rift'], WAVE=i + 1,
                                  NAME='Astral Ascension' + (' (Frenzied)' if r['frenzied'] else ''))])
         if self.rift()['boss']:
@@ -280,7 +280,7 @@ class Astral:
             r['cleared'] = True
             self.p.dirty = True
         msgs = [KAPI.screen('Rift %d cleared! +%d points' % (r['rift'], pts), big=True)]
-        self.log('   Astral rift %d bitti: +%d puan (%d)' % (r['rift'], pts, r['points']))
+        self.log('   Astral rift %d ended: +%d points (%d)' % (r['rift'], pts, r['points']))
         if r['rift'] >= len(D['rifts']):
             w.send(msgs + self.end_run(16, final=True))
             w.add_gate(self.exit_portal(w))
@@ -300,7 +300,7 @@ class Astral:
                                               nanoHullMax=g.get('maxNanoHull', 0)))]
 
     def bounty(self):
-        """Bu riftin (seçilen kapının) ödülü."""
+        """This rift's (the chosen gate's) reward."""
         r = self.run
         t = r.get('type')
         if not t:
@@ -337,7 +337,7 @@ class Astral:
             module=[]))]
 
     def select_reward(self, f):
-        """RogueLiteSelectRewardRequest {lootId}: seçilen ödül takılır ya da envantere -> mesajlar."""
+        """RogueLiteSelectRewardRequest {lootId}: the chosen reward is fitted or goes to the inventory -> messages."""
         pick = next((x for x in (self.pending or []) if x[0] == f.get('lootId')), None)
         if not pick or not self.run:
             return []
@@ -353,12 +353,12 @@ class Astral:
             if not self.equip(iid, loot):
                 self.run['inventory'].append(iid)
             msgs += self.m.apply_stats()
-        self.log('   Astral ödülü: %s (seviye %d)' % (loot, lvl))
+        self.log('   Astral reward: %s (level %d)' % (loot, lvl))
         self.open_gates()
         return msgs + [self.inventory_cmd()]
 
     def equip(self, iid, loot):
-        """Kiralık gemide boş yuvaya tak -> True."""
+        """Fit into an empty slot on the rented ship -> True."""
         from shop import ITEMS, slot_of
         slot = slot_of(loot)
         if not slot:
@@ -377,7 +377,7 @@ class Astral:
         return True
 
     def open_gates(self):
-        """İki ödül kapısı (türleri rastgele; can kapısının çılgını yok) ve çıkış."""
+        """Two reward gates (types random; the HP gate has no frenzied version) and the exit."""
         w = self.world
         x, y = w.map_w // 2, w.map_h // 2
         kinds = random.sample(D['gate_kinds'], 2)
@@ -394,20 +394,20 @@ class Astral:
                     astral_exit=True, arrival='station')
 
     def choose_gate(self, g):
-        """Ödül kapısına atlandı: sonraki rift o türle -> hedef harita."""
+        """Jumped to a reward gate: the next rift with that type -> target map."""
         r = self.run
         with self.p.lock:
             r.update(rift=r['rift'] + 1, type=g['type'], frenzied=g['frenzied'], cleared=False)
             self.p.dirty = True
-        self.log('   Astral: rift %d (%s%s)' % (r['rift'], g['type'], ', çılgın' if g['frenzied'] else ''))
+        self.log('   Astral: rift %d (%s%s)' % (r['rift'], g['type'], ', frenzied' if g['frenzied'] else ''))
         return self.rift_map()
 
     def leaving(self):
-        """Çıkış portalıyla X-1'e: oyuncunun donanımı geri, koşu sürer."""
+        """Through the exit portal to X-1: the player's equipment is back, the run continues."""
         self.swap_out()
 
     def on_death(self):
-        """Tek can: koşu biter."""
+        """Single life: the run ends."""
         if self.run:
             self.world.send(self.end_run(self.run['rift']))
         return 0
@@ -415,7 +415,7 @@ class Astral:
     def revive(self):
         pass
 
-    # ------------------------------------------------------------ gösterge
+    # ------------------------------------------------------------ display
     def best3(self):
         return sum(self.st.get('runs', [])[:3])
 
@@ -454,7 +454,7 @@ class Astral:
                                                   unstableModules=[]))
 
     def change_equipment(self, f):
-        """RogueLiteChangeEquipmentRequest {modifiedItemIds}: takılıysa envantere, envanterdeyse (yuva boşsa) tak."""
+        """RogueLiteChangeEquipmentRequest {modifiedItemIds}: if fitted, to the inventory; if in the inventory, fit it (if the slot is empty)."""
         r = self.run
         if not r:
             return []
@@ -476,7 +476,7 @@ class Astral:
         return self.m.apply_stats() + [self.inventory_cmd()]
 
     def rank_cmd(self):
-        """Rank sekmesi: sunucudaki oyuncular (en iyi üç koşunun toplamı)."""
+        """Rank tab: the players on the server (total of the best three runs)."""
         import community as TP
         row = lambda r: mod('RankModule', lastUpdateTime=int(time.time() * 1000), name=r[1].d['pilot'].get('userName', ''), rank=r[0],
                             points=int(r[2]))

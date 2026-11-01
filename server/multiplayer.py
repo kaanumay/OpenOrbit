@@ -1,38 +1,38 @@
-"""Arkadaşlarla oyna: arkadaş sunucusu ve misafirlerin hesapları (panelin "Arkadaşlarınla Oyna" sayfası, panel/friends.py).
+"""Play with friends: the friend server and the guests' accounts (the panel's "Play with Friends" page, panel/friends.py).
 
-Sunucu: panel game.py'yi --multiplayer ile başlatır. Oyun (8081) ve sohbet (7771) portları bütün ağlardan dinlenir; web girişi
-(80, 8090) yerel kalır: her oyuncu kendi bilgisayarındaki web.py'den girer (misafirinki --remote ile bu sunucuyu gösterir). Ayarlar
-ortam değişkeninden (OO_MULTIPLAYER, JSON; komut satırında görünmesin): sifre (katılma şifresi; boş: yok), en_cok (misafir sayısı),
-anahtar (panelin yönetim anahtarı), kod (panelin sürümü: misafirin paneli karşılaştırır), adres (dinlenen adres; öntanımlı 0.0.0.0,
-tek bilgisayardaki canlı testte 127.0.0.1: güvenlik duvarı sorusu çıkmasın). Aynı normal haritadaki oyuncular
-uzaylıları, kutuları ve cevherleri paylaşır, birbirini görür (shared_maps.py); sohbet ortak.
+Server: the panel starts game.py with --multiplayer. The game (8081) and chat (7771) ports listen on all networks; the web login
+(80, 8090) stays local: each player logs in from the web.py on their own computer (a guest's points at this server with --remote). Settings
+come from an environment variable (OO_MULTIPLAYER, JSON; so they do not show on the command line): password (join password; empty: none),
+max_count (guest count), anahtar (the panel's management key), code (the panel's version: the guest's panel compares it), address (the listen
+address; default 0.0.0.0, 127.0.0.1 in a live test on a single computer: so the firewall prompt does not appear). Players on the same
+normal map share the aliens, boxes and ores and see each other (shared_maps.py); chat is shared.
 
-Hesap gönderimi: misafirin paneli oyuna girmeden kaydını oyun portundan HTTP ile gönderir (game.handle ilk baytlar "GET "/"POST"
-ise buraya verir; oyun istemcisinin ilk paketi uzunlukla başlar).
-  GET  /misafir/bilgi                     sunucunun adı, pilotu, oyuncular, şifre gerekli mi, yer var mı
-  POST /misafir/giris {surum, sifre, anahtar, adres, profil}  -> {oturum, uid, surum, sohbet}
-       Kayıt sunucunun belleğinde tutulur, diske yazılmaz: sunucunun Kayıtlar sayfasında görünmez. Oyuncu kimliği sunucuda benzersiz
-       olsun diye geçici bir kimlikle değişir (kayıtların çoğu tohumun aynı kimliğiyle başlar), geri verilirken eskisine döner
-       (kimlik alanlarında: kimlik_cevir). Aynı anahtarla yeniden giriş (bağlantı koptu, panel yeniden açıldı) oturumu ve
-       sunucudaki son hâli sürdürür. adres: misafirin bu sunucuya bağlandığı adres (sohbetin adresi oradan).
-  GET  /misafir/profil?session=&anahtar=&version=N&wait=25
-       uzun yoklama: kayıt N'den yeni bir sürüme gelince (oyun değişince 10 sn'de bir kaydeder; MisafirProfil.save) ya da süre
-       dolunca -> {surum, bagli, bitti, profil (yeniyse)}. Misafirin paneli her yeni sürümü kendi kayıt yuvasına yazar.
-  POST /misafir/cikis {oturum, anahtar}   -> son hâl; oturum biter (oyun açıksa bağlantı kapanır), kayıt kısa süre sonra silinir
-Gövdeler JSON; "Content-Encoding: gzip" ile sıkıştırılmış da olabilir, "Accept-Encoding: gzip" isteyene yanıt sıkıştırılır.
-Yönetim (yalnız 127.0.0.1'den, panelin anahtarıyla): POST /yonetim/kick {anahtar, oturum}: misafiri çıkar.
-İstemci girişte (LoginRequest) web girişinin verdiği sessionID'yi gönderir: misafirinki oturum anahtarı (bul), sunucunun kendi
-oyuncusununki web.py'nin SESSION'ı (AYAR['yerel']: panelin bu açılışta ürettiği belirteç; yalnız bu bilgisayardan).
-Yanlış katılma şifresi adres başına sınırlı (DENEME_SINIR denemeden sonra KILIT_SN kilit, 429).
-Sunucu kapatılırken (panelin "Durdur"u) misafirlerin son hâli yayımlanır ve bekleyen yoklamalara verilir (kapanis).
+Account upload: before entering the game, the guest's panel sends its save over the game port by HTTP (game.handle hands over here if the
+first bytes are "GET "/"POST"; the game client's first packet starts with a length).
+  GET  /misafir/bilgi                     the server's name, pilot, players, is a password needed, is there room
+  POST /misafir/giris {version, password, anahtar, address, profile}  -> {session, uid, version, ongoing}
+       The save is kept in the server's memory, not written to disk: it does not show on the server's Saves page. The player id is
+       replaced with a temporary id so that it is unique on the server (most saves start with the same id from the seed), and reverts to
+       the old one when given back (in the id fields: convert_ids). Logging in again with the same key (connection lost, panel reopened)
+       continues the session and the latest state on the server. address: the address the guest uses to connect to this server (the chat's
+  address comes from it). GET  /misafir/profil?session=&anahtar=&version=N&wait=25
+       long poll: when a version newer than N of the save arrives (it saves every 10 s when the game changes; GuestProfile.save) or when
+       the time is up -> {version, connected, finished, profile (if new)}. The guest's panel writes every new version to its own save slot.
+  POST /misafir/cikis {session, anahtar}   -> the final state; the session ends (the game connection closes if the game is open), the save
+is deleted shortly after Bodies are JSON; they may also be compressed with "Content-Encoding: gzip", and the response is compressed for
+whoever sends "Accept-Encoding: gzip". Management (only from 127.0.0.1, with the panel's key): POST /yonetim/kick {anahtar, session}: kick
+the guest. At login (LoginRequest) the client sends the sessionID given by the web login: for a guest it is the session key (find), for the
+server's own player it is web.py's SESSION (SETTINGS['local']: the token the panel produced for this launch; only from this computer).
+Wrong join passwords are limited per address (after ATTEMPT_LIMIT attempts a LOCK_SEC lock, 429).
+When the server is shut down (the panel's "Stop") the guests' final state is published and given to pending polls (shutdown).
 
-Çoklu istemci (panelin OYNA'sından sonra bu bilgisayardaki öteki kayıtlarla açılan istemciler; panel/multi_client.py): sunucu aynı kipte
-açılır, misafir kabul etmez (OO_MULTIPLAYER misafir: false, adres 127.0.0.1); Host'ta misafirlerle birlikte. Yalnız 127.0.0.1'den:
-  POST /yerel/ekle {anahtar, kayit, yol}  -> {oturum, uid, devam}: yuvanın profil.json'u ek oyuncu olarak yüklenir (YerelProfil:
-       dosyaya doğrudan yazılır; kimliği sunucudaki başka bir oyuncununkiyle aynıysa bellekte kayda göre sabit geçici kimlik).
-       Aynı yuva yeniden eklenirse (istemci yeniden açıldı) oturum sürer. Ana kayıt, aynı pilot adı ve dolu sunucu reddedilir.
-  POST /yerel/cikar {anahtar, oturum}     -> bağlıysa oyun bağlantısı kapanır, son hâl yazılır, yuva bırakılır
-  GET  /yerel/oturum?session=              -> {uid, yol, kayit}: web.py ek istemcinin girişini bununla verir
+Multi-client (clients opened with the other saves on this computer after the panel's PLAY; panel/multi_client.py): the server is opened in
+the same mode, accepts no guests (OO_MULTIPLAYER guest: false, address 127.0.0.1); on Host together with guests. Only from 127.0.0.1:
+  POST /yerel/ekle {anahtar, record, route}  -> {session, uid, ongoing}: the slot's profile.json is loaded as an extra player (LocalProfile:
+       written directly to the file; if its id equals another player's on the server, a stable temporary id per save in memory).
+       If the same slot is added again (the client was reopened) the session continues. The main save, the same pilot name and a full
+  server are rejected. POST /yerel/cikar {anahtar, session}     -> if connected the game connection closes, the final state is written, the
+  slot is released GET  /yerel/oturum?session=              -> {uid, route, record}: web.py gives the extra client's login with this
 """
 import collections, gzip, hmac, json, os, random, re, secrets, socket, threading, time, zlib
 from urllib.parse import parse_qs, urlparse
@@ -40,49 +40,49 @@ from urllib.parse import parse_qs, urlparse
 import player_profile as PF
 import paths as PTH
 
-PROTOCOL = 2                    # hesap gönderiminin sürümü: misafirin paneliyle aynı olmalı (2: İngilizce kayıt anahtarları, 2026-11-01)
-UID_LOWER, UID_UPPER = 2000000000, 2100000000     # misafirlerin sunucudaki geçici kimlikleri (int32; kayıt kimlikleriyle karışmaz)
-BODY_LIMIT = 8 * 1024 * 1024   # hesap gönderimi (kayıtlar ~0,4 MB); şifreden önce okunur
-ATTEMPT_LIMIT, LOCK_SEC = 5, 60  # adres başına yanlış şifre: bu kadar denemeden sonra bu kadar saniye kilit
+PROTOCOL = 2                    # version of the account upload: must be the same as the guest's panel (2: English save keys, 2026-11-01)
+UID_LOWER, UID_UPPER = 2000000000, 2100000000     # the guests' temporary ids on the server (int32; do not mix with save ids)
+BODY_LIMIT = 8 * 1024 * 1024   # account upload (saves ~0.4 MB); read before the password
+ATTEMPT_LIMIT, LOCK_SEC = 5, 60  # wrong password per address: after this many attempts, a lock of this many seconds
 HEADER_LIMIT = 64 * 1024
 WAIT_MAX = 30
-IDLE_SEC = 30 * 60              # bağlı değil ve yoklanmıyor: kayıt bu kadar sonra bırakılır (veri misafirin panelinde)
-END_SEC = 120                  # biten oturumun son hâli bu kadar daha alınabilir (yoklama arasında biten oturum kaybolmasın)
+IDLE_SEC = 30 * 60              # not connected and not polling: the save is released after this long (the data is in the guest's panel)
+END_SEC = 120                  # an ended session's final state can still be taken for this much longer (so a session that ends between polls is not lost)
 CHAT_PORT = 7771
 
-LOCAL_LOWER, LOCAL_UPPER = 2100000000, 2147000000     # ek oyuncuların geçici kimlikleri (misafirlerinkinden ayrı)
-LOCAL_MAX = 16               # sunucunun sınırı (panelin kendi sınırı daha küçük: coklu_en_cok)
+LOCAL_LOWER, LOCAL_UPPER = 2100000000, 2147000000     # temporary ids of the extra players (separate from the guests')
+LOCAL_MAX = 16               # the server's limit (the panel's own limit is smaller: coklu_en_cok)
 
 SETTINGS = {'on': False, 'password': '', 'max_count': 4, 'anahtar': None, 'code': '', 'address': '0.0.0.0', 'local': '', 'guest': True}
 COND = threading.Condition()
-GUESTS = {}                 # oturum anahtarı -> Misafir
-LOCAL_PLAYERS = {}                   # oturum anahtarı -> Yerel (çoklu istemcinin ek oyuncuları)
-FAILED = {}                     # adres -> [yanlış şifre sayısı, kilidin bitişi]
+GUESTS = {}                 # session key -> Guest
+LOCAL_PLAYERS = {}                   # session key -> LocalPlayer (the multi-client's extra players)
+FAILED = {}                     # address -> [wrong password count, end of the lock]
 log = print
 
 
 def equal(a, b):
-    """Gizli değerlerin karşılaştırması (sabit süreli; str'de ASCII dışı karakter TypeError veriyordu)."""
+    """Comparison of secret values (constant time; a non-ASCII character in a str used to raise TypeError)."""
     return hmac.compare_digest(str(a or '').encode('utf8'), str(b or '').encode('utf8'))
 
 
 def configure(raw, logger=print):
-    """game.main: --multiplayer ile açıldıysa (raw: OO_MULTIPLAYER ortam değişkeni)."""
+    """game.main: if opened with --multiplayer (raw: the OO_MULTIPLAYER environment variable)."""
     global log
     log = logger
     try:
         d = json.loads(raw or '{}')
     except ValueError:
         d = {}
-    # yerel: sunucunun kendi oyuncusunun oturumu (panel her açılışta üretir, kendi web.py'sine de verir). Sabit 'localtest'
-    # tünelle açılan sunucuda (bağlantılar 127.0.0.1'den görünür) şifresiz girişti
+    # local: the session of the server's own player (the panel produces it on every launch, and gives it to its own web.py too). The fixed
+    # 'localtest' was a passwordless login on a server opened through a tunnel (connections appear from 127.0.0.1)
     SETTINGS.update(on=True, password=str(d.get('password') or ''), max_count=max(1, min(16, int(d.get('max_count') or 4))),
                 anahtar=d.get('anahtar') or None, code=str(d.get('code') or ''), address=str(d.get('address') or '0.0.0.0'),
                 local=str(d.get('local') or '') or secrets.token_urlsafe(24), guest=bool(d.get('guest', True)))
 
 
 def is_local(sid):
-    """LoginRequest'in sessionID'si sunucunun kendi oyuncusunun mu."""
+    """Is LoginRequest's sessionID the server's own player's."""
     return bool(SETTINGS['local']) and equal(sid, SETTINGS['local'])
 
 
@@ -90,10 +90,10 @@ def is_open():
     return SETTINGS['on']
 
 
-# ------------------------------------------------------------------ misafirler
+# ------------------------------------------------------------------ guests
 def convert_ids(x, old, new_):
-    """Kayıttaki oyuncu kimliklerini değiştirir (yerinde): pilot, klan haberi ve mesajı ('kim'), posta (sender_id, alici_idler),
-    müzayede, klan hesabı (balanceUserId). Yalnız adı kimlik olan alanlarda: para ve sayaçlara dokunulmaz."""
+    """Replaces the player ids in the save (in place): pilot, clan news and message ('kim'), mail (sender_id, alici_idler),
+    auction, clan account (balanceUserId). Only in fields whose name is an id: money and counters are not touched."""
     if isinstance(x, dict):
         for k, v in x.items():
             has_id = k == 'who' or k.lower().endswith(('id', 'ids', 'idler'))
@@ -111,17 +111,17 @@ def convert_ids(x, old, new_):
 
 
 class GuestProfile(PF.Profile):
-    """Misafirin kaydı: dosya yerine bellekte; her kayıt (oyunun 10 sn'lik kaydı) yeni bir sürüm yayımlar (uzun yoklamaya)."""
+    """The guest's save: in memory instead of a file; every save (the game's 10 s save) publishes a new version (to the long poll)."""
 
     def __init__(self, seed, d, guest):
         self.guest = guest
-        super().__init__(seed, path=os.path.join(PTH.LOGS, 'misafir_yok.json'), d=PF.SM.migrate_obj(d))   # yol hiç yazılmaz; eski sürümlü misafirin kaydı yeni biçime
+        super().__init__(seed, path=os.path.join(PTH.LOGS, 'misafir_yok.json'), d=PF.SM.migrate_obj(d))   # the path is never written; the save of a guest with an old version to the new format
 
     def save(self, force=False):
         with self.lock:
             if not (self.dirty or force):
                 return
-            for k in range(5):                    # oturum profile kilitsiz yazıyor (Profil.save gibi)
+            for k in range(5):                    # the session writes to the profile without a lock (like Profil.save)
                 try:
                     text = json.dumps(self.d, ensure_ascii=False)
                     break
@@ -138,12 +138,12 @@ class Guest:
         self.token, self.key, self.uid, self.original_uid = token, key, uid, original_uid
         self.address, self.ip = address, ip
         self.profile = None
-        self.text = None             # son yayımlanan kaydın JSON'u (sunucudaki kimlikle)
+        self.text = None             # JSON of the last published save (with the id on the server)
         self.version = 0
-        self.session = None           # bağlı oyun oturumu (game.Session)
+        self.session = None           # connected game session (game.Session)
         self.entry = time.time()
-        self.last = time.time()        # son yoklama ya da bağlantı
-        self.finished = False            # bitti: oyuna girilemez; son hâl BITIS_SN boyunca alınabilir
+        self.last = time.time()        # last poll or connection
+        self.finished = False            # finished: cannot enter the game; the final state can be taken for BITIS_SN
         self.end_time = 0.0
 
     def publish(self, text):
@@ -152,7 +152,7 @@ class Guest:
             COND.notify_all()
 
     def export(self):
-        """Misafirin kendi kimliğiyle kaydı (misafirin paneli yuvasına yazar)."""
+        """The save with the guest's own id (the guest's panel writes it to its slot)."""
         d = json.loads(self.text)
         convert_ids(d, self.uid, self.original_uid)
         return d
@@ -172,7 +172,7 @@ def _new_uid(full):
 
 
 def valid_profile(d):
-    """Gönderilen kayıt oynanabilir mi -> hata metni ya da None."""
+    """Can the uploaded save be played -> error text or None."""
     if not isinstance(d, dict):
         return 'kayıt bir JSON nesnesi değil'
     pl, g, k = d.get('pilot'), d.get('ship'), d.get('position')
@@ -186,7 +186,7 @@ def valid_profile(d):
 
 
 def login(body, ip, seed, server_uid, main=None):
-    """POST /misafir/giris -> (durum kodu, yanıt). ana: sunucunun kendi profili (adı başka oyuncuyla aynı olamaz)."""
+    """POST /misafir/giris -> (status code, response). main: the server's own profile (its name cannot be the same as another player's)."""
     if int(body.get('version') or 0) != PROTOCOL:
         return 409, {'error': 'version', 'message': 'Hesap gönderiminin sürümü farklı (sunucu %d): ikiniz de paneli güncelleyin.' % PROTOCOL}
     if SETTINGS['password']:
@@ -201,7 +201,7 @@ def login(body, ip, seed, server_uid, main=None):
                 h[0] += 1
                 if h[0] >= ATTEMPT_LIMIT:
                     h[:] = [0, now + LOCK_SEC]
-                    log('arkadaş: %s için yanlış şifre sınırı, %d sn kilit' % (ip, LOCK_SEC))
+                    log('friends: wrong password limit for %s, %d s lock' % (ip, LOCK_SEC))
             return 403, {'error': 'password', 'message': 'Katılma şifresi yanlış.'}
         with COND:
             FAILED.pop(ip, None)
@@ -210,10 +210,10 @@ def login(body, ip, seed, server_uid, main=None):
         return 400, {'error': 'anahtar', 'message': 'Misafir anahtarı eksik.'}
     with COND:
         old = next((m for m in GUESTS.values() if equal(m.key, key) and not m.finished), None)
-        if old:                                  # yeniden giriş: sunucudaki son hâl sürer
+        if old:                                  # logging in again: the latest state on the server continues
             old.last, old.ip = time.time(), ip
             old.address = str(body.get('address') or old.address)
-            log('misafir yeniden geldi: %s (%s)' % (old.summary()['name'], ip))
+            log('guest returned: %s (%s)' % (old.summary()['name'], ip))
             return 200, {'session': old.token, 'uid': old.uid, 'version': old.version, 'ongoing': True}
         if sum(1 for m in GUESTS.values() if not m.finished) >= SETTINGS['max_count']:
             return 503, {'error': 'full', 'message': 'Sunucu dolu (en çok %d misafir).' % SETTINGS['max_count']}
@@ -224,7 +224,7 @@ def login(body, ip, seed, server_uid, main=None):
     name = str((d.get('pilot') or {}).get('userName') or '').strip().lower()
     with COND:
         names = {_name(m.profile) for m in GUESTS.values() if not m.finished and m.profile is not None} |             {_name(y.profile) for y in LOCAL_PLAYERS.values()} | ({_name(main)} if main is not None else set())
-    if name in names:                               # sohbet, posta, grup, rehber ve klan oyuncuyu adıyla bulur (yerel_ekle gibi)
+    if name in names:                               # chat, mail, group, directory and clan find the player by name (like add_local)
         return 409, {'error': 'name', 'message': 'Sunucuda "%s" adlı bir pilot zaten var: aynı adla iki oyuncu sohbette, postada, grupta ve '
                                             'klanda karışır. Pilot adını değiştirip yeniden katıl.' % d['pilot']['userName']}
     with COND:
@@ -234,12 +234,12 @@ def login(body, ip, seed, server_uid, main=None):
         m.profile = GuestProfile(seed, d, m)
         m.publish(json.dumps(m.profile.d, ensure_ascii=False))
         GUESTS[m.token] = m
-    log('misafir geldi: %s (%s), sunucudaki kimlik %d' % (d['pilot'].get('userName'), ip, uid))
+    log('guest joined: %s (%s), id on the server %d' % (d['pilot'].get('userName'), ip, uid))
     return 200, {'session': m.token, 'uid': uid, 'version': m.version, 'ongoing': False}
 
 
 def _guest(q):
-    """Oturum ve anahtar tutan misafir ya da None."""
+    """The guest holding the session and key, or None."""
     with COND:
         m = GUESTS.get(str(q.get('session') or ''))
     if m and equal(m.key, q.get('anahtar')):
@@ -248,7 +248,7 @@ def _guest(q):
 
 
 def poll_profile(q):
-    """GET /misafir/profil: N'den yeni sürüm gelene ya da süre dolana dek bekler."""
+    """GET /misafir/profil: waits until a version newer than N arrives or the time runs out."""
     m = _guest(q)
     if not m:
         return 404, {'error': 'session', 'message': 'Bu sunucuda böyle bir misafir oturumu yok.'}
@@ -269,7 +269,7 @@ def poll_profile(q):
 
 
 def exit(q, close_session):
-    """POST /misafir/cikis: bağlıysa oyun bağlantısı kapanır, son hâl verilir, kayıt silinir."""
+    """POST /misafir/cikis: if connected the game connection closes, the final state is given, the save is deleted."""
     m = _guest(q)
     if not m:
         return 404, {'error': 'session', 'message': 'Bu sunucuda böyle bir misafir oturumu yok.'}
@@ -281,7 +281,7 @@ def exit(q, close_session):
 def finish(m, close_session, reason):
     s = m.session
     if s is not None:
-        close_session(s)                           # oturum kapanırken son kaydı yayımlar (game.Session.run)
+        close_session(s)                           # publishes the last save as the session closes (game.Session.run)
         end = time.time() + 5
         while m.session is not None and time.time() < end:
             time.sleep(0.05)
@@ -290,11 +290,11 @@ def finish(m, close_session, reason):
     with COND:
         m.finished, m.end_time = True, time.time()
         COND.notify_all()
-    log('misafir oturumu bitti (%s): %s' % (reason, m.summary()['name']))
+    log('guest session ended (%s): %s' % (reason, m.summary()['name']))
 
 
 def find(sid):
-    """LoginRequest'in sessionID'si -> misafir (yoksa None)."""
+    """LoginRequest's sessionID -> guest (None if absent)."""
     with COND:
         m = GUESTS.get(str(sid or ''))
         return m if m and not m.finished else None
@@ -306,8 +306,9 @@ def entries():
 
 
 def tick(close_session):
-    """Bağlı olmayan ve uzun süredir yoklanmayan misafir oturumları biter, bitenlerin kaydı bırakılır (game.autosave). Ek oyuncular
-    da: panel istemcisi kapanınca bırakır (yerel_cikar); panel kapanmışsa bağlanmayan ek oyuncu BOSTA_SN sonra bırakılır."""
+    """Guest sessions that are not connected and have not been polled for a long time end, the saves of ended ones are released
+    (game.autosave). Extra players too: released when the panel client closes (remove_local); if the panel closed, an extra player that
+    does not connect is released after BOSTA_SN."""
     now = time.time()
     for m in entries():
         if m.session is None and now - m.last > IDLE_SEC:
@@ -321,7 +322,7 @@ def tick(close_session):
 
 
 def shutdown(wait=2.0):
-    """Sunucu kapanıyor: misafirlerin son hâli yayımlanır, yoklamalar bitti diye yanıtlanır; panellerin almasına kısa süre."""
+    """The server is closing: the guests' final state is published, polls are answered as finished; a short time for the panels to take it."""
     ms = entries()
     for m in ms:
         if m.profile:
@@ -334,10 +335,10 @@ def shutdown(wait=2.0):
         time.sleep(wait)
 
 
-# ------------------------------------------------------------------ çoklu istemci: bu bilgisayardaki öteki kayıtlar
+# ------------------------------------------------------------------ multi-client: the other saves on this computer
 class LocalProfile(PF.Profile):
-    """Ek oyuncunun kaydı: kendi yuvasının dosyası (Profil gibi yazılır). Kimliği sunucudaki başka bir oyuncununkiyle aynıysa (kayıtlar
-    tohumun kimliğiyle başlar) bellekte kayda göre sabit geçici kimlik alır; dosyaya asıl kimlikle yazılır (_metin)."""
+    """The extra player's save: the file of its own slot (written like Profil). If its id equals another player's on the server (saves
+    start with the seed's id) it gets a stable temporary id per save in memory; it is written to the file with the real id (_metin)."""
 
     def __init__(self, seed, path, full, save):
         self.temporary = None
@@ -362,9 +363,9 @@ class LocalProfile(PF.Profile):
 class LocalPlayer:
     def __init__(self, token, save, route, profile):
         self.token, self.save, self.route, self.profile = token, save, route, profile
-        self.session = None           # bağlı oyun oturumu (game.Session)
+        self.session = None           # connected game session (game.Session)
         self.entry = self.last = time.time()
-        self.finished = False            # bırakılıyor: girilemez; bağlantı kapanınca kayıttan çıkar (game.Session.run)
+        self.finished = False            # being released: cannot enter; removed from the register when the connection closes (game.Session.run)
 
     @property
     def uid(self):
@@ -385,7 +386,7 @@ def _name(profile):
 
 
 def add_local(body, seed, main):
-    """POST /yerel/ekle -> (durum kodu, yanıt). ana: sunucunun kendi profili (game.PROFIL)."""
+    """POST /yerel/ekle -> (status code, response). main: the server's own profile (game.PROFILE)."""
     save, route = str(body.get('record') or ''), str(body.get('route') or '')
     if not re.fullmatch(r'[a-z0-9_]{1,40}', save) or os.path.basename(route) != 'profile.json' or not os.path.isfile(route):
         return 400, {'error': 'record', 'message': 'Kayıt bulunamadı.'}
@@ -397,7 +398,7 @@ def add_local(body, seed, main):
         old = next((y for y in LOCAL_PLAYERS.values() if _same_path(y.route, route)), None)
         if old and old.finished:
             return 409, {'error': 'closing', 'message': 'Bu kaydın önceki istemcisi kapanıyor: birkaç saniye sonra yeniden dene.'}
-        if old:                                  # istemci yeniden açıldı: sunucudaki oturum sürer
+        if old:                                  # client reopened: the session on the server continues
             old.last = time.time()
             return 200, {'session': old.token, 'uid': old.uid, 'ongoing': True}
         if sum(1 for y in LOCAL_PLAYERS.values() if not y.finished) >= LOCAL_MAX:
@@ -412,36 +413,37 @@ def add_local(body, seed, main):
         return 400, {'error': 'profile', 'message': 'Kayıt geçersiz: %s.' % err}
     with COND:
         names = {_name(main)} | {_name(m.profile) for m in GUESTS.values() if not m.finished} | {_name(y.profile) for y in LOCAL_PLAYERS.values()}
-        if _name(p) in names:                       # sohbet, posta, grup ve rehber oyuncuyu adıyla bulur
+        if _name(p) in names:                       # chat, mail, group and directory find the player by name
             return 409, {'error': 'name', 'message': 'Sunucuda "%s" adlı bir pilot zaten var: aynı adla iki oyuncu sohbette, postada ve '
                                                 'grupta karışır. Bu kaydın pilot adını değiştir.' % p.d['pilot']['userName']}
         if any(_same_path(y.route, route) for y in LOCAL_PLAYERS.values()):
             return 409, {'error': 'closing', 'message': 'Bu kayıt az önce açıldı.'}
         y = LocalPlayer(secrets.token_urlsafe(18), save, route, p)
         LOCAL_PLAYERS[y.token] = y
-    log('ek oyuncu: %s (kayıt %s), sunucudaki kimlik %d%s' % (p.d['pilot'].get('userName'), save, y.uid,
-                                                             ' (geçici; asıl %d)' % p.original_uid if p.temporary else ''))
+    log('extra player: %s (save %s), id on the server %d%s' % (p.d['pilot'].get('userName'), save, y.uid,
+                                                             ' (temporary; real %d)' % p.original_uid if p.temporary else ''))
     return 200, {'session': y.token, 'uid': y.uid, 'ongoing': False}
 
 
 def finish_local(y, close_session, reason):
-    """Ek oyuncuyu bırak: bağlantısı kapanır, son hâl yuvaya yazılır, kayıttan çıkar (bağlantı 5 sn'de kapanmazsa çıkışı oturum yapar)."""
+    """Release the extra player: its connection closes, the final state is written to the slot, removed from the register (if the
+    connection does not close in 5 s the session does the exit)."""
     with COND:
         y.finished = True
     s = y.session
     if s is not None:
-        close_session(s)                           # oturum kapanırken son hâli yazar (game.Session.run)
+        close_session(s)                           # writes the final state as the session closes (game.Session.run)
         end = time.time() + 5
         while y.session is not None and time.time() < end:
             time.sleep(0.05)
     try:
         y.profile.save(force=True)
-    except Exception as e:                        # noqa: BLE001 (dosya kilitli: oturumun son kaydı yazmıştır)
-        log('ek oyuncunun son kaydı yazılamadı: %r' % e)
+    except Exception as e:                        # noqa: BLE001 (file locked: the session has written the final save)
+        log('extra player final save could not be written: %r' % e)
     with COND:
         if y.session is None:
             LOCAL_PLAYERS.pop(y.token, None)
-    log('ek oyuncu bırakıldı (%s): %s' % (reason, y.summary()['name']))
+    log('extra player released (%s): %s' % (reason, y.summary()['name']))
 
 
 def remove_local(b, close_session):
@@ -455,7 +457,7 @@ def remove_local(b, close_session):
 
 
 def find_local(sid):
-    """LoginRequest'in sessionID'si -> ek oyuncu (yoksa ya da bırakılıyorsa None)."""
+    """LoginRequest's sessionID -> extra player (None if absent or being released)."""
     with COND:
         y = LOCAL_PLAYERS.get(str(sid or ''))
         return y if y and not y.finished else None
@@ -466,10 +468,10 @@ def local_players():
         return [y for y in LOCAL_PLAYERS.values() if not y.finished]
 
 
-# ------------------------------------------------------------------ gönderme kuyruğu
+# ------------------------------------------------------------------ send queue
 class SendQueue:
-    """Arkadaş sunucusunda her bağlantının gönderme kuyruğu: dünya kilidi altındaki gönderim ağı beklemez (yavaş bir misafir öteki
-    oyuncuların döngüsünü durdurmasın). Sıra korunur; birikim SINIR'ı aşarsa bağlantı kapanır."""
+    """The send queue of each connection on the friend server: sending under the world lock does not wait for the network (a slow guest
+    must not stop the other players' loop). Order is kept; if the backlog exceeds SINIR the connection closes."""
     LIMIT = 16 * 1024 * 1024
 
     def __init__(self, sock):
@@ -485,12 +487,12 @@ class SendQueue:
     def put(self, data):
         with self.cond:
             if self.closed or self.finish:
-                raise ConnectionError('bağlantı kapandı')
+                raise ConnectionError('connection closed')
             self.parts.append(data)
             self.size += len(data)
             if self.size > self.LIMIT:
                 self._cut()
-                raise ConnectionError('gönderme kuyruğu doldu (istemci okumuyor)')
+                raise ConnectionError('send queue full (client is not reading)')
             self.cond.notify()
 
     def run(self):
@@ -500,7 +502,7 @@ class SendQueue:
                     self.cond.wait()
                 if self.closed:
                     return
-                if not self.parts:             # bitir: kalanlar gitti, bağlantı kapanır
+                if not self.parts:             # finish: the rest has gone, the connection closes
                     self._cut(shutdown=True)
                     return
                 data = b''.join(self.parts)
@@ -514,14 +516,14 @@ class SendQueue:
                 return
 
     def close(self):
-        """Kuyruktakiler gidince bağlantıyı kapat (çıkış, misafiri çıkarma)."""
+        """Close the connection when the queued items are gone (exit, kicking a guest)."""
         with self.cond:
             self.finish = True
             self.cond.notify()
 
     def _cut(self, shutdown=False):
         self.closed = True
-        self.cond.notify_all()                   # bekleyen calis uyansın (taşmada takılı kalıyordu)
+        self.cond.notify_all()                   # let the waiting calis wake up (it used to get stuck on overflow)
         try:
             if shutdown:
                 self.sock.shutdown(socket.SHUT_RDWR)
@@ -531,13 +533,13 @@ class SendQueue:
             pass
 
 
-# ------------------------------------------------------------------ HTTP (oyun portunda)
+# ------------------------------------------------------------------ HTTP (on the game port)
 def is_http(first):
     return first[:4] in (b'GET ', b'POST', b'HEAD')
 
 
 def _read(c):
-    """-> (yöntem, yol, başlıklar, gövde) ya da None."""
+    """-> (method, path, headers, body) or None."""
     buf = b''
     while b'\r\n\r\n' not in buf:
         d = c.recv(65536)
@@ -567,7 +569,7 @@ def _read(c):
         body += d
     if hdr.get('content-encoding') == 'gzip' and body:
         z = zlib.decompressobj(16 + zlib.MAX_WBITS)
-        body = z.decompress(body, BODY_LIMIT)            # sınırlı açılır (sıkıştırma bombası)
+        body = z.decompress(body, BODY_LIMIT)            # opened with a limit (compression bomb)
         if z.unconsumed_tail:
             return None
     return method, path, hdr, body
@@ -586,7 +588,7 @@ def _reply(c, code, obj, gz=False):
 
 
 def http(c, addr, game):
-    """Oyun portuna gelen HTTP isteği (hesap gönderimi ve yönetim). game: game.py modülü."""
+    """An HTTP request arriving at the game port (account upload and management). game: the game.py module."""
     try:
         c.settimeout(WAIT_MAX + 15)
         req = _read(c)
@@ -630,10 +632,10 @@ def http(c, addr, game):
         else:
             code, out = 404, {'error': 'none'}
         if u.path not in ('/misafir/profil', '/yerel/oturum'):
-            log('arkadaş: %s %s <- %s -> %d' % (method, u.path, ip, code))
+            log('friends: %s %s <- %s -> %d' % (method, u.path, ip, code))
         _reply(c, code, out, gz)
-    except (OSError, ValueError, zlib.error) as e:      # bozuk gzip gövdesi de (yanıtsız kopuyordu)
-        log('arkadaş: istek hatası %s: %r' % (addr[0], e))
+    except (OSError, ValueError, zlib.error) as e:      # a broken gzip body too (it used to drop with no response)
+        log('friends: request error %s: %r' % (addr[0], e))
     finally:
         try:
             c.close()

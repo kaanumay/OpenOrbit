@@ -1,12 +1,12 @@
-"""Pilot yetenek ağacı (profilde "yetenekler"; veri data/skills.json ← istemcinin skilltree.xml'i ve wiki).
+"""Pilot skill tree (in the profile "skills"; data data/skills.json <- the client's skilltree.xml and the wiki).
 
-İstemci (protokol; kayıtta SkillTreeListRequest'e yanıt yok, seviye 1 oyuncu): SkillTreeListRequest -> SkillTreeListCommand {resetPrice,
+Client (protocol; the recording has no reply to SkillTreeListRequest, a level 1 player): SkillTreeListRequest -> SkillTreeListCommand {resetPrice,
 list: [SkillTreeInfoCommand {id, curLevel}], researchPoints, resetCount, logFiles, required}; ConvertResearchPointsRequest ->
 ConvertResearchPointsCommand {required, success, researchPoints, logfiles}; UpLevelSkillTreeRequest {id} -> UpLevelSkillTreeCommand
 {id, researchPoints, stack, success, curLevel}; ResetSkillTreeRequest -> ResetSkillTreeCommand.
-Kurallar: log diskleri pilot puanına çevrilir (wiki: 1. puan 30, 2. 33 … log diski); her seviye 1 puan + kredi + Seprom (kademe 1:
-yalnız kredi; Seprom kargodan, yetmeyeni Skylab deposundan); ön koşullar istemcinin ağacındaki gibi. Sıfırlama puanları geri verir (kredi ve Seprom dönmez), ücreti uridyum,
-her seferinde iki katı (wiki: 1.000, 2.000 …). Log diskleri Galaksi Kapısı üreticisinin sayacında (kapilar.log_disk).
+Rules: log disks are converted to pilot points (wiki: 1st point 30, 2nd 33 … log disks); each level costs 1 point + credits + Seprom (tier 1:
+credits only; Seprom from cargo, any shortfall from the Skylab storage); prerequisites as in the client's tree. A reset gives the points back (credits and Seprom do not
+return), its price is uridium, doubling each time (wiki: 1,000, 2,000 …). Log disks are in the Galaxy Gate generator's counter (kapilar.log_disk).
 """
 import json, os
 import ranks as RT
@@ -14,8 +14,8 @@ import ranks as RT
 HERE = os.path.dirname(os.path.abspath(__file__))
 Y = json.load(open(os.path.join(HERE, 'data', 'skills.json'), encoding='utf8'))
 SKILLS = Y['skills']
-SEPROM = 7                       # cevher türü
-SKYLAB_SEPROM = '14'             # Skylab deposundaki kimliği (skylab.json cevherler)
+SEPROM = 7                       # ore type
+SKYLAB_SEPROM = '14'             # its id in the Skylab storage (skylab.json ores)
 
 
 def mod(name, **f):
@@ -32,21 +32,21 @@ def level(p, sid):
 
 
 def maxed(p, sid):
-    """Yetenek son seviyesinde mi (istemcinin son seviye görselleri: kalın lazer, roket izi, kalkan; dunya.skilled_laser, rocket_look, skill_shield; roketin güdümü ilk puandan başlar)."""
+    """Whether the skill is at its final level (the client's final-level visuals: thick laser, rocket trail, shield; world.skilled_laser, rocket_look, skill_shield; the rocket's homing starts from the first point)."""
     return level(p, sid) >= len(SKILLS[sid]['values'])
 
 
 def shield_cmd(p):
-    """Kalkanın görünümü (AttributeSkillShieldUpdateCommand; istemci ShieldEffect: shieldSkillId 1 shield1_2D, 2 shield2_2D, 0 yok):
-    resmî SSS'ye göre Shield Engineering (17) son seviyesinde baloncuk, Shield Mechanics (8) son seviyesinde beyaz kalkan. Girişte,
-    config değişince ve yetenek değişince gider (kayıttaki yeteneksiz hesapta hep 0)."""
+    """The shield's look (AttributeSkillShieldUpdateCommand; client ShieldEffect: shieldSkillId 1 shield1_2D, 2 shield2_2D, 0 none):
+    according to the official FAQ, a bubble at the final level of Shield Engineering (17), a white shield at the final level of Shield
+    Mechanics (8). Sent on login, when config changes and when a skill changes (always 0 on an account without skills in the recording)."""
     sid = 2 if maxed(p, '8') else 1 if maxed(p, '17') else 0
     return ('AttributeSkillShieldUpdateCommand', {'shieldSkillId': sid, 'minSkinShieldTwinkle': 10, 'maxSkinShieldTwinkle': 100})
 
 
 def mods(p):
-    """Yeteneklerin bonusları (profil.mods'a eklenir): yüzdeler oran, Ship Hull mutlak can. II basamağı I'in devamı (skilltree
-    successor; değerler kesintisiz: Ship Hull 5.000, 10.000 → 15.000, 25.000, 50.000): II açıksa I sayılmaz."""
+    """The skills' bonuses (added to profile.mods): percentages are ratios, Ship Hull is absolute HP. Tier II continues tier I (skilltree
+    successor; values are continuous: Ship Hull 5,000, 10,000 → 15,000, 25,000, 50,000): if II is open, I does not count."""
     out = {}
     for sid, lv in state(p)['level'].items():
         s = SKILLS.get(sid)
@@ -90,7 +90,7 @@ class Abilities:
                                              resetCount=st['resets'], logFiles=self.logs(), required=self.required()))
 
     def convert(self):
-        """ConvertResearchPointsRequest: yeterli log diski varsa bir pilot puanı."""
+        """ConvertResearchPointsRequest: one pilot point if there are enough log disks."""
         need = self.required()
         st = state(self.p)
         ok = 0 < need <= self.logs()
@@ -100,23 +100,23 @@ class Abilities:
                 st['points'] += 1
                 st['converted'] += 1
                 self.p.dirty = True
-            self.log('   pilot puanı: %d log diski -> 1 puan (kalan puan %d)' % (need, st['points']))
+            self.log('   pilot point: %d log disks -> 1 point (points left %d)' % (need, st['points']))
         return [('ConvertResearchPointsCommand', dict(required=self.required(), success=ok, researchPoints=st['points'],
                                                       logfiles=self.logs()))]
 
     def skylab_seprom(self):
-        """Skylab deposundaki Seprom (Skylab cevheri 14)."""
+        """Seprom in the Skylab storage (Skylab ore 14)."""
         return int((self.p.d.get('skylab') or {}).get('storage', {}).get(SKYLAB_SEPROM, 0))
 
     def seprom(self):
-        """Harcanabilir Seprom: kargodaki ve Skylab deposundaki (resmî forum: yetenek ağacı Skylab'dakini kullanır; kullanıcı isteği
-        2026-10-25: yalnız kargodaki sayılıyordu)."""
+        """Spendable Seprom: that in cargo and in the Skylab storage (official forum: the skill tree uses the Skylab one; user request
+        2026-10-25: only the cargo was counted)."""
         return self.p.ore_count(SEPROM) + self.skylab_seprom()
 
     def up_level(self, f):
-        """UpLevelSkillTreeRequest {id}: puan, kredi ve Seprom (önce kargodan, kalanı Skylab'dan) harcanır; ön koşullar istemcinin
-        ağacındaki gibi. Yetmeyen şeyin metni (kredi, Seprom, puan, ön koşul); önceden hepsinde "An error occurred" çıkıyordu
-        (kullanıcı bildirimi 2026-10-25)."""
+        """UpLevelSkillTreeRequest {id}: points, credits and Seprom are spent (cargo first, the rest from Skylab); prerequisites as in the client's
+        tree. The text of whatever is lacking (credits, Seprom, points, prerequisite); before, all of them gave "An error occurred"
+        (user report 2026-10-25)."""
         sid = str(f.get('id') or '')
         st = state(self.p)
         s = SKILLS.get(sid)
@@ -126,7 +126,7 @@ class Abilities:
                else 'puan yetmiyor' if st['points'] < cost['points'] else 'kredi yetmiyor' if self.p.d['pilot'].get('credits', 0) < cost['credits']
                else 'Seprom yetmiyor' if self.seprom() < cost['seprom'] else None)
         if why:
-            self.log('   yetenek %s yükselmedi: %s' % (sid, why))
+            self.log('   skill %s did not level up: %s' % (sid, why))
             stack = {'ön koşul': lambda: self.m.reason('prerequisite'), 'puan yetmiyor': lambda: self.m.reason('research_points'),
                      'kredi yetmiyor': lambda: self.m.stack('not_enough_credits'),
                      'Seprom yetmiyor': lambda: self.m.stack('tf_message_not_enough_seprom')}.get(why, lambda: self.m.stack('eqt_error_generic'))
@@ -147,13 +147,13 @@ class Abilities:
                 storage = self.p.d['skylab']['storage']
                 storage[SKYLAB_SEPROM] = storage.get(SKYLAB_SEPROM, 0) - (cost['seprom'] - cargo)
                 self.p.dirty = True
-            self.log('   yetenek: %d Seprom Skylab deposundan' % (cost['seprom'] - cargo))
-        self.log('   yetenek %s (%s) seviye %d (-%d kredi, -%d Seprom)' % (sid, s['name'], cur + 1, cost['credits'], cost['seprom']))
+            self.log('   skill: %d Seprom from the Skylab storage' % (cost['seprom'] - cargo))
+        self.log('   skill %s (%s) level %d (-%d credits, -%d Seprom)' % (sid, s['name'], cur + 1, cost['credits'], cost['seprom']))
         return ([('UpLevelSkillTreeCommand', dict(id=sid, researchPoints=st['points'], stack=None, success=True, curLevel=cur + 1))]
                 + self.m.money_msgs() + msgs + self.m.apply_stats() + ([shield_cmd(self.p)] if sid in ('8', '17') else []))
 
     def reset(self):
-        """ResetSkillTreeRequest: bütün seviyeler sıfırlanır, harcanan puanlar geri gelir; ücret uridyum, her seferinde iki katı."""
+        """ResetSkillTreeRequest: all levels are reset, the spent points come back; the price is uridium, doubling each time."""
         st = state(self.p)
         price = self.reset_price()
         spent = sum(sum(c['points'] for c in SKILLS[s]['cost'][:lv]) for s, lv in st['level'].items() if s in SKILLS)
@@ -166,7 +166,7 @@ class Abilities:
                 st['resets'] += 1
                 self.p.dirty = True
             RT.money(self.p, 'uridium', -price, 'buy_SPECIAL')
-            self.log('   yetenekler sıfırlandı: %d puan geri, -%d U' % (spent, price))
+            self.log('   skills reset: %d points back, -%d U' % (spent, price))
         msgs = [('ResetSkillTreeCommand', dict(resetPrice=self.reset_price(), stack=None if ok else self.m.stack('eqt_error_generic'),
                                                list=self.info_list(), logFiles=self.logs(), researchPoints=st['points'],
                                                resetCount=st['resets'], success=ok))]

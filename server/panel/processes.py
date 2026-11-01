@@ -1,18 +1,18 @@
-"""Sunucu ve istemci süreçleri (panel).
+"""Server and client processes (panel).
 
-  web   web.py: 80, 8090 (web girişi; 843, 9339, 8082 sahte TCP)
-  oyun  game.py: 8081 (oyun), 7771 (sohbet), 8099 (kontrol kanalı, ayarla)
-Arkadaş sunucusu (Arkadaşlarınla Oyna > Host): oyun sunucusu --multiplayer ve OO_MULTIPLAYER ortam değişkeniyle (friends.py).
-Çoklu istemci (multi_client.py): oyun sunucusu yine --multiplayer ile, yalnız bu bilgisayardan ve misafirsiz (coklu ortamı).
-Misafir (Join): yalnız web.py, arkadaşın sunucusunu gösteren argümanlarla (start_guest_web); oyun sunucusu açılmaz.
-Sunucular konsolsuz (CREATE_NO_WINDOW) çalışır; çıktıları logs/<ad>_konsol.log'a (çökme izi orada). Oyun sunucusu --stop-file=<dosya>
-ile durdurulur: dosya belirince profili kaydedip çıkar (zorla kapatmada son kaydedilmemiş saniyeler gitmesin); yanıt vermezse
-sonlandırılır. Portu başka süreç tutuyorsa (önceki oturumdan kalan sunucu, başka program) kim olduğu bulunur; panel yalnız bu
-projenin web.py / game.py süreçlerini kapatabilir.
-Linux ve macOS: port tablosu /proc/net/tcp ya da lsof, süreç bilgisi ps; istemci Wine ya da Proton ile kendi süreç grubunda
-(istemci_ac, client_runner.py). Linux 1024'ten küçük portları yalnız root'a açar: istemci web API'sini 80'den bekliyor (istemcinin
-config.txt'si, değiştirilmez), port_80_sorunu kullanıcıya bir kerelik izin komutunu söyler. macOS'ta bir şey gerekmez: düşük portlar
-0.0.0.0'da açılır, yalnız yerel bağlantılar kabul edilir (platform_compat.py).
+  web   web.py: 80, 8090 (web login; 843, 9339, 8082 fake TCP)
+  game  game.py: 8081 (game), 7771 (chat), 8099 (control channel)
+Friend server (Play with Friends > Host): the game server with --multiplayer and the OO_MULTIPLAYER environment variable (friends.py).
+Multi-client (multi_client.py): the game server again with --multiplayer, only from this computer and without guests (the multi parameter).
+Guest (Join): only web.py, with arguments pointing to the friend's server (start_guest_web); the game server is not started.
+The servers run without a console (CREATE_NO_WINDOW); their output goes to logs/<name>_konsol.log (crash traces are there). The game server is
+stopped with --stop-file=<file>: when the file appears it saves the profile and exits (so the last unsaved seconds are not lost on a forced
+close); if it does not respond it is terminated. If another process holds the port (a server left over from a previous session, another
+program) it is identified; the panel can only close this project's web.py / game.py processes.
+Linux and macOS: the port table is /proc/net/tcp or lsof, process info is ps; the client runs under Wine or Proton in its own process group
+(open_client, client_runner.py). Linux opens ports below 1024 only to root: the client expects its web API on 80 (the client's
+config.txt, not changed), port_80_problem tells the user the one-time permission command. On macOS nothing is needed: low ports
+are opened on 0.0.0.0, only local connections are accepted (platform_compat.py).
 """
 import json, os, signal, socket, subprocess, sys, threading, time
 
@@ -29,7 +29,7 @@ EARLY_EXIT_SEC = 15
 
 
 def python_exe():
-    """Sunucular için python.exe (panel pythonw.exe ile açıldıysa yanındaki python.exe)."""
+    """python.exe for the servers (if the panel was opened with pythonw.exe, the python.exe next to it)."""
     d, b = os.path.split(sys.executable)
     if b.lower() == 'pythonw.exe' and os.path.exists(os.path.join(d, 'python.exe')):
         return os.path.join(d, 'python.exe')
@@ -37,9 +37,9 @@ def python_exe():
 
 
 def listeners():
-    """Dinleyen TCP soketleri {port: pid} (Windows TCP tablosu: GetExtendedTcpTable; Linux /proc/net/tcp; macOS lsof). Porta
-    bağlanılmaz: bağlanmak oyun sunucusunda sahte bir oturum açıp günlüğe 'connect/disconnect' yazdırıyordu. Okunamazsa None; pid
-    bilinmiyorsa 0 (Linux'ta başka kullanıcının süreci)."""
+    """Listening TCP sockets {port: pid} (Windows TCP table: GetExtendedTcpTable; Linux /proc/net/tcp; macOS lsof). The port is not
+    connected to: connecting opened a fake session on the game server and wrote 'connect/disconnect' to the log. None if unreadable; 0 if the
+    pid is unknown (on Linux another user's process)."""
     if sys.platform.startswith('linux'):
         return _linux_listeners()
     if os.name != 'nt':
@@ -66,7 +66,7 @@ def listeners():
 
 
 def _linux_listeners():
-    """Linux: dinleyen soketler (durum 0A) /proc/net/tcp ve tcp6'dan; pid soketin inode'u /proc/<pid>/fd'de aranarak."""
+    """Linux: listening sockets (state 0A) from /proc/net/tcp and tcp6; the pid by searching the socket's inode in /proc/<pid>/fd."""
     inodes = {}
     for f in ('/proc/net/tcp', '/proc/net/tcp6'):
         try:
@@ -95,7 +95,7 @@ def _linux_listeners():
 
 
 def _lsof_listeners():
-    """macOS: lsof'un dinleyen TCP soketleri (yalnız bu kullanıcının süreçleri)."""
+    """macOS: lsof's listening TCP sockets (only this user's processes)."""
     try:
         r = subprocess.run(['lsof', '-nP', '-iTCP', '-sTCP:LISTEN', '-Fpn'], capture_output=True, text=True, timeout=10)
     except (OSError, subprocess.SubprocessError):
@@ -110,8 +110,8 @@ def _lsof_listeners():
 
 
 def port_80_problem():
-    """Linux 80 portunu (istemcinin web API'si) bu kullanıcıya açmıyorsa kullanıcıya gösterilecek metin, yoksa None. Port doluysa
-    None: onu başlatmadaki port denetimi söyler. macOS'ta web.py 80'i 0.0.0.0'da açar (platform_compat.py): denetim de orada."""
+    """The text to show the user if Linux does not open port 80 (the client's web API) to this user, otherwise None. If the port is in use,
+    None: the port check at startup reports that. On macOS web.py opens 80 on 0.0.0.0 (platform_compat.py): the check is there too."""
     if os.name == 'nt':
         return None
     mac = sys.platform == 'darwin'
@@ -129,7 +129,7 @@ def port_80_problem():
 
 
 def listening(port, table=None):
-    """Port dinleniyor mu (bağlanmadan; tablo yoksa bağlanarak)."""
+    """Whether the port is listened on (without connecting; by connecting if there is no table)."""
     t = table if table is not None else listeners()
     if t is not None:
         return port in t
@@ -139,7 +139,7 @@ def listening(port, table=None):
 
 
 def port_owners(ports):
-    """{port: pid} dinleyen süreçler (TCP tablosu, yoksa netstat)."""
+    """{port: pid} listening processes (TCP table, otherwise netstat)."""
     t = listeners()
     if t is not None:
         return {p: pid for p, pid in t.items() if p in ports}
@@ -150,7 +150,7 @@ def port_owners(ports):
     out = {}
     for line in r.stdout.splitlines():
         parts = line.split()
-        # dinleyen soket: yabancı adres *:0 (durum sözcüğü Windows diline göre değişir)
+        # listening socket: foreign address *:0 (the state word varies with the Windows language)
         if len(parts) >= 5 and parts[0] == 'TCP' and parts[2].endswith(':0'):
             try:
                 port = int(parts[1].rsplit(':', 1)[1])
@@ -163,7 +163,7 @@ def port_owners(ports):
 
 
 def process_info(pid):
-    """{'pid', 'ad', 'komut'} (Windows PowerShell CIM, Linux ve macOS ps; bulunamazsa ad '?')."""
+    """{'pid', 'name', 'command'} (Windows PowerShell CIM, Linux and macOS ps; name '?' if not found)."""
     if os.name != 'nt':
         ps = lambda k: subprocess.run(['ps', '-p', str(int(pid)), '-o', k], capture_output=True, text=True, timeout=10).stdout.strip()
         try:
@@ -182,7 +182,7 @@ def process_info(pid):
 
 
 def is_our_server(info):
-    """Bu projenin web.py / game.py süreci mi (komut satırından)?"""
+    """Whether this is this project's web.py / game.py process (from the command line)?"""
     c = (info.get('command') or '').lower().replace('/', '\\')
     return 'python' in (info.get('name') or '').lower() and any(os.path.join(SERVER, s).lower() in c or
                                                              ('\\server\\%s' % s) in c for s in SCRIPTS.values())
@@ -199,8 +199,8 @@ def kill(pid):
 
 
 def open_client(folder, cmd, env, logs):
-    """İstemciyi aç -> Popen. Linux ve macOS'ta (Wine/Proton) kendi süreç grubunda (istemci_kapat bütün grubu kapatsın: Proton'da
-    istemci açılan sürecin torunu); önek klasörü yoksa açılır, Wine'ın çıktısı logs/wine.log'a."""
+    """Open the client -> Popen. On Linux and macOS (Wine/Proton) in its own process group (so close_client closes the whole group: on Proton
+    the client is a grandchild of the launched process); the prefix folder is created if missing, Wine's output goes to logs/wine.log."""
     if os.name == 'nt':
         return subprocess.Popen(cmd, cwd=folder, env=env)
     for k in ('WINEPREFIX', 'STEAM_COMPAT_DATA_PATH'):
@@ -215,7 +215,7 @@ def open_client(folder, cmd, env, logs):
 
 
 def close_client(proc):
-    """istemci_ac'ın açtığı istemciyi kapat (Linux ve macOS'ta süreç grubunu)."""
+    """Close the client that open_client opened (on Linux and macOS its process group)."""
     if proc.poll() is not None:
         return
     if os.name == 'nt':
@@ -228,8 +228,8 @@ def close_client(proc):
 
 
 def window_title(pid, text, duration=120):
-    """Sürecin oyun penceresi (UnityWndClass) belirince başlığını değiştirir (birden çok istemcide pencereler ayırt edilsin); arka
-    planda, pencere çıkmazsa sure saniye sonra bırakır. Başlık bir dakika daha denetlenir (istemci yeniden yazarsa)."""
+    """Changes the title of the process's game window (UnityWndClass) once it appears (so windows can be told apart with several clients); in the
+    background, gives up after duration seconds if no window appears. The title is checked for another minute (in case the client rewrites it)."""
     if os.name != 'nt':
         return
 
@@ -275,7 +275,7 @@ def window_title(pid, text, duration=120):
 
 
 def tail(path, lines=200, max_bytes=512 * 1024):
-    """Dosyanın son satırları (büyük günlükte yalnız sonu okunur)."""
+    """The file's last lines (for a large log only the end is read)."""
     try:
         with open(path, 'rb') as fh:
             fh.seek(0, 2)
@@ -291,7 +291,7 @@ def tail(path, lines=200, max_bytes=512 * 1024):
 
 
 def bot_signature(bot):
-    """Bot paketinin (yol, içerik özeti): paket değişince sunucu yeniden başlar (botların ilerlemesi durum.json'da, sayılmaz)."""
+    """The bot package's (path, content summary): the server restarts when the package changes (the bots' progress is in state.json, not counted)."""
     if not bot:
         return None
     import hashlib
@@ -303,8 +303,8 @@ def bot_signature(bot):
 
 
 def world_signature(world):
-    """Dünyanın (yol, içerik özeti): oyun açıldıktan sonra değişen dünya sunucuyu yeniden başlatır; oyun açıkken uygulanan
-    değişiklikler (veri.CANLI: mağaza, açık artırma) sayılmaz. Standart: None."""
+    """The world's (path, content summary): a world that changes after the game opened restarts the server; changes applied while the game is open
+    (game_data.LIVE: shop, auction) are not counted. Standard: None."""
     if not world:
         return None
     import hashlib
@@ -318,7 +318,7 @@ def world_signature(world):
 
 
 class Process:
-    """Panelin açtığı bir sunucu süreci."""
+    """A server process the panel opened."""
 
     def __init__(self, name, cmd, console, stop_file=None, env=None):
         self.name, self.cmd, self.console, self.stop_file, self.env = name, cmd, console, stop_file, env
@@ -347,7 +347,7 @@ class Process:
 
     @property
     def crashed(self):
-        """Panel durdurmadan kapandı mı (çıkış kodu)?"""
+        """Did the panel close without stopping it (exit code)?"""
         return self.proc is not None and self.proc.poll() is not None and not self.stopped
 
     def stop(self, timeout=6.0):
@@ -378,34 +378,34 @@ class Process:
 
 
 class Manager:
-    """Sunucular ve istemci: başlatma sırası, durum, istemci kapanınca yapılacaklar."""
+    """Servers and client: startup order, status, what to do when the client closes."""
 
     def __init__(self, logs, log=print):
         self.logs, self.log = logs, log
         self.lock = threading.RLock()
-        self.servers = {}                 # ad -> Surec
-        self.profile = None                  # açık sunucuların profil yolu
+        self.servers = {}                 # name -> Process
+        self.profile = None                  # profile path of the open servers
         self.slot = None
-        self.friend = False                # oyun sunucusu arkadaş sunucusu olarak açık (Host)
-        self.multi = False                  # oyun sunucusu çoklu istemci için çok oturumlu açık (yalnız bu bilgisayar; coklu.py)
-        self.guest = False                # yalnız misafirin web sunucusu açık (Join)
-        self.world = None                   # açık sunucuların dünyası (dunya_imzasi; standart: None)
+        self.friend = False                # the game server is open as a friend server (Host)
+        self.multi = False                  # the game server is open multi-session for multi-client (this computer only; multi_client.py)
+        self.guest = False                # only the guest's web server is open (Join)
+        self.world = None                   # the world of the open servers (world_signature; standard: None)
         self.client = None                 # Popen
         self.client_started = None
-        self.last_client = None             # {'sure_sn', 'erken', 'kod'}
-        self.on_client_exit = None          # panel bağlar: (erken) -> None
+        self.last_client = None             # {'sure_sn', 'early', 'code'}
+        self.on_client_exit = None          # the panel binds: (early) -> None
 
-    # ------------------------------------------------------------ sunucular
+    # ------------------------------------------------------------ servers
     def servers_alive(self):
         return {name: s.alive for name, s in self.servers.items()}
 
     def running(self):
-        """Panelin açtığı oyun sunucusu çalışıyor mu?"""
+        """Is the game server the panel opened running?"""
         s = self.servers.get('game')
         return bool(s and s.alive)
 
     def foreign_ports(self):
-        """Panelin açmadığı süreçlerin tuttuğu portlar -> [{'port', 'ad', 'pid', 'surec', 'komut', 'bizim'}]."""
+        """Ports held by processes the panel did not open -> [{'port', 'name', 'pid', 'process', 'command', 'ours'}]."""
         ours = {s.proc.pid for s in self.servers.values() if s.alive}
         table = listeners()
         busy = [p for p in PORT_NAMES if listening(p, table)]
@@ -423,23 +423,23 @@ class Manager:
         return out
 
     def needs_restart(self, profile, friend=None, multi=None, world=None, bot=None):
-        """Açık sunucular bu kayıt ve kiple yeniden başlamalı mı (başka kayıt, Host ya da çoklu istemci kipi, başka dünya ya da
-        dünya açıldıktan sonra değişti, başka bot paketi ya da paket değişti)."""
+        """Whether the open servers must restart with this save and mode (another save, Host or multi-client mode, another world or the world
+        changed after opening, another bot package or the package changed)."""
         return self.running() and ((self.profile and os.path.normcase(self.profile) != os.path.normcase(profile))
                                    or self.friend != bool(friend) or (not friend and self.multi != bool(multi))
                                    or self.world != world_signature(world) or getattr(self, 'bot', None) != bot_signature(bot))
 
     def start_servers(self, profile, settings, control=False, slot=None, friend=None, multi=None, world=None, bot=None):
-        """Web ve oyun sunucusu (açık değilse) -> başlatılanların adları. Port doluysa ya da sunucu açılmazsa RuntimeError.
-        arkadas: arkadaş sunucusunun ayarları (OO_MULTIPLAYER; verilmezse tek oyunculu); coklu: çoklu istemcinin ayarları
-        (OO_MULTIPLAYER, misafirsiz; arkadaş sunucusu zaten çok oturumlu); dunya: Dünya Editörü'nün dünya dosyası (OO_WORLD;
-        verilmezse standart dünya); bot: dünyanın bot paketi (OO_BOT; Botlar sayfası)."""
+        """Web and game server (if not open) -> names of those started. RuntimeError if the port is in use or a server does not open.
+        friend: the friend server's settings (OO_MULTIPLAYER; single player if not given); multi: multi-client's settings
+        (OO_MULTIPLAYER, without guests; a friend server is already multi-session); world: the World Editor's world file (OO_WORLD;
+        the standard world if not given); bot: the world's bot package (OO_BOT; Bots page)."""
         env_json = friend or multi
         with self.lock:
             if self.guest:
                 raise RuntimeError(_("You are on a friend's server: leave it first."))
             if self.needs_restart(profile, friend, multi, world, bot):
-                self.stop_servers()                               # başka kayıt ya da kip: yeniden başlat
+                self.stop_servers()                               # another save or mode: restart
             started = []
             py = python_exe()
             for name in ('web', 'game'):
@@ -455,7 +455,7 @@ class Manager:
                 cmd = [py, '-I', os.path.join(SERVER, SCRIPTS[name]), self.logs, '--profile=%s' % profile]
                 stop_file = None
                 env = {'OO_WORLD': world} if world else None
-                if name == 'web' and env_json:       # sunucunun kendi oyuncusunun oturumu (cok_oyunculu AYAR['yerel'])
+                if name == 'web' and env_json:       # the session of the server's own player (multiplayer SETTINGS['local'])
                     cmd.append('--session=%s' % json.loads(env_json)['local'])
                 if name == 'game':
                     stop_file = os.path.join(self.logs, '.durdur_oyun')
@@ -483,12 +483,12 @@ class Manager:
             else:
                 raise RuntimeError(_("The servers didn't start listening within 20 seconds (check the logs)."))
             if started:
-                self.log('sunucular başlatıldı: %s (%s)%s' % (', '.join(started), profile, ' — arkadaş sunucusu' if friend else
-                                                               ' — çoklu istemci' if multi else ''))
+                self.log('servers started: %s (%s)%s' % (', '.join(started), profile, ' — friend server' if friend else
+                                                               ' — multi-client' if multi else ''))
             return started
 
     def start_guest_web(self, profile, slot, args):
-        """Misafir: yalnız web.py, arkadaşın sunucusunu gösteren argümanlarla (friends.py). Kendi sunucuların açıksa RuntimeError."""
+        """Guest: only web.py, with arguments pointing to the friend's server (friends.py). RuntimeError if your own servers are open."""
         with self.lock:
             if any(s.alive for s in self.servers.values()):
                 raise RuntimeError(_('First stop your own server (Play > Stop server).'))
@@ -507,7 +507,7 @@ class Manager:
                     self.stop_servers()
                     raise RuntimeError(_('The %s server closed while starting:\n%s', _('Web'), '\n'.join(tail(s.console, 12))))
                 time.sleep(0.15)
-            self.log('misafirin web sunucusu başlatıldı (%s)' % profile)
+            self.log('guest web server started (%s)' % profile)
 
     def stop_servers(self):
         with self.lock:
@@ -515,23 +515,23 @@ class Manager:
                 s = self.servers.get(name)
                 if s:
                     s.stop()
-            self.log('sunucular durduruldu')
+            self.log('servers stopped')
             self.profile = self.slot = self.world = None
             self.friend = self.multi = self.guest = False
 
-    # ------------------------------------------------------------ istemci
+    # ------------------------------------------------------------ client
     def client_alive(self):
         return self.client is not None and self.client.poll() is None
 
     def start_client(self, folder, cmd, env=None):
-        """cmd, env: istemci.komut (Linux ve macOS'ta Wine ya da Proton ile)."""
+        """cmd, env: client.command (on Linux and macOS with Wine or Proton)."""
         with self.lock:
             if self.client_alive():
                 raise RuntimeError(_('The client is already running.'))
             self.client = open_client(folder, cmd, env, self.logs)
             self.client_started = time.time()
             self.last_client = None
-            self.log('istemci başlatıldı: %s' % ' '.join(cmd))
+            self.log('client started: %s' % ' '.join(cmd))
             threading.Thread(target=self._watch_client, args=(self.client,), daemon=True).start()
 
     def _watch_client(self, proc):
@@ -539,18 +539,18 @@ class Manager:
         stop = time.time() - (self.client_started or time.time())
         early = stop < EARLY_EXIT_SEC
         self.last_client = {'sure_sn': int(stop), 'early': early, 'code': code, 'time': time.strftime('%H:%M:%S')}
-        self.log('istemci kapandı (%d sn, kod %s)%s' % (stop, code, ' — erken kapandı, sunucular açık kalır' if early else ''))
+        self.log('client closed (%d s, code %s)%s' % (stop, code, ' — closed early, servers stay open' if early else ''))
         if self.on_client_exit:
             try:
                 self.on_client_exit(early)
             except Exception as e:
-                self.log('istemci kapanış işlemi hatası: %r' % e)
+                self.log('client shutdown error: %r' % e)
 
     def stop_client(self):
         if self.client_alive():
             close_client(self.client)
 
-    # ------------------------------------------------------------ durum
+    # ------------------------------------------------------------ state
     def status(self):
         srv = {name: (s.status() if s else {'state': 'off'}) for name, s in ((a, self.servers.get(a)) for a in ('web', 'game'))}
         table = listeners()

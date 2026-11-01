@@ -1,11 +1,11 @@
-"""Basit kip: botlar haritalara seviyelerine göre dağıtılır, harita değiştirmez, büyük karar vermez; bulundukları haritada uzaylı
-keser, düşman olan oyuncuyu görünce gücüne göre saldırır ya da kaçar (ship.py'nin taktiği), ölünce aynı haritada yeniden doğar.
+"""Simple mode: bots are distributed over the maps by their level, do not change maps, make no big decisions; on their map they kill
+aliens, and on seeing an enemy player they attack or flee depending on strength (ship.py's tactics), and respawn on the same map when they die.
 
-Paket ayarları:
-  basit_haritalar  {harita sınıfı: bot sayısı} (X-1, X-2, X-3, X-4, 4-X, X-5, X-6, X-7, X-8, 4-5): her firmanın haritasına ayrı ayrı
-  basit_guc        güç oranı (0,5 zayıf .. 2 güçlü): haritanın tipik donanımının çarpanı
-  basit_dost       düşman / dost oranı: haritanın firmasından olanların payı (0-1)
-Kadro paket oluşturulurken bu sayılara göre üretilir (panel/bots.py); harita ataması ve donanım burada, tohumla belirlenimci.
+Pack settings:
+  basit_haritalar  {map class: bot count} (X-1, X-2, X-3, X-4, 4-X, X-5, X-6, X-7, X-8, 4-5): separately for each company's map
+  basit_guc        strength ratio (0.5 weak .. 2 strong): multiplier of the map's typical equipment
+  basit_dost       enemy / friendly ratio: the share of those from the map's company (0-1)
+The roster is generated from these numbers when the pack is created (panel/bots.py); map assignment and equipment are here, deterministic by seed.
 """
 import random
 
@@ -15,7 +15,7 @@ from . import catalog as K
 
 DEFAULT_MAPS = {'X-1': 2, 'X-2': 2, 'X-3': 2, 'X-4': 2, '4-X': 3, 'X-5': 1, 'X-6': 1, 'X-7': 1, 'X-8': 1, '4-5': 2}
 
-# harita sınıfı -> (gemi, lazer, lazer adedi payı, kalkan jeneratörü, dron sayısı, dron): o haritada oynayan tipik oyuncu
+# map class -> (ship, laser, laser count share, shield generator, drone count, drone): the typical player on that map
 CLASS_GEAR = {
     'X-1': ('ship_phoenix', 'equipment_weapon_laser_lf-1', 1.0, 'equipment_generator_shield_sg3n-a01', 0, None),
     'X-2': ('ship_piranha', 'equipment_weapon_laser_mp-1', 0.8, 'equipment_generator_shield_sg3n-a02', 0, None),
@@ -41,13 +41,13 @@ def maps(class_name):
 
 
 def slot_count(counts):
-    """Kadronun olması gereken büyüklüğü (panel kadroyu buna göre üretir)."""
+    """The size the roster should have (the panel generates the roster accordingly)."""
     return len(distribute(counts))
 
 
 def distribute(counts):
-    """{sınıf: sayı} -> [(harita, firma, sıra)]: sınıfın her haritasına sayı kadar yer (firma haritalarında her firmanınkine ayrı;
-    ortak haritalarda (4-X, 4-5) firma None: bot kendi firmasıyla gelir)."""
+    """{class: count} -> [(map, company, order)]: for each map of the class, that many places (company maps each get their own per company;
+    on shared maps (4-X, 4-5) the company is None: the bot comes with its own company)."""
     out = []
     for s, n in counts.items():
         for m in maps(s):
@@ -58,7 +58,7 @@ def distribute(counts):
 
 
 def gear(map_id, power=1.0, r=random):
-    """Haritanın tipik donanımı x güç oranı: lazer ve jeneratörlerin doluluğu, dron sayısı; güçlüde bir üst lazer."""
+    """The map's typical equipment x strength ratio: fill level of lasers and generators, drone count; one laser tier higher when strong."""
     ship, laser, pay, shield, drones, drone = CLASS_GEAR.get(map_class(map_id), CLASS_GEAR['X-1'])
     g = K.ITEMS['ships'][ship]
     order = ['equipment_weapon_laser_lf-1', 'equipment_weapon_laser_mp-1', 'equipment_weapon_laser_sll-01',
@@ -77,8 +77,8 @@ def gear(map_id, power=1.0, r=random):
 
 
 def prepare(y, now):
-    """Basit kip yükleme: kadroyu haritalara dağıtır (kadronun basit_harita'sı varsa o), donanımı ve seviyeyi kurar; hepsi
-    çevrimiçi."""
+    """Simple mode loading: distributes the roster over the maps (the roster's basit_harita if it has one), sets up equipment and level; all
+    online."""
     power = float(y.setting('simple_power', 1.0))
     places = distribute(y.setting('simple_maps') or DEFAULT_MAPS)
     friend = float(y.setting('simple_friendly', 0.5))
@@ -105,7 +105,7 @@ def prepare(y, now):
 
 @target
 class Simple(Goal):
-    """Basit kipin tek hedefi: kendi haritasında uzaylı kesmek (soyutta da)."""
+    """Simple mode's only goal: killing aliens on its own map (in the abstract too)."""
     name = 'simple'
     bot_modes = ('simple',)
     min_sec = 1e9

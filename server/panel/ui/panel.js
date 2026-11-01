@@ -1,15 +1,15 @@
-/* OpenOrbit yerel sunucu paneli — arayüz (panel.py'nin /api/... uçları). Dış kitaplık yok.
-   Dil: metinler İngilizce yazılır (kaynak dil), T() seçili dildeki hâlini verir (<kod>.json, Türkçe dahil: tr.json; yoksa metnin
-   kendisi; Python tarafıyla ortak, lang.py).
-   İlk açılışta kurulum sihirbazı: dil, oyun klasörü, ilk pilot, oyun ayarları (panel.json 'dil', 'kurulum_tamam'). Oyun
-   bilgisayarda bulunamazsa oyun klasörü adımı onu indirmeye başlar (client_download.py; İstemci sayfasından da). Panel GitHub'daki yeni
-   sürümü kurup yeniden başlayınca (updater.py) belirteç değişir: sayfa kendini yeniler. */
+/* OpenOrbit local server panel — the UI (panel.py's /api/... endpoints). No external library.
+   Language: texts are written in English (the source language), T() gives the selected language's version (<code>.json, Turkish included: tr.json; if absent the text
+   itself; shared with the Python side, lang.py).
+   On first start the setup wizard: language, game folder, first pilot, game settings (panel.json 'dil', 'kurulum_tamam'). If the game is not
+   found on the computer the game folder step starts downloading it (client_download.py; also from the Client page). When the panel installs a new version from GitHub
+   and restarts (updater.py) the token changes: the page refreshes itself. */
 'use strict';
 const TOKEN = document.querySelector('meta[name="panel-token"]').content;
 const $ = (s, r = document) => r.querySelector(s);
 
 // ------------------------------------------------------------------ dil
-// diller: /api/diller (lang.py LANGUAGES); sözlükte olmayan metin İngilizce (kaynak) kalır
+// languages: /api/diller (lang.py LANGUAGES); text not in the dictionary stays in English (the source)
 const I18N = { lang: 'tr', dict: {}, list: [{ code: 'tr', name: 'Türkçe', local: 'tr-TR', coverage: 100 }, { code: 'en', name: 'English', local: 'en-US', coverage: 100 }] };
 function T(s, ...a) {
   let r = I18N.dict[s] ?? s;
@@ -24,28 +24,28 @@ async function setLang(lang) {
   I18N.dict = I18N.lang === 'en' ? {} : await loadDict(I18N.lang);
   document.documentElement.lang = LOC();
 }
-// tarayıcının dillerinden panelde olan ilki (pt-BR -> pt); yoksa İngilizce
+// the first of the browser's languages that the panel has (pt-BR -> pt); otherwise English
 const guessLang = () => (navigator.languages || [navigator.language || '']).map(x => x.toLowerCase().split('-')[0]).find(langOf) || 'en';
 function applyStatic() {
   const sub = $('#brand-sub'); if (sub) sub.textContent = T('Local Server Panel');
-  // kenar çubuğunun en altında destek bağlantısı (Buy Me a Coffee; varsayılan tarayıcıda açılır: /api/bagis)
+  // support link at the very bottom of the sidebar (Buy Me a Coffee; opens in the default browser: /api/bagis)
   const coffee = $('#coffee');
   if (!coffee) return;
   const open_ = () => act(() => api('/api/donate', {}));
   const button = h('button', { class: 'coffee', type: 'button', title: 'buymeacoffee.com/kaanumay', onclick: open_ }, art('drone_coffee', 'coffee-drone'),
     h('span', null, h('b', null, T('Buy me a coffee')), h('small', null, T("Support OpenOrbit"))));
   coffee.replaceChildren(button);
-  // altında son destekçiler sola kayarak geçer (sayfadaki Recent supporters; çevrimdışıysa liste boş gelir, şerit hiç çıkmaz)
+  // below it the latest supporters scroll by to the left (Recent supporters on the page; if offline the list comes back empty, the strip never appears)
   api('/api/supporters').then(d => {
-    if (!d.names || !d.names.length || !button.isConnected) return;   // dil değişince applyStatic yeniden kurduysa eskisi eklenmesin
+    if (!d.names || !d.names.length || !button.isConnected) return;   // if applyStatic rebuilt it when the language changed, the old one should not be added
     const group = () => h('span', { class: 'coffee-group' }, d.names.map(a => h('span', null, a)));
-    const duration = Math.max(12, d.names.join('').length * 0.45 + d.names.length * 2);   // ad sayısı arttıkça hız sabit kalsın
+    const duration = Math.max(12, d.names.join('').length * 0.45 + d.names.length * 2);   // so the speed stays constant as the number of names grows
     coffee.append(h('button', { class: 'coffee-strip', type: 'button', title: T('Recent supporters'), 'aria-label': T('Recent supporters') + ': ' + d.names.join(', '), onclick: open_ },
       h('span', { class: 'coffee-marquee', style: { animationDuration: duration + 's' } }, group(), group())));
   }).catch(() => {});
 }
 
-// ------------------------------------------------------------------ simgeler (24x24, çizgi)
+// ------------------------------------------------------------------ icons (24x24, line)
 const ICONS = {
   play: '<polygon points="7 4 20 12 7 20 7 4" fill="currentColor" stroke="none"/>',
   save: '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/>',
@@ -98,13 +98,13 @@ function icon(name) {
   s.innerHTML = ICONS[name] || ''; return s;
 }
 
-// ------------------------------------------------------------------ DOM yardımcıları
+// ------------------------------------------------------------------ DOM helpers
 function h(tag, props, ...kids) {
   const el = document.createElement(tag);
   if (props) for (const [k, v] of Object.entries(props)) {
     if (v == null || v === false) continue;
     if (k === 'class') el.className = v;
-    else if (k === 'style' && typeof v === 'object') for (const [p, x] of Object.entries(v)) p.startsWith('--') ? el.style.setProperty(p, x) : el.style[p] = x;   // --c gibi değişkenler yalnız setProperty ile
+    else if (k === 'style' && typeof v === 'object') for (const [p, x] of Object.entries(v)) p.startsWith('--') ? el.style.setProperty(p, x) : el.style[p] = x;   // variables like --c only with setProperty
     else if (k.startsWith('on') && typeof v === 'function') el.addEventListener(k.slice(2), v);
     else if (k === 'value') el.value = v;
     else if (k === 'checked' || k === 'disabled' || k === 'selected') el[k] = !!v;
@@ -120,11 +120,11 @@ const btn = (label, onclick, cls = '', iconEl = null, props = {}) =>
   h('button', Object.assign({ class: 'btn ' + cls, onclick, type: 'button' }, props), iconEl ? icon(iconEl) : null, label ? h('span', null, label) : null);
 const badge = (text, cls = '') => h('span', { class: 'badge ' + cls }, text);
 const dot = cls => h('span', { class: 'dot ' + (cls || '') });
-const art = (name, cls = 'art') => h('img', { class: cls, src: 'images/' + name + '.webp', sub: '' });   // arayuz/images/ (Orders.md)
-const N = s => s;     // çevrilecek metin işareti: değişkende durur, T() ile gösterilir (test_panel_lang.py toplar)
+const art = (name, cls = 'art') => h('img', { class: cls, src: 'images/' + name + '.webp', sub: '' });   // ui/images/ (Orders.md)
+const N = s => s;     // marker for text to be translated: it stays in a variable, shown with T() (test_panel_lang.py collects it)
 const field = (label, ...ctl) => h('div', { class: 'field' }, h('label', null, label), ...ctl);
 
-// ------------------------------------------------------------------ biçimler
+// ------------------------------------------------------------------ formats
 const fmtN = n => (Number(n) || 0).toLocaleString(LOC());
 function fmtDur(s) {
   s = Math.max(0, s | 0);
@@ -161,7 +161,7 @@ async function api(path, body) {
   let r;
   try { r = await fetch(path, opt); } catch (e) { throw new Error(T("Can't reach the panel: it may have closed.")); }
   const d = await r.json().catch(() => ({}));
-  if (r.status === 403 && d.error && d.error !== 'host' && !api.reloading) { api.reloading = true; location.reload(); }   // panel yeniden başladı
+  if (r.status === 403 && d.error && d.error !== 'host' && !api.reloading) { api.reloading = true; location.reload(); }   // the panel restarted
   if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
   return d;
 }
@@ -173,7 +173,7 @@ async function act(fn, okMsg) {
   } catch (e) { toast(e.message, 'err'); return undefined; }
 }
 
-// ------------------------------------------------------------------ bildirim, pencere, menü
+// ------------------------------------------------------------------ notification, window, menu
 function toast(text, kind = 'info', ms = 4200) {
   const t = h('div', { class: 'toast ' + kind }, icon(kind === 'ok' ? 'check' : kind === 'err' ? 'alert' : 'info'), h('div', null, text));
   $('#toasts').append(t);
@@ -226,7 +226,7 @@ function popMenu(anchor, items) {
   }), 0);
 }
 
-// ------------------------------------------------------------------ sayfalar ve çerçeve
+// ------------------------------------------------------------------ pages and frame
 const PAGES = [
   { id: 'play', name: N('Play'), ic: 'play', sub: N('See your save, check your settings and start the game.') },
   { id: 'friend', name: N('Play with Friends'), ic: 'users', sub: N("Host a server or join your friend's server. Everyone plays with their own save.") },
@@ -239,8 +239,8 @@ const PAGES = [
   { id: 'client', name: N('Client'), ic: 'monitor', sub: N('Game folder, version check and display options.') },
   { id: 'server', name: N('Server'), ic: 'server', sub: N('Server processes, ports, behavior and logs.') },
   { id: 'panel', name: N('Panel'), ic: 'info', sub: N('Language, setup wizard, updates, desktop shortcut, folders and about the panel.') },
-  // oyun içi menüler: kenar çubuğunun ayrı bölümünde, yalnız oyun açıkken (panel_channel.py); simge oyunun kendi görseli (sprite)
-  // sıra sayfaların üstündeki sekmelerle aynı (OYUN_SAYFALARI)
+  // in-game menus: in a separate section of the sidebar, only while the game is open (panel_channel.py); the icon is the game's own image (sprite)
+  // the order is the same as the tabs above the pages (GAME_PAGES)
   { id: 'shop', name: N('Shop'), ic: 'cart', sprite: 'shop_normal', game: true, sub: N('The in-game shop: what you buy arrives in the game right away.') },
   { id: 'hangar', name: N('Hangar'), ic: 'hangar', sprite: 'hangar_normal', game: true, sub: N('Your ships and their equipment: click an item to equip or unequip it; it changes in the game right away.') },
   { id: 'skylab', name: N('Skylab'), ic: 'lab', sprite: 'skylab_normal', game: true, sub: N('Modules, production, storage and transport to your ship; the same as the Skylab in the game.') },
@@ -261,7 +261,7 @@ function buildNav() {
 function go(id, push = true) {
   if (!PAGES.find(p => p.id === id)) id = 'play';
   S.timers.forEach(clearInterval); S.timers = [];
-  S.page = id; S.sig = {}; document.body.dataset.page = id;      // sayfa başlığının sahnesi (panel.css .topbar)
+  S.page = id; S.sig = {}; document.body.dataset.page = id;      // the page title's scene (panel.css .topbar)
   if (push && location.hash !== '#' + id) history.replaceState(null, '', '#' + id);
   document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('active', b.dataset.page === id));
   const p = PAGES.find(x => x.id === id);
@@ -302,7 +302,7 @@ function renderChrome() {
   tr.replaceChildren(...kids);
   const navGame = $('#nav-game'), gameOpen = st.game === 'on' && st.client === 'on';
   if (navGame) navGame.style.display = gameOpen ? '' : 'none';
-  // oyun kapanınca oyun içi sayfadaki kullanıcı Oyna sayfasına döner (sayfanın verisi oyun sunucusundan)
+  // when the game closes the user on an in-game page returns to the Play page (the page's data comes from the game server)
   if (d && !gameOpen && PAGES.find(p => p.id === S.page)?.game) {
     if (S.game_was_open) toast(T('The game closed: back to the Play page.'), 'info');
     go('play');
@@ -330,12 +330,12 @@ async function poll() {
   if (S.page === 'server') renderServerCards();
   if (S.page === 'friend' && FRD.data) friendsTick();
   poll.n = (poll.n || 0) + 1;
-  if (poll.n % 3 === 0) auctionEventTick();      // açık artırma bildirimleri (~5 sn)
+  if (poll.n % 3 === 0) auctionEventTick();      // auction notifications (~5 s)
   setTimeout(poll, S.state?.play?.running ? 500 : 1500);
 }
 window.addEventListener('pagehide', () => navigator.sendBeacon && navigator.sendBeacon('/api/kapandi', '{}'));
 
-// ================================================================== OYNA
+// ================================================================== PLAY
 function renderPlay() { S.sig = {}; $('#content').replaceChildren(h('div', { class: 'stack', id: 'play' })); renderPlayBody(); }
 
 function renderPlayBody() {
@@ -351,7 +351,7 @@ function renderPlayBody() {
   const blocking = d.warnings.filter(u => u.type === 'error');
   const clientMissing = blocking.some(u => u.page === 'client');
 
-  // ---- kahraman kartı
+  // ---- hero card
   let left;
   if (!a) {
     left = h('div', null, h('div', { class: 'slot-name' }, T('No save')), h('div', { class: 'pilot' }, T('Welcome, pilot')),
@@ -365,14 +365,14 @@ function renderPlayBody() {
       h('div', { class: 'meta' },
         [[T('Level'), a.level], [T('Ship'), a.ship], [T('Map'), a.map], [T('Play time'), fmtDur(a.play_sec)],
           [T('Last played'), fmtWhen(a.last_played || a.last_save)]].map(([k, v]) => h('span', null, k + ' ', h('b', null, v)))),
-      a.world_info ? playWorldChip(a) : null,                    // kaydın varsayılan dünyası (world_editor.js)
+      a.world_info ? playWorldChip(a) : null,                    // the save's default world (world_editor.js)
       h('div', { class: 'stats' },
         [[T('Credits'), a.credits, 'cr'], [T('Uridium'), a.uridium, 'ur'], [T('Honor'), a.honor, 'hn'], [T('Experience'), a.ep, 'ep']].map(([k, v, c]) =>
           h('div', { class: 'stat' }, h('div', { class: 'k' }, k), h('div', { class: 'v ' + c }, fmtN(v))))));
   }
   let main, sub = [];
   if (o.running) {
-    const prep = o.steps.length && o.steps[o.steps.length - 1].progress;      // BepInEx'in ilk açılış hazırlığı (istemci_yama.isit)
+    const prep = o.steps.length && o.steps[o.steps.length - 1].progress;      // BepInEx's first-start preparation (client_patch.warm_up)
     main = h('button', { class: 'play-btn busy' + (prep ? ' prep' : ''), disabled: true, style: prep ? { '--p': prep.percent + '%' } : null },
       prep ? null : h('span', { class: 'spin', style: { borderTopColor: '#021120' } }), prep ? T('PREPARING') : T('STARTING'));
   } else if (running) {
@@ -391,7 +391,7 @@ function renderPlayBody() {
       : T('Have a good flight! The servers stop when you close the game.')) : srv ? T('Server running: PLAY opens the client.') : T('The servers and the client start together.')) : null);
   const hero = h('div', { class: 'hero' }, left, playCol);
 
-  // ---- başlatma adımları
+  // ---- launch steps
   let steps = null;
   const recent = o.finished && (Date.now() / 1000 - o.finished < 45);
   if (o.steps.length && (o.running || o.error || recent)) {
@@ -403,7 +403,7 @@ function renderPlayBody() {
     h('div', null, T('The client closed {0} s after starting ({1}). The servers were left running. Check the client log.', last.sure_sn, last.time)),
     btn(T('Log'), () => { go('server'); setTimeout(() => showLog(d.panel.platform === 'win32' ? 'client.log' : 'wine.log'), 100); }, 'sm')) : null;
 
-  // ---- uyarılar
+  // ---- warnings
   const warns = d.warnings.map(u => h('div', { class: 'alert ' + (u.type === 'error' ? 'error' : 'warning') }, icon('alert'),
     h('div', { style: u.progress != null ? { flex: '1' } : null }, u.text,
       u.progress != null ? h('div', { class: 'meter' }, h('div', { class: 'meter-bar' }, h('span', { style: { width: u.progress + '%' } }))) : null,
@@ -411,7 +411,7 @@ function renderPlayBody() {
     u.action ? btn(u.action.running ? u.action.running_text || T('Installing…') : u.action.text, () => act(() => api(u.action.api, {})), 'primary sm', null, { disabled: !!u.action.running }) : null,
     u.page ? btn(T('Go'), () => go(u.page), 'sm') : null));
 
-  // ---- özet kartları
+  // ---- summary cards
   const setCard = h('div', { class: 'card' }, h('h2', null, icon('sliders'), T('Active settings')),
     h('p', { class: 'desc' }, d.settings_summary.length ? T('Different from the defaults:') : T('All settings are at their defaults.')),
     h('div', { class: 'chips' }, d.settings_summary.map(x => h('span', { class: 'chip' }, x.name, h('b', null, x.value)))),
@@ -432,13 +432,13 @@ function renderPlayBody() {
     h('div', { class: 'grid g3' }, setCard, evCard, srvCard)].filter(Boolean));
 }
 
-// ---- çoklu istemci (multi_client.py, /api/coklu): OYNA'dan sonra öteki kayıtlarla aynı sunucuya ek istemciler
+// ---- multiple clients (multi_client.py, /api/coklu): after PLAY, extra clients to the same server with the other saves
 const multiSig = c => c && JSON.stringify(Object.assign({}, c, { clients: (c.clients || []).map(x => Object.assign({}, x, { sure_sn: null })) }));
 async function openExtra(id, pilot) {
   S.multiBusy = id; S.sig.play = null; renderPlayBody();
   const r = await act(() => api('/api/coklu/ac', { record: id }), T('Opening extra client: {0}', pilot));
   S.multiBusy = null; S.sig.play = null;
-  try { S.state = await api('/api/durum'); } catch (e) { /* bir sonraki yoklamada */ }
+  try { S.state = await api('/api/durum'); } catch (e) { /* at the next poll */ }
   renderChrome(); renderPlayBody();
   return r;
 }
@@ -452,7 +452,7 @@ function extraBlock(d, k) {
 function multiCard(d) {
   const c = d.multi; if (!c) return null;
   const open = c.clients || [], st = srvState(d), srv = st.game === 'on';
-  if (!open.length && (!c.setting || c.save_count < 2)) return null;      // kapalı ya da başka kayıt yok: kart yok (İstemci sayfasında ayar)
+  if (!open.length && (!c.setting || c.save_count < 2)) return null;      // off or no other save: no card (setting on the Client page)
   const now = Date.now() / 1000;
   const others = (c.saves || []).filter(k => !k.extra && k.id !== c.main);
   const desc = !srv ? T('After PLAY you can open extra clients with your other saves on the same server: each in its own window, with its own pilot. They see each other in game and can group up and fly together.')
@@ -498,14 +498,14 @@ function multiCard(d) {
       : !c.setting ? null : h('div', { class: 'small muted' }, T('No other save to open.')));
 }
 
-// ---- canlı durum (oyun sunucusunun durum.json'u; live_status.py, /api/canli)
+// ---- live status (the game server's canli_durum.json; live_status.py, /api/canli)
 async function liveTick() {
   if (S.page !== 'play' || S.liveBusy) return;
   S.liveBusy = true;
   try { S.live = await api('/api/canli'); } catch (e) { S.live = null; } finally { S.liveBusy = false; }
   const c = $('#canli-card'), want = srvState(S.state).game === 'on' || !!S.live?.var;
   if (c && want) c.replaceWith(liveCard());
-  else if (!!c !== want) { S.sig.play = null; renderPlayBody(); }     // kart çıksın / kalksın
+  else if (!!c !== want) { S.sig.play = null; renderPlayBody(); }     // let the card appear / disappear
 }
 function meter(label, v, max, cls) {
   const pct = max ? Math.max(0, Math.min(100, v * 100 / max)) : 0;
@@ -541,7 +541,7 @@ async function switchSaveMenu(anchor) {
   })), '-', { label: T('New save…'), ic: 'plus', fn: () => newSaveModal() }, { label: T('Manage saves'), ic: 'save', fn: () => go('saves') }]);
 }
 
-// ================================================================== ARKADAŞLARINLA OYNA (friends.py, /api/arkadas)
+// ================================================================== PLAY WITH YOUR FRIENDS (friends.py, /api/arkadas)
 const IP_KIND = { local: [N('Home network'), 'ok'], radmin: [N('Radmin VPN'), 'info'], tailscale: [N('Tailscale'), 'info'], general: [N('Public'), 'orange'],
   connection: [N('Link-local'), ''] };
 const FRD_STATUS = { connecting: [N('Connecting'), 'info'], in_game: [N('In game'), 'ok'], leaving: [N('Leaving'), 'orange'], finished: [N('Left'), ''],
@@ -593,7 +593,7 @@ const stepList = list => h('div', { class: 'steps' }, list.map(s => [h('div', { 
   h('span', null, s.text), h('span', { class: 'dim small', style: { marginLeft: 'auto' } }, s.time)),
   s.progress && s.state === 'running' ? prepBox(s.progress) : null]));
 
-// BepInEx'in ilk açılış hazırlığı (istemci_yama.isit/ilerleme): oyun penceresi henüz görünmez, oyuncu oyunun açılmadığını sanmasın
+// BepInEx's first-start preparation (client_patch.warm_up/progress): the game window is not visible yet, so the player does not think the game failed to open
 const PREP_STAGE = [N('Starting the client'), N('Generating bridge assemblies'), N('Writing files')];
 function prepBox(p) {
   return h('div', { class: 'prep' },
@@ -618,7 +618,7 @@ function hostView(v) {
     h('div', { class: 'muted' }, dmg.on ? T('Your friends join with one of the addresses below. You play with your own save.')
       : T('When you host, you play with your own save; your friends join with theirs.')),
     d?.active ? h('div', { class: 'meta' }, h('span', null, T('Save:') + ' ', h('b', null, d.active.name)), h('span', null, T('Pilot') + ' ', h('b', null, d.active.pilot))) : null,
-    v.world ? hostWorldChip(v) : null);                                // sunucunun dünyası (world_editor.js)
+    v.world ? hostWorldChip(v) : null);                                // the server's world (world_editor.js)
   let main; const sub = [];
   if (busy) main = h('button', { class: 'play-btn busy', disabled: true }, h('span', { class: 'spin', style: { borderTopColor: '#021120' } }), T('STARTING'));
   else if (dmg.on && running) main = h('button', { class: 'play-btn running', disabled: true }, icon('check'), T('GAME RUNNING'));
@@ -636,7 +636,7 @@ function hostView(v) {
   const hero = h('div', { class: 'hero' }, left, h('div', { class: 'play-col' }, main, h('div', { class: 'play-sub' }, sub), hint ? h('div', { class: 'small muted' }, hint) : null));
   const steps = d?.play ? launchSteps(d.play) : null;
 
-  // ayarlar
+  // settings
   const pw = h('input', { class: 'input', value: dmg.password, placeholder: T('No password'), maxlength: 64 });
   const max = h('select', { class: 'input', style: { width: '110px' } }, Array.from({ length: 16 }, (_, i) => i + 1).map(n => h('option', { value: n, selected: n === dmg.max_count }, n)));
   const save = () => act(() => api('/api/arkadas/ayarlar', { password: pw.value, max_count: +max.value }), T('Saved.'))
@@ -653,7 +653,7 @@ function hostView(v) {
     h('p', { class: 'desc', style: { marginTop: '10px' } }, dmg.on ? T('Changes take effect when the server restarts.')
       : T('A password stops anyone who knows your address from joining. Guests enter it under Join a friend.')));
 
-  // adresler
+  // addresses
   const ipRow = (ip, kind) => h('div', { class: 'row between' }, h('b', { class: 'mono' }, ip), h('span', { class: 'row', style: { gap: '6px' } },
     badge(T((IP_KIND[kind] || IP_KIND.general)[0]), (IP_KIND[kind] || IP_KIND.general)[1]), btn('', () => copyText(ip), 'ghost sm', 'copy', { title: T('Copy') })));
   const addrCard = h('div', { class: 'card' }, h('h2', null, icon('globe'), T('Address to give your friends')),
@@ -663,7 +663,7 @@ function hostView(v) {
       }, 'sm', 'search'), h('span', { class: 'small dim' }, T('Asks api.ipify.org.')))),
     h('p', { class: 'desc', style: { marginTop: '12px' } }, T('If you are in the same home (same router), give your home network address. For friends over the internet, give your public IP (with port forwarding) or your virtual network address (Radmin VPN, ZeroTier, Tailscale).')));
 
-  // portlar
+  // ports
   const portCard = h('div', { class: 'card' }, h('h2', null, icon('shield'), T('Ports to open')),
     h('table', { class: 'table' }, h('thead', null, h('tr', null, h('th', null, T('Protocol')), h('th', null, T('Port')), h('th', null, T('Used for')))),
       h('tbody', null, [['TCP', dmg.game_port, T('Game and account upload')], ['TCP', dmg.chat_port, T('Chat')]].map(([a, b, c]) =>
@@ -679,7 +679,7 @@ function hostView(v) {
       h('div', { class: 'note' }, h('b', null, '3. '), T("Over the internet: in your router's settings, forward TCP ports {0} and {1} to this computer's home network address (port forwarding / Virtual server / NAT).", dmg.game_port, dmg.chat_port)),
       h('div', { class: 'note' }, h('b', null, '4. '), T("If your internet provider uses CGNAT (the router's WAN address differs from your public IP), forwarding will not work: set up a virtual network such as Radmin VPN, ZeroTier or Tailscale and give the address on that network."))));
 
-  // ortak evren
+  // shared world
   const share = h('div', { class: 'card' }, h('h2', null, icon('info'), T('Shared universe')),
     h('div', { class: 'check-list' }, [N('Company, battle and Blacklight maps (1-1 … 5-4, BL) are shared: aliens, boxes and ores are shared and you see each other.'),
       N("Gate, mode and event maps are each player's own copy."), N("Chat is shared; mail, clan and auction are each player's own."),
@@ -765,17 +765,17 @@ const joinInfo = () => h('div', { class: 'card' }, h('h2', null, icon('info'), T
     N("Your friend's game settings (multipliers, events) apply on their server."),
     N("Your friend's server: TCP ports 8081 (game) and 7771 (chat) must be open on their side.")].map(t => h('div', null, icon('check'), h('span', null, T(t))))));
 
-// ================================================================== KAYITLAR
-// Kayıtlar sayfası ve karakter editörü: saves.js. Burada yeni pilot formu ve yedekler penceresi (kurulum sihirbazı da kullanır).
+// ================================================================== SAVES
+// Saves page and character editor: saves.js. Here the new pilot form and the backups window (the setup wizard uses them too).
 
-// ---- yeni pilot formu (Yeni kayıt penceresi ve kurulum sihirbazı)
+// ---- new pilot form (New save window and the setup wizard)
 const FIRMS = [[1, 'MMO', 'Mars Mining Operations', 'var(--mmo)', '1-1'], [2, 'EIC', 'Earth Industries Corp.', 'var(--eic)', '2-1'],
   [3, 'VRU', 'Venus Resources Unlimited', 'var(--vru)', '3-1']];
 function pilotForm({ start = true } = {}) {
   const st = { company: 2 };
   const name = h('input', { class: 'input', placeholder: T('e.g. Main save, Quick test…') });
   const pilot = h('input', { class: 'input', placeholder: T('3-20 characters'), maxlength: 20 });
-  // başlangıç değerleri (isteğe bağlı; boş: şablondaki): kredi, uridyum, seviye (EP'si seviyenin eşiği), onur, cephane
+  // starting values (optional; empty: the template's): credits, uridium, level (its EP is the level's threshold), honor, ammo
   const num = (min, max) => h('input', { class: 'input', type: 'number', min, max, step: 1, placeholder: T('template value') });
   const credits = num(0), uri = num(0), level = num(1, 50), honor = num(0), laser = num(0), rocket = num(0);
   const progressive = h('input', { type: 'checkbox' }), campaign = h('input', { type: 'checkbox' });
@@ -860,7 +860,7 @@ async function backupsModal(id) {
   load();
 }
 
-// ================================================================== OYUN AYARLARI
+// ================================================================== GAME SETTINGS
 const MULTIPLIER_VALUES = [0, 0.1, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.75, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2, 2.5, 3, 4, 5, 6, 7.5, 10, 12.5, 15, 20, 25, 30, 40, 50];
 const APPLY_WHEN = { 'anında': ['an', N('Instant')], 'map': ['map', N('On map change')], 'giriş': ['entry', N('On next login')], 'başlatma': ['baslatma', N('On server restart')] };
 let saveTimer = null, pending = {};
@@ -884,11 +884,11 @@ function markChanged() {
     const k = row.dataset.key, v = r.values[k] ?? r.default[k];
     row.classList.toggle('changed', v !== r.default[k]);
   });
-  document.querySelectorAll('.set-group').forEach(card => {         // grup başlığında değişen ayar sayısı
+  document.querySelectorAll('.set-group').forEach(card => {         // number of settings changed in the group heading
     const n = card.querySelectorAll('.set-row.changed').length;
     card.querySelector('.grp-count').textContent = n ? ' · ' + T('{0} changes', n) : '';
   });
-  document.querySelectorAll('.set-sub').forEach(sub => {            // "Ayrıntılı ayarla" düğmesinde değişen alt ayar sayısı
+  document.querySelectorAll('.set-sub').forEach(sub => {            // number of sub-settings changed on the "Fine-tune" button
     const n = sub.querySelectorAll('.set-row.changed').length;
     document.querySelector(`.set-row[data-key="${sub.dataset.parent}"] .set-toggle .n`).textContent = n ? T('{0} custom', n) : '';
     paintEff(sub.dataset.parent);
@@ -940,12 +940,12 @@ async function renderSettings() {
         return kids.length ? [row, subPanel(row, kids, val, r.default)] : row;
       }));
   }).filter(Boolean);
-  // arama, yalnız değişenler, grup kısayolları (seçimler sayfa yenilenince de kalır)
+  // search, changed only, group shortcuts (the selections stay when the page refreshes too)
   const q = h('input', { class: 'input', type: 'search', placeholder: T('Search settings (name or description)…'), value: S.settingsSearch || '' });
   const only = h('input', { type: 'checkbox', checked: !!S.settingsChanged });
   const none = h('div', { class: 'card muted', hidden: true }, T('No setting matches the search.'));
-  // keep: kayıttan sonra (markChanged) yalnız gösterir, görünen satırı gizlemez (varsayılana dönen satır düzenlerken kaybolmasın).
-  // Alt ayar üstünün adıyla da aranır; uyan alt ayarın üstü görünür ve bölümü açılır.
+  // keep: after a save (markChanged) it only shows, does not hide the visible row (so a row that returned to the default does not vanish while editing).
+  // A sub-setting is also searched by its parent's name; the parent of a matching sub-setting becomes visible and its section opens.
   const apply = (keep = false) => {
     S.settingsSearch = q.value; S.settingsChanged = only.checked;
     const words = q.value.toLocaleLowerCase(LOC()).split(/\s+/).filter(Boolean), filt = words.length > 0 || only.checked;
@@ -985,14 +985,14 @@ async function renderSettings() {
 
 function settingRow(s, v, def) {
   const [tc, tagText] = APPLY_WHEN[s.apply_mode] || ['', s.apply_mode];
-  // alt ayar (s.ust): uygulama etiketi üstünde; yerine etkin çarpan (paintEff). data-v: gösterilen değer (sürgü bırakılmadan da)
+  // sub-setting (s.ust): on the parent, the apply label; in its place the effective multiplier (paintEff). data-v: the displayed value (even without releasing the slider)
   const row = h('div', { class: 'set-row' + (s.parent ? ' sub' : ''), 'data-key': s.anahtar, 'data-v': v });
-  // bağlı ayar (s.kosul): yalnız o açma kapama ayarı açıkken, onun altında görünür
+  // linked setting (s.condition): shown below it only while that on/off setting is on
   if (s.condition) { row.dataset.condition = s.condition; row.classList.toggle('condition-off', !(S.setting.values[s.condition] ?? S.setting.default[s.condition])); }
   const head = h('div', null, h('div', { class: 'name' }, s.name, s.parent ? h('span', { class: 'eff' }) : h('span', { class: 'tag ' + tc }, T(tagText))),
     h('div', { class: 'help' }, s.description));
   let ctl;
-  // sürgü önerilen aralıkta (min..max); sayı kutusuna elle sinir'e dek her değer yazılır (settings.py), aralığın dışı "elle" işaretli
+  // the slider is in the recommended range (min..max); any value up to limit can be typed by hand into the number box (settings.py), outside the range it is marked "manual"
   const top = s.cap ?? s.max;
   const over = h('span', { class: 'tag elle', title: T('Outside the recommended range ({0} – {1}); the largest value you can type is {2}.', fmtMult(s.min ?? 0), fmtMult(s.max ?? 0), fmtMult(top)) }, T('Manual'));
   const markOver = x => { over.hidden = !(x > s.max); };
@@ -1028,7 +1028,7 @@ function settingRow(s, v, def) {
     } });
     ctl = h('div', { class: 'ctl' }, h('label', { class: 'switch' }, cb, h('span')));
   } else if (s.type === 'level') {
-    // seçeneklerin açıklaması ve rengi şemadan (settings.py: secenek_aciklama, renkler; panel dilinde gelir)
+    // the options' description and color from the schema (settings.py: option_description, colors; arrive in the panel's language)
     const say = i => (s.option_description || [])[i] || '';
     const desc = h('div', { class: 'level-desc' }, say(v));
     const seg = h('div', { class: 'seg' }, s.options.map((name, i) => h('button', { class: (i === v ? 'on ' : '') + ((s.colors || [])[i] || ''), onclick: e => {
@@ -1040,7 +1040,7 @@ function settingRow(s, v, def) {
   row.append(head, ctl);
   return row;
 }
-// alt ayarlar (settings.py ALTLAR): üstün satırında "Ayrıntılı ayarla" düğmesi, altında açılan bölüm (açıklığı S.ayarAcik'te kalır)
+// sub-settings (settings.py SUBS): a "Fine-tune" button on the parent's row, a section that opens below it (its open state stays in S.settingsOpen)
 function subPanel(row, kids, val, defs) {
   const key = row.dataset.key;
   const sub = h('div', { class: 'set-sub', 'data-parent': key },
@@ -1055,14 +1055,14 @@ function setOpen(row, sub, open) {
   sub.hidden = !open;
   const b = row.querySelector('.set-toggle'); b.classList.toggle('open', open); b.setAttribute('aria-expanded', String(open));
 }
-function paintEff(parent) {          // alt ayarların etkin çarpanı (genel x alt): genel x1 değilse "toplam ×6"
+function paintEff(parent) {          // the effective multiplier of the sub-settings (general x sub): if general is not x1, "total ×6"
   const p = document.querySelector(`.set-row[data-key="${parent}"]`), sub = document.querySelector(`.set-sub[data-parent="${parent}"]`);
   if (!p || !sub) return;
   sub.querySelectorAll('.set-row').forEach(c => { c.querySelector('.eff').textContent = +p.dataset.v === 1 ? '' : T('total ×{0}', fmtMult(p.dataset.v * c.dataset.v)); });
 }
 const fmtMult = x => (Math.round(x * 100) / 100).toLocaleString(LOC());
 
-// ================================================================== ETKİNLİKLER
+// ================================================================== EVENTS
 async function renderEvents(list) {
   const r = list || await act(() => api('/api/etkinlikler')); if (!r || S.page !== 'events') return;
   const set = (key, v) => act(() => api('/api/etkinlikler', { changes: { [key]: v } })).then(x => x && renderEvents(x));
@@ -1095,9 +1095,9 @@ async function renderEvents(list) {
       weekly.map(row))));
 }
 
-// ================================================================== ETKİNLİK TAKVİMİ (event_schedule.py, /api/takvim)
-// Görünümler: saatlik (seçili günün 24 saati, satırlar ve seanslar), günlük (o günün ayrıntılı listesi), haftalık (pazartesiden 7 gün),
-// aylık (6 haftalık ızgara). Çubuk: takvime göre dolu, elle açık çizgili, elle kapalı soluk. Zamanlar yerel saat.
+// ================================================================== EVENT CALENDAR (event_schedule.py, /api/takvim)
+// Views: hourly (the 24 hours of the selected day, rows and sessions), daily (the day's detailed list), weekly (7 days from Monday),
+// monthly (6-week grid). Bar: filled per the calendar, outlined if manually open, faded if manually closed. Times are local time.
 const CAL = { appearance: 'weekly', day: null, filter_by: { yearly: true, weekly: true, session: true }, search: '', data: null, coverage: null };
 const CAL_VIEW = [['hourly', N('Hourly')], ['daily', N('Log')], ['weekly', N('Weekly')], ['aylik', N('Monthly')]];
 const CAL_COLOR = ['#38c4ff', '#ff8a3d', '#3ddc97', '#ff6b81', '#a29bfe', '#ffc857', '#1dd1a1', '#f368e0', '#54a0ff', '#ff7f50', '#00d2d3', '#c8d6e5'];
@@ -1138,7 +1138,7 @@ async function renderCalendar() {
   drawCalendar();
 }
 
-// görünümde gösterilecek satırlar: süzgeçler; aralıkta açık olan, seansı olan ya da elle açılmış etkinlikler
+// rows to show in the view: filters; events that are open in the range, have a session or were opened manually
 function calRows() {
   const q = CAL.search.trim().toLocaleLowerCase(LOC());
   return CAL.data.events.filter(e => CAL.filter_by[e.type] && (!q || e.name.toLocaleLowerCase(LOC()).includes(q)))
@@ -1170,7 +1170,7 @@ function drawCalendar() {
   $('#content').replaceChildren(h('div', { class: 'stack' }, bar, calSummary(r), view));
 }
 
-// ---- özet: şu an açık olanlar ve sıradakiler (görünümden bağımsız)
+// ---- summary: those open now and the upcoming ones (independent of the view)
 function calSummary(r) {
   const now = Date.now() / 1000;
   const on = r.events.filter(e => e.etkin);
@@ -1184,12 +1184,12 @@ function calSummary(r) {
     h('div', { class: 'card' }, h('h2', null, icon('clock'), T('Coming up')),
       next.length ? h('div', { class: 'cal-next' }, next.map(e => h('div', { class: 'row', onclick: () => calDetail(e.anahtar) }, dotc(e.anahtar),
         h('div', { class: 'grow' }, h('div', { class: 'ellipsis', style: { maxWidth: 'none' }, title: e.name }, e.name),
-          h('div', { class: 'small muted' }, calSpan(e.next[0], e.next[1]))),     // tarih adın altında: dar kartta rozet taşmasın
+          h('div', { class: 'small muted' }, calSpan(e.next[0], e.next[1]))),     // the date is under the name: so the badge does not overflow in a narrow card
         badge(T('in {0}', fmtDur(e.next[0] - now)), 'info'))))
         : h('p', { class: 'desc' }, T('No event starts soon.'))));
 }
 
-// ---- saatlik ve haftalık: zaman çizelgesi (satır başına etkinlik, altında seansları)
+// ---- hourly and weekly: timeline (an event per row, its sessions below)
 function calGantt(rows) {
   const [A, B] = CAL.coverage, now = Date.now() / 1000, week = CAL.appearance === 'weekly';
   const pct = t => Math.max(0, Math.min(100, (t - A) * 100 / (B - A)));
@@ -1219,7 +1219,7 @@ function calGantt(rows) {
     rows.map(evRow)) : h('div', { class: 'empty' }, art('empty_event'), h('div', null, T('No events to show in this range.'))));
 }
 
-// ---- günlük: seçili günün ayrıntılı listesi (bütün gün sürenler, saatli aralıklar ve seanslar sırayla)
+// ---- daily: the selected day's detailed list (all-day ones, timed intervals and sessions in order)
 function calDay(rows) {
   const [A, B] = CAL.coverage, now = Date.now() / 1000;
   const allDay = [], timed = [];
@@ -1248,7 +1248,7 @@ function calDay(rows) {
         : h('p', { class: 'desc' }, T('No timed events or sessions on this day.'))));
 }
 
-// ---- aylık: 6 haftalık ızgara; gün hücresinde o gün açık etkinlikler (tıklayınca günlük görünüm)
+// ---- monthly: 6-week grid; in a day cell the events open that day (clicking opens the daily view)
 function calMonth(rows) {
   const [A] = CAL.coverage, month = new Date(((CAL.coverage[0] + CAL.coverage[1]) / 2) * 1000).getMonth(), today = dayStart(new Date()).getTime();
   const heads = Array.from({ length: 7 }, (_, i) => h('div', { class: 'cal-mhead' }, addDays(new Date(A * 1000), i).toLocaleDateString(LOC(), { weekday: 'short' })));
@@ -1271,7 +1271,7 @@ function calMonth(rows) {
   return h('div', { class: 'card' }, h('div', { class: 'cal-month' }, heads, cells));
 }
 
-// ---- etkinliğin ayrıntısı: açıklama, takvim, bu görünümdeki aralıklar, seanslar; elle açık / kapalı seçimi
+// ---- the event's details: description, calendar, intervals in this view, sessions; manual open / closed choice
 function calDetail(key) {
   const e = CAL.data.events.find(x => x.anahtar === key); if (!e) return;
   const now = Date.now() / 1000, st = e.state || 'calendar';
@@ -1297,7 +1297,7 @@ function calDetail(key) {
   });
 }
 
-// ================================================================== İSTEMCİ
+// ================================================================== CLIENT
 const versionText = (c, supported) => !c.version ? T('Unknown version')
   : c.compatible ? T('Version {0} (compatible with the server)', c.version) : T('Version {0} — the server was written for {1}', c.version, supported);
 const checkRow = (ok, text, warn) => h('div', { class: ok ? 'ok' : warn ? 'wr' : 'no' }, icon(ok ? 'check' : warn ? 'alert' : 'x'), text);
@@ -1309,10 +1309,10 @@ function resolutionList(r) {
   return { res, scr };
 }
 
-// ---- oyunu indirme (client_download.py, /api/istemci/indirme): sihirbazın oyun klasörü adımı ve İstemci sayfası
+// ---- downloading the game (client_download.py, /api/istemci/indirme): the wizard's game folder step and the Client page
 const DL_ACTIVE = st => st.running || st.partial || ['error', 'stopped', 'finished'].includes(st.state);
 const dlPct = st => st.total ? Math.floor(100 * st.claimed / st.total) : 0;
-function dlBox(st, refresh, { haveClient = false } = {}) {      // haveClient: geçerli istemci var, yarım dosyalar yalnız silinir
+function dlBox(st, refresh, { haveClient = false } = {}) {      // haveClient: there is a valid client, partial files are only deleted
   const pct = dlPct(st), run = st.running;
   const call = (path, msg) => act(() => api(path, {}), msg).then(x => { if (x) refresh(x); });
   const discard = async () => {
@@ -1339,12 +1339,12 @@ function dlBox(st, refresh, { haveClient = false } = {}) {      // haveClient: g
     info ? h('div', { class: 'small muted dl-info', title: st.file || '' }, info) : null,
     btns.some(Boolean) ? h('div', { class: 'row wrap' }, btns) : null);
 }
-// indirmenin satırı: inen / toplam, hız, kalan süre, dosya
+// the download's row: downloaded / total, speed, time left, file
 function dlInfo(st) {
   return [`${fmtBytes(st.claimed)} / ${fmtBytes(st.total)}`, st.speed ? `${fmtBytes(st.speed)}/${T('s')}` : null,
     st.time_left_sec != null && st.speed ? T('{0} remaining', fmtDur(st.time_left_sec)) : null, T('file {0}/{1}', st.done_files, st.file_count)].filter(Boolean).join(' · ');
 }
-// kutuyu saniyede bir yeniler; iş bitince (bitti) onDone. -> setInterval kimliği
+// refreshes the box every second; when the job finishes (finished) onDone. -> setInterval id
 function dlWatch(wrap, st, onDone, opts) {
   let sig = JSON.stringify(st);
   const draw = s => wrap.replaceChildren(dlBox(s, x => { draw(x); sig = JSON.stringify(x); }, opts));
@@ -1361,7 +1361,7 @@ function dlWatch(wrap, st, onDone, opts) {
   return id;
 }
 
-// ---- macOS: panelin kurduğu Wine + DXMT ve Rosetta 2 (wine_engine.py, /api/motor): Wine / Proton kartı ve sihirbazın oyun klasörü adımı
+// ---- macOS: the Wine + DXMT and Rosetta 2 the panel installs (wine_engine.py, /api/motor): the Wine / Proton card and the wizard's game folder step
 function engineBox(m, refresh, { engine = true } = {}) {
   const call = (path, msg) => act(() => api(path, {}), msg).then(x => { if (x) refresh(x); });
   const pct = m.total ? Math.floor(100 * m.claimed / m.total) : 0, run = m.running, ros = m.rosetta;
@@ -1387,7 +1387,7 @@ function engineBox(m, refresh, { engine = true } = {}) {
       btns.length ? h('div', { class: 'row wrap' }, btns) : null),
     rosetta, old);
 }
-// kutuyu saniyede bir yeniler (sayfadan çıkınca kendiliğinden durur) -> setInterval kimliği
+// refreshes the box every second (stops by itself when leaving the page) -> setInterval id
 function engineWatch(wrap, m, opts) {
   let sig = JSON.stringify(m);
   const draw = x => { sig = JSON.stringify(x); wrap.replaceChildren(engineBox(x, draw, opts)); };
@@ -1400,7 +1400,7 @@ function engineWatch(wrap, m, opts) {
   return id;
 }
 
-// ---- istemcinin düzeltmelerini yükleyen BepInEx (client_patch.py, /api/yama): İstemci sayfası ve sihirbazın oyun klasörü adımı
+// ---- BepInEx, which loads the client's fixes (client_patch.py, /api/yama): the Client page and the wizard's game folder step
 function patchBox(y, refresh) {
   const call = path => act(() => api(path, {})).then(x => { if (x) refresh(x); });
   const pct = y.total ? Math.floor(100 * y.claimed / y.total) : 0, run = y.running;
@@ -1417,7 +1417,7 @@ function patchBox(y, refresh) {
     info ? h('div', { class: 'small muted dl-info' }, info) : null,
     btns.length ? h('div', { class: 'row wrap' }, btns) : null);
 }
-// kutuyu saniyede bir yeniler (sayfadan çıkınca kendiliğinden durur) -> setInterval kimliği
+// refreshes the box every second (stops by itself when leaving the page) -> setInterval id
 function patchWatch(wrap, y) {
   let sig = JSON.stringify(y);
   const draw = x => { sig = JSON.stringify(x); wrap.replaceChildren(patchBox(x, draw)); };
@@ -1430,7 +1430,7 @@ function patchWatch(wrap, y) {
   return id;
 }
 
-// ---- Linux ve macOS: istemciyi açan Wine ya da Proton (client_runner.py; /api/istemci 'calistirici', Windows'ta null)
+// ---- Linux and macOS: the Wine or Proton that starts the client (client_runner.py; /api/istemci 'runner', null on Windows)
 function runnerCard(c, cfg, saveCfg) {
   const mac = c.platform === 'darwin';
   const kinds = [['auto', T('Automatic')], ['engine', T("Panel's Wine")], ['wine', 'Wine'], ['proton', 'Proton'], ['special', T('Custom command')]]
@@ -1532,7 +1532,7 @@ async function renderClient(data) {
   S.timers.push(setInterval(() => protoTick(), 1000));
 }
 
-// ---- yeni istemciye protokol uyarlaması (tools/il2cpp/protocol_update.py; protocol_builds.py, /api/protokol)
+// ---- protocol adaptation to a new client (tools/il2cpp/protocol_update.py; protocol_builds.py, /api/protokol)
 async function protoTick(force) {
   const box = $('#proto-box'); if (!box) return;
   if (!force && !(S.proto && S.proto.running)) return;
@@ -1561,7 +1561,7 @@ async function protoTick(force) {
         !run && r.is === 'apply' && !r.error ? h('span', { class: 'small' }, T('Applied; the game server uses the new protocol after a restart.')) : null))));
 }
 
-// ================================================================== SUNUCU
+// ================================================================== SERVER
 let logState = { name: 'gs.log', row: 400, filter_by: '', auto: true };
 async function renderServer() {
   const cfg = await act(() => api('/api/panel_settings')); if (!cfg || S.page !== 'server') return;
@@ -1598,7 +1598,7 @@ async function renderServer() {
 
 function renderServerCards() {
   const box = $('#srv-cards'), d = S.state; if (!box || !d) return;
-  // imza ekrandaki süre metniyle (fmtDur): saniyelik sure_sn her yoklamada kartları yeniden kurup fare altındaki düğmenin tıklamasını yutuyordu
+  // the signature uses the time text shown on screen (fmtDur): the per-second sure_sn rebuilt the cards on every poll and swallowed the click on the button under the mouse
   const s = d.processes, duration = x => x && Object.assign({}, x, { sure_sn: x.sure_sn == null ? null : fmtDur(x.sure_sn) });
   const sig = JSON.stringify([Object.assign({}, s, { servers: { web: duration(s.servers.web), game: duration(s.servers.game) }, client: duration(s.client) }), d.play.running]);
   if (S.sig.srv === sig) return; S.sig.srv = sig;
@@ -1614,7 +1614,7 @@ function renderServerCards() {
     card(T('Game server'), 'server', o, o.ports, h('div', { class: 'small muted' }, s.record ? T('Save: {0}', s.record) + (s.control_channel ? ' · ' + T('control channel open (8099)') : '') : T('Game world, saving, chat (7771).')),
       [srvOn ? btn(T('Stop'), () => act(() => api('/api/sunucu/durdur', {}), T('Stopped.')), 'danger sm', 'stop', { disabled: cl || busy, title: cl ? T('Close the game first') : '' })
         : btn(T('Start'), () => act(() => api('/api/oyna', { server_only: true })), 'primary sm', 'play', { disabled: busy }),
-      // yalnız simge: dört düğme kart genişliğine sığsın, "Konsol" tek başına alta düşmesin
+      // icon only: so the four buttons fit the card width and "Console" does not drop to the bottom on its own
       btn(null, () => act(() => api('/api/sunucu/restart', {}), T('Restarted.')), 'sm icon', 'refresh', { disabled: busy || !srvOn, title: T('Restart') + ' — ' + T('If the game is running, the client must reconnect') }),
       btn(T('Log'), () => showLog('gs.log'), 'ghost sm'), btn(T('Console'), () => showLog('oyun_konsol.log'), 'ghost sm')]),
     card(T('Client'), 'monitor', s.client, null, h('div', { class: 'small muted' }, s.client.last ? T('Last closed {0} · ran for {1}', s.client.last.time, fmtDur(s.client.last.sure_sn)) : T('The original Unity client.')),
@@ -1657,7 +1657,7 @@ async function loadLog(quiet) {
 }
 
 // ================================================================== PANEL
-// ---- güncellemeler (updater.py, /api/guncelleme): GitHub'daki son sürüm, otomatik kurulum
+// ---- updates (updater.py, /api/guncelleme): the latest version on GitHub, automatic installation
 const UPD_TEXT = { up_to_date: N('The panel is up to date.'), var: N('A new version is available.'), downloading: N('Downloading the new version…'), installing: N('Installing the new version…'),
   installed: N('New version installed: if the game and servers are closed, the panel restarts now.'), bilinmiyor: N('Not checked yet.'),
   local_changes: N("There is a new version on GitHub, but this copy has local changes: get the update with git."),
@@ -1676,12 +1676,12 @@ function updCard() {
     const text = r.state === 'error' ? r.error : r.running && r.state !== 'downloading' && r.state !== 'installing' ? T('Checking…') : T(UPD_TEXT[r.state] || r.state);
     const pct = r.total ? Math.floor(100 * r.claimed / r.total) : null;
     const save = k => act(() => api('/api/panel_settings', { values: { update: k } }), T('Saved.')).then(x => x && load());
-    const toggle = on => {                               // kapalıyken yeni sürüm yalnız haber verilir (bildir)
+    const toggle = on => {                               // when off, a new version is only announced (notify)
       save(on ? 'auto' : 'notify');
       if (!on) { const m = modal({ title: T('Automatic updates turned off'), body: T('Updates can come out very often during the day; checking frequently is recommended.'),
         foot: [btn(T('OK'), () => m.close(), 'primary')] }); }
     };
-    body.replaceChildren(h('div', null,                  // h() boşları atlar (replaceChildren null'ı metin yapar)
+    body.replaceChildren(h('div', null,                  // h() skips empty values (replaceChildren turns null into text)
       h('div', { class: 'kv', style: { maxWidth: '620px' } },
         h('div', null, T('Installed version'), h('b', null, fmtVersion(r.built))),
         h('div', null, 'GitHub', h('b', null, r.last ? fmtVersion(r.last) : '—')),
@@ -1707,7 +1707,7 @@ function updCard() {
   return card;
 }
 
-// ---- Discord Rich Presence (discord_rp.py, /api/discord_rp): Discord profilinde oyunun anlık hâli; oyuncu neyin görüneceğini seçer
+// ---- Discord Rich Presence (discord_rp.py, /api/discord_rp): the game's live state on the Discord profile; the player chooses what is shown
 const RP_FIELDS = [['rp_pilot', N('Pilot name'), N('Your in-game name (off by default).')], ['rp_klan', N('Clan tag'), N('Shown before your name as [TAG].')],
   ['rp_gemi', N('Ship'), N('Name of the active ship.')], ['rp_seviye', N('Level'), N("The pilot's level.")],
   ['rp_harita', N('Map'), N('Map name and the region image.')], ['rp_durum', N('What you are doing'), N('Combat target, gate wave, safe zone.')],
@@ -1721,7 +1721,7 @@ function rpCard() {
   const card = h('div', { class: 'card' }, h('h2', null, icon('users'), 'Discord Rich Presence', head),
     h('p', { class: 'desc' }, T('Your Discord profile shows that you are playing OpenOrbit and what you are doing in the game. The Discord desktop app must be running; choose below what is shown.')), body);
   let sig = '', start = null;
-  const local = k => 'images/discord/' + k + '.webp';     // Discord'daki varlığın adı (OP-018)
+  const local = k => 'images/discord/' + k + '.webp';     // the name of the presence on Discord (OP-018)
   const duration = () => { const s = Math.max(0, Math.floor(Date.now() / 1000 - start)), p = n => String(n).padStart(2, '0');
     return T('{0} elapsed', (s >= 3600 ? p(Math.floor(s / 3600)) + ':' : '') + p(Math.floor(s % 3600 / 60)) + ':' + p(s % 60)); };
   const save = vals => act(() => api('/api/panel_settings', { values: vals })).then(x => x && load());
@@ -1801,9 +1801,9 @@ async function renderPanel() {
       h('p', { class: 'desc', style: { marginTop: '14px' } }, T("OpenOrbit: a single-player, offline local server. The client, graphics and texts belong to Bigpoint GmbH; for personal use only.")))));
 }
 
-// ================================================================== KURULUM SİHİRBAZI
-// İlk açılışta (panel.json'da 'dil' ya da 'kurulum_tamam' yoksa) ve Panel sayfasından. Adımlar mevcut API'leri kullanır;
-// sonunda 'kurulum_tamam' yazılır.
+// ================================================================== SETUP WIZARD
+// On first start (if panel.json has no 'dil' or 'kurulum_tamam') and from the Panel page. The steps use the existing APIs;
+// 'kurulum_tamam' is written at the end.
 const WZ_STEPS = [['lang', N('Language')], ['welcome', N('Welcome')], ['folder', N('Game folder')], ['pilot', N('Pilot')], ['settings', N('Game settings')], ['finished', N('Ready')]];
 const WZ = { step: 0, draw: 0 };
 
@@ -1822,7 +1822,7 @@ async function drawWizard() {
   const token = ++WZ.draw;
   const [id] = WZ_STEPS[WZ.step];
   clearInterval(WZ.timer);
-  root.classList.add('busy');                      // yüklenirken düğmeler kilitli (çift tıklama adım atlamasın)
+  root.classList.add('busy');                      // buttons are locked while loading (so a double click does not skip a step)
   root.querySelectorAll('.wz-foot button, .wz-body button').forEach(b => { b.disabled = true; });
   let p;
   try { p = await WZ_PAGES[id](); } catch (e) { p = { title: T('Something went wrong'), content: h('div', { class: 'alert hata' }, icon('alert'), h('div', null, e.message)) }; }
@@ -1881,7 +1881,7 @@ function currentPreset(r) {
 const pick = (el, cls = 'on') => { el.parentNode.querySelectorAll(':scope > *').forEach(x => x.classList.remove(cls)); el.classList.add(cls); };
 
 const WZ_PAGES = {
-  // ---- 1. dil (her dil kendi adıyla; tarayıcının dili öne çıkar)
+  // ---- 1. language (each language by its own name; the browser's language stands out)
   lang: async () => {
     const cur = S.panelCfg?.lang, hint = cur || guessLang();
     const card = ({ code, name, coverage }) => h('button', { class: 'wz-lang' + (cur === code ? ' on' : hint === code ? ' hint' : ''), type: 'button', onclick: () => chooseLang(code) },
@@ -1890,7 +1890,7 @@ const WZ_PAGES = {
       content: h('div', { class: 'wz-langs' }, I18N.list.map(card)),
       next: cur ? { label: T('Next') } : null };
   },
-  // ---- 2. hoş geldin
+  // ---- 2. welcome
   welcome: async () => ({
     title: T("Welcome to OpenOrbit"),
     sub: T('Single-player, offline DarkOrbit: the original game client connects to a local server on your computer.'),
@@ -1902,25 +1902,25 @@ const WZ_PAGES = {
       h('div', { class: 'alert info' }, icon('info'), h('div', null, T("The game never connects to the official servers and the client's files are never changed; internet is only used to download the game's images the first time they are shown. You can change everything later in the panel.")))),
     next: { label: T('Begin') },
   }),
-  // ---- 3. oyun klasörü
+  // ---- 3. game folder
   folder: async () => {
     const r = await api('/api/istemci');
     const c = r.control;
     let dl = r.download;
     const none = !c.valid && !r.candidates.length;
-    if (none && dl.state === 'vacant' && !WZ.dlAuto) {     // oyun bulunamadı: indirmeye kendiliğinden başla (yarım kaldıysa sürdür)
+    if (none && dl.state === 'vacant' && !WZ.dlAuto) {     // game not found: start downloading by itself (resume if it was left half done)
       WZ.dlAuto = true;
       dl = await act(() => api('/api/istemci/indir', {})) || dl;
     }
-    if (c.valid && c.compatible && dl.running) {      // indirme sürerken uyumlu istemci bulundu ya da seçildi: indirme durur
+    if (c.valid && c.compatible && dl.running) {      // while a download is in progress a compatible client was found or selected: the download stops
       dl = await act(() => api('/api/istemci/download_stop', {}), T('Download stopped: the client that was found is used.')) || dl;
     }
     const dlWrap = (!c.valid && (none || DL_ACTIVE(dl))) || (c.valid && (dl.running || dl.partial)) ? h('div', { class: 'dl-wrap' }) : null;
     const bg = !c.valid && dl.running;
-    let m = r.runner?.type === 'engine' ? r.runner.engine : null;   // macOS: oyunu açacak Wine da kendiliğinden iner
+    let m = r.runner?.type === 'engine' ? r.runner.engine : null;   // macOS: the Wine that will open the game is downloaded by itself too
     if (m && m.state === 'none' && !WZ.engineAuto) { WZ.engineAuto = true; m = await act(() => api('/api/motor/kur', {})) || m; }
     const mWrap = m ? h('div', { class: 'dl-wrap' }) : null;
-    let y = c.valid && r.patch.required ? r.patch : null;  // istemcinin düzeltmeleri için BepInEx de kendiliğinden kurulur
+    let y = c.valid && r.patch.required ? r.patch : null;  // BepInEx for the client's fixes is installed by itself too
     if (y && y.state === 'none' && !WZ.patchAuto) { WZ.patchAuto = true; y = await act(() => api('/api/yama/kur', {})) || y; }
     const yWrap = y ? h('div', { class: 'dl-wrap' }) : null;
     const chosen = x => { if (x) drawWizard(); };
@@ -1946,7 +1946,7 @@ const WZ_PAGES = {
       next: { disabled: !c.valid && !bg }, skip: !c.valid && !bg,
       after: () => {
         if (dlWrap) WZ.timer = dlWatch(dlWrap, dl, () => drawWizard(), { haveClient: c.valid });
-        if (mWrap) engineWatch(mWrap, m);              // sihirbaz yeniden çizilince kutu kalkar, yenileme kendiliğinden durur
+        if (mWrap) engineWatch(mWrap, m);              // when the wizard is redrawn the box goes away, the refresh stops by itself
         if (yWrap) patchWatch(yWrap, y);
       },
     };
@@ -1980,7 +1980,7 @@ const WZ_PAGES = {
       } },
     };
   },
-  // ---- 5. oyun ayarları: hazır ayar ve oyun penceresi
+  // ---- 5. game settings: preset and game window
   settings: async () => {
     const [r, c] = await Promise.all([api('/api/ayarlar'), api('/api/istemci')]);
     if (WZ.presetStart === undefined) { WZ.presetStart = currentPreset(r); WZ.preset = WZ.presetStart; }
@@ -2010,7 +2010,7 @@ const WZ_PAGES = {
       } },
     };
   },
-  // ---- 6. özet
+  // ---- 6. summary
   finished: async () => {
     const [d, c, a] = await Promise.all([api('/api/durum'), api('/api/istemci'), api('/api/ayarlar')]);
     const k = c.control, cfg = c.settings, pre = currentPreset(a);
@@ -2034,17 +2034,17 @@ const WZ_PAGES = {
   },
 };
 
-// ================================================================== OYUN İÇİ: ORTAK
-// Mağaza, Hangar ve Skylab oyun sunucusundan (panel_channel.py: istemcinin istekleriyle aynı yol; oyundaki pencereler de güncellenir).
-// Görseller ve eşya adları istemcinin BepInEx eklentisinin dökümü (/oyun_gorsel/: atlas sayfaları, dizin.json, adlar_<dil>.json).
-// Üç sayfanın üstünde aynı çubuk: sayfalar arasında geçiş, cüzdan ve güvenli bölge (donanım yalnız orada değişir: panel_kanali.istasyonda).
+// ================================================================== IN GAME: COMMON
+// Shop, Hangar and Skylab from the game server (panel_channel.py: the same path as the client's requests; the windows in the game are updated too).
+// Images and item names are the dump of the client's BepInEx plugin (/game_images/: atlas pages, dizin.json, adlar_<lang>.json).
+// The same bar above the three pages: switching between pages, wallet and safe zone (equipment changes only there: panel_channel.in_station).
 const GI = { index: null, names: {}, lang: null };
 async function loadGameImages() {
   const j = async n => { const r = await fetch('/game_images/' + n); if (!r.ok) throw new Error(r.status); return r.json(); };
-  if (!GI.index) { try { GI.index = await j('dizin.json'); buildNav(); renderChrome(); } catch (e) { /* döküm yok: simgeler, ham adlar */ } }
+  if (!GI.index) { try { GI.index = await j('dizin.json'); buildNav(); renderChrome(); } catch (e) { /* no dump: icons, raw names */ } }
   if (GI.index && GI.lang !== I18N.lang) { try { GI.names = await j('adlar_' + I18N.lang + '.json'); GI.lang = I18N.lang; } catch (e) { GI.names = {}; } }
 }
-// oyunun bir sprite'ı: atlas sayfasından kırpılır, kutuya (boy x boy) orantılı sığdırılır (dizin: sayfa, x, y, g, y, tam g, tam y, ox, oy)
+// a sprite of the game: cropped from the atlas page, fitted proportionally into the box (width x height) (dizin: page, x, y, w, h, full w, full h, ox, oy)
 function sprite(name, size) {
   const e = GI.index?.sprite[name], box = h('span', { class: 'sprite', style: { width: size + 'px', height: size + 'px' } });
   if (!e) return box;
@@ -2054,7 +2054,7 @@ function sprite(name, size) {
     background: 'url("/game_images/' + page + '.png") ' + (-x * k) + 'px ' + (-y * k) + 'px / ' + pw * k + 'px ' + ph * k + 'px no-repeat' } })));
   return box;
 }
-// lootId -> sprite adı: kimliğin son parçası (lf-4_100x100); gemiler şirkete göre (aegis-eic), dronlar seviyeyle (flax-1)
+// lootId -> sprite name: the last part of the id (lf-4_100x100); ships by company (aegis-eic), drones by level (flax-1)
 function itemSprite(lid, firma) {
   const k = lid.includes('_') ? lid.slice(lid.indexOf('_') + 1) : lid, last = k.split('_').pop();
   for (const c of [last, k.replace(/_/g, '-'), k, last + '-' + firma, last + '-1'])
@@ -2064,13 +2064,13 @@ function itemSprite(lid, firma) {
 const itemName = lid => GI.names[lid] || lid.slice(lid.indexOf('_') + 1).replace(/[_-]/g, ' ').toUpperCase();
 const gameIcon = (lid, size, firma, iconEl = 'hangar') => {
   const sp = lid && itemSprite(lid, firma), el = sp ? sprite(sp, size) : h('span', { class: 'sprite vacant', style: { width: size + 'px', height: size + 'px' } }, icon(iconEl));
-  if (lid) el.dataset.loot = lid;                // eşya ipucu (esyaIpucu)
+  if (lid) el.dataset.loot = lid;                // item tooltip (itemHint)
   return el;
 };
 
-// ---- eşya ipucu: simgenin üstünde durunca oyunun metinleri (eklentinin dökümü metinler_<dil>.json: ad, tür, ipucu açıklaması,
-// açıklama, not, kaynak; nitelik adları; dilde yoksa İngilizce) ve sunucunun değerleri (/api/esya_bilgi: hasar, kalkan, bonuslar,
-// gemiler, yükseltme, satış). Örneğe özgü bilgi (yükseltme seviyesi, rastgele nitelikler, hak) simgenin bir üst öğesinin _esya'sında.
+// ---- item tooltip: on hovering over the icon the game's texts (the plugin's dump metinler_<lang>.json: name, type, tooltip description,
+// description, note, source; attribute names; English if missing in the language) and the server's values (/api/esya_bilgi: damage, shield, bonuses,
+// ships, upgrade, sale). Instance-specific info (upgrade level, random attributes, allowance) is in the _item of the icon's parent.
 const IP = { text: null, en: null, lang: null, info: null, el: null, time: 0, box: null, loading: null };
 const HINT_LABEL = { damage: N('Damage'), pvp_damage: N('Damage to players'), kalkan: N('Shield'), absorb: N('Damage absorption'), speed: N('Speed'), can: N('Hit points'), cargo: N('Cargo'),
   laser_multiplier: N('Laser damage'), hit: N('Hit chance'), full_repair: N('Full repair'), hp_per_minute: N('Repair per minute'), right: N('Charges per refill'), extra_slot: N('Extra slots added'),
@@ -2090,7 +2090,7 @@ async function loadHints() {
   if (GI.index && IP.lang !== I18N.lang) {
     IP.lang = I18N.lang;
     try { IP.text = await j('metinler_' + I18N.lang + '.json'); } catch (e) { IP.text = null; }
-    if (!IP.en && I18N.lang !== 'en') { try { IP.en = await j('metinler_en.json'); } catch (e) { /* eski döküm: yalnız adlar */ } }
+    if (!IP.en && I18N.lang !== 'en') { try { IP.en = await j('metinler_en.json'); } catch (e) { /* old dump: names only */ } }
   }
   if (!IP.info) { try { IP.info = (await api('/api/item_info')).items; } catch (e) { IP.info = {}; } }
 }
@@ -2101,8 +2101,8 @@ function hintValue(v, b) {
   if (typeof v === 'string') return b === 'e' ? T(IP_ELEMENT[v] || v) : v;
   return { p: () => (Math.round(v * 1000) / 10).toLocaleString(LOC()) + '%', x: () => '×' + fmtN(v), sn: () => fmtDur(v), sa: () => fmtDur(v * 3600) }[b]?.() ?? fmtN(v);
 }
-// açıklamadaki yer tutucular (%HOURS%, %BOOSTERVALUE% …; "+%%BOOSTERVALUE%" = "+%" ve değer) değeriyle, yoksa "…"; <br> satır sonu,
-// öbür etiketler atılır
+// placeholders in the description (%HOURS%, %BOOSTERVALUE% ...; "+%%BOOSTERVALUE%" = "+%" and the value) with their value, or "..." if absent; <br> is a line break,
+// other tags are dropped
 const hintPlaceholder = (s, ph) => s.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '')
   .replace(/%([A-Za-z_]+)%/g, (m, k) => { const v = ph && (ph[k] ?? ph[k.toUpperCase()]); return v != null && v !== '' ? String(v) : '…'; });
 
@@ -2110,7 +2110,7 @@ function itemHint(lid, es, firma) {
   const txt = hintText(lid), b = IP.info?.[lid] || {}, ph = b.ph;
   const row = (k, v, cls = '') => h('div', { class: 'tip-row ' + cls }, h('span', null, k), h('b', null, v));
   const body = [];
-  // ipucu açıklaması kısa etki satırı; açıklamanın başıyla aynıysa (formasyonlar) yalnız açıklama
+  // the tooltip description is a short effect line; if it is the same as the start of the description (formations) only the description
   if (txt?.[2] && !(txt[3] && txt[3].slice(0, 30) === txt[2].slice(0, 30))) body.push(h('div', { class: 'tip-effect' }, hintPlaceholder(txt[2], ph)));
   if (txt?.[3]) body.push(h('div', { class: 'tip-description' }, hintPlaceholder(txt[3], ph)));
   const values = (b.stats || []).map(([k, v, f]) => row(T(HINT_LABEL[k] || k), hintValue(v, f)));
@@ -2152,7 +2152,7 @@ document.addEventListener('mouseover', e => {
   closeHint();
   if (!el || el.closest('.ipucu')) return;
   IP.el = el;
-  for (let n = el; n && n !== document.body; n = n.parentElement) if (n.title) { n.dataset.title = n.title; n.removeAttribute('title'); }   // tarayıcının ad balonu yerine
+  for (let n = el; n && n !== document.body; n = n.parentElement) if (n.title) { n.dataset.title = n.title; n.removeAttribute('title'); }   // instead of the browser's name balloon
   IP.time = setTimeout(async () => {
     await (IP.loading ||= loadHints().finally(() => { IP.loading = null; }));
     if (IP.el !== el || !el.isConnected) return;
@@ -2169,7 +2169,7 @@ document.addEventListener('mouseover', e => {
 document.addEventListener('mousedown', closeHint, true);
 document.addEventListener('scroll', closeHint, true);
 const formatMoney = (cur, n) => fmtN(n) + (cur === 'credits' || cur === 'credits' ? ' C.' : ' U.');
-// sunucunun hata ve bilgi anahtarları (BaseKey adları, panel_kanali'nin kendi anahtarları); ham metin (boşluklu) olduğu gibi
+// the server's error and info keys (BaseKey names, panel_channel's own keys); raw text (with spaces) as it is
 const GAME_TEXT = { not_enough_credits: N('You do not have enough credits.'), not_enough_uridium: N('You do not have enough uridium.'), shop_item_not_found: N('This item is not on sale right now.'),
   drone_have_max: N('You already have the maximum number of drones.'), info_text_switch_hangar_station_only: N('You can only change ships while at a station.'),
   error_can_not_equip_to_slot: N('This item cannot go in this slot.'), config_change_failed_time: N('Wait a moment before changing the config.'),
@@ -2180,7 +2180,7 @@ const gameText = k => GAME_TEXT[k] ? T(GAME_TEXT[k]) : k && k.includes(' ') ? k 
 const GAME_PAGES = [['shop', N('Shop'), 'shop_normal', 'cart'], ['hangar', N('Hangar'), 'hangar_normal', 'hangar'], ['skylab', N('Skylab'), 'skylab_normal', 'lab'],
   ['auction', N('Auction'), 'auction_normal', 'gavel']];
 
-// üç sayfanın ortak üst çubuğu; ekler: sayfaya özgü düğmeler (arama, yenile)
+// the common top bar of the three pages; extras: page-specific buttons (search, refresh)
 function gameHeader(v, page, ...extras) {
   const currency = (name, n) => h('span', { class: 'pill shop-currency' }, art('source_' + name, 'shop-resource'), h('b', null, fmtN(n)));
   return h('div', { class: 'card game-top' },
@@ -2194,7 +2194,7 @@ function gameError(e, page) {
   $('#content').replaceChildren(h('div', { class: 'card' }, h('div', { class: 'empty' }, h('p', null, e.message), btn(T('Refresh'), () => go(page), '', 'refresh'))));
 }
 
-// ================================================================== OYUN İÇİ: MAĞAZA
+// ================================================================== IN GAME: SHOP
 const SHP_CATEGORY = { ship: N('Ships'), shipdesign: N('Ship designs'), laser: N('Lasers'), ammunition: N('Ammunition'), generator: N('Generators'),
   extras: N('Extras'), booster: N('Boosters'), drone: N('Drones'), petgear: N('P.E.T. gear'), protocol: N('Protocols'), customization: N('Customization') };
 const SHP = { data: null, multiplier: null, search: '', level: {} };
@@ -2221,12 +2221,12 @@ async function renderShop() {
 }
 
 function shopCard(it) {
-  // seviyeli ürün (P.E.T. dişlisi, protokol): fiyat seviye başına, maxAmount P.E.T.'in izin verdiği en yüksek seviye (magaza.shop_list)
+  // tiered product (P.E.T. gear, protocol): the price is per level, maxAmount is the highest level the P.E.T. allows (magaza.shop_list)
   const leveled = (it.price || []).length > 1, unaffordable = it.maxAmount === -1;
   const lv = Math.min(SHP.level[it.lootId] || 1, leveled ? Math.max(1, it.maxAmount) : 1);
   const many = !leveled && (!!it.amountsSelectable || it.maxAmount > 1);
   const count = many ? h('input', { class: 'input num', type: 'number', min: 1, max: it.maxAmount > 0 ? it.maxAmount : null, value: 1 }) : null;
-  // sunucunun cost metni İngilizce biçimli ("190,000 U."): fiyat panelin sayı biçimiyle yazılır
+  // the server's cost text is in English format ("190,000 U."): the price is written in the panel's number format
   const price = it.price?.length ? fmtN(it.price[lv - 1]) + (it.currency === 'real' ? ' U.' : ' C.') : it.cost;
   return h('div', { class: 'shop-card' + (unaffordable ? ' unavailable' : '') },
     gameIcon(it.lootId, 84, SHP.data.company, 'cart'),
@@ -2246,7 +2246,7 @@ async function shopBuy(it, n, lv, b) {
   if (!r) return;
   if (!r.done) return toast(GAME_TEXT[r.error] ? T(GAME_TEXT[r.error]) : T('Could not buy ({0}).', r.error || '?'), 'err');
   toast(T('Bought: {0}', (n > 1 ? fmtN(n) + ' × ' : '') + itemName(it.lootId)), 'ok');
-  renderShop();                       // cüzdan ve liste (alınan tekil eşya listeden düşer, adetler paraya göre)
+  renderShop();                       // wallet and list (a purchased unique item drops off the list, counts by money)
 }
 
 async function shopSubscribe(it, b) {
@@ -2256,10 +2256,10 @@ async function shopSubscribe(it, b) {
   renderShop();
 }
 
-// ================================================================== OYUN İÇİ: HANGAR
-// Gemiler, iki config; gemi, dron ve P.E.T. yuvaları, CPU'lar (panel_channel.py /hangar). Envanterdeki eşyaya tıklayınca seçili config'te
-// seçili bölüme (gemi, seçili dron, P.E.T. ya da HEAT yuvası) takılır, yuvadakine tıklayınca çıkarılır (HangarShipMoveItemsRequest).
-// Satış kipinde envanterden seçilenler birlikte satılır. Güvenli bölge dışında donanım değişmez (düğmeler kapalı, sunucu da reddeder).
+// ================================================================== IN GAME: HANGAR
+// Ships, two configs; ship, drone and P.E.T. slots, CPUs (panel_channel.py /hangar). Clicking an item in the inventory fits it into the selected
+// section (ship, selected drone, P.E.T. or HEAT slot) in the selected config, clicking one in a slot removes it (HangarShipMoveItemsRequest).
+// In sell mode those selected from the inventory are sold together. Outside the safe zone equipment does not change (buttons off, the server rejects it too).
 const HG_SLOT = { laser: N('Lasers'), rocket: N('Rocket launcher'), generators: N('Generators'), extra: N('Extras'), upgrades: N('Ship modules'),
   QuantumFluidCore: 'Quantum Fluid Core', cannon: N('Particle cannons'), cannonShield: N('Breakers'), drive: 'Singularity Drive', lens: N('Lenses'),
   lasers: N('Lasers'), gears: N('Gears'), protocols: N('Protocols'), visual: N('Look'), heat: 'HEAT', design: N('Drone designs'), other: N('More') };
@@ -2283,7 +2283,7 @@ async function renderHangar() {
   const slotBox = (name, c, target, extra) => h('div', { class: 'hg-slot' }, h('div', { class: 'row between' }, h('b', null, slotName(name)),
     h('span', { class: 'row', style: { gap: '6px' } }, extra, h('span', { class: 'mono' }, c.items.length + ' / ' + c.capacity))),
     h('div', { class: 'hg-grid' }, c.items.map(e => kick(e, target)), empty(c.capacity - c.items.length)));
-  // gemiler: etkin önce; yıldız favori (oyunda ışınlanabilen gemiler)
+  // ships: active first; star is favorite (ships that can be teleported to in the game)
   const ships = h('div', { class: 'hg-ships' }, [...v.ships].sort((a, b) => b.active - a.active || b.favorite - a.favorite).map(g => h('div', { class: 'hg-ship' + (g.id === v.ship ? ' on' : ''),
     title: itemName(g.lootId), onclick: () => { HG.ship = g.id; renderHangar(); } },
     h('button', { class: 'hg-star' + (g.favorite ? ' on' : ''), type: 'button', title: g.favorite ? T('Remove from favourites') : T('Make favourite'),
@@ -2300,7 +2300,7 @@ async function renderHangar() {
     btn(T('Transfer…'), () => hangarTransfer(v), 'sm', 'copy', { disabled: lock, title: T("Moves this ship's equipment to another ship.") }),
     btn(T('Clear'), async () => await confirmBox(T('Empty config {0}?', HG.config), T('Items on the ship, drones and P.E.T. go back to the inventory.'),
       { ok: T('Clear'), danger: true }) && hangarAction({ operation: 'clean_up', ship: v.ship, config: HG.config }), 'sm', 'trash', { disabled: lock }));
-  // seçili bölüm
+  // selected section
   let section;
   if (HG.section === 'ship') section = h('div', { class: 'hg-slots' }, v.slots.map(y => slotBox(y, v.configs[HG.config][y], 'ship')));
   else if (HG.section === 'drone') section = drones.length ? h('div', { class: 'hg-drones' }, drones.map(d => h('div', { class: 'hg-drone' + (d.id === HG.drone ? ' on' : ''),
@@ -2348,7 +2348,7 @@ async function renderHangar() {
     hangarInventory(v, lock, iconName, lvlBadge)));
 }
 
-// envanter kartı: takma kipinde seçili bölüme takılabilenler, satış kipinde satılabilenler (aynı eşyalar tek kutuda, sayısıyla)
+// inventory card: in fit mode those that can be fitted into the selected section, in sell mode those that can be sold (identical items in one box, with their count)
 function hangarInventory(v, lock, iconName, lvlBadge) {
   const sell = HG.mode === 'sell' && HG.section !== 'cpu';
   // items equipped in another config of this ship can be equipped here too (as in game); they are never sold
@@ -2371,7 +2371,7 @@ function hangarInventory(v, lock, iconName, lvlBadge) {
         const e = es.find(x => !HG.selected[x.id]); if (e) { HG.selected[e.id] = true; renderHangar(); } },
       oncontextmenu: ev => { if (!sell) return; ev.preventDefault(); const e = es.find(x => HG.selected[x.id]); if (e) { delete HG.selected[e.id]; renderHangar(); } } },
       iconName(lid, 44), lvlBadge(es[0]), es.length > 1 ? h('span', { class: 'hg-count' }, (n ? n + '/' : '') + fmtN(es.length)) : n ? h('span', { class: 'hg-count' }, '✓') : null);
-    b._item = es[0].level ? { upgrade: es[0].level } : null;        // eşya ipucu: yükseltme seviyesi
+    b._item = es[0].level ? { upgrade: es[0].level } : null;        // item tooltip: upgrade level
     return b;
   });
   return h('div', { class: 'card' },
@@ -2395,7 +2395,7 @@ async function hangarMove(request, b) {
   renderHangar();
 }
 
-// hangarın öteki işlemleri (panel_kanali.ISLEMLER): başarıda bilgi metni, sonra yenile
+// the hangar's other actions (panel_channel.OPS): on success an info text, then refresh
 async function hangarAction(request, okText, after) {
   const r = await act(() => api('/api/oyun/hangar/islem', Object.assign({ ship: HG.ship }, request)));
   if (r && !r.done) toast(r.error === 'station' ? T('Equipment can only be changed in a safe zone.') : gameText(r.error), 'err');
@@ -2403,7 +2403,7 @@ async function hangarAction(request, okText, after) {
   renderHangar();
 }
 
-// Transfer System: bu geminin donanımı başka bir gemiye (hedefin yuvaları yetmeli)
+// Transfer System: this ship's equipment to another ship (the target's slots must be enough)
 function hangarTransfer(v) {
   let target = null;
   const entries = h('div', { class: 'hg-ships', style: { flexWrap: 'wrap' } }, v.ships.filter(g => g.id !== v.ship).map(g => h('div', { class: 'hg-ship', onclick: ev => {
@@ -2429,9 +2429,9 @@ async function hangarDesign(lootId, b) {
   renderHangar();
 }
 
-// ================================================================== OYUN İÇİ: SKYLAB
-// Modüller, depo, enerji, robotlar ve taşıma (panel_channel.py /skylab): işlemler istemcinin SkylabActionRequest ve
-// SkylabPurchaseRobotRequest'i (kurallar, bedeller ve süreler oyundakiyle aynı). Modül görseli yok: üretilen cevherin görseli.
+// ================================================================== IN GAME: SKYLAB
+// Modules, storage, energy, robots and transport (panel_channel.py /skylab): the actions are the client's SkylabActionRequest and
+// SkylabPurchaseRobotRequest (rules, costs and times are the same as in the game). No module image: the image of the ore it produces.
 const SK_ORE = { PROMETIUM_COLLECTOR: 'prometium', ENDURIUM_COLLECTOR: 'endurium', TERBIUM_COLLECTOR: 'terbium', PROMETID_REFINERY: 'prometid',
   DURANIUM_REFINERY: 'duranium', PROMERIUM_REFINERY: 'promerium', SEPROM_REFINERY: 'seprom', XENO_MODULE: 'xenomit' };
 const SK_MODULE = { BASE_MODULE: N('Base module'), SOLAR_MODULE: N('Solar module'), STORAGE_MODULE: N('Storage module'), TRANSPORT_MODULE: N('Transport module'),
@@ -2523,10 +2523,10 @@ async function skylabRobot(modul, tip) {
   renderSkylab();
 }
 
-// ================================================================== OYUN İÇİ: AÇIK ARTIRMA
-// Lotlar, teklifler ve anında alım istemcinin Auction* istekleriyle (panel_channel.py /muzayede). Otomatik teklif ve alarm kuralları
-// oyun sunucusunda (muzayede.oto): panel kapalıyken de işler, alarm oyunda ekran mesajı olur. Olaylar (geçildin, kazandın, otomatik
-// teklif…) panelin her sayfasında bildirim olarak çıkar (muzayedeOlayTick; masaüstü bildirimi izin verilirse).
+// ================================================================== IN GAME: AUCTION
+// Lots, bids and instant buy with the client's Auction* requests (panel_channel.py /muzayede). Auto-bid and alarm rules are
+// on the game server (muzayede.oto): they work even when the panel is closed, an alarm becomes an on-screen message in the game. Events (outbid, won, auto
+// bid ...) appear as notifications on every page of the panel (auctionEventTick; a desktop notification if permission is granted).
 const AUCTION_KIND = { hour: N('Hourly'), day: N('Log'), week: N('Weekly') };
 const AUCTION_GROUP = { ship: N('Ships'), shipdesign: N('Ship designs'), extra: N('Extras'), module: N('Modules'), booster: N('Boosters'),
   battery: N('Laser ammo'), rocket: N('Rockets'), generator: N('Generators'), weapon: N('Weapons'), special: N('Custom') };
@@ -2586,7 +2586,7 @@ async function renderAuction() {
         gameIcon(g.loot, 26, v.company, 'gavel'), h('span', { class: 'grow' }, itemName(g.loot), h('span', { class: 'muted' }, ' · ' + T(AUCTION_KIND[g.type] || g.type))),
         h('span', { class: g.who === v.uid ? 'auc-me' : 'muted' }, g.name || '—'), h('span', { class: 'mono' }, formatMoney('credits', g.bid)))))
         : h('div', { class: 'empty' }, T('No history.'))))));
-  S.timers.push(setInterval(() => {            // dönem sayaçları; dönem bitince liste yenilenir (kazanılan eşya, yeni dönem)
+  S.timers.push(setInterval(() => {            // period counters; when the period ends the list is refreshed (the item won, the new period)
     const t = Date.now() / 1000;
     document.querySelectorAll('.auc-counter').forEach(el => { el.querySelector('b').textContent = fmtDur(MZ.end_time[el.dataset.type] - t); });
     if (Object.values(MZ.end_time).some(b => b - t < -2) && !MZ.refreshing) { MZ.refreshing = true; setTimeout(() => { MZ.refreshing = false; if (S.page === 'auction') renderAuction(); }, 3000); }
@@ -2601,7 +2601,7 @@ function auctionCard(l, v) {
       h('div', { class: 'grow' }, h('div', { class: 'shop-name', style: { minHeight: 0 } }, itemName(l.loot)),
         h('div', { class: 'row wrap', style: { gap: '4px', marginTop: '4px' } }, badge(T(AUCTION_KIND[l.type])), l.count > 1 ? badge('× ' + fmtN(l.count)) : null,
           l.auto ? badge(T('Auto ≤ {0}', fmtN(l.auto.maximum)), 'info') : null)),
-      // alarm düğmesi başlıkta (alt satırda yer kalmayınca tek başına alta düşüyordu); kuruluysa turuncu
+      // the alarm button is in the heading (when there was no room in the lower row it dropped to the bottom on its own); orange if set
       btn(null, () => auctionAlarmWindow(l), 'sm icon ' + (l.alarm ? 'orange' : 'ghost'), 'bell', { title: l.alarm ? T('Alarm set') : T('Alarm') })),
     h('div', { class: 'auc-row' }, h('span', { class: 'muted' }, T('Highest')), h('b', null, l.highest ? formatMoney('credits', l.highest) : '—')),
     h('div', { class: 'auc-row' }, h('span', { class: 'muted' }, T('Your bid')), h('b', { class: l.leading ? 'auc-me' : '' }, l.mine ? formatMoney('credits', l.mine) : '—')),
@@ -2638,7 +2638,7 @@ async function auctionInstant(l) {
   renderAuction();
 }
 
-// otomatik teklif: azami tutara kadar, geçildikçe en düşük geçerli teklifi verir (oyun sunucusunda; panel kapalıyken de)
+// auto-bid: up to the maximum amount, bids the lowest valid bid each time it is outbid (on the game server; even when the panel is closed)
 function auctionAutoWindow(l, v) {
   const inp = h('input', { class: 'input', type: 'number', min: v.en_az, step: v.increase, value: l.auto?.maximum || Math.max(l.next * 2, v.en_az * 5) });
   const m = modal({ title: T('Auto-bid: {0}', itemName(l.loot)), sub: T('Each time you are outbid, the lowest valid bid is placed, up to this amount. It works in the game even with the panel closed.'),
@@ -2681,7 +2681,7 @@ function auctionNotifyPermission() {
   try { if (window.Notification && Notification.permission === 'default') Notification.requestPermission(); } catch (e) { /* desteklenmiyor */ }
 }
 
-// yeni açık artırma olayları: her sayfada bildirim (ilk yoklama yalnız başlangıcı belirler); masaüstü bildirimi izin varsa
+// new auction events: a notification on every page (the first poll only sets the starting point); a desktop notification if permission is granted
 async function auctionEventTick() {
   if (srvState(S.state).game !== 'on' || auctionEventTick.busy) return;
   auctionEventTick.busy = true;
@@ -2690,28 +2690,28 @@ async function auctionEventTick() {
     const new_ = r.events.filter(o => o.no > (MZ.last || 0)).reverse();
     if (MZ.last !== null) for (const o of new_) {
       toast(T('Auction') + ': ' + auctionEventText(o), auctionEventKind(o.tip), 7000);
-      try { if (window.Notification && Notification.permission === 'granted' && document.visibilityState !== 'visible') new Notification('OpenOrbit', { body: auctionEventText(o) }); } catch (e) { /* yok */ }
+      try { if (window.Notification && Notification.permission === 'granted' && document.visibilityState !== 'visible') new Notification('OpenOrbit', { body: auctionEventText(o) }); } catch (e) { /* none */ }
     }
     if (new_.length || MZ.last === null) MZ.last = Math.max(MZ.last || 0, ...r.events.map(o => o.no), 0);
     if (new_.length && S.page === 'auction') renderAuction();
-  } catch (e) { /* oyuna girilmedi */ } finally { auctionEventTick.busy = false; }
+  } catch (e) { /* not in the game */ } finally { auctionEventTick.busy = false; }
 }
 
 const RENDER = { play: renderPlay, friend: renderFriends, saves: () => renderSaves(), settings: renderSettings, events: () => renderEvents(), client: () => renderClient(),
   calendar: enterCalendar, server: renderServer, panel: renderPanel, world: () => renderWorld(), bots: () => renderBots(), shop: renderShop, hangar: renderHangar, skylab: renderSkylab, auction: renderAuction };
 
-// ------------------------------------------------------------------ başlangıç
+// ------------------------------------------------------------------ startup
 async function boot() {
   let cfg = null;
-  try { cfg = await api('/api/panel_settings'); } catch (e) { /* panel kapalı: poll bildirir */ }
+  try { cfg = await api('/api/panel_settings'); } catch (e) { /* panel closed: poll reports */ }
   S.panelCfg = cfg;
-  try { I18N.list = (await api('/api/diller')).languages; } catch (e) { /* eski liste: Türkçe, İngilizce */ }
+  try { I18N.list = (await api('/api/diller')).languages; } catch (e) { /* old list: Turkish, English */ }
   await setLang((cfg && cfg.lang) || guessLang());
   applyStatic();
   buildNav();
-  loadGameImages();                                       // oyunun görselleri: oyun içi menülerin simgeleri
+  loadGameImages();                                       // the game's images: icons of the in-game menus
   go(location.hash.slice(1) || 'play', false);
   poll();
   if (cfg && (!cfg.lang || !cfg.setup_done)) openWizard(cfg.lang ? 1 : 0);
 }
-document.addEventListener('DOMContentLoaded', boot);      // sonraki betikler (world_editor.js) yüklendikten sonra
+document.addEventListener('DOMContentLoaded', boot);      // after the later scripts (world_editor.js) have loaded

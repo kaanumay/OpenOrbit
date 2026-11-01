@@ -1,58 +1,58 @@
-"""Arkadaş sunucusunda haritaların paylaşımı (multiplayer.py; panelin "Arkadaşlarınla Oyna" sayfası).
+"""Sharing maps on the friend server (multiplayer.py; the panel's "Play with your friends" page).
 
-Tek oyunculuda her oturumun kendi dünyası (dunya.World) vardır. Arkadaş sunucusunda aynı normal haritadaki oyuncuların dünyaları
-bir Harita'yı paylaşır: uzaylılar, kutular, cevherler, bekleyen doğmalar, uzaylı kimlik sayacı, takvimin harita etkinliği ve dünya
-kilidi ortaktır (dünyaların döngü adımları sırayla işler). Her dünya kendi kahramanını sürer: konum, hedef, ateş, etkiler, P.E.T.,
-portallar, ödüller (uzaylıyı kim öldürürse ödül onun; grupta aynı haritadaki üyelerle paylaşılır: dunya.World.paydaslar, group.py).
-  - Uzaylının yapay zekâsını (dunya.think), yeteneklerini (alien.py), zehir ve onarımını "sahibi" olan dünya işler: savaştığı
-    oyuncu (vuran oyuncu sahibi olur), savaşmıyorsa ulaşılabilir en yakın oyuncu (sahipler).
-  - Haritanın işleri (yeniden doğmalar, süresi biten kutular, zaman çizelgeli uzaylılar, takvimin harita etkinliği) liderin döngüsünde:
-    haritaya ilk giren, o çıkınca sıradaki.
-  - Herkesin görmesi gereken mesajlar (uzaylının hareketi, lazer ve vuruşlar, patlamalar, görsel etkiler) gönderen dünyadan öteki
-    üyelere yansıtılır (yansit); her alıcı yalnız tanıdığı gemilerinkini alır (World.tanir).
-  - Oyuncular birbirini görüş mesafesinde, grup üyeleri haritanın her yerinde görür (gorunurluk): ShipCreateCommand, unvan, dronlar
-    ve modüller (kayıttaki başka oyuncunun mesajları; game.Session.gorunum), kahramanın hareketi MoveCommand olarak (hareket). Ölü,
-    atlamadaki ya da gizli oyuncu görünmez.
-Kapı, mod ve etkinlik haritaları (oturumun kendi koşusu olanlar) paylaşılmaz: her oyuncunun kendi kopyası (game.Session.start_world).
-Son oyuncu çıkınca harita durumu tek oyunculudaki gibi saklanır (dunya.WORLD_CACHE) ve ortak durum bırakılır.
+In single player every session has its own world (world.World). On the friend server the worlds of players on the same normal map
+share a Map: the aliens, boxes, ores, pending spawns, the alien id counter, the calendar's map event and the world
+lock are common (the worlds' loop steps run in turn). Each world drives its own hero: position, target, fire, effects, P.E.T.,
+portals, rewards (whoever kills the alien gets the reward; in a group it is shared with the members on the same map: world.World.tag_sharers, group.py).
+  - An alien's AI (world.think), abilities (alien.py), poison and repair are run by the world that "owns" it: the player it
+    fights (the player who hits becomes the owner), or if it is not fighting, the nearest reachable player (owners).
+  - The map's jobs (respawns, boxes whose time is up, timed aliens, the calendar's map event) run in the leader's loop:
+    the first to enter the map, and when it leaves the next one.
+  - Messages everyone must see (alien movement, lasers and hits, explosions, visual effects) are mirrored from the sending world to the other
+    members (mirror); each recipient gets only those of the ships it knows (World.knows).
+  - Players see each other within view distance, group members everywhere on the map (visibility): ShipCreateCommand, title, drones
+    and modules (messages of another player in the save; game.Session.appearance), the hero's movement as MoveCommand (movement). A dead,
+    jumping or hidden player is invisible.
+Gate, mode and event maps (those that are the session's own run) are not shared: each player has their own copy (game.Session.start_world).
+When the last player leaves, the map state is kept as in single player (world.WORLD_CACHE) and the shared state is released.
 """
 import math, threading
 
-UID_BASE = 150300000          # uzaylı kimliklerinin başlangıcı (dunya.World'ünkiyle aynı)
-FLASHLIGHT = 62               # el feneri (dunya.FLASHLIGHT): oyuncunun kendi ekranının etkisi, yansıtılmaz
-OWNER_SEC = 0.1                # sahiplerin yeniden hesaplanma aralığı (döngü adımı)
-# yansıtılan mesajlar -> içlerinde geçen gemi kimliklerinin alanları (alıcı hepsini tanıyorsa gider; 0: çevre, ör. radyasyon)
+UID_BASE = 150300000          # start of the alien ids (same as world.World's)
+FLASHLIGHT = 62               # flashlight (world.FLASHLIGHT): an effect on the player's own screen, not mirrored
+OWNER_SEC = 0.1                # interval at which owners are recomputed (loop step)
+# mirrored messages -> the fields of the ship ids in them (it goes if the recipient knows them all; 0: environment, e.g. radiation)
 REFLECTED = {'MoveCommand': ('userId',), 'AttackLaserRunCommand': ('attackerId', 'targetId'),
             'AttackHitCommand': ('attackerId', 'victimId'), 'AttackMissedCommand': ('targetUserId',),
             'ShipDestroyedCommand': ('destroyedUserId',), 'VisualModifierCommand': ('userId',),
-            # lazerin bitişi: istemci AttackLaserRunCommand'da saldıranın hedefini kurar (ShipInfo.Target) ve gemiyi ona döndürür;
-            # bu gelmezse öteki oyuncunun gemisi hedefe dönük kalıyor, burnu dönmüyor ve motor efekti çıkmıyordu (AttackAbortLaser.Run)
+            # end of the laser: in AttackLaserRunCommand the client sets the attacker's target (ShipInfo.Target) and turns the ship toward it;
+            # if this does not arrive, the other player's ship stays facing the target, its nose does not turn and no engine effect appeared (AttackAbortLaser.Run)
             'AttackAbortLaserCommand': ('uid',),
-            # emote, seviye atlama, gemi yetenekleri, parçacık topu, Hellstorm (liste alanları: içindeki her kimlik)
+            # emote, level-up, ship abilities, particle cannon, Hellstorm (list fields: every id in it)
             'EmoteActivationCommand': ('userId',), 'LevelUpCommand': ('uid',),
             'AbilityEffectActivationCommand': ('activatorId', 'targetIds'), 'AbilityEffectDeActivationCommand': ('activatorId', 'targetIds'),
             'AbilityStartCommand': ('activatorId',), 'AbilityStopCommand': ('activatorId', 'targetIds'),
             'PlayVisualEffectCommand': ('activatorId', 'targetIds'), 'CannonAttackCommand': ('attackerId', 'attackedId'),
             'HellstormAttackCommand': ('attackerId', 'targetId')}
-# oyuncunun mayınları ve havai fişekleri (savas_esya.py; karmaları M<kimlik>_<sıra>, F<kimlik>_<sıra>) ve spreyi herkese görünür;
-# uzaylının mayını (U…) yalnız onu kuran dünyanın kahramanını vurur, yansıtılmaz
+# the player's mines and fireworks (combat_items.py; their tags M<id>_<seq>, F<id>_<seq>) and the spray are visible to everyone;
+# an alien's mine (U...) only hits the hero of the world that laid it, not mirrored
 PLAYER_HASH = ('M', 'F')
-SPRAY = 69                    # AssetCreateCommand türü (savas_esya.SPRAY_ASSET)
-# eski metinle giden görseller (eski_protokol.py) -> içlerindeki gemi kimliklerinin parça sırası (ilk sayı listesi: kalan parçaların
-# hepsi kimlik): roket 0|v|saldıran|hedef|…, Smart Bomb / Insta-Shield / EMP 0|n|SMB|uid, gemi yeteneği 0|n|SD|A|etki|kalıcı|
-# etkinleştiren[|hedef], teknoloji 0|n|A|S|kod|uid, Chain Impulse 0|n|ECI|1|saldıran|hedef…, donma/yavaşlama 0|n|fx|start|tür|uid,
-# Battle Repair Bot/NPC Nuke şok dalgası 0|n|BT|uid, 0|n|NNK|uid, toplama ışını 0|A|SLA|kip|birim, iyileşme sayısı 0|A|HL|iyileştiren|
-# hedef|… ve görünmezlik 0|n|INV|uid|açık
+SPRAY = 69                    # AssetCreateCommand type (combat_items.SPRAY_ASSET)
+# visuals sent with legacy text (legacy_protocol.py) -> the part order of the ship ids in them (the first number list: all the remaining parts
+# are ids): rocket 0|v|attacker|target|..., Smart Bomb / Insta-Shield / EMP 0|n|SMB|uid, ship ability 0|n|SD|A|effect|permanent|
+# activator[|target], technology 0|n|A|S|code|uid, Chain Impulse 0|n|ECI|1|attacker|target..., freeze/slow 0|n|fx|start|type|uid,
+# Battle Repair Bot/NPC Nuke shock wave 0|n|BT|uid, 0|n|NNK|uid, collecting beam 0|A|SLA|mode|unit, heal count 0|A|HL|healer|
+# target|... and invisibility 0|n|INV|uid|open
 LEGACY = {('0', 'v'): (2, 3), ('0', 'n', 'SMB'): (3,), ('0', 'n', 'ISH'): (3,), ('0', 'n', 'EMP'): (3,),
         ('0', 'n', 'SD'): (6, [7]), ('0', 'n', 'A', 'S'): (5,), ('0', 'n', 'ECI'): (4, [5]), ('0', 'n', 'fx'): (5,),
         ('0', 'n', 'BT'): (3,), ('0', 'n', 'NNK'): (3,), ('0', 'A', 'SLA'): (4,), ('0', 'A', 'HL'): (3, 4), ('0', 'n', 'INV'): (3,)}
 
 REG = threading.Lock()
-MAPS = {}                # harita kimliği -> Harita (kullanan dünya varken)
+MAPS = {}                # map id -> Map (while a world uses it)
 
 
 def take(map_id):
-    """Haritanın ortak durumu (yoksa kurulur). Dünya kurulurken bir kez (World.__init__); dünya durunca birak()."""
+    """The map's shared state (created if missing). Once when a world is set up (World.__init__); release() when the world stops."""
     with REG:
         h = MAPS.get(str(map_id))
         if h is None:
@@ -68,9 +68,9 @@ class Map:
         self.npcs, self.boxes, self.ores = {}, {}, {}
         self.pending, self.ore_fields = [], []
         self.next_uid = UID_BASE
-        self.members = []              # döngüsü çalışan dünyalar, girişe göre (ilki lider)
-        self.event = None          # takvimin harita etkinliği (etkinlik_harita.HaritaEtkinlik; lider sürer)
-        self.ref = 0                  # bu haritayı tutan dünyalar (kurulmuş ama henüz girmemiş olanlar dahil)
+        self.members = []              # worlds whose loop is running, by entry order (the first is the leader)
+        self.event = None          # the calendar's map event (event_maps.MapEvents; the leader drives it)
+        self.ref = 0                  # worlds holding this map (including those set up but not yet entered)
         self._owner, self._owner_at = {}, 0.0
 
     @property
@@ -78,7 +78,7 @@ class Map:
         return self.members[0] if self.members else None
 
     def killer(self, w):
-        """Dünyanın döngüsü başladı (dünya kilidi altında)."""
+        """The world's loop started (under the world lock)."""
         if w not in self.members:
             self.members.append(w)
         if self.event is not None:
@@ -86,7 +86,7 @@ class Map:
         self._owner_at = 0.0
 
     def detach(self, w):
-        """Dünya durdu (harita değişimi, bağlantı koptu) -> kalan üye yoksa True. Ondan savaşan uzaylılar yeniden sahiplenilir."""
+        """The world stopped (map change, connection dropped) -> True if no member remains. The aliens fighting it are re-owned."""
         with self.lock:
             if w in self.members:
                 self.members.remove(w)
@@ -99,16 +99,16 @@ class Map:
             return not self.members
 
     def release(self):
-        """Dünya bu haritayı bıraktı (bir kez): kimse tutmuyorsa kayıttan çıkar."""
+        """The world let go of this map (once): if nobody holds it, it is removed from the registry."""
         with REG:
             self.ref -= 1
             if self.ref <= 0 and MAPS.get(self.map_id) is self:
                 del MAPS[self.map_id]
 
-    # ------------------------------------------------------------ uzaylıların sahipleri
+    # ------------------------------------------------------------ owners of the aliens
     def owners(self, now):
-        """uzaylı kimliği -> yapay zekâsını işleyen dünya. Savaşan uzaylı savaştığı oyuncunun (o haritadaysa); öteki uzaylılar
-        ulaşılabilir en yakın oyuncunun (ölü, atlamada, güvenli bölgede, gizli olmayan; kimse değilse en yakının)."""
+        """alien id -> the world that runs its AI. A fighting alien goes to the player it fights (if on the map); other aliens go
+        to the nearest reachable player (not dead, not jumping, not in a safe zone, not hidden; if there is none, the nearest)."""
         if now - self._owner_at < OWNER_SEC:
             return self._owner
         members = [w for w in self.members if w.running]
@@ -126,13 +126,13 @@ class Map:
         return out
 
     def is_owner(self, w, n, now):
-        """Uzaylının yapay zekâsını bu dünya mı işler (yeni doğan, henüz hesaplanmamış uzaylı: lider)."""
+        """Whether this world runs the alien's AI (a newly spawned, not yet computed alien: the leader)."""
         o = self.owners(now).get(n.id)
         return (o if o is not None else self.leader) is w
 
     # ------------------------------------------------------------ mesajlar
     def mirror(self, source, msgs):
-        """Kaynak dünyanın herkese görünen mesajları öteki üyelere (tanıdıkları gemilerinkiler)."""
+        """The source world's messages visible to everyone, to the other members (those of the ships they know)."""
         out = [(m, uid_list(m)) for m in msgs if not (m[0] == 'VisualModifierCommand' and m[1].get('modifier') == FLASHLIGHT)]
         out = [(m, ids) for m, ids in out if ids is not None]
         if not out:
@@ -145,19 +145,19 @@ class Map:
                 w.deliver(mine)
 
     def movement(self, source, x, y, ms):
-        """Kahraman hareket etti: onu gören oyunculara MoveCommand (oyuncunun kendisine gitmez; istemci kendisi yürütür)."""
+        """The hero moved: MoveCommand to the players who see it (not to the player themselves; the client drives that itself)."""
         m = ('MoveCommand', dict(userId=source.hid, x=int(x), y=int(y), timeToTarget=int(ms)))
         for w in self.members:
             if w is not source and w.running and source.hid in w.players:
                 w.deliver([m])
 
     def visibility(self, w, now, hx, hy, vision, release):
-        """Öteki oyuncuların w'nin istemcisindeki gemileri: görüşe gireni göster, çıkanı (ölen, atlayan, gizlenen, ayrılan, görünümü
-        değişen) kaldır -> mesajlar. Grup üyesi haritanın neresinde olursa olsun görünür (group.py)."""
+        """The other players' ships in w's client: show the one that comes into view, remove the one that leaves (died, jumped, hid, left, appearance
+        changed) -> messages. A group member is visible wherever on the map (group.py)."""
         cur = {}
         for m in self.members:
             if m is w or not m.running or m.hero_dead or m.jumping or m.reload_pending or (m.hidden(now) and w.target != m.hid):
-                continue                   # gizlenen, onu seçmiş olanda kalır (vurulabilir: oyuncu_savas.attack_error)
+                continue                   # a hidden one stays on the one who selected it (can be hit: player_combat.attack_error)
             mx, my = m.hero_pos(now)
             lim = release if m.hid in w.players else vision
             if math.hypot(mx - hx, my - hy) <= lim or w.is_group_member(m.hid):
@@ -168,7 +168,7 @@ class Map:
             if m is None or w.players[uid] != signature(w, m):
                 del w.players[uid]
                 msgs.append(('ShipRemoveCommand', {'userId': uid}))
-        for uid in list(w.pets):         # P.E.T. sahibiyle görünür; sahibi kalkınca ya da P.E.T. değişince (durdu, yeni tasarım) kalkar
+        for uid in list(w.pets):         # visible with the P.E.T.'s owner; removed when the owner goes or the P.E.T. changes (stopped, new design)
             if uid not in w.players or w.pets[uid] != pet_signature(w, cur[uid]):
                 msgs.append(('ShipRemoveCommand', {'userId': w.pets.pop(uid)[0]}))
         for uid, m in cur.items():
@@ -186,13 +186,13 @@ class Map:
 
 
 def signature(w, m):
-    """m'nin w'nin istemcisindeki gemisi: görünümü ve klan ilişkisi (bakana göre; diplomasi değişince gemi yeniden kurulur)."""
+    """m's ship in w's client: its appearance and clan relation (relative to the viewer; the ship is rebuilt when diplomacy changes)."""
     import clan as KL
     return m.signature(), KL.relation(w.p, m.p)
 
 
 def pet_signature(w, m):
-    """m'nin uzaydaki P.E.T.'i w'nin istemcisinde: kimlik, görünüm, ad, seviye ve klan ilişkisi; P.E.T. uzayda değilse None."""
+    """m's P.E.T. in space, in w's client: id, appearance, name, level and clan relation; None if the P.E.T. is not in space."""
     pet = m.pet
     if not (pet and pet.active and pet.w is m):
         return None
@@ -201,7 +201,7 @@ def pet_signature(w, m):
 
 
 def uid_list(m):
-    """Yansıtılan mesajın gemi kimlikleri (alıcı hepsini tanımalı) ya da None (yansıtılmaz)."""
+    """The ship ids of the mirrored message (the recipient must know them all) or None (not mirrored)."""
     if m[0] in REFLECTED:
         ids = []
         for k in REFLECTED[m[0]]:
@@ -216,7 +216,7 @@ def uid_list(m):
     if m[0] != 'LegacyModule':
         return None
     parts = str(m[1].get('message', '')).split('|')
-    if parts[:3] in (['0', 'n', 'MIN'], ['0', 'n', 'FWG']):          # mayının patlaması, havai fişeklerin ateşlenmesi (karmalarıyla)
+    if parts[:3] in (['0', 'n', 'MIN'], ['0', 'n', 'FWG']):          # a mine's explosion, the firing of fireworks (with their tags)
         return [] if len(parts) > 3 and all(h.startswith(PLAYER_HASH) for h in parts[3:]) else None
     for key, pos in LEGACY.items():
         if tuple(parts[:len(key)]) != key:
@@ -231,5 +231,5 @@ def uid_list(m):
 
 
 def is_shared(w):
-    """Dünya bir ortak haritada mı ve orada başka oyuncu var mı (yansıtma gereksizse atlanır)."""
+    """Whether the world is on a shared map and whether there is another player there (mirroring is skipped if unnecessary)."""
     return w.shared is not None and len(w.shared.members) > 1

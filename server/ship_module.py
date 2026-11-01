@@ -1,25 +1,25 @@
-"""Gemi modülleri ve kararsız modüller (yol haritası Aşama 6; veri data/ship_modules.json <- tools/ship_modules.py).
+"""Ship modules and unstable modules (roadmap stage 6; data in data/ship_modules.json <- tools/ship_modules.py).
 
-Normal modüller (DMG-CHT01, HP-VP01, SPC-XP01 …): hangarda config'in "upgrades" yuvasına takılır (HangarShipEquipmentMsg.upgrades;
-yuva sayısı istemcinin gemi verisinden: çoğu gemide 3, Plus gemilerde 4). Etki yalnız açıklamadaki gemilerde (istemcinin metni
-"This ship upgrade module can be used on the following ships: …"); SPC-XP01/02'nin EP'si 16. seviyeye dek.
-Kararsız modüller (DMG-X1 … XV03, HP-/SHD-/SPC- serileri): her örneğin rastgele nitelikleri (UnstableAttributeModule {attribute,
-boostValue}; adlar istemcinin items_equipment_shipupgrade_modifiertype_* anahtarları) ve geçerli olduğu gemiler (shipDesigns) var;
-istemcinin Restabilize penceresi (istekler istemcinin kodundan):
-  girişte / değişince       UnstableModulesListCommand {allModules, shardCommand {chipLeft, shardsLeft}}
-  UnstableModuleRerollRequest {itemId}        Unstable Shard harcanır, yalnız nitelikler yeniden çekilir (gemiler aynı kalır: resmî
-      SSS "only the module stat modifiers will be regenerated, not the ships"); öncekiler saklanır
+Normal modules (DMG-CHT01, HP-VP01, SPC-XP01 ...): fitted in the hangar to the config's "upgrades" slot (HangarShipEquipmentMsg.upgrades;
+the slot count comes from the client's ship data: 3 on most ships, 4 on Plus ships). The effect applies only on the ships in the description (the client's text
+"This ship upgrade module can be used on the following ships: ..."); the EP of SPC-XP01/02 up to level 16.
+Unstable modules (DMG-X1 ... XV03, the HP-/SHD-/SPC- series): each instance has random attributes (UnstableAttributeModule {attribute,
+boostValue}; names are the client's items_equipment_shipupgrade_modifiertype_* keys) and the ships it is valid on (shipDesigns);
+the client's Restabilize window (requests taken from the client's code):
+  on login / on change      UnstableModulesListCommand {allModules, shardCommand {chipLeft, shardsLeft}}
+  UnstableModuleRerollRequest {itemId}        an Unstable Shard is spent, only the attributes are rerolled (the ships stay the same: official
+      FAQ "only the module stat modifiers will be regenerated, not the ships"); the previous ones are kept
       -> UnstableModuleRestabilizeResultCommand {itemId, oldModule, newModule, success}
-  UnstableModuleRestabiliseRequest {itemId, isSalvage}  isSalvage: Salvage Core vb. ödenip önceki nitelikler geri alınır ("Your
-      unstable module has been salvaged to retain the same modifiers"); değilse yenisi kalır
-  UnstableModuleRecycleRequest {itemId}        modül sökülür, Unstable Shard geri verilir
-Değerler gerçek kayda (UnstableModulesListCommand) ve wiki'ye göre, seri başına (veri ship_modules.json kararsiz.restabilize ve
-.aralik <- tools/ship_modules.py): geri dönüşümde alınan shard, yeniden çekme bedeli ve hakkı (X1/XW01 2/10/10, X2 ve ara seriler
-4/20/8, XSP01 20/100/4, XT10 30/150/2); saklama (Salvage) bedeli her modülde 200 Salvage Core + 38 ABR + 6 Indoctrine Oil. Nitelik
-değerleri tam sayı yüzde, serinin iki kademeli aralığından (büyük şans / küçük şans: KUCUK_SANS); kayıttaki modüllerde 1-3 nitelik
-(ana nitelik modülün ailesinden, öbürleri IKINCIL havuzdan %1-3) ve 1-3 gemi var. Uyarlama (kayıtta yok): kademe şansı, nitelik ve
-gemi sayısı ağırlıkları, X1/X2/XW01 aralıkları (wiki "Randomly").
-Profilde: kararsiz {itemId: {attribute: [[ad, değer]], gemiler, hak, onceki}}.
+  UnstableModuleRestabiliseRequest {itemId, isSalvage}  isSalvage: by paying Salvage Core etc. the previous attributes are restored ("Your
+      unstable module has been salvaged to retain the same modifiers"); otherwise the new one stays
+  UnstableModuleRecycleRequest {itemId}        the module is dismantled, the Unstable Shard is returned
+Values follow the real recording (UnstableModulesListCommand) and the wiki, per series (data ship_modules.json unstable.restabilize and
+.interval <- tools/ship_modules.py): the shard received on recycling, the reroll cost and allowance (X1/XW01 2/10/10, X2 and the in-between series
+4/20/8, XSP01 20/100/4, XT10 30/150/2); the retain (Salvage) cost is 200 Salvage Core + 38 ABR + 6 Indoctrine Oil on every module. Attribute
+values are whole-number percents, from the series' two-tier interval (big chance / small chance: SMALL_CHANCE); the modules in the recording have 1-3 attributes
+(the main attribute from the module's family, the others from the SECONDARY pool at 1-3%) and 1-3 ships. Adaptation (not in the recording): the tier chance,
+the weights of the attribute and ship counts, the X1/X2/XW01 intervals (wiki "Randomly").
+In the profile: unstable {itemId: {attribute: [[name, value]], ships, right, previous}}.
 """
 import json, os, random, re
 
@@ -34,15 +34,15 @@ ATTR_KEYS = {'damage': ('laser', 'rocket'), 'dmg_laser': ('laser',), 'dmg_rocket
              'hitpoints': ('can',), 'shield': ('kalkan',), 'speed': ('speed',), 'evasion': ('evasion',), 'hitchance_laser': ('laser_hit_chance',),
              'hitchance_rocket': ('rocket_hit_chance',), 'experience': ('ep',), 'honour': ('honor',), 'shield_penetration': ('shield_penetration',)}
 POOL = {'DAMAGE': ['damage', 'dmg_laser', 'dmg_rockets', 'dmg_npc'], 'HP': ['hitpoints'], 'SHIELD': ['shield'],
-        'SPECIAL': ['speed', 'evasion', 'hitchance_laser', 'hitchance_rocket', 'shield_penetration']}      # ana nitelik (istemcinin açıklaması)
+        'SPECIAL': ['speed', 'evasion', 'hitchance_laser', 'hitchance_rocket', 'shield_penetration']}      # main attribute (the client's description)
 RETAIN = {'resource_collectable_salvage-core': 200, 'resource_collectable_axion-beam-regulator': 38,
-          'resource_collectable_indoctrineoil': 6}          # kayıttaki retainCost, her modülde aynı (wiki "Salvage Expansion")
+          'resource_collectable_indoctrineoil': 6}          # retainCost in the recording, the same on every module (wiki "Salvage Expansion")
 XP_MAX_LEVEL = 16
 UPGRADE_SLOTS = 3
-SMALL_CHANCE = 0.2          # iki kademeli serilerde (XV01, XU, XHD01 …) küçük şansın (yüksek kademe) olasılığı: istemci "moderate chance" (uyarlama)
-PRIORITY_CHANCE = 0.5        # her gemi seçiminde öncelikli listeden çekme olasılığı (kayıttaki 12 gemiden 6'sı öncelikliydi)
+SMALL_CHANCE = 0.2          # in two-tier series (XV01, XU, XHD01 ...) the probability of the small chance (high tier): the client says "moderate chance" (adaptation)
+PRIORITY_CHANCE = 0.5        # probability of drawing from the priority list on each ship pick (6 of the 12 ships in the recording were priority)
 SECONDARY = ('damage', 'dmg_laser', 'dmg_rockets', 'dmg_npc', 'dmg_pvp', 'hitpoints', 'shield', 'speed', 'evasion', 'hitchance_laser',
-           'hitchance_rocket', 'shield_penetration')      # 2. ve 3. niteliğin havuzu (kayıt: SPC-XU03'te DMG_NPC 1, DMG-XT10'ta HITCHANCE_LASER 3 ve SHIELD 1)
+           'hitchance_rocket', 'shield_penetration')      # the pool of the 2nd and 3rd attribute (recording: DMG_NPC 1 on SPC-XU03, HITCHANCE_LASER 3 and SHIELD 1 on DMG-XT10)
 
 
 def mod(name, **f):
@@ -59,7 +59,7 @@ def unstable(loot):
 
 
 def slots(ship_loot):
-    """Geminin modül yuvası (istemcinin gemi verisi: ship_upgrades)."""
+    """The ship's module slots (the client's ship data: ship_upgrades)."""
     return int((ITEMS.get(ship_loot, {}).get('slots') or {}).get('ship_upgrades', UPGRADE_SLOTS))
 
 
@@ -68,7 +68,7 @@ def ships_for(loot):
 
 
 def all_ships():
-    """Kararsız modülün çekilebileceği gemiler: sunucunun gemileri (items.json gemiler)."""
+    """Ships an unstable module can be rolled for: the server's ships (items.json ships)."""
     global _SHIPS
     if _SHIPS is None:
         _SHIPS = sorted(json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))['ships'])
@@ -78,15 +78,15 @@ def all_ships():
 _SHIPS = None
 
 
-# ------------------------------------------------------------ kararsız modül değerleri
+# ------------------------------------------------------------ unstable module values
 def restab(loot):
-    """Kararsız modülün serisinin Restabilize değerleri: geri (geri dönüşümde alınan shard), bedel (yeniden çekme), hak (en çok kaç kez)."""
+    """A series' Restabilize values for an unstable module: refund (shard received on recycling), charge (reroll), right (how many times at most)."""
     return M[loot]['unstable']['restabilize']
 
 
 def pick_value(unstable, attr, rng):
-    """Ana niteliğin değeri: serinin aralığı (niteliğin kendi aralığı varsa o); küçük şans (yüksek kademe) KUCUK_SANS olasılıkla;
-    tam sayı yüzde (kayıttaki boostValue'lar hep tam sayı)."""
+    """Value of the main attribute: the series' interval (the attribute's own interval if it has one); the small chance (high tier) with probability SMALL_CHANCE;
+    whole-number percent (the boostValues in the recording are always whole numbers)."""
     a = unstable['interval']
     a = a.get('attribute', {}).get(attr) or a
     lo, hi = a['lowercase'] if a.get('lowercase') and rng.random() < SMALL_CHANCE else a['caps']
@@ -94,16 +94,16 @@ def pick_value(unstable, attr, rng):
 
 
 def roll(loot, rng=random):
-    """Kararsız modülün nitelikleri ve gemileri: 1-3 nitelik (biri modülün ailesinden ve serinin aralığında, öbürleri küçük) ve 1-3 gemi
-    (kayıt: 7 modül 1, 1, 1, 1, 2, 2 ve 3 gemili; öncelikli gemiler sık çıkar ama zorunlu değil)."""
+    """An unstable module's attributes and ships: 1-3 attributes (one from the module's family and within the series' interval, the others small) and 1-3 ships
+    (recording: 7 modules with 1, 1, 1, 1, 2, 2 and 3 ships; priority ships are common but not required)."""
     info = M[loot]
     unstable = info['unstable']
     main = rng.choice(POOL.get(info['type'], POOL['DAMAGE']))
     vals = [[main, pick_value(unstable, main, rng)]]
     vals += [[a, rng.randint(1, max(3, unstable['interval']['caps'][1])) / 100.0] for a in rng.sample([a for a in SECONDARY if a != main], rng.choices((0, 1, 2), (6, 3, 1))[0])]
-    rng.shuffle(vals)                      # kayıtta ana nitelik ilk olmayabiliyor (DMG-XT10: DMG_NPC sonuncu)
+    rng.shuffle(vals)                      # in the recording the main attribute may not be first (DMG-XT10: DMG_NPC last)
     pref = list(unstable.get('preference', []))
-    rest = [s for s in all_ships() if s not in pref and s not in unstable.get('exclude', ())]      # serinin çıkmadığı gemiler (forum 162335)
+    rest = [s for s in all_ships() if s not in pref and s not in unstable.get('exclude', ())]      # ships the series does not drop on (forum 162335)
     picks = []
     for _ in range(rng.choice((1, 1, 2, 3))):
         pool = [s for s in (pref if pref and rng.random() < PRIORITY_CHANCE else rest) if s not in picks] or [s for s in rest + pref if s not in picks]
@@ -112,7 +112,7 @@ def roll(loot, rng=random):
 
 
 def state(p, iid):
-    """Kararsız modül örneğinin kaydı (ilk bakışta çekilir)."""
+    """The record of an unstable module instance (rolled on first look)."""
     d = p.d.setdefault('unstable', {})
     rec = d.get(str(iid))
     loot = p.d['items'].get(str(iid))
@@ -120,7 +120,7 @@ def state(p, iid):
         rec = d[str(iid)] = dict(roll(loot), right=restab(loot)['right'])
         p.dirty = True
     elif rec and loot and unstable(loot) and rec['right'] > restab(loot)['right']:
-        rec['right'] = restab(loot)['right']            # eski sabit 5 hak, seri azamisini (XT10 2, XSP01 4) aşamaz
+        rec['right'] = restab(loot)['right']            # the old fixed 5 rights cannot exceed the series maximum (XT10 2, XSP01 4)
         p.dirty = True
     return rec
 
@@ -135,14 +135,14 @@ def module_msg(p, iid):
 
 
 def ship_ids(loots):
-    """Hangar ipucunun gemi listesi (HangarShipEquipmentInventoryItem.ships): istemci (TooltipPreparerFactory.ReturnShips) ','
-    ile böler, her parçayı sayıya çevirip gemiyi kimliğiyle bulur (GetItemByShipId). Gemi adları (ship_goliath) 0 okunuyordu."""
+    """The hangar tooltip's ship list (HangarShipEquipmentInventoryItem.ships): the client (TooltipPreparerFactory.ReturnShips) splits on ','
+    , converts each part to a number and finds the ship by id (GetItemByShipId). Ship names (ship_goliath) read as 0."""
     return ','.join(str(ITEMS[l]['uid']) for l in loots if (ITEMS.get(l) or {}).get('uid') is not None)
 
 
 def modifiers_str(p, iid):
-    """Kararsız modülün hangar ipucu nitelikleri: "AD,yüzde;…" (TooltipPreparerFactory.ReturnModifiers: değer tam sayı, metin
-    items_equipment_shipupgrade_modifiertype_<ad>). Boşken ipucunun "Tür:" satırı boş kalıyordu (kullanıcı 2026-10-19)."""
+    """The hangar tooltip attributes of an unstable module: "NAME,percent;..." (TooltipPreparerFactory.ReturnModifiers: the value is a whole number, the text
+    items_equipment_shipupgrade_modifiertype_<name>). When empty the tooltip's "Type:" line stayed blank (user 2026-10-19)."""
     rec = state(p, iid) or {}
     return ';'.join('%s,%d' % (a.upper(), max(1, int(round(v * 100)))) for a, v in rec.get('attribute', []) if v > 0)
 
@@ -152,27 +152,27 @@ def shard_cmd(p):
 
 
 def list_cmd(p, reset=False):
-    import particle as PC                                       # parçacık topları ve kırıcılar (OptiGrad Chip; Aşama 9b)
+    import particle as PC                                       # particle balls and breakers (OptiGrad Chip; stage 9b)
     ids = sorted(int(i) for i, l in p.d['items'].items() if unstable(l))
     return ('UnstableModulesListCommand', dict(allModules=[module_msg(p, i) for i in ids] + PC.modules(p), resetUI=reset,
                                                  isDiscountRunning=False, shardCommand=shard_cmd(p)))
 
 
-# ------------------------------------------------------------ etkiler
+# ------------------------------------------------------------ effects
 def kind(loot):
-    """Modülün türü (DAMAGE, HP, SHIELD, SPECIAL) ya da None."""
+    """The module's type (DAMAGE, HP, SHIELD, SPECIAL) or None."""
     return M.get(loot or '', {}).get('type')
 
 
 def type_taken(p, iid, current):
-    """Gemide bu modülün türünden başka bir modül takılı mı: resmî SSS ("New Ship Upgrade Modules FAQ"): bir modül gemide bir kez,
-    her türden (HP, Damage, Shield, Special) bir modül (kullanıcı bildirimi 2026-10-25: aynı türden birden çok takılabiliyordu)."""
+    """Is another module of this module's type fitted on the ship: official FAQ ("New Ship Upgrade Modules FAQ"): a module once per ship,
+    one module of each type (HP, Damage, Shield, Special) (user report 2026-10-25: more than one of the same type could be fitted)."""
     k = kind(p.d['items'].get(str(iid)))
     return bool(k) and any(i != iid and kind(p.d['items'].get(str(i))) == k for i in current)
 
 
 def mods(p, ship_loot, iids, level=None):
-    """Takılı modüllerin bonusları (yalnız geçerli gemide; her türden ilki: kural öncesi takılmış ikinciler sayılmaz)."""
+    """Bonuses of the fitted modules (only on a valid ship; the first of each type: second ones fitted before the rule do not count)."""
     out, seen = {}, set()
     for iid in iids:
         loot = p.d['items'].get(str(iid))
@@ -193,21 +193,21 @@ def mods(p, ship_loot, iids, level=None):
                 continue
             eff = dict(info['effects'])
             if 'ep' in eff and loot.startswith('equipment_shipupgrade_spc-xp') and (level or 0) >= XP_MAX_LEVEL:
-                eff.pop('ep')                                   # SPC-XP01/02: 16. seviyeye dek
+                eff.pop('ep')                                   # SPC-XP01/02: up to level 16
         for k, v in eff.items():
             out[k] = out.get(k, 0) + v
     return out
 
 
 def equip_allowed(p, iid, ship_loot):
-    """Modül yalnız kendi gemilerine takılır: normalde açıklamadaki, kararsızda çekilen gemiler (resmî SSS: ipucunda "the ships it
-    can be equipped on"; canlı tur 2'de DMG-XSP01 listesinde olmayan Solaris Plus'a takılıyordu)."""
+    """A module fits only its own ships: the ones in the description normally, the rolled ships for unstable (official FAQ: the tooltip says "the ships it
+    can be equipped on"; in live round 2 DMG-XSP01 was fitting a Solaris Plus that was not in its list)."""
     loot = p.d['items'].get(str(iid))
     info = M.get(loot or '')
     return bool(info) and ship_loot in (state(p, iid)['ships'] if 'unstable' in info else info['ships'])
 
 
-# ------------------------------------------------------------ istekler
+# ------------------------------------------------------------ requests
 class Modules:
     def __init__(self, profile, log=print):
         self.p, self.log = profile, log
@@ -220,7 +220,7 @@ class Modules:
         iid = int(f.get('itemId') or 0)
         loot = self.p.d['items'].get(str(iid))
         import particle as PC
-        if loot and PC.restabilizable(loot):                    # top/kırıcı: OptiGrad Chip ile ek nitelikler
+        if loot and PC.restabilizable(loot):                    # ball/breaker: extra attributes with OptiGrad Chip
             from legacy_protocol import legacy
             res = PC.reroll(self.p, iid)
             if isinstance(res, str):
@@ -242,17 +242,17 @@ class Modules:
         self.p.add_resource(SHARD, -cost)
         with self.p.lock:
             rec['previous'] = dict(attribute=rec['attribute'])
-            rec['attribute'] = roll(loot)['attribute']             # gemiler değişmez (resmî SSS)
+            rec['attribute'] = roll(loot)['attribute']             # ships do not change (official FAQ)
             rec['right'] -= 1
             self.p.dirty = True
         self.log('   Restabilize: %s -> %s %s' % (loot, rec['attribute'], rec['ships']))
-        RT.note(self.p, 'his_rerolled_unstable_module', loot, cost)    # seyir defteri (%NAME% info'dan, %COUNT%)
+        RT.note(self.p, 'his_rerolled_unstable_module', loot, cost)    # logbook (%NAME% from info, %COUNT%)
         return self.after(iid, [self.result(iid, old, module_msg(self.p, iid))])
 
     def restabilise(self, f):
         iid = int(f.get('itemId') or 0)
         import particle as PC
-        if PC.restabilizable(self.p.d['items'].get(str(iid), '')):      # top/kırıcı: eskisine dön ya da yenisi kalsın
+        if PC.restabilizable(self.p.d['items'].get(str(iid), '')):      # ball/breaker: go back to the old one or keep the new one
             if f.get('isSalvage'):
                 PC.revert(self.p, iid)
             else:
@@ -276,14 +276,14 @@ class Modules:
         with self.p.lock:
             rec.update(rec.pop('previous'))
             self.p.dirty = True
-        self.log('   Salvage: %s önceki niteliklere döndü' % self.p.d['items'][str(iid)])
+        self.log('   Salvage: %s returned to its previous attributes' % self.p.d['items'][str(iid)])
         return INV.update_msgs(self.m, self.p, list(RETAIN), removed) + self.after(iid, [self.result(iid, old, module_msg(self.p, iid))])
 
     def recycle(self, f):
         iid = int(f.get('itemId') or 0)
         loot = self.p.d['items'].get(str(iid))
         import particle as PC
-        if loot and PC.restabilizable(loot):                    # top/kırıcı: OptiGrad Chip ve yükseltme malzemesinin %80'i
+        if loot and PC.restabilizable(loot):                    # ball/breaker: OptiGrad Chip and 80% of the upgrade material
             from legacy_protocol import legacy
             got = PC.recycle(self.p, iid)
             if got is None:
@@ -293,12 +293,12 @@ class Modules:
                 msgs += self.m.reward(l, n) if self.m else []
                 if not self.m:
                     self.p.add_resource(l, n)
-            self.log('   geri dönüşüm: %s -> %s' % (loot, got))
+            self.log('   recycle: %s -> %s' % (loot, got))
             return msgs + [('UnstableModuleRecycleResultCommand', dict(itemId=iid, shardCommand=shard_cmd(self.p))), list_cmd(self.p)]
         if not loot or not unstable(loot):
             from legacy_protocol import legacy
             return [legacy('0|A|STM|msg_reroll_error_item')]
-        worn = iid in self.p.equipped_ids()                  # forum 162335: takılıyken de geri dönüşür; önce yuvasından çıkar
+        worn = iid in self.p.equipped_ids()                  # forum 162335: it can be recycled while fitted too; first removed from its slot
         with self.p.lock:
             for s in self.p.d['ships'].values():
                 for cfg in s.get('configs', {}).values():
@@ -312,14 +312,14 @@ class Modules:
         msgs = [('InventoryItemRemovedCommand', {'itemId': iid})] + (self.m.reward(SHARD, back) if self.m else [])
         if not self.m:
             self.p.add_resource(SHARD, back)
-        self.log('   geri dönüşüm: %s -> %d shard' % (loot, back))
+        self.log('   recycle: %s -> %d shard' % (loot, back))
         RT.note(self.p, 'his_recycled_unstable_module', loot, back)
         if worn and self.m:
             msgs += [self.m.equipment_cmd()] + self.m.apply_stats()
         return msgs + [('UnstableModuleRecycleResultCommand', dict(itemId=iid, shardCommand=shard_cmd(self.p))), list_cmd(self.p)]
 
     def after(self, iid, msgs):
-        """Takılı modül değiştiyse hız/kalkan/can yeniden."""
+        """If the fitted module changed, speed/shield/HP again."""
         out = msgs + [list_cmd(self.p)]
         if self.m and iid in self.p.equipped_ids():
             out += [self.m.equipment_cmd()] + self.m.apply_stats()

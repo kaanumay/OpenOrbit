@@ -1,21 +1,21 @@
-"""Galaxy Trek (Space Search; yol haritası Ö3; veri data/extra_events.json 'galaxy_trek').
+"""Galaxy Trek (Space Search; roadmap Ö3; data data/extra_events.json 'galaxy_trek').
 
-İstemci (menü öğesi space_search, pencere 134, UISpaceSearchSystem; görevler ve ödüller UIActivityWindowSystem):
-  - Pencere açılırken unityApi/events/spaceSearch.php XML'ini indirir: kök/planets/<planet planetId resKey/>, kök/planetEvents/<event
-    eventId resKey degree><reward lootId amount/></event>; olay metni GetText(resKey) + " (" + GetText(degree) + ")"
-    (SS_result_lowEvents_N / SS_result_event_low …). Ödül sekmesi unityApi/events/ssRewards.php: kök/rangeBoundPackageEntry
+Client (menu item space_search, window 134, UISpaceSearchSystem; quests and rewards UIActivityWindowSystem):
+  - When the window opens it downloads the XML unityApi/events/spaceSearch.php: root/planets/<planet planetId resKey/>, root/planetEvents/<event
+    eventId resKey degree><reward lootId amount/></event>; event text GetText(resKey) + " (" + GetText(degree) + ")"
+    (SS_result_lowEvents_N / SS_result_event_low ...). The reward tab unityApi/events/ssRewards.php: root/rangeBoundPackageEntry
     [special, name]/package/{range from; item lootId amount; title name} (SpaceSearchRewardsDate: Time = from).
-  - SpaceSearchRequest {id, action, count}: 0 pencere -> SpaceSearchInfoCommand {planetIndex, planetPct, quantity, lootId, cost};
-    1 keşif (count 1/5/10) -> SpaceSearchEventsCommand {rewards [RewardModule], eventIds [EventCommand {eventId, planetId}], planets
-    [PlanetCommand {planetId, planetPct, increase}]}; 2 ödül sekmesi -> SpaceSearchSectorRewardsCommand {rewards
-    [SpaceSearchSectorRewards {unlock, count, range, received}]}; 3 ödülü al (count = from; id 0); 4 görevler -> SpaceSearchMissionListCommand
-    {missions [EventQuestDefinitionModule {module, completed, claimed}]}. UpdateSpaceSearchKeyCommand {quantity} anahtar sayısı.
-Kurallar (resmî SSS, darkorbitwiki): 40 gezegen (8 bölge); her keşif 1 FTL Key (resource_ftl-key); olay Simple %50 (+%3), Moderate %30
-(+%5), Difficult %20 (+%9) ve türünün ödül paketi (sabit + alt paket çekilişi); gezegen %100 olunca sıradaki açılır; 13 ödül basamağı
-tamamlanan gezegen sayısıyla (unvanlar 16 ve 36'da); günde 10 görev (1 sabit giriş, 9 rastgele) FTL Key verir; etkinlik bitince
-anahtarlar silinir.
-Profilde: galaxy_trek {donem, gezegen (1-40), yuzde, tamam, alinan [basamak], gun, gorevler [kimlik], deger {uid: koşul
-değerleri}, biten [kimlik]}.
+  - SpaceSearchRequest {id, action, count}: 0 window -> SpaceSearchInfoCommand {planetIndex, planetPct, quantity, lootId, cost};
+    1 explore (count 1/5/10) -> SpaceSearchEventsCommand {rewards [RewardModule], eventIds [EventCommand {eventId, planetId}], planets
+    [PlanetCommand {planetId, planetPct, increase}]}; 2 reward tab -> SpaceSearchSectorRewardsCommand {rewards
+    [SpaceSearchSectorRewards {unlock, count, range, received}]}; 3 claim reward (count = from; id 0); 4 quests -> SpaceSearchMissionListCommand
+    {missions [EventQuestDefinitionModule {module, completed, claimed}]}. UpdateSpaceSearchKeyCommand {quantity} key count.
+Rules (official SSS, darkorbitwiki): 40 planets (8 regions); each exploration costs 1 FTL Key (resource_ftl-key); event Simple 50% (+3%), Moderate 30%
+(+5%), Difficult 20% (+9%) and the reward package of its type (fixed + sub-package draw); when a planet reaches 100% the next one opens; 13 reward tiers
+by number of completed planets (titles at 16 and 36); 10 quests a day (1 fixed login, 9 random) give FTL Keys; when the event ends the
+keys are deleted.
+In the profile: galaxy_trek {period, planet (1-40), percent, done, claimed [tier], day, quests [id], value {uid: condition
+values}, finished [id]}.
 """
 import datetime, json, os, random, time
 from xml.sax.saxutils import quoteattr
@@ -36,7 +36,7 @@ def active(now=None):
 
 
 def all_events():
-    """[(olay kimliği, tür kaydı)]."""
+    """[(event id, type record)]."""
     return [(i, e) for e in D.get('events', []) for i in e['ids']]
 
 
@@ -57,7 +57,7 @@ def rewards_xml():
         rows = ''.join('<item lootId=%s amount="%d"/>' % (quoteattr(l), n) for l, n in t['items'])
         title = '<title name=%s/>' % quoteattr(t['title']) if t.get('title') else ''
         out.append('<rangeBoundPackageEntry special="0" name="%d"><package><range from="%d"/>%s%s</package></rangeBoundPackageEntry>'
-                   % (t['required'], t['required'], rows, title))    # satır anahtarı: gereken gezegen sayısı (metin ve al isteği)
+                   % (t['required'], t['required'], rows, title))    # row key: the required planet count (text and claim request)
     return '<?xml version="1.0" encoding="UTF-8"?><ssRewards>%s</ssRewards>' % ''.join(out)
 
 
@@ -71,14 +71,14 @@ class GalaxyTrek:
 
     def __init__(self, profile, shop, log=print):
         self.p, self.m, self.log = profile, shop, log
-        self.titles = None                        # ödül unvanı (oturum bağlar: başarımın unvan listesine)
-        self.on = None                            # etkinlik sürüyor mu (tick'te saniyede bir)
+        self.titles = None                        # reward title (the session binds it: to the achievement's title list)
+        self.on = None                            # whether the event is running (once a second in tick)
         if shop is not None:
             shop.on_bought.append(self.bought)
 
     def bought(self, loot, amount):
-        """Mağazadan FTL Key paketi: açık pencerenin sayacı (UISpaceSearch.Quantity) yalnız UpdateSpaceSearchKeyCommand'la değişir;
-        pencerenin Shop düğmesinden (GoShop) alınca eski sayı kalıyordu (oyuncu bildirimi 2026-10-28: 150'lik paket 50 gibi görünüyordu)."""
+        """FTL Key pack from the shop: the open window's counter (UISpaceSearch.Quantity) changes only with UpdateSpaceSearchKeyCommand;
+        when bought from the window's Shop button (GoShop) the old number stayed (player report 2026-10-28: the 150 pack looked like 50)."""
         if any(g == KEY for g, n in self.m.contents(loot, amount) or []):
             return [self.key_cmd()]
         return []
@@ -93,9 +93,9 @@ class GalaxyTrek:
     def keys(self):
         return self.p.resource(KEY)
 
-    # ------------------------------------------------------------ dönem
+    # ------------------------------------------------------------ period
     def roll_period(self, now=None):
-        """Yeni koşu: ilerleme sıfırlanır (kaynakta düşük güven: her koşu baştan)."""
+        """New run: progress resets (low confidence in the source: every run from scratch)."""
         p = CAL.period(EVENT, now)
         period = int(p[0]) if p else 0
         if self.p.d.get('galaxy_trek', {}).get('period') != period:
@@ -104,7 +104,7 @@ class GalaxyTrek:
                 self.p.dirty = True
 
     def roll_day(self, now=None):
-        """Günün görevleri: 1 sabit (giriş) + rastgele 9."""
+        """The day's quests: 1 fixed (login) + 9 random."""
         day = datetime.date.fromtimestamp(time.time() if now is None else now).isoformat()
         st = self.st
         if st.get('day') == day and st['quests']:
@@ -130,7 +130,7 @@ class GalaxyTrek:
         return ('SpaceSearchSectorRewardsCommand', {'rewards': [
             mod('SpaceSearchSectorRewards', unlock=st['done'] >= t['required'], count=min(st['done'], t['required']),
                 range=t['required'], received=t['uid'] in st['claimed']) for t in D.get('steps', [])]})
-        # istemci satırda "(count/range)" yazar: count biten gezegen, range hedef (canlı: basamak numarası hedef sanılıyordu)
+        # the client writes "(count/range)" on the row: count is the planets finished, range the target (live: the tier number was mistaken for the target)
 
     def missions_cmd(self):
         import quest_tracker as GT
@@ -149,12 +149,12 @@ class GalaxyTrek:
             return []
         self.roll_period()
         self.roll_day()
-        msgs = self.event('login', {})               # görev listesi gönderilmez: istemci onu alınca pencereyi açıyor
+        msgs = self.event('login', {})               # the quest list is not sent: the client opens the window when it receives it
         return msgs + [self.key_cmd()]
 
     def tick(self, now):
-        """Koşu bitti: anahtarlar silinir (istemcinin metni); yeni günde görevler."""
-        self.on = active(now)                     # olaylar sık gelir: etkinlik durumu saniyede bir
+        """The run ended: the keys are deleted (the client's text); quests on a new day."""
+        self.on = active(now)                     # events come often: event state once a second
         if not self.on:
             st = self.p.d.get('galaxy_trek')
             if st and st.get('period') is not None:
@@ -163,7 +163,7 @@ class GalaxyTrek:
                 if n:
                     self.p.add_resource(KEY, -n)
                     msgs = self.m.resource_msgs(KEY, 0, -n)
-                    self.log('   Galaxy Trek bitti: %d FTL Key silindi' % n)
+                    self.log('   Galaxy Trek ended: %d FTL Key deleted' % n)
                 with self.p.lock:
                     self.p.d['galaxy_trek'] = {}
                     self.p.dirty = True
@@ -175,7 +175,7 @@ class GalaxyTrek:
             self.roll_day(now)
         return []
 
-    # ------------------------------------------------------------ istekler
+    # ------------------------------------------------------------ requests
     def handle(self, name, f):
         if not active():
             return []
@@ -189,7 +189,7 @@ class GalaxyTrek:
         if action == 2:
             return [self.sector_cmd()]
         if action == 3:
-            return self.claim(int(f.get('count') or 0))      # istemci: {action 3, id 0, count = range from}
+            return self.claim(int(f.get('count') or 0))      # client: {action 3, id 0, count = range from}
         if action == 4:
             return [self.missions_cmd()]
         return []
@@ -200,7 +200,7 @@ class GalaxyTrek:
             return [self.info_cmd()]
         count = min(count, self.keys() // max(1, D.get('cost', 1)))
         if count <= 0:
-            self.log('   Galaxy Trek: FTL Key yok')
+            self.log('   Galaxy Trek: no FTL Key')
             return [self.info_cmd(), self.key_cmd()]
         self.p.add_resource(KEY, -count * D.get('cost', 1))
         events, planets, got = [], [], {}
@@ -235,14 +235,14 @@ class GalaxyTrek:
         msgs = self.m.resource_msgs(KEY, self.keys(), -count)
         for l, n in sorted(got.items()):
             msgs += self.m.prize(l, n)
-        self.log('   Galaxy Trek: %d keşif, gezegen %d (%%%d), tamam %d' % (count, st['planet'], st['percent'], st['done']))
+        self.log('   Galaxy Trek: %d explorations, planet %d (%%%d), done %d' % (count, st['planet'], st['percent'], st['done']))
         return [('SpaceSearchEventsCommand', dict(rewards=[mod('RewardModule', lootId=l, amount=n) for l, n in sorted(got.items())],
                                                   eventIds=events, planets=planets)),
                 self.info_cmd(), self.key_cmd()] + msgs + self.m.money_msgs()
 
     def claim(self, tier):
         st = self.st
-        t = next((t for t in D.get('steps', []) if t['required'] == tier), None)     # al isteğinin count'u = range from
+        t = next((t for t in D.get('steps', []) if t['required'] == tier), None)     # the claim request's count = range from
         if not t or t['uid'] in st['claimed'] or st['done'] < t['required']:
             return [self.sector_cmd()]
         tier = t['uid']
@@ -254,12 +254,12 @@ class GalaxyTrek:
             msgs += self.m.prize(l, n)
         if t.get('title') and self.titles:
             msgs += self.titles(t['title'])
-        self.log('   Galaxy Trek ödülü %d: %s %s' % (tier, t['items'], t.get('title') or ''))
+        self.log('   Galaxy Trek reward %d: %s %s' % (tier, t['items'], t.get('title') or ''))
         return [self.sector_cmd()] + msgs + self.m.money_msgs()
 
-    # ------------------------------------------------------------ görevler
+    # ------------------------------------------------------------ quests
     def event(self, kind, kw):
-        """Oyun olayı (oturumun başarım/görev olayları): günün görevleri ilerler; biten görevin FTL Key'i hemen verilir."""
+        """Game event (the session's achievement/quest events): the day's quests progress; a finished quest's FTL Key is given immediately."""
         if not (self.on if self.on is not None else active()):
             return []
         import quest_tracker as GT
@@ -277,7 +277,7 @@ class GalaxyTrek:
                     self.p.dirty = True
                 for r in q['definition']['rewards']:
                     msgs += self.m.prize(r['lootId'], r['amount'])
-                self.log('   Galaxy Trek görevi bitti: %s' % q['name'])
+                self.log('   Galaxy Trek quest finished: %s' % q['name'])
         if msgs:
-            msgs.append(self.key_cmd())                 # liste (SpaceSearchMissionListCommand) pencereyi açar: yalnız istekle
+            msgs.append(self.key_cmd())                 # the list (SpaceSearchMissionListCommand) opens the window: only on request
         return msgs

@@ -1,20 +1,20 @@
-"""Somut botlar: oyuncunun haritasındaki botların gemisi (BotGemi, dunya.World.npcs içinde) ve taktik davranışı.
+"""Concrete bots: the bots' ships on the player's map (BotShip, inside world.World.npcs) and their tactical behavior.
 
-Bot uzaylı tablosunda durur ama istemciye oyuncu gibi görünür (ShipCreateCommand npc=False, firma, rütbe, klan etiketi, dronlar):
-görüş, seçme, oyuncunun lazeri/roketi/yetenekleri, ortak harita paylaşımı dünyanın uzaylı yolundan kendiliğinden çalışır. Ayrıldığı
-yerler (world.py kancaları):
-  ship_create   -> gorunum         oyuncu görünümü
-  think         -> dusun           taktik: portala git, kaç, karşılık ver, PvP, uzaylı avla, dinlen
-  think (NPC)   -> npc_bota        bot vurduğu uzaylı ona döner ve ateş eder
-  laser_start   -> saldiri_hatasi  oyuncunun saldırı kuralları (DMZ, başlangıç haritasında kendi firması)
-  hit_npc       -> vuruldu         aynı kurallar + bot saldıranı hatırlar
-  kill          -> olduruldu       PvP ödülü (oyuncu_savas.on_kill), bot ölür, üste döner
-  hero_death    -> oyuncu_oldu     botun zaferi (onur, hafıza)
-  step (lider)  -> tick            yöneticinin bu haritadaki botlarıyla eşitleme (saniyede bir)
-  stop          -> ayril           gemiler kaldırılır, botlar soyut benzetime döner
+A bot sits in the alien table but looks like a player to the client (ShipCreateCommand npc=False, company, rank, clan tag, drones):
+vision, selection, the player's laser/rocket/abilities, and shared-map sharing work on their own through the world's alien path. Where it
+branches off (world.py hooks):
+  ship_create   -> appearance      player look
+  think         -> think           tactics: go to the portal, flee, retaliate, PvP, hunt aliens, rest
+  think (NPC)   -> npc_to_bot      an alien the bot hit turns on it and fires
+  laser_start   -> attack_error    the player's attack rules (DMZ, own company on the starting map)
+  hit_npc       -> was_hit         the same rules + the bot remembers the attacker
+  kill          -> was_killed      PvP reward (player_combat.on_kill), the bot dies, returns to base
+  hero_death    -> player_died     the bot's victory (honor, memory)
+  step (leader) -> tick            sync with the manager's bots on this map (once a second)
+  stop          -> detach          ships are removed, bots return to the abstract simulation
 
-Taktik düşünme insan tepki süresiyle (kişiliğin tepki_sn'si) aralıklı; ateş 1,1 sn'de bir. Savaş görselleri yalnız iki ucu da
-tanıyan istemcilere gider (görüş dışındaki bot uzaylı keserken gönderilmez).
+Tactical thinking is intermittent with a human reaction time (the personality's reaction time); it fires once every 1.1 s. Combat visuals go only
+to clients that know both ends (not sent while an out-of-sight bot is killing an alien).
 """
 import math, random, time
 
@@ -28,12 +28,12 @@ from . import society as T
 from . import manager as MGR
 from .goals.pvp import order_grudge
 
-CARRIER = next(iter(WD.CFG['types']))       # NPC.__init__ için var olan bir tür (sonra botun değerleriyle değiştirilir)
+CARRIER = next(iter(WD.CFG['types']))       # a type that exists for NPC.__init__ (later replaced with the bot's values)
 LASER_RANGE = WD.COMBAT['laser_range']
-COMBAT_SEC = 8.0                                 # son hasardan bu kadar sonra yenilenir
-REGEN_RATE = 0.02                               # savaş dışında saniyede azami can+kalkanın payı
+COMBAT_SEC = 8.0                                 # regenerates this long after the last damage
+REGEN_RATE = 0.02                               # outside combat, the share of max HP+shield per second
 JUMP_SEC = H.JUMP_DELAY_SEC
-ARRIVAL_SEC = 10.0                 # atlayan bot bu süre içinde gövdelenirse varış portalında doğar (sonra uçup gitmiştir)
+ARRIVAL_SEC = 10.0                 # a jumping bot that is hulled within this time spawns at the arrival portal (it has flown off afterwards)
 COMBAT_INTERVAL = WD.COMBAT['laser_interval_sec']
 
 
@@ -42,19 +42,19 @@ class BotShip(WD.NPC):
         WD.NPC.__init__(self, bot.uid, CARRIER, x, y)
         self.bot = bot
         self.tip = 'bot'
-        self.summoned = True                    # uzaylı gibi yeniden doğmaz (botu yönetici doğurur)
-        self.target = None                       # ateş ettiği (kimlik)
+        self.summoned = True                    # does not respawn like an alien (the manager spawns the bot)
+        self.target = None                       # the one it fires at (id)
         self.fire = False
-        self.attacker = {}                      # kimlik -> son vuruş anı
+        self.attacker = {}                      # id -> time of the last hit
         self.last_damage = 0.0
         self.portal_time = 0.0
-        self.movement = None                     # son gönderilen hedef nokta
-        self.intent_time = 0.0                      # PvP başlatma kararının son anı
+        self.movement = None                     # the last target point sent
+        self.intent_time = 0.0                      # the last time of a PvP-start decision
         self.spawn = now or time.time()
         self.next_think = self.spawn + random.uniform(0.3, 1.5)
-        self.takeoff = random.triangular(1.5, 18, 4)     # doğunca yola hemen çıkmaz: herkes aynı anda tek sıra kalkmasın
-        self.route = None                        # (hedef, [ara noktalar]): uzun yolda eğri rota (_rota)
-        self.approach_points = {}                         # portal -> yanaşma noktası (portalın çevresinde, bota özgü)
+        self.takeoff = random.triangular(1.5, 18, 4)     # does not set off right after spawning: so everyone does not leave in a single file at once
+        self.route = None                        # (target, [waypoints]): a curved route on a long trip (_route)
+        self.approach_points = {}                         # portal -> docking point (around the portal, specific to the bot)
         self.next_shot = 0.0
         d = bot.value()
         self.d = {}
@@ -62,7 +62,7 @@ class BotShip(WD.NPC):
         self.hp, self.shield = d['can'], d['kalkan']
 
     def refresh(self):
-        """Donanım değişti: görünüm, değerler, dronlar."""
+        """Equipment changed: look, values, drones."""
         b = self.bot
         d = b.value()
         e = b.k['gear']
@@ -72,15 +72,15 @@ class BotShip(WD.NPC):
                       spread=3 if d['laser'] >= 12 else 2 if d['laser'] >= 6 else 1, bot=True)
         self.behavior = {}
         self.hp, self.shield = min(self.hp, d['can']), min(self.shield, d['kalkan'])
-        # dronlar yalnız ek_gorunum'dan (gorunum.mesajlar: formasyon, dron seviyesi, tasarımlar); burada formasyonu 0 olan ikinci bir
-        # dizgi show()'da ondan sonra gidip formasyonu eziyordu (oyuncu bildirimi 2026-11-01: hiçbir bot formasyon kullanmıyor)
+        # drones only from extra_look (appearance.messages: formation, drone level, designs); a second string here with formation 0
+        # went after it in show() and overwrote the formation (player report 2026-11-01: no bot uses a formation)
         self.images = {}
 
     def speed(self):
         return self.d['speed']
 
 
-# ------------------------------------------------------------------------------------------------------------ görünüm
+# ------------------------------------------------------------------------------------------------------------ look
 def appearance(w, n):
     b = n.bot
     x, y = n.mover.pos(time.time())
@@ -88,7 +88,7 @@ def appearance(w, n):
     pl = b.profile.d['pilot']
     return ('ShipCreateCommand', dict(
         userId=n.id, typeId=GR.tip(b), expansionStage=n.d['spread'], userName=b.name, x=int(x), y=int(y),
-        clanTag='CM' if b.__dict__.get('moderator') else pl.get('clanTag', ''),        # sohbet moderatörü (bot/moderasyon.py)
+        clanTag='CM' if b.__dict__.get('moderator') else pl.get('clanTag', ''),        # chat moderator (bot/moderation.py)
         factionId=b.firma, clanId=int(pl.get('clanId') or 0), dailyRank=pl.get('dailyRank', 1), warnBox=False,
         clanDiplomacy=WD.mod('ClanRelationModule', type=relation(w, b)), galaxyGatesDone=GR.rings(b), useSystemFont=False, npc=False,
         cloaked=False, motherShipId=0, positionIndex=0, designSet='', modifier=[],
@@ -100,7 +100,7 @@ def extra_look(n):
 
 
 def relation(w, b):
-    """Klanlar arası ilişki (ClanRelationModule.type: 1 ittifak, 2 saldırmazlık, 3 savaş) ya da 0."""
+    """Relation between clans (ClanRelationModule.type: 1 alliance, 2 non-aggression, 3 war) or 0."""
     try:
         import clan as KL
         return KL.relation(w.p, T.profile(b))
@@ -108,9 +108,9 @@ def relation(w, b):
         return 0
 
 
-# ------------------------------------------------------------------------------------------------------------ eşitleme
+# ------------------------------------------------------------------------------------------------------------ sync
 def tick(w, now):
-    """Saniyede bir: yöneticinin bu haritadaki çevrimiçi, yaşayan, yoldan çıkmamış botları gemi olarak var olur; ayrılanlar kalkar."""
+    """Once a second: the manager's online, alive bots on this map that have not left their route come into existence as ships; those that left are removed."""
     y = MGR.ACTIVE
     if y is None or now < getattr(w, '_bot_t', 0):
         return
@@ -123,7 +123,7 @@ def tick(w, now):
         return gate_tick(w, now, y)
     with y.lock:
         wanted = {b.uid: b for b in y.on_map.get(m, ()) if b.online and b.dead_until <= now
-                   and now - b.__dict__.get('in_gate', 0) > 5}           # oyuncuyla kapıdaki bot başka haritada görünmez
+                   and now - b.__dict__.get('in_gate', 0) > 5}           # a bot at the gate with the player is not visible on another map
     var = {uid: n for uid, n in w.npcs.items() if n.bot is not None}
     msgs = []
     for uid, n in var.items():
@@ -131,7 +131,7 @@ def tick(w, now):
             msgs += remove(w, n)
     limit = y.setting('max_concrete', 40) or 9999
     count = len(var) - sum(1 for u in var if u not in wanted)
-    if len(wanted) > limit:                             # sınır doluysa: sana yakın, seninle geçmişi olan, grubundaki botlar önce
+    if len(wanted) > limit:                             # if the limit is full: bots near you, with history with you, in your group first
         hx, hy = w.hero_pos(now)
         name = str(w.p.d['pilot'].get('userName', '')).lower()
 
@@ -142,12 +142,12 @@ def tick(w, now):
         wanted = dict(sorted(wanted.items(), key=lambda kv: priority(kv[1])))
     for uid, b in wanted.items():
         if b.body is not None and (not b.body.alive or w.npcs.get(b.body.id) is not b.body):
-            b.body = None                                # dışarıdan silinmiş gemi (hata ayıklama, çöken dünya): bot donmasın
+            b.body = None                                # a ship deleted from outside (debugging, a crashed world): so the bot does not freeze
         if uid in var or count >= limit or b.body is not None:
             continue
         x, yy = spawn_point(w, b)
         n = BotShip(b, x, yy, now)
-        if b.__dict__.pop('in_place_repair', None):       # yerinde tamir: canın %10'u, kalkansız, 10 sn koruma (oyuncununki gibi)
+        if b.__dict__.pop('in_place_repair', None):       # repair on the spot: 10% of HP, no shield, 10 s protection (like the player's)
             n.hp, n.shield = max(1, int(n.hp * K.ITEMS['death_screen']['in_place_hp_ratio'])), 0
             n.immune_until = now + K.ITEMS['death_screen']['in_place_protection_sec']
         w.npcs[n.id] = n
@@ -159,7 +159,7 @@ def tick(w, now):
 
 
 def is_gate_world(w):
-    """Kapı ya da örnek harita (Galaksi Kapısı, Hades, LoW, QZ, etkinlik kapıları): olağan harita değil."""
+    """A gate or sample map (Galaxy Gate, Hades, LoW, QZ, event gates): not an ordinary map."""
     try:
         m = int(w.map_id)
     except ValueError:
@@ -169,9 +169,9 @@ def is_gate_world(w):
 
 
 def gate_tick(w, now, y):
-    """Kapı dolgusu (oyuncu isteği 2026-10-31): kahramanın grubundaki botlar kapıya onunla girer (kapının yanında doğar), grubun
-    hedefini (Grup) izleyip uzaylılara ateş eder; kendi kapısında ya da modunda olan, ölü ya da çevrimdışı bot gelmez. İzin
-    'kapi_dolgu'; kapalıysa kapıda bot yok (eskisi gibi)."""
+    """Gate filler (player request 2026-10-31): the bots in the hero's group enter the gate with them (spawning next to the gate), follow the group's
+    target (Group) and fire at aliens; a bot that is in its own gate or mode, dead or offline does not come. Permission
+    'gate_filler'; if off, there are no bots in the gate (as before)."""
     import group as GR
     wanted = {}
     if y.permission('gate_filler') and not w.hero_dead:
@@ -209,17 +209,17 @@ def gate_tick(w, now, y):
 def spawn_point(w, b):
     arrival = getattr(b, 'arrival', None)
     b.arrival = None
-    # portalda yalnız az önce atlayan doğar: oyuncu yokken atlayıp soyut kalanlar oyuncu gelince hep birlikte portaldan çıkıyordu
-    # (oyuncu bildirimi: 2-1'de portalda bekleyip 2-2'ye geçince 10-20 bot oyuncuyla aynı anda portaldan çıktı)
+    # only one that just jumped spawns at the portal: those that jumped while the player was away and stayed abstract all came out of the portal together when the player arrived
+    # (player report: waiting at the portal on 2-1 and moving to 2-2, 10-20 bots came out of the portal at the same time as the player)
     if arrival is not None and time.time() - arrival[1] < ARRIVAL_SEC:
         gx, gy = H.arrival(arrival[0], int(w.map_id), b.firma)
-        a, r = random.uniform(0, 2 * math.pi), random.uniform(80, 280)      # portalın çevresinde dağınık (üst üste değil)
+        a, r = random.uniform(0, 2 * math.pi), random.uniform(80, 280)      # scattered around the portal (not on top of each other)
         return int(gx + math.cos(a) * r), int(gy + math.sin(a) * r)
     x, y = b.k.get('x') or 0, b.k.get('y') or 0
     if 300 < x < w.map_w - 300 and 300 < y < w.map_h - 300:
         return int(x), int(y)
     s = w.station
-    if s and s.get('type') == b.firma:          # yeni giren ya da üste dönen: kendi istasyonunun çevresinde (gerçek oyundaki gibi)
+    if s and s.get('type') == b.firma:          # newly entered or returned to base: around its own station (like the real game)
         a, r = random.uniform(0, 2 * math.pi), random.uniform(250, 1300)
         return (int(max(400, min(w.map_w - 400, s['posX'] + math.cos(a) * r))),
                 int(max(400, min(w.map_h - 400, s['posY'] + math.sin(a) * r))))
@@ -227,7 +227,7 @@ def spawn_point(w, b):
 
 
 def remove(w, n):
-    """Gemi haritadan kalkar (çıkış, atlama, ölüm sonrası): konum kayda, bot soyut benzetime."""
+    """The ship leaves the map (exit, jump, after death): position to the save, the bot to the abstract simulation."""
     n.alive = False
     b = n.bot
     x, y = n.mover.pos(time.time())
@@ -239,7 +239,7 @@ def remove(w, n):
 
 
 def detach(w):
-    """Dünya duruyor: ortak haritada başka oyuncu kalmadıysa gemiler kaldırılır (harita durumu saklanmadan önce)."""
+    """The world is stopping: if no other player remains on the shared map the ships are removed (before the map state is stored)."""
     if w.shared is not None and any(o is not w and o.running for o in w.shared.members):
         return
     with w.lock:
@@ -247,7 +247,7 @@ def detach(w):
             remove(w, n)
 
 
-# ------------------------------------------------------------------------------------------------------------ yardımcılar
+# ------------------------------------------------------------------------------------------------------------ helpers
 def _position(w, uid, now):
     n = w.npcs.get(uid)
     if n is not None:
@@ -257,7 +257,7 @@ def _position(w, uid, now):
 
 
 def _player(w, uid):
-    """Kimliği uid olan kahramanın dünyası (bu dünya ya da ortak haritadaki öteki oyuncu) ya da None."""
+    """The world of the hero with id uid (this world or the other player on the shared map) or None."""
     if uid == w.hid:
         return w
     if w.shared is not None:
@@ -266,7 +266,7 @@ def _player(w, uid):
 
 
 def _broadcast(w, msgs, *uids):
-    """Savaş görseli: bu dünyanın istemcisi iki ucu da tanıyorsa ona; ortak haritada öteki oyunculara (yansit kendisi süzer)."""
+    """Combat visual: to this world's client if it knows both ends; to the other players on the shared map (mirror filters itself)."""
     if not msgs:
         return
     if all(w.knows(u) for u in uids):
@@ -287,8 +287,8 @@ def _go_to(w, n, x, y, now, threshold=80):
 
 
 def _waypoints(w, n, sx, sy, x, y):
-    """Uzun yolun ara noktaları: rotaya dik, hafif bir yay (sinüs) üstünde; yönü ve genişliği bota ve yolculuğa göre tohumlu (her
-    botun yolu başka, aynı yolculukta değişmez). Kısa yol doğrudan."""
+    """Waypoints of a long route: on a slight arc (sine) perpendicular to the route; direction and width seeded by the bot and the trip (each
+    bot's route is different, unchanged within one trip). A short route is direct."""
     d = math.hypot(x - sx, y - sy)
     k = 0 if d < 1500 else 1 if d < 3500 else 2 if d < 7000 else 3
     if not k:
@@ -305,17 +305,17 @@ def _waypoints(w, n, sx, sy, x, y):
 
 
 def _route(w, n, x, y, now, threshold=150):
-    """Uzun yolculuk (portal, istasyon, devriye): düz çizgi yerine ara noktalı hafif bir yay; ara noktaya varmadan sıradakine döner
-    (durup kalkmaz). Oyuncu bildirimi 2026-10-31: haritaya girince botlar tek sıra, dümdüz ve aynı yoldan portala uçuyordu."""
+    """A long trip (portal, station, patrol): a slight arc with waypoints instead of a straight line; it turns to the next one without reaching the waypoint
+    (does not stop and restart). Player report 2026-10-31: on entering the map the bots flew to the portal in a single file, dead straight and on the same path."""
     nx, ny = n.mover.pos(now)
     r = n.route
     if r is None or math.hypot(r[0][0] - x, r[0][1] - y) > threshold:
         r = n.route = ((x, y), _waypoints(w, n, nx, ny, x, y))
     mid = r[1]
-    early = max(250, n.speed() * 1.6)                     # bir düşünme aralığında alınan yol: köşede beklemesin
+    early = max(250, n.speed() * 1.6)                     # the distance covered in one thinking interval: so it does not wait at the corner
     remaining = math.hypot(x - nx, y - ny)
     while mid and (math.hypot(mid[0][0] - nx, mid[0][1] - ny) < early
-                   or math.hypot(x - mid[0][0], y - mid[0][1]) > remaining):     # geride kaldı (araya savaş girdi): geri dönmez
+                   or math.hypot(x - mid[0][0], y - mid[0][1]) > remaining):     # left behind (a fight intervened): does not turn back
         mid.pop(0)
     hx, hy = mid[0] if mid else (x, y)
     _go_to(w, n, hx, hy, now, threshold=60)
@@ -328,7 +328,7 @@ def _stop(w, n, now):
 
 
 def hero_power(o):
-    """Oyuncunun kabaca gücü (botun kararı için): lazerleri ve gemisinin canı/kalkanı."""
+    """The player's rough power (for the bot's decision): lasers and the ship's HP/shield."""
     try:
         lasers = sum(K.ITEMS['lasers'].get(l, {}).get('damage', 0) for l in o.lasers())
         g = o.p.d['ship']
@@ -344,9 +344,9 @@ def _in_peace(w, x, y):
     return w.in_pvp_peace(x, y)
 
 
-# ------------------------------------------------------------------------------------------------------------ kurallar
+# ------------------------------------------------------------------------------------------------------------ rules
 def attack_error(w, n, now=None):
-    """Oyuncunun bu bota saldırısı -> [] serbest ya da istemcinin ret mesajları (oyuncu_savas.attack_error'ın kuralları)."""
+    """The player's attack on this bot -> [] allowed or the client's rejection messages (the rules of player_combat.attack_error)."""
     now = now or time.time()
     b = n.bot
     if w.hero_dead or w.jumping or not n.alive:
@@ -354,8 +354,8 @@ def attack_error(w, n, now=None):
     hx, hy = w.hero_pos(now)
     nx, ny = n.mover.pos(now)
     if _in_peace(w, hx, hy) or _in_peace(w, nx, ny):
-        # güvenli bölge: "Saldırıya-Korumalı-Bölge" (istemcinin peacearea'sı; "Grup üyelerine saldırılamaz" yazıyordu, oyuncu
-        # bildirimi 2026-10-30)
+        # safe zone: "Attack-Protected-Zone" (the client's peacearea; it used to say "Group members cannot be attacked", player
+        # report 2026-10-30)
         return [legacy('0|A|STM|peacearea')]
     pl = w.p.d['pilot']
     clan = int(pl.get('clanId') or 0)
@@ -364,18 +364,18 @@ def attack_error(w, n, now=None):
     if relation(w, b) in (1, 2):
         return [legacy('0|A|STM|friendlyfire_disabled')]
     if int(pl.get('factionId') or 0) == b.firma and relation(w, b) != 3 and not WD.SET.get('company_pvp'):
-        return [legacy('0|A|STM|friendlyfire_disabled')]       # panel: kendi şirketine saldırı kapalı (savaştaki klan hariç)
+        return [legacy('0|A|STM|friendlyfire_disabled')]       # panel: attacking one's own company is off (except a clan at war)
     if int(pl.get('factionId') or 0) == b.firma and H.company(w.map_id) == b.firma and H.name(w.map_id).split('-')[-1] in ('1', '2'):
         return [legacy('0|A|STM|no_attack_on_start_maps')]
     return []
 
 
 def was_hit(w, n, attacker=None):
-    """hit_npc: vuruş geçerli mi; geçerliyse bot saldıranı (kahraman ya da P.E.T.'i) hatırlar."""
+    """hit_npc: is the hit valid; if so the bot remembers the attacker (the hero or their P.E.T.)."""
     now = time.time()
     from . import active_items as AC
-    # Insta-Shield süresinde vurulmaz; gizliyken yalnız onu seçmiş olan vurur (wiki: "Cloaked ships can still be attacked (if
-    # targeted)"; oyuncu bildirimi 2026-10-31: gizlenen bota saldırılamıyordu)
+    # not hit during Insta-Shield; while cloaked only one who has selected it hits (wiki: "Cloaked ships can still be attacked (if
+    # targeted)"; player report 2026-10-31: a cloaked bot could not be attacked)
     if attack_error(w, n, now) or now < n.__dict__.get('immune_until', 0) or (n.__dict__.get('hidden') and w.target != n.id):
         return False
     n.attacker[w.hid] = now
@@ -385,9 +385,9 @@ def was_hit(w, n, attacker=None):
     return True
 
 
-# ------------------------------------------------------------------------------------------------------------ ölüm
+# ------------------------------------------------------------------------------------------------------------ death
 def was_killed(w, n):
-    """Oyuncu (ya da P.E.T.'i, mayını, yeteneği) botu yok etti -> mesajlar (kill'in yerine)."""
+    """The player (or their P.E.T., mine, ability) destroyed the bot -> messages (in place of kill)."""
     import player_combat as OS
     b = n.bot
     x, y = n.mover.pos(time.time())
@@ -404,21 +404,21 @@ def was_killed(w, n):
     try:
         msgs += OS.on_kill(w, victim)
     except Exception as e:
-        w.log('   bot ödülü verilemedi: %s' % e)
+        w.log('   could not give the bot reward: %s' % e)
     name = w.p.d['pilot'].get('userName', '')
     if b.target is not None and b.target.name == 'duel':
-        b.plan['finished'] = True                           # düelloyu kaybetti
+        b.plan['finished'] = True                           # lost the duel
         b.k['intent'] = None
     y_ = MGR.ACTIVE
     if y_ is not None:
         with y_.lock:
             S.death(b, y_, reason='player', killer=name, now=time.time())
-    w.log('   bot %s yok edildi (%s)' % (b.name, H.name(w.map_id)))
+    w.log('   bot %s destroyed (%s)' % (b.name, H.name(w.map_id)))
     return msgs
 
 
 def player_died(w, n):
-    """Bot oyuncuyu yok etti: onur ve hafıza (oyuncunun ölüm ekranı dünyada)."""
+    """The bot destroyed the player: honor and memory (the player's death screen is in the world)."""
     b = n.bot
     name = w.p.d['pilot'].get('userName', '')
     kill_rewards = K.ITEMS['player_kill']
@@ -431,13 +431,13 @@ def player_died(w, n):
     b.mood.it(morale=0.12, confidence=0.1, anger=-0.3)
     b.event('i_killed_player', name=name)
     if b.target is not None and b.target.name == 'duel':
-        b.plan['finished'] = True                           # düelloyu kazandı
+        b.plan['finished'] = True                           # won the duel
         b.k['intent'] = None
     n.target = None
 
 
 def bot_damage(w, t, dmg, source_id, now, killer_bot=None, npc=None):
-    """Bot gemisi hasar aldı (uzaylıdan ya da başka bottan): kalkan emer, can biterse bot ölür."""
+    """The bot ship took damage (from an alien or another bot): the shield absorbs, if HP runs out the bot dies."""
     from . import active_items as AC
     if not t.alive or AC.is_protected(t, now):
         return
@@ -473,10 +473,10 @@ def bot_die(w, t, killer_bot=None, npc=None):
 
 
 def kill_npc(w, m, n, now):
-    """Bot uzaylıyı öldürdü: uzaylı kalkar ve yeniden doğar (kill'in ödülsüz hâli), ödül bota, kargo kutusu yanına (botun; başkaları
-    mavi görür). Uzaylı başkasının etiketliyse (oyuncunun ya da başka botun) dünyanın kill'i ödülü ona verir."""
+    """The bot killed an alien: the alien is removed and respawns (kill's rewardless form), the reward goes to the bot, the cargo box next to it (the bot's; others
+    see it as blue). If the alien is tagged by someone else (the player or another bot) the world's kill gives the reward to them."""
     who = WD.tag_owner(m, now)
-    if (who is not None and tuple(who) != ('b', n.id)) or getattr(m, 'damage_split', None):     # hasar_dagilim: grup uzaylısı, dünya böler
+    if (who is not None and tuple(who) != ('b', n.id)) or getattr(m, 'damage_split', None):     # damage_split: a group alien, the world splits
         w.send(w.kill(m))
         n.target = None
         return
@@ -497,7 +497,7 @@ def kill_npc(w, m, n, now):
     except Exception:
         pass
     w.send(msgs)
-    # grup (grup.py): bot kahramanla gruptaysa ödül haritadaki kahramanla ve gruptaki botlarla paylaşılır, kahramanın görevine sayılır
+    # group (group.py): if the bot is in a group with the hero, the reward is shared with the hero on the map and the bots in the group, and counts for the hero's quest
     pay = [w] if w.is_group_member(n.id) and w.running and not w.hero_dead and not w.jumping else []
     bots = [n.bot] + ([o for o in group_bots(w) if o is not n.bot] if pay else [])
     for b in bots:
@@ -509,13 +509,13 @@ def kill_npc(w, m, n, now):
         n.bot.event('i_killed_boss', name=m.d.get('name', ''))
         witness(w, 'boss', x, y, exclude=n.id, name=m.d.get('name', ''), who=n.bot.name)
     n.target = None
-    n.next_think = now + random.uniform(0.8, 2.5) * n.bot.k['personality']['reaction_sec']      # öldürünce kısa duraklama (ganimete bakar)
+    n.next_think = now + random.uniform(0.8, 2.5) * n.bot.k['personality']['reaction_sec']      # a short pause after a kill (looks at the loot)
 
 
-# ------------------------------------------------------------------------------------------------------------ ateş
+# ------------------------------------------------------------------------------------------------------------ fire
 def _ammo(n, target, m, o):
-    """Bu atışın cephanesi stoktan (silah.lazer_sec: dayanıklı uzaylıya x2/x3, PvP'de RSB/x3; hedef başına bir kez seçilir, gerçek
-    oyuncu gibi) ve harcanması: lazer sayısı kadar mermi -> cephane ya da None (mermi yok, ateş edemez)."""
+    """The ammo of this shot from stock (weapons.laser_choice: x2/x3 against a tough alien, RSB/x3 in PvP; chosen once per target, like a real
+    player) and its consumption: as many rounds as lasers -> ammo or None (no rounds, cannot fire)."""
     from . import weapons as WP
     b = n.bot
     if getattr(n, 'ammo_target', (None,))[0] != target or WP.stock(b).get(n.ammo_target[1], 0) <= 0:
@@ -529,7 +529,7 @@ def _ammo(n, target, m, o):
     if not WP.spend(b, ammo, laser):
         return None
     from . import lab as LB
-    n.lab_shot = LB.bonus(b, LB.LAZER)                   # bu atışın laboratuvar bonusu
+    n.lab_shot = LB.bonus(b, LB.LAZER)                   # the lab bonus of this shot
     LB.spend(b, LB.LAZER, laser)
     return ammo
 
@@ -552,7 +552,7 @@ def _fire(b, pvp=False, ammo=None):
 
 
 def fire(w, n, now):
-    """Hedefe ateş (1,1 sn'de bir): uzaylıya, oyuncuya ya da başka bota."""
+    """Fire at the target (once every 1.1 s): at an alien, a player or another bot."""
     if n.target is None:
         if n.fire:
             n.fire = False
@@ -578,7 +578,7 @@ def fire(w, n, now):
         n.target = None
         return
     ammo = _ammo(n, target, m, o)
-    if ammo is None:                                      # mermisi bitti: ateş edemez (ikmal karar anında)
+    if ammo is None:                                      # out of rounds: cannot fire (resupply at decision time)
         if n.fire:
             n.fire = False
             _broadcast(w, [('AttackAbortLaserCommand', {'uid': n.id})], n.id)
@@ -587,7 +587,7 @@ def fire(w, n, now):
     rocket(w, n, target, m, o, now)
     salvo(w, n, target, m, o, now)
     from . import active_items as AC, weapons as WP
-    AC.decloak(w, n)                                       # ateş eden gizli bot görünür olur
+    AC.decloak(w, n)                                       # a cloaked bot that fires becomes visible
     if m is not None and m.bot is None:
         AC.chain_impulse(w, n, now)
     run = ('AttackLaserRunCommand', dict(attackerId=n.id, targetId=target, laserColor=_color(n.bot, ammo), isDiminishedBySkillShield=False,
@@ -621,8 +621,8 @@ def fire(w, n, now):
 
 
 def salvo(w, n, target, m, o, now):
-    """Roket fırlatıcısının salvosu (dayanıklı uzaylıya ya da PvP'de): kapasite kadar roket, yarım saniye arayla; görseli roketin
-    eski metni (fırlatıcı roketinin kimliğiyle), hasarı her roket varınca."""
+    """The rocket launcher's salvo (against a tough alien or in PvP): as many rockets as capacity, half a second apart; its visual is the rocket's
+    old text (with the launcher rocket's id), the damage when each rocket arrives."""
     from . import technology as TECH, weapons as WP
     b = n.bot
     if now < getattr(n, 'salvo_ready', 0):
@@ -651,7 +651,7 @@ def salvo(w, n, target, m, o, now):
             def hit():
                 t2 = time.time()
                 if not n.alive:
-                    return                                # ölmüş botun salvosu vurmaz
+                    return                                # a dead bot's salvo does not hit
                 if o is not None:
                     if can_attack_player(w, n, o, t2):
                         o.send(o.hurt_hero(dmg, killer=n, cause=0, source_asset=True, now=t2))
@@ -668,7 +668,7 @@ def salvo(w, n, target, m, o, now):
 
 
 def player_near(w, m, now, reach=1500):
-    """Oyuncu uzaylının yakınında mı: bot vuruşunun tetiklediği oyuncuya yönelik etkiler (EMP, ters kontrol) yalnız o zaman."""
+    """Is the player near the alien: effects aimed at the player triggered by a bot's hit (EMP, reverse control) only then."""
     if w.hero_dead or w.jumping:
         return False
     hx, hy = w.hero_pos(now)
@@ -677,11 +677,11 @@ def player_near(w, m, now, reach=1500):
 
 
 def hit_npc(w, n, m, dmg, now, atype, once=(), shield=False, ammo=None):
-    """Botun lazeri (atype 1) ya da roketi (0) uzaylıya: kalkan emer, gövde; ölürse npc_oldur, yoksa uzaylı bota döner.
-    kalkan: yalnız kalkana (Chain Impulse). Uzaylının mekanikleri oyuncunun vuruşundaki gibi (dunya.hit_npc): yardımcıları yaşarken
-    dokunulmazlık, yalnız belirli cephane, hasar azaltma, gizli komandonun görünmesi, vurulunca çağırma (yardımcılar botun çevresinde
-    doğar, bota saldırır), can tabanı, can eşiğinde çağırma ve kaybolma (uzayli.on_hit; oyuncuya yönelik EMP ve ters kontrol yalnız
-    oyuncu yakınsa). Önceden bot vuruşu bunları atlıyordu: Cubikon bota Protegit çağırmıyordu (kullanıcı bildirimi 2026-10-30)."""
+    """The bot's laser (atype 1) or rocket (0) on an alien: the shield absorbs, then the hull; if it dies npc_kill, otherwise the alien turns on the bot.
+    shield: shield only (Chain Impulse). The alien's mechanics are as in the player's hit (world.hit_npc): invulnerability while its helpers are alive,
+    only specific ammo, damage reduction, a cloaked commando becoming visible, summoning when hit (the helpers spawn around the bot and
+    attack it), HP floor, summoning and disappearing at an HP threshold (alien.on_hit; EMP and reverse control aimed at the player only if the
+    player is near). Before, a bot's hit skipped these: Cubikon was not summoning Protegit on a bot (user report 2026-10-30)."""
     if not m.alive:
         return
     only = m.d.get('ammo_only')
@@ -690,7 +690,7 @@ def hit_npc(w, n, m, dmg, now, atype, once=(), shield=False, ammo=None):
     red = getattr(m, 'damage_reduction', None)
     if red:
         dmg = int(dmg * max(0.0, 1 - red()))
-    if getattr(m, 'hidden', False):                       # gizli komando vurulunca görünür (sizma.py)
+    if getattr(m, 'hidden', False):                       # a cloaked commando becomes visible when hit (infiltration.py)
         m.hidden = False
         w.send([legacy('0|n|INV|%d|0' % m.id)])
     w.alien.attacked(m, n.id, now)
@@ -699,18 +699,18 @@ def hit_npc(w, n, m, dmg, now, atype, once=(), shield=False, ammo=None):
     to_shield = min(int(m.shield), int(round(dmg * absorb)))
     m.shield -= to_shield
     m.hp = max(0, m.hp - (dmg - to_shield))
-    floor = getattr(m, 'hp_floor', 0)                  # Guardian 1 HP'de "düşer" (evreler)
+    floor = getattr(m, 'hp_floor', 0)                  # Guardian "falls" at 1 HP (phases)
     if floor and m.hp < floor:
         m.hp = floor
         if getattr(m, 'at_floor', None):
             m.at_floor(m)
     m.last_hit = now
     w.alien.on_hit(m, dmg, n.id, now, to_player=player_near(w, m, now))
-    if not m.alive or m.id not in w.npcs:                 # kayboldu ya da kalktı (uzayli.on_hit)
+    if not m.alive or m.id not in w.npcs:                 # disappeared or left (alien.on_hit)
         return
     who = ('h', w.hid) if is_helping(w, n, m, now) else ('b', n.id)
     WD.tag_alien(m, who, now)
-    WD.record_damage(m, who, dmg)                            # grup uzaylısında ödül hasara göre bölünür (etiket_oyuncu)
+    WD.record_damage(m, who, dmg)                            # on a group alien the reward is split by damage (tag_sharers)
     hit = ('AttackHitCommand', dict(attackType=WD.attack_type(atype), attackerId=n.id, victimId=m.id, victimHitpoints=int(m.hp),
                                     victimShield=int(m.shield), victimNanoHull=0, damage=dmg, skilled=False, strike=False, cannonType=0))
     msgs = list(once) + [hit] + ([w.selection(m)] if w.target == m.id and m.hp > 0 else [])
@@ -718,13 +718,13 @@ def hit_npc(w, n, m, dmg, now, atype, once=(), shield=False, ammo=None):
     if m.hp <= 0:
         kill_npc(w, m, n, now)
     elif m.bot_target is None and not m.engaged and m.d['damage'] > 0:
-        m.bot_target = n.id                     # uzaylı bota döner
+        m.bot_target = n.id                     # the alien turns on the bot
         m.next_think = now
 
 
 def rocket(w, n, target, m, o, now):
-    """Roket (bekleme 4 sn, R0K-T01 ile 2): menzildeyse stoktaki en güçlüsü; görseli oyuncununki gibi eski metin (0|v|…), ~0,8 sn
-    sonra vuruş (isabet roketin kendi oranı)."""
+    """Rocket (cooldown 4 s, 2 with R0K-T01): if in range the strongest in stock; its visual is the old text like the player's (0|v|...), the hit
+    after ~0.8 s (the hit chance is the rocket's own rate)."""
     from . import weapons as WP
     b = n.bot
     if now < getattr(n, 'rocket_ready', 0):
@@ -764,15 +764,15 @@ def rocket(w, n, target, m, o, now):
 
 
 def npc_reward(b, m, pay=1):
-    """Uzaylının ödülü bota (paketin hızı, X-1 kesintisi), ek ganimeti ve görev ilerlemesi. pay: grupta paydaş sayısı (ödül
-    bölünür, ganimet ve görev tam; dunya.npc_reward gibi)."""
+    """The alien's reward to the bot (the pack's speed, the X-1 cut), extra loot and quest progress. pay: number of stakeholders in a group (the reward
+    is split, loot and quest are whole; like world.npc_reward)."""
     from . import loot as LT, events as EV
     LT.extra_loot(b, m.tip, 1)
-    EV.drop(b, b.game_map, m.tip)                         # etkinlik düşmeleri (Candy Corn …)
+    EV.drop(b, b.game_map, m.tip)                         # event drops (Candy Corn ...)
     y_ = MGR.ACTIVE
     speed = y_.speed(b) if y_ is not None else 1.0
     o = m.d.get('reward', {})
-    x1 = S.x1_cut(b) / pay                           # oyuncudaki gibi dört ödüle de
+    x1 = S.x1_cut(b) / pay                           # to all four rewards, as in the player
     b.reward('npc', speed, ep=o.get('ep', 0) * x1, credits=o.get('credits', 0) * x1, uridium=o.get('uridium', 0) * x1,
            honor=o.get('honor', 0) * x1)
     b.ist('npc')
@@ -783,12 +783,12 @@ def npc_reward(b, m, pay=1):
 
 
 def group_bots(w):
-    """Kahramanın grubundaki, bu haritada yaşayan botlar (uzaylı ödülünün paydaşları; group.py)."""
+    """The bots in the hero's group that are alive on this map (stakeholders of the alien's reward; group.py)."""
     return [m.bot for m in list(w.npcs.values()) if m.bot is not None and m.alive and w.is_group_member(m.id)]
 
 
 def drop_cargo(w, m, uid, x, y):
-    """Uzaylının kargo kutusu (cevherleri) botun adına: yalnız bot gemisi haritadaysa (toplayacak biri var)."""
+    """The alien's cargo box (its ores) in the bot's name: only if the bot's ship is on the map (there is someone to collect it)."""
     t = w.npcs.get(uid)
     if t is None or t.bot is None or not t.bot.permission.get('cargo', True):
         return
@@ -810,7 +810,7 @@ def bot_firma(uid):
 
 
 def tag_reward(w, m, uid, x, y):
-    """Botun etiketlediği uzaylıyı başkası bitirdi: ödül, görev ve kargo kutusu botun (dunya.World.etiket_paydaslari)."""
+    """Someone else finished the alien the bot tagged: the reward, quest and cargo box go to the bot (world.World.tag_stakeholders)."""
     b = _bot(uid)
     if b is None or not b.online:
         return
@@ -824,8 +824,8 @@ def bot_online(uid):
 
 
 def split_reward(w, m, uid, ratio, x, y, box=False):
-    """Grup uzaylısında botun hasara göre payı (dunya.World.hasara_gore): ödül oran kadar (npc_odulu pay=1/oran), en çok hasar
-    veren botsa kargo kutusu da onun."""
+    """The bot's share by damage on a group alien (world.World.by_damage): the reward by the ratio (npc_reward pay=1/ratio), and if the bot dealt the most
+    damage the cargo box is its too."""
     b = _bot(uid)
     if b is None or not b.online:
         return
@@ -835,7 +835,7 @@ def split_reward(w, m, uid, ratio, x, y, box=False):
 
 
 def on_box_taken(owner_tag, name):
-    """Oyuncu botun kargo kutusunu topladı: bot onu unutmaz (hafızasında hakaret gibi)."""
+    """The player collected the bot's cargo box: the bot does not forget it (in its memory like an insult)."""
     if not owner_tag or owner_tag[0] != 'b':
         return
     b = _bot(owner_tag[1])
@@ -850,13 +850,13 @@ def can_attack_player(w, n, o, now):
     import admin_mode as YM
     from . import admin_warnings as AW
     if YM.mi(profile=o.p) or YM.spectator(o.p) or AW.active(n.bot, 'pvp', now):
-        return False                                     # yöneticiye saldırılmaz (wiki Administrator: "should not be shot at"); PvP uyarısı
+        return False                                     # the manager is not attacked (wiki Administrator: "should not be shot at"); PvP warning
     if now < o.invuln_until or o.invulnerable or o.hero_effects.invulnerable(now):
         return False
     hx, hy = o.hero_pos(now)
     nx, ny = n.mover.pos(now)
     if _in_peace(w, hx, hy) or _in_peace(w, nx, ny) or relation(o, n.bot) in (1, 2):
-        return False                                     # klanı müttefik ya da saldırmazlıkta
+        return False                                     # its clan is an ally or in non-aggression
     return int(o.p.d['pilot'].get('factionId') or 0) != n.bot.firma or not (
         H.company(w.map_id) == n.bot.firma and H.name(w.map_id).split('-')[-1] in ('1', '2'))
 
@@ -872,9 +872,9 @@ def can_attack_bot(w, n, m, now):
     return not (_in_peace(w, nx, ny) or _in_peace(w, mx, my))
 
 
-# ------------------------------------------------------------------------------------------------------------ uzaylının bota karşılığı
+# ------------------------------------------------------------------------------------------------------------ the alien's reply to the bot
 def npc_to_bot(w, m, now):
-    """Bot vurduğu uzaylı bota döner (oyuncuyla savaşmıyorsa): kovalar ve ateş eder -> işlendi mi (think'in kalanı atlanır)."""
+    """The alien the bot hit turns on the bot (if it is not fighting the player): chases and fires -> handled or not (the rest of think is skipped)."""
     t = w.npcs.get(m.bot_target)
     if m.engaged or t is None or not t.alive or t.bot is None:
         m.bot_target = None
@@ -886,12 +886,12 @@ def npc_to_bot(w, m, now):
     dist = math.hypot(tx - mx, ty - my)
     post = w.ward_of(m)
     if dist > 2500 or (post and w.leashed(m, post, tx, ty, now)):
-        # koruyucu (Cubikon'un Protegit'leri) botu çağıranından uzağa, portala dek kovalamaz: oyuncudaki tasmayla (dunya.leashed) aynı
+        # a guard (Cubikon's Protegits) does not chase the bot away from its summoner all the way to the portal: the same as the player's leash (world.leashed)
         m.bot_target = None
         return False
     if w.in_peace(tx, ty) and t.id not in m.attackers:
-        # güvenli bölge: oyuncunun kuralı (dunya.npc_retaliating), yalnız botun vurduğu uzaylı peşinden girer; çağrılan yardımcılar
-        # bölgeye dalıp ateş ediyordu
+        # safe zone: the player's rule (world.npc_retaliating), it enters only after an alien the bot hit; summoned
+        # helpers were rushing into the zone and firing
         m.bot_target = None
         w.alien_ceasefire(m)
         w.stop_npc_motion(m, now)
@@ -914,7 +914,7 @@ def npc_to_bot(w, m, now):
 
 # ------------------------------------------------------------------------------------------------------------ taktik
 def think(w, n, now):
-    """Botun dünya döngüsündeki aklı (think'in yerine; her adım çağrılır, kendi aralığıyla düşünür)."""
+    """The bot's brain in the world loop (in place of think; called every step, thinks at its own interval)."""
     if not n.alive:
         return
     b = n.bot
@@ -928,14 +928,14 @@ def think(w, n, now):
         k = REGEN_RATE * b.k['personality']['reaction_sec'] * 1.0
         rep = EX.repair_sec(b)
         n.shield = min(d['kalkan'], n.shield + d['kalkan'] * k * 2)
-        n.hp = min(d['can'], n.hp + d['can'] * max(k, b.k['personality']['reaction_sec'] / rep if rep else 0))     # onarım robotu
+        n.hp = min(d['can'], n.hp + d['can'] * max(k, b.k['personality']['reaction_sec'] / rep if rep else 0))     # repair robot
     nx, ny = n.mover.pos(now)
     b.k['x'], b.k['y'] = int(nx), int(ny)
     if b.__dict__.get('exit_request') and not any(now - t < 6 for t in n.attacker.values()):
-        return go_logout(w, n, now)                     # oturum bitti: istasyona ya da portala uçup orada çıkar
+        return go_logout(w, n, now)                     # session over: flies to the station or portal and leaves there
     if (n.target is None and not any(now - t < 6 for t in n.attacker.values()) and not b.en_route
             and (b.target is None or b.target.name != 'gate') and collect_box(w, n, now)):
-        return                                           # yolunun üstündeki kutuyu alır (her işte; dövüşte değilken)
+        return                                           # picks up a box on its route (on every job; when not fighting)
     if b.target is not None and b.target.concrete(b, n, w, now):
         return
     ratio = (n.hp + n.shield) / max(1, d['can'] + d['kalkan'])
@@ -943,36 +943,36 @@ def think(w, n, now):
     from . import active_items as AC
     if AC.combat(w, n, now, d, ratio, attackers):         # Insta-Shield, Backup Shields, Battle Repair, Smart Bomb, Energy Leech
         ratio = (n.hp + n.shield) / max(1, d['can'] + d['kalkan'])
-    # 1) tehlike: canı azaldı ve vuruluyor -> kaç
+    # 1) danger: HP is low and it is being hit -> flee
     in_gate = is_gate_world(w)
     if attackers and ratio < 0.18 + 0.32 * (1 - b.o('risk')) and not in_gate:
         return flee(w, n, now)
     # 2) portal yolunda
     if b.en_route and not attackers and not in_gate:
         return portala(w, n, now)
-    # 2b) hasarlı ve kimse vurmuyor: durup toparlanır
+    # 2b) damaged and nobody is hitting: stops and recovers
     if not attackers and recover(w, n, now, d):
         return
-    # 3) saldırıya karşılık ya da kaç
+    # 3) retaliate against an attack or flee
     if attackers and (n.target is None or n.target not in attackers):
         u = attackers[-1]
         if u in w.npcs and w.npcs[u].bot is None:
-            n.target = u                                  # uzaylı vurdu: karşılık
+            n.target = u                                  # an alien hit: retaliate
         else:
             opponent = _power(w, u)
             if opponent / max(0.5, d['power']) > 1.3 + b.o('risk') + 0.5 * b.mood['anger'] and ratio < 0.9:
                 return flee(w, n, now)
             n.target = u
             b.memory.event(_name(w, u), 'insult', now, multiplier=0.3)
-    # 4) PvP fırsatı
+    # 4) PvP opportunity
     if n.target is None or n.target in w.npcs and w.npcs[n.target].bot is None:
         t = pvp_target(w, n, now)
         if t is not None:
             n.target = t
-    # 4b) eşlik: sana ya da arkadaşı olan bir bota katıldıysa onun hedefine ateş eder, yoksa yanında uçar
+    # 4b) escort: if it joined you or a bot that is its friend, it fires at their target, otherwise flies beside them
     if escort(w, n, now):
         return
-    # 5) hedefe yaklaş / hedefe göre davran
+    # 5) approach the target / behave according to the target
     if n.target is not None:
         pos = _position(w, n.target, now)
         if pos is None:
@@ -992,11 +992,11 @@ def _name(w, uid):
     m = w.npcs.get(uid)
     if m is not None:
         return m.bot.name if m.bot is not None else m.d.get('name', '')
-    # haritada değil (ayrılmış ya da ölmüş bot, oyuncunun P.E.T.'i): önceden "" dönüyor, botlar adsız birinden "hakaret" biriktiriyordu
+    # not on the map (a bot that left or died, the player's P.E.T.): it used to return "" and bots accumulated "insults" from a nameless someone
     b = _bot(uid)
     if b is not None:
         return b.name
-    if getattr(w, 'pet', None) is not None and w.pet.owned and w.pet.pid == uid:      # P.E.T.'i yoksa pid okunamaz (canlı test)
+    if getattr(w, 'pet', None) is not None and w.pet.owned and w.pet.pid == uid:      # without a P.E.T. the pid cannot be read (live test)
         return w.p.d['pilot'].get('userName', '')
     return ''
 
@@ -1010,7 +1010,7 @@ def _power(w, uid):
 
 
 def approach(w, n, pos, now):
-    """Hedefle savaş mesafesi: lazer menzilinin içinde, kişiliğe göre yakın ya da uzak; hedefin çevresinde hafif döner."""
+    """Combat distance to the target: within laser range, close or far depending on personality; circles lightly around the target."""
     nx, ny = n.mover.pos(now)
     dist = math.hypot(pos[0] - nx, pos[1] - ny)
     wanted = 280 + 300 * (1 - n.bot.o('aggression'))
@@ -1018,14 +1018,14 @@ def approach(w, n, pos, now):
         a = math.atan2(ny - pos[1], nx - pos[0]) + random.uniform(-0.5, 0.5)
         _go_to(w, n, pos[0] + math.cos(a) * wanted, pos[1] + math.sin(a) * wanted, now)
     elif n.mover.t1 <= now and random.random() < 0.25 + 0.4 * n.bot.o('aggression'):
-        # menzilde: hedefin çevresinde döner (gerçek oyuncu dururken değil, dönerek ateş eder); yön botun huyuna göre sabit
+        # in range: circles around the target (a real player fires while circling, not standing still); the direction is fixed by the bot's temperament
         direction = n.__dict__.setdefault('orbit_direction', random.choice((-1, 1)))
         a = math.atan2(ny - pos[1], nx - pos[0]) + direction * random.uniform(0.25, 0.6)
         _go_to(w, n, pos[0] + math.cos(a) * wanted, pos[1] + math.sin(a) * wanted, now, threshold=40)
 
 
 def pvp_target(w, n, now):
-    """Görüşteki düşman oyuncu ya da bot: saldırmaya değer mi (kişilik, güç oranı, kin, PvP hedefi)."""
+    """An enemy player or bot in sight: worth attacking (personality, power ratio, grudge, PvP target)."""
     b = n.bot
     y = MGR.ACTIVE
     if y is None or now - n.intent_time < 4:
@@ -1053,27 +1053,27 @@ def pvp_target(w, n, now):
     if not candidates:
         return None
     own = max(0.5, b.value()['power'])
-    ev = H.company(w.map_id) == b.firma                  # kendi firmasının haritası: istilacıya karşı haritasını savunur
+    ev = H.company(w.map_id) == b.firma                  # its own company's map: defends its map against an invader
     hunt = b.target is not None and b.target.name in ('pvp', 'assist', 'duel')
     rival = str(b.plan.get('name', '')).lower() if b.target is not None and b.target.name == 'duel' else ''
     en, ep = None, 0.0
     for uid, power, name, rel in candidates:
         ratio = power / own
-        grudge = -min(0.0, b.memory.relation(name, now)) + (0.6 if rel == 3 else 0.0)     # klan savaşı: düşman klanın üyesi
-        grudge += order_grudge(b, name, now)                      # klan emri: avlanacak kişi / odaktaki klan (hedefler/pvp.py)
+        grudge = -min(0.0, b.memory.relation(name, now)) + (0.6 if rel == 3 else 0.0)     # clan war: a member of the enemy clan
+        grudge += order_grudge(b, name, now)                      # clan order: the person to hunt / the clan in focus (goals/pvp.py)
         if rival and str(name).lower() == rival:
-            return uid                                   # düello: meydan okuyana hemen saldırır
-        defending = ev and uid not in w.npcs                    # kendi haritasındaki yabancı firma oyuncusu
+            return uid                                   # duel: attacks the challenger at once
+        defending = ev and uid not in w.npcs                    # a foreign company's player on its own map
         p = (0.04 + 0.5 * b.o('aggression') * b.o('rekabet')) * (2.2 if hunt else 1.0)
         if defending:
             p = max(p, 0.06) * (2.0 + b.o('aggression'))
-        # evinde biraz daha güçlüye de kafa tutar (yardım çağırır); önceden 1,6 kat güçlüde olasılık evde de sıfırdı (canlı 2026-11-01)
+        # at home it also stands up to a somewhat stronger one (calls for help); before, the probability at 1.6x stronger was zero at home too (live 2026-11-01)
         p *= max(0.0, (2.4 if defending else 1.6) - ratio) * (0.5 + b.mood['confidence']) + grudge * 0.8
         if ratio > 1.2 + b.o('risk') + grudge + (0.5 if defending else 0.0):
             p *= 0.1
         if p > ep:
             en, ep = uid, p
-    # saniyede değil karar başına (4 sn'de bir) olasılık: hemen değil, bir süre sonra saldırır gibi
+    # a probability per decision (every 4 s) rather than per second: it looks like attacking after a while, not immediately
     if en is None or random.random() >= min(0.9, ep * 0.5):
         return None
     if ev and en not in w.npcs:
@@ -1081,13 +1081,13 @@ def pvp_target(w, n, now):
     return en
 
 
-DEFENSE_MAX = 2                # bir istilacıya karşı çağrılan en çok yardımcı (sürü değil)
-DEFENSE_COOLDOWN = 60.0           # aynı haritada iki çağrı arası (sn)
+DEFENSE_MAX = 2                # the most helpers called against one invader (not a swarm)
+DEFENSE_COOLDOWN = 60.0           # between two calls on the same map (s)
 
 
 def call_defense(w, n, uid, now):
-    """Kendi haritasında yabancı oyuncuya saldıran bot, haritadaki boşta kalan firma botlarından en çok SAVUNMA_AZAMI tanesini çağırır
-    (yakın olanlar, saldırganlığa göre; bekleme süresi var; PvP kuralları oyuncuya_saldirabilir ile aynı)."""
+    """A bot attacking a foreign player on its own map calls at most DEFENSE_MAX of the idle company bots on the map
+    (the nearby ones, by aggression; there is a cooldown; the PvP rules are the same as can_attack_player)."""
     if now < w.__dict__.get('defense_time', 0):
         return
     o = _player(w, uid)
@@ -1113,16 +1113,16 @@ def call_defense(w, n, uid, now):
 
 
 def flee(w, n, now):
-    """Kaç: en yakın portala (ya da kendi üssündeyse istasyona); varınca atlayıp haritadan çıkar. Oyuncudan kaçarken arkasına
-    mayın bırakır (stokta varsa, beklemesi dolduysa; güvenli bölgede ve başlangıç haritalarında değil)."""
+    """Flee: to the nearest portal (or to the station if at its own base); on arrival it jumps and leaves the map. While fleeing from the player it
+    drops a mine behind (if in stock and the cooldown is over; not in a safe zone or on starting maps)."""
     b = n.bot
     n.target = None
     nx, ny = n.mover.pos(now)
     if any(_player(w, u) is not None for u, t in n.attacker.items() if now - t < 6):
         from . import active_items as AC
-        AC.emp(w, n, now)                                # kilitlenen oyuncunun seçimi düşer
+        AC.emp(w, n, now)                                # the locked player's selection is dropped
         if b.o('risk') < 0.6:
-            AC.cloak(w, n, now)                         # gizlenme CPU'su
+            AC.cloak(w, n, now)                         # cloaking CPU
         drop_mine(w, n, nx, ny, now)
     gs = [g for g in H.gates(w.map_id, b.firma) if not g.get('fee') and g['target'] in K.MAPS
           and K.can_enter(g['target'], b.firma, b.level)]
@@ -1137,7 +1137,7 @@ def flee(w, n, now):
     g = min(gs, key=lambda g: math.hypot(g['x'] - nx, g['y'] - ny))
     y = MGR.ACTIVE
     if y is not None and y.mode == 'simple':
-        _go_to(w, n, g['x'] + random.uniform(-200, 200), g['y'] + random.uniform(-200, 200), now)    # basit: portalın güvenli bölgesine
+        _go_to(w, n, g['x'] + random.uniform(-200, 200), g['y'] + random.uniform(-200, 200), now)    # simple: to the portal's safe zone
         return
     if not b.en_route or b.en_route[0] != g['target']:
         b.en_route = [g['target']]
@@ -1146,7 +1146,7 @@ def flee(w, n, now):
 
 
 def drop_mine(w, n, x, y, now):
-    """Botun mayını (oyuncunun gemisine yaklaşınca patlar: savas_esya.alien_mine) -> bırakıldı mı."""
+    """The bot's mine (explodes when it approaches the player's ship: combat_items.alien_mine) -> was it dropped."""
     from . import weapons as WP
     b = n.bot
     m = WP.pick_mine(b)
@@ -1161,11 +1161,11 @@ def drop_mine(w, n, x, y, now):
 
 
 def portala(w, n, now, urgent=False):
-    """Yolun sıradaki haritasının portalına uç; varınca ATLAMA_SN sonra haritadan çık (yönetici botu yeni haritaya geçirir)."""
+    """Fly to the portal of the route's next map; on arrival, JUMP_SEC later leave the map (the manager moves the bot to the new map)."""
     b = n.bot
     if not b.en_route:
         return
-    if len(b.en_route) > 2 and not urgent:                     # atlama CPU'su: uzun yolu tek atlamada üsse
+    if len(b.en_route) > 2 and not urgent:                     # jump CPU: the long route to base in a single jump
         from . import extras as EX
         cpu = EX.jump(b, b.en_route[-1])
         y = MGR.ACTIVE
@@ -1183,19 +1183,19 @@ def portala(w, n, now, urgent=False):
         b.en_route = None
         return
     nx, ny = n.mover.pos(now)
-    if not urgent and now < n.spawn + n.takeoff:             # yeni geldi: biraz oyalanır, sonra kendi vaktinde yola çıkar
+    if not urgent and now < n.spawn + n.takeoff:             # just arrived: lingers a bit, then sets off at its own time
         if n.movement is None:
             a, r = random.uniform(0, 2 * math.pi), random.uniform(100, 350)
             _go_to(w, n, nx + math.cos(a) * r, ny + math.sin(a) * r, now)
         return
     p = n.approach_points.get(g['target'])
-    if p is None:                                         # portalın çevresinde kendi yanaşma noktası (hep aynı noktaya değil)
+    if p is None:                                         # its own docking point around the portal (not always the same point)
         a, r = random.uniform(0, 2 * math.pi), random.uniform(30, 140)
         p = n.approach_points[g['target']] = (g['x'] + math.cos(a) * r, g['y'] + math.sin(a) * r)
     if math.hypot(g['x'] - nx, g['y'] - ny) > 180:
         n.portal_time = 0.0
         if urgent:
-            _go_to(w, n, p[0], p[1], now)                   # kaçarken dosdoğru
+            _go_to(w, n, p[0], p[1], now)                   # straight when fleeing
         else:
             _route(w, n, p[0], p[1], now)
         return
@@ -1216,8 +1216,8 @@ def portala(w, n, now, urgent=False):
 
 
 def can_kill(b, m):
-    """Haritanın sabit listesinde olmayan uzaylı (etkinlik, Urgent Missions hedefi, Hitac taşıyıcısı …): gücü yetiyorsa (türe göre
-    önbellekli; gerçek oyuncu gördüğü ve kesebildiği her şeye ateş eder)."""
+    """An alien not in the map's fixed list (event, Urgent Missions target, Hitac carrier ...): if it is strong enough (cached by kind; a real
+    player fires at everything it sees and can kill)."""
     c = b.__dict__.setdefault('_can_kill', {})
     v = c.get(m.tip)
     if v is None or v[1] != b.value()['power']:
@@ -1234,13 +1234,13 @@ def _killable(b, m_id):
     d = b.value()
     courage = max(0.0, min(1.0, 0.3 + 0.6 * b.o('risk') + 0.2 * b.mood['confidence'] - 0.3))
     out = set(K.evaluate_map(int(m_id), d['dps'], d['ehp'], courage)['targets'])
-    return out | EV.event_types(b, int(m_id)) if b.permission.get('event', True) else out      # etkinlik uzaylıları da
+    return out | EV.event_types(b, int(m_id)) if b.permission.get('event', True) else out      # event aliens too
 
 
 def go_hunt(w, n, now):
-    """Uzaylı avı: öldürmeye cesaret ettiği türlerden en yakını (görevin istediği önce); oyuncunun savaştığını kapmaz (kaba botlar
-    ara sıra kapar). Yakında bonus kutusu varsa önce onu alır. Hedef yoksa amaçlı devriye: uzak bir ara noktaya uçar, yalnız varınca
-    yenisini seçer (önceden her saniye kısa rastgele sıçramalar sağa sola kıpırdanma gibi görünüyordu)."""
+    """Alien hunt: the nearest of the kinds it dares to kill (the quest's first); does not grab one the player is fighting (rude bots
+    occasionally do). If there is a bonus box nearby it takes it first. With no target, a purposeful patrol: flies to a far waypoint and picks
+    a new one only on arrival (before, short random jumps every second looked like twitching left and right)."""
     b = n.bot
     nx, ny = n.mover.pos(now)
     if collect_box(w, n, now):
@@ -1251,15 +1251,15 @@ def go_hunt(w, n, now):
     en, best_score = None, 1e18
     for m in w.npcs.values():
         if m.bot is not None or not m.alive or m.d.get('friendly') or getattr(m, 'hidden', False):
-            continue                                     # gizli komandoyu (Infiltration) göremez
+            continue                                     # cannot see a cloaked commando (Infiltration)
         if m.tip not in types and not can_kill(b, m):
             continue
         if (m.engaged or w.target == m.id) and not rude:
             continue
         if m.bot_target not in (None, n.id) and w.npcs.get(m.bot_target) is not None:
-            continue                                     # başka bot onunla savaşıyor
+            continue                                     # another bot is fighting it
         if WD.tag_owner(m, now) not in (None, ('b', n.id)):
-            continue                                     # başkasının etiketlisi: kazancı olmaz
+            continue                                     # tagged by someone else: no gain
         mx, my = m.mover.pos(now)
         dd = math.hypot(mx - nx, my - ny) * (0.5 if m.tip == wanted else 1.0)
         if dd < best_score:
@@ -1270,11 +1270,11 @@ def go_hunt(w, n, now):
         return approach(w, n, en.mover.pos(now), now)
     start_escort(w, n, now)
     if _leader(w, n, now) is not None:
-        return                                           # eşliğe başladı: bir sonraki düşüncede liderin yanına
+        return                                           # started escorting: next thought to the leader's side
     patrol_point = getattr(n, 'patrol', None)
     if patrol_point is None or math.hypot(patrol_point[0] - nx, patrol_point[1] - ny) < 300:
         if patrol_point is not None and random.random() < 0.4:
-            n.next_think = now + random.uniform(2, 6)    # vardı: biraz bakınır
+            n.next_think = now + random.uniform(2, 6)    # arrived: looks around a bit
             n.patrol = None
             return
         a = random.uniform(0, 2 * math.pi)
@@ -1284,7 +1284,7 @@ def go_hunt(w, n, now):
 
 
 def go_logout(w, n, now):
-    """Oturumu biten bot: kendi istasyonu bu haritadaysa ona, değilse en yakın portala uçar; varınca yönetici çıkışını yapar."""
+    """A bot whose session ended: flies to its own station if it is on this map, otherwise to the nearest portal; on arrival the manager does its exit."""
     b = n.bot
     n.target = None
     nx, ny = n.mover.pos(now)
@@ -1308,8 +1308,8 @@ ESCORT_RANGE = 1600
 
 
 def is_helping(w, n, m, now):
-    """Bot oyuncunun hedefine yardım mı ediyor (eşlik eden ya da onunla gruptaki bot, oyuncunun seçtiği uzaylı): etiket, ödül
-    ve kutu oyuncunun (eşlikçi bot önce ateş edip kutuyu alıyordu: kullanıcı bildirimi 2026-10-30)."""
+    """Is the bot helping the player's target (a bot escorting or in a group with them, the alien the player selected): the tag, reward
+    and box are the player's (an escorting bot was firing first and taking the box: user report 2026-10-30)."""
     if m.id != w.target:
         return False
     l = _leader(w, n, now)
@@ -1321,7 +1321,7 @@ def is_helping(w, n, m, now):
 
 
 def _leader(w, n, now):
-    """Eşlik edilen: ('h', None) kahraman ya da ('b', gemi); gitti, öldü ya da uzaklaştıysa None."""
+    """The one being escorted: ('h', None) the hero or ('b', ship); None if gone, dead or too far."""
     e = n.__dict__.get('escort')
     if not e or now > e[1]:
         return None
@@ -1334,8 +1334,8 @@ def _leader(w, n, now):
 
 
 def start_escort(w, n, now):
-    """İşi yokken (avlanırken hedefsiz) arada: aynı firmadan sana (yakındaysan) ya da arkadaşı olan bir bota katılır.
-    Olasılık sosyallik, sana karşı ilişki ve yardımseverlikle; süre 1-3 dakika."""
+    """When idle (hunting without a target) now and then: joins you (if you are nearby) or a bot that is its friend from the same company.
+    The probability depends on sociability, relation toward you and helpfulness; 1-3 minutes."""
     b = n.bot
     if n.__dict__.get('escort') and now <= n.escort[1]:
         return
@@ -1362,8 +1362,8 @@ def start_escort(w, n, now):
 
 
 def escort(w, n, now):
-    """Eşlik: liderin hedefi (senin seçtiğin uzaylı ya da arkadaş botun hedefi) gücü yetiyorsa onunki; hedef yoksa liderin
-    yanında, kendi yerinde (formasyon) uçar -> bu düşüncede iş yaptı mı."""
+    """Escort: the leader's target (the alien you selected or the friend bot's target) if strong enough; with no target it flies beside the
+    leader, in its own place (formation) -> did it do work in this thought."""
     leader = _leader(w, n, now)
     if leader is None:
         n.__dict__.pop('escort', None)
@@ -1373,7 +1373,7 @@ def escort(w, n, now):
         m = w.npcs.get(t) if t is not None else None
         if m is not None and m.alive and m.bot is None and not m.d.get('friendly') and can_kill(n.bot, m):
             n.target = m.id
-            return False                                 # hedefe yaklaşmayı olağan akış yapar
+            return False                                 # the normal flow handles approaching the target
     if n.target is not None:
         return False
     lx, ly = w.hero_pos(now) if leader[0] == 'h' else leader[1].mover.pos(now)
@@ -1391,8 +1391,8 @@ def is_boss(m):
 
 
 def witness(w, kind, x, y, exclude=None, **f):
-    """Haritada görülen olay (patron öldü, oyuncu öldü): 1.500 birimdeki botlardan en çok ikisi, konuşkanlığına göre, sohbette
-    tepki verir (olay 'tanik'; kalıplar speech.py, Gelişmiş kipte dil modeli)."""
+    """An event seen on the map (boss died, player died): at most two of the bots within 1,500 units react in chat, depending on talkativeness
+    (event 'witness'; templates speech.py, language model in Advanced mode)."""
     count = 0
     for m in list(w.npcs.values()):
         if m.bot is None or not m.alive or m.id == exclude or count >= 2:
@@ -1405,9 +1405,9 @@ def witness(w, kind, x, y, exclude=None, **f):
 
 
 def collect_box(w, n, now):
-    """Yakındaki kutuya uçar ve alır (gerçek oyuncular gibi; kutu oyuncunun ekranından da kalkar) -> bununla meşgul mü.
-    Bonus kutusu (yerine yenisi doğar), kendi kargo kutusu (cevherler kargosuna) ve kaba botlar ara sıra başkasınınkini (izin
-    'kutu_calma'; aynı firmadansa onur kaybeder, oyuncu gibi). Grupta yalnız birine düşen ganimete (sahip) dokunmaz."""
+    """Flies to a nearby box and takes it (like real players; the box also disappears from the player's screen) -> is it busy with this.
+    A bonus box (a new one spawns in its place), its own cargo box (ores to the cargo), and rude bots now and then take someone else's (permission
+    'box_stealing'; if from the same company it loses honor, like a player). It does not touch loot that dropped for only one person in a group (owner)."""
     if n.target is not None and n.target in w.npcs:
         return False
     b = n.bot
@@ -1417,23 +1417,23 @@ def collect_box(w, n, now):
     en, best_score = None, 900.0
     for h, k in w.boxes.items():
         tip = k.get('tip')
-        if k.get('event'):                                 # etkinlik kutusu: anahtarsız, herkes toplar
+        if k.get('event'):                                 # event box: keyless, everyone collects
             if not b.permission.get('event', True) or k.get('owner') is not None:
                 continue
-        elif k.get('keyed'):                          # anahtarlı ganimet kutusu: anahtarı varsa ya da yeşil anahtarı alırsa
+        elif k.get('keyed'):                          # keyed loot box: if it has the key or picks up the green key
             from . import loot as LT
             k_ = decision.get(h)
-            if k_ is None or (k_ is not True and now > k_):         # "açamam" kararı 60 sn'de bir yeniden (anahtar gelmiş olabilir)
+            if k_ is None or (k_ is not True and now > k_):         # the "cannot open" decision is retried every 60 s (the key may have come)
                 decision[h] = True if tip in LT.LOOT.BOXES and LT.can_open(b, tip) else now + 60
             if decision[h] is not True:
                 continue
         elif k.get('owner') is not None or (tip != 'BONUS_BOX' and tip not in WD.CARGO_BOXES):
             continue
         if tip in WD.CARGO_BOXES and (not b.permission.get('cargo', True) or b.cargo_fill() >= 1):
-            continue                                   # kargo kapalı ya da dolu
+            continue                                   # cargo off or full
         owner_tag = k.get('owner_tag')
         if tip in WD.CARGO_BOXES and owner_tag is not None and tuple(owner_tag) != own and WD.SET.get('cargo_ownership'):
-            if h not in decision:                         # başkasının kargosu: kaba bot ara sıra alır (kutu başına bir karar)
+            if h not in decision:                         # someone else's cargo: a rude bot takes it now and then (one decision per box)
                 decision[h] = is_theft(w, b, owner_tag)
             if not decision[h]:
                 continue
@@ -1456,7 +1456,7 @@ def collect_box(w, n, now):
         EV.open_box(b, k['event'])
         n.next_think = now + random.uniform(0.3, 1.0)
         return True
-    if k.get('keyed'):                               # açılış ganimet.ACMA_SN sürer (oyuncudaki gibi), sonra kutu alınır
+    if k.get('keyed'):                               # opening takes loot.OPEN_SEC (like the player), then the box is taken
         from . import loot as LT
         opening = getattr(n, 'opening', None)
         if not opening or opening[0] != en:
@@ -1472,7 +1472,7 @@ def collect_box(w, n, now):
         LT.open_box(b, k['tip'])
         n.next_think = now + random.uniform(0.3, 1.0)
         return True
-    if k['tip'] in WD.CARGO_BOXES:                     # cevherler sığdığı kadar; sığmayan kutuda kalır (oyuncudaki gibi)
+    if k['tip'] in WD.CARGO_BOXES:                     # ores as many as fit; what does not fit stays in the box (like the player)
         claimed = b.add_cargo(k.get('contents') or {})
         remaining = {t: int(v) - claimed.get(int(t), 0) for t, v in (k.get('contents') or {}).items() if int(v) - claimed.get(int(t), 0) > 0}
         b.ist('cargo_box')
@@ -1500,7 +1500,7 @@ def _box_company(w, owner_tag):
 
 
 def _stolen_today(b):
-    """Botun bugünkü kargo alma sayacı {gun, n} (o günün ilk cezası 10, her seferinde iki katı)."""
+    """The bot's cargo-taking counter for today {day, n} (the first penalty of the day is 10, doubling each time)."""
     d = b.k.setdefault('cargo_theft', {})
     day = time.strftime('%Y-%m-%d', time.localtime(b.hour()))
     if d.get('day') != day:
@@ -1509,23 +1509,23 @@ def _stolen_today(b):
 
 
 def is_theft(w, b, owner_tag):
-    """Başkasının kargo kutusunu alır mı. Düşman firmanınki cezasız: kaba bot ara sıra alır. Kendi firmasınınki onur kaybettirir
-    (o gün 10, her seferinde iki katı): gerçek oyuncu bunu bilir, nadiren ve günde en çok bir kez el uzatır. Önceden bot her kutu
-    için zar atıyordu; kalabalık haritada günde onlarca kutu alıp onurunu yüzbinlerce eksiye düşürüyordu (kullanıcı 2026-10-30)."""
+    """Does it take someone else's cargo box. The enemy company's is without penalty: a rude bot takes it now and then. Its own company's costs honor
+    (10 that day, doubling each time): a real player knows this, reaches out rarely and at most once a day. Before, the bot rolled a die for every box;
+    on a crowded map it took dozens of boxes a day and dropped its honor to hundreds of thousands negative (user 2026-10-30)."""
     from . import admin_warnings as AW
     if not b.permission.get('box_stealing', True) or AW.active(b, 'box'):
-        return False                                     # yöneticinin kutu uyarısı (bot/yonetici_uyari.py)
+        return False                                     # the manager's box warning (bot/admin_warnings.py)
     p = 0.35 * b.o('aggression') * (1 - b.o('helpfulness'))
     if _box_company(w, owner_tag) == b.firma:
         if _stolen_today(b)['n'] >= 1:
-            return False                               # bugün bir kez ceza yedi: bir daha almaz
+            return False                               # got a penalty once today: does not take again
         p *= 0.15
     return random.random() < p
 
 
 def theft_penalty(w, b, owner_tag):
-    """Bot başkasının kargo kutusunu aldı: sahibi aynı firmadansa onur kaybı (oyuncuyla aynı kural: o gün 10, her seferinde x2);
-    sahibi oyuncuysa bot onun gözünde kötüleşmez ama oyuncu kutusunu kaybeder."""
+    """The bot took someone else's cargo box: honor loss if the owner is from the same company (same rule as the player: 10 that day, x2 each time);
+    if the owner is the player, the bot does not get worse in their eyes but the player loses their box."""
     fac = _box_company(w, owner_tag)
     b.ist('box_stolen')
     if fac != b.firma:
@@ -1540,8 +1540,8 @@ def theft_penalty(w, b, owner_tag):
 
 
 def recover(w, n, now, d):
-    """Hasarlı ama kimse vurmuyor: avı bırakıp durur, kalkan ve onarım robotu dolana dek bekler (kendi üssüne yakınsa istasyona
-    çekilir) -> bekliyor mu. Gerçek oyuncu yarım canla yeni uzaylıya dalmaz."""
+    """Damaged but nobody is hitting: leaves the hunt and stops, waits until the shield and repair robot are full (if near its own base it
+    withdraws to the station) -> is it waiting. A real player does not dive at a new alien with half HP."""
     ratio = (n.hp + n.shield) / max(1, d['can'] + d['kalkan'])
     b = n.bot
     if getattr(n, 'recovering', False):
@@ -1562,9 +1562,9 @@ def recover(w, n, now, d):
 
 
 def park_spot(w, n, now):
-    """Dinlenecek yer, botlar arasında çeşitli (kullanıcı isteği: hepsi istasyonun aynı yerinde durmasın): kendi istasyonunun
-    çevresinde geniş bir halka, bir portalın güvenli bölgesi ya da olduğu yer (haritanın ortasında "afk"). Öteki botların park
-    yerlerine 300 birimden yakın olmaz."""
+    """A place to rest, varied among bots (user request: not all standing in the same spot of the station): a wide ring around its own station,
+    a portal's safe zone, or where it is (in the middle of the map "afk"). Not closer than 300 units to the other bots' parking
+    spots."""
     b = n.bot
     s = w.station
     nx, ny = n.mover.pos(now)
@@ -1589,8 +1589,8 @@ def park_spot(w, n, now):
 
 
 def rest(w, n, now):
-    """Dinlenme: kendi istasyonunun çevresinde bir yere park eder ve orada durur ("afk", sohbet, alışveriş); arada uzun aralıklarla
-    yer değiştirir. Park yeri bir kez seçilir (önceden her saniye yeni rastgele nokta seçip istasyon çevresinde zikzak çiziyordu)."""
+    """Rest: parks somewhere around its own station and stays there ("afk", chat, shopping); relocates now and then at long intervals.
+    The parking spot is chosen once (before, picking a new random point every second drew a zigzag around the station)."""
     b = n.bot
     s = w.station
     nx, ny = n.mover.pos(now)

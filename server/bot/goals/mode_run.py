@@ -1,6 +1,6 @@
-"""Mod koşusu: etkinliğe özel ve PvE modları (bot/modes.py). Bot açık, girebildiği ve geçebileceği modlardan beklenen değeri en
-yükseğini seçer, bedelini öder (bilet, anahtar, CPU), modun haritasına geçer (senin haritandan kalkar); süre dolunca ulaştığı
-yere göre ödül, sonra üsse döner."""
+"""Mode run: event-specific and PvE modes (bot/modes.py). With the bot on, it picks the mode with the highest expected value among those it
+can enter and pass, pays the cost (ticket, key, CPU), moves to the mode's map (leaving your map); when time is up it gets a reward
+according to how far it got, then returns to base."""
 from ..brain import Goal, target
 from .. import catalog as K
 from .. import modes as MD
@@ -18,7 +18,7 @@ class ModeRun(Goal):
             return False
         if b.now < bot.__dict__.get('_mode_next_check', 0):
             return bool(bot.__dict__.get('_mode_candidate'))
-        bot._mode_next_check = b.now + 300                     # mod listesine 5 dakikada bir bakar
+        bot._mode_next_check = b.now + 300                     # checks the mode list once every 5 minutes
         a = MD.candidates(bot, b.now)
         bot._mode_candidate = max(a, key=lambda m: MD.value(bot, m)) if a else None
         return bot._mode_candidate is not None
@@ -30,14 +30,14 @@ class ModeRun(Goal):
         m = bot.__dict__.get('_mode_candidate')
         if m is None or not m.cost(bot):
             bot.plan['finished'] = True
-            bot._mode_candidate, bot._mode_next_check = None, b.now + 1800   # giremedi: yarım saat başka işlere bakar (boşta dönmesin)
+            bot._mode_candidate, bot._mode_next_check = None, b.now + 1800   # could not enter: looks at other things for half an hour (so it does not idle)
             return
         ul, top, duration, reward = MD.run(bot, m, bot.r)
         bot.plan.update(mod=m.uid, ul=ul, top=top, sure=duration, reward=reward, end_time=b.now + duration)
         bot._mode_candidate = None
         bot._mode_next_check = 0
         if m.game_map:
-            S.jump_to(bot, m.game_map, b.y)                 # modun haritası: senin haritandan kalkar
+            S.jump_to(bot, m.game_map, b.y)                 # the mode's map: leaves your map
         bot.event('entered_mode', mod=m.name)
 
     def abstract(self, bot, dt, y):

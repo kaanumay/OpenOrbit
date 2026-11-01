@@ -1,28 +1,28 @@
-"""Oyun verisi ve dünyalar (Dünya Editörü): data/<dosya> + seçili dünyanın o dosyaya yamaları.
+"""Game data and worlds (World Editor): data/<file> + the selected world's patches to that file.
 
-Dünya: panelin Dünya Editörü'nde oluşturulan değişiklik katmanı (save/dunyalar/<kimlik>.json). Sunucular onu OO_WORLD ortam
-değişkeninden alır (panel/processes.py); yoksa standart dünya (data/ olduğu gibi). Biçim:
-  {"ad": …, "yamalar": {"npc.json": {"/tipler/84": {...}, "/haritalar/5/npc": [...]}, "magaza": {"/urunler/<lootId>": {...}}}}
-Yama: JSON Pointer (RFC 6901) -> tam değer (varlık düzeyinde değiştirme); {"$delete": true} siler. Ebeveyni olmayan yol atlanır.
-Sanal dosyalar (SANAL): data/'da karşılığı olmayan, yalnız dünyanın tanımladığı içerik (mağaza ürünlerinin fiyatı ve satışı).
-Modüller içe aktarırken yukle() çağırır: dünya oyun açılırken seçilir. Oyun açıkken yalnız CANLI dosyaların değişikliği uygulanır
-(tazele: dosya değişince yeniden okunur; game.dunya_izle mağazayı ve açık artırmayı yeniler); ötekiler sunucu yeniden başlayınca.
-Yalnız standart kitaplık (panel de kullanır).
+World: the change layer created in the panel's World Editor (save/worlds/<id>.json). Servers take it from the OO_WORLD environment
+variable (panel/processes.py); if missing, the standard world (data/ as it is). Format:
+  {"name": …, "patches": {"npc.json": {"/types/84": {...}, "/maps/5/npc": [...]}, "shop": {"/products/<lootId>": {...}}}}
+Patch: JSON Pointer (RFC 6901) -> full value (replacement at the entity level); {"$delete": true} deletes. A path without a parent is skipped.
+Virtual files (SANAL): content with no counterpart in data/, defined only by the world (the price and sale of shop products).
+Modules call load() on import: the world is chosen when the game starts. While the game is running only changes to LIVE files are applied
+(refresh: re-read when the file changes; game.watch_world refreshes the shop and the auction); the others when the server restarts.
+Standard library only (the panel uses it too).
 """
 import copy, json, os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, 'data')
 DELETE = '$delete'
-VIRTUAL = {'shop': {'products': {}}}      # magaza.py: {lootId: {fiyat, para ('C' | 'U'), satista}}
-LIVE = ('shop', 'social.json')        # oyun açıkken uygulananlar: mağaza fiyatları ve satışı, açık artırma lotları
+VIRTUAL = {'shop': {'products': {}}}      # shop.py: {lootId: {price, currency ('C' | 'U'), on_sale}}
+LIVE = ('shop', 'social.json')        # applied while the game is running: shop prices and sales, auction lots
 _WORLD = None
-_MTIME = None                            # okunan dünya dosyasının değişme zamanı
-_SKIPPED = []                            # uygulanamayan yamalar (dosya, yol): günlük için
+_MTIME = None                            # modification time of the world file that was read
+_SKIPPED = []                            # patches that could not be applied (file, path): for the log
 
 
 def world():
-    """Seçili dünya (OO_WORLD) ya da {} (standart). Okunamazsa standart."""
+    """The selected world (OO_WORLD) or {} (standard). The standard one if it cannot be read."""
     global _WORLD, _MTIME
     if _WORLD is None:
         p, _WORLD = os.environ.get('OO_WORLD'), {}
@@ -39,7 +39,7 @@ def world():
 
 
 def refresh():
-    """Dünya dosyası okunduktan sonra değiştiyse yeniden okur -> CANLI dosyalardan değişenler (yoksa boş)."""
+    """Re-reads the world file if it changed after being read -> the LIVE files that changed (empty if none)."""
     global _WORLD
     p = os.environ.get('OO_WORLD')
     if not p or _WORLD is None:
@@ -66,7 +66,7 @@ def build_path(*parts):
 
 
 def apply(data, patches, file=''):
-    """Yamaları veri üstüne uygular (yerinde); uygulananların sayısı. Liste ebeveyninde parça sıra numarasıdır."""
+    """Applies the patches over the data (in place); the number applied. In a list parent the part is the index."""
     n = 0
     for route, value in (patches or {}).items():
         part = path_parts(route)
@@ -100,7 +100,7 @@ def apply(data, patches, file=''):
 
 
 def raw(file):
-    """Standart dünyadaki hâli (yamasız)."""
+    """Its state in the standard world (without patches)."""
     if file in VIRTUAL:
         return copy.deepcopy(VIRTUAL[file])
     with open(os.path.join(DATA, file), encoding='utf8') as fh:
@@ -108,14 +108,14 @@ def raw(file):
 
 
 def load(file, patches=None):
-    """data/<dosya> + dünyanın (verilmezse seçili dünyanın) o dosyaya yamaları."""
+    """data/<file> + the world's (the selected world's if not given) patches to that file."""
     d = raw(file)
     apply(d, (world().get('patches') or {}).get(file) if patches is None else patches, file)
     return d
 
 
 def summary():
-    """Günlük satırı: seçili dünyanın adı, yama sayısı ve atlananlar."""
+    """Log line: the selected world's name, the patch count and the skipped ones."""
     w = world()
     if not w:
         return 'dünya: standart'

@@ -1,14 +1,14 @@
-"""Arkadaşlarınla Oyna (panel): arkadaş sunucusu kurma (Host) ve arkadaşın sunucusuna katılma (Join).
+"""Play with Friends (panel): setting up a friend server (Host) and joining a friend's server (Join).
 
-Host: panel oyun sunucusunu --multiplayer ile başlatır (server/multiplayer.py): oyun (TCP 8081) ve sohbet (TCP 7771) bütün
-ağlardan dinlenir, oyuncu kendi kaydıyla oyuna girer. Misafirler kayıtlarını oyun portundan gönderir; sunucu onları yalnız bellekte
-tutar (bu bilgisayarın Kayıtlar sayfasında görünmez). Bağlı misafirler oyun sunucusunun canli_durum.json'undan; misafiri çıkarma
-/yonetim/kick ile (yalnız bu bilgisayardan, panelin bu açılıştaki yönetim anahtarıyla).
-Join: seçilen kayıt yedeklenir ve arkadaşın sunucusuna gönderilir (POST /misafir/giris), web.py o sunucuyu gösterecek biçimde
-(--remote) başlar, istemci açılır. Oyun sürerken sunucudaki her yeni sürüm (uzun yoklama, GET /misafir/profil) kendi kayıt yuvasına
-yazılır; istemci kapanınca (ya da Ayrıl) son hâl alınıp yazılır (POST /misafir/cikis) ve web sunucusu kapanır. Kayıt hep misafirin
-bilgisayarında kalır. Oturum yarım kalırsa (panel kapandı, elektrik gitti) yuvanın kayit.json'undaki 'arkadas' bilgisiyle bir
-sonraki katılmada sunucudaki son hâl alınır; yerel kayıt o arada değiştiyse (tek başına oynandı) dokunulmaz.
+Host: the panel starts the game server with --multiplayer (server/multiplayer.py): the game (TCP 8081) and chat (TCP 7771) are listened on all
+networks, the player enters the game with their own save. Guests send their saves through the game port; the server keeps them only in memory
+(they do not appear on this computer's Saves page). Connected guests come from the game server's canli_durum.json; removing a guest is
+via /yonetim/kick (only from this computer, with the panel's admin key for this start).
+Join: the selected save is backed up and sent to the friend's server (POST /misafir/giris), web.py starts in a way that shows that server
+(--remote), the client opens. While the game runs, every new version on the server (long poll, GET /misafir/profil) is written to its own
+save slot; when the client closes (or Leave) the final state is fetched and written (POST /misafir/cikis) and the web server shuts down. The save always stays
+on the guest's computer. If the session is left half-finished (the panel closed, power cut), the next join fetches the final state on the server using the 'friend' info
+in the slot's slot.json; if the local save changed in the meantime (played alone), it is not touched.
 """
 import gzip, json, os, re, secrets, socket, threading, time, zlib
 from urllib.error import HTTPError, URLError
@@ -19,27 +19,27 @@ from lang import t as _
 
 GAME_PORT = 8081
 CHAT_PORT = 7771
-PROTOCOL = 2                    # server/multiplayer.PROTOCOL: hesap gönderiminin sürümü (test_cok_oyunculu denetler)
-LONG_POLL_SEC = 25                   # uzun yoklamanın süresi
+PROTOCOL = 2                    # server/multiplayer.PROTOCOL: version of the account submission (test_multi_player checks it)
+LONG_POLL_SEC = 25                   # duration of the long poll
 RESPONSE_LIMIT = 64 * 1024 * 1024
 PUBLIC_IP_SERVICE = 'https://api.ipify.org'
 
 
 class _NoRedirect(HTTPRedirectHandler):
     def redirect_request(self, *a, **k):
-        return None               # yönlendirme izlenmez (oturum ve anahtar başka adrese gitmesin): 3xx yanıt HTTPError olur
+        return None               # redirects are not followed (so the session and key do not go to another address): a 3xx reply becomes an HTTPError
 
 
-OPENER = build_opener(ProxyHandler({}), _NoRedirect())   # yerel ağdaki sunucuya sistemin vekil sunucusu (proxy) üzerinden gidilmesin
+OPENER = build_opener(ProxyHandler({}), _NoRedirect())   # so the system's proxy is not used to reach a server on the local network
 
 
 class FriendError(Exception):
-    """Kullanıcıya gösterilen hata."""
+    """Error shown to the user."""
 
 
 # ------------------------------------------------------------------ adresler
 def resolve_address(text):
-    """'192.168.1.20', '85.100.20.30:8081', 'ev.ornek.com' -> (adres, port)."""
+    """'192.168.1.20', '85.100.20.30:8081', 'home.example.com' -> (address, port)."""
     s = re.sub(r'^[a-z]+://', '', (text or '').strip(), flags=re.I).split('/')[0]
     m = re.fullmatch(r'([A-Za-z0-9][A-Za-z0-9.\-]*)(?::(\d{1,5}))?', s)
     if not m or not 0 < int(m.group(2) or GAME_PORT) < 65536:
@@ -48,7 +48,7 @@ def resolve_address(text):
 
 
 def ip_kind(ip):
-    """yerel (ev ağı / ZeroTier), radmin (Radmin VPN), tailscale, baglanti (yalnız bağlantı-yerel), genel."""
+    """local (home network / ZeroTier), radmin (Radmin VPN), tailscale, link (link-local only), public."""
     a = [int(x) for x in ip.split('.')]
     if a[0] == 26:
         return 'radmin'
@@ -62,11 +62,11 @@ def ip_kind(ip):
 
 
 def local_ips():
-    """Bu bilgisayarın IPv4 adresleri (varsayılan yolunki önce) -> [{'ip', 'tur'}]."""
+    """This computer's IPv4 addresses (the default route's first) -> [{'ip', 'tur'}]."""
     out = []
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
-            s.connect(('192.0.2.1', 9))               # UDP: paket gitmez, yalnız yerel adres seçilir
+            s.connect(('192.0.2.1', 9))               # UDP: no packet is sent, only the local address is chosen
             out.append(s.getsockname()[0])
     except OSError:
         pass
@@ -81,7 +81,7 @@ def local_ips():
 
 
 def public_ip():
-    """İnternetteki adres (yalnız istenince; GENEL_IP_HIZMETI'ne sorulur)."""
+    """The address on the internet (only on request; PUBLIC_IP_SERVICE is asked)."""
     try:
         ip = OPENER.open(PUBLIC_IP_SERVICE, timeout=6).read(64).decode('ascii', 'replace').strip()
     except (OSError, ValueError):
@@ -91,9 +91,9 @@ def public_ip():
     return ip
 
 
-# ------------------------------------------------------------------ arkadaşın sunucusuna HTTP (oyun portu)
+# ------------------------------------------------------------------ HTTP to the friend's server (game port)
 def request(host, port, method, path, body=None, timeout=10):
-    """-> (durum kodu, JSON). Bağlanılamazsa ya da yanıt bir arkadaş sunucusunun değilse ArkadasHatasi."""
+    """-> (status code, JSON). FriendError if it cannot connect or the reply is not from a friend server."""
     data, hdr = None, {'Accept-Encoding': 'gzip'}
     if body is not None:
         data = gzip.compress(json.dumps(body, ensure_ascii=False).encode('utf8'), 6)
@@ -113,7 +113,7 @@ def request(host, port, method, path, body=None, timeout=10):
             z = zlib.decompressobj(16 + zlib.MAX_WBITS)
             raw = z.decompress(raw, RESPONSE_LIMIT)
         if r.headers.get('X-DarkOrbit') != 'arkadas':
-            raise ValueError('başlık yok')
+            raise ValueError('no header')
         out = json.loads(raw.decode('utf8'))
     except (OSError, ValueError, zlib.error):
         raise FriendError(_('%s:%d is not a DarkOrbit friend server (or the reply was cut off).', host, port))
@@ -124,12 +124,12 @@ def _message(code, out):
     return out.get('message') or _('The server refused the request (HTTP %s).', code)
 
 
-# ------------------------------------------------------------------ panel tarafı
+# ------------------------------------------------------------------ panel side
 class Friend:
     def __init__(self, cfg, saves, direction, log, code):
         self.cfg, self.saves, self.direction, self.log, self.code = cfg, saves, direction, log, code
-        self.key = secrets.token_urlsafe(24)       # yönetim anahtarı (bu panel açılışında sunucuya verilir)
-        self.local = secrets.token_urlsafe(24)         # sunucunun kendi oyuncusunun oturumu (oyun sunucusu ve kendi web.py'si)
+        self.key = secrets.token_urlsafe(24)       # admin key (given to the server on this panel start)
+        self.local = secrets.token_urlsafe(24)         # the session of the server's own player (the game server and its own web.py)
         self.lock = threading.RLock()
         self.general = None
         self.m = self._empty()
@@ -141,7 +141,7 @@ class Friend:
 
     # ------------------------------------------------------------ host
     def host_env(self):
-        """Oyun sunucusunun OO_MULTIPLAYER ortam değişkeni (cok_oyunculu.configure)."""
+        """The game server's OO_MULTIPLAYER environment variable (multiplayer.configure)."""
         return json.dumps({'password': self.cfg.get('friend_password'), 'max_count': self.cfg.get('friend_max'),
                            'anahtar': self.key, 'code': self.code, 'local': self.local})
 
@@ -162,9 +162,9 @@ class Friend:
         code, out = request('127.0.0.1', GAME_PORT, 'POST', '/yonetim/kick', {'anahtar': self.key, 'session': str(session or '')})
         if code != 200:
             raise FriendError(_('Guest not found: they may have already left.'))
-        self.log('arkadaş sunucusu: misafir çıkarıldı (%s)' % str(session)[:8])
+        self.log('friend server: guest removed (%s)' % str(session)[:8])
 
-    # ------------------------------------------------------------ misafir
+    # ------------------------------------------------------------ guest
     def active(self):
         return self.m['state'] in ('connecting', 'in_game', 'leaving')
 
@@ -179,7 +179,7 @@ class Friend:
         return m
 
     def attempt(self, address):
-        """Arkadaşın sunucusunun bilgisi (bağlanmadan önce)."""
+        """Info about the friend's server (before connecting)."""
         host, port = resolve_address(address)
         code, info = request(host, port, 'GET', '/misafir/bilgi', timeout=6)
         if code != 200 or info.get('sunucu') != 'darkorbit':
@@ -194,7 +194,7 @@ class Friend:
         a.append({'text': text, 'state': state, 'time': time.strftime('%H:%M:%S')})
 
     def killer(self, address, password, slot, client_version, open_client):
-        """Katılmayı başlatır (arka planda). istemci_ac: istemciyi açan işlev (panel)."""
+        """Starts joining (in the background). open_client: the function that opens the client (panel)."""
         host, port = resolve_address(address)
         with self.lock:
             if self.active():
@@ -232,7 +232,7 @@ class Friend:
                 raise FriendError(_message(code, r))
             m.update(session=r['session'], anahtar=key, uid=r['uid'], version=r['version'], file=self._file(slot))
             self._mark(slot)
-            self.log('arkadaş sunucusuna katılındı: %s:%d (kayıt %s, sunucudaki kimlik %s)' % (host, port, slot, r['uid']))
+            self.log('joined friend server: %s:%d (save %s, id on the server %s)' % (host, port, slot, r['uid']))
             self._step(_('Preparing web login'))
             self.direction.start_guest_web(self.saves.profile(slot), slot, [
                 '--remote=%s:%d' % (host, port), '--chat=%s:%d' % (host, CHAT_PORT), '--session=%s' % r['session'], '--uid=%d' % r['uid']])
@@ -244,32 +244,32 @@ class Friend:
         except Exception as e:
             m['error'] = str(e) if isinstance(e, (FriendError, RuntimeError, OSError)) else _('Unexpected error: %r', e)
             self._step(m['error'], 'error')
-            self.log('arkadaşa katılma hatası: %r' % e)
+            self.log('error joining friend: %r' % e)
             if m.get('session'):
                 self._finish(silent=True)
             else:
                 m['state'] = 'error'
 
-    # ------------------------------------------------------------ eşitleme
+    # ------------------------------------------------------------ syncing
     def _file(self, slot):
         st = os.stat(self.saves.profile(slot))
         return [st.st_mtime_ns, st.st_size]
 
     def _mark(self, slot):
-        """Yuvanın kayit.json'u: süren oturum (yarım kalırsa sonraki katılmada son hâl alınır) ve dosyanın son yazılan hâli."""
+        """The slot's slot.json: the ongoing session (if left half-finished the next join fetches the final state) and the last written state of the file."""
         m = self.m
         self.saves.set_meta(slot, friend={'address': m['address'], 'session': m['session'], 'anahtar': m['anahtar'], 'version': m['version'],
                                          'uid': m['original_uid'], 'file': m['file']})
 
     def _write(self, slot, d, version):
-        """Sunucudaki yeni sürümü yuvaya yazar (eskisi ya da başka oyuncunun kaydıysa yazmaz)."""
+        """Writes the new version on the server to the slot (not if it is older or another player's save)."""
         with self.lock:
             m = self.m
             if version <= m['version']:
                 return
             if not (isinstance(d, dict) and isinstance(d.get('pilot'), dict) and isinstance(d.get('ship'), dict)
                     and isinstance(d.get('position'), dict)) or d['pilot'].get('userId') != m['original_uid']:
-                self.log('arkadaş sunucusu: geçersiz kayıt sürümü %s yok sayıldı' % version)
+                self.log('friend server: invalid save version %s ignored' % version)
                 return
             p = self.saves.profile(slot)
             tmp = p + '.arkadas.tmp'
@@ -277,7 +277,7 @@ class Friend:
                 json.dump(d, fh, ensure_ascii=False, indent=1)
                 fh.flush()
                 os.fsync(fh.fileno())
-            for k in range(6):                        # panel ya da virüs tarayıcısı o an okuyorsa
+            for k in range(6):                        # if the panel or an antivirus scanner is reading it at that moment
                 try:
                     os.replace(tmp, p)
                     break
@@ -290,7 +290,7 @@ class Friend:
                 self._mark(slot)
 
     def _sync(self, host, port, slot, session, key):
-        """Oturum sürdükçe sunucudaki yeni sürümleri yuvaya yazar (uzun yoklama)."""
+        """While the session lasts, writes the new versions on the server to the slot (long poll)."""
         m = self.m
         while m.get('session') == session and m['state'] in ('connecting', 'in_game'):
             try:
@@ -307,7 +307,7 @@ class Friend:
                 try:
                     self._write(slot, r['profile'], int(r.get('version') or 0))
                 except OSError as e:
-                    self.log('arkadaş sunucusu: kayıt yazılamadı: %r' % e)
+                    self.log('friend server: could not write save: %r' % e)
             if code == 404 or (code == 200 and r.get('finished')):
                 m['not'] = _("Your friend's server ended the session (it shut down or removed you). Your save is on your computer in its latest state.")
                 if not self.direction.client_alive():
@@ -316,16 +316,16 @@ class Friend:
             if code != 200:
                 time.sleep(3)
 
-    # ------------------------------------------------------------ ayrılma
+    # ------------------------------------------------------------ leaving
     def client_closed(self):
-        """Panelin istemci kapanış işi: misafir oturumundaysa ayrılınır -> True (sunucuları panel kapatmaz)."""
+        """The panel's client-close job: if in a guest session, leave -> True (the panel does not shut the servers down)."""
         if not self.active() or not self.m.get('session'):
             return False
         threading.Thread(target=self._finish, daemon=True).start()
         return True
 
     def detach(self):
-        """Ayrıl düğmesi: istemci açıksa kapatılır (kapanış işi ayrılır), değilse hemen ayrılınır."""
+        """Leave button: if the client is open it is closed (the close job leaves), otherwise leave immediately."""
         if not self.active():
             raise FriendError(_("You are not on a friend's server."))
         if self.direction.client_alive():
@@ -334,7 +334,7 @@ class Friend:
             threading.Thread(target=self._finish, daemon=True).start()
 
     def shutdown(self, sec=30):
-        """Panel kapanıyor: oturum sürüyorsa ayrılınır, bitene dek (en çok sn) beklenir."""
+        """The panel is closing: if a session is running, leave and wait until it finishes (at most sn seconds)."""
         if self.active() and self.m.get('session') and self.m['state'] != 'leaving':
             self._finish()
         end = time.time() + sec
@@ -356,26 +356,26 @@ class Friend:
                 self._write(slot, r['profile'], int(r.get('version') or 0))
             reached = True
         except (FriendError, OSError) as e:
-            self.log('arkadaş sunucusundan ayrılma: son hâl alınamadı: %r' % e)
+            self.log('leaving friend server: could not fetch final state: %r' % e)
             if not m['not']:
                 m['not'] = _('Could not reach the server: your save stays as of the last sync.')
         try:
-            self.direction.stop_servers()                     # misafirin web sunucusu
+            self.direction.stop_servers()                     # the guest's web server
         finally:
             with self.lock:
                 m['session'], m['end_time'] = None, time.time()
                 if m['state'] == 'leaving':
                     m['state'] = 'error' if silent else 'finished'
             try:
-                if reached:                              # ulaşılamadıysa kalır: sonraki katılmada son hâl alınır (_yarim_oturum)
+                if reached:                              # if unreachable it stays: the next join fetches the final state (_half_session)
                     self.saves.set_meta(slot, friend=None)
             except OSError:
                 pass
-        self.log('arkadaş sunucusundan ayrılındı (kayıt %s, sürüm %s)' % (slot, m['version']))
+        self.log('left friend server (save %s, version %s)' % (slot, m['version']))
 
     def _partial_session(self, slot):
-        """Yarım kalan eski oturum (kayit.json 'arkadas'): sunucuda sürüyorsa biter; yerel kayıt o günden beri değişmediyse sunucudaki
-        son hâl yazılır."""
+        """An old half-finished session (slot.json 'arkadas'): if it is still running on the server it ends; if the local save has not changed since then,
+        the final state on the server is written."""
         a = self.saves.meta(slot).get('friend')
         if not isinstance(a, dict) or not a.get('session'):
             return
@@ -388,8 +388,8 @@ class Friend:
                     and isinstance(d.get('pilot'), dict) and d['pilot'].get('userId') == a.get('uid'):
                 self.m.update(version=int(a.get('version') or 0), original_uid=a.get('uid'))
                 self._write(slot, d, int(r['version']))
-                self.log('yarım kalan arkadaş oturumunun son hâli kayda yazıldı (%s)' % slot)
+                self.log('final state of the half-finished friend session written to the save (%s)' % slot)
         except (FriendError, OSError, ValueError, TypeError) as e:
-            self.log('yarım kalan arkadaş oturumu kapatılamadı: %r' % e)
+            self.log('could not close the half-finished friend session: %r' % e)
         self.m['version'] = 0
         self.saves.set_meta(slot, friend=None)

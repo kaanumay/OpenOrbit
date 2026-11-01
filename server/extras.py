@@ -1,20 +1,20 @@
-"""Ekstralar ve CPU'lar (veri items.json "ekstralar" ← belgeler/wiki/extras_cpu_tech.md; yalnız etkin config'te takılı olanlar etkili).
+"""Extras and CPUs (data items.json "extras" <- belgeler/wiki/extras_cpu_tech.md; only those fitted in the active config take effect).
 
-Pasif etkiler (bu modül sorgular, ilgili modüller uygular):
-  ek_yuva          ekstra yuvası (SL-01..04 +2/+4/+6/+10; config başına bir yuva CPU'su, o config'in yuvası)    magaza.capacity
-  kargo_carpan     kargo alanı çarpanı (G3X-CRGO-X)                                                          magaza.apply_stats
-  roket_bekleme    roket beklemesi çarpanı (R0K-T01 0,5)                                                     dunya.rocket
-  mayin_bekleme    mayın ve mayından yapılan eşyaların beklemesi (MIN-T01 -%25, MIN-T02 -%50)                dunya (mayınlar)
-  oto_onarim       can eksilince onarım robotu kendiliğinden çalışır (NC-RRB-X)                              dunya.auto_tick
-  oto_alim         {type: lazer|roket|yakit, esik, adet}: eşiğin altına inince alır (ALB-X, RB-X, FB-X)       dunya.auto_tick
-  oto_lab          [parça]: yükseltme bitince aynı cevherle ya da (en_iyi) en iyi cevherle yeniden (NC-AWL/AWR/AWB/AGB)
-  her_yerde_satis  cevher her yerde satılır, adet sınırı (HM-7, 100 satış)                                  dunya.at_trade
-Etkin olanlar (kısayol çubuğundan; combat_items.py):
-  atlama           {haritalar | yasak}: ana haritaya atlama (JP-01 10, JP-02 20 hak); gelismis_atlama: AJP-01 istenen haritaya
-  gizlenme         gizlenme CPU'su (CL04K-XS 1, M 10, XL 50 hak)       nisan  AIM-01/02 ıska oranı -%25/-%50 (10 Xenomit)
-  aninda_kalkan    Insta-Shield (ISH-01)                                akilli_bomba  Smart Bomb (SMB-01)
-  oto_roket        AROL-X: lazer saldırısında seçili roket             oto_fircatici  RL-LB1: lazer saldırısında dolu fırlatıcı
-Hak (hak): profilde (ekstra_haklari), ilk takılışta tam; satın alınınca eklenir (recharge).
+Passive effects (this module queries them, the relevant modules apply them):
+  extra_slot       extra slot (SL-01..04 +2/+4/+6/+10; one slot CPU per config, that config's slot)                  shop.capacity
+  cargo_multiplier cargo space multiplier (G3X-CRGO-X)                                                               shop.apply_stats
+  rocket_cooldown  rocket cooldown multiplier (R0K-T01 0.5)                                                          world.rocket
+  mine_cooldown    cooldown of mines and items made from mines (MIN-T01 -25%, MIN-T02 -50%)                         world (mines)
+  auto_repair      when HP drops, the repair robot runs by itself (NC-RRB-X)                                         world.auto_tick
+  auto_pickup      {type: laser|rocket|fuel, threshold, count}: buys when it falls below the threshold (ALB-X, RB-X, FB-X) world.auto_tick
+  auto_lab         [part]: when the upgrade finishes, again with the same ore or (best) the best ore (NC-AWL/AWR/AWB/AGB)
+  sell_anywhere    ore can be sold anywhere, count limit (HM-7, 100 sales)                                           world.at_trade
+Active ones (from the shortcut bar; combat_items.py):
+  jump             {maps | ban}: jump to the main map (JP-01 10, JP-02 20 uses); advanced_jump: AJP-01 to the map of choice
+  cloak            cloak CPU (CL04K-XS 1, M 10, XL 50 uses)            aim            AIM-01/02 miss rate -25%/-50% (10 Xenomit)
+  insta_shield     Insta-Shield (ISH-01)                               smart_bomb     Smart Bomb (SMB-01)
+  auto_rocket      AROL-X: the selected rocket on a laser attack      auto_launcher  RL-LB1: the loaded launcher on a laser attack
+Uses (right): in the profile (extra_uses), full when first fitted; added when bought (recharge).
 """
 import json, os
 
@@ -24,7 +24,7 @@ X = E.get('extras', {})
 
 
 def equipped(p, sid=None):
-    """Etkin (ya da verilen) geminin etkin config'indeki ekstraların lootId'leri; dronlara takılı ekstralar (CPU'lar) da sayılır."""
+    """The lootIds of the extras in the active (or given) ship's active config; extras fitted to drones (CPUs) count too."""
     if sid is None or str(sid) == str(p.d['active_ship']):
         own, drones = list(p.d.get('equipment', {}).get('extra', [])), p.d.get('drone_equipment', [])
     else:
@@ -33,7 +33,7 @@ def equipped(p, sid=None):
 
 
 def props(p, key, sid=None):
-    """Takılı ekstraların bir özelliği: [(lootId, değer)]."""
+    """A property of the fitted extras: [(lootId, value)]."""
     return [(l, X[l][key]) for l in equipped(p, sid) if l in X and key in X[l]]
 
 
@@ -42,17 +42,17 @@ def has(p, key, sid=None):
 
 
 def owned(p, loot):
-    """Ekstra envanterde ya da takılı mı (takılması gerekmeyenler: HM-7 ticaret dronu, satın alınınca kısayol çubuğunda görünür)."""
+    """Whether the extra is in the inventory or fitted (those that need not be fitted: the HM-7 trade drone, appears in the shortcut bar once bought)."""
     return loot in p.d['items'].values() or loot in equipped(p)
 
 
 def slot_bonus(p, sid=None, cid=None):
-    """Yuva CPU'sunun ekstra yuvası: geminin bir config'inde (varsayılan: etkin gemi, etkin config) takılı olanın."""
+    """The extra slot of the slot CPU: that of the one fitted in one of the ship's configs (default: active ship, active config)."""
     return slot_bonus_of(equipped(p, sid) if cid is None else p.loadout(sid, cid).get('extra', []))
 
 
 def slot_bonus_of(loots):
-    """Ekstraların arasındaki yuva CPU'sunun (SL-01..04) bonusu (config başına bir tane takılır)."""
+    """The bonus of the slot CPU (SL-01..04) among the extras (one is fitted per config)."""
     return max((X[l]['extra_slot'] for l in loots if 'extra_slot' in X.get(l, {})), default=0)
 
 
@@ -75,14 +75,14 @@ UNLIMITED = 10 ** 6
 
 
 def unlimited(p, loot):
-    """Hakkı sınırsız mı: HM-7 için Goliath'ın Amber, Jade ya da Sapphire tasarımına sahip olanlar (wiki: eski kural; istemci
+    """Whether the uses are unlimited: for HM-7, those who own Goliath's Amber, Jade or Sapphire design (wiki: old rule; client
     items_equipment_extra_hmd-07_hint_unlimited "You already have an unlimited trade drone")."""
     designs = X.get(loot, {}).get('unlimited_design')
     return bool(designs) and any(d in s.get('designs', []) for s in p.d['ships'].values() for d in designs)
 
 
 def uses(p, loot):
-    """Kullanım sınırlı ekstranın kalan hakkı (HM-7 satış, Jump CPU atlama, gizlenme): profilde, ilk takılışta tam."""
+    """Remaining uses of a limited-use extra (HM-7 sales, Jump CPU jumps, cloaking): in the profile, full when first fitted."""
     if unlimited(p, loot):
         return UNLIMITED
     st = p.d.setdefault('extra_uses', {})
@@ -92,7 +92,7 @@ def uses(p, loot):
 
 
 def recharge(p, loot, n=1):
-    """Hakkı olan ekstra satın alındı: n tanesinin hakkı eklenir."""
+    """An extra that has uses was bought: n of its uses are added."""
     if 'right' not in X.get(loot, {}):
         return
     with p.lock:
@@ -102,7 +102,7 @@ def recharge(p, loot, n=1):
 
 
 def attached(p, loot):
-    """Otomatik alım CPU'sunun hangarda seçilen cephanesi (HangarShipAutoBuyCpuAmmoRequest) ya da None."""
+    """The ammo the Auto-Buy CPU has selected in the hangar (HangarShipAutoBuyCpuAmmoRequest) or None."""
     return p.d.get('auto_buy_ammo', {}).get(loot)
 
 

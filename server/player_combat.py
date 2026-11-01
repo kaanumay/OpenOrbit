@@ -1,4 +1,4 @@
-"""Shared-map player laser and ordinary rocket attacks and the PvP reward policy (on_kill: resmî forum pushing, dost ateşi).
+"""Shared-map player laser and ordinary rocket attacks and the PvP reward policy (on_kill: official forum pushing, friendly fire).
 
 World owns request routing, firing visuals, damage/kill attribution and map locks.
 Selection is independent of these hostility and protection checks.
@@ -21,7 +21,7 @@ def attack_error(w, other, now):
     Recheck this at every shot/impact: a target can enter DMZ, cloak, jump,
     change diplomacy, or disconnect after the attack request.
     """
-    # gizli gemiyi yalnız onu seçmiş olan vurur (wiki: "Cloaked ships can still be attacked (if targeted)"; oyuncu bildirimi 2026-10-31)
+    # a cloaked ship is hit only by whoever has selected it (wiki: "Cloaked ships can still be attacked (if targeted)"; player report 2026-10-31)
     if (other is None or other is w or w.shared is None or other.shared is not w.shared
             or not w.running or not other.running or w.map_id != other.map_id
             or w.hero_dead or other.hero_dead or w.jumping or other.jumping
@@ -31,7 +31,7 @@ def attack_error(w, other, now):
     if w.is_group_member(other.hid) or other.is_group_member(w.hid):
         return _denied()
     if w.in_pvp_peace(*w.hero_pos(now)) or other.in_pvp_peace(*other.hero_pos(now)):
-        return _denied('peacearea')          # güvenli bölge (grup üyesi iletisi yazıyordu: oyuncu bildirimi 2026-10-30)
+        return _denied('peacearea')          # safe zone (it used to write a group member message: player report 2026-10-30)
     if now < other.invuln_until or other.invulnerable or other.hero_effects.invulnerable(now):
         return _denied()
     a, b = w.p.d['pilot'], other.p.d['pilot']
@@ -44,9 +44,9 @@ def attack_error(w, other, now):
     faction = int(a.get('factionId') or 0)
     if faction and faction == int(b.get('factionId') or 0) and 3 not in relations:
         import settings as SET
-        import map_links as H                   # resmî forum 127509: kendi şirketine saldırı serbest (cezalı), ilk iki haritada yasak
+        import map_links as H                   # official forum 127509: attacking your own company is allowed (penalized), forbidden on the first two maps
         if not SET.get('company_pvp'):
-            return _denied('friendlyfire_disabled')     # panel: kendi şirketine saldırı kapalı
+            return _denied('friendlyfire_disabled')     # panel: attacking your own company is off
         if H.company(w.map_id) == faction and H.name(w.map_id).split('-')[-1] in ('1', '2'):
             return _denied('no_attack_on_start_maps')
         if not getattr(w, 'friend_warned', False):
@@ -56,8 +56,8 @@ def attack_error(w, other, now):
 
 
 def on_kill(killer, victim):
-    """Oyuncu oyuncuyu yok etti (dunya.hero_death source_player): kendi şirketi ise (klanı savaşta değilse) ceza; değilse günlük sayaca göre azalan şeref/TP,
-    rütbe sayacı, görev olayı ve dron puanı (resmî forum 127379, 127509, 127526)."""
+    """A player destroyed a player (dunya.hero_death source_player): if it is their own company (and their clan is not at war) a penalty; otherwise honor/XP
+    decreasing by the daily counter, rank counter, quest event and drone points (official forum 127379, 127509, 127526)."""
     import ranks as RT
     import world as D
     C = D.ITEMS['player_kill']
@@ -66,7 +66,7 @@ def on_kill(killer, victim):
     vf, kf = vp.d['pilot'].get('factionId'), kp.d['pilot'].get('factionId')
     name = vp.d['pilot'].get('userName', '')
     msgs = []
-    if vf == kf and 3 not in (KL.relation(kp, vp), KL.relation(vp, kp)):     # savaştaki klan: kendi şirketinden de ceza yok (oyuncu bildirimi 2026-10-31)
+    if vf == kf and 3 not in (KL.relation(kp, vp), KL.relation(vp, kp)):     # clan at war: no penalty for their own company either (player report 2026-10-31)
         with kp.lock:
             n = kp.d.setdefault('friendly_kills', 0) + 1
             kp.d['friendly_kills'] = n
@@ -106,7 +106,7 @@ def _hit(w, other, now, normal, shield=0, atype=1):
         if attack_error(w, other, now):
             return
         import world as D
-        factor = D.SET.multiplier('player_damage', 'pvp')                 # panelin hasar çarpanı (Oyunculara alt ayarı)
+        factor = D.SET.multiplier('player_damage', 'pvp')                 # the panel's damage multiplier (Players sub-setting)
         if atype == 1:
             factor *= max(0.0, 1 + other.p.mods().get('laser_taken', 0))
         normal, shield = int(round(normal * factor)), int(round(shield * factor))
@@ -129,7 +129,7 @@ def laser(w, other, now):
         w.send(err)
         w.laser_stop()
         return
-    w.last_pvp = other.last_pvp = now           # 4-X'te iki taraf da portal kullanamaz (dunya.jump)
+    w.last_pvp = other.last_pvp = now           # neither side can use a portal in 4-X (dunya.jump)
     w.side_laser(now, other.hid, other.hero_pos(now),
                  lambda normal, shield: _hit(w, other, now, normal, shield), pvp=True)
     if other.hero_dead:
@@ -183,7 +183,7 @@ def rocket(w, other, now):
         ('MenuItemCooldownGroupTimerCommand', dict(timerState=D.mod('TimerStateModule', timerStateValue=2),
             cooldownType=D.mod('CooldownTypeModule', typeValue=4), maxTime=ms, time=ms))])
     r = D.ITEMS['rockets'][rocket]
-    damage = int(r.get('pvp_damage', r.get('damage', 1000)) * random.uniform(0.85, 1.0)         # BDR-1211 oyunculara en çok 4.000
+    damage = int(r.get('pvp_damage', r.get('damage', 1000)) * random.uniform(0.85, 1.0)         # BDR-1211 at most 4,000 to players
                  * (1 + mods.get('rocket', 0) + (mods.get('enemy_rocket', 0) if getattr(getattr(other, 'p', None), 'd', {}).get('pilot', {}).get('factionId') != w.p.d['pilot'].get('factionId') else 0))
                  * (1 + w.p.lab_bonus(1)))
     if w.p.lab_bonus(1):

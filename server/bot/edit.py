@@ -1,9 +1,9 @@
-"""Botun ayrıntısı ve düzenlenmesi (panelin Botlar > Kadro > bot penceresi): profil, hangar, kişilik, ruh hâli, hafıza, anılar.
+"""A bot's details and editing (the panel's Bots > Roster > bot window): profile, hangar, personality, mood, memory, recollections.
 
-Aynı kod iki yerde çalışır: oyun kapalıyken panel paketin durum dosyasındaki sözlük üzerinde (panel/botlar.bot_duzenle), oyun
-açıkken oyun sunucusu canlı botun k sözlüğü üzerinde, y.lock altında (panel_kanali /bot/edit). Kişilik kadroda durur (yönetici
-her açılışta kadrodan okur): kd paketin kadro satırı. Her değer doğrulanır; geçersizse DuzenlemeHatasi (kod: panel kendi dilinde
-iletir).
+The same code runs in two places: when the game is closed, the panel on the dictionary in the package's state file (panel/bots.edit_bot), when the game is
+open, the game server on the live bot's k dictionary, under y.lock (panel_channel /bot/edit). Personality lives in the roster (manager
+reads it from the roster on every start): kd is the package's roster row. Every value is validated; if invalid, EditError (code: the panel
+conveys it in its own language).
 """
 import time
 
@@ -28,7 +28,7 @@ def _short(loot):
 
 
 def catalog():
-    """Düzenleyicinin seçenekleri: gemiler (tasarımlar hariç), eşyalar, cephane, haritalar."""
+    """The editor's options: ships (excluding designs), items, ammo, maps."""
     E = K.ITEMS
     out = {'ships': [{'loot': l, 'name': _short(l), 'laser': v['laser'], 'gen': v['generators'], 'ekstra': v.get('extra', 1)}
                        for l, v in sorted(E['ships'].items(), key=lambda x: (x[1]['hp'], x[0])) if 'base' not in v],
@@ -36,7 +36,7 @@ def catalog():
            'maps': [{'id': m, 'name': H.name(m)} for m in K.MAPS]}
     for multiplier, key in CATEGORY.items():
         out[multiplier] = [{'loot': l, 'name': _short(l)} for l in E[key]]
-    for x in out['ekstra']:                  # ekstranın sayısı adet değil kalan hak (bot/ekstra.py): eklenince tam hakla takılır
+    for x in out['ekstra']:                  # an extra's count is the remaining uses, not a quantity (bot/extras.py): when added it is fitted with full uses
         x['right'] = int((E['extras'][x['loot']] or {}).get('right', 1))
     return out
 
@@ -56,7 +56,7 @@ def _memory_id(a):
 
 
 def appearance(k, roster_row, online=None):
-    """Botun bütün durumu -> panelin penceresi (k: durum sözlüğü, yoksa None; kd: kadro satırı)."""
+    """All of the bot's state -> the panel's window (k: state dictionary, None if absent; kd: roster row)."""
     out = {'no': roster_row['no'], 'name': roster_row['name'], 'company': roster_row['company'], 'archetype': roster_row['personality'].get('archetype'),
            'habit': roster_row['personality'].get('habit'), 'lang': roster_row['personality'].get('lang'),
            'traits': {o: round(roster_row['personality']['traits'].get(o, 0.5), 3) for o in TRAITS}, 'exists': k is not None,
@@ -94,7 +94,7 @@ def appearance(k, roster_row, online=None):
         cargo={_short(kinds.get(str(t), 'ore_%s' % t)): int(n) for t, n in (k.get('cargo') or {}).items() if n},
         cargo_capacity=capacity, quest=quest, done=len(k.get('done') or ()), stats=dict(k.get('stats') or {}),
         gate_times=dict(k.get('gate_times') or {}),
-        warning={x: v for x, v in (k.get('warning') or {}).items() if x in ('sohbet', 'pvp', 'box') and v > time.time()},     # yönetici uyarısı
+        warning={x: v for x, v in (k.get('warning') or {}).items() if x in ('sohbet', 'pvp', 'box') and v > time.time()},     # admin warning
         skylab=dict((k.get('skylab') or {}).get('mod') or {}), formation=k.get('formation'),
         relations=sorted(({'anahtar': a, 'name': v.get('name', a), 'd': round(v.get('d', 0), 3), 'n': v.get('n', {})}
                           for a, v in (k.get('memory') or {}).items()), key=lambda x: -abs(x['d'])),
@@ -108,8 +108,8 @@ def appearance(k, roster_row, online=None):
 
 
 def apply(k, roster_row, value, online=False):
-    """Düzenlemeleri k (durum) ve kd (kadro satırı) üzerinde uygula -> değişen alanlar. Önce hepsi doğrulanır: biri geçersizse hiçbiri
-    uygulanmaz."""
+    """Apply the edits to k (state) and kd (roster row) -> the changed fields. All are validated first: if one is invalid none
+    is applied."""
     value = value if isinstance(value, dict) else {}
     jobs = []
     gear = k.setdefault('gear', K.new_gear()) if k is not None else None
@@ -129,7 +129,7 @@ def apply(k, roster_row, value, online=False):
         if m not in K.MAPS:
             raise EditError('interval', 'map')
         if online:
-            raise EditError('online', 'map')     # çevrimiçi botu ışınlamak soyut/somut konumunu bozar
+            raise EditError('online', 'map')     # teleporting an online bot breaks its abstract/concrete position
         jobs.append(lambda m=m: k.update(map=m, intent=None, target=None))
     if 'ship' in value:
         g = value['ship']

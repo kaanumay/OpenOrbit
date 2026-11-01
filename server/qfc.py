@@ -1,18 +1,18 @@
-"""Quantum Fluid Core ve Hyperforge (yol haritası Aşama 9; veri data/new_systems.json 'qfc' <- tools/new_systems.py, kaynak
-darkorbitwiki ve Deep Space Echoes SSS'i).
+"""Quantum Fluid Core and Hyperforge (roadmap stage 9; data in data/new_systems.json 'qfc' <- tools/new_systems.py, sources: the
+darkorbit wiki and the Deep Space Echoes FAQ).
 
-QFC'ler (equipment_core_ax-10 … df-40) envanterdeki eşyalar: hangarda geminin QUANTUM FLUID CORE yuvalarına takılır
-(HangarShipEquipmentMsg.QuantumFluidCore; istemcinin gemi verisinde 2 yuva). Her QFC bir gemiye bağlıdır, yalnız ona takılır;
-gemide en çok bir saldırı (AX) ve bir savunma (DF) QFC'si. İstemci (HyperforgeViewSystem; Assembly'nin Hyperforge sekmesi):
-  QuantumFluidCoreDataListCommand {allModules}   girişte ve değişince (kayıtta UnstableModulesListCommand ile birlikte)
-  QuantumFluidCoreRequest {ItemId, type}         1 forge: Luminaflux ile bir seviye (en çok 12); nitelikler upMin..upMax arasında
-                                                 rastgele artar, 5 ve 10'da yeni nitelik (tekrarsız, en çok 3)
-                                                 2 recycle: QFC gider, Luminaflux gelir ("This core will be destroyed.")
-  QuantumFluidCoreData: lootId, itemId, quality (1-4), lv/maxLv, spendPrice (sonraki seviyenin bedeli), useLootId (Luminaflux),
-  sellPrice (geri dönüşüm), shipIds (bağlı gemi), unlock (1: kilitli bir nitelik satırı daha), equipAttributes (EquipAttributeModule:
-  AttributeID istemcinin shipupgrade_modifiertype_ anahtarı, değerler yüzde x100).
-Etki: etkin gemide takılı QFC'lerin nitelikleri (profil.ship_mods; anahtarlar gemi_modul.ATTR_KEYS).
-Profilde: qfc {itemId: {gemi, seviye, nitelikler: [[ad, değer (%)]]}}.
+QFCs (equipment_core_ax-10 ... df-40) are inventory items: in the hangar they are fitted into the ship's QUANTUM FLUID CORE slots
+(HangarShipEquipmentMsg.QuantumFluidCore; 2 slots in the client's ship data). Each QFC is bound to a ship and can only be fitted to it;
+at most one attack (AX) and one defense (DF) QFC per ship. Client (HyperforgeViewSystem; Assembly's Hyperforge tab):
+  QuantumFluidCoreDataListCommand {allModules}   on login and on change (together with UnstableModulesListCommand in the recording)
+  QuantumFluidCoreRequest {ItemId, type}         1 forge: one level with Luminaflux (at most 12); attributes rise randomly
+                                                 between upMin..upMax, at 5 and 10 a new attribute (no repeats, at most 3)
+                                                 2 recycle: the QFC goes, Luminaflux comes ("This core will be destroyed.")
+  QuantumFluidCoreData: lootId, itemId, quality (1-4), lv/maxLv, spendPrice (the next level's cost), useLootId (Luminaflux),
+  sellPrice (recycling), shipIds (bound ship), unlock (1: one more locked attribute row), equipAttributes (EquipAttributeModule:
+  AttributeID is the client's shipupgrade_modifiertype_ key, values are percent x100).
+Effect: the attributes of the QFCs fitted on the active ship (profile.ship_mods; keys ship_module.ATTR_KEYS).
+In the profile: qfc {itemId: {ship, level, attributes: [[name, value (%)]]}}.
 """
 import json, os, random
 
@@ -29,7 +29,7 @@ PREFIX = 'equipment_core_'
 MAX_LV = D['max_level']
 FORGE, RECYCLE = 1, 2
 REQUESTS = {'QuantumFluidCoreRequest'}
-KEYS = dict(ATTR_KEYS, damage_factions=('pvp',))          # factions: başka firmanın oyuncuları (botlarla, Aşama 11)
+KEYS = dict(ATTR_KEYS, damage_factions=('pvp',))          # factions: players of the other company (with bots, stage 11)
 
 
 def mod(_cls, **f):
@@ -51,7 +51,7 @@ def state(p, iid):
 
 
 def ranges(loot, primary=True):
-    """Niteliğin (ilk değer aralığı, seviye başına artış aralığı, azami) yüzdeleri."""
+    """The percentages of an attribute (first value range, per-level increase range, maximum)."""
     lo, hi = TYPES[loot]['interval']
     f = 1.0 if primary else D['extra_multiplier']
     a, b = D['increase_multiplier']
@@ -59,18 +59,18 @@ def ranges(loot, primary=True):
 
 
 def cost(loot, lv):
-    """lv'den lv+1'e Luminaflux (yoksa None: en üst seviye)."""
+    """Luminaflux from lv to lv+1 (None if the top level)."""
     row = D['upgrade_cost'][str(TYPES[loot]['quality'])]
     return row[lv - 1] if 1 <= lv < MAX_LV else None
 
 
 def echo_box(level):
-    """Deep Space Echoes'un patron seviyesinin düşürdüğü Echo sandığı (boxes.json türü) ya da None."""
+    """The Echo chest (boxes.json type) dropped by Deep Space Echoes' boss level, or None."""
     return D['echo_level'].get(str(level))
 
 
 def mods(p, ship_loot, iids):
-    """Takılı QFC'lerin bonusları (yalnız bağlı oldukları gemide)."""
+    """The fitted QFCs' bonuses (only on the ship they are bound to)."""
     out = {}
     for iid in iids:
         loot = p.d['items'].get(str(iid), '')
@@ -84,14 +84,14 @@ def mods(p, ship_loot, iids):
 
 
 def modifiers_str(p, iid):
-    """Hangar ipucunun nitelikleri (gemi_modul.modifiers_str biçimi "AD,yüzde;…"): ipucunda "Tür:" satırı boş, değerler yoktu
-    (kullanıcı bildirimi 2026-10-25: QFC-AX40'ta değer görünmüyor)."""
+    """The hangar tooltip's attributes (ship_module.modifiers_str format "NAME,percent;..."): the tooltip's "Type:" line was empty, with no values
+    (user report 2026-10-25: no value shown on QFC-AX40)."""
     rec = state(p, iid) or {}
     return ';'.join('%s,%s' % (a.upper(), format(v, '.2f').rstrip('0').rstrip('.')) for a, v in rec.get('attributes', []) if v > 0)
 
 
 def equip_allowed(p, iid, ship_loot, current):
-    """-> hata metni ya da None: bağlı gemi, gemide aynı türden ikinci QFC."""
+    """-> error text or None: bound ship, a second QFC of the same type on the ship."""
     loot = p.d['items'].get(str(iid), '')
     rec = state(p, iid)
     if not rec:
@@ -106,7 +106,7 @@ def equip_allowed(p, iid, ship_loot, current):
 class Qfc:
     def __init__(self, profile, log=print):
         self.p, self.log = profile, log
-        self.m = None                              # mağaza (envanter, değerler); oturum bağlar
+        self.m = None                              # shop (inventory, values); binds the session
         with profile.lock:
             profile.d.setdefault('qfc', {})
 
@@ -134,15 +134,15 @@ class Qfc:
         return [rng.choice(pool), round(rng.uniform(lo, hi), 2)]
 
     def heal(self, rng=random):
-        """Kaydı olmayan QFC'lere kayıt (bağlı gemi, ilk nitelik): kayıtsız QFC takılamıyor, değeri yok, Hyperforge listesinde
-        görünmüyordu. Oturum her girişte çağırır -> kaydı yapılan itemId'ler."""
+        """Records for QFCs that have no record (bound ship, first attribute): a QFC without a record could not be fitted, had no value, and did not
+        appear in the Hyperforge list. The session calls it at every login -> the itemIds that got a record."""
         done = [int(i) for i, l in list(self.p.d['items'].items()) if l in TYPES and not state(self.p, i)]
         for iid in done:
             self.record(self.p.d['items'][str(iid)], iid, rng=rng)
         return done
 
     def create(self, loot, ship=None, rng=random):
-        """Yeni QFC: rastgele gemi (oyuncunun gemilerinden; uyarlama), ilk nitelik -> itemId."""
+        """New QFC: a random ship (from the player's ships; adaptation), the first attribute -> itemId."""
         return self.record(loot, self.p.new_item(loot), ship, rng)
 
     def record(self, loot, iid, ship=None, rng=random):
@@ -156,7 +156,7 @@ class Qfc:
         return iid
 
     def grant(self, loot, n=1, rng=random):
-        """Ödül (Echo sandığı, paket): QFC'ler envantere; takılmaz (bağlı gemi ve tür kuralı hangarda)."""
+        """Reward (Echo chest, package): QFCs to the inventory; not fitted (the bound ship and type rule is in the hangar)."""
         if loot not in TYPES:
             return None
         msgs = []
@@ -171,7 +171,7 @@ class Qfc:
         iid, t = int(f.get('ItemId') or f.get('itemId') or 0), f.get('type')
         t = t.get('typeValue', t) if isinstance(t, dict) else t
         if str(iid) not in self.p.d['items'] or not state(self.p, iid):
-            self.log('   Hyperforge: QFC yok (%s)' % iid)
+            self.log('   Hyperforge: no such QFC (%s)' % iid)
             return [self.list_cmd()]
         if int(t or 0) == FORGE:
             return self.forge(iid)
@@ -187,7 +187,7 @@ class Qfc:
         if price is None:
             return [stm('msg_reroll_error_item'), self.list_cmd()]
         if INV.spend(self.p, {LUMI: price}, 'buy_SPECIAL', 'hyperforge') is None:
-            self.log('   Hyperforge: Luminaflux yetmiyor (%d < %d)' % (INV.count(self.p, LUMI), price))
+            self.log('   Hyperforge: not enough Luminaflux (%d < %d)' % (INV.count(self.p, LUMI), price))
             return [stm('ttip_not_enough_resources'), self.list_cmd()]
         with self.p.lock:
             rec['level'] += 1
@@ -197,7 +197,7 @@ class Qfc:
             if rec['level'] in D['unlocked_levels'] and len(rec['attributes']) < D['max_attributes']:
                 rec['attributes'].append(self.roll_attr(loot, rec['attributes'], rng))
             self.p.dirty = True
-        self.log('   Hyperforge: %s seviye %d (%s)' % (loot, rec['level'], ', '.join('%s %.2f%%' % (a, v) for a, v in rec['attributes'])))
+        self.log('   Hyperforge: %s level %d (%s)' % (loot, rec['level'], ', '.join('%s %.2f%%' % (a, v) for a, v in rec['attributes'])))
         name = loot.replace(PREFIX, 'QFC-').replace('-', '').upper().replace('QFC', 'QFC-')
         msgs = INV.update_msgs(self.m, self.p, [LUMI]) + [stm('log_message_core_forge_finished', '%NAME%', name, '%LEVEL%', rec['level'])]
         return msgs + [self.list_cmd()] + self.after(iid)
@@ -206,7 +206,7 @@ class Qfc:
         from legacy_protocol import stm
         loot = self.p.d['items'][str(iid)]
         if iid in self.p.equipped_ids():
-            self.log('   Hyperforge: takılı QFC geri dönüştürülmez (%s)' % iid)
+            self.log('   Hyperforge: a fitted QFC cannot be recycled (%s)' % iid)
             return [stm('msg_reroll_error_item'), self.list_cmd()]
         n = TYPES[loot]['recycle']
         with self.p.lock:
@@ -218,11 +218,11 @@ class Qfc:
         if not self.m:
             self.p.add_resource(LUMI, n)
         name = loot.replace(PREFIX, 'QFC-').replace('-', '').upper().replace('QFC', 'QFC-')
-        self.log('   Hyperforge: %s geri dönüştürüldü (+%d Luminaflux)' % (loot, n))
+        self.log('   Hyperforge: %s recycled (+%d Luminaflux)' % (loot, n))
         return msgs + [stm('log_message_core_recycle_finished', '%NAME%', name, '%COUNT%', n), self.list_cmd()]
 
     def after(self, iid):
-        """Takılı QFC değiştiyse etkin geminin değerleri."""
+        """If a fitted QFC changed, the active ship's values."""
         if self.m and iid in self.p.equipped_ids():
             return self.m.apply_stats()
         return []
