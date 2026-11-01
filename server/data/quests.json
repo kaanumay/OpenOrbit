@@ -36,8 +36,8 @@
   "Once We Ruled": "hedefsiz",
   "Fundamental Failings": "hedefsiz"
  },
- "en_cok_gorev": 5,
- "gorevler": {
+ "max_quests": 5,
+ "quests": {
   "2": {
    "ad": "The Skylab",
    "seviye": 6,
@@ -45,11 +45,11 @@
    "kinds": [
     2
    ],
-   "simge": 2,
-   "onceki": [],
+   "icon": 2,
+   "previous": [],
    "kaynak": "kayıt",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 2002010,
     "active": false,
@@ -89,7 +89,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "equipment_extra_hmd-07",
      1
@@ -103,13 +103,13 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [
+   "icon": 0,
+   "previous": [
     20009
    ],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 47100,
     "active": false,
@@ -239,7 +239,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_credits",
      20000
@@ -257,11 +257,11 @@
    "kinds": [
     1
    ],
-   "simge": 2,
-   "onceki": [],
+   "icon": 2,
+   "previous": [],
    "kaynak": "kayıt",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 2000000,
     "active": false,
@@ -301,7 +301,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "ammunition_laser_lcb-10",
      500
@@ -315,13 +315,13 @@
    "kinds": [
     1
    ],
-   "simge": 0,
-   "onceki": [
+   "icon": 0,
+   "previous": [
     20000
    ],
    "kaynak": "kayıt",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 2000100,
     "active": false,
@@ -448,7 +448,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "ammunition_rocket_r-310",
      100
@@ -470,13 +470,13 @@
    "kinds": [
     1
    ],
-   "simge": 0,
-   "onceki": [
+   "icon": 0,
+   "previous": [
     20001
    ],
    "kaynak": "kayıt",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 2000200,
     "active": false,
@@ -546,7 +546,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "equipment_weapon_laser_lf-2",
      1
@@ -560,13 +560,13 @@
    "kinds": [
     1
    ],
-   "simge": 1,
-   "onceki": [
+   "icon": 1,
+   "previous": [
     20002
    ],
    "kaynak": "kayıt",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 2000300,
     "active": false,
@@ -666,7 +666,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      10000
@@ -684,13 +684,13 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [
+   "icon": 0,
+   "previous": [
     20003
    ],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 2000400,
     "active": false,
@@ -877,7 +877,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "equipment_weapon_laser_lf-2",
      1
@@ -891,13 +891,13 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [
+   "icon": 0,
+   "previous": [
     20004
    ],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 2000500,
     "active": false,
@@ -965,7 +965,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "equipment_generator_shield_sg3n-b02",
      1
@@ -983,13 +983,13 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [
+   "icon": 0,
+   "previous": [
     20005
    ],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 2000600,
     "active": false,
@@ -1150,7 +1150,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_credits",
      100000
@@ -1176,13 +1176,13 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [
+   "icon": 0,
+   "previous": [
     20006
    ],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 2000800,
     "active": false,
@@ -1342,7 +1342,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      20000
@@ -1372,13 +1372,13 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [
+   "icon": 0,
+   "previous": [
     20008
    ],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 2000900,
     "active": false,
@@ -1508,7 +1508,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      20000
@@ -1534,13 +1534,13 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [
+   "icon": 0,
+   "previous": [
     471
    ],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 2001200,
     "active": false,
@@ -1608,7 +1608,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "resource_extra-energy",
      100
@@ -1622,11 +1622,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 2001400,
     "active": false,
@@ -1666,7 +1666,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      81000
@@ -1764,11 +1764,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10500100,
     "active": false,
@@ -1838,7 +1838,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1600
@@ -1860,11 +1860,11 @@
    "kinds": [
     2
    ],
-   "simge": 1,
-   "onceki": [],
+   "icon": 1,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10500200,
     "active": false,
@@ -1904,7 +1904,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1600
@@ -1926,11 +1926,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10500300,
     "active": false,
@@ -1970,7 +1970,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1600
@@ -1992,11 +1992,11 @@
    "kinds": [
     2
    ],
-   "simge": 1,
-   "onceki": [],
+   "icon": 1,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10500400,
     "active": false,
@@ -2036,7 +2036,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1600
@@ -2058,11 +2058,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10500500,
     "active": false,
@@ -2132,7 +2132,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1600
@@ -2154,11 +2154,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10500600,
     "active": false,
@@ -2228,7 +2228,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1600
@@ -2250,11 +2250,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10500700,
     "active": false,
@@ -2294,7 +2294,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1600
@@ -2316,11 +2316,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10500800,
     "active": false,
@@ -2390,7 +2390,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1600
@@ -2412,11 +2412,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10500900,
     "active": false,
@@ -2486,7 +2486,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1600
@@ -2508,11 +2508,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10501000,
     "active": false,
@@ -2552,7 +2552,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1300
@@ -2574,11 +2574,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10501100,
     "active": false,
@@ -2618,7 +2618,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1300
@@ -2640,11 +2640,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10600100,
     "active": false,
@@ -2684,7 +2684,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1750
@@ -2706,11 +2706,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10600200,
     "active": false,
@@ -2750,7 +2750,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1750
@@ -2772,11 +2772,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10600300,
     "active": false,
@@ -2816,7 +2816,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1750
@@ -2838,11 +2838,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10600500,
     "active": false,
@@ -2950,7 +2950,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1750
@@ -2972,11 +2972,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10600700,
     "active": false,
@@ -3084,7 +3084,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1750
@@ -3106,11 +3106,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10600800,
     "active": false,
@@ -3169,7 +3169,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1750
@@ -3191,11 +3191,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10600900,
     "active": false,
@@ -3254,7 +3254,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1750
@@ -3276,11 +3276,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10601000,
     "active": false,
@@ -3437,7 +3437,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1750
@@ -3459,11 +3459,11 @@
    "kinds": [
     2
    ],
-   "simge": 1,
-   "onceki": [],
+   "icon": 1,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10601100,
     "active": false,
@@ -3503,7 +3503,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1750
@@ -3525,11 +3525,11 @@
    "kinds": [
     2
    ],
-   "simge": 1,
-   "onceki": [],
+   "icon": 1,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10601200,
     "active": false,
@@ -3569,7 +3569,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1750
@@ -3591,11 +3591,11 @@
    "kinds": [
     2
    ],
-   "simge": 1,
-   "onceki": [],
+   "icon": 1,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10601300,
     "active": false,
@@ -3703,7 +3703,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1750
@@ -3725,11 +3725,11 @@
    "kinds": [
     2
    ],
-   "simge": 1,
-   "onceki": [],
+   "icon": 1,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10601400,
     "active": false,
@@ -3788,7 +3788,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1750
@@ -3810,11 +3810,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10700100,
     "active": false,
@@ -3854,7 +3854,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1950
@@ -3876,11 +3876,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10700200,
     "active": false,
@@ -3988,7 +3988,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1950
@@ -4010,11 +4010,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10700300,
     "active": false,
@@ -4122,7 +4122,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1950
@@ -4144,11 +4144,11 @@
    "kinds": [
     2
    ],
-   "simge": 1,
-   "onceki": [],
+   "icon": 1,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10700400,
     "active": false,
@@ -4188,7 +4188,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1950
@@ -4210,11 +4210,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10700500,
     "active": false,
@@ -4322,7 +4322,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1950
@@ -4344,11 +4344,11 @@
    "kinds": [
     2
    ],
-   "simge": 1,
-   "onceki": [],
+   "icon": 1,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10700600,
     "active": false,
@@ -4388,7 +4388,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1950
@@ -4410,11 +4410,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10700700,
     "active": false,
@@ -4522,7 +4522,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1950
@@ -4544,11 +4544,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10700800,
     "active": false,
@@ -4588,7 +4588,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1950
@@ -4610,11 +4610,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10700900,
     "active": false,
@@ -4654,7 +4654,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1950
@@ -4676,11 +4676,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10701000,
     "active": false,
@@ -4788,7 +4788,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1950
@@ -4810,11 +4810,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10701100,
     "active": false,
@@ -4933,7 +4933,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1950
@@ -4955,11 +4955,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10701200,
     "active": false,
@@ -5029,7 +5029,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1950
@@ -5051,11 +5051,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10701300,
     "active": false,
@@ -5125,7 +5125,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1950
@@ -5147,11 +5147,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10701400,
     "active": false,
@@ -5221,7 +5221,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1950
@@ -5243,11 +5243,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10800100,
     "active": false,
@@ -5306,7 +5306,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      18900
@@ -5328,11 +5328,11 @@
    "kinds": [
     2
    ],
-   "simge": 1,
-   "onceki": [],
+   "icon": 1,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10800200,
     "active": false,
@@ -5372,7 +5372,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      18900
@@ -5394,11 +5394,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10800300,
     "active": false,
@@ -5468,7 +5468,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      18900
@@ -5490,11 +5490,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10800400,
     "active": false,
@@ -5602,7 +5602,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      18900
@@ -5624,11 +5624,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10800500,
     "active": false,
@@ -5736,7 +5736,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      18900
@@ -5758,11 +5758,11 @@
    "kinds": [
     2
    ],
-   "simge": 1,
-   "onceki": [],
+   "icon": 1,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10800600,
     "active": false,
@@ -5802,7 +5802,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      18900
@@ -5824,11 +5824,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10800790,
     "active": false,
@@ -5944,7 +5944,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      18900
@@ -5967,11 +5967,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10800800,
     "active": false,
@@ -6128,7 +6128,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      18900
@@ -6150,11 +6150,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10800900,
     "active": false,
@@ -6194,7 +6194,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      18900
@@ -6216,11 +6216,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10801090,
     "active": false,
@@ -6336,7 +6336,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      18900
@@ -6359,11 +6359,11 @@
    "kinds": [
     2
    ],
-   "simge": 1,
-   "onceki": [],
+   "icon": 1,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10801100,
     "active": false,
@@ -6403,7 +6403,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      18900
@@ -6425,11 +6425,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10801200,
     "active": false,
@@ -6469,7 +6469,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      18900
@@ -6491,11 +6491,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10801300,
     "active": false,
@@ -6595,7 +6595,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      18900
@@ -6617,11 +6617,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10801400,
     "active": false,
@@ -6691,7 +6691,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      18900
@@ -6713,11 +6713,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10801500,
     "active": false,
@@ -6817,7 +6817,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      18900
@@ -6839,11 +6839,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10900100,
     "active": false,
@@ -6883,7 +6883,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      53100
@@ -6905,11 +6905,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10900290,
     "active": false,
@@ -7036,7 +7036,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      53100
@@ -7059,11 +7059,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10900300,
     "active": false,
@@ -7133,7 +7133,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      53100
@@ -7155,11 +7155,11 @@
    "kinds": [
     2
    ],
-   "simge": 1,
-   "onceki": [],
+   "icon": 1,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10900400,
     "active": false,
@@ -7229,7 +7229,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      53100
@@ -7251,11 +7251,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10900590,
     "active": false,
@@ -7382,7 +7382,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      53100
@@ -7405,11 +7405,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10900600,
     "active": false,
@@ -7450,7 +7450,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      53100
@@ -7472,11 +7472,11 @@
    "kinds": [
     2
    ],
-   "simge": 1,
-   "onceki": [],
+   "icon": 1,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10900700,
     "active": false,
@@ -7516,7 +7516,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      53100
@@ -7538,11 +7538,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10900800,
     "active": false,
@@ -7582,7 +7582,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      53100
@@ -7604,11 +7604,11 @@
    "kinds": [
     2
    ],
-   "simge": 1,
-   "onceki": [],
+   "icon": 1,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10900900,
     "active": false,
@@ -7648,7 +7648,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      53100
@@ -7670,11 +7670,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10901000,
     "active": false,
@@ -7715,7 +7715,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      53100
@@ -7737,11 +7737,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10901100,
     "active": false,
@@ -7811,7 +7811,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      53100
@@ -7833,11 +7833,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10901200,
     "active": false,
@@ -7877,7 +7877,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      53100
@@ -7899,11 +7899,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10901300,
     "active": false,
@@ -7943,7 +7943,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      53100
@@ -7965,11 +7965,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10901400,
     "active": false,
@@ -8039,7 +8039,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      53100
@@ -8061,11 +8061,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 10901500,
     "active": false,
@@ -8106,7 +8106,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      53100
@@ -8128,11 +8128,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11000100,
     "active": false,
@@ -8172,7 +8172,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      133300
@@ -8194,11 +8194,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11000200,
     "active": false,
@@ -8257,7 +8257,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      133300
@@ -8279,11 +8279,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11000300,
     "active": false,
@@ -8353,7 +8353,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      133300
@@ -8375,11 +8375,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11000490,
     "active": false,
@@ -8506,7 +8506,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      133300
@@ -8529,11 +8529,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11000500,
     "active": false,
@@ -8574,7 +8574,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      133300
@@ -8604,11 +8604,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11000600,
     "active": false,
@@ -8648,7 +8648,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      133300
@@ -8670,11 +8670,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11000700,
     "active": false,
@@ -8782,7 +8782,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      133300
@@ -8804,11 +8804,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11000890,
     "active": false,
@@ -9022,7 +9022,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      133300
@@ -9045,11 +9045,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11000900,
     "active": false,
@@ -9089,7 +9089,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      133300
@@ -9111,11 +9111,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11001000,
     "active": false,
@@ -9174,7 +9174,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      133300
@@ -9196,11 +9196,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11001100,
     "active": false,
@@ -9260,7 +9260,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      133300
@@ -9286,11 +9286,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11001200,
     "active": false,
@@ -9349,7 +9349,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      133300
@@ -9371,11 +9371,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11001300,
     "active": false,
@@ -9415,7 +9415,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      133300
@@ -9437,11 +9437,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11100100,
     "active": false,
@@ -9481,7 +9481,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      307400
@@ -9503,11 +9503,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11100200,
     "active": false,
@@ -9547,7 +9547,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      307400
@@ -9569,11 +9569,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11100300,
     "active": false,
@@ -9614,7 +9614,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      213000
@@ -9640,11 +9640,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11100400,
     "active": false,
@@ -9684,7 +9684,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      307400
@@ -9706,11 +9706,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11100500,
     "active": false,
@@ -9751,7 +9751,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      213000
@@ -9777,11 +9777,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11100600,
     "active": false,
@@ -9840,7 +9840,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      307400
@@ -9862,11 +9862,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11100700,
     "active": false,
@@ -9925,7 +9925,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      307400
@@ -9947,11 +9947,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11100800,
     "active": false,
@@ -9992,7 +9992,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      213000
@@ -10018,11 +10018,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11100900,
     "active": false,
@@ -10062,7 +10062,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      307400
@@ -10084,11 +10084,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11101000,
     "active": false,
@@ -10158,7 +10158,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      307400
@@ -10180,11 +10180,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11101100,
     "active": false,
@@ -10254,7 +10254,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      307400
@@ -10276,11 +10276,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11200100,
     "active": false,
@@ -10322,7 +10322,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      565000
@@ -10348,11 +10348,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11200200,
     "active": false,
@@ -10394,7 +10394,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      565000
@@ -10420,11 +10420,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11200300,
     "active": false,
@@ -10466,7 +10466,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      565000
@@ -10492,11 +10492,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11200400,
     "active": false,
@@ -10555,7 +10555,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      565000
@@ -10577,11 +10577,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11200500,
     "active": false,
@@ -10640,7 +10640,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      565000
@@ -10662,11 +10662,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11200600,
     "active": false,
@@ -10706,7 +10706,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      565000
@@ -10728,11 +10728,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11200700,
     "active": false,
@@ -10840,7 +10840,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      565000
@@ -10862,11 +10862,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11200800,
     "active": false,
@@ -10925,7 +10925,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      565000
@@ -10947,11 +10947,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11200900,
     "active": false,
@@ -11059,7 +11059,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      565000
@@ -11081,11 +11081,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11201000,
     "active": false,
@@ -11193,7 +11193,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      565000
@@ -11215,11 +11215,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11201100,
     "active": false,
@@ -11289,7 +11289,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      565000
@@ -11311,11 +11311,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11201200,
     "active": false,
@@ -11423,7 +11423,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      565000
@@ -11445,11 +11445,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11201300,
     "active": false,
@@ -11490,7 +11490,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      565000
@@ -11516,11 +11516,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11201400,
     "active": false,
@@ -11590,7 +11590,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      565000
@@ -11612,11 +11612,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11201500,
     "active": false,
@@ -11686,7 +11686,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      565000
@@ -11712,11 +11712,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11201600,
     "active": false,
@@ -11786,7 +11786,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      565000
@@ -11812,11 +11812,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11300100,
     "active": false,
@@ -11924,7 +11924,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1875840
@@ -11946,11 +11946,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11300200,
     "active": false,
@@ -12058,7 +12058,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1875840
@@ -12080,11 +12080,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11300300,
     "active": false,
@@ -12143,7 +12143,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1875840
@@ -12165,11 +12165,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11300400,
     "active": false,
@@ -12210,7 +12210,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1875840
@@ -12236,11 +12236,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11300500,
     "active": false,
@@ -12299,7 +12299,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1875840
@@ -12321,11 +12321,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11300600,
     "active": false,
@@ -12384,7 +12384,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1875840
@@ -12406,11 +12406,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11300700,
     "active": false,
@@ -12451,7 +12451,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1875840
@@ -12477,11 +12477,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11300800,
     "active": false,
@@ -12589,7 +12589,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      1875840
@@ -12611,11 +12611,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11400100,
     "active": false,
@@ -12655,7 +12655,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      2000000
@@ -12677,11 +12677,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11400200,
     "active": false,
@@ -12721,7 +12721,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      2000000
@@ -12743,11 +12743,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11400300,
     "active": false,
@@ -12789,7 +12789,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      2000000
@@ -12815,11 +12815,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11400400,
     "active": false,
@@ -12927,7 +12927,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      2000000
@@ -12949,11 +12949,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11400500,
     "active": false,
@@ -13061,7 +13061,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      2000000
@@ -13083,11 +13083,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11400600,
     "active": false,
@@ -13146,7 +13146,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      2000000
@@ -13168,11 +13168,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11400700,
     "active": false,
@@ -13242,7 +13242,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      2000000
@@ -13264,11 +13264,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11400800,
     "active": false,
@@ -13338,7 +13338,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      2000000
@@ -13360,11 +13360,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11400900,
     "active": false,
@@ -13404,7 +13404,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      2000000
@@ -13426,11 +13426,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11401000,
     "active": false,
@@ -13472,7 +13472,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      2000000
@@ -13498,11 +13498,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11401100,
     "active": false,
@@ -13572,7 +13572,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      2000000
@@ -13594,11 +13594,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11401200,
     "active": false,
@@ -13698,7 +13698,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      2000000
@@ -13720,11 +13720,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11401300,
     "active": false,
@@ -13794,7 +13794,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      2000000
@@ -13816,11 +13816,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11401400,
     "active": false,
@@ -13920,7 +13920,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      2000000
@@ -13942,11 +13942,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11401500,
     "active": false,
@@ -14103,7 +14103,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      2000000
@@ -14125,11 +14125,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11401600,
     "active": false,
@@ -14169,7 +14169,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      2000000
@@ -14191,11 +14191,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11401700,
     "active": false,
@@ -14265,7 +14265,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      2000000
@@ -14287,11 +14287,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11401800,
     "active": false,
@@ -14333,7 +14333,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      2000000
@@ -14359,11 +14359,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11401900,
     "active": false,
@@ -14422,7 +14422,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      2000000
@@ -14444,11 +14444,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11402000,
     "active": false,
@@ -14489,7 +14489,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      2000000
@@ -14515,11 +14515,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11500100,
     "active": false,
@@ -14608,7 +14608,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      6746181
@@ -14630,11 +14630,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11500200,
     "active": false,
@@ -14791,7 +14791,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      6746181
@@ -14813,11 +14813,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11500300,
     "active": false,
@@ -14858,7 +14858,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      6746181
@@ -14884,11 +14884,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11500400,
     "active": false,
@@ -15007,7 +15007,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      6746181
@@ -15029,11 +15029,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11500500,
     "active": false,
@@ -15074,7 +15074,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      6746181
@@ -15100,11 +15100,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11500600,
     "active": false,
@@ -15145,7 +15145,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      6746181
@@ -15171,11 +15171,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11500700,
     "active": false,
@@ -15283,7 +15283,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      6746181
@@ -15305,11 +15305,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11500800,
     "active": false,
@@ -15428,7 +15428,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      6746181
@@ -15450,11 +15450,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11500900,
     "active": false,
@@ -15573,7 +15573,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      6746181
@@ -15595,11 +15595,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11600100,
     "active": false,
@@ -15669,7 +15669,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      7387000
@@ -15691,11 +15691,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11600200,
     "active": false,
@@ -15765,7 +15765,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      7387000
@@ -15787,11 +15787,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11600300,
     "active": false,
@@ -15861,7 +15861,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      7387000
@@ -15883,11 +15883,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11600400,
     "active": false,
@@ -15957,7 +15957,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      7387000
@@ -15979,11 +15979,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11600500,
     "active": false,
@@ -16042,7 +16042,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      7387000
@@ -16064,11 +16064,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11600600,
     "active": false,
@@ -16127,7 +16127,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      7387000
@@ -16149,11 +16149,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11600700,
     "active": false,
@@ -16261,7 +16261,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      7387000
@@ -16283,11 +16283,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11600800,
     "active": false,
@@ -16327,7 +16327,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      7387000
@@ -16349,11 +16349,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11600900,
     "active": false,
@@ -16393,7 +16393,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      7387000
@@ -16415,11 +16415,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11601000,
     "active": false,
@@ -16459,7 +16459,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      7387000
@@ -16481,11 +16481,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11601100,
     "active": false,
@@ -16525,7 +16525,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      7387000
@@ -16547,11 +16547,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11601200,
     "active": false,
@@ -16621,7 +16621,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      7387000
@@ -16643,11 +16643,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11601300,
     "active": false,
@@ -16706,7 +16706,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      7387000
@@ -16728,11 +16728,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11601400,
     "active": false,
@@ -16832,7 +16832,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      7387000
@@ -16854,11 +16854,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11601500,
     "active": false,
@@ -16958,7 +16958,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      7387000
@@ -16980,12 +16980,12 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
    "company_excluded": 1,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11601600,
     "active": false,
@@ -17027,7 +17027,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      7387000
@@ -17053,12 +17053,12 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
    "company_excluded": 2,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11601700,
     "active": false,
@@ -17100,7 +17100,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      7387000
@@ -17126,12 +17126,12 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
    "company_excluded": 3,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11601800,
     "active": false,
@@ -17173,7 +17173,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      7387000
@@ -17199,12 +17199,12 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
    "company_excluded": 1,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11601900,
     "active": false,
@@ -17246,7 +17246,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      7387000
@@ -17272,12 +17272,12 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
    "company_excluded": 2,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11602000,
     "active": false,
@@ -17319,7 +17319,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      7387000
@@ -17345,12 +17345,12 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
    "company_excluded": 3,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11602100,
     "active": false,
@@ -17392,7 +17392,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      7387000
@@ -17418,11 +17418,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11602200,
     "active": false,
@@ -17463,7 +17463,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      7387000
@@ -17489,11 +17489,11 @@
    "kinds": [
     2
    ],
-   "simge": 1,
-   "onceki": [],
+   "icon": 1,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11602300,
     "active": false,
@@ -17533,7 +17533,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      7387000
@@ -17555,11 +17555,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11602400,
     "active": false,
@@ -17659,7 +17659,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      7387000
@@ -17681,11 +17681,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11602500,
     "active": false,
@@ -17785,7 +17785,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      7387000
@@ -17807,11 +17807,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11700100,
     "active": false,
@@ -17881,7 +17881,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      14805000
@@ -17903,11 +17903,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11700200,
     "active": false,
@@ -17947,7 +17947,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      14805000
@@ -17969,11 +17969,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11700300,
     "active": false,
@@ -18013,7 +18013,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      14805000
@@ -18035,11 +18035,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11700400,
     "active": false,
@@ -18128,7 +18128,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      14805000
@@ -18150,11 +18150,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11700500,
     "active": false,
@@ -18224,7 +18224,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      14805000
@@ -18246,11 +18246,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11700600,
     "active": false,
@@ -18290,7 +18290,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      14805000
@@ -18312,11 +18312,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11700700,
     "active": false,
@@ -18388,7 +18388,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      14805000
@@ -18414,11 +18414,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11700800,
     "active": false,
@@ -18459,7 +18459,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      14805000
@@ -18485,11 +18485,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11700900,
     "active": false,
@@ -18559,7 +18559,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      14805000
@@ -18581,11 +18581,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11701000,
     "active": false,
@@ -18655,7 +18655,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      14805000
@@ -18677,11 +18677,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11701100,
     "active": false,
@@ -18781,7 +18781,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      14805000
@@ -18803,11 +18803,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11701200,
     "active": false,
@@ -18877,7 +18877,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      14805000
@@ -18899,11 +18899,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11701300,
     "active": false,
@@ -18944,7 +18944,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      14805000
@@ -18970,11 +18970,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11701400,
     "active": false,
@@ -19034,7 +19034,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      14805000
@@ -19060,11 +19060,11 @@
    "kinds": [
     2
    ],
-   "simge": 1,
-   "onceki": [],
+   "icon": 1,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11701500,
     "active": false,
@@ -19104,7 +19104,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      14805000
@@ -19126,11 +19126,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11701600,
     "active": false,
@@ -19230,7 +19230,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      14805000
@@ -19252,11 +19252,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11701700,
     "active": false,
@@ -19296,7 +19296,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      14805000
@@ -19318,11 +19318,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11701800,
     "active": false,
@@ -19363,7 +19363,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      14805000
@@ -19389,11 +19389,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11701900,
     "active": false,
@@ -19553,7 +19553,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      14805000
@@ -19579,11 +19579,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11702000,
     "active": false,
@@ -19643,7 +19643,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      14805000
@@ -19669,11 +19669,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11702100,
     "active": false,
@@ -19714,7 +19714,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      14805000
@@ -19740,11 +19740,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11702200,
     "active": false,
@@ -19901,7 +19901,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      14805000
@@ -19923,11 +19923,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11702300,
     "active": false,
@@ -20027,7 +20027,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      14805000
@@ -20049,11 +20049,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11800100,
     "active": false,
@@ -20153,7 +20153,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      24208000
@@ -20175,11 +20175,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11800200,
     "active": false,
@@ -20249,7 +20249,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      24208000
@@ -20271,11 +20271,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11800300,
     "active": false,
@@ -20375,7 +20375,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      24208000
@@ -20397,11 +20397,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11800400,
     "active": false,
@@ -20501,7 +20501,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      24208000
@@ -20523,11 +20523,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11800500,
     "active": false,
@@ -20568,7 +20568,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      24208000
@@ -20594,11 +20594,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11800600,
     "active": false,
@@ -20639,7 +20639,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      24208000
@@ -20665,11 +20665,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11800700,
     "active": false,
@@ -20769,7 +20769,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      24208000
@@ -20791,11 +20791,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11800800,
     "active": false,
@@ -20854,7 +20854,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      24208000
@@ -20876,11 +20876,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11800900,
     "active": false,
@@ -20950,7 +20950,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      24208000
@@ -20972,11 +20972,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11801000,
     "active": false,
@@ -21036,7 +21036,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      24208000
@@ -21062,11 +21062,11 @@
    "kinds": [
     2
    ],
-   "simge": 1,
-   "onceki": [],
+   "icon": 1,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11801100,
     "active": false,
@@ -21106,7 +21106,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      24208000
@@ -21128,11 +21128,11 @@
    "kinds": [
     2
    ],
-   "simge": 1,
-   "onceki": [],
+   "icon": 1,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11801200,
     "active": false,
@@ -21172,7 +21172,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      24208000
@@ -21194,11 +21194,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11801300,
     "active": false,
@@ -21268,7 +21268,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      24208000
@@ -21290,11 +21290,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11801490,
     "active": false,
@@ -21391,7 +21391,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      24208000
@@ -21414,11 +21414,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11801500,
     "active": false,
@@ -21459,7 +21459,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      24208000
@@ -21485,11 +21485,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11801600,
     "active": false,
@@ -21549,7 +21549,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      24208000
@@ -21575,11 +21575,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11801700,
     "active": false,
@@ -21639,7 +21639,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      24208000
@@ -21665,11 +21665,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11801800,
     "active": false,
@@ -21710,7 +21710,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      24208000
@@ -21736,11 +21736,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11801900,
     "active": false,
@@ -21800,7 +21800,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      24208000
@@ -21826,11 +21826,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11802000,
     "active": false,
@@ -21871,7 +21871,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      24208000
@@ -21897,11 +21897,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11802100,
     "active": false,
@@ -21961,7 +21961,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      24208000
@@ -21987,11 +21987,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11802200,
     "active": false,
@@ -22051,7 +22051,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      24208000
@@ -22077,11 +22077,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11802300,
     "active": false,
@@ -22238,7 +22238,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      24208000
@@ -22260,11 +22260,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11802400,
     "active": false,
@@ -22421,7 +22421,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      24208000
@@ -22443,11 +22443,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11802500,
     "active": false,
@@ -22506,7 +22506,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      24208000
@@ -22528,11 +22528,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11900190,
     "active": false,
@@ -22678,7 +22678,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      57800000
@@ -22701,11 +22701,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11900200,
     "active": false,
@@ -22824,7 +22824,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      57800000
@@ -22846,11 +22846,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11900300,
     "active": false,
@@ -22909,7 +22909,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      57800000
@@ -22931,11 +22931,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11900400,
     "active": false,
@@ -23035,7 +23035,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      57800000
@@ -23057,11 +23057,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11900500,
     "active": false,
@@ -23102,7 +23102,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      57800000
@@ -23128,11 +23128,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11900600,
     "active": false,
@@ -23173,7 +23173,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      57800000
@@ -23199,11 +23199,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11900790,
     "active": false,
@@ -23319,7 +23319,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      57800000
@@ -23342,11 +23342,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11900800,
     "active": false,
@@ -23435,7 +23435,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      57800000
@@ -23457,11 +23457,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11900900,
     "active": false,
@@ -23520,7 +23520,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      57800000
@@ -23542,11 +23542,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11901000,
     "active": false,
@@ -23587,7 +23587,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      57800000
@@ -23613,11 +23613,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11901100,
     "active": false,
@@ -23725,7 +23725,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      57800000
@@ -23747,11 +23747,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11901290,
     "active": false,
@@ -23916,7 +23916,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      57800000
@@ -23939,11 +23939,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11901300,
     "active": false,
@@ -24002,7 +24002,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      57800000
@@ -24024,11 +24024,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11901400,
     "active": false,
@@ -24068,7 +24068,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      57800000
@@ -24090,11 +24090,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11901500,
     "active": false,
@@ -24135,7 +24135,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      57800000
@@ -24161,11 +24161,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11901600,
     "active": false,
@@ -24206,7 +24206,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      57800000
@@ -24232,11 +24232,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11901700,
     "active": false,
@@ -24344,7 +24344,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      57800000
@@ -24366,11 +24366,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11901800,
     "active": false,
@@ -24429,7 +24429,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      57800000
@@ -24451,11 +24451,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11901900,
     "active": false,
@@ -24525,7 +24525,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      57800000
@@ -24547,11 +24547,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 11902000,
     "active": false,
@@ -24592,7 +24592,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      57800000
@@ -24618,11 +24618,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12000100,
     "active": false,
@@ -24662,7 +24662,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      28000000
@@ -24684,11 +24684,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12000200,
     "active": false,
@@ -24758,7 +24758,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      28000000
@@ -24780,11 +24780,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12000300,
     "active": false,
@@ -24844,7 +24844,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      27567000
@@ -24870,11 +24870,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12000400,
     "active": false,
@@ -24934,7 +24934,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      27567000
@@ -24960,11 +24960,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12000500,
     "active": false,
@@ -25034,7 +25034,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      28000000
@@ -25056,11 +25056,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12000600,
     "active": false,
@@ -25119,7 +25119,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      28000000
@@ -25141,11 +25141,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12000700,
     "active": false,
@@ -25205,7 +25205,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      27567000
@@ -25231,11 +25231,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12000800,
     "active": false,
@@ -25295,7 +25295,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      27567000
@@ -25321,11 +25321,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12000900,
     "active": false,
@@ -25384,7 +25384,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      28000000
@@ -25406,11 +25406,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12001000,
     "active": false,
@@ -25469,7 +25469,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      28000000
@@ -25491,11 +25491,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12001100,
     "active": false,
@@ -25555,7 +25555,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      27567000
@@ -25581,11 +25581,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12001200,
     "active": false,
@@ -25645,7 +25645,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      27567000
@@ -25671,11 +25671,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12001300,
     "active": false,
@@ -25734,7 +25734,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      28000000
@@ -25756,11 +25756,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12001400,
     "active": false,
@@ -25819,7 +25819,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      28000000
@@ -25841,11 +25841,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12001500,
     "active": false,
@@ -25886,7 +25886,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      27567000
@@ -25912,11 +25912,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12001600,
     "active": false,
@@ -26076,7 +26076,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      27567000
@@ -26102,11 +26102,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12001700,
     "active": false,
@@ -26165,7 +26165,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      28000000
@@ -26187,11 +26187,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12001800,
     "active": false,
@@ -26348,7 +26348,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      28000000
@@ -26370,11 +26370,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12001900,
     "active": false,
@@ -26415,7 +26415,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      27567000
@@ -26441,11 +26441,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12002000,
     "active": false,
@@ -26505,7 +26505,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      27567000
@@ -26531,11 +26531,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12002100,
     "active": false,
@@ -26605,7 +26605,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      75000000
@@ -26631,11 +26631,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12002200,
     "active": false,
@@ -26676,7 +26676,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      75000000
@@ -26702,11 +26702,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12002300,
     "active": false,
@@ -26806,7 +26806,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      75000000
@@ -26832,11 +26832,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12002400,
     "active": false,
@@ -26877,7 +26877,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      75000000
@@ -26903,11 +26903,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12002500,
     "active": false,
@@ -27007,7 +27007,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      75000000
@@ -27033,11 +27033,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12002600,
     "active": false,
@@ -27197,7 +27197,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      75000000
@@ -27223,11 +27223,11 @@
    "kinds": [
     2
    ],
-   "simge": 2,
-   "onceki": [],
+   "icon": 2,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12002700,
     "active": false,
@@ -27433,7 +27433,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      75000000
@@ -27463,11 +27463,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12002800,
     "active": false,
@@ -27537,7 +27537,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      75000000
@@ -27563,11 +27563,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12002900,
     "active": false,
@@ -27607,7 +27607,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      75000000
@@ -27633,11 +27633,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12003000,
     "active": false,
@@ -27697,7 +27697,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      75000000
@@ -27723,11 +27723,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12003100,
     "active": false,
@@ -27797,7 +27797,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      75000000
@@ -27823,11 +27823,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12003200,
     "active": false,
@@ -27868,7 +27868,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      75000000
@@ -27894,11 +27894,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12003300,
     "active": false,
@@ -27938,7 +27938,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      75000000
@@ -27964,11 +27964,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12003400,
     "active": false,
@@ -28068,7 +28068,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      75000000
@@ -28094,11 +28094,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12100100,
     "active": false,
@@ -28157,7 +28157,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      84000000
@@ -28179,11 +28179,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12100200,
     "active": false,
@@ -28243,7 +28243,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      84377000
@@ -28269,11 +28269,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12100300,
     "active": false,
@@ -28381,7 +28381,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      84000000
@@ -28403,11 +28403,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12100400,
     "active": false,
@@ -28477,7 +28477,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      84000000
@@ -28499,11 +28499,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12100500,
     "active": false,
@@ -28563,7 +28563,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      84377000
@@ -28589,11 +28589,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12100600,
     "active": false,
@@ -28653,7 +28653,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      84377000
@@ -28679,11 +28679,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12100700,
     "active": false,
@@ -28742,7 +28742,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      84000000
@@ -28764,11 +28764,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12100800,
     "active": false,
@@ -28808,7 +28808,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      84000000
@@ -28830,11 +28830,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12100900,
     "active": false,
@@ -28894,7 +28894,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      84377000
@@ -28920,11 +28920,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12101000,
     "active": false,
@@ -28984,7 +28984,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      84377000
@@ -29010,11 +29010,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12101100,
     "active": false,
@@ -29054,7 +29054,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      84000000
@@ -29076,11 +29076,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12101290,
     "active": false,
@@ -29197,7 +29197,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      84377000
@@ -29215,7 +29215,7 @@
      10000
     ]
    ],
-   "basarisiz": [
+   "failed": [
     {
      "tur": "olum"
     }
@@ -29228,11 +29228,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12101300,
     "active": false,
@@ -29272,7 +29272,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      84000000
@@ -29294,11 +29294,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12101400,
     "active": false,
@@ -29398,7 +29398,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      84000000
@@ -29420,11 +29420,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12101590,
     "active": false,
@@ -29541,7 +29541,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      84377000
@@ -29559,7 +29559,7 @@
      10000
     ]
    ],
-   "basarisiz": [
+   "failed": [
     {
      "tur": "olum"
     }
@@ -29572,11 +29572,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12101690,
     "active": false,
@@ -29693,7 +29693,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      84377000
@@ -29711,7 +29711,7 @@
      10000
     ]
    ],
-   "basarisiz": [
+   "failed": [
     {
      "tur": "olum"
     }
@@ -29724,11 +29724,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12101700,
     "active": false,
@@ -29787,7 +29787,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      84000000
@@ -29809,11 +29809,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": true,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12101890,
     "active": false,
@@ -29930,7 +29930,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      84377000
@@ -29948,7 +29948,7 @@
      10000
     ]
    ],
-   "basarisiz": [
+   "failed": [
     {
      "tur": "olum"
     }
@@ -29961,11 +29961,11 @@
    "kinds": [
     2
    ],
-   "simge": 0,
-   "onceki": [],
+   "icon": 0,
+   "previous": [],
    "kaynak": "wiki",
    "pvp": false,
-   "kok": {
+   "root": {
     "_": "QuestCaseModule",
     "id": 12101900,
     "active": false,
@@ -30103,7 +30103,7 @@
      }
     ]
    },
-   "oduller": [
+   "rewards": [
     [
      "currency_experience",
      84000000

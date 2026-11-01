@@ -10,25 +10,25 @@
    ],
    "sizes": {},
    "portal": 2,
-   "parca": 34,
+   "part": 34,
    "can": 5,
-   "kronos_parca": 4,
+   "kronos_part": 4,
    "waves": [
     {
      "ad": "I",
      "harita": 51,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "84",
        "ad": "Streuner",
-       "gorunen_ad": "-=[ Streuner ]=-",
+       "display_name": "-=[ Streuner ]=-",
        "adet": 40,
        "hp": 800,
        "kalkan": 400,
        "hasar": 20,
        "hiz": 172,
        "npc_kimlik": 1,
-       "odul": {
+       "reward": {
         "ep": 400,
         "onur": 2,
         "kredi": 400,
@@ -71,18 +71,18 @@
     {
      "ad": "II",
      "harita": 51,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "71",
        "ad": "Lordakia",
-       "gorunen_ad": "-=[ Lordakia ]=-",
+       "display_name": "-=[ Lordakia ]=-",
        "adet": 40,
        "hp": 2000,
        "kalkan": 2000,
        "hasar": 80,
        "hiz": 242,
        "npc_kimlik": 2,
-       "odul": {
+       "reward": {
         "ep": 1600,
         "onur": 8,
         "kredi": 1600,
@@ -126,18 +126,18 @@
     {
      "ad": "III",
      "harita": 51,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "73",
        "ad": "Mordon",
-       "gorunen_ad": "-=[ Mordon ]=-",
+       "display_name": "-=[ Mordon ]=-",
        "adet": 40,
        "hp": 20000,
        "kalkan": 10000,
        "hasar": 390,
        "hiz": 200,
        "npc_kimlik": 4,
-       "odul": {
+       "reward": {
         "ep": 3200,
         "onur": 16,
         "kredi": 6400,
@@ -184,18 +184,18 @@
     {
      "ad": "IV",
      "harita": 51,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "75",
        "ad": "Saimon",
-       "gorunen_ad": "-=[ Saimon ]=-",
+       "display_name": "-=[ Saimon ]=-",
        "adet": 80,
        "hp": 6000,
        "kalkan": 6000,
        "hasar": 200,
        "hiz": 280,
        "npc_kimlik": 6,
-       "odul": {
+       "reward": {
         "ep": 1600,
         "onur": 8,
         "kredi": 1600,
@@ -241,18 +241,18 @@
     {
      "ad": "V",
      "harita": 51,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "72",
        "ad": "Devolarium",
-       "gorunen_ad": "-=[ Devolarium ]=-",
+       "display_name": "-=[ Devolarium ]=-",
        "adet": 20,
        "hp": 100000,
        "kalkan": 100000,
        "hasar": 1200,
        "hiz": 150,
        "npc_kimlik": 3,
-       "odul": {
+       "reward": {
         "ep": 6400,
         "onur": 32,
         "kredi": 51200,
@@ -299,18 +299,18 @@
     {
      "ad": "VI",
      "harita": 51,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "78",
        "ad": "Kristallin",
-       "gorunen_ad": "-=[ Kristallin ]=-",
+       "display_name": "-=[ Kristallin ]=-",
        "adet": 80,
        "hp": 50000,
        "kalkan": 40000,
        "hasar": 1650,
        "hiz": 300,
        "npc_kimlik": 9,
-       "odul": {
+       "reward": {
         "ep": 6400,
         "onur": 32,
         "kredi": 12800,
@@ -357,18 +357,18 @@
     {
      "ad": "VII",
      "harita": 51,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "74",
        "ad": "Sibelon",
-       "gorunen_ad": "-=[ Sibelon ]=-",
+       "display_name": "-=[ Sibelon ]=-",
        "adet": 20,
        "hp": 200000,
        "kalkan": 200000,
        "hasar": 2650,
        "hiz": 150,
        "npc_kimlik": 5,
-       "odul": {
+       "reward": {
         "ep": 12800,
         "onur": 64,
         "kredi": 102400,
@@ -415,18 +415,18 @@
     {
      "ad": "VIII",
      "harita": 51,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "76",
        "ad": "Sibelonit",
-       "gorunen_ad": "-=[ Sibelonit ]=-",
+       "display_name": "-=[ Sibelonit ]=-",
        "adet": 80,
        "hp": 40000,
        "kalkan": 40000,
        "hasar": 1200,
        "hiz": 300,
        "npc_kimlik": 7,
-       "odul": {
+       "reward": {
         "ep": 3200,
         "onur": 16,
         "kredi": 12800,
@@ -473,18 +473,18 @@
     {
      "ad": "IX",
      "harita": 51,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "79",
        "ad": "Kristallon",
-       "gorunen_ad": "-=[ Kristallon ]=-",
+       "display_name": "-=[ Kristallon ]=-",
        "adet": 16,
        "hp": 400000,
        "kalkan": 300000,
        "hasar": 4450,
        "hiz": 200,
        "npc_kimlik": 10,
-       "odul": {
+       "reward": {
         "ep": 51200,
         "onur": 256,
         "kredi": 409600,
@@ -531,18 +531,18 @@
     {
      "ad": "X",
      "harita": 51,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "81",
        "ad": "Protegit",
-       "gorunen_ad": "-=[ Protegit ]=-",
+       "display_name": "-=[ Protegit ]=-",
        "adet": 30,
        "hp": 50000,
        "kalkan": 40000,
        "hasar": 1500,
        "hiz": 420,
        "npc_kimlik": 12,
-       "odul": {
+       "reward": {
         "ep": 6400,
         "onur": 32,
         "kredi": 12800,
@@ -587,22 +587,22 @@
      ]
     }
    ],
-   "odul": {
+   "reward": {
     "ep": 4000000,
     "onur": 100000,
     "uridyum": 20000,
-    "cephane": {
+    "ammunition": {
      "ammunition_laser_ucb-100": 20000
     },
     "xenomit": 200,
     "log_disk": 2,
-    "kupon": 2,
-    "enerji": 0,
-    "ganimet": {
+    "voucher": 2,
+    "energy": 0,
+    "booty": {
      "abr": 2
     },
-    "parca": 1,
-    "sans": [
+    "part": 1,
+    "chance": [
      {
       "esya": "ship_pusat_design_pusat-sandstorm",
       "adet": 1,
@@ -611,7 +611,7 @@
      {
       "esya": "resource_collectable_diametrion",
       "adet": 70,
-      "adet_en_cok": 80,
+      "max_count": 80,
       "probability": 0.01,
       "together": [
        [
@@ -638,7 +638,7 @@
       ]
      },
      {
-      "esya": "cevher_paketi",
+      "esya": "ore_pack",
       "paket": [
        [
         "resource_collectable_kyhalon",
@@ -680,25 +680,25 @@
    ],
    "sizes": {},
    "portal": 3,
-   "parca": 48,
+   "part": 48,
    "can": 5,
-   "kronos_parca": 3,
+   "kronos_part": 3,
    "waves": [
     {
      "ad": "I",
      "harita": 52,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "84",
        "ad": "Streuner",
-       "gorunen_ad": "-=[ Streuner ]=-",
+       "display_name": "-=[ Streuner ]=-",
        "adet": 40,
        "hp": 1600,
        "kalkan": 800,
        "hasar": 40,
        "hiz": 172,
        "npc_kimlik": 1,
-       "odul": {
+       "reward": {
         "ep": 800,
         "onur": 4,
         "kredi": 800,
@@ -741,18 +741,18 @@
     {
      "ad": "II",
      "harita": 52,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "71",
        "ad": "Lordakia",
-       "gorunen_ad": "-=[ Lordakia ]=-",
+       "display_name": "-=[ Lordakia ]=-",
        "adet": 40,
        "hp": 4000,
        "kalkan": 4000,
        "hasar": 160,
        "hiz": 242,
        "npc_kimlik": 2,
-       "odul": {
+       "reward": {
         "ep": 3200,
         "onur": 16,
         "kredi": 3200,
@@ -796,18 +796,18 @@
     {
      "ad": "III",
      "harita": 52,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "73",
        "ad": "Mordon",
-       "gorunen_ad": "-=[ Mordon ]=-",
+       "display_name": "-=[ Mordon ]=-",
        "adet": 40,
        "hp": 40000,
        "kalkan": 20000,
        "hasar": 780,
        "hiz": 200,
        "npc_kimlik": 4,
-       "odul": {
+       "reward": {
         "ep": 6400,
         "onur": 32,
         "kredi": 12800,
@@ -854,18 +854,18 @@
     {
      "ad": "IV",
      "harita": 52,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "75",
        "ad": "Saimon",
-       "gorunen_ad": "-=[ Saimon ]=-",
+       "display_name": "-=[ Saimon ]=-",
        "adet": 80,
        "hp": 12000,
        "kalkan": 12000,
        "hasar": 400,
        "hiz": 280,
        "npc_kimlik": 6,
-       "odul": {
+       "reward": {
         "ep": 3200,
         "onur": 16,
         "kredi": 3200,
@@ -911,18 +911,18 @@
     {
      "ad": "V",
      "harita": 52,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "72",
        "ad": "Devolarium",
-       "gorunen_ad": "-=[ Devolarium ]=-",
+       "display_name": "-=[ Devolarium ]=-",
        "adet": 20,
        "hp": 200000,
        "kalkan": 200000,
        "hasar": 2400,
        "hiz": 150,
        "npc_kimlik": 3,
-       "odul": {
+       "reward": {
         "ep": 12800,
         "onur": 64,
         "kredi": 102400,
@@ -969,18 +969,18 @@
     {
      "ad": "VI",
      "harita": 52,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "78",
        "ad": "Kristallin",
-       "gorunen_ad": "-=[ Kristallin ]=-",
+       "display_name": "-=[ Kristallin ]=-",
        "adet": 80,
        "hp": 100000,
        "kalkan": 80000,
        "hasar": 3300,
        "hiz": 300,
        "npc_kimlik": 9,
-       "odul": {
+       "reward": {
         "ep": 12800,
         "onur": 64,
         "kredi": 25600,
@@ -1027,18 +1027,18 @@
     {
      "ad": "VII",
      "harita": 52,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "74",
        "ad": "Sibelon",
-       "gorunen_ad": "-=[ Sibelon ]=-",
+       "display_name": "-=[ Sibelon ]=-",
        "adet": 20,
        "hp": 400000,
        "kalkan": 400000,
        "hasar": 5300,
        "hiz": 150,
        "npc_kimlik": 5,
-       "odul": {
+       "reward": {
         "ep": 25600,
         "onur": 128,
         "kredi": 204800,
@@ -1085,18 +1085,18 @@
     {
      "ad": "VIII",
      "harita": 52,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "76",
        "ad": "Sibelonit",
-       "gorunen_ad": "-=[ Sibelonit ]=-",
+       "display_name": "-=[ Sibelonit ]=-",
        "adet": 80,
        "hp": 80000,
        "kalkan": 80000,
        "hasar": 2400,
        "hiz": 300,
        "npc_kimlik": 7,
-       "odul": {
+       "reward": {
         "ep": 6400,
         "onur": 32,
         "kredi": 25600,
@@ -1143,18 +1143,18 @@
     {
      "ad": "IX",
      "harita": 52,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "79",
        "ad": "Kristallon",
-       "gorunen_ad": "-=[ Kristallon ]=-",
+       "display_name": "-=[ Kristallon ]=-",
        "adet": 16,
        "hp": 800000,
        "kalkan": 600000,
        "hasar": 8900,
        "hiz": 200,
        "npc_kimlik": 10,
-       "odul": {
+       "reward": {
         "ep": 102400,
         "onur": 512,
         "kredi": 819200,
@@ -1201,18 +1201,18 @@
     {
      "ad": "X",
      "harita": 52,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "81",
        "ad": "Protegit",
-       "gorunen_ad": "-=[ Protegit ]=-",
+       "display_name": "-=[ Protegit ]=-",
        "adet": 30,
        "hp": 100000,
        "kalkan": 80000,
        "hasar": 3000,
        "hiz": 420,
        "npc_kimlik": 12,
-       "odul": {
+       "reward": {
         "ep": 12800,
         "onur": 64,
         "kredi": 25600,
@@ -1257,22 +1257,22 @@
      ]
     }
    ],
-   "odul": {
+   "reward": {
     "ep": 8000000,
     "onur": 200000,
     "uridyum": 40000,
-    "cephane": {
+    "ammunition": {
      "ammunition_laser_ucb-100": 40000
     },
     "xenomit": 400,
     "log_disk": 4,
-    "kupon": 4,
-    "enerji": 0,
-    "ganimet": {
+    "voucher": 4,
+    "energy": 0,
+    "booty": {
      "abr": 2
     },
-    "parca": 1,
-    "sans": [
+    "part": 1,
+    "chance": [
      {
       "esya": "ship_pusat_design_pusat-sandstorm",
       "adet": 1,
@@ -1281,7 +1281,7 @@
      {
       "esya": "resource_collectable_diametrion",
       "adet": 70,
-      "adet_en_cok": 80,
+      "max_count": 80,
       "probability": 0.01,
       "together": [
        [
@@ -1308,7 +1308,7 @@
       ]
      },
      {
-      "esya": "cevher_paketi",
+      "esya": "ore_pack",
       "paket": [
        [
         "resource_collectable_kyhalon",
@@ -1350,25 +1350,25 @@
    ],
    "sizes": {},
    "portal": 4,
-   "parca": 82,
+   "part": 82,
    "can": 5,
-   "kronos_parca": 1,
+   "kronos_part": 1,
    "waves": [
     {
      "ad": "I",
      "harita": 53,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "84",
        "ad": "Streuner",
-       "gorunen_ad": "-=[ Streuner ]=-",
+       "display_name": "-=[ Streuner ]=-",
        "adet": 40,
        "hp": 2400,
        "kalkan": 1200,
        "hasar": 60,
        "hiz": 172,
        "npc_kimlik": 1,
-       "odul": {
+       "reward": {
         "ep": 1200,
         "onur": 6,
         "kredi": 1200,
@@ -1411,18 +1411,18 @@
     {
      "ad": "II",
      "harita": 53,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "71",
        "ad": "Lordakia",
-       "gorunen_ad": "-=[ Lordakia ]=-",
+       "display_name": "-=[ Lordakia ]=-",
        "adet": 40,
        "hp": 6000,
        "kalkan": 6000,
        "hasar": 240,
        "hiz": 242,
        "npc_kimlik": 2,
-       "odul": {
+       "reward": {
         "ep": 4800,
         "onur": 24,
         "kredi": 4800,
@@ -1466,18 +1466,18 @@
     {
      "ad": "III",
      "harita": 53,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "73",
        "ad": "Mordon",
-       "gorunen_ad": "-=[ Mordon ]=-",
+       "display_name": "-=[ Mordon ]=-",
        "adet": 40,
        "hp": 60000,
        "kalkan": 30000,
        "hasar": 1170,
        "hiz": 200,
        "npc_kimlik": 4,
-       "odul": {
+       "reward": {
         "ep": 9600,
         "onur": 48,
         "kredi": 19200,
@@ -1524,18 +1524,18 @@
     {
      "ad": "IV",
      "harita": 53,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "75",
        "ad": "Saimon",
-       "gorunen_ad": "-=[ Saimon ]=-",
+       "display_name": "-=[ Saimon ]=-",
        "adet": 80,
        "hp": 18000,
        "kalkan": 18000,
        "hasar": 600,
        "hiz": 280,
        "npc_kimlik": 6,
-       "odul": {
+       "reward": {
         "ep": 4800,
         "onur": 24,
         "kredi": 4800,
@@ -1581,18 +1581,18 @@
     {
      "ad": "V",
      "harita": 53,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "72",
        "ad": "Devolarium",
-       "gorunen_ad": "-=[ Devolarium ]=-",
+       "display_name": "-=[ Devolarium ]=-",
        "adet": 20,
        "hp": 300000,
        "kalkan": 300000,
        "hasar": 3600,
        "hiz": 150,
        "npc_kimlik": 3,
-       "odul": {
+       "reward": {
         "ep": 19200,
         "onur": 96,
         "kredi": 153600,
@@ -1639,18 +1639,18 @@
     {
      "ad": "VI",
      "harita": 53,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "78",
        "ad": "Kristallin",
-       "gorunen_ad": "-=[ Kristallin ]=-",
+       "display_name": "-=[ Kristallin ]=-",
        "adet": 80,
        "hp": 150000,
        "kalkan": 120000,
        "hasar": 4950,
        "hiz": 300,
        "npc_kimlik": 9,
-       "odul": {
+       "reward": {
         "ep": 19200,
         "onur": 96,
         "kredi": 38400,
@@ -1697,18 +1697,18 @@
     {
      "ad": "VII",
      "harita": 53,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "74",
        "ad": "Sibelon",
-       "gorunen_ad": "-=[ Sibelon ]=-",
+       "display_name": "-=[ Sibelon ]=-",
        "adet": 20,
        "hp": 600000,
        "kalkan": 600000,
        "hasar": 4950,
        "hiz": 150,
        "npc_kimlik": 5,
-       "odul": {
+       "reward": {
         "ep": 38400,
         "onur": 192,
         "kredi": 307200,
@@ -1755,18 +1755,18 @@
     {
      "ad": "VIII",
      "harita": 53,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "76",
        "ad": "Sibelonit",
-       "gorunen_ad": "-=[ Sibelonit ]=-",
+       "display_name": "-=[ Sibelonit ]=-",
        "adet": 80,
        "hp": 120000,
        "kalkan": 120000,
        "hasar": 3200,
        "hiz": 300,
        "npc_kimlik": 7,
-       "odul": {
+       "reward": {
         "ep": 9600,
         "onur": 48,
         "kredi": 38400,
@@ -1813,18 +1813,18 @@
     {
      "ad": "IX",
      "harita": 53,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "79",
        "ad": "Kristallon",
-       "gorunen_ad": "-=[ Kristallon ]=-",
+       "display_name": "-=[ Kristallon ]=-",
        "adet": 16,
        "hp": 1200000,
        "kalkan": 900000,
        "hasar": 13350,
        "hiz": 200,
        "npc_kimlik": 10,
-       "odul": {
+       "reward": {
         "ep": 153600,
         "onur": 768,
         "kredi": 1228800,
@@ -1871,18 +1871,18 @@
     {
      "ad": "X",
      "harita": 53,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "81",
        "ad": "Protegit",
-       "gorunen_ad": "-=[ Protegit ]=-",
+       "display_name": "-=[ Protegit ]=-",
        "adet": 30,
        "hp": 150000,
        "kalkan": 120000,
        "hasar": 4500,
        "hiz": 420,
        "npc_kimlik": 12,
-       "odul": {
+       "reward": {
         "ep": 19200,
         "onur": 96,
         "kredi": 38400,
@@ -1927,22 +1927,22 @@
      ]
     }
    ],
-   "odul": {
+   "reward": {
     "ep": 12000000,
     "onur": 300000,
     "uridyum": 60000,
-    "cephane": {
+    "ammunition": {
      "ammunition_laser_ucb-100": 60000
     },
     "xenomit": 600,
     "log_disk": 10,
-    "kupon": 6,
-    "enerji": 0,
-    "ganimet": {
+    "voucher": 6,
+    "energy": 0,
+    "booty": {
      "abr": 3
     },
-    "parca": 1,
-    "sans": [
+    "part": 1,
+    "chance": [
      {
       "esya": "ship_pusat_design_pusat-sandstorm",
       "adet": 1,
@@ -1951,7 +1951,7 @@
      {
       "esya": "resource_collectable_diametrion",
       "adet": 70,
-      "adet_en_cok": 80,
+      "max_count": 80,
       "probability": 0.01,
       "together": [
        [
@@ -1978,7 +1978,7 @@
       ]
      },
      {
-      "esya": "cevher_paketi",
+      "esya": "ore_pack",
       "paket": [
        [
         "resource_collectable_kyhalon",
@@ -2020,25 +2020,25 @@
    ],
    "sizes": {},
    "portal": 5,
-   "parca": 128,
+   "part": 128,
    "can": 5,
-   "kronos_parca": 1,
+   "kronos_part": 1,
    "waves": [
     {
      "ad": "I",
      "harita": 55,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "71",
        "ad": "Lordakia",
-       "gorunen_ad": "-=[ Lordakia ]=-",
+       "display_name": "-=[ Lordakia ]=-",
        "adet": 5,
        "hp": 4000,
        "kalkan": 4000,
        "hasar": 160,
        "hiz": 242,
        "npc_kimlik": 2,
-       "odul": {
+       "reward": {
         "ep": 1600,
         "onur": 8,
         "kredi": 1600,
@@ -2053,14 +2053,14 @@
       {
        "tur": "73",
        "ad": "Mordon",
-       "gorunen_ad": "-=[ Mordon ]=-",
+       "display_name": "-=[ Mordon ]=-",
        "adet": 10,
        "hp": 40000,
        "kalkan": 20000,
        "hasar": 780,
        "hiz": 200,
        "npc_kimlik": 4,
-       "odul": {
+       "reward": {
         "ep": 6400,
         "onur": 32,
         "kredi": 12800,
@@ -2079,14 +2079,14 @@
       {
        "tur": "75",
        "ad": "Saimon",
-       "gorunen_ad": "-=[ Saimon ]=-",
+       "display_name": "-=[ Saimon ]=-",
        "adet": 15,
        "hp": 12000,
        "kalkan": 12000,
        "hasar": 400,
        "hiz": 280,
        "npc_kimlik": 6,
-       "odul": {
+       "reward": {
         "ep": 3200,
         "onur": 16,
         "kredi": 3200,
@@ -2127,18 +2127,18 @@
     {
      "ad": "II",
      "harita": 55,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "84",
        "ad": "Streuner",
-       "gorunen_ad": "-=[ Streuner ]=-",
+       "display_name": "-=[ Streuner ]=-",
        "adet": 11,
        "hp": 1600,
        "kalkan": 800,
        "hasar": 40,
        "hiz": 172,
        "npc_kimlik": 1,
-       "odul": {
+       "reward": {
         "ep": 800,
         "onur": 4,
         "kredi": 800,
@@ -2153,14 +2153,14 @@
       {
        "tur": "85",
        "ad": "StreuneR",
-       "gorunen_ad": "-=[ StreuneR ]=-",
+       "display_name": "-=[ StreuneR ]=-",
        "adet": 1,
        "hp": 160000,
        "kalkan": 120000,
        "hasar": 4000,
        "hiz": 300,
        "npc_kimlik": 11,
-       "odul": {
+       "reward": {
         "ep": 25600,
         "onur": 128,
         "kredi": 48000,
@@ -2175,7 +2175,7 @@
         "6": 4
        },
        "_reward_source": "wiki kapı",
-       "korunan": true
+       "protected": true
       }
      ],
      "gruplar": [
@@ -2198,18 +2198,18 @@
     {
      "ad": "III",
      "harita": 55,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "73",
        "ad": "Mordon",
-       "gorunen_ad": "-=[ Mordon ]=-",
+       "display_name": "-=[ Mordon ]=-",
        "adet": 5,
        "hp": 40000,
        "kalkan": 20000,
        "hasar": 780,
        "hiz": 200,
        "npc_kimlik": 4,
-       "odul": {
+       "reward": {
         "ep": 6400,
         "onur": 32,
         "kredi": 12800,
@@ -2228,14 +2228,14 @@
       {
        "tur": "75",
        "ad": "Saimon",
-       "gorunen_ad": "-=[ Saimon ]=-",
+       "display_name": "-=[ Saimon ]=-",
        "adet": 10,
        "hp": 12000,
        "kalkan": 12000,
        "hasar": 400,
        "hiz": 280,
        "npc_kimlik": 6,
-       "odul": {
+       "reward": {
         "ep": 3200,
         "onur": 16,
         "kredi": 3200,
@@ -2254,14 +2254,14 @@
       {
        "tur": "78",
        "ad": "Kristallin",
-       "gorunen_ad": "-=[ Kristallin ]=-",
+       "display_name": "-=[ Kristallin ]=-",
        "adet": 15,
        "hp": 100000,
        "kalkan": 80000,
        "hasar": 3300,
        "hiz": 300,
        "npc_kimlik": 9,
-       "odul": {
+       "reward": {
         "ep": 12800,
         "onur": 64,
         "kredi": 25600,
@@ -2303,18 +2303,18 @@
     {
      "ad": "IV",
      "harita": 55,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "71",
        "ad": "Lordakia",
-       "gorunen_ad": "-=[ Lordakia ]=-",
+       "display_name": "-=[ Lordakia ]=-",
        "adet": 12,
        "hp": 8000,
        "kalkan": 8000,
        "hasar": 240,
        "hiz": 242,
        "npc_kimlik": 2,
-       "odul": {
+       "reward": {
         "ep": 3200,
         "onur": 16,
         "kredi": 3200,
@@ -2330,14 +2330,14 @@
       {
        "tur": "77",
        "ad": "Lordakium",
-       "gorunen_ad": "-=[ Lordakium ]=-",
+       "display_name": "-=[ Lordakium ]=-",
        "adet": 1,
        "hp": 600000,
        "kalkan": 400000,
        "hasar": 7200,
        "hiz": 200,
        "npc_kimlik": 8,
-       "odul": {
+       "reward": {
         "ep": 51200,
         "onur": 256,
         "kredi": 409600,
@@ -2352,7 +2352,7 @@
         "6": 16
        },
        "_reward_source": "wiki kapı",
-       "korunan": true
+       "protected": true
       }
      ],
      "gruplar": [
@@ -2375,18 +2375,18 @@
     {
      "ad": "V",
      "harita": 55,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "24",
        "ad": "Boss Lordakia",
-       "gorunen_ad": "..::{ Boss Lordakia }::..",
+       "display_name": "..::{ Boss Lordakia }::..",
        "adet": 10,
        "hp": 8000,
        "kalkan": 8000,
        "hasar": 160,
        "hiz": 240,
        "npc_kimlik": 15,
-       "odul": {
+       "reward": {
         "ep": 3200,
         "onur": 16,
         "kredi": 3200,
@@ -2402,14 +2402,14 @@
       {
        "tur": "31",
        "ad": "Boss Mordon",
-       "gorunen_ad": "..::{ Boss Mordon }::..",
+       "display_name": "..::{ Boss Mordon }::..",
        "adet": 8,
        "hp": 80000,
        "kalkan": 40000,
        "hasar": 1500,
        "hiz": 180,
        "npc_kimlik": 16,
-       "odul": {
+       "reward": {
         "ep": 12800,
         "onur": 64,
         "kredi": 25600,
@@ -2428,14 +2428,14 @@
       {
        "tur": "25",
        "ad": "Boss Saimon",
-       "gorunen_ad": "..::{ Boss Saimon }::..",
+       "display_name": "..::{ Boss Saimon }::..",
        "adet": 6,
        "hp": 24000,
        "kalkan": 12000,
        "hasar": 650,
        "hiz": 250,
        "npc_kimlik": 17,
-       "odul": {
+       "reward": {
         "ep": 6400,
         "onur": 32,
         "kredi": 6400,
@@ -2476,18 +2476,18 @@
     {
      "ad": "VI",
      "harita": 55,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "76",
        "ad": "Sibelonit",
-       "gorunen_ad": "-=[ Sibelonit ]=-",
+       "display_name": "-=[ Sibelonit ]=-",
        "adet": 15,
        "hp": 80000,
        "kalkan": 80000,
        "hasar": 6400,
        "hiz": 300,
        "npc_kimlik": 7,
-       "odul": {
+       "reward": {
         "ep": 6400,
         "onur": 32,
         "kredi": 25600,
@@ -2506,14 +2506,14 @@
       {
        "tur": "74",
        "ad": "Sibelon",
-       "gorunen_ad": "-=[ Sibelon ]=-",
+       "display_name": "-=[ Sibelon ]=-",
        "adet": 1,
        "hp": 600000,
        "kalkan": 600000,
        "hasar": 7950,
        "hiz": 150,
        "npc_kimlik": 5,
-       "odul": {
+       "reward": {
         "ep": 38400,
         "onur": 192,
         "kredi": 307200,
@@ -2528,7 +2528,7 @@
         "6": 12
        },
        "_reward_source": "wiki kapı",
-       "korunan": true
+       "protected": true
       }
      ],
      "gruplar": [
@@ -2551,18 +2551,18 @@
     {
      "ad": "VII",
      "harita": 55,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "76",
        "ad": "Sibelonit",
-       "gorunen_ad": "-=[ Sibelonit ]=-",
+       "display_name": "-=[ Sibelonit ]=-",
        "adet": 5,
        "hp": 80000,
        "kalkan": 80000,
        "hasar": 6400,
        "hiz": 300,
        "npc_kimlik": 7,
-       "odul": {
+       "reward": {
         "ep": 6400,
         "onur": 32,
         "kredi": 25600,
@@ -2581,14 +2581,14 @@
       {
        "tur": "78",
        "ad": "Kristallin",
-       "gorunen_ad": "-=[ Kristallin ]=-",
+       "display_name": "-=[ Kristallin ]=-",
        "adet": 10,
        "hp": 150000,
        "kalkan": 120000,
        "hasar": 4950,
        "hiz": 300,
        "npc_kimlik": 9,
-       "odul": {
+       "reward": {
         "ep": 19200,
         "onur": 96,
         "kredi": 38400,
@@ -2607,14 +2607,14 @@
       {
        "tur": "34",
        "ad": "Boss StreuneR",
-       "gorunen_ad": "..::{ Boss StreuneR }::..",
+       "display_name": "..::{ Boss StreuneR }::..",
        "adet": 5,
        "hp": 80000,
        "kalkan": 40000,
        "hasar": 2000,
        "hiz": 280,
        "npc_kimlik": 24,
-       "odul": {
+       "reward": {
         "ep": 12800,
         "onur": 64,
         "kredi": 25600,
@@ -2655,18 +2655,18 @@
     {
      "ad": "VIII",
      "harita": 55,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "79",
        "ad": "Kristallon",
-       "gorunen_ad": "-=[ Kristallon ]=-",
+       "display_name": "-=[ Kristallon ]=-",
        "adet": 1,
        "hp": 800000,
        "kalkan": 600000,
        "hasar": 8900,
        "hiz": 200,
        "npc_kimlik": 10,
-       "odul": {
+       "reward": {
         "ep": 102400,
         "onur": 512,
         "kredi": 819200,
@@ -2681,19 +2681,19 @@
         "6": 32
        },
        "_reward_source": "wiki kapı",
-       "korunan": true
+       "protected": true
       },
       {
        "tur": "78",
        "ad": "Kristallin",
-       "gorunen_ad": "-=[ Kristallin ]=-",
+       "display_name": "-=[ Kristallin ]=-",
        "adet": 10,
        "hp": 150000,
        "kalkan": 120000,
        "hasar": 4950,
        "hiz": 300,
        "npc_kimlik": 9,
-       "odul": {
+       "reward": {
         "ep": 19200,
         "onur": 96,
         "kredi": 38400,
@@ -2730,18 +2730,18 @@
     {
      "ad": "IX",
      "harita": 55,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "81",
        "ad": "Protegit",
-       "gorunen_ad": "-=[ Protegit ]=-",
+       "display_name": "-=[ Protegit ]=-",
        "adet": 15,
        "hp": 100000,
        "kalkan": 80000,
        "hasar": 3000,
        "hiz": 420,
        "npc_kimlik": 12,
-       "odul": {
+       "reward": {
         "ep": 12800,
         "onur": 64,
         "kredi": 25600,
@@ -2760,14 +2760,14 @@
       {
        "tur": "28",
        "ad": "Boss Lordakium",
-       "gorunen_ad": "..::{ Boss Lordakium }::...",
+       "display_name": "..::{ Boss Lordakium }::...",
        "adet": 3,
        "hp": 1200000,
        "kalkan": 800000,
        "hasar": 16000,
        "hiz": 180,
        "npc_kimlik": 21,
-       "odul": {
+       "reward": {
         "ep": 102400,
         "onur": 512,
         "kredi": 819200,
@@ -2782,7 +2782,7 @@
         "6": 32
        },
        "_reward_source": "wiki kapı",
-       "korunan": true
+       "protected": true
       }
      ],
      "gruplar": [
@@ -2827,18 +2827,18 @@
     {
      "ad": "X",
      "harita": 55,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "11",
        "ad": "DemaNeR",
-       "gorunen_ad": "-=[ DemaNeR ]=-",
+       "display_name": "-=[ DemaNeR ]=-",
        "adet": 3,
        "hp": 400000,
        "kalkan": 300000,
        "hasar": 5000,
        "hiz": 300,
        "npc_kimlik": 39,
-       "odul": {
+       "reward": {
         "ep": 51200,
         "onur": 512,
         "kredi": 409600,
@@ -2879,23 +2879,23 @@
      "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
     }
    ],
-   "odul": {
+   "reward": {
     "ep": 9000000,
     "onur": 225000,
     "uridyum": 45000,
-    "cephane": {
+    "ammunition": {
      "ammunition_laser_ucb-100": 45000
     },
     "xenomit": 450,
     "log_disk": 8,
-    "kupon": 5,
-    "enerji": 0,
-    "ganimet": {
+    "voucher": 5,
+    "energy": 0,
+    "booty": {
      "schism": 6,
      "abr": 4
     },
-    "parca": 1,
-    "sans": [
+    "part": 1,
+    "chance": [
      {
       "esya": "drone_designs_hermes",
       "adet": 1,
@@ -2905,7 +2905,7 @@
      {
       "esya": "resource_collectable_diametrion",
       "adet": 70,
-      "adet_en_cok": 80,
+      "max_count": 80,
       "probability": 0.01,
       "together": [
        [
@@ -2932,7 +2932,7 @@
       ]
      },
      {
-      "esya": "cevher_paketi",
+      "esya": "ore_pack",
       "paket": [
        [
         "resource_collectable_kyhalon",
@@ -2980,25 +2980,25 @@
    ],
    "sizes": {},
    "portal": 53,
-   "parca": 99,
+   "part": 99,
    "can": 5,
-   "kronos_parca": 4,
+   "kronos_part": 4,
    "waves": [
     {
      "ad": "I",
      "harita": 70,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "94",
        "ad": "Vagrant",
-       "gorunen_ad": "-=[ Vagrant ]=-",
+       "display_name": "-=[ Vagrant ]=-",
        "adet": 17,
        "hp": 40000,
        "kalkan": 40000,
        "hasar": 2500,
        "hiz": 300,
        "npc_kimlik": 42,
-       "odul": {
+       "reward": {
         "ep": 4000,
         "onur": 4,
         "kredi": 15000,
@@ -3039,18 +3039,18 @@
     {
      "ad": "II",
      "harita": 70,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "94",
        "ad": "Vagrant",
-       "gorunen_ad": "-=[ Vagrant ]=-",
+       "display_name": "-=[ Vagrant ]=-",
        "adet": 12,
        "hp": 40000,
        "kalkan": 40000,
        "hasar": 2500,
        "hiz": 300,
        "npc_kimlik": 42,
-       "odul": {
+       "reward": {
         "ep": 4000,
         "onur": 4,
         "kredi": 15000,
@@ -3069,14 +3069,14 @@
       {
        "tur": "93",
        "ad": "Marauder",
-       "gorunen_ad": "-=[ Marauder ]=-",
+       "display_name": "-=[ Marauder ]=-",
        "adet": 5,
        "hp": 100000,
        "kalkan": 60000,
        "hasar": 4500,
        "hiz": 300,
        "npc_kimlik": 43,
-       "odul": {
+       "reward": {
         "ep": 8000,
         "onur": 8,
         "kredi": 30000,
@@ -3118,18 +3118,18 @@
     {
      "ad": "III",
      "harita": 70,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "93",
        "ad": "Marauder",
-       "gorunen_ad": "-=[ Marauder ]=-",
+       "display_name": "-=[ Marauder ]=-",
        "adet": 5,
        "hp": 100000,
        "kalkan": 60000,
        "hasar": 4500,
        "hiz": 300,
        "npc_kimlik": 43,
-       "odul": {
+       "reward": {
         "ep": 8000,
         "onur": 8,
         "kredi": 30000,
@@ -3148,14 +3148,14 @@
       {
        "tur": "92",
        "ad": "Outcast",
-       "gorunen_ad": "-=[ Outcast ]=-",
+       "display_name": "-=[ Outcast ]=-",
        "adet": 9,
        "hp": 150000,
        "kalkan": 80000,
        "hasar": 4500,
        "hiz": 280,
        "npc_kimlik": 44,
-       "odul": {
+       "reward": {
         "ep": 11000,
         "onur": 12,
         "kredi": 50000,
@@ -3198,18 +3198,18 @@
     {
      "ad": "IV",
      "harita": 70,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "93",
        "ad": "Marauder",
-       "gorunen_ad": "-=[ Marauder ]=-",
+       "display_name": "-=[ Marauder ]=-",
        "adet": 5,
        "hp": 100000,
        "kalkan": 60000,
        "hasar": 4500,
        "hiz": 300,
        "npc_kimlik": 43,
-       "odul": {
+       "reward": {
         "ep": 8000,
         "onur": 8,
         "kredi": 30000,
@@ -3228,14 +3228,14 @@
       {
        "tur": "92",
        "ad": "Outcast",
-       "gorunen_ad": "-=[ Outcast ]=-",
+       "display_name": "-=[ Outcast ]=-",
        "adet": 12,
        "hp": 150000,
        "kalkan": 80000,
        "hasar": 4500,
        "hiz": 280,
        "npc_kimlik": 44,
-       "odul": {
+       "reward": {
         "ep": 11000,
         "onur": 12,
         "kredi": 50000,
@@ -3278,18 +3278,18 @@
     {
      "ad": "V",
      "harita": 70,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "92",
        "ad": "Outcast",
-       "gorunen_ad": "-=[ Outcast ]=-",
+       "display_name": "-=[ Outcast ]=-",
        "adet": 6,
        "hp": 150000,
        "kalkan": 80000,
        "hasar": 4500,
        "hiz": 280,
        "npc_kimlik": 44,
-       "odul": {
+       "reward": {
         "ep": 11000,
         "onur": 12,
         "kredi": 50000,
@@ -3310,14 +3310,14 @@
       {
        "tur": "91",
        "ad": "Corsair",
-       "gorunen_ad": "-=[ Corsair ]=-",
+       "display_name": "-=[ Corsair ]=-",
        "adet": 9,
        "hp": 200000,
        "kalkan": 120000,
        "hasar": 7800,
        "hiz": 300,
        "npc_kimlik": 45,
-       "odul": {
+       "reward": {
         "ep": 15000,
         "onur": 16,
         "kredi": 80000,
@@ -3360,18 +3360,18 @@
     {
      "ad": "VI",
      "harita": 70,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "91",
        "ad": "Corsair",
-       "gorunen_ad": "-=[ Corsair ]=-",
+       "display_name": "-=[ Corsair ]=-",
        "adet": 4,
        "hp": 200000,
        "kalkan": 120000,
        "hasar": 7800,
        "hiz": 300,
        "npc_kimlik": 45,
-       "odul": {
+       "reward": {
         "ep": 15000,
         "onur": 16,
         "kredi": 80000,
@@ -3392,14 +3392,14 @@
       {
        "tur": "92",
        "ad": "Outcast",
-       "gorunen_ad": "-=[ Outcast ]=-",
+       "display_name": "-=[ Outcast ]=-",
        "adet": 6,
        "hp": 150000,
        "kalkan": 80000,
        "hasar": 4500,
        "hiz": 280,
        "npc_kimlik": 44,
-       "odul": {
+       "reward": {
         "ep": 11000,
         "onur": 12,
         "kredi": 50000,
@@ -3420,14 +3420,14 @@
       {
        "tur": "96",
        "ad": "Hooligan",
-       "gorunen_ad": "-=[ Hooligan ]=-",
+       "display_name": "-=[ Hooligan ]=-",
        "adet": 5,
        "hp": 250000,
        "kalkan": 200000,
        "hasar": 9000,
        "hiz": 280,
        "npc_kimlik": 46,
-       "odul": {
+       "reward": {
         "ep": 20000,
         "onur": 32,
         "kredi": 125000,
@@ -3470,18 +3470,18 @@
     {
      "ad": "VII",
      "harita": 70,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "91",
        "ad": "Corsair",
-       "gorunen_ad": "-=[ Corsair ]=-",
+       "display_name": "-=[ Corsair ]=-",
        "adet": 5,
        "hp": 200000,
        "kalkan": 120000,
        "hasar": 7800,
        "hiz": 300,
        "npc_kimlik": 45,
-       "odul": {
+       "reward": {
         "ep": 15000,
         "onur": 16,
         "kredi": 80000,
@@ -3502,14 +3502,14 @@
       {
        "tur": "96",
        "ad": "Hooligan",
-       "gorunen_ad": "-=[ Hooligan ]=-",
+       "display_name": "-=[ Hooligan ]=-",
        "adet": 9,
        "hp": 250000,
        "kalkan": 200000,
        "hasar": 9000,
        "hiz": 280,
        "npc_kimlik": 46,
-       "odul": {
+       "reward": {
         "ep": 20000,
         "onur": 32,
         "kredi": 125000,
@@ -3552,18 +3552,18 @@
     {
      "ad": "VIII",
      "harita": 70,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "96",
        "ad": "Hooligan",
-       "gorunen_ad": "-=[ Hooligan ]=-",
+       "display_name": "-=[ Hooligan ]=-",
        "adet": 10,
        "hp": 250000,
        "kalkan": 200000,
        "hasar": 9000,
        "hiz": 280,
        "npc_kimlik": 46,
-       "odul": {
+       "reward": {
         "ep": 20000,
         "onur": 32,
         "kredi": 125000,
@@ -3584,14 +3584,14 @@
       {
        "tur": "97",
        "ad": "Ravager",
-       "gorunen_ad": "-=[ Ravager ]=-",
+       "display_name": "-=[ Ravager ]=-",
        "adet": 4,
        "hp": 300000,
        "kalkan": 200000,
        "hasar": 10700,
        "hiz": 280,
        "npc_kimlik": 47,
-       "odul": {
+       "reward": {
         "ep": 25000,
         "onur": 64,
         "kredi": 160000,
@@ -3634,18 +3634,18 @@
     {
      "ad": "IX",
      "harita": 70,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "96",
        "ad": "Hooligan",
-       "gorunen_ad": "-=[ Hooligan ]=-",
+       "display_name": "-=[ Hooligan ]=-",
        "adet": 5,
        "hp": 250000,
        "kalkan": 200000,
        "hasar": 9000,
        "hiz": 280,
        "npc_kimlik": 46,
-       "odul": {
+       "reward": {
         "ep": 20000,
         "onur": 32,
         "kredi": 125000,
@@ -3666,14 +3666,14 @@
       {
        "tur": "97",
        "ad": "Ravager",
-       "gorunen_ad": "-=[ Ravager ]=-",
+       "display_name": "-=[ Ravager ]=-",
        "adet": 6,
        "hp": 300000,
        "kalkan": 200000,
        "hasar": 10700,
        "hiz": 280,
        "npc_kimlik": 47,
-       "odul": {
+       "reward": {
         "ep": 25000,
         "onur": 64,
         "kredi": 160000,
@@ -3694,14 +3694,14 @@
       {
        "tur": "95",
        "ad": "Convict",
-       "gorunen_ad": "-=[ Convict ]=-",
+       "display_name": "-=[ Convict ]=-",
        "adet": 3,
        "hp": 400000,
        "kalkan": 200000,
        "hasar": 11500,
        "hiz": 260,
        "npc_kimlik": 48,
-       "odul": {
+       "reward": {
         "ep": 30000,
         "onur": 100,
         "kredi": 220000,
@@ -3744,18 +3744,18 @@
     {
      "ad": "X",
      "harita": 70,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "95",
        "ad": "Convict",
-       "gorunen_ad": "-=[ Convict ]=-",
+       "display_name": "-=[ Convict ]=-",
        "adet": 4,
        "hp": 400000,
        "kalkan": 200000,
        "hasar": 11500,
        "hiz": 260,
        "npc_kimlik": 48,
-       "odul": {
+       "reward": {
         "ep": 30000,
         "onur": 100,
         "kredi": 220000,
@@ -3786,18 +3786,18 @@
     {
      "ad": "XI",
      "harita": 70,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "97",
        "ad": "Ravager",
-       "gorunen_ad": "-=[ Ravager ]=-",
+       "display_name": "-=[ Ravager ]=-",
        "adet": 5,
        "hp": 300000,
        "kalkan": 200000,
        "hasar": 10700,
        "hiz": 280,
        "npc_kimlik": 47,
-       "odul": {
+       "reward": {
         "ep": 25000,
         "onur": 64,
         "kredi": 160000,
@@ -3818,14 +3818,14 @@
       {
        "tur": "95",
        "ad": "Convict",
-       "gorunen_ad": "-=[ Convict ]=-",
+       "display_name": "-=[ Convict ]=-",
        "adet": 6,
        "hp": 400000,
        "kalkan": 200000,
        "hasar": 11500,
        "hiz": 260,
        "npc_kimlik": 48,
-       "odul": {
+       "reward": {
         "ep": 30000,
         "onur": 100,
         "kredi": 220000,
@@ -3860,23 +3860,23 @@
      ]
     }
    ],
-   "odul": {
+   "reward": {
     "ep": 5000000,
     "onur": 150000,
     "uridyum": 25000,
-    "cephane": {
+    "ammunition": {
      "ammunition_laser_ucb-100": 20000
     },
     "xenomit": 0,
     "log_disk": 10,
-    "kupon": 0,
-    "enerji": 0,
-    "ganimet": {
-     "yesil_anahtar": 5,
+    "voucher": 0,
+    "energy": 0,
+    "booty": {
+     "green_key": 5,
      "abr": 4
     },
-    "parca": 1,
-    "sans": [
+    "part": 1,
+    "chance": [
      {
       "esya": "equipment_weapon_laser_lf-4",
       "adet": 1,
@@ -3886,7 +3886,7 @@
      {
       "esya": "resource_collectable_diametrion",
       "adet": 70,
-      "adet_en_cok": 80,
+      "max_count": 80,
       "probability": 0.01,
       "together": [
        [
@@ -3913,7 +3913,7 @@
       ]
      },
      {
-      "esya": "cevher_paketi",
+      "esya": "ore_pack",
       "paket": [
        [
         "resource_collectable_kyhalon",
@@ -3957,27 +3957,27 @@
    ],
    "sizes": {},
    "portal": 54,
-   "parca": 111,
+   "part": 111,
    "can": 5,
-   "kronos_parca": 1,
-   "kalkan_ara_sn": 10,
+   "kronos_part": 1,
+   "shield_gap_sec": 10,
    "_kalkan_ara_sn": "Devourer (kalici): refakat grubu yaşarken Insta-Shield açık, hasar almaz; grup bitince kalkan bu kadar saniye iner, sonra yeniden açılır ve sonraki grup Devourer'ın çevresinde doğar; son gruptan sonra hep kapalı; Devourer ölünce dalga hemen biter (fandom Galaxy Gates: \"dropped for 10(?) seconds\"). Son dalgada bir grup türlerinin hepsi birlikte (normal, Boss, Uber), sayaçta tür başına bir alt dalga (group_counter)",
    "waves": [
     {
      "ad": "I",
      "harita": 71,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "100",
        "ad": "Infernal",
-       "gorunen_ad": "-=[ Infernal ]=-",
+       "display_name": "-=[ Infernal ]=-",
        "adet": 10,
        "hp": 60000,
        "kalkan": 50000,
        "hasar": 1000,
        "hiz": 320,
        "npc_kimlik": 63,
-       "odul": {
+       "reward": {
         "ep": 8000,
         "onur": 4,
         "kredi": 25000,
@@ -4019,18 +4019,18 @@
     {
      "ad": "II",
      "harita": 71,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "100",
        "ad": "Infernal",
-       "gorunen_ad": "-=[ Infernal ]=-",
+       "display_name": "-=[ Infernal ]=-",
        "adet": 9,
        "hp": 60000,
        "kalkan": 50000,
        "hasar": 1000,
        "hiz": 320,
        "npc_kimlik": 63,
-       "odul": {
+       "reward": {
         "ep": 8000,
         "onur": 4,
         "kredi": 25000,
@@ -4050,14 +4050,14 @@
       {
        "tur": "99",
        "ad": "Scorcher",
-       "gorunen_ad": "-=[ Scorcher ]=-",
+       "display_name": "-=[ Scorcher ]=-",
        "adet": 3,
        "hp": 200000,
        "kalkan": 200000,
        "hasar": 3000,
        "hiz": 280,
        "npc_kimlik": 64,
-       "odul": {
+       "reward": {
         "ep": 16500,
         "onur": 8,
         "kredi": 150000,
@@ -4099,18 +4099,18 @@
     {
      "ad": "III",
      "harita": 71,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "100",
        "ad": "Infernal",
-       "gorunen_ad": "-=[ Infernal ]=-",
+       "display_name": "-=[ Infernal ]=-",
        "adet": 5,
        "hp": 60000,
        "kalkan": 50000,
        "hasar": 1000,
        "hiz": 320,
        "npc_kimlik": 63,
-       "odul": {
+       "reward": {
         "ep": 8000,
         "onur": 4,
         "kredi": 25000,
@@ -4130,14 +4130,14 @@
       {
        "tur": "99",
        "ad": "Scorcher",
-       "gorunen_ad": "-=[ Scorcher ]=-",
+       "display_name": "-=[ Scorcher ]=-",
        "adet": 7,
        "hp": 200000,
        "kalkan": 200000,
        "hasar": 3000,
        "hiz": 280,
        "npc_kimlik": 64,
-       "odul": {
+       "reward": {
         "ep": 16500,
         "onur": 8,
         "kredi": 150000,
@@ -4179,18 +4179,18 @@
     {
      "ad": "IV",
      "harita": 72,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "99",
        "ad": "Scorcher",
-       "gorunen_ad": "-=[ Scorcher ]=-",
+       "display_name": "-=[ Scorcher ]=-",
        "adet": 9,
        "hp": 200000,
        "kalkan": 200000,
        "hasar": 3000,
        "hiz": 280,
        "npc_kimlik": 64,
-       "odul": {
+       "reward": {
         "ep": 16500,
         "onur": 8,
         "kredi": 150000,
@@ -4232,18 +4232,18 @@
     {
      "ad": "V",
      "harita": 72,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "99",
        "ad": "Scorcher",
-       "gorunen_ad": "-=[ Scorcher ]=-",
+       "display_name": "-=[ Scorcher ]=-",
        "adet": 8,
        "hp": 200000,
        "kalkan": 200000,
        "hasar": 3000,
        "hiz": 280,
        "npc_kimlik": 64,
-       "odul": {
+       "reward": {
         "ep": 16500,
         "onur": 8,
         "kredi": 150000,
@@ -4263,14 +4263,14 @@
       {
        "tur": "102",
        "ad": "Melter",
-       "gorunen_ad": "-=[ Melter ]=-",
+       "display_name": "-=[ Melter ]=-",
        "adet": 2,
        "hp": 400000,
        "kalkan": 300000,
        "hasar": 5000,
        "hiz": 240,
        "npc_kimlik": 65,
-       "odul": {
+       "reward": {
         "ep": 55000,
         "onur": 12,
         "kredi": 400000,
@@ -4312,18 +4312,18 @@
     {
      "ad": "VI",
      "harita": 72,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "99",
        "ad": "Scorcher",
-       "gorunen_ad": "-=[ Scorcher ]=-",
+       "display_name": "-=[ Scorcher ]=-",
        "adet": 3,
        "hp": 200000,
        "kalkan": 200000,
        "hasar": 3000,
        "hiz": 280,
        "npc_kimlik": 64,
-       "odul": {
+       "reward": {
         "ep": 16500,
         "onur": 8,
         "kredi": 150000,
@@ -4343,14 +4343,14 @@
       {
        "tur": "102",
        "ad": "Melter",
-       "gorunen_ad": "-=[ Melter ]=-",
+       "display_name": "-=[ Melter ]=-",
        "adet": 6,
        "hp": 400000,
        "kalkan": 300000,
        "hasar": 5000,
        "hiz": 240,
        "npc_kimlik": 65,
-       "odul": {
+       "reward": {
         "ep": 55000,
         "onur": 12,
         "kredi": 400000,
@@ -4392,18 +4392,18 @@
     {
      "ad": "VII",
      "harita": 73,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "102",
        "ad": "Melter",
-       "gorunen_ad": "-=[ Melter ]=-",
+       "display_name": "-=[ Melter ]=-",
        "adet": 10,
        "hp": 400000,
        "kalkan": 300000,
        "hasar": 5000,
        "hiz": 240,
        "npc_kimlik": 65,
-       "odul": {
+       "reward": {
         "ep": 55000,
         "onur": 12,
         "kredi": 400000,
@@ -4445,18 +4445,18 @@
     {
      "ad": "VIII",
      "harita": 73,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "102",
        "ad": "Melter",
-       "gorunen_ad": "-=[ Melter ]=-",
+       "display_name": "-=[ Melter ]=-",
        "adet": 13,
        "hp": 400000,
        "kalkan": 300000,
        "hasar": 5000,
        "hiz": 240,
        "npc_kimlik": 65,
-       "odul": {
+       "reward": {
         "ep": 55000,
         "onur": 12,
         "kredi": 400000,
@@ -4498,18 +4498,18 @@
     {
      "ad": "IX",
      "harita": 73,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "100",
        "ad": "Infernal",
-       "gorunen_ad": "-=[ Infernal ]=-",
+       "display_name": "-=[ Infernal ]=-",
        "adet": 6,
        "hp": 60000,
        "kalkan": 50000,
        "hasar": 1000,
        "hiz": 320,
        "npc_kimlik": 63,
-       "odul": {
+       "reward": {
         "ep": 8000,
         "onur": 4,
         "kredi": 25000,
@@ -4529,14 +4529,14 @@
       {
        "tur": "105",
        "ad": "Devourer",
-       "gorunen_ad": "-=[ Devourer ]=-",
+       "display_name": "-=[ Devourer ]=-",
        "adet": 1,
        "hp": 2000000,
        "kalkan": 1000000,
        "hasar": 12000,
        "hiz": 120,
        "npc_kimlik": 66,
-       "odul": {
+       "reward": {
         "ep": 1000000,
         "onur": 512,
         "kredi": 2500000,
@@ -4572,18 +4572,18 @@
     {
      "ad": "X",
      "harita": 73,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "105",
        "ad": "Devourer",
-       "gorunen_ad": "-=[ Devourer ]=-",
+       "display_name": "-=[ Devourer ]=-",
        "adet": 1,
        "hp": 2000000,
        "kalkan": 1000000,
        "hasar": 12000,
        "hiz": 120,
        "npc_kimlik": 66,
-       "odul": {
+       "reward": {
         "ep": 1000000,
         "onur": 512,
         "kredi": 2500000,
@@ -4605,14 +4605,14 @@
       {
        "tur": "100",
        "ad": "Infernal",
-       "gorunen_ad": "-=[ Infernal ]=-",
+       "display_name": "-=[ Infernal ]=-",
        "adet": 2,
        "hp": 60000,
        "kalkan": 50000,
        "hasar": 1000,
        "hiz": 320,
        "npc_kimlik": 63,
-       "odul": {
+       "reward": {
         "ep": 8000,
         "onur": 4,
         "kredi": 25000,
@@ -4632,14 +4632,14 @@
       {
        "tur": "99",
        "ad": "Scorcher",
-       "gorunen_ad": "-=[ Scorcher ]=-",
+       "display_name": "-=[ Scorcher ]=-",
        "adet": 10,
        "hp": 200000,
        "kalkan": 200000,
        "hasar": 3000,
        "hiz": 280,
        "npc_kimlik": 64,
-       "odul": {
+       "reward": {
         "ep": 16500,
         "onur": 8,
         "kredi": 150000,
@@ -4659,14 +4659,14 @@
       {
        "tur": "84",
        "ad": "Streuner",
-       "gorunen_ad": "-=[ Streuner ]=-",
+       "display_name": "-=[ Streuner ]=-",
        "adet": 2,
        "hp": 1600,
        "kalkan": 800,
        "hasar": 40,
        "hiz": 172,
        "npc_kimlik": 1,
-       "odul": {
+       "reward": {
         "ep": 800,
         "onur": 4,
         "kredi": 800,
@@ -4681,14 +4681,14 @@
       {
        "tur": "85",
        "ad": "StreuneR",
-       "gorunen_ad": "-=[ StreuneR ]=-",
+       "display_name": "-=[ StreuneR ]=-",
        "adet": 2,
        "hp": 20000,
        "kalkan": 15000,
        "hasar": 500,
        "hiz": 300,
        "npc_kimlik": 11,
-       "odul": {
+       "reward": {
         "ep": 3200,
         "onur": 16,
         "kredi": 6400,
@@ -4707,14 +4707,14 @@
       {
        "tur": "23",
        "ad": "Boss Streuner",
-       "gorunen_ad": "..::{ Boss Streuner }::..",
+       "display_name": "..::{ Boss Streuner }::..",
        "adet": 2,
        "hp": 3200,
        "kalkan": 1600,
        "hasar": 100,
        "hiz": 220,
        "npc_kimlik": 14,
-       "odul": {
+       "reward": {
         "ep": 1600,
         "onur": 8,
         "kredi": 1600,
@@ -4730,14 +4730,14 @@
       {
        "tur": "36",
        "ad": "Uber Streuner",
-       "gorunen_ad": "( UberStreuner )",
+       "display_name": "( UberStreuner )",
        "adet": 2,
        "hp": 6400,
        "kalkan": 3200,
        "hasar": 160,
        "hiz": 250,
        "npc_kimlik": 28,
-       "odul": {
+       "reward": {
         "ep": 3200,
         "onur": 16,
         "kredi": 3200,
@@ -4755,14 +4755,14 @@
       {
        "tur": "44",
        "ad": "Uber StreuneR",
-       "gorunen_ad": "( UberStreuneR )",
+       "display_name": "( UberStreuneR )",
        "adet": 2,
        "hp": 320000,
        "kalkan": 240000,
        "hasar": 3700,
        "hiz": 280,
        "npc_kimlik": 38,
-       "odul": {
+       "reward": {
         "ep": 25600,
         "onur": 128,
         "kredi": 51200,
@@ -4782,14 +4782,14 @@
       {
        "tur": "71",
        "ad": "Lordakia",
-       "gorunen_ad": "-=[ Lordakia ]=-",
+       "display_name": "-=[ Lordakia ]=-",
        "adet": 3,
        "hp": 2000,
        "kalkan": 2000,
        "hasar": 80,
        "hiz": 242,
        "npc_kimlik": 2,
-       "odul": {
+       "reward": {
         "ep": 800,
         "onur": 4,
         "kredi": 800,
@@ -4805,14 +4805,14 @@
       {
        "tur": "24",
        "ad": "Boss Lordakia",
-       "gorunen_ad": "..::{ Boss Lordakia }::..",
+       "display_name": "..::{ Boss Lordakia }::..",
        "adet": 3,
        "hp": 8000,
        "kalkan": 8000,
        "hasar": 320,
        "hiz": 240,
        "npc_kimlik": 15,
-       "odul": {
+       "reward": {
         "ep": 3200,
         "onur": 16,
         "kredi": 3200,
@@ -4831,14 +4831,14 @@
       {
        "tur": "37",
        "ad": "Uber Lordakia",
-       "gorunen_ad": "( UberLordakia )",
+       "display_name": "( UberLordakia )",
        "adet": 3,
        "hp": 16000,
        "kalkan": 16000,
        "hasar": 640,
        "hiz": 250,
        "npc_kimlik": 29,
-       "odul": {
+       "reward": {
         "ep": 6400,
         "onur": 32,
         "kredi": 6400,
@@ -4858,14 +4858,14 @@
       {
        "tur": "75",
        "ad": "Saimon",
-       "gorunen_ad": "-=[ Saimon ]=-",
+       "display_name": "-=[ Saimon ]=-",
        "adet": 3,
        "hp": 6000,
        "kalkan": 6000,
        "hasar": 200,
        "hiz": 280,
        "npc_kimlik": 6,
-       "odul": {
+       "reward": {
         "ep": 1600,
         "onur": 8,
         "kredi": 1600,
@@ -4883,14 +4883,14 @@
       {
        "tur": "25",
        "ad": "Boss Saimon",
-       "gorunen_ad": "..::{ Boss Saimon }::..",
+       "display_name": "..::{ Boss Saimon }::..",
        "adet": 3,
        "hp": 24000,
        "kalkan": 12000,
        "hasar": 800,
        "hiz": 250,
        "npc_kimlik": 17,
-       "odul": {
+       "reward": {
         "ep": 6400,
         "onur": 32,
         "kredi": 6400,
@@ -4911,14 +4911,14 @@
       {
        "tur": "38",
        "ad": "Uber Saimon",
-       "gorunen_ad": "( UberSaimon )",
+       "display_name": "( UberSaimon )",
        "adet": 3,
        "hp": 48000,
        "kalkan": 24000,
        "hasar": 1600,
        "hiz": 250,
        "npc_kimlik": 31,
-       "odul": {
+       "reward": {
         "ep": 12800,
         "onur": 64,
         "kredi": 12800,
@@ -4938,14 +4938,14 @@
       {
        "tur": "76",
        "ad": "Sibelonit",
-       "gorunen_ad": "-=[ Sibelonit ]=-",
+       "display_name": "-=[ Sibelonit ]=-",
        "adet": 3,
        "hp": 40000,
        "kalkan": 40000,
        "hasar": 3200,
        "hiz": 300,
        "npc_kimlik": 7,
-       "odul": {
+       "reward": {
         "ep": 3200,
         "onur": 16,
         "kredi": 12800,
@@ -4964,14 +4964,14 @@
       {
        "tur": "27",
        "ad": "Boss Sibelonit",
-       "gorunen_ad": "..::{ Boss Sibelonit }::..",
+       "display_name": "..::{ Boss Sibelonit }::..",
        "adet": 3,
        "hp": 160000,
        "kalkan": 160000,
        "hasar": 6400,
        "hiz": 280,
        "npc_kimlik": 19,
-       "odul": {
+       "reward": {
         "ep": 12800,
         "onur": 64,
         "kredi": 102400,
@@ -4991,14 +4991,14 @@
       {
        "tur": "40",
        "ad": "Uber Sibelonit",
-       "gorunen_ad": "( UberSibelonit )",
+       "display_name": "( UberSibelonit )",
        "adet": 3,
        "hp": 320000,
        "kalkan": 320000,
        "hasar": 8000,
        "hiz": 280,
        "npc_kimlik": 33,
-       "odul": {
+       "reward": {
         "ep": 25600,
         "onur": 128,
         "kredi": 204800,
@@ -5018,14 +5018,14 @@
       {
        "tur": "78",
        "ad": "Kristallin",
-       "gorunen_ad": "-=[ Kristallin ]=-",
+       "display_name": "-=[ Kristallin ]=-",
        "adet": 3,
        "hp": 50000,
        "kalkan": 40000,
        "hasar": 1650,
        "hiz": 300,
        "npc_kimlik": 9,
-       "odul": {
+       "reward": {
         "ep": 6400,
         "onur": 32,
         "kredi": 12800,
@@ -5044,14 +5044,14 @@
       {
        "tur": "29",
        "ad": "Boss Kristallin",
-       "gorunen_ad": "..::{ Boss Kristallin }::..",
+       "display_name": "..::{ Boss Kristallin }::..",
        "adet": 3,
        "hp": 200000,
        "kalkan": 160000,
        "hasar": 4700,
        "hiz": 280,
        "npc_kimlik": 22,
-       "odul": {
+       "reward": {
         "ep": 25600,
         "onur": 128,
         "kredi": 51200,
@@ -5071,14 +5071,14 @@
       {
        "tur": "42",
        "ad": "Uber Kristallin",
-       "gorunen_ad": "( UberKristallin )",
+       "display_name": "( UberKristallin )",
        "adet": 3,
        "hp": 400000,
        "kalkan": 320000,
        "hasar": 9600,
        "hiz": 280,
        "npc_kimlik": 36,
-       "odul": {
+       "reward": {
         "ep": 51200,
         "onur": 156,
         "kredi": 102400,
@@ -5203,23 +5203,23 @@
      ]
     }
    ],
-   "odul": {
+   "reward": {
     "ep": 6000000,
     "onur": 200000,
     "uridyum": 35000,
-    "cephane": {
+    "ammunition": {
      "ammunition_laser_ucb-100": 25000
     },
     "xenomit": 0,
     "log_disk": 50,
-    "kupon": 0,
-    "enerji": 0,
-    "ganimet": {
-     "yesil_anahtar": 25,
+    "voucher": 0,
+    "energy": 0,
+    "booty": {
+     "green_key": 25,
      "abr": 3
     },
-    "parca": 1,
-    "sans": [
+    "part": 1,
+    "chance": [
      {
       "esya": "drone_designs_havoc",
       "adet": 1,
@@ -5229,7 +5229,7 @@
      {
       "esya": "resource_collectable_diametrion",
       "adet": 70,
-      "adet_en_cok": 80,
+      "max_count": 80,
       "probability": 0.01,
       "together": [
        [
@@ -5256,7 +5256,7 @@
       ]
      },
      {
-      "esya": "cevher_paketi",
+      "esya": "ore_pack",
       "paket": [
        [
         "resource_collectable_kyhalon",
@@ -5298,25 +5298,25 @@
    ],
    "sizes": {},
    "portal": 70,
-   "parca": 120,
+   "part": 120,
    "can": 5,
-   "kronos_parca": 2,
+   "kronos_part": 2,
    "waves": [
     {
      "ad": "I",
      "harita": 74,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "84",
        "ad": "Streuner",
-       "gorunen_ad": "-=[ Streuner ]=-",
+       "display_name": "-=[ Streuner ]=-",
        "adet": 10,
        "hp": 1600,
        "kalkan": 800,
        "hasar": 40,
        "hiz": 172,
        "npc_kimlik": 1,
-       "odul": {
+       "reward": {
         "ep": 800,
         "onur": 8,
         "kredi": 800,
@@ -5331,14 +5331,14 @@
       {
        "tur": "94",
        "ad": "Vagrant",
-       "gorunen_ad": "-=[ Vagrant ]=-",
+       "display_name": "-=[ Vagrant ]=-",
        "adet": 10,
        "hp": 40000,
        "kalkan": 40000,
        "hasar": 2500,
        "hiz": 300,
        "npc_kimlik": 42,
-       "odul": {
+       "reward": {
         "ep": 4000,
         "onur": 4,
         "kredi": 15000,
@@ -5357,14 +5357,14 @@
       {
        "tur": "100",
        "ad": "Infernal",
-       "gorunen_ad": "-=[ Infernal ]=-",
+       "display_name": "-=[ Infernal ]=-",
        "adet": 10,
        "hp": 60000,
        "kalkan": 50000,
        "hasar": 1000,
        "hiz": 320,
        "npc_kimlik": 63,
-       "odul": {
+       "reward": {
         "ep": 8000,
         "onur": 4,
         "kredi": 25000,
@@ -5406,18 +5406,18 @@
     {
      "ad": "II",
      "harita": 74,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "93",
        "ad": "Marauder",
-       "gorunen_ad": "-=[ Marauder ]=-",
+       "display_name": "-=[ Marauder ]=-",
        "adet": 6,
        "hp": 80000,
        "kalkan": 60000,
        "hasar": 4500,
        "hiz": 300,
        "npc_kimlik": 43,
-       "odul": {
+       "reward": {
         "ep": 8000,
         "onur": 4,
         "kredi": 30000,
@@ -5436,14 +5436,14 @@
       {
        "tur": "99",
        "ad": "Scorcher",
-       "gorunen_ad": "-=[ Scorcher ]=-",
+       "display_name": "-=[ Scorcher ]=-",
        "adet": 7,
        "hp": 200000,
        "kalkan": 200000,
        "hasar": 3000,
        "hiz": 280,
        "npc_kimlik": 64,
-       "odul": {
+       "reward": {
         "ep": 16500,
         "onur": 8,
         "kredi": 150000,
@@ -5463,14 +5463,14 @@
       {
        "tur": "31",
        "ad": "Boss Mordon",
-       "gorunen_ad": "..::{ Boss Mordon }::..",
+       "display_name": "..::{ Boss Mordon }::..",
        "adet": 8,
        "hp": 80000,
        "kalkan": 40000,
        "hasar": 1500,
        "hiz": 180,
        "npc_kimlik": 16,
-       "odul": {
+       "reward": {
         "ep": 12800,
         "onur": 64,
         "kredi": 25600,
@@ -5512,18 +5512,18 @@
     {
      "ad": "III",
      "harita": 74,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "92",
        "ad": "Outcast",
-       "gorunen_ad": "-=[ Outcast ]=-",
+       "display_name": "-=[ Outcast ]=-",
        "adet": 6,
        "hp": 150000,
        "kalkan": 80000,
        "hasar": 4500,
        "hiz": 280,
        "npc_kimlik": 44,
-       "odul": {
+       "reward": {
         "ep": 9000,
         "onur": 12,
         "kredi": 50000,
@@ -5542,14 +5542,14 @@
       {
        "tur": "72",
        "ad": "Devolarium",
-       "gorunen_ad": "-=[ Devolarium ]=-",
+       "display_name": "-=[ Devolarium ]=-",
        "adet": 6,
        "hp": 100000,
        "kalkan": 100000,
        "hasar": 1200,
        "hiz": 150,
        "npc_kimlik": 3,
-       "odul": {
+       "reward": {
         "ep": 6400,
         "onur": 32,
         "kredi": 51200,
@@ -5568,14 +5568,14 @@
       {
        "tur": "103",
        "ad": "Icy",
-       "gorunen_ad": "-=[ Icy ]=-",
+       "display_name": "-=[ Icy ]=-",
        "adet": 3,
        "hp": 100000,
        "kalkan": 80000,
        "hasar": 2000,
        "hiz": 250,
        "npc_kimlik": 56,
-       "odul": {
+       "reward": {
         "ep": 6400,
         "onur": 32,
         "kredi": 12800,
@@ -5616,18 +5616,18 @@
     {
      "ad": "IV",
      "harita": 74,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "27",
        "ad": "Boss Sibelonit",
-       "gorunen_ad": "..::{ Boss Sibelonit }::..",
+       "display_name": "..::{ Boss Sibelonit }::..",
        "adet": 5,
        "hp": 160000,
        "kalkan": 160000,
        "hasar": 4350,
        "hiz": 280,
        "npc_kimlik": 19,
-       "odul": {
+       "reward": {
         "ep": 12800,
         "onur": 64,
         "kredi": 102400,
@@ -5647,14 +5647,14 @@
       {
        "tur": "91",
        "ad": "Corsair",
-       "gorunen_ad": "-=[ Corsair ]=-",
+       "display_name": "-=[ Corsair ]=-",
        "adet": 5,
        "hp": 200000,
        "kalkan": 120000,
        "hasar": 7800,
        "hiz": 300,
        "npc_kimlik": 45,
-       "odul": {
+       "reward": {
         "ep": 15000,
         "onur": 16,
         "kredi": 80000,
@@ -5675,14 +5675,14 @@
       {
        "tur": "99",
        "ad": "Scorcher",
-       "gorunen_ad": "-=[ Scorcher ]=-",
+       "display_name": "-=[ Scorcher ]=-",
        "adet": 5,
        "hp": 200000,
        "kalkan": 200000,
        "hasar": 3000,
        "hiz": 280,
        "npc_kimlik": 64,
-       "odul": {
+       "reward": {
         "ep": 16500,
         "onur": 8,
         "kredi": 150000,
@@ -5724,18 +5724,18 @@
     {
      "ad": "V",
      "harita": 74,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "96",
        "ad": "Hooligan",
-       "gorunen_ad": "-=[ Hooligan ]=-",
+       "display_name": "-=[ Hooligan ]=-",
        "adet": 4,
        "hp": 250000,
        "kalkan": 200000,
        "hasar": 9000,
        "hiz": 280,
        "npc_kimlik": 46,
-       "odul": {
+       "reward": {
         "ep": 20000,
         "onur": 32,
         "kredi": 125000,
@@ -5756,14 +5756,14 @@
       {
        "tur": "78",
        "ad": "Kristallin",
-       "gorunen_ad": "-=[ Kristallin ]=-",
+       "display_name": "-=[ Kristallin ]=-",
        "adet": 5,
        "hp": 50000,
        "kalkan": 40000,
        "hasar": 1650,
        "hiz": 300,
        "npc_kimlik": 9,
-       "odul": {
+       "reward": {
         "ep": 6400,
         "onur": 32,
         "kredi": 12800,
@@ -5782,14 +5782,14 @@
       {
        "tur": "102",
        "ad": "Melter",
-       "gorunen_ad": "-=[ Melter ]=-",
+       "display_name": "-=[ Melter ]=-",
        "adet": 4,
        "hp": 400000,
        "kalkan": 300000,
        "hasar": 5000,
        "hiz": 240,
        "npc_kimlik": 65,
-       "odul": {
+       "reward": {
         "ep": 55000,
         "onur": 12,
         "kredi": 400000,
@@ -5831,18 +5831,18 @@
     {
      "ad": "VI",
      "harita": 74,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "111",
        "ad": "Interceptor",
-       "gorunen_ad": "-=[ Interceptor ]=-",
+       "display_name": "-=[ Interceptor ]=-",
        "adet": 8,
        "hp": 60000,
        "kalkan": 40000,
        "hasar": 500,
        "hiz": 320,
        "npc_kimlik": 58,
-       "odul": {
+       "reward": {
         "ep": 7500,
         "onur": 40,
         "kredi": 25500,
@@ -5861,14 +5861,14 @@
       {
        "tur": "112",
        "ad": "Barracuda",
-       "gorunen_ad": "-=[ Barracuda ]=-",
+       "display_name": "-=[ Barracuda ]=-",
        "adet": 6,
        "hp": 180000,
        "kalkan": 100000,
        "hasar": 6000,
        "hiz": 280,
        "npc_kimlik": 59,
-       "odul": {
+       "reward": {
         "ep": 15000,
         "onur": 56,
         "kredi": 90000,
@@ -5883,21 +5883,21 @@
         "6": 4
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
-        "kamikaze_esik": null
+       "behavior": {
+        "kamikaze_threshold": null
        }
       },
       {
        "tur": "114",
        "ad": "Annihilator",
-       "gorunen_ad": "-=[ Annihilator ]=-",
+       "display_name": "-=[ Annihilator ]=-",
        "adet": 3,
        "hp": 300000,
        "kalkan": 200000,
        "hasar": 15000,
        "hiz": 240,
        "npc_kimlik": 61,
-       "odul": {
+       "reward": {
         "ep": 75000,
         "onur": 128,
         "kredi": 250000,
@@ -5913,7 +5913,7 @@
         "3": 12
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": null
        }
       }
@@ -5942,18 +5942,18 @@
     {
      "ad": "VII",
      "harita": 74,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "28",
        "ad": "Boss Lordakium",
-       "gorunen_ad": "..::{ Boss Lordakium }::...",
+       "display_name": "..::{ Boss Lordakium }::...",
        "adet": 6,
        "hp": 1200000,
        "kalkan": 800000,
        "hasar": 16000,
        "hiz": 180,
        "npc_kimlik": 21,
-       "odul": {
+       "reward": {
         "ep": 102400,
         "onur": 512,
         "kredi": 819200,
@@ -5973,14 +5973,14 @@
       {
        "tur": "81",
        "ad": "Protegit",
-       "gorunen_ad": "-=[ Protegit ]=-",
+       "display_name": "-=[ Protegit ]=-",
        "adet": 8,
        "hp": 50000,
        "kalkan": 40000,
        "hasar": 1500,
        "hiz": 420,
        "npc_kimlik": 12,
-       "odul": {
+       "reward": {
         "ep": 6400,
         "onur": 32,
         "kredi": 12800,
@@ -5999,14 +5999,14 @@
       {
        "tur": "46",
        "ad": "Boss Sibelon",
-       "gorunen_ad": "..::{ Boss Sibelon }::..",
+       "display_name": "..::{ Boss Sibelon }::..",
        "adet": 2,
        "hp": 800000,
        "kalkan": 800000,
        "hasar": 12350,
        "hiz": 140,
        "npc_kimlik": 20,
-       "odul": {
+       "reward": {
         "ep": 51000,
         "onur": 256,
         "kredi": 409600,
@@ -6048,18 +6048,18 @@
     {
      "ad": "VIII",
      "harita": 74,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "82",
        "ad": "Kucurbium",
-       "gorunen_ad": "-=[ Kucurbium ]=-",
+       "display_name": "-=[ Kucurbium ]=-",
        "adet": 6,
        "hp": 800000,
        "kalkan": 600000,
        "hasar": 7000,
        "hiz": 200,
        "npc_kimlik": 40,
-       "odul": {
+       "reward": {
         "ep": 102400,
         "onur": 512,
         "kredi": 1638400,
@@ -6079,14 +6079,14 @@
       {
        "tur": "38",
        "ad": "Uber Saimon",
-       "gorunen_ad": "( UberSaimon )",
+       "display_name": "( UberSaimon )",
        "adet": 8,
        "hp": 48000,
        "kalkan": 24000,
        "hasar": 1600,
        "hiz": 250,
        "npc_kimlik": 31,
-       "odul": {
+       "reward": {
         "ep": 12800,
         "onur": 64,
         "kredi": 12800,
@@ -6128,18 +6128,18 @@
     {
      "ad": "IX",
      "harita": 74,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "95",
        "ad": "Convict",
-       "gorunen_ad": "-=[ Convict ]=-",
+       "display_name": "-=[ Convict ]=-",
        "adet": 5,
        "hp": 400000,
        "kalkan": 200000,
        "hasar": 11500,
        "hiz": 260,
        "npc_kimlik": 48,
-       "odul": {
+       "reward": {
         "ep": 30000,
         "onur": 100,
         "kredi": 220000,
@@ -6160,14 +6160,14 @@
       {
        "tur": "29",
        "ad": "Boss Kristallin",
-       "gorunen_ad": "..::{ Boss Kristallin }::..",
+       "display_name": "..::{ Boss Kristallin }::..",
        "adet": 5,
        "hp": 200000,
        "kalkan": 160000,
        "hasar": 4700,
        "hiz": 280,
        "npc_kimlik": 22,
-       "odul": {
+       "reward": {
         "ep": 25600,
         "onur": 128,
         "kredi": 51200,
@@ -6187,14 +6187,14 @@
       {
        "tur": "11",
        "ad": "DemaNeR",
-       "gorunen_ad": "-=[ DemaNeR ]=-",
+       "display_name": "-=[ DemaNeR ]=-",
        "adet": 1,
        "hp": 400000,
        "kalkan": 300000,
        "hasar": 5000,
        "hiz": 300,
        "npc_kimlik": 39,
-       "odul": {
+       "reward": {
         "ep": 51200,
         "onur": 512,
         "kredi": 409600,
@@ -6236,18 +6236,18 @@
     {
      "ad": "X",
      "harita": 74,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "83",
        "ad": "Boss Kucurbium",
-       "gorunen_ad": "..::{ Boss Kucurbium }::..",
+       "display_name": "..::{ Boss Kucurbium }::..",
        "adet": 1,
        "hp": 800000,
        "kalkan": 600000,
        "hasar": 46000,
        "hiz": 180,
        "npc_kimlik": 41,
-       "odul": {
+       "reward": {
         "ep": 204800,
         "onur": 1024,
         "kredi": 3276800,
@@ -6277,18 +6277,18 @@
     {
      "ad": "XI",
      "harita": 74,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "90",
        "ad": "Century Falcon",
-       "gorunen_ad": "-=[ Century Falcon ]=-",
+       "display_name": "-=[ Century Falcon ]=-",
        "adet": 1,
        "hp": 800000,
        "kalkan": 600000,
        "hasar": 46000,
        "hiz": 250,
        "npc_kimlik": 49,
-       "odul": {
+       "reward": {
         "ep": 1000000,
         "onur": 5000,
         "kredi": 1000000,
@@ -6316,23 +6316,23 @@
      ]
     }
    ],
-   "odul": {
+   "reward": {
     "ep": 9000000,
     "onur": 325000,
     "uridyum": 15000,
-    "cephane": {
+    "ammunition": {
      "ammunition_laser_ucb-100": 30000
     },
     "xenomit": 0,
     "log_disk": 10,
-    "kupon": 0,
-    "enerji": 0,
-    "ganimet": {
-     "yesil_anahtar": 5,
+    "voucher": 0,
+    "energy": 0,
+    "booty": {
+     "green_key": 5,
      "abr": 4
     },
-    "parca": 1,
-    "sans": [
+    "part": 1,
+    "chance": [
      {
       "esya": "drone_designs_hercules",
       "adet": 1,
@@ -6354,7 +6354,7 @@
      {
       "esya": "resource_collectable_diametrion",
       "adet": 70,
-      "adet_en_cok": 80,
+      "max_count": 80,
       "probability": 0.01,
       "together": [
        [
@@ -6381,7 +6381,7 @@
       ]
      },
      {
-      "esya": "cevher_paketi",
+      "esya": "ore_pack",
       "paket": [
        [
         "resource_collectable_kyhalon",
@@ -6413,7 +6413,7 @@
      }
     ]
    },
-   "unvan": "title_204"
+   "title": "title_204"
   },
   "lambda": {
    "kimlik": 8,
@@ -6424,25 +6424,25 @@
    ],
    "sizes": {},
    "portal": 71,
-   "parca": 45,
+   "part": 45,
    "can": 5,
-   "kronos_parca": 5,
+   "kronos_part": 5,
    "waves": [
     {
      "ad": "I",
      "harita": 75,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "23",
        "ad": "Boss Streuner",
-       "gorunen_ad": "..::{ Boss Streuner }::..",
+       "display_name": "..::{ Boss Streuner }::..",
        "adet": 10,
        "hp": 3200,
        "kalkan": 1600,
        "hasar": 100,
        "hiz": 220,
        "npc_kimlik": 14,
-       "odul": {
+       "reward": {
         "ep": 1600,
         "onur": 8,
         "kredi": 1600,
@@ -6458,14 +6458,14 @@
       {
        "tur": "24",
        "ad": "Boss Lordakia",
-       "gorunen_ad": "..::{ Boss Lordakia }::..",
+       "display_name": "..::{ Boss Lordakia }::..",
        "adet": 20,
        "hp": 8000,
        "kalkan": 8000,
        "hasar": 320,
        "hiz": 240,
        "npc_kimlik": 15,
-       "odul": {
+       "reward": {
         "ep": 3200,
         "onur": 16,
         "kredi": 3200,
@@ -6505,18 +6505,18 @@
     {
      "ad": "II",
      "harita": 75,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "31",
        "ad": "Boss Mordon",
-       "gorunen_ad": "..::{ Boss Mordon }::..",
+       "display_name": "..::{ Boss Mordon }::..",
        "adet": 6,
        "hp": 80000,
        "kalkan": 40000,
        "hasar": 1500,
        "hiz": 180,
        "npc_kimlik": 16,
-       "odul": {
+       "reward": {
         "ep": 12800,
         "onur": 64,
         "kredi": 25600,
@@ -6536,14 +6536,14 @@
       {
        "tur": "25",
        "ad": "Boss Saimon",
-       "gorunen_ad": "..::{ Boss Saimon }::..",
+       "display_name": "..::{ Boss Saimon }::..",
        "adet": 14,
        "hp": 24000,
        "kalkan": 12000,
        "hasar": 800,
        "hiz": 250,
        "npc_kimlik": 17,
-       "odul": {
+       "reward": {
         "ep": 6400,
         "onur": 32,
         "kredi": 6400,
@@ -6585,18 +6585,18 @@
     {
      "ad": "III",
      "harita": 75,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "26",
        "ad": "Boss Devolarium",
-       "gorunen_ad": "..::{ Boss Devolarium }::..",
+       "display_name": "..::{ Boss Devolarium }::..",
        "adet": 4,
        "hp": 400000,
        "kalkan": 400000,
        "hasar": 4650,
        "hiz": 140,
        "npc_kimlik": 18,
-       "odul": {
+       "reward": {
         "ep": 26500,
         "onur": 128,
         "kredi": 204800,
@@ -6616,14 +6616,14 @@
       {
        "tur": "27",
        "ad": "Boss Sibelonit",
-       "gorunen_ad": "..::{ Boss Sibelonit }::..",
+       "display_name": "..::{ Boss Sibelonit }::..",
        "adet": 6,
        "hp": 160000,
        "kalkan": 160000,
        "hasar": 4350,
        "hiz": 280,
        "npc_kimlik": 19,
-       "odul": {
+       "reward": {
         "ep": 12800,
         "onur": 64,
         "kredi": 102400,
@@ -6666,18 +6666,18 @@
     {
      "ad": "IV",
      "harita": 75,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "27",
        "ad": "Boss Sibelonit",
-       "gorunen_ad": "..::{ Boss Sibelonit }::..",
+       "display_name": "..::{ Boss Sibelonit }::..",
        "adet": 10,
        "hp": 160000,
        "kalkan": 160000,
        "hasar": 4350,
        "hiz": 280,
        "npc_kimlik": 19,
-       "odul": {
+       "reward": {
         "ep": 12800,
         "onur": 64,
         "kredi": 102400,
@@ -6697,14 +6697,14 @@
       {
        "tur": "46",
        "ad": "Boss Sibelon",
-       "gorunen_ad": "..::{ Boss Sibelon }::..",
+       "display_name": "..::{ Boss Sibelon }::..",
        "adet": 1,
        "hp": 800000,
        "kalkan": 800000,
        "hasar": 12350,
        "hiz": 140,
        "npc_kimlik": 20,
-       "odul": {
+       "reward": {
         "ep": 51000,
         "onur": 256,
         "kredi": 409600,
@@ -6747,18 +6747,18 @@
     {
      "ad": "V",
      "harita": 75,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "28",
        "ad": "Boss Lordakium",
-       "gorunen_ad": "..::{ Boss Lordakium }::...",
+       "display_name": "..::{ Boss Lordakium }::...",
        "adet": 3,
        "hp": 1200000,
        "kalkan": 800000,
        "hasar": 16000,
        "hiz": 180,
        "npc_kimlik": 21,
-       "odul": {
+       "reward": {
         "ep": 102400,
         "onur": 512,
         "kredi": 819200,
@@ -6778,14 +6778,14 @@
       {
        "tur": "24",
        "ad": "Boss Lordakia",
-       "gorunen_ad": "..::{ Boss Lordakia }::..",
+       "display_name": "..::{ Boss Lordakia }::..",
        "adet": 10,
        "hp": 8000,
        "kalkan": 8000,
        "hasar": 320,
        "hiz": 240,
        "npc_kimlik": 15,
-       "odul": {
+       "reward": {
         "ep": 3200,
         "onur": 16,
         "kredi": 3200,
@@ -6826,18 +6826,18 @@
     {
      "ad": "VI",
      "harita": 75,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "29",
        "ad": "Boss Kristallin",
-       "gorunen_ad": "..::{ Boss Kristallin }::..",
+       "display_name": "..::{ Boss Kristallin }::..",
        "adet": 12,
        "hp": 200000,
        "kalkan": 160000,
        "hasar": 4700,
        "hiz": 280,
        "npc_kimlik": 22,
-       "odul": {
+       "reward": {
         "ep": 25600,
         "onur": 128,
         "kredi": 51200,
@@ -6857,14 +6857,14 @@
       {
        "tur": "35",
        "ad": "Boss Kristallon",
-       "gorunen_ad": "..::{ Boss Kristallon }::..",
+       "display_name": "..::{ Boss Kristallon }::..",
        "adet": 1,
        "hp": 1600000,
        "kalkan": 1200000,
        "hasar": 20000,
        "hiz": 180,
        "npc_kimlik": 23,
-       "odul": {
+       "reward": {
         "ep": 204800,
         "onur": 1024,
         "kredi": 1638400,
@@ -6906,18 +6906,18 @@
     {
      "ad": "VII",
      "harita": 75,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "35",
        "ad": "Boss Kristallon",
-       "gorunen_ad": "..::{ Boss Kristallon }::..",
+       "display_name": "..::{ Boss Kristallon }::..",
        "adet": 2,
        "hp": 1600000,
        "kalkan": 1200000,
        "hasar": 20000,
        "hiz": 180,
        "npc_kimlik": 23,
-       "odul": {
+       "reward": {
         "ep": 204800,
         "onur": 1024,
         "kredi": 1638400,
@@ -6937,14 +6937,14 @@
       {
        "tur": "29",
        "ad": "Boss Kristallin",
-       "gorunen_ad": "..::{ Boss Kristallin }::..",
+       "display_name": "..::{ Boss Kristallin }::..",
        "adet": 20,
        "hp": 200000,
        "kalkan": 160000,
        "hasar": 4700,
        "hiz": 280,
        "npc_kimlik": 22,
-       "odul": {
+       "reward": {
         "ep": 25600,
         "onur": 128,
         "kredi": 51200,
@@ -6984,27 +6984,27 @@
      ]
     }
    ],
-   "odul": {
+   "reward": {
     "ep": 2750000,
     "onur": 100000,
     "uridyum": 15000,
-    "cephane": {
+    "ammunition": {
      "ammunition_laser_ucb-100": 10000
     },
     "xenomit": 0,
     "log_disk": 3,
-    "kupon": 0,
-    "enerji": 0,
-    "ganimet": {
-     "yesil_anahtar": 5,
+    "voucher": 0,
+    "energy": 0,
+    "booty": {
+     "green_key": 5,
      "abr": 4
     },
-    "parca": 1,
-    "sans": [
+    "part": 1,
+    "chance": [
      {
       "esya": "resource_collectable_diametrion",
       "adet": 70,
-      "adet_en_cok": 80,
+      "max_count": 80,
       "probability": 0.01,
       "together": [
        [
@@ -7031,7 +7031,7 @@
       ]
      },
      {
-      "esya": "cevher_paketi",
+      "esya": "ore_pack",
       "paket": [
        [
         "resource_collectable_kyhalon",
@@ -7063,7 +7063,7 @@
      }
     ]
    },
-   "unvan": "title_205"
+   "title": "title_205"
   },
   "kronos": {
    "kimlik": 12,
@@ -7074,25 +7074,25 @@
    ],
    "sizes": {},
    "portal": 72,
-   "parca": 21,
+   "part": 21,
    "can": 5,
-   "kronos_parca": 0,
+   "kronos_part": 0,
    "waves": [
     {
      "ad": "I",
      "harita": 76,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "ship_phoenix",
        "ad": "Saturn Phoenix",
-       "gorunen_ad": "-=[ Saturn Phoenix ]=-",
+       "display_name": "-=[ Saturn Phoenix ]=-",
        "adet": 10,
        "hp": 4000,
        "kalkan": 10000,
        "hasar": 150,
        "hiz": 300,
        "npc_kimlik": 77,
-       "odul": {
+       "reward": {
         "ep": 100,
         "onur": 1,
         "kredi": 400,
@@ -7106,7 +7106,7 @@
         "5": 20
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1000,
          "bekleme_sn": 6
@@ -7116,14 +7116,14 @@
       {
        "tur": "ship_yamato",
        "ad": "Saturn Yamato",
-       "gorunen_ad": "-=[ Saturn Yamato ]=-",
+       "display_name": "-=[ Saturn Yamato ]=-",
        "adet": 30,
        "hp": 8000,
        "kalkan": 20000,
        "hasar": 400,
        "hiz": 300,
        "npc_kimlik": 78,
-       "odul": {
+       "reward": {
         "ep": 200,
         "onur": 2,
         "kredi": 800,
@@ -7137,7 +7137,7 @@
         "5": 20
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1500,
          "bekleme_sn": 6
@@ -7169,18 +7169,18 @@
     {
      "ad": "II",
      "harita": 76,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "ship_defcom",
        "ad": "Saturn Defcom",
-       "gorunen_ad": "-=[ Saturn Defcom ]=-",
+       "display_name": "-=[ Saturn Defcom ]=-",
        "adet": 20,
        "hp": 12000,
        "kalkan": 50000,
        "hasar": 500,
        "hiz": 300,
        "npc_kimlik": 79,
-       "odul": {
+       "reward": {
         "ep": 1600,
         "onur": 16,
         "kredi": 3200,
@@ -7194,7 +7194,7 @@
         "5": 50
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1500,
          "bekleme_sn": 6
@@ -7204,14 +7204,14 @@
       {
        "tur": "ship_liberator",
        "ad": "Saturn Liberator",
-       "gorunen_ad": "-=[ Saturn Liberator ]=-",
+       "display_name": "-=[ Saturn Liberator ]=-",
        "adet": 30,
        "hp": 16000,
        "kalkan": 30000,
        "hasar": 900,
        "hiz": 300,
        "npc_kimlik": 80,
-       "odul": {
+       "reward": {
         "ep": 200,
         "onur": 2,
         "kredi": 800,
@@ -7225,7 +7225,7 @@
         "5": 50
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1500,
          "bekleme_sn": 6
@@ -7263,18 +7263,18 @@
     {
      "ad": "III",
      "harita": 76,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "ship_nostromo",
        "ad": "Saturn Nostromo",
-       "gorunen_ad": "-=[ Saturn Nostromo ]=-",
+       "display_name": "-=[ Saturn Nostromo ]=-",
        "adet": 20,
        "hp": 64000,
        "kalkan": 80000,
        "hasar": 900,
        "hiz": 300,
        "npc_kimlik": 81,
-       "odul": {
+       "reward": {
         "ep": 6400,
         "onur": 64,
         "kredi": 6400,
@@ -7288,7 +7288,7 @@
         "5": 50
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1500,
          "bekleme_sn": 6
@@ -7298,14 +7298,14 @@
       {
        "tur": "ship_piranha",
        "ad": "Saturn Piranha",
-       "gorunen_ad": "-=[ Saturn Piranha ]=-",
+       "display_name": "-=[ Saturn Piranha ]=-",
        "adet": 30,
        "hp": 64000,
        "kalkan": 80000,
        "hasar": 900,
        "hiz": 300,
        "npc_kimlik": 82,
-       "odul": {
+       "reward": {
         "ep": 6400,
         "onur": 64,
         "kredi": 6400,
@@ -7319,7 +7319,7 @@
         "5": 50
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1500,
          "bekleme_sn": 6
@@ -7358,18 +7358,18 @@
     {
      "ad": "IV",
      "harita": 76,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "ship_bigboy",
        "ad": "Saturn Bigboy",
-       "gorunen_ad": "-=[ Saturn Bigboy ]=-",
+       "display_name": "-=[ Saturn Bigboy ]=-",
        "adet": 30,
        "hp": 128000,
        "kalkan": 150000,
        "hasar": 2500,
        "hiz": 300,
        "npc_kimlik": 83,
-       "odul": {
+       "reward": {
         "ep": 25600,
         "onur": 256,
         "kredi": 12800,
@@ -7384,7 +7384,7 @@
         "6": 12
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1000,
          "bekleme_sn": 6
@@ -7422,18 +7422,18 @@
     {
      "ad": "V",
      "harita": 76,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "ship_vengeance",
        "ad": "Saturn Vengeance",
-       "gorunen_ad": "-=[ Saturn Vengeance ]=-",
+       "display_name": "-=[ Saturn Vengeance ]=-",
        "adet": 15,
        "hp": 180000,
        "kalkan": 100000,
        "hasar": 3000,
        "hiz": 300,
        "npc_kimlik": 84,
-       "odul": {
+       "reward": {
         "ep": 12800,
         "onur": 128,
         "kredi": 25600,
@@ -7448,7 +7448,7 @@
         "6": 8
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1000,
          "bekleme_sn": 6
@@ -7458,14 +7458,14 @@
       {
        "tur": "ship_g-saturn",
        "ad": "Saturn Goliath",
-       "gorunen_ad": "-=[ Saturn Goliath ]=-",
+       "display_name": "-=[ Saturn Goliath ]=-",
        "adet": 8,
        "hp": 256000,
        "kalkan": 150000,
        "hasar": 7000,
        "hiz": 300,
        "npc_kimlik": 85,
-       "odul": {
+       "reward": {
         "ep": 51200,
         "onur": 512,
         "kredi": 45000,
@@ -7480,7 +7480,7 @@
         "6": 12
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1000,
          "bekleme_sn": 6
@@ -7518,18 +7518,18 @@
     {
      "ad": "VI",
      "harita": 76,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "ship_leonov",
        "ad": "Saturn Leonov",
-       "gorunen_ad": "-=[ Saturn Leonov ]=-",
+       "display_name": "-=[ Saturn Leonov ]=-",
        "adet": 20,
        "hp": 160000,
        "kalkan": 60000,
        "hasar": 5000,
        "hiz": 300,
        "npc_kimlik": 86,
-       "odul": {
+       "reward": {
         "ep": 12800,
         "onur": 65,
         "kredi": 25600,
@@ -7544,7 +7544,7 @@
         "6": 8
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1000,
          "bekleme_sn": 6
@@ -7582,18 +7582,18 @@
     {
      "ad": "VII",
      "harita": 76,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "ship_venom",
        "ad": "Saturn Venom",
-       "gorunen_ad": "-=[ Saturn Venom ]=-",
+       "display_name": "-=[ Saturn Venom ]=-",
        "adet": 5,
        "hp": 256000,
        "kalkan": 150000,
        "hasar": 8500,
        "hiz": 300,
        "npc_kimlik": 87,
-       "odul": {
+       "reward": {
         "ep": 51200,
         "onur": 512,
         "kredi": 45000,
@@ -7608,7 +7608,7 @@
         "6": 12
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1000,
          "bekleme_sn": 6
@@ -7618,14 +7618,14 @@
       {
        "tur": "ship_sentinel",
        "ad": "Saturn Sentinel",
-       "gorunen_ad": "-=[ Saturn Sentinel ]=-",
+       "display_name": "-=[ Saturn Sentinel ]=-",
        "adet": 5,
        "hp": 256000,
        "kalkan": 150000,
        "hasar": 7000,
        "hiz": 300,
        "npc_kimlik": 88,
-       "odul": {
+       "reward": {
         "ep": 51200,
         "onur": 512,
         "kredi": 45000,
@@ -7640,7 +7640,7 @@
         "6": 12
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1000,
          "bekleme_sn": 6
@@ -7650,14 +7650,14 @@
       {
        "tur": "ship_spectrum",
        "ad": "Saturn Spectrum",
-       "gorunen_ad": "-=[ Saturn Spectrum ]=-",
+       "display_name": "-=[ Saturn Spectrum ]=-",
        "adet": 5,
        "hp": 256000,
        "kalkan": 150000,
        "hasar": 7000,
        "hiz": 300,
        "npc_kimlik": 89,
-       "odul": {
+       "reward": {
         "ep": 51200,
         "onur": 512,
         "kredi": 45000,
@@ -7672,7 +7672,7 @@
         "6": 12
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1000,
          "bekleme_sn": 6
@@ -7682,14 +7682,14 @@
       {
        "tur": "ship_diminisher",
        "ad": "Saturn Diminisher",
-       "gorunen_ad": "-=[ Saturn Diminisher ]=-",
+       "display_name": "-=[ Saturn Diminisher ]=-",
        "adet": 5,
        "hp": 256000,
        "kalkan": 150000,
        "hasar": 8500,
        "hiz": 300,
        "npc_kimlik": 90,
-       "odul": {
+       "reward": {
         "ep": 51200,
         "onur": 512,
         "kredi": 45000,
@@ -7704,7 +7704,7 @@
         "6": 12
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1000,
          "bekleme_sn": 6
@@ -7714,14 +7714,14 @@
       {
        "tur": "ship_solace",
        "ad": "Saturn Solace",
-       "gorunen_ad": "-=[ Saturn Solace ]=-",
+       "display_name": "-=[ Saturn Solace ]=-",
        "adet": 5,
        "hp": 256000,
        "kalkan": 150000,
        "hasar": 8500,
        "hiz": 300,
        "npc_kimlik": 91,
-       "odul": {
+       "reward": {
         "ep": 51200,
         "onur": 512,
         "kredi": 45000,
@@ -7736,7 +7736,7 @@
         "6": 12
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1000,
          "bekleme_sn": 6
@@ -7780,18 +7780,18 @@
     {
      "ad": "VIII",
      "harita": 76,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "ship_v-revenge",
        "ad": "Saturn Revenge",
-       "gorunen_ad": "-=[ Saturn Revenge ]=-",
+       "display_name": "-=[ Saturn Revenge ]=-",
        "adet": 10,
        "hp": 180000,
        "kalkan": 100000,
        "hasar": 3000,
        "hiz": 300,
        "npc_kimlik": 92,
-       "odul": {
+       "reward": {
         "ep": 12800,
         "onur": 128,
         "kredi": 25600,
@@ -7806,7 +7806,7 @@
         "6": 8
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1000,
          "bekleme_sn": 6
@@ -7816,14 +7816,14 @@
       {
        "tur": "ship_g-enforcer",
        "ad": "Saturn Enforcer",
-       "gorunen_ad": "-=[ Saturn Enforcer ]=-",
+       "display_name": "-=[ Saturn Enforcer ]=-",
        "adet": 15,
        "hp": 256000,
        "kalkan": 150000,
        "hasar": 8500,
        "hiz": 300,
        "npc_kimlik": 96,
-       "odul": {
+       "reward": {
         "ep": 51200,
         "onur": 512,
         "kredi": 45000,
@@ -7838,7 +7838,7 @@
         "6": 12
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1000,
          "bekleme_sn": 6
@@ -7882,18 +7882,18 @@
     {
      "ad": "IX",
      "harita": 76,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "ship_v-lightning",
        "ad": "Saturn Lightning",
-       "gorunen_ad": "-=[ Saturn Lightning ]=-",
+       "display_name": "-=[ Saturn Lightning ]=-",
        "adet": 18,
        "hp": 180000,
        "kalkan": 100000,
        "hasar": 3000,
        "hiz": 300,
        "npc_kimlik": 93,
-       "odul": {
+       "reward": {
         "ep": 12800,
         "onur": 128,
         "kredi": 25600,
@@ -7908,7 +7908,7 @@
         "6": 8
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1000,
          "bekleme_sn": 6
@@ -7918,14 +7918,14 @@
       {
        "tur": "ship_v-avenger",
        "ad": "Saturn Avenger",
-       "gorunen_ad": "-=[ Saturn Avenger ]=-",
+       "display_name": "-=[ Saturn Avenger ]=-",
        "adet": 12,
        "hp": 180000,
        "kalkan": 200000,
        "hasar": 3000,
        "hiz": 300,
        "npc_kimlik": 94,
-       "odul": {
+       "reward": {
         "ep": 12800,
         "onur": 128,
         "kredi": 25600,
@@ -7940,7 +7940,7 @@
         "6": 8
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1000,
          "bekleme_sn": 6
@@ -7985,18 +7985,18 @@
     {
      "ad": "X",
      "harita": 76,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "ship_g-bastion",
        "ad": "Saturn Bastion",
-       "gorunen_ad": "-=[ Saturn Bastion ]=-",
+       "display_name": "-=[ Saturn Bastion ]=-",
        "adet": 12,
        "hp": 256000,
        "kalkan": 250000,
        "hasar": 3000,
        "hiz": 300,
        "npc_kimlik": 95,
-       "odul": {
+       "reward": {
         "ep": 12800,
         "onur": 128,
         "kredi": 25600,
@@ -8011,7 +8011,7 @@
         "6": 8
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1000,
          "bekleme_sn": 6
@@ -8021,14 +8021,14 @@
       {
        "tur": "ship_g-enforcer",
        "ad": "Saturn Enforcer",
-       "gorunen_ad": "-=[ Saturn Enforcer ]=-",
+       "display_name": "-=[ Saturn Enforcer ]=-",
        "adet": 6,
        "hp": 256000,
        "kalkan": 150000,
        "hasar": 8500,
        "hiz": 300,
        "npc_kimlik": 96,
-       "odul": {
+       "reward": {
         "ep": 51200,
         "onur": 512,
         "kredi": 45000,
@@ -8043,7 +8043,7 @@
         "6": 12
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1000,
          "bekleme_sn": 6
@@ -8076,18 +8076,18 @@
     {
      "ad": "XI",
      "harita": 76,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "ship_spearhead",
        "ad": "Saturn Spearhead",
-       "gorunen_ad": "-=[ Saturn Spearhead ]=-",
+       "display_name": "-=[ Saturn Spearhead ]=-",
        "adet": 10,
        "hp": 100000,
        "kalkan": 120000,
        "hasar": 1400,
        "hiz": 300,
        "npc_kimlik": 97,
-       "odul": {
+       "reward": {
         "ep": 7500,
         "onur": 75,
         "kredi": 20000,
@@ -8102,7 +8102,7 @@
         "6": 8
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1000,
          "bekleme_sn": 6
@@ -8112,14 +8112,14 @@
       {
        "tur": "ship_citadel",
        "ad": "Saturn Citadel",
-       "gorunen_ad": "-=[ Saturn Citadel ]=-",
+       "display_name": "-=[ Saturn Citadel ]=-",
        "adet": 5,
        "hp": 550000,
        "kalkan": 200000,
        "hasar": 6500,
        "hiz": 300,
        "npc_kimlik": 98,
-       "odul": {
+       "reward": {
         "ep": 120000,
         "onur": 1200,
         "kredi": 80000,
@@ -8134,7 +8134,7 @@
         "6": 20
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1000,
          "bekleme_sn": 6
@@ -8144,14 +8144,14 @@
       {
        "tur": "ship_aegis",
        "ad": "Saturn Aegis",
-       "gorunen_ad": "-=[ Saturn Aegis ]=-",
+       "display_name": "-=[ Saturn Aegis ]=-",
        "adet": 8,
        "hp": 275000,
        "kalkan": 150000,
        "hasar": 5000,
        "hiz": 300,
        "npc_kimlik": 99,
-       "odul": {
+       "reward": {
         "ep": 25000,
         "onur": 250,
         "kredi": 50000,
@@ -8166,7 +8166,7 @@
         "6": 12
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1000,
          "bekleme_sn": 6
@@ -8176,14 +8176,14 @@
       {
        "tur": "ship_g-saturn",
        "ad": "Saturn Goliath",
-       "gorunen_ad": "-=[ Saturn Goliath ]=-",
+       "display_name": "-=[ Saturn Goliath ]=-",
        "adet": 10,
        "hp": 256000,
        "kalkan": 150000,
        "hasar": 7000,
        "hiz": 300,
        "npc_kimlik": 85,
-       "odul": {
+       "reward": {
         "ep": 51200,
         "onur": 512,
         "kredi": 45000,
@@ -8198,7 +8198,7 @@
         "6": 12
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1000,
          "bekleme_sn": 6
@@ -8236,18 +8236,18 @@
     {
      "ad": "XII",
      "harita": 76,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "ship_goliath_design_crimson",
        "ad": "Saturn Crimson",
-       "gorunen_ad": "-=[ Saturn Crimson ]=-",
+       "display_name": "-=[ Saturn Crimson ]=-",
        "adet": 8,
        "hp": 256000,
        "kalkan": 150000,
        "hasar": 7000,
        "hiz": 300,
        "npc_kimlik": 100,
-       "odul": {
+       "reward": {
         "ep": 51200,
         "onur": 512,
         "kredi": 45000,
@@ -8262,7 +8262,7 @@
         "6": 12
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1000,
          "bekleme_sn": 6
@@ -8272,14 +8272,14 @@
       {
        "tur": "ship_goliath_design_jade",
        "ad": "Saturn Jade",
-       "gorunen_ad": "-=[ Saturn Jade ]=-",
+       "display_name": "-=[ Saturn Jade ]=-",
        "adet": 8,
        "hp": 256000,
        "kalkan": 150000,
        "hasar": 7000,
        "hiz": 300,
        "npc_kimlik": 101,
-       "odul": {
+       "reward": {
         "ep": 51200,
         "onur": 512,
         "kredi": 45000,
@@ -8294,7 +8294,7 @@
         "6": 12
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1000,
          "bekleme_sn": 6
@@ -8304,14 +8304,14 @@
       {
        "tur": "ship_goliath_design_sapphire",
        "ad": "Saturn Sapphire",
-       "gorunen_ad": "-=[ Saturn Sapphire ]=-",
+       "display_name": "-=[ Saturn Sapphire ]=-",
        "adet": 8,
        "hp": 256000,
        "kalkan": 150000,
        "hasar": 7000,
        "hiz": 300,
        "npc_kimlik": 102,
-       "odul": {
+       "reward": {
         "ep": 51200,
         "onur": 512,
         "kredi": 45000,
@@ -8326,7 +8326,7 @@
         "6": 12
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1000,
          "bekleme_sn": 6
@@ -8358,18 +8358,18 @@
     {
      "ad": "XIII",
      "harita": 76,
-     "uzaylilar": [
+     "alien_spawns": [
       {
-       "tur": "oyuncu",
+       "tur": "player",
        "ad": "Evil Clone Of Your Ship",
-       "gorunen_ad": "-=[ Evil You ]=-",
+       "display_name": "-=[ Evil You ]=-",
        "adet": 1,
        "hp": 750000,
        "kalkan": 500000,
        "hasar": 35000,
        "hiz": 320,
        "npc_kimlik": 103,
-       "odul": {
+       "reward": {
         "ep": 250000,
         "onur": 2000,
         "kredi": 150000,
@@ -8384,7 +8384,7 @@
         "6": 25
        },
        "_reward_source": "wiki kapı",
-       "davranis": {
+       "behavior": {
         "roket": {
          "hasar": 1000,
          "bekleme_sn": 6
@@ -8394,14 +8394,14 @@
       {
        "tur": "108",
        "ad": "Evil Iris",
-       "gorunen_ad": "-=[ Evil Iris ]=-",
+       "display_name": "-=[ Evil Iris ]=-",
        "adet": 8,
        "hp": 60000,
        "kalkan": 50000,
        "hasar": 1400,
        "hiz": 380,
        "npc_kimlik": 104,
-       "odul": {
+       "reward": {
         "ep": 6400,
         "onur": 32,
         "kredi": 12800,
@@ -8434,26 +8434,26 @@
      ]
     }
    ],
-   "odul": {
+   "reward": {
     "ep": 12000000,
     "onur": 450000,
     "uridyum": 25000,
-    "cephane": {
+    "ammunition": {
      "ammunition_laser_ucb-100": 25000,
      "ammunition_laser_rsb-75": 5000,
      "ammunition_rocketlauncher_ubr-100": 500
     },
     "xenomit": 0,
     "log_disk": 15,
-    "kupon": 0,
-    "enerji": 250,
-    "ganimet": {
+    "voucher": 0,
+    "energy": 250,
+    "booty": {
      "abr": 100,
-     "yesil_anahtar": 10,
+     "green_key": 10,
      "schism": 10
     },
-    "parca": 0,
-    "sans": [
+    "part": 0,
+    "chance": [
      {
       "esya": "drone_designs_spartan",
       "adet": 1,
@@ -8468,7 +8468,7 @@
      {
       "esya": "resource_collectable_diametrion",
       "adet": 70,
-      "adet_en_cok": 80,
+      "max_count": 80,
       "probability": 0.01,
       "together": [
        [
@@ -8495,7 +8495,7 @@
       ]
      },
      {
-      "esya": "cevher_paketi",
+      "esya": "ore_pack",
       "paket": [
        [
         "resource_collectable_kyhalon",
@@ -8527,7 +8527,7 @@
      }
     ]
    },
-   "kaynaklar": {
+   "sources": {
     "alpha": 4,
     "beta": 3,
     "gamma": 1,
@@ -8553,25 +8553,25 @@
     ]
    },
    "portal": 74,
-   "parca": 45,
+   "part": 45,
    "can": 5,
-   "kronos_parca": 0,
+   "kronos_part": 0,
    "waves": [
     {
      "ad": "I",
      "harita": 203,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "74",
        "ad": "Sibelon",
-       "gorunen_ad": "-=[ Sibelon ]=-",
+       "display_name": "-=[ Sibelon ]=-",
        "adet": 30,
        "hp": 200000,
        "kalkan": 200000,
        "hasar": 2650,
        "hiz": 150,
        "npc_kimlik": 5,
-       "odul": {
+       "reward": {
         "ep": 12800,
         "onur": 64,
         "kredi": 102400,
@@ -8590,14 +8590,14 @@
       {
        "tur": "46",
        "ad": "Boss Sibelon",
-       "gorunen_ad": "..::{ Boss Sibelon }::..",
+       "display_name": "..::{ Boss Sibelon }::..",
        "adet": 10,
        "hp": 800000,
        "kalkan": 800000,
        "hasar": 12350,
        "hiz": 140,
        "npc_kimlik": 20,
-       "odul": {
+       "reward": {
         "ep": 51000,
         "onur": 256,
         "kredi": 409600,
@@ -8617,14 +8617,14 @@
       {
        "tur": "47",
        "ad": "Uber Sibelon",
-       "gorunen_ad": "( UberSibelon )",
+       "display_name": "( UberSibelon )",
        "adet": 4,
        "hp": 1600000,
        "kalkan": 1600000,
        "hasar": 24000,
        "hiz": 150,
        "npc_kimlik": 34,
-       "odul": {
+       "reward": {
         "ep": 102400,
         "onur": 512,
         "kredi": 819200,
@@ -8644,14 +8644,14 @@
       {
        "tur": "124",
        "ad": "Emperor Sibelon",
-       "gorunen_ad": "-=[ Emperor Sibelon ]=-",
+       "display_name": "-=[ Emperor Sibelon ]=-",
        "adet": 1,
        "hp": 6400000,
        "kalkan": 6400000,
        "hasar": 35000,
        "hiz": 200,
        "npc_kimlik": 113,
-       "odul": {
+       "reward": {
         "ep": 409600,
         "onur": 2048,
         "kredi": 1400000,
@@ -8699,18 +8699,18 @@
     {
      "ad": "II",
      "harita": 203,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "77",
        "ad": "Lordakium",
-       "gorunen_ad": "-=[ Lordakium ]=-",
+       "display_name": "-=[ Lordakium ]=-",
        "adet": 30,
        "hp": 300000,
        "kalkan": 200000,
        "hasar": 3600,
        "hiz": 200,
        "npc_kimlik": 8,
-       "odul": {
+       "reward": {
         "ep": 25600,
         "onur": 128,
         "kredi": 204800,
@@ -8729,14 +8729,14 @@
       {
        "tur": "28",
        "ad": "Boss Lordakium",
-       "gorunen_ad": "..::{ Boss Lordakium }::...",
+       "display_name": "..::{ Boss Lordakium }::...",
        "adet": 10,
        "hp": 1200000,
        "kalkan": 800000,
        "hasar": 16000,
        "hiz": 180,
        "npc_kimlik": 21,
-       "odul": {
+       "reward": {
         "ep": 102400,
         "onur": 512,
         "kredi": 819200,
@@ -8756,14 +8756,14 @@
       {
        "tur": "41",
        "ad": "Uber Lordakium",
-       "gorunen_ad": "( UberLordakium )",
+       "display_name": "( UberLordakium )",
        "adet": 4,
        "hp": 2400000,
        "kalkan": 1600000,
        "hasar": 32000,
        "hiz": 180,
        "npc_kimlik": 35,
-       "odul": {
+       "reward": {
         "ep": 204800,
         "onur": 1024,
         "kredi": 1638400,
@@ -8783,14 +8783,14 @@
       {
        "tur": "123",
        "ad": "Emperor Lordakium",
-       "gorunen_ad": "-=[ Emperor Lordakium ]=-",
+       "display_name": "-=[ Emperor Lordakium ]=-",
        "adet": 1,
        "hp": 9600000,
        "kalkan": 6800000,
        "hasar": 45000,
        "hiz": 180,
        "npc_kimlik": 114,
-       "odul": {
+       "reward": {
         "ep": 768000,
         "onur": 4096,
         "kredi": 2000000,
@@ -8838,18 +8838,18 @@
     {
      "ad": "III",
      "harita": 203,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "79",
        "ad": "Kristallon",
-       "gorunen_ad": "-=[ Kristallon ]=-",
+       "display_name": "-=[ Kristallon ]=-",
        "adet": 30,
        "hp": 400000,
        "kalkan": 300000,
        "hasar": 4450,
        "hiz": 200,
        "npc_kimlik": 10,
-       "odul": {
+       "reward": {
         "ep": 51200,
         "onur": 256,
         "kredi": 409600,
@@ -8868,14 +8868,14 @@
       {
        "tur": "35",
        "ad": "Boss Kristallon",
-       "gorunen_ad": "..::{ Boss Kristallon }::..",
+       "display_name": "..::{ Boss Kristallon }::..",
        "adet": 10,
        "hp": 1600000,
        "kalkan": 1200000,
        "hasar": 20000,
        "hiz": 180,
        "npc_kimlik": 23,
-       "odul": {
+       "reward": {
         "ep": 204800,
         "onur": 1024,
         "kredi": 1638400,
@@ -8895,14 +8895,14 @@
       {
        "tur": "45",
        "ad": "Uber Kristallon",
-       "gorunen_ad": "( UberKristallon )",
+       "display_name": "( UberKristallon )",
        "adet": 4,
        "hp": 3200000,
        "kalkan": 2400000,
        "hasar": 40000,
        "hiz": 180,
        "npc_kimlik": 37,
-       "odul": {
+       "reward": {
         "ep": 490000,
         "onur": 2048,
         "kredi": 3276800,
@@ -8922,14 +8922,14 @@
       {
        "tur": "122",
        "ad": "Emperor Kristallon",
-       "gorunen_ad": "-=[ Emperor Kristallon ]=-",
+       "display_name": "-=[ Emperor Kristallon ]=-",
        "adet": 1,
        "hp": 14080000,
        "kalkan": 10560000,
        "hasar": 40000,
        "hiz": 180,
        "npc_kimlik": 115,
-       "odul": {
+       "reward": {
         "ep": 1536000,
         "onur": 8192,
         "kredi": 5000000,
@@ -8975,30 +8975,30 @@
      ]
     }
    ],
-   "odul": {
+   "reward": {
     "ep": 4000000,
     "onur": 200000,
     "uridyum": 20000,
-    "cephane": {
+    "ammunition": {
      "ammunition_laser_ucb-100": 15000
     },
     "xenomit": 0,
     "log_disk": 8,
-    "kupon": 0,
-    "enerji": 0,
-    "ganimet": {
-     "yesil_anahtar": 4,
+    "voucher": 0,
+    "energy": 0,
+    "booty": {
+     "green_key": 4,
      "abr": 1
     },
-    "parca": 0,
-    "sans": [
+    "part": 0,
+    "chance": [
      {
       "esya": "equipment_weapon_laser_lf-4",
       "adet": 1,
       "probability": 0.25
      },
      {
-      "esya": "cevher_paketi",
+      "esya": "ore_pack",
       "paket": [
        [
         "resource_collectable_kyhalon",
@@ -9030,7 +9030,7 @@
      }
     ]
    },
-   "unvan": "title_event_gg-hades"
+   "title": "title_event_gg-hades"
   },
   "streuner": {
    "kimlik": 19,
@@ -9045,25 +9045,25 @@
    ],
    "sizes": {},
    "portal": 82,
-   "parca": 100,
+   "part": 100,
    "can": 5,
-   "kronos_parca": 0,
+   "kronos_part": 0,
    "waves": [
     {
      "ad": "I",
      "harita": 300,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "85",
        "ad": "StreuneR",
-       "gorunen_ad": "-=[ StreuneR ]=-",
+       "display_name": "-=[ StreuneR ]=-",
        "adet": 25,
        "hp": 40000,
        "kalkan": 30000,
        "hasar": 1000,
        "hiz": 300,
        "npc_kimlik": 11,
-       "odul": {
+       "reward": {
         "ep": 6000,
         "onur": 30,
         "kredi": 12000,
@@ -9082,14 +9082,14 @@
       {
        "tur": "158",
        "ad": "Streuner Rocketeer",
-       "gorunen_ad": "-=[ Streuner Rocketeer ]=-",
+       "display_name": "-=[ Streuner Rocketeer ]=-",
        "adet": 1,
        "hp": 120000,
        "kalkan": 80000,
        "hasar": 0,
        "hiz": 260,
        "npc_kimlik": 158,
-       "odul": {
+       "reward": {
         "ep": 3200,
         "onur": 6,
         "kredi": 6400,
@@ -9126,18 +9126,18 @@
     {
      "ad": "II",
      "harita": 301,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "44",
        "ad": "Uber StreuneR",
-       "gorunen_ad": "( UberStreuneR )",
+       "display_name": "( UberStreuneR )",
        "adet": 10,
        "hp": 320000,
        "kalkan": 240000,
        "hasar": 7500,
        "hiz": 280,
        "npc_kimlik": 38,
-       "odul": {
+       "reward": {
         "ep": 48000,
         "onur": 240,
         "kredi": 96000,
@@ -9157,14 +9157,14 @@
       {
        "tur": "25",
        "ad": "Boss Saimon",
-       "gorunen_ad": "..::{ Boss Saimon }::..",
+       "display_name": "..::{ Boss Saimon }::..",
        "adet": 10,
        "hp": 24000,
        "kalkan": 12000,
        "hasar": 800,
        "hiz": 250,
        "npc_kimlik": 17,
-       "odul": {
+       "reward": {
         "ep": 6400,
         "onur": 32,
         "kredi": 6400,
@@ -9184,14 +9184,14 @@
       {
        "tur": "158",
        "ad": "Streuner Rocketeer",
-       "gorunen_ad": "-=[ Streuner Rocketeer ]=-",
+       "display_name": "-=[ Streuner Rocketeer ]=-",
        "adet": 1,
        "hp": 120000,
        "kalkan": 80000,
        "hasar": 0,
        "hiz": 260,
        "npc_kimlik": 158,
-       "odul": {
+       "reward": {
         "ep": 3200,
         "onur": 6,
         "kredi": 6400,
@@ -9206,14 +9206,14 @@
       {
        "tur": "150",
        "ad": "Streuner Soldier",
-       "gorunen_ad": "-=[ Streuner Soldier ]=-",
+       "display_name": "-=[ Streuner Soldier ]=-",
        "adet": 12,
        "hp": 80000,
        "kalkan": 60000,
        "hasar": 2000,
        "hiz": 300,
        "npc_kimlik": 150,
-       "odul": {
+       "reward": {
         "ep": 12000,
         "onur": 40,
         "kredi": 100000,
@@ -9236,14 +9236,14 @@
       {
        "tur": "75",
        "ad": "Saimon",
-       "gorunen_ad": "-=[ Saimon ]=-",
+       "display_name": "-=[ Saimon ]=-",
        "adet": 12,
        "hp": 12000,
        "kalkan": 12000,
        "hasar": 400,
        "hiz": 280,
        "npc_kimlik": 6,
-       "odul": {
+       "reward": {
         "ep": 3200,
         "onur": 16,
         "kredi": 3200,
@@ -9302,18 +9302,18 @@
     {
      "ad": "III",
      "harita": 302,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "150",
        "ad": "Streuner Soldier",
-       "gorunen_ad": "-=[ Streuner Soldier ]=-",
+       "display_name": "-=[ Streuner Soldier ]=-",
        "adet": 5,
        "hp": 80000,
        "kalkan": 60000,
        "hasar": 2000,
        "hiz": 300,
        "npc_kimlik": 150,
-       "odul": {
+       "reward": {
         "ep": 12000,
         "onur": 40,
         "kredi": 100000,
@@ -9336,14 +9336,14 @@
       {
        "tur": "149",
        "ad": "Streuner Specialist",
-       "gorunen_ad": "-=[ Streuner Specialist ]=-",
+       "display_name": "-=[ Streuner Specialist ]=-",
        "adet": 1,
        "hp": 300000,
        "kalkan": 300000,
        "hasar": 5000,
        "hiz": 280,
        "npc_kimlik": 149,
-       "odul": {
+       "reward": {
         "ep": 20000,
         "onur": 70,
         "kredi": 200000,
@@ -9355,14 +9355,14 @@
       {
        "tur": "150",
        "ad": "Streuner Soldier",
-       "gorunen_ad": "-=[ Streuner Soldier ]=-",
+       "display_name": "-=[ Streuner Soldier ]=-",
        "adet": 10,
        "hp": 80000,
        "kalkan": 60000,
        "hasar": 2000,
        "hiz": 300,
        "npc_kimlik": 150,
-       "odul": {
+       "reward": {
         "ep": 12000,
         "onur": 40,
         "kredi": 100000,
@@ -9385,14 +9385,14 @@
       {
        "tur": "158",
        "ad": "Streuner Rocketeer",
-       "gorunen_ad": "-=[ Streuner Rocketeer ]=-",
+       "display_name": "-=[ Streuner Rocketeer ]=-",
        "adet": 1,
        "hp": 120000,
        "kalkan": 80000,
        "hasar": 0,
        "hiz": 260,
        "npc_kimlik": 158,
-       "odul": {
+       "reward": {
         "ep": 3200,
         "onur": 6,
         "kredi": 6400,
@@ -9407,14 +9407,14 @@
       {
        "tur": "46",
        "ad": "Boss Sibelon",
-       "gorunen_ad": "..::{ Boss Sibelon }::..",
+       "display_name": "..::{ Boss Sibelon }::..",
        "adet": 4,
        "hp": 800000,
        "kalkan": 800000,
        "hasar": 12350,
        "hiz": 140,
        "npc_kimlik": 20,
-       "odul": {
+       "reward": {
         "ep": 51000,
         "onur": 256,
         "kredi": 409600,
@@ -9434,14 +9434,14 @@
       {
        "tur": "150",
        "ad": "Streuner Soldier",
-       "gorunen_ad": "-=[ Streuner Soldier ]=-",
+       "display_name": "-=[ Streuner Soldier ]=-",
        "adet": 10,
        "hp": 80000,
        "kalkan": 60000,
        "hasar": 2000,
        "hiz": 300,
        "npc_kimlik": 150,
-       "odul": {
+       "reward": {
         "ep": 12000,
         "onur": 40,
         "kredi": 100000,
@@ -9464,14 +9464,14 @@
       {
        "tur": "149",
        "ad": "Streuner Specialist",
-       "gorunen_ad": "-=[ Streuner Specialist ]=-",
+       "display_name": "-=[ Streuner Specialist ]=-",
        "adet": 2,
        "hp": 300000,
        "kalkan": 300000,
        "hasar": 5000,
        "hiz": 280,
        "npc_kimlik": 149,
-       "odul": {
+       "reward": {
         "ep": 20000,
         "onur": 70,
         "kredi": 200000,
@@ -9483,14 +9483,14 @@
       {
        "tur": "150",
        "ad": "Streuner Soldier",
-       "gorunen_ad": "-=[ Streuner Soldier ]=-",
+       "display_name": "-=[ Streuner Soldier ]=-",
        "adet": 10,
        "hp": 80000,
        "kalkan": 60000,
        "hasar": 2000,
        "hiz": 300,
        "npc_kimlik": 150,
-       "odul": {
+       "reward": {
         "ep": 12000,
         "onur": 40,
         "kredi": 100000,
@@ -9513,14 +9513,14 @@
       {
        "tur": "149",
        "ad": "Streuner Specialist",
-       "gorunen_ad": "-=[ Streuner Specialist ]=-",
+       "display_name": "-=[ Streuner Specialist ]=-",
        "adet": 2,
        "hp": 300000,
        "kalkan": 300000,
        "hasar": 5000,
        "hiz": 280,
        "npc_kimlik": 149,
-       "odul": {
+       "reward": {
         "ep": 20000,
         "onur": 70,
         "kredi": 200000,
@@ -9532,14 +9532,14 @@
       {
        "tur": "158",
        "ad": "Streuner Rocketeer",
-       "gorunen_ad": "-=[ Streuner Rocketeer ]=-",
+       "display_name": "-=[ Streuner Rocketeer ]=-",
        "adet": 1,
        "hp": 120000,
        "kalkan": 80000,
        "hasar": 0,
        "hiz": 260,
        "npc_kimlik": 158,
-       "odul": {
+       "reward": {
         "ep": 3200,
         "onur": 6,
         "kredi": 6400,
@@ -9618,18 +9618,18 @@
     {
      "ad": "IV",
      "harita": 303,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "148",
        "ad": "Streuner Turret",
-       "gorunen_ad": "-=[ Streuner Turret ]=-",
+       "display_name": "-=[ Streuner Turret ]=-",
        "adet": 4,
        "hp": 200000,
        "kalkan": 200000,
        "hasar": 4000,
        "hiz": 0,
        "npc_kimlik": 148,
-       "odul": {
+       "reward": {
         "ep": 18000,
         "onur": 50,
         "kredi": 180000,
@@ -9644,14 +9644,14 @@
       {
        "tur": "150",
        "ad": "Streuner Soldier",
-       "gorunen_ad": "-=[ Streuner Soldier ]=-",
+       "display_name": "-=[ Streuner Soldier ]=-",
        "adet": 20,
        "hp": 80000,
        "kalkan": 60000,
        "hasar": 2000,
        "hiz": 300,
        "npc_kimlik": 150,
-       "odul": {
+       "reward": {
         "ep": 12000,
         "onur": 40,
         "kredi": 100000,
@@ -9674,14 +9674,14 @@
       {
        "tur": "149",
        "ad": "Streuner Specialist",
-       "gorunen_ad": "-=[ Streuner Specialist ]=-",
+       "display_name": "-=[ Streuner Specialist ]=-",
        "adet": 6,
        "hp": 300000,
        "kalkan": 300000,
        "hasar": 5000,
        "hiz": 280,
        "npc_kimlik": 149,
-       "odul": {
+       "reward": {
         "ep": 20000,
         "onur": 70,
         "kredi": 200000,
@@ -9693,14 +9693,14 @@
       {
        "tur": "158",
        "ad": "Streuner Rocketeer",
-       "gorunen_ad": "-=[ Streuner Rocketeer ]=-",
+       "display_name": "-=[ Streuner Rocketeer ]=-",
        "adet": 4,
        "hp": 120000,
        "kalkan": 80000,
        "hasar": 0,
        "hiz": 260,
        "npc_kimlik": 158,
-       "odul": {
+       "reward": {
         "ep": 3200,
         "onur": 6,
         "kredi": 6400,
@@ -9715,14 +9715,14 @@
       {
        "tur": "47",
        "ad": "Uber Sibelon",
-       "gorunen_ad": "( UberSibelon )",
+       "display_name": "( UberSibelon )",
        "adet": 2,
        "hp": 1600000,
        "kalkan": 1600000,
        "hasar": 24000,
        "hiz": 150,
        "npc_kimlik": 34,
-       "odul": {
+       "reward": {
         "ep": 102400,
         "onur": 512,
         "kredi": 819200,
@@ -9742,14 +9742,14 @@
       {
        "tur": "25",
        "ad": "Boss Saimon",
-       "gorunen_ad": "..::{ Boss Saimon }::..",
+       "display_name": "..::{ Boss Saimon }::..",
        "adet": 10,
        "hp": 24000,
        "kalkan": 12000,
        "hasar": 800,
        "hiz": 250,
        "npc_kimlik": 17,
-       "odul": {
+       "reward": {
         "ep": 6400,
         "onur": 32,
         "kredi": 6400,
@@ -9894,18 +9894,18 @@
     {
      "ad": "V",
      "harita": 304,
-     "uzaylilar": [
+     "alien_spawns": [
       {
        "tur": "158",
        "ad": "Streuner Rocketeer",
-       "gorunen_ad": "-=[ Streuner Rocketeer ]=-",
+       "display_name": "-=[ Streuner Rocketeer ]=-",
        "adet": 13,
        "hp": 120000,
        "kalkan": 80000,
        "hasar": 0,
        "hiz": 260,
        "npc_kimlik": 158,
-       "odul": {
+       "reward": {
         "ep": 3200,
         "onur": 6,
         "kredi": 6400,
@@ -9920,14 +9920,14 @@
       {
        "tur": "147",
        "ad": "Streuner Emperor",
-       "gorunen_ad": "-=[ Streuner Emperor ]=-",
+       "display_name": "-=[ Streuner Emperor ]=-",
        "adet": 1,
        "hp": 2000000,
        "kalkan": 1500000,
        "hasar": 20000,
        "hiz": 220,
        "npc_kimlik": 147,
-       "odul": {
+       "reward": {
         "ep": 300000,
         "onur": 150,
         "kredi": 400000,
@@ -9942,14 +9942,14 @@
       {
        "tur": "150",
        "ad": "Streuner Soldier",
-       "gorunen_ad": "-=[ Streuner Soldier ]=-",
+       "display_name": "-=[ Streuner Soldier ]=-",
        "adet": 35,
        "hp": 80000,
        "kalkan": 60000,
        "hasar": 2000,
        "hiz": 300,
        "npc_kimlik": 150,
-       "odul": {
+       "reward": {
         "ep": 12000,
         "onur": 40,
         "kredi": 100000,
@@ -9972,14 +9972,14 @@
       {
        "tur": "149",
        "ad": "Streuner Specialist",
-       "gorunen_ad": "-=[ Streuner Specialist ]=-",
+       "display_name": "-=[ Streuner Specialist ]=-",
        "adet": 6,
        "hp": 300000,
        "kalkan": 300000,
        "hasar": 5000,
        "hiz": 280,
        "npc_kimlik": 149,
-       "odul": {
+       "reward": {
         "ep": 20000,
         "onur": 70,
         "kredi": 200000,
@@ -9991,14 +9991,14 @@
       {
        "tur": "47",
        "ad": "Uber Sibelon",
-       "gorunen_ad": "( UberSibelon )",
+       "display_name": "( UberSibelon )",
        "adet": 2,
        "hp": 1600000,
        "kalkan": 1600000,
        "hasar": 24000,
        "hiz": 150,
        "npc_kimlik": 34,
-       "odul": {
+       "reward": {
         "ep": 102400,
         "onur": 512,
         "kredi": 819200,
@@ -10111,24 +10111,24 @@
      "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
     }
    ],
-   "odul": {
+   "reward": {
     "ep": 2000000,
     "onur": 150000,
     "uridyum": 15000,
-    "cephane": {},
+    "ammunition": {},
     "xenomit": 0,
     "log_disk": 0,
-    "kupon": 0,
-    "enerji": 0,
-    "ganimet": {
-     "yesil_anahtar": 10,
+    "voucher": 0,
+    "energy": 0,
+    "booty": {
+     "green_key": 10,
      "schism": 8,
      "abr": 6
     },
-    "parca": 0,
-    "sans": [
+    "part": 0,
+    "chance": [
      {
-      "esya": "tasarim_secimi",
+      "esya": "design_choice",
       "options": [
        "ship_a-elite",
        "ship_c-elite",
@@ -10143,7 +10143,7 @@
      {
       "esya": "resource_collectable_diametrion",
       "adet": 70,
-      "adet_en_cok": 80,
+      "max_count": 80,
       "probability": 0.01,
       "together": [
        [
@@ -10170,7 +10170,7 @@
       ]
      },
      {
-      "esya": "cevher_paketi",
+      "esya": "ore_pack",
       "paket": [
        [
         "resource_collectable_kyhalon",
@@ -10206,9 +10206,9 @@
  },
  "energy_price": 100,
  "weekend_discount": 0.15,
- "premium_indirim": 0.05,
+ "premium_discount": 0.05,
  "_premium_discount": "belgeler/wiki/galaxy_gates.md: Premium enerji -%5 (tek oyunculuda herkes premium)",
- "kronos_gunu": 5,
+ "kronos_day": 5,
  "spin_amounts": [
   1,
   5,
@@ -10241,7 +10241,7 @@
    1
   ]
  ],
- "cephane": [
+ "ammunition": [
   [
    "ammunition_laser_mcb-25",
    2,
@@ -10281,7 +10281,7 @@
   5000,
   15000
  ],
- "kopya_eksige": 0.5,
+ "duplicate_to_missing": 0.5,
  "max_multiplier": 5,
  "life_prices": [
   5000,
@@ -10290,9 +10290,9 @@
   40000,
   80000
  ],
- "dalga_molasi_sn": 30,
- "giris_bekleme_sn": 6,
- "halka_bekleme_sn": 3,
+ "wave_break_sec": 30,
+ "intro_wait_sec": 6,
+ "ring_wait_sec": 3,
  "spawn_distance": [
   1500,
   2000
@@ -10487,7 +10487,7 @@
   }
  },
  "_schism": "Giriş bayrağı AllGatesSchism (gerçek trafikte süresiz açık; istemci haberi \"guaranteed rewards for all GGs (Schism)\"): her tamamlamada aralıktan Schism (wiki Booty günü miktarları); Delta, Kronos ve Kuiper'in sabit Schism'inin yerine (üstüne mi yerine mi doğrulanmadı).",
- "geri_sayim": [
+ "countdown": [
   5,
   4,
   3,
@@ -10495,53 +10495,53 @@
   1
  ],
  "_messages": "Kapı haritasındaki ekran mesajları (istemcinin MessageCommand komutu: buyuk = büyük bildirim + günlük, kisa = üstte kısa mesaj). İstemci İngilizce olduğu için İngilizce; \"key:\" ile başlayanlar istemcinin kendi çeviri metni. {kapi} kapı adı, {dalga} dalga numarası, {toplam} dalga sayısı, {sn} saniye, {gruplar} alt dalga, {kalan} kalan uzaylı, {ad} uzaylı adı, {sk} Kronos parçası tekil/çoğul (s/p; adedi %COUNT%). Geri sayım ve dalga başı gerçek oyunun görüntüsünden (kullanıcı, 2026-10-28): \"-=- 1 -=-\", \"-=- 0 -=-\", kalan can (istemcinin lifes_left metni, kapi.py), \"Map Alpha - Wave 5\". \"dalga_kalan\" bütün uzaylılar doğduktan sonra 3 ve daha az kalınca; \"kalan\" kalkanlı patronun refakat grubunda.",
- "mesajlar": {
+ "messages": {
   "giris": {
-   "kisa": "Galaxy Gate {kapi}: {toplam} attack waves."
+   "short": "Galaxy Gate {kapi}: {toplam} attack waves."
   },
-  "devam": {
-   "kisa": "Welcome back! The gate continues from wave {dalga}/{toplam}."
+  "ongoing": {
+   "short": "Welcome back! The gate continues from wave {dalga}/{toplam}."
   },
-  "geri_sayim": {
-   "kisa": "-=- {sn} -=-"
+  "countdown": {
+   "short": "-=- {sn} -=-"
   },
-  "dalga_basladi": {
-   "kisa": "Map {kapi} - Wave {dalga}"
+  "wave_started": {
+   "short": "Map {kapi} - Wave {dalga}"
   },
   "kalan": {
-   "kisa": "Aliens left in this group: {kalan}"
+   "short": "Aliens left in this group: {kalan}"
   },
-  "dalga_kalan": {
-   "kisa": "Aliens left in this wave: {kalan}"
+  "wave_remaining": {
+   "short": "Aliens left in this wave: {kalan}"
   },
-  "dalga_bitti": {
+  "wave_finished": {
    "buyuk": "Attack wave {dalga} survived!",
-   "kisa": "The portal in the center of the map is open: return home or wait for the next wave ({sn} seconds). Your progress is kept."
+   "short": "The portal in the center of the map is open: return home or wait for the next wave ({sn} seconds). Your progress is kept."
   },
-  "sonraki_harita": {
+  "next_map": {
    "buyuk": "Attack wave {dalga} survived!",
-   "kisa": "The way deeper into the gate is open: the left portal in the center of the map leads to the next map, the right one leads home. Your progress is kept."
+   "short": "The way deeper into the gate is open: the left portal in the center of the map leads to the next map, the right one leads home. Your progress is kept."
   },
-  "sonraki_dalga": {
+  "next_wave": {
    "buyuk": "Attack wave {dalga} survived!",
-   "kisa": "Two portals are open in the center of the map: the left one starts the next wave, the right one leads home. Your progress is kept."
+   "short": "Two portals are open in the center of the map: the left one starts the next wave, the right one leads home. Your progress is kept."
   },
-  "koruma": {
-   "kisa": "{ad} cannot be damaged while other aliens are alive. Destroy them first!"
+  "protection": {
+   "short": "{ad} cannot be damaged while other aliens are alive. Destroy them first!"
   },
-  "koruma_bitti": {
+  "protection_ended": {
    "buyuk": "{ad} is vulnerable now!"
   },
   "tamam": {
    "buyuk": "key:log_msg_gg_completed_{anahtar}"
   },
-  "son_dalga": {
-   "kisa": "Final wave! Destroy all aliens to complete the gate."
+  "last_wave": {
+   "short": "Final wave! Destroy all aliens to complete the gate."
   },
-  "kronos_parca": {
-   "kisa": "key:log_msg_gg_reward_kronos_part_{sk}"
+  "kronos_part": {
+   "short": "key:log_msg_gg_reward_kronos_part_{sk}"
   },
-  "kalkan_ara": {
+  "shield_gap": {
    "buyuk": "{ad} is vulnerable! Its Insta-Shield returns in {sn} seconds."
   }
  },
@@ -10561,7 +10561,7 @@
    "hades",
    "streuner"
   ],
-  "oduller": [
+  "rewards": [
    [
     "currency_experience",
     [
@@ -10687,7 +10687,7 @@
   ],
   "ship_chance": {
    "probability": 0.25,
-   "gemiler": [
+   "ships": [
     "ship_cyborg",
     "ship_hammerclaw",
     "ship_mimesis"

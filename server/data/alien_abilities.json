@@ -6,10 +6,10 @@
    "summon_on_hit": {
     "tur": "81",
     "adet": 20,
-    "en_cok": 30,
+    "max_count": 30,
     "bekleme_sn": 4,
     "first_cooldown_sec": 5.4,
-    "aralik_sn": 1,
+    "interval_sec": 1,
     "grup": [
      2,
      3
@@ -19,7 +19,7 @@
      2650
     ],
     "swarm_visual": true,
-    "koru": {
+    "guard": {
      "yaricap": [
       250,
       750
@@ -31,15 +31,15 @@
        150,
        320
       ],
-      "uzak": [
+      "far": [
        450,
        850
       ],
-      "yakin_sn": [
+      "near_sec": [
        1,
        2.5
       ],
-      "uzak_sn": [
+      "far_sec": [
        0.8,
        2.5
       ]
@@ -95,14 +95,14 @@
    "summon_on_hit": {
     "tur": "111",
     "adet": 7,
-    "en_cok": 7,
+    "max_count": 7,
     "bekleme_sn": 15
    },
    "invulnerable_while_summons_live": true,
    "repair_while_summons_alive": {
     "can_sn": 600
    },
-   "ofke": {
+   "anger": {
     "attacker": 2,
     "sure_sn": 10,
     "damage_multiplier": 1.5,
@@ -118,14 +118,14 @@
    "summon_on_hit": {
     "tur": "257",
     "adet": 2,
-    "en_cok": 2,
+    "max_count": 2,
     "bekleme_sn": 15
    },
    "invulnerable_while_summons_live": true,
    "repair_while_summons_alive": {
     "can_sn": 600
    },
-   "ofke": {
+   "anger": {
     "attacker": 2,
     "sure_sn": 10,
     "damage_multiplier": 1.5,
@@ -141,10 +141,10 @@
    "summon_on_hit": {
     "tur": "111",
     "adet": 2,
-    "en_cok": 2,
+    "max_count": 2,
     "bekleme_sn": 20
    },
-   "ofke": {
+   "anger": {
     "attacker": 3,
     "sure_sn": 10,
     "extra_summon": 5
@@ -169,7 +169,7 @@
    "cloak_breaker": {
     "menzil": 1500
    },
-   "yavaslatan_atis": {
+   "slowing_shots": {
     "oran": 0.5,
     "sn": 3
    },
@@ -200,7 +200,7 @@
    "roket": {
     "hasar": 12000,
     "bekleme_sn": 5,
-    "firlatici": true,
+    "launcher": true,
     "adet": 3
    },
    "_kaynak": "aliens.md: 15.000 / +12.000 roket fırlatıcı",
@@ -211,14 +211,14 @@
    "roket": {
     "hasar": 12000,
     "bekleme_sn": 5,
-    "firlatici": true,
+    "launcher": true,
     "adet": 3
    },
    "_kaynak": "aliens.md: 90.000 / +12.000 roket fırlatıcı"
   },
   "60": {
    "_name": "Saboteur",
-   "yavaslatan_atis": {
+   "slowing_shots": {
     "hiz": 120,
     "sn": 5,
     "menzil": 300
@@ -228,7 +228,7 @@
   },
   "165": {
    "_name": "Uber Saboteur",
-   "yavaslatan_atis": {
+   "slowing_shots": {
     "hiz": 120,
     "sn": 5,
     "menzil": 300
@@ -237,7 +237,7 @@
   },
   "283": {
    "_name": "Barb",
-   "yavaslatan_atis": {
+   "slowing_shots": {
     "hiz": 120,
     "sn": 5,
     "menzil": 300
@@ -246,7 +246,7 @@
   },
   "281": {
    "_name": "The Stinger",
-   "yavaslatan_atis": {
+   "slowing_shots": {
     "hiz": 120,
     "sn": 5,
     "menzil": 300
@@ -264,7 +264,7 @@
    "_name": "Emperor Lordakium",
    "disappear": {
     "hasar": 1280000,
-    "sahte": 2,
+    "fake": 2,
     "distance": 1500,
     "explosion": 60000,
     "explosion_radius": 500,
@@ -279,7 +279,7 @@
    "_name": "Emperor Kristallon",
    "sticky_bomb": {
     "hasar": 300000,
-    "aralik_sn": 30,
+    "interval_sec": 30,
     "delay_sec": 2,
     "grup": 4
    },
@@ -294,7 +294,7 @@
    },
    "sticky_bomb": {
     "hasar": 120000,
-    "aralik_sn": 30,
+    "interval_sec": 30,
     "delay_sec": 10,
     "grup": 1
    },
@@ -309,7 +309,7 @@
    },
    "capsules": {
     "adet": 3,
-    "aralik_sn": 15,
+    "interval_sec": 15,
     "collect_ms": 3000,
     "harvest_distance": 150,
     "can": 0.1,
@@ -323,7 +323,7 @@
    "_name": "Gygerim Overlord",
    "death_beam": {
     "hasar": 60000,
-    "aralik_sn": 2,
+    "interval_sec": 2,
     "distance": 1500
    },
    "_kaynak": "darkorbitwiki aliens/gygerim-overlord: Death Ray, ışınlar haritanın dışından gelir, hasar Overlord'a uzaklığa bağlı; yeterince uzaktayken 2 sn'de bir ortalama 60.000 hasar",
@@ -335,7 +335,7 @@
     "mayin": "ammunition_mine_acm-01",
     "can_orani": 0.5,
     "bekleme_sn": 15,
-    "en_cok": 4
+    "max_count": 4
    },
    "_kaynak": "aliens.md agatus_x3..x8: \"drops ACM-1 mines at 50% health\"",
    "_uyarlama": "canı %50'nin altındayken savaşırken 15 sn'de bir uzaylının konumuna ACM-1; aynı anda en çok 4 mayın (kaynakta sayı yok). Spinel çağırması etkinlikler.json agatus.patron'da"
@@ -350,7 +350,7 @@
     "mayin": "ammunition_mine_acm-01",
     "can_orani": 0.2,
     "bekleme_sn": 20,
-    "en_cok": 3,
+    "max_count": 3,
     "hedef": true,
     "yaricap": [
      250,
@@ -365,12 +365,12 @@
      {
       "tur": "npc268",
       "adet": 2,
-      "en_cok": 4
+      "max_count": 4
      },
      {
       "tur": "npc269",
       "adet": 1,
-      "en_cok": 2
+      "max_count": 2
      }
     ]
    }
@@ -378,9 +378,9 @@
   "235": {
    "_name": "Cloning Mimesis",
    "summon_on_hit": {
-    "tur": "etk_cloned_mimesis",
+    "tur": "event_cloned_mimesis",
     "adet": 3,
-    "en_cok": 3,
+    "max_count": 3,
     "bekleme_sn": 30
    },
    "_kaynak": "aliens.md: 3 klon (Cloned Mimesis) yaratır, klonlar bir şey yapmaz",
@@ -391,7 +391,7 @@
    "summon_at_hp_threshold": [
     {
      "oran": 0.5,
-     "tur": "etk_kamikaze_mimesis",
+     "tur": "event_kamikaze_mimesis",
      "adet": 5
     }
    ],
@@ -414,7 +414,7 @@
     "sure_sn": 10,
     "menzil": 800,
     "bekleme_sn": 30,
-    "gorsel": false
+    "visual": false
    },
    "_kaynak": "aliens.md: lazer ve radyasyon hasarı (10 sn boyunca saniyede 10.000)",
    "_uyarlama": "menzil 800, 30 sn bekleme; tekilliğin girdabı gösterilmez"
@@ -431,7 +431,7 @@
   },
   "59": {
    "_name": "Barracuda",
-   "kamikaze_esik": {
+   "kamikaze_threshold": {
     "oran": 0.2,
     "wait_sec": 5,
     "approach_sec": 5,
@@ -443,7 +443,7 @@
   },
   "164": {
    "_name": "Uber Barracuda",
-   "kamikaze_esik": {
+   "kamikaze_threshold": {
     "oran": 0.2,
     "wait_sec": 5,
     "approach_sec": 5,
@@ -481,7 +481,7 @@
   },
   "149": {
    "_name": "Streuner Specialist",
-   "iyilestirme": {
+   "improvement": {
     "can_sn": 6000,
     "bekleme_sn": 3,
     "menzil": 1500,
@@ -494,7 +494,7 @@
   },
   "153": {
    "_name": "Aider Streuner",
-   "iyilestirme": {
+   "improvement": {
     "can_sn": 150,
     "bekleme_sn": 3,
     "menzil": 1000
@@ -515,9 +515,9 @@
     "bekleme_sn": 8,
     "summons": [
      {
-      "tur": "seeker_roket",
+      "tur": "seeker_rocket",
       "adet": 1,
-      "en_cok": 2
+      "max_count": 2
      }
     ]
    },
@@ -539,7 +539,7 @@
   },
   "243": {
    "_name": "Medic Mimesis",
-   "iyilestirme": {
+   "improvement": {
     "can_orani": 0.05,
     "bekleme_sn": 3,
     "menzil": 1500,
@@ -552,16 +552,16 @@
   },
   "246": {
    "_name": "Obscured Mimesis",
-   "kalkan_bitince_emp": true,
+   "emp_on_shield_down": true,
    "_kaynak": "darkorbitwiki (Obscured Mimesis): kalkanını kaybedince EMP darbesi savurur",
    "_uyarlama": "EMP oyuncunun hedefini sıfırlar, gizlenmeyi bitirir ve mini haritayı 5 sn parazitler (EMP-01'in oyuncuya etkisi gibi)"
   },
   "248": {
    "_name": "Mirror Mimesis",
    "summon_on_hit": {
-    "tur": "etk_mirror_klon",
+    "tur": "event_mirror_clone",
     "adet": 2,
-    "en_cok": 4,
+    "max_count": 4,
     "bekleme_sn": 20
    },
    "_kaynak": "darkorbitwiki (Mirror Mimesis): savaşta zayıf klonlarını yaratır",
@@ -574,7 +574,7 @@
      100000,
      300000
     ],
-    "aralik_sn": 30,
+    "interval_sec": 30,
     "delay_sec": 2,
     "grup": 1
    },
@@ -591,7 +591,7 @@
   },
   "300": {
    "_name": "Hitac Underboss",
-   "yavaslatan_atis": {
+   "slowing_shots": {
     "hiz": 120,
     "sn": 5,
     "menzil": 300
@@ -619,7 +619,7 @@
      {
       "tur": "gg_streuner_3_0",
       "adet": 1,
-      "en_cok": 1
+      "max_count": 1
      }
     ]
    },
@@ -651,7 +651,7 @@
   },
   "53": {
    "_name": "Uber Protegit",
-   "yavaslatan_atis": {
+   "slowing_shots": {
     "hiz": 120,
     "sn": 5,
     "menzil": 300

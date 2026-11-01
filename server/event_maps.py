@@ -54,7 +54,7 @@ def specs(now=None):
     out = []
     for k in sorted(CAL.active(now)):
         e = CAL.EVENTS[k]
-        for s in ([e['harita']] if 'harita' in e else []) + e.get('harita_ek', []):
+        for s in ([e['harita']] if 'harita' in e else []) + e.get('map_extra', []):
             if CAL.forced(k) or CAL.window(s, now):
                 out.append((k, s))
     return out
@@ -71,9 +71,9 @@ def roll(spec, mods=None):
     bonus = mods if spec.get('proxium') and mods else {}
     amount = lambda a, l=None: int((random.randint(*a) if isinstance(a, list) else a) * (1 + bonus.get('proxium', 0) if l == PROXIUM else 1))
     pct = lambda l, c: c + bonus.get('proxium_chance', 0) * 100 if l == PROXIUM else c
-    out = [(l, amount(a, l)) for l, a, *c in spec.get('kesin', [])]
+    out = [(l, amount(a, l)) for l, a, *c in spec.get('guaranteed', [])]
     out += [(l, amount(a, l)) for l, a, c in spec.get('additional', []) if random.random() * 100 < pct(l, c)]   # ayrı olasılıklı (Permafrost Proxium)
-    if spec.get('mod', 'biri') == 'hepsi':
+    if spec.get('mod', 'one_of') == 'hepsi':
         return out + [(l, amount(a, l)) for l, a, *c in rows if random.random() * 100 < pct(l, c[0] if c and c[0] is not None else 100)]
     weights = [pct(l, c[0] if c and c[0] is not None else 1) for l, a, *c in rows]
     if not rows or sum(weights) <= 0:
@@ -83,7 +83,7 @@ def roll(spec, mods=None):
 
 
 ROVER = {}                         # gezgin (rovers) -> rotasının başlangıcı (öldürülünce bekleme sonrası)
-NO_CARGO = {b for e in CAL.EVENTS.values() for s in ([e['harita']] if 'harita' in e else []) + e.get('harita_ek', [])
+NO_CARGO = {b for e in CAL.EVENTS.values() for s in ([e['harita']] if 'harita' in e else []) + e.get('map_extra', [])
             for b in s.get('no_cargo', [])}          # etkinlik bitse de: o türün uzaylısı hiç kargo kutusu düşürmez
 
 
@@ -94,7 +94,7 @@ def no_cargo(n):
 
 def rovers(k):
     """Etkinliğin gezginleri [(ROVER anahtarı, gezgin)]: ilki etkinliğin adıyla, ötekiler 'ad#sıra'."""
-    g = CAL.EVENTS[k].get('gezgin') or []
+    g = CAL.EVENTS[k].get('rover') or []
     return [(k if i == 0 else '%s#%d' % (k, i), x) for i, x in enumerate(g if isinstance(g, list) else [g])]
 
 
@@ -142,10 +142,10 @@ class MapEvents:
         return [(k, s) for k, s in specs(now) if self.mc in s['haritalar']]
 
     def state(self, k):
-        return self.st.setdefault(k, dict(sayac=0, patron=[], bitis=None, sira=0))
+        return self.st.setdefault(k, dict(counter=0, boss=[], bitis=None, order=0))
 
     def minion_types(self, s):
-        return [fmt(u['tur'], self.mc) for u in s.get('uzaylilar', [])]
+        return [fmt(u['tur'], self.mc) for u in s.get('alien_spawns', [])]
 
     def cargo_kind(self, now=None):
         """Uzaylının kargo kutusunun etkinlik görünümü (bölümün 'kargo_tur'u: Thanksgiving'de TURKEY_CARGO; içerik aynı) ya da None."""
@@ -157,7 +157,7 @@ class MapEvents:
 
     # ------------------------------------------------------------ kurulum ve gösterge
     def box_spec(self, tip, now=None):
-        return next((b for k, s in self.here(now) for b in s.get('kutular', []) if b['tur'] == tip), None)
+        return next((b for k, s in self.here(now) for b in s.get('boxes', []) if b['tur'] == tip), None)
 
     def spawn_box(self, tip):
         """Av kutusu: rastgele yerde, süresiz; toplanınca yeniden_sn sonra yenisi (etkinlik sürüyorsa)."""
@@ -173,39 +173,39 @@ class MapEvents:
         """Harita açılınca (ya da etkinlik başlayınca): eksik etkinlik uzaylıları ve av kutuları."""
         w = self.w
         for k, s in self.here():
-            for b in s.get('kutular', []):
+            for b in s.get('boxes', []):
                 have = sum(1 for x in w.boxes.values() if x['tip'] == b['tur'] and x.get('event'))
-                for _ in range(max(0, SET.count('kutu_bolluk', b.get('adet', 1), 'etkinlik') - have)):
+                for _ in range(max(0, SET.count('box_abundance', b.get('adet', 1), 'etkinlik') - have)):
                     self.spawn_box(b['tur'])
-            for u in s.get('uzaylilar', []):
+            for u in s.get('alien_spawns', []):
                 tip = fmt(u['tur'], self.mc)
                 if tip not in w.CFG_TYPES:
                     continue
                 have = sum(1 for n in w.npcs.values() if n.alive and n.tip == tip)
-                for _ in range(max(0, SET.count('npc_sayi', u['adet'], 'etkinlik') - have)):
+                for _ in range(max(0, SET.count('npc_count', u['adet'], 'etkinlik') - have)):
                     w.spawn_npc(tip, announce=True)
 
     def info_msgs(self, now=None):
         now = time.time() if now is None else now
         msgs = []
         for k, s in self.here(now):
-            b = s.get('bilgi')
+            b = s.get('info')
             if not b:
                 continue
             st = self.state(k)
             quota = s.get('quota', {}).get(self.mc, 0)
-            alive = [i for i in st['patron'] if i in self.w.npcs and self.w.npcs[i].alive]
+            alive = [i for i in st['boss'] if i in self.w.npcs and self.w.npcs[i].alive]
             agatus = b['command'] == 'AgatusEventInfoCommand'
             pre = 'AgatusEvent' if agatus else 'NpcEvent'
             msgs.append((b['command'], dict(
                 textKey=b['metin'], type=0, npcID=b['npc'],
-                bossInfoCommand=mod(pre + 'BossInfoCommand', bossCount=len(alive), leftToKill=max(0, quota - st['sayac']) if quota else 0),
+                bossInfoCommand=mod(pre + 'BossInfoCommand', bossCount=len(alive), leftToKill=max(0, quota - st['counter']) if quota else 0),
                 timeInfoCommand=mod(pre + 'TimeInfoCommand', timeToNextSpawn=0, timeToEndSpawn=CAL.time_left(k, now)))))
         # etkinliğin olmadığı haritada da gösterge (Ö1, canlı test): patron ve kalan öldürme 0 -> istemci "There are no %NPC% on this
         # map" yazar (NpcEventUIData.UpdateDescriptions); göndermeyince pencere boş açılıyordu
         sent = {(c, f['textKey']) for c, f in msgs}
         for k, s in specs(now):
-            b = s.get('bilgi')
+            b = s.get('info')
             if not b or (b['command'], b['metin']) in sent:
                 continue
             sent.add((b['command'], b['metin']))
@@ -225,20 +225,20 @@ class MapEvents:
         owner = lambda v: v.hid if len(pay) > 1 else None
         box = n.d.get('kutu')                   # türün kutusu (etkinlik kapıları: dalga kutusu, Plutus'un paketi, Synk'in kutusu)
         for v in pay:
-            if box and random.random() < SET.chance('dusme', box.get('probability', 1.0), 'etkinlik'):
+            if box and random.random() < SET.chance('drop', box.get('probability', 1.0), 'etkinlik'):
                 h = v.drop_box(box['tur'], x, y, None, box.get('omur_sn', 300), owner(v))
                 v.boxes[h]['event'] = box
         now = time.time() if now is None else now
         b, msgs = base(n.tip), []
         by_tip = lambda tab: tab.get(n.tip, tab.get(b))       # haritaya özgü sürüm (etk_chaos_protegit_x5) önce, yoksa taban tür
-        trick = (n.tip.startswith('etk_') and w.items is not None
+        trick = (n.tip.startswith('event_') and w.items is not None
                  and random.random() < max([s.get('trick', {}).get(b, 0) for k, s in self.here(now)] or [0]))
         if trick:                                                       # Trick: sandık yerine toplanamayan mayın
             w.later(TRICK_DELAY, lambda: w.items.alien_mine(TRICK_MINE, x, y, n.id, time.time()))
         for k, s in self.here(now):
             roster_row = by_tip(s.get('box_drop', {}))
             for v in pay if roster_row and not trick else ():
-                if random.random() < SET.chance('dusme', roster_row.get('probability', 1.0), 'etkinlik'):    # uzaylının kutusu (Treat …)
+                if random.random() < SET.chance('drop', roster_row.get('probability', 1.0), 'etkinlik'):    # uzaylının kutusu (Treat …)
                     for j in range(roster_row.get('adet', 1)):                   # Demaner Freighter: 10 kutu, yan yana
                         h = v.drop_box(roster_row['tur'], x + 60 * (j % 5), y + 60 * (j // 5), None, roster_row.get('omur_sn', 300), owner(v))
                         v.boxes[h]['event'] = roster_row
@@ -258,25 +258,25 @@ class MapEvents:
                 ROVER[rocket] = now + g.get('bekleme_sn', 1800)
                 msgs.append(screen('key:msg_summoning_boss_killed', big=True, NPC_NAME=n.d['ad']))      # "… Another will arrive soon!"
                 w.log('   gezgin %s yok edildi (%s)' % (n.d['ad'], rocket))
-        if not n.tip.startswith('etk_'):
+        if not n.tip.startswith('event_'):
             return msgs
         for k, s in self.here(now):
             st = self.state(k)
-            drops = by_tip(s.get('dusme', {}))
+            drops = by_tip(s.get('drop', {}))
             if drops:
                 msgs += w.extra_loot(n, drops)
                 for v in pay:
                     if v is not w:
                         v.send(v.extra_loot(n, drops))
-            if n.id in st['patron']:
-                st['patron'].remove(n.id)
-                if not st['patron']:
+            if n.id in st['boss']:
+                st['boss'].remove(n.id)
+                if not st['boss']:
                     st['bitis'] = None
                     w.log('   etkinlik patronları yok edildi (%s)' % k)
                 msgs += self.info_msgs(now)
-            elif n.tip in self.minion_types(s) and s.get('quota', {}).get(self.mc) and not st['patron']:
-                st['sayac'] += 1
-                if st['sayac'] >= s['quota'][self.mc]:
+            elif n.tip in self.minion_types(s) and s.get('quota', {}).get(self.mc) and not st['boss']:
+                st['counter'] += 1
+                if st['counter'] >= s['quota'][self.mc]:
                     msgs += self.summon(k, s, now)
                 msgs += self.info_msgs(now)
         self.calls.pop(n.id, None)
@@ -287,7 +287,7 @@ class MapEvents:
         w, out = self.w, []
         name = H.name(w.map_id)
         for k, rocket, g in [(k, rocket, g) for k in sorted(CAL.EVENTS) for rocket, g in rovers(k)]:
-            st = self.state(k).setdefault('gezgin', {})
+            st = self.state(k).setdefault('rover', {})
             # haritaya yeniden girince harita durumundan gelen gezgin de sayılır (yoksa ikincisi doğuyordu: canlı deneme 2026-10-30)
             alive = [i for i, n in w.npcs.items() if n.alive and (i in st.get(rocket, []) or n.tip == g['tur'])]
             at = route_at(rocket, g, now) if CAL.is_active(k, now) else None
@@ -320,12 +320,12 @@ class MapEvents:
         return out
 
     def summon(self, k, s, now):
-        w, st, p = self.w, self.state(k), s['patron']
-        st['sayac'] = 0
+        w, st, p = self.w, self.state(k), s['boss']
+        st['counter'] = 0
         kinds = [fmt(t, self.mc) for t in p['kinds']]
         if p.get('in_order'):
-            kinds = [kinds[st['sira'] % len(kinds)]]
-            st['sira'] += 1
+            kinds = [kinds[st['order'] % len(kinds)]]
+            st['order'] += 1
         hx, hy = w.hero_pos(now)
         for i in range(p.get('adet', 1)):
             tip = kinds[i % len(kinds)]
@@ -337,20 +337,20 @@ class MapEvents:
             y = min(max(600, hy + math.sin(a) * r), w.map_h - 600)
             c = w.spawn_npc_at(tip, x, y)
             c.summoned = True
-            st['patron'].append(c.id)
+            st['boss'].append(c.id)
         st['bitis'] = now + p.get('sure_sn', 1800)
-        w.log('   etkinlik patronu çağrıldı (%s): %s x%d' % (k, ', '.join(kinds), len(st['patron'])))
-        first = w.npcs.get(st['patron'][0]) if st['patron'] else None
+        w.log('   etkinlik patronu çağrıldı (%s): %s x%d' % (k, ', '.join(kinds), len(st['boss'])))
+        first = w.npcs.get(st['boss'][0]) if st['boss'] else None
         if first:
             w.cinematic(*first.mover.pos(now))                       # sinematik giriş (Ö2; panelden kapatılabilir)
-        text = BOSS_TEXT.get((s.get('bilgi') or {}).get('metin'), (None, None))[0]
+        text = BOSS_TEXT.get((s.get('info') or {}).get('metin'), (None, None))[0]
         return [legacy('0|A|STM|%s' % text)] if text else []
 
     def group(self, k, g, now):
         """Grubu haritanın rastgele bir yerinde doğurur; sonraki grup ancak bu grup yok edilince ve aralik_sn dolunca."""
-        w, st = self.w, self.state(k).setdefault('grup', {'uyeler': [], 'next': 0})
-        st['uyeler'] = [i for i in st['uyeler'] if i in w.npcs and w.npcs[i].alive]
-        if st['uyeler'] or now < st['next']:
+        w, st = self.w, self.state(k).setdefault('grup', {'members': [], 'next': 0})
+        st['members'] = [i for i in st['members'] if i in w.npcs and w.npcs[i].alive]
+        if st['members'] or now < st['next']:
             return []
         x, y = w.random_spot()
         kinds = [fmt(t, self.mc) for t, c in g['kinds'] for _ in range(c)]
@@ -360,9 +360,9 @@ class MapEvents:
             a = 2 * math.pi * i / len(kinds)
             c = w.spawn_npc_at(tip, x + math.cos(a) * 250, y + math.sin(a) * 250)
             c.summoned = True                            # dünya yeniden doğurmaz; grup yok edilince yenisi
-            st['uyeler'].append(c.id)
-        st['next'] = now + g.get('aralik_sn', 600)
-        w.log('   etkinlik grubu doğdu (%s): %d uzaylı (%d,%d)' % (k, len(st['uyeler']), x, y))
+            st['members'].append(c.id)
+        st['next'] = now + g.get('interval_sec', 600)
+        w.log('   etkinlik grubu doğdu (%s): %d uzaylı (%d,%d)' % (k, len(st['members']), x, y))
         return []
 
     def tick(self, now):
@@ -375,32 +375,32 @@ class MapEvents:
             st = self.state(k)
             if s.get('grup'):
                 msgs += self.group(k, s['grup'], now)
-            if st['patron'] and st['bitis'] and now >= st['bitis']:          # süre doldu: patronlar kaçar
-                for i in st['patron']:
+            if st['boss'] and st['bitis'] and now >= st['bitis']:          # süre doldu: patronlar kaçar
+                for i in st['boss']:
                     n = w.npcs.get(i)
                     if n and n.alive:
                         w.alien.expire(n)
-                st['patron'], st['bitis'] = [], None
-                ran = BOSS_TEXT.get((s.get('bilgi') or {}).get('metin'), (None, None))[1] or 'npc_event_boss_ran_away'
+                st['boss'], st['bitis'] = [], None
+                ran = BOSS_TEXT.get((s.get('info') or {}).get('metin'), (None, None))[1] or 'npc_event_boss_ran_away'
                 msgs += [legacy('0|A|STM|%s' % ran)] + self.info_msgs(now)
                 w.log('   etkinlik patronları kaçtı (%s)' % k)
             callers = {b: (c, False) for b, c in s.get('call', {}).items()}           # her zaman (Ice Meteoroid)
-            if s.get('patron', {}).get('call'):
-                for t in s['patron']['kinds']:                                       # patron: saldırı altındayken (Agatus)
-                    callers[base(fmt(t, self.mc))] = (s['patron']['call'], True)
+            if s.get('boss', {}).get('call'):
+                for t in s['boss']['kinds']:                                       # patron: saldırı altındayken (Agatus)
+                    callers[base(fmt(t, self.mc))] = (s['boss']['call'], True)
             for n in list(w.npcs.values()):
-                c, need_fight = callers.get(base(n.tip), (None, False)) if n.alive and n.tip.startswith('etk_') else (None, False)
+                c, need_fight = callers.get(base(n.tip), (None, False)) if n.alive and n.tip.startswith('event_') else (None, False)
                 if not c or (need_fight and not n.engaged):
                     continue
-                if now < self.calls.setdefault(n.id, now + c['aralik_sn']):
+                if now < self.calls.setdefault(n.id, now + c['interval_sec']):
                     continue
-                self.calls[n.id] = now + c['aralik_sn']
+                self.calls[n.id] = now + c['interval_sec']
                 kids = [i for i in n.children if i in w.npcs and w.npcs[i].alive]
                 tip = fmt(c['tur'], self.mc)
                 if tip not in w.CFG_TYPES:
                     continue
                 nx, ny = n.mover.pos(now)
-                for j in range(min(c['adet'], c['en_cok'] - len(kids))):
+                for j in range(min(c['adet'], c['max_count'] - len(kids))):
                     a = random.uniform(0, 2 * math.pi)
                     ch = w.spawn_npc_at(tip, nx + math.cos(a) * 150, ny + math.sin(a) * 150)
                     ch.summoned = True
@@ -411,13 +411,13 @@ class MapEvents:
         msgs += self.rover(now)
         if here != getattr(self, 'last_here', None):        # etkinlik başladı/bitti: uzaylılar ve gösterge
             self.last_here = here
-            keep = {fmt(u['tur'], self.mc) for k, s in here for u in s.get('uzaylilar', [])}
+            keep = {fmt(u['tur'], self.mc) for k, s in here for u in s.get('alien_spawns', [])}
             for n in list(w.npcs.values()):                  # biten etkinliğin uzaylıları (saklanan harita durumundan) kalkar
-                if n.alive and n.tip.startswith('etk_') and not n.summoned and n.tip not in keep and not n.engaged:
+                if n.alive and n.tip.startswith('event_') and not n.summoned and n.tip not in keep and not n.engaged:
                     w.alien.expire(n)
-            boxes = {b['tur'] for k, s in here for b in s.get('kutular', [])}
+            boxes = {b['tur'] for k, s in here for b in s.get('boxes', [])}
             for h, b in list(w.boxes.items()):                 # biten etkinliğin av kutuları
-                if b.get('event') and b['event'].get('yeniden_sn') and b['tip'] not in boxes:
+                if b.get('event') and b['event'].get('renew_sec') and b['tip'] not in boxes:
                     del w.boxes[h]
                     msgs.append(('RemoveCollectableCommand', {'collected': False, 'hash': h}))
             self.setup()

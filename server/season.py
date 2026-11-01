@@ -45,21 +45,21 @@ import nova as NV
 from legacy_protocol import legacy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-S = json.load(open(os.path.join(HERE, 'data', 'tickets.json'), encoding='utf8'))['sezon']
+S = json.load(open(os.path.join(HERE, 'data', 'tickets.json'), encoding='utf8'))['season']
 COST, UCOST = S['point_cost'], S['uridium_cost']
 MAX_LEVEL = len(COST) - 1
-MISSIONS = {int(k): v for k, v in S['gorevler'].items()}
+MISSIONS = {int(k): v for k, v in S['quests'].items()}
 DAILY, WEEKLY, SEASON = 3, 6, 9
 DAILY_N, WEEKLY_N = (3, 2), (5, 3)            # (normal, Gold) (kayıt)
 REFRESH_LADDER = [tuple(x) for x in S['refresh_ladder']]        # (bu sıraya dek yenileme ya da None, bedel U)
 OVERFLOW_HONOR = 10                           # azami seviyenin üstündeki satın alınan puan: 1 puan = 10 Onur (wiki)
 DONE_TEXT = {DAILY: 'sp_daily-mission-completed', WEEKLY: 'sp_weekly-mission-completed', SEASON: 'sp_season-mission-completed'}
-TRACKS = (('ucretsiz', False, False), ('gold', True, False), ('ext', False, True))
+TRACKS = (('free', False, False), ('gold', True, False), ('ext', False, True))
 GOLD_ITEM, EXT_ITEM, POINT_ITEM = 'resource_gold-pass', 'resource_ext-gold-pass', 'resource_season-pass-point'
 
 
 def _reserve_pool(*tracks):
-    return [(r[1], r[2]) for t in tracks for r in S['odul'][t]
+    return [(r[1], r[2]) for t in tracks for r in S['reward'][t]
             if r[1].startswith('resource_') and r[1] not in (GOLD_ITEM, EXT_ITEM, POINT_ITEM)]
 
 
@@ -67,7 +67,7 @@ def _reserve_pool(*tracks):
 # containing useful resources for the average pilot" / "… only the most sought after resources in the galaxy" / "… booty keys").
 # Uyarlama: açılınca aynı sezonun ödül sırasındaki kaynak satırlarından biri (Gold: Gold ve Extra Gold sıraları; dev rezerv üç çekiş),
 # ganimet anahtarı rezervi ücretsiz sıranın 10 anahtarı. Önceden ödül yolunda tanınmayıp görünmez depoya düşüyordu (2026-10-22).
-RESERVES = {'package_seasonpass-free': (_reserve_pool('ucretsiz'), 1),
+RESERVES = {'package_seasonpass-free': (_reserve_pool('free'), 1),
             'package_seasonpass-gold': (_reserve_pool('gold', 'ext'), 1),
             'package_seasonpass-gold-giant': (_reserve_pool('gold', 'ext'), 3),
             'package_seasonpass-bootykey': ([('resource_booty-key', 10)], 1),
@@ -97,7 +97,7 @@ def _day(text, plus=0):
 
 # gerçek tarihleri bilinen sezonlar: ((yıl, ay), başlangıç, bitiş ya da None = ay kuralının sonu); bitiş günü dahil
 WINDOWS = [(tuple(int(x) for x in w['id'].split('-')), _day(w['baslangic']), _day(w['bitis'], 1) if w.get('bitis') else None)
-           for w in S.get('takvim', [])]
+           for w in S.get('calendar', [])]
 
 
 def formula_end(y, m):
@@ -200,7 +200,7 @@ def refresh_price(n):
 def seasons(now=None):
     """Sezonların kimlikleri, eskiden yeniye (etkinlik_gorunumleri.SEASONS: tasarımları bilinenler); gerçek takvimde başlamış
     daha yeni sezon da (tasarımları tablodan örneklenir: EG.season_track)."""
-    ids = [s['sezon'] for s in EG.SEASONS]
+    ids = [s['season'] for s in EG.SEASONS]
     cur = season_id(now)
     return ids + [cur] if cur > ids[-1] else ids
 
@@ -212,7 +212,7 @@ def next_season(played, progressive, now=None):
 
 
 def duration():
-    return max(1, int(SET.get('sezon_suresi'))) * 86400
+    return max(1, int(SET.get('season_duration'))) * 86400
 
 
 def points_of(qid):
@@ -232,18 +232,18 @@ class Season:
     # ------------------------------------------------------------ durum
     @property
     def st(self):
-        return self.p.d.setdefault('sezon', {})
+        return self.p.d.setdefault('season', {})
 
     def track(self, key):
         """Sezonun ödül sırası: kayıttakinin sezon tasarımları sezonun sırasındakilerle (etkinlik_gorunumleri.season_track)."""
-        return EG.season_track(key, S['odul'][key], self.st.get('donem') or seasons()[-1])
+        return EG.season_track(key, S['reward'][key], self.st.get('donem') or seasons()[-1])
 
     def end(self):
         """Oynanan sezonun bitişi: başlangıcı + panelin süresi."""
-        return self.st.get('bas', time.time()) + duration()
+        return self.st.get('start', time.time()) + duration()
 
     def ended(self, now):
-        return bool(self.st.get('donem')) and (not self.st.get('bas') or now >= self.end())
+        return bool(self.st.get('donem')) and (not self.st.get('start') or now >= self.end())
 
     def ensure(self, now=None):
         """Sezon, gün ve hafta değiştiyse yenile -> bildirilecek mesajlar."""
@@ -253,9 +253,9 @@ class Season:
             y, q = st['donem'].split('-Q')
             with self.p.lock:
                 st['donem'] = season_id(datetime.datetime(int(y), int(q) * 3 - 2, 1).timestamp())
-        if st.get('donem') and not st.get('bas'):    # takvime bağlı eski kayıt: ilerlemesi kalır, sezonu bugünden sürer
+        if st.get('donem') and not st.get('start'):    # takvime bağlı eski kayıt: ilerlemesi kalır, sezonu bugünden sürer
             with self.p.lock:
-                st['bas'] = now
+                st['start'] = now
                 st.setdefault('played', [st['donem']])
                 self.p.dirty = True
         if not st.get('donem') or self.ended(now):
@@ -266,46 +266,46 @@ class Season:
             sid = next_season(played, bool(self.p.d.get('ilerlemeli')), now)
             with self.p.lock:
                 st.clear()
-                st.update(donem=sid, bas=now, played=played + [sid], puan=0, gold=False, ext=False,
-                          alinan={k: [] for k, g, e in TRACKS}, deger={}, tamam=[], sezonluk=pool(SEASON, False) + pool(SEASON, True),
-                          yenileme={'gun': 0, 'hafta': 0}, pending=wait)
+                st.update(donem=sid, start=now, played=played + [sid], puan=0, gold=False, ext=False,
+                          claimed={k: [] for k, g, e in TRACKS}, value={}, tamam=[], seasonal=pool(SEASON, False) + pool(SEASON, True),
+                          renewal={'gun': 0, 'hafta': 0}, pending=wait)
                 self.p.dirty = True
             self.log('   Season Pass sezonu başladı: %s (%s, %d gün)' % (sid, EG.season(sid)['ad'], duration() // 86400))
             msgs += self.activate_items()
         ACTIVE.update(sid=st['donem'], bitis=self.end())
         # havuzdan kalkmış görev kimlikleri (havuz wiki'ye göre yenilendi): liste yeniden çekilir, eski ilerleme silinir
-        if any(q not in MISSIONS for q in st.get('gunluk', [])):
+        if any(q not in MISSIONS for q in st.get('daily', [])):
             st['gun'] = None
-        if any(q not in MISSIONS for q in st.get('haftalik', [])):
+        if any(q not in MISSIONS for q in st.get('weekly', [])):
             st['hafta'] = None
         if st.get('gun') != day_id(now):
-            self.reset_list('gunluk', DAILY, DAILY_N, 'gun', day_id(now))
+            self.reset_list('daily', DAILY, DAILY_N, 'gun', day_id(now))
         if st.get('hafta') != week_id(now):
-            self.reset_list('haftalik', WEEKLY, WEEKLY_N, 'hafta', week_id(now))
+            self.reset_list('weekly', WEEKLY, WEEKLY_N, 'hafta', week_id(now))
         return msgs
 
     def reset_list(self, key, qtype, counts, stamp_key, stamp):
         st = self.st
         with self.p.lock:
             for q in st.get(key, []):
-                st['deger'].pop(str(q), None)
+                st['value'].pop(str(q), None)
                 if q in st['tamam']:
                     st['tamam'].remove(q)
             st[key] = pick(qtype, '%s|%s' % (st['donem'], stamp), counts)
             st[stamp_key] = stamp
-            st['yenileme'][stamp_key] = 0
+            st['renewal'][stamp_key] = 0
             self.p.dirty = True
 
     def missions(self):
         st = self.st
-        return st.get('gunluk', []) + st.get('haftalik', []) + st.get('sezonluk', [])
+        return st.get('daily', []) + st.get('weekly', []) + st.get('seasonal', [])
 
     def level(self):
         return level_of(self.st.get('puan', 0))
 
     def image(self):
         """Pencerenin görseli: oynanan sezonunki (resmî CDN'de olmayanlarda kayıttaki)."""
-        return S['images'].get(self.st.get('donem'), S['gorsel'])
+        return S['images'].get(self.st.get('donem'), S['visual'])
 
     def status_code(self, qid):
         gold, done = MISSIONS[qid]['gold'], qid in self.st['tamam']
@@ -324,29 +324,29 @@ class Season:
                                                 timeToEventEnd=max(0, int(self.end() - (time.time() if now is None else now)))))
 
     def reward_cmd(self):
-        claimed = self.st['alinan']
+        claimed = self.st['claimed']
         rows = {}
         for key, gold, ext in TRACKS:
             rows[key] = [mod('SeasonPassRewardModule', amount=n, goldPass=gold, claimed=lv in claimed[key], level=lv, extGoldPass=ext, lootId=l)
                          for lv, l, n in self.track(key)]
-        return ('SeasonPassRewardInfoCommand', dict(goldPassRewardItems=rows['gold'], freeRewardItems=rows['ucretsiz'],
+        return ('SeasonPassRewardInfoCommand', dict(goldPassRewardItems=rows['gold'], freeRewardItems=rows['free'],
                                                     extGoldPassRewardItems=rows['ext']))
 
     def refresh_info(self):
-        y = self.st['yenileme']
+        y = self.st['renewal']
         free_left = max(0, 1 - y.get('gun', 0))
-        return mod('RefreshQuestInfo', nextDailyUridium=-1 if free_left else refresh_price(self.paid_refreshes('gunluk')), weeklyCount=0,
-                   dailyLeft=free_left, dailyCount=1, nextWeeklyUridium=refresh_price(self.paid_refreshes('haftalik')), weeklyLeft=0)
+        return mod('RefreshQuestInfo', nextDailyUridium=-1 if free_left else refresh_price(self.paid_refreshes('daily')), weeklyCount=0,
+                   dailyLeft=free_left, dailyCount=1, nextWeeklyUridium=refresh_price(self.paid_refreshes('weekly')), weeklyLeft=0)
 
     def paid_refreshes(self, key):
         """Bu gün (günlük) ya da hafta (haftalık) satın alınmış yenileme sayısı (günlüğün ilki ücretsiz)."""
-        y = self.st['yenileme']
-        return max(0, y.get('gun', 0) - 1) if key == 'gunluk' else y.get('hafta', 0)
+        y = self.st['renewal']
+        return max(0, y.get('gun', 0) - 1) if key == 'daily' else y.get('hafta', 0)
 
     def mission_cmd(self):
         st = self.st
         items = [mod('SeasonPassMissionModule', missionStatus=mod('SeasonPassMissionStatusModule', type=self.status_code(q)),
-                     questDefinitionModule=GT.with_state(MISSIONS[q]['definition'], st['deger'].get(str(q), {}), q in st['tamam']))
+                     questDefinitionModule=GT.with_state(MISSIONS[q]['definition'], st['value'].get(str(q), {}), q in st['tamam']))
                  for q in self.missions()]
         return ('SeasonPassMissionInfoCommand', dict(refreshInfo=self.refresh_info(), missionInfoType=0, missionItems=items))
 
@@ -366,7 +366,7 @@ class Season:
         return msgs + [self.status_cmd(tips=tips), self.mission_cmd(), self.points_cmd(), self.reward_cmd()] + self.unclaimed_msgs()
 
     def roster(self):
-        return len((self.p.d.get('nova') or {}).get('kadro', []))
+        return len((self.p.d.get('nova') or {}).get('roster', []))
 
     def roster_full(self, loot, n):
         """N.O.V.A. ödülü için kadroda yer yok mu (nova.py'nin hire'ı kadro doluyken kaptanı uridyuma çevirirdi)."""
@@ -406,7 +406,7 @@ class Season:
 
     def level_event(self):
         """Başarım: Gold Season Pass'in seviyesi (LevelAbsolute; Gold Pass yoksa 0)."""
-        self.p.ach('season_level', deger=self.level() if self.st.get('gold') else 0, grup=achievement_group())
+        self.p.ach('season_level', value=self.level() if self.st.get('gold') else 0, grup=achievement_group())
 
     def activate_items(self):
         """Depodaki Gold / Extra Gold Pass bu sezona (Extra yalnız Gold'dan sonra) -> mesajlar."""
@@ -442,7 +442,7 @@ class Season:
     # ------------------------------------------------------------ görevler
     def event(self, kind, **kw):
         """Oyun olayı -> görev ilerlemesi (oturuma gönderilir)."""
-        if getattr(self.local, 'busy', False) or not self.p.d.get('sezon'):
+        if getattr(self.local, 'busy', False) or not self.p.d.get('season'):
             return []
         self.local.busy = True
         try:
@@ -459,7 +459,7 @@ class Season:
         for q in self.missions():
             if q in st['tamam']:
                 continue
-            vals = st['deger'].setdefault(str(q), {})
+            vals = st['value'].setdefault(str(q), {})
             m, fin = GT.advance(self.p, MISSIONS[q]['definition']['rootCase'], vals, kind, kw, self.map_id)
             msgs += m
             if fin:
@@ -480,20 +480,20 @@ class Season:
         msgs = [legacy('0|A|STM|%s' % DONE_TEXT[qt]), ('QuestCompletedCommand', {'id': qid, 'rating': 0})]
         locked = MISSIONS[qid]['gold'] and not st.get('gold')
         if not locked:
-            bonus = self.p.mods().get('sezon_puani', 0)                     # N.O.V.A. Bonus Hunter / Bonus Slayer (nova.py)
-            msgs += self.add_points(int(round(points_of(qid) * (1 + bonus) * SET.multiplier('sezon_puani'))))      # panel
+            bonus = self.p.mods().get('season_points', 0)                     # N.O.V.A. Bonus Hunter / Bonus Slayer (nova.py)
+            msgs += self.add_points(int(round(points_of(qid) * (1 + bonus) * SET.multiplier('season_points'))))      # panel
         if qt == DAILY and self.m:                                          # günlük görev: Armory Token (Aşama 9; armory.py)
             import armory as AU
             msgs += self.m.reward(AU.TOKEN, AU.D['daily_quest_token'])
         self.p.ach('quest', id=qid)                                  # kayıt: Season Pass görevi başarımlarda sayılır
-        self.log('   Season Pass görevi bitti: %d (%s, %d puan%s)' % (qid, {DAILY: 'günlük', WEEKLY: 'haftalık', SEASON: 'sezon'}[qt],
+        self.log('   Season Pass görevi bitti: %d (%s, %d puan%s)' % (qid, {DAILY: 'günlük', WEEKLY: 'haftalık', SEASON: 'season'}[qt],
                                                                      points_of(qid), ', Gold Pass bekliyor' if locked else ''))
         return msgs
 
     # ------------------------------------------------------------ istekler
     def claimable(self, key, lv):
         st = self.st
-        if lv > self.level() or lv in st['alinan'][key]:
+        if lv > self.level() or lv in st['claimed'][key]:
             return None
         if key == 'gold' and not st.get('gold') or key == 'ext' and not st.get('ext'):
             return None
@@ -504,7 +504,7 @@ class Season:
         if not got:
             return None
         with self.p.lock:
-            self.st['alinan'][key].append(lv)
+            self.st['claimed'][key].append(lv)
             self.p.dirty = True
         l, n = got
         self.log('   Season Pass ödülü: seviye %d %s: %s x%d' % (lv, key, l, n))
@@ -513,7 +513,7 @@ class Season:
     def claim(self, f):
         self.ensure()
         lv = int(f.get('level') or 0)
-        key = 'ext' if f.get('extGoldPass') else 'gold' if f.get('goldPass') else 'ucretsiz'
+        key = 'ext' if f.get('extGoldPass') else 'gold' if f.get('goldPass') else 'free'
         got = self.claimable(key, lv)
         if got and self.roster_full(*got):
             return [('SeasonPassCaptainLimitCommand', {})]
@@ -573,11 +573,11 @@ class Season:
         """SeasonPassRefreshRequest: günlük/haftalık görevin yerine havuzdan başkası (bitmiş görev yenilenmez)."""
         self.ensure()
         st, qid = self.st, int(f.get('questId') or 0)
-        key = 'gunluk' if qid in st.get('gunluk', []) else 'haftalik' if qid in st.get('haftalik', []) else None
+        key = 'daily' if qid in st.get('daily', []) else 'weekly' if qid in st.get('weekly', []) else None
         if not key or qid in st['tamam']:
             return [self.mission_cmd()]
-        stamp = 'gun' if key == 'gunluk' else 'hafta'
-        free = key == 'gunluk' and st['yenileme'].get('gun', 0) < 1
+        stamp = 'gun' if key == 'daily' else 'hafta'
+        free = key == 'daily' and st['renewal'].get('gun', 0) < 1
         cost = 0 if free else refresh_price(self.paid_refreshes(key))
         qt, gold = MISSIONS[qid]['tur'], MISSIONS[qid]['gold']
         cands = [q for q in pool(qt, gold) if q not in st[key]]
@@ -590,8 +590,8 @@ class Season:
         new = random.choice(cands)
         with self.p.lock:
             st[key][st[key].index(qid)] = new
-            st['deger'].pop(str(qid), None)
-            st['yenileme'][stamp] = st['yenileme'].get(stamp, 0) + 1
+            st['value'].pop(str(qid), None)
+            st['renewal'][stamp] = st['renewal'].get(stamp, 0) + 1
             self.p.dirty = True
         self.log('   Season Pass görevi yenilendi: %d -> %d%s' % (qid, new, '' if free else ' (%d U)' % cost))
         return [self.mission_cmd()] + ([] if free or not self.m else self.m.money_msgs())
@@ -618,7 +618,7 @@ class Season:
         return fn(f) if fn else None
 
     def tick(self, now):
-        if self.p.d.get('sezon') and (self.st.get('gun') != day_id(now) or self.ended(now)):
+        if self.p.d.get('season') and (self.st.get('gun') != day_id(now) or self.ended(now)):
             ended = self.ended(now)
             msgs = self.ensure(now) + [self.status_cmd(now), self.mission_cmd(), self.points_cmd(), self.reward_cmd()]
             msgs += self.unclaimed_msgs() if ended else []

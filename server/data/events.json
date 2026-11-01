@@ -27,13 +27,13 @@
    "BonusGGReward"
   ]
  },
- "etkinlikler": {
-  "yukseltme_saati": {
+ "events": {
+  "upgrade_hour": {
    "ad": "Upgrade Hour",
    "days": [
     4
    ],
-   "saatler": [
+   "hours": [
     [
      19,
      20
@@ -46,16 +46,16 @@
     3
    ],
    "_calendar": "bp-calendar: ayın 1. ve 3. cuması 19-20 (2. ve 4. cuma Gold Booty)",
-   "haber": [
+   "news": [
     "upgradeBounsHour"
    ],
-   "haberler": [
+   "clan_news": [
     "upgradeBounsHour"
    ],
-   "haber_ek": [],
-   "haber_varsayilan": "upgradeBounsHour"
+   "news_extra": [],
+   "news_default": "upgradeBounsHour"
   },
-  "dispatch_gunu": {
+  "dispatch_day": {
    "ad": "Dispatch Day",
    "days": [
     0,
@@ -63,16 +63,16 @@
    ],
    "kinds": [],
    "_kaynak": "wiki: pazartesi ve cuma (dispatch.py)",
-   "haber": [
+   "news": [
     "dispatchDay"
    ],
-   "haberler": [
+   "clan_news": [
     "dispatchDay"
    ],
-   "haber_ek": [],
-   "haber_varsayilan": "dispatchDay"
+   "news_extra": [],
+   "news_default": "dispatchDay"
   },
-  "kapi_hafta_sonu": {
+  "gate_weekend": {
    "ad": "Galaksi Kapısı enerjisi hafta sonu indirimi",
    "days": [
     5,
@@ -82,7 +82,7 @@
    "_kaynak": "wiki galaxy_gates: hafta sonu enerji -%15 (kapi.py)",
    "_calendar": "darkorbitwiki galaxy-gates-events: \"Galaxy Gates Materialiser Discount: -15%\" ve GG Special Rewards afişi \"15% cost reduction for each energy spin\" (Cuma-Pazar Special Rewards hafta sonlarıyla birlikte; Weekly Event Calendar 23-25.10.2026 hafta sonunda listeli). bp-calendar'da ayrı bir kayıt yok; her hafta sonu mu yoksa yalnız Special Rewards hafta sonları mı kayıtsız: her Cumartesi-Pazar (uyarlama; Cuma günü kayıtta görülmedi)"
   },
-  "kronos_gunu": {
+  "kronos_day": {
    "ad": "Kronos parçası iki kat",
    "days": [
     5
@@ -90,7 +90,7 @@
    "kinds": [],
    "_kaynak": "wiki: cumartesi Kronos parçası 2 (kapi.py)"
   },
-  "altin_kutu": {
+  "gold_booty_box": {
    "ad": "Altın Booty Box",
    "days": [
     4
@@ -135,14 +135,14 @@
     "BE_halloweenoct2026",
     "BE_battlePass"
    ],
-   "basarim": [
+   "achievement": [
     "EVENT_HALLOWEEN",
     "GhostBosses",
     "CandyCargo"
    ],
    "_kaynak": "wiki events/trial-of-terrors (Ekim 2024-2026); kayıt 2026-10-15'teki etkin liste",
    "harita": {
-    "bilgi": {
+    "info": {
      "command": "NpcEventInfoCommand",
      "metin": "curcubitor",
      "npc": 109
@@ -156,9 +156,9 @@
      "X-7",
      "X-8"
     ],
-    "uzaylilar": [
+    "alien_spawns": [
      {
-      "tur": "etk_curcubitor_{x}",
+      "tur": "event_curcubitor_{x}",
       "adet": 12
      }
     ],
@@ -171,23 +171,23 @@
      "X-7": 30,
      "X-8": 20
     },
-    "patron": {
+    "boss": {
      "kinds": [
-      "etk_boss_curcubitor_{x}"
+      "event_boss_curcubitor_{x}"
      ],
      "adet": 5,
      "sure_sn": 1800
     },
-    "dusme": {},
+    "drop": {},
     "trick": {
-     "etk_curcubitor": 0.3
+     "event_curcubitor": 0.3
     },
     "_kaynak": "wiki trial-of-terrors: harita başına kota (X-2..X-4 40, X-5..X-7 30, X-8 20), 5 Boss Curcubitor 30 dk; ölen Curcubitor ya Trick (toplanamayan mayın: kurulunca yakındaysan canın %20'si) ya da Treat (Curcubitor sandığı); kargo kutusu düşmez (kullanıcı, gerçek oyun). Uyarlama: nüfus 12, Trick olasılığı %30, adetler.",
     "no_cargo": [
-     "etk_curcubitor",
-     "etk_boss_curcubitor"
+     "event_curcubitor",
+     "event_boss_curcubitor"
     ],
-    "saatler": [
+    "hours": [
      [
       1,
       4.5
@@ -217,7 +217,7 @@
     "resource_collectable_golden-candy-corn"
    ],
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)",
-   "harita_ek": [
+   "map_extra": [
     {
      "haritalar": [
       "X-2",
@@ -228,11 +228,11 @@
       "X-7",
       "X-8"
      ],
-     "kutular": [
+     "boxes": [
       {
        "tur": "MINI_PUMPKIN",
        "adet": 6,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "currency_uridium",
@@ -335,7 +335,7 @@
          3
         ]
        ],
-       "yeniden_sn": [
+       "renew_sec": [
         180,
         420
        ]
@@ -343,7 +343,7 @@
       {
        "tur": "GIANT_PUMPKIN",
        "adet": 1,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "currency_uridium",
@@ -446,18 +446,18 @@
          3
         ]
        ],
-       "yeniden_sn": [
+       "renew_sec": [
         900,
         1800
        ]
       }
      ],
      "box_drop": {
-      "etk_curcubitor_x2": {
+      "event_curcubitor_x2": {
        "tur": "CURCUBITOR_BOX",
        "probability": 1.0,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "ammunition_rocket_r-310",
@@ -540,7 +540,7 @@
          2
         ]
        ],
-       "kesin": [
+       "guaranteed": [
         [
          "resource_collectable_candy-corn",
          [
@@ -550,11 +550,11 @@
         ]
        ]
       },
-      "etk_curcubitor_x3": {
+      "event_curcubitor_x3": {
        "tur": "CURCUBITOR_BOX",
        "probability": 1.0,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "ammunition_rocket_r-310",
@@ -637,7 +637,7 @@
          2
         ]
        ],
-       "kesin": [
+       "guaranteed": [
         [
          "resource_collectable_candy-corn",
          [
@@ -647,11 +647,11 @@
         ]
        ]
       },
-      "etk_curcubitor_x4": {
+      "event_curcubitor_x4": {
        "tur": "CURCUBITOR_BOX",
        "probability": 1.0,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "ammunition_rocket_r-310",
@@ -734,7 +734,7 @@
          2
         ]
        ],
-       "kesin": [
+       "guaranteed": [
         [
          "resource_collectable_candy-corn",
          [
@@ -744,11 +744,11 @@
         ]
        ]
       },
-      "etk_curcubitor_x5": {
+      "event_curcubitor_x5": {
        "tur": "CURCUBITOR_BOX",
        "probability": 1.0,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "ammunition_rocket_r-310",
@@ -831,7 +831,7 @@
          2
         ]
        ],
-       "kesin": [
+       "guaranteed": [
         [
          "resource_collectable_candy-corn",
          [
@@ -841,11 +841,11 @@
         ]
        ]
       },
-      "etk_curcubitor_x6": {
+      "event_curcubitor_x6": {
        "tur": "CURCUBITOR_BOX",
        "probability": 1.0,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "ammunition_rocket_r-310",
@@ -928,7 +928,7 @@
          2
         ]
        ],
-       "kesin": [
+       "guaranteed": [
         [
          "resource_collectable_candy-corn",
          [
@@ -938,11 +938,11 @@
         ]
        ]
       },
-      "etk_curcubitor_x7": {
+      "event_curcubitor_x7": {
        "tur": "CURCUBITOR_BOX",
        "probability": 1.0,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "ammunition_rocket_r-310",
@@ -1025,7 +1025,7 @@
          2
         ]
        ],
-       "kesin": [
+       "guaranteed": [
         [
          "resource_collectable_candy-corn",
          [
@@ -1035,11 +1035,11 @@
         ]
        ]
       },
-      "etk_curcubitor_x8": {
+      "event_curcubitor_x8": {
        "tur": "CURCUBITOR_BOX",
        "probability": 1.0,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "ammunition_rocket_r-310",
@@ -1122,7 +1122,7 @@
          2
         ]
        ],
-       "kesin": [
+       "guaranteed": [
         [
          "resource_collectable_candy-corn",
          [
@@ -1132,11 +1132,11 @@
         ]
        ]
       },
-      "etk_boss_curcubitor_x2": {
+      "event_boss_curcubitor_x2": {
        "tur": "CURCUBITOR_BOSS_BOX",
        "probability": 1.0,
        "omur_sn": 600,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "currency_uridium",
@@ -1211,7 +1211,7 @@
          1
         ]
        ],
-       "kesin": [
+       "guaranteed": [
         [
          "resource_collectable_candy-corn",
          [
@@ -1221,11 +1221,11 @@
         ]
        ]
       },
-      "etk_boss_curcubitor_x3": {
+      "event_boss_curcubitor_x3": {
        "tur": "CURCUBITOR_BOSS_BOX",
        "probability": 1.0,
        "omur_sn": 600,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "currency_uridium",
@@ -1300,7 +1300,7 @@
          1
         ]
        ],
-       "kesin": [
+       "guaranteed": [
         [
          "resource_collectable_candy-corn",
          [
@@ -1310,11 +1310,11 @@
         ]
        ]
       },
-      "etk_boss_curcubitor_x4": {
+      "event_boss_curcubitor_x4": {
        "tur": "CURCUBITOR_BOSS_BOX",
        "probability": 1.0,
        "omur_sn": 600,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "currency_uridium",
@@ -1389,7 +1389,7 @@
          1
         ]
        ],
-       "kesin": [
+       "guaranteed": [
         [
          "resource_collectable_candy-corn",
          [
@@ -1399,11 +1399,11 @@
         ]
        ]
       },
-      "etk_boss_curcubitor_x5": {
+      "event_boss_curcubitor_x5": {
        "tur": "CURCUBITOR_BOSS_BOX",
        "probability": 1.0,
        "omur_sn": 600,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "currency_uridium",
@@ -1478,7 +1478,7 @@
          1
         ]
        ],
-       "kesin": [
+       "guaranteed": [
         [
          "resource_collectable_candy-corn",
          [
@@ -1488,11 +1488,11 @@
         ]
        ]
       },
-      "etk_boss_curcubitor_x6": {
+      "event_boss_curcubitor_x6": {
        "tur": "CURCUBITOR_BOSS_BOX",
        "probability": 1.0,
        "omur_sn": 600,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "currency_uridium",
@@ -1567,7 +1567,7 @@
          1
         ]
        ],
-       "kesin": [
+       "guaranteed": [
         [
          "resource_collectable_candy-corn",
          [
@@ -1577,11 +1577,11 @@
         ]
        ]
       },
-      "etk_boss_curcubitor_x7": {
+      "event_boss_curcubitor_x7": {
        "tur": "CURCUBITOR_BOSS_BOX",
        "probability": 1.0,
        "omur_sn": 600,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "currency_uridium",
@@ -1656,7 +1656,7 @@
          1
         ]
        ],
-       "kesin": [
+       "guaranteed": [
         [
          "resource_collectable_candy-corn",
          [
@@ -1666,11 +1666,11 @@
         ]
        ]
       },
-      "etk_boss_curcubitor_x8": {
+      "event_boss_curcubitor_x8": {
        "tur": "CURCUBITOR_BOSS_BOX",
        "probability": 1.0,
        "omur_sn": 600,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "currency_uridium",
@@ -1745,7 +1745,7 @@
          1
         ]
        ],
-       "kesin": [
+       "guaranteed": [
         [
          "resource_collectable_candy-corn",
          [
@@ -1944,10 +1944,10 @@
    "kinds": [
     "NpcEvent"
    ],
-   "basarim": [],
+   "achievement": [],
    "_kaynak": "wiki events/agatus-breach (Eylül 2026)",
    "harita": {
-    "bilgi": {
+    "info": {
      "command": "AgatusEventInfoCommand",
      "metin": "agatusbreach",
      "npc": 260
@@ -1960,9 +1960,9 @@
      "X-7",
      "X-8"
     ],
-    "uzaylilar": [
+    "alien_spawns": [
      {
-      "tur": "etk_spinel_{x}",
+      "tur": "event_spinel_{x}",
       "adet": 10
      }
     ],
@@ -1974,21 +1974,21 @@
      "X-7": 20,
      "X-8": 15
     },
-    "patron": {
+    "boss": {
      "kinds": [
-      "etk_agatus_{x}"
+      "event_agatus_{x}"
      ],
      "adet": 1,
      "sure_sn": 1800,
      "call": {
-      "tur": "etk_spinel_{x}",
+      "tur": "event_spinel_{x}",
       "adet": 3,
-      "aralik_sn": 20,
-      "en_cok": 9
+      "interval_sec": 20,
+      "max_count": 9
      }
     },
-    "dusme": {
-     "etk_spinel_x3": {
+    "drop": {
+     "event_spinel_x3": {
       "resource_collectable_agate-splinter": {
        "adet": [
         1,
@@ -2001,7 +2001,7 @@
        "probability": 0.1
       }
      },
-     "etk_spinel_x4": {
+     "event_spinel_x4": {
       "resource_collectable_agate-splinter": {
        "adet": [
         2,
@@ -2014,7 +2014,7 @@
        "probability": 0.1
       }
      },
-     "etk_spinel_x5": {
+     "event_spinel_x5": {
       "resource_collectable_agate-splinter": {
        "adet": [
         3,
@@ -2027,7 +2027,7 @@
        "probability": 0.1
       }
      },
-     "etk_spinel_x6": {
+     "event_spinel_x6": {
       "resource_collectable_agate-splinter": {
        "adet": [
         5,
@@ -2040,7 +2040,7 @@
        "probability": 0.1
       }
      },
-     "etk_spinel_x7": {
+     "event_spinel_x7": {
       "resource_collectable_agate-splinter": {
        "adet": [
         6,
@@ -2053,7 +2053,7 @@
        "probability": 0.1
       }
      },
-     "etk_spinel_x8": {
+     "event_spinel_x8": {
       "resource_collectable_agate-splinter": {
        "adet": [
         6,
@@ -2068,19 +2068,19 @@
      }
     },
     "_kaynak": "wiki agatus-breach: kota (X-3 30, X-4 30, X-5 25, X-6 20, X-7 20, X-8 15), Agatus vurulunca Spinel çağırır; ilk 3 hasar vereni Agate Splinter kutusu. Agate Splinter kademeye göre: Agatus X-3 13-15, X-4 20-30, X-5 36-50, X-6 40-62, X-7 55-72, X-8 60-92; Spinel X-3 1-2, X-4 2-4, X-5 3-7, X-6 5-10, X-7 6-11, X-8 6-12 (şansla) ve 1 Log Disk. Uyarlama: nüfus 10, çağırma 20 sn de bir 3 (en çok 9), mermi ve Log Disk şansları.",
-    "saatler": [
+    "hours": [
      [
       8,
       24
      ]
     ],
     "box_drop": {
-     "etk_agatus_x3": {
+     "event_agatus_x3": {
       "tur": "AGATUS_BOX",
       "probability": 1.0,
       "omur_sn": 300,
       "mod": "hepsi",
-      "kesin": [
+      "guaranteed": [
        [
         "resource_collectable_agate-splinter",
         [
@@ -2140,12 +2140,12 @@
        ]
       ]
      },
-     "etk_agatus_x4": {
+     "event_agatus_x4": {
       "tur": "AGATUS_BOX",
       "probability": 1.0,
       "omur_sn": 300,
       "mod": "hepsi",
-      "kesin": [
+      "guaranteed": [
        [
         "resource_collectable_agate-splinter",
         [
@@ -2205,12 +2205,12 @@
        ]
       ]
      },
-     "etk_agatus_x5": {
+     "event_agatus_x5": {
       "tur": "AGATUS_BOX",
       "probability": 1.0,
       "omur_sn": 300,
       "mod": "hepsi",
-      "kesin": [
+      "guaranteed": [
        [
         "resource_collectable_agate-splinter",
         [
@@ -2270,12 +2270,12 @@
        ]
       ]
      },
-     "etk_agatus_x6": {
+     "event_agatus_x6": {
       "tur": "AGATUS_BOX",
       "probability": 1.0,
       "omur_sn": 300,
       "mod": "hepsi",
-      "kesin": [
+      "guaranteed": [
        [
         "resource_collectable_agate-splinter",
         [
@@ -2335,12 +2335,12 @@
        ]
       ]
      },
-     "etk_agatus_x7": {
+     "event_agatus_x7": {
       "tur": "AGATUS_BOX",
       "probability": 1.0,
       "omur_sn": 300,
       "mod": "hepsi",
-      "kesin": [
+      "guaranteed": [
        [
         "resource_collectable_agate-splinter",
         [
@@ -2400,12 +2400,12 @@
        ]
       ]
      },
-     "etk_agatus_x8": {
+     "event_agatus_x8": {
       "tur": "AGATUS_BOX",
       "probability": 1.0,
       "omur_sn": 300,
       "mod": "hepsi",
-      "kesin": [
+      "guaranteed": [
        [
         "resource_collectable_agate-splinter",
         [
@@ -2471,10 +2471,10 @@
     "resource_collectable_agate-splinter"
    ],
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)",
-   "haber": [
+   "news": [
     "agatusBreach-{Y}{m}"
    ],
-   "haberler": [
+   "clan_news": [
     "agatusBreach-202307",
     "agatusBreach-202308",
     "agatusBreach-202309",
@@ -2517,8 +2517,8 @@
     "agatusBreach-202611",
     "agatusBreach-202612"
    ],
-   "haber_ek": [],
-   "haber_varsayilan": "agatusBreach",
+   "news_extra": [],
+   "news_default": "agatusBreach",
    "decor": {
     "tur": 4
    }
@@ -2548,7 +2548,7 @@
     "BattlePass",
     "BattlePassKeyExchange"
    ],
-   "basarim": [],
+   "achievement": [],
    "_kaynak": "wiki events/hitac-assault (Ağustos 2024-2026) | Ö3: 1-31 Ağustos (Pursuit of Prestige setleri 12-20, 22-30)",
    "harita": {
     "haritalar": [
@@ -2560,9 +2560,9 @@
      "X-7",
      "X-8"
     ],
-    "uzaylilar": [
+    "alien_spawns": [
      {
-      "tur": "etk_hitac_underling_{x}",
+      "tur": "event_hitac_underling_{x}",
       "adet": 15
      }
     ],
@@ -2575,23 +2575,23 @@
      "X-7": 45,
      "X-8": 35
     },
-    "patron": {
+    "boss": {
      "kinds": [
-      "etk_hitac_underboss_{x}"
+      "event_hitac_underboss_{x}"
      ],
      "adet": 1,
      "sure_sn": 1800
     },
     "_kaynak": "wiki hitac-assault: Underling kotası (X-2 200 … X-8 35) Underboss çağırır. Ana gemiler (harita harita dolaşan) ve Pursuit of Prestige yok. Uyarlama: nüfus 15. Gösterge: istemcinin npc_hitacAssault_* metinleri (E9).",
-    "bilgi": {
+    "info": {
      "command": "NpcEventInfoCommand",
      "metin": "npc_hitacAssault",
      "npc": 300
     }
    },
-   "gezgin": [
+   "rover": [
     {
-     "tur": "etk_hitac_mothership",
+     "tur": "event_hitac_mothership",
      "route": [
       "1-3",
       "1-4",
@@ -2605,7 +2605,7 @@
      "_kaynak": "wiki rota; harita başına 10 dk, öldükten sonra 30 dk (uyarlama)"
     },
     {
-     "tur": "etk_hitac2_mothership",
+     "tur": "event_hitac2_mothership",
      "route": [
       "4-1",
       "4-2",
@@ -2617,18 +2617,18 @@
     }
    ],
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)",
-   "haber": [
+   "news": [
     "hitacassault{Y}{m}"
    ],
-   "haberler": [
+   "clan_news": [
     "hitacassault202308",
     "hitacassault202408",
     "hitacassault202508"
    ],
-   "haber_ek": [
+   "news_extra": [
     "battlePass-hitac"
    ],
-   "haber_varsayilan": "hitacAssault"
+   "news_default": "hitacAssault"
   },
   "immortal_union": {
    "ad": "Immortal Union",
@@ -2655,12 +2655,12 @@
     "BattlePass",
     "BattlePassKeyExchange"
    ],
-   "basarim": [
+   "achievement": [
     "EVENT_VALENTINE"
    ],
    "_kaynak": "wiki events/immortal-union (Şubat 2024-2026)",
    "harita": {
-    "bilgi": {
+    "info": {
      "command": "NpcEventInfoCommand",
      "metin": "npc_valentine",
      "npc": 231
@@ -2674,9 +2674,9 @@
      "X-7",
      "X-8"
     ],
-    "uzaylilar": [
+    "alien_spawns": [
      {
-      "tur": "etk_lanatum_{x}",
+      "tur": "event_lanatum_{x}",
       "adet": 15
      }
     ],
@@ -2689,17 +2689,17 @@
      "X-7": 80,
      "X-8": 75
     },
-    "patron": {
+    "boss": {
      "kinds": [
-      "etk_styxus_{x}",
-      "etk_charopos_{x}"
+      "event_styxus_{x}",
+      "event_charopos_{x}"
      ],
      "adet": 1,
      "sure_sn": 1800,
      "in_order": true
     },
-    "dusme": {
-     "etk_lanatum": {
+    "drop": {
+     "event_lanatum": {
       "resource_collectable_styxus-shard": [
        0,
        2
@@ -2776,13 +2776,13 @@
        "probability": 0.1
       }
      },
-     "etk_styxus": {
+     "event_styxus": {
       "resource_collectable_styxus-shard": [
        150,
        300
       ]
      },
-     "etk_charopos": {
+     "event_charopos": {
       "resource_collectable_charopos-shard": [
        150,
        300
@@ -2790,7 +2790,7 @@
      }
     },
     "_kaynak": "wiki immortal-union: harita başına 75-150 Lanatum (X-2 150, X-3 120, X-4 110, X-5 100, X-6 90, X-7 80, X-8 75) -> Styxus ya da Charopos (30 dk); shard ile tarifler. Lanatum R-310, PLT-2026, SAR-02, PLD-8, MCB-50, JOB-100, VB-142, Extra Energy, Log Disk ve P.E.T. Fuel de düşürür (adet ve şans kaynakta yok: uyarlama %10). Uyarlama: sırayla Styxus/Charopos, adetler.",
-    "saatler": [
+    "hours": [
      [
       7,
       9
@@ -2810,17 +2810,17 @@
     "resource_collectable_charopos-shard"
    ],
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)",
-   "haber": [
+   "news": [
     "valentine{Y}"
    ],
-   "haberler": [
+   "clan_news": [
     "valentine2021",
     "valentine2023"
    ],
-   "haber_ek": [
+   "news_extra": [
     "battlePass-valentine"
    ],
-   "haber_varsayilan": "valentine"
+   "news_default": "valentine"
   },
   "protegit": {
    "ad": "Protegit Pandemonium",
@@ -2848,7 +2848,7 @@
     "BattlePass",
     "BattlePassKeyExchange"
    ],
-   "basarim": [],
+   "achievement": [],
    "_kaynak": "wiki events/protegit-pandemonium (Mayıs 2024-2026)",
    "harita": {
     "haritalar": [
@@ -2860,50 +2860,50 @@
      "X-7",
      "X-8"
     ],
-    "uzaylilar": [
+    "alien_spawns": [
      {
-      "tur": "etk_chaos_protegit_{x}",
+      "tur": "event_chaos_protegit_{x}",
       "adet": 12
      }
     ],
-    "dusme": {
-     "etk_chaos_protegit_x2": {
+    "drop": {
+     "event_chaos_protegit_x2": {
       "resource_collectable_chaos-fragment": [
        1,
        2
       ]
      },
-     "etk_chaos_protegit_x3": {
+     "event_chaos_protegit_x3": {
       "resource_collectable_chaos-fragment": [
        3,
        4
       ]
      },
-     "etk_chaos_protegit_x4": {
+     "event_chaos_protegit_x4": {
       "resource_collectable_chaos-fragment": [
        5,
        10
       ]
      },
-     "etk_chaos_protegit_x5": {
+     "event_chaos_protegit_x5": {
       "resource_collectable_chaos-fragment": [
        8,
        15
       ]
      },
-     "etk_chaos_protegit_x6": {
+     "event_chaos_protegit_x6": {
       "resource_collectable_chaos-fragment": [
        12,
        20
       ]
      },
-     "etk_chaos_protegit_x7": {
+     "event_chaos_protegit_x7": {
       "resource_collectable_chaos-fragment": [
        13,
        25
       ]
      },
-     "etk_chaos_protegit_x8": {
+     "event_chaos_protegit_x8": {
       "resource_collectable_chaos-fragment": [
        18,
        30
@@ -2911,12 +2911,12 @@
      }
     },
     "_kaynak": "wiki protegit-pandemonium: Chaos Protegit Chaos Fragment düşürür (X-2 1-2, X-3 3-4, X-4 5-10, X-5 8-15, X-6 12-20, X-7 13-25, X-8 18-30); fragmanlarla Chaos Alien CPU (kişisel uzaylı). Uyarlama: nüfus 12; CPU tarifleri Assembly'de (tarifler.json).",
-    "bilgi": {
+    "info": {
      "command": "NpcEventInfoCommand",
      "metin": "npc_chaos-protegit",
      "npc": 229
     },
-    "saatler": [
+    "hours": [
      [
       7,
       9
@@ -2935,21 +2935,21 @@
     "resource_collectable_chaos-fragment"
    ],
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)",
-   "haber": [
+   "news": [
     "protegitPandemonium{Y}{m}",
     "chaos{Y}{m}"
    ],
-   "haberler": [
+   "clan_news": [
     "chaos202105",
     "chaos202205",
     "protegitPandemonium202305"
    ],
-   "haber_ek": [
+   "news_extra": [
     "battlePass-chaos"
    ],
-   "haber_varsayilan": "chaosProtegit"
+   "news_default": "chaosProtegit"
   },
-  "kis": {
+  "winter": {
    "ad": "Doğum günü ve kış (Ice Meteoroids, Santa)",
    "donemler": [
     [
@@ -2960,7 +2960,7 @@
    "kinds": [
     "MiniClientReward"
    ],
-   "basarim": [
+   "achievement": [
     "EVENT_SEASON_WINTER",
     "EVENT_WINTER_2011",
     "EVENT_WINTER_2012",
@@ -2981,18 +2981,18 @@
      "X-7",
      "X-8"
     ],
-    "uzaylilar": [
+    "alien_spawns": [
      {
-      "tur": "etk_ice_meteoroid",
+      "tur": "event_ice_meteoroid",
       "adet": 1
      }
     ],
     "call": {
-     "etk_ice_meteoroid": {
-      "tur": "etk_icy",
+     "event_ice_meteoroid": {
+      "tur": "event_icy",
       "adet": 2,
-      "aralik_sn": 30,
-      "en_cok": 8
+      "interval_sec": 30,
+      "max_count": 8
      }
     },
     "_kaynak": "wiki ice-meteoroids: Ice Meteoroid X-3..X-8 (ateş etmez, Icy çağırır). Super Ice Meteoroid 4-4/4-5. Uyarlama: harita başına 1, 30 sn de bir 2 Icy (en çok 8).",
@@ -3101,24 +3101,24 @@
      ]
     ]
    },
-   "harita_ek": [
+   "map_extra": [
     {
      "haritalar": [
       "4-4",
       "4-5"
      ],
-     "uzaylilar": [
+     "alien_spawns": [
       {
-       "tur": "etk_super_ice_meteoroid",
+       "tur": "event_super_ice_meteoroid",
        "adet": 1
       }
      ],
      "call": {
-      "etk_super_ice_meteoroid": {
-       "tur": "etk_icy",
+      "event_super_ice_meteoroid": {
+       "tur": "event_icy",
        "adet": 3,
-       "aralik_sn": 30,
-       "en_cok": 9
+       "interval_sec": 30,
+       "max_count": 9
       }
      },
      "donemler": [
@@ -3236,11 +3236,11 @@
       "X-7",
       "X-8"
      ],
-     "kutular": [
+     "boxes": [
       {
        "tur": "GIFT_BOXES",
        "adet": 4,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "ammunition_rocket_plt-2026",
@@ -3345,7 +3345,7 @@
          1
         ]
        ],
-       "yeniden_sn": [
+       "renew_sec": [
         300,
         720
        ]
@@ -3456,9 +3456,9 @@
       "X-7",
       "X-8"
      ],
-     "uzaylilar": [
+     "alien_spawns": [
       {
-       "tur": "etk_santa_{x}",
+       "tur": "event_santa_{x}",
        "adet": 1
       }
      ],
@@ -3532,9 +3532,9 @@
      "haritalar": [
       "4-5"
      ],
-     "uzaylilar": [
+     "alien_spawns": [
       {
-       "tur": "etk_santa_4_5",
+       "tur": "event_santa_4_5",
        "adet": 1
       }
      ],
@@ -3606,10 +3606,10 @@
     }
    ],
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md); Ice Meteoroids, hediye kutuları ve Santa bölümlerin dönemlerinde",
-   "haber": [
+   "news": [
     "winterQuests{Y}"
    ],
-   "haberler": [
+   "clan_news": [
     "winterQuests2021",
     "winterQuests2022",
     "winterQuests2023",
@@ -3621,29 +3621,29 @@
     "winterQuests2029",
     "winterQuests2030"
    ],
-   "haber_ek": [],
-   "haber_varsayilan": "winterEvent",
+   "news_extra": [],
+   "news_default": "winterEvent",
    "decor": {
     "tur": 9,
-    "deger": 3
+    "value": 3
    }
   },
   "thanksgiving": {
    "ad": "Thanksgiving",
    "donemler": [
     [
-     "sukran_gunu",
-     "sukran_gunu+8"
+     "thanksgiving_day",
+     "thanksgiving_day+8"
     ]
    ],
    "kinds": [
     "MiniClientReward"
    ],
-   "basarim": [
+   "achievement": [
     "EVENT_THANKSGIVING"
    ],
    "_kaynak": "wiki events/thanksgiving",
-   "harita_ek": [
+   "map_extra": [
     {
      "haritalar": [
       "X-2",
@@ -3654,11 +3654,11 @@
       "X-7",
       "X-8"
      ],
-     "kutular": [
+     "boxes": [
       {
        "tur": "SOLAR_CLASH",
        "adet": 4,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "ammunition_laser_lcb-10",
@@ -3797,7 +3797,7 @@
          1
         ]
        ],
-       "yeniden_sn": [
+       "renew_sec": [
         300,
         720
        ]
@@ -3807,8 +3807,8 @@
      "_tool": "tools/etkinlik_kutulari.py",
      "donemler": [
       [
-       "sukran_gunu",
-       "sukran_gunu"
+       "thanksgiving_day",
+       "thanksgiving_day"
       ]
      ]
     },
@@ -3836,14 +3836,14 @@
     }
    ],
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)",
-   "haber": [
+   "news": [
     "thanksgiving"
    ],
-   "haberler": [
+   "clan_news": [
     "thanksgiving"
    ],
-   "haber_ek": [],
-   "haber_varsayilan": "thanksgiving"
+   "news_extra": [],
+   "news_default": "thanksgiving"
   },
   "plutus": {
    "ad": "Gauntlet of Plutus",
@@ -3886,15 +3886,15 @@
     "BattlePass",
     "BattlePassKeyExchange"
    ],
-   "basarim": [
+   "achievement": [
     "EVENT_GAUNTLETOFPLUTUS"
    ],
    "_kaynak": "wiki events/gauntlet-of-plutus (tarih vermiyor: dönem uyarlama); kapılar etkinlik_kapi.py",
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)",
-   "haber": [
+   "news": [
     "gauntletOfPlutus{Mon}{Y}"
    ],
-   "haberler": [
+   "clan_news": [
     "gauntletOfPlutusJul2022",
     "gauntletOfPlutusJan2023",
     "gauntletOfPlutusJul2023",
@@ -3905,12 +3905,12 @@
     "gauntletOfPlutusJan2026",
     "gauntletOfPlutusJul2026"
    ],
-   "haber_ek": [
+   "news_extra": [
     "battlePass-gop"
    ],
-   "haber_varsayilan": "gauntletOfPlutus"
+   "news_default": "gauntletOfPlutus"
   },
-  "labirent": {
+  "labyrinth": {
    "ad": "Frozen Labyrinth",
    "donemler": [
     [
@@ -3930,11 +3930,11 @@
     "BattlePass",
     "BattlePassKeyExchange"
    ],
-   "basarim": [
+   "achievement": [
     "EVENT_FROZENLABYRINTH"
    ],
    "_kaynak": "wiki/forum: 18 Aralık - 1 Ocak (2019), 22 Aralık - 6 Ocak (2022); labirent.py",
-   "harita_ek": [
+   "map_extra": [
     {
      "haritalar": [
       "430",
@@ -3954,12 +3954,12 @@
       "444",
       "445"
      ],
-     "kutular": [
+     "boxes": [
       {
        "tur": "ICY_BOX",
        "adet": 3,
-       "mod": "biri",
-       "kesin": [
+       "mod": "one_of",
+       "guaranteed": [
         [
          "resource_key_access-flb",
          1
@@ -4077,7 +4077,7 @@
          1
         ]
        ],
-       "yeniden_sn": [
+       "renew_sec": [
         240,
         600
        ]
@@ -4088,18 +4088,18 @@
     }
    ],
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)",
-   "haber": [
+   "news": [
     "frozenLabyrinth"
    ],
-   "haberler": [
+   "clan_news": [
     "frozenLabyrinth"
    ],
-   "haber_ek": [
+   "news_extra": [
     "battlePass-winter"
    ],
-   "haber_varsayilan": "frozenLabyrinth"
+   "news_default": "frozenLabyrinth"
   },
-  "dogum_gunu": {
+  "birthday": {
    "ad": "DarkOrbit Birthday",
    "donemler": [
     [
@@ -4108,7 +4108,7 @@
     ]
    ],
    "kinds": [],
-   "basarim": [],
+   "achievement": [],
    "_kaynak": "fandom/JP wiki: Birthday Gate 11 Aralık (oyunun doğum günü)"
   },
   "empyrian": {
@@ -4192,14 +4192,14 @@
     ]
    ],
    "kinds": [],
-   "basarim": [
+   "achievement": [
     "EVENT_EMPYRIAN"
    ],
    "currency": [
     "resource_collectable_luminium"
    ],
    "_kaynak": "wiki events/empyrian-march (dönem uyarlama)",
-   "kapi_odulu": [
+   "gate_reward": [
     {
      "kapilar": [
       "alpha",
@@ -4261,7 +4261,7 @@
      ],
      "probability": 0.05,
      "non_repeating": true,
-     "secim": [
+     "choice": [
       [
        "ship_berserker_design_berserker-inferno",
        1,
@@ -4291,7 +4291,7 @@
      "_kaynak": "wiki: Empyrian Reward Package, Alpha / Beta / Gamma tamamlamasında %5 (Inferno Berserker 25, Inferno Solace 25, Inferno Sentinel 30, Empyrian Hecate Plus 15, Empyrian Orcus 5)"
     }
    ],
-   "harita_ek": [
+   "map_extra": [
     {
      "haritalar": [
       "X-2",
@@ -4315,7 +4315,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4330,7 +4330,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4345,7 +4345,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4360,7 +4360,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4375,7 +4375,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4390,7 +4390,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4405,7 +4405,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4420,7 +4420,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4435,7 +4435,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4450,7 +4450,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4465,7 +4465,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4480,7 +4480,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4495,7 +4495,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4510,7 +4510,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4525,7 +4525,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4540,7 +4540,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4555,7 +4555,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4570,7 +4570,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4585,7 +4585,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4600,7 +4600,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4615,7 +4615,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4630,7 +4630,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4645,7 +4645,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4660,7 +4660,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4675,7 +4675,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4690,7 +4690,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4705,7 +4705,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4720,7 +4720,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4735,7 +4735,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4750,7 +4750,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4765,7 +4765,7 @@
        "tur": "LUMINIUM",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4780,7 +4780,7 @@
        "tur": "LUMINIUM_2",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4795,7 +4795,7 @@
        "tur": "LUMINIUM_2",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4810,7 +4810,7 @@
        "tur": "LUMINIUM_2",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4825,7 +4825,7 @@
        "tur": "LUMINIUM_2",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4840,7 +4840,7 @@
        "tur": "LUMINIUM_2",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4855,7 +4855,7 @@
        "tur": "LUMINIUM_2",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4870,7 +4870,7 @@
        "tur": "LUMINIUM_2",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4885,7 +4885,7 @@
        "tur": "LUMINIUM_2",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4900,7 +4900,7 @@
        "tur": "LUMINIUM_2",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4915,7 +4915,7 @@
        "tur": "LUMINIUM_2",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4930,7 +4930,7 @@
        "tur": "LUMINIUM_3",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4945,7 +4945,7 @@
        "tur": "LUMINIUM_3",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4960,7 +4960,7 @@
        "tur": "LUMINIUM_3",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4975,7 +4975,7 @@
        "tur": "LUMINIUM_3",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -4990,7 +4990,7 @@
        "tur": "LUMINIUM_4",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5005,7 +5005,7 @@
        "tur": "LUMINIUM_5",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5020,7 +5020,7 @@
        "tur": "LUMINIUM_5",
        "probability": 0.35,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5046,7 +5046,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5061,7 +5061,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5076,7 +5076,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5091,7 +5091,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5106,7 +5106,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5121,7 +5121,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5136,7 +5136,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5151,7 +5151,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5166,7 +5166,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5181,7 +5181,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5196,7 +5196,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5211,7 +5211,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5226,7 +5226,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5241,7 +5241,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5256,7 +5256,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5271,7 +5271,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5286,7 +5286,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5301,7 +5301,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5316,7 +5316,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5331,7 +5331,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5346,7 +5346,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5361,7 +5361,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5376,7 +5376,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5391,7 +5391,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5406,7 +5406,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5421,7 +5421,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5436,7 +5436,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5451,7 +5451,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5466,7 +5466,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5481,7 +5481,7 @@
        "tur": "LUMINIUM",
        "probability": 0.1,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_collectable_luminium",
@@ -5498,11 +5498,11 @@
     }
    ],
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)",
-   "haber": [
+   "news": [
     "empyrian_{Mon}{Y}",
     "empyrian{Mon}{Y}"
    ],
-   "haberler": [
+   "clan_news": [
     "empyrianNov2022",
     "empyrianMar2023",
     "empyrianJun2023",
@@ -5524,25 +5524,25 @@
     "empyrian_Aug2026",
     "empyrian_Oct2026"
    ],
-   "haber_ek": [],
-   "haber_varsayilan": "empyrian_Oct2026"
+   "news_extra": [],
+   "news_default": "empyrian_Oct2026"
   },
   "prosperous": {
    "ad": "Prosperous",
    "donemler": [
     [
-     "cin_yeni_yili-1",
-     "cin_yeni_yili+5"
+     "chinese_new_year-1",
+     "chinese_new_year+5"
     ]
    ],
    "kinds": [
     "MiniClientReward"
    ],
-   "basarim": [
+   "achievement": [
     "EVENT_PROSPEROUS"
    ],
    "_kaynak": "wiki events/prosperous (dönem uyarlama, Ay yeni yılı çevresi)",
-   "kapi_odulu": [
+   "gate_reward": [
     {
      "kapilar": [
       "alpha",
@@ -5607,7 +5607,7 @@
      ],
      "probability": 0.1,
      "non_repeating": true,
-     "secim": [
+     "choice": [
       [
        "ship_spectrum_design_spectrum-inferno",
        1
@@ -5623,7 +5623,7 @@
      ],
      "probability": 0.1,
      "non_repeating": true,
-     "secim": [
+     "choice": [
       [
        "ship_sentinel_design_sentinel-inferno",
        1
@@ -5633,25 +5633,25 @@
     }
    ],
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)",
-   "haber": [
+   "news": [
     "prosperous{Y}"
    ],
-   "haberler": [
+   "clan_news": [
     "prosperous2022",
     "prosperous2023",
     "prosperous2024",
     "prosperous2025",
     "prosperous2026"
    ],
-   "haber_ek": [],
-   "haber_varsayilan": "prosperous2026"
+   "news_extra": [],
+   "news_default": "prosperous2026"
   },
-  "bahar": {
+  "spring": {
    "ad": "Spring Sabotage",
    "donemler": [
     [
-     "paskalya-3",
-     "paskalya+3"
+     "easter-3",
+     "easter+3"
     ],
     [
      "2024-04-25",
@@ -5663,9 +5663,9 @@
     ]
    ],
    "kinds": [],
-   "basarim": [],
+   "achievement": [],
    "_kaynak": "wiki events/spring-sabotage (dönem uyarlama)",
-   "kapi_odulu": [
+   "gate_reward": [
     {
      "kapilar": [
       "delta",
@@ -5682,7 +5682,7 @@
      ]
     }
    ],
-   "harita_ek": [
+   "map_extra": [
     {
      "haritalar": [
       "X-2",
@@ -5693,11 +5693,11 @@
       "X-7",
       "X-8"
      ],
-     "kutular": [
+     "boxes": [
       {
        "tur": "ALIEN_EGG",
        "adet": 6,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "ammunition_laser_mcb-25",
@@ -5844,7 +5844,7 @@
          1
         ]
        ],
-       "yeniden_sn": [
+       "renew_sec": [
         240,
         600
        ]
@@ -5858,16 +5858,16 @@
    "decor": {
     "tur": 13
    },
-   "haber": [
+   "news": [
     "easter{Y}"
    ],
-   "haberler": [
+   "clan_news": [
     "easter2023",
     "easter2025",
     "easter2026"
    ],
-   "haber_ek": [],
-   "haber_varsayilan": "alienEggsEaster"
+   "news_extra": [],
+   "news_default": "alienEggsEaster"
   },
   "chaos_omen": {
    "ad": "Chaos Omen",
@@ -5886,9 +5886,9 @@
     ]
    ],
    "kinds": [],
-   "basarim": [],
+   "achievement": [],
    "_kaynak": "wiki events/chaos-omen: Protegit Pandemonium'un öncesi (dönem uyarlama)",
-   "harita_ek": [
+   "map_extra": [
     {
      "haritalar": [
       "X-2",
@@ -5907,11 +5907,11 @@
       "5-2",
       "5-3"
      ],
-     "kutular": [
+     "boxes": [
       {
        "tur": "SOLAR_CLASH",
        "adet": 5,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "ammunition_laser_mcb-25",
@@ -6023,7 +6023,7 @@
          1
         ]
        ],
-       "yeniden_sn": [
+       "renew_sec": [
         240,
         600
        ]
@@ -6224,16 +6224,16 @@
     ]
    ],
    "kinds": [],
-   "basarim": [],
+   "achievement": [],
    "currency": [
     "resource_collectable_chromin"
    ],
    "_kaynak": "hitac_chromin.json chromin.schedule_board: 2025-2026 aylık koşular (gün 10:00 - 6 gün sonra 23:59); tools/ek_etkinlikler.py; resmî Türk forumu: her koşu ilk gün 10:00 - son gün 23:59 (YSS)",
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)",
-   "haber": [
+   "news": [
     "chrominrush{mon}{Y}"
    ],
-   "haberler": [
+   "clan_news": [
     "chrominrushnov2020",
     "chrominrushapr2021",
     "chrominrushjul2021",
@@ -6247,8 +6247,8 @@
     "chrominrushfeb2023",
     "chrominrushmar2023"
    ],
-   "haber_ek": [],
-   "haber_varsayilan": "chrominRush",
+   "news_extra": [],
+   "news_default": "chrominRush",
    "run_recipes": {
     "2023-01-06": [
      "recipe_blueprint-chromin-rcb140",
@@ -6674,7 +6674,7 @@
    },
    "_kosu_tarifleri": "Koşunun ilk günü -> o koşuda açık etkinlik tarifleri (tarifler.json; her koşuda 6-9 tarif, koşu başına bir kez): resmî Türk forumu Chromin Rush duyuruları (39 koşu) ve EN panosu (7 koşu); belgeler/forum_tr/karsilastirma/BAG1_chromin_kosular.json. Bilinen son günden sonra koşular 52 haftada bir tekrarlanır"
   },
-  "unvan_avi": {
+  "title_hunt": {
    "ad": "Pursuit of Prestige",
    "donemler": [
     [
@@ -6703,19 +6703,19 @@
     ]
    ],
    "kinds": [],
-   "basarim": [],
+   "achievement": [],
    "_kaynak": "hitac_chromin.json title_frenzy.sets 2026; Hitac Assault'un parçası; tools/ek_etkinlikler.py",
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)",
-   "haber": [
+   "news": [
     "titlefrenzy{Y}{m}"
    ],
-   "haberler": [
+   "clan_news": [
     "titlefrenzy202308",
     "titlefrenzy202408",
     "titlefrenzy202508"
    ],
-   "haber_ek": [],
-   "haber_varsayilan": "titlefrenzy202508"
+   "news_extra": [],
+   "news_default": "titlefrenzy202508"
   },
   "fever": {
    "ad": "Fever (gemi güçlenmesi)",
@@ -6729,7 +6729,7 @@
     6
    ],
    "kinds": [],
-   "basarim": [],
+   "achievement": [],
    "_kaynak": "diger_etkinlikler.json fever (saatler fever.py'de); tools/ek_etkinlikler.py",
    "together": [
     "plutus",
@@ -6742,7 +6742,7 @@
   "galaxy_trek": {
    "ad": "Galaxy Trek",
    "kinds": [],
-   "basarim": [],
+   "achievement": [],
    "donemler": [
     [
      "2025-09-26",
@@ -6805,7 +6805,7 @@
    "kinds": [
     "MiniClientReward"
    ],
-   "basarim": [],
+   "achievement": [],
    "donemler": [
     [
      "2026-01-07",
@@ -6824,19 +6824,19 @@
    "decor": {
     "tur": 12
    },
-   "haber": [
+   "news": [
     "fiestagate{Y}"
    ],
-   "haberler": [
+   "clan_news": [
     "fiestagate2025"
    ],
-   "haber_ek": [],
-   "haber_varsayilan": "fiestagate2025"
+   "news_extra": [],
+   "news_default": "fiestagate2025"
   },
   "infiltration": {
    "ad": "Infiltration",
    "kinds": [],
-   "basarim": [],
+   "achievement": [],
    "donemler": [
     [
      "2023-11-22",
@@ -6857,7 +6857,7 @@
   "invasion": {
    "ad": "Invasion (firma yarışı)",
    "kinds": [],
-   "basarim": [],
+   "achievement": [],
    "donemler": [
     [
      "10-28",
@@ -6870,7 +6870,7 @@
    ],
    "_kaynak": "diger_etkinlikler.json invasion.schedule (Pumpkin Fest ve Aralık örnekleri); tarihler uyarlama; tools/ek_etkinlikler.py"
   },
-  "acil_gorevler": {
+  "urgent_quests": {
    "ad": "Urgent Missions",
    "days": [
     0,
@@ -6882,7 +6882,7 @@
     6
    ],
    "kinds": [],
-   "basarim": [],
+   "achievement": [],
    "_kaynak": "diger_etkinlikler.json urgent_missions (Mart 2022'den beri sürekli); tools/ek_etkinlikler.py"
   },
   "vortex_of_greed": {
@@ -6890,7 +6890,7 @@
    "kinds": [
     "StrikeAndExit"
    ],
-   "basarim": [],
+   "achievement": [],
    "donemler": [
     [
      "2025-07-25",
@@ -6963,7 +6963,7 @@
     "BattlePass",
     "BattlePassKeyExchange"
    ],
-   "basarim": [
+   "achievement": [
     "EVENT_PUBLIC_WORLD_BOSS"
    ],
    "donemler": [
@@ -6989,16 +6989,16 @@
    ],
    "_kaynak": "world_boss_2025.json takvim 2026: 17 Haziran - 1 Temmuz; tools/buyuk_icerikler.py",
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)",
-   "haber": [
+   "news": [
     "worldBoss{Y}{m}",
     "worldboss{Y}"
    ],
-   "haberler": [
+   "clan_news": [
     "worldBoss202306",
     "worldboss2025"
    ],
-   "haber_ek": [],
-   "haber_varsayilan": "worldboss2025"
+   "news_extra": [],
+   "news_default": "worldboss2025"
   },
   "mimesis_mutiny": {
    "ad": "Mimesis Mutiny",
@@ -7007,7 +7007,7 @@
     "BattlePass",
     "BattlePassKeyExchange"
    ],
-   "basarim": [],
+   "achievement": [],
    "donemler": [
     [
      "2023-03-16",
@@ -7035,21 +7035,21 @@
    ],
    "_kaynak": "mimesis_mutiny.json schedule: Mart ortası 15 gün (her yıl), Kasım 2025; tools/buyuk_icerikler.py",
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)",
-   "haber": [
+   "news": [
     "mimesis{Y}{m}",
     "mimesis{Y}"
    ],
-   "haberler": [
+   "clan_news": [
     "mimesis2024",
     "mimesis2025",
     "mimesis202511",
     "mimesis202603"
    ],
-   "haber_ek": [
+   "news_extra": [
     "battlePass-escort"
    ],
-   "haber_varsayilan": "mimesisMutiny",
-   "harita_ek": [
+   "news_default": "mimesisMutiny",
+   "map_extra": [
     {
      "haritalar": [
       "X-2",
@@ -7060,35 +7060,35 @@
       "4-3",
       "4-4"
      ],
-     "uzaylilar": [
+     "alien_spawns": [
       {
-       "tur": "etk_hexor_mimesis",
+       "tur": "event_hexor_mimesis",
        "adet": 4
       },
       {
-       "tur": "etk_raging_mimesis",
+       "tur": "event_raging_mimesis",
        "adet": 2
       },
       {
-       "tur": "etk_cloning_mimesis",
+       "tur": "event_cloning_mimesis",
        "adet": 1
       },
       {
-       "tur": "etk_terror_mimesis",
+       "tur": "event_terror_mimesis",
        "adet": 1
       },
       {
-       "tur": "etk_reflector_mimesis",
+       "tur": "event_reflector_mimesis",
        "adet": 1
       }
      ],
      "box_drop": {
-      "etk_terror_mimesis": {
+      "event_terror_mimesis": {
        "tur": "MIMESIS_AI_TERROR_BOX",
        "probability": 1.0,
        "omur_sn": 600,
-       "mod": "biri",
-       "kesin": [
+       "mod": "one_of",
+       "guaranteed": [
         [
          "resource_collectable_byte-remnant",
          [
@@ -7121,12 +7121,12 @@
         ]
        ]
       },
-      "etk_reflector_mimesis": {
+      "event_reflector_mimesis": {
        "tur": "MIMESIS_AI_REFLECTOR_BOX",
        "probability": 1.0,
        "omur_sn": 600,
-       "mod": "biri",
-       "kesin": [
+       "mod": "one_of",
+       "guaranteed": [
         [
          "resource_collectable_byte-remnant",
          [
@@ -7168,7 +7168,7 @@
   "mileage_market": {
    "ad": "Mileage Market",
    "kinds": [],
-   "basarim": [],
+   "achievement": [],
    "donemler": [
     [
      "2023-07-20",
@@ -7181,19 +7181,19 @@
    ],
    "_kaynak": "dukkanlar_o7.json: 2023 07-20..27, 2024 07-17..24; dukkanlar_o7",
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)",
-   "haber": [
+   "news": [
     "MileageMarket"
    ],
-   "haberler": [
+   "clan_news": [
     "MileageMarket"
    ],
-   "haber_ek": [],
-   "haber_varsayilan": "MileageMarket"
+   "news_extra": [],
+   "news_default": "MileageMarket"
   },
   "vip_merchant": {
    "ad": "VIP Merchant Exchange",
    "kinds": [],
-   "basarim": [],
+   "achievement": [],
    "donemler": [
     [
      "2023-05-18",
@@ -7246,23 +7246,23 @@
    ],
    "_kaynak": "dukkanlar_o7.json: 2023-05-18..25, 2024-12-19..01-01; dukkanlar_o7",
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)",
-   "haber": [
+   "news": [
     "VIP-Merchant-Exchange"
    ],
-   "haberler": [
+   "clan_news": [
     "VIP-Merchant-Exchange"
    ],
-   "haber_ek": [],
-   "haber_varsayilan": "VIP-Merchant-Exchange"
+   "news_extra": [],
+   "news_default": "VIP-Merchant-Exchange"
   },
   "pre_prometheus": {
    "ad": "Pre-Prometheus Day Sales",
    "kinds": [],
-   "basarim": [],
+   "achievement": [],
    "donemler": [
     [
-     "sukran_gunu-3",
-     "sukran_gunu-1"
+     "thanksgiving_day-3",
+     "thanksgiving_day-1"
     ]
    ],
    "_kaynak": "dukkanlar_o7.json (board 2025); dukkanlar_o7",
@@ -7274,7 +7274,7 @@
   "return_of_hero": {
    "ad": "Return of Hero",
    "kinds": [],
-   "basarim": [],
+   "achievement": [],
    "donemler": [
     [
      "2025-07-23",
@@ -7287,14 +7287,14 @@
    ],
    "_kaynak": "dukkanlar_o7.json: 2025 Temmuz sonu ~3-4 hafta; dukkanlar_o7",
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)",
-   "haber": [
+   "news": [
     "returnofhero{Y}"
    ],
-   "haberler": [
+   "clan_news": [
     "returnofhero2025"
    ],
-   "haber_ek": [],
-   "haber_varsayilan": "returnofhero2025"
+   "news_extra": [],
+   "news_default": "returnofhero2025"
   },
   "obsidian_booty": {
    "ad": "Obsidian Booty Box",
@@ -7304,11 +7304,11 @@
    ],
    "kinds": [],
    "_kaynak": "bp-calendar: Obsidian -> R&B -> Apocalypse Re-Run blokları (2026); kutular.json takvimi",
-   "haber": [
+   "news": [
     "obsidian{Mon}{Y}",
     "obsidian{Month}{Y}"
    ],
-   "haberler": [
+   "clan_news": [
     "obsidianMay2018",
     "obsidianMay2019",
     "obsidianSep2019",
@@ -7339,7 +7339,7 @@
     "obsidianJune2026",
     "obsidianSep2026"
    ],
-   "haber_ek": []
+   "news_extra": []
   },
   "rb_booty": {
    "ad": "R&B Booty Key Sale",
@@ -7352,10 +7352,10 @@
     "PirateBootyRedAndBlue"
    ],
    "_kaynak": "bp-calendar: Obsidian -> R&B -> Apocalypse Re-Run blokları (2026); kutular.json takvimi",
-   "haber": [
+   "news": [
     "rb{Mon}{Y}"
    ],
-   "haberler": [
+   "clan_news": [
     "rbMay2018",
     "rbOct2018",
     "rbApr2019",
@@ -7387,7 +7387,7 @@
     "rbJul2026",
     "rbOct2026"
    ],
-   "haber_ek": []
+   "news_extra": []
   },
   "apocalypse_booty": {
    "ad": "Apocalypse Booty Box",
@@ -7397,11 +7397,11 @@
    ],
    "kinds": [],
    "_kaynak": "bp-calendar: Obsidian -> R&B -> Apocalypse Re-Run blokları (2026); kutular.json takvimi",
-   "haber": [
+   "news": [
     "apoc{Mon}{Y}",
     "apoc{Month}{Y}"
    ],
-   "haberler": [
+   "clan_news": [
     "apocJun2018",
     "apocJun2019",
     "apocAug2019",
@@ -7431,35 +7431,35 @@
     "apocMay2026",
     "apocAugust2026"
    ],
-   "haber_ek": []
+   "news_extra": []
   },
-  "gg_cift_odul": {
+  "gg_double_reward": {
    "ad": "GG Double Rewards Day",
    "days": [
     6
    ],
    "kinds": [],
    "_kaynak": "bp-calendar: her Pazar; istemcinin newGgDblRewards metni",
-   "haber": [
+   "news": [
     "ggDouble"
    ],
-   "haberler": [
+   "clan_news": [
     "ggDouble"
    ],
-   "haber_ek": [],
-   "haber_varsayilan": "ggDouble"
+   "news_extra": [],
+   "news_default": "ggDouble"
   },
-  "lf4_gunu": {
+  "lf4_day": {
    "ad": "New LF-4 Day",
    "days": [
     6
    ],
    "kinds": [],
-   "hafta_dongu": [
+   "week_cycle": [
     2,
     0
    ],
-   "kapi_odulu": [
+   "gate_reward": [
     {
      "kapilar": [
       "delta",
@@ -7468,7 +7468,7 @@
       "streuner"
      ],
      "probability": 1.0,
-     "secim": [
+     "choice": [
       [
        "equipment_weapon_laser_lf-4",
        1
@@ -7482,17 +7482,17 @@
    ],
    "_kaynak": "bp-calendar: Pazarları dönüşümlü (hangi haftanın hangisi olduğu uyarlama); wiki: Delta/Epsilon/Lambda/Kuiper LF-4 ya da 10.000 UCB-100; resmî Türk forumu (Delta/Epsilon/Lambda/Kuiper SSS): LF-4 Günü ek ödül kesin; Geliştirilmiş: HP, MD, PD ya da 10.000 UCB-100"
   },
-  "lf4_gelismis": {
+  "lf4_enhanced": {
    "ad": "Enhanced LF-4 Day",
    "days": [
     6
    ],
    "kinds": [],
-   "hafta_dongu": [
+   "week_cycle": [
     2,
     1
    ],
-   "kapi_odulu": [
+   "gate_reward": [
     {
      "kapilar": [
       "delta",
@@ -7501,7 +7501,7 @@
       "streuner"
      ],
      "probability": 1.0,
-     "secim": [
+     "choice": [
       [
        "equipment_weapon_laser_lf-4-hp",
        1
@@ -7525,7 +7525,7 @@
       "kappa"
      ],
      "probability": 1.0,
-     "secim": [
+     "choice": [
       [
        "equipment_weapon_laser_lf-4-pd",
        1
@@ -7537,7 +7537,7 @@
       "zeta"
      ],
      "probability": 1.0,
-     "secim": [
+     "choice": [
       [
        "equipment_weapon_laser_lf-4-md",
        1
@@ -7546,33 +7546,33 @@
     }
    ],
    "_kaynak": "bp-calendar: Pazarları dönüşümlü (hangi haftanın hangisi olduğu uyarlama); istemci: Delta HP-LF-4, Kappa PD-LF-4, Zeta MD-LF-4; resmî Türk forumu (Delta/Epsilon/Lambda/Kuiper SSS): LF-4 Günü ek ödül kesin; Geliştirilmiş: HP, MD, PD ya da 10.000 UCB-100; Lazer Fırtınası (forum 2018): Delta HP, Kappa PD, Zeta MD %100",
-   "haber": [
+   "news": [
     "eLf4Day"
    ],
-   "haberler": [
+   "clan_news": [
     "eLf4Day"
    ],
-   "haber_ek": [],
-   "haber_varsayilan": "eLf4Day"
+   "news_extra": [],
+   "news_default": "eLf4Day"
   },
-  "gg_hafta_sonu_1": {
+  "gg_weekend_1": {
    "ad": "GG Special Rewards Weekend (Version 1)",
    "days": [
     5,
     6
    ],
    "kinds": [],
-   "hafta_dongu": [
+   "week_cycle": [
     4,
     2
    ],
-   "kapi_odulu": [
+   "gate_reward": [
     {
      "kapilar": [
       "delta"
      ],
      "probability": 0.2,
-     "secim": [
+     "choice": [
       [
        "equipment_weapon_laser_lf-4",
        1
@@ -7589,7 +7589,7 @@
       "epsilon"
      ],
      "probability": 0.2,
-     "secim": [
+     "choice": [
       [
        "drone_designs_phantom-red",
        1
@@ -7636,7 +7636,7 @@
       "streuner"
      ],
      "probability": 0.2,
-     "secim": [
+     "choice": [
       [
        "ship_g-centaur",
        1
@@ -7665,7 +7665,7 @@
       "lambda"
      ],
      "probability": 0.2,
-     "secim": [
+     "choice": [
       [
        "drone_designs_enigma-red",
        1
@@ -7709,33 +7709,33 @@
     }
    ],
    "_kaynak": "bp-calendar: hafta sonları Version 1 -> 3 -> 4 -> N.O.V.A. (2026: 3-5 haftada bir N.O.V.A.; burada 4 haftalık döngü); istemcinin newGgWknd1 metni; Chimera / Mirage tasarımları ve 10+1 paketi: fandom Galaxy Gates Special Rewards Day; olasılık %20 uyarlama",
-   "haber": [
+   "news": [
     "ggWeekend"
    ],
-   "haberler": [
+   "clan_news": [
     "ggWeekend"
    ],
-   "haber_ek": [],
-   "haber_varsayilan": "ggWeekend"
+   "news_extra": [],
+   "news_default": "ggWeekend"
   },
-  "gg_hafta_sonu_3": {
+  "gg_weekend_3": {
    "ad": "GG Special Rewards Weekend (Version 3)",
    "days": [
     5,
     6
    ],
    "kinds": [],
-   "hafta_dongu": [
+   "week_cycle": [
     4,
     3
    ],
-   "kapi_odulu": [
+   "gate_reward": [
     {
      "kapilar": [
       "delta"
      ],
      "probability": 0.2,
-     "secim": [
+     "choice": [
       [
        "drone_designs_havoc",
        1
@@ -7760,7 +7760,7 @@
       "epsilon"
      ],
      "probability": 0.2,
-     "secim": [
+     "choice": [
       [
        "ship_g-centaur",
        1
@@ -7789,7 +7789,7 @@
       "streuner"
      ],
      "probability": 0.2,
-     "secim": [
+     "choice": [
       [
        "drone_designs_phantom-red",
        1
@@ -7836,7 +7836,7 @@
       "lambda"
      ],
      "probability": 0.2,
-     "secim": [
+     "choice": [
       [
        "drone_designs_enigma-red",
        1
@@ -7880,33 +7880,33 @@
     }
    ],
    "_kaynak": "bp-calendar: hafta sonları Version 1 -> 3 -> 4 -> N.O.V.A. (2026: 3-5 haftada bir N.O.V.A.; burada 4 haftalık döngü); istemcinin newGgWknd3 metni; Chimera / Mirage tasarımları ve 10+1 paketi: fandom Galaxy Gates Special Rewards Day; olasılık %20 uyarlama",
-   "haber": [
+   "news": [
     "ggWeekend"
    ],
-   "haberler": [
+   "clan_news": [
     "ggWeekend"
    ],
-   "haber_ek": [],
-   "haber_varsayilan": "ggWeekend"
+   "news_extra": [],
+   "news_default": "ggWeekend"
   },
-  "gg_hafta_sonu_4": {
+  "gg_weekend_4": {
    "ad": "GG Special Rewards Weekend (Version 4)",
    "days": [
     5,
     6
    ],
    "kinds": [],
-   "hafta_dongu": [
+   "week_cycle": [
     4,
     0
    ],
-   "kapi_odulu": [
+   "gate_reward": [
     {
      "kapilar": [
       "delta"
      ],
      "probability": 0.2,
-     "secim": [
+     "choice": [
       [
        "drone_designs_phantom-red",
        1
@@ -7953,7 +7953,7 @@
       "epsilon"
      ],
      "probability": 0.2,
-     "secim": [
+     "choice": [
       [
        "drone_designs_enigma-red",
        1
@@ -8000,7 +8000,7 @@
       "streuner"
      ],
      "probability": 0.2,
-     "secim": [
+     "choice": [
       [
        "drone_designs_havoc",
        1
@@ -8025,7 +8025,7 @@
       "lambda"
      ],
      "probability": 0.2,
-     "secim": [
+     "choice": [
       [
        "drone_designs_phantom-red",
        1
@@ -8069,27 +8069,27 @@
     }
    ],
    "_kaynak": "bp-calendar: hafta sonları Version 1 -> 3 -> 4 -> N.O.V.A. (2026: 3-5 haftada bir N.O.V.A.; burada 4 haftalık döngü); istemcinin newGgWknd4 metni; Chimera / Mirage tasarımları ve 10+1 paketi: fandom Galaxy Gates Special Rewards Day; olasılık %20 uyarlama",
-   "haber": [
+   "news": [
     "ggWeekend"
    ],
-   "haberler": [
+   "clan_news": [
     "ggWeekend"
    ],
-   "haber_ek": [],
-   "haber_varsayilan": "ggWeekend"
+   "news_extra": [],
+   "news_default": "ggWeekend"
   },
-  "nova_hafta_sonu": {
+  "nova_weekend": {
    "ad": "N.O.V.A. Galaxy Gate Weekend",
    "days": [
     5,
     6
    ],
    "kinds": [],
-   "hafta_dongu": [
+   "week_cycle": [
     4,
     1
    ],
-   "kapi_odulu": [
+   "gate_reward": [
     {
      "kapilar": [
       "delta"
@@ -8179,7 +8179,7 @@
      ],
      "probability": 0.1,
      "non_repeating": true,
-     "secim": [
+     "choice": [
       [
        "pet_designs_mirage-red",
        1
@@ -8192,7 +8192,7 @@
      ],
      "probability": 0.1,
      "non_repeating": true,
-     "secim": [
+     "choice": [
       [
        "pet_designs_chimera-orange",
        1
@@ -8205,7 +8205,7 @@
      ],
      "probability": 0.1,
      "non_repeating": true,
-     "secim": [
+     "choice": [
       [
        "pet_designs_chimera-green",
        1
@@ -8218,7 +8218,7 @@
      ],
      "probability": 0.23,
      "non_repeating": true,
-     "secim": [
+     "choice": [
       [
        "drone_designs_phantom-orange",
        1
@@ -8231,7 +8231,7 @@
      ],
      "probability": 0.23,
      "non_repeating": true,
-     "secim": [
+     "choice": [
       [
        "drone_designs_phantom-green",
        1
@@ -8244,7 +8244,7 @@
      ],
      "probability": 0.23,
      "non_repeating": true,
-     "secim": [
+     "choice": [
       [
        "drone_designs_enigma-green",
        1
@@ -8257,7 +8257,7 @@
      ],
      "probability": 0.25,
      "non_repeating": true,
-     "secim": [
+     "choice": [
       [
        "drone_designs_havoc",
        1
@@ -8270,7 +8270,7 @@
      ],
      "probability": 0.25,
      "non_repeating": true,
-     "secim": [
+     "choice": [
       [
        "drone_designs_hercules",
        1
@@ -8283,7 +8283,7 @@
      ],
      "probability": 0.25,
      "non_repeating": true,
-     "secim": [
+     "choice": [
       [
        "drone_designs_demon-epic",
        1
@@ -8296,7 +8296,7 @@
      ],
      "probability": 0.25,
      "non_repeating": true,
-     "secim": [
+     "choice": [
       [
        "drone_designs_demon-silver",
        1
@@ -8309,7 +8309,7 @@
      ],
      "probability": 0.15,
      "non_repeating": true,
-     "secim": [
+     "choice": [
       [
        "ship_g-centaur",
        1
@@ -8322,7 +8322,7 @@
      ],
      "probability": 0.25,
      "non_repeating": true,
-     "secim": [
+     "choice": [
       [
        "ship_g-peacemaker",
        1
@@ -8335,7 +8335,7 @@
      ],
      "probability": 0.25,
      "non_repeating": true,
-     "secim": [
+     "choice": [
       [
        "ship_g-sovereign",
        1
@@ -8348,7 +8348,7 @@
      ],
      "probability": 0.25,
      "non_repeating": true,
-     "secim": [
+     "choice": [
       [
        "ship_g-vanquisher",
        1
@@ -8361,7 +8361,7 @@
      ],
      "probability": 0.1,
      "non_repeating": true,
-     "secim": [
+     "choice": [
       [
        "ship_g-surgeon",
        1
@@ -8374,7 +8374,7 @@
      ],
      "probability": 0.01,
      "non_repeating": true,
-     "secim": [
+     "choice": [
       [
        "paket",
        [
@@ -8398,12 +8398,12 @@
    "ad": "Prometheus Days",
    "donemler": [
     [
-     "sukran_gunu+1",
-     "sukran_gunu+6"
+     "thanksgiving_day+1",
+     "thanksgiving_day+6"
     ]
    ],
    "kinds": [],
-   "kapi_odulu": [
+   "gate_reward": [
     {
      "kapilar": [
       "alpha",
@@ -8426,7 +8426,7 @@
      ],
      "probability": 0.1,
      "non_repeating": true,
-     "secim": [
+     "choice": [
       [
        "ship_goliath-plus_design_goliath-plus-argon",
        1
@@ -8442,7 +8442,7 @@
      ],
      "probability": 0.05,
      "non_repeating": true,
-     "secim": [
+     "choice": [
       [
        "ship_cyborg_design_cyborg-prometheus",
        1
@@ -8453,14 +8453,14 @@
    ],
    "_kaynak": "FAQ 128941, 129488, 129978 (2023-2025: Şükran Günü'nden sonraki 6 gün): Prometheus Booty Box X-2..X-8, 4-X, 5-X (kutular.json); Prometheus Fragment Alpha, Beta, Gamma'dan 2 (%100). Günlük/epic görevler ve kill-streak'li tasarımlar yok",
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)",
-   "haber": [
+   "news": [
     "prometheusDay"
    ],
-   "haberler": [
+   "clan_news": [
     "prometheusDay"
    ],
-   "haber_ek": [],
-   "haber_varsayilan": "prometheusDay",
+   "news_extra": [],
+   "news_default": "prometheusDay",
    "decor": {
     "tur": 11
    }
@@ -8486,7 +8486,7 @@
     ]
    ],
    "kinds": [],
-   "kapi_odulu": [
+   "gate_reward": [
     {
      "kapilar": [
       "alpha",
@@ -8507,7 +8507,7 @@
      ]
     }
    ],
-   "harita_ek": [
+   "map_extra": [
     {
      "haritalar": [
       "X-1",
@@ -8519,11 +8519,11 @@
       "X-7",
       "X-8"
      ],
-     "kutular": [
+     "boxes": [
       {
        "tur": "COSMIC_CACHE",
        "adet": 3,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "ammunition_laser_lcb-10",
@@ -8651,7 +8651,7 @@
          1
         ]
        ],
-       "yeniden_sn": [
+       "renew_sec": [
         300,
         600
        ]
@@ -8663,14 +8663,14 @@
    ],
    "_kaynak": "FAQ 128750, 129881, 130401: Perseus' Blessing (Perseus Booty Key; kutular.json) ve anahtarsız Cosmic Cache X-1..X-8; anahtar Alpha, Beta, Gamma, Delta, Epsilon, Lambda, Kappa, Zeta'dan %20 (darkorbitwiki perseus-grace)",
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)",
-   "haber": [
+   "news": [
     "perseusgrace{Y}"
    ],
-   "haberler": [
+   "clan_news": [
     "perseusgrace2023"
    ],
-   "haber_ek": [],
-   "haber_varsayilan": "perseusgrace2023"
+   "news_extra": [],
+   "news_default": "perseusgrace2023"
   },
   "athena": {
    "ad": "Summons of Athena",
@@ -8681,7 +8681,7 @@
     ]
    ],
    "kinds": [],
-   "kapi_odulu": [
+   "gate_reward": [
     {
      "kapilar": [
       "kappa",
@@ -8700,14 +8700,14 @@
    ],
    "_kaynak": "duyuru 129342, FAQ 129340 (yalnız 2024): Laurel Booty Box X-1..X-8 (kutular.json); Laurel Key Kappa, Zeta, Epsilon, Delta'dan %30",
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)",
-   "haber": [
+   "news": [
     "olympic{Y}"
    ],
-   "haberler": [
+   "clan_news": [
     "olympic2024"
    ],
-   "haber_ek": [],
-   "haber_varsayilan": "olympic2024"
+   "news_extra": [],
+   "news_default": "olympic2024"
   },
   "goal_rush": {
    "ad": "Goal Rush",
@@ -8726,7 +8726,7 @@
     ]
    ],
    "kinds": [],
-   "harita_ek": [
+   "map_extra": [
     {
      "haritalar": [
       "X-2",
@@ -8737,12 +8737,12 @@
       "X-7",
       "X-8"
      ],
-     "kutular": [
+     "boxes": [
       {
        "tur": "FOOTBALL_BOX",
        "adet": 2,
-       "mod": "biri",
-       "yeniden_sn": [
+       "mod": "one_of",
+       "renew_sec": [
         600,
         1200
        ],
@@ -8974,20 +8974,20 @@
    ],
    "_kaynak": "duyuru 129282, 129809 (2026'da yok): Champion dron tasarımları; takımın turnuvadaki ilerlemesine bağlı NPC hasar bonusu yok. Her yıl 25 Haziran - 27 Temmuz uyarlama: futbol kutusunda SpaceCup'ın tasarımları da (etkinlik_gorunumleri)",
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)",
-   "haber": [
+   "news": [
     "goalrush_{Y}"
    ],
-   "haberler": [
+   "clan_news": [
     "goalrush_2024",
     "goalrush_2025"
    ],
-   "haber_ek": [],
-   "haber_varsayilan": "goalrush_2025"
+   "news_extra": [],
+   "news_default": "goalrush_2025"
   },
   "kristallon_apotheosis": {
    "ad": "Kristallon Apotheosis",
    "kinds": [],
-   "basarim": [],
+   "achievement": [],
    "donemler": [
     [
      "2026-10-21",
@@ -8996,14 +8996,14 @@
    ],
    "_kaynak": "board-en 130459 (FAQ Kristallon Apotheosis); bitiş resmî sunucu kaydı (2026-10-25, ApotheosisProgressCommand.timeToEventEndSeconds: 2027 sonu; istemcinin haberi bn_kristallonapotheosis2026: sunucu çapında geri çağırma etkinliği); tools/surum_115.py",
    "_calendar": "board-en October Sync 2026-10-21 (Kristallon Apotheosis güncellemesi)",
-   "haber": [
+   "news": [
     "kristallonapotheosis{Y}"
    ],
-   "haberler": [
+   "clan_news": [
     "kristallonapotheosis2026"
    ],
-   "haber_ek": [],
-   "haber_varsayilan": "kristallonapotheosis2026"
+   "news_extra": [],
+   "news_default": "kristallonapotheosis2026"
   },
   "galactic_strife": {
    "ad": "Galactic Strife",
@@ -9055,16 +9055,16 @@
    ],
    "_kaynak": "duyurular (web_takvim.md, 176 anahtar): gerçek oyunda 4-1..4-4'te PvP (itibar sıralamaları, Fever, Flux ve Mire Crate); tek oyunculuda Battle Pass (görevler PvE, uyarlama), Battle Pass Box ve anahtar değişimi (Arios ve Neikos tasarımları, etkinlik_gorunumleri)",
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)",
-   "haber": [
+   "news": [
     "galacticStrife"
    ],
-   "haberler": [
+   "clan_news": [
     "galacticStrife"
    ],
-   "haber_ek": [
+   "news_extra": [
     "battlePass"
    ],
-   "haber_varsayilan": "galacticStrife"
+   "news_default": "galacticStrife"
   },
   "astral_ascension": {
    "ad": "Astral Ascension",
@@ -9078,7 +9078,7 @@
     "BattlePass",
     "BattlePassKeyExchange"
    ],
-   "basarim": [],
+   "achievement": [],
    "_kaynak": "wiki events/astral-ascension (2022 tek seferlik koşu; dönem uyarlama: başka Battle Pass'le çakışmayan 1-10 Eylül)"
   },
   "spacecup": {
@@ -9093,9 +9093,9 @@
     "BattlePass",
     "BattlePassKeyExchange"
    ],
-   "basarim": [],
+   "achievement": [],
    "_kaynak": "wiki events/spacecup (2022 koşusunda Battle Pass; dönem uyarlama: başka Battle Pass'le çakışmayan 1-14 Aralık; Spaceball / PvP yok, hedefler PvE karşılığıyla). Resmî Türk forumu: Referee-Bot X-2..X-8 ve 4-1..4-5 (135026; yalnız CBO-100 ve CBR), ödül paketi FOOTBALL_BOX (127757, 2022), 4-4'te Gezgin Futbol Korsanları; Futbol Lordakia görünümü istemcide yok, Serüven Kutuları Spaceball'a bağlı (tek oyunculuda yok), görevler (506401-506410) koşulsuz yalnız başlık: eklenmedi",
-   "harita_ek": [
+   "map_extra": [
     {
      "haritalar": [
       "X-2",
@@ -9106,18 +9106,18 @@
       "X-7",
       "X-8"
      ],
-     "uzaylilar": [
+     "alien_spawns": [
       {
-       "tur": "etk_hakem_{x}",
+       "tur": "event_referee_{x}",
        "adet": 1
       }
      ],
      "box_drop": {
-      "etk_hakem": {
+      "event_referee": {
        "tur": "FOOTBALL_BOX",
        "probability": 1.0,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "ammunition_specialammo_rc-100",
@@ -9237,18 +9237,18 @@
       "4-4",
       "4-5"
      ],
-     "uzaylilar": [
+     "alien_spawns": [
       {
-       "tur": "etk_hakem_4x",
+       "tur": "event_referee_4x",
        "adet": 1
       }
      ],
      "box_drop": {
-      "etk_hakem_4x": {
+      "event_referee_4x": {
        "tur": "FOOTBALL_BOX",
        "probability": 1.0,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "ammunition_specialammo_rc-100",
@@ -9387,7 +9387,7 @@
         4
        ]
       ],
-      "aralik_sn": 600
+      "interval_sec": 600
      },
      "_kaynak": "resmî Türk forumu 127757: Uzay Futbolu maçında 4-4'te her 10 dakikada 11 Gezgin Futbol Korsanı (1 Battleray, 2 Sabotajcı, 2 Barracuda, 2 Annihilator, 4 Interceptor); sonraki grup bütün grup yok edilince. Uzay Futbolu (Spaceball) tek oyunculuda yok: grup etkinlik boyunca"
     }
@@ -9422,19 +9422,19 @@
     ]
    ],
    "kinds": [],
-   "basarim": [],
+   "achievement": [],
    "_kaynak": "darkorbitwiki eternal-black-light (FEVER BL MAPS); Fever bunun sürdüğü haftalarda da açılır (takvim_e8.py birlikte); tools/ek_etkinlikler.py"
   },
-  "thanksgiving_buz": {
+  "thanksgiving_ice": {
    "ad": "Thanksgiving Ice Meteoroids",
    "donemler": [
     [
-     "sukran_gunu-3",
-     "sukran_gunu+8"
+     "thanksgiving_day-3",
+     "thanksgiving_day+8"
     ]
    ],
    "kinds": [],
-   "basarim": [],
+   "achievement": [],
    "harita": {
     "haritalar": [
      "X-3",
@@ -9444,40 +9444,40 @@
      "X-7",
      "X-8"
     ],
-    "uzaylilar": [
+    "alien_spawns": [
      {
-      "tur": "etk_ice_meteoroid",
+      "tur": "event_ice_meteoroid",
       "adet": 1
      }
     ],
     "call": {
-     "etk_ice_meteoroid": {
-      "tur": "etk_icy",
+     "event_ice_meteoroid": {
+      "tur": "event_icy",
       "adet": 2,
-      "aralik_sn": 30,
-      "en_cok": 8
+      "interval_sec": 30,
+      "max_count": 8
      }
     },
     "_kaynak": "wiki ice-meteoroids: Ice Meteoroid X-3..X-8 (ateş etmez, Icy çağırır). Super Ice Meteoroid 4-4/4-5. Uyarlama: harita başına 1, 30 sn de bir 2 Icy (en çok 8)."
    },
-   "harita_ek": [
+   "map_extra": [
     {
      "haritalar": [
       "4-4",
       "4-5"
      ],
-     "uzaylilar": [
+     "alien_spawns": [
       {
-       "tur": "etk_super_ice_meteoroid",
+       "tur": "event_super_ice_meteoroid",
        "adet": 1
       }
      ],
      "call": {
-      "etk_super_ice_meteoroid": {
-       "tur": "etk_icy",
+      "event_super_ice_meteoroid": {
+       "tur": "event_icy",
        "adet": 3,
-       "aralik_sn": 30,
-       "en_cok": 9
+       "interval_sec": 30,
+       "max_count": 9
       }
      }
     }
@@ -9485,20 +9485,20 @@
    "_kaynak": "wiki events/thanksgiving, ice-meteoroids: Ice Meteoroid'ler X-3..X-8, Super Ice Meteoroid 4-4/4-5; 2025 duyurusu: özel etkinlikler 24.11-05.12 (Şükran Günü'nden 3 gün önce 8 gün sonra)",
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)"
   },
-  "sukran_gg_cift": {
+  "thanksgiving_gg_double": {
    "ad": "Thanksgiving GG Double Rewards",
    "donemler": [
     [
-     "sukran_gunu",
-     "sukran_gunu+4"
+     "thanksgiving_day",
+     "thanksgiving_day+4"
     ]
    ],
    "kinds": [],
-   "counts_as": "gg_cift_odul",
+   "counts_as": "gg_double_reward",
    "_kaynak": "darkorbitwiki thanksgiving, 2025 duyurusu: Galaxy Gate çift ve özel ödülleri Şükran Günü'nden pazartesiye (27.11-01.12); 'sayilir': gg_cift_odul bu pencerede de açık sayılır (takvim.py)",
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)"
   },
-  "kardan_adam": {
+  "snowman": {
    "ad": "Snowman (yeni yıl)",
    "donemler": [
     [
@@ -9511,7 +9511,7 @@
     ]
    ],
    "kinds": [],
-   "basarim": [],
+   "achievement": [],
    "_kaynak": "wiki birthday-event / winter-event: WIZ-X Snowman modeli 31 Aralık - 4 Ocak (esyalar.json look_chances)",
    "_calendar": "board-en.darkorbit.com duyuruları 2023-2026 (belgeler/arastirma/tarama_2026-10-22/web_takvim.md)"
   },
@@ -9524,7 +9524,7 @@
     ]
    ],
    "kinds": [],
-   "basarim": [],
+   "achievement": [],
    "harita": {
     "haritalar": [
      "X-2",
@@ -9540,9 +9540,9 @@
      "4-4",
      "4-5"
     ],
-    "uzaylilar": [
+    "alien_spawns": [
      {
-      "tur": "etk_sunburst_lordakium",
+      "tur": "event_sunburst_lordakium",
       "adet": 3
      }
     ],
@@ -9559,14 +9559,14 @@
     ]
    ],
    "kinds": [],
-   "basarim": [],
-   "kapi_odulu": [
+   "achievement": [],
+   "gate_reward": [
     {
      "kapilar": [
       "streuner"
      ],
      "probability": 1.0,
-     "secim": [
+     "choice": [
       [
        "ship_yamato_design_yamato-expo2016",
        1
@@ -9589,7 +9589,7 @@
     ]
    ],
    "kinds": [],
-   "basarim": [
+   "achievement": [
     "EVENT_BATTLE_FOR_INFLUENCE"
    ],
    "influence": {
@@ -9615,15 +9615,15 @@
     ]
    ],
    "kinds": [],
-   "basarim": [],
-   "kapi_odulu": [
+   "achievement": [],
+   "gate_reward": [
     {
      "kapilar": [
       "alpha"
      ],
      "probability": 1.0,
      "non_repeating": true,
-     "secim": [
+     "choice": [
       [
        "drone_designs_drone-pusat-ocean",
        1
@@ -9636,7 +9636,7 @@
      ],
      "probability": 0.75,
      "non_repeating": true,
-     "secim": [
+     "choice": [
       [
        "pet_designs_pet-pusat-ocean",
        1
@@ -9649,7 +9649,7 @@
      ],
      "probability": 0.5,
      "non_repeating": true,
-     "secim": [
+     "choice": [
       [
        "ship_pusat_design_pusat-ocean",
        1
@@ -9662,7 +9662,7 @@
      ],
      "probability": 0.25,
      "non_repeating": true,
-     "secim": [
+     "choice": [
       [
        "recipe_blueprint-pusat-legend",
        1
@@ -9670,7 +9670,7 @@
      ]
     }
    ],
-   "harita_ek": [
+   "map_extra": [
     {
      "haritalar": [
       "X-1",
@@ -9682,12 +9682,12 @@
       "X-7",
       "X-8"
      ],
-     "kutular": [
+     "boxes": [
       {
        "tur": "SAIMON_REBELLION",
        "adet": 3,
-       "mod": "biri",
-       "yeniden_sn": [
+       "mod": "one_of",
+       "renew_sec": [
         240,
         600
        ],
@@ -9800,7 +9800,7 @@
        "tur": "LEGEND_SPECTRUM_BP_BOX",
        "probability": 0.00015,
        "omur_sn": 300,
-       "kesin": [
+       "guaranteed": [
         [
          "recipe_blueprint-spectrum-legend",
          1
@@ -9811,7 +9811,7 @@
        "tur": "LEGEND_SPECTRUM_BP_BOX",
        "probability": 0.00015,
        "omur_sn": 300,
-       "kesin": [
+       "guaranteed": [
         [
          "recipe_blueprint-spectrum-legend",
          1
@@ -9822,7 +9822,7 @@
        "tur": "LEGEND_SPECTRUM_BP_BOX",
        "probability": 0.00015,
        "omur_sn": 300,
-       "kesin": [
+       "guaranteed": [
         [
          "recipe_blueprint-spectrum-legend",
          1
@@ -9843,7 +9843,7 @@
     ]
    ],
    "kinds": [],
-   "basarim": [],
+   "achievement": [],
    "respawn": {
     "255": [
      150,
@@ -9862,7 +9862,7 @@
      300
     ]
    },
-   "harita_ek": [
+   "map_extra": [
     {
      "haritalar": [
       "5-1",
@@ -9874,7 +9874,7 @@
        "tur": "UBERINTERCEPTOR_BOX",
        "probability": 1.0,
        "omur_sn": 300,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "resource_ore_xenomit",
@@ -9903,7 +9903,7 @@
        "tur": "UBERBARRACUDA_BOX",
        "probability": 1.0,
        "omur_sn": 300,
-       "kesin": [
+       "guaranteed": [
         [
          "resource_collectable_kyhalon",
          1
@@ -9918,7 +9918,7 @@
        "tur": "UBERSABOTEUR_BOX",
        "probability": 1.0,
        "omur_sn": 300,
-       "kesin": [
+       "guaranteed": [
         [
          "resource_collectable_kyhalon",
          1
@@ -9933,7 +9933,7 @@
        "tur": "UBERANNIHILATOR_BOX",
        "probability": 1.0,
        "omur_sn": 300,
-       "kesin": [
+       "guaranteed": [
         [
          "resource_collectable_kyhalon",
          2
@@ -9948,7 +9948,7 @@
        "tur": "UBERBATTLERAY_BOX",
        "probability": 1.0,
        "omur_sn": 300,
-       "kesin": [
+       "guaranteed": [
         [
          "resource_collectable_kyhalon",
          5
@@ -10010,7 +10010,7 @@
         250
        ]
       ],
-      "unvan": "title_pirateRaid-champion"
+      "title": "title_pirateRaid-champion"
      },
      {
       "den": 2,
@@ -10205,10 +10205,10 @@
     ]
    ],
    "kinds": [],
-   "basarim": [
+   "achievement": [
     "EVENT_DEMANER_HUNT"
    ],
-   "harita_ek": [
+   "map_extra": [
     {
      "haritalar": [
       "X-2",
@@ -10224,29 +10224,29 @@
       "4-4",
       "4-5"
      ],
-     "saatler": [
+     "hours": [
       [
        11,
        23
       ]
      ],
-     "uzaylilar": [
+     "alien_spawns": [
       {
-       "tur": "etk_demaner_freighter",
+       "tur": "event_demaner_freighter",
        "adet": 1
       },
       {
-       "tur": "etk_demaner",
+       "tur": "event_demaner",
        "adet": 4
       }
      ],
      "box_drop": {
-      "etk_demaner_freighter": {
+      "event_demaner_freighter": {
        "tur": "DEMANER_BOX",
        "adet": 10,
        "probability": 1.0,
        "omur_sn": 600,
-       "mod": "biri",
+       "mod": "one_of",
        "additional": [
         [
          "resource_collectable_axion-beam-regulator",
@@ -10338,10 +10338,10 @@
         ]
        ]
       },
-      "etk_demaner": {
+      "event_demaner": {
        "tur": "DEMANER_INVADER_BOX",
        "probability": 0.3,
-       "mod": "biri",
+       "mod": "one_of",
        "contents": [
         [
          "ammunition_laser_mcb-25",
@@ -10384,8 +10384,8 @@
     ]
    ],
    "kinds": [],
-   "basarim": [],
-   "harita_ek": [
+   "achievement": [],
+   "map_extra": [
     {
      "haritalar": [
       "X-1",
@@ -10397,21 +10397,21 @@
       "X-7",
       "X-8"
      ],
-     "uzaylilar": [
+     "alien_spawns": [
       {
-       "tur": "etk_i_egg",
+       "tur": "event_i_egg",
        "adet": 4
       }
      ],
      "no_cargo": [
-      "etk_i_egg",
-      "etk_i_gygerthrall",
-      "etk_i_hitac"
+      "event_i_egg",
+      "event_i_gygerthrall",
+      "event_i_hitac"
      ],
      "spawn_on_death": {
-      "etk_i_egg": [
+      "event_i_egg": [
        {
-        "tur": "etk_i_gygerthrall",
+        "tur": "event_i_gygerthrall",
         "adet": [
          2,
          5
@@ -10421,7 +10421,7 @@
       ]
      },
      "box_drop": {
-      "etk_i_egg": {
+      "event_i_egg": {
        "tur": "VIRAL_BOX_AAA",
        "probability": 1.0,
        "omur_sn": 300,
@@ -10466,7 +10466,7 @@
          35
         ]
        ],
-       "kesin": [
+       "guaranteed": [
         [
          "resource_ore_prometium",
          [
@@ -10490,7 +10490,7 @@
         ]
        ]
       },
-      "etk_i_gygerthrall": {
+      "event_i_gygerthrall": {
        "tur": "VIRAL_BOX_AA",
        "probability": 1.0,
        "omur_sn": 300,
@@ -10548,23 +10548,23 @@
       "X-7",
       "X-8"
      ],
-     "uzaylilar": [
+     "alien_spawns": [
       {
-       "tur": "etk_i_hitac",
+       "tur": "event_i_hitac",
        "adet": 1
       }
      ],
      "call": {
-      "etk_i_hitac": {
-       "tur": "etk_i_egg",
+      "event_i_hitac": {
+       "tur": "event_i_egg",
        "adet": 1,
-       "en_cok": 3,
-       "aralik_sn": 30,
+       "max_count": 3,
+       "interval_sec": 30,
        "omur_sn": 90
       }
      },
      "box_drop": {
-      "etk_i_hitac": {
+      "event_i_hitac": {
        "tur": "VIRAL_BOX_A",
        "probability": 1.0,
        "omur_sn": 300,
@@ -10606,8 +10606,8 @@
      "beta": 160,
      "gamma": 160
     },
-    "sifirla": true,
-    "esikler": [
+    "reset": true,
+    "thresholds": [
      [
       1000,
       [
@@ -10674,7 +10674,7 @@
     ]
    ],
    "kinds": [],
-   "basarim": [],
+   "achievement": [],
    "scoring": {
     "npc": {
      "174": [
@@ -10698,14 +10698,14 @@
       25
      ]
     },
-    "ilerleme": {
+    "progress": {
      "174": 15,
      "175": 20,
      "176": 74,
      "177": 168,
      "178": 1650
     },
-    "esikler": [
+    "thresholds": [
      [
       3250,
       [
@@ -10810,7 +10810,7 @@
         336
        ]
       ],
-      "unvan": "title_blacklightSurge-champion"
+      "title": "title_blacklightSurge-champion"
      },
      {
       "den": 2,
@@ -10989,8 +10989,8 @@
     ]
    ],
    "kinds": [],
-   "basarim": [],
-   "kapi_odulu": [
+   "achievement": [],
+   "gate_reward": [
     {
      "kapilar": [
       "alpha",
@@ -10999,7 +10999,7 @@
      ],
      "probability": 0.05,
      "fallback_uridium": 10000,
-     "secim": [
+     "choice": [
       [
        "ship_sentinel_design_sentinel-inferno",
        1,
@@ -11023,7 +11023,7 @@
      ]
     }
    ],
-   "harita_ek": [
+   "map_extra": [
     {
      "haritalar": [
       "X-1",
@@ -11043,12 +11043,12 @@
       "5-2",
       "5-3"
      ],
-     "kutular": [
+     "boxes": [
       {
        "tur": "SOLAR_CLASH",
        "adet": 3,
-       "mod": "biri",
-       "yeniden_sn": [
+       "mod": "one_of",
+       "renew_sec": [
         240,
         600
        ],
@@ -11160,7 +11160,7 @@
    ],
    "_kaynak": "resmî Türk forumu 162019 (Astral Keşif, 9-16 Haziran 2022): Güneş Kutuları şirket, korsan ve savaş haritalarında (istemcide adı yok: Chaos Omen'in güneş kutusu SOLAR_CLASH; içerik forumun listesi, eşit ağırlık, miktarlar uyarlama), Alpha/Beta/Gamma özel ödülü Inferno Sentinel / Diminisher / Pusat %30, Berserker %10 (sahip olunan çıkarsa 10.000 U; özel ödülün şansı \"küçük\": %5 uyarlama), WIZ-X'in %30 Inferno dönüşümü (esyalar.json look_chances), görevler 506649-506652 / 512653-512654. Ödeme bölümünün Inferno Berserker'i ve oyuncu dönüştürme başarımları kapsam dışı; geçmiş tek dönem: panelden başlatılabilir"
   },
-  "europa_siralama": {
+  "europa_ranking": {
    "ad": "Global 4 - Europa Ranking",
    "donemler": [
     [
@@ -11170,11 +11170,11 @@
     ]
    ],
    "kinds": [],
-   "basarim": [],
+   "achievement": [],
    "scoring": {
-    "rank_metric": "katilim",
-    "katilim": {
-     "unvan": "title_europa-202510-2",
+    "rank_metric": "participation",
+    "participation": {
+     "title": "title_europa-202510-2",
      "esyalar": [
       [
        "currency_uridium",
@@ -11232,7 +11232,7 @@
         3
        ]
       ],
-      "unvan": "title_europa-202510-1"
+      "title": "title_europa-202510-1"
      },
      {
       "den": 2,
@@ -11271,7 +11271,7 @@
         2
        ]
       ],
-      "unvan": "title_europa-202510-1"
+      "title": "title_europa-202510-1"
      },
      {
       "den": 3,
@@ -11310,7 +11310,7 @@
         2
        ]
       ],
-      "unvan": "title_europa-202510-1"
+      "title": "title_europa-202510-1"
      },
      {
       "den": 4,
@@ -11349,7 +11349,7 @@
         1
        ]
       ],
-      "unvan": "title_europa-202510-1"
+      "title": "title_europa-202510-1"
      },
      {
       "den": 6,
@@ -11455,7 +11455,7 @@
    },
    "_kaynak": "resmî Türk forumu 177655 (Evrensel 4 - Europa sıralama etkinliği, 29 Ekim 11:00 - 28 Kasım 2025): etkinlikte giriş yapan herkese katılım ödülü (Europa Vanguard), seviye ve EP sırasına göre ödül (ilk 5 Europa Conqueror; forumun 3. satırındaki 'Titan Fatihi' yazım hatası); ödüller etkinlik bitince (talep penceresi yerine EventRewardConfirmationCommand). Tek oyunculuda pilot 1.; geçmiş tek dönem: panelden başlatılabilir"
   },
-  "onuncu_yil": {
+  "tenth_anniversary": {
    "ad": "DarkOrbit 10th Anniversary",
    "donemler": [
     [
@@ -11464,7 +11464,7 @@
     ]
    ],
    "kinds": [],
-   "basarim": [],
+   "achievement": [],
    "_kaynak": "resmî Türk forumu 126560 (10. Yıl Yıldönümü, 1-31 Aralık 2016): 13 öykü görevi (506217-506229; 506222 istemcide başlıksız), 16 günlük görev (506201-506216) gorev_ekleri'nde; Demaner yenilemesi demaner_hunt, Kış Takvimi ve Goliath-X zaten var. Üç yan görev istemcide kimliksiz: eklenmedi; geçmiş tek dönem: panelden başlatılabilir"
   },
   "plague_mutation": {
@@ -11478,18 +11478,18 @@
    "kinds": [
     "BattlePass"
    ],
-   "basarim": [
+   "achievement": [
     "EVENT_PLAGUE"
    ],
-   "harita_ek": [
+   "map_extra": [
     {
      "haritalar": [
       "X-3",
       "X-4"
      ],
-     "uzaylilar": [
+     "alien_spawns": [
       {
-       "tur": "etk_gygerthrall",
+       "tur": "event_gygerthrall",
        "adet": 5
       }
      ],
@@ -11502,7 +11502,7 @@
      "spawn_on_death": {
       "252": [
        {
-        "tur": "etk_plagued_gygerthrall",
+        "tur": "event_plagued_gygerthrall",
         "adet": 1
        }
       ]
@@ -11514,9 +11514,9 @@
       "X-4",
       "X-5"
      ],
-     "uzaylilar": [
+     "alien_spawns": [
       {
-       "tur": "etk_plagued_kristallin",
+       "tur": "event_plagued_kristallin",
        "adet": 2
       }
      ],

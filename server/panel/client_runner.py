@@ -31,7 +31,7 @@ def default_prefix(kind):
     """save/wine ya da save/proton (motor da save/wine'ı kullanır; yollar burada içe aktarılır: client.py'yi yalnız panel/ yoluyla
     içe aktaranlar var)."""
     import paths
-    return os.path.join(paths.SAVE, 'wine' if kind == 'motor' else kind)
+    return os.path.join(paths.SAVE, 'wine' if kind == 'engine' else kind)
 
 
 _engine = None
@@ -119,7 +119,7 @@ def protons():
         d = os.path.realpath(d)
         if d not in seen and os.path.isfile(os.path.join(d, 'proton')):
             seen.add(d)
-            out.append({'ad': os.path.basename(d), 'yol': d, 'steam': steam})
+            out.append({'ad': os.path.basename(d), 'route': d, 'steam': steam})
     out.sort(key=lambda p: _version_key(p['ad']), reverse=True)
     return out
 
@@ -188,26 +188,26 @@ def rosetta_error():
 def find(cfg):
     """Kullanılacak çalıştırıcı -> {'tur': yerel|motor|wine|proton|ozel, 'yol', 'ad', 'onek', 'umu', 'steam', 'hata'}. yol: wine
     programı, Proton klasörü ya da özel komut (motor kurulmadıysa None: OYNA kurar); hata: istemci açılamaz (kullanıcıya gösterilir)."""
-    r = {'tur': 'yerel', 'yol': None, 'ad': None, 'onek': None, 'umu': None, 'steam': None, 'hata': None}
+    r = {'tur': 'local', 'route': None, 'ad': None, 'prefix': None, 'umu': None, 'steam': None, 'hata': None}
     if WINDOWS:
         return r
     choice, route, prefix = cfg.get('runner'), cfg.get('runner_path').strip(), cfg.get('wine_prefix').strip()
     umu = shutil.which('umu-run') if LINUX else None
-    if choice == 'otomatik':
-        choice = 'motor' if MAC else 'proton' if LINUX and (umu or protons()) else 'wine'
+    if choice == 'auto':
+        choice = 'engine' if MAC else 'proton' if LINUX and (umu or protons()) else 'wine'
     r['tur'] = choice
     if choice == 'ozel':
-        r.update(yol=route, onek=os.path.expanduser(prefix) if prefix else None)
+        r.update(route=route, prefix=os.path.expanduser(prefix) if prefix else None)
         if not route:
             r['hata'] = _('Özel komut boş: İstemci sayfasında Wine / Proton kartından yaz.')
         return r
-    r['onek'] = os.path.expanduser(prefix) if prefix else default_prefix(choice)
-    if choice == 'motor':
+    r['prefix'] = os.path.expanduser(prefix) if prefix else default_prefix(choice)
+    if choice == 'engine':
         if not MAC:
             r['hata'] = _("Panelin Wine'ı yalnız macOS'ta: Otomatik'i ya da Wine'ı seç.")
             return r
         m = engine()
-        r.update(yol=m.wine(), ad=m.name(), hata=rosetta_error())
+        r.update(route=m.wine(), ad=m.name(), hata=rosetta_error())
         return r
     if choice == 'proton':
         if not LINUX:
@@ -221,12 +221,12 @@ def find(cfg):
             if not os.path.isfile(os.path.join(d, 'proton')):
                 r['hata'] = _('Proton bulunamadı: %s klasöründe proton betiği yok.', d)
                 return r
-            p = next((x for x in found if x['yol'] == os.path.realpath(d)), {'ad': os.path.basename(d), 'yol': d, 'steam': None})
+            p = next((x for x in found if x['route'] == os.path.realpath(d)), {'ad': os.path.basename(d), 'route': d, 'steam': None})
         if not p and not umu:
             r['hata'] = _("Proton bulunamadı: Steam'de bir Proton sürümü kur (Kütüphane > Araçlar) ya da Wine'ı seç.")
             return r
         steam = (p and p['steam']) or next(iter(steam_folders()), None)
-        r.update(yol=p and p['yol'], ad=p['ad'] if p else 'UMU-Proton', umu=umu, steam=steam)
+        r.update(route=p and p['route'], ad=p['ad'] if p else 'UMU-Proton', umu=umu, steam=steam)
         return r
     w = shutil.which(os.path.expanduser(route)) if route else next(iter(wines()), None)
     if not w:
@@ -234,13 +234,13 @@ def find(cfg):
             r['hata'] = _('Wine bulunamadı: %s', route)
         elif not LINUX:
             r['hata'] = _("Wine bulunamadı: Otomatik'i seç (panel oyunu açacak Wine'ı kendisi kurar) ya da wine programının yolunu yaz.")
-        elif cfg.get('runner') == 'otomatik':
+        elif cfg.get('runner') == 'auto':
             r['hata'] = _("Wine ya da Proton bulunamadı: Steam'de bir Proton sürümü kur (Kütüphane > Araçlar) ya da Wine kur (ör. sudo apt "
                           "install wine).")
         else:
             r['hata'] = _("Wine bulunamadı: Wine kur (ör. sudo apt install wine) ya da Proton'u seç.")
         return r
-    r.update(yol=w, ad=wine_version(w) or 'wine', hata=rosetta_error())
+    r.update(route=w, ad=wine_version(w) or 'wine', hata=rosetta_error())
     return r
 
 
@@ -261,35 +261,35 @@ def command(cfg, exe, args, prepare=True):
     """İstemcinin başlatma komutu ve ortamı -> (komut, ortam); ortam None: panelinki. Çalıştırıcı yoksa (motor kurulmadıysa da)
     RuntimeError. hazirla: önekte S: sürücüsünü kur (gösterilecek komutta False)."""
     r = find(cfg)
-    if r['tur'] == 'yerel':
+    if r['tur'] == 'local':
         return [exe] + args, None
     if r['hata']:
         raise RuntimeError(r['hata'])
     env = dict(os.environ)
     if r['tur'] == 'ozel':
-        if r['onek']:
-            env['WINEPREFIX'] = r['onek']
+        if r['prefix']:
+            env['WINEPREFIX'] = r['prefix']
         dll_override(env, 'winhttp=n,b')
-        return shlex.split(r['yol']) + [exe] + args, env
-    if r['tur'] in ('wine', 'motor'):
-        if not r['yol']:
+        return shlex.split(r['route']) + [exe] + args, env
+    if r['tur'] in ('wine', 'engine'):
+        if not r['route']:
             raise RuntimeError(_("Panelin Wine'ı henüz kurulmadı: OYNA'ya bas ya da İstemci sayfasından kur."))
-        env['WINEPREFIX'] = r['onek']
+        env['WINEPREFIX'] = r['prefix']
         dll_override(env, 'mscoree,mshtml=', 'winhttp=n,b')      # yeni önekte Mono/Gecko kurulum pencereleri çıkmasın; Doorstop winhttp.dll yüklensin
         env.setdefault('WINEDEBUG', 'fixme-all')                 # wine.log yalnız hatalar
-        return [r['yol'], game_drive(r['onek'], exe, prepare)] + args, env
+        return [r['route'], game_drive(r['prefix'], exe, prepare)] + args, env
     game = os.path.dirname(os.path.abspath(exe))     # Proton S:'yi bunlardan kurar (umu da geçirir); Steam'siz panel verir
     env.update(PROTON_SET_GAME_DRIVE='1', STEAM_COMPAT_INSTALL_PATH=game, STEAM_COMPAT_LIBRARY_PATHS=os.path.dirname(game))
     dll_override(env, 'winhttp=n,b')
     if not vulkan32():
         env.setdefault('PROTON_USE_WOW64', '1')
     if r['umu']:
-        env.update(WINEPREFIX=r['onek'], PROTON_VERB='run')
-        if r['yol']:
-            env['PROTONPATH'] = r['yol']
+        env.update(WINEPREFIX=r['prefix'], PROTON_VERB='run')
+        if r['route']:
+            env['PROTONPATH'] = r['route']
         return [r['umu'], exe] + args, env
-    env.update(STEAM_COMPAT_DATA_PATH=r['onek'], STEAM_COMPAT_CLIENT_INSTALL_PATH=r['steam'] or r['onek'])
-    return [os.path.join(r['yol'], 'proton'), 'run', exe] + args, env
+    env.update(STEAM_COMPAT_DATA_PATH=r['prefix'], STEAM_COMPAT_CLIENT_INSTALL_PATH=r['steam'] or r['prefix'])
+    return [os.path.join(r['route'], 'proton'), 'run', exe] + args, env
 
 
 def summary(cfg):
@@ -297,4 +297,4 @@ def summary(cfg):
     if WINDOWS:
         return None
     return dict(find(cfg), platform='darwin' if MAC else sys.platform, protons=protons(), wines=wines(),
-                default_prefix={k: default_prefix(k) for k in ('wine', 'proton', 'motor')}, motor=engine().state() if MAC else None)
+                default_prefix={k: default_prefix(k) for k in ('wine', 'proton', 'engine')}, engine=engine().state() if MAC else None)

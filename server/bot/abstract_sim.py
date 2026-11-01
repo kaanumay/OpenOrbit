@@ -32,7 +32,7 @@ def go(bot, target, y=None, now=None):
         if cpu and EX.use(bot, cpu):
             jump_to(bot, target, y)
             bot.en_route = None
-            bot.ist('atlama_cpu')
+            bot.ist('jump_cpu')
             return True
     bot.en_route = route[1:]
     bot.en_route_time = now + jump_duration(bot)
@@ -60,7 +60,7 @@ def jump_to(bot, target, y):
     old = bot.k['harita']
     bot.k['harita'] = int(target)
     bot.k['x'] = bot.k['y'] = 0
-    seen = bot.k.setdefault('gorulen', [])
+    seen = bot.k.setdefault('seen', [])
     if int(target) not in seen:
         seen.append(int(target))
     if y is not None:
@@ -70,7 +70,7 @@ def jump_to(bot, target, y):
 def _collect_boxes(bot, dt, speed):
     """Mermisi yok: kasamaz, oyuncu gibi bonus kutusu toplar (kutudan cephane ve kredi gelir; parası bitmiş bot böyle toparlanır)."""
     from . import weapons as WP
-    k = dt / 3600.0 * speed * 0.5 * (1 - 0.35 * bot.mood['yorgunluk'])
+    k = dt / 3600.0 * speed * 0.5 * (1 - 0.35 * bot.mood['fatigue'])
     box = BONUS_URIDIUM_PER_HOUR * (1 + bot.level / 6.0) * k * x1_cut(bot)
     bot.reward('kutu', uridyum=box)
     WP.box_ammo(bot, box / BOX_URIDIUM)
@@ -83,14 +83,14 @@ def farm(bot, dt, y, target_kind=None):
     from . import weapons as WP
     speed = y.speed(bot) if y is not None else 1.0
     d = bot.value()
-    courage = max(0.0, min(1.0, 0.3 + 0.6 * bot.o('risk') + 0.2 * bot.mood['ozguven'] - 0.3))
+    courage = max(0.0, min(1.0, 0.3 + 0.6 * bot.o('risk') + 0.2 * bot.mood['confidence'] - 0.3))
     r = K.evaluate_map(bot.game_map, d['dps'], d['ehp'], courage)
-    if not r['hedefler']:
+    if not r['targets']:
         if not WP.pick_laser(bot) and not WP.pick_rocket(bot):
             _collect_boxes(bot, dt, speed)        # gücüne uygun uzaylı olmayan haritada da (yoksa mermisiz bot orada hiç toparlanmıyordu)
         return
     nv = K.npc_value(target_kind) if target_kind else None
-    ehp_avg = nv['ehp'] if nv else sum(K.npc_value(t)['ehp'] * v for t, v in r['oldurme'].items()) / max(1e-9, sum(r['oldurme'].values()))
+    ehp_avg = nv['ehp'] if nv else sum(K.npc_value(t)['ehp'] * v for t, v in r['kills'].items()) / max(1e-9, sum(r['kills'].values()))
     lasers, rocket, dps, laser_dps = WP.grind_plan(bot, ehp_avg)
     if not lasers and not rocket:
         _collect_boxes(bot, dt, speed)
@@ -99,17 +99,17 @@ def farm(bot, dt, y, target_kind=None):
     ehp = d['ehp'] * (1 + 0.5 * LB.bonus(bot, LB.SHIELD))      # kalkan yükü (kalkan payı ~yarısı)
     if abs(dps - d['dps']) > 1e-6 or ehp != d['ehp']:
         r = K.evaluate_map(bot.game_map, dps, ehp, courage)
-        if not r['hedefler']:
+        if not r['targets']:
             return
     # verim: gürültülü (sabırsız bot dalgalı), yorgunken düşük
-    efficiency = max(0.2, bot.r.gauss(PS.ACTIVITY[bot.archetype][1], 0.12 + 0.2 * (1 - bot.o('sabir')))) * (1 - 0.35 * bot.mood['yorgunluk'])
+    efficiency = max(0.2, bot.r.gauss(PS.ACTIVITY[bot.archetype][1], 0.12 + 0.2 * (1 - bot.o('patience')))) * (1 - 0.35 * bot.mood['fatigue'])
     from . import extras as EX
     efficiency *= 1 + 0.04 * EX.repair_level(bot)          # onarım robotu: toparlanmaya daha az zaman
     k = dt / 3600.0 * speed * efficiency
-    kills = r['oldurme']
+    kills = r['kills']
     if target_kind and target_kind in kills:
         kills = {target_kind: kills[target_kind] * 1.6}      # yalnız istediğini kovalar: o türden daha çok
-        ratio = sum(kills.values()) / max(1e-9, sum(r['oldurme'].values()))
+        ratio = sum(kills.values()) / max(1e-9, sum(r['kills'].values()))
         k_reward = k * min(1.0, ratio)
     else:
         k_reward = k
@@ -131,21 +131,21 @@ def farm(bot, dt, y, target_kind=None):
         if n:
             total += n
             from . import society as TB
-            bot.ist('npc_puan', TB.npc_rank_points(tip) * n)
+            bot.ist('npc_points', TB.npc_rank_points(tip) * n)
             from . import loot as LT
             LT.extra_loot(bot, tip, n)                   # Scrapium, Mucosum, günlük dosyası …
             if bot.permission.get('kargo', True):             # kargo kutuları: sabırlı oyuncu hepsini toplar, aceleci çoğunu bırakır
-                take = (0.55 + 0.4 * bot.o('sabir')) * bot.game_settings.multiplier('toplama', 'kargo') * (1 + LT.booster_share(bot, 'COLLECT_RESOURCES'))
+                take = (0.55 + 0.4 * bot.o('patience')) * bot.game_settings.multiplier('collecting', 'kargo') * (1 + LT.booster_share(bot, 'COLLECT_RESOURCES'))
                 bot.add_cargo({t: int(v * n * take) for t, v in K.npc_cargo(tip, bot.level, bot.game_map).items()})
             if y is not None:
                 y.npc_killed(bot, tip, n)
     if total:
         bot.ist('npc', total)
-        bot.mood.it(moral=0.002 * total)
+        bot.mood.it(morale=0.002 * total)
     from . import loot as LT, events as IX
     LT.abstract(bot, dt, y)                                 # haritanın anahtarlı kutuları
     IX.abstract(bot, dt, y, dps)                            # etkinlik uzaylıları, düşmeleri ve kutuları
-    if bot.r.random() < r['deaths_per_hour'] * dt / 3600.0 * (0.6 + 0.8 * (1 - bot.o('sabir')) * 0.5):
+    if bot.r.random() < r['deaths_per_hour'] * dt / 3600.0 * (0.6 + 0.8 * (1 - bot.o('patience')) * 0.5):
         death(bot, y, reason='npc', now=y.now if y is not None else None)
 
 
@@ -161,15 +161,15 @@ def pick_repair(bot, y, killer=None):
     portalında) ya da 'yerinde' (1.000 U, canın %10'u ve 10 sn koruma). Pahalılar ancak uridyumu bolsa: yerinde sabırsızlık ve
     intikam hırsıyla, portal evden uzaklıkla ve cömertlikle. Ödenen uridyum düşer."""
     m = bot.game_map
-    if m not in K.MAPS or y is not None and y.mode == 'basit':
+    if m not in K.MAPS or y is not None and y.mode == 'simple':
         return 'istasyon'
     route = K.route(m, K.ev(bot.firma), bot.firma, bot.level)
     far = len(route) - 1 if route else 0
     if far < 1:
         return 'istasyon'                           # zaten evinde: istasyon tamiri hem ücretsiz hem yakın
-    C, k, frugality = K.ITEMS['death_screen'], bot.game_settings.multiplier('tamir_ucreti'), bot.o('tutumluluk')
-    for kind, price, urge in (('yerinde', C['in_place_uridium'] * k,
-                               0.12 * (1 - bot.o('sabir')) + (0.3 * bot.mood['ofke'] if killer else 0.0)),
+    C, k, frugality = K.ITEMS['death_screen'], bot.game_settings.multiplier('repair_cost'), bot.o('frugality')
+    for kind, price, urge in (('in_place', C['in_place_uridium'] * k,
+                               0.12 * (1 - bot.o('patience')) + (0.3 * bot.mood['anger'] if killer else 0.0)),
                               ('portal', C['portal_uridium'] * k, 0.1 * far * (1.2 - frugality))):
         if bot.k['uridyum'] >= price * (3 + 5 * frugality) and bot.r.random() < urge:     # birikimin küçük bir payıysa öder
             bot.earn(uridyum=-int(round(price)))
@@ -183,14 +183,14 @@ def death(bot, y, reason='npc', killer=None, now=None):
     sürede. Kargo kalır (oyuncu da ölünce kargosunu kaybetmez)."""
     now = now or (y.now if y is not None else time.time())
     bot.ist('olum')
-    bot.mood.it(ofke=0.35 if killer else 0.15, moral=-0.15, ozguven=-0.12)
+    bot.mood.it(anger=0.35 if killer else 0.15, morale=-0.15, confidence=-0.12)
     if killer:
-        bot.memory.event(killer, 'oldurdu_beni', now)
+        bot.memory.event(killer, 'killed_me', now)
     repair = pick_repair(bot, y, killer)
-    bot.event('olum', now, neden=reason, killer=killer, harita=H.name(bot.game_map), tamir=repair)
+    bot.event('olum', now, neden=reason, killer=killer, harita=H.name(bot.game_map), repair=repair)
     bot.en_route = None
     bot.dead_until = now + bot.r.uniform(*DEATH_WAIT)
-    if y is not None and y.mode == 'basit':
+    if y is not None and y.mode == 'simple':
         y.bot_died(bot, killer)
         bot.next_decision = bot.dead_until
         return                                      # basit kip: aynı haritada yeniden doğar
@@ -240,22 +240,22 @@ def encounter(a, b, y, now=None):
     gb = max(0.5, b.value()['power']) * EX.pvp_factor(b) * TECH.pvp_factor(b)
     ratio = gb / ga                                 # >1: b daha güçlü
     if ratio < 0.6 and b.r.random() < 1 - b.o('risk') and EX.cloak(b):          # gizlenme CPU'su: görünmeden sıvışır
-        b.ist('gizlendi')
-        return ('kacti', b, a)
+        b.ist('hidden')
+        return ('fled', b, a)
     from . import weapons as WP
     mine_choice = WP.pick_mine(b)                      # kaçan arkasına mayın bırakır: kovalayan yavaşlar
     # b kaçar mı: temkinli ve zayıfsa
-    flee = ratio < 0.8 and b.r.random() < (1 - b.o('risk')) * (1 - ratio) + 0.2 * (1 - b.o('saldirganlik'))
+    flee = ratio < 0.8 and b.r.random() < (1 - b.o('risk')) * (1 - ratio) + 0.2 * (1 - b.o('aggression'))
     if flee and b.r.random() < 0.55 + 0.25 * (b.value()['hiz'] > a.value()['hiz']) + 0.15 * bool(mine_choice and WP.spend(b, mine_choice, 1)):
         b.memory.event(a.name, 'hakaret', now, multiplier=0.5)
-        b.mood.it(ofke=0.1, ozguven=-0.05)
-        return ('kacti', b, a)
+        b.mood.it(anger=0.1, confidence=-0.05)
+        return ('fled', b, a)
     pa = ga ** 1.5 / (ga ** 1.5 + gb ** 1.5)       # güçlü olanın üstünlüğü doğrusal değil
     pa = 0.08 + 0.84 * pa                          # sürpriz her zaman mümkün
     winner, loser = (a, b) if a.r.random() < pa else (b, a)
     pvp_reward(winner, loser, y, now)
-    death(loser, y, reason='oyuncu', killer=winner.name, now=now)
-    return ('kazandi', winner, loser)
+    death(loser, y, reason='player', killer=winner.name, now=now)
+    return ('won', winner, loser)
 
 
 def pvp_reward(winner, loser, y, now):
@@ -264,9 +264,9 @@ def pvp_reward(winner, loser, y, now):
     multiplier = max(1, loser.level // 2)
     speed = y.speed(winner) if y is not None else 1.0
     winner.reward(None, speed, ep=kill_rewards['ep_points'] * multiplier, onur=kill_rewards['honor_points'] * multiplier)
-    winner.ist('oyuncu')
+    winner.ist('player')
     from . import society as TB
-    winner.ist('oyuncu_puan', TB.ship_rank_points(loser.k['ekip']['gemi']))
-    winner.mood.it(moral=0.1, ozguven=0.08, ofke=-0.2)
+    winner.ist('player_points', TB.ship_rank_points(loser.k['gear']['gemi']))
+    winner.mood.it(morale=0.1, confidence=0.08, anger=-0.2)
     winner.memory.event(loser.name, 'oldurdum', now)
     winner.event('oldurdum', now, victim=loser.name)

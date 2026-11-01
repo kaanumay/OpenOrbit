@@ -43,12 +43,12 @@ def loot(l, n):
 
 def dispatch_day(now=None):
     import event_calendar as CAL                       # takvim.py: dispatch_gunu (pazartesi ve cuma)
-    return CAL.is_active('dispatch_gunu', now)
+    return CAL.is_active('dispatch_day', now)
 
 
 def gate_day(now=None):
     import event_calendar as CAL                       # takvim.py: gg_cift_odul (Pazar GG Double Rewards)
-    return CAL.is_active('gg_cift_odul', now)
+    return CAL.is_active('gg_double_reward', now)
 
 
 def event_ranges(code, now=None):
@@ -70,21 +70,21 @@ class Dispatch:
     @property
     def st(self):
         d = self.p.d.setdefault('dispatch', {})
-        d.setdefault('yuva', D['yuvalar']['baslangic'])
-        d.setdefault('gonderilen', {})
+        d.setdefault('yuva', D['slots']['baslangic'])
+        d.setdefault('sent', {})
         d.setdefault('kapilar', {})
         return d
 
     def free_slot(self):
-        return next((s for s in range(1, self.st['yuva'] + 1) if str(s) not in self.st['gonderilen']), None)
+        return next((s for s in range(1, self.st['yuva'] + 1) if str(s) not in self.st['sent']), None)
 
     def slot_info(self):
-        busy = len(self.st['gonderilen'])
+        busy = len(self.st['sent'])
         return ('DispatchSlotInfoCommand', dict(currentMaxSlotCount=self.st['yuva'], availableSlotCount=self.st['yuva'] - busy))
 
     def slot_costs(self):
         return ('DispatchSlotCostCommand', {'slotCosts': [mod('DispatchSlotModule', slotId=int(s), costList=[loot(l, n) for l, n in c.items()])
-                                                          for s, c in sorted(D['yuvalar']['fiyatlar'].items())]})
+                                                          for s, c in sorted(D['slots']['prices'].items())]})
 
     def event(self, now=None):
         return ('DispatchActiveEventCommand', {'activeEvent': DISPATCH_DAY if dispatch_day(now) else GALAXY_GATE_DAY if gate_day(now) else EVENT_NONE})
@@ -99,7 +99,7 @@ class Dispatch:
             lst = [mod('DispatchModule', duration=SET.duration(r['sure_sn'], 'dispatch'), id=int(i), slotId=0) for i, r in sorted(R.items(), key=lambda x: int(x[0]))]
         else:
             lst = [mod('DispatchModule', duration=max(0, int(g['bitis'] - now)), id=g['id'], slotId=int(s))
-                   for s, g in sorted(self.st['gonderilen'].items())]
+                   for s, g in sorted(self.st['sent'].items())]
         return [('DispatchGetRetrieverListCommand', dict(statusType=status, retrieverList=lst)), self.event(now)]
 
     def send(self, f):
@@ -110,13 +110,13 @@ class Dispatch:
         slot = self.free_slot()
         if not slot:
             return [('DispatchMessageCommand', {'messageType': ERROR_NO_SLOT})]
-        miss = INV.missing(self.p, r['ucret'])
+        miss = INV.missing(self.p, r['fee'])
         if miss:
             self.log('   Dispatch: %s için yetmiyor %s' % (r['code'], miss))
             return [('DispatchLootMessageCommand', dict(messageType=NO_RESOURCE, loots=[loot(l, n) for l, n in miss.items()]))]
-        removed = INV.spend(self.p, r['ucret'], reason='buy_SPECIAL', detail=r['code'])
+        removed = INV.spend(self.p, r['fee'], reason='buy_SPECIAL', detail=r['code'])
         with self.p.lock:
-            self.st['gonderilen'][str(slot)] = dict(id=int(rid), bitis=time.time() + SET.duration(r['sure_sn'], 'dispatch'))
+            self.st['sent'][str(slot)] = dict(id=int(rid), bitis=time.time() + SET.duration(r['sure_sn'], 'dispatch'))
             self.p.dirty = True
         self.p.ach('dispatch_send', code=r['code'])
         self.log('   Dispatch: %s gönderildi (yuva %d, %d sn)' % (r['code'], slot, r['sure_sn']))
@@ -124,7 +124,7 @@ class Dispatch:
         # önbelleğinden açık sekmeye çiziyor (DispatchGetRetrieverListUpdateEvent -> CreateUIDispatchProgressItem; yalnız
         # statusType 1 önbelleği yeniler). Süren listesi Available'a çiziliyordu (H34), Available listesi de eski önbelleği: son
         # gönderim görünmüyor, sekme seçili değildi (kullanıcı 2026-10-18). IN PROGRESS sekmesi açılınca istemci listeyi ister.
-        return (INV.update_msgs(self.m, self.p, list(r['ucret']), removed)
+        return (INV.update_msgs(self.m, self.p, list(r['fee']), removed)
                 + [('DispatchMessageCommand', {'messageType': SUCCESS_SEND_RETRIEVER}), self.slot_info()])
 
     @staticmethod
@@ -134,7 +134,7 @@ class Dispatch:
         if tab:
             return {l: v[r['kademe'] - 1] for l, v in tab.items() if v[r['kademe'] - 1]}
         f_ = 1 + D['tier_increase'] * (r['kademe'] - 1)
-        return {l: max(1, int(round(n * f_))) for l, n in D['sabit'][r['series']].items()}
+        return {l: max(1, int(round(n * f_))) for l, n in D['fixed'][r['series']].items()}
 
     @staticmethod
     def amount(x, r):
@@ -150,7 +150,7 @@ class Dispatch:
         r = R[str(rid)]
         f = D['dispatch_day_multiplier'] if dispatch_day(now) else 1
         out = {l: max(1, int(round(n * f))) for l, n in Dispatch.fixed(r).items()}
-        pool = [x for x in D['oduller'][r['code']] if x not in out]
+        pool = [x for x in D['rewards'][r['code']] if x not in out]
         extra = sum(1 for l in out if l not in ('currency_experience', 'resource_collectable_solidus'))   # A-01/02 LCB-10, PLT-2026 …
         for _ in range(min(D['reward_count'] - extra, len(pool))):
             weights = [D['sparse'].get(x, 1.0) for x in pool]
@@ -171,7 +171,7 @@ class Dispatch:
 
     def collect(self, f, now=None):
         slot = str(f.get('slotId'))
-        g = self.st['gonderilen'].get(slot)
+        g = self.st['sent'].get(slot)
         now = now or time.time()
         if not g:
             return [('DispatchMessageCommand', {'messageType': ERROR_COLLECT})]
@@ -179,7 +179,7 @@ class Dispatch:
             return [('DispatchMessageCommand', {'messageType': ERROR_NOT_READY})]
         items = self.rewards(g['id'], now)
         with self.p.lock:
-            del self.st['gonderilen'][slot]
+            del self.st['sent'][slot]
             self.p.dirty = True
         self.p.ach('dispatch_collect', code=R[str(g['id'])]['code'])
         self.p.ach('dispatch', olay='DISPATCH_RETRIEVER')            # başarım: "N Retriever Dispatch"
@@ -189,7 +189,7 @@ class Dispatch:
 
     def instant(self, f):
         slot = str(f.get('slotId'))
-        g = self.st['gonderilen'].get(slot)
+        g = self.st['sent'].get(slot)
         if not g:
             return [('DispatchMessageCommand', {'messageType': ERROR_COLLECT})]
         cost = R[str(g['id'])]['instant']
@@ -204,9 +204,9 @@ class Dispatch:
 
     def buy_slot(self, f=None):
         nxt = self.st['yuva'] + 1
-        if nxt > D['yuvalar']['azami']:
+        if nxt > D['slots']['azami']:
             return [('DispatchMessageCommand', {'messageType': ERROR_MAX_SLOT})]
-        cost = D['yuvalar']['fiyatlar'].get(str(nxt), {})
+        cost = D['slots']['prices'].get(str(nxt), {})
         miss = INV.missing(self.p, cost)
         if miss:
             return [('DispatchLootMessageCommand', dict(messageType=NO_RESOURCE, loots=[loot(l, n) for l, n in miss.items()]))]
@@ -222,7 +222,7 @@ class Dispatch:
         if not r:
             return []
         fixed = Dispatch.fixed(r)
-        pool = [x for x in D['oduller'][r['code']] if x not in fixed]
+        pool = [x for x in D['rewards'][r['code']] if x not in fixed]
         total = sum(D['sparse'].get(x, 1.0) for x in pool)
         lst = [mod('DispatchRewardModule', lootId=l, amount=n, chance=100) for l, n in fixed.items()]
         lst += [mod('DispatchRewardModule', lootId=x, amount=Dispatch.amount(x, r),

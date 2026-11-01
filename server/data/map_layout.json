@@ -3,14 +3,14 @@
  "_kaynak": {
   "5-X": "Engeller, Palladium alanları, mayın alanları, portal ve varış yerleri: Lyzard-NS/emu-dark NettyBaseReloaded/Game/World.cs (case 29/91/92/93) ve Spacemap.cs; fandom 5-1/5-3 harita kaplamalarıyla aynı (59 ve 87 dikdörtgen, ortanca sapma ~480 birim). Portalların firması istemcinin spacemap-config.xml ipuçlarından (emu-dark'ınkiyle çelişiyor); varış yeri portalın kendisine bağlı (emu-dark). 5-2 istasyonu (10400, 6800) emu-dark CreatePirateStation; yorumdaki SpaceStation3..23 parçaları istasyonun görünmez gövdesi, alansız çokgenler atlandı. 5-4 portalı fandom 5-4 \"top-right at roughly 193-34\". 5-3 çıkışları 4-4'te rastgele yere (emu-dark Vector.Random). Battleray'in yeri fandom 5-3 kaplaması (sağ alt, ~0,93 x 0,89).",
   "X-BL": "Duvarlar, portallar, görev verici ve CBS: oyuncuların mini harita ekran görüntüleri (board-fr 127829 s. 70; 385x275, iç çerçeve x 27-373, y 48-262 piksel; 1 piksel ~61 birim). İnler forumun tarifinden: 1-BL Invoke sol dikdörtgende, Mindfire sağ dikdörtgende; 2-BL Invoke alt dikdörtgende, Mindfire orta-sol karede; 3-BL Invoke sağ, Mindfire sol dikdörtgende (en çok 3 Invoke, 1 Mindfire; 15 dk). Portal güvenli bölgeleri \"çok küçük\" (FR70).",
-  "resmi_kayit": "Resmî sunucunun 2026-10-25 kaydı (server/kayit/referans, yerelde; OpenOrbitReferans eklentisi): 5-1, 5-2, 5-3 ve BL-2'nin bütün bölgeleri (engeller, Palladium, mayın alanları, 5-2 istasyonunun gövdesi ve Equippable Zone'u), 4-5, 5-X, 2-8 ve BL-2 portalları, 4-5 -> 5-1 -> 5-2 -> 5-3 varış yerleri (hedefte aynı firmanın tek yönlü portalı), 5-2 istasyonu (merkez, güvenli bölge 1.500, ticaret noktası), BL-2 görev vericisi, 2-1 ve 2-8'in kapı/mod portalları. Aşağıdaki 5-X ve X-BL kaynaklarının bu haritalardaki yerini aldı (5-3'ün inleri, 1-BL ve 3-BL eski kaynaktan).",
+  "official_recording": "Resmî sunucunun 2026-10-25 kaydı (server/kayit/referans, yerelde; OpenOrbitReferans eklentisi): 5-1, 5-2, 5-3 ve BL-2'nin bütün bölgeleri (engeller, Palladium, mayın alanları, 5-2 istasyonunun gövdesi ve Equippable Zone'u), 4-5, 5-X, 2-8 ve BL-2 portalları, 4-5 -> 5-1 -> 5-2 -> 5-3 varış yerleri (hedefte aynı firmanın tek yönlü portalı), 5-2 istasyonu (merkez, güvenli bölge 1.500, ticaret noktası), BL-2 görev vericisi, 2-1 ve 2-8'in kapı/mod portalları. Aşağıdaki 5-X ve X-BL kaynaklarının bu haritalardaki yerini aldı (5-3'ün inleri, 1-BL ve 3-BL eski kaynaktan).",
   "5-4": "fandom 5-4: 5-2'den atlayınca haritanın sağ tarafında kırık portallardan birinin yanına ışınlanılır, çıkış portalı solda (30-50 civarı). Varış yerleri 5-3'ün sağdaki kırık portallarının (aynı boyut, 42000x26200) firma başına yerleri (UYARLAMA: 5-4 için kayıt yok; 5-2'nin 93 varışlarıyla aynı üç nokta). Enkaz engelleri ve 4-4 çıkışı kaynakta koordinatsız: kayıt gelene dek eklenmedi (harita.EXTRA_GATES: dönüş portalı 5-2'ye, solda)"
  },
  "_uyarlama": "X-BL portal güvenli bölgesi 500; 1-BL ve 3-BL'nin engel tasarımı ve görev vericinin yaklaşma bölgesi (150) BL-2'ninki (ölçülmedi); inlerin tam yeri; mayın türü ACM-01 ve sayısı (alan başına mayin_adet; emu-dark 150); mayın alanları harita dışına taşıyor (kayıttaki gibi), mayınlar harita içine düşer.",
  "mayin": {
   "tur": "ammunition_mine_acm-01",
   "adet": 150,
-  "yeniden_sn": [
+  "renew_sec": [
    30,
    60
   ],
@@ -78,7 +78,7 @@
      6000
     ]
    },
-   "yapi": [
+   "structure": [
     17500,
     6000
    ],
@@ -92,7 +92,7 @@
      12000
     ]
    },
-   "yapi": [
+   "structure": [
     10000,
     10500
    ],
@@ -127,7 +127,7 @@
      1500
     ]
    },
-   "yapi": [
+   "structure": [
     10000,
     3000
    ],
@@ -213,7 +213,7 @@
      12000
     ]
    },
-   "yapi": [
+   "structure": [
     17500,
     6000
    ],
@@ -240,7 +240,7 @@
   },
   "21": {
    "_name": "2-5",
-   "yapi": [
+   "structure": [
     3262,
     10689
    ],
@@ -254,7 +254,7 @@
      1500
     ]
    },
-   "yapi": [
+   "structure": [
     3262,
     2881
    ],
@@ -769,7 +769,7 @@
      6800
     ]
    },
-   "varis": {
+   "arrival": {
     "91921": [
      18200,
      3600
@@ -784,7 +784,7 @@
     ]
    },
    "palladium": {
-    "alan": [
+    "area": [
      18700,
      11800,
      23300,
@@ -1352,7 +1352,7 @@
      5400
     ]
    },
-   "varis": {
+   "arrival": {
     "92931": [
      38200,
      6600
@@ -1378,11 +1378,11 @@
      2500
     ]
    },
-   "yapi": [
+   "structure": [
     10500,
     6750
    ],
-   "guvenli": [
+   "safe": [
     [
      10500,
      6750,
@@ -2139,13 +2139,13 @@
      17500
     ]
    },
-   "varis": {
-    "920038": "rastgele",
-    "920040": "rastgele",
-    "920042": "rastgele"
+   "arrival": {
+    "920038": "random",
+    "920040": "random",
+    "920042": "random"
    },
    "palladium": {
-    "alan": [
+    "area": [
      11857,
      18000,
      32315,
@@ -2255,7 +2255,7 @@
   },
   "29": {
    "_name": "4-5",
-   "varis": {
+   "arrival": {
     "29911": [
      36800,
      6800
@@ -2474,7 +2474,7 @@
      11900
     ]
    },
-   "yapi": [
+   "structure": [
     9750,
     7300
    ],
@@ -2900,7 +2900,7 @@
      7996
     ]
    },
-   "yapi": [
+   "structure": [
     11615,
     7309
    ],
@@ -3204,7 +3204,7 @@
      12100
     ]
    },
-   "yapi": [
+   "structure": [
     10600,
     12200
    ],

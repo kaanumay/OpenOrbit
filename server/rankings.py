@@ -11,7 +11,7 @@ import json, os, re, time
 HERE = os.path.dirname(os.path.abspath(__file__))
 _P = os.path.join(HERE, 'data', 'ranking_rewards.json')
 _D = json.load(open(_P, encoding='utf8')) if os.path.exists(_P) else {}
-TABLES = {int(k): v for k, v in _D.get('tablolar', {}).items()}
+TABLES = {int(k): v for k, v in _D.get('tables', {}).items()}
 SET_TITLES = {t for k, v in _D.get('title_sets', {}).items() if not k.startswith('_') for t in v}
 MONTHS = ('jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec')
 PLUTUS, EBL, ASTRAL = 2, 7, 9
@@ -60,8 +60,8 @@ def set_title(key, now=None):
 
 def items(r, now=None):
     out = [mod('RewardModule', lootId=l, amount=a) for l, a in r['esyalar']]
-    if r.get('unvan'):
-        out.append(mod('RewardTitleModule', titleKey=set_title(r['unvan'], now)))
+    if r.get('title'):
+        out.append(mod('RewardTitleModule', titleKey=set_title(r['title'], now)))
     return out
 
 

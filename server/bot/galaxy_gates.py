@@ -23,7 +23,7 @@ _difficulty = {}
 
 
 def state(bot):
-    return bot.k.setdefault('kapi', {'parca': {}, 'kurulu': [], 'carpan': 0, 'kronos': 0})
+    return bot.k.setdefault('kapi', {'part': {}, 'built': [], 'carpan': 0, 'kronos': 0})
 
 
 def stock(bot):
@@ -42,11 +42,11 @@ def difficulty(gate):
     out, reward = [], {}
     for d in waves:
         ehp = dps = 0.0
-        for u in d.get('uzaylilar', []):
+        for u in d.get('alien_spawns', []):
             n = u.get('adet', 1)
             ehp += n * (u.get('hp', 0) + u.get('kalkan', 0))
-            dps += min(n, 2) * u.get('hasar', 0) * K.COMBAT['npc_isabet'] * 0.6 / K.NPC_INTERVAL  # oyuncu tek tek çeker, menzilden kaçar
-            for k, v in (u.get('odul') or {}).items():
+            dps += min(n, 2) * u.get('hasar', 0) * K.COMBAT['npc_hit_chance'] * 0.6 / K.NPC_INTERVAL  # oyuncu tek tek çeker, menzilden kaçar
+            for k, v in (u.get('reward') or {}).items():
                 reward[k] = reward.get(k, 0) + v * n
         out.append((ehp, dps))
     _difficulty[gate] = (out, reward)
@@ -79,16 +79,16 @@ def draw(bot, gate, n):
     for _ in range(n):
         if s.get(ENERGY, 0) > 0:
             s[ENERGY] -= 1
-        elif not bot.pay('U', D['energy_price'] * bot.game_settings.multiplier('magaza_fiyat')):
+        elif not bot.pay('U', D['energy_price'] * bot.game_settings.multiplier('shop_price')):
             break
         crafted += 1
         _draw(bot, st, gate)
-        if gate in st['kurulu'] or (gate in ABG and all(k in st['kurulu'] for k in ABG)):
+        if gate in st['built'] or (gate in ABG and all(k in st['built'] for k in ABG)):
             break
     if s.get(ENERGY) == 0:
         s.pop(ENERGY, None)
     if crafted:
-        bot.ist('kapi_cekilis', crafted)
+        bot.ist('gate_draw', crafted)
     return crafted
 
 
@@ -97,23 +97,23 @@ def _draw(bot, st, gate):
     r = bot.r
     cat = r.choices(list(PROBABILITY), weights=list(PROBABILITY.values()))[0]
     if cat == 4:
-        k = r.choice([x for x in ABG if x not in st['kurulu']] or [gate]) if gate in ABG else gate
-        total = KAPI[k]['parca']
-        var = st['parca'].get(k, 0)
+        k = r.choice([x for x in ABG if x not in st['built']] or [gate]) if gate in ABG else gate
+        total = KAPI[k]['part']
+        var = st['part'].get(k, 0)
         missing = (total - var) / total
         new_ = r.random() < missing + (1 - missing) * 0.5 or st['carpan'] >= D['max_multiplier']
         if new_:
             earn = 1 + (st['carpan'] if st['carpan'] >= D['max_multiplier'] else 0)
             st['carpan'] = 0 if earn > 1 else st['carpan']
-            st['parca'][k] = min(total, var + earn)
-            if st['parca'][k] >= total and k not in st['kurulu']:
-                st['kurulu'].append(k)
-                bot.event('kapi_kuruldu', kapi=KAPI[k]['ad'])
+            st['part'][k] = min(total, var + earn)
+            if st['part'][k] >= total and k not in st['built']:
+                st['built'].append(k)
+                bot.event('gate_set_up', kapi=KAPI[k]['ad'])
         else:
             st['carpan'] = min(D['max_multiplier'], st['carpan'] + 1)
         return
     if cat == 1:
-        loot, _, count = r.choice(D['cephane'])
+        loot, _, count = r.choice(D['ammunition'])
         WP.add(bot, loot, count)
     elif cat == 2:
         bot.k.setdefault('kargo', {})
@@ -128,7 +128,7 @@ def target_gate(bot):
     """Parça toplanacak kapı: kurulmamış ve botun tahminen geçebileceği ilk kapı (oyuncuların sırası: ABG, sonra öteki)."""
     st = state(bot)
     for k in ORDER:
-        if k in st['kurulu'] or KAPI[k].get('not_producible'):
+        if k in st['built'] or KAPI[k].get('not_producible'):
             continue
         duration, death = estimate(bot, k)
         if death < KAPI[k]['can'] * 1.5:
@@ -144,8 +144,8 @@ def generator(bot):
     if not k:
         return 0
     n = stock(bot).get(ENERGY, 0)
-    t = bot.o('tutumluluk')
-    if bot.o('hirs') + bot.o('rekabet') > 1.1 and bot.k['uridyum'] > D['energy_price'] * 300 * (1 + 2 * t):
+    t = bot.o('frugality')
+    if bot.o('ambition') + bot.o('rekabet') > 1.1 and bot.k['uridyum'] > D['energy_price'] * 300 * (1 + 2 * t):
         n += int(bot.k['uridyum'] * 0.15 // D['energy_price'])
     return draw(bot, k, min(n, 200)) if n else 0
 
@@ -161,46 +161,46 @@ def run_result(bot, gate, rng=random):
 def grant_reward(bot, gate, speed=1.0):
     """Kapının tamamlama ödülü ve uzaylılarının öldürme ödülleri; Kronos parçası."""
     from . import weapons as WP
-    o = KAPI[gate].get('odul') or {}
+    o = KAPI[gate].get('reward') or {}
     if isinstance(o, str):
         import ast
         o = ast.literal_eval(o)
     _, aliens = difficulty(gate)
     bot.reward('gorev', speed, ep=o.get('ep', 0) + aliens.get('ep', 0), onur=o.get('onur', 0) + aliens.get('onur', 0),
              uridyum=o.get('uridyum', 0) + aliens.get('uridyum', 0), kredi=aliens.get('kredi', 0))
-    for loot, n in (o.get('cephane') or {}).items():
+    for loot, n in (o.get('ammunition') or {}).items():
         WP.add(bot, loot, n)
     if o.get('xenomit'):
         bot.k.setdefault('kargo', {})
         bot.k['kargo']['3'] = bot.k['kargo'].get('3', 0) + o['xenomit']
     s = stock(bot)
-    for loot, n in (('resource_logfile', o.get('log_disk', 0)), ('resource_jumpvoucher', o.get('kupon', 0)),
-                    ('resource_booty-key', (o.get('ganimet') or {}).get('yesil_anahtar', 0))):
+    for loot, n in (('resource_logfile', o.get('log_disk', 0)), ('resource_jumpvoucher', o.get('voucher', 0)),
+                    ('resource_booty-key', (o.get('booty') or {}).get('green_key', 0))):
         if n:
             s[loot] = s.get(loot, 0) + n
     st = state(bot)
     if gate != 'kronos':
-        st['kronos'] = min(KAPI['kronos']['parca'], st['kronos'] + 1)
-        if st['kronos'] >= KAPI['kronos']['parca'] and 'kronos' not in st['kurulu']:
-            st['kurulu'].append('kronos')
+        st['kronos'] = min(KAPI['kronos']['part'], st['kronos'] + 1)
+        if st['kronos'] >= KAPI['kronos']['part'] and 'kronos' not in st['built']:
+            st['built'].append('kronos')
     if gate not in st.setdefault('tamam', []):
         st['tamam'].append(gate)                      # kapı halkası (gorunum.halkalar)
-    bot.ist('kapi_tamam')
-    bot.event('kapi_tamam', kapi=KAPI[gate]['ad'])
+    bot.ist('gate_done')
+    bot.event('gate_done', kapi=KAPI[gate]['ad'])
 
 
 def record_duration(save, key, sec):
     """Kapının tamamlanma süresi (istatistik; oyuncu isteği 2026-10-30) -> kayit['kapi_sureleri'][key] {en_iyi, son, sayi} (sn)."""
-    d = save.setdefault('gate_times', {}).setdefault(key, {'best': 0, 'son': 0, 'sayi': 0})
+    d = save.setdefault('gate_times', {}).setdefault(key, {'best': 0, 'last': 0, 'sayi': 0})
     sec = int(max(1, sec))
-    d.update(son=sec, sayi=d['sayi'] + 1, best=min(d['best'], sec) if d['best'] else sec)
+    d.update(last=sec, sayi=d['sayi'] + 1, best=min(d['best'], sec) if d['best'] else sec)
     return d
 
 
 def can_run(bot):
     """Kurulu ve geçilebilir kapı ya da None."""
     st = state(bot)
-    for k in st['kurulu']:
+    for k in st['built']:
         if estimate(bot, k)[1] < KAPI[k]['can']:
             return k
     return None

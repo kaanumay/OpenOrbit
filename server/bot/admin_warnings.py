@@ -69,15 +69,15 @@ def topics(text):
 
 def active(b, topic, now=None):
     """Bot bu konuda yöneticinin uyarısı altında mı."""
-    u = b.k.get('uyari') or {}
+    u = b.k.get('warning') or {}
     return (now or time.time()) < u.get(topic, 0)
 
 
 def warn(b, talk, now, name=''):
     """Uyarıyı uygula (süreler tekrarla uzar) -> uygulanan konular."""
-    u = b.k.setdefault('uyari', {})
-    u['sayi'] = n = int(u.get('sayi', 0)) + 1 if now - u.get('son', 0) < 86400 else 1
-    u['son'] = now
+    u = b.k.setdefault('warning', {})
+    u['sayi'] = n = int(u.get('sayi', 0)) + 1 if now - u.get('last', 0) < 86400 else 1
+    u['last'] = now
     multiplier = min(8, 2 ** (n - 1))
     durations = {}
     for k in talk:
@@ -85,22 +85,22 @@ def warn(b, talk, now, name=''):
     for k, minutes in durations.items():
         u[k] = max(u.get(k, 0), now + minutes * 60 * multiplier)
     if name:
-        b.memory.event(name, 'uyarildim', now)
-    b.event('yonetici_uyardi', now, konu=','.join(sorted(durations)))
-    b.mood.it(moral=-0.05)
+        b.memory.event(name, 'warned', now)
+    b.event('admin_warned', now, konu=','.join(sorted(durations)))
+    b.mood.it(morale=-0.05)
     return set(durations)
 
 
 def note(b, now=None):
     """Persona notu (Gelişmiş kip): yöneticinin süren uyarısı."""
     now = now or time.time()
-    u = b.k.get('uyari') or {}
+    u = b.k.get('warning') or {}
     is_open = [k for k in DURATION_MIN if now < u.get(k, 0)]
     if not is_open:
         return ''
     ne = {'sohbet': 'spamming or rude chat', 'pvp': 'attacking or killing other pilots', 'kutu': "taking other pilots' cargo boxes"}
     return ' The game master warned him about %s %d min ago: he obeys and avoids it.' % (
-        ' and '.join(ne[k] for k in is_open), max(1, int((now - u.get('son', now)) // 60)))
+        ' and '.join(ne[k] for k in is_open), max(1, int((now - u.get('last', now)) // 60)))
 
 
 def system_note():
@@ -118,7 +118,7 @@ def system_note():
 def handle(m, g, now):
     """Sohbet motorunun gelen mesajı (SohbetMotoru.sohbet_isle): yöneticinin uyarısı ya da selamı -> işlendi mi (True: yanıtlar
     burada ya da dil modelinde, kalıplara gitmez)."""
-    if g[0] == 'fisilti':
+    if g[0] == 'whisper':
         _, b, msg, who = g
         listener, mentioned, channel = [b], [b], None
     else:
@@ -140,12 +140,12 @@ def handle(m, g, now):
         if m.llm is not None and m.llm.ready:
             return False                                 # dil modeli yanıtlar (persona notu ve sistem istemi)
         for b in (mentioned or [x for x in target if x.r.random() < 0.15])[:2]:
-            m.speak(b, channel or 'fisilti', SPC.template(b, 'yonetici_ozur', ad=name), recipient=name if channel is None else None, now=now,
+            m.speak(b, channel or 'whisper', SPC.template(b, 'yonetici_ozur', ad=name), recipient=name if channel is None else None, now=now,
                     priority=True)
         return True
     kind, _ = SPC.intent(msg)
     if kind == 'selam' and channel is not None and not mentioned and (m.llm is None or not m.llm.ready):
-        for b in [b for b in listener if b.r.random() < 0.5 + 0.4 * b.o('sosyallik')][:3]:
+        for b in [b for b in listener if b.r.random() < 0.5 + 0.4 * b.o('sociability')][:3]:
             m.speak(b, channel, SPC.template(b, 'yonetici_selam', ad=name), now=now, priority=True)
         return True
     return False
@@ -165,6 +165,6 @@ def sight_tick(y, now):
         if not nearby:
             continue
         last[w.map_id] = now
-        b = max(nearby, key=lambda b: b.o('konuskanlik') * b.r.random())
+        b = max(nearby, key=lambda b: b.o('talkativeness') * b.r.random())
         b.event('yonetici_gordu', now, harita=H.name(w.map_id))
         y.speak(b, 'firma', SPC.template(b, 'yonetici_gordu', harita=H.name(w.map_id)), now=now)

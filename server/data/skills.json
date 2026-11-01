@@ -11,8 +11,8 @@
     25
    ],
    "unit": "percent",
-   "etki": "mayin_yaricap",
-   "maliyet": [
+   "effect": "mine_radius",
+   "cost": [
     {
      "kredi": 10000,
      "seprom": 0,
@@ -39,7 +39,7 @@
      "puan": 1
     }
    ],
-   "on_kosul": [
+   "prerequisite": [
     {
      "puan": 1,
      "tur": "toplam",
@@ -61,8 +61,8 @@
     12
    ],
    "unit": "percent",
-   "etki": "ep",
-   "maliyet": [
+   "effect": "ep",
+   "cost": [
     {
      "kredi": 10000,
      "seprom": 0,
@@ -89,7 +89,7 @@
      "puan": 1
     }
    ],
-   "on_kosul": []
+   "prerequisite": []
   },
   "4": {
    "ad": "Logistics",
@@ -101,8 +101,8 @@
     25
    ],
    "unit": "percent",
-   "etki": "kargo_alani",
-   "maliyet": [
+   "effect": "cargo_space",
+   "cost": [
     {
      "kredi": 10000,
      "seprom": 0,
@@ -129,7 +129,7 @@
      "puan": 1
     }
    ],
-   "on_kosul": [
+   "prerequisite": [
     {
      "puan": 1,
      "tur": "toplam",
@@ -148,8 +148,8 @@
     14
    ],
    "unit": "percent",
-   "etki": "mayin",
-   "maliyet": [
+   "effect": "mayin",
+   "cost": [
     {
      "kredi": 10000,
      "seprom": 0,
@@ -161,7 +161,7 @@
      "puan": 1
     }
    ],
-   "on_kosul": []
+   "prerequisite": []
   },
   "5b": {
    "ad": "Detonation II",
@@ -171,8 +171,8 @@
     50
    ],
    "unit": "percent",
-   "etki": "mayin",
-   "maliyet": [
+   "effect": "mayin",
+   "cost": [
     {
      "kredi": 1000000,
      "seprom": 1000,
@@ -189,7 +189,7 @@
      "puan": 1
     }
    ],
-   "on_kosul": [
+   "prerequisite": [
     {
      "puan": 3,
      "tur": "toplam",
@@ -200,7 +200,7 @@
     },
     {
      "puan": 2,
-     "tur": "her_biri",
+     "tur": "each",
      "skills": [
       "5a"
      ]
@@ -217,8 +217,8 @@
     15
    ],
    "unit": "percent",
-   "etki": "roket",
-   "maliyet": [
+   "effect": "roket",
+   "cost": [
     {
      "kredi": 100000,
      "seprom": 100,
@@ -245,7 +245,7 @@
      "puan": 1
     }
    ],
-   "on_kosul": [
+   "prerequisite": [
     {
      "puan": 2,
      "tur": "toplam",
@@ -267,8 +267,8 @@
     12
    ],
    "unit": "percent",
-   "etki": "emme",
-   "maliyet": [
+   "effect": "absorb",
+   "cost": [
     {
      "kredi": 1000000,
      "seprom": 1000,
@@ -295,7 +295,7 @@
      "puan": 1
     }
    ],
-   "on_kosul": [
+   "prerequisite": [
     {
      "puan": 3,
      "tur": "toplam",
@@ -315,8 +315,8 @@
     25
    ],
    "unit": "percent",
-   "etki": "kredi",
-   "maliyet": [
+   "effect": "kredi",
+   "cost": [
     {
      "kredi": 1000000,
      "seprom": 1000,
@@ -343,7 +343,7 @@
      "puan": 1
     }
    ],
-   "on_kosul": [
+   "prerequisite": [
     {
      "puan": 3,
      "tur": "toplam",
@@ -364,8 +364,8 @@
     12
    ],
    "unit": "percent",
-   "etki": "npc_lazer",
-   "maliyet": [
+   "effect": "npc_laser",
+   "cost": [
     {
      "kredi": 100000,
      "seprom": 100,
@@ -392,10 +392,10 @@
      "puan": 1
     }
    ],
-   "on_kosul": [
+   "prerequisite": [
     {
      "puan": 2,
-     "tur": "her_biri",
+     "tur": "each",
      "skills": [
       "6",
       "21a"
@@ -413,8 +413,8 @@
     30
    ],
    "unit": "percent",
-   "etki": "onarim",
-   "maliyet": [
+   "effect": "repair",
+   "cost": [
     {
      "kredi": 10000,
      "seprom": 0,
@@ -441,7 +441,7 @@
      "puan": 1
     }
    ],
-   "on_kosul": [
+   "prerequisite": [
     {
      "puan": 1,
      "tur": "toplam",
@@ -463,8 +463,8 @@
     6
    ],
    "unit": "percent",
-   "etki": "kargo_kutusu",
-   "maliyet": [
+   "effect": "cargo_box",
+   "cost": [
     {
      "kredi": 100000,
      "seprom": 100,
@@ -491,7 +491,7 @@
      "puan": 1
     }
    ],
-   "on_kosul": [
+   "prerequisite": [
     {
      "puan": 2,
      "tur": "toplam",
@@ -513,8 +513,8 @@
     20
    ],
    "unit": "percent",
-   "etki": "bonus_kutusu",
-   "maliyet": [
+   "effect": "bonus_box",
+   "cost": [
     {
      "kredi": 1000000,
      "seprom": 1000,
@@ -541,7 +541,7 @@
      "puan": 1
     }
    ],
-   "on_kosul": [
+   "prerequisite": [
     {
      "puan": 5,
      "tur": "toplam",
@@ -560,8 +560,8 @@
     4
    ],
    "unit": "percent",
-   "etki": "kacinma",
-   "maliyet": [
+   "effect": "evasion",
+   "cost": [
     {
      "kredi": 100000,
      "seprom": 100,
@@ -573,7 +573,7 @@
      "puan": 1
     }
    ],
-   "on_kosul": [
+   "prerequisite": [
     {
      "puan": 2,
      "tur": "toplam",
@@ -592,8 +592,8 @@
     12
    ],
    "unit": "percent",
-   "etki": "kacinma",
-   "maliyet": [
+   "effect": "evasion",
+   "cost": [
     {
      "kredi": 1000000,
      "seprom": 1000,
@@ -610,7 +610,7 @@
      "puan": 1
     }
    ],
-   "on_kosul": [
+   "prerequisite": [
     {
      "puan": 3,
      "tur": "toplam",
@@ -620,7 +620,7 @@
     },
     {
      "puan": 2,
-     "tur": "her_biri",
+     "tur": "each",
      "skills": [
       "16a"
      ]
@@ -637,8 +637,8 @@
     25
    ],
    "unit": "percent",
-   "etki": "kalkan",
-   "maliyet": [
+   "effect": "kalkan",
+   "cost": [
     {
      "kredi": 10000,
      "seprom": 0,
@@ -665,7 +665,7 @@
      "puan": 1
     }
    ],
-   "on_kosul": [
+   "prerequisite": [
     {
      "puan": 1,
      "tur": "toplam",
@@ -684,8 +684,8 @@
     10000
    ],
    "unit": "absolute",
-   "etki": "can_mutlak",
-   "maliyet": [
+   "effect": "hp_flat",
+   "cost": [
     {
      "kredi": 10000,
      "seprom": 0,
@@ -697,7 +697,7 @@
      "puan": 1
     }
    ],
-   "on_kosul": []
+   "prerequisite": []
   },
   "18b": {
    "ad": "Ship Hull II",
@@ -707,8 +707,8 @@
     50000
    ],
    "unit": "absolute",
-   "etki": "can_mutlak",
-   "maliyet": [
+   "effect": "hp_flat",
+   "cost": [
     {
      "kredi": 100000,
      "seprom": 100,
@@ -725,7 +725,7 @@
      "puan": 1
     }
    ],
-   "on_kosul": [
+   "prerequisite": [
     {
      "puan": 2,
      "tur": "toplam",
@@ -737,7 +737,7 @@
     },
     {
      "puan": 2,
-     "tur": "her_biri",
+     "tur": "each",
      "skills": [
       "18a"
      ]
@@ -754,8 +754,8 @@
     25
    ],
    "unit": "percent",
-   "etki": "lazer_isabet",
-   "maliyet": [
+   "effect": "laser_hit_chance",
+   "cost": [
     {
      "kredi": 1000000,
      "seprom": 1000,
@@ -782,7 +782,7 @@
      "puan": 1
     }
    ],
-   "on_kosul": [
+   "prerequisite": [
     {
      "puan": 5,
      "tur": "toplam",
@@ -804,8 +804,8 @@
     10
    ],
    "unit": "percent",
-   "etki": "roket_isabet",
-   "maliyet": [
+   "effect": "rocket_hit_chance",
+   "cost": [
     {
      "kredi": 10000,
      "seprom": 0,
@@ -832,7 +832,7 @@
      "puan": 1
     }
    ],
-   "on_kosul": [
+   "prerequisite": [
     {
      "puan": 1,
      "tur": "toplam",
@@ -851,8 +851,8 @@
     8
    ],
    "unit": "percent",
-   "etki": "onur",
-   "maliyet": [
+   "effect": "onur",
+   "cost": [
     {
      "kredi": 100000,
      "seprom": 100,
@@ -864,7 +864,7 @@
      "puan": 1
     }
    ],
-   "on_kosul": [
+   "prerequisite": [
     {
      "puan": 2,
      "tur": "toplam",
@@ -884,8 +884,8 @@
     25
    ],
    "unit": "percent",
-   "etki": "onur",
-   "maliyet": [
+   "effect": "onur",
+   "cost": [
     {
      "kredi": 1000000,
      "seprom": 1000,
@@ -902,7 +902,7 @@
      "puan": 1
     }
    ],
-   "on_kosul": [
+   "prerequisite": [
     {
      "puan": 3,
      "tur": "toplam",
@@ -913,7 +913,7 @@
     },
     {
      "puan": 2,
-     "tur": "her_biri",
+     "tur": "each",
      "skills": [
       "21a"
      ]
@@ -927,8 +927,8 @@
     4
    ],
    "unit": "percent",
-   "etki": "pvp_lazer",
-   "maliyet": [
+   "effect": "pvp_laser",
+   "cost": [
     {
      "kredi": 100000,
      "seprom": 100,
@@ -940,7 +940,7 @@
      "puan": 1
     }
    ],
-   "on_kosul": [
+   "prerequisite": [
     {
      "puan": 2,
      "tur": "toplam",
@@ -959,8 +959,8 @@
     12
    ],
    "unit": "percent",
-   "etki": "pvp_lazer",
-   "maliyet": [
+   "effect": "pvp_laser",
+   "cost": [
     {
      "kredi": 1000000,
      "seprom": 1000,
@@ -977,7 +977,7 @@
      "puan": 1
     }
    ],
-   "on_kosul": [
+   "prerequisite": [
     {
      "puan": 3,
      "tur": "toplam",
@@ -988,7 +988,7 @@
     },
     {
      "puan": 2,
-     "tur": "her_biri",
+     "tur": "each",
      "skills": [
       "22a"
      ]
@@ -1002,8 +1002,8 @@
     4
    ],
    "unit": "percent",
-   "etki": "bonus_uridyum",
-   "maliyet": [
+   "effect": "bonus_uridium",
+   "cost": [
     {
      "kredi": 100000,
      "seprom": 100,
@@ -1015,7 +1015,7 @@
      "puan": 1
     }
    ],
-   "on_kosul": [
+   "prerequisite": [
     {
      "puan": 2,
      "tur": "toplam",
@@ -1033,8 +1033,8 @@
     12
    ],
    "unit": "percent",
-   "etki": "bonus_uridyum",
-   "maliyet": [
+   "effect": "bonus_uridium",
+   "cost": [
     {
      "kredi": 1000000,
      "seprom": 1000,
@@ -1051,10 +1051,10 @@
      "puan": 1
     }
    ],
-   "on_kosul": [
+   "prerequisite": [
     {
      "puan": 3,
-     "tur": "her_biri",
+     "tur": "each",
      "skills": [
       "22b",
       "16b"
@@ -1062,7 +1062,7 @@
     },
     {
      "puan": 2,
-     "tur": "her_biri",
+     "tur": "each",
      "skills": [
       "23a"
      ]

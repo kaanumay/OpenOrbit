@@ -33,7 +33,7 @@ PROFILE_PATH = arg('profile')
 os.makedirs(log_dir, exist_ok=True)
 lock = threading.Lock()
 SESSION = arg('session', 'localtest')
-BASE_URL = arg('adres', '127.0.0.1')
+BASE_URL = arg('address', '127.0.0.1')
 CHAT_HOST = arg('chat', '127.0.0.1:7771')
 UID = arg('uid')
 
@@ -57,7 +57,7 @@ def profile(path=None):
     p = path or PROFILE_PATH or default_profile()
     try:
         d = json.load(open(p, encoding='utf8'))
-        use2d = bool(((d.get('ayarlar') or {}).get('displaySettingsModule') or {}).get('displayUse2d'))
+        use2d = bool(((d.get('settings') or {}).get('displaySettingsModule') or {}).get('displayUse2d'))
         return d['pilot']['userId'], d['gemi']['typeId'], d['position']['mapId'], use2d
     except (OSError, KeyError, ValueError):
         return 1, 'ship_goliath', 1, False
@@ -103,7 +103,7 @@ def extra_session(sid):
     try:
         with _direct.open('http://%s/yerel/oturum?oturum=%s' % (GAME_SERVER, quote(sid)), timeout=3) as r:
             d = json.loads(r.read().decode('utf8'))
-        v = {'uid': int(d['uid']), 'yol': str(d['yol']), 'kayit': str(d.get('kayit') or '')}
+        v = {'uid': int(d['uid']), 'route': str(d['route']), 'record': str(d.get('record') or '')}
     except Exception:                   # 404 (bilinmeyen), sunucu tek oyunculu ya da kapalı
         v = None
     with lock:
@@ -117,7 +117,7 @@ def session(sid):
     if not sid or sid == SESSION:
         return SESSION, PROFILE_PATH or default_profile(), int(UID) if UID else None
     e = extra_session(sid)
-    return (sid, e['yol'], e['uid']) if e else None
+    return (sid, e['route'], e['uid']) if e else None
 
 
 def cookie(h, name):
@@ -253,9 +253,9 @@ def maps_xml():
 # çocuğu bir kapı (name = kapının istemcideki adı: alpha … hades, streuner), içindeki item'lar: id = lootId, chance = olasılık
 # sınıfı 1-5 ("dispatch_tooltip_description_dropChance-N": çok düşük … çok yüksek), min = adet (simge kademesi). Değerler
 # data/kapilar.json'un tamamlama ödülleri (oyunun kendi değerleri; panelin çarpanları uygulanmaz).
-GATE_LOOT = {'xenomit': 'resource_ore_xenomit', 'log_disk': 'resource_logfile', 'kupon': 'resource_repairvoucher',
-             'enerji': 'resource_extra-energy', 'abr': 'resource_collectable_axion-beam-regulator',
-             'schism': 'resource_collectable_schism', 'yesil_anahtar': 'resource_booty-key'}
+GATE_LOOT = {'xenomit': 'resource_ore_xenomit', 'log_disk': 'resource_logfile', 'voucher': 'resource_repairvoucher',
+             'energy': 'resource_extra-energy', 'abr': 'resource_collectable_axion-beam-regulator',
+             'schism': 'resource_collectable_schism', 'green_key': 'resource_booty-key'}
 
 
 def chance_class(p):
@@ -271,17 +271,17 @@ def gate_rewards_xml():
         gates = {}
     out = []
     for key, g in gates.items():
-        R = g.get('odul') or {}
+        R = g.get('reward') or {}
         rows = [('currency_experience', R.get('ep', 0), 1.0), ('currency_honour', R.get('onur', 0), 1.0),
                 ('currency_uridium', R.get('uridyum', 0), 1.0)]
-        rows += [(loot, n, 1.0) for loot, n in sorted((R.get('cephane') or {}).items())]
-        rows += [(GATE_LOOT[k], R.get(k, 0), 1.0) for k in ('xenomit', 'log_disk', 'kupon', 'enerji')]
-        rows += [(GATE_LOOT.get(k, k), n, 1.0) for k, n in sorted((R.get('ganimet') or {}).items())]
-        for s in R.get('sans', []):
-            if s.get('esya') == 'cevher_paketi':        # forum 129125: kapının cevher paketi, kalemleri ağırlığıyla
+        rows += [(loot, n, 1.0) for loot, n in sorted((R.get('ammunition') or {}).items())]
+        rows += [(GATE_LOOT[k], R.get(k, 0), 1.0) for k in ('xenomit', 'log_disk', 'voucher', 'energy')]
+        rows += [(GATE_LOOT.get(k, k), n, 1.0) for k, n in sorted((R.get('booty') or {}).items())]
+        for s in R.get('chance', []):
+            if s.get('esya') == 'ore_pack':        # forum 129125: kapının cevher paketi, kalemleri ağırlığıyla
                 rows += [(loot, n[0], s.get('probability', 0) * w) for loot, n, w in s['paket']]
                 continue
-            opts = s.get('options') if s.get('esya') == 'tasarim_secimi' else [s.get('esya')]
+            opts = s.get('options') if s.get('esya') == 'design_choice' else [s.get('esya')]
             rows += [(loot, s.get('adet', 1), s.get('probability', 0) / max(1, len(opts))) for loot in opts or []]
             # Diametrion'la birlikte gelen üç kaynaktan biri (kapi.finish 'birlikte'): rehberin "min" alanı en az miktar (70-80 ve 8-14 gibi
             # aralıklar yazılamaz), şans sınıfı üçe bölünmüş olasılıktan
@@ -297,15 +297,15 @@ def galaxy_trek_xml(kind):
     if here not in sys.path:
         sys.path.insert(0, here)          # -I ile çalışınca betiğin klasörü yolda değil
     import galaxy_trek as GTR
-    return GTR.planets_xml() if kind == 'gezegen' else GTR.rewards_xml()
+    return GTR.planets_xml() if kind == 'planet' else GTR.rewards_xml()
 
 
 ROUTES = {
     '/spacemap/xml/maps.php': lambda h: ('text/xml', maps_xml()),
-    '/unityApi/events/spaceSearch.php': lambda h: ('text/xml;charset=UTF-8', galaxy_trek_xml('gezegen')),    # Galaxy Trek (Ö3)
-    '//unityApi/events/spaceSearch.php': lambda h: ('text/xml;charset=UTF-8', galaxy_trek_xml('gezegen')),
-    '/unityApi/events/ssRewards.php': lambda h: ('text/xml;charset=UTF-8', galaxy_trek_xml('odul')),
-    '//unityApi/events/ssRewards.php': lambda h: ('text/xml;charset=UTF-8', galaxy_trek_xml('odul')),
+    '/unityApi/events/spaceSearch.php': lambda h: ('text/xml;charset=UTF-8', galaxy_trek_xml('planet')),    # Galaxy Trek (Ö3)
+    '//unityApi/events/spaceSearch.php': lambda h: ('text/xml;charset=UTF-8', galaxy_trek_xml('planet')),
+    '/unityApi/events/ssRewards.php': lambda h: ('text/xml;charset=UTF-8', galaxy_trek_xml('reward')),
+    '//unityApi/events/ssRewards.php': lambda h: ('text/xml;charset=UTF-8', galaxy_trek_xml('reward')),
     '/unityApi/guide/ggRewards.php': lambda h: ('text/xml;charset=UTF-8', gate_rewards_xml()),
     '/unityApi/links.php': lambda h: ('application/json', json.dumps(links())),
     '/unityApi/login.php': lambda h: ('application/json', json.dumps(login(request_session(h, entry=True)))),

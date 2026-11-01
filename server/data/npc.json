@@ -1,15 +1,15 @@
 {
  "_description": "NPC türleri ve harita doğurma listeleri. tip = istemcideki gemi tipi (ShipCreateCommand.typeId, ShipSelectionCommand.shipType). Değerler darkorbitwiki.com'dan (belgeler/wiki/aliens.md); 'kayit' işaretliler gerçek sunucu kaydından (belgeler/istemci/kayit_analizi.md); 'uyarlama' işaretliler tahmindir. Black Light adları resmî sunucudaki gibi iki ters bölüyle başlar (\\\\ Impulse II //; kayıt 2026-10-25).",
- "tipler": {
+ "types": {
   "84": {
    "ad": "-=[ Streuner ]=-",
    "hp": 800,
    "kalkan": 400,
    "hasar": 20,
    "hiz": 172,
-   "genisleme": 1,
-   "saldirgan": false,
-   "odul": {
+   "spread": 1,
+   "aggressive": false,
+   "reward": {
     "ep": 400,
     "onur": 2,
     "kredi": 400,
@@ -28,9 +28,9 @@
    "kalkan": 800,
    "hasar": 40,
    "hiz": 200,
-   "genisleme": 1,
-   "saldirgan": true,
-   "odul": {
+   "spread": 1,
+   "aggressive": true,
+   "reward": {
     "ep": 500,
     "onur": 3,
     "kredi": 500,
@@ -49,9 +49,9 @@
    "kalkan": 1000,
    "hasar": 70,
    "hiz": 212,
-   "genisleme": 1,
-   "saldirgan": false,
-   "odul": {
+   "spread": 1,
+   "aggressive": false,
+   "reward": {
     "ep": 700,
     "onur": 4,
     "kredi": 700,
@@ -63,7 +63,7 @@
    },
    "_kaynak": "wiki; hız kayıttan (478 birim / 2.250 ms = 212); kalkan emme %90 (fandom)",
    "npc_kimlik": 153,
-   "kalkan_emme": 0.9
+   "shield_absorb": 0.9
   },
   "71": {
    "ad": "-=[ Lordakia ]=-",
@@ -71,9 +71,9 @@
    "kalkan": 2000,
    "hasar": 80,
    "hiz": 242,
-   "genisleme": 1,
-   "saldirgan": true,
-   "odul": {
+   "spread": 1,
+   "aggressive": true,
+   "reward": {
     "ep": 800,
     "onur": 4,
     "kredi": 800,
@@ -86,7 +86,7 @@
    },
    "_kaynak": "wiki; hız kayıttan (395 birim / 1.633 ms = 242; fandom 320 diyor, kayıt çürütüyor); saldırganlık uyarlama",
    "npc_kimlik": 2,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_mucosum": 2
    }
   },
@@ -96,9 +96,9 @@
    "kalkan": 8000,
    "hasar": 320,
    "hiz": 240,
-   "genisleme": 2,
-   "saldirgan": true,
-   "odul": {
+   "spread": 2,
+   "aggressive": true,
+   "reward": {
     "ep": 3200,
     "onur": 16,
     "kredi": 3200,
@@ -113,7 +113,7 @@
    },
    "_kaynak": "wiki; hız kayıtla doğrulandı (489 birim / 2.020 ms = 242); saldırganlık uyarlama",
    "npc_kimlik": 15,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_mucosum": 6,
     "resource_logfile": {
      "adet": 1,
@@ -127,9 +127,9 @@
    "kalkan": 1600,
    "hasar": 100,
    "hiz": 173,
-   "genisleme": 1,
-   "saldirgan": false,
-   "odul": {
+   "spread": 1,
+   "aggressive": false,
+   "reward": {
     "ep": 1600,
     "onur": 8,
     "kredi": 1600,
@@ -142,7 +142,7 @@
    },
    "_kaynak": "wiki; tip kimliği istemcinin lib_ships.xml'inden (23 = StreunerBoss); hız uyarlama",
    "npc_kimlik": 14,
-   "ek_odul": {
+   "extra_reward": {
     "resource_logfile": {
      "adet": 1,
      "probability": 0.05
@@ -155,9 +155,9 @@
    "kalkan": 100000,
    "hasar": 1200,
    "hiz": 123,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 6400,
     "onur": 32,
     "kredi": 51200,
@@ -173,7 +173,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: devolarium); hız, saldırganlık uyarlama",
    "npc_kimlik": 3,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_boltrum": 1
    }
   },
@@ -183,9 +183,9 @@
    "kalkan": 10000,
    "hasar": 390,
    "hiz": 52,
-   "genisleme": 2,
-   "saldirgan": true,
-   "odul": {
+   "spread": 2,
+   "aggressive": true,
+   "reward": {
     "ep": 3200,
     "onur": 16,
     "kredi": 6400,
@@ -201,7 +201,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: mordon); hız, saldırganlık uyarlama",
    "npc_kimlik": 4,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_scrapium": 2
    }
   },
@@ -211,9 +211,9 @@
    "kalkan": 6000,
    "hasar": 200,
    "hiz": 280,
-   "genisleme": 2,
-   "saldirgan": true,
-   "odul": {
+   "spread": 2,
+   "aggressive": true,
+   "reward": {
     "ep": 1600,
     "onur": 8,
     "kredi": 1600,
@@ -228,7 +228,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: saimon); hız, saldırganlık uyarlama",
    "npc_kimlik": 6,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_scrapium": 2
    }
   },
@@ -238,9 +238,9 @@
    "kalkan": 40000,
    "hasar": 1500,
    "hiz": 78,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 12800,
     "onur": 64,
     "kredi": 25600,
@@ -257,7 +257,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: boss_mordon); hız, saldırganlık uyarlama",
    "npc_kimlik": 16,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_scrapium": 6,
     "resource_logfile": {
      "adet": 1,
@@ -271,9 +271,9 @@
    "kalkan": 12000,
    "hasar": 800,
    "hiz": 272,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 6400,
     "onur": 32,
     "kredi": 6400,
@@ -290,7 +290,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: boss_saimon); hız, saldırganlık uyarlama",
    "npc_kimlik": 17,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_scrapium": 6,
     "resource_logfile": {
      "adet": 1,
@@ -304,9 +304,9 @@
    "kalkan": 400000,
    "hasar": 4650,
    "hiz": 122,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 26500,
     "onur": 128,
     "kredi": 204800,
@@ -323,7 +323,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: boss_devolarium); hız, saldırganlık uyarlama",
    "npc_kimlik": 18,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_boltrum": 3,
     "resource_logfile": {
      "adet": 1,
@@ -337,9 +337,9 @@
    "kalkan": 200000,
    "hasar": 2650,
    "hiz": 150,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 12800,
     "onur": 64,
     "kredi": 102400,
@@ -355,7 +355,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: sibelon); hız, saldırganlık uyarlama",
    "npc_kimlik": 5,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_boltrum": 1
    }
   },
@@ -365,9 +365,9 @@
    "kalkan": 800000,
    "hasar": 12350,
    "hiz": 92,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 51000,
     "onur": 256,
     "kredi": 409600,
@@ -384,7 +384,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: boss_sibelon); hız, saldırganlık uyarlama",
    "npc_kimlik": 20,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_boltrum": 3,
     "resource_logfile": {
      "adet": 1,
@@ -398,9 +398,9 @@
    "kalkan": 40000,
    "hasar": 3200,
    "hiz": 272,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 3200,
     "onur": 16,
     "kredi": 12800,
@@ -416,7 +416,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: sibelonit); hız, saldırganlık uyarlama",
    "npc_kimlik": 7,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_mucosum": 2
    }
   },
@@ -426,9 +426,9 @@
    "kalkan": 200000,
    "hasar": 3600,
    "hiz": 172,
-   "genisleme": 3,
-   "saldirgan": false,
-   "odul": {
+   "spread": 3,
+   "aggressive": false,
+   "reward": {
     "ep": 25600,
     "onur": 128,
     "kredi": 204800,
@@ -444,7 +444,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: lordakium); hız uyarlama; vurulmadıkça saldırmaz (fandom)",
    "npc_kimlik": 8,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_mucosum": 2
    }
   },
@@ -454,9 +454,9 @@
    "kalkan": 160000,
    "hasar": 4350,
    "hiz": 280,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 12800,
     "onur": 64,
     "kredi": 102400,
@@ -473,7 +473,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: boss_sibelonit); hız, saldırganlık uyarlama",
    "npc_kimlik": 19,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_mucosum": 6,
     "resource_logfile": {
      "adet": 1,
@@ -487,9 +487,9 @@
    "kalkan": 800000,
    "hasar": 16000,
    "hiz": 180,
-   "genisleme": 3,
-   "saldirgan": false,
-   "odul": {
+   "spread": 3,
+   "aggressive": false,
+   "reward": {
     "ep": 102400,
     "onur": 512,
     "kredi": 819200,
@@ -506,7 +506,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: boss_lordakium); hız uyarlama; vurulmadıkça saldırmaz (fandom)",
    "npc_kimlik": 21,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_mucosum": 6,
     "resource_logfile": {
      "adet": 1,
@@ -520,9 +520,9 @@
    "kalkan": 40000,
    "hasar": 1650,
    "hiz": 272,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 6400,
     "onur": 32,
     "kredi": 12800,
@@ -538,7 +538,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: kristallin); hız, saldırganlık uyarlama",
    "npc_kimlik": 9,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_prismatium": 1
    }
   },
@@ -548,10 +548,10 @@
    "kalkan": 300000,
    "hasar": 4450,
    "hiz": 172,
-   "genisleme": 3,
-   "saldirgan": false,
+   "spread": 3,
+   "aggressive": false,
    "menzil": 550,
-   "odul": {
+   "reward": {
     "ep": 51200,
     "onur": 256,
     "kredi": 409600,
@@ -567,10 +567,10 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: kristallon); hız uyarlama; vurulmadıkça saldırmaz (fandom); kalkan emme %90 (fandom)",
    "npc_kimlik": 10,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_prismatium": 1
    },
-   "kalkan_emme": 0.9
+   "shield_absorb": 0.9
   },
   "80": {
    "ad": "-=[ Cubikon ]=-",
@@ -578,9 +578,9 @@
    "kalkan": 1200000,
    "hasar": 0,
    "hiz": 30,
-   "genisleme": 1,
-   "saldirgan": false,
-   "odul": {
+   "spread": 1,
+   "aggressive": false,
+   "reward": {
     "ep": 512000,
     "onur": 4096,
     "kredi": 1638400,
@@ -597,10 +597,10 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: cubikon); hız fandom (30), saldırganlık uyarlama; kalkan emme %80 (fandom)",
    "npc_kimlik": 13,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_bifenon": 2
    },
-   "kalkan_emme": 0.8
+   "shield_absorb": 0.8
   },
   "29": {
    "ad": "..::{ Boss Kristallin }::..",
@@ -608,9 +608,9 @@
    "kalkan": 160000,
    "hasar": 4700,
    "hiz": 280,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 25600,
     "onur": 128,
     "kredi": 51200,
@@ -627,7 +627,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: boss_kristallin); hız, saldırganlık uyarlama",
    "npc_kimlik": 22,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_prismatium": 3,
     "resource_logfile": {
      "adet": 1,
@@ -641,10 +641,10 @@
    "kalkan": 1200000,
    "hasar": 20000,
    "hiz": 171,
-   "genisleme": 3,
-   "saldirgan": false,
+   "spread": 3,
+   "aggressive": false,
    "menzil": 550,
-   "odul": {
+   "reward": {
     "ep": 204800,
     "onur": 1024,
     "kredi": 1638400,
@@ -661,7 +661,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: boss_kristallon); hız uyarlama; vurulmadıkça saldırmaz (fandom)",
    "npc_kimlik": 23,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_prismatium": 3,
     "resource_logfile": {
      "adet": 1,
@@ -675,9 +675,9 @@
    "kalkan": 60000,
    "hasar": 1700,
    "hiz": 373,
-   "genisleme": 3,
-   "saldirgan": false,
-   "odul": {
+   "spread": 3,
+   "aggressive": false,
+   "reward": {
     "ep": 6400,
     "onur": 32,
     "kredi": 12800,
@@ -693,9 +693,9 @@
    "kalkan": 30000,
    "hasar": 1000,
    "hiz": 272,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 6000,
     "onur": 30,
     "kredi": 12000,
@@ -719,9 +719,9 @@
    "kalkan": 40000,
    "hasar": 2000,
    "hiz": 268,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 12800,
     "onur": 64,
     "kredi": 25600,
@@ -737,7 +737,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: boss_streuner_r); hız, saldırganlık uyarlama",
    "npc_kimlik": 24,
-   "ek_odul": {
+   "extra_reward": {
     "resource_logfile": {
      "adet": 1,
      "probability": 0.05
@@ -750,9 +750,9 @@
    "kalkan": 750000,
    "hasar": 12000,
    "hiz": 422,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 55000,
     "onur": 200,
     "kredi": 200000,
@@ -768,7 +768,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: impulse_ii); hız, saldırganlık uyarlama; hız resmî Türk forumu 141806 (450)",
    "npc_kimlik": 175,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_rinusk": [
      15,
      25
@@ -782,9 +782,9 @@
    "kalkan": 3200,
    "hasar": 160,
    "hiz": 250,
-   "genisleme": 2,
-   "saldirgan": true,
-   "odul": {
+   "spread": 2,
+   "aggressive": true,
+   "reward": {
     "ep": 3200,
     "onur": 16,
     "kredi": 3200,
@@ -806,9 +806,9 @@
    "kalkan": 16000,
    "hasar": 640,
    "hiz": 272,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 6400,
     "onur": 128,
     "kredi": 6400,
@@ -825,7 +825,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: uber_lordakia); hız fandom (250); saldırganlık uyarlama",
    "npc_kimlik": 29,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_mucosum": 10
    }
   },
@@ -835,9 +835,9 @@
    "kalkan": 80000,
    "hasar": 3120,
    "hiz": 71,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 25600,
     "onur": 128,
     "kredi": 51200,
@@ -854,7 +854,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: uber_mordon); hız, saldırganlık uyarlama",
    "npc_kimlik": 30,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_scrapium": 10
    }
   },
@@ -864,9 +864,9 @@
    "kalkan": 24000,
    "hasar": 1600,
    "hiz": 250,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 12800,
     "onur": 64,
     "kredi": 12800,
@@ -883,7 +883,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: uber_saimon); hız, saldırganlık uyarlama",
    "npc_kimlik": 31,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_scrapium": 10
    }
   },
@@ -893,8 +893,8 @@
    "kalkan": 800000,
    "hasar": 9600,
    "hiz": 150,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 51200,
     "onur": 256,
     "kredi": 409600,
@@ -911,7 +911,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: uber_devolarium); hız, saldırganlık uyarlama",
    "npc_kimlik": 32,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_boltrum": 5
    }
   },
@@ -921,9 +921,9 @@
    "kalkan": 320000,
    "hasar": 8000,
    "hiz": 280,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 25600,
     "onur": 128,
     "kredi": 204800,
@@ -940,7 +940,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: uber_sibelonit); hız, saldırganlık uyarlama",
    "npc_kimlik": 33,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_mucosum": 10
    }
   },
@@ -950,8 +950,8 @@
    "kalkan": 1600000,
    "hasar": 24000,
    "hiz": 150,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 102400,
     "onur": 512,
     "kredi": 819200,
@@ -968,7 +968,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: uber_sibelon); hız, saldırganlık uyarlama",
    "npc_kimlik": 34,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_boltrum": 5
    }
   },
@@ -978,9 +978,9 @@
    "kalkan": 1600000,
    "hasar": 32000,
    "hiz": 180,
-   "genisleme": 3,
-   "saldirgan": false,
-   "odul": {
+   "spread": 3,
+   "aggressive": false,
+   "reward": {
     "ep": 204800,
     "onur": 1024,
     "kredi": 1638400,
@@ -997,7 +997,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: uber_lordakium); hız uyarlama; vurulmadıkça saldırmaz (fandom)",
    "npc_kimlik": 35,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_mucosum": 10
    }
   },
@@ -1007,8 +1007,8 @@
    "kalkan": 320000,
    "hasar": 9600,
    "hiz": 280,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 51200,
     "onur": 156,
     "kredi": 102400,
@@ -1025,7 +1025,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: uber_kristallin); hız, saldırganlık uyarlama",
    "npc_kimlik": 36,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_prismatium": 5,
     "resource_collectable_bifenon": 1
    }
@@ -1036,10 +1036,10 @@
    "kalkan": 2400000,
    "hasar": 40000,
    "hiz": 171,
-   "genisleme": 3,
-   "saldirgan": false,
+   "spread": 3,
+   "aggressive": false,
    "menzil": 550,
-   "odul": {
+   "reward": {
     "ep": 490000,
     "onur": 2048,
     "kredi": 3276800,
@@ -1056,11 +1056,11 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: uber_kristallon); hız uyarlama; vurulmadıkça saldırmaz (fandom); kalkan emme %90 (fandom)",
    "npc_kimlik": 37,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_prismatium": 5,
     "resource_collectable_bifenon": 1
    },
-   "kalkan_emme": 0.9
+   "shield_absorb": 0.9
   },
   "44": {
    "ad": "( UberStreuneR )",
@@ -1068,9 +1068,9 @@
    "kalkan": 240000,
    "hasar": 7500,
    "hiz": 280,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 48000,
     "onur": 240,
     "kredi": 96000,
@@ -1094,9 +1094,9 @@
    "kalkan": 40000,
    "hasar": 500,
    "hiz": 572,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 7500,
     "onur": 40,
     "kredi": 25000,
@@ -1112,7 +1112,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: interceptor); hız darkorbitwiki Vortex of Greed (base_stats_normal_version); saldırganlık uyarlama; \"CHANCE:\" ek ödüllerinin oranı wiki'de yok: %25 (uyarlama)",
    "npc_kimlik": 58,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_bifenon": {
      "adet": 1,
      "probability": 0.2
@@ -1126,9 +1126,9 @@
    "kalkan": 100000,
    "hasar": 6000,
    "hiz": 375,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 15000,
     "onur": 56,
     "kredi": 90000,
@@ -1144,7 +1144,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: barracuda); hız darkorbitwiki Vortex of Greed (base_stats_normal_version); saldırganlık uyarlama; \"CHANCE:\" ek ödüllerinin oranı wiki'de yok: %25 (uyarlama)",
    "npc_kimlik": 59,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_bifenon": {
      "adet": 1,
      "probability": 0.25
@@ -1158,9 +1158,9 @@
    "kalkan": 150000,
    "hasar": 4000,
    "hiz": 428,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 22500,
     "onur": 72,
     "kredi": 125000,
@@ -1176,7 +1176,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: saboteur); hız darkorbitwiki Vortex of Greed (base_stats_normal_version); saldırganlık uyarlama; \"CHANCE:\" ek ödüllerinin oranı wiki'de yok: %25 (uyarlama)",
    "npc_kimlik": 60,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_bifenon": {
      "adet": 1,
      "probability": 0.25
@@ -1190,9 +1190,9 @@
    "kalkan": 200000,
    "hasar": 15000,
    "hiz": 322,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 75000,
     "onur": 128,
     "kredi": 250000,
@@ -1209,7 +1209,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: annihilator); hız, saldırganlık uyarlama; \"CHANCE:\" ek ödüllerinin oranı wiki'de yok: %25 (uyarlama)",
    "npc_kimlik": 61,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_bifenon": {
      "adet": 1,
      "probability": 0.25
@@ -1223,9 +1223,9 @@
    "kalkan": 260000,
    "hasar": 16500,
    "hiz": 322,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 83300,
     "onur": 190,
     "kredi": 1160000,
@@ -1242,7 +1242,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: battleray); hız, saldırganlık uyarlama",
    "npc_kimlik": 62,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_bifenon": 2,
     "resource_collectable_aurus": 3
    }
@@ -1253,9 +1253,9 @@
    "kalkan": 600000,
    "hasar": 14000,
    "hiz": 334,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 187500,
     "onur": 375,
     "kredi": 2625000,
@@ -1264,7 +1264,7 @@
    "kargo": {},
    "_kaynak": "wiki (belgeler/wiki/aliens.md: deadly_battleray); hız darkorbitwiki Vortex of Greed (base_stats_normal_version); saldırganlık uyarlama",
    "npc_kimlik": 121,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_bifenon": 2,
     "resource_ore_palladium": 6,
     "resource_collectable_aurus": 3
@@ -1278,9 +1278,9 @@
    "kalkan": 320000,
    "hasar": 4000,
    "hiz": 320,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 30000,
     "onur": 100,
     "kredi": 100000,
@@ -1296,7 +1296,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: uber_interceptor); hız, saldırganlık uyarlama; kalkan emme %60 (fandom); \"CHANCE:\" ek ödüllerinin oranı wiki'de yok: %25 (uyarlama)",
    "npc_kimlik": 163,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_bifenon": {
      "adet": 1,
      "probability": 0.25
@@ -1312,7 +1312,7 @@
     "resource_collectable_aurus": 5,
     "resource_collectable_tetrathrin": 1
    },
-   "kalkan_emme": 0.6
+   "shield_absorb": 0.6
   },
   "255": {
    "ad": "( Uber Barracuda )",
@@ -1320,9 +1320,9 @@
    "kalkan": 800000,
    "hasar": 48000,
    "hiz": 372,
-   "genisleme": 3,
-   "saldirgan": false,
-   "odul": {
+   "spread": 3,
+   "aggressive": false,
+   "reward": {
     "ep": 60000,
     "onur": 100,
     "kredi": 360000,
@@ -1338,7 +1338,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: uber_barracuda); hız uyarlama; vurulmadıkça saldırmaz (fandom); \"CHANCE:\" ek ödüllerinin oranı wiki'de yok: %25 (uyarlama)",
    "npc_kimlik": 164,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_bifenon": {
      "adet": 1,
      "probability": 0.25
@@ -1361,9 +1361,9 @@
    "kalkan": 1200000,
    "hasar": 32000,
    "hiz": 347,
-   "genisleme": 3,
-   "saldirgan": false,
-   "odul": {
+   "spread": 3,
+   "aggressive": false,
+   "reward": {
     "ep": 90000,
     "onur": 130,
     "kredi": 500000,
@@ -1379,7 +1379,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: uber_saboteur); hız uyarlama; vurulmadıkça saldırmaz (fandom); \"CHANCE:\" ek ödüllerinin oranı wiki'de yok: %25 (uyarlama)",
    "npc_kimlik": 165,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_bifenon": {
      "adet": 1,
      "probability": 0.25
@@ -1402,8 +1402,8 @@
    "kalkan": 1600000,
    "hasar": 90000,
    "hiz": 240,
-   "saldirgan": false,
-   "odul": {
+   "aggressive": false,
+   "reward": {
     "ep": 300000,
     "onur": 200,
     "kredi": 1000000,
@@ -1420,7 +1420,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: uber_annihilator); hız uyarlama; vurulmadıkça saldırmaz (fandom); kalkan emme %85 (fandom); \"CHANCE:\" ek ödüllerinin oranı wiki'de yok: %25 (uyarlama)",
    "npc_kimlik": 166,
-   "ek_odul": {
+   "extra_reward": {
     "resource_ore_palladium": 4,
     "resource_collectable_bifenon": {
      "adet": 1,
@@ -1440,7 +1440,7 @@
     },
     "resource_collectable_aurus": 10
    },
-   "kalkan_emme": 0.85
+   "shield_absorb": 0.85
   },
   "256": {
    "ad": "( Uber Battleray )",
@@ -1448,9 +1448,9 @@
    "kalkan": 2080000,
    "hasar": 51200,
    "hiz": 322,
-   "genisleme": 3,
-   "saldirgan": false,
-   "odul": {
+   "spread": 3,
+   "aggressive": false,
+   "reward": {
     "ep": 320000,
     "onur": 300,
     "kredi": 4000000,
@@ -1467,7 +1467,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: uber_battleray); hız uyarlama; vurulmadıkça saldırmaz (fandom)",
    "npc_kimlik": 167,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_bifenon": 1,
     "resource_ore_palladium": 6,
     "resource_collectable_aurus": 15
@@ -1479,9 +1479,9 @@
    "kalkan": 4800000,
    "hasar": 17000,
    "hiz": 127,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 350000,
     "onur": 750,
     "kredi": 1000000,
@@ -1497,7 +1497,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: attend_ix); hız, saldırganlık uyarlama; hız resmî Türk forumu 141806 (150)",
    "npc_kimlik": 176,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_rinusk": [
      80,
      90
@@ -1515,8 +1515,8 @@
    "kalkan": 0,
    "hasar": 30000,
    "hiz": 0,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 3500000,
     "onur": 20000,
     "kredi": 9500000,
@@ -1525,7 +1525,7 @@
    "kargo": {},
    "_kaynak": "wiki (belgeler/wiki/aliens.md: invoke_xvi); hız, saldırganlık uyarlama",
    "npc_kimlik": 177,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_rinusk": [
      59,
      79
@@ -1545,9 +1545,9 @@
     "tur": "INVOKE_XVI_BOX_3",
     "adet": 5,
     "omur_sn": 600,
-    "mod": "biri",
+    "mod": "one_of",
     "contents": [],
-    "kesin": [
+    "guaranteed": [
      [
       "resource_collectable_rinusk",
       [
@@ -1572,8 +1572,8 @@
    "kalkan": 0,
    "hasar": 145000,
    "hiz": 0,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 80000000,
     "onur": 500000,
     "kredi": 200000000,
@@ -1582,7 +1582,7 @@
    "kargo": {},
    "_kaynak": "wiki (belgeler/wiki/aliens.md: mindfire_behemoth); hız, saldırganlık uyarlama",
    "npc_kimlik": 178,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_rinusk": [
      100,
      120
@@ -1605,9 +1605,9 @@
     "tur": "MINDFIRE_BEHEMOTH_BOX_3",
     "adet": 8,
     "omur_sn": 600,
-    "mod": "biri",
+    "mod": "one_of",
     "contents": [],
-    "kesin": [
+    "guaranteed": [
      [
       "resource_collectable_rinusk",
       [
@@ -1647,9 +1647,9 @@
    "kalkan": 0,
    "hasar": 12000,
    "hiz": 772,
-   "genisleme": 3,
-   "saldirgan": false,
-   "odul": {
+   "spread": 3,
+   "aggressive": false,
+   "reward": {
     "ep": 57750,
     "onur": 200,
     "kredi": 200000,
@@ -1667,9 +1667,9 @@
    "kalkan": 40000,
    "hasar": 1500,
    "hiz": 472,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 6400,
     "onur": 32,
     "kredi": 12800,
@@ -1692,8 +1692,8 @@
    "kalkan": 4000,
    "hasar": 160,
    "hiz": 242,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 400,
     "onur": 8,
     "kredi": 800,
@@ -1715,8 +1715,8 @@
    "kalkan": 9000000,
    "hasar": 70000,
    "hiz": 200,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 3000000,
     "onur": 15000,
     "kredi": 3000000,
@@ -1741,9 +1741,9 @@
    "kalkan": 0,
    "hasar": 15000,
    "hiz": 250,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 10000000,
     "onur": 100000,
     "kredi": 2000000,
@@ -1752,7 +1752,7 @@
    "kargo": {},
    "_kaynak": "wiki (belgeler/wiki/aliens.md: urge_iv); hız, saldırganlık uyarlama",
    "npc_kimlik": 179,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_tetrathrin": 150,
     "resource_collectable_kyhalon": 80,
     "resource_collectable_indoctrineoil": 35
@@ -1766,8 +1766,8 @@
    "kalkan": 0,
    "hasar": 15000,
    "hiz": 250,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 10000000,
     "onur": 100000,
     "kredi": 2000000,
@@ -1785,8 +1785,8 @@
    "kalkan": 0,
    "hasar": 20000,
    "hiz": 250,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 10000000,
     "onur": 100000,
     "kredi": 4000000,
@@ -1802,8 +1802,8 @@
    "kalkan": 0,
    "hasar": 15000,
    "hiz": 250,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 10000000,
     "onur": 100000,
     "kredi": 2000000,
@@ -1812,7 +1812,7 @@
    "kargo": {},
    "_kaynak": "wiki (belgeler/wiki/aliens.md: regard_cxi); hız, saldırganlık uyarlama",
    "npc_kimlik": 182,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_tetrathrin": 150,
     "resource_collectable_kyhalon": 80,
     "resource_collectable_indoctrineoil": 35
@@ -1824,8 +1824,8 @@
    "kalkan": 0,
    "hasar": 15000,
    "hiz": 250,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 10000000,
     "onur": 100000,
     "kredi": 2000000,
@@ -1843,8 +1843,8 @@
    "kalkan": 0,
    "hasar": 16000,
    "hiz": 250,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 10000000,
     "onur": 100000,
     "kredi": 4000000,
@@ -1860,9 +1860,9 @@
    "kalkan": 0,
    "hasar": 6000,
    "hiz": 722,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 15000,
     "onur": 55,
     "kredi": 55000,
@@ -1887,9 +1887,9 @@
    "kalkan": 300000,
    "hasar": 6000,
    "hiz": 422,
-   "genisleme": 3,
-   "saldirgan": true,
-   "odul": {
+   "spread": 3,
+   "aggressive": true,
+   "reward": {
     "ep": 15000,
     "onur": 55,
     "kredi": 55000,
@@ -1914,8 +1914,8 @@
    "kalkan": 70000000,
    "hasar": 100000,
    "hiz": 350,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 6000000,
     "onur": 16000,
     "kredi": 20000000,
@@ -1932,7 +1932,7 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: stinger); hız, saldırganlık uyarlama; ödül = normal ödül + ilk 8 hasar vereni ödülü (tek oyunculuk uyarlaması); kalkan emme, isabet fandom; hız resmî Türk forumu 160525",
    "npc_kimlik": 281,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_darksilver-coin": 75,
     "resource_collectable_isochronate": {
      "adet": [
@@ -1960,8 +1960,8 @@
      "probability": 0.005
     }
    },
-   "isabet": 0.7,
-   "kalkan_emme": 0.9,
+   "hit": 0.7,
+   "shield_absorb": 0.9,
    "menzil": 800
   },
   "331": {
@@ -1970,8 +1970,8 @@
    "kalkan": 1500000,
    "hasar": 60000,
    "hiz": 500,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 800000,
     "onur": 1600,
     "kredi": 1000000,
@@ -1988,15 +1988,15 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: pike); hız, saldırganlık uyarlama; \"CHANCE:\" ek ödüllerinin oranı wiki'de yok: %25 (uyarlama); kalkan emme, isabet, menzil fandom; hız resmî Türk forumu 160525",
    "npc_kimlik": 282,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_darksilver-coin": 5,
     "resource_booty-key-silver": {
      "adet": 1,
      "probability": 0.25
     }
    },
-   "isabet": 0.85,
-   "kalkan_emme": 0.9,
+   "hit": 0.85,
+   "shield_absorb": 0.9,
    "menzil": 400
   },
   "332": {
@@ -2005,8 +2005,8 @@
    "kalkan": 1000000,
    "hasar": 45000,
    "hiz": 450,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 350000,
     "onur": 800,
     "kredi": 650000,
@@ -2023,14 +2023,14 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: barb); hız, saldırganlık uyarlama; \"CHANCE:\" ek ödüllerinin oranı wiki'de yok: %25 (uyarlama); kalkan emme, isabet, menzil fandom; hız resmî Türk forumu 160525",
    "npc_kimlik": 283,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_darksilver-coin": {
      "adet": 3,
      "probability": 0.25
     }
    },
-   "isabet": 0.7,
-   "kalkan_emme": 0.9,
+   "hit": 0.7,
+   "shield_absorb": 0.9,
    "menzil": 375
   },
   "333": {
@@ -2039,8 +2039,8 @@
    "kalkan": 800000,
    "hasar": 30000,
    "hiz": 450,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 250000,
     "onur": 600,
     "kredi": 500000,
@@ -2057,14 +2057,14 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: lanternfish); hız, saldırganlık uyarlama; \"CHANCE:\" ek ödüllerinin oranı wiki'de yok: %25 (uyarlama); kalkan emme, isabet, menzil fandom; hız resmî Türk forumu 160525",
    "npc_kimlik": 284,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_darksilver-coin": {
      "adet": 2,
      "probability": 0.25
     }
    },
-   "isabet": 0.7,
-   "kalkan_emme": 0.9,
+   "hit": 0.7,
+   "shield_absorb": 0.9,
    "menzil": 375
   },
   "334": {
@@ -2073,8 +2073,8 @@
    "kalkan": 500000,
    "hasar": 20000,
    "hiz": 450,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 150000,
     "onur": 300,
     "kredi": 250000,
@@ -2090,14 +2090,14 @@
    },
    "_kaynak": "wiki (belgeler/wiki/aliens.md: spookfish); hız, saldırganlık uyarlama; \"CHANCE:\" ek ödüllerinin oranı wiki'de yok: %25 (uyarlama); kalkan emme, isabet, menzil fandom; hız resmî Türk forumu 160525",
    "npc_kimlik": 285,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_darksilver-coin": {
      "adet": 1,
      "probability": 0.25
     }
    },
-   "isabet": 0.7,
-   "kalkan_emme": 0.9,
+   "hit": 0.7,
+   "shield_absorb": 0.9,
    "menzil": 375
   },
   "94": {
@@ -2106,8 +2106,8 @@
    "kalkan": 80000,
    "hasar": 5000,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 9000,
     "onur": 12,
     "kredi": 45000,
@@ -2130,8 +2130,8 @@
    "kalkan": 120000,
    "hasar": 11000,
    "hiz": 280,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 18000,
     "onur": 24,
     "kredi": 90000,
@@ -2154,8 +2154,8 @@
    "kalkan": 160000,
    "hasar": 15000,
    "hiz": 280,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 27000,
     "onur": 36,
     "kredi": 150000,
@@ -2178,8 +2178,8 @@
    "kalkan": 240000,
    "hasar": 16000,
    "hiz": 260,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 39000,
     "onur": 48,
     "kredi": 240000,
@@ -2202,8 +2202,8 @@
    "kalkan": 600000,
    "hasar": 9000,
    "hiz": 260,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 48000,
     "onur": 96,
     "kredi": 375000,
@@ -2226,8 +2226,8 @@
    "kalkan": 600000,
    "hasar": 22000,
    "hiz": 240,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 54000,
     "onur": 192,
     "kredi": 480000,
@@ -2251,8 +2251,8 @@
    "kalkan": 600000,
    "hasar": 23000,
    "hiz": 240,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 60000,
     "onur": 300,
     "kredi": 660000,
@@ -2276,8 +2276,8 @@
    "kalkan": 320000,
    "hasar": 12000,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 51200,
     "onur": 256,
     "kredi": 102400,
@@ -2302,8 +2302,8 @@
    "kalkan": 500000,
    "hasar": 20000,
    "hiz": 200,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 3500000,
     "onur": 350000,
     "kredi": 6500000,
@@ -2312,7 +2312,7 @@
    "kargo": {},
    "_kaynak": "wiki (belgeler/wiki/aliens.md: strokelight_barrage); hız, saldırganlık uyarlama",
    "npc_kimlik": 266,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_rinusk": [
      68,
      97
@@ -2328,14 +2328,14 @@
    },
    "_model_notu": "istemci: \"Strokelight Barrage Boss (Blacklight Event)\" (320)"
   },
-  "etk_spinel_x3": {
+  "event_spinel_x3": {
    "ad": "-=[ Spinel ]=-",
    "hp": 40000,
    "kalkan": 40000,
    "hasar": 500,
    "hiz": 260,
-   "saldirgan": false,
-   "odul": {
+   "aggressive": false,
+   "reward": {
     "ep": 3815,
     "onur": 23,
     "kredi": 8000,
@@ -2357,14 +2357,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: spinel_x3); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_spinel_x4": {
+  "event_spinel_x4": {
    "ad": "-=[ Spinel ]=-",
    "hp": 80000,
    "kalkan": 80000,
    "hasar": 750,
    "hiz": 260,
-   "saldirgan": false,
-   "odul": {
+   "aggressive": false,
+   "reward": {
     "ep": 7630,
     "onur": 46,
     "kredi": 16000,
@@ -2386,14 +2386,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: spinel_x4); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_spinel_x5": {
+  "event_spinel_x5": {
    "ad": "-=[ Spinel ]=-",
    "hp": 140000,
    "kalkan": 140000,
    "hasar": 1750,
    "hiz": 260,
-   "saldirgan": false,
-   "odul": {
+   "aggressive": false,
+   "reward": {
     "ep": 12589,
     "onur": 76,
     "kredi": 26400,
@@ -2415,14 +2415,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: spinel_x5); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_spinel_x6": {
+  "event_spinel_x6": {
    "ad": "-=[ Spinel ]=-",
    "hp": 220000,
    "kalkan": 220000,
    "hasar": 2800,
    "hiz": 260,
-   "saldirgan": false,
-   "odul": {
+   "aggressive": false,
+   "reward": {
     "ep": 18313,
     "onur": 112,
     "kredi": 38401,
@@ -2444,14 +2444,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: spinel_x6); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_spinel_x7": {
+  "event_spinel_x7": {
    "ad": "-=[ Spinel ]=-",
    "hp": 280000,
    "kalkan": 280000,
    "hasar": 3500,
    "hiz": 260,
-   "saldirgan": false,
-   "odul": {
+   "aggressive": false,
+   "reward": {
     "ep": 20983,
     "onur": 127,
     "kredi": 44000,
@@ -2473,14 +2473,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: spinel_x7); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_spinel_x8": {
+  "event_spinel_x8": {
    "ad": "-=[ Spinel ]=-",
    "hp": 320000,
    "kalkan": 320000,
    "hasar": 4000,
    "hiz": 260,
-   "saldirgan": false,
-   "odul": {
+   "aggressive": false,
+   "reward": {
     "ep": 22890,
     "onur": 138,
     "kredi": 48000,
@@ -2502,14 +2502,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: spinel_x8); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_agatus_x3": {
+  "event_agatus_x3": {
    "ad": "-=[ Agatus ]=-",
    "hp": 400000,
    "kalkan": 400000,
    "hasar": 10000,
    "hiz": 240,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 55808,
     "onur": 254,
     "kredi": 409600,
@@ -2532,14 +2532,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: agatus_x3); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_agatus_x4": {
+  "event_agatus_x4": {
    "ad": "-=[ Agatus ]=-",
    "hp": 800000,
    "kalkan": 800000,
    "hasar": 15000,
    "hiz": 240,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 111616,
     "onur": 507,
     "kredi": 819200,
@@ -2562,14 +2562,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: agatus_x4); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_agatus_x5": {
+  "event_agatus_x5": {
    "ad": "-=[ Agatus ]=-",
    "hp": 1400000,
    "kalkan": 1400000,
    "hasar": 25000,
    "hiz": 240,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 184167,
     "onur": 837,
     "kredi": 1351680,
@@ -2592,14 +2592,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: agatus_x5); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_agatus_x6": {
+  "event_agatus_x6": {
    "ad": "-=[ Agatus ]=-",
    "hp": 2200000,
    "kalkan": 2200000,
    "hasar": 45000,
    "hiz": 240,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 267879,
     "onur": 1218,
     "kredi": 1966081,
@@ -2622,14 +2622,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: agatus_x6); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_agatus_x7": {
+  "event_agatus_x7": {
    "ad": "-=[ Agatus ]=-",
    "hp": 2800000,
    "kalkan": 2800000,
    "hasar": 55000,
    "hiz": 240,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 308400,
     "onur": 1413,
     "kredi": 1867200,
@@ -2652,14 +2652,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: agatus_x7); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_agatus_x8": {
+  "event_agatus_x8": {
    "ad": "-=[ Agatus ]=-",
    "hp": 3200000,
    "kalkan": 3200000,
    "hasar": 65000,
    "hiz": 240,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 334848,
     "onur": 1522,
     "kredi": 2457600,
@@ -2682,14 +2682,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: agatus_x8); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_chaos_protegit_x2": {
+  "event_chaos_protegit_x2": {
    "ad": "-=[ Chaos Protegit ]=-",
    "hp": 15000,
    "kalkan": 12500,
    "hasar": 500,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 1600,
     "onur": 8,
     "kredi": 3200,
@@ -2711,14 +2711,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: chaos_protegit_x2); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_chaos_protegit_x3": {
+  "event_chaos_protegit_x3": {
    "ad": "-=[ Chaos Protegit ]=-",
    "hp": 30000,
    "kalkan": 25000,
    "hasar": 1000,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 3200,
     "onur": 16,
     "kredi": 6400,
@@ -2740,14 +2740,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: chaos_protegit_x3); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_chaos_protegit_x4": {
+  "event_chaos_protegit_x4": {
    "ad": "-=[ Chaos Protegit ]=-",
    "hp": 60000,
    "kalkan": 50000,
    "hasar": 1500,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 6400,
     "onur": 32,
     "kredi": 12800,
@@ -2769,14 +2769,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: chaos_protegit_x4); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_chaos_protegit_x5": {
+  "event_chaos_protegit_x5": {
    "ad": "-=[ Chaos Protegit ]=-",
    "hp": 75000,
    "kalkan": 62500,
    "hasar": 2000,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 8000,
     "onur": 40,
     "kredi": 16200,
@@ -2798,14 +2798,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: chaos_protegit_x5); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_chaos_protegit_x6": {
+  "event_chaos_protegit_x6": {
    "ad": "-=[ Chaos Protegit ]=-",
    "hp": 105000,
    "kalkan": 87500,
    "hasar": 2500,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 11200,
     "onur": 56,
     "kredi": 22400,
@@ -2827,14 +2827,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: chaos_protegit_x6); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_chaos_protegit_x7": {
+  "event_chaos_protegit_x7": {
    "ad": "-=[ Chaos Protegit ]=-",
    "hp": 135000,
    "kalkan": 112500,
    "hasar": 3500,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 16000,
     "onur": 72,
     "kredi": 32000,
@@ -2856,14 +2856,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: chaos_protegit_x7); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_chaos_protegit_x8": {
+  "event_chaos_protegit_x8": {
    "ad": "-=[ Chaos Protegit ]=-",
    "hp": 165000,
    "kalkan": 142500,
    "hasar": 4000,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 19200,
     "onur": 97,
     "kredi": 38400,
@@ -2885,14 +2885,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: chaos_protegit_x8); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_hitac_underling_x2": {
+  "event_hitac_underling_x2": {
    "ad": "Hitac-Underling",
    "hp": 12000,
    "kalkan": 9000,
    "hasar": 200,
    "hiz": 300,
-   "saldirgan": false,
-   "odul": {
+   "aggressive": false,
+   "reward": {
     "ep": 801,
     "onur": 5,
     "kredi": 1001,
@@ -2907,14 +2907,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: hitac_underling_x2); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_hitac_underling_x3": {
+  "event_hitac_underling_x3": {
    "ad": "Hitac-Underling",
    "hp": 20000,
    "kalkan": 15000,
    "hasar": 350,
    "hiz": 300,
-   "saldirgan": false,
-   "odul": {
+   "aggressive": false,
+   "reward": {
     "ep": 2000,
     "onur": 12,
     "kredi": 2500,
@@ -2929,14 +2929,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: hitac_underling_x3); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_hitac_underling_x4": {
+  "event_hitac_underling_x4": {
    "ad": "Hitac-Underling",
    "hp": 32000,
    "kalkan": 24000,
    "hasar": 600,
    "hiz": 300,
-   "saldirgan": false,
-   "odul": {
+   "aggressive": false,
+   "reward": {
     "ep": 3201,
     "onur": 20,
     "kredi": 4001,
@@ -2951,14 +2951,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: hitac_underling_x4); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_hitac_underling_x5": {
+  "event_hitac_underling_x5": {
    "ad": "Hitac-Underling",
    "hp": 86000,
    "kalkan": 65500,
    "hasar": 1500,
    "hiz": 300,
-   "saldirgan": false,
-   "odul": {
+   "aggressive": false,
+   "reward": {
     "ep": 8801,
     "onur": 52,
     "kredi": 10751,
@@ -2973,14 +2973,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: hitac_underling_x5); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_hitac_underling_x6": {
+  "event_hitac_underling_x6": {
    "ad": "Hitac-Underling",
    "hp": 176000,
    "kalkan": 132000,
    "hasar": 3100,
    "hiz": 300,
-   "saldirgan": false,
-   "odul": {
+   "aggressive": false,
+   "reward": {
     "ep": 17601,
     "onur": 108,
     "kredi": 22001,
@@ -2995,14 +2995,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: hitac_underling_x6); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_hitac_underling_x7": {
+  "event_hitac_underling_x7": {
    "ad": "Hitac-Underling",
    "hp": 270000,
    "kalkan": 202500,
    "hasar": 4800,
    "hiz": 300,
-   "saldirgan": false,
-   "odul": {
+   "aggressive": false,
+   "reward": {
     "ep": 26601,
     "onur": 160,
     "kredi": 33251,
@@ -3017,14 +3017,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: hitac_underling_x7); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_hitac_underling_x8": {
+  "event_hitac_underling_x8": {
    "ad": "Hitac-Underling",
    "hp": 320000,
    "kalkan": 240000,
    "hasar": 5600,
    "hiz": 300,
-   "saldirgan": false,
-   "odul": {
+   "aggressive": false,
+   "reward": {
     "ep": 32000,
     "onur": 192,
     "kredi": 40000,
@@ -3039,14 +3039,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: hitac_underling_x8); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_hitac_underboss_x2": {
+  "event_hitac_underboss_x2": {
    "ad": "Hitac-Underboss",
    "hp": 240000,
    "kalkan": 180000,
    "hasar": 2000,
    "hiz": 280,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 20481,
     "onur": 64,
     "kredi": 163841,
@@ -3061,14 +3061,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: hitac_underboss_x2); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_hitac_underboss_x3": {
+  "event_hitac_underboss_x3": {
    "ad": "Hitac-Underboss",
    "hp": 400000,
    "kalkan": 300000,
    "hasar": 8000,
    "hiz": 280,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 51200,
     "onur": 156,
     "kredi": 409600,
@@ -3083,14 +3083,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: hitac_underboss_x3); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_hitac_underboss_x4": {
+  "event_hitac_underboss_x4": {
    "ad": "Hitac-Underboss",
    "hp": 640000,
    "kalkan": 480000,
    "hasar": 12000,
    "hiz": 280,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 83521,
     "onur": 258,
     "kredi": 656961,
@@ -3105,14 +3105,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: hitac_underboss_x4); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_hitac_underboss_x5": {
+  "event_hitac_underboss_x5": {
    "ad": "Hitac-Underboss",
    "hp": 1720000,
    "kalkan": 1290000,
    "hasar": 29000,
    "hiz": 280,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 220161,
     "onur": 672,
     "kredi": 1761281,
@@ -3127,14 +3127,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: hitac_underboss_x5); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_hitac_underboss_x6": {
+  "event_hitac_underboss_x6": {
    "ad": "Hitac-Underboss",
    "hp": 3520000,
    "kalkan": 2640000,
    "hasar": 35000,
    "hiz": 280,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 450561,
     "onur": 1374,
     "kredi": 3604481,
@@ -3149,14 +3149,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: hitac_underboss_x6); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_hitac_underboss_x7": {
+  "event_hitac_underboss_x7": {
    "ad": "Hitac-Underboss",
    "hp": 5400000,
    "kalkan": 4050000,
    "hasar": 55000,
    "hiz": 280,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 680961,
     "onur": 2076,
     "kredi": 5447681,
@@ -3171,14 +3171,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: hitac_underboss_x7); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_hitac_underboss_x8": {
+  "event_hitac_underboss_x8": {
    "ad": "Hitac-Underboss",
    "hp": 6400000,
    "kalkan": 4800000,
    "hasar": 110000,
    "hiz": 280,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 819200,
     "onur": 2498,
     "kredi": 6553600,
@@ -3193,14 +3193,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: hitac_underboss_x8); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_curcubitor_x2": {
+  "event_curcubitor_x2": {
    "ad": "-=[ Curcubitor ]=-",
    "hp": 10000,
    "kalkan": 7500,
    "hasar": 100,
    "hiz": 221,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 800,
     "onur": 4,
     "kredi": 1001,
@@ -3221,14 +3221,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: curcubitor_x2); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_curcubitor_x3": {
+  "event_curcubitor_x3": {
    "ad": "-=[ Curcubitor ]=-",
    "hp": 20000,
    "kalkan": 15000,
    "hasar": 300,
    "hiz": 221,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 2000,
     "onur": 12,
     "kredi": 2500,
@@ -3249,14 +3249,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: curcubitor_x3); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_curcubitor_x4": {
+  "event_curcubitor_x4": {
    "ad": "-=[ Curcubitor ]=-",
    "hp": 32000,
    "kalkan": 24000,
    "hasar": 600,
    "hiz": 221,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 3200,
     "onur": 20,
     "kredi": 4001,
@@ -3278,14 +3278,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: curcubitor_x4); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_curcubitor_x5": {
+  "event_curcubitor_x5": {
    "ad": "-=[ Curcubitor ]=-",
    "hp": 94000,
    "kalkan": 70500,
    "hasar": 1200,
    "hiz": 221,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 8600,
     "onur": 52,
     "kredi": 10751,
@@ -3306,14 +3306,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: curcubitor_x5); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_curcubitor_x6": {
+  "event_curcubitor_x6": {
    "ad": "-=[ Curcubitor ]=-",
    "hp": 180000,
    "kalkan": 135000,
    "hasar": 3100,
    "hiz": 221,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 17601,
     "onur": 106,
     "kredi": 22001,
@@ -3334,14 +3334,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: curcubitor_x6); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_curcubitor_x7": {
+  "event_curcubitor_x7": {
    "ad": "-=[ Curcubitor ]=-",
    "hp": 270000,
    "kalkan": 202500,
    "hasar": 4300,
    "hiz": 221,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 26601,
     "onur": 160,
     "kredi": 33251,
@@ -3362,14 +3362,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: curcubitor_x7); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_curcubitor_x8": {
+  "event_curcubitor_x8": {
    "ad": "-=[ Curcubitor ]=-",
    "hp": 360000,
    "kalkan": 270000,
    "hasar": 5700,
    "hiz": 221,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 36000,
     "onur": 216,
     "kredi": 45000,
@@ -3390,15 +3390,15 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: curcubitor_x8); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_boss_curcubitor_x2": {
+  "event_boss_curcubitor_x2": {
    "ad": "-=[ Boss Curcubitor ]=-",
    "hp": 200000,
    "kalkan": 150000,
    "hasar": 1500,
    "hiz": 300,
-   "genisleme": 1,
-   "saldirgan": true,
-   "odul": {
+   "spread": 1,
+   "aggressive": true,
+   "reward": {
     "ep": 20480,
     "onur": 63,
     "kredi": 163841,
@@ -3421,15 +3421,15 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: boss_curcubitor_x2); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_boss_curcubitor_x3": {
+  "event_boss_curcubitor_x3": {
    "ad": "-=[ Boss Curcubitor ]=-",
    "hp": 400000,
    "kalkan": 300000,
    "hasar": 4000,
    "hiz": 300,
-   "genisleme": 1,
-   "saldirgan": true,
-   "odul": {
+   "spread": 1,
+   "aggressive": true,
+   "reward": {
     "ep": 51200,
     "onur": 156,
     "kredi": 409600,
@@ -3452,15 +3452,15 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: boss_curcubitor_x3); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_boss_curcubitor_x4": {
+  "event_boss_curcubitor_x4": {
    "ad": "-=[ Boss Curcubitor ]=-",
    "hp": 640000,
    "kalkan": 480000,
    "hasar": 10000,
    "hiz": 300,
-   "genisleme": 1,
-   "saldirgan": true,
-   "odul": {
+   "spread": 1,
+   "aggressive": true,
+   "reward": {
     "ep": 81920,
     "onur": 250,
     "kredi": 655361,
@@ -3483,15 +3483,15 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: boss_curcubitor_x4); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_boss_curcubitor_x5": {
+  "event_boss_curcubitor_x5": {
    "ad": "-=[ Boss Curcubitor ]=-",
    "hp": 1880000,
    "kalkan": 1410000,
    "hasar": 20000,
    "hiz": 300,
-   "genisleme": 1,
-   "saldirgan": true,
-   "odul": {
+   "spread": 1,
+   "aggressive": true,
+   "reward": {
     "ep": 220160,
     "onur": 672,
     "kredi": 1761281,
@@ -3514,15 +3514,15 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: boss_curcubitor_x5); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_boss_curcubitor_x6": {
+  "event_boss_curcubitor_x6": {
    "ad": "-=[ Boss Curcubitor ]=-",
    "hp": 3600000,
    "kalkan": 2700000,
    "hasar": 40000,
    "hiz": 300,
-   "genisleme": 1,
-   "saldirgan": true,
-   "odul": {
+   "spread": 1,
+   "aggressive": true,
+   "reward": {
     "ep": 335600,
     "onur": 1246,
     "kredi": 3604461,
@@ -3545,15 +3545,15 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: boss_curcubitor_x6); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_boss_curcubitor_x7": {
+  "event_boss_curcubitor_x7": {
    "ad": "-=[ Boss Curcubitor ]=-",
    "hp": 5400000,
    "kalkan": 4050000,
    "hasar": 55000,
    "hiz": 300,
-   "genisleme": 1,
-   "saldirgan": true,
-   "odul": {
+   "spread": 1,
+   "aggressive": true,
+   "reward": {
     "ep": 507200,
     "onur": 1884,
     "kredi": 4447681,
@@ -3576,15 +3576,15 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: boss_curcubitor_x7); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_boss_curcubitor_x8": {
+  "event_boss_curcubitor_x8": {
    "ad": "-=[ Boss Curcubitor ]=-",
    "hp": 7200000,
    "kalkan": 5400000,
    "hasar": 80000,
    "hiz": 300,
-   "genisleme": 1,
-   "saldirgan": true,
-   "odul": {
+   "spread": 1,
+   "aggressive": true,
+   "reward": {
     "ep": 922000,
     "onur": 2864,
     "kredi": 7400000,
@@ -3607,14 +3607,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: boss_curcubitor_x8); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_icy": {
+  "event_icy": {
    "ad": "Icy",
    "hp": 100000,
    "kalkan": 80000,
    "hasar": 2000,
    "hiz": 320,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 6400,
     "onur": 32,
     "kredi": 12800,
@@ -3641,14 +3641,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: icy); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_ice_meteoroid": {
+  "event_ice_meteoroid": {
    "ad": "Ice Meteoroid",
    "hp": 1600000,
    "kalkan": 1200000,
    "hasar": 0,
    "hiz": 40,
-   "saldirgan": false,
-   "odul": {
+   "aggressive": false,
+   "reward": {
     "ep": 1000000,
     "onur": 5000,
     "kredi": 3000000,
@@ -3676,14 +3676,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: ice_meteoroid); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_super_ice_meteoroid": {
+  "event_super_ice_meteoroid": {
    "ad": "Super Ice Meteoroid",
    "hp": 3200000,
    "kalkan": 2400000,
    "hasar": 0,
    "hiz": 40,
-   "saldirgan": false,
-   "odul": {
+   "aggressive": false,
+   "reward": {
     "ep": 2000000,
     "onur": 8000,
     "kredi": 6553600,
@@ -3709,14 +3709,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: super_ice_meteoroid); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_lanatum_x2": {
+  "event_lanatum_x2": {
    "ad": "-=[ Lanatum ]=-",
    "hp": 10000,
    "kalkan": 5000,
    "hasar": 400,
    "hiz": 280,
-   "saldirgan": false,
-   "odul": {
+   "aggressive": false,
+   "reward": {
     "ep": 1837,
     "onur": 10,
     "kredi": 4000,
@@ -3738,14 +3738,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: lanatum_x2); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_lanatum_x3": {
+  "event_lanatum_x3": {
    "ad": "-=[ Lanatum ]=-",
    "hp": 20000,
    "kalkan": 15000,
    "hasar": 500,
    "hiz": 280,
-   "saldirgan": false,
-   "odul": {
+   "aggressive": false,
+   "reward": {
     "ep": 3675,
     "onur": 20,
     "kredi": 8000,
@@ -3767,14 +3767,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: lanatum_x3); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_lanatum_x4": {
+  "event_lanatum_x4": {
    "ad": "-=[ Lanatum ]=-",
    "hp": 42500,
    "kalkan": 32000,
    "hasar": 1200,
    "hiz": 280,
-   "saldirgan": false,
-   "odul": {
+   "aggressive": false,
+   "reward": {
     "ep": 7350,
     "onur": 40,
     "kredi": 17000,
@@ -3796,14 +3796,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: lanatum_x4); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_lanatum_x5": {
+  "event_lanatum_x5": {
    "ad": "-=[ Lanatum ]=-",
    "hp": 110000,
    "kalkan": 82500,
    "hasar": 2600,
    "hiz": 280,
-   "saldirgan": false,
-   "odul": {
+   "aggressive": false,
+   "reward": {
     "ep": 18742,
     "onur": 104,
     "kredi": 40800,
@@ -3825,14 +3825,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: lanatum_x5); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_lanatum_x6": {
+  "event_lanatum_x6": {
    "ad": "-=[ Lanatum ]=-",
    "hp": 210000,
    "kalkan": 160000,
    "hasar": 5200,
    "hiz": 280,
-   "saldirgan": false,
-   "odul": {
+   "aggressive": false,
+   "reward": {
     "ep": 37120,
     "onur": 209,
     "kredi": 80801,
@@ -3854,14 +3854,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: lanatum_x6); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_lanatum_x7": {
+  "event_lanatum_x7": {
    "ad": "-=[ Lanatum ]=-",
    "hp": 256000,
    "kalkan": 192000,
    "hasar": 6000,
    "hiz": 280,
-   "saldirgan": false,
-   "odul": {
+   "aggressive": false,
+   "reward": {
     "ep": 44835,
     "onur": 251,
     "kredi": 97600,
@@ -3883,14 +3883,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: lanatum_x7); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_lanatum_x8": {
+  "event_lanatum_x8": {
    "ad": "-=[ Lanatum ]=-",
    "hp": 320000,
    "kalkan": 240000,
    "hasar": 7000,
    "hiz": 280,
-   "saldirgan": false,
-   "odul": {
+   "aggressive": false,
+   "reward": {
     "ep": 56962,
     "onur": 319,
     "kredi": 124000,
@@ -3912,14 +3912,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: lanatum_x8); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_styxus_x2": {
+  "event_styxus_x2": {
    "ad": "-=[ Styxus ]=-",
    "hp": 225000,
    "kalkan": 150000,
    "hasar": 3500,
    "hiz": 260,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 25600,
     "onur": 113,
     "kredi": 204800,
@@ -3945,7 +3945,7 @@
     "tur": "STYXUS_BOX",
     "probability": 1.0,
     "omur_sn": 300,
-    "mod": "biri",
+    "mod": "one_of",
     "contents": [
      [
       "resource_collectable_styxus-shard",
@@ -4020,14 +4020,14 @@
     ]
    }
   },
-  "etk_styxus_x3": {
+  "event_styxus_x3": {
    "ad": "-=[ Styxus ]=-",
    "hp": 400000,
    "kalkan": 300000,
    "hasar": 8000,
    "hiz": 260,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 51200,
     "onur": 226,
     "kredi": 409600,
@@ -4053,7 +4053,7 @@
     "tur": "STYXUS_BOX",
     "probability": 1.0,
     "omur_sn": 300,
-    "mod": "biri",
+    "mod": "one_of",
     "contents": [
      [
       "resource_collectable_styxus-shard",
@@ -4128,14 +4128,14 @@
     ]
    }
   },
-  "etk_styxus_x4": {
+  "event_styxus_x4": {
    "ad": "-=[ Styxus ]=-",
    "hp": 920000,
    "kalkan": 690000,
    "hasar": 16000,
    "hiz": 260,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 102400,
     "onur": 452,
     "kredi": 819200,
@@ -4161,7 +4161,7 @@
     "tur": "STYXUS_BOX",
     "probability": 1.0,
     "omur_sn": 300,
-    "mod": "biri",
+    "mod": "one_of",
     "contents": [
      [
       "resource_collectable_styxus-shard",
@@ -4236,14 +4236,14 @@
     ]
    }
   },
-  "etk_styxus_x5": {
+  "event_styxus_x5": {
    "ad": "-=[ Styxus ]=-",
    "hp": 2200000,
    "kalkan": 1650000,
    "hasar": 32000,
    "hiz": 260,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 261120,
     "onur": 1154,
     "kredi": 2088960,
@@ -4269,7 +4269,7 @@
     "tur": "STYXUS_BOX",
     "probability": 1.0,
     "omur_sn": 300,
-    "mod": "biri",
+    "mod": "one_of",
     "contents": [
      [
       "resource_collectable_styxus-shard",
@@ -4344,14 +4344,14 @@
     ]
    }
   },
-  "etk_styxus_x6": {
+  "event_styxus_x6": {
    "ad": "-=[ Styxus ]=-",
    "hp": 4400000,
    "kalkan": 3300000,
    "hasar": 45000,
    "hiz": 260,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 542894,
     "onur": 2286,
     "kredi": 4136961,
@@ -4377,7 +4377,7 @@
     "tur": "STYXUS_BOX",
     "probability": 1.0,
     "omur_sn": 300,
-    "mod": "biri",
+    "mod": "one_of",
     "contents": [
      [
       "resource_collectable_styxus-shard",
@@ -4452,14 +4452,14 @@
     ]
    }
   },
-  "etk_styxus_x7": {
+  "event_styxus_x7": {
    "ad": "-=[ Styxus ]=-",
    "hp": 5760000,
    "kalkan": 3840000,
    "hasar": 55000,
    "hiz": 260,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 624640,
     "onur": 2760,
     "kredi": 4997120,
@@ -4485,7 +4485,7 @@
     "tur": "STYXUS_BOX",
     "probability": 1.0,
     "omur_sn": 300,
-    "mod": "biri",
+    "mod": "one_of",
     "contents": [
      [
       "resource_collectable_styxus-shard",
@@ -4560,14 +4560,14 @@
     ]
    }
   },
-  "etk_styxus_x8": {
+  "event_styxus_x8": {
    "ad": "-=[ Styxus ]=-",
    "hp": 7200000,
    "kalkan": 4800000,
    "hasar": 70000,
    "hiz": 260,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 793600,
     "onur": 3507,
     "kredi": 6348800,
@@ -4593,7 +4593,7 @@
     "tur": "STYXUS_BOX",
     "probability": 1.0,
     "omur_sn": 300,
-    "mod": "biri",
+    "mod": "one_of",
     "contents": [
      [
       "resource_collectable_styxus-shard",
@@ -4668,14 +4668,14 @@
     ]
    }
   },
-  "etk_charopos_x2": {
+  "event_charopos_x2": {
    "ad": "-=[ Charopos ]=-",
    "hp": 225000,
    "kalkan": 150000,
    "hasar": 3500,
    "hiz": 260,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 25600,
     "onur": 113,
     "kredi": 204800,
@@ -4701,7 +4701,7 @@
     "tur": "CHAROPOS_BOX",
     "probability": 1.0,
     "omur_sn": 300,
-    "mod": "biri",
+    "mod": "one_of",
     "contents": [
      [
       "resource_collectable_charopos-shard",
@@ -4776,14 +4776,14 @@
     ]
    }
   },
-  "etk_charopos_x3": {
+  "event_charopos_x3": {
    "ad": "-=[ Charopos ]=-",
    "hp": 400000,
    "kalkan": 300000,
    "hasar": 8000,
    "hiz": 260,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 51200,
     "onur": 226,
     "kredi": 409600,
@@ -4809,7 +4809,7 @@
     "tur": "CHAROPOS_BOX",
     "probability": 1.0,
     "omur_sn": 300,
-    "mod": "biri",
+    "mod": "one_of",
     "contents": [
      [
       "resource_collectable_charopos-shard",
@@ -4884,14 +4884,14 @@
     ]
    }
   },
-  "etk_charopos_x4": {
+  "event_charopos_x4": {
    "ad": "-=[ Charopos ]=-",
    "hp": 920000,
    "kalkan": 690000,
    "hasar": 16000,
    "hiz": 260,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 102400,
     "onur": 452,
     "kredi": 819200,
@@ -4917,7 +4917,7 @@
     "tur": "CHAROPOS_BOX",
     "probability": 1.0,
     "omur_sn": 300,
-    "mod": "biri",
+    "mod": "one_of",
     "contents": [
      [
       "resource_collectable_charopos-shard",
@@ -4992,14 +4992,14 @@
     ]
    }
   },
-  "etk_charopos_x5": {
+  "event_charopos_x5": {
    "ad": "-=[ Charopos ]=-",
    "hp": 2200000,
    "kalkan": 1650000,
    "hasar": 32000,
    "hiz": 260,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 261120,
     "onur": 1154,
     "kredi": 2088960,
@@ -5025,7 +5025,7 @@
     "tur": "CHAROPOS_BOX",
     "probability": 1.0,
     "omur_sn": 300,
-    "mod": "biri",
+    "mod": "one_of",
     "contents": [
      [
       "resource_collectable_charopos-shard",
@@ -5100,14 +5100,14 @@
     ]
    }
   },
-  "etk_charopos_x6": {
+  "event_charopos_x6": {
    "ad": "-=[ Charopos ]=-",
    "hp": 4400000,
    "kalkan": 3300000,
    "hasar": 45000,
    "hiz": 260,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 542894,
     "onur": 2286,
     "kredi": 4136961,
@@ -5133,7 +5133,7 @@
     "tur": "CHAROPOS_BOX",
     "probability": 1.0,
     "omur_sn": 300,
-    "mod": "biri",
+    "mod": "one_of",
     "contents": [
      [
       "resource_collectable_charopos-shard",
@@ -5208,14 +5208,14 @@
     ]
    }
   },
-  "etk_charopos_x7": {
+  "event_charopos_x7": {
    "ad": "-=[ Charopos ]=-",
    "hp": 5760000,
    "kalkan": 3840000,
    "hasar": 55000,
    "hiz": 260,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 624640,
     "onur": 2760,
     "kredi": 4997120,
@@ -5241,7 +5241,7 @@
     "tur": "CHAROPOS_BOX",
     "probability": 1.0,
     "omur_sn": 300,
-    "mod": "biri",
+    "mod": "one_of",
     "contents": [
      [
       "resource_collectable_charopos-shard",
@@ -5316,14 +5316,14 @@
     ]
    }
   },
-  "etk_charopos_x8": {
+  "event_charopos_x8": {
    "ad": "-=[ Charopos ]=-",
    "hp": 7200000,
    "kalkan": 4800000,
    "hasar": 70000,
    "hiz": 260,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 793600,
     "onur": 3507,
     "kredi": 6348800,
@@ -5349,7 +5349,7 @@
     "tur": "CHAROPOS_BOX",
     "probability": 1.0,
     "omur_sn": 300,
-    "mod": "biri",
+    "mod": "one_of",
     "contents": [
      [
       "resource_collectable_charopos-shard",
@@ -5424,7 +5424,7 @@
     ]
    }
   },
-  "etk_santa_x2": {
+  "event_santa_x2": {
    "ad": "Santa-1100101",
    "model": "32",
    "npc_kimlik": 74,
@@ -5432,9 +5432,9 @@
    "kalkan": 300000,
    "hasar": 1800,
    "hiz": 290,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
-   "odul": {
+   "reward": {
     "ep": 25600,
     "onur": 78,
     "kredi": 204800,
@@ -5451,7 +5451,7 @@
    },
    "_kaynak": "wiki/fandom: Santa-1100101 harita başına ödül (X-3 EP yazım hatası 38.400); can/kalkan/hasar aralıkta haritaya göre"
   },
-  "etk_santa_x3": {
+  "event_santa_x3": {
    "ad": "Santa-1100101",
    "model": "32",
    "npc_kimlik": 74,
@@ -5459,9 +5459,9 @@
    "kalkan": 428571,
    "hasar": 2828,
    "hiz": 290,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
-   "odul": {
+   "reward": {
     "ep": 38400,
     "onur": 117,
     "kredi": 307200,
@@ -5478,7 +5478,7 @@
    },
    "_kaynak": "wiki/fandom: Santa-1100101 harita başına ödül (X-3 EP yazım hatası 38.400); can/kalkan/hasar aralıkta haritaya göre"
   },
-  "etk_santa_x4": {
+  "event_santa_x4": {
    "ad": "Santa-1100101",
    "model": "32",
    "npc_kimlik": 74,
@@ -5486,9 +5486,9 @@
    "kalkan": 557142,
    "hasar": 3857,
    "hiz": 290,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
-   "odul": {
+   "reward": {
     "ep": 51200,
     "onur": 156,
     "kredi": 409600,
@@ -5505,7 +5505,7 @@
    },
    "_kaynak": "wiki/fandom: Santa-1100101 harita başına ödül (X-3 EP yazım hatası 38.400); can/kalkan/hasar aralıkta haritaya göre"
   },
-  "etk_santa_4_5": {
+  "event_santa_4_5": {
    "ad": "Santa-1100101",
    "model": "32",
    "npc_kimlik": 74,
@@ -5513,9 +5513,9 @@
    "kalkan": 685714,
    "hasar": 4885,
    "hiz": 290,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
-   "odul": {
+   "reward": {
     "ep": 76800,
     "onur": 234,
     "kredi": 614400,
@@ -5532,7 +5532,7 @@
    },
    "_kaynak": "wiki/fandom: Santa-1100101 harita başına ödül (X-3 EP yazım hatası 38.400); can/kalkan/hasar aralıkta haritaya göre"
   },
-  "etk_santa_x5": {
+  "event_santa_x5": {
    "ad": "Santa-1100101",
    "model": "32",
    "npc_kimlik": 74,
@@ -5540,9 +5540,9 @@
    "kalkan": 814285,
    "hasar": 5914,
    "hiz": 290,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
-   "odul": {
+   "reward": {
     "ep": 102400,
     "onur": 312,
     "kredi": 819200,
@@ -5559,7 +5559,7 @@
    },
    "_kaynak": "wiki/fandom: Santa-1100101 harita başına ödül (X-3 EP yazım hatası 38.400); can/kalkan/hasar aralıkta haritaya göre"
   },
-  "etk_santa_x6": {
+  "event_santa_x6": {
    "ad": "Santa-1100101",
    "model": "32",
    "npc_kimlik": 74,
@@ -5567,9 +5567,9 @@
    "kalkan": 942857,
    "hasar": 6942,
    "hiz": 290,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
-   "odul": {
+   "reward": {
     "ep": 153600,
     "onur": 468,
     "kredi": 1228800,
@@ -5586,7 +5586,7 @@
    },
    "_kaynak": "wiki/fandom: Santa-1100101 harita başına ödül (X-3 EP yazım hatası 38.400); can/kalkan/hasar aralıkta haritaya göre"
   },
-  "etk_santa_x7": {
+  "event_santa_x7": {
    "ad": "Santa-1100101",
    "model": "32",
    "npc_kimlik": 74,
@@ -5594,9 +5594,9 @@
    "kalkan": 1071428,
    "hasar": 7971,
    "hiz": 290,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
-   "odul": {
+   "reward": {
     "ep": 204800,
     "onur": 624,
     "kredi": 1638400,
@@ -5613,7 +5613,7 @@
    },
    "_kaynak": "wiki/fandom: Santa-1100101 harita başına ödül (X-3 EP yazım hatası 38.400); can/kalkan/hasar aralıkta haritaya göre"
   },
-  "etk_santa_x8": {
+  "event_santa_x8": {
    "ad": "Santa-1100101",
    "model": "32",
    "npc_kimlik": 74,
@@ -5621,9 +5621,9 @@
    "kalkan": 1200000,
    "hasar": 9000,
    "hiz": 290,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
-   "odul": {
+   "reward": {
     "ep": 256000,
     "onur": 780,
     "kredi": 2048000,
@@ -5640,7 +5640,7 @@
    },
    "_kaynak": "wiki/fandom: Santa-1100101 harita başına ödül (X-3 EP yazım hatası 38.400); can/kalkan/hasar aralıkta haritaya göre"
   },
-  "etk_hitac_minion": {
+  "event_hitac_minion": {
    "ad": "Hitac-Minion 2.5",
    "model": "117",
    "npc_kimlik": 263,
@@ -5648,9 +5648,9 @@
    "kalkan": 1500000,
    "hasar": 10000,
    "hiz": 300,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
-   "odul": {
+   "reward": {
     "ep": 500000,
     "onur": 12000,
     "kredi": 2500000,
@@ -5659,7 +5659,7 @@
    "kargo": {},
    "_kaynak": "wiki: Hitac 2.5 Minion"
   },
-  "etk_hitac_mothership": {
+  "event_hitac_mothership": {
    "ad": "Hitac 2.5",
    "model": "116",
    "npc_kimlik": 261,
@@ -5667,37 +5667,37 @@
    "kalkan": 3500000,
    "hasar": 30000,
    "hiz": 180,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
-   "odul": {
+   "reward": {
     "ep": 5000000,
     "onur": 50000,
     "kredi": 1000000,
     "uridyum": 2500
    },
    "kargo": {},
-   "davranis": {
+   "behavior": {
     "invulnerable_while_summons_live": true,
     "summon_on_hit": {
-     "tur": "etk_hitac_minion",
+     "tur": "event_hitac_minion",
      "adet": 6,
-     "en_cok": 6,
+     "max_count": 6,
      "bekleme_sn": 300,
      "when_all_dead": true,
-     "koru": {"yaricap": [150, 350], "leash": 1500},
+     "guard": {"yaricap": [150, 350], "leash": 1500},
      "_bekleme": "Yedekler yardımcıların hepsi yok edilince, 300 sn sonra (uyarlama; fandom Hitac Event: \"There are replacement Minions inside the Mothership\"; oyuncu bildirimi 2026-10-30: 90 sn her çağrıdan sayılıyor, yardımcılar 1-2 dakikada yenileniyordu). koru: yardımcılar ana gemiye bağlı (fandom: \"six Hitac-Minions attached to it\"), ana gemiden 1.500 birim uzaklaşan oyuncuyu bırakır"
     }
    },
    "_kaynak": "wiki: Hitac 2.5 (rota 1-3 > 1-4 > 3-4 > 3-3 > 2-4 > 2-3); fandom 2012: altı yardımcı yaşarken kalkanlı, yenileri ana gemiden çıkar (vurulunca çağırır; bekleme uyarlama)"
   },
-  "etk_saimon_aberration": {
+  "event_saimon_aberration": {
    "ad": "-=[ Saimon Aberration ]=-",
    "hp": 7500,
    "kalkan": 7500,
    "hasar": 250,
    "hiz": 280,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 2000,
     "onur": 10,
     "kredi": 2000,
@@ -5714,7 +5714,7 @@
    "model": "229",
    "haritalar": [],
    "etkinlik": true,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_chaos-fragment": [
      6,
      40
@@ -5770,14 +5770,14 @@
    },
    "_kaynak": "taban -=[ Saimon ]=- x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (common kademesi; miktar aralığı uyarlama)"
   },
-  "etk_boss_saimon_aberration": {
+  "event_boss_saimon_aberration": {
    "ad": "..::{ Boss Saimon Aberration }::..",
    "hp": 30000,
    "kalkan": 15000,
    "hasar": 1000,
    "hiz": 250,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 8000,
     "onur": 40,
     "kredi": 8000,
@@ -5796,7 +5796,7 @@
    "model": "230",
    "haritalar": [],
    "etkinlik": true,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_chaos-fragment": [
      28,
      148
@@ -5856,14 +5856,14 @@
    },
    "_kaynak": "taban ..::{ Boss Saimon }::.. x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (rare kademesi; miktar aralığı uyarlama)"
   },
-  "etk_mordon_aberration": {
+  "event_mordon_aberration": {
    "ad": "-=[ Mordon Aberration ]=-",
    "hp": 25000,
    "kalkan": 12500,
    "hasar": 488,
    "hiz": 200,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 4000,
     "onur": 20,
     "kredi": 8000,
@@ -5881,7 +5881,7 @@
    "model": "231",
    "haritalar": [],
    "etkinlik": true,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_chaos-fragment": [
      6,
      40
@@ -5937,14 +5937,14 @@
    },
    "_kaynak": "taban -=[ Mordon ]=- x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (common kademesi; miktar aralığı uyarlama)"
   },
-  "etk_boss_mordon_aberration": {
+  "event_boss_mordon_aberration": {
    "ad": "..::{ Boss Mordon Aberration }::..",
    "hp": 100000,
    "kalkan": 50000,
    "hasar": 1875,
    "hiz": 180,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 16000,
     "onur": 80,
     "kredi": 32000,
@@ -5963,7 +5963,7 @@
    "model": "232",
    "haritalar": [],
    "etkinlik": true,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_chaos-fragment": [
      28,
      148
@@ -6023,14 +6023,14 @@
    },
    "_kaynak": "taban ..::{ Boss Mordon }::.. x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (rare kademesi; miktar aralığı uyarlama)"
   },
-  "etk_devolarium_aberration": {
+  "event_devolarium_aberration": {
    "ad": "-=[ Devolarium Aberration ]=-",
    "hp": 125000,
    "kalkan": 125000,
    "hasar": 1500,
    "hiz": 150,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 8000,
     "onur": 40,
     "kredi": 64000,
@@ -6048,7 +6048,7 @@
    "model": "233",
    "haritalar": [],
    "etkinlik": true,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_chaos-fragment": [
      6,
      40
@@ -6104,14 +6104,14 @@
    },
    "_kaynak": "taban -=[ Devolarium ]=- x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (common kademesi; miktar aralığı uyarlama)"
   },
-  "etk_kristallin_oddity": {
+  "event_kristallin_oddity": {
    "ad": "-=[ Kristallin Oddity ]=-",
    "hp": 62500,
    "kalkan": 50000,
    "hasar": 2062,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 8000,
     "onur": 40,
     "kredi": 16000,
@@ -6129,7 +6129,7 @@
    "model": "234",
    "haritalar": [],
    "etkinlik": true,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_chaos-fragment": [
      6,
      40
@@ -6185,14 +6185,14 @@
    },
    "_kaynak": "taban -=[ Kristallin ]=- x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (common kademesi; miktar aralığı uyarlama)"
   },
-  "etk_boss_kristallin_oddity": {
+  "event_boss_kristallin_oddity": {
    "ad": "..::{ Boss Kristallin Oddity }::..",
    "hp": 250000,
    "kalkan": 200000,
    "hasar": 5875,
    "hiz": 280,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 32000,
     "onur": 160,
     "kredi": 64000,
@@ -6211,7 +6211,7 @@
    "model": "235",
    "haritalar": [],
    "etkinlik": true,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_chaos-fragment": [
      28,
      148
@@ -6271,14 +6271,14 @@
    },
    "_kaynak": "taban ..::{ Boss Kristallin }::.. x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (rare kademesi; miktar aralığı uyarlama)"
   },
-  "etk_kristallon_oddity": {
+  "event_kristallon_oddity": {
    "ad": "-=[ Kristallon Oddity ]=-",
    "hp": 500000,
    "kalkan": 375000,
    "hasar": 5562,
    "hiz": 200,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 64000,
     "onur": 320,
     "kredi": 512000,
@@ -6296,7 +6296,7 @@
    "model": "236",
    "haritalar": [],
    "etkinlik": true,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_chaos-fragment": [
      6,
      40
@@ -6352,14 +6352,14 @@
    },
    "_kaynak": "taban -=[ Kristallon ]=- x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (common kademesi; miktar aralığı uyarlama)"
   },
-  "etk_boss_kristallon_oddity": {
+  "event_boss_kristallon_oddity": {
    "ad": "..::{ Boss Kristallon Oddity }::..",
    "hp": 2000000,
    "kalkan": 1500000,
    "hasar": 25000,
    "hiz": 180,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 256000,
     "onur": 1280,
     "kredi": 2048000,
@@ -6378,7 +6378,7 @@
    "model": "237",
    "haritalar": [],
    "etkinlik": true,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_chaos-fragment": [
      28,
      148
@@ -6438,14 +6438,14 @@
    },
    "_kaynak": "taban ..::{ Boss Kristallon }::.. x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (rare kademesi; miktar aralığı uyarlama)"
   },
-  "etk_uber_kristallon_oddity": {
+  "event_uber_kristallon_oddity": {
    "ad": "( Uber Kristallon Oddity )",
    "hp": 4000000,
    "kalkan": 3000000,
    "hasar": 50000,
    "hiz": 180,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 612500,
     "onur": 2560,
     "kredi": 4096000,
@@ -6464,7 +6464,7 @@
    "model": "238",
    "haritalar": [],
    "etkinlik": true,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_chaos-fragment": [
      28,
      148
@@ -6524,14 +6524,14 @@
    },
    "_kaynak": "taban ( UberKristallon ) x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (rare kademesi; miktar aralığı uyarlama)"
   },
-  "etk_awakened_lordakium": {
+  "event_awakened_lordakium": {
    "ad": "-=[ Awakened Lordakium ]=-",
    "hp": 375000,
    "kalkan": 250000,
    "hasar": 4500,
    "hiz": 200,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 32000,
     "onur": 160,
     "kredi": 256000,
@@ -6549,7 +6549,7 @@
    "model": "239",
    "haritalar": [],
    "etkinlik": true,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_chaos-fragment": [
      126,
      375
@@ -6622,14 +6622,14 @@
    },
    "_kaynak": "taban -=[ Lordakium ]=- x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (legend kademesi; miktar aralığı uyarlama)"
   },
-  "etk_awakened_overlord": {
+  "event_awakened_overlord": {
    "ad": "-=[ Awakened Overlord ]=-",
    "hp": 1500000,
    "kalkan": 1000000,
    "hasar": 20000,
    "hiz": 180,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 128000,
     "onur": 640,
     "kredi": 1024000,
@@ -6648,7 +6648,7 @@
    "model": "240",
    "haritalar": [],
    "etkinlik": true,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_chaos-fragment": [
      126,
      375
@@ -6721,14 +6721,14 @@
    },
    "_kaynak": "taban ..::{ Boss Lordakium }::... x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (legend kademesi; miktar aralığı uyarlama)"
   },
-  "etk_awakened_devourer": {
+  "event_awakened_devourer": {
    "ad": "-=[ Awakened Devourer ]=-",
    "hp": 3000000,
    "kalkan": 2000000,
    "hasar": 40000,
    "hiz": 180,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 256000,
     "onur": 1280,
     "kredi": 2048000,
@@ -6747,7 +6747,7 @@
    "model": "241",
    "haritalar": [],
    "etkinlik": true,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_chaos-fragment": [
      126,
      375
@@ -6820,14 +6820,14 @@
    },
    "_kaynak": "taban ( UberLordakium ) x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (legend kademesi; miktar aralığı uyarlama)"
   },
-  "etk_sheer_chaos_interceptor": {
+  "event_sheer_chaos_interceptor": {
    "ad": "-=[ Sheer Chaos Interceptor ]=-",
    "hp": 75000,
    "kalkan": 50000,
    "hasar": 625,
    "hiz": 320,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 9375,
     "onur": 50,
     "kredi": 31250,
@@ -6845,7 +6845,7 @@
    "model": "350",
    "haritalar": [],
    "etkinlik": true,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_chaos-fragment": [
      126,
      375
@@ -6910,14 +6910,14 @@
    },
    "_kaynak": "taban -=[ Interceptor ]=- x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (legend kademesi; miktar aralığı uyarlama)"
   },
-  "etk_sheer_chaos_annihilator": {
+  "event_sheer_chaos_annihilator": {
    "ad": "-=[ Sheer Chaos Annihilator ]=-",
    "hp": 375000,
    "kalkan": 250000,
    "hasar": 18750,
    "hiz": 240,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 93750,
     "onur": 160,
     "kredi": 312500,
@@ -6936,7 +6936,7 @@
    "model": "351",
    "haritalar": [],
    "etkinlik": true,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_chaos-fragment": [
      126,
      375
@@ -7009,14 +7009,14 @@
    },
    "_kaynak": "taban -=[ Annihilator ]=- x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (legend kademesi; miktar aralığı uyarlama)"
   },
-  "etk_sheer_chaos_protegit": {
+  "event_sheer_chaos_protegit": {
    "ad": "-=[ Sheer Chaos Protegit ]=-",
    "hp": 62500,
    "kalkan": 50000,
    "hasar": 1875,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 8000,
     "onur": 40,
     "kredi": 16000,
@@ -7034,7 +7034,7 @@
    "model": "352",
    "haritalar": [],
    "etkinlik": true,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_chaos-fragment": [
      126,
      375
@@ -7099,14 +7099,14 @@
    },
    "_kaynak": "taban -=[ Protegit ]=- x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (legend kademesi; miktar aralığı uyarlama)"
   },
-  "etk_hexor_mimesis": {
+  "event_hexor_mimesis": {
    "ad": "-=[ Hexor Mimesis ]=-",
    "hp": 495000,
    "kalkan": 200000,
    "hasar": 6500,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 25600,
     "onur": 128,
     "kredi": 128000,
@@ -7133,18 +7133,18 @@
    ],
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: hexor_mimesis); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_byte-remnant": 5
    }
   },
-  "etk_raging_mimesis": {
+  "event_raging_mimesis": {
    "ad": "-=[ Raging Mimesis ]=-",
    "hp": 1045000,
    "kalkan": 600000,
    "hasar": 20000,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 102400,
     "onur": 512,
     "kredi": 512000,
@@ -7171,18 +7171,18 @@
    ],
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: raging_mimesis); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_byte-remnant": 10
    }
   },
-  "etk_cloning_mimesis": {
+  "event_cloning_mimesis": {
    "ad": "-=[ Cloning Mimesis ]=-",
    "hp": 2200000,
    "kalkan": 1200000,
    "hasar": 75000,
    "hiz": 280,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 205300,
     "onur": 1024,
     "kredi": 1024000,
@@ -7209,18 +7209,18 @@
    ],
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: cloning_mimesis); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_byte-remnant": 25
    }
   },
-  "etk_cloned_mimesis": {
+  "event_cloned_mimesis": {
    "ad": "-=[ Cloned Mimesis ]=-",
    "hp": 495000,
    "kalkan": 200000,
    "hasar": 0,
    "hiz": 280,
-   "saldirgan": false,
-   "odul": {
+   "aggressive": false,
+   "reward": {
     "ep": 25600,
     "onur": 128,
     "kredi": 128000,
@@ -7248,14 +7248,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: cloned_mimesis); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_terror_mimesis": {
+  "event_terror_mimesis": {
    "ad": "-=[ Terror Mimesis ]=-",
    "hp": 3000000,
    "kalkan": 1800000,
    "hasar": 65000,
    "hiz": 280,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 409600,
     "onur": 2048,
     "kredi": 2048000,
@@ -7282,18 +7282,18 @@
    ],
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: terror_mimesis); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_byte-remnant": 35
    }
   },
-  "etk_kamikaze_mimesis": {
+  "event_kamikaze_mimesis": {
    "ad": "-=[ Kamikaze Mimesis ]=-",
    "hp": 495000,
    "kalkan": 200000,
    "hasar": 0,
    "hiz": 450,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 25600,
     "onur": 128,
     "kredi": 128000,
@@ -7321,14 +7321,14 @@
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: kamikaze_mimesis); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
   },
-  "etk_reflector_mimesis": {
+  "event_reflector_mimesis": {
    "ad": "-=[ Reflector Mimesis ]=-",
    "hp": 4500000,
    "kalkan": 2500000,
    "hasar": 50000,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 819200,
     "onur": 4096,
     "kredi": 4096000,
@@ -7355,11 +7355,11 @@
    ],
    "etkinlik": true,
    "_kaynak": "wiki (belgeler/wiki/aliens.md: reflector_mimesis); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_byte-remnant": 50
    }
   },
-  "etk_hitac2_minion": {
+  "event_hitac2_minion": {
    "ad": "Hitac-Minion 2.0",
    "model": "117",
    "npc_kimlik": 105,
@@ -7367,9 +7367,9 @@
    "kalkan": 3500000,
    "hasar": 20000,
    "hiz": 300,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
-   "odul": {
+   "reward": {
     "ep": 1000000,
     "onur": 24000,
     "kredi": 5000000,
@@ -7378,7 +7378,7 @@
    "kargo": {},
    "_kaynak": "wiki: Hitac 2.0 Minion"
   },
-  "etk_hitac2_mothership": {
+  "event_hitac2_mothership": {
    "ad": "Hitac 2.0",
    "model": "116",
    "npc_kimlik": 106,
@@ -7386,30 +7386,30 @@
    "kalkan": 8000000,
    "hasar": 60000,
    "hiz": 180,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
-   "odul": {
+   "reward": {
     "ep": 10000000,
     "onur": 100000,
     "kredi": 2000000,
     "uridyum": 5000
    },
    "kargo": {},
-   "davranis": {
+   "behavior": {
     "invulnerable_while_summons_live": true,
     "summon_on_hit": {
-     "tur": "etk_hitac2_minion",
+     "tur": "event_hitac2_minion",
      "adet": 6,
-     "en_cok": 6,
+     "max_count": 6,
      "bekleme_sn": 300,
      "when_all_dead": true,
-     "koru": {"yaricap": [150, 350], "leash": 1500},
+     "guard": {"yaricap": [150, 350], "leash": 1500},
      "_bekleme": "Yedekler yardımcıların hepsi yok edilince, 300 sn sonra (uyarlama; fandom Hitac Event: \"There are replacement Minions inside the Mothership\"; oyuncu bildirimi 2026-10-30: 90 sn her çağrıdan sayılıyor, yardımcılar 1-2 dakikada yenileniyordu). koru: yardımcılar ana gemiye bağlı (fandom: \"six Hitac-Minions attached to it\"), ana gemiden 1.500 birim uzaklaşan oyuncuyu bırakır"
     }
    },
    "_kaynak": "wiki: Hitac 2.0 (rota 4-1 > 4-2 > 4-3); davranış Hitac 2.5 ile aynı (uyarlama)"
   },
-  "seeker_roket": {
+  "seeker_rocket": {
    "ad": "Seeker Rocket",
    "model": "159",
    "npc_kimlik": 159,
@@ -7417,8 +7417,8 @@
    "kalkan": 0,
    "hasar": 0,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 0,
     "onur": 0,
     "kredi": 0,
@@ -7427,15 +7427,15 @@
    "kargo": {},
    "_kaynak": "fandom (Seeker Rocket): Streuner Rocketeer'ın çağırdığı intihar roketi, vurulup yok edilebilir; can ve ödülsüzlük uyarlama (hız oyuncu + 20: uzayli_yetenekleri.json 159)"
   },
-  "etk_mirror_klon": {
+  "event_mirror_clone": {
    "ad": "-=[ Mirror Mimesis Clone ]=-",
    "model": "292",
    "hp": 300000,
    "kalkan": 200000,
    "hasar": 2500,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 0,
     "onur": 0,
     "kredi": 0,
@@ -7446,14 +7446,14 @@
    "etkinlik": true,
    "_kaynak": "darkorbitwiki (Mirror Mimesis): zayıf klonlar; can/kalkan %10, hasar %20, ödülsüz (uyarlama; mm_mirror'dan)"
   },
-  "etk_cubikon_kaos": {
+  "event_cubikon_chaos": {
    "ad": "-=[ Chaos Cubikon ]=-",
    "hp": 2000000,
    "kalkan": 1500000,
    "hasar": 0,
    "hiz": 30,
-   "saldirgan": false,
-   "odul": {
+   "aggressive": false,
+   "reward": {
     "ep": 670250,
     "onur": 5120,
     "kredi": 2048000,
@@ -7472,8 +7472,8 @@
    "model": "80",
    "haritalar": [],
    "etkinlik": true,
-   "kalkan_emme": 0.8,
-   "ek_odul": {
+   "shield_absorb": 0.8,
+   "extra_reward": {
     "resource_collectable_chaos-fragment": [
      337,
      348
@@ -7515,7 +7515,7 @@
    },
    "_kaynak": "taban Cubikon x1.25 (uyarlama; wiki'de yok); ödül paketi wiki protegit-pandemonium (Chaos Cubikon; miktarı \"?\" olanlar yazılmadı)"
   },
-  "etk_binary_x2": {
+  "event_binary_x2": {
    "ad": "-=[ Binary Bot ]=-",
    "model": "104",
    "npc_kimlik": 57,
@@ -7523,9 +7523,9 @@
    "kalkan": 300000,
    "hasar": 1800,
    "hiz": 290,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
-   "odul": {
+   "reward": {
     "ep": 25600,
     "onur": 78,
     "kredi": 204800,
@@ -7542,7 +7542,7 @@
    },
    "_kaynak": "wiki darkorbitwiki Binary Bot (Santa Bot ile aynı tablo): harita başına ödül; can/kalkan/hasar aralıkta haritaya göre (etk_santa_* ile)"
   },
-  "etk_binary_x3": {
+  "event_binary_x3": {
    "ad": "-=[ Binary Bot ]=-",
    "model": "104",
    "npc_kimlik": 57,
@@ -7550,9 +7550,9 @@
    "kalkan": 428571,
    "hasar": 2828,
    "hiz": 290,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
-   "odul": {
+   "reward": {
     "ep": 38400,
     "onur": 117,
     "kredi": 307200,
@@ -7569,7 +7569,7 @@
    },
    "_kaynak": "wiki darkorbitwiki Binary Bot (Santa Bot ile aynı tablo): harita başına ödül; can/kalkan/hasar aralıkta haritaya göre (etk_santa_* ile)"
   },
-  "etk_binary_x4": {
+  "event_binary_x4": {
    "ad": "-=[ Binary Bot ]=-",
    "model": "104",
    "npc_kimlik": 57,
@@ -7577,9 +7577,9 @@
    "kalkan": 557142,
    "hasar": 3857,
    "hiz": 290,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
-   "odul": {
+   "reward": {
     "ep": 51200,
     "onur": 156,
     "kredi": 409600,
@@ -7596,7 +7596,7 @@
    },
    "_kaynak": "wiki darkorbitwiki Binary Bot (Santa Bot ile aynı tablo): harita başına ödül; can/kalkan/hasar aralıkta haritaya göre (etk_santa_* ile)"
   },
-  "etk_binary_4_5": {
+  "event_binary_4_5": {
    "ad": "-=[ Binary Bot ]=-",
    "model": "104",
    "npc_kimlik": 57,
@@ -7604,9 +7604,9 @@
    "kalkan": 685714,
    "hasar": 4885,
    "hiz": 290,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
-   "odul": {
+   "reward": {
     "ep": 76800,
     "onur": 234,
     "kredi": 614400,
@@ -7623,7 +7623,7 @@
    },
    "_kaynak": "wiki darkorbitwiki Binary Bot (Santa Bot ile aynı tablo): harita başına ödül; can/kalkan/hasar aralıkta haritaya göre (etk_santa_* ile)"
   },
-  "etk_binary_x5": {
+  "event_binary_x5": {
    "ad": "-=[ Binary Bot ]=-",
    "model": "104",
    "npc_kimlik": 57,
@@ -7631,9 +7631,9 @@
    "kalkan": 814285,
    "hasar": 5914,
    "hiz": 290,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
-   "odul": {
+   "reward": {
     "ep": 102400,
     "onur": 312,
     "kredi": 819200,
@@ -7650,7 +7650,7 @@
    },
    "_kaynak": "wiki darkorbitwiki Binary Bot (Santa Bot ile aynı tablo): harita başına ödül; can/kalkan/hasar aralıkta haritaya göre (etk_santa_* ile)"
   },
-  "etk_binary_x6": {
+  "event_binary_x6": {
    "ad": "-=[ Binary Bot ]=-",
    "model": "104",
    "npc_kimlik": 57,
@@ -7658,9 +7658,9 @@
    "kalkan": 942857,
    "hasar": 6942,
    "hiz": 290,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
-   "odul": {
+   "reward": {
     "ep": 153600,
     "onur": 468,
     "kredi": 1228800,
@@ -7677,7 +7677,7 @@
    },
    "_kaynak": "wiki darkorbitwiki Binary Bot (Santa Bot ile aynı tablo): harita başına ödül; can/kalkan/hasar aralıkta haritaya göre (etk_santa_* ile)"
   },
-  "etk_binary_x7": {
+  "event_binary_x7": {
    "ad": "-=[ Binary Bot ]=-",
    "model": "104",
    "npc_kimlik": 57,
@@ -7685,9 +7685,9 @@
    "kalkan": 1071428,
    "hasar": 7971,
    "hiz": 290,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
-   "odul": {
+   "reward": {
     "ep": 204800,
     "onur": 624,
     "kredi": 1638400,
@@ -7704,7 +7704,7 @@
    },
    "_kaynak": "wiki darkorbitwiki Binary Bot (Santa Bot ile aynı tablo): harita başına ödül; can/kalkan/hasar aralıkta haritaya göre (etk_santa_* ile)"
   },
-  "etk_binary_x8": {
+  "event_binary_x8": {
    "ad": "-=[ Binary Bot ]=-",
    "model": "104",
    "npc_kimlik": 57,
@@ -7712,9 +7712,9 @@
    "kalkan": 1200000,
    "hasar": 9000,
    "hiz": 290,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
-   "odul": {
+   "reward": {
     "ep": 256000,
     "onur": 780,
     "kredi": 2048000,
@@ -7731,15 +7731,15 @@
    },
    "_kaynak": "wiki darkorbitwiki Binary Bot (Santa Bot ile aynı tablo): harita başına ödül; can/kalkan/hasar aralıkta haritaya göre (etk_santa_* ile)"
   },
-  "etk_sizma_boss_kristallon": {
+  "event_infiltration_boss_kristallon": {
    "ad": "-=[ Boss Kristallon ]=-",
    "hp": 1600000,
    "kalkan": 1200000,
    "hasar": 20000,
    "hiz": 180,
-   "saldirgan": false,
+   "aggressive": false,
    "menzil": 550,
-   "odul": {
+   "reward": {
     "ep": 490000,
     "onur": 2048,
     "kredi": 3276800,
@@ -7756,21 +7756,21 @@
    },
    "_kaynak": "Boss Kristallon (35) x Uber Kristallon (45) ganimeti: fandom Infiltration (gizli Boss Kristallon, Uber Kristallon'un ganimetini verir); sızma komandosu olarak gelir (sizma.py)",
    "npc_kimlik": 23,
-   "ek_odul": {
+   "extra_reward": {
     "resource_collectable_prismatium": 5,
     "resource_collectable_bifenon": 1
    },
    "haritalar": [],
    "etkinlik": true
   },
-  "etk_sunburst_lordakium": {
+  "event_sunburst_lordakium": {
    "ad": "-=[ Sunburst Lordakium ]=-",
    "hp": 400000,
    "kalkan": 600000,
    "hasar": 4000,
    "hiz": 200,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 51200,
     "onur": 156,
     "kredi": 409600,
@@ -7787,7 +7787,7 @@
    },
    "npc_kimlik": 76,
    "model": "77",
-   "ek_odul": {
+   "extra_reward": {
     "ammunition_specialammo_wiz-x": {
      "adet": 1,
      "probability": 0.25
@@ -7796,7 +7796,7 @@
    "_kaynak": "Resmî Türk forumu 1885 (NPC'ler ve Verdikleri Ödüller): Sunburst Lordakium, özel günlerde X-2..X-8 ve 4-X; DP 400.000, kalkan 600.000, hasar 3.500-4.500 + WIZ-X roketi; 51.200 TP, 156 şeref, 409.600 kredi, 128 U; kargo P/E/T 300, Pd/Du 128, Pr 16, Xe 4. İstemci npc_name_76",
    "_uyarlama": "görünüm Lordakium (model 77); WIZ-X düşmesi %25 (forum 'Vız roketi' saldırısı: oyuncuya WIZ-X etkisi yerine ganimet)"
   },
-  "etk_hakem_x2": {
+  "event_referee_x2": {
    "ad": "Referee-Bot",
    "model": "32",
    "npc_kimlik": 75,
@@ -7804,13 +7804,13 @@
    "kalkan": 0,
    "hasar": 1800,
    "hiz": 150,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
    "ammo_only": [
     "ammunition_laser_cbo-100",
     "ammunition_rocketlauncher_cbr"
    ],
-   "odul": {
+   "reward": {
     "ep": 512000,
     "onur": 1560,
     "kredi": 819200,
@@ -7819,7 +7819,7 @@
    "kargo": {},
    "_kaynak": "resmî Türk forumu 135026 (Hakem Botu): harita başına can ve ödül (4-X satırı 4-1..4-5); yalnız CBO-100 ve CBR hasar verir; saldırgan, \"oldukça yavaş\" (hız 150 uyarlama); kalkan forumda yok (0); hasar aynı haritanın Santa-1100101'inden (uyarlama). Görünüm: istemcide Referee-Bot modeli yok (npc_name_75 yalnız adı), forum 127755 \"Refeere BOT (Santa BOT)\": Santa modeli 32"
   },
-  "etk_hakem_x3": {
+  "event_referee_x3": {
    "ad": "Referee-Bot",
    "model": "32",
    "npc_kimlik": 75,
@@ -7827,13 +7827,13 @@
    "kalkan": 0,
    "hasar": 2828,
    "hiz": 150,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
    "ammo_only": [
     "ammunition_laser_cbo-100",
     "ammunition_rocketlauncher_cbr"
    ],
-   "odul": {
+   "reward": {
     "ep": 768000,
     "onur": 2340,
     "kredi": 1228800,
@@ -7842,7 +7842,7 @@
    "kargo": {},
    "_kaynak": "resmî Türk forumu 135026 (Hakem Botu): harita başına can ve ödül (4-X satırı 4-1..4-5); yalnız CBO-100 ve CBR hasar verir; saldırgan, \"oldukça yavaş\" (hız 150 uyarlama); kalkan forumda yok (0); hasar aynı haritanın Santa-1100101'inden (uyarlama). Görünüm: istemcide Referee-Bot modeli yok (npc_name_75 yalnız adı), forum 127755 \"Refeere BOT (Santa BOT)\": Santa modeli 32"
   },
-  "etk_hakem_x4": {
+  "event_referee_x4": {
    "ad": "Referee-Bot",
    "model": "32",
    "npc_kimlik": 75,
@@ -7850,13 +7850,13 @@
    "kalkan": 0,
    "hasar": 3857,
    "hiz": 150,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
    "ammo_only": [
     "ammunition_laser_cbo-100",
     "ammunition_rocketlauncher_cbr"
    ],
-   "odul": {
+   "reward": {
     "ep": 1024000,
     "onur": 3120,
     "kredi": 1638400,
@@ -7865,7 +7865,7 @@
    "kargo": {},
    "_kaynak": "resmî Türk forumu 135026 (Hakem Botu): harita başına can ve ödül (4-X satırı 4-1..4-5); yalnız CBO-100 ve CBR hasar verir; saldırgan, \"oldukça yavaş\" (hız 150 uyarlama); kalkan forumda yok (0); hasar aynı haritanın Santa-1100101'inden (uyarlama). Görünüm: istemcide Referee-Bot modeli yok (npc_name_75 yalnız adı), forum 127755 \"Refeere BOT (Santa BOT)\": Santa modeli 32"
   },
-  "etk_hakem_4x": {
+  "event_referee_4x": {
    "ad": "Referee-Bot",
    "model": "32",
    "npc_kimlik": 75,
@@ -7873,13 +7873,13 @@
    "kalkan": 0,
    "hasar": 4885,
    "hiz": 150,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
    "ammo_only": [
     "ammunition_laser_cbo-100",
     "ammunition_rocketlauncher_cbr"
    ],
-   "odul": {
+   "reward": {
     "ep": 1536000,
     "onur": 4680,
     "kredi": 2457600,
@@ -7888,7 +7888,7 @@
    "kargo": {},
    "_kaynak": "resmî Türk forumu 135026 (Hakem Botu): harita başına can ve ödül (4-X satırı 4-1..4-5); yalnız CBO-100 ve CBR hasar verir; saldırgan, \"oldukça yavaş\" (hız 150 uyarlama); kalkan forumda yok (0); hasar aynı haritanın Santa-1100101'inden (uyarlama). Görünüm: istemcide Referee-Bot modeli yok (npc_name_75 yalnız adı), forum 127755 \"Refeere BOT (Santa BOT)\": Santa modeli 32"
   },
-  "etk_hakem_x5": {
+  "event_referee_x5": {
    "ad": "Referee-Bot",
    "model": "32",
    "npc_kimlik": 75,
@@ -7896,13 +7896,13 @@
    "kalkan": 0,
    "hasar": 5914,
    "hiz": 150,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
    "ammo_only": [
     "ammunition_laser_cbo-100",
     "ammunition_rocketlauncher_cbr"
    ],
-   "odul": {
+   "reward": {
     "ep": 2048000,
     "onur": 6240,
     "kredi": 3276800,
@@ -7911,7 +7911,7 @@
    "kargo": {},
    "_kaynak": "resmî Türk forumu 135026 (Hakem Botu): harita başına can ve ödül (4-X satırı 4-1..4-5); yalnız CBO-100 ve CBR hasar verir; saldırgan, \"oldukça yavaş\" (hız 150 uyarlama); kalkan forumda yok (0); hasar aynı haritanın Santa-1100101'inden (uyarlama). Görünüm: istemcide Referee-Bot modeli yok (npc_name_75 yalnız adı), forum 127755 \"Refeere BOT (Santa BOT)\": Santa modeli 32"
   },
-  "etk_hakem_x6": {
+  "event_referee_x6": {
    "ad": "Referee-Bot",
    "model": "32",
    "npc_kimlik": 75,
@@ -7919,13 +7919,13 @@
    "kalkan": 0,
    "hasar": 6942,
    "hiz": 150,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
    "ammo_only": [
     "ammunition_laser_cbo-100",
     "ammunition_rocketlauncher_cbr"
    ],
-   "odul": {
+   "reward": {
     "ep": 3072000,
     "onur": 9360,
     "kredi": 4915200,
@@ -7934,7 +7934,7 @@
    "kargo": {},
    "_kaynak": "resmî Türk forumu 135026 (Hakem Botu): harita başına can ve ödül (4-X satırı 4-1..4-5); yalnız CBO-100 ve CBR hasar verir; saldırgan, \"oldukça yavaş\" (hız 150 uyarlama); kalkan forumda yok (0); hasar aynı haritanın Santa-1100101'inden (uyarlama). Görünüm: istemcide Referee-Bot modeli yok (npc_name_75 yalnız adı), forum 127755 \"Refeere BOT (Santa BOT)\": Santa modeli 32"
   },
-  "etk_hakem_x7": {
+  "event_referee_x7": {
    "ad": "Referee-Bot",
    "model": "32",
    "npc_kimlik": 75,
@@ -7942,13 +7942,13 @@
    "kalkan": 0,
    "hasar": 7971,
    "hiz": 150,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
    "ammo_only": [
     "ammunition_laser_cbo-100",
     "ammunition_rocketlauncher_cbr"
    ],
-   "odul": {
+   "reward": {
     "ep": 4096000,
     "onur": 12480,
     "kredi": 6553600,
@@ -7957,7 +7957,7 @@
    "kargo": {},
    "_kaynak": "resmî Türk forumu 135026 (Hakem Botu): harita başına can ve ödül (4-X satırı 4-1..4-5); yalnız CBO-100 ve CBR hasar verir; saldırgan, \"oldukça yavaş\" (hız 150 uyarlama); kalkan forumda yok (0); hasar aynı haritanın Santa-1100101'inden (uyarlama). Görünüm: istemcide Referee-Bot modeli yok (npc_name_75 yalnız adı), forum 127755 \"Refeere BOT (Santa BOT)\": Santa modeli 32"
   },
-  "etk_hakem_x8": {
+  "event_referee_x8": {
    "ad": "Referee-Bot",
    "model": "32",
    "npc_kimlik": 75,
@@ -7965,13 +7965,13 @@
    "kalkan": 0,
    "hasar": 9000,
    "hiz": 150,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
    "ammo_only": [
     "ammunition_laser_cbo-100",
     "ammunition_rocketlauncher_cbr"
    ],
-   "odul": {
+   "reward": {
     "ep": 5120000,
     "onur": 15600,
     "kredi": 8192000,
@@ -7980,7 +7980,7 @@
    "kargo": {},
    "_kaynak": "resmî Türk forumu 135026 (Hakem Botu): harita başına can ve ödül (4-X satırı 4-1..4-5); yalnız CBO-100 ve CBR hasar verir; saldırgan, \"oldukça yavaş\" (hız 150 uyarlama); kalkan forumda yok (0); hasar aynı haritanın Santa-1100101'inden (uyarlama). Görünüm: istemcide Referee-Bot modeli yok (npc_name_75 yalnız adı), forum 127755 \"Refeere BOT (Santa BOT)\": Santa modeli 32"
   },
-  "etk_demaner_freighter": {
+  "event_demaner_freighter": {
    "ad": "DemaNeR Freighter",
    "model": "126",
    "npc_kimlik": 116,
@@ -7988,9 +7988,9 @@
    "kalkan": 180000000,
    "hasar": 15000,
    "hiz": 120,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
-   "odul": {
+   "reward": {
     "ep": 3000000,
     "onur": 30000,
     "kredi": 12000000,
@@ -7999,7 +7999,7 @@
    "kargo": {},
    "_kaynak": "resmî Türk forumu 132357 (Demaner Freighter Avı 2016-2020): DP 20.000.000, kalkan 180.000.000, hız 120, lazer 15.000, ödül 30.000 U / 12 M kredi / 3 M TP / 30.000 şeref (sıralama puanı rutbe.json'da); model istemcinin game.xml'i (type 126, npcId 116). Yapılmayan: çevredeki oyuncu başına %3,33 kalkan azalması (tek oyunculu), DCR-250 roketi (hasarı kaynakta yok)"
   },
-  "etk_demaner": {
+  "event_demaner": {
    "ad": "-=[ DemaNeR ]=-",
    "model": "11",
    "npc_kimlik": 39,
@@ -8007,9 +8007,9 @@
    "kalkan": 300000,
    "hasar": 5000,
    "hiz": 300,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
-   "odul": {
+   "reward": {
     "ep": 0,
     "onur": 0,
     "kredi": 50000,
@@ -8022,18 +8022,18 @@
    },
    "_kaynak": "resmî Türk forumu 132357 (2020): küçük Demaner'ın imha ödülü 24 U / 50.000 kredi, kargosu 100 Prometium / Endurium / Terbium; can, kalkan, hasar ve hız Delta kapısının DemaNeR'inden (kapilar.json; uyarlama)"
   },
-  "etk_i_hitac": {
+  "event_i_hitac": {
    "ad": "I-Hitac",
    "model": "245",
    "npc_kimlik": 125,
    "hp": 60000000,
    "kalkan": 35000000,
-   "kalkan_emme": 0.8,
+   "shield_absorb": 0.8,
    "hasar": 15000,
    "hiz": 120,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
-   "odul": {
+   "reward": {
     "ep": 3000000,
     "onur": 30000,
     "kredi": 12000000,
@@ -8050,7 +8050,7 @@
    },
    "_kaynak": "resmî Türk forumu 129632 (Toplama Zamanı / Hatching Out 2018): Hastalıklı HITAC 60 M can, 35 M kalkan, %80 yayılım, hız 120, lazer 15.000; ödül ve cevherler forumdan; model istemcinin game.xml'i (Infected Hitac Mothership 245, npcId 125)"
   },
-  "etk_i_egg": {
+  "event_i_egg": {
    "ad": "Biomech Egg",
    "model": "247",
    "npc_kimlik": 126,
@@ -8058,9 +8058,9 @@
    "kalkan": 0,
    "hasar": 0,
    "hiz": 0,
-   "saldirgan": false,
+   "aggressive": false,
    "etkinlik": true,
-   "odul": {
+   "reward": {
     "ep": 10,
     "onur": 1,
     "kredi": 500,
@@ -8069,19 +8069,19 @@
    "kargo": {},
    "_kaynak": "resmî Türk forumu 129632: yumurta DP 12.000, ödül 2 U / 500 kredi / 10 TP / 1 şeref; I-Hitac 30 sn'de bir bırakır, 90 sn kalır; model game.xml (Infected alien egg 247, npcId 126)"
   },
-  "etk_i_gygerthrall": {
+  "event_i_gygerthrall": {
    "ad": "I-Gygerthrall",
    "model": "246",
    "npc_kimlik": 127,
    "hp": 35000,
    "kalkan": 30000,
-   "kalkan_emme": 0.7,
+   "shield_absorb": 0.7,
    "hasar": 1200,
    "hiz": 340,
    "menzil": 500,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
-   "odul": {
+   "reward": {
     "ep": 6000,
     "onur": 30,
     "kredi": 5000,
@@ -8090,7 +8090,7 @@
    "kargo": {},
    "_kaynak": "resmî Türk forumu 129632: I-Gygerthrall DP 35.000, kalkan 30.000, %70 yayılım, hız 340, menzil 500, lazer 1.200; ödül 20 U / 5.000 kredi / 6.000 TP / 30 şeref; model game.xml (246, npcId 127)"
   },
-  "etk_gygerthrall": {
+  "event_gygerthrall": {
    "ad": "-=[ Gygerthrall ]=-",
    "model": "128",
    "npc_kimlik": 123,
@@ -8098,9 +8098,9 @@
    "kalkan": 50000,
    "hasar": 1500,
    "hiz": 320,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
-   "odul": {
+   "reward": {
     "ep": 6400,
     "onur": 32,
     "kredi": 12800,
@@ -8109,7 +8109,7 @@
    "kargo": {},
    "_kaynak": "resmî Türk forumu 130098 (Epidemi Alarmı): Gygerthrall DP 60.000, kalkan 50.000, ödül 16 U / 12.800 kredi / 6.400 TP / 32 şeref; hasar ve hız Karantina Bölgesi'nin Gygerthrall'ından (pve_modlari.json pm_gygerthrall; uyarlama)"
   },
-  "etk_plagued_gygerthrall": {
+  "event_plagued_gygerthrall": {
    "ad": "-=[ Plagued Gygerthrall ]=-",
    "model": "246",
    "npc_kimlik": 154,
@@ -8117,9 +8117,9 @@
    "kalkan": 75000,
    "hasar": 1500,
    "hiz": 320,
-   "saldirgan": true,
+   "aggressive": true,
    "etkinlik": true,
-   "odul": {
+   "reward": {
     "ep": 6400,
     "onur": 32,
     "kredi": 12800,
@@ -8128,15 +8128,15 @@
    "kargo": {},
    "_kaynak": "resmî Türk forumu 130098: Plagued Gygerthrall (X-6) DP 90.000, kalkan 75.000, ödül 16 U / 12.800 kredi / 6.400 TP / 32 şeref; Plagued Kristallin öldürülünce doğar; hasar ve hız uyarlama; model game.xml (246, npcId 154)"
   },
-  "etk_plagued_kristallin": {
+  "event_plagued_kristallin": {
    "ad": "-=[ Plagued Kristallin ]=-",
    "hp": 75000,
    "kalkan": 60000,
    "hasar": 1700,
    "hiz": 373,
-   "genisleme": 3,
-   "saldirgan": false,
-   "odul": {
+   "spread": 3,
+   "aggressive": false,
+   "reward": {
     "ep": 6400,
     "onur": 32,
     "kredi": 12800,
@@ -8154,9 +8154,9 @@
    "kalkan": 150000,
    "hasar": 5000,
    "hiz": 372,
-   "genisleme": 3,
-   "saldirgan": false,
-   "odul": {
+   "spread": 3,
+   "aggressive": false,
+   "reward": {
     "ep": 25000,
     "onur": 250,
     "kredi": 50000,
@@ -8180,9 +8180,9 @@
    "kalkan": 450000,
    "hasar": 8500,
    "hiz": 422,
-   "genisleme": 3,
-   "saldirgan": false,
-   "odul": {
+   "spread": 3,
+   "aggressive": false,
+   "reward": {
     "ep": 51200,
     "onur": 512,
     "kredi": 45000,
@@ -8206,9 +8206,9 @@
    "kalkan": 150000,
    "hasar": 7000,
    "hiz": 322,
-   "genisleme": 3,
-   "saldirgan": false,
-   "odul": {
+   "spread": 3,
+   "aggressive": false,
+   "reward": {
     "ep": 51200,
     "onur": 512,
     "kredi": 45000,
@@ -8232,9 +8232,9 @@
    "kalkan": 150000,
    "hasar": 7000,
    "hiz": 272,
-   "genisleme": 3,
-   "saldirgan": false,
-   "odul": {
+   "spread": 3,
+   "aggressive": false,
+   "reward": {
     "ep": 51200,
     "onur": 512,
     "kredi": 45000,
@@ -8258,9 +8258,9 @@
    "kalkan": 150000,
    "hasar": 8500,
    "hiz": 322,
-   "genisleme": 3,
-   "saldirgan": false,
-   "odul": {
+   "spread": 3,
+   "aggressive": false,
+   "reward": {
     "ep": 51200,
     "onur": 512,
     "kredi": 45000,
@@ -8284,9 +8284,9 @@
    "kalkan": 150000,
    "hasar": 7000,
    "hiz": 272,
-   "genisleme": 3,
-   "saldirgan": false,
-   "odul": {
+   "spread": 3,
+   "aggressive": false,
+   "reward": {
     "ep": 51200,
     "onur": 512,
     "kredi": 45000,
@@ -8310,9 +8310,9 @@
    "kalkan": 150000,
    "hasar": 8500,
    "hiz": 522,
-   "genisleme": 3,
-   "saldirgan": false,
-   "odul": {
+   "spread": 3,
+   "aggressive": false,
+   "reward": {
     "ep": 51200,
     "onur": 512,
     "kredi": 45000,
@@ -8338,15 +8338,15 @@
    "kalkan": 400000,
    "hasar": 4000,
    "hiz": 240,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 65000,
     "onur": 300,
     "kredi": 500000,
     "uridyum": 150
    },
    "kargo": {},
-   "davranis": {
+   "behavior": {
     "spawn_on_death": [
      {
       "tur": "pm_blighted_gygerthrall",
@@ -8364,8 +8364,8 @@
    "kalkan": 200000,
    "hasar": 2500,
    "hiz": 320,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 9400,
     "onur": 45,
     "kredi": 18800,
@@ -8414,7 +8414,7 @@
      "adet": 4
     }
    ],
-   "bonus_kutu": 20
+   "bonus_boxes": 20
   },
   "6": {
    "_name": "2-2",
@@ -8444,7 +8444,7 @@
      "adet": 2
     }
    ],
-   "bonus_kutu": 20,
+   "bonus_boxes": 20,
    "_kaynak": "tür listesi istemcinin spacemap-config.xml'inden (1-2/2-2/3-2: Streuner, Lordakia, Boss Streuner, Boss Lordakia, Recruit, Aider); adetler uyarlama"
   },
   "1": {
@@ -8463,7 +8463,7 @@
      "adet": 4
     }
    ],
-   "bonus_kutu": 20,
+   "bonus_boxes": 20,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-1)"
   },
   "2": {
@@ -8494,7 +8494,7 @@
      "adet": 4
     }
    ],
-   "bonus_kutu": 20,
+   "bonus_boxes": 20,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-2)"
   },
   "3": {
@@ -8529,7 +8529,7 @@
      "adet": 1
     }
    ],
-   "bonus_kutu": 15,
+   "bonus_boxes": 15,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-3)"
   },
   "4": {
@@ -8564,7 +8564,7 @@
      "adet": 1
     }
    ],
-   "bonus_kutu": 15,
+   "bonus_boxes": 15,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-4)"
   },
   "7": {
@@ -8599,7 +8599,7 @@
      "adet": 1
     }
    ],
-   "bonus_kutu": 15,
+   "bonus_boxes": 15,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-3)"
   },
   "8": {
@@ -8630,7 +8630,7 @@
      "adet": 1
     }
    ],
-   "bonus_kutu": 15,
+   "bonus_boxes": 15,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-4)"
   },
   "9": {
@@ -8649,7 +8649,7 @@
      "adet": 4
     }
    ],
-   "bonus_kutu": 20,
+   "bonus_boxes": 20,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-1)"
   },
   "10": {
@@ -8680,7 +8680,7 @@
      "adet": 4
     }
    ],
-   "bonus_kutu": 20,
+   "bonus_boxes": 20,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-2)"
   },
   "11": {
@@ -8715,7 +8715,7 @@
      "adet": 1
     }
    ],
-   "bonus_kutu": 15,
+   "bonus_boxes": 15,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-3)"
   },
   "12": {
@@ -8746,7 +8746,7 @@
      "adet": 1
     }
    ],
-   "bonus_kutu": 15,
+   "bonus_boxes": 15,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-4)"
   },
   "13": {
@@ -8761,7 +8761,7 @@
      "adet": 1
     }
    ],
-   "bonus_kutu": 8,
+   "bonus_boxes": 8,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (4-X)"
   },
   "14": {
@@ -8772,7 +8772,7 @@
      "adet": 3
     }
    ],
-   "bonus_kutu": 8,
+   "bonus_boxes": 8,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (4-X)"
   },
   "15": {
@@ -8787,7 +8787,7 @@
      "adet": 1
     }
    ],
-   "bonus_kutu": 8,
+   "bonus_boxes": 8,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (4-X)"
   },
   "16": {
@@ -8798,9 +8798,9 @@
      "adet": 3
     }
    ],
-   "bonus_kutu": 8,
+   "bonus_boxes": 8,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (4-X)",
-   "boyut": [
+   "size": [
     42000,
     26200
    ]
@@ -8829,7 +8829,7 @@
      "adet": 1
     }
    ],
-   "bonus_kutu": 12,
+   "bonus_boxes": 12,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-5)"
   },
   "18": {
@@ -8856,9 +8856,9 @@
      "adet": 5
     }
    ],
-   "bonus_kutu": 12,
+   "bonus_boxes": 12,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-6), 4 Cubikon fandom",
-   "sabit_noktalar": {
+   "fixed_spots": {
     "80": [
      [
       13400,
@@ -8878,10 +8878,10 @@
      ]
     ]
    },
-   "zamanli": [
+   "scheduled": [
     {
      "tip": "npc179",
-     "saatler": [
+     "hours": [
       "11:30",
       "13:30",
       "03:30",
@@ -8890,7 +8890,7 @@
     },
     {
      "tip": "218",
-     "saatler": [
+     "hours": [
       "17:30",
       "19:30"
      ]
@@ -8925,12 +8925,12 @@
      "adet": 2
     }
    ],
-   "bonus_kutu": 12,
+   "bonus_boxes": 12,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-7)",
-   "zamanli": [
+   "scheduled": [
     {
      "tip": "215",
-     "saatler": [
+     "hours": [
       "13:30",
       "15:30",
       "23:30",
@@ -8939,7 +8939,7 @@
     },
     {
      "tip": "219",
-     "saatler": [
+     "hours": [
       "19:30",
       "21:30"
      ]
@@ -8966,12 +8966,12 @@
      "adet": 1
     }
    ],
-   "bonus_kutu": 12,
+   "bonus_boxes": 12,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-8)",
-   "zamanli": [
+   "scheduled": [
     {
      "tip": "216",
-     "saatler": [
+     "hours": [
       "15:30",
       "17:30",
       "03:30",
@@ -8980,7 +8980,7 @@
     },
     {
      "tip": "220",
-     "saatler": [
+     "hours": [
       "21:30",
       "23:30"
      ]
@@ -9019,7 +9019,7 @@
      "adet": 1
     }
    ],
-   "bonus_kutu": 12,
+   "bonus_boxes": 12,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-5)"
   },
   "22": {
@@ -9046,9 +9046,9 @@
      "adet": 5
     }
    ],
-   "bonus_kutu": 12,
+   "bonus_boxes": 12,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-6), 4 Cubikon fandom",
-   "sabit_noktalar": {
+   "fixed_spots": {
     "80": [
      [
       13400,
@@ -9068,10 +9068,10 @@
      ]
     ]
    },
-   "zamanli": [
+   "scheduled": [
     {
      "tip": "npc179",
-     "saatler": [
+     "hours": [
       "11:30",
       "13:30",
       "03:30",
@@ -9080,7 +9080,7 @@
     },
     {
      "tip": "218",
-     "saatler": [
+     "hours": [
       "17:30",
       "19:30"
      ]
@@ -9119,12 +9119,12 @@
      "adet": 2
     }
    ],
-   "bonus_kutu": 12,
+   "bonus_boxes": 12,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-7)",
-   "zamanli": [
+   "scheduled": [
     {
      "tip": "215",
-     "saatler": [
+     "hours": [
       "13:30",
       "15:30",
       "23:30",
@@ -9133,7 +9133,7 @@
     },
     {
      "tip": "219",
-     "saatler": [
+     "hours": [
       "19:30",
       "21:30"
      ]
@@ -9164,12 +9164,12 @@
      "adet": 1
     }
    ],
-   "bonus_kutu": 12,
+   "bonus_boxes": 12,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-8)",
-   "zamanli": [
+   "scheduled": [
     {
      "tip": "216",
-     "saatler": [
+     "hours": [
       "15:30",
       "17:30",
       "03:30",
@@ -9178,7 +9178,7 @@
     },
     {
      "tip": "220",
-     "saatler": [
+     "hours": [
       "21:30",
       "23:30"
      ]
@@ -9217,7 +9217,7 @@
      "adet": 1
     }
    ],
-   "bonus_kutu": 12,
+   "bonus_boxes": 12,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-5)"
   },
   "26": {
@@ -9244,9 +9244,9 @@
      "adet": 5
     }
    ],
-   "bonus_kutu": 12,
+   "bonus_boxes": 12,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-6), 4 Cubikon fandom",
-   "sabit_noktalar": {
+   "fixed_spots": {
     "80": [
      [
       13400,
@@ -9266,10 +9266,10 @@
      ]
     ]
    },
-   "zamanli": [
+   "scheduled": [
     {
      "tip": "npc179",
-     "saatler": [
+     "hours": [
       "11:30",
       "13:30",
       "03:30",
@@ -9278,7 +9278,7 @@
     },
     {
      "tip": "218",
-     "saatler": [
+     "hours": [
       "17:30",
       "19:30"
      ]
@@ -9309,12 +9309,12 @@
      "adet": 2
     }
    ],
-   "bonus_kutu": 12,
+   "bonus_boxes": 12,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-7)",
-   "zamanli": [
+   "scheduled": [
     {
      "tip": "215",
-     "saatler": [
+     "hours": [
       "13:30",
       "15:30",
       "23:30",
@@ -9323,7 +9323,7 @@
     },
     {
      "tip": "219",
-     "saatler": [
+     "hours": [
       "19:30",
       "21:30"
      ]
@@ -9346,12 +9346,12 @@
      "adet": 2
     }
    ],
-   "bonus_kutu": 12,
+   "bonus_boxes": 12,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-8)",
-   "zamanli": [
+   "scheduled": [
     {
      "tip": "216",
-     "saatler": [
+     "hours": [
       "15:30",
       "17:30",
       "03:30",
@@ -9360,7 +9360,7 @@
     },
     {
      "tip": "220",
-     "saatler": [
+     "hours": [
       "21:30",
       "23:30"
      ]
@@ -9487,13 +9487,13 @@
      "adet": 1
     }
    ],
-   "bonus_kutu": 8,
+   "bonus_boxes": 8,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (4-5)",
-   "boyut": [
+   "size": [
     42000,
     26200
    ],
-   "solucan_deligi": {
+   "wormhole": {
     "hedef": 42,
     "position": [
      15600,
@@ -9532,9 +9532,9 @@
      "adet": 2
     }
    ],
-   "bonus_kutu": 8,
+   "bonus_boxes": 8,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (5-1)",
-   "boyut": [
+   "size": [
     42000,
     26200
    ]
@@ -9575,12 +9575,12 @@
      "adet": 1
     }
    ],
-   "bonus_kutu": 8,
+   "bonus_boxes": 8,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (5-2)",
-   "zamanli": [
+   "scheduled": [
     {
      "tip": "npc179",
-     "saatler": [
+     "hours": [
       "11:30",
       "13:30",
       "03:30",
@@ -9589,7 +9589,7 @@
     },
     {
      "tip": "218",
-     "saatler": [
+     "hours": [
       "17:30",
       "19:30"
      ]
@@ -9628,16 +9628,16 @@
      "adet": 2
     }
    ],
-   "bonus_kutu": 8,
+   "bonus_boxes": 8,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (5-3)",
-   "boyut": [
+   "size": [
     42000,
     26200
    ],
-   "zamanli": [
+   "scheduled": [
     {
      "tip": "215",
-     "saatler": [
+     "hours": [
       "13:30",
       "15:30",
       "23:30",
@@ -9646,7 +9646,7 @@
     },
     {
      "tip": "219",
-     "saatler": [
+     "hours": [
       "19:30",
       "21:30"
      ]
@@ -9685,7 +9685,7 @@
      "adet": 1
     }
    ],
-   "bonus_kutu": 8,
+   "bonus_boxes": 8,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-BL)"
   },
   "307": {
@@ -9728,7 +9728,7 @@
      "adet": 1
     }
    ],
-   "bonus_kutu": 8,
+   "bonus_boxes": 8,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-BL)"
   },
   "308": {
@@ -9763,7 +9763,7 @@
      "adet": 1
     }
    ],
-   "bonus_kutu": 8,
+   "bonus_boxes": 8,
    "_kaynak": "türler spacemap-config.xml; adetler uyarlama (X-BL)"
   },
   "42": {
@@ -9778,7 +9778,7 @@
      "adet": 40
     }
    ],
-   "bonus_kutu": 200,
+   "bonus_boxes": 200,
    "_kaynak": "türler wiki (belgeler/wiki/maps.md); adetler uyarlama (???): fandom \"vast numbers of Cubikon and Uber Protegit\", \"many Bonus Boxes covering the entire map\", forum 127347 \"bol miktarda bonus\", \"sürekli olarak Cubikon ve refakatçi gemileri Uber Protegitler gelmeye başlar\" (oyuncu bildirimi 2026-10-30: 4 Cubikon, 12 Uber Protegit, 40 kutu seyrek kalıyordu; harita 21.000x13.100'de ekran başına ~2 kutu)",
    "no_stealth": true,
    "_kurallar": "Cubikon Mezarlığı (wiki, belgeler/arastirma/pve_icerik.md 2.38): girişte gizlenme kalkar ve kullanılamaz, yavaşlatan hava (oran uyarlama), her yerde bonus kutusu (ilki 1.000 UCB-100, değeri giderek LCB-10'a düşer); çıkış yalnız atlama CPU'su ya da ölüm. Giriş: atlama CPU'su (esyalar.json graveyard_chance) ya da 4-5'teki gizli, yer değiştiren solucan deliği. Onarımlar ücretsiz (fandom Cubikon's Graveyard: \"repairs are free\"): ölüm ekranındaki yerinde onarım da bedelsiz (free_repair; dunya.repair_offers).",
@@ -9820,9 +9820,9 @@
      "adet": 40
     }
    ],
-   "bonus_kutu": 8,
+   "bonus_boxes": 8,
    "_kaynak": "türler wiki (belgeler/wiki/maps.md); adetler uyarlama (5-4)",
-   "boyut": [
+   "size": [
     42000,
     26200
    ],
@@ -9836,28 +9836,28 @@
  "savas": {
   "_kaynak": "kayıttan gözlenen: lazer aralığı ~1,1 sn; LF-1 + LCB-10 ile 50–64 hasar; NPC kalkanı hasarın %70'ini emer; R-310 roketi 850–1000 hasar, 4 sn bekleme, ~0,8 sn uçuş",
   "laser_interval_sec": 1.1,
-  "lazer_hasar": [
+  "laser_damage": [
    48,
    66
   ],
-  "lazer_isabet": 0.8,
+  "laser_hit_chance": 0.8,
   "laser_range": 700,
-  "roket_hasar": [
+  "rocket_damage": [
    850,
    1000
   ],
-  "roket_bekleme_ms": 4000,
+  "rocket_cooldown_ms": 4000,
   "rocket_flight_sec": 0.8,
   "rocket_range": 900,
-  "roket_isabet": 0.8,
+  "rocket_hit_chance": 0.8,
   "_roket_isabet": "roketin kendi isabeti yoksa taban (esyalar.json roketler.<id>.isabet: R-310 %70, PLT-2026 %80, PLT-2021 %90, PLT-3030 %65, BDR-1211 %100; özel cephane bu taban, uyarlama); Heat-Seeking Missiles yeteneği (roket_isabet) ve DMG-H01 boosterı (isabet) artırır, PLD-8 gibi etkiler düşürür",
   "npc_shield_absorb": 0.7,
   "_npc_kalkan_emme": "Varsayılan kalkan emme oranı; türün kalkan_emme değeri varsa o (fandom: Aider Streuner, Kristallon, Uber Kristallon %90, Cubikon %80, Uber Annihilator %85, Uber Interceptor %60)",
-  "npc_isabet": 0.7,
-  "npc_menzil": 450,
+  "npc_hit_chance": 0.7,
+  "npc_range": 450,
   "_npc_menzil": "Uzaylıların ateş menzili (türün menzil alanı yoksa): özel sunucu kodu (Ow, Attackable.AttackRange: uzaylı 450, oyuncu lazeri 700); DarkBot uzaylıları 550-610 birimden döner (çevirme). Önceden 600: dönerken çok uzaktan vuruluyordu (kullanıcı bildirimi 2026-10-25, Boss Sibelon). Kristallon ailesi 550 (fandom: \"en uzun menzil\")",
   "npc_attack_interval_sec": 1.1,
-  "yeniden_dogma_sn": [
+  "respawn_sec": [
    12,
    25
   ],
@@ -9866,9 +9866,9 @@
   "harvest_distance": 250,
   "npc_notice_distance": 1000,
   "passive_follow": {
-   "mesafe": 1500,
+   "distance": 1500,
    "yakin": 300,
-   "sapma": 1.0,
+   "spread": 1.0,
    "exclude": [
     "84",
     "153",
@@ -9877,8 +9877,8 @@
   },
   "_pasif_takip": "Saldırgan olmayan uzaylı oyuncuyu izler: mesafe içindeyse gezinme adımı oyuncuya doğru (± sapma radyan), yakin'dan öteye gelmez, ateş etmez. Resmî sunucu kaydı (2026-10-25/27, oyuncuya ateş etmemiş uzaylıların 1.500 birim içindeki adımları): Kristallon %81 yaklaşan adım (yön kosinüsü 0,68), Lordakium 0,70, Boss Lordakium 0,86, Cubikon 0,49, Blighted Kristallon 0,39, Plagued Kristallin 0,32, Purpose XXI 0,28; Streuner -0,02, Aider Streuner 0,16 ve Saturn gemileri (eksi) izlemez: haric (tür ya da önek). Oyuncu bildirimi 2026-10-28",
   "_npc_fark_mesafe": "uyarlama: saldırgan NPC oyuncuyu bu mesafede fark edip kovalar (önceden 500; güvenli bölgede fark etmez)",
-  "gorus_mesafesi": 1800,
-  "gorus_birakma": 1800,
+  "sight_range": 1800,
+  "view_drop": 1800,
   "_gorus_mesafesi": "Kayıt: gerçek sunucu NPC'leri kahramana ~1.800 birimde ShipCreateCommand ile gösteriyor (23 olay, 1.223-1.907, ortanca ~1.730), uzaklaşınca ShipRemoveCommand ile kaldırıyor (15 olay, 1.519-1.783); belirgin gecikme payı yok, bırakma da 1.800 (kahraman konumu MoveRequest'ten ±150).",
   "radiation_percent": [
    0.01,
@@ -9886,7 +9886,7 @@
   ],
   "radiation_increase_sec": 3,
   "_radyasyon": "darkorbit.fandom.com Radiation zone: harita sınırı dışında saniyede azami canın %1'i, %5'e kadar artar. Artış hızı (3 sn'de bir +%1) uyarlama; kalkanı değil gövdeyi vurur.",
-  "x1_kargo": [
+  "x1_cargo": [
    [
     7,
     0.5
@@ -9928,8 +9928,8 @@
    ]
   ],
   "_x1_odul": "darkorbitwiki.com aliens (Streuner, Recruit/Aider Streuner): seviye 7'den kendi X-1 haritanda öldürmek ödülü kısmen ya da tamamen azaltır, 15'ten hiç ödül yok (EP, onur, kredi, uridyum). Ara basamaklar uyarlama; düşman X-1'inde ceza yok. Bonus kutusunun içeriği (kredi, uridyum, cephane adedi) de aynı basamakla azalır (fandom 1-1, 2-1, Lowers: bonus kutuları da; dunya.take_box).",
-  "kutu_gorus": 1000,
-  "kutu_birakma": 1150,
+  "box_sight": 1000,
+  "box_drop": 1150,
   "_kutu_gorus": "Kayıt: kutular ve cevherler kahramana ~1.000 birim kala AddBoxCommand/AddOreCommand ile geliyor, uzaklaşınca toplanmadan RemoveCollectableCommand (161 kez, 900-1.150 birim). Bırakma uzaklığı uyarlama.",
   "npc_fixed_range": 1000,
   "_npc_menzil_sabit": "hareketsiz uzaylıların (Mindfire Behemoth, Cubikon …) ateş menzili: oyuncunun lazer (700) ve roket (900) menzilinden uzun olmalı, yoksa karşılık vermeden kesilirler (wiki: Behemoth \"en uzun menzil\"; değer uyarlama)",
@@ -9970,11 +9970,11 @@
     7200,
     7200
    ],
-   "etk_demaner_freighter": [
+   "event_demaner_freighter": [
     1200,
     1200
    ],
-   "etk_i_hitac": [
+   "event_i_hitac": [
     900,
     1200
    ]
@@ -9983,7 +9983,7 @@
   "scheduled_duration_sec": 3600,
   "_zamanli": "Zaman çizelgeli Black Light başıboşları (haritalar.zamanli; wiki saatleri, yerel saat): saatinden sonra bu kadar saniye içinde haritaya gelinirse doğar (uyarlama); ölünce o saat bir daha doğmaz (profil zamanli)."
  },
- "bonus_kutu": [
+ "bonus_boxes": [
   [
    "ammunition_laser_lcb-10",
    10
@@ -10057,12 +10057,12 @@
    1000
   ],
   [
-   "enerji",
+   "energy",
    1
   ]
  ],
  "_map_note": "Kayıtta olmayan haritalar tools/npc_haritalari.py ile üretildi. \"model\": istemciye gönderilen gemi modeli (tür anahtarından farklıysa). \"boyut\": büyük haritalar (maps-config.xml scaleFactor 2).",
- "bonus_kutu_4x": [
+ "bonus_box_4x": [
   [
    "ammunition_laser_lcb-10",
    10
@@ -10136,7 +10136,7 @@
    1500
   ],
   [
-   "enerji",
+   "energy",
    2
   ]
  ],

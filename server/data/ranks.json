@@ -1,6 +1,6 @@
 {
  "_kaynak": "tools/rutbe.py: uzaylı ve gemi puanları resmi sunucunun Hall of Fame puan ayrıntılarından (oyun verisi), rütbeler ve formül belgeler/wiki/progression.md (wiki).",
- "npc_puan": {
+ "npc_points": {
   "1": {
    "ad": "-=[ Streuner ]=-",
    "puan": 0
@@ -1532,132 +1532,132 @@
    "puan": 20
   }
  },
- "rutbeler": [
+ "ranks": [
   {
    "rutbe": 1,
    "ad": "Basic Space Pilot",
    "tur": "percentOfCompany",
-   "deger": 20.0
+   "value": 20.0
   },
   {
    "rutbe": 2,
    "ad": "Space Pilot",
    "tur": "percentOfCompany",
-   "deger": 12.9
+   "value": 12.9
   },
   {
    "rutbe": 3,
    "ad": "Chief Space Pilot",
    "tur": "percentOfCompany",
-   "deger": 10.0
+   "value": 10.0
   },
   {
    "rutbe": 4,
    "ad": "Basic Sergeant",
    "tur": "percentOfCompany",
-   "deger": 9.0
+   "value": 9.0
   },
   {
    "rutbe": 5,
    "ad": "Sergeant",
    "tur": "percentOfCompany",
-   "deger": 8.0
+   "value": 8.0
   },
   {
    "rutbe": 6,
    "ad": "Chief Sergeant",
    "tur": "percentOfCompany",
-   "deger": 7.0
+   "value": 7.0
   },
   {
    "rutbe": 7,
    "ad": "Basic Lieutenant",
    "tur": "percentOfCompany",
-   "deger": 6.0
+   "value": 6.0
   },
   {
    "rutbe": 8,
    "ad": "Lieutenant",
    "tur": "percentOfCompany",
-   "deger": 5.0
+   "value": 5.0
   },
   {
    "rutbe": 9,
    "ad": "Chief Lieutenant",
    "tur": "percentOfCompany",
-   "deger": 4.5
+   "value": 4.5
   },
   {
    "rutbe": 10,
    "ad": "Basic Captain",
    "tur": "percentOfCompany",
-   "deger": 4.0
+   "value": 4.0
   },
   {
    "rutbe": 11,
    "ad": "Captain",
    "tur": "percentOfCompany",
-   "deger": 3.5
+   "value": 3.5
   },
   {
    "rutbe": 12,
    "ad": "Chief Captain",
    "tur": "percentOfCompany",
-   "deger": 3.0
+   "value": 3.0
   },
   {
    "rutbe": 13,
    "ad": "Basic Major",
    "tur": "percentOfCompany",
-   "deger": 2.5
+   "value": 2.5
   },
   {
    "rutbe": 14,
    "ad": "Major",
    "tur": "percentOfCompany",
-   "deger": 2.0
+   "value": 2.0
   },
   {
    "rutbe": 15,
    "ad": "Chief Major",
    "tur": "percentOfCompany",
-   "deger": 1.5
+   "value": 1.5
   },
   {
    "rutbe": 16,
    "ad": "Basic Colonel",
    "tur": "percentOfCompany",
-   "deger": 1.0
+   "value": 1.0
   },
   {
    "rutbe": 17,
    "ad": "Colonel",
    "tur": "fixedPlayersPerCompany",
-   "deger": 20
+   "value": 20
   },
   {
    "rutbe": 18,
    "ad": "Chief Colonel",
    "tur": "fixedPlayersPerCompany",
-   "deger": 5
+   "value": 5
   },
   {
    "rutbe": 19,
    "ad": "Basic General",
    "tur": "fixedPlayersPerCompany",
-   "deger": 3
+   "value": 3
   },
   {
    "rutbe": 20,
    "ad": "General",
    "tur": "fixedPlayersPerCompany",
-   "deger": 2
+   "value": 2
   },
   {
    "rutbe": 21,
    "ad": "Chief General",
    "tur": "fixedPlayersPerCompany",
-   "deger": 1
+   "value": 1
   }
  ],
  "ship_type": {
@@ -1711,21 +1711,21 @@
   "ship_yamato-ronin": 2
  },
  "_gemi_turu": "rütbe formülündeki gemi türü: istemcinin game.xml shipId'si (Phoenix 1 … Goliath 10, Citadel 11, Aegis 12, Spearhead 13); tasarımlar ve türevler taban geminin kimliğiyle (kayıt: Liberator 5 -> 5.000 puan). Tabanı klasik gemi olmayanlar (Tartarus …) 10 (uyarlama)",
- "formul": {
+ "formula": {
   "ep": 1e-05,
   "onur": 0.01,
-  "oyuncu": 3,
+  "player": 3,
   "seviye": 100,
   "gun": 6,
   "gemi": 1000,
   "npc": 0.5,
   "gorev": 100,
-  "dost": -100,
-  "olum_dusman": -4,
-  "olum_radyasyon": -8,
+  "friendly": -100,
+  "death_by_enemy": -4,
+  "death_by_radiation": -8,
   "phoenix": -2
  },
- "esikler": [
+ "thresholds": [
   0,
   3000,
   6000,
@@ -1751,7 +1751,7 @@
  "_esikler": "tek oyunculu uyarlama: gerçek oyunda rütbe her gün şirketteki oyuncular arasındaki sıraya göre verilir (Chief General 1 kişi … Basic Space Pilot %20). Şirkette başka oyuncu olmadığından rütbe, rütbe puanının bu eşiklerine göre (rütbe N için en az esikler[N-1]); bot oyuncular gelince (Aşama 11) gerçek sıralamaya dönülebilir",
  "outlaw": {
   "onur": -500,
-  "simge": 5000,
+  "icon": 5000,
   "_not": "onur -500 ve altı: gemide 5000 simgesi (istemcide yalnız simge; Outlaw olduğu çıkarım). Tek oyunculuda onur eksiye düşmüyor (PvP ile, Aşama 11)"
  },
  "_gemi_turu_forum": "Tabloda olmayan ve klasik olmayan gemi 0 (gerçek kayıt: Sentinel 0); Goliath 10 (resmî forum 127585)"

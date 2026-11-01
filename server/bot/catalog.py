@@ -40,62 +40,62 @@ def prices():
         if p and os.path.exists(p):
             with open(p, encoding='utf8') as f:
                 y = json.load(f)
-        out = {i['lootId']: (i['currency'], i['fiyat']) for c in SHP.catalog(y).values() for i in c}
+        out = {i['lootId']: (i['currency'], i['price']) for c in SHP.catalog(y).values() for i in c}
         for loot, w in SHP.WORLD_SHOP.items():
             if w.get('on_sale') is False:
                 out.pop(loot, None)
-            elif w.get('fiyat') is not None and loot in out:
-                out[loot] = (w.get('currency') or out[loot][0], w['fiyat'])
-        for loot, v in ITEMS['dronlar'].items():
-            out[loot] = ('C' if v['currency'] == 'credits' else 'U', v['fiyatlar'][0])
+            elif w.get('price') is not None and loot in out:
+                out[loot] = (w.get('currency') or out[loot][0], w['price'])
+        for loot, v in ITEMS['drones'].items():
+            out[loot] = ('C' if v['currency'] == 'credits' else 'U', v['prices'][0])
         _price = out
     return _price
 
 
 def price(loot, owner=0):
     """Satın alma fiyatı ('C' | 'U', tutar) ya da None. Dronlar kaçıncı olduğuna göre (sahip: eldeki aynı dron sayısı)."""
-    d = ITEMS['dronlar'].get(loot)
+    d = ITEMS['drones'].get(loot)
     if d:
         if d.get('tek') and owner:
             return None
-        return ('C' if d['currency'] == 'credits' else 'U'), d['fiyatlar'][min(owner, len(d['fiyatlar']) - 1)]
+        return ('C' if d['currency'] == 'credits' else 'U'), d['prices'][min(owner, len(d['prices']) - 1)]
     return prices().get(loot)
 
 
 def ships():
     """Satın alınabilen temel gemiler (tasarımlar hariç) -> items.json değerleri."""
-    return {k: v for k, v in ITEMS['gemiler'].items() if 'taban' not in v and price(k)}
+    return {k: v for k, v in ITEMS['ships'].items() if 'base' not in v and price(k)}
 
 
 def lasers():
-    return {k: v['hasar'] for k, v in ITEMS['lazerler'].items() if price(k)}
+    return {k: v['hasar'] for k, v in ITEMS['lasers'].items() if price(k)}
 
 
 def shield_generators():
-    return {k: v for k, v in ITEMS['kalkan_jeneratorleri'].items() if price(k)}
+    return {k: v for k, v in ITEMS['shield_generators'].items() if price(k)}
 
 
 def speed_generators():
-    return {k: v['hiz'] for k, v in ITEMS['hiz_jeneratorleri'].items() if price(k)}
+    return {k: v['hiz'] for k, v in ITEMS['speed_generators'].items() if price(k)}
 
 
 def new_gear():
-    return {'gemi': 'ship_phoenix', 'lazer': {'equipment_weapon_laser_lf-1': 1}, 'kalkan': {}, 'hiz': {}, 'dron': {},
-            'cephane': AMMO[0]}
+    return {'gemi': 'ship_phoenix', 'lazer': {'equipment_weapon_laser_lf-1': 1}, 'kalkan': {}, 'hiz': {}, 'drone': {},
+            'ammunition': AMMO[0]}
 
 
 # ------------------------------------------------------------------------------------------------------------ güç
 def outfit(gear, shield_share=0.6):
     """Eldeki eşyanın yuvalara yerleşimi -> {'lazer': [hasar...], 'kalkan': [(kalkan, emme)...], 'hiz': [hız...], ...}.
     Lazer yuvası: gemi + dronlar (Flax 1, Iris 2); jeneratör yuvası gemininki, kalkan_payi kadarı kalkana (kişiliğe göre)."""
-    g = ITEMS['gemiler'].get(gear['gemi']) or ITEMS['gemiler']['ship_phoenix']
-    drone_slots = sum(ITEMS['dronlar'].get(d, {}).get('yuva', 1) * n for d, n in gear.get('dron', {}).items())
-    lasers = sorted((ITEMS['lazerler'][l]['hasar'] for l, n in gear.get('lazer', {}).items() for _ in range(n) if l in ITEMS['lazerler']),
+    g = ITEMS['ships'].get(gear['gemi']) or ITEMS['ships']['ship_phoenix']
+    drone_slots = sum(ITEMS['drones'].get(d, {}).get('yuva', 1) * n for d, n in gear.get('drone', {}).items())
+    lasers = sorted((ITEMS['lasers'][l]['hasar'] for l, n in gear.get('lazer', {}).items() for _ in range(n) if l in ITEMS['lasers']),
                 reverse=True)[:g['laser'] + drone_slots]
-    shields = sorted(((ITEMS['kalkan_jeneratorleri'][k]['kalkan'], ITEMS['kalkan_jeneratorleri'][k]['emme'])
-                 for k, n in gear.get('kalkan', {}).items() for _ in range(n) if k in ITEMS['kalkan_jeneratorleri']), reverse=True)
-    speeds = sorted((ITEMS['hiz_jeneratorleri'][k]['hiz'] for k, n in gear.get('hiz', {}).items() for _ in range(n)
-                 if k in ITEMS['hiz_jeneratorleri']), reverse=True)
+    shields = sorted(((ITEMS['shield_generators'][k]['kalkan'], ITEMS['shield_generators'][k]['absorb'])
+                 for k, n in gear.get('kalkan', {}).items() for _ in range(n) if k in ITEMS['shield_generators']), reverse=True)
+    speeds = sorted((ITEMS['speed_generators'][k]['hiz'] for k, n in gear.get('hiz', {}).items() for _ in range(n)
+                 if k in ITEMS['speed_generators']), reverse=True)
     slot = g['generators']
     nk = min(len(shields), max(int(round(slot * shield_share)), slot - len(speeds)))
     n_speed = min(len(speeds), slot - nk)
@@ -104,27 +104,27 @@ def outfit(gear, shield_share=0.6):
 
 def drone_set(gear):
     """Bütün dronlar aynı bonuslu tasarımdaysa (Havoc, Hercules …) takım bonusu (profil.design_mods ile aynı kural), yoksa {}."""
-    n = sum(gear.get('dron', {}).values())
-    t = ((gear.get('dron_tasarim') or {}).get('tasarim') or [])[:n]
-    return ITEMS['dron_tasarimlari'].get(t[0], {}).get('set_bonus', {}) if n and len(t) == n and t[0] and len(set(t)) == 1 else {}
+    n = sum(gear.get('drone', {}).values())
+    t = ((gear.get('drone_design') or {}).get('tasarim') or [])[:n]
+    return ITEMS['drone_designs'].get(t[0], {}).get('set_bonus', {}) if n and len(t) == n and t[0] and len(set(t)) == 1 else {}
 
 
 def values(gear, shield_share=0.6):
     """Botun savaş değerleri: dps (saniyede hasar, uzaylıya), can, kalkan, emme, ehp (etkin can), hız, güç puanı."""
     y = outfit(gear, shield_share)
-    multiplier = ITEMS['lazer_cephane'].get(gear.get('cephane'), {}).get('carpan', 1)
-    damage = sum(y['lazer']) * multiplier * 0.88 * COMBAT['lazer_isabet']          # 0,88: rastgelenin ortalaması (0,76-1,0)
+    multiplier = ITEMS['laser_ammo'].get(gear.get('ammunition'), {}).get('carpan', 1)
+    damage = sum(y['lazer']) * multiplier * 0.88 * COMBAT['laser_hit_chance']          # 0,88: rastgelenin ortalaması (0,76-1,0)
     set_bonus = drone_set(gear)
-    drone_slots = sum(ITEMS['dronlar'].get(d, {}).get('yuva', 1) * n for d, n in gear.get('dron', {}).items())
-    damage *= 1 + set_bonus.get('dron_lazer', 0) * min(1.0, drone_slots / max(1, len(y['lazer'])))        # Havoc: yalnız dron lazerlerine
+    drone_slots = sum(ITEMS['drones'].get(d, {}).get('yuva', 1) * n for d, n in gear.get('drone', {}).items())
+    damage *= 1 + set_bonus.get('drone_laser', 0) * min(1.0, drone_slots / max(1, len(y['lazer'])))        # Havoc: yalnız dron lazerlerine
     dps = damage / LASER_INTERVAL
     shield = sum(k for k, _ in y['kalkan'])
     absorb = (sum(k * e for k, e in y['kalkan']) / shield) if shield else 0.0
     hp = y['gemi']['hp'] * (1 + set_bonus.get('can', 0))               # Hercules takımı: +%20 can
     ehp = hp + shield * 2.5 * min(1.0, absorb + 0.2)         # kalkan hasarın çoğunu emer ve hedefler arasında dolar
     speed = y['gemi']['base_speed'] + sum(y['hiz'])
-    return dict(dps=dps, can=hp, kalkan=shield, emme=absorb, ehp=ehp, hiz=speed, power=power_score(dps, ehp),
-                lazer=len(y['lazer']), laser_slots=y['laser_slots'], jen=len(y['kalkan']) + len(y['hiz']), gen_slot=y['gen_slot'])
+    return dict(dps=dps, can=hp, kalkan=shield, absorb=absorb, ehp=ehp, hiz=speed, power=power_score(dps, ehp),
+                lazer=len(y['lazer']), laser_slots=y['laser_slots'], gen=len(y['kalkan']) + len(y['hiz']), gen_slot=y['gen_slot'])
 
 
 def power_score(dps, ehp):
@@ -141,10 +141,10 @@ def npc_value(tip):
     """Uzaylının bot için değerleri (salt okunur; npc.json içe aktarmada bir kez yüklenir, sonuç önbellekte)."""
     if tip in _npc_cache:
         return _npc_cache[tip]
-    t = NPC['tipler'].get(tip)
+    t = NPC['types'].get(tip)
     v = None if not t else dict(
-        tip=tip, ad=t['ad'], ehp=t['hp'] + t['kalkan'], dps=t['hasar'] * t.get('isabet', COMBAT['npc_isabet'])
-        / t.get('shot_interval_sec', NPC_INTERVAL), saldirgan=bool(t.get('saldirgan')), odul=t['odul'], hiz=t['hiz'],
+        tip=tip, ad=t['ad'], ehp=t['hp'] + t['kalkan'], dps=t['hasar'] * t.get('hit', COMBAT['npc_hit_chance'])
+        / t.get('shot_interval_sec', NPC_INTERVAL), aggressive=bool(t.get('aggressive')), reward=t['reward'], hiz=t['hiz'],
         kimlik=t.get('npc_kimlik', 0))
     _npc_cache[tip] = v
     return v
@@ -187,7 +187,7 @@ def evaluate_map(map_id, dps, ehp, courage=0.5):
         t = v['ehp'] / dps
         claimed = v['dps'] * t
         ratio = claimed / max(ehp, 1)
-        if v['saldirgan']:
+        if v['aggressive']:
             heavy += count * min(2.0, ratio)
         if ratio > limit:
             continue
@@ -195,18 +195,18 @@ def evaluate_map(map_id, dps, ehp, courage=0.5):
         kind = t + SEARCH_SEC + claimed / max(ehp * REPAIR_RATE, 1)
         kills[v['tip']] = count
         for k in total:
-            total[k] += v['odul'].get(k, 0) * count
+            total[k] += v['reward'].get(k, 0) * count
         duration += kind * count
         death += count * max(0.0, ratio - 0.15) ** 2 * 0.15        # ara sıra birden çok uzaylı ve kötü şans
     difficulty = heavy / 40.0
     if duration <= 0:
-        r = dict(ep_per_hour=0, credits_per_hour=0, uridium_per_hour=0, honor_per_hour=0, deaths_per_hour=1.0 + difficulty, hedefler=[], zorluk=difficulty + 1,
-                 oldurme={})
+        r = dict(ep_per_hour=0, credits_per_hour=0, uridium_per_hour=0, honor_per_hour=0, deaths_per_hour=1.0 + difficulty, targets=[], difficulty=difficulty + 1,
+                 kills={})
     else:
         k = 3600.0 / duration
         r = dict(ep_per_hour=total['ep'] * k, credits_per_hour=total['kredi'] * k, uridium_per_hour=total['uridyum'] * k,
-                 honor_per_hour=total['onur'] * k, deaths_per_hour=death * k / max(1, len(targets)) + difficulty * 0.4, hedefler=targets,
-                 zorluk=difficulty, oldurme={t: n * k for t, n in kills.items()})
+                 honor_per_hour=total['onur'] * k, deaths_per_hour=death * k / max(1, len(targets)) + difficulty * 0.4, targets=targets,
+                 difficulty=difficulty, kills={t: n * k for t, n in kills.items()})
     if len(_map_cache) > 20000:
         _map_cache.clear()
     _map_cache[key] = r
@@ -217,7 +217,7 @@ _ENTRY = {}
 
 
 def can_enter(map_id, firma, level):
-    k = (map_id, firma, bool(SET.get('seviye_kisiti_yok')))     # panelin seviye kısıtı ayarı değişirse yeni anahtar
+    k = (map_id, firma, bool(SET.get('no_level_limit')))     # panelin seviye kısıtı ayarı değişirse yeni anahtar
     if k not in _ENTRY:
         _ENTRY[k] = H.level_required(map_id, firma)
     return level >= _ENTRY[k]
@@ -225,13 +225,13 @@ def can_enter(map_id, firma, level):
 
 def neighbors(map_id, firma):
     """Portalla gidilen haritalar (ücretli / anahtarlı portallar hariç)."""
-    return [g['hedef'] for g in H.gates(map_id, firma) if not g.get('ucret') and g['hedef'] in MAPS
-            and g.get('yalniz_firma') in (None, firma)]
+    return [g['hedef'] for g in H.gates(map_id, firma) if not g.get('fee') and g['hedef'] in MAPS
+            and g.get('only_company') in (None, firma)]
 
 
 def route(source, target, firma, level):
     """En kısa portal yolu [kaynak, ..., hedef] (girilemeyen haritalardan geçmez) ya da None."""
-    r = _route(int(source), int(target), firma, level, bool(SET.get('seviye_kisiti_yok')))     # ayar değişirse yeni anahtar (girebilir)
+    r = _route(int(source), int(target), firma, level, bool(SET.get('no_level_limit')))     # ayar değişirse yeni anahtar (girebilir)
     return list(r) if r is not None else None
 
 
@@ -273,7 +273,7 @@ def sell_maps(firma):
 def ore_prices(honor, multiplier=1.0):
     """Rafineri fiyatları: taban + onur/bölen, tavanlı (dunya.ore_prices ile aynı formül)."""
     out = {}
-    for t, (base, divisor, cap) in ITEMS['cevherler']['fiyatlar'].items():
+    for t, (base, divisor, cap) in ITEMS['ores']['prices'].items():
         v = min(cap, base + (int(max(0, honor) // divisor) if divisor else 0))
         out[int(t)] = int(round(v * multiplier))
     return out
@@ -281,17 +281,17 @@ def ore_prices(honor, multiplier=1.0):
 
 def cargo_capacity(gear):
     from . import extras as EX
-    return int(int((ITEMS['gemiler'].get(gear['gemi']) or ITEMS['gemiler']['ship_phoenix']).get('kargo') or 100)
+    return int(int((ITEMS['ships'].get(gear['gemi']) or ITEMS['ships']['ship_phoenix']).get('kargo') or 100)
                * EX.cargo_multiplier(gear))                  # G3X-CRGO-X: iki katı
 
 
 def npc_cargo(tip, level=1, game_map=None):
     """Uzaylının kargo kutusundaki cevherler {tür: adet}; X-1 haritalarında yüksek seviyede azalır (npc.json x1_kargo)."""
-    cargo = {int(k): int(v) for k, v in ((NPC['tipler'].get(str(tip)) or {}).get('kargo') or {}).items() if int(v) > 0}
+    cargo = {int(k): int(v) for k, v in ((NPC['types'].get(str(tip)) or {}).get('kargo') or {}).items() if int(v) > 0}
     if game_map is not None and H.map_class(game_map) == 'X-1':
         import settings as SET
-        if SET.get('x1_kargo'):
-            f = next((k for l, k in reversed(COMBAT['x1_kargo']) if level >= l), 1)
+        if SET.get('x1_cargo'):
+            f = next((k for l, k in reversed(COMBAT['x1_cargo']) if level >= l), 1)
             cargo = {t: int(v * f) for t, v in cargo.items() if int(v * f) > 0}
     return cargo
 

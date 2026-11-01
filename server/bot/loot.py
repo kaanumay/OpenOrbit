@@ -18,8 +18,8 @@ EXCHANGE_RATE = 100
 import loot as LOOT                                   # noqa: E402  (oyunun ganimet modülü: kutular, haritalar, takvim)
 
 RECIPES = json.load(open(os.path.join(K.HERE, 'data', 'recipes.json'), encoding='utf8'))['recipes']
-BOOSTER = K.ITEMS['boosterlar']
-ORE_LOOT = {v: int(k) for k, v in K.ITEMS['cevherler']['kinds'].items()}     # resource_ore_* -> kargo cevheri
+BOOSTER = K.ITEMS['boosters']
+ORE_LOOT = {v: int(k) for k, v in K.ITEMS['ores']['kinds'].items()}     # resource_ore_* -> kargo cevheri
 CURRENCY = {'currency_credits': 'kredi', 'currency_uridium': 'uridyum', 'currency_experience': 'ep', 'currency_honour': 'onur'}
 _ev = {}
 
@@ -52,7 +52,7 @@ def box_value(kind, depth=0):
     """Kutunun beklenen değeri (ödül tablosunun ağırlıklı ortalaması)."""
     if kind in _ev:
         return _ev[kind]
-    rows = LOOT.BOXES[kind].get('odul') or []
+    rows = LOOT.BOXES[kind].get('reward') or []
     total = sum(r[2] for r in rows) or 1
     v = 0.0
     for loot, n, w in rows:
@@ -99,7 +99,7 @@ def booster_share(bot, kind):
 def extra_loot(bot, tip, n=1):
     """Uzaylının ek ganimeti (toplanabilir kaynaklar, günlük dosyası) stoğa."""
     import world as WD
-    for loot, spec in ((K.NPC['tipler'].get(str(tip)) or {}).get('ek_odul') or {}).items():
+    for loot, spec in ((K.NPC['types'].get(str(tip)) or {}).get('extra_reward') or {}).items():
         c = sum(WD.extra_count(spec) for _ in range(min(int(n), 20))) * (n / min(int(n), 20) if n > 20 else 1)
         if c > 0:
             give(bot, loot, int(c))
@@ -113,22 +113,22 @@ def key_item(kind):
 def can_open(bot, kind):
     """Kutuyu açabilir mi / açmaya değer mi: anahtarı varsa evet; yeşil kutu için anahtar alabilir (uridyumu ve kişiliği izin
     veriyorsa ve kutu fiyatından değerliyse). Anahtar alınırsa stoğa eklenir."""
-    if not bot.permission.get('ganimet', True):
+    if not bot.permission.get('booty', True):
         return False
     key = key_item(kind)
     if stock(bot).get(key, 0) > 0:
         return True
     f = K.price(key)
-    if key != LOOT.GREEN_KEY or not f or not bot.permission.get('magaza', True):
+    if key != LOOT.GREEN_KEY or not f or not bot.permission.get('shop', True):
         return False
-    price = f[1] * bot.game_settings.multiplier('magaza_fiyat')
-    t = bot.o('tutumluluk')
+    price = f[1] * bot.game_settings.multiplier('shop_price')
+    t = bot.o('frugality')
     if box_value(kind) < price * EXCHANGE_RATE * (0.8 + 0.8 * t) or bot.k['uridyum'] < price * (2 + 4 * t):
         return False
     if not bot.pay('U', price):
         return False
     stock(bot)[key] = stock(bot).get(key, 0) + 1
-    bot.ist('anahtar_alim')
+    bot.ist('key_pickup')
     return True
 
 
@@ -141,15 +141,15 @@ def open_box(bot, kind, rng=random):
     s[key] -= 1
     if not s[key]:
         del s[key]
-    rows = LOOT.BOXES[kind].get('odul') or []
+    rows = LOOT.BOXES[kind].get('reward') or []
     if not rows:
         return []
     r = rng.choices(rows, weights=[x[2] for x in rows])[0]
     out = list(r[1]) if r[0] == LOOT.PACKAGE else [(r[0], r[1])]
     for loot, n in out:
         give(bot, loot, n)
-    bot.ist('kutu_acti')
-    bot.event('kutu_acti', kutu=LOOT.BOXES[kind]['ad'])
+    bot.ist('box_opened')
+    bot.event('box_opened', kutu=LOOT.BOXES[kind]['ad'])
     return out
 
 
@@ -169,11 +169,11 @@ def active_boxes(name):
 def abstract(bot, dt, y):
     """Soyutta haritanın anahtarlı kutularına rastlama: kutu sayısı / yeniden doğma, haritadaki botlarla paylaşılır."""
     import map_links as H
-    if not bot.permission.get('ganimet', True):
+    if not bot.permission.get('booty', True):
         return
     crowd = len(y.on_map.get(bot.game_map, ())) if y is not None else 1
     for kind, count in active_boxes(H.name(bot.game_map)):
-        ratio = count * dt / max(60.0, sum(LOOT.BOXES[kind]['yeniden_sn']) / 2) / max(1.0, 0.3 * crowd)
+        ratio = count * dt / max(60.0, sum(LOOT.BOXES[kind]['renew_sec']) / 2) / max(1.0, 0.3 * crowd)
         if bot.r.random() < ratio and can_open(bot, kind):
             open_box(bot, kind, bot.r)
 
@@ -186,7 +186,7 @@ def _yeter(bot, parts):
             if bot.k[CURRENCY[p]] < n:
                 return False
         elif p.startswith('equipment_'):
-            if not any(p in v for v in bot.k['ekip'].values() if isinstance(v, dict)) and bot.k['ekip'].get('fircatici') != p:
+            if not any(p in v for v in bot.k['gear'].values() if isinstance(v, dict)) and bot.k['gear'].get('launcher') != p:
                 return False
         elif s.get(p, 0) < n:
             return False
@@ -199,8 +199,8 @@ def _spend(bot, parts):
         if p in CURRENCY:
             bot.k[CURRENCY[p]] -= n
         elif p.startswith('equipment_'):
-            if bot.k['ekip'].get('fircatici') == p:
-                bot.k['ekip']['fircatici'] = None
+            if bot.k['gear'].get('launcher') == p:
+                bot.k['gear']['launcher'] = None
         else:
             s[p] -= n
             if not s[p]:

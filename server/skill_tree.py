@@ -50,15 +50,15 @@ def mods(p):
     out = {}
     for sid, lv in state(p)['seviye'].items():
         s = SKILLS.get(sid)
-        if not s or not lv or not s['etki'] or (sid.endswith('a') and level(p, sid[:-1] + 'b')):
+        if not s or not lv or not s['effect'] or (sid.endswith('a') and level(p, sid[:-1] + 'b')):
             continue
         v = s['values'][lv - 1]
-        out[s['etki']] = out.get(s['etki'], 0) + (v if s['unit'] == 'absolute' else v / 100.0)
+        out[s['effect']] = out.get(s['effect'], 0) + (v if s['unit'] == 'absolute' else v / 100.0)
     return out
 
 
 def requirements_met(p, sid):
-    for r in SKILLS[sid]['on_kosul']:
+    for r in SKILLS[sid]['prerequisite']:
         pts = [level(p, x) for x in r['skills']]
         if (sum(pts) if r['tur'] == 'toplam' else min(pts)) < r['puan']:
             return False
@@ -121,13 +121,13 @@ class Abilities:
         st = state(self.p)
         s = SKILLS.get(sid)
         cur = level(self.p, sid)
-        cost = s['maliyet'][cur] if s and cur < len(s['values']) else None
+        cost = s['cost'][cur] if s and cur < len(s['values']) else None
         why = ('yetenek yok' if not s else 'en üst seviye' if cost is None else 'ön koşul' if not requirements_met(self.p, sid)
                else 'puan yetmiyor' if st['puan'] < cost['puan'] else 'kredi yetmiyor' if self.p.d['pilot'].get('credits', 0) < cost['kredi']
                else 'Seprom yetmiyor' if self.seprom() < cost['seprom'] else None)
         if why:
             self.log('   yetenek %s yükselmedi: %s' % (sid, why))
-            stack = {'ön koşul': lambda: self.m.reason('on_kosul'), 'puan yetmiyor': lambda: self.m.reason('arastirma_puani'),
+            stack = {'ön koşul': lambda: self.m.reason('prerequisite'), 'puan yetmiyor': lambda: self.m.reason('research_points'),
                      'kredi yetmiyor': lambda: self.m.stack('not_enough_credits'),
                      'Seprom yetmiyor': lambda: self.m.stack('tf_message_not_enough_seprom')}.get(why, lambda: self.m.stack('eqt_error_generic'))
             return [('UpLevelSkillTreeCommand', dict(id=sid, researchPoints=st['puan'], stack=stack(), success=False, curLevel=cur))]
@@ -156,7 +156,7 @@ class Abilities:
         """ResetSkillTreeRequest: bütün seviyeler sıfırlanır, harcanan puanlar geri gelir; ücret uridyum, her seferinde iki katı."""
         st = state(self.p)
         price = self.reset_price()
-        spent = sum(sum(c['puan'] for c in SKILLS[s]['maliyet'][:lv]) for s, lv in st['seviye'].items() if s in SKILLS)
+        spent = sum(sum(c['puan'] for c in SKILLS[s]['cost'][:lv]) for s, lv in st['seviye'].items() if s in SKILLS)
         ok = spent > 0 and self.p.d['pilot'].get('uridium', 0) >= price
         if ok:
             with self.p.lock:

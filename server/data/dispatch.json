@@ -7,7 +7,7 @@
    "kademe": 1,
    "aciklama": "dispatch_label_description_retriever_a01",
    "sure_sn": 10800,
-   "ucret": {
+   "fee": {
     "currency_credits": 200000
    },
    "instant": {
@@ -21,7 +21,7 @@
    "kademe": 2,
    "aciklama": "dispatch_label_description_retriever_a02",
    "sure_sn": 21600,
-   "ucret": {
+   "fee": {
     "currency_uridium": 2000
    },
    "instant": {
@@ -35,7 +35,7 @@
    "kademe": 3,
    "aciklama": "dispatch_label_description_retriever_a03",
    "sure_sn": 21600,
-   "ucret": {
+   "fee": {
     "currency_uridium": 2000,
     "resource_collectable_permit": 1
    },
@@ -50,7 +50,7 @@
    "kademe": 4,
    "aciklama": "dispatch_label_description_retriever_a04",
    "sure_sn": 32400,
-   "ucret": {
+   "fee": {
     "currency_uridium": 5000,
     "resource_collectable_permit": 1
    },
@@ -65,7 +65,7 @@
    "kademe": 5,
    "aciklama": "dispatch_label_description_retriever_a05",
    "sure_sn": 43200,
-   "ucret": {
+   "fee": {
     "currency_uridium": 10000,
     "resource_collectable_permit": 1
    },
@@ -80,7 +80,7 @@
    "kademe": 6,
    "aciklama": "dispatch_label_description_retriever_a06",
    "sure_sn": 43200,
-   "ucret": {
+   "fee": {
     "currency_uridium": 10000,
     "resource_collectable_permit-plus": 1
    },
@@ -95,7 +95,7 @@
    "kademe": 1,
    "aciklama": "dispatch_label_description_retriever_b01",
    "sure_sn": 10800,
-   "ucret": {
+   "fee": {
     "currency_credits": 200000
    },
    "instant": {
@@ -109,7 +109,7 @@
    "kademe": 2,
    "aciklama": "dispatch_label_description_retriever_b02",
    "sure_sn": 21600,
-   "ucret": {
+   "fee": {
     "currency_uridium": 2000
    },
    "instant": {
@@ -123,7 +123,7 @@
    "kademe": 3,
    "aciklama": "dispatch_label_description_retriever_b03",
    "sure_sn": 21600,
-   "ucret": {
+   "fee": {
     "currency_uridium": 2000,
     "resource_collectable_permit": 1
    },
@@ -138,7 +138,7 @@
    "kademe": 4,
    "aciklama": "dispatch_label_description_retriever_b04",
    "sure_sn": 32400,
-   "ucret": {
+   "fee": {
     "currency_uridium": 5000,
     "resource_collectable_permit": 1
    },
@@ -153,7 +153,7 @@
    "kademe": 5,
    "aciklama": "dispatch_label_description_retriever_b05",
    "sure_sn": 43200,
-   "ucret": {
+   "fee": {
     "currency_uridium": 10000,
     "resource_collectable_permit": 1
    },
@@ -168,7 +168,7 @@
    "kademe": 6,
    "aciklama": "dispatch_label_description_retriever_b06",
    "sure_sn": 43200,
-   "ucret": {
+   "fee": {
     "currency_uridium": 10000,
     "resource_collectable_permit-plus": 1
    },
@@ -183,7 +183,7 @@
    "kademe": 3,
    "aciklama": "dispatch_label_description_retriever_h03",
    "sure_sn": 18000,
-   "ucret": {
+   "fee": {
     "currency_uridium": 5000,
     "resource_collectable_permit": 1
    },
@@ -198,7 +198,7 @@
    "kademe": 4,
    "aciklama": "dispatch_label_description_retriever_h04",
    "sure_sn": 25200,
-   "ucret": {
+   "fee": {
     "currency_uridium": 10000,
     "resource_collectable_permit": 1
    },
@@ -213,7 +213,7 @@
    "kademe": 5,
    "aciklama": "dispatch_label_description_retriever_h05",
    "sure_sn": 32400,
-   "ucret": {
+   "fee": {
     "currency_uridium": 15000,
     "resource_collectable_permit": 1
    },
@@ -228,7 +228,7 @@
    "kademe": 1,
    "aciklama": "dispatch_label_description_retriever_r01",
    "sure_sn": 10800,
-   "ucret": {
+   "fee": {
     "currency_credits": 200000
    },
    "instant": {
@@ -242,7 +242,7 @@
    "kademe": 2,
    "aciklama": "dispatch_label_description_retriever_r02",
    "sure_sn": 21600,
-   "ucret": {
+   "fee": {
     "currency_uridium": 2000
    },
    "instant": {
@@ -256,7 +256,7 @@
    "kademe": 3,
    "aciklama": "dispatch_label_description_retriever_r03",
    "sure_sn": 21600,
-   "ucret": {
+   "fee": {
     "currency_uridium": 2000,
     "resource_collectable_permit": 1
    },
@@ -271,7 +271,7 @@
    "kademe": 4,
    "aciklama": "dispatch_label_description_retriever_r04",
    "sure_sn": 32400,
-   "ucret": {
+   "fee": {
     "currency_uridium": 5000,
     "resource_collectable_permit": 1
    },
@@ -286,7 +286,7 @@
    "kademe": 5,
    "aciklama": "dispatch_label_description_retriever_r05",
    "sure_sn": 43200,
-   "ucret": {
+   "fee": {
     "currency_uridium": 10000,
     "resource_collectable_permit": 1
    },
@@ -301,7 +301,7 @@
    "kademe": 6,
    "aciklama": "dispatch_label_description_retriever_r06",
    "sure_sn": 43200,
-   "ucret": {
+   "fee": {
     "currency_uridium": 10000,
     "resource_collectable_permit-plus": 1
    },
@@ -311,7 +311,7 @@
   }
  },
  "_retrievers": "İstemcinin kodundan (DarkOrbit.DispatchRetrieverDefinition$$InitList): ad/aciklama istemcinin metin anahtarları, seri (ammo/basic/resource/hitac), kademe, sure_sn, ucret (gönderme), aninda (anında bitirme).",
- "oduller": {
+ "rewards": {
   "A-01": [
    "resource_collectable_permit",
    "ammunition_laser_mcb-25",
@@ -702,10 +702,10 @@
   "resource_collectable_triskelion-alloy": 0.5,
   "resource_collectable_ouroboros-alloy": 0.5
  },
- "yuvalar": {
+ "slots": {
   "baslangic": 2,
   "azami": 5,
-  "fiyatlar": {
+  "prices": {
    "3": {
     "currency_uridium": 50000
    },
@@ -726,7 +726,7 @@
   "ggeu": "resource_collectable_ggeu",
   "sure_sn": 3600
  },
- "sabit": {
+ "fixed": {
   "ammo": {
    "currency_experience": 10000
   },

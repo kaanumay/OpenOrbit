@@ -13,17 +13,17 @@ import json, os, random, time
 import settings as SET
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-B = json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))['boosterlar']
-O6 = json.load(open(os.path.join(HERE, 'data', 'items_o6.json'), encoding='utf8'))['boosterlar']     # Ö6 (tools/esyalar_o6.py)
+B = json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))['boosters']
+O6 = json.load(open(os.path.join(HERE, 'data', 'items_o6.json'), encoding='utf8'))['boosters']     # Ö6 (tools/esyalar_o6.py)
 for _loot, _effect in O6['kinds'].items():           # bb-01 bonus kutusu, qr-01 görev ödülü, prm-b01 Hybrid Alloy/Indoctrine Oil miktarı …
     B['kinds'].setdefault(_loot, _effect)
 ALIAS = O6['alias']                              # istemcinin tanımadığı boosterlar -> [[eşdeğer, saat]] (MAX-BP01, NBX, NQR, PCOMB …)
 ATTRS = ['ABILITY_COOLDOWN_TIME', 'COLLECT_RESOURCES', 'COLLECT_RESOURCES_NEWBIE', 'EXPERIENCE_POINTS', 'HITPOINTS', 'HONOUR_POINTS',
          'DAMAGE', 'REPAIR', 'SHIELD', 'SHIELD_REGENERATION']                      # kayıttaki sıra
 # istemcinin türü -> sunucunun bonus anahtarı (profil.mods(): formasyon ve dron tasarımlarıyla toplanır)
-MOD_KEYS = {'DAMAGE': ('lazer', 'roket'), 'HITPOINTS': ('can',), 'SHIELD': ('kalkan',), 'SHIELD_REGENERATION': ('kalkan_yenilenme',),
-            'REPAIR': ('onarim',), 'EXPERIENCE_POINTS': ('ep',), 'HONOUR_POINTS': ('onur',), 'COLLECT_RESOURCES': ('kargo',),
-            'ABILITY_COOLDOWN_TIME': ('bekleme',)}
+MOD_KEYS = {'DAMAGE': ('lazer', 'roket'), 'HITPOINTS': ('can',), 'SHIELD': ('kalkan',), 'SHIELD_REGENERATION': ('shield_regen',),
+            'REPAIR': ('repair',), 'EXPERIENCE_POINTS': ('ep',), 'HONOUR_POINTS': ('onur',), 'COLLECT_RESOURCES': ('kargo',),
+            'ABILITY_COOLDOWN_TIME': ('cooldown',)}
 
 
 def mod(name, **f):
@@ -37,7 +37,7 @@ def is_booster(loot):
 
 def state(p):
     """Profildeki boosterlar: lootId -> {bitis: mağazadakinin bittiği an, kalan: uzaylıdan düşenin kalan saniyesi}."""
-    return p.d.setdefault('boosterlar', {})
+    return p.d.setdefault('boosters', {})
 
 
 def left(p, loot, now=None):
@@ -55,7 +55,7 @@ def active(p, now=None):
 def values(p, now=None):
     """Tür -> yüzde (etkin boosterların toplamı, türün üst sınırıyla)."""
     out = {}
-    k = SET.multiplier('booster_guc')                    # panel: boosterların etkisi (üst sınırları da)
+    k = SET.multiplier('booster_power')                    # panel: boosterların etkisi (üst sınırları da)
     for loot in active(p, now):
         for a, v in B['kinds'].get(loot, {}).items():
             if a in ATTRS:
@@ -123,9 +123,9 @@ def update_cmd(p, removed=(), now=None):
 def drop_for(npc_name):
     """Boss/Uber uzaylıdan booster düşer mi (wiki: "Boss/Uber-Alien (1-10h)" ve 1 saatlik DLB/NPC/REP-S01 türleri; olasılık uyarlama).
     Türler eşit ağırlıkla. -> (lootId, saat) ya da None."""
-    d = B['dusme']
+    d = B['drop']
     kind = 'boss' if npc_name.startswith('..::{') else 'uber' if npc_name.startswith('( Uber') else None
-    if not kind or random.random() >= SET.chance('dusme', d['probability'][kind], 'booster'):
+    if not kind or random.random() >= SET.chance('drop', d['probability'][kind], 'booster'):
         return None
     loot, hours = random.choice([(l, None) for l in d['kinds']] + [(l, 1) for l in d.get('kinds_1h', ())])     # 1 saatlik türler sabit 1 sa
     return loot, hours or random.randint(*d['saat'])

@@ -17,7 +17,7 @@ import map_links as H
 import clan as KL
 from . import clan_management as CMG
 
-DEFAULTS = {'fiyat': {}, 'level_multiplier': 0.35, 'repair_ratio': 0.4, 'upgrade_sec': 3600, 'build_min': [5, 30],
+DEFAULTS = {'price': {}, 'level_multiplier': 0.35, 'repair_ratio': 0.4, 'upgrade_sec': 3600, 'build_min': [5, 30],
               'defense_sec': 1800}                     # asıl değerler cbs.json bot_klan
 WEAPONS = ('module_ltm-lr', 'module_ltm-mr', 'module_ltm-hr', 'module_ram-la', 'module_ram-ma')
 BOOSTER = ('module_honm-1', 'module_xpm-1', 'module_dmgm-1')
@@ -33,7 +33,7 @@ def is_open():
 
 def price(loot, level=0):
     a = setting()
-    f = a['fiyat'].get(loot, 1000000)
+    f = a['price'].get(loot, 1000000)
     return int(f if level <= 0 else f * a['level_multiplier'] * level)
 
 
@@ -41,13 +41,13 @@ def _registry():
     """(ortak profil, asteroitler) ya da (None, None): ortak kayıt bir oturumda kurulmuş olmalı (cbs.Cbs.asts: embed)."""
     h = CB.shared()
     d = (h.d.get('cbs') or {}) if h is not None else {}
-    return (h, d['asteroitler']) if h is not None and d.get('shared') and 'asteroitler' in d else (None, None)
+    return (h, d['asteroids']) if h is not None and d.get('shared') and 'asteroids' in d else (None, None)
 
 
 def cbs(k):
     with KL.LOCK:
         s = k.setdefault('ksi', {})
-        s.setdefault('stok', [])
+        s.setdefault('stock', [])
         return s
 
 
@@ -55,11 +55,11 @@ def stations(k):
     """Klanın kurulu istasyonlarının adları."""
     h, asteroids = _registry()
     return [CB.ASTEROIDS[int(aid)]['ad'] for aid, a in (asteroids or {}).items()
-            if a.get('durum') == 'kurulu' and a.get('klan') == k['id'] and int(aid) in CB.ASTEROIDS]
+            if a.get('durum') == 'built' and a.get('klan') == k['id'] and int(aid) in CB.ASTEROIDS]
 
 
 def _mine(asteroids, k):
-    return {int(aid): a for aid, a in asteroids.items() if a.get('klan') == k['id'] and a.get('durum') in ('kurma', 'kurulu')}
+    return {int(aid): a for aid, a in asteroids.items() if a.get('klan') == k['id'] and a.get('durum') in ('building', 'built')}
 
 
 def need(k):
@@ -70,8 +70,8 @@ def need(k):
         return 0
     own = _mine(asteroids, k)
     if not own:
-        owner = [m['loot'] for m in s.get('stok', [])]
-        race = (asteroids.get(str(s.get('hedef'))) or {}).get('yaris', {}).get(str(k['id']), {}).get('moduller', [])
+        owner = [m['loot'] for m in s.get('stock', [])]
+        race = (asteroids.get(str(s.get('hedef'))) or {}).get('race', {}).get(str(k['id']), {}).get('modules', [])
         owner += [m['loot'] for m in race]
         missing = list(s.get('plan') or [])
         for l in owner:
@@ -91,22 +91,22 @@ def summary(k):
         return ''
     row = []
     for aid, a in _mine(asteroids, k).items():
-        mods = [y.get('modul') for y in a['yuvalar'].values() if y.get('modul')]
+        mods = [y.get('modul') for y in a['slots'].values() if y.get('modul')]
         row.append('Your battle station %s (%s): %s, deflector %s, modules %s.' % (
-            CB.ASTEROIDS[aid]['ad'], H.name(CB.ASTEROIDS[aid]['harita']), 'building' if a['durum'] == 'kurma' else 'built',
-            'on' if (a.get('deflector') or {}).get('acik') else 'off',
+            CB.ASTEROIDS[aid]['ad'], H.name(CB.ASTEROIDS[aid]['harita']), 'building' if a['durum'] == 'building' else 'built',
+            'on' if (a.get('deflector') or {}).get('on') else 'off',
             ', '.join('%s L%d%s' % (CB.MODS[m['loot']]['code'], m['seviye'] + 1, ' destroyed' if m['can'] <= 0 else '') for m in mods)))
     s = k.get('ksi') or {}
     if s.get('hedef'):
         a = asteroids.get(str(s['hedef'])) or {}
-        ours = len(((a.get('yaris') or {}).get(str(k['id'])) or {}).get('moduller') or ())
+        ours = len(((a.get('race') or {}).get(str(k['id'])) or {}).get('modules') or ())
         en = CB.race_leader(a)
         row.append('Building race at %s: you have %d/10 modules%s.' % (CB.ASTEROIDS[int(s['hedef'])]['ad'], ours,
                                                                        ', leader %s %d/10' % (en[0], en[1] * 10) if en and en[0] != k['ad'] else ''))
-    if s.get('stok'):
-        row.append('Modules in clan stock: %s.' % ', '.join(sorted(CB.MODS[m['loot']]['code'] for m in s['stok'])))
+    if s.get('stock'):
+        row.append('Modules in clan stock: %s.' % ', '.join(sorted(CB.MODS[m['loot']]['code'] for m in s['stock'])))
     row.append('Next station cost: about %s credits (the station share of the budget pays it).' % '{:,}'.format(need(k)))
-    empty = sorted(((value(aid, k), aid) for aid in CB.ASTEROIDS if (asteroids.get(str(aid)) or {}).get('durum', 'bos') == 'bos'), reverse=True)[:6]
+    empty = sorted(((value(aid, k), aid) for aid in CB.ASTEROIDS if (asteroids.get(str(aid)) or {}).get('durum', 'vacant') == 'vacant'), reverse=True)[:6]
     if empty:
         row.append('Free asteroids (best first; klan_istasyon to target one): %s.' % ', '.join(
             '%s (%s)' % (CB.ASTEROIDS[aid]['ad'], H.name(CB.ASTEROIDS[aid]['harita'])) for _, aid in empty))
@@ -117,17 +117,17 @@ def set_target(k, name, b):
     """Ajanın seçtiği asteroit (adıyla): boşsa hedef olur; önceki hedefteki modüller stoğa döner."""
     h, asteroids = _registry()
     aid = next((i for i, a in CB.ASTEROIDS.items() if a['ad'].lower() == str(name or '').strip().lower()), None)
-    if asteroids is None or aid is None or (asteroids.get(str(aid)) or {}).get('durum', 'bos') != 'bos':
+    if asteroids is None or aid is None or (asteroids.get(str(aid)) or {}).get('durum', 'vacant') != 'vacant':
         return False
     s = cbs(k)
     old = s.get('hedef')
     if old and old != aid:
         a = asteroids.get(str(old)) or {}
         with h.lock:
-            r = (a.get('yaris') or {}).pop(str(k['id']), None)
+            r = (a.get('race') or {}).pop(str(k['id']), None)
             a['surum'] = a.get('surum', 0) + 1
         if r:
-            CB.refund_race(k['id'], r.get('moduller'))
+            CB.refund_race(k['id'], r.get('modules'))
     s['hedef'] = aid
     s['plan'] = s.get('plan') or build_plan(b)
     return True
@@ -142,18 +142,18 @@ def value(aid, k):
     on, _, last = name.partition('-')
     v = 3.0 if on == '4' else 2.5 if last.upper() == 'BL' else 2.0 if last in ('5', '6', '7') else 1.2
     owner = H.company(m)
-    firma = int(k.get('firma') or 0) or int((k['uyeler'].get(k['lider']) or {}).get('firma') or 0)
+    firma = int(k.get('firma') or 0) or int((k['members'].get(k['lider']) or {}).get('firma') or 0)
     return v + (0.5 if owner and owner == firma else -0.6 if owner else 0)
 
 
 def build_plan(b):
     """Takım (merkez + 8 uydu) liderin tarzıyla: saldırgan lazer/roket, hırslı ve barışçı booster, temkinli onarım."""
-    aggression = b.o('saldirganlik')
+    aggression = b.o('aggression')
     satellite = []
     if b.r.random() < 0.35 + 0.45 * (1 - b.o('risk')):
         satellite.append('module_repm-1')
     for x in BOOSTER:
-        if b.r.random() < 0.12 + 0.55 * b.o('hirs') * (1 - aggression):
+        if b.r.random() < 0.12 + 0.55 * b.o('ambition') * (1 - aggression):
             satellite.append(x)
     weight = (2 + 3 * aggression, 2 + aggression, 1 + aggression, 1 + 2 * (1 - b.o('risk')), 1.5)
     while len(satellite) < CB.SLOTS - 2:
@@ -171,17 +171,17 @@ def pick_target(k, asteroids, now):
     """Yeni hedef: klanın istasyon sınırı dolmadıysa en değerli boş asteroit; önde giden rakip 6/10'u geçtiyse ve bizim yoksa o
     asteroit atlanır (yetişemez)."""
     s = cbs(k)
-    limit = 1 + (len(k['uyeler']) >= 20 and k['kasa'] > 40000000)
+    limit = 1 + (len(k['members']) >= 20 and k['treasury'] > 40000000)
     if len(_mine(asteroids, k)) >= limit:
         return None
     candidate = []
     for aid in CB.ASTEROIDS:
         a = asteroids.get(str(aid)) or {}
-        if a.get('durum', 'bos') != 'bos':
+        if a.get('durum', 'vacant') != 'vacant':
             continue
-        ours = len(((a.get('yaris') or {}).get(str(k['id'])) or {}).get('moduller') or ())
-        en = max([len(r.get('moduller') or ()) for c, r in (a.get('yaris') or {}).items() if int(c) != k['id']] + [0])
-        player = len(a.get('yuvalar') or {})
+        ours = len(((a.get('race') or {}).get(str(k['id'])) or {}).get('modules') or ())
+        en = max([len(r.get('modules') or ()) for c, r in (a.get('race') or {}).items() if int(c) != k['id']] + [0])
+        player = len(a.get('slots') or {})
         if max(en, player) >= 6 and ours < max(en, player):
             continue
         candidate.append((value(aid, k) - 0.12 * max(en, player) + random.uniform(0, 0.4), aid))
@@ -194,14 +194,14 @@ def pick_target(k, asteroids, now):
 def _to_upgrade(a, b):
     """Kurulu istasyonda yükseltilecek modül (en düşük seviyeli; saldırgan lider silahları, temkinli merkezi önce)."""
     candidates = []
-    for s, y in a.get('yuvalar', {}).items():
+    for s, y in a.get('slots', {}).items():
         m = y.get('modul')
         if not m or m['can'] <= 0 or m['seviye'] >= 15:
             continue
         md = CB.MODS[m['loot']]
         on = 0.0
         if b is not None:
-            on = (0.6 * b.o('saldirganlik') if md.get('silah') else 0) + (0.6 * (1 - b.o('risk')) if md['center'] else 0)
+            on = (0.6 * b.o('aggression') if md.get('weapon') else 0) + (0.6 * (1 - b.o('risk')) if md['center'] else 0)
         candidates.append((m['seviye'] - on, int(s), m))
     return min(candidates, key=lambda x: x[:2])[2] if candidates else None
 
@@ -210,10 +210,10 @@ def _pay(k, area, cost):
     if cost <= 0 or CMG.spendable(k, area) < cost:
         return False
     with KL.LOCK:
-        k['kasa'] -= cost
-        k['kasa_kaydi'].insert(0, {'balanceUserId': 0, 'credits': -cost, 'insertDate': KL.stamp(), 'toName': '', 'fromName': '',
+        k['treasury'] -= cost
+        k['treasury_log'].insert(0, {'balanceUserId': 0, 'credits': -cost, 'insertDate': KL.stamp(), 'toName': '', 'fromName': '',
                                    'moneyType': 'cbs', 'reason': 'battle station'})
-        del k['kasa_kaydi'][200:]
+        del k['treasury_log'][200:]
     KL.changed(k)                                        # kasa üyelerin penceresinde ve klanlar.json'da
     return True
 
@@ -222,7 +222,7 @@ def to_stock(k, d):
     """Yıkılan istasyonun ya da çıkarılan modüllerin (bekleyen '@klan:<kimlik>') klanın stoğuna geçmesi."""
     pending = (d.get('pending') or {}).pop('@klan:%d' % k['id'], None)
     if pending:
-        cbs(k)['stok'].extend(pending.values())
+        cbs(k)['stock'].extend(pending.values())
 
 
 def race_step(y, b, k, h, asteroids, now):
@@ -231,24 +231,24 @@ def race_step(y, b, k, h, asteroids, now):
     aid = s.get('hedef')
     if aid and str(aid) not in asteroids:
         with h.lock:
-            asteroids.setdefault(str(aid), {'durum': 'bos', 'yuvalar': {}})
+            asteroids.setdefault(str(aid), {'durum': 'vacant', 'slots': {}})
     a = asteroids.get(str(aid)) if aid else None
-    if a is None or a.get('durum', 'bos') != 'bos':
+    if a is None or a.get('durum', 'vacant') != 'vacant':
         if a is not None and a.get('klan') == k['id']:
             return                                       # kazandık: kuruluyor ya da kurulu
         if aid:
-            b.event('ksi_kaybetti', now, istasyon=CB.ASTEROIDS[int(aid)]['ad'])
+            b.event('cbs_lost', now, istasyon=CB.ASTEROIDS[int(aid)]['ad'])
         s['hedef'] = None
         aid = pick_target(k, asteroids, now)
         if aid is None:
             return
         with h.lock:
-            a = asteroids.setdefault(str(aid), {'durum': 'bos', 'yuvalar': {}})
+            a = asteroids.setdefault(str(aid), {'durum': 'vacant', 'slots': {}})
         s['plan'] = build_plan(b)
         CMG.announce(b, CMG.kl_of(b), 'klan_duyuru_ksi_yaris', istasyon=CB.ASTEROIDS[aid]['ad'], harita=H.name(CB.ASTEROIDS[aid]['harita']))
-        b.event('ksi_hedef', now, istasyon=CB.ASTEROIDS[aid]['ad'])
-    r = (a.get('yaris') or {}).get(str(k['id'])) or {'moduller': [], 't': 0}
-    equipped = [m['loot'] for m in r['moduller']]
+        b.event('cbs_target', now, istasyon=CB.ASTEROIDS[aid]['ad'])
+    r = (a.get('race') or {}).get(str(k['id'])) or {'modules': [], 't': 0}
+    equipped = [m['loot'] for m in r['modules']]
     s['plan'] = s.get('plan') or build_plan(b)
     missing = list(s['plan'])
     for l in equipped:
@@ -256,31 +256,31 @@ def race_step(y, b, k, h, asteroids, now):
             missing.remove(l)
     if not missing:
         minutes = b.r.randint(*setting()['build_min'])
-        if CB.bot_build(int(aid), k, r['moduller'], minutes, log=y.log):
+        if CB.bot_build(int(aid), k, r['modules'], minutes, log=y.log):
             s['hedef'] = None
-            b.event('ksi_kuruyor', now, istasyon=CB.ASTEROIDS[int(aid)]['ad'])
+            b.event('cbs_building', now, istasyon=CB.ASTEROIDS[int(aid)]['ad'])
         return
     if now - r.get('t', 0) < CB.D['install_sec']:
         return
     loot = missing[0]
-    m = next((x for x in s['stok'] if x['loot'] == loot), None)
+    m = next((x for x in s['stock'] if x['loot'] == loot), None)
     if m is None:
         if not _pay(k, 'ksi', price(loot)):
             return                                       # para birikiyor
         m = _new_module(loot)
     else:
-        s['stok'].remove(m)
+        s['stock'].remove(m)
         if m['can'] <= 0:                                # yıkılıp dönmüş modül: önce onarılır
             if not _pay(k, 'ksi', int(price(loot) * setting()['repair_ratio'])):
-                s['stok'].append(m)
+                s['stock'].append(m)
                 return
             m.update(_new_module(loot), seviye=m['seviye'])
             m['can'] = CB.level_value(CB.MODS[loot]['can'], m['seviye'])
             m['kalkan'] = int(m['can'] * CB.D['shield_ratio'])
             m.pop('ksi', None)                           # taban değerler: panelin KSİ can çarpanına cbs.hp_sync ölçekler
     with h.lock:
-        r = a.setdefault('yaris', {}).setdefault(str(k['id']), {'moduller': [], 't': 0})
-        r['moduller'].append(m)
+        r = a.setdefault('race', {}).setdefault(str(k['id']), {'modules': [], 't': 0})
+        r['modules'].append(m)
         r['t'] = now
         a['surum'] = a.get('surum', 0) + 1
         h.d['cbs']['bot_clans'] = True
@@ -291,9 +291,9 @@ def develop(y, b, k, h, asteroids, now):
     """Kurulu istasyonlar: yıkılan uydu onarılır, sonra bir modül bir seviye yükselir (yükseltme_sn'de bir)."""
     s = cbs(k)
     for aid, a in _mine(asteroids, k).items():
-        if a.get('durum') != 'kurulu' or now - a.get('attack_at', 0) < 600:
+        if a.get('durum') != 'built' or now - a.get('attack_at', 0) < 600:
             continue
-        for y_ in a['yuvalar'].values():
+        for y_ in a['slots'].values():
             m = y_.get('modul')
             if m and m['can'] <= 0 and _pay(k, 'ksi', int(price(m['loot']) * setting()['repair_ratio'])):
                 with h.lock:
@@ -317,7 +317,7 @@ def develop(y, b, k, h, asteroids, now):
             a['surum'] = a.get('surum', 0) + 1
             h.dirty = True
         s['last_upgrade'] = now
-        b.event('ksi_yukseltti', now, modul=m['loot'], seviye=m['seviye'])
+        b.event('cbs_upgraded', now, modul=m['loot'], seviye=m['seviye'])
         return
 
 
@@ -336,14 +336,14 @@ def _wave(y, b, k, st, game_map, n, now):
     """Sıradaki üyelerden en çok n tanesini istasyonun haritasına yollar (klan_emir 'git') -> yollanan sayısı."""
     from . import clan_orders as CO
     outgoing = 0
-    while st['queued'] and outgoing < n and st['yollanan'] < st['quota']:
+    while st['queued'] and outgoing < n and st['sent'] < st['quota']:
         name = st['queued'].pop(0)
         o = y.name_index.get(name.lower())
         if o is None or not (o.online and o.dead_until <= now and o.k.get('klan') == k['id']):
             continue
         if CO.will_obey(o, b.name, True, now) and CO.apply(y, o, {'tur': 'git', 'harita': game_map}, b.name, None, now)[0] == 'geliyorum':
             outgoing += 1
-            st['yollanan'] += 1
+            st['sent'] += 1
     return outgoing
 
 
@@ -380,12 +380,12 @@ def defend(y, b, k, asteroids, now):
             CMG.bulk_mail(b, kl, 'klan_posta_ksi', istasyon=ist, harita=game_map)
         members = [o for o in y.bots if o.k.get('klan') == k['id'] and o.online and o.dead_until <= now]
         random.shuffle(members)
-        st = defense_state[str(aid)] = dict(harita=game_map, queued=[o.name for o in members], yollanan=0, quota=defense_quota(1),
+        st = defense_state[str(aid)] = dict(harita=game_map, queued=[o.name for o in members], sent=0, quota=defense_quota(1),
                                   attackers=[who] if who else [], next=now + DEFENSE_GAP_SEC)
         outgoing = _wave(y, b, k, st, game_map, DEFENSE_FIRST, now)
         y.log('   botlar: [%s] %s istasyonu saldırı altında (%s), %d üye savunmaya (kalan %d kademeli)'
               % (k['etiket'], ist, who or '?', outgoing, len(st['queued'])))
-        b.event('ksi_savunma', now, istasyon=ist, attacker=who)
+        b.event('cbs_defense', now, istasyon=ist, attacker=who)
         return
 
 
@@ -396,15 +396,15 @@ def announce_status(b, k, asteroids, now):
     once = s.get('seen') or {}
     kl = None
     for aid, d in current_time.items():
-        if d == 'kurulu' and once.get(aid) != 'kurulu':
+        if d == 'built' and once.get(aid) != 'built':
             kl = kl or CMG.kl_of(b)
             CMG.announce(b, kl, 'klan_duyuru_ksi_kuruldu', istasyon=CB.ASTEROIDS[int(aid)]['ad'], harita=H.name(CB.ASTEROIDS[int(aid)]['harita']))
-            b.event('ksi_kuruldu', now, istasyon=CB.ASTEROIDS[int(aid)]['ad'])
+            b.event('cbs_built', now, istasyon=CB.ASTEROIDS[int(aid)]['ad'])
     for aid, d in once.items():
-        if d == 'kurulu' and aid not in current_time and int(aid) in CB.ASTEROIDS:
+        if d == 'built' and aid not in current_time and int(aid) in CB.ASTEROIDS:
             kl = kl or CMG.kl_of(b)
             CMG.announce(b, kl, 'klan_duyuru_ksi_yikildi', istasyon=CB.ASTEROIDS[int(aid)]['ad'], harita=H.name(CB.ASTEROIDS[int(aid)]['harita']))
-            b.event('ksi_yikildi', now, istasyon=CB.ASTEROIDS[int(aid)]['ad'])
+            b.event('cbs_destroyed', now, istasyon=CB.ASTEROIDS[int(aid)]['ad'])
     s['seen'] = current_time
 
 
@@ -412,9 +412,9 @@ def clean_up(y, h, asteroids):
     """Dağılmış klanların istasyonları yıkılır, yarışları ve bekleyen modülleri silinir."""
     d = h.d['cbs']
     for aid, a in list(asteroids.items()):
-        if a.get('sahip') == 'bot' and a.get('klan') not in KL.CLANS and a.get('durum') in ('kurma', 'kurulu'):
+        if a.get('sahip') == 'bot' and a.get('klan') not in KL.CLANS and a.get('durum') in ('building', 'built'):
             CB.bot_demolish(int(aid), log=y.log)
-        race = a.get('yaris') or {}
+        race = a.get('race') or {}
         for cid in [c for c in race if int(c) not in KL.CLANS]:
             with h.lock:
                 race.pop(cid, None)
@@ -430,7 +430,7 @@ def manage(y, b, k, kl, now):
     h, asteroids = _registry()
     if h is None:
         return
-    if CMG.is_due(k, 'ksi_temizlik', now, 600):
+    if CMG.is_due(k, 'cbs_cleanup', now, 600):
         clean_up(y, h, asteroids)
     to_stock(k, h.d['cbs'])
     defend(y, b, k, asteroids, now)

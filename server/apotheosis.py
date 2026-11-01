@@ -45,14 +45,14 @@ KEY = 'resource_booty-key-apotheosis'
 
 
 def _register():
-    T = world_module.CFG['tipler']
-    for rows in D.get('toplama', {}).values():
+    T = world_module.CFG['types']
+    for rows in D.get('collecting', {}).values():
         for tip, _, _ in rows:
             if tip in T:
                 # model: tür anahtarı modelin kendisi olan türlerde (79, 35) kopyanın adı ("apo_79") istemcide çizilmiyordu
                 T['apo_' + tip] = dict({k: v for k, v in T[tip].items() if k not in ('haritalar', 'etkinlik')}, model=T[tip].get('model', tip))
-    if D.get('patron'):
-        T[BOSS] = dict(D['patron'])
+    if D.get('boss'):
+        T[BOSS] = dict(D['boss'])
 
 
 _register()
@@ -70,7 +70,7 @@ def _hm(s):
 def window(now=None):
     """(açık mı, başlangıç, bitiş, sonraki başlangıç): pazartesi-cumartesi pencereleri; seans_hep_acik: iki saatlik dilimler."""
     now = time.time() if now is None else now
-    if SET.get('seans_hep_acik'):
+    if SET.get('session_always_open'):
         a = now - now % SLICE
         return True, a, a + SLICE, a + SLICE
     t = datetime.datetime.fromtimestamp(now)
@@ -130,7 +130,7 @@ class Apotheosis:
         return self.p.d.setdefault('apotheosis', {})
 
     def level(self):
-        return min(max(1, self.st.get('seviye', 1)), len(D['katilim']))
+        return min(max(1, self.st.get('seviye', 1)), len(D['participation']))
 
     # ------------------------------------------------------------ durum
     def ensure(self, now=None):
@@ -142,30 +142,30 @@ class Apotheosis:
             if st.get('hafta'):
                 msgs += self.week_rewards()
             with self.p.lock:
-                st.update(hafta=wk, seviye=1, defeats=0, katilim=0, last_hit=0, hasar=0)
+                st.update(hafta=wk, seviye=1, defeats=0, participation=0, last_hit=0, hasar=0)
                 self.p.dirty = True
         open_, a, b, nxt = window(now)
-        if open_ and st.get('pencere') != a:
+        if open_ and st.get('windowed') != a:
             with self.p.lock:
-                st.update(pencere=a, puan=0, durum='toplama')
+                st.update(windowed=a, puan=0, durum='collecting')
                 self.p.dirty = True
             self.saved = None
             msgs.append(legacy('0|A|STM|kristallon_apotheosis_start_event'))
             self.log('   Kristallon Apotheosis: toplama başladı')
-        elif st.get('durum') == 'toplama' and not open_:
+        elif st.get('durum') == 'collecting' and not open_:
             with self.p.lock:
-                st['durum'] = 'bitti'
+                st['durum'] = 'finished'
                 self.p.dirty = True
             msgs.append(legacy('0|A|STM|kristallon_apotheosis_not_completed'))
-        elif st.get('durum') == 'patron' and now >= st.get('boss_start', 0) + D['bekleme_sn'] + D['combat_sec'] + D['closing_sec'] \
-                and not (self.run and self.run.phase not in ('bitti', 'kapandi')):
+        elif st.get('durum') == 'boss' and now >= st.get('boss_start', 0) + D['bekleme_sn'] + D['combat_sec'] + D['closing_sec'] \
+                and not (self.run and self.run.phase not in ('finished', 'closed')):
             with self.p.lock:
-                st['durum'] = 'bitti'
+                st['durum'] = 'finished'
                 self.p.dirty = True
         return msgs
 
     def phase(self):
-        return {'toplama': COLLECTING, 'patron': FIGHT}.get(self.st.get('durum'), WAITING)
+        return {'collecting': COLLECTING, 'boss': FIGHT}.get(self.st.get('durum'), WAITING)
 
     def week_rewards(self):
         """Biten haftanın sanal sırası (tek oyunculu: yenilgi sayısından) -> ödüller ve unvan."""
@@ -174,10 +174,10 @@ class Apotheosis:
         if not row:
             return []
         msgs = []
-        for loot, n in row['oduller']:
+        for loot, n in row['rewards']:
             msgs += self.m.prize(loot, n)
         if self.titles:
-            msgs += self.titles(row['unvan'])
+            msgs += self.titles(row['title'])
         msgs.append(KAPI.screen('Kristallon Apotheosis weekly rank: %d' % rank, big=True))
         self.log('   Kristallon Apotheosis haftalık sıra %d' % rank)
         return msgs
@@ -199,19 +199,19 @@ class Apotheosis:
         rank = virtual_rank(kills)
         row = rank_row(rank)
         me = mod('ApotheosisRankingEntryModule', userId=self.p.user_id, name=self.p.d['pilot'].get('userName', ''),
-                 damage=int(st.get('hasar', 0)), rewards=rewards(row['oduller']) if row else [])
+                 damage=int(st.get('hasar', 0)), rewards=rewards(row['rewards']) if row else [])
         cap = D.get('weekly_limit', {})                     # resmî sunucu kaydı: katılım 3, yenilgi 3, son vuruş 18
         return ('ApotheosisProgressCommand', dict(
             phase=ph, currentPoints=int(min(st.get('puan', 0), D['target_points'])), totalPoints=int(D['target_points']),
             remainingSeconds=max(0, int(left)), hpPercent=int(round(self.boss_left() * 100)), bossLevel=lv,
             rewardStatusIncluded=True, nextResetTime=int(week_end(now) * 1000),     # sıfırlanma anı, ms (kayıt)
             timeToEventEndSeconds=int(CAL.time_left(EVENT, now)) if active(now) else 0,
-            participationReward=mod('ApotheosisRewardModule', rewards=probs([r + [100] for r in D['katilim'][lv - 1]]),
-                                    claimedCount=int(st.get('katilim', 0)), weeklyLimit=cap.get('katilim', 0)),
+            participationReward=mod('ApotheosisRewardModule', rewards=probs([r + [100] for r in D['participation'][lv - 1]]),
+                                    claimedCount=int(st.get('participation', 0)), weeklyLimit=cap.get('participation', 0)),
             victoryReward=mod('ApotheosisRewardModule', rewards=probs(D['defeats']), claimedCount=int(kills),
                               weeklyLimit=cap.get('defeats', 0)),
-            lastHitReward=mod('ApotheosisRewardModule', rewards=probs([r + [100] for r in D['last_hit']['oduller']]
-                                                                       + [[D['last_hit']['unvan'], 1, 100]]),     # unvan da (kayıt)
+            lastHitReward=mod('ApotheosisRewardModule', rewards=probs([r + [100] for r in D['last_hit']['rewards']]
+                                                                       + [[D['last_hit']['title'], 1, 100]]),     # unvan da (kayıt)
                               claimedCount=int(st.get('last_hit', 0)), weeklyLimit=cap.get('last_hit', 0)),
             weeklyRanking=[me] if st.get('hasar') else []))
 
@@ -229,7 +229,7 @@ class Apotheosis:
     # ------------------------------------------------------------ toplama
     def add_points(self, n):
         st = self.st
-        if st.get('durum') != 'toplama':
+        if st.get('durum') != 'collecting':
             return []
         with self.p.lock:
             st['puan'] = st.get('puan', 0) + n
@@ -237,14 +237,14 @@ class Apotheosis:
         if st['puan'] < D['target_points']:
             return []
         with self.p.lock:
-            st.update(durum='patron', boss_start=time.time())
+            st.update(durum='boss', boss_start=time.time())
             self.p.dirty = True
         self.saved = None
         self.log('   Kristallon Apotheosis: hedef puan, portallar açıldı')
         return [legacy('0|A|STM|kristallon_apotheosis_start_portal'), KAPI.screen('key:kristallon_apotheosis_start_portal', big=True)]
 
     def collect_rows(self, world):
-        return D.get('toplama', {}).get(H.map_class(world.map_id), [])
+        return D.get('collecting', {}).get(H.map_class(world.map_id), [])
 
     def spawn_collect(self, world, tip=None, pts=None, count=1):
         """Toplama uzaylıları (haritanın satırları; tip verilirse yalnız o türden count tane)."""
@@ -269,20 +269,20 @@ class Apotheosis:
 
     # ------------------------------------------------------------ portallar
     def portals(self, map_id, station):
-        if int(map_id) == MAP or not station or H.name(map_id) not in D.get('girisler', []):
+        if int(map_id) == MAP or not station or H.name(map_id) not in D.get('entries', []):
             return []
         self.ensure()
-        if not active() or self.st.get('durum') != 'patron':
+        if not active() or self.st.get('durum') != 'boss':
             return []
         sx, sy = station['posX'], station['posY']
         cx, cy = KAPI.MAP_W // 2, KAPI.MAP_H // 2
         x, y = int(sx + (cx - sx) * 0.35), int(sy + (cy - sy) * 0.35 - 1200)
-        return [dict(gateId=PORTAL_ID, x=x, y=y, hedef=0, designId=D.get('portal_design', 307), pencere='apotheosis',
+        return [dict(gateId=PORTAL_ID, x=x, y=y, hedef=0, designId=D.get('portal_design', 307), windowed='apotheosis',
                      hint_target=MAP)]
 
     def portal_window(self, g, w, go):
         self.ensure()
-        if not active() or self.st.get('durum') != 'patron':
+        if not active() or self.st.get('durum') != 'boss':
             w.send([legacy('0|A|STM|kristallon_apotheosis_not_enabled')])
             return
         go(MAP, (KAPI.MAP_W // 2 + random.randint(-800, 800), KAPI.MAP_H // 2 + 2500))
@@ -296,7 +296,7 @@ class Apotheosis:
         self.spawned = set()
         msgs = self.ensure()
         if int(world.map_id) == MAP:
-            if not active() or self.st.get('durum') != 'patron':
+            if not active() or self.st.get('durum') != 'boss':
                 import vortex
                 vortex.send_home(self, world)              # savaş yok (girişte bu haritada doğdu): üsse
                 return msgs
@@ -304,7 +304,7 @@ class Apotheosis:
             self.saved = None
             world.gate = self.run
             return msgs + self.run.enter_msgs()
-        if active() and self.st.get('durum') == 'toplama' and self.collect_rows(world):
+        if active() and self.st.get('durum') == 'collecting' and self.collect_rows(world):
             self.spawn_collect(world)
         return msgs
 
@@ -316,10 +316,10 @@ class Apotheosis:
         self.spawned.discard(npc.id)
         tip, pts = npc.apo
         msgs = [KAPI.screen('Kristallon Apotheosis: +%d (%d/%d)' % (pts, min(self.st.get('puan', 0) + pts, D['target_points']),
-                                                                 D['target_points']))] if self.st.get('durum') == 'toplama' else []
+                                                                 D['target_points']))] if self.st.get('durum') == 'collecting' else []
         msgs += self.add_points(pts)
-        if self.st.get('durum') == 'toplama':
-            w.later(D.get('yeniden_sn', 15), lambda: self.world is w and self.st.get('durum') == 'toplama'
+        if self.st.get('durum') == 'collecting':
+            w.later(D.get('renew_sec', 15), lambda: self.world is w and self.st.get('durum') == 'collecting'
                     and self.spawn_collect(w, tip, pts))
         else:
             self.clear_collect()
@@ -332,9 +332,9 @@ class Apotheosis:
         msgs = self.ensure(now)
         w = self.world
         if w and before != self.st.get('durum') and w.gate is None:
-            if self.st.get('durum') == 'toplama' and self.collect_rows(w):
+            if self.st.get('durum') == 'collecting' and self.collect_rows(w):
                 self.spawn_collect(w)                    # oyuncu bir X-2..X-8 haritasındayken pencere açıldı
-            elif before == 'toplama':
+            elif before == 'collecting':
                 self.clear_collect()
         return msgs
 
@@ -345,7 +345,7 @@ class Apotheosis:
         cap = D.get('weekly_limit', {})
         with self.p.lock:
             st['defeats'] = st.get('defeats', 0) + 1
-            st['seviye'] = min(len(D['katilim']), lv + 1)
+            st['seviye'] = min(len(D['participation']), lv + 1)
             win = st['defeats'] <= cap.get('defeats', st['defeats'])
             last_hit = last_hit and st.get('last_hit', 0) < cap.get('last_hit', st.get('last_hit', 0) + 1)
             if last_hit:
@@ -356,11 +356,11 @@ class Apotheosis:
             msgs += self.m.prize(loot, n)
         if last_hit:
             k0 = self.p.resource(KEY)
-            for l, k in D['last_hit']['oduller']:
+            for l, k in D['last_hit']['rewards']:
                 msgs += self.m.prize(l, k)
             msgs += self.key_msgs(self.p.resource(KEY) - k0)          # panelin ödül çarpanıyla gelen adet
             if self.titles:
-                msgs += self.titles(D['last_hit']['unvan'])
+                msgs += self.titles(D['last_hit']['title'])
         self.log('   Kristallon Apotheosis: patron yenildi (seviye %d), %s' % (lv, 'yenilgi ödülü %s x%d' % (loot, n) if win else
                                                                             'yenilgi ödülünün haftalık sınırı doldu'))
         return msgs
@@ -369,11 +369,11 @@ class Apotheosis:
         """Katılım ödülü (haftalık sınıra kadar)."""
         st, msgs = self.st, []
         with self.p.lock:
-            if st.get('katilim', 0) >= D.get('weekly_limit', {}).get('katilim', st.get('katilim', 0) + 1):
+            if st.get('participation', 0) >= D.get('weekly_limit', {}).get('participation', st.get('participation', 0) + 1):
                 return msgs
-            st['katilim'] = st.get('katilim', 0) + 1
+            st['participation'] = st.get('participation', 0) + 1
             self.p.dirty = True
-        for loot, n in D['katilim'][lv - 1]:
+        for loot, n in D['participation'][lv - 1]:
             msgs += self.m.prize(loot, n)
         return msgs
 
@@ -398,13 +398,13 @@ class ApoRun:
         self.g = {'ad': 'Kristallon Apotheosis'}
         st = mode.st
         self.boss_at = st.get('boss_start', time.time()) + D['bekleme_sn']
-        if SET.get('seans_hep_acik'):
+        if SET.get('session_always_open'):
             self.boss_at = min(self.boss_at, time.time() + 30)      # hep açık: kısa bekleme
         self.end = self.boss_at + D['combat_sec']
         if restore:                                  # savaş sürüyordu: patron hemen, kaldığı canla ve süresiyle
             self.boss_at, self.end = time.time(), restore['bitis']
         self.close_at = None
-        self.phase = 'bekleme'
+        self.phase = 'cooldown'
         self.boss = None
         self.s = 1.0
         self.stage = 1
@@ -420,7 +420,7 @@ class ApoRun:
 
     def enter_msgs(self):
         self.w.add_gate(dict(gateId=EXIT_ID, x=self.cx - 3000, y=self.cy + 2400, hedef=self.m.k.home() if self.m.k else 5,
-                             designId=1, kapi=self.key, cikis=True, varis='istasyon'))
+                             designId=1, kapi=self.key, cikis=True, arrival='istasyon'))
         if time.time() >= self.boss_at:
             self.spawn_boss()
             return []
@@ -454,7 +454,7 @@ class ApoRun:
         self.boss = b
         self.phase = 'savas'
         now = time.time()
-        self.next.update(rift=now + 8, ice=now + 12, radyasyon=now + 15)
+        self.next.update(rift=now + 8, ice=now + 12, radiation=now + 15)
         self.stage = next(i for i, th in reversed(list(enumerate(D['phases'], 1))) if self.left() <= th)
         w.send([KAPI.screen('Emperor Kristallon has appeared!', big=True)])
         w.log('   Kristallon Apotheosis: Emperor Kristallon geldi (seviye %d, güç %.2f, can %d + %d)' % (self.lv, self.s, b.hp, b.shield))
@@ -474,13 +474,13 @@ class ApoRun:
     # ------------------------------------------------------------ döngü
     def tick(self, now):
         w = self.w
-        if self.phase == 'kapandi':
+        if self.phase == 'closed':
             return
-        if self.phase == 'bekleme':
+        if self.phase == 'cooldown':
             if now >= self.boss_at:
                 self.spawn_boss()
             return
-        if self.phase == 'bitti':
+        if self.phase == 'finished':
             if now >= self.close_at:
                 self.close()
             return
@@ -492,13 +492,13 @@ class ApoRun:
             return
         attacks = D['attacks']
         if now >= self.next['rift']:
-            self.next['rift'] = now + attacks['rift']['aralik_sn']
+            self.next['rift'] = now + attacks['rift']['interval_sec']
             self.rift(now)
         if self.stage >= 2 and now >= self.next['ice']:
-            self.next['ice'] = now + attacks['ice']['aralik_sn']
+            self.next['ice'] = now + attacks['ice']['interval_sec']
             self.ice(now)
-        if self.stage >= 3 and now >= self.next['radyasyon'] and not self.guide:
-            self.next['radyasyon'] = now + attacks['radyasyon']['aralik_sn']
+        if self.stage >= 3 and now >= self.next['radiation'] and not self.guide:
+            self.next['radiation'] = now + attacks['radiation']['interval_sec']
             self.radiation(now)
 
     def vm(self, uid, modifier, on, attr=0, extra=''):
@@ -539,12 +539,12 @@ class ApoRun:
             w.send([self.vm(b.id, ICE, False)])
             if b.alive and not w.hero_dead:
                 w.send(w.hurt_hero(int(self.max_hp() * R['damage_max_hp_ratio']), b, atype=0))
-                w.hero_effect('yavas', R['yavas'][1], R['yavas'][0], source='apotheosis')
+                w.hero_effect('slow', R['slow'][1], R['slow'][0], source='apotheosis')
         w.later(R['warning_sec'], burst)
 
     def radiation(self, now):
         """Radyasyon: oyuncunun üstünde kılavuz (güvenli noktaya ok); süre dolunca güvenli alanın dışı hasar alır."""
-        w, b, R = self.w, self.boss, D['attacks']['radyasyon']
+        w, b, R = self.w, self.boss, D['attacks']['radiation']
         a = random.uniform(0, 2 * math.pi)
         sx = min(max(int(self.cx + math.cos(a) * 3000), 800), w.map_w - 800)
         sy = min(max(int(self.cy + math.sin(a) * 2000), 800), w.map_h - 800)
@@ -565,7 +565,7 @@ class ApoRun:
         if not self.boss or npc.id != self.boss.id:
             return []
         w = self.w
-        self.phase = 'bitti'
+        self.phase = 'finished'
         self.close_at = time.time() + D['closing_sec']
         msgs = self.m.participation(self.lv) + self.m.boss_defeated(last_hit=True)
         k = D['kutu']
@@ -576,14 +576,14 @@ class ApoRun:
         msgs += [legacy('0|A|STM|kristallon_apotheosis_finisher|%%PLAYER%%|%s' % self.m.p.d['pilot'].get('userName', '')),
                  legacy('0|A|STM|kristallon_apotheosis_completed'), KAPI.screen('key:kristallon_apotheosis_completed', big=True)]
         with self.m.p.lock:
-            self.m.st['durum'] = 'bitti'
+            self.m.st['durum'] = 'finished'
             self.m.p.dirty = True
         w.log('   Kristallon Apotheosis: Emperor Kristallon yenildi')
         return msgs
 
     def escape(self):
         w, b = self.w, self.boss
-        self.phase = 'bitti'
+        self.phase = 'finished'
         self.close_at = time.time() + D['closing_sec']
         msgs = [KAPI.screen('Emperor Kristallon has escaped.', big=True)]
         if b and self.dealt >= self.boss_max() * D.get('participation_threshold', 0.01):
@@ -591,14 +591,14 @@ class ApoRun:
         if b and b.alive:
             w.send(w.remove_npc(b))
         with self.m.p.lock:
-            self.m.st['durum'] = 'bitti'
+            self.m.st['durum'] = 'finished'
             self.m.p.dirty = True
         w.send(msgs)
         w.log('   Kristallon Apotheosis: patron kaçtı')
 
     def close(self):
         w = self.w
-        self.phase = 'kapandi'
+        self.phase = 'closed'
         w.send([KAPI.screen('Kristallon Apotheosis is closing.', big=True)])
         if self.m.change_map and not w.hero_dead:
             home = self.m.k.home() if self.m.k else 5

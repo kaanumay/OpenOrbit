@@ -14,11 +14,11 @@ import name_log as NL
 from lang import t as _
 
 VERSION = 1
-MODES = ('basit', 'normal', 'gelismis')
+MODES = ('simple', 'normal', 'advanced')
 PROGRESSIONS = ('progressive', 'jumpstart')
 from bot.language_data import CODES as _CODES
 from bot import llm_provider as PRV
-LANGUAGES = ('karisik',) + _CODES          # adların ve sohbetin dili (bot/languages/<kod>.json); karışık: her bot adının dilinde
+LANGUAGES = ('mixed',) + _CODES          # adların ve sohbetin dili (bot/languages/<kod>.json); karışık: her bot adının dilinde
 NAME_LENGTH, DESCRIPTION_LENGTH = 40, 240
 COUNT_MIN, COUNT_MAX = 1, 3000
 _LOCK = threading.Lock()
@@ -26,42 +26,42 @@ _LOCK = threading.Lock()
 # ayar -> (tür, en az, en çok, varsayılan); bot/yonetici.VARSAYILAN ile aynı anahtarlar
 SETTINGS = {
     'hiz': ('sayi', 0.1, 20.0, 1.0),
-    'cevrimici_oran': ('sayi', 0.05, 2.0, 0.6),
-    'en_cok_cevrimici': ('tam', 0, 3000, 0),
-    'telafi_saat': ('tam', 0, 48, 4),
-    'telafi_oran': ('sayi', 0.0, 1.0, 0.35),
-    'kayit_sn': ('tam', 0, 300, 15),
-    'jumpstart_saat': ('tam', 1, 2000, 60),
-    'pvp_seviye': ('tam', 1, 32, 6),
-    'yabanci_harita': ('bool', None, None, True),
-    'sohbet_dk': ('tam', 0, 60, 6),
-    'yardim_en_cok': ('tam', 0, 20, 3),
-    'somut_en_cok': ('tam', 1, 150, 40),
-    'klan_basina': ('tam', 3, 100, 12),
-    'kaba_sohbet': ('tam', 0, 3, 1),
+    'online_ratio': ('sayi', 0.05, 2.0, 0.6),
+    'max_online': ('full', 0, 3000, 0),
+    'catchup_hours': ('full', 0, 48, 4),
+    'catch_up_rate': ('sayi', 0.0, 1.0, 0.35),
+    'signup_sec': ('full', 0, 300, 15),
+    'jumpstart_hours': ('full', 1, 2000, 60),
+    'pvp_level': ('full', 1, 32, 6),
+    'foreign_map': ('bool', None, None, True),
+    'chat_min': ('full', 0, 60, 6),
+    'help_max': ('full', 0, 20, 3),
+    'max_concrete': ('full', 1, 150, 40),
+    'bots_per_clan': ('full', 3, 100, 12),
+    'rude_chat': ('full', 0, 3, 1),
     'moderator': ('bool', None, None, False),
-    'mod_sayisi': ('tam', 1, 10, 2),
-    'kural_buyuk': ('bool', None, None, True),
-    'kural_sel': ('bool', None, None, True),
-    'kural_hakaret': ('bool', None, None, True),
-    'kural_reklam': ('bool', None, None, True),
-    'sustur_dk': ('tam', 1, 1440, 10),
-    'yasak_esik': ('tam', 1, 10, 3),
-    'yasak_saat': ('tam', 1, 720, 24),
-    'prime_baslangic': ('tam', 0, 23, 19),
-    'prime_bitis': ('tam', 0, 23, 23),
+    'mod_count': ('full', 1, 10, 2),
+    'rule_caps': ('bool', None, None, True),
+    'rule_flood': ('bool', None, None, True),
+    'rule_insult': ('bool', None, None, True),
+    'rule_ads': ('bool', None, None, True),
+    'mute_min': ('full', 1, 1440, 10),
+    'ban_threshold': ('full', 1, 10, 3),
+    'ban_hours': ('full', 1, 720, 24),
+    'prime_start': ('full', 0, 23, 19),
+    'prime_end': ('full', 0, 23, 23),
     'prime_pvp': ('sayi', 1.0, 5.0, 2.0),
-    'buyuk_savas': ('bool', None, None, True),
-    'basit_guc': ('sayi', 0.3, 3.0, 1.0),
-    'basit_dost': ('sayi', 0.0, 1.0, 0.5),
-    'llm_toplu': ('tam', 1, 16, 4),
-    'llm_sohbet': ('bool', None, None, True),
-    'llm_karar_dk': ('tam', 0, 120, 10),
-    'llm_ajan': ('bool', None, None, True),            # güçlü sağlayıcıda araç döngüsü (bot/ajan.py)
-    'llm_ajan_adim': ('tam', 1, 10, 3),
-    'llm_saatlik': ('tam', 0, 20000, 200),             # bütün dil modeli isteklerinin saatlik sınırı (0: sınırsız)
+    'big_battle': ('bool', None, None, True),
+    'simple_power': ('sayi', 0.3, 3.0, 1.0),
+    'simple_friendly': ('sayi', 0.0, 1.0, 0.5),
+    'llm_batch': ('full', 1, 16, 4),
+    'llm_chat': ('bool', None, None, True),
+    'llm_decision_min': ('full', 0, 120, 10),
+    'llm_agent': ('bool', None, None, True),            # güçlü sağlayıcıda araç döngüsü (bot/ajan.py)
+    'llm_agent_steps': ('full', 1, 10, 3),
+    'llm_hourly': ('full', 0, 20000, 200),             # bütün dil modeli isteklerinin saatlik sınırı (0: sınırsız)
 }
-PERMISSIONS = ('magaza', 'gorev', 'pvp', 'oyuncuya_saldir', 'sohbet', 'klan', 'klan_kur', 'arkadas', 'grup', 'muzayede', 'yardim', 'kutu_calma', 'kargo', 'roket', 'ozel_cephane', 'ekstra', 'mayin', 'lab', 'skylab', 'teknoloji', 'ganimet', 'assembly', 'kapi', 'etkinlik', 'modlar', 'klan_diplomasi', 'klan_emir', 'kapi_dolgu', 'klan_ksi')
+PERMISSIONS = ('shop', 'gorev', 'pvp', 'attack_player', 'sohbet', 'klan', 'clan_found', 'arkadas', 'grup', 'auction', 'yardim', 'box_stealing', 'kargo', 'roket', 'custom_ammunition', 'ekstra', 'mayin', 'lab', 'skylab', 'technology', 'booty', 'assembly', 'kapi', 'etkinlik', 'modes', 'clan_diplomacy', 'clan_order', 'gate_filler', 'clan_cbs')
 SIMPLE_CLASSES = ('X-1', 'X-2', 'X-3', 'X-4', '4-X', 'X-5', 'X-6', 'X-7', 'X-8', '4-5')
 
 
@@ -114,7 +114,7 @@ def read(pid):
 def _save(pid, d):
     os.makedirs(folder(), exist_ok=True)
     d['surum'] = VERSION
-    d['guncelleme'] = _now()
+    d['update'] = _now()
     p = _route(pid)
     tmp = p + '.tmp'
     with open(tmp, 'w', encoding='utf8') as fh:
@@ -143,29 +143,29 @@ def clean_settings(a, old=None):
         try:
             if kind == 'bool':
                 v = bool(v)
-            elif kind == 'tam':
+            elif kind == 'full':
                 v = max(lo, min(hi, int(v)))
             else:
                 v = round(max(lo, min(hi, float(v))), 3)
         except (TypeError, ValueError):
             v = out.get(k, vars_)
         out[k] = v
-    trace = dict(out.get('izinler') or {})
+    trace = dict(out.get('permissions') or {})
     for k in PERMISSIONS:
-        if isinstance(a.get('izinler'), dict) and k in a['izinler']:
-            trace[k] = bool(a['izinler'][k])
+        if isinstance(a.get('permissions'), dict) and k in a['permissions']:
+            trace[k] = bool(a['permissions'][k])
         trace.setdefault(k, True)
-    out['izinler'] = trace
-    fg = a.get('firma_guc', out.get('firma_guc', [1.0, 1.0, 1.0]))
+    out['permissions'] = trace
+    fg = a.get('company_power', out.get('company_power', [1.0, 1.0, 1.0]))
     try:
-        out['firma_guc'] = [round(max(0.2, min(5.0, float(x))), 2) for x in list(fg)[:3]] + [1.0] * (3 - len(list(fg)[:3]))
+        out['company_power'] = [round(max(0.2, min(5.0, float(x))), 2) for x in list(fg)[:3]] + [1.0] * (3 - len(list(fg)[:3]))
     except (TypeError, ValueError):
-        out['firma_guc'] = [1.0, 1.0, 1.0]
-    game_settings = a.get('oyun_ayari', out.get('oyun_ayari'))            # botların oyun ayarı profili (bot/oyun_ayari.py)
+        out['company_power'] = [1.0, 1.0, 1.0]
+    game_settings = a.get('game_settings', out.get('game_settings'))            # botların oyun ayarı profili (bot/oyun_ayari.py)
     from bot import game_settings as GS
     import settings as SET
     if not isinstance(game_settings, dict) or game_settings.get('profil') not in GS.PROFILES:
-        game_settings = {'profil': 'standart', 'values': {}}
+        game_settings = {'profil': 'standard', 'values': {}}
     value = {}
     for k, v in (game_settings.get('values') or {}).items():
         s = SET.BY_KEY.get(k)
@@ -174,13 +174,13 @@ def clean_settings(a, old=None):
                 value[k] = round(max(s.get('min', 0.0), min(s.get('max', 50.0), float(v))), 3)
             except (TypeError, ValueError):
                 pass
-    out['oyun_ayari'] = {'profil': game_settings['profil'], 'values': value}
-    bh = a.get('basit_haritalar', out.get('basit_haritalar'))
+    out['game_settings'] = {'profil': game_settings['profil'], 'values': value}
+    bh = a.get('simple_maps', out.get('simple_maps'))
     if isinstance(bh, dict):
-        out['basit_haritalar'] = {s: max(0, min(20, int(bh.get(s, 0) or 0))) for s in SIMPLE_CLASSES}
+        out['simple_maps'] = {s: max(0, min(20, int(bh.get(s, 0) or 0))) for s in SIMPLE_CLASSES}
     else:
         from bot import simple
-        out['basit_haritalar'] = dict(simple.DEFAULT_MAPS)
+        out['simple_maps'] = dict(simple.DEFAULT_MAPS)
     return out
 
 
@@ -193,7 +193,7 @@ def _clean_name(name):
 
 def _new_id(name):
     tr = str.maketrans('çğıöşüâîûÇĞİÖŞÜ', 'cgiosuaiuCGIOSU')
-    k = re.sub(r'[^a-z0-9]+', '_', name.translate(tr).lower()).strip('_')[:30] or 'botlar'
+    k = re.sub(r'[^a-z0-9]+', '_', name.translate(tr).lower()).strip('_')[:30] or 'bots'
     pid, n = k, 2
     while os.path.exists(_route(pid)):
         pid, n = '%s_%d' % (k, n), n + 1
@@ -219,16 +219,18 @@ def generate_roster(seed, count, distribution, lang, existing=(), name_lang=None
         except OSError:
             raise BotError(_("DOStats'a ulaşılamadı. Ad kaynağını Üretilen yap ya da sonra yeniden dene."))
         d['clan_tags'] = DS.tags(pool)[:300]
-    return PS.generate_roster(seed, count, company_distribution=distribution, lang=lang if lang in LANGUAGES else 'karisik', existing=existing,
+    return PS.generate_roster(seed, count, company_distribution=distribution, lang=lang if lang in LANGUAGES else 'mixed', existing=existing,
                          name_lang=name_lang if name_lang in LANGUAGES else None, special=special, pool=pool)
 
 
 CUSTOM_MAX = 500
 NAME_SOURCES = ('uretim', 'dostats')      # adlar: üretici (gerçek sunucu üslubu) ya da dostats.info'daki gerçek oyuncular
 _COMPANY_NAME = {'mmo': 1, 'eic': 2, 'vru': 3}
-_ARCHETYPE_NAME = {'grinder': 'kasici', 'pve': 'kasici', 'hunter': 'avci', 'pvp': 'avci', 'social': 'sosyal', 'trader': 'tuccar',
-               'quester': 'gorevci', 'casual': 'rahat', 'leader': 'lider', 'kasıcı': 'kasici', 'avcı': 'avci', 'tüccar': 'tuccar',
-               'görevci': 'gorevci'}
+_ARCHETYPE_NAME = {'grinder': 'grinder', 'pve': 'grinder', 'hunter': 'hunter', 'pvp': 'hunter', 'social': 'sosyal', 'trader': 'trader',
+               'quester': 'quester', 'casual': 'casual', 'leader': 'lider', 'kasıcı': 'grinder', 'avcı': 'hunter', 'tüccar': 'trader',
+               'görevci': 'quester',
+               # yazılan Türkçe adlar (ASCII): paket listesi kullanıcının elle yazdığı metin
+               'kasici': 'grinder', 'avci': 'hunter', 'tuccar': 'trader', 'gorevci': 'quester', 'rahat': 'casual'}
 
 
 def parse_custom(text, used=()):
@@ -252,13 +254,13 @@ def parse_custom(text, used=()):
             k = x.lower()
             if k in _COMPANY_NAME and 'firma' not in o:
                 o['firma'] = _COMPANY_NAME[k]
-            elif (k in PS.ARCHETYPES or k in _ARCHETYPE_NAME) and 'arketip' not in o:
-                o['arketip'] = _ARCHETYPE_NAME.get(k, k)
-            elif k in LANGUAGES and k != 'karisik' and 'dil' not in o:
+            elif (k in PS.ARCHETYPES or k in _ARCHETYPE_NAME) and 'archetype' not in o:
+                o['archetype'] = _ARCHETYPE_NAME.get(k, k)
+            elif k in LANGUAGES and k != 'mixed' and 'dil' not in o:
                 o['dil'] = k
             else:
                 raise BotError(_('{0}. satır: "{1}" anlaşılamadı (firma: MMO, EIC, VRU; davranış: {2}; dil: {3}).').format(
-                    i, x, ', '.join(PS.ARCHETYPES), ', '.join(d for d in LANGUAGES if d != 'karisik')))
+                    i, x, ', '.join(PS.ARCHETYPES), ', '.join(d for d in LANGUAGES if d != 'mixed')))
         out.append(o)
         if len(out) > CUSTOM_MAX:
             raise BotError(_('En çok {0} özel bot.').format(CUSTOM_MAX))
@@ -267,34 +269,34 @@ def parse_custom(text, used=()):
 
 def _custom_lang(d, summary):
     """Dahili dil modeli yalnız İngilizce: Gelişmiş kipte özel botun dili de İngilizce (bot/llm.py)."""
-    if d.get('mode') == 'gelismis' and not PRV.multilingual():
+    if d.get('mode') == 'advanced' and not PRV.multilingual():
         return [dict(o, dil='en') if o.get('dil') else o for o in summary]
     return summary
 
 
 def name_lang(d):
     """Paketin ad dili (eski paketlerde ad ve sohbet tek ayardı)."""
-    return d.get('name_lang') or d.get('dil') or 'karisik'
+    return d.get('name_lang') or d.get('dil') or 'mixed'
 
 
 def apply_chat_lang(d):
     """Sohbet dili değişti: var olan botlar da yeni dilde konuşur (karışık: her bot adının dilinde). Adlar değişmez."""
-    for x in d['kadro']:
-        k = x['kisilik']
+    for x in d['roster']:
+        k = x['personality']
         k.setdefault('name_lang', k.get('dil'))
         k['dil'] = d['dil'] if d['dil'] in LANGUAGES[1:] else (k.get('name_lang') or k.get('dil') or 'en')
 
 
 def _count(d):
     """Basit kipte kadro harita yerlerinin sayısı kadar."""
-    if d.get('mode') == 'basit':
+    if d.get('mode') == 'simple':
         from bot import simple
-        return max(1, simple.slot_count(d['ayarlar'].get('basit_haritalar') or simple.DEFAULT_MAPS))
+        return max(1, simple.slot_count(d['settings'].get('simple_maps') or simple.DEFAULT_MAPS))
     return None
 
 
 # ------------------------------------------------------------------ depo
-def create(name, description='', world=None, mode='normal', progression='progressive', count=60, lang='karisik', company_distribution=(1, 1, 1),
+def create(name, description='', world=None, mode='normal', progression='progressive', count=60, lang='mixed', company_distribution=(1, 1, 1),
             settings=None, players=(), name_lang_=None, special='', name_source=None):
     """Yeni paket: kadro tohumla üretilir (oyuncuların adları kullanılmaz)."""
     if mode not in MODES:
@@ -302,16 +304,16 @@ def create(name, description='', world=None, mode='normal', progression='progres
     with _LOCK:
         name = _clean_name(name)
         pid = _new_id(name)
-        if mode == 'gelismis' and not PRV.multilingual():
+        if mode == 'advanced' and not PRV.multilingual():
             lang = 'en'                         # dahili dil modeli yalnız İngilizce (bot/llm.py; başka sağlayıcıda serbest)
-        d = {'ad': name, 'aciklama': str(description or '')[:DESCRIPTION_LENGTH], 'dunya': None, 'mode': mode,
+        d = {'ad': name, 'aciklama': str(description or '')[:DESCRIPTION_LENGTH], 'world': None, 'mode': mode,
              'progression': progression if progression in PROGRESSIONS else 'progressive', 'seed': random.randrange(1, 2 ** 31),
-             'dil': lang if lang in LANGUAGES else 'karisik', 'name_lang': name_lang_ if name_lang_ in LANGUAGES else 'karisik',
+             'dil': lang if lang in LANGUAGES else 'mixed', 'name_lang': name_lang_ if name_lang_ in LANGUAGES else 'mixed',
              'company_distribution': _distribution(company_distribution), 'name_source': name_source if name_source in NAME_SOURCES else 'uretim',
-             'ayarlar': clean_settings(settings or {}), 'created': _now()}
+             'settings': clean_settings(settings or {}), 'created': _now()}
         summary = _custom_lang(d, parse_custom(special, players))
         n = max(len(summary), _count(d) or max(COUNT_MIN, min(COUNT_MAX, int(count or 60))))
-        d['kadro'] = generate_roster(d['seed'], n, d['company_distribution'], d['dil'], players, d['name_lang'], summary, d)
+        d['roster'] = generate_roster(d['seed'], n, d['company_distribution'], d['dil'], players, d['name_lang'], summary, d)
         _save(pid, d)
     if world:
         assign(pid, world)
@@ -333,18 +335,18 @@ def update(pid, name=None, description=None, mode=None, progression=None, settin
         if progression is not None and progression in PROGRESSIONS:
             d['progression'] = progression
         if settings is not None:
-            d['ayarlar'] = clean_settings(settings, d.get('ayarlar'))
+            d['settings'] = clean_settings(settings, d.get('settings'))
         n = _count(d)
-        if n is not None and (n != len(d['kadro']) or old_mode != d['mode']):
-            d['kadro'] = _resize(d, n)
+        if n is not None and (n != len(d['roster']) or old_mode != d['mode']):
+            d['roster'] = _resize(d, n)
         _save(pid, d)
 
 
 def _resize(d, n, players=()):
     """Kadro n bota: fazlası sondan çıkar, eksik yeni botlarla (aynı tohumdan devam; var olanların adı ve kişiliği değişmez)."""
-    k = d['kadro'][:n]
+    k = d['roster'][:n]
     if len(k) < n:
-        extra = generate_roster(d['seed'] + len(k) * 7919, n - len(k), d['company_distribution'], d.get('dil', 'karisik'),
+        extra = generate_roster(d['seed'] + len(k) * 7919, n - len(k), d['company_distribution'], d.get('dil', 'mixed'),
                         [x['ad'] for x in k] + list(players), name_lang(d), d=d)
         last = max([x['no'] for x in k], default=0)
         for i, x in enumerate(extra, 1):
@@ -362,37 +364,37 @@ def roster(pid, count=None, lang=None, company_distribution=None, regenerate=Fal
         if name_lang_ in LANGUAGES:
             d['name_lang'] = name_lang_
         elif not d.get('name_lang'):
-            d['name_lang'] = d.get('dil') or 'karisik'
+            d['name_lang'] = d.get('dil') or 'mixed'
         if name_source in NAME_SOURCES:
             d['name_source'] = name_source           # yeni eklenen botlara ve baştan üretime (var olanların adı değişmez)
-        if d.get('mode') == 'gelismis' and not PRV.multilingual():
+        if d.get('mode') == 'advanced' and not PRV.multilingual():
             lang = 'en'                         # dahili dil modeli yalnız İngilizce (bot/llm.py; başka sağlayıcıda serbest)
         if lang in LANGUAGES and lang != d.get('dil'):
             d['dil'] = lang
             apply_chat_lang(d)
         if company_distribution is not None:
             d['company_distribution'] = _distribution(company_distribution)
-        n = _count(d) or max(COUNT_MIN, min(COUNT_MAX, int(count or len(d['kadro']))))
-        old_backups = [x['ad'] for x in d['kadro']]
+        n = _count(d) or max(COUNT_MIN, min(COUNT_MAX, int(count or len(d['roster']))))
+        old_backups = [x['ad'] for x in d['roster']]
         summary = _custom_lang(d, parse_custom(special, players))
         if regenerate:
             d['seed'] = random.randrange(1, 2 ** 31)
-            d['kadro'] = generate_roster(d['seed'], max(n, len(summary)), d['company_distribution'], d['dil'], players, d['name_lang'], summary, d)
+            d['roster'] = generate_roster(d['seed'], max(n, len(summary)), d['company_distribution'], d['dil'], players, d['name_lang'], summary, d)
             outgoing = old_backups                              # baştan üretim: eski pilotların hepsi gider
         else:
-            d['kadro'] = _resize(d, n, players)
+            d['roster'] = _resize(d, n, players)
             outgoing = old_backups[n:]                          # azaltma: sondakiler gider
-            var = {x['ad'].lower() for x in d['kadro']}
+            var = {x['ad'].lower() for x in d['roster']}
             new_ = [o for o in summary if o['ad'].lower() not in var]
             if new_:                                     # eklenen özel botlar sona (var olanlar değişmez)
-                extra = generate_roster(d['seed'] + len(d['kadro']) * 7919, len(new_), d['company_distribution'], d['dil'],
+                extra = generate_roster(d['seed'] + len(d['roster']) * 7919, len(new_), d['company_distribution'], d['dil'],
                                 list(var) + list(players), name_lang(d), new_, d)
-                last = max([x['no'] for x in d['kadro']], default=0)
+                last = max([x['no'] for x in d['roster']], default=0)
                 for i, x in enumerate(extra, 1):
                     x['no'] = last + i
-                d['kadro'] += extra
+                d['roster'] += extra
         _save(pid, d)
-    NL.add([{'tur': 'sil', 'ad': a} for a in outgoing])
+    NL.add([{'tur': 'delete', 'ad': a} for a in outgoing])
     if regenerate:
         reset(pid, event=False)
 
@@ -411,14 +413,14 @@ def edit_catalog():
 
 def edit_error(e):
     """bot/duzenle.DuzenlemeHatasi -> panelin dilinde ileti."""
-    return {'deger': _('Geçersiz değer: %s', e.area), 'aralik': _('Değer sınırların dışında: %s', e.area),
-            'esya': _('Bilinmeyen eşya: %s', e.area), 'yok': _('Bulunamadı: %s', e.area),
-            'durum_yok': _('Bu bot henüz oyunda görünmedi: yalnız kişiliği düzenlenebilir.'),
-            'cevrimici': _('Çevrimiçi botun haritası değiştirilemez: çevrimdışı olunca dene.')}.get(e.code, str(e))
+    return {'value': _('Geçersiz değer: %s', e.area), 'interval': _('Değer sınırların dışında: %s', e.area),
+            'esya': _('Bilinmeyen eşya: %s', e.area), 'none': _('Bulunamadı: %s', e.area),
+            'no_state': _('Bu bot henüz oyunda görünmedi: yalnız kişiliği düzenlenebilir.'),
+            'online': _('Çevrimiçi botun haritası değiştirilemez: çevrimdışı olunca dene.')}.get(e.code, str(e))
 
 
 def _roster_row(d, no):
-    x = next((x for x in d['kadro'] if x['no'] == int(no)), None)
+    x = next((x for x in d['roster'] if x['no'] == int(no)), None)
     if x is None:
         raise BotError(_('Bot bulunamadı.'))
     return x
@@ -438,7 +440,7 @@ def bot_personality(pid, no, traits):
     with _LOCK:
         d = read(pid)
         try:
-            ED.apply(None, _roster_row(d, no), {'ozellik': traits})
+            ED.apply(None, _roster_row(d, no), {'traits': traits})
         except ED.EditError as e:
             raise BotError(edit_error(e)) from None
         _save(pid, d)
@@ -452,17 +454,17 @@ def edit_bot(pid, no, value):
         roster_row = _roster_row(d, no)
         route = state_path(pid)
         all_candidates = _read_file(route) or {}
-        k = (all_candidates.get('botlar') or {}).get(str(int(no)))
+        k = (all_candidates.get('bots') or {}).get(str(int(no)))
         try:
             ED.apply(k, roster_row, value)
         except ED.EditError as e:
             raise BotError(edit_error(e)) from None
-        if k is not None and any(a != 'ozellik' for a in value):
+        if k is not None and any(a != 'traits' for a in value):
             os.makedirs(os.path.dirname(route), exist_ok=True)
             with open(route + '.tmp', 'w', encoding='utf8') as fh:
                 json.dump(all_candidates, fh, ensure_ascii=False, separators=(',', ':'))
             os.replace(route + '.tmp', route)
-        if 'ozellik' in value:
+        if 'traits' in value:
             _save(pid, d)
     return bot_detail(pid, no)
 
@@ -475,9 +477,9 @@ def bot_name(pid, no, name, players=()):
         raise BotError(_('Ad 3-20 karakter olmalı: harf, rakam, _ . -'))
     with _LOCK:
         d = read(pid)
-        if any(x['ad'].lower() == name.lower() and x['no'] != no for x in d['kadro']) or name.lower() in {str(o).lower() for o in players}:
+        if any(x['ad'].lower() == name.lower() and x['no'] != no for x in d['roster']) or name.lower() in {str(o).lower() for o in players}:
             raise BotError(_('Bu ad kullanılıyor.'))
-        x = next((x for x in d['kadro'] if x['no'] == int(no)), None)
+        x = next((x for x in d['roster'] if x['no'] == int(no)), None)
         if x is None:
             raise BotError(_('Bot bulunamadı.'))
         old, x['ad'] = x['ad'], name
@@ -490,7 +492,7 @@ def reset(pid, event=True):
     """Paketin ilerlemesini sil (botlar baştan başlar; jumpstart'ta yeniden dağıtılır). Botlar klanlardan çıkar (oyuncunun klanı
     dahil: ad_kaydi 'klan_cik'); adları ve tanışıklıkları kalır."""
     if event:
-        NL.add([{'tur': 'klan_cik', 'ad': x['ad']} for x in read(pid)['kadro']])
+        NL.add([{'tur': 'clan_leave', 'ad': x['ad']} for x in read(pid)['roster']])
     p = state_path(pid)
     for f in (p, os.path.join(os.path.dirname(p), 'clans.json')):
         if os.path.isfile(f):
@@ -502,7 +504,7 @@ def remove(pid):
     p = _route(pid)
     if not os.path.isfile(p):
         raise BotError(_('Bot paketi bulunamadı.'))
-    NL.add([{'tur': 'sil', 'ad': x['ad']} for x in read(pid)['kadro']])
+    NL.add([{'tur': 'delete', 'ad': x['ad']} for x in read(pid)['roster']])
     target = os.path.join(folder(), '_trash')
     os.makedirs(target, exist_ok=True)
     timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
@@ -520,10 +522,10 @@ def assign(pid, world):
             for x in list_ids():
                 if x != pid:
                     o = _read_file(_route(x))
-                    if o and o.get('dunya') == world:
-                        o['dunya'] = None
+                    if o and o.get('world') == world:
+                        o['world'] = None
                         _save(x, o)
-        d['dunya'] = world or None
+        d['world'] = world or None
         _save(pid, d)
 
 
@@ -538,7 +540,7 @@ def world_pack(world):
     """Dünyanın paketi (kimlik) ya da None."""
     for pid in list_ids():
         d = _read_file(_route(pid))
-        if d and d.get('dunya') == world:
+        if d and d.get('world') == world:
             return pid
     return None
 
@@ -552,16 +554,16 @@ def live_llm(pid):
 def live(pid):
     """Sunucunun son kaydı: no -> bot durumu (seviye, gemi, harita, klan, istatistik) ve kaydın anı."""
     d = _read_file(state_path(pid)) or {}
-    return d.get('t'), {int(k): v for k, v in (d.get('botlar') or {}).items()}
+    return d.get('t'), {int(k): v for k, v in (d.get('bots') or {}).items()}
 
 
 def summary(pid):
     d = read(pid)
     t, c = live(pid)
-    companies = [sum(1 for x in d['kadro'] if x['firma'] == f) for f in (1, 2, 3)]
-    levels = [c[x['no']].get('seviye', 1) for x in d['kadro'] if x['no'] in c]
-    return {'id': pid, 'ad': d['ad'], 'aciklama': d.get('aciklama', ''), 'dunya': d.get('dunya'), 'mode': d['mode'],
-            'progression': d.get('progression'), 'adet': len(d['kadro']), 'companies': companies, 'guncelleme': d.get('guncelleme'),
+    companies = [sum(1 for x in d['roster'] if x['firma'] == f) for f in (1, 2, 3)]
+    levels = [c[x['no']].get('seviye', 1) for x in d['roster'] if x['no'] in c]
+    return {'id': pid, 'ad': d['ad'], 'aciklama': d.get('aciklama', ''), 'world': d.get('world'), 'mode': d['mode'],
+            'progression': d.get('progression'), 'adet': len(d['roster']), 'companies': companies, 'update': d.get('update'),
             'last_played': t, 'level_avg': round(sum(levels) / len(levels), 1) if levels else None,
             'level_max': max(levels) if levels else None}
 
@@ -573,7 +575,7 @@ def entries():
             out.append(summary(pid))
         except BotError:
             pass
-    out.sort(key=lambda x: x['guncelleme'] or '', reverse=True)
+    out.sort(key=lambda x: x['update'] or '', reverse=True)
     return out
 
 
@@ -581,12 +583,12 @@ def _memory(s):
     """Botun aklındakiler (bot/memories.py, bot/agent.py; güçlü sağlayıcı): açık hedefleri, bekleyen sözleri, izlenimleri, en yeni
     anıları -> yoksa None."""
     memories = s.get('memories') or []
-    out = {'defter': [x['metin'] for x in s.get('defter') or [] if not x.get('bitti')],
-           'pending': [{'kim': a['kim'], 'amac': a['takip']['amac'], 'ozet': a['ozet'], 'due': a['takip'].get('due')}
-                        for a in memories if a.get('takip') and not a['takip'].get('bitti')],
-           'izlenim': [{'kim': v.get('ad'), 'metin': v.get('metin')} for v in (s.get('izlenim') or {}).values()],
-           'memories': [{'kim': a['kim'], 'ozet': a['ozet'], 't': a['t'], 'n': a.get('n', 1)} for a in sorted(memories, key=lambda a: -a['t'])[:8]],
-           'hatirlatici': [x.get('metin') for x in s.get('hatirlatici') or []], 'birikim': s.get('birikim')}
+    out = {'ledger': [x['metin'] for x in s.get('ledger') or [] if not x.get('finished')],
+           'pending': [{'kim': a['kim'], 'amac': a['takip']['amac'], 'summary': a['summary'], 'due': a['takip'].get('due')}
+                        for a in memories if a.get('takip') and not a['takip'].get('finished')],
+           'impression': [{'kim': v.get('ad'), 'metin': v.get('metin')} for v in (s.get('impression') or {}).values()],
+           'memories': [{'kim': a['kim'], 'summary': a['summary'], 't': a['t'], 'n': a.get('n', 1)} for a in sorted(memories, key=lambda a: -a['t'])[:8]],
+           'reminder': [x.get('metin') for x in s.get('reminder') or []], 'savings': s.get('savings')}
     return out if any(out.values()) else None
 
 
@@ -596,7 +598,7 @@ _STATION = {}
 def _station_name(aid):
     if not _STATION:
         d = _read_file(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'cbs.json')) or {}
-        _STATION.update({str(a['kimlik']): a['ad'] for a in d.get('asteroitler', [])})
+        _STATION.update({str(a['kimlik']): a['ad'] for a in d.get('asteroids', [])})
     return _STATION.get(str(aid), str(aid))
 
 
@@ -604,25 +606,25 @@ def clans(pid):
     """Paketin botlarının klanları (sunucunun son kaydı: durum.json'un yanındaki klanlar.json): logo (OP-017), lider, üyeler, kasa,
     vergi, bütçe, istasyonlar ve yarış (bot/clan_stations.py), son haberler. Kalabalık önce."""
     d = _read_file(os.path.join(os.path.dirname(state_path(pid)), 'clans.json')) or {}
-    names = {x['ad'].lower() for x in read(pid)['kadro']}
+    names = {x['ad'].lower() for x in read(pid)['roster']}
     out = []
-    for k in (d.get('klanlar') or {}).values():
-        members = k.get('uyeler') or {}
+    for k in (d.get('clans') or {}).values():
+        members = k.get('members') or {}
         bot = sum(1 for a in members if a in names)
         if not bot:
             continue
         s = k.get('ksi') or {}
         out.append({'ad': k.get('ad', ''), 'etiket': k.get('etiket', ''), 'logo': k.get('logo'), 'firma': k.get('firma', 0),
                     'lider': (members.get(k.get('lider')) or {}).get('ad', k.get('lider')), 'bot_leader': k.get('lider') in names,
-                    'uye': len(members), 'bot': bot, 'kasa': k.get('kasa', 0), 'vergi': k.get('vergi', 0), 'butce': k.get('butce'),
-                    'kurulus': k.get('kurulus'), 'aciklama': k.get('aciklama', ''),
-                    'rutbeler': [r.get('ad') for r in k.get('rutbeler') or []],
-                    'stations': [_station_name(a) for a, x in (s.get('seen') or {}).items() if x == 'kurulu'],
-                    'yaris': _station_name(s['hedef']) if s.get('hedef') else None,
-                    'diplomasi': [{'tur': x.get('tur'), 'ad': x.get('ad') or ((d.get('klanlar') or {}).get(str(x.get('klan'))) or {}).get('ad', '')}
-                                  for x in k.get('diplomasi') or []],
-                    'haberler': [x.get('metin') for x in k.get('haberler') or [] if x.get('metin')][:3]})
-    out.sort(key=lambda x: (-x['uye'], x['ad']))
+                    'member': len(members), 'bot': bot, 'treasury': k.get('treasury', 0), 'tax': k.get('tax', 0), 'budget': k.get('budget'),
+                    'founded': k.get('founded'), 'aciklama': k.get('aciklama', ''),
+                    'ranks': [r.get('ad') for r in k.get('ranks') or []],
+                    'stations': [_station_name(a) for a, x in (s.get('seen') or {}).items() if x == 'built'],
+                    'race': _station_name(s['hedef']) if s.get('hedef') else None,
+                    'diplomacy': [{'tur': x.get('tur'), 'ad': x.get('ad') or ((d.get('clans') or {}).get(str(x.get('klan'))) or {}).get('ad', '')}
+                                  for x in k.get('diplomacy') or []],
+                    'clan_news': [x.get('metin') for x in k.get('clan_news') or [] if x.get('metin')][:3]})
+    out.sort(key=lambda x: (-x['member'], x['ad']))
     return out
 
 
@@ -632,22 +634,22 @@ def detail(pid):
     d = read(pid)
     t, c = live(pid)
     rows = []
-    for x in d['kadro']:
+    for x in d['roster']:
         s = c.get(x['no'], {})
-        e = s.get('ekip') or {}
-        rows.append({'no': x['no'], 'ad': x['ad'], 'firma': x['firma'], 'arketip': x['kisilik']['arketip'],
-                     'habit': x['kisilik'].get('habit'), 'dil': x['kisilik'].get('dil'),
-                     'name_lang': x['kisilik'].get('name_lang') or x['kisilik'].get('dil'),
-                     'ozellik': x['kisilik']['ozellik'], 'seviye': s.get('seviye', 1), 'gemi': e.get('gemi', 'ship_phoenix'),
-                     'harita': s.get('harita'), 'harita_ad': H.name(s['harita']) if s.get('harita') else '', 'klan': s.get('klan'), 'hedef': s.get('hedef'), 'istat': s.get('istat') or {},
+        e = s.get('gear') or {}
+        rows.append({'no': x['no'], 'ad': x['ad'], 'firma': x['firma'], 'archetype': x['personality']['archetype'],
+                     'habit': x['personality'].get('habit'), 'dil': x['personality'].get('dil'),
+                     'name_lang': x['personality'].get('name_lang') or x['personality'].get('dil'),
+                     'traits': x['personality']['traits'], 'seviye': s.get('seviye', 1), 'gemi': e.get('gemi', 'ship_phoenix'),
+                     'harita': s.get('harita'), 'map_name': H.name(s['harita']) if s.get('harita') else '', 'klan': s.get('klan'), 'hedef': s.get('hedef'), 'stats': s.get('stats') or {},
                      'kredi': s.get('kredi', 0), 'uridyum': s.get('uridyum', 0), 'onur': s.get('onur', 0),
                      'ep': s.get('ep', 0), 'rutbe': s.get('rutbe') or 1, 'ozel': bool(x.get('ozel')),
                      'kapi': {g: v.get('best') for g, v in (s.get('gate_times') or {}).items()},
-                     'ajan': (s.get('ajan') or [])[-6:],                    # ajanın son adımları (bot/ajan.py; güçlü sağlayıcı)
-                     'hafiza': _memory(s)})
-    out = dict(summary(pid), ayarlar=clean_settings({}, d['ayarlar']),          # eski paketlerde yeni ayarlar varsayılanla
+                     'agent': (s.get('agent') or [])[-6:],                    # ajanın son adımları (bot/ajan.py; güçlü sağlayıcı)
+                     'memory': _memory(s)})
+    out = dict(summary(pid), settings=clean_settings({}, d['settings']),          # eski paketlerde yeni ayarlar varsayılanla
                llm_usage=live_llm(pid), dil=d.get('dil'), name_lang=name_lang(d), name_source=d.get('name_source', 'uretim'), languages=list(LANGUAGES),
-               company_distribution=d.get('company_distribution'), kadro=rows, klanlar=clans(pid),
+               company_distribution=d.get('company_distribution'), roster=rows, clans=clans(pid),
                has_state=bool(c))
     return out
 

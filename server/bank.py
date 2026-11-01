@@ -14,7 +14,7 @@ SKIP = ('uridium_bank', 'sell')                 # bankaya sayılmayan kazançlar
 
 
 def value(p):
-    return int(p.d.get('banka', 0))
+    return int(p.d.get('bank', 0))
 
 
 def accrue(p, n, reason=None):
@@ -22,7 +22,7 @@ def accrue(p, n, reason=None):
     if n <= 0 or (reason and str(reason).startswith(SKIP)):
         return
     with p.lock:
-        p.d['banka'] = min(B['azami'], value(p) + n)
+        p.d['bank'] = min(B['azami'], value(p) + n)
         p.dirty = True
 
 
@@ -42,7 +42,7 @@ def claim(p, money_msgs=None, log=print):
         return [info_cmd(p)]
     p.gain(kredi=-cost, uridyum=v, neden='title_uridium_bank')
     with p.lock:
-        p.d['banka'] = 0
+        p.d['bank'] = 0
         p.dirty = True
     log('   Uridium Bank: %d U alındı (%d kredi)' % (v, cost))
     return (money_msgs() if money_msgs else []) + [info_cmd(p)]

@@ -26,22 +26,22 @@
  "_cikis": "Century Falcon ölünce herkes firmasının X-1 istasyonuna gönderilir (resmî Türk forumu 126411); eski X-3 portalının yerine.",
  "narration": {
   "giris": ["groupgate_map_started", "transmission_groupgate_mission_start_1", "transmission_groupgate_mission_start_2"],
-  "role_1": ["transmission_groupgate_relay_station_1"],
-  "role_1_hazir": ["transmission_groupgate_relay_station_2"],
-  "role_1_tamam": ["transmission_groupgate_relay_station_bypassed"],
+  "relay_1": ["transmission_groupgate_relay_station_1"],
+  "relay_1_ready": ["transmission_groupgate_relay_station_2"],
+  "relay_1_done": ["transmission_groupgate_relay_station_bypassed"],
   "hq": ["transmission_groupgate_hq_1", "transmission_groupgate_hq_2"],
-  "role_2": ["transmission_groupgate_hq_fight"],
+  "relay_2": ["transmission_groupgate_hq_fight"],
   "boss": ["transmission_groupgate_boss_arrival"],
-  "bitti": ["transmission_groupgate_mission_end"]
+  "finished": ["transmission_groupgate_mission_end"]
  },
- "mesajlar": {
+ "messages": {
   "giris": "LoW: destroy all Lord of War ships, then activate the {roleler} relay stations.",
-  "devam": "LoW: welcome back! The instance continues.",
+  "ongoing": "LoW: welcome back! The instance continues.",
   "dalga": "LoW: {ad} x{adet} incoming ({dalga}/{toplam})",
   "role": "Relay station {no}/{roleler}: destroy its defender, then use your laser cannons on it.",
-  "role_ilerleme": "Relay station {no}/{roleler}: {yuzde}%",
-  "role_tamam": "Relay station {no}/{roleler} activated!",
+  "relay_progress": "Relay station {no}/{roleler}: {yuzde}%",
+  "relay_done": "Relay station {no}/{roleler} activated!",
   "boss": "key:msg_boss_appearence",
-  "bitti": "key:msg_groupgate_finished"
+  "finished": "key:msg_groupgate_finished"
  }
 }

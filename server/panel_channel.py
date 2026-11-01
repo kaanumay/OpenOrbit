@@ -35,7 +35,7 @@ Güvenli bölge: oyunda donanım yalnız istasyonda (panelin "Portallarda hangar
   POST /muzayede/anlik {tur, loot}  AuctionQuickBuyRequest -> {tamam, hata}
   POST /muzayede/oto {tur, loot, azami}  otomatik teklif kuralı (azami 0: kapalı; muzayede.oto)
   POST /muzayede/alarm {tur, loot, gecilince, dk}  alarm kuralı (ikisi de boşsa kalkar)
-  GET  /muzayede/olaylar?son=<no>  bu numaradan sonraki olaylar (panelin bildirimleri)
+  GET  /muzayede/olaylar?last=<no>  bu numaradan sonraki olaylar (panelin bildirimleri)
 """
 import json, os, secrets, threading, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -67,7 +67,7 @@ def session(game):
 
 def wallet(s):
     pl = s.profile.d['pilot']
-    return {'kredi': pl.get('credits', 0), 'uridyum': pl.get('uridium', 0), 'istasyonda': in_station(s),
+    return {'kredi': pl.get('credits', 0), 'uridyum': pl.get('uridium', 0), 'in_station': in_station(s),
             'firma': {1: 'mmo', 2: 'eic', 3: 'vru'}.get(pl.get('factionId'), 'eic')}     # gemi simgeleri şirkete göre
 
 
@@ -96,7 +96,7 @@ def _bot(b):
     if y is None:
         raise Error(409, 'botlar açık değil')
     bot = next((x for x in y.bots if x.k['no'] == int(b.get('no') or 0)), None)
-    roster_row = next((x for x in y.package.get('kadro', []) if x['no'] == int(b.get('no') or 0)), None)
+    roster_row = next((x for x in y.package.get('roster', []) if x['no'] == int(b.get('no') or 0)), None)
     if bot is None or roster_row is None:
         raise Error(404, 'bot yok')
     return y, bot, roster_row
@@ -122,10 +122,10 @@ def edit_bot(game, b):
         try:
             ED.apply(bot.k, roster_row, value, online=bot.online)
         except ED.EditError as e:
-            return {'hata': e.code, 'alan': e.area}
-        if 'ruh' in value:
-            bot.mood.d.update(bot.k['ruh'])
-        if any(a in value for a in ('gemi', 'ekip', 'cephane')):
+            return {'hata': e.code, 'area': e.area}
+        if 'mood' in value:
+            bot.mood.d.update(bot.k['mood'])
+        if any(a in value for a in ('gemi', 'gear', 'ammunition')):
             bot.loadout_changed()
         society.update(bot)
         return ED.appearance(bot.k, roster_row, online=bot.online)
@@ -187,12 +187,12 @@ def cpus(s):
     out = []
     for l in dict.fromkeys(equipped):
         if l in CIT.TOGGLES:
-            out.append({'lootId': l, 'tur': 'ackapa', 'acik': CIT.toggled(p, l)})
-        cfg = SHP.EX.X.get(l, {}).get('oto_alim')
+            out.append({'lootId': l, 'tur': 'ackapa', 'on': CIT.toggled(p, l)})
+        cfg = SHP.EX.X.get(l, {}).get('auto_pickup')
         if cfg and cfg['tur'] in ('lazer', 'roket') and l in ids:
             pre = ('ammunition_laser_',) if cfg['tur'] == 'lazer' else ('ammunition_rocket_', 'ammunition_rocketlauncher_')
-            out.append({'lootId': l, 'id': ids[l], 'tur': 'cephane', 'threshold': cfg['threshold'], 'adet': cfg['adet'],
-                        'secili': p.d.get('auto_buy_ammo', {}).get(l),
+            out.append({'lootId': l, 'id': ids[l], 'tur': 'ammunition', 'threshold': cfg['threshold'], 'adet': cfg['adet'],
+                        'selected': p.d.get('auto_buy_ammo', {}).get(l),
                         'options': sorted(c for c in shop.catalog if c.startswith(pre) and shop.price(c))})
     return out
 
@@ -201,28 +201,28 @@ def hangar(game, q):
     s = session(game)
     p, shop = s.profile, s.shop
     with s.packet_lock:
-        sid = str(q.get('gemi') or '') if str(q.get('gemi') or '') in p.d['gemiler'] else p.d['aktif_gemi']
+        sid = str(q.get('gemi') or '') if str(q.get('gemi') or '') in p.d['ships'] else p.d['active_ship']
         ship = p.ship(sid)
         slots = [y for _p, y in SHP.SLOTS if shop.capacity(y, sid) > 0]
         places = p.item_places()
         configs = {}
-        for cid in sorted(ship['konfigler']):
+        for cid in sorted(ship['configs']):
             cfg = p.config(cid, sid)
             configs[cid] = {y: {'capacity': shop.capacity(y, sid, cid),
                                   'esyalar': [{'id': i, 'lootId': p.d['esyalar'][str(i)]} for i in cfg.get(y, []) if str(i) in p.d['esyalar']]}
                               for y in slots}
         item = lambda i: {'id': i, 'lootId': p.d['esyalar'][str(i)]} if i and str(i) in p.d['esyalar'] else None
         drones, pet = {}, {}
-        for cid in sorted(ship['konfigler']):
+        for cid in sorted(ship['configs']):
             dcfg = p.drone_config(cid, sid)
             drones[cid] = [{'id': x['kimlik'], 'lootId': x['lootId'], 'capacity': SHP.DRONES.get(x['lootId'], {}).get('yuva', 1),
                              'esyalar': [item(i) for i in dcfg.get(str(x['kimlik']), []) if item(i)],
-                             'tasarim': item(p.drone_design_id(x, 'design', cid, sid)), 'gorunum': item(p.drone_design_id(x, 'visual', cid, sid))}
-                            for x in p.d['dronlar']]
+                             'tasarim': item(p.drone_design_id(x, 'design', cid, sid)), 'appearance': item(p.drone_design_id(x, 'visual', cid, sid))}
+                            for x in p.d['drones']]
             if shop.pet.owned:
                 pc = shop.pet.config(cid, sid)
                 pet[cid] = {y: {'capacity': shop.pet.open_slots(y), 'esyalar': [item(i) for i in pc.get(y, []) if item(i)],
-                                'fiyat': shop.pet.slot_price(y) if y in PETM.PET['slot_prices'] else 0} for y in PETM.ALL_SLOTS}
+                                'price': shop.pet.slot_price(y) if y in PETM.PET['slot_prices'] else 0} for y in PETM.ALL_SLOTS}
 
         def targets(l):
             h = (['ship'] if SHP.slot_of(l) in slots else []) + (['drone'] if SHP.drone_ok(l) or l in SHP.DESIGNS else [])
@@ -235,31 +235,31 @@ def hangar(game, q):
                 continue
             sale = shop.sale_value(l) if not l.startswith(SHP.QF.PREFIX) else None
             if targets(l) or (sale and not place):
-                inventory.append({'id': int(i), 'lootId': l, 'hedefler': targets(l), 'seviye': SHP.UPG.item_level(p, int(i)),
-                                 'yuva': SHP.slot_of(l) or PETM.slot_for(l) or ('tasarim' if l in SHP.DESIGNS else 'diger'),
-                                 'satis': list(sale) if sale and not place else None, 'konfigler': sorted(place[1]) if place else []})
-        ships = [{'id': k, 'lootId': g['lootId'], 'tasarim': g.get('tasarim'), 'aktif': k == p.d['aktif_gemi'],
-                    'favori': bool(g.get('favori')), 'registered': bool(g.get('saved_config'))} for k, g in p.d['gemiler'].items()]
+                inventory.append({'id': int(i), 'lootId': l, 'targets': targets(l), 'seviye': SHP.UPG.item_level(p, int(i)),
+                                 'yuva': SHP.slot_of(l) or PETM.slot_for(l) or ('tasarim' if l in SHP.DESIGNS else 'other'),
+                                 'selling': list(sale) if sale and not place else None, 'configs': sorted(place[1]) if place else []})
+        ships = [{'id': k, 'lootId': g['lootId'], 'tasarim': g.get('tasarim'), 'active': k == p.d['active_ship'],
+                    'favorite': bool(g.get('favorite')), 'registered': bool(g.get('saved_config'))} for k, g in p.d['ships'].items()]
         petd = shop.pet.d if shop.pet.owned else None
-        return dict(wallet(s), gemi=sid, active_config=str(ship['active_config']), gemiler=ships, yuvalar=slots,
-                    konfigler=configs, dronlar=drones, pet=pet or None, pet_slots=list(PETM.ALL_SLOTS),
+        return dict(wallet(s), gemi=sid, active_config=str(ship['active_config']), ships=ships, slots=slots,
+                    configs=configs, drones=drones, pet=pet or None, pet_slots=list(PETM.ALL_SLOTS),
                     pet_info={'ad': petd.get('ad'), 'seviye': petd.get('seviye'), 'rename_price': shop.pet.rename_price(),
                                'heat_unlocked': shop.pet.heat_lv() >= PETM.HEAT['slot_level']} if petd else None,
-                    designs=shop.designs(sid), gorunum=p.ship_look(sid), envanter=inventory, cpus=cpus(s),
-                    istasyonda=in_station(s), portal_hangar=bool(SET.get('portal_hangar')))
+                    designs=shop.designs(sid), appearance=p.ship_look(sid), inventory=inventory, cpus=cpus(s),
+                    in_station=in_station(s), portal_hangar=bool(SET.get('portal_hangar')))
 
 
 def carry(game, b):
     s = session(game)
     sid = str(b.get('gemi') or '')
-    if sid not in s.profile.d['gemiler']:
+    if sid not in s.profile.d['ships']:
         raise Error(400, 'gemi')
     if not in_station(s):
         return {'tamam': False, 'hata': 'istasyon'}
-    equip, target = b.get('yon') == 'tak', b.get('hedef') if b.get('hedef') in ('ship', 'drone', 'pet') else 'ship'
+    equip, target = b.get('direction') == 'equip', b.get('hedef') if b.get('hedef') in ('ship', 'drone', 'pet') else 'ship'
     f = {'items': [int(b.get('esya') or 0)], 'source': 'inventory' if equip else target, 'destination': target if equip else 'inventory',
-         'configId': int(b.get('konfig') or 1), 'hangarId': s.profile.ship(sid)['hangarId'], 'droneId': int(b.get('dron') or 0),
-         'slotSet': 'default' if target == 'drone' else 'heat' if b.get('kume') == 'heat' else ''}
+         'configId': int(b.get('config') or 1), 'hangarId': s.profile.ship(sid)['hangarId'], 'droneId': int(b.get('drone') or 0),
+         'slotSet': 'default' if target == 'drone' else 'heat' if b.get('set') == 'heat' else ''}
     cmd = response(handle(s, 'HangarShipMoveItemsRequest', f), 'HangarShipMoveItemsCommand') or {}
     return {'tamam': cmd.get('result') == 1, 'hata': error_name(cmd.get('errorMessage'))}
 
@@ -288,30 +288,30 @@ def result(outgoing, name):
 
 # işlem -> (istek, alanlar(b, profil), yanıt komutu); ISTASYON'dakiler oyunda yalnız istasyonda (donanım değişir)
 OPS = {
-    'temizle': ('HangarShipClearConfigRequest', lambda b, p: {'wipe': 0, 'configId': int(b.get('konfig') or 1), 'shipId': str(b.get('gemi'))},
+    'clean_up': ('HangarShipClearConfigRequest', lambda b, p: {'wipe': 0, 'configId': int(b.get('config') or 1), 'shipId': str(b.get('gemi'))},
                 'HangarShipClearConfigCommand'),
-    'kaydet': ('HangarShipSaveConfigRequest', lambda b, p: {'shipId': str(b.get('gemi'))}, 'HangarShipSaveConfigCommand'),
-    'yukle': ('HangarShipLoadConfigRequest', lambda b, p: {'shipId': str(b.get('gemi'))}, 'HangarShipLoadConfigCommand'),
-    'aktar': ('HangarShipImportConfigRequest', lambda b, p: {'originShipId': str(b.get('gemi')), 'targetShipId': str(b.get('hedef_gemi'))},
+    'save': ('HangarShipSaveConfigRequest', lambda b, p: {'shipId': str(b.get('gemi'))}, 'HangarShipSaveConfigCommand'),
+    'load': ('HangarShipLoadConfigRequest', lambda b, p: {'shipId': str(b.get('gemi'))}, 'HangarShipLoadConfigCommand'),
+    'import_action': ('HangarShipImportConfigRequest', lambda b, p: {'originShipId': str(b.get('gemi')), 'targetShipId': str(b.get('target_ship'))},
               'HangarShipImportConfigCommand'),
-    'favori': ('HangarShipFavouriteRequest', lambda b, p: {'shipId': str(b.get('gemi')), 'favourite': bool(b.get('favori'))},
+    'favorite': ('HangarShipFavouriteRequest', lambda b, p: {'shipId': str(b.get('gemi')), 'favourite': bool(b.get('favorite'))},
                'HangarShipFavouriteCommand'),
-    'sat': ('HangarShipSellItemRequest', lambda b, p: {'itemList': [{'itemId': int(i), 'quantity': 1} for i in b.get('esyalar') or []]},
+    'sell': ('HangarShipSellItemRequest', lambda b, p: {'itemList': [{'itemId': int(i), 'quantity': 1} for i in b.get('esyalar') or []]},
             'HangarShipSellItemCommand'),
-    'dron_sat': ('HangarShipSellDroneRequest', lambda b, p: {'droneId': int(b.get('dron') or 0)}, 'HangarShipSellDroneCommand'),
+    'drone_sell': ('HangarShipSellDroneRequest', lambda b, p: {'droneId': int(b.get('drone') or 0)}, 'HangarShipSellDroneCommand'),
     'pet_ad': ('HangarShipRenamePetRequest', lambda b, p: {'name': str(b.get('ad') or '')}, 'HangarShipRenamePetCommand'),
     'pet_yuva': ('HangarShipUnlockSlotRequest', lambda b, p: {'slotset': str(b.get('yuva') or '')}, 'HangarShipUnlockSlotCommand'),
-    'cpu_cephane': ('HangarShipAutoBuyCpuAmmoRequest', lambda b, p: {'itemId': int(b.get('esya') or 0), 'ammoLootId': str(b.get('cephane') or '')},
+    'cpu_ammo': ('HangarShipAutoBuyCpuAmmoRequest', lambda b, p: {'itemId': int(b.get('esya') or 0), 'ammoLootId': str(b.get('ammunition') or '')},
                     'HangarShipAutoBuyCpuAmmoCommand'),
 }
-STATION = ('temizle', 'yukle', 'aktar', 'dron_sat')
+STATION = ('clean_up', 'load', 'import_action', 'drone_sell')
 
 
 def hangar_action(game, b):
     s = session(game)
     operation = b.get('islem')
-    if operation == 'konfig':                   # kısayol çubuğunun config düğmesi gibi (eski metin isteği S|CFG; oyunda her yerde, beklemeli)
-        n = str(int(b.get('konfig') or 1))
+    if operation == 'config':                   # kısayol çubuğunun config düğmesi gibi (eski metin isteği S|CFG; oyunda her yerde, beklemeli)
+        n = str(int(b.get('config') or 1))
         once = s.profile.ship()['active_config']
         handle(s, 'LegacyModule', {'message': 'S|CFG|%s|%d' % (n, s.profile.user_id)})
         ok = str(s.profile.ship()['active_config']) == n
@@ -349,18 +349,18 @@ def skylab(game):
         for k in SKY.ORDER:
             m, c = skylab.module(k), skylab.upgrade_cost(k)
             modules.append({'id': k, 'seviye': m['seviye'], 'azami': SKY.MODULES[k]['azami'], 'durum': skylab.state(k),
-                             'enerji': skylab.energy(k), 'uretim': skylab.production(k),
-                             'maliyet': dict(c, sure_sn=SET.duration(c['sure_sn'], 'skylab')) if c else None,     # panelin bekleme çarpanıyla
-                             'kalan': max(0, int(m['yukseltme'] - now)) if m.get('yukseltme') else None, 'finish': skylab.finish_price(k, now),
+                             'energy': skylab.energy(k), 'uretim': skylab.production(k),
+                             'cost': dict(c, sure_sn=SET.duration(c['sure_sn'], 'skylab')) if c else None,     # panelin bekleme çarpanıyla
+                             'kalan': max(0, int(m['upgrade'] - now)) if m.get('upgrade') else None, 'finish': skylab.finish_price(k, now),
                              'toggleable': k not in SKY.ALWAYS_ON, 'efficiency': skylab.efficiency(k) if k in SKY.COLLECTORS else None,
-                             'robot': {'etkin': len(st['robots'].get(k, [])), 'in_storage': len(st['yedek'].get(k, [])),
-                                       'azami': SKY.ROBOTS['azami'], 'fiyat': {t: skylab.robot_price(t) for t in ('1', '2')}}
+                             'robot': {'etkin': len(st['robots'].get(k, [])), 'in_storage': len(st['backup'].get(k, [])),
+                                       'azami': SKY.ROBOTS['azami'], 'price': {t: skylab.robot_price(t) for t in ('1', '2')}}
                              if k in SKY.COLLECTORS else None})
         t = st.get('transport')
-        return dict(wallet(s), moduller=modules, enerji={'used': skylab.consumption(), 'solar': skylab.solar()},
+        return dict(wallet(s), modules=modules, energy={'used': skylab.consumption(), 'solar': skylab.solar()},
                     storage=[{'id': o, 'ad': SKY.ORES[o][0], 'miktar': skylab.amount(o), 'capacity': skylab.capacity(o)} for o in SKY.ORE_ORDER],
-                    transport={'kalan': max(0, int(t['bitis'] - now)), 'yuk': t['yuk']} if t else None,
-                    instant_price=SET.price('hizmet_fiyat', SKY.TRANSPORT['fast_uridium'], 'skylab'))
+                    transport={'kalan': max(0, int(t['bitis'] - now)), 'cargo': t['cargo']} if t else None,
+                    instant_price=SET.price('service_price', SKY.TRANSPORT['fast_uridium'], 'skylab'))
 
 
 SKYLAB_ACTIONS = ('upgrade', 'instantUpgrade', 'instantFinishUpgrade', 'abortUpgrade', 'setActive', 'setInactive', 'startTransport')
@@ -371,14 +371,14 @@ def skylab_action(game, b):
     if b.get('islem') not in SKYLAB_ACTIONS:
         raise Error(400, 'islem')
     f = {'construction': str(b.get('modul') or ''), 'subaction': b['islem'], 'transportMode': str(b.get('mod') or '')}
-    for o, n in (b.get('miktarlar') or {}).items():
+    for o, n in (b.get('amounts') or {}).items():
         if o in SKY.ORES:
             f['count' + SKY.ORES[o][0]] = max(0, int(n or 0))
     s.skylab.last_operation = ([], [])
     handle(s, 'SkylabActionRequest', f)
     name = lambda c: error_name(c) if isinstance(c, dict) else KEY_NAMES.get(c, str(c))
     err, ok = s.skylab.last_operation
-    return {'tamam': not err, 'hatalar': [name(c) for c in err], 'achievements': [name(c) for c in ok]}
+    return {'tamam': not err, 'errors': [name(c) for c in err], 'achievements': [name(c) for c in ok]}
 
 
 def robot(game, b):
@@ -388,7 +388,7 @@ def robot(game, b):
     s.skylab.last_operation = ([], [])
     handle(s, 'SkylabPurchaseRobotRequest', {'construction': b['modul'], 'robotType': int(b['tip'])})
     err = s.skylab.last_operation[0]
-    return {'tamam': not err, 'hatalar': [KEY_NAMES.get(c, str(c)) for c in err]}
+    return {'tamam': not err, 'errors': [KEY_NAMES.get(c, str(c)) for c in err]}
 
 
 def auction(game):
@@ -402,12 +402,12 @@ def auction(game):
             if auc.owned(lot) and not auc.bid_rec(lot, now):
                 continue
             d, key = auc.data(lot, now), '%s|%s' % (lot['tur'], lot['loot'])
-            lots.append({'tur': lot['tur'], 'loot': lot['loot'], 'grup': lot['grup'], 'adet': lot['adet'], 'anlik': bool(lot['anlik'] and lot['fiyat']),
-                           'fiyat': auc.unit_price(lot), 'highest': d['highestBid'], 'highest_name': d['highestBidderName'], 'benim': d['myBid'],
-                           'onde': auc.top(lot, now)[1], 'next': auc.next_bid(lot, now), 'oto': auc.d['otomatik'].get(key),
-                           'alarm': auc.d['alarmlar'].get(key)})
+            lots.append({'tur': lot['tur'], 'loot': lot['loot'], 'grup': lot['grup'], 'adet': lot['adet'], 'instant': bool(lot['instant'] and lot['price']),
+                           'price': auc.unit_price(lot), 'highest': d['highestBid'], 'highest_name': d['highestBidderName'], 'mine': d['myBid'],
+                           'leading': auc.top(lot, now)[1], 'next': auc.next_bid(lot, now), 'auto': auc.d['auto'].get(key),
+                           'alarm': auc.d['alarms'].get(key)})
         return dict(wallet(s), lotlar=lots, kalan={k: MZ.period_end(k, now) - int(now) for k in MZ.SPAN}, increase=MZ.D['increase'],
-                    en_az=MZ.D['min_bid'], gecmis=auc.history(now)[:30], events=auc.d['events'][:30], rakip=MZ.rival_level(),
+                    en_az=MZ.D['min_bid'], history=auc.history(now)[:30], events=auc.d['events'][:30], rival=MZ.rival_level(),
                     kimlik=s.profile.user_id)
 
 
@@ -417,7 +417,7 @@ def auction_bid(s, kind, loot, price):
 
 
 def bid(game, b):
-    return dict(auction_bid(session(game), str(b.get('tur')), str(b.get('loot')), int(b.get('fiyat') or 0)))
+    return dict(auction_bid(session(game), str(b.get('tur')), str(b.get('loot')), int(b.get('price') or 0)))
 
 
 def all_(game, b):
@@ -435,7 +435,7 @@ def all_(game, b):
             given, amount = given + 1, amount + price
         else:
             errors[r['hata']] = errors.get(r['hata'], 0) + 1
-    return dict(wallet(s), given=given, amount=amount, hatalar=errors)
+    return dict(wallet(s), given=given, amount=amount, errors=errors)
 
 
 def instant(game, b):
@@ -451,7 +451,7 @@ def rule(game, b, area):
     if not lot:
         raise Error(400, 'lot')
     key, auc = '%s|%s' % (lot['tur'], lot['loot']), s.social.auction
-    if area == 'otomatik':
+    if area == 'auto':
         maximum = max(0, int(b.get('azami') or 0))
         new_ = {'azami': maximum} if maximum >= MZ.D['min_bid'] else None
     else:
@@ -468,7 +468,7 @@ def rule(game, b, area):
 
 def events(game, q):
     s = session(game)
-    last = int(q.get('son') or 0)
+    last = int(q.get('last') or 0)
     return {'events': [o for o in s.social.auction.d['events'] if o['no'] > last]}
 
 
@@ -511,7 +511,7 @@ def start(game, folder, log=print):
                 return self._handle(lambda: auction(game))
             if u.path == '/muzayede/olaylar':
                 return self._handle(lambda: events(game, q))
-            self._reply(404, {'hata': 'yok'})
+            self._reply(404, {'hata': 'none'})
 
         def do_POST(self):
             n = int(self.headers.get('Content-Length') or 0)
@@ -522,12 +522,12 @@ def start(game, folder, log=print):
             paths = {'/magaza/al': buy, '/magaza/subscribe': subscriber, '/hangar/tasi': carry, '/hangar/etkin': active, '/hangar/tasarim': design,
                       '/hangar/islem': hangar_action,
                       '/skylab/islem': skylab_action, '/skylab/robot': robot, '/muzayede/teklif': bid, '/muzayede/hepsi': all_,
-                      '/muzayede/anlik': instant, '/muzayede/oto': lambda g, b: rule(g, b, 'otomatik'),
-                      '/muzayede/alarm': lambda g, b: rule(g, b, 'alarmlar'), '/bot/ad_kaydi': bot_name_log,
+                      '/muzayede/anlik': instant, '/muzayede/oto': lambda g, b: rule(g, b, 'auto'),
+                      '/muzayede/alarm': lambda g, b: rule(g, b, 'alarms'), '/bot/ad_kaydi': bot_name_log,
                       '/bot/detay': bot_detail, '/bot/edit': edit_bot}
             if self.path in paths and isinstance(b, dict):
                 return self._handle(lambda: paths[self.path](game, b))
-            self._reply(404, {'hata': 'yok'})
+            self._reply(404, {'hata': 'none'})
 
     try:
         srv = ThreadingHTTPServer(('127.0.0.1', PORT), Handler)

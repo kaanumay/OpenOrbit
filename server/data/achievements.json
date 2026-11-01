@@ -7,9 +7,9 @@
    "etkinlik": "SeasonPass",
    "seviyeler": [
     {
-     "sinif": "LevelAbsolute",
+     "class_name": "LevelAbsolute",
      "operator": ">=",
-     "deger": 50,
+     "value": 50,
      "olay": "SEASONPASS_Q2",
      "parametreler": {
       "avatar": [
@@ -17,7 +17,7 @@
       ]
      },
      "puan": 40,
-     "unvan": "title_seasonpass_202307_1"
+     "title": "title_seasonpass_202307_1"
     }
    ]
   },
@@ -27,9 +27,9 @@
    "etkinlik": "SeasonPass",
    "seviyeler": [
     {
-     "sinif": "LevelAbsolute",
+     "class_name": "LevelAbsolute",
      "operator": ">=",
-     "deger": 50,
+     "value": 50,
      "olay": "SEASONPASS_Q3",
      "parametreler": {
       "avatar": [
@@ -37,7 +37,7 @@
       ]
      },
      "puan": 40,
-     "unvan": "title_seasonpass_202311_1"
+     "title": "title_seasonpass_202311_1"
     }
    ]
   },
@@ -47,9 +47,9 @@
    "etkinlik": "SeasonPass",
    "seviyeler": [
     {
-     "sinif": "LevelAbsolute",
+     "class_name": "LevelAbsolute",
      "operator": ">=",
-     "deger": 50,
+     "value": 50,
      "olay": "SEASONPASS_Q4",
      "parametreler": {
       "avatar": [
@@ -57,7 +57,7 @@
       ]
      },
      "puan": 40,
-     "unvan": "title_seasonpass_202402_1"
+     "title": "title_seasonpass_202402_1"
     }
    ]
   },
@@ -67,9 +67,9 @@
    "etkinlik": "SeasonPass",
    "seviyeler": [
     {
-     "sinif": "LevelAbsolute",
+     "class_name": "LevelAbsolute",
      "operator": ">=",
-     "deger": 50,
+     "value": 50,
      "olay": "SEASONPASS_Q5",
      "parametreler": {
       "avatar": [
@@ -77,12 +77,12 @@
       ]
      },
      "puan": 40,
-     "unvan": "title_seasonpass_202405_1"
+     "title": "title_seasonpass_202405_1"
     },
     {
-     "sinif": "LevelAbsolute",
+     "class_name": "LevelAbsolute",
      "operator": ">=",
-     "deger": 80,
+     "value": 80,
      "olay": "SEASONPASS_Q5",
      "parametreler": {
       "avatar": [
@@ -90,7 +90,7 @@
       ]
      },
      "puan": 40,
-     "unvan": "title_seasonpass_202405_2"
+     "title": "title_seasonpass_202405_2"
     }
    ]
   },
@@ -100,9 +100,9 @@
    "etkinlik": "SeasonPass",
    "seviyeler": [
     {
-     "sinif": "Level",
+     "class_name": "Level",
      "operator": ">=",
-     "deger": 50,
+     "value": 50,
      "olay": "SEASONPASS_Q6",
      "parametreler": {
       "avatar": [
@@ -110,12 +110,12 @@
       ]
      },
      "puan": 40,
-     "unvan": "title_seasonpass_202408_1"
+     "title": "title_seasonpass_202408_1"
     },
     {
-     "sinif": "Level",
+     "class_name": "Level",
      "operator": ">=",
-     "deger": 80,
+     "value": 80,
      "olay": "SEASONPASS_Q6",
      "parametreler": {
       "avatar": [
@@ -123,7 +123,7 @@
       ]
      },
      "puan": 40,
-     "unvan": "title_seasonpass_202408_2"
+     "title": "title_seasonpass_202408_2"
     }
    ]
   },
@@ -133,9 +133,9 @@
    "etkinlik": "SeasonPass",
    "seviyeler": [
     {
-     "sinif": "Level",
+     "class_name": "Level",
      "operator": ">=",
-     "deger": 50,
+     "value": 50,
      "olay": "SEASONPASS_Q7",
      "parametreler": {
       "avatar": [
@@ -143,12 +143,12 @@
       ]
      },
      "puan": 40,
-     "unvan": "title_seasonpass_202411_1"
+     "title": "title_seasonpass_202411_1"
     },
     {
-     "sinif": "Level",
+     "class_name": "Level",
      "operator": ">=",
-     "deger": 80,
+     "value": 80,
      "olay": "SEASONPASS_Q7",
      "parametreler": {
       "avatar": [
@@ -156,7 +156,7 @@
       ]
      },
      "puan": 40,
-     "unvan": "title_seasonpass_202411_2"
+     "title": "title_seasonpass_202411_2"
     }
    ]
   },
@@ -166,9 +166,9 @@
    "etkinlik": "SeasonPass",
    "seviyeler": [
     {
-     "sinif": "Level",
+     "class_name": "Level",
      "operator": ">=",
-     "deger": 50,
+     "value": 50,
      "olay": "SEASONPASS_Q8",
      "parametreler": {
       "avatar": [
@@ -176,12 +176,12 @@
       ]
      },
      "puan": 40,
-     "unvan": "title_seasonpass_202502_1"
+     "title": "title_seasonpass_202502_1"
     },
     {
-     "sinif": "Level",
+     "class_name": "Level",
      "operator": ">=",
-     "deger": 80,
+     "value": 80,
      "olay": "SEASONPASS_Q8",
      "parametreler": {
       "avatar": [
@@ -189,7 +189,7 @@
       ]
      },
      "puan": 40,
-     "unvan": "title_seasonpass_202502_2"
+     "title": "title_seasonpass_202502_2"
     }
    ]
   },
@@ -199,9 +199,9 @@
    "etkinlik": "SeasonPass",
    "seviyeler": [
     {
-     "sinif": "Level",
+     "class_name": "Level",
      "operator": ">=",
-     "deger": 50,
+     "value": 50,
      "olay": "SEASONPASS_Q9",
      "parametreler": {
       "avatar": [
@@ -209,12 +209,12 @@
       ]
      },
      "puan": 40,
-     "unvan": "title_seasonpass_202505_1"
+     "title": "title_seasonpass_202505_1"
     },
     {
-     "sinif": "Level",
+     "class_name": "Level",
      "operator": ">=",
-     "deger": 80,
+     "value": 80,
      "olay": "SEASONPASS_Q9",
      "parametreler": {
       "avatar": [
@@ -222,7 +222,7 @@
       ]
      },
      "puan": 40,
-     "unvan": "title_seasonpass_202505_2"
+     "title": "title_seasonpass_202505_2"
     }
    ]
   },
@@ -232,9 +232,9 @@
    "etkinlik": "SeasonPass",
    "seviyeler": [
     {
-     "sinif": "LevelAbsolute",
+     "class_name": "LevelAbsolute",
      "operator": ">=",
-     "deger": 50,
+     "value": 50,
      "olay": "SEASONPASS_Q10",
      "parametreler": {
       "avatar": [
@@ -242,12 +242,12 @@
       ]
      },
      "puan": 40,
-     "unvan": "title_seasonpass_202508_1"
+     "title": "title_seasonpass_202508_1"
     },
     {
-     "sinif": "LevelAbsolute",
+     "class_name": "LevelAbsolute",
      "operator": ">=",
-     "deger": 80,
+     "value": 80,
      "olay": "SEASONPASS_Q10",
      "parametreler": {
       "avatar": [
@@ -255,7 +255,7 @@
       ]
      },
      "puan": 40,
-     "unvan": "title_seasonpass_202508_2"
+     "title": "title_seasonpass_202508_2"
     }
    ]
   },
@@ -265,9 +265,9 @@
    "etkinlik": "SeasonPass",
    "seviyeler": [
     {
-     "sinif": "LevelAbsolute",
+     "class_name": "LevelAbsolute",
      "operator": ">=",
-     "deger": 50,
+     "value": 50,
      "olay": "SEASONPASS_Q11",
      "parametreler": {
       "avatar": [
@@ -275,12 +275,12 @@
       ]
      },
      "puan": 40,
-     "unvan": "title_seasonpass_202511_1"
+     "title": "title_seasonpass_202511_1"
     },
     {
-     "sinif": "LevelAbsolute",
+     "class_name": "LevelAbsolute",
      "operator": ">=",
-     "deger": 80,
+     "value": 80,
      "olay": "SEASONPASS_Q11",
      "parametreler": {
       "avatar": [
@@ -288,7 +288,7 @@
       ]
      },
      "puan": 40,
-     "unvan": "title_seasonpass_202511_2"
+     "title": "title_seasonpass_202511_2"
     }
    ]
   },
@@ -298,9 +298,9 @@
    "etkinlik": "SeasonPass",
    "seviyeler": [
     {
-     "sinif": "LevelAbsolute",
+     "class_name": "LevelAbsolute",
      "operator": ">=",
-     "deger": 50,
+     "value": 50,
      "olay": "SEASONPASS_Q12",
      "parametreler": {
       "avatar": [
@@ -308,12 +308,12 @@
       ]
      },
      "puan": 40,
-     "unvan": "title_seasonpass_202602_1"
+     "title": "title_seasonpass_202602_1"
     },
     {
-     "sinif": "LevelAbsolute",
+     "class_name": "LevelAbsolute",
      "operator": ">=",
-     "deger": 80,
+     "value": 80,
      "olay": "SEASONPASS_Q12",
      "parametreler": {
       "avatar": [
@@ -321,7 +321,7 @@
       ]
      },
      "puan": 40,
-     "unvan": "title_seasonpass_202602_2"
+     "title": "title_seasonpass_202602_2"
     }
    ]
   },
@@ -331,9 +331,9 @@
    "etkinlik": "SeasonPass",
    "seviyeler": [
     {
-     "sinif": "LevelAbsolute",
+     "class_name": "LevelAbsolute",
      "operator": ">=",
-     "deger": 50,
+     "value": 50,
      "olay": "SEASONPASS_Q13",
      "parametreler": {
       "avatar": [
@@ -341,12 +341,12 @@
       ]
      },
      "puan": 40,
-     "unvan": "title_seasonpass_202605_1"
+     "title": "title_seasonpass_202605_1"
     },
     {
-     "sinif": "LevelAbsolute",
+     "class_name": "LevelAbsolute",
      "operator": ">=",
-     "deger": 80,
+     "value": 80,
      "olay": "SEASONPASS_Q13",
      "parametreler": {
       "avatar": [
@@ -354,7 +354,7 @@
       ]
      },
      "puan": 40,
-     "unvan": "title_seasonpass_202605_2"
+     "title": "title_seasonpass_202605_2"
     }
    ]
   },
@@ -364,9 +364,9 @@
    "etkinlik": "SeasonPass",
    "seviyeler": [
     {
-     "sinif": "LevelAbsolute",
+     "class_name": "LevelAbsolute",
      "operator": ">=",
-     "deger": 50,
+     "value": 50,
      "olay": "SEASONPASS_Q14",
      "parametreler": {
       "avatar": [
@@ -374,12 +374,12 @@
       ]
      },
      "puan": 40,
-     "unvan": "title_seasonpass_202608_1"
+     "title": "title_seasonpass_202608_1"
     },
     {
-     "sinif": "LevelAbsolute",
+     "class_name": "LevelAbsolute",
      "operator": ">=",
-     "deger": 80,
+     "value": 80,
      "olay": "SEASONPASS_Q14",
      "parametreler": {
       "avatar": [
@@ -387,7 +387,7 @@
       ]
      },
      "puan": 40,
-     "unvan": "title_seasonpass_202608_2"
+     "title": "title_seasonpass_202608_2"
     }
    ]
   },
@@ -397,11 +397,11 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Uses3D",
+     "class_name": "Uses3D",
      "operator": ">",
-     "deger": 0,
+     "value": 0,
      "olay": "USES_3D",
-     "unvan": "title_achievement_multi-dimensional-pilot",
+     "title": "title_achievement_multi-dimensional-pilot",
      "puan": 20
     }
    ]
@@ -412,9 +412,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "operator": ">=",
-     "deger": 50,
+     "value": 50,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -424,9 +424,9 @@
      "puan": 5
     },
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "operator": ">=",
-     "deger": 250,
+     "value": 250,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -436,22 +436,22 @@
      "puan": 10
     },
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "operator": ">=",
-     "deger": 1000,
+     "value": 1000,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
        "NPC"
       ]
      },
-     "unvan": "title_achievement_destroy_aliens-1",
+     "title": "title_achievement_destroy_aliens-1",
      "puan": 25
     },
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "operator": ">=",
-     "deger": 100000,
+     "value": 100000,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -461,16 +461,16 @@
      "puan": 50
     },
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "operator": ">=",
-     "deger": 1000000,
+     "value": 1000000,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
        "NPC"
       ]
      },
-     "unvan": "title_achievement_destroy_aliens-2",
+     "title": "title_achievement_destroy_aliens-2",
      "puan": 100
     }
    ]
@@ -481,9 +481,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AssetCollect",
+     "class_name": "AssetCollect",
      "operator": ">=",
-     "deger": 100000,
+     "value": 100000,
      "olay": "COLLECT",
      "parametreler": {
       "assetType": [
@@ -501,9 +501,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Buy",
+     "class_name": "Buy",
      "operator": ">=",
-     "deger": 100000,
+     "value": 100000,
      "parametreler": {
       "ammo": [
        {
@@ -522,9 +522,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -534,7 +534,7 @@
        "116"
       ]
      },
-     "unvan": "title_achievement_event_summer2014_assaulter",
+     "title": "title_achievement_event_summer2014_assaulter",
      "puan": 400,
      "grade": 5
     }
@@ -546,16 +546,16 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "MetaAchievement",
+     "class_name": "MetaAchievement",
      "operator": ">=",
-     "deger": 3,
+     "value": 3,
      "olay": "METAACHIEVED",
      "parametreler": {
       "achievementId": [
        "achievement_event_battle-for-influence-points"
       ]
      },
-     "unvan": "title_achievement_event_battle-for-influence-legend",
+     "title": "title_achievement_event_battle-for-influence-legend",
      "puan": 20,
      "grade": 5
     }
@@ -567,26 +567,26 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Influence",
+     "class_name": "Influence",
      "operator": ">=",
-     "deger": 2500,
+     "value": 2500,
      "olay": "INFLUENCE_GAINED",
      "puan": 5
     },
     {
-     "sinif": "Influence",
+     "class_name": "Influence",
      "operator": ">=",
-     "deger": 10000,
+     "value": 10000,
      "olay": "INFLUENCE_GAINED",
-     "unvan": "title_achievement_event_battle-for-influence-points-1",
+     "title": "title_achievement_event_battle-for-influence-points-1",
      "puan": 10
     },
     {
-     "sinif": "Influence",
+     "class_name": "Influence",
      "operator": ">=",
-     "deger": 20000,
+     "value": 20000,
      "olay": "INFLUENCE_GAINED",
-     "unvan": "title_achievement_event_battle-for-influence-points-2",
+     "title": "title_achievement_event_battle-for-influence-points-2",
      "puan": 20
     }
    ]
@@ -597,8 +597,8 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestSelection",
-     "kume": [
+     "class_name": "QuestSelection",
+     "set": [
       "512001",
       "512002",
       "512003",
@@ -613,7 +613,7 @@
      ],
      "matches": "ALL",
      "olay": "QUEST",
-     "unvan": "title_achievement_event_battle-for-influence-quests",
+     "title": "title_achievement_event_battle-for-influence-quests",
      "puan": 15,
      "grade": 5
     }
@@ -625,14 +625,14 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "EquipItem",
+     "class_name": "EquipItem",
      "parametreler": {
       "item": [
        "drone_designs_beacon"
       ]
      },
      "puan": 50,
-     "unvan": "title_achievement_beacon-keeper",
+     "title": "title_achievement_beacon-keeper",
      "grade": 5
     }
    ]
@@ -643,9 +643,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Collect",
+     "class_name": "Collect",
      "operator": ">=",
-     "deger": 100,
+     "value": 100,
      "olay": "COLLECT",
      "parametreler": {
       "boxType": [
@@ -655,9 +655,9 @@
      "puan": 5
     },
     {
-     "sinif": "Collect",
+     "class_name": "Collect",
      "operator": ">=",
-     "deger": 1000,
+     "value": 1000,
      "olay": "COLLECT",
      "parametreler": {
       "boxType": [
@@ -667,22 +667,22 @@
      "puan": 10
     },
     {
-     "sinif": "Collect",
+     "class_name": "Collect",
      "operator": ">=",
-     "deger": 10000,
+     "value": 10000,
      "olay": "COLLECT",
      "parametreler": {
       "boxType": [
        "BONUS_BOX"
       ]
      },
-     "unvan": "title_achievement_collect_bonusboxes-1",
+     "title": "title_achievement_collect_bonusboxes-1",
      "puan": 25
     },
     {
-     "sinif": "Collect",
+     "class_name": "Collect",
      "operator": ">=",
-     "deger": 100000,
+     "value": 100000,
      "olay": "COLLECT",
      "parametreler": {
       "boxType": [
@@ -692,16 +692,16 @@
      "puan": 50
     },
     {
-     "sinif": "Collect",
+     "class_name": "Collect",
      "operator": ">=",
-     "deger": 1000000,
+     "value": 1000000,
      "olay": "COLLECT",
      "parametreler": {
       "boxType": [
        "BONUS_BOX"
       ]
      },
-     "unvan": "title_achievement_collect_bonusboxes-2",
+     "title": "title_achievement_collect_bonusboxes-2",
      "puan": 100
     }
    ]
@@ -712,9 +712,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Collect",
+     "class_name": "Collect",
      "operator": ">=",
-     "deger": 500,
+     "value": 500,
      "olay": "COLLECT",
      "parametreler": {
       "boxType": [
@@ -734,8 +734,8 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "BoosterTypeUsage",
-     "kume": [
+     "class_name": "BoosterTypeUsage",
+     "set": [
       "11",
       "12",
       "13",
@@ -757,8 +757,8 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "BoosterTypeUsage",
-     "kume": [
+     "class_name": "BoosterTypeUsage",
+     "set": [
       "1",
       "2",
       "3",
@@ -782,10 +782,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "TechFactory",
+     "class_name": "TechFactory",
      "stored": false,
      "operator": ">=",
-     "deger": 3,
+     "value": 3,
      "puan": 25
     }
    ]
@@ -796,7 +796,7 @@
    "etkinlik": "DominationEvent",
    "seviyeler": [
     {
-     "sinif": "BuildClanBattleStationModule",
+     "class_name": "BuildClanBattleStationModule",
      "olay": "CBS_MODULE_INSTALLED",
      "parametreler": {
       "validMap": [
@@ -805,7 +805,7 @@
        "15"
       ]
      },
-     "unvan": "title_achievement_event_summer2014_builders-guild",
+     "title": "title_achievement_event_summer2014_builders-guild",
      "puan": 100,
      "grade": 4
     }
@@ -817,10 +817,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "stored": false,
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -841,10 +841,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "ChainImpulse",
+     "class_name": "ChainImpulse",
      "stored": false,
      "operator": ">=",
-     "deger": 5,
+     "value": 5,
      "olay": "DESTROY",
      "puan": 5
     }
@@ -856,10 +856,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "ClanCreate",
+     "class_name": "ClanCreate",
      "stored": false,
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "puan": 10
     }
    ]
@@ -870,10 +870,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "ClanJoin",
+     "class_name": "ClanJoin",
      "stored": false,
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "puan": 5
     }
    ]
@@ -884,25 +884,25 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "ClanMember",
+     "class_name": "ClanMember",
      "stored": false,
      "operator": ">=",
-     "deger": 5,
+     "value": 5,
      "puan": 10
     },
     {
-     "sinif": "ClanMember",
+     "class_name": "ClanMember",
      "stored": false,
      "operator": ">=",
-     "deger": 25,
+     "value": 25,
      "puan": 25
     },
     {
-     "sinif": "ClanMember",
+     "class_name": "ClanMember",
      "stored": false,
      "operator": ">=",
-     "deger": 50,
-     "unvan": "title_achievement_social_clan-member",
+     "value": 50,
+     "title": "title_achievement_social_clan-member",
      "puan": 50
     }
    ]
@@ -913,8 +913,8 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": null,
-     "unvan": "title_achievement_misc_legacy_cosmicadmiral"
+     "class_name": null,
+     "title": "title_achievement_misc_legacy_cosmicadmiral"
     }
    ]
   },
@@ -924,9 +924,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Currency",
+     "class_name": "Currency",
      "operator": ">=",
-     "deger": 1000000,
+     "value": 1000000,
      "olay": "COLLECT",
      "parametreler": {
       "currencyType": [
@@ -936,9 +936,9 @@
      "puan": 5
     },
     {
-     "sinif": "Currency",
+     "class_name": "Currency",
      "operator": ">=",
-     "deger": 5000000,
+     "value": 5000000,
      "olay": "COLLECT",
      "parametreler": {
       "currencyType": [
@@ -948,22 +948,22 @@
      "puan": 10
     },
     {
-     "sinif": "Currency",
+     "class_name": "Currency",
      "operator": ">=",
-     "deger": 7500000,
+     "value": 7500000,
      "olay": "COLLECT",
      "parametreler": {
       "currencyType": [
        "CREDITS"
       ]
      },
-     "unvan": "title_achievement_collect_credits-1",
+     "title": "title_achievement_collect_credits-1",
      "puan": 25
     },
     {
-     "sinif": "Currency",
+     "class_name": "Currency",
      "operator": ">=",
-     "deger": 15500000,
+     "value": 15500000,
      "olay": "COLLECT",
      "parametreler": {
       "currencyType": [
@@ -973,16 +973,16 @@
      "puan": 50
     },
     {
-     "sinif": "Currency",
+     "class_name": "Currency",
      "operator": ">=",
-     "deger": 25500000,
+     "value": 25500000,
      "olay": "COLLECT",
      "parametreler": {
       "currencyType": [
        "CREDITS"
       ]
      },
-     "unvan": "title_achievement_collect_credits-2",
+     "title": "title_achievement_collect_credits-2",
      "puan": 100
     }
    ]
@@ -993,9 +993,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Login",
+     "class_name": "Login",
      "operator": ">=",
-     "deger": 15,
+     "value": 15,
      "puan": 5
     }
    ]
@@ -1006,40 +1006,40 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Damage",
+     "class_name": "Damage",
      "operator": ">=",
-     "deger": 5000000,
+     "value": 5000000,
      "olay": "CAUSED",
      "puan": 5
     },
     {
-     "sinif": "Damage",
+     "class_name": "Damage",
      "operator": ">=",
-     "deger": 250000000,
+     "value": 250000000,
      "olay": "CAUSED",
      "puan": 10
     },
     {
-     "sinif": "Damage",
+     "class_name": "Damage",
      "operator": ">=",
-     "deger": 1000000000,
+     "value": 1000000000,
      "olay": "CAUSED",
-     "unvan": "title_achievement_damagedealer-1",
+     "title": "title_achievement_damagedealer-1",
      "puan": 25
     },
     {
-     "sinif": "Damage",
+     "class_name": "Damage",
      "operator": ">=",
-     "deger": 10000000000,
+     "value": 10000000000,
      "olay": "CAUSED",
      "puan": 50
     },
     {
-     "sinif": "Damage",
+     "class_name": "Damage",
      "operator": ">=",
-     "deger": 15000000000,
+     "value": 15000000000,
      "olay": "CAUSED",
-     "unvan": "title_achievement_damagedealer-2",
+     "title": "title_achievement_damagedealer-2",
      "puan": 100
     }
    ]
@@ -1050,9 +1050,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "NPCSelectionKill",
+     "class_name": "NPCSelectionKill",
      "operator": ">=",
-     "deger": 5,
+     "value": 5,
      "olay": "DESTROY",
      "parametreler": {
       "npcType": [
@@ -1062,9 +1062,9 @@
      "puan": 5
     },
     {
-     "sinif": "NPCSelectionKill",
+     "class_name": "NPCSelectionKill",
      "operator": ">=",
-     "deger": 25,
+     "value": 25,
      "olay": "DESTROY",
      "parametreler": {
       "npcType": [
@@ -1072,12 +1072,12 @@
       ]
      },
      "puan": 10,
-     "unvan": "title_achievement_event_demaner_hunt_2"
+     "title": "title_achievement_event_demaner_hunt_2"
     },
     {
-     "sinif": "NPCSelectionKill",
+     "class_name": "NPCSelectionKill",
      "operator": ">=",
-     "deger": 50,
+     "value": 50,
      "olay": "DESTROY",
      "parametreler": {
       "npcType": [
@@ -1085,12 +1085,12 @@
       ]
      },
      "puan": 15,
-     "unvan": "title_achievement_event_demaner_hunt_3"
+     "title": "title_achievement_event_demaner_hunt_3"
     },
     {
-     "sinif": "NPCSelectionKill",
+     "class_name": "NPCSelectionKill",
      "operator": ">=",
-     "deger": 100,
+     "value": 100,
      "olay": "DESTROY",
      "parametreler": {
       "npcType": [
@@ -1098,7 +1098,7 @@
       ]
      },
      "puan": 25,
-     "unvan": "title_achievement_event_demaner_hunt_4"
+     "title": "title_achievement_event_demaner_hunt_4"
     }
    ]
   },
@@ -1108,10 +1108,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "DestroyAdmin",
+     "class_name": "DestroyAdmin",
      "stored": false,
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -1129,8 +1129,8 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "NpcTypeDestroyed",
-     "kume": [
+     "class_name": "NpcTypeDestroyed",
+     "set": [
       "1",
       "2",
       "3",
@@ -1179,9 +1179,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "operator": ">=",
-     "deger": 25,
+     "value": 25,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -1190,7 +1190,7 @@
      },
      "ic": [
       {
-       "sinif": "InRadiation"
+       "class_name": "InRadiation"
       }
      ],
      "puan": 5
@@ -1203,10 +1203,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "reset_on_death": true,
      "operator": ">=",
-     "deger": 20,
+     "value": 20,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -1224,9 +1224,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "DestroyedByAmmunitionType",
+     "class_name": "DestroyedByAmmunitionType",
      "operator": ">=",
-     "deger": 25,
+     "value": 25,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -1247,8 +1247,8 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "DestroyedByShipType",
-     "kume": [
+     "class_name": "DestroyedByShipType",
+     "set": [
       "3",
       "5",
       "6",
@@ -1277,9 +1277,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "operator": ">=",
-     "deger": 2,
+     "value": 2,
      "olay": "DESTROY",
      "parametreler": {
       "timeLimit": [
@@ -1296,9 +1296,9 @@
      "grade": 2
     },
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "operator": ">=",
-     "deger": 5,
+     "value": 5,
      "olay": "DESTROY",
      "parametreler": {
       "timeLimit": [
@@ -1311,7 +1311,7 @@
        "PLAYER"
       ]
      },
-     "unvan": "title_achievement_pvp_destroy-player-timed-1",
+     "title": "title_achievement_pvp_destroy-player-timed-1",
      "puan": 25,
      "grade": 3
     }
@@ -1323,9 +1323,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "operator": ">=",
-     "deger": 10,
+     "value": 10,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -1335,9 +1335,9 @@
      "puan": 5
     },
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "operator": ">=",
-     "deger": 50,
+     "value": 50,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -1347,22 +1347,22 @@
      "puan": 10
     },
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "operator": ">=",
-     "deger": 500,
+     "value": 500,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "unvan": "title_achievement_pvp_destroy-player-1",
+     "title": "title_achievement_pvp_destroy-player-1",
      "puan": 25
     },
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "operator": ">=",
-     "deger": 1000,
+     "value": 1000,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -1372,16 +1372,16 @@
      "puan": 50
     },
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "operator": ">=",
-     "deger": 10000,
+     "value": 10000,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "unvan": "title_achievement_pvp_destroy-player-2",
+     "title": "title_achievement_pvp_destroy-player-2",
      "puan": 100
     }
    ]
@@ -1392,8 +1392,8 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "DestroyedShipType",
-     "kume": [
+     "class_name": "DestroyedShipType",
+     "set": [
       "3",
       "5",
       "6",
@@ -1417,10 +1417,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Destruction",
+     "class_name": "Destruction",
      "stored": false,
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "olay": "DESTROYED",
      "parametreler": {
       "reason": [
@@ -1437,10 +1437,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "KilledByAvatarType",
+     "class_name": "KilledByAvatarType",
      "stored": false,
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "olay": "DESTROYED",
      "parametreler": {
       "avatar": [
@@ -1460,32 +1460,32 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Distance",
+     "class_name": "Distance",
      "operator": ">=",
-     "deger": 100000,
+     "value": 100000,
      "olay": "DISTANCE",
      "puan": 5
     },
     {
-     "sinif": "Distance",
+     "class_name": "Distance",
      "operator": ">=",
-     "deger": 1000000,
+     "value": 1000000,
      "olay": "DISTANCE",
      "puan": 10
     },
     {
-     "sinif": "Distance",
+     "class_name": "Distance",
      "operator": ">=",
-     "deger": 10000000,
+     "value": 10000000,
      "olay": "DISTANCE",
      "puan": 25
     },
     {
-     "sinif": "Distance",
+     "class_name": "Distance",
      "operator": ">=",
-     "deger": 100000000,
+     "value": 100000000,
      "olay": "DISTANCE",
-     "unvan": "title_achievement_discover_distance-2",
+     "title": "title_achievement_discover_distance-2",
      "puan": 50
     }
    ]
@@ -1496,19 +1496,19 @@
    "etkinlik": "DominationEvent",
    "seviyeler": [
     {
-     "sinif": "DominationBeaconTakeover",
+     "class_name": "DominationBeaconTakeover",
      "olay": "DOMINATION_BEACON_TAKEOVER_ASSIST_ALL",
      "operator": ">=",
-     "deger": 10,
+     "value": 10,
      "puan": 5
     },
     {
-     "sinif": "DominationBeaconTakeover",
+     "class_name": "DominationBeaconTakeover",
      "olay": "DOMINATION_BEACON_TAKEOVER_ASSIST_ALL",
      "operator": ">=",
-     "deger": 100,
+     "value": 100,
      "puan": 20,
-     "unvan": "title_achievement_event_domination-4"
+     "title": "title_achievement_event_domination-4"
     }
    ]
   },
@@ -1518,8 +1518,8 @@
    "etkinlik": "DominationEvent",
    "seviyeler": [
     {
-     "sinif": "QuestSelection",
-     "kume": [
+     "class_name": "QuestSelection",
+     "set": [
       "511001",
       "511002",
       "511003",
@@ -1535,7 +1535,7 @@
      "matches": "ATLEAST",
      "olay": "QUEST",
      "puan": 25,
-     "unvan": "title_achievement_event_domination-2"
+     "title": "title_achievement_event_domination-2"
     }
    ]
   },
@@ -1545,14 +1545,14 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestSelection",
-     "kume": [
+     "class_name": "QuestSelection",
+     "set": [
       "122000"
      ],
      "matches": "ALL",
      "olay": "QUEST",
      "puan": 100,
-     "unvan": "title_achievement_event_domination_reoccurring-cubikon-gravekeeper"
+     "title": "title_achievement_event_domination_reoccurring-cubikon-gravekeeper"
     }
    ]
   },
@@ -1562,14 +1562,14 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestSelection",
-     "kume": [
+     "class_name": "QuestSelection",
+     "set": [
       "122005"
      ],
      "matches": "ALL",
      "olay": "QUEST",
      "puan": 100,
-     "unvan": "title_achievement_event_domination_reoccurring-hidden-hunter"
+     "title": "title_achievement_event_domination_reoccurring-hidden-hunter"
     }
    ]
   },
@@ -1579,14 +1579,14 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestSelection",
-     "kume": [
+     "class_name": "QuestSelection",
+     "set": [
       "122004"
      ],
      "matches": "ALL",
      "olay": "QUEST",
      "puan": 100,
-     "unvan": "title_achievement_event_domination_reoccurring-immoveable-object"
+     "title": "title_achievement_event_domination_reoccurring-immoveable-object"
     }
    ]
   },
@@ -1596,14 +1596,14 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestSelection",
-     "kume": [
+     "class_name": "QuestSelection",
+     "set": [
       "122006"
      ],
      "matches": "ALL",
      "olay": "QUEST",
      "puan": 100,
-     "unvan": "title_achievement_event_domination_reoccurring-lord-of-dead"
+     "title": "title_achievement_event_domination_reoccurring-lord-of-dead"
     }
    ]
   },
@@ -1613,14 +1613,14 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestSelection",
-     "kume": [
+     "class_name": "QuestSelection",
+     "set": [
       "122003"
      ],
      "matches": "ALL",
      "olay": "QUEST",
      "puan": 100,
-     "unvan": "title_achievement_event_domination_reoccurring-unstoppable-force"
+     "title": "title_achievement_event_domination_reoccurring-unstoppable-force"
     }
    ]
   },
@@ -1630,9 +1630,9 @@
    "etkinlik": "DominationEvent",
    "seviyeler": [
     {
-     "sinif": "LaserDamage",
+     "class_name": "LaserDamage",
      "operator": ">=",
-     "deger": 5000000,
+     "value": 5000000,
      "olay": "DAMAGING",
      "parametreler": {
       "npctype": [
@@ -1640,7 +1640,7 @@
       ]
      },
      "puan": 10,
-     "unvan": "title_achievement_event_domination-3"
+     "title": "title_achievement_event_domination-3"
     }
    ]
   },
@@ -1650,9 +1650,9 @@
    "etkinlik": "DominationEvent",
    "seviyeler": [
     {
-     "sinif": "MetaAchievement",
+     "class_name": "MetaAchievement",
      "operator": ">=",
-     "deger": 2,
+     "value": 2,
      "olay": "METAACHIEVED",
      "parametreler": {
       "achievementId": [
@@ -1660,7 +1660,7 @@
       ]
      },
      "puan": 35,
-     "unvan": "title_achievement_event_domination-1"
+     "title": "title_achievement_event_domination-1"
     }
    ]
   },
@@ -1670,9 +1670,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "DominationTakeover",
+     "class_name": "DominationTakeover",
      "olay": "DOMINATION_TAKEOVER",
-     "unvan": "title_achievement_event_summer2014_dominator",
+     "title": "title_achievement_event_summer2014_dominator",
      "puan": 500,
      "grade": 5
     }
@@ -1684,9 +1684,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 75,
+     "value": 75,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -1696,9 +1696,9 @@
      "puan": 5
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 275,
+     "value": 275,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -1708,22 +1708,22 @@
      "puan": 10
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 500,
+     "value": 500,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
        "DOUBLE_MINIMAP"
       ]
      },
-     "unvan": "title_achievement_ability_double-minimap-reveal-1",
+     "title": "title_achievement_ability_double-minimap-reveal-1",
      "puan": 25
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 1200,
+     "value": 1200,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -1733,16 +1733,16 @@
      "puan": 50
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 2500,
+     "value": 2500,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
        "DOUBLE_MINIMAP"
       ]
      },
-     "unvan": "title_achievement_ability_double-minimap-reveal-2",
+     "title": "title_achievement_ability_double-minimap-reveal-2",
      "puan": 100
     }
    ]
@@ -1753,9 +1753,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 150,
+     "value": 150,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -1765,9 +1765,9 @@
      "puan": 5
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 350,
+     "value": 350,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -1777,22 +1777,22 @@
      "puan": 10
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 800,
+     "value": 800,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
        "DRAW_FIRE"
       ]
      },
-     "unvan": "title_achievement_ability_draw-fire-1",
+     "title": "title_achievement_ability_draw-fire-1",
      "puan": 25
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 1600,
+     "value": 1600,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -1802,16 +1802,16 @@
      "puan": 50
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 3400,
+     "value": 3400,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
        "DRAW_FIRE"
       ]
      },
-     "unvan": "title_achievement_ability_draw-fire-2",
+     "title": "title_achievement_ability_draw-fire-2",
      "puan": 100
     }
    ]
@@ -1822,16 +1822,16 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "EggTriggerCount",
+     "class_name": "EggTriggerCount",
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "olay": "EGG_TRIGGER",
      "parametreler": {
       "eggTriggerType": [
        "GALAXY_GATE_FIREWORK"
       ]
      },
-     "unvan": "title_achievement_event_easter-eggs-galaxy-gate-firework",
+     "title": "title_achievement_event_easter-eggs-galaxy-gate-firework",
      "puan": 20,
      "grade": 5
     }
@@ -1843,9 +1843,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "EggTriggerCount",
+     "class_name": "EggTriggerCount",
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "olay": "EGG_TRIGGER",
      "parametreler": {
       "eggTriggerType": [
@@ -1863,16 +1863,16 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "EggTriggerCount",
+     "class_name": "EggTriggerCount",
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "olay": "EGG_TRIGGER",
      "parametreler": {
       "eggTriggerType": [
        "MINIMAP_PING"
       ]
      },
-     "unvan": "title_achievement_event_easter-eggs-minimap-ping",
+     "title": "title_achievement_event_easter-eggs-minimap-ping",
      "puan": 20,
      "grade": 5
     }
@@ -1884,16 +1884,16 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "EggTriggerCount",
+     "class_name": "EggTriggerCount",
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "olay": "EGG_TRIGGER",
      "parametreler": {
       "eggTriggerType": [
        "RAINBOW_LASER"
       ]
      },
-     "unvan": "title_achievement_event_easter-eggs-rainbow-laser",
+     "title": "title_achievement_event_easter-eggs-rainbow-laser",
      "puan": 20,
      "grade": 5
     }
@@ -1905,9 +1905,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "DesignMutationCount",
+     "class_name": "DesignMutationCount",
      "operator": ">=",
-     "deger": 200,
+     "value": 200,
      "olay": "CAUSED",
      "parametreler": {
       "mutatedDesignId": [
@@ -1923,12 +1923,12 @@
       ]
      },
      "puan": 40,
-     "unvan": "title_achievement_event_empyrian_1"
+     "title": "title_achievement_event_empyrian_1"
     },
     {
-     "sinif": "DesignMutationCount",
+     "class_name": "DesignMutationCount",
      "operator": ">=",
-     "deger": 500,
+     "value": 500,
      "olay": "CAUSED",
      "parametreler": {
       "mutatedDesignId": [
@@ -1944,12 +1944,12 @@
       ]
      },
      "puan": 75,
-     "unvan": "title_achievement_event_empyrian_2"
+     "title": "title_achievement_event_empyrian_2"
     },
     {
-     "sinif": "DesignMutationCount",
+     "class_name": "DesignMutationCount",
      "operator": ">=",
-     "deger": 1000,
+     "value": 1000,
      "olay": "CAUSED",
      "parametreler": {
       "mutatedDesignId": [
@@ -1965,7 +1965,7 @@
       ]
      },
      "puan": 100,
-     "unvan": "title_achievement_event_empyrian_3"
+     "title": "title_achievement_event_empyrian_3"
     }
    ]
   },
@@ -1975,10 +1975,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Equipment",
+     "class_name": "Equipment",
      "stored": false,
      "operator": ">=",
-     "deger": 6,
+     "value": 6,
      "parametreler": {
       "petprotocol": [
        {
@@ -1996,10 +1996,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Equipment",
+     "class_name": "Equipment",
      "stored": false,
      "operator": ">=",
-     "deger": 6,
+     "value": 6,
      "parametreler": {
       "petgear": [
        {
@@ -2017,10 +2017,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Equipment",
+     "class_name": "Equipment",
      "stored": false,
      "operator": ">=",
-     "deger": 15,
+     "value": 15,
      "parametreler": {
       "generator": [
        {
@@ -2038,10 +2038,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Equipment",
+     "class_name": "Equipment",
      "stored": false,
      "operator": ">=",
-     "deger": 15,
+     "value": 15,
      "parametreler": {
       "generator": [
        {
@@ -2059,10 +2059,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Equipment",
+     "class_name": "Equipment",
      "stored": false,
      "operator": ">=",
-     "deger": 15,
+     "value": 15,
      "parametreler": {
       "weapon": [
        {
@@ -2080,10 +2080,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Equipment",
+     "class_name": "Equipment",
      "stored": false,
      "operator": ">=",
-     "deger": 15,
+     "value": 15,
      "puan": 25
     }
    ]
@@ -2094,10 +2094,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Equipment",
+     "class_name": "Equipment",
      "stored": false,
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "parametreler": {
       "ship": [
        {
@@ -2115,9 +2115,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Equipment",
+     "class_name": "Equipment",
      "operator": ">=",
-     "deger": 5,
+     "value": 5,
      "parametreler": {
       "ship": [
        {
@@ -2135,9 +2135,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "IgnoredCondition",
+     "class_name": "IgnoredCondition",
      "stored": false,
-     "unvan": "title_achievement_event_eternalgate-champion",
+     "title": "title_achievement_event_eternalgate-champion",
      "puan": 100
     }
    ]
@@ -2148,9 +2148,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "operator": ">=",
-     "deger": 100,
+     "value": 100,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -2170,9 +2170,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "ClearGalaxyGateWave",
+     "class_name": "ClearGalaxyGateWave",
      "operator": ">=",
-     "deger": 42,
+     "value": 42,
      "olay": "CLEAR_GALAXY_GATE_WAVE",
      "parametreler": {
       "galaxyGateType": [
@@ -2182,9 +2182,9 @@
      "puan": 50
     },
     {
-     "sinif": "ClearGalaxyGateWave",
+     "class_name": "ClearGalaxyGateWave",
      "operator": ">=",
-     "deger": 100,
+     "value": 100,
      "olay": "CLEAR_GALAXY_GATE_WAVE",
      "parametreler": {
       "galaxyGateType": [
@@ -2194,9 +2194,9 @@
      "puan": 50
     },
     {
-     "sinif": "ClearGalaxyGateWave",
+     "class_name": "ClearGalaxyGateWave",
      "operator": ">=",
-     "deger": 200,
+     "value": 200,
      "olay": "CLEAR_GALAXY_GATE_WAVE",
      "parametreler": {
       "galaxyGateType": [
@@ -2213,9 +2213,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Currency",
+     "class_name": "Currency",
      "operator": ">=",
-     "deger": 100000,
+     "value": 100000,
      "olay": "COLLECT",
      "parametreler": {
       "currencyType": [
@@ -2225,9 +2225,9 @@
      "puan": 5
     },
     {
-     "sinif": "Currency",
+     "class_name": "Currency",
      "operator": ">=",
-     "deger": 1000000,
+     "value": 1000000,
      "olay": "COLLECT",
      "parametreler": {
       "currencyType": [
@@ -2237,22 +2237,22 @@
      "puan": 10
     },
     {
-     "sinif": "Currency",
+     "class_name": "Currency",
      "operator": ">=",
-     "deger": 100000000,
+     "value": 100000000,
      "olay": "COLLECT",
      "parametreler": {
       "currencyType": [
        "EXPERIENCE"
       ]
      },
-     "unvan": "title_achievement_experience-1",
+     "title": "title_achievement_experience-1",
      "puan": 25
     },
     {
-     "sinif": "Currency",
+     "class_name": "Currency",
      "operator": ">=",
-     "deger": 1000000000,
+     "value": 1000000000,
      "olay": "COLLECT",
      "parametreler": {
       "currencyType": [
@@ -2262,16 +2262,16 @@
      "puan": 50
     },
     {
-     "sinif": "Currency",
+     "class_name": "Currency",
      "operator": ">=",
-     "deger": 10000000000,
+     "value": 10000000000,
      "olay": "COLLECT",
      "parametreler": {
       "currencyType": [
        "EXPERIENCE"
       ]
      },
-     "unvan": "title_achievement_experience-2",
+     "title": "title_achievement_experience-2",
      "puan": 100
     }
    ]
@@ -2282,9 +2282,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Extras",
+     "class_name": "Extras",
      "operator": ">=",
-     "deger": 10,
+     "value": 10,
      "puan": 5
     }
    ]
@@ -2295,40 +2295,40 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "DroneFormationChange",
+     "class_name": "DroneFormationChange",
      "operator": ">=",
-     "deger": 100,
+     "value": 100,
      "olay": "USED",
      "puan": 5
     },
     {
-     "sinif": "DroneFormationChange",
+     "class_name": "DroneFormationChange",
      "operator": ">=",
-     "deger": 500,
+     "value": 500,
      "olay": "USED",
      "puan": 10
     },
     {
-     "sinif": "DroneFormationChange",
+     "class_name": "DroneFormationChange",
      "operator": ">=",
-     "deger": 1000,
+     "value": 1000,
      "olay": "USED",
-     "unvan": "title_achievement_drone_formation-change-1",
+     "title": "title_achievement_drone_formation-change-1",
      "puan": 25
     },
     {
-     "sinif": "DroneFormationChange",
+     "class_name": "DroneFormationChange",
      "operator": ">=",
-     "deger": 10000,
+     "value": 10000,
      "olay": "USED",
      "puan": 50
     },
     {
-     "sinif": "DroneFormationChange",
+     "class_name": "DroneFormationChange",
      "operator": ">=",
-     "deger": 100000,
+     "value": 100000,
      "olay": "USED",
-     "unvan": "title_achievement_drone_formation-change-2",
+     "title": "title_achievement_drone_formation-change-2",
      "puan": 100
     }
    ]
@@ -2339,18 +2339,18 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "DroneFormationDroneAmount",
+     "class_name": "DroneFormationDroneAmount",
      "stored": false,
      "operator": ">=",
-     "deger": 6,
+     "value": 6,
      "olay": "USED",
      "puan": 5
     },
     {
-     "sinif": "DroneFormationDroneAmount",
+     "class_name": "DroneFormationDroneAmount",
      "stored": false,
      "operator": ">=",
-     "deger": 10,
+     "value": 10,
      "olay": "USED",
      "puan": 10
     }
@@ -2362,9 +2362,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 200,
+     "value": 200,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -2374,9 +2374,9 @@
      "puan": 5
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 500,
+     "value": 500,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -2386,22 +2386,22 @@
      "puan": 10
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 800,
+     "value": 800,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
        "FORTIFY"
       ]
      },
-     "unvan": "title_achievement_ability_fortify-1",
+     "title": "title_achievement_ability_fortify-1",
      "puan": 25
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 1700,
+     "value": 1700,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -2411,16 +2411,16 @@
      "puan": 50
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 2500,
+     "value": 2500,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
        "FORTIFY"
       ]
      },
-     "unvan": "title_achievement_ability_fortify-2",
+     "title": "title_achievement_ability_fortify-2",
      "puan": 100
     }
    ]
@@ -2431,16 +2431,16 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "FriendInvite",
+     "class_name": "FriendInvite",
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "puan": 10
     },
     {
-     "sinif": "FriendInvite",
+     "class_name": "FriendInvite",
      "operator": ">=",
-     "deger": 25,
-     "unvan": "title_achievement_social_friend-invites",
+     "value": 25,
+     "title": "title_achievement_social_friend-invites",
      "puan": 50
     }
    ]
@@ -2451,25 +2451,25 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "FriendInvites",
+     "class_name": "FriendInvites",
      "operator": ">=",
-     "deger": 5,
+     "value": 5,
      "puan": 50,
-     "unvan": "title_achievement_social_friendinvites-1"
+     "title": "title_achievement_social_friendinvites-1"
     },
     {
-     "sinif": "FriendInvites",
+     "class_name": "FriendInvites",
      "operator": ">=",
-     "deger": 10,
+     "value": 10,
      "puan": 200,
-     "unvan": "title_achievement_social_friendinvites-2"
+     "title": "title_achievement_social_friendinvites-2"
     },
     {
-     "sinif": "FriendInvites",
+     "class_name": "FriendInvites",
      "operator": ">=",
-     "deger": 25,
+     "value": 25,
      "puan": 500,
-     "unvan": "title_achievement_social_friendinvites-3"
+     "title": "title_achievement_social_friendinvites-3"
     }
    ]
   },
@@ -2479,10 +2479,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "FriendMember",
+     "class_name": "FriendMember",
      "stored": false,
      "operator": ">=",
-     "deger": 20,
+     "value": 20,
      "puan": 10
     }
    ]
@@ -2493,15 +2493,15 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Friends",
+     "class_name": "Friends",
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "puan": 5
     },
     {
-     "sinif": "Friends",
+     "class_name": "Friends",
      "operator": ">=",
-     "deger": 20,
+     "value": 20,
      "puan": 10
     }
    ]
@@ -2512,8 +2512,8 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": null,
-     "unvan": "title_achievement_misc_legacy_galacticfleetadmiral"
+     "class_name": null,
+     "title": "title_achievement_misc_legacy_galacticfleetadmiral"
     }
    ]
   },
@@ -2523,7 +2523,7 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "GalaxyGateDone",
+     "class_name": "GalaxyGateDone",
      "olay": "GALAXY_GATE",
      "parametreler": {
       "galaxyGateType": [
@@ -2546,26 +2546,26 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Dispatch",
+     "class_name": "Dispatch",
      "operator": ">=",
-     "deger": 5,
+     "value": 5,
      "olay": "DISPATCH_GATE",
      "puan": 5
     },
     {
-     "sinif": "Dispatch",
+     "class_name": "Dispatch",
      "operator": ">=",
-     "deger": 25,
+     "value": 25,
      "olay": "DISPATCH_GATE",
      "puan": 10
     },
     {
-     "sinif": "Dispatch",
+     "class_name": "Dispatch",
      "operator": ">=",
-     "deger": 50,
+     "value": 50,
      "olay": "DISPATCH_GATE",
      "puan": 25,
-     "unvan": "title_achievement_dispatch_gate_3"
+     "title": "title_achievement_dispatch_gate_3"
     }
    ]
   },
@@ -2575,25 +2575,25 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Gatejumps",
+     "class_name": "Gatejumps",
      "operator": ">=",
-     "deger": 500,
+     "value": 500,
      "olay": "JUMP",
      "puan": 5
     },
     {
-     "sinif": "Gatejumps",
+     "class_name": "Gatejumps",
      "operator": ">=",
-     "deger": 5000,
+     "value": 5000,
      "olay": "JUMP",
      "puan": 10
     },
     {
-     "sinif": "Gatejumps",
+     "class_name": "Gatejumps",
      "operator": ">=",
-     "deger": 12500,
+     "value": 12500,
      "olay": "JUMP",
-     "unvan": "title_achievement_gatejumps",
+     "title": "title_achievement_gatejumps",
      "puan": 25
     }
    ]
@@ -2604,9 +2604,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "IgnoredCondition",
+     "class_name": "IgnoredCondition",
      "stored": false,
-     "unvan": "title_achievement_event_gauntletofplutus-champion",
+     "title": "title_achievement_event_gauntletofplutus-champion",
      "puan": 100
     }
    ]
@@ -2617,9 +2617,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -2632,9 +2632,9 @@
      "puan": 50
     },
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "operator": ">=",
-     "deger": 10,
+     "value": 10,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -2647,9 +2647,9 @@
      "puan": 50
     },
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "operator": ">=",
-     "deger": 30,
+     "value": 30,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -2659,7 +2659,7 @@
        "218"
       ]
      },
-     "unvan": "title_achievement_event_gauntletofplutus-kill-plutus-30",
+     "title": "title_achievement_event_gauntletofplutus-kill-plutus-30",
      "puan": 100
     }
    ]
@@ -2670,17 +2670,17 @@
    "etkinlik": "GauntletOfPlutus",
    "seviyeler": [
     {
-     "sinif": "Currency",
+     "class_name": "Currency",
      "stored": false,
      "operator": "==",
-     "deger": 4999999,
+     "value": 4999999,
      "olay": "COLLECT",
      "parametreler": {
       "currencyType": [
        "URIDIUM"
       ]
      },
-     "unvan": "title_achievement_event_gauntletofplutus-luck",
+     "title": "title_achievement_event_gauntletofplutus-luck",
      "puan": 50
     }
    ]
@@ -2691,10 +2691,10 @@
    "etkinlik": "GauntletOfPlutus",
    "seviyeler": [
     {
-     "sinif": "EventScore",
+     "class_name": "EventScore",
      "stored": false,
      "operator": ">=",
-     "deger": 1000,
+     "value": 1000,
      "olay": "EVENT_SCORE",
      "parametreler": {
       "event": [
@@ -2704,10 +2704,10 @@
      "puan": 25
     },
     {
-     "sinif": "EventScore",
+     "class_name": "EventScore",
      "stored": false,
      "operator": ">=",
-     "deger": 5000,
+     "value": 5000,
      "olay": "EVENT_SCORE",
      "parametreler": {
       "event": [
@@ -2717,10 +2717,10 @@
      "puan": 50
     },
     {
-     "sinif": "EventScore",
+     "class_name": "EventScore",
      "stored": false,
      "operator": ">=",
-     "deger": 10000,
+     "value": 10000,
      "olay": "EVENT_SCORE",
      "parametreler": {
       "event": [
@@ -2737,14 +2737,14 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "EquipItem",
+     "class_name": "EquipItem",
      "parametreler": {
       "item": [
        "drone_designs_champion"
       ]
      },
      "puan": 20,
-     "unvan": "title_goalrush-2024-1",
+     "title": "title_goalrush-2024-1",
      "grade": 5
     }
    ]
@@ -2755,10 +2755,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "GroupFounder",
+     "class_name": "GroupFounder",
      "stored": false,
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "olay": "GROUP",
      "puan": 5
     }
@@ -2770,9 +2770,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "GroupWithFriend",
+     "class_name": "GroupWithFriend",
      "operator": ">=",
-     "deger": 600,
+     "value": 600,
      "olay": "TIME",
      "puan": 10,
      "grade": 2
@@ -2785,17 +2785,17 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "GroupMember",
+     "class_name": "GroupMember",
      "operator": ">=",
-     "deger": 3000,
+     "value": 3000,
      "olay": "TIME",
      "puan": 10,
      "grade": 2
     },
     {
-     "sinif": "GroupMember",
+     "class_name": "GroupMember",
      "operator": ">=",
-     "deger": 6000,
+     "value": 6000,
      "olay": "TIME",
      "puan": 25,
      "grade": 3
@@ -2808,9 +2808,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "operator": ">=",
-     "deger": 4,
+     "value": 4,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -2821,7 +2821,7 @@
       ]
      },
      "puan": 100,
-     "unvan": "title_pumpkin-warrior"
+     "title": "title_pumpkin-warrior"
     }
    ]
   },
@@ -2831,9 +2831,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "operator": ">=",
-     "deger": 900,
+     "value": 900,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -2844,7 +2844,7 @@
       ]
      },
      "puan": 100,
-     "unvan": "title_curcubinator-1"
+     "title": "title_curcubinator-1"
     }
    ]
   },
@@ -2854,9 +2854,9 @@
    "etkinlik": "GhostBosses",
    "seviyeler": [
     {
-     "sinif": "NPCSelectionKill",
+     "class_name": "NPCSelectionKill",
      "operator": ">=",
-     "deger": 25,
+     "value": 25,
      "olay": "DESTROY",
      "parametreler": {
       "npcType": [
@@ -2877,12 +2877,12 @@
       ]
      },
      "puan": 5,
-     "unvan": "title_ghost-bosses-1"
+     "title": "title_ghost-bosses-1"
     },
     {
-     "sinif": "NPCSelectionKill",
+     "class_name": "NPCSelectionKill",
      "operator": ">=",
-     "deger": 50,
+     "value": 50,
      "olay": "DESTROY",
      "parametreler": {
       "npcType": [
@@ -2903,12 +2903,12 @@
       ]
      },
      "puan": 10,
-     "unvan": "title_ghost-bosses-2"
+     "title": "title_ghost-bosses-2"
     },
     {
-     "sinif": "NPCSelectionKill",
+     "class_name": "NPCSelectionKill",
      "operator": ">=",
-     "deger": 100,
+     "value": 100,
      "olay": "DESTROY",
      "parametreler": {
       "npcType": [
@@ -2929,7 +2929,7 @@
       ]
      },
      "puan": 20,
-     "unvan": "title_ghost-bosses-3"
+     "title": "title_ghost-bosses-3"
     }
    ]
   },
@@ -2939,9 +2939,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Collect",
+     "class_name": "Collect",
      "operator": ">=",
-     "deger": 600,
+     "value": 600,
      "olay": "COLLECT",
      "parametreler": {
       "boxType": [
@@ -2949,7 +2949,7 @@
       ]
      },
      "puan": 100,
-     "unvan": "title_pumpkinator-1"
+     "title": "title_pumpkinator-1"
     }
    ]
   },
@@ -2959,9 +2959,9 @@
    "etkinlik": "CandyCargo",
    "seviyeler": [
     {
-     "sinif": "Collect",
+     "class_name": "Collect",
      "operator": ">=",
-     "deger": 2000,
+     "value": 2000,
      "olay": "COLLECT",
      "parametreler": {
       "boxType": [
@@ -2978,9 +2978,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "IgnoredCondition",
+     "class_name": "IgnoredCondition",
      "stored": false,
-     "unvan": "title_achievement_event_halloween2015-challenge",
+     "title": "title_achievement_event_halloween2015-challenge",
      "puan": 300
     }
    ]
@@ -2991,9 +2991,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "operator": ">=",
-     "deger": 4,
+     "value": 4,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -3003,7 +3003,7 @@
        "151"
       ]
      },
-     "unvan": "title_achievement_event_halloween2015-kill-drones",
+     "title": "title_achievement_event_halloween2015-kill-drones",
      "puan": 300
     }
    ]
@@ -3014,9 +3014,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 200,
+     "value": 200,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -3026,9 +3026,9 @@
      "puan": 5
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 600,
+     "value": 600,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -3038,22 +3038,22 @@
      "puan": 10
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 1500,
+     "value": 1500,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
        "HEALING_BEAM"
       ]
      },
-     "unvan": "title_achievement_ability_healing-beam-1",
+     "title": "title_achievement_ability_healing-beam-1",
      "puan": 25
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 3500,
+     "value": 3500,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -3063,16 +3063,16 @@
      "puan": 50
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 8000,
+     "value": 8000,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
        "HEALING_BEAM"
       ]
      },
-     "unvan": "title_achievement_ability_healing-beam-2",
+     "title": "title_achievement_ability_healing-beam-2",
      "puan": 100
     }
    ]
@@ -3083,9 +3083,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 400,
+     "value": 400,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -3095,9 +3095,9 @@
      "puan": 5
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 1200,
+     "value": 1200,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -3107,22 +3107,22 @@
      "puan": 10
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 3000,
+     "value": 3000,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
        "HEALING_POD"
       ]
      },
-     "unvan": "title_achievement_ability_healing-pod-1",
+     "title": "title_achievement_ability_healing-pod-1",
      "puan": 25
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 5000,
+     "value": 5000,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -3132,16 +3132,16 @@
      "puan": 50
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 10000,
+     "value": 10000,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
        "HEALING_POD"
       ]
      },
-     "unvan": "title_achievement_ability_healing-pod-2",
+     "title": "title_achievement_ability_healing-pod-2",
      "puan": 100
     }
    ]
@@ -3152,8 +3152,8 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "DiscoverMaps",
-     "kume": [
+     "class_name": "DiscoverMaps",
+     "set": [
       "1",
       "5",
       "9"
@@ -3175,9 +3175,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Currency",
+     "class_name": "Currency",
      "operator": ">=",
-     "deger": 100000,
+     "value": 100000,
      "olay": "COLLECT",
      "parametreler": {
       "currencyType": [
@@ -3187,9 +3187,9 @@
      "puan": 5
     },
     {
-     "sinif": "Currency",
+     "class_name": "Currency",
      "operator": ">=",
-     "deger": 250000,
+     "value": 250000,
      "olay": "COLLECT",
      "parametreler": {
       "currencyType": [
@@ -3199,22 +3199,22 @@
      "puan": 10
     },
     {
-     "sinif": "Currency",
+     "class_name": "Currency",
      "operator": ">=",
-     "deger": 450000,
+     "value": 450000,
      "olay": "COLLECT",
      "parametreler": {
       "currencyType": [
        "HONOUR"
       ]
      },
-     "unvan": "title_achievement_honor-1",
+     "title": "title_achievement_honor-1",
      "puan": 25
     },
     {
-     "sinif": "Currency",
+     "class_name": "Currency",
      "operator": ">=",
-     "deger": 1000000,
+     "value": 1000000,
      "olay": "COLLECT",
      "parametreler": {
       "currencyType": [
@@ -3224,16 +3224,16 @@
      "puan": 50
     },
     {
-     "sinif": "Currency",
+     "class_name": "Currency",
      "operator": ">=",
-     "deger": 2500000,
+     "value": 2500000,
      "olay": "COLLECT",
      "parametreler": {
       "currencyType": [
        "HONOUR"
       ]
      },
-     "unvan": "title_achievement_honor-2",
+     "title": "title_achievement_honor-2",
      "puan": 100
     }
    ]
@@ -3244,9 +3244,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "IgnoredCondition",
+     "class_name": "IgnoredCondition",
      "stored": false,
-     "unvan": "title_achievement_misc_jackpot-1",
+     "title": "title_achievement_misc_jackpot-1",
      "puan": 100,
      "grade": 2
     }
@@ -3258,9 +3258,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Kamikaze",
+     "class_name": "Kamikaze",
      "operator": ">=",
-     "deger": 10,
+     "value": 10,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -3277,9 +3277,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AmmoShots",
+     "class_name": "AmmoShots",
      "operator": ">=",
-     "deger": 50000,
+     "value": 50000,
      "olay": "SHOOT",
      "parametreler": {
       "weaponType": [
@@ -3289,9 +3289,9 @@
      "puan": 5
     },
     {
-     "sinif": "AmmoShots",
+     "class_name": "AmmoShots",
      "operator": ">=",
-     "deger": 500000,
+     "value": 500000,
      "olay": "SHOOT",
      "parametreler": {
       "weaponType": [
@@ -3301,22 +3301,22 @@
      "puan": 10
     },
     {
-     "sinif": "AmmoShots",
+     "class_name": "AmmoShots",
      "operator": ">=",
-     "deger": 2250000,
+     "value": 2250000,
      "olay": "SHOOT",
      "parametreler": {
       "weaponType": [
        "LASER"
       ]
      },
-     "unvan": "title_achievement_lasershots-1",
+     "title": "title_achievement_lasershots-1",
      "puan": 25
     },
     {
-     "sinif": "AmmoShots",
+     "class_name": "AmmoShots",
      "operator": ">=",
-     "deger": 12500000,
+     "value": 12500000,
      "olay": "SHOOT",
      "parametreler": {
       "weaponType": [
@@ -3326,16 +3326,16 @@
      "puan": 50
     },
     {
-     "sinif": "AmmoShots",
+     "class_name": "AmmoShots",
      "operator": ">=",
-     "deger": 45000000,
+     "value": 45000000,
      "olay": "SHOOT",
      "parametreler": {
       "weaponType": [
        "LASER"
       ]
      },
-     "unvan": "title_achievement_lasershots-2",
+     "title": "title_achievement_lasershots-2",
      "puan": 100
     }
    ]
@@ -3346,8 +3346,8 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "LaserTypeUsage",
-     "kume": [
+     "class_name": "LaserTypeUsage",
+     "set": [
       "1",
       "2",
       "3",
@@ -3375,8 +3375,8 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "DiscoverMaps",
-     "kume": [
+     "class_name": "DiscoverMaps",
+     "set": [
       "1",
       "2",
       "3",
@@ -3425,9 +3425,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 250,
+     "value": 250,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -3438,9 +3438,9 @@
      "puan": 5
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 600,
+     "value": 600,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -3451,9 +3451,9 @@
      "puan": 10
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 1600,
+     "value": 1600,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -3461,13 +3461,13 @@
        "NEUTRALIZING_MARKER"
       ]
      },
-     "unvan": "title_achievement_ability_mark-target-1",
+     "title": "title_achievement_ability_mark-target-1",
      "puan": 25
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 3200,
+     "value": 3200,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -3478,9 +3478,9 @@
      "puan": 50
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 7000,
+     "value": 7000,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -3488,7 +3488,7 @@
        "NEUTRALIZING_MARKER"
       ]
      },
-     "unvan": "title_achievement_ability_mark-target-2",
+     "title": "title_achievement_ability_mark-target-2",
      "puan": 100
     }
    ]
@@ -3499,10 +3499,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Skylab",
+     "class_name": "Skylab",
      "stored": false,
      "operator": ">=",
-     "deger": 15,
+     "value": 15,
      "puan": 10
     }
    ]
@@ -3513,9 +3513,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "DominationBeaconTakeover",
+     "class_name": "DominationBeaconTakeover",
      "olay": "DOMINATION_BEACON_TAKEOVER",
-     "unvan": "title_achievement_event_summer2014_militant",
+     "title": "title_achievement_event_summer2014_militant",
      "puan": 50,
      "grade": 3
     }
@@ -3527,10 +3527,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "TriggerMine",
+     "class_name": "TriggerMine",
      "reset_on_death": true,
      "operator": ">=",
-     "deger": 10,
+     "value": 10,
      "olay": "CAUSED",
      "parametreler": {
       "timeLimit": [
@@ -3553,9 +3553,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AmmoShots",
+     "class_name": "AmmoShots",
      "operator": ">=",
-     "deger": 100,
+     "value": 100,
      "olay": "SHOOT",
      "parametreler": {
       "weaponType": [
@@ -3565,9 +3565,9 @@
      "puan": 5
     },
     {
-     "sinif": "AmmoShots",
+     "class_name": "AmmoShots",
      "operator": ">=",
-     "deger": 500,
+     "value": 500,
      "olay": "SHOOT",
      "parametreler": {
       "weaponType": [
@@ -3577,22 +3577,22 @@
      "puan": 10
     },
     {
-     "sinif": "AmmoShots",
+     "class_name": "AmmoShots",
      "operator": ">=",
-     "deger": 2500,
+     "value": 2500,
      "olay": "SHOOT",
      "parametreler": {
       "weaponType": [
        "MINE"
       ]
      },
-     "unvan": "title_achievement_mines-1",
+     "title": "title_achievement_mines-1",
      "puan": 25
     },
     {
-     "sinif": "AmmoShots",
+     "class_name": "AmmoShots",
      "operator": ">=",
-     "deger": 5000,
+     "value": 5000,
      "olay": "SHOOT",
      "parametreler": {
       "weaponType": [
@@ -3602,16 +3602,16 @@
      "puan": 50
     },
     {
-     "sinif": "AmmoShots",
+     "class_name": "AmmoShots",
      "operator": ">=",
-     "deger": 10000,
+     "value": 10000,
      "olay": "SHOOT",
      "parametreler": {
       "weaponType": [
        "MINE"
       ]
      },
-     "unvan": "title_achievement_mines-2",
+     "title": "title_achievement_mines-2",
      "puan": 100
     }
    ]
@@ -3622,17 +3622,17 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "IgnoredCondition",
+     "class_name": "IgnoredCondition",
      "stored": false,
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "puan": 50
     },
     {
-     "sinif": "IgnoredCondition",
+     "class_name": "IgnoredCondition",
      "stored": false,
      "operator": ">=",
-     "deger": 12,
+     "value": 12,
      "puan": 500
     }
    ]
@@ -3643,17 +3643,17 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "IgnoredCondition",
+     "class_name": "IgnoredCondition",
      "stored": false,
      "operator": ">=",
-     "deger": 5,
+     "value": 5,
      "puan": 50
     },
     {
-     "sinif": "IgnoredCondition",
+     "class_name": "IgnoredCondition",
      "stored": false,
      "operator": ">=",
-     "deger": 12,
+     "value": 12,
      "puan": 500
     }
    ]
@@ -3664,17 +3664,17 @@
    "etkinlik": "MercenaryWarGame",
    "seviyeler": [
     {
-     "sinif": "EventScore",
+     "class_name": "EventScore",
      "stored": false,
      "operator": ">=",
-     "deger": 500,
+     "value": 500,
      "olay": "EVENT_KILLS",
      "parametreler": {
       "event": [
        "MercenaryWarGame"
       ]
      },
-     "unvan": "title_achievement_event_mwg-merc-ethereal",
+     "title": "title_achievement_event_mwg-merc-ethereal",
      "puan": 200
     }
    ]
@@ -3685,45 +3685,45 @@
    "etkinlik": "MercenaryWarGame",
    "seviyeler": [
     {
-     "sinif": "EventScore",
+     "class_name": "EventScore",
      "stored": false,
      "operator": ">=",
-     "deger": 5000,
+     "value": 5000,
      "olay": "EVENT_SCORE",
      "parametreler": {
       "event": [
        "MercenaryWarGame"
       ]
      },
-     "unvan": "title_achievement_event_mwg-merc-elite",
+     "title": "title_achievement_event_mwg-merc-elite",
      "puan": 25
     },
     {
-     "sinif": "EventScore",
+     "class_name": "EventScore",
      "stored": false,
      "operator": ">=",
-     "deger": 15000,
+     "value": 15000,
      "olay": "EVENT_SCORE",
      "parametreler": {
       "event": [
        "MercenaryWarGame"
       ]
      },
-     "unvan": "title_achievement_event_mwg-merc-legionnaire",
+     "title": "title_achievement_event_mwg-merc-legionnaire",
      "puan": 50
     },
     {
-     "sinif": "EventScore",
+     "class_name": "EventScore",
      "stored": false,
      "operator": ">=",
-     "deger": 30000,
+     "value": 30000,
      "olay": "EVENT_SCORE",
      "parametreler": {
       "event": [
        "MercenaryWarGame"
       ]
      },
-     "unvan": "title_achievement_event_mwg-merc-contractor_first",
+     "title": "title_achievement_event_mwg-merc-contractor_first",
      "puan": 100
     }
    ]
@@ -3734,14 +3734,14 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "EquipItem",
+     "class_name": "EquipItem",
      "parametreler": {
       "item": [
        "drone_designs_champion"
       ]
      },
      "puan": 10,
-     "unvan": "title_goalrush-2025",
+     "title": "title_goalrush-2025",
      "grade": 5
     }
    ]
@@ -3752,14 +3752,14 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "EquipItem",
+     "class_name": "EquipItem",
      "parametreler": {
       "item": [
        "drone_designs_champion"
       ]
      },
      "puan": 10,
-     "unvan": "title_goalrush-2026",
+     "title": "title_goalrush-2026",
      "grade": 5
     }
    ]
@@ -3770,14 +3770,14 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "EquipItem",
+     "class_name": "EquipItem",
      "parametreler": {
       "item": [
        "drone_designs_champion"
       ]
      },
      "puan": 10,
-     "unvan": "title_goalrush-2024-2",
+     "title": "title_goalrush-2024-2",
      "grade": 5
     }
    ]
@@ -3788,10 +3788,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "OneHitWonder",
+     "class_name": "OneHitWonder",
      "stored": false,
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "olay": "DESTROY",
      "puan": 25,
      "grade": 3
@@ -3804,10 +3804,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "PetKiller",
+     "class_name": "PetKiller",
      "stored": false,
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -3824,10 +3824,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Level",
+     "class_name": "Level",
      "stored": false,
      "operator": ">=",
-     "deger": 5,
+     "value": 5,
      "olay": "LEVEL",
      "parametreler": {
       "avatar": [
@@ -3837,31 +3837,31 @@
      "puan": 5
     },
     {
-     "sinif": "Level",
+     "class_name": "Level",
      "stored": false,
      "operator": ">=",
-     "deger": 10,
+     "value": 10,
      "olay": "LEVEL",
      "parametreler": {
       "avatar": [
        "PET"
       ]
      },
-     "unvan": "title_achievement_petlevel-1",
+     "title": "title_achievement_petlevel-1",
      "puan": 10
     },
     {
-     "sinif": "Level",
+     "class_name": "Level",
      "stored": false,
      "operator": ">=",
-     "deger": 15,
+     "value": 15,
      "olay": "LEVEL",
      "parametreler": {
       "avatar": [
        "PET"
       ]
      },
-     "unvan": "title_achievement_petlevel-2",
+     "title": "title_achievement_petlevel-2",
      "puan": 25
     }
    ]
@@ -3872,9 +3872,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "PlagueActionCount",
+     "class_name": "PlagueActionCount",
      "operator": ">=",
-     "deger": 10,
+     "value": 10,
      "olay": "PLAGUE_CURE",
      "parametreler": {
       "plagueActionType": [
@@ -3884,29 +3884,29 @@
      "puan": 10
     },
     {
-     "sinif": "PlagueActionCount",
+     "class_name": "PlagueActionCount",
      "operator": ">=",
-     "deger": 50,
+     "value": 50,
      "olay": "PLAGUE_CURE",
      "parametreler": {
       "plagueActionType": [
        "OTHER"
       ]
      },
-     "unvan": "title_achievement_event_plague-cure-players-2",
+     "title": "title_achievement_event_plague-cure-players-2",
      "puan": 15
     },
     {
-     "sinif": "PlagueActionCount",
+     "class_name": "PlagueActionCount",
      "operator": ">=",
-     "deger": 100,
+     "value": 100,
      "olay": "PLAGUE_CURE",
      "parametreler": {
       "plagueActionType": [
        "OTHER"
       ]
      },
-     "unvan": "title_achievement_event_plague-cure-players-3",
+     "title": "title_achievement_event_plague-cure-players-3",
      "puan": 30
     }
    ]
@@ -3917,9 +3917,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "PlagueActionCount",
+     "class_name": "PlagueActionCount",
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "olay": "PLAGUE_CURE",
      "parametreler": {
       "plagueActionType": [
@@ -3937,9 +3937,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "PlagueActionCount",
+     "class_name": "PlagueActionCount",
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "olay": "PLAGUE_INFECT",
      "parametreler": {
       "plagueActionType": [
@@ -3957,9 +3957,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "PlagueActionCount",
+     "class_name": "PlagueActionCount",
      "operator": ">=",
-     "deger": 10,
+     "value": 10,
      "olay": "PLAGUE_INFECT",
      "parametreler": {
       "plagueActionType": [
@@ -3969,29 +3969,29 @@
      "puan": 10
     },
     {
-     "sinif": "PlagueActionCount",
+     "class_name": "PlagueActionCount",
      "operator": ">=",
-     "deger": 50,
+     "value": 50,
      "olay": "PLAGUE_INFECT",
      "parametreler": {
       "plagueActionType": [
        "OTHER"
       ]
      },
-     "unvan": "title_achievement_event_plague-infect-players-2",
+     "title": "title_achievement_event_plague-infect-players-2",
      "puan": 15
     },
     {
-     "sinif": "PlagueActionCount",
+     "class_name": "PlagueActionCount",
      "operator": ">=",
-     "deger": 100,
+     "value": 100,
      "olay": "PLAGUE_INFECT",
      "parametreler": {
       "plagueActionType": [
        "OTHER"
       ]
      },
-     "unvan": "title_achievement_event_plague-infect-players-3",
+     "title": "title_achievement_event_plague-infect-players-3",
      "puan": 30
     }
    ]
@@ -4002,9 +4002,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -4014,7 +4014,7 @@
        "122"
       ]
      },
-     "unvan": "title_achievement_event_plague-kill-boss",
+     "title": "title_achievement_event_plague-kill-boss",
      "puan": 15,
      "grade": 5
     }
@@ -4026,9 +4026,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "operator": ">=",
-     "deger": 25,
+     "value": 25,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -4038,7 +4038,7 @@
        "123"
       ]
      },
-     "unvan": "title_achievement_event_plague-kill-minions",
+     "title": "title_achievement_event_plague-kill-minions",
      "puan": 15,
      "grade": 5
     }
@@ -4050,16 +4050,16 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "MetaAchievement",
+     "class_name": "MetaAchievement",
      "operator": ">=",
-     "deger": 5,
+     "value": 5,
      "olay": "METAACHIEVED",
      "parametreler": {
       "achievementId": [
        "achievement_event_plague-cure-self"
       ]
      },
-     "unvan": "title_achievement_event_plague-meta-healthy",
+     "title": "title_achievement_event_plague-meta-healthy",
      "puan": 20,
      "grade": 5
     }
@@ -4071,16 +4071,16 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "MetaAchievement",
+     "class_name": "MetaAchievement",
      "operator": ">=",
-     "deger": 5,
+     "value": 5,
      "olay": "METAACHIEVED",
      "parametreler": {
       "achievementId": [
        "achievement_event_plague-getinfected"
       ]
      },
-     "unvan": "title_achievement_event_plague-meta-infected",
+     "title": "title_achievement_event_plague-meta-infected",
      "puan": 20,
      "grade": 5
     }
@@ -4092,8 +4092,8 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestSelection",
-     "kume": [
+     "class_name": "QuestSelection",
+     "set": [
       "512033",
       "512034",
       "512035",
@@ -4107,7 +4107,7 @@
      ],
      "matches": "ALL",
      "olay": "QUEST",
-     "unvan": "title_achievement_event_plague-quests-healthy",
+     "title": "title_achievement_event_plague-quests-healthy",
      "puan": 20,
      "grade": 5
     }
@@ -4119,8 +4119,8 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestSelection",
-     "kume": [
+     "class_name": "QuestSelection",
+     "set": [
       "512028",
       "512029",
       "512030",
@@ -4129,7 +4129,7 @@
      ],
      "matches": "ALL",
      "olay": "QUEST",
-     "unvan": "title_achievement_event_plague-quests-infected",
+     "title": "title_achievement_event_plague-quests-infected",
      "puan": 15,
      "grade": 5
     }
@@ -4141,25 +4141,25 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "PlayerCloaked",
+     "class_name": "PlayerCloaked",
      "operator": ">=",
-     "deger": 60,
+     "value": 60,
      "olay": "TIME",
      "puan": 5
     },
     {
-     "sinif": "PlayerCloaked",
+     "class_name": "PlayerCloaked",
      "operator": ">=",
-     "deger": 300,
+     "value": 300,
      "olay": "TIME",
      "puan": 10
     },
     {
-     "sinif": "PlayerCloaked",
+     "class_name": "PlayerCloaked",
      "operator": ">=",
-     "deger": 600,
+     "value": 600,
      "olay": "TIME",
-     "unvan": "title_achievement_player-cloaked",
+     "title": "title_achievement_player-cloaked",
      "puan": 25
     }
    ]
@@ -4170,10 +4170,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Level",
+     "class_name": "Level",
      "stored": false,
      "operator": ">=",
-     "deger": 5,
+     "value": 5,
      "olay": "LEVEL",
      "parametreler": {
       "avatar": [
@@ -4183,10 +4183,10 @@
      "puan": 5
     },
     {
-     "sinif": "Level",
+     "class_name": "Level",
      "stored": false,
      "operator": ">=",
-     "deger": 10,
+     "value": 10,
      "olay": "LEVEL",
      "parametreler": {
       "avatar": [
@@ -4196,24 +4196,24 @@
      "puan": 10
     },
     {
-     "sinif": "Level",
+     "class_name": "Level",
      "stored": false,
      "operator": ">=",
-     "deger": 15,
+     "value": 15,
      "olay": "LEVEL",
      "parametreler": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "unvan": "title_achievement_playerlevel-1",
+     "title": "title_achievement_playerlevel-1",
      "puan": 25
     },
     {
-     "sinif": "Level",
+     "class_name": "Level",
      "stored": false,
      "operator": ">=",
-     "deger": 20,
+     "value": 20,
      "olay": "LEVEL",
      "parametreler": {
       "avatar": [
@@ -4223,17 +4223,17 @@
      "puan": 50
     },
     {
-     "sinif": "Level",
+     "class_name": "Level",
      "stored": false,
      "operator": ">=",
-     "deger": 25,
+     "value": 25,
      "olay": "LEVEL",
      "parametreler": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "unvan": "title_achievement_playerlevel-2",
+     "title": "title_achievement_playerlevel-2",
      "puan": 100
     }
    ]
@@ -4244,9 +4244,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "PlaytimeOnEnemyMap",
+     "class_name": "PlaytimeOnEnemyMap",
      "operator": ">=",
-     "deger": 360,
+     "value": 360,
      "olay": "TIME",
      "parametreler": {
       "map": [
@@ -4258,9 +4258,9 @@
      "puan": 5
     },
     {
-     "sinif": "PlaytimeOnEnemyMap",
+     "class_name": "PlaytimeOnEnemyMap",
      "operator": ">=",
-     "deger": 2500,
+     "value": 2500,
      "olay": "TIME",
      "parametreler": {
       "map": [
@@ -4272,9 +4272,9 @@
      "puan": 10
     },
     {
-     "sinif": "PlaytimeOnEnemyMap",
+     "class_name": "PlaytimeOnEnemyMap",
      "operator": ">=",
-     "deger": 12500,
+     "value": 12500,
      "olay": "TIME",
      "parametreler": {
       "map": [
@@ -4283,7 +4283,7 @@
        }
       ]
      },
-     "unvan": "title_achievement_playtime-enemymap",
+     "title": "title_achievement_playtime-enemymap",
      "puan": 25
     }
    ]
@@ -4294,9 +4294,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "MapTypeCheck",
+     "class_name": "MapTypeCheck",
      "operator": ">=",
-     "deger": 360,
+     "value": 360,
      "olay": "TIME",
      "parametreler": {
       "mapType": [
@@ -4306,9 +4306,9 @@
      "puan": 5
     },
     {
-     "sinif": "MapTypeCheck",
+     "class_name": "MapTypeCheck",
      "operator": ">=",
-     "deger": 1250,
+     "value": 1250,
      "olay": "TIME",
      "parametreler": {
       "mapType": [
@@ -4318,16 +4318,16 @@
      "puan": 10
     },
     {
-     "sinif": "MapTypeCheck",
+     "class_name": "MapTypeCheck",
      "operator": ">=",
-     "deger": 2500,
+     "value": 2500,
      "olay": "TIME",
      "parametreler": {
       "mapType": [
        "PVP"
       ]
      },
-     "unvan": "title_achievement_playtime-pvpmap",
+     "title": "title_achievement_playtime-pvpmap",
      "puan": 25
     }
    ]
@@ -4338,9 +4338,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Playtime",
+     "class_name": "Playtime",
      "operator": ">=",
-     "deger": 2000,
+     "value": 2000,
      "olay": "TIME",
      "parametreler": {
       "avatar": [
@@ -4350,9 +4350,9 @@
      "puan": 5
     },
     {
-     "sinif": "Playtime",
+     "class_name": "Playtime",
      "operator": ">=",
-     "deger": 10000,
+     "value": 10000,
      "olay": "TIME",
      "parametreler": {
       "avatar": [
@@ -4362,22 +4362,22 @@
      "puan": 10
     },
     {
-     "sinif": "Playtime",
+     "class_name": "Playtime",
      "operator": ">=",
-     "deger": 35000,
+     "value": 35000,
      "olay": "TIME",
      "parametreler": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "unvan": "title_achievement_playtime-1",
+     "title": "title_achievement_playtime-1",
      "puan": 25
     },
     {
-     "sinif": "Playtime",
+     "class_name": "Playtime",
      "operator": ">=",
-     "deger": 65000,
+     "value": 65000,
      "olay": "TIME",
      "parametreler": {
       "avatar": [
@@ -4387,16 +4387,16 @@
      "puan": 50
     },
     {
-     "sinif": "Playtime",
+     "class_name": "Playtime",
      "operator": ">=",
-     "deger": 125000,
+     "value": 125000,
      "olay": "TIME",
      "parametreler": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "unvan": "title_achievement_playtime-2",
+     "title": "title_achievement_playtime-2",
      "puan": 100
     }
    ]
@@ -4407,9 +4407,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Playtime",
+     "class_name": "Playtime",
      "operator": ">=",
-     "deger": 2500,
+     "value": 2500,
      "olay": "TIME",
      "parametreler": {
       "avatar": [
@@ -4426,10 +4426,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Profile",
+     "class_name": "Profile",
      "stored": false,
      "operator": ">=",
-     "deger": 25,
+     "value": 25,
      "parametreler": {
       "property": [
        {
@@ -4447,10 +4447,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Profile",
+     "class_name": "Profile",
      "stored": false,
      "operator": ">=",
-     "deger": 25,
+     "value": 25,
      "parametreler": {
       "property": [
        {
@@ -4461,10 +4461,10 @@
      "puan": 10
     },
     {
-     "sinif": "Profile",
+     "class_name": "Profile",
      "stored": false,
      "operator": ">=",
-     "deger": 100,
+     "value": 100,
      "parametreler": {
       "property": [
        {
@@ -4482,9 +4482,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "CollectResource",
+     "class_name": "CollectResource",
      "operator": ">=",
-     "deger": 1000,
+     "value": 1000,
      "olay": "COLLECT",
      "parametreler": {
       "resourceType": [
@@ -4504,9 +4504,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "CollectPackage",
+     "class_name": "CollectPackage",
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "olay": "COLLECT",
      "parametreler": {
       "packageId": [
@@ -4514,7 +4514,7 @@
       ]
      },
      "puan": 0,
-     "unvan": "title_achievement_event_prosperous-gg_1"
+     "title": "title_achievement_event_prosperous-gg_1"
     }
    ]
   },
@@ -4524,9 +4524,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "DesignMutationCount",
+     "class_name": "DesignMutationCount",
      "operator": ">=",
-     "deger": 200,
+     "value": 200,
      "olay": "CAUSED",
      "parametreler": {
       "mutatedDesignId": [
@@ -4536,12 +4536,12 @@
       ]
      },
      "puan": 40,
-     "unvan": "title_achievement_event_prosperous_1"
+     "title": "title_achievement_event_prosperous_1"
     },
     {
-     "sinif": "DesignMutationCount",
+     "class_name": "DesignMutationCount",
      "operator": ">=",
-     "deger": 500,
+     "value": 500,
      "olay": "CAUSED",
      "parametreler": {
       "mutatedDesignId": [
@@ -4551,12 +4551,12 @@
       ]
      },
      "puan": 75,
-     "unvan": "title_achievement_event_prosperous_2"
+     "title": "title_achievement_event_prosperous_2"
     },
     {
-     "sinif": "DesignMutationCount",
+     "class_name": "DesignMutationCount",
      "operator": ">=",
-     "deger": 1000,
+     "value": 1000,
      "olay": "CAUSED",
      "parametreler": {
       "mutatedDesignId": [
@@ -4566,7 +4566,7 @@
       ]
      },
      "puan": 100,
-     "unvan": "title_achievement_event_prosperous_3"
+     "title": "title_achievement_event_prosperous_3"
     }
    ]
   },
@@ -4576,9 +4576,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 300,
+     "value": 300,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -4588,9 +4588,9 @@
      "puan": 5
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 700,
+     "value": 700,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -4600,22 +4600,22 @@
      "puan": 10
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 1800,
+     "value": 1800,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
        "PROTECT"
       ]
      },
-     "unvan": "title_achievement_ability_protect-1",
+     "title": "title_achievement_ability_protect-1",
      "puan": 25
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 3000,
+     "value": 3000,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -4625,16 +4625,16 @@
      "puan": 50
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 6500,
+     "value": 6500,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
        "PROTECT"
       ]
      },
-     "unvan": "title_achievement_ability_protect-2",
+     "title": "title_achievement_ability_protect-2",
      "puan": 100
     }
    ]
@@ -4645,16 +4645,16 @@
    "etkinlik": "SeasonPass",
    "seviyeler": [
     {
-     "sinif": "LevelAbsolute",
+     "class_name": "LevelAbsolute",
      "operator": ">=",
-     "deger": 50,
+     "value": 50,
      "parametreler": {
       "avatar": [
        "PLAYER"
       ]
      },
      "puan": 40,
-     "unvan": "title_seasonpass_q1_1"
+     "title": "title_seasonpass_q1_1"
     }
    ]
   },
@@ -4664,10 +4664,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestDeathless",
+     "class_name": "QuestDeathless",
      "reset_on_death": true,
      "operator": ">=",
-     "deger": 10,
+     "value": 10,
      "olay": "QUEST",
      "puan": 10,
      "grade": 2
@@ -4680,40 +4680,40 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Quest",
+     "class_name": "Quest",
      "operator": ">=",
-     "deger": 5,
+     "value": 5,
      "olay": "QUEST",
      "puan": 5
     },
     {
-     "sinif": "Quest",
+     "class_name": "Quest",
      "operator": ">=",
-     "deger": 20,
+     "value": 20,
      "olay": "QUEST",
      "puan": 10
     },
     {
-     "sinif": "Quest",
+     "class_name": "Quest",
      "operator": ">=",
-     "deger": 50,
+     "value": 50,
      "olay": "QUEST",
-     "unvan": "title_achievement_quest_quests-1",
+     "title": "title_achievement_quest_quests-1",
      "puan": 25
     },
     {
-     "sinif": "Quest",
+     "class_name": "Quest",
      "operator": ">=",
-     "deger": 75,
+     "value": 75,
      "olay": "QUEST",
      "puan": 50
     },
     {
-     "sinif": "Quest",
+     "class_name": "Quest",
      "operator": ">=",
-     "deger": 100,
+     "value": 100,
      "olay": "QUEST",
-     "unvan": "title_achievement_quest_quests-2",
+     "title": "title_achievement_quest_quests-2",
      "puan": 100
     }
    ]
@@ -4724,12 +4724,12 @@
    "etkinlik": "PublicWorldBoss",
    "seviyeler": [
     {
-     "sinif": "PublicWorldBossCondition",
+     "class_name": "PublicWorldBossCondition",
      "operator": ">=",
-     "deger": 5000000,
+     "value": 5000000,
      "olay": "PUBLIC_WORLD_BOSS_2025",
      "puan": 10,
-     "unvan": "title_worldboss_recoverhp_june2025"
+     "title": "title_worldboss_recoverhp_june2025"
     }
    ]
   },
@@ -4739,12 +4739,12 @@
    "etkinlik": "PublicWorldBoss",
    "seviyeler": [
     {
-     "sinif": "PublicWorldBossCondition",
+     "class_name": "PublicWorldBossCondition",
      "operator": ">=",
-     "deger": 5000000,
+     "value": 5000000,
      "olay": "PUBLIC_WORLD_BOSS_2026",
      "puan": 10,
-     "unvan": "title_worldboss_recoverhp_june2026"
+     "title": "title_worldboss_recoverhp_june2026"
     }
    ]
   },
@@ -4754,26 +4754,26 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Dispatch",
+     "class_name": "Dispatch",
      "operator": ">=",
-     "deger": 5,
+     "value": 5,
      "olay": "DISPATCH_RETRIEVER",
      "puan": 5
     },
     {
-     "sinif": "Dispatch",
+     "class_name": "Dispatch",
      "operator": ">=",
-     "deger": 25,
+     "value": 25,
      "olay": "DISPATCH_RETRIEVER",
      "puan": 10
     },
     {
-     "sinif": "Dispatch",
+     "class_name": "Dispatch",
      "operator": ">=",
-     "deger": 50,
+     "value": 50,
      "olay": "DISPATCH_RETRIEVER",
      "puan": 25,
-     "unvan": "title_achievement_dispatch_retriever_3"
+     "title": "title_achievement_dispatch_retriever_3"
     }
    ]
   },
@@ -4783,9 +4783,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "SkylabRobot",
+     "class_name": "SkylabRobot",
      "operator": ">=",
-     "deger": 12,
+     "value": 12,
      "puan": 5
     }
    ]
@@ -4796,9 +4796,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AmmoShots",
+     "class_name": "AmmoShots",
      "operator": ">=",
-     "deger": 1000,
+     "value": 1000,
      "olay": "SHOOT",
      "parametreler": {
       "weaponType": [
@@ -4808,9 +4808,9 @@
      "puan": 5
     },
     {
-     "sinif": "AmmoShots",
+     "class_name": "AmmoShots",
      "operator": ">=",
-     "deger": 2000,
+     "value": 2000,
      "olay": "SHOOT",
      "parametreler": {
       "weaponType": [
@@ -4820,22 +4820,22 @@
      "puan": 10
     },
     {
-     "sinif": "AmmoShots",
+     "class_name": "AmmoShots",
      "operator": ">=",
-     "deger": 10000,
+     "value": 10000,
      "olay": "SHOOT",
      "parametreler": {
       "weaponType": [
        "ROCKET_LAUNCHER"
       ]
      },
-     "unvan": "title_achievement_rocketshots-1",
+     "title": "title_achievement_rocketshots-1",
      "puan": 25
     },
     {
-     "sinif": "AmmoShots",
+     "class_name": "AmmoShots",
      "operator": ">=",
-     "deger": 25000,
+     "value": 25000,
      "olay": "SHOOT",
      "parametreler": {
       "weaponType": [
@@ -4845,16 +4845,16 @@
      "puan": 50
     },
     {
-     "sinif": "AmmoShots",
+     "class_name": "AmmoShots",
      "operator": ">=",
-     "deger": 50000,
+     "value": 50000,
      "olay": "SHOOT",
      "parametreler": {
       "weaponType": [
        "ROCKET_LAUNCHER"
       ]
      },
-     "unvan": "title_achievement_rocketshots-2",
+     "title": "title_achievement_rocketshots-2",
      "puan": 100
     }
    ]
@@ -4865,10 +4865,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "stored": true,
      "operator": ">=",
-     "deger": 30,
+     "value": 30,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -4881,10 +4881,10 @@
      "puan": 5
     },
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "stored": true,
      "operator": ">=",
-     "deger": 100,
+     "value": 100,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -4897,10 +4897,10 @@
      "puan": 15
     },
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "stored": true,
      "operator": ">=",
-     "deger": 300,
+     "value": 300,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -4920,9 +4920,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": null,
+     "class_name": null,
      "puan": 600,
-     "unvan": "title_achievement_trainingarena_season-bronze",
+     "title": "title_achievement_trainingarena_season-bronze",
      "grade": 5
     }
    ]
@@ -4933,9 +4933,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": null,
+     "class_name": null,
      "puan": 400,
-     "unvan": "title_achievement_trainingarena_season-elite",
+     "title": "title_achievement_trainingarena_season-elite",
      "grade": 5
     }
    ]
@@ -4946,9 +4946,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": null,
+     "class_name": null,
      "puan": 1000,
-     "unvan": "title_achievement_trainingarena_season-gold",
+     "title": "title_achievement_trainingarena_season-gold",
      "grade": 5
     }
    ]
@@ -4959,9 +4959,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": null,
+     "class_name": null,
      "puan": 800,
-     "unvan": "title_achievement_trainingarena_season-silver",
+     "title": "title_achievement_trainingarena_season-silver",
      "grade": 5
     }
    ]
@@ -4972,9 +4972,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": null,
+     "class_name": null,
      "puan": 200,
-     "unvan": "title_achievement_trainingarena_season-veteran",
+     "title": "title_achievement_trainingarena_season-veteran",
      "grade": 5
     }
    ]
@@ -4985,9 +4985,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": null,
+     "class_name": null,
      "puan": 100,
-     "unvan": "title_achievement_trainingarena_season-warrior",
+     "title": "title_achievement_trainingarena_season-warrior",
      "grade": 5
     }
    ]
@@ -4998,9 +4998,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Skylab",
+     "class_name": "Skylab",
      "operator": ">=",
-     "deger": 100000,
+     "value": 100000,
      "parametreler": {
       "ore": [
        {
@@ -5018,9 +5018,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 200,
+     "value": 200,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -5030,9 +5030,9 @@
      "puan": 5
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 600,
+     "value": 600,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -5042,22 +5042,22 @@
      "puan": 10
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 1500,
+     "value": 1500,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
        "SHIELD_RECHARGE"
       ]
      },
-     "unvan": "title_achievement_ability_shield-recharge-1",
+     "title": "title_achievement_ability_shield-recharge-1",
      "puan": 25
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 3500,
+     "value": 3500,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -5067,16 +5067,16 @@
      "puan": 50
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 8000,
+     "value": 8000,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
        "SHIELD_RECHARGE"
       ]
      },
-     "unvan": "title_achievement_ability_shield-recharge-2",
+     "title": "title_achievement_ability_shield-recharge-2",
      "puan": 100
     }
    ]
@@ -5087,10 +5087,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "ShipDesignCollect",
+     "class_name": "ShipDesignCollect",
      "stored": false,
      "operator": ">=",
-     "deger": 10,
+     "value": 10,
      "olay": "COLLECT",
      "parametreler": {
       "shipDesignType": [
@@ -5107,9 +5107,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "SkillDesign",
+     "class_name": "SkillDesign",
      "operator": ">=",
-     "deger": 1000000,
+     "value": 1000000,
      "olay": "CAUSED",
      "parametreler": {
       "type": [
@@ -5127,10 +5127,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "PetKiller",
+     "class_name": "PetKiller",
      "stored": false,
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "olay": "DESTROYED",
      "parametreler": {
       "avatar": [
@@ -5147,9 +5147,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "IgnoredCondition",
+     "class_name": "IgnoredCondition",
      "stored": false,
-     "unvan": "title_achievement_event_solarclash-2012-champion-3",
+     "title": "title_achievement_event_solarclash-2012-champion-3",
      "puan": 100,
      "grade": 5
     }
@@ -5161,9 +5161,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "IgnoredCondition",
+     "class_name": "IgnoredCondition",
      "stored": false,
-     "unvan": "title_achievement_event_solarclash-2012-collectionmarathon-champion-1",
+     "title": "title_achievement_event_solarclash-2012-collectionmarathon-champion-1",
      "puan": 100,
      "grade": 5
     }
@@ -5175,10 +5175,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestRating",
+     "class_name": "QuestRating",
      "stored": false,
      "operator": ">=",
-     "deger": 500,
+     "value": 500,
      "olay": "QUESTRATING",
      "parametreler": {
       "trackedConditionId": [
@@ -5189,10 +5189,10 @@
      "grade": 3
     },
     {
-     "sinif": "QuestRating",
+     "class_name": "QuestRating",
      "stored": false,
      "operator": ">=",
-     "deger": 650,
+     "value": 650,
      "olay": "QUESTRATING",
      "parametreler": {
       "trackedConditionId": [
@@ -5203,10 +5203,10 @@
      "grade": 4
     },
     {
-     "sinif": "QuestRating",
+     "class_name": "QuestRating",
      "stored": false,
      "operator": ">=",
-     "deger": 800,
+     "value": 800,
      "olay": "QUESTRATING",
      "parametreler": {
       "trackedConditionId": [
@@ -5224,16 +5224,16 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "MetaAchievement",
+     "class_name": "MetaAchievement",
      "operator": ">=",
-     "deger": 3,
+     "value": 3,
      "olay": "METAACHIEVED",
      "parametreler": {
       "achievementId": [
        "achievement_event_solarclash-2012-orbitrace"
       ]
      },
-     "unvan": "title_achievement_event_solarclash-2012-completebronze-1",
+     "title": "title_achievement_event_solarclash-2012-completebronze-1",
      "puan": 100,
      "grade": 3
     }
@@ -5245,16 +5245,16 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "MetaAchievement",
+     "class_name": "MetaAchievement",
      "operator": ">=",
-     "deger": 5,
+     "value": 5,
      "olay": "METAACHIEVED",
      "parametreler": {
       "achievementId": [
        "achievement_event_solarclash-2012-orbitrace"
       ]
      },
-     "unvan": "title_achievement_event_solarclash-2012-completegold-3",
+     "title": "title_achievement_event_solarclash-2012-completegold-3",
      "puan": 100,
      "grade": 5
     }
@@ -5266,16 +5266,16 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "MetaAchievement",
+     "class_name": "MetaAchievement",
      "operator": ">=",
-     "deger": 4,
+     "value": 4,
      "olay": "METAACHIEVED",
      "parametreler": {
       "achievementId": [
        "achievement_event_solarclash-2012-orbitrace"
       ]
      },
-     "unvan": "title_achievement_event_solarclash-2012-completesilver-2",
+     "title": "title_achievement_event_solarclash-2012-completesilver-2",
      "puan": 100,
      "grade": 4
     }
@@ -5287,9 +5287,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "IgnoredCondition",
+     "class_name": "IgnoredCondition",
      "stored": false,
-     "unvan": "title_achievement_event_solarclash-2012-hsg-champion-1",
+     "title": "title_achievement_event_solarclash-2012-hsg-champion-1",
      "puan": 100,
      "grade": 5
     }
@@ -5301,10 +5301,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestRating",
+     "class_name": "QuestRating",
      "stored": false,
      "operator": ">=",
-     "deger": 2500,
+     "value": 2500,
      "olay": "QUESTRATING",
      "parametreler": {
       "trackedConditionId": [
@@ -5315,10 +5315,10 @@
      "grade": 3
     },
     {
-     "sinif": "QuestRating",
+     "class_name": "QuestRating",
      "stored": false,
      "operator": ">=",
-     "deger": 7500,
+     "value": 7500,
      "olay": "QUESTRATING",
      "parametreler": {
       "trackedConditionId": [
@@ -5329,10 +5329,10 @@
      "grade": 4
     },
     {
-     "sinif": "QuestRating",
+     "class_name": "QuestRating",
      "stored": false,
      "operator": ">=",
-     "deger": 9000,
+     "value": 9000,
      "olay": "QUESTRATING",
      "parametreler": {
       "trackedConditionId": [
@@ -5350,9 +5350,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "IgnoredCondition",
+     "class_name": "IgnoredCondition",
      "stored": false,
-     "unvan": "title_achievement_event_solarclash-2012-orbitrace-champion-1",
+     "title": "title_achievement_event_solarclash-2012-orbitrace-champion-1",
      "puan": 100,
      "grade": 5
     }
@@ -5364,10 +5364,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestRating",
+     "class_name": "QuestRating",
      "stored": false,
      "operator": "<",
-     "deger": 360000,
+     "value": 360000,
      "olay": "QUESTRATING",
      "parametreler": {
       "trackedConditionId": [
@@ -5378,10 +5378,10 @@
      "grade": 3
     },
     {
-     "sinif": "QuestRating",
+     "class_name": "QuestRating",
      "stored": false,
      "operator": "<",
-     "deger": 330000,
+     "value": 330000,
      "olay": "QUESTRATING",
      "parametreler": {
       "trackedConditionId": [
@@ -5392,10 +5392,10 @@
      "grade": 4
     },
     {
-     "sinif": "QuestRating",
+     "class_name": "QuestRating",
      "stored": false,
      "operator": "<",
-     "deger": 300000,
+     "value": 300000,
      "olay": "QUESTRATING",
      "parametreler": {
       "trackedConditionId": [
@@ -5413,9 +5413,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "IgnoredCondition",
+     "class_name": "IgnoredCondition",
      "stored": false,
-     "unvan": "title_achievement_event_solarclash-2012-targetshooting-champion-1",
+     "title": "title_achievement_event_solarclash-2012-targetshooting-champion-1",
      "puan": 100,
      "grade": 5
     }
@@ -5427,10 +5427,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestRating",
+     "class_name": "QuestRating",
      "stored": false,
      "operator": ">=",
-     "deger": 125,
+     "value": 125,
      "olay": "QUESTRATING",
      "parametreler": {
       "trackedConditionId": [
@@ -5441,10 +5441,10 @@
      "grade": 3
     },
     {
-     "sinif": "QuestRating",
+     "class_name": "QuestRating",
      "stored": false,
      "operator": ">=",
-     "deger": 180,
+     "value": 180,
      "olay": "QUESTRATING",
      "parametreler": {
       "trackedConditionId": [
@@ -5455,10 +5455,10 @@
      "grade": 4
     },
     {
-     "sinif": "QuestRating",
+     "class_name": "QuestRating",
      "stored": false,
      "operator": ">=",
-     "deger": 225,
+     "value": 225,
      "olay": "QUESTRATING",
      "parametreler": {
       "trackedConditionId": [
@@ -5476,9 +5476,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "IgnoredCondition",
+     "class_name": "IgnoredCondition",
      "stored": false,
-     "unvan": "title_achievement_event_solarclash-2012-triathlon-champion-1",
+     "title": "title_achievement_event_solarclash-2012-triathlon-champion-1",
      "puan": 100,
      "grade": 5
     }
@@ -5490,10 +5490,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestRating",
+     "class_name": "QuestRating",
      "stored": false,
      "operator": "<",
-     "deger": 1200000,
+     "value": 1200000,
      "olay": "QUESTRATING",
      "parametreler": {
       "trackedConditionId": [
@@ -5504,10 +5504,10 @@
      "grade": 3
     },
     {
-     "sinif": "QuestRating",
+     "class_name": "QuestRating",
      "stored": false,
      "operator": "<",
-     "deger": 1020000,
+     "value": 1020000,
      "olay": "QUESTRATING",
      "parametreler": {
       "trackedConditionId": [
@@ -5518,10 +5518,10 @@
      "grade": 4
     },
     {
-     "sinif": "QuestRating",
+     "class_name": "QuestRating",
      "stored": false,
      "operator": "<",
-     "deger": 900000,
+     "value": 900000,
      "olay": "QUESTRATING",
      "parametreler": {
       "trackedConditionId": [
@@ -5539,9 +5539,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "IgnoredCondition",
+     "class_name": "IgnoredCondition",
      "stored": false,
-     "unvan": "title_achievement_event_springfight-2012-champion",
+     "title": "title_achievement_event_springfight-2012-champion",
      "puan": 100,
      "grade": 5
     }
@@ -5553,9 +5553,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "IgnoredCondition",
+     "class_name": "IgnoredCondition",
      "stored": false,
-     "unvan": "title_achievement_event_springfight-2012-eic",
+     "title": "title_achievement_event_springfight-2012-eic",
      "puan": 100,
      "grade": 5
     }
@@ -5567,9 +5567,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "IgnoredCondition",
+     "class_name": "IgnoredCondition",
      "stored": false,
-     "unvan": "title_achievement_event_springfight-2012-hunter",
+     "title": "title_achievement_event_springfight-2012-hunter",
      "puan": 50,
      "grade": 4
     }
@@ -5581,9 +5581,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "IgnoredCondition",
+     "class_name": "IgnoredCondition",
      "stored": false,
-     "unvan": "title_achievement_event_springfight-2012-mmo",
+     "title": "title_achievement_event_springfight-2012-mmo",
      "puan": 100,
      "grade": 5
     }
@@ -5595,9 +5595,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "IgnoredCondition",
+     "class_name": "IgnoredCondition",
      "stored": false,
-     "unvan": "title_achievement_event_springfight-2012-vru",
+     "title": "title_achievement_event_springfight-2012-vru",
      "puan": 100,
      "grade": 5
     }
@@ -5609,41 +5609,41 @@
    "etkinlik": "SpringFight2014Achievement",
    "seviyeler": [
     {
-     "sinif": "Influence",
+     "class_name": "Influence",
      "operator": ">=",
-     "deger": 2500,
+     "value": 2500,
      "olay": "INFLUENCE_GAINED",
-     "unvan": "title_achievement_event_springfight-2014-influence-battle-1",
+     "title": "title_achievement_event_springfight-2014-influence-battle-1",
      "puan": 5
     },
     {
-     "sinif": "Influence",
+     "class_name": "Influence",
      "operator": ">=",
-     "deger": 15000,
+     "value": 15000,
      "olay": "INFLUENCE_GAINED",
      "puan": 10
     },
     {
-     "sinif": "Influence",
+     "class_name": "Influence",
      "operator": ">=",
-     "deger": 20000,
+     "value": 20000,
      "olay": "INFLUENCE_GAINED",
-     "unvan": "title_achievement_event_springfight-2014-influence-battle-2",
+     "title": "title_achievement_event_springfight-2014-influence-battle-2",
      "puan": 10
     },
     {
-     "sinif": "Influence",
+     "class_name": "Influence",
      "operator": ">=",
-     "deger": 50000,
+     "value": 50000,
      "olay": "INFLUENCE_GAINED",
      "puan": 15
     },
     {
-     "sinif": "Influence",
+     "class_name": "Influence",
      "operator": ">=",
-     "deger": 150000,
+     "value": 150000,
      "olay": "INFLUENCE_GAINED",
-     "unvan": "title_achievement_event_springfight-2014-influence-battle-3",
+     "title": "title_achievement_event_springfight-2014-influence-battle-3",
      "puan": 20
     }
    ]
@@ -5654,10 +5654,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestSelection",
+     "class_name": "QuestSelection",
      "olay": "QUEST",
      "puan": 100,
-     "unvan": "title_achievement_event_springfight2013-eic-2",
+     "title": "title_achievement_event_springfight2013-eic-2",
      "grade": 5
     }
    ]
@@ -5668,10 +5668,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestSelection",
+     "class_name": "QuestSelection",
      "olay": "QUEST",
      "puan": 100,
-     "unvan": "title_achievement_event_springfight2013-mmo-2",
+     "title": "title_achievement_event_springfight2013-mmo-2",
      "grade": 5
     }
    ]
@@ -5682,10 +5682,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestSelection",
+     "class_name": "QuestSelection",
      "olay": "QUEST",
      "puan": 100,
-     "unvan": "title_achievement_event_springfight2013-vru-2",
+     "title": "title_achievement_event_springfight2013-vru-2",
      "grade": 5
     }
    ]
@@ -5696,10 +5696,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestSelection",
+     "class_name": "QuestSelection",
      "olay": "QUEST",
      "puan": 50,
-     "unvan": "title_achievement_event_springfight2013-eic-1",
+     "title": "title_achievement_event_springfight2013-eic-1",
      "grade": 5
     }
    ]
@@ -5710,10 +5710,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestSelection",
+     "class_name": "QuestSelection",
      "olay": "QUEST",
      "puan": 50,
-     "unvan": "title_achievement_event_springfight2013-mmo-1",
+     "title": "title_achievement_event_springfight2013-mmo-1",
      "grade": 5
     }
    ]
@@ -5724,10 +5724,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestSelection",
+     "class_name": "QuestSelection",
      "olay": "QUEST",
      "puan": 50,
-     "unvan": "title_achievement_event_springfight2013-vru-1",
+     "title": "title_achievement_event_springfight2013-vru-1",
      "grade": 5
     }
    ]
@@ -5738,8 +5738,8 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": null,
-     "unvan": "title_achievement_misc_legacy_starbornecommander"
+     "class_name": null,
+     "title": "title_achievement_misc_legacy_starbornecommander"
     }
    ]
   },
@@ -5749,8 +5749,8 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": null,
-     "unvan": "title_achievement_misc_legacy_stellarcaptain"
+     "class_name": null,
+     "title": "title_achievement_misc_legacy_stellarcaptain"
     }
    ]
   },
@@ -5760,9 +5760,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "DesignMutationCount",
+     "class_name": "DesignMutationCount",
      "operator": ">=",
-     "deger": 200,
+     "value": 200,
      "olay": "CAUSED",
      "parametreler": {
       "mutatedDesignId": [
@@ -5773,12 +5773,12 @@
       ]
      },
      "puan": 40,
-     "unvan": "title_achievement_event_summer-mutation_1"
+     "title": "title_achievement_event_summer-mutation_1"
     },
     {
-     "sinif": "DesignMutationCount",
+     "class_name": "DesignMutationCount",
      "operator": ">=",
-     "deger": 500,
+     "value": 500,
      "olay": "CAUSED",
      "parametreler": {
       "mutatedDesignId": [
@@ -5789,12 +5789,12 @@
       ]
      },
      "puan": 75,
-     "unvan": "title_achievement_event_summer-mutation_2"
+     "title": "title_achievement_event_summer-mutation_2"
     },
     {
-     "sinif": "DesignMutationCount",
+     "class_name": "DesignMutationCount",
      "operator": ">=",
-     "deger": 1000,
+     "value": 1000,
      "olay": "CAUSED",
      "parametreler": {
       "mutatedDesignId": [
@@ -5805,7 +5805,7 @@
       ]
      },
      "puan": 100,
-     "unvan": "title_achievement_event_summer-mutation_3"
+     "title": "title_achievement_event_summer-mutation_3"
     }
    ]
   },
@@ -5815,8 +5815,8 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestSelection",
-     "kume": [
+     "class_name": "QuestSelection",
+     "set": [
       "1340",
       "1341",
       "1342",
@@ -5834,7 +5834,7 @@
      "matches": "ATLEAST",
      "olay": "QUEST",
      "puan": 100,
-     "unvan": "title_achievement_summerevent-2013-humanitys-hero-1",
+     "title": "title_achievement_summerevent-2013-humanitys-hero-1",
      "grade": 5
     }
    ]
@@ -5845,8 +5845,8 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestSelection",
-     "kume": [
+     "class_name": "QuestSelection",
+     "set": [
       "1320",
       "1321",
       "1322",
@@ -5866,7 +5866,7 @@
      "matches": "ATLEAST",
      "olay": "QUEST",
      "puan": 50,
-     "unvan": "title_achievement_summerevent-2013-humanitys-savior-1",
+     "title": "title_achievement_summerevent-2013-humanitys-savior-1",
      "grade": 4
     }
    ]
@@ -5877,8 +5877,8 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestSelection",
-     "kume": [
+     "class_name": "QuestSelection",
+     "set": [
       "1360",
       "1361",
       "1362",
@@ -5898,7 +5898,7 @@
      "matches": "ATLEAST",
      "olay": "QUEST",
      "puan": 100,
-     "unvan": "title_achievement_summerevent-2013-space-regiment-1",
+     "title": "title_achievement_summerevent-2013-space-regiment-1",
      "grade": 5
     }
    ]
@@ -5909,8 +5909,8 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestSelection",
-     "kume": [
+     "class_name": "QuestSelection",
+     "set": [
       "1300",
       "1301",
       "1302",
@@ -5927,7 +5927,7 @@
      "matches": "ATLEAST",
      "olay": "QUEST",
      "puan": 100,
-     "unvan": "title_achievement_summerevent-2013-war-veteran-1",
+     "title": "title_achievement_summerevent-2013-war-veteran-1",
      "grade": 5
     }
    ]
@@ -5938,9 +5938,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -5950,7 +5950,7 @@
        "228"
       ]
      },
-     "unvan": "title_achievement_event_synk-kill",
+     "title": "title_achievement_event_synk-kill",
      "puan": 50
     }
    ]
@@ -5961,12 +5961,12 @@
    "etkinlik": "PublicWorldBoss",
    "seviyeler": [
     {
-     "sinif": "PublicWorldBossCondition",
+     "class_name": "PublicWorldBossCondition",
      "operator": ">=",
-     "deger": 5000000,
+     "value": 5000000,
      "olay": "PUBLIC_WORLD_BOSS_2025",
      "puan": 10,
-     "unvan": "title_worldboss_takedamage_june2025"
+     "title": "title_worldboss_takedamage_june2025"
     }
    ]
   },
@@ -5976,12 +5976,12 @@
    "etkinlik": "PublicWorldBoss",
    "seviyeler": [
     {
-     "sinif": "PublicWorldBossCondition",
+     "class_name": "PublicWorldBossCondition",
      "operator": ">=",
-     "deger": 5000000,
+     "value": 5000000,
      "olay": "PUBLIC_WORLD_BOSS_2026",
      "puan": 10,
-     "unvan": "title_worldboss_takedamage_june2026"
+     "title": "title_worldboss_takedamage_june2026"
     }
    ]
   },
@@ -5991,27 +5991,27 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "TeamDeathMatchKill",
+     "class_name": "TeamDeathMatchKill",
      "operator": ">=",
-     "deger": 200,
+     "value": 200,
      "olay": "DESTROY",
-     "unvan": "title_teamdeathmatch_kills-1",
+     "title": "title_teamdeathmatch_kills-1",
      "puan": 5
     },
     {
-     "sinif": "TeamDeathMatchKill",
+     "class_name": "TeamDeathMatchKill",
      "operator": ">=",
-     "deger": 500,
+     "value": 500,
      "olay": "DESTROY",
-     "unvan": "title_teamdeathmatch_kills-2",
+     "title": "title_teamdeathmatch_kills-2",
      "puan": 10
     },
     {
-     "sinif": "TeamDeathMatchKill",
+     "class_name": "TeamDeathMatchKill",
      "operator": ">=",
-     "deger": 1000,
+     "value": 1000,
      "olay": "DESTROY",
-     "unvan": "title_teamdeathmatch_kills-3",
+     "title": "title_teamdeathmatch_kills-3",
      "puan": 25
     }
    ]
@@ -6022,9 +6022,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "TechUsage",
+     "class_name": "TechUsage",
      "operator": ">=",
-     "deger": 100,
+     "value": 100,
      "olay": "USED",
      "puan": 10,
      "grade": 2
@@ -6037,10 +6037,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "TutorialFinished",
+     "class_name": "TutorialFinished",
      "stored": false,
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "olay": "TUTORIAL",
      "puan": 5
     }
@@ -6052,9 +6052,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "DesignMutationCount",
+     "class_name": "DesignMutationCount",
      "operator": ">=",
-     "deger": 200,
+     "value": 200,
      "olay": "CAUSED",
      "parametreler": {
       "mutatedDesignId": [
@@ -6062,12 +6062,12 @@
       ]
      },
      "puan": 40,
-     "unvan": "title_master-roaster"
+     "title": "title_master-roaster"
     },
     {
-     "sinif": "DesignMutationCount",
+     "class_name": "DesignMutationCount",
      "operator": ">=",
-     "deger": 500,
+     "value": 500,
      "olay": "CAUSED",
      "parametreler": {
       "mutatedDesignId": [
@@ -6075,12 +6075,12 @@
       ]
      },
      "puan": 75,
-     "unvan": "title_master-roaster-2"
+     "title": "title_master-roaster-2"
     },
     {
-     "sinif": "DesignMutationCount",
+     "class_name": "DesignMutationCount",
      "operator": ">=",
-     "deger": 1000,
+     "value": 1000,
      "olay": "CAUSED",
      "parametreler": {
       "mutatedDesignId": [
@@ -6088,7 +6088,7 @@
       ]
      },
      "puan": 100,
-     "unvan": "title_master-roaster-3"
+     "title": "title_master-roaster-3"
     }
    ]
   },
@@ -6098,9 +6098,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "SkylabTransport",
+     "class_name": "SkylabTransport",
      "operator": ">=",
-     "deger": 1000,
+     "value": 1000,
      "puan": 5
     }
    ]
@@ -6111,9 +6111,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 200,
+     "value": 200,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -6123,9 +6123,9 @@
      "puan": 5
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 500,
+     "value": 500,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -6135,22 +6135,22 @@
      "puan": 10
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 800,
+     "value": 800,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
        "TRAVEL_MODE"
       ]
      },
-     "unvan": "title_achievement_ability_travel-mode-1",
+     "title": "title_achievement_ability_travel-mode-1",
      "puan": 25
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 1700,
+     "value": 1700,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -6160,16 +6160,16 @@
      "puan": 50
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 2500,
+     "value": 2500,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
        "TRAVEL_MODE"
       ]
      },
-     "unvan": "title_achievement_ability_travel-mode-2",
+     "title": "title_achievement_ability_travel-mode-2",
      "puan": 100
     }
    ]
@@ -6180,10 +6180,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "TutorialFinished",
+     "class_name": "TutorialFinished",
      "stored": false,
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "olay": "TUTORIAL",
      "puan": 5
     }
@@ -6195,9 +6195,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 150,
+     "value": 150,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -6207,9 +6207,9 @@
      "puan": 5
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 500,
+     "value": 500,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -6219,22 +6219,22 @@
      "puan": 10
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 1250,
+     "value": 1250,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
        "ULTIMATE_CLOAKING"
       ]
      },
-     "unvan": "title_achievement_ability_ultimate-cloaking-1",
+     "title": "title_achievement_ability_ultimate-cloaking-1",
      "puan": 25
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 3000,
+     "value": 3000,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -6244,16 +6244,16 @@
      "puan": 50
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 7500,
+     "value": 7500,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
        "ULTIMATE_CLOAKING"
       ]
      },
-     "unvan": "title_achievement_ability_ultimate-cloaking-2",
+     "title": "title_achievement_ability_ultimate-cloaking-2",
      "puan": 100
     }
    ]
@@ -6264,9 +6264,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 100,
+     "value": 100,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -6277,9 +6277,9 @@
      "puan": 5
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 250,
+     "value": 250,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -6290,9 +6290,9 @@
      "puan": 10
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 800,
+     "value": 800,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -6300,13 +6300,13 @@
        "JAMX_CREED"
       ]
      },
-     "unvan": "title_achievement_ability_ultimate-emp-1",
+     "title": "title_achievement_ability_ultimate-emp-1",
      "puan": 25
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 1500,
+     "value": 1500,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -6317,9 +6317,9 @@
      "puan": 50
     },
     {
-     "sinif": "AbilityType",
+     "class_name": "AbilityType",
      "operator": ">=",
-     "deger": 3000,
+     "value": 3000,
      "olay": "USED",
      "parametreler": {
       "abilityType": [
@@ -6327,7 +6327,7 @@
        "JAMX_CREED"
       ]
      },
-     "unvan": "title_achievement_ability_ultimate-emp-2",
+     "title": "title_achievement_ability_ultimate-emp-2",
      "puan": 100
     }
    ]
@@ -6338,9 +6338,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "Currency",
+     "class_name": "Currency",
      "operator": ">=",
-     "deger": 100000,
+     "value": 100000,
      "olay": "COLLECT",
      "parametreler": {
       "currencyType": [
@@ -6350,9 +6350,9 @@
      "puan": 5
     },
     {
-     "sinif": "Currency",
+     "class_name": "Currency",
      "operator": ">=",
-     "deger": 330000,
+     "value": 330000,
      "olay": "COLLECT",
      "parametreler": {
       "currencyType": [
@@ -6362,22 +6362,22 @@
      "puan": 10
     },
     {
-     "sinif": "Currency",
+     "class_name": "Currency",
      "operator": ">=",
-     "deger": 500000,
+     "value": 500000,
      "olay": "COLLECT",
      "parametreler": {
       "currencyType": [
        "URIDIUM"
       ]
      },
-     "unvan": "title_achievement_collect_uridium-1",
+     "title": "title_achievement_collect_uridium-1",
      "puan": 25
     },
     {
-     "sinif": "Currency",
+     "class_name": "Currency",
      "operator": ">=",
-     "deger": 1000000,
+     "value": 1000000,
      "olay": "COLLECT",
      "parametreler": {
       "currencyType": [
@@ -6387,16 +6387,16 @@
      "puan": 50
     },
     {
-     "sinif": "Currency",
+     "class_name": "Currency",
      "operator": ">=",
-     "deger": 2500000,
+     "value": 2500000,
      "olay": "COLLECT",
      "parametreler": {
       "currencyType": [
        "URIDIUM"
       ]
      },
-     "unvan": "title_achievement_collect_uridium-2",
+     "title": "title_achievement_collect_uridium-2",
      "puan": 100
     }
    ]
@@ -6407,9 +6407,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "BuildRecipe",
+     "class_name": "BuildRecipe",
      "operator": ">=",
-     "deger": 142,
+     "value": 142,
      "olay": "BUILD",
      "parametreler": {
       "recipeId": [
@@ -6417,7 +6417,7 @@
       ]
      },
      "puan": 100,
-     "unvan": "title_achievement_event_valentine_1"
+     "title": "title_achievement_event_valentine_1"
     }
    ],
    "period_reset": "immortal_union",
@@ -6429,10 +6429,10 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "stored": true,
      "operator": ">=",
-     "deger": 5,
+     "value": 5,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -6445,10 +6445,10 @@
      "puan": 5
     },
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "stored": true,
      "operator": ">=",
-     "deger": 25,
+     "value": 25,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -6459,13 +6459,13 @@
       ]
      },
      "puan": 15,
-     "unvan": "title_achievement_venerable-battleray-2"
+     "title": "title_achievement_venerable-battleray-2"
     },
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "stored": true,
      "operator": ">=",
-     "deger": 50,
+     "value": 50,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -6476,7 +6476,7 @@
       ]
      },
      "puan": 20,
-     "unvan": "title_achievement_venerable-battleray-3"
+     "title": "title_achievement_venerable-battleray-3"
     }
    ]
   },
@@ -6486,8 +6486,8 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "DesignMutation",
-     "kume": [
+     "class_name": "DesignMutation",
+     "set": [
       "1",
       "2",
       "3",
@@ -6524,9 +6524,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "operator": ">=",
-     "deger": 100,
+     "value": 100,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -6546,9 +6546,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "operator": ">=",
-     "deger": 100,
+     "value": 100,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -6568,9 +6568,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "NPCSelectionKill",
+     "class_name": "NPCSelectionKill",
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "olay": "DESTROY",
      "parametreler": {
       "npcType": [
@@ -6588,8 +6588,8 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestSelection",
-     "kume": [
+     "class_name": "QuestSelection",
+     "set": [
       "514085",
       "514086",
       "514087",
@@ -6617,8 +6617,8 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestSelection",
-     "kume": [
+     "class_name": "QuestSelection",
+     "set": [
       "505071",
       "505072",
       "505073",
@@ -6646,9 +6646,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "DominationBeaconTakeover",
+     "class_name": "DominationBeaconTakeover",
      "olay": "DOMINATION_BEACON_TAKEOVER_ASSIST",
-     "unvan": "title_achievement_event_summer2014_wingman",
+     "title": "title_achievement_event_summer2014_wingman",
      "puan": 25,
      "grade": 3
     }
@@ -6660,9 +6660,9 @@
    "etkinlik": "WinterEvent2011",
    "seviyeler": [
     {
-     "sinif": "GalaxyGateDone",
+     "class_name": "GalaxyGateDone",
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "olay": "GALAXY_GATE",
      "parametreler": {
       "galaxyGateType": [
@@ -6679,10 +6679,10 @@
    "etkinlik": "WinterEvent2011_CrazySanta",
    "seviyeler": [
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "stored": false,
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -6702,9 +6702,9 @@
    "etkinlik": "WinterEvent2011_GiftBoxes",
    "seviyeler": [
     {
-     "sinif": "Collect",
+     "class_name": "Collect",
      "operator": ">=",
-     "deger": 250,
+     "value": 250,
      "olay": "COLLECT",
      "parametreler": {
       "boxType": [
@@ -6721,10 +6721,10 @@
    "etkinlik": "WinterEvent2011_IceMeteroids",
    "seviyeler": [
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "stored": false,
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -6744,8 +6744,8 @@
    "etkinlik": "WinterEvent2011_Quests",
    "seviyeler": [
     {
-     "sinif": "QuestSelection",
-     "kume": [
+     "class_name": "QuestSelection",
+     "set": [
       "1120",
       "1121",
       "1122",
@@ -6784,7 +6784,7 @@
      "matches": "ATLEAST",
      "olay": "QUEST",
      "puan": 5,
-     "odul": "package_event_reward-winterquests"
+     "reward": "package_event_reward-winterquests"
     }
    ]
   },
@@ -6794,10 +6794,10 @@
    "etkinlik": "WinterEvent2011_IceMeteroids",
    "seviyeler": [
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "stored": false,
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -6818,9 +6818,9 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "GalaxyGateDone",
+     "class_name": "GalaxyGateDone",
      "operator": ">=",
-     "deger": 1,
+     "value": 1,
      "olay": "GALAXY_GATE",
      "parametreler": {
       "galaxyGateType": [
@@ -6838,7 +6838,7 @@
    "etkinlik": "WinterEvent2012",
    "seviyeler": [
     {
-     "sinif": null,
+     "class_name": null,
      "puan": 100,
      "grade": 5
     }
@@ -6850,8 +6850,8 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestSelection",
-     "kume": [
+     "class_name": "QuestSelection",
+     "set": [
       "103400",
       "103600",
       "103800",
@@ -6887,7 +6887,7 @@
      "matches": "ATLEAST",
      "olay": "QUEST",
      "puan": 100,
-     "unvan": "title_achievement_event_winterevent2012-full-pull-1",
+     "title": "title_achievement_event_winterevent2012-full-pull-1",
      "grade": 5
     }
    ]
@@ -6898,8 +6898,8 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestSelection",
-     "kume": [
+     "class_name": "QuestSelection",
+     "set": [
       "103300",
       "103500",
       "103700",
@@ -6935,7 +6935,7 @@
      "matches": "ATLEAST",
      "olay": "QUEST",
      "puan": 100,
-     "unvan": "title_achievement_event_winterevent2012-the-whole-ten-yards-1",
+     "title": "title_achievement_event_winterevent2012-the-whole-ten-yards-1",
      "grade": 5
     }
    ]
@@ -6946,9 +6946,9 @@
    "etkinlik": "SnowManMutation",
    "seviyeler": [
     {
-     "sinif": "DesignMutationCount",
+     "class_name": "DesignMutationCount",
      "operator": ">=",
-     "deger": 20,
+     "value": 20,
      "olay": "CAUSED",
      "parametreler": {
       "mutatedDesignId": [
@@ -6956,7 +6956,7 @@
       ]
      },
      "puan": 50,
-     "unvan": "title_achievement_event_winterevent2013-frostlord",
+     "title": "title_achievement_event_winterevent2013-frostlord",
      "grade": 4
     }
    ]
@@ -6967,10 +6967,10 @@
    "etkinlik": "IceMeteroids",
    "seviyeler": [
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "stored": true,
      "operator": ">=",
-     "deger": 10,
+     "value": 10,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -6981,7 +6981,7 @@
       ]
      },
      "puan": 100,
-     "unvan": "title_achievement_event_winterevent2013-ice-breaker",
+     "title": "title_achievement_event_winterevent2013-ice-breaker",
      "grade": 5
     }
    ]
@@ -6992,8 +6992,8 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestSelection",
-     "kume": [
+     "class_name": "QuestSelection",
+     "set": [
       "21034",
       "21036",
       "21038",
@@ -7060,7 +7060,7 @@
      "matches": "ATLEAST",
      "olay": "QUEST",
      "puan": 100,
-     "unvan": "title_achievement_event_winterevent2013-quests-31",
+     "title": "title_achievement_event_winterevent2013-quests-31",
      "grade": 4
     }
    ]
@@ -7071,8 +7071,8 @@
    "etkinlik": null,
    "seviyeler": [
     {
-     "sinif": "QuestSelection",
-     "kume": [
+     "class_name": "QuestSelection",
+     "set": [
       "21034",
       "21036",
       "21038",
@@ -7139,7 +7139,7 @@
      "matches": "ATLEAST",
      "olay": "QUEST",
      "puan": 200,
-     "unvan": "title_achievement_event_winterevent2013-quests-62",
+     "title": "title_achievement_event_winterevent2013-quests-62",
      "grade": 5
     }
    ]
@@ -7150,10 +7150,10 @@
    "etkinlik": "CrazySanta",
    "seviyeler": [
     {
-     "sinif": "AvatarTypeKill",
+     "class_name": "AvatarTypeKill",
      "stored": true,
      "operator": ">=",
-     "deger": 10,
+     "value": 10,
      "olay": "DESTROY",
      "parametreler": {
       "avatar": [
@@ -7164,7 +7164,7 @@
       ]
      },
      "puan": 100,
-     "unvan": "title_achievement_event_winterevent2013-space-grinch",
+     "title": "title_achievement_event_winterevent2013-space-grinch",
      "grade": 5
     }
    ]
@@ -7175,9 +7175,9 @@
    "etkinlik": "Breach",
    "seviyeler": [
     {
-     "sinif": null,
+     "class_name": null,
      "puan": 300,
-     "unvan": "title_achievement_event_winterevent2014-quests-3014",
+     "title": "title_achievement_event_winterevent2014-quests-3014",
      "grade": 5
     }
    ]
@@ -7188,21 +7188,21 @@
    "etkinlik": "Breach",
    "seviyeler": [
     {
-     "sinif": "QuestSelection",
-     "kume": [
+     "class_name": "QuestSelection",
+     "set": [
       "506027",
       "516027"
      ],
      "matches": "ATLEAST",
      "olay": "QUEST",
      "puan": 1500,
-     "unvan": "title_achievement_event_winterevent2014-the-melter",
+     "title": "title_achievement_event_winterevent2014-the-melter",
      "grade": 5
     }
    ]
   }
  },
- "unvanlar": {
+ "titles": {
   "title_achievement_ability_double-minimap-reveal-1": 1000,
   "title_achievement_ability_double-minimap-reveal-2": 1001,
   "title_achievement_ability_draw-fire-1": 1002,

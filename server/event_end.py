@@ -30,7 +30,7 @@ for _loot, _c in EKP.D.get('cpu', {}).items():
 LATER = {'mimesis_mutiny': (24 * 3600, ['resource_collectable_byte-remnant'])}
 # etkinlik -> (unvan, sıra puanı): bitince ilk 10'a giren (puanı > 0) unvanı alır. Frozen Labyrinth Synk avı: Elite Marksman
 # (resmî Türk forumu kış SSS 1452398, Donmuş Labirent 2019 1300061)
-TITLES = {'labirent': ('title_frozenLabyrinth-marksman', lambda x: int((x.d.get('labirent') or {}).get('hunts', 0)))}
+TITLES = {'labyrinth': ('title_frozenLabyrinth-marksman', lambda x: int((x.d.get('labyrinth') or {}).get('hunts', 0)))}
 for _k in TITLES:
     CONVERT.setdefault(_k, [])
 BPK = ('history_msg_event_battle_pass_key_honor_converted', {'resource_battle-pass-key': 5000}, None)
@@ -102,7 +102,7 @@ class EventEnd:
                 n = self.p.ammo(loot)
                 if n > 0:
                     with self.p.lock:
-                        self.p.d['cephane'].pop(loot, None)
+                        self.p.d['ammunition'].pop(loot, None)
                         self.p.dirty = True
                     msgs += self.m.resource_msgs(loot, 0, -n)
                     self.log('   %s bitti: %s x%d silindi' % (CAL.EVENTS[ev]['ad'], loot, n))

@@ -3,7 +3,7 @@
 Dünya: panelin Dünya Editörü'nde oluşturulan değişiklik katmanı (save/dunyalar/<kimlik>.json). Sunucular onu OO_WORLD ortam
 değişkeninden alır (panel/processes.py); yoksa standart dünya (data/ olduğu gibi). Biçim:
   {"ad": …, "yamalar": {"npc.json": {"/tipler/84": {...}, "/haritalar/5/npc": [...]}, "magaza": {"/urunler/<lootId>": {...}}}}
-Yama: JSON Pointer (RFC 6901) -> tam değer (varlık düzeyinde değiştirme); {"$sil": true} siler. Ebeveyni olmayan yol atlanır.
+Yama: JSON Pointer (RFC 6901) -> tam değer (varlık düzeyinde değiştirme); {"$delete": true} siler. Ebeveyni olmayan yol atlanır.
 Sanal dosyalar (SANAL): data/'da karşılığı olmayan, yalnız dünyanın tanımladığı içerik (mağaza ürünlerinin fiyatı ve satışı).
 Modüller içe aktarırken yukle() çağırır: dünya oyun açılırken seçilir. Oyun açıkken yalnız CANLI dosyaların değişikliği uygulanır
 (tazele: dosya değişince yeniden okunur; game.dunya_izle mağazayı ve açık artırmayı yeniler); ötekiler sunucu yeniden başlayınca.
@@ -13,9 +13,9 @@ import copy, json, os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, 'data')
-DELETE = '$sil'
-VIRTUAL = {'magaza': {'urunler': {}}}      # magaza.py: {lootId: {fiyat, para ('C' | 'U'), satista}}
-LIVE = ('magaza', 'social.json')        # oyun açıkken uygulananlar: mağaza fiyatları ve satışı, açık artırma lotları
+DELETE = '$delete'
+VIRTUAL = {'shop': {'products': {}}}      # magaza.py: {lootId: {fiyat, para ('C' | 'U'), satista}}
+LIVE = ('shop', 'social.json')        # oyun açıkken uygulananlar: mağaza fiyatları ve satışı, açık artırma lotları
 _WORLD = None
 _MTIME = None                            # okunan dünya dosyasının değişme zamanı
 _SKIPPED = []                            # uygulanamayan yamalar (dosya, yol): günlük için
@@ -50,9 +50,9 @@ def refresh():
         return []
     if t == _MTIME:
         return []
-    old = (_WORLD.get('yamalar') or {})
+    old = (_WORLD.get('patches') or {})
     _WORLD = None
-    new_ = (world().get('yamalar') or {})
+    new_ = (world().get('patches') or {})
     return [d for d in LIVE if old.get(d) != new_.get(d)]
 
 
@@ -110,7 +110,7 @@ def raw(file):
 def load(file, patches=None):
     """data/<dosya> + dünyanın (verilmezse seçili dünyanın) o dosyaya yamaları."""
     d = raw(file)
-    apply(d, (world().get('yamalar') or {}).get(file) if patches is None else patches, file)
+    apply(d, (world().get('patches') or {}).get(file) if patches is None else patches, file)
     return d
 
 
@@ -119,5 +119,5 @@ def summary():
     w = world()
     if not w:
         return 'dünya: standart'
-    n = sum(len(v or {}) for v in (w.get('yamalar') or {}).values())
+    n = sum(len(v or {}) for v in (w.get('patches') or {}).values())
     return 'dünya: %s (%d değişiklik%s)' % (w.get('ad') or '?', n, ', atlanan: %s' % _SKIPPED if _SKIPPED else '')

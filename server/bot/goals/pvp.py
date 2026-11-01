@@ -34,7 +34,7 @@ def order_grudge(bot, name, now):
     if f and now < f['bitis']:
         import clan as KL
         c = KL.CLANS.get(f['klan'])
-        if c is not None and name in c['uyeler']:
+        if c is not None and name in c['members']:
             return 0.8
     return 0.0
 
@@ -50,7 +50,7 @@ def order_target(bot, y, now):
     if f and now < f['bitis']:
         import clan as KL
         c = KL.CLANS.get(f['klan'])
-        for u in (c or {}).get('uyeler', ()):
+        for u in (c or {}).get('members', ()):
             t = find_target(y, u)
             if t is not None and t[2] and t[1] != bot.firma and K.route(bot.game_map, t[2], bot.firma, bot.level):
                 return t[0], t[2]
@@ -66,15 +66,15 @@ class PvpHunt(Goal):
     def eligible(self, bot, b):
         from .. import admin_warnings as AW
         from .. import weapons as WP
-        return bot.level >= (b.setting('pvp_seviye', 6) or 1) and bot.value()['power'] >= 8 and not AW.active(bot, 'pvp', b.now)             and WP.has_laser(bot)                         # cephanesiz oyuncu avlanmaz
+        return bot.level >= (b.setting('pvp_level', 6) or 1) and bot.value()['power'] >= 8 and not AW.active(bot, 'pvp', b.now)             and WP.has_laser(bot)                         # cephanesiz oyuncu avlanmaz
 
     def points(self, bot, b):
         o = bot.traits
-        p = 0.1 + 0.55 * o['saldirganlik'] * o['rekabet'] + (0.35 if bot.archetype == 'avci' else 0)
-        p += 0.45 * bot.mood['ofke'] * o['saldirganlik']
-        p *= 0.6 + 0.6 * bot.mood['ozguven']
+        p = 0.1 + 0.55 * o['aggression'] * o['rekabet'] + (0.35 if bot.archetype == 'hunter' else 0)
+        p += 0.45 * bot.mood['anger'] * o['aggression']
+        p *= 0.6 + 0.6 * bot.mood['confidence']
         if b.y is not None and bot.memory.grudges() and b.y.online_name(bot.memory.grudges()):
-            p += 0.25 * o['saldirganlik']
+            p += 0.25 * o['aggression']
         if b.y is not None and b.y.prime(b.now):
             p *= float(b.setting('prime_pvp', 2.0) or 1.0)           # akşam yoğun saati: PvP canlanır
         return p
@@ -102,12 +102,12 @@ class PvpHunt(Goal):
                 candidates.append((len(enemy) - 2.5 * max(0.0, threat - 1.0 - bot.o('risk')), m))
             if candidates:
                 target_map = max(candidates)[1]
-        if (y is not None and grudge is None and y.prime(b.now) and b.setting('buyuk_savas', True) and bot.r.random() < 0.75
+        if (y is not None and grudge is None and y.prime(b.now) and b.setting('big_battle', True) and bot.r.random() < 0.75
                 and K.can_enter(y.front(b.now), bot.firma, bot.level) and K.route(bot.game_map, y.front(b.now), bot.firma, bot.level)):
             target_map = y.front(b.now)                    # büyük savaş: firmalar yoğun saatin cephesinde toplanır
             call = y.__dict__.setdefault('front_call', {})
             key = (bot.firma, int(b.now // 3600))
-            if key not in call and bot.o('konuskanlik') + bot.o('saldirganlik') > 1.0:
+            if key not in call and bot.o('talkativeness') + bot.o('aggression') > 1.0:
                 call[key] = bot.name
                 import map_links as H
                 from .. import speech as SPC

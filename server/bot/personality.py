@@ -8,43 +8,43 @@ import math, random, re, time
 
 from . import name_style as NS
 
-TRAITS = ('saldirganlik', 'rekabet', 'sosyallik', 'sabir', 'risk', 'sadakat', 'yardimseverlik', 'konuskanlik', 'tutumluluk',
-              'hirs')
+TRAITS = ('aggression', 'rekabet', 'sociability', 'patience', 'risk', 'loyalty', 'helpfulness', 'talkativeness', 'frugality',
+              'ambition')
 
 # arketip -> (nüfustaki payı, özellik ortalamaları, açıklama). Paylar gerçek bir sunucunun kabaca dağılımı: çoğunluk uzaylı kasar,
 # az sayıda avcı ve lider; "rahat" oyuncular haftada birkaç saat girip yavaş ilerler.
 ARCHETYPES = {
-    'kasici':  (0.27, dict(saldirganlik=.35, rekabet=.50, sosyallik=.35, sabir=.85, risk=.30, sadakat=.60, yardimseverlik=.50,
-                           konuskanlik=.30, tutumluluk=.60, hirs=.75), 'PvE kasıcı'),
-    'avci':    (0.14, dict(saldirganlik=.90, rekabet=.90, sosyallik=.45, sabir=.40, risk=.80, sadakat=.50, yardimseverlik=.30,
-                           konuskanlik=.55, tutumluluk=.35, hirs=.70), 'PvP avcısı'),
-    'sosyal':  (0.14, dict(saldirganlik=.30, rekabet=.35, sosyallik=.90, sabir=.50, risk=.40, sadakat=.80, yardimseverlik=.80,
-                           konuskanlik=.90, tutumluluk=.50, hirs=.40), 'sosyal'),
-    'tuccar':  (0.08, dict(saldirganlik=.20, rekabet=.55, sosyallik=.55, sabir=.70, risk=.35, sadakat=.50, yardimseverlik=.40,
-                           konuskanlik=.50, tutumluluk=.85, hirs=.60), 'tüccar'),
-    'gorevci': (0.16, dict(saldirganlik=.40, rekabet=.45, sosyallik=.40, sabir=.70, risk=.45, sadakat=.55, yardimseverlik=.60,
-                           konuskanlik=.35, tutumluluk=.55, hirs=.65), 'görevci'),
-    'rahat':   (0.17, dict(saldirganlik=.30, rekabet=.20, sosyallik=.50, sabir=.35, risk=.50, sadakat=.40, yardimseverlik=.55,
-                           konuskanlik=.50, tutumluluk=.30, hirs=.25), 'rahat'),
-    'lider':   (0.04, dict(saldirganlik=.55, rekabet=.75, sosyallik=.85, sabir=.60, risk=.55, sadakat=.90, yardimseverlik=.70,
-                           konuskanlik=.75, tutumluluk=.60, hirs=.85), 'lider'),
+    'grinder':  (0.27, dict(aggression=.35, rekabet=.50, sociability=.35, patience=.85, risk=.30, loyalty=.60, helpfulness=.50,
+                           talkativeness=.30, frugality=.60, ambition=.75), 'PvE kasıcı'),
+    'hunter':    (0.14, dict(aggression=.90, rekabet=.90, sociability=.45, patience=.40, risk=.80, loyalty=.50, helpfulness=.30,
+                           talkativeness=.55, frugality=.35, ambition=.70), 'PvP avcısı'),
+    'sosyal':  (0.14, dict(aggression=.30, rekabet=.35, sociability=.90, patience=.50, risk=.40, loyalty=.80, helpfulness=.80,
+                           talkativeness=.90, frugality=.50, ambition=.40), 'sosyal'),
+    'trader':  (0.08, dict(aggression=.20, rekabet=.55, sociability=.55, patience=.70, risk=.35, loyalty=.50, helpfulness=.40,
+                           talkativeness=.50, frugality=.85, ambition=.60), 'tüccar'),
+    'quester': (0.16, dict(aggression=.40, rekabet=.45, sociability=.40, patience=.70, risk=.45, loyalty=.55, helpfulness=.60,
+                           talkativeness=.35, frugality=.55, ambition=.65), 'görevci'),
+    'casual':   (0.17, dict(aggression=.30, rekabet=.20, sociability=.50, patience=.35, risk=.50, loyalty=.40, helpfulness=.55,
+                           talkativeness=.50, frugality=.30, ambition=.25), 'casual'),
+    'lider':   (0.04, dict(aggression=.55, rekabet=.75, sociability=.85, patience=.60, risk=.55, loyalty=.90, helpfulness=.70,
+                           talkativeness=.75, frugality=.60, ambition=.85), 'lider'),
 }
 
 # arketipin oyuna ayırdığı zaman (çevrimiçi olma eğilimi çarpanı) ve oynarken verimi (dikkat, optimizasyon)
-ACTIVITY = {'kasici': (1.3, 1.15), 'avci': (1.2, 1.0), 'sosyal': (1.0, 0.8), 'tuccar': (0.9, 0.95), 'gorevci': (1.0, 1.0),
-            'rahat': (0.55, 0.7), 'lider': (1.3, 1.0)}
+ACTIVITY = {'grinder': (1.3, 1.15), 'hunter': (1.2, 1.0), 'sosyal': (1.0, 0.8), 'trader': (0.9, 0.95), 'quester': (1.0, 1.0),
+            'casual': (0.55, 0.7), 'lider': (1.3, 1.0)}
 
 # oyun alışkanlığı: saat -> çevrimiçi olma eğilimi (0-1) ve oturum uzunluğu (dakika, en az-en çok)
 HABITS = {
-    'aksamci':   (0.40, [0.15] * 7 + [0.2] * 5 + [0.3] * 5 + [0.8] * 5 + [0.5] * 2, (40, 150)),
-    'gece_kusu': (0.20, [0.7] * 4 + [0.2] * 8 + [0.25] * 6 + [0.5] * 3 + [0.85] * 3, (60, 240)),
-    'gunduzcu':  (0.20, [0.05] * 8 + [0.6] * 10 + [0.4] * 4 + [0.1] * 2, (30, 120)),
-    'tutkun':    (0.20, [0.5] * 8 + [0.7] * 16, (120, 420)),
+    'evening':   (0.40, [0.15] * 7 + [0.2] * 5 + [0.3] * 5 + [0.8] * 5 + [0.5] * 2, (40, 150)),
+    'night_owl': (0.20, [0.7] * 4 + [0.2] * 8 + [0.25] * 6 + [0.5] * 3 + [0.85] * 3, (60, 240)),
+    'daytime':  (0.20, [0.05] * 8 + [0.6] * 10 + [0.4] * 4 + [0.1] * 2, (30, 120)),
+    'devoted':    (0.20, [0.5] * 8 + [0.7] * 16, (120, 420)),
 }
 
-EMOTIONS = ('ofke', 'moral', 'sikilma', 'yorgunluk', 'ozguven')
-EMOTION_BASELINE = dict(ofke=0.0, moral=0.6, sikilma=0.0, yorgunluk=0.0, ozguven=0.5)
-EMOTION_DECAY_SEC = dict(ofke=600, moral=1800, sikilma=900, yorgunluk=1e9, ozguven=1200)    # dengeye dönüş süresi (yarı ömür)
+EMOTIONS = ('anger', 'morale', 'boredom', 'fatigue', 'confidence')
+EMOTION_BASELINE = dict(anger=0.0, morale=0.6, boredom=0.0, fatigue=0.0, confidence=0.5)
+EMOTION_DECAY_SEC = dict(anger=600, morale=1800, boredom=900, fatigue=1e9, confidence=1200)    # dengeye dönüş süresi (yarı ömür)
 
 
 def clamp(v, a=0.0, b=1.0):
@@ -63,7 +63,7 @@ def _leet(s, r, ratio):
     return ''.join(_LEET[c.lower()] if c.lower() in _LEET and r.random() < ratio else c for c in s)
 
 
-def generate_name(r, lang='karisik'):
+def generate_name(r, lang='mixed'):
     """Gerçek bir MMO sunucusundaki kullanıcı adlarına benzeyen ad, dilin kendi adlarıyla (bot/languages/<kod>.json adlar: parçalar
     ve ağırlıklı desenler; 'karisik': dosyaların ağırlığıyla bir dil)."""
     from .language_data import LANGUAGES, pick_mixed
@@ -105,20 +105,20 @@ def generate_personality(r, archetype=None, lang='tr'):
     avg = ARCHETYPES[a][1]
     traits = {k: round(clamp(r.gauss(avg[k], 0.14), 0.02, 0.98), 2) for k in TRAITS}
     take = _choice(r, HABITS)
-    talk = traits['konuskanlik']
+    talk = traits['talkativeness']
     style = dict(
         lowercase=round(clamp(r.gauss(0.6, 0.25)), 2),       # her şeyi küçük harfle yazar
         punctuation=round(clamp(r.gauss(0.3, 0.25)), 2),        # cümle sonu noktalama
         abbreviation=round(clamp(r.gauss(0.5, 0.25)), 2),         # "slm", "nbr", "tmm", "gg", "np"
         emoji=round(clamp(r.gauss(0.3 + talk * 0.2, 0.2)), 2),  # ":D", "xD", "^^"
         hata=round(clamp(r.gauss(0.08, 0.06), 0, 0.3), 2),    # yazım hatası
-        uppercase=round(clamp(r.gauss(0.05 + traits['saldirganlik'] * 0.1, 0.05), 0, 0.4), 2),   # BAĞIRIR
+        uppercase=round(clamp(r.gauss(0.05 + traits['aggression'] * 0.1, 0.05), 0, 0.4), 2),   # BAĞIRIR
     )
-    return dict(arketip=a, ozellik=traits, habit=take, uslup=style, dil=lang,
+    return dict(archetype=a, traits=traits, habit=take, style=style, dil=lang,
                 reaction_sec=round(clamp(r.gauss(0.9, 0.35), 0.35, 2.0), 2))   # insan tepki süresi (sn): somut savaşta gecikme
 
 
-def generate_roster(seed, count, company_distribution=(1, 1, 1), lang='karisik', existing=(), name_lang=None, special=(), pool=None):
+def generate_roster(seed, count, company_distribution=(1, 1, 1), lang='mixed', existing=(), name_lang=None, special=(), pool=None):
     """Paketin kadrosu: [{no, ad, firma, kisilik}]. firma_dagilimi: (MMO, EIC, VRU) ağırlıkları. mevcut: kullanılmış adlar
     (büyük/küçük harf ayrımsız; oyuncunun ve başka botların adlarıyla çakışmasın). Aynı tohum ve girdi aynı kadroyu verir.
     ad_dili: adların dili ('karisik': dosyaların ağırlığıyla); dil: sohbet dili ('karisik': her bot adının dilinde konuşur).
@@ -162,7 +162,7 @@ def generate_roster(seed, count, company_distribution=(1, 1, 1), lang='karisik',
             else:
                 name = 'Pilot%d' % r.randint(1000, 99999)
         used.add(name.lower())
-        x = dict(no=no, ad=name, firma=firma, kisilik=dict(generate_personality(r, archetype=o.get('arketip'), lang=chat), name_lang=o.get('dil') or name_langs))
+        x = dict(no=no, ad=name, firma=firma, personality=dict(generate_personality(r, archetype=o.get('archetype'), lang=chat), name_lang=o.get('dil') or name_langs))
         if o:
             x['ozel'] = True                             # kullanıcının botu (panel: Kadro'da işaretli)
         out.append(x)
@@ -201,9 +201,9 @@ class Mood:
 
 # ------------------------------------------------------------------------------------------------------------ hafıza
 EVENTS = {          # olay -> ilişkiye etkisi
-    'oldurdu_beni': -0.35, 'oldurdum': -0.05, 'yardim_etti': 0.25, 'yardim_ettim': 0.1, 'sohbet': 0.03, 'hakaret': -0.2,
-    'ovgu': 0.12, 'grup': 0.08, 'klan': 0.1, 'arkadas': 0.2, 'reddetti': -0.08, 'birlikte_avlandik': 0.05,
-    'dedikodu_iyi': 0.06, 'dedikodu_kotu': -0.08,          # başka bottan duyulan (ani.duydu)
+    'killed_me': -0.35, 'oldurdum': -0.05, 'helped_me': 0.25, 'i_helped': 0.1, 'sohbet': 0.03, 'hakaret': -0.2,
+    'praise': 0.12, 'grup': 0.08, 'klan': 0.1, 'arkadas': 0.2, 'reddetti': -0.08, 'hunted_together': 0.05,
+    'gossip_good': 0.06, 'gossip_bad': -0.08,          # başka bottan duyulan (ani.duydu)
 }
 
 
@@ -262,7 +262,7 @@ def timezone(personality):
     d = personality.get('timezone_offset')
     if d is None:
         import zlib
-        r = zlib.crc32(str(personality.get('_name') or personality.get('arketip')).encode()) % 100
+        r = zlib.crc32(str(personality.get('_name') or personality.get('archetype')).encode()) % 100
         d = 0 if r < 55 else -1 if r < 70 else 1 if r < 82 else -2 if r < 88 else 2 if r < 93 else -7 if r < 97 else 7
         personality['timezone_offset'] = d
     return d
@@ -274,13 +274,13 @@ def taste(personality):
     if z is None:
         import zlib
         families = ('goliath', 'vengeance', 'aegis', 'citadel', 'spearhead', 'leonov', 'nostromo', 'piranha', 'bigboy', 'solace')
-        z = personality['taste'] = families[zlib.crc32(('z' + str(personality.get('_name') or personality.get('arketip'))).encode()) % len(families)]
+        z = personality['taste'] = families[zlib.crc32(('z' + str(personality.get('_name') or personality.get('archetype'))).encode()) % len(families)]
     return z
 
 
 def online_tendency(personality, hour):
     """Alışkanlığa ve arketipe göre bu saatte (0-23; botun kendi saat diliminde) çevrimiçi olma eğilimi."""
-    return HABITS[personality['habit']][1][int(hour + timezone(personality)) % 24] * ACTIVITY[personality['arketip']][0]
+    return HABITS[personality['habit']][1][int(hour + timezone(personality)) % 24] * ACTIVITY[personality['archetype']][0]
 
 
 def session_min(personality, r=random):

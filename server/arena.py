@@ -49,13 +49,13 @@ class Arena:
         self.m = None                       # mağaza (ödüller)
         self.send = None                    # oturuma mesaj
         self.run = None                     # sürmekte olan koşu: {zorluk, giris (X-1/X-8), ucretsiz, bas}
-        self.reward_pass = GC.Pass(profile, self.key, self.D['gecis'], badge=self.D.get('vip'))
+        self.reward_pass = GC.Pass(profile, self.key, self.D['reward_pass'], badge=self.D.get('vip'))
 
     @property
     def st(self):
         s = self.p.d.setdefault('pve', {}).setdefault(self.key, {})
         if s.get('gun') != today():
-            s.update(gun=today(), girisler={})
+            s.update(gun=today(), entries={})
             self.p.dirty = True
         return s
 
@@ -63,18 +63,18 @@ class Arena:
         return self.p.resource(self.D['vip']) > 0
 
     def free_max(self):
-        return self.D['ucretsiz'] + (self.D['vip_extra'] if self.vip() else 0)
+        return self.D['free'] + (self.D['vip_extra'] if self.vip() else 0)
 
     def free_used(self, where):
-        if SET.get('giris_siniri_yok'):                  # panel: ücretsiz girişler tükenmez
+        if SET.get('no_entry_limit'):                  # panel: ücretsiz girişler tükenmez
             return 0
-        return self.st['girisler'].get(where, 0)
+        return self.st['entries'].get(where, 0)
 
     def free_left(self, where):
         return max(0, self.free_max() - self.free_used(where)) + self.st.get('bonus', 0)
 
     def tokens(self):
-        return self.p.resource(self.D['jeton'])
+        return self.p.resource(self.D['token'])
 
     # ------------------------------------------------------------ portal
     def portals(self, map_id, station):
@@ -87,31 +87,31 @@ class Arena:
         if station and math.hypot(x - station['posX'], y - station['posY']) < 2500:
             y = KAPI.MAP_H - y
         return [dict(gateId=PORTAL_BASE + self.slot, x=x, y=y, hedef=0,
-                     designId=self.D['portal'], kapi=self.key, pencere=self.key, giris=cls)]
+                     designId=self.D['portal'], kapi=self.key, windowed=self.key, giris=cls)]
 
     # ------------------------------------------------------------ koşu
     def start(self, difficulty, where, free, dest):
-        self.run = dict(zorluk=difficulty, giris=where, ucretsiz=free, bas=None, harita=dest, dalga=0)
-        self.log('   %s: zorluk %d (%s, %s)' % (self.name, difficulty, where, 'ücretsiz' if free else 'jeton'))
+        self.run = dict(difficulty=difficulty, giris=where, free=free, start=None, harita=dest, dalga=0)
+        self.log('   %s: zorluk %d (%s, %s)' % (self.name, difficulty, where, 'ücretsiz' if free else 'token'))
 
     def use_entry(self):
         """Girişin bedeli: ücretsizse günün hakkı (yoksa bonus), değilse bir jeton."""
         r = self.run
         with self.p.lock:
-            if r['ucretsiz']:
+            if r['free']:
                 if self.free_used(r['giris']) < self.free_max():
-                    self.st['girisler'][r['giris']] = self.free_used(r['giris']) + 1
+                    self.st['entries'][r['giris']] = self.free_used(r['giris']) + 1
                 else:
                     self.st['bonus'] = max(0, self.st.get('bonus', 0) - 1)
             self.p.dirty = True
-        if not r['ucretsiz']:
-            self.p.add_resource(self.D['jeton'], -1)
+        if not r['free']:
+            self.p.add_resource(self.D['token'], -1)
 
     def can_enter(self, where, free):
         return self.free_left(where) > 0 if free else self.tokens() > 0
 
     def waves(self):
-        return self.wave_list(self.run['zorluk'])
+        return self.wave_list(self.run['difficulty'])
 
     def wave_count(self):
         return len(self.waves())
@@ -120,8 +120,8 @@ class Arena:
         return n
 
     def wave_started(self, i):
-        if i == 0 and self.run and self.run['bas'] is None:
-            self.run['bas'] = time.time()
+        if i == 0 and self.run and self.run['start'] is None:
+            self.run['start'] = time.time()
         self.run['dalga'] = i
         self.world.send([KAPI.screen('%s - Wave %d/%d' % (self.name, i + 1, self.wave_count()), big=True)])
 
@@ -142,7 +142,7 @@ class Arena:
         x, y = world.map_w // 2, world.map_h // 2
         home = KAPI.HOME_MAP.get(self.p.d['pilot'].get('factionId'), 5)
         return dict(gateId=PORTAL_BASE + 50 + self.slot, x=x, y=y, hedef=home, designId=1, kapi=self.key, cikis=True,
-                    varis='istasyon')
+                    arrival='istasyon')
 
     def attach(self, world):
         """Mod haritası açıldı: koşu varsa dalgalar, yoksa yalnız çıkış."""
@@ -183,7 +183,7 @@ class Voyagers(Arena):
     key, name, D, slot = 'voyagers', "Voyagers' Ascent", D['voyagers'], 1
 
     def opened(self):
-        return max(1, min(len(self.D['difficulties']), self.st.get('acik', 1)))
+        return max(1, min(len(self.D['difficulties']), self.st.get('on', 1)))
 
     def wave_list(self, d):
         return self.D['difficulties'][d - 1]['waves']
@@ -191,19 +191,19 @@ class Voyagers(Arena):
     def window(self, where):
         s = self.D['star_sec']
         stars = [dict(_='VoyagersGateStarRewardCommand', instanceLevel=i + 1,
-                      star1Loots=[loot_prob(l, a) for l, a in z['oduller']['1']],
-                      star2Loots=[loot_prob(l, a) for l, a in z['oduller']['2']],
-                      star3Loots=[loot_prob(l, a) for l, a in z['oduller']['3']]) for i, z in enumerate(self.D['difficulties'])]
+                      star1Loots=[loot_prob(l, a) for l, a in z['rewards']['1']],
+                      star2Loots=[loot_prob(l, a) for l, a in z['rewards']['2']],
+                      star3Loots=[loot_prob(l, a) for l, a in z['rewards']['3']]) for i, z in enumerate(self.D['difficulties'])]
         return ('VoyagersGateWindowCommand', dict(
             maxOpenLevel=self.opened(), Star1Seconds=s[2], Star2Seconds=s[1], Star3Seconds=s[0], curLootAmount=int(self.tokens()),
-            lootId=self.D['jeton'], maxFreeNum=self.free_max() + self.st.get('bonus', 0),
+            lootId=self.D['token'], maxFreeNum=self.free_max() + self.st.get('bonus', 0),
             freeChallengedNum=self.free_used(where), starRewardLoots=stars))
 
     def enter(self, f, where):
         """VoyagersGateEnterRequest -> (hedef harita, varış) ya da (None, mesajlar)."""
         lvl, free = int(f.get('instanceLevel') or 1), bool(f.get('isFree'))
         if not 1 <= lvl <= self.opened() or not self.can_enter(where, free):
-            self.log('   Voyagers: girilemez (zorluk %d / açık %d, %s)' % (lvl, self.opened(), 'ücretsiz' if free else 'jeton'))
+            self.log('   Voyagers: girilemez (zorluk %d / açık %d, %s)' % (lvl, self.opened(), 'ücretsiz' if free else 'token'))
             return None, [self.window(where), KAPI.screen('You cannot enter this difficulty right now.')]
         self.start(lvl, where, free, self.D['harita'])
         return self.D['harita'], None
@@ -211,29 +211,29 @@ class Voyagers(Arena):
     def wave_done(self, i, now):
         if i + 1 >= self.wave_count():
             self.complete(now)
-            return 'dur'
-        return 'devam'
+            return 'halt'
+        return 'ongoing'
 
     def complete(self, now):
         r, w = self.run, self.world
-        secs = int(now - (r['bas'] or now))
+        secs = int(now - (r['start'] or now))
         lim = self.D['star_sec']
         stars = 3 if secs <= lim[0] else 2 if secs <= lim[1] else 1 if secs <= lim[2] else 0
-        z = self.D['difficulties'][r['zorluk'] - 1]
+        z = self.D['difficulties'][r['difficulty'] - 1]
         self.use_entry()
         msgs, got = [], []
         if stars:
-            msgs, got = self.grant_rows(z['oduller'][str(stars)])
+            msgs, got = self.grant_rows(z['rewards'][str(stars)])
             self.reward_pass.add(z['puan'][str(stars)])
         with self.p.lock:
             s = self.st
             best = s.setdefault('best', {})
-            if stars > best.get(str(r['zorluk']), 0):
-                best[str(r['zorluk'])] = stars
+            if stars > best.get(str(r['difficulty']), 0):
+                best[str(r['difficulty'])] = stars
             if stars == 3:
                 s['bonus'] = s.get('bonus', 0) + 1                  # 3 yıldız: bir ek ücretsiz giriş
-                if r['zorluk'] == s.get('acik', 1) and r['zorluk'] < len(self.D['difficulties']):
-                    s['acik'] = r['zorluk'] + 1
+                if r['difficulty'] == s.get('on', 1) and r['difficulty'] < len(self.D['difficulties']):
+                    s['on'] = r['difficulty'] + 1
             self.p.dirty = True
         self.p.ach('gate', tur='VOYAGERS_GATE')
         msgs += [KAPI.screen('key:log_msg_gg_completed_voyagersascentrial', big=True),          # istemcinin metni; süre ve yıldız
@@ -250,7 +250,7 @@ class Voyagers(Arena):
             return
         hx, hy = w.hero_pos(now)
         for n in list(w.npcs.values()):
-            v = n.d.get('davranis', {}).get('fuse_if_untouched')
+            v = n.d.get('behavior', {}).get('fuse_if_untouched')
             if not v or not n.alive or not n.engaged:
                 continue
             nx, ny = n.mover.pos(now)
@@ -307,7 +307,7 @@ class Trinity(Arena):
         # param1 o arenada ücretsiz giriş: "0" ve jeton yoksa Go Now mağazayı açıyor (istemci: UITrinityTrialsGateTipsSystem;
         # canlı test H51: kapalı arena seçili geliyordu, ücretsiz giriş varken mağazaya gidiyordu)
         return ('TrinityTrialsGateWindowCommand', dict(
-            isFree=free, curLootAmount=int(self.tokens()), lootId=self.D['jeton'],
+            isFree=free, curLootAmount=int(self.tokens()), lootId=self.D['token'],
             attributeType=today_[0] if today_ else 1, openDifficulty=self.opened(),
             openAttributes=[dict(_='TupleTwoModule', param0=str(a), param1='1' if free else '0') for a in today_]))
 
@@ -325,7 +325,7 @@ class Trinity(Arena):
 
     def wave_done(self, i, now):
         n = i + 1
-        z = self.D['difficulties'][self.run['zorluk'] - 1]
+        z = self.D['difficulties'][self.run['difficulty'] - 1]
         msgs = []
         if str(n) in z['milestones']:                # her 5 dalgada Quantum Prism, Xyralith, geçiş puanı
             k = z['milestones'][str(n)]
@@ -336,9 +336,9 @@ class Trinity(Arena):
         if n >= self.wave_count():
             msgs += self.complete(z)
             self.world.send(msgs)
-            return 'dur'
+            return 'halt'
         self.world.send(msgs)
-        return 'mola' if n % 5 == 0 else 'devam'
+        return 'pause' if n % 5 == 0 else 'ongoing'
 
     def roll_rarity(self):
         row = self.D['os'][self.os_level() - 1]['rarity']
@@ -346,8 +346,8 @@ class Trinity(Arena):
 
     def drop(self):
         """Bitiş donanımı: zorluğa göre adet (ödül açıklaması), her biri %5 top / %95 kırıcı, nitelik OS tablosundan."""
-        z = self.D['difficulties'][self.run['zorluk'] - 1]
-        counts, weights = zip(*z['dusme'])
+        z = self.D['difficulties'][self.run['difficulty'] - 1]
+        counts, weights = zip(*z['drop'])
         n = random.choices(counts, weights)[0] if sum(weights) >= 100 else (counts[0] if random.random() * 100 < weights[0] else 0)
         eq = self.D['esyalar'][str(self.run['arena'])]
         out = []
@@ -385,7 +385,7 @@ class Trinity(Arena):
         cost_id = self.D['xy'] if building else self.D['kp']
         q = lambda r: [dict(_='TupleTwoModule', param0=str(i + 1), param1='%.1f' % v) for i, v in enumerate(r['rarity'])]
         return ('TrinityTrialsDropLevelCommand', dict(
-            costLootAmount=skip if building else (0 if mx else nxt['maliyet']), currentLevel=lv, nextLevel=min(lv + 1, len(rows)), building=bool(o.get('bitis')),
+            costLootAmount=skip if building else (0 if mx else nxt['cost']), currentLevel=lv, nextLevel=min(lv + 1, len(rows)), building=bool(o.get('bitis')),
             max=mx, skipConsume=skip, currentLevelQualityRandomList=q(cur), totalBuildSeconds=0 if mx else nxt['sure_sn'],
             lootAmount=int(self.p.resource(cost_id)), nextLevelQualityRandomList=q(nxt), buildSeconds=left, costLootId=cost_id))
 
@@ -401,8 +401,8 @@ class Trinity(Arena):
         # eylemi pencerenin durumu belirler (istemcinin gönderdiği costLootId'ye bakılmaz): yükseltme sürmüyorsa yükselt, sürüyorsa atla
         if not o.get('bitis') and o['seviye'] < len(self.D['os']):
             row = self.D['os'][o['seviye']]
-            if self.p.resource(self.D['kp']) >= row['maliyet']:
-                self.p.add_resource(self.D['kp'], -row['maliyet'])
+            if self.p.resource(self.D['kp']) >= row['cost']:
+                self.p.add_resource(self.D['kp'], -row['cost'])
                 with self.p.lock:
                     o.update(hedef=o['seviye'] + 1, bitis=now + row['sure_sn'])
                     self.p.dirty = True

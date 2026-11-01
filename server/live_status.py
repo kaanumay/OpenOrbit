@@ -15,9 +15,9 @@ def _world_info(w):
     now = time.time()
     alive = [n for n in list(w.npcs.values()) if n.alive]
     t = w.npcs.get(w.target) if w.target else None
-    out = {'uzayli': len(alive), 'kutu': len(w.boxes), 'cevher': len(getattr(w, 'ores', {})),
+    out = {'alien': len(alive), 'kutu': len(w.boxes), 'cevher': len(getattr(w, 'ores', {})),
            'hedef': (t.d.get('ad') if t and t.alive else None), 'in_combat': bool(now - getattr(w, 'last_combat', 0) < 10),
-           'dead': bool(w.hero_dead), 'guvenli': bool(w.in_station())}
+           'dead': bool(w.hero_dead), 'safe': bool(w.in_station())}
     perf = getattr(w, 'perf', None)
     if perf:
         out['loop'] = perf.summary()               # döngü adımının süresi (ms; dunya.Olcum)
@@ -40,9 +40,9 @@ def snapshot(game):
     pl, g, k = p.d['pilot'], p.d['gemi'], p.d['position']
     s = game.CURRENT
     w = s.world if s else None
-    ship = p.d.get('gemiler', {}).get(str(p.d.get('aktif_gemi')), {})
+    ship = p.d.get('ships', {}).get(str(p.d.get('active_ship')), {})
     played = p.d.get('play_sec', 0) + (time.time() - s.play_start if s and getattr(s, 'play_start', None) else 0)
-    d = {'time': time.time(), 'bagli': s is not None,
+    d = {'time': time.time(), 'connected': s is not None,
          'pilot': {'ad': pl.get('userName'), 'seviye': pl.get('level', 1), 'ep': pl.get('ep', 0), 'kredi': pl.get('credits', 0),
                    'uridyum': pl.get('uridium', 0), 'onur': pl.get('honourPoints', 0), 'firma': pl.get('factionId'),
                    'klan': pl.get('clanTag') or None},
@@ -50,17 +50,17 @@ def snapshot(game):
                   'kalkan': int(g.get('shield', 0)), 'shield_max': g.get('shieldMax', 0), 'kargo': p.cargo_used(),
                   'cargo_max': g.get('cargoSpaceMax', 0)},
          'position': {'harita': H.name(k.get('mapId')), 'map_id': k.get('mapId'), 'x': int(k.get('x', 0)), 'y': int(k.get('y', 0))},
-         'etkinlikler': sorted(CAL.active()), 'play_sec': int(played),
+         'events': sorted(CAL.active()), 'play_sec': int(played),
          'session_start': s.play_start if s else None}         # Discord Rich Presence'ın süresi (panel/discord_rp.py)
     if w:
         try:
             x, y = w.hero_pos()
             d['position'].update(x=int(x), y=int(y))
-            d['dunya'] = _world_info(w)
+            d['world'] = _world_info(w)
         except Exception as e:                   # harita değişirken dünya yarım olabilir
-            d['dunya'] = {'hata': repr(e)}
+            d['world'] = {'hata': repr(e)}
     if game.CO.is_open():                           # arkadaş sunucusu: misafirler (panelin "Arkadaşlarınla Oyna" sayfası)
-        d['arkadas'] = {'en_cok': game.CO.SETTINGS['en_cok'], 'guests': [
+        d['arkadas'] = {'max_count': game.CO.SETTINGS['max_count'], 'guests': [
             dict(m.summary(), harita=H.name(m.profile.d['position'].get('mapId'))) for m in game.CO.entries()]}
         d['local_players'] = [dict(y.summary(), harita=H.name(y.profile.d['position'].get('mapId')))     # çoklu istemcinin ek oyuncuları
                          for y in game.CO.local_players()]

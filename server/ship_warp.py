@@ -38,8 +38,8 @@ class Warp:
     def ships(self):
         """Işınlanabilecek gemiler: etkin olmayan favoriler (istemcinin penceresi: "You can only Warp ships that are marked as your
         favorites!"; favori hangarda HangarShipFavouriteRequest)."""
-        act = str(self.p.d['aktif_gemi'])
-        return [sid for sid in sorted(self.p.d['gemiler'], key=int) if sid != act and self.p.d['gemiler'][sid].get('favori')]
+        act = str(self.p.d['active_ship'])
+        return [sid for sid in sorted(self.p.d['ships'], key=int) if sid != act and self.p.d['ships'][sid].get('favorite')]
 
     def window(self, w):
         """Pencere açıldı (UIButtonTriggerRequest 'ship_warp')."""
@@ -62,7 +62,7 @@ class Warp:
         """Uridyum bedeli: panelin hizmet fiyatı, Premium'a indirim (forum 127436: "VIP kullanıcılar için küçük bir indirim")."""
         import shop as SHP
         k = 1 - SHP.ITEMS['shop_discount']['premium_rate'] if self.p.premium else 1
-        return int(round(SET.price('hizmet_fiyat', URIDIUM, 'isinlama') * k))
+        return int(round(SET.price('service_price', URIDIUM, 'warp') * k))
 
     def refuse(self, key):
         self.log('   ışınlama yok: %s' % key)
@@ -106,7 +106,7 @@ class Warp:
         self.busy = None
         x, y = w.hero_pos()
         if w.last_combat > t0 or abs(x - x0) + abs(y - y0) > 5:     # forum 127436: hareket edilirse de iptal
-            self.log('   ışınlama iptal: %s' % ('saldırı' if w.last_combat > t0 else 'hareket'))
+            self.log('   ışınlama iptal: %s' % ('saldırı' if w.last_combat > t0 else 'movement'))
             return [stm('msg_swblocked'), ('ShipWarpCanceledCommand', {})], False
         import inventory as INV
         if INV.spend(self.p, pay, 'balance_ship_warp_completed') is None:

@@ -15,26 +15,26 @@ from urllib.request import Request, urlopen
 
 import paths as PTH
 
-LOCAL = 'yerel'
+LOCAL = 'local'
 # kimlik -> ad, tür ('openai' uyumlu ya da 'anthropic'), varsayılan adres ve model, anahtar gerekir mi, bilgisayarda mı çalışır
 PROVIDERS = {
-    LOCAL: dict(ad='Dahili yerel model (Qwen3 4B)', tur='dahili', adres='', model='', anahtar=False, yerel=True),
-    'openai': dict(ad='OpenAI', tur='openai', adres='https://api.openai.com/v1', model='gpt-4.1-mini', anahtar=True, yerel=False),
-    'anthropic': dict(ad='Anthropic Claude', tur='anthropic', adres='https://api.anthropic.com/v1', model='claude-haiku-5-5',
-                      anahtar=True, yerel=False),
-    'gemini': dict(ad='Google Gemini', tur='openai', adres='https://generativelanguage.googleapis.com/v1beta/openai',
-                   model='gemini-2.5-flash', anahtar=True, yerel=False),
-    'deepseek': dict(ad='DeepSeek', tur='openai', adres='https://api.deepseek.com/v1', model='deepseek-chat', anahtar=True, yerel=False),
-    'openrouter': dict(ad='OpenRouter', tur='openai', adres='https://openrouter.ai/api/v1', model='openai/gpt-4.1-mini', anahtar=True,
-                       yerel=False),
-    'groq': dict(ad='Groq', tur='openai', adres='https://api.groq.com/openai/v1', model='llama-3.3-70b-versatile', anahtar=True,
-                 yerel=False),
-    'mistral': dict(ad='Mistral', tur='openai', adres='https://api.mistral.ai/v1', model='mistral-small-latest', anahtar=True,
-                    yerel=False),
-    'xai': dict(ad='xAI Grok', tur='openai', adres='https://api.x.ai/v1', model='grok-3-mini', anahtar=True, yerel=False),
-    'ollama': dict(ad='Ollama', tur='openai', adres='http://127.0.0.1:11434/v1', model='qwen3:8b', anahtar=False, yerel=True),
-    'lmstudio': dict(ad='LM Studio', tur='openai', adres='http://127.0.0.1:1234/v1', model='', anahtar=False, yerel=True),
-    'ozel': dict(ad='Özel (OpenAI uyumlu)', tur='openai', adres='http://127.0.0.1:8080/v1', model='', anahtar=False, yerel=True),
+    LOCAL: dict(ad='Dahili yerel model (Qwen3 4B)', tur='dahili', address='', model='', anahtar=False, local=True),
+    'openai': dict(ad='OpenAI', tur='openai', address='https://api.openai.com/v1', model='gpt-4.1-mini', anahtar=True, local=False),
+    'anthropic': dict(ad='Anthropic Claude', tur='anthropic', address='https://api.anthropic.com/v1', model='claude-haiku-5-5',
+                      anahtar=True, local=False),
+    'gemini': dict(ad='Google Gemini', tur='openai', address='https://generativelanguage.googleapis.com/v1beta/openai',
+                   model='gemini-2.5-flash', anahtar=True, local=False),
+    'deepseek': dict(ad='DeepSeek', tur='openai', address='https://api.deepseek.com/v1', model='deepseek-chat', anahtar=True, local=False),
+    'openrouter': dict(ad='OpenRouter', tur='openai', address='https://openrouter.ai/api/v1', model='openai/gpt-4.1-mini', anahtar=True,
+                       local=False),
+    'groq': dict(ad='Groq', tur='openai', address='https://api.groq.com/openai/v1', model='llama-3.3-70b-versatile', anahtar=True,
+                 local=False),
+    'mistral': dict(ad='Mistral', tur='openai', address='https://api.mistral.ai/v1', model='mistral-small-latest', anahtar=True,
+                    local=False),
+    'xai': dict(ad='xAI Grok', tur='openai', address='https://api.x.ai/v1', model='grok-3-mini', anahtar=True, local=False),
+    'ollama': dict(ad='Ollama', tur='openai', address='http://127.0.0.1:11434/v1', model='qwen3:8b', anahtar=False, local=True),
+    'lmstudio': dict(ad='LM Studio', tur='openai', address='http://127.0.0.1:1234/v1', model='', anahtar=False, local=True),
+    'ozel': dict(ad='Özel (OpenAI uyumlu)', tur='openai', address='http://127.0.0.1:8080/v1', model='', anahtar=False, local=True),
 }
 _THINK = re.compile(r'<think>.*?</think>\s*', re.S)
 _LOCK = threading.Lock()
@@ -55,8 +55,8 @@ def setting():
             d = json.load(fh)
     except (OSError, ValueError):
         d = {}
-    if d.get('secili') not in PROVIDERS:
-        d['secili'] = LOCAL
+    if d.get('selected') not in PROVIDERS:
+        d['selected'] = LOCAL
     d['providers'] = {k: v for k, v in (d.get('providers') or {}).items() if k in PROVIDERS and isinstance(v, dict)}
     return d
 
@@ -64,18 +64,18 @@ def setting():
 def selected():
     """Seçili sağlayıcının tam ayarı {kimlik, tur, adres, model, anahtar}."""
     d = setting()
-    return full(d['secili'], d['providers'].get(d['secili']) or {})
+    return full(d['selected'], d['providers'].get(d['selected']) or {})
 
 
 def full(uid, a):
     s = PROVIDERS[uid]
-    return {'kimlik': uid, 'tur': s['tur'], 'adres': (a.get('adres') or s['adres']).rstrip('/'),
+    return {'kimlik': uid, 'tur': s['tur'], 'address': (a.get('address') or s['address']).rstrip('/'),
             'model': a.get('model') or s['model'], 'anahtar': a.get('anahtar') or ''}
 
 
 def multilingual(uid=None):
     """Botlar kendi dillerinde konuşabilir mi (dahili Qwen3 4B yalnız İngilizce)."""
-    return (uid or setting()['secili']) != LOCAL
+    return (uid or setting()['selected']) != LOCAL
 
 
 def mask(key):
@@ -88,10 +88,10 @@ def status():
     out = []
     for k, s in PROVIDERS.items():
         a = d['providers'].get(k) or {}
-        out.append({'kimlik': k, 'ad': s['ad'], 'tur': s['tur'], 'key_required': s['anahtar'], 'yerel': s['yerel'],
-                    'adres': a.get('adres') or s['adres'], 'model': a.get('model') or s['model'],
-                    'default_url': s['adres'], 'anahtar': mask(a.get('anahtar') or ''), 'has_key': bool(a.get('anahtar'))})
-    return {'secili': d['secili'], 'multilingual': multilingual(d['secili']), 'liste': out}
+        out.append({'kimlik': k, 'ad': s['ad'], 'tur': s['tur'], 'key_required': s['anahtar'], 'local': s['local'],
+                    'address': a.get('address') or s['address'], 'model': a.get('model') or s['model'],
+                    'default_url': s['address'], 'anahtar': mask(a.get('anahtar') or ''), 'has_key': bool(a.get('anahtar'))})
+    return {'selected': d['selected'], 'multilingual': multilingual(d['selected']), 'liste': out}
 
 
 def save(uid, address=None, model=None, key=None, sec=True):
@@ -106,7 +106,7 @@ def save(uid, address=None, model=None, key=None, sec=True):
         d = setting()
         a = dict(d['providers'].get(uid) or {})
         if address is not None:
-            a['adres'] = address
+            a['address'] = address
         if model is not None:
             a['model'] = str(model).strip()[:200]
         if key == '-':
@@ -115,7 +115,7 @@ def save(uid, address=None, model=None, key=None, sec=True):
             a['anahtar'] = str(key).strip()
         d['providers'][uid] = a
         if sec:
-            d['secili'] = uid
+            d['selected'] = uid
         os.makedirs(os.path.dirname(_route()), exist_ok=True)
         temporary = _route() + '.tmp'
         with open(temporary, 'w', encoding='utf8') as fh:
@@ -137,7 +137,7 @@ def _headers(c):
 
 
 def _request(c, route, body=None, timestamp=60):
-    req = Request(c['adres'] + route, data=None if body is None else json.dumps(body).encode('utf8'), headers=_headers(c),
+    req = Request(c['address'] + route, data=None if body is None else json.dumps(body).encode('utf8'), headers=_headers(c),
                   method='GET' if body is None else 'POST')
     with urlopen(req, timeout=timestamp) as r:
         return json.loads(r.read() or b'{}')
@@ -172,7 +172,7 @@ def _call(c, route, body=None, timestamp=60):
             text = ''
         raise HttpError(e.code, text) from None
     except (URLError, OSError) as e:
-        raise ProviderError('%s: %s' % (c['adres'], getattr(e, 'reason', e))) from None
+        raise ProviderError('%s: %s' % (c['address'], getattr(e, 'reason', e))) from None
 
 
 def models(uid, address=None, key=None):
@@ -181,7 +181,7 @@ def models(uid, address=None, key=None):
         raise ProviderError('Bilinmeyen sağlayıcı.')
     a = dict(setting()['providers'].get(uid) or {})
     if address:
-        a['adres'] = address
+        a['address'] = address
     if key:
         a['anahtar'] = key
     c = full(uid, a)
@@ -225,10 +225,10 @@ class Remote:
         self.name = '%s · %s' % (PROVIDERS[c['kimlik']]['ad'], c['model'] or '?')
         self.port = None
         self.ready = False
-        self.json_mode = 'sema'              # sema -> nesne -> istem (sağlayıcı reddettikçe)
+        self.json_mode = 'schema'              # sema -> nesne -> istem (sağlayıcı reddettikçe)
         self.jump_to = set()                   # sağlayıcının tanımadığı parametreler
         self.wait = 0.0                    # 429'dan sonra bu ana dek istek yok (işler kalıplara düşer)
-        self.usage = {'istek': 0, 'girdi': 0, 'onbellek': 0, 'cikti': 0}     # token sayımı (önbellekten gelen girdi ayrı)
+        self.usage = {'request': 0, 'input': 0, 'cache': 0, 'output': 0}     # token sayımı (önbellekten gelen girdi ayrı)
 
     def launch(self, wait_sec=None):
         if PROVIDERS[self.c['kimlik']]['anahtar'] and not self.c['anahtar']:
@@ -271,26 +271,26 @@ class Remote:
         m = text.lower()
         if self.c['tur'] == 'anthropic' and 'effort' in m and 'output_config' not in self.jump_to:
             self.jump_to.add('output_config')          # eski model: effort yok (şema da istemde)
-            self.json_mode = 'istem'
+            self.json_mode = 'prompt'
             return True
         for p in ('temperature', 'top_p', 'max_tokens', 'max_completion_tokens'):
             if p in m and p not in self.jump_to:
                 self.jump_to.add(p)
                 self.log('   botlar: sağlayıcı %s kabul etmiyor, onsuz soruluyor' % p)
                 return True
-        if schema is not None and self.json_mode != 'istem' and re.search(r'response_format|json_schema|json_object|output_config|'
+        if schema is not None and self.json_mode != 'prompt' and re.search(r'response_format|json_schema|json_object|output_config|'
                                                                        r'schema|format', m):
-            self.json_mode = 'nesne' if self.json_mode == 'sema' and self.c['tur'] == 'openai' else 'istem'
+            self.json_mode = 'object' if self.json_mode == 'schema' and self.c['tur'] == 'openai' else 'prompt'
             self.log('   botlar: sağlayıcı JSON şemasını kabul etmiyor, JSON kipi: %s' % self.json_mode)
             return True
         return False
 
     def _count(self, input_, cache, output):
         k = self.usage
-        k['istek'] += 1
-        k['girdi'] += int(input_ or 0)
-        k['onbellek'] += int(cache or 0)
-        k['cikti'] += int(output or 0)
+        k['request'] += 1
+        k['input'] += int(input_ or 0)
+        k['cache'] += int(cache or 0)
+        k['output'] += int(output or 0)
 
     @staticmethod
     def _prompt_schema(system, schema):
@@ -304,7 +304,7 @@ class Remote:
         return list(user) if isinstance(user, list) else [{'role': 'user', 'content': user}]
 
     def _openai(self, system, user, schema, max_count, temperature, timestamp):
-        if schema is not None and self.json_mode != 'sema':
+        if schema is not None and self.json_mode != 'schema':
             system = self._prompt_schema(system, schema)
         # sınır geniş: düşünen modeller düşünceyi de bu sınırdan harcar (yalnız üretilen kadar ödenir; Qwen3 1024'te kesiliyordu)
         body = {'model': self.c['model'], 'messages': [{'role': 'system', 'content': system}] + self._messages(user),
@@ -313,9 +313,9 @@ class Remote:
             body['max_completion_tokens'] = body.pop('max_tokens')
         for p in self.jump_to:
             body.pop(p, None)
-        if schema is not None and self.json_mode == 'sema':
-            body['response_format'] = {'type': 'json_schema', 'json_schema': {'name': 'yanit', 'schema': schema, 'strict': False}}
-        elif schema is not None and self.json_mode == 'nesne':
+        if schema is not None and self.json_mode == 'schema':
+            body['response_format'] = {'type': 'json_schema', 'json_schema': {'name': 'response', 'schema': schema, 'strict': False}}
+        elif schema is not None and self.json_mode == 'object':
             body['response_format'] = {'type': 'json_object'}
         d = _call(self.c, '/chat/completions', body, timestamp)
         u = d.get('usage') or {}
@@ -328,12 +328,12 @@ class Remote:
         return text
 
     def _anthropic(self, system, user, schema, max_count, temperature, timestamp):
-        if schema is not None and self.json_mode != 'sema':
+        if schema is not None and self.json_mode != 'schema':
             system = self._prompt_schema(system, schema)
         body = {'model': self.c['model'], 'max_tokens': max(max_count * 8, 2048), 'system': system,
                  'messages': self._messages(user), 'cache_control': {'type': 'ephemeral'}}   # önek önbelleği (sistem + adımlar)
         oc = {'effort': 'low'}              # sohbet satırı: derin düşünme gerekmez (gecikme ve maliyet)
-        if schema is not None and self.json_mode == 'sema':
+        if schema is not None and self.json_mode == 'schema':
             oc['format'] = {'type': 'json_schema', 'schema': _anthropic_schema(schema)}
         body['output_config'] = oc
         if 'output_config' in self.jump_to:
@@ -371,4 +371,4 @@ def test(log=print):
                         schema={'type': 'object', 'properties': {'cevap': {'type': 'string'}, 'durum': {'type': 'string'}},
                               'required': ['cevap', 'durum']}, max_count=80)
     ok = 'TAMAM' in str(response.get('durum', '')).upper()
-    return {'ok': ok, 'startup_sec': round(opening, 1), 'sure_sn': round(duration, 2), 'yanit': response.get('cevap'), 'provider': s.name}
+    return {'ok': ok, 'startup_sec': round(opening, 1), 'sure_sn': round(duration, 2), 'response': response.get('cevap'), 'provider': s.name}

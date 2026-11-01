@@ -1,6 +1,6 @@
 {
  "_description": "Aşama 10: yerel müzayede. Üreten: tools/sosyal.py (kayıttaki AuctionListCommand: eşya, grup, süre, adet, anında alım fiyatı).",
- "muzayede": {
+ "auction": {
   "lotlar": [
    [
     "ammunition_laser_mcb-25",
@@ -708,7 +708,7 @@
   "min_bid": 10000,
   "increase": 10000,
   "history_limit": 200,
-  "rakipler": {
+  "rivals": {
    "_description": "Sanal rakipler (panelin Müzayede ayarı muzayede_rakip, varsayılan 0 = kapalı). Seviye başına: ilgi (lot başına rakip olasılığı), carpan (bütçe = anında alım fiyatı x aralık, kredi), fiyatsiz (anında alımı olmayan lotta bütçe), adim (dönem içinde en çok teklif sayısı), son (karşılıksız son teklif / bütçe), gecer (oyuncuyu geçip karşılık verir mi), tepki (karşılık gecikmesi, dönemin kesri). gecer olmayan seviyelerde lot hep oyuncunun.",
    "seviyeler": {
     "1": {
@@ -722,8 +722,8 @@
       20000,
       80000
      ],
-     "adim": 2,
-     "son": [
+     "step": 2,
+     "last": [
       0.5,
       0.9
      ],
@@ -740,8 +740,8 @@
       60000,
       300000
      ],
-     "adim": 3,
-     "son": [
+     "step": 3,
+     "last": [
       0.5,
       0.9
      ],
@@ -758,8 +758,8 @@
       500000,
       3000000
      ],
-     "adim": 4,
-     "son": [
+     "step": 4,
+     "last": [
       0.3,
       0.8
      ],
@@ -780,8 +780,8 @@
       1000000,
       6000000
      ],
-     "adim": 6,
-     "son": [
+     "step": 6,
+     "last": [
       0.4,
       0.9
      ],

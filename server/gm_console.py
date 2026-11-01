@@ -32,13 +32,13 @@ from legacy_protocol import legacy
 REQUESTS = ('CCInitRequest', 'CCommandRequest')
 ADMIN_RANK = 6000
 GM_NPC = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'gm_npc.json'), encoding='utf8'))['npc']
-DERIVED = ('gg_', 'etk_', 'pm_', 'apo_', 'deney_')      # kapı, etkinlik, mod kopyaları: aynı npc_kimlik'te asıl tür önce
+DERIVED = ('gg_', 'event_', 'pm_', 'apo_', 'experiment_')      # kapı, etkinlik, mod kopyaları: aynı npc_kimlik'te asıl tür önce
 STAND_IN = '79'                                          # sunucuda karşılığı olmayan NPC'nin değerleri (Kristallon)
 
 
 def enabled(profile=None):
     """Arkadaş sunucusunda yalnız sunucunun oyuncusu (misafire sunucunun ayarı açık olsa da kapalı)."""
-    return bool(SET.get('gm_konsol')) and getattr(profile, 'guest', None) is None
+    return bool(SET.get('gm_console')) and getattr(profile, 'guest', None) is None
 
 
 def mod(_cls, **f):
@@ -81,7 +81,7 @@ def num(v, default=0):
 
 def world_types():
     import world
-    return world.CFG['tipler']
+    return world.CFG['types']
 
 
 def _plain(s):
@@ -223,7 +223,7 @@ class Console:
         for name, val, sub in rows:
             name = name.lower()                     # istemcinin sayfası: Accept, Finish, FinishAll, Fail
             if name == 'finishall':
-                done = [int(q) for q in list(quests.st['aktif'])]
+                done = [int(q) for q in list(quests.st['active'])]
                 for q in done:
                     msgs += quests.complete(q)
                 return msgs + self.say('%d görev bitirildi' % len(done))
@@ -233,7 +233,7 @@ class Console:
             if name == 'accept':
                 return quests.accept(q) + self.say('görev alındı: %d' % q)
             if name == 'finish':
-                if str(q) not in quests.st['aktif']:
+                if str(q) not in quests.st['active']:
                     msgs += quests.accept(q)
                 return msgs + quests.complete(q) + self.say('görev bitti: %d' % q)
             if name == 'fail':
@@ -297,7 +297,7 @@ class Console:
             hx, hy = w.hero_pos(now)
             for k in range(n):
                 x, y = hx + random.randint(-400, 400), hy + random.randint(-400, 400)
-                content = random.choice(world.CFG['bonus_kutu']) if kind == 'BONUS_BOX' else None
+                content = random.choice(world.CFG['bonus_boxes']) if kind == 'BONUS_BOX' else None
                 w.drop_box(kind, x, y, content, None)
         return self.say('%s x%d' % (kind, n))
 
@@ -336,7 +336,7 @@ class Console:
             pet.d['seviye'] = lv
             pet.d['ep'] = PETM.PET['seviyeler'][lv]['ep']
             pet.p.dirty = True
-        pet.p.ach('pet_level', deger=lv)
+        pet.p.ach('pet_level', value=lv)
         return [('PetLevelUpdateCommand', dict(petLevel=lv, petExperiencePointsUntilNextLevel=pet.next_xp(), designId=pet.ship_type(),
                                                expansionStage=1)),
                 ('PetExperiencePointsUpdateCommand', dict(currentExperiencePoints=pet.d['ep'], maxExperiencePoints=pet.next_xp()))] + \
@@ -365,7 +365,7 @@ class Console:
                 last = str(flat.get('lastWave') or (parts[3] if len(parts) > 3 else '')).lower() in ('true', '1')
                 with k.p.lock:
                     G = k.gate(key)
-                    G.update(hazir=True, can=lifes, lives_bought=0, parcalar=list(range(1, g['parca'] + 1)),
+                    G.update(hazir=True, can=lifes, lives_bought=0, parcalar=list(range(1, g['part'] + 1)),
                              dalga=len(g['waves']) - 1 if last else max(0, min(len(g['waves']) - 1, wave - 1 if wave else 0)))
                     k.p.dirty = True
                 return self.say('%s kuruldu: %d can, dalga %d (X-1 portalı)' % (g['ad'], lifes, G['dalga'] + 1))

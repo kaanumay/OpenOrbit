@@ -54,7 +54,7 @@ class Server:
         self.port = None
         self.ready = False
         self.name = 'Qwen3 4B'
-        self.usage = {'istek': 0, 'girdi': 0, 'onbellek': 0, 'cikti': 0}     # token sayımı (llm_saglayici.Uzak ile aynı)
+        self.usage = {'request': 0, 'input': 0, 'cache': 0, 'output': 0}     # token sayımı (llm_saglayici.Uzak ile aynı)
 
     def launch(self, wait_sec=180):
         k = setup()
@@ -100,17 +100,17 @@ class Server:
                  'max_tokens': max_count, 'temperature': temperature, 'top_p': 0.8, 'top_k': 20, 'min_p': 0.0,
                  'presence_penalty': 1.0, 'chat_template_kwargs': {'enable_thinking': False}}     # Qwen3 düşünmesiz kip önerisi
         if schema is not None:
-            body['response_format'] = {'type': 'json_schema', 'json_schema': {'name': 'yanit', 'schema': schema, 'strict': True}}
+            body['response_format'] = {'type': 'json_schema', 'json_schema': {'name': 'response', 'schema': schema, 'strict': True}}
         t0 = time.time()
         req = Request('http://127.0.0.1:%d/v1/chat/completions' % self.port, data=json.dumps(body).encode('utf8'),
                       headers={'Content-Type': 'application/json'})
         with urlopen(req, timeout=timestamp) as r:
             d = json.loads(r.read())
         u, k = d.get('usage') or {}, self.usage
-        k['istek'] += 1
-        k['girdi'] += int(u.get('prompt_tokens') or 0)
-        k['onbellek'] += int((u.get('prompt_tokens_details') or {}).get('cached_tokens') or 0)
-        k['cikti'] += int(u.get('completion_tokens') or 0)
+        k['request'] += 1
+        k['input'] += int(u.get('prompt_tokens') or 0)
+        k['cache'] += int((u.get('prompt_tokens_details') or {}).get('cached_tokens') or 0)
+        k['output'] += int(u.get('completion_tokens') or 0)
         text = _THINK.sub('', d['choices'][0]['message'].get('content') or '').strip()
         if schema is not None:                     # ilk geçerli JSON nesnesi (model bazen ardına ikincisini yazıyor)
             i = text.find('{')
@@ -130,6 +130,6 @@ def test(log=print):
                             schema={'type': 'object', 'properties': {'cevap': {'type': 'string'}, 'durum': {'type': 'string'}},
                                   'required': ['cevap', 'durum']}, max_count=80)
         ok = isinstance(response, dict) and 'TAMAM' in str(response.get('durum', '')).upper()
-        return {'ok': ok, 'startup_sec': round(opening, 1), 'sure_sn': round(duration, 2), 'yanit': response.get('cevap') if isinstance(response, dict) else str(response)}
+        return {'ok': ok, 'startup_sec': round(opening, 1), 'sure_sn': round(duration, 2), 'response': response.get('cevap') if isinstance(response, dict) else str(response)}
     finally:
         s.stop()

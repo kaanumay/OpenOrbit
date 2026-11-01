@@ -40,11 +40,11 @@ from legacy_protocol import legacy
 HERE = os.path.dirname(os.path.abspath(__file__))
 _PATH = os.path.join(HERE, 'data', 'cbs.json')
 D = json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}
-ASTEROIDS = {a['kimlik']: a for a in D.get('asteroitler', [])}
+ASTEROIDS = {a['kimlik']: a for a in D.get('asteroids', [])}
 BY_MAP = {}
 for _a in ASTEROIDS.values():
     BY_MAP.setdefault(int(_a['harita']), []).append(_a['kimlik'])
-MODS = D.get('moduller', {})
+MODS = D.get('modules', {})
 ASSET_BASE = 157000000                 # + asteroit x 100 (asteroit/merkez), + yuva (uydular)
 ITEM_BASE = 157500000                  # modül örneklerinin itemId'si
 ASTEROID, BATTLESTATION, SATELLITE = 35, 36, 37
@@ -58,14 +58,14 @@ E = dict(UNSPECIFIED=0, NO_CLAN=1, STATION_ALREADY_BUILDING=2, ITEM_HITPOINTS_ZE
          DEFLECTOR_ALREADY_OFF=15, REPAIR_NO_MODULE=16, REPAIR_NO_MONEY=17, REPAIR_ALREADY_RUNNING=18, ITEM_UPGRADE_RUNNING=19)
 TRADE_BATTLE_STATION = 4
 SHARED_ITEM = ITEM_BASE + 1000000         # ortak yuvadaki modüllerin kimlikleri (oyuncuların sırası ITEM_BASE'den: çakışmasın)
-SHARED = {'kilit': threading.Lock(), 'next': 0.0}
+SHARED = {'lock': threading.Lock(), 'next': 0.0}
 
 
 def with_bots():
     """Bot paketi açık ve bot klanlarının istasyon kurması izinli (Botlar: klan_ksi): istasyonlar gerçek klanların, sahte rakip
     yok, asteroitler boş açılır; bot klanları yarışır (bot/clan_stations.py; kullanıcı isteği 2026-10-31)."""
     y = getattr(sys.modules.get('bot.manager'), 'ACTIVE', None)
-    return y is not None and y.permission('klan') and y.permission('klan_ksi')
+    return y is not None and y.permission('klan') and y.permission('clan_cbs')
 
 
 def shared():
@@ -181,7 +181,7 @@ def hp_max(m):
 
 def dmg_value(md, lv):
     """Silah modülünün seviyedeki hasarı: panelin KSİ hasar çarpanıyla (bütün istasyonlar)."""
-    return level_value(md['hasar'], lv) * float(SET.get('ksi_hasar'))
+    return level_value(md['hasar'], lv) * float(SET.get('cbs_damage'))
 
 
 def stm(key, **params):
@@ -215,7 +215,7 @@ class Cbs:
     @property
     def st(self):
         d = self.p.d.setdefault('cbs', {})
-        for k, v in (('moduller', {}), ('asteroitler', {}), ('gunluk', []), ('istatistik', {}), ('sira', 0)):
+        for k, v in (('modules', {}), ('asteroids', {}), ('daily', []), ('stats', {}), ('order', 0)):
             d.setdefault(k, v)
         self.migrate_rival_stats(self.p, d)
         self.absorb(d)
@@ -231,11 +231,11 @@ class Cbs:
         version = 1  # published CBS stats configuration, 2026-10-25
         if state.get('rival_stats_version', 0) == version:
             return
-        asteroids = state.get('asteroitler', {})
+        asteroids = state.get('asteroids', {})
         for a in asteroids.values() if isinstance(asteroids, dict) else []:
-            if not isinstance(a, dict) or a.get('sahip') != 'rakip' or a.get('durum') != 'kurulu':
+            if not isinstance(a, dict) or a.get('sahip') != 'rival' or a.get('durum') != 'built':
                 continue
-            slots = a.get('yuvalar', {})
+            slots = a.get('slots', {})
             changed = False
             for row in slots.values() if isinstance(slots, dict) else []:
                 if not isinstance(row, dict) or 'iid' in row or 'modul' in row:
@@ -249,7 +249,7 @@ class Cbs:
                     level = float(row['seviye'])
                     if not all(math.isfinite(v) for v in (old_max, hp, shield, level)) or old_max <= 0 or level != int(level):
                         continue
-                    maximum = int(level_value(md['can'], int(level)) * D['rakip']['hp_multiplier'])
+                    maximum = int(level_value(md['can'], int(level)) * D['rival']['hp_multiplier'])
                     if maximum <= 0:
                         continue
                     old_shield = int(old_max * D['shield_ratio'])
@@ -274,17 +274,17 @@ class Cbs:
             with h.lock:
                 h.d['cbs']['pending'].pop(KL.name(self.p), None)
                 h.dirty = True
-            d['moduller'].update(back)
+            d['modules'].update(back)
             self.p.dirty = True
-        store = self.p.d.get('diger_esyalar', {})
+        store = self.p.d.get('other_items', {})
         loots = [l for l in list(store) if l in MODS]
         for loot in loots:
             n = int(store.pop(loot, 0))
             for _ in range(n):
-                d['sira'] += 1
-                iid = ITEM_BASE + d['sira']
+                d['order'] += 1
+                iid = ITEM_BASE + d['order']
                 hp = level_value(MODS[loot]['can'], 0)
-                d['moduller'][str(iid)] = dict(loot=loot, seviye=0, can=hp, kalkan=int(hp * D['shield_ratio']))
+                d['modules'][str(iid)] = dict(loot=loot, seviye=0, can=hp, kalkan=int(hp * D['shield_ratio']))
             self.p.dirty = True
 
     @property
@@ -296,14 +296,14 @@ class Cbs:
         """Asteroitlerin kaydı: tek oyunculuda oyuncunun, çok oyunculuda ortak (sunucunun oyuncusunun profilinde)."""
         h = self.host
         if h is None:
-            return self.st['asteroitler']
+            return self.st['asteroids']
         d = h.d.setdefault('cbs', {})
         if not d.get('shared'):
             self.embed(h, d)
         if self.p is not h:
             self.bring(h, d)
         self.migrate_rival_stats(h, d)
-        return d['asteroitler']
+        return d['asteroids']
 
     def bring(self, h, d):
         """Ek istemcinin (misafirin) tek oyunculuda kurduğu istasyonlar da ortak olur (embed gibi): boş asteroide yuvadaki modül
@@ -311,29 +311,29 @@ class Cbs:
         kalır. Önce yalnız sunucunun oyuncusununkiler ortaktı: kayıt ek istemcide açılınca kendi istasyonları yoktu (oyuncu bildirimi
         2026-10-30). Klansızken bekler (klanı bağlanınca)."""
         own = self.p.d.get('cbs') or {}
-        built = [aid for aid, a in own.get('asteroitler', {}).items()
-                 if a.get('sahip') != 'rakip' and (a.get('yuvalar') or a.get('durum') in ('kurma', 'kurulu'))]
+        built = [aid for aid, a in own.get('asteroids', {}).items()
+                 if a.get('sahip') != 'rival' and (a.get('slots') or a.get('durum') in ('building', 'built'))]
         k = self.clan() if built else None
         if not k:
             return
         me, name = KL.name(self.p), self.p.d['pilot'].get('userName', '')
         with h.lock:
-            shared = d.setdefault('asteroitler', {})
+            shared = d.setdefault('asteroids', {})
             for aid in built:
-                a = own['asteroitler'].pop(aid)
+                a = own['asteroids'].pop(aid)
                 there = shared.get(aid) or {}
-                if there.get('yuvalar') or there.get('durum', 'bos') != 'bos':
+                if there.get('slots') or there.get('durum', 'vacant') != 'vacant':
                     self.log('   CBS: %s ortakta dolu, %s istasyonunun modülleri envantere' % (aid, me))
                     continue
                 slots = {}
-                for s, y in a.get('yuvalar', {}).items():
-                    m = own.get('moduller', {}).pop(str(y.get('iid')), None)
+                for s, y in a.get('slots', {}).items():
+                    m = own.get('modules', {}).pop(str(y.get('iid')), None)
                     if m is not None:
                         d['shared_seq'] = int(d.get('shared_seq', 0)) + 1
                         slots[s] = dict(y, iid=SHARED_ITEM + d['shared_seq'], modul=m, sahip=me, owner_name=name)
-                a.pop('rakip', None)
-                a.pop('rakip_ilerleme', None)
-                shared[aid] = dict(a, yuvalar=slots, klan=k['id'], surum=there.get('surum', 0) + 1)
+                a.pop('rival', None)
+                a.pop('rival_progress', None)
+                shared[aid] = dict(a, slots=slots, klan=k['id'], surum=there.get('surum', 0) + 1)
                 self.log('   CBS: %s istasyonu ortakta (%s)' % (aid, me))
             h.dirty = True
         self.p.dirty = True
@@ -342,16 +342,16 @@ class Cbs:
         """Sunucunun oyuncusunun tek oyunculuda kurduğu istasyonlar ortak olur: yuvadaki modül yuvaya (sahibiyle), istasyon klanının."""
         me, cid = KL.name(h), int(h.d['pilot'].get('clanId', 0) or 0)
         with h.lock:
-            d.setdefault('asteroitler', {})
-            mods = d.setdefault('moduller', {})
-            for a in d['asteroitler'].values():
-                if a.get('sahip') == 'rakip':
+            d.setdefault('asteroids', {})
+            mods = d.setdefault('modules', {})
+            for a in d['asteroids'].values():
+                if a.get('sahip') == 'rival':
                     continue
-                for y in a.get('yuvalar', {}).values():
+                for y in a.get('slots', {}).values():
                     m = mods.pop(str(y.get('iid')), None) if 'modul' not in y else None
                     if m is not None:
                         y.update(modul=m, sahip=me, owner_name=h.d['pilot'].get('userName', ''))
-                if cid and (a.get('yuvalar') or a.get('durum') in ('kurma', 'kurulu')):
+                if cid and (a.get('slots') or a.get('durum') in ('building', 'built')):
                     a.setdefault('klan', cid)
             d['shared'] = True
             h.dirty = True
@@ -373,10 +373,10 @@ class Cbs:
 
     def ast(self, aid):
         a = self.asteroids.setdefault(str(aid), {})
-        a.setdefault('durum', 'bos')
-        a.setdefault('yuvalar', {})
-        a.setdefault('deflector', {'acik': False, 'sn': 0.0, 'closed_until': 0.0, 'son': time.time()})
-        for y in a['yuvalar'].values():
+        a.setdefault('durum', 'vacant')
+        a.setdefault('slots', {})
+        a.setdefault('deflector', {'on': False, 'sn': 0.0, 'closed_until': 0.0, 'last': time.time()})
+        for y in a['slots'].values():
             m = y.get('modul') or (y if 'loot' in y else None)
             if m is not None and m.get('loot') in MODS:
                 hp_sync(m)
@@ -395,7 +395,7 @@ class Cbs:
 
     def mine(self, a):
         """İstasyon (ya da kurulan asteroit) oyuncunun klanının mı: tek oyunculuda rakip dışındakiler."""
-        if a.get('sahip') == 'rakip':
+        if a.get('sahip') == 'rival':
             return False
         if self.host is None:
             return True
@@ -417,7 +417,7 @@ class Cbs:
 
     def relation(self, a):
         """Varlığın klan ilişkisi (bakana göre): rakip savaş, kendi klanınki 0, başkasınınki diplomasiye göre (yoksa düşman)."""
-        if a.get('sahip') == 'rakip':
+        if a.get('sahip') == 'rival':
             return 3
         if self.mine(a):
             return 0
@@ -425,10 +425,10 @@ class Cbs:
         return (KL.clan_relation(k['id'], a.get('klan')) if k else 0) or 3
 
     def own_module(self, iid):
-        return self.st['moduller'].get(str(iid))
+        return self.st['modules'].get(str(iid))
 
     def module(self, iid):
-        m = self.st['moduller'].get(str(iid))
+        m = self.st['modules'].get(str(iid))
         if m is None:
             y = self.slot_of(iid)
             m = y.get('modul') if y else None
@@ -438,7 +438,7 @@ class Cbs:
 
     def slot_of(self, iid):
         for a in self.asteroids.values():
-            for y in a.get('yuvalar', {}).values():
+            for y in a.get('slots', {}).values():
                 if str(y.get('iid')) == str(iid):
                     return y
         return None
@@ -446,10 +446,10 @@ class Cbs:
     def where(self, iid):
         """Modülün takılı olduğu (asteroit, yuva) ya da None (çok oyunculuda oyuncunun tek oyunculu asteroitleri de: modül iki yerde
         kullanılmasın)."""
-        stores = [self.asteroids] + ([self.st['asteroitler']] if self.host is not None and self.host is not self.p else [])
+        stores = [self.asteroids] + ([self.st['asteroids']] if self.host is not None and self.host is not self.p else [])
         for store in stores:
             for aid, a in store.items():
-                for slot, y in a.get('yuvalar', {}).items():
+                for slot, y in a.get('slots', {}).items():
                     if str(y.get('iid')) == str(iid):
                         return int(aid), int(slot)
         return None
@@ -464,7 +464,7 @@ class Cbs:
         x = self.p if owner == KL.name(self.p) else (s.profile if s is not None else None)
         if x is not None:
             with x.lock:
-                x.d.setdefault('cbs', {}).setdefault('moduller', {})[iid] = m
+                x.d.setdefault('cbs', {}).setdefault('modules', {})[iid] = m
                 x.dirty = True
         else:
             h = self.host or self.p
@@ -478,7 +478,7 @@ class Cbs:
         if k is None or not msgs:
             return msgs
         for name, s in KL.people().items():
-            if name in k['uyeler'] and s.session is not None:
+            if name in k['members'] and s.session is not None:
                 s.send(msgs, 'CBS')
         return []
 
@@ -496,7 +496,7 @@ class Cbs:
         m = self.module(iid)
         md = MODS[m['loot']]
         mh, ms = self.mx(m)
-        y = (self.ast(aid)['yuvalar'].get(str(slot)) if aid > 0 else None) or {}
+        y = (self.ast(aid)['slots'].get(str(slot)) if aid > 0 else None) or {}
         left = max(0, int(y.get('install_end', 0) - now))
         rep = max(0, int(y.get('repair_end', 0) - now))
         owner = (y.get('owner_name') or self.p.d['pilot'].get('userName', '')) if aid > 0 else ''
@@ -504,10 +504,10 @@ class Cbs:
                    maxHitpoints=mh, currentShield=int(m['kalkan']), maxShield=ms, upgradeLevel=int(m['seviye']),
                    ownerName=owner, installationSeconds=int(y.get('install_sec', 0)),
                    installationSecondsLeft=left, emergencyRepairSecondsLeft=rep,
-                   emergencyRepairSecondsTotal=D['emergency_repair']['sure_sn'] if rep else 0, emergencyRepairCost=D['emergency_repair']['bedel'])
+                   emergencyRepairSecondsTotal=D['emergency_repair']['sure_sn'] if rep else 0, emergencyRepairCost=D['emergency_repair']['charge'])
 
     def available_cmd(self):
-        free = [iid for iid in sorted(self.st['moduller'], key=int) if not self.where(iid)]
+        free = [iid for iid in sorted(self.st['modules'], key=int) if not self.where(iid)]
         return mod('AvailableModulesCommand', modules=[self.module_cmd(i) for i in free])
 
     def available_msg(self):
@@ -516,7 +516,7 @@ class Cbs:
 
     def equipped(self, aid, now=None):
         a = self.ast(aid)
-        return mod('EquippedModulesModule', modules=[self.module_cmd(y['iid'], aid, int(s), now) for s, y in sorted(a['yuvalar'].items(),
+        return mod('EquippedModulesModule', modules=[self.module_cmd(y['iid'], aid, int(s), now) for s, y in sorted(a['slots'].items(),
                                                                                                                 key=lambda kv: int(kv[0]))
                                                      if self.module(y['iid'])])
 
@@ -524,14 +524,14 @@ class Cbs:
         """Asteroitte kuran klanın ilerlemesi (kurulumu biten modüller)."""
         now = time.time() if now is None else now
         a = self.ast(aid)
-        done = sum(1 for y in a['yuvalar'].values() if y.get('install_end', 0) <= now)
+        done = sum(1 for y in a['slots'].values() if y.get('install_end', 0) <= now)
         return done / float(SLOTS)
 
     def progress_cmd(self, aid, now=None):
         a = self.ast(aid)
         prog = self.own_progress(aid, now)
         own = prog if self.mine(a) else 0.0                 # ortakta başka klan kuruyorsa onun ilerlemesi en iyi
-        r, rp = a.get('rakip'), a.get('rakip_ilerleme', 0) if a.get('rakip') else 0
+        r, rp = a.get('rival'), a.get('rival_progress', 0) if a.get('rival') else 0
         leader = race_leader(a)                                # bot klanlarının yarışı (klan_us): önde gideni
         if leader and leader[1] > rp:
             r, rp = leader
@@ -539,7 +539,7 @@ class Cbs:
         best_name = (self.st_name(a) or self.clan_name() if prog >= rp else r) if (prog or r) else ''
         return mod('AsteroidProgressCommand', battleStationId=aid, ownProgress=float(own), bestProgress=float(best), ownClanName=self.clan_name(),
                    bestProgressClanName=best_name or '', state=self.equipped(aid, now),
-                   buildButtonActive=own >= 1.0 and a['durum'] == 'bos' and self.hp('battle_station_build'))
+                   buildButtonActive=own >= 1.0 and a['durum'] == 'vacant' and self.hp('battle_station_build'))
 
     def progress_msg(self, aid, now=None):
         f = dict(self.progress_cmd(aid, now))
@@ -561,27 +561,27 @@ class Cbs:
         """Booster modülünün etkisi (%): takılıp kurulduktan sonra %1'den 20 saatte azamiye."""
         now = time.time() if now is None else now
         a = self.ast(aid)
-        if a['durum'] != 'kurulu':
+        if a['durum'] != 'built':
             return 0.0
-        for slot, y in a['yuvalar'].items():
+        for slot, y in a['slots'].items():
             m = self.module(y['iid'])
             if not m or MODS[m['loot']].get('booster') != kind or y.get('install_end', 0) > now or m['can'] <= 0:
                 continue
             top = level_value(MODS[m['loot']]['booster_percent'], m['seviye'])
-            t = (now - max(y.get('install_end', 0), a.get('kurulus', 0))) / (D['booster']['growth_hours'] * 3600.0)
+            t = (now - max(y.get('install_end', 0), a.get('founded', 0))) / (D['booster']['growth_hours'] * 3600.0)
             return min(top, D['booster']['baslangic'] + (top - D['booster']['baslangic']) * max(0.0, min(1.0, t)))
         return 0.0
 
     def ratings(self, aid, now=None):
         a = self.ast(aid)
         att = dfn = rep = 0
-        for y in a['yuvalar'].values():
+        for y in a['slots'].values():
             m = self.module(y['iid'])
             if not m:
                 continue
             md = MODS[m['loot']]
             dfn += int(m['can'] + m['kalkan'])
-            if md.get('silah'):
+            if md.get('weapon'):
                 att += dmg_value(md, m['seviye'])
             if md.get('repair_sec'):
                 rep += level_value(md['repair_sec'], m['seviye'])
@@ -593,8 +593,8 @@ class Cbs:
         level = 0
         if aid is not None:
             a = self.ast(aid)
-            y = a['yuvalar'].get(str(DEFLECTOR))
-            m = (y if a.get('sahip') == 'rakip' else self.module(y.get('iid'))) if y else None
+            y = a['slots'].get(str(DEFLECTOR))
+            m = (y if a.get('sahip') == 'rival' else self.module(y.get('iid'))) if y else None
             if m and m.get('loot') == 'module_defm-1':
                 level = max(0, min(15, int(m['seviye'])))
         # Published +1% of base per upgrade: 120 minutes/hour -> 138 at L16.
@@ -606,11 +606,11 @@ class Cbs:
         df = a['deflector']
         att, dfn, rep = self.ratings(aid, now)
         return mod('BattleStationStatusCommand', mapAssetId=asset_id(aid), battleStationId=aid, battleStationName=ASTEROIDS[aid]['ad'],
-                   deflectorShieldActive=bool(df['acik']), deflectorShieldSeconds=int(df['sn']), deflectorShieldSecondsMax=D['deflector_max_sec'],
+                   deflectorShieldActive=bool(df['on']), deflectorShieldSeconds=int(df['sn']), deflectorShieldSecondsMax=D['deflector_max_sec'],
                    attackRating=att, defenceRating=dfn, repairRating=rep, honorBoosterRating=int(round(self.booster_pct(aid, 'onur', now))),
                    experienceBoosterRating=int(round(self.booster_pct(aid, 'ep', now))),
                    damageBoosterRating=int(round(self.booster_pct(aid, 'hasar', now))), deflectorShieldRate=int(self.deflector_rate(now, aid)),
-                   repairPrice=D['emergency_repair']['bedel'], equipment=self.equipped(aid, now), isOreTradeAvailable=True)
+                   repairPrice=D['emergency_repair']['charge'], equipment=self.equipped(aid, now), isOreTradeAvailable=True)
 
     def management_ui(self, aid, now=None):
         dm = D['deflector_min']
@@ -619,7 +619,7 @@ class Cbs:
             mapAssetId=asset_id(aid), battleStationId=aid, battleStationName=ASTEROIDS[aid]['ad'], clanName=self.st_name(a),
             faction=mod('FactionModule', faction=self.st_faction(a)), state=self.status_cmd(aid, now), availableModules=self.available_cmd(),
             deflectorShieldMinutesMin=dm[0], deflectorShieldMinutesMax=dm[1], deflectorShieldMinutesIncrement=dm[2],
-            deflectorDeactivationPossible=bool(a['deflector']['acik'])))
+            deflectorDeactivationPossible=bool(a['deflector']['on'])))
 
     def building_state(self, aid, now=None):
         now = time.time() if now is None else now
@@ -634,11 +634,11 @@ class Cbs:
         a = self.ast(aid)
         if not self.clan():
             return [('BattleStationNoClanUiInitializationCommand', {'mapAssetId': asset_id(aid)})]
-        if a.get('sahip') == 'rakip':
+        if a.get('sahip') == 'rival':
             return []
-        if a['durum'] == 'kurma':
+        if a['durum'] == 'building':
             return [self.building_state(aid)]
-        if a['durum'] == 'kurulu':
+        if a['durum'] == 'built':
             return [self.management_ui(aid)] if self.mine(a) else []        # başka klanın istasyonu
         return [self.building_ui(aid)]
 
@@ -662,8 +662,8 @@ class Cbs:
         a = self.ast(aid)
         levels = []
         for slot in (HULL, DEFLECTOR):
-            y = a['yuvalar'].get(str(slot))
-            m = (y if a.get('sahip') == 'rakip' else self.module(y.get('iid'))) if y else None
+            y = a['slots'].get(str(slot))
+            m = (y if a.get('sahip') == 'rival' else self.module(y.get('iid'))) if y else None
             levels.append(max(0, min(15, int(m['seviye']))) if m else 0)
         return (levels[0] << 16) | levels[1]
 
@@ -671,19 +671,19 @@ class Cbs:
         """Asteroidin varlıkları: boşsa asteroit (35); kuruluysa merkez (36) ve uydular (37)."""
         a = self.ast(aid)
         x, y = position(aid)
-        if a['durum'] != 'kurulu':
+        if a['durum'] != 'built':
             cmd = self.asset_cmd(asset_id(aid), ASTEROID, x, y, ASTEROIDS[aid]['ad'])
-            if a['durum'] == 'kurma':
+            if a['durum'] == 'building':
                 cmd[1]['modifier'] = [self.construction_modifier(aid)]
             return [(asset_id(aid), ASTEROID, cmd)]
-        rival = a.get('sahip') == 'rakip'
-        clan = {'id': 9000 + aid, 'etiket': (a.get('rakip') or '')[:3].upper()} if rival else self.st_clan(a)
-        fac = a.get('rakip_firma', 0) if rival else self.st_faction(a)
+        rival = a.get('sahip') == 'rival'
+        clan = {'id': 9000 + aid, 'etiket': (a.get('rival') or '')[:3].upper()} if rival else self.st_clan(a)
+        fac = a.get('rival_company', 0) if rival else self.st_faction(a)
         rel = self.relation(a)
         stage = self.hub_stage(aid)
-        out = [(asset_id(aid), BATTLESTATION, self.asset_cmd(asset_id(aid), BATTLESTATION, x, y, a.get('rakip') if rival else self.st_name(a),
+        out = [(asset_id(aid), BATTLESTATION, self.asset_cmd(asset_id(aid), BATTLESTATION, x, y, a.get('rival') if rival else self.st_name(a),
                                                              stage=stage, clan=clan, faction=fac, relation=rel))]
-        for slot, slot_info in sorted(a['yuvalar'].items(), key=lambda kv: int(kv[0])):
+        for slot, slot_info in sorted(a['slots'].items(), key=lambda kv: int(kv[0])):
             s = int(slot)
             if s <= DEFLECTOR:
                 continue
@@ -700,7 +700,7 @@ class Cbs:
             if kind == SATELLITE and cmd[1]['designId'] == 0:
                 continue
             df = a['deflector']
-            if df.get('acik'):
+            if df.get('on'):
                 cmd[1]['modifier'] = [self.deflector_modifier(uid, 34, True, int(df.get('sn', 0)))]
             elif kind == BATTLESTATION:
                 seconds = max(0, math.ceil(df.get('closed_until', 0) - time.time()))
@@ -727,7 +727,7 @@ class Cbs:
         assets = [(uid, kind) for uid, kind, cmd in self.map_assets(aid)
                   if uid in shown and not (kind == SATELLITE and cmd[1]['designId'] == 0)]
         hub = asset_id(aid)
-        if df['acik']:
+        if df['on']:
             # Clearing timer 35 after shield 34 would delete the active shield's own timer (both effect 49).
             msgs = [('VisualModifierCommand', self.deflector_modifier(hub, 35, False))] if hub in shown else []
             return msgs + [('VisualModifierCommand', self.deflector_modifier(uid, 34, True, df.get('sn', 0)))
@@ -755,8 +755,8 @@ class Cbs:
     def info_cmd(self, aid, slot, m=None):
         """Varlığın can/kalkan çubuğu (AssetInfoCommand)."""
         a = self.ast(aid)
-        y = a['yuvalar'].get(str(slot)) or {}
-        m = m or (y if a.get('sahip') == 'rakip' else self.module(y.get('iid')))
+        y = a['slots'].get(str(slot)) or {}
+        m = m or (y if a.get('sahip') == 'rival' else self.module(y.get('iid')))
         if not m:
             return None
         mh = hp_max(m)                              # rakipte tek oyunculu çarpanla (azami)
@@ -784,11 +784,11 @@ class Cbs:
         if not k or not k.get('id'):
             return False
         a = self.ast(aid)
-        if a['durum'] != 'kurulu' or a.get('sahip') == 'rakip':
+        if a['durum'] != 'built' or a.get('sahip') == 'rival':
             return False
         owner = a.get('klan') or (k['id'] if self.host is None else None)
         relation = (KL.clan_relation(k['id'], owner) if self.host is not None else
-                    next((d['tur'] for d in k.get('diplomasi', []) if d['klan'] == owner), 0))
+                    next((d['tur'] for d in k.get('diplomacy', []) if d['klan'] == owner), 0))
         return owner == k['id'] or relation == 1
 
     def docking_station(self, x, y):
@@ -818,11 +818,11 @@ class Cbs:
                 continue
             a = self.ast(aid)
             s['lastChangedTimestamp'] = 0               # sahipsiz: kayıttaki hesabın gördüğü değişim zamanı değil (E10)
-            if a['durum'] in ('kurulu', 'kurma'):
-                rival = a.get('sahip') == 'rakip'
-                s.update(status=OWN if self.mine(a) else HOSTILE, clanName=a.get('rakip') if rival else self.st_name(a),
-                         owningFaction=mod('FactionModule', faction=a.get('rakip_firma', 0) if rival else self.st_faction(a)),
-                         lastChangedTimestamp=int(a.get('kurulus', time.time()) * 1000))
+            if a['durum'] in ('built', 'building'):
+                rival = a.get('sahip') == 'rival'
+                s.update(status=OWN if self.mine(a) else HOSTILE, clanName=a.get('rival') if rival else self.st_name(a),
+                         owningFaction=mod('FactionModule', faction=a.get('rival_company', 0) if rival else self.st_faction(a)),
+                         lastChangedTimestamp=int(a.get('founded', time.time()) * 1000))
         f['currentServerTimestamp'] = int(time.time() * 1000)
         return [('StarmapStationCommand', {k: v for k, v in f.items() if k != '_m'})]
 
@@ -837,7 +837,7 @@ class Cbs:
         shared = self.host is not None
         run = True
         if shared:                                      # ortak asteroitlerin işleri sunucuda saniyede bir (hangi oturum olursa)
-            with SHARED['kilit']:
+            with SHARED['lock']:
                 run = now >= SHARED['next']
                 if run:
                     SHARED['next'] = now + 1.0
@@ -887,7 +887,7 @@ class Cbs:
             self.seen[aid] = v
             if old == v or aid not in ASTEROIDS:
                 continue
-            star = star or (old or (0, 'bos'))[1] != v[1]
+            star = star or (old or (0, 'vacant'))[1] != v[1]
             if int(ASTEROIDS[aid]['harita']) == int(w.map_id):
                 msgs += self.refresh_assets(aid)
                 if self.near == aid:
@@ -898,21 +898,21 @@ class Cbs:
         msgs = []
         w = self.world
         here = w is not None and int(w.map_id) == int(ASTEROIDS[aid]['harita'])
-        if a.get('sahip') != 'rakip':
-            done = [y for y in a['yuvalar'].values()            # kurulumu biten modüller: adımda bir kez yenilenir
-                    if y.get('install_sec') and not y.get('kuruldu') and now >= y.get('install_end', 0)]
+        if a.get('sahip') != 'rival':
+            done = [y for y in a['slots'].values()            # kurulumu biten modüller: adımda bir kez yenilenir
+                    if y.get('install_sec') and not y.get('installed') and now >= y.get('install_end', 0)]
             for y in done:
-                y['kuruldu'] = True
+                y['installed'] = True
                 self.mark()
             if done:
                 self.bump(a)
             if done and here and self.near == aid:
-                msgs.append(self.progress_msg(aid, now) if a['durum'] == 'bos' else self.status_msg(aid, now))
-            if done and a['durum'] == 'kurulu' and here:
+                msgs.append(self.progress_msg(aid, now) if a['durum'] == 'vacant' else self.status_msg(aid, now))
+            if done and a['durum'] == 'built' and here:
                 msgs += self.refresh_assets(aid)
-        if a['durum'] == 'kurma' and now >= a.get('build_end', 0):
+        if a['durum'] == 'building' and now >= a.get('build_end', 0):
             msgs += self.finish_build(aid, now)
-        if a['durum'] == 'kurulu' and a.get('sahip') != 'rakip':        # rakibin deflector'ü ve onarımı rival_tick'te
+        if a['durum'] == 'built' and a.get('sahip') != 'rival':        # rakibin deflector'ü ve onarımı rival_tick'te
             msgs += self.deflector_tick(aid, a, now)
             msgs += self.repair_tick(aid, a, now)
         msgs += self.rival_tick(aid, a, now)
@@ -979,9 +979,9 @@ class Cbs:
         now = time.time()
         m = self.own_module(iid)
         me = KL.name(self.p)
-        if a.get('sahip') == 'rakip' or not self.mine(a):
+        if a.get('sahip') == 'rival' or not self.mine(a):
             return self.error('CONCURRENT_EQUIP')
-        if a['durum'] == 'kurma':
+        if a['durum'] == 'building':
             return self.error('STATION_ALREADY_BUILDING')
         if not m:
             return self.error('ITEM_NOT_OWNED')
@@ -990,7 +990,7 @@ class Cbs:
         if m['can'] <= 0:
             return self.error('ITEM_HITPOINTS_ZERO')
         if any(y.get('install_end', 0) > now and y.get('sahip', me) == me for b in self.asteroids.values()
-               for y in b.get('yuvalar', {}).values()):
+               for y in b.get('slots', {}).values()):
             return self.error('EQUIP_OF_SAME_PLAYER_RUNNING')
         md = MODS[m['loot']]
         if slot < 0 or slot >= SLOTS:
@@ -999,21 +999,21 @@ class Cbs:
             return self.error('HUB_ONLY' if not md['center'] else 'SATELLITE_ONLY')
         if slot > DEFLECTOR and md['center']:
             return self.error('SATELLITE_ONLY')
-        same = sum(1 for s, y in a['yuvalar'].items() if int(s) != slot and self.module(y['iid'])
+        same = sum(1 for s, y in a['slots'].items() if int(s) != slot and self.module(y['iid'])
                    and self.module(y['iid'])['loot'] == m['loot'])
-        if same >= md['en_cok']:
+        if same >= md['max_count']:
             return self.error('MAX_NUMBER_OF_MODULE_TYPE_EXCEEDED')
-        old = a['yuvalar'].get(str(slot))
+        old = a['slots'].get(str(slot))
         if old and not replace:
             return self.error('CONCURRENT_EQUIP')
         if old and not self.hp('battle_station_replace_module'):
             return self.error('REPLACE_RIGHT_MISSING')
-        secs = D['swap_sec'] if a['durum'] == 'kurulu' else D['install_sec']
+        secs = D['swap_sec'] if a['durum'] == 'built' else D['install_sec']
         old_loot = (self.module(old['iid']) or {}).get('loot', '') if old else ''
         y = {'iid': iid, 'install_end': now + secs, 'install_sec': secs}
         h = self.host
         if h is not None:                               # ortak: modül yuvaya (herkes görsün), benzersiz kimlikle
-            cbs_h, mods, cid = h.d['cbs'], self.st['moduller'], self.clan()['id']
+            cbs_h, mods, cid = h.d['cbs'], self.st['modules'], self.clan()['id']
             with self.lock:
                 cbs_h['shared_seq'] = int(cbs_h.get('shared_seq', 0)) + 1
                 y.update(iid=SHARED_ITEM + cbs_h['shared_seq'], modul=m, sahip=me, owner_name=self.p.d['pilot'].get('userName', ''))
@@ -1022,61 +1022,61 @@ class Cbs:
         if old:
             self.give_back(old)
         with self.lock:
-            a['yuvalar'][str(slot)] = y
+            a['slots'][str(slot)] = y
             self.mark()
         if old:
             self.note(aid, 'MODULE_REPLACED', oldModuleType=old_loot,
                       oldModuleLevel=0, newModuleType=m['loot'], newModuleLevel=m['seviye'], slot=slot if slot > DEFLECTOR else -1)
         self.log('   CBS: %s %s yuva %d (%d sn)' % (ASTEROIDS[aid]['ad'], m['loot'], slot, secs))
-        msgs = [self.progress_msg(aid, now) if a['durum'] == 'bos' else self.status_msg(aid, now), self.available_msg()]
-        if a['durum'] != 'bos':
+        msgs = [self.progress_msg(aid, now) if a['durum'] == 'vacant' else self.status_msg(aid, now), self.available_msg()]
+        if a['durum'] != 'vacant':
             msgs += self.refresh_assets(aid)
         return msgs
 
     def unequip(self, aid, iid):
         a = self.ast(aid)
-        hit = next((s for s, y in a['yuvalar'].items() if int(y['iid']) == iid), None)
+        hit = next((s for s, y in a['slots'].items() if int(y['iid']) == iid), None)
         if hit is None:
             return self.error('ITEM_NOT_IN_STATION')
-        y = a['yuvalar'][hit]
+        y = a['slots'][hit]
         if y.get('sahip', KL.name(self.p)) != KL.name(self.p) and not self.hp('battle_station_replace_module'):
             return self.error('REPLACE_RIGHT_MISSING')
         # kurulumu sürerken çıkarılan modül: istemcinin "The installation of this Module has been cancelled."
         abort = [stm('msg_station_module_install_aborted')] if y.get('install_end', 0) > time.time() else []
         m = self.module(iid)
         with self.lock:
-            del a['yuvalar'][hit]
-            if not a['yuvalar'] and a['durum'] == 'bos':
+            del a['slots'][hit]
+            if not a['slots'] and a['durum'] == 'vacant':
                 a.pop('klan', None)                     # boşalan asteroit başka klanın da olabilir
             self.mark()
         self.give_back(y)
         self.note(aid, 'MODULE_REMOVED', moduleType=m['loot'] if m else '', moduleLevel=m['seviye'] if m else 0,
                   slot=int(hit) if int(hit) > DEFLECTOR else -1)
-        if a['durum'] == 'kurulu' and int(hit) == HULL:
+        if a['durum'] == 'built' and int(hit) == HULL:
             self.destroy(aid, 'hull removed')
             return [self.building_ui(aid), self.available_msg()] + self.refresh_assets(aid) + abort
-        msgs = [self.progress_msg(aid) if a['durum'] == 'bos' else self.status_msg(aid), self.available_msg()]
-        return msgs + (self.refresh_assets(aid) if a['durum'] != 'bos' else []) + abort
+        msgs = [self.progress_msg(aid) if a['durum'] == 'vacant' else self.status_msg(aid), self.available_msg()]
+        return msgs + (self.refresh_assets(aid) if a['durum'] != 'vacant' else []) + abort
 
     def build(self, aid, minutes):
         a = self.ast(aid)
         now = time.time()
-        if a['durum'] != 'bos' or self.own_progress(aid, now) < 1.0:
+        if a['durum'] != 'vacant' or self.own_progress(aid, now) < 1.0:
             return self.error('STATION_ALREADY_BUILDING')
         if not self.hp('battle_station_build'):
             return self.error('UNSPECIFIED')
         k = D['build_min']
         minutes = max(k[0], min(k[1], minutes or k[0]))
         with self.lock:
-            a.update(durum='kurma', build_end=now + minutes * 60, build_sec=minutes * 60, sahip='oyuncu')
+            a.update(durum='building', build_end=now + minutes * 60, build_sec=minutes * 60, sahip='player')
             if self.host is not None:
                 a['klan'] = self.clan()['id']
-            a.pop('rakip', None)
-            a.pop('rakip_ilerleme', None)
-            race = a.pop('yaris', None) or {}
+            a.pop('rival', None)
+            a.pop('rival_progress', None)
+            race = a.pop('race', None) or {}
             self.mark()
         for cid, r in race.items():                    # yarışan bot klanlarının modülleri stoklarına (klan_us)
-            refund_race(cid, r.get('moduller'))
+            refund_race(cid, r.get('modules'))
         self.note(aid, 'BUILD_START', buildSeconds=minutes * 60)
         self.log('   CBS: %s kuruluyor (%d dk)' % (ASTEROIDS[aid]['ad'], minutes))
         return [self.building_state(aid, now), ('VisualModifierCommand', self.construction_modifier(aid))]
@@ -1084,7 +1084,7 @@ class Cbs:
     def stats(self, a):
         """İstasyon sayıları: tek oyunculuda profilde, ortakta istasyonun klanının kaydında."""
         if self.host is None:
-            return self.st['istatistik']
+            return self.st['stats']
         k = KL.CLANS.get(a.get('klan')) or {}
         return k.setdefault('cbs_stats', {})
 
@@ -1092,11 +1092,11 @@ class Cbs:
         a = self.ast(aid)
         ist, asteroids = self.stats(a), self.asteroids
         with self.lock:
-            a.update(durum='kurulu', kurulus=now)
-            a['deflector'] = {'acik': True, 'sn': D['on_build_deflector_min'] * 60.0, 'closed_until': 0.0, 'son': now}   # forum 127469
+            a.update(durum='built', founded=now)
+            a['deflector'] = {'on': True, 'sn': D['on_build_deflector_min'] * 60.0, 'closed_until': 0.0, 'last': now}   # forum 127469
             ist['all'] = ist.get('all', 0) + 1
-            ist['en_cok'] = max(ist.get('en_cok', 0), sum(1 for b in asteroids.values() if b.get('durum') == 'kurulu'
-                                                       and b.get('sahip') != 'rakip' and b.get('klan') == a.get('klan')))
+            ist['max_count'] = max(ist.get('max_count', 0), sum(1 for b in asteroids.values() if b.get('durum') == 'built'
+                                                       and b.get('sahip') != 'rival' and b.get('klan') == a.get('klan')))
             self.bump(a)
             self.mark()
         self.note(aid, 'BUILD_FINISHED')
@@ -1126,17 +1126,17 @@ class Cbs:
 
     def deflector_tick(self, aid, a, now):
         df = a['deflector']
-        cursor = min(now, df.get('son', now))
+        cursor = min(now, df.get('last', now))
         changed, exhausted = False, False
         while True:
-            if df['acik']:
+            if df['on']:
                 elapsed = min(max(0.0, df['sn']), now - cursor)
                 df['sn'] = max(0.0, df['sn'] - elapsed)
                 cursor += elapsed
                 if df['sn'] > 0:
                     break
                 # Downtime starts at the actual exhaustion instant, even after a delayed tick.
-                df.update(acik=False, closed_until=cursor + D['deflector_end_off_min'] * 60)
+                df.update(on=False, closed_until=cursor + D['deflector_end_off_min'] * 60)
                 changed = exhausted = True
                 self.bump(a)
                 self.note(aid, 'DEFLECTOR_OFF')
@@ -1149,16 +1149,16 @@ class Cbs:
                 cursor = stop
                 if cursor < deadline or df['sn'] <= 0:
                     break
-                df['acik'] = True
+                df['on'] = True
                 changed = True
                 self.bump(a)
                 self.note(aid, 'DEFLECTOR_ON')
             if cursor >= now:
                 break
-        df['son'] = now
+        df['last'] = now
         self.mark()
         msgs = self.near_status(aid, now) if changed else []
-        if exhausted and not df['acik']:
+        if exhausted and not df['on']:
             msgs += self.tell(a, [KAPI.screen('The deflector shield of your Battle Station at %s is down!' % ASTEROIDS[aid]['ad'])])
         return msgs
 
@@ -1171,7 +1171,7 @@ class Cbs:
 
     def deflector_off(self, aid, minutes):
         a = self.ast(aid)
-        if a['durum'] != 'kurulu':
+        if a['durum'] != 'built':
             return self.error('UNSPECIFIED')
         if not self.hp('battle_station_deflector'):
             return self.error('UNSPECIFIED')
@@ -1179,12 +1179,12 @@ class Cbs:
         # Settle the active countdown before resetting its clock for the requested downtime.
         pending = self.deflector_tick(aid, a, now)
         df = a['deflector']
-        if not df['acik']:
+        if not df['on']:
             return pending + self.error('DEFLECTOR_ALREADY_OFF')
         dm = D['deflector_min']
         minutes = max(dm[0], min(dm[1], minutes or dm[0]))
         with self.lock:
-            df.update(acik=False, closed_until=now + minutes * 60, son=now)
+            df.update(on=False, closed_until=now + minutes * 60, last=now)
             self.bump(a)
             self.mark()
         self.note(aid, 'DEFLECTOR_OFF', userName=self.p.d['pilot'].get('userName', ''))
@@ -1193,14 +1193,14 @@ class Cbs:
 
     def emergency(self, aid, slot):
         a = self.ast(aid)
-        y = a['yuvalar'].get(str(slot))
+        y = a['slots'].get(str(slot))
         m = self.module(y['iid']) if y else None
         if not m or m['can'] <= 0:
             return self.error('REPAIR_NO_MODULE')
         now = time.time()
         if y.get('repair_end', 0) > now:
             return self.error('REPAIR_ALREADY_RUNNING')
-        cost = D['emergency_repair']['bedel']
+        cost = D['emergency_repair']['charge']
         if self.p.d['pilot'].get('uridium', 0) < cost:
             return self.error('REPAIR_NO_MONEY')
         self.p.gain(uridyum=-cost, neden='battlestation_emergency_repair')
@@ -1213,12 +1213,12 @@ class Cbs:
     def repair_tick(self, aid, a, now):
         """Acil onarım (7.500/sn), Engineering Bay (bütün modüller) ya da son hasardan 30 sn sonra yavaş onarım; kalkan dolar."""
         rep = 0
-        for y in a['yuvalar'].values():
+        for y in a['slots'].values():
             m = self.module(y['iid'])
             if m and MODS[m['loot']].get('repair_sec') and m['can'] > 0 and y.get('install_end', 0) <= now:
                 rep = level_value(MODS[m['loot']]['repair_sec'], m['seviye'])
         changed = []
-        for slot, y in a['yuvalar'].items():
+        for slot, y in a['slots'].items():
             m = self.module(y['iid'])
             if not m or m['can'] <= 0:
                 continue
@@ -1271,7 +1271,7 @@ class Cbs:
         out = {}
         here = int(self.p.d['position'].get('mapId', 0))
         for aid_s, a in list(self.asteroids.items()):
-            if a.get('durum') != 'kurulu' or not self.mine(a) or a.get('klan') not in (None, clan['id']):
+            if a.get('durum') != 'built' or not self.mine(a) or a.get('klan') not in (None, clan['id']):
                 continue
             aid = int(aid_s)
             out['onur'] = min(D['booster']['cap'], out.get('onur', 0) + self.booster_pct(aid, 'onur') / 100.0)
@@ -1284,7 +1284,7 @@ class Cbs:
 
     def trade_mult(self):
         """Kendi istasyonunun menzilinde maden satışı (TradeType BATTLE_STATION, fiyat x1,1) -> çarpan ya da None."""
-        if self.near and self.ast(self.near)['durum'] == 'kurulu' and self.mine(self.ast(self.near)):
+        if self.near and self.ast(self.near)['durum'] == 'built' and self.mine(self.ast(self.near)):
             return D['ore_multiplier']
         return None
 
@@ -1292,8 +1292,8 @@ class Cbs:
     def damage_module(self, aid, slot, dmg, attacker_name='', shield_only=False, hull_only=False):
         """Modüle hasar (kalkan %80 emer) -> mesajlar; can 0: yok olur; merkez (Hull) giderse istasyon düşer."""
         a = self.ast(aid)
-        y = a['yuvalar'].get(str(slot))
-        rival = a.get('sahip') == 'rakip'
+        y = a['slots'].get(str(slot))
+        rival = a.get('sahip') == 'rival'
         m = y if rival else (self.module(y['iid']) if y else None)
         if not m or m['can'] <= 0:
             return []
@@ -1312,17 +1312,17 @@ class Cbs:
 
     def module_destroyed(self, aid, slot, by=''):
         a = self.ast(aid)
-        rival = a.get('sahip') == 'rakip'
-        y = a['yuvalar'].get(str(slot))
+        rival = a.get('sahip') == 'rival'
+        y = a['slots'].get(str(slot))
         m = y if rival else self.module(y['iid'])
         msgs = []
         self.note(aid, 'MODULE_DESTROYED', moduleType=m['loot'], moduleLevel=m['seviye'], slot=slot if slot > DEFLECTOR else -1,
                   opponentClanName=by)
         if rival or self.bot_demolition(a):                 # oyuncu rakibin (ya da bot klanının) modülünü yıktı: uridyum
-            kind = MODS[m['loot']].get('silah') or 'diger'
-            u = D['demolish_reward']['taban'].get(kind, D['demolish_reward']['taban']['diger']) + D['demolish_reward']['per_level'] * m['seviye']
+            kind = MODS[m['loot']].get('weapon') or 'other'
+            u = D['demolish_reward']['base'].get(kind, D['demolish_reward']['base']['other']) + D['demolish_reward']['per_level'] * m['seviye']
             u = SET.amount('uridyum', u, 'mod')              # panelin uridyum çarpanı
-            self.p.gain(uridyum=u, neden='battlestation_destroy_modul')
+            self.p.gain(uridyum=u, neden='battlestation_destroy_module')
             msgs += [stm('msg_station_satellite_destruction_reward', AMOUNT=u, MODULE=MODS[m['loot']]['code'], LEVEL=m['seviye'] + 1,
                          STATION=ASTEROIDS[aid]['ad'])] + self.m.money_msgs()
         elif self.world:                                # oyuncunun modülü yıkıldı: uyarı (ortakta klana)
@@ -1339,7 +1339,7 @@ class Cbs:
     def clan_asteroids(self, k):
         """Klanın modül takılı ya da kurulu asteroitleri (tek oyunculuda oyuncunun rakip dışındakileri)."""
         for aid, a in list(self.asteroids.items()):
-            if a.get('sahip') == 'rakip' or not (a.get('yuvalar') or a.get('durum') in ('kurma', 'kurulu')):
+            if a.get('sahip') == 'rival' or not (a.get('slots') or a.get('durum') in ('building', 'built')):
                 continue
             if self.host is not None and a.get('klan') != k['id']:
                 continue
@@ -1350,19 +1350,19 @@ class Cbs:
         istasyon düşer (unequip'teki kural; forumda 1 canla kalır: uyarlama)."""
         me, msgs = KL.name(self.p), []
         for aid, a in self.clan_asteroids(k):
-            for s, y in list(a['yuvalar'].items()):
+            for s, y in list(a['slots'].items()):
                 if y.get('sahip', me) != who:
                     continue
                 with self.lock:
-                    a['yuvalar'].pop(s, None)
+                    a['slots'].pop(s, None)
                     self.bump(a)
                     self.mark()
                 self.give_back(y)
                 self.note(aid, 'MODULE_REMOVED', slot=int(s) if int(s) > DEFLECTOR else -1)
-                if a['durum'] == 'kurulu' and int(s) == HULL:
+                if a['durum'] == 'built' and int(s) == HULL:
                     msgs += self.destroy(aid, 'hull removed')
                     break
-            if a.get('durum') == 'bos' and not a.get('yuvalar'):
+            if a.get('durum') == 'vacant' and not a.get('slots'):
                 a.pop('klan', None)
         return msgs + (self.starmap_msgs() if msgs else [])
 
@@ -1381,31 +1381,31 @@ class Cbs:
     def destroy(self, aid, by=''):
         """İstasyon düştü: modüller (yok olmuş) envantere, asteroit boş."""
         a = self.ast(aid)
-        rival = a.get('sahip') == 'rakip'
+        rival = a.get('sahip') == 'rival'
         msgs = []
         if rival or self.bot_demolition(a):
             r = D['demolish_reward']['center']
             r = dict(r, uridyum=SET.amount('uridyum', r['uridyum'], 'mod'), kredi=SET.amount('kredi', r['kredi'], 'mod'))     # panelin çarpanları
             self.p.gain(uridyum=r['uridyum'], kredi=r['kredi'], neden='battlestation_destroy_station')
             msgs += [stm('msg_station_hub_destruction_reward', AMOUNT=r['uridyum'], STATION=ASTEROIDS[aid]['ad']),
-                     stm('msg_station_destroyed_by_clan', DESTROYER=self.clan_name(), LOSER=a.get('rakip', '') if rival else self.st_name(a),
+                     stm('msg_station_destroyed_by_clan', DESTROYER=self.clan_name(), LOSER=a.get('rival', '') if rival else self.st_name(a),
                          STATION=ASTEROIDS[aid]['ad'], MAP=H.name(ASTEROIDS[aid]['harita']))] + self.m.money_msgs()
         if not rival:
-            for y in a['yuvalar'].values():
+            for y in a['slots'].values():
                 m = self.module(y['iid'])
                 if m:
                     m['can'], m['kalkan'] = 0, 0
                 self.give_back(y)                       # ortak: yok olmuş modül sahibine
             ist = self.stats(a)
             ist['demolished'] = ist.get('demolished', 0) + 1
-            ist['longest_sec'] = max(ist.get('longest_sec', 0), int(time.time() - a.get('kurulus', time.time())))
+            ist['longest_sec'] = max(ist.get('longest_sec', 0), int(time.time() - a.get('founded', time.time())))
             msgs += self.tell(a, [stm('msg_station_destroyed', LOSER=self.st_name(a), STATION=ASTEROIDS[aid]['ad'],
                                       MAP=H.name(ASTEROIDS[aid]['harita']))])
         self.note(aid, 'DESTROYED', opponentClanName=by)
-        self.log('   CBS: %s istasyonu yıkıldı (%s)' % (ASTEROIDS[aid]['ad'], by or 'oyuncu'))
+        self.log('   CBS: %s istasyonu yıkıldı (%s)' % (ASTEROIDS[aid]['ad'], by or 'player'))
         asteroids = self.asteroids
         with self.lock:
-            asteroids[str(aid)] = {'durum': 'bos', 'yuvalar': {}, 'rival_round': a.get('rival_round', 0) + (1 if rival else 0),
+            asteroids[str(aid)] = {'durum': 'vacant', 'slots': {}, 'rival_round': a.get('rival_round', 0) + (1 if rival else 0),
                               'surum': a.get('surum', 0) + 1}
             self.mark()
         self.ast(aid)
@@ -1414,7 +1414,7 @@ class Cbs:
         msgs += self.starmap_msgs()
         if self.world:
             msgs += self.refresh_assets(aid)
-        self.seen[aid] = (self.ast(aid).get('surum', 0), 'bos')
+        self.seen[aid] = (self.ast(aid).get('surum', 0), 'vacant')
         if self.near == aid and not rival:
             msgs += [self.building_ui(aid), self.available_msg()]
         return msgs
@@ -1426,7 +1426,7 @@ class Cbs:
         1.1.115 Hellstorm handler resolves generic map entities, including CBS
         satellites. ECO-10 appearance is a local reuse, not an official RAM skin.
         """
-        if md['silah'] == 'roket':
+        if md['weapon'] == 'roket':
             return ('HellstormAttackCommand', dict(attackerId=attacker, targetId=target, hit=hit, currentLoad=1,
                                                   rocketType=mod('AmmunitionTypeModule', typeValue=23)))
         return ('AttackLaserRunCommand', dict(attackerId=attacker, targetId=target, laserColor=0,
@@ -1438,9 +1438,9 @@ class Cbs:
         msgs = []
         for aid in BY_MAP.get(int(w.map_id), []):
             a = self.ast(aid)
-            if a['durum'] != 'kurulu' or a.get('sahip') == 'rakip':
+            if a['durum'] != 'built' or a.get('sahip') == 'rival':
                 continue
-            open_ = not a['deflector']['acik']
+            open_ = not a['deflector']['on']
             due = a.get('next_raid', 0) if self.host is not None else self.next_raid.get(aid, 0)   # ortakta haritada tek baskın
             if open_ and prime_time(now) and now >= due:
                 self.next_raid[aid] = a['next_raid'] = now + D['raid']['interval_min'] * 60
@@ -1478,14 +1478,14 @@ class Cbs:
         B = D['raid']
         boost = 1 + self.booster_pct(aid, 'hasar', now) / 100.0
         dps = total = 0.0
-        for slot_info in self.ast(aid)['yuvalar'].values():
+        for slot_info in self.ast(aid)['slots'].values():
             m = self.module(slot_info['iid'])
             if not m or m['can'] <= 0:
                 continue
             md = MODS[m['loot']]
             total += m['can'] + m['kalkan']
-            if md.get('silah'):
-                dps += dmg_value(md, m['seviye']) * boost * md['isabet'] / md['aralik_sn']
+            if md.get('weapon'):
+                dps += dmg_value(md, m['seviye']) * boost * md['hit'] / md['interval_sec']
         shots = B['sure_sn'] / world_module.COMBAT['npc_attack_interval_sec']
         return dps * B['sure_sn'] / n, total * B['damage_ratio'] / shots / n
 
@@ -1497,7 +1497,7 @@ class Cbs:
         for i in [i for i, k in list(self.raiders.items()) if k == aid and i not in w.npcs]:
             self.raiders.pop(i, None)
         # uzaylılar modülleri vurur (oyuncuyla savaşmayanlar)
-        targets = [int(s) for s, slot_info in a['yuvalar'].items() if self.module(slot_info['iid']) and self.module(slot_info['iid'])['can'] > 0]
+        targets = [int(s) for s, slot_info in a['slots'].items() if self.module(slot_info['iid']) and self.module(slot_info['iid'])['can'] > 0]
         for n in alive:
             if n.engaged or now < self.next_shot.get(n.id, 0):
                 continue
@@ -1520,14 +1520,14 @@ class Cbs:
             w.send([('AttackLaserRunCommand', dict(attackerId=n.id, targetId=asset_id(aid, slot), laserColor=0,
                                                    isDiminishedBySkillShield=False, skilledLaser=False, visualType=0))])
             msgs += self.damage_module(aid, slot, dmg, n.d['ad'])
-            if self.ast(aid)['durum'] != 'kurulu':
+            if self.ast(aid)['durum'] != 'built':
                 return msgs
         # silah modülleri menzildeki baskıncılara ateş eder
         dmg_boost = 1 + self.booster_pct(aid, 'hasar', now) / 100.0
-        for s, slot_info in a['yuvalar'].items():
+        for s, slot_info in a['slots'].items():
             m = self.module(slot_info['iid'])
             md = MODS[m['loot']] if m else {}
-            if not m or not md.get('silah') or m['can'] <= 0 or slot_info.get('install_end', 0) > now:
+            if not m or not md.get('weapon') or m['can'] <= 0 or slot_info.get('install_end', 0) > now:
                 continue
             key = (aid, int(s))
             if now < self.next_shot.get(key, 0):
@@ -1536,10 +1536,10 @@ class Cbs:
             near = [n for n in alive if n.alive and math.hypot(n.mover.pos(now)[0] - sx, n.mover.pos(now)[1] - sy) <= md['menzil']]
             if not near:
                 continue
-            self.next_shot[key] = now + md['aralik_sn']
+            self.next_shot[key] = now + md['interval_sec']
             n = random.choice(near)
-            hit = random.random() < md['isabet']
-            atype = 0 if md['silah'] == 'roket' else 1
+            hit = random.random() < md['hit']
+            atype = 0 if md['weapon'] == 'roket' else 1
             w.send([self.weapon_visual(md, asset_id(aid, int(s)), n.id, hit)])
             if hit:
                 w.hit_npc(n.id, int(dmg_value(md, m['seviye']) * dmg_boost), atype, attacker=asset_id(aid, int(s)), engage=False, source_asset=True)
@@ -1552,12 +1552,12 @@ class Cbs:
         """Boş asteroitte rakip klan (tohumlu): ilerler, önce bitirirse düşman istasyonu kurar. Botlar varken sahte rakip yok:
         kurduğu istasyon ve ilerlemesi bir kez silinir, asteroit boş açılır (yarış bot klanlarının: klan_us)."""
         if with_bots():
-            if a.get('sahip') == 'rakip' or a.get('rakip') is not None:
+            if a.get('sahip') == 'rival' or a.get('rival') is not None:
                 with self.lock:
-                    if a.get('sahip') == 'rakip':
-                        a.update(durum='bos', yuvalar={}, deflector={'acik': False, 'sn': 0.0, 'closed_until': 0.0, 'son': now})
+                    if a.get('sahip') == 'rival':
+                        a.update(durum='vacant', slots={}, deflector={'on': False, 'sn': 0.0, 'closed_until': 0.0, 'last': now})
                         a.pop('sahip', None)
-                    for f in ('rakip', 'rakip_ilerleme', 'rakip_hiz', 'rakip_firma', 'rakip_son'):
+                    for f in ('rival', 'rival_progress', 'rival_speed', 'rival_company', 'rival_last'):
                         a.pop(f, None)
                     self.bump(a)
                     self.mark()
@@ -1565,32 +1565,32 @@ class Cbs:
                 return self.starmap_msgs() + (self.refresh_assets(aid) if self.world and int(self.world.map_id) == int(ASTEROIDS[aid]['harita'])
                                               else [])
             return []
-        if a['durum'] == 'kurma' or (a['durum'] == 'kurulu' and a.get('sahip') != 'rakip'):
+        if a['durum'] == 'building' or (a['durum'] == 'built' and a.get('sahip') != 'rival'):
             return []
         msgs = []
-        if a['durum'] == 'bos':
-            if 'rakip' not in a:
+        if a['durum'] == 'vacant':
+            if 'rival' not in a:
                 rnd = random.Random('%s-%s' % (aid, a.get('rival_round', 0)))
-                if rnd.random() < D['rakip']['probability']:
-                    hours = rnd.uniform(*D['rakip']['duration_hours'])
+                if rnd.random() < D['rival']['probability']:
+                    hours = rnd.uniform(*D['rival']['duration_hours'])
                     fac = self.faction() if self.host is None else 0          # ortakta rakibin firması oyuncuya göre değil
-                    a.update(rakip=rnd.choice(D['rakip']['klanlar']), rakip_ilerleme=0.0, rakip_hiz=1.0 / (hours * 3600),
-                             rakip_firma=rnd.choice([f for f in (1, 2, 3) if f != fac] or [1]), rakip_son=now)
+                    a.update(rival=rnd.choice(D['rival']['clans']), rival_progress=0.0, rival_speed=1.0 / (hours * 3600),
+                             rival_company=rnd.choice([f for f in (1, 2, 3) if f != fac] or [1]), rival_last=now)
                 else:
-                    a['rakip'] = None
+                    a['rival'] = None
                 self.mark()
-            if a.get('rakip'):
+            if a.get('rival'):
                 slow = 0.5 if self.own_progress(aid, now) > 0 else 1.0          # oyuncu da kuruyorsa rakip yavaşlar
-                a['rakip_ilerleme'] = min(1.0, a.get('rakip_ilerleme', 0) + (now - a.get('rakip_son', now)) * a['rakip_hiz'] * slow)
-                a['rakip_son'] = now
-                if a['rakip_ilerleme'] >= 1.0 and self.own_progress(aid, now) < 1.0:
+                a['rival_progress'] = min(1.0, a.get('rival_progress', 0) + (now - a.get('rival_last', now)) * a['rival_speed'] * slow)
+                a['rival_last'] = now
+                if a['rival_progress'] >= 1.0 and self.own_progress(aid, now) < 1.0:
                     msgs += self.rival_build(aid, a, now)
-        elif a.get('sahip') == 'rakip':
+        elif a.get('sahip') == 'rival':
             df = a.setdefault('deflector', {})
-            active = bool(D['rakip'].get('deflector_outside_prime') and not prime_time(now)
+            active = bool(D['rival'].get('deflector_outside_prime') and not prime_time(now)
                           and now >= df.get('closed_until', 0))
-            if bool(df.get('acik')) != active:
-                df['acik'] = active
+            if bool(df.get('on')) != active:
+                df['on'] = active
                 self.bump(a)
                 self.mark()
                 msgs += self.deflector_visuals(aid, now)
@@ -1606,7 +1606,7 @@ class Cbs:
         if not dt or now - a.get('attack_at', 0) < po['delay_sec']:
             return []
         changed = []
-        for s, y in a['yuvalar'].items():
+        for s, y in a['slots'].items():
             mx = hp_max(y)
             ms = min(SET.I32, int(mx * D['shield_ratio']))
             if y['can'] <= 0 or (y['can'] >= mx and y['kalkan'] >= ms):
@@ -1625,7 +1625,7 @@ class Cbs:
 
     def rival_build(self, aid, a, now):
         """Rakip istasyonu: merkez (Hull, Deflector) ve 8 uydu, seviye 0, oyuncunun modüllerinden bağımsız."""
-        free = [y['iid'] for y in a['yuvalar'].values() if 'iid' in y]       # oyuncunun kurulmamış modülleri
+        free = [y['iid'] for y in a['slots'].values() if 'iid' in y]       # oyuncunun kurulmamış modülleri
         rnd = random.Random('%s-b' % aid)
         sats = ['module_ltm-lr', 'module_ltm-mr', 'module_ltm-hr', 'module_ram-la', 'module_ram-ma', 'module_repm-1', 'module_honm-1',
                 'module_xpm-1']
@@ -1634,24 +1634,24 @@ class Cbs:
             slots[str(s)] = sats[(s - 2) % len(sats)] if s < 4 else rnd.choice(sats[:5])
         slot_info = {}
         for s, loot in slots.items():
-            hp = int(level_value(MODS[loot]['can'], 0) * D['rakip']['hp_multiplier'])      # tek oyunculu: tek gemi yıkabilsin
+            hp = int(level_value(MODS[loot]['can'], 0) * D['rival']['hp_multiplier'])      # tek oyunculu: tek gemi yıkabilsin
             slot_info[s] = dict(loot=loot, seviye=0, can=hp, kalkan=int(hp * D['shield_ratio']), azami=hp)
-        for y in list(a['yuvalar'].values()):            # ortak: kurulmamış modüller sahiplerine
+        for y in list(a['slots'].values()):            # ortak: kurulmamış modüller sahiplerine
             self.give_back(y)
         with self.lock:
-            a.update(durum='kurulu', sahip='rakip', yuvalar=slot_info, kurulus=now, deflector={'acik': True})
+            a.update(durum='built', sahip='rival', slots=slot_info, founded=now, deflector={'on': True})
             a.pop('klan', None)
             self.bump(a)
             self.mark()
-        self.log('   CBS: rakip %s, %s istasyonunu kurdu (oyuncunun %d modülü envantere)' % (a['rakip'], ASTEROIDS[aid]['ad'], len(free)))
-        msgs = [stm('msg_station_built', CLAN=a['rakip'], STATION=ASTEROIDS[aid]['ad'], MAP=H.name(ASTEROIDS[aid]['harita']))] + self.starmap_msgs()
+        self.log('   CBS: rakip %s, %s istasyonunu kurdu (oyuncunun %d modülü envantere)' % (a['rival'], ASTEROIDS[aid]['ad'], len(free)))
+        msgs = [stm('msg_station_built', CLAN=a['rival'], STATION=ASTEROIDS[aid]['ad'], MAP=H.name(ASTEROIDS[aid]['harita']))] + self.starmap_msgs()
         if self.world and int(self.world.map_id) == int(ASTEROIDS[aid]['harita']):
             msgs += self.refresh_assets(aid)
         return msgs
 
     def rival_attackable(self, aid):
         a = self.ast(aid)
-        return a.get('sahip') == 'rakip' and a['durum'] == 'kurulu' and not (a.get('deflector') or {}).get('acik')
+        return a.get('sahip') == 'rival' and a['durum'] == 'built' and not (a.get('deflector') or {}).get('on')
 
     def hit_asset(self, asset, dmg):
         """Oyuncunun rakip istasyonuna vuruşu (varlık kimliği) -> mesajlar."""
@@ -1678,8 +1678,8 @@ class Cbs:
         if aid is None or not w or int(w.map_id) != int(ASTEROIDS[aid]['harita']):
             return None
         a = self.ast(aid)
-        y = a['yuvalar'].get(str(slot)) if a['durum'] == 'kurulu' else None
-        m = (y if a.get('sahip') == 'rakip' else self.module(y.get('iid'))) if y else None
+        y = a['slots'].get(str(slot)) if a['durum'] == 'built' else None
+        m = (y if a.get('sahip') == 'rival' else self.module(y.get('iid'))) if y else None
         return m if m and m.get('can', 0) > 0 else None
 
     def asset_pos(self, uid):
@@ -1703,7 +1703,7 @@ class Cbs:
         if self.asset_module(uid):
             a = self.ast(aid)
             hostile = self.rival_attackable(aid) or (self.host is not None and not self.mine(a)
-                and self.relation(a) == 3 and not a['deflector'].get('acik'))
+                and self.relation(a) == 3 and not a['deflector'].get('on'))
             if hostile:
                 return []
         return [legacy('0|A|STM|msg_station_not_atackable')]
@@ -1766,18 +1766,18 @@ class Cbs:
         for aid in BY_MAP.get(int(w.map_id), []):
             a = self.ast(aid)
             bot_st = a.get('sahip') == 'bot' and self.host is not None and not self.mine(a) and self.relation(a) == 3
-            if (a.get('sahip') != 'rakip' and not bot_st) or a['durum'] != 'kurulu':
+            if (a.get('sahip') != 'rival' and not bot_st) or a['durum'] != 'built':
                 continue                                # bot klanının istasyonu da düşmanına ateş eder (klan_us)
-            tag = a.get('rakip', '') if not bot_st else (self.st_clan(a) or {}).get('etiket', '')
-            for s, slot_info in list(a['yuvalar'].items()):
+            tag = a.get('rival', '') if not bot_st else (self.st_clan(a) or {}).get('etiket', '')
+            for s, slot_info in list(a['slots'].items()):
                 y = slot_info if not bot_st else slot_info.get('modul')
                 if not y:
                     continue
                 md = MODS[y['loot']]
-                if not md.get('silah') or y['can'] <= 0 or w.hero_dead:
+                if not md.get('weapon') or y['can'] <= 0 or w.hero_dead:
                     continue
                 sx, sy = satellite_pos(aid, int(s))
-                key = ('rakip', aid, int(s))
+                key = ('rival', aid, int(s))
                 if now < self.next_shot.get(key, 0):
                     continue
                 candidates = []
@@ -1793,19 +1793,19 @@ class Cbs:
                 if not candidates:
                     continue
                 _, _, target_uid, target_pet = min(candidates, key=lambda row: row[:2])
-                self.next_shot[key] = now + md['aralik_sn']
+                self.next_shot[key] = now + md['interval_sec']
                 uid = asset_id(aid, int(s))
                 defense = {} if target_pet else self.p.mods()
-                evasion = max(0.0, min(1.0, target_pet.proto('kacinma') if target_pet else defense.get('kacinma', 0)))
-                hit = random.random() < md['isabet'] * (1 - evasion)
-                atype = 0 if md['silah'] == 'roket' else 1
+                evasion = max(0.0, min(1.0, target_pet.proto('evasion') if target_pet else defense.get('evasion', 0)))
+                hit = random.random() < md['hit'] * (1 - evasion)
+                atype = 0 if md['weapon'] == 'roket' else 1
                 laser_factor = max(0.0, 1 + defense.get('laser_taken', 0)) if atype == 1 else 1.0
                 visual = self.weapon_visual(md, uid, target_uid, hit)
                 if atype == 1:
                     visual[1]['isDiminishedBySkillShield'] = laser_factor < 1 or (not target_pet and w.skill_shield())
                 w.send([visual])
                 if hit:
-                    dmg = int(round(dmg_value(md, y['seviye']) * D['rakip']['damage_multiplier'] * laser_factor))
+                    dmg = int(round(dmg_value(md, y['seviye']) * D['rival']['damage_multiplier'] * laser_factor))
                     if target_pet:
                         actual = target_pet.station_hit(dmg, uid, atype=atype, now=now)
                     else:
@@ -1824,7 +1824,7 @@ class Cbs:
     def log_of(self, cid=None):
         """İstasyon günlüğü: tek oyunculuda profilde, ortakta klanın kaydında (cid; verilmezse oyuncunun klanı)."""
         if self.host is None:
-            return self.st['gunluk']
+            return self.st['daily']
         k = KL.CLANS.get(cid) if cid else self.clan()
         return k.setdefault('cbs_log', []) if k is not None else []
 
@@ -1834,7 +1834,7 @@ class Cbs:
                  userName=values.pop('userName', ''), opponentClanName=values.pop('opponentClanName', ''),
                  buildSeconds=int(values.pop('buildSeconds', 0)), values=json.dumps(values) if values else '{}')
         b = self.ast(aid)
-        g = self.log_of(b.get('klan') if b.get('sahip') != 'rakip' else None)
+        g = self.log_of(b.get('klan') if b.get('sahip') != 'rival' else None)
         with self.lock:
             g.insert(0, e)
             del g[200:]
@@ -1845,26 +1845,26 @@ class Cbs:
     def clan_info(self):
         st = self.st
         k = self.clan()
-        ist = self.stats({'klan': k['id']} if k else {}) if self.host is not None else st['istatistik']
+        ist = self.stats({'klan': k['id']} if k else {}) if self.host is not None else st['stats']
         rows = []
         for aid_s, a in sorted(self.asteroids.items(), key=lambda kv: int(kv[0])):
-            if a.get('durum') not in ('kurulu', 'kurma') or not self.mine(a):
+            if a.get('durum') not in ('built', 'building') or not self.mine(a):
                 continue
             aid = int(aid_s)
             df = a.get('deflector') or {}
-            has_def = any(int(s) == DEFLECTOR for s in a['yuvalar'])
+            has_def = any(int(s) == DEFLECTOR for s in a['slots'])
             rows.append(mod('BattleStationOverviewInfoCommand', stationName=ASTEROIDS[aid]['ad'], xpBonus=float(self.booster_pct(aid, 'ep')),
-                            timerCounter=max(0, int(a.get('build_end', 0) - time.time())) if a['durum'] == 'kurma' else 0,
+                            timerCounter=max(0, int(a.get('build_end', 0) - time.time())) if a['durum'] == 'building' else 0,
                             deflectorDownTime=max(0, int(df.get('closed_until', 0) - time.time())),
-                            damageBonus=float(self.booster_pct(aid, 'hasar')), defStatus=bool(df.get('acik')),
-                            hasDeflectorModul=has_def, deflectorIsActive=bool(df.get('acik')), deflectorTime=int(df.get('sn', 0)),
-                            allModuleCount=len(a['yuvalar']), mapName=H.name(ASTEROIDS[aid]['harita']), buildCompleted=a['durum'] == 'kurulu',
+                            damageBonus=float(self.booster_pct(aid, 'hasar')), defStatus=bool(df.get('on')),
+                            hasDeflectorModul=has_def, deflectorIsActive=bool(df.get('on')), deflectorTime=int(df.get('sn', 0)),
+                            allModuleCount=len(a['slots']), mapName=H.name(ASTEROIDS[aid]['harita']), buildCompleted=a['durum'] == 'built',
                             maxAmountOfModule=SLOTS, honourBonus=float(self.booster_pct(aid, 'onur')), stationId=aid))
-        longest = max(ist.get('longest_sec', 0), max([int(time.time() - a.get('kurulus', time.time())) for a in self.asteroids.values()
-                                                     if a.get('durum') == 'kurulu' and self.mine(a)] or [0]))
+        longest = max(ist.get('longest_sec', 0), max([int(time.time() - a.get('founded', time.time())) for a in self.asteroids.values()
+                                                     if a.get('durum') == 'built' and self.mine(a)] or [0]))
         return ('ClanBattleStationInfoCommand', dict(battleStationOverviewInfoCommands=rows,
                                                      stationOwnedLongestTime=str(int(longest)),     # saniye (istemci biçimler)
-                                                     maxStationAtOnce=int(ist.get('en_cok', 0)), destroyedStations=int(ist.get('demolished', 0)),
+                                                     maxStationAtOnce=int(ist.get('max_count', 0)), destroyedStations=int(ist.get('demolished', 0)),
                                                      stations=len(rows), allStations=int(ist.get('all', 0))))
 
     USER_KINDS = ('BUILD_START', 'DEFLECTOR_ON', 'EMERGENCY_REPAIR', 'MODULE_REPLACED', 'MODULE_REMOVED')
@@ -1896,37 +1896,37 @@ class Cbs:
         msgs = []
         if 'module' in what:
             for loot in MODS:
-                n = 8 if MODS[loot]['en_cok'] > 1 else 1
+                n = 8 if MODS[loot]['max_count'] > 1 else 1
                 self.p.add_resource(loot, n)
             self.st
             msgs.append(KAPI.screen('GM: modül seti envantere'))
         aid = self.near
         if aid and ('build' in what or 'accept' in what):
             a = self.ast(aid)
-            for y in a['yuvalar'].values():
+            for y in a['slots'].values():
                 y['install_end'] = 0
-            if a['durum'] == 'kurma' or 'accept' in what:
+            if a['durum'] == 'building' or 'accept' in what:
                 a['build_end'] = 0
-                if a['durum'] == 'bos':
-                    a.update(durum='kurma', build_sec=60)
+                if a['durum'] == 'vacant':
+                    a.update(durum='building', build_sec=60)
             msgs.append(KAPI.screen('GM: kurulum bitti'))
         if aid and 'deflector' in what:
             df = self.ast(aid)['deflector']
-            df['acik'] = not df.get('acik')
-            df['closed_until'] = 0 if df['acik'] else time.time() + 3600
-            df['sn'] = max(df.get('sn', 0), 3600) if df['acik'] else df.get('sn', 0)
-            df['son'] = time.time()
+            df['on'] = not df.get('on')
+            df['closed_until'] = 0 if df['on'] else time.time() + 3600
+            df['sn'] = max(df.get('sn', 0), 3600) if df['on'] else df.get('sn', 0)
+            df['last'] = time.time()
             self.bump(self.ast(aid))
             self.mark()
-            msgs += self.near_status(aid, df['son'])
+            msgs += self.near_status(aid, df['last'])
         if aid and 'raid' in what:
             msgs += self.spawn_raid(aid)
         if aid and 'rival' in what:
             a = self.ast(aid)
-            if a['durum'] in ('kurulu', 'kurma') and a.get('sahip') != 'rakip':
+            if a['durum'] in ('built', 'building') and a.get('sahip') != 'rival':
                 msgs.append(KAPI.screen('GM: burada kendi istasyonun var'))
             else:
-                a.update(rakip=D['rakip']['klanlar'][0], rakip_ilerleme=1.0, rakip_firma=1 if self.faction() != 1 else 2)
+                a.update(rival=D['rival']['clans'][0], rival_progress=1.0, rival_company=1 if self.faction() != 1 else 2)
                 msgs += self.rival_build(aid, a, time.time())
         self.p.dirty = True
         return msgs or [KAPI.screen('GM battleStation: modules | build | accept | deflector | raid | rival')]
@@ -1936,9 +1936,9 @@ class Cbs:
 def race_leader(a):
     """Boş asteroitte yarışan bot klanlarından önde gideni: (klanın adı, ilerleme 0-1) ya da None."""
     en = None
-    for cid, r in (a.get('yaris') or {}).items():
+    for cid, r in (a.get('race') or {}).items():
         k = KL.CLANS.get(int(cid))
-        p = len(r.get('moduller') or ()) / float(SLOTS)
+        p = len(r.get('modules') or ()) / float(SLOTS)
         if k is not None and p > 0 and (en is None or p > en[1]):
             en = (k['ad'], p)
     return en
@@ -1950,7 +1950,7 @@ def refund_race(cid, modules):
     if k is None or not modules:
         return
     with KL.LOCK:
-        k.setdefault('ksi', {}).setdefault('stok', []).extend(modules)
+        k.setdefault('ksi', {}).setdefault('stock', []).extend(modules)
 
 
 def bot_build(aid, k, modules, minutes, log=print):
@@ -1962,10 +1962,10 @@ def bot_build(aid, k, modules, minutes, log=print):
         return False
     c = Cbs(h, None, log)
     a = c.ast(aid)
-    if a['durum'] != 'bos':
+    if a['durum'] != 'vacant':
         return False
     now = time.time()
-    old = list(a['yuvalar'].values())
+    old = list(a['slots'].values())
     with h.lock:
         d = h.d['cbs']
         slot_info, satellite = {}, iter(range(DEFLECTOR + 1, SLOTS))
@@ -1976,10 +1976,10 @@ def bot_build(aid, k, modules, minutes, log=print):
                 continue
             d['shared_seq'] = int(d.get('shared_seq', 0)) + 1
             slot_info[str(s)] = {'iid': SHARED_ITEM + d['shared_seq'], 'modul': m, 'sahip': '@klan:%d' % k['id'], 'owner_name': k['etiket'],
-                          'install_end': now, 'install_sec': 0, 'kuruldu': True}
-        others = {cid: r.get('moduller') or [] for cid, r in (a.get('yaris') or {}).items() if int(cid) != k['id']}
-        a.update(durum='kurma', build_end=now + minutes * 60, build_sec=minutes * 60, sahip='bot', klan=k['id'], yuvalar=slot_info)
-        for f in ('yaris', 'rakip', 'rakip_ilerleme'):
+                          'install_end': now, 'install_sec': 0, 'installed': True}
+        others = {cid: r.get('modules') or [] for cid, r in (a.get('race') or {}).items() if int(cid) != k['id']}
+        a.update(durum='building', build_end=now + minutes * 60, build_sec=minutes * 60, sahip='bot', klan=k['id'], slots=slot_info)
+        for f in ('race', 'rival', 'rival_progress'):
             a.pop(f, None)
         d['bot_clans'] = True
         c.bump(a)

@@ -23,7 +23,7 @@ Seçili uzaylılar ve kutular (2026-10-18, kullanıcı bildirimi: harita değiş
 import json, os, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-D = json.load(open(os.path.join(HERE, 'data', 'new_systems.json'), encoding='utf8'))['otopilot']
+D = json.load(open(os.path.join(HERE, 'data', 'new_systems.json'), encoding='utf8'))['autopilot']
 START, STOP = 0, 1
 REQUESTS = {'AutopilotInfoRequest', 'AutopilotInfoSaveRequest', 'AutopilotStatus'}
 NPC_LIST, BOX_LIST = 'NPCSelectedList', 'CollectSelectedList'     # AssistantData: harita -> NpcData {Name, NpcID, NpcType} / "box_<tür>"
@@ -54,14 +54,14 @@ class Autopilot:
         self.laser_range = lambda: D['laser_range']      # oturum bağlar: dünyanın lazer menzili
         self.maps = lambda: (None, {})                    # oturum bağlar: (bulunulan harita, harita -> orada çıkan uzaylıların adları)
         with profile.lock:
-            self.d = profile.d.setdefault('otopilot', {'ayar': '', 'durum': STOP, 'baslangic': 0, 'total_sec': 0, 'oturum': 0})
+            self.d = profile.d.setdefault('autopilot', {'ayar': '', 'durum': STOP, 'baslangic': 0, 'total_sec': 0, 'oturum': 0})
             self.d['durum'] = STOP                        # yeni oturum: istemci girişte STOP bildirir
 
     # ------------------------------------------------------------ seçimler
     def selection(self):
         """Haritadan bağımsız seçim {npc: [NpcData], kutu: [ad], npc_harita: ad -> seçildiği haritalar}. Önceki kayıtta yoksa
         haritalara göre listelerin birleşimi."""
-        s = self.d.get('secim')
+        s = self.d.get('choice')
         if s is None:
             s = {'npc': [], 'kutu': [], 'npc_map': {}}
             try:
@@ -69,7 +69,7 @@ class Autopilot:
             except ValueError:
                 old = {}
             self.merge(s, {}, old if isinstance(old, dict) else {})
-            self.d['secim'] = s
+            self.d['choice'] = s
         return s
 
     @staticmethod

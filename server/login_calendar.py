@@ -23,14 +23,14 @@ class DailyLogin:
         """Profildeki takvim: ay ("YYYY-MM"), alınan gün sayısı, son alınan tarih. Ay değişince baştan."""
         t = self.today()
         with self.p.lock:
-            d = self.p.d.setdefault('daily_login', {'ay': '', 'gun': 0, 'son': ''})
+            d = self.p.d.setdefault('daily_login', {'ay': '', 'gun': 0, 'last': ''})
             if d['ay'] != t.strftime('%Y-%m'):
                 d.update(ay=t.strftime('%Y-%m'), gun=0)
                 self.p.dirty = True
         return d
 
     def claimed_today(self):
-        return self.state()['son'] == self.today().isoformat()
+        return self.state()['last'] == self.today().isoformat()
 
     def next_month_seconds(self):
         t = self.today()
@@ -60,7 +60,7 @@ class DailyLogin:
         reward = DATA['months'][str(self.today().month)][d['gun']]
         with self.p.lock:
             d['gun'] += 1
-            d['son'] = self.today().isoformat()
+            d['last'] = self.today().isoformat()
             self.p.dirty = True
         msgs = self.m.reward(reward['esya'], reward['adet'])
         if reward.get('premium'):

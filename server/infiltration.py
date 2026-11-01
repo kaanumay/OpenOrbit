@@ -22,7 +22,7 @@ from legacy_protocol import legacy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 _PATH = os.path.join(HERE, 'data', 'extra_events.json')
-D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('sizma', {})
+D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('infiltration', {})
 EVENT = 'infiltration'
 
 
@@ -33,7 +33,7 @@ def active(now=None):
 def in_slot(now=None):
     t = time.localtime(time.time() if now is None else now)
     h = t.tm_hour + t.tm_min / 60.0
-    return any(a <= h < b for a, b in D.get('saatler', [[19, 22]]))
+    return any(a <= h < b for a, b in D.get('hours', [[19, 22]]))
 
 
 class Infiltration:
@@ -50,7 +50,7 @@ class Infiltration:
     def scores(self, now=None):
         """Bu etkinlik döneminin şirket puanları {'1','2','3'} (dönem değişince sıfır)."""
         span = CAL.period(EVENT, now)
-        d = self.p.d.setdefault('sizma', {})
+        d = self.p.d.setdefault('infiltration', {})
         if span and d.get('donem') != int(span[0]):
             d.update(donem=int(span[0]), puan={'1': 0, '2': 0, '3': 0})
             self.p.dirty = True
@@ -94,7 +94,7 @@ class Infiltration:
         boss = D.get('hidden_boss')
         if boss and random.random() < boss['probability']:      # gizli Boss Kristallon: bir komandonun yerine (Uber Kristallon'un ganimeti)
             kinds[random.randrange(n)] = boss['tur']
-        self.round = dict(harita=self.map_for(cls), sinif=cls, kinds=kinds, adet=n, killed=0,
+        self.round = dict(harita=self.map_for(cls), class_name=cls, kinds=kinds, adet=n, killed=0,
                           bitis=now + D.get('sure_sn', 600), spawned=False)
         self.log('   Infiltration: komando takımı %s (%d)' % (H.name(self.round['harita']), n))
         msgs = [legacy('0|A|STM|msg_infiltration_spawned_map_single|%%MAP%%|%s' % H.name(self.round['harita'])), self.status_cmd(now)]
@@ -156,7 +156,7 @@ class Infiltration:
             self.log('   Infiltration: takım yok edildi')
             msgs.append(legacy('0|A|STM|msg_infiltration_success'))
             self.round = None
-            self.next_round = time.time() + D.get('ara_sn', 120)
+            self.next_round = time.time() + D.get('interval_sec', 120)
             msgs += self.round_over(True)
         return msgs
 
@@ -182,7 +182,7 @@ class Infiltration:
                         if n and n.alive:
                             w.send(w.remove_npc(n))        # takım kaçtı
             self.round = None
-            self.next_round = now + D.get('ara_sn', 120)
+            self.next_round = now + D.get('interval_sec', 120)
             return msgs + [self.status_cmd(now)] + self.round_over(False, now)
         if not r and in_slot(now) and now >= self.next_round:
             return self.start_round(now)

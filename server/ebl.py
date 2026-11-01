@@ -46,7 +46,7 @@ class Ebl:
 
     @property
     def run(self):
-        return self.st.get('kosu')
+        return self.st.get('run')
 
     # ------------------------------------------------------------ CPU ve kapı
     def own_bl(self, map_id):
@@ -70,13 +70,13 @@ class Ebl:
         if not self.own_bl(map_id) or not (self.st.get('kapi') or self.run):
             return []
         w, h = H.map_size(map_id)
-        return [dict(gateId=PORTAL, x=w // 2, y=h // 2 - 1500, hedef=0, designId=D['portal'], kapi='ebl', pencere='ebl')]
+        return [dict(gateId=PORTAL, x=w // 2, y=h // 2 - 1500, hedef=0, designId=D['portal'], kapi='ebl', windowed='ebl')]
 
     def gate_jump(self):
         """X-BL kapısına atlandı: koşu yoksa başlar, varsa kaldığı odaya -> (hedef, mesajlar)."""
         if not self.run:
             with self.p.lock:
-                self.st['kosu'] = dict(dalga=0, puan=0, option=[], weight={}, aktif={}, uridyum=0, bas=time.time())
+                self.st['run'] = dict(dalga=0, puan=0, option=[], weight={}, active={}, uridyum=0, start=time.time())
                 self.st['kapi'] = False
                 self.p.dirty = True
             self.log('   Eternal Black Light: koşu başladı')
@@ -90,14 +90,14 @@ class Ebl:
 
     def room_map(self):
         w, lap = self.wave_in_lap()
-        room = D['waves'][w - 1]['oda']
+        room = D['waves'][w - 1]['room']
         return D['haritalar'][room - 1]
 
     def waves(self):
         """Bu odanın kalan dalgaları (koşu sırası: tamamlanan sayısından)."""
         w, lap = self.wave_in_lap(self.start_done)
-        room = D['waves'][w - 1]['oda']
-        return [x for x in D['waves'] if x['oda'] == room and int(x['ad']) >= w]
+        room = D['waves'][w - 1]['room']
+        return [x for x in D['waves'] if x['room'] == room and int(x['ad']) >= w]
 
     def wave_count(self):
         return len(self.waves())
@@ -109,9 +109,9 @@ class Ebl:
         PS.scale_npc(n, f * k, f * k, f * k)
         r = self.run
         if r['uridyum'] >= D['uridium_limit']:
-            n.d['odul']['uridyum'] = 0                  # koşunun uridyum sınırı
+            n.d['reward']['uridyum'] = 0                  # koşunun uridyum sınırı
         else:
-            r['uridyum'] += n.d['odul']['uridyum']
+            r['uridyum'] += n.d['reward']['uridyum']
         return n
 
     def attach(self, world):
@@ -146,23 +146,23 @@ class Ebl:
             self.p.dirty = True
         self.p.ach('gate_wave', tur='ETERNAL_GATE', dalga=done)       # başarım: "Eternal Gate'te N. dalgaya ulaş"
         if record:
-            self.p.ach('rekor_ebl')                  # şampiyon başarımı: sıralamada tek oyuncu, kişisel rekor birinci
+            self.p.ach('record_ebl')                  # şampiyon başarımı: sıralamada tek oyuncu, kişisel rekor birinci
         w = (done - 1) % D['tur'] + 1
-        pts = D['kontrol'].get(str(w))
+        pts = D['control'].get(str(w))
         self.world.send([('EternalBlacklightWaveInfoCommand', self.wave_info())])
         if not pts:
-            return 'devam'
+            return 'ongoing'
         with self.p.lock:
             r['puan'] += pts
             self.p.dirty = True
         if not r['option']:
             self.roll()
         self.checkpoint(done, pts)
-        return 'dur'
+        return 'halt'
 
     def checkpoint_gates(self, w):
         x, y = w.map_w // 2, w.map_h // 2
-        w.add_gate(dict(gateId=PORTAL + 1, x=x - 1200, y=y, hedef=self.room_map(), designId=D['portal'], kapi='ebl', varis=(10500, 6550)))
+        w.add_gate(dict(gateId=PORTAL + 1, x=x - 1200, y=y, hedef=self.room_map(), designId=D['portal'], kapi='ebl', arrival=(10500, 6550)))
         w.add_gate(self.exit_portal(w, side=True))
 
     def checkpoint(self, done, pts):
@@ -183,16 +183,16 @@ class Ebl:
         if not r:
             return 0
         done = r['dalga']
-        tier = next((t for t in D['death_reward'] if t['en_az'] <= done <= t['en_cok']), None)
+        tier = next((t for t in D['death_reward'] if t['en_az'] <= done <= t['max_count']), None)
         msgs = []
         if tier and done:
-            msgs += self.m.prize(D['parca'], tier['parca'])
-            if tier['iac'] and random.random() < SET.chance('dusme', D['iac'][2], 'mod'):
+            msgs += self.m.prize(D['part'], tier['part'])
+            if tier['iac'] and random.random() < SET.chance('drop', D['iac'][2], 'mod'):
                 msgs += self.m.prize(D['iac'][0], D['iac'][1])
         with self.p.lock:
-            self.st['kosu'] = None
+            self.st['run'] = None
             self.p.dirty = True
-        self.log('   EBL bitti: %d dalga; %s' % (done, '%d Blacklight Shard' % tier['parca'] if tier and done else 'ödül yok'))
+        self.log('   EBL bitti: %d dalga; %s' % (done, '%d Blacklight Shard' % tier['part'] if tier and done else 'ödül yok'))
         if self.m:
             msgs += self.m.apply_stats()             # boosterlar kalktı
         self.world.send(msgs + [KAPI.screen('Eternal Black Light ended at wave %d.' % done, big=True), self.info_cmd(), self.rank_cmd()])
@@ -205,7 +205,7 @@ class Ebl:
     def roll(self):
         """Üç seçenek: tür ağırlıkla (seçilenlerin ağırlığı azalır), kademe 60/30/10."""
         r = self.run
-        pool = list(D['boosterlar'])
+        pool = list(D['boosters'])
         out = []
         for _ in range(3):
             weights = [r['weight'].get(str(b['tur']), 1.0) for b in pool]
@@ -227,12 +227,12 @@ class Ebl:
             return [self.booster_cmd()]
         t, v = r['option'][i]
         with self.p.lock:
-            r['aktif'][str(t)] = r['aktif'].get(str(t), 0) + v
+            r['active'][str(t)] = r['active'].get(str(t), 0) + v
             r['weight'][str(t)] = r['weight'].get(str(t), 1.0) * D['booster_decay']
             r['puan'] -= 1
             self.roll()
             self.p.dirty = True
-        self.log('   EBL booster: tür %d +%d%% (toplam %d%%)' % (t, v, r['aktif'][str(t)]))
+        self.log('   EBL booster: tür %d +%d%% (toplam %d%%)' % (t, v, r['active'][str(t)]))
         return (self.m.apply_stats() if self.m else []) + [self.booster_cmd()]
 
     def mods(self, map_id):
@@ -240,8 +240,8 @@ class Ebl:
         r = self.run
         if not r or int(map_id) not in D['haritalar']:
             return {}
-        keys = {b['tur']: b['anahtar'] for b in D['boosterlar']}
-        return {keys[int(t)]: v / 100.0 for t, v in r['aktif'].items() if int(t) in keys}
+        keys = {b['tur']: b['anahtar'] for b in D['boosters']}
+        return {keys[int(t)]: v / 100.0 for t, v in r['active'].items() if int(t) in keys}
 
     # ------------------------------------------------------------ göstergeler
     def wave_info(self):
@@ -255,7 +255,7 @@ class Ebl:
         return ('EternalBlacklightBoosterInfoCommand', dict(
             option1=b(*opts[0]), option2=b(*opts[1]), option3=b(*opts[2]),
             skillPointInfo=mod('EternalBlacklightSkillPointInfoCommand', skillPoint=int(r.get('puan', 0))),
-            currentBooster=[b(int(t), v) for t, v in sorted((r.get('aktif') or {}).items())]))
+            currentBooster=[b(int(t), v) for t, v in sorted((r.get('active') or {}).items())]))
 
     def info_cmd(self):
         return ('EternalBlacklightInfoCommand', dict(

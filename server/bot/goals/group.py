@@ -31,7 +31,7 @@ class Group(Goal):
         return leader(bot) is not None
 
     def points(self, bot, b):
-        return 0.5 + 0.4 * bot.o('sosyallik') + 0.3 * bot.o('sadakat')
+        return 0.5 + 0.4 * bot.o('sociability') + 0.3 * bot.o('loyalty')
 
     def start(self, bot, b):
         self._head_to(bot, b.y, b.now)
@@ -39,7 +39,7 @@ class Group(Goal):
     def _head_to(self, bot, y, now=None):
         k = leader(bot)
         if k is None:
-            bot.plan['bitti'] = True
+            bot.plan['finished'] = True
             return
         m = int(k.profile.d['position'].get('mapId', bot.game_map))
         bot.plan.update(lider=k.uid, harita=m)
@@ -51,7 +51,7 @@ class Group(Goal):
             return
         k = leader(bot)
         if k is None:
-            bot.plan['bitti'] = True
+            bot.plan['finished'] = True
             return
         if int(k.profile.d['position'].get('mapId', 0)) != bot.game_map:
             self._head_to(bot, y)
@@ -82,4 +82,4 @@ class Group(Goal):
         return False
 
     def finished(self, bot, b):
-        return bot.plan.get('bitti', False) or leader(bot) is None
+        return bot.plan.get('finished', False) or leader(bot) is None

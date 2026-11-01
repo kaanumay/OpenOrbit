@@ -16,7 +16,7 @@ import event_calendar as CAL
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 _PATH = os.path.join(HERE, 'data', 'extra_events.json')
-D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('istila', {})
+D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('invasion', {})
 EVENT = 'invasion'
 MAPS = {int(m): k for k, g in (D.get('kapilar') or {}).items() for m in g['haritalar']}
 
@@ -40,7 +40,7 @@ class Invasion:
 
     @property
     def st(self):
-        d = self.p.d.setdefault('istila', {})
+        d = self.p.d.setdefault('invasion', {})
         d.setdefault('puan', {'1': 0, '2': 0, '3': 0})
         d.setdefault('dalga', 0)
         return d
@@ -108,18 +108,18 @@ class Invasion:
 
     def event_end(self, now):
         """Etkinlik bitti: firmanın sırasına göre hasar boosterı (bir kez)."""
-        st = self.p.d.get('istila')
+        st = self.p.d.get('invasion')
         if not st or st.get('donem') is None:
             return []
         order = sorted(st['puan'], key=lambda f: -st['puan'][f])
         rank = order.index(self.faction())
         msgs = []
-        rows = D.get('odul', [])
+        rows = D.get('reward', [])
         if rank < len(rows):
             loot, hours = rows[rank]
             msgs += self.m.reward(loot, hours)
             self.log('   Invasion bitti: firma %d. (%s), ödül %s %d saat' % (rank + 1, st['puan'], loot, hours))
         with self.p.lock:
-            self.p.d['istila'] = {}
+            self.p.d['invasion'] = {}
             self.p.dirty = True
         return msgs

@@ -86,8 +86,8 @@ def _row(e, long):
     s = json.dumps(_json(f), ensure_ascii=False)
     if long and len(s) > long:
         s = s[:long] + '…'
-    return {'sira': seq, 'time': time.strftime('%H:%M:%S', time.localtime(t)) + ('%.3f' % (t % 1))[1:], 'yon': direction, 'ad': field_name,
-            'alanlar': s}
+    return {'order': seq, 'time': time.strftime('%H:%M:%S', time.localtime(t)) + ('%.3f' % (t % 1))[1:], 'direction': direction, 'ad': field_name,
+            'fields': s}
 
 
 class Control:
@@ -115,16 +115,16 @@ class Control:
         p = G.PROFILE.d
         s = G.CURRENT
         w = s.world if s else None
-        out = {'bagli': s is not None, 'sira': TRACE.seq, 'harita': p['position'].get('mapId'),
-               'harita_adi': G.H.name(p['position'].get('mapId')), 'position': [p['position'].get('x'), p['position'].get('y')],
+        out = {'connected': s is not None, 'order': TRACE.seq, 'harita': p['position'].get('mapId'),
+               'map_name': G.H.name(p['position'].get('mapId')), 'position': [p['position'].get('x'), p['position'].get('y')],
                'gemi': {k: p['gemi'].get(k) for k in ('typeId', 'hitPoints', 'hitMax', 'shield', 'shieldMax', 'cargoSpace')},
                'pilot': {k: p['pilot'].get(k) for k in ('userName', 'level', 'credits', 'uridium', 'ep', 'honourPoints',
                                                         'factionId', 'clanTag')}}
         if w:
             with w.lock:
                 hx, hy = w.hero_pos()
-                out['dunya'] = {'position': [int(hx), int(hy)], 'uzayli': len(w.npcs), 'kutu': len(w.boxes),
-                                'istasyonda': bool(w.in_station()), 'secili': getattr(w, 'target', None)}
+                out['world'] = {'position': [int(hx), int(hy)], 'alien': len(w.npcs), 'kutu': len(w.boxes),
+                                'in_station': bool(w.in_station()), 'selected': getattr(w, 'target', None)}
         return out
 
     def helpers(self):
@@ -212,7 +212,7 @@ class Control:
                     w.send([w.hp_msg()])
             return [g.get('hitPoints'), g.get('shield')]
 
-        return dict(currency=currency, ver=give, phase_out=phase_out, uzayli=alien, yakin=nearby, temizle=clean_up, tamir=repair)
+        return dict(currency=currency, give=give, phase_out=phase_out, alien=alien, yakin=nearby, clean_up=clean_up, repair=repair)
 
     def run_py(self, code):
         s = self.G.CURRENT
@@ -228,7 +228,7 @@ class Control:
         with contextlib.redirect_stdout(buf):
             exec(compile(tree, '<kontrol>', 'exec'), ns)
             val = eval(compile(last, '<kontrol>', 'eval'), ns) if last else ns.get('_')
-        return {'cikti': buf.getvalue(), 'deger': _json(val)}
+        return {'output': buf.getvalue(), 'value': _json(val)}
 
     # ------------------------------------------------------------------ komutlar
     def handle(self, r):
@@ -236,37 +236,37 @@ class Control:
         long = r.get('long', 600)
         if k == 'durum':
             return self.state()
-        if k == 'son':
-            return {'sira': TRACE.seq}
+        if k == 'last':
+            return {'order': TRACE.seq}
         if k == 'iz':
-            rows = TRACE.since(r.get('sonra') or 0, r.get('ad'), r.get('yon'), r.get('tam', False), r.get('limit', 200))
-            return {'sira': TRACE.seq, 'mesajlar': [_row(e, long) for e in rows]}
-        if k == 'bekle':
-            e = TRACE.wait(TRACE.seq if r.get('sonra') is None else r['sonra'], r['ad'], r.get('yon'), r.get('sure', 10))
-            return {'found': e is not None, 'message': _row(e, long) if e else None, 'sira': TRACE.seq}
-        if k == 'istek':
+            rows = TRACE.since(r.get('after') or 0, r.get('ad'), r.get('direction'), r.get('full', False), r.get('limit', 200))
+            return {'order': TRACE.seq, 'messages': [_row(e, long) for e in rows]}
+        if k == 'wait':
+            e = TRACE.wait(TRACE.seq if r.get('after') is None else r['after'], r['ad'], r.get('direction'), r.get('sure', 10))
+            return {'found': e is not None, 'message': _row(e, long) if e else None, 'order': TRACE.seq}
+        if k == 'request':
             s = self.session()
-            f = self.full_fields(r['ad'], r.get('alanlar', {}))
+            f = self.full_fields(r['ad'], r.get('fields', {}))
             before = TRACE.seq
             s.inject(r['ad'], f)
-            time.sleep(r.get('bekle', 0.4))
-            return {'alanlar': _json(f), 'yanitlar': [_row(e, long) for e in TRACE.since(before, direction='->', limit=0)]}
-        if k == 'gonder':
+            time.sleep(r.get('wait', 0.4))
+            return {'fields': _json(f), 'replies': [_row(e, long) for e in TRACE.since(before, direction='->', limit=0)]}
+        if k == 'send':
             s = self.session()
             msgs = []
-            for m in r.get('mesajlar', []):
+            for m in r.get('messages', []):
                 if isinstance(m, str):
                     msgs.append(self.G.legacy(m))
                 else:
                     self.G.P.encode_message(m[0], m[1])          # bilinmeyen alan/tür hatası burada çıksın
                     msgs.append((m[0], m[1]))
             s.send(msgs, 'kontrol: %d mesaj' % len(msgs))
-            return {'gonderilen': len(msgs)}
+            return {'sent': len(msgs)}
         if k == 'py':
             return self.run_py(r['code'])
-        if k == 'alanlar':
+        if k == 'fields':
             sp = self.G.P.spec().by_class.get(r['ad'])
-            return {'ad': r['ad'], 'adimlar': sp['steps'] if sp else None}
+            return {'ad': r['ad'], 'steps': sp['steps'] if sp else None}
         raise ValueError('bilinmeyen komut %r' % k)
 
     # ------------------------------------------------------------------ sunucu

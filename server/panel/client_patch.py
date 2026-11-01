@@ -32,10 +32,10 @@ PANEL_DIR = os.path.dirname(os.path.abspath(__file__))
 # Değiştirince sha256 de değişir; kurulu eskisinin üstüne yeniden kurulur.
 BEPINEX = {'ad': 'BepInEx 6.0.0-be.788',
            'url': 'https://builds.bepinex.dev/projects/bepinex_be/788/BepInEx-Unity.IL2CPP-win-x86-6.0.0-be.788%2B5b766a3.zip',
-           'sha256': 'd5954a5993ec39cd1133603d85bff93875d30b6411b712cc13dcf03c8e08a4d3', 'boyut': 31440336}
+           'sha256': 'd5954a5993ec39cd1133603d85bff93875d30b6411b712cc13dcf03c8e08a4d3', 'size': 31440336}
 UNITY = {'ad': 'Unity 2022.3.58', 'url': 'https://unity.bepinex.dev/libraries/2022.3.58.zip',
-         'sha256': '37b5b6d5f3a8761ecd8415302f0283e86c552c822a456faaec33aae533ba32ae', 'boyut': 1898155,
-         'yol': 'BepInEx/unity-libs/2022.3.58.zip'}
+         'sha256': '37b5b6d5f3a8761ecd8415302f0283e86c552c822a456faaec33aae533ba32ae', 'size': 1898155,
+         'route': 'BepInEx/unity-libs/2022.3.58.zip'}
 PLUGIN = os.path.join(PANEL_DIR, 'plugin', 'OpenOrbitPatch.dll')
 PLUGIN_PATH = 'BepInEx/plugins/OpenOrbitPatch.dll'
 OLD_PLUGIN_PATH = 'BepInEx/plugins/OpenOrbitYama.dll'      # 2026-11-01'den önceki adı (İngilizce geçiş)
@@ -124,7 +124,7 @@ def ready(folder):
     GameAssembly.dll interop'lardan yeniyse istemci güncellenmiş sayılır."""
     if not generated(folder):
         return False
-    trace = _registry(folder).get('isinma')
+    trace = _registry(folder).get('warmup')
     if trace:
         return trace == fingerprint(folder)
     try:
@@ -148,7 +148,7 @@ def progress(folder, start, seen):
         written = 0
     stage = 3 if generated(folder) else 2 if written else 1 if started or now - start > 10 else 0
     t = now - seen.setdefault(stage, now)
-    sub = seen.setdefault('yazma', seen.get('yuzde', 0)) if stage == 2 else 0   # yazma, gösterilenden sıçramadan sürer
+    sub = seen.setdefault('write', seen.get('yuzde', 0)) if stage == 2 else 0   # yazma, gösterilenden sıçramadan sürer
     percent = (100 if stage == 3 else sub + (99 - sub) * min(1, written / INTEROP_FILES) if stage == 2
              else 10 + 80 * (1 - math.exp(-t / 25)) if stage == 1 else 9 * (1 - math.exp(-t / 4)))
     seen['yuzde'] = max(seen.get('yuzde', 0), int(percent))
@@ -177,7 +177,7 @@ def warm_up(folder, cmd, env, logs, notify=None, duration=300):
         PR.kill(p.pid)
     if generated(folder):                            # hazir(): istemci kodu değişirse yeniden ısınılır
         d = _registry(folder)
-        d['isinma'] = fingerprint(folder)
+        d['warmup'] = fingerprint(folder)
         with open(route(folder, INSTALL_MARKER), 'w', encoding='utf8') as fh:
             json.dump(d, fh, indent=1)
     last = time.time() + 15
@@ -215,35 +215,35 @@ class Patcher:
         self.log, self.opener = log, opener
         self.lock = threading.Lock()
         self.stop = threading.Event()
-        self.d = self._blank('yok', None)
+        self.d = self._blank('none', None)
 
     @staticmethod
     def _blank(state, folder):
-        return {'durum': state, 'calisiyor': False, 'alinan': 0, 'toplam': BEPINEX['boyut'] + UNITY['boyut'], 'hata': None,
-                'klasor': folder}
+        return {'durum': state, 'running': False, 'claimed': 0, 'toplam': BEPINEX['size'] + UNITY['size'], 'hata': None,
+                'folder': folder}
 
     def state(self, folder):
         """folder'daki kurulumun durumu (başka klasörün biten işi sayılmaz)."""
         with self.lock:
             d = dict(self.d)
-        if not d['calisiyor'] and (not folder or not d['klasor'] or os.path.normcase(os.path.abspath(d['klasor']))
+        if not d['running'] and (not folder or not d['folder'] or os.path.normcase(os.path.abspath(d['folder']))
                                    != os.path.normcase(os.path.abspath(folder))):
-            d = self._blank('yok', folder)
-        if not d['calisiyor'] and folder and installed(folder):
-            d['durum'] = 'kurulu'
-        d.update(gerekli=True, ad=BEPINEX['ad'])
+            d = self._blank('none', folder)
+        if not d['running'] and folder and installed(folder):
+            d['durum'] = 'built'
+        d.update(required=True, ad=BEPINEX['ad'])
         return d
 
     def running(self):
         with self.lock:
-            return self.d['calisiyor']
+            return self.d['running']
 
     def start(self, folder):
         """BepInEx'i ve eklentiyi istemci klasörüne kur (sürüyorsa ya da kuruluysa bir şey yapmaz) -> durum."""
         with self.lock:
-            if folder and not self.d['calisiyor'] and not installed(folder):
+            if folder and not self.d['running'] and not installed(folder):
                 self.stop.clear()
-                self.d = dict(self._blank('indiriliyor', folder), calisiyor=True)
+                self.d = dict(self._blank('downloading', folder), running=True)
                 threading.Thread(target=self._run, args=(folder,), daemon=True).start()
         return self.state(folder)
 
@@ -256,7 +256,7 @@ class Patcher:
         while self.running():
             if step:
                 st = self.state(folder)
-                step(int(100 * st['alinan'] / st['toplam']))
+                step(int(100 * st['claimed'] / st['toplam']))
             time.sleep(0.3)
         return installed(folder)
 
@@ -273,7 +273,7 @@ class Patcher:
                         break
                     buf += b
                     with self.lock:
-                        self.d['alinan'] += len(b)
+                        self.d['claimed'] += len(b)
         except (OSError, http.client.HTTPException) as e:
             raise DownloadError(_('İndirme sunucusuna bağlanılamadı (internet bağlantını denetle): %s', e))
         if hashlib.sha256(buf).hexdigest() != part['sha256']:
@@ -285,7 +285,7 @@ class Patcher:
             self.log('BepInEx indiriliyor: %s, %s' % (BEPINEX['url'], UNITY['url']))
             archive, unity = self._download(BEPINEX), self._download(UNITY)
             with self.lock:
-                self.d['durum'] = 'kuruluyor'
+                self.d['durum'] = 'installing'
             with zipfile.ZipFile(io.BytesIO(archive)) as z:
                 for m in z.infolist():
                     p = safe_path(folder, m.filename)
@@ -306,7 +306,7 @@ class Patcher:
                 with open(p, 'wb') as fh:
                     fh.write(b'[Logging.Console]\n\nEnabled = false\n')
             setting(folder)
-            p = route(folder, UNITY['yol'])
+            p = route(folder, UNITY['route'])
             os.makedirs(os.path.dirname(p), exist_ok=True)
             with open(p, 'wb') as fh:
                 fh.write(unity)
@@ -315,11 +315,11 @@ class Patcher:
                 json.dump({'bepinex': BEPINEX['sha256'], 'unity': UNITY['sha256'], 'ad': BEPINEX['ad'],
                            'time': time.strftime('%Y-%m-%d %H:%M:%S')}, fh, indent=1)
             with self.lock:
-                self.d.update(durum='kurulu', alinan=self.d['toplam'])
+                self.d.update(durum='built', claimed=self.d['toplam'])
             self.log('BepInEx kuruldu: %s (%s)' % (BEPINEX['ad'], folder))
         except Cancelled:
             with self.lock:
-                self.d['durum'] = 'durdu'
+                self.d['durum'] = 'stopped'
             self.log('BepInEx kurulumu durduruldu')
         except DownloadError as e:
             with self.lock:
@@ -335,4 +335,4 @@ class Patcher:
             self.log('BepInEx: beklenmeyen hata: %r' % e)
         finally:
             with self.lock:
-                self.d['calisiyor'] = False
+                self.d['running'] = False

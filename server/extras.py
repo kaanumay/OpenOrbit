@@ -20,13 +20,13 @@ import json, os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 E = json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))
-X = E.get('ekstralar', {})
+X = E.get('extras', {})
 
 
 def equipped(p, sid=None):
     """Etkin (ya da verilen) geminin etkin config'indeki ekstraların lootId'leri; dronlara takılı ekstralar (CPU'lar) da sayılır."""
-    if sid is None or str(sid) == str(p.d['aktif_gemi']):
-        own, drones = list(p.d.get('ekipman', {}).get('extra', [])), p.d.get('drone_equipment', [])
+    if sid is None or str(sid) == str(p.d['active_ship']):
+        own, drones = list(p.d.get('equipment', {}).get('extra', [])), p.d.get('drone_equipment', [])
     else:
         own, drones = p.loadout(sid).get('extra', []), [(x, loots) for x, loots in p.drone_loadout(sid)]
     return own + [l for _, loots in drones for l in loots if l.startswith('equipment_extra_')]
@@ -53,22 +53,22 @@ def slot_bonus(p, sid=None, cid=None):
 
 def slot_bonus_of(loots):
     """Ekstraların arasındaki yuva CPU'sunun (SL-01..04) bonusu (config başına bir tane takılır)."""
-    return max((X[l]['ek_yuva'] for l in loots if 'ek_yuva' in X.get(l, {})), default=0)
+    return max((X[l]['extra_slot'] for l in loots if 'extra_slot' in X.get(l, {})), default=0)
 
 
 def cargo_factor(p):
     f = 1.0
-    for l, v in props(p, 'kargo_carpan'):
+    for l, v in props(p, 'cargo_multiplier'):
         f = max(f, v)
     return f
 
 
 def rocket_factor(p):
-    return min((v for l, v in props(p, 'roket_bekleme')), default=1.0)
+    return min((v for l, v in props(p, 'rocket_cooldown')), default=1.0)
 
 
 def mine_factor(p):
-    return 1 + min((v for l, v in props(p, 'mayin_bekleme')), default=0.0)
+    return 1 + min((v for l, v in props(p, 'mine_cooldown')), default=0.0)
 
 
 UNLIMITED = 10 ** 6
@@ -78,7 +78,7 @@ def unlimited(p, loot):
     """Hakkı sınırsız mı: HM-7 için Goliath'ın Amber, Jade ya da Sapphire tasarımına sahip olanlar (wiki: eski kural; istemci
     items_equipment_extra_hmd-07_hint_unlimited "You already have an unlimited trade drone")."""
     designs = X.get(loot, {}).get('unlimited_design')
-    return bool(designs) and any(d in s.get('designs', []) for s in p.d['gemiler'].values() for d in designs)
+    return bool(designs) and any(d in s.get('designs', []) for s in p.d['ships'].values() for d in designs)
 
 
 def uses(p, loot):
@@ -87,17 +87,17 @@ def uses(p, loot):
         return UNLIMITED
     st = p.d.setdefault('extra_uses', {})
     if loot not in st:
-        st[loot] = X.get(loot, {}).get('hak', 0)
+        st[loot] = X.get(loot, {}).get('right', 0)
     return st[loot]
 
 
 def recharge(p, loot, n=1):
     """Hakkı olan ekstra satın alındı: n tanesinin hakkı eklenir."""
-    if 'hak' not in X.get(loot, {}):
+    if 'right' not in X.get(loot, {}):
         return
     with p.lock:
         st = p.d.setdefault('extra_uses', {})
-        st[loot] = st.get(loot, 0) + X[loot]['hak'] * n
+        st[loot] = st.get(loot, 0) + X[loot]['right'] * n
         p.dirty = True
 
 

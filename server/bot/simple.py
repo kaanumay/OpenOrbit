@@ -60,7 +60,7 @@ def distribute(counts):
 def gear(map_id, power=1.0, r=random):
     """Haritanın tipik donanımı x güç oranı: lazer ve jeneratörlerin doluluğu, dron sayısı; güçlüde bir üst lazer."""
     ship, laser, pay, shield, drones, drone = CLASS_GEAR.get(map_class(map_id), CLASS_GEAR['X-1'])
-    g = K.ITEMS['gemiler'][ship]
+    g = K.ITEMS['ships'][ship]
     order = ['equipment_weapon_laser_lf-1', 'equipment_weapon_laser_mp-1', 'equipment_weapon_laser_sll-01',
             'equipment_weapon_laser_lf-2', 'equipment_weapon_laser_lf-3']
     i = order.index(laser) if laser in order else 0
@@ -72,16 +72,16 @@ def gear(map_id, power=1.0, r=random):
     drones = max(0, min(8, int(round(drones * min(power, 1.3) * r.uniform(0.7, 1.2))))) if drone else 0
     slot = g['laser'] + drones * (2 if drone == 'drone_iris' else 1)
     return {'gemi': ship, 'lazer': {laser: max(1, int(round(slot * full)))},
-            'kalkan': {shield: max(1, int(round(g['generators'] * full * 0.8)))}, 'hiz': {}, 'dron': {drone: drones} if drones else {},
-            'cephane': 'ammunition_laser_mcb-25' if power >= 1.4 else K.AMMO[0]}
+            'kalkan': {shield: max(1, int(round(g['generators'] * full * 0.8)))}, 'hiz': {}, 'drone': {drone: drones} if drones else {},
+            'ammunition': 'ammunition_laser_mcb-25' if power >= 1.4 else K.AMMO[0]}
 
 
 def prepare(y, now):
     """Basit kip yükleme: kadroyu haritalara dağıtır (kadronun basit_harita'sı varsa o), donanımı ve seviyeyi kurar; hepsi
     çevrimiçi."""
-    power = float(y.setting('basit_guc', 1.0))
-    places = distribute(y.setting('basit_haritalar') or DEFAULT_MAPS)
-    friend = float(y.setting('basit_dost', 0.5))
+    power = float(y.setting('simple_power', 1.0))
+    places = distribute(y.setting('simple_maps') or DEFAULT_MAPS)
+    friend = float(y.setting('simple_friendly', 0.5))
     for i, b in enumerate(y.bots):
         r = random.Random('basit|%s|%d' % (b.name, b.k['no']))
         m = b.k.get('simple_map')
@@ -95,7 +95,7 @@ def prepare(y, now):
             elif owner:
                 b.k['firma'] = r.choice([f for f in (1, 2, 3) if f != owner])
         b.k['harita'] = m
-        b.k['ekip'] = gear(m, power * r.uniform(0.85, 1.15), r)
+        b.k['gear'] = gear(m, power * r.uniform(0.85, 1.15), r)
         lv = CLASS_LEVEL.get(map_class(m), 5) + r.randint(-1, 2)
         b.k['seviye'] = max(1, lv)
         b.loadout_changed()
@@ -106,8 +106,8 @@ def prepare(y, now):
 @target
 class Simple(Goal):
     """Basit kipin tek hedefi: kendi haritasında uzaylı kesmek (soyutta da)."""
-    name = 'basit'
-    bot_modes = ('basit',)
+    name = 'simple'
+    bot_modes = ('simple',)
     min_sec = 1e9
 
     def points(self, bot, b):

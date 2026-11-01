@@ -24,15 +24,15 @@
   "box_sc": 4,
   "box_type": "SAE_SMALL_BOX",
   "ship_box": "SAE_SHIP_BOX",
-  "uzaylilar": {
+  "alien_spawns": {
    "vog_interceptor": {
     "ad": "-=[ Interceptor ]=-",
     "hp": 90000,
     "kalkan": 60000,
     "hasar": 500,
     "hiz": 320,
-    "saldirgan": true,
-    "odul": {
+    "aggressive": true,
+    "reward": {
      "ep": 7500,
      "onur": 40,
      "kredi": 25000,
@@ -58,8 +58,8 @@
     "kalkan": 150000,
     "hasar": 6000,
     "hiz": 280,
-    "saldirgan": true,
-    "odul": {
+    "aggressive": true,
+    "reward": {
      "ep": 15000,
      "onur": 56,
      "kredi": 90000,
@@ -85,8 +85,8 @@
     "kalkan": 225000,
     "hasar": 4000,
     "hiz": 260,
-    "saldirgan": true,
-    "odul": {
+    "aggressive": true,
+    "reward": {
      "ep": 22500,
      "onur": 72,
      "kredi": 125000,
@@ -107,16 +107,16 @@
     "kutu": "SAE_BIG_BOX"
    }
   },
-  "patron": {
+  "boss": {
    "tur": "vog_battleray",
-   "zaman_sn": 600,
+   "time_sec": 600,
    "ad": "-=[ Deadly Battleray ]=-",
    "hp": 1125000,
    "kalkan": 900000,
    "hasar": 14000,
    "hiz": 200,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 187500,
     "onur": 375,
     "kredi": 2625000,
@@ -149,7 +149,7 @@
      1
     ]
    ],
-   "unvan": "title_strikeandexit-aug2025"
+   "title": "title_strikeandexit-aug2025"
   },
   "weekly_limit": 11000,
   "vip_limit": 15400,
@@ -158,26 +158,26 @@
   "dogma_cooldown_sec": 10,
   "currency": "resource_collectable_stellar-coin",
   "vip_item": "resource_vog-vanguard",
-  "dukkan": {
+  "store": {
    "StrikeAndExit": {
     "store_id": "2",
     "vip": false,
     "esyalar": [
      {
       "eid": 1,
-      "odul": "resource_collectable_cryo-nano-coolant",
+      "reward": "resource_collectable_cryo-nano-coolant",
       "adet": 1,
-      "fiyat": 710,
+      "price": 710,
       "limit_type": 3,
-      "sinir": 5
+      "cap": 5
      },
      {
       "eid": 2,
-      "odul": "resource_collectable_plasmatic-equalization-plate",
+      "reward": "resource_collectable_plasmatic-equalization-plate",
       "adet": 100,
-      "fiyat": 100,
+      "price": 100,
       "limit_type": 1,
-      "sinir": 99999
+      "cap": 99999
      }
     ]
    },
@@ -187,99 +187,99 @@
     "esyalar": [
      {
       "eid": 1,
-      "odul": "resource_collectable_plasmatic-stabilizer",
+      "reward": "resource_collectable_plasmatic-stabilizer",
       "adet": 1,
-      "fiyat": 5500,
+      "price": 5500,
       "limit_type": 4,
-      "sinir": 1
+      "cap": 1
      },
      {
       "eid": 2,
-      "odul": "resource_collectable_axion-beam-regulator",
+      "reward": "resource_collectable_axion-beam-regulator",
       "adet": 10,
-      "fiyat": 70,
+      "price": 70,
       "limit_type": 4,
-      "sinir": 50
+      "cap": 50
      },
      {
       "eid": 3,
-      "odul": "resource_collectable_diametrion",
+      "reward": "resource_collectable_diametrion",
       "adet": 1,
-      "fiyat": 80,
+      "price": 80,
       "limit_type": 4,
-      "sinir": 100
+      "cap": 100
      },
      {
       "eid": 4,
-      "odul": "tech_versus-laser-overdrive",
+      "reward": "tech_versus-laser-overdrive",
       "adet": 1,
-      "fiyat": 100,
+      "price": 100,
       "limit_type": 4,
-      "sinir": 40
+      "cap": 40
      },
      {
       "eid": 5,
-      "odul": "equipment_shipupgrade_dmg-x3",
+      "reward": "equipment_shipupgrade_dmg-x3",
       "adet": 1,
-      "fiyat": 2571,
+      "price": 2571,
       "limit_type": 4,
-      "sinir": 5
+      "cap": 5
      },
      {
       "eid": 6,
-      "odul": "equipment_shipupgrade_hp-x3",
+      "reward": "equipment_shipupgrade_hp-x3",
       "adet": 1,
-      "fiyat": 2571,
+      "price": 2571,
       "limit_type": 4,
-      "sinir": 5
+      "cap": 5
      },
      {
       "eid": 7,
-      "odul": "equipment_shipupgrade_shd-x3",
+      "reward": "equipment_shipupgrade_shd-x3",
       "adet": 1,
-      "fiyat": 2571,
+      "price": 2571,
       "limit_type": 4,
-      "sinir": 5
+      "cap": 5
      },
      {
       "eid": 8,
-      "odul": "equipment_shipupgrade_spc-x3",
+      "reward": "equipment_shipupgrade_spc-x3",
       "adet": 1,
-      "fiyat": 2571,
+      "price": 2571,
       "limit_type": 4,
-      "sinir": 5
+      "cap": 5
      },
      {
       "eid": 9,
-      "odul": "ammunition_laser_spacecup_group-c",
+      "reward": "ammunition_laser_spacecup_group-c",
       "adet": 3000,
-      "fiyat": 580,
+      "price": 580,
       "limit_type": 4,
-      "sinir": 10
+      "cap": 10
      },
      {
       "eid": 10,
-      "odul": "ammunition_specialammo_dcr-250",
+      "reward": "ammunition_specialammo_dcr-250",
       "adet": 1,
-      "fiyat": 50,
+      "price": 50,
       "limit_type": 4,
-      "sinir": 20
+      "cap": 20
      },
      {
       "eid": 11,
-      "odul": "ammunition_mine_slm-01",
+      "reward": "ammunition_mine_slm-01",
       "adet": 10,
-      "fiyat": 10,
+      "price": 10,
       "limit_type": 4,
-      "sinir": 10
+      "cap": 10
      },
      {
       "eid": 12,
-      "odul": "ammunition_specialammo_pld-8",
+      "reward": "ammunition_specialammo_pld-8",
       "adet": 10,
-      "fiyat": 10,
+      "price": 10,
       "limit_type": 4,
-      "sinir": 20
+      "cap": 20
      }
     ]
    }
@@ -287,10 +287,10 @@
   "_kaynak": "vortex_of_greed.json: resmî SSS 2025-08, kayıttaki yanıt 2026-10-15 (dükkân ve haftalık sınır), istemcinin metinleri; tools/buyuk_icerikler.py",
   "_uyarlama": "Uzaylılar normal türlerinin 1,5 katı can/kalkan (kaynak yalnız \"daha çok can\" diyor); hazine sahibinin ödülü 500 SC + 1 CNC + unvan; tahliye yarıçapı 500 ve konumlar oyuncudan 3.000 uzakta; ölünce taşınan paralar SAE_SHIP_BOX; tek harita (483); Vanguard uridyumla (mağaza)."
  },
- "dunya_patronu": {
+ "world_boss": {
   "etkinlik": "world_boss",
   "harita": 482,
-  "girisler": [
+  "entries": [
    "X-1",
    "X-8"
   ],
@@ -333,15 +333,15 @@
     "kalkan": 8000000,
     "hasar": 0,
     "hiz": 150,
-    "saldirgan": true,
-    "odul": {
+    "aggressive": true,
+    "reward": {
      "ep": 4000000,
      "onur": 20000,
      "kredi": 4000000,
      "uridyum": 4000
     },
     "kargo": {},
-    "yorunge_yaricap": 2500
+    "orbit_radius": 2500
    },
    "dreadfyre_guardian": {
     "ad": "-=[ Dreadfyre Guardian ]=-",
@@ -351,8 +351,8 @@
     "kalkan": 150000,
     "hasar": 0,
     "hiz": 0,
-    "saldirgan": true,
-    "odul": {
+    "aggressive": true,
+    "reward": {
      "ep": 400000,
      "onur": 2000,
      "kredi": 800000,
@@ -368,8 +368,8 @@
     "kalkan": 60000,
     "hasar": 3500,
     "hiz": 320,
-    "saldirgan": true,
-    "odul": {
+    "aggressive": true,
+    "reward": {
      "ep": 30000,
      "onur": 150,
      "kredi": 60000,
@@ -380,7 +380,7 @@
   },
   "fortress_laser": {
    "hasar": 8000,
-   "aralik_sn": 1.0,
+   "interval_sec": 1.0,
    "menzil": 700
   },
   "guardian_distance": 3500,
@@ -402,33 +402,33 @@
    "collision": {
     "contact_radius": 350,
     "damage_max_hp_ratio": 0.05,
-    "aralik_sn": 0.5
+    "interval_sec": 0.5
    },
    "roket": {
     "hasar": 12000,
-    "aralik_sn": 4,
+    "interval_sec": 4,
     "menzil": 1500
    },
-   "radyasyon": {
+   "radiation": {
     "yaricap": 1800,
     "warning_sec": 2,
     "damage_max_hp_ratio": 0.2
    },
    "mayin": {
-    "mayin_sayisi": 24,
+    "mine_count": 24,
     "ring_radius": [
      1000,
      1400
     ],
-    "mayin_hasar_azami_hp_orani": 0.15,
-    "tetik_yaricap": 300,
+    "mine_damage_max_hp_ratio": 0.15,
+    "trigger_radius": 300,
     "omur_sn": 60
    },
    "lazer": {
     "warning_sec": 3,
     "width": 250,
     "damage_max_hp_ratio": 0.35,
-    "yon": "Fortress'ten kilitli hedefe doğru, harita kenarına kadar"
+    "direction": "Fortress'ten kilitli hedefe doğru, harita kenarına kadar"
    }
   },
   "mine_thresholds": [
@@ -450,7 +450,7 @@
    {
     "kademe": 1,
     "carpan": 0.5,
-    "oduller": [
+    "rewards": [
      [
       "resource_collectable_infiltrator-fragment",
       250
@@ -460,12 +460,12 @@
       1000
      ]
     ],
-    "unvan": null
+    "title": null
    },
    {
     "kademe": 2,
     "carpan": 0.5,
-    "oduller": [
+    "rewards": [
      [
       "resource_collectable_infiltrator-fragment",
       500
@@ -475,12 +475,12 @@
       1000
      ]
     ],
-    "unvan": null
+    "title": null
    },
    {
     "kademe": 3,
     "carpan": 0.5,
-    "oduller": [
+    "rewards": [
      [
       "resource_collectable_infiltrator-fragment",
       750
@@ -490,12 +490,12 @@
       1500
      ]
     ],
-    "unvan": null
+    "title": null
    },
    {
     "kademe": 4,
     "carpan": 0.5,
-    "oduller": [
+    "rewards": [
      [
       "resource_collectable_infiltrator-fragment",
       1000
@@ -505,12 +505,12 @@
       2000
      ]
     ],
-    "unvan": null
+    "title": null
    },
    {
     "kademe": 5,
     "carpan": 0.5,
-    "oduller": [
+    "rewards": [
      [
       "resource_collectable_infiltrator-fragment",
       1250
@@ -520,12 +520,12 @@
       1
      ]
     ],
-    "unvan": null
+    "title": null
    },
    {
     "kademe": 6,
     "carpan": 1.0,
-    "oduller": [
+    "rewards": [
      [
       "resource_collectable_infiltrator-fragment",
       1500
@@ -535,12 +535,12 @@
       2000
      ]
     ],
-    "unvan": null
+    "title": null
    },
    {
     "kademe": 7,
     "carpan": 1.0,
-    "oduller": [
+    "rewards": [
      [
       "resource_collectable_infiltrator-fragment",
       1750
@@ -550,12 +550,12 @@
       20
      ]
     ],
-    "unvan": null
+    "title": null
    },
    {
     "kademe": 8,
     "carpan": 1.0,
-    "oduller": [
+    "rewards": [
      [
       "resource_collectable_infiltrator-fragment",
       2000
@@ -565,12 +565,12 @@
       2500
      ]
     ],
-    "unvan": null
+    "title": null
    },
    {
     "kademe": 9,
     "carpan": 1.0,
-    "oduller": [
+    "rewards": [
      [
       "resource_collectable_infiltrator-fragment",
       2250
@@ -580,12 +580,12 @@
       30
      ]
     ],
-    "unvan": null
+    "title": null
    },
    {
     "kademe": 10,
     "carpan": 1.0,
-    "oduller": [
+    "rewards": [
      [
       "resource_collectable_infiltrator-fragment",
       2500
@@ -595,12 +595,12 @@
       1
      ]
     ],
-    "unvan": null
+    "title": null
    },
    {
     "kademe": 11,
     "carpan": 1.5,
-    "oduller": [
+    "rewards": [
      [
       "resource_collectable_infiltrator-fragment",
       2750
@@ -610,12 +610,12 @@
       3500
      ]
     ],
-    "unvan": null
+    "title": null
    },
    {
     "kademe": 12,
     "carpan": 1.5,
-    "oduller": [
+    "rewards": [
      [
       "resource_collectable_infiltrator-fragment",
       3000
@@ -625,12 +625,12 @@
       5
      ]
     ],
-    "unvan": null
+    "title": null
    },
    {
     "kademe": 13,
     "carpan": 1.5,
-    "oduller": [
+    "rewards": [
      [
       "resource_collectable_infiltrator-fragment",
       3250
@@ -640,12 +640,12 @@
       4000
      ]
     ],
-    "unvan": null
+    "title": null
    },
    {
     "kademe": 14,
     "carpan": 1.5,
-    "oduller": [
+    "rewards": [
      [
       "resource_collectable_infiltrator-fragment",
       3500
@@ -655,12 +655,12 @@
       8
      ]
     ],
-    "unvan": null
+    "title": null
    },
    {
     "kademe": 15,
     "carpan": 1.5,
-    "oduller": [
+    "rewards": [
      [
       "resource_collectable_infiltrator-fragment",
       3750
@@ -670,12 +670,12 @@
       1
      ]
     ],
-    "unvan": null
+    "title": null
    },
    {
     "kademe": 16,
     "carpan": 2.0,
-    "oduller": [
+    "rewards": [
      [
       "resource_collectable_infiltrator-fragment",
       4000
@@ -685,12 +685,12 @@
       4500
      ]
     ],
-    "unvan": null
+    "title": null
    },
    {
     "kademe": 17,
     "carpan": 2.0,
-    "oduller": [
+    "rewards": [
      [
       "resource_collectable_infiltrator-fragment",
       4250
@@ -700,12 +700,12 @@
       5
      ]
     ],
-    "unvan": null
+    "title": null
    },
    {
     "kademe": 18,
     "carpan": 2.0,
-    "oduller": [
+    "rewards": [
      [
       "resource_collectable_infiltrator-fragment",
       4500
@@ -715,12 +715,12 @@
       5000
      ]
     ],
-    "unvan": null
+    "title": null
    },
    {
     "kademe": 19,
     "carpan": 2.0,
-    "oduller": [
+    "rewards": [
      [
       "resource_collectable_infiltrator-fragment",
       4750
@@ -730,12 +730,12 @@
       8
      ]
     ],
-    "unvan": null
+    "title": null
    },
    {
     "kademe": 20,
     "carpan": 2.0,
-    "oduller": [
+    "rewards": [
      [
       "resource_collectable_infiltrator-fragment",
       5000
@@ -745,14 +745,14 @@
       1
      ]
     ],
-    "unvan": "title_worldboss_tier_june2026"
+    "title": "title_worldboss_tier_june2026"
    }
   ],
-  "ilerleme": [
+  "progress": [
    {
     "kademe": 1,
     "oran": 0.1,
-    "oduller": [
+    "rewards": [
      [
       "currency_uridium",
       100
@@ -766,12 +766,12 @@
       5
      ]
     ],
-    "gunluk": 3
+    "daily": 3
    },
    {
     "kademe": 2,
     "oran": 0.25,
-    "oduller": [
+    "rewards": [
      [
       "currency_uridium",
       200
@@ -785,12 +785,12 @@
       5
      ]
     ],
-    "gunluk": 3
+    "daily": 3
    },
    {
     "kademe": 3,
     "oran": 0.5,
-    "oduller": [
+    "rewards": [
      [
       "currency_uridium",
       300
@@ -804,12 +804,12 @@
       8
      ]
     ],
-    "gunluk": 3
+    "daily": 3
    },
    {
     "kademe": 4,
     "oran": 0.75,
-    "oduller": [
+    "rewards": [
      [
       "currency_uridium",
       400
@@ -823,12 +823,12 @@
       10
      ]
     ],
-    "gunluk": 3
+    "daily": 3
    },
    {
     "kademe": 5,
     "oran": 1.0,
-    "oduller": [
+    "rewards": [
      [
       "currency_uridium",
       500
@@ -842,14 +842,14 @@
       10
      ]
     ],
-    "gunluk": 3
+    "daily": 3
    }
   ],
   "ranking": [
    {
     "den": 1,
     "e": 1,
-    "oduller": [
+    "rewards": [
      [
       "currency_uridium",
       15000
@@ -875,7 +875,7 @@
       5000
      ]
     ],
-    "unvanlar": [
+    "titles": [
      "title_worldboss_rank_1_june2026",
      "title_worldboss_rank_10_june2026"
     ]
@@ -883,7 +883,7 @@
    {
     "den": 2,
     "e": 2,
-    "oduller": [
+    "rewards": [
      [
       "currency_uridium",
       12000
@@ -909,14 +909,14 @@
       4000
      ]
     ],
-    "unvanlar": [
+    "titles": [
      "title_worldboss_rank_10_june2026"
     ]
    },
    {
     "den": 3,
     "e": 3,
-    "oduller": [
+    "rewards": [
      [
       "currency_uridium",
       10000
@@ -942,14 +942,14 @@
       3000
      ]
     ],
-    "unvanlar": [
+    "titles": [
      "title_worldboss_rank_10_june2026"
     ]
    },
    {
     "den": 4,
     "e": 5,
-    "oduller": [
+    "rewards": [
      [
       "currency_uridium",
       8000
@@ -967,14 +967,14 @@
       2500
      ]
     ],
-    "unvanlar": [
+    "titles": [
      "title_worldboss_rank_10_june2026"
     ]
    },
    {
     "den": 6,
     "e": 10,
-    "oduller": [
+    "rewards": [
      [
       "currency_uridium",
       5000
@@ -992,14 +992,14 @@
       2000
      ]
     ],
-    "unvanlar": [
+    "titles": [
      "title_worldboss_rank_10_june2026"
     ]
    },
    {
     "den": 11,
     "e": 25,
-    "oduller": [
+    "rewards": [
      [
       "currency_uridium",
       3000
@@ -1017,12 +1017,12 @@
       1500
      ]
     ],
-    "unvanlar": []
+    "titles": []
    },
    {
     "den": 26,
     "e": 50,
-    "oduller": [
+    "rewards": [
      [
       "currency_uridium",
       2000
@@ -1040,12 +1040,12 @@
       1000
      ]
     ],
-    "unvanlar": []
+    "titles": []
    },
    {
     "den": 51,
     "e": 100,
-    "oduller": [
+    "rewards": [
      [
       "currency_uridium",
       1000
@@ -1063,7 +1063,7 @@
       500
      ]
     ],
-    "unvanlar": []
+    "titles": []
    }
   ],
   "virtual_rank": [
@@ -1101,7 +1101,7 @@
    ]
   ],
   "last_hit": {
-   "oduller": [
+   "rewards": [
     [
      "currency_uridium",
      777
@@ -1115,7 +1115,7 @@
      777
     ]
    ],
-   "unvan": "title_worldboss_kill_june2026"
+   "title": "title_worldboss_kill_june2026"
   },
   "kutu": {
    "tur": "DREADFYRE_HARBINGER_BOX",
@@ -1124,10 +1124,10 @@
     "can",
     "hiz",
     "kalkan",
-    "iyilestirme"
+    "improvement"
    ]
   },
-  "parca": "resource_collectable_infiltrator-fragment",
+  "part": "resource_collectable_infiltrator-fragment",
   "fragment_honor": 1,
   "_kaynak": "world_boss_2025.json: resmî SSS 2025/2026 (EN, TR), darkorbitwiki, istemcinin metinleri ve game.xml; tools/buyuk_icerikler.py",
   "_uyarlama": "NPC değerleri ve saldırıların hasarları kaynakta yok (araştırmanın tek oyunculu önerileri, s=1); can oyuncunun gücüne göre ölçeklenir (guc); kademe eşikleri savaşın Fortress canının katları; sıralama sanal (kaldırılan can payından); Guardian kalkanları toplamsal (4 etkin = dokunulmaz)."
@@ -1139,7 +1139,7 @@
    "2": 436,
    "3": 430
   },
-  "girisler": [
+  "entries": [
    "X-1",
    "X-8"
   ],
@@ -1147,7 +1147,7 @@
   "ipucu": "ttip_jumpgate_escort",
   "anahtar": "resource_key_access-escort",
   "key_max": 100,
-  "saatler": [
+  "hours": [
    10,
    11,
    12,
@@ -1171,7 +1171,7 @@
    "npc_kimlik": 240,
    "hiz": 100,
    "protection_radius": 1200,
-   "asgari_can": 2000000,
+   "min_hp": 2000000,
    "endure_sec": 240
   },
   "route": [
@@ -1277,7 +1277,7 @@
      ]
     ]
    ],
-   "fener": [
+   "beacon": [
     [
      "mm_marker",
      1
@@ -1287,7 +1287,7 @@
      2
     ]
    ],
-   "yol": [
+   "route": [
     [
      "mm_assailant",
      1
@@ -1312,8 +1312,8 @@
     "kalkan": 600000,
     "hasar": 9500,
     "hiz": 300,
-    "saldirgan": true,
-    "odul": {
+    "aggressive": true,
+    "reward": {
      "ep": 102400,
      "onur": 512,
      "kredi": 512000,
@@ -1325,9 +1325,9 @@
     "kutu": {
      "probability": 1.0,
      "omur_sn": 600,
-     "mod": "biri",
+     "mod": "one_of",
      "tur": "MIMESIS_AI_ASSAILANT_BOX",
-     "kesin": [
+     "guaranteed": [
       [
        "resource_collectable_byte-remnant",
        2
@@ -1344,8 +1344,8 @@
     "kalkan": 600000,
     "hasar": 9500,
     "hiz": 300,
-    "saldirgan": true,
-    "odul": {
+    "aggressive": true,
+    "reward": {
      "ep": 102400,
      "onur": 512,
      "kredi": 512000,
@@ -1357,9 +1357,9 @@
     "kutu": {
      "probability": 1.0,
      "omur_sn": 600,
-     "mod": "biri",
+     "mod": "one_of",
      "tur": "MIMESIS_AI_RAIDER_BOX",
-     "kesin": [
+     "guaranteed": [
       [
        "resource_collectable_byte-remnant",
        2
@@ -1376,8 +1376,8 @@
     "kalkan": 1625000,
     "hasar": 15500,
     "hiz": 300,
-    "saldirgan": true,
-    "odul": {
+    "aggressive": true,
+    "reward": {
      "ep": 204800,
      "onur": 1024,
      "kredi": 1024000,
@@ -1389,9 +1389,9 @@
     "kutu": {
      "probability": 1.0,
      "omur_sn": 600,
-     "mod": "biri",
+     "mod": "one_of",
      "tur": "MIMESIS_AI_MEDIC_BOX",
-     "kesin": [
+     "guaranteed": [
       [
        "resource_collectable_byte-remnant",
        8
@@ -1408,8 +1408,8 @@
     "kalkan": 1750000,
     "hasar": 15500,
     "hiz": 300,
-    "saldirgan": true,
-    "odul": {
+    "aggressive": true,
+    "reward": {
      "ep": 204800,
      "onur": 1024,
      "kredi": 1024000,
@@ -1427,8 +1427,8 @@
     "kalkan": 6000000,
     "hasar": 0,
     "hiz": 300,
-    "saldirgan": false,
-    "odul": {
+    "aggressive": false,
+    "reward": {
      "ep": 204800,
      "onur": 1024,
      "kredi": 1024000,
@@ -1440,9 +1440,9 @@
     "kutu": {
      "probability": 1.0,
      "omur_sn": 600,
-     "mod": "biri",
+     "mod": "one_of",
      "tur": "MIMESIS_AI_HARDY_BOX",
-     "kesin": [
+     "guaranteed": [
       [
        "resource_collectable_byte-remnant",
        10
@@ -1459,8 +1459,8 @@
     "kalkan": 3500000,
     "hasar": 25500,
     "hiz": 300,
-    "saldirgan": true,
-    "odul": {
+    "aggressive": true,
+    "reward": {
      "ep": 409600,
      "onur": 2048,
      "kredi": 2048000,
@@ -1472,9 +1472,9 @@
     "kutu": {
      "probability": 1.0,
      "omur_sn": 600,
-     "mod": "biri",
+     "mod": "one_of",
      "tur": "MIMESIS_AI_MINI_BOSS_BOX",
-     "kesin": [
+     "guaranteed": [
       [
        "resource_collectable_byte-remnant",
        [
@@ -1548,8 +1548,8 @@
     "kalkan": 3500000,
     "hasar": 25500,
     "hiz": 300,
-    "saldirgan": true,
-    "odul": {
+    "aggressive": true,
+    "reward": {
      "ep": 409600,
      "onur": 2048,
      "kredi": 2048000,
@@ -1561,9 +1561,9 @@
     "kutu": {
      "probability": 1.0,
      "omur_sn": 600,
-     "mod": "biri",
+     "mod": "one_of",
      "tur": "MIMESIS_AI_MINI_BOSS_BOX",
-     "kesin": [
+     "guaranteed": [
       [
        "resource_collectable_byte-remnant",
        [
@@ -1637,8 +1637,8 @@
     "kalkan": 3500000,
     "hasar": 28500,
     "hiz": 300,
-    "saldirgan": true,
-    "odul": {
+    "aggressive": true,
+    "reward": {
      "ep": 409600,
      "onur": 2048,
      "kredi": 2048000,
@@ -1650,9 +1650,9 @@
     "kutu": {
      "probability": 1.0,
      "omur_sn": 600,
-     "mod": "biri",
+     "mod": "one_of",
      "tur": "MIMESIS_AI_MINI_BOSS_BOX",
-     "kesin": [
+     "guaranteed": [
       [
        "resource_collectable_byte-remnant",
        [
@@ -1726,8 +1726,8 @@
     "kalkan": 2800000,
     "hasar": 12000,
     "hiz": 300,
-    "saldirgan": true,
-    "odul": {
+    "aggressive": true,
+    "reward": {
      "ep": 819200,
      "onur": 4096,
      "kredi": 4096000,
@@ -1739,9 +1739,9 @@
     "kutu": {
      "probability": 1.0,
      "omur_sn": 600,
-     "mod": "biri",
+     "mod": "one_of",
      "tur": "MIMESIS_AI_BOSS_BOX",
-     "kesin": [
+     "guaranteed": [
       [
        "resource_collectable_byte-remnant",
        [
@@ -1815,8 +1815,8 @@
     "kalkan": 2000000,
     "hasar": 12500,
     "hiz": 300,
-    "saldirgan": true,
-    "odul": {
+    "aggressive": true,
+    "reward": {
      "ep": 819200,
      "onur": 4096,
      "kredi": 4096000,
@@ -1828,9 +1828,9 @@
     "kutu": {
      "probability": 1.0,
      "omur_sn": 600,
-     "mod": "biri",
+     "mod": "one_of",
      "tur": "MIMESIS_AI_BOSS_BOX",
-     "kesin": [
+     "guaranteed": [
       [
        "resource_collectable_byte-remnant",
        [
@@ -1904,8 +1904,8 @@
     "kalkan": 4500000,
     "hasar": 30000,
     "hiz": 300,
-    "saldirgan": true,
-    "odul": {
+    "aggressive": true,
+    "reward": {
      "ep": 819200,
      "onur": 4096,
      "kredi": 4096000,
@@ -1917,9 +1917,9 @@
     "kutu": {
      "probability": 1.0,
      "omur_sn": 600,
-     "mod": "biri",
+     "mod": "one_of",
      "tur": "MIMESIS_AI_BOSS_BOX",
-     "kesin": [
+     "guaranteed": [
       [
        "resource_collectable_byte-remnant",
        [
@@ -1993,8 +1993,8 @@
     "kalkan": 0,
     "hasar": 6000,
     "hiz": 0,
-    "saldirgan": true,
-    "odul": {
+    "aggressive": true,
+    "reward": {
      "ep": 0,
      "onur": 0,
      "kredi": 0,
@@ -2011,7 +2011,7 @@
    {
     "den": 1000,
     "e": 1699,
-    "oduller": [
+    "rewards": [
      [
       "resource_collectable_byte-remnant",
       20
@@ -2025,7 +2025,7 @@
    {
     "den": 1700,
     "e": 2899,
-    "oduller": [
+    "rewards": [
      [
       "resource_collectable_byte-remnant",
       30
@@ -2043,7 +2043,7 @@
    {
     "den": 2900,
     "e": 4799,
-    "oduller": [
+    "rewards": [
      [
       "resource_collectable_byte-remnant",
       50
@@ -2065,7 +2065,7 @@
    {
     "den": 4800,
     "e": 7999,
-    "oduller": [
+    "rewards": [
      [
       "resource_collectable_byte-remnant",
       90
@@ -2091,7 +2091,7 @@
    {
     "den": 8000,
     "e": null,
-    "oduller": [
+    "rewards": [
      [
       "resource_collectable_byte-remnant",
       120
@@ -2127,7 +2127,7 @@
    {
     "den": 1,
     "e": 1,
-    "oduller": [
+    "rewards": [
      [
       "ship_retiarus-plus_design_retiarus-plus-asimov",
       1
@@ -2161,12 +2161,12 @@
       40
      ]
     ],
-    "unvan": "title_mimesisMutiny202603-points-1"
+    "title": "title_mimesisMutiny202603-points-1"
    },
    {
     "den": 2,
     "e": 2,
-    "oduller": [
+    "rewards": [
      [
       "ship_retiarus-plus_design_retiarus-plus-asimov",
       1
@@ -2200,12 +2200,12 @@
       10
      ]
     ],
-    "unvan": "title_mimesisMutiny202603-points-2"
+    "title": "title_mimesisMutiny202603-points-2"
    },
    {
     "den": 3,
     "e": 3,
-    "oduller": [
+    "rewards": [
      [
       "ship_retiarus-plus_design_retiarus-plus-asimov",
       1
@@ -2235,12 +2235,12 @@
       7000
      ]
     ],
-    "unvan": "title_mimesisMutiny202603-points-2"
+    "title": "title_mimesisMutiny202603-points-2"
    },
    {
     "den": 4,
     "e": 5,
-    "oduller": [
+    "rewards": [
      [
       "ship_retiarus-plus_design_retiarus-plus-asimov",
       1
@@ -2270,12 +2270,12 @@
       3500
      ]
     ],
-    "unvan": "title_mimesisMutiny202603-points-2"
+    "title": "title_mimesisMutiny202603-points-2"
    },
    {
     "den": 6,
     "e": 10,
-    "oduller": [
+    "rewards": [
      [
       "ship_retiarus-plus_design_retiarus-plus-asimov",
       1
@@ -2301,12 +2301,12 @@
       2000
      ]
     ],
-    "unvan": "title_mimesisMutiny202603-points-2"
+    "title": "title_mimesisMutiny202603-points-2"
    },
    {
     "den": 11,
     "e": 25,
-    "oduller": [
+    "rewards": [
      [
       "currency_uridium",
       50000
@@ -2328,12 +2328,12 @@
       1500
      ]
     ],
-    "unvan": null
+    "title": null
    },
    {
     "den": 26,
     "e": 50,
-    "oduller": [
+    "rewards": [
      [
       "currency_uridium",
       35000
@@ -2355,12 +2355,12 @@
       1500
      ]
     ],
-    "unvan": null
+    "title": null
    },
    {
     "den": 51,
     "e": 100,
-    "oduller": [
+    "rewards": [
      [
       "currency_uridium",
       25000
@@ -2382,7 +2382,7 @@
       750
      ]
     ],
-    "unvan": null
+    "title": null
    }
   ],
   "best_trip_count": 10,
@@ -2405,15 +2405,15 @@
     {
      "ad": "Heal Field",
      "probability": 0.25,
-     "tur": "can_alani",
+     "tur": "hp_field",
      "can": 50000,
      "yaricap": 500
     },
     {
      "ad": "Frost Field",
      "probability": 0.1,
-     "tur": "teknik",
-     "teknik": "tech_frost-field"
+     "tur": "tech",
+     "tech": "tech_frost-field"
     },
     {
      "ad": "Revenge",
@@ -2448,7 +2448,7 @@
  "kristallon_apotheosis": {
   "etkinlik": "kristallon_apotheosis",
   "harita": 510,
-  "girisler": [
+  "entries": [
    "1-1",
    "2-1",
    "3-1"
@@ -2477,10 +2477,10 @@
    5
   ],
   "target_points": 1000,
-  "toplama": {
+  "collecting": {
    "X-2": [
     [
-     "etk_icy",
+     "event_icy",
      10,
      4
     ],
@@ -2492,7 +2492,7 @@
    ],
    "X-3": [
     [
-     "etk_icy",
+     "event_icy",
      10,
      4
     ],
@@ -2572,11 +2572,11 @@
    "X-7": 0.8,
    "X-8": 1.0
   },
-  "yeniden_sn": 15,
+  "renew_sec": 15,
   "bekleme_sn": 300,
   "combat_sec": 1800,
   "closing_sec": 120,
-  "patron": {
+  "boss": {
    "ad": "-=[ Emperor Kristallon ]=-",
    "model": "EMPEROR_KRISTALLON_BOSS_2",
    "npc_kimlik": 518,
@@ -2584,8 +2584,8 @@
    "kalkan": 6000000,
    "hasar": 18000,
    "hiz": 160,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 1500000,
     "onur": 12000,
     "kredi": 3000000,
@@ -2601,30 +2601,30 @@
   ],
   "attacks": {
    "rift": {
-    "aralik_sn": 15,
+    "interval_sec": 15,
     "warning_sec": 4.1,
     "width": 300,
     "length": 7000,
     "damage_max_hp_ratio": 0.2
    },
    "ice": {
-    "aralik_sn": 20,
+    "interval_sec": 20,
     "warning_sec": 2.2,
     "yaricap": 1500,
     "damage_max_hp_ratio": 0.12,
-    "yavas": [
+    "slow": [
      0.5,
      4
     ]
    },
-   "radyasyon": {
-    "aralik_sn": 25,
+   "radiation": {
+    "interval_sec": 25,
     "warning_sec": 6,
     "safe_radius": 900,
     "damage_max_hp_ratio": 0.3
    }
   },
-  "katilim": [
+  "participation": [
    [
     [
      "currency_uridium",
@@ -2946,8 +2946,8 @@
    "omur_sn": 900
   },
   "last_hit": {
-   "unvan": "title_kristallon_apotheosis_last_hit",
-   "oduller": [
+   "title": "title_kristallon_apotheosis_last_hit",
+   "rewards": [
     [
      "resource_booty-key-apotheosis",
      1
@@ -2958,8 +2958,8 @@
    {
     "den": 1,
     "e": 1,
-    "unvan": "title_kristallon_apotheosis_rank1",
-    "oduller": [
+    "title": "title_kristallon_apotheosis_rank1",
+    "rewards": [
      [
       "resource_collectable_axion-beam-regulator",
       300
@@ -2973,8 +2973,8 @@
    {
     "den": 2,
     "e": 3,
-    "unvan": "title_kristallon_apotheosis_rank2",
-    "oduller": [
+    "title": "title_kristallon_apotheosis_rank2",
+    "rewards": [
      [
       "resource_collectable_axion-beam-regulator",
       200
@@ -2988,8 +2988,8 @@
    {
     "den": 4,
     "e": 10,
-    "unvan": "title_kristallon_apotheosis_rank3",
-    "oduller": [
+    "title": "title_kristallon_apotheosis_rank3",
+    "rewards": [
      [
       "resource_collectable_axion-beam-regulator",
       100
@@ -3018,7 +3018,7 @@
   "_kaynak": "board-en 130459 (FAQ Kristallon Apotheosis); istemci 1.1.115 (pencere apotheosis, harita 510, portal 307, VisualModifier 158 buz, 159 yarık, 160 radyasyon kılavuzu); tools/surum_115.py; yenilgi olasılıkları ve haftalık sınırlar resmî sunucu kaydı (2026-10-25)",
   "_uyarlama": "Tek oyunculu: sunucu çapındaki toplama hedefi oyuncunun kendi puanı (1000); toplama uzaylıları harita başına 4 + 1-2 (Icy, Kristallon, Boss Kristallon kopyaları, güçleri haritanın 'guc'ü), 15 sn'de yeniden doğar. Patronun canı, hasarı ve saldırıların zamanı, alanı, hasarı uyarlama (canı oyuncunun gücüyle, dunya_patronu.scale; seviye başına +%15); evreler %66 ve %33'te. Haftalık sıra tek oyunculuda haftanın yenilgi sayısından: 3+ 1., 2 2., 1 4. (ödülleri pazar sıfırlanınca). Katılım ödülü verilen hasar patronun canının %1'ini geçince.",
   "weekly_limit": {
-   "katilim": 3,
+   "participation": 3,
    "defeats": 3,
    "last_hit": 18
   }

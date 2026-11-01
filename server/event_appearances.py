@@ -18,7 +18,7 @@ D = json.load(open(os.path.join(HERE, 'data', 'event_appearances.json'), encodin
 ITEMS = D['looks']
 SEASONS = D['seasons']
 RECORDED = SEASONS[-1]                   # kayıttaki sezon (ödül sıralarında onun tasarımları)
-FIRST = tuple(int(x) for x in SEASONS[0]['sezon'].split('-'))
+FIRST = tuple(int(x) for x in SEASONS[0]['season'].split('-'))
 
 
 def in_shop(loot):
@@ -27,7 +27,7 @@ def in_shop(loot):
 
 
 def paths(kind):
-    return [(loot, y) for loot, x in ITEMS.items() for y in x['paths'] if y['yol'] == kind]
+    return [(loot, y) for loot, x in ITEMS.items() for y in x['paths'] if y['route'] == kind]
 
 
 def exchange_id(loot):
@@ -44,15 +44,15 @@ def exchange_id(loot):
 
 def exchange_rows(event):
     """Etkinliğin anahtar değişimine eklenen tasarım satırları (BattlePassKeyExchangeRewardModule; kayıttaki tasarımlar gibi özel)."""
-    return [dict(_='BattlePassKeyExchangeRewardModule', cost=y['bedel'], limit=y['sinir'], exchangeReward=exchange_id(loot),
+    return [dict(_='BattlePassKeyExchangeRewardModule', cost=y['charge'], limit=y['cap'], exchangeReward=exchange_id(loot),
                  listOfloot=[dict(_='BattlePassKeyExchangeLootModule', lootId=loot, amount=1)], priority=2, isSpecial=True, claimCount=0)
-            for loot, y in paths('degisim') if y['etkinlik'] == event]
+            for loot, y in paths('exchange') if y['etkinlik'] == event]
 
 
 def box_rows(box):
     """Kutunun yerel tasarım satırları [lootId, 1, ağırlık] (ganimet.pick'te tasarım çekilişine katılır): wiki tablosunda olmayan
     görünümler ve kutunun eski Red / Blue P.E.T. havuzu ('kutu_ek'); tablosunda zaten olan tasarım ek satır olmaz ('tablo')."""
-    return [[loot, 1, y['weight']] for loot, y in paths('kutu') if y['kutu'] == box and not y.get('tablo')] + \
+    return [[loot, 1, y['weight']] for loot, y in paths('kutu') if y['kutu'] == box and not y.get('table')] + \
            [list(r) for r in D.get('box_extra', {}).get(box, [])]
 
 
@@ -64,11 +64,11 @@ def apply(events):
     for (ev, keys, chance), rows in gates.items():
         for k, e in events.items():
             if k.startswith(ev):                               # gg_hafta_sonu_1, _3, _4
-                e.setdefault('kapi_odulu', []).append(dict(kapilar=list(keys), probability=chance, secim=rows, non_repeating=True))
+                e.setdefault('gate_reward', []).append(dict(kapilar=list(keys), probability=chance, choice=rows, non_repeating=True))
     for loot, y in paths('harita'):
         e = events[y['etkinlik']]
-        for s in ([e['harita']] if 'harita' in e else []) + e.get('harita_ek', []):
-            for b in s.get('kutular', []):
+        for s in ([e['harita']] if 'harita' in e else []) + e.get('map_extra', []):
+            for b in s.get('boxes', []):
                 if b['tur'] == y['kutu']:
                     b['contents'].append([loot, 1, y['weight']])
 
@@ -84,7 +84,7 @@ def season_track(key, rows, sid):
     """Ödül sırası ('ucretsiz' | 'gold' | 'ext': [[seviye, lootId, adet]]) -> sezonun tasarımlarıyla: kayıttaki sezonun dron ve P.E.T.
     tasarımları yerine sezonunkiler; sezonun gemi tasarımı varsa Gold sırasının son ödülü (dev Gold rezervi) yerine."""
     s = season(sid)
-    swap = {RECORDED['dron']: s['dron'], RECORDED['pet']: s['pet']}
+    swap = {RECORDED['drone']: s['drone'], RECORDED['pet']: s['pet']}
     out = [[lv, swap.get(l, l), n] for lv, l, n in rows]
     if key == 'gold' and s['gemi']:
         out[-1] = [out[-1][0], s['gemi'], 1]

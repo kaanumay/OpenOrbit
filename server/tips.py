@@ -48,7 +48,7 @@ def used(p, kind):
     if kind == ROCKET_LAUNCHER:
         return any(i.startswith('equipment_weapon_rocketlauncher_') for i in items)
     if kind == SHIP_DESIGN:
-        return any(s.get('designs') for s in p.d.get('gemiler', {}).values())
+        return any(s.get('designs') for s in p.d.get('ships', {}).values())
     if kind == GALAXY_GATE:
         return any(g.get('parcalar') or g.get('tamam') for g in ((p.d.get('kapilar') or {}).get('kapilar') or {}).values() if g)
     return False
@@ -56,7 +56,7 @@ def used(p, kind):
 
 def for_purchase(p, loot, first_equipment):
     """Mağazadan alınan eşya -> ipucu türü ya da None."""
-    if loot.startswith('ship_') and '_design_' not in loot and len(p.d.get('gemiler', {})) >= 2:
+    if loot.startswith('ship_') and '_design_' not in loot and len(p.d.get('ships', {})) >= 2:
         return CHANGING_SHIPS
     if first_equipment:
         return INSTALLING_NEW_EQUIPMENT
@@ -68,13 +68,13 @@ class Hints:
         self.p, self.log = profile, log
 
     def shown(self):
-        return self.p.d.setdefault('ipuclari_gosterilen', [])
+        return self.p.d.setdefault('tips_shown', [])
 
     def show(self, kind):
         """İpucu bir kez -> [HintWindowAddComand] ya da boş (gösterilmiş, kapatılmış, istemcide yok ya da panelde kapalı)."""
-        if kind not in CLIENT_TYPES or not SET.get('ipuclari'):
+        if kind not in CLIENT_TYPES or not SET.get('hints'):
             return []
-        if kind in self.shown() or kind in self.p.d.get('ipuclari_kapali', []):
+        if kind in self.shown() or kind in self.p.d.get('hints_closed', []):
             return []
         with self.p.lock:
             self.shown().append(kind)
@@ -101,12 +101,12 @@ class Hints:
     def event_tips(self, specs, period):
         """Süren harita etkinliklerinin açıklaması dönem başına bir kez (NormalTipsCommand). specs: [(etkinlik, bölüm)]; period:
         etkinlik -> dönemin başlangıcı (yoksa 0)."""
-        if not SET.get('ipuclari'):
+        if not SET.get('hints'):
             return []
-        st = self.p.d.setdefault('etkinlik_bildirimi', {})
+        st = self.p.d.setdefault('event_notification', {})
         out = []
         for k, s in specs:
-            text = (s.get('bilgi') or {}).get('metin')
+            text = (s.get('info') or {}).get('metin')
             if not text or st.get(k) == period(k):
                 continue
             with self.p.lock:

@@ -32,10 +32,10 @@ def _tech():
 
 def kind_value(tip):
     """Uzaylı türü -> (hp, kalkan, hasar, ödül): PvE türleri, npc.json ya da modun kendi tablosu."""
-    t = PVE['kinds'].get(tip) or K.NPC['tipler'].get(str(tip))
+    t = PVE['kinds'].get(tip) or K.NPC['types'].get(str(tip))
     if not t:
         return None
-    return t.get('hp', 0), t.get('kalkan', 0), t.get('hasar', 0), t.get('odul') or {}
+    return t.get('hp', 0), t.get('kalkan', 0), t.get('hasar', 0), t.get('reward') or {}
 
 
 def wave(groups, health=1.0, damage=1.0, table=None):
@@ -46,12 +46,12 @@ def wave(groups, health=1.0, damage=1.0, table=None):
         for x in group:
             tip, n = x[0], x[1]                          # [tür, adet] ya da [tür, adet, patron mu]
             v = (table or {}).get(tip)
-            v = (v.get('hp', 0), v.get('kalkan', 0), v.get('hasar', 0), v.get('odul') or {}) if v else kind_value(tip)
+            v = (v.get('hp', 0), v.get('kalkan', 0), v.get('hasar', 0), v.get('reward') or {}) if v else kind_value(tip)
             if not v:
                 continue
             hp, kl, dmg, rew = v
             ehp += n * (hp + kl) * health
-            dps += min(n, 2) * dmg * damage * K.COMBAT['npc_isabet'] * 0.6 / K.NPC_INTERVAL
+            dps += min(n, 2) * dmg * damage * K.COMBAT['npc_hit_chance'] * 0.6 / K.NPC_INTERVAL
             for k, x in rew.items():
                 reward[k] = reward.get(k, 0) + x * n
     return ehp, dps, reward
@@ -82,16 +82,16 @@ def grant_reward(bot, o, rng=random, speed=1.0):
     if currency:
         bot.reward('gorev', speed, **currency)
     grant_list(bot, o.get('esyalar'), rng)
-    for loot, n, p in o.get('sans') or []:
+    for loot, n, p in o.get('chance') or []:
         if rng.random() < p:
             grant_list(bot, [[loot, n]], rng)
-    if o.get('biri'):
-        r = rng.choices(o['biri'], weights=[x[2] if len(x) > 2 else 1 for x in o['biri']])[0]
+    if o.get('one_of'):
+        r = rng.choices(o['one_of'], weights=[x[2] if len(x) > 2 else 1 for x in o['one_of']])[0]
         grant_list(bot, [r[:2]], rng)
 
 
 def state(bot, mod):
-    return bot.k.setdefault('modlar', {}).setdefault(mod, {})
+    return bot.k.setdefault('modes', {}).setdefault(mod, {})
 
 
 def day():
@@ -106,7 +106,7 @@ class Mod:
     hp = 1
     level = 1
     time_limit = None          # koşunun en uzun süresi (sn; süreli modlar)
-    tip = 'kosu'
+    tip = 'run'
 
     def is_open(self, now):
         return True
@@ -128,7 +128,7 @@ class Mod:
         pass
 
     def save(self, bot, reached, total):
-        state(bot, self.uid).update(son=time.time(), gun=day(), sayi=state(bot, self.uid).get('sayi', 0) + 1)
+        state(bot, self.uid).update(last=time.time(), gun=day(), sayi=state(bot, self.uid).get('sayi', 0) + 1)
 
 
 def _stock(bot):
@@ -141,8 +141,8 @@ def _has_or_can_buy(bot, loot, uridium=None):
         return True
     f = K.price(loot)
     price = uridium if uridium else (f[1] if f and f[0] == 'U' else None)
-    return bool(price) and bot.permission.get('magaza', True) and \
-        bot.k['uridyum'] >= price * bot.game_settings.multiplier('magaza_fiyat') * (3 + 3 * bot.o('tutumluluk'))
+    return bool(price) and bot.permission.get('shop', True) and \
+        bot.k['uridyum'] >= price * bot.game_settings.multiplier('shop_price') * (3 + 3 * bot.o('frugality'))
 
 
 def _spend_or_take(bot, loot, uridium=None):
@@ -155,10 +155,10 @@ def _spend_or_take(bot, loot, uridium=None):
         return True
     f = K.price(loot)
     price = uridium if uridium else (f[1] if f and f[0] == 'U' else None)
-    if not price or not bot.permission.get('magaza', True):
+    if not price or not bot.permission.get('shop', True):
         return False
-    price *= bot.game_settings.multiplier('magaza_fiyat')
-    if bot.k['uridyum'] < price * (3 + 3 * bot.o('tutumluluk')):
+    price *= bot.game_settings.multiplier('shop_price')
+    if bot.k['uridyum'] < price * (3 + 3 * bot.o('frugality')):
         return False
     return bot.pay('U', price)
 
@@ -168,11 +168,11 @@ class EventGate(Mod):
     azami_seviye, firma, bir_kez, cpu, gorev), can, dalgalar (uzaylilar), odul."""
 
     def __init__(self, k, g):
-        self.uid, self.g = 'ekapi_' + k, g
+        self.uid, self.g = 'egate_' + k, g
         self.name = g['ad']
         self.game_map = (g.get('haritalar') or [None])[0]
         self.hp = min(int(g.get('can', 1)), 50)
-        self.rule = g.get('kural') or {}
+        self.rule = g.get('rule') or {}
         self.level = self.rule.get('seviye', 1)
 
     def is_open(self, now):
@@ -187,19 +187,19 @@ class EventGate(Mod):
 
     def can_enter(self, bot, now):
         k, st = self.rule, state(bot, self.uid)
-        if bot.level < k.get('seviye', 1) or bot.level > k.get('azami_seviye', 99):
+        if bot.level < k.get('seviye', 1) or bot.level > k.get('max_level', 99):
             return False
         if k.get('firma') and k['firma'] != bot.firma:
             return False
-        if k.get('bir_kez') and st.get('sayi'):
+        if k.get('once') and st.get('sayi'):
             return False
-        if k.get('gunluk'):
+        if k.get('daily'):
             group = k.get('grup') or self.uid
-            if state(bot, 'grup_' + group).get('gun') == day():
+            if state(bot, 'group_' + group).get('gun') == day():
                 return False
-        if k.get('yillik') and st.get('year') == time.strftime('%Y'):
+        if k.get('yearly') and st.get('year') == time.strftime('%Y'):
             return False
-        if k.get('bekleme_sn') and now - st.get('son', 0) < k['bekleme_sn']:
+        if k.get('bekleme_sn') and now - st.get('last', 0) < k['bekleme_sn']:
             return False
         if k.get('gorev'):
             g = bot.k.get('gorev') or {}
@@ -218,18 +218,18 @@ class EventGate(Mod):
         return _has_or_can_buy(bot, cpu) if cpu else True
 
     def waves(self, bot):
-        return [alien_wave(d.get('uzaylilar', [])) for d in self.g.get('waves', [])]
+        return [alien_wave(d.get('alien_spawns', [])) for d in self.g.get('waves', [])]
 
     def finish(self, bot, reached, total, duration, rng):
         if reached >= total:
-            grant_reward(bot, self.g.get('odul'), rng)
+            grant_reward(bot, self.g.get('reward'), rng)
 
     def save(self, bot, reached, total):
         super().save(bot, reached, total)
         k = self.rule
-        if k.get('gunluk'):
-            state(bot, 'grup_' + (k.get('grup') or self.uid))['gun'] = day()
-        if k.get('yillik'):
+        if k.get('daily'):
+            state(bot, 'group_' + (k.get('grup') or self.uid))['gun'] = day()
+        if k.get('yearly'):
             state(bot, self.uid)['year'] = time.strftime('%Y')
 
 
@@ -242,7 +242,7 @@ class Voyagers(Mod):
     def difficulty(self, bot):
         st = state(bot, self.uid)
         d = 0
-        while d + 1 < len(self.V['difficulties']) and st.get('yildiz', {}).get(str(d), 0) >= 3:
+        while d + 1 < len(self.V['difficulties']) and st.get('star', {}).get(str(d), 0) >= 3:
             d += 1
         return d
 
@@ -251,13 +251,13 @@ class Voyagers(Mod):
 
     def cost(self, bot):
         st = state(bot, self.uid)
-        if st.get('ucretsiz') != day():
-            st['ucretsiz'] = day()
+        if st.get('free') != day():
+            st['free'] = day()
             return True
-        return _spend_or_take(bot, self.V['jeton'])
+        return _spend_or_take(bot, self.V['token'])
 
     def affordable(self, bot):
-        return state(bot, self.uid).get('ucretsiz') != day() or _has_or_can_buy(bot, self.V['jeton'])
+        return state(bot, self.uid).get('free') != day() or _has_or_can_buy(bot, self.V['token'])
 
     def waves(self, bot):
         z = self.V['difficulties'][self.difficulty(bot)]
@@ -269,9 +269,9 @@ class Voyagers(Mod):
         sec = self.V['star_sec']
         star = 3 if duration <= sec[0] else 2 if duration <= sec[1] else 1
         d = self.difficulty(bot)
-        st = state(bot, self.uid).setdefault('yildiz', {})
+        st = state(bot, self.uid).setdefault('star', {})
         st[str(d)] = max(st.get(str(d), 0), star)
-        grant_list(bot, self.V['difficulties'][d]['oduller'].get(str(star)), rng)
+        grant_list(bot, self.V['difficulties'][d]['rewards'].get(str(star)), rng)
 
 
 class Trinity(Mod):
@@ -286,13 +286,13 @@ class Trinity(Mod):
 
     def cost(self, bot):
         st = state(bot, self.uid)
-        if st.get('ucretsiz') != day():
-            st['ucretsiz'] = day()
+        if st.get('free') != day():
+            st['free'] = day()
             return True
-        return _spend_or_take(bot, self.T['jeton'])
+        return _spend_or_take(bot, self.T['token'])
 
     def affordable(self, bot):
-        return state(bot, self.uid).get('ucretsiz') != day() or _has_or_can_buy(bot, self.T['jeton'])
+        return state(bot, self.uid).get('free') != day() or _has_or_can_buy(bot, self.T['token'])
 
     def difficulty(self, bot):
         return min(len(self.T['difficulties']) - 1, max(0, bot.level // 6 - 1))
@@ -335,10 +335,10 @@ class Astral(Mod):
         return out
 
     def finish(self, bot, reached, total, duration, rng):
-        row = next((r for r in self.A['odul'] if r['en_az'] <= reached <= r['en_cok']), None)
+        row = next((r for r in self.A['reward'] if r['en_az'] <= reached <= r['max_count']), None)
         if row:
             grant_list(bot, [['resource_collectable_astralite', row.get('astralite', 0)],
-                            ['resource_collectable_salvage-core', row.get('kurtarma', 0)],
+                            ['resource_collectable_salvage-core', row.get('salvage', 0)],
                             ['resource_booty-key-astral', row.get('anahtar', 0)]], rng)
 
 
@@ -365,10 +365,10 @@ class Ebl(Mod):
         return out
 
     def finish(self, bot, reached, total, duration, rng):
-        row = next((r for r in self.E['death_reward'] if r['en_az'] <= reached <= r['en_cok']), self.E['death_reward'][-1]
-                   if reached > self.E['death_reward'][-1]['en_cok'] else None)
+        row = next((r for r in self.E['death_reward'] if r['en_az'] <= reached <= r['max_count']), self.E['death_reward'][-1]
+                   if reached > self.E['death_reward'][-1]['max_count'] else None)
         if row:
-            grant_list(bot, [['resource_collectable_blacklight-shard', row.get('parca', 0)]], rng)
+            grant_list(bot, [['resource_collectable_blacklight-shard', row.get('part', 0)]], rng)
 
 
 class Echoes(Mod):
@@ -379,13 +379,13 @@ class Echoes(Mod):
     time_limit = E['sure_sn']
 
     def level_no(self, bot):
-        return min(len(self.E['seviyeler']) - 1, state(bot, self.uid).get('gecilen', 0))
+        return min(len(self.E['seviyeler']) - 1, state(bot, self.uid).get('cleared', 0))
 
     def cost(self, bot):
-        return _spend_or_take(bot, self.E['bilet'], self.E['ticket_price'])
+        return _spend_or_take(bot, self.E['ticket'], self.E['ticket_price'])
 
     def affordable(self, bot):
-        return _has_or_can_buy(bot, self.E['bilet'], self.E['ticket_price'])
+        return _has_or_can_buy(bot, self.E['ticket'], self.E['ticket_price'])
 
     def waves(self, bot):
         s = self.E['seviyeler'][self.level_no(bot)]
@@ -398,9 +398,9 @@ class Echoes(Mod):
         st = state(bot, self.uid)
         s = self.E['seviyeler'][self.level_no(bot)]
         t = self.E['tekrar']
-        if st.get('gecilen', 0) <= self.level_no(bot):
+        if st.get('cleared', 0) <= self.level_no(bot):
             grant_list(bot, s.get('ilk'), rng)
-            st['gecilen'] = self.level_no(bot) + 1
+            st['cleared'] = self.level_no(bot) + 1
         grant_list(bot, [['currency_uridium', t['uridium_base'] + t['uridium_level'] * s['seviye']],
                         ['ammunition_laser_ucb-100', t['ucb_base'] + t['ucb_level'] * s['seviye']]], rng)
 
@@ -409,10 +409,10 @@ class Low(Mod):
     uid, name = 'low', 'Battle of LoW'
     game_map = LOW['harita']
     level = 10
-    tip = 'tam'                                          # ödülü bitirmekte: yarısını geçemeyeceği koşuya girmez
+    tip = 'full'                                          # ödülü bitirmekte: yarısını geçemeyeceği koşuya girmez
 
     def can_enter(self, bot, now):
-        return bot.level >= self.level and now - state(bot, self.uid).get('son', 0) > 6 * 3600     # arada bir
+        return bot.level >= self.level and now - state(bot, self.uid).get('last', 0) > 6 * 3600     # arada bir
 
     def waves(self, bot):
         return [wave([[[t, n]]]) for t, n in LOW['waves']] + [wave([[[LOW['boss'], 1]]])]
@@ -434,17 +434,17 @@ class VortexGreed(Mod):
 
     def can_enter(self, bot, now):
         st = state(bot, self.uid)
-        return bot.level >= self.level and st.get('seans') != time.strftime('%Y-%m-%d %H')
+        return bot.level >= self.level and st.get('session') != time.strftime('%Y-%m-%d %H')
 
     def waves(self, bot):
-        aliens = self.V['uzaylilar']
+        aliens = self.V['alien_spawns']
         n = self.V['session_sec'] // self.V['wave_sec']
         return [wave([[[k, max(1, v.get('adet', 3))] for k, v in aliens.items()]], table=aliens) for _ in range(n)]
 
     def finish(self, bot, reached, total, duration, rng):
         from . import loot as LT
         st = state(bot, self.uid)
-        st['seans'] = time.strftime('%Y-%m-%d %H')
+        st['session'] = time.strftime('%Y-%m-%d %H')
         week = time.strftime('%Y-%W')
         if st.get('hafta') != week:
             st.update(hafta=week, coin=0)
@@ -463,7 +463,7 @@ class Mimesis(Mod):
     level = 10
 
     def is_open(self, now):
-        return _tech().is_active(self.M['etkinlik'], now) and time.localtime(now).tm_hour in self.M['saatler']
+        return _tech().is_active(self.M['etkinlik'], now) and time.localtime(now).tm_hour in self.M['hours']
 
     def can_enter(self, bot, now):
         return bot.level >= self.level and state(bot, self.uid).get('saat') != time.strftime('%Y-%m-%d %H')
@@ -484,12 +484,12 @@ class Mimesis(Mod):
         points = reached * self.M['waypoint_points'] + (self.M['arrival_bonus'] if reached >= total else 0)
         row = next((r for r in reversed(self.M['trip_tiers']) if points >= r['den']), None)
         if row:
-            grant_list(bot, row['oduller'], rng)
+            grant_list(bot, row['rewards'], rng)
 
 
 class WorldBoss(Mod):
     uid, name = 'world_boss', 'World Boss'
-    W = BIG_CONTENT['dunya_patronu']
+    W = BIG_CONTENT['world_boss']
     game_map = W['harita']
     level = 12
 
@@ -500,7 +500,7 @@ class WorldBoss(Mod):
         return any(a <= hm < b for a, b in self.W['windows'])
 
     def can_enter(self, bot, now):
-        return bot.level >= self.level and state(bot, self.uid).get('pencere') != time.strftime('%Y-%m-%d %H')
+        return bot.level >= self.level and state(bot, self.uid).get('windowed') != time.strftime('%Y-%m-%d %H')
 
     def waves(self, bot):
         f = self.W['npcs'].get('dreadfyre_fortress') or next(iter(self.W['npcs'].values()))
@@ -508,11 +508,11 @@ class WorldBoss(Mod):
         return [(((f['hp'] + f['kalkan']) * pay), 0.0, {})]
 
     def finish(self, bot, reached, total, duration, rng):
-        state(bot, self.uid)['pencere'] = time.strftime('%Y-%m-%d %H')
+        state(bot, self.uid)['windowed'] = time.strftime('%Y-%m-%d %H')
         if reached:
             g = bot.value()['power']
             tier = self.W['kademe'][min(len(self.W['kademe']) - 1, int(g // 25))]
-            grant_list(bot, tier['oduller'], rng)
+            grant_list(bot, tier['rewards'], rng)
 
 
 class Apotheosis(Mod):
@@ -528,40 +528,40 @@ class Apotheosis(Mod):
         return any(a <= hm < b for a, b in self.A['windows'])
 
     def can_enter(self, bot, now):
-        return bot.level >= self.level and state(bot, self.uid).get('pencere') != time.strftime('%Y-%m-%d %H')
+        return bot.level >= self.level and state(bot, self.uid).get('windowed') != time.strftime('%Y-%m-%d %H')
 
     def waves(self, bot):
-        p = self.A['patron']
-        return [((p['hp'] + p['kalkan']) * 0.03, p['hasar'] * 0.6 * K.COMBAT['npc_isabet'] / K.NPC_INTERVAL, {})]
+        p = self.A['boss']
+        return [((p['hp'] + p['kalkan']) * 0.03, p['hasar'] * 0.6 * K.COMBAT['npc_hit_chance'] / K.NPC_INTERVAL, {})]
 
     def finish(self, bot, reached, total, duration, rng):
-        state(bot, self.uid)['pencere'] = time.strftime('%Y-%m-%d %H')
-        k = self.A['katilim']
+        state(bot, self.uid)['windowed'] = time.strftime('%Y-%m-%d %H')
+        k = self.A['participation']
         grant_list(bot, k[min(len(k) - 1, int(bot.value()['power'] // 30))], rng)
 
 
 class Labyrinth(Mod):
-    uid, name = 'labirent', 'Frozen Labyrinth'
-    L = EVG['labirent']
+    uid, name = 'labyrinth', 'Frozen Labyrinth'
+    L = EVG['labyrinth']
     game_map = (L['baslangic'] if isinstance(L.get('baslangic'), int) else (list(L['haritalar'])[0] if L.get('haritalar') else 0))
     level = 12
 
     def is_open(self, now):
         if not _tech().is_active(self.L['etkinlik'], now):
             return False
-        hours = self.L['hours_weekend'] if time.localtime(now).tm_wday >= 5 else self.L['saatler']
+        hours = self.L['hours_weekend'] if time.localtime(now).tm_wday >= 5 else self.L['hours']
         return time.localtime(now).tm_hour in (hours or range(24))
 
     def can_enter(self, bot, now):
-        return bot.level >= self.level and now - state(bot, self.uid).get('son', 0) > 3600
+        return bot.level >= self.level and now - state(bot, self.uid).get('last', 0) > 3600
 
     def waves(self, bot):
-        aliens = self.L['uzaylilar']
+        aliens = self.L['alien_spawns']
         aliens = aliens if isinstance(aliens, list) else [dict(v, tur=k) for k, v in aliens.items()]
         return [wave([[[str(u.get('tur')), u.get('adet', 5)] for u in aliens]]) for _ in range(4)]
 
     def finish(self, bot, reached, total, duration, rng):
-        aliens = self.L['uzaylilar']
+        aliens = self.L['alien_spawns']
         aliens = aliens if isinstance(aliens, list) else list(aliens.values())
         key = sum((u.get('anahtar') or 0) * u.get('adet', 5) * 0.3 for u in aliens if isinstance(u.get('anahtar'), (int, float)))
         if key:
@@ -623,7 +623,7 @@ def estimate(bot, mod, waves=None):
 def value(bot, mod):
     """Modun bota beklenen değeri (kredi/saat kabaca): öldürme ödülleri ve bitiş, ilerleme payıyla; geçemeyeceği mod 0."""
     ul, top, duration, reward = estimate(bot, mod)
-    if top == 0 or ul == 0 or (mod.tip in ('tam', 'kosu') and ul < top * 0.5):
+    if top == 0 or ul == 0 or (mod.tip in ('full', 'run') and ul < top * 0.5):
         return 0.0                                       # ilerlemeyle ödül vermeyen modun yarısını geçemiyorsa girmez
     v = reward.get('kredi', 0) + reward.get('uridyum', 0) * 100 + reward.get('ep', 0) * 0.3 + reward.get('onur', 0) * 3
     v += 200000 * ul / top                                    # bitiş ödülleri (eşya, kaynak, anahtar) kabaca
@@ -632,7 +632,7 @@ def value(bot, mod):
 
 def candidates(bot, now):
     """Şu an girilebilecek modlar (açık, koşulu sağlanan, en az ilk dalgayı geçeceği)."""
-    if not bot.permission.get('modlar', True):
+    if not bot.permission.get('modes', True):
         return []
     out = []
     for m in modes():
@@ -656,14 +656,14 @@ def run(bot, mod, rng=random):
 # ------------------------------------------------------------------------------------------------------------ pasif
 def dispatch(bot, now):
     """Dispatch: zengin bot toplayıcı gönderir (kredi ücreti), süresi dolunca listesinden 4 ödül (taban adetlerle)."""
-    if not bot.permission.get('modlar', True) or bot.level < 10:
+    if not bot.permission.get('modes', True) or bot.level < 10:
         return
     st = state(bot, 'dispatch')
     if st.get('bitis') and now >= st['bitis']:
         t = DISP['collectors'][st['tur']]
-        entries = DISP['oduller'].get(t['code']) or []
+        entries = DISP['rewards'].get(t['code']) or []
         multiplier = 1 + (t.get('kademe', 1) - 1) * DISP.get('tier_increase', 0.5)
-        if _tech().is_active('dispatch_gunu', now):
+        if _tech().is_active('dispatch_day', now):
             multiplier *= DISP.get('dispatch_day_multiplier', 2)
         for loot in random.sample(entries, min(DISP['reward_count'], len(entries))):
             n = DISP['base_count'].get(loot, 1)
@@ -673,12 +673,12 @@ def dispatch(bot, now):
     if st.get('bitis'):
         return
     eligible = [(k, t) for k, t in DISP['collectors'].items()
-             if all(bot.k[{'currency_credits': 'kredi', 'currency_uridium': 'uridyum'}.get(p, 'kredi')] > n * (3 + 3 * bot.o('tutumluluk'))
-                    for p, n in t.get('ucret', {}).items())]
+             if all(bot.k[{'currency_credits': 'kredi', 'currency_uridium': 'uridyum'}.get(p, 'kredi')] > n * (3 + 3 * bot.o('frugality'))
+                    for p, n in t.get('fee', {}).items())]
     if not eligible:
         return
     k, t = max(eligible, key=lambda x: x[1].get('kademe', 1))
-    for p, n in t.get('ucret', {}).items():
+    for p, n in t.get('fee', {}).items():
         bot.pay('C' if p == 'currency_credits' else 'U', n)
     st.update(tur=k, bitis=now + t['sure_sn'])
 
@@ -686,7 +686,7 @@ def dispatch(bot, now):
 def galaxy_trek(bot, now):
     """Galaxy Trek: etkinlik sürerken günlük FTL anahtarlarıyla keşif (olaylar tablosundan ödül)."""
     g = EX['galaxy_trek']
-    if not bot.permission.get('modlar', True) or not _tech().is_active('galaxy_trek', now):
+    if not bot.permission.get('modes', True) or not _tech().is_active('galaxy_trek', now):
         return
     st = state(bot, 'galaxy_trek')
     if st.get('gun') == day():
@@ -694,10 +694,10 @@ def galaxy_trek(bot, now):
     st['gun'] = day()
     events = g.get('events')
     rows = events if isinstance(events, list) else list((events or {}).values())
-    for _ in range(int(g.get('gunluk', 10)) // max(1, int(g.get('maliyet', 1)))):
+    for _ in range(int(g.get('daily', 10)) // max(1, int(g.get('cost', 1)))):
         r = random.choice(rows) if rows else None
         if isinstance(r, dict):
-            grant_list(bot, r.get('oduller') or r.get('esyalar') or [])
+            grant_list(bot, r.get('rewards') or r.get('esyalar') or [])
         elif isinstance(r, list) and r and isinstance(r[0], str):
             grant_list(bot, [r[:2]])
     bot.ist('galaxy_trek')

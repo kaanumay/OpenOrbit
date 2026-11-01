@@ -12,7 +12,7 @@ class Adapter:
         self.root, self.python, self.log, self.no_window = root, python, log, no_window
         self.tool = os.path.join(root, 'tools', 'il2cpp', 'protocol_update.py')
         self.lock = threading.Lock()
-        self.d = {'calisiyor': False, 'satirlar': [], 'ozet': None, 'hata': None, 'baslangic': None, 'bitis': None, 'is': None}
+        self.d = {'running': False, 'lines': [], 'summary': None, 'hata': None, 'baslangic': None, 'bitis': None, 'is': None}
 
     def state(self):
         with self.lock:
@@ -20,9 +20,9 @@ class Adapter:
 
     def _start(self, kind, args):
         with self.lock:
-            if self.d['calisiyor']:
+            if self.d['running']:
                 raise RuntimeError(_('Protokol aracı zaten çalışıyor.'))
-            self.d = {'calisiyor': True, 'satirlar': [], 'ozet': None, 'hata': None, 'baslangic': time.time(), 'bitis': None,
+            self.d = {'running': True, 'lines': [], 'summary': None, 'hata': None, 'baslangic': time.time(), 'bitis': None,
                       'is': kind}
         threading.Thread(target=self._run, args=(args,), daemon=True).start()
         return self.state()
@@ -30,12 +30,12 @@ class Adapter:
     def generate(self, folder):
         if not folder or not os.path.isdir(folder):
             raise RuntimeError(_('İstemci klasörü yok.'))
-        return self._start('uret', [folder])
+        return self._start('produce', [folder])
 
     def activate(self, version):
         if not version or not re.match(r'^[0-9A-Za-z._-]+$', version):
             raise RuntimeError(_('Sürüm geçersiz.'))
-        return self._start('uygula', ['--activate=' + version])
+        return self._start('apply', ['--activate=' + version])
 
     def _run(self, args):
         try:
@@ -45,19 +45,19 @@ class Adapter:
             for line in p.stdout:
                 line = line.rstrip()
                 with self.lock:
-                    self.d['satirlar'] = (self.d['satirlar'] + [line])[-80:]
+                    self.d['lines'] = (self.d['lines'] + [line])[-80:]
                 m = re.search(r'fark: (\{.*\})', line)
                 if m:
                     with self.lock:
-                        self.d['ozet'] = dict(self.d['ozet'] or {}, **json.loads(m.group(1)))
+                        self.d['summary'] = dict(self.d['summary'] or {}, **json.loads(m.group(1)))
                 m = re.search(r'rapor: (.+)$', line)
                 if m:
                     with self.lock:
-                        self.d['ozet'] = dict(self.d['ozet'] or {}, rapor=m.group(1).strip())
+                        self.d['summary'] = dict(self.d['summary'] or {}, report=m.group(1).strip())
                 m = re.search(r'^istemci (\S+) ->', line)
                 if m:
                     with self.lock:
-                        self.d['ozet'] = dict(self.d['ozet'] or {}, surum=m.group(1))
+                        self.d['summary'] = dict(self.d['summary'] or {}, surum=m.group(1))
             code = p.wait()
             if code:
                 with self.lock:
@@ -67,5 +67,5 @@ class Adapter:
                 self.d['hata'] = repr(e)
         finally:
             with self.lock:
-                self.d['calisiyor'], self.d['bitis'] = False, time.time()
+                self.d['running'], self.d['bitis'] = False, time.time()
             self.log('protokol aracı bitti: %s' % (self.d['hata'] or 'tamam'))

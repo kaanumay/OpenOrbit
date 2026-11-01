@@ -7,9 +7,9 @@
    "X-8"
   ],
   "portal": 306,
-  "jeton": "resource_collectable_voyagers-oath-token",
+  "token": "resource_collectable_voyagers-oath-token",
   "vip": "resource_voyagers-vip-badge",
-  "ucretsiz": 1,
+  "free": 1,
   "vip_extra": 1,
   "star_sec": [
    300,
@@ -300,7 +300,7 @@
       ]
      }
     ],
-    "oduller": {
+    "rewards": {
      "1": [
       [
        "resource_ignishard-l01",
@@ -650,7 +650,7 @@
       ]
      }
     ],
-    "oduller": {
+    "rewards": {
      "1": [
       [
        "resource_ignishard-l01",
@@ -1000,7 +1000,7 @@
       ]
      }
     ],
-    "oduller": {
+    "rewards": {
      "1": [
       [
        "resource_ignishard-l01",
@@ -1350,7 +1350,7 @@
       ]
      }
     ],
-    "oduller": {
+    "rewards": {
      "1": [
       [
        "resource_ignishard-l01",
@@ -1700,7 +1700,7 @@
       ]
      }
     ],
-    "oduller": {
+    "rewards": {
      "1": [
       [
        "resource_ignishard-l01",
@@ -1769,7 +1769,7 @@
     }
    }
   ],
-  "gecis": {
+  "reward_pass": {
    "seviyeler": [
     0,
     100,
@@ -1802,7 +1802,7 @@
     7280,
     7600
    ],
-   "ucretsiz": [
+   "free": [
     [
      1,
      "ammunition_laser_ucb-100",
@@ -2152,9 +2152,9 @@
    "X-8"
   ],
   "portal": 304,
-  "jeton": "resource_collectable_trinity-token",
+  "token": "resource_collectable_trinity-token",
   "vip": "resource_trinity-vip-badge",
-  "ucretsiz": 1,
+  "free": 1,
   "vip_extra": 2,
   "vip_damage": 0.2,
   "kp": "resource_collectable_quantum-prism",
@@ -2734,7 +2734,7 @@
       "puan": 43
      }
     },
-    "dusme": [
+    "drop": [
      [
       1,
       60.0
@@ -3314,7 +3314,7 @@
       "puan": 45
      }
     },
-    "dusme": [
+    "drop": [
      [
       1,
       100.0
@@ -3894,7 +3894,7 @@
       "puan": 46
      }
     },
-    "dusme": [
+    "drop": [
      [
       1,
       90.0
@@ -4478,7 +4478,7 @@
       "puan": 49
      }
     },
-    "dusme": [
+    "drop": [
      [
       1,
       75.0
@@ -5062,7 +5062,7 @@
       "puan": 51
      }
     },
-    "dusme": [
+    "drop": [
      [
       1,
       67.0
@@ -5081,7 +5081,7 @@
   "os": [
    {
     "seviye": 1,
-    "maliyet": 0,
+    "cost": 0,
     "sure_sn": 0,
     "rarity": [
      80.0,
@@ -5095,7 +5095,7 @@
    },
    {
     "seviye": 2,
-    "maliyet": 10,
+    "cost": 10,
     "sure_sn": 9000,
     "rarity": [
      70.0,
@@ -5109,7 +5109,7 @@
    },
    {
     "seviye": 3,
-    "maliyet": 11,
+    "cost": 11,
     "sure_sn": 9000,
     "rarity": [
      60.0,
@@ -5123,7 +5123,7 @@
    },
    {
     "seviye": 4,
-    "maliyet": 12,
+    "cost": 12,
     "sure_sn": 9000,
     "rarity": [
      50.0,
@@ -5137,7 +5137,7 @@
    },
    {
     "seviye": 5,
-    "maliyet": 13,
+    "cost": 13,
     "sure_sn": 9000,
     "rarity": [
      40.0,
@@ -5151,7 +5151,7 @@
    },
    {
     "seviye": 6,
-    "maliyet": 14,
+    "cost": 14,
     "sure_sn": 9000,
     "rarity": [
      40.0,
@@ -5165,7 +5165,7 @@
    },
    {
     "seviye": 7,
-    "maliyet": 15,
+    "cost": 15,
     "sure_sn": 12000,
     "rarity": [
      40.0,
@@ -5179,7 +5179,7 @@
    },
    {
     "seviye": 8,
-    "maliyet": 17,
+    "cost": 17,
     "sure_sn": 12000,
     "rarity": [
      40.0,
@@ -5193,7 +5193,7 @@
    },
    {
     "seviye": 9,
-    "maliyet": 19,
+    "cost": 19,
     "sure_sn": 12000,
     "rarity": [
      40.0,
@@ -5207,7 +5207,7 @@
    },
    {
     "seviye": 10,
-    "maliyet": 21,
+    "cost": 21,
     "sure_sn": 12000,
     "rarity": [
      40.0,
@@ -5221,7 +5221,7 @@
    },
    {
     "seviye": 11,
-    "maliyet": 23,
+    "cost": 23,
     "sure_sn": 12000,
     "rarity": [
      39.5,
@@ -5235,7 +5235,7 @@
    },
    {
     "seviye": 12,
-    "maliyet": 25,
+    "cost": 25,
     "sure_sn": 30000,
     "rarity": [
      39.0,
@@ -5249,7 +5249,7 @@
    },
    {
     "seviye": 13,
-    "maliyet": 28,
+    "cost": 28,
     "sure_sn": 30000,
     "rarity": [
      38.5,
@@ -5263,7 +5263,7 @@
    },
    {
     "seviye": 14,
-    "maliyet": 31,
+    "cost": 31,
     "sure_sn": 30000,
     "rarity": [
      38.0,
@@ -5277,7 +5277,7 @@
    },
    {
     "seviye": 15,
-    "maliyet": 34,
+    "cost": 34,
     "sure_sn": 30000,
     "rarity": [
      37.5,
@@ -5291,7 +5291,7 @@
    },
    {
     "seviye": 16,
-    "maliyet": 37,
+    "cost": 37,
     "sure_sn": 30000,
     "rarity": [
      37.0,
@@ -5305,7 +5305,7 @@
    },
    {
     "seviye": 17,
-    "maliyet": 41,
+    "cost": 41,
     "sure_sn": 30000,
     "rarity": [
      36.5,
@@ -5319,7 +5319,7 @@
    },
    {
     "seviye": 18,
-    "maliyet": 45,
+    "cost": 45,
     "sure_sn": 30000,
     "rarity": [
      36.0,
@@ -5333,7 +5333,7 @@
    },
    {
     "seviye": 19,
-    "maliyet": 50,
+    "cost": 50,
     "sure_sn": 30000,
     "rarity": [
      35.5,
@@ -5347,7 +5347,7 @@
    },
    {
     "seviye": 20,
-    "maliyet": 55,
+    "cost": 55,
     "sure_sn": 30000,
     "rarity": [
      35.0,
@@ -5361,7 +5361,7 @@
    },
    {
     "seviye": 21,
-    "maliyet": 61,
+    "cost": 61,
     "sure_sn": 30000,
     "rarity": [
      34.4,
@@ -5375,7 +5375,7 @@
    },
    {
     "seviye": 22,
-    "maliyet": 67,
+    "cost": 67,
     "sure_sn": 30000,
     "rarity": [
      33.8,
@@ -5389,7 +5389,7 @@
    },
    {
     "seviye": 23,
-    "maliyet": 74,
+    "cost": 74,
     "sure_sn": 60000,
     "rarity": [
      33.2,
@@ -5403,7 +5403,7 @@
    },
    {
     "seviye": 24,
-    "maliyet": 81,
+    "cost": 81,
     "sure_sn": 60000,
     "rarity": [
      32.6,
@@ -5417,7 +5417,7 @@
    },
    {
     "seviye": 25,
-    "maliyet": 89,
+    "cost": 89,
     "sure_sn": 60000,
     "rarity": [
      32.0,
@@ -5431,7 +5431,7 @@
    },
    {
     "seviye": 26,
-    "maliyet": 98,
+    "cost": 98,
     "sure_sn": 60000,
     "rarity": [
      31.4,
@@ -5445,7 +5445,7 @@
    },
    {
     "seviye": 27,
-    "maliyet": 108,
+    "cost": 108,
     "sure_sn": 60000,
     "rarity": [
      30.8,
@@ -5459,7 +5459,7 @@
    },
    {
     "seviye": 28,
-    "maliyet": 119,
+    "cost": 119,
     "sure_sn": 60000,
     "rarity": [
      30.2,
@@ -5473,7 +5473,7 @@
    },
    {
     "seviye": 29,
-    "maliyet": 131,
+    "cost": 131,
     "sure_sn": 60000,
     "rarity": [
      29.6,
@@ -5487,7 +5487,7 @@
    },
    {
     "seviye": 30,
-    "maliyet": 144,
+    "cost": 144,
     "sure_sn": 60000,
     "rarity": [
      29.0,
@@ -5501,7 +5501,7 @@
    },
    {
     "seviye": 31,
-    "maliyet": 158,
+    "cost": 158,
     "sure_sn": 60000,
     "rarity": [
      28.87,
@@ -5515,7 +5515,7 @@
    },
    {
     "seviye": 32,
-    "maliyet": 174,
+    "cost": 174,
     "sure_sn": 90000,
     "rarity": [
      28.74,
@@ -5529,7 +5529,7 @@
    },
    {
     "seviye": 33,
-    "maliyet": 191,
+    "cost": 191,
     "sure_sn": 90000,
     "rarity": [
      28.61,
@@ -5543,7 +5543,7 @@
    },
    {
     "seviye": 34,
-    "maliyet": 210,
+    "cost": 210,
     "sure_sn": 90000,
     "rarity": [
      28.48,
@@ -5557,7 +5557,7 @@
    },
    {
     "seviye": 35,
-    "maliyet": 231,
+    "cost": 231,
     "sure_sn": 90000,
     "rarity": [
      28.35,
@@ -5571,7 +5571,7 @@
    },
    {
     "seviye": 36,
-    "maliyet": 254,
+    "cost": 254,
     "sure_sn": 90000,
     "rarity": [
      28.22,
@@ -5585,7 +5585,7 @@
    },
    {
     "seviye": 37,
-    "maliyet": 279,
+    "cost": 279,
     "sure_sn": 120000,
     "rarity": [
      28.09,
@@ -5599,7 +5599,7 @@
    },
    {
     "seviye": 38,
-    "maliyet": 306,
+    "cost": 306,
     "sure_sn": 120000,
     "rarity": [
      27.96,
@@ -5613,7 +5613,7 @@
    },
    {
     "seviye": 39,
-    "maliyet": 335,
+    "cost": 335,
     "sure_sn": 120000,
     "rarity": [
      27.83,
@@ -5627,7 +5627,7 @@
    },
    {
     "seviye": 40,
-    "maliyet": 366,
+    "cost": 366,
     "sure_sn": 120000,
     "rarity": [
      27.7,
@@ -5712,7 +5712,7 @@
     "param0": "5"
    }
   ],
-  "gecis": {
+  "reward_pass": {
    "seviyeler": [
     100,
     200,
@@ -5755,7 +5755,7 @@
     10580,
     10900
    ],
-   "ucretsiz": [
+   "free": [
     [
      1,
      "ammunition_laser_ucb-100",
@@ -6275,7 +6275,7 @@
    467,
    468
   ],
-  "gemiler": [
+  "ships": [
    {
     "ad": "Sentinel",
     "lootId": "ship_sentinel",
@@ -6338,13 +6338,13 @@
      1
     ]
    ],
-   "dronlar": {
+   "drones": {
     "tur": "drone_iris",
     "adet": 5,
     "lazer": "equipment_weapon_laser_lf-3",
     "per_drone": 2
    },
-   "cephane": {
+   "ammunition": {
     "ammunition_laser_lcb-10": 50000,
     "ammunition_laser_mcb-25": 20000,
     "ammunition_laser_mcb-50": 5000,
@@ -6355,7 +6355,7 @@
   "rifts": [
    {
     "ad": "1",
-    "patron": false,
+    "boss": false,
     "sets": [
      [
       {
@@ -6431,7 +6431,7 @@
    },
    {
     "ad": "2",
-    "patron": false,
+    "boss": false,
     "sets": [
      [
       {
@@ -6439,7 +6439,7 @@
        "gruplar": [
         [
          [
-          "etk_curcubitor_x5",
+          "event_curcubitor_x5",
           5
          ]
         ]
@@ -6507,7 +6507,7 @@
    },
    {
     "ad": "3",
-    "patron": false,
+    "boss": false,
     "sets": [
      [
       {
@@ -6526,7 +6526,7 @@
        "gruplar": [
         [
          [
-          "etk_curcubitor_x5",
+          "event_curcubitor_x5",
           5
          ]
         ]
@@ -6583,7 +6583,7 @@
    },
    {
     "ad": "4",
-    "patron": false,
+    "boss": false,
     "sets": [
      [
       {
@@ -6659,11 +6659,11 @@
    },
    {
     "ad": "5",
-    "patron": true,
+    "boss": true,
     "sets": [
      [
       {
-       "ad": "patron",
+       "ad": "boss",
        "gruplar": [
         [
          [
@@ -6679,7 +6679,7 @@
    },
    {
     "ad": "6",
-    "patron": false,
+    "boss": false,
     "sets": [
      [
       {
@@ -6722,7 +6722,7 @@
        "gruplar": [
         [
          [
-          "etk_spinel_x5",
+          "event_spinel_x5",
           5
          ]
         ]
@@ -6755,7 +6755,7 @@
    },
    {
     "ad": "7",
-    "patron": false,
+    "boss": false,
     "sets": [
      [
       {
@@ -6798,7 +6798,7 @@
        "gruplar": [
         [
          [
-          "etk_lanatum_x5",
+          "event_lanatum_x5",
           4
          ]
         ]
@@ -6820,7 +6820,7 @@
        "gruplar": [
         [
          [
-          "etk_lanatum_x5",
+          "event_lanatum_x5",
           4
          ]
         ]
@@ -6831,7 +6831,7 @@
    },
    {
     "ad": "8",
-    "patron": false,
+    "boss": false,
     "sets": [
      [
       {
@@ -6907,7 +6907,7 @@
    },
    {
     "ad": "9",
-    "patron": false,
+    "boss": false,
     "sets": [
      [
       {
@@ -6915,7 +6915,7 @@
        "gruplar": [
         [
          [
-          "etk_lanatum_x5",
+          "event_lanatum_x5",
           5
          ]
         ]
@@ -6950,7 +6950,7 @@
        "gruplar": [
         [
          [
-          "etk_spinel_x5",
+          "event_spinel_x5",
           5
          ]
         ]
@@ -6972,7 +6972,7 @@
        "gruplar": [
         [
          [
-          "etk_lanatum_x5",
+          "event_lanatum_x5",
           4
          ]
         ]
@@ -6983,15 +6983,15 @@
    },
    {
     "ad": "10",
-    "patron": true,
+    "boss": true,
     "sets": [
      [
       {
-       "ad": "patron",
+       "ad": "boss",
        "gruplar": [
         [
          [
-          "etk_icy",
+          "event_icy",
           1,
           true
          ]
@@ -7003,7 +7003,7 @@
    },
    {
     "ad": "11",
-    "patron": false,
+    "boss": false,
     "sets": [
      [
       {
@@ -7079,7 +7079,7 @@
    },
    {
     "ad": "12",
-    "patron": false,
+    "boss": false,
     "sets": [
      [
       {
@@ -7155,7 +7155,7 @@
    },
    {
     "ad": "13",
-    "patron": false,
+    "boss": false,
     "sets": [
      [
       {
@@ -7231,7 +7231,7 @@
    },
    {
     "ad": "14",
-    "patron": false,
+    "boss": false,
     "sets": [
      [
       {
@@ -7307,11 +7307,11 @@
    },
    {
     "ad": "15",
-    "patron": true,
+    "boss": true,
     "sets": [
      [
       {
-       "ad": "patron",
+       "ad": "boss",
        "gruplar": [
         [
          [
@@ -7328,17 +7328,17 @@
   ],
   "gate_kinds": [
    {
-    "ad": "silah",
+    "ad": "weapon",
     "tasarim": 87,
     "frenzied": 88
    },
    {
-    "ad": "jenerator",
+    "ad": "generator",
     "tasarim": 89,
     "frenzied": 90
    },
    {
-    "ad": "cephane",
+    "ad": "ammunition",
     "tasarim": 91,
     "frenzied": 92
    },
@@ -7363,8 +7363,8 @@
     "frenzied": null
    }
   ],
-  "havuz": {
-   "silah": [
+  "pool": {
+   "weapon": [
     [
      "equipment_weapon_laser_lf-2",
      8,
@@ -7391,7 +7391,7 @@
      8
     ]
    ],
-   "jenerator": [
+   "generator": [
     [
      "equipment_generator_shield_sg3n-b02",
      8,
@@ -7435,7 +7435,7 @@
      1
     ]
    ],
-   "cephane": [
+   "ammunition": [
     [
      "ammunition_laser_mcb-25",
      5000,
@@ -7497,54 +7497,54 @@
     ]
    ]
   },
-  "odul": [
+  "reward": [
    {
     "en_az": 1,
-    "en_cok": 4,
+    "max_count": 4,
     "astralite": 250,
-    "kurtarma": 25,
+    "salvage": 25,
     "anahtar": 0
    },
    {
     "en_az": 5,
-    "en_cok": 5,
+    "max_count": 5,
     "astralite": 350,
-    "kurtarma": 35,
+    "salvage": 35,
     "anahtar": 0
    },
    {
     "en_az": 6,
-    "en_cok": 9,
+    "max_count": 9,
     "astralite": 525,
-    "kurtarma": 55,
+    "salvage": 55,
     "anahtar": 0
    },
    {
     "en_az": 10,
-    "en_cok": 10,
+    "max_count": 10,
     "astralite": 800,
-    "kurtarma": 85,
+    "salvage": 85,
     "anahtar": 0
    },
    {
     "en_az": 11,
-    "en_cok": 14,
+    "max_count": 14,
     "astralite": 1050,
-    "kurtarma": 120,
+    "salvage": 120,
     "anahtar": 1
    },
    {
     "en_az": 15,
-    "en_cok": 15,
+    "max_count": 15,
     "astralite": 1250,
-    "kurtarma": 150,
+    "salvage": 150,
     "anahtar": 2
    },
    {
     "en_az": 16,
-    "en_cok": 16,
+    "max_count": 16,
     "astralite": 1400,
-    "kurtarma": 170,
+    "salvage": 170,
     "anahtar": 3
    }
   ],
@@ -7601,7 +7601,7 @@
  },
  "echoes": {
   "level_requirement": 15,
-  "bilet": "resource_key_access-dse",
+  "ticket": "resource_key_access-dse",
   "ticket_price": 8000,
   "giris": "X-1",
   "portal": 300,
@@ -7619,7 +7619,7 @@
   "seviyeler": [
    {
     "seviye": 1,
-    "tur": "yok_et",
+    "tur": "destroy",
     "waves": [
      {
       "ad": "1",
@@ -7649,7 +7649,7 @@
    },
    {
     "seviye": 2,
-    "tur": "koru",
+    "tur": "guard",
     "waves": [
      {
       "ad": "2",
@@ -7725,7 +7725,7 @@
    },
    {
     "seviye": 3,
-    "tur": "yok_et",
+    "tur": "destroy",
     "waves": [
      {
       "ad": "5",
@@ -7760,7 +7760,7 @@
    },
    {
     "seviye": 4,
-    "tur": "eslik",
+    "tur": "escort",
     "waves": [
      {
       "ad": "7",
@@ -7850,7 +7850,7 @@
    },
    {
     "seviye": 5,
-    "tur": "patron",
+    "tur": "boss",
     "waves": [
      {
       "ad": "14",
@@ -7875,7 +7875,7 @@
    },
    {
     "seviye": 6,
-    "tur": "eslik",
+    "tur": "escort",
     "waves": [
      {
       "ad": "1",
@@ -7983,7 +7983,7 @@
    },
    {
     "seviye": 7,
-    "tur": "yok_et",
+    "tur": "destroy",
     "waves": [
      {
       "ad": "8",
@@ -8043,7 +8043,7 @@
    },
    {
     "seviye": 8,
-    "tur": "koru",
+    "tur": "guard",
     "waves": [
      {
       "ad": "9",
@@ -8101,7 +8101,7 @@
    },
    {
     "seviye": 9,
-    "tur": "yok_et",
+    "tur": "destroy",
     "waves": [
      {
       "ad": "12",
@@ -8153,7 +8153,7 @@
    },
    {
     "seviye": 10,
-    "tur": "patron",
+    "tur": "boss",
     "waves": [
      {
       "ad": "15",
@@ -8178,7 +8178,7 @@
    },
    {
     "seviye": 11,
-    "tur": "yok_et",
+    "tur": "destroy",
     "waves": [
      {
       "ad": "1",
@@ -8237,7 +8237,7 @@
    },
    {
     "seviye": 12,
-    "tur": "eslik",
+    "tur": "escort",
     "waves": [
      {
       "ad": "3",
@@ -8350,7 +8350,7 @@
    },
    {
     "seviye": 13,
-    "tur": "yok_et",
+    "tur": "destroy",
     "waves": [
      {
       "ad": "11",
@@ -8419,7 +8419,7 @@
    },
    {
     "seviye": 14,
-    "tur": "koru",
+    "tur": "guard",
     "waves": [
      {
       "ad": "15",
@@ -8506,7 +8506,7 @@
    },
    {
     "seviye": 15,
-    "tur": "patron",
+    "tur": "boss",
     "waves": [
      {
       "ad": "19",
@@ -8531,7 +8531,7 @@
    },
    {
     "seviye": 16,
-    "tur": "yok_et",
+    "tur": "destroy",
     "waves": [
      {
       "ad": "1",
@@ -8591,7 +8591,7 @@
    },
    {
     "seviye": 17,
-    "tur": "koru",
+    "tur": "guard",
     "waves": [
      {
       "ad": "2",
@@ -8679,7 +8679,7 @@
    },
    {
     "seviye": 18,
-    "tur": "yok_et",
+    "tur": "destroy",
     "waves": [
      {
       "ad": "5",
@@ -8731,7 +8731,7 @@
    },
    {
     "seviye": 19,
-    "tur": "eslik",
+    "tur": "escort",
     "waves": [
      {
       "ad": "8",
@@ -8875,7 +8875,7 @@
    },
    {
     "seviye": 20,
-    "tur": "patron",
+    "tur": "boss",
     "waves": [
      {
       "ad": "15",
@@ -8900,7 +8900,7 @@
    },
    {
     "seviye": 21,
-    "tur": "eslik",
+    "tur": "escort",
     "waves": [
      {
       "ad": "1",
@@ -9055,7 +9055,7 @@
    },
    {
     "seviye": 22,
-    "tur": "yok_et",
+    "tur": "destroy",
     "waves": [
      {
       "ad": "9",
@@ -9103,7 +9103,7 @@
    },
    {
     "seviye": 23,
-    "tur": "koru",
+    "tur": "guard",
     "waves": [
      {
       "ad": "10",
@@ -9191,7 +9191,7 @@
    },
    {
     "seviye": 24,
-    "tur": "yok_et",
+    "tur": "destroy",
     "waves": [
      {
       "ad": "13",
@@ -9297,7 +9297,7 @@
    },
    {
     "seviye": 25,
-    "tur": "patron",
+    "tur": "boss",
     "waves": [
      {
       "ad": "16",
@@ -9322,7 +9322,7 @@
    },
    {
     "seviye": 26,
-    "tur": "eslik",
+    "tur": "escort",
     "waves": [
      {
       "ad": "1",
@@ -9443,7 +9443,7 @@
    },
    {
     "seviye": 27,
-    "tur": "yok_et",
+    "tur": "destroy",
     "waves": [
      {
       "ad": "7",
@@ -9497,7 +9497,7 @@
    },
    {
     "seviye": 28,
-    "tur": "koru",
+    "tur": "guard",
     "waves": [
      {
       "ad": "8",
@@ -9585,7 +9585,7 @@
    },
    {
     "seviye": 29,
-    "tur": "yok_et",
+    "tur": "destroy",
     "waves": [
      {
       "ad": "11",
@@ -9639,7 +9639,7 @@
    },
    {
     "seviye": 30,
-    "tur": "patron",
+    "tur": "boss",
     "waves": [
      {
       "ad": "12",
@@ -9664,7 +9664,7 @@
    },
    {
     "seviye": 31,
-    "tur": "eslik",
+    "tur": "escort",
     "waves": [
      {
       "ad": "1",
@@ -9808,7 +9808,7 @@
    },
    {
     "seviye": 32,
-    "tur": "yok_et",
+    "tur": "destroy",
     "waves": [
      {
       "ad": "8",
@@ -9908,7 +9908,7 @@
    },
    {
     "seviye": 33,
-    "tur": "koru",
+    "tur": "guard",
     "waves": [
      {
       "ad": "11",
@@ -10002,7 +10002,7 @@
    },
    {
     "seviye": 34,
-    "tur": "yok_et",
+    "tur": "destroy",
     "waves": [
      {
       "ad": "14",
@@ -10056,7 +10056,7 @@
    },
    {
     "seviye": 35,
-    "tur": "patron",
+    "tur": "boss",
     "waves": [
      {
       "ad": "15",
@@ -10081,7 +10081,7 @@
    },
    {
     "seviye": 36,
-    "tur": "eslik",
+    "tur": "escort",
     "waves": [
      {
       "ad": "1",
@@ -10219,7 +10219,7 @@
    },
    {
     "seviye": 37,
-    "tur": "yok_et",
+    "tur": "destroy",
     "waves": [
      {
       "ad": "8",
@@ -10278,7 +10278,7 @@
    },
    {
     "seviye": 38,
-    "tur": "koru",
+    "tur": "guard",
     "waves": [
      {
       "ad": "10",
@@ -10342,7 +10342,7 @@
    },
    {
     "seviye": 39,
-    "tur": "yok_et",
+    "tur": "destroy",
     "waves": [
      {
       "ad": "13",
@@ -10414,7 +10414,7 @@
    },
    {
     "seviye": 40,
-    "tur": "patron",
+    "tur": "boss",
     "waves": [
      {
       "ad": "boss",
@@ -10439,7 +10439,7 @@
    },
    {
     "seviye": 41,
-    "tur": "eslik",
+    "tur": "escort",
     "waves": [
      {
       "ad": "1",
@@ -10585,7 +10585,7 @@
    },
    {
     "seviye": 42,
-    "tur": "yok_et",
+    "tur": "destroy",
     "waves": [
      {
       "ad": "8",
@@ -10687,7 +10687,7 @@
    },
    {
     "seviye": 43,
-    "tur": "koru",
+    "tur": "guard",
     "waves": [
      {
       "ad": "11",
@@ -10783,7 +10783,7 @@
    },
    {
     "seviye": 44,
-    "tur": "yok_et",
+    "tur": "destroy",
     "waves": [
      {
       "ad": "14",
@@ -10839,7 +10839,7 @@
    },
    {
     "seviye": 45,
-    "tur": "patron",
+    "tur": "boss",
     "can": 9.375,
     "_can": "Oyuncu bildirimi 2026-10-28 (Emperor Sibelon zayıf): tek Emperor'un canı/kalkanı 6,4 M ile 40. ve 50. seviyelerin Gygerim Overlord'unun (60 M) onda biriydi, önceki seviyelerin dalgalarından da zayıftı. Can ve kalkan Overlord'unkine (60 M) çıkar, hasar aynı kalır",
     "waves": [
@@ -10866,7 +10866,7 @@
    },
    {
     "seviye": 46,
-    "tur": "eslik",
+    "tur": "escort",
     "waves": [
      {
       "ad": "1",
@@ -11006,7 +11006,7 @@
    },
    {
     "seviye": 47,
-    "tur": "yok_et",
+    "tur": "destroy",
     "waves": [
      {
       "ad": "8",
@@ -11067,7 +11067,7 @@
    },
    {
     "seviye": 48,
-    "tur": "koru",
+    "tur": "guard",
     "waves": [
      {
       "ad": "10",
@@ -11133,7 +11133,7 @@
    },
    {
     "seviye": 49,
-    "tur": "yok_et",
+    "tur": "destroy",
     "waves": [
      {
       "ad": "13",
@@ -11207,7 +11207,7 @@
    },
    {
     "seviye": 50,
-    "tur": "patron",
+    "tur": "boss",
     "waves": [
      {
       "ad": "boss",
@@ -11231,7 +11231,7 @@
     "sure_sn": null
    }
   ],
-  "kadro": 5,
+  "roster": 5,
   "sure_sn": 600,
   "scale_level": 0.06,
   "tekrar": {
@@ -11240,8 +11240,8 @@
    "ucb_base": 10,
    "ucb_level": 2
   },
-  "atlama": {
-   "hedefler": [
+  "jump": {
+   "targets": [
     1,
     6,
     11,
@@ -11255,9 +11255,9 @@
    ],
    "cost_block": 2000
   },
-  "dost": {
-   "koru": "277",
-   "eslik": "126",
+  "friendly": {
+   "guard": "277",
+   "escort": "126",
    "can": 400000,
    "kalkan": 200000
   },
@@ -11287,7 +11287,7 @@
       2
      ]
     ],
-    "unvan": "title_expedition_202505_03"
+    "title": "title_expedition_202505_03"
    },
    {
     "den": 51,
@@ -11354,7 +11354,7 @@
       10
      ]
     ],
-    "unvan": "title_expedition_202505_01"
+    "title": "title_expedition_202505_01"
    },
    {
     "den": 11,
@@ -11407,7 +11407,7 @@
       8
      ]
     ],
-    "unvan": "title_expedition_202505_02"
+    "title": "title_expedition_202505_02"
    },
    {
     "den": 26,
@@ -11452,7 +11452,7 @@
       4
      ]
     ],
-    "unvan": "title_expedition_202505_03"
+    "title": "title_expedition_202505_03"
    },
    {
     "den": 2,
@@ -11483,11 +11483,11 @@
       8
      ]
     ],
-    "unvan": "title_expedition_202505_02"
+    "title": "title_expedition_202505_02"
    }
   ],
   "conditions": {
-   "yok_et": [
+   "destroy": [
     "window_dse_vic_con1",
     "window_dse_fail_con1"
    ]
@@ -11509,7 +11509,7 @@
   "tur": 51,
   "kind_multiplier": 1.8,
   "uridium_limit": 75000,
-  "kontrol": {
+  "control": {
    "10": 1,
    "20": 1,
    "30": 1,
@@ -11520,7 +11520,7 @@
   "waves": [
    {
     "ad": "1",
-    "oda": 1,
+    "room": 1,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -11545,7 +11545,7 @@
    },
    {
     "ad": "2",
-    "oda": 1,
+    "room": 1,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -11558,7 +11558,7 @@
    },
    {
     "ad": "3",
-    "oda": 1,
+    "room": 1,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -11577,7 +11577,7 @@
    },
    {
     "ad": "4",
-    "oda": 1,
+    "room": 1,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -11590,7 +11590,7 @@
    },
    {
     "ad": "5",
-    "oda": 1,
+    "room": 1,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -11609,7 +11609,7 @@
    },
    {
     "ad": "6",
-    "oda": 1,
+    "room": 1,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -11622,7 +11622,7 @@
    },
    {
     "ad": "7",
-    "oda": 1,
+    "room": 1,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -11635,7 +11635,7 @@
    },
    {
     "ad": "8",
-    "oda": 1,
+    "room": 1,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -11648,7 +11648,7 @@
    },
    {
     "ad": "9",
-    "oda": 1,
+    "room": 1,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -11661,7 +11661,7 @@
    },
    {
     "ad": "10",
-    "oda": 1,
+    "room": 1,
     "carpan": 0.8,
     "gruplar": [
      [
@@ -11674,7 +11674,7 @@
    },
    {
     "ad": "11",
-    "oda": 2,
+    "room": 2,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -11687,7 +11687,7 @@
    },
    {
     "ad": "12",
-    "oda": 2,
+    "room": 2,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -11700,7 +11700,7 @@
    },
    {
     "ad": "13",
-    "oda": 2,
+    "room": 2,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -11713,7 +11713,7 @@
    },
    {
     "ad": "14",
-    "oda": 2,
+    "room": 2,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -11726,7 +11726,7 @@
    },
    {
     "ad": "15",
-    "oda": 2,
+    "room": 2,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -11739,7 +11739,7 @@
    },
    {
     "ad": "16",
-    "oda": 2,
+    "room": 2,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -11752,7 +11752,7 @@
    },
    {
     "ad": "17",
-    "oda": 2,
+    "room": 2,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -11765,7 +11765,7 @@
    },
    {
     "ad": "18",
-    "oda": 2,
+    "room": 2,
     "carpan": 1.2,
     "gruplar": [
      [
@@ -11778,7 +11778,7 @@
    },
    {
     "ad": "19",
-    "oda": 2,
+    "room": 2,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -11791,7 +11791,7 @@
    },
    {
     "ad": "20",
-    "oda": 2,
+    "room": 2,
     "carpan": 0.1,
     "gruplar": [
      [
@@ -11804,7 +11804,7 @@
    },
    {
     "ad": "21",
-    "oda": 3,
+    "room": 3,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -11817,7 +11817,7 @@
    },
    {
     "ad": "22",
-    "oda": 3,
+    "room": 3,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -11830,7 +11830,7 @@
    },
    {
     "ad": "23",
-    "oda": 3,
+    "room": 3,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -11843,7 +11843,7 @@
    },
    {
     "ad": "24",
-    "oda": 3,
+    "room": 3,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -11856,7 +11856,7 @@
    },
    {
     "ad": "25",
-    "oda": 3,
+    "room": 3,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -11869,7 +11869,7 @@
    },
    {
     "ad": "26",
-    "oda": 3,
+    "room": 3,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -11888,7 +11888,7 @@
    },
    {
     "ad": "27",
-    "oda": 3,
+    "room": 3,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -11901,7 +11901,7 @@
    },
    {
     "ad": "28",
-    "oda": 3,
+    "room": 3,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -11914,7 +11914,7 @@
    },
    {
     "ad": "29",
-    "oda": 3,
+    "room": 3,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -11927,7 +11927,7 @@
    },
    {
     "ad": "30",
-    "oda": 3,
+    "room": 3,
     "carpan": 0.1,
     "gruplar": [
      [
@@ -11940,7 +11940,7 @@
    },
    {
     "ad": "31",
-    "oda": 4,
+    "room": 4,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -11965,7 +11965,7 @@
    },
    {
     "ad": "32",
-    "oda": 4,
+    "room": 4,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -11984,7 +11984,7 @@
    },
    {
     "ad": "33",
-    "oda": 4,
+    "room": 4,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -12009,7 +12009,7 @@
    },
    {
     "ad": "34",
-    "oda": 4,
+    "room": 4,
     "carpan": 2.5,
     "gruplar": [
      [
@@ -12022,7 +12022,7 @@
    },
    {
     "ad": "35",
-    "oda": 4,
+    "room": 4,
     "carpan": 0.1,
     "gruplar": [
      [
@@ -12035,7 +12035,7 @@
    },
    {
     "ad": "36",
-    "oda": 4,
+    "room": 4,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -12048,7 +12048,7 @@
    },
    {
     "ad": "37",
-    "oda": 4,
+    "room": 4,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -12061,7 +12061,7 @@
    },
    {
     "ad": "38",
-    "oda": 4,
+    "room": 4,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -12086,7 +12086,7 @@
    },
    {
     "ad": "39",
-    "oda": 4,
+    "room": 4,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -12099,7 +12099,7 @@
    },
    {
     "ad": "40",
-    "oda": 4,
+    "room": 4,
     "carpan": 0.1,
     "gruplar": [
      [
@@ -12112,7 +12112,7 @@
    },
    {
     "ad": "41",
-    "oda": 5,
+    "room": 5,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -12125,7 +12125,7 @@
    },
    {
     "ad": "42",
-    "oda": 5,
+    "room": 5,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -12138,7 +12138,7 @@
    },
    {
     "ad": "43",
-    "oda": 5,
+    "room": 5,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -12151,7 +12151,7 @@
    },
    {
     "ad": "44",
-    "oda": 5,
+    "room": 5,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -12164,7 +12164,7 @@
    },
    {
     "ad": "45",
-    "oda": 5,
+    "room": 5,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -12177,7 +12177,7 @@
    },
    {
     "ad": "46",
-    "oda": 5,
+    "room": 5,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -12190,7 +12190,7 @@
    },
    {
     "ad": "47",
-    "oda": 5,
+    "room": 5,
     "carpan": 1.8,
     "gruplar": [
      [
@@ -12203,7 +12203,7 @@
    },
    {
     "ad": "48",
-    "oda": 5,
+    "room": 5,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -12216,7 +12216,7 @@
    },
    {
     "ad": "49",
-    "oda": 5,
+    "room": 5,
     "carpan": 0.5,
     "gruplar": [
      [
@@ -12229,7 +12229,7 @@
    },
    {
     "ad": "50",
-    "oda": 5,
+    "room": 5,
     "carpan": 0.4,
     "gruplar": [
      [
@@ -12248,7 +12248,7 @@
    },
    {
     "ad": "51",
-    "oda": 6,
+    "room": 6,
     "carpan": 1.0,
     "gruplar": [
      [
@@ -12260,7 +12260,7 @@
     ]
    }
   ],
-  "boosterlar": [
+  "boosters": [
    {
     "tur": 1,
     "anahtar": "npc",
@@ -12290,7 +12290,7 @@
    },
    {
     "tur": 4,
-    "anahtar": "lazer_isabet",
+    "anahtar": "laser_hit_chance",
     "values": [
      3,
      6,
@@ -12324,7 +12324,7 @@
    },
    {
     "tur": 0,
-    "anahtar": "bekleme",
+    "anahtar": "cooldown",
     "values": [
      5
     ]
@@ -12339,56 +12339,56 @@
   "death_reward": [
    {
     "en_az": 1,
-    "en_cok": 10,
-    "parca": 10,
+    "max_count": 10,
+    "part": 10,
     "iac": false
    },
    {
     "en_az": 11,
-    "en_cok": 25,
-    "parca": 50,
+    "max_count": 25,
+    "part": 50,
     "iac": false
    },
    {
     "en_az": 26,
-    "en_cok": 50,
-    "parca": 150,
+    "max_count": 50,
+    "part": 150,
     "iac": true
    },
    {
     "en_az": 51,
-    "en_cok": 60,
-    "parca": 500,
+    "max_count": 60,
+    "part": 500,
     "iac": true
    },
    {
     "en_az": 61,
-    "en_cok": 101,
-    "parca": 750,
+    "max_count": 101,
+    "part": 750,
     "iac": true
    },
    {
     "en_az": 102,
-    "en_cok": 152,
-    "parca": 1500,
+    "max_count": 152,
+    "part": 1500,
     "iac": true
    },
    {
     "en_az": 153,
-    "en_cok": 203,
-    "parca": 3000,
+    "max_count": 203,
+    "part": 3000,
     "iac": true
    },
    {
     "en_az": 204,
-    "en_cok": 254,
-    "parca": 5000,
+    "max_count": 254,
+    "part": 5000,
     "iac": true
    },
    {
     "en_az": 255,
-    "en_cok": 1000000000,
-    "parca": 9000,
+    "max_count": 1000000000,
+    "part": 9000,
     "iac": true
    }
   ],
@@ -12397,7 +12397,7 @@
    5,
    0.3
   ],
-  "parca": "resource_collectable_blacklight-shard",
+  "part": "resource_collectable_blacklight-shard",
   "seviye": 17,
   "_kaynak": "darkorbitwiki eternal-blacklight-gate, resmî forum SSS (EN/ES/RU), fandom: 51 dalga, 6 oda, tur başına x1,8, kontrol noktaları ve booster puanları, ölüm ödülü kademeleri, 75.000 uridyum sınırı",
   "_uyarlama": "zayıf/güçlü dalga sürümleri ödül oranıyla (can ve hasar da), Saturn Bastion değerleri, booster kademe olasılıkları (60/30/10), isabet booster değerleri, IAC olasılığı ve adedi; Strokelight Barrage hareket etmez, mayın bırakmaz"
@@ -12411,15 +12411,15 @@
    "kalkan": 37800,
    "hasar": 250,
    "hiz": 320,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 0,
     "onur": 0,
     "kredi": 0,
     "uridyum": 0
    },
    "kargo": {},
-   "davranis": {
+   "behavior": {
     "reverse_at_hp_threshold": {
      "oran": 0.1,
      "sure_sn": 5,
@@ -12435,15 +12435,15 @@
    "kalkan": 252000,
    "hasar": 3000,
    "hiz": 200,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 0,
     "onur": 0,
     "kredi": 0,
     "uridyum": 0
    },
    "kargo": {},
-   "davranis": {
+   "behavior": {
     "fuse_if_untouched": {
      "sn": 5,
      "menzil": 500,
@@ -12459,15 +12459,15 @@
    "kalkan": 109800,
    "hasar": 700,
    "hiz": 320,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 0,
     "onur": 0,
     "kredi": 0,
     "uridyum": 0
    },
    "kargo": {},
-   "davranis": {
+   "behavior": {
     "reverse_at_hp_threshold": {
      "oran": 0.1,
      "sure_sn": 5,
@@ -12483,15 +12483,15 @@
    "kalkan": 732000,
    "hasar": 9000,
    "hiz": 200,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 0,
     "onur": 0,
     "kredi": 0,
     "uridyum": 0
    },
    "kargo": {},
-   "davranis": {
+   "behavior": {
     "fuse_if_untouched": {
      "sn": 5,
      "menzil": 500,
@@ -12507,15 +12507,15 @@
    "kalkan": 253800,
    "hasar": 1600,
    "hiz": 320,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 0,
     "onur": 0,
     "kredi": 0,
     "uridyum": 0
    },
    "kargo": {},
-   "davranis": {
+   "behavior": {
     "reverse_at_hp_threshold": {
      "oran": 0.1,
      "sure_sn": 5,
@@ -12531,15 +12531,15 @@
    "kalkan": 1692000,
    "hasar": 17000,
    "hiz": 200,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 0,
     "onur": 0,
     "kredi": 0,
     "uridyum": 0
    },
    "kargo": {},
-   "davranis": {
+   "behavior": {
     "fuse_if_untouched": {
      "sn": 5,
      "menzil": 500,
@@ -12555,15 +12555,15 @@
    "kalkan": 427500,
    "hasar": 2900,
    "hiz": 320,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 0,
     "onur": 0,
     "kredi": 0,
     "uridyum": 0
    },
    "kargo": {},
-   "davranis": {
+   "behavior": {
     "reverse_at_hp_threshold": {
      "oran": 0.1,
      "sure_sn": 5,
@@ -12579,15 +12579,15 @@
    "kalkan": 2850000,
    "hasar": 36000,
    "hiz": 200,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 0,
     "onur": 0,
     "kredi": 0,
     "uridyum": 0
    },
    "kargo": {},
-   "davranis": {
+   "behavior": {
     "fuse_if_untouched": {
      "sn": 5,
      "menzil": 500,
@@ -12603,15 +12603,15 @@
    "kalkan": 769500,
    "hasar": 5220,
    "hiz": 320,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 0,
     "onur": 0,
     "kredi": 0,
     "uridyum": 0
    },
    "kargo": {},
-   "davranis": {
+   "behavior": {
     "reverse_at_hp_threshold": {
      "oran": 0.1,
      "sure_sn": 5,
@@ -12628,15 +12628,15 @@
    "kalkan": 5130000,
    "hasar": 64800,
    "hiz": 200,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 0,
     "onur": 0,
     "kredi": 0,
     "uridyum": 0
    },
    "kargo": {},
-   "davranis": {
+   "behavior": {
     "fuse_if_untouched": {
      "sn": 5,
      "menzil": 500,
@@ -12653,8 +12653,8 @@
    "kalkan": 8000,
    "hasar": 50,
    "hiz": 380,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 0,
     "onur": 2,
     "kredi": 256,
@@ -12674,8 +12674,8 @@
    "kalkan": 45000,
    "hasar": 6000,
    "hiz": 220,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 0,
     "onur": 2,
     "kredi": 1536,
@@ -12686,8 +12686,8 @@
     "2": 4,
     "1": 4
    },
-   "davranis": {
-    "yavaslatan_atis": {
+   "behavior": {
+    "slowing_shots": {
      "oran": 0.3,
      "sn": 3
     }
@@ -12701,8 +12701,8 @@
    "kalkan": 8000,
    "hasar": 50,
    "hiz": 380,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 0,
     "onur": 1,
     "kredi": 256,
@@ -12722,8 +12722,8 @@
    "kalkan": 45000,
    "hasar": 6000,
    "hiz": 220,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 0,
     "onur": 1,
     "kredi": 1536,
@@ -12743,8 +12743,8 @@
    "kalkan": 6000,
    "hasar": 150,
    "hiz": 380,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 121,
     "onur": 1,
     "kredi": 192,
@@ -12764,8 +12764,8 @@
    "kalkan": 75000,
    "hasar": 6000,
    "hiz": 220,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 487,
     "onur": 3,
     "kredi": 2560,
@@ -12778,8 +12778,8 @@
     "4": 1,
     "5": 1
    },
-   "davranis": {
-    "yavaslatan_atis": {
+   "behavior": {
+    "slowing_shots": {
      "oran": 0.3,
      "sn": 3
     }
@@ -12793,8 +12793,8 @@
    "kalkan": 6000,
    "hasar": 150,
    "hiz": 380,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 0,
     "onur": 1,
     "kredi": 269,
@@ -12814,8 +12814,8 @@
    "kalkan": 75000,
    "hasar": 6000,
    "hiz": 220,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 0,
     "onur": 4,
     "kredi": 3584,
@@ -12837,8 +12837,8 @@
    "kalkan": 12000,
    "hasar": 250,
    "hiz": 380,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 256,
     "onur": 3,
     "kredi": 384,
@@ -12858,8 +12858,8 @@
    "kalkan": 75000,
    "hasar": 6000,
    "hiz": 220,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 426,
     "onur": 3,
     "kredi": 2560,
@@ -12872,8 +12872,8 @@
     "4": 1,
     "5": 1
    },
-   "davranis": {
-    "yavaslatan_atis": {
+   "behavior": {
+    "slowing_shots": {
      "oran": 0.3,
      "sn": 3
     }
@@ -12887,8 +12887,8 @@
    "kalkan": 12000,
    "hasar": 250,
    "hiz": 380,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 387,
     "onur": 4,
     "kredi": 614,
@@ -12910,8 +12910,8 @@
    "kalkan": 75000,
    "hasar": 6000,
    "hiz": 220,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 645,
     "onur": 6,
     "kredi": 4096,
@@ -12933,8 +12933,8 @@
    "kalkan": 32400,
    "hasar": 350,
    "hiz": 380,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 653,
     "onur": 7,
     "kredi": 1037,
@@ -12956,8 +12956,8 @@
    "kalkan": 202500,
    "hasar": 6000,
    "hiz": 220,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 261,
     "onur": 3,
     "kredi": 1659,
@@ -12970,8 +12970,8 @@
     "4": 3,
     "5": 3
    },
-   "davranis": {
-    "yavaslatan_atis": {
+   "behavior": {
+    "slowing_shots": {
      "oran": 0.3,
      "sn": 3
     }
@@ -12985,8 +12985,8 @@
    "kalkan": 32400,
    "hasar": 350,
    "hiz": 380,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 653,
     "onur": 7,
     "kredi": 1037,
@@ -13008,8 +13008,8 @@
    "kalkan": 202500,
    "hasar": 6000,
    "hiz": 220,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 261,
     "onur": 3,
     "kredi": 1659,
@@ -13031,8 +13031,8 @@
    "kalkan": 64800,
    "hasar": 450,
    "hiz": 380,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 787,
     "onur": 9,
     "kredi": 1152,
@@ -13054,8 +13054,8 @@
    "kalkan": 405000,
    "hasar": 6000,
    "hiz": 220,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 1279,
     "onur": 11,
     "kredi": 7680,
@@ -13069,8 +13069,8 @@
     "5": 5,
     "6": 1
    },
-   "davranis": {
-    "yavaslatan_atis": {
+   "behavior": {
+    "slowing_shots": {
      "oran": 0.3,
      "sn": 3
     }
@@ -13084,8 +13084,8 @@
    "kalkan": 64800,
    "hasar": 450,
    "hiz": 380,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 1381,
     "onur": 15,
     "kredi": 2074,
@@ -13107,8 +13107,8 @@
    "kalkan": 405000,
    "hasar": 6000,
    "hiz": 220,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 2302,
     "onur": 20,
     "kredi": 13824,
@@ -13131,8 +13131,8 @@
    "kalkan": 40000,
    "hasar": 900,
    "hiz": 340,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 4000,
     "onur": 40,
     "kredi": 20000,
@@ -13149,8 +13149,8 @@
    "kalkan": 20000,
    "hasar": 500,
    "hiz": 360,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 2000,
     "onur": 20,
     "kredi": 10000,
@@ -13167,8 +13167,8 @@
    "kalkan": 50000,
    "hasar": 500,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 1600,
     "onur": 16,
     "kredi": 3200,
@@ -13190,8 +13190,8 @@
    "kalkan": 20000,
    "hasar": 400,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 200,
     "onur": 2,
     "kredi": 800,
@@ -13213,8 +13213,8 @@
    "kalkan": 30000,
    "hasar": 900,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 200,
     "onur": 2,
     "kredi": 800,
@@ -13236,8 +13236,8 @@
    "kalkan": 300000,
    "hasar": 6000,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 22500,
     "onur": 225,
     "kredi": 112500,
@@ -13254,8 +13254,8 @@
    "kalkan": 120000,
    "hasar": 1400,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 7500,
     "onur": 75,
     "kredi": 20000,
@@ -13278,8 +13278,8 @@
    "kalkan": 100000,
    "hasar": 3000,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 12800,
     "onur": 128,
     "kredi": 25600,
@@ -13302,8 +13302,8 @@
    "kalkan": 150000,
    "hasar": 2500,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 25600,
     "onur": 256,
     "kredi": 12800,
@@ -13326,8 +13326,8 @@
    "kalkan": 200000,
    "hasar": 3000,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 12800,
     "onur": 128,
     "kredi": 25600,
@@ -13350,8 +13350,8 @@
    "kalkan": 80000,
    "hasar": 900,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 6400,
     "onur": 64,
     "kredi": 6400,
@@ -13373,8 +13373,8 @@
    "kalkan": 80000,
    "hasar": 900,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 6400,
     "onur": 64,
     "kredi": 6400,
@@ -13396,8 +13396,8 @@
    "kalkan": 100000,
    "hasar": 1500,
    "hiz": 320,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 6000,
     "onur": 60,
     "kredi": 30000,
@@ -13414,8 +13414,8 @@
    "kalkan": 50000,
    "hasar": 1000,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 6400,
     "onur": 32,
     "kredi": 12800,
@@ -13432,8 +13432,8 @@
    "kalkan": 400000,
    "hasar": 3500,
    "hiz": 280,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 25000,
     "onur": 250,
     "kredi": 125000,
@@ -13450,8 +13450,8 @@
    "kalkan": 2500000,
    "hasar": 50000,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 819200,
     "onur": 4096,
     "kredi": 4096000,
@@ -13475,8 +13475,8 @@
    "kalkan": 200000,
    "hasar": 4000,
    "hiz": 0,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 15000,
     "onur": 150,
     "kredi": 75000,
@@ -13493,8 +13493,8 @@
    "kalkan": 600000,
    "hasar": 46000,
    "hiz": 180,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 204800,
     "onur": 1024,
     "kredi": 3276800,
@@ -13518,8 +13518,8 @@
    "kalkan": 6400000,
    "hasar": 35000,
    "hiz": 200,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 409600,
     "onur": 2048,
     "kredi": 1400000,
@@ -13543,8 +13543,8 @@
    "kalkan": 200000,
    "hasar": 6500,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 25600,
     "onur": 128,
     "kredi": 128000,
@@ -13568,8 +13568,8 @@
    "kalkan": 60000000,
    "hasar": 30000,
    "hiz": 150,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 440000,
     "onur": 44000,
     "kredi": 0,
@@ -13585,8 +13585,8 @@
    "kalkan": 0,
    "hasar": 6000,
    "hiz": 0,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 0,
     "onur": 0,
     "kredi": 0,
@@ -13594,7 +13594,7 @@
    },
    "kargo": {}
   },
-  "pm_dost_koru": {
+  "pm_ally_guard": {
    "ad": "-=[ Command Freighter ]=-",
    "model": "277",
    "npc_kimlik": 240,
@@ -13602,9 +13602,9 @@
    "kalkan": 200000,
    "hasar": 0,
    "hiz": 0,
-   "saldirgan": false,
-   "dost": true,
-   "odul": {
+   "aggressive": false,
+   "friendly": true,
+   "reward": {
     "ep": 0,
     "onur": 0,
     "kredi": 0,
@@ -13612,7 +13612,7 @@
    },
    "kargo": {}
   },
-  "pm_dost_eslik": {
+  "pm_ally_escort": {
    "ad": "-=[ Escort Freighter ]=-",
    "model": "126",
    "npc_kimlik": 116,
@@ -13620,9 +13620,9 @@
    "kalkan": 200000,
    "hasar": 0,
    "hiz": 90,
-   "saldirgan": false,
-   "dost": true,
-   "odul": {
+   "aggressive": false,
+   "friendly": true,
+   "reward": {
     "ep": 0,
     "onur": 0,
     "kredi": 0,
@@ -13638,8 +13638,8 @@
    "kalkan": 10000,
    "hasar": 390,
    "hiz": 125,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 3200,
     "onur": 16,
     "kredi": 6400,
@@ -13662,8 +13662,8 @@
    "kalkan": 40000,
    "hasar": 1500,
    "hiz": 150,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 12800,
     "onur": 64,
     "kredi": 25671,
@@ -13687,8 +13687,8 @@
    "kalkan": 12000,
    "hasar": 800,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 6400,
     "onur": 32,
     "kredi": 6400,
@@ -13712,8 +13712,8 @@
    "kalkan": 200000,
    "hasar": 2650,
    "hiz": 100,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 12800,
     "onur": 64,
     "kredi": 102400,
@@ -13736,8 +13736,8 @@
    "kalkan": 40000,
    "hasar": 3200,
    "hiz": 320,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 3200,
     "onur": 16,
     "kredi": 12800,
@@ -13760,8 +13760,8 @@
    "kalkan": 800000,
    "hasar": 12350,
    "hiz": 175,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 51200,
     "onur": 256,
     "kredi": 409600,
@@ -13785,8 +13785,8 @@
    "kalkan": 1600000,
    "hasar": 24000,
    "hiz": 100,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 102400,
     "onur": 512,
     "kredi": 819200,
@@ -13810,8 +13810,8 @@
    "kalkan": 320000,
    "hasar": 8000,
    "hiz": 350,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 25600,
     "onur": 128,
     "kredi": 102400,
@@ -13835,8 +13835,8 @@
    "kalkan": 320000,
    "hasar": 9600,
    "hiz": 335,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 51200,
     "onur": 256,
     "kredi": 102400,
@@ -13860,8 +13860,8 @@
    "kalkan": 750000,
    "hasar": 12000,
    "hiz": 450,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 55000,
     "onur": 200,
     "kredi": 200000,
@@ -13884,8 +13884,8 @@
    "kalkan": 40000,
    "hasar": 500,
    "hiz": 600,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 7500,
     "onur": 40,
     "kredi": 25000,
@@ -13908,8 +13908,8 @@
    "kalkan": 100000,
    "hasar": 6000,
    "hiz": 430,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 15000,
     "onur": 56,
     "kredi": 90000,
@@ -13932,8 +13932,8 @@
    "kalkan": 200000,
    "hasar": 15000,
    "hiz": 350,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 75000,
     "onur": 128,
     "kredi": 250000,
@@ -13957,8 +13957,8 @@
    "kalkan": 1200000,
    "hasar": 32000,
    "hiz": 400,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 90000,
     "onur": 130,
     "kredi": 500000,
@@ -13981,8 +13981,8 @@
    "kalkan": 300000,
    "hasar": 5000,
    "hiz": 370,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 55000,
     "onur": 13,
     "kredi": 400000,
@@ -14006,8 +14006,8 @@
    "kalkan": 50000,
    "hasar": 1000,
    "hiz": 370,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 8000,
     "onur": 4,
     "kredi": 25000,
@@ -14031,8 +14031,8 @@
    "kalkan": 4800000,
    "hasar": 17000,
    "hiz": 150,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 350000,
     "onur": 750,
     "kredi": 1000000,
@@ -14055,8 +14055,8 @@
    "kalkan": 1200000,
    "hasar": 20000,
    "hiz": 250,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 204800,
     "onur": 1024,
     "kredi": 1638400,
@@ -14080,8 +14080,8 @@
    "kalkan": 160000,
    "hasar": 4700,
    "hiz": 340,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 25600,
     "onur": 128,
     "kredi": 51200,
@@ -14105,8 +14105,8 @@
    "kalkan": 2400000,
    "hasar": 40000,
    "hiz": 240,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 409600,
     "onur": 2048,
     "kredi": 3276800,
@@ -14130,8 +14130,8 @@
    "kalkan": 16000,
    "hasar": 640,
    "hiz": 250,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 6400,
     "onur": 32,
     "kredi": 6400,
@@ -14155,8 +14155,8 @@
    "kalkan": 1600000,
    "hasar": 32000,
    "hiz": 100,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 204800,
     "onur": 1024,
     "kredi": 1638400,
@@ -14180,8 +14180,8 @@
    "kalkan": 1200000,
    "hasar": 6500,
    "hiz": 200,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 204800,
     "onur": 1024,
     "kredi": 3276800,
@@ -14205,8 +14205,8 @@
    "kalkan": 200000,
    "hasar": 11500,
    "hiz": 400,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 30000,
     "onur": 100,
     "kredi": 220000,
@@ -14231,8 +14231,8 @@
    "kalkan": 40000,
    "hasar": 1500,
    "hiz": 500,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 6400,
     "onur": 32,
     "kredi": 12800,
@@ -14255,8 +14255,8 @@
    "kalkan": 320000,
    "hasar": 12000,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 6400,
     "onur": 32,
     "kredi": 12800,
@@ -14280,8 +14280,8 @@
    "kalkan": 80000,
    "hasar": 2000,
    "hiz": 475,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 6400,
     "onur": 32,
     "kredi": 12800,
@@ -14304,8 +14304,8 @@
    "kalkan": 1200000,
    "hasar": 0,
    "hiz": 200,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 1000000,
     "onur": 5000,
     "kredi": 3000000,
@@ -14329,8 +14329,8 @@
    "kalkan": 1600000,
    "hasar": 90000,
    "hiz": 320,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 300000,
     "onur": 200,
     "kredi": 1000000,
@@ -14354,8 +14354,8 @@
    "kalkan": 380000,
    "hasar": 9000,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 51200,
     "onur": 512,
     "kredi": 45000,
@@ -14371,19 +14371,19 @@
    "kalkan": 500000,
    "hasar": 20000,
    "hiz": 0,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 3500000,
     "onur": 350000,
     "kredi": 6500000,
     "uridyum": 4000
    },
    "kargo": {},
-   "davranis": {
+   "behavior": {
     "summon_on_hit": {
      "tur": "pm_ebl_abide",
      "adet": 2,
-     "en_cok": 4,
+     "max_count": 4,
      "bekleme_sn": 25
     }
    }
@@ -14396,8 +14396,8 @@
    "kalkan": 0,
    "hasar": 0,
    "hiz": 600,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 15000,
     "onur": 55,
     "kredi": 55000,
@@ -14420,8 +14420,8 @@
    "kalkan": 300000,
    "hasar": 0,
    "hiz": 600,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 15000,
     "onur": 55,
     "kredi": 55000,
@@ -14444,8 +14444,8 @@
    "kalkan": 380000,
    "hasar": 9000,
    "hiz": 420,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 0,
     "onur": 0,
     "kredi": 0,
@@ -14461,8 +14461,8 @@
    "kalkan": 2500000,
    "hasar": 50000,
    "hiz": 300,
-   "saldirgan": true,
-   "odul": {
+   "aggressive": true,
+   "reward": {
     "ep": 819200,
     "onur": 4096,
     "kredi": 4096000,

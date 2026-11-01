@@ -7,8 +7,8 @@ Etkiler: govde (onarım), silah (roket beklemesi), katalog (kargo), hedefler/sat
 """
 from . import catalog as K
 
-EXTRAS = K.ITEMS['ekstralar']
-REPAIR_BOTS = K.ITEMS['onarim_robotlari']
+EXTRAS = K.ITEMS['extras']
+REPAIR_BOTS = K.ITEMS['repair_robots']
 ORDER = ('equipment_extra_repbot_rep-s', 'equipment_extra_repbot_rep-1', 'equipment_extra_repbot_rep-2',
         'equipment_extra_repbot_rep-3', 'equipment_extra_repbot_rep-4')
 ROKT = 'equipment_extra_cpu_rok-t01'
@@ -22,7 +22,7 @@ SLE = ('equipment_extra_cpu_sle-01', 'equipment_extra_cpu_sle-02', 'equipment_ex
 
 
 def equipped(bot):
-    return bot.k['ekip'].setdefault('ekstra', {})
+    return bot.k['gear'].setdefault('ekstra', {})
 
 
 def var(bot, loot):
@@ -30,12 +30,12 @@ def var(bot, loot):
 
 
 def slot(bot):
-    g = K.ITEMS['gemiler'].get(bot.k['ekip']['gemi']) or {}
-    return int(g.get('extra') or 1) + max((EXTRAS[s]['ek_yuva'] for s in SLE if var(bot, s)), default=0)
+    g = K.ITEMS['ships'].get(bot.k['gear']['gemi']) or {}
+    return int(g.get('extra') or 1) + max((EXTRAS[s]['extra_slot'] for s in SLE if var(bot, s)), default=0)
 
 
 def right(loot):
-    return (EXTRAS.get(loot) or {}).get('hak', 1)
+    return (EXTRAS.get(loot) or {}).get('right', 1)
 
 
 def use(bot, loot):
@@ -44,7 +44,7 @@ def use(bot, loot):
     if t.get(loot, 0) <= 0:
         return False
     t[loot] -= 1
-    if t[loot] <= 0 and 'hak' in (EXTRAS.get(loot) or {}):
+    if t[loot] <= 0 and 'right' in (EXTRAS.get(loot) or {}):
         del t[loot]
         bot.loadout_changed()
     return True
@@ -65,7 +65,7 @@ def repair_sec(bot):
 
 
 def cargo_multiplier(gear):
-    return EXTRAS[CARGO_CPU]['kargo_carpan'] if (gear.get('ekstra') or {}).get(CARGO_CPU) else 1.0
+    return EXTRAS[CARGO_CPU]['cargo_multiplier'] if (gear.get('ekstra') or {}).get(CARGO_CPU) else 1.0
 
 
 # ------------------------------------------------------------------------------------------------------------ alışveriş
@@ -76,23 +76,23 @@ def utility(bot, loot):
         i = ORDER.index(loot) + 1
         return max(0.0, 0.04 * i - 0.04 * repair_level(bot)) * (0.6 + 0.6 * (1 - o('risk')))
     if loot == ROKT:
-        return (0.06 + 0.08 * o('saldirganlik')) if trace.get('roket', True) and lv >= 6 else 0.0
+        return (0.06 + 0.08 * o('aggression')) if trace.get('roket', True) and lv >= 6 else 0.0
     if loot == CARGO_CPU:
         return 0.08 if trace.get('kargo', True) and lv >= 5 else 0.0
     if loot == HM7:
         return 0.1 if trace.get('kargo', True) and lv >= 8 else 0.0
     if loot in (JP1, JP2):
-        return 0.05 + 0.04 * o('sabir') if lv >= 5 and not var(bot, JP1) and not var(bot, JP2) else 0.0
+        return 0.05 + 0.04 * o('patience') if lv >= 5 and not var(bot, JP1) and not var(bot, JP2) else 0.0
     if loot in CLOAK:
         return 0.05 * (1 - o('risk')) if lv >= 8 and trace.get('pvp', True) and not any(var(bot, g) for g in CLOAK) else 0.0
     if loot in (ISH, SMB):
-        return 0.05 * o('saldirganlik') if lv >= 12 and trace.get('pvp', True) else 0.0
+        return 0.05 * o('aggression') if lv >= 12 and trace.get('pvp', True) else 0.0
     if loot in (AIM1, AIM2):
         sky = (bot.k.get('skylab') or {}).get('mod', {}).get('XENO_MODULE', 0)
         return 0.06 * o('rekabet') if lv >= 14 and sky >= 3 and not var(bot, AIM1) and not var(bot, AIM2) else 0.0
     if loot in SLE:
         empty = slot(bot) - len(equipped(bot))
-        extra = EXTRAS[loot]['ek_yuva'] - max((EXTRAS[s]['ek_yuva'] for s in SLE if var(bot, s)), default=0)
+        extra = EXTRAS[loot]['extra_slot'] - max((EXTRAS[s]['extra_slot'] for s in SLE if var(bot, s)), default=0)
         return 0.02 * extra if empty <= 0 and extra > 0 else 0.0
     return 0.0
 
@@ -141,10 +141,10 @@ def jump(bot, target):
     for cpu in (JP2, JP1):
         if not var(bot, cpu):
             continue
-        a = EXTRAS[cpu]['atlama']
+        a = EXTRAS[cpu]['jump']
         if 'haritalar' in a and map_class not in a['haritalar']:
             continue
-        if any(name.startswith(p) for p in a.get('yasak', ())):
+        if any(name.startswith(p) for p in a.get('ban', ())):
             continue
         return cpu
     return None

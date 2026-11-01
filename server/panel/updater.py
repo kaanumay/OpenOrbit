@@ -42,8 +42,9 @@ def protected(rel):
     return (r.startswith(('server/save/', 'server/logs/', 'server/data/protocols/', 'server/data/protokol/', 'server/cdn/do_img/',
                           '.git/', 'client_downloading/', 'istemci_indiriliyor/'))      # eski adlar: göçten önceki kurulum
             or r in ('server/data/login.json', 'server/data/maps.json', 'server/data/responses.json',
-                     'server/data/giris.json', 'server/data/haritalar.json', 'server/data/yanitlar.json', '.git')
-            or bool(re.match(r'server/data/v1_backup_[^/]*\.zip$', r))
+                     'server/data/giris.json', 'server/data/haritalar.json', 'server/data/yanitlar.json',
+                     'server/data/templates_format.json', '.git')
+            or bool(re.match(r'server/data/v[12]_backup_[^/]*\.zip$', r))
             or bool(re.match(r'darkorbit_version[^/]*(/|$)', r)) or '/__pycache__/' in '/' + r)
 
 
@@ -67,8 +68,8 @@ class Updater:
         self.dir = os.path.join(save_dir, 'update')
         self.state_path = os.path.join(save_dir, 'update.json')
         self.lock = threading.Lock()
-        self.d = {'durum': 'bilinmiyor', 'calisiyor': False, 'son': None, 'last_check': None, 'hata': None, 'alinan': 0, 'toplam': 0,
-                  'changed': 0, 'removed': 0, 'yedek': None, 'kuruldu': None}
+        self.d = {'durum': 'bilinmiyor', 'running': False, 'last': None, 'last_check': None, 'hata': None, 'claimed': 0, 'toplam': 0,
+                  'changed': 0, 'removed': 0, 'backup': None, 'installed': None}
         self._inst = (0.0, None)                                 # kurulu sürümün önbelleği (git her yoklamada çalışmasın)
 
     # ------------------------------------------------------------ durum
@@ -109,25 +110,25 @@ class Updater:
         if self.mode() == 'git':
             out = self._go_to('log', '-1', '--format=%H %cI', check=False)
             sha, date = parse_version(out)
-            return {'surum': sha, 'tarih': date, 'bicim': 'git'}
+            return {'surum': sha, 'tarih': date, 'style': 'git'}
         txt, st = self._version_text(), self._saved()
         if st.get('surum') and st.get('version_txt') == txt:          # son güncellemeyi bu modül kurdu
-            return {'surum': st['surum'], 'tarih': st.get('tarih'), 'bicim': 'zip'}
+            return {'surum': st['surum'], 'tarih': st.get('tarih'), 'style': 'zip'}
         sha, date = parse_version(txt)                             # elle indirilen arşiv
         if sha:
-            return {'surum': sha, 'tarih': date, 'bicim': 'zip'}
-        return {'surum': st.get('surum'), 'tarih': st.get('tarih'), 'bicim': 'zip'}
+            return {'surum': sha, 'tarih': date, 'style': 'zip'}
+        return {'surum': st.get('surum'), 'tarih': st.get('tarih'), 'style': 'zip'}
 
     def state(self):
         with self.lock:
             d = json.loads(json.dumps(self.d))
-        d['kurulu'] = self.installed()
+        d['built'] = self.installed()
         d['storage'] = 'https://github.com/%s' % REPO
         return d
 
     def running(self):
         with self.lock:
-            return self.d['calisiyor']
+            return self.d['running']
 
     def _set(self, **kw):
         with self.lock:
@@ -209,9 +210,9 @@ class Updater:
     def check(self):
         """Son sürümü denetle -> durum: guncel | var | yerel_degisiklik | yerelde_ileri | hata."""
         with self.lock:
-            if self.d['calisiyor'] or self.d.get('durum') == 'kuruldu':     # kuruldu: yeniden başlatma bekliyor, 'guncel' onu iptal ederdi
+            if self.d['running'] or self.d.get('durum') == 'installed':     # kuruldu: yeniden başlatma bekliyor, 'guncel' onu iptal ederdi
                 return json.loads(json.dumps(self.d))
-            self.d.update(calisiyor=True, hata=None)
+            self.d.update(running=True, hata=None)
         try:
             if self.mode() == 'git':
                 head, remote = self._git_remote()
@@ -219,34 +220,34 @@ class Updater:
                 date, msg = (out.split('\n', 1) + [''])[:2]
                 last = {'surum': remote, 'tarih': date, 'message': msg[:200]}
                 if head == remote:
-                    state = 'guncel'
+                    state = 'up_to_date'
                 elif self._git_ok('merge-base', '--is-ancestor', head, remote):
                     dirty = self._go_to('status', '--porcelain', '--untracked-files=no')
                     branch = self._go_to('rev-parse', '--abbrev-ref', 'HEAD')
-                    state = 'yerel_degisiklik' if dirty or branch != BRANCH else 'var'
+                    state = 'local_changes' if dirty or branch != BRANCH else 'exists'
                 else:
-                    state = 'yerelde_ileri'
+                    state = 'local_ahead'
             else:
                 last = self.latest()
-                state = 'guncel' if last['surum'] == self.installed(fresh=True)['surum'] else 'var'
-            self._set(son=last, durum=state)
+                state = 'up_to_date' if last['surum'] == self.installed(fresh=True)['surum'] else 'exists'
+            self._set(last=last, durum=state)
             self.log('güncelleme denetimi (%s): %s, GitHub %s' % (self.mode(), state, last['surum'][:7]))
         except UpdateError as e:
             self._set(durum='hata', hata=str(e))
             self.log('güncelleme denetimi: %s' % e)
         finally:
-            self._set(calisiyor=False, last_check=time.time())
+            self._set(running=False, last_check=time.time())
         return self.state()
 
     # ------------------------------------------------------------ kurulum
     def install_async(self):
         with self.lock:
-            if self.d['calisiyor']:
+            if self.d['running']:
                 raise UpdateError(_('Güncelleme zaten sürüyor.'))
-            if self.d['durum'] != 'var' or not self.d['son']:
+            if self.d['durum'] != 'exists' or not self.d['last']:
                 raise UpdateError(_('Kurulacak yeni sürüm yok.'))
-            self.d.update(calisiyor=True, durum='indiriliyor', hata=None, alinan=0, toplam=0, changed=0, removed=0)
-            target = dict(self.d['son'])
+            self.d.update(running=True, durum='downloading', hata=None, claimed=0, toplam=0, changed=0, removed=0)
+            target = dict(self.d['last'])
         threading.Thread(target=self._install, args=(target,), daemon=True).start()
         return self.state()
 
@@ -257,7 +258,7 @@ class Updater:
             else:
                 self._install_zip(last)
             self._inst = (0.0, None)
-            self._set(durum='kuruldu', kuruldu=time.time())
+            self._set(durum='installed', installed=time.time())
             self.log('güncelleme kuruldu: %s (%s)' % (last['surum'][:7], last.get('message', '')))
         except UpdateError as e:
             self._set(durum='hata', hata=str(e))
@@ -266,10 +267,10 @@ class Updater:
             self._set(durum='hata', hata=_('Beklenmeyen hata: %r', e))
             self.log('güncelleme kurulamadı: %r' % e)
         finally:
-            self._set(calisiyor=False)
+            self._set(running=False)
 
     def _install_git(self, last):
-        self._set(durum='kuruluyor')
+        self._set(durum='installing')
         head, remote = self._git_remote()
         if self._go_to('status', '--porcelain', '--untracked-files=no') or self._go_to('rev-parse', '--abbrev-ref', 'HEAD') != BRANCH:
             raise UpdateError(_('Yerel değişiklikler var: güncellemeyi git ile al.'))
@@ -290,7 +291,7 @@ class Updater:
                     break
                 buf.write(b)
                 with self.lock:
-                    self.d['alinan'] += len(b)
+                    self.d['claimed'] += len(b)
                 if buf.tell() > MAX_SIZE:
                     raise UpdateError(_('Arşiv beklenenden büyük.'))
         except (OSError, http.client.HTTPException) as e:
@@ -302,7 +303,7 @@ class Updater:
     def _install_zip(self, last):
         before = self.installed(fresh=True)
         data = self._download(last['surum'])
-        self._set(durum='kuruluyor')
+        self._set(durum='installing')
         try:
             z = zipfile.ZipFile(io.BytesIO(data))
         except zipfile.BadZipFile:
@@ -360,9 +361,9 @@ class Updater:
             while d != self.root and os.path.isdir(d) and not os.listdir(d):
                 os.rmdir(d)
                 d = os.path.dirname(d)
-        self._set(changed=changed, removed=removed, yedek=backup if os.path.isdir(backup) else None)
+        self._set(changed=changed, removed=removed, backup=backup if os.path.isdir(backup) else None)
         self._save({'surum': last['surum'], 'tarih': last.get('tarih'), 'message': last.get('message'), 'version_txt': self._version_text(),
-                    'files': sorted(files), 'onceki': before['surum'], 'setup': time.strftime('%Y-%m-%d %H:%M:%S')})
+                    'files': sorted(files), 'previous': before['surum'], 'setup': time.strftime('%Y-%m-%d %H:%M:%S')})
         self._prune()
 
     def _prune(self):

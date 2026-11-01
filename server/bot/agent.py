@@ -21,8 +21,8 @@ from . import brain as B
 from . import catalog as K
 
 STEPS = 3                         # düşünme başına en çok istek (adımda birden çok araç)
-WAKE_EVENTS = {'olum': 'you just got shot down', 'seviye': 'you just reached a new level', 'gorev_bitti': 'you just finished a quest',
-             'yeni_gemi': 'you just got a new ship', 'oyuncu_oldurdum': 'you just shot down a player'}
+WAKE_EVENTS = {'olum': 'you just got shot down', 'seviye': 'you just reached a new level', 'quest_done': 'you just finished a quest',
+             'yeni_gemi': 'you just got a new ship', 'i_killed_player': 'you just shot down a player'}
 NOTEBOOK_MAX = 8
 
 
@@ -42,7 +42,7 @@ def observe_status(y, b, arg):
     PF.level_for(0)                                      # seviye eşikleri yüklensin
     next_ = next((need for lv, need in (PF._LEVELS or []) if lv == b.level + 1), None)
     out = ['Level %d (EP %s%s). Ship %s, power %.0f (damage/s %.0f, effective HP %.0f).' % (
-        b.level, _fmt_money(b.k['ep']), (' / next level at %s' % _fmt_money(next_)) if next_ else '', _short(b.k['ekip']['gemi']), d['power'],
+        b.level, _fmt_money(b.k['ep']), (' / next level at %s' % _fmt_money(next_)) if next_ else '', _short(b.k['gear']['gemi']), d['power'],
         d['dps'], d['ehp']),
         'Credits %s, uridium %s, honor %s. Cargo %d%% full.' % (_fmt_money(b.k['kredi']), _fmt_money(b.k['uridyum']), _fmt_money(b.k['onur']),
                                                               100 * b.cargo_fill()),
@@ -59,9 +59,9 @@ def observe_status(y, b, arg):
         s = QU.next_up(b)
         out.append('Quest: %s%s.' % (q.get('ad', '?'), (' (next step on %s)' % ', '.join(H.name(m) for m in s[1][:3])) if s and s[1] else ''))
     _, savings = SHOP.candidate(b)
-    if b.k.get('birikim') or savings:
-        saving_goal = b.k.get('birikim') or savings[3]
-        out.append('Saving for: %s%s.' % (_short(saving_goal), ' (your own choice)' if b.k.get('birikim') else ''))
+    if b.k.get('savings') or savings:
+        saving_goal = b.k.get('savings') or savings[3]
+        out.append('Saving for: %s%s.' % (_short(saving_goal), ' (your own choice)' if b.k.get('savings') else ''))
     out.append('Session: about %d more minutes online.' % max(0, (b.session_end - y.now) // 60))
     return ' '.join(out)
 
@@ -91,9 +91,9 @@ def _laser(b):
 
 def observe_shop(y, b, arg):
     from .goals import shopping as SHOP
-    if not y.permission('magaza'):
+    if not y.permission('shop'):
         return 'The shop is closed for you.'
-    m = b.game_settings.multiplier('magaza_fiyat')
+    m = b.game_settings.multiplier('shop_price')
     power = max(1.0, b.value()['power'])
     currency = {'C': b.k['kredi'], 'U': b.k['uridyum']}
     all_ = SHOP.candidates(b)
@@ -104,7 +104,7 @@ def observe_shop(y, b, arg):
     row = ['%s: +%.0f%% power, %s %s, %s' % (_short(l), 100 * a / power, _fmt_money(f * m), 'uridium' if p == 'U' else 'credits',
                                                'affordable now' if currency[p] >= f * m else 'need %s more' % _fmt_money(f * m - currency[p]))
              for a, p, f, l in all_candidates]
-    return ('Shop upgrades (best value first, the last ones are the biggest upgrades; use the name with esya_al / biriktir):\n'
+    return ('Shop upgrades (best value first, the last ones are the biggest upgrades; use the name with buy_item / save_up):\n'
             + '\n'.join(row))
 
 
@@ -144,15 +144,15 @@ def available_quests(b):
 def observe_events(y, b, arg):
     from . import modes as MD, galaxy_gates as GT
     out = []
-    if y.permission('modlar') and b.level >= 8:
+    if y.permission('modes') and b.level >= 8:
         a = sorted(MD.candidates(b, y.now), key=lambda m: -MD.value(b, m))[:6]
         if a:
-            out.append('Open modes you can enter (mod_gir): %s.' % '; '.join('%s (worth ~%s credits/h)' % (m.name, _fmt_money(MD.value(b, m)))
+            out.append('Open modes you can enter (enter_mode): %s.' % '; '.join('%s (worth ~%s credits/h)' % (m.name, _fmt_money(MD.value(b, m)))
                                                                              for m in a))
     if y.permission('kapi') and b.level >= 10:
         k = GT.can_run(b)
         if k:
-            out.append('Galaxy gate ready to run (kapi_kos): %s.' % GT.KAPI[k]['ad'])
+            out.append('Galaxy gate ready to run (run_gate): %s.' % GT.KAPI[k]['ad'])
     return ' '.join(out) or 'No mode or gate open for you right now.'
 
 
@@ -190,7 +190,7 @@ def observe_clan(y, b, arg):
         k = None
     if not k:
         return 'You are in no clan.' + (' Clans are closed for you.' if not y.permission('klan') else
-                                       ' You can apply with klana_basvur (clan name or tag).')
+                                       ' You can apply with apply_to_clan (clan name or tag).')
     from . import clan_management as CMG, clan_stations as CBA
     leader = k['lider'] == b.name.lower()
     out = [CMG.info_summary(k), 'You are the LEADER: you manage everything (klan_* tools).' if leader else
@@ -201,8 +201,8 @@ def observe_clan(y, b, arg):
 
 
 def observe_notebook(y, b, arg):
-    d = [x for x in b.k.get('defter') or [] if not x.get('bitti')]
-    h = b.k.get('hatirlatici') or []
+    d = [x for x in b.k.get('ledger') or [] if not x.get('finished')]
+    h = b.k.get('reminder') or []
     out = ['Your goals: %s.' % ('; '.join('#%d %s' % (i + 1, x['metin']) for i, x in enumerate(d)) if d else 'none written')]
     if h:
         out.append('Reminders: %s.' % '; '.join('in %d min: %s' % (max(0, x['due'] - y.now) // 60, x['metin']) for x in h))
@@ -214,50 +214,50 @@ def observe_memories(y, b, arg):
     if who:
         return MEM.text(b, who, y.now).strip() or 'You remember nothing about %s.' % who
     mems = MEM.important(b, y.now, 6)
-    return ('Strongest memories: %s.' % '; '.join('%s (%s)' % (a['ozet'], MEM.time_ago(y.now - a['t'])) for a in mems)) if mems else \
+    return ('Strongest memories: %s.' % '; '.join('%s (%s)' % (a['summary'], MEM.time_ago(y.now - a['t'])) for a in mems)) if mems else \
         'No strong memories.'
 
 
 OBSERVATIONS = {
     'durum': (observe_status, 'your level, ship, power, money, cargo, ammo, current activity, quest, saving goal, session time', ''),
     'haritalar': (observe_maps, 'the best maps you can reach for farming: EP/credits/uridium per hour, death risk, jumps, aliens', ''),
-    'magaza': (observe_shop, 'shop upgrades that improve your ship, with price and whether you can afford them', ''),
-    'gorevler': (observe_quests, 'your active quest and the quests you can take', ''),
-    'etkinlikler': (observe_events, 'open event / PvE modes and galaxy gates you can run', ''),
+    'shop': (observe_shop, 'shop upgrades that improve your ship, with price and whether you can afford them', ''),
+    'quests': (observe_quests, 'your active quest and the quests you can take', ''),
+    'events': (observe_events, 'open event / PvE modes and galaxy gates you can run', ''),
     'surroundings': (observe_surroundings, 'who is online: real players, your friends, your enemies, pilots on your map', ''),
     'klan': (observe_clan, 'your clan: members, ranks, treasury, budget, diplomacy, battle stations (look before managing it)', ''),
-    'defter': (observe_notebook, 'your written goals and reminders', ''),
+    'ledger': (observe_notebook, 'your written goals and reminders', ''),
     'memories': (observe_memories, 'your memories (of one person if ad is given)', 'ad?'),
 }
 
 
 # ------------------------------------------------------------------------------------------------------------ kendini yönetme
 def self_notebook(y, b, arg):
-    d = b.k.setdefault('defter', [])
-    operation = str(arg.get('islem') or 'ekle')
-    if operation == 'ekle':
+    d = b.k.setdefault('ledger', [])
+    operation = str(arg.get('islem') or 'add')
+    if operation == 'add':
         text = ' '.join(str(arg.get('metin') or '').split())[:160]
         if not text:
             return 'failed: metin is empty'
-        is_open = [x for x in d if not x.get('bitti')]
+        is_open = [x for x in d if not x.get('finished')]
         if len(is_open) >= NOTEBOOK_MAX:
             return 'failed: you already have %d goals; finish or delete one first' % len(is_open)
         d.append({'metin': text, 't': y.now})
         del d[:-20]
         return 'ok: goal added'
-    is_open = [x for x in d if not x.get('bitti')]
+    is_open = [x for x in d if not x.get('finished')]
     try:
         x = is_open[int(arg.get('no')) - 1]
     except (TypeError, ValueError, IndexError):
         return 'failed: no such goal number'
-    if operation == 'bitir':
-        x['bitti'] = True
+    if operation == 'finish':
+        x['finished'] = True
         MEM.add(b, b.name, 'I reached my goal: %s' % x['metin'], 'hedef', 0.5, 2, y.now)
         return 'ok: goal done'
-    if operation == 'sil':
+    if operation == 'delete':
         d.remove(x)
         return 'ok: goal deleted'
-    return 'failed: islem must be ekle, bitir or sil'
+    return 'failed: islem must be add, finish or delete'
 
 
 def self_remind(y, b, arg):
@@ -266,7 +266,7 @@ def self_remind(y, b, arg):
     except (TypeError, ValueError):
         return 'failed: dakika must be a number'
     text = ' '.join(str(arg.get('metin') or '').split())[:160]
-    h = b.k.setdefault('hatirlatici', [])
+    h = b.k.setdefault('reminder', [])
     same = next((x for x in h if x['metin'] == (text or 'check how things are going')), None)
     if same is not None:                               # aynı hatırlatıcı: yalnız vakti güncellenir
         same['due'] = y.now + minutes * 60
@@ -286,51 +286,51 @@ def k_not(y, b, arg):
 
 
 SELF = {
-    'defter': (self_notebook, 'manage your long-term goals: islem ekle (metin), bitir (no) or sil (no)', 'islem, metin?, no?'),
-    'hatirlat': (self_remind, 'wake yourself up later to think again: in dakika minutes, about metin', 'dakika, metin'),
+    'ledger': (self_notebook, 'manage your long-term goals: islem ekle (metin), bitir (no) or sil (no)', 'islem, metin?, no?'),
+    'remind': (self_remind, 'wake yourself up later to think again: in dakika minutes, about metin', 'dakika, metin'),
     'not_al': (k_not, 'write a private note into your memory (about ad, optional)', 'metin, ad?'),
 }
 
 # eylem araçları: araclar.py'deki ad -> (İngilizce açıklama, argümanlar); izinler araclar.cagir'da
 ACTIONS = {
-    'npc_avla': ('go farm aliens (on harita if given, one of the maps from haritalar)', 'harita?'),
-    'gorev_yap': ('continue your active quest', ''),
-    'gorev_sec': ('take a specific quest from gorevler (name or #number)', 'gorev'),
-    'pvp_avla': ('go hunt enemy-company players', ''),
-    'esya_al': ('buy a specific upgrade from magaza (by its name)', 'esya'),
-    'biriktir': ('save money for one upgrade from magaza (shopping then buys only that); empty esya clears it', 'esya'),
-    'alisveris_yap': ('buy the best upgrade you can afford', ''),
-    'kargo_sat': ('fly to a station and sell your cargo ore', ''),
-    'mod_gir': ('enter an open mode from etkinlikler (by name)', 'mod'),
-    'kapi_kos': ('run your ready galaxy gate', ''),
-    'dinlen': ('go back to base and take a break', ''),
+    'hunt_npcs': ('go farm aliens (on harita if given, one of the maps from haritalar)', 'harita?'),
+    'do_quest': ('continue your active quest', ''),
+    'pick_quest': ('take a specific quest from gorevler (name or #number)', 'gorev'),
+    'hunt_pvp': ('go hunt enemy-company players', ''),
+    'buy_item': ('buy a specific upgrade from magaza (by its name)', 'esya'),
+    'save_up': ('save money for one upgrade from magaza (shopping then buys only that); empty esya clears it', 'esya'),
+    'go_shopping': ('buy the best upgrade you can afford', ''),
+    'sell_cargo': ('fly to a station and sell your cargo ore', ''),
+    'enter_mode': ('enter an open mode from etkinlikler (by name)', 'mod'),
+    'run_gate': ('run your ready galaxy gate', ''),
+    'rest': ('go back to base and take a break', ''),
     'oturum': ('decide to stay online dakika more minutes (5-180)', 'dakika'),
-    'cevrimdisi_ol': ('log off now', ''),
-    'takip_et': ('fly to the map where player ad is', 'ad'),
-    'yardima_git': ('go help player ad (on harita)', 'ad, harita?'),
+    'go_offline': ('log off now', ''),
+    'follow': ('fly to the map where player ad is', 'ad'),
+    'go_help': ('go help player ad (on harita)', 'ad, harita?'),
     'duello': ('go fight player ad on harita', 'ad, harita'),
-    'grup_davet': ('invite player ad to your group', 'ad'),
-    'gruptan_ayril': ('leave your group', ''),
-    'arkadas_ekle': ('send a friend request to ad', 'ad'),
-    'klana_basvur': ('apply to a clan (name or tag)', 'klan'),
-    'klan_aciklama': ('leader: rewrite your clan description (who you are, rules, recruiting)', 'metin'),
-    'klan_duyuru': ('post clan news', 'metin'),
-    'klan_postasi': ('send a mail to all clan members', 'konu, metin'),
-    'klan_rutbe': ('create (ekle), delete (sil) or set the rights (haklar) of a clan rank', 'islem, rutbe, haklar?'),
-    'uye_rutbe': ('give a member a rank (empty rutbe removes it)', 'ad, rutbe'),
-    'uyeyi_cikar': ('kick a member from the clan', 'ad'),
-    'liderligi_devret': ('hand the clan leadership to a member', 'ad'),
-    'klan_vergi': ('set the clan tax, 0-5 percent', 'oran'),
-    'klan_butce': ('leader: split the treasury in percent: station, payouts, war (sum at most 90)', 'ksi, odeme, savas'),
-    'klan_odeme': ('pay a member from the treasury', 'ad, miktar'),
-    'klan_istasyon': ('target a free asteroid for your clan battle station (its name)', 'istasyon'),
-    'klan_diplomasi': ('offer alliance (ittifak), non-aggression (saldirmazlik), war (savas) or peace (baris) to a clan', 'klan, tur, metin?'),
-    'diplomasi_yanit': ('accept (kabul true) or refuse a diplomacy offer from a clan', 'klan, kabul'),
-    'fisilda': ('send a private chat message to ad', 'ad, metin'),
-    'sohbet_yaz': ('write in a chat channel (kanal: global, firma, klan or grup)', 'kanal, metin'),
-    'posta_gonder': ('send an in-game mail to ad', 'ad, konu, metin'),
+    'group_invite': ('invite player ad to your group', 'ad'),
+    'leave_group': ('leave your group', ''),
+    'add_friend': ('send a friend request to ad', 'ad'),
+    'apply_to_clan': ('apply to a clan (name or tag)', 'klan'),
+    'clan_description': ('leader: rewrite your clan description (who you are, rules, recruiting)', 'metin'),
+    'clan_announce': ('post clan news', 'metin'),
+    'clan_mail': ('send a mail to all clan members', 'konu, metin'),
+    'clan_rank': ('create (ekle), delete (sil) or set the rights (haklar) of a clan rank', 'islem, rutbe, haklar?'),
+    'member_rank': ('give a member a rank (empty rutbe removes it)', 'ad, rutbe'),
+    'kick_member': ('kick a member from the clan', 'ad'),
+    'transfer_leadership': ('hand the clan leadership to a member', 'ad'),
+    'clan_tax': ('set the clan tax, 0-5 percent', 'oran'),
+    'clan_budget': ('leader: split the treasury in percent: station, payouts, war (sum at most 90)', 'ksi, odeme, savas'),
+    'clan_payout': ('pay a member from the treasury', 'ad, miktar'),
+    'clan_station': ('target a free asteroid for your clan battle station (its name)', 'istasyon'),
+    'clan_diplomacy': ('offer alliance (ittifak), non-aggression (saldirmazlik), war (savas) or peace (baris) to a clan', 'klan, tur, metin?'),
+    'diplomacy_reply': ('accept (kabul true) or refuse a diplomacy offer from a clan', 'klan, kabul'),
+    'whisper': ('send a private chat message to ad', 'ad, metin'),
+    'write_chat': ('write in a chat channel (kanal: global, firma, klan or grup)', 'kanal, metin'),
+    'send_mail': ('send an in-game mail to ad', 'ad, konu, metin'),
 }
-TOOL_NAMES = list(OBSERVATIONS) + [k for k in SELF if k not in OBSERVATIONS] + list(ACTIONS) + ['bitir']
+TOOL_NAMES = list(OBSERVATIONS) + [k for k in SELF if k not in OBSERVATIONS] + list(ACTIONS) + ['finish']
 
 
 def catalog(y):
@@ -338,7 +338,7 @@ def catalog(y):
     # durum her düşünmenin başında zaten verilir (Right now): listede yok, model boşuna adım harcamasın
     out = ['Look (free, use before deciding):'] + ['- %s(%s): %s' % (k, a, d) for k, (f, d, a) in OBSERVATIONS.items() if k != 'durum']
     out.append('Plan yourself:')
-    out += ['- %s(%s): %s' % ('defter' if k == 'defter' else k, a, d) for k, (f, d, a) in SELF.items()]
+    out += ['- %s(%s): %s' % ('ledger' if k == 'ledger' else k, a, d) for k, (f, d, a) in SELF.items()]
     out.append('Act:')
     for k, (d, a) in ACTIONS.items():
         permission = TL.TOOLS[k]['izin']
@@ -352,7 +352,7 @@ def catalog(y):
 def run(br, y, b, tool, arg):
     """Bir adımı yürüt (y.lock altında) -> modele dönen sonuç metni."""
     arg = arg if isinstance(arg, dict) else {}
-    if tool == 'defter' and arg.get('islem') in ('ekle', 'bitir', 'sil'):
+    if tool == 'ledger' and arg.get('islem') in ('add', 'finish', 'delete'):
         return self_notebook(y, b, arg)
     if tool in OBSERVATIONS:
         return OBSERVATIONS[tool][0](y, b, arg)
@@ -360,25 +360,25 @@ def run(br, y, b, tool, arg):
         return SELF[tool][0](y, b, arg)
     if tool not in ACTIONS:
         return 'failed: unknown tool %s' % tool
-    if tool in ('fisilda', 'sohbet_yaz'):
+    if tool in ('whisper', 'write_chat'):
         # art arda yazmaz: aynı kişiye yanıtını beklemeden 2 dk'da bir, aynı kanala dakikada bir (sohbet denemesi 2026-10-30: bot
         # oyuncuya 6 sn arayla iki kez "geliyorum" fısıldadı; bir adımda iki araç ya da yakın iki uyanma)
-        target = ('fisilti', str(arg.get('ad') or '').lower()) if tool == 'fisilda' else ('kanal', str(arg.get('kanal') or 'firma'))
+        target = ('whisper', str(arg.get('ad') or '').lower()) if tool == 'whisper' else ('kanal', str(arg.get('kanal') or 'firma'))
         last = b.__dict__.setdefault('_agent_wrote', {})
         t = last.get(target)
-        if t is not None and y.now - t < (120 if tool == 'fisilda' else 60) and not (tool == 'fisilda' and any(
-                x[0] > t and str(x[1]).lower() == target[1] and x[2] == 'fisilti:' + b.name for x in y.history[-40:])):
+        if t is not None and y.now - t < (120 if tool == 'whisper' else 60) and not (tool == 'whisper' and any(
+                x[0] > t and str(x[1]).lower() == target[1] and x[2] == 'whisper:' + b.name for x in y.history[-40:])):
             return 'failed: you just wrote there; wait for an answer before writing again'
-    if tool in ('fisilda', 'sohbet_yaz', 'posta_gonder'):
-        text = br._text(b, arg.get('metin')) if tool != 'posta_gonder' else ' '.join(str(arg.get('metin') or '').split())
+    if tool in ('whisper', 'write_chat', 'send_mail'):
+        text = br._text(b, arg.get('metin')) if tool != 'send_mail' else ' '.join(str(arg.get('metin') or '').split())
         if not text:
             return 'failed: the message was not sent (too long, stats or numbers, or repeats what was said)'
         arg = dict(arg, metin=text)
-        if tool == 'fisilda':
+        if tool == 'whisper':
             br._spoke(b, arg.get('ad'), y.now)
-        if tool != 'posta_gonder':
+        if tool != 'send_mail':
             b.__dict__.setdefault('_agent_wrote', {})[target] = y.now
-    r = TL.call(y, b, tool, {k: v for k, v in arg.items() if v not in (None, '')} if tool != 'biriktir' else arg)
+    r = TL.call(y, b, tool, {k: v for k, v in arg.items() if v not in (None, '')} if tool != 'save_up' else arg)
     return ('ok' if r.get('ok') else 'failed') + (': %s' % r['message'] if r.get('message') else '')
 
 
@@ -388,13 +388,13 @@ def run(br, y, b, tool, arg):
 # girer (DeepSeek'te önbellekteki girdi 50 kat ucuz).
 SYSTEM_PROMPT = ("You are the mind of one pilot in a DarkOrbit-like space MMO: you decide what he does next, exactly like a real human "
           "player with his personality, mood and history would. You act only through tools. Reply with ONE JSON object per step: "
-          "{\"dusunce\": a few words of private thought in English, \"araclar\": [up to 4 tool calls {\"arac\": name, \"arg\": "
+          "{\"thought\": a few words of private thought in English, \"tools\": [up to 4 tool calls {\"tool\": name, \"arg\": "
           "{arguments}}]}. Look tools are free and their results come back in your next step; a step with only actions ends your "
           "thinking, so put everything you decided into that step (actions, goals, a reminder). Usually: one step to look (only if "
-          "you need facts beyond what you are given), one step to act; if nothing should change, just bitir. Use names exactly as "
+          "you need facts beyond what you are given), one step to act; if nothing should change, just finish. Use names exactly as "
           "the tools list them; never invent maps, items or players. Play like a person, not an optimizer: keep at what you started "
           "unless there is a reason, follow your written goals, save up for things you want, rest when tired, avoid maps that kill "
-          "you, help friends, settle scores. Write long-term decisions into defter and set a reminder (hatirlat) to check on "
+          "you, help friends, settle scores. Write long-term decisions into ledger and set a reminder (remind) to check on "
           "something later. Chat messages are short (at most 12 words), in your own chat language and style, never stats; do not "
           "keep messaging or inviting the same person when he does not answer. Output only the JSON.")
 
@@ -408,26 +408,26 @@ def system(y):
 def schema():
     s = {'type': 'string'}
     call = {'type': 'object', 'properties': {
-        'arac': {'type': 'string', 'enum': TOOL_NAMES},
+        'tool': {'type': 'string', 'enum': TOOL_NAMES},
         'arg': {'type': 'object', 'properties': {
             'harita': s, 'ad': s, 'esya': s, 'gorev': s, 'mod': s, 'klan': s, 'kanal': s, 'metin': s, 'konu': s, 'islem': s,
             'rutbe': s, 'haklar': s, 'tur': s, 'istasyon': s, 'kabul': {'type': 'boolean'}, 'oran': {'type': 'integer'},
             'miktar': {'type': 'integer'}, 'ksi': {'type': 'integer'}, 'odeme': {'type': 'integer'}, 'savas': {'type': 'integer'},
             'dakika': {'type': 'integer'}, 'no': {'type': 'integer'}}}},
-        'required': ['arac', 'arg']}
+        'required': ['tool', 'arg']}
     return {'type': 'object', 'properties': {
-        'dusunce': {'type': 'string', 'maxLength': 160}, 'araclar': {'type': 'array', 'minItems': 1, 'maxItems': 4, 'items': call}},
-        'required': ['dusunce', 'araclar']}
+        'thought': {'type': 'string', 'maxLength': 160}, 'tools': {'type': 'array', 'minItems': 1, 'maxItems': 4, 'items': call}},
+        'required': ['thought', 'tools']}
 
 
 def _calls(r):
     """Modelin yanıtı -> [(araç, arg)] (eski tek araçlı biçim de)."""
-    xs = r.get('araclar') if isinstance(r.get('araclar'), list) else [r] if r.get('arac') else []
-    return [(str(x.get('arac') or 'bitir'), x.get('arg') if isinstance(x.get('arg'), dict) else {}) for x in xs[:4] if isinstance(x, dict)]
+    xs = r.get('tools') if isinstance(r.get('tools'), list) else [r] if r.get('tool') else []
+    return [(str(x.get('tool') or 'finish'), x.get('arg') if isinstance(x.get('arg'), dict) else {}) for x in xs[:4] if isinstance(x, dict)]
 
 
 def _is_observation(tool, arg):
-    return tool in OBSERVATIONS and not (tool == 'defter' and arg.get('islem') in ('ekle', 'bitir', 'sil'))
+    return tool in OBSERVATIONS and not (tool == 'ledger' and arg.get('islem') in ('add', 'finish', 'delete'))
 
 
 def think(br, b, reason, max_count=STEPS):
@@ -442,11 +442,11 @@ def think(br, b, reason, max_count=STEPS):
     steps = []
     for i in range(max(1, max_count)):
         r = br.ask(message, schema(), max_count=200, temperature=0.5, system=system_prompt)
-        short_thought = ' '.join(str(r.get('dusunce') or '').split())[:160]
+        short_thought = ' '.join(str(r.get('thought') or '').split())[:160]
         call = _calls(r)
         results, looked, finished = [], False, not call
         for tool, arg in call:
-            if tool == 'bitir':
+            if tool == 'finish':
                 finished = True
                 break
             with y.lock:
@@ -458,15 +458,15 @@ def think(br, b, reason, max_count=STEPS):
             steps.append((short_thought, tool, arg, result[:900]))
             results.append('%s -> %s' % (tool, result[:700]))
         if finished and not results:
-            steps.append((short_thought, 'bitir', {}, ''))
+            steps.append((short_thought, 'finish', {}, ''))
         if finished or not looked or i == max_count - 1:
             break                                          # yalnız eylem: düşünme biter (ek istek yok)
         message += [{'role': 'assistant', 'content': json.dumps(r, ensure_ascii=False)},
                   {'role': 'user', 'content': 'Results:\n%s\n\n%s' % ('\n'.join(results), 'This is your LAST step: act now or bitir.'
                                                                     if i == max_count - 2 else 'Your next step as JSON.')}]
     with y.lock:
-        trace = b.k.setdefault('ajan', [])
-        trace.extend({'t': y.now, 'reason': reason[:120], 'dusunce': d, 'arac': a, 'arg': g, 'result': s[:200]} for d, a, g, s in steps)
+        trace = b.k.setdefault('agent', [])
+        trace.extend({'t': y.now, 'reason': reason[:120], 'thought': d, 'tool': a, 'arg': g, 'result': s[:200]} for d, a, g, s in steps)
         del trace[:-20]
     return steps
 
@@ -475,7 +475,7 @@ def wake_state(b):
     """uyandiranlar'ın tükettiği durum -> geri yükleyen işlev (iş kuyruğa giremezse ya da bayatlarsa hatırlatıcı, kargo/birikim
     uyarısı ve olaylar kaybolmasın)."""
     d = {k: b.__dict__[k] for k in ('_ajan_olay_t', '_kargo_uyandi', '_birikim_uyandi') if k in b.__dict__}
-    h = b.k.get('hatirlatici')
+    h = b.k.get('reminder')
     h = list(h) if h is not None else None
 
     def refund():
@@ -485,7 +485,7 @@ def wake_state(b):
             else:
                 b.__dict__.pop(k, None)
         if h is not None:
-            b.k['hatirlatici'] = h + [x for x in b.k.get('hatirlatici') or [] if x not in h]    # arada kurulan yenisi de kalsın
+            b.k['reminder'] = h + [x for x in b.k.get('reminder') or [] if x not in h]    # arada kurulan yenisi de kalsın
     return refund
 
 
@@ -499,17 +499,17 @@ def wakers(y, b, now, events=True):
             if o['tur'] == 'olum' and o.get('killer'):
                 return 'you just got shot down by %s' % o['killer']
             return WAKE_EVENTS[o['tur']]
-    h = b.k.get('hatirlatici') or []
+    h = b.k.get('reminder') or []
     is_due = [x for x in h if x['due'] <= now]
     if is_due:
-        b.k['hatirlatici'] = [x for x in h if x['due'] > now]
+        b.k['reminder'] = [x for x in h if x['due'] > now]
         return 'your reminder: %s' % is_due[0]['metin']
     if events and b.cargo_fill() >= 0.97 and not b.__dict__.get('_cargo_woke'):      # uzak botun kargosunu kurallı motor satar
         b._cargo_woke = True
         return 'your cargo is full'
     if b.cargo_fill() < 0.5:
         b._cargo_woke = False
-    target = b.k.get('birikim')
+    target = b.k.get('savings')
     if target:
         c = TL._item(b, target)
         if c is not None and {'C': b.k['kredi'], 'U': b.k['uridyum']}[c[1]] >= c[2] and not b.__dict__.get('_savings_woke'):

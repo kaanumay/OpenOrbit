@@ -22,8 +22,8 @@ _PATH = os.path.join(HERE, 'data', 'extra_events.json')
 D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('fever', {})
 EVENT = 'fever'
 # istemcinin etki adı -> profil.mods() anahtarı (uzaylıya hasar: 'npc'; bekleme azalması 'bekleme')
-MODS = {'SHIELD': 'kalkan', 'SPEED': 'hiz', 'EVASION': 'kacinma', 'HITPOINTS': 'can', 'DAMAGE_NPC': 'npc', 'DAMAGE': 'npc',
-        'ABILITY_COOLDOWN_TIME': 'bekleme', 'EXPERIENCE_POINTS': 'ep', 'HONOUR_POINTS': 'onur', 'LASER_HIT_CHANCE': 'lazer_isabet',
+MODS = {'SHIELD': 'kalkan', 'SPEED': 'hiz', 'EVASION': 'evasion', 'HITPOINTS': 'can', 'DAMAGE_NPC': 'npc', 'DAMAGE': 'npc',
+        'ABILITY_COOLDOWN_TIME': 'cooldown', 'EXPERIENCE_POINTS': 'ep', 'HONOUR_POINTS': 'onur', 'LASER_HIT_CHANCE': 'laser_hit_chance',
         'ROCKET_DAMAGE': 'roket', 'LASER_DAMAGE_PLAYER': 'lazer'}
 
 
@@ -36,7 +36,7 @@ def cfg(now=None):
     """Geçerli takım: sürmekte olan tarih aralıklı set ('setler'; her 52 haftada tekrar) ya da varsayılan takım (D)."""
     d = datetime.date.fromtimestamp(time.time() if now is None else now)
     for s in D.get('sets', []):
-        a, b = datetime.date.fromisoformat(s['bas']), datetime.date.fromisoformat(s['bit'])
+        a, b = datetime.date.fromisoformat(s['start']), datetime.date.fromisoformat(s['bit'])
         if d >= a and (d - a).days % 364 <= (b - a).days:
             return s
     return D
@@ -56,19 +56,19 @@ def window(now=None):
     s = slot_for(now)
     if not s:
         return False, 86400
-    a, b = _hm(s['bas']), _hm(s['bit'])
+    a, b = _hm(s['start']), _hm(s['bit'])
     b = b if b > a else b + 1440
     if a <= mins < b:
         return True, int((b - mins) * 60)
     if mins < a:
         return False, int((a - mins) * 60)
     nxt = slot_for((t.replace(hour=12, minute=0, second=0, microsecond=0) + datetime.timedelta(days=1)).timestamp())    # yarın
-    return False, int((1440 - mins + (_hm(nxt['bas']) if nxt else 1440)) * 60)
+    return False, int((1440 - mins + (_hm(nxt['start']) if nxt else 1440)) * 60)
 
 
 def ship_matches(slot, loot):
     base = loot[5:] if loot.startswith('ship_') else loot
-    return any(base.startswith(n.lower().replace(' ', '-')) for n in slot.get('gemiler', []))
+    return any(base.startswith(n.lower().replace(' ', '-')) for n in slot.get('ships', []))
 
 
 def map_matches(map_id, now=None):
@@ -115,7 +115,7 @@ class Fever:
         return bool(self._mods)
 
     def module(self, s, now=None):
-        return {'_': 'ShipBoostEventModule', 'day': s['gun'], 'startTime': s['bas'], 'endTime': s['bit'], 'shipTypes': list(s['gemiler']),
+        return {'_': 'ShipBoostEventModule', 'day': s['gun'], 'startTime': s['start'], 'endTime': s['bit'], 'shipTypes': list(s['ships']),
                 'eventNameTextKeys': list(cfg(now).get('events', [])),
                 'attributeBoosts': [{'_': 'ShipBoostEventAttributeModule', 'attribute': a, 'boostValue': float(v)}
                                     for a, v in s['effects'].items()]}
@@ -147,7 +147,7 @@ class Fever:
         msgs = []
         if self.was is not None and on != self.was:
             msgs += [legacy('0|A|STM|ship_boost_announcement_%s' % ('active' if on else 'inactive')), self.info_cmd(now)]
-            self.log('   Fever %s' % ('başladı' if on else 'bitti'))
+            self.log('   Fever %s' % ('başladı' if on else 'finished'))
         if self.boosted_was is not None and b != self.boosted_was:
             msgs += [('ShipBoostEventBoostInfoCommand', {'isShipBoosted': b})] + self.m.apply_stats()
         self.was, self.boosted_was = on, b

@@ -29,7 +29,7 @@ def target(cls):
 class Goal:
     name = ''
     permission = None          # paketin erişim ayarı (kapalıysa hiç seçilmez): 'pvp', 'gorev', 'magaza', 'klan', ...
-    bot_modes = ('normal', 'gelismis')     # hangi bot kiplerinde (basit.py'nin hedefi yalnız 'basit')
+    bot_modes = ('normal', 'advanced')     # hangi bot kiplerinde (basit.py'nin hedefi yalnız 'basit')
     min_sec = 60        # seçilince en az bu kadar sürer (iç bağlılık)
     urgent = False         # bağlılığı bozabilir (kaçış, ölüm sonrası)
 
@@ -89,8 +89,8 @@ def map_candidates(bot, value, y=None):
     - yol maliyeti; avcı ve riskçi başka firmanın haritalarını, temkinli kendi firmasınınkini sever. Paketin harita sınırı (en
     yüksek harita sınıfı) ve firmalar arası geçiş ayarı uyulur."""
     o = bot.traits
-    courage = PS.clamp(0.3 + 0.6 * o['risk'] + 0.2 * bot.mood['ozguven'] - 0.3)
-    foreign = y.setting('yabanci_harita', True) if y is not None else True
+    courage = PS.clamp(0.3 + 0.6 * o['risk'] + 0.2 * bot.mood['confidence'] - 0.3)
+    foreign = y.setting('foreign_map', True) if y is not None else True
     out = []
     lv, firma = bot.level, bot.firma
     for m in K.MAPS:
@@ -100,9 +100,9 @@ def map_candidates(bot, value, y=None):
         if owner and owner != firma and not foreign:
             continue
         r = K.evaluate_map(m, value['dps'], value['ehp'], courage)
-        if not r['hedefler']:
+        if not r['targets']:
             continue
-        earnings = (r['ep_per_hour'] * (0.6 + o['hirs']) / 10.0 + r['credits_per_hour'] * (0.5 + o['tutumluluk']) / 10.0
+        earnings = (r['ep_per_hour'] * (0.6 + o['ambition']) / 10.0 + r['credits_per_hour'] * (0.5 + o['frugality']) / 10.0
                   + r['uridium_per_hour'] * 25.0 + r['honor_per_hour'] * 5.0)
         risk = r['deaths_per_hour'] * (1.6 - o['risk']) * 0.35
         route = K.route(bot.game_map, m, firma, lv)
@@ -110,12 +110,12 @@ def map_candidates(bot, value, y=None):
             continue
         jump = len(route) - 1
         pvp = K.pvp_map(m, firma)
-        preference = 1.0 + (0.25 * (o['saldirganlik'] - 0.5) if pvp else 0.1) + (0.15 if m == bot.game_map else 0)
+        preference = 1.0 + (0.25 * (o['aggression'] - 0.5) if pvp else 0.1) + (0.15 if m == bot.game_map else 0)
         if owner and owner != firma:
             preference -= 0.35 * (1 - o['risk'])
         # kalabalık: haritadaki botlar aynı uzaylıları paylaşır (gerçek oyuncular boş haritaya kayar; başlangıç haritalarına yığılma)
         crowd = len(y.on_map.get(m, ())) - (1 if m == bot.game_map else 0) if y is not None else 0
-        utility = (earnings / 1000.0) * preference * (1 - min(0.9, risk)) / (1 + 0.04 * max(0, crowd)) - jump * 0.03 * (1.2 - o['sabir'])
+        utility = (earnings / 1000.0) * preference * (1 - min(0.9, risk)) / (1 + 0.04 * max(0, crowd)) - jump * 0.03 * (1.2 - o['patience'])
         out.append((utility, m, r))
     out.sort(key=lambda x: -x[0])
     return out
@@ -144,7 +144,7 @@ def decision(bot, y, now=None):
     if intent and intent.get('bitis', 0) < now:
         intent = bot.k['intent'] = None
     duration = now - bot.goal_start
-    run = current is not None and current.name in ('kapi', 'mod') and not bot.plan.get('bitti')   # niyet koşuyu bölmesin: oradan yol yok
+    run = current is not None and current.name in ('kapi', 'mod') and not bot.plan.get('finished')   # niyet koşuyu bölmesin: oradan yol yok
     if current is not None and not current.finished(bot, b) and (run or duration < current.min_sec and not intent):
         urgent = [h for h in GOALS.values() if h.urgent and h is not current and allowed(h, y) and h.eligible(bot, b)]
         if not urgent:
@@ -156,25 +156,25 @@ def decision(bot, y, now=None):
         p = h.points(bot, b)
         if h is current and not h.finished(bot, b):
             # bağlılık: insan bir işi yarıda bırakmaz; sıkıldıkça (aynı iş uzadıkça) azalır
-            p += 0.25 * max(0.0, 1 - mood['sikilma']) + (0.3 if duration < h.min_sec else 0)
+            p += 0.25 * max(0.0, 1 - mood['boredom']) + (0.3 if duration < h.min_sec else 0)
         if intent and intent.get('hedef') == h.name:
             p += intent.get('pay', 0.6)
         p *= 1 + bot.r.uniform(-0.08, 0.08)
         candidates.append((h, p))
     if not candidates:
         return current
-    temperature = 0.05 + 0.12 * (1 - bot.o('sabir'))
+    temperature = 0.05 + 0.12 * (1 - bot.o('patience'))
     sec = PS.softmax_pick(candidates, temperature, bot.r)
     if sec is not current or sec.finished(bot, b):
         # biten hedef yeniden seçilince yeniden başlar: önceden yalnız sıkılma artıyordu, alışverişi biten bot hep "alışverişte"
         # kalıp bir daha hiçbir şey almıyordu (oyuncu bildirimi 2026-10-31: milyonlarca uridyumla yükseltme almıyorlardı)
         if current is not None and sec is not current:
-            mood.it(sikilma=-0.35)
+            mood.it(boredom=-0.35)
         bot.target, bot.goal_start, bot.plan = sec, now, {}
         bot.k['hedef'] = sec.name
         sec.start(bot, b)
     else:
-        mood.it(sikilma=0.04 * (1.3 - bot.o('sabir')))
+        mood.it(boredom=0.04 * (1.3 - bot.o('patience')))
     return sec
 
 
@@ -193,7 +193,7 @@ def force(bot, name, plan=None, pay=1.0, duration=600, now=None):
 
 def next_decision_interval(bot):
     """İki karar arası (sn): sabırsız ve dürtüsel botlar sık, sabırlılar seyrek düşünür."""
-    return bot.r.uniform(8, 22) * (0.6 + bot.o('sabir'))
+    return bot.r.uniform(8, 22) * (0.6 + bot.o('patience'))
 
 
 # hedef modülleri (kaydolsunlar diye)

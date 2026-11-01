@@ -14,7 +14,7 @@ SELL_DISTANCE = 600
 
 def threshold(bot):
     """Kargonun bu kadarı dolunca satmaya döner."""
-    return min(1.0, 0.55 + 0.3 * bot.o('sabir') + 0.15 * bot.o('tutumluluk'))
+    return min(1.0, 0.55 + 0.3 * bot.o('patience') + 0.15 * bot.o('frugality'))
 
 
 def nearest_station(bot):
@@ -35,7 +35,7 @@ def danger(bot, g, w, now):
 
 @target
 class Selling(Goal):
-    name = 'satis'
+    name = 'selling'
     permission = 'kargo'
     min_sec = 30
 
@@ -43,13 +43,13 @@ class Selling(Goal):
         return bot.cargo_fill() >= threshold(bot)
 
     def points(self, bot, b):
-        return 0.6 + 1.2 * min(1.0, bot.cargo_fill()) + 0.2 * bot.o('tutumluluk')
+        return 0.6 + 1.2 * min(1.0, bot.cargo_fill()) + 0.2 * bot.o('frugality')
 
     def start(self, bot, b):
         from .. import extras as EX
         if EX.use(bot, EX.HM7):                       # HM-7: istasyona gitmeden, olduğu yerde satar (100 hak)
             bot.sell_cargo()
-            bot.plan['bitti'] = True
+            bot.plan['finished'] = True
             return
         bot.plan['harita'] = nearest_station(bot)
         S.go(bot, bot.plan['harita'], b.y, b.now)
@@ -59,10 +59,10 @@ class Selling(Goal):
             return
         if bot.game_map == bot.plan.get('harita'):
             bot.sell_cargo()
-            bot.plan['bitti'] = True
+            bot.plan['finished'] = True
         else:
             if not S.go(bot, bot.plan.get('harita') or nearest_station(bot), y):
-                bot.plan['bitti'] = True                 # istasyona yol yok: vazgeçer (sonsuza dek denemez)
+                bot.plan['finished'] = True                 # istasyona yol yok: vazgeçer (sonsuza dek denemez)
 
     def concrete(self, bot, g, w, now):
         if bot.en_route or bot.game_map != bot.plan.get('harita') or danger(bot, g, w, now):
@@ -71,15 +71,15 @@ class Selling(Goal):
         s = w.station
         if not s:
             bot.sell_cargo()
-            bot.plan['bitti'] = True
+            bot.plan['finished'] = True
             return True
         nx, ny = g.mover.pos(now)
         if math.hypot(s['posX'] - nx, s['posY'] - ny) > SELL_DISTANCE:
             BG._route(w, g, s['posX'], s['posY'], now, threshold=300)
             return True
         bot.sell_cargo()
-        bot.plan['bitti'] = True
+        bot.plan['finished'] = True
         return True
 
     def finished(self, bot, b):
-        return bot.plan.get('bitti', False)
+        return bot.plan.get('finished', False)

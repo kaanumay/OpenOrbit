@@ -31,17 +31,17 @@ import event_calendar as CAL
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'stores.json'), encoding='utf8'))
 MM, VIP, RL, PB, CT, SP = D['mileage'], D['vip'], D['returnee'], D['pre_bf'], D['rehero'], D['stellar']
-_PRICE = json.load(open(os.path.join(HERE, 'data', 'prices.json'), encoding='utf8'))['fiyatlar']     # market dengesi
+_PRICE = json.load(open(os.path.join(HERE, 'data', 'prices.json'), encoding='utf8'))['prices']     # market dengesi
 for _r in MM['discount_packages']:                 # indirim paketleri yalnız pencerede: fiyatları dengeden
     if _PRICE.get(_r['lootId'], {}).get('currency') == 'U':
-        _r['uridyum'] = _PRICE[_r['lootId']]['fiyat']
+        _r['uridyum'] = _PRICE[_r['lootId']]['price']
 MM_COIN = {r['lootId'] for r in MM['token_packages']}
 MM_DISC = {r['id']: r for r in MM['discount_packages']}
 VIP_PKG = {r['lootId'] for r in VIP['packages']}
 RL_PKG = {r['lootId'] for r in RL['packages']}
 PB_PKG = {r['lootId'] for r in PB['packages']}
 SP_PKG = {r['lootId'] for r in SP['packages']}
-RH_Q = {q['id']: q for q in CT['gorevler']}
+RH_Q = {q['id']: q for q in CT['quests']}
 RH_X = {r['exchangeReward']: r for r in CT['exchange']}
 DAY = 86400
 
@@ -69,9 +69,9 @@ class Stores:
         shop.on_bought.append(self.bought)
         self.prev_seen = self.st.get('last_session') # önceki oturumun son anı (Returnee Login; tick yazar)
         self.returnee_check(self.prev_seen)
-        if CAL.is_active(CT['takvim']) and 'ilk_giris' not in self.rh():
+        if CAL.is_active(CT['calendar']) and 'first_login' not in self.rh():
             with self.p.lock:                      # Return of Hero'daki ilk giriş: veterana bağlanma süresi buradan
-                self.rh()['ilk_giris'] = time.time()
+                self.rh()['first_login'] = time.time()
                 self.p.dirty = True
 
     @property
@@ -83,7 +83,7 @@ class Stores:
         st = self.st.setdefault(key, {})
         if event:
             per = CAL.period(event)
-            tag = per and str(int(per[0])) or ('acik' if CAL.is_active(event) else '')
+            tag = per and str(int(per[0])) or ('on' if CAL.is_active(event) else '')
             if st.get('donem') != tag:
                 st.clear()
                 st['donem'] = tag
@@ -96,7 +96,7 @@ class Stores:
     # ------------------------------------------------------------ mağaza kancaları
     def shop_gate(self, entry, loot):
         """ek_magaza satırı şimdi satılır mı (takvim / kampanya, bir kez, Stellar'ın seviyesi)."""
-        ev = entry.get('takvim') if entry else None
+        ev = entry.get('calendar') if entry else None
         if ev == 'returnee':
             if not self.returnee_active():
                 return False
@@ -106,7 +106,7 @@ class Stores:
             lv, (lo, hi) = self.p.d['pilot'].get('level', 1), SP['seviye']     # hi None: üst sınır yok
             if lv < lo or (hi is not None and lv > hi):
                 return False
-        if (entry and entry.get('bir_kez')) or loot in SP_PKG:
+        if (entry and entry.get('once')) or loot in SP_PKG:
             return loot not in self.bought_set(ev)
         return True
 
@@ -119,8 +119,8 @@ class Stores:
         """Mağazadan alım (magaza.on_bought): bir kezlikler, VIP, Pre-BF sayaçları -> mesajlar."""
         ev = next((e for s, e in ((MM_COIN, 'mileage_market'), (VIP_PKG, 'vip_merchant'), (PB_PKG, 'pre_prometheus')) if loot in s), None)
         entry = self.m.extra_entry.get(loot) or {}
-        if not ev and entry.get('bir_kez') and entry.get('takvim') not in (None, 'returnee'):
-            ev = entry['takvim']     # Return of Hero'nun bir kezlik VIP rozet paketleri (kayıtsız kalınca sınırsız alınıyordu)
+        if not ev and entry.get('once') and entry.get('calendar') not in (None, 'returnee'):
+            ev = entry['calendar']     # Return of Hero'nun bir kezlik VIP rozet paketleri (kayıtsız kalınca sınırsız alınıyordu)
         msgs = []
         with self.p.lock:
             if ev:
@@ -130,9 +130,9 @@ class Stores:
             else:
                 return []
             self.p.dirty = True
-        if loot in MM_COIN and CAL.is_active(MM['takvim']):
+        if loot in MM_COIN and CAL.is_active(MM['calendar']):
             msgs.append(self.mm_info())
-        if loot in VIP_PKG and CAL.is_active(VIP['takvim']):
+        if loot in VIP_PKG and CAL.is_active(VIP['calendar']):
             msgs += [('VIPMerchantExchangePackageUpdateCommand', {'packagesBought': self.vip_bought()}), self.vip_info()]
         if loot in PB_PKG:
             msgs.append(self.pb_info())
@@ -141,32 +141,32 @@ class Stores:
 
     # ------------------------------------------------------------ Mileage Market
     def mm_coins(self):
-        return INV.count(self.p, MM['jeton'])
+        return INV.count(self.p, MM['token'])
 
     def mm_price(self, r, steps):
         return int((1 - steps * MM['step_percent'] / 100.0) * r['uridyum'])
 
     def mm_module(self, r):
-        st = self.part('mileage', MM['takvim'])
+        st = self.part('mileage', MM['calendar'])
         steps = st.get('discount', {}).get(r['id'], 0)
         # istemci (MileageMarketVo) fiyatı metindeki ilk sayıdan okur, %PRICE%'i eski/indirimli değerle doldurur; düz '40000 U.' ile
         # indirimli metin de 40000 kalıyordu: TMP'nin görünmez <link>'i sayıyı taşır (canlı Ö7: '40000 U. -> 30000 U.')
         return mod('MileageMarketPackageModule', packagePrice='<link=%d>%%PRICE%% U.</link>' % r['uridyum'],
-                   isBought=r['id'] in st.get('alinan', []),
+                   isBought=r['id'] in st.get('claimed', []),
                    imageKey=r['id'], maxDiscountSteps=MM['max_steps'], claimedDiscountSteps=steps, packageId=r['id'],
                    discountPerStep=float(MM['step_percent']), priority=int(r.get('priority', 0)))
 
     def mm_info(self):
         return ('MileageMarketInfoCommand', dict(coinCount=self.mm_coins(), exchangePackages=[self.mm_module(r) for r in MM['discount_packages']],
                                                  packageList=[r['id'] for r in MM['token_packages']],
-                                                 timeToEventEnd=float(CAL.time_left(MM['takvim']))))
+                                                 timeToEventEnd=float(CAL.time_left(MM['calendar']))))
 
     def mm_exchange(self, f):
         pid, steps = str(f.get('packageId') or ''), int(f.get('claimedDiscountSteps') or 0)
-        st = self.part('mileage', MM['takvim'])
+        st = self.part('mileage', MM['calendar'])
         r = MM_DISC.get(pid)
         if not r or not 1 <= steps <= min(MM['max_steps'], self.mm_coins()) or st.get('discount', {}).get(pid) or \
-                pid in st.get('alinan', []) or INV.spend(self.p, {MM['jeton']: steps}, 'buy_SPECIAL', 'mileage') is None:
+                pid in st.get('claimed', []) or INV.spend(self.p, {MM['token']: steps}, 'buy_SPECIAL', 'mileage') is None:
             return [('MileageMarketInsufficientResourcesCommand', {})]
         with self.p.lock:
             st.setdefault('discount', {})[pid] = steps
@@ -174,20 +174,20 @@ class Stores:
         self.log('   Mileage Market: %s için %d jeton (%%%d)' % (pid, steps, steps * MM['step_percent']))
         return [('MileageMarketPackageUpdateCommand', dict(isBought=False, claimedDiscountSteps=steps, packageID=pid)),
                 ('MileageMarketInfoUpdateCommand', {'coinCount': self.mm_coins()}), self.mm_info()] \
-            + INV.update_msgs(self.m, self.p, [MM['jeton']])
+            + INV.update_msgs(self.m, self.p, [MM['token']])
 
     def mm_buy(self, f):
         pid = str(f.get('packageId') or '')
-        st = self.part('mileage', MM['takvim'])
+        st = self.part('mileage', MM['calendar'])
         r = MM_DISC.get(pid)
         steps = st.get('discount', {}).get(pid, 0)
-        if not r or not steps or pid in st.get('alinan', []):
+        if not r or not steps or pid in st.get('claimed', []):
             return [('MileageMarketInsufficientResourcesCommand', {})]
         cost = self.mm_price(r, steps)
         if INV.spend(self.p, {'currency_uridium': cost}, 'buy_SPECIAL', 'mileage') is None:
             return [('MileageMarketInsufficientResourcesCommand', {})]
         with self.p.lock:
-            st.setdefault('alinan', []).append(pid)
+            st.setdefault('claimed', []).append(pid)
             self.p.dirty = True
         msgs = []
         for loot, n in r['contents']:
@@ -198,43 +198,43 @@ class Stores:
 
     def mm_expire(self):
         """Etkinlik bitti: jetonlar silinir (FAQ)."""
-        n = INV.count(self.p, MM['jeton'])
-        if n and not CAL.is_active(MM['takvim']):
-            INV.spend(self.p, {MM['jeton']: n}, 'buy_SPECIAL', 'mileage_bitti')
+        n = INV.count(self.p, MM['token'])
+        if n and not CAL.is_active(MM['calendar']):
+            INV.spend(self.p, {MM['token']: n}, 'buy_SPECIAL', 'mileage_ended')
             self.log('   Mileage Market bitti: %d jeton silindi' % n)
 
     # ------------------------------------------------------------ VIP Merchant Exchange
     def vip_bought(self):
-        return len(self.part('alinan_' + VIP['takvim'], VIP['takvim']).get('liste', []))
+        return len(self.part('alinan_' + VIP['calendar'], VIP['calendar']).get('liste', []))
 
     def vip_row(self, r, st):
         own = lambda loot: float(INV.count(self.p, loot))
-        rl, rn = r['odul']
-        return mod('VIPMerchantExchangeModule', claimLimit=int(r['sinir']), priority=int(r['sira']), isSpecial=bool(r['ozel']),
+        rl, rn = r['reward']
+        return mod('VIPMerchantExchangeModule', claimLimit=int(r['cap']), priority=int(r['order']), isSpecial=bool(r['ozel']),
                    reward=mod('VIPMerchantExchangeItemModule', amount=int(rn), lootId=rl, amountOwned=own(rl)),
-                   costs=[mod('VIPMerchantExchangeItemModule', amount=int(n), lootId=l, amountOwned=own(l)) for l, n in r['bedel']],
+                   costs=[mod('VIPMerchantExchangeItemModule', amount=int(n), lootId=l, amountOwned=own(l)) for l, n in r['charge']],
                    claimCount=int(st.get('exchange', {}).get(rl, 0)))
 
     def vip_info(self):
-        st = self.part('vip', VIP['takvim'])
-        return ('VIPMerchantExchangeInfoCommand', dict(timeToEventEnd=float(CAL.time_left(VIP['takvim'])), packagesBought=self.vip_bought(),
+        st = self.part('vip', VIP['calendar'])
+        return ('VIPMerchantExchangeInfoCommand', dict(timeToEventEnd=float(CAL.time_left(VIP['calendar'])), packagesBought=self.vip_bought(),
                                                        exchangeList=[self.vip_row(r, st) for r in VIP['exchange']],
                                                        packageList=[r['id'] for r in VIP['packages']]))
 
     def vip_exchange(self, f):
         loot = str(f.get('lootId') or '')
-        st = self.part('vip', VIP['takvim'])
-        r = next((x for x in VIP['exchange'] if x['odul'][0] == loot), None)
+        st = self.part('vip', VIP['calendar'])
+        r = next((x for x in VIP['exchange'] if x['reward'][0] == loot), None)
         done = st.get('exchange', {}).get(loot, 0)
-        if not r or not self.vip_bought() or (r['sinir'] > 0 and done >= r['sinir']) or \
-                INV.spend(self.p, {l: n for l, n in r['bedel']}, 'buy_SPECIAL', 'vip_exchange') is None:
+        if not r or not self.vip_bought() or (r['cap'] > 0 and done >= r['cap']) or \
+                INV.spend(self.p, {l: n for l, n in r['charge']}, 'buy_SPECIAL', 'vip_exchange') is None:
             return [('VIPMerchantExchangeInsufficientResourcesCommand', {})]
         with self.p.lock:
             st.setdefault('exchange', {})[loot] = done + 1
             self.p.dirty = True
-        msgs = self.m.reward(loot, r['odul'][1]) if self.m else []
-        self.log('   VIP takas: %s x%d (%s)' % (loot, r['odul'][1], r['bedel']))
-        return msgs + INV.update_msgs(self.m, self.p, [l for l, n in r['bedel']]) + self.money() + [self.vip_info()]
+        msgs = self.m.reward(loot, r['reward'][1]) if self.m else []
+        self.log('   VIP takas: %s x%d (%s)' % (loot, r['reward'][1], r['charge']))
+        return msgs + INV.update_msgs(self.m, self.p, [l for l, n in r['charge']]) + self.money() + [self.vip_info()]
 
     # ------------------------------------------------------------ Returnee Login
     def returnee_state(self):
@@ -244,7 +244,7 @@ class Stores:
         """Girişte: son oturum bekleme_gun'den eskiyse (ve son kampanyadan tekrar_gun geçtiyse) kampanya başlar."""
         now = time.time() if now is None else now
         st = self.returnee_state()
-        if st.get('baslangic') and not st.get('kapali') and now < st['baslangic'] + RL['duration_days'] * DAY:
+        if st.get('baslangic') and not st.get('off') and now < st['baslangic'] + RL['duration_days'] * DAY:
             return False
         last = st.get('last_campaign', 0)
         if last_seen and now - last_seen >= RL['wait_days'] * DAY and now - last >= RL['repeat_days'] * DAY and \
@@ -256,7 +256,7 @@ class Stores:
     def returnee_start(self, now=None):
         now = time.time() if now is None else now
         with self.p.lock:
-            self.st['returnee'] = dict(baslangic=now, hosgeldin=False, gun=0, last_day='', kapali=False, last_campaign=now)
+            self.st['returnee'] = dict(baslangic=now, welcome=False, gun=0, last_day='', off=False, last_campaign=now)
             self.st['one_time'] = [x for x in self.st.get('one_time', []) if x not in RL_PKG]
             self.p.dirty = True
         self.log('   Returnee Login: kampanya başladı (%d gün)' % RL['duration_days'])
@@ -264,7 +264,7 @@ class Stores:
     def returnee_active(self, now=None):
         st = self.returnee_state()
         now = time.time() if now is None else now
-        return bool(st.get('baslangic')) and not st.get('kapali') and now < st['baslangic'] + RL['duration_days'] * DAY
+        return bool(st.get('baslangic')) and not st.get('off') and now < st['baslangic'] + RL['duration_days'] * DAY
 
     def returnee_left(self, now=None):
         now = time.time() if now is None else now
@@ -278,7 +278,7 @@ class Stores:
         st = self.returnee_state()
         items = lambda rows: [mod('ReturneeLoginItemRewardModule', amount=int(n), lootId=l) for l, n in rows]
         left = float(self.returnee_left(now))
-        return [('ReturneeLoginInitialRewardInfoCommand', dict(rewardList=items(RL['hosgeldin']), isClaimable=not st.get('hosgeldin'))),
+        return [('ReturneeLoginInitialRewardInfoCommand', dict(rewardList=items(RL['welcome']), isClaimable=not st.get('welcome'))),
                 ('ReturneeLoginRewardInfoCommand', dict(daysClaimed=int(st.get('gun', 0)), rewardList=items(RL['calendar_reward'][:RL['calendar_days']]),
                                                         timeToEndEvent=left, isClaimable=self.returnee_claimable(now))),
                 ('ReturneeLoginBundleInfoCommand', dict(timeToEndEvent=left))]
@@ -289,12 +289,12 @@ class Stores:
             return []
         msgs = []
         if not f.get('isClaimDaily'):
-            if st.get('hosgeldin'):
+            if st.get('welcome'):
                 return []
             with self.p.lock:
-                st['hosgeldin'] = True
+                st['welcome'] = True
                 self.p.dirty = True
-            for l, n in RL['hosgeldin']:
+            for l, n in RL['welcome']:
                 msgs += self.m.reward(l, n) if self.m else []
             return msgs + [('ReturneeLoginInitialRewardClaimableInfoCommand', {'isClaimable': False})] + self.money()
         if not self.returnee_claimable():
@@ -312,20 +312,20 @@ class Stores:
         st = self.returnee_state()
         if st.get('baslangic') and self.returnee_left() < 1:
             with self.p.lock:
-                st['kapali'] = True
+                st['off'] = True
                 self.p.dirty = True
         return self.window_item('returnee_login', self.returnee_active())
 
     # ------------------------------------------------------------ Pre-Prometheus Day
     def pb_bought(self):
-        return len(set(self.part('alinan_' + PB['takvim'], PB['takvim']).get('liste', [])))
+        return len(set(self.part('alinan_' + PB['calendar'], PB['calendar']).get('liste', [])))
 
     def pb_info(self):
         return ('PreBlackFridaySalesInfoCommand', {'packBought': min(5, self.pb_bought())})
 
     # ------------------------------------------------------------ Return of Hero
     def rh(self):
-        return self.part('rehero', CT['takvim'])
+        return self.part('rehero', CT['calendar'])
 
     def rh_day(self, now=None):
         st = self.rh()
@@ -337,7 +337,7 @@ class Stores:
 
     def rh_quests(self, now=None):
         """(tekrarsız, bugünün günlükleri): ilk 13 görev tekrarsız, kalan havuzdan gün başına 5 (gün tohumuyla)."""
-        qs = CT['gorevler']
+        qs = CT['quests']
         once = qs[:CT['once_count']]
         pool = qs[CT['once_count']:] or qs
         d = self.rh_day(now)
@@ -347,7 +347,7 @@ class Stores:
             with self.p.lock:
                 st['tamam'] = [i for i in st.get('tamam', []) if i not in pool_ids]
                 for i in pool_ids:
-                    st.get('deger', {}).pop(str(i), None)
+                    st.get('value', {}).pop(str(i), None)
                 st['day_number'] = d
                 self.p.dirty = True
         if d >= CT['gun']:
@@ -357,13 +357,13 @@ class Stores:
 
     def rh_quest_module(self, q, st):
         done = q['id'] in st.get('tamam', [])
-        return mod('EventQuestDefinitionModule', module=GT.with_state(q, st.get('deger', {}).get(str(q['id']), {}), done),
+        return mod('EventQuestDefinitionModule', module=GT.with_state(q, st.get('value', {}).get(str(q['id']), {}), done),
                    completed=done, claimed=done)
 
     def rh_cmd(self, rtype=1, error=None, now=None):
         st = self.rh()
         once, daily = self.rh_quests(now)
-        bound = bool(st.get('bagli'))
+        bound = bool(st.get('connected'))
         tomorrow = datetime.datetime.combine(today(now) + datetime.timedelta(days=1), datetime.time()).timestamp()
         nows = time.time() if now is None else now
         from shop import stack_msg
@@ -372,7 +372,7 @@ class Stores:
             inviterName=st.get('veteran', '') if bound else '', bootKeyLootId=CT['anahtar'], inviterId=int(st.get('code', 0)),
             eventReturnOfHeroQuestCommand=mod('EventReturnOfHeroQuestCommand', dailyNextRefreshSecond=int(max(0, tomorrow - nows)),
                                               dailyQuests=[self.rh_quest_module(q, st) for q in daily],
-                                              noRepeatNextRefreshSecond=int(CAL.time_left(CT['takvim'])),
+                                              noRepeatNextRefreshSecond=int(CAL.time_left(CT['calendar'])),
                                               noRepeatQuests=[self.rh_quest_module(q, st) for q in once]),
             eventReturnOfHeroContributorListCommand=mod('EventReturnOfHeroContributorListCommand', contributorList=[]),
             activityStatus=4 if bound else 2, bootKeyAmount=float(INV.count(self.p, CT['anahtar']))))
@@ -383,19 +383,19 @@ class Stores:
         return ('BattlePassKeyExchangeInfoCommand', dict(rewardList=rows, numOfKeys=int(INV.count(self.p, CT['anahtar'])), exchangeType=2))
 
     def rh_action(self, f):
-        if not CAL.is_active(CT['takvim']):
+        if not CAL.is_active(CT['calendar']):
             return []
         act = int(f.get('actionType') or 0)
         st = self.rh()
         if act == 0:
             return [self.rh_cmd(1), self.rh_exchange_info()]
         if act == 1:
-            if st.get('bagli'):
+            if st.get('connected'):
                 return [self.rh_cmd(0, 'empty')]
-            if time.time() - st.get('ilk_giris', time.time()) > CT['link_duration_sec']:     # SSS: girişten 24 saat içinde
-                return [self.rh_cmd(0, self.m.reason('rh_bag_suresi'))]
+            if time.time() - st.get('first_login', time.time()) > CT['link_duration_sec']:     # SSS: girişten 24 saat içinde
+                return [self.rh_cmd(0, self.m.reason('rh_bond_duration'))]
             with self.p.lock:
-                st.update(bagli=True, code=int(f.get('id') or 0), veteran=random.choice(CT['veteran_names']))
+                st.update(connected=True, code=int(f.get('id') or 0), veteran=random.choice(CT['veteran_names']))
                 self.p.dirty = True
             self.log('   Return of Hero: %s veterana bağlandı' % st['veteran'])
             return [self.rh_cmd(2)]
@@ -419,7 +419,7 @@ class Stores:
 
     def event(self, kind, kw):
         """Görev olayları (oturumun quest olayları): Return of Hero görevleri ilerler; biten görev anahtar verir."""
-        if not CAL.is_active(CT['takvim']) or not self.rh().get('bagli'):
+        if not CAL.is_active(CT['calendar']) or not self.rh().get('connected'):
             return []
         st = self.rh()
         once, daily = self.rh_quests()
@@ -427,10 +427,10 @@ class Stores:
         for q in once + daily:
             if q['id'] in st.get('tamam', []):
                 continue
-            m, fin = GT.advance(self.p, q['rootCase'], st.setdefault('deger', {}).setdefault(str(q['id']), {}), kind, kw, self.map_id)
+            m, fin = GT.advance(self.p, q['rootCase'], st.setdefault('value', {}).setdefault(str(q['id']), {}), kind, kw, self.map_id)
             msgs += m
             if fin:
-                n = CT['key_reward']['tekrarsiz' if q in once else 'gunluk']
+                n = CT['key_reward']['once' if q in once else 'daily']
                 with self.p.lock:
                     st.setdefault('tamam', []).append(q['id'])
                     self.p.dirty = True
@@ -461,13 +461,13 @@ class Stores:
     def login_msgs(self):
         self.mm_expire()
         msgs = []
-        if CAL.is_active(MM['takvim']):
+        if CAL.is_active(MM['calendar']):
             msgs.append(self.mm_info())
-        if CAL.is_active(VIP['takvim']):
+        if CAL.is_active(VIP['calendar']):
             msgs.append(self.vip_info())
         if self.returnee_active():
             msgs += self.returnee_msgs()
-        if CAL.is_active(PB['takvim']):
+        if CAL.is_active(PB['calendar']):
             msgs.append(self.pb_info())
         return msgs
 

@@ -1,11 +1,11 @@
 {
  "RankRewardRequest": [
   {
-   "istek": {
+   "request": {
     "ranking": 1,
     "rankType": 9
    },
-   "yanit": [
+   "response": [
     {
      "_m": "RankRewardCommand",
      "rankType": 9,
@@ -64,11 +64,11 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "ranking": 2,
     "rankType": 9
    },
-   "yanit": [
+   "response": [
     {
      "_m": "RankRewardCommand",
      "rankType": 9,
@@ -122,11 +122,11 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "ranking": 3,
     "rankType": 9
    },
-   "yanit": [
+   "response": [
     {
      "_m": "RankRewardCommand",
      "rankType": 9,
@@ -180,11 +180,11 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "ranking": 4,
     "rankType": 9
    },
-   "yanit": [
+   "response": [
     {
      "_m": "RankRewardCommand",
      "rankType": 9,
@@ -224,11 +224,11 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "ranking": 6,
     "rankType": 9
    },
-   "yanit": [
+   "response": [
     {
      "_m": "RankRewardCommand",
      "rankType": 9,
@@ -263,11 +263,11 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "ranking": 11,
     "rankType": 9
    },
-   "yanit": [
+   "response": [
     {
      "_m": "RankRewardCommand",
      "rankType": 9,
@@ -321,11 +321,11 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "ranking": 26,
     "rankType": 9
    },
-   "yanit": [
+   "response": [
     {
      "_m": "RankRewardCommand",
      "rankType": 9,
@@ -370,11 +370,11 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "ranking": 51,
     "rankType": 9
    },
-   "yanit": [
+   "response": [
     {
      "_m": "RankRewardCommand",
      "rankType": 9,
@@ -426,10 +426,10 @@
  ],
  "QuestPrivilegeRequest": [
   {
-   "istek": {
+   "request": {
     "questId": 20000
    },
-   "yanit": [
+   "response": [
     {
      "_m": "QuestPrivilegeCommand",
      "questId": 20000
@@ -437,10 +437,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "questId": 20001
    },
-   "yanit": [
+   "response": [
     {
      "_m": "QuestPrivilegeCommand",
      "questId": 20001
@@ -448,10 +448,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "questId": 20001
    },
-   "yanit": [
+   "response": [
     {
      "_m": "QuestPrivilegeCommand",
      "questId": 20001
@@ -463,10 +463,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "questId": 20002
    },
-   "yanit": [
+   "response": [
     {
      "_m": "QuestPrivilegeCommand",
      "questId": 20002
@@ -474,10 +474,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "questId": 20002
    },
-   "yanit": [
+   "response": [
     {
      "_m": "QuestPrivilegeCommand",
      "questId": 20002
@@ -489,10 +489,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "questId": 20003
    },
-   "yanit": [
+   "response": [
     {
      "_m": "QuestPrivilegeCommand",
      "questId": 20003
@@ -500,10 +500,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "questId": 20003
    },
-   "yanit": [
+   "response": [
     {
      "_m": "QuestPrivilegeCommand",
      "questId": 20003
@@ -517,8 +517,8 @@
  ],
  "CommandCenterGetDontShowRequest": [
   {
-   "istek": {},
-   "yanit": [
+   "request": {},
+   "response": [
     {
      "_m": "CommandCenterDontShowInfoCommand",
      "inspected": false
@@ -526,8 +526,8 @@
    ]
   },
   {
-   "istek": {},
-   "yanit": [
+   "request": {},
+   "response": [
     {
      "_m": "CommandCenterDontShowInfoCommand",
      "inspected": false
@@ -539,8 +539,8 @@
    ]
   },
   {
-   "istek": {},
-   "yanit": [
+   "request": {},
+   "response": [
     {
      "_m": "CommandCenterDontShowInfoCommand",
      "inspected": false
@@ -577,8 +577,8 @@
    ]
   },
   {
-   "istek": {},
-   "yanit": [
+   "request": {},
+   "response": [
     {
      "_m": "CommandCenterDontShowInfoCommand",
      "inspected": false
@@ -617,10 +617,10 @@
  ],
  "DispatchGetRetrieverListRequest": [
   {
-   "istek": {
+   "request": {
     "statusType": 1
    },
-   "yanit": [
+   "response": [
     {
      "_m": "DispatchGetRetrieverListCommand",
      "statusType": 1,
@@ -633,10 +633,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "statusType": 1
    },
-   "yanit": [
+   "response": [
     {
      "_m": "DispatchGetRetrieverListCommand",
      "statusType": 1,
@@ -660,8 +660,8 @@
  ],
  "GalaxyGateBuilderInfoRequest": [
   {
-   "istek": {},
-   "yanit": [
+   "request": {},
+   "response": [
     {
      "_m": "GalaxyGateBuilderInfoCommand",
      "bonusRewardsDay": false,
@@ -1231,8 +1231,8 @@
    ]
   },
   {
-   "istek": {},
-   "yanit": [
+   "request": {},
+   "response": [
     {
      "_m": "GalaxyGateBuilderInfoCommand",
      "bonusRewardsDay": false,
@@ -1802,8 +1802,8 @@
    ]
   },
   {
-   "istek": {},
-   "yanit": [
+   "request": {},
+   "response": [
     {
      "_m": "GalaxyGateBuilderInfoCommand",
      "bonusRewardsDay": false,
@@ -2375,10 +2375,10 @@
  ],
  "GalaxyGateBuilderGetGatePartsRequest": [
   {
-   "istek": {
+   "request": {
     "gateId": 1
    },
-   "yanit": [
+   "response": [
     {
      "_m": "GalaxyGateBuilderGetGatePartsCommand",
      "gateId": 1,
@@ -2390,7 +2390,7 @@
  ],
  "CommandCenterNewsInfoRequest": [
   {
-   "istek": {
+   "request": {
     "newsInfo": [
      {
       "_": "CommandCenterNewsClickedRequest",
@@ -2424,7 +2424,7 @@
      }
     ]
    },
-   "yanit": [
+   "response": [
     {
      "_m": "CommandCenterInfoCommand",
      "ids": []
@@ -2432,7 +2432,7 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "newsInfo": [
      {
       "_": "CommandCenterNewsClickedRequest",
@@ -2461,7 +2461,7 @@
      }
     ]
    },
-   "yanit": [
+   "response": [
     {
      "_m": "CommandCenterInfoCommand",
      "ids": []
@@ -2469,7 +2469,7 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "newsInfo": [
      {
       "_": "CommandCenterNewsClickedRequest",
@@ -2503,7 +2503,7 @@
      }
     ]
    },
-   "yanit": [
+   "response": [
     {
      "_m": "CommandCenterInfoCommand",
      "ids": [
@@ -2536,7 +2536,7 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "newsInfo": [
      {
       "_": "CommandCenterNewsClickedRequest",
@@ -2570,7 +2570,7 @@
      }
     ]
    },
-   "yanit": [
+   "response": [
     {
      "_m": "CommandCenterInfoCommand",
      "ids": [
@@ -2603,7 +2603,7 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "newsInfo": [
      {
       "_": "CommandCenterNewsClickedRequest",
@@ -2637,7 +2637,7 @@
      }
     ]
    },
-   "yanit": [
+   "response": [
     {
      "_m": "CommandCenterInfoCommand",
      "ids": [
@@ -2652,7 +2652,7 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "newsInfo": [
      {
       "_": "CommandCenterNewsClickedRequest",
@@ -2681,7 +2681,7 @@
      }
     ]
    },
-   "yanit": [
+   "response": [
     {
      "_m": "CommandCenterInfoCommand",
      "ids": [
@@ -2698,8 +2698,8 @@
  ],
  "CompanyHierarchyRequest": [
   {
-   "istek": {},
-   "yanit": [
+   "request": {},
+   "response": [
     {
      "_m": "CompanyHierarchyInitializationCommand",
      "mmoRanking": [],
@@ -2724,8 +2724,8 @@
  ],
  "TradeRequest": [
   {
-   "istek": {},
-   "yanit": [
+   "request": {},
+   "response": [
     {
      "_m": "OreTradeInfoCommand",
      "sepromPrice": 750,
@@ -2745,10 +2745,10 @@
  ],
  "QuestInfoRequest": [
   {
-   "istek": {
+   "request": {
     "questId": 2
    },
-   "yanit": [
+   "response": [
     {
      "_m": "QuestInfoCommand",
      "definition": {
@@ -2831,10 +2831,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "questId": 20001
    },
-   "yanit": [
+   "response": [
     {
      "_m": "QuestInfoCommand",
      "definition": {
@@ -3016,10 +3016,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "questId": 20002
    },
-   "yanit": [
+   "response": [
     {
      "_m": "QuestInfoCommand",
      "definition": {
@@ -3132,10 +3132,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "questId": 20003
    },
-   "yanit": [
+   "response": [
     {
      "_m": "QuestInfoCommand",
      "definition": {
@@ -3286,8 +3286,8 @@
  ],
  "SynthesisInventoryRequest": [
   {
-   "istek": {},
-   "yanit": [
+   "request": {},
+   "response": [
     {
      "_m": "SynthesisInventoryCommand",
      "equipmentInventoryItems": [],
@@ -3298,8 +3298,8 @@
  ],
  "ArmoryUnlockInfoRequest": [
   {
-   "istek": {},
-   "yanit": [
+   "request": {},
+   "response": [
     {
      "_m": "ArmoryUnlockInfoCommand",
      "normal": {
@@ -5400,10 +5400,10 @@
  ],
  "ShopItemListRequest": [
   {
-   "istek": {
+   "request": {
     "category": "ship"
    },
-   "yanit": [
+   "response": [
     {
      "_m": "ShopItemListCommand",
      "category": "ship",
@@ -6959,10 +6959,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "category": "drone"
    },
-   "yanit": [
+   "response": [
     {
      "_m": "ShopItemListCommand",
      "category": "drone",
@@ -7681,10 +7681,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "category": "laser"
    },
-   "yanit": [
+   "response": [
     {
      "_m": "ShopItemListCommand",
      "category": "laser",
@@ -8341,10 +8341,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "category": "ammunition"
    },
-   "yanit": [
+   "response": [
     {
      "_m": "ShopItemListCommand",
      "category": "ammunition",
@@ -9683,10 +9683,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "category": "extras"
    },
-   "yanit": [
+   "response": [
     {
      "_m": "ShopItemListCommand",
      "category": "extras",
@@ -15334,10 +15334,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "category": "generator"
    },
-   "yanit": [
+   "response": [
     {
      "_m": "ShopItemListCommand",
      "category": "generator",
@@ -15777,10 +15777,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "category": "extras"
    },
-   "yanit": [
+   "response": [
     {
      "_m": "ShopItemListCommand",
      "category": "extras",
@@ -21428,10 +21428,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "category": "petgear"
    },
-   "yanit": [
+   "response": [
     {
      "_m": "ShopItemListCommand",
      "category": "petgear",
@@ -22233,10 +22233,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "category": "protocol"
    },
-   "yanit": [
+   "response": [
     {
      "_m": "ShopItemListCommand",
      "category": "protocol",
@@ -23074,10 +23074,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "category": "booster"
    },
-   "yanit": [
+   "response": [
     {
      "_m": "ShopItemListCommand",
      "category": "booster",
@@ -23796,10 +23796,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "category": "shipdesign"
    },
-   "yanit": [
+   "response": [
     {
      "_m": "ShopItemListCommand",
      "category": "shipdesign",
@@ -25417,10 +25417,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "category": "customization"
    },
-   "yanit": [
+   "response": [
     {
      "_m": "ShopItemListCommand",
      "category": "customization",
@@ -27100,10 +27100,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "category": "extras"
    },
-   "yanit": [
+   "response": [
     {
      "_m": "ShopItemListCommand",
      "category": "extras",
@@ -32753,8 +32753,8 @@
  ],
  "HangarListRequest": [
   {
-   "istek": {},
-   "yanit": [
+   "request": {},
+   "response": [
     {
      "_m": "HangarShipsCommand",
      "ships": [
@@ -33136,8 +33136,8 @@
    ]
   },
   {
-   "istek": {},
-   "yanit": [
+   "request": {},
+   "response": [
     {
      "_m": "HangarShipsCommand",
      "ships": [
@@ -33710,10 +33710,10 @@
  ],
  "HangarShipEquipmentRequest": [
   {
-   "istek": {
+   "request": {
     "shipId": 3710086
    },
-   "yanit": [
+   "response": [
     {
      "_m": "HangarShipEquipmentCommand",
      "hangarId": 615176,
@@ -33776,10 +33776,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "shipId": 3710086
    },
-   "yanit": [
+   "response": [
     {
      "_m": "HangarShipEquipmentCommand",
      "hangarId": 615176,
@@ -33844,10 +33844,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "shipId": 3710086
    },
-   "yanit": [
+   "response": [
     {
      "_m": "HangarShipEquipmentCommand",
      "hangarId": 615176,
@@ -33916,10 +33916,10 @@
  ],
  "LogbookDataListRequest": [
   {
-   "istek": {
+   "request": {
     "startIndex": 0
    },
-   "yanit": [
+   "response": [
     {
      "_m": "LogbookDataListCommand",
      "startIndex": 0,
@@ -33931,8 +33931,8 @@
  ],
  "UserMessageGetTargetRequest": [
   {
-   "istek": {},
-   "yanit": [
+   "request": {},
+   "response": [
     {
      "_m": "UserMessageGetTargetCommand",
      "commandList": [
@@ -33967,8 +33967,8 @@
  ],
  "UserMessageInitRequest": [
   {
-   "istek": {},
-   "yanit": [
+   "request": {},
+   "response": [
     {
      "_m": "UserMessageInitCommand",
      "unreadCount": 0,
@@ -33981,10 +33981,10 @@
  ],
  "UserMessageInboxListRequest": [
   {
-   "istek": {
+   "request": {
     "startIndex": 0
    },
-   "yanit": [
+   "response": [
     {
      "_m": "UserMessageInboxListCommand",
      "userMessageInfoCommandList": [],
@@ -33995,10 +33995,10 @@
  ],
  "UserMessageOutboxListRequest": [
   {
-   "istek": {
+   "request": {
     "startIndex": 0
    },
-   "yanit": [
+   "response": [
     {
      "_m": "UserMessageOutboxListCommand",
      "userMessageInfoCommandList": [],
@@ -34009,10 +34009,10 @@
  ],
  "ContactListRequest": [
   {
-   "istek": {
+   "request": {
     "startIndex": 0
    },
-   "yanit": [
+   "response": [
     {
      "_m": "ContactListCommand",
      "contactList": [],
@@ -34024,8 +34024,8 @@
  ],
  "UserMessageNoteListRequest": [
   {
-   "istek": {},
-   "yanit": [
+   "request": {},
+   "response": [
     {
      "_m": "UserMessageNoteListCommand",
      "noteInfoCommandList": []
@@ -34035,10 +34035,10 @@
  ],
  "BalanceInfoListRequest": [
   {
-   "istek": {
+   "request": {
     "page": 1
    },
-   "yanit": [
+   "response": [
     {
      "_m": "BalanceInfoListCommand",
      "page": 1,
@@ -34050,8 +34050,8 @@
  ],
  "LoginInitClanRequest": [
   {
-   "istek": {},
-   "yanit": [
+   "request": {},
+   "response": [
     {
      "_m": "LoginInitMyApplyCommand",
      "applyClanList": [],
@@ -34075,8 +34075,8 @@
    ]
   },
   {
-   "istek": {},
-   "yanit": [
+   "request": {},
+   "response": [
     {
      "_m": "ClanFilterSearchInfoCommand",
      "list": [],
@@ -34102,7 +34102,7 @@
  ],
  "ClanFilterSearchRequest": [
   {
-   "istek": {
+   "request": {
     "memberType": 0,
     "orderType": 0,
     "recruitionType": 0,
@@ -34113,7 +34113,7 @@
     "rankType": 0,
     "desc": true
    },
-   "yanit": [
+   "response": [
     {
      "_m": "ClanFilterSearchInfoCommand",
      "list": [],
@@ -34124,10 +34124,10 @@
  ],
  "AuctionListRequest": [
   {
-   "istek": {
+   "request": {
     "auctionType": ""
    },
-   "yanit": [
+   "response": [
     {
      "_m": "AuctionListCommand",
      "weekSubSec": 282625,
@@ -37277,10 +37277,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "auctionType": ""
    },
-   "yanit": [
+   "response": [
     {
      "_m": "AuctionListCommand",
      "weekSubSec": 282607,
@@ -40446,8 +40446,8 @@
  ],
  "GetNamFIagRequest": [
   {
-   "istek": {},
-   "yanit": [
+   "request": {},
+   "response": [
     {
      "_m": "GetNamFlagCommand",
      "open": false
@@ -40457,10 +40457,10 @@
  ],
  "SkylabViewModuleRequest": [
   {
-   "istek": {
+   "request": {
     "moduleName": "SOLAR_MODULE"
    },
-   "yanit": [
+   "response": [
     {
      "_m": "SkylabViewModuleBackCommand",
      "collectorInfo": {
@@ -40497,10 +40497,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "moduleName": "PROMETIUM_COLLECTOR"
    },
-   "yanit": [
+   "response": [
     {
      "_m": "SkylabViewModuleBackCommand",
      "collectorInfo": {
@@ -40555,10 +40555,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "moduleName": "BASE_MODULE"
    },
-   "yanit": [
+   "response": [
     {
      "_m": "SkylabViewModuleBackCommand",
      "collectorInfo": {
@@ -40597,10 +40597,10 @@
  ],
  "InternalPilotBioRequest": [
   {
-   "istek": {
+   "request": {
     "userId": 100000001
    },
-   "yanit": [
+   "response": [
     {
      "_m": "InternalPilotBioUserProfileCommand",
      "statusMessage": "",
@@ -40639,10 +40639,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "userId": 100000001
    },
-   "yanit": [
+   "response": [
     {
      "_m": "InternalPilotBioUserProfileCommand",
      "statusMessage": "",
@@ -40683,10 +40683,10 @@
  ],
  "AchievementListRequest": [
   {
-   "istek": {
+   "request": {
     "displayTitleId": 0
    },
-   "yanit": [
+   "response": [
     {
      "_m": "AchievementListCommand",
      "unlockAchievements2": [],
@@ -40900,10 +40900,10 @@
  ],
  "HangarShipDetailRequest": [
   {
-   "istek": {
+   "request": {
     "shipId": 3710086
    },
-   "yanit": [
+   "response": [
     {
      "_m": "HangarShipDetailCommand",
      "laserAmmo": 5477,
@@ -40934,10 +40934,10 @@
  ],
  "HallOfFameTopRequest": [
   {
-   "istek": {
+   "request": {
     "type": 18
    },
-   "yanit": [
+   "response": [
     {
      "_m": "HallOfFameTopDataListCommand",
      "myRankingPoints": {
@@ -41071,10 +41071,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "type": 4
    },
-   "yanit": [
+   "response": [
     {
      "_m": "HallOfFameTopDataListCommand",
      "myRankingPoints": {
@@ -41181,10 +41181,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "type": 8
    },
-   "yanit": [
+   "response": [
     {
      "_m": "HallOfFameTopDataListCommand",
      "myRankingPoints": {
@@ -41291,10 +41291,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "type": 0
    },
-   "yanit": [
+   "response": [
     {
      "_m": "HallOfFameTopDataListCommand",
      "myRankingPoints": {
@@ -41401,10 +41401,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "type": 17
    },
-   "yanit": [
+   "response": [
     {
      "_m": "HallOfFameTopDataListCommand",
      "myRankingPoints": {
@@ -44911,10 +44911,10 @@
  ],
  "HallOfFameDataListRequest": [
   {
-   "istek": {
+   "request": {
     "requested": 6
    },
-   "yanit": [
+   "response": [
     {
      "_m": "HallOfFameDataListCommand",
      "dataList": [],
@@ -44927,8 +44927,8 @@
  ],
  "StrikeAndExitInfoRequest": [
   {
-   "istek": {},
-   "yanit": [
+   "request": {},
+   "response": [
     {
      "_m": "StrikeAndExitInfoCommand",
      "currentGetStellarCoin": 0,
@@ -44943,13 +44943,13 @@
  ],
  "ExchangeShopRequest": [
   {
-   "istek": {
+   "request": {
     "eId": 0,
     "eventName": "StrikeAndExit",
     "action": 0,
     "shopId": ""
    },
-   "yanit": [
+   "response": [
     {
      "_m": "ExchangeShopCommand",
      "items": [
@@ -45017,13 +45017,13 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "eId": 0,
     "eventName": "StrikeAndExitVIP",
     "action": 0,
     "shopId": ""
    },
-   "yanit": [
+   "response": [
     {
      "_m": "ExchangeShopCommand",
      "items": [
@@ -45291,13 +45291,13 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "eId": 0,
     "eventName": "StrikeAndExitVIP",
     "action": 0,
     "shopId": ""
    },
-   "yanit": [
+   "response": [
     {
      "_m": "ExchangeShopCommand",
      "items": [
@@ -45365,13 +45365,13 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "eId": 0,
     "eventName": "StrikeAndExit",
     "action": 0,
     "shopId": ""
    },
-   "yanit": [
+   "response": [
     {
      "_m": "ExchangeShopCommand",
      "items": [
@@ -45639,13 +45639,13 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "eId": 0,
     "eventName": "StrikeAndExitVIP",
     "action": 0,
     "shopId": ""
    },
-   "yanit": [
+   "response": [
     {
      "_m": "ExchangeShopCommand",
      "items": [
@@ -45915,8 +45915,8 @@
  ],
  "ExpeditionInfoRequest": [
   {
-   "istek": {},
-   "yanit": [
+   "request": {},
+   "response": [
     {
      "_m": "ExpeditionInfoCommand",
      "keyCount": 0,
@@ -47093,10 +47093,10 @@
  ],
  "TrinityTrialsUIRequest": [
   {
-   "istek": {
+   "request": {
     "optionalType": 0
    },
-   "yanit": [
+   "response": [
     {
      "_m": "TrinityTrialsPassCommand",
      "isVip": false,
@@ -47799,10 +47799,10 @@
    ]
   },
   {
-   "istek": {
+   "request": {
     "optionalType": 2
    },
-   "yanit": [
+   "response": [
     {
      "_m": "TrinityTrialsDropLevelCommand",
      "costLootAmount": 10,
@@ -47895,8 +47895,8 @@
  ],
  "AutopilotInfoRequest": [
   {
-   "istek": {},
-   "yanit": [
+   "request": {},
+   "response": [
     {
      "_m": "AutopilotInfoCommand",
      "remainingSeconds": 0,
@@ -47907,8 +47907,8 @@
    ]
   },
   {
-   "istek": {},
-   "yanit": [
+   "request": {},
+   "response": [
     {
      "_m": "AutopilotInfoCommand",
      "remainingSeconds": 0,
@@ -47921,7 +47921,7 @@
  ],
  "SkylabActionRequest": [
   {
-   "istek": {
+   "request": {
     "countEndurium": 0,
     "countPromerium": 0,
     "countDuranium": 0,
@@ -47934,7 +47934,7 @@
     "countPrometid": 0,
     "countPrometium": 0
    },
-   "yanit": [
+   "response": [
     {
      "_m": "SkylabMainViewCommand",
      "listModule": [

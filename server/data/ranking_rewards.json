@@ -1,6 +1,6 @@
 {
  "_description": "Sıralama ödül tabloları -> server/data/sira_odulleri.json (yol haritası Ö1; sunucu: siralama.py).\n\nİstemcinin akışı: modun penceresi sıralama bilgisiyle ödül aralıklarını alır (PlutusInfoCommand.playerRanges,\nEternalBlacklightRankingEventInfoCommand / RogueLiteRankEventInfoCommand.playerRankRanges: RankRewardRangeModule {from, to}); ödül\nsekmesi her aralık için RankRewardRequest {ranking: aralığın başı, rankType} gönderir; yanıt RankRewardCommand {rankType,\nrewardContentModuleList [RewardModule {lootId, amount} | RewardTitleModule {titleKey}], rewardRange}. rankType istemcinin RankType'ı:\n2 Gauntlet of Plutus, 7 Eternal Black Light, 9 Astral Ascension (Rogue-Lite).\n\nKaynaklar:\n  2  belgeler/wiki/etkinlikler/gauntlet_of_plutus.json \"ranking\" (wiki etkinlik sayfasının kademeleri, metin)\n  7  belgeler/wiki/pve_modlari/eternal_black_light.json ebl.ranking.reward_sets[0] (2020 tablosu; sonraki setler aynı miktarlarla,\n     P.E.T. tasarımları olmadan); unvan en son setinki (Eylül 2026, \"Eternal King\")\n  9  server/data/yanitlar.json: kaydın RankRewardCommand'ları (Ekim 2026 Astral seti)\nTek oyunculuda sıralamada yalnız oyuncu var: tablolar pencerede görünür; dağıtım bot oyuncularla (Aşama 11).",
- "tablolar": {
+ "tables": {
   "2": {
    "ad": "Gauntlet of Plutus",
    "_kaynak": "wiki etkinlik sayfası (gauntlet_of_plutus.json ranking); premium ay = 30 gün",
@@ -38,7 +38,7 @@
        100000
       ]
      ],
-     "unvan": "title_achievement_event_gauntletofplutus-champion"
+     "title": "title_achievement_event_gauntletofplutus-champion"
     },
     {
      "den": 2,
@@ -73,7 +73,7 @@
        75000
       ]
      ],
-     "unvan": null
+     "title": null
     },
     {
      "den": 3,
@@ -108,7 +108,7 @@
        50000
       ]
      ],
-     "unvan": null
+     "title": null
     },
     {
      "den": 4,
@@ -139,7 +139,7 @@
        35000
       ]
      ],
-     "unvan": null
+     "title": null
     },
     {
      "den": 6,
@@ -166,7 +166,7 @@
        30000
       ]
      ],
-     "unvan": null
+     "title": null
     },
     {
      "den": 11,
@@ -189,7 +189,7 @@
        30000
       ]
      ],
-     "unvan": null
+     "title": null
     },
     {
      "den": 26,
@@ -212,7 +212,7 @@
        20000
       ]
      ],
-     "unvan": null
+     "title": null
     },
     {
      "den": 51,
@@ -235,7 +235,7 @@
        20000
       ]
      ],
-     "unvan": null
+     "title": null
     }
    ]
   },
@@ -280,7 +280,7 @@
        1
       ]
      ],
-     "unvan": "title_blacklightRankings-sep2026set1"
+     "title": "title_blacklightRankings-sep2026set1"
     },
     {
      "den": 2,
@@ -315,7 +315,7 @@
        2
       ]
      ],
-     "unvan": "title_blacklightRankings-sep2026set1"
+     "title": "title_blacklightRankings-sep2026set1"
     },
     {
      "den": 3,
@@ -350,7 +350,7 @@
        2
       ]
      ],
-     "unvan": "title_blacklightRankings-sep2026set1"
+     "title": "title_blacklightRankings-sep2026set1"
     },
     {
      "den": 4,
@@ -385,7 +385,7 @@
        1
       ]
      ],
-     "unvan": "title_blacklightRankings-sep2026set1"
+     "title": "title_blacklightRankings-sep2026set1"
     },
     {
      "den": 6,
@@ -408,7 +408,7 @@
        1
       ]
      ],
-     "unvan": null
+     "title": null
     },
     {
      "den": 11,
@@ -431,7 +431,7 @@
        1
       ]
      ],
-     "unvan": null
+     "title": null
     },
     {
      "den": 26,
@@ -454,7 +454,7 @@
        1
       ]
      ],
-     "unvan": null
+     "title": null
     },
     {
      "den": 51,
@@ -473,7 +473,7 @@
        5000
       ]
      ],
-     "unvan": null
+     "title": null
     }
    ]
   },
@@ -518,7 +518,7 @@
        1000
       ]
      ],
-     "unvan": "title_astralRankings-oct2026set1"
+     "title": "title_astralRankings-oct2026set1"
     },
     {
      "den": 2,
@@ -553,7 +553,7 @@
        800
       ]
      ],
-     "unvan": "title_astralRankings-oct2026set1"
+     "title": "title_astralRankings-oct2026set1"
     },
     {
      "den": 3,
@@ -588,7 +588,7 @@
        600
       ]
      ],
-     "unvan": "title_astralRankings-oct2026set1"
+     "title": "title_astralRankings-oct2026set1"
     },
     {
      "den": 4,
@@ -623,7 +623,7 @@
        450
       ]
      ],
-     "unvan": "title_astralRankings-oct2026set1"
+     "title": "title_astralRankings-oct2026set1"
     },
     {
      "den": 6,
@@ -658,7 +658,7 @@
        300
       ]
      ],
-     "unvan": null
+     "title": null
     },
     {
      "den": 11,
@@ -689,7 +689,7 @@
        250
       ]
      ],
-     "unvan": null
+     "title": null
     },
     {
      "den": 26,
@@ -716,7 +716,7 @@
        200
       ]
      ],
-     "unvan": null
+     "title": null
     },
     {
      "den": 51,
@@ -739,7 +739,7 @@
        150
       ]
      ],
-     "unvan": null
+     "title": null
     }
    ]
   }

@@ -31,9 +31,9 @@ EVENT = 'hitac'
 WORD = D.get('word', 'HITAC')
 LETTER = 'resource_wordpuzzle-letter'      # kutudaki harf (mağazanın ödül yolu: rastgele eksik harf)
 CAPSULE = 'resource_lottery-capsule'
-MINION = D.get('minion', 'etk_hitac_minion')
-MOTHERSHIP = D.get('mothership', 'etk_hitac_mothership')
-MINIONS, MOTHERSHIPS = {MINION, 'etk_hitac2_minion'}, {MOTHERSHIP, 'etk_hitac2_mothership'}      # E8: Hitac 2.0 da
+MINION = D.get('minion', 'event_hitac_minion')
+MOTHERSHIP = D.get('mothership', 'event_hitac_mothership')
+MINIONS, MOTHERSHIPS = {MINION, 'event_hitac2_minion'}, {MOTHERSHIP, 'event_hitac2_mothership'}      # E8: Hitac 2.0 da
 HISTORY_MAX = 20
 
 
@@ -50,13 +50,13 @@ class HitacLottery:
     @property
     def st(self):
         d = self.p.d.setdefault('hitac_lottery', {})
-        d.setdefault('harfler', [])
-        d.setdefault('gecmis', [])
+        d.setdefault('letters', [])
+        d.setdefault('history', [])
         return d
 
     # ------------------------------------------------------------ bulmaca
     def letters_cmd(self, complete=False):
-        got = sorted(self.st['harfler'])
+        got = sorted(self.st['letters'])
         return ('WordPuzzleLetterAchievedCommand', dict(complete=complete, letterValues=[
             {'_': 'WordPuzzleLetterModule', 'letterValue': WORD[i], 'letterIndex': i} for i in got]))
 
@@ -87,17 +87,17 @@ class HitacLottery:
         msgs = []
         for _ in range(max(1, n)):
             st = self.st
-            if len(st['harfler']) >= len(WORD):
-                st['harfler'] = []                 # önceki kelime tamamdı: yeniden başlar
-            missing = [i for i in range(len(WORD)) if i not in st['harfler']]
+            if len(st['letters']) >= len(WORD):
+                st['letters'] = []                 # önceki kelime tamamdı: yeniden başlar
+            missing = [i for i in range(len(WORD)) if i not in st['letters']]
             i = random.choice(missing)
             with self.p.lock:
-                st['harfler'].append(i)
+                st['letters'].append(i)
                 self.p.dirty = True
             msgs.append(screen('key:lottery_collected_letter', LETTER=WORD[i]))
-            done = len(st['harfler']) >= len(WORD)
+            done = len(st['letters']) >= len(WORD)
             msgs.append(self.letters_cmd(complete=done))
-            self.log('   Word Puzzle: %s (%s)' % (WORD[i], ''.join(WORD[j] if j in st['harfler'] else '_' for j in range(len(WORD)))))
+            self.log('   Word Puzzle: %s (%s)' % (WORD[i], ''.join(WORD[j] if j in st['letters'] else '_' for j in range(len(WORD)))))
             if done:
                 msgs += self.m.reward(CAPSULE, 1) + [screen('key:lottery_completed_wordpuzzle')]
         return msgs
@@ -107,11 +107,11 @@ class HitacLottery:
         """Etkinlik kutusu: 'kesin' satırların hepsi; pool (harf_ek) verilirse eşit ağırlıkla bir satır, sans ([lootId, adet, olasılık]) verilirse
         her biri kendi olasılığıyla (etkinlik_harita.roll)."""
         h = w.drop_box(kind, x, y, None, life)
-        spec = {'tur': kind, 'mod': 'biri' if pool else 'hepsi', 'kesin': rows}
+        spec = {'tur': kind, 'mod': 'one_of' if pool else 'hepsi', 'guaranteed': rows}
         if pool:
             spec['contents'] = pool
         elif chance:
-            spec['contents'] = [[l, n, SET.chance('dusme', c, 'etkinlik') * 100] for l, n, c in chance]
+            spec['contents'] = [[l, n, SET.chance('drop', c, 'etkinlik') * 100] for l, n, c in chance]
         w.boxes[h]['event'] = spec
 
     def on_kill(self, w, npc, x, y):
@@ -121,16 +121,16 @@ class HitacLottery:
             return []
         if npc.tip in MINIONS:
             b = D.get('minion_box', {'tur': 'HITAC_MINION', 'contents': [['ammunition_laser_mcb-50', 300]], 'harf': 0.5})
-            rows = [[l, a] for l, a in b['contents']] + ([[LETTER, 1]] if random.random() < SET.chance('dusme', b.get('harf', 0.5), 'etkinlik') else [])
+            rows = [[l, a] for l, a in b['contents']] + ([[LETTER, 1]] if random.random() < SET.chance('drop', b.get('harf', 0.5), 'etkinlik') else [])
             self.drop(w, b['tur'], x, y, rows, b.get('omur_sn', 300))
         elif npc.tip in MOTHERSHIPS:
-            b = D.get('mothership_box', {'tur': 'HITAC', 'kapsul': 1})
-            self.drop(w, b['tur'], x, y, [[CAPSULE, b['kapsul']]] + b.get('kesin', []), chance=b.get('sans'))      # + 50 ACM-1, 1.000 PLT-3030, şanslı teknoloji
+            b = D.get('mothership_box', {'tur': 'HITAC', 'capsule_at': 1})
+            self.drop(w, b['tur'], x, y, [[CAPSULE, b['capsule_at']]] + b.get('guaranteed', []), chance=b.get('chance'))      # + 50 ACM-1, 1.000 PLT-3030, şanslı teknoloji
         else:
             for prefix, (kind, chance, *pool) in (D.get('letter_extra') or {}).items():
                 if not npc.tip.startswith(prefix):
                     continue
-                rows = [[LETTER, 1]] if random.random() < SET.chance('dusme', chance, 'etkinlik') else []      # panel: düşme şansı
+                rows = [[LETTER, 1]] if random.random() < SET.chance('drop', chance, 'etkinlik') else []      # panel: düşme şansı
                 if rows or pool:                   # Underling / Underboss: kutu her zaman düşer, harf şansla, içeriğinden bir satır
                     self.drop(w, kind, x, y, rows, pool=pool[0] if pool else None)
         return []
@@ -149,7 +149,7 @@ class HitacLottery:
             self.p.dirty = True
         msgs, got = [], []
         for _ in range(n):
-            pool = [r for r in (c or {}).get('havuz', []) if not LOOT.owned(self.p, r[0]) and r[0] not in got]
+            pool = [r for r in (c or {}).get('pool', []) if not LOOT.owned(self.p, r[0]) and r[0] not in got]
             for loot, count in random.sample(pool, min(c.get('paket', 1), len(pool))) if c else []:
                 got.append(loot)
                 msgs += self.m.reward(loot, count)
@@ -191,8 +191,8 @@ class HitacLottery:
             msgs += self.m.reward(loot, n)
         msgs += self.m.money_msgs()
         with self.p.lock:
-            self.st['gecmis'].insert(0, {'tarih': time.strftime('%Y-%m-%d %H:%M:%S'), 'adet': q, 'oduller': sorted(got.items())})
-            del self.st['gecmis'][HISTORY_MAX:]
+            self.st['history'].insert(0, {'tarih': time.strftime('%Y-%m-%d %H:%M:%S'), 'adet': q, 'rewards': sorted(got.items())})
+            del self.st['history'][HISTORY_MAX:]
             self.p.dirty = True
         self.log('   Capsule Converter: %d kapsül -> %s' % (q, ', '.join('%s x%d' % x for x in sorted(got.items()))))
         return [('LotteryRequestCommand', dict(lotteryLogCommandList=self.log_cmds(), change=q,
@@ -201,5 +201,5 @@ class HitacLottery:
     def log_cmds(self):
         return [{'_': 'LotteryLogCommand', 'lcId': i + 1, 'date': e['tarih'], 'amountCapsules': e['adet'],
                  'converter': 'payment_lottery_text_hitacconverter',
-                 'lotteryLogRewardCommandList': [{'_': 'LotteryLogRewardCommand', 'lootId': l, 'amount': n} for l, n in e['oduller']]}
-                for i, e in enumerate(self.st['gecmis'])]
+                 'lotteryLogRewardCommandList': [{'_': 'LotteryLogRewardCommand', 'lootId': l, 'amount': n} for l, n in e['rewards']]}
+                for i, e in enumerate(self.st['history'])]

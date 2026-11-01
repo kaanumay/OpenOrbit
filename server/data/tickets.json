@@ -1,6 +1,6 @@
 {
  "_description": "Season Pass, Battle Pass ve günlük ödül pencereleri -> server/data/biletler.json (yol haritası Aşama 7).\n\nKaynaklar:\n  - Kayıttaki giriş demeti (server/data/giris.json, 2026-10-15): SeasonPassStatusCommand (90 seviyenin puan ve uridyum bedelleri,\n    sezon adı ve görseli), SeasonPassRewardInfoCommand (ücretsiz, Gold ve Extra Gold ödülleri), SeasonPassMissionInfoCommand\n    (33 görev: QuestType 3 günlük, 6 haftalık, 9 sezonluk; durum 2 = Gold Pass gerekir), BattlePassInfoCommand (Halloween 2026'nın 28\n    görevi), BattlePassKeyExchangeInfoCommand (51 anahtar değişimi ödülü), MiniClientRewardInfoCommand (15 günlük ödül),\n    MonthlyDeluxeInfoCommand (28 günlük ödül), EventUnityClientRewardQuestCommand (7 günlük, günde 3 görev).\n  - CDN'deki Battle Pass XML'i (server/cdn/xml/events/battlepass/pass_*.xml): görev başına ödül (questReward) ve anahtar (bpReward).\n  - tools/biletler_wiki.json (ETK1; darkorbitwiki'nin güncel sayfaları, istemci ve kayıtla çelişen yerlerde onlar kazanır): Immortal\n    Union dışındaki Battle Pass'lerin (Galactic Strife, Gauntlet of Plutus, Hitac Assault, Mimesis Mutiny, Protegit Pandemonium,\n    Frozen Labyrinth, Treacherous Domain, Astral Ascension, Space Cup) görev kimlikleri (istemcinin quest_title kimlikleri), hedefleri,\n    ödülleri, anahtarları ve pass başına anahtar değişimi tablosu; Immortal Union'ın hedefleri (ödül ve anahtarlar resmî XML'den);\n    Season Pass'in günlük/haftalık görev havuzu (wiki'nin 48 + 50 satırı), sezon takvimi ve yenileme basamakları; Mini Client takvimleri.\n    İstemci görev metnini koşul türünden kendisi kurar (textKeyFoundation boş), bu yüzden koşullar istemcinin koşul türleriyle yazılır.\n  - Battle Pass paket ödüllerinin adetleri istemcinin İngilizce ipucu metinlerinden (window_objectives_bp_ttip_questReward-*).\nÜreten: tools/biletler.py.",
- "sezon": {
+ "season": {
   "point_cost": [
    0,
    90,
@@ -186,9 +186,9 @@
    438750
   ],
   "ad": "sp_season-name_1",
-  "gorsel": "ingame-news_Season-Pass-Aug-2026",
-  "odul": {
-   "ucretsiz": [
+  "visual": "ingame-news_Season-Pass-Aug-2026",
+  "reward": {
+   "free": [
     [
      0,
      "resource_collectable_schism",
@@ -1225,11 +1225,11 @@
     ]
    ]
   },
-  "gorevler": {
+  "quests": {
    "701008": {
     "tur": 3,
     "gold": false,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 701008,
@@ -1302,7 +1302,7 @@
    "701005": {
     "tur": 3,
     "gold": false,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 701005,
@@ -1372,7 +1372,7 @@
    "701002": {
     "tur": 3,
     "gold": false,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 701002,
@@ -1442,7 +1442,7 @@
    "700040": {
     "tur": 3,
     "gold": true,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700040,
@@ -1574,7 +1574,7 @@
    "701059": {
     "tur": 3,
     "gold": true,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 701059,
@@ -1673,7 +1673,7 @@
    "702020": {
     "tur": 6,
     "gold": false,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 702020,
@@ -1746,7 +1746,7 @@
    "701012": {
     "tur": 6,
     "gold": false,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 701012,
@@ -1824,7 +1824,7 @@
    "701021": {
     "tur": 6,
     "gold": false,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 701021,
@@ -1897,7 +1897,7 @@
    "701022": {
     "tur": 6,
     "gold": false,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 701022,
@@ -1970,7 +1970,7 @@
    "701045": {
     "tur": 6,
     "gold": false,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 701045,
@@ -2042,7 +2042,7 @@
    "701014": {
     "tur": 6,
     "gold": true,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 701014,
@@ -2174,7 +2174,7 @@
    "701011": {
     "tur": 6,
     "gold": true,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 701011,
@@ -2252,7 +2252,7 @@
    "700061": {
     "tur": 6,
     "gold": true,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700061,
@@ -2351,7 +2351,7 @@
    "700026": {
     "tur": 9,
     "gold": false,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700026,
@@ -2423,7 +2423,7 @@
    "700027": {
     "tur": 9,
     "gold": false,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700027,
@@ -2495,7 +2495,7 @@
    "700024": {
     "tur": 9,
     "gold": false,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700024,
@@ -2584,7 +2584,7 @@
    "700025": {
     "tur": 9,
     "gold": false,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700025,
@@ -2673,7 +2673,7 @@
    "700030": {
     "tur": 9,
     "gold": false,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700030,
@@ -2743,7 +2743,7 @@
    "700031": {
     "tur": 9,
     "gold": false,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700031,
@@ -2813,7 +2813,7 @@
    "700028": {
     "tur": 9,
     "gold": false,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700028,
@@ -2885,7 +2885,7 @@
    "700029": {
     "tur": 9,
     "gold": false,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700029,
@@ -2969,7 +2969,7 @@
    "700023": {
     "tur": 9,
     "gold": false,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700023,
@@ -3058,7 +3058,7 @@
    "700034": {
     "tur": 9,
     "gold": false,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700034,
@@ -3131,7 +3131,7 @@
    "700035": {
     "tur": 9,
     "gold": false,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700035,
@@ -3203,7 +3203,7 @@
    "700032": {
     "tur": 9,
     "gold": false,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700032,
@@ -3276,7 +3276,7 @@
    "700033": {
     "tur": 9,
     "gold": false,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700033,
@@ -3349,7 +3349,7 @@
    "700036": {
     "tur": 9,
     "gold": false,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700036,
@@ -3419,7 +3419,7 @@
    "700037": {
     "tur": 9,
     "gold": false,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700037,
@@ -3489,7 +3489,7 @@
    "700058": {
     "tur": 9,
     "gold": false,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700058,
@@ -3580,7 +3580,7 @@
    "700056": {
     "tur": 9,
     "gold": false,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700056,
@@ -3652,7 +3652,7 @@
    "700057": {
     "tur": 9,
     "gold": false,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700057,
@@ -3726,7 +3726,7 @@
    "700054": {
     "tur": 9,
     "gold": false,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700054,
@@ -3798,7 +3798,7 @@
    "700055": {
     "tur": 9,
     "gold": false,
-    "kaynak": "kayit",
+    "kaynak": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700055,
@@ -11894,7 +11894,7 @@
     }
    }
   },
-  "yenileme": {
+  "renewal": {
    "_": "RefreshQuestInfo",
    "nextDailyUridium": -1,
    "weeklyCount": 0,
@@ -11903,7 +11903,7 @@
    "nextWeeklyUridium": 500,
    "weeklyLeft": 0
   },
-  "takvim": [
+  "calendar": [
    {
     "id": "2026-08",
     "baslangic": "2026-08-01",
@@ -11950,13 +11950,13 @@
   "_images": "Sezonun Season Pass görseli (marketingImage): resmî CDN do_img/global/events/seasonPass/'de bulunanlar (2026-10-30 tarandı; ay adı kimi sezonda kısa, kimisinde uzun). 2023-05 ve 2023-08'in görseli CDN'de yok: kayıttaki gorsel"
  },
  "battle_pass": {
-  "passler": {
+  "passes": {
    "halloween": {
     "dosya": "pass_halloween2026.xml",
     "kaynak": "kayıt (giriş demeti) ve resmî CDN XML'i",
-    "oduller": {
+    "rewards": {
      "500363": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_sbl-100",
         1000
@@ -11965,7 +11965,7 @@
       "anahtar": 1
      },
      "500366": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_sbl-100",
         1000
@@ -11974,7 +11974,7 @@
       "anahtar": 1
      },
      "500369": {
-      "odul": [
+      "reward": [
        [
         "tech_anti-mine-transmitter",
         1
@@ -11983,7 +11983,7 @@
       "anahtar": 1
      },
      "500373": {
-      "odul": [
+      "reward": [
        [
         "ammunition_specialammo_emote_alien-horror",
         20
@@ -11992,7 +11992,7 @@
       "anahtar": 1
      },
      "500376": {
-      "odul": [
+      "reward": [
        [
         "ammunition_specialammo_ghostifier",
         10
@@ -12001,7 +12001,7 @@
       "anahtar": 1
      },
      "500379": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_sbl-100",
         2500
@@ -12014,7 +12014,7 @@
       "anahtar": 1
      },
      "500695": {
-      "odul": [
+      "reward": [
        [
         "tech_shield-backup2",
         1
@@ -12023,7 +12023,7 @@
       "anahtar": 1
      },
      "500364": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_ucb-100",
         4000
@@ -12036,7 +12036,7 @@
       "anahtar": 3
      },
      "500367": {
-      "odul": [
+      "reward": [
        [
         "resource_extra-energy",
         10
@@ -12049,7 +12049,7 @@
       "anahtar": 3
      },
      "500370": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_spacecup_group-a",
         3500
@@ -12062,7 +12062,7 @@
       "anahtar": 3
      },
      "500374": {
-      "odul": [
+      "reward": [
        [
         "booster_dmg-dlb",
         10
@@ -12075,7 +12075,7 @@
       "anahtar": 3
      },
      "500377": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_sbl-100",
         2500
@@ -12088,7 +12088,7 @@
       "anahtar": 3
      },
      "500380": {
-      "odul": [
+      "reward": [
        [
         "resource_booty-key",
         15
@@ -12097,7 +12097,7 @@
       "anahtar": 3
      },
      "500696": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_polychromium",
         300
@@ -12106,7 +12106,7 @@
       "anahtar": 3
      },
      "500365": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_rsb-75",
         3000
@@ -12119,7 +12119,7 @@
       "anahtar": 7
      },
      "500368": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         50
@@ -12128,7 +12128,7 @@
       "anahtar": 7
      },
      "500371": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrineoil",
         35
@@ -12137,7 +12137,7 @@
       "anahtar": 7
      },
      "500375": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_hp-dim01",
         1
@@ -12146,7 +12146,7 @@
       "anahtar": 7
      },
      "500378": {
-      "odul": [
+      "reward": [
        [
         "tech_anti-mine-transmitter",
         1
@@ -12155,7 +12155,7 @@
       "anahtar": 7
      },
      "500381": {
-      "odul": [
+      "reward": [
        [
         "tech_anti-mine-transmitter",
         1
@@ -12164,7 +12164,7 @@
       "anahtar": 7
      },
      "500697": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_dmg-xh01",
         1
@@ -12173,7 +12173,7 @@
       "anahtar": 7
      },
      "500372": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         100
@@ -12182,7 +12182,7 @@
       "anahtar": 10
      },
      "500698": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_hp-xh01",
         1
@@ -12191,7 +12191,7 @@
       "anahtar": 10
      },
      "500382": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_golden-candy-corn",
         50
@@ -12200,7 +12200,7 @@
       "anahtar": 20
      },
      "500383": {
-      "odul": [
+      "reward": [
        [
         "tech_npc-nuke",
         2
@@ -12213,7 +12213,7 @@
       "anahtar": 15
      },
      "500384": {
-      "odul": [
+      "reward": [
        [
         "tech_burning-trail",
         2
@@ -12226,7 +12226,7 @@
       "anahtar": 15
      },
      "500699": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_hp-xt10",
         1
@@ -12235,7 +12235,7 @@
       "anahtar": 15
      },
      "500700": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_golden-candy-corn",
         20
@@ -12244,7 +12244,7 @@
       "anahtar": 20
      }
     },
-    "gorevler": {
+    "quests": {
      "500363": {
       "_": "QuestDefinitionModule",
       "id": 500363,
@@ -13823,10 +13823,10 @@
    "galactic_strife": {
     "dosya": "pass_offline_galactic_strife.xml",
     "kaynak": "yazılan: darkorbitwiki events/galactic-strife; 26 hedef, 176 Battle Key",
-    "uyarlama": "Gerçek oyunda 4-1..4-4 PvP: \"oyuncu yok et / oyunculara hasar\" hedefleri tek oyunculuda PvE karşılığıyla (4-1..4-4'te Deadly Battleray öldür; NPC hasarı); EMP-01, Cloak CPU, hasar alma ve mesafe 4-1..4-4 haritalarında.",
-    "oduller": {
+    "adaptation": "Gerçek oyunda 4-1..4-4 PvP: \"oyuncu yok et / oyunculara hasar\" hedefleri tek oyunculuda PvE karşılığıyla (4-1..4-4'te Deadly Battleray öldür; NPC hasarı); EMP-01, Cloak CPU, hasar alma ve mesafe 4-1..4-4 haritalarında.",
+    "rewards": {
      "500324": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_scrapium",
         30
@@ -13835,7 +13835,7 @@
       "anahtar": 1
      },
      "500325": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_ucb-100",
         1500
@@ -13844,7 +13844,7 @@
       "anahtar": 3
      },
      "500326": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_rsb-75",
         2000
@@ -13853,7 +13853,7 @@
       "anahtar": 7
      },
      "500327": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_scrapium",
         30
@@ -13862,7 +13862,7 @@
       "anahtar": 1
      },
      "500328": {
-      "odul": [
+      "reward": [
        [
         "ammunition_specialammo_sr-5",
         100
@@ -13871,7 +13871,7 @@
       "anahtar": 3
      },
      "500329": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrineoil",
         5
@@ -13880,7 +13880,7 @@
       "anahtar": 7
      },
      "500316": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_ucb-100",
         1000
@@ -13889,7 +13889,7 @@
       "anahtar": 1
      },
      "500317": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_rsb-75",
         3000
@@ -13898,7 +13898,7 @@
       "anahtar": 3
      },
      "500318": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrineoil",
         5
@@ -13907,7 +13907,7 @@
       "anahtar": 7
      },
      "500319": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_hp-zpvp",
         1
@@ -13916,7 +13916,7 @@
       "anahtar": 10
      },
      "500339": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_shd-zpvp02",
         1
@@ -13925,7 +13925,7 @@
       "anahtar": 15
      },
      "500320": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_scrapium",
         30
@@ -13934,7 +13934,7 @@
       "anahtar": 1
      },
      "500321": {
-      "odul": [
+      "reward": [
        [
         "resource_extra-energy",
         30
@@ -13943,7 +13943,7 @@
       "anahtar": 3
      },
      "500322": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_salvage-core",
         20
@@ -13952,7 +13952,7 @@
       "anahtar": 7
      },
      "500323": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_dmg-zpvp",
         1
@@ -13961,7 +13961,7 @@
       "anahtar": 10
      },
      "500337": {
-      "odul": [
+      "reward": [
        [
         "tech_burning-trail",
         2
@@ -13970,7 +13970,7 @@
       "anahtar": 15
      },
      "500338": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_hp-zpvp02",
         1
@@ -13979,7 +13979,7 @@
       "anahtar": 15
      },
      "500330": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocket_plt-3030",
         3000
@@ -13988,7 +13988,7 @@
       "anahtar": 1
      },
      "500331": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocketlauncher_hstrm-01",
         500
@@ -13997,7 +13997,7 @@
       "anahtar": 3
      },
      "500332": {
-      "odul": [
+      "reward": [
        [
         "tech_burning-trail",
         1
@@ -14006,7 +14006,7 @@
       "anahtar": 7
      },
      "500340": {
-      "odul": [
+      "reward": [
        [
         "tech_shield-backup2",
         5
@@ -14015,7 +14015,7 @@
       "anahtar": 15
      },
      "500333": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_ucb-100",
         500
@@ -14024,7 +14024,7 @@
       "anahtar": 1
      },
      "500334": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_idb-125",
         1500
@@ -14033,7 +14033,7 @@
       "anahtar": 3
      },
      "500335": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         40
@@ -14042,7 +14042,7 @@
       "anahtar": 7
      },
      "500341": {
-      "odul": [
+      "reward": [
        [
         "tech_battle-repair-bot2",
         3
@@ -14051,7 +14051,7 @@
       "anahtar": 15
      },
      "500336": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_spc-zpvp",
         1
@@ -14060,7 +14060,7 @@
       "anahtar": 15
      }
     },
-    "gorevler": {
+    "quests": {
      "500324": {
       "_": "QuestDefinitionModule",
       "id": 500324,
@@ -16826,10 +16826,10 @@
    "plutus": {
     "dosya": "pass_offline_plutus.xml",
     "kaynak": "yazılan: darkorbitwiki events/gauntlet-of-plutus; 27 hedef, 167 Battle Key",
-    "uyarlama": "Plutus hedefleri wiki'deki gibi (Easy 450-455 ve Normal 410-415 haritaları). \"First Face\" başlığı istemcide yok: aynı yuvadaki 500541 (Blast It!) kimliği.",
-    "oduller": {
+    "adaptation": "Plutus hedefleri wiki'deki gibi (Easy 450-455 ve Normal 410-415 haritaları). \"First Face\" başlığı istemcide yok: aynı yuvadaki 500541 (Blast It!) kimliği.",
+    "rewards": {
      "500538": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_rcb-140",
         2000
@@ -16838,7 +16838,7 @@
       "anahtar": 1
      },
      "500539": {
-      "odul": [
+      "reward": [
        [
         "booster_dmg-dlb",
         10
@@ -16847,7 +16847,7 @@
       "anahtar": 3
      },
      "500540": {
-      "odul": [
+      "reward": [
        [
         "tech_shield-backup2",
         2
@@ -16856,7 +16856,7 @@
       "anahtar": 7
      },
      "500638": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_salvage-core",
         20
@@ -16865,7 +16865,7 @@
       "anahtar": 1
      },
      "500639": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocketlauncher_hstrm-01",
         1000
@@ -16874,7 +16874,7 @@
       "anahtar": 3
      },
      "500640": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_hp-xu01",
         1
@@ -16883,7 +16883,7 @@
       "anahtar": 7
      },
      "500529": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_spacecup_group-c",
         2000
@@ -16892,7 +16892,7 @@
       "anahtar": 1
      },
      "500530": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_spacecup_group-c",
         4000
@@ -16901,7 +16901,7 @@
       "anahtar": 3
      },
      "500531": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_spacecup_group-c",
         6000
@@ -16910,7 +16910,7 @@
       "anahtar": 7
      },
      "500532": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         30
@@ -16919,7 +16919,7 @@
       "anahtar": 1
      },
      "500533": {
-      "odul": [
+      "reward": [
        [
         "resource_extra-energy",
         25
@@ -16928,7 +16928,7 @@
       "anahtar": 3
      },
      "500534": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocketlauncher_cbr",
         500
@@ -16937,7 +16937,7 @@
       "anahtar": 7
      },
      "500535": {
-      "odul": [
+      "reward": [
        [
         "resource_booty-key",
         3
@@ -16946,7 +16946,7 @@
       "anahtar": 1
      },
      "500536": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocket_plt-2021",
         3000
@@ -16955,7 +16955,7 @@
       "anahtar": 3
      },
      "500537": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_polychromium",
         350
@@ -16964,7 +16964,7 @@
       "anahtar": 7
      },
      "500541": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_rsb-75",
         3000
@@ -16973,7 +16973,7 @@
       "anahtar": 1
      },
      "500545": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_permit",
         3
@@ -16982,7 +16982,7 @@
       "anahtar": 3
      },
      "500546": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrine-accelerator",
         25
@@ -16991,7 +16991,7 @@
       "anahtar": 7
      },
      "500631": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_dmg-xt10",
         1
@@ -17000,7 +17000,7 @@
       "anahtar": 15
      },
      "500635": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocket_plt-3030",
         3000
@@ -17009,7 +17009,7 @@
       "anahtar": 1
      },
      "500636": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_permit-plus",
         1
@@ -17018,7 +17018,7 @@
       "anahtar": 3
      },
      "500637": {
-      "odul": [
+      "reward": [
        [
         "tech_burning-trail",
         2
@@ -17027,7 +17027,7 @@
       "anahtar": 7
      },
      "500548": {
-      "odul": [
+      "reward": [
        [
         "tech_battle-repair-bot2",
         3
@@ -17036,7 +17036,7 @@
       "anahtar": 15
      },
      "500550": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrineoil",
         30
@@ -17045,7 +17045,7 @@
       "anahtar": 15
      },
      "500574": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_dmg-xhd01",
         1
@@ -17054,7 +17054,7 @@
       "anahtar": 15
      },
      "500547": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_spc-xhd01",
         1
@@ -17063,7 +17063,7 @@
       "anahtar": 15
      },
      "500586": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_armory-token-mega",
         5
@@ -17072,7 +17072,7 @@
       "anahtar": 15
      }
     },
-    "gorevler": {
+    "quests": {
      "500538": {
       "_": "QuestDefinitionModule",
       "id": 500538,
@@ -19344,10 +19344,10 @@
    "hitac": {
     "dosya": "pass_offline_hitac.xml",
     "kaynak": "yazılan: darkorbitwiki events/hitac-assault; 26 hedef, 171 Battle Key",
-    "uyarlama": "Hitac 2.0/2.5 ve Minion 2.0/2.5 hasarı gezgin ana gemilerden (hitac.gezgin). \"Last Lap\" başlığı istemcide yok: pass'in son kimliği 500362 (Exhaustion).",
-    "oduller": {
+    "adaptation": "Hitac 2.0/2.5 ve Minion 2.0/2.5 hasarı gezgin ana gemilerden (hitac.gezgin). \"Last Lap\" başlığı istemcide yok: pass'in son kimliği 500362 (Exhaustion).",
+    "rewards": {
      "500342": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_ucb-100",
         2000
@@ -19356,7 +19356,7 @@
       "anahtar": 1
      },
      "500343": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         50
@@ -19365,7 +19365,7 @@
       "anahtar": 3
      },
      "500344": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_rsb-75",
         7500
@@ -19374,7 +19374,7 @@
       "anahtar": 7
      },
      "500345": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_permit-plus",
         1
@@ -19383,7 +19383,7 @@
       "anahtar": 10
      },
      "500586": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_hp-xof01",
         1
@@ -19392,7 +19392,7 @@
       "anahtar": 15
      },
      "500346": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         40
@@ -19401,7 +19401,7 @@
       "anahtar": 1
      },
      "500347": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_salvage-core",
         40
@@ -19410,7 +19410,7 @@
       "anahtar": 3
      },
      "500348": {
-      "odul": [
+      "reward": [
        [
         "tech_battle-repair-bot2",
         4
@@ -19419,7 +19419,7 @@
       "anahtar": 7
      },
      "500349": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_shd-xof01",
         1
@@ -19428,7 +19428,7 @@
       "anahtar": 10
      },
      "500353": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_ucb-100",
         2000
@@ -19437,7 +19437,7 @@
       "anahtar": 1
      },
      "500354": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_salvage-core",
         40
@@ -19446,7 +19446,7 @@
       "anahtar": 3
      },
      "500355": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrineoil",
         15
@@ -19455,7 +19455,7 @@
       "anahtar": 7
      },
      "500584": {
-      "odul": [
+      "reward": [
        [
         "tech_burning-trail",
         2
@@ -19464,7 +19464,7 @@
       "anahtar": 15
      },
      "500681": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocketlauncher_hstrm-01",
         500
@@ -19473,7 +19473,7 @@
       "anahtar": 1
      },
      "500682": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_polychromium",
         400
@@ -19482,7 +19482,7 @@
       "anahtar": 3
      },
      "500683": {
-      "odul": [
+      "reward": [
        [
         "ammunition_specialammo_dcr-250",
         100
@@ -19491,7 +19491,7 @@
       "anahtar": 7
      },
      "500687": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_dmg-xof01",
         1
@@ -19500,7 +19500,7 @@
       "anahtar": 15
      },
      "500356": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_rsb-75",
         3000
@@ -19509,7 +19509,7 @@
       "anahtar": 1
      },
      "500357": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_permit",
         2
@@ -19518,7 +19518,7 @@
       "anahtar": 3
      },
      "500358": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_spacecup_group-c",
         4000
@@ -19527,7 +19527,7 @@
       "anahtar": 7
      },
      "500359": {
-      "odul": [
+      "reward": [
        [
         "tech_npc-nuke",
         2
@@ -19536,7 +19536,7 @@
       "anahtar": 10
      },
      "500688": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrine-accelerator",
         25
@@ -19545,7 +19545,7 @@
       "anahtar": 15
      },
      "500684": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_rcb-140",
         2000
@@ -19554,7 +19554,7 @@
       "anahtar": 1
      },
      "500685": {
-      "odul": [
+      "reward": [
        [
         "tech_shield-backup2",
         3
@@ -19563,7 +19563,7 @@
       "anahtar": 3
      },
      "500686": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrineoil",
         10
@@ -19572,7 +19572,7 @@
       "anahtar": 7
      },
      "500362": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_spc-xof01",
         1
@@ -19581,7 +19581,7 @@
       "anahtar": 15
      }
     },
-    "gorevler": {
+    "quests": {
      "500342": {
       "_": "QuestDefinitionModule",
       "id": 500342,
@@ -21655,10 +21655,10 @@
    "immortal_union": {
     "dosya": "pass_valentine2026.xml",
     "kaynak": "resmî CDN XML'i (ödüller, anahtarlar); koşullar ve hedefler wiki'den",
-    "uyarlama": "Ödüller ve anahtarlar resmî XML'den (wiki ile 12/20 anahtar uyumu; XML kazanır); koşullar ve hedefler wiki'den. \"Damage any Players\" PvP: NPC hasarı. Wiki'nin 15 ve 20 hedefi tamamla satırları XML'de 500452 ve 500601.",
-    "oduller": {
+    "adaptation": "Ödüller ve anahtarlar resmî XML'den (wiki ile 12/20 anahtar uyumu; XML kazanır); koşullar ve hedefler wiki'den. \"Damage any Players\" PvP: NPC hasarı. Wiki'nin 15 ve 20 hedefi tamamla satırları XML'de 500452 ve 500601.",
+    "rewards": {
      "500434": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_ucb-100",
         4000
@@ -21667,7 +21667,7 @@
       "anahtar": 1
      },
      "500437": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocket_plt-3030",
         4000
@@ -21676,7 +21676,7 @@
       "anahtar": 1
      },
      "500440": {
-      "odul": [
+      "reward": [
        [
         "resource_booty-key",
         5
@@ -21685,7 +21685,7 @@
       "anahtar": 1
      },
      "500443": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_rsb-75",
         3000
@@ -21694,7 +21694,7 @@
       "anahtar": 1
      },
      "500446": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocketlauncher_hstrm-01",
         600
@@ -21703,7 +21703,7 @@
       "anahtar": 3
      },
      "500449": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_polychromium",
         350
@@ -21712,7 +21712,7 @@
       "anahtar": 3
      },
      "500435": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         50
@@ -21721,7 +21721,7 @@
       "anahtar": 3
      },
      "500438": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_vb-142",
         6000
@@ -21730,7 +21730,7 @@
       "anahtar": 3
      },
      "500441": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_evocation-chip",
         180
@@ -21739,7 +21739,7 @@
       "anahtar": 3
      },
      "500444": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         75
@@ -21748,7 +21748,7 @@
       "anahtar": 3
      },
      "500447": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_salvage-core",
         25
@@ -21757,7 +21757,7 @@
       "anahtar": 7
      },
      "500450": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         50
@@ -21766,7 +21766,7 @@
       "anahtar": 7
      },
      "500436": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_spacecup_group-c",
         4000
@@ -21775,7 +21775,7 @@
       "anahtar": 7
      },
      "500439": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrineoil",
         12
@@ -21784,7 +21784,7 @@
       "anahtar": 7
      },
      "500442": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrineoil",
         12
@@ -21793,7 +21793,7 @@
       "anahtar": 7
      },
      "500445": {
-      "odul": [
+      "reward": [
        [
         "tech_npc-nuke",
         1
@@ -21802,7 +21802,7 @@
       "anahtar": 7
      },
      "500448": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_shd-xv02",
         1
@@ -21811,7 +21811,7 @@
       "anahtar": 10
      },
      "500451": {
-      "odul": [
+      "reward": [
        [
         "booster_dmg-dlb",
         10
@@ -21820,7 +21820,7 @@
       "anahtar": 10
      },
      "500599": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_dmg-xv02",
         1
@@ -21829,7 +21829,7 @@
       "anahtar": 10
      },
      "500600": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_hp-xv02",
         1
@@ -21838,7 +21838,7 @@
       "anahtar": 10
      },
      "500452": {
-      "odul": [
+      "reward": [
        [
         "tech_shield-backup2",
         3
@@ -21847,7 +21847,7 @@
       "anahtar": 10
      },
      "500601": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrineoil",
         20
@@ -21856,7 +21856,7 @@
       "anahtar": 15
      },
      "500453": {
-      "odul": [
+      "reward": [
        [
         "tech_npc-nuke",
         2
@@ -21865,7 +21865,7 @@
       "anahtar": 7
      },
      "500454": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_spc-xv02",
         1
@@ -21874,7 +21874,7 @@
       "anahtar": 10
      },
      "500736": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrine-accelerator",
         50
@@ -21883,7 +21883,7 @@
       "anahtar": 15
      },
      "500455": {
-      "odul": [
+      "reward": [
        [
         "tech_battle-repair-bot2",
         3
@@ -21892,7 +21892,7 @@
       "anahtar": 15
      }
     },
-    "gorevler": {
+    "quests": {
      "500434": {
       "_": "QuestDefinitionModule",
       "id": 500434,
@@ -23932,10 +23932,10 @@
    "mimesis_mutiny": {
     "dosya": "pass_offline_mimesis_mutiny.xml",
     "kaynak": "yazılan: darkorbitwiki events/mimesis-mutiny; 27 hedef, 159 Battle Key",
-    "uyarlama": "Escort Score puanı için olay yok: eskort haritalarında NPC hasarı. Son hedef 500382 (Trick or Treat; wiki aynı adı verir).",
-    "oduller": {
+    "adaptation": "Escort Score puanı için olay yok: eskort haritalarında NPC hasarı. Son hedef 500382 (Trick or Treat; wiki aynı adı verir).",
+    "rewards": {
      "500467": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_emaa-20",
         3000
@@ -23944,7 +23944,7 @@
       "anahtar": 1
      },
      "500468": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_polychromium",
         400
@@ -23953,7 +23953,7 @@
       "anahtar": 3
      },
      "500469": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_hp-zpve",
         1
@@ -23962,7 +23962,7 @@
       "anahtar": 7
      },
      "500464": {
-      "odul": [
+      "reward": [
        [
         "ammunition_specialammo_dcr-250",
         50
@@ -23971,7 +23971,7 @@
       "anahtar": 1
      },
      "500465": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocketlauncher_ubr-100",
         1250
@@ -23980,7 +23980,7 @@
       "anahtar": 3
      },
      "500466": {
-      "odul": [
+      "reward": [
        [
         "tech_npc-nuke",
         2
@@ -23989,7 +23989,7 @@
       "anahtar": 7
      },
      "500461": {
-      "odul": [
+      "reward": [
        [
         "resource_extra-energy",
         20
@@ -23998,7 +23998,7 @@
       "anahtar": 1
      },
      "500462": {
-      "odul": [
+      "reward": [
        [
         "resource_booty-key",
         10
@@ -24007,7 +24007,7 @@
       "anahtar": 3
      },
      "500463": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrineoil",
         15
@@ -24016,7 +24016,7 @@
       "anahtar": 7
      },
      "500701": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         35
@@ -24025,7 +24025,7 @@
       "anahtar": 1
      },
      "500702": {
-      "odul": [
+      "reward": [
        [
         "ammunition_specialammo_sr-5",
         100
@@ -24034,7 +24034,7 @@
       "anahtar": 3
      },
      "500703": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_shd-zpve",
         1
@@ -24043,7 +24043,7 @@
       "anahtar": 7
      },
      "500470": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_rsb-75",
         3000
@@ -24052,7 +24052,7 @@
       "anahtar": 1
      },
      "500471": {
-      "odul": [
+      "reward": [
        [
         "tech_shield-backup2",
         2
@@ -24061,7 +24061,7 @@
       "anahtar": 3
      },
      "500472": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrineoil",
         10
@@ -24070,7 +24070,7 @@
       "anahtar": 7
      },
      "500456": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_emaa-20",
         5000
@@ -24079,7 +24079,7 @@
       "anahtar": 1
      },
      "500473": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         30
@@ -24088,7 +24088,7 @@
       "anahtar": 1
      },
      "500457": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_spacecup_group-c",
         2000
@@ -24097,7 +24097,7 @@
       "anahtar": 3
      },
      "500474": {
-      "odul": [
+      "reward": [
        [
         "booster_dmg-dlb",
         10
@@ -24106,7 +24106,7 @@
       "anahtar": 3
      },
      "500458": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_permit",
         2
@@ -24115,7 +24115,7 @@
       "anahtar": 7
      },
      "500475": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_salvage-core",
         40
@@ -24124,7 +24124,7 @@
       "anahtar": 7
      },
      "500459": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         125
@@ -24133,7 +24133,7 @@
       "anahtar": 10
      },
      "500460": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_spc-zpve",
         1
@@ -24142,7 +24142,7 @@
       "anahtar": 12
      },
      "500704": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_dmg-zpve",
         1
@@ -24151,7 +24151,7 @@
       "anahtar": 15
      },
      "500481": {
-      "odul": [
+      "reward": [
        [
         "ammunition_specialammo_emp-01",
         200
@@ -24160,7 +24160,7 @@
       "anahtar": 15
      },
      "500482": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_diametrion",
         30
@@ -24169,7 +24169,7 @@
       "anahtar": 15
      },
      "500382": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrine-accelerator",
         30
@@ -24178,7 +24178,7 @@
       "anahtar": 15
      }
     },
-    "gorevler": {
+    "quests": {
      "500467": {
       "_": "QuestDefinitionModule",
       "id": 500467,
@@ -26482,10 +26482,10 @@
    "protegit": {
     "dosya": "pass_offline_protegit.xml",
     "kaynak": "yazılan: darkorbitwiki events/protegit-pandemonium; 25 hedef, 157 Battle Key",
-    "uyarlama": "Wiki'nin 25 hedefi; Chaos Alien CPU'ları savas_esya.alien_cpu cephane olayıyla.",
-    "oduller": {
+    "adaptation": "Wiki'nin 25 hedefi; Chaos Alien CPU'ları savas_esya.alien_cpu cephane olayıyla.",
+    "rewards": {
      "500412": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_ucb-100",
         4000
@@ -26494,7 +26494,7 @@
       "anahtar": 1
      },
      "500413": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         50
@@ -26503,7 +26503,7 @@
       "anahtar": 3
      },
      "500414": {
-      "odul": [
+      "reward": [
        [
         "tech_npc-nuke",
         2
@@ -26512,7 +26512,7 @@
       "anahtar": 7
      },
      "500603": {
-      "odul": [
+      "reward": [
        [
         "tech_burning-trail",
         2
@@ -26521,7 +26521,7 @@
       "anahtar": 15
      },
      "500421": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocket_plt-2021",
         2000
@@ -26530,7 +26530,7 @@
       "anahtar": 1
      },
      "500422": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         50
@@ -26539,7 +26539,7 @@
       "anahtar": 3
      },
      "500423": {
-      "odul": [
+      "reward": [
        [
         "tech_battle-repair-bot2",
         5
@@ -26548,7 +26548,7 @@
       "anahtar": 7
      },
      "500604": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_hp-zpve",
         1
@@ -26557,7 +26557,7 @@
       "anahtar": 15
      },
      "500418": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocketlauncher_hstrm-01",
         500
@@ -26566,7 +26566,7 @@
       "anahtar": 1
      },
      "500419": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         50
@@ -26575,7 +26575,7 @@
       "anahtar": 3
      },
      "500420": {
-      "odul": [
+      "reward": [
        [
         "tech_speed-burst",
         5
@@ -26584,7 +26584,7 @@
       "anahtar": 7
      },
      "500431": {
-      "odul": [
+      "reward": [
        [
         "tech_burning-trail",
         2
@@ -26593,7 +26593,7 @@
       "anahtar": 15
      },
      "500415": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_polychromium",
         250
@@ -26602,7 +26602,7 @@
       "anahtar": 1
      },
      "500416": {
-      "odul": [
+      "reward": [
        [
         "ammunition_specialammo_dcr-250",
         50
@@ -26611,7 +26611,7 @@
       "anahtar": 1
      },
      "500417": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocket_plt-2021",
         6000
@@ -26620,7 +26620,7 @@
       "anahtar": 3
      },
      "500647": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrineoil",
         10
@@ -26629,7 +26629,7 @@
       "anahtar": 7
      },
      "500424": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_salvage-core",
         40
@@ -26638,7 +26638,7 @@
       "anahtar": 1
      },
      "500425": {
-      "odul": [
+      "reward": [
        [
         "tech_npc-nuke",
         1
@@ -26647,7 +26647,7 @@
       "anahtar": 3
      },
      "500426": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_shd-zpve",
         1
@@ -26656,7 +26656,7 @@
       "anahtar": 7
      },
      "500648": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrine-accelerator",
         25
@@ -26665,7 +26665,7 @@
       "anahtar": 15
      },
      "500427": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_rsb-75",
         3000
@@ -26674,7 +26674,7 @@
       "anahtar": 1
      },
      "500428": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         75
@@ -26683,7 +26683,7 @@
       "anahtar": 3
      },
      "500429": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrineoil",
         15
@@ -26692,7 +26692,7 @@
       "anahtar": 7
      },
      "500605": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_dmg-zpve",
         1
@@ -26701,7 +26701,7 @@
       "anahtar": 15
      },
      "500430": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_spc-zpve",
         1
@@ -26710,7 +26710,7 @@
       "anahtar": 15
      }
     },
-    "gorevler": {
+    "quests": {
      "500412": {
       "_": "QuestDefinitionModule",
       "id": 500412,
@@ -28687,13 +28687,13 @@
      }
     ]
    },
-   "labirent": {
-    "dosya": "pass_offline_labirent.xml",
+   "labyrinth": {
+    "dosya": "pass_offline_labyrinth.xml",
     "kaynak": "yazılan: darkorbitwiki events/winter-event; 33 hedef, 184 Battle Key",
-    "uyarlama": "Wiki'nin 33 hedefi (Complete 20 ve 25 Objectives: 500409 ve 500410, ikisi de sayfada \"Frozen Labyrinth\"). Labirent anahtarı resource_key_access-flb.",
-    "oduller": {
+    "adaptation": "Wiki'nin 33 hedefi (Complete 20 ve 25 Objectives: 500409 ve 500410, ikisi de sayfada \"Frozen Labyrinth\"). Labirent anahtarı resource_key_access-flb.",
+    "rewards": {
      "500385": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_ucb-100",
         1000
@@ -28702,7 +28702,7 @@
       "anahtar": 1
      },
      "500386": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_rsb-75",
         2000
@@ -28711,7 +28711,7 @@
       "anahtar": 3
      },
      "500387": {
-      "odul": [
+      "reward": [
        [
         "tech_shield-backup2",
         1
@@ -28720,7 +28720,7 @@
       "anahtar": 7
      },
      "500388": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_scrapium",
         25
@@ -28729,7 +28729,7 @@
       "anahtar": 1
      },
      "500389": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocketlauncher_cbr",
         400
@@ -28738,7 +28738,7 @@
       "anahtar": 3
      },
      "500390": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         50
@@ -28747,7 +28747,7 @@
       "anahtar": 7
      },
      "500391": {
-      "odul": [
+      "reward": [
        [
         "booster_dmg-dlb",
         10
@@ -28756,7 +28756,7 @@
       "anahtar": 1
      },
      "500392": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_idb-125",
         3000
@@ -28765,7 +28765,7 @@
       "anahtar": 3
      },
      "500393": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocketlauncher_ubr-100",
         1000
@@ -28774,7 +28774,7 @@
       "anahtar": 7
      },
      "500562": {
-      "odul": [
+      "reward": [
        [
         "ammunition_specialammo_pld-8",
         250
@@ -28783,7 +28783,7 @@
       "anahtar": 1
      },
      "500563": {
-      "odul": [
+      "reward": [
        [
         "tech_speed-burst",
         3
@@ -28792,7 +28792,7 @@
       "anahtar": 3
      },
      "500564": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrine-accelerator",
         25
@@ -28801,7 +28801,7 @@
       "anahtar": 7
      },
      "500565": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_spc-xt10",
         1
@@ -28810,7 +28810,7 @@
       "anahtar": 10
      },
      "500397": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_idb-125",
         1000
@@ -28819,7 +28819,7 @@
       "anahtar": 1
      },
      "500398": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_rsb-75",
         3000
@@ -28828,7 +28828,7 @@
       "anahtar": 3
      },
      "500399": {
-      "odul": [
+      "reward": [
        [
         "ammunition_specialammo_r-ic3",
         100
@@ -28837,7 +28837,7 @@
       "anahtar": 7
      },
      "500585": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrine-accelerator",
         50
@@ -28846,7 +28846,7 @@
       "anahtar": 15
      },
      "500579": {
-      "odul": [
+      "reward": [
        [
         "tech_battle-repair-bot2",
         5
@@ -28855,7 +28855,7 @@
       "anahtar": 1
      },
      "500580": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocket_plt-2021",
         2000
@@ -28864,7 +28864,7 @@
       "anahtar": 3
      },
      "500581": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_dmg-xu02",
         1
@@ -28873,7 +28873,7 @@
       "anahtar": 7
      },
      "500411": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrineoil",
         35
@@ -28882,7 +28882,7 @@
       "anahtar": 15
      },
      "500403": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocketlauncher_ubr-100",
         250
@@ -28895,7 +28895,7 @@
       "anahtar": 1
      },
      "500404": {
-      "odul": [
+      "reward": [
        [
         "booster_shd-dlb",
         10
@@ -28904,7 +28904,7 @@
       "anahtar": 3
      },
      "500405": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         100
@@ -28913,7 +28913,7 @@
       "anahtar": 7
      },
      "500400": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_ucb-100",
         1500
@@ -28926,7 +28926,7 @@
       "anahtar": 1
      },
      "500401": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocketlauncher_hstrm-01",
         500
@@ -28935,7 +28935,7 @@
       "anahtar": 3
      },
      "500402": {
-      "odul": [
+      "reward": [
        [
         "tech_shield-backup2",
         1
@@ -28944,7 +28944,7 @@
       "anahtar": 7
      },
      "500394": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_ucb-100",
         1000
@@ -28957,7 +28957,7 @@
       "anahtar": 1
      },
      "500395": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrineoil",
         15
@@ -28966,7 +28966,7 @@
       "anahtar": 3
      },
      "500396": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_shd-xt10",
         1
@@ -28975,7 +28975,7 @@
       "anahtar": 7
      },
      "500583": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_diametrion",
         15
@@ -28984,7 +28984,7 @@
       "anahtar": 15
      },
      "500409": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_spc-xu02",
         1
@@ -28993,7 +28993,7 @@
       "anahtar": 15
      },
      "500410": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_dmg-xu03",
         1
@@ -29002,7 +29002,7 @@
       "anahtar": 15
      }
     },
-    "gorevler": {
+    "quests": {
      "500385": {
       "_": "QuestDefinitionModule",
       "id": 500385,
@@ -31554,10 +31554,10 @@
    "world_boss": {
     "dosya": "pass_offline_world_boss.xml",
     "kaynak": "yazılan: darkorbitwiki events/treacherous-domain; 22 hedef, 147 Battle Key",
-    "uyarlama": "Wiki'nin 24 hedefinden 22'si: Star Destroyer (15 anahtar) ve Shining Reserve (10 anahtar) istemci 1.1.115'te yok (quest_title yok), eklenmedi; toplam 147 anahtar (wiki 172). Treacherous Domain haritası 482.",
-    "oduller": {
+    "adaptation": "Wiki'nin 24 hedefinden 22'si: Star Destroyer (15 anahtar) ve Shining Reserve (10 anahtar) istemci 1.1.115'te yok (quest_title yok), eklenmedi; toplam 147 anahtar (wiki 172). Treacherous Domain haritası 482.",
+    "rewards": {
      "500706": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocketlauncher_hstrm-01",
         800
@@ -31566,7 +31566,7 @@
       "anahtar": 1
      },
      "500707": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         50
@@ -31575,7 +31575,7 @@
       "anahtar": 3
      },
      "500708": {
-      "odul": [
+      "reward": [
        [
         "tech_burning-trail",
         2
@@ -31584,7 +31584,7 @@
       "anahtar": 7
      },
      "500709": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_shd-zpve",
         1
@@ -31593,7 +31593,7 @@
       "anahtar": 10
      },
      "500726": {
-      "odul": [
+      "reward": [
        [
         "tech_burning-trail",
         3
@@ -31602,7 +31602,7 @@
       "anahtar": 15
      },
      "500710": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_ucb-100",
         4000
@@ -31611,7 +31611,7 @@
       "anahtar": 1
      },
      "500711": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         50
@@ -31620,7 +31620,7 @@
       "anahtar": 3
      },
      "500712": {
-      "odul": [
+      "reward": [
        [
         "tech_npc-nuke",
         2
@@ -31629,7 +31629,7 @@
       "anahtar": 7
      },
      "500727": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_dmg-zpve",
         1
@@ -31638,7 +31638,7 @@
       "anahtar": 15
      },
      "500713": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocket_plt-2021",
         1000
@@ -31647,7 +31647,7 @@
       "anahtar": 1
      },
      "500714": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         80
@@ -31656,7 +31656,7 @@
       "anahtar": 3
      },
      "500715": {
-      "odul": [
+      "reward": [
        [
         "tech_battle-repair-bot2",
         5
@@ -31665,7 +31665,7 @@
       "anahtar": 7
      },
      "500728": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_hp-zpve",
         1
@@ -31674,7 +31674,7 @@
       "anahtar": 15
      },
      "500716": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_salvage-core",
         40
@@ -31683,7 +31683,7 @@
       "anahtar": 1
      },
      "500717": {
-      "odul": [
+      "reward": [
        [
         "tech_npc-nuke",
         1
@@ -31692,7 +31692,7 @@
       "anahtar": 3
      },
      "500718": {
-      "odul": [
+      "reward": [
        [
         "tech_speed-burst",
         5
@@ -31701,7 +31701,7 @@
       "anahtar": 7
      },
      "500729": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrine-accelerator",
         25
@@ -31710,7 +31710,7 @@
       "anahtar": 15
      },
      "500722": {
-      "odul": [
+      "reward": [
        [
         "ammunition_specialammo_dcr-250",
         60
@@ -31719,7 +31719,7 @@
       "anahtar": 1
      },
      "500723": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocket_plt-3030",
         7500
@@ -31728,7 +31728,7 @@
       "anahtar": 3
      },
      "500724": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrineoil",
         12
@@ -31737,7 +31737,7 @@
       "anahtar": 7
      },
      "500730": {
-      "odul": [
+      "reward": [
        [
         "tech_burning-trail",
         2
@@ -31746,7 +31746,7 @@
       "anahtar": 7
      },
      "500725": {
-      "odul": [
+      "reward": [
        [
         "drone_designs_erythros",
         1
@@ -31755,7 +31755,7 @@
       "anahtar": 15
      }
     },
-    "gorevler": {
+    "quests": {
      "500706": {
       "_": "QuestDefinitionModule",
       "id": 500706,
@@ -33833,10 +33833,10 @@
    "astral_ascension": {
     "dosya": "pass_offline_astral_ascension.xml",
     "kaynak": "yazılan: darkorbitwiki events/astral-ascension; 26 hedef, 170 Battle Key",
-    "uyarlama": "Dalga ve puan için olay/koşul türü yok: Astral haritalarında NPC hasarı (dalga x 2.000.000, puan x 10.000; uyarlama). Takvimde etkinliği yok (etkinlikler.json): pass etkinlik eklenince devreye girer.",
-    "oduller": {
+    "adaptation": "Dalga ve puan için olay/koşul türü yok: Astral haritalarında NPC hasarı (dalga x 2.000.000, puan x 10.000; uyarlama). Takvimde etkinliği yok (etkinlikler.json): pass etkinlik eklenince devreye girer.",
+    "rewards": {
      "500655": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_ucb-100",
         4000
@@ -33845,7 +33845,7 @@
       "anahtar": 1
      },
      "500656": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_rsb-75",
         3000
@@ -33854,7 +33854,7 @@
       "anahtar": 3
      },
      "500657": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrineoil",
         10
@@ -33863,7 +33863,7 @@
       "anahtar": 7
      },
      "500658": {
-      "odul": [
+      "reward": [
        [
         "tech_burning-trail",
         1
@@ -33872,7 +33872,7 @@
       "anahtar": 10
      },
      "500680": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrine-accelerator",
         25
@@ -33881,7 +33881,7 @@
       "anahtar": 15
      },
      "500659": {
-      "odul": [
+      "reward": [
        [
         "resource_extra-energy",
         50
@@ -33894,7 +33894,7 @@
       "anahtar": 1
      },
      "500660": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocket_plt-2021",
         6000
@@ -33903,7 +33903,7 @@
       "anahtar": 3
      },
      "500661": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_hp-xa01",
         1
@@ -33912,7 +33912,7 @@
       "anahtar": 10
      },
      "500662": {
-      "odul": [
+      "reward": [
        [
         "tech_battle-repair-bot2",
         5
@@ -33921,7 +33921,7 @@
       "anahtar": 15
      },
      "500678": {
-      "odul": [
+      "reward": [
        [
         "tech_battle-repair-bot2",
         2
@@ -33930,7 +33930,7 @@
       "anahtar": 15
      },
      "500663": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocket_plt-2021",
         2000
@@ -33939,7 +33939,7 @@
       "anahtar": 1
      },
      "500664": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_rsb-75",
         3000
@@ -33948,7 +33948,7 @@
       "anahtar": 3
      },
      "500665": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrineoil",
         10
@@ -33957,7 +33957,7 @@
       "anahtar": 7
      },
      "500679": {
-      "odul": [
+      "reward": [
        [
         "tech_shield-backup2",
         5
@@ -33966,7 +33966,7 @@
       "anahtar": 15
      },
      "500666": {
-      "odul": [
+      "reward": [
        [
         "ammunition_specialammo_sr-5",
         100
@@ -33975,7 +33975,7 @@
       "anahtar": 1
      },
      "500667": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         50
@@ -33984,7 +33984,7 @@
       "anahtar": 3
      },
      "500668": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_spacecup_group-c",
         4000
@@ -33993,7 +33993,7 @@
       "anahtar": 7
      },
      "500677": {
-      "odul": [
+      "reward": [
        [
         "tech_explosive-charging-blob",
         5
@@ -34002,7 +34002,7 @@
       "anahtar": 15
      },
      "500669": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_idb-125",
         2000
@@ -34011,7 +34011,7 @@
       "anahtar": 1
      },
      "500670": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocketlauncher_hstrm-01",
         500
@@ -34020,7 +34020,7 @@
       "anahtar": 3
      },
      "500671": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_spc-xa01",
         1
@@ -34029,7 +34029,7 @@
       "anahtar": 7
      },
      "500672": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_ucb-100",
         500
@@ -34042,7 +34042,7 @@
       "anahtar": 1
      },
      "500673": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         50
@@ -34051,7 +34051,7 @@
       "anahtar": 3
      },
      "500674": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_shd-xa01",
         1
@@ -34060,7 +34060,7 @@
       "anahtar": 7
      },
      "500676": {
-      "odul": [
+      "reward": [
        [
         "tech_npc-nuke",
         2
@@ -34069,7 +34069,7 @@
       "anahtar": 15
      },
      "500675": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_dmg-xa01",
         1
@@ -34078,7 +34078,7 @@
       "anahtar": 1
      }
     },
-    "gorevler": {
+    "quests": {
      "500655": {
       "_": "QuestDefinitionModule",
       "id": 500655,
@@ -36161,10 +36161,10 @@
    "spacecup": {
     "dosya": "pass_offline_spacecup.xml",
     "kaynak": "yazılan: darkorbitwiki events/spacecup; 26 hedef, 176 Battle Key",
-    "uyarlama": "Spaceball/PvP hedefleri PvE karşılığıyla (4-4'te Deadly Battleray, NPC hasarı); Referee-Bot etkinlik haritalarında (resmî Türk forumu 135026 / 127757; etkinlikler.json spacecup). Takvimde etkinliği yok (etkinlikler.json): pass etkinlik eklenince devreye girer.",
-    "oduller": {
+    "adaptation": "Spaceball/PvP hedefleri PvE karşılığıyla (4-4'te Deadly Battleray, NPC hasarı); Referee-Bot etkinlik haritalarında (resmî Türk forumu 135026 / 127757; etkinlikler.json spacecup). Takvimde etkinliği yok (etkinlikler.json): pass etkinlik eklenince devreye girer.",
+    "rewards": {
      "500529": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_ucb-100",
         2000
@@ -36173,7 +36173,7 @@
       "anahtar": 1
      },
      "500530": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         45
@@ -36182,7 +36182,7 @@
       "anahtar": 3
      },
      "500531": {
-      "odul": [
+      "reward": [
        [
         "ammunition_specialammo_pld-8",
         500
@@ -36191,7 +36191,7 @@
       "anahtar": 7
      },
      "500607": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         30
@@ -36200,7 +36200,7 @@
       "anahtar": 1
      },
      "500608": {
-      "odul": [
+      "reward": [
        [
         "resource_extra-energy",
         20
@@ -36209,7 +36209,7 @@
       "anahtar": 3
      },
      "500609": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_spacecup_group-c",
         3000
@@ -36218,7 +36218,7 @@
       "anahtar": 7
      },
      "500610": {
-      "odul": [
+      "reward": [
        [
         "resource_booty-key",
         5
@@ -36227,7 +36227,7 @@
       "anahtar": 10
      },
      "500611": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocket_plt-2021",
         3000
@@ -36236,7 +36236,7 @@
       "anahtar": 1
      },
      "500612": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocketlauncher_cbr",
         500
@@ -36245,7 +36245,7 @@
       "anahtar": 3
      },
      "500613": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_spacecup_group-d",
         2000
@@ -36254,7 +36254,7 @@
       "anahtar": 7
      },
      "500614": {
-      "odul": [
+      "reward": [
        [
         "booster_dmg-dlb",
         10
@@ -36263,7 +36263,7 @@
       "anahtar": 10
      },
      "500624": {
-      "odul": [
+      "reward": [
        [
         "tech_burning-trail",
         2
@@ -36272,7 +36272,7 @@
       "anahtar": 15
      },
      "500625": {
-      "odul": [
+      "reward": [
        [
         "tech_explosive-charging-blob",
         5
@@ -36281,7 +36281,7 @@
       "anahtar": 15
      },
      "500615": {
-      "odul": [
+      "reward": [
        [
         "tech_shield-backup2",
         2
@@ -36290,7 +36290,7 @@
       "anahtar": 1
      },
      "500616": {
-      "odul": [
+      "reward": [
        [
         "resource_battle-pass-key",
         1
@@ -36299,7 +36299,7 @@
       "anahtar": 3
      },
      "500617": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocketlauncher_hstrm-01",
         1000
@@ -36308,7 +36308,7 @@
       "anahtar": 7
      },
      "500562": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_rsb-75",
         10000
@@ -36317,7 +36317,7 @@
       "anahtar": 1
      },
      "500563": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocketlauncher_ubr-100",
         3000
@@ -36326,7 +36326,7 @@
       "anahtar": 3
      },
      "500564": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrine-accelerator",
         40
@@ -36335,7 +36335,7 @@
       "anahtar": 7
      },
      "500621": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocketlauncher_sar-02",
         2000
@@ -36344,7 +36344,7 @@
       "anahtar": 1
      },
      "500622": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         100
@@ -36353,7 +36353,7 @@
       "anahtar": 3
      },
      "500623": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocketlauncher_ubr-100",
         1500
@@ -36362,7 +36362,7 @@
       "anahtar": 7
      },
      "500628": {
-      "odul": [
+      "reward": [
        [
         "tech_battle-repair-bot2",
         2
@@ -36371,7 +36371,7 @@
       "anahtar": 15
      },
      "500548": {
-      "odul": [
+      "reward": [
        [
         "tech_battle-repair-bot2",
         10
@@ -36380,7 +36380,7 @@
       "anahtar": 15
      },
      "500550": {
-      "odul": [
+      "reward": [
        [
         "tech_shield-backup2",
         10
@@ -36389,7 +36389,7 @@
       "anahtar": 15
      },
      "500336": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_spc-xof02",
         1
@@ -36398,7 +36398,7 @@
       "anahtar": 15
      }
     },
-    "gorevler": {
+    "quests": {
      "500529": {
       "_": "QuestDefinitionModule",
       "id": 500529,
@@ -38537,10 +38537,10 @@
    "plague_mutation": {
     "dosya": "pass_offline_plague_mutation.xml",
     "kaynak": "yazılan: resmî Türk forumu 154610 (Veba Mutasyonu, Haziran 2020) ve istemcinin ipucu metinleri; 22 hedef, 0 Battle Key",
-    "uyarlama": "22 hedef istemcinin başlıklarıyla (quest_title_500507-500528) forumun tablosundan eşlendi; biletli ödüller bpReward (anahtar yok, anahtar değişimi yok). İstemcinin ipucu metni forumla çelişince istemci (Wipe the Floor: 100 Enfeksiyon Mayını). Viral Kristallon / Gygerim Overlord hedefleri forum değerleriyle (sıraları istemci başlıklarına göre artmıyor: forum yazımı)",
-    "oduller": {
+    "adaptation": "22 hedef istemcinin başlıklarıyla (quest_title_500507-500528) forumun tablosundan eşlendi; biletli ödüller bpReward (anahtar yok, anahtar değişimi yok). İstemcinin ipucu metni forumla çelişince istemci (Wipe the Floor: 100 Enfeksiyon Mayını). Viral Kristallon / Gygerim Overlord hedefleri forum değerleriyle (sıraları istemci başlıklarına göre artmıyor: forum yazımı)",
+    "rewards": {
      "500507": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_ucb-100",
         1500
@@ -38559,7 +38559,7 @@
       ]
      },
      "500508": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         50
@@ -38574,7 +38574,7 @@
       ]
      },
      "500509": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_pib-100",
         3500
@@ -38593,7 +38593,7 @@
       ]
      },
      "500510": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrineoil",
         10
@@ -38608,7 +38608,7 @@
       ]
      },
      "500511": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocketlauncher_pir-100",
         500
@@ -38623,7 +38623,7 @@
       ]
      },
      "500512": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocket_plt-3030",
         5000
@@ -38642,7 +38642,7 @@
       ]
      },
      "500513": {
-      "odul": [
+      "reward": [
        [
         "resource_booty-key",
         1
@@ -38661,7 +38661,7 @@
       ]
      },
      "500514": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_indoctrineoil",
         10
@@ -38680,7 +38680,7 @@
       ]
      },
      "500515": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_rsb-75",
         5000
@@ -38699,7 +38699,7 @@
       ]
      },
      "500516": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_rsb-75",
         2000
@@ -38714,7 +38714,7 @@
       ]
      },
      "500517": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocket_plt-2021",
         2000
@@ -38729,7 +38729,7 @@
       ]
      },
      "500518": {
-      "odul": [
+      "reward": [
        [
         "ammunition_laser_pib-100",
         5000
@@ -38748,7 +38748,7 @@
       ]
      },
      "500519": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocketlauncher_hstrm-01",
         500
@@ -38763,7 +38763,7 @@
       ]
      },
      "500520": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_dmg-ms01",
         1
@@ -38782,7 +38782,7 @@
       ]
      },
      "500521": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         75
@@ -38797,7 +38797,7 @@
       ]
      },
      "500522": {
-      "odul": [
+      "reward": [
        [
         "resource_collectable_axion-beam-regulator",
         50
@@ -38816,7 +38816,7 @@
       ]
      },
      "500523": {
-      "odul": [
+      "reward": [
        [
         "ammunition_rocket_plt-2021",
         3000
@@ -38835,7 +38835,7 @@
       ]
      },
      "500524": {
-      "odul": [
+      "reward": [
        [
         "booster_dmg-dlb",
         10
@@ -38854,7 +38854,7 @@
       ]
      },
      "500525": {
-      "odul": [
+      "reward": [
        [
         "equipment_shipupgrade_dmg-ven01",
         1
@@ -38869,7 +38869,7 @@
       ]
      },
      "500526": {
-      "odul": [
+      "reward": [
        [
         "tech_npc-nuke",
         2
@@ -38892,7 +38892,7 @@
       ]
      },
      "500527": {
-      "odul": [
+      "reward": [
        [
         "tech_battle-repair-bot2",
         2
@@ -38907,7 +38907,7 @@
       ]
      },
      "500528": {
-      "odul": [
+      "reward": [
        [
         "tech_shield-backup2",
         2
@@ -38926,7 +38926,7 @@
       ]
      }
     },
-    "gorevler": {
+    "quests": {
      "500507": {
       "_": "QuestDefinitionModule",
       "id": 500507,
@@ -40045,7 +40045,7 @@
     "keyless": true
    }
   },
-  "ayarlar": {
+  "settings": {
    "battlePassItemFilters": [
     "special",
     "standard"
@@ -42705,8 +42705,8 @@
    }
   ]
  ],
- "donus_pass": {
-  "takvim": "return_of_hero",
+ "return_pass": {
+  "calendar": "return_of_hero",
   "special_id": 16296,
   "point_cost": [
    0,
@@ -43225,7 +43225,7 @@
    ]
   ],
   "vip": "resource_recall-pass-vip-badge",
-  "gorevler": [
+  "quests": [
    {
     "kaynak": 701003,
     "tur": 3,

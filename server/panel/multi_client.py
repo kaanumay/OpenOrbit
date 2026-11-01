@@ -66,17 +66,17 @@ class MultiClient:
 
     def state(self, live=None):
         """Panelin listesi: ek istemciler (sunucunun canli_durum.json'undaki 'yereller'le: bağlı mı, harita, seviye)."""
-        lv = {y.get('kayit'): y for y in ((live or {}).get('local_players') or [])}
+        lv = {y.get('record'): y for y in ((live or {}).get('local_players') or [])}
         now = time.time()
         with self.lock:
             out = []
             for s, e in self.is_open.items():
                 y = lv.get(s) or {}
-                out.append({'kayit': s, 'pilot': e['pilot'], 'pid': e['proc'].pid if e['proc'] else None,
-                            'durum': 'aciliyor' if e['proc'] is None else 'acik' if e['proc'].poll() is None else 'kapaniyor',
+                out.append({'record': s, 'pilot': e['pilot'], 'pid': e['proc'].pid if e['proc'] else None,
+                            'durum': 'aciliyor' if e['proc'] is None else 'on' if e['proc'].poll() is None else 'closing',
                             'sure_sn': int(now - e['start']),
-                            'bagli': bool(y.get('bagli')), 'harita': y.get('harita'), 'seviye': y.get('seviye'), 'uid': e['uid']})
-            return {'clients': out, 'son': dict(self.last)}
+                            'connected': bool(y.get('connected')), 'harita': y.get('harita'), 'seviye': y.get('seviye'), 'uid': e['uid']})
+            return {'clients': out, 'last': dict(self.last)}
 
     # ------------------------------------------------------------ açma ve kapatma
     def open_(self, slot, folder, main_slot):
@@ -94,16 +94,16 @@ class MultiClient:
             n = self.cfg.get('multi_client_max')
             if len(self.live()) >= n:
                 raise MultiClientError(_('En çok %d ek istemci açılabilir (İstemci > Çoklu istemci).', n))
-            self.is_open[slot] = {'proc': None, 'oturum': None, 'uid': None, 'start': time.time(), 'pilot': '', 'gunluk': None}
+            self.is_open[slot] = {'proc': None, 'oturum': None, 'uid': None, 'start': time.time(), 'pilot': '', 'daily': None}
         out = None
         try:
             summary = self.saves.summary(slot)
-            if summary.get('bozuk'):
+            if summary.get('corrupt'):
                 raise MultiClientError(_('Kayıt okunamıyor (bozuk): Kayıtlar > Yedekler\'den geri yükle.'))
             if self.cfg.get('backup_on_launch'):
                 self.saves.backup(slot, 'auto', _('Ek istemci (açılış)'))
             self.last_backup[slot] = time.time()
-            code, out = self.request('/yerel/ekle', {'kayit': slot, 'yol': self.saves.profile(slot)})
+            code, out = self.request('/yerel/ekle', {'record': slot, 'route': self.saves.profile(slot)})
             if code != 200:
                 raise MultiClientError(out.get('message') or _('Oyun sunucusu kaydı almadı (HTTP %s).', code))
             daily = os.path.join(self.logs, 'client_%s.log' % slot)
@@ -122,12 +122,12 @@ class MultiClient:
             raise
         pilot = summary.get('pilot') or slot
         with self.lock:
-            self.is_open[slot].update(proc=proc, oturum=out['oturum'], uid=out['uid'], start=time.time(), pilot=pilot, gunluk=daily)
+            self.is_open[slot].update(proc=proc, oturum=out['oturum'], uid=out['uid'], start=time.time(), pilot=pilot, daily=daily)
         m = self.saves.meta(slot)
         self.saves.set_meta(slot, last_played=time.strftime('%Y-%m-%d %H:%M:%S'), play_count=int(m.get('play_count') or 0) + 1)
         PR.window_title(proc.pid, 'DarkOrbit — %s' % pilot)
         self.log('ek istemci açıldı: %s (%s), süreç %d, sunucudaki kimlik %s%s' % (slot, pilot, proc.pid, out['uid'],
-                                                                               ' (sürüyor)' if out.get('devam') else ''))
+                                                                               ' (sürüyor)' if out.get('ongoing') else ''))
         threading.Thread(target=self._watch, args=(slot, proc), daemon=True).start()
         return self.state()
 

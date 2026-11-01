@@ -6,11 +6,11 @@
    "ad": "Nano-Cluster Repairer",
    "sure_sn": 0,
    "bekleme_sn": 90,
-   "etki": {
+   "effect": {
     "hp_percent": 0.35
    },
-   "gorsel": {
-    "etki": 1
+   "visual": {
+    "effect": 1
    },
    "metin": [
     "msg_instant_heal_activated",
@@ -21,14 +21,14 @@
    "ad": "Weaken Shields",
    "sure_sn": 15,
    "bekleme_sn": 90,
-   "etki": {
+   "effect": {
     "target_shield_damage": 1.5,
     "shield_loss": 0.3
    },
-   "hedefli": true,
+   "targeted": true,
    "_not": "istemci: düşmanın kalkanına giden hasar +%50 (kalkan, emdiği payın 1,5 katı erir, gövdeye geçen pay aynı); etki bitince KENDİ kalkanının %30'u gider",
-   "gorsel": {
-    "etki": 2
+   "visual": {
+    "effect": 2
    },
    "metin": [
     "msg_weaken_shield_activated",
@@ -39,14 +39,14 @@
    "ad": "Prismatic Shielding",
    "sure_sn": 10,
    "bekleme_sn": 180,
-   "etki": {
+   "effect": {
     "mods": {
      "lazer": -0.25,
      "laser_taken": -0.9
     }
    },
-   "gorsel": {
-    "etki": 3
+   "visual": {
+    "effect": 3
    },
    "metin": [
     "msg_prismatic_shielding_activated",
@@ -57,13 +57,13 @@
    "ad": "The Fortress",
    "sure_sn": 35,
    "bekleme_sn": 180,
-   "etki": {
+   "effect": {
     "mods": {
-     "kalkan_hasari": -0.3
+     "shield_damage_taken": -0.3
     }
    },
-   "gorsel": {
-    "etki": 4
+   "visual": {
+    "effect": 4
    },
    "metin": [
     "msg_fortress_activated",
@@ -74,17 +74,17 @@
    "ad": "Singularity II",
    "sure_sn": 35,
    "bekleme_sn": 120,
-   "hedefli": true,
-   "etki": {
-    "zehir": {
+   "targeted": true,
+   "effect": {
+    "poison": {
      "ilk": 1500,
      "increase": 200,
-     "en_cok": 8500,
+     "max_count": 8500,
      "toplam": 180000
     }
    },
-   "gorsel": {
-    "etki": 5
+   "visual": {
+    "effect": 5
    },
    "metin": [
     "msg_singularity2_activated",
@@ -95,13 +95,13 @@
    "ad": "Afterburner",
    "sure_sn": 5,
    "bekleme_sn": 180,
-   "etki": {
+   "effect": {
     "mods": {
      "hiz": 0.3
     }
    },
-   "gorsel": {
-    "etki": 6
+   "visual": {
+    "effect": 6
    },
    "metin": [
     "msg_afterburner_activated",
@@ -112,35 +112,35 @@
    "ad": "HP Repair",
    "sure_sn": 7,
    "bekleme_sn": 90,
-   "etki": {
-    "can_onar": 140000
+   "effect": {
+    "hp_repair": 140000
    },
-   "gorsel": {
+   "visual": {
     "launch": 101
    },
-   "basarim": "HEALING_BEAM"
+   "achievement": "HEALING_BEAM"
   },
   "ability_aegis_shield-repair": {
    "ad": "Shield Repair",
    "sure_sn": 5,
    "bekleme_sn": 30,
-   "etki": {
-    "kalkan_onar": 75000
+   "effect": {
+    "shield_repair": 75000
    },
-   "gorsel": {
+   "visual": {
     "launch": 104
    },
-   "basarim": "SHIELD_RECHARGE"
+   "achievement": "SHIELD_RECHARGE"
   },
   "ability_aegis_repair-pod": {
    "ad": "Repair Pod",
    "sure_sn": 10,
    "bekleme_sn": 120,
-   "etki": {
-    "can_onar": 180000
+   "effect": {
+    "hp_repair": 180000
    },
-   "basarim": "HEALING_POD",
-   "gorsel": {
+   "achievement": "HEALING_POD",
+   "visual": {
     "entity": 33
    }
   },
@@ -148,122 +148,122 @@
    "ad": "Draw Fire",
    "sure_sn": 5,
    "bekleme_sn": 40,
-   "etki": {
+   "effect": {
     "draw_fire": 1000
    },
-   "gorsel": {
+   "visual": {
     "launch": 102
    },
-   "basarim": "DRAW_FIRE",
+   "achievement": "DRAW_FIRE",
    "_not": "menzil wiki'de yok (uyarlama 1000)"
   },
   "ability_citadel_travel": {
    "ad": "Travel",
    "sure_sn": 5,
    "bekleme_sn": 45,
-   "etki": {
+   "effect": {
     "mods": {
-     "sabit_hiz": 450
+     "fixed_speed": 450
     }
    },
-   "gorsel": {
-    "etki": 6
+   "visual": {
+    "effect": 6
    },
-   "basarim": "TRAVEL_MODE"
+   "achievement": "TRAVEL_MODE"
   },
   "ability_citadel_protection": {
    "ad": "Protection",
    "sure_sn": 10,
    "bekleme_sn": 60,
-   "etki": {},
-   "basarim": "PROTECT",
+   "effect": {},
+   "achievement": "PROTECT",
    "_not": "grup üyelerinin hasarını üstlenir; tek oyunculuda etkisi yok (bot oyuncularla)",
-   "gorsel": {
-    "gorunum": 9
+   "visual": {
+    "appearance": 9
    }
   },
   "ability_citadel_fortify": {
    "ad": "Fortify",
    "sure_sn": 10,
    "bekleme_sn": 360,
-   "etki": {
+   "effect": {
     "mods": {
      "damage_taken": -0.5,
-     "sabit_hiz": 0
+     "fixed_speed": 0
     }
    },
-   "basarim": "FORTIFY",
-   "gorsel": {
-    "gorunum": 8
+   "achievement": "FORTIFY",
+   "visual": {
+    "appearance": 8
    }
   },
   "ability_spearhead_ultimate-cloak": {
    "ad": "Ultimate Cloaking",
    "sure_sn": 30,
    "bekleme_sn": 300,
-   "etki": {
-    "gizlen": true
+   "effect": {
+    "cloak": true
    },
-   "basarim": "ULTIMATE_CLOAKING"
+   "achievement": "ULTIMATE_CLOAKING"
   },
   "ability_spearhead_jam-x": {
    "ad": "JAM-X",
    "sure_sn": 0,
    "bekleme_sn": 180,
-   "etki": {},
-   "gorsel": {
+   "effect": {},
+   "visual": {
     "launch": 110
    },
-   "basarim": "ULTIMATE_EMP",
+   "achievement": "ULTIMATE_EMP",
    "_not": "düşman gemi yeteneklerini durdurur; uzaylıların yeteneği yok (bot oyuncularla)"
   },
   "ability_spearhead_target-marker": {
    "ad": "Target Marker",
    "sure_sn": 15,
    "bekleme_sn": 90,
-   "hedefli": true,
-   "etki": {
+   "targeted": true,
+   "effect": {
     "target_damage": 0.05
    },
-   "gorsel": {
+   "visual": {
     "launch": 106
    },
-   "basarim": "MARK_TARGET",
+   "achievement": "MARK_TARGET",
    "_not": "hasar yüzdesi wiki'de yok (uyarlama %5)"
   },
   "ability_spearhead_double-minimap": {
    "ad": "Recon",
    "sure_sn": 30,
    "bekleme_sn": 90,
-   "etki": {
-    "gorus": 2.0
+   "effect": {
+    "vision": 2.0
    },
-   "gorsel": {
+   "visual": {
     "launch": 111
    },
-   "basarim": "DOUBLE_MINIMAP"
+   "achievement": "DOUBLE_MINIMAP"
   },
   "ability_tartarus_speed-boost": {
    "ad": "Speed Boost",
    "toggle": true,
    "sure_sn": 0,
    "bekleme_sn": 10,
-   "etki": {
+   "effect": {
     "mods": {
      "hiz": 0.3,
      "lazer": -0.05
     }
    },
-   "gorsel": {
-    "etki": 6
+   "visual": {
+    "effect": 6
    }
   },
   "ability_tartarus_rapid-fire": {
    "ad": "Rapid Fire",
    "sure_sn": 3,
    "bekleme_sn": 60,
-   "etki": {
-    "roket_bekleme_ms": 1000
+   "effect": {
+    "rocket_cooldown_ms": 1000
    },
    "_not": "bekleme istemcinin gemi verisinden (Tartarus 24 sn, Tartarus Plus 72 sn); normal roket beklemesinin de 1 sn'ye inmesi doğrulanmadı (istemci: fırlatıcının \"one second instead of three\")"
   },
@@ -271,7 +271,7 @@
    "ad": "Noxious Nebula",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {},
+   "effect": {},
    "_not": "yalnız oyunculara etki eder: bot oyuncularla (Aşama 11)",
    "metin": [
     "msg_noxious_nebula_activated",
@@ -282,7 +282,7 @@
    "ad": "Heightened Valour",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
+   "effect": {
     "mods": {
      "lazer": 0.05,
      "roket": 0.05
@@ -298,7 +298,7 @@
    "ad": "Shield Link",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {},
+   "effect": {},
    "_not": "grup üyesinin kalkan hasarını üstlenir: bot oyuncularla",
    "metin": [
     "msg_shield_link_activated",
@@ -309,8 +309,8 @@
    "ad": "Berserk",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
-    "ofke_can": 1.0
+   "effect": {
+    "rage_hp": 1.0
    },
    "_not": "kaybedilen her %1 can +%1 lazer hasarı",
    "metin": [
@@ -322,8 +322,8 @@
    "ad": "Revenge",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
-    "yansit": 1.0,
+   "effect": {
+    "mirror": 1.0,
     "mods": {
      "hiz": -0.05,
      "damage_taken": -0.95
@@ -339,7 +339,7 @@
    "ad": "Prismatic Endurance",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
+   "effect": {
     "mods": {
      "laser_taken": -0.8
     }
@@ -353,7 +353,7 @@
    "ad": "Redirect",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {},
+   "effect": {},
    "_not": "yalnız oyunculara etki eder: bot oyuncularla (Aşama 11)",
    "metin": [
     "msg_redirect_activated",
@@ -364,10 +364,10 @@
    "ad": "Shield Disarray",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
-    "hedef_kalkan_kapat": 0.5
+   "effect": {
+    "target_shield_off": 0.5
    },
-   "hedefli": true,
+   "targeted": true,
    "_not": "istemci: hedefin kalkanının %50'si süre boyunca kapanır, bitince kapanan miktar geri eklenir",
    "metin": [
     "msg_shield_disarray_activated",
@@ -378,14 +378,14 @@
    "ad": "DDoL",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
+   "effect": {
     "target_fire_interval": [
      3,
      5
     ]
    },
    "_not": "istemci: hedefin lazer beklemesi süre boyunca 3-5 sn arası rastgele (metin oyuncuyla sınırlamıyor: uzaylılara da; doğrulanmadı)",
-   "hedefli": true,
+   "targeted": true,
    "metin": [
     "msg_ddol_activated",
     "msg_ddol_stopped"
@@ -395,16 +395,16 @@
    "ad": "Frozen Claw",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
-    "hedef_dondur": 2
+   "effect": {
+    "target_freeze": 2
    },
-   "hedefli": true
+   "targeted": true
   },
   "ability_hammerclaw-plus_reallocate": {
    "ad": "Reallocate",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {},
+   "effect": {},
    "_not": "istemci/wiki: süre boyunca GRUP ÜYELERİNİN verdiği hasarın %20'si bitişte 700 birim içindeki grup üyelerine eşit HP olarak dağılır; tek başına oynayanın grubu yok: bot oyuncularla (Aşama 11)",
    "metin": [
     "msg_reallocate_activated",
@@ -415,7 +415,7 @@
    "ad": "Particle Beam",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {},
+   "effect": {},
    "_not": "yalnız oyunculara etki eder: bot oyuncularla (Aşama 11)",
    "metin": [
     "msg_particle_beam_activated",
@@ -426,7 +426,7 @@
    "ad": "Particle Beam Plus",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {},
+   "effect": {},
    "_not": "yalnız oyunculara etki eder: bot oyuncularla (Aşama 11)",
    "metin": [
     "msg_particle_beam_plus_activated",
@@ -437,9 +437,9 @@
    "ad": "Stockpile",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
-    "yuk": {
-     "kaynak": "oldurme",
+   "effect": {
+    "cargo": {
+     "kaynak": "kills",
      "azami": 10,
      "menzil": 5,
      "ramp": {
@@ -457,8 +457,8 @@
    "ad": "Self Reversal",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
-    "ters_cevir": {
+   "effect": {
+    "reverse": {
      "lazer": 0.1,
      "roket": 0.1,
      "hiz": 0.1
@@ -474,7 +474,7 @@
    "ad": "Enemy Reversal",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {},
+   "effect": {},
    "_not": "yalnız oyunculara etki eder: bot oyuncularla (Aşama 11)",
    "metin": [
     "msg_enemy_reversal_activated",
@@ -485,14 +485,14 @@
    "ad": "Gravitational Anchor",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
-    "alan_yavaslat": {
+   "effect": {
+    "area_slow": {
      "yaricap": 600,
      "oran": 0.8
     }
    },
    "_not": "istemci: alan hedefin konumunda, içindekiler %80 yavaş; yarıçap uyarlama (600)",
-   "hedefli": true,
+   "targeted": true,
    "metin": [
     "msg_gravitational_anchoractivated",
     "msg_gravitational_anchorstopped"
@@ -502,8 +502,8 @@
    "ad": "Quantum Amplifier",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
-    "sonraki_gsp": 0.1
+   "effect": {
+    "next_gsp": 0.1
    },
    "_not": "istemci: Singularity Drive saldırı hasarı +%10 (süresi 0: bir sonraki atışa; doğrulanmadı)",
    "metin": [
@@ -515,7 +515,7 @@
    "ad": "Spread",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {},
+   "effect": {},
    "_not": "yalnız oyunculara etki eder: bot oyuncularla (Aşama 11)",
    "metin": [
     "msg_spread_activated",
@@ -526,11 +526,11 @@
    "ad": "Sleight",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
+   "effect": {
     "teleport_to_target": true,
-    "hedef_yavaslat": 0.6
+    "target_slow": 0.6
    },
-   "hedefli": true,
+   "targeted": true,
    "_not": "istemci: hedeflenen gemiye ışınlan, sonra hedefin hızı süre boyunca %60 düşer (metin yalnız oyuncularla sınırlamıyor: uzaylıya da; Spread'den farkı); hedef seçili olması yeter (menzil sınırı yok)",
    "metin": [
     "msg_sleight_activated",
@@ -541,8 +541,8 @@
    "ad": "Self Repair",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
-    "can_onar": 350000
+   "effect": {
+    "hp_repair": 350000
    },
    "metin": [
     "msg_self_repair_activated",
@@ -553,13 +553,13 @@
    "ad": "Scramble",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
+   "effect": {
     "mods": {
-     "kacinma": 0.65,
+     "evasion": 0.65,
      "lazer": 0.25,
      "hiz": 0.25
     },
-    "kalkan_erit": 0.1,
+    "shield_melt": 0.1,
     "close_at_zero": true
    },
    "_not": "istemci: kalkan süre boyunca erir, 0'da kapanır; saniyede azami kalkanın %10'u (wiki)"
@@ -568,11 +568,11 @@
    "ad": "Phase Out",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
+   "effect": {
     "phase_out": 50
    },
-   "gorsel": {
-    "gorunum": 4
+   "visual": {
+    "appearance": 4
    },
    "_not": "istemci: rastgele yöne 50 birim ışınlar (korsan haritası, Galaksi Kapısı, CSZ, UBA hariç); VisualModifier PHASE_OUT (4) gemiyi süre boyunca soldurur, bitişte anlık MoveCommand gemiyi yeni yerine koyar (canlı K6)"
   },
@@ -580,8 +580,8 @@
    "ad": "Assimilate",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
-    "emme_can": 0.8
+   "effect": {
+    "absorb_hp": 0.8
    },
    "_not": "uzaylı hasarının %80'i cana döner",
    "metin": [
@@ -593,8 +593,8 @@
    "ad": "Last Stand",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
-    "son_direnis": true
+   "effect": {
+    "last_stand": true
    },
    "_not": "ölümcül vuruşta can dolar"
   },
@@ -602,8 +602,8 @@
    "ad": "Ripper",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
-    "alan_hasar": {
+   "effect": {
+    "area_damage": {
      "yaricap": 375,
      "per_second": 10000,
      "laser_share": 0.8
@@ -621,13 +621,13 @@
    "ad": "Speed Sap",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
+   "effect": {
     "mods": {
      "hiz": 0.1
     },
-    "hedef_yavaslat": 0.1
+    "target_slow": 0.1
    },
-   "hedefli": true,
+   "targeted": true,
    "metin": [
     "msg_speed_sap_activated",
     "msg_speed_sap_stopped"
@@ -637,13 +637,13 @@
    "ad": "Charge Shot",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
-    "dolum": {
+   "effect": {
+    "reload": {
      "per_second": 20000,
      "azami": 300000
     }
    },
-   "hedefli": true,
+   "targeted": true,
    "_not": "istemci: menzildeki hedefe yük biriktirir, dolunca ya da hedef menzilden çıkınca biriken vurur; 300.000 (wiki) süre boyunca dolar",
    "metin": [
     "msg_charge_shot_activated",
@@ -654,7 +654,7 @@
    "ad": "Supercharge",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
+   "effect": {
     "mods": {
      "hiz": 0.1
     }
@@ -668,8 +668,8 @@
    "ad": "Super Charge Shot",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
-    "dolum": {
+   "effect": {
+    "reload": {
      "per_second": 45000,
      "azami": 450000,
      "split_radius": 200
@@ -678,7 +678,7 @@
      "hiz": -0.1
     }
    },
-   "hedefli": true,
+   "targeted": true,
    "_not": "istemci: dolum bitince vurur; wiki: saniyede +45.000, en çok 450.000, hedefin 200 çevresindekilere bölünür, dolarken hız -%10",
    "metin": [
     "msg_charge_shot_plus_activated",
@@ -689,13 +689,13 @@
    "ad": "Supercharge Plus",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
+   "effect": {
     "mods": {
      "hiz": 0.1,
      "top": 0.1,
-     "top_bekleme": -0.5
+     "cannon_cooldown": -0.5
     },
-    "kalkan_erit": 0.1
+    "shield_melt": 0.1
    },
    "_not": "istemci: hız, Particle Cannon beklemesi kısalır ve hasarı artar, saniyede kalkan kaybı (wiki: bekleme -%50, hasar +%10, kalkan -%10/sn)",
    "metin": [
@@ -707,7 +707,7 @@
    "ad": "Nano-Cluster Repairer Plus",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
+   "effect": {
     "hp_percent": 0.5
    },
    "metin": [
@@ -719,8 +719,8 @@
    "ad": "Incinerate",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
-    "alan_hasar": {
+   "effect": {
+    "area_damage": {
      "yaricap": 500,
      "per_second": 10000
     }
@@ -735,8 +735,8 @@
    "ad": "Incinerate Plus",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
-    "alan_hasar": {
+   "effect": {
+    "area_damage": {
      "yaricap": 600,
      "per_second": 15000
     }
@@ -750,8 +750,8 @@
    "ad": "JAMX Creed",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {},
-   "basarim": "JAMX_CREED",
+   "effect": {},
+   "achievement": "JAMX_CREED",
    "_not": "yalnız oyunculara etki eder: bot oyuncularla (Aşama 11)",
    "metin": [
     "msg_jamx_creed_activated",
@@ -762,14 +762,14 @@
    "ad": "Neutralizing Marker",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "basarim": "NEUTRALIZING_MARKER",
-   "etki": {
+   "achievement": "NEUTRALIZING_MARKER",
+   "effect": {
     "target_damage": 0.04,
     "mods": {
      "hiz": 0.05
     }
    },
-   "hedefli": true,
+   "targeted": true,
    "_not": "istemci: hedefi işaretler (lazer hasarı artar; wiki +%4), kendi hızı +%5; hedefin kalkan delmesi -%50 (PvP)",
    "metin": [
     "msg_neutralizing_marker_activated",
@@ -780,12 +780,12 @@
    "ad": "Prismatic Reflecting",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
+   "effect": {
     "mods": {
      "lazer": -0.5,
      "laser_taken": -0.7
     },
-    "lazer_yansit": true
+    "reflect_laser": true
    },
    "_not": "istemci: gelen lazer hasarı -%70, azaltılan kısım saldırana döner; kendi lazeri -%50",
    "metin": [
@@ -797,8 +797,8 @@
    "ad": "Rapid Fire Plus",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
-    "roket_bekleme_ms": 1000,
+   "effect": {
+    "rocket_cooldown_ms": 1000,
     "mods": {
      "launcher_damage": 0.2
     }
@@ -813,7 +813,7 @@
    "ad": "Speed Boost Plus",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
+   "effect": {
     "mods": {
      "hiz": 0.45,
      "lazer": -0.25
@@ -829,15 +829,15 @@
    "ad": "Voltage Link",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
-    "zincir_hasar": {
+   "effect": {
+    "chain_damage": {
      "ilk": 50000,
      "increase": 0.1,
      "hedef": 5,
      "menzil": 600
     }
    },
-   "hedefli": true,
+   "targeted": true,
    "metin": [
     "msg_voltage_link_activated",
     "msg_voltage_link_stopped"
@@ -847,9 +847,9 @@
    "ad": "Volt Discharge",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
-    "yuk": {
-     "kaynak": "zincir",
+   "effect": {
+    "cargo": {
+     "kaynak": "chain",
      "azami": 20,
      "mods": {
       "lazer": 0.0075
@@ -866,8 +866,8 @@
    "ad": "Volt Back-up",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
-    "olumsuz": 3
+   "effect": {
+    "undying": 3
    },
    "_not": "istemci: süre boyunca can 1'in altına inmez, ardından 3 sn dokunulmaz ve yetenek beklemeye girer",
    "metin": [
@@ -879,15 +879,15 @@
    "ad": "Momentum",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
-    "yuk": {
-     "kaynak": "oldurme",
+   "effect": {
+    "cargo": {
+     "kaynak": "kills",
      "azami": 20,
      "menzil": 5,
      "mods": {
       "hiz": 0.015
      },
-     "azami_hiz": 750
+     "max_speed": 750
     }
    },
    "_not": "istemci: uzaylı öldürme bir yük (en çok 20); etkin değilken yük başına menzil +5; etkinleşince yük başına hız +%1,5 (en çok 750), yükler sıfırlanır",
@@ -900,14 +900,14 @@
    "ad": "Triple Barrage",
    "sure_sn": 0,
    "bekleme_sn": 60,
-   "etki": {
-    "ucgen_patlama": {
+   "effect": {
+    "triangle_blast": {
      "hasar": 20000,
      "yaricap": 200,
      "distance": 150
     }
    },
-   "hedefli": true,
+   "targeted": true,
    "_not": "istemci: hedefin arkasında üçgen üç patlama, her biri 20.000; üst üste binen alanlar toplanır. Yarıçap 200 (resmî Türk forumu 158403 Kış SSS); aralık uyarlama (150)",
    "metin": [
     "msg_triple_barrage_activated",
@@ -916,7 +916,7 @@
   }
  },
  "_gemiler": "Gemi -> yetenekleri; Elite/Veteran tasarımları ana geminin yetenekleriyle, carpanlar wiki'deki tasarım bonusları (sure, bekleme, etki). Defcom/Raven Ultimate Cloaking, Yamato/Ronin Travel (wiki): istemcide kendi öğeleri yok, Spearhead'in ve Citadel'in öğesi kullanılır. A-Elite'in onarım çarpanı yok: istemcinin kısa süreleri (Shield Repair 4 sn, HP Repair 6 sn) aynı toplamla \"%20/%10 faster\"ı zaten veriyor (E5).",
- "gemiler": {
+ "ships": {
   "ship_aegis": {
    "skills": [
     "ability_aegis_hp-repair",
@@ -956,8 +956,8 @@
     "ability_aegis_repair-pod": {
      "sure_sn": 15.0,
      "bekleme_sn": 120.0,
-     "etki": {
-      "can_onar": 270000
+     "effect": {
+      "hp_repair": 270000
      }
     }
    }
@@ -1016,7 +1016,7 @@
     "ability_citadel_protection",
     "ability_citadel_fortify"
    ],
-   "carpanlar": {
+   "multipliers": {
     "ability_citadel_draw-fire": {
      "sure": 1.5
     },
@@ -1108,7 +1108,7 @@
     "ability_spearhead_target-marker",
     "ability_spearhead_double-minimap"
    ],
-   "carpanlar": {
+   "multipliers": {
     "ability_spearhead_ultimate-cloak": {
      "sure": 1.5
     },
@@ -1119,7 +1119,7 @@
      "sure": 0.75
     },
     "ability_spearhead_jam-x": {
-     "bekleme": 1.15
+     "cooldown": 1.15
     }
    },
    "ozel": {
@@ -1286,9 +1286,9 @@
    "skills": [
     "ability_citadel_travel"
    ],
-   "carpanlar": {
+   "multipliers": {
     "ability_citadel_travel": {
-     "bekleme": 1.3333
+     "cooldown": 1.3333
     }
    },
    "ozel": {
@@ -1374,11 +1374,11 @@
     "ability_venom": {
      "sure_sn": 30.0,
      "bekleme_sn": 270.0,
-     "etki": {
-      "zehir": {
+     "effect": {
+      "poison": {
        "ilk": 6900,
        "increase": 300,
-       "en_cok": 13600,
+       "max_count": 13600,
        "toplam": 315000
       }
      }
@@ -1427,22 +1427,22 @@
     "ability_aegis_hp-repair": {
      "sure_sn": 7.0,
      "bekleme_sn": 140.0,
-     "etki": {
-      "can_onar": 175000
+     "effect": {
+      "hp_repair": 175000
      }
     },
     "ability_aegis_shield-repair": {
      "sure_sn": 3.0,
      "bekleme_sn": 60.0,
-     "etki": {
-      "kalkan_onar": 120000
+     "effect": {
+      "shield_repair": 120000
      }
     },
     "ability_aegis_repair-pod": {
      "sure_sn": 10.0,
      "bekleme_sn": 160.0,
-     "etki": {
-      "can_onar": 175000
+     "effect": {
+      "hp_repair": 175000
      }
     }
    }
@@ -1458,22 +1458,22 @@
     "ability_aegis_hp-repair": {
      "sure_sn": 6.0,
      "bekleme_sn": 160.0,
-     "etki": {
-      "can_onar": 225000
+     "effect": {
+      "hp_repair": 225000
      }
     },
     "ability_aegis_shield-repair": {
      "sure_sn": 3.0,
      "bekleme_sn": 80.0,
-     "etki": {
-      "kalkan_onar": 150000
+     "effect": {
+      "shield_repair": 150000
      }
     },
     "ability_aegis_repair-pod": {
      "sure_sn": 8.0,
      "bekleme_sn": 60.0,
-     "etki": {
-      "can_onar": 200000
+     "effect": {
+      "hp_repair": 200000
      }
     },
     "ability_hammerclaw-plus_reallocate": {
@@ -2014,22 +2014,22 @@
     "ability_aegis_hp-repair": {
      "sure_sn": 6.0,
      "bekleme_sn": 160.0,
-     "etki": {
-      "can_onar": 225000
+     "effect": {
+      "hp_repair": 225000
      }
     },
     "ability_aegis_shield-repair": {
      "sure_sn": 3.0,
      "bekleme_sn": 80.0,
-     "etki": {
-      "kalkan_onar": 150000
+     "effect": {
+      "shield_repair": 150000
      }
     },
     "ability_aegis_repair-pod": {
      "sure_sn": 10.0,
      "bekleme_sn": 60.0,
-     "etki": {
-      "can_onar": 200000
+     "effect": {
+      "hp_repair": 200000
      }
     },
     "ability_hammerclaw-plus_reallocate": {
@@ -2049,22 +2049,22 @@
     "ability_aegis_hp-repair": {
      "sure_sn": 6.0,
      "bekleme_sn": 160.0,
-     "etki": {
-      "can_onar": 225000
+     "effect": {
+      "hp_repair": 225000
      }
     },
     "ability_aegis_shield-repair": {
      "sure_sn": 3.0,
      "bekleme_sn": 80.0,
-     "etki": {
-      "kalkan_onar": 150000
+     "effect": {
+      "shield_repair": 150000
      }
     },
     "ability_aegis_repair-pod": {
      "sure_sn": 10.0,
      "bekleme_sn": 60.0,
-     "etki": {
-      "can_onar": 200000
+     "effect": {
+      "hp_repair": 200000
      }
     },
     "ability_hammerclaw-plus_reallocate": {
@@ -2084,22 +2084,22 @@
     "ability_aegis_hp-repair": {
      "sure_sn": 6.0,
      "bekleme_sn": 160.0,
-     "etki": {
-      "can_onar": 225000
+     "effect": {
+      "hp_repair": 225000
      }
     },
     "ability_aegis_shield-repair": {
      "sure_sn": 3.0,
      "bekleme_sn": 80.0,
-     "etki": {
-      "kalkan_onar": 150000
+     "effect": {
+      "shield_repair": 150000
      }
     },
     "ability_aegis_repair-pod": {
      "sure_sn": 10.0,
      "bekleme_sn": 60.0,
-     "etki": {
-      "can_onar": 200000
+     "effect": {
+      "hp_repair": 200000
      }
     },
     "ability_hammerclaw-plus_reallocate": {
@@ -2119,22 +2119,22 @@
     "ability_aegis_hp-repair": {
      "sure_sn": 6.0,
      "bekleme_sn": 160.0,
-     "etki": {
-      "can_onar": 225000
+     "effect": {
+      "hp_repair": 225000
      }
     },
     "ability_aegis_shield-repair": {
      "sure_sn": 3.0,
      "bekleme_sn": 80.0,
-     "etki": {
-      "kalkan_onar": 150000
+     "effect": {
+      "shield_repair": 150000
      }
     },
     "ability_aegis_repair-pod": {
      "sure_sn": 10.0,
      "bekleme_sn": 60.0,
-     "etki": {
-      "can_onar": 200000
+     "effect": {
+      "hp_repair": 200000
      }
     },
     "ability_hammerclaw-plus_reallocate": {
@@ -2154,22 +2154,22 @@
     "ability_aegis_hp-repair": {
      "sure_sn": 6.0,
      "bekleme_sn": 160.0,
-     "etki": {
-      "can_onar": 225000
+     "effect": {
+      "hp_repair": 225000
      }
     },
     "ability_aegis_shield-repair": {
      "sure_sn": 3.0,
      "bekleme_sn": 80.0,
-     "etki": {
-      "kalkan_onar": 150000
+     "effect": {
+      "shield_repair": 150000
      }
     },
     "ability_aegis_repair-pod": {
      "sure_sn": 10.0,
      "bekleme_sn": 60.0,
-     "etki": {
-      "can_onar": 200000
+     "effect": {
+      "hp_repair": 200000
      }
     },
     "ability_hammerclaw-plus_reallocate": {
@@ -2189,22 +2189,22 @@
     "ability_aegis_hp-repair": {
      "sure_sn": 6.0,
      "bekleme_sn": 160.0,
-     "etki": {
-      "can_onar": 225000
+     "effect": {
+      "hp_repair": 225000
      }
     },
     "ability_aegis_shield-repair": {
      "sure_sn": 3.0,
      "bekleme_sn": 80.0,
-     "etki": {
-      "kalkan_onar": 150000
+     "effect": {
+      "shield_repair": 150000
      }
     },
     "ability_aegis_repair-pod": {
      "sure_sn": 10.0,
      "bekleme_sn": 60.0,
-     "etki": {
-      "can_onar": 200000
+     "effect": {
+      "hp_repair": 200000
      }
     },
     "ability_hammerclaw-plus_reallocate": {
@@ -2224,22 +2224,22 @@
     "ability_aegis_hp-repair": {
      "sure_sn": 6.0,
      "bekleme_sn": 160.0,
-     "etki": {
-      "can_onar": 225000
+     "effect": {
+      "hp_repair": 225000
      }
     },
     "ability_aegis_shield-repair": {
      "sure_sn": 3.0,
      "bekleme_sn": 80.0,
-     "etki": {
-      "kalkan_onar": 150000
+     "effect": {
+      "shield_repair": 150000
      }
     },
     "ability_aegis_repair-pod": {
      "sure_sn": 10.0,
      "bekleme_sn": 60.0,
-     "etki": {
-      "can_onar": 200000
+     "effect": {
+      "hp_repair": 200000
      }
     },
     "ability_hammerclaw-plus_reallocate": {
@@ -2259,22 +2259,22 @@
     "ability_aegis_hp-repair": {
      "sure_sn": 6.0,
      "bekleme_sn": 160.0,
-     "etki": {
-      "can_onar": 225000
+     "effect": {
+      "hp_repair": 225000
      }
     },
     "ability_aegis_shield-repair": {
      "sure_sn": 3.0,
      "bekleme_sn": 80.0,
-     "etki": {
-      "kalkan_onar": 150000
+     "effect": {
+      "shield_repair": 150000
      }
     },
     "ability_aegis_repair-pod": {
      "sure_sn": 10.0,
      "bekleme_sn": 60.0,
-     "etki": {
-      "can_onar": 200000
+     "effect": {
+      "hp_repair": 200000
      }
     },
     "ability_hammerclaw-plus_reallocate": {
@@ -2294,22 +2294,22 @@
     "ability_aegis_hp-repair": {
      "sure_sn": 6.0,
      "bekleme_sn": 160.0,
-     "etki": {
-      "can_onar": 225000
+     "effect": {
+      "hp_repair": 225000
      }
     },
     "ability_aegis_shield-repair": {
      "sure_sn": 3.0,
      "bekleme_sn": 80.0,
-     "etki": {
-      "kalkan_onar": 150000
+     "effect": {
+      "shield_repair": 150000
      }
     },
     "ability_aegis_repair-pod": {
      "sure_sn": 10.0,
      "bekleme_sn": 60.0,
-     "etki": {
-      "can_onar": 200000
+     "effect": {
+      "hp_repair": 200000
      }
     },
     "ability_hammerclaw-plus_reallocate": {
@@ -2329,22 +2329,22 @@
     "ability_aegis_hp-repair": {
      "sure_sn": 6.0,
      "bekleme_sn": 160.0,
-     "etki": {
-      "can_onar": 225000
+     "effect": {
+      "hp_repair": 225000
      }
     },
     "ability_aegis_shield-repair": {
      "sure_sn": 3.0,
      "bekleme_sn": 80.0,
-     "etki": {
-      "kalkan_onar": 150000
+     "effect": {
+      "shield_repair": 150000
      }
     },
     "ability_aegis_repair-pod": {
      "sure_sn": 10.0,
      "bekleme_sn": 60.0,
-     "etki": {
-      "can_onar": 200000
+     "effect": {
+      "hp_repair": 200000
      }
     },
     "ability_hammerclaw-plus_reallocate": {

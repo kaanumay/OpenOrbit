@@ -83,7 +83,7 @@ def _load():
         if fac:
             g['firma'] = FACTIONS.get(fac.group(1))
         if fac and own and own.group(1) == 'true':
-            g['yalniz_firma'] = FACTIONS.get(fac.group(1))       # 5-X'te her firmanın kendi portalı (yalnız o firmaya görünür)
+            g['only_company'] = FACTIONS.get(fac.group(1))       # 5-X'te her firmanın kendi portalı (yalnız o firmaya görünür)
         gates.setdefault(ref, []).append(g)
     for m in re.finditer(r'^\s*(\d+)\s+(\d-\d|\d-BL|BL-\d)\s*$', text, re.M):
         NAMES[int(m.group(1))] = m.group(2)
@@ -106,17 +106,17 @@ TUTORIAL_GATE, TUTORIAL_MAX_LEVEL = 150000774, 10
 # msg_hidden_pirate_map_no_silverkey; resmî sunucu kaydı: 5-X'teki gibi her firmanın bir portalı), 5-4'ten 5-2'ye dönüş; LoW'un
 # portalı X-3'te (low.py).
 # (harita, anahtar, x, y, hedef, ek alanlar); portal kimliği GATE_ID_BASE + anahtar (istemcinin anahtarları 920042'ye kadar)
-_SILVER = {'ucret': 'gumus_anahtar', 'ipucu': 'ttip_jumpgate_hiddenPirateMap'}
+_SILVER = {'fee': 'silver_key', 'ipucu': 'ttip_jumpgate_hiddenPirateMap'}
 # LoW portalı: resmî sunucu kaydı 2026-10-27, 1-3 ve 2-3'te (2000, 2000), 3-3'te (18500, 2000); tasarım 34
 LOW_DESIGN = 34
 LOW_START = (1000, 11800)       # LoW'a girişin varış yeri: haritanın sol alt köşesi (wiki "lower left corner"; emu-dark LowPortal.cs)
-EXTRA_GATES = [(92, 990006, 18500, 11500, 94, dict(_SILVER, firma=1, yalniz_firma=1)),
-               (92, 990001, 18500, 11500, 94, dict(_SILVER, firma=2, yalniz_firma=2)),
-               (92, 990007, 18500, 11500, 94, dict(_SILVER, firma=3, yalniz_firma=3)),
+EXTRA_GATES = [(92, 990006, 18500, 11500, 94, dict(_SILVER, firma=1, only_company=1)),
+               (92, 990001, 18500, 11500, 94, dict(_SILVER, firma=2, only_company=2)),
+               (92, 990007, 18500, 11500, 94, dict(_SILVER, firma=3, only_company=3)),
                (94, 990002, 4000, 13000, 92, {}),
-               (3, 990003, 2000, 2000, 200, {'low': True, 'varis': LOW_START, 'tasarim': LOW_DESIGN}),
-               (7, 990004, 2000, 2000, 200, {'low': True, 'varis': LOW_START, 'tasarim': LOW_DESIGN}),
-               (11, 990005, 18500, 2000, 200, {'low': True, 'varis': LOW_START, 'tasarim': LOW_DESIGN})]
+               (3, 990003, 2000, 2000, 200, {'low': True, 'arrival': LOW_START, 'tasarim': LOW_DESIGN}),
+               (7, 990004, 2000, 2000, 200, {'low': True, 'arrival': LOW_START, 'tasarim': LOW_DESIGN}),
+               (11, 990005, 18500, 2000, 200, {'low': True, 'arrival': LOW_START, 'tasarim': LOW_DESIGN})]
 for _m, _k, _x, _y, _to, _extra in EXTRA_GATES:
     GATES.setdefault(_m, []).append(dict(gateId=GATE_ID_BASE + _k, key=_k, x=_x, y=_y, hedef=_to, **_extra))
 # korsan ve Black Light haritalarının portalları düzendeki yerlerinde (ipucu ızgarasına oturtulan yer kabaca); varış yeri portala
@@ -127,7 +127,7 @@ for _m, _gs in GATES.items():
         if _p:
             _g['x'], _g['y'] = _p
         if _v:
-            _g['varis'] = _v
+            _g['arrival'] = _v
 # korsan haritalarının portalları (resmî sunucu kaydı 2026-10-25): 4-5'ten 5-1'e ve 5-X'te her firmanın portalı tasarım 51, firması süs
 # (decoratorAssetTypes); 5-X'te başka firmanınki mini haritada ve balonsuz görünmez, atlanamaz (gates). Varış hedefte aynı firmanın tek
 # yönlü portalı (tasarım 52, hep görünmez; harita_duzeni.json varis_portallari). 'tasarim': 'designId' yalnız sonradan eklenenlerde
@@ -293,7 +293,7 @@ def gates(map_id, faction=None):
     fac = faction if faction is not None else PLAYER_FACTION
     # başka firmanın portalı görünmez ama çalışır (oyuncu bildirimi 2026-10-27: gerçek oyunda korsan haritalarında hepsi atlanıyor);
     # kendi firmanınki önce gelir: arrival() geri dönüş portalını ilk eşleşmeden alır
-    return sorted(GATES.get(int(map_id), []), key=lambda g: bool(g.get('yalniz_firma')) and fac not in (None, g['yalniz_firma']))
+    return sorted(GATES.get(int(map_id), []), key=lambda g: bool(g.get('only_company')) and fac not in (None, g['only_company']))
 
 
 def arrival(src_map, dst_map, faction=None):
@@ -327,7 +327,7 @@ def level_required(map_id, faction):
     """Haritaya girmek için gereken seviye: kendi firmanın ya da ortak harita habitant, başka firmanınki foreign (maps-config;
     wiki ile aynı: X-1/X-2 1, X-3 2, 4-X 8-10, X-5 10, X-8 12; başka firmanın X-1'i 16)."""
     import settings as SET
-    if SET.get('seviye_kisiti_yok'):
+    if SET.get('no_level_limit'):
         return 0                          # panel: seviye kısıtları kapalı
     hab, foreign = LEVELS.get(int(map_id), (0, 0))
     c = company(map_id)
@@ -377,9 +377,9 @@ def asset_available(asset_id, tip, near, wild=()):
 
 def jumpgate_create(g, faction=None):
     """faction: oyuncunun firması; 5-X'te başka firmanın portalı görünmez gider (resmî sunucu kaydı: mini haritada yok, balonsuz)."""
-    hidden = g.get('invisible') or (g.get('yalniz_firma') and faction not in (None, g['yalniz_firma']))
+    hidden = g.get('invisible') or (g.get('only_company') and faction not in (None, g['only_company']))
     return ('JumpgateCreateCommand', dict(gateId=g['gateId'], factionId=0, designId=g.get('designId', g.get('tasarim', 1)), x=g['x'],
-                                          y=g['y'], isVisibleOnMinimap=not (hidden or g.get('gizli')),   # 4-5'teki gizli solucan deliği
+                                          y=g['y'], isVisibleOnMinimap=not (hidden or g.get('hidden')),   # 4-5'teki gizli solucan deliği
                                           showBubble=not hidden, decoratorAssetTypes=g.get('decorations', [])))
 
 
@@ -388,7 +388,7 @@ def jumpgate_create(g, faction=None):
 # ttip_jumpgate + %MAP% = adın anahtarı (tür 5) ya da hedef haritanın istemcideki adı (tür 6; maps-config.xml name).
 MODE_TIPS = {'voyagers': 'ttip_jumpgate_voyagersascentrial', 'trinity': 'ttip_jumpgate_trinitytrials',
              'astral': 'ttip_jumpgate_astralascension', 'ebl': 'ttip_jumpgate_eternal_blacklight',
-             'labirent': 'ttip_jumpgate_frozenLabyrinth'}
+             'labyrinth': 'ttip_jumpgate_frozenLabyrinth'}
 DESIGN_TIPS = {87: 'ttip_jumpgate_astralascension_weapon_1', 88: 'ttip_jumpgate_astralascension_weapon_2',          # Astral riftleri
                89: 'ttip_jumpgate_astralascension_generator_1', 90: 'ttip_jumpgate_astralascension_generator_2',
                91: 'ttip_jumpgate_astralascension_ammo_1', 92: 'ttip_jumpgate_astralascension_ammo_2',
@@ -396,7 +396,7 @@ DESIGN_TIPS = {87: 'ttip_jumpgate_astralascension_weapon_1', 88: 'ttip_jumpgate_
                95: 'ttip_jumpgate_astralascension_upgrademodule_1', 96: 'ttip_jumpgate_astralascension_upgrademodule_2',
                97: 'ttip_jumpgate_astralascension_resource_1', 98: 'ttip_jumpgate_astralascension_resource_2',
                99: 'ttip_jumpgate_astralascension_hp_1', 100: 'ttip_jumpgate_astralascension_finalboss'}
-MODE_NAMES = {'echoes': 'window_dse_title', 'plutus': 'title_plutus', 'plutus_kolay': 'title_plutus', 'istila': 'title_invasion'}
+MODE_NAMES = {'echoes': 'window_dse_title', 'plutus': 'title_plutus', 'plutus_easy': 'title_plutus', 'invasion': 'title_invasion'}
 _CLIENT_MAPS = {}
 
 

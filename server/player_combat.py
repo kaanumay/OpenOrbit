@@ -45,7 +45,7 @@ def attack_error(w, other, now):
     if faction and faction == int(b.get('factionId') or 0) and 3 not in relations:
         import settings as SET
         import map_links as H                   # resmî forum 127509: kendi şirketine saldırı serbest (cezalı), ilk iki haritada yasak
-        if not SET.get('sirket_pvp'):
+        if not SET.get('company_pvp'):
             return _denied('friendlyfire_disabled')     # panel: kendi şirketine saldırı kapalı
         if H.company(w.map_id) == faction and H.name(w.map_id).split('-')[-1] in ('1', '2'):
             return _denied('no_attack_on_start_maps')
@@ -70,7 +70,7 @@ def on_kill(killer, victim):
         with kp.lock:
             n = kp.d.setdefault('friendly_kills', 0) + 1
             kp.d['friendly_kills'] = n
-            RT.counters(kp)['dost'] += 1
+            RT.counters(kp)['friendly'] += 1
             kp.dirty = True
         honor = int(C['friend_honor'] * 2 ** (n - 1))
         credits = -min(-C['friend_credits'], kp.d['pilot'].get('credits', 0))
@@ -106,7 +106,7 @@ def _hit(w, other, now, normal, shield=0, atype=1):
         if attack_error(w, other, now):
             return
         import world as D
-        factor = D.SET.multiplier('oyuncu_hasar', 'pvp')                 # panelin hasar çarpanı (Oyunculara alt ayarı)
+        factor = D.SET.multiplier('player_damage', 'pvp')                 # panelin hasar çarpanı (Oyunculara alt ayarı)
         if atype == 1:
             factor *= max(0.0, 1 + other.p.mods().get('laser_taken', 0))
         normal, shield = int(round(normal * factor)), int(round(shield * factor))
@@ -147,8 +147,8 @@ def rocket(w, other, now):
     if err:
         w.send(err)
         return True
-    rocket = w.p.d['secili']['roket']
-    if D.CIT.special(rocket) or rocket not in D.ITEMS['roketler']:
+    rocket = w.p.d['selected']['roket']
+    if D.CIT.special(rocket) or rocket not in D.ITEMS['rockets']:
         w.send([('MessageCommand', dict(displayTarget=2, displayStyle=1,
             messageModule=D.mod('WildcardMessageModule', message=D.mod('MessageKeyListWildcardModule',
                 wildCardReplacements=[], baseKey='Special rockets against players are not supported.',
@@ -164,7 +164,7 @@ def rocket(w, other, now):
     if w.p.use_ammo(rocket, 1) is None:
         sub, msgs = w.ammo_out('roket', rocket, 1)
         w.send(msgs)
-        if not sub or sub not in D.ITEMS['roketler'] or D.CIT.special(sub) or w.p.use_ammo(sub, 1) is None:
+        if not sub or sub not in D.ITEMS['rockets'] or D.CIT.special(sub) or w.p.use_ammo(sub, 1) is None:
             return True
         rocket = sub
     w.end_invuln(force=True)
@@ -172,18 +172,18 @@ def rocket(w, other, now):
     w.items.reveal()
     w.last_combat = w.last_pvp = other.last_pvp = now
     w.stop_repair()
-    w.p.ach('shot', silah='ROCKET_LAUNCHER')
+    w.p.ach('shot', weapon='ROCKET_LAUNCHER')
     mods = w.p.mods()
-    ms = int(D.COMBAT['roket_bekleme_ms'] * (0.5 if w.p.premium else 1)
-             * (1 + mods.get('roket_bekleme', 0)) * D.EX.rocket_factor(w.p) * D.SET.multiplier('roket_bekleme'))
+    ms = int(D.COMBAT['rocket_cooldown_ms'] * (0.5 if w.p.premium else 1)
+             * (1 + mods.get('rocket_cooldown', 0)) * D.EX.rocket_factor(w.p) * D.SET.multiplier('rocket_cooldown'))
     ms = w.abilities.rocket_ms(ms, now)
     w.rocket_ready = now + ms / 1000
     hit = random.random() < w.rocket_hit(rocket)
-    w.send(w.ammo_msgs(rocket) + [w.rocket_msg(other.hid, hit, D.ITEMS['roketler'][rocket].get('kimlik', 1)),
+    w.send(w.ammo_msgs(rocket) + [w.rocket_msg(other.hid, hit, D.ITEMS['rockets'][rocket].get('kimlik', 1)),
         ('MenuItemCooldownGroupTimerCommand', dict(timerState=D.mod('TimerStateModule', timerStateValue=2),
             cooldownType=D.mod('CooldownTypeModule', typeValue=4), maxTime=ms, time=ms))])
-    r = D.ITEMS['roketler'][rocket]
-    damage = int(r.get('pvp_hasar', r.get('hasar', 1000)) * random.uniform(0.85, 1.0)         # BDR-1211 oyunculara en çok 4.000
+    r = D.ITEMS['rockets'][rocket]
+    damage = int(r.get('pvp_damage', r.get('hasar', 1000)) * random.uniform(0.85, 1.0)         # BDR-1211 oyunculara en çok 4.000
                  * (1 + mods.get('roket', 0) + (mods.get('enemy_rocket', 0) if getattr(getattr(other, 'p', None), 'd', {}).get('pilot', {}).get('factionId') != w.p.d['pilot'].get('factionId') else 0))
                  * (1 + w.p.lab_bonus(1)))
     if w.p.lab_bonus(1):

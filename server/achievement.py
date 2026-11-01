@@ -19,7 +19,7 @@ import json, os, time, zlib
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'achievements.json'), encoding='utf8'))
 ACH = D['achievements']
-TITLES = D['unvanlar']
+TITLES = D['titles']
 TITLE_KEYS = {v: k for k, v in TITLES.items()}
 EVENT_TITLE_BASE = 2000          # tabloda olmayan (etkinlik) unvanlar: 2000 + crc32 % 30000 (istemcide kimlik short)
 CURRENCY = {'CREDITS': 'kredi', 'URIDIUM': 'uridyum', 'EXPERIENCE': 'ep', 'HONOUR': 'onur'}
@@ -63,7 +63,7 @@ def ship_icons(name):
 # 1. sıra General of the Month, 2-50. sıra Acclaimed Pilot sayacı (rutbe.py daily_rank yeni ayın ilk hesabında, rütbeden sanal sıra)
 SERVER_SIDE = {'achievement_monthlyranking-general': 'monthly_general', 'achievement_monthlyranking-pilot': 'monthly_pilot',
                # şampiyonlar (E6 uyarlaması): sıralamada tek oyuncu; kişisel rekor (EBL'de en ileri dalga, Plutus'ta en iyi süre)
-               'achievement_event_eternalgate-champion': 'rekor_ebl', 'achievement_event_gauntletofplutus-champion': 'rekor_plutus'}
+               'achievement_event_eternalgate-champion': 'record_ebl', 'achievement_event_gauntletofplutus-champion': 'record_plutus'}
 
 
 def mod(name, **f):
@@ -85,7 +85,7 @@ def _index():
         if not a['etkin'] or not in_season(a):
             continue
         for c in a['seviyeler']:
-            k = KINDS.get(c['sinif'])
+            k = KINDS.get(c['class_name'])
             for kind in (k if isinstance(k, tuple) else (k,)) if k else ():
                 out.setdefault(kind, [])
                 if aid not in out[kind]:
@@ -109,7 +109,7 @@ def set_events(names):
 METAS = {}                       # başvurulan başarım -> MetaAchievement'lar (skor: onun tamamlanan seviyesi)
 for _aid, _a in ACH.items():
     for _c in _a['seviyeler']:
-        if _a['etkin'] and _c['sinif'] == 'MetaAchievement':
+        if _a['etkin'] and _c['class_name'] == 'MetaAchievement':
             for _ref in _c.get('parametreler', {}).get('achievementId', []):
                 METAS.setdefault(_ref, set()).add(_aid)
 
@@ -120,7 +120,7 @@ def param(c, k):
 
 def measure(c, kind, kw):
     """Koşul bu olayla nasıl ilerler: ('add', n) | ('set', değer) | ('item', küme öğesi) | None."""
-    s = c['sinif']
+    s = c['class_name']
     if s == 'Currency':
         n = kw.get(CURRENCY.get((param(c, 'currencyType') or [''])[0], ''), 0)
         return ('add', n) if n > 0 else None
@@ -128,7 +128,7 @@ def measure(c, kind, kw):
         if kw.get('avatar', 'NPC') not in param(c, 'avatar') or (param(c, 'id') and str(kw.get('npc')) not in param(c, 'id')):
             return None
         for i in c.get('ic', []):
-            if i['sinif'] != 'InRadiation' or not kw.get('radyasyon'):
+            if i['class_name'] != 'InRadiation' or not kw.get('radiation'):
                 return None
         return ('add', 1)
     if s == 'NpcTypeDestroyed':
@@ -138,7 +138,7 @@ def measure(c, kind, kw):
             return None
         return ('add', 1)
     if s == 'AssetCollect':
-        return ('add', kw.get('adet', 0)) if kw.get('silah') in param(c, 'assetType') else None
+        return ('add', kw.get('adet', 0)) if kw.get('weapon') in param(c, 'assetType') else None
     if s in ('Quest', 'QuestDeathless'):
         return ('add', 1)
     if s in ('QuestSelection',):
@@ -152,7 +152,7 @@ def measure(c, kind, kw):
     if s in ('Distance', 'Damage'):
         return ('add', int(kw.get('adet', 0))) if kw.get('adet', 0) >= 1 else None
     if s == 'AmmoShots':
-        return ('add', kw.get('adet', 1)) if kw.get('silah') in param(c, 'weaponType') else None
+        return ('add', kw.get('adet', 1)) if kw.get('weapon') in param(c, 'weaponType') else None
     if s == 'Playtime':
         return ('add', 1) if 'PET' not in param(c, 'avatar') or kw.get('pet') else None
     if s == 'PlaytimeOnEnemyMap':
@@ -164,7 +164,7 @@ def measure(c, kind, kw):
     if s == 'DroneFormationChange':
         return ('add', 1)
     if s == 'DroneFormationDroneAmount':
-        return ('set', kw.get('dron', 0))
+        return ('set', kw.get('drone', 0))
     if s == 'EquipItem':
         return ('set', 1) if set(param(c, 'item')) & set(kw.get('esyalar', ())) else None
     if s == 'LaserTypeUsage':                               # 60 sn içinde kullanılan cephane türleri (dunya.py)
@@ -183,21 +183,21 @@ def measure(c, kind, kw):
         return ('add', 1)
     if s == 'Level' and c.get('olay') == 'LEVEL':          # sezon biletinin Level'ları başka olayla (SEASONPASS_Q…)
         who = 'PLAYER' if kind == 'level' else 'PET'
-        return ('set', kw.get('deger', 0)) if who in param(c, 'avatar') else None
+        return ('set', kw.get('value', 0)) if who in param(c, 'avatar') else None
     if s == 'LevelAbsolute':                                # "Gold Season Pass'in 50 seviyesi": bu sezonun grubu (sezon.py)
-        return ('set', kw.get('deger', 0)) if c.get('olay') == kw.get('grup') else None
+        return ('set', kw.get('value', 0)) if c.get('olay') == kw.get('grup') else None
     if s == 'Dispatch':                                     # DISPATCH_RETRIEVER / DISPATCH_GATE
         return ('add', 1) if c.get('olay') == kw.get('olay') else None
     if s == 'NPCSelectionKill':
         hit = kw.get('avatar', 'NPC') == 'NPC' and set(ship_icons(kw.get('ad'))) & set(param(c, 'npcType'))
         return ('add', 1) if hit else None
     if s == 'EventScore':                                   # "bir etkinlikte N puan": etkinlik dönemindeki toplam
-        return ('set', kw.get('deger', 0)) if kw.get('etkinlik') in param(c, 'event') and c.get('olay') == 'EVENT_SCORE' else None
+        return ('set', kw.get('value', 0)) if kw.get('etkinlik') in param(c, 'event') and c.get('olay') == 'EVENT_SCORE' else None
     if s == 'BuildRecipe':
         return ('add', kw.get('adet', 1)) if kw.get('tarif') in param(c, 'recipeId') else None
     if s == 'TriggerMine':                                  # "N mayını T saniyede, ölmeden": süre penceresindeki sayı
         limit = next((int(t.get('time', 0)) for t in param(c, 'timeLimit') if isinstance(t, dict)), 0)
-        return ('times', limit) if kw.get('silah') in param(c, 'weaponType') else None
+        return ('times', limit) if kw.get('weapon') in param(c, 'weaponType') else None
     if s == 'CollectPackage':
         return ('add', 1) if kw.get('paket') in param(c, 'packageId') else None
     if s == 'ClearGalaxyGateWave':                          # "Eternal Gate'te N. dalgaya ulaş": ulaşılan en yüksek dalga
@@ -207,18 +207,18 @@ def measure(c, kind, kw):
     if s == 'EggTriggerCount':
         return ('add', 1) if kw.get('tur') in param(c, 'eggTriggerType') else None
     if s == 'PublicWorldBossCondition':                     # recoverhp / takedamage (unvanın adında); yalnız bu yılın başarımı
-        want = 'wb_heal' if 'recoverhp' in c.get('unvan', '') else 'wb_damage'
+        want = 'wb_heal' if 'recoverhp' in c.get('title', '') else 'wb_damage'
         year = c.get('olay', '').endswith('_%d' % time.localtime().tm_year)
         return ('add', int(kw.get('adet', 0))) if kind == want and year and kw.get('adet', 0) > 0 else None
     return None
 
 
 def state(p):
-    return p.d.setdefault('achievements', {'score': {}, 'kume': {}, 'seviye': {}, 'tarih': {}, 'unvanlar': [], 'unvan': -1})
+    return p.d.setdefault('achievements', {'score': {}, 'set': {}, 'seviye': {}, 'tarih': {}, 'titles': [], 'title': -1})
 
 
 def target(c):
-    return len(c['kume']) if 'kume' in c else c.get('deger', 1)
+    return len(c['set']) if 'set' in c else c.get('value', 1)
 
 
 def title_id(key):
@@ -233,7 +233,7 @@ def title_id(key):
 class Achievements:
     def __init__(self, profile, log=print):
         self.p, self.log = profile, log
-        for k in state(profile)['unvanlar']:
+        for k in state(profile)['titles']:
             title_id(k)
         self.send = None             # oturum: kendiliğinden giden mesajlar (kazanma bildirimi, güncel liste)
 
@@ -248,12 +248,12 @@ class Achievements:
     def score(self, aid, c=None):
         st = state(self.p)
         c = c or self.current(aid)
-        if c and 'kume' in c:
-            return len(set(st['kume'].get(aid, [])) & set(c['kume']))
+        if c and 'set' in c:
+            return len(set(st['set'].get(aid, [])) & set(c['set']))
         return st['score'].get(aid, 0)
 
     def met(self, aid, c):
-        if not c or not c['sinif'] or (c['sinif'] == 'IgnoredCondition' and aid not in SERVER_SIDE):
+        if not c or not c['class_name'] or (c['class_name'] == 'IgnoredCondition' and aid not in SERVER_SIDE):
             return False
         s = self.score(aid, c)
         return s > target(c) if c.get('operator') == '>' else s >= target(c)
@@ -277,10 +277,10 @@ class Achievements:
                         self.p.dirty = True
             for aid in list(BY_KIND.get(kind, ())) + [a for a, k in SERVER_SIDE.items() if k == kind and ACH.get(a, {}).get('etkin')]:
                 c = self.current(aid)
-                k = (SERVER_SIDE.get(aid) or KINDS.get(c['sinif'])) if c else None
+                k = (SERVER_SIDE.get(aid) or KINDS.get(c['class_name'])) if c else None
                 if not k or kind not in (k if isinstance(k, tuple) else (k,)):
                     continue
-                m = ('add', 1) if c['sinif'] == 'IgnoredCondition' else measure(c, kind, kw)
+                m = ('add', 1) if c['class_name'] == 'IgnoredCondition' else measure(c, kind, kw)
                 if not m:
                     continue
                 ev = ACH[aid].get('period_reset')             # "ilerleme bir sonraki etkinliğe taşınmaz" (Ölümsüz Tutku; resmî forum)
@@ -291,7 +291,7 @@ class Achievements:
                     if st.setdefault('donem', {}).get(aid) != key:
                         st['donem'][aid] = key
                         st['score'][aid] = 0
-                        st['kume'].pop(aid, None)
+                        st['set'].pop(aid, None)
                 op, v = m
                 if op == 'add':
                     st['score'][aid] = st['score'].get(aid, 0) + v
@@ -309,14 +309,14 @@ class Achievements:
                     st['time'][aid] = times
                     st['score'][aid] = len(times)
                 elif op == 'window':                 # kümenin anlık hâli (süre penceresi): birikmez
-                    cur = sorted(set(v) & set(c['kume']), key=str)
-                    if st['kume'].get(aid) == cur:
+                    cur = sorted(set(v) & set(c['set']), key=str)
+                    if st['set'].get(aid) == cur:
                         continue
-                    st['kume'][aid] = cur
+                    st['set'][aid] = cur
                 else:
-                    if v not in c['kume'] or v in st['kume'].get(aid, []):
+                    if v not in c['set'] or v in st['set'].get(aid, []):
                         continue
-                    st['kume'].setdefault(aid, []).append(v)
+                    st['set'].setdefault(aid, []).append(v)
                 st['tarih'][aid] = now
                 changed.append(aid)
             if changed:
@@ -334,8 +334,8 @@ class Achievements:
                 with self.p.lock:
                     st['seviye'][aid] = self.level(aid) + 1
                     st['tarih'][aid] = time.strftime('%Y-%m-%d %H:%M:%S')
-                    if c.get('unvan') and c['unvan'] not in st['unvanlar']:
-                        st['unvanlar'].append(c['unvan'])
+                    if c.get('title') and c['title'] not in st['titles']:
+                        st['titles'].append(c['title'])
                     self.p.dirty = True
                 lv = self.level(aid)
                 done.append((aid, lv))
@@ -343,7 +343,7 @@ class Achievements:
                 # (achievement_destroy_centuryfalcon tek seviye, grade 2): canlı test H29, boş bildirim kutusu çıkıyordu
                 msgs.append(legacy('0|A|ACG|%s_%d|%d' % (aid, c.get('grade', lv), target(c))))
                 self.log('   başarım: %s seviye %d (+%d puan%s)' % (aid, lv, c.get('puan', 0),
-                                                                   ', unvan %s' % c['unvan'] if c.get('unvan') else ''))
+                                                                   ', unvan %s' % c['title'] if c.get('title') else ''))
                 for meta in METAS.get(aid, ()):
                     with self.p.lock:
                         st['score'][meta] = lv
@@ -357,12 +357,12 @@ class Achievements:
     def sync(self):
         """Profilden hesaplananlar (store=false): oyuncu ve P.E.T. seviyesi, takılı eşyalar (dron tasarımları dahil)."""
         d = self.p.d
-        done = self.event('level', deger=d['pilot'].get('level', 1))
+        done = self.event('level', value=d['pilot'].get('level', 1))
         if d.get('pet'):
-            done += self.event('pet_level', deger=d['pet'].get('seviye', 0))
-        items = [x for v in d.get('ekipman', {}).values() for x in v]
-        items += [self.p.drone_design(x, s) for x in d.get('dronlar', []) for s in ('design', 'visual')]
-        done += self.event('display', use2d=d.get('ayarlar', {}).get('displaySettingsModule', {}).get('displayUse2d'))
+            done += self.event('pet_level', value=d['pet'].get('seviye', 0))
+        items = [x for v in d.get('equipment', {}).values() for x in v]
+        items += [self.p.drone_design(x, s) for x in d.get('drones', []) for s in ('design', 'visual')]
+        done += self.event('display', use2d=d.get('settings', {}).get('displaySettingsModule', {}).get('displayUse2d'))
         return done + self.event('equip', esyalar=[x for x in items if x])
 
     # ------------------------------------------------------------ istemci
@@ -380,16 +380,16 @@ class Achievements:
             if lv:
                 done.append(self.info(aid, lv, target(a['seviyeler'][lv - 1])))
             c = self.current(aid)
-            if c and c['sinif'] and self.score(aid, c) > 0:
+            if c and c['class_name'] and self.score(aid, c) > 0:
                 running.append((self.score(aid, c) / max(target(c), 1), self.info(aid, lv + 1, self.score(aid, c))))
         nxt = [x for _, x in sorted(running, key=lambda r: -r[0])[:NEXT]]
-        titles = [mod('AchievementTitleCommand', key=k, id=TITLES[k]) for k in st['unvanlar'] if k in TITLES]
-        return ('AchievementListCommand', dict(unlockAchievements2=[], nextAchievements=nxt, displayTitleId=st['unvan'],
+        titles = [mod('AchievementTitleCommand', key=k, id=TITLES[k]) for k in st['titles'] if k in TITLES]
+        return ('AchievementListCommand', dict(unlockAchievements2=[], nextAchievements=nxt, displayTitleId=st['title'],
                                                titleCommandList=titles, list=done, unlockAchievements1=[x for _, x in running]))
 
     def title_msgs(self):
         """Gemi üstündeki unvan (kayıt: 0|n|t|<kullanıcı>|<kimlik>|<anahtar>); yoksa boş."""
-        t = state(self.p)['unvan']
+        t = state(self.p)['title']
         return [legacy('0|n|t|%d|%d|%s' % (self.p.user_id, t, TITLE_KEYS[t]))] if t in TITLE_KEYS else []
 
     def request(self, f):
@@ -397,13 +397,13 @@ class Achievements:
         st = state(self.p)
         t = int(f.get('displayTitleId') or 0)
         msgs = []
-        if t and t != st['unvan']:
-            if t == -1 or TITLE_KEYS.get(t) in st['unvanlar']:
+        if t and t != st['title']:
+            if t == -1 or TITLE_KEYS.get(t) in st['titles']:
                 with self.p.lock:
-                    st['unvan'] = t
+                    st['title'] = t
                     self.p.dirty = True
                 msgs = self.title_msgs()
-                self.log('   unvan: %s' % (TITLE_KEYS.get(t) or 'yok'))
+                self.log('   unvan: %s' % (TITLE_KEYS.get(t) or 'none'))
             else:
                 self.log('   unvan seçilemedi: %d sahip olunmuyor' % t)
         self.sync()

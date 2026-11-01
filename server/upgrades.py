@@ -33,12 +33,12 @@ import ranks as RT
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'client_items.json'), encoding='utf8'))
-UP, DIS, ITEMS = D['yukseltmeler'], D['disassembly'], D['esyalar']
+UP, DIS, ITEMS = D['upgrades'], D['disassembly'], D['esyalar']
 INGREDIENTS = {loot for groups in (UP, DIS) for recipe in groups.values() for level in recipe['seviyeler']
-               for costs in (level.get('maliyet', {}), level.get('jump_to', {})) for loot in costs}
+               for costs in (level.get('cost', {}), level.get('jump_to', {})) for loot in costs}
 UP_OF = {loot: k for k, c in UP.items() for loot in c['esyalar']}
 DIS_OF = {loot: k for k, c in DIS.items() for loot in c['esyalar']}
-HOUR = json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))['yukseltme_saati']
+HOUR = json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))['upgrade_hour']
 LASER, SHIELD, ROCKET = 'LASER_DAMAGE_UPGRADE', 'GENERATOR_SHIELD_UPGRADE', 'ROCKETLAUNCHER_DAMAGE_UPGRADE'
 DRONE_DAMAGE, DRONE_SHIELD = 'DRONE_DAMAGE_UPGRADE', 'DRONE_SHIELD_UPGRADE'
 # hangar eşyasının seviye rozeti (HangarShipEquipmentInventoryItem.UpgradeLevel, "anahtar,gösterilen seviye"): istemci
@@ -57,19 +57,19 @@ OLD_RATIO = {'upgrade_upgrade-class0': 0.25, 'upgrade_upgrade-class0-drone': 0.2
 
 def legacy_table(is_open=None, multiplier=None):
     """Eski sistemin seviye seviye uridyum bedeli {sınıf: [satır başına U.]} (kapalıysa {}); panel istemciye de yazar."""
-    if not (SET.get('eski_yukseltme') if is_open is None else is_open):
+    if not (SET.get('legacy_upgrade') if is_open is None else is_open):
         return {}
-    m = SET.multiplier('eski_yukseltme_fiyat') if multiplier is None else multiplier
+    m = SET.multiplier('legacy_upgrade_price') if multiplier is None else multiplier
     return {k: [int(round((OLD_FIRST + OLD_INCREASE * i) * OLD_RATIO.get(k, 1.0) * m)) for i in range(len(c['seviyeler']))]
             for k, c in UP.items()}
 
 
 def row_cost(key, i):
     """Yükseltme sınıfının i. satırının (0'dan) bedeli: eski sistem açıksa yalnız uridyum, değilse istemcinin malzemeleri."""
-    if SET.get('eski_yukseltme'):
+    if SET.get('legacy_upgrade'):
         n = legacy_table()[key][i]
         return {'currency_uridium': n} if n > 0 else {}
-    return {loot: a for loot, a in UP[key]['seviyeler'][i]['maliyet'].items() if a > 0}
+    return {loot: a for loot, a in UP[key]['seviyeler'][i]['cost'].items() if a > 0}
 
 
 def mod(name, **f):
@@ -83,12 +83,12 @@ def max_level(loot):
 
 
 def item_level(p, iid):
-    return int(p.d.get('yukseltme_seviye', {}).get(str(iid), 0))
+    return int(p.d.get('upgrade_level', {}).get(str(iid), 0))
 
 
 def badge(loot, level):
     """Hangar rozetinin satırları: yükseltilmişse eşyanın her bonus türü için "anahtar,seviye + 1" (istemcide 1. seviye rozetsiz)."""
-    return ['%s,%d' % (BADGE[u['tur']], level + 1) for u in ITEMS.get(loot, {}).get('yukseltme', []) if u['tur'] in BADGE] if level else []
+    return ['%s,%d' % (BADGE[u['tur']], level + 1) for u in ITEMS.get(loot, {}).get('upgrade', []) if u['tur'] in BADGE] if level else []
 
 
 def spent(p, iid):
@@ -105,19 +105,19 @@ def factor(loot, level, kind):
     """Yükseltme bonusu çarpanı: 1 + seviye x yüzde (eşyanın o türden bonusu yoksa 1)."""
     if not level:
         return 1.0
-    for u in ITEMS.get(loot, {}).get('yukseltme', []):
+    for u in ITEMS.get(loot, {}).get('upgrade', []):
         if u['tur'] == kind:
             return 1 + level * u['yuzde'] / 100.0
     return 1.0
 
 
 def drone_level(x):
-    return int(x.get('yukseltme', 0))
+    return int(x.get('upgrade', 0))
 
 
 def bonus_hour(now=None):
     """Upgrade Hour sürüyorsa uridyum indirimi (0,25), yoksa 0 (event_calendar.py: yukseltme_saati, yerel saatle)."""
-    return HOUR['discount'] if CAL.is_active('yukseltme_saati', now) else 0.0
+    return HOUR['discount'] if CAL.is_active('upgrade_hour', now) else 0.0
 
 
 class Upgrade:
@@ -132,7 +132,7 @@ class Upgrade:
 
     @property
     def st(self):
-        return self.p.d.setdefault('assembly', {}).setdefault('yukseltme', {})
+        return self.p.d.setdefault('assembly', {}).setdefault('upgrade', {})
 
     # ------------------------------------------------------------ hedefler
     def target(self, key, tid):
@@ -140,11 +140,11 @@ class Upgrade:
         loot = self.p.d['esyalar'].get(str(tid))
         if loot:
             return 'esya', loot, int(tid)
-        x = next((d for d in self.p.d.get('dronlar', []) if d['kimlik'] == int(tid or 0)), None)
+        x = next((d for d in self.p.d.get('drones', []) if d['kimlik'] == int(tid or 0)), None)
         if x and '-drone' in key:
-            return 'dron', x['lootId'], x
+            return 'drone', x['lootId'], x
         cbs = getattr(self.m, 'cbs', None)
-        m = cbs.st['moduller'].get(str(tid)) if cbs and '-cbs' in key and not cbs.where(tid) else None
+        m = cbs.st['modules'].get(str(tid)) if cbs and '-cbs' in key and not cbs.where(tid) else None
         if m:
             return 'modul', m['loot'], (int(tid), m)          # Clan Battle Station modülü (takılı değilken; magaza.module_items)
         return None
@@ -152,17 +152,17 @@ class Upgrade:
     def level_of(self, kind, ref):
         if kind == 'modul':
             return int(ref[1].get('seviye', 0))
-        return drone_level(ref) if kind == 'dron' else item_level(self.p, ref)
+        return drone_level(ref) if kind == 'drone' else item_level(self.p, ref)
 
     def set_level(self, kind, ref, n):
         with self.p.lock:
-            if kind == 'dron':
-                ref['yukseltme'] = n
+            if kind == 'drone':
+                ref['upgrade'] = n
             elif kind == 'modul':                       # can ve kalkan yeni seviyenin azamisine (cbs.mx)
                 ref[1]['seviye'] = n
                 ref[1]['can'], ref[1]['kalkan'] = self.m.cbs.mx(ref[1])
             else:
-                self.p.d.setdefault('yukseltme_seviye', {})[str(ref)] = n
+                self.p.d.setdefault('upgrade_level', {})[str(ref)] = n
             self.p.dirty = True
 
     # ------------------------------------------------------------ pencere
@@ -205,7 +205,7 @@ class Upgrade:
         pct = int(round((bonus_hour(now) + (self.m.discount() if self.m else 0.0)) * 100))
         if pct and need.get('currency_uridium'):
             need['currency_uridium'] = need['currency_uridium'] * max(0, 100 - pct) // 100
-        return {} if SET.get('assembly_ucretsiz') else need, SET.duration(sum(r['sure_sn'] for r in rows), 'yukseltme')            # panel: bekleme
+        return {} if SET.get('assembly_free') else need, SET.duration(sum(r['sure_sn'] for r in rows), 'upgrade')            # panel: bekleme
 
     def build(self, f, now=None):
         now = now or time.time()
@@ -266,7 +266,7 @@ class Upgrade:
         if not self.m:
             return []
         self.p.sync_equipment()
-        if kind == 'dron':
+        if kind == 'drone':
             return [self.m.drone_item(ref), self.m.equipment_cmd()] + self.m.apply_stats()     # Assembly'deki seviyesi de
         if kind == 'modul':
             return [self.m.module_item(*ref)]
@@ -290,13 +290,13 @@ class Upgrade:
         başına 1 uridyum alınıyordu, pencere ise Isochronate gösteriyordu (canlı test H58)."""
         now = time.time() if now is None else now
         rows = UP[key]['seviyeler'][b['seviye'] - b['adet']:b['seviye']]
-        total = SET.duration(sum(r['sure_sn'] for r in rows), 'yukseltme') or 1
+        total = SET.duration(sum(r['sure_sn'] for r in rows), 'upgrade') or 1
         frac = min(1.0, max(0.0, (b['bitis'] - now) / total))
         need = {}
         for r in rows:
             for loot, a in r.get('jump_to', {}).items():
                 need[loot] = need.get(loot, 0) + a
-        return {} if SET.get('assembly_ucretsiz') else {loot: max(1, int(a * frac + 0.5)) for loot, a in need.items()}
+        return {} if SET.get('assembly_free') else {loot: max(1, int(a * frac + 0.5)) for loot, a in need.items()}
 
     def skip(self, f, now=None):
         now = now or time.time()
@@ -334,16 +334,16 @@ class Upgrade:
         if not row:
             self.log('   Disassembly: %s seviye %d sökülmez' % (loot, lv))
             return [self.update(key, iid)]
-        fee = {} if SET.get('assembly_ucretsiz') else {l: a for l, a in row['maliyet'].items() if a > 0}
-        back = {l: -a for l, a in row['maliyet'].items() if a < 0}
+        fee = {} if SET.get('assembly_free') else {l: a for l, a in row['cost'].items() if a > 0}
+        back = {l: -a for l, a in row['cost'].items() if a < 0}
         if INV.missing(self.p, fee):
             self.log('   Disassembly: ücret yetmiyor %s' % fee)
             return [self.update(key, iid)]
         INV.spend(self.p, fee, reason='buy_SPECIAL', detail=key)
         with self.p.lock:
             del self.p.d['esyalar'][str(iid)]
-            self.p.d.get('yukseltme_seviye', {}).pop(str(iid), None)
-            self.p.d.get('esya_seviye', {}).pop(str(iid), None)
+            self.p.d.get('upgrade_level', {}).pop(str(iid), None)
+            self.p.d.get('item_level', {}).pop(str(iid), None)
             self.p.dirty = True
         msgs = INV.update_msgs(self.m, self.p, list(fee), [iid])
         for l, n in back.items():
@@ -379,7 +379,7 @@ class Upgrade:
 
     @staticmethod
     def old_key():
-        return bool(SET.get('eski_yukseltme')), SET.multiplier('eski_yukseltme_fiyat')
+        return bool(SET.get('legacy_upgrade')), SET.multiplier('legacy_upgrade_price')
 
     def tick(self, now):
         # Eski sistem oyun açıkken açılıp kapanınca ya da fiyatı değişince: istemcinin tarif modelleri bedeli önbellekler (açıktan
@@ -396,7 +396,7 @@ class Upgrade:
         on = bool(bonus_hour(now))
         if on != self.hour_on:
             self.hour_on = on
-            self.log('   Upgrade Hour %s' % ('başladı' if on else 'bitti'))
+            self.log('   Upgrade Hour %s' % ('başladı' if on else 'finished'))
             if self.send:
                 from legacy_protocol import legacy
                 msgs = [legacy('0|A|STM|bn_upgradeBounsHour_content')] if on else []     # "%25 uridyum indirimi" (istemcinin metni)

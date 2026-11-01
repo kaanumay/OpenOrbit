@@ -56,7 +56,7 @@ def refine(bot, product, count):
         if cargo[str(t)] <= 0:
             del cargo[str(t)]
     cargo[str(product)] = cargo.get(str(product), 0) + n
-    bot.ist('aritma', n)
+    bot.ist('refining', n)
     return n
 
 
@@ -73,19 +73,19 @@ def load(bot, part, ore, count):
     duration = count * UNIT[part] * (LAB.get('minute_sec', 60) if part >= 2 else 1)
     v = y.get(str(part))
     y[str(part)] = [ore, (v[1] if v and int(v[0]) == ore else 0) + duration]
-    bot.ist('lab_yukleme', count)
+    bot.ist('lab_load', count)
     return count
 
 
 def will_upgrade(bot):
     if not bot.permission.get('lab', True) or bot.level < 4:
         return False
-    return bot.o('hirs') * 0.5 + bot.o('rekabet') * 0.3 + (1 - bot.o('tutumluluk')) * 0.4 > 0.55
+    return bot.o('ambition') * 0.5 + bot.o('rekabet') * 0.3 + (1 - bot.o('frugality')) * 0.4 > 0.55
 
 
 def _is_promerium_good(bot, need):
     """Kargoyla Promerium yolu (+%30) Prometid yolundan (+%15) çok mu kazandırır (bonus x mermi): kargonun kopyasında dener."""
-    original, counter = dict(_cargo(bot)), bot.k['istat'].get('aritma', 0)
+    original, counter = dict(_cargo(bot)), bot.k['stats'].get('refining', 0)
     try:
         refine(bot, PROMETID, need * 10)
         refine(bot, DURANIUM, need * 10)
@@ -94,7 +94,7 @@ def _is_promerium_good(bot, need):
         prometid = refine(bot, PROMETID, need)
     finally:
         bot.k['kargo'] = original
-        bot.k['istat']['aritma'] = counter
+        bot.k['stats']['refining'] = counter
     return BONUS[LAZER][PROMERIUM] * prom > BONUS[LAZER][PROMETID] * prometid
 
 
@@ -104,7 +104,7 @@ def decision(bot, hourly_ammo):
     if not will_upgrade(bot):
         return
     cargo = _cargo(bot)
-    target = hourly_ammo * (1 + bot.o('hirs'))                     # yaklaşık bir-iki saatlik mermi
+    target = hourly_ammo * (1 + bot.o('ambition'))                     # yaklaşık bir-iki saatlik mermi
     v = lab_data(bot).get(str(LAZER))
     if not v or v[1] < target * 0.3:
         need = int(target / UNIT[LAZER]) + 1

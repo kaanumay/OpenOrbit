@@ -53,18 +53,18 @@ class Mail:
         self.p, self.log = profile, log
         self.m = None                       # mağaza (ekler: ödül yolu)
         with self.p.lock:
-            d = self.p.d.setdefault('posta', {})
-            for k, v in (('sira', 1), ('gelen', []), ('giden', []), ('notlar', []), ('kara_liste', [])):
+            d = self.p.d.setdefault('mailer', {})
+            for k, v in (('order', 1), ('incoming', []), ('outgoing', []), ('notes', []), ('blacklist', [])):
                 d.setdefault(k, v)
             # eski kayıtlardaki Türkçe "Yerel sunucu" karşılaması (yabancı oyuncular ne olduğunu soruyordu) silinir
-            d['gelen'] = [r for r in d['gelen'] if not (r.get('sender') == 'DarkOrbit' and r.get('konu') == 'Yerel sunucu')]
+            d['incoming'] = [r for r in d['incoming'] if not (r.get('sender') == 'DarkOrbit' and r.get('konu') == 'Yerel sunucu')]
         if not self.d.get('welcome'):
             self.d['welcome'] = True
             self.add(INFO, 'messaging_systemMessage_1_subject', 'messaging_systemMessage_1_body')
 
     @property
     def d(self):
-        return self.p.d['posta']
+        return self.p.d['mailer']
 
     # -------------------------------------------------------- mesaj üretme (öbür sistemler de kullanır)
     def add(self, kind, subject, body, sender='', sender_id=0, attachments=(), extra=None, inbox=True):
@@ -73,14 +73,14 @@ class Mail:
         if attachments:
             kind = INFO                                # istemci ekleri yalnız bilgi mesajında gösterir
         with self.p.lock:
-            mid = self.d['sira']
-            self.d['sira'] += 1
+            mid = self.d['order']
+            self.d['order'] += 1
             rec = {'id': mid, 'tur': kind, 'durum': UNREAD if inbox else READ, 'tarih': stamp(), 'konu': subject,
                    'metin': body, 'sender': sender, 'sender_id': sender_id, 'attachments': [list(a) for a in attachments],
                    'attachment_claimed': not attachments}
             if extra:
                 rec.update(extra)
-            box = self.d['gelen' if inbox else 'giden']
+            box = self.d['incoming' if inbox else 'outgoing']
             box.insert(0, rec)
             if len(box) > BOX_LIMIT:             # sistem iletileri birikir: en eskiler silinir, eki alınmamışlar kalır
                 box[BOX_LIMIT:] = [r for r in box[BOX_LIMIT:] if not r.get('attachment_claimed', True)]
@@ -92,7 +92,7 @@ class Mail:
         return ('UserMessageNewCommand', {'userMessageInfoCommand': self.info(rec, True), 'unreadCount': self.unread()})
 
     def unread(self):
-        return sum(1 for r in self.d['gelen'] if r['durum'] == UNREAD)
+        return sum(1 for r in self.d['incoming'] if r['durum'] == UNREAD)
 
     def info(self, r, inbox):
         me = self.p.d['pilot']
@@ -117,18 +117,18 @@ class Mail:
 
     # -------------------------------------------------------- istekler
     def init_cmd(self):
-        return ('UserMessageInitCommand', {'unreadCount': self.unread(), 'outboxCount': len(self.d['giden']),
-                                           'inboxCount': len(self.d['gelen']), 'noteLimit': self.note_limit()})
+        return ('UserMessageInitCommand', {'unreadCount': self.unread(), 'outboxCount': len(self.d['outgoing']),
+                                           'inboxCount': len(self.d['incoming']), 'noteLimit': self.note_limit()})
 
     def box(self, inbox, start):
         start = max(0, int(start or 0))
-        rows = self.d['gelen' if inbox else 'giden'][start:start + PAGE]
+        rows = self.d['incoming' if inbox else 'outgoing'][start:start + PAGE]
         name = 'UserMessageInboxListCommand' if inbox else 'UserMessageOutboxListCommand'
         return (name, {'userMessageInfoCommandList': [self.info(r, inbox) for r in rows], 'startIndex': start})
 
     def find(self, inbox, ids):
         want = {int(i) for i in ids or []}
-        return [r for r in self.d['gelen' if inbox else 'giden'] if r['id'] in want]
+        return [r for r in self.d['incoming' if inbox else 'outgoing'] if r['id'] in want]
 
     def handle(self, name, f):
         if name == 'UserMessageInitRequest':
@@ -164,7 +164,7 @@ class Mail:
         if f.get('recipientType') == 'clan':                   # klanın sunucudaki üyeleri (çevrimdışı kaydı yüklü olmayan atlanır)
             import clan as KL
             k = KL.clan_of(self.p)
-            names = [u['ad'] for a, u in k['uyeler'].items() if a == KL.name(self.p) or TP.find(name=a) is not None] if k else []
+            names = [u['ad'] for a, u in k['members'].items() if a == KL.name(self.p) or TP.find(name=a) is not None] if k else []
         if not names:
             return reply(False, 'messaging_errorLayer_noRecipient')
         if f.get('recipientType') != 'clan' and len(names) > MAX_RECIPIENTS:
@@ -186,9 +186,9 @@ class Mail:
         for k in recipients:                                     # alıcının kara listesi ya da rehberde engeli (forum: kara liste)
             if k is None:
                 continue
-            if any(int(x.get('id', 0)) == self.p.user_id for x in (k.profile.d.get('posta') or {}).get('kara_liste', ())):
+            if any(int(x.get('id', 0)) == self.p.user_id for x in (k.profile.d.get('mailer') or {}).get('blacklist', ())):
                 return reply(False, 'messaging_errorLayer_blacklisted')
-            blocked = (k.profile.d.get('rehber') or {}).get('engelli') or []
+            blocked = (k.profile.d.get('contacts') or {}).get('blocked') or []
             if any(own.lower() == str(x.get('ad', x) if isinstance(x, dict) else x).lower() for x in blocked):
                 return reply(False, 'messaging_errorLayer_blocked')
         extra = {'recipients': [k.name if k else own for k in recipients], 'recipient_ids': [k.uid if k else self.p.user_id for k in recipients]}
@@ -210,12 +210,12 @@ class Mail:
     def delete(self, inbox, ids):
         drop = {r['id'] for r in self.find(inbox, ids)}
         with self.p.lock:
-            box = 'gelen' if inbox else 'giden'
+            box = 'incoming' if inbox else 'outgoing'
             self.d[box] = [r for r in self.d[box] if r['id'] not in drop]
             self.p.dirty = True
         # messageInfoCommands: istemci listeyi silmeden sonra bunlardan yeniden kuruyor (UserMessageDeleteEventHandler.Run ->
         # CreateMailItem); boş gidince liste boşalıyordu (canlı deneme 2026-10-17). Kutunun ilk sayfası.
-        return [('UserMessageDeleteCommand', {'inbox': inbox, 'count': len(self.d['gelen' if inbox else 'giden']),
+        return [('UserMessageDeleteCommand', {'inbox': inbox, 'count': len(self.d['incoming' if inbox else 'outgoing']),
                                               'textCommand': stack(), 'titleCommand': stack(), 'deleteIds': sorted(drop),
                                               'unreadCount': self.unread(), 'success': bool(drop),
                                               'messageInfoCommands': self.box(inbox, 0)[1]['userMessageInfoCommandList']})]
@@ -244,7 +244,7 @@ class Mail:
             self.log('   posta eki alındı: %s %s' % (r['konu'], r.get('attachments')))
         page = []
         if done:                                       # istemci Loot yanıtını işlemiyor: "Claimed" görünsün diye mesajın sayfası
-            pos = next(i for i, r in enumerate(self.d['gelen']) if r['id'] == done[0])
+            pos = next(i for i, r in enumerate(self.d['incoming']) if r['id'] == done[0])
             page = [self.box(True, pos // PAGE * PAGE)]
         return [('UserMessageLootCommand', {'ids': done})] + msgs + page
 
@@ -253,7 +253,7 @@ class Mail:
         return mod('UserMessageNoteInfoCommand', insertDate=n['tarih'], noteId=n['id'], body=n['metin'], subject=n['konu'])
 
     def notes(self, name, f):
-        notes = self.d['notlar']
+        notes = self.d['notes']
         lst = lambda: [self.note_cmd(n) for n in notes]
         if name == 'UserMessageNoteListRequest':
             return [('UserMessageNoteListCommand', {'noteInfoCommandList': lst()})]
@@ -263,8 +263,8 @@ class Mail:
                                                        'success': False,
                                                        'textCommand': stack('messaging_errorLayer_notesLimitReached_text', _notesLimit_=self.note_limit())})]
             with self.p.lock:
-                nid = self.d['sira']
-                self.d['sira'] += 1
+                nid = self.d['order']
+                self.d['order'] += 1
                 notes.insert(0, {'id': nid, 'tarih': stamp(), 'konu': str(f.get('subject', ''))[:50],
                                  'metin': str(f.get('body', ''))[:5000]})
                 self.p.dirty = True
@@ -293,7 +293,7 @@ class Mail:
         return NOTE_LIMIT_PREMIUM if self.p.premium else NOTE_LIMIT
 
     def blacklist(self, name, f):
-        bl = self.d['kara_liste']
+        bl = self.d['blacklist']
         uid = int(f.get('blackUserId') or 0)
         ids = lambda: [x['id'] for x in bl]
         names = lambda: [x['ad'] for x in bl]

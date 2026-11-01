@@ -37,15 +37,15 @@ _FOCUS = (('kapi', re.compile(r'\b(gates?|gg|galaxy gates?|kap[ıi]\w*|alpha|bet
                              r'hades)\b', re.I)),
          ('gorev', re.compile(r'\b(quests?|missions?|g[öo]rev\w*)\b', re.I)),
          ('pvp', re.compile(r'\b(pvp|hunt\w*|enem(y|ies)|kill (players|enemies)|d[üu][şs]man\w*|avla\w*)\b', re.I)),
-         ('satis', re.compile(r'\b(sell\w*|ore|cargo|cevher\w*|kargo\w*)\b', re.I)),
+         ('selling', re.compile(r'\b(sell\w*|ore|cargo|cevher\w*|kargo\w*)\b', re.I)),
          ('mod', re.compile(r'\b(events?|etkinli\w*)\b', re.I)),
-         ('kasilma', re.compile(r'\b(farm\w*|grind\w*|npcs?|aliens?|uzayl[ıi]\w*|kas[ıi]n|kas[ıi]l\w*|kasma\w*)\b', re.I)))
+         ('grinding', re.compile(r'\b(farm\w*|grind\w*|npcs?|aliens?|uzayl[ıi]\w*|kas[ıi]n|kas[ıi]l\w*|kasma\w*)\b', re.I)))
 _LAYOUT = (('kalkan', re.compile(r'\b(full|all|max)\s*(shields?|shd|kalkan)|\b(tam|full)\s*kalkan', re.I)),
          ('hiz', re.compile(r'\b(full|all|max)\s*(speed|spd|h[ıi]z)|\b(tam|full)\s*h[ıi]z', re.I)),
-         ('denge', re.compile(r'\b(balanced|half|hybrid|dengeli|yar[ıi] yar[ıi]ya)\b', re.I)))
+         ('baseline', re.compile(r'\b(balanced|half|hybrid|dengeli|yar[ıi] yar[ıi]ya)\b', re.I)))
 _SHIP_VERB = re.compile(r'\b(use|fly|switch|ride|change to|kullan\w*|u[çc]un|ge[çc]in|binin)\b', re.I)
 _BUY = re.compile(r'\b(get|buy|equip|grab|save (up )?for|al[ıi]n|alsın|biriktir\w*|tak[ıi]n)\b', re.I)
-LAYOUT_SHARE = {'kalkan': 0.95, 'hiz': 0.3, 'denge': 0.6}
+LAYOUT_SHARE = {'kalkan': 0.95, 'hiz': 0.3, 'baseline': 0.6}
 HUNT_SEC = GO_SEC
 CLAN_FOCUS_SEC = FOCUS_SEC
 _NAME = r"([\w.\-]{2,20}?)"
@@ -105,7 +105,7 @@ def find_clan(s, own=None):
 def _items():
     """Kısa ad -> loot: "lf-3", "sg3n-b02", "iris", "goliath" (tasarımsız gemiler)."""
     out = {}
-    for group in ('lazerler', 'kalkan_jeneratorleri', 'hiz_jeneratorleri', 'dronlar'):
+    for group in ('lasers', 'shield_generators', 'speed_generators', 'drones'):
         for loot in K.ITEMS[group]:
             out.setdefault(loot.rsplit('_', 1)[-1].lower(), loot)
     for loot in K.ships():
@@ -137,30 +137,30 @@ def parse(text, own_clan=None, known=None, names=()):
     hm = SPC.MAP_RE.search(s)
     game_map = ('%s-%s' % (hm.group(1), hm.group(2).upper() if hm.group(2).isalpha() else hm.group(2))) if hm else None
     if _STOP.search(s):
-        return dict(e, tur='dur')
+        return dict(e, tur='halt')
     for name, rx in _LAYOUT:
         if rx.search(s):
-            return dict(e, tur='yapi', yapi=name)
+            return dict(e, tur='structure', structure=name)
     item = find_item(s) if _BUY.search(s) or _SHIP_VERB.search(s) else None     # "nice goliath" emir değil
     if item:
         return dict(e, tur='gemi' if item.startswith('ship_') else 'al', esya=item)
     if _CLAN_FOCUS.search(s):
         c = find_clan(s, own_clan)
         if c is not None:
-            return dict(e, tur='klan_odak', klan=c['id'])
+            return dict(e, tur='clan_focus', klan=c['id'])
     hunt = hunt_name(s, known, names)
     if hunt:
-        return dict(e, tur='avla', hedef=hunt)
+        return dict(e, tur='hunt', hedef=hunt)
     if _DEFEND.search(s) and _US.search(s) and not game_map:
         return dict(e, tur='us')
     if _COME.search(s) and not game_map:
-        return dict(e, tur='gel')
+        return dict(e, tur='come')
     if game_map and (_DEFEND.search(s) or _COME.search(s) or re.search(r"\b(everyone|all|herkes|hepiniz)\b", s, re.I)):
         return dict(e, tur='git', harita=game_map)
     if re.search(r'\b(focus|everyone|all|go|let\'?s|herkes|hepiniz|odaklan\w*|yap[ıi]n|gidin)\b', s, re.I):
         for name, rx in _FOCUS:
             if rx.search(s):
-                return dict(e, tur='odak', hedef=name)
+                return dict(e, tur='focus', hedef=name)
     return None
 
 
@@ -172,8 +172,8 @@ def base_map(profile):
     for source in (CB.shared(), profile):
         if source is None:
             continue
-        for aid, a in ((source.d.get('cbs') or {}).get('asteroitler') or {}).items():
-            if (isinstance(a, dict) and a.get('sahip') != 'rakip' and a.get('durum') in ('kurulu', 'kurma')
+        for aid, a in ((source.d.get('cbs') or {}).get('asteroids') or {}).items():
+            if (isinstance(a, dict) and a.get('sahip') != 'rival' and a.get('durum') in ('built', 'building')
                     and a.get('klan') in (None, (k or {}).get('id'))):
                 ast = CB.ASTEROIDS.get(int(aid))
                 if ast:
@@ -182,39 +182,39 @@ def base_map(profile):
 
 
 def will_obey(b, name, leader, now):
-    p = 0.45 + 0.4 * b.o('sadakat') + 0.4 * b.memory.relation(name, now) + (0.15 if leader else 0) - 0.25 * b.mood['yorgunluk']
+    p = 0.45 + 0.4 * b.o('loyalty') + 0.4 * b.memory.relation(name, now) + (0.15 if leader else 0) - 0.25 * b.mood['fatigue']
     return b.r.random() < p
 
 
 def apply(y, b, e, name, person, now):
     """Bir botta emir -> (kalıp, alanlar). Uymadıysa ('emir_ret', {})."""
     kind = e['tur']
-    if kind == 'dur':
+    if kind == 'halt':
         b.k['intent'] = None
         b.k.pop('order', None)
         b.k.pop('hunt_order', None)
         b.k.pop('clan_focus', None)
         b.next_decision = now
         return 'emir_tamam', {}
-    if kind == 'yapi':
-        b.k['yapi'] = e['yapi']
+    if kind == 'structure':
+        b.k['structure'] = e['structure']
         b.loadout_changed()
         return 'emir_tamam', {}
     if kind in ('al', 'gemi'):
-        if b.k['ekip'].get('gemi') == e['esya']:
+        if b.k['gear'].get('gemi') == e['esya']:
             return 'emir_tamam', {}
-        b.k['birikim'] = e['esya']                      # alışveriş yalnız onu biriktirir (alisveris.aday)
+        b.k['savings'] = e['esya']                      # alışveriş yalnız onu biriktirir (alisveris.aday)
         b._candidates = None
         if kind == 'gemi':
             family = e['esya'][len('ship_'):].split('-')[0]
-            b.k['kisilik']['taste'] = family               # bundan sonra o gemi ailesini sever
+            b.k['personality']['taste'] = family               # bundan sonra o gemi ailesini sever
         b.k['order'] = {'tur': kind, 'esya': e['esya'], 'kim': name, 't': now}
         return 'emir_tamam', {}
-    if kind == 'odak':
+    if kind == 'focus':
         B.force(b, e['hedef'], plan={}, pay=1.3, duration=FOCUS_SEC, now=now)
-        b.k['order'] = {'tur': 'odak', 'hedef': e['hedef'], 'kim': name, 't': now}
+        b.k['order'] = {'tur': 'focus', 'hedef': e['hedef'], 'kim': name, 't': now}
         return 'emir_tamam', {}
-    if kind == 'avla':
+    if kind == 'hunt':
         from .goals import pvp as PV
         t = PV.find_target(y, e['hedef'])
         if t is None or t[0].lower() == name.lower() or t[0].lower() == b.name.lower():
@@ -223,15 +223,15 @@ def apply(y, b, e, name, person, now):
             return 'duello_ayni', {}                    # kendi firmasına saldıramaz
         if t[3] is not None and t[3] == b.k.get('klan'):
             return 'emir_ret', {}                       # klan arkadaşı
-        if not y.permission('pvp') or t[4] and not y.permission('oyuncuya_saldir') or b.level < (y.setting('pvp_seviye', 6) or 1):
+        if not y.permission('pvp') or t[4] and not y.permission('attack_player') or b.level < (y.setting('pvp_level', 6) or 1):
             return 'emir_ret', {}
         b.k['hunt_order'] = {'ad': t[0].lower(), 'bitis': now + HUNT_SEC, 'kim': name}
         B.force(b, 'pvp', plan={}, pay=1.6, duration=HUNT_SEC, now=now)
         return 'emir_av', {'ad': t[0]}
-    if kind == 'klan_odak':
+    if kind == 'clan_focus':
         import clan as KL
         c = KL.CLANS.get(e['klan'])
-        if c is None or c['id'] == b.k.get('klan') or b.level < (y.setting('pvp_seviye', 6) or 1) or not y.permission('pvp'):
+        if c is None or c['id'] == b.k.get('klan') or b.level < (y.setting('pvp_level', 6) or 1) or not y.permission('pvp'):
             return 'emir_ret', {}
         b.k['clan_focus'] = {'klan': c['id'], 'bitis': now + CLAN_FOCUS_SEC, 'kim': name}
         B.force(b, 'pvp', plan={}, pay=1.0, duration=CLAN_FOCUS_SEC, now=now)
@@ -240,7 +240,7 @@ def apply(y, b, e, name, person, now):
     if kind == 'git':
         from .agent_tools import _game_map
         m = _game_map(e['harita'])
-    elif kind == 'gel':
+    elif kind == 'come':
         m = int(person.profile.d['position'].get('mapId', 0)) if person is not None else None
     elif kind == 'us':
         m = base_map(person.profile) if person is not None else None
@@ -249,13 +249,13 @@ def apply(y, b, e, name, person, now):
     if not m or m not in K.MAPS or not K.can_enter(m, b.firma, b.level) or not K.route(b.game_map, m, b.firma, b.level):
         return 'gelemem', {}
     B.force(b, 'yardim', plan={'harita': int(m), 'ad': name}, pay=1.6, duration=BASE_SEC if kind == 'us' else GO_SEC, now=now)
-    b.memory.event(name, 'yardim_ettim', now)
+    b.memory.event(name, 'i_helped', now)
     return 'geliyorum', {'harita': H.name(m)}
 
 
 def handle(y, channel, msg, who, listener, now):
     """Sohbet motorundan: klan kanalındaki (ya da bota fısıltıdaki) mesaj klan emriyse uygular ve yanıtlatır -> işlendi mi."""
-    if not y.permission('klan_emir') or channel not in ('klan', 'fisilti'):
+    if not y.permission('clan_order') or channel not in ('klan', 'whisper'):
         return False
     import clan as KL
     import community as TP
@@ -273,18 +273,18 @@ def handle(y, channel, msg, who, listener, now):
     if not members:
         return False
     leader = kl['lider'] == name.lower()
-    order = sorted(members, key=lambda b: -(b.o('sadakat') + b.memory.relation(name, now)) * b.r.uniform(0.8, 1.2))
+    order = sorted(members, key=lambda b: -(b.o('loyalty') + b.memory.relation(name, now)) * b.r.uniform(0.8, 1.2))
     accept = 0
     for i, b in enumerate(order):
         if e.get('sayi') and accept >= e['sayi']:
             break
-        if e['tur'] == 'dur' or will_obey(b, name, leader, now):
+        if e['tur'] == 'halt' or will_obey(b, name, leader, now):
             template, area = apply(y, b, e, name, person, now)
             accept += template not in ('gelemem', 'duello_ayni')
         else:
             template, area = 'emir_ret', {}
         if i < 4 or template == 'geliyorum':                 # herkes yazmaz: ilk birkaçı ve yola çıkanlar
-            y.speak(b, 'fisilti' if channel == 'fisilti' else 'klan', SPC.template(b, template, **area), recipient=name if channel == 'fisilti' else None,
+            y.speak(b, 'whisper' if channel == 'whisper' else 'klan', SPC.template(b, template, **area), recipient=name if channel == 'whisper' else None,
                     now=now + b.r.uniform(0.5, 3) * (i + 1), priority=True)
     y.log('   botlar: klan emri %s: %s -> %d/%d bot' % (name, e, accept, len(members)))
     return True

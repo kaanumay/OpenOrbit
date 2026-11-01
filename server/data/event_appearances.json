@@ -1,102 +1,102 @@
 {
  "_description": "Etkinlik görünümleri: mağazadaki kaynaksız tasarımların (E11 'kozmetik', E4 Holo) gerçek oyundaki kaynağı ve tek oyunculudaki\nkazanma yolları -> server/data/etkinlik_gorunumleri.json (sunucu: etkinlik_gorunumleri.py).\n\nGirdi belgeler/wiki/tasarim_kaynaklari.json: darkorbitwiki'nin gemi, dron ve P.E.T. sayfalarındaki \"OBTAINING\" etiketleri, etkinlik\nsayfalarının ödül satırları ve kutu içerikleri, tasarım başına ('etkinlikler': etiketlerden çıkan etkinlik adları).\nYalnız mağaza etiketli olanlar (SHOP PAYMENTS, HOURLY AUCTION; etkinlik adı yok) etkinlik görünümü sayılmaz, hep mağazadadır. Ötekiler\netkinlik görünümü: panelin \"Etkinlik görünümleri mağazada\" ayarı kapalıyken mağazada görünmez ve satılmaz; ayardan bağımsız buradaki\nyollarla kazanılır:\n  degisim  Battle Pass'li etkinliğin anahtar değişimi (battle_pass.py): gemi ve P.E.T. tasarımı 25 anahtar, bir kez; dron tasarımı\n           15 anahtar, 10 kez (wiki: Galactic Strife 2026'nın değişimi)\n  kutu     anahtarlı ganimet kutusu (ganimet.py; kutular.json türü; sahip olunan tasarım çekilmez). Kutunun wiki tablosunda (Epic paketleri\n           dahil) zaten olan tasarımın yolu \"tablo\": true (ek satır eklenmez); Red Box'ın tasarımları Blue Box'a da girer. Bu yollar\n           wiki tablosunun dışında, kutunun tasarım çekilişine katılan \"yerel\" satırlardır (ganimet.pick). Üst anahtar \"box_extra\": güncel\n           Red / Blue sayfasından (2026-10-25) çıkan, başka kazanma yolu olmayan 15 eski P.E.T. tasarımı (yolsuz kalmasınlar)\n  kapi     GG Special Rewards Weekend'de Zeta ve Kappa kapısının seçimli ödülü (wiki: Delta, Epsilon, Zeta, Kappa; %50, sahip olunan\n           çekilmez)\n  harita   etkinliğin harita kutusu (etkinlik_harita.py): Goal Rush'ın futbol kutusu, Aralık'ın hediye kutusu\n  sezon    Season Pass'in sezon tasarımları (sezon.py): 14 sezonun dron ve P.E.T. tasarımı sezon sırasıyla, 2026-08'den sonra baştan\nEtkinlik seçimi: wiki etiketlerindeki etkinlikler (sunucudaki adıyla); etiketi olmayanlarda ya da yalnız \"BOXES\" / \"–\" olanlarda\ntasarımın teması (aynı temanın etiketli tasarımlarının etkinliği: Arios ve Neikos Galactic Strife, Dusklight ve Phantasm Trial of\nTerrors, Inferno Protegit, Epion / Osiris / Smite üçlüleri GG hafta sonu kapıları …), o da yoksa temanın genel kutusu: gemi Obsidian,\ndron Apocalypse, P.E.T. Red Box (Argon, Lava, Legend, Carbonite, Sandstorm … tasarımları bu kutularda).\nWiki'de sayfası olmayan, bir kez koşmuş geçmiş etkinlikler en yakın etkinliğe (uyarlama): Battle Arena -> Galactic Strife (sıralama\nödülü), Plague Mutation -> Prosperous Mutation, Astral Discovery -> Empyrian March (tasarımı orada da), Blacklight Surge'ün Tyrannos'u\nMimesis Mutiny'ye; SpaceCup'ınkiler halefi Goal Rush'a; Saimon Rebellion, Project Nano, Razer haftası, özel görev temalarıyla.\nÜreten: tools/etkinlik_gorunumleri.py.",
- "ayar": "etkinlik_gorunumleri_magazada",
+ "ayar": "event_looks_in_shop",
  "seasons": [
   {
-   "sezon": "2023-05",
+   "season": "2023-05",
    "ad": "Mobius",
-   "dron": "drone_designs_drone-sentinel-mobius",
+   "drone": "drone_designs_drone-sentinel-mobius",
    "pet": "pet_designs_pet-diminisher-mobius",
    "gemi": null
   },
   {
-   "sezon": "2023-08",
+   "season": "2023-08",
    "ad": "Horus",
-   "dron": "drone_designs_drone-cyborg-horus",
+   "drone": "drone_designs_drone-cyborg-horus",
    "pet": "pet_designs_pet-cyborg-horus",
    "gemi": null
   },
   {
-   "sezon": "2023-11",
+   "season": "2023-11",
    "ad": "Eldritch",
-   "dron": "drone_designs_drone-diminisher-eldritch",
+   "drone": "drone_designs_drone-diminisher-eldritch",
    "pet": "pet_designs_pet-diminisher-eldritch",
    "gemi": null
   },
   {
-   "sezon": "2024-02",
+   "season": "2024-02",
    "ad": "Viking Orcus",
-   "dron": "drone_designs_drone-orcus-viking",
+   "drone": "drone_designs_drone-orcus-viking",
    "pet": "pet_designs_pet-orcus-viking",
    "gemi": null
   },
   {
-   "sezon": "2024-05",
+   "season": "2024-05",
    "ad": "Dogma",
-   "dron": "drone_designs_drone-goliath-dogma",
+   "drone": "drone_designs_drone-goliath-dogma",
    "pet": "pet_designs_pet-goliath-dogma",
    "gemi": "ship_goliath-plus_design_goliath-plus-arisen"
   },
   {
-   "sezon": "2024-08",
+   "season": "2024-08",
    "ad": "Samurai",
-   "dron": "drone_designs_drone-citadel-samurai",
+   "drone": "drone_designs_drone-citadel-samurai",
    "pet": "pet_designs_pet-citadel-samurai",
    "gemi": "ship_citadel-plus_design_citadel-plus-shogun"
   },
   {
-   "sezon": "2024-11",
+   "season": "2024-11",
    "ad": "Enigma",
-   "dron": "drone_designs_drone-solace-enigma",
+   "drone": "drone_designs_drone-solace-enigma",
    "pet": "pet_designs_pet-solace-enigma",
    "gemi": "ship_solace-plus_design_solace-plus-atlantis"
   },
   {
-   "sezon": "2025-02",
+   "season": "2025-02",
    "ad": "Thornspire",
-   "dron": "drone_designs_drone-orcus-thornspire",
+   "drone": "drone_designs_drone-orcus-thornspire",
    "pet": "pet_designs_pet-orcus-thornspire",
    "gemi": "ship_orcus_design_orcus-hellspire"
   },
   {
-   "sezon": "2025-05",
+   "season": "2025-05",
    "ad": "Khepri",
-   "dron": "drone_designs_drone-paladin-khepri",
+   "drone": "drone_designs_drone-paladin-khepri",
    "pet": "pet_designs_pet-paladin-khepri",
    "gemi": null
   },
   {
-   "sezon": "2025-08",
+   "season": "2025-08",
    "ad": "Dreadwing",
-   "dron": "drone_designs_skull-dreadwing",
+   "drone": "drone_designs_skull-dreadwing",
    "pet": "pet_designs_pet-goliath-dreadwing",
    "gemi": null
   },
   {
-   "sezon": "2025-11",
+   "season": "2025-11",
    "ad": "Viking Citadel",
-   "dron": "drone_designs_drone-citadel-viking",
+   "drone": "drone_designs_drone-citadel-viking",
    "pet": "pet_designs_pet-citadel-viking",
    "gemi": null
   },
   {
-   "sezon": "2026-02",
+   "season": "2026-02",
    "ad": "Wyvern",
-   "dron": "drone_designs_drone-retiarus-wyvern",
+   "drone": "drone_designs_drone-retiarus-wyvern",
    "pet": "pet_designs_pet-retiarus-wyvern",
    "gemi": null
   },
   {
-   "sezon": "2026-05",
+   "season": "2026-05",
    "ad": "Striker",
-   "dron": "drone_designs_drone-solace-striker",
+   "drone": "drone_designs_drone-solace-striker",
    "pet": "pet_designs_pet-solace-striker",
    "gemi": null
   },
   {
-   "sezon": "2026-08",
+   "season": "2026-08",
    "ad": "Cerevisia",
-   "dron": "drone_designs_drone-hyperion-cerevisia",
+   "drone": "drone_designs_drone-hyperion-cerevisia",
    "pet": "pet_designs_pet-hyperion-cerevisia",
    "gemi": null
   }
@@ -104,11 +104,11 @@
  "looks": {
   "ship_holo_design_holo-epion": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -120,11 +120,11 @@
   },
   "ship_holo_design_holo-osiris": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -139,7 +139,7 @@
    "etkinlik": "prometheus",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "weight": 0.5
@@ -149,11 +149,11 @@
   },
   "ship_holo_design_holo-smite": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -168,10 +168,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Galactic Strife Event (2019)"
@@ -181,7 +181,7 @@
    "etkinlik": "empyrian",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "weight": 0.5
@@ -194,21 +194,21 @@
    "etkinlik": "hitac",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "hitac",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "HITAC ASSAULT EVENT 2024"
   },
   "ship_berserker_design_berserker-frost": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -223,7 +223,7 @@
    "etkinlik": "empyrian",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "weight": 0.5
@@ -236,7 +236,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -249,10 +249,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Galactic Strife Event (2019)"
@@ -262,10 +262,10 @@
    "etkinlik": "plutus",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "plutus",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "GAUNTLET OF PLUTUS EVENT 2024"
@@ -275,7 +275,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -285,13 +285,13 @@
   },
   "ship_centurion_design_centurion-frost": {
    "tur": "ship",
-   "etkinlik": "labirent",
+   "etkinlik": "labyrinth",
    "paths": [
     {
-     "yol": "degisim",
-     "etkinlik": "labirent",
-     "bedel": 25,
-     "sinir": 1
+     "route": "exchange",
+     "etkinlik": "labyrinth",
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "–"
@@ -301,10 +301,10 @@
    "etkinlik": "plutus",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "plutus",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "GAUNTLET OF PLUTUS EVENT 2026 | EVENT Gauntlet of Plutus: Key Exchange 25 Battle Keys; exchange limit 0/1"
@@ -314,10 +314,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "GALACTIC STRIFE EVENT 2025"
@@ -327,7 +327,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -340,21 +340,21 @@
    "etkinlik": "hitac",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "hitac",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "SHOP PAYMENTS | EVENT Hitac Assault: Battle Pass Boxes - CONTENTS 1%"
   },
   "ship_citadel-plus_design_citadel-plus-frost": {
    "tur": "ship",
-   "etkinlik": "kis",
+   "etkinlik": "winter",
    "paths": [
     {
-     "yol": "harita",
-     "etkinlik": "kis",
+     "route": "harita",
+     "etkinlik": "winter",
      "kutu": "GIFT_BOXES",
      "weight": 0.25
     }
@@ -366,7 +366,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -379,10 +379,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "GALACTIC STRIFE EVENT 2025"
@@ -392,21 +392,21 @@
    "etkinlik": "plutus",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "plutus",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Gauntlet Of Plutus Event 2022"
   },
   "ship_citadel-plus_design_citadel-plus-osiris": {
    "tur": "ship",
-   "etkinlik": "bahar",
+   "etkinlik": "spring",
    "paths": [
     {
-     "yol": "kutu",
-     "etkinlik": "bahar",
+     "route": "kutu",
+     "etkinlik": "spring",
      "kutu": "LUCENT_ALIEN_EGG_BOOTY_BOX",
      "weight": 0.5
     }
@@ -418,10 +418,10 @@
    "etkinlik": "halloween",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "halloween",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "BOXES | EVENT NEW ITEMS sidebar (site-wide, identical on every page): Listed in NEW ITEMS sidebar as 'Ship Design - Phantasm Citadel Plus' 01.10.2026"
@@ -431,7 +431,7 @@
    "etkinlik": "prosperous",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
      "weight": 0.5
@@ -441,22 +441,22 @@
   },
   "ship_citadel-plus_design_citadel-plus-shogun": {
    "tur": "ship",
-   "etkinlik": "sezon",
+   "etkinlik": "season",
    "paths": [
     {
-     "yol": "sezon",
-     "etkinlik": "sezon"
+     "route": "season",
+     "etkinlik": "season"
     }
    ],
    "kaynak": "SEASON PASS 2024"
   },
   "ship_citadel_design_citadel-epion": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -468,11 +468,11 @@
   },
   "ship_citadel_design_citadel-osiris": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -484,11 +484,11 @@
   },
   "ship_citadel_design_citadel-smite": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -503,10 +503,10 @@
    "etkinlik": "immortal_union",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "immortal_union",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Immortal Union Event | EVENT Immortal Union: Battle Pass Boxes - CONTENTS 0.3%"
@@ -516,10 +516,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "GALACTIC STRIFE 2023"
@@ -529,7 +529,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -542,10 +542,10 @@
    "etkinlik": "prosperous",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
-     "tablo": true,
+     "table": true,
      "weight": 0.5
     }
    ],
@@ -556,7 +556,7 @@
    "etkinlik": "goal_rush",
    "paths": [
     {
-     "yol": "harita",
+     "route": "harita",
      "etkinlik": "goal_rush",
      "kutu": "FOOTBALL_BOX",
      "weight": 1
@@ -569,7 +569,7 @@
    "etkinlik": "empyrian",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "weight": 0.5
@@ -579,11 +579,11 @@
   },
   "ship_cyborg_design_cyborg-epion": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -598,7 +598,7 @@
    "etkinlik": "goal_rush",
    "paths": [
     {
-     "yol": "harita",
+     "route": "harita",
      "etkinlik": "goal_rush",
      "kutu": "FOOTBALL_BOX",
      "weight": 1
@@ -608,13 +608,13 @@
   },
   "ship_cyborg_design_cyborg-frost": {
    "tur": "ship",
-   "etkinlik": "labirent",
+   "etkinlik": "labyrinth",
    "paths": [
     {
-     "yol": "degisim",
-     "etkinlik": "labirent",
-     "bedel": 25,
-     "sinir": 1
+     "route": "exchange",
+     "etkinlik": "labyrinth",
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "–"
@@ -624,10 +624,10 @@
    "etkinlik": "protegit",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "protegit",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "–"
@@ -637,7 +637,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -650,7 +650,7 @@
    "etkinlik": "goal_rush",
    "paths": [
     {
-     "yol": "harita",
+     "route": "harita",
      "etkinlik": "goal_rush",
      "kutu": "FOOTBALL_BOX",
      "weight": 1
@@ -663,10 +663,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "GALACTIC STRIFE 2023"
@@ -676,7 +676,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -686,11 +686,11 @@
   },
   "ship_cyborg_design_cyborg-osiris": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -705,7 +705,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -715,11 +715,11 @@
   },
   "ship_cyborg_design_cyborg-smite": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -734,7 +734,7 @@
    "etkinlik": "goal_rush",
    "paths": [
     {
-     "yol": "harita",
+     "route": "harita",
      "etkinlik": "goal_rush",
      "kutu": "FOOTBALL_BOX",
      "weight": 1
@@ -747,7 +747,7 @@
    "etkinlik": "goal_rush",
    "paths": [
     {
-     "yol": "harita",
+     "route": "harita",
      "etkinlik": "goal_rush",
      "kutu": "FOOTBALL_BOX",
      "weight": 1
@@ -760,7 +760,7 @@
    "etkinlik": "prometheus",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "weight": 0.5
@@ -773,7 +773,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -786,10 +786,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Galactic Strife Event (2021)"
@@ -799,7 +799,7 @@
    "etkinlik": "prometheus",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "weight": 0.5
@@ -812,7 +812,7 @@
    "etkinlik": "empyrian",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "weight": 0.5
@@ -825,13 +825,13 @@
    "etkinlik": "prometheus",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "weight": 0.5
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "weight": 0.5
@@ -844,10 +844,10 @@
    "etkinlik": "prometheus",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "tablo": true,
+     "table": true,
      "weight": 0.5
     }
    ],
@@ -858,10 +858,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Galactic Strife Event (2021)"
@@ -871,10 +871,10 @@
    "etkinlik": "halloween",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "halloween",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "TRIAL OF TERRORS EVENT 2025"
@@ -884,21 +884,21 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Galactic Strife Event (2019)"
   },
   "ship_disruptor_design_disruptor-frost": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -913,10 +913,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Galactic Strife Event (2019)"
@@ -926,7 +926,7 @@
    "etkinlik": "prometheus",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "weight": 0.5
@@ -939,10 +939,10 @@
    "etkinlik": "empyrian",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "tablo": true,
+     "table": true,
      "weight": 0.5
     }
    ],
@@ -953,21 +953,21 @@
    "etkinlik": "halloween",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "halloween",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "–"
   },
   "ship_g-surgeon_design_g-surgeon-cicada": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -979,11 +979,11 @@
   },
   "ship_g-surgeon_design_g-surgeon-devolarium": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -995,11 +995,11 @@
   },
   "ship_g-surgeon_design_g-surgeon-locust": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -1011,11 +1011,11 @@
   },
   "ship_g-surgeon_design_g-surgeon-saimon": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -1027,11 +1027,11 @@
   },
   "ship_g-surgeon_design_g-surgeon-sibelonit": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -1046,32 +1046,32 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "GALACTIC STRIFE EVENT 2023"
   },
   "ship_goliath-plus_design_goliath-plus-arisen": {
    "tur": "ship",
-   "etkinlik": "sezon",
+   "etkinlik": "season",
    "paths": [
     {
-     "yol": "sezon",
-     "etkinlik": "sezon"
+     "route": "season",
+     "etkinlik": "season"
     }
    ],
    "kaynak": "SEASON PASS 2024"
   },
   "ship_goliath-plus_design_goliath-plus-bdayriot": {
    "tur": "ship",
-   "etkinlik": "kis",
+   "etkinlik": "winter",
    "paths": [
     {
-     "yol": "harita",
-     "etkinlik": "kis",
+     "route": "harita",
+     "etkinlik": "winter",
      "kutu": "GIFT_BOXES",
      "weight": 0.25
     }
@@ -1083,7 +1083,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -1096,10 +1096,10 @@
    "etkinlik": "hitac",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "hitac",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "HITAC ASSAULT EVENT 2026 | EVENT Hitac Assault: LOTTERY REWARD ('All used capsules will take part in the lottery at the end of the event') 5 reward packages per instance (no chance/rank shown)"
@@ -1109,10 +1109,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "GALACTIC STRIFE EVENT 2023"
@@ -1122,10 +1122,10 @@
    "etkinlik": "plutus",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "plutus",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "GAUNTLET OF PLUTUS EVENT 2021"
@@ -1135,7 +1135,7 @@
    "etkinlik": "prosperous",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
      "weight": 0.5
@@ -1148,7 +1148,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -1161,7 +1161,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -1174,10 +1174,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Battle Arena Event"
@@ -1187,10 +1187,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Battle Arena Event"
@@ -1200,10 +1200,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Battle Arena Event"
@@ -1213,10 +1213,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "GALACTIC STRIFE EVENT 2024"
@@ -1226,7 +1226,7 @@
    "etkinlik": "empyrian",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "weight": 0.5
@@ -1239,10 +1239,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "GALACTIC STRIFE EVENT 2024"
@@ -1252,7 +1252,7 @@
    "etkinlik": "prometheus",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "weight": 0.5
@@ -1265,7 +1265,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -1275,13 +1275,13 @@
   },
   "ship_hammerclaw_design_hammerclaw-frozen": {
    "tur": "ship",
-   "etkinlik": "labirent",
+   "etkinlik": "labyrinth",
    "paths": [
     {
-     "yol": "degisim",
-     "etkinlik": "labirent",
-     "bedel": 25,
-     "sinir": 1
+     "route": "exchange",
+     "etkinlik": "labyrinth",
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "–"
@@ -1291,10 +1291,10 @@
    "etkinlik": "protegit",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "protegit",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "–"
@@ -1304,7 +1304,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -1317,7 +1317,7 @@
    "etkinlik": "prometheus",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "weight": 0.5
@@ -1330,7 +1330,7 @@
    "etkinlik": "prosperous",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
      "weight": 0.5
@@ -1343,10 +1343,10 @@
    "etkinlik": "mimesis_mutiny",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "mimesis_mutiny",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Blacklight Surge Event (2019)"
@@ -1356,10 +1356,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "GALACTIC STRIFE EVENT 2026 | EVENT Galactic Strife: Key Exchange 25 Battle Keys; exchange limit 0/1"
@@ -1369,10 +1369,10 @@
    "etkinlik": "mimesis_mutiny",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "mimesis_mutiny",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "MIMESIS MUTINY EVENT 2025"
@@ -1382,7 +1382,7 @@
    "etkinlik": "empyrian",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "weight": 0.5
@@ -1395,21 +1395,21 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "GALACTIC STRIFE EVENT 2026 | EVENT Galactic Strife: Key Exchange 25 Battle Keys; exchange limit 0/1"
   },
   "ship_hecate_design_hecate-carbonite": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -1424,7 +1424,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -1437,21 +1437,21 @@
    "etkinlik": "protegit",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "protegit",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "–"
   },
   "ship_hecate_design_hecate-lava": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -1466,7 +1466,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -1476,11 +1476,11 @@
   },
   "ship_hecate_design_hecate-poison": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -1495,7 +1495,7 @@
    "etkinlik": "prosperous",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
      "weight": 0.5
@@ -1505,11 +1505,11 @@
   },
   "ship_keres_design_keres-frost": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -1524,7 +1524,7 @@
    "etkinlik": "prometheus",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "weight": 0.5
@@ -1537,7 +1537,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -1550,7 +1550,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -1560,11 +1560,11 @@
   },
   "ship_mimesis_design_mimesis-epion": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -1576,11 +1576,11 @@
   },
   "ship_mimesis_design_mimesis-frost": {
    "tur": "ship",
-   "etkinlik": "kis",
+   "etkinlik": "winter",
    "paths": [
     {
-     "yol": "harita",
-     "etkinlik": "kis",
+     "route": "harita",
+     "etkinlik": "winter",
      "kutu": "GIFT_BOXES",
      "weight": 0.25
     }
@@ -1592,10 +1592,10 @@
    "etkinlik": "protegit",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "protegit",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "–"
@@ -1605,7 +1605,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -1615,11 +1615,11 @@
   },
   "ship_mimesis_design_mimesis-osiris": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -1634,21 +1634,21 @@
    "etkinlik": "halloween",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "halloween",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Trial Of Terrors Event 2022 / SHOP PAYMENTS"
   },
   "ship_mimesis_design_mimesis-smite": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -1663,7 +1663,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -1676,7 +1676,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -1689,10 +1689,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "GALACTIC STRIFE EVENT 2023"
@@ -1702,7 +1702,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -1715,7 +1715,7 @@
    "etkinlik": "goal_rush",
    "paths": [
     {
-     "yol": "harita",
+     "route": "harita",
      "etkinlik": "goal_rush",
      "kutu": "FOOTBALL_BOX",
      "weight": 1
@@ -1728,10 +1728,10 @@
    "etkinlik": "halloween",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "halloween",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "BOXES"
@@ -1741,7 +1741,7 @@
    "etkinlik": "empyrian",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "weight": 0.5
@@ -1754,7 +1754,7 @@
    "etkinlik": "goal_rush",
    "paths": [
     {
-     "yol": "harita",
+     "route": "harita",
      "etkinlik": "goal_rush",
      "kutu": "FOOTBALL_BOX",
      "weight": 1
@@ -1764,13 +1764,13 @@
   },
   "ship_orcus_design_orcus-frost": {
    "tur": "ship",
-   "etkinlik": "labirent",
+   "etkinlik": "labyrinth",
    "paths": [
     {
-     "yol": "degisim",
-     "etkinlik": "labirent",
-     "bedel": 25,
-     "sinir": 1
+     "route": "exchange",
+     "etkinlik": "labyrinth",
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Winter Event (2020)"
@@ -1780,21 +1780,21 @@
    "etkinlik": "mimesis_mutiny",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "mimesis_mutiny",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "MIMESIS MUTINY EVENT 2025"
   },
   "ship_orcus_design_orcus-hellspire": {
    "tur": "ship",
-   "etkinlik": "sezon",
+   "etkinlik": "season",
    "paths": [
     {
-     "yol": "sezon",
-     "etkinlik": "sezon"
+     "route": "season",
+     "etkinlik": "season"
     }
    ],
    "kaynak": "SEASON PASS VIII 2025"
@@ -1804,7 +1804,7 @@
    "etkinlik": "goal_rush",
    "paths": [
     {
-     "yol": "harita",
+     "route": "harita",
      "etkinlik": "goal_rush",
      "kutu": "FOOTBALL_BOX",
      "weight": 1
@@ -1817,10 +1817,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "GALACTIC STRIFE EVENT 2023"
@@ -1830,10 +1830,10 @@
    "etkinlik": "plutus",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "plutus",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Gauntlet Of Plutus Event (2021)"
@@ -1843,7 +1843,7 @@
    "etkinlik": "goal_rush",
    "paths": [
     {
-     "yol": "harita",
+     "route": "harita",
      "etkinlik": "goal_rush",
      "kutu": "FOOTBALL_BOX",
      "weight": 1
@@ -1856,10 +1856,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "GALACTIC STRIFE EVENT 2024"
@@ -1869,7 +1869,7 @@
    "etkinlik": "goal_rush",
    "paths": [
     {
-     "yol": "harita",
+     "route": "harita",
      "etkinlik": "goal_rush",
      "kutu": "FOOTBALL_BOX",
      "weight": 1
@@ -1882,10 +1882,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "GALACTIC STRIFE EVENT 2024"
@@ -1895,10 +1895,10 @@
    "etkinlik": "halloween",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "halloween",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "TRIAL OF TERROS EVENT 2025"
@@ -1908,7 +1908,7 @@
    "etkinlik": "empyrian",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "weight": 0.5
@@ -1918,13 +1918,13 @@
   },
   "ship_paladin_design_paladin-frost": {
    "tur": "ship",
-   "etkinlik": "labirent",
+   "etkinlik": "labyrinth",
    "paths": [
     {
-     "yol": "degisim",
-     "etkinlik": "labirent",
-     "bedel": 25,
-     "sinir": 1
+     "route": "exchange",
+     "etkinlik": "labyrinth",
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "WINTER EVENT 2025 | EVENT Winter Event: Key Exchange 25 Battle Keys; exchange limit 0/1"
@@ -1934,10 +1934,10 @@
    "etkinlik": "mimesis_mutiny",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "mimesis_mutiny",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "MIMESIS MUTINY EVENT 2025"
@@ -1947,7 +1947,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -1960,10 +1960,10 @@
    "etkinlik": "plutus",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "plutus",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "GAUNTLET OF PLUTUS EVENT 2026 | EVENT Gauntlet of Plutus: Key Exchange 25 Battle Keys; exchange limit 0/1"
@@ -1973,10 +1973,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Galactic Strife Event 2023"
@@ -1986,10 +1986,10 @@
    "etkinlik": "halloween",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "halloween",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "–"
@@ -1999,7 +1999,7 @@
    "etkinlik": "empyrian",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "weight": 0.5
@@ -2012,10 +2012,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Galactic Strife Event 2023"
@@ -2025,10 +2025,10 @@
    "etkinlik": "hitac",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "hitac",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Hitac Assault Event (2022)"
@@ -2038,7 +2038,7 @@
    "etkinlik": "empyrian",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "weight": 0.5
@@ -2051,10 +2051,10 @@
    "etkinlik": "protegit",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "protegit",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "PROTEGIT PANDEMONIUM EVENT 2026 | EVENT Protegit Pandemonium: Key Exchange 25 Battle Keys; exchange limit 0/1"
@@ -2064,21 +2064,21 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Galactic Strife Event (2020)"
   },
   "ship_retiarus_design_retiarus-frost": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -2093,10 +2093,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Galactic Strife Event (2020)"
@@ -2106,10 +2106,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Galactic Strife Event (2019)"
@@ -2119,7 +2119,7 @@
    "etkinlik": "prosperous",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
      "weight": 0.5
@@ -2132,7 +2132,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -2145,7 +2145,7 @@
    "etkinlik": "empyrian",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "weight": 0.5
@@ -2158,22 +2158,22 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "weight": 0.5
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
-     "tablo": true,
+     "table": true,
      "weight": 0.5
     }
    ],
@@ -2184,16 +2184,16 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "tablo": true,
+     "table": true,
      "weight": 0.5
     }
    ],
@@ -2204,7 +2204,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -2217,10 +2217,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Galactic Strife Event (2020)"
@@ -2230,21 +2230,21 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "GALACTIC STRIFE 2023"
   },
   "ship_solace-plus_design_solace-plus-atlantis": {
    "tur": "ship",
-   "etkinlik": "sezon",
+   "etkinlik": "season",
    "paths": [
     {
-     "yol": "sezon",
-     "etkinlik": "sezon"
+     "route": "season",
+     "etkinlik": "season"
     }
    ],
    "kaynak": "SEASON PASS 2024"
@@ -2254,7 +2254,7 @@
    "etkinlik": "empyrian",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "weight": 0.5
@@ -2267,10 +2267,10 @@
    "etkinlik": "hitac",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "hitac",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "EVENT Hitac Assault: Battle Pass Boxes - CONTENTS 1% | BOX Battle Pass Box: HITAC ASSAULT"
@@ -2280,10 +2280,10 @@
    "etkinlik": "protegit",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "protegit",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Protegit Pandemonium Event 2023"
@@ -2293,10 +2293,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "GALACTIC STRIFE 2023"
@@ -2306,10 +2306,10 @@
    "etkinlik": "halloween",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "halloween",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Trial Of Terrors Event 2022 / SHOP PAYMENTS"
@@ -2319,7 +2319,7 @@
    "etkinlik": "prometheus",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "weight": 0.5
@@ -2332,7 +2332,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -2345,7 +2345,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -2358,7 +2358,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -2368,11 +2368,11 @@
   },
   "ship_solace_design_solace-frost": {
    "tur": "ship",
-   "etkinlik": "kis",
+   "etkinlik": "winter",
    "paths": [
     {
-     "yol": "harita",
-     "etkinlik": "kis",
+     "route": "harita",
+     "etkinlik": "winter",
      "kutu": "GIFT_BOXES",
      "weight": 0.25
     }
@@ -2384,7 +2384,7 @@
    "etkinlik": "empyrian",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "weight": 0.5
@@ -2397,10 +2397,10 @@
    "etkinlik": "plutus",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "plutus",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Gauntlet Of Plutus Event (2020)"
@@ -2410,7 +2410,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -2423,7 +2423,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -2436,7 +2436,7 @@
    "etkinlik": "prometheus",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "weight": 0.5
@@ -2449,7 +2449,7 @@
    "etkinlik": "prosperous",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
      "weight": 0.5
@@ -2462,10 +2462,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Galactic Strife Event 2024"
@@ -2475,10 +2475,10 @@
    "etkinlik": "mimesis_mutiny",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "mimesis_mutiny",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "MIMESIS MUTINY EVENT 2026 | EVENT Mimesis Mutiny: Key Exchange 25 Battle Keys; exchange limit 0/1"
@@ -2488,7 +2488,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -2501,7 +2501,7 @@
    "etkinlik": "empyrian",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "weight": 0.5
@@ -2514,10 +2514,10 @@
    "etkinlik": "hitac",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "hitac",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "HITAC ASSAULT EVENT 2025 | EVENT Hitac Assault: Battle Pass Boxes - CONTENTS 1%"
@@ -2527,7 +2527,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -2540,10 +2540,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Galactic Strife Event 2024"
@@ -2553,10 +2553,10 @@
    "etkinlik": "plutus",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "plutus",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Gauntlet Of Plutus Event 2022"
@@ -2566,10 +2566,10 @@
    "etkinlik": "halloween",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "halloween",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "BOXES | EVENT NEW ITEMS sidebar (site-wide, identical on every page): Listed in NEW ITEMS sidebar as 'Ship Design - Phantasm Solaris Plus' 01.10.2026"
@@ -2579,21 +2579,21 @@
    "etkinlik": "mimesis_mutiny",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "mimesis_mutiny",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "MIMESIS MUTINY EVENT 2024"
   },
   "ship_solaris_design_solaris-frost": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -2608,10 +2608,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "GALACTIC STRIFE EVENT 2025 | EVENT Galactic Strife: REPUTATION PER KILLING RANKING REWARDS Ranks 1, 2, 3, 4-10 (not ranks 11-30, 31-50, 51-100)"
@@ -2621,7 +2621,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -2634,7 +2634,7 @@
    "etkinlik": "empyrian",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "weight": 0.5
@@ -2647,10 +2647,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "GALACTIC STRIFE EVENT 2025 | EVENT Galactic Strife: REPUTATION RANKING REWARDS Ranks 1, 2, 3, 4-5 (not ranks 6-10, 11-25, 26-50, 51-100)"
@@ -2660,7 +2660,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -2670,11 +2670,11 @@
   },
   "ship_spearhead_design_spearhead-epion": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -2686,11 +2686,11 @@
   },
   "ship_spearhead_design_spearhead-osiris": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -2702,11 +2702,11 @@
   },
   "ship_spearhead_design_spearhead-smite": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -2721,10 +2721,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "GALACTIC STRIFE EVENT 2026"
@@ -2734,10 +2734,10 @@
    "etkinlik": "mimesis_mutiny",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "mimesis_mutiny",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "MIMESIS MUTINY EVENT 2024"
@@ -2747,7 +2747,7 @@
    "etkinlik": "empyrian",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "weight": 0.5
@@ -2760,10 +2760,10 @@
    "etkinlik": "protegit",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "protegit",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "PROTEGIT PANDEMONNIUM EVENT 2024"
@@ -2773,10 +2773,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "GALACTIC STRIFE EVENT 2026"
@@ -2786,7 +2786,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -2799,7 +2799,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -2812,7 +2812,7 @@
    "etkinlik": "empyrian",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "weight": 0.5
@@ -2825,16 +2825,16 @@
    "etkinlik": "prosperous",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
      "weight": 0.5
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "tablo": true,
+     "table": true,
      "weight": 0.5
     }
    ],
@@ -2845,7 +2845,7 @@
    "etkinlik": "prometheus",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "weight": 0.5
@@ -2858,7 +2858,7 @@
    "etkinlik": "prometheus",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "weight": 0.5
@@ -2871,7 +2871,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -2884,7 +2884,7 @@
    "etkinlik": "empyrian",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "weight": 0.5
@@ -2897,21 +2897,21 @@
    "etkinlik": "halloween",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "halloween",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "–"
   },
   "ship_tartarus_design_tartarus-epion": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -2923,11 +2923,11 @@
   },
   "ship_tartarus_design_tartarus-frost": {
    "tur": "ship",
-   "etkinlik": "kis",
+   "etkinlik": "winter",
    "paths": [
     {
-     "yol": "harita",
-     "etkinlik": "kis",
+     "route": "harita",
+     "etkinlik": "winter",
      "kutu": "GIFT_BOXES",
      "weight": 0.25
     }
@@ -2939,7 +2939,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -2949,11 +2949,11 @@
   },
   "ship_tartarus_design_tartarus-osiris": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -2965,11 +2965,11 @@
   },
   "ship_tartarus_design_tartarus-smite": {
    "tur": "ship",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -2984,10 +2984,10 @@
    "etkinlik": "protegit",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "protegit",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "–"
@@ -2997,10 +2997,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "GALACTIC STRIFE EVENT 2022"
@@ -3010,7 +3010,7 @@
    "etkinlik": "empyrian",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "weight": 0.5
@@ -3023,10 +3023,10 @@
    "etkinlik": "hitac",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "hitac",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Hitac Assault Event 2023"
@@ -3036,7 +3036,7 @@
    "etkinlik": "prometheus",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "weight": 0.5
@@ -3049,10 +3049,10 @@
    "etkinlik": "galactic_strife",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "GALACTIC STRIFE EVENT 2022"
@@ -3062,7 +3062,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -3075,7 +3075,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -3088,7 +3088,7 @@
    "etkinlik": "empyrian",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "weight": 0.5
@@ -3098,13 +3098,13 @@
   },
   "ship_zephyr_design_zephyr-frost": {
    "tur": "ship",
-   "etkinlik": "labirent",
+   "etkinlik": "labyrinth",
    "paths": [
     {
-     "yol": "degisim",
-     "etkinlik": "labirent",
-     "bedel": 25,
-     "sinir": 1
+     "route": "exchange",
+     "etkinlik": "labyrinth",
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Frozen Labyrinth Event (2019) / BOXES"
@@ -3114,7 +3114,7 @@
    "etkinlik": "apocalypse_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
      "weight": 0.5
@@ -3127,7 +3127,7 @@
    "etkinlik": "apocalypse_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
      "weight": 0.5
@@ -3140,7 +3140,7 @@
    "etkinlik": "prometheus",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "weight": 0.5
@@ -3153,7 +3153,7 @@
    "etkinlik": "apocalypse_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
      "weight": 0.5
@@ -3166,7 +3166,7 @@
    "etkinlik": "apocalypse_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
      "weight": 0.5
@@ -3179,7 +3179,7 @@
    "etkinlik": "apocalypse_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
      "weight": 0.5
@@ -3192,7 +3192,7 @@
    "etkinlik": "apocalypse_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
      "weight": 0.5
@@ -3205,7 +3205,7 @@
    "etkinlik": "apocalypse_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
      "weight": 0.5
@@ -3218,10 +3218,10 @@
    "etkinlik": "halloween",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "halloween",
-     "bedel": 15,
-     "sinir": 10
+     "charge": 15,
+     "cap": 10
     }
    ],
    "kaynak": "BOXES"
@@ -3231,7 +3231,7 @@
    "etkinlik": "apocalypse_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
      "weight": 0.5
@@ -3241,13 +3241,13 @@
   },
   "drone_designs_drone-champion-eostrana": {
    "tur": "drone",
-   "etkinlik": "bahar",
+   "etkinlik": "spring",
    "paths": [
     {
-     "yol": "kutu",
-     "etkinlik": "bahar",
+     "route": "kutu",
+     "etkinlik": "spring",
      "kutu": "LUCENT_ALIEN_EGG_BOOTY_BOX",
-     "tablo": true,
+     "table": true,
      "weight": 0.5
     }
    ],
@@ -3255,11 +3255,11 @@
   },
   "drone_designs_drone-champion-eostrax": {
    "tur": "drone",
-   "etkinlik": "bahar",
+   "etkinlik": "spring",
    "paths": [
     {
-     "yol": "kutu",
-     "etkinlik": "bahar",
+     "route": "kutu",
+     "etkinlik": "spring",
      "kutu": "LUCENT_ALIEN_EGG_BOOTY_BOX",
      "weight": 0.5
     }
@@ -3268,28 +3268,28 @@
   },
   "drone_designs_drone-citadel-samurai": {
    "tur": "drone",
-   "etkinlik": "sezon",
+   "etkinlik": "season",
    "paths": [
     {
-     "yol": "sezon",
-     "etkinlik": "sezon"
+     "route": "season",
+     "etkinlik": "season"
     },
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 15,
-     "sinir": 10
+     "charge": 15,
+     "cap": 10
     }
    ],
    "kaynak": "SEASON PASS 2024 | Season Pass Reward 2024"
   },
   "drone_designs_drone-citadel-viking": {
    "tur": "drone",
-   "etkinlik": "sezon",
+   "etkinlik": "season",
    "paths": [
     {
-     "yol": "sezon",
-     "etkinlik": "sezon"
+     "route": "season",
+     "etkinlik": "season"
     }
    ],
    "kaynak": "SEASON PASS 2025 | Season Pass Reward 2025"
@@ -3299,7 +3299,7 @@
    "etkinlik": "apocalypse_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
      "weight": 0.5
@@ -3312,7 +3312,7 @@
    "etkinlik": "prometheus",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "weight": 0.5
@@ -3325,24 +3325,24 @@
    "etkinlik": "prosperous",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
-     "tablo": true,
+     "table": true,
      "weight": 0.5
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "tablo": true,
+     "table": true,
      "weight": 0.5
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "tablo": true,
+     "table": true,
      "weight": 0.5
     }
    ],
@@ -3353,21 +3353,21 @@
    "etkinlik": "halloween",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "halloween",
-     "bedel": 15,
-     "sinir": 10
+     "charge": 15,
+     "cap": 10
     }
    ],
    "kaynak": "–"
   },
   "drone_designs_drone-cyborg-horus": {
    "tur": "drone",
-   "etkinlik": "sezon",
+   "etkinlik": "season",
    "paths": [
     {
-     "yol": "sezon",
-     "etkinlik": "sezon"
+     "route": "season",
+     "etkinlik": "season"
     }
    ],
    "kaynak": "SEASON PASS 2023 | Assembly: 10x Data Shard"
@@ -3377,10 +3377,10 @@
    "etkinlik": "protegit",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "protegit",
-     "bedel": 15,
-     "sinir": 10
+     "charge": 15,
+     "cap": 10
     }
    ],
    "kaynak": "–"
@@ -3390,7 +3390,7 @@
    "etkinlik": "apocalypse_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
      "weight": 0.5
@@ -3403,7 +3403,7 @@
    "etkinlik": "apocalypse_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
      "weight": 0.5
@@ -3416,10 +3416,10 @@
    "etkinlik": "empyrian",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "tablo": true,
+     "table": true,
      "weight": 0.5
     }
    ],
@@ -3430,10 +3430,10 @@
    "etkinlik": "empyrian",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "tablo": true,
+     "table": true,
      "weight": 0.5
     }
    ],
@@ -3444,10 +3444,10 @@
    "etkinlik": "halloween",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "halloween",
-     "bedel": 15,
-     "sinir": 10
+     "charge": 15,
+     "cap": 10
     }
    ],
    "kaynak": "Dusklight Diminisher | BOXES"
@@ -3457,13 +3457,13 @@
    "etkinlik": "prometheus",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "weight": 0.5
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "weight": 0.5
@@ -3476,7 +3476,7 @@
    "etkinlik": "apocalypse_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
      "weight": 0.5
@@ -3486,17 +3486,17 @@
   },
   "drone_designs_drone-goliath-dogma": {
    "tur": "drone",
-   "etkinlik": "sezon",
+   "etkinlik": "season",
    "paths": [
     {
-     "yol": "sezon",
-     "etkinlik": "sezon"
+     "route": "season",
+     "etkinlik": "season"
     },
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 15,
-     "sinir": 10
+     "charge": 15,
+     "cap": 10
     }
    ],
    "kaynak": "SEASON PASS 2024 | Season Pass Reward 2024"
@@ -3506,7 +3506,7 @@
    "etkinlik": "apocalypse_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
      "weight": 0.5
@@ -3519,10 +3519,10 @@
    "etkinlik": "halloween",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "halloween",
-     "bedel": 15,
-     "sinir": 10
+     "charge": 15,
+     "cap": 10
     }
    ],
    "kaynak": "BOXES"
@@ -3532,10 +3532,10 @@
    "etkinlik": "prometheus",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "tablo": true,
+     "table": true,
      "weight": 0.5
     }
    ],
@@ -3546,7 +3546,7 @@
    "etkinlik": "apocalypse_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
      "weight": 0.5
@@ -3559,7 +3559,7 @@
    "etkinlik": "apocalypse_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
      "weight": 0.5
@@ -3572,7 +3572,7 @@
    "etkinlik": "apocalypse_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
      "weight": 0.5
@@ -3585,10 +3585,10 @@
    "etkinlik": "prometheus",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "tablo": true,
+     "table": true,
      "weight": 0.5
     }
    ],
@@ -3599,10 +3599,10 @@
    "etkinlik": "halloween",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "halloween",
-     "bedel": 15,
-     "sinir": 10
+     "charge": 15,
+     "cap": 10
     }
    ],
    "kaynak": "Dusklight Hammerclaw | BOXES"
@@ -3612,7 +3612,7 @@
    "etkinlik": "apocalypse_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
      "weight": 0.5
@@ -3625,7 +3625,7 @@
    "etkinlik": "apocalypse_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
      "weight": 0.5
@@ -3638,7 +3638,7 @@
    "etkinlik": "apocalypse_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
      "weight": 0.5
@@ -3651,17 +3651,17 @@
    "etkinlik": "prosperous",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
-     "tablo": true,
+     "table": true,
      "weight": 0.5
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "tablo": true,
+     "table": true,
      "weight": 0.5
     }
    ],
@@ -3669,33 +3669,33 @@
   },
   "drone_designs_drone-orcus-thornspire": {
    "tur": "drone",
-   "etkinlik": "sezon",
+   "etkinlik": "season",
    "paths": [
     {
-     "yol": "sezon",
-     "etkinlik": "sezon"
+     "route": "season",
+     "etkinlik": "season"
     }
    ],
    "kaynak": "ASSEMBLY (SEASON PASS): 10x [datashard.png] | Assembly: 10x Data Shard"
   },
   "drone_designs_drone-orcus-viking": {
    "tur": "drone",
-   "etkinlik": "sezon",
+   "etkinlik": "season",
    "paths": [
     {
-     "yol": "sezon",
-     "etkinlik": "sezon"
+     "route": "season",
+     "etkinlik": "season"
     }
    ],
    "kaynak": "ASSEMBLY (SEASON PASS): 10x [datashard.png] | Assembly: 10x Data Shard"
   },
   "drone_designs_drone-paladin-khepri": {
    "tur": "drone",
-   "etkinlik": "sezon",
+   "etkinlik": "season",
    "paths": [
     {
-     "yol": "sezon",
-     "etkinlik": "sezon"
+     "route": "season",
+     "etkinlik": "season"
     }
    ],
    "kaynak": "SEASON PASS 2025 | Assembly: 10x Data Shard"
@@ -3705,7 +3705,7 @@
    "etkinlik": "apocalypse_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
      "weight": 0.5
@@ -3718,10 +3718,10 @@
    "etkinlik": "halloween",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "halloween",
-     "bedel": 15,
-     "sinir": 10
+     "charge": 15,
+     "cap": 10
     }
    ],
    "kaynak": "–"
@@ -3731,7 +3731,7 @@
    "etkinlik": "apocalypse_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
      "weight": 0.5
@@ -3744,7 +3744,7 @@
    "etkinlik": "apocalypse_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
      "weight": 0.5
@@ -3754,11 +3754,11 @@
   },
   "drone_designs_drone-retiarus-wyvern": {
    "tur": "drone",
-   "etkinlik": "sezon",
+   "etkinlik": "season",
    "paths": [
     {
-     "yol": "sezon",
-     "etkinlik": "sezon"
+     "route": "season",
+     "etkinlik": "season"
     }
    ],
    "kaynak": "SEASON PASS 2026 | Season Pass Reward 2026"
@@ -3768,16 +3768,16 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "tablo": true,
+     "table": true,
      "weight": 0.5
     }
    ],
@@ -3788,10 +3788,10 @@
    "etkinlik": "halloween",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "halloween",
-     "bedel": 15,
-     "sinir": 10
+     "charge": 15,
+     "cap": 10
     }
    ],
    "kaynak": "BOXES"
@@ -3801,13 +3801,13 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "weight": 0.5
@@ -3820,7 +3820,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -3833,7 +3833,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -3843,39 +3843,39 @@
   },
   "drone_designs_drone-sentinel-mobius": {
    "tur": "drone",
-   "etkinlik": "sezon",
+   "etkinlik": "season",
    "paths": [
     {
-     "yol": "sezon",
-     "etkinlik": "sezon"
+     "route": "season",
+     "etkinlik": "season"
     }
    ],
    "kaynak": "SEASON PASS | Season Pass Reward 2023"
   },
   "drone_designs_drone-solace-enigma": {
    "tur": "drone",
-   "etkinlik": "sezon",
+   "etkinlik": "season",
    "paths": [
     {
-     "yol": "sezon",
-     "etkinlik": "sezon"
+     "route": "season",
+     "etkinlik": "season"
     },
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 15,
-     "sinir": 10
+     "charge": 15,
+     "cap": 10
     }
    ],
    "kaynak": "SEASON PASS 2024 | Season Pass Reward 2024"
   },
   "drone_designs_drone-solace-striker": {
    "tur": "drone",
-   "etkinlik": "sezon",
+   "etkinlik": "season",
    "paths": [
     {
-     "yol": "sezon",
-     "etkinlik": "sezon"
+     "route": "season",
+     "etkinlik": "season"
     }
    ],
    "kaynak": "SEASON PASS 2026 | Season Pass Reward 2026"
@@ -3885,10 +3885,10 @@
    "etkinlik": "prometheus",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "tablo": true,
+     "table": true,
      "weight": 0.5
     }
    ],
@@ -3899,7 +3899,7 @@
    "etkinlik": "apocalypse_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
      "weight": 0.5
@@ -3912,10 +3912,10 @@
    "etkinlik": "prosperous",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
-     "tablo": true,
+     "table": true,
      "weight": 0.5
     }
    ],
@@ -3926,7 +3926,7 @@
    "etkinlik": "apocalypse_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
      "weight": 0.5
@@ -3939,7 +3939,7 @@
    "etkinlik": "apocalypse_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "apocalypse_booty",
      "kutu": "MASQUE_BOOTY_BOX",
      "weight": 0.5
@@ -3952,7 +3952,7 @@
    "etkinlik": "prometheus",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "weight": 0.5
@@ -3962,11 +3962,11 @@
   },
   "drone_designs_skull-dreadwing": {
    "tur": "drone",
-   "etkinlik": "sezon",
+   "etkinlik": "season",
    "paths": [
     {
-     "yol": "sezon",
-     "etkinlik": "sezon"
+     "route": "season",
+     "etkinlik": "season"
     }
    ],
    "kaynak": "SEASON PASS 2025 | Season Pass Reward 2025"
@@ -3976,13 +3976,13 @@
    "etkinlik": "rb_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
      "weight": 0.469
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
      "weight": 0.469
@@ -3995,7 +3995,7 @@
    "etkinlik": "prometheus",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "weight": 0.5
@@ -4008,13 +4008,13 @@
    "etkinlik": "rb_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
      "weight": 0.469
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
      "weight": 0.469
@@ -4027,23 +4027,23 @@
    "etkinlik": "halloween",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "halloween",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Dusklight Diminisher | BOXES"
   },
   "pet_designs_frozen": {
    "tur": "pet",
-   "etkinlik": "labirent",
+   "etkinlik": "labyrinth",
    "paths": [
     {
-     "yol": "degisim",
-     "etkinlik": "labirent",
-     "bedel": 25,
-     "sinir": 1
+     "route": "exchange",
+     "etkinlik": "labyrinth",
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "–"
@@ -4053,13 +4053,13 @@
    "etkinlik": "rb_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
      "weight": 0.469
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
      "weight": 0.469
@@ -4072,10 +4072,10 @@
    "etkinlik": "halloween",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "halloween",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "BOXES"
@@ -4085,17 +4085,17 @@
    "etkinlik": "prosperous",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
-     "tablo": true,
+     "table": true,
      "weight": 0.5
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "tablo": true,
+     "table": true,
      "weight": 0.5
     }
    ],
@@ -4106,7 +4106,7 @@
    "etkinlik": "empyrian",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
      "weight": 0.5
@@ -4119,10 +4119,10 @@
    "etkinlik": "plutus",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "plutus",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "–"
@@ -4132,10 +4132,10 @@
    "etkinlik": "prosperous",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
-     "tablo": true,
+     "table": true,
      "weight": 0.5
     }
    ],
@@ -4146,13 +4146,13 @@
    "etkinlik": "rb_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
      "weight": 0.469
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
      "weight": 0.469
@@ -4165,13 +4165,13 @@
    "etkinlik": "rb_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
      "weight": 0.469
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
      "weight": 0.469
@@ -4184,10 +4184,10 @@
    "etkinlik": "plutus",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "plutus",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "GAUNTLET OF PLUTUS EVENT 2024"
@@ -4197,10 +4197,10 @@
    "etkinlik": "halloween",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "halloween",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "–"
@@ -4210,13 +4210,13 @@
    "etkinlik": "rb_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
      "weight": 0.469
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
      "weight": 0.469
@@ -4229,38 +4229,38 @@
    "etkinlik": "plutus",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "plutus",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "GAUNTLET OF PLUTUS EVENT 2026"
   },
   "pet_designs_pet-citadel-samurai": {
    "tur": "pet",
-   "etkinlik": "sezon",
+   "etkinlik": "season",
    "paths": [
     {
-     "yol": "sezon",
-     "etkinlik": "sezon"
+     "route": "season",
+     "etkinlik": "season"
     },
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "SEASON PASS 2024 | Season Pass Reward 2024"
   },
   "pet_designs_pet-citadel-viking": {
    "tur": "pet",
-   "etkinlik": "sezon",
+   "etkinlik": "season",
    "paths": [
     {
-     "yol": "sezon",
-     "etkinlik": "sezon"
+     "route": "season",
+     "etkinlik": "season"
     }
    ],
    "kaynak": "SEASON PASS 2025 | Season Pass Reward 2025"
@@ -4270,21 +4270,21 @@
    "etkinlik": "halloween",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "halloween",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Cyborg Dusklight | BOXES"
   },
   "pet_designs_pet-cyborg-horus": {
    "tur": "pet",
-   "etkinlik": "sezon",
+   "etkinlik": "season",
    "paths": [
     {
-     "yol": "sezon",
-     "etkinlik": "sezon"
+     "route": "season",
+     "etkinlik": "season"
     }
    ],
    "kaynak": "SEASON PASS 2023 | Assembly: 10x Data Shard"
@@ -4294,10 +4294,10 @@
    "etkinlik": "protegit",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "protegit",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "BOXES"
@@ -4307,10 +4307,10 @@
    "etkinlik": "empyrian",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "tablo": true,
+     "table": true,
      "weight": 0.5
     }
    ],
@@ -4321,10 +4321,10 @@
    "etkinlik": "empyrian",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "tablo": true,
+     "table": true,
      "weight": 0.5
     }
    ],
@@ -4335,10 +4335,10 @@
    "etkinlik": "empyrian",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "empyrian",
      "kutu": "EMPYRIAN_BOOTY_BOX",
-     "tablo": true,
+     "table": true,
      "weight": 0.5
     }
    ],
@@ -4349,10 +4349,10 @@
    "etkinlik": "prometheus",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "tablo": true,
+     "table": true,
      "weight": 0.5
     }
    ],
@@ -4363,17 +4363,17 @@
    "etkinlik": "rb_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
-     "tablo": true,
+     "table": true,
      "weight": 0.469
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
-     "tablo": true,
+     "table": true,
      "weight": 0.469
     }
    ],
@@ -4381,11 +4381,11 @@
   },
   "pet_designs_pet-diminisher-mobius": {
    "tur": "pet",
-   "etkinlik": "sezon",
+   "etkinlik": "season",
    "paths": [
     {
-     "yol": "sezon",
-     "etkinlik": "sezon"
+     "route": "season",
+     "etkinlik": "season"
     }
    ],
    "kaynak": "SEASON PASS 2023 | Season Pass Reward 2023"
@@ -4395,10 +4395,10 @@
    "etkinlik": "plutus",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "plutus",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Gauntlet Of Plutus Event (2021)"
@@ -4408,10 +4408,10 @@
    "etkinlik": "halloween",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "halloween",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Trial Of Terror Event (2020)"
@@ -4421,13 +4421,13 @@
    "etkinlik": "rb_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
      "weight": 0.469
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
      "weight": 0.469
@@ -4440,10 +4440,10 @@
    "etkinlik": "halloween",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "halloween",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "–"
@@ -4453,13 +4453,13 @@
    "etkinlik": "rb_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
      "weight": 0.469
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
      "weight": 0.469
@@ -4472,38 +4472,38 @@
    "etkinlik": "plutus",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "plutus",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "–"
   },
   "pet_designs_pet-goliath-dogma": {
    "tur": "pet",
-   "etkinlik": "sezon",
+   "etkinlik": "season",
    "paths": [
     {
-     "yol": "sezon",
-     "etkinlik": "sezon"
+     "route": "season",
+     "etkinlik": "season"
     },
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "SEASON PASS 2024 | Season Pass Reward 2024"
   },
   "pet_designs_pet-goliath-dreadwing": {
    "tur": "pet",
-   "etkinlik": "sezon",
+   "etkinlik": "season",
    "paths": [
     {
-     "yol": "sezon",
-     "etkinlik": "sezon"
+     "route": "season",
+     "etkinlik": "season"
     }
    ],
    "kaynak": "SEASON PASS 2025 | Season Pass Reward 2025"
@@ -4513,13 +4513,13 @@
    "etkinlik": "rb_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
      "weight": 0.469
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
      "weight": 0.469
@@ -4532,10 +4532,10 @@
    "etkinlik": "halloween",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "halloween",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Goliath-X Dusklight | BOXES"
@@ -4545,13 +4545,13 @@
    "etkinlik": "rb_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
      "weight": 0.469
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
      "weight": 0.469
@@ -4564,13 +4564,13 @@
    "etkinlik": "rb_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
      "weight": 0.469
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
      "weight": 0.469
@@ -4583,13 +4583,13 @@
    "etkinlik": "rb_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
      "weight": 0.469
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
      "weight": 0.469
@@ -4599,13 +4599,13 @@
   },
   "pet_designs_pet-hammerclaw-frost": {
    "tur": "pet",
-   "etkinlik": "labirent",
+   "etkinlik": "labyrinth",
    "paths": [
     {
-     "yol": "degisim",
-     "etkinlik": "labirent",
-     "bedel": 25,
-     "sinir": 1
+     "route": "exchange",
+     "etkinlik": "labyrinth",
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "–"
@@ -4615,10 +4615,10 @@
    "etkinlik": "prometheus",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
-     "tablo": true,
+     "table": true,
      "weight": 0.5
     }
    ],
@@ -4629,13 +4629,13 @@
    "etkinlik": "rb_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
      "weight": 0.469
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
      "weight": 0.469
@@ -4648,10 +4648,10 @@
    "etkinlik": "plutus",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "plutus",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Gauntlet Of Plutus Event (2019)"
@@ -4661,17 +4661,17 @@
    "etkinlik": "rb_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
-     "tablo": true,
+     "table": true,
      "weight": 0.469
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
-     "tablo": true,
+     "table": true,
      "weight": 0.469
     }
    ],
@@ -4682,10 +4682,10 @@
    "etkinlik": "prosperous",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prosperous",
      "kutu": "PROSPEROUS_BOOTY_BOX",
-     "tablo": true,
+     "table": true,
      "weight": 0.5
     }
    ],
@@ -4696,13 +4696,13 @@
    "etkinlik": "rb_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
      "weight": 0.469
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
      "weight": 0.469
@@ -4715,7 +4715,7 @@
    "etkinlik": "prometheus",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "weight": 0.5
@@ -4728,13 +4728,13 @@
    "etkinlik": "rb_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
      "weight": 0.469
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
      "weight": 0.469
@@ -4744,44 +4744,44 @@
   },
   "pet_designs_pet-orcus-thornspire": {
    "tur": "pet",
-   "etkinlik": "sezon",
+   "etkinlik": "season",
    "paths": [
     {
-     "yol": "sezon",
-     "etkinlik": "sezon"
+     "route": "season",
+     "etkinlik": "season"
     }
    ],
    "kaynak": "ASSEMBLY (SEASON PASS): 10x [datashard.png] | Assembly: 10x Data Shard"
   },
   "pet_designs_pet-orcus-viking": {
    "tur": "pet",
-   "etkinlik": "sezon",
+   "etkinlik": "season",
    "paths": [
     {
-     "yol": "sezon",
-     "etkinlik": "sezon"
+     "route": "season",
+     "etkinlik": "season"
     }
    ],
    "kaynak": "ASSEMBLY (SEASON PASS): 10x [datashard.png] | Assembly: 10x Data Shard"
   },
   "pet_designs_pet-paladin-khepri": {
    "tur": "pet",
-   "etkinlik": "sezon",
+   "etkinlik": "season",
    "paths": [
     {
-     "yol": "sezon",
-     "etkinlik": "sezon"
+     "route": "season",
+     "etkinlik": "season"
     }
    ],
    "kaynak": "SEASON PASS 2025 | Assembly: 10x Data Shard"
   },
   "pet_designs_pet-phoenix": {
    "tur": "pet",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -4796,10 +4796,10 @@
    "etkinlik": "protegit",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "protegit",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Pusat Inferno | BOXES"
@@ -4809,13 +4809,13 @@
    "etkinlik": "rb_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
      "weight": 0.469
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
      "weight": 0.469
@@ -4828,10 +4828,10 @@
    "etkinlik": "halloween",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "halloween",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "BOXES"
@@ -4841,13 +4841,13 @@
    "etkinlik": "rb_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
      "weight": 0.469
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
      "weight": 0.469
@@ -4857,11 +4857,11 @@
   },
   "pet_designs_pet-retiarus-wyvern": {
    "tur": "pet",
-   "etkinlik": "sezon",
+   "etkinlik": "season",
    "paths": [
     {
-     "yol": "sezon",
-     "etkinlik": "sezon"
+     "route": "season",
+     "etkinlik": "season"
     }
    ],
    "kaynak": "SEASON PASS 2026 | Season Pass Reward 2026"
@@ -4871,10 +4871,10 @@
    "etkinlik": "halloween",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "halloween",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Sentinel Dusklight | BOXES"
@@ -4884,7 +4884,7 @@
    "etkinlik": "prometheus",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "prometheus",
      "kutu": "PROMETHEUS_BOOTY_BOX",
      "weight": 0.5
@@ -4894,11 +4894,11 @@
   },
   "pet_designs_pet-sentinel-lava": {
    "tur": "pet",
-   "etkinlik": "gg_hafta_sonu",
+   "etkinlik": "gg_weekend",
    "paths": [
     {
-     "yol": "kapi",
-     "etkinlik": "gg_hafta_sonu",
+     "route": "kapi",
+     "etkinlik": "gg_weekend",
      "kapilar": [
       "zeta",
       "kappa"
@@ -4913,7 +4913,7 @@
    "etkinlik": "obsidian_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "obsidian_booty",
      "kutu": "BLACK_BOOTY_BOX",
      "weight": 0.319
@@ -4926,10 +4926,10 @@
    "etkinlik": "plutus",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "plutus",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "Gauntlet Of Plutus Event (2020)"
@@ -4939,38 +4939,38 @@
    "etkinlik": "halloween",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "halloween",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "TRIAL OF TERRORS EVENT / SHOP PAYMENTS"
   },
   "pet_designs_pet-solace-enigma": {
    "tur": "pet",
-   "etkinlik": "sezon",
+   "etkinlik": "season",
    "paths": [
     {
-     "yol": "sezon",
-     "etkinlik": "sezon"
+     "route": "season",
+     "etkinlik": "season"
     },
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "galactic_strife",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "SEASON PASS 2024 | Season Pass Reward 2024"
   },
   "pet_designs_pet-solace-striker": {
    "tur": "pet",
-   "etkinlik": "sezon",
+   "etkinlik": "season",
    "paths": [
     {
-     "yol": "sezon",
-     "etkinlik": "sezon"
+     "route": "season",
+     "etkinlik": "season"
     }
    ],
    "kaynak": "SEASON PASS 2026 | Season Pass Reward 2026"
@@ -4980,10 +4980,10 @@
    "etkinlik": "halloween",
    "paths": [
     {
-     "yol": "degisim",
+     "route": "exchange",
      "etkinlik": "halloween",
-     "bedel": 25,
-     "sinir": 1
+     "charge": 25,
+     "cap": 1
     }
    ],
    "kaynak": "BOXES"
@@ -4993,17 +4993,17 @@
    "etkinlik": "rb_booty",
    "paths": [
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_RED",
-     "tablo": true,
+     "table": true,
      "weight": 0.469
     },
     {
-     "yol": "kutu",
+     "route": "kutu",
      "etkinlik": "rb_booty",
      "kutu": "PIRATE_BOOTY_BLUE",
-     "tablo": true,
+     "table": true,
      "weight": 0.469
     }
    ],

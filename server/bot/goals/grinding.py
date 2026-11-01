@@ -6,7 +6,7 @@ from .. import abstract_sim as S
 
 @target
 class Farming(Goal):
-    name = 'kasilma'
+    name = 'grinding'
     min_sec = 300
 
     def eligible(self, bot, b):
@@ -14,11 +14,11 @@ class Farming(Goal):
 
     def points(self, bot, b):
         o = bot.traits
-        p = 0.35 + 0.35 * o['hirs'] + 0.25 * o['sabir'] + (0.2 if bot.archetype == 'kasici' else 0)
+        p = 0.35 + 0.35 * o['ambition'] + 0.25 * o['patience'] + (0.2 if bot.archetype == 'grinder' else 0)
         from .. import weapons as WP
         if not WP.has_laser(bot):
             p *= 0.3                                      # cephanesiz: yalnız bonus kutusu toplayabilir (önce kargo satar, dinlenir)
-        return p * (1 - 0.5 * bot.mood['yorgunluk']) * (1 - 0.3 * bot.mood['sikilma'])
+        return p * (1 - 0.5 * bot.mood['fatigue']) * (1 - 0.3 * bot.mood['boredom'])
 
     def start(self, bot, b):
         plan = (bot.k.get('intent') or {}).get('plan') or {}

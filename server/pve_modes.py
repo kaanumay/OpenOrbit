@@ -97,7 +97,7 @@ class PveModes:
                 for g in self.ebl.portals(w.map_id):
                     w.add_gate(g)
         else:
-            key = next((k for k, g in EKP.GATES.items() if g.get('kural', {}).get('cpu') == item), None)
+            key = next((k for k, g in EKP.GATES.items() if g.get('rule', {}).get('cpu') == item), None)
             if key:
                 msgs = self.gate_cpu(w, key)
         if msgs is None:
@@ -110,17 +110,17 @@ class PveModes:
         """Etkinlik kapısının CPU'su (kapının kural.cpu'su): kapının giriş haritasında kapı kurulur ve portalı açılır (Immunizer CPU: X-7'de
         Quarantine Zone, tek can; Subglacial CPU: X-1'de Permafrost Fissure). Kapı açıkken CPU yalnız cpu_can varsa kullanılır: o kadar
         can ekler (Subglacial +2; istemci metni "If it is already open, adds 2 lives")."""
-        g, G, item = EKP.GATES[key], self.k.gate(key), EKP.GATES[key]['kural']['cpu']
-        if not self.k.here(g['giris'], w.map_id) or (G.get('hazir') and not g['kural'].get('cpu_hp')):
+        g, G, item = EKP.GATES[key], self.k.gate(key), EKP.GATES[key]['rule']['cpu']
+        if not self.k.here(g['giris'], w.map_id) or (G.get('hazir') and not g['rule'].get('cpu_hp')):
             return None
         if self.p.use_ammo(item) is None:
             return None
         if G.get('hazir'):
             with self.p.lock:
-                G['can'] += g['kural']['cpu_hp']
+                G['can'] += g['rule']['cpu_hp']
                 self.p.dirty = True
-            self.log('   %s: +%d can (%d)' % (g['ad'], g['kural']['cpu_hp'], G['can']))
-            return [KAPI.screen('%s: %d lives added.' % (g['ad'], g['kural']['cpu_hp']), big=True)]
+            self.log('   %s: +%d can (%d)' % (g['ad'], g['rule']['cpu_hp'], G['can']))
+            return [KAPI.screen('%s: %d lives added.' % (g['ad'], g['rule']['cpu_hp']), big=True)]
         self.k.enter(key)
         for x in self.k.entry_portals(w.map_id, w.station):
             if x['kapi'] == key:
@@ -131,9 +131,9 @@ class PveModes:
     # ------------------------------------------------------------ pencereli portallar
     def window(self, g):
         """Dünya kilidi altında: pencereyi gönder ya da haritayı değiştir (zamanlayıcıyla, kilit dışında)."""
-        kind = g['pencere']
+        kind = g['windowed']
         w = self.world
-        go = lambda dest, pos=None: w.later(0.2, lambda: self.change_map(dest, dict(g, pencere=None), pos))
+        go = lambda dest, pos=None: w.later(0.2, lambda: self.change_map(dest, dict(g, windowed=None), pos))
         if kind in ('voyagers', 'trinity'):
             self.last_where = g.get('giris', 'X-1')
             a = self.voyagers if kind == 'voyagers' else self.trinity
@@ -143,21 +143,21 @@ class PveModes:
             w.send(msgs)
             if dest:
                 go(dest)
-        elif kind == 'astral_odul':
+        elif kind == 'astral_reward':
             go(self.astral.choose_gate(g))
-        elif kind == 'echoes_giris':
+        elif kind == 'echoes_entry':
             dest, msgs = self.echoes.enter_hall()
             w.send(msgs)
             if dest:
                 go(dest, EC.HALL_ARRIVAL)
-        elif kind == 'echoes_basla':
-            if not self.echoes.st['kadro']:
+        elif kind == 'echoes_start':
+            if not self.echoes.st['roster']:
                 w.send([KAPI.screen('Choose your ships first (hangar).'), self.echoes.ship_list()])
             else:
                 w.send([self.echoes.roster_cmd()])
-        elif kind == 'echoes_gemi':
+        elif kind == 'echoes_ship':
             w.send([self.echoes.ship_list()])
-        elif kind == 'echoes_cikis':
+        elif kind == 'echoes_exit':
             w.send([('ExpeditionShowUiCommand', dict(type=EC.UI_LEAVE, param0='', param1=''))])
         elif kind == 'ebl' and self.ebl:
             dest, msgs = self.ebl.gate_jump()

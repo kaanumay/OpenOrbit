@@ -311,7 +311,7 @@ def world_signature(world):
     import game_data as DATA
     try:
         with open(world, encoding='utf8') as fh:
-            y = {k: v for k, v in (json.load(fh).get('yamalar') or {}).items() if k not in DATA.LIVE}
+            y = {k: v for k, v in (json.load(fh).get('patches') or {}).items() if k not in DATA.LIVE}
         return os.path.normcase(world), hashlib.sha1(json.dumps(y, sort_keys=True).encode()).hexdigest()
     except (OSError, ValueError, AttributeError):
         return os.path.normcase(world), None
@@ -356,7 +356,7 @@ class Process:
         self.stopped = True
         if self.stop_file:
             with open(self.stop_file, 'w') as fh:
-                fh.write('durdur')
+                fh.write('stop')
             try:
                 self.proc.wait(timeout)
                 return
@@ -370,11 +370,11 @@ class Process:
 
     def status(self):
         if self.proc is None:
-            return {'durum': 'kapali'}
+            return {'durum': 'off'}
         code = self.proc.poll()
         if code is None:
-            return {'durum': 'acik', 'pid': self.proc.pid, 'sure_sn': int(time.time() - self.started_at)}
-        return {'durum': 'kapali' if self.stopped else 'coktu', 'exit_code': code}
+            return {'durum': 'on', 'pid': self.proc.pid, 'sure_sn': int(time.time() - self.started_at)}
+        return {'durum': 'off' if self.stopped else 'crashed', 'exit_code': code}
 
 
 class Manager:
@@ -456,7 +456,7 @@ class Manager:
                 stop_file = None
                 env = {'OO_WORLD': world} if world else None
                 if name == 'web' and env_json:       # sunucunun kendi oyuncusunun oturumu (cok_oyunculu AYAR['yerel'])
-                    cmd.append('--session=%s' % json.loads(env_json)['yerel'])
+                    cmd.append('--session=%s' % json.loads(env_json)['local'])
                 if name == 'oyun':
                     stop_file = os.path.join(self.logs, '.durdur_oyun')
                     cmd += ['--settings=%s' % settings, '--stop-file=%s' % stop_file] + (['--control'] if control else [])
@@ -552,13 +552,13 @@ class Manager:
 
     # ------------------------------------------------------------ durum
     def status(self):
-        srv = {name: (s.status() if s else {'durum': 'kapali'}) for name, s in ((a, self.servers.get(a)) for a in ('web', 'oyun'))}
+        srv = {name: (s.status() if s else {'durum': 'off'}) for name, s in ((a, self.servers.get(a)) for a in ('web', 'oyun'))}
         table = listeners()
         for name, st in srv.items():
             st['ports'] = {p: listening(p, table) for p in PORTS[name]}
-        cl = {'durum': 'acik' if self.client_alive() else 'kapali'}
+        cl = {'durum': 'on' if self.client_alive() else 'off'}
         if self.client_alive():
             cl.update(pid=self.client.pid, sure_sn=int(time.time() - self.client_started))
-        cl['son'] = self.last_client
-        return {'servers': srv, 'istemci': cl, 'profil': self.profile, 'kayit': self.slot,
-                'control_channel': listening(8099, table), 'arkadas': self.friend, 'coklu': self.multi, 'misafir': self.guest}
+        cl['last'] = self.last_client
+        return {'servers': srv, 'client': cl, 'profil': self.profile, 'record': self.slot,
+                'control_channel': listening(8099, table), 'arkadas': self.friend, 'multi': self.multi, 'guest': self.guest}

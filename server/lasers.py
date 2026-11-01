@@ -25,7 +25,7 @@ import json, os, random, re
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 _E = json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))
-LS = _E['lazerler']
+LS = _E['lasers']
 EVENT_AMMO = {k: v for k, v in _E.get('event_ammo', {}).items() if not k.startswith('_')}
 OVERDRIVE_SEC = 5.0
 
@@ -44,10 +44,10 @@ def name_match(table, target):
 def hit(loot, target=None, pvp=False):
     """Bir lazerin uzaylıya isabet hasarı (cephane ve formasyon çarpanından önce)."""
     d = LS[loot]
-    h = random.randint(*d['hasar_aralik']) if 'hasar_aralik' in d else d['hasar']
+    h = random.randint(*d['damage_range']) if 'damage_range' in d else d['hasar']
     if pvp:
-        return d.get('pvp_hasar', h)
-    h = h * (1 + d.get('uzayli_bonus', 0))
+        return d.get('pvp_damage', h)
+    h = h * (1 + d.get('alien_bonus', 0))
     c = name_match(d.get('target_multiplier', {}), target)
     return h * c if c else h
 
@@ -55,7 +55,7 @@ def hit(loot, target=None, pvp=False):
 def flat_extra(loots, pvp=False):
     """Lazer başına düz ek hasarların toplamı (LF-4 Paritydrill uzaylıya +5, Magmadrill oyuncuya +5). Wiki: "flat +5 added at the end
     of all calculations" (3 x LF-4-PD, MCB-50: 230 x 3 x 3 + 3 x 5 = 2085): cephane çarpanından sonra eklenir, çarpanlara girmez."""
-    key = 'pvp_ek' if pvp else 'uzayli_ek'
+    key = 'pvp_ek' if pvp else 'alien_extra'
     return sum(LS[l].get(key, 0) for l in loots if l in LS)
 
 
@@ -67,7 +67,7 @@ def event_ammo(ammo, target, is_active):
     best = None
     for ev, tab in EVENT_AMMO.items():
         row = tab.get(ammo)
-        if row and is_active(ev) and (getattr(target, 'tip', None) in row.get('tipler', ())
+        if row and is_active(ev) and (getattr(target, 'tip', None) in row.get('types', ())
                                       or name_match({a: 1 for a in row.get('adlar', ())}, target)):
             best = max(best or 0, row['carpan'])
     return best
@@ -85,7 +85,7 @@ def set_bonus(ship, pvp=False):
 def crit_chance(ship):
     out = 0.0
     for l in set(ship):
-        k = LS.get(l, {}).get('kritik')
+        k = LS.get(l, {}).get('crit')
         if k:
             n = ship.count(l)
             out = max(out, min(k['azami'], n * k['per_laser'] + (k['set'] if n >= k['set_threshold'] else 0)))
@@ -93,7 +93,7 @@ def crit_chance(ship):
 
 
 def crit_damage(ship):
-    return sum(LS[l]['hasar'] * LS[l]['kritik']['carpan'] for l in ship if 'kritik' in LS.get(l, {}))
+    return sum(LS[l]['hasar'] * LS[l]['crit']['carpan'] for l in ship if 'crit' in LS.get(l, {}))
 
 
 def overdrive(ship, target=None, pvp=False):
@@ -116,14 +116,14 @@ def slow_proc(ship):
     best = None
     for l in set(ship):
         n = ship.count(l)
-        for count, chance, slow_value, sec in LS.get(l, {}).get('yavaslatma', []):
+        for count, chance, slow_value, sec in LS.get(l, {}).get('slow', []):
             if n >= count:
                 best = (chance, slow_value, sec)
     return best
 
 
 def _fervor_cfg(ship):
-    return next((LS[l]['ofke'] for l in ship if 'ofke' in LS.get(l, {})), None)
+    return next((LS[l]['anger'] for l in ship if 'anger' in LS.get(l, {})), None)
 
 
 class Fervor:

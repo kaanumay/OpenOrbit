@@ -18,7 +18,7 @@ import technology as TECH
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ORES = {loot: int(t) for t, loot in json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))
-        ['cevherler']['kinds'].items()}
+        ['ores']['kinds'].items()}
 CURRENCY = {'currency_credits': ('credits', 'kredi'), 'currency_uridium': ('uridium', 'uridyum')}
 ITEM_PREFIXES = ('equipment_', 'drone_', 'pet_')
 _CLIENT = json.load(open(os.path.join(HERE, 'data', 'client_items.json'), encoding='utf8'))['esyalar']
@@ -34,8 +34,8 @@ def client_item_ok(loot):
         return False
     c = _CLIENT.get(loot)
     if loot.startswith('ship_') and c:           # Assembly'nin taban gemi sayacı: özellik listesi (traits) olan gemiler (hepsinde slotable)
-        return any(k in c for k in ('yuvalar', 'satis', 'takilir', 'yigin'))
-    return not (c and loot.startswith('resource_') and c.get('sinif') == 'ItemType' and 'yigin' not in c)
+        return any(k in c for k in ('slots', 'selling', 'equippable', 'stack'))
+    return not (c and loot.startswith('resource_') and c.get('class_name') == 'ItemType' and 'stack' not in c)
 
 
 def client_filter(msgs):
@@ -47,7 +47,7 @@ def client_filter(msgs):
 
 def free_items(p, loot):
     """Takılı olmayan eşya örnekleri (itemId listesi)."""
-    eq, lv = p.equipped_ids(), p.d.get('yukseltme_seviye', {})
+    eq, lv = p.equipped_ids(), p.d.get('upgrade_level', {})
     ids = [int(i) for i, l in p.d['esyalar'].items() if l == loot and int(i) not in eq]
     return sorted(ids, key=lambda i: (int(lv.get(str(i), 0)), i))      # forum 160116: harcanan "stoğundaki en düşük seviyeli"
 
@@ -72,7 +72,7 @@ def count(p, loot):
 
 def spare_ships(p, loot):
     """Harcanabilecek gemiler: bu türden, etkin olmayan (shipId listesi)."""
-    return [sid for sid, s in p.d['gemiler'].items() if s['lootId'] == loot and sid != str(p.d['aktif_gemi'])]
+    return [sid for sid, s in p.d['ships'].items() if s['lootId'] == loot and sid != str(p.d['active_ship'])]
 
 
 def client_count(p, loot):
@@ -80,7 +80,7 @@ def client_count(p, loot):
     (gemileri eşya listesine kendisi eklemiyor); hiç gönderilmiyordu, Plus tariflerinde sahip olunan gemi "yok" görünüyordu
     (kullanıcı 2026-10-19: Solaris Plus). Etkin gemi harcanmaz: üretimde oyunun uyarısı (assembly.build)."""
     if loot.startswith('ship_'):
-        return sum(1 for s in p.d['gemiler'].values() if s['lootId'] == loot)
+        return sum(1 for s in p.d['ships'].values() if s['lootId'] == loot)
     return count(p, loot)
 
 
@@ -117,13 +117,13 @@ def spend(p, need, reason='buy_SPECIAL', detail=''):
         elif loot.startswith('ship_'):
             for sid in spare_ships(p, loot)[:n]:
                 with p.lock:
-                    del p.d['gemiler'][sid]                 # config'leri gider: takılı eşyalar envantere döner
+                    del p.d['ships'][sid]                 # config'leri gider: takılı eşyalar envantere döner
                     p.dirty = True
         elif loot.startswith(ITEM_PREFIXES):
             for iid in free_items(p, loot)[:n]:
                 with p.lock:
                     del p.d['esyalar'][str(iid)]
-                    p.d.get('esya_seviye', {}).pop(str(iid), None)
+                    p.d.get('item_level', {}).pop(str(iid), None)
                     p.dirty = True
                 removed.append(iid)
         else:

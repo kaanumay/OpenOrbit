@@ -42,7 +42,7 @@ class Low:
         self.told = set()           # anlatılan olaylar (low.json anlati): her biri girişten sonra bir kez
         now = time.time()
         st = self.p.d.get('low')
-        returning = bool(st and st.get('stage') != 'bitti' and st.get('olum') and now - st['olum'] <= L['return_sec'])
+        returning = bool(st and st.get('stage') != 'finished' and st.get('olum') and now - st['olum'] <= L['return_sec'])
         with self.p.lock:
             self.p.d['low'] = dict(st, olum=None) if returning else fresh()
             self.p.dirty = True
@@ -50,7 +50,7 @@ class Low:
         world.asset_targets = self             # röle seçilir ve vurulur (dunya.asset_laser)
         self.show_relay()                      # sıradaki röle girişten görünür
         self.w.send(self.asset_msgs())         # Low hazır demetinden sonra kurulur (resend yalnız haritayı yeniden yükleyince taşır): canlıda ilk röle istemciye gitmiyordu
-        self.say('devam' if returning else 'giris')
+        self.say('ongoing' if returning else 'giris')
         if not returning:
             self.tell('giris')
         self.w.log('   LoW: %s (%s)' % ('kaldığı yerden' if returning else 'baştan', self.st['stage']))
@@ -68,7 +68,7 @@ class Low:
         """Akış metni: "key:" önekliyse istemcinin metni (Century Falcon, bitiş), değilse low.json'un cümlesi."""
         vals = dict(roleler=L['role']['adet'], toplam=len(L['waves']))
         vals.update(kw)
-        self.w.send([screen(L['mesajlar'][key].format(**vals))])
+        self.w.send([screen(L['messages'][key].format(**vals))])
 
     def tell(self, event):
         """HQ'nun telsiz anlatısı (istemcinin transmission_groupgate_* metinleri, low.json anlati): olay başına bir kez."""
@@ -109,7 +109,7 @@ class Low:
     def step(self):
         """Rotadaki sıradaki adım (low.json rota): ('dalga', i), ('role', i), ('boss',); bitince None. Profildeki sayaçlardan türer."""
         st = self.st
-        if st['stage'] == 'bitti':
+        if st['stage'] == 'finished':
             return None
         for s in L['route']:
             if s[0] == 'boss' or (st['dalga'] if s[0] == 'dalga' else st['role']) <= s[1]:
@@ -132,7 +132,7 @@ class Low:
             self.spawn(tip, n, at=L['spawn_points'][i])
             self.save(stage='dalga', dalga=i + 1)
             self.t = now + L['wave_interval_sec']
-            self.say('dalga', ad=w.alien.CFG['tipler'][tip]['ad'].strip('-=[] '), adet=n, dalga=i + 1)
+            self.say('dalga', ad=w.alien.CFG['types'][tip]['ad'].strip('-=[] '), adet=n, dalga=i + 1)
             w.log('   LoW dalga %d: %s x%d' % (i + 1, tip, n))
         elif s[0] == 'role':
             if not (self.relay and self.relay['defender']):
@@ -157,7 +157,7 @@ class Low:
         if no > L['role']['adet']:
             return None
         x, y = L['role']['places'][no - 1]
-        self.relay = dict(kimlik=RELAY_BASE + no, x=x, y=y, ilerleme=0.0, son=time.time(), yuzde=-1, defender=False)
+        self.relay = dict(kimlik=RELAY_BASE + no, x=x, y=y, progress=0.0, last=time.time(), yuzde=-1, defender=False)
         return self.relay_msg()
 
     def place_relay(self, now):
@@ -166,36 +166,36 @@ class Low:
         if not self.relay:
             w.send([self.show_relay()])
         r = self.relay
-        r['son'], r['defender'] = now, True
+        r['last'], r['defender'] = now, True
         tip, n = L['role']['savunma']
         self.spawn(tip, n, near=(r['x'], r['y']))
         no = self.st['role'] + 1
         self.say('role', no=no)
-        self.tell('role_%d' % no)
+        self.tell('relay_%d' % no)
         w.log('   LoW röle istasyonu %d: (%d,%d)' % (no, r['x'], r['y']))
 
     def relay_tick(self, now):
         """Röle (yedek yol): yanında yaricap içinde, haritada korsan yokken ilerler; sn saniyede etkinleşir."""
         w, r, cfg = self.w, self.relay, L['role']
-        dt, r['son'] = now - r['son'], now
+        dt, r['last'] = now - r['last'], now
         if self.alive():
             return
-        self.tell('role_%d_hazir' % (self.st['role'] + 1))
+        self.tell('relay_%d_ready' % (self.st['role'] + 1))
         hx, hy = w.hero_pos(now)
         if math.hypot(r['x'] - hx, r['y'] - hy) > cfg['yaricap']:
             return
-        r['ilerleme'] += min(dt, 1.0)
+        r['progress'] += min(dt, 1.0)
         self.relay_step(now)
 
     def relay_step(self, now):
         """Rölenin ilerlemesi (saniye; vuruş hasar/hasar x sn kadar): yüzde iletisi, dolunca etkinleşir; sıradaki röle belirir."""
         w, r, cfg = self.w, self.relay, L['role']
-        pct = min(100, int(100 * r['ilerleme'] / cfg['sn']))
+        pct = min(100, int(100 * r['progress'] / cfg['sn']))
         no = self.st['role'] + 1
         if pct // 25 > r['yuzde'] // 25 and pct < 100:
             r['yuzde'] = pct
-            self.say('role_ilerleme', no=no, yuzde=pct)
-        if r['ilerleme'] < cfg['sn']:
+            self.say('relay_progress', no=no, yuzde=pct)
+        if r['progress'] < cfg['sn']:
             return
         msgs = [ALN.asset_remove(r['kimlik'], RELAY_STATION), legacy('0|A|STM|msg_relaisstation_activated')]
         if no >= 2 and cfg.get('pirates'):                        # forum 126411: 2-4. röle etkinleşince çevresinde korsanlar
@@ -205,8 +205,8 @@ class Low:
         msgs += self.zone_msgs() if no == 1 else []                 # ilk röle HQ iyileştirme bölgesini açar
         nxt = self.show_relay()
         w.send(msgs + ([nxt] if nxt else []))
-        self.say('role_tamam', no=no)
-        self.tell('role_%d_tamam' % no)
+        self.say('relay_done', no=no)
+        self.tell('relay_%d_done' % no)
         self.t = now + L['wave_interval_sec']
         s = self.step()
         self.save(stage=s[0])
@@ -256,7 +256,7 @@ class Low:
     def charge(self):
         """Rölenin dolumu hasar biriminde: (şimdiki, gereken)."""
         cfg = L['role']
-        return int(self.relay['ilerleme'] / cfg['sn'] * cfg['hasar']), cfg['hasar']
+        return int(self.relay['progress'] / cfg['sn'] * cfg['hasar']), cfg['hasar']
 
     def asset_pos(self, uid):
         r = self.relay
@@ -279,7 +279,7 @@ class Low:
     def asset_hit(self, uid, dmg):
         """Vuruş röleyi doldurur (gösterge: AttackHitAssetCommand'ın canı dolum)."""
         cfg = L['role']
-        self.relay['ilerleme'] = min(cfg['sn'], self.relay['ilerleme'] + dmg / float(cfg['hasar']) * cfg['sn'])
+        self.relay['progress'] = min(cfg['sn'], self.relay['progress'] + dmg / float(cfg['hasar']) * cfg['sn'])
         now, need = self.charge()
         msgs = [('AttackHitAssetCommand', dict(assetId=int(uid), hitpointsNow=now, hitpointsMax=need))]
         self.relay_step(time.time())
@@ -298,13 +298,13 @@ class Low:
 
     def finish(self):
         w = self.w
-        self.save(stage='bitti')
+        self.save(stage='finished')
         dest = L['cikis'].get(str(self.p.d['pilot'].get('factionId')), 5)       # firmanın X-1'i (forum 126411: herkes X-1'e atılır)
-        g = dict(gateId=EXIT_ID, x=w.map_w // 2, y=w.map_h // 2, hedef=dest, designId=1, varis='istasyon')
+        g = dict(gateId=EXIT_ID, x=w.map_w // 2, y=w.map_h // 2, hedef=dest, designId=1, arrival='istasyon')
         w.add_gate(g)
         w.auto_jump(g, L.get('exit_wait_sec', 5))
-        self.say('bitti')
-        self.tell('bitti')
+        self.say('finished')
+        self.tell('finished')
         w.log('   LoW tamamlandı: X-1 istasyonuna dönüş')
         self.boss = -1
 

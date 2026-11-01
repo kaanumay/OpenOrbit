@@ -31,14 +31,14 @@ import event_appearances as EG
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = DATA.load('events.json')       # Dünya Editörü: dönemler, harita bölümü, dünyadaki durum (dunya_durum)
-EVENTS = D['etkinlikler']
+EVENTS = D['events']
 EG.apply(EVENTS)                        # etkinlik görünümleri: GG hafta sonu kapılarının ve harita kutularının tasarımları
 ALWAYS = D['continuous']['kinds']
 COUNTED_AS = {}                            # etkinlik -> yerine de sayılan etkinlikler ('sayilir': Şükran Günü'nde gg_cift_odul)
 for _k, _e in EVENTS.items():
     if _e.get('counts_as'):
         COUNTED_AS.setdefault(_e['counts_as'], []).append(_k)
-FORCED, MODE = set(), 'takvim'          # takvim | hepsi | yok (yıllıklar için)
+FORCED, MODE = set(), 'calendar'          # takvim | hepsi | yok (yıllıklar için)
 # hafta döngüleri ('hafta_dongu') bu pazartesiden sayılır; ISO hafta paritesi 53 haftalık yılda (2026) üç haftalık ara bırakıyordu
 WEEK_START = datetime.date(2024, 1, 8)
 DAY, CYCLE = datetime.timedelta(days=1), datetime.timedelta(weeks=52)
@@ -64,7 +64,7 @@ def _tags(e):
     out = {'pass'} if 'BattlePass' in e.get('kinds', []) else set()
     if 'decor' in e:
         out.add('sus:%s' % e['decor']['tur'])
-    secs = ([e['harita']] if isinstance(e.get('harita'), dict) else []) + e.get('harita_ek', [])
+    secs = ([e['harita']] if isinstance(e.get('harita'), dict) else []) + e.get('map_extra', [])
     if 'CandyCargo' in e.get('kinds', []) or any(s.get('cargo_kind') for s in secs):
         out.add('kargo')
     return out
@@ -81,14 +81,14 @@ def configure(argv=None):
     global MODE
     argv = sys.argv if argv is None else argv
     FORCED.clear()
-    MODE = 'takvim'
+    MODE = 'calendar'
     for i, a in enumerate(argv):
         val = a.split('=', 1)[1] if a.startswith('--event=') else (argv[i + 1] if a == '--event' and i + 1 < len(argv) else None)
         if val is None:
             continue
         for x in val.split(','):
             x = x.strip().lower()
-            if x in ('hepsi', 'yok'):
+            if x in ('hepsi', 'none'):
                 MODE = x
             elif x in EVENTS:
                 FORCED.add(x)
@@ -112,8 +112,8 @@ def _thanksgiving(y):
     return first + datetime.timedelta(days=(3 - first.weekday()) % 7 + 21)
 
 
-HOLIDAYS = {'paskalya': _easter, 'sukran_gunu': _thanksgiving,
-            'cin_yeni_yili': lambda y: datetime.date(y, *CNY[y]) if y in CNY else None}
+HOLIDAYS = {'easter': _easter, 'thanksgiving_day': _thanksgiving,
+            'chinese_new_year': lambda y: datetime.date(y, *CNY[y]) if y in CNY else None}
 
 
 def _day(s, y):
@@ -192,7 +192,7 @@ def _week_day(e, d):
     """Haftalık etkinlik bu gün var mı ('gunler', 'ay_haftasi', 'hafta_dongu')."""
     if d.weekday() not in e.get('days', range(7)) or (e.get('nth_of_month') and (d.day - 1) // 7 + 1 not in e['nth_of_month']):
         return False
-    n, i = e.get('hafta_dongu', (1, 0))
+    n, i = e.get('week_cycle', (1, 0))
     return (d.date() - WEEK_START).days // 7 % n == i
 
 
@@ -204,7 +204,7 @@ def period(key, now=None):
     if 'donemler' in e:
         p = _span_at(e['donemler'], t)
     else:
-        p = _hours(t, lambda d: e.get('saatler', [[0, 24]]) if _week_day(e, d) else [])
+        p = _hours(t, lambda d: e.get('hours', [[0, 24]]) if _week_day(e, d) else [])
     if p:
         return p[0].timestamp(), p[1].timestamp()
     return next(filter(None, (period(k, now) for k in COUNTED_AS.get(key, ()))), None)      # 'sayilir': yerine sayılan etkinliğin dönemi
@@ -216,9 +216,9 @@ def window(s, now=None):
     t = _dt(now)
     if 'donemler' in s and not _span_at(s['donemler'], t):
         return False
-    if 'saatler' not in s or SET.get('seans_hep_acik'):
+    if 'hours' not in s or SET.get('session_always_open'):
         return True
-    return _hours(t, lambda d: s.get('hours_weekend', s['saatler']) if d.weekday() >= 5 else s['saatler']) is not None
+    return _hours(t, lambda d: s.get('hours_weekend', s['hours']) if d.weekday() >= 5 else s['hours']) is not None
 
 
 def upcoming(key, now=None, days=366):
@@ -298,7 +298,7 @@ def intervals(key, a, b):
     if 'donemler' in e:
         iv = _span_windows(e['donemler'], a, b)
     else:
-        iv = _daily(a, b, lambda d: e.get('saatler', [[0, 24]]) if _week_day(e, d) else [])
+        iv = _daily(a, b, lambda d: e.get('hours', [[0, 24]]) if _week_day(e, d) else [])
     iv = _merge(iv + [x for k in COUNTED_AS.get(key, ()) for x in intervals(k, a, b)])      # 'sayilir': yerine sayılan etkinlikler
     if e.get('together'):
         iv = _intersect(iv, _merge([x for k in e['together'] for x in intervals(k, a, b)]))
@@ -308,15 +308,15 @@ def intervals(key, a, b):
 def section_intervals(s, a, b, always_open=False):
     """Harita bölümünün [a, b) içindeki açık aralıkları (window ile aynı kural; hep_acik: panelin seans_hep_acik ayarı)."""
     iv = _span_windows(s['donemler'], a, b) if 'donemler' in s else [[a, b]]
-    if 'saatler' in s and not always_open:
-        iv = _intersect(iv, _daily(a, b, lambda d: s.get('hours_weekend', s['saatler']) if d.weekday() >= 5 else s['saatler']))
+    if 'hours' in s and not always_open:
+        iv = _intersect(iv, _daily(a, b, lambda d: s.get('hours_weekend', s['hours']) if d.weekday() >= 5 else s['hours']))
     return iv
 
 
 def _rank(key, now):
     """Çakışmada öncelik (küçük kazanır): elle açılan, Battle Pass'in sürdürdüğü, sonra dönemi önce başlayan."""
     t = time.time() if now is None else now
-    if SET.event_state(key) == 'acik' or key in FORCED:
+    if SET.event_state(key) == 'on' or key in FORCED:
         top = 0
     elif _pass_run(key, t):
         top = 1
@@ -357,13 +357,13 @@ def _on(key, now=None):
         return False
     st = SET.event_state(key)
     if st:
-        return st == 'acik'
-    if e.get('world_status') in ('acik', 'kapali'):     # dünyanın ayarı (kaydın Etkinlikler ayarından sonra)
-        return e['world_status'] == 'acik'
+        return st == 'on'
+    if e.get('world_status') in ('on', 'off'):     # dünyanın ayarı (kaydın Etkinlikler ayarından sonra)
+        return e['world_status'] == 'on'
     yearly = 'donemler' in e
     if key in FORCED or (yearly and MODE == 'hepsi'):
         return True
-    if yearly and MODE == 'yok':
+    if yearly and MODE == 'none':
         return False
     if _pass_run(key, time.time() if now is None else now):
         return True
@@ -373,8 +373,8 @@ def _on(key, now=None):
 def forced(key):
     """Etkinlik tarihten bağımsız açık mı (panelde 'acik', --event ad ya da hepsi): harita bölümlerinin pencereleri sayılmaz."""
     st = SET.event_state(key)
-    return st == 'acik' or key in FORCED or (MODE == 'hepsi' and 'donemler' in EVENTS[key]) or (
-        not st and EVENTS[key].get('world_status') == 'acik')
+    return st == 'on' or key in FORCED or (MODE == 'hepsi' and 'donemler' in EVENTS[key]) or (
+        not st and EVENTS[key].get('world_status') == 'on')
 
 
 _ACTIVE = [None, None]                  # (anahtar, sonuç): aynı an için (saniyede bir 14 etkinlik modülü ayrı ayrı sorar: ek_etkinlikler)
@@ -384,7 +384,7 @@ def active(now=None):
     key = None
     if now is not None:
         key = (now, MODE, frozenset(FORCED), tuple(sorted(PASS_RUNS.items())),
-               tuple(sorted((SET._current().get('etkinlikler') or {}).items())))
+               tuple(sorted((SET._current().get('events') or {}).items())))
         if _ACTIVE[0] == key:
             return set(_ACTIVE[1])
     on = {k for k in EVENTS if _on(k, now)}
@@ -411,24 +411,24 @@ def time_left(key, now=None):
 def gate_rewards(key, now=None):
     """Etkin etkinliklerin Galaksi Kapısı ödülleri ('kapi_odulu'): [(lootId, adet, olasılık)] (Empyrian / Prosperous Fragment …);
     paketin kalemleri hariç (gate_bundles)."""
-    return [tuple(r) for k in sorted(active(now)) for s in EVENTS[k].get('kapi_odulu', []) if key in s['kapilar'] and not s.get('paket')
+    return [tuple(r) for k in sorted(active(now)) for s in EVENTS[k].get('gate_reward', []) if key in s['kapilar'] and not s.get('paket')
             for r in s.get('esyalar', [])]
 
 
 def gate_choices(key, now=None):
     """Etkin etkinliklerin bu kapıdaki seçimli ödülleri ('kapi_odulu' satırının 'secim'i: 'olasilik'la [[lootId, adet(, ağırlık)]]'ten biri, ağırlık yoksa eşit;
     'yinelenmez': sahip olunan tasarım çıkmaz): GG Special Rewards Weekend paketleri, LF-4 günü."""
-    return [s for k in sorted(active(now)) for s in EVENTS[k].get('kapi_odulu', []) if key in s['kapilar'] and s.get('secim')]
+    return [s for k in sorted(active(now)) for s in EVENTS[k].get('gate_reward', []) if key in s['kapilar'] and s.get('choice')]
 
 
 def gate_bundles(key, now=None):
     """Etkin etkinliklerin bu kapıdaki ödül paketleri ('kapi_odulu' satırı 'paket' adıyla: 'olasilik'la düşer, 'esyalar' kalemleri
     [lootId, adet, olasılık] kendi olasılıklarıyla; Prosperous Package): düşünce başarımın CollectPackage koşulu da (kapi.finish)."""
-    return [s for k in sorted(active(now)) for s in EVENTS[k].get('kapi_odulu', []) if key in s['kapilar'] and s.get('paket')]
+    return [s for k in sorted(active(now)) for s in EVENTS[k].get('gate_reward', []) if key in s['kapilar'] and s.get('paket')]
 
 
 def achievement_groups(now=None):
-    return {g for k in active(now) for g in EVENTS[k].get('basarim', [])}
+    return {g for k in active(now) for g in EVENTS[k].get('achievement', [])}
 
 
 MON = ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec')
@@ -439,14 +439,14 @@ def news(key, now=None):
     """Etkinliğin bu koşusunun Command Center haberleri (istemcinin resource_news'undaki bn_<kimlik>; tools/calendar_e8.py): 'haber'
     kalıbı dönemin başlangıcıyla ({Y}, {m}, {Mon}, {mon}, {Month}); istemcide yoksa 'haber_varsayilan'; artı 'haber_ek'."""
     e = EVENTS[key]
-    if 'haberler' not in e:
+    if 'clan_news' not in e:
         return []
     p = period(key, now)
     d = datetime.date.fromtimestamp(p[0] if p else time.time() if now is None else now)
     ids = [x.format(Y=d.year, m='%02d' % d.month, Mon=MON[d.month - 1], mon=MON[d.month - 1].lower(), Month=MONTH[d.month - 1])
-           for x in e['haber']]
-    main = next((x for x in ids if x in e['haberler']), e.get('haber_varsayilan'))
-    return ([main] if main else []) + e.get('haber_ek', [])
+           for x in e['news']]
+    main = next((x for x in ids if x in e['clan_news']), e.get('news_default'))
+    return ([main] if main else []) + e.get('news_extra', [])
 
 
 def _id(t):
@@ -482,7 +482,7 @@ def mood_cmds(keys, before=None):
     'deger': EventActivationIntegerAttributeModule (buzdağı boyutu)."""
     on, old = moods(keys), moods(before or ())
     cmd = lambda s, a: ('EventActivationStateCommand', dict(type=s['tur'], active=a, attributes=[
-        dict(_='EventActivationIntegerAttributeModule', value=s['deger'])] if 'deger' in s else []))
+        dict(_='EventActivationIntegerAttributeModule', value=s['value'])] if 'value' in s else []))
     return ([cmd(s, True) for t, s in sorted(on.items()) if before is None or t not in old]
             + [cmd(s, False) for t, s in sorted(old.items()) if t not in on])
 

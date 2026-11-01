@@ -10,7 +10,7 @@ from .. import abstract_sim as S
 @target
 class ModeRun(Goal):
     name = 'mod'
-    permission = 'modlar'
+    permission = 'modes'
     min_sec = 3600 * 2
 
     def eligible(self, bot, b):
@@ -24,39 +24,39 @@ class ModeRun(Goal):
         return bot._mode_candidate is not None
 
     def points(self, bot, b):
-        return 0.7 + 0.5 * bot.o('hirs') + 0.3 * bot.o('rekabet') - 0.5 * bot.mood['yorgunluk'] + 0.2 * bot.mood['sikilma']
+        return 0.7 + 0.5 * bot.o('ambition') + 0.3 * bot.o('rekabet') - 0.5 * bot.mood['fatigue'] + 0.2 * bot.mood['boredom']
 
     def start(self, bot, b):
         m = bot.__dict__.get('_mode_candidate')
         if m is None or not m.cost(bot):
-            bot.plan['bitti'] = True
+            bot.plan['finished'] = True
             bot._mode_candidate, bot._mode_next_check = None, b.now + 1800   # giremedi: yarım saat başka işlere bakar (boşta dönmesin)
             return
         ul, top, duration, reward = MD.run(bot, m, bot.r)
-        bot.plan.update(mod=m.uid, ul=ul, top=top, sure=duration, odul=reward, bitis=b.now + duration)
+        bot.plan.update(mod=m.uid, ul=ul, top=top, sure=duration, reward=reward, bitis=b.now + duration)
         bot._mode_candidate = None
         bot._mode_next_check = 0
         if m.game_map:
             S.jump_to(bot, m.game_map, b.y)                 # modun haritası: senin haritandan kalkar
-        bot.event('moda_girdi', mod=m.name)
+        bot.event('entered_mode', mod=m.name)
 
     def abstract(self, bot, dt, y):
-        if bot.plan.get('bitti') or y.now < bot.plan.get('bitis', 0):
+        if bot.plan.get('finished') or y.now < bot.plan.get('bitis', 0):
             return
         m = next((x for x in MD.modes() if x.uid == bot.plan.get('mod')), None)
         if m is not None:
-            o = bot.plan.get('odul') or {}
+            o = bot.plan.get('reward') or {}
             bot.reward('npc', y.speed(bot), ep=o.get('ep', 0), kredi=o.get('kredi', 0), uridyum=o.get('uridyum', 0), onur=o.get('onur', 0))
             m.finish(bot, bot.plan['ul'], bot.plan['top'], bot.plan['sure'], bot.r)
             m.save(bot, bot.plan['ul'], bot.plan['top'])
-            bot.ist('mod_kosu')
-            bot.event('mod_bitti', mod=m.name, ilerleme='%d/%d' % (bot.plan['ul'], bot.plan['top']))
+            bot.ist('mode_run')
+            bot.event('mode_done', mod=m.name, progress='%d/%d' % (bot.plan['ul'], bot.plan['top']))
         if bot.game_map not in K.MAPS:
             S.jump_to(bot, K.ev(bot.firma), y)
-        bot.plan['bitti'] = True
+        bot.plan['finished'] = True
 
     def concrete(self, bot, g, w, now):
         return False
 
     def finished(self, bot, b):
-        return bot.plan.get('bitti', False)
+        return bot.plan.get('finished', False)

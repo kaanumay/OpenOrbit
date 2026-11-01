@@ -10,9 +10,9 @@ import lang as D
 DEFAULTS = {
     'dil': None,                    # dil.DILLER'den bir kod; None: henüz seçilmedi (kurulum sihirbazı dil seçimiyle açılır)
     'setup_done': False,         # ilk açılış sihirbazı bitti (ya da atlandı)
-    'aktif_kayit': None,            # save/kayitlar/<kimlik>
-    'istemci_klasoru': None,        # None: kendiliğinden (proje kökündeki en yeni DarkOrbit_Version* klasörü)
-    'window_mode': 'pencere',      # pencere | tam_ekran | kenarliksiz
+    'active_save': None,            # save/kayitlar/<kimlik>
+    'client_folder': None,        # None: kendiliğinden (proje kökündeki en yeni DarkOrbit_Version* klasörü)
+    'window_mode': 'windowed',      # pencere | tam_ekran | kenarliksiz
     'width': 1440,
     'height': 900,
     'monitor': 0,                   # 0: Unity'nin seçtiği; 1..: -monitor N
@@ -20,10 +20,10 @@ DEFAULTS = {
     'backup_on_launch': True,         # Oyna'da etkin yuvanın otomatik yedeği
     'backup_count': 10,             # saklanan otomatik yedek (elle alınanlar silinmez)
     'backup_interval_min': 30,          # oyun açıkken otomatik yedek aralığı (0: kapalı)
-    'istemci_kapaninca': 'kapat',   # kapat: panelin açtığı sunucular kapanır | acik: açık kalır
+    'when_client_closes': 'close',   # kapat: panelin açtığı sunucular kapanır | acik: açık kalır
     'rotate_logs': True,          # büyük günlükler başlatmada .1, .2 … olarak kayar
-    'pencere_kapaninca': 'bekle',   # panel penceresi kapanınca: bekle (oyun sürüyorsa bitince kapanır) | kapat (her şeyi kapatır)
-    'guncelleme': 'otomatik',       # GitHub'daki yeni sürüm (guncelleme.py): otomatik kur | bildir (yalnız haber ver) | kapali
+    'when_window_closes': 'wait',   # panel penceresi kapanınca: bekle (oyun sürüyorsa bitince kapanır) | kapat (her şeyi kapatır)
+    'update': 'auto',       # GitHub'daki yeni sürüm (guncelleme.py): otomatik kur | bildir (yalnız haber ver) | kapali
     'fast_download': True,          # istemci indirmesi BAGLANTI bağlantıyla (indirme.py); kapalıyken tek bağlantı
     'friend_password': '',            # Arkadaşlarınla Oyna > Host: katılma şifresi (boş: şifresiz)
     'friend_max': 4,            # Host: en çok misafir
@@ -31,7 +31,7 @@ DEFAULTS = {
     'friend_last_address': '',        # Join: son katılınan adres
     'multi_client': True,          # çoklu istemci: en az iki kayıt varsa OYNA sunucuyu çok oturumlu açar (coklu.py)
     'multi_client_max': 3,              # en çok ek istemci (her istemci ~600 MB bellek)
-    'runner': 'otomatik',      # Linux ve macOS: istemciyi açan otomatik | motor | wine | proton | ozel (calistirici.py)
+    'runner': 'auto',      # Linux ve macOS: istemciyi açan otomatik | motor | wine | proton | ozel (calistirici.py)
     'runner_path': '',         # wine programı, Proton klasörü ya da özel komut (boş: kendiliğinden)
     'wine_prefix': '',                # Wine öneki / Proton veri klasörü (boş: save/wine ya da save/proton)
     'discord_rp': True,             # Discord Rich Presence (discord_rp.py); rp_*: profilde görünenler
@@ -44,12 +44,12 @@ DEFAULTS = {
     'rp_firma': True,               # firmanın amblemi
     'rp_sure': True,                # oturumun geçen süresi
     'rp_grup': True,                # Arkadaşlarınla Oyna: grup büyüklüğü
-    'rp_butonlar': True,            # Discord sunucusu ve GitHub düğmeleri
-    'rp_panelde': True,             # oyun kapalıyken de (panelde)
+    'rp_buttons': True,            # Discord sunucusu ve GitHub düğmeleri
+    'rp_in_panel': True,             # oyun kapalıyken de (panelde)
 }
-CHOICES = {'window_mode': ('pencere', 'tam_ekran', 'kenarliksiz'), 'istemci_kapaninca': ('kapat', 'acik'),
-           'pencere_kapaninca': ('bekle', 'kapat'), 'guncelleme': ('otomatik', 'bildir', 'kapali'),
-           'runner': ('otomatik', 'motor', 'wine', 'proton', 'ozel')}
+CHOICES = {'window_mode': ('windowed', 'fullscreen', 'borderless'), 'when_client_closes': ('close', 'on'),
+           'when_window_closes': ('wait', 'close'), 'update': ('auto', 'notify', 'off'),
+           'runner': ('auto', 'engine', 'wine', 'proton', 'ozel')}
 LIMITS = {'width': (640, 7680), 'height': (480, 4320), 'monitor': (0, 8), 'backup_count': (1, 200), 'backup_interval_min': (0, 600),
           'friend_max': (1, 16), 'multi_client_max': (1, 8)}
 
@@ -71,7 +71,7 @@ def clean(key, v):
         v = int(v)
         lo, hi = LIMITS.get(key, (v, v))
         return min(hi, max(lo, v))
-    if key in ('aktif_kayit', 'istemci_klasoru'):
+    if key in ('active_save', 'client_folder'):
         return str(v) if v else None
     return str(v if v is not None else '')
 

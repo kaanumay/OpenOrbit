@@ -14,17 +14,17 @@ from client_download import HttpFile, DownloadError, Cancelled
 VERSION = 'b11981'
 _GH = 'https://github.com/ggml-org/llama.cpp/releases/download/%s/' % VERSION
 SERVERS = {   # platform -> arşiv (Vulkan: NVIDIA, AMD ve Intel ekran kartlarında; yoksa işlemcide çalışır)
-    'win-x64': dict(url=_GH + 'llama-%s-bin-win-vulkan-x64.zip' % VERSION, boyut=37346388,
+    'win-x64': dict(url=_GH + 'llama-%s-bin-win-vulkan-x64.zip' % VERSION, size=37346388,
                     sha256='29419511baa97ccb001111a24de4a9e1d62251075749e2a8be56219b51dc21ce'),
-    'linux-x64': dict(url=_GH + 'llama-%s-bin-ubuntu-vulkan-x64.tar.gz' % VERSION, boyut=35475421,
+    'linux-x64': dict(url=_GH + 'llama-%s-bin-ubuntu-vulkan-x64.tar.gz' % VERSION, size=35475421,
                       sha256='5fca386f7256e496cfd1edefe63c00082267e1394c6136b6946a2d70003d3666'),
-    'mac-arm64': dict(url=_GH + 'llama-%s-bin-macos-arm64.tar.gz' % VERSION, boyut=16463687,
+    'mac-arm64': dict(url=_GH + 'llama-%s-bin-macos-arm64.tar.gz' % VERSION, size=16463687,
                       sha256='c5827eba94fe4eb9068a82eab5c25a943dbd2022efe5144d1af817e8b396b45a'),
-    'mac-x64': dict(url=_GH + 'llama-%s-bin-macos-x64.tar.gz' % VERSION, boyut=12208100,
+    'mac-x64': dict(url=_GH + 'llama-%s-bin-macos-x64.tar.gz' % VERSION, size=12208100,
                     sha256='0d9e5c5bbeca9beda692e4a46560e83b2385dc79683bd949126b10e34c2ca7ce'),
 }
 MODEL = dict(ad='Qwen3-4B-Q4_K_M.gguf', url='https://huggingface.co/Qwen/Qwen3-4B-GGUF/resolve/main/Qwen3-4B-Q4_K_M.gguf',
-             boyut=2497280256, sha256='7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5')
+             size=2497280256, sha256='7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5')
 CHUNK = 1 << 20
 MIN_MEMORY_GB = 8
 
@@ -63,13 +63,13 @@ class LlmSetup:
         self.log, self.opener = log, opener
         self.lock = threading.Lock()
         self.stop = threading.Event()
-        self.d = self._empty('yok')
+        self.d = self._empty('none')
         self.samples = []
-        self.t = {'durum': 'yok'}
+        self.t = {'durum': 'none'}
 
     @staticmethod
     def _empty(state):
-        return {'durum': state, 'calisiyor': False, 'alinan': 0, 'toplam': 0, 'hiz': 0, 'time_left_sec': None, 'hata': None, 'parca': None}
+        return {'durum': state, 'running': False, 'claimed': 0, 'toplam': 0, 'hiz': 0, 'time_left_sec': None, 'hata': None, 'part': None}
 
     def folder(self):
         return os.path.join(PTH.SAVE, 'llm')
@@ -89,31 +89,31 @@ class LlmSetup:
             d = json.loads(json.dumps(self.d))
             t = dict(self.t)
         k = self.save()
-        if not d['calisiyor'] and k:
-            d['durum'] = 'hazir' if k.get('test_ok') else 'kurulu'
-        if not d['calisiyor'] and not k and d['durum'] in ('yok', 'kurulu', 'hazir'):
-            d['durum'] = 'yok'
+        if not d['running'] and k:
+            d['durum'] = 'hazir' if k.get('test_ok') else 'built'
+        if not d['running'] and not k and d['durum'] in ('none', 'built', 'hazir'):
+            d['durum'] = 'none'
             p = os.path.join(self.folder(), MODEL['ad'] + '.part')
             d['partial'] = os.path.getsize(p) if os.path.isfile(p) else 0
         pk = platform_key()
-        d.update(test=t, boyut=MODEL['boyut'] + (SERVERS[pk]['boyut'] if pk else 0), platform=pk, destekli=bool(pk),
+        d.update(test=t, size=MODEL['size'] + (SERVERS[pk]['size'] if pk else 0), platform=pk, destekli=bool(pk),
                  memory_gb=memory_gb(), min_memory_gb=MIN_MEMORY_GB, cores=os.cpu_count(), model=MODEL['ad'], surum=VERSION,
                  last_test=k.get('test') if k else None)
         return d
 
     def running(self):
         with self.lock:
-            return self.d['calisiyor'] or self.t.get('durum') == 'calisiyor'
+            return self.d['running'] or self.t.get('durum') == 'running'
 
     # ------------------------------------------------------------ kurulum
     def start(self):
         with self.lock:
-            if not self.d['calisiyor'] and not self.save():
+            if not self.d['running'] and not self.save():
                 pk = platform_key()
                 if not pk:
                     raise DownloadError(_('Bu bilgisayarın işlemcisi için hazır dil modeli sunucusu yok.'))
                 self.stop.clear()
-                self.d = dict(self._empty('indiriliyor'), calisiyor=True, toplam=MODEL['boyut'] + SERVERS[pk]['boyut'])
+                self.d = dict(self._empty('downloading'), running=True, toplam=MODEL['size'] + SERVERS[pk]['size'])
                 self.samples = []
                 threading.Thread(target=self._run, args=(pk,), daemon=True).start()
         return self.state()
@@ -127,20 +127,20 @@ class LlmSetup:
             raise DownloadError(_('Kurulum ya da test sürüyor.'))
         shutil.rmtree(self.folder(), ignore_errors=True)
         with self.lock:
-            self.d, self.t = self._empty('yok'), {'durum': 'yok'}
+            self.d, self.t = self._empty('none'), {'durum': 'none'}
         return self.state()
 
     def _count(self, n):
         now = time.monotonic()
         with self.lock:
-            self.d['alinan'] += n
-            self.samples.append((now, self.d['alinan']))
+            self.d['claimed'] += n
+            self.samples.append((now, self.d['claimed']))
             while len(self.samples) > 2 and now - self.samples[0][0] > 8:
                 self.samples.pop(0)
             t0, b0 = self.samples[0]
             if now - t0 >= 1:
-                self.d['hiz'] = int((self.d['alinan'] - b0) / (now - t0))
-                remaining = max(0, self.d['toplam'] - self.d['alinan'])
+                self.d['hiz'] = int((self.d['claimed'] - b0) / (now - t0))
+                remaining = max(0, self.d['toplam'] - self.d['claimed'])
                 self.d['time_left_sec'] = int(remaining / self.d['hiz']) if self.d['hiz'] > 0 else None
 
     def _download(self, url, target, size, sha):
@@ -184,28 +184,28 @@ class LlmSetup:
         try:
             os.makedirs(k, exist_ok=True)
             empty = shutil.disk_usage(k).free
-            need = MODEL['boyut'] * 1.1 + 300 * 2 ** 20
+            need = MODEL['size'] * 1.1 + 300 * 2 ** 20
             if empty < need:
                 raise DownloadError(_('Diskte yer yetmiyor: %.1f GB gerekli, %.1f GB boş.', need / 2 ** 30, empty / 2 ** 30))
             s = SERVERS[pk]
             archive = os.path.join(k, os.path.basename(s['url']))
             self.log('dil modeli sunucusu indiriliyor: %s' % s['url'])
             with self.lock:
-                self.d['parca'] = 'llama-server'
+                self.d['part'] = 'llama-server'
             if not os.path.isfile(archive):
-                self._download(s['url'], archive, s['boyut'], s['sha256'])
+                self._download(s['url'], archive, s['size'], s['sha256'])
             else:
-                self._count(s['boyut'])
+                self._count(s['size'])
             with self.lock:
-                self.d['parca'] = MODEL['ad']
+                self.d['part'] = MODEL['ad']
             model = os.path.join(k, MODEL['ad'])
             if not os.path.isfile(model):
                 self.log('dil modeli indiriliyor: %s' % MODEL['url'])
-                self._download(MODEL['url'], model, MODEL['boyut'], MODEL['sha256'])
+                self._download(MODEL['url'], model, MODEL['size'], MODEL['sha256'])
             else:
-                self._count(MODEL['boyut'])
+                self._count(MODEL['size'])
             with self.lock:
-                self.d.update(durum='kuruluyor', parca=None)
+                self.d.update(durum='installing', part=None)
             target = os.path.join(k, 'llama-' + VERSION)
             if os.path.isdir(target):
                 shutil.rmtree(target)
@@ -232,11 +232,11 @@ class LlmSetup:
                 json.dump({'surum': VERSION, 'sunucu': server, 'model': MODEL['sha256'], 'test_ok': False,
                            'time': time.strftime('%Y-%m-%d %H:%M:%S')}, fh, indent=1)
             with self.lock:
-                self.d.update(durum='kurulu', alinan=self.d['toplam'], time_left_sec=0)
+                self.d.update(durum='built', claimed=self.d['toplam'], time_left_sec=0)
             self.log('dil modeli kuruldu: %s' % server)
         except Cancelled:
             with self.lock:
-                self.d['durum'] = 'durdu'
+                self.d['durum'] = 'stopped'
         except DownloadError as e:
             with self.lock:
                 self.d.update(durum='hata', hata=str(e))
@@ -247,16 +247,16 @@ class LlmSetup:
             self.log('dil modeli kurulamadı: %r' % e)
         finally:
             with self.lock:
-                self.d['calisiyor'], self.d['hiz'], self.d['parca'] = False, 0, None
+                self.d['running'], self.d['hiz'], self.d['part'] = False, 0, None
 
     # ------------------------------------------------------------ test
     def test(self):
         with self.lock:
-            if self.t.get('durum') == 'calisiyor':
+            if self.t.get('durum') == 'running':
                 return self.state()
             if not self.save():
                 raise DownloadError(_('Önce dil modelini kur.'))
-            self.t = {'durum': 'calisiyor', 'bas': time.time()}
+            self.t = {'durum': 'running', 'start': time.time()}
         threading.Thread(target=self._test, daemon=True).start()
         return self.state()
 
@@ -269,9 +269,9 @@ class LlmSetup:
         if not c['model']:
             raise DownloadError(_('Önce bir model seç.'))
         with self.lock:
-            if self.t.get('durum') == 'calisiyor':
+            if self.t.get('durum') == 'running':
                 return self.state()
-            self.t = {'durum': 'calisiyor', 'bas': time.time(), 'provider': c['kimlik']}
+            self.t = {'durum': 'running', 'start': time.time(), 'provider': c['kimlik']}
         threading.Thread(target=self._test_remote, args=(c['kimlik'],), daemon=True).start()
         return self.state()
 

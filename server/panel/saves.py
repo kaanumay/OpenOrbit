@@ -44,7 +44,7 @@ class SaveError(Exception):
 
 def slugify(name):
     s = re.sub(r'[^a-z0-9]+', '_', name.translate(_TR).lower()).strip('_')
-    return (s or 'kayit')[:32]
+    return (s or 'record')[:32]
 
 
 def ship_name(type_id):
@@ -131,13 +131,13 @@ def profile_summary(d):
     """Profilden panelin gösterdiği özet."""
     pl, g, k = d.get('pilot') or {}, d.get('gemi') or {}, d.get('position') or {}
     base, next_ = level_bounds(pl.get('level', 1))
-    return {'ship_appearance': g.get('typeId'), 'level_base': base, 'next_level': next_, 'drone_count': len(d.get('dronlar') or []),
+    return {'ship_appearance': g.get('typeId'), 'level_base': base, 'next_level': next_, 'drone_count': len(d.get('drones') or []),
             'pet': (d.get('pet') or {}).get('ad'), 'premium': bool(pl.get('premium')),'pilot': pl.get('userName') or '?', 'firma': COMPANIES.get(pl.get('factionId'), '?'), 'firma_id': pl.get('factionId'),
             'seviye': pl.get('level', 1), 'ep': pl.get('ep', 0), 'onur': pl.get('honourPoints', 0), 'kredi': pl.get('credits', 0),
             'uridyum': pl.get('uridium', 0), 'gemi': ship_name(g.get('typeId')), 'harita': _map_name(k.get('mapId', 0)),
             'play_sec': int(d.get('play_sec') or 0), 'created': d.get('created'),
             'can': g.get('hitPoints'), 'max_hp': g.get('hitMax'),
-            'klan': pl.get('clanTag') or '', 'ship_count': len(d.get('gemiler') or {}) or 1}
+            'klan': pl.get('clanTag') or '', 'ship_count': len(d.get('ships') or {}) or 1}
 
 
 class Saves:
@@ -217,7 +217,7 @@ class Saves:
 
     # ------------------------------------------------------------ etkin yuva
     def active(self):
-        s = self.cfg.get('aktif_kayit')
+        s = self.cfg.get('active_save')
         if s and self.exists(s):
             return s
         slots = self.slots()
@@ -226,7 +226,7 @@ class Saves:
     def set_active(self, slot):
         if not self.exists(slot):
             raise SaveError(_('Kayıt bulunamadı.'))
-        self.cfg.update({'aktif_kayit': slot})
+        self.cfg.update({'active_save': slot})
         return slot
 
     # ------------------------------------------------------------ eski düzenden taşıma
@@ -237,7 +237,7 @@ class Saves:
             if not os.path.isfile(self.legacy):
                 return None
             save = os.path.dirname(self.legacy)
-            sid = self.new_id('ana')
+            sid = self.new_id('main')
             d = os.path.join(self.root, sid)
             os.makedirs(os.path.join(d, 'backups'), exist_ok=True)
             pr = profile_summary(_read_json(self.legacy))
@@ -258,8 +258,8 @@ class Saves:
             _write_json(os.path.join(d, 'slot.json'), {'ad': _('Ana kayıt (%s)', pr['pilot']), 'created': pr['created'] or
                                                         time.strftime('%Y-%m-%d %H:%M:%S'), 'not': 'Eski save/profil.json'})
             shutil.move(self.legacy, os.path.join(d, 'profile.json'))
-            if not self.cfg.get('aktif_kayit') or not self.exists(self.cfg.get('aktif_kayit')):
-                self.cfg.update({'aktif_kayit': sid})
+            if not self.cfg.get('active_save') or not self.exists(self.cfg.get('active_save')):
+                self.cfg.update({'active_save': sid})
             return sid
 
     # ------------------------------------------------------------ özetler
@@ -270,16 +270,16 @@ class Saves:
         if not c or c[0] != st.st_mtime_ns:
             try:
                 s = profile_summary(_read_json(p))
-                s['bozuk'] = False
+                s['corrupt'] = False
             except (OSError, ValueError):
-                s = {'pilot': '?', 'bozuk': True}
+                s = {'pilot': '?', 'corrupt': True}
             self._cache[p] = c = (st.st_mtime_ns, s)
         m = self.meta(slot)
         out = dict(c[1])
         out.update(id=slot, ad=m.get('ad') or slot, not_=m.get('not', ''), save_created=m.get('created'),
                    last_played=m.get('last_played'), last_save=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(st.st_mtime)),
-                   boyut=st.st_size, backup_count=len(self.backup_files(slot)), aktif=(slot == self.active()),
-                   in_use=self.in_use(slot), dunya=m.get('dunya') or 'standart', draft=self._draft_valid(slot))
+                   size=st.st_size, backup_count=len(self.backup_files(slot)), active=(slot == self.active()),
+                   in_use=self.in_use(slot), world=m.get('world') or 'standard', draft=self._draft_valid(slot))
         return out
 
     def list(self):
@@ -289,7 +289,7 @@ class Saves:
                 out.append(self.summary(s))
             except OSError:
                 continue
-        out.sort(key=lambda x: (not x['aktif'], -(time.mktime(time.strptime(x['last_played'], '%Y-%m-%d %H:%M:%S'))
+        out.sort(key=lambda x: (not x['active'], -(time.mktime(time.strptime(x['last_played'], '%Y-%m-%d %H:%M:%S'))
                                                     if x.get('last_played') else 0), x['ad'].lower()))
         return out
 
@@ -371,8 +371,8 @@ class Saves:
             if os.path.isfile(os.path.join(src, 'web_settings.json')):
                 shutil.copy2(os.path.join(src, 'web_settings.json'), os.path.join(dst, 'web_settings.json'))
             meta = {'ad': label, 'created': time.strftime('%Y-%m-%d %H:%M:%S'), 'not': _('Kopyalandı: %s', self.meta(slot).get('ad') or slot)}
-            if self.meta(slot).get('dunya'):              # varsayılan dünya (Dünya Editörü) kopyaya geçer
-                meta['dunya'] = self.meta(slot)['dunya']
+            if self.meta(slot).get('world'):              # varsayılan dünya (Dünya Editörü) kopyaya geçer
+                meta['world'] = self.meta(slot)['world']
             _write_json(os.path.join(dst, 'slot.json'), meta)
             return sid
 
@@ -384,9 +384,9 @@ class Saves:
             os.makedirs(self.trash, exist_ok=True)
             dst = os.path.join(self.trash, '%s_%s' % (slot, time.strftime('%Y%m%d_%H%M%S')))
             shutil.move(src, dst)
-            if self.cfg.get('aktif_kayit') == slot:
+            if self.cfg.get('active_save') == slot:
                 rest = self.slots()
-                self.cfg.update({'aktif_kayit': rest[0] if rest else None})
+                self.cfg.update({'active_save': rest[0] if rest else None})
             return os.path.basename(dst)
 
     def deleted(self):
@@ -529,30 +529,30 @@ class Saves:
                         changed.append(_(key))
                         if key == 'ep':
                             pl['level'] = level_for(v)
-            if values.get('tuslar'):
+            if values.get('keybinds'):
                 # oyunun Ayarlar > Reset'i sunucuya ulaşmıyor (istemci bağlantıyı kapatmadan ResetSettingsRequest gönderemiyor;
                 # CANLI_TEST N12): tuşlar tohumdakine (kayıttaki varsayılan dizilim) döner, sonraki girişte istemciye gider
                 d['key_bindings'] = default_key_bindings()
                 changed.append(_('tuş atamaları varsayılana döndü'))
-            if values.get('onar'):
+            if values.get('repair'):
                 g['hitPoints'], g['shield'] = g.get('hitMax', g.get('hitPoints', 1)), g.get('shieldMax', g.get('shield', 0))
                 changed.append(_('gemi onarıldı'))
-            give = [[str(l), int(n or 1)] for l, n in (values.get('ver') or []) if str(l).strip()]
-            resets = [r for r in (values.get('sifirla') or []) if r]
-            if not changed and not values.get('ana_us') and not give and not resets:
+            give = [[str(l), int(n or 1)] for l, n in (values.get('give') or []) if str(l).strip()]
+            resets = [r for r in (values.get('reset') or []) if r]
+            if not changed and not values.get('home_base') and not give and not resets:
                 return []
             safety = self.backup(slot, 'before', _('Düzenlemeden önce'))
             try:
                 if changed:
                     _write_json(p, d)
-                if values.get('ana_us'):
-                    self.run_tool('ana_us', p)
+                if values.get('home_base'):
+                    self.run_tool('home_base', p)
                     changed.append(_('ana üsse taşındı'))
                 if give:
-                    r = self.run_tool('ver', p, json.dumps(give))
+                    r = self.run_tool('give', p, json.dumps(give))
                     changed.append(_('verildi: %s', ', '.join('%s x%d' % (l, n) for l, n in r['given'])))
                 if resets:
-                    r = self.run_tool('sifirla', p, ','.join(resets))
+                    r = self.run_tool('reset', p, ','.join(resets))
                     changed.append(_('sıfırlandı: %s', ', '.join(r['reset_items'])))
             except Exception as e:                        # yarım düzenleme kalmasın: kayıt düzenlemeden önceki hâline döner
                 _copy_atomic(os.path.join(self.backup_dir(slot), safety), p)
@@ -591,15 +591,15 @@ class Saves:
         if not self.exists(slot):
             raise SaveError(_('Kayıt bulunamadı.'))
         if self.in_use(slot):
-            return dict(self.run_tool('oku', self.profile(slot), tool='save_editor.py'), read_only=True, discarded=False)
+            return dict(self.run_tool('read', self.profile(slot), tool='save_editor.py'), read_only=True, discarded=False)
         with self.lock:
             stale = os.path.isfile(self.draft(slot)) and not self._draft_valid(slot)
             if stale:
                 self.editor_discard(slot)
             if self._draft_valid(slot):
-                v = self.run_tool('oku', self.draft(slot), self.profile(slot), tool='save_editor.py')
+                v = self.run_tool('read', self.draft(slot), self.profile(slot), tool='save_editor.py')
             else:
-                v = self.run_tool('oku', self.profile(slot), tool='save_editor.py')
+                v = self.run_tool('read', self.profile(slot), tool='save_editor.py')
         return dict(v, read_only=False, discarded=stale)
 
     def editor_apply(self, slot, ops):
@@ -609,7 +609,7 @@ class Saves:
             raise SaveError(_('Değişiklik yok.'))
         with self.lock:
             self._ensure_draft(slot)
-            v = self.run_tool('uygula', self.draft(slot), json.dumps(ops), self.profile(slot), tool='save_editor.py')
+            v = self.run_tool('apply', self.draft(slot), json.dumps(ops), self.profile(slot), tool='save_editor.py')
             return dict(v, read_only=False, discarded=False)
 
     def editor_commit(self, slot):
@@ -636,13 +636,13 @@ class Saves:
     def editor_catalog(self):
         """Editörün eşya kataloğu (save_editor.py katalog; ilk istekten sonra bellekte)."""
         if getattr(self, '_catalog', None) is None:
-            self._catalog = self.run_tool('katalog', tool='save_editor.py')
+            self._catalog = self.run_tool('catalog', tool='save_editor.py')
         return {'esyalar': self._catalog['esyalar'], 'categories': self._catalog['categories']}
 
     def item_info(self):
         """Eşya ipucunun değerleri (save_editor.py bilgi; ilk istekten sonra bellekte): panelin Hangar, Mağaza ve editör sayfaları."""
         if getattr(self, '_info', None) is None:
-            self._info = self.run_tool('bilgi', tool='save_editor.py')['esyalar']
+            self._info = self.run_tool('info', tool='save_editor.py')['esyalar']
         return self._info
 
     # ------------------------------------------------------------ yedekler
@@ -670,12 +670,12 @@ class Saves:
                 try:
                     s = profile_summary(_read_json(p))
                 except (OSError, ValueError):
-                    s = {'pilot': '?', 'bozuk': True}
+                    s = {'pilot': '?', 'corrupt': True}
                 self._cache[p] = c = (st.st_mtime_ns, s)
             kind, stamp = f.split('_', 1)
             t = time.strptime(stamp[:15], '%Y%m%d_%H%M%S')
             out.append(dict(c[1], dosya=f, tur=kind, kind_name=_(KIND_NAMES[kind]), time=time.strftime('%Y-%m-%d %H:%M:%S', t),
-                            boyut=st.st_size, not_=notes.get(f, '')))
+                            size=st.st_size, not_=notes.get(f, '')))
         return out
 
     def backup(self, slot, kind='manual', note='', keep=None):

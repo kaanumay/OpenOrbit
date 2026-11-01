@@ -37,10 +37,10 @@ class Pass:
 
     @property
     def st(self):
-        g = self.p.d.setdefault('gecisler', {})
+        g = self.p.d.setdefault('passes', {})
         s = g.get(self.name)
         if not s or s.get('donem') != period():
-            s = g[self.name] = dict(donem=period(), puan=0, vip=False, alinan={'n': [], 'v': []})
+            s = g[self.name] = dict(donem=period(), puan=0, vip=False, claimed={'n': [], 'v': []})
             self.p.dirty = True
         return s
 
@@ -59,7 +59,7 @@ class Pass:
 
     def status(self, lvl, vip):
         s, cur = self.st, self.level()
-        if lvl in s['alinan']['v' if vip else 'n']:
+        if lvl in s['claimed']['v' if vip else 'n']:
             return CLAIMED
         if lvl > cur:
             return BELOW_LEVEL
@@ -74,7 +74,7 @@ class Pass:
         nxt = th[cur] - prev if cur < len(th) else 0
         items = lambda rows, vip: [dict(_='PassItemModule', level=l, lootId=loot, amount=n, statusType=self.status(l, vip))
                                    for l, loot, n in rows]
-        return (name, dict(isVip=self.is_vip(), normalItemList=items(self.D['ucretsiz'], False), vipItemList=items(self.D['vip'], True),
+        return (name, dict(isVip=self.is_vip(), normalItemList=items(self.D['free'], False), vipItemList=items(self.D['vip'], True),
                            currentLevel=cur, vipParams=list(self.D.get('vip_params', [])), remainSeconds=seconds_left(now),
                            nextLevelExp=nxt, currentExp=s['puan'] - prev))
 
@@ -82,16 +82,16 @@ class Pass:
         """Ödülü al (grant: lootId, adet -> mesajlar) -> mesajlar ya da None (alınamaz). lvl 0: iki sıranın alınabilir bütün
         ödülleri (istemci hangi ödüle tıklanırsa tıklansın rewardLevel 0, isVip false gönderir; canlı 2026-10-27)."""
         if lvl == 0:
-            out = [self.claim(r[0], v, grant) for v, rows in ((False, self.D['ucretsiz']), (True, self.D['vip']))
+            out = [self.claim(r[0], v, grant) for v, rows in ((False, self.D['free']), (True, self.D['vip']))
                    for r in rows if self.status(r[0], v) == CLAIMABLE]
             return sum(out, []) if out else None
         if self.status(lvl, vip) != CLAIMABLE:
             return None
-        row = next((r for r in self.D['vip' if vip else 'ucretsiz'] if r[0] == lvl), None)
+        row = next((r for r in self.D['vip' if vip else 'free'] if r[0] == lvl), None)
         if not row:
             return None
         with self.p.lock:
-            self.st['alinan']['v' if vip else 'n'].append(lvl)
+            self.st['claimed']['v' if vip else 'n'].append(lvl)
             self.p.dirty = True
         return grant(row[1], row[2])
 

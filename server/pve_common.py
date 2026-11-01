@@ -23,7 +23,7 @@ def scale_npc(n, hp=1.0, dmg=1.0, reward=1.0, extra=None):
     d['hp'] = max(1, int(d['hp'] * hp))
     d['kalkan'] = int(d['kalkan'] * hp)
     d['hasar'] = int(d['hasar'] * dmg)
-    d['odul'] = {k: int(v * reward) for k, v in d['odul'].items()}
+    d['reward'] = {k: int(v * reward) for k, v in d['reward'].items()}
     d['kargo'] = {k: int(v * reward) for k, v in d.get('kargo', {}).items() if int(v * reward) > 0}
     if extra:
         d.update(extra)
@@ -52,7 +52,7 @@ class Run:
         self.sub = 0
         self.npcs, self.keep = set(), set()
         self.exposed = False
-        k = SET.multiplier('dalga_bekleme')                      # panel: dalga beklemeleri
+        k = SET.multiplier('wave_wait')                      # panel: dalga beklemeleri
         self.break_sec, self.sub_sec = break_sec * k, sub_sec * k
         self.counted = None
         self.left = None
@@ -101,12 +101,12 @@ class Run:
             self.npcs.clear()
             self.keep.clear()
             nxt = self.m.wave_done(self.i, now)
-            if nxt == 'dur':
+            if nxt == 'halt':
                 self.phase = 'hold'
             elif self.i + 1 >= self.m.wave_count():
                 self.phase = 'done'
             else:
-                self.begin(self.i + 1, self.break_sec if nxt == 'mola' else 0.5)
+                self.begin(self.i + 1, self.break_sec if nxt == 'pause' else 0.5)
             return
         if now < self.t:
             if self.phase == 'break':
@@ -136,7 +136,7 @@ class Run:
                 cx, cy = lair[:2]
                 lair = {'r': lair[2], 'on': False}                   # grubun ortak pusu durumu: biri saldırınca hepsi
             if not keep:
-                count = SET.count('dalga_npc', count)            # panel: dalgalardaki uzaylı sayısı (koruyucu bir tane)
+                count = SET.count('wave_aliens', count)            # panel: dalgalardaki uzaylı sayısı (koruyucu bir tane)
             for x, y in KAPI.spread(cx, cy, count, w.map_w, w.map_h):
                 n = w.spawn_npc_at(tip, x, y, prep=lambda n: self.m.scale(n, self.i, self.wave()), wave=True)   # güçlendirilip bildirilir
                 n.gate, n.engaged, n.hunt = True, True, True

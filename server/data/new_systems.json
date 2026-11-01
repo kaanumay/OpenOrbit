@@ -8,7 +8,7 @@
   "calling_chip": "resource_collectable_calling-chip",
   "max_energy": 300000,
   "rest_sec": 10,
-  "azami_seviye": 5,
+  "max_level": 5,
   "perk_count": 2,
   "sections": {
    "captain_captain-gen1-neo": {
@@ -85,7 +85,7 @@
   "skills": {
    "gg_npc-uridium": {
     "ad": "Autonomous Extraction",
-    "taban": [
+    "base": [
      7.5,
      9.0,
      10.5,
@@ -98,7 +98,7 @@
    },
    "gg_laser-damage": {
     "ad": "Cluster Artillery",
-    "taban": [
+    "base": [
      0.5,
      1.0,
      1.5,
@@ -111,7 +111,7 @@
    },
    "gg_speed": {
     "ad": "Anti-Gravity Thruster",
-    "taban": [
+    "base": [
      0.5,
      1.0,
      1.5,
@@ -124,7 +124,7 @@
    },
    "gg_completion-experience": {
     "ad": "Field Intelligence",
-    "taban": [
+    "base": [
      2.5,
      3.0,
      3.5,
@@ -137,7 +137,7 @@
    },
    "general_experience": {
     "ad": "Knowledge Seeker",
-    "taban": [
+    "base": [
      0.5,
      1.0,
      1.5,
@@ -150,7 +150,7 @@
    },
    "general_bonus-box-uridium": {
     "ad": "Treasurer",
-    "taban": [
+    "base": [
      0.5,
      1.0,
      1.5,
@@ -163,7 +163,7 @@
    },
    "general_honour": {
     "ad": "Code of Conduct",
-    "taban": [
+    "base": [
      1.0,
      2.0,
      3.0,
@@ -176,7 +176,7 @@
    },
    "general_cargo": {
     "ad": "Need for Space",
-    "taban": [
+    "base": [
      0.8,
      1.6,
      2.4,
@@ -189,7 +189,7 @@
    },
    "gg_rocket-damage": {
     "ad": "Damage Skyrocket",
-    "taban": [
+    "base": [
      0.5,
      1.0,
      1.5,
@@ -202,7 +202,7 @@
    },
    "gg_evasion": {
     "ad": "Fleet Foot",
-    "taban": [
+    "base": [
      0.5,
      1.0,
      1.5,
@@ -215,7 +215,7 @@
    },
    "gg_shield": {
     "ad": "Sturdy Hull",
-    "taban": [
+    "base": [
      0.5,
      1.0,
      1.5,
@@ -228,7 +228,7 @@
    },
    "pet_fuel-consumption": {
     "ad": "P.E.T. Conservationist",
-    "taban": [
+    "base": [
      0.9,
      1.8,
      2.7,
@@ -241,7 +241,7 @@
    },
    "pet_heat-up": {
     "ad": "P.E.T. Ignition",
-    "taban": [
+    "base": [
      0.9,
      1.8,
      2.7,
@@ -254,7 +254,7 @@
    },
    "pet_range-up": {
     "ad": "P.E.T. Ranger",
-    "taban": [
+    "base": [
      1.7,
      3.4,
      5.1,
@@ -267,7 +267,7 @@
    },
    "pet_hp": {
     "ad": "P.E.T. Provision",
-    "taban": [
+    "base": [
      0.9,
      1.8,
      2.7,
@@ -280,7 +280,7 @@
    },
    "sp_mission-points-gp": {
     "ad": "Bonus Slayer",
-    "taban": [
+    "base": [
      0.6,
      1.2,
      1.8,
@@ -293,7 +293,7 @@
    },
    "sp_mission-points": {
     "ad": "Bonus Hunter",
-    "taban": [
+    "base": [
      0.6,
      1.2,
      1.8,
@@ -306,7 +306,7 @@
     "_not": "wiki'de değerleri yok; Bonus Slayer'ınki"
    }
   },
-  "yukseltme": [
+  "upgrade": [
    {
     "seviye": 2,
     "uridyum": 2000,
@@ -378,19 +378,19 @@
     "hepsi"
    ],
    "general_bonus-box-uridium": [
-    "bonus_uridyum",
+    "bonus_uridium",
     "hepsi"
    ],
    "general_cargo": [
-    "kargo_alani",
+    "cargo_space",
     "hepsi"
    ],
    "pet_fuel-consumption": [
-    "pet_yakit",
+    "pet_fuel",
     "hepsi"
    ],
    "pet_heat-up": [
-    "pet_isi",
+    "pet_heat",
     "hepsi"
    ],
    "pet_range-up": [
@@ -410,7 +410,7 @@
     "kapi"
    ],
    "gg_evasion": [
-    "kacinma",
+    "evasion",
     "kapi"
    ],
    "gg_laser-damage": [
@@ -422,11 +422,11 @@
     "kapi"
    ],
    "gg_npc-uridium": [
-    "cift_uridyum",
+    "double_uridium",
     "kapi"
    ],
    "gg_completion-experience": [
-    "kapi_ep",
+    "gate_ep",
     "kapi"
    ],
    "gg_abg-rocket-damage": [
@@ -438,7 +438,7 @@
     "abg"
    ],
    "gg_abg-evasion": [
-    "kacinma",
+    "evasion",
     "abg"
    ],
    "gg_abg-shield": [
@@ -446,11 +446,11 @@
     "abg"
    ],
    "sp_mission-points": [
-    "sezon_puani",
+    "season_points",
     "hepsi"
    ],
    "sp_mission-points-gp": [
-    "sezon_puani",
+    "season_points",
     "hepsi"
    ]
   },
@@ -458,11 +458,11 @@
   "_pet_artis": "P.E.T. yeteneklerinin seviye başına artışı 0,9 / 0,9 / 1,7 (Ranger) / 0,9: resmî Türk forumu 163881 (N.O.V.A. 2023)"
  },
  "armory": {
-  "jeton": "resource_collectable_armory-token",
+  "token": "resource_collectable_armory-token",
   "mega_token": "resource_collectable_armory-token-mega",
   "period_days": 3,
   "normal": {
-   "goster": [
+   "display": [
     [
      "equipment_weapon_cannon_ep-helios",
      1,
@@ -878,7 +878,7 @@
    ]
   },
   "mega": {
-   "goster": [
+   "display": [
     [
      "equipment_weapon_cannon_ul-{top}-{gemi}",
      1,
@@ -1278,7 +1278,7 @@
     true
    ]
   ],
-  "gemiler": [
+  "ships": [
    "citadel-plus",
    "cyborg",
    "diminisher",
@@ -1315,64 +1315,64 @@
  "qfc": {
   "kinds": {
    "equipment_core_ax-10": {
-    "kalite": 1,
-    "aralik": [
+    "quality": 1,
+    "interval": [
      2,
      7
     ],
     "recycle": 450
    },
    "equipment_core_ax-20": {
-    "kalite": 2,
-    "aralik": [
+    "quality": 2,
+    "interval": [
      4,
      12
     ],
     "recycle": 1100
    },
    "equipment_core_ax-30": {
-    "kalite": 3,
-    "aralik": [
+    "quality": 3,
+    "interval": [
      7,
      16
     ],
     "recycle": 2250
    },
    "equipment_core_ax-40": {
-    "kalite": 4,
-    "aralik": [
+    "quality": 4,
+    "interval": [
      10,
      20
     ],
     "recycle": 4000
    },
    "equipment_core_df-10": {
-    "kalite": 1,
-    "aralik": [
+    "quality": 1,
+    "interval": [
      2,
      7
     ],
     "recycle": 450
    },
    "equipment_core_df-20": {
-    "kalite": 2,
-    "aralik": [
+    "quality": 2,
+    "interval": [
      4,
      12
     ],
     "recycle": 1100
    },
    "equipment_core_df-30": {
-    "kalite": 3,
-    "aralik": [
+    "quality": 3,
+    "interval": [
      7,
      16
     ],
     "recycle": 2250
    },
    "equipment_core_df-40": {
-    "kalite": 4,
-    "aralik": [
+    "quality": 4,
+    "interval": [
      10,
      20
     ],
@@ -1433,14 +1433,14 @@
     6570
    ]
   },
-  "azami_seviye": 12,
+  "max_level": 12,
   "unlocked_levels": [
    5,
    10
   ],
   "max_attributes": 3,
   "luminaflux": "resource_collectable_luminaflux-alloy",
-  "ilk_nitelik": {
+  "initial_attributes": {
    "ax": [
     "damage",
     "dmg_pvp",
@@ -1454,7 +1454,7 @@
     "shield"
    ]
   },
-  "ek_nitelik": {
+  "extra_attribute": {
    "ax": [
     "damage",
     "dmg_pvp",
@@ -1530,7 +1530,7 @@
   },
   "_uyarlama": "Bağlanılan gemi: oyuncunun gemilerinden rastgele (yoksa etkin gemi). Ek nitelik havuzları, ek niteliğin ilk değeri (aralığın yarısı), seviye başına artış (aralığın %10-25'i), azami değer (aralığın üstünün iki katı), 30/40'ın 5. seviyeden sonraki bedelleri (20'ninkilerle aynı oranda), sandığın kalite olasılıkları (düşük kalite 2/3), hangi patron seviyesinin hangi sandığı düşürdüğü."
  },
- "otopilot": {
+ "autopilot": {
   "premium_sec": 2592000,
   "laser_range": 562,
   "range_ratio": 0.9,

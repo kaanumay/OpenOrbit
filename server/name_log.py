@@ -90,7 +90,7 @@ def apply_list(lst, events):
                 if not any(_k(y) == _k(x) for y in new_):
                     new_.append(x)
             out = new_
-        elif e['tur'] == 'sil':
+        elif e['tur'] == 'delete':
             remaining = [x for x in out if _k(x) != _k(e['ad'])]
             changed = changed or len(remaining) != len(out)
             out = remaining
@@ -104,8 +104,8 @@ def apply_clan(k, events):
     for e in events:
         if e['tur'] == 'ad':
             old, new_ = _k(e['eski']), _k(e['yeni'])
-            if old in k['uyeler'] and old != new_:
-                k['uyeler'][new_] = dict(k['uyeler'].pop(old), ad=e['yeni'])
+            if old in k['members'] and old != new_:
+                k['members'][new_] = dict(k['members'].pop(old), ad=e['yeni'])
                 if k['lider'] == old:
                     k['lider'] = new_
                 changed = True
@@ -116,18 +116,18 @@ def apply_clan(k, events):
             k['rejected'] = [new_ if _k(r) == old else r for r in k.get('rejected', [])]
         else:                                            # sil, klan_cik
             a = _k(e['ad'])
-            if a in k['uyeler']:
-                del k['uyeler'][a]
+            if a in k['members']:
+                del k['members'][a]
                 changed = True
                 if k['lider'] == a:
-                    if not k['uyeler']:
-                        return 'bos'
-                    human = [x for x, u in k['uyeler'].items() if not BOT_UID[0] <= int(u.get('uid') or 0) < BOT_UID[1]]
-                    k['lider'] = (human or list(k['uyeler']))[0]
+                    if not k['members']:
+                        return 'vacant'
+                    human = [x for x, u in k['members'].items() if not BOT_UID[0] <= int(u.get('uid') or 0) < BOT_UID[1]]
+                    k['lider'] = (human or list(k['members']))[0]
             n = len(k.get('applications', []))
             k['applications'] = [b for b in k.get('applications', []) if _k(b.get('ad')) != a]
             changed = changed or n != len(k['applications'])
-            if e['tur'] == 'sil':
+            if e['tur'] == 'delete':
                 k['rejected'] = [r for r in k.get('rejected', []) if _k(r) != a]
     return changed
 
@@ -139,16 +139,16 @@ def apply_profile(p):
         return False
     changed = False
     with p.lock:
-        r = p.d.get('rehber') or {}
-        for name in ('arkadas', 'gelen', 'giden', 'reddeden', 'engelli'):
+        r = p.d.get('contacts') or {}
+        for name in ('arkadas', 'incoming', 'outgoing', 'declined', 'blocked'):
             if isinstance(r.get(name), list):
                 x = apply_list(r[name], new_)
                 if x is not None:
                     r[name], changed = x, True
         k = p.d.get('klan')
-        if k and 'uyeler' in k:
+        if k and 'members' in k:
             s = apply_clan(k, new_)
-            if s == 'bos':
+            if s == 'vacant':
                 p.d['klan'] = None
                 p.d['pilot'].update(clanId=0, clanTag='')
             changed = changed or bool(s)
@@ -166,12 +166,12 @@ def apply_clans(KL):
     with KL.LOCK:
         for cid, k in list(KL.CLANS.items()):
             s = apply_clan(k, new_)
-            if s == 'bos':
+            if s == 'vacant':
                 KL.CLANS.pop(cid, None)
                 KL.DELETED[cid] = k.get('anahtar')
                 for c in KL.CLANS.values():
-                    c['diplomasi'] = [d for d in c.get('diplomasi', []) if d['klan'] != cid]
-                    c['diplomacy_requests'] = [r for r in c.get('diplomacy_requests', []) if cid not in (r['kimden'], r['to'])]
+                    c['diplomacy'] = [d for d in c.get('diplomacy', []) if d['klan'] != cid]
+                    c['diplomacy_requests'] = [r for r in c.get('diplomacy_requests', []) if cid not in (r['from_clan'], r['to'])]
             elif s:
                 out.append(k)
         KL.BOT_NAME_N = new_[-1]['n']

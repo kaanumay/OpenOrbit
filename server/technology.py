@@ -17,7 +17,7 @@ from legacy_protocol import legacy, stm
 import settings as SET
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-T = json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))['teknoloji']
+T = json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))['technology']
 ITEMS = T['esyalar']
 READY, ACTIVE, COOLING = 0, 1, 2
 ATTACK_ROCKET, ATTACK_ECI = 0, 5            # istemcinin AttackType'ı
@@ -36,13 +36,13 @@ def used_msg(code):
 
 
 def count(p, item):
-    return p.d.get('teknoloji', {}).get(item, 0)
+    return p.d.get('technology', {}).get(item, 0)
 
 
 def add(p, item, n=1):
     """Assembly (Aşama 5) ve testler: adet ekle -> yeni adet."""
     with p.lock:
-        d = p.d.setdefault('teknoloji', {})
+        d = p.d.setdefault('technology', {})
         d[item] = max(0, d.get(item, 0) + n)
         p.dirty = True
         return d[item]
@@ -122,9 +122,9 @@ class Technology:
                 self.ending[item] = s['bitis']
                 if item == 'tech_npc-nuke':            # harita değişince kalan vuruşlar sürer (vuruşlar başlangıçtan aralik_sn'de bir)
                     c = ITEMS[item]
-                    start, total = s['bitis'] - c['sure_sn'], int(c['sure_sn'] // c['aralik_sn'])
-                    done = min(total, max(0, int((now - start) // c['aralik_sn'])))
-                    self.nuke = dict(next=start + (done + 1) * c['aralik_sn'], kalan=total - done)
+                    start, total = s['bitis'] - c['sure_sn'], int(c['sure_sn'] // c['interval_sec'])
+                    done = min(total, max(0, int((now - start) // c['interval_sec'])))
+                    self.nuke = dict(next=start + (done + 1) * c['interval_sec'], kalan=total - done)
             elif now < s.get('hazir', 0):
                 self.waiting[item] = s['hazir']
 
@@ -133,7 +133,7 @@ class Technology:
             self.w.send(msgs)
 
     def visual(self, item, on):
-        g = ITEMS[item].get('gorsel')
+        g = ITEMS[item].get('visual')
         return [('VisualModifierCommand', dict(userId=self.w.hid, modifier=g, attribute=0, additionalAttribute='', count=0,
                                                activated=on))] if g else []
 
@@ -185,10 +185,10 @@ class Technology:
         if msgs is None:
             w.log('   teknoloji şimdi işe yaramaz: %s' % item)
             return False
-        if not SET.get('sonsuz_teknoloji'):          # panel: infinite tech (not used up; at least one still needed)
+        if not SET.get('infinite_technology'):          # panel: infinite tech (not used up; at least one still needed)
             add(p, item, -1)
         p.ach('spend', loot=item, adet=1)           # Quests/Pass "use an item": counted with or without infinite tech
-        sec, cd = c.get('sure_sn', 0), c.get('bekleme_sn', 0) * SET.multiplier('yetenek_bekleme', 'teknoloji')      # panel
+        sec, cd = c.get('sure_sn', 0), c.get('bekleme_sn', 0) * SET.multiplier('skill_cooldown', 'technology')      # panel
         with p.lock:
             state(p)[item] = dict(bitis=now + sec, hazir=now + sec + cd, duration_ms=int(sec * 1000), cooldown_ms=int(cd * 1000))
             p.dirty = True
@@ -230,10 +230,10 @@ class Technology:
         if item == 'tech_npc-nuke':
             # istemci: "burst of damage to NPCs in an area around your ship once every 10 seconds": hedef gerekmez, gemi çevresindeki
             # bütün uzaylılara sure_sn / aralik_sn vuruş (nuke_tick)
-            self.nuke = dict(next=now + c['aralik_sn'], kalan=int(c['sure_sn'] // c['aralik_sn']))
+            self.nuke = dict(next=now + c['interval_sec'], kalan=int(c['sure_sn'] // c['interval_sec']))
             return [used_msg('NNK')]
         if item == 'tech_speed-burst':
-            w.hero_effect('hizlanma', c['sure_sn'], c['hiz'], source=item)
+            w.hero_effect('speed_up', c['sure_sn'], c['hiz'], source=item)
         if item == 'tech_burning-trail':
             self.charges, self.trail_n = [], 0
         return self.visual(item, True)
@@ -275,10 +275,10 @@ class Technology:
             for n in list(w.npcs.values()):
                 nx, ny = n.mover.pos(now)
                 if n.alive and math.hypot(nx - hx, ny - hy) <= c['yaricap']:
-                    w.npc_effect(n, 'yavas', 1.5, c['yavas'], source=item)
-                    w.hit_npc(n.id, c['hasar_sn'], 1)
+                    w.npc_effect(n, 'slow', 1.5, c['slow'], source=item)
+                    w.hit_npc(n.id, c['damage_per_sec'], 1)
         if item == 'tech_burning-trail':
-            if self.trail_n % c['aralik_sn'] == 0:
+            if self.trail_n % c['interval_sec'] == 0:
                 x, y = w.hero_pos(now)
                 self.charges.append(dict(x=x, y=y, bitis=now + c['omur_sn']))
             self.trail_n += 1
@@ -306,7 +306,7 @@ class Technology:
             return
         w, c = self.w, ITEMS['tech_npc-nuke']
         while nk['kalan'] > 0 and now >= nk['next']:
-            nk['next'] += c['aralik_sn']
+            nk['next'] += c['interval_sec']
             nk['kalan'] -= 1
             hx, hy = w.hero_pos(now)
             hits = [n.id for n in w.npcs.values()

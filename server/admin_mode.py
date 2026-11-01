@@ -27,7 +27,7 @@ def _host():
 def is_open(profile=None):
     """Yönetici modu açık mı (profil verilirse: o profil yönetici mi: yalnız sunucunun oyuncusu; misafir ve çoklu istemcinin ek
     oyuncuları değil; sunucu kurulmadan, ör. testte, profilin kendisi)."""
-    if not SET.get('yonetici_modu'):
+    if not SET.get('admin_mode'):
         return False
     if profile is None:
         return True
@@ -39,16 +39,16 @@ def ship(profile=None):
     """Yönetici gemisinin görünümü (typeId) ya da None (kendi gemisi)."""
     if not is_open(profile):
         return None
-    return SHIPS[min(len(SHIPS) - 1, max(0, int(SET.get('yonetici_gemisi') or 0)))]
+    return SHIPS[min(len(SHIPS) - 1, max(0, int(SET.get('admin_ship') or 0)))]
 
 
 def spectator(profile=None):
     """Dokunulmaz izleyici: uzaylılar ve botlar saldırmaz, hasar almaz."""
-    return is_open(profile) and bool(SET.get('yonetici_izleyici'))
+    return is_open(profile) and bool(SET.get('admin_spectator'))
 
 
 def chat_role(profile=None, default='chatter'):
-    return CHAT_ROLE if is_open(profile) and SET.get('yonetici_sohbet') else default
+    return CHAT_ROLE if is_open(profile) and SET.get('admin_chat') else default
 
 
 def name():

@@ -44,7 +44,7 @@ def mod(_cls, **f):
 def value(kind, base, level):
     """Yeteneğin değeri (%): taban kademe + seviye başına artış."""
     t = PERKS[kind]
-    return round(t['taban'][base - 1] + t['increase'] * (level - 1), 2)
+    return round(t['base'][base - 1] + t['increase'] * (level - 1), 2)
 
 
 def where(map_id):
@@ -60,7 +60,7 @@ class Nova:
         self.at_station = lambda: True             # oturum bağlar: oyuncu istasyonda mı
         self.lock = threading.RLock()              # enerji: profil.mods() profilin kilidi tutulurken de çağrılır (o kilit yeniden girilmez)
         with profile.lock:
-            self.d = profile.d.setdefault('nova', {'kadro': [], 'aktif': 0, 'next': 1})
+            self.d = profile.d.setdefault('nova', {'roster': [], 'active': 0, 'next': 1})
         self.resume()
 
     # ------------------------------------------------------------ enerji
@@ -76,19 +76,19 @@ class Nova:
     def update(self, c, now=None):
         now = now or time.time()
         dt = max(0.0, now - c.get('t', now))
-        if c['id'] == self.d['aktif']:
-            c['enerji'] = max(0.0, c['enerji'] - self.drain(c) * dt)
+        if c['id'] == self.d['active']:
+            c['energy'] = max(0.0, c['energy'] - self.drain(c) * dt)
         else:
-            c['enerji'] = min(float(MAX_E), c['enerji'] + REGEN * dt)
+            c['energy'] = min(float(MAX_E), c['energy'] + REGEN * dt)
         c['t'] = now
         self.p.dirty = True
-        return c['enerji']
+        return c['energy']
 
     def find(self, cid):
-        return next((c for c in self.d['kadro'] if c['id'] == int(cid or 0)), None)
+        return next((c for c in self.d['roster'] if c['id'] == int(cid or 0)), None)
 
     def active(self):
-        return self.find(self.d['aktif']) if self.d['aktif'] else None
+        return self.find(self.d['active']) if self.d['active'] else None
 
     def working(self, now=None):
         """Yetenekleri çalışan N.O.V.A. (takılı ve enerjisi harcamasından çok) ya da None."""
@@ -108,7 +108,7 @@ class Nova:
         for y in c['skills']:
             key, place = D['effects'].get(y['tur'], (None, None))
             if key and (place == 'hepsi' or place == here or (place == 'kapi' and here == 'abg')):
-                out[key] = out.get(key, 0) + value(y['tur'], y['taban'], y['seviye']) / 100.0
+                out[key] = out.get(key, 0) + value(y['tur'], y['base'], y['seviye']) / 100.0
         return out
 
     def hud(self):
@@ -140,12 +140,12 @@ class Nova:
         with self.p.lock:
             cid = self.d['next']
             self.d['next'] = cid + 1
-            c = {'id': cid, 'section': section, 'aile': rng.choice(info['families']), 'ad': rng.choice(D['adlar']), 'enerji': float(MAX_E),
+            c = {'id': cid, 'section': section, 'family': rng.choice(info['families']), 'ad': rng.choice(D['adlar']), 'energy': float(MAX_E),
                  't': time.time(), 'skills': []}
             for i, k in enumerate(perks):
                 tier = rng.choices(range(1, 7), D['base_weight'])[0]
-                c['skills'].append({'id': cid * 10 + i + 1, 'tur': k, 'taban': tier, 'seviye': 1})
-            self.d['kadro'].append(c)
+                c['skills'].append({'id': cid * 10 + i + 1, 'tur': k, 'base': tier, 'seviye': 1})
+            self.d['roster'].append(c)
             self.p.dirty = True
         return c
 
@@ -160,12 +160,12 @@ class Nova:
             if section not in D['sections']:
                 self.log('   N.O.V.A.: bilinmeyen bölüm %s' % loot)
                 continue
-            if len(self.d['kadro']) >= D['max_roster']:
+            if len(self.d['roster']) >= D['max_roster']:
                 extra += D['excess_uridium']
                 continue
             c = self.new_captain(section, rng)
-            self.log('   N.O.V.A. alındı: %s %s (%s; %s)' % (c['ad'], c['aile'], section, ', '.join(
-                '%s %.1f%%' % (y['tur'], value(y['tur'], y['taban'], 1)) for y in c['skills'])))
+            self.log('   N.O.V.A. alındı: %s %s (%s; %s)' % (c['ad'], c['family'], section, ', '.join(
+                '%s %.1f%%' % (y['tur'], value(y['tur'], y['base'], 1)) for y in c['skills'])))
             msgs.append(stm('captain_received_s'))         # "Recruited: N.O.V.A." (flashres'te yok: CSTM; canlı test H64)
         if extra:
             self.p.gain(uridyum=extra, neden='aktion_system_back')
@@ -175,7 +175,7 @@ class Nova:
 
     # ------------------------------------------------------------ pencere
     def costs(self, c, level):
-        row = next((r for r in D['yukseltme'] if r['seviye'] == level), None)
+        row = next((r for r in D['upgrade'] if r['seviye'] == level), None)
         if not row:
             return {}
         need = {'currency_uridium': row['uridyum'], CHIP: row['chip']}
@@ -188,25 +188,25 @@ class Nova:
         # hedef T'nin bedeli listenin ilk T-şimdiki kaydının costList'lerinin toplamı (sırayla, aynı dizinle), satır sayısı hedef
         # kaydınkinden. Yani L kaydında L -> L+1 bedeli; en üst kayıtta türler için bir öncekinin bedeli. Önce 1'den başlayan liste
         # ve "L'ye ulaşma" bedeli gidiyordu: Total Cost boş kalıyordu (canlı test H66)
-        levels, top = [], D['azami_seviye']
+        levels, top = [], D['max_level']
         for lv in range(y['seviye'], top + 1):
             nxt = self.costs(c, lv + 1) if lv < top else self.costs(c, lv)
             cost = [mod('CaptainPerkUpgradLevelCostCommand', lootId=k, amount=v) for k, v in nxt.items()]
-            levels.append(mod('CaptainPerkUpgradLevelCommand', modifier=float(value(y['tur'], y['taban'], lv)), upgradeLevel=lv,
+            levels.append(mod('CaptainPerkUpgradLevelCommand', modifier=float(value(y['tur'], y['base'], lv)), upgradeLevel=lv,
                               costList=cost))
-        return mod('CaptainPerkCommand', perkModifier=float(value(y['tur'], y['taban'], y['seviye'])), perkId=y['id'],
-                   perkTypeId='perk_' + y['tur'], perkDrain=PERKS[y['tur']]['spending'], levelMax=D['azami_seviye'],
+        return mod('CaptainPerkCommand', perkModifier=float(value(y['tur'], y['base'], y['seviye'])), perkId=y['id'],
+                   perkTypeId='perk_' + y['tur'], perkDrain=PERKS[y['tur']]['spending'], levelMax=D['max_level'],
                    upgradLevelList=levels, level=y['seviye'])
 
     def captain_cmd(self, c):
         with self.lock:
             e = self.update(c)
-        return mod('CaptainCommand', sellingPrice=D['release_chip'], isSelected=c['id'] == self.d['aktif'], sellItemObtained=CHIP,
-                   captainTypeId=c['aile'], captainName=c['ad'], perkList=[self.perk_cmd(c, y) for y in c['skills']],
+        return mod('CaptainCommand', sellingPrice=D['release_chip'], isSelected=c['id'] == self.d['active'], sellItemObtained=CHIP,
+                   captainTypeId=c['family'], captainName=c['ad'], perkList=[self.perk_cmd(c, y) for y in c['skills']],
                    maxEnergy=MAX_E, captainId=c['id'], captainEnergy=int(e))
 
     def roster_cmd(self):
-        return 'CaptainRosterListCommand', {'captainList': [self.captain_cmd(c) for c in self.d['kadro']]}
+        return 'CaptainRosterListCommand', {'captainList': [self.captain_cmd(c) for c in self.d['roster']]}
 
     def chips_cmd(self):
         return 'CaptainGetResourcesBackCommand', {'amount': INV.count(self.p, CHIP), 'lootId': CHIP}
@@ -236,20 +236,20 @@ class Nova:
                     c = None                               # takılı olanın kimliği geldi: UNEQUIP (canlı test H65; önce yine takıyordu)
                 if c:
                     self.update(c)
-                self.d['aktif'] = cid if c else 0
+                self.d['active'] = cid if c else 0
                 self.p.dirty = True
-            self.log('   N.O.V.A. %s' % ('takıldı: %s %s' % (c['ad'], c['aile']) if c else 'çıkarıldı'))
+            self.log('   N.O.V.A. %s' % ('takıldı: %s %s' % (c['ad'], c['family']) if c else 'çıkarıldı'))
             return [('CaptainUpdateActiveBackCommand', dict(result=True, captainId=cid, errorId=None)), self.energy_cmd()] + self.stats()
         if cmd == 'dismissCaptain':
             c = self.find(cid)
-            err = 'captain_popup_dismiss_active_nova' if c and cid == self.d['aktif'] else None if c else 'captain_error_unhandled'
+            err = 'captain_popup_dismiss_active_nova' if c and cid == self.d['active'] else None if c else 'captain_error_unhandled'
             if err:
                 return [('CaptainDismissBackCommand', dict(errorId=stack_msg(err), result=False, captainId=cid))]
             with self.p.lock:
-                self.d['kadro'].remove(c)
+                self.d['roster'].remove(c)
                 self.p.dirty = True
             self.p.add_resource(CHIP, D['release_chip'])
-            self.log('   N.O.V.A. bırakıldı: %s %s (+%d Evocation Chip)' % (c['ad'], c['aile'], D['release_chip']))
+            self.log('   N.O.V.A. bırakıldı: %s %s (+%d Evocation Chip)' % (c['ad'], c['family'], D['release_chip']))
             return [('CaptainDismissBackCommand', dict(errorId=None, result=True, captainId=cid)), self.chips_cmd()]
         if cmd == 'upgradePerk':
             return self.upgrade(cid, int(f.get('perkId') or 0), int(f.get('upgradeLevel') or 0))
@@ -264,12 +264,12 @@ class Nova:
             errorId=stack_msg(err) if err else None, level=lv, perkId=pid, captainId=cid, result=ok))
         if not y:
             return [back(False, 'captain_error_unhandled')]
-        if y['seviye'] + 1 > D['azami_seviye']:
+        if y['seviye'] + 1 > D['max_level']:
             return [back(False, 'captain_hangar_error_perk_lvl_cap', y['seviye'])]
         # upgradeLevel istemcinin sayacı: açılışta seviye+1, her "+" bir artar ("-" azaltmaz; UINovaSystem.RefreshNotLevelInfo),
         # yani "+" ile seçilen hedef + 1. Hedef = upgradeLevel - 1 (en çok azami); şimdikinden büyük değilse bir seviye. Önce hep bir
         # seviye yapılıyordu, pencere ise seçilen hedefin toplam bedelini gösteriyordu (canlı test H67)
-        nxt = max(y['seviye'] + 1, min(target - 1, D['azami_seviye']))
+        nxt = max(y['seviye'] + 1, min(target - 1, D['max_level']))
         need = {}
         for lv in range(y['seviye'] + 1, nxt + 1):
             for k, v in self.costs(c, lv).items():
@@ -279,7 +279,7 @@ class Nova:
         with self.p.lock:
             y['seviye'] = nxt
             self.p.dirty = True
-        self.log('   N.O.V.A. %s: %s seviye %d (%.1f%%)' % (c['ad'], y['tur'], nxt, value(y['tur'], y['taban'], nxt)))
+        self.log('   N.O.V.A. %s: %s seviye %d (%.1f%%)' % (c['ad'], y['tur'], nxt, value(y['tur'], y['base'], nxt)))
         return [back(True, None, nxt), self.chips_cmd()] + (self.m.money_msgs() if self.m else []) + self.stats()
 
     def stats(self):
@@ -291,6 +291,6 @@ class Nova:
         modifierValue}]}; istemci her satırı ttip_captain_<perkTypeId>_description'dan %VALUE% ile kurar (ActivePerkUpdateCommandHandler;
         "evasion" geçenleri eksiye çevirir). Takılı N.O.V.A. yoksa boş liste."""
         c = self.active()
-        rows = [mod('ActivePerkModule', perkTypeId='perk_' + y['tur'], modifierValue=float(value(y['tur'], y['taban'], y['seviye'])))
+        rows = [mod('ActivePerkModule', perkTypeId='perk_' + y['tur'], modifierValue=float(value(y['tur'], y['base'], y['seviye'])))
                 for y in (c['skills'] if c else [])]
         return 'ActivePerkUpdateCommand', {'activePerkModuleList': rows}

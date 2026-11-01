@@ -371,7 +371,7 @@ class Chat:
 
     def report(self, c, path, d):
         """Sohbet raporu (/report): sunucu günlüğüne bir satır (forum 132515; tek oyunculuda moderatör yok)."""
-        row = {'time': time.strftime('%Y-%m-%d %H:%M:%S'), 'reporter': c.user.get('userId'), 'oda': path.rsplit('/reportUser', 1)[0],
+        row = {'time': time.strftime('%Y-%m-%d %H:%M:%S'), 'reporter': c.user.get('userId'), 'room': path.rsplit('/reportUser', 1)[0],
                **{k: d.get(k) for k in ('targetUserId', 'targetGlobalId', 'reason', 'reasonKey', 'message')}}
         os.makedirs(os.path.dirname(self.report_path), exist_ok=True)
         with self.lock, open(self.report_path, 'a', encoding='utf8') as fh:
@@ -391,7 +391,7 @@ class Chat:
                 return 'room already exists'
             if sum(o['creator'] == me for o in self.rooms.values()) >= ROOM_LIMIT:
                 return 'no more private rooms allowed'
-            self.rooms[name] = {'creator': me, 'uyeler': {me}, 'invited': set()}
+            self.rooms[name] = {'creator': me, 'members': {me}, 'invited': set()}
         self.join(c, name, 'usr', name)
         return None
 
@@ -417,9 +417,9 @@ class Chat:
     def room_join(self, c, name, d):
         me = c.user.get('id')
         o = self.rooms.get(name)
-        if not o or me not in o['invited'] | o['uyeler']:
+        if not o or me not in o['invited'] | o['members']:
             return 'no playerId found'
-        o['uyeler'].add(me)
+        o['members'].add(me)
         self.join(c, name, 'usr', name)
         return None
 
@@ -436,7 +436,7 @@ class Chat:
     def room_leave(self, c, name, d):
         o = self.rooms.get(name)
         if o:
-            o['uyeler'].discard(c.user.get('id'))
+            o['members'].discard(c.user.get('id'))
         c.handlers.discard(self.room_path(name))
         return None
 
@@ -580,7 +580,7 @@ class Chat:
             data = {'msg': msg, 'sentAt': str(int(time.time() * 1000))}
             for p in paths:
                 c.send({'t': T_MESSAGE, 'path': p, 'data': data,
-                        'endpointObject': {'path': '/endpoint/sistem/', 'endpoint': 'sistem',
+                        'endpointObject': {'path': '/endpoint/sistem/', 'endpoint': 'system',
                                            'data': {'userId': 'System', 'id': '0', 'globalId': '0', 'role': 'system'}}})
                 sent += 1
         c.pending = keep[-20:]

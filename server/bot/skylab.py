@@ -15,14 +15,14 @@ from . import catalog as K
 
 S = json.load(open(os.path.join(K.HERE, 'data', 'skylab.json'), encoding='utf8'))
 ROW = S['seviyeler']
-MOD = S['moduller']
+MOD = S['modules']
 COSTS = S['costs']
-ORES = S['cevherler']                       # skylab cevheri -> [ad, depo sütunu, kargo cevheri]
+ORES = S['ores']                       # skylab cevheri -> [ad, depo sütunu, kargo cevheri]
 COLLECTORS = S['collectors']              # modül -> cevher
 REFINERIES = S['refineries']               # modül -> [ürün, girdiler, sütun]
 REFINE_ORDER = ('PROMETID_REFINERY', 'DURANIUM_REFINERY', 'PROMERIUM_REFINERY', 'SEPROM_REFINERY')
 XENO = S['xeno']
-TRANSPORT_SEC = S['transport']['birim_sn']
+TRANSPORT_SEC = S['transport']['unit_sec']
 RESOURCES = ('1', '2', '3')                    # yükseltmenin kaynakları: Prometium, Endurium, Terbium (her birinden 'kaynak' kadar)
 STEP_SEC = 1800.0
 ORDER = ('PROMETIUM_COLLECTOR', 'ENDURIUM_COLLECTOR', 'TERBIUM_COLLECTOR', 'PROMETID_REFINERY', 'DURANIUM_REFINERY',
@@ -36,8 +36,8 @@ def row(lv):
 def state(bot, now):
     st = bot.k.get('skylab')
     if st is None:
-        st = bot.k['skylab'] = {'mod': {m: lv for m, (lv, _) in S['baslangic']['moduller'].items()},
-                                'storage': {o: float(n) for o, n in S['baslangic']['storage'].items()}, 'son': now, 'build': None,
+        st = bot.k['skylab'] = {'mod': {m: lv for m, (lv, _) in S['baslangic']['modules'].items()},
+                                'storage': {o: float(n) for o, n in S['baslangic']['storage'].items()}, 'last': now, 'build': None,
                                 'transport': now}
     return st
 
@@ -47,7 +47,7 @@ def level(st, m):
 
 
 def energy(m, lv):
-    return row(lv)['enerji'] if lv > 0 and m != 'SOLAR_MODULE' else 0
+    return row(lv)['energy'] if lv > 0 and m != 'SOLAR_MODULE' else 0
 
 
 def workers(st):
@@ -72,7 +72,7 @@ def production(st, m):
     if lv <= 0:
         return 0
     if m in COLLECTORS:
-        return row(lv)['uretim']['ham']
+        return row(lv)['uretim']['raw']
     if m in REFINERIES:
         return row(lv)['uretim'][REFINERIES[m][2]]
     if m == 'XENO_MODULE':
@@ -106,7 +106,7 @@ def produce(st, hour, multiplier=1.0):
 def advance(bot, now):
     """Son hesaptan bu yana üretim ve biten yükseltme (soyut, adım adım) -> durum."""
     st = state(bot, now)
-    t = max(st['son'], now - 24 * 3600)                 # uzun boşlukta en çok bir günlük üretim (telafi sınırı gibi)
+    t = max(st['last'], now - 24 * 3600)                 # uzun boşlukta en çok bir günlük üretim (telafi sınırı gibi)
     k = bot.game_settings.multiplier('skylab_uretim')
     while t < now:
         end_time = st['build'][1] if st.get('build') else None
@@ -118,7 +118,7 @@ def advance(bot, now):
             st['mod'][m] = level(st, m) + 1
             st['build'] = None
             bot.event('skylab', modul=m, seviye=st['mod'][m])
-    st['son'] = now
+    st['last'] = now
     return st
 
 
@@ -168,15 +168,15 @@ def invest(bot, now):
     c = cost(st, m) if m else None
     if not c:
         return None
-    credits = c['kredi'] * bot.game_settings.multiplier('hizmet_fiyat', 'skylab')
-    if bot.k['kredi'] < credits * (2.5 - bot.o('tutumluluk') - 0.5 * bot.o('sabir')) or any(st['storage'].get(o, 0) < c['kaynak'] for o in RESOURCES):
+    credits = c['kredi'] * bot.game_settings.multiplier('service_price', 'skylab')
+    if bot.k['kredi'] < credits * (2.5 - bot.o('frugality') - 0.5 * bot.o('patience')) or any(st['storage'].get(o, 0) < c['kaynak'] for o in RESOURCES):
         return None
     if not bot.pay('C', credits):
         return None
     for o in RESOURCES:
         st['storage'][o] -= c['kaynak']
     st['build'] = [m, now + c['sure_sn']]
-    bot.ist('skylab_yukseltme')
+    bot.ist('skylab_upgrade')
     return m
 
 
@@ -204,5 +204,5 @@ def carry(bot, now, max_count):
     for t, n in out.items():
         bot.k['kargo'][str(t)] = bot.k['kargo'].get(str(t), 0) + n
     if out:
-        bot.ist('skylab_tasima', sum(out.values()))
+        bot.ist('skylab_transport', sum(out.values()))
     return out

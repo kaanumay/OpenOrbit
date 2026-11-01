@@ -28,7 +28,7 @@ import game_data as DATA
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 R = DATA.load('ranks.json')            # Dünya Editörü: formül ve eşikler
-F = R['formul']
+F = R['formula']
 LOG_LIMIT = 500
 LOGBOOK_PAGE = 12                  # istemcinin sayfa boyu
 ACCOUNT_PAGE = 50                   # resmî sunucu kaydı (2026-10-25): sayfa başına 50 satır
@@ -59,9 +59,9 @@ def today(t=None):
 # ------------------------------------------------------------ sayaçlar
 def counters(p):
     c = p.d.setdefault('counters', {})
-    done = len((p.d.get('gorevler') or {}).get('tamam', []))          # sayaçlardan önce bitirilen görevler de sayılır
-    for k, v in (('npc', {}), ('oyuncu', {}), ('olum_dusman', 0), ('olum_radyasyon', 0), ('olum_diger', 0), ('gorev', done),
-                 ('dost', 0), ('phoenix', 0)):
+    done = len((p.d.get('quests') or {}).get('tamam', []))          # sayaçlardan önce bitirilen görevler de sayılır
+    for k, v in (('npc', {}), ('player', {}), ('death_by_enemy', 0), ('death_by_radiation', 0), ('death_other', 0), ('gorev', done),
+                 ('friendly', 0), ('phoenix', 0)):
         c.setdefault(k, v)
     return c
 
@@ -75,9 +75,9 @@ def event(p, kind, **kw):
         if kind == 'kill' and kw.get('avatar', 'NPC') == 'NPC' and kw.get('npc') is not None:
             c['npc'][str(kw['npc'])] = c['npc'].get(str(kw['npc']), 0) + 1
         elif kind == 'kill' and kw.get('avatar') == 'PLAYER':           # bot oyuncular (Aşama 11)
-            c['oyuncu'][kw.get('gemi', '')] = c['oyuncu'].get(kw.get('gemi', ''), 0) + 1
+            c['player'][kw.get('gemi', '')] = c['player'].get(kw.get('gemi', ''), 0) + 1
         elif kind == 'death':
-            k = {'RADIATION': 'olum_radyasyon', 'NPC': 'olum_dusman', 'PLAYER': 'olum_dusman'}.get(kw.get('neden'), 'olum_diger')
+            k = {'RADIATION': 'death_by_radiation', 'NPC': 'death_by_enemy', 'PLAYER': 'death_by_enemy'}.get(kw.get('neden'), 'death_other')
             c[k] += 1
         elif kind == 'quest':
             c['gorev'] += 1
@@ -108,11 +108,11 @@ def user_score_since(p, days, now=None):
 
 
 def npc_points(p):
-    return sum(R['npc_puan'].get(k, {}).get('puan', 0) * n for k, n in counters(p)['npc'].items())
+    return sum(R['npc_points'].get(k, {}).get('puan', 0) * n for k, n in counters(p)['npc'].items())
 
 
 def player_points(p):
-    return sum(R['ship_points'].get(k, {}).get('puan', 0) * n for k, n in counters(p)['oyuncu'].items())
+    return sum(R['ship_points'].get(k, {}).get('puan', 0) * n for k, n in counters(p)['player'].items())
 
 
 def breakdown(p, now=None):
@@ -120,12 +120,12 @@ def breakdown(p, now=None):
     c, pl = counters(p), p.d['pilot']
     parts = dict(ExperiencePoints=int(pl.get('ep', 0)), honorPoints=int(pl.get('honourPoints', 0)), playerShotPoints=player_points(p),
                  yourLevel=int(pl.get('level', 1)), daysSinceRegistration=days_registered(p, now), yourShipType=ship_type(p),
-                 npcShotPoints=npc_points(p), missionsCompleted=c['gorev'], friendlyPlayersDestroyed=c['dost'],
-                 DestroyedByEnemies=c['olum_dusman'], DestroyedByRadiationZone=c['olum_radyasyon'], phoenixDestroyed=c['phoenix'])
-    pts = (parts['ExperiencePoints'] * F['ep'] + parts['honorPoints'] * F['onur'] + parts['playerShotPoints'] * F['oyuncu']
+                 npcShotPoints=npc_points(p), missionsCompleted=c['gorev'], friendlyPlayersDestroyed=c['friendly'],
+                 DestroyedByEnemies=c['death_by_enemy'], DestroyedByRadiationZone=c['death_by_radiation'], phoenixDestroyed=c['phoenix'])
+    pts = (parts['ExperiencePoints'] * F['ep'] + parts['honorPoints'] * F['onur'] + parts['playerShotPoints'] * F['player']
            + parts['yourLevel'] * F['seviye'] + parts['daysSinceRegistration'] * F['gun'] + parts['yourShipType'] * F['gemi']
-           + parts['npcShotPoints'] * F['npc'] + parts['missionsCompleted'] * F['gorev'] + parts['friendlyPlayersDestroyed'] * F['dost']
-           + parts['DestroyedByEnemies'] * F['olum_dusman'] + parts['DestroyedByRadiationZone'] * F['olum_radyasyon']
+           + parts['npcShotPoints'] * F['npc'] + parts['missionsCompleted'] * F['gorev'] + parts['friendlyPlayersDestroyed'] * F['friendly']
+           + parts['DestroyedByEnemies'] * F['death_by_enemy'] + parts['DestroyedByRadiationZone'] * F['death_by_radiation']
            + parts['phoenixDestroyed'] * F['phoenix'])
     parts['rankPoints'] = max(0, int(pts))
     return parts
@@ -133,7 +133,7 @@ def breakdown(p, now=None):
 
 def rank_for(points):
     """Rütbe puanından rütbe (1-21; tek oyunculu eşikler, ranks.json esikler)."""
-    return max(i + 1 for i, t in enumerate(R['esikler']) if points >= t)
+    return max(i + 1 for i, t in enumerate(R['thresholds']) if points >= t)
 
 
 # ------------------------------------------------------------ şirket sırası (bot oyuncular)
@@ -184,15 +184,15 @@ def place_rank(order, n):
     """Şirketin n pilotu arasında sira'ncının (0: en çok puanlı) rütbesi: önce sabit sayılı rütbeler (21'den aşağı), sonra kalanlar
     yüzdeleriyle (16'dan aşağı; yüzdelerin dışında kalan en alt rütbe)."""
     fixed = 0
-    for r in reversed(R['rutbeler']):
+    for r in reversed(R['ranks']):
         if r['tur'] == 'fixedPlayersPerCompany':
-            fixed += r['deger']
+            fixed += r['value']
             if order < fixed:
                 return r['rutbe']
     q, c = 100.0 * (order - fixed + 1) / max(1, n - fixed), 0.0
-    for r in reversed(R['rutbeler']):
+    for r in reversed(R['ranks']):
         if r['tur'] == 'percentOfCompany':
-            c += r['deger']
+            c += r['value']
             if q <= c + 1e-9:
                 return r['rutbe']
     return 1
@@ -238,16 +238,16 @@ def daily_rank(p, now=None, force=False):
     rank = rank_of(p, b['rankPoints'], now)
     icon = rank_icon(p, rank)
     prev, prev_rank = st.get('ay'), st.get('rutbe') or 1
-    monthly = bool(prev and prev != day[:7] and active_month(st.get('gecmis', {}), prev))
+    monthly = bool(prev and prev != day[:7] and active_month(st.get('history', {}), prev))
     with p.lock:
         st.update(gun=day, puan=b['rankPoints'], rutbe=rank, ay=day[:7])
-        hist = st.setdefault('gecmis', {})
+        hist = st.setdefault('history', {})
         hist[day] = dict(puan=b['rankPoints'], ep=int(p.d['pilot'].get('ep', 0)), onur=int(p.d['pilot'].get('honourPoints', 0)))
         for old in sorted(hist)[:-40]:
             del hist[old]
         p.d['pilot']['dailyRank'] = icon           # ShipInitializationCommand.dailyRank (profil.PILOT_FIELDS)
         p.dirty = True
-    tier = next((t for t in MONTHLY if len(R['esikler']) - prev_rank <= t[0]), None) if monthly else None
+    tier = next((t for t in MONTHLY if len(R['thresholds']) - prev_rank <= t[0]), None) if monthly else None
     if tier:
         _, tokens, title, kind = tier
         p.ach(kind)                                 # başarım: General of the Month / Acclaimed Pilot sayacı (basarim.SERVER_SIDE)
@@ -261,15 +261,15 @@ def grant_title(p, key):
     import achievement as ACV
     ACV.title_id(key)
     st = ACV.state(p)
-    if key not in st['unvanlar']:
+    if key not in st['titles']:
         with p.lock:
-            st['unvanlar'].append(key)
+            st['titles'].append(key)
             p.dirty = True
 
 
 def rank_icon(p, rank):
     """Gemideki rütbe simgesi: rütbe, onur -500 ve altındaysa kanun dışı simgesi."""
-    return R['outlaw']['simge'] if p.d['pilot'].get('honourPoints', 0) <= R['outlaw']['onur'] else rank
+    return R['outlaw']['icon'] if p.d['pilot'].get('honourPoints', 0) <= R['outlaw']['onur'] else rank
 
 
 def live_rank(p, now=None):
@@ -300,7 +300,7 @@ def active_month(hist, month):
 
 def _since(p, field, days, now=None):
     """Son N günde artış (günlük kayıtlardan; en eski kayıt daha yeniyse ondan)."""
-    hist = p.d.get('rutbe', {}).get('gecmis', {})
+    hist = p.d.get('rutbe', {}).get('history', {})
     cur = breakdown(p, now)['rankPoints'] if field == 'puan' else int(p.d['pilot'].get('ep' if field == 'ep' else 'honourPoints', 0))
     limit = today((now or time.time()) - days * 86400)
     olds = [d for d in sorted(hist) if d <= limit] or sorted(hist)[:1]
@@ -329,14 +329,14 @@ def ranking_points(p, now=None):
     satırı pencereye koymayıp hep "hof_rank_lowest" yazıyor: istemcinin BepInEx eklentisi (panel/plugin/Patches.cs RutbePenceresi)."""
     b = breakdown(p, now)
     rank = rank_of(p, b['rankPoints'], now)
-    nxt = R['esikler'][rank] if rank < len(R['esikler']) else b['rankPoints']
-    rival = points_to_pass(p, rank + 1, now) if rank < len(R['esikler']) else None
+    nxt = R['thresholds'][rank] if rank < len(R['thresholds']) else b['rankPoints']
+    rival = points_to_pass(p, rank + 1, now) if rank < len(R['thresholds']) else None
     if rival is not None:
         nxt = max(nxt, int(rival) + 1)                  # şirkette o rütbenin sınırındaki pilotu geçmek gerek
     loot = p.ship()['lootId']
     out = _zero_points()
     out.update(b, yourRanking=rank, aboveRanking=min(rank + 1, 21), abovePoints=max(0, nxt - b['rankPoints']),
-               belowRanking=max(rank - 1, 1), belowPoints=R['esikler'][rank - 2] if rank > 1 else 0,
+               belowRanking=max(rank - 1, 1), belowPoints=R['thresholds'][rank - 2] if rank > 1 else 0,
                shipsCategoryName=R['ship_points'].get(loot, {}).get('ad', loot.replace('ship_', '').title()))
     return out
 
@@ -382,9 +382,9 @@ def hof_top(p, f, now=None):
     if t == 17:
         c = counters(p)
         npc = [{'_': 'HallOfFameDataCommand', 'userId': int(k), 'rank': 0, 'time': '', 'points': v['puan'],
-                'value': c['npc'].get(k, 0), 'userName': v['ad']} for k, v in sorted(R['npc_puan'].items(), key=lambda kv: int(kv[0]))]
+                'value': c['npc'].get(k, 0), 'userName': v['ad']} for k, v in sorted(R['npc_points'].items(), key=lambda kv: int(kv[0]))]
         pages = [npc[i:i + NPC_PAGE] for i in range(0, len(npc), NPC_PAGE)]
-        ships = [{'_': 'HallOfFameDataCommand', 'userId': 0, 'rank': 0, 'time': '', 'points': v['puan'], 'value': c['oyuncu'].get(k, 0),
+        ships = [{'_': 'HallOfFameDataCommand', 'userId': 0, 'rank': 0, 'time': '', 'points': v['puan'], 'value': c['player'].get(k, 0),
                   'userName': v['ad']} for k, v in R['ship_points'].items()]
         out.update(myRankingPoints=ranking_points(p, now),
                    pages=[_page('npcPointsDetails', pg, len(pages), i + 1) for i, pg in enumerate(pages)] + [_page('playerPointsDetails', ships)])
@@ -398,7 +398,7 @@ def hof_top(p, f, now=None):
         if span:
             who = {KL.name(x): x for x in players(p)}
             with KL.LOCK:
-                lst = sorted(((k, sum(user_score_since(who[a], span, now) for a in k['uyeler'] if a in who)) for k in KL.CLANS.values()),
+                lst = sorted(((k, sum(user_score_since(who[a], span, now) for a in k['members'] if a in who)) for k in KL.CLANS.values()),
                              key=lambda kv: (-kv[1], kv[0]['id']))
         else:
             lst = KL.ranking()
@@ -439,14 +439,14 @@ def hof_pages(p, f, now=None):
 
 
 def _runs(p, n):
-    return sum(sorted((p.d.get('mimesis') or {}).get('seferler', []), reverse=True)[:n])
+    return sum(sorted((p.d.get('mimesis') or {}).get('trips', []), reverse=True)[:n])
 
 
-HOF_EVENTS = {2: lambda p: (p.d.get('labirent') or {}).get('hunts', 0),                   # FrozenLabyrinth: Synk avları
+HOF_EVENTS = {2: lambda p: (p.d.get('labyrinth') or {}).get('hunts', 0),                   # FrozenLabyrinth: Synk avları
               3: lambda p: ((p.d.get('pve') or {}).get('ebl') or {}).get('best', 0),     # EternalGate: Eternal Black Light dalgası
               4: lambda p: _runs(p, 10),                                                   # MimesisMutiny: en iyi 10 sefer (mimesis.total)
               5: lambda p: _runs(p, 1),                                                    # PayloadEscort: en iyi sefer
-              6: lambda p: min(((p.d.get('dunya_patronu') or {}).get('etkinlik') or {}).get('hasar', 0), 2 ** 31 - 1)}  # PublicWorldBoss: hasar
+              6: lambda p: min(((p.d.get('world_boss') or {}).get('etkinlik') or {}).get('hasar', 0), 2 ** 31 - 1)}  # PublicWorldBoss: hasar
 
 
 def _ebl_time(p):

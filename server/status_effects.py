@@ -26,7 +26,7 @@ class Effects:
 
     def add(self, kind, sec, value=1.0, source=None, now=None, **extra):
         now = now or time.time()
-        e = dict(extra, bitis=now + sec, deger=value, kaynak=source)
+        e = dict(extra, bitis=now + sec, value=value, kaynak=source)
         self.d.setdefault(kind, []).append(e)
         return e
 
@@ -58,30 +58,30 @@ class Effects:
 
     # ------------------------------------------------------------ birleşik değerler
     def slow(self, now=None):
-        return max(max((e['deger'] for e in self.get('yavas', now)), default=0.0),
-                   0.1 if self.get('enfeksiyon', now) else 0.0)
+        return max(max((e['value'] for e in self.get('slow', now)), default=0.0),
+                   0.1 if self.get('infection', now) else 0.0)
 
     def frozen(self, now=None):
-        return bool(self.get('donuk', now))
+        return bool(self.get('frozen', now))
 
     def accuracy_loss(self, now=None):
-        return min(1.0, sum(e['deger'] for e in self.get('isabet', now)))
+        return min(1.0, sum(e['value'] for e in self.get('hit', now)))
 
     def shield_damage(self, now=None):
-        return max((e['deger'] for e in self.get('kalkan_hasari', now)), default=1.0)
+        return max((e['value'] for e in self.get('shield_damage_taken', now)), default=1.0)
 
     def damage_bonus(self, now=None):
-        return sum(e['deger'] for e in self.get('hasar_bonus', now))
+        return sum(e['value'] for e in self.get('damage_bonus', now))
 
     def invulnerable(self, now=None):
-        return bool(self.get('dokunulmaz', now))
+        return bool(self.get('immune_until', now))
 
     def speed_cap(self, now=None):
-        return min((e['deger'] for e in self.get('hiz_siniri', now)), default=None)
+        return min((e['value'] for e in self.get('speed_limit', now)), default=None)
 
     def ability(self, key, now=None):
         """Etkin 'yetenek' etkilerinin bir etkisi (yansit, emme_can …) -> değer ya da None (gemi_yetenek.effect'in sandık karşılığı)."""
-        return next((e['deger'][key] for e in self.get('yetenek', now) if key in e['deger']), None)
+        return next((e['value'][key] for e in self.get('yetenek', now) if key in e['value']), None)
 
     def speed_factor(self, now=None):
         return 0.0 if self.frozen(now) else 1.0 - self.slow(now)
@@ -90,37 +90,37 @@ class Effects:
         """Zamanı gelen zehir vuruşları -> [hasar]; vuruş sonrası bir sonraki zaman, artış ve kalan güncellenir."""
         now = now or time.time()
         hits = []
-        for e in self.get('zehir', now):
+        for e in self.get('poison', now):
             if now < e.get('next', 0) or e.get('kalan', 1) <= 0:
                 continue
-            dmg = min(e['deger'], e.get('kalan', e['deger']))
+            dmg = min(e['value'], e.get('kalan', e['value']))
             hits.append(dmg)
             e['kalan'] = e.get('kalan', dmg) - dmg
-            e['deger'] = min(e['deger'] + e.get('increase', 0), e.get('en_cok', e['deger']))
+            e['value'] = min(e['value'] + e.get('increase', 0), e.get('max_count', e['value']))
             e['next'] = e.get('next', now) + 1.0
         return hits
 
     def mods(self, now=None):
         """Oyuncunun etkileri profil bonuslarına (profil.mods): yavaşlık hiz, donukluk sabit_hiz 0, isabet düşüşü."""
         out = {}
-        if self.get('enfeksiyon', now):
+        if self.get('infection', now):
             out.update(lazer=0.1, roket=0.1, hp_multiplier=0.85)
         if self.slow(now):
             out['hiz'] = -self.slow(now)
         if self.frozen(now):
-            out['sabit_hiz'] = 0
+            out['fixed_speed'] = 0
         if self.accuracy_loss(now):
-            out['isabet'] = -self.accuracy_loss(now)
-        burst = max((e['deger'] for e in self.get('hizlanma', now)), default=0)
+            out['hit'] = -self.accuracy_loss(now)
+        burst = max((e['value'] for e in self.get('speed_up', now)), default=0)
         if burst:
             out['floor_speed'] = burst
         cap = self.speed_cap(now)
         if cap is not None:
-            out['azami_hiz'] = cap
+            out['max_speed'] = cap
         for e in self.get('yetenek', now):
-            for k, v in e['deger'].get('mods', {}).items():
+            for k, v in e['value'].get('mods', {}).items():
                 out[k] = out.get(k, 0) + v
-        weak = sum(e['deger'] for e in self.get('zayiflik', now))
+        weak = sum(e['value'] for e in self.get('weakness', now))
         if weak:
             out['lazer'] = out.get('lazer', 0) - weak
             out['roket'] = out.get('roket', 0) - weak

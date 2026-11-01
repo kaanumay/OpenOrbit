@@ -25,9 +25,9 @@ MAC = sys.platform == 'darwin'
 # Değiştirince sha256 de değişir; eski motor yeni kurulumda silinir.
 ENGINE = {'ad': 'Wine 11.16 (winecx)', 'surum': 'whisky-4.6.4-beta.1',
          'url': 'https://github.com/frankea/Whisky/releases/download/v4.6.4-beta.1/Libraries.tar.gz',
-         'sha256': 'c8e6a10dfeb54fc16d3dd3382ee2e9d2cec3eb1f5641613cad8b07903818cb12', 'boyut': 481348675, 'kok': 'Libraries/Wine'}
+         'sha256': 'c8e6a10dfeb54fc16d3dd3382ee2e9d2cec3eb1f5641613cad8b07903818cb12', 'size': 481348675, 'root': 'Libraries/Wine'}
 DXMT = {'ad': 'DXMT 0.80', 'surum': '0.80', 'url': 'https://github.com/3Shain/dxmt/releases/download/v0.80/dxmt-v0.80-builtin.tar.gz',
-        'sha256': '8f260e36b5739e68f3bad613381441385c4dc7b85b78ba8de653d5a6a264529d', 'boyut': 18681669, 'kok': 'v0.80'}
+        'sha256': '8f260e36b5739e68f3bad613381441385c4dc7b85b78ba8de653d5a6a264529d', 'size': 18681669, 'root': 'v0.80'}
 DXMT_ARCHS = ('x86_64-unix', 'x86_64-windows', 'i386-windows')
 MIN_MACOS = (14, 0)                # DXMT: macOS 14 Sonoma
 INSTALL_MARKER = 'install.json'                  # kurulumun bittiğini ve sürümlerini söyler
@@ -44,13 +44,13 @@ def apple_silicon():
         return platform.machine() == 'arm64'
 
 
-_rosetta = {'var': False, 'time': 0.0}
+_rosetta = {'exists': False, 'time': 0.0}
 
 
 def has_rosetta():
     """Rosetta 2 kurulu mu (Intel Mac'te ve macOS dışında gerekmez: True)? Durum yoklamaları sık: kurulu bulununca hep True, yoksa
     birkaç saniyede bir yeniden denenir."""
-    if not apple_silicon() or _rosetta['var']:
+    if not apple_silicon() or _rosetta['exists']:
         return True
     if time.monotonic() - _rosetta['time'] < 3:
         return False
@@ -58,7 +58,7 @@ def has_rosetta():
         var = subprocess.run(['/usr/bin/arch', '-x86_64', '/usr/bin/true'], capture_output=True, timeout=10).returncode == 0
     except (OSError, subprocess.SubprocessError):
         var = False
-    _rosetta.update(var=var, time=time.monotonic())
+    _rosetta.update(exists=var, time=time.monotonic())
     return var
 
 
@@ -138,13 +138,13 @@ class WineEngine:
         self.log, self.opener = log, opener
         self.lock = threading.Lock()
         self.stop = threading.Event()
-        self.d = self._blank('yok')
+        self.d = self._blank('none')
         self.samples = []
-        self.ros = {'durum': 'bos', 'hata': None}
+        self.ros = {'durum': 'vacant', 'hata': None}
 
     @staticmethod
     def _blank(state):
-        return {'durum': state, 'calisiyor': False, 'alinan': 0, 'toplam': 0, 'hiz': 0, 'time_left_sec': None, 'hata': None, 'parca': None}
+        return {'durum': state, 'running': False, 'claimed': 0, 'toplam': 0, 'hiz': 0, 'time_left_sec': None, 'hata': None, 'part': None}
 
     # ------------------------------------------------------------ kurulu motor
     def folder(self):
@@ -159,7 +159,7 @@ class WineEngine:
         except (OSError, ValueError):
             return None
         w = os.path.join(k, 'bin', 'wine')
-        return w if d.get('motor') == ENGINE['sha256'] and d.get('dxmt') == DXMT['sha256'] and os.path.isfile(w) else None
+        return w if d.get('engine') == ENGINE['sha256'] and d.get('dxmt') == DXMT['sha256'] and os.path.isfile(w) else None
 
     def name(self):
         return '%s + %s' % (ENGINE['ad'], DXMT['ad'])
@@ -169,25 +169,25 @@ class WineEngine:
             d = json.loads(json.dumps(self.d))
             ros = dict(self.ros)
         installed = self.wine()
-        if not d['calisiyor'] and installed:
-            d['durum'] = 'kurulu'
-        d.update(yol=installed, ad=self.name(), boyut=ENGINE['boyut'] + DXMT['boyut'], klasor=self.folder(),
-                 rosetta=dict(ros, gerekli=apple_silicon(), var=has_rosetta()),
+        if not d['running'] and installed:
+            d['durum'] = 'built'
+        d.update(route=installed, ad=self.name(), size=ENGINE['size'] + DXMT['size'], folder=self.folder(),
+                 rosetta=dict(ros, required=apple_silicon(), exists=has_rosetta()),
                  macos=platform.mac_ver()[0] if MAC else None, macos_old=MAC and macos_version() < MIN_MACOS)
         return d
 
     def running(self):
         with self.lock:
-            return self.d['calisiyor']
+            return self.d['running']
 
     # ------------------------------------------------------------ kurulum
     def start(self):
         """Motoru ve DXMT'yi indir ve kur (sürüyorsa ya da kuruluysa bir şey yapmaz) -> durum."""
         with self.lock:
-            busy = self.d['calisiyor']
+            busy = self.d['running']
             if not busy and not self.wine():
                 self.stop.clear()
-                self.d = dict(self._blank('indiriliyor'), calisiyor=True, toplam=ENGINE['boyut'] + DXMT['boyut'])
+                self.d = dict(self._blank('downloading'), running=True, toplam=ENGINE['size'] + DXMT['size'])
                 self.samples = []
                 threading.Thread(target=self._run, daemon=True).start()
         return self.state()
@@ -199,26 +199,26 @@ class WineEngine:
     def _count(self, n):
         now = time.monotonic()
         with self.lock:
-            self.d['alinan'] += n
-            self.samples.append((now, self.d['alinan']))
+            self.d['claimed'] += n
+            self.samples.append((now, self.d['claimed']))
             while len(self.samples) > 2 and now - self.samples[0][0] > 8:
                 self.samples.pop(0)
             t0, b0 = self.samples[0]
             if now - t0 >= 1:
-                self.d['hiz'] = int((self.d['alinan'] - b0) / (now - t0))
-                left = max(0, self.d['toplam'] - self.d['alinan'])
+                self.d['hiz'] = int((self.d['claimed'] - b0) / (now - t0))
+                left = max(0, self.d['toplam'] - self.d['claimed'])
                 self.d['time_left_sec'] = int(left / self.d['hiz']) if self.d['hiz'] > 0 else None
 
     def _download_extract(self, part, target):
         """Arşivi akarak hedefe aç ve SHA-256'sını doğrula."""
         with self.lock:
-            self.d['parca'] = part['ad']
+            self.d['part'] = part['ad']
         kw = {'opener': self.opener} if self.opener else {}
         f = HttpFile(part['url'], self.stop, self._count, **kw)
         try:
             src = _Digest(f)
             with tarfile.open(fileobj=src, mode='r|*') as tf:
-                _extract(tf, part['kok'], target)
+                _extract(tf, part['root'], target)
             summary = src.drain()
         except tarfile.TarError as e:
             raise DownloadError(_('Arşiv bozuk geldi (%s): yeniden dene.', e))
@@ -237,11 +237,11 @@ class WineEngine:
             if free < 1600 << 20:
                 raise DownloadError(_('Diskte yer yetmiyor: %.1f GB gerekli, %.1f GB boş.', 1.6, free / float(1 << 30)))
             self.log('Wine motoru indiriliyor: %s, %s' % (ENGINE['url'], DXMT['url']))
-            engine, dxmt = os.path.join(temporary, 'motor'), os.path.join(temporary, 'dxmt')
+            engine, dxmt = os.path.join(temporary, 'engine'), os.path.join(temporary, 'dxmt')
             self._download_extract(ENGINE, engine)
             self._download_extract(DXMT, dxmt)
             with self.lock:
-                self.d.update(durum='kuruluyor', parca=None)
+                self.d.update(durum='installing', part=None)
             for arch in DXMT_ARCHS:                 # DXMT builtin DLL'leri motorun kendi DLL'lerinin yerine
                 src, dst = os.path.join(dxmt, arch), os.path.join(engine, 'lib', 'wine', arch)
                 if not os.path.isdir(src):
@@ -253,7 +253,7 @@ class WineEngine:
             if not os.path.isfile(os.path.join(engine, 'bin', 'wine')):
                 raise DownloadError(_('Wine motorunda bin/wine yok.'))
             with open(os.path.join(engine, INSTALL_MARKER), 'w', encoding='utf8') as fh:
-                json.dump({'motor': ENGINE['sha256'], 'dxmt': DXMT['sha256'], 'ad': self.name(), 'time': time.strftime('%Y-%m-%d %H:%M:%S')},
+                json.dump({'engine': ENGINE['sha256'], 'dxmt': DXMT['sha256'], 'ad': self.name(), 'time': time.strftime('%Y-%m-%d %H:%M:%S')},
                           fh, indent=1)
             target = self.folder()
             if os.path.isdir(target):
@@ -264,11 +264,11 @@ class WineEngine:
                 if old != ENGINE['surum'] and not old.startswith('.') and os.path.isdir(p):
                     shutil.rmtree(p, ignore_errors=True)
             with self.lock:
-                self.d.update(durum='kurulu', alinan=self.d['toplam'], time_left_sec=0)
+                self.d.update(durum='built', claimed=self.d['toplam'], time_left_sec=0)
             self.log('Wine motoru kuruldu: %s (%s)' % (self.name(), target))
         except Cancelled:
             with self.lock:
-                self.d['durum'] = 'durdu'
+                self.d['durum'] = 'stopped'
             self.log('Wine motoru kurulumu durduruldu')
         except DownloadError as e:
             with self.lock:
@@ -285,7 +285,7 @@ class WineEngine:
         finally:
             shutil.rmtree(temporary, ignore_errors=True)
             with self.lock:
-                self.d['calisiyor'], self.d['hiz'], self.d['parca'] = False, 0, None
+                self.d['running'], self.d['hiz'], self.d['part'] = False, 0, None
 
     def wait(self, step=None):
         """Kurulum bitene dek bekle (adim: (yüzde) -> None, ilerleme) -> wine programı. Kurulamazsa RuntimeError."""
@@ -293,12 +293,12 @@ class WineEngine:
         while self.running():
             if step:
                 st = self.state()
-                step(int(100 * st['alinan'] / st['toplam']) if st['toplam'] else 0)
+                step(int(100 * st['claimed'] / st['toplam']) if st['toplam'] else 0)
             time.sleep(0.5)
         st = self.state()
-        if not st['yol']:
+        if not st['route']:
             raise RuntimeError(st['hata'] or _('Wine motoru kurulmadı.'))
-        return st['yol']
+        return st['route']
 
     # ------------------------------------------------------------ Rosetta 2
     def install_rosetta(self):
@@ -306,9 +306,9 @@ class WineEngine:
         if has_rosetta():
             return self.state()
         with self.lock:
-            if self.ros['durum'] == 'kuruluyor':
+            if self.ros['durum'] == 'installing':
                 return self.state()
-            self.ros = {'durum': 'kuruluyor', 'hata': None}
+            self.ros = {'durum': 'installing', 'hata': None}
 
         def run():
             command = '/usr/sbin/softwareupdate --install-rosetta --agree-to-license'
@@ -317,10 +317,10 @@ class WineEngine:
             try:
                 r = subprocess.run(['osascript', '-e', script], capture_output=True, text=True, timeout=1800)
                 if has_rosetta():
-                    ros = {'durum': 'kuruldu', 'hata': None}
+                    ros = {'durum': 'installed', 'hata': None}
                     self.log('Rosetta 2 kuruldu')
                 elif '-128' in r.stderr:
-                    ros = {'durum': 'bos', 'hata': _('Rosetta kurulumu iptal edildi.')}
+                    ros = {'durum': 'vacant', 'hata': _('Rosetta kurulumu iptal edildi.')}
                 else:
                     ros = {'durum': 'hata', 'hata': _('Rosetta kurulamadı: %s', (r.stderr or r.stdout).strip()[-300:])}
                     self.log('Rosetta kurulamadı: %s' % (r.stderr or r.stdout).strip()[-300:])

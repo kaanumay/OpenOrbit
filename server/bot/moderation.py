@@ -32,8 +32,8 @@ def sec(y):
         b.moderator = False
     if not is_open(y):
         return []
-    n = int(y.setting('mod_sayisi', 2) or 1)
-    points = lambda b: b.o('sabir') + b.o('yardimseverlik') + b.o('sadakat') - b.o('saldirganlik') + 0.001 * (b.uid % 97)
+    n = int(y.setting('mod_count', 2) or 1)
+    points = lambda b: b.o('patience') + b.o('helpfulness') + b.o('loyalty') - b.o('aggression') + 0.001 * (b.uid % 97)
     out = sorted(y.bots, key=points, reverse=True)[:n]
     for b in out:
         b.moderator = True
@@ -41,25 +41,25 @@ def sec(y):
 
 
 def _registry(y, name):
-    return y.__dict__.setdefault('mod_record', {}).setdefault(str(name).lower(), {'uyari': 0, 'warning_time': 0, 'mutes': 0, 'bitis': 0,
-                                                                               'yasak': False, 'son': []})
+    return y.__dict__.setdefault('mod_record', {}).setdefault(str(name).lower(), {'warning': 0, 'warning_time': 0, 'mutes': 0, 'bitis': 0,
+                                                                               'ban': False, 'last': []})
 
 
 def violation(y, name, msg, now):
     """Mesaj hangi kuralı çiğniyor -> kural ya da None (açık kurallardan ilki). Sel için kişinin son mesajlarını tutar."""
     k = _registry(y, name)
-    k['son'] = [x for x in k['son'] if now - x[0] < 60] + [(now, str(msg).strip().lower())]
+    k['last'] = [x for x in k['last'] if now - x[0] < 60] + [(now, str(msg).strip().lower())]
     letters = [c for c in str(msg) if c.isalpha()]
-    if y.setting('kural_reklam', True) and _LINK.search(msg):
+    if y.setting('rule_ads', True) and _LINK.search(msg):
         return 'reklam'
-    if y.setting('kural_hakaret', True):
+    if y.setting('rule_insult', True):
         from . import llm as LLM
         if LLM.harmful(msg) or SPC.intent(msg)[0] == 'hakaret':
             return 'hakaret'
-    if y.setting('kural_sel', True) and (sum(1 for t, m in k['son'] if m == k['son'][-1][1]) >= 3
-                                       or sum(1 for t, m in k['son'] if now - t < 10) >= 5):
+    if y.setting('rule_flood', True) and (sum(1 for t, m in k['last'] if m == k['last'][-1][1]) >= 3
+                                       or sum(1 for t, m in k['last'] if now - t < 10) >= 5):
         return 'sel'
-    if y.setting('kural_buyuk', True) and len(letters) >= 8 and sum(c.isupper() for c in letters) / len(letters) > 0.7:
+    if y.setting('rule_caps', True) and len(letters) >= 8 and sum(c.isupper() for c in letters) / len(letters) > 0.7:
         return 'buyuk'
     return None
 
@@ -85,30 +85,30 @@ def moderate(y, name, msg, channel, now, rol='chatter'):
     modes = [m for m in y.bots if getattr(m, 'moderator', False) and m.online]
     if rule is None or not modes:
         return None
-    m = max(modes, key=lambda m: m.o('sabir') * m.r.random())
+    m = max(modes, key=lambda m: m.o('patience') * m.r.random())
     k = _registry(y, name)
     if k['bitis'] > now:
         return None                                       # zaten susturulu (satırı zaten düştü)
     if now - k['warning_time'] > WARNING_SEC:
-        k['uyari'] = 0
+        k['warning'] = 0
     delay = m.r.uniform(2, 8)
-    if k['uyari'] == 0:
-        k['uyari'], k['warning_time'] = 1, now
+    if k['warning'] == 0:
+        k['warning'], k['warning_time'] = 1, now
         y.speak(m, channel, SPC.template(m, 'mod_uyari_' + rule, ad=name), now=now + delay, priority=True)
-        return 'uyari'
-    k['uyari'] = 0
+        return 'warning'
+    k['warning'] = 0
     k['mutes'] += 1
-    if k['mutes'] >= int(y.setting('yasak_esik', 3) or 3):
-        hour = int(y.setting('yasak_saat', 24) or 24)
-        k['bitis'], k['yasak'], k['mutes'] = now + hour * 3600, True, 0
+    if k['mutes'] >= int(y.setting('ban_threshold', 3) or 3):
+        hour = int(y.setting('ban_hours', 24) or 24)
+        k['bitis'], k['ban'], k['mutes'] = now + hour * 3600, True, 0
         y.speak(m, channel, SPC.template(m, 'mod_yasak', ad=name, saat=hour), now=now + delay, priority=True)
-        return 'yasak'
-    minutes = int(y.setting('sustur_dk', 10) or 10)
-    k['bitis'], k['yasak'] = now + minutes * 60, False
+        return 'ban'
+    minutes = int(y.setting('mute_min', 10) or 10)
+    k['bitis'], k['ban'] = now + minutes * 60, False
     y.speak(m, channel, SPC.template(m, 'mod_sustur', ad=name, dk=minutes), now=now + delay, priority=True)
     if b is not None:
         b.memory.event(m.name, 'hakaret', now)               # susturulan bot moderatöre biraz kırgın
-    return 'sustur'
+    return 'mute'
 
 
 def block(y, user, path, lang=None):

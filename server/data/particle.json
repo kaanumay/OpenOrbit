@@ -5,9 +5,9 @@
    "tur": "helios",
    "element": "thermal",
    "cannonType": 0,
-   "kalite": "c",
-   "sira": 0,
-   "taban": 1660,
+   "quality": "c",
+   "order": 0,
+   "base": 1660,
    "ek": 1,
    "gemi": null
   },
@@ -15,9 +15,9 @@
    "tur": "indra",
    "element": "electro",
    "cannonType": 2,
-   "kalite": "c",
-   "sira": 0,
-   "taban": 1336,
+   "quality": "c",
+   "order": 0,
+   "base": 1336,
    "ek": 1,
    "gemi": null
   },
@@ -25,9 +25,9 @@
    "tur": "nidhogg",
    "element": "corrosive",
    "cannonType": 1,
-   "kalite": "c",
-   "sira": 0,
-   "taban": 3247,
+   "quality": "c",
+   "order": 0,
+   "base": 3247,
    "ek": 1,
    "gemi": null
   },
@@ -35,9 +35,9 @@
    "tur": "helios",
    "element": "thermal",
    "cannonType": 0,
-   "kalite": "ep",
-   "sira": 3,
-   "taban": 10959,
+   "quality": "ep",
+   "order": 3,
+   "base": 10959,
    "ek": 3,
    "gemi": null
   },
@@ -45,9 +45,9 @@
    "tur": "indra",
    "element": "electro",
    "cannonType": 2,
-   "kalite": "ep",
-   "sira": 3,
-   "taban": 8817,
+   "quality": "ep",
+   "order": 3,
+   "base": 8817,
    "ek": 3,
    "gemi": null
   },
@@ -55,9 +55,9 @@
    "tur": "nidhogg",
    "element": "corrosive",
    "cannonType": 1,
-   "kalite": "ep",
-   "sira": 3,
-   "taban": 21431,
+   "quality": "ep",
+   "order": 3,
+   "base": 21431,
    "ek": 3,
    "gemi": null
   },
@@ -65,9 +65,9 @@
    "tur": "helios",
    "element": "thermal",
    "cannonType": 0,
-   "kalite": "leg",
-   "sira": 5,
-   "taban": 14944,
+   "quality": "leg",
+   "order": 5,
+   "base": 14944,
    "ek": 4,
    "gemi": null
   },
@@ -75,9 +75,9 @@
    "tur": "indra",
    "element": "electro",
    "cannonType": 2,
-   "kalite": "leg",
-   "sira": 5,
-   "taban": 12023,
+   "quality": "leg",
+   "order": 5,
+   "base": 12023,
    "ek": 4,
    "gemi": null
   },
@@ -85,9 +85,9 @@
    "tur": "nidhogg",
    "element": "corrosive",
    "cannonType": 1,
-   "kalite": "leg",
-   "sira": 5,
-   "taban": 29224,
+   "quality": "leg",
+   "order": 5,
+   "base": 29224,
    "ek": 4,
    "gemi": null
   },
@@ -95,9 +95,9 @@
    "tur": "helios",
    "element": "thermal",
    "cannonType": 0,
-   "kalite": "ma",
-   "sira": 4,
-   "taban": 13948,
+   "quality": "ma",
+   "order": 4,
+   "base": 13948,
    "ek": 3,
    "gemi": null
   },
@@ -105,9 +105,9 @@
    "tur": "indra",
    "element": "electro",
    "cannonType": 2,
-   "kalite": "ma",
-   "sira": 4,
-   "taban": 11222,
+   "quality": "ma",
+   "order": 4,
+   "base": 11222,
    "ek": 3,
    "gemi": null
   },
@@ -115,9 +115,9 @@
    "tur": "nidhogg",
    "element": "corrosive",
    "cannonType": 1,
-   "kalite": "ma",
-   "sira": 4,
-   "taban": 27275,
+   "quality": "ma",
+   "order": 4,
+   "base": 27275,
    "ek": 3,
    "gemi": null
   },
@@ -125,9 +125,9 @@
    "tur": "helios",
    "element": "thermal",
    "cannonType": 0,
-   "kalite": "r",
-   "sira": 2,
-   "taban": 4981,
+   "quality": "r",
+   "order": 2,
+   "base": 4981,
    "ek": 2,
    "gemi": null
   },
@@ -135,9 +135,9 @@
    "tur": "indra",
    "element": "electro",
    "cannonType": 2,
-   "kalite": "r",
-   "sira": 2,
-   "taban": 4008,
+   "quality": "r",
+   "order": 2,
+   "base": 4008,
    "ek": 2,
    "gemi": null
   },
@@ -145,9 +145,9 @@
    "tur": "nidhogg",
    "element": "corrosive",
    "cannonType": 1,
-   "kalite": "r",
-   "sira": 2,
-   "taban": 9741,
+   "quality": "r",
+   "order": 2,
+   "base": 9741,
    "ek": 2,
    "gemi": null
   },
@@ -155,9 +155,9 @@
    "tur": "helios",
    "element": "thermal",
    "cannonType": 0,
-   "kalite": "uc",
-   "sira": 1,
-   "taban": 3321,
+   "quality": "uc",
+   "order": 1,
+   "base": 3321,
    "ek": 2,
    "gemi": null
   },
@@ -165,9 +165,9 @@
    "tur": "indra",
    "element": "electro",
    "cannonType": 2,
-   "kalite": "uc",
-   "sira": 1,
-   "taban": 2672,
+   "quality": "uc",
+   "order": 1,
+   "base": 2672,
    "ek": 2,
    "gemi": null
   },
@@ -175,9 +175,9 @@
    "tur": "nidhogg",
    "element": "corrosive",
    "cannonType": 1,
-   "kalite": "uc",
-   "sira": 1,
-   "taban": 6494,
+   "quality": "uc",
+   "order": 1,
+   "base": 6494,
    "ek": 2,
    "gemi": null
   },
@@ -185,9 +185,9 @@
    "tur": "helios",
    "element": "thermal",
    "cannonType": 0,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 16571,
+   "quality": "ul",
+   "order": 6,
+   "base": 16571,
    "ek": 4,
    "gemi": null
   },
@@ -195,9 +195,9 @@
    "tur": "helios",
    "element": "thermal",
    "cannonType": 0,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 16571,
+   "quality": "ul",
+   "order": 6,
+   "base": 16571,
    "ek": 4,
    "gemi": "ship_citadel-plus"
   },
@@ -205,9 +205,9 @@
    "tur": "helios",
    "element": "thermal",
    "cannonType": 0,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 16571,
+   "quality": "ul",
+   "order": 6,
+   "base": 16571,
    "ek": 4,
    "gemi": "ship_cyborg"
   },
@@ -215,9 +215,9 @@
    "tur": "helios",
    "element": "thermal",
    "cannonType": 0,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 16571,
+   "quality": "ul",
+   "order": 6,
+   "base": 16571,
    "ek": 4,
    "gemi": "ship_diminisher"
   },
@@ -225,9 +225,9 @@
    "tur": "helios",
    "element": "thermal",
    "cannonType": 0,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 16571,
+   "quality": "ul",
+   "order": 6,
+   "base": 16571,
    "ek": 4,
    "gemi": "ship_goliath-plus"
   },
@@ -235,9 +235,9 @@
    "tur": "helios",
    "element": "thermal",
    "cannonType": 0,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 16571,
+   "quality": "ul",
+   "order": 6,
+   "base": 16571,
    "ek": 4,
    "gemi": "ship_hammerclaw-plus"
   },
@@ -245,9 +245,9 @@
    "tur": "helios",
    "element": "thermal",
    "cannonType": 0,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 16571,
+   "quality": "ul",
+   "order": 6,
+   "base": 16571,
    "ek": 4,
    "gemi": "ship_hyperion"
   },
@@ -255,9 +255,9 @@
    "tur": "helios",
    "element": "thermal",
    "cannonType": 0,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 16571,
+   "quality": "ul",
+   "order": 6,
+   "base": 16571,
    "ek": 4,
    "gemi": "ship_orcus"
   },
@@ -265,9 +265,9 @@
    "tur": "helios",
    "element": "thermal",
    "cannonType": 0,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 16571,
+   "quality": "ul",
+   "order": 6,
+   "base": 16571,
    "ek": 4,
    "gemi": "ship_paladin"
   },
@@ -275,9 +275,9 @@
    "tur": "helios",
    "element": "thermal",
    "cannonType": 0,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 16571,
+   "quality": "ul",
+   "order": 6,
+   "base": 16571,
    "ek": 4,
    "gemi": "ship_pusat-plus"
   },
@@ -285,9 +285,9 @@
    "tur": "helios",
    "element": "thermal",
    "cannonType": 0,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 16571,
+   "quality": "ul",
+   "order": 6,
+   "base": 16571,
    "ek": 4,
    "gemi": "ship_retiarus-plus"
   },
@@ -295,9 +295,9 @@
    "tur": "helios",
    "element": "thermal",
    "cannonType": 0,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 16571,
+   "quality": "ul",
+   "order": 6,
+   "base": 16571,
    "ek": 4,
    "gemi": "ship_solace-plus"
   },
@@ -305,9 +305,9 @@
    "tur": "helios",
    "element": "thermal",
    "cannonType": 0,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 16571,
+   "quality": "ul",
+   "order": 6,
+   "base": 16571,
    "ek": 4,
    "gemi": "ship_solaris-plus"
   },
@@ -315,9 +315,9 @@
    "tur": "helios",
    "element": "thermal",
    "cannonType": 0,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 16571,
+   "quality": "ul",
+   "order": 6,
+   "base": 16571,
    "ek": 4,
    "gemi": "ship_spearhead-plus"
   },
@@ -325,9 +325,9 @@
    "tur": "helios",
    "element": "thermal",
    "cannonType": 0,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 16571,
+   "quality": "ul",
+   "order": 6,
+   "base": 16571,
    "ek": 4,
    "gemi": "ship_spectrum-plus"
   },
@@ -335,9 +335,9 @@
    "tur": "helios",
    "element": "thermal",
    "cannonType": 0,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 16571,
+   "quality": "ul",
+   "order": 6,
+   "base": 16571,
    "ek": 4,
    "gemi": "ship_venom"
   },
@@ -345,9 +345,9 @@
    "tur": "indra",
    "element": "electro",
    "cannonType": 2,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 13333,
+   "quality": "ul",
+   "order": 6,
+   "base": 13333,
    "ek": 4,
    "gemi": null
   },
@@ -355,9 +355,9 @@
    "tur": "indra",
    "element": "electro",
    "cannonType": 2,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 13333,
+   "quality": "ul",
+   "order": 6,
+   "base": 13333,
    "ek": 4,
    "gemi": "ship_citadel-plus"
   },
@@ -365,9 +365,9 @@
    "tur": "indra",
    "element": "electro",
    "cannonType": 2,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 13333,
+   "quality": "ul",
+   "order": 6,
+   "base": 13333,
    "ek": 4,
    "gemi": "ship_cyborg"
   },
@@ -375,9 +375,9 @@
    "tur": "indra",
    "element": "electro",
    "cannonType": 2,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 13333,
+   "quality": "ul",
+   "order": 6,
+   "base": 13333,
    "ek": 4,
    "gemi": "ship_diminisher"
   },
@@ -385,9 +385,9 @@
    "tur": "indra",
    "element": "electro",
    "cannonType": 2,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 13333,
+   "quality": "ul",
+   "order": 6,
+   "base": 13333,
    "ek": 4,
    "gemi": "ship_goliath-plus"
   },
@@ -395,9 +395,9 @@
    "tur": "indra",
    "element": "electro",
    "cannonType": 2,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 13333,
+   "quality": "ul",
+   "order": 6,
+   "base": 13333,
    "ek": 4,
    "gemi": "ship_hammerclaw-plus"
   },
@@ -405,9 +405,9 @@
    "tur": "indra",
    "element": "electro",
    "cannonType": 2,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 13333,
+   "quality": "ul",
+   "order": 6,
+   "base": 13333,
    "ek": 4,
    "gemi": "ship_hyperion"
   },
@@ -415,9 +415,9 @@
    "tur": "indra",
    "element": "electro",
    "cannonType": 2,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 13333,
+   "quality": "ul",
+   "order": 6,
+   "base": 13333,
    "ek": 4,
    "gemi": "ship_orcus"
   },
@@ -425,9 +425,9 @@
    "tur": "indra",
    "element": "electro",
    "cannonType": 2,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 13333,
+   "quality": "ul",
+   "order": 6,
+   "base": 13333,
    "ek": 4,
    "gemi": "ship_paladin"
   },
@@ -435,9 +435,9 @@
    "tur": "indra",
    "element": "electro",
    "cannonType": 2,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 13333,
+   "quality": "ul",
+   "order": 6,
+   "base": 13333,
    "ek": 4,
    "gemi": "ship_pusat-plus"
   },
@@ -445,9 +445,9 @@
    "tur": "indra",
    "element": "electro",
    "cannonType": 2,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 13333,
+   "quality": "ul",
+   "order": 6,
+   "base": 13333,
    "ek": 4,
    "gemi": "ship_retiarus-plus"
   },
@@ -455,9 +455,9 @@
    "tur": "indra",
    "element": "electro",
    "cannonType": 2,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 13333,
+   "quality": "ul",
+   "order": 6,
+   "base": 13333,
    "ek": 4,
    "gemi": "ship_solace-plus"
   },
@@ -465,9 +465,9 @@
    "tur": "indra",
    "element": "electro",
    "cannonType": 2,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 13333,
+   "quality": "ul",
+   "order": 6,
+   "base": 13333,
    "ek": 4,
    "gemi": "ship_solaris-plus"
   },
@@ -475,9 +475,9 @@
    "tur": "indra",
    "element": "electro",
    "cannonType": 2,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 13333,
+   "quality": "ul",
+   "order": 6,
+   "base": 13333,
    "ek": 4,
    "gemi": "ship_spearhead-plus"
   },
@@ -485,9 +485,9 @@
    "tur": "indra",
    "element": "electro",
    "cannonType": 2,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 13333,
+   "quality": "ul",
+   "order": 6,
+   "base": 13333,
    "ek": 4,
    "gemi": "ship_spectrum-plus"
   },
@@ -495,9 +495,9 @@
    "tur": "indra",
    "element": "electro",
    "cannonType": 2,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 13333,
+   "quality": "ul",
+   "order": 6,
+   "base": 13333,
    "ek": 4,
    "gemi": "ship_venom"
   },
@@ -505,9 +505,9 @@
    "tur": "nidhogg",
    "element": "corrosive",
    "cannonType": 1,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 32406,
+   "quality": "ul",
+   "order": 6,
+   "base": 32406,
    "ek": 4,
    "gemi": null
   },
@@ -515,9 +515,9 @@
    "tur": "nidhogg",
    "element": "corrosive",
    "cannonType": 1,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 32406,
+   "quality": "ul",
+   "order": 6,
+   "base": 32406,
    "ek": 4,
    "gemi": "ship_citadel-plus"
   },
@@ -525,9 +525,9 @@
    "tur": "nidhogg",
    "element": "corrosive",
    "cannonType": 1,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 32406,
+   "quality": "ul",
+   "order": 6,
+   "base": 32406,
    "ek": 4,
    "gemi": "ship_cyborg"
   },
@@ -535,9 +535,9 @@
    "tur": "nidhogg",
    "element": "corrosive",
    "cannonType": 1,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 32406,
+   "quality": "ul",
+   "order": 6,
+   "base": 32406,
    "ek": 4,
    "gemi": "ship_diminisher"
   },
@@ -545,9 +545,9 @@
    "tur": "nidhogg",
    "element": "corrosive",
    "cannonType": 1,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 32406,
+   "quality": "ul",
+   "order": 6,
+   "base": 32406,
    "ek": 4,
    "gemi": "ship_goliath-plus"
   },
@@ -555,9 +555,9 @@
    "tur": "nidhogg",
    "element": "corrosive",
    "cannonType": 1,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 32406,
+   "quality": "ul",
+   "order": 6,
+   "base": 32406,
    "ek": 4,
    "gemi": "ship_hammerclaw-plus"
   },
@@ -565,9 +565,9 @@
    "tur": "nidhogg",
    "element": "corrosive",
    "cannonType": 1,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 32406,
+   "quality": "ul",
+   "order": 6,
+   "base": 32406,
    "ek": 4,
    "gemi": "ship_hyperion"
   },
@@ -575,9 +575,9 @@
    "tur": "nidhogg",
    "element": "corrosive",
    "cannonType": 1,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 32406,
+   "quality": "ul",
+   "order": 6,
+   "base": 32406,
    "ek": 4,
    "gemi": "ship_orcus"
   },
@@ -585,9 +585,9 @@
    "tur": "nidhogg",
    "element": "corrosive",
    "cannonType": 1,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 32406,
+   "quality": "ul",
+   "order": 6,
+   "base": 32406,
    "ek": 4,
    "gemi": "ship_paladin"
   },
@@ -595,9 +595,9 @@
    "tur": "nidhogg",
    "element": "corrosive",
    "cannonType": 1,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 32406,
+   "quality": "ul",
+   "order": 6,
+   "base": 32406,
    "ek": 4,
    "gemi": "ship_pusat-plus"
   },
@@ -605,9 +605,9 @@
    "tur": "nidhogg",
    "element": "corrosive",
    "cannonType": 1,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 32406,
+   "quality": "ul",
+   "order": 6,
+   "base": 32406,
    "ek": 4,
    "gemi": "ship_retiarus-plus"
   },
@@ -615,9 +615,9 @@
    "tur": "nidhogg",
    "element": "corrosive",
    "cannonType": 1,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 32406,
+   "quality": "ul",
+   "order": 6,
+   "base": 32406,
    "ek": 4,
    "gemi": "ship_solace-plus"
   },
@@ -625,9 +625,9 @@
    "tur": "nidhogg",
    "element": "corrosive",
    "cannonType": 1,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 32406,
+   "quality": "ul",
+   "order": 6,
+   "base": 32406,
    "ek": 4,
    "gemi": "ship_solaris-plus"
   },
@@ -635,9 +635,9 @@
    "tur": "nidhogg",
    "element": "corrosive",
    "cannonType": 1,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 32406,
+   "quality": "ul",
+   "order": 6,
+   "base": 32406,
    "ek": 4,
    "gemi": "ship_spearhead-plus"
   },
@@ -645,9 +645,9 @@
    "tur": "nidhogg",
    "element": "corrosive",
    "cannonType": 1,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 32406,
+   "quality": "ul",
+   "order": 6,
+   "base": 32406,
    "ek": 4,
    "gemi": "ship_spectrum-plus"
   },
@@ -655,27 +655,27 @@
    "tur": "nidhogg",
    "element": "corrosive",
    "cannonType": 1,
-   "kalite": "ul",
-   "sira": 6,
-   "taban": 32406,
+   "quality": "ul",
+   "order": 6,
+   "base": 32406,
    "ek": 4,
    "gemi": "ship_venom"
   }
  },
  "cannon_common": {
   "menzil": 600,
-  "isabet": 0.8,
-  "aralik_sn": 4,
-  "kritik": 0.1,
+  "hit": 0.8,
+  "interval_sec": 4,
+  "crit": 0.1,
   "crit_damage": 0.15,
-  "hasar_araligi": [
+  "damage_range": [
    0.75,
    1.0
   ],
-  "yukseltme_seviye_basi": 0.005,
-  "azami_seviye": 20,
+  "upgrade_per_level": 0.005,
+  "max_level": 20,
   "ship_specific": 1.25,
-  "yildiz": [
+  "star": [
    1.0,
    1.2,
    1.4,
@@ -694,7 +694,7 @@
    "oran": 0.05,
    "multiplier": 5
   },
-  "zincir": {
+  "chain": {
    "hedef": 7,
    "reduction": 0.15,
    "yaricap": 400
@@ -704,109 +704,109 @@
  "breakers": {
   "equipment_cannon_shield_mr-c01": {
    "element": "corrosive",
-   "sira": 0,
+   "order": 0,
    "savunma": 40,
    "ek": 1
   },
   "equipment_cannon_shield_mr-c02": {
    "element": "corrosive",
-   "sira": 1,
+   "order": 1,
    "savunma": 120,
    "ek": 2
   },
   "equipment_cannon_shield_mr-c03": {
    "element": "corrosive",
-   "sira": 2,
+   "order": 2,
    "savunma": 240,
    "ek": 2
   },
   "equipment_cannon_shield_mr-c04": {
    "element": "corrosive",
-   "sira": 3,
+   "order": 3,
    "savunma": 480,
    "ek": 3
   },
   "equipment_cannon_shield_mr-c05": {
    "element": "corrosive",
-   "sira": 4,
+   "order": 4,
    "savunma": 560,
    "ek": 3
   },
   "equipment_cannon_shield_mr-c06": {
    "element": "corrosive",
-   "sira": 5,
+   "order": 5,
    "savunma": 640,
    "ek": 4
   },
   "equipment_cannon_shield_mr-e01": {
    "element": "electro",
-   "sira": 0,
+   "order": 0,
    "savunma": 60,
    "ek": 1
   },
   "equipment_cannon_shield_mr-e02": {
    "element": "electro",
-   "sira": 1,
+   "order": 1,
    "savunma": 80,
    "ek": 2
   },
   "equipment_cannon_shield_mr-e03": {
    "element": "electro",
-   "sira": 2,
+   "order": 2,
    "savunma": 100,
    "ek": 2
   },
   "equipment_cannon_shield_mr-e04": {
    "element": "electro",
-   "sira": 3,
+   "order": 3,
    "savunma": 120,
    "ek": 3
   },
   "equipment_cannon_shield_mr-e05": {
    "element": "electro",
-   "sira": 4,
+   "order": 4,
    "savunma": 140,
    "ek": 3
   },
   "equipment_cannon_shield_mr-e06": {
    "element": "electro",
-   "sira": 5,
+   "order": 5,
    "savunma": 160,
    "ek": 4
   },
   "equipment_cannon_shield_mr-t01": {
    "element": "thermal",
-   "sira": 0,
+   "order": 0,
    "savunma": 40,
    "ek": 1
   },
   "equipment_cannon_shield_mr-t02": {
    "element": "thermal",
-   "sira": 1,
+   "order": 1,
    "savunma": 120,
    "ek": 2
   },
   "equipment_cannon_shield_mr-t03": {
    "element": "thermal",
-   "sira": 2,
+   "order": 2,
    "savunma": 240,
    "ek": 2
   },
   "equipment_cannon_shield_mr-t04": {
    "element": "thermal",
-   "sira": 3,
+   "order": 3,
    "savunma": 480,
    "ek": 3
   },
   "equipment_cannon_shield_mr-t05": {
    "element": "thermal",
-   "sira": 4,
+   "order": 4,
    "savunma": 560,
    "ek": 3
   },
   "equipment_cannon_shield_mr-t06": {
    "element": "thermal",
-   "sira": 5,
+   "order": 5,
    "savunma": 640,
    "ek": 4
   }
@@ -872,27 +872,27 @@
    "ad": "IgniDrive Lite",
    "hasar": 54,
    "azami": 54,
-   "atis": 1
+   "shot": 1
   },
   "equipment_weapon_drive_igd-l02": {
    "ad": "IgniDrive Apex",
    "hasar": 90,
    "azami": 135,
-   "atis": 2
+   "shot": 2
   },
   "equipment_weapon_drive_igd-p": {
    "ad": "IgniDrive Prime",
    "hasar": 150,
    "azami": 225,
-   "atis": 3
+   "shot": 3
   }
  },
  "drive_common": {
   "menzil": 600,
-  "alan": 600,
+  "area": 600,
   "sure_sn": 8,
   "bekleme_sn": 10,
-  "isabet": 0.85,
+  "hit": 0.85,
   "set": [
    [
     3,
@@ -961,7 +961,7 @@
    "savunma": 150
   }
  },
- "nitelikler": {
+ "attributes": {
   "top": {
    "thermal": {
     "cannon_damage_thermal": [
@@ -2634,7 +2634,7 @@
     ]
    }
   },
-  "surucu": {
+  "drive": {
    "_not": "her 5 yükseltme seviyesinde bir rastgele alt nitelik, en çok 4; Horizon Shard ile yenilenir, Containment Node kilitler",
    "drive_honour": [
     1,
@@ -2689,18 +2689,18 @@
     5
    ]
   },
-  "etki": {
+  "effect": {
    "hasar": "top hasarı (aynı element)",
    "npc": "uzaylıya top hasarı",
    "strike": "kritik olasılığı",
    "strike_damage": "kritik hasarı",
-   "hit_chance": "isabet",
+   "hit_chance": "hit",
    "pvp/factions/ignore_def/def_bonus/evasion/strike_anti": "oyunculara karşı (bot oyuncularla)"
   },
   "_uyarlama": "aralıklar kalite sırasıyla doğrusal (C/MR-x01 en düşük, UL/MR-x06 en yüksek); yüzde (penetrasyon tam sayı)"
  },
- "yenileme": {
-  "hak": [
+ "renewal": {
+  "right": [
    5,
    5,
    5,
@@ -2709,7 +2709,7 @@
    5,
    5
   ],
-  "bedel": [
+  "charge": [
    2,
    4,
    6,
@@ -2731,7 +2731,7 @@
   "chip_item": "resource_collectable_optigrad-chip",
   "_kaynak": "https://darkorbitwiki.com/guides/assembly-cannons-and-refractors-restabilize/ (2026-02-27): top 7 kalite, kırıcı MR-01..06 (aynı ilk 6 değer); iade: top SSS'si (geri dönüşümde yükseltme malzemesinin %80'i). Kalite sırasıyla: değiştirme sınırı, değiştirme bedeli (OptiGrad Chip), geri dönüşümün çipi (UL dahil); kırıcıda ilk 6 değer"
  },
- "kilit": {
+ "lock": {
   "seviyeler": [
    5,
    10,
@@ -2739,14 +2739,14 @@
    20
   ],
   "renewal_item": "resource_collectable_horizon-shard",
-  "yenileme": [
+  "renewal": [
    10,
    15,
    20,
    25
   ],
   "lock_item": "resource_collectable_containment-node",
-  "kilit": [
+  "lock": [
    0,
    1,
    2,
@@ -2759,3712 +2759,3712 @@
   "recipes": [
    {
     "grup": "cannon",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ep-nidhogg",
-    "yildiz": 0,
+    "star": 0,
     "gemi": null,
-    "girdi": "equipment_weapon_cannon_r-nidhogg",
+    "input": "equipment_weapon_cannon_r-nidhogg",
     "adet": 5,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 1000
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ma-nidhogg",
-    "yildiz": 0,
+    "star": 0,
     "gemi": null,
-    "girdi": "equipment_weapon_cannon_ep-nidhogg",
+    "input": "equipment_weapon_cannon_ep-nidhogg",
     "adet": 5,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 2000
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_leg-nidhogg",
-    "yildiz": 0,
+    "star": 0,
     "gemi": null,
-    "girdi": "equipment_weapon_cannon_ma-nidhogg",
+    "input": "equipment_weapon_cannon_ma-nidhogg",
     "adet": 5,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 5000
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-citadel-plus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_citadel-plus",
-    "girdi": "equipment_weapon_cannon_leg-nidhogg",
+    "input": "equipment_weapon_cannon_leg-nidhogg",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-nidhogg-citadel-plus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-cyborg",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_cyborg",
-    "girdi": "equipment_weapon_cannon_leg-nidhogg",
+    "input": "equipment_weapon_cannon_leg-nidhogg",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-nidhogg-cyborg": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-diminisher",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_diminisher",
-    "girdi": "equipment_weapon_cannon_leg-nidhogg",
+    "input": "equipment_weapon_cannon_leg-nidhogg",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-nidhogg-diminisher": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-goliath-plus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_goliath-plus",
-    "girdi": "equipment_weapon_cannon_leg-nidhogg",
+    "input": "equipment_weapon_cannon_leg-nidhogg",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-nidhogg-goliath-plus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-hammerclaw-plus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_hammerclaw-plus",
-    "girdi": "equipment_weapon_cannon_leg-nidhogg",
+    "input": "equipment_weapon_cannon_leg-nidhogg",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-nidhogg-hammerclaw-plus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-hyperion",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_hyperion",
-    "girdi": "equipment_weapon_cannon_leg-nidhogg",
+    "input": "equipment_weapon_cannon_leg-nidhogg",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-nidhogg-hyperion": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-orcus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_orcus",
-    "girdi": "equipment_weapon_cannon_leg-nidhogg",
+    "input": "equipment_weapon_cannon_leg-nidhogg",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-nidhogg-orcus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-paladin",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_paladin",
-    "girdi": "equipment_weapon_cannon_leg-nidhogg",
+    "input": "equipment_weapon_cannon_leg-nidhogg",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-nidhogg-paladin": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-pusat-plus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_pusat-plus",
-    "girdi": "equipment_weapon_cannon_leg-nidhogg",
+    "input": "equipment_weapon_cannon_leg-nidhogg",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-nidhogg-pusat-plus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-retiarus-plus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_retiarus-plus",
-    "girdi": "equipment_weapon_cannon_leg-nidhogg",
+    "input": "equipment_weapon_cannon_leg-nidhogg",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-nidhogg-retiarus-plus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-solace-plus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_solace-plus",
-    "girdi": "equipment_weapon_cannon_leg-nidhogg",
+    "input": "equipment_weapon_cannon_leg-nidhogg",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-nidhogg-solace-plus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-solaris-plus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_solaris-plus",
-    "girdi": "equipment_weapon_cannon_leg-nidhogg",
+    "input": "equipment_weapon_cannon_leg-nidhogg",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-nidhogg-solaris-plus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-spearhead-plus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_spearhead-plus",
-    "girdi": "equipment_weapon_cannon_leg-nidhogg",
+    "input": "equipment_weapon_cannon_leg-nidhogg",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-nidhogg-spearhead-plus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-spectrum-plus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_spectrum-plus",
-    "girdi": "equipment_weapon_cannon_leg-nidhogg",
+    "input": "equipment_weapon_cannon_leg-nidhogg",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-nidhogg-spectrum-plus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-venom",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_venom",
-    "girdi": "equipment_weapon_cannon_leg-nidhogg",
+    "input": "equipment_weapon_cannon_leg-nidhogg",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-nidhogg-venom": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ep-helios",
-    "yildiz": 0,
+    "star": 0,
     "gemi": null,
-    "girdi": "equipment_weapon_cannon_r-helios",
+    "input": "equipment_weapon_cannon_r-helios",
     "adet": 5,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 1000
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ma-helios",
-    "yildiz": 0,
+    "star": 0,
     "gemi": null,
-    "girdi": "equipment_weapon_cannon_ep-helios",
+    "input": "equipment_weapon_cannon_ep-helios",
     "adet": 5,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 2000
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_leg-helios",
-    "yildiz": 0,
+    "star": 0,
     "gemi": null,
-    "girdi": "equipment_weapon_cannon_ma-helios",
+    "input": "equipment_weapon_cannon_ma-helios",
     "adet": 5,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 5000
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-citadel-plus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_citadel-plus",
-    "girdi": "equipment_weapon_cannon_leg-helios",
+    "input": "equipment_weapon_cannon_leg-helios",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-helios-citadel-plus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-cyborg",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_cyborg",
-    "girdi": "equipment_weapon_cannon_leg-helios",
+    "input": "equipment_weapon_cannon_leg-helios",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-helios-cyborg": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-diminisher",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_diminisher",
-    "girdi": "equipment_weapon_cannon_leg-helios",
+    "input": "equipment_weapon_cannon_leg-helios",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-helios-diminisher": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-goliath-plus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_goliath-plus",
-    "girdi": "equipment_weapon_cannon_leg-helios",
+    "input": "equipment_weapon_cannon_leg-helios",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-helios-goliath-plus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-hammerclaw-plus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_hammerclaw-plus",
-    "girdi": "equipment_weapon_cannon_leg-helios",
+    "input": "equipment_weapon_cannon_leg-helios",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-helios-hammerclaw-plus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-hyperion",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_hyperion",
-    "girdi": "equipment_weapon_cannon_leg-helios",
+    "input": "equipment_weapon_cannon_leg-helios",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-helios-hyperion": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-orcus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_orcus",
-    "girdi": "equipment_weapon_cannon_leg-helios",
+    "input": "equipment_weapon_cannon_leg-helios",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-helios-orcus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-paladin",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_paladin",
-    "girdi": "equipment_weapon_cannon_leg-helios",
+    "input": "equipment_weapon_cannon_leg-helios",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-helios-paladin": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-pusat-plus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_pusat-plus",
-    "girdi": "equipment_weapon_cannon_leg-helios",
+    "input": "equipment_weapon_cannon_leg-helios",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-helios-pusat-plus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-retiarus-plus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_retiarus-plus",
-    "girdi": "equipment_weapon_cannon_leg-helios",
+    "input": "equipment_weapon_cannon_leg-helios",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-helios-retiarus-plus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-solace-plus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_solace-plus",
-    "girdi": "equipment_weapon_cannon_leg-helios",
+    "input": "equipment_weapon_cannon_leg-helios",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-helios-solace-plus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-solaris-plus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_solaris-plus",
-    "girdi": "equipment_weapon_cannon_leg-helios",
+    "input": "equipment_weapon_cannon_leg-helios",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-helios-solaris-plus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-spearhead-plus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_spearhead-plus",
-    "girdi": "equipment_weapon_cannon_leg-helios",
+    "input": "equipment_weapon_cannon_leg-helios",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-helios-spearhead-plus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-spectrum-plus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_spectrum-plus",
-    "girdi": "equipment_weapon_cannon_leg-helios",
+    "input": "equipment_weapon_cannon_leg-helios",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-helios-spectrum-plus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-venom",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_venom",
-    "girdi": "equipment_weapon_cannon_leg-helios",
+    "input": "equipment_weapon_cannon_leg-helios",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-helios-venom": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ep-indra",
-    "yildiz": 0,
+    "star": 0,
     "gemi": null,
-    "girdi": "equipment_weapon_cannon_r-indra",
+    "input": "equipment_weapon_cannon_r-indra",
     "adet": 5,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 1000
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ma-indra",
-    "yildiz": 0,
+    "star": 0,
     "gemi": null,
-    "girdi": "equipment_weapon_cannon_ep-indra",
+    "input": "equipment_weapon_cannon_ep-indra",
     "adet": 5,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 2000
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_leg-indra",
-    "yildiz": 0,
+    "star": 0,
     "gemi": null,
-    "girdi": "equipment_weapon_cannon_ma-indra",
+    "input": "equipment_weapon_cannon_ma-indra",
     "adet": 5,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 5000
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-citadel-plus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_citadel-plus",
-    "girdi": "equipment_weapon_cannon_leg-indra",
+    "input": "equipment_weapon_cannon_leg-indra",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-indra-citadel-plus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-cyborg",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_cyborg",
-    "girdi": "equipment_weapon_cannon_leg-indra",
+    "input": "equipment_weapon_cannon_leg-indra",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-indra-cyborg": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-diminisher",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_diminisher",
-    "girdi": "equipment_weapon_cannon_leg-indra",
+    "input": "equipment_weapon_cannon_leg-indra",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-indra-diminisher": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-goliath-plus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_goliath-plus",
-    "girdi": "equipment_weapon_cannon_leg-indra",
+    "input": "equipment_weapon_cannon_leg-indra",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-indra-goliath-plus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-hammerclaw-plus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_hammerclaw-plus",
-    "girdi": "equipment_weapon_cannon_leg-indra",
+    "input": "equipment_weapon_cannon_leg-indra",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-indra-hammerclaw-plus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-hyperion",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_hyperion",
-    "girdi": "equipment_weapon_cannon_leg-indra",
+    "input": "equipment_weapon_cannon_leg-indra",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-indra-hyperion": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-orcus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_orcus",
-    "girdi": "equipment_weapon_cannon_leg-indra",
+    "input": "equipment_weapon_cannon_leg-indra",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-indra-orcus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-paladin",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_paladin",
-    "girdi": "equipment_weapon_cannon_leg-indra",
+    "input": "equipment_weapon_cannon_leg-indra",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-indra-paladin": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-pusat-plus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_pusat-plus",
-    "girdi": "equipment_weapon_cannon_leg-indra",
+    "input": "equipment_weapon_cannon_leg-indra",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-indra-pusat-plus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-retiarus-plus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_retiarus-plus",
-    "girdi": "equipment_weapon_cannon_leg-indra",
+    "input": "equipment_weapon_cannon_leg-indra",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-indra-retiarus-plus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-solace-plus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_solace-plus",
-    "girdi": "equipment_weapon_cannon_leg-indra",
+    "input": "equipment_weapon_cannon_leg-indra",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-indra-solace-plus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-solaris-plus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_solaris-plus",
-    "girdi": "equipment_weapon_cannon_leg-indra",
+    "input": "equipment_weapon_cannon_leg-indra",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-indra-solaris-plus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-spearhead-plus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_spearhead-plus",
-    "girdi": "equipment_weapon_cannon_leg-indra",
+    "input": "equipment_weapon_cannon_leg-indra",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-indra-spearhead-plus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-spectrum-plus",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_spectrum-plus",
-    "girdi": "equipment_weapon_cannon_leg-indra",
+    "input": "equipment_weapon_cannon_leg-indra",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-indra-spectrum-plus": 1
     }
    },
    {
     "grup": "cannon",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-venom",
-    "yildiz": 0,
+    "star": 0,
     "gemi": "ship_venom",
-    "girdi": "equipment_weapon_cannon_leg-indra",
+    "input": "equipment_weapon_cannon_leg-indra",
     "adet": 4,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000,
      "resource_collectable_energy-indra-venom": 1
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-citadel-plus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_citadel-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-citadel-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-citadel-plus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-citadel-plus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_citadel-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-citadel-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-citadel-plus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-citadel-plus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_citadel-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-citadel-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-citadel-plus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-citadel-plus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_citadel-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-citadel-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-citadel-plus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-citadel-plus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_citadel-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-citadel-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-citadel-plus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-cyborg",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_cyborg",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-cyborg",
+    "input": "equipment_weapon_cannon_ul-nidhogg-cyborg",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-cyborg",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_cyborg",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-cyborg",
+    "input": "equipment_weapon_cannon_ul-nidhogg-cyborg",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-cyborg",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_cyborg",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-cyborg",
+    "input": "equipment_weapon_cannon_ul-nidhogg-cyborg",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-cyborg",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_cyborg",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-cyborg",
+    "input": "equipment_weapon_cannon_ul-nidhogg-cyborg",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-cyborg",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_cyborg",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-cyborg",
+    "input": "equipment_weapon_cannon_ul-nidhogg-cyborg",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-diminisher",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_diminisher",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-diminisher",
+    "input": "equipment_weapon_cannon_ul-nidhogg-diminisher",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-diminisher",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_diminisher",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-diminisher",
+    "input": "equipment_weapon_cannon_ul-nidhogg-diminisher",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-diminisher",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_diminisher",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-diminisher",
+    "input": "equipment_weapon_cannon_ul-nidhogg-diminisher",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-diminisher",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_diminisher",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-diminisher",
+    "input": "equipment_weapon_cannon_ul-nidhogg-diminisher",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-diminisher",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_diminisher",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-diminisher",
+    "input": "equipment_weapon_cannon_ul-nidhogg-diminisher",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-goliath-plus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_goliath-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-goliath-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-goliath-plus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-goliath-plus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_goliath-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-goliath-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-goliath-plus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-goliath-plus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_goliath-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-goliath-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-goliath-plus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-goliath-plus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_goliath-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-goliath-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-goliath-plus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-goliath-plus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_goliath-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-goliath-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-goliath-plus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-hammerclaw-plus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_hammerclaw-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-hammerclaw-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-hammerclaw-plus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-hammerclaw-plus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_hammerclaw-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-hammerclaw-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-hammerclaw-plus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-hammerclaw-plus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_hammerclaw-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-hammerclaw-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-hammerclaw-plus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-hammerclaw-plus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_hammerclaw-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-hammerclaw-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-hammerclaw-plus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-hammerclaw-plus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_hammerclaw-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-hammerclaw-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-hammerclaw-plus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-hyperion",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_hyperion",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-hyperion",
+    "input": "equipment_weapon_cannon_ul-nidhogg-hyperion",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-hyperion",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_hyperion",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-hyperion",
+    "input": "equipment_weapon_cannon_ul-nidhogg-hyperion",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-hyperion",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_hyperion",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-hyperion",
+    "input": "equipment_weapon_cannon_ul-nidhogg-hyperion",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-hyperion",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_hyperion",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-hyperion",
+    "input": "equipment_weapon_cannon_ul-nidhogg-hyperion",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-hyperion",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_hyperion",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-hyperion",
+    "input": "equipment_weapon_cannon_ul-nidhogg-hyperion",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-orcus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_orcus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-orcus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-orcus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-orcus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_orcus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-orcus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-orcus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-orcus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_orcus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-orcus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-orcus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-orcus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_orcus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-orcus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-orcus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-orcus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_orcus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-orcus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-orcus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-paladin",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_paladin",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-paladin",
+    "input": "equipment_weapon_cannon_ul-nidhogg-paladin",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-paladin",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_paladin",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-paladin",
+    "input": "equipment_weapon_cannon_ul-nidhogg-paladin",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-paladin",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_paladin",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-paladin",
+    "input": "equipment_weapon_cannon_ul-nidhogg-paladin",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-paladin",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_paladin",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-paladin",
+    "input": "equipment_weapon_cannon_ul-nidhogg-paladin",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-paladin",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_paladin",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-paladin",
+    "input": "equipment_weapon_cannon_ul-nidhogg-paladin",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-pusat-plus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_pusat-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-pusat-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-pusat-plus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-pusat-plus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_pusat-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-pusat-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-pusat-plus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-pusat-plus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_pusat-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-pusat-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-pusat-plus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-pusat-plus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_pusat-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-pusat-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-pusat-plus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-pusat-plus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_pusat-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-pusat-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-pusat-plus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-retiarus-plus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_retiarus-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-retiarus-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-retiarus-plus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-retiarus-plus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_retiarus-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-retiarus-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-retiarus-plus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-retiarus-plus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_retiarus-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-retiarus-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-retiarus-plus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-retiarus-plus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_retiarus-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-retiarus-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-retiarus-plus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-retiarus-plus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_retiarus-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-retiarus-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-retiarus-plus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-solace-plus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_solace-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-solace-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-solace-plus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-solace-plus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_solace-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-solace-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-solace-plus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-solace-plus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_solace-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-solace-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-solace-plus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-solace-plus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_solace-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-solace-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-solace-plus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-solace-plus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_solace-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-solace-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-solace-plus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-solaris-plus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_solaris-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-solaris-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-solaris-plus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-solaris-plus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_solaris-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-solaris-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-solaris-plus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-solaris-plus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_solaris-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-solaris-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-solaris-plus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-solaris-plus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_solaris-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-solaris-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-solaris-plus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-solaris-plus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_solaris-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-solaris-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-solaris-plus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-spearhead-plus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_spearhead-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-spearhead-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-spearhead-plus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-spearhead-plus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_spearhead-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-spearhead-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-spearhead-plus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-spearhead-plus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_spearhead-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-spearhead-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-spearhead-plus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-spearhead-plus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_spearhead-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-spearhead-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-spearhead-plus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-spearhead-plus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_spearhead-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-spearhead-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-spearhead-plus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-spectrum-plus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_spectrum-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-spectrum-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-spectrum-plus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-spectrum-plus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_spectrum-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-spectrum-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-spectrum-plus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-spectrum-plus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_spectrum-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-spectrum-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-spectrum-plus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-spectrum-plus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_spectrum-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-spectrum-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-spectrum-plus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-spectrum-plus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_spectrum-plus",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-spectrum-plus",
+    "input": "equipment_weapon_cannon_ul-nidhogg-spectrum-plus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-venom",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_venom",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-venom",
+    "input": "equipment_weapon_cannon_ul-nidhogg-venom",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-venom",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_venom",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-venom",
+    "input": "equipment_weapon_cannon_ul-nidhogg-venom",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-venom",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_venom",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-venom",
+    "input": "equipment_weapon_cannon_ul-nidhogg-venom",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-venom",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_venom",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-venom",
+    "input": "equipment_weapon_cannon_ul-nidhogg-venom",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_1",
+    "table": "table_1",
     "hedef": "equipment_weapon_cannon_ul-nidhogg-venom",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_venom",
-    "girdi": "equipment_weapon_cannon_ul-nidhogg-venom",
+    "input": "equipment_weapon_cannon_ul-nidhogg-venom",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-citadel-plus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_citadel-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-citadel-plus",
+    "input": "equipment_weapon_cannon_ul-helios-citadel-plus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-citadel-plus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_citadel-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-citadel-plus",
+    "input": "equipment_weapon_cannon_ul-helios-citadel-plus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-citadel-plus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_citadel-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-citadel-plus",
+    "input": "equipment_weapon_cannon_ul-helios-citadel-plus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-citadel-plus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_citadel-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-citadel-plus",
+    "input": "equipment_weapon_cannon_ul-helios-citadel-plus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-citadel-plus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_citadel-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-citadel-plus",
+    "input": "equipment_weapon_cannon_ul-helios-citadel-plus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-cyborg",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_cyborg",
-    "girdi": "equipment_weapon_cannon_ul-helios-cyborg",
+    "input": "equipment_weapon_cannon_ul-helios-cyborg",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-cyborg",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_cyborg",
-    "girdi": "equipment_weapon_cannon_ul-helios-cyborg",
+    "input": "equipment_weapon_cannon_ul-helios-cyborg",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-cyborg",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_cyborg",
-    "girdi": "equipment_weapon_cannon_ul-helios-cyborg",
+    "input": "equipment_weapon_cannon_ul-helios-cyborg",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-cyborg",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_cyborg",
-    "girdi": "equipment_weapon_cannon_ul-helios-cyborg",
+    "input": "equipment_weapon_cannon_ul-helios-cyborg",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-cyborg",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_cyborg",
-    "girdi": "equipment_weapon_cannon_ul-helios-cyborg",
+    "input": "equipment_weapon_cannon_ul-helios-cyborg",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-diminisher",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_diminisher",
-    "girdi": "equipment_weapon_cannon_ul-helios-diminisher",
+    "input": "equipment_weapon_cannon_ul-helios-diminisher",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-diminisher",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_diminisher",
-    "girdi": "equipment_weapon_cannon_ul-helios-diminisher",
+    "input": "equipment_weapon_cannon_ul-helios-diminisher",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-diminisher",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_diminisher",
-    "girdi": "equipment_weapon_cannon_ul-helios-diminisher",
+    "input": "equipment_weapon_cannon_ul-helios-diminisher",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-diminisher",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_diminisher",
-    "girdi": "equipment_weapon_cannon_ul-helios-diminisher",
+    "input": "equipment_weapon_cannon_ul-helios-diminisher",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-diminisher",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_diminisher",
-    "girdi": "equipment_weapon_cannon_ul-helios-diminisher",
+    "input": "equipment_weapon_cannon_ul-helios-diminisher",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-goliath-plus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_goliath-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-goliath-plus",
+    "input": "equipment_weapon_cannon_ul-helios-goliath-plus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-goliath-plus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_goliath-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-goliath-plus",
+    "input": "equipment_weapon_cannon_ul-helios-goliath-plus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-goliath-plus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_goliath-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-goliath-plus",
+    "input": "equipment_weapon_cannon_ul-helios-goliath-plus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-goliath-plus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_goliath-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-goliath-plus",
+    "input": "equipment_weapon_cannon_ul-helios-goliath-plus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-goliath-plus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_goliath-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-goliath-plus",
+    "input": "equipment_weapon_cannon_ul-helios-goliath-plus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-hammerclaw-plus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_hammerclaw-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-hammerclaw-plus",
+    "input": "equipment_weapon_cannon_ul-helios-hammerclaw-plus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-hammerclaw-plus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_hammerclaw-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-hammerclaw-plus",
+    "input": "equipment_weapon_cannon_ul-helios-hammerclaw-plus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-hammerclaw-plus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_hammerclaw-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-hammerclaw-plus",
+    "input": "equipment_weapon_cannon_ul-helios-hammerclaw-plus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-hammerclaw-plus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_hammerclaw-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-hammerclaw-plus",
+    "input": "equipment_weapon_cannon_ul-helios-hammerclaw-plus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-hammerclaw-plus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_hammerclaw-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-hammerclaw-plus",
+    "input": "equipment_weapon_cannon_ul-helios-hammerclaw-plus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-hyperion",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_hyperion",
-    "girdi": "equipment_weapon_cannon_ul-helios-hyperion",
+    "input": "equipment_weapon_cannon_ul-helios-hyperion",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-hyperion",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_hyperion",
-    "girdi": "equipment_weapon_cannon_ul-helios-hyperion",
+    "input": "equipment_weapon_cannon_ul-helios-hyperion",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-hyperion",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_hyperion",
-    "girdi": "equipment_weapon_cannon_ul-helios-hyperion",
+    "input": "equipment_weapon_cannon_ul-helios-hyperion",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-hyperion",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_hyperion",
-    "girdi": "equipment_weapon_cannon_ul-helios-hyperion",
+    "input": "equipment_weapon_cannon_ul-helios-hyperion",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-hyperion",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_hyperion",
-    "girdi": "equipment_weapon_cannon_ul-helios-hyperion",
+    "input": "equipment_weapon_cannon_ul-helios-hyperion",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-orcus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_orcus",
-    "girdi": "equipment_weapon_cannon_ul-helios-orcus",
+    "input": "equipment_weapon_cannon_ul-helios-orcus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-orcus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_orcus",
-    "girdi": "equipment_weapon_cannon_ul-helios-orcus",
+    "input": "equipment_weapon_cannon_ul-helios-orcus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-orcus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_orcus",
-    "girdi": "equipment_weapon_cannon_ul-helios-orcus",
+    "input": "equipment_weapon_cannon_ul-helios-orcus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-orcus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_orcus",
-    "girdi": "equipment_weapon_cannon_ul-helios-orcus",
+    "input": "equipment_weapon_cannon_ul-helios-orcus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-orcus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_orcus",
-    "girdi": "equipment_weapon_cannon_ul-helios-orcus",
+    "input": "equipment_weapon_cannon_ul-helios-orcus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-paladin",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_paladin",
-    "girdi": "equipment_weapon_cannon_ul-helios-paladin",
+    "input": "equipment_weapon_cannon_ul-helios-paladin",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-paladin",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_paladin",
-    "girdi": "equipment_weapon_cannon_ul-helios-paladin",
+    "input": "equipment_weapon_cannon_ul-helios-paladin",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-paladin",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_paladin",
-    "girdi": "equipment_weapon_cannon_ul-helios-paladin",
+    "input": "equipment_weapon_cannon_ul-helios-paladin",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-paladin",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_paladin",
-    "girdi": "equipment_weapon_cannon_ul-helios-paladin",
+    "input": "equipment_weapon_cannon_ul-helios-paladin",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-paladin",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_paladin",
-    "girdi": "equipment_weapon_cannon_ul-helios-paladin",
+    "input": "equipment_weapon_cannon_ul-helios-paladin",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-pusat-plus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_pusat-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-pusat-plus",
+    "input": "equipment_weapon_cannon_ul-helios-pusat-plus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-pusat-plus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_pusat-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-pusat-plus",
+    "input": "equipment_weapon_cannon_ul-helios-pusat-plus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-pusat-plus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_pusat-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-pusat-plus",
+    "input": "equipment_weapon_cannon_ul-helios-pusat-plus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-pusat-plus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_pusat-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-pusat-plus",
+    "input": "equipment_weapon_cannon_ul-helios-pusat-plus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-pusat-plus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_pusat-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-pusat-plus",
+    "input": "equipment_weapon_cannon_ul-helios-pusat-plus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-retiarus-plus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_retiarus-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-retiarus-plus",
+    "input": "equipment_weapon_cannon_ul-helios-retiarus-plus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-retiarus-plus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_retiarus-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-retiarus-plus",
+    "input": "equipment_weapon_cannon_ul-helios-retiarus-plus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-retiarus-plus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_retiarus-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-retiarus-plus",
+    "input": "equipment_weapon_cannon_ul-helios-retiarus-plus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-retiarus-plus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_retiarus-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-retiarus-plus",
+    "input": "equipment_weapon_cannon_ul-helios-retiarus-plus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-retiarus-plus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_retiarus-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-retiarus-plus",
+    "input": "equipment_weapon_cannon_ul-helios-retiarus-plus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-solace-plus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_solace-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-solace-plus",
+    "input": "equipment_weapon_cannon_ul-helios-solace-plus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-solace-plus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_solace-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-solace-plus",
+    "input": "equipment_weapon_cannon_ul-helios-solace-plus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-solace-plus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_solace-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-solace-plus",
+    "input": "equipment_weapon_cannon_ul-helios-solace-plus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-solace-plus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_solace-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-solace-plus",
+    "input": "equipment_weapon_cannon_ul-helios-solace-plus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-solace-plus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_solace-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-solace-plus",
+    "input": "equipment_weapon_cannon_ul-helios-solace-plus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-solaris-plus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_solaris-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-solaris-plus",
+    "input": "equipment_weapon_cannon_ul-helios-solaris-plus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-solaris-plus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_solaris-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-solaris-plus",
+    "input": "equipment_weapon_cannon_ul-helios-solaris-plus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-solaris-plus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_solaris-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-solaris-plus",
+    "input": "equipment_weapon_cannon_ul-helios-solaris-plus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-solaris-plus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_solaris-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-solaris-plus",
+    "input": "equipment_weapon_cannon_ul-helios-solaris-plus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-solaris-plus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_solaris-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-solaris-plus",
+    "input": "equipment_weapon_cannon_ul-helios-solaris-plus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-spearhead-plus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_spearhead-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-spearhead-plus",
+    "input": "equipment_weapon_cannon_ul-helios-spearhead-plus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-spearhead-plus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_spearhead-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-spearhead-plus",
+    "input": "equipment_weapon_cannon_ul-helios-spearhead-plus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-spearhead-plus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_spearhead-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-spearhead-plus",
+    "input": "equipment_weapon_cannon_ul-helios-spearhead-plus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-spearhead-plus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_spearhead-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-spearhead-plus",
+    "input": "equipment_weapon_cannon_ul-helios-spearhead-plus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-spearhead-plus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_spearhead-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-spearhead-plus",
+    "input": "equipment_weapon_cannon_ul-helios-spearhead-plus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-spectrum-plus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_spectrum-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-spectrum-plus",
+    "input": "equipment_weapon_cannon_ul-helios-spectrum-plus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-spectrum-plus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_spectrum-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-spectrum-plus",
+    "input": "equipment_weapon_cannon_ul-helios-spectrum-plus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-spectrum-plus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_spectrum-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-spectrum-plus",
+    "input": "equipment_weapon_cannon_ul-helios-spectrum-plus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-spectrum-plus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_spectrum-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-spectrum-plus",
+    "input": "equipment_weapon_cannon_ul-helios-spectrum-plus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-spectrum-plus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_spectrum-plus",
-    "girdi": "equipment_weapon_cannon_ul-helios-spectrum-plus",
+    "input": "equipment_weapon_cannon_ul-helios-spectrum-plus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-venom",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_venom",
-    "girdi": "equipment_weapon_cannon_ul-helios-venom",
+    "input": "equipment_weapon_cannon_ul-helios-venom",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-venom",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_venom",
-    "girdi": "equipment_weapon_cannon_ul-helios-venom",
+    "input": "equipment_weapon_cannon_ul-helios-venom",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-venom",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_venom",
-    "girdi": "equipment_weapon_cannon_ul-helios-venom",
+    "input": "equipment_weapon_cannon_ul-helios-venom",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-venom",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_venom",
-    "girdi": "equipment_weapon_cannon_ul-helios-venom",
+    "input": "equipment_weapon_cannon_ul-helios-venom",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_2",
+    "table": "table_2",
     "hedef": "equipment_weapon_cannon_ul-helios-venom",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_venom",
-    "girdi": "equipment_weapon_cannon_ul-helios-venom",
+    "input": "equipment_weapon_cannon_ul-helios-venom",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-citadel-plus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_citadel-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-citadel-plus",
+    "input": "equipment_weapon_cannon_ul-indra-citadel-plus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-citadel-plus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_citadel-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-citadel-plus",
+    "input": "equipment_weapon_cannon_ul-indra-citadel-plus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-citadel-plus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_citadel-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-citadel-plus",
+    "input": "equipment_weapon_cannon_ul-indra-citadel-plus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-citadel-plus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_citadel-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-citadel-plus",
+    "input": "equipment_weapon_cannon_ul-indra-citadel-plus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-citadel-plus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_citadel-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-citadel-plus",
+    "input": "equipment_weapon_cannon_ul-indra-citadel-plus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-cyborg",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_cyborg",
-    "girdi": "equipment_weapon_cannon_ul-indra-cyborg",
+    "input": "equipment_weapon_cannon_ul-indra-cyborg",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-cyborg",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_cyborg",
-    "girdi": "equipment_weapon_cannon_ul-indra-cyborg",
+    "input": "equipment_weapon_cannon_ul-indra-cyborg",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-cyborg",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_cyborg",
-    "girdi": "equipment_weapon_cannon_ul-indra-cyborg",
+    "input": "equipment_weapon_cannon_ul-indra-cyborg",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-cyborg",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_cyborg",
-    "girdi": "equipment_weapon_cannon_ul-indra-cyborg",
+    "input": "equipment_weapon_cannon_ul-indra-cyborg",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-cyborg",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_cyborg",
-    "girdi": "equipment_weapon_cannon_ul-indra-cyborg",
+    "input": "equipment_weapon_cannon_ul-indra-cyborg",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-diminisher",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_diminisher",
-    "girdi": "equipment_weapon_cannon_ul-indra-diminisher",
+    "input": "equipment_weapon_cannon_ul-indra-diminisher",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-diminisher",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_diminisher",
-    "girdi": "equipment_weapon_cannon_ul-indra-diminisher",
+    "input": "equipment_weapon_cannon_ul-indra-diminisher",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-diminisher",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_diminisher",
-    "girdi": "equipment_weapon_cannon_ul-indra-diminisher",
+    "input": "equipment_weapon_cannon_ul-indra-diminisher",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-diminisher",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_diminisher",
-    "girdi": "equipment_weapon_cannon_ul-indra-diminisher",
+    "input": "equipment_weapon_cannon_ul-indra-diminisher",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-diminisher",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_diminisher",
-    "girdi": "equipment_weapon_cannon_ul-indra-diminisher",
+    "input": "equipment_weapon_cannon_ul-indra-diminisher",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-goliath-plus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_goliath-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-goliath-plus",
+    "input": "equipment_weapon_cannon_ul-indra-goliath-plus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-goliath-plus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_goliath-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-goliath-plus",
+    "input": "equipment_weapon_cannon_ul-indra-goliath-plus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-goliath-plus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_goliath-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-goliath-plus",
+    "input": "equipment_weapon_cannon_ul-indra-goliath-plus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-goliath-plus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_goliath-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-goliath-plus",
+    "input": "equipment_weapon_cannon_ul-indra-goliath-plus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-goliath-plus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_goliath-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-goliath-plus",
+    "input": "equipment_weapon_cannon_ul-indra-goliath-plus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-hammerclaw-plus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_hammerclaw-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-hammerclaw-plus",
+    "input": "equipment_weapon_cannon_ul-indra-hammerclaw-plus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-hammerclaw-plus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_hammerclaw-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-hammerclaw-plus",
+    "input": "equipment_weapon_cannon_ul-indra-hammerclaw-plus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-hammerclaw-plus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_hammerclaw-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-hammerclaw-plus",
+    "input": "equipment_weapon_cannon_ul-indra-hammerclaw-plus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-hammerclaw-plus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_hammerclaw-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-hammerclaw-plus",
+    "input": "equipment_weapon_cannon_ul-indra-hammerclaw-plus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-hammerclaw-plus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_hammerclaw-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-hammerclaw-plus",
+    "input": "equipment_weapon_cannon_ul-indra-hammerclaw-plus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-hyperion",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_hyperion",
-    "girdi": "equipment_weapon_cannon_ul-indra-hyperion",
+    "input": "equipment_weapon_cannon_ul-indra-hyperion",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-hyperion",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_hyperion",
-    "girdi": "equipment_weapon_cannon_ul-indra-hyperion",
+    "input": "equipment_weapon_cannon_ul-indra-hyperion",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-hyperion",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_hyperion",
-    "girdi": "equipment_weapon_cannon_ul-indra-hyperion",
+    "input": "equipment_weapon_cannon_ul-indra-hyperion",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-hyperion",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_hyperion",
-    "girdi": "equipment_weapon_cannon_ul-indra-hyperion",
+    "input": "equipment_weapon_cannon_ul-indra-hyperion",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-hyperion",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_hyperion",
-    "girdi": "equipment_weapon_cannon_ul-indra-hyperion",
+    "input": "equipment_weapon_cannon_ul-indra-hyperion",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-orcus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_orcus",
-    "girdi": "equipment_weapon_cannon_ul-indra-orcus",
+    "input": "equipment_weapon_cannon_ul-indra-orcus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-orcus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_orcus",
-    "girdi": "equipment_weapon_cannon_ul-indra-orcus",
+    "input": "equipment_weapon_cannon_ul-indra-orcus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-orcus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_orcus",
-    "girdi": "equipment_weapon_cannon_ul-indra-orcus",
+    "input": "equipment_weapon_cannon_ul-indra-orcus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-orcus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_orcus",
-    "girdi": "equipment_weapon_cannon_ul-indra-orcus",
+    "input": "equipment_weapon_cannon_ul-indra-orcus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-orcus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_orcus",
-    "girdi": "equipment_weapon_cannon_ul-indra-orcus",
+    "input": "equipment_weapon_cannon_ul-indra-orcus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-paladin",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_paladin",
-    "girdi": "equipment_weapon_cannon_ul-indra-paladin",
+    "input": "equipment_weapon_cannon_ul-indra-paladin",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-paladin",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_paladin",
-    "girdi": "equipment_weapon_cannon_ul-indra-paladin",
+    "input": "equipment_weapon_cannon_ul-indra-paladin",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-paladin",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_paladin",
-    "girdi": "equipment_weapon_cannon_ul-indra-paladin",
+    "input": "equipment_weapon_cannon_ul-indra-paladin",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-paladin",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_paladin",
-    "girdi": "equipment_weapon_cannon_ul-indra-paladin",
+    "input": "equipment_weapon_cannon_ul-indra-paladin",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-paladin",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_paladin",
-    "girdi": "equipment_weapon_cannon_ul-indra-paladin",
+    "input": "equipment_weapon_cannon_ul-indra-paladin",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-pusat-plus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_pusat-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-pusat-plus",
+    "input": "equipment_weapon_cannon_ul-indra-pusat-plus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-pusat-plus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_pusat-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-pusat-plus",
+    "input": "equipment_weapon_cannon_ul-indra-pusat-plus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-pusat-plus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_pusat-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-pusat-plus",
+    "input": "equipment_weapon_cannon_ul-indra-pusat-plus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-pusat-plus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_pusat-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-pusat-plus",
+    "input": "equipment_weapon_cannon_ul-indra-pusat-plus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-pusat-plus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_pusat-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-pusat-plus",
+    "input": "equipment_weapon_cannon_ul-indra-pusat-plus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-retiarus-plus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_retiarus-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-retiarus-plus",
+    "input": "equipment_weapon_cannon_ul-indra-retiarus-plus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-retiarus-plus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_retiarus-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-retiarus-plus",
+    "input": "equipment_weapon_cannon_ul-indra-retiarus-plus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-retiarus-plus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_retiarus-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-retiarus-plus",
+    "input": "equipment_weapon_cannon_ul-indra-retiarus-plus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-retiarus-plus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_retiarus-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-retiarus-plus",
+    "input": "equipment_weapon_cannon_ul-indra-retiarus-plus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-retiarus-plus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_retiarus-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-retiarus-plus",
+    "input": "equipment_weapon_cannon_ul-indra-retiarus-plus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-solace-plus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_solace-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-solace-plus",
+    "input": "equipment_weapon_cannon_ul-indra-solace-plus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-solace-plus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_solace-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-solace-plus",
+    "input": "equipment_weapon_cannon_ul-indra-solace-plus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-solace-plus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_solace-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-solace-plus",
+    "input": "equipment_weapon_cannon_ul-indra-solace-plus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-solace-plus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_solace-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-solace-plus",
+    "input": "equipment_weapon_cannon_ul-indra-solace-plus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-solace-plus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_solace-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-solace-plus",
+    "input": "equipment_weapon_cannon_ul-indra-solace-plus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-solaris-plus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_solaris-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-solaris-plus",
+    "input": "equipment_weapon_cannon_ul-indra-solaris-plus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-solaris-plus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_solaris-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-solaris-plus",
+    "input": "equipment_weapon_cannon_ul-indra-solaris-plus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-solaris-plus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_solaris-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-solaris-plus",
+    "input": "equipment_weapon_cannon_ul-indra-solaris-plus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-solaris-plus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_solaris-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-solaris-plus",
+    "input": "equipment_weapon_cannon_ul-indra-solaris-plus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-solaris-plus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_solaris-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-solaris-plus",
+    "input": "equipment_weapon_cannon_ul-indra-solaris-plus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-spearhead-plus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_spearhead-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-spearhead-plus",
+    "input": "equipment_weapon_cannon_ul-indra-spearhead-plus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-spearhead-plus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_spearhead-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-spearhead-plus",
+    "input": "equipment_weapon_cannon_ul-indra-spearhead-plus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-spearhead-plus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_spearhead-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-spearhead-plus",
+    "input": "equipment_weapon_cannon_ul-indra-spearhead-plus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-spearhead-plus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_spearhead-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-spearhead-plus",
+    "input": "equipment_weapon_cannon_ul-indra-spearhead-plus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-spearhead-plus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_spearhead-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-spearhead-plus",
+    "input": "equipment_weapon_cannon_ul-indra-spearhead-plus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-spectrum-plus",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_spectrum-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-spectrum-plus",
+    "input": "equipment_weapon_cannon_ul-indra-spectrum-plus",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-spectrum-plus",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_spectrum-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-spectrum-plus",
+    "input": "equipment_weapon_cannon_ul-indra-spectrum-plus",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-spectrum-plus",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_spectrum-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-spectrum-plus",
+    "input": "equipment_weapon_cannon_ul-indra-spectrum-plus",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-spectrum-plus",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_spectrum-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-spectrum-plus",
+    "input": "equipment_weapon_cannon_ul-indra-spectrum-plus",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-spectrum-plus",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_spectrum-plus",
-    "girdi": "equipment_weapon_cannon_ul-indra-spectrum-plus",
+    "input": "equipment_weapon_cannon_ul-indra-spectrum-plus",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-venom",
-    "yildiz": 1,
+    "star": 1,
     "gemi": "ship_venom",
-    "girdi": "equipment_weapon_cannon_ul-indra-venom",
+    "input": "equipment_weapon_cannon_ul-indra-venom",
     "adet": 2,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-venom",
-    "yildiz": 2,
+    "star": 2,
     "gemi": "ship_venom",
-    "girdi": "equipment_weapon_cannon_ul-indra-venom",
+    "input": "equipment_weapon_cannon_ul-indra-venom",
     "adet": 2,
     "input_star": 1,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-venom",
-    "yildiz": 3,
+    "star": 3,
     "gemi": "ship_venom",
-    "girdi": "equipment_weapon_cannon_ul-indra-venom",
+    "input": "equipment_weapon_cannon_ul-indra-venom",
     "adet": 2,
     "input_star": 2,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-venom",
-    "yildiz": 4,
+    "star": 4,
     "gemi": "ship_venom",
-    "girdi": "equipment_weapon_cannon_ul-indra-venom",
+    "input": "equipment_weapon_cannon_ul-indra-venom",
     "adet": 2,
     "input_star": 3,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "star",
-    "tablo": "table_3",
+    "table": "table_3",
     "hedef": "equipment_weapon_cannon_ul-indra-venom",
-    "yildiz": 5,
+    "star": 5,
     "gemi": "ship_venom",
-    "girdi": "equipment_weapon_cannon_ul-indra-venom",
+    "input": "equipment_weapon_cannon_ul-indra-venom",
     "adet": 2,
     "input_star": 4,
-    "bedel": {
+    "charge": {
      "currency_uridium": 10000
     }
    },
    {
     "grup": "drive",
-    "tablo": "drive_1",
+    "table": "drive_1",
     "hedef": "equipment_weapon_drive_igd-l02",
-    "yildiz": 0,
+    "star": 0,
     "gemi": null,
-    "girdi": "equipment_weapon_drive_igd-l01",
+    "input": "equipment_weapon_drive_igd-l01",
     "adet": 5,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 1000
     }
    },
    {
     "grup": "drive",
-    "tablo": "drive_1",
+    "table": "drive_1",
     "hedef": "equipment_weapon_drive_igd-p",
-    "yildiz": 0,
+    "star": 0,
     "gemi": null,
-    "girdi": "equipment_weapon_drive_igd-l02",
+    "input": "equipment_weapon_drive_igd-l02",
     "adet": 5,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 1000
     }
    },
    {
     "grup": "drive",
-    "tablo": "drive_2",
+    "table": "drive_2",
     "hedef": "equipment_lens_gl-omega",
-    "yildiz": 0,
+    "star": 0,
     "gemi": null,
-    "girdi": "equipment_lens_gl-chron",
+    "input": "equipment_lens_gl-chron",
     "adet": 5,
     "input_star": 0,
-    "bedel": {
+    "charge": {
      "currency_uridium": 1000
     }
    }

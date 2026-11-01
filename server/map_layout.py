@@ -48,7 +48,7 @@ def poi_msgs(map_id):
     d = of(map_id)
     out = [_poi(e[0], NO_ACCESS, e[5], e[1:5], *((POLYGON, e[6]) if len(e) > 6 else ())) for e in d.get('obstacles', [])]
     if 'palladium' in d:
-        out.append(_poi(d['palladium']['id'], SHIELD_DAMAGE, NEBULA, d['palladium']['alan']))
+        out.append(_poi(d['palladium']['id'], SHIELD_DAMAGE, NEBULA, d['palladium']['area']))
     out += [_poi('Mines%d' % (i + 1), MINES, 0, r) for i, r in enumerate(d.get('mine_fields', []))]
     out += [_poi(pid, t, design, (0, 0, 0, 0), shape, coords) for pid, t, shape, design, coords in d.get('zones', [])]
     return out
@@ -62,7 +62,7 @@ def gate_pos(map_id, key):
 
 def arrival(map_id, key):
     """Portalın hedef haritadaki varış yeri: (x, y), 'rastgele' ya da None (geri dönüş portalının yanı)."""
-    v = of(map_id).get('varis', {}).get(str(key))
+    v = of(map_id).get('arrival', {}).get(str(key))
     return tuple(v) if isinstance(v, list) else v
 
 
@@ -78,7 +78,7 @@ def design_pos(map_id, design):
 
 
 def structure_pos(map_id):
-    p = of(map_id).get('yapi')
+    p = of(map_id).get('structure')
     return tuple(p) if p else None
 
 
@@ -94,7 +94,7 @@ def lairs(map_id):
 
 
 def safe_zones(map_id):
-    return of(map_id).get('guvenli', [])
+    return of(map_id).get('safe', [])
 
 
 def gate_peace_radius(map_id, default):

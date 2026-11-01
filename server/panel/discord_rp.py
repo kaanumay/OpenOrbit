@@ -39,15 +39,15 @@ def event(live, setting, _, state):
     canli: canli_durum.json (oyun sunucusu açıksa); durum: 'oyunda' | 'arkadas' (arkadaşın sunucusunda) | 'giris' | 'baslatiliyor'
     | 'panel'."""
     a = lambda k: setting.get('rp_' + k)
-    if state != 'oyunda' or not live:
-        if state == 'panel' and not a('panelde'):
+    if state != 'in_game' or not live:
+        if state == 'panel' and not a('in_panel'):
             return None
-        parent, sub = {'giris': (_('Giriş ekranında'), _('Uzaya çıkmak üzere')), 'baslatiliyor': (_('Oyun başlatılıyor…'), _('Uzaya çıkmak üzere')),
+        parent, sub = {'giris': (_('Giriş ekranında'), _('Uzaya çıkmak üzere')), 'starting': (_('Oyun başlatılıyor…'), _('Uzaya çıkmak üzere')),
                     'arkadas': (_('Arkadaşının sunucusunda'), _('Birlikte oynuyor'))}.get(state, (_('Panelde'), _('Oyuna hazırlanıyor')))
         e = {'details': parent, 'state': sub,
              'assets': {'large_image': LOGO, 'large_text': 'OpenOrbit'}}
     else:
-        pl, gm, location, world_info = live.get('pilot', {}), live.get('gemi', {}), live.get('position', {}), live.get('dunya') or {}
+        pl, gm, location, world_info = live.get('pilot', {}), live.get('gemi', {}), live.get('position', {}), live.get('world') or {}
         parent = [('[%s] ' % pl['klan'] if a('klan') and pl.get('klan') else '') + ((pl.get('ad') or '') if a('pilot') else '')]
         if a('gemi') and ship_name(gm.get('ad')):
             parent.append(ship_name(gm['ad']))
@@ -62,7 +62,7 @@ def event(live, setting, _, state):
             status = ' · '.join(str(x) for x in (gate.get('ad'), gate.get('dalga')) if x)
         elif world_info.get('in_combat'):
             status = _('Savaşta: %s', world_info['hedef']) if world_info.get('hedef') else _('Savaşta')
-        elif world_info.get('guvenli'):
+        elif world_info.get('safe'):
             status = _('Güvenli bölgede')
         else:
             status = _('Uzayda uçuyor')
@@ -78,10 +78,10 @@ def event(live, setting, _, state):
             e['timestamps'] = {'start': int(live['session_start'])}
         friends = live.get('arkadas')
         if a('grup') and friends and friends.get('guests'):
-            e['party'] = {'id': 'openorbit-%s' % (pl.get('ad') or 'host'), 'size': [len(friends['guests']) + 1, friends['en_cok'] + 1]}
+            e['party'] = {'id': 'openorbit-%s' % (pl.get('ad') or 'host'), 'size': [len(friends['guests']) + 1, friends['max_count'] + 1]}
     e.update(details_url=GITHUB, state_url=GITHUB)       # kartın yazıları ve görselleri tıklanınca GitHub sayfası
     e['assets'].update({k + '_url': GITHUB for k in ('large', 'small') if k + '_image' in e['assets']})
-    if a('butonlar'):
+    if a('buttons'):
         e['buttons'] = [{'label': _("Discord'a katıl")[:32], 'url': 'https://discord.com/invite/openorbit'},
                         {'label': _('OpenOrbit (GitHub)')[:32], 'url': GITHUB}]
     for k in ('details', 'state'):                     # Discord: 2-128 karakter
@@ -165,7 +165,7 @@ class Presence:
         self.last = None                         # Discord'a en son giden etkinlik
         self.last_time = 0.0
         self.trial = 0.0
-        self.state = 'kapali'                   # kapali | discord_yok | bagli | hata
+        self.state = 'off'                   # kapali | discord_yok | bagli | hata
         self.error = None
         self.wake_up = threading.Event()
 
@@ -194,18 +194,18 @@ class Presence:
                     self.b.event(None)
                 finally:
                     self.b.close()
-            self.state, self.last = 'kapali', None
+            self.state, self.last = 'off', None
             return
         if not self.b.f:
-            if time.monotonic() - self.trial < 30 and self.state in ('discord_yok', 'hata'):
+            if time.monotonic() - self.trial < 30 and self.state in ('discord_not_running', 'hata'):
                 return
             self.trial = time.monotonic()
             if not self.b.open_():
-                self.state = 'discord_yok'
+                self.state = 'discord_not_running'
                 return
             self.last, self.error = None, None
             self.log('discord rich presence: bağlandı')
-        self.state = 'bagli'
+        self.state = 'connected'
         e = self.preview()
         if e == self.last or time.monotonic() - self.last_time < INTERVAL_SEC:
             return
@@ -213,6 +213,6 @@ class Presence:
             self.b.event(e)
         except OSError:
             self.b.close()
-            self.state = 'discord_yok'
+            self.state = 'discord_not_running'
             return
         self.last, self.last_time = e, time.monotonic()

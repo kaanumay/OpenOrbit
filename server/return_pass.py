@@ -36,8 +36,8 @@ import event_calendar as CAL
 from legacy_protocol import legacy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-R = json.load(open(os.path.join(HERE, 'data', 'tickets.json'), encoding='utf8'))['donus_pass']
-EVENT, SPECIAL, VIP_ITEM = R['takvim'], R['special_id'], R['vip']
+R = json.load(open(os.path.join(HERE, 'data', 'tickets.json'), encoding='utf8'))['return_pass']
+EVENT, SPECIAL, VIP_ITEM = R['calendar'], R['special_id'], R['vip']
 COST, UCOST = R['point_cost'], R['uridium_cost']
 LEVELS = {r[0]: r[1:] for r in R['seviyeler']}               # seviye -> [[free], [return], [vip]]
 MAX_LEVEL = len(COST)
@@ -65,7 +65,7 @@ def shifted(node):
     return node
 
 
-REAL = {m['definition']['id']: m for m in R['gorevler']}              # kayıttaki görevler (sourceQuestId: 'kaynak')
+REAL = {m['definition']['id']: m for m in R['quests']}              # kayıttaki görevler (sourceQuestId: 'kaynak')
 MISSIONS = {**{q + OFS: dict(m, definition=shifted(m['definition']), kaynak=q + OFS) for q, m in SE.MISSIONS.items()}, **REAL}
 VERSION = R['quest_version']
 
@@ -115,7 +115,7 @@ class ReturnPass:
 
     @property
     def st(self):
-        return self.p.d.setdefault('donus_pass', {})
+        return self.p.d.setdefault('return_pass', {})
 
     def active(self, now=None):
         return CAL.is_active(EVENT, now)
@@ -128,17 +128,17 @@ class ReturnPass:
         if st.get('donem') != key:
             with self.p.lock:
                 st.clear()
-                st.update(donem=key, puan=0, vip=False, alinan={str(t): [] for t in (FREE, RETURN, VIP)}, deger={}, tamam=[],
-                          yenileme={'gun': 0, 'hafta': 0})
+                st.update(donem=key, puan=0, vip=False, claimed={str(t): [] for t in (FREE, RETURN, VIP)}, value={}, tamam=[],
+                          renewal={'gun': 0, 'hafta': 0})
                 self.p.dirty = True
         if st.get('surum') != VERSION:          # yeni dönem ya da görevler değişti (2026-10-25: kayıttakiler): listeler baştan
-            self.reset_list('sezonluk', SE.SEASON)
+            self.reset_list('seasonal', SE.SEASON)
             with self.p.lock:
                 st.update(surum=VERSION, gun=None, hafta=None)
         if st.get('gun') != SE.day_id(now):
-            self.reset_list('gunluk', SE.DAILY, 'gun', SE.day_id(now))
+            self.reset_list('daily', SE.DAILY, 'gun', SE.day_id(now))
         if st.get('hafta') != SE.week_id(now):
-            self.reset_list('haftalik', SE.WEEKLY, 'hafta', SE.week_id(now))
+            self.reset_list('weekly', SE.WEEKLY, 'hafta', SE.week_id(now))
         if not st.get('vip') and self.p.resource(VIP_ITEM) > 0:     # Return VIP Badge (paketten): pass'e
             self.p.add_resource(VIP_ITEM, -1)
             with self.p.lock:
@@ -172,13 +172,13 @@ class ReturnPass:
         st = self.st
         with self.p.lock:
             for q in st.get(key, []):
-                st['deger'].pop(str(q), None)
+                st['value'].pop(str(q), None)
                 if q in st['tamam']:
                     st['tamam'].remove(q)
             st[key] = listed(qtype)
             if stamp_key:
                 st[stamp_key] = stamp
-                st['yenileme'][stamp_key] = 0
+                st['renewal'][stamp_key] = 0
             self.p.dirty = True
 
     def level(self):
@@ -207,7 +207,7 @@ class ReturnPass:
         return HERO_TRUE if self.returning else HERO_FALSE
 
     def view_cmd(self, rid, now=None):
-        claimed, th = self.st['alinan'], thresholds()
+        claimed, th = self.st['claimed'], thresholds()
         rows = []
         for i in range(1, MAX_LEVEL + 1):
             (fl, fn), (rl, rn), (vl, vn) = LEVELS[i]
@@ -230,7 +230,7 @@ class ReturnPass:
         return 5 if done else 2
 
     def refresh_info(self):
-        y = self.st['yenileme']
+        y = self.st['renewal']
         free = max(0, 1 - y.get('gun', 0))
         return mod('RecallBattlePassMissionRefreshInfo', dailyCount=1, dailyLeft=free, dailySequence=int(y.get('gun', 0)),
                    nextDailyUridium=-1 if free else REFRESH_U, weeklyCount=0, weeklyLeft=0, weeklySequence=int(y.get('hafta', 0)),
@@ -242,12 +242,12 @@ class ReturnPass:
         spans = {0: (day_start(now), day_start(now) + 86400), 1: (week_start(now), week_start(now) + 7 * 86400),
                  2: (0, 0)}                                         # sezonluk: ikisi de 0 (kayıt)
         items = []
-        for q in st.get('gunluk', []) + st.get('haftalik', []) + st.get('sezonluk', []):
+        for q in st.get('daily', []) + st.get('weekly', []) + st.get('seasonal', []):
             p = PERIOD[MISSIONS[q]['tur']]
             items.append(mod('RecallBattlePassMissionModule', sourceQuestId=MISSIONS[q]['kaynak'], period=p, periodStart=int(spans[p][0]),
                              nextReset=int(spans[p][1]), experience=MISSIONS[q]['puan'],
                              missionStatus=mod('RecallBattlePassMissionStatusModule', type=self.status(q)),
-                             questDefinitionModule=GT.with_state(MISSIONS[q]['definition'], st['deger'].get(str(q), {}), q in st['tamam'])))
+                             questDefinitionModule=GT.with_state(MISSIONS[q]['definition'], st['value'].get(str(q), {}), q in st['tamam'])))
         return ('RecallBattlePassMissionInfoCommand', dict(requestId=int(rid), specialId=SPECIAL, missionInfoType=0,
                                                            refreshInfo=self.refresh_info(), missionItems=items))
 
@@ -298,11 +298,11 @@ class ReturnPass:
             return 6, []
         if track == VIP and not st.get('vip'):
             return 7, []
-        if lv in st['alinan'][str(track)]:
+        if lv in st['claimed'][str(track)]:
             return 1, []
         loot, n = LEVELS[lv][track]
         with self.p.lock:
-            st['alinan'][str(track)].append(lv)
+            st['claimed'][str(track)].append(lv)
             self.p.dirty = True
         self.log('   Recall Battle Pass ödülü: seviye %d %s: %s x%d' % (lv, ('free', 'return', 'vip')[track], loot, n))
         return 0, (self.m.reward(loot, n) if self.m and n else [])
@@ -338,14 +338,14 @@ class ReturnPass:
         """Günlük ya da haftalık görevin yerine havuzdan başkası: 0 SUCCESS, 3 STALE_MISSION, 7 INSUFFICIENT_URIDIUM, 9 NO_REPLACEMENT."""
         st, q = self.st, int(f.get('questId') or 0)
         # istemci kaynak kimliğini (sourceQuestId) ya da tanımınkini gönderebilir
-        q = next((x for x in st.get('gunluk', []) + st.get('haftalik', []) if q in (x, MISSIONS[x]['kaynak'])), q)
-        key = 'gunluk' if q in st.get('gunluk', []) else 'haftalik' if q in st.get('haftalik', []) else None
+        q = next((x for x in st.get('daily', []) + st.get('weekly', []) if q in (x, MISSIONS[x]['kaynak'])), q)
+        key = 'daily' if q in st.get('daily', []) else 'weekly' if q in st.get('weekly', []) else None
         done = lambda code, extra=(): list(extra) + [('RecallBattlePassMissionRefreshResultCommand',
                                                       dict(requestId=rid, specialId=SPECIAL, result=code))]
         if not key or q in st['tamam']:
             return done(3)
-        stamp = 'gun' if key == 'gunluk' else 'hafta'
-        free = key == 'gunluk' and st['yenileme'].get('gun', 0) < 1
+        stamp = 'gun' if key == 'daily' else 'hafta'
+        free = key == 'daily' and st['renewal'].get('gun', 0) < 1
         cands = [c for c in pool(MISSIONS[q]['tur'], MISSIONS[q]['gold']) if c not in st[key]]
         if not cands:
             return done(9)
@@ -356,22 +356,22 @@ class ReturnPass:
         new = random.choice(cands)
         with self.p.lock:
             st[key][st[key].index(q)] = new
-            st['deger'].pop(str(q), None)
-            st['yenileme'][stamp] = st['yenileme'].get(stamp, 0) + 1
+            st['value'].pop(str(q), None)
+            st['renewal'][stamp] = st['renewal'].get(stamp, 0) + 1
             self.p.dirty = True
         self.log('   Recall Battle Pass görevi yenilendi: %d -> %d%s' % (q, new, '' if free else ' (%d U)' % REFRESH_U))
         return done(0, [] if free or not self.m else self.m.money_msgs())
 
     # ------------------------------------------------------------ görev ilerlemesi
     def event(self, kind, kw):
-        if not self.p.d.get('donus_pass') or not self.active():
+        if not self.p.d.get('return_pass') or not self.active():
             return []
         st, done = self.st, []
         msgs = self.refresh_msgs() if self.ensure() else []      # badge picked up here: show VIP in the open window
-        for q in st.get('gunluk', []) + st.get('haftalik', []) + st.get('sezonluk', []):
+        for q in st.get('daily', []) + st.get('weekly', []) + st.get('seasonal', []):
             if q in st['tamam']:
                 continue
-            m, fin = GT.advance(self.p, MISSIONS[q]['definition']['rootCase'], st['deger'].setdefault(str(q), {}), kind, kw,
+            m, fin = GT.advance(self.p, MISSIONS[q]['definition']['rootCase'], st['value'].setdefault(str(q), {}), kind, kw,
                                 self.p.d['position'].get('mapId'),
                                 notify=False)
             msgs += m

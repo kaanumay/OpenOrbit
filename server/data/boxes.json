@@ -14,7 +14,7 @@
   "drone_"
  ],
  "bl_repeat_uridium": 10000,
- "kutular": {
+ "boxes": {
   "PIRATE_BOOTY": {
    "ad": "Green Box",
    "anahtar": "resource_booty-key",
@@ -26,13 +26,13 @@
     "5-X"
    ],
    "adet": 3,
-   "yeniden_sn": [
+   "renew_sec": [
     300,
     600
    ],
-   "takvim": null,
-   "defter": "booty_key_green_used",
-   "odul": [
+   "calendar": null,
+   "ledger": "booty_key_green_used",
+   "reward": [
     [
      "ammunition_laser_mcb-25",
      1000,
@@ -311,13 +311,13 @@
     "5-X"
    ],
    "adet": 3,
-   "yeniden_sn": [
+   "renew_sec": [
     300,
     600
    ],
-   "takvim": "altin_kutu",
-   "defter": "booty_key_green_used",
-   "odul": [
+   "calendar": "gold_booty_box",
+   "ledger": "booty_key_green_used",
+   "reward": [
     [
      "ammunition_laser_mcb-25",
      1000,
@@ -611,13 +611,13 @@
     "5-X"
    ],
    "adet": 1,
-   "yeniden_sn": [
+   "renew_sec": [
     600,
     1200
    ],
-   "takvim": "rb_booty",
-   "defter": "booty_key_red_used",
-   "odul": [
+   "calendar": "rb_booty",
+   "ledger": "booty_key_red_used",
+   "reward": [
     [
      "ammunition_laser_mcb-25",
      30000,
@@ -791,13 +791,13 @@
     "5-X"
    ],
    "adet": 1,
-   "yeniden_sn": [
+   "renew_sec": [
     600,
     1200
    ],
-   "takvim": "rb_booty",
-   "defter": "booty_key_blue_used",
-   "odul": [
+   "calendar": "rb_booty",
+   "ledger": "booty_key_blue_used",
+   "reward": [
     [
      "ammunition_laser_mcb-25",
      30000,
@@ -970,13 +970,13 @@
     "5-X"
    ],
    "adet": 1,
-   "yeniden_sn": [
+   "renew_sec": [
     600,
     1200
    ],
-   "takvim": "obsidian_booty",
-   "defter": "booty_key_black_used",
-   "odul": [
+   "calendar": "obsidian_booty",
+   "ledger": "booty_key_black_used",
+   "reward": [
     [
      "ammunition_laser_sab-50",
      5000,
@@ -1158,13 +1158,13 @@
     "5-4"
    ],
    "adet": 6,
-   "yeniden_sn": [
+   "renew_sec": [
     300,
     600
    ],
-   "takvim": null,
-   "defter": "booty_key_silver_used",
-   "odul": [
+   "calendar": null,
+   "ledger": "booty_key_silver_used",
+   "reward": [
     [
      "equipment_generator_shield_sg3n-b02",
      1,
@@ -1223,13 +1223,13 @@
     "BL"
    ],
    "adet": 2,
-   "yeniden_sn": [
+   "renew_sec": [
     900,
     1800
    ],
-   "takvim": null,
-   "defter": "booty_key_blacklightCipher_used",
-   "odul": [
+   "calendar": null,
+   "ledger": "booty_key_blacklightCipher_used",
+   "reward": [
     [
      "ship_centurion_design_centurion-damage1",
      1,
@@ -1491,13 +1491,13 @@
     "BL"
    ],
    "adet": 1,
-   "yeniden_sn": [
+   "renew_sec": [
     900,
     1800
    ],
-   "takvim": null,
-   "defter": "booty_key_blacklightDecoder_used",
-   "odul": [
+   "calendar": null,
+   "ledger": "booty_key_blacklightDecoder_used",
+   "reward": [
     [
      "equipment_shipupgrade_dmg-x1",
      1,
@@ -1550,13 +1550,13 @@
     "4-X"
    ],
    "adet": 1,
-   "yeniden_sn": [
+   "renew_sec": [
     600,
     1200
    ],
-   "takvim": null,
-   "defter": "booty_key_astral_used",
-   "odul": [
+   "calendar": null,
+   "ledger": "booty_key_astral_used",
+   "reward": [
     [
      "ammunition_laser_ucb-100",
      2000,
@@ -1664,13 +1664,13 @@
     "4-X"
    ],
    "adet": 1,
-   "yeniden_sn": [
+   "renew_sec": [
     900,
     1800
    ],
-   "takvim": null,
-   "defter": "booty_key_astral-prime_used",
-   "odul": [
+   "calendar": null,
+   "ledger": "booty_key_astral-prime_used",
+   "reward": [
     [
      "currency_experience",
      100000,
@@ -1813,13 +1813,13 @@
     "5-X"
    ],
    "adet": 1,
-   "yeniden_sn": [
+   "renew_sec": [
     600,
     1200
    ],
-   "takvim": "apocalypse_booty",
-   "defter": "booty_key_masque_used",
-   "odul": [
+   "calendar": "apocalypse_booty",
+   "ledger": "booty_key_masque_used",
+   "reward": [
     [
      "ammunition_laser_mcb-50",
      5000,
@@ -2008,13 +2008,13 @@
     "5-X"
    ],
    "adet": 1,
-   "yeniden_sn": [
+   "renew_sec": [
     600,
     1200
    ],
-   "takvim": "prometheus",
-   "defter": "booty_key_prometheus_used",
-   "odul": [
+   "calendar": "prometheus",
+   "ledger": "booty_key_prometheus_used",
+   "reward": [
     [
      "ammunition_laser_mcb-25",
      30000,
@@ -2270,13 +2270,13 @@
     "X-1..X-8"
    ],
    "adet": 1,
-   "yeniden_sn": [
+   "renew_sec": [
     600,
     1200
    ],
-   "takvim": "perseus",
-   "defter": "booty_key_perseus_used",
-   "odul": [
+   "calendar": "perseus",
+   "ledger": "booty_key_perseus_used",
+   "reward": [
     [
      "resource_ore_seprom",
      100,
@@ -2499,13 +2499,13 @@
     "X-1..X-8"
    ],
    "adet": 1,
-   "yeniden_sn": [
+   "renew_sec": [
     600,
     1200
    ],
-   "takvim": "athena",
-   "defter": "booty_key_laurel_used",
-   "odul": [
+   "calendar": "athena",
+   "ledger": "booty_key_laurel_used",
+   "reward": [
     [
      "currency_uridium",
      [
@@ -2602,25 +2602,25 @@
     "5-X"
    ],
    "adet": 1,
-   "yeniden_sn": [
+   "renew_sec": [
     600,
     1200
    ],
-   "takvim": [
+   "calendar": [
     "astral_ascension",
     "galactic_strife",
     "halloween",
     "hitac",
     "immortal_union",
-    "labirent",
+    "labyrinth",
     "mimesis_mutiny",
     "plutus",
     "protegit",
     "spacecup",
     "world_boss"
    ],
-   "defter": "booty_key_battle-pass-key_used",
-   "odul": [],
+   "ledger": "booty_key_battle-pass-key_used",
+   "reward": [],
    "reward_event": {
     "galactic_strife": [
      [
@@ -3456,7 +3456,7 @@
       0.15
      ]
     ],
-    "labirent": [
+    "labyrinth": [
      [
       "ammunition_laser_a-bl",
       800,
@@ -3973,13 +3973,13 @@
     "5-X"
    ],
    "adet": 2,
-   "yeniden_sn": [
+   "renew_sec": [
     600,
     1200
    ],
-   "takvim": "empyrian",
-   "defter": "booty_key_empyrian_used",
-   "odul": [
+   "calendar": "empyrian",
+   "ledger": "booty_key_empyrian_used",
+   "reward": [
     [
      "ammunition_laser_ucb-100",
      3000,
@@ -4234,13 +4234,13 @@
     "5-X"
    ],
    "adet": 2,
-   "yeniden_sn": [
+   "renew_sec": [
     600,
     1200
    ],
-   "takvim": "prosperous",
-   "defter": "booty_key_prosperous_used",
-   "odul": [
+   "calendar": "prosperous",
+   "ledger": "booty_key_prosperous_used",
+   "reward": [
     [
      "ammunition_laser_mcb-50",
      16000,
@@ -4523,13 +4523,13 @@
     "X-2..X-8"
    ],
    "adet": 2,
-   "yeniden_sn": [
+   "renew_sec": [
     600,
     1200
    ],
-   "takvim": "bahar",
-   "defter": "booty_key_lucent_used",
-   "odul": [
+   "calendar": "spring",
+   "ledger": "booty_key_lucent_used",
+   "reward": [
     [
      "ammunition_laser_mcb-25",
      30000,
@@ -4773,10 +4773,10 @@
    "missing_message": "msg_loot_failed_no_echo-key-green",
    "haritalar": [],
    "adet": 0,
-   "yeniden_sn": null,
-   "takvim": null,
-   "defter": null,
-   "odul": [
+   "renew_sec": null,
+   "calendar": null,
+   "ledger": null,
+   "reward": [
     [
      "equipment_core_ax-10",
      1,
@@ -4798,7 +4798,7 @@
      50
     ]
    ],
-   "_tool": "yeni_sistemler"
+   "_tool": "new_systems"
   },
   "BLUE_ECHO_BOX": {
    "ad": "Rare Echo Chest",
@@ -4807,10 +4807,10 @@
    "missing_message": "msg_loot_failed_no_echo-key-blue",
    "haritalar": [],
    "adet": 0,
-   "yeniden_sn": null,
-   "takvim": null,
-   "defter": null,
-   "odul": [
+   "renew_sec": null,
+   "calendar": null,
+   "ledger": null,
+   "reward": [
     [
      "equipment_core_ax-20",
      1,
@@ -4832,7 +4832,7 @@
      50
     ]
    ],
-   "_tool": "yeni_sistemler"
+   "_tool": "new_systems"
   },
   "PURPLE_ECHO_BOX": {
    "ad": "Epic Echo Chest",
@@ -4841,10 +4841,10 @@
    "missing_message": "msg_loot_failed_no_echo-key-purple",
    "haritalar": [],
    "adet": 0,
-   "yeniden_sn": null,
-   "takvim": null,
-   "defter": null,
-   "odul": [
+   "renew_sec": null,
+   "calendar": null,
+   "ledger": null,
+   "reward": [
     [
      "equipment_core_ax-30",
      1,
@@ -4866,7 +4866,7 @@
      50
     ]
    ],
-   "_tool": "yeni_sistemler"
+   "_tool": "new_systems"
   },
   "RED_ECHO_BOX": {
    "ad": "Legendary Echo Chest",
@@ -4875,10 +4875,10 @@
    "missing_message": "msg_loot_failed_no_echo-key-red",
    "haritalar": [],
    "adet": 0,
-   "yeniden_sn": null,
-   "takvim": null,
-   "defter": null,
-   "odul": [
+   "renew_sec": null,
+   "calendar": null,
+   "ledger": null,
+   "reward": [
     [
      "equipment_core_ax-40",
      1,
@@ -4890,7 +4890,7 @@
      50
     ]
    ],
-   "_tool": "yeni_sistemler"
+   "_tool": "new_systems"
   },
   "APOTHEOSIS": {
    "ad": "Apotheosis Booty Box",
@@ -4899,10 +4899,10 @@
    "missing_message": "msg_loot_failed_no_booty-key-apotheosis",
    "haritalar": [],
    "adet": 0,
-   "yeniden_sn": null,
-   "takvim": null,
-   "defter": null,
-   "odul": [
+   "renew_sec": null,
+   "calendar": null,
+   "ledger": null,
+   "reward": [
     [
      "equipment_weapon_laser_lf-4",
      1,
@@ -5069,7 +5069,7 @@
      0.03
     ]
    ],
-   "_tool": "surum_115",
+   "_tool": "version_115",
    "_kaynak": "board-en 130459 (FAQ Kristallon Apotheosis): Emperor Kristallon yenilince 20 kutu; istemcinin box_APOTHEOSIS varlığı, HUD sayacı BKAPO"
   }
  },

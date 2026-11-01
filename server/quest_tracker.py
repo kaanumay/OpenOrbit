@@ -102,7 +102,7 @@ def measure(c, kind, kw, map_id=None):
     if t == 52 and kind == 'sell':
         return int(kw.get('amount', 0)) if not m or OLD_ORE.get(ORE_LOOT.get(kw.get('ore', -1))) in m else 0
     if t == 53 and kind == 'level':
-        return ('set', int(kw.get('deger', 0)))
+        return ('set', int(kw.get('value', 0)))
     if t == 55 and kind == 'bonus':
         return 1
     if t == 56 and kind == 'quest':

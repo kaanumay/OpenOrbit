@@ -41,7 +41,7 @@ def state(p, ev, now=None):
     st = root.get(ev)
     if st is None or (per and st.get('donem') != per[0]):
         with p.lock:
-            st = root[ev] = dict(donem=per[0] if per else None, puan=0, ilerleme=0, threshold=0, katildi=False)
+            st = root[ev] = dict(donem=per[0] if per else None, puan=0, progress=0, threshold=0, joined=False)
             p.dirty = True
     return st
 
@@ -53,11 +53,11 @@ def add(p, ev, n, give, now=None):
         return []
     st = state(p, ev, now)
     with p.lock:
-        st['ilerleme'] += n
+        st['progress'] += n
         p.dirty = True
     msgs = [legacy('0|LM|ST|EPP|%d' % n)]
-    steps = c.get('esikler', [])
-    while st['threshold'] < len(steps) and st['ilerleme'] >= steps[st['threshold']][0]:
+    steps = c.get('thresholds', [])
+    while st['threshold'] < len(steps) and st['progress'] >= steps[st['threshold']][0]:
         lim, items = steps[st['threshold']]
         with p.lock:
             st['threshold'] += 1
@@ -65,9 +65,9 @@ def add(p, ev, n, give, now=None):
         for loot, k in items:
             msgs += give(loot, k) if give else []
         msgs.append(screen('%s - %s points reached!' % (CAL.EVENTS[ev]['ad'], format(lim, ',')), big=True))
-        if st['threshold'] == len(steps) and c.get('sifirla'):             # Hatching Out: çubuk dolunca baştan
+        if st['threshold'] == len(steps) and c.get('reset'):             # Hatching Out: çubuk dolunca baştan
             with p.lock:
-                st['ilerleme'] -= steps[-1][0]
+                st['progress'] -= steps[-1][0]
                 st['threshold'] = 0
     return msgs
 
@@ -92,7 +92,7 @@ def on_kill(p, map_id, npc_id, give, now=None):
             pts = pts[0] if H.company(map_id) == p.d.get('pilot', {}).get('factionId') else pts[1]
         if pts:
             score(p, ev, pts, now)
-        msgs += add(p, ev, c.get('ilerleme', {}).get(key, 0), give, now)
+        msgs += add(p, ev, c.get('progress', {}).get(key, 0), give, now)
     return msgs
 
 
@@ -123,9 +123,9 @@ class EventPoints:
         for ev in events():
             if CAL.is_active(ev, now):
                 st = state(self.p, ev, now)
-                if not st['katildi']:
+                if not st['joined']:
                     with self.p.lock:
-                        st['katildi'] = True
+                        st['joined'] = True
                         self.p.dirty = True
             elif ev in self.p.d.get('event_points', {}):
                 msgs += self.finish(ev)
@@ -135,21 +135,21 @@ class EventPoints:
         """Etkinlik bitti: katılım ve sıralama ödülü bir kez (tek oyunculu sıra: 1.)."""
         c, st = cfg(ev), self.p.d['event_points'][ev]
         msgs = []
-        k = c.get('katilim') if st.get('katildi') else None
+        k = c.get('participation') if st.get('joined') else None
         if k:
             for loot, n in k.get('esyalar', []):
                 msgs += self.give(loot, n)
-            if k.get('unvan') and self.titles:
-                msgs += self.titles(k['unvan'])
-        ok = st.get('puan', 0) > 0 or (c.get('rank_metric') == 'katilim' and st.get('katildi'))
+            if k.get('title') and self.titles:
+                msgs += self.titles(k['title'])
+        ok = st.get('puan', 0) > 0 or (c.get('rank_metric') == 'participation' and st.get('joined'))
         r = next((r for r in c.get('ranking', []) if r['den'] <= 1 <= r['e']), None) if ok else None
         if r:
             for loot, n in r['esyalar']:
                 msgs += self.give(loot, n)
-            if r.get('unvan') and self.titles:
-                msgs += self.titles(r['unvan'])
+            if r.get('title') and self.titles:
+                msgs += self.titles(r['title'])
             msgs.append(RK.confirmation(1, RK.DEFAULT_REWARD, r))
-        self.log('   %s bitti: puan %d, ilerleme %d%s' % (CAL.EVENTS[ev]['ad'], st.get('puan', 0), st.get('ilerleme', 0),
+        self.log('   %s bitti: puan %d, ilerleme %d%s' % (CAL.EVENTS[ev]['ad'], st.get('puan', 0), st.get('progress', 0),
                                                        ', 1. sıra ödülü' if r else ''))
         with self.p.lock:
             del self.p.d['event_points'][ev]

@@ -18,9 +18,9 @@ import event_appearances as EG
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 K = DATA.load('boxes.json')
-BOXES = K['kutular']
+BOXES = K['boxes']
 for _k, _b in BOXES.items():                 # etkinlik görünümleri: kutunun yerel tasarım satırları (wiki tablosunun dışında; pick_all)
-    _b['yerel'] = EG.box_rows(_k)
+    _b['local'] = EG.box_rows(_k)
 PACKAGE = 'paket'                               # Epic paketi satırı: ['paket', [[lootId, adet], ...], ağırlık]; açılışta parçaların hepsi
 MAPS = {k: re.compile(v) for k, v in K['haritalar'].items()}
 GREEN_KEY = 'resource_booty-key'
@@ -36,13 +36,13 @@ def active(kind, now=None):
     """Takvim (kutunun 'takvim'i event_calendar.py'deki etkinliğin adı): altın kutu ayın 2. ve 4. cuması, Obsidian / R&B / Apocalypse
     haftalık rotasyonda (E8), etkinlik kutuları (Empyrian, Prosperous, Lucent Egg) etkinlik sürerken; liste: biri sürerken (Battle
     Pass Box)."""
-    return bool(BOXES[kind].get('takvim') is None or box_event(kind, now))
+    return bool(BOXES[kind].get('calendar') is None or box_event(kind, now))
 
 
 def box_event(kind, now=None):
     """Kutunun takvimindeki etkin etkinlik (yoksa None)."""
     import event_calendar as CAL
-    cal = BOXES[kind].get('takvim')
+    cal = BOXES[kind].get('calendar')
     return next((k for k in (cal if isinstance(cal, list) else [cal]) if k in CAL.EVENTS and CAL.is_active(k, now)), None)
 
 
@@ -53,19 +53,19 @@ def spawns(map_name, now=None):
 
 
 def respawn_delay(kind):
-    lo, hi = BOXES[kind]['yeniden_sn']
+    lo, hi = BOXES[kind]['renew_sec']
     return random.uniform(lo, hi)
 
 
 def owned(p, loot):
     """Tekil ödüle sahip mi: gemi, gemi tasarımı (gemide ya da depoda), dronlar, dron ve P.E.T. tasarımları (envanterde ya da depoda)."""
     if '_design_' in loot:
-        if any(loot in s.get('designs', []) for s in p.d['gemiler'].values()):
+        if any(loot in s.get('designs', []) for s in p.d['ships'].values()):
             return True
         return p.resource(loot) > 0
     if loot.startswith('ship_'):
-        return any(s['lootId'] == loot for s in p.d['gemiler'].values())
-    if loot.startswith('drone_') and any(d.get('lootId') == loot for d in p.d.get('dronlar', [])):
+        return any(s['lootId'] == loot for s in p.d['ships'].values())
+    if loot.startswith('drone_') and any(d.get('lootId') == loot for d in p.d.get('drones', [])):
         return True
     return p.resource(loot) > 0 or loot in p.d.get('esyalar', {}).values()     # dron ve P.E.T. tasarımları envanterde
 
@@ -90,14 +90,14 @@ def pick_all(p, kind, rng=random):
     ve etkinlik görünümleri; wiki tablosunda yok) tasarım çekilişini tablonun tasarımlarıyla paylaşır: tasarımların toplam şansı
     wiki'deki gibi kalır, yalnız aralarında bölüşülür; tablonun öteki satırlarının şansı bozulmaz."""
     box = BOXES[kind]
-    rows = box['odul'] or box.get('reward_event', {}).get(box_event(kind)) or []
+    rows = box['reward'] or box.get('reward_event', {}).get(box_event(kind)) or []
     if not rows:                             # etkinlik bitmişken toplanan Battle Pass Box: anahtar geri
         return [(box['anahtar'], 1)]
     if kind == BL_CACHE:                     # wiki: tasarım rastgele, zaten varsa 10.000 uridyum
         loot = rng.choice(rows)[0]
         return [('currency_uridium', K['bl_repeat_uridium']) if owned(p, loot) else (loot, 1)]
     pool = [r for r in rows if not gone(p, r)] or [r for r in rows if not design(r)]
-    local = [r for r in box['yerel'] if not owned(p, r[0])]
+    local = [r for r in box['local'] if not owned(p, r[0])]
     wd, wl = sum(r[2] for r in pool if design(r)), sum(r[2] for r in local)
     k = wd / (wd + wl) if wd else 1.0
     pool += local

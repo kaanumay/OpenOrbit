@@ -20,7 +20,7 @@ def quests():
     if _quests is None:
         import quest as QU
         _id_type = {}
-        for tip, t in K.NPC['tipler'].items():
+        for tip, t in K.NPC['types'].items():
             _id_type.setdefault(str(t.get('npc_kimlik', '')), []).append(tip)
         out = {}
         for qid, q in QU.QUESTS.items():
@@ -28,7 +28,7 @@ def quests():
                 continue
             conditions = []
             ok = True
-            for el in q['kok'].get('modifier', []):
+            for el in q['root'].get('modifier', []):
                 c = el.get('condition')
                 if not c or c['type'] not in SUPPORTED:
                     ok = False
@@ -39,10 +39,10 @@ def quests():
                     break
                 conditions.append(dict(id=c['id'], tur=c['type'], hedef=int(c.get('targetValue', 1)), matches=list(c.get('matches', [])),
                                 haritalar=maps))
-            package = any(str(l).startswith('ship_') or (l == 'currency_uridium' and n >= 10000) for l, n in q.get('oduller', []))
+            package = any(str(l).startswith('ship_') or (l == 'currency_uridium' and n >= 10000) for l, n in q.get('rewards', []))
             if ok and conditions and not package:            # hoş geldin paketi (gemi, binlerce uridyum): botlar herkes gibi sıfırdan
-                out[int(qid)] = dict(seviye=int(q.get('seviye', 0)), onceki=[int(x) for x in q.get('onceki', [])], conditions=conditions,
-                                     oduller=q.get('oduller', []), ad=q.get('ad', ''), ordered=q['kok'].get('ordered', False))
+                out[int(qid)] = dict(seviye=int(q.get('seviye', 0)), previous=[int(x) for x in q.get('previous', [])], conditions=conditions,
+                                     rewards=q.get('rewards', []), ad=q.get('ad', ''), ordered=q['root'].get('ordered', False))
         _quests = out
     return _quests
 
@@ -66,7 +66,7 @@ def eligible(bot):
     deferred = bot.k.get('deferred') or {}
     out = []
     for qid, q in quests().items():
-        if qid in done or deferred.get(str(qid), 0) >= bot.level or q['seviye'] > bot.level or any(x not in done and x in quests() for x in q['onceki']):
+        if qid in done or deferred.get(str(qid), 0) >= bot.level or q['seviye'] > bot.level or any(x not in done and x in quests() for x in q['previous']):
             continue
         out.append((qid, q))
     out.sort(key=lambda x: (-x[1]['seviye'], x[0]))
@@ -139,7 +139,7 @@ def finish(bot, q, y):
     speed = y.speed(bot) if y is not None else 1.0
     currency = dict(currency_credits='kredi', currency_experience='ep', currency_uridium='uridyum', currency_honour='onur')
     earned = {}
-    for loot, n in q['oduller']:
+    for loot, n in q['rewards']:
         if loot in currency:
             earned[currency[loot]] = earned.get(currency[loot], 0) + n
         else:
@@ -148,8 +148,8 @@ def finish(bot, q, y):
     bot.k['tamam'].append(bot.k['gorev']['id'])
     bot.k['gorev'] = None
     bot.ist('gorev')
-    bot.mood.it(moral=0.15, sikilma=-0.2)
-    bot.event('gorev_bitti', ad=q['ad'])
+    bot.mood.it(morale=0.15, boredom=-0.2)
+    bot.event('quest_done', ad=q['ad'])
 
 
 def deferred(bot):
@@ -159,7 +159,7 @@ def deferred(bot):
     if g:
         bot.k.setdefault('deferred', {})[str(g['id'])] = bot.level
         bot.k['gorev'] = None
-    bot.plan['bitti'] = True
+    bot.plan['finished'] = True
 
 
 @target
@@ -176,13 +176,13 @@ class Quest(Goal):
 
     def points(self, bot, b):
         o = bot.traits
-        p = 0.45 + 0.35 * o['hirs'] * o['sabir'] + (0.35 if bot.archetype == 'gorevci' else 0)
+        p = 0.45 + 0.35 * o['ambition'] * o['patience'] + (0.35 if bot.archetype == 'quester' else 0)
         if bot.k.get('gorev'):
             p += 0.15                     # yarım görev çeker
         from .. import weapons as WP
         if not WP.has_laser(bot):
             p *= 0.3                                      # görevlerin çoğu öldürme ister: cephanesiz ilerlemez
-        return p * (1 - 0.3 * bot.mood['sikilma'])
+        return p * (1 - 0.3 * bot.mood['boredom'])
 
     def start(self, bot, b):
         if not bot.k.get('gorev'):
@@ -193,22 +193,22 @@ class Quest(Goal):
                     break
                 bot.k['gorev'] = None
             if not bot.k.get('gorev'):
-                bot.plan['bitti'] = True
+                bot.plan['finished'] = True
                 return
-            bot.event('gorev_aldi', ad=quests()[bot.k['gorev']['id']]['ad'])
+            bot.event('quest_taken', ad=quests()[bot.k['gorev']['id']]['ad'])
         self._head_to(bot, b.y, b.now)
 
     def _head_to(self, bot, y, now=None):
         s = next_up(bot)
         if not s or not s[1]:
-            bot.plan['bitti'] = True
+            bot.plan['finished'] = True
             return
         c, maps = s
         types = [t for k in c['matches'] for t in npc_types(k)] if c['tur'] == KILL_NPC else []
         if types:
             # gücünün yettiği (öldürmeye cesaret ettiği) haritalar; hiçbiri yoksa görev güçlenene dek bekler
             d = bot.value()
-            maps = [m for m in maps if set(types) & set(K.evaluate_map(m, d['dps'], d['ehp'], 0.8)['hedefler'])]
+            maps = [m for m in maps if set(types) & set(K.evaluate_map(m, d['dps'], d['ehp'], 0.8)['targets'])]
             if not maps:
                 deferred(bot)
                 return
@@ -223,7 +223,7 @@ class Quest(Goal):
             return
         s = next_up(bot)
         if not s:
-            bot.plan['bitti'] = True
+            bot.plan['finished'] = True
             return
         c, maps = s
         if c['id'] != bot.plan.get('condition') or bot.game_map not in maps:
@@ -239,4 +239,4 @@ class Quest(Goal):
             S.farm(bot, dt, y, target_kind=bot.plan.get('tip'))
 
     def finished(self, bot, b):
-        return bot.plan.get('bitti', False) or (not bot.k.get('gorev') and 'condition' in bot.plan)
+        return bot.plan.get('finished', False) or (not bot.k.get('gorev') and 'condition' in bot.plan)

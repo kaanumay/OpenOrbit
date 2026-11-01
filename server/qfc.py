@@ -26,7 +26,7 @@ TYPES = D['kinds']
 LUMI = D['luminaflux']
 SLOT = 'QuantumFluidCore'
 PREFIX = 'equipment_core_'
-MAX_LV = D['azami_seviye']
+MAX_LV = D['max_level']
 FORGE, RECYCLE = 1, 2
 REQUESTS = {'QuantumFluidCoreRequest'}
 KEYS = dict(ATTR_KEYS, damage_factions=('pvp',))          # factions: başka firmanın oyuncuları (botlarla, Aşama 11)
@@ -43,7 +43,7 @@ def kind(loot):
 
 
 def slots(ship_loot):
-    return int((ITEMS.get(ship_loot, {}).get('yuvalar') or {}).get(SLOT, 2))
+    return int((ITEMS.get(ship_loot, {}).get('slots') or {}).get(SLOT, 2))
 
 
 def state(p, iid):
@@ -52,7 +52,7 @@ def state(p, iid):
 
 def ranges(loot, primary=True):
     """Niteliğin (ilk değer aralığı, seviye başına artış aralığı, azami) yüzdeleri."""
-    lo, hi = TYPES[loot]['aralik']
+    lo, hi = TYPES[loot]['interval']
     f = 1.0 if primary else D['extra_multiplier']
     a, b = D['increase_multiplier']
     return (lo * f, hi * f), (hi * a, hi * b), hi * D['max_multiplier']
@@ -60,7 +60,7 @@ def ranges(loot, primary=True):
 
 def cost(loot, lv):
     """lv'den lv+1'e Luminaflux (yoksa None: en üst seviye)."""
-    row = D['upgrade_cost'][str(TYPES[loot]['kalite'])]
+    row = D['upgrade_cost'][str(TYPES[loot]['quality'])]
     return row[lv - 1] if 1 <= lv < MAX_LV else None
 
 
@@ -77,7 +77,7 @@ def mods(p, ship_loot, iids):
         rec = state(p, iid)
         if not loot.startswith(PREFIX) or not rec or rec['gemi'] != ship_loot:
             continue
-        for a, v in rec['nitelikler']:
+        for a, v in rec['attributes']:
             for k in KEYS.get(a, ()):
                 out[k] = out.get(k, 0) + v / 100.0
     return out
@@ -87,7 +87,7 @@ def modifiers_str(p, iid):
     """Hangar ipucunun nitelikleri (gemi_modul.modifiers_str biçimi "AD,yüzde;…"): ipucunda "Tür:" satırı boş, değerler yoktu
     (kullanıcı bildirimi 2026-10-25: QFC-AX40'ta değer görünmüyor)."""
     rec = state(p, iid) or {}
-    return ';'.join('%s,%s' % (a.upper(), format(v, '.2f').rstrip('0').rstrip('.')) for a, v in rec.get('nitelikler', []) if v > 0)
+    return ';'.join('%s,%s' % (a.upper(), format(v, '.2f').rstrip('0').rstrip('.')) for a, v in rec.get('attributes', []) if v > 0)
 
 
 def equip_allowed(p, iid, ship_loot, current):
@@ -114,13 +114,13 @@ class Qfc:
         loot = self.p.d['esyalar'][str(iid)]
         rec = state(self.p, iid)
         attrs = []
-        for i, (a, v) in enumerate(rec['nitelikler']):
+        for i, (a, v) in enumerate(rec['attributes']):
             _, (ulo, uhi), top = ranges(loot, i == 0)
             attrs.append(mod('EquipAttributeModule', AttributeValue=int(round(v * 100)), maxAttributeValue=int(round(top * 100)),
                              upMin=int(round(ulo * 100)), upMax=int(round(uhi * 100)), AttributeID=a))
         nxt = cost(loot, rec['seviye'])
-        return mod('QuantumFluidCoreData', equipAttributes=attrs, quality=TYPES[loot]['kalite'], sellPrice=TYPES[loot]['recycle'],
-                   itemId=int(iid), useLootId=LUMI, shipIds=[rec['gemi']], unlock=1 if len(rec['nitelikler']) < D['max_attributes'] else 0,
+        return mod('QuantumFluidCoreData', equipAttributes=attrs, quality=TYPES[loot]['quality'], sellPrice=TYPES[loot]['recycle'],
+                   itemId=int(iid), useLootId=LUMI, shipIds=[rec['gemi']], unlock=1 if len(rec['attributes']) < D['max_attributes'] else 0,
                    lv=rec['seviye'], spendPrice=nxt or 0, maxLv=MAX_LV, lootId=loot)
 
     def list_cmd(self):
@@ -128,7 +128,7 @@ class Qfc:
         return 'QuantumFluidCoreDataListCommand', {'allModules': [self.data(i) for i in sorted(ids, key=int)]}
 
     def roll_attr(self, loot, have, rng):
-        pool = D['ilk_nitelik' if not have else 'ek_nitelik'][kind(loot)]
+        pool = D['initial_attributes' if not have else 'extra_attribute'][kind(loot)]
         pool = [a for a in pool if a not in [x[0] for x in have]]
         (lo, hi), _, _ = ranges(loot, not have)
         return [rng.choice(pool), round(rng.uniform(lo, hi), 2)]
@@ -146,13 +146,13 @@ class Qfc:
         return self.record(loot, self.p.new_item(loot), ship, rng)
 
     def record(self, loot, iid, ship=None, rng=random):
-        ships = sorted({s['lootId'] for s in self.p.d['gemiler'].values()}) or [self.p.ship()['lootId']]
-        rec = {'gemi': ship or rng.choice(ships), 'seviye': 1, 'nitelikler': []}
-        rec['nitelikler'].append(self.roll_attr(loot, [], rng))
+        ships = sorted({s['lootId'] for s in self.p.d['ships'].values()}) or [self.p.ship()['lootId']]
+        rec = {'gemi': ship or rng.choice(ships), 'seviye': 1, 'attributes': []}
+        rec['attributes'].append(self.roll_attr(loot, [], rng))
         with self.p.lock:
             self.p.d['qfc'][str(iid)] = rec
             self.p.dirty = True
-        self.log('   QFC: %s (%s) %s %.2f%%' % (loot, rec['gemi'], rec['nitelikler'][0][0], rec['nitelikler'][0][1]))
+        self.log('   QFC: %s (%s) %s %.2f%%' % (loot, rec['gemi'], rec['attributes'][0][0], rec['attributes'][0][1]))
         return iid
 
     def grant(self, loot, n=1, rng=random):
@@ -191,13 +191,13 @@ class Qfc:
             return [stm('ttip_not_enough_resources'), self.list_cmd()]
         with self.p.lock:
             rec['seviye'] += 1
-            for i, a in enumerate(rec['nitelikler']):
+            for i, a in enumerate(rec['attributes']):
                 _, (ulo, uhi), top = ranges(loot, i == 0)
                 a[1] = round(min(top, a[1] + rng.uniform(ulo, uhi)), 2)
-            if rec['seviye'] in D['unlocked_levels'] and len(rec['nitelikler']) < D['max_attributes']:
-                rec['nitelikler'].append(self.roll_attr(loot, rec['nitelikler'], rng))
+            if rec['seviye'] in D['unlocked_levels'] and len(rec['attributes']) < D['max_attributes']:
+                rec['attributes'].append(self.roll_attr(loot, rec['attributes'], rng))
             self.p.dirty = True
-        self.log('   Hyperforge: %s seviye %d (%s)' % (loot, rec['seviye'], ', '.join('%s %.2f%%' % (a, v) for a, v in rec['nitelikler'])))
+        self.log('   Hyperforge: %s seviye %d (%s)' % (loot, rec['seviye'], ', '.join('%s %.2f%%' % (a, v) for a, v in rec['attributes'])))
         name = loot.replace(PREFIX, 'QFC-').replace('-', '').upper().replace('QFC', 'QFC-')
         msgs = INV.update_msgs(self.m, self.p, [LUMI]) + [stm('log_message_core_forge_finished', '%NAME%', name, '%LEVEL%', rec['seviye'])]
         return msgs + [self.list_cmd()] + self.after(iid)

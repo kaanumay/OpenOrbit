@@ -14,15 +14,15 @@ LCB, MCB25, MCB50, SAB, RSB = ('ammunition_laser_lcb-10', 'ammunition_laser_mcb-
                                'ammunition_laser_sab-50', 'ammunition_laser_rsb-75')
 UCB = 'ammunition_laser_ucb-100'                     # x4: kapı ve mod ödüllerinden gelir; mağaza fiyatı olursa ikmal de alır
 MINES = ('ammunition_mine_acm-01', 'ammunition_mine_ddm-01')          # standart ve doğrudan hasarlı (uridyumla)
-MINE_COOLDOWN = K.ITEMS['savas_esyalari']['mayin']['bekleme_sn']
+MINE_COOLDOWN = K.ITEMS['combat_items']['mayin']['bekleme_sn']
 ROCKETS = ('ammunition_rocket_r-310', 'ammunition_rocket_plt-2026', 'ammunition_rocket_plt-2021', 'ammunition_rocket_plt-3030')
 STARTER_STOCK = {LCB: 1000, ROCKETS[0]: 20}             # yeni oyuncunun stoku (profil şablonu)
-ROCKET_COOLDOWN = K.COMBAT['roket_bekleme_ms'] / 1000.0
+ROCKET_COOLDOWN = K.COMBAT['rocket_cooldown_ms'] / 1000.0
 HARD_SEC = 90                                         # LCB-10 ile bundan uzun süren uzaylı "dayanıklı"
 
 
 def stock(bot):
-    return bot.k.setdefault('stok', dict(STARTER_STOCK))
+    return bot.k.setdefault('stock', dict(STARTER_STOCK))
 
 
 def has_laser(bot):
@@ -31,14 +31,14 @@ def has_laser(bot):
 
 
 def multiplier(loot):
-    return K.ITEMS['lazer_cephane'].get(loot, {}).get('carpan', 1)
+    return K.ITEMS['laser_ammo'].get(loot, {}).get('carpan', 1)
 
 
 def pick_laser(bot, ehp=0.0, pvp=False):
     """Bu hedefe hangi lazer cephanesi (stokta olan) -> loot ya da None (hiç mermi yok)."""
     s = stock(bot)
-    special = bot.permission.get('ozel_cephane', True)
-    frugal = bot.o('tutumluluk')
+    special = bot.permission.get('custom_ammunition', True)
+    frugal = bot.o('frugality')
     if special:
         if pvp:
             for c in (RSB, UCB, MCB50, MCB25):
@@ -72,18 +72,18 @@ def pick_mine(bot):
 
 
 def rocket_cooldown(bot):
-    return ROCKET_COOLDOWN * (0.5 if 'equipment_extra_cpu_rok-t01' in (bot.k['ekip'].get('ekstra') or {}) else 1.0)
+    return ROCKET_COOLDOWN * (0.5 if 'equipment_extra_cpu_rok-t01' in (bot.k['gear'].get('ekstra') or {}) else 1.0)
 
 
 def rocket_dps(bot, rocket):
-    r = K.ITEMS['roketler'].get(rocket) or {}
-    return r.get('hasar', 0) * 0.92 * r.get('isabet', K.COMBAT['roket_isabet']) / rocket_cooldown(bot)
+    r = K.ITEMS['rockets'].get(rocket) or {}
+    return r.get('hasar', 0) * 0.92 * r.get('hit', K.COMBAT['rocket_hit_chance']) / rocket_cooldown(bot)
 
 
 def spend(bot, loot, n):
     """n adet harcar (yettiği kadar) -> harcanan. Botların oyun ayarı profilinde "sonsuz cephane" açıksa harcanmaz."""
     s = stock(bot)
-    if bot.game_settings.get('sonsuz_cephane'):
+    if bot.game_settings.get('infinite_ammo'):
         return min(n, s.get(loot, 0)) if s.get(loot, 0) > 0 else 0
     fractions = bot.__dict__.setdefault('_spend_fraction', {})
     v = n + fractions.get(loot, 0.0)
@@ -113,18 +113,18 @@ def grind_plan(bot, ehp):
     lasers = pick_laser(bot, ehp)
     rocket = pick_rocket(bot)
     from . import lab as LB, technology as TECH
-    laser_dps = d['dps'] * multiplier(lasers) / max(1, multiplier(bot.k['ekip'].get('cephane'))) * (1 + LB.bonus(bot, LB.LAZER)) if lasers else 0.0
+    laser_dps = d['dps'] * multiplier(lasers) / max(1, multiplier(bot.k['gear'].get('ammunition'))) * (1 + LB.bonus(bot, LB.LAZER)) if lasers else 0.0
     is_hard = d['dps'] > 0 and ehp / d['dps'] > HARD_SEC
     rkt_dps = rocket_dps(bot, rocket) * (1 + LB.bonus(bot, LB.ROCKET)) if rocket else 0.0
     if rkt_dps and is_hard and (bot.__dict__.get('_targeter', 0) > bot.hour() or TECH.use(bot, 'tech_precision-targeter')):
         if bot.__dict__.get('_targeter', 0) <= bot.hour():
             bot._targeter = bot.hour() + TECH.TECH['tech_precision-targeter']['sure_sn']
-        rkt_dps /= (K.ITEMS['roketler'].get(rocket) or {}).get('isabet', 0.8)            # Precision Targeter: roketler hep isabet
+        rkt_dps /= (K.ITEMS['rockets'].get(rocket) or {}).get('hit', 0.8)            # Precision Targeter: roketler hep isabet
     from . import extras as EX
     aim = next((c for c in (EX.AIM2, EX.AIM1) if EX.var(bot, c)), None) if is_hard and bot.permission.get('ekstra', True) else None
     if aim and bot.k.get('kargo', {}).get('3', 0) >= 1000:                     # AIM CPU: atış başına 10 Xenomit
-        hit = K.COMBAT['lazer_isabet']
-        laser_dps *= (1 - (1 - hit) * (1 - K.ITEMS['ekstralar'][aim]['nisan'])) / hit
+        hit = K.COMBAT['laser_hit_chance']
+        laser_dps *= (1 - (1 - hit) * (1 - K.ITEMS['extras'][aim]['aim'])) / hit
         bot._aim = True
     else:
         bot._aim = False
@@ -141,7 +141,7 @@ def consume(bot, ehp_total, lasers, rocket, dps, laser_dps):
     duration = ehp_total / dps
     ratio = 1.0
     if lasers and laser_dps > 0:
-        d = K.outfit(bot.k['ekip'], bot.shield_share())
+        d = K.outfit(bot.k['gear'], bot.shield_share())
         shot = duration / K.LASER_INTERVAL * max(1, len(d['lazer']))           # her atışta lazer sayısı kadar mermi
         spent = spend(bot, lasers, shot)
         ratio = spent / shot if shot else 1.0
@@ -168,7 +168,7 @@ def _box_average():
     """Bonus kutusu tablosunun kalem başına ortalaması (tablo değişmedikçe bir kez; Dünya Editörü değiştirirse yeniden)."""
     global _BOX
     import world as WD
-    table = WD.CFG['bonus_kutu']
+    table = WD.CFG['bonus_boxes']
     if _BOX[0] is not table:
         avg = {}
         for loot, n in table:
@@ -185,7 +185,7 @@ def box_ammo(bot, box_count):
             add(bot, loot, pay)
         elif loot == 'kredi':
             bot.reward('kutu', kredi=pay)
-        elif loot == 'enerji':
+        elif loot == 'energy':
             add(bot, 'resource_extra-energy', pay)      # Galaksi Kapısı enerjisi
 
 
@@ -198,17 +198,17 @@ def price(loot):
 
 def hourly_ammo(bot):
     """Saatte harcanan mermi (ateşte geçen pay ~%35; her atışta lazer sayısı kadar)."""
-    d = K.outfit(bot.k['ekip'], bot.shield_share())
+    d = K.outfit(bot.k['gear'], bot.shield_share())
     return 3600 / K.LASER_INTERVAL * max(1, len(d['lazer'])) * 0.35
 
 
 def resupply(bot):
     """Stok azalınca mağazadan alır (karar anında; gerçek oyuncu cephanesi bitmeden alır). Önce LCB-10 (zorunlu), sonra roket
     ve özel cephane (paraya ve tutumluluğa göre) -> alınanlar."""
-    if not bot.permission.get('magaza', True):
+    if not bot.permission.get('shop', True):
         return {}
     s = stock(bot)
-    t = bot.o('tutumluluk')
+    t = bot.o('frugality')
     hourly = hourly_ammo(bot)
     claimed = {}
 
@@ -233,26 +233,26 @@ def resupply(bot):
                 en = r
         if en:
             buy(en, 100 + 400 * (1 - t), 0.15)
-    if bot.permission.get('ozel_cephane', True) and bot.level >= 3:
+    if bot.permission.get('custom_ammunition', True) and bot.level >= 3:
         if s.get(MCB25, 0) < 200 and bot.k['uridyum'] > 300 * (1 + t):
             buy(MCB25, 500 + 1500 * (1 - t), 0.25)
         if bot.level >= 8 and s.get(MCB50, 0) < 200 and bot.k['uridyum'] > 3000 * (1 + t):
             buy(MCB50, 1000 + 3000 * (1 - t), 0.2)
         if bot.level >= 10 and s.get(UCB, 0) < 200 and bot.k['uridyum'] > 8000 * (1 + t):
             buy(UCB, 500 + 1500 * (1 - t), 0.2)              # fiyatı yoksa (mağazada satılmıyor) al() atlar
-        if bot.level >= 8 and bot.o('saldirganlik') > 0.5 and s.get(RSB, 0) < 50 and bot.k['uridyum'] > 5000 * (1 + t):
+        if bot.level >= 8 and bot.o('aggression') > 0.5 and s.get(RSB, 0) < 50 and bot.k['uridyum'] > 5000 * (1 + t):
             buy(RSB, 200, 0.1)
-    if bot.permission.get('mayin', True) and bot.level >= 8 and bot.o('saldirganlik') + bot.o('risk') > 0.9 \
+    if bot.permission.get('mayin', True) and bot.level >= 8 and bot.o('aggression') + bot.o('risk') > 0.9 \
             and sum(s.get(m, 0) for m in MINES) < 5 and bot.k['uridyum'] > 4000 * (1 + t):
         buy(MINES[bot.r.random() < 0.3], 10 + 20 * (1 - t), 0.1)
     if bot.permission.get('ekstra', True) and bot.permission.get('pvp', True) and bot.level >= 8 and s.get('ammunition_specialammo_emp-01', 0) < 2 \
             and bot.k['uridyum'] > 5000 * (1 + t) and bot.o('risk') < 0.7:
         buy('ammunition_specialammo_emp-01', 5, 0.1)
-    if bot.permission.get('ozel_cephane', True) and bot.permission.get('pvp', True) and bot.level >= 8 and bot.k['uridyum'] > 4000 * (1 + t):
+    if bot.permission.get('custom_ammunition', True) and bot.permission.get('pvp', True) and bot.level >= 8 and bot.k['uridyum'] > 4000 * (1 + t):
         from . import active_items as AC
         for c in AC.SLOWERS:                           # yavaşlatma ve dondurma: PvP'de (aktif.yavaslat), az stok
-            if s.get(c, 0) < 3 and bot.o('saldirganlik') + bot.o('risk') > 0.8:
+            if s.get(c, 0) < 3 and bot.o('aggression') + bot.o('risk') > 0.8:
                 buy(c, 3, 0.05)
     if claimed:
-        bot.ist('ikmal')
+        bot.ist('resupply')
     return claimed

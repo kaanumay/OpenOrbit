@@ -108,7 +108,7 @@ class Social:
     def rooms(self):
         fac = self.p.d['pilot'].get('factionId', 0)
         g = GR.group_of(self.p.user_id)               # arkadaş sunucusunda grubun odası (istemci gruba girince sohbete yeniden bağlanır)
-        return [('global', 'global', 'yerel'), ('faction', 'faction', str(fac))] + self.clan.rooms() + \
+        return [('global', 'global', 'local'), ('faction', 'faction', str(fac))] + self.clan.rooms() + \
             ([GR.room(g.id)] if g is not None else [])
 
     def chat_login(self, ep, lang):
@@ -119,16 +119,16 @@ class Social:
         ok = self.chat.authenticate(ep, self.chat_user(), self.rooms(), lang)
         if ok and not self.welcomed:                  # harita değişiminde istemci yeniden bağlanabilir: duyuru oturumda bir kez
             self.welcomed = True
-            mode = 'tek' if not CO.is_open() else 'arkadas' if CO.SETTINGS['misafir'] else 'coklu'    # coklu: çoklu istemci (bu bilgisayar)
+            mode = 'tek' if not CO.is_open() else 'arkadas' if CO.SETTINGS['guest'] else 'multi'    # coklu: çoklu istemci (bu bilgisayar)
             text = {'tek': '%s, yerel sunucuya hoş geldin. Burada sohbet, posta, klan ve müzayede tek oyunculudur.',
                     'arkadas': '%s, arkadaş sunucusuna hoş geldin. Sohbet, posta, grup, rehber, klanlar ve sıralamalar ortak; '
                                'müzayede her oyuncunun kendisinin.',
-                    'coklu': '%s, yerel sunucuya hoş geldin. Bu bilgisayardaki öteki kayıtlarınla aynı evrendesin: sohbet, posta, grup, '
+                    'multi': '%s, yerel sunucuya hoş geldin. Bu bilgisayardaki öteki kayıtlarınla aynı evrendesin: sohbet, posta, grup, '
                              'rehber, klanlar ve sıralamalar ortak; müzayede her oyuncunun kendisinin.'}[mode] if lang == 'tr' else {
                     'tek': '%s, welcome to your local server. Chat, mail, clan and auction are single-player here.',
                     'arkadas': "%s, welcome to your friend's server. Chat, mail, groups, contacts, clans and rankings are shared; "
                                "auction is each player's own.",
-                    'coklu': '%s, welcome to your local server. You share this universe with your other saves on this computer: chat, '
+                    'multi': '%s, welcome to your local server. You share this universe with your other saves on this computer: chat, '
                              "mail, groups, contacts, clans and rankings are shared; auction is each player's own."}[mode]
             self.chat.announcement(text % self.p.d['pilot'].get('userName', ''), who=str(self.p.user_id))
         return ok

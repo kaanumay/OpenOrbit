@@ -15,19 +15,19 @@ import json, os, random, time
 from . import catalog as K
 
 B = json.load(open(os.path.join(K.HERE, 'data', 'tickets.json'), encoding='utf8'))
-SEASON = B['sezon']
+SEASON = B['season']
 BT = B['battle_pass']
 PASS_PRICE = 200000
 PASS_QUEST_SEC = 2700            # oynanan ~45 dakikada bir pass görevi
 SEASON_POINTS_PER_HOUR = 30            # oynanan saatte Season Pass puanı (günlük + haftalık görevler)
-_on = {'t': 0, 'section': [], 'aktif': set()}
+_on = {'t': 0, 'section': [], 'active': set()}
 
 
 def _refresh():
     import event_maps as EM, event_calendar as CAL
     t = time.time()
     if t - _on['t'] > 60:
-        _on.update(t=t, section=EM.specs(), aktif=set(CAL.active()))
+        _on.update(t=t, section=EM.specs(), active=set(CAL.active()))
     return _on
 
 
@@ -43,7 +43,7 @@ def event_types(bot, game_map):
     d = bot.value()
     out = set()
     for _, s in sections(game_map):
-        for u in s.get('uzaylilar', []):
+        for u in s.get('alien_spawns', []):
             tip = str(u['tur']).replace('{x}', 'x%s' % map_number(game_map)) if '{x}' in str(u['tur']) else str(u['tur'])
             v = K.npc_value(tip) or K.npc_value(str(u['tur']))
             if v and d['dps'] > 0 and v['ehp'] / d['dps'] < 120 and v['dps'] * v['ehp'] / d['dps'] < d['ehp'] * 0.6:
@@ -65,12 +65,12 @@ def drop(bot, game_map, tip):
         return
     b = EM.base(tip)
     for _, s in sections(game_map):
-        tab = s.get('dusme', {})
+        tab = s.get('drop', {})
         for loot, a in (tab.get(tip) or tab.get(b) or {}).items():
             n = WD.extra_count(a, 1.0)                    # oyunun okuyuşu: sayı, [en az, en çok] ya da {adet, olasilik} (Agatus)
             if n > 0:
                 LT.give(bot, loot, n)
-                bot.ist('etkinlik_dusme', n)
+                bot.ist('event_drop', n)
         box_drop = (s.get('box_drop', {}).get(tip) or s.get('box_drop', {}).get(b))
         if box_drop and random.random() < box_drop.get('probability', 1.0) * 0.8:            # düşen sandığı çoğunlukla toplar
             for loot, n in EM.roll(box_drop):
@@ -83,7 +83,7 @@ def open_box(bot, spec):
     got = EM.roll(spec)
     for loot, n in got:
         LT.give(bot, loot, n)
-    bot.ist('etkinlik_kutusu')
+    bot.ist('event_box')
     return got
 
 
@@ -98,7 +98,7 @@ def abstract(bot, dt, y, dps):
     crowd = max(1.0, 0.3 * len(y.on_map.get(bot.game_map, ()))) if y is not None else 1.0
     kinds = event_types(bot, bot.game_map)
     for k, s in bl:
-        for u in s.get('uzaylilar', []):
+        for u in s.get('alien_spawns', []):
             tip = next((t for t in kinds if t == str(u['tur']) or t.startswith(str(u['tur']).split('{')[0])), None)
             v = K.npc_value(tip) if tip else None
             if not v:
@@ -106,15 +106,15 @@ def abstract(bot, dt, y, dps):
             ratio = min(u.get('adet', 1) * dt / 60.0 / crowd, dt * 0.25 * dps / max(1.0, v['ehp']))    # etkinlik uzaylısı payı
             n = int(ratio) + (bot.r.random() < ratio - int(ratio))
             for _ in range(n):
-                o = v['odul']
+                o = v['reward']
                 bot.reward('npc', speed, ep=o.get('ep', 0), kredi=o.get('kredi', 0), uridyum=o.get('uridyum', 0), onur=o.get('onur', 0))
                 drop(bot, bot.game_map, tip)
             if n:
-                bot.ist('etkinlik_npc', n)
+                bot.ist('event_npc', n)
                 if y is not None:
                     y.npc_killed(bot, tip, n)
-        for box in s.get('kutular', []):
-            respawn = box.get('yeniden_sn') or [300, 600]
+        for box in s.get('boxes', []):
+            respawn = box.get('renew_sec') or [300, 600]
             if bot.r.random() < box.get('adet', 1) * dt / (sum(respawn) / 2.0) / crowd:
                 open_box(bot, box)
 
@@ -122,8 +122,8 @@ def abstract(bot, dt, y, dps):
 # ------------------------------------------------------------------------------------------------------------ Battle Pass
 def active_pass():
     """Şu an süren pass'in etkinliği (pass'i olan etkin etkinlik) ya da None."""
-    active = _refresh()['aktif']
-    return next((k for k in BT['passler'] if k in active), None)
+    active = _refresh()['active']
+    return next((k for k in BT['passes'] if k in active), None)
 
 
 def battle_pass(bot, dt):
@@ -137,11 +137,11 @@ def battle_pass(bot, dt):
     st = bot.k.setdefault('pass', {})
     if st.get('donem') != k:
         st.clear()
-        st.update(donem=k, tamam=0, purchased=False, sure=0.0, degisim={})
-    p = BT['passler'][k]
-    rewards = list((p.get('oduller') or {}).values())
-    if not st['purchased'] and not p.get('keyless') and bot.level >= 12 and bot.o('hirs') > 0.6 \
-            and bot.k['uridyum'] > PASS_PRICE * (2 + bot.o('tutumluluk')) and bot.pay('U', PASS_PRICE * bot.game_settings.multiplier('magaza_fiyat')):
+        st.update(donem=k, tamam=0, purchased=False, sure=0.0, exchange={})
+    p = BT['passes'][k]
+    rewards = list((p.get('rewards') or {}).values())
+    if not st['purchased'] and not p.get('keyless') and bot.level >= 12 and bot.o('ambition') > 0.6 \
+            and bot.k['uridyum'] > PASS_PRICE * (2 + bot.o('frugality')) and bot.pay('U', PASS_PRICE * bot.game_settings.multiplier('shop_price')):
         st['purchased'] = True
         bot.ist('battle_pass')
         stock = LT.stock(bot)
@@ -151,12 +151,12 @@ def battle_pass(bot, dt):
         st['sure'] -= PASS_QUEST_SEC
         o = rewards[st['tamam']]
         st['tamam'] += 1
-        for loot, n in o.get('odul', []):
+        for loot, n in o.get('reward', []):
             LT.give(bot, loot, n)
         if st['purchased']:
             stock = LT.stock(bot)
             stock['resource_battle-pass-key'] = stock.get('resource_battle-pass-key', 0) + o.get('anahtar', 0)
-        bot.ist('pass_gorev')
+        bot.ist('pass_quest')
     exchange(bot, st)
 
 
@@ -164,18 +164,18 @@ def exchange(bot, st):
     """Battle Pass anahtarlarını değişim tablosunda en iyi değer / anahtar oranlı ödüle harcar (sınırıyla)."""
     from . import loot as LT
     stock = LT.stock(bot)
-    table = (BT['passler'].get(st['donem']) or {}).get('key_exchange') or BT['key_exchange']
+    table = (BT['passes'].get(st['donem']) or {}).get('key_exchange') or BT['key_exchange']
     while stock.get('resource_battle-pass-key', 0) > 0:
         eligible = [r for r in table if r['cost'] <= stock['resource_battle-pass-key']
-                 and st['degisim'].get(r['exchangeReward'], 0) < r.get('limit', 99)]
+                 and st['exchange'].get(r['exchangeReward'], 0) < r.get('limit', 99)]
         if not eligible:
             return
         r = max(eligible, key=lambda r: sum(LT.value(l['lootId'], l['amount']) for l in r['listOfloot']) / max(1, r['cost']))
         stock['resource_battle-pass-key'] -= r['cost']
-        st['degisim'][r['exchangeReward']] = st['degisim'].get(r['exchangeReward'], 0) + 1
+        st['exchange'][r['exchangeReward']] = st['exchange'].get(r['exchangeReward'], 0) + 1
         for l in r['listOfloot']:
             LT.give(bot, l['lootId'], l['amount'])
-        bot.ist('pass_degisim')
+        bot.ist('pass_exchange')
 
 
 # ------------------------------------------------------------------------------------------------------------ Season Pass
@@ -189,17 +189,17 @@ def season_pass(bot, dt):
     from . import loot as LT
     if not bot.permission.get('etkinlik', True):
         return
-    st = bot.k.setdefault('sezon', {})
+    st = bot.k.setdefault('season', {})
     d = season_period()
     if st.get('donem') != d:
         st.clear()
         st.update(donem=d, puan=0.0, seviye=0)
-    st['puan'] += SEASON_POINTS_PER_HOUR * dt / 3600.0 * (0.7 + 0.6 * bot.o('hirs'))
+    st['puan'] += SEASON_POINTS_PER_HOUR * dt / 3600.0 * (0.7 + 0.6 * bot.o('ambition'))
     cost = SEASON['point_cost']
-    order = {lv: (loot, n) for lv, loot, n in SEASON['odul'].get('ucretsiz', [])}
+    order = {lv: (loot, n) for lv, loot, n in SEASON['reward'].get('free', [])}
     while st['seviye'] + 1 < len(cost) and st['puan'] >= cost[st['seviye'] + 1]:
         st['puan'] -= cost[st['seviye'] + 1]
         st['seviye'] += 1
         if st['seviye'] in order:
             LT.give(bot, *order[st['seviye']])
-        bot.ist('sezon_seviye')
+        bot.ist('season_level')

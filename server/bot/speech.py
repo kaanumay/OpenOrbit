@@ -20,7 +20,7 @@ EMOJI = (':D', ':)', 'xD', '^^', ':P', ';)', 'xd')
 
 
 def lang(bot):
-    d = bot.k['kisilik'].get('dil')
+    d = bot.k['personality'].get('dil')
     return d if d in LANGUAGES else 'en'
 
 
@@ -35,7 +35,7 @@ def template(bot, durum, **f):
         text = text.format(**f)
     except (KeyError, IndexError):
         return None
-    return apply_style(text, bot.k['kisilik'].get('uslup') or {}, bot.r, d)
+    return apply_style(text, bot.k['personality'].get('style') or {}, bot.r, d)
 
 
 def dialogue(bot):
@@ -50,7 +50,7 @@ def dialogue_line(bot, kind, **f):
         text = bot.r.choice(kind).format(**f)
     except (KeyError, IndexError):
         return None
-    return apply_style(text, bot.k['kisilik'].get('uslup') or {}, bot.r, lang(bot))
+    return apply_style(text, bot.k['personality'].get('style') or {}, bot.r, lang(bot))
 
 
 def apply_style(text, u, r=random, d='tr'):
@@ -149,4 +149,4 @@ def intent(text):
 
 def typing_time(text, bot):
     """İnsanın okuyup yazma süresi (sn): tepki + harf başına."""
-    return bot.k['kisilik']['reaction_sec'] * bot.r.uniform(2.0, 5.0) + len(text) / bot.r.uniform(3.5, 7.0)
+    return bot.k['personality']['reaction_sec'] * bot.r.uniform(2.0, 5.0) + len(text) / bot.r.uniform(3.5, 7.0)

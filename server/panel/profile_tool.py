@@ -69,7 +69,7 @@ def new_(path, pilot, firma, kredi=None, uridyum=None, seviye=None, onur=None, l
         pl['honourPoints'] = onur
     for key, n in (('lazer', lazer), ('roket', roket)):
         if n is not None:
-            pr.d['cephane'][START_AMMO[key]] = n
+            pr.d['ammunition'][START_AMMO[key]] = n
     mid = HOME_MAP[firma]
     pos = station_pos(mid)
     if pos:
@@ -103,8 +103,8 @@ def known_loots():
            if not k.startswith(('shipId_', 'paymentItem_'))}
     es = _load('items.json')
     prefixes = {k.split('_', 1)[0] for k in out}
-    for sec in ('lazerler', 'lazer_cephane', 'roketler', 'onarim_robotlari', 'hiz_jeneratorleri', 'kalkan_jeneratorleri', 'gemiler',
-                'dronlar', 'formasyonlar', 'dron_tasarimlari', 'boosterlar', 'ekstralar', 'savas_esyalari', 'odeme_paketleri'):
+    for sec in ('lasers', 'laser_ammo', 'rockets', 'repair_robots', 'speed_generators', 'shield_generators', 'ships',
+                'drones', 'formations', 'drone_designs', 'boosters', 'extras', 'combat_items', 'payment_packages'):
         for k in (es.get(sec) or {}):
             if isinstance(k, str) and not k.startswith('_') and k.split('_', 1)[0] in prefixes | {'package', 'deal'}:
                 out.setdefault(k, sec)
@@ -130,17 +130,17 @@ def give(path, items, pr=None):
     m = Shop(pr, _load('responses.json'), notes.append)      # oyundaki şablonlar: takılan ekipmanın HangarShipEquipmentCommand'ı
     m.gates = KAPI.Gates(pr, notes.append)
     m.new_ = NS.NewSystems(pr, m, notes.append)
-    before = (len(pr.d.get('esyalar', {})), len(pr.d.get('gemiler', {})), len(pr.d.get('dronlar', [])))
+    before = (len(pr.d.get('esyalar', {})), len(pr.d.get('ships', {})), len(pr.d.get('drones', [])))
     for loot, n in items:
         m.reward(loot, n)
     if save:
         pr.save(force=True)
-    after = (len(pr.d.get('esyalar', {})), len(pr.d.get('gemiler', {})), len(pr.d.get('dronlar', [])))
+    after = (len(pr.d.get('esyalar', {})), len(pr.d.get('ships', {})), len(pr.d.get('drones', [])))
     return {'given': [[l, n] for l, n in items], 'esya': after[0] - before[0], 'gemi': after[1] - before[1],
-            'dron': after[2] - before[2], 'notlar': [x.strip() for x in notes if x.strip()][-20:]}
+            'drone': after[2] - before[2], 'notes': [x.strip() for x in notes if x.strip()][-20:]}
 
 
-RESETS = ('ipuclari', 'arayuz', 'oyun_ayarlari', 'aktif_gorevler', 'gecmis')
+RESETS = ('hints', 'ui', 'game_settings', 'active_quests', 'history')
 
 
 def reset(path, parts):
@@ -158,16 +158,16 @@ def reset_d(d, parts):
     seed = _load('login.json').get('seed') or {}
     done = []
     for part in parts:
-        if part == 'ipuclari':                     # ipucu pencereleri ve etkinlik bildirimleri yeniden (ipucu.py)
-            for k in ('ipuclari_gosterilen', 'ipuclari_kapali', 'etkinlik_bildirimi'):
+        if part == 'hints':                     # ipucu pencereleri ve etkinlik bildirimleri yeniden (ipucu.py)
+            for k in ('tips_shown', 'hints_closed', 'event_notification'):
                 d.pop(k, None)
-        elif part == 'arayuz':                     # menü çubukları ve pencere yerleri tohumdaki (UILayoutCommand)
-            d['arayuz'] = seed.get('UILayoutCommand') or {'featureBars': []}
-        elif part == 'oyun_ayarlari':              # oyunun Ayarlar penceresi (grafik, ses, oynanış) tohumdaki
-            d['ayarlar'] = seed.get('UserSettingsCommand') or {}
-        elif part == 'aktif_gorevler':             # alınmış görevler bırakılır (bitenler kalır)
-            d.setdefault('gorevler', {})['aktif'] = {}
-        elif part == 'gecmis':                     # seyir defteri ve hesap geçmişi boşalır
+        elif part == 'ui':                     # menü çubukları ve pencere yerleri tohumdaki (UILayoutCommand)
+            d['ui'] = seed.get('UILayoutCommand') or {'featureBars': []}
+        elif part == 'game_settings':              # oyunun Ayarlar penceresi (grafik, ses, oynanış) tohumdaki
+            d['settings'] = seed.get('UserSettingsCommand') or {}
+        elif part == 'active_quests':             # alınmış görevler bırakılır (bitenler kalır)
+            d.setdefault('quests', {})['active'] = {}
+        elif part == 'history':                     # seyir defteri ve hesap geçmişi boşalır
             d['logbook'], d['account_history'] = [], []
         else:
             raise ValueError('Bilinmeyen bölüm: %s', part)
@@ -181,11 +181,11 @@ def main(argv):
     if args[:1] == ['yeni'] and len(args) == 4:
         num = {k: int(opts[k]) for k in ('kredi', 'uridyum', 'seviye', 'onur', 'lazer', 'roket') if k in opts}
         return new_(args[1], args[2], args[3], ilerlemeli=opts.get('ilerlemeli') == '1', kampanya=opts.get('kampanya') == '1', **num)
-    if args[:1] == ['ana_us'] and len(args) == 2:
+    if args[:1] == ['home_base'] and len(args) == 2:
         return home_base(args[1])
-    if args[:1] == ['ver'] and len(args) == 3:
+    if args[:1] == ['give'] and len(args) == 3:
         return give(args[1], json.loads(args[2]))
-    if args[:1] == ['sifirla'] and len(args) == 3:
+    if args[:1] == ['reset'] and len(args) == 3:
         return reset(args[1], [x for x in args[2].split(',') if x])
     if args[:1] == ['liste'] and len(args) == 1:
         return {'esyalar': sorted(known_loots().items())}

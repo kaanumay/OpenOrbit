@@ -2,320 +2,320 @@
  "_description": "belgeler/wiki/resources_refining.md (darkorbitwiki: Skylab) + kayıttaki başlangıç durumu -> server/data/skylab.json. Üreten: tools/skylab.py.",
  "seviyeler": [
   {
-   "enerji": 16,
+   "energy": 16,
    "solar": 170,
    "uretim": {
-    "ham": 2200,
+    "raw": 2200,
     "prometid_duranium": 110,
     "promerium": 11,
     "seprom": 1
    },
    "storage": {
-    "ham": 105600,
+    "raw": 105600,
     "prometid_duranium": 5280,
     "promerium": 528,
     "seprom": 48
    }
   },
   {
-   "enerji": 19,
+   "energy": 19,
    "solar": 210,
    "uretim": {
-    "ham": 7400,
+    "raw": 7400,
     "prometid_duranium": 370,
     "promerium": 37,
     "seprom": 3
    },
    "storage": {
-    "ham": 355195,
+    "raw": 355195,
     "prometid_duranium": 17760,
     "promerium": 1776,
     "seprom": 161
    }
   },
   {
-   "enerji": 24,
+   "energy": 24,
    "solar": 270,
    "uretim": {
-    "ham": 15045,
+    "raw": 15045,
     "prometid_duranium": 752,
     "promerium": 75,
     "seprom": 7
    },
    "storage": {
-    "ham": 722148,
+    "raw": 722148,
     "prometid_duranium": 36107,
     "promerium": 3611,
     "seprom": 328
    }
   },
   {
-   "enerji": 31,
+   "energy": 31,
    "solar": 350,
    "uretim": {
-    "ham": 24890,
+    "raw": 24890,
     "prometid_duranium": 1245,
     "promerium": 124,
     "seprom": 11
    },
    "storage": {
-    "ham": 1194728,
+    "raw": 1194728,
     "prometid_duranium": 59736,
     "promerium": 5974,
     "seprom": 543
    }
   },
   {
-   "enerji": 40,
+   "energy": 40,
    "solar": 450,
    "uretim": {
-    "ham": 36781,
+    "raw": 36781,
     "prometid_duranium": 1839,
     "promerium": 184,
     "seprom": 17
    },
    "storage": {
-    "ham": 1765474,
+    "raw": 1765474,
     "prometid_duranium": 88274,
     "promerium": 8827,
     "seprom": 802
    }
   },
   {
-   "enerji": 51,
+   "energy": 51,
    "solar": 570,
    "uretim": {
-    "ham": 50604,
+    "raw": 50604,
     "prometid_duranium": 2530,
     "promerium": 253,
     "seprom": 23
    },
    "storage": {
-    "ham": 2429006,
+    "raw": 2429006,
     "prometid_duranium": 121450,
     "promerium": 12145,
     "seprom": 1104
    }
   },
   {
-   "enerji": 64,
+   "energy": 64,
    "solar": 710,
    "uretim": {
-    "ham": 66274,
+    "raw": 66274,
     "prometid_duranium": 3314,
     "promerium": 331,
     "seprom": 30
    },
    "storage": {
-    "ham": 3181160,
+    "raw": 3181160,
     "prometid_duranium": 159058,
     "promerium": 15906,
     "seprom": 1446
    }
   },
   {
-   "enerji": 79,
+   "energy": 79,
    "solar": 870,
    "uretim": {
-    "ham": 83720,
+    "raw": 83720,
     "prometid_duranium": 4186,
     "promerium": 419,
     "seprom": 38
    },
    "storage": {
-    "ham": 4018569,
+    "raw": 4018569,
     "prometid_duranium": 200928,
     "promerium": 20093,
     "seprom": 1827
    }
   },
   {
-   "enerji": 96,
+   "energy": 96,
    "solar": 1050,
    "uretim": {
-    "ham": 102884,
+    "raw": 102884,
     "prometid_duranium": 5144,
     "promerium": 514,
     "seprom": 47
    },
    "storage": {
-    "ham": 4938423,
+    "raw": 4938423,
     "prometid_duranium": 246921,
     "promerium": 24692,
     "seprom": 2245
    }
   },
   {
-   "enerji": 115,
+   "energy": 115,
    "solar": 1250,
    "uretim": {
-    "ham": 123715,
+    "raw": 123715,
     "prometid_duranium": 6186,
     "promerium": 619,
     "seprom": 56
    },
    "storage": {
-    "ham": 5938324,
+    "raw": 5938324,
     "prometid_duranium": 296916,
     "promerium": 29692,
     "seprom": 2699
    }
   },
   {
-   "enerji": 136,
+   "energy": 136,
    "solar": 1470,
    "uretim": {
-    "ham": 146171,
+    "raw": 146171,
     "prometid_duranium": 7309,
     "promerium": 731,
     "seprom": 66
    },
    "storage": {
-    "ham": 7016186,
+    "raw": 7016186,
     "prometid_duranium": 350809,
     "promerium": 35081,
     "seprom": 3189
    }
   },
   {
-   "enerji": 159,
+   "energy": 159,
    "solar": 1710,
    "uretim": {
-    "ham": 170212,
+    "raw": 170212,
     "prometid_duranium": 8511,
     "promerium": 851,
     "seprom": 77
    },
    "storage": {
-    "ham": 8170170,
+    "raw": 8170170,
     "prometid_duranium": 408509,
     "promerium": 40851,
     "seprom": 3714
    }
   },
   {
-   "enerji": 184,
+   "energy": 184,
    "solar": 1970,
    "uretim": {
-    "ham": 195805,
+    "raw": 195805,
     "prometid_duranium": 9790,
     "promerium": 979,
     "seprom": 89
    },
    "storage": {
-    "ham": 9398635,
+    "raw": 9398635,
     "prometid_duranium": 469932,
     "promerium": 46993,
     "seprom": 4272
    }
   },
   {
-   "enerji": 211,
+   "energy": 211,
    "solar": 2250,
    "uretim": {
-    "ham": 222919,
+    "raw": 222919,
     "prometid_duranium": 11146,
     "promerium": 1115,
     "seprom": 101
    },
    "storage": {
-    "ham": 10700104,
+    "raw": 10700104,
     "prometid_duranium": 535005,
     "promerium": 53501,
     "seprom": 4864
    }
   },
   {
-   "enerji": 240,
+   "energy": 240,
    "solar": 2550,
    "uretim": {
-    "ham": 251526,
+    "raw": 251526,
     "prometid_duranium": 12576,
     "promerium": 1258,
     "seprom": 114
    },
    "storage": {
-    "ham": 12073234,
+    "raw": 12073234,
     "prometid_duranium": 603662,
     "promerium": 60366,
     "seprom": 5488
    }
   },
   {
-   "enerji": 271,
+   "energy": 271,
    "solar": 2870,
    "uretim": {
-    "ham": 281600,
+    "raw": 281600,
     "prometid_duranium": 14080,
     "promerium": 1408,
     "seprom": 128
    },
    "storage": {
-    "ham": 13516800,
+    "raw": 13516800,
     "prometid_duranium": 675840,
     "promerium": 67584,
     "seprom": 6144
    }
   },
   {
-   "enerji": 304,
+   "energy": 304,
    "solar": 3210,
    "uretim": {
-    "ham": 313118,
+    "raw": 313118,
     "prometid_duranium": 15656,
     "promerium": 1566,
     "seprom": 142
    },
    "storage": {
-    "ham": 15029673,
+    "raw": 15029673,
     "prometid_duranium": 751484,
     "promerium": 75148,
     "seprom": 6832
    }
   },
   {
-   "enerji": 339,
+   "energy": 339,
    "solar": 3570,
    "uretim": {
-    "ham": 346059,
+    "raw": 346059,
     "prometid_duranium": 17303,
     "promerium": 1730,
     "seprom": 157
    },
    "storage": {
-    "ham": 16610810,
+    "raw": 16610810,
     "prometid_duranium": 830540,
     "promerium": 83054,
     "seprom": 7550
    }
   },
   {
-   "enerji": 376,
+   "energy": 376,
    "solar": 3950,
    "uretim": {
-    "ham": 380401,
+    "raw": 380401,
     "prometid_duranium": 19020,
     "promerium": 1902,
     "seprom": 173
    },
    "storage": {
-    "ham": 18259241,
+    "raw": 18259241,
     "prometid_duranium": 912962,
     "promerium": 91296,
     "seprom": 8300
    }
   },
   {
-   "enerji": 415,
+   "energy": 415,
    "solar": 4350,
    "uretim": {
-    "ham": 416126,
+    "raw": 416126,
     "prometid_duranium": 20806,
     "promerium": 2081,
     "seprom": 189
    },
    "storage": {
-    "ham": 19974063,
+    "raw": 19974063,
     "prometid_duranium": 998703,
     "promerium": 99870,
     "seprom": 9079
@@ -1057,7 +1057,7 @@
   ]
  },
  "_spelling_fixes": "darkorbitwiki Skylab tablolarındaki yazım hataları tools/skylab.py (WIKI_YAZIM_DUZELTMELERI, DEPO_DUZELTMELERI) ile düzeltilir: fandom Skylab modül tabloları aynı hücrelerde düzeltilmiş değeri veriyor ve sayı dizisi düzgün; depo = 48 x saatlik üretim.",
- "moduller": {
+ "modules": {
   "BASE_MODULE": {
    "grup": "basicSolarStorage",
    "azami": 20
@@ -1108,7 +1108,7 @@
   }
  },
  "baslangic": {
-  "moduller": {
+  "modules": {
    "BASE_MODULE": [
     1,
     true
@@ -1144,20 +1144,20 @@
    "3": 200
   }
  },
- "cevherler": {
+ "ores": {
   "1": [
    "Prometium",
-   "ham",
+   "raw",
    0
   ],
   "2": [
    "Endurium",
-   "ham",
+   "raw",
    1
   ],
   "3": [
    "Terbium",
-   "ham",
+   "raw",
    2
   ],
   "4": [
@@ -1234,14 +1234,14 @@
  "_xeno": "Xeno modülü etkinken Skylab deposuna seviyesinin Promerium üretimi kadar Xenomit sağlar (uyarlama: istemcide gemiden Skylab'a taşıma isteği yok; depo sınırı kayıttaki 528 = Promerium sütunu). Wiki: Xenomit sürekli tüketilir.",
  "robots": {
   "1": {
-   "fiyat": [
+   "price": [
     "credits",
     250
    ],
    "bonus": 1
   },
   "2": {
-   "fiyat": [
+   "price": [
     "uridium",
     50
    ],
@@ -1253,8 +1253,8 @@
  "_robots": "wiki: 250 kredi (+%1) ya da 50 uridyum (+%4), toplayıcı başına en çok 12, 48 saat yaşar",
  "transport": {
   "fast_uridium": 1250,
-  "birim_sn": 7.2,
-  "premium_birim_sn": 3.6
+  "unit_sec": 7.2,
+  "premium_unit_sec": 3.6
  },
  "_transport": "anında gönderme (transportMode fast) ve yoldaki taşımayı bitirme (instantFinish) fiyatı kayıttaki SkylabUnifiedReceiptCommand.transportPrice; normal taşıma cevher başına 7,2 sn (Premium 3,6 sn): wikiwiki 輸送モジュール \"資源１個あたり7.2秒（500個で１時間）\""
 }

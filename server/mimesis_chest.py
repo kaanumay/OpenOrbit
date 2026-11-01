@@ -19,7 +19,7 @@ from legacy_protocol import stm
 HERE = os.path.dirname(os.path.abspath(__file__))
 _PATH = os.path.join(HERE, 'data', 'major_content.json')
 D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('mimesis', {}).get('chest') or {}
-SRC = 'mimesis_sandik'
+SRC = 'mimesis_chest'
 
 
 def pick():
@@ -67,7 +67,7 @@ def apply(w, e, now=None):
         return heal(w, hp=e['can'])
     if t == 'kalkan':
         return heal(w, shield=e['kalkan'])
-    if t == 'can_alani':
+    if t == 'hp_field':
         for v in near(w, e['yaricap'], now)[1:]:
             v.deliver(heal(v, hp=e['can']))
         return heal(w, hp=e['can'])
@@ -77,9 +77,9 @@ def apply(w, e, now=None):
         item = e['yetenek']
         if SA.is_active(w.p, item, now):
             return []                                       # aynı gemi yeteneği etkinse tetiklenmez (wiki)
-        return timed(w, item, e['sure_sn'], dict(SA.ABILITIES[item]['etki']), item)
-    if t == 'teknik':
-        item = e['teknik']
+        return timed(w, item, e['sure_sn'], dict(SA.ABILITIES[item]['effect']), item)
+    if t == 'tech':
+        item = e['tech']
         if w.tech.active(item, now):
             return []
         return frost(w, item, TECH.ITEMS[item], now)

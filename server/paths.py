@@ -59,7 +59,7 @@ def slot_dir(slot, root=SAVES):
 
 
 def active_slot(path=PANEL):
-    s = panel_config(path).get('aktif_kayit')
+    s = panel_config(path).get('active_save')
     return s if isinstance(s, str) and s and os.path.isdir(slot_dir(s)) else None
 
 

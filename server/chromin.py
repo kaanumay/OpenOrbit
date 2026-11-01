@@ -96,11 +96,11 @@ class Chromin:
         if not active() or int(w.map_id) not in KAPI.BY_MAP or npc.d.get('uncounted'):
             return []
         b = box_for(npc, KAPI.BY_MAP[int(w.map_id)])
-        if not b or random.random() >= SET.chance('dusme', D.get('probability', 1.0), 'etkinlik'):
+        if not b or random.random() >= SET.chance('drop', D.get('probability', 1.0), 'etkinlik'):
             return []
         kind, n = b
         h = w.drop_box(kind, x, y, None, D.get('omur_sn', 300))
-        w.boxes[h]['event'] = {'tur': kind, 'mod': 'hepsi', 'kesin': [[LOOT, n]]}
+        w.boxes[h]['event'] = {'tur': kind, 'mod': 'hepsi', 'guaranteed': [[LOOT, n]]}
         return []
 
     def tick(self, now):

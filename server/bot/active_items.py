@@ -16,8 +16,8 @@ import math, random, time
 from legacy_protocol import legacy
 from . import catalog as K
 
-CIT = K.ITEMS['savas_esyalari']
-TECH_DATA = K.ITEMS['teknoloji']['esyalar']
+CIT = K.ITEMS['combat_items']
+TECH_DATA = K.ITEMS['technology']['esyalar']
 EMP = 'ammunition_specialammo_emp-01'
 DCR, RIC = 'ammunition_specialammo_dcr-250', 'ammunition_specialammo_r-ic3'      # yavaşlatma, dondurma (savas_esya.rocket_hit'in etkileri)
 SLOWERS = (DCR, RIC)
@@ -59,8 +59,8 @@ def spend_xenomit(b, n):
 def cost(b, c):
     """Insta-Shield ve Smart Bomb'un bedeli: 10 ACM-01 mayını ya da 100 Xenomit -> ödendi mi."""
     from . import weapons as WP
-    if WP.stock(b).get(c['mayin'], 0) >= c['mayin_adet']:
-        return WP.spend(b, c['mayin'], c['mayin_adet']) == c['mayin_adet']
+    if WP.stock(b).get(c['mayin'], 0) >= c['mine_count']:
+        return WP.spend(b, c['mayin'], c['mine_count']) == c['mine_count']
     return spend_xenomit(b, c['xenomit'])
 
 
@@ -82,13 +82,13 @@ def battle_repair(w, n, now, hp):
     if not ready(n, 'brb', now) or not TECH.use(n.bot, 'tech_battle-repair-bot'):
         return False
     wait(n, 'brb', now, v['bekleme_sn'])
-    visual(w, n, v['gorsel'], True)
+    visual(w, n, v['visual'], True)
     for i in range(int(v['sure_sn'])):
         def repair():
             if n.alive:
                 n.hp = min(hp, n.hp + v['can_sn'])
         w.later(i + 1, repair)
-    w.later(v['sure_sn'], lambda: visual(w, n, v['gorsel'], False) if n.alive else None)
+    w.later(v['sure_sn'], lambda: visual(w, n, v['visual'], False) if n.alive else None)
     return True
 
 
@@ -100,8 +100,8 @@ def energy_leech(w, n, now):
         return
     n.leech_end = now + v['sure_sn']
     wait(n, 'ela', now, v['bekleme_sn'] + v['sure_sn'])
-    visual(w, n, v['gorsel'], True)
-    w.later(v['sure_sn'], lambda: visual(w, n, v['gorsel'], False) if n.alive else None)
+    visual(w, n, v['visual'], True)
+    w.later(v['sure_sn'], lambda: visual(w, n, v['visual'], False) if n.alive else None)
 
 
 def leech(n, dmg, hp, now):
@@ -117,7 +117,7 @@ def chain_impulse(w, n, now):
         return
     nx, ny = n.mover.pos(now)
     nearby = sorted(((math.hypot(m.mover.pos(now)[0] - nx, m.mover.pos(now)[1] - ny), m) for m in list(w.npcs.values())
-                    if m.bot is None and m.alive and not m.d.get('dost')), key=lambda x: x[0])
+                    if m.bot is None and m.alive and not m.d.get('friendly')), key=lambda x: x[0])
     nearby = [m for dd, m in nearby if dd <= v['yaricap']][:v['hedef']]
     if len(nearby) < 3 or not TECH.use(n.bot, 'tech_chain-impulse'):
         return
@@ -131,7 +131,7 @@ def chain_impulse(w, n, now):
 # ------------------------------------------------------------------------------------------------------------ etkin CPU'lar
 def insta_shield(w, n, now):
     from . import extras as EX
-    c = CIT['aninda_kalkan']
+    c = CIT['insta_shield']
     b = n.bot
     if not EX.var(b, EX.ISH) or not b.permission.get('ekstra', True) or not ready(n, 'ish', now) or not cost(b, c):
         return False
@@ -144,7 +144,7 @@ def insta_shield(w, n, now):
 def smart_bomb(w, n, now, enemies):
     """dusmanlar: [(kahraman dünyası ya da None, bot gemisi ya da None)] yarıçapta."""
     from . import extras as EX
-    c = CIT['akilli_bomba']
+    c = CIT['smart_bomb']
     b = n.bot
     if not enemies or not EX.var(b, EX.SMB) or not b.permission.get('ekstra', True) or not ready(n, 'smb', now) or not cost(b, c):
         return False
@@ -194,7 +194,7 @@ def cloak(w, n, now):
     _broadcast(w, [legacy('0|n|INV|%d|1' % n.id)], n.id)
     # onu seçmiş oyuncunun seçimi ve saldırısı sürer, vuruşlar işler (wiki: "Cloaked ships can still be attacked (if targeted)";
     # oyuncu bildirimi 2026-10-31: gizlenen bota saldırılamıyordu)
-    n.bot.ist('gizlendi')
+    n.bot.ist('hidden')
     return True
 
 
@@ -216,7 +216,7 @@ def aim(n, hit, is_hard):
     cpu = next((c for c in (EX.AIM2, EX.AIM1) if EX.var(b, c)), None)
     if not cpu or not is_hard or not b.permission.get('ekstra', True) or not spend_xenomit(b, CIT['aim_cpu']['xenomit']):
         return hit
-    return 1 - (1 - hit) * (1 - K.ITEMS['ekstralar'][cpu]['nisan'])
+    return 1 - (1 - hit) * (1 - K.ITEMS['extras'][cpu]['aim'])
 
 
 # ------------------------------------------------------------------------------------------------------------ karar
@@ -235,9 +235,9 @@ def combat(w, n, now, d, ratio, attackers):
     pvp_target = n.target is not None and ((n.target in w.npcs and w.npcs[n.target].bot is not None) or BG._player(w, n.target) is not None)
     if player_or_bot or pvp_target:
         energy_leech(w, n, now)
-        if n.bot.o('saldirganlik') > 0.5:
+        if n.bot.o('aggression') > 0.5:
             x, y = n.mover.pos(now)
-            r = CIT['akilli_bomba']['yaricap']
+            r = CIT['smart_bomb']['yaricap']
             victims = []
             o = BG._player(w, w.hid)
             if o is not None and not o.hero_dead and BG.can_attack_player(w, n, o, now) and math.hypot(*(a - c for a, c in zip(o.hero_pos(now), (x, y)))) <= r:
@@ -259,21 +259,21 @@ def slow_down(w, n, o, ratio, now):
     (items.json 'etki', dunya.hero_effect) ve görseli aynen; bekleme süreleri roketinki."""
     from . import weapons as WP, ship as BG
     b = n.bot
-    if not b.permission.get('ozel_cephane', True) or not BG.can_attack_player(w, n, o, now):
+    if not b.permission.get('custom_ammunition', True) or not BG.can_attack_player(w, n, o, now):
         return False
     x, y = n.mover.pos(now)
     hx, hy = o.hero_pos(now)
-    if math.hypot(hx - x, hy - y) > BG.LASER_RANGE or o.hero_effects.d.keys() & {'yavas', 'donuk'}:
+    if math.hypot(hx - x, hy - y) > BG.LASER_RANGE or o.hero_effects.d.keys() & {'slow', 'frozen'}:
         return False
-    for loot in ((RIC,) if ratio < 0.35 else ()) + ((DCR,) if ratio < 0.6 or b.o('saldirganlik') > 0.5 else ()):
-        r = K.ITEMS['roketler'][loot]
+    for loot in ((RIC,) if ratio < 0.35 else ()) + ((DCR,) if ratio < 0.6 or b.o('aggression') > 0.5 else ()):
+        r = K.ITEMS['rockets'][loot]
         if WP.stock(b).get(loot, 0) > 0 and ready(n, loot, now):
-            (kind, (val, sec)), = r['etki'].items()
+            (kind, (val, sec)), = r['effect'].items()
             WP.spend(b, loot, 1)
             wait(n, loot, now, r['bekleme_sn'])
             o.hero_effect(kind, sec, val, source=loot)
             o.send([legacy('0|n|fx|start|%s|%d' % (r['fx'], o.hid))])
             o.later(sec, lambda fx=r['fx']: o.send([legacy('0|n|fx|end|%s|%d' % (fx, o.hid))]))
-            b.ist('yavaslat')
+            b.ist('slow_down')
             return True
     return False

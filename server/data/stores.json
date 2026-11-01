@@ -2,8 +2,8 @@
  "_description": "Uridyumla çalışan dükkân pencereleri -> server/data/dukkanlar.json, esyalar.json (ek_magaza, odeme_paketleri, payment_prices)",
  "_kaynak": "belgeler/wiki/dukkanlar_o7.json; dukkanlar_o7",
  "mileage": {
-  "takvim": "mileage_market",
-  "jeton": "resource_collectable_mileage-coin",
+  "calendar": "mileage_market",
+  "token": "resource_collectable_mileage-coin",
   "step_percent": 5.0,
   "max_steps": 5,
   "token_packages": [
@@ -727,7 +727,7 @@
   "_uyarlama": "fiyatlar uridyum (suggested_uridium); jeton paketleri mağazada (Extras) etkinlik süresince birer kez"
  },
  "vip": {
-  "takvim": "vip_merchant",
+  "calendar": "vip_merchant",
   "packages": [
    {
     "id": "event-deal-salvage-core-xl",
@@ -808,11 +808,11 @@
   ],
   "exchange": [
    {
-    "odul": [
+    "reward": [
      "equipment_shipupgrade_dmg-xt10",
      1
     ],
-    "bedel": [
+    "charge": [
      [
       "currency_uridium",
       330000
@@ -826,16 +826,16 @@
       8500
      ]
     ],
-    "sinir": 4,
+    "cap": 4,
     "ozel": true,
-    "sira": 1
+    "order": 1
    },
    {
-    "odul": [
+    "reward": [
      "equipment_shipupgrade_hp-xt10",
      1
     ],
-    "bedel": [
+    "charge": [
      [
       "currency_uridium",
       330000
@@ -849,16 +849,16 @@
       8500
      ]
     ],
-    "sinir": 4,
+    "cap": 4,
     "ozel": true,
-    "sira": 2
+    "order": 2
    },
    {
-    "odul": [
+    "reward": [
      "equipment_shipupgrade_shd-xt10",
      1
     ],
-    "bedel": [
+    "charge": [
      [
       "currency_uridium",
       330000
@@ -872,31 +872,31 @@
       8500
      ]
     ],
-    "sinir": 4,
+    "cap": 4,
     "ozel": true,
-    "sira": 3
+    "order": 3
    },
    {
-    "odul": [
+    "reward": [
      "resource_collectable_ggeu",
      1
     ],
-    "bedel": [
+    "charge": [
      [
       "currency_uridium",
       65000
      ]
     ],
-    "sinir": 10,
+    "cap": 10,
     "ozel": false,
-    "sira": 4
+    "order": 4
    },
    {
-    "odul": [
+    "reward": [
      "resource_collectable_indoctrineoil",
      10
     ],
-    "bedel": [
+    "charge": [
      [
       "resource_ore_seprom",
       3000
@@ -906,16 +906,16 @@
       50
      ]
     ],
-    "sinir": 20,
+    "cap": 20,
     "ozel": false,
-    "sira": 5
+    "order": 5
    },
    {
-    "odul": [
+    "reward": [
      "resource_collectable_indoctrine-accelerator",
      20
     ],
-    "bedel": [
+    "charge": [
      [
       "resource_ore_seprom",
       5000
@@ -925,16 +925,16 @@
       20000
      ]
     ],
-    "sinir": 20,
+    "cap": 20,
     "ozel": false,
-    "sira": 6
+    "order": 6
    },
    {
-    "odul": [
+    "reward": [
      "resource_collectable_axion-beam-regulator",
      50
     ],
-    "bedel": [
+    "charge": [
      [
       "resource_ore_promerium",
       5000
@@ -944,16 +944,16 @@
       2000000
      ]
     ],
-    "sinir": 20,
+    "cap": 20,
     "ozel": false,
-    "sira": 7
+    "order": 7
    },
    {
-    "odul": [
+    "reward": [
      "resource_extra-energy",
      100
     ],
-    "bedel": [
+    "charge": [
      [
       "resource_ore_seprom",
       2000
@@ -963,9 +963,9 @@
       1000000
      ]
     ],
-    "sinir": 0,
+    "cap": 0,
     "ozel": false,
-    "sira": 8
+    "order": 8
    }
   ],
   "_uyarlama": "takas satırları oyuncu iletilerinden ve uyarlama; VIP paketlerinin içerikleri kısmen uyarlama"
@@ -975,7 +975,7 @@
   "repeat_days": 60,
   "duration_days": 15,
   "calendar_days": 7,
-  "hosgeldin": [
+  "welcome": [
    [
     "currency_uridium",
     10000
@@ -1125,7 +1125,7 @@
   "_uyarlama": "kampanya 15 gün, takvim 7 gün; hoş geldin ve takvim ödülleri, paket içerikleri uyarlama (resmî liste yok)"
  },
  "pre_bf": {
-  "takvim": "pre_prometheus",
+  "calendar": "pre_prometheus",
   "packages": [
    {
     "id": "event-deal-pre-bf-1",
@@ -1282,16 +1282,16 @@
   "_uyarlama": "pencere yalnız bilgi; Prometheus Day paketlerinin (bfnov*) içerikleri istemcide metin: indirimleri uygulanmıyor"
  },
  "rehero": {
-  "takvim": "return_of_hero",
+  "calendar": "return_of_hero",
   "anahtar": "resource_booty-key-returnee",
   "gun": 7,
   "daily_count": 5,
   "once_count": 13,
   "key_reward": {
-   "gunluk": 2,
-   "tekrarsiz": 6
+   "daily": 2,
+   "once": 6
   },
-  "gorevler": [
+  "quests": [
    {
     "_": "QuestDefinitionModule",
     "id": 930000,

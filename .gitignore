@@ -14,6 +14,8 @@ server/data/login.json
 server/data/maps.json
 server/data/responses.json
 server/data/v1_backup_*.zip
+server/data/v2_backup_*.zip
+server/data/templates_format.json
 
 # Original game client and its unfinished download / Orijinal oyun istemcisi ve yarım indirmesi
 DarkOrbit_Version*/

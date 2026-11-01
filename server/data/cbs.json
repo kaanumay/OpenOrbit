@@ -2,7 +2,7 @@
  "_description": "Clan Battle Station -> server/data/cbs.json (yol haritası Ö5).",
  "_kaynak": "Resmî DarkOrbit FR CBS FAQ (modüller, 2023-01-05), DE CBS FAQ (2019-04-06), RU CBS FAQ (2020-10-25; 2017 dengelemesi): board-fr.darkorbit.com/threads/lexique-2-0-station-de-combat-de-clan.133912, board-de.darkorbit.com/threads/faq-clan-battlestations-cbs.2972, board-ru.darkorbit.com/threads/klanovye-boevye-stancii-kbs-faq.1453, board-en.darkorbit.com/threads/clan-battle-station-faq.819.",
  "_uyarlama": "Silah hasarı/canı/menzili/isabeti, Hull/REPM/booster canları ve booster azami %3-10 değerleri resmî FAQ değerleri; can/hasar seviye başına +%2 (L16 = L1 x 1,30). Deflector birikim hızı seviye başına tabanın +%1'i (120 dk/sa -> L16 138 dk/sa; prime time x5). Deflector modülünün ayrı 1.040.000 can değeri kaynakta doğrulanmamış yerel değerdir. Sayısal atış aralıkları (lazer 1,5/2,5/3 sn, roket 4 sn), onarım hızı, kurulum süresi (50 sn), deflector birikimi (48 sa), acil onarım bedeli (500 U), modül yıkma ödülleri, prime time 18:00-21:00 ve uzaylı baskınları tek oyunculu uyarlamadır. Sanal rakip modül canı/hasarı varsayılan olarak tam değerdedir (çarpan 1,0); önceden 0,2/0,05 idi. Mevcut kayıtların hasarlı modül canı otomatik doldurulmaz.",
- "asteroitler": [
+ "asteroids": [
   {
    "kimlik": 1,
    "ad": "Aries",
@@ -188,14 +188,14 @@
    "name_key": "battleStation_name_23"
   }
  ],
- "moduller": {
+ "modules": {
   "module_hulm-1": {
    "ad": "Hull Module",
    "code": "HULM-1",
    "tur": 2,
    "category": "hull",
    "center": true,
-   "en_cok": 1,
+   "max_count": 1,
    "tasarim": 0,
    "can": [
     5850000,
@@ -222,7 +222,7 @@
    "tur": 3,
    "category": "deflector",
    "center": true,
-   "en_cok": 1,
+   "max_count": 1,
    "tasarim": 0,
    "can": [
     1040000,
@@ -249,7 +249,7 @@
    "tur": 4,
    "category": "engineering_bay",
    "center": false,
-   "en_cok": 1,
+   "max_count": 1,
    "tasarim": 3,
    "can": [
     1040000,
@@ -294,7 +294,7 @@
    "tur": 7,
    "category": "lasers",
    "center": false,
-   "en_cok": 8,
+   "max_count": 8,
    "tasarim": 4,
    "can": [
     1560000,
@@ -314,7 +314,7 @@
     1996800,
     2028000
    ],
-   "silah": "lazer",
+   "weapon": "lazer",
    "hasar": [
     59850,
     61047,
@@ -334,8 +334,8 @@
     77805
    ],
    "menzil": 590,
-   "aralik_sn": 1.5,
-   "isabet": 0.9
+   "interval_sec": 1.5,
+   "hit": 0.9
   },
   "module_ltm-mr": {
    "ad": "MR Laser Module",
@@ -343,7 +343,7 @@
    "tur": 6,
    "category": "lasers",
    "center": false,
-   "en_cok": 8,
+   "max_count": 8,
    "tasarim": 5,
    "can": [
     1560000,
@@ -363,7 +363,7 @@
     1996800,
     2028000
    ],
-   "silah": "lazer",
+   "weapon": "lazer",
    "hasar": [
     48450,
     49419,
@@ -383,8 +383,8 @@
     62985
    ],
    "menzil": 650,
-   "aralik_sn": 2.5,
-   "isabet": 0.7
+   "interval_sec": 2.5,
+   "hit": 0.7
   },
   "module_ltm-hr": {
    "ad": "HR Laser Module",
@@ -392,7 +392,7 @@
    "tur": 5,
    "category": "lasers",
    "center": false,
-   "en_cok": 8,
+   "max_count": 8,
    "tasarim": 6,
    "can": [
     1560000,
@@ -412,7 +412,7 @@
     1996800,
     2028000
    ],
-   "silah": "lazer",
+   "weapon": "lazer",
    "hasar": [
     28500,
     29070,
@@ -432,8 +432,8 @@
     37050
    ],
    "menzil": 720,
-   "aralik_sn": 3.0,
-   "isabet": 0.6
+   "interval_sec": 3.0,
+   "hit": 0.6
   },
   "module_ram-la": {
    "ad": "LA Rocket Module",
@@ -441,7 +441,7 @@
    "tur": 9,
    "category": "rockets",
    "center": false,
-   "en_cok": 8,
+   "max_count": 8,
    "tasarim": 7,
    "can": [
     1560000,
@@ -461,7 +461,7 @@
     1996800,
     2028000
    ],
-   "silah": "roket",
+   "weapon": "roket",
    "hasar": [
     85500,
     87210,
@@ -481,8 +481,8 @@
     111150
    ],
    "menzil": 900,
-   "aralik_sn": 4,
-   "isabet": 0.5
+   "interval_sec": 4,
+   "hit": 0.5
   },
   "module_ram-ma": {
    "ad": "MA Rocket Module",
@@ -490,7 +490,7 @@
    "tur": 8,
    "category": "rockets",
    "center": false,
-   "en_cok": 8,
+   "max_count": 8,
    "tasarim": 8,
    "can": [
     1560000,
@@ -510,7 +510,7 @@
     1996800,
     2028000
    ],
-   "silah": "roket",
+   "weapon": "roket",
    "hasar": [
     71250,
     72675,
@@ -530,8 +530,8 @@
     92625
    ],
    "menzil": 780,
-   "aralik_sn": 4,
-   "isabet": 0.7
+   "interval_sec": 4,
+   "hit": 0.7
   },
   "module_honm-1": {
    "ad": "Honor Booster Module",
@@ -539,7 +539,7 @@
    "tur": 10,
    "category": "boosters",
    "center": false,
-   "en_cok": 1,
+   "max_count": 1,
    "tasarim": 9,
    "can": [
     1040000,
@@ -585,7 +585,7 @@
    "tur": 11,
    "category": "boosters",
    "center": false,
-   "en_cok": 1,
+   "max_count": 1,
    "tasarim": 10,
    "can": [
     1040000,
@@ -631,7 +631,7 @@
    "tur": 12,
    "category": "boosters",
    "center": false,
-   "en_cok": 1,
+   "max_count": 1,
    "tasarim": 11,
    "can": [
     1040000,
@@ -694,7 +694,7 @@
  "swap_sec": 240,
  "menzil": 600,
  "emergency_repair": {
-  "bedel": 500,
+  "charge": 500,
   "can_sn": 7500,
   "sure_sn": 1200
  },
@@ -713,10 +713,10 @@
  ],
  "ore_multiplier": 1.1,
  "demolish_reward": {
-  "taban": {
+  "base": {
    "roket": 1000,
    "lazer": 800,
-   "diger": 500
+   "other": 500
   },
   "per_level": 107,
   "center": {
@@ -793,13 +793,13 @@
   "sure_sn": 90,
   "damage_ratio": 0.25
  },
- "rakip": {
+ "rival": {
   "duration_hours": [
    6,
    24
   ],
   "probability": 0.5,
-  "klanlar": [
+  "clans": [
    "Nova Raiders",
    "Iron Veil",
    "Starfall",
@@ -819,7 +819,7 @@
  "_forum_127469": "Resmî Türk forumu 127469 (KSİ SSS): acil tamir 20 dakika x 7.500 dp/s; yeni kurulan istasyonda deflektör açık ve 1440 dakika yüklü (on_build_off_min artık kullanılmıyor)",
  "bot_clan": {
   "_uyarlama": "Bot klanlarının istasyonu (bot/klan_us.py): modüller klan kasasından krediyle alınır (oyunda Assembly'de kaynakla üretilir; fiyatlar uyarlama: tam takım yaklaşık 10 M, kurulmuş istasyonun seviye yükseltmesi fiyat x level_multiplier x yeni seviye, L15'e dek modül başına ~30 M: tam seviye istasyon nadir). Yıkılan modülün onarımı fiyatın repair_ratio'ı; yükseltme klan başına upgrade_sec'de bir; kurma süresi build_min aralığında (oyuncunun 5-60 dakikası içinde); saldırıda savunma çağrısı defense_sec'de bir.",
-  "fiyat": {
+  "price": {
    "module_hulm-1": 1600000,
    "module_defm-1": 1400000,
    "module_repm-1": 1000000,

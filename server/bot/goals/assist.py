@@ -18,13 +18,13 @@ class Helping(Goal):
         return n.get('hedef') == self.name and bool((n.get('plan') or {}).get('harita'))
 
     def points(self, bot, b):
-        return 0.3 + 0.5 * bot.o('yardimseverlik')
+        return 0.3 + 0.5 * bot.o('helpfulness')
 
     def start(self, bot, b):
         plan = (bot.k.get('intent') or {}).get('plan') or {}
         bot.plan.update(plan)
         if not S.go(bot, plan['harita'], b.y, b.now):
-            bot.plan['bitti'] = True
+            bot.plan['finished'] = True
 
     def abstract(self, bot, dt, y):
         if S.journey(bot, y):
@@ -45,4 +45,4 @@ class Helping(Goal):
         return False
 
     def finished(self, bot, b):
-        return bot.plan.get('bitti', False)
+        return bot.plan.get('finished', False)

@@ -71,7 +71,7 @@ def event_recipes(p, now=None):
     out = []
     for k, r in T.items():
         ps = set(r['parcalar'])
-        if 'kayitta' in r or k in UNLOCK or k in BOT or k.startswith(TEST) or ps & NO_SOURCE:
+        if 'recorded' in r or k in UNLOCK or k in BOT or k.startswith(TEST) or ps & NO_SOURCE:
             continue
         if run is not None and ps & chromin and k not in run:          # Chromin koşusu: yalnız o koşunun tarifleri
             continue
@@ -111,7 +111,7 @@ def recorded_end(key, now=None):
     g = T[key].get('temporary')
     if g and set(T[key]['parcalar']) & {l for e in CAL.EVENTS.values() for l in e.get('currency', [])}:
         return None
-    if g == 'sezon':
+    if g == 'season':
         import season
         g = season.current_end(now)
     return g if isinstance(g, (int, float)) and g > (now or time.time()) else None
@@ -141,14 +141,14 @@ class Assembly:
         self.m = None                 # mağaza (ödül ve envanter güncellemeleri; oturum bağlar)
         self.send = None              # zamanlayıcıyla biten üretimin bildirimi (oturum bağlar)
         self.next_tick = self.next_list = 0.0
-        self.free_last = SET.get('assembly_ucretsiz')
+        self.free_last = SET.get('assembly_free')
         self.shown = None             # istemcideki tarif listesi (content); etkinlik bitince düşenler kaldırılır
         self.up = UPG.Upgrade(profile, log)   # Upgrade ve Disassembly sekmeleri (yukseltme.py)
 
     @property
     def st(self):
         d = self.p.d.setdefault('assembly', {})
-        for k, v in (('uretim', {}), ('sayac', {}), ('gunluk', {}), ('gorulen', []), ('suzgec', {})):
+        for k, v in (('uretim', {}), ('counter', {}), ('daily', {}), ('seen', []), ('filters', {})):
             d.setdefault(k, v)
         return d
 
@@ -156,8 +156,8 @@ class Assembly:
     def visible(self):
         """Pencerede görünen tarifler, kayıttaki sırayla; sonra depoda olan ONLY_WHEN_OWNED tarifler, koşulla açılanlar, kayıtta
         olmayanlar (event_recipes) ve üretimi süren ya da toplanmamış olanlar (etkinlik bitse de)."""
-        out = sorted((k for k, r in T.items() if 'kayitta' in r and k not in BOT), key=lambda k: T[k]['kayitta'])
-        out += sorted(k for k, r in T.items() if 'kayitta' not in r and r['visibility'] == 'ONLY_WHEN_OWNED' and self.p.resource(k) > 0)
+        out = sorted((k for k, r in T.items() if 'recorded' in r and k not in BOT), key=lambda k: T[k]['recorded'])
+        out += sorted(k for k, r in T.items() if 'recorded' not in r and r['visibility'] == 'ONLY_WHEN_OWNED' and self.p.resource(k) > 0)
         out += [k for k, cond in UNLOCK.items() if k not in out and cond(self.p)]
         seen = set(out)
         out += [k for k in event_recipes(self.p) if k not in seen]
@@ -166,7 +166,7 @@ class Assembly:
 
     def used_today(self, key):
         """Bu dönemdeki üretim adedi (period_of: etkinlik dönemi ya da gün)."""
-        g = self.st['gunluk'].get(key)
+        g = self.st['daily'].get(key)
         return g[1] if g and g[0] == period_of(key) else 0
 
     def limit_left(self, key):
@@ -175,13 +175,13 @@ class Assembly:
         if r['usage'] == NO_LIMIT:
             return None
         if r['usage'] == 'USABLE_ONCE':
-            return max(0, 1 - self.st['sayac'].get(key, 0))
-        cap = 1 if r['usage'] == 'USABLE_ONCE_PER_SCHEDULE' else (r['en_cok'] or 1)
+            return max(0, 1 - self.st['counter'].get(key, 0))
+        cap = 1 if r['usage'] == 'USABLE_ONCE_PER_SCHEDULE' else (r['max_count'] or 1)
         return max(0, cap - self.used_today(key))
 
     def cost(self, key, amount):
         """Malzemeler x adet; CostScalingFactor: bugünkü her üretimde bir kat daha (1,1 …)."""
-        if SET.get('assembly_ucretsiz'):
+        if SET.get('assembly_free'):
             return {}
         r = T[key]
         f = r['scale'] ** self.used_today(key) if r['scale'] != 1 else 1
@@ -193,13 +193,13 @@ class Assembly:
         if b:
             if now < b['bitis']:
                 return mod('AssemblyRecipeBuildStatusModule', buildAmount=b['adet'], remainingTimeMillis=int((b['bitis'] - now) * 1000),
-                           prevBuildCount=b['onceki'])
-            return mod('AssemblyRecipeReadyToCollectStatusModule', prevBuildCount=b['onceki'], buildAmount=b['adet'])
+                           prevBuildCount=b['previous'])
+            return mod('AssemblyRecipeReadyToCollectStatusModule', prevBuildCount=b['previous'], buildAmount=b['adet'])
         left = self.limit_left(key)
         if left == 0:
             kind = ALREADY_USED if T[key]['usage'] in ('USABLE_ONCE', 'USABLE_ONCE_PER_SCHEDULE') else ALREADY_USED_LIMIT
             return mod('AssemblyRecipeUnavailableStatusModule', type=kind)
-        return mod('AssemblyRecipeAvailableStatusModule', currentBuildCount=self.build_count(key), isNew=key not in self.st['gorulen'])
+        return mod('AssemblyRecipeAvailableStatusModule', currentBuildCount=self.build_count(key), isNew=key not in self.st['seen'])
 
     def build_count(self, key):
         """İstemcinin "Crafting Limit: <bu>/<MaxUses>" sayacı; MaxUses'a varınca Build'i kilitler. Sınırsız tariflerde MaxUses bir
@@ -208,7 +208,7 @@ class Assembly:
         if r['usage'] == NO_LIMIT:
             return 0
         if r['usage'] == 'USABLE_ONCE':
-            return self.st['sayac'].get(key, 0)
+            return self.st['counter'].get(key, 0)
         return self.used_today(key)
 
     def recipe(self, key, now=None):
@@ -237,7 +237,7 @@ class Assembly:
         """Pencerenin süzgeçleri (AssemblySetFilterRequest'in modülü, filterType başına; saklanmamışsa bütün kategoriler): girişte
         geri (E10)."""
         return [('AssemblyWindowSettingsModule', {k: v for k, v in m.items() if k != '_'})
-                for m in (self.st['suzgec'].get(str(t)) or {'filterType': t, 'assemblyItemFilters': list(ALL_FILTERS)}
+                for m in (self.st['filters'].get(str(t)) or {'filterType': t, 'assemblyItemFilters': list(ALL_FILTERS)}
                           for t in FILTER_TYPES)]
 
     def update(self, key, target=0, now=None):
@@ -268,11 +268,11 @@ class Assembly:
         removed = INV.spend(self.p, need, reason='buy_SPECIAL', detail=key)
         now = time.time()
         with self.p.lock:
-            self.st['uretim'][key] = dict(adet=amount, bitis=now + SET.duration(r['sure_sn'] * amount, 'assembly'), onceki=self.st['sayac'].get(key, 0))
-            if key not in self.st['gorulen']:
-                self.st['gorulen'].append(key)
+            self.st['uretim'][key] = dict(adet=amount, bitis=now + SET.duration(r['sure_sn'] * amount, 'assembly'), previous=self.st['counter'].get(key, 0))
+            if key not in self.st['seen']:
+                self.st['seen'].append(key)
             if r['usage'] != NO_LIMIT or r['scale'] != 1:
-                self.st['gunluk'][key] = [period_of(key), self.used_today(key) + amount]
+                self.st['daily'][key] = [period_of(key), self.used_today(key) + amount]
             self.p.dirty = True
         self.p.ach('assembly_build', tarif=key, adet=amount)
         self.log('   Assembly: %s x%d başladı (%d sn; %s)' % (key, amount, r['sure_sn'] * amount, need))
@@ -286,7 +286,7 @@ class Assembly:
             return [self.update(key)] if key in T else []
         with self.p.lock:
             del self.st['uretim'][key]
-            self.st['sayac'][key] = self.st['sayac'].get(key, 0) + b['adet']
+            self.st['counter'][key] = self.st['counter'].get(key, 0) + b['adet']
             self.p.dirty = True
         msgs = []
         for loot, n in T[key]['result'].items():
@@ -337,16 +337,16 @@ class Assembly:
 
     def select(self, f):
         key = f.get('recipeLootId', '')
-        if key not in T or key in self.st['gorulen']:
+        if key not in T or key in self.st['seen']:
             return []
         with self.p.lock:
-            self.st['gorulen'].append(key)
+            self.st['seen'].append(key)
             self.p.dirty = True
         return [self.update(key)]
 
     def set_filter(self, f):
         with self.p.lock:
-            self.st['suzgec'][str(f.get('filterType', 0))] = f.get('assemblyWindowSettingsModule') or {}
+            self.st['filters'][str(f.get('filterType', 0))] = f.get('assemblyWindowSettingsModule') or {}
             self.p.dirty = True
         return []
 
@@ -376,7 +376,7 @@ class Assembly:
         if now < self.next_tick:
             return
         self.next_tick = now + 1.0
-        free = SET.get('assembly_ucretsiz')
+        free = SET.get('assembly_free')
         if free != self.free_last:                # ayar değişti: istemcinin malzeme sayaçları yenilenir
             self.free_last = free
             if self.m and self.send:

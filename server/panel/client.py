@@ -88,7 +88,7 @@ def version_of(folder):
 def check(folder):
     """Klasörü doğrula -> {'gecerli', 'yol', 'exe', 'veri', 'surum', 'uyumlu', 'eski' (desteklenenden eski: panel günceller),
     'sorunlar' [...], 'boyut_mb'}."""
-    out = {'yol': folder or '', 'valid': False, 'exe': False, 'veri': False, 'surum': None, 'compatible': False, 'eski': False,
+    out = {'route': folder or '', 'valid': False, 'exe': False, 'data': False, 'surum': None, 'compatible': False, 'eski': False,
            'issues': []}
     if not folder:
         out['issues'].append(_('İstemci klasörü seçilmedi.'))
@@ -97,12 +97,12 @@ def check(folder):
         out['issues'].append(_('Klasör bulunamadı.'))
         return out
     out['exe'] = os.path.isfile(os.path.join(folder, EXE))
-    out['veri'] = os.path.isdir(os.path.join(folder, DATA_DIR))
+    out['data'] = os.path.isdir(os.path.join(folder, DATA_DIR))
     if not out['exe']:
         out['issues'].append(_('Klasörde %s yok.', EXE))
-    if not out['veri']:
+    if not out['data']:
         out['issues'].append(_('Klasörde %s klasörü yok.', DATA_DIR))
-    out['valid'] = out['exe'] and out['veri']
+    out['valid'] = out['exe'] and out['data']
     if out['valid']:
         out['surum'] = version_of(folder)
         out['compatible'] = out['surum'] == supported()
@@ -144,17 +144,17 @@ def resolve(configured):
     if configured:
         return configured
     c = candidates()
-    return c[0]['yol'] if c else None
+    return c[0]['route'] if c else None
 
 
 def args(cfg, log_file, session=None, window=False):
     """Unity başlatma argümanları (panel ayarlarından). oturum: çoklu istemcinin ek istemcisi (web.py giriş sayfası ?oturum= ile
     kaydını bulur); pencere: ayardan bağımsız pencere kipi (ek istemciler)."""
     a = [LOGIN_URL.replace('/#', '/?oturum=%s#' % session) if session else LOGIN_URL]
-    mode = 'pencere' if window else cfg.get('window_mode')
-    if mode == 'tam_ekran':
+    mode = 'windowed' if window else cfg.get('window_mode')
+    if mode == 'fullscreen':
         a += ['-screen-fullscreen', '1', '-window-mode', 'exclusive']
-    elif mode == 'kenarliksiz':                       # kenarlıksız tam ekran pencere (Unity 2019.3+)
+    elif mode == 'borderless':                       # kenarlıksız tam ekran pencere (Unity 2019.3+)
         a += ['-screen-fullscreen', '1', '-window-mode', 'borderless']
     else:
         a += ['-screen-fullscreen', '0']

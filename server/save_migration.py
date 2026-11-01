@@ -1,11 +1,14 @@
-"""Save format migration: v1 (Turkish names) -> v2 (English names). Runs once, before anything reads the saves.
+"""Save format migration: v1 (Turkish names) -> v3 (English names). Runs once, before anything reads the saves.
 
 What changes (server/migration_map.json, built by the rename tools):
-  - JSON keys of field dicts (a dict whose keys are mostly known field names; dicts keyed by player/slot names or item ids are
-    left alone), in every JSON under the save dir, the personal login templates and the client folder's OpenOrbit files;
-  - world patches: data file names (renamed in phase 1) and JSON Pointer segments;
-  - file and directory names (layout: save/kayitlar -> save/slots, profil.json -> profile.json, ...).
-Values (enum strings, ids) are not changed here.
+  - v2: JSON keys of field dicts (a dict whose keys are mostly known field names; dicts keyed by player/slot names or item ids
+    are left alone), in every JSON under the save dir, the personal login templates and the client folder's OpenOrbit files;
+    world patches: data file names (renamed in phase 1) and JSON Pointer segments; file and directory names (layout:
+    save/kayitlar -> save/slots, profil.json -> profile.json, ...);
+  - v3: ids and enum values ("values": 'kapali' -> 'off', 'etk_hakem_x3' -> 'event_referee_x3' ...) as string values and as
+    dict keys, except free text ("free_text": name, note, message ...), the keys of dicts keyed by player names ("name_keyed":
+    a bot's memory, clan members) and references to user-made ids ("id_refs": a slot's world; only the built-in ids change).
+A v1 save goes to v3 in one run (one backup); a v2 save gets the v3 step.
 
 Safety:
   - a ZIP backup of the save dir is written first (save/v1_backup_<time>.zip; language-model files and update backups excluded);
@@ -22,7 +25,7 @@ import fnmatch, json, os, time, zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MAP_FILE = os.path.join(HERE, 'migration_map.json')
-VERSION = 2
+VERSION = 3                                         # 2: English keys and layout; 3: English ids and enum values
 STAMP = 'format.json'
 LOCK = '.migration.lock'
 STALE_LOCK = 60                                     # the holder touches the lock while it works (_Lock.beat)
@@ -40,6 +43,10 @@ def load_map():
             m = json.load(fh)
         m['fields'] = set(m['fields'])
         m['opaque'] = set(m.get('opaque', ()))
+        for k in ('name_keyed', 'free_text', 'id_refs'):
+            m[k] = set(m.get(k, ()))
+        m.setdefault('values', {})
+        m.setdefault('id_ref_values', {})
         _MAP = m
     return _MAP
 
@@ -53,20 +60,62 @@ def is_field_dict(d, fields):
     return known * 2 >= len(d)
 
 
-def migrate_obj(o, m=None, opaque=False, force=False):
-    """v1 or v2 JSON value -> v2 (new object; unchanged values are shared). Idempotent.
-    opaque: o is the dict under an 'opaque' key (keyed by names or ids, e.g. a bot's memory of players): its own keys stay.
+def migrate_value(s, m=None, parent=None):
+    """One string value -> v3 (an id / enum value, or a holiday offset 'paskalya+3'); free text and user-made ids stay."""
+    m = m or load_map()
+    if parent in m['free_text']:
+        return s
+    if parent in m['id_refs']:
+        return m['id_ref_values'].get(s, s)
+    vals = m['values']
+    if s in vals:
+        return vals[s]
+    i = max(s.rfind('+'), s.rfind('-'))
+    if i > 0 and s[i + 1:].isdigit() and s[:i] in vals:
+        return vals[s[:i]] + s[i:]
+    return _id_name(s, m)
+
+
+def _id_name(s, m):
+    """Ids the code builds from a renamed prefix / suffix ('grup_<id>' -> 'group_<id>', 'ozel_3' -> 'custom_3',
+    '<quest>_kabul' -> '<quest>_accept'); anything else unchanged."""
+    vals = m['values']
+    if s in vals:
+        return vals[s]
+    for old, new in m.get('prefix_values', {}).items():
+        if s.startswith(old) and len(s) > len(old) and (old != 'ozel_' or s[len(old):].isdigit()):
+            return new + vals.get(s[len(old):], s[len(old):])
+    for old, new in m.get('suffix_values', {}).items():
+        if s.endswith(old) and len(s) > len(old):
+            return vals.get(s[:-len(old)], s[:-len(old)]) + new
+    return s
+
+
+def migrate_obj(o, m=None, opaque=False, force=False, parent=None):
+    """v1, v2 or v3 JSON value -> v3 (new object; unchanged values are shared). Idempotent.
+    opaque: o is the dict under an 'opaque' key (keyed by names or ids, e.g. a bot's memory of players): its own field-name keys
+    stay (v2 step); ids among them are renamed unless the parent is name_keyed.
     force: o is a config dict (panel.json, settings ...): its keys are field names however few of them the map knows.
-    A dict holding a v1 key and its v2 name (written by both versions, e.g. a friend session across versions) keeps the v2 one."""
+    A dict holding an old key and its new name (written by both versions, e.g. a friend session across versions) keeps the new one."""
     m = m or load_map()
     keys, fields, opq = m['keys'], m['fields'], m['opaque']
     if isinstance(o, dict):
         rename = force or (not opaque and is_field_dict(o, fields))
-        if not rename:
-            return {k: migrate_obj(v, m, k in opq) for k, v in o.items()}
-        return {keys.get(k, k): migrate_obj(v, m, k in opq) for k, v in o.items() if not (k in keys and keys[k] in o)}
+        ids = parent not in m['name_keyed']
+        out = {}
+        for k, v in o.items():
+            k2 = keys.get(k, k) if rename else k
+            if k2 != k and k2 in o:
+                continue
+            k3 = _id_name(k2, m) if ids else k2
+            if k3 != k2 and k3 in o:
+                continue
+            out[k3] = migrate_obj(v, m, k in opq, parent=k3)
+        return out
     if isinstance(o, list):
-        return [migrate_obj(v, m) for v in o]
+        return [migrate_obj(v, m, parent=parent) for v in o]
+    if isinstance(o, str):
+        return migrate_value(o, m, parent)
     return o
 
 
@@ -87,18 +136,18 @@ def migrate_backup_notes(d):
 
 
 def migrate_pointer(p, m=None):
-    """JSON Pointer into a data file ('/cevherler/3/fiyat') -> v2 segments."""
+    """JSON Pointer into a data file ('/cevherler/3/fiyat') -> v3 segments (keys, then ids)."""
     m = m or load_map()
     if not isinstance(p, str) or not p.startswith('/'):
         return p
-    return '/'.join(m['keys'].get(s, s) for s in p.split('/'))
+    return '/'.join(m['values'].get(m['keys'].get(s, s), m['keys'].get(s, s)) for s in p.split('/'))
 
 
 def migrate_world(d, m=None):
-    """World or world package: keys, then patches {data file: {pointer: value | {"$sil": true}}}."""
+    """World or world package: keys, then patches {data file: {pointer: value | {"$delete": true}}} (v1: yamalar, "$sil")."""
     m = m or load_map()
     d = migrate_obj(d, m)
-    for pk in ('yamalar', m['keys'].get('yamalar', 'yamalar')):
+    for pk in {'yamalar', m['keys'].get('yamalar', 'yamalar'), m['values'].get('yamalar', 'yamalar')}:
         patches = d.get(pk) if isinstance(d, dict) else None
         if isinstance(patches, dict):
             d[pk] = {m['data_files'].get(f, f): ({migrate_pointer(p, m): v for p, v in (fp or {}).items()} if isinstance(fp, dict) else fp)
@@ -271,19 +320,19 @@ def _walk(root):
         yield r, rel, fs
 
 
-def _backup(root, log, files=None, beat=lambda: None, again=False):
+def _backup(root, log, files=None, beat=lambda: None, again=False, prefix='v1_backup_'):
     """ZIP of the v1 files (the whole save dir, or the given files of the data dir) -> its name; None if one exists already
     (an interrupted run made it before anything changed: that one is kept) unless again (v1 data that arrived after the stamp).
     Regular files only (a dangling symlink, e.g. a browser lock, would stop zipfile); a file that cannot be read is logged."""
     for n in os.listdir(root):
-        if n.startswith('v1_backup_') and n.endswith('.zip.tmp'):
+        if n.startswith(prefix) and n.endswith('.zip.tmp'):
             try:
                 os.remove(os.path.join(root, n))           # left by a crash
             except OSError:
                 pass
-    if not again and any(n.startswith('v1_backup_') and n.endswith('.zip') for n in os.listdir(root)):
+    if not again and any(n.startswith(prefix) and n.endswith('.zip') for n in os.listdir(root)):
         return None
-    name = 'v1_backup_%s.zip' % time.strftime('%Y%m%d-%H%M%S')
+    name = '%s%s.zip' % (prefix, time.strftime('%Y%m%d-%H%M%S'))
     tmp = os.path.join(root, name + '.tmp')
     with zipfile.ZipFile(tmp, 'w', zipfile.ZIP_DEFLATED) as z:
         if files is not None:
@@ -306,15 +355,26 @@ def _backup(root, log, files=None, beat=lambda: None, again=False):
 
 
 V1_TEMPLATES = ('giris.json', 'haritalar.json', 'yanitlar.json')
+TEMPLATES = ('login.json', 'maps.json', 'responses.json')
+TEMPLATE_STAMP = 'templates_format.json'           # data dir: version of the personal templates (v2 had no stamp)
+
+
+def _template_version(data_dir):
+    try:
+        return int(_read(os.path.join(data_dir, TEMPLATE_STAMP)).get('version', 2))
+    except (OSError, ValueError, AttributeError, TypeError):
+        return 2
 
 
 def _data_pending(data_dir):
-    return any(os.path.exists(os.path.join(data_dir, f)) for f in V1_TEMPLATES + ('protokol',))
+    if any(os.path.exists(os.path.join(data_dir, f)) for f in V1_TEMPLATES + ('protokol',)):
+        return True
+    return _template_version(data_dir) < VERSION and any(os.path.isfile(os.path.join(data_dir, f)) for f in TEMPLATES)
 
 
 def migrate_data(data_dir, log=lambda *a: None):
-    """Personal login templates (data/giris.json ... -> login.json ...) and the protocol folder. No stamp: the old names are
-    the sign. Its own lock and backup (every process of every save dir shares the data dir)."""
+    """Personal login templates (data/giris.json ... -> login.json ...) and the protocol folder. Old names or a stamp below
+    VERSION are the sign. Its own lock and backup (every process of every save dir shares the data dir)."""
     if not os.path.isdir(data_dir) or not _data_pending(data_dir):
         return False
     lock = _Lock(data_dir)
@@ -322,12 +382,16 @@ def migrate_data(data_dir, log=lambda *a: None):
         if not _data_pending(data_dir):
             return False
         m = load_map()
-        present = [f for f in V1_TEMPLATES if os.path.isfile(os.path.join(data_dir, f))]
-        if present:
-            _backup(data_dir, log, present)
-        for f in present:
+        old = [f for f in V1_TEMPLATES if os.path.isfile(os.path.join(data_dir, f))]
+        cur = [f for f in TEMPLATES if os.path.isfile(os.path.join(data_dir, f))]
+        if old:
+            _backup(data_dir, log, old)
+        elif cur and _template_version(data_dir) < VERSION:
+            _backup(data_dir, log, cur, prefix='v2_backup_')
+        for f in old + cur:
             migrate_file(os.path.join(data_dir, f), m=m)
         apply_layout(data_dir, m['layout']['data'], beat=lock.beat)
+        _write(os.path.join(data_dir, TEMPLATE_STAMP), {'version': VERSION})
         log('giriş şablonları yeni biçime taşındı')
         return True
     finally:
@@ -335,7 +399,7 @@ def migrate_data(data_dir, log=lambda *a: None):
 
 
 def ensure(save_dir, data_dir, log=lambda *a: None):
-    """Migrate the save dir (and the personal templates in data_dir) to v2 if needed. Safe to call from every process."""
+    """Migrate the save dir (and the personal templates in data_dir) to VERSION if needed. Safe to call from every process."""
     migrate_data(data_dir, log)
     if not needs_migration(save_dir) or not os.path.isdir(save_dir):
         return False                                   # done, or nothing saved yet (the first write creates the v2 layout)
@@ -346,8 +410,8 @@ def ensure(save_dir, data_dir, log=lambda *a: None):
         m = load_map()
         late = stamp_version(save_dir) >= VERSION      # v1 data copied in after the migration
         backup = None
-        if any(n not in (STAMP, LOCK) and not n.startswith('v1_backup_') for n in os.listdir(save_dir)):
-            backup = _backup(save_dir, log, beat=lock.beat, again=late)
+        if any(n not in (STAMP, LOCK) and not n.startswith(('v1_backup_', 'v2_backup_')) for n in os.listdir(save_dir)):
+            backup = _backup(save_dir, log, beat=lock.beat, again=late, prefix='v%d_backup_' % min(stamp_version(save_dir), 2))
         n = 0
         for r, rel, fs in _walk(save_dir):             # every run converts everything: an interrupted one finishes
             for f in fs:

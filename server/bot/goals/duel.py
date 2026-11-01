@@ -31,14 +31,14 @@ class Duel(Goal):
     def start(self, bot, b):
         bot.plan.update((bot.k.get('intent') or {}).get('plan') or {})
         if not S.go(bot, bot.plan['harita'], b.y, b.now):
-            bot.plan['bitti'] = True
+            bot.plan['finished'] = True
 
     def abstract(self, bot, dt, y):
         if S.journey(bot, y):
             return
         o = rival(bot)
         if o is None or o.session is None:
-            bot.plan['bitti'] = True                     # oyuncu çıktı
+            bot.plan['finished'] = True                     # oyuncu çıktı
             return
         m = int(o.profile.d['position'].get('mapId', 0))
         if m != bot.game_map and m in K.MAPS and K.can_enter(m, bot.firma, bot.level) and K.route(bot.game_map, m, bot.firma,
@@ -64,4 +64,4 @@ class Duel(Goal):
 
     def finished(self, bot, b):
         n = bot.k.get('intent') or {}
-        return bot.plan.get('bitti', False) or n.get('hedef') != self.name
+        return bot.plan.get('finished', False) or n.get('hedef') != self.name

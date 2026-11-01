@@ -109,8 +109,8 @@ class DailyReward:
     def deluxe_day_cmd(self, now=None):
         st = self.p.d.get('monthly_deluxe') or {}
         d = self.deluxe_day(now)
-        return mod('MonthlyDeluxeDayInfoCommand', today=d, daysClaimed=list(st.get('alinan', [])) if d >= 0 else [],
-                   isClaimable=d >= 0 and d not in st.get('alinan', []))
+        return mod('MonthlyDeluxeDayInfoCommand', today=d, daysClaimed=list(st.get('claimed', [])) if d >= 0 else [],
+                   isClaimable=d >= 0 and d not in st.get('claimed', []))
 
     def deluxe_day_msg(self, now=None):
         d = dict(self.deluxe_day_cmd(now))
@@ -139,7 +139,7 @@ class DailyReward:
             self.p.add_resource(DELUXE_ITEM, n)                          # sıradaki ay depoda (bitince başlar)
             return []
         with self.p.lock:
-            self.p.d['monthly_deluxe'] = {'baslangic': start.isoformat(), 'alinan': []}
+            self.p.d['monthly_deluxe'] = {'baslangic': start.isoformat(), 'claimed': []}
             self.p.dirty = True
         if n > 1:
             self.p.add_resource(DELUXE_ITEM, n - 1)                      # kalan aylar depoda (yoksa yalnız bir ay veriliyordu)
@@ -149,11 +149,11 @@ class DailyReward:
     def deluxe_claim(self, f=None):
         st = self.p.d.get('monthly_deluxe')
         d = self.deluxe_day()
-        if not st or d < 0 or d in st['alinan']:
+        if not st or d < 0 or d in st['claimed']:
             return [self.deluxe_day_msg()]
         l, n = DELUXE[d]
         with self.p.lock:
-            st['alinan'].append(d)
+            st['claimed'].append(d)
             self.p.dirty = True
         self.log('   Monthly Deluxe günü %d: %s x%d' % (d + 1, l, n))
         return self.reward(l, n) + [self.deluxe_day_msg()]
@@ -164,7 +164,7 @@ class DailyReward:
         if st and self.deluxe_day() < 0 and self.p.resource(DELUXE_ITEM) > 0:
             self.p.add_resource(DELUXE_ITEM, -1)
             with self.p.lock:
-                self.p.d['monthly_deluxe'] = {'baslangic': today().isoformat(), 'alinan': []}
+                self.p.d['monthly_deluxe'] = {'baslangic': today().isoformat(), 'claimed': []}
                 self.p.dirty = True
 
     # ------------------------------------------------------------ Unity istemcisi ödülü
@@ -172,7 +172,7 @@ class DailyReward:
     def parent(self):
         st = self.p.d.setdefault('unity_reward', {})
         if not st:
-            st.update(baslangic=today().isoformat(), deger={}, tamam=[], alinan=[])
+            st.update(baslangic=today().isoformat(), value={}, tamam=[], claimed=[])
             self.p.dirty = True
         return st
 
@@ -182,8 +182,8 @@ class DailyReward:
     def unity_list(self, quests):
         st = self.parent
         return mod('EventQuestListCommand', quests=[
-            mod('EventQuestDefinitionModule', module=GT.with_state(q, st['deger'].get(str(q['id']), {}), q['id'] in st['tamam']),
-                completed=q['id'] in st['tamam'], claimed=q['id'] in st['alinan']) for q in quests])
+            mod('EventQuestDefinitionModule', module=GT.with_state(q, st['value'].get(str(q['id']), {}), q['id'] in st['tamam']),
+                completed=q['id'] in st['tamam'], claimed=q['id'] in st['claimed']) for q in quests])
 
     def unity_cmd(self, now=None):
         d = self.unity_day(now)
@@ -200,7 +200,7 @@ class DailyReward:
         for q in UNITY[d]:
             if q['id'] in st['tamam']:
                 continue
-            m, fin = GT.advance(self.p, q['rootCase'], st['deger'].setdefault(str(q['id']), {}), kind, kw, self.map_id)
+            m, fin = GT.advance(self.p, q['rootCase'], st['value'].setdefault(str(q['id']), {}), kind, kw, self.map_id)
             msgs += m
             if fin:
                 done.append(q['id'])
@@ -217,10 +217,10 @@ class DailyReward:
     def unity_claim(self, f):
         qid = int(f.get('questId') or 0)
         st = self.parent
-        if qid not in UNITY_Q or qid not in st['tamam'] or qid in st['alinan']:
+        if qid not in UNITY_Q or qid not in st['tamam'] or qid in st['claimed']:
             return [self.unity_cmd()]
         with self.p.lock:
-            st['alinan'].append(qid)
+            st['claimed'].append(qid)
             self.p.dirty = True
         msgs = []
         for r in UNITY_Q[qid]['rewards']:

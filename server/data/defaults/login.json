@@ -52301,7 +52301,7 @@
    "repairBotSkilled": false,
    "inPeaceArea": true
   },
-  "ekipman": {
+  "equipment": {
    "laser": [
     "equipment_weapon_laser_lf-1"
    ],
@@ -52315,7 +52315,7 @@
    ],
    "rocket": []
   },
-  "konfigler": {
+  "configs": {
    "1": {
     "laser": [
      98780928
@@ -52357,7 +52357,7 @@
    "98780930": "equipment_extra_cpu_jp-01",
    "98780929": "equipment_extra_repbot_rep-2"
   },
-  "cephane": {
+  "ammunition": {
    "ammunition_laser_lcb-10": 5000,
    "ammunition_laser_mcb-25": 0,
    "ammunition_laser_mcb-50": 0,
@@ -52510,11 +52510,11 @@
    "ammunition_specialammo_bountiful-alien-cpu-normal": 0,
    "ammunition_specialammo_bountiful-alien-cpu-easy": 0
   },
-  "secili": {
+  "selected": {
    "lazer": "ammunition_laser_lcb-10",
    "roket": "ammunition_rocket_r-310"
   },
-  "esya_kimlik": {
+  "item_id": {
    "ammunition_laser_lcb-10": 98780933,
    "ammunition_rocket_r-310": 98780934,
    "currency_credits": -1908845164,

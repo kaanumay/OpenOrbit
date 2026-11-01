@@ -41,10 +41,10 @@
   "price_uridium": 50,
   "_uyarlama": "fiyat (istemcinin 999 U değeri bilinmeyen eşyanın yer tutucusu); süre 5 sn ve ortak bekleme 20 sn resmî Mimesis Mutiny SSS'sinden"
  },
- "boosterlar": {
+ "boosters": {
   "kinds": {
    "booster_bb-01": {
-    "bonus_kutusu": 100
+    "bonus_box": 100
    },
    "booster_qr-01": {
     "quest_reward": 100
@@ -122,7 +122,7 @@
    ]
   },
   "_aliases": "istemcinin tanımadığı boosterlar [[booster, saat]] (MAX-BP01: beş B01 10 saat; NBX/NQR 72 saat; PCOMB 3 saat; eşdeğerlerin istemcideki saatleri, E5)",
-  "magaza": {
+  "shop": {
    "booster_bb-01": 10000,
    "booster_qr-01": 10000,
    "booster_prm-b01": 50000,
@@ -130,108 +130,108 @@
    "booster_rm-b00": 10000
   }
  },
- "rezonator": {
+ "resonator": {
   "esyalar": {
    "equipment_xenoresonator_c-strike-resonator": {
     "ad": "C-Strike Resonator",
-    "kalite": "c",
-    "sira": 0,
+    "quality": "c",
+    "order": 0,
     "tur": "strike",
     "attribute_count": 1
    },
    "equipment_xenoresonator_uc-strike-resonator": {
     "ad": "UC-Strike Resonator",
-    "kalite": "uc",
-    "sira": 1,
+    "quality": "uc",
+    "order": 1,
     "tur": "strike",
     "attribute_count": 2
    },
    "equipment_xenoresonator_r-strike-resonator": {
     "ad": "R-Strike Resonator",
-    "kalite": "r",
-    "sira": 2,
+    "quality": "r",
+    "order": 2,
     "tur": "strike",
     "attribute_count": 2
    },
    "equipment_xenoresonator_ep-strike-resonator": {
     "ad": "EP-Strike Resonator",
-    "kalite": "ep",
-    "sira": 3,
+    "quality": "ep",
+    "order": 3,
     "tur": "strike",
     "attribute_count": 3
    },
    "equipment_xenoresonator_ma-strike-resonator": {
     "ad": "MA-Strike Resonator",
-    "kalite": "ma",
-    "sira": 4,
+    "quality": "ma",
+    "order": 4,
     "tur": "strike",
     "attribute_count": 3
    },
    "equipment_xenoresonator_leg-strike-resonator": {
     "ad": "LEG-Strike Resonator",
-    "kalite": "leg",
-    "sira": 5,
+    "quality": "leg",
+    "order": 5,
     "tur": "strike",
     "attribute_count": 4
    },
    "equipment_xenoresonator_ul-strike-resonator": {
     "ad": "UL-Strike Resonator",
-    "kalite": "ul",
-    "sira": 6,
+    "quality": "ul",
+    "order": 6,
     "tur": "strike",
     "attribute_count": 4
    },
    "equipment_xenoresonator_c-aegis-resonator": {
     "ad": "C-Aegis Resonator",
-    "kalite": "c",
-    "sira": 0,
+    "quality": "c",
+    "order": 0,
     "tur": "aegis",
     "attribute_count": 1
    },
    "equipment_xenoresonator_uc-aegis-resonator": {
     "ad": "UC-Aegis Resonator",
-    "kalite": "uc",
-    "sira": 1,
+    "quality": "uc",
+    "order": 1,
     "tur": "aegis",
     "attribute_count": 2
    },
    "equipment_xenoresonator_r-aegis-resonator": {
     "ad": "R-Aegis Resonator",
-    "kalite": "r",
-    "sira": 2,
+    "quality": "r",
+    "order": 2,
     "tur": "aegis",
     "attribute_count": 2
    },
    "equipment_xenoresonator_ep-aegis-resonator": {
     "ad": "EP-Aegis Resonator",
-    "kalite": "ep",
-    "sira": 3,
+    "quality": "ep",
+    "order": 3,
     "tur": "aegis",
     "attribute_count": 3
    },
    "equipment_xenoresonator_ma-aegis-resonator": {
     "ad": "MA-Aegis Resonator",
-    "kalite": "ma",
-    "sira": 4,
+    "quality": "ma",
+    "order": 4,
     "tur": "aegis",
     "attribute_count": 3
    },
    "equipment_xenoresonator_leg-aegis-resonator": {
     "ad": "LEG-Aegis Resonator",
-    "kalite": "leg",
-    "sira": 5,
+    "quality": "leg",
+    "order": 5,
     "tur": "aegis",
     "attribute_count": 4
    },
    "equipment_xenoresonator_ul-aegis-resonator": {
     "ad": "UL-Aegis Resonator",
-    "kalite": "ul",
-    "sira": 6,
+    "quality": "ul",
+    "order": 6,
     "tur": "aegis",
     "attribute_count": 4
    }
   },
-  "kaynaklar": {
+  "sources": {
    "resource_attack-expansion": {
     "tur": "strike",
     "nitelik": "expansion"
@@ -277,10 +277,10 @@
     "nitelik": "detachment"
    }
   },
-  "nitelikler": {
+  "attributes": {
    "strike": {
     "expansion": {
-     "aralik": {
+     "interval": {
       "c": [
        5.0,
        7.0
@@ -311,10 +311,10 @@
       ]
      },
      "unit": "%",
-     "sabit": {}
+     "fixed": {}
     },
     "collapse": {
-     "aralik": {
+     "interval": {
       "c": [
        5.0,
        7.0
@@ -345,12 +345,12 @@
       ]
      },
      "unit": "%",
-     "sabit": {
+     "fixed": {
       "sure": -25
      }
     },
     "evernight": {
-     "aralik": {
+     "interval": {
       "c": [
        5.0,
        7.0
@@ -381,12 +381,12 @@
       ]
      },
      "unit": "%",
-     "sabit": {
+     "fixed": {
       "sure": 25
      }
     },
     "aftershock": {
-     "aralik": {
+     "interval": {
       "c": [
        10.0,
        13.5
@@ -417,13 +417,13 @@
       ]
      },
      "unit": "%",
-     "sabit": {
-      "aktif_pay": 75,
-      "patlama_pay": 25
+     "fixed": {
+      "active_share": 75,
+      "blast_share": 25
      }
     },
     "stagnation": {
-     "aralik": {
+     "interval": {
       "c": [
        20.0,
        22.5
@@ -454,10 +454,10 @@
       ]
      },
      "unit": "%",
-     "sabit": {}
+     "fixed": {}
     },
     "adhesion": {
-     "aralik": {
+     "interval": {
       "c": [
        2.0,
        2.4
@@ -488,12 +488,12 @@
       ]
      },
      "unit": "sn",
-     "sabit": {}
+     "fixed": {}
     }
    },
    "aegis": {
     "grav_tolerance": {
-     "aralik": {
+     "interval": {
       "c": [
        5.0,
        6.0
@@ -524,10 +524,10 @@
       ]
      },
      "unit": "%",
-     "sabit": {}
+     "fixed": {}
     },
     "entry_buffer": {
-     "aralik": {
+     "interval": {
       "c": [
        1.0,
        1.2
@@ -558,12 +558,12 @@
       ]
      },
      "unit": "sn",
-     "sabit": {
-      "azaltma": 30
+     "fixed": {
+      "reduction": 30
      }
     },
     "zone_adaptation": {
-     "aralik": {
+     "interval": {
       "c": [
        10.0,
        12.0
@@ -594,12 +594,12 @@
       ]
      },
      "unit": "%",
-     "sabit": {
-      "saniye_basi": 5
+     "fixed": {
+      "per_second": 5
      }
     },
     "slowing_resistance": {
-     "aralik": {
+     "interval": {
       "c": [
        20.0,
        23.5
@@ -630,10 +630,10 @@
       ]
      },
      "unit": "%",
-     "sabit": {}
+     "fixed": {}
     },
     "detachment": {
-     "aralik": {
+     "interval": {
       "c": [
        20.0,
        23.5
@@ -664,7 +664,7 @@
       ]
      },
      "unit": "%",
-     "sabit": {}
+     "fixed": {}
     }
    }
   },
@@ -672,111 +672,111 @@
    {
     "hedef": "equipment_xenoresonator_c-strike-resonator",
     "tur": "strike",
-    "kalite": "c",
+    "quality": "c",
     "uridyum": 1000,
     "source_amount": 3
    },
    {
     "hedef": "equipment_xenoresonator_uc-strike-resonator",
     "tur": "strike",
-    "kalite": "uc",
+    "quality": "uc",
     "uridyum": 500,
-    "girdi": "equipment_xenoresonator_c-strike-resonator",
+    "input": "equipment_xenoresonator_c-strike-resonator",
     "adet": 4
    },
    {
     "hedef": "equipment_xenoresonator_r-strike-resonator",
     "tur": "strike",
-    "kalite": "r",
+    "quality": "r",
     "uridyum": 1000,
-    "girdi": "equipment_xenoresonator_uc-strike-resonator",
+    "input": "equipment_xenoresonator_uc-strike-resonator",
     "adet": 4
    },
    {
     "hedef": "equipment_xenoresonator_ep-strike-resonator",
     "tur": "strike",
-    "kalite": "ep",
+    "quality": "ep",
     "uridyum": 1000,
-    "girdi": "equipment_xenoresonator_r-strike-resonator",
+    "input": "equipment_xenoresonator_r-strike-resonator",
     "adet": 4
    },
    {
     "hedef": "equipment_xenoresonator_ma-strike-resonator",
     "tur": "strike",
-    "kalite": "ma",
+    "quality": "ma",
     "uridyum": 2000,
-    "girdi": "equipment_xenoresonator_ep-strike-resonator",
+    "input": "equipment_xenoresonator_ep-strike-resonator",
     "adet": 4
    },
    {
     "hedef": "equipment_xenoresonator_leg-strike-resonator",
     "tur": "strike",
-    "kalite": "leg",
+    "quality": "leg",
     "uridyum": 5000,
-    "girdi": "equipment_xenoresonator_ma-strike-resonator",
+    "input": "equipment_xenoresonator_ma-strike-resonator",
     "adet": 4
    },
    {
     "hedef": "equipment_xenoresonator_ul-strike-resonator",
     "tur": "strike",
-    "kalite": "ul",
+    "quality": "ul",
     "uridyum": 10000,
-    "girdi": "equipment_xenoresonator_leg-strike-resonator",
+    "input": "equipment_xenoresonator_leg-strike-resonator",
     "adet": 4
    },
    {
     "hedef": "equipment_xenoresonator_c-aegis-resonator",
     "tur": "aegis",
-    "kalite": "c",
+    "quality": "c",
     "uridyum": 1000,
     "source_amount": 3
    },
    {
     "hedef": "equipment_xenoresonator_uc-aegis-resonator",
     "tur": "aegis",
-    "kalite": "uc",
+    "quality": "uc",
     "uridyum": 500,
-    "girdi": "equipment_xenoresonator_c-aegis-resonator",
+    "input": "equipment_xenoresonator_c-aegis-resonator",
     "adet": 4
    },
    {
     "hedef": "equipment_xenoresonator_r-aegis-resonator",
     "tur": "aegis",
-    "kalite": "r",
+    "quality": "r",
     "uridyum": 1000,
-    "girdi": "equipment_xenoresonator_uc-aegis-resonator",
+    "input": "equipment_xenoresonator_uc-aegis-resonator",
     "adet": 4
    },
    {
     "hedef": "equipment_xenoresonator_ep-aegis-resonator",
     "tur": "aegis",
-    "kalite": "ep",
+    "quality": "ep",
     "uridyum": 1000,
-    "girdi": "equipment_xenoresonator_r-aegis-resonator",
+    "input": "equipment_xenoresonator_r-aegis-resonator",
     "adet": 4
    },
    {
     "hedef": "equipment_xenoresonator_ma-aegis-resonator",
     "tur": "aegis",
-    "kalite": "ma",
+    "quality": "ma",
     "uridyum": 2000,
-    "girdi": "equipment_xenoresonator_ep-aegis-resonator",
+    "input": "equipment_xenoresonator_ep-aegis-resonator",
     "adet": 4
    },
    {
     "hedef": "equipment_xenoresonator_leg-aegis-resonator",
     "tur": "aegis",
-    "kalite": "leg",
+    "quality": "leg",
     "uridyum": 5000,
-    "girdi": "equipment_xenoresonator_ma-aegis-resonator",
+    "input": "equipment_xenoresonator_ma-aegis-resonator",
     "adet": 4
    },
    {
     "hedef": "equipment_xenoresonator_ul-aegis-resonator",
     "tur": "aegis",
-    "kalite": "ul",
+    "quality": "ul",
     "uridyum": 10000,
-    "girdi": "equipment_xenoresonator_leg-aegis-resonator",
+    "input": "equipment_xenoresonator_leg-aegis-resonator",
     "adet": 4
    }
   ],
@@ -790,7 +790,7 @@
   "synthesis": {
    "grup": "synthesis_resonator_title",
    "button": "synthesis_resonator_synthesis",
-   "tablolar": {
+   "tables": {
     "strike": "synthesis_resonator_strike",
     "aegis": "synthesis_resonator_aegis"
    }
@@ -799,296 +799,296 @@
  },
  "extra_recipes": {
   "grup": "title_assembly",
-  "tablo": "title_assembly",
+  "table": "title_assembly",
   "recipes": [
    {
     "tarif": "recipe_blueprint-a-elite-blaze",
     "hedef": "ship_a-elite_design_a-elite-blaze",
     "adet": 1,
-    "yildiz": 0,
-    "girdiler": {
+    "star": 0,
+    "inputs": {
      "resource_high-frequency-cable": 4,
      "resource_nano-condenser": 3,
      "resource_hybrid-processor": 1
     },
-    "en_cok": 1,
+    "max_count": 1,
     "usage": "USABLE_ONCE",
-    "uyarlama": true
+    "adaptation": true
    },
    {
     "tarif": "recipe_blueprint-a-elite-lava",
     "hedef": "ship_a-elite_design_a-elite-lava",
     "adet": 1,
-    "yildiz": 0,
-    "girdiler": {
+    "star": 0,
+    "inputs": {
      "resource_high-frequency-cable": 10,
      "resource_prismatic-socket": 5,
      "resource_hybrid-processor": 2
     },
-    "en_cok": 1,
+    "max_count": 1,
     "usage": "USABLE_ONCE",
-    "uyarlama": true
+    "adaptation": true
    },
    {
     "tarif": "recipe_blueprint-a-elite-sandstorm",
     "hedef": "ship_a-elite_design_a-elite-sandstorm",
     "adet": 1,
-    "yildiz": 0,
-    "girdiler": {
+    "star": 0,
+    "inputs": {
      "resource_high-frequency-cable": 8,
      "resource_nano-condenser": 5,
      "resource_micro-transistors": 2
     },
-    "en_cok": 1,
+    "max_count": 1,
     "usage": "USABLE_ONCE",
-    "uyarlama": true
+    "adaptation": true
    },
    {
     "tarif": "recipe_blueprint-captain-gen3-up",
     "hedef": "captain_captain-gen3-up",
     "adet": 1,
-    "yildiz": 0,
-    "girdiler": {
+    "star": 0,
+    "inputs": {
      "resource_collectable_neu": 1500
     },
-    "en_cok": 1,
+    "max_count": 1,
     "usage": "ALWAYS_USABLE",
-    "uyarlama": true
+    "adaptation": true
    },
    {
     "tarif": "recipe_blueprint-cubi-portal",
     "hedef": "ammunition_specialammo_cubi-portal",
     "adet": 1,
-    "yildiz": 0,
-    "girdiler": {
+    "star": 0,
+    "inputs": {
      "resource_collectable_bifenon": 30,
      "resource_collectable_prismatium": 10,
      "resource_collectable_scrapium": 10
     },
-    "en_cok": null,
+    "max_count": null,
     "usage": "ALWAYS_USABLE",
-    "uyarlama": true
+    "adaptation": true
    },
    {
     "tarif": "recipe_blueprint-drone-a-elite-blaze",
     "hedef": "drone_designs_drone-a-elite-blaze",
     "adet": 1,
-    "yildiz": 0,
-    "girdiler": {
+    "star": 0,
+    "inputs": {
      "resource_nano-case": 4,
      "resource_prismatic-socket": 1,
      "resource_hybrid-processor": 1
     },
-    "en_cok": null,
+    "max_count": null,
     "usage": "ALWAYS_USABLE",
-    "uyarlama": true
+    "adaptation": true
    },
    {
     "tarif": "recipe_blueprint-drone-a-elite-lava",
     "hedef": "drone_designs_drone-a-elite-lava",
     "adet": 1,
-    "yildiz": 0,
-    "girdiler": {
+    "star": 0,
+    "inputs": {
      "resource_high-frequency-cable": 4,
      "resource_nano-case": 4,
      "resource_micro-transistors": 2
     },
-    "en_cok": null,
+    "max_count": null,
     "usage": "ALWAYS_USABLE",
-    "uyarlama": true
+    "adaptation": true
    },
    {
     "tarif": "recipe_blueprint-drone-a-elite-sandstorm",
     "hedef": "drone_designs_drone-a-elite-sandstorm",
     "adet": 1,
-    "yildiz": 0,
-    "girdiler": {
+    "star": 0,
+    "inputs": {
      "resource_high-frequency-cable": 8,
      "resource_prismatic-socket": 2,
      "resource_hybrid-processor": 1
     },
-    "en_cok": null,
+    "max_count": null,
     "usage": "ALWAYS_USABLE",
-    "uyarlama": true
+    "adaptation": true
    },
    {
     "tarif": "recipe_blueprint-ep-5m-shc-1",
     "hedef": "currency_experience",
     "adet": 5000000,
-    "yildiz": 0,
-    "girdiler": {
+    "star": 0,
+    "inputs": {
      "equipment_weapon_laser_aa-1": 1
     },
-    "en_cok": null,
+    "max_count": null,
     "usage": "ALWAYS_USABLE",
-    "uyarlama": true
+    "adaptation": true
    },
    {
     "tarif": "recipe_blueprint-ep-5m-shpc-1",
     "hedef": "currency_experience",
     "adet": 5000000,
-    "yildiz": 1,
-    "girdiler": {
+    "star": 1,
+    "inputs": {
      "equipment_weapon_laser_aap-1": 1
     },
-    "en_cok": null,
+    "max_count": null,
     "usage": "ALWAYS_USABLE",
-    "uyarlama": true
+    "adaptation": true
    },
    {
     "tarif": "recipe_blueprint-honor-25k-shc-1",
     "hedef": "currency_honour",
     "adet": 25000,
-    "yildiz": 0,
-    "girdiler": {
+    "star": 0,
+    "inputs": {
      "equipment_weapon_laser_aa-1": 1
     },
-    "en_cok": null,
+    "max_count": null,
     "usage": "ALWAYS_USABLE",
-    "uyarlama": true
+    "adaptation": true
    },
    {
     "tarif": "recipe_blueprint-honor-25k-shpc-1",
     "hedef": "currency_honour",
     "adet": 25000,
-    "yildiz": 1,
-    "girdiler": {
+    "star": 1,
+    "inputs": {
      "equipment_weapon_laser_aap-1": 1
     },
-    "en_cok": null,
+    "max_count": null,
     "usage": "ALWAYS_USABLE",
-    "uyarlama": true
+    "adaptation": true
    },
    {
     "tarif": "recipe_blueprint-hybrid-alloy",
     "hedef": "resource_collectable_hybrid-alloy",
     "adet": 10,
-    "yildiz": 0,
-    "girdiler": {
+    "star": 0,
+    "inputs": {
      "resource_collectable_mucosum": 30,
      "resource_collectable_scrapium": 25,
      "resource_collectable_prismatium": 5
     },
-    "en_cok": null,
+    "max_count": null,
     "usage": "ALWAYS_USABLE",
-    "uyarlama": true
+    "adaptation": true
    },
    {
     "tarif": "recipe_blueprint-indra-hyperion",
     "hedef": "equipment_weapon_cannon_ul-indra-hyperion",
     "adet": 1,
-    "yildiz": 0,
-    "girdiler": {
+    "star": 0,
+    "inputs": {
      "resource_collectable_pulse-core": 2000
     },
-    "en_cok": 1,
+    "max_count": 1,
     "usage": "ALWAYS_USABLE",
-    "uyarlama": true
+    "adaptation": true
    },
    {
     "tarif": "recipe_blueprint-indra-retiarus-plus",
     "hedef": "equipment_weapon_cannon_ul-indra-retiarus-plus",
     "adet": 1,
-    "yildiz": 0,
-    "girdiler": {
+    "star": 0,
+    "inputs": {
      "resource_collectable_pulse-core": 1600
     },
-    "en_cok": 1,
+    "max_count": 1,
     "usage": "ALWAYS_USABLE",
-    "uyarlama": true
+    "adaptation": true
    },
    {
     "tarif": "recipe_blueprint-orcus-amor",
     "hedef": "ship_orcus_design_orcus-amor",
     "adet": 1,
-    "yildiz": 0,
-    "girdiler": {
+    "star": 0,
+    "inputs": {
      "resource_collectable_charopos-shard": 1400,
      "resource_collectable_styxus-shard": 200
     },
-    "en_cok": 1,
+    "max_count": 1,
     "usage": "USABLE_ONCE",
-    "uyarlama": true
+    "adaptation": true
    },
    {
     "tarif": "recipe_blueprint-pet-a-elite-blaze",
     "hedef": "pet_designs_pet-a-elite-blaze",
     "adet": 1,
-    "yildiz": 0,
-    "girdiler": {
+    "star": 0,
+    "inputs": {
      "resource_nano-case": 4,
      "resource_nano-condenser": 2,
      "resource_micro-transistors": 1
     },
-    "en_cok": 1,
+    "max_count": 1,
     "usage": "USABLE_ONCE",
-    "uyarlama": true
+    "adaptation": true
    },
    {
     "tarif": "recipe_blueprint-pet-a-elite-lava",
     "hedef": "pet_designs_pet-a-elite-lava",
     "adet": 1,
-    "yildiz": 0,
-    "girdiler": {
+    "star": 0,
+    "inputs": {
      "resource_nano-case": 6,
      "resource_nano-condenser": 4,
      "resource_micro-transistors": 1
     },
-    "en_cok": 1,
+    "max_count": 1,
     "usage": "USABLE_ONCE",
-    "uyarlama": true
+    "adaptation": true
    },
    {
     "tarif": "recipe_blueprint-pet-a-elite-sandstorm",
     "hedef": "pet_designs_pet-a-elite-sandstorm",
     "adet": 1,
-    "yildiz": 0,
-    "girdiler": {
+    "star": 0,
+    "inputs": {
      "resource_nano-case": 6,
      "resource_nano-condenser": 4,
      "resource_micro-transistors": 1
     },
-    "en_cok": 1,
+    "max_count": 1,
     "usage": "USABLE_ONCE",
-    "uyarlama": true
+    "adaptation": true
    },
    {
     "tarif": "recipe_blueprint-pusat-plus-amor",
     "hedef": "ship_pusat-plus_design_pusat-plus-amor",
     "adet": 1,
-    "yildiz": 0,
-    "girdiler": {
+    "star": 0,
+    "inputs": {
      "resource_collectable_charopos-shard": 1400,
      "resource_collectable_styxus-shard": 200
     },
-    "en_cok": 1,
+    "max_count": 1,
     "usage": "USABLE_ONCE",
-    "uyarlama": true
+    "adaptation": true
    },
    {
     "tarif": "recipe_blueprint-r-ic3",
     "hedef": "ammunition_specialammo_r-ic3",
     "adet": 5,
-    "yildiz": 0,
-    "girdiler": {
+    "star": 0,
+    "inputs": {
      "currency_uridium": 1500
     },
-    "en_cok": null,
+    "max_count": null,
     "usage": "ALWAYS_USABLE",
-    "uyarlama": true
+    "adaptation": true
    },
    {
     "tarif": "recipe_blueprint-spectrum-plus-amor",
     "hedef": "ship_spectrum-plus_design_spectrum-plus-amor",
     "adet": 1,
-    "yildiz": 0,
-    "girdiler": {
+    "star": 0,
+    "inputs": {
      "resource_collectable_charopos-shard": 1400,
      "resource_collectable_styxus-shard": 200
     },
-    "en_cok": 1,
+    "max_count": 1,
     "usage": "USABLE_ONCE",
-    "uyarlama": true
+    "adaptation": true
    }
   ],
   "_uyarlama": "malzemeler istemcinin benzer tariflerinden (belgeler/wiki/esyalar_o6.json tarifler.liste); USABLE_ONCE tasarımlar bir kez"

@@ -75,7 +75,7 @@ class Group:
 
 def room(gid):
     """Grubun sohbet odası (sosyal.rooms; chat.py)."""
-    return ('group', 'group', 'grup_%d' % gid)
+    return ('group', 'group', 'group_%d' % gid)
 
 
 def group_of(uid):
