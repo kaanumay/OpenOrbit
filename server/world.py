@@ -948,9 +948,13 @@ class World:
                                              nanoHull=int(g.get('nanoHull', 0)), maxNanoHull=int(g.get('maxNanoHull', 0)),
                                              shieldSkill=False))
 
+    def lairs(self, tip):
+        """Fixed spawn points of the type on this map (npc.json maps.fixed_spots, else map_layout.json lairs) or None."""
+        return self.rules.get('fixed_spots', {}).get(tip) or ML.lairs(self.map_id).get(tip)
+
     def fixed_spot(self, tip):
         """A free one among the type's fixed spawn points (npc.json maps.fixed_spots; Cubikon's four points) or None."""
-        pts = self.rules.get('fixed_spots', {}).get(tip) or ML.lairs(self.map_id).get(tip)    # dens: map_layout.json
+        pts = self.lairs(tip)
         if not pts:
             return None
         free = [p for p in pts if not any(n.tip == tip and math.hypot(n.mover.x1 - p[0], n.mover.y1 - p[1]) < 800
@@ -971,6 +975,10 @@ class World:
         return int(z[0]), int(z[1])
 
     def spawn_npc(self, tip, announce=True):
+        pts = self.lairs(tip)
+        if pts and sum(1 for o in self.npcs.values() if o.alive and o.tip == tip) >= len(pts):
+            # one per lair at most: the count multiplier (npc_count) used to stack extras on taken lairs (Invoke XVI on BL maps)
+            return None
         self.next_uid += 1
         x, y = self.fixed_spot(tip) or self.zone_spot(tip) or self.random_spot()
         n = NPC(self.next_uid, tip, x, y)
@@ -1312,6 +1320,8 @@ class World:
                 if key in done or any(n.alive and n.ab.get('scheduled') for n in self.npcs.values() if n.tip == e['tip']):
                     continue
                 n = self.spawn_npc(e['tip'])
+                if not n:
+                    continue                    # every lair of the type is taken
                 n.summoned = True
                 n.ab['scheduled'] = key
                 self.log('   timetabled alien: %s (%s)' % (n.d['name'], hm))
