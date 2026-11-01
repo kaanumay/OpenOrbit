@@ -111,7 +111,13 @@ def dispatch_snapshot(person, now=None):
             if key == "hades":  # grup kapısı Dispatch ile gönderilmez
                 continue
             state = gate_states.get(key) or KAPI.fresh(definition)
+            # parcalar is the currently assembled gate. Once that gate is
+            # prepared, new spins go to sonraki and must be shown separately.
+            # GalaxyGateBuilderInfoCommand.currPart uses Kapilar.parts(), which
+            # switches to sonraki while hazir=True; Dispatch.send_gate(), in
+            # contrast, validates built() against parcalar.
             parts = len(state.get("parcalar") or [])
+            next_parts = len(state.get("sonraki") or []) if state.get("hazir") else 0
             required = int(definition["parca"])
             is_built = parts >= required
             until = sent.get(key)
@@ -130,6 +136,9 @@ def dispatch_snapshot(person, now=None):
                 "required": required,
                 "built": is_built,
                 "prepared": bool(state.get("hazir")),
+                "next_parts": next_parts,
+                "next_required": required,
+                "next_built": next_parts >= required,
                 "wave": int(state.get("dalga") or 0),
                 "completed": int(state.get("tamam") or 0),
                 "dispatch_until": int(until) if until is not None else None,
