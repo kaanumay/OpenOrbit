@@ -239,8 +239,10 @@ off or check by hand.
 - Pick the game's own language on the client's login screen (the selector at the top, before START).
 - 2D or 3D: *Settings › Display › Choose 2D version*, Save, OK; the game opens in that mode next time.
 - Missions are taken at Mission Control in the stations. Quit with the in-game logout button: it saves cleanly.
-- *Game Settings › Developer › GM console* turns on the game's hidden admin window (Ctrl, then Shift, then Z in the game):
-  teleport, spawn aliens and boxes, give items, finish missions, reset cooldowns.
+- *Game Settings › Developer › GM console* enables the hidden native GM window (Ctrl, then Shift, then Z): teleport,
+  spawn aliens and boxes, give items, finish missions and reset cooldowns. With the client plugin installed, **F10** also
+  opens the in-game **OpenOrbit GM Center** overlay for the host: player overview and Dispatch gate diagnostics/actions.
+  The overlay's first increment is read-only for player profiles; broader profile and inventory editing is being added in stages.
 
 </details>
 
