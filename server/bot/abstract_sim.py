@@ -120,8 +120,8 @@ def farm(bot, dt, y, target_kind=None):
     k, k_reward = k * afforded, k_reward * afforded
     lv = bot.level
     x1 = x1_cut(bot)
-    bot.reward('npc', ep=r['saat_ep'] * k_reward * x1, kredi=r['saat_kredi'] * k_reward * x1, uridyum=r['saat_uridyum'] * k_reward * x1,
-             onur=r['saat_onur'] * k_reward)
+    bot.reward('npc', ep=r['ep_per_hour'] * k_reward * x1, kredi=r['credits_per_hour'] * k_reward * x1, uridyum=r['uridium_per_hour'] * k_reward * x1,
+             onur=r['honor_per_hour'] * k_reward)
     box = BONUS_URIDIUM_PER_HOUR * (1 + lv / 6.0) * k * x1
     bot.reward('kutu', uridyum=box)
     WP.box_ammo(bot, box / BOX_URIDIUM)                # bonus kutularının cephanesi ve kredisi
@@ -145,7 +145,7 @@ def farm(bot, dt, y, target_kind=None):
     from . import loot as LT, events as IX
     LT.abstract(bot, dt, y)                                 # haritanın anahtarlı kutuları
     IX.abstract(bot, dt, y, dps)                            # etkinlik uzaylıları, düşmeleri ve kutuları
-    if bot.r.random() < r['olum_saat'] * dt / 3600.0 * (0.6 + 0.8 * (1 - bot.o('sabir')) * 0.5):
+    if bot.r.random() < r['deaths_per_hour'] * dt / 3600.0 * (0.6 + 0.8 * (1 - bot.o('sabir')) * 0.5):
         death(bot, y, reason='npc', now=y.now if y is not None else None)
 
 
@@ -187,7 +187,7 @@ def death(bot, y, reason='npc', killer=None, now=None):
     if killer:
         bot.memory.event(killer, 'oldurdu_beni', now)
     repair = pick_repair(bot, y, killer)
-    bot.event('olum', now, neden=reason, katil=killer, harita=H.name(bot.game_map), tamir=repair)
+    bot.event('olum', now, neden=reason, killer=killer, harita=H.name(bot.game_map), tamir=repair)
     bot.en_route = None
     bot.dead_until = now + bot.r.uniform(*DEATH_WAIT)
     if y is not None and y.mode == 'basit':

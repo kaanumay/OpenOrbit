@@ -144,7 +144,7 @@ class WineEngine:
 
     @staticmethod
     def _blank(state):
-        return {'durum': state, 'calisiyor': False, 'alinan': 0, 'toplam': 0, 'hiz': 0, 'kalan_sn': None, 'hata': None, 'parca': None}
+        return {'durum': state, 'calisiyor': False, 'alinan': 0, 'toplam': 0, 'hiz': 0, 'time_left_sec': None, 'hata': None, 'parca': None}
 
     # ------------------------------------------------------------ kurulu motor
     def folder(self):
@@ -207,7 +207,7 @@ class WineEngine:
             if now - t0 >= 1:
                 self.d['hiz'] = int((self.d['alinan'] - b0) / (now - t0))
                 left = max(0, self.d['toplam'] - self.d['alinan'])
-                self.d['kalan_sn'] = int(left / self.d['hiz']) if self.d['hiz'] > 0 else None
+                self.d['time_left_sec'] = int(left / self.d['hiz']) if self.d['hiz'] > 0 else None
 
     def _download_extract(self, part, target):
         """Arşivi akarak hedefe aç ve SHA-256'sını doğrula."""
@@ -264,7 +264,7 @@ class WineEngine:
                 if old != ENGINE['surum'] and not old.startswith('.') and os.path.isdir(p):
                     shutil.rmtree(p, ignore_errors=True)
             with self.lock:
-                self.d.update(durum='kurulu', alinan=self.d['toplam'], kalan_sn=0)
+                self.d.update(durum='kurulu', alinan=self.d['toplam'], time_left_sec=0)
             self.log('Wine motoru kuruldu: %s (%s)' % (self.name(), target))
         except Cancelled:
             with self.lock:

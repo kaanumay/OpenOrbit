@@ -4,7 +4,7 @@ Bot paketi save/botlar/<kimlik>.json:
   {surum, ad, aciklama, dunya, kip ('basit' | 'normal' | 'gelismis'), gelisim ('progressive' | 'jumpstart'), tohum, dil,
    firma_dagilimi [MMO, EIC, VRU], ayarlar {...}, kadro [{no, ad, firma, kisilik}], olusturma, guncelleme}
 Paketin ilerlemesi save/botlar/<kimlik>/durum.json'da (oyun sunucusu yazar: bot/manager.py); paket silinince ikisi de
-_silinenler'e taşınır. Bir dünyaya en çok bir paket atanır (OYNA o dünyanın paketiyle açar: DO_BOT).
+_silinenler'e taşınır. Bir dünyaya en çok bir paket atanır (OYNA o dünyanın paketiyle açar: OO_BOT).
 Kadro oluşturulurken bir kez üretilir (bot/kisilik.kadro_uret, tohumlu): her girişte aynı botlar.
 """
 import copy, datetime, json, os, random, re, shutil, threading
@@ -85,7 +85,7 @@ def state_path(pid):
 
 
 def file_path(pid):
-    """Sunucunun paket dosyası (DO_BOT) ya da None."""
+    """Sunucunun paket dosyası (OO_BOT) ya da None."""
     if not pid:
         return None
     try:
@@ -562,8 +562,8 @@ def summary(pid):
     levels = [c[x['no']].get('seviye', 1) for x in d['kadro'] if x['no'] in c]
     return {'id': pid, 'ad': d['ad'], 'aciklama': d.get('aciklama', ''), 'dunya': d.get('dunya'), 'kip': d['kip'],
             'gelisim': d.get('gelisim'), 'adet': len(d['kadro']), 'firmalar': companies, 'guncelleme': d.get('guncelleme'),
-            'son_oyun': t, 'seviye_ort': round(sum(levels) / len(levels), 1) if levels else None,
-            'seviye_enb': max(levels) if levels else None}
+            'last_played': t, 'level_avg': round(sum(levels) / len(levels), 1) if levels else None,
+            'level_max': max(levels) if levels else None}
 
 
 def entries():
@@ -580,12 +580,12 @@ def entries():
 def _memory(s):
     """Botun aklındakiler (bot/memories.py, bot/agent.py; güçlü sağlayıcı): açık hedefleri, bekleyen sözleri, izlenimleri, en yeni
     anıları -> yoksa None."""
-    memories = s.get('anilar') or []
+    memories = s.get('memories') or []
     out = {'defter': [x['metin'] for x in s.get('defter') or [] if not x.get('bitti')],
-           'bekleyen': [{'kim': a['kim'], 'amac': a['takip']['amac'], 'ozet': a['ozet'], 'vade': a['takip'].get('vade')}
+           'bekleyen': [{'kim': a['kim'], 'amac': a['takip']['amac'], 'ozet': a['ozet'], 'due': a['takip'].get('due')}
                         for a in memories if a.get('takip') and not a['takip'].get('bitti')],
            'izlenim': [{'kim': v.get('ad'), 'metin': v.get('metin')} for v in (s.get('izlenim') or {}).values()],
-           'anilar': [{'kim': a['kim'], 'ozet': a['ozet'], 't': a['t'], 'n': a.get('n', 1)} for a in sorted(memories, key=lambda a: -a['t'])[:8]],
+           'memories': [{'kim': a['kim'], 'ozet': a['ozet'], 't': a['t'], 'n': a.get('n', 1)} for a in sorted(memories, key=lambda a: -a['t'])[:8]],
            'hatirlatici': [x.get('metin') for x in s.get('hatirlatici') or []], 'birikim': s.get('birikim')}
     return out if any(out.values()) else None
 
@@ -613,7 +613,7 @@ def clans(pid):
             continue
         s = k.get('ksi') or {}
         out.append({'ad': k.get('ad', ''), 'etiket': k.get('etiket', ''), 'logo': k.get('logo'), 'firma': k.get('firma', 0),
-                    'lider': (members.get(k.get('lider')) or {}).get('ad', k.get('lider')), 'bot_lider': k.get('lider') in names,
+                    'lider': (members.get(k.get('lider')) or {}).get('ad', k.get('lider')), 'bot_leader': k.get('lider') in names,
                     'uye': len(members), 'bot': bot, 'kasa': k.get('kasa', 0), 'vergi': k.get('vergi', 0), 'butce': k.get('butce'),
                     'kurulus': k.get('kurulus'), 'aciklama': k.get('aciklama', ''),
                     'rutbeler': [r.get('ad') for r in k.get('rutbeler') or []],
@@ -642,11 +642,11 @@ def detail(pid):
                      'harita': s.get('harita'), 'harita_ad': H.name(s['harita']) if s.get('harita') else '', 'klan': s.get('klan'), 'hedef': s.get('hedef'), 'istat': s.get('istat') or {},
                      'kredi': s.get('kredi', 0), 'uridyum': s.get('uridyum', 0), 'onur': s.get('onur', 0),
                      'ep': s.get('ep', 0), 'rutbe': s.get('rutbe') or 1, 'ozel': bool(x.get('ozel')),
-                     'kapi': {g: v.get('en_iyi') for g, v in (s.get('kapi_sureleri') or {}).items()},
+                     'kapi': {g: v.get('en_iyi') for g, v in (s.get('gate_times') or {}).items()},
                      'ajan': (s.get('ajan') or [])[-6:],                    # ajanın son adımları (bot/ajan.py; güçlü sağlayıcı)
                      'hafiza': _memory(s)})
     out = dict(summary(pid), ayarlar=clean_settings({}, d['ayarlar']),          # eski paketlerde yeni ayarlar varsayılanla
-               llm_kullanim=live_llm(pid), dil=d.get('dil'), ad_dili=name_lang(d), ad_kaynagi=d.get('ad_kaynagi', 'uretim'), diller=list(LANGUAGES),
+               llm_usage=live_llm(pid), dil=d.get('dil'), ad_dili=name_lang(d), ad_kaynagi=d.get('ad_kaynagi', 'uretim'), diller=list(LANGUAGES),
                firma_dagilimi=d.get('firma_dagilimi'), kadro=rows, klanlar=clans(pid),
                durum_var=bool(c))
     return out

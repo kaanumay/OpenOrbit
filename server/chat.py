@@ -371,12 +371,12 @@ class Chat:
 
     def report(self, c, path, d):
         """Sohbet raporu (/report): sunucu günlüğüne bir satır (forum 132515; tek oyunculuda moderatör yok)."""
-        row = {'zaman': time.strftime('%Y-%m-%d %H:%M:%S'), 'raporlayan': c.user.get('userId'), 'oda': path.rsplit('/reportUser', 1)[0],
+        row = {'zaman': time.strftime('%Y-%m-%d %H:%M:%S'), 'reporter': c.user.get('userId'), 'oda': path.rsplit('/reportUser', 1)[0],
                **{k: d.get(k) for k in ('targetUserId', 'targetGlobalId', 'reason', 'reasonKey', 'message')}}
         os.makedirs(os.path.dirname(self.report_path), exist_ok=True)
         with self.lock, open(self.report_path, 'a', encoding='utf8') as fh:
             fh.write(json.dumps(row, ensure_ascii=False) + '\n')
-        self.log('sohbet: rapor %s -> %s (%s)' % (row['raporlayan'], row['targetUserId'], row['reasonKey'] or row['reason']))
+        self.log('sohbet: rapor %s -> %s (%s)' % (row['reporter'], row['targetUserId'], row['reasonKey'] or row['reason']))
         return None
 
     def room_path(self, name):
@@ -389,15 +389,15 @@ class Chat:
         with self.lock:
             if name in self.rooms:
                 return 'room already exists'
-            if sum(o['kurucu'] == me for o in self.rooms.values()) >= ROOM_LIMIT:
+            if sum(o['creator'] == me for o in self.rooms.values()) >= ROOM_LIMIT:
                 return 'no more private rooms allowed'
-            self.rooms[name] = {'kurucu': me, 'uyeler': {me}, 'davetli': set()}
+            self.rooms[name] = {'creator': me, 'uyeler': {me}, 'invited': set()}
         self.join(c, name, 'usr', name)
         return None
 
     def room_invite(self, c, name, d):
         o = self.rooms.get(name)
-        if not o or o['kurucu'] != c.user.get('id'):
+        if not o or o['creator'] != c.user.get('id'):
             return 'Not creator of this channel'
         want = '/userroominvite/%s/' % str(d.get('whisperId') or '').lower()
         with self.lock:
@@ -409,7 +409,7 @@ class Chat:
         if not hits:
             return 'user no longer logged in'
         for x, p in hits:
-            o['davetli'].add(x.user.get('id'))
+            o['invited'].add(x.user.get('id'))
             x.send({'t': T_MESSAGE, 'path': p, 'data': {'roomName': name, 'invitingUserData': c.user},
                     'endpointObject': {'path': c.path, 'endpoint': c.ep, 'data': c.user}})
         return None
@@ -417,7 +417,7 @@ class Chat:
     def room_join(self, c, name, d):
         me = c.user.get('id')
         o = self.rooms.get(name)
-        if not o or me not in o['davetli'] | o['uyeler']:
+        if not o or me not in o['invited'] | o['uyeler']:
             return 'no playerId found'
         o['uyeler'].add(me)
         self.join(c, name, 'usr', name)
@@ -425,7 +425,7 @@ class Chat:
 
     def room_close(self, c, name, d):
         o = self.rooms.get(name)
-        if not o or o['kurucu'] != c.user.get('id'):
+        if not o or o['creator'] != c.user.get('id'):
             return 'Not creator of this channel'
         with self.lock:
             del self.rooms[name]

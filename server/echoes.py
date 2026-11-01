@@ -63,9 +63,9 @@ class Echoes:
     def st(self):
         s = self.p.d.setdefault('pve', {}).setdefault('echoes', {})
         if s.get('donem') != period():
-            first, top = s.get('ilk', []), s.get('en_yuksek', 0)
+            first, top = s.get('ilk', []), s.get('highest', 0)
             s.clear()
-            s.update(donem=period(), seviye=1, en_yuksek=0, sure=0, ilk=first, kadro=[], yok=[], sira={}, kosu=False)
+            s.update(donem=period(), seviye=1, highest=0, sure=0, ilk=first, kadro=[], yok=[], sira={}, kosu=False)
             if top:                    # tek oyunculu sıralamada oynayan birinci: unvan info_cmd'de verilir (st profil kilidi altında da okunur)
                 s['unvan_bekle'] = True
             self.p.dirty = True
@@ -90,7 +90,7 @@ class Echoes:
                     dict(gateId=PORTAL + 2, x=HALL_SHIPS[0], y=HALL_SHIPS[1], hedef=0, kapi='echoes', pencere='echoes_gemi',
                          ipucu='window_dse_choose_ship_info', yerinde=True),
                     dict(gateId=PORTAL + 3, x=HALL_EXIT[0], y=HALL_EXIT[1], hedef=0, designId=1, kapi='echoes', pencere='echoes_cikis',
-                         ipucu='ttip_jumpgate', ipucu_hedef=home, yerinde=True)]
+                         ipucu='ttip_jumpgate', hint_target=home, yerinde=True)]
         return out
 
     def hangar_cmd(self):
@@ -123,10 +123,10 @@ class Echoes:
                    rockets=len(cfg.get('rocket', [])))
 
     def sid_of(self, hid):
-        return next((k for k, s in self.p.d['gemiler'].items() if int(s['hangarId']) == int(hid) and not s.get('odunc')), None)
+        return next((k for k, s in self.p.d['gemiler'].items() if int(s['hangarId']) == int(hid) and not s.get('on_loan')), None)
 
     def ship_list(self):
-        sids = [k for k, s in sorted(self.p.d['gemiler'].items(), key=lambda x: int(x[0])) if not s.get('odunc')]
+        sids = [k for k, s in sorted(self.p.d['gemiler'].items(), key=lambda x: int(x[0])) if not s.get('on_loan')]
         return ('ExpeditionShipListCommand', dict(shipCommands=[self.ship_cmd(k) for k in sids]))
 
     def select_ships(self, f):
@@ -330,7 +330,7 @@ class Echoes:
         msgs += self.grant('ammunition_laser_ucb-100', t['ucb_taban'] + t['ucb_seviye'] * n)
         with self.p.lock:
             st['seviye'] = n + 1
-            st['en_yuksek'] = max(st['en_yuksek'], n)
+            st['highest'] = max(st['highest'], n)
             st['sure'] = st.get('sure', 0) + secs
             self.p.dirty = True
         self.p.ach('gate', tur='EXPEDITION_GATE')
@@ -342,7 +342,7 @@ class Echoes:
         if box:                                                     # Echo sandığı (Aşama 9): geminin yanına, anahtarla açılır
             hx, hy = w.hero_pos(now)
             h = w.drop_box(box, hx + random.uniform(-150, 150), hy + random.uniform(-150, 150), None, None)
-            w.boxes[h]['anahtarli'] = True
+            w.boxes[h]['keyed'] = True
         w.send(msgs + [KAPI.screen('key:log_msg_gg_completed_expedition', big=True),
                        KAPI.screen('Level %d cleared in %s!' % (n, '%d:%02d' % divmod(secs, 60))), self.info_cmd()])
         self.log('   Echoes seviye %d bitti: %d sn' % (n, secs))
@@ -413,7 +413,7 @@ class Echoes:
         if st.get('unvan_bekle') and self.titles:             # geçen ayın birincisi (wiki: Cosmic Tyrant)
             self.titles(next(r['unvan'] for r in D['siralama'] if r['den'] == 1))
             st.pop('unvan_bekle')
-        me = st['en_yuksek']
+        me = st['highest']
         ranks = [mod('ExpeditionRankUserInfoCommand', rank=1, curLevel=me, clearanceTime=int(st.get('sure', 0)),
                      userId=self.p.d['pilot'].get('userId', 0), userName=self.p.d['pilot'].get('userName', ''))] if me else []
         rewards = [mod('RankRewardCommand', rankType=13, rewardContentModuleList=[mod('RewardModule', lootId=l, amount=n) for l, n in r['esyalar']],
@@ -438,14 +438,14 @@ class Echoes:
             maxLevel=me))
 
     def jump_info_cmd(self):
-        top = self.st['en_yuksek']
+        top = self.st['highest']
         lv = [x for x in D['atlama']['hedefler'] if self.st['seviye'] < x <= top]      # yalnız ilerisi: ilerlemede olan oyuncuya geri atlama penceresi açılmaz
         return ('ExpeditionJumpLevelInfoCommand', dict(levels=lv, costs=[D['atlama']['bedel_blok'] * ((x - 1) // 5) for x in lv]))
 
     def jump(self, f):
         from shop import stack_msg
         target = int(f.get('jumpTargetLevel') or 0)
-        top = self.st['en_yuksek']
+        top = self.st['highest']
         ok = target in D['atlama']['hedefler'] and self.st['seviye'] < target <= top
         cost = D['atlama']['bedel_blok'] * ((target - 1) // 5)
         if ok and self.p.d['pilot'].get('uridium', 0) >= cost:

@@ -20,14 +20,14 @@ BT = B['savas_bileti']
 PASS_PRICE = 200000
 PASS_QUEST_SEC = 2700            # oynanan ~45 dakikada bir pass görevi
 SEASON_POINTS_PER_HOUR = 30            # oynanan saatte Season Pass puanı (günlük + haftalık görevler)
-_on = {'t': 0, 'bolum': [], 'aktif': set()}
+_on = {'t': 0, 'section': [], 'aktif': set()}
 
 
 def _refresh():
     import event_maps as EM, event_calendar as CAL
     t = time.time()
     if t - _on['t'] > 60:
-        _on.update(t=t, bolum=EM.specs(), aktif=set(CAL.active()))
+        _on.update(t=t, section=EM.specs(), aktif=set(CAL.active()))
     return _on
 
 
@@ -35,7 +35,7 @@ def sections(game_map):
     """Bu haritayı kapsayan etkin etkinlik harita bölümleri [(etkinlik, bölüm)]."""
     import map_links as H
     klass, name = H.map_class(game_map), H.name(game_map)
-    return [(k, s) for k, s in _refresh()['bolum'] if klass in s.get('haritalar', ()) or name in s.get('haritalar', ())]
+    return [(k, s) for k, s in _refresh()['section'] if klass in s.get('haritalar', ()) or name in s.get('haritalar', ())]
 
 
 def event_types(bot, game_map):

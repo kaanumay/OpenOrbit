@@ -1,6 +1,6 @@
 """Bot yöneticisi: paketi yükler, botların çevrimiçi takvimini, kararlarını ve soyut benzetimini yürütür, durumu kaydeder.
 
-Oyun sunucusunda tek örnek (BOT): game.py DO_BOT ortam değişkeniyle paketi verir, yönetici kendi iş parçacığında saniyede bir
+Oyun sunucusunda tek örnek (BOT): game.py OO_BOT ortam değişkeniyle paketi verir, yönetici kendi iş parçacığında saniyede bir
 tick() çalıştırır. Benzetim betiği (tools/bot_simulation.py) ve testler aynı sınıfı sahte saatle (now parametresi) sürer.
 
 Her tick'te yalnız işi olan botlar işlenir: çevrimdışılar dakikada bir "girsem mi" der; çevrimiçiler kendi karar anlarında düşünür,
@@ -558,7 +558,7 @@ class Manager(ChatEngine):
 
 
 def server(route, log=print):
-    """Oyun sunucusu açılırken (game.main, DO_BOT): paketi okur, yöneticiyi arka planda kurar (jumpstart ve çevrimdışı telafi
+    """Oyun sunucusu açılırken (game.main, OO_BOT): paketi okur, yöneticiyi arka planda kurar (jumpstart ve çevrimdışı telafi
     saniyeler sürebilir; oyun beklemez) ve çalıştırır. Paketin durumu paket dosyasının yanındaki <kimlik>/durum.json."""
     global ACTIVE
     try:

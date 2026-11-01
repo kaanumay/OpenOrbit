@@ -191,7 +191,7 @@ def grant_reward(bot, gate, speed=1.0):
 
 def record_duration(save, key, sec):
     """Kapının tamamlanma süresi (istatistik; oyuncu isteği 2026-10-30) -> kayit['kapi_sureleri'][key] {en_iyi, son, sayi} (sn)."""
-    d = save.setdefault('kapi_sureleri', {}).setdefault(key, {'en_iyi': 0, 'son': 0, 'sayi': 0})
+    d = save.setdefault('gate_times', {}).setdefault(key, {'en_iyi': 0, 'son': 0, 'sayi': 0})
     sec = int(max(1, sec))
     d.update(son=sec, sayi=d['sayi'] + 1, en_iyi=min(d['en_iyi'], sec) if d['en_iyi'] else sec)
     return d

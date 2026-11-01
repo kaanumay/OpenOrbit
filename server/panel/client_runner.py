@@ -296,5 +296,5 @@ def summary(cfg):
     """İstemci sayfasının Wine / Proton kartı: seçilen ve bulunan çalıştırıcılar (Windows'ta None)."""
     if WINDOWS:
         return None
-    return dict(find(cfg), platform='darwin' if MAC else sys.platform, protonlar=protons(), wineler=wines(),
+    return dict(find(cfg), platform='darwin' if MAC else sys.platform, protons=protons(), wineler=wines(),
                 varsayilan_onek={k: default_prefix(k) for k in ('wine', 'proton', 'motor')}, motor=engine().state() if MAC else None)

@@ -133,10 +133,10 @@ class Astral:
             dcfg[str(did)] = ids
             items += ids
         with p.lock:
-            p.d['gemiler'][sid]['odunc'] = True
+            p.d['gemiler'][sid]['on_loan'] = True
             self.st['kosu'] = dict(gemi=ship['lootId'], shipId=ship['shipId'], sid=sid, rift=1, tur=None, cilgin=False, puan=0, atlas=0,
                                    envanter=[], esyalar=items, icerde=False, bas=time.time(),
-                                   kiralik=dict(dronlar=drones, cephane=dict(y['cephane']), secili=None))
+                                   rented=dict(dronlar=drones, cephane=dict(y['cephane']), secili=None))
             self.st['kapi'] = False
             p.dirty = True
         self.log('   Astral: koşu başladı (%s)' % ship['ad'])
@@ -147,7 +147,7 @@ class Astral:
         r, p = self.run, self.p
         if not r or r['icerde']:
             return
-        k = r['kiralik']
+        k = r['rented']
         with p.lock:
             r['yedek'] = dict(aktif=p.d['aktif_gemi'], dronlar=p.d['dronlar'], cephane=p.d['cephane'], secili=dict(p.d.get('secili', {})))
             p.d['dronlar'], p.d['cephane'] = k['dronlar'], k['cephane']
@@ -167,7 +167,7 @@ class Astral:
             return
         y = r['yedek']
         with p.lock:
-            r['kiralik'].update(dronlar=p.d['dronlar'], cephane=p.d['cephane'], secili=dict(p.d.get('secili', {})))
+            r['rented'].update(dronlar=p.d['dronlar'], cephane=p.d['cephane'], secili=dict(p.d.get('secili', {})))
             p.d['dronlar'], p.d['cephane'], p.d['secili'] = y['dronlar'], y['cephane'], y['secili']
             r['icerde'] = False
             p.dirty = True
@@ -184,9 +184,9 @@ class Astral:
                 p.d['esyalar'].pop(str(iid), None)
                 p.d.get('yukseltme_seviye', {}).pop(str(iid), None)
             self.st['kosu'] = None
-            runs = self.st.setdefault('kosular', [])
+            runs = self.st.setdefault('runs', [])
             runs.append(int(r['puan']))
-            self.st['kosular'] = sorted(runs, reverse=True)[:20]
+            self.st['runs'] = sorted(runs, reverse=True)[:20]
             p.dirty = True
         row = next((x for x in D['odul'] if x['en_az'] <= reached <= x['en_cok']), D['odul'][0])
         msgs, got = [], []
@@ -238,7 +238,7 @@ class Astral:
             world.add_gate(self.exit_portal(world))
             return None
         self.swap_in()
-        r['dalga_bas'] = None
+        r['wave_start'] = None
         if r.get('temiz'):                         # rift temizlenmiş, kapı seçimi bekliyor (çıkıp dönüldü)
             world.gate = PS.Run(world, self)
             world.gate.phase = 'hold'                  # dalga yok; ölüm yine koşuyu bitirir
@@ -257,7 +257,7 @@ class Astral:
         self.world.send([KAPI.screen('key:log_astralascension_wave_name', big=True, RIFT=r['rift'], WAVE=i + 1,
                                  NAME='Astral Ascension' + (' (Frenzied)' if r['cilgin'] else ''))])
         if self.rift()['patron']:
-            self.run['dalga_bas'] = time.time()
+            self.run['wave_start'] = time.time()
 
     def wave_done(self, i, now):
         if i + 1 < self.wave_count():
@@ -272,7 +272,7 @@ class Astral:
         if rf['patron']:
             g = self.p.d['gemi']
             pct = 100.0 * g.get('hitPoints', 0) / max(1, g.get('hitMax', 1))
-            t = now - (r.get('dalga_bas') or now)
+            t = now - (r.get('wave_start') or now)
             pts += (S['final_boss_defeated'] if r['rift'] == 15 else S['mini_boss_defeated'])
             pts += min(300, int(3 * pct)) + int(max(0, min(450, 450 - 0.25 * t)))
         with self.p.lock:
@@ -391,7 +391,7 @@ class Astral:
     def exit_portal(self, world):
         home = KAPI.HOME_MAP.get(self.p.d['pilot'].get('factionId'), 5)
         return dict(gateId=PORTAL + 50, x=world.map_w // 2, y=world.map_h // 2 + 1500, hedef=home, designId=1, kapi='astral', cikis=True,
-                    astral_cikis=True, varis='istasyon')
+                    astral_exit=True, varis='istasyon')
 
     def choose_gate(self, g):
         """Ödül kapısına atlandı: sonraki rift o türle -> hedef harita."""
@@ -417,7 +417,7 @@ class Astral:
 
     # ------------------------------------------------------------ gösterge
     def best3(self):
-        return sum(self.st.get('kosular', [])[:3])
+        return sum(self.st.get('runs', [])[:3])
 
     def cashout_cmd(self):
         r = self.run
@@ -480,7 +480,7 @@ class Astral:
         import community as TP
         row = lambda r: mod('RankModule', lastUpdateTime=int(time.time() * 1000), name=r[1].d['pilot'].get('userName', ''), rank=r[0],
                             points=int(r[2]))
-        top, me = TP.ranking(self.p, lambda x: sum(((x.d.get('pve') or {}).get('astral') or {}).get('kosular', [])[:3]))
+        top, me = TP.ranking(self.p, lambda x: sum(((x.d.get('pve') or {}).get('astral') or {}).get('runs', [])[:3]))
         info = mod('RogueLiteRankInfoCommand', topRankers=[row(r) for r in top], myRank=row(me))
         return ('RogueLiteRankEventInfoCommand', dict(playerRankRanges=RK.ranges(RK.ASTRAL), rankInfoCommand=info,
                                                          isEventEnabled=True))

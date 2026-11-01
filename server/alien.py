@@ -117,7 +117,7 @@ class Abilities:
 
     def summoner_bot(self, n):
         """Uzaylıyı son vuran bot gemisi (oyuncu onunla savaşmıyorsa): çağırdıkları ona saldırır (dunya.npc_summon vuran)."""
-        uid = n.ab.get('cagiran')
+        uid = n.ab.get('summoner')
         t = self.w.npcs.get(uid) if uid is not None else None
         return t if t is not None and t.alive and t.bot is not None and not n.engaged else None
 
@@ -170,11 +170,11 @@ class Abilities:
         if k and dmg > 0 and n.alive and n.hp > 0:
             # yalnız gövdenin kaybı (darkorbitwiki: "after losing ~1.280.000 HP"); kalkan hasarı da sayılıyordu, 6,8 M kalkanlı patron
             # neredeyse tam canda kayboluyordu (oyuncu bildirimi 2026-10-30). Gizliyken dolan can sayılmaz
-            prev = n.ab.get('son_can', n.d['hp'])
-            n.ab['son_can'] = n.hp
-            n.ab['kayip'] = n.ab.get('kayip', 0) + max(0, prev - n.hp)
-            if n.ab['kayip'] >= k['hasar']:
-                n.ab['kayip'] = 0
+            prev = n.ab.get('last_hp', n.d['hp'])
+            n.ab['last_hp'] = n.hp
+            n.ab['loss'] = n.ab.get('loss', 0) + max(0, prev - n.hp)
+            if n.ab['loss'] >= k['hasar']:
+                n.ab['loss'] = 0
                 self.vanish(n, k, now)
 
     def visual(self, uid, modifier, on):
@@ -253,7 +253,7 @@ class Abilities:
         for fx, fy in spots:
             f = w.spawn_npc_at(fake, fx, fy)
             f.summoned, f.gate = True, n.gate
-            f.ab['omur'] = now + k.get('sahte_omur_sn', 90)
+            f.ab['lifetime'] = now + k.get('sahte_omur_sn', 90)
         w.log('   %s kayboldu: (%d,%d), %d sahte' % (n.d['ad'], x, y, k.get('sahte', 2)))
 
     def ring_spots(self, hx, hy, r, count):
@@ -269,8 +269,8 @@ class Abilities:
         key = 'sahte_' + n.tip
         if key not in self.CFG['tipler']:
             self.CFG['tipler'][key] = dict(ad=n.d['ad'], model=n.model, hp=1, kalkan=0, hasar=0, hiz=n.d['hiz'], saldirgan=False,
-                                      odul=dict(ep=0, onur=0, kredi=0, uridyum=0), kargo={}, sayilmaz=True,
-                                      davranis={'olunce_patla': {'hasar': k.get('patlama', 60000),
+                                      odul=dict(ep=0, onur=0, kredi=0, uridyum=0), kargo={}, uncounted=True,
+                                      davranis={'explode_on_death': {'hasar': k.get('patlama', 60000),
                                                                  'yaricap': k.get('patlama_yaricap', 500)}})
         return key
 
@@ -293,8 +293,8 @@ class Abilities:
     def after_shot(self, n, now, hit):
         """Uzaylının lazeri oyuncuya isabet etti: ters atış (Streuner Turret), yavaşlatan atış."""
         t = n.behavior.get('ters_atis')
-        if t and hit and not self.w.hero_dead and now >= n.ab.get('ters_sonraki', 0):
-            n.ab['ters_sonraki'] = now + t['bekleme_sn']
+        if t and hit and not self.w.hero_dead and now >= n.ab.get('reverse_next', 0):
+            n.ab['reverse_next'] = now + t['bekleme_sn']
             self.reverse_controls(n, t['sn'])
         s = n.behavior.get('yavaslatan_atis')
         if not s or not hit or self.w.hero_dead or not SET.get('yavaslatan_atis'):          # panel: kapatılabilir
@@ -321,7 +321,7 @@ class Abilities:
         for n in list(w.npcs.values()):
             if not n.alive or not n.behavior and not n.ab or not w.owner(n, now):     # ortak haritada uzaylının sahibi işler
                 continue
-            if 'omur' in n.ab and now >= n.ab['omur']:
+            if 'lifetime' in n.ab and now >= n.ab['lifetime']:
                 self.expire(n)
                 continue
             d = n.behavior
@@ -420,13 +420,13 @@ class Abilities:
             for i in range(int(min(s['sure_sn'], s['azami'] / max(1, s['sn_hasar'])))):
                 hit(s['sn_hasar'], i + 1.0)
         o = d.get('olum_isini')
-        if o and now >= n.ab.get('isin', 0) and aliens > o['uzaklik']:
-            n.ab['isin'] = now + o['aralik_sn']
+        if o and now >= n.ab.get('beam', 0) and aliens > o['uzaklik']:
+            n.ab['beam'] = now + o['aralik_sn']
             hit(o['hasar'] * random.uniform(0.8, 1.2))
         p = d.get('periyodik_cagir')
-        if p and now >= n.ab.get('periyodik', 0):
-            n.ab['periyodik'] = now + p['bekleme_sn']
-            n.ab['cagiran'] = t.id
+        if p and now >= n.ab.get('periodic', 0):
+            n.ab['periodic'] = now + p['bekleme_sn']
+            n.ab['summoner'] = t.id
             n.children = {c for c in n.children if c in w.npcs and w.npcs[c].alive}
             for e in p['cagrilar']:
                 room = e['en_cok'] - sum(1 for c in n.children if w.npcs[c].tip == e['tur'])
@@ -544,8 +544,8 @@ class Abilities:
             self.glow(n, t, now)
             return
         if now < until:
-            if now >= n.ab.get('parilti', 0):          # parıltı bir anlık (istemci ShipGlowEffect3D): beklerken saniyede bir yanıp söner
-                n.ab['parilti'] = now + 1.0
+            if now >= n.ab.get('glint', 0):          # parıltı bir anlık (istemci ShipGlowEffect3D): beklerken saniyede bir yanıp söner
+                n.ab['glint'] = now + 1.0
                 w.send([self.visual(n.id, RED_GLOW, True)])
             return
         if 'yaklas' not in n.ab:
@@ -563,7 +563,7 @@ class Abilities:
             self.glow(n, t, now)                            # ulaşamadı: yeniden parlar ve bekler
 
     def glow(self, n, t, now):
-        n.ab['kamikaze'], n.ab['parilti'] = now + t['bekle_sn'], now + 1.0
+        n.ab['kamikaze'], n.ab['glint'] = now + t['bekle_sn'], now + 1.0
         n.ab.pop('yaklas', None)
         self.w.npc_effect(n, 'donuk', t['bekle_sn'], source='kamikaze')
         self.w.send([self.visual(n.id, RED_GLOW, True)])
@@ -664,9 +664,9 @@ class Abilities:
         """Periyodik çağırma {bekleme_sn, cagrilar [{tur, adet, en_cok}]}: savaşırken, vurulmasa da bekleme_sn'de bir çağırır; her tür
         en_cok kadar yaşarken yenisini çağırmaz (Rocketeer -> Seeker Rocket; Strokelight Barrage -> Abide I ve Steadfast III)."""
         p, w = n.behavior['periyodik_cagir'], self.w
-        if not n.engaged or n.effect.frozen(now) or now < n.ab.get('periyodik', 0) or not self.hero_open(now, n):
+        if not n.engaged or n.effect.frozen(now) or now < n.ab.get('periodic', 0) or not self.hero_open(now, n):
             return
-        n.ab['periyodik'] = now + p['bekleme_sn']
+        n.ab['periodic'] = now + p['bekleme_sn']
         n.children = {c for c in n.children if c in w.npcs and w.npcs[c].alive}
         for e in p['cagrilar']:
             room = e['en_cok'] - sum(1 for c in n.children if w.npcs[c].tip == e['tur'])
@@ -695,10 +695,10 @@ class Abilities:
         """Ölüm ışını {hasar, aralik_sn, uzaklik} (Gygerim Overlord): oyuncu uzaklik'tan uzaktayken (ışınlar haritanın dışından gelir) savaşırken
         aralik_sn'de bir ortalama hasar (%80-120); menzile bağlı değil, yakındaki oyuncuya ışın düşmez."""
         r, w = n.behavior['olum_isini'], self.w
-        if (not n.engaged or n.effect.frozen(now) or now < n.ab.get('isin', 0) or self.dist(n, now) <= r['uzaklik']
+        if (not n.engaged or n.effect.frozen(now) or now < n.ab.get('beam', 0) or self.dist(n, now) <= r['uzaklik']
                 or not self.hero_open(now, n)):
             return
-        n.ab['isin'] = now + r['aralik_sn']
+        n.ab['beam'] = now + r['aralik_sn']
         dmg = int(r['hasar'] * random.uniform(0.8, 1.2))
         w.send(w.hurt_hero(dmg, n, atype=0))
         w.log('   %s ölüm ışını (%d hasar)' % (n.d['ad'], dmg))
@@ -706,10 +706,10 @@ class Abilities:
     def periodic_emp(self, n, now):
         """Periyodik EMP {bekleme_sn, menzil}: savaşırken, menzildeyse bekleme_sn'de bir (Hitac Underboss'un EMP Impulse'u)."""
         e = n.behavior['periyodik_emp']
-        if not n.engaged or n.effect.frozen(now) or now < n.ab.get('emp_sonraki', 0) or self.dist(n, now) > e['menzil'] \
+        if not n.engaged or n.effect.frozen(now) or now < n.ab.get('emp_next', 0) or self.dist(n, now) > e['menzil'] \
                 or not self.hero_open(now, n):
             return
-        n.ab['emp_sonraki'] = now + e['bekleme_sn']
+        n.ab['emp_next'] = now + e['bekleme_sn']
         self.emp(n, now)
 
     def emp(self, n, now):
@@ -834,8 +834,8 @@ class Abilities:
             elif now >= c['toplama']:
                 self.collect_capsule(n, aid, k)
             return
-        if n.ab.get('kapsula') != aid or n.mover.t1 <= now:
-            n.ab['kapsula'] = aid
+        if n.ab.get('capsule') != aid or n.mover.t1 <= now:
+            n.ab['capsule'] = aid
             ms = n.mover.go(c['x'], c['y'], n.ab['hiz'] * n.effect.speed_factor(now), now)
             n.next_think = now + ms / 1000.0 + 0.5          # kovalamayı bırakıp kapsüle gider
             self.w.send([('MoveCommand', dict(userId=n.id, x=int(c['x']), y=int(c['y']), timeToTarget=ms))])
@@ -903,7 +903,7 @@ class Abilities:
         """Uzaylı öldü: patlayan (sahte Emperor) yakındaki oyuncuyu vurur; çağırdıkları dağılır (Cubikon); DMG kapsülünün oyuncudaki
         etkisi kalkar."""
         w = self.w
-        p = n.behavior.get('olunce_patla')
+        p = n.behavior.get('explode_on_death')
         msgs = []
         if p and not w.hero_dead:
             hx, hy = w.hero_pos()
@@ -917,7 +917,7 @@ class Abilities:
                 c = w.npcs.get(cid)
                 if c and c.alive:
                     c.passive, c.engaged = True, False                    # kimseyi kovalamadan dolaşır (dunya.think)
-                    c.ab['omur'] = end + random.uniform(*g['omur_sn'])
+                    c.ab['lifetime'] = end + random.uniform(*g['omur_sn'])
         if w.hero_effects.get('zayiflik'):
             w.hero_effects.remove('zayiflik', source='kapsul_%d' % n.id)
         left = [d for d in self.hero_dots if d['npc'] != n.id]

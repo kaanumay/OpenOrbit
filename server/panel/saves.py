@@ -119,13 +119,13 @@ def profile_summary(d):
     """Profilden panelin gösterdiği özet."""
     pl, g, k = d.get('pilot') or {}, d.get('gemi') or {}, d.get('konum') or {}
     base, next_ = level_bounds(pl.get('level', 1))
-    return {'gemi_gorunum': g.get('typeId'), 'seviye_taban': base, 'seviye_sonraki': next_, 'dron_sayisi': len(d.get('dronlar') or []),
+    return {'ship_appearance': g.get('typeId'), 'level_base': base, 'next_level': next_, 'drone_count': len(d.get('dronlar') or []),
             'pet': (d.get('pet') or {}).get('ad'), 'premium': bool(pl.get('premium')),'pilot': pl.get('userName') or '?', 'firma': COMPANIES.get(pl.get('factionId'), '?'), 'firma_id': pl.get('factionId'),
             'seviye': pl.get('level', 1), 'ep': pl.get('ep', 0), 'onur': pl.get('honourPoints', 0), 'kredi': pl.get('credits', 0),
             'uridyum': pl.get('uridium', 0), 'gemi': ship_name(g.get('typeId')), 'harita': _map_name(k.get('mapId', 0)),
             'oynama_sn': int(d.get('oynama_sn') or 0), 'olusturma': d.get('olusturma'),
-            'can': g.get('hitPoints'), 'can_azami': g.get('hitMax'),
-            'klan': pl.get('clanTag') or '', 'gemi_sayisi': len(d.get('gemiler') or {}) or 1}
+            'can': g.get('hitPoints'), 'max_hp': g.get('hitMax'),
+            'klan': pl.get('clanTag') or '', 'ship_count': len(d.get('gemiler') or {}) or 1}
 
 
 class Saves:
@@ -264,10 +264,10 @@ class Saves:
             self._cache[p] = c = (st.st_mtime_ns, s)
         m = self.meta(slot)
         out = dict(c[1])
-        out.update(id=slot, ad=m.get('ad') or slot, not_=m.get('not', ''), kayit_olusturma=m.get('olusturma'),
+        out.update(id=slot, ad=m.get('ad') or slot, not_=m.get('not', ''), save_created=m.get('olusturma'),
                    son_oynama=m.get('son_oynama'), son_kayit=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(st.st_mtime)),
                    boyut=st.st_size, yedek_sayisi=len(self.backup_files(slot)), aktif=(slot == self.active()),
-                   kullanimda=self.in_use(slot), dunya=m.get('dunya') or 'standart', taslak=self._draft_valid(slot))
+                   in_use=self.in_use(slot), dunya=m.get('dunya') or 'standart', draft=self._draft_valid(slot))
         return out
 
     def list(self):
@@ -292,8 +292,8 @@ class Saves:
         except (ValueError, IndexError):
             raise SaveError(_('Profil aracı çalışmadı: %s', (r.stderr or r.stdout).strip()[-400:] or _('çıktı yok')))
         if not out.get('ok'):
-            if out.get('kalip'):
-                raise SaveError(_(out['kalip'], *out.get('arg') or ()))
+            if out.get('template'):
+                raise SaveError(_(out['template'], *out.get('arg') or ()))
             raise SaveError(out.get('hata') or _('Profil aracı başarısız.'))
         return out
 
@@ -325,9 +325,9 @@ class Saves:
                 if v not in (None, ''):
                     args += ['--%s=%d' % (key, min(hi, max(lo, v)))]
             if progressive:
-                args += ['--ilerlemeli=1']
+                args += ['--progressive=1']
             if campaign:
-                args += ['--kampanya=1']
+                args += ['--campaign=1']
             try:
                 self.run_tool(*args)
             except Exception:
@@ -396,7 +396,7 @@ class Saves:
                 pr = {'pilot': '?'}
             t = time.strptime(m.group(2) + m.group(3), '%Y%m%d%H%M%S')
             out.append({'dosya': name, 'ad': meta.get('ad') or m.group(1), 'pilot': pr.get('pilot'), 'seviye': pr.get('seviye'),
-                        'silinme': time.strftime('%Y-%m-%d %H:%M:%S', t)})
+                        'deletion': time.strftime('%Y-%m-%d %H:%M:%S', t)})
         return out
 
     def _trash_dir(self, name):
@@ -536,7 +536,7 @@ class Saves:
                     changed.append(_('verildi: %s', ', '.join('%s x%d' % (l, n) for l, n in r['verilen'])))
                 if resets:
                     r = self.run_tool('sifirla', p, ','.join(resets))
-                    changed.append(_('sıfırlandı: %s', ', '.join(r['sifirlanan'])))
+                    changed.append(_('sıfırlandı: %s', ', '.join(r['reset_items'])))
             except Exception as e:                        # yarım düzenleme kalmasın: kayıt düzenlemeden önceki hâline döner
                 _copy_atomic(os.path.join(self.backup_dir(slot), safety), p)
                 raise SaveError(_('Düzenleme uygulanamadı, kayıt değişmedi: %s', e))
@@ -574,7 +574,7 @@ class Saves:
         if not self.exists(slot):
             raise SaveError(_('Kayıt bulunamadı.'))
         if self.in_use(slot):
-            return dict(self.run_tool('oku', self.profile(slot), tool='save_editor.py'), salt_okunur=True, atildi=False)
+            return dict(self.run_tool('oku', self.profile(slot), tool='save_editor.py'), read_only=True, discarded=False)
         with self.lock:
             stale = os.path.isfile(self.draft(slot)) and not self._draft_valid(slot)
             if stale:
@@ -583,7 +583,7 @@ class Saves:
                 v = self.run_tool('oku', self.draft(slot), self.profile(slot), tool='save_editor.py')
             else:
                 v = self.run_tool('oku', self.profile(slot), tool='save_editor.py')
-        return dict(v, salt_okunur=False, atildi=stale)
+        return dict(v, read_only=False, discarded=stale)
 
     def editor_apply(self, slot, ops):
         """İşlemleri taslağa uygula (kayit_editoru.ISLEMLER) -> yeni görünüm."""
@@ -593,7 +593,7 @@ class Saves:
         with self.lock:
             self._ensure_draft(slot)
             v = self.run_tool('uygula', self.draft(slot), json.dumps(ops), self.profile(slot), tool='save_editor.py')
-            return dict(v, salt_okunur=False, atildi=False)
+            return dict(v, read_only=False, discarded=False)
 
     def editor_commit(self, slot):
         """Taslağı kayda yaz: önce 'once' yedeği -> yedeğin adı."""
@@ -657,7 +657,7 @@ class Saves:
                 self._cache[p] = c = (st.st_mtime_ns, s)
             kind, stamp = f.split('_', 1)
             t = time.strptime(stamp[:15], '%Y%m%d_%H%M%S')
-            out.append(dict(c[1], dosya=f, tur=kind, tur_ad=_(KIND_NAMES[kind]), zaman=time.strftime('%Y-%m-%d %H:%M:%S', t),
+            out.append(dict(c[1], dosya=f, tur=kind, kind_name=_(KIND_NAMES[kind]), zaman=time.strftime('%Y-%m-%d %H:%M:%S', t),
                             boyut=st.st_size, not_=notes.get(f, '')))
         return out
 

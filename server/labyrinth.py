@@ -228,7 +228,7 @@ class Labyrinth:
 
     def open_hours(self, now):
         """Labirent kapıları saatlerde açık (forum 158403; hafta içi / hafta sonu dilimleri); panelin 'seans_hep_acik' ayarıyla ya da
-        etkinlik zorla açılmışsa (--etkinlik) hep."""
+        etkinlik zorla açılmışsa (--event) hep."""
         import settings as SET
         if SET.get('seans_hep_acik') or not L.get('saatler') or CAL.forced(L['etkinlik']):
             return True
@@ -263,7 +263,7 @@ class Labyrinth:
         st = state(self.p)
         with self.p.lock:
             st['avlar'] = st.get('avlar', 0) + 1
-            st['son_av'] = time.strftime('%Y-%m-%d %H:%M', time.localtime(now))
+            st['last_hunt'] = time.strftime('%Y-%m-%d %H:%M', time.localtime(now))
             self.p.dirty = True
         self.synk_id = None
         self.new_synk(now, now + random.uniform(*L['synk']['yeniden_sn']))
@@ -282,7 +282,7 @@ class Labyrinth:
         now = time.time() if now is None else now
         import community as TP                          # sunucudaki oyuncular (Synk avları)
         row = lambda r: dict(_='FrozenLabyrinthRankModule', kills=int(r[2]), name=r[1].d['pilot'].get('userName', ''), rank=r[0] or 1,
-                             lastKillTime=(r[1].d.get('labirent') or {}).get('son_av', ''))
+                             lastKillTime=(r[1].d.get('labirent') or {}).get('last_hunt', ''))
         top, me = TP.ranking(self.p, lambda x: int((x.d.get('labirent') or {}).get('avlar', 0)))
         rank = dict(_='FrozenLabyrinthRankInfoCommand', myRank=row(me), topRankers=[row(r) for r in top] or [row(me)])
         left = int(max(0, CAL.time_left(L['etkinlik'], now)))

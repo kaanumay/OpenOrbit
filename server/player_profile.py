@@ -1,4 +1,4 @@
-"""Oyuncu profili: etkin kayıt yuvasının profil.json'u (save/kayitlar/<yuva>/, paths.py; panel --profil ile verir; eski düzende
+"""Oyuncu profili: etkin kayıt yuvasının profil.json'u (save/kayitlar/<yuva>/, paths.py; panel --profile ile verir; eski düzende
 save/profil.json). Girişte gönderilen çekirdek komutlar buradan üretilir,
 istemcinin ayar/pencere/hareket istekleri buraya yazılır (istemci kapanıp açılınca korunur).
 
@@ -335,7 +335,7 @@ class Profile:
             self.d['gemiler'][own[0][0]].setdefault('pet_konfig', {}).update(pet.pop('konfig'))
             self.dirty = True
         for s in self.d['gemiler'].values():       # kayıtlı config'teki tasarımlar: {dron: {tasarim: {config: eşya}}} -> yeni biçim
-            old = s.get('kayitli_dron_tasarim') or {}
+            old = s.get('saved_drone_design') or {}
             if any(k in DESIGN_KEYS.values() for per in old.values() for k in per):
                 new = {}
                 for d, per in old.items():
@@ -343,7 +343,7 @@ class Profile:
                         for c, iid in (cs or {}).items():
                             if iid:
                                 new.setdefault(str(c), {}).setdefault(str(d), {})[k] = iid
-                s['kayitli_dron_tasarim'] = new
+                s['saved_drone_design'] = new
                 self.dirty = True
         osmium = self.d.get('diger_esyalar', {}).pop('resource_ore_osmium', 0)
         if osmium:                           # Osmium (OreType 28) cevher sayılmıyordu, depoya düşmüştü (2026-10-22 taraması, E2)
@@ -555,7 +555,7 @@ class Profile:
             p['level'] = max(old, level_for(p['ep']))
             self.dirty = True
             tot = dict(ep=p['ep'], onur=p['honourPoints'], kredi=p['credits'], uridyum=p['uridium'], seviye=p['level'],
-                       seviye_atladi=p['level'] > old)
+                       leveled_up=p['level'] > old)
         if neden:                                  # hesap geçmişi (rutbe.py): istemcinin açıklama anahtarı
             RT.money(self, 'kredi', kredi, neden, detay, adet)
             RT.money(self, 'uridyum', uridyum, neden, detay, adet)
@@ -563,7 +563,7 @@ class Profile:
             BANK.accrue(self, uridyum, neden)       # Uridium Bank: kazanılan uridyumun aynısı birikir (banka.py)
         if neden != 'auction_bookMoneyBack':      # müzayede iadesi kazanç değil (başarım sayacı teklif/iade ile şişiyordu)
             self.ach('gain', ep=ep, onur=onur, kredi=kredi, uridyum=uridyum)
-        if tot['seviye_atladi']:
+        if tot['leveled_up']:
             self.ach('level', deger=tot['seviye'])
         return tot
 

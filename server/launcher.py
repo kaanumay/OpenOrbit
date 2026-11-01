@@ -2,13 +2,13 @@
 profil yedeği, günlük döndürme, web ve oyun sunucuları, orijinal istemci.
 
 - Profil: panelin etkin kayıt yuvası (paths.py; save/kayitlar/<yuva>/profil.json), yoksa eski save/profil.json. İki sunucuya da
-  --profil, oyun sunucusuna --ayarlar (kaydın oyun ayarları; yoksa eski save/ayarlar.json) verilir.
+  --profile, oyun sunucusuna --settings (kaydın oyun ayarları; yoksa eski save/ayarlar.json) verilir.
 - Profil yedeği: <yuva>/yedek/oto_YYYYmmdd_HHMMSS.json (eski düzende save/yedek/profil_…); en yeni YEDEK_SAYISI kalır.
 - Günlük döndürme: logs/gs.log, http.log, client.log büyükse .1, .2, .3'e kayar (açık bir sunucu dosyayı tutuyorsa atlanır).
 - Sunucular: 8081 (oyun) ve 8090 (web) zaten dinleniyorsa yeniden başlatılmaz, onlar kullanılır ve sonda kapatılmaz.
 - İstemci: DarkOrbit_Version1.1.116\\DarkOrbit.exe yalnız başlatma argümanıyla (resmi sunuculara bağlanmaz, dosyalar değişmez).
   İstemci kapanınca bu başlatıcının açtığı sunucular kapanır. İstemci hemen kapanırsa (başka pencere açtıysa) sunucular açık kalır.
-Kullanım: python -I launcher.py [oyun sunucusu seçenekleri: --reklamsiz, --dokunulmaz …]
+Kullanım: python -I launcher.py [oyun sunucusu seçenekleri: --no-popups, --invulnerable …]
 """
 import glob, os, shutil, socket, subprocess, sys, time
 
@@ -67,7 +67,7 @@ def listening(port, host='127.0.0.1'):
 def start_servers(extra, profile=None):
     """Dinlenmeyen sunucuları başlat -> başlatılan süreçler."""
     procs = []
-    p = ['--profil=%s' % profile] if profile else []
+    p = ['--profile=%s' % profile] if profile else []
     os.makedirs(LOGS, exist_ok=True)
     kw = {}
     if os.name == 'nt':                               # kendi küçültülmüş pencerelerinde (eski Baslat.bat'taki gibi)
@@ -78,7 +78,7 @@ def start_servers(extra, profile=None):
     if not listening(8090):
         procs.append(subprocess.Popen([sys.executable, '-I', os.path.join(HERE, 'web.py'), LOGS] + p, **kw))
     if not listening(8081):
-        procs.append(subprocess.Popen([sys.executable, '-I', os.path.join(HERE, 'game.py'), LOGS] + p + ['--ayarlar=%s' % PTH.settings_path()]
+        procs.append(subprocess.Popen([sys.executable, '-I', os.path.join(HERE, 'game.py'), LOGS] + p + ['--settings=%s' % PTH.settings_path()]
                                       + extra, **kw))
     for _ in range(50):                               # sunucular dinlemeye başlayana dek (en çok ~5 sn)
         if listening(8081) and listening(8090):

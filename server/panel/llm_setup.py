@@ -69,7 +69,7 @@ class LlmSetup:
 
     @staticmethod
     def _empty(state):
-        return {'durum': state, 'calisiyor': False, 'alinan': 0, 'toplam': 0, 'hiz': 0, 'kalan_sn': None, 'hata': None, 'parca': None}
+        return {'durum': state, 'calisiyor': False, 'alinan': 0, 'toplam': 0, 'hiz': 0, 'time_left_sec': None, 'hata': None, 'parca': None}
 
     def folder(self):
         return os.path.join(PTH.SAVE, 'llm')
@@ -94,7 +94,7 @@ class LlmSetup:
         if not d['calisiyor'] and not k and d['durum'] in ('yok', 'kurulu', 'hazir'):
             d['durum'] = 'yok'
             p = os.path.join(self.folder(), MODEL['ad'] + '.part')
-            d['yarim'] = os.path.getsize(p) if os.path.isfile(p) else 0
+            d['partial'] = os.path.getsize(p) if os.path.isfile(p) else 0
         pk = platform_key()
         d.update(test=t, boyut=MODEL['boyut'] + (SERVERS[pk]['boyut'] if pk else 0), platform=pk, destekli=bool(pk),
                  bellek_gb=memory_gb(), en_az_bellek_gb=MIN_MEMORY_GB, cekirdek=os.cpu_count(), model=MODEL['ad'], surum=VERSION,
@@ -141,7 +141,7 @@ class LlmSetup:
             if now - t0 >= 1:
                 self.d['hiz'] = int((self.d['alinan'] - b0) / (now - t0))
                 remaining = max(0, self.d['toplam'] - self.d['alinan'])
-                self.d['kalan_sn'] = int(remaining / self.d['hiz']) if self.d['hiz'] > 0 else None
+                self.d['time_left_sec'] = int(remaining / self.d['hiz']) if self.d['hiz'] > 0 else None
 
     def _download(self, url, target, size, sha):
         """Dosyayı hedefe (yarım .part'tan sürerek) indir, SHA-256'yı doğrula."""
@@ -232,7 +232,7 @@ class LlmSetup:
                 json.dump({'surum': VERSION, 'sunucu': server, 'model': MODEL['sha256'], 'test_ok': False,
                            'zaman': time.strftime('%Y-%m-%d %H:%M:%S')}, fh, indent=1)
             with self.lock:
-                self.d.update(durum='kurulu', alinan=self.d['toplam'], kalan_sn=0)
+                self.d.update(durum='kurulu', alinan=self.d['toplam'], time_left_sec=0)
             self.log('dil modeli kuruldu: %s' % server)
         except Cancelled:
             with self.lock:

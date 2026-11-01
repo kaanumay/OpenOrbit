@@ -149,7 +149,7 @@ def progress(folder, start, seen):
     percent = (100 if stage == 3 else sub + (99 - sub) * min(1, written / INTEROP_FILES) if stage == 2
              else 10 + 80 * (1 - math.exp(-t / 25)) if stage == 1 else 9 * (1 - math.exp(-t / 4)))
     seen['yuzde'] = max(seen.get('yuzde', 0), int(percent))
-    return {'asama': stage, 'yuzde': seen['yuzde'], 'gecen_sn': int(now - start)}
+    return {'asama': stage, 'yuzde': seen['yuzde'], 'elapsed_sec': int(now - start)}
 
 
 def warm_up(folder, cmd, env, logs, notify=None, duration=300):

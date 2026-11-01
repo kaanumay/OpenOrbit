@@ -16,7 +16,7 @@ def _world_info(w):
     alive = [n for n in list(w.npcs.values()) if n.alive]
     t = w.npcs.get(w.target) if w.target else None
     out = {'uzayli': len(alive), 'kutu': len(w.boxes), 'cevher': len(getattr(w, 'ores', {})),
-           'hedef': (t.d.get('ad') if t and t.alive else None), 'savasta': bool(now - getattr(w, 'last_combat', 0) < 10),
+           'hedef': (t.d.get('ad') if t and t.alive else None), 'in_combat': bool(now - getattr(w, 'last_combat', 0) < 10),
            'olu': bool(w.hero_dead), 'guvenli': bool(w.in_station())}
     perf = getattr(w, 'perf', None)
     if perf:
@@ -26,7 +26,7 @@ def _world_info(w):
     if g:
         try:
             wave = run.wave()
-            out['kapi'] = {'ad': g.get('ad'), 'dalga': wave.get('ad') if isinstance(wave, dict) else wave, 'evre': run.phase}
+            out['kapi'] = {'ad': g.get('ad'), 'dalga': wave.get('ad') if isinstance(wave, dict) else wave, 'stage': run.phase}
         except Exception:
             out['kapi'] = {'ad': g.get('ad')}
     return out
@@ -46,12 +46,12 @@ def snapshot(game):
          'pilot': {'ad': pl.get('userName'), 'seviye': pl.get('level', 1), 'ep': pl.get('ep', 0), 'kredi': pl.get('credits', 0),
                    'uridyum': pl.get('uridium', 0), 'onur': pl.get('honourPoints', 0), 'firma': pl.get('factionId'),
                    'klan': pl.get('clanTag') or None},
-         'gemi': {'ad': ship.get('lootId'), 'can': int(g.get('hitPoints', 0)), 'can_azami': g.get('hitMax', 0),
+         'gemi': {'ad': ship.get('lootId'), 'can': int(g.get('hitPoints', 0)), 'max_hp': g.get('hitMax', 0),
                   'kalkan': int(g.get('shield', 0)), 'kalkan_azami': g.get('shieldMax', 0), 'kargo': p.cargo_used(),
-                  'kargo_azami': g.get('cargoSpaceMax', 0)},
+                  'cargo_max': g.get('cargoSpaceMax', 0)},
          'konum': {'harita': H.name(k.get('mapId')), 'harita_id': k.get('mapId'), 'x': int(k.get('x', 0)), 'y': int(k.get('y', 0))},
          'etkinlikler': sorted(CAL.active()), 'oynama_sn': int(played),
-         'oturum_bas': s.play_start if s else None}         # Discord Rich Presence'ın süresi (panel/discord_rp.py)
+         'session_start': s.play_start if s else None}         # Discord Rich Presence'ın süresi (panel/discord_rp.py)
     if w:
         try:
             x, y = w.hero_pos()
@@ -60,9 +60,9 @@ def snapshot(game):
         except Exception as e:                   # harita değişirken dünya yarım olabilir
             d['dunya'] = {'hata': repr(e)}
     if game.CO.is_open():                           # arkadaş sunucusu: misafirler (panelin "Arkadaşlarınla Oyna" sayfası)
-        d['arkadas'] = {'en_cok': game.CO.SETTINGS['en_cok'], 'misafirler': [
+        d['arkadas'] = {'en_cok': game.CO.SETTINGS['en_cok'], 'guests': [
             dict(m.summary(), harita=H.name(m.profile.d['konum'].get('mapId'))) for m in game.CO.entries()]}
-        d['yereller'] = [dict(y.summary(), harita=H.name(y.profile.d['konum'].get('mapId')))     # çoklu istemcinin ek oyuncuları
+        d['local_players'] = [dict(y.summary(), harita=H.name(y.profile.d['konum'].get('mapId')))     # çoklu istemcinin ek oyuncuları
                          for y in game.CO.local_players()]
     return d
 

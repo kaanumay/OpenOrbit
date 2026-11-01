@@ -42,7 +42,7 @@ def prices():
                 y = json.load(f)
         out = {i['lootId']: (i['para'], i['fiyat']) for c in SHP.catalog(y).values() for i in c}
         for loot, w in SHP.WORLD_SHOP.items():
-            if w.get('satista') is False:
+            if w.get('on_sale') is False:
                 out.pop(loot, None)
             elif w.get('fiyat') is not None and loot in out:
                 out[loot] = (w.get('para') or out[loot][0], w['fiyat'])
@@ -99,7 +99,7 @@ def outfit(gear, shield_share=0.6):
     slot = g['generators']
     nk = min(len(shields), max(int(round(slot * shield_share)), slot - len(speeds)))
     n_speed = min(len(speeds), slot - nk)
-    return {'gemi': g, 'lazer': lasers, 'kalkan': shields[:nk], 'hiz': speeds[:n_speed], 'lazer_yuva': g['laser'] + drone_slots, 'jen_yuva': slot}
+    return {'gemi': g, 'lazer': lasers, 'kalkan': shields[:nk], 'hiz': speeds[:n_speed], 'laser_slots': g['laser'] + drone_slots, 'gen_slot': slot}
 
 
 def drone_set(gear):
@@ -124,7 +124,7 @@ def values(gear, shield_share=0.6):
     ehp = hp + shield * 2.5 * min(1.0, absorb + 0.2)         # kalkan hasarın çoğunu emer ve hedefler arasında dolar
     speed = y['gemi']['temel_hiz'] + sum(y['hiz'])
     return dict(dps=dps, can=hp, kalkan=shield, emme=absorb, ehp=ehp, hiz=speed, guc=power_score(dps, ehp),
-                lazer=len(y['lazer']), lazer_yuva=y['lazer_yuva'], jen=len(y['kalkan']) + len(y['hiz']), jen_yuva=y['jen_yuva'])
+                lazer=len(y['lazer']), laser_slots=y['laser_slots'], jen=len(y['kalkan']) + len(y['hiz']), gen_slot=y['gen_slot'])
 
 
 def power_score(dps, ehp):
@@ -200,12 +200,12 @@ def evaluate_map(map_id, dps, ehp, courage=0.5):
         death += count * max(0.0, ratio - 0.15) ** 2 * 0.15        # ara sıra birden çok uzaylı ve kötü şans
     difficulty = heavy / 40.0
     if duration <= 0:
-        r = dict(saat_ep=0, saat_kredi=0, saat_uridyum=0, saat_onur=0, olum_saat=1.0 + difficulty, hedefler=[], zorluk=difficulty + 1,
+        r = dict(ep_per_hour=0, credits_per_hour=0, uridium_per_hour=0, honor_per_hour=0, deaths_per_hour=1.0 + difficulty, hedefler=[], zorluk=difficulty + 1,
                  oldurme={})
     else:
         k = 3600.0 / duration
-        r = dict(saat_ep=total['ep'] * k, saat_kredi=total['kredi'] * k, saat_uridyum=total['uridyum'] * k,
-                 saat_onur=total['onur'] * k, olum_saat=death * k / max(1, len(targets)) + difficulty * 0.4, hedefler=targets,
+        r = dict(ep_per_hour=total['ep'] * k, credits_per_hour=total['kredi'] * k, uridium_per_hour=total['uridyum'] * k,
+                 honor_per_hour=total['onur'] * k, deaths_per_hour=death * k / max(1, len(targets)) + difficulty * 0.4, hedefler=targets,
                  zorluk=difficulty, oldurme={t: n * k for t, n in kills.items()})
     if len(_map_cache) > 20000:
         _map_cache.clear()

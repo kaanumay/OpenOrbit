@@ -59,7 +59,7 @@ def _candidates(bot):
     # lazer: yuva boşsa ya da en zayıfından iyiyse; fiyat/hasar sırasıyla ilk birkaç
     lasers = K.lasers()
     for loot in sorted(lasers, key=lasers.get):
-        if len(slot['lazer']) < slot['lazer_yuva'] or lasers[loot] > min(slot['lazer'] or [0]):
+        if len(slot['lazer']) < slot['laser_slots'] or lasers[loot] > min(slot['lazer'] or [0]):
             attempt(loot)
     for loot in K.shield_generators():
         attempt(loot)
@@ -97,7 +97,7 @@ def income(bot):
         r = K.evaluate_map(int(bot.game_map), d['dps'], d['ehp'], 0.5)
     except (KeyError, ValueError, TypeError):
         return {'C': 0.0, 'U': 0.0}
-    return {'C': r['saat_kredi'], 'U': r['saat_uridyum'] + 25}           # +25: bonus kutuları, görev ödülleri
+    return {'C': r['credits_per_hour'], 'U': r['uridium_per_hour'] + 25}           # +25: bonus kutuları, görev ödülleri
 
 
 def candidate(bot):

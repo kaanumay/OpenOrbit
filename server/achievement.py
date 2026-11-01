@@ -156,11 +156,11 @@ def measure(c, kind, kw):
     if s == 'Playtime':
         return ('add', 1) if 'PET' not in param(c, 'avatar') or kw.get('pet') else None
     if s == 'PlaytimeOnEnemyMap':
-        return ('add', 1) if kw.get('dusman_harita') else None
+        return ('add', 1) if kw.get('enemy_map') else None
     if s in ('PlayerCloaked', 'ChainImpulse'):            # gizli kalınan dakika; Chain Impulse ile öldürme (teknoloji.py)
         return ('add', 1)
     if s == 'MapTypeCheck':
-        return ('add', 1) if kw.get('pvp_harita') and 'PVP' in param(c, 'mapType') else None
+        return ('add', 1) if kw.get('pvp_map') and 'PVP' in param(c, 'mapType') else None
     if s == 'DroneFormationChange':
         return ('add', 1)
     if s == 'DroneFormationDroneAmount':

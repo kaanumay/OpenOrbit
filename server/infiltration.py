@@ -80,7 +80,7 @@ class Infiltration:
         if not r:
             return ('InfiltrationStatusCommand', {'currentNpcs': 0, 'maxNpcs': 0, 'secondsRemaining': 0})
         # currentNpcs = kalan komando (istemci "killed" sayısını maxNpcs - currentNpcs yazar; canlı)
-        return ('InfiltrationStatusCommand', {'currentNpcs': r['adet'] - r['olen'], 'maxNpcs': r['adet'],
+        return ('InfiltrationStatusCommand', {'currentNpcs': r['adet'] - r['killed'], 'maxNpcs': r['adet'],
                                               'secondsRemaining': max(0, int(r['bitis'] - now))})
 
     def map_for(self, cls):
@@ -94,8 +94,8 @@ class Infiltration:
         boss = D.get('gizli_patron')
         if boss and random.random() < boss['olasilik']:      # gizli Boss Kristallon: bir komandonun yerine (Uber Kristallon'un ganimeti)
             kinds[random.randrange(n)] = boss['tur']
-        self.round = dict(harita=self.map_for(cls), sinif=cls, turler=kinds, adet=n, olen=0,
-                          bitis=now + D.get('sure_sn', 600), dogdu=False)
+        self.round = dict(harita=self.map_for(cls), sinif=cls, turler=kinds, adet=n, killed=0,
+                          bitis=now + D.get('sure_sn', 600), spawned=False)
         self.log('   Infiltration: komando takımı %s (%d)' % (H.name(self.round['harita']), n))
         msgs = [legacy('0|A|STM|msg_infiltration_spawned_map_single|%%MAP%%|%s' % H.name(self.round['harita'])), self.status_cmd(now)]
         if self.world and int(self.world.map_id) == self.round['harita']:
@@ -105,13 +105,13 @@ class Infiltration:
     def spawn(self, w):
         """Takımın kalan komandoları bu haritada (dünya kilidi altında ya da attach'te)."""
         r = self.round
-        if not r or r['dogdu'] or int(w.map_id) != r['harita']:
+        if not r or r['spawned'] or int(w.map_id) != r['harita']:
             return
-        r['dogdu'] = True
+        r['spawned'] = True
         mw, mh = H.map_size(w.map_id)
         cx, cy = random.randint(int(mw * 0.15), int(mw * 0.85)), random.randint(int(mh * 0.15), int(mh * 0.85))
         r['kimlikler'] = []
-        for tip in r['turler'][r['olen']:]:
+        for tip in r['turler'][r['killed']:]:
             if tip not in w.CFG_TYPES:
                 continue
 
@@ -148,11 +148,11 @@ class Infiltration:
         r = self.round
         if not r:
             return []
-        r['olen'] += 1
-        if r['olen'] >= r['adet']:
+        r['killed'] += 1
+        if r['killed'] >= r['adet']:
             r['bitis'] = time.time()             # sayaç durur, pencere son durumu (n/n) gösterir
         msgs = [self.status_cmd()]
-        if r['olen'] >= r['adet']:
+        if r['killed'] >= r['adet']:
             self.log('   Infiltration: takım yok edildi')
             msgs.append(legacy('0|A|STM|msg_infiltration_success'))
             self.round = None
@@ -172,7 +172,7 @@ class Infiltration:
             return []
         r = self.round
         if r and now >= r['bitis']:
-            self.log('   Infiltration: takım kaçtı (%d/%d)' % (r['olen'], r['adet']))
+            self.log('   Infiltration: takım kaçtı (%d/%d)' % (r['killed'], r['adet']))
             msgs = [legacy('0|A|STM|msg_infiltration_defeat')]
             w = self.world
             if w and r.get('kimlikler'):

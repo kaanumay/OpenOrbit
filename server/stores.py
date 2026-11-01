@@ -113,7 +113,7 @@ class Stores:
     def bought_set(self, ev):
         if ev and ev != 'returnee':
             return set(self.part('alinan_' + ev, ev).get('liste', []))
-        return set(self.st.get('tek_sefer', []))
+        return set(self.st.get('one_time', []))
 
     def bought(self, loot, amount):
         """Mağazadan alım (magaza.on_bought): bir kezlikler, VIP, Pre-BF sayaçları -> mesajlar."""
@@ -126,7 +126,7 @@ class Stores:
             if ev:
                 self.part('alinan_' + ev, ev).setdefault('liste', []).append(loot)
             elif loot in RL_PKG or loot in SP_PKG:
-                self.st.setdefault('tek_sefer', []).append(loot)
+                self.st.setdefault('one_time', []).append(loot)
             else:
                 return []
             self.p.dirty = True
@@ -246,7 +246,7 @@ class Stores:
         st = self.returnee_state()
         if st.get('baslangic') and not st.get('kapali') and now < st['baslangic'] + RL['sure_gun'] * DAY:
             return False
-        last = st.get('son_kampanya', 0)
+        last = st.get('last_campaign', 0)
         if last_seen and now - last_seen >= RL['bekleme_gun'] * DAY and now - last >= RL['tekrar_gun'] * DAY and \
                 self.p.d['pilot'].get('level', 1) >= RL['en_az_seviye']:
             self.returnee_start(now)
@@ -256,8 +256,8 @@ class Stores:
     def returnee_start(self, now=None):
         now = time.time() if now is None else now
         with self.p.lock:
-            self.st['returnee'] = dict(baslangic=now, hosgeldin=False, gun=0, son_gun='', kapali=False, son_kampanya=now)
-            self.st['tek_sefer'] = [x for x in self.st.get('tek_sefer', []) if x not in RL_PKG]
+            self.st['returnee'] = dict(baslangic=now, hosgeldin=False, gun=0, last_day='', kapali=False, last_campaign=now)
+            self.st['one_time'] = [x for x in self.st.get('one_time', []) if x not in RL_PKG]
             self.p.dirty = True
         self.log('   Returnee Login: kampanya başladı (%d gün)' % RL['sure_gun'])
 
@@ -272,7 +272,7 @@ class Stores:
 
     def returnee_claimable(self, now=None):
         st = self.returnee_state()
-        return st.get('gun', 0) < min(RL['takvim_gun'], len(RL['takvim_odul'])) and st.get('son_gun') != today(now).isoformat()
+        return st.get('gun', 0) < min(RL['takvim_gun'], len(RL['takvim_odul'])) and st.get('last_day') != today(now).isoformat()
 
     def returnee_msgs(self, now=None):
         st = self.returnee_state()
@@ -302,7 +302,7 @@ class Stores:
         l, n = RL['takvim_odul'][st.get('gun', 0)]
         with self.p.lock:
             st['gun'] = st.get('gun', 0) + 1
-            st['son_gun'] = today().isoformat()
+            st['last_day'] = today().isoformat()
             self.p.dirty = True
         msgs += self.m.reward(l, n) if self.m else []
         self.log('   Returnee Login: %d. gün %s x%d' % (st['gun'], l, n))
@@ -342,13 +342,13 @@ class Stores:
         pool = qs[CT['tekrarsiz_adet']:] or qs
         d = self.rh_day(now)
         st = self.rh()
-        if st.get('gun_no') != d:          # yeni gün: günlük havuzun tamam/ilerlemesi sıfırlanır (yoksa yeniden çıkan görev bitmiş görünür)
+        if st.get('day_number') != d:          # yeni gün: günlük havuzun tamam/ilerlemesi sıfırlanır (yoksa yeniden çıkan görev bitmiş görünür)
             pool_ids = {q['id'] for q in pool if q not in once}
             with self.p.lock:
                 st['tamam'] = [i for i in st.get('tamam', []) if i not in pool_ids]
                 for i in pool_ids:
                     st.get('deger', {}).pop(str(i), None)
-                st['gun_no'] = d
+                st['day_number'] = d
                 self.p.dirty = True
         if d >= CT['gun']:
             return once, []

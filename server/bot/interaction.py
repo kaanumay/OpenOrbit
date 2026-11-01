@@ -62,7 +62,7 @@ def offer_reply(b, name, text, now):
 
 
 def _result(intent, accept, not_, template=None, action=None):
-    return {'niyet': intent, 'kabul': accept, 'not': not_, 'kalip': template, 'eylem': action}
+    return {'niyet': intent, 'kabul': accept, 'not': not_, 'template': template, 'eylem': action}
 
 
 def decision(y, b, intent, name, who, game_map, text, now, mailer=False):

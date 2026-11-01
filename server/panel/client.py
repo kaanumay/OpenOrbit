@@ -88,27 +88,27 @@ def version_of(folder):
 def check(folder):
     """Klasörü doğrula -> {'gecerli', 'yol', 'exe', 'veri', 'surum', 'uyumlu', 'eski' (desteklenenden eski: panel günceller),
     'sorunlar' [...], 'boyut_mb'}."""
-    out = {'yol': folder or '', 'gecerli': False, 'exe': False, 'veri': False, 'surum': None, 'uyumlu': False, 'eski': False,
-           'sorunlar': []}
+    out = {'yol': folder or '', 'valid': False, 'exe': False, 'veri': False, 'surum': None, 'compatible': False, 'eski': False,
+           'issues': []}
     if not folder:
-        out['sorunlar'].append(_('İstemci klasörü seçilmedi.'))
+        out['issues'].append(_('İstemci klasörü seçilmedi.'))
         return out
     if not os.path.isdir(folder):
-        out['sorunlar'].append(_('Klasör bulunamadı.'))
+        out['issues'].append(_('Klasör bulunamadı.'))
         return out
     out['exe'] = os.path.isfile(os.path.join(folder, EXE))
     out['veri'] = os.path.isdir(os.path.join(folder, DATA_DIR))
     if not out['exe']:
-        out['sorunlar'].append(_('Klasörde %s yok.', EXE))
+        out['issues'].append(_('Klasörde %s yok.', EXE))
     if not out['veri']:
-        out['sorunlar'].append(_('Klasörde %s klasörü yok.', DATA_DIR))
-    out['gecerli'] = out['exe'] and out['veri']
-    if out['gecerli']:
+        out['issues'].append(_('Klasörde %s klasörü yok.', DATA_DIR))
+    out['valid'] = out['exe'] and out['veri']
+    if out['valid']:
         out['surum'] = version_of(folder)
-        out['uyumlu'] = out['surum'] == supported()
+        out['compatible'] = out['surum'] == supported()
         out['eski'] = bool(out['surum']) and vkey(out['surum']) < vkey(supported())
-        if out['surum'] and not out['uyumlu']:
-            out['sorunlar'].append(_('Sunucu %s sürümü için yazıldı; %s sürümünde protokol farklıysa giriş ya da bazı pencereler '
+        if out['surum'] and not out['compatible']:
+            out['issues'].append(_('Sunucu %s sürümü için yazıldı; %s sürümünde protokol farklıysa giriş ya da bazı pencereler '
                                      'çalışmayabilir.', supported(), out['surum']))
         out['metadata'] = os.path.isfile(os.path.join(folder, DATA_DIR, 'il2cpp_data', 'Metadata', 'global-metadata.dat'))
     return out
@@ -133,9 +133,9 @@ def candidates():
                 continue
             seen.add(key)
             c = check(d)
-            if c['gecerli']:
+            if c['valid']:
                 out.append(c)
-    out.sort(key=lambda c: (c['uyumlu'], vkey(c['surum'])), reverse=True)
+    out.sort(key=lambda c: (c['compatible'], vkey(c['surum'])), reverse=True)
     return out
 
 

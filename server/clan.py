@@ -150,7 +150,7 @@ def _move(k, p):
                  ('kasa', 0), ('kasa_kaydi', []), ('ts', ''), ('firma', int(p.d['pilot'].get('factionId', 0))), ('haberler', []),
                  ('mesajlar', []), ('rutbeler', []), ('sira', 1)):
         k.setdefault(f, v)
-    k['uyeler'] = {me: {'ad': p.d['pilot'].get('userName', ''), 'uid': p.user_id, 'rutbe': k.pop('benim_rutbem', 0),
+    k['uyeler'] = {me: {'ad': p.d['pilot'].get('userName', ''), 'uid': p.user_id, 'rutbe': k.pop('my_rank', 0),
                         'katilma': k['kurulus']}}
     k.update(lider=me, anahtar=secrets.token_hex(8), surum=1, basvurular=[], retler=[], diplomasi=[], diplo_istek=[], gelir=0)
 

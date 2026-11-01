@@ -292,5 +292,5 @@ class Bot:
         return dict(no=self.k['no'], ad=self.name, firma=self.firma, arketip=self.archetype, seviye=self.level, ep=self.k['ep'],
                     kredi=self.k['kredi'], uridyum=self.k['uridyum'], onur=self.k['onur'], gemi=self.k['ekip']['gemi'],
                     guc=round(d['guc'], 1), harita=K.H.name(self.game_map), cevrimici=self.online, klan=self.k['klan'],
-                    hedef=self.k['hedef'], somut=self.body is not None, istat=dict(self.k['istat']), kayitli=self.saved,
+                    hedef=self.k['hedef'], concrete=self.body is not None, istat=dict(self.k['istat']), kayitli=self.saved,
                     kargo=round(self.cargo_fill(), 2))

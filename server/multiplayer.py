@@ -1,8 +1,8 @@
 """Arkadaşlarla oyna: arkadaş sunucusu ve misafirlerin hesapları (panelin "Arkadaşlarınla Oyna" sayfası, panel/friends.py).
 
-Sunucu: panel game.py'yi --cok-oyunculu ile başlatır. Oyun (8081) ve sohbet (7771) portları bütün ağlardan dinlenir; web girişi
-(80, 8090) yerel kalır: her oyuncu kendi bilgisayarındaki web.py'den girer (misafirinki --uzak ile bu sunucuyu gösterir). Ayarlar
-ortam değişkeninden (DO_COK_OYUNCULU, JSON; komut satırında görünmesin): sifre (katılma şifresi; boş: yok), en_cok (misafir sayısı),
+Sunucu: panel game.py'yi --multiplayer ile başlatır. Oyun (8081) ve sohbet (7771) portları bütün ağlardan dinlenir; web girişi
+(80, 8090) yerel kalır: her oyuncu kendi bilgisayarındaki web.py'den girer (misafirinki --remote ile bu sunucuyu gösterir). Ayarlar
+ortam değişkeninden (OO_MULTIPLAYER, JSON; komut satırında görünmesin): sifre (katılma şifresi; boş: yok), en_cok (misafir sayısı),
 anahtar (panelin yönetim anahtarı), kod (panelin sürümü: misafirin paneli karşılaştırır), adres (dinlenen adres; öntanımlı 0.0.0.0,
 tek bilgisayardaki canlı testte 127.0.0.1: güvenlik duvarı sorusu çıkmasın). Aynı normal haritadaki oyuncular
 uzaylıları, kutuları ve cevherleri paylaşır, birbirini görür (shared_maps.py); sohbet ortak.
@@ -20,14 +20,14 @@ ise buraya verir; oyun istemcisinin ilk paketi uzunlukla başlar).
        dolunca -> {surum, bagli, bitti, profil (yeniyse)}. Misafirin paneli her yeni sürümü kendi kayıt yuvasına yazar.
   POST /misafir/cikis {oturum, anahtar}   -> son hâl; oturum biter (oyun açıksa bağlantı kapanır), kayıt kısa süre sonra silinir
 Gövdeler JSON; "Content-Encoding: gzip" ile sıkıştırılmış da olabilir, "Accept-Encoding: gzip" isteyene yanıt sıkıştırılır.
-Yönetim (yalnız 127.0.0.1'den, panelin anahtarıyla): POST /yonetim/at {anahtar, oturum}: misafiri çıkar.
+Yönetim (yalnız 127.0.0.1'den, panelin anahtarıyla): POST /yonetim/kick {anahtar, oturum}: misafiri çıkar.
 İstemci girişte (LoginRequest) web girişinin verdiği sessionID'yi gönderir: misafirinki oturum anahtarı (bul), sunucunun kendi
 oyuncusununki web.py'nin SESSION'ı (AYAR['yerel']: panelin bu açılışta ürettiği belirteç; yalnız bu bilgisayardan).
 Yanlış katılma şifresi adres başına sınırlı (DENEME_SINIR denemeden sonra KILIT_SN kilit, 429).
 Sunucu kapatılırken (panelin "Durdur"u) misafirlerin son hâli yayımlanır ve bekleyen yoklamalara verilir (kapanis).
 
 Çoklu istemci (panelin OYNA'sından sonra bu bilgisayardaki öteki kayıtlarla açılan istemciler; panel/multi_client.py): sunucu aynı kipte
-açılır, misafir kabul etmez (DO_COK_OYUNCULU misafir: false, adres 127.0.0.1); Host'ta misafirlerle birlikte. Yalnız 127.0.0.1'den:
+açılır, misafir kabul etmez (OO_MULTIPLAYER misafir: false, adres 127.0.0.1); Host'ta misafirlerle birlikte. Yalnız 127.0.0.1'den:
   POST /yerel/ekle {anahtar, kayit, yol}  -> {oturum, uid, devam}: yuvanın profil.json'u ek oyuncu olarak yüklenir (YerelProfil:
        dosyaya doğrudan yazılır; kimliği sunucudaki başka bir oyuncununkiyle aynıysa bellekte kayda göre sabit geçici kimlik).
        Aynı yuva yeniden eklenirse (istemci yeniden açıldı) oturum sürer. Ana kayıt, aynı pilot adı ve dolu sunucu reddedilir.
@@ -67,7 +67,7 @@ def equal(a, b):
 
 
 def configure(raw, logger=print):
-    """game.main: --cok-oyunculu ile açıldıysa (raw: DO_COK_OYUNCULU ortam değişkeni)."""
+    """game.main: --multiplayer ile açıldıysa (raw: OO_MULTIPLAYER ortam değişkeni)."""
     global log
     log = logger
     try:
@@ -622,7 +622,7 @@ def http(c, addr, game):
             code, out = poll_profile(q)
         elif u.path == '/misafir/cikis' and method == 'POST':
             code, out = exit(b, game.close_session)
-        elif u.path == '/yonetim/at' and method == 'POST' and management:
+        elif u.path == '/yonetim/kick' and method == 'POST' and management:
             m = next((x for x in entries() if x.token.startswith(str(b.get('oturum') or '-'))), None)
             if m:
                 finish(m, game.close_session, 'sunucu çıkardı')

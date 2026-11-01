@@ -140,7 +140,7 @@ class Nova:
         with self.p.lock:
             cid = self.d['sonraki']
             self.d['sonraki'] = cid + 1
-            c = {'id': cid, 'bolum': section, 'aile': rng.choice(info['aileler']), 'ad': rng.choice(D['adlar']), 'enerji': float(MAX_E),
+            c = {'id': cid, 'section': section, 'aile': rng.choice(info['aileler']), 'ad': rng.choice(D['adlar']), 'enerji': float(MAX_E),
                  't': time.time(), 'yetenekler': []}
             for i, k in enumerate(perks):
                 tier = rng.choices(range(1, 7), D['taban_agirlik'])[0]
@@ -179,7 +179,7 @@ class Nova:
         if not row:
             return {}
         need = {'currency_uridium': row['uridyum'], CHIP: row['cip']}
-        if D['bolumler'][c['bolum']].get('cagri_cipi'):
+        if D['bolumler'][c['section']].get('cagri_cipi'):
             need[CALLING] = row['cagri_cipi']
         return need
 

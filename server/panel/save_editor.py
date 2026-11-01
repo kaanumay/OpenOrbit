@@ -141,11 +141,11 @@ def info():
             stats(l, 'can', v.get('can') or gr.get('hp'))
             stats(l, 'hiz', v.get('hiz') or gr.get('temel_hiz'))
             stats(l, 'kargo', v.get('kargo') or gr.get('kargo'))
-            row(l)['yv'] = {k: n for k, n in (v.get('yuvalar') or {}).items() if n}
+            row(l)['slot_info'] = {k: n for k, n in (v.get('yuvalar') or {}).items() if n}
             bonus(l, gr.get('bonus'))
             bonus(l, (E.get('tasarimlar', {}).get(l) or {}).get('bonus'))
         if l in E['dronlar']:
-            row(l)['yv'] = {'default': E['dronlar'][l]['yuva']}
+            row(l)['slot_info'] = {'default': E['dronlar'][l]['yuva']}
     for l, v in E['lazerler'].items():
         stats(l, 'hasar', v.get('hasar'))
         stats(l, 'pvp_hasar', v.get('pvp_hasar'))
@@ -337,7 +337,7 @@ def stats(pr):
     player = sorted(([RT.R['gemi_puan'].get(k, {}).get('ad', k.replace('ship_', '')), int(n)] for k, n in c['oyuncu'].items() if n),
                     key=lambda x: -x[1])
     roster_row = (pr.d.get('kapilar') or {}).get('kapilar') or {}
-    duration = pr.d.get('kapi_sureleri') or {}
+    duration = pr.d.get('gate_times') or {}
     gates = [{'anahtar': k, 'ad': GT.KAPI[k]['ad'], 'tamam': int((roster_row.get(k) or {}).get('tamam', 0)), **(duration.get(k) or {})}
                for k in GT.KAPI if (roster_row.get(k) or {}).get('tamam') or k in duration]
     pve = pr.d.get('pve') or {}
@@ -390,7 +390,7 @@ def appearance(pr, m, original=None):
         ships.append({'id': sid, 'lootId': g['lootId'], 'tasarim': g.get('tasarim'), 'gorunum': p.ship_look(sid), 'aktif': sid == p.d['aktif_gemi'],
                         'favori': bool(g.get('favori')), 'aktif_konfig': str(g['aktif_konfig']), 'yuvalar': slots, 'konfigler': configs,
                         'dronlar': drones, 'pet': pet or None, 'tasarimlar': m.designs(sid),
-                        'konum': g.get('konum'), 'kayitli': bool(g.get('kayitli_konfig')),
+                        'konum': g.get('konum'), 'kayitli': bool(g.get('saved_config')),
                         'deger': {'can': st.get('hp_max') or row.get('hp'), 'kalkan': st.get('shield_max'), 'hiz': st.get('display'),
                                   'kargo': row.get('kargo'), 'hasar': damage, 'lazer': st.get('lasers')}})
     ships.sort(key=lambda x: (not x['aktif'], not x['favori'], int(x['id'])))
@@ -418,14 +418,14 @@ def appearance(pr, m, original=None):
     for x in p.d['dronlar']:
         info = SHP.DRONES.get(x['lootId'], {})
         drone_list.append({'id': x['kimlik'], 'lootId': x['lootId'], 'seviye': x.get('seviye', 1), 'puan': x.get('puan', 0),
-                   'yukseltme': int(x.get('yukseltme', 0)), 'yukseltme_azami': UPG.max_level(x['lootId']) or 16,
+                   'yukseltme': int(x.get('yukseltme', 0)), 'max_upgrade': UPG.max_level(x['lootId']) or 16,
                    'kapasite': info.get('yuva', 1), 'tek': bool(info.get('tek'))})
     petd = m.pet.d if m.pet.owned else None
     pet = None
     if petd:
         pet = {'ad': petd.get('ad'), 'seviye': petd.get('seviye', 0), 'ep': petd.get('ep', 0), 'yakit': int(petd.get('yakit', 0)),
-               'yakit_azami': PETM.PET['azami_yakit'], 'azami_seviye': len(PETM.PET['seviyeler']) - 1, 'yikik': bool(petd.get('yikik')),
-               'yuva': {y: m.pet.open_slots(y) for y in PETM.SLOTS}, 'yuva_azami': dict(PETM.PET['azami_yuva']),
+               'max_fuel': PETM.PET['azami_yakit'], 'azami_seviye': len(PETM.PET['seviyeler']) - 1, 'yikik': bool(petd.get('yikik')),
+               'yuva': {y: m.pet.open_slots(y) for y in PETM.SLOTS}, 'max_slots': dict(PETM.PET['azami_yuva']),
                'heat': m.pet.heat_lv()}
     ammo = [[l, int(n), next((t for pre, t in AMMO if l.startswith(pre)), 'diger')] for l, n in sorted(p.d.get('cephane', {}).items())]
     minerals = {m_['oreType']['typeValue']: m_['count'] for m_ in p.d.get('madenler', [])}
@@ -435,17 +435,17 @@ def appearance(pr, m, original=None):
     k = p.d.get('konum', {})
     quests = p.d.get('gorevler', {})
     out = {
-        'pilot': {'ad': pl.get('userName'), 'firma': pl.get('factionId'), 'seviye': lv, 'ep': pl.get('ep', 0), 'seviye_taban': base,
-                  'seviye_sonraki': next_, 'azami_seviye': lv_tab[-1][0], 'onur': pl.get('honourPoints', 0), 'kredi': pl.get('credits', 0),
+        'pilot': {'ad': pl.get('userName'), 'firma': pl.get('factionId'), 'seviye': lv, 'ep': pl.get('ep', 0), 'level_base': base,
+                  'next_level': next_, 'azami_seviye': lv_tab[-1][0], 'onur': pl.get('honourPoints', 0), 'kredi': pl.get('credits', 0),
                   'uridyum': pl.get('uridium', 0), 'premium': bool(pl.get('premium')), 'klan': pl.get('clanTag') or '',
                   'rutbe': (p.d.get('rutbe') or {}).get('rutbe'), 'banka': p.d.get('banka', 0), 'oynama_sn': int(p.d.get('oynama_sn') or 0),
-                  'olusturma': p.d.get('olusturma'), 'yetenek_puan': (p.d.get('yetenekler') or {}).get('puan', 0)},
-        'durum': {'can': int(p.d['gemi'].get('hitPoints', 0)), 'can_azami': p.d['gemi'].get('hitMax', 0),
+                  'olusturma': p.d.get('olusturma'), 'skill_points': (p.d.get('yetenekler') or {}).get('puan', 0)},
+        'durum': {'can': int(p.d['gemi'].get('hitPoints', 0)), 'max_hp': p.d['gemi'].get('hitMax', 0),
                   'kalkan': int(p.d['gemi'].get('shield', 0)), 'kalkan_azami': p.d['gemi'].get('shieldMax', 0),
                   'harita': k.get('mapId'), 'harita_ad': H.name(k.get('mapId', 0)), 'ana_harita': H.name(HOME_MAP.get(pl.get('factionId'), 5)),
-                  'kargo': p.cargo_used(), 'kargo_azami': p.d['gemi'].get('cargoSpaceMax', 0)},
+                  'kargo': p.cargo_used(), 'cargo_max': p.d['gemi'].get('cargoSpaceMax', 0)},
         'gemiler': ships, 'aktif_gemi': p.d['aktif_gemi'], 'dronlar': drone_list, 'dron_azami': SHP.ITEMS['dron_azami'],
-        'dron_seviyeleri': [x['puan'] for x in SHP.LEVELS], 'pet': pet, 'pet_yuvalari': list(PETM.ALL_SLOTS),
+        'dron_seviyeleri': [x['puan'] for x in SHP.LEVELS], 'pet': pet, 'pet_slots': list(PETM.ALL_SLOTS),
         'envanter': inventory, 'cephane': ammo, 'cevherler': ores,
         'kaynaklar': [[l, int(n)] for l, n in sorted(p.d.get('diger_esyalar', {}).items()) if isinstance(n, (int, float))],
         'boosterlar': boosters,
@@ -454,7 +454,7 @@ def appearance(pr, m, original=None):
         'haklar': {l: [int(p.d.get('ekstra_haklari', {}).get(l, SHP.EX.X[l]['hak'])), SHP.EX.X[l]['hak']]
                    for l in sorted(set(p.d['esyalar'].values())) if 'hak' in SHP.EX.X.get(l, {})},
         'havuzlar': {l: rng_pool(l) for l in sorted(set(p.d['esyalar'].values())) if rng_kind(l)},
-        'tum_gemiler': sorted(SHP.ITEMS['gemiler']),
+        'all_ships': sorted(SHP.ITEMS['gemiler']),
         'istatistik': stats(p),
     }
     if original:
@@ -535,7 +535,7 @@ def diff(a, b):
         level.append('pet')
     layout_a, layout_b = _layout(a), _layout(b)
     hardware = len({t[-1] for t in layout_a ^ layout_b})
-    return {'alanlar': fields, 'eklenen': added, 'cikan': leaving, 'adetler': counts, 'boosterlar': boost, 'seviyeler': level,
+    return {'alanlar': fields, 'eklenen': added, 'leaving': leaving, 'adetler': counts, 'boosterlar': boost, 'seviyeler': level,
             'donanim': hardware,
             'sayi': len(fields) + len(added) + len(leaving) + len(counts) + len(boost) + len(level) + (1 if hardware else 0)}
 
@@ -798,7 +798,7 @@ def op_booster(pr, m, o):
     """Booster süresi (saniye): uzaylıdan düşen booster gibi saklanır (çevrimdışı durur); 0 kaldırır."""
     import booster as BOOSTER
     b = pr.d.setdefault('boosterlar', {})
-    for loot, sec in (o.get('sureler') or {}).items():
+    for loot, sec in (o.get('durations') or {}).items():
         if not BOOSTER.is_booster(loot):
             raise ValueError('Bilinmeyen eşya: %s', loot)
         sec = _int(sec, 0, 10 ** 8)
@@ -958,5 +958,5 @@ if __name__ == '__main__':
     except Exception as e:
         template = e.args[0] if isinstance(e, ValueError) and e.args and isinstance(e.args[0], str) else None
         msg = (template % e.args[1:] if len(e.args) > 1 else template) if template else str(e)
-        print(json.dumps({'ok': False, 'hata': '%s: %s' % (type(e).__name__, msg), 'kalip': template, 'arg': [str(a) for a in e.args[1:]]},
+        print(json.dumps({'ok': False, 'hata': '%s: %s' % (type(e).__name__, msg), 'template': template, 'arg': [str(a) for a in e.args[1:]]},
                          ensure_ascii=False))

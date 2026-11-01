@@ -302,7 +302,7 @@ class Low:
         dest = L['cikis'].get(str(self.p.d['pilot'].get('factionId')), 5)       # firmanın X-1'i (forum 126411: herkes X-1'e atılır)
         g = dict(gateId=EXIT_ID, x=w.map_w // 2, y=w.map_h // 2, hedef=dest, designId=1, varis='istasyon')
         w.add_gate(g)
-        w.auto_jump(g, L.get('cikis_bekleme_sn', 5))
+        w.auto_jump(g, L.get('exit_wait_sec', 5))
         self.say('bitti')
         self.tell('bitti')
         w.log('   LoW tamamlandı: X-1 istasyonuna dönüş')

@@ -41,7 +41,7 @@ def sec(y):
 
 
 def _registry(y, name):
-    return y.__dict__.setdefault('mod_record', {}).setdefault(str(name).lower(), {'uyari': 0, 'uyari_t': 0, 'susturma': 0, 'bitis': 0,
+    return y.__dict__.setdefault('mod_record', {}).setdefault(str(name).lower(), {'uyari': 0, 'warning_time': 0, 'susturma': 0, 'bitis': 0,
                                                                                'yasak': False, 'son': []})
 
 
@@ -89,11 +89,11 @@ def moderate(y, name, msg, channel, now, rol='chatter'):
     k = _registry(y, name)
     if k['bitis'] > now:
         return None                                       # zaten susturulu (satırı zaten düştü)
-    if now - k['uyari_t'] > WARNING_SEC:
+    if now - k['warning_time'] > WARNING_SEC:
         k['uyari'] = 0
     delay = m.r.uniform(2, 8)
     if k['uyari'] == 0:
-        k['uyari'], k['uyari_t'] = 1, now
+        k['uyari'], k['warning_time'] = 1, now
         y.speak(m, channel, SPC.template(m, 'mod_uyari_' + rule, ad=name), now=now + delay, priority=True)
         return 'uyari'
     k['uyari'] = 0

@@ -20,8 +20,8 @@ Etkin etkinlikler:
   - başarımlar (basarim.ACTIVE_EVENTS): etkinliğin 'basarim' grupları
   - sistemler: Upgrade Hour, Dispatch Day, kapı enerjisi indirimi, Kronos günü, altın kutu, harita etkinlikleri, Battle Pass …
 Oyuncunun seçimi: yönetim panelinin Etkinlikler sayfası (settings.py event_state: her etkinlik için açık / kapalı / takvime göre;
-yıllık ve haftalık etkinliklerin hepsi; oyuna girişte bildirilir) önce gelir. Oyun sunucusu seçeneği: --etkinlik ad1,ad2 tarihten
-bağımsız açar (haftalıkları da); --etkinlik hepsi bütün yıllık etkinlikleri, --etkinlik yok hiçbir yıllık etkinliği açmaz (haftalıklar sürer).
+yıllık ve haftalık etkinliklerin hepsi; oyuna girişte bildirilir) önce gelir. Oyun sunucusu seçeneği: --event ad1,ad2 tarihten
+bağımsız açar (haftalıkları da); --event hepsi bütün yıllık etkinlikleri, --event yok hiçbir yıllık etkinliği açmaz (haftalıklar sürer).
 """
 import datetime, functools, json, os, sys, time
 import game_data as DATA
@@ -77,13 +77,13 @@ CONFLICTS = {k: {j for j, f in EVENTS.items() if j != k and _tags(e) & _tags(f)}
 
 
 def configure(argv=None):
-    """--etkinlik seçeneği: 'hepsi', 'yok' ya da virgülle etkinlik adları."""
+    """--event seçeneği: 'hepsi', 'yok' ya da virgülle etkinlik adları."""
     global MODE
     argv = sys.argv if argv is None else argv
     FORCED.clear()
     MODE = 'takvim'
     for i, a in enumerate(argv):
-        val = a.split('=', 1)[1] if a.startswith('--etkinlik=') else (argv[i + 1] if a == '--etkinlik' and i + 1 < len(argv) else None)
+        val = a.split('=', 1)[1] if a.startswith('--event=') else (argv[i + 1] if a == '--event' and i + 1 < len(argv) else None)
         if val is None:
             continue
         for x in val.split(','):
@@ -293,7 +293,7 @@ def _span_windows(entries, a, b):
 
 def intervals(key, a, b):
     """Etkinliğin takvime göre [a, b) içindeki açık aralıkları [[başlangıç, bitiş]] (datetime; birleşik ve kırpılmış). period ile aynı
-    kural; panelin elle seçimi ve --etkinlik sayılmaz ('birlikte': o etkinliklerin takvimdeki aralıklarıyla kesişim)."""
+    kural; panelin elle seçimi ve --event sayılmaz ('birlikte': o etkinliklerin takvimdeki aralıklarıyla kesişim)."""
     e = EVENTS[key]
     if 'donemler' in e:
         iv = _span_windows(e['donemler'], a, b)
@@ -337,7 +337,7 @@ def resolve(on, rank):
 
 def is_active(key, now=None):
     """Etkinlik açık mı: kendi kuralı (_on) ve çakışma (aynı anda açık çakışanlarından öncelikli olan; bağlı bileşen içinde).
-    --etkinlik ile adı verilenler (geliştirici seçeneği) çakışmaya bakmaz."""
+    --event ile adı verilenler (geliştirici seçeneği) çakışmaya bakmaz."""
     if not _on(key, now):
         return False
     if key in FORCED:
@@ -358,8 +358,8 @@ def _on(key, now=None):
     st = SET.event_state(key)
     if st:
         return st == 'acik'
-    if e.get('dunya_durum') in ('acik', 'kapali'):     # dünyanın ayarı (kaydın Etkinlikler ayarından sonra)
-        return e['dunya_durum'] == 'acik'
+    if e.get('world_status') in ('acik', 'kapali'):     # dünyanın ayarı (kaydın Etkinlikler ayarından sonra)
+        return e['world_status'] == 'acik'
     yearly = 'donemler' in e
     if key in FORCED or (yearly and MODE == 'hepsi'):
         return True
@@ -371,10 +371,10 @@ def _on(key, now=None):
 
 
 def forced(key):
-    """Etkinlik tarihten bağımsız açık mı (panelde 'acik', --etkinlik ad ya da hepsi): harita bölümlerinin pencereleri sayılmaz."""
+    """Etkinlik tarihten bağımsız açık mı (panelde 'acik', --event ad ya da hepsi): harita bölümlerinin pencereleri sayılmaz."""
     st = SET.event_state(key)
     return st == 'acik' or key in FORCED or (MODE == 'hepsi' and 'donemler' in EVENTS[key]) or (
-        not st and EVENTS[key].get('dunya_durum') == 'acik')
+        not st and EVENTS[key].get('world_status') == 'acik')
 
 
 _ACTIVE = [None, None]                  # (anahtar, sonuç): aynı an için (saniyede bir 14 etkinlik modülü ayrı ayrı sorar: ek_etkinlikler)

@@ -35,7 +35,7 @@ class Adapter:
     def activate(self, version):
         if not version or not re.match(r'^[0-9A-Za-z._-]+$', version):
             raise RuntimeError(_('Sürüm geçersiz.'))
-        return self._start('uygula', ['--etkin=' + version])
+        return self._start('uygula', ['--activate=' + version])
 
     def _run(self, args):
         try:

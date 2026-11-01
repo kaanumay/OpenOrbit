@@ -138,7 +138,7 @@ class PlutusExperiment:
         with self.p.lock:
             self.st['son'][risk] = now
             self.p.dirty = True
-        self.enc = dict(risk=risk, kule=n.id, dogdu=now, ilk=None, ipucu=False, uyari=False, uzayli=None)
+        self.enc = dict(risk=risk, kule=n.id, spawned=now, ilk=None, ipucu=False, uyari=False, uzayli=None)
         self.log('   Plutus’ Experiments: %s işaret kulesi doğdu (%d, %d)' % (D['riskler'][risk]['ad'], x, y))
         return [KAPI.screen('key:msg_npc_spawning_beacon_high_risk_spawn') if risk == 'high'
                 else KAPI.screen('A %s beacon has spawned.' % D['riskler'][risk]['ad'])]
@@ -165,7 +165,7 @@ class PlutusExperiment:
                 if b.dealt > 0:
                     e['ilk'] = now
                     msgs.append(KAPI.screen('key:msg_npc_spawning_beacon_first_shot'))
-                elif now >= e['dogdu'] + D['atis_sn']:       # 2 dakikada atılmadı: kaçar
+                elif now >= e['spawned'] + D['atis_sn']:       # 2 dakikada atılmadı: kaçar
                     msgs += w.remove_npc(b) + [KAPI.screen('key:msg_npc_spawning_beacon_escaped')]
                     self.enc = None
                 return msgs

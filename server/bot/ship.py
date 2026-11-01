@@ -490,7 +490,7 @@ def kill_npc(w, m, n, now):
     if w.target == m.id:
         w.target, w.attacking = None, False
         msgs.append(('ShipDeselectionCommand', {}))
-    if not m.gate and not m.summoned and not m.d.get('sayilmaz'):
+    if not m.gate and not m.summoned and not m.d.get('uncounted'):
         w.schedule(random.uniform(*w.respawn_range(m)), 'npc', m.tip)
     try:
         msgs += w.alien.on_kill(m, x, y)
@@ -1420,7 +1420,7 @@ def collect_box(w, n, now):
         if k.get('etk'):                                 # etkinlik kutusu: anahtarsız, herkes toplar
             if not b.permission.get('etkinlik', True) or k.get('sahip') is not None:
                 continue
-        elif k.get('anahtarli'):                          # anahtarlı ganimet kutusu: anahtarı varsa ya da yeşil anahtarı alırsa
+        elif k.get('keyed'):                          # anahtarlı ganimet kutusu: anahtarı varsa ya da yeşil anahtarı alırsa
             from . import loot as LT
             k_ = decision.get(h)
             if k_ is None or (k_ is not True and now > k_):         # "açamam" kararı 60 sn'de bir yeniden (anahtar gelmiş olabilir)
@@ -1456,7 +1456,7 @@ def collect_box(w, n, now):
         EV.open_box(b, k['etk'])
         n.next_think = now + random.uniform(0.3, 1.0)
         return True
-    if k.get('anahtarli'):                               # açılış ganimet.ACMA_SN sürer (oyuncudaki gibi), sonra kutu alınır
+    if k.get('keyed'):                               # açılış ganimet.ACMA_SN sürer (oyuncudaki gibi), sonra kutu alınır
         from . import loot as LT
         opening = getattr(n, 'opening', None)
         if not opening or opening[0] != en:
@@ -1477,8 +1477,8 @@ def collect_box(w, n, now):
         remaining = {t: int(v) - claimed.get(int(t), 0) for t, v in (k.get('icerik') or {}).items() if int(v) - claimed.get(int(t), 0) > 0}
         b.ist('kargo_kutusu')
         owner_tag = k.get('mal')
-        if owner_tag is not None and tuple(owner_tag) != own and not k.get('calindi') and WD.SET.get('kargo_sahipligi'):
-            k['calindi'] = True
+        if owner_tag is not None and tuple(owner_tag) != own and not k.get('stolen') and WD.SET.get('kargo_sahipligi'):
+            k['stolen'] = True
             theft_penalty(w, b, owner_tag)
         if remaining:
             k['icerik'] = remaining

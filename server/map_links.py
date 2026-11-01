@@ -138,7 +138,7 @@ ONE_WAY_GATE_BASE = GATE_ID_BASE + 991000        # tek yönlü portalların kiml
 for _m, _gs in GATES.items():
     for _g in _gs:
         if _g.get('firma') and (_m in PIRATE_MAPS or _g['hedef'] in PIRATE_MAPS):
-            _g.update(tasarim=ENTRY_DESIGN, susler=[_g['firma']])
+            _g.update(tasarim=ENTRY_DESIGN, decorations=[_g['firma']])
 # maps-config 5-X için 1 yazıyor; wiki seviye 12 (belgeler/wiki/maps.md)
 for _m, _n in NAMES.items():
     if _n.startswith('5-'):
@@ -179,7 +179,7 @@ def map_world(map_id, tpl):
     gs = gates(map_id)
     gate_msgs = [dict(jumpgate_create(g, PLAYER_FACTION)[1], _m='JumpgateCreateCommand') for g in GATES.get(int(map_id), [])] + \
                 [dict(jumpgate_create(dict(gateId=ONE_WAY_GATE_BASE + int(map_id) * 10 + f, x=x, y=y, designId=ONE_WAY_DESIGN,
-                                           susler=[f], gorunmez=True))[1], _m='JumpgateCreateCommand')
+                                           decorations=[f], gorunmez=True))[1], _m='JumpgateCreateCommand')
                  for x, y, f in ML.one_way_gates(map_id)]
     fac = STATION_MAPS.get(int(map_id))
     if not fac or not tpl:
@@ -380,7 +380,7 @@ def jumpgate_create(g, faction=None):
     hidden = g.get('gorunmez') or (g.get('yalniz_firma') and faction not in (None, g['yalniz_firma']))
     return ('JumpgateCreateCommand', dict(gateId=g['gateId'], factionId=0, designId=g.get('designId', g.get('tasarim', 1)), x=g['x'],
                                           y=g['y'], isVisibleOnMinimap=not (hidden or g.get('gizli')),   # 4-5'teki gizli solucan deliği
-                                          showBubble=not hidden, decoratorAssetTypes=g.get('susler', [])))
+                                          showBubble=not hidden, decoratorAssetTypes=g.get('decorations', [])))
 
 
 # Kapı ipuçları (istemcinin flashres anahtarları). Hedefi 0 olan (pencere açan) kapılarda "%MAP%" boş kalıyordu, labirent
@@ -412,8 +412,8 @@ def client_map_name(map_id):
 def gate_tip(g):
     """Portalın ipucu -> (anahtar, [(yer tutucu değeri, tür)]): tür 5 flashres anahtarı, 6 harita kimliği, 0 düz metin."""
     if g.get('ipucu'):
-        return g['ipucu'], ([(str(g['ipucu_hedef']), 6)] if g.get('ipucu_hedef') else [])
-    dest = int(g.get('ipucu_hedef') or g.get('hedef') or 0)
+        return g['ipucu'], ([(str(g['hint_target']), 6)] if g.get('hint_target') else [])
+    dest = int(g.get('hint_target') or g.get('hedef') or 0)
     if not g.get('cikis') and dest not in NAMES:                       # galaksi dışına (moda, kapıya) giden kapı
         key = DESIGN_TIPS.get(g.get('designId')) or MODE_TIPS.get(g.get('kapi'))
         if key:

@@ -1,18 +1,18 @@
 """Yerel oyun sunucusu (TCP 8081): DarkOrbit Unity istemcisinin libcom protokolü.
 
-Kullanım: python -I game.py <log_klasörü> [--yakin-npc] [--reklamsiz] [--dokunulmaz] [--kontrol] [--profil=<yol>] [--ayarlar=<yol>]
-                                         [--durdur=<dosya>]
+Kullanım: python -I game.py <log_klasörü> [--near-npc] [--no-popups] [--invulnerable] [--control] [--profile=<yol>] [--settings=<yol>]
+                                         [--stop-file=<dosya>]
   Normalde yönetim paneli başlatır (server/panel/): kayıt yuvasının profili, oyun ayarları ve durdurma dosyası onun verdiği.
-  --ayarlar=<yol>: oyun ayarları (settings.py; varsayılan save/ayarlar.json): çarpanlar, etkinlik seçimi, müzayede rakipleri,
+  --settings=<yol>: oyun ayarları (settings.py; varsayılan save/ayarlar.json): çarpanlar, etkinlik seçimi, müzayede rakipleri,
   reklamsız/dokunulmaz/yakın NPC (seçeneklerin panel karşılıkları). Dosya değişince oyun açıkken yeniden okunur.
-  --durdur=<dosya>: dosya belirince profil kaydedilir ve sunucu kapanır (panelin "Sunucuyu durdur"u).
-  --reklamsiz: girişte kendiliğinden açılan tanıtım pencereleri (günlük bonus, ipuçları, Season Pass) de gönderilmez.
+  --stop-file=<dosya>: dosya belirince profil kaydedilir ve sunucu kapanır (panelin "Sunucuyu durdur"u).
+  --no-popups: girişte kendiliğinden açılan tanıtım pencereleri (günlük bonus, ipuçları, Season Pass) de gönderilmez.
   Gerçek parayla alışveriş pencereleri (Helix Blitz kampanyası, paket teklifi) ve Command Center'ın kendiliğinden açılması
   her zaman kapalıdır; Command Center menüden açılabilir.
-  --yakin-npc: test kolaylığı, ilk 4 NPC türünden birer tane oyuncunun hemen yakınında doğar.
-  --dokunulmaz: test kolaylığı, uzaylıların atışları görünür ama gemi can ve kalkan kaybetmez (ör. kapıları ölmeden denemek).
-  --kontrol: canlı test kontrol kanalı (control.py, 127.0.0.1:8099): mesaj izi, istek enjeksiyonu, komut gönderme, durum.
-  --profil=<yol>: etkin kayıt yuvası (paths.py) yerine başka bir profil (panel yuvanınkini verir; canlı testler kopyayla çalışır).
+  --near-npc: test kolaylığı, ilk 4 NPC türünden birer tane oyuncunun hemen yakınında doğar.
+  --invulnerable: test kolaylığı, uzaylıların atışları görünür ama gemi can ve kalkan kaybetmez (ör. kapıları ölmeden denemek).
+  --control: canlı test kontrol kanalı (control.py, 127.0.0.1:8099): mesaj izi, istek enjeksiyonu, komut gönderme, durum.
+  --profile=<yol>: etkin kayıt yuvası (paths.py) yerine başka bir profil (panel yuvanınkini verir; canlı testler kopyayla çalışır).
 Çerçeve: istemci -> sunucu ilk paket 4 bayt, sonrakiler 3 bayt BE uzunluk; sunucu -> istemci 3 bayt BE uzunluk.
 Mesajlar protocol.py ile kodlanır/çözülür (tablo: istemcinin kendi read() kodu, server/data/protocol_read.json).
 
@@ -239,11 +239,11 @@ UNLOGGED = ('MoveRequest', 'KeepAlive', 'AttackRocketRequest', 'EggTriggerReques
 EGG_TYPES = ('MINIMAP_PING', 'GOING_ROUND_THE_MAP', 'GALAXY_GATE_FIREWORK', 'RAINBOW_LASER')     # istemcinin EggTriggerType'ı
 CHAT = None                # yerel sohbet sunucusu (sohbet.py; main başlatır, port 7771)
 SESSIONS = set()            # oyuncusu belli olan oturumlar (arkadaş sunucusunda birden çok; cok_oyunculu.py)
-CONTROL = '--kontrol' in sys.argv        # canlı test kontrol kanalı (kontrol.py): mesaj izi ve enjeksiyon
+CONTROL = '--control' in sys.argv        # canlı test kontrol kanalı (kontrol.py): mesaj izi ve enjeksiyon
 CURRENT = None               # son bağlanan istemcinin oturumu (kontrol kanalı bunu yönetir)
 TP.GAME = sys.modules[__name__]          # sunucudaki oyuncular (grup, rehber, fısıltı, posta): PROFIL, CURRENT
-PROFILE_PATH = next((a.split('=', 1)[1] for a in sys.argv if a.startswith('--profil=')), None)
-STOP = next((a.split('=', 1)[1] for a in sys.argv if a.startswith('--durdur=')), None)    # panel: belirince kaydet ve çık
+PROFILE_PATH = next((a.split('=', 1)[1] for a in sys.argv if a.startswith('--profile=')), None)
+STOP = next((a.split('=', 1)[1] for a in sys.argv if a.startswith('--stop-file=')), None)    # panel: belirince kaydet ve çık
 # kayıt (Premium'suz hesap): çıkış düğmesinden 19,2 sn sonra 0|l, bağlantı kapanır; Premium'da istemci "Log out ... in just five seconds"
 LOGOUT_SEC = 5.0 if Profile.premium else 19.2
 
@@ -268,7 +268,7 @@ POPUP_MSGS = {'DisplayOfferCommand', 'HintWindowAddComand', 'HintWindowListInitC
 # verisi pencereyi açmayan, girişte düzenden (maximized) açılan pencereler: Mini Client ödülü (MiniClientRewardInfoCommandHandler
 # yalnız veriyi yazar). Veri süzülünce pencere boş açılıyordu (H155): veri hep gider, pencere kapalı gider
 POPUP_WINDOWS = {'miniclient_reward'}
-NO_POPUPS = '--reklamsiz' in sys.argv
+NO_POPUPS = '--no-popups' in sys.argv
 # her zaman: gerçek parayla alışveriş pencereleri (tek oyunculuda işe yaramaz)
 #   EventPaymentActorCommand: "%400 Helix Blitz" uridyum kampanyası; DisplayOfferCommand: paket teklifi penceresi
 PAYMENT_POPUPS = {'EventPaymentActorCommand', 'DisplayOfferCommand'}
@@ -666,13 +666,13 @@ class Session:
         map_id = self.profile.d['konum']['mapId']
         shared = CO.is_open() and str(int(map_id)) in SHARED and int(map_id) not in self.pve.maps   # arkadaş sunucusu (ortak_harita.py)
         self.world = World(self.profile, lambda m: self.send(m, quiet=True), log, map_id, TEMPLATE.station(map_id), keep_state=True,
-                           test_near='--yakin-npc' in sys.argv or SET.get('yakin_npc'), on_jump=self.change_map, shared=shared)
+                           test_near='--near-npc' in sys.argv or SET.get('yakin_npc'), on_jump=self.change_map, shared=shared)
         self.world.appearance = self.appearance
         self.world.is_group_member = lambda uid: uid in GR.members(self.profile.user_id)
         self.world.death = lambda: GR.died(TP.person(self.profile))
         if CO.is_open() and not shared:                                  # oyuncunun kendi kopyası: saklanan durumu da kendisinin
             self.world.cache_key = '%s:%s' % (map_id, self.profile.user_id)
-        self.world.invulnerable = '--dokunulmaz' in sys.argv
+        self.world.invulnerable = '--invulnerable' in sys.argv
         self.world.dark = int(map_id) in EKP.DARK_MAPS           # Trial of Terrors: el feneri
         self.world.quick_buy = self.shop.quick_buy_msgs
         self.world.auto_buy = self.shop.auto_buy                  # otomatik alım CPU'ları (ekstra.py)
@@ -898,7 +898,7 @@ class Session:
         pos verilirse oraya iner (yeniden doğma); verilmezse hedefteki geri dönüş portalının yanına."""
         if gate:
             self.profile.ach('jump')                   # başarım: portal atlamaları
-        if gate and gate.get('etkinlik_kapisi'):
+        if gate and gate.get('event_gate'):
             self.event_gates.enter(gate['kapi'])    # etkinlik kapısının girişi: kapı kurulur (canlar, dalga sırası, süre)
             dest = self.event_gates.dest(gate['kapi'])     # karışık sırada ilk harita (Trial of Terrors)
         self.pve.on_jump(gate)                   # Astral'ın çıkışı: oyuncunun donanımı geri
@@ -1389,7 +1389,7 @@ class Session:
 
 
 def handle(c, addr):
-    """Yeni bağlantı. Arkadaş sunucusunda (--cok-oyunculu) önce ilk baytlara bakılır: HTTP ise misafirin hesap gönderimi
+    """Yeni bağlantı. Arkadaş sunucusunda (--multiplayer) önce ilk baytlara bakılır: HTTP ise misafirin hesap gönderimi
     (cok_oyunculu.http), değilse oyun istemcisi (oyuncusu girişte belli olur; gönderme kuyruğuyla)."""
     if not CO.is_open():
         Session(c, addr).run()
@@ -1473,7 +1473,7 @@ def watch_world():
 def autosave():
     """Profil 10 sn'de bir diske (değiştiyse). Oturum yalnız istemciden paket gelince kaydediyordu: boşta yapılan son değişiklik
     (pencere kapatma, kontrol kanalı, NPC ödülü) sunucu penceresi kapatılırsa kayboluyordu (canlı test H57).
-    --durdur=<dosya> (panel): dosya belirince oynama süresi ve profil kaydedilir, sunucu kapanır (zorla kapatmada son 10 sn gitmesin)."""
+    --stop-file=<dosya> (panel): dosya belirince oynama süresi ve profil kaydedilir, sunucu kapanır (zorla kapatmada son 10 sn gitmesin)."""
     last = time.time()
     while True:
         time.sleep(0.5 if STOP else 10)
@@ -1519,18 +1519,18 @@ def main():
     P.warning = log
     SET.configure()              # oyun ayarları (panel): --ayarlar=<yol> ya da save/ayarlar.json; değişince kendiliğinden okunur
     log('ayarlar: %s | %s' % (SET._state['yol'], ', '.join('%s %s' % x for x in SET.summary()) or 'varsayılan'))
-    log(GD.summary())             # Dünya Editörü'nün dünyası (DO_DUNYA; veri.py)
+    log(GD.summary())             # Dünya Editörü'nün dünyası (OO_WORLD; veri.py)
     address = '127.0.0.1'
-    if '--cok-oyunculu' in sys.argv:  # arkadaş sunucusu: oyun ve sohbet bütün ağlardan (cok_oyunculu.py); ayarlar ortam değişkeninde
-        CO.configure(os.environ.get('DO_COK_OYUNCULU'), log)
+    if '--multiplayer' in sys.argv:  # arkadaş sunucusu: oyun ve sohbet bütün ağlardan (cok_oyunculu.py); ayarlar ortam değişkeninde
+        CO.configure(os.environ.get('OO_MULTIPLAYER'), log)
         address = CO.SETTINGS['adres']
         KL.configure(os.path.join(PTH.SAVE, 'klanlar.json'))     # ortak klanlar: çevrimdışı üyeye olanlar sonraki girişte
     CHAT = CHT.Chat(log, address=address)
     CHAT.start()                # yerel sohbet (7771); istemci girişteki ChatParamCommand ile buraya bağlanır
-    if os.environ.get('DO_BOT'):
-        BOT.server(os.environ['DO_BOT'], log)     # Botlar sayfasının paketi (dünyaya atanmış)
+    if os.environ.get('OO_BOT'):
+        BOT.server(os.environ['OO_BOT'], log)     # Botlar sayfasının paketi (dünyaya atanmış)
     threading.Thread(target=autosave, daemon=True).start()
-    if os.environ.get('DO_DUNYA'):
+    if os.environ.get('OO_WORLD'):
         threading.Thread(target=watch_world, daemon=True).start()
     CD.start(sys.modules[__name__], LOG_DIR, log)     # panelin canlı durum sayfası (<günlükler>/canli_durum.json)
     PCH.start(sys.modules[__name__], LOG_DIR, log)     # panelin oyun menüleri (Mağaza, Hangar, Skylab, Açık Artırma): yerel kanal

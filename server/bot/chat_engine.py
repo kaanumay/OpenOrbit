@@ -306,7 +306,7 @@ class ChatEngine:
         k = b.__dict__.pop('_request_decision', None) or IX.decision(self, b, kind, name, who, game_map, msg, now)
         if k is None:
             return
-        text = SPC.template(b, k['kalip'][0], **k['kalip'][1]) if k.get('kalip') else None
+        text = SPC.template(b, k['template'][0], **k['template'][1]) if k.get('template') else None
         IX.apply(self, b, k, delay=SPC.typing_time(text or 'ok', b) + b.r.uniform(1, 3))
         if text:
             if k.get('fisilti'):
@@ -371,13 +371,13 @@ class ChatEngine:
         elif kind == 'yeni_gemi' and b.r.random() < 0.45 * talk:
             self.speak(b, 'global', SPC.template(b, 'yeni_gemi', gemi=str(o.get('esya', '')).replace('ship_', '').title()), now=now)
         elif kind in ('olum', 'oyuncu_oldurdum') and now - self.__dict__.setdefault('_last_whisper', {}).get(
-                str(o.get('katil') or o.get('ad') or '').lower(), 0) < 60:
+                str(o.get('killer') or o.get('ad') or '').lower(), 0) < 60:
             pass                                         # aynı oyuncuya dakikada en çok bir fısıltı (art arda öldürmede yağmur olmasın)
-        elif kind == 'olum' and o.get('katil') and str(o['katil']).lower() not in self.name_index and b.r.random() < 0.2 + 0.5 * talk:
-            self._last_whisper[str(o['katil']).lower()] = now
+        elif kind == 'olum' and o.get('killer') and str(o['killer']).lower() not in self.name_index and b.r.random() < 0.2 + 0.5 * talk:
+            self._last_whisper[str(o['killer']).lower()] = now
             rude = self.rude()
             angry = rude and b.mood['ofke'] > 0.55 - 0.1 * rude and b.o('saldirganlik') > 0.6 - 0.1 * rude
-            self.speak(b, 'fisilti', SPC.template(b, 'oldum_kizgin' if angry else 'oldum'), recipient=o['katil'], now=now)
+            self.speak(b, 'fisilti', SPC.template(b, 'oldum_kizgin' if angry else 'oldum'), recipient=o['killer'], now=now)
         elif kind == 'oyuncu_oldurdum' and b.r.random() < 0.25 + 0.3 * talk:
             self.__dict__.setdefault('_last_whisper', {})[str(o.get('ad') or '').lower()] = now
             rude = self.rude()

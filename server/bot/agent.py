@@ -70,13 +70,13 @@ def observe_maps(y, b, arg):
     bg = B.Context(b, y, y.now)
     row = []
     for utility, m, r in bg.game_map[:7]:
-        risk = 'high' if r['olum_saat'] > 0.5 else 'medium' if r['olum_saat'] > 0.15 else 'low'
+        risk = 'high' if r['deaths_per_hour'] > 0.5 else 'medium' if r['deaths_per_hour'] > 0.15 else 'low'
         route = K.route(b.game_map, m, b.firma, b.level) or [m]
         names = sorted({str(v['ad']) for v, n in K.map_npcs(m)})[:4]
         owner = H.company(m)
         owner_label = 'your company' if owner == b.firma else 'enemy company' if owner else 'shared PvP'
         row.append('%s (%s): EP/h %s, credits/h %s, uridium/h %.0f, death risk %s, %d jumps, aliens: %s' % (
-            H.name(m), owner_label, _fmt_money(r['saat_ep']), _fmt_money(r['saat_kredi']), r['saat_uridyum'], risk, len(route) - 1,
+            H.name(m), owner_label, _fmt_money(r['ep_per_hour']), _fmt_money(r['credits_per_hour']), r['uridium_per_hour'], risk, len(route) - 1,
             ', '.join(names) or '-'))
     if row:
         return 'Best maps you can reach (best first):\n' + '\n'.join(row)
@@ -205,7 +205,7 @@ def observe_notebook(y, b, arg):
     h = b.k.get('hatirlatici') or []
     out = ['Your goals: %s.' % ('; '.join('#%d %s' % (i + 1, x['metin']) for i, x in enumerate(d)) if d else 'none written')]
     if h:
-        out.append('Reminders: %s.' % '; '.join('in %d min: %s' % (max(0, x['vade'] - y.now) // 60, x['metin']) for x in h))
+        out.append('Reminders: %s.' % '; '.join('in %d min: %s' % (max(0, x['due'] - y.now) // 60, x['metin']) for x in h))
     return ' '.join(out)
 
 
@@ -224,10 +224,10 @@ OBSERVATIONS = {
     'magaza': (observe_shop, 'shop upgrades that improve your ship, with price and whether you can afford them', ''),
     'gorevler': (observe_quests, 'your active quest and the quests you can take', ''),
     'etkinlikler': (observe_events, 'open event / PvE modes and galaxy gates you can run', ''),
-    'cevre': (observe_surroundings, 'who is online: real players, your friends, your enemies, pilots on your map', ''),
+    'surroundings': (observe_surroundings, 'who is online: real players, your friends, your enemies, pilots on your map', ''),
     'klan': (observe_clan, 'your clan: members, ranks, treasury, budget, diplomacy, battle stations (look before managing it)', ''),
     'defter': (observe_notebook, 'your written goals and reminders', ''),
-    'anilar': (observe_memories, 'your memories (of one person if ad is given)', 'ad?'),
+    'memories': (observe_memories, 'your memories (of one person if ad is given)', 'ad?'),
 }
 
 
@@ -269,11 +269,11 @@ def self_remind(y, b, arg):
     h = b.k.setdefault('hatirlatici', [])
     same = next((x for x in h if x['metin'] == (text or 'check how things are going')), None)
     if same is not None:                               # aynı hatırlatıcı: yalnız vakti güncellenir
-        same['vade'] = y.now + minutes * 60
+        same['due'] = y.now + minutes * 60
         return 'ok: reminder moved to %d min from now' % minutes
     if len(h) >= 5:
         return 'failed: you already have 5 reminders'
-    h.append({'vade': y.now + minutes * 60, 'metin': text or 'check how things are going'})
+    h.append({'due': y.now + minutes * 60, 'metin': text or 'check how things are going'})
     return 'ok: you will think again in %d min' % minutes
 
 
@@ -496,13 +496,13 @@ def wakers(y, b, now, events=True):
     b._agent_event_t = now
     for o in reversed(b.events[-8:]) if events else ():
         if o['t'] > last and o['tur'] in WAKE_EVENTS:
-            if o['tur'] == 'olum' and o.get('katil'):
-                return 'you just got shot down by %s' % o['katil']
+            if o['tur'] == 'olum' and o.get('killer'):
+                return 'you just got shot down by %s' % o['killer']
             return WAKE_EVENTS[o['tur']]
     h = b.k.get('hatirlatici') or []
-    is_due = [x for x in h if x['vade'] <= now]
+    is_due = [x for x in h if x['due'] <= now]
     if is_due:
-        b.k['hatirlatici'] = [x for x in h if x['vade'] > now]
+        b.k['hatirlatici'] = [x for x in h if x['due'] > now]
         return 'your reminder: %s' % is_due[0]['metin']
     if events and b.cargo_fill() >= 0.97 and not b.__dict__.get('_cargo_woke'):      # uzak botun kargosunu kurallı motor satar
         b._cargo_woke = True

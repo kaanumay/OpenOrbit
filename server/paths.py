@@ -9,19 +9,19 @@
 Giriş şablonları (giris.json, haritalar.json, yanitlar.json): kendi kaydından çıkarılanlar data/'da (git'e girmez), yoksa depodaki
 paylaşılabilir kopya data/defaults/'da (tools/template_sharing.py; hesap ve oyuncu kimlikleri takma): sablon().
 Etkin yuva panel.json'un 'aktif_kayit'ı. Eski düzen (save/profil.json) panel ilk açılınca 'ana' yuvasına taşınır; taşınmadıysa ya da
-etkin yuva yoksa profil yolu eski dosyadır (game.py / web.py --profil olmadan çalışınca).
+etkin yuva yoksa profil yolu eski dosyadır (game.py / web.py --profile olmadan çalışınca).
 Yalnız standart kitaplık: web.py, game.py ve panel birlikte kullanır.
 """
 import json, os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SAVE = os.environ.get('DO_KAYIT_KLASORU') or os.path.join(HERE, 'save')      # testler geçici klasör verir
+SAVE = os.environ.get('OO_SAVE_DIR') or os.path.join(HERE, 'save')      # testler geçici klasör verir
 SAVES = os.path.join(SAVE, 'kayitlar')
 TRASH = os.path.join(SAVE, 'silinenler')
 PANEL = os.path.join(SAVE, 'panel.json')
 SETTINGS = os.path.join(SAVE, 'ayarlar.json')
 LEGACY_PROFILE = os.path.join(SAVE, 'profil.json')
-LOGS = os.environ.get('DO_GUNLUK_KLASORU') or os.path.join(HERE, 'logs')
+LOGS = os.environ.get('OO_LOG_DIR') or os.path.join(HERE, 'logs')
 DATA = os.path.join(HERE, 'data')
 TEMPLATES = ('giris.json', 'haritalar.json', 'yanitlar.json')
 DEFAULT_TEMPLATE = os.path.join(DATA, 'defaults')

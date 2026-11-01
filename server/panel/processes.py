@@ -2,10 +2,10 @@
 
   web   web.py: 80, 8090 (web girişi; 843, 9339, 8082 sahte TCP)
   oyun  game.py: 8081 (oyun), 7771 (sohbet), 8099 (kontrol kanalı, ayarla)
-Arkadaş sunucusu (Arkadaşlarınla Oyna > Host): oyun sunucusu --cok-oyunculu ve DO_COK_OYUNCULU ortam değişkeniyle (friends.py).
-Çoklu istemci (multi_client.py): oyun sunucusu yine --cok-oyunculu ile, yalnız bu bilgisayardan ve misafirsiz (coklu ortamı).
+Arkadaş sunucusu (Arkadaşlarınla Oyna > Host): oyun sunucusu --multiplayer ve OO_MULTIPLAYER ortam değişkeniyle (friends.py).
+Çoklu istemci (multi_client.py): oyun sunucusu yine --multiplayer ile, yalnız bu bilgisayardan ve misafirsiz (coklu ortamı).
 Misafir (Join): yalnız web.py, arkadaşın sunucusunu gösteren argümanlarla (start_guest_web); oyun sunucusu açılmaz.
-Sunucular konsolsuz (CREATE_NO_WINDOW) çalışır; çıktıları logs/<ad>_konsol.log'a (çökme izi orada). Oyun sunucusu --durdur=<dosya>
+Sunucular konsolsuz (CREATE_NO_WINDOW) çalışır; çıktıları logs/<ad>_konsol.log'a (çökme izi orada). Oyun sunucusu --stop-file=<dosya>
 ile durdurulur: dosya belirince profili kaydedip çıkar (zorla kapatmada son kaydedilmemiş saniyeler gitmesin); yanıt vermezse
 sonlandırılır. Portu başka süreç tutuyorsa (önceki oturumdan kalan sunucu, başka program) kim olduğu bulunur; panel yalnız bu
 projenin web.py / game.py süreçlerini kapatabilir.
@@ -374,7 +374,7 @@ class Process:
         code = self.proc.poll()
         if code is None:
             return {'durum': 'acik', 'pid': self.proc.pid, 'sure_sn': int(time.time() - self.started_at)}
-        return {'durum': 'kapali' if self.stopped else 'coktu', 'cikis_kodu': code}
+        return {'durum': 'kapali' if self.stopped else 'coktu', 'exit_code': code}
 
 
 class Manager:
@@ -418,7 +418,7 @@ class Manager:
             if pid in ours:
                 continue
             info = process_info(pid) if pid else {'pid': None, 'ad': '?', 'komut': ''}
-            out.append({'port': port, 'ad': _(PORT_NAMES[port]), 'pid': pid, 'surec': info['ad'], 'komut': info['komut'][:300],
+            out.append({'port': port, 'ad': _(PORT_NAMES[port]), 'pid': pid, 'process': info['ad'], 'komut': info['komut'][:300],
                         'bizim': is_our_server(info)})
         return out
 
@@ -431,9 +431,9 @@ class Manager:
 
     def start_servers(self, profile, settings, control=False, slot=None, friend=None, multi=None, world=None, bot=None):
         """Web ve oyun sunucusu (açık değilse) -> başlatılanların adları. Port doluysa ya da sunucu açılmazsa RuntimeError.
-        arkadas: arkadaş sunucusunun ayarları (DO_COK_OYUNCULU; verilmezse tek oyunculu); coklu: çoklu istemcinin ayarları
-        (DO_COK_OYUNCULU, misafirsiz; arkadaş sunucusu zaten çok oturumlu); dunya: Dünya Editörü'nün dünya dosyası (DO_DUNYA;
-        verilmezse standart dünya); bot: dünyanın bot paketi (DO_BOT; Botlar sayfası)."""
+        arkadas: arkadaş sunucusunun ayarları (OO_MULTIPLAYER; verilmezse tek oyunculu); coklu: çoklu istemcinin ayarları
+        (OO_MULTIPLAYER, misafirsiz; arkadaş sunucusu zaten çok oturumlu); dunya: Dünya Editörü'nün dünya dosyası (OO_WORLD;
+        verilmezse standart dünya); bot: dünyanın bot paketi (OO_BOT; Botlar sayfası)."""
         env_json = friend or multi
         with self.lock:
             if self.guest:
@@ -452,19 +452,19 @@ class Manager:
                 if busy:
                     raise RuntimeError(_('%s portu (%s) başka bir süreçte açık. Sunucu sayfasından kapatın ya da o programı kapatın.',
                                          '/'.join(map(str, busy)), _(PORT_NAMES[busy[0]])))
-                cmd = [py, '-I', os.path.join(SERVER, SCRIPTS[name]), self.logs, '--profil=%s' % profile]
+                cmd = [py, '-I', os.path.join(SERVER, SCRIPTS[name]), self.logs, '--profile=%s' % profile]
                 stop_file = None
-                env = {'DO_DUNYA': world} if world else None
+                env = {'OO_WORLD': world} if world else None
                 if name == 'web' and env_json:       # sunucunun kendi oyuncusunun oturumu (cok_oyunculu AYAR['yerel'])
-                    cmd.append('--oturum=%s' % json.loads(env_json)['yerel'])
+                    cmd.append('--session=%s' % json.loads(env_json)['yerel'])
                 if name == 'oyun':
                     stop_file = os.path.join(self.logs, '.durdur_oyun')
-                    cmd += ['--ayarlar=%s' % settings, '--durdur=%s' % stop_file] + (['--kontrol'] if control else [])
+                    cmd += ['--settings=%s' % settings, '--stop-file=%s' % stop_file] + (['--control'] if control else [])
                     if env_json:
-                        cmd.append('--cok-oyunculu')
-                        env = dict(env or {}, DO_COK_OYUNCULU=env_json)
+                        cmd.append('--multiplayer')
+                        env = dict(env or {}, OO_MULTIPLAYER=env_json)
                     if bot:
-                        env = dict(env or {}, DO_BOT=bot)
+                        env = dict(env or {}, OO_BOT=bot)
                 self.servers[name] = Process(name, cmd, os.path.join(self.logs, '%s_konsol.log' % name), stop_file, env).start()
                 started.append(name)
             self.profile, self.slot, self.friend, self.multi = profile, slot, bool(friend), bool(multi and not friend)
@@ -498,7 +498,7 @@ class Manager:
             if busy:
                 raise RuntimeError(_('%s portu (%s) başka bir süreçte açık. Sunucu sayfasından kapatın ya da o programı kapatın.',
                                      '/'.join(map(str, busy)), _(PORT_NAMES[busy[0]])))
-            cmd = [python_exe(), '-I', os.path.join(SERVER, SCRIPTS['web']), self.logs, '--profil=%s' % profile] + list(args)
+            cmd = [python_exe(), '-I', os.path.join(SERVER, SCRIPTS['web']), self.logs, '--profile=%s' % profile] + list(args)
             self.servers['web'] = s = Process('web', cmd, os.path.join(self.logs, 'web_konsol.log')).start()
             self.profile, self.slot, self.guest = profile, slot, True
             deadline = time.time() + 15
@@ -538,7 +538,7 @@ class Manager:
         code = proc.wait()
         stop = time.time() - (self.client_started or time.time())
         early = stop < EARLY_EXIT_SEC
-        self.last_client = {'sure_sn': int(stop), 'erken': early, 'kod': code, 'zaman': time.strftime('%H:%M:%S')}
+        self.last_client = {'sure_sn': int(stop), 'early': early, 'kod': code, 'zaman': time.strftime('%H:%M:%S')}
         self.log('istemci kapandı (%d sn, kod %s)%s' % (stop, code, ' — erken kapandı, sunucular açık kalır' if early else ''))
         if self.on_client_exit:
             try:
@@ -560,5 +560,5 @@ class Manager:
         if self.client_alive():
             cl.update(pid=self.client.pid, sure_sn=int(time.time() - self.client_started))
         cl['son'] = self.last_client
-        return {'sunucular': srv, 'istemci': cl, 'profil': self.profile, 'kayit': self.slot,
-                'kontrol_kanali': listening(8099, table), 'arkadas': self.friend, 'coklu': self.multi, 'misafir': self.guest}
+        return {'servers': srv, 'istemci': cl, 'profil': self.profile, 'kayit': self.slot,
+                'control_channel': listening(8099, table), 'arkadas': self.friend, 'coklu': self.multi, 'misafir': self.guest}

@@ -84,12 +84,12 @@ def prepare(y, now):
     friend = float(y.setting('basit_dost', 0.5))
     for i, b in enumerate(y.bots):
         r = random.Random('basit|%s|%d' % (b.name, b.k['no']))
-        m = b.k.get('basit_harita')
+        m = b.k.get('simple_map')
         if not m:
             if not places:
                 break
             m, owner, _ = places[i % len(places)]
-            b.k['basit_harita'] = m
+            b.k['simple_map'] = m
             if owner and r.random() < friend:
                 b.k['firma'] = owner
             elif owner:

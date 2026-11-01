@@ -283,7 +283,7 @@ def race_step(y, b, k, h, asteroids, now):
         r['moduller'].append(m)
         r['t'] = now
         a['surum'] = a.get('surum', 0) + 1
-        h.d['cbs']['bot_klanlari'] = True
+        h.d['cbs']['bot_clans'] = True
         h.dirty = True
 
 
@@ -354,24 +354,24 @@ def defend(y, b, k, asteroids, now):
     (k['ksi']['savunma'], klanlar.json): sunucu yeniden başlasa da süren saldırıda kalanlar yollanır."""
     defense_state = cbs(k).setdefault('savunma', {})
     for aid, a in _mine(asteroids, k).items():
-        ongoing = now - a.get('son_oyuncu', 0) <= DEFENSE_LAST_SEC
+        ongoing = now - a.get('last_player', 0) <= DEFENSE_LAST_SEC
         st = defense_state.get(str(aid))
         if st is not None:
             if not ongoing:
                 defense_state.pop(str(aid), None)                      # saldırı bitti: sıradakiler yollanmaz
                 continue
-            if a.get('son_saldiran') and a['son_saldiran'] not in st['saldiranlar']:
-                st['saldiranlar'].append(a['son_saldiran'])
+            if a.get('last_attacker') and a['last_attacker'] not in st['saldiranlar']:
+                st['saldiranlar'].append(a['last_attacker'])
                 st['kota'] = max(st['kota'], defense_quota(len(st['saldiranlar'])))
             if now >= st['sonraki'] and st['sirada']:
                 st['sonraki'] = now + DEFENSE_GAP_SEC
                 _wave(y, b, k, st, st['harita'], DEFENSE_WAVE, now)
             continue
-        if not ongoing or now - cbs(k).get('son_savunma', 0) < setting()['savunma_sn']:
+        if not ongoing or now - cbs(k).get('last_defense', 0) < setting()['savunma_sn']:
             continue
-        cbs(k)['son_savunma'] = now
+        cbs(k)['last_defense'] = now
         ist, game_map = CB.ASTEROIDS[aid]['ad'], H.name(CB.ASTEROIDS[aid]['harita'])
-        who = a.get('son_saldiran') or ''
+        who = a.get('last_attacker') or ''
         if who:
             b.memory.event(who, 'hakaret', now, multiplier=1.0)
         kl = CMG.kl_of(b)

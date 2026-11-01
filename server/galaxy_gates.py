@@ -277,7 +277,7 @@ LOOT_IDS = {'abr': 'resource_collectable_axion-beam-regulator', 'schism': 'resou
 
 def record_duration(save, key, sec):
     """Kapının tamamlanma süresi (istatistik; oyuncu isteği 2026-10-30) -> kayit['kapi_sureleri'][key] {en_iyi, son, sayi} (sn)."""
-    d = save.setdefault('kapi_sureleri', {}).setdefault(key, {'en_iyi': 0, 'son': 0, 'sayi': 0})
+    d = save.setdefault('gate_times', {}).setdefault(key, {'en_iyi': 0, 'son': 0, 'sayi': 0})
     sec = int(max(1, sec))
     d.update(son=sec, sayi=d['sayi'] + 1, en_iyi=min(d['en_iyi'], sec) if d['en_iyi'] else sec)
     return d
@@ -1223,7 +1223,7 @@ class Run:
         msgs, info = k.finish(self.key, w.reward_msgs)
         out = k.exit_portal(self.key, self.map)
         w.add_gate(out)
-        w.auto_jump(out, K.get('cikis_bekleme_sn', 5))      # forum 127543: ödüllerden sonra X-1'e kendiliğinden
+        w.auto_jump(out, K.get('exit_wait_sec', 5))      # forum 127543: ödüllerden sonra X-1'e kendiliğinden
         msgs += [('GalaxyGateBuilderGateCompleteCommand', dict(gateId=self.g['kimlik'], currPart=len(info['yeni']['parcalar'])))]
         msgs += self.say('dalga_bitti', dalga=len(self.g['dalgalar']), sn=0)[:1] + self.say('tamam')
         if info['kronos']:

@@ -574,9 +574,9 @@ class Shot:
         per = z['hasar'] * total * DR['sure_sn'] / duration
         z.update(bitis=now + duration, hasar=per, alan=z['alan'] * (1 + a.get('expansion', 0) / 100.0), rezonator=a)
         if 'aftershock' in a:                       # %75 alan süresince, %25 bitişte (yarıçap +x)
-            z['artci'] = per * 0.25 * duration
+            z['aftershock_dmg'] = per * 0.25 * duration
             z['hasar'] = per * 0.75
-            z['artci_alan'] = z['alan'] * (1 + a['aftershock'] / 100.0)
+            z['aftershock_area'] = z['alan'] * (1 + a['aftershock'] / 100.0)
         if 'stagnation' in a:
             z['yavas'] = a['stagnation'] / 100.0
         if 'adhesion' in a:
@@ -621,11 +621,11 @@ class Shot:
                     continue
                 if now >= z['bitis']:
                     self.zones.remove(z)
-                    if z.get('artci'):                                  # Aftershock: kalan %25 bitişte patlar
-                        for m in self.others(z['x'], z['y'], z['artci_alan'], set(), now):
+                    if z.get('aftershock_dmg'):                                  # Aftershock: kalan %25 bitişte patlar
+                        for m in self.others(z['x'], z['y'], z['aftershock_area'], set(), now):
                             if self.w.hero_dead or self.zones is not zones:
                                 break
-                            self.w.hit_npc(m.id, int(z['artci']), DRIVE_ATTACK)
+                            self.w.hit_npc(m.id, int(z['aftershock_dmg']), DRIVE_ATTACK)
                     # The client can cancel an effect by unit ID after that unit was removed.
                     self.w.send([self.zone_end(z)])
                 else:

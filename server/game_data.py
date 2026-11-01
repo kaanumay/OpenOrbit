@@ -1,6 +1,6 @@
 """Oyun verisi ve dünyalar (Dünya Editörü): data/<dosya> + seçili dünyanın o dosyaya yamaları.
 
-Dünya: panelin Dünya Editörü'nde oluşturulan değişiklik katmanı (save/dunyalar/<kimlik>.json). Sunucular onu DO_DUNYA ortam
+Dünya: panelin Dünya Editörü'nde oluşturulan değişiklik katmanı (save/dunyalar/<kimlik>.json). Sunucular onu OO_WORLD ortam
 değişkeninden alır (panel/processes.py); yoksa standart dünya (data/ olduğu gibi). Biçim:
   {"ad": …, "yamalar": {"npc.json": {"/tipler/84": {...}, "/haritalar/5/npc": [...]}, "magaza": {"/urunler/<lootId>": {...}}}}
 Yama: JSON Pointer (RFC 6901) -> tam değer (varlık düzeyinde değiştirme); {"$sil": true} siler. Ebeveyni olmayan yol atlanır.
@@ -22,10 +22,10 @@ _SKIPPED = []                            # uygulanamayan yamalar (dosya, yol): g
 
 
 def world():
-    """Seçili dünya (DO_DUNYA) ya da {} (standart). Okunamazsa standart."""
+    """Seçili dünya (OO_WORLD) ya da {} (standart). Okunamazsa standart."""
     global _WORLD, _MTIME
     if _WORLD is None:
-        p, _WORLD = os.environ.get('DO_DUNYA'), {}
+        p, _WORLD = os.environ.get('OO_WORLD'), {}
         try:
             if p:
                 _MTIME = os.path.getmtime(p)
@@ -41,7 +41,7 @@ def world():
 def refresh():
     """Dünya dosyası okunduktan sonra değiştiyse yeniden okur -> CANLI dosyalardan değişenler (yoksa boş)."""
     global _WORLD
-    p = os.environ.get('DO_DUNYA')
+    p = os.environ.get('OO_WORLD')
     if not p or _WORLD is None:
         return []
     try:

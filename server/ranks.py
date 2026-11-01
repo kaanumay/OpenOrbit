@@ -450,7 +450,7 @@ HOF_EVENTS = {2: lambda p: (p.d.get('labirent') or {}).get('avlar', 0),         
 
 
 def _ebl_time(p):
-    t = ((p.d.get('pve') or {}).get('ebl') or {}).get('en_iyi_an')
+    t = ((p.d.get('pve') or {}).get('ebl') or {}).get('best_at')
     return time.strftime('%Y-%m-%d %H:%M', time.localtime(float(t) / 1000.0)) if t else ''
 
 

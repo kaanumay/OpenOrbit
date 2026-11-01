@@ -169,7 +169,7 @@ class PveModes:
 
     def on_jump(self, gate):
         """Oturumun harita değişiminden önce (portal kaydı): Astral'ın çıkışı oyuncunun donanımını geri getirir."""
-        if gate and gate.get('astral_cikis'):
+        if gate and gate.get('astral_exit'):
             self.astral.leaving()
 
     # ------------------------------------------------------------ istekler

@@ -50,7 +50,7 @@ def _register():
         a = (D.get('npcler') or {}).get(key)
         if a:
             d = {k: v for k, v in a.items() if k not in ('yorunge_yaricap',)}
-            d['cephane_carpani'] = dict(AMMO_BONUS)
+            d['ammo_multiplier'] = dict(AMMO_BONUS)
             world_module.CFG['tipler'][tip] = d
     if FORTRESS in world_module.CFG['tipler']:
         world_module.CFG['tipler'][FORTRESS]['menzil'] = D['fortress_lazer']['menzil']
@@ -208,7 +208,7 @@ class WorldBoss:
         cx, cy = KAPI.MAP_W // 2, KAPI.MAP_H // 2
         x, y = int(sx + (cx - sx) * 0.4), int(sy + (cy - sy) * 0.4 + 1300)
         return [dict(gateId=PORTAL_ID, x=x, y=y, hedef=0, designId=D.get('portal_tasarim', 1), pencere='dunya_patronu',
-                     ipucu_hedef=MAP)]                # "This Jump Gate takes you to Treacherous Domain." (istemcinin harita adı)
+                     hint_target=MAP)]                # "This Jump Gate takes you to Treacherous Domain." (istemcinin harita adı)
 
     def portal_window(self, g, w, go):
         if not active() or not window()[0]:
@@ -790,7 +790,7 @@ class WbRun:
         w = self.w
         k = D['kutu']
         h = w.drop_box(k['tur'], x, y, None, k['omur_sn'])
-        w.boxes[h]['pet_yok'] = True
+        w.boxes[h]['no_pet'] = True
         w.boxes[h]['al'] = lambda b: self.buff(random.choice(k['guclendirmeler']))
 
     def buff(self, kind):

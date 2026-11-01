@@ -379,7 +379,7 @@ def clan_station(y, bot, istasyon=''):
     return _ok('hedef: %s' % istasyon) if CBA.set_target(k, istasyon, bot) else _error('böyle boş bir asteroit yok')
 
 
-_DIPLO = {'baris': 0, 'peace': 0, 'ittifak': 1, 'alliance': 1, 'saldirmazlik': 2, 'nap': 2, 'savas': 3, 'war': 3}
+_DIPLO = {'baris': 0, 'peace': 0, 'ittifak': 1, 'alliance': 1, 'non_aggression': 2, 'nap': 2, 'savas': 3, 'war': 3}
 
 
 @tool('klan_diplomasi', 'Başka bir klana ittifak, saldırmazlık, savaş ya da barış teklif et.',

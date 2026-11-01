@@ -157,16 +157,16 @@ class EventGates:
             return False, 'tamamlandı'
         if rule.get('gunluk'):
             group = [k for k, x in GATES.items() if x.get('kural', {}).get('grup', k) == rule.get('grup', key)]
-            if any(self.gate(k).get('son_gun') == today(now) for k in group):
+            if any(self.gate(k).get('last_day') == today(now) for k in group):
                 return False, 'bugün girildi'
-        if rule.get('yillik') and G.get('son_yil') == today(now)[:4]:
+        if rule.get('yillik') and G.get('last_year') == today(now)[:4]:
             return False, 'bu yıl girildi'
         if rule.get('gunluk') and 0 < 86400 - (now - time.mktime(time.localtime(now)[:3] + (0, 0, 0, 0, 0, -1))) < 300:
             return False, 'günlük sıfırlamaya 5 dk kaldı'                # forum 143902
         if rule.get('donem') and not CAL.forced(g.get('etkinlik')) and not CAL._span_at(rule['donem'], datetime.datetime.fromtimestamp(now)):
             return False, 'kapı dönemi dışında'                            # The Breach: 11 Aralık - 1 Ocak (forum 134831)
-        if rule.get('bekleme_sn') and now < G.get('son_bitis', 0) + rule['bekleme_sn']:
-            return False, 'bekleme %d sn' % (G['son_bitis'] + rule['bekleme_sn'] - now)
+        if rule.get('bekleme_sn') and now < G.get('last_end', 0) + rule['bekleme_sn']:
+            return False, 'bekleme %d sn' % (G['last_end'] + rule['bekleme_sn'] - now)
         return True, ''
 
     def here(self, want, map_id):
@@ -186,7 +186,7 @@ class EventGates:
                 continue
             dest = self.dest(key)
             out.append(dict(gateId=PORTAL_BASE + g['kimlik'], x=0, y=0, hedef=dest, designId=g['portal'], kapi=key,
-                            etkinlik_kapisi=True, varis=center(dest)))
+                            event_gate=True, varis=center(dest)))
         if self.here(LAB['giris'], map_id) and CAL.is_active(LAB['etkinlik'], now):
             import labyrinth as LB
             dest = random.choice(LAB['baslangic'])
@@ -233,8 +233,8 @@ class EventGates:
                 random.shuffle(rest)
                 order += rest + [i for i in part if waves[i].get('sabit')]
         with self.p.lock:
-            G.update(hazir=True, dalga=0, can=SET.count('kapi_can', g['can']), sira=order, bas=now, son_gun=today(now),
-                     son_yil=today(now)[:4])                   # panel: kapı canı
+            G.update(hazir=True, dalga=0, can=SET.count('kapi_can', g['can']), sira=order, bas=now, last_day=today(now),
+                     last_year=today(now)[:4])                   # panel: kapı canı
             self.p.dirty = True
         self.log('   %s kuruldu (%d dalga, %d can)' % (g['ad'], len(order), G['can']))
 
@@ -271,7 +271,7 @@ class EventGates:
         now = time.time() if now is None else now
         with self.p.lock:
             G = self.gate(key)
-            G.update(hazir=False, dalga=0, can=GATES[key]['can'], son_bitis=now)
+            G.update(hazir=False, dalga=0, can=GATES[key]['can'], last_end=now)
             G.pop('sira', None)
             G.pop('cpu_artis', None)
             self.p.dirty = True
@@ -312,19 +312,19 @@ class EventGates:
         if c and self.m and random.random() < SET.chance('dusme', c['taban'] + G.get('cpu_artis', 0.0), 'kapi'):
             msgs += self.m.prize(c['esya'], 1, 'kapi')     # Bountiful Alien CPU: temel şans, öldürülen Aura Dun Jig başına artar
         secs = int(now - G.get('bas', now))
-        best = G.get('en_iyi_sn')
+        best = G.get('best_sec')
         with self.p.lock:
             G['tamam'] = G.get('tamam', 0) + 1
             if g.get('kural', {}).get('sure') and g.get('mod') != 'kolay' and secs <= 3600:   # forum 143902: yalnız Normal, 60 dk altı
                 if best is None or secs < best:
-                    G['en_iyi_sn'] = secs
-                G['sureler'] = sorted(G.get('sureler', []) + [secs])[:5]
+                    G['best_sec'] = secs
+                G['durations'] = sorted(G.get('durations', []) + [secs])[:5]
             self.p.dirty = True
         self.end(key, now)
         for fn in self.finish_hooks:
             msgs += fn(key)
         self.p.ach('gate', tur=g.get('kapi_turu') or '%s_GATE' % key.upper())    # istemcinin GalaxyGateType'ı (Birthday: BIRTHDAY)
-        record = G.get('en_iyi_sn') == secs and best != secs
+        record = G.get('best_sec') == secs and best != secs
         if record:
             self.p.ach('rekor_plutus')               # şampiyon başarımı (Gauntlet of Plutus; süreli tek kapı): kişisel rekor
         self.log('   %s tamamlandı: %s%s' % (g['ad'], fmt_time(secs), ' (yeni rekor)' if record else ''))
@@ -351,7 +351,7 @@ class EventGates:
         if ev in SCORE_EVENTS:
             self.p.ach('event_score', etkinlik=SCORE_EVENTS[ev], deger=rec['puan'])
         G = self.gate(key)
-        entries = [dict(_='PlutusScoreEntryModule', score=time_score(s), timeInSeconds=int(s)) for s in G.get('sureler', [])]
+        entries = [dict(_='PlutusScoreEntryModule', score=time_score(s), timeInSeconds=int(s)) for s in G.get('durations', [])]
         return [('PlutusPointsUpdateCommand', dict(scoreEntriesList=entries, score=rec['puan']))]
 
     # ------------------------------------------------------------ Gauntlet of Plutus göstergesi
@@ -362,7 +362,7 @@ class EventGates:
         now = time.time() if now is None else now
         G = self.gate(key)
         group = [k for k, x in GATES.items() if x.get('kural', {}).get('grup') == g.get('kural', {}).get('grup')] or [key]
-        done_today = any(self.gate(k).get('son_gun') == today(now) and not self.gate(k).get('hazir') for k in group)
+        done_today = any(self.gate(k).get('last_day') == today(now) and not self.gate(k).get('hazir') for k in group)
         if G.get('hazir') and G.get('bas'):
             mode, t = PLUTUS_RUNNING, now - G['bas']                     # geçen süre
         elif done_today:
@@ -371,7 +371,7 @@ class EventGates:
         else:
             mode, t = PLUTUS_OPEN, CAL.time_left(g['etkinlik'], now)      # etkinliğin kalan süresi
         status = dict(_='PlutusStatusCommand', lifes=int(G.get('can', g['can'])), mode=mode, timeLeft=int(max(0, t)))
-        entries = [dict(_='PlutusScoreEntryModule', score=time_score(s), timeInSeconds=int(s)) for s in G.get('sureler', [])]
+        entries = [dict(_='PlutusScoreEntryModule', score=time_score(s), timeInSeconds=int(s)) for s in G.get('durations', [])]
         return [('PlutusInfoCommand', dict(playerPoints=int(self.score(key, now)['puan']), scoreEntriesList=entries, status=status,
                                            playerRanges=RK.ranges(RK.PLUTUS),          # ödül sekmesinin aralıkları (Ö1)
                                            filename=''))]
@@ -451,7 +451,7 @@ class Run(KAPI.Run):
             d = random.uniform(*spec['uzaklik']) if i else spec['uzaklik'][0]
             m = spec['yaricap']
             circles.append((min(max(m, hx + math.cos(a) * d), w.map_w - m), min(max(m, hy + math.sin(a) * d), w.map_h - m)))
-        self.rad = dict(daireler=circles, bitis=now + spec['uyari_sn'] + spec['sure_sn'], sonraki=now + spec['uyari_sn'])
+        self.rad = dict(circles=circles, bitis=now + spec['uyari_sn'] + spec['sure_sn'], sonraki=now + spec['uyari_sn'])
         w.send([KAPI.screen('Plutus: Space Uncertainty! Get into a green circle!', big=True)]
                + [poi('plutusSpaceUncertainty%d' % i, x, y, spec['yaricap']) for i, (x, y) in enumerate(circles)])
         w.log('   %s: radyoaktif alan (%d daire, %d sn)' % (self.g['ad'], len(circles), spec['sure_sn']))
@@ -461,7 +461,7 @@ class Run(KAPI.Run):
         w = self.w
         hx, hy = w.hero_pos(now)
         g = w.p.d['gemi']
-        if any(math.hypot(hx - x, hy - y) <= spec['yaricap'] for x, y in self.rad['daireler']):
+        if any(math.hypot(hx - x, hy - y) <= spec['yaricap'] for x, y in self.rad['circles']):
             hp0 = g.get('hitPoints', 0)
             w.p.set_hull(hp=hp0 + spec['iyilesme_sn'])
             w.send([w.hp_msg()] + w.heal_msgs(hp0))
@@ -474,7 +474,7 @@ class Run(KAPI.Run):
         spec = next((n.d.get('radyoaktif') for n in (self.w.npcs.get(i) for i in self.keep) if n and n.d.get('radyoaktif')), None)
         self.rad_next = now + (spec['bekleme_sn'] if spec else 0)
         if r:
-            self.w.send([('MapRemovePOICommand', {'poiId': 'plutusSpaceUncertainty%d' % i}) for i in range(len(r['daireler']))])
+            self.w.send([('MapRemovePOICommand', {'poiId': 'plutusSpaceUncertainty%d' % i}) for i in range(len(r['circles']))])
 
     def wave_count(self):
         return len(self.k.order(self.key))
@@ -534,10 +534,10 @@ class Run(KAPI.Run):
         self.keep.clear()
         self.guards.clear()
         with self.k.p.lock:
-            G['toplam_dalga'] = G.get('toplam_dalga', 0) + 1
+            G['total_waves'] = G.get('total_waves', 0) + 1
             self.k.p.dirty = True
         for fn in self.k.wave_hooks:
-            self.w.send(fn(self.key, G['toplam_dalga']))
+            self.w.send(fn(self.key, G['total_waves']))
         if G['dalga'] >= self.wave_count() and self.g.get('kural', {}).get('sonsuz'):
             with self.k.p.lock:
                 G['dalga'] = 0                      # sonsuz kapı (eski Invasion): son dalgadan sonra baştan

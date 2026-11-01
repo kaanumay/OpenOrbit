@@ -1,7 +1,7 @@
 """Yeni istemci sürümüne protokol uyarlaması (yol haritası "Sürekli işler" > İstemci güncellemesine hazırlık).
 
 Yeni sürümün GameAssembly.dll'inden protokolü yeniden üretir (protocol.py -> protocol.json, read_spec.py -> protocol_read.json;
-istemci klasörü DO_ISTEMCI ile), sürüm klasörüne koyar (server/data/protokol/<sürüm>/), etkin protokolle karşılaştırıp farkları
+istemci klasörü OO_CLIENT ile), sürüm klasörüne koyar (server/data/protokol/<sürüm>/), etkin protokolle karşılaştırıp farkları
 raporlar (belgeler/istemci/protokol_farki_<sürüm>.md) ve istenirse uygular (etkin dosyalar yedeklenir, yenisi server/data/'ya;
 etkin sürüm server/data/protokol/surum.txt'de, panel istemci sürümünü bununla karşılaştırır).
 
@@ -13,8 +13,8 @@ Doğrulama: 1.1.114 için çalıştırınca etkin protocol.json'la birebir aynı
 
 Kullanım (proje kökünden):
   python -I tools/il2cpp/protocol_update.py <istemci klasörü>            üret ve raporla (etkin dosyalara dokunmaz)
-  python -I tools/il2cpp/protocol_update.py <istemci klasörü> --uygula   üret, raporla ve uygula
-  python -I tools/il2cpp/protocol_update.py --etkin=<sürüm>              sürüm klasöründeki protokolü etkin yap (--geri= de olur)
+  python -I tools/il2cpp/protocol_update.py <istemci klasörü> --apply   üret, raporla ve uygula
+  python -I tools/il2cpp/protocol_update.py --activate=<sürüm>              sürüm klasöründeki protokolü etkin yap (--rollback= de olur)
 """
 import glob, json, os, re, shutil, subprocess, sys, time
 
@@ -44,7 +44,7 @@ def version_of(folder):
 def generate(folder, out, log=print):
     """Yeni istemciden iki dosya -> out/. Alt süreç: sembol önbelleği istemci başına (symbols.py)."""
     os.makedirs(out, exist_ok=True)
-    env = dict(os.environ, DO_ISTEMCI=os.path.abspath(folder), PYTHONIOENCODING='utf-8')
+    env = dict(os.environ, OO_CLIENT=os.path.abspath(folder), PYTHONIOENCODING='utf-8')
     py = [sys.executable, '-I', '-X', 'utf8']
     for args in ([os.path.join(HERE, 'protocol.py'), os.path.join(out, 'protocol.json')],
                  [os.path.join(HERE, 'read_spec.py'), os.path.join(out, 'protocol.json'), os.path.join(out, 'protocol_read.json')]):
@@ -169,7 +169,7 @@ def run(folder, do_apply=False, log=print):
 
 
 def main():
-    refund = next((a.split('=', 1)[1] for a in sys.argv[1:] if a.startswith(('--geri=', '--etkin='))), None)
+    refund = next((a.split('=', 1)[1] for a in sys.argv[1:] if a.startswith(('--rollback=', '--activate='))), None)
     if refund:
         apply(refund)
         return
@@ -177,7 +177,7 @@ def main():
     if not folders:
         print(__doc__)
         sys.exit(1)
-    run(folders[0], '--uygula' in sys.argv)
+    run(folders[0], '--apply' in sys.argv)
 
 
 if __name__ == '__main__':

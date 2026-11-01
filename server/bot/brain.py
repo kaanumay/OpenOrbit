@@ -102,9 +102,9 @@ def map_candidates(bot, value, y=None):
         r = K.evaluate_map(m, value['dps'], value['ehp'], courage)
         if not r['hedefler']:
             continue
-        earnings = (r['saat_ep'] * (0.6 + o['hirs']) / 10.0 + r['saat_kredi'] * (0.5 + o['tutumluluk']) / 10.0
-                  + r['saat_uridyum'] * 25.0 + r['saat_onur'] * 5.0)
-        risk = r['olum_saat'] * (1.6 - o['risk']) * 0.35
+        earnings = (r['ep_per_hour'] * (0.6 + o['hirs']) / 10.0 + r['credits_per_hour'] * (0.5 + o['tutumluluk']) / 10.0
+                  + r['uridium_per_hour'] * 25.0 + r['honor_per_hour'] * 5.0)
+        risk = r['deaths_per_hour'] * (1.6 - o['risk']) * 0.35
         route = K.route(bot.game_map, m, firma, lv)
         if route is None:
             continue

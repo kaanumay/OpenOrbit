@@ -1,11 +1,11 @@
 """Arkadaşlarınla Oyna (panel): arkadaş sunucusu kurma (Host) ve arkadaşın sunucusuna katılma (Join).
 
-Host: panel oyun sunucusunu --cok-oyunculu ile başlatır (server/multiplayer.py): oyun (TCP 8081) ve sohbet (TCP 7771) bütün
+Host: panel oyun sunucusunu --multiplayer ile başlatır (server/multiplayer.py): oyun (TCP 8081) ve sohbet (TCP 7771) bütün
 ağlardan dinlenir, oyuncu kendi kaydıyla oyuna girer. Misafirler kayıtlarını oyun portundan gönderir; sunucu onları yalnız bellekte
 tutar (bu bilgisayarın Kayıtlar sayfasında görünmez). Bağlı misafirler oyun sunucusunun canli_durum.json'undan; misafiri çıkarma
-/yonetim/at ile (yalnız bu bilgisayardan, panelin bu açılıştaki yönetim anahtarıyla).
+/yonetim/kick ile (yalnız bu bilgisayardan, panelin bu açılıştaki yönetim anahtarıyla).
 Join: seçilen kayıt yedeklenir ve arkadaşın sunucusuna gönderilir (POST /misafir/giris), web.py o sunucuyu gösterecek biçimde
-(--uzak) başlar, istemci açılır. Oyun sürerken sunucudaki her yeni sürüm (uzun yoklama, GET /misafir/profil) kendi kayıt yuvasına
+(--remote) başlar, istemci açılır. Oyun sürerken sunucudaki her yeni sürüm (uzun yoklama, GET /misafir/profil) kendi kayıt yuvasına
 yazılır; istemci kapanınca (ya da Ayrıl) son hâl alınıp yazılır (POST /misafir/cikis) ve web sunucusu kapanır. Kayıt hep misafirin
 bilgisayarında kalır. Oturum yarım kalırsa (panel kapandı, elektrik gitti) yuvanın kayit.json'undaki 'arkadas' bilgisiyle bir
 sonraki katılmada sunucudaki son hâl alınır; yerel kayıt o arada değiştiyse (tek başına oynandı) dokunulmaz.
@@ -137,20 +137,20 @@ class Friend:
     @staticmethod
     def _empty():
         return {'durum': 'yok', 'adimlar': [], 'hata': None, 'adres': None, 'kayit': None, 'sunucu': None, 'oturum': None,
-                'uid': None, 'surum': 0, 'son_esitleme': None, 'baglanti': True, 'not': None, 'bitis': None}
+                'uid': None, 'surum': 0, 'last_sync': None, 'baglanti': True, 'not': None, 'bitis': None}
 
     # ------------------------------------------------------------ host
     def host_env(self):
-        """Oyun sunucusunun DO_COK_OYUNCULU ortam değişkeni (cok_oyunculu.configure)."""
+        """Oyun sunucusunun OO_MULTIPLAYER ortam değişkeni (cok_oyunculu.configure)."""
         return json.dumps({'sifre': self.cfg.get('arkadas_sifre'), 'en_cok': self.cfg.get('arkadas_en_cok'),
                            'anahtar': self.key, 'kod': self.code, 'yerel': self.local})
 
     def host_status(self, live):
         is_open = self.direction.running() and self.direction.friend
         friends = (live or {}).get('arkadas') or {}
-        return {'acik': is_open, 'ipler': local_ips(), 'genel_ip': self.general, 'oyun_portu': GAME_PORT, 'sohbet_portu': CHAT_PORT,
+        return {'acik': is_open, 'ips': local_ips(), 'public_ip': self.general, 'game_port': GAME_PORT, 'chat_port': CHAT_PORT,
                 'sifre': self.cfg.get('arkadas_sifre'), 'en_cok': self.cfg.get('arkadas_en_cok'),
-                'misafirler': friends.get('misafirler', []) if is_open else []}
+                'guests': friends.get('guests', []) if is_open else []}
 
     def find_public_ip(self):
         self.general = public_ip()
@@ -159,7 +159,7 @@ class Friend:
     def at(self, session):
         if not (self.direction.running() and self.direction.friend):
             raise FriendError(_('Arkadaş sunucusu açık değil.'))
-        code, out = request('127.0.0.1', GAME_PORT, 'POST', '/yonetim/at', {'anahtar': self.key, 'oturum': str(session or '')})
+        code, out = request('127.0.0.1', GAME_PORT, 'POST', '/yonetim/kick', {'anahtar': self.key, 'oturum': str(session or '')})
         if code != 200:
             raise FriendError(_('Misafir bulunamadı: çoktan ayrılmış olabilir.'))
         self.log('arkadaş sunucusu: misafir çıkarıldı (%s)' % str(session)[:8])
@@ -175,7 +175,7 @@ class Friend:
         with self.lock:
             m = dict(self.m)
         m.pop('anahtar', None)
-        m['son_adres'] = self.cfg.get('arkadas_son_adres')
+        m['last_address'] = self.cfg.get('arkadas_son_adres')
         return m
 
     def attempt(self, address):
@@ -184,7 +184,7 @@ class Friend:
         code, info = request(host, port, 'GET', '/misafir/bilgi', timeout=6)
         if code != 200 or info.get('sunucu') != 'darkorbit':
             raise FriendError(_('%s:%d bir DarkOrbit arkadaş sunucusu değil (ya da yanıt yarım kaldı).', host, port))
-        info.update(adres='%s:%d' % (host, port), uyumlu=info.get('protokol') == PROTOCOL)
+        info.update(adres='%s:%d' % (host, port), compatible=info.get('protokol') == PROTOCOL)
         return info
 
     def _step(self, text, state='calisiyor'):
@@ -211,7 +211,7 @@ class Friend:
             self._step(_('Arkadaşının sunucusu denetleniyor'))
             info = self.attempt('%s:%d' % (host, port))
             m['sunucu'] = info
-            if not info['uyumlu']:
+            if not info['compatible']:
                 raise FriendError(_('Arkadaşının paneli başka bir sürüm (hesap gönderimi %s, seninki %s): ikiniz de paneli güncelleyin.',
                                       info.get('protokol'), PROTOCOL))
             if info.get('istemci') and info['istemci'] != client_version:
@@ -223,7 +223,7 @@ class Friend:
             self.saves.backup(slot, 'oto', _('Arkadaşın sunucusuna katılmadan önce'))
             with open(self.saves.profile(slot), encoding='utf8') as fh:
                 d = json.load(fh)
-            m['asil_uid'] = d['pilot']['userId']
+            m['original_uid'] = d['pilot']['userId']
             self._step(_('Hesap gönderiliyor'))
             key = secrets.token_urlsafe(24)
             code, r = request(host, port, 'POST', '/misafir/giris', {'surum': PROTOCOL, 'sifre': password or '', 'anahtar': key,
@@ -235,7 +235,7 @@ class Friend:
             self.log('arkadaş sunucusuna katılındı: %s:%d (kayıt %s, sunucudaki kimlik %s)' % (host, port, slot, r['uid']))
             self._step(_('Web girişi hazırlanıyor'))
             self.direction.start_guest_web(self.saves.profile(slot), slot, [
-                '--uzak=%s:%d' % (host, port), '--sohbet=%s:%d' % (host, CHAT_PORT), '--oturum=%s' % r['oturum'], '--uid=%d' % r['uid']])
+                '--remote=%s:%d' % (host, port), '--chat=%s:%d' % (host, CHAT_PORT), '--session=%s' % r['oturum'], '--uid=%d' % r['uid']])
             threading.Thread(target=self._sync, args=(host, port, slot, r['oturum'], key), daemon=True).start()
             self._step(_('Oyun açılıyor'))
             open_client()
@@ -259,7 +259,7 @@ class Friend:
         """Yuvanın kayit.json'u: süren oturum (yarım kalırsa sonraki katılmada son hâl alınır) ve dosyanın son yazılan hâli."""
         m = self.m
         self.saves.set_meta(slot, arkadas={'adres': m['adres'], 'oturum': m['oturum'], 'anahtar': m['anahtar'], 'surum': m['surum'],
-                                         'uid': m['asil_uid'], 'dosya': m['dosya']})
+                                         'uid': m['original_uid'], 'dosya': m['dosya']})
 
     def _write(self, slot, d, version):
         """Sunucudaki yeni sürümü yuvaya yazar (eskisi ya da başka oyuncunun kaydıysa yazmaz)."""
@@ -268,7 +268,7 @@ class Friend:
             if version <= m['surum']:
                 return
             if not (isinstance(d, dict) and isinstance(d.get('pilot'), dict) and isinstance(d.get('gemi'), dict)
-                    and isinstance(d.get('konum'), dict)) or d['pilot'].get('userId') != m['asil_uid']:
+                    and isinstance(d.get('konum'), dict)) or d['pilot'].get('userId') != m['original_uid']:
                 self.log('arkadaş sunucusu: geçersiz kayıt sürümü %s yok sayıldı' % version)
                 return
             p = self.saves.profile(slot)
@@ -285,7 +285,7 @@ class Friend:
                     if k == 5:
                         raise
                     time.sleep(0.2)
-            m['surum'], m['son_esitleme'], m['dosya'] = version, time.time(), self._file(slot)
+            m['surum'], m['last_sync'], m['dosya'] = version, time.time(), self._file(slot)
             if m.get('oturum'):
                 self._mark(slot)
 
@@ -386,7 +386,7 @@ class Friend:
             d = r.get('profil')
             if code == 200 and d and int(r.get('surum') or 0) > int(a.get('surum') or 0) and self._file(slot) == a.get('dosya') \
                     and isinstance(d.get('pilot'), dict) and d['pilot'].get('userId') == a.get('uid'):
-                self.m.update(surum=int(a.get('surum') or 0), asil_uid=a.get('uid'))
+                self.m.update(surum=int(a.get('surum') or 0), original_uid=a.get('uid'))
                 self._write(slot, d, int(r['surum']))
                 self.log('yarım kalan arkadaş oturumunun son hâli kayda yazıldı (%s)' % slot)
         except (FriendError, OSError, ValueError, TypeError) as e:

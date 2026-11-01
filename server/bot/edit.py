@@ -1,7 +1,7 @@
 """Botun ayrıntısı ve düzenlenmesi (panelin Botlar > Kadro > bot penceresi): profil, hangar, kişilik, ruh hâli, hafıza, anılar.
 
 Aynı kod iki yerde çalışır: oyun kapalıyken panel paketin durum dosyasındaki sözlük üzerinde (panel/botlar.bot_duzenle), oyun
-açıkken oyun sunucusu canlı botun k sözlüğü üzerinde, y.lock altında (panel_kanali /bot/duzenle). Kişilik kadroda durur (yönetici
+açıkken oyun sunucusu canlı botun k sözlüğü üzerinde, y.lock altında (panel_kanali /bot/edit). Kişilik kadroda durur (yönetici
 her açılışta kadrodan okur): kd paketin kadro satırı. Her değer doğrulanır; geçersizse DuzenlemeHatasi (kod: panel kendi dilinde
 iletir).
 """
@@ -80,29 +80,29 @@ def appearance(k, roster_row, online=None):
     capacity = K.cargo_capacity(e)
     now = time.time()
     out.update(
-        profil={'seviye': lvl, 'ep': int(k.get('ep') or 0), 'sonraki_ep': next((n for lv, n in (PF._LEVELS or []) if lv == lvl + 1), None),
-                'taban_ep': next((n for lv, n in (PF._LEVELS or []) if lv == lvl), 0),
+        profil={'seviye': lvl, 'ep': int(k.get('ep') or 0), 'next_ep': next((n for lv, n in (PF._LEVELS or []) if lv == lvl + 1), None),
+                'base_ep': next((n for lv, n in (PF._LEVELS or []) if lv == lvl), 0),
                 'kredi': int(k.get('kredi') or 0), 'uridyum': int(k.get('uridyum') or 0), 'onur': int(k.get('onur') or 0),
                 'harita': k.get('harita'), 'harita_ad': H.name(k['harita']) if k.get('harita') else '', 'hedef': k.get('hedef'),
                 'niyet': (k.get('niyet') or {}).get('hedef'), 'klan': k.get('klan'), 'kayitli': k.get('kayitli', True),
                 'arkadaslar': list(k.get('arkadaslar') or [])},
         ruh={d: round(float((k.get('ruh') or {}).get(d, EMOTION_BASELINE[d])), 3) for d in EMOTION_BASELINE},
         ekip={'gemi': e.get('gemi'), 'cephane': e.get('cephane'), **{multiplier: dict(e.get(multiplier) or {}) for multiplier in CATEGORY}},
-        yuva={'lazer': gear['lazer_yuva'], 'jen': gear['jen_yuva'], 'ekstra': g.get('extra', 1), 'gemi_lazer': g['laser']},
+        yuva={'lazer': gear['laser_slots'], 'jen': gear['gen_slot'], 'ekstra': g.get('extra', 1), 'ship_laser': g['laser']},
         guc={'guc': round(stats.get('guc', 0), 1), 'dps': round(stats.get('dps', 0)), 'ehp': round(stats.get('ehp', 0))},
         stok={l: int(n) for l, n in (k.get('stok') or {}).items()},
         kargo={_short(kinds.get(str(t), 'ore_%s' % t)): int(n) for t, n in (k.get('kargo') or {}).items() if n},
         kargo_kapasite=capacity, gorev=quest, tamam=len(k.get('tamam') or ()), istat=dict(k.get('istat') or {}),
-        kapi_sureleri=dict(k.get('kapi_sureleri') or {}),
+        gate_times=dict(k.get('gate_times') or {}),
         uyari={x: v for x, v in (k.get('uyari') or {}).items() if x in ('sohbet', 'pvp', 'kutu') and v > time.time()},     # yönetici uyarısı
         skylab=dict((k.get('skylab') or {}).get('mod') or {}), formasyon=k.get('formasyon'),
-        iliskiler=sorted(({'anahtar': a, 'ad': v.get('ad', a), 'd': round(v.get('d', 0), 3), 'n': v.get('n', {})}
+        relations=sorted(({'anahtar': a, 'ad': v.get('ad', a), 'd': round(v.get('d', 0), 3), 'n': v.get('n', {})}
                           for a, v in (k.get('hafiza') or {}).items()), key=lambda x: -abs(x['d'])),
-        anilar=[{'id': _memory_id(a), 'kim': a['kim'], 'ozet': a['ozet'], 't': a['t'], 'n': a.get('n', 1), 'tur': a.get('tur'),
-                 'onem': a.get('onem'), 'takip': a.get('takip')} for a in sorted(k.get('anilar') or [], key=lambda a: -a['t'])],
+        memories=[{'id': _memory_id(a), 'kim': a['kim'], 'ozet': a['ozet'], 't': a['t'], 'n': a.get('n', 1), 'tur': a.get('tur'),
+                 'onem': a.get('onem'), 'takip': a.get('takip')} for a in sorted(k.get('memories') or [], key=lambda a: -a['t'])],
         izlenim=[{'anahtar': a, 'ad': v.get('ad', a), 'metin': v.get('metin', '')} for a, v in (k.get('izlenim') or {}).items()],
         defter=[x['metin'] for x in k.get('defter') or [] if not x.get('bitti')],
-        hatirlatici=[{'metin': x.get('metin'), 'kalan_sn': max(0, int(x.get('vade', now) - now))} for x in k.get('hatirlatici') or []],
+        hatirlatici=[{'metin': x.get('metin'), 'time_left_sec': max(0, int(x.get('due', now) - now))} for x in k.get('hatirlatici') or []],
         birikim=k.get('birikim'), ajan=list(k.get('ajan') or [])[-20:])
     return out
 
@@ -192,7 +192,7 @@ def apply(k, roster_row, value, online=False):
     for a in value.get('iliski_sil') or ():
         jobs.append(lambda a=a: mem.pop(a, None))
     if 'ani' in value or 'ani_sil' in value:
-        mems = k.setdefault('anilar', []) if k is not None else []
+        mems = k.setdefault('memories', []) if k is not None else []
         ids = {_memory_id(a): a for a in mems}
         for i, text in (value.get('ani') or {}).items():
             if i not in ids or not str(text).strip():
@@ -218,7 +218,7 @@ def apply(k, roster_row, value, online=False):
         jobs.append(lambda: k.__setitem__('birikim', None))
     if value.get('takip_iptal'):
         remove = set(value['takip_iptal'])
-        jobs.append(lambda remove=remove: [a['takip'].__setitem__('bitti', True) for a in k.get('anilar') or ()
+        jobs.append(lambda remove=remove: [a['takip'].__setitem__('bitti', True) for a in k.get('memories') or ()
                               if a.get('takip') and _memory_id(a) in remove])
     if value.get('ajan_sil'):
         jobs.append(lambda: k.__setitem__('ajan', []))

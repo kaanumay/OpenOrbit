@@ -1,4 +1,4 @@
-"""Canlı test kontrol kanalı: yalnız `game.py --kontrol` ile açılır (127.0.0.1:8099, satır başına bir JSON istek/yanıt).
+"""Canlı test kontrol kanalı: yalnız `game.py --control` ile açılır (127.0.0.1:8099, satır başına bir JSON istek/yanıt).
 
 Canlı denemede sunucuyu yönetmek ve istemcinin ne gönderdiğini görmek için (istemci tarafı araç: test/live.py):
 - iz:     oturumun gelen istekleri (<-) ve giden komutları (->) sıra numarasıyla; enjekte edilen istekler '<='.

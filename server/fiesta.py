@@ -142,7 +142,7 @@ class Fiesta:
         self.log('   Fiesta Gate %s: %d kupon' % (z['ad'], z['kupon']))
         msgs = self.m.resource_msgs(COUPON, self.p.resource(COUPON), -z['kupon'])
         if self.change_map:
-            self.change_map(z['harita'], {'etkinlik_kapisi': True, 'kapi': z['kapi'], 'varis': EKP.center(z['harita'])}, None)
+            self.change_map(z['harita'], {'event_gate': True, 'kapi': z['kapi'], 'varis': EKP.center(z['harita'])}, None)
         return msgs
 
     def on_finish(self, key):

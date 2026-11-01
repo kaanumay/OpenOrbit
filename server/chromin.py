@@ -84,16 +84,16 @@ class Chromin:
             msgs += self.m.money_msgs() + [legacy('0|LM|ST|CRE|%d|%d' % (cr, tot['kredi']))]
             RT.note(self.p, 'history_chromin_compensation', count=cr)    # istemci %AMOUNT%'a count'u koyuyor (canlı tur 2)
             self.log('   Chromin sınırı: %d fazlası %d krediye' % (extra, cr))
-        if have + got >= CAP and not self.st.get('tavan_uyarisi'):
+        if have + got >= CAP and not self.st.get('cap_warning'):
             with self.p.lock:
-                self.st['tavan_uyarisi'] = True
+                self.st['cap_warning'] = True
                 self.p.dirty = True
             msgs.append(legacy('0|A|STM|msg_event_chromin_max_quantity_reached'))
         return msgs + [self.update_cmd()]
 
     def on_kill(self, w, npc, x, y):
         """Galaksi Kapısı uzaylısı öldü (dünya kilidi altında): etkinlik sürerken Chromin kutusu."""
-        if not active() or int(w.map_id) not in KAPI.BY_MAP or npc.d.get('sayilmaz'):
+        if not active() or int(w.map_id) not in KAPI.BY_MAP or npc.d.get('uncounted'):
             return []
         b = box_for(npc, KAPI.BY_MAP[int(w.map_id)])
         if not b or random.random() >= SET.chance('dusme', D.get('olasilik', 1.0), 'etkinlik'):

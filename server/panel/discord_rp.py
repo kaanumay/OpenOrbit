@@ -60,7 +60,7 @@ def event(live, setting, _, state):
             status = _('Gemisi parçalandı')
         elif gate:
             status = ' · '.join(str(x) for x in (gate.get('ad'), gate.get('dalga')) if x)
-        elif world_info.get('savasta'):
+        elif world_info.get('in_combat'):
             status = _('Savaşta: %s', world_info['hedef']) if world_info.get('hedef') else _('Savaşta')
         elif world_info.get('guvenli'):
             status = _('Güvenli bölgede')
@@ -74,11 +74,11 @@ def event(live, setting, _, state):
                         'large_text': (_('%s haritası', location['harita']) if a('harita') and location.get('harita') else 'OpenOrbit')}}
         if a('firma') and firma:
             e['assets'].update(small_image=BADGE % firma, small_text=firma.upper())
-        if a('sure') and live.get('oturum_bas'):
-            e['timestamps'] = {'start': int(live['oturum_bas'])}
+        if a('sure') and live.get('session_start'):
+            e['timestamps'] = {'start': int(live['session_start'])}
         friends = live.get('arkadas')
-        if a('grup') and friends and friends.get('misafirler'):
-            e['party'] = {'id': 'openorbit-%s' % (pl.get('ad') or 'host'), 'size': [len(friends['misafirler']) + 1, friends['en_cok'] + 1]}
+        if a('grup') and friends and friends.get('guests'):
+            e['party'] = {'id': 'openorbit-%s' % (pl.get('ad') or 'host'), 'size': [len(friends['guests']) + 1, friends['en_cok'] + 1]}
     e.update(details_url=GITHUB, state_url=GITHUB)       # kartın yazıları ve görselleri tıklanınca GitHub sayfası
     e['assets'].update({k + '_url': GITHUB for k in ('large', 'small') if k + '_image' in e['assets']})
     if a('butonlar'):

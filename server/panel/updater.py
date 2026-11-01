@@ -9,7 +9,7 @@ Kurulum biçimi kendiliğinden seçilir:
 Kullanıcı verisine hiç dokunulmaz (korunan(): save/, logs/, kişisel giriş şablonları, istemci klasörü, protokol sürümleri, resmî
 CDN'den inen oyun görselleri, .git).
 Değişen ve kaldırılan dosyaların eski hâli save/guncelleme/yedek_<eski sürüm>/'e taşınır (son YEDEK_SAYISI yedek). Kurulumdan sonra
-paneli yeniden başlatmak panelin işi (panel.py). Özel depo için (geliştirici) DO_GITHUB_TOKEN ortam değişkeni; belirteç yalnız
+paneli yeniden başlatmak panelin işi (panel.py). Özel depo için (geliştirici) OO_GITHUB_TOKEN ortam değişkeni; belirteç yalnız
 api.github.com'a gönderilir.
 """
 import io, json, os, re, shutil, subprocess, threading, time, zipfile
@@ -65,7 +65,7 @@ class Updater:
         self.dir = os.path.join(save_dir, 'guncelleme')
         self.state_path = os.path.join(save_dir, 'guncelleme.json')
         self.lock = threading.Lock()
-        self.d = {'durum': 'bilinmiyor', 'calisiyor': False, 'son': None, 'denetim': None, 'hata': None, 'alinan': 0, 'toplam': 0,
+        self.d = {'durum': 'bilinmiyor', 'calisiyor': False, 'son': None, 'last_check': None, 'hata': None, 'alinan': 0, 'toplam': 0,
                   'degisen': 0, 'kaldirilan': 0, 'yedek': None, 'kuruldu': None}
         self._inst = (0.0, None)                                 # kurulu sürümün önbelleği (git her yoklamada çalışmasın)
 
@@ -109,7 +109,7 @@ class Updater:
             sha, date = parse_version(out)
             return {'surum': sha, 'tarih': date, 'bicim': 'git'}
         txt, st = self._version_text(), self._saved()
-        if st.get('surum') and st.get('surum_txt') == txt:          # son güncellemeyi bu modül kurdu
+        if st.get('surum') and st.get('version_txt') == txt:          # son güncellemeyi bu modül kurdu
             return {'surum': st['surum'], 'tarih': st.get('tarih'), 'bicim': 'zip'}
         sha, date = parse_version(txt)                             # elle indirilen arşiv
         if sha:
@@ -134,7 +134,7 @@ class Updater:
     # ------------------------------------------------------------ GitHub
     def _request(self, url, accept='application/vnd.github+json'):
         req = Request(url, headers={'Accept': accept, 'User-Agent': 'OpenOrbit', 'X-GitHub-Api-Version': '2022-11-28'})
-        tok = os.environ.get('DO_GITHUB_TOKEN')
+        tok = os.environ.get('OO_GITHUB_TOKEN')
         if tok and url.startswith(API + '/'):
             req.add_unredirected_header('Authorization', 'Bearer ' + tok)    # yönlendirmede (codeload) gönderilmez
         try:
@@ -233,7 +233,7 @@ class Updater:
             self._set(durum='hata', hata=str(e))
             self.log('güncelleme denetimi: %s' % e)
         finally:
-            self._set(calisiyor=False, denetim=time.time())
+            self._set(calisiyor=False, last_check=time.time())
         return self.state()
 
     # ------------------------------------------------------------ kurulum
@@ -319,8 +319,8 @@ class Updater:
             raise UpdateError(_('Arşiv bu projenin değil.'))
         old = None
         st = self._saved()
-        if before['surum'] and st.get('surum') == before['surum'] and isinstance(st.get('dosyalar'), list):
-            old = set(st['dosyalar'])
+        if before['surum'] and st.get('surum') == before['surum'] and isinstance(st.get('files'), list):
+            old = set(st['files'])
         elif before['surum']:
             old = self.tree(before['surum'])
         backup = os.path.join(self.dir, 'yedek_%s_%s' % ((before['surum'] or 'bilinmiyor')[:7], time.strftime('%Y%m%d_%H%M%S')))
@@ -359,8 +359,8 @@ class Updater:
                 os.rmdir(d)
                 d = os.path.dirname(d)
         self._set(degisen=changed, kaldirilan=removed, yedek=backup if os.path.isdir(backup) else None)
-        self._save({'surum': last['surum'], 'tarih': last.get('tarih'), 'mesaj': last.get('mesaj'), 'surum_txt': self._version_text(),
-                    'dosyalar': sorted(files), 'onceki': before['surum'], 'kurulum': time.strftime('%Y-%m-%d %H:%M:%S')})
+        self._save({'surum': last['surum'], 'tarih': last.get('tarih'), 'mesaj': last.get('mesaj'), 'version_txt': self._version_text(),
+                    'files': sorted(files), 'onceki': before['surum'], 'kurulum': time.strftime('%Y-%m-%d %H:%M:%S')})
         self._prune()
 
     def _prune(self):

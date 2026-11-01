@@ -1,10 +1,10 @@
 """Yerel web sunucusu: DarkOrbit Unity istemcisinin web girişini taklit eder (links.php, login.php, maps.php).
 
-Kullanım: python -I web.py <log_klasörü> [--profil=<yol>]   (--profil: kayıt yuvasının profili; panel ve canlı testler verir;
+Kullanım: python -I web.py <log_klasörü> [--profile=<yol>]   (--profile: kayıt yuvasının profili; panel ve canlı testler verir;
 game.py ile aynı olmalı. Verilmezse etkin yuvanınki, paths.py)
 HTTP: 8090 (gömülü tarayıcı), 80 (unityApi). Bilinmeyen her isteği kaydeder.
-Arkadaş sunucusunun misafiri (panelin "Arkadaşlarınla Oyna"sı, panel/friends.py): --uzak=<adres:8081> --sohbet=<adres:7771>
---oturum=<anahtar> --uid=<kimlik> ile istemci oyuna ve sohbete arkadaşın sunucusunda girer (oturum anahtarı profili orada bulur;
+Arkadaş sunucusunun misafiri (panelin "Arkadaşlarınla Oyna"sı, panel/friends.py): --remote=<adres:8081> --chat=<adres:7771>
+--session=<anahtar> --uid=<kimlik> ile istemci oyuna ve sohbete arkadaşın sunucusunda girer (oturum anahtarı profili orada bulur;
 kimlik sunucunun verdiği). --adres: dinlenen yerel adres (öntanımlı 127.0.0.1). macOS'ta 80 ve 843 0.0.0.0'da açılır, yalnız bu
 bilgisayardan gelen bağlantılar kabul edilir (platform_compat.py: macOS root olmayana 1024'ten küçük portu 127.0.0.1'de açmıyor).
 Çoklu istemci (panel/multi_client.py): ek istemci http://127.0.0.1:8090/?oturum=<anahtar>#darkorbit:// ile açılır; anahtar oyun sunucusuna
@@ -29,12 +29,12 @@ def arg(name, default=None):
     return next((a.split('=', 1)[1] for a in sys.argv if a.startswith('--%s=' % name)), default)
 
 
-PROFILE_PATH = arg('profil')
+PROFILE_PATH = arg('profile')
 os.makedirs(log_dir, exist_ok=True)
 lock = threading.Lock()
-SESSION = arg('oturum', 'localtest')
+SESSION = arg('session', 'localtest')
 BASE_URL = arg('adres', '127.0.0.1')
-CHAT_HOST = arg('sohbet', '127.0.0.1:7771')
+CHAT_HOST = arg('chat', '127.0.0.1:7771')
 UID = arg('uid')
 
 
@@ -231,7 +231,7 @@ def login(sid=None):
     return dict(n, success=1, message='', data=json.dumps(n), loginData=json.dumps(n))
 
 
-GAME_SERVER = arg('uzak', '127.0.0.1:8081')
+GAME_SERVER = arg('remote', '127.0.0.1:8081')
 _MAP_IDS = None
 
 
@@ -264,7 +264,7 @@ def chance_class(p):
 
 def gate_rewards_xml():
     from xml.sax.saxutils import quoteattr
-    import game_data as DATA          # seçili dünyanın kapıları (DO_DUNYA)
+    import game_data as DATA          # seçili dünyanın kapıları (OO_WORLD)
     try:
         gates = DATA.load('gates.json')['kapilar']
     except (OSError, ValueError, KeyError):

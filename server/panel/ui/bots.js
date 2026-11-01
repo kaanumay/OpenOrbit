@@ -79,31 +79,31 @@ function btOpen(pid, tab) { BT.pid = pid; BT.sekme = tab || 'genel'; renderBots(
 
 function btCompanyBar(f) {
   const top = f.reduce((a, b) => a + b, 0) || 1;
-  return h('div', { class: 'bt-firmalar', title: btCompany.map((x, i) => x + ' ' + f[i]).join(' · ') },
+  return h('div', { class: 'bt-companies', title: btCompany.map((x, i) => x + ' ' + f[i]).join(' · ') },
     f.map((n, i) => h('i', { class: btCompany[i].toLowerCase(), style: { width: (100 * n / top) + '%' } })));
 }
 
 // ================================================================== KİTAPLIK
 function btLibrary() {
   const r = BT.liste;
-  const card = p => h('div', { class: 'bt-kart', onclick: e => { if (!e.target.closest('button')) btOpen(p.id); } },
-    h('div', { class: 'bt-kart-ust k-' + p.kip }, btArt('bot_kip_' + p.kip, 'dron_editor', 'bt-kart-art'),
+  const card = p => h('div', { class: 'bt-card', onclick: e => { if (!e.target.closest('button')) btOpen(p.id); } },
+    h('div', { class: 'bt-card-top k-' + p.kip }, btArt('bot_kip_' + p.kip, 'dron_editor', 'bt-card-art'),
       h('div', null, h('b', null, p.ad), h('div', { class: 'small muted' }, T(BT_MODES[p.kip].ad) + ' · ' + T('{0} bot', p.adet)))),
-    h('div', { class: 'bt-kart-govde' },
+    h('div', { class: 'bt-card-body' },
       h('div', { class: 'row wrap', style: { gap: '6px' } }, p.dunya ? badge([icon('globe'), btWorldName(p.dunya)], 'info') : badge(T('Dünyaya atanmadı'), 'warn'),
         p.kip !== 'basit' ? badge(p.gelisim === 'jumpstart' ? 'Jumpstart' : 'Progressive', '') : null),
       btCompanyBar(p.firmalar),
-      h('div', { class: 'small muted' }, p.seviye_ort != null ? T('Ortalama seviye {0} · en yüksek {1}', p.seviye_ort, p.seviye_enb)
+      h('div', { class: 'small muted' }, p.level_avg != null ? T('Ortalama seviye {0} · en yüksek {1}', p.level_avg, p.level_max)
         : T('Henüz oynanmadı: botlar ilk girişte başlar.')),
       p.aciklama ? h('div', { class: 'small ellipsis' }, p.aciklama) : null),
-    h('div', { class: 'bt-kart-alt' }, btn(T('Aç'), () => btOpen(p.id), 'sm primary', 'edit'),
+    h('div', { class: 'bt-card-bottom' }, btn(T('Aç'), () => btOpen(p.id), 'sm primary', 'edit'),
       btn('', ev => btPackMenu(ev.currentTarget, p), 'sm ghost icon', 'more', { title: T('Diğer') })));
   btFill($('#content'), h('div', { class: 'stack' },
-    h('div', { class: 'card bt-giris' }, btArt('bot_giris', 'dron_hosgeldin', 'bt-giris-art'),
+    h('div', { class: 'card bt-intro' }, btArt('bot_giris', 'dron_hosgeldin', 'bt-intro-art'),
       h('div', null, h('h2', null, icon('bot'), T('Botlar')),
         h('p', { class: 'desc' }, T('Bot paketi oluştur, bir dünyaya ata: o dünyada oynarken botlar gerçek oyuncular gibi haritalarda olur. Kadro bir kez üretilir; her girişte aynı botlarla karşılaşırsın, onlar da sen yokken bile ilerler.')),
         h('div', { class: 'row wrap' }, btn(T('Yeni bot paketi'), () => btWizard(), 'primary', 'plus')))),
-    h('div', { class: 'bt-izgara' }, r.liste.map(card), h('button', { class: 'bt-kart yeni', onclick: () => btWizard() }, icon('plus'), h('span', null, T('Yeni bot paketi'))))));
+    h('div', { class: 'bt-grid' }, r.liste.map(card), h('button', { class: 'bt-card yeni', onclick: () => btWizard() }, icon('plus'), h('span', null, T('Yeni bot paketi'))))));
 }
 
 function btPackMenu(anchor, p) {
@@ -112,7 +112,7 @@ function btPackMenu(anchor, p) {
     { label: T('Dünyaya ata'), ic: 'globe', fn: () => btAssignMenu(anchor, p) },
     { label: T('Yeniden adlandır'), ic: 'edit', fn: async () => {
       const name = await promptBox(T('Yeniden adlandır'), T('Paketin adı'), p.ad); if (name == null) return;
-      if (await act(() => api('/api/bot/guncelle', { id: p.id, name }), T('Kaydedildi.'))) renderBots(); } },
+      if (await act(() => api('/api/bot/update', { id: p.id, name }), T('Kaydedildi.'))) renderBots(); } },
     '-',
     { label: T('Sil'), ic: 'trash', danger: true, fn: async () => {
       if (!await confirmBox(T('"{0}" silinsin mi?', p.ad), T('Paket ve botların ilerlemesi silinir (save/botlar/_silinenler klasöründe saklanır).'), { ok: T('Sil'), danger: true })) return;
@@ -129,7 +129,7 @@ function btAssignMenu(anchor, p) {
 async function btAssign(p, did) {
   const old = did && BT.liste.liste.find(x => x.dunya === did && x.id !== p.id);
   if (old && !await confirmBox(T('Dünyanın paketi değişsin mi?'), T('"{0}" dünyasında şu an "{1}" paketi var; o paket boşa çıkar.', btWorldName(did), old.ad))) return;
-  const x = await act(() => api('/api/bot/ata', { id: p.id, dunya: did }), did ? T('"{0}" artık "{1}" dünyasında.', p.ad, btWorldName(did)) : T('Atama kaldırıldı.'));
+  const x = await act(() => api('/api/bot/assign', { id: p.id, dunya: did }), did ? T('"{0}" artık "{1}" dünyasında.', p.ad, btWorldName(did)) : T('Atama kaldırıldı.'));
   if (x) { BT.liste = x; renderBots(); }
 }
 
@@ -145,7 +145,7 @@ function btWizard() {
   const m = modal({ title: T('Yeni bot paketi'), wide: true, body: body, foot: footer });
   const steps = [T('Ad ve dünya'), T('Kip'), T('Ayarlar')];
   function render() {
-    const parent = h('div', { class: 'bt-adimlar' }, steps.map((a, i) => h('span', { class: i === step ? 'on' : i < step ? 'tamam' : '' }, h('b', null, i + 1), a)));
+    const parent = h('div', { class: 'bt-steps' }, steps.map((a, i) => h('span', { class: i === step ? 'on' : i < step ? 'tamam' : '' }, h('b', null, i + 1), a)));
     btFill(body, parent, [btStep1, btStep2, btStep3][step](w, render));
     btFill(footer, btn(T('Vazgeç'), () => m.close(), 'ghost'), h('span', { class: 'spacer' }),
       step ? btn(T('Geri'), () => { step--; render(); }, 'ghost', 'arrowL') : null,
@@ -153,7 +153,7 @@ function btWizard() {
         if (step === 0 && !w.ad.trim()) return toast(T('Bot paketine bir ad ver.'), 'err');
         step++; render();
       }, 'primary') : btn(T('Oluştur'), async () => {
-        const x = await act(() => api('/api/bot/olustur', w), T('Bot paketi oluşturuldu: {0}', w.ad.trim()));
+        const x = await act(() => api('/api/bot/create', w), T('Bot paketi oluşturuldu: {0}', w.ad.trim()));
         if (!x) return;
         m.close(); BT.liste = x; btOpen(x.yeni, w.kip === 'gelismis' ? 'gelismis' : 'kadro');
       }, 'primary', 'check'));
@@ -175,9 +175,9 @@ function btStep1(w) {
 }
 
 function btStep2(w, render) {
-  const card = k => h('button', { type: 'button', class: 'bt-kip' + (w.kip === k ? ' on' : ''), onclick: () => { w.kip = k; render(); } },
-    btArt('bot_kip_' + k, 'dron_editor', 'bt-kip-art'), h('b', null, icon(BT_MODES[k].ic), T(BT_MODES[k].ad)), h('div', { class: 'small' }, T(BT_MODES[k].ozet)));
-  return h('div', { class: 'stack', style: { gap: '12px' } }, h('div', { class: 'bt-kipler' }, ['basit', 'normal', 'gelismis'].map(card)),
+  const card = k => h('button', { type: 'button', class: 'bt-mode' + (w.kip === k ? ' on' : ''), onclick: () => { w.kip = k; render(); } },
+    btArt('bot_kip_' + k, 'dron_editor', 'bt-mode-art'), h('b', null, icon(BT_MODES[k].ic), T(BT_MODES[k].ad)), h('div', { class: 'small' }, T(BT_MODES[k].ozet)));
+  return h('div', { class: 'stack', style: { gap: '12px' } }, h('div', { class: 'bt-modes' }, ['basit', 'normal', 'gelismis'].map(card)),
     w.kip === 'gelismis' ? btLlmWarning(true) : null);
 }
 
@@ -195,7 +195,7 @@ function btNumber(value, onchange, { min = 0, max = 999, step = 1, cls = 'num' }
     let v = Number(e.target.value); if (!isFinite(v)) v = min; v = Math.max(min, Math.min(max, v)); e.target.value = v; onchange(v); } });
 }
 function btSlider(value, onchange, { min, max, step, fmt = v => v }) {
-  const tag = h('span', { class: 'bt-deger' }, fmt(value));
+  const tag = h('span', { class: 'bt-value' }, fmt(value));
   // dolgu (panel.css: --p) değerle birlikte: parıltı tutamağı izler
   const paint = el => el.style.setProperty('--p', (100 * (Number(el.value) - min) / ((max - min) || 1)) + '%');
   const r = h('input', { type: 'range', min, max, step, value: value, class: 'bt-range',
@@ -214,7 +214,7 @@ function btSeg(options, value, onchange) {
 const BT_LANGS = [['tr', 'Türkçe'], ['en', 'English'], ['de', 'Deutsch'], ['es', 'Español'], ['fr', 'Français'], ['pl', 'Polski'],
   ['pt', 'Português'], ['ru', 'Русский']];
 function btPickLang(value, onchange, mixedName, locked) {
-  return h('select', { class: 'input bt-dil', disabled: !!locked, onchange: e => onchange(e.target.value) },
+  return h('select', { class: 'input bt-lang', disabled: !!locked, onchange: e => onchange(e.target.value) },
     [['karisik', mixedName]].concat(BT_LANGS).map(([v, name]) => h('option', { value: v, selected: v === value }, name)));
 }
 // adların kaynağı (panel/botlar.AD_KAYNAKLARI): üretici gerçek sunucuların üslubuyla ya da dostats.info'daki gerçek oyuncular
@@ -224,12 +224,12 @@ function btNameSource(value, onchange) {
     [['uretim', T('Üretilen')], ['dostats', T('DOStats (gerçek oyuncular)')]].map(([v, name]) => h('option', { value: v, selected: v === value }, name)));
 }
 // dahili dil modeli yalnız İngilizce; başka bir sağlayıcı seçiliyse Gelişmiş kipte de dil serbest (bot/llm_provider.py)
-const btLangLocked = mode => mode === 'gelismis' && !BT.liste?.llm_cok_dilli;
+const btLangLocked = mode => mode === 'gelismis' && !BT.liste?.llm_multilingual;
 function btChatLang(mode, value, onchange) {
   return btLangLocked(mode) ? btPickLang('en', () => {}, T('Her bot adının dilinde'), true) : btPickLang(value, onchange, T('Her bot adının dilinde'));
 }
 function btDistribution(f, onchange) {
-  return h('div', { class: 'row bt-dagilim', style: { gap: '8px' } }, btCompany.map((x, i) => h('label', { class: 'row', style: { gap: '4px' } },
+  return h('div', { class: 'row bt-distribution', style: { gap: '8px' } }, btCompany.map((x, i) => h('label', { class: 'row', style: { gap: '4px' } },
     badge(x, x.toLowerCase()), btNumber(f[i], v => { f[i] = v; onchange(f); }, { min: 0, max: 100 }))));
 }
 
@@ -257,7 +257,7 @@ function btStep3(w, render) {
 // kullanıcının kendi botları (panel/botlar.ozel_cozumle): satır başına "ad, firma, davranış, dil"; ad dışındakiler isteğe bağlı
 function btCustomField(value, onchange) {
   return h('div', { class: 'stack', style: { gap: '6px' } },
-    h('textarea', { class: 'input bt-ozel', rows: 5, spellcheck: false, placeholder: 'Kaan\nStarHunter, VRU\nOldMiner, MMO, kasici, tr\nRedBaron, EIC, avci', oninput: e => onchange(e.target.value) }, value || ''),
+    h('textarea', { class: 'input bt-custom', rows: 5, spellcheck: false, placeholder: 'Kaan\nStarHunter, VRU\nOldMiner, MMO, kasici, tr\nRedBaron, EIC, avci', oninput: e => onchange(e.target.value) }, value || ''),
     h('div', { class: 'small muted' }, T('Satır başına bir bot: ad, sonra isteğe bağlı firma (MMO, EIC, VRU), davranış ({0}) ve sohbet dili ({1}). Verilmeyenler ve kalan botlar her zamanki gibi üretilir.',
       Object.keys(BT_ARCHETYPE).join(', '), BT_LANGS.map(d => d[0]).join(', '))));
 }
@@ -265,7 +265,7 @@ function btCustomField(value, onchange) {
 function btSimpleSettings(a, render, wizard = false, save = null) {
   const top = () => Object.entries(a.basit_haritalar).reduce((s, [k, v]) => s + v * (k === '4-X' ? 4 : ['4-5'].includes(k) ? 1 : 3), 0);
   const total = h('b', null, top());
-  const parent = h('div', { class: 'bt-siniflar' }, (BT.liste?.siniflar || Object.keys(a.basit_haritalar)).map(s => h('label', { class: 'bt-sinif' },
+  const parent = h('div', { class: 'bt-classes' }, (BT.liste?.classes || Object.keys(a.basit_haritalar)).map(s => h('label', { class: 'bt-class' },
     h('span', null, BT_CLASS_NAME(s)), btNumber(a.basit_haritalar[s] ?? 0, v => { a.basit_haritalar[s] = v; total.textContent = top(); save && save(); }, { min: 0, max: 20 }))));
   return h('div', { class: 'stack', style: { gap: '14px' } },
     field(T('Harita başına bot'), parent, h('div', { class: 'small muted' }, T('Firma haritalarında her firmanın haritasına ayrı ayrı (X-3 = 1-3, 2-3, 3-3), ortak haritalara (4-1…4-5) bir kez. Toplam: '), total)),
@@ -289,26 +289,26 @@ async function btEditor() {
     && (d.kip !== 'basit' || !['davranis', 'sohbet'].includes(k)));
   if (!tabs.some(([k]) => k === BT.sekme)) BT.sekme = 'genel';
   btFill($('#content'), h('div', { class: 'stack' },
-    h('div', { class: 'card bt-cubuk' }, btn('', () => { BT.pid = null; renderBots(); }, 'ghost icon', 'arrowL', { title: T('Bot paketleri') }),
-      btArt('bot_kip_' + d.kip, 'dron_editor', 'bt-cubuk-art'),
-      h('div', { class: 'bt-cubuk-ad' }, h('div', { class: 'row', style: { gap: '8px' } }, h('b', null, d.ad), badge(T(BT_MODES[d.kip].ad), 'orange'),
+    h('div', { class: 'card bt-bar' }, btn('', () => { BT.pid = null; renderBots(); }, 'ghost icon', 'arrowL', { title: T('Bot paketleri') }),
+      btArt('bot_kip_' + d.kip, 'dron_editor', 'bt-bar-art'),
+      h('div', { class: 'bt-bar-name' }, h('div', { class: 'row', style: { gap: '8px' } }, h('b', null, d.ad), badge(T(BT_MODES[d.kip].ad), 'orange'),
         d.dunya ? badge([icon('globe'), btWorldName(d.dunya)], 'info') : badge(T('Dünyaya atanmadı'), 'warn')),
-        h('div', { class: 'muted small ellipsis' }, T('{0} bot', d.adet) + (d.seviye_ort != null ? ' · ' + T('ortalama seviye {0}', d.seviye_ort) : ''))),
-      h('span', { class: 'spacer' }), h('span', { class: 'de-kayit', id: 'bt-kayit' }),
+        h('div', { class: 'muted small ellipsis' }, T('{0} bot', d.adet) + (d.level_avg != null ? ' · ' + T('ortalama seviye {0}', d.level_avg) : ''))),
+      h('span', { class: 'spacer' }), h('span', { class: 'we-save-status', id: 'bt-kayit' }),
       btn(T('Dünyaya ata'), ev => btAssignMenu(ev.currentTarget, d), 'sm', 'globe'),
       btn('', ev => btPackMenu(ev.currentTarget, d), 'sm ghost icon', 'more', { title: T('Diğer') })),
     d.server_in_pack ? h('div', { class: 'alert ' + (d.restart_needed ? 'uyari' : 'bilgi') }, icon(d.restart_needed ? 'alert' : 'info'),
       h('div', null, d.restart_needed ? T('Paket oyun açıldıktan sonra değişti: değişiklikler sunucu yeniden başlayınca geçerli olur.')
         : T('Bu paket şu an oyunda çalışıyor. Kadro listesi sunucunun dakikalık kaydından.')),
-      d.restart_needed ? btn(T('Sunucuyu yeniden başlat'), () => act(() => api('/api/bot/sunucu_yeniden', {}), T('Sunucu yeniden başlatılıyor.')).then(() => setTimeout(btEditor, 1500)), 'sm orange', 'refresh') : null) : null,
-    h('div', { class: 'seg bt-sekmeler' }, tabs.map(([k, name, iconEl]) => h('button', { type: 'button', class: BT.sekme === k ? 'on' : '',
+      d.restart_needed ? btn(T('Sunucuyu yeniden başlat'), () => act(() => api('/api/bot/server_restart', {}), T('Sunucu yeniden başlatılıyor.')).then(() => setTimeout(btEditor, 1500)), 'sm orange', 'refresh') : null) : null,
+    h('div', { class: 'seg bt-tabs' }, tabs.map(([k, name, iconEl]) => h('button', { type: 'button', class: BT.sekme === k ? 'on' : '',
       onclick: () => { BT.sekme = k; btEditor(); } }, icon(iconEl), T(name)))),
     h('div', { id: 'bt-alan' }, ({ genel: btGeneral, kadro: btRoster, davranis: btBehavior, erisim: btAccess, sohbet: btChat, klanlar: btClans, basit: btSimple, gelismis: btAdvanced })[BT.sekme](d))));
 }
 
 function btSaveStatus(state) {
   const el = $('#bt-kayit'); if (!el) return;
-  el.className = 'de-kayit ' + state;
+  el.className = 'we-save-status ' + state;
   btFill(el, ...(state === 'kaydediliyor' ? [h('span', { class: 'spin' }), T('Kaydediliyor…')] : state === 'kaydedildi' ? [icon('check'), T('Kaydedildi')] : []));
 }
 // değişiklik: 450 ms bekleyip tek istekte (ayarlar birleştirilir)
@@ -321,7 +321,7 @@ function btPatch(fields) {
   clearTimeout(BT.timer);
   BT.timer = setTimeout(async () => {
     const body = Object.assign({ id: BT.pid }, BT.bekleyen); BT.bekleyen = {};
-    const x = await act(() => api('/api/bot/guncelle', body));
+    const x = await act(() => api('/api/bot/update', body));
     if (!x) return btSaveStatus('');
     const mode = BT.d.kip;
     BT.d = x; btSaveStatus('kaydedildi');
@@ -422,26 +422,26 @@ const BT_SORT_TEXT = ['ad', 'gemi', 'harita', 'hedef', 'arketip', 'firma'];
 const BT_SORT_NUMBER = new Set(['seviye', 'rutbe', 'npc', 'oyuncu', 'olum', 'ep', 'onur', 'kredi', 'uridyum', 'kapi']);
 const BT_CURRENCY = { ep: 'deneyim', onur: 'onur', kredi: 'kredi', uridyum: 'uridyum' };
 const btShipName = l => String(l || '').replace('ship_', '').replace(/^\w/, c => c.toUpperCase());
-const btRank = (r, size) => GI.index?.sprite['rank' + r] ? h('span', { class: 'bt-rutbe', title: T('Rütbe {0}', r) }, sprite('rank' + r, size)) : h('span', null, r);
+const btRank = (r, size) => GI.index?.sprite['rank' + r] ? h('span', { class: 'bt-rank', title: T('Rütbe {0}', r) }, sprite('rank' + r, size)) : h('span', null, r);
 function btRosterTable(roster) {
   const s = BT.rosterFilter = BT.rosterFilter || { ara: '', firma: 0, arketip: '', ozel: false, sira: 'no', ters: false };
-  const table = h('table', { class: 'table bt-kadro' }), counter = h('span', { class: 'bt-sayac' });
+  const table = h('table', { class: 'table bt-roster' }), counter = h('span', { class: 'bt-counter' });
   const value = (b, k) => BT_SORT_VALUE[k] ? BT_SORT_VALUE[k](b) : k === 'no' ? b.no : b[k] ?? '';
   const highlight = () => BT_SORT_EXTRA.find(([k]) => k === s.sira && BT_SORT_NUMBER.has(k));       // sıralanan değerin kendi sütunu yok
   const sortBy = k => { if (s.sira === k) s.ters = !s.ters; else { s.sira = k; s.ters = !BT_SORT_TEXT.includes(k); } render(); };
   const cell = (b, k) => {
     const f = btCompany[b.firma - 1], n = value(b, k);
     if (k === 'ad') return h('div', { class: 'bt-pilot' },
-      h('div', { class: 'bt-pilot-ad' }, h('a', { href: '#', class: 'bt-ad', onclick: e => e.preventDefault() }, b.ad),
-        b.ozel ? h('span', { class: 'badge info bt-ozel-rozet', title: T('Kendi eklediğin bot') }, T('Özel')) : null),
-      h('div', { class: 'bt-pilot-alt' }, h('span', { class: 'bt-firma-et' }, f), T(BT_ARCHETYPE[b.arketip] || b.arketip),
+      h('div', { class: 'bt-pilot-name' }, h('a', { href: '#', class: 'bt-name', onclick: e => e.preventDefault() }, b.ad),
+        b.ozel ? h('span', { class: 'badge info bt-custom-badge', title: T('Kendi eklediğin bot') }, T('Özel')) : null),
+      h('div', { class: 'bt-pilot-sub' }, h('span', { class: 'bt-company-label' }, f), T(BT_ARCHETYPE[b.arketip] || b.arketip),
         h('span', { class: 'dim' }, btTraitSummary(b.ozellik))));
-    if (k === 'seviye') return h('b', { class: 'bt-sv' }, n);
+    if (k === 'seviye') return h('b', { class: 'bt-lv' }, n);
     if (k === 'rutbe') return btRank(n || 1, 22);
-    if (k === 'gemi') return h('div', { class: 'bt-gemi' }, shipImage(b.gemi, 30, f.toLowerCase()), h('span', null, n));
+    if (k === 'gemi') return h('div', { class: 'bt-ship' }, shipImage(b.gemi, 30, f.toLowerCase()), h('span', null, n));
     if (k === 'harita') return n || h('span', { class: 'dim' }, '—');
-    if (k === 'hedef') return [b.hedef ? h('span', { class: 'bt-is' }, T(BT_TARGET[b.hedef] || b.hedef)) : h('span', { class: 'dim' }, '—'), btAgentTrace(b)];
-    if (BT_CURRENCY[k]) return h('span', { class: 'bt-kaynak' }, art('kaynak_' + BT_CURRENCY[k], 'bt-kaynak-ic'), fmtN(n));
+    if (k === 'hedef') return [b.hedef ? h('span', { class: 'bt-activity' }, T(BT_TARGET[b.hedef] || b.hedef)) : h('span', { class: 'dim' }, '—'), btAgentTrace(b)];
+    if (BT_CURRENCY[k]) return h('span', { class: 'bt-resource' }, art('kaynak_' + BT_CURRENCY[k], 'bt-resource-icon'), fmtN(n));
     return n ? fmtN(n) : h('span', { class: 'dim' }, '0');
   };
   const render = () => {
@@ -455,11 +455,11 @@ function btRosterTable(roster) {
     if (highlight()) column.splice(2, 0, highlight());
     const klass = k => [BT_SORT_NUMBER.has(k) ? 'num' : '', k === s.sira ? 'on' : '', highlight()?.[0] === k ? 'isik' : '', 'k-' + k].join(' ');
     table.replaceChildren(
-      h('thead', null, h('tr', null, h('th', { class: 'num bt-sira-no' }, '#'), column.map(([k, name]) => h('th', { class: 'bt-sirali ' + klass(k), title: T('Sıralamak için tıkla'),
+      h('thead', null, h('tr', null, h('th', { class: 'num bt-row-no' }, '#'), column.map(([k, name]) => h('th', { class: 'bt-sorted ' + klass(k), title: T('Sıralamak için tıkla'),
         onclick: () => sortBy(k) }, T(name), icon(k === s.sira && s.ters ? 'asagi' : 'yukari'))))),
       h('tbody', null, entries.length ? entries.map((b, i) => h('tr', { class: 'f-' + btCompany[b.firma - 1].toLowerCase(), onclick: () => btBotDetail(b.no) },
-        h('td', { class: 'num bt-sira-no' }, i + 1), column.map(([k]) => h('td', { class: klass(k) }, cell(b, k)))))
-        : h('tr', null, h('td', { colspan: column.length + 1, class: 'bt-bos' }, T('Süzgece uyan bot yok.')))));
+        h('td', { class: 'num bt-row-no' }, i + 1), column.map(([k]) => h('td', { class: klass(k) }, cell(b, k)))))
+        : h('tr', null, h('td', { colspan: column.length + 1, class: 'bt-empty' }, T('Süzgece uyan bot yok.')))));
     counter.textContent = T('{0} / {1} bot', entries.length, roster.length);
     firmaSec.querySelectorAll('button').forEach((x, i) => x.classList.toggle('on', i === s.firma));
     sortSelect.value = s.sira;
@@ -468,21 +468,21 @@ function btRosterTable(roster) {
   };
   const choice = (value, options, on) => h('select', { class: 'input', onchange: e => { on(e.target.value); render(); } },
     options.map(([v, name]) => h('option', { value: v, selected: String(v) === String(value) }, name)));
-  const firmaSec = h('div', { class: 'seg bt-firma-sec' }, [T('Hepsi'), ...btCompany].map((name, i) =>
+  const firmaSec = h('div', { class: 'seg bt-company-pick' }, [T('Hepsi'), ...btCompany].map((name, i) =>
     h('button', { type: 'button', class: i ? 'f-' + name.toLowerCase() : '', onclick: () => { s.firma = i; render(); } }, name)));
   const sortSelect = choice(s.sira, [['no', T('Kadro sırası')]].concat(BT_SORT.concat(BT_SORT_EXTRA).map(([k, name]) => [k, T(name)])), v => {
     s.sira = v; s.ters = !BT_SORT_TEXT.includes(v) && v !== 'no'; });
   const directionBtn = btn('', () => { s.ters = !s.ters; render(); }, 'ghost icon');
-  const tool = h('div', { class: 'bt-suzgec' },
-    h('label', { class: 'bt-ara' }, icon('search'), h('input', { class: 'input', type: 'search', placeholder: T('Ada göre ara'), value: s.ara,
+  const tool = h('div', { class: 'bt-filter' },
+    h('label', { class: 'bt-search' }, icon('search'), h('input', { class: 'input', type: 'search', placeholder: T('Ada göre ara'), value: s.ara,
       oninput: e => { s.ara = e.target.value; render(); } })),
     firmaSec,
     choice(s.arketip, [['', T('Bütün kişilikler')]].concat(Object.entries(BT_ARCHETYPE).map(([k, name]) => [k, T(name)])), v => { s.arketip = v; }),
-    h('div', { class: 'bt-sirala' }, h('span', { class: 'small muted' }, T('Sırala')), sortSelect, directionBtn),
-    h('label', { class: 'row small bt-ozel-sec' }, btKey(s.ozel, v => { s.ozel = v; render(); }), T('Yalnız kendi botların')),
+    h('div', { class: 'bt-sort' }, h('span', { class: 'small muted' }, T('Sırala')), sortSelect, directionBtn),
+    h('label', { class: 'row small bt-custom-toggle' }, btKey(s.ozel, v => { s.ozel = v; render(); }), T('Yalnız kendi botların')),
     h('span', { class: 'spacer' }), counter);
   render();
-  return h('div', null, tool, h('div', { class: 'bt-tablo' }, table));
+  return h('div', null, tool, h('div', { class: 'bt-table' }, table));
 }
 
 const BT_TRAIT = { saldirganlik: N('saldırgan'), rekabet: N('rekabetçi'), sosyallik: N('sosyal'), sabir: N('sabırlı'), risk: N('riskçi'), sadakat: N('sadık'),
@@ -537,25 +537,25 @@ function btChat(d) {
 // bot klanları (bot/clan_management.py, bot/clan_stations.py): logo (Orders.md OP-017; yoksa etiket), lider, kasa, bütçe, istasyon, diplomasi
 const BT_DIPLOMACY = { 1: N('ittifak'), 2: N('saldırmazlık'), 3: N('savaş') };
 function btClanLogo(k) {
-  if (!k.logo) return h('div', { class: 'bt-klan-logo bos' }, String(k.etiket || '?').slice(0, 4));
-  const im = h('img', { class: 'bt-klan-logo', src: 'images/klan_logo/' + k.logo + '.webp', alt: '' });
+  if (!k.logo) return h('div', { class: 'bt-clan-logo bos' }, String(k.etiket || '?').slice(0, 4));
+  const im = h('img', { class: 'bt-clan-logo', src: 'images/klan_logo/' + k.logo + '.webp', alt: '' });
   im.onerror = () => im.replaceWith(btClanLogo({ etiket: k.etiket }));
   return im;
 }
 function btClans(d) {
   const clans = d.klanlar || [];
-  const card = k => h('div', { class: 'bt-klan' }, btClanLogo(k),
-    h('div', { class: 'bt-klan-govde' },
-      h('div', { class: 'bt-klan-ad' }, h('b', null, '[' + k.etiket + '] ' + k.ad), badge(T('{0} üye', k.uye), '')),
+  const card = k => h('div', { class: 'bt-clan' }, btClanLogo(k),
+    h('div', { class: 'bt-clan-body' },
+      h('div', { class: 'bt-clan-name' }, h('b', null, '[' + k.etiket + '] ' + k.ad), badge(T('{0} üye', k.uye), '')),
       h('div', { class: 'small muted' }, [T('Lider: {0}', k.lider), T('Kasa: {0} kredi', fmtN(k.kasa)), T('Vergi: %{0}', k.vergi)].join(' · ')),
       k.butce ? h('div', { class: 'small muted' }, T('Bütçe: istasyon %{0}, ödeme %{1}, savaş %{2}', ...['ksi', 'odeme', 'savas'].map(a => Math.round(100 * (k.butce[a] || 0))))) : null,
       k.rutbeler.length ? h('div', { class: 'small muted' }, T('Rütbeler: {0}', k.rutbeler.join(', '))) : null,
       h('div', { class: 'small' }, k.istasyonlar.length ? T('İstasyon: {0}', k.istasyonlar.join(', ')) : k.yaris ? T('İstasyon yarışında: {0}', k.yaris) : T('İstasyonu yok')),
       k.diplomasi.length ? h('div', { class: 'small muted' }, k.diplomasi.map(x => T(BT_DIPLOMACY[x.tur] || '?') + ': ' + x.ad).join(' · ')) : null,
-      k.haberler.length ? h('div', { class: 'small muted bt-klan-haber' }, '“' + k.haberler[0] + '”') : null));
+      k.haberler.length ? h('div', { class: 'small muted bt-clan-news' }, '“' + k.haberler[0] + '”') : null));
   return h('div', { class: 'stack' }, h('div', { class: 'card' }, h('h2', null, icon('star'), T('Klanlar')),
     h('p', { class: 'desc' }, T('Botların kurduğu ve üye olduğu klanlar (sunucunun son kaydından). Liderler rütbeleri, açıklamayı, duyuruları, vergiyi, kasanın bütçesini ve Klan Savaş İstasyonlarını kendileri yönetir.')),
-    clans.length ? h('div', { class: 'bt-klanlar' }, clans.map(card))
+    clans.length ? h('div', { class: 'bt-clans' }, clans.map(card))
       : h('div', { class: 'small muted' }, T('Henüz bot klanı yok: lider ruhlu botlar seviye ve para biriktirince kurar.'))));
 }
 
@@ -587,7 +587,7 @@ function btSimple(d) {
 function btAgentTrace(b) {
   const last = (b.ajan || []).filter(x => x.dusunce).slice(-1)[0];
   if (!last && !b.hafiza) return null;
-  return h('a', { href: '#', class: 'small muted bt-ajan', title: T('Ayrıntılar için tıkla'),
+  return h('a', { href: '#', class: 'small muted bt-agent', title: T('Ayrıntılar için tıkla'),
     onclick: e => { e.preventDefault(); e.stopPropagation(); btBotDetail(b.no, last ? 'dusunce' : 'hafiza'); } }, icon('brain'), last ? last.dusunce : T('Aklındakiler'));
 }
 const BT_PURPOSE = { soz: N('söz'), intikam: N('intikam'), tesekkur: N('teşekkür'), rekabet: N('rekabet'), merak: N('merak') };
@@ -647,7 +647,7 @@ const BT_D_TABS = [['profil', N('Profil'), 'user', N('Ad, seviye, cüzdan, harit
   ['dusunce', N('Düşünceler'), 'chat', N('Dil modelinin son kararları ve kullandığı araçlar.')],
   ['istat', N('İstatistik'), 'gauge', N('Sayaçlar, kapı süreleri, uyarılar, arkadaşlar ve Skylab.')]];
 const BT_D_IMAGE = { profil: 'ke_pilot', hangar: 'ke_hangar', kisilik: 'bt_kisilik', hafiza: 'bt_hafiza', dusunce: 'bt_dusunce', istat: 'bt_istat' };   // Orders.md OP-013, OP-019
-const btDetailIcon = s => BT_D_IMAGE[s[0]] ? h('span', { class: 'ke-sk-ic gorsel' }, art(BT_D_IMAGE[s[0]], 'ke-sk-art')) : h('span', { class: 'ke-sk-ic' }, icon(s[2]));
+const btDetailIcon = s => BT_D_IMAGE[s[0]] ? h('span', { class: 'se-tab-icon gorsel' }, art(BT_D_IMAGE[s[0]], 'se-tab-art')) : h('span', { class: 'se-tab-icon' }, icon(s[2]));
 
 async function btBotDetail(no, tab = 'profil') {
   const pid = BT.d.id;
@@ -655,11 +655,11 @@ async function btBotDetail(no, tab = 'profil') {
   try { [v] = await Promise.all([api('/api/bot/detay?id=' + encodeURIComponent(pid) + '&no=' + no), loadGameImages()]); } catch (e) { toast(e.message, 'err'); return; }
   let value = {};
   const multiplier = v.katalog;
-  const lock = !!v.salt_okunur;
+  const lock = !!v.read_only;
   const fc = () => btCompany[v.firma - 1].toLowerCase();
-  const side = h('aside', { class: 'bt-d-yan' }), main = h('div', { class: 'bt-d-ana' }), state = h('div', { class: 'bt-d-durum' });
+  const side = h('aside', { class: 'bt-detail-side' }), main = h('div', { class: 'bt-detail-main' }), state = h('div', { class: 'bt-detail-status' });
   const save = btn(T('Kaydet'), async () => {
-    const x = await act(() => api('/api/bot/detay', { id: pid, no, degisiklik: value }), T('Kaydedildi.'));
+    const x = await act(() => api('/api/bot/detay', { id: pid, no, changes: value }), T('Kaydedildi.'));
     if (x) { v = x; value = {}; render(); BT.d = await api('/api/bot?id=' + encodeURIComponent(pid)).catch(() => BT.d); }
   }, 'primary', 'check');
   const cancel = btn(T('Vazgeç'), () => { value = {}; render(); }, 'ghost', 'undo');
@@ -667,15 +667,15 @@ async function btBotDetail(no, tab = 'profil') {
   const handle = () => {
     const n = Object.keys(value).length;
     save.disabled = lock || !n; cancel.disabled = !n;
-    btFill(state, lock ? [icon('lock'), T('Salt okunur')] : n ? [h('span', { class: 'ke-nabiz' }), T('{0} değişiklik kaydedilmedi', n)] : [icon('check'), T('Kayıtla aynı')]);
-    state.className = 'bt-d-durum' + (n && !lock ? ' var' : '');
+    btFill(state, lock ? [icon('lock'), T('Salt okunur')] : n ? [h('span', { class: 'se-pulse' }), T('{0} değişiklik kaydedilmedi', n)] : [icon('check'), T('Kayıtla aynı')]);
+    state.className = 'bt-detail-status' + (n && !lock ? ' var' : '');
   };
   const change = (a, val) => { value[a] = val; handle(); };
   const get_value = (a, backup) => value[a] !== undefined ? value[a] : backup;
   const entries = (a, extra) => { value[a] = (value[a] || []).concat([extra]); render(); };
   const mapping = (a, k, val) => { value[a] = Object.assign({}, value[a], { [k]: val }); handle(); };
-  const card = (title, iconEl, ...body) => h('div', { class: 'card ke-k bt-dk' }, title ? h('h2', null, icon(iconEl), title) : null, ...body);
-  const empty = text => h('div', { class: 'bt-d-bos' }, text || T('Henüz bir şey yok.'));
+  const card = (title, iconEl, ...body) => h('div', { class: 'card se-card bt-detail-card' }, title ? h('h2', null, icon(iconEl), title) : null, ...body);
+  const empty = text => h('div', { class: 'bt-detail-empty' }, text || T('Henüz bir şey yok.'));
   const missing = () => h('div', { class: 'alert bilgi' }, icon('info'), h('div', null, T('Bu bot henüz oyunda görünmedi: yalnız adı ve kişiliği düzenlenebilir.')));
   const remove = (onclick, title = T('Sil')) => btn('', onclick, 'ghost sm icon', 'trash', { title, disabled: lock });
   const count = (n, on, o = {}) => { const el = btNumber(n, on, o); el.disabled = lock; return el; };
@@ -685,38 +685,38 @@ async function btBotDetail(no, tab = 'profil') {
   // ---- sol: kimlik kartı (kayıtlı değerler) ve bölüm menüsü
   function uid() {
     const p = v.profil || {}, f = fc(), e = v.ekip || {};
-    const sell = (name, n, tag) => h('div', { class: 'ke-cz' }, art('kaynak_' + name, 'ke-para-ic'), h('span', null, tag), h('b', null, fmtN(n)));
-    const stats = (iconEl, n, title) => h('div', { class: 'ke-dg', title: title }, h('span', { class: 'bt-dg-ic' }, icon(iconEl)), h('b', null, n));
+    const sell = (name, n, tag) => h('div', { class: 'se-wallet-row' }, art('kaynak_' + name, 'se-currency-icon'), h('span', null, tag), h('b', null, fmtN(n)));
+    const stats = (iconEl, n, title) => h('div', { class: 'se-value', title: title }, h('span', { class: 'bt-value-icon' }, icon(iconEl)), h('b', null, n));
     const cargo = Object.values(v.kargo || {}).reduce((a, n) => a + n, 0);
-    return h('div', { class: 'card ke-kimlik f-' + f },
-      h('div', { class: 'ke-kimlik-sahne' }, h('div', { class: 'ke-halka' }), shipImage(e.gemi || 'ship_phoenix', 150, f)),
-      h('div', { class: 'ke-kimlik-bas' }, portrait(v.firma, 'ke-portre kucuk', 84),
-        h('div', { style: { minWidth: 0 } }, h('div', { class: 'ke-kimlik-ad', title: v.ad }, v.ad),
-          h('div', { class: 'ke-pilot small' }, p.klan ? h('span', { class: 'ke-klan' }, '[' + p.klan + ']') : null, badge(btCompany[v.firma - 1], f),
+    return h('div', { class: 'card se-identity f-' + f },
+      h('div', { class: 'se-identity-scene' }, h('div', { class: 'se-ring' }), shipImage(e.gemi || 'ship_phoenix', 150, f)),
+      h('div', { class: 'se-identity-head' }, portrait(v.firma, 'se-portrait kucuk', 84),
+        h('div', { style: { minWidth: 0 } }, h('div', { class: 'se-identity-name', title: v.ad }, v.ad),
+          h('div', { class: 'se-pilot small' }, p.klan ? h('span', { class: 'se-clan' }, '[' + p.klan + ']') : null, badge(btCompany[v.firma - 1], f),
             v.cevrimici ? badge(T('Çevrimiçi'), 'ok') : null))),
-      h('div', { class: 'bt-d-etiket' }, h('div', null, h('b', null, T(BT_ARCHETYPE[v.arketip] || v.arketip)),
+      h('div', { class: 'bt-detail-label' }, h('div', null, h('b', null, T(BT_ARCHETYPE[v.arketip] || v.arketip)),
         v.aliskanlik ? T(BT_HABIT[v.aliskanlik] || v.aliskanlik) : null), h('div', { class: 'dim' }, btTraitSummary(v.ozellik))),
       v.var ? [
-        h('div', { class: 'ke-sv sm' }, h('div', { class: 'ke-sv-n' }, h('small', null, T('Sv')), h('b', null, p.seviye)),
+        h('div', { class: 'se-lv sm' }, h('div', { class: 'se-lv-num' }, h('small', null, T('Sv')), h('b', null, p.seviye)),
           h('div', { class: 'grow' }, h('div', { class: 'row between small muted' }, btRank((BT.d.kadro.find(b => b.no === no) || {}).rutbe || 1, 18), h('span', { class: 'mono' }, fmtShort(p.ep) + ' EP')),
-            epBar(p.ep, p.taban_ep || 0, p.sonraki_ep))),
-        h('div', { class: 'ke-cuzdan' }, sell('kredi', p.kredi, T('Kredi')), sell('uridyum', p.uridyum, T('Uridyum')), sell('onur', p.onur, T('Onur'))),
-        h('div', { class: 'ke-degerler' }, stats('zap', fmtShort(v.guc.guc), T('Güç')), stats('crosshair', fmtShort(v.guc.dps), T('Hasar/sn')),
+            epBar(p.ep, p.base_ep || 0, p.next_ep))),
+        h('div', { class: 'se-wallet' }, sell('kredi', p.kredi, T('Kredi')), sell('uridyum', p.uridyum, T('Uridyum')), sell('onur', p.onur, T('Onur'))),
+        h('div', { class: 'se-values' }, stats('zap', fmtShort(v.guc.guc), T('Güç')), stats('crosshair', fmtShort(v.guc.dps), T('Hasar/sn')),
           stats('heart', fmtShort(v.guc.ehp), T('Etkin can')), stats('box', fmtShort(cargo) + '/' + fmtShort(v.cargo_capacity), T('Kargo')))] : null);
   }
   function menu() {
-    const n = { hangar: v.var ? BT_GEAR.reduce((a, [k]) => a + Object.keys(v.ekip[k] || {}).length, 0) : 0, memory: v.var ? v.anilar.length + v.iliskiler.length : 0,
+    const n = { hangar: v.var ? BT_GEAR.reduce((a, [k]) => a + Object.keys(v.ekip[k] || {}).length, 0) : 0, memory: v.var ? v.memories.length + v.relations.length : 0,
       thought: (v.ajan || []).length };
-    return h('nav', { class: 'card ke-menu' }, BT_D_TABS.map(s => h('button', { class: s[0] === tab ? 'on' : '', type: 'button',
+    return h('nav', { class: 'card se-menu' }, BT_D_TABS.map(s => h('button', { class: s[0] === tab ? 'on' : '', type: 'button',
       onclick: () => { if (tab !== s[0]) { tab = s[0]; main.scrollTop = 0; render(); } } },
-    btDetailIcon(s), h('span', null, T(s[1])), n[s[0]] ? h('span', { class: 'ke-say' }, fmtN(n[s[0]])) : null)));
+    btDetailIcon(s), h('span', null, T(s[1])), n[s[0]] ? h('span', { class: 'se-count' }, fmtN(n[s[0]])) : null)));
   }
 
   // ---- Profil
   function profile() {
     const p = v.profil || {};
     let name = v.ad;
-    const nameCard = card(T('Ad'), 'edit', h('div', { class: 'bt-d-ad' },
+    const nameCard = card(T('Ad'), 'edit', h('div', { class: 'bt-detail-name' },
       h('input', { class: 'input', value: v.ad, maxlength: 20, disabled: lock, oninput: e => { name = e.target.value.trim(); regenerate.disabled = lock || name === v.ad; },
         onkeydown: e => { if (e.key === 'Enter') regenerate.click(); } }),
       regenerate = btn(T('Yeniden adlandır'), async () => {
@@ -726,20 +726,20 @@ async function btBotDetail(no, tab = 'profil') {
       }, '', 'edit', { disabled: true })),
       h('div', { class: 'small dim' }, T('3-20 karakter: harf, rakam, _ . -  Ad hemen değişir, Kaydet beklemez.')));
     if (!v.var) return [nameCard, missing()];
-    const currency = (key, icon, tag, n, o) => h('div', { class: 'ke-para' }, art('kaynak_' + icon, 'ke-para-ic lg'),
+    const currency = (key, icon, tag, n, o) => h('div', { class: 'se-currency' }, art('kaynak_' + icon, 'se-currency-icon lg'),
       h('div', { class: 'grow' }, h('label', { class: 'lbl' }, tag), count(get_value(key, n), x => change(key, x), Object.assign({ min: 0, max: 2e12, cls: 'num wide' }, o))));
-    const lv = p.sonraki_ep ? T('Seviye {0}; sonraki seviye {1} EP.', p.seviye, fmtN(p.sonraki_ep)) : T('Seviye {0}.', p.seviye);
+    const lv = p.next_ep ? T('Seviye {0}; sonraki seviye {1} EP.', p.seviye, fmtN(p.next_ep)) : T('Seviye {0}.', p.seviye);
     const job = [p.hedef ? T(BT_TARGET[p.hedef] || p.hedef) : '—', p.niyet && p.niyet !== p.hedef ? T('Niyeti: {0}', T(BT_TARGET[p.niyet] || p.niyet)) : null];
     return [nameCard,
-      card(T('Seviye ve cüzdan'), 'star', h('div', { class: 'bt-d-paralar' },
-        h('div', null, currency('ep', 'deneyim', T('Deneyim (EP)'), p.ep, { max: 1e12 }), h('div', { class: 'small dim bt-d-not' }, lv)),
+      card(T('Seviye ve cüzdan'), 'star', h('div', { class: 'bt-detail-currencies' },
+        h('div', null, currency('ep', 'deneyim', T('Deneyim (EP)'), p.ep, { max: 1e12 }), h('div', { class: 'small dim bt-detail-note' }, lv)),
         currency('kredi', 'kredi', T('Kredi'), p.kredi), currency('uridyum', 'uridyum', T('Uridyum'), p.uridyum),
         currency('onur', 'onur', T('Onur'), p.onur, { min: -2e12 }))),
       card(T('Konum ve iş'), 'map',
         btRow(T('Harita'), v.cevrimici ? T('Çevrimiçi botun haritası değiştirilemez: çevrimdışı olunca dene.') : T('Bot bir sonraki girişinde bu haritada başlar.'),
           h('select', { class: 'input', disabled: lock || !!v.cevrimici, onchange: e => change('harita', Number(e.target.value)) },
             multiplier.haritalar.map(m => h('option', { value: m.id, selected: m.id === get_value('harita', p.harita) }, m.ad)))),
-        btRow(T('Ne yapıyor'), job[1], h('span', { class: 'bt-is' }, job[0])),
+        btRow(T('Ne yapıyor'), job[1], h('span', { class: 'bt-activity' }, job[0])),
         btRow(T('Görev'), v.tamam ? T('{0} görev bitirdi.', v.tamam) : null, v.gorev && !value.gorev_iptal
           ? h('div', { class: 'row', style: { gap: '8px' } }, h('b', null, v.gorev.ad), btn(T('Görevi bırak'), () => { change('gorev_iptal', true); render(); }, 'ghost sm', 'x', { disabled: lock }))
           : h('span', { class: 'dim' }, value.gorev_iptal ? T('Bırakılacak') : '—')),
@@ -752,19 +752,19 @@ async function btBotDetail(no, tab = 'profil') {
     const r = btRadar(traits);
     const traitRow = ([k, name_]) => {
       const value = h('b', null, Math.round(traits[k] * 100));
-      return h('div', { class: 'bt-oz' }, h('span', null, btCapitalize(T(name_))), value,
+      return h('div', { class: 'bt-trait' }, h('span', null, btCapitalize(T(name_))), value,
         percent(traits[k], x => { traits[k] = x; value.textContent = Math.round(x * 100); r.update(traits); mapping('ozellik', k, x); }));
     };
     const mood = Object.assign({}, v.ruh, value.ruh);
     const moodRow = ([k, name_]) => {
       const value = h('b', null, Math.round((mood[k] ?? 0) * 100));
-      return h('div', { class: 'bt-oz ruh-' + k }, h('span', null, T(name_)), value,
-        percent(mood[k] ?? 0, x => { value.textContent = Math.round(x * 100); mapping('ruh', k, x); }, 'bt-ruh'));
+      return h('div', { class: 'bt-trait ruh-' + k }, h('span', null, T(name_)), value,
+        percent(mood[k] ?? 0, x => { value.textContent = Math.round(x * 100); mapping('ruh', k, x); }, 'bt-mood'));
     };
     return [card(T('Özellikler'), 'brain', h('p', { class: 'desc' }, T('Kadro üretilirken belirlendi; değiştirince bot buna göre karar verir (saldırgan bot PvP\'ye, sosyal bot sohbete, tutumlu bot birikime yatkındır).')),
-      h('div', { class: 'bt-kisilik' }, h('div', { class: 'bt-radar-kutu' }, r.svg), h('div', { class: 'bt-ozler' }, Object.entries(BT_TRAIT).map(traitRow)))),
+      h('div', { class: 'bt-personality' }, h('div', { class: 'bt-radar-box' }, r.svg), h('div', { class: 'bt-traits' }, Object.entries(BT_TRAIT).map(traitRow)))),
     v.var ? card(T('Ruh hâli'), 'heart', h('p', { class: 'desc' }, T('Şu anki duyguları: zamanla dengeye döner. Öfkeli bot intikam peşine düşer, yorgun bot erken çıkar.')),
-      h('div', { class: 'bt-ozler iki' }, Object.entries(BT_MOOD).map(moodRow))) : null];
+      h('div', { class: 'bt-traits iki' }, Object.entries(BT_MOOD).map(moodRow))) : null];
   }
 
   // ---- Hangar: gemi, donanım kutuları, cephane, kargo
@@ -774,10 +774,10 @@ async function btBotDetail(no, tab = 'profil') {
     const ship = get_value('gemi', e.gemi);
     const g = multiplier.gemiler.find(x => x.loot === ship) || {};
     const slot = { lazer: g.lazer, jen: g.jen, ekstra: g.ekstra };
-    const item = (l, n, update, remove_, maximum) => h('div', { class: 'bt-esya' }, gameIcon(l, 44, f, 'box'),
-      h('div', { class: 'bt-esya-ad', title: itemName(l) }, itemName(l)),
-      h('div', { class: 'bt-esya-alt' }, count(n, update, { min: 0, max: maximum, cls: 'num' }), remove_ ? remove(remove_) : null));
-    const addSelect = (options, on) => h('select', { class: 'input bt-ekle', disabled: lock, onchange: ev => { if (ev.target.value) on(ev.target.value); } },
+    const item = (l, n, update, remove_, maximum) => h('div', { class: 'bt-item' }, gameIcon(l, 44, f, 'box'),
+      h('div', { class: 'bt-item-name', title: itemName(l) }, itemName(l)),
+      h('div', { class: 'bt-item-bottom' }, count(n, update, { min: 0, max: maximum, cls: 'num' }), remove_ ? remove(remove_) : null));
+    const addSelect = (options, on) => h('select', { class: 'input bt-add', disabled: lock, onchange: ev => { if (ev.target.value) on(ev.target.value); } },
       [h('option', { value: '' }, T('Ekle…'))].concat(options.map(x => h('option', { value: x.loot }, x.ad))));
     const category = ([k, name_, slot_info]) => {
       const owner = Object.assign({}, e[k], (value.ekip || {})[k]);
@@ -786,34 +786,34 @@ async function btBotDetail(no, tab = 'profil') {
       const equipped = x => Object.values(Object.assign({}, e[x], (value.ekip || {})[x])).reduce((a, n) => a + n, 0);
       // kalkan ve hız aynı jeneratör yuvalarını paylaşır; ekstranın sayısı kalan hakkı (JP-01 10 hak): her biri bir yuva
       const total = slot_info === 'jen' ? equipped('kalkan') + equipped('hiz') : k === 'ekstra' ? var_.length : equipped(k);
-      return h('div', { class: 'bt-kat' },
-        h('div', { class: 'bt-kat-bas' }, h('b', null, T(name_)), h('span', { class: 'ke-say' }, slot_info && slot[slot_info] != null ? T('{0} / {1} yuva', total, slot[slot_info]) : fmtN(total)),
+      return h('div', { class: 'bt-cat' },
+        h('div', { class: 'bt-cat-head' }, h('b', null, T(name_)), h('span', { class: 'se-count' }, slot_info && slot[slot_info] != null ? T('{0} / {1} yuva', total, slot[slot_info]) : fmtN(total)),
           h('span', { class: 'spacer' }), addSelect(multiplier[k].filter(x => !owner[x.loot]), l => { write(Object.assign({}, owner, { [l]: (multiplier[k].find(x => x.loot === l) || {}).hak || 1 })); render(); })),
-        var_.length ? h('div', { class: 'bt-esyalar' }, var_.map(([l, n]) => item(l, n, x => write(Object.assign({}, owner, { [l]: x })),
+        var_.length ? h('div', { class: 'bt-items' }, var_.map(([l, n]) => item(l, n, x => write(Object.assign({}, owner, { [l]: x })),
           () => { const y = Object.assign({}, owner); delete y[l]; write(y); render(); }, k === 'ekstra' ? 100000 : k === 'dron' ? 10 : 100))) : empty(T('Takılı bir şey yok.')));
     };
     const stock = Object.assign({}, v.stok, value.stok);
     const cargo = Object.values(v.kargo).reduce((a, n) => a + n, 0), capacity = v.cargo_capacity || 1;
     return [
-      card(T('Gemi'), 'ship', h('div', { class: 'bt-gemi-kart' },
-        h('div', { class: 'bt-gemi-sahne' }, shipImage(ship, 132, f)),
-        h('div', { class: 'bt-gemi-sag' },
+      card(T('Gemi'), 'ship', h('div', { class: 'bt-ship-card' },
+        h('div', { class: 'bt-ship-scene' }, shipImage(ship, 132, f)),
+        h('div', { class: 'bt-ship-right' },
           field(T('Gemi'), h('select', { class: 'input', disabled: lock, onchange: ev => { change('gemi', ev.target.value); render(); } },
             multiplier.gemiler.map(x => h('option', { value: x.loot, selected: x.loot === ship }, x.ad)))),
-          h('div', { class: 'bt-yuvalar' }, [['zap', g.lazer, T('lazer')], ['shield', g.jen, T('jeneratör')], ['cpu', g.ekstra, T('ekstra')]].map(([iconEl, n, name_]) =>
+          h('div', { class: 'bt-slots' }, [['zap', g.lazer, T('lazer')], ['shield', g.jen, T('jeneratör')], ['cpu', g.ekstra, T('ekstra')]].map(([iconEl, n, name_]) =>
             h('span', { class: 'chip' }, icon(iconEl), h('b', null, n ?? '?'), name_))),
           field(T('Kullandığı cephane'), h('select', { class: 'input', disabled: lock, onchange: ev => change('cephane', ev.target.value) },
             multiplier.cephane.filter(x => x.loot.includes('_laser_')).map(x => h('option', { value: x.loot, selected: x.loot === get_value('cephane', e.cephane) }, x.ad)))),
-          h('div', { class: 'bt-guc' }, [[T('Güç'), v.guc.guc], [T('Hasar/sn'), fmtN(v.guc.dps)], [T('Etkin can'), fmtN(v.guc.ehp)]].map(([k, n]) =>
+          h('div', { class: 'bt-power' }, [[T('Güç'), v.guc.guc], [T('Hasar/sn'), fmtN(v.guc.dps)], [T('Etkin can'), fmtN(v.guc.ehp)]].map(([k, n]) =>
             h('div', null, h('span', null, k), h('b', null, n)))),
           value.gemi || value.ekip ? h('div', { class: 'small dim' }, T('Güç kaydedince yeniden hesaplanır.')) : null))),
       card(T('Donanım'), 'layers', ...BT_GEAR.map(category)),
       card(T('Cephane ve roketler'), 'ammo',
-        h('div', { class: 'bt-kat-bas' }, h('span', { class: 'small muted' }, T('Depodaki cephane, roketler ve kaynaklar.')), h('span', { class: 'spacer' }),
+        h('div', { class: 'bt-cat-head' }, h('span', { class: 'small muted' }, T('Depodaki cephane, roketler ve kaynaklar.')), h('span', { class: 'spacer' }),
           addSelect(multiplier.cephane.filter(x => stock[x.loot] === undefined), l => { mapping('stok', l, 100); render(); })),
-        Object.keys(stock).length ? h('div', { class: 'bt-esyalar' }, Object.entries(stock).map(([l, n]) => item(l, n, x => mapping('stok', l, x), null, 1e9))) : empty()),
+        Object.keys(stock).length ? h('div', { class: 'bt-items' }, Object.entries(stock).map(([l, n]) => item(l, n, x => mapping('stok', l, x), null, 1e9))) : empty()),
       card(T('Kargo'), 'box',
-        h('div', { class: 'bt-kargo' }, h('div', { class: 'bt-kargo-bar' }, h('span', { style: { width: Math.min(100, 100 * cargo / capacity) + '%' } })),
+        h('div', { class: 'bt-cargo' }, h('div', { class: 'bt-cargo-bar' }, h('span', { style: { width: Math.min(100, 100 * cargo / capacity) + '%' } })),
           h('span', { class: 'small muted' }, T('{0} / {1}', fmtN(cargo), fmtN(capacity)))),
         Object.keys(v.kargo).length && !value.kargo_bosalt
           ? h('div', { class: 'row wrap', style: { gap: '6px', alignItems: 'center', marginTop: '10px' } }, Object.entries(v.kargo).map(([o, n]) => h('span', { class: 'chip' }, o, h('b', null, fmtN(n)))),
@@ -826,45 +826,45 @@ async function btBotDetail(no, tab = 'profil') {
   function memory() {
     if (!v.var) return [missing()];
     const deleted = (a, k) => (value[a] || []).includes(k);
-    const relation = v.iliskiler.filter(x => !deleted('iliski_sil', x.anahtar)).map(x => {
+    const relation = v.relations.filter(x => !deleted('iliski_sil', x.anahtar)).map(x => {
       const d = get_value('iliski', {})[x.anahtar] ?? x.d;
       const value = h('b', { class: d >= 0 ? 'iyi' : 'kotu' }, (d > 0 ? '+' : '') + d.toFixed(2));
       const saves = slider({ min: -100, max: 100, step: 5, value: Math.round(d * 100), disabled: lock, oninput: e => {
-        const y = +e.target.value / 100; value.textContent = (y > 0 ? '+' : '') + y.toFixed(2); value.className = y >= 0 ? 'iyi' : 'kotu'; mapping('iliski', x.anahtar, y); } }, 'bt-iliski-ar');
-      return h('div', { class: 'bt-iliski' }, h('div', null, h('b', null, x.ad),
+        const y = +e.target.value / 100; value.textContent = (y > 0 ? '+' : '') + y.toFixed(2); value.className = y >= 0 ? 'iyi' : 'kotu'; mapping('iliski', x.anahtar, y); } }, 'bt-relation-range');
+      return h('div', { class: 'bt-relation' }, h('div', null, h('b', null, x.ad),
         h('div', { class: 'small dim' }, Object.entries(x.n || {}).map(([t, n]) => (BT_EVENT[t] ? T(BT_EVENT[t]) : t) + ' ' + n).join(', '))),
-      h('div', { class: 'bt-iliski-olcek' }, h('span', { class: 'small dim' }, T('Düşman')), saves, h('span', { class: 'small dim' }, T('Dost'))), value,
+      h('div', { class: 'bt-relation-scale' }, h('span', { class: 'small dim' }, T('Düşman')), saves, h('span', { class: 'small dim' }, T('Dost'))), value,
       remove(() => entries('iliski_sil', x.anahtar)));
     });
-    const impression = v.izlenim.filter(x => !deleted('izlenim_sil', x.anahtar)).map(x => h('div', { class: 'bt-not' }, h('b', null, x.ad),
+    const impression = v.izlenim.filter(x => !deleted('izlenim_sil', x.anahtar)).map(x => h('div', { class: 'bt-note' }, h('b', null, x.ad),
       h('textarea', { class: 'input', rows: 2, disabled: lock, oninput: e => mapping('izlenim', x.anahtar, e.target.value) }, get_value('izlenim', {})[x.anahtar] ?? x.metin),
       remove(() => entries('izlenim_sil', x.anahtar))));
-    const memories = v.anilar.filter(a => !deleted('ani_sil', a.id)).map(a => {
+    const memories = v.memories.filter(a => !deleted('ani_sil', a.id)).map(a => {
       const waiting = a.takip && !a.takip.bitti && !deleted('takip_iptal', a.id);
-      return h('div', { class: 'bt-ani' }, h('div', { class: 'bt-ani-bas' }, h('b', null, a.kim), h('span', { class: 'small dim' }, T('{0} önce', fmtDur(now - a.t))),
-        a.n > 1 ? h('span', { class: 'ke-say' }, '×' + a.n) : null, waiting ? badge(T('Bekleyen: {0}', T(BT_PURPOSE[a.takip.amac] || a.takip.amac)), 'warn') : null,
+      return h('div', { class: 'bt-memory' }, h('div', { class: 'bt-memory-head' }, h('b', null, a.kim), h('span', { class: 'small dim' }, T('{0} önce', fmtDur(now - a.t))),
+        a.n > 1 ? h('span', { class: 'se-count' }, '×' + a.n) : null, waiting ? badge(T('Bekleyen: {0}', T(BT_PURPOSE[a.takip.amac] || a.takip.amac)), 'warn') : null,
         h('span', { class: 'spacer' }), waiting ? btn('', () => entries('takip_iptal', a.id), 'ghost sm icon', 'x', { title: T('Bekleyen işi iptal et'), disabled: lock }) : null,
         remove(() => entries('ani_sil', a.id))),
       h('input', { class: 'input', value: get_value('ani', {})[a.id] ?? a.ozet, disabled: lock, oninput: e => mapping('ani', a.id, e.target.value) }));
     });
     const ledger = get_value('defter', v.defter);
-    const notebookRow = (m, i) => h('div', { class: 'bt-defter' }, h('span', { class: 'bt-defter-no' }, i + 1),
+    const notebookRow = (m, i) => h('div', { class: 'bt-ledger' }, h('span', { class: 'bt-ledger-no' }, i + 1),
       h('input', { class: 'input', value: m, disabled: lock, oninput: e => { const d = ledger.slice(); d[i] = e.target.value; change('defter', d); } }),
       remove(() => { change('defter', ledger.filter((_, j) => j !== i)); render(); }));
     return [
       card(T('İlişkileri'), 'users', h('p', { class: 'desc' }, T('Kişilere bakışı: dostlarına yardım eder, düşmanlarına saldırır.')), relation.length ? relation : empty()),
-      card(T('Kişiler hakkındaki izlenimleri'), 'note', impression.length ? h('div', { class: 'bt-notlar' }, impression) : empty()),
-      card(T('Anıları'), 'clock', memories.length ? h('div', { class: 'bt-anilar' }, memories) : empty()),
+      card(T('Kişiler hakkındaki izlenimleri'), 'note', impression.length ? h('div', { class: 'bt-notes' }, impression) : empty()),
+      card(T('Anıları'), 'clock', memories.length ? h('div', { class: 'bt-memories' }, memories) : empty()),
       h('div', { class: 'grid g2' },
         card(T('Hedef defteri'), 'target', ...(ledger.length ? ledger.map(notebookRow) : [empty()]),
           h('div', { class: 'row', style: { justifyContent: 'flex-end', marginTop: '8px' } },
             btn(T('Hedef ekle'), () => { change('defter', ledger.concat([''])); render(); }, 'ghost sm', 'plus', { disabled: lock }))),
         card(T('Hatırlatıcılar ve birikim'), 'bell',
           v.hatirlatici.length && !value.hatirlatici_sil
-            ? [h('ul', { class: 'bt-akil' }, v.hatirlatici.map(x => h('li', null, x.metin, h('span', { class: 'dim' }, ' (' + T('{0} sonra', fmtDur(x.kalan_sn)) + ')')))),
+            ? [h('ul', { class: 'bt-mind' }, v.hatirlatici.map(x => h('li', null, x.metin, h('span', { class: 'dim' }, ' (' + T('{0} sonra', fmtDur(x.time_left_sec)) + ')')))),
               h('div', { class: 'row', style: { justifyContent: 'flex-end', marginTop: '6px' } }, btn(T('Hatırlatıcıları sil'), () => { change('hatirlatici_sil', true); render(); }, 'ghost sm', 'trash', { disabled: lock }))]
             : empty(T('Hatırlatıcı yok.')),
-          h('div', { class: 'bt-birikim' }, h('span', { class: 'lbl' }, T('Biriktirdiği')), v.birikim && !value.birikim_sil
+          h('div', { class: 'bt-savings' }, h('span', { class: 'lbl' }, T('Biriktirdiği')), v.birikim && !value.birikim_sil
             ? h('div', { class: 'row', style: { gap: '8px' } }, gameIcon(v.birikim, 28, fc(), 'box'), h('b', null, itemName(v.birikim)), h('span', { class: 'spacer' }),
               btn(T('Biriktirmeyi bırak'), () => { change('birikim_sil', true); render(); }, 'ghost sm', 'x', { disabled: lock }))
             : h('span', { class: 'dim' }, '—')))),
@@ -876,7 +876,7 @@ async function btBotDetail(no, tab = 'profil') {
     const trace = value.ajan_sil ? [] : (v.ajan || []).slice().reverse();
     const step = x => [h('b', null, x.arac), x.arg && Object.keys(x.arg).length ? ' ' + JSON.stringify(x.arg) : '', x.sonuc ? h('span', { class: 'dim' }, ' → ' + x.sonuc) : null];
     return [card(T('Son düşünceleri'), 'chat', h('p', { class: 'desc' }, T('Botun kendi notları; dil modeli İngilizce tutar.')),
-      trace.length ? h('ol', { class: 'bt-dusunceler' }, trace.map(x => h('li', null, x.dusunce ? h('div', null, x.dusunce) : null, h('div', { class: 'bt-adim' }, step(x)))))
+      trace.length ? h('ol', { class: 'bt-thoughts' }, trace.map(x => h('li', null, x.dusunce ? h('div', null, x.dusunce) : null, h('div', { class: 'bt-step' }, step(x)))))
         : empty(value.ajan_sil ? T('Kaydedince temizlenecek.') : T('Henüz düşünce yok: Gelişmiş kipte dil modeli karar verdikçe dolar.')),
       trace.length ? h('div', { class: 'row', style: { justifyContent: 'flex-end', marginTop: '10px' } }, btn(T('Düşünceleri temizle'), () => { change('ajan_sil', true); render(); }, 'ghost sm', 'trash', { disabled: lock })) : null)];
   }
@@ -888,11 +888,11 @@ async function btBotDetail(no, tab = 'profil') {
     const value = (k, n) => k === 'sure_sn' ? fmtDur(n) : fmtN(Math.round(n));
     const remaining = Object.entries(ist).filter(([k]) => !BT_STATS_FEATURED.includes(k)).sort((a, b) => (BT_STATS[a[0]] ? 0 : 1) - (BT_STATS[b[0]] ? 0 : 1));
     return [
-      h('div', { class: 'stats bt-d-stats' }, BT_STATS_FEATURED.map(k => h('div', { class: 'stat' }, h('div', { class: 'k' }, T(BT_STATS[k])), h('div', { class: 'v' }, value(k, ist[k] || 0))))),
+      h('div', { class: 'stats bt-detail-stats' }, BT_STATS_FEATURED.map(k => h('div', { class: 'stat' }, h('div', { class: 'k' }, T(BT_STATS[k])), h('div', { class: 'v' }, value(k, ist[k] || 0))))),
       card(T('Bütün sayaçlar'), 'list', remaining.length ? h('div', { class: 'kv bt-kv' }, remaining.map(([k, n]) => h('div', null, BT_STATS[k] ? T(BT_STATS[k]) : k, h('b', null, value(k, n))))) : empty()),
       h('div', { class: 'grid g2' },
-        card(T('Kapı süreleri'), 'clock', Object.keys(v.kapi_sureleri || {}).length ? h('div', { class: 'kv one' },
-          Object.entries(v.kapi_sureleri).map(([g, x]) => h('div', null, g.charAt(0).toUpperCase() + g.slice(1), h('b', null, T('en iyi {0}', seDurationBt(x.en_iyi)) + ' · ' + T('{0} kez', fmtN(x.sayi))))))
+        card(T('Kapı süreleri'), 'clock', Object.keys(v.gate_times || {}).length ? h('div', { class: 'kv one' },
+          Object.entries(v.gate_times).map(([g, x]) => h('div', null, g.charAt(0).toUpperCase() + g.slice(1), h('b', null, T('en iyi {0}', seDurationBt(x.en_iyi)) + ' · ' + T('{0} kez', fmtN(x.sayi))))))
           : empty()),
         card(T('Arkadaşları'), 'users', (v.profil.arkadaslar || []).length ? h('div', { class: 'row wrap', style: { gap: '6px' } }, v.profil.arkadaslar.map(a => h('span', { class: 'chip' }, a))) : empty()),
         card(T('Yönetici uyarısı'), 'alert', Object.keys(v.uyari || {}).length ? h('div', { class: 'row wrap', style: { gap: '6px' } },
@@ -905,7 +905,7 @@ async function btBotDetail(no, tab = 'profil') {
   function render() {
     const s = BT_D_TABS.find(x => x[0] === tab) || BT_D_TABS[0], sc = main.scrollTop;
     btFill(side, uid(), menu());
-    btFill(main, h('div', { class: 'ke-ana-bas' }, btDetailIcon(s), h('div', null, h('h2', null, T(s[1])), h('div', { class: 'small muted' }, T(s[3])))),
+    btFill(main, h('div', { class: 'se-main-head' }, btDetailIcon(s), h('div', null, h('h2', null, T(s[1])), h('div', { class: 'small muted' }, T(s[3])))),
       lock ? h('div', { class: 'alert uyari' }, icon('alert'), h('div', null, T('Oyun bu paketle açık ama sunucuya ulaşılamadı: son kayıt gösteriliyor, düzenlenemez.')))
         : v.canli ? h('div', { class: 'alert bilgi' }, icon('info'), h('div', null, T('Oyun açık: değişiklikler kaydedince hemen oyunda geçerli olur.'))) : null,
       ({ profile, personality, hangar, memory, thought, stats })[s[0]]());
@@ -913,12 +913,12 @@ async function btBotDetail(no, tab = 'profil') {
     handle();
   }
   render();
-  const m = modal({ title: T('Bot editörü'), sub: T('{0} paketi · {1}. bot', BT.d.ad, no), body: h('div', { class: 'bt-d' }, side, main), onclose: () => btEditor(),
+  const m = modal({ title: T('Bot editörü'), sub: T('{0} paketi · {1}. bot', BT.d.ad, no), body: h('div', { class: 'bt-detail' }, side, main), onclose: () => btEditor(),
     foot: [state, h('span', { class: 'spacer' }), btn(T('Kapat'), async () => {
       if (Object.keys(value).length && !await confirmBox(T('Değişiklikler kaydedilmedi'), T('Kapatınca kaydedilmemiş değişiklikler atılır.'), { ok: T('Kaydetmeden kapat'), danger: true })) return;
       m.close();
     }, 'ghost'), cancel, save] });
-  m.box.classList.add('bt-d-modal');
+  m.box.classList.add('bt-detail-modal');
 }
 
 function btUsage(u) {
@@ -945,7 +945,7 @@ function btLlmCard(d) {
       h('div', { class: 'bt-llm' }, btArt('bot_llm', 'dron_ayarlar', 'bt-llm-art'), h('div', { class: 'stack', style: { gap: '10px' } }, right, box))),
     h('div', { class: 'card' }, h('h2', null, icon('sliders'), T('Gelişmiş kip ayarları')),
       btRow(T('Son bir saatin kullanımı'), T('Botların dil modeline son bir saatte gönderdiği istekler ve tokenler (sohbet, anılar ve kararlar). Sağlayıcının faturası token sayısına göre işler; önbellekten gelen girdi çok daha ucuzdur.'),
-        btUsage(d.llm_kullanim)),
+        btUsage(d.llm_usage)),
       btRow(T('Aynı anda düşünen bot'), T('Modelin paralel yuvaları: istekler toplu işlenir. Yüksekse daha çok bot aynı anda konuşur ama bilgisayar daha çok zorlanır.'),
         btNumber(a.llm_toplu, v => btSetting('llm_toplu', v), { min: 1, max: 16 })),
       btRow(T('Sohbet modelle'), T('Kapalıysa botlar Normal kipteki gibi kalıplarla konuşur; model yalnız kararlarda kullanılır.'), btKey(a.llm_sohbet, v => btSetting('llm_sohbet', v))),
@@ -965,7 +965,7 @@ function btLlmWatch(box, right) {
   // sağlayıcı formu yalnız seçim değişince yeniden çizilir (yoklama yazılanı silmesin); alt kutu dahili modelde kurulum, ötekilerde test
   const render = s => {
     signature = JSON.stringify(s);
-    if (BT.liste) BT.liste.llm_cok_dilli = s.saglayici.cok_dilli;
+    if (BT.liste) BT.liste.llm_multilingual = s.saglayici.multilingual;
     if (selected !== s.saglayici.secili || s.new_form) { selected = s.saglayici.secili; btFill(right, btLlmProvider(s.saglayici, x => render(Object.assign(x, { new_form: true })))); }
     btFill(box, selected === 'yerel' ? h('div', { class: 'stack', style: { gap: '10px' } }, btLlmWarning(), btLlmBox(s, render)) : btLlmRemoteBox(s, render));
   };
@@ -990,22 +990,22 @@ function btLlmProvider(provider, new_) {
   // model: önce elle yazılır; modeller çekilince açılır liste olur (datalist dolu kutuda süzülüp açılmıyordu)
   const modelBox = h('div', null, h('input', { class: 'input', value: f.model, oninput: e => { f.model = e.target.value.trim(); } }));
   const load = async () => {
-    const x = await act(() => api('/api/bot/llm/modeller', { kimlik: provider.secili, adres: f.adres, anahtar: f.anahtar }), r => T('{0} model bulundu.', r.modeller.length));
-    if (!x || !x.modeller.length) return;
-    const models = x.modeller.includes(f.model) || !f.model ? x.modeller : [f.model].concat(x.modeller);
+    const x = await act(() => api('/api/bot/llm/models', { kimlik: provider.secili, adres: f.adres, anahtar: f.anahtar }), r => T('{0} model bulundu.', r.models.length));
+    if (!x || !x.models.length) return;
+    const models = x.models.includes(f.model) || !f.model ? x.models : [f.model].concat(x.models);
     if (!f.model) f.model = models[0];
     btFill(modelBox, h('select', { class: 'input', onchange: e => { f.model = e.target.value; } }, models.map(m => h('option', { value: m, selected: m === f.model }, m))));
   };
   rows.push(
     btRow(T('Adres'), p.yerel ? T('Bilgisayarında çalışan sunucunun OpenAI uyumlu adresi (…/v1). Sunucu açık olmalı.') : T('Çoğu zaman değiştirmen gerekmez.'),
-      h('input', { class: 'input', value: f.adres, placeholder: p.varsayilan_adres, oninput: e => { f.adres = e.target.value.trim(); } })),
-    btRow(p.anahtar_gerekir ? T('API anahtarı') : T('API anahtarı (isteğe bağlı)'), T('Yalnız bu bilgisayarda saklanır; bot paketlerine girmez.'),
+      h('input', { class: 'input', value: f.adres, placeholder: p.default_url, oninput: e => { f.adres = e.target.value.trim(); } })),
+    btRow(p.key_required ? T('API anahtarı') : T('API anahtarı (isteğe bağlı)'), T('Yalnız bu bilgisayarda saklanır; bot paketlerine girmez.'),
       h('input', { class: 'input', type: 'password', autocomplete: 'off', oninput: e => { f.anahtar = e.target.value.trim(); },
-        placeholder: p.anahtar_var ? T('Kayıtlı ({0}); değiştirmek için yaz', p.anahtar) : p.anahtar_gerekir ? T('API anahtarını yapıştır') : T('Gerekmiyorsa boş bırak') })),
+        placeholder: p.has_key ? T('Kayıtlı ({0}); değiştirmek için yaz', p.anahtar) : p.key_required ? T('API anahtarını yapıştır') : T('Gerekmiyorsa boş bırak') })),
     btRow(T('Model'), T('Hızlı ve ucuz bir sohbet modeli yeter; düşünen (reasoning) modeller yavaş yanıt verir.'),
       h('div', { class: 'row', style: { gap: '6px' } }, modelBox, btn(T('Modelleri getir'), load, 'ghost sm', 'download'))),
     h('div', { class: 'row', style: { gap: '8px', justifyContent: 'flex-end' } },
-      p.anahtar_var ? btn(T('Anahtarı sil'), () => send({ kimlik: provider.secili, anahtar: '-' }, T('Silindi.')), 'ghost sm', 'trash') : null,
+      p.has_key ? btn(T('Anahtarı sil'), () => send({ kimlik: provider.secili, anahtar: '-' }, T('Silindi.')), 'ghost sm', 'trash') : null,
       btn(T('Kaydet'), () => send({ kimlik: provider.secili, adres: f.adres, model: f.model, anahtar: f.anahtar }, T('Kaydedildi.')), 'primary sm', 'check')),
     h('div', { class: 'alert bilgi' }, icon('info'), h('div', null, T('Bu sağlayıcıyla botlar kendi sohbet dillerinde konuşur (Kadro sekmesinden seçilir). Ücretli sağlayıcılarda istekler senin hesabından ödenir: "Aynı anda düşünen bot" ve "Kararları gözden geçirme" ayarları istek sayısını belirler.'))));
   return h('div', { class: 'stack', style: { gap: '4px' } }, rows);
@@ -1013,7 +1013,7 @@ function btLlmProvider(provider, new_) {
 
 function btLlmRemoteBox(s, render) {
   const t = s.test && s.test.saglayici === s.saglayici.secili ? s.test : {};
-  return h('div', { class: 'bt-llm-adim' }, icon(t.durum === 'ok' ? 'check' : 'play'),
+  return h('div', { class: 'bt-llm-step' }, icon(t.durum === 'ok' ? 'check' : 'play'),
     h('div', null, h('b', null, t.durum === 'ok' ? T('Sağlayıcı çalışıyor') : T('Test et')),
       h('div', { class: 'small muted' }, t.durum === 'calisiyor' ? T('Sağlayıcıya kısa bir soru soruluyor…') : t.durum === 'hata' ? t.hata
         : t.durum === 'ok' ? T('Yanıt {0} sn: "{1}"', t.sure_sn, t.yanit ?? '') : T('Kaydettikten sonra sağlayıcıya kısa bir soru sorulur; yanıt gelirse botlar onunla konuşur.'))),
@@ -1032,16 +1032,16 @@ function btLlmBox(s, render) {
     ? h('div', { class: 'dl-box' }, h('b', null, s.durum === 'kuruluyor' ? T('Kuruluyor…') : T('İndiriliyor: %{0}', pct)),
       h('div', { class: 'meter' }, h('div', { class: 'meter-bar' }, h('span', { style: { width: pct + '%' } }))),
       h('div', { class: 'small muted dl-info' }, [`${fmtBytes(s.alinan)} / ${fmtBytes(s.toplam)}`, s.hiz ? `${fmtBytes(s.hiz)}/${T('sn')}` : null,
-        s.kalan_sn != null && s.hiz ? T('kalan {0}', fmtDur(s.kalan_sn)) : null, s.parca].filter(Boolean).join(' · ')),
+        s.time_left_sec != null && s.hiz ? T('kalan {0}', fmtDur(s.time_left_sec)) : null, s.parca].filter(Boolean).join(' · ')),
       h('div', { class: 'row' }, btn(T('Durdur'), () => call('durdur', T('İndirme durduruluyor…')), 'ghost sm', 'stop')))
     : ['kurulu', 'hazir'].includes(s.durum)
-      ? h('div', { class: 'bt-llm-adim' }, icon('check'), h('div', null, h('b', null, T('Kuruldu')), h('div', { class: 'small muted' }, s.model + ' · llama.cpp ' + s.surum)),
+      ? h('div', { class: 'bt-llm-step' }, icon('check'), h('div', null, h('b', null, T('Kuruldu')), h('div', { class: 'small muted' }, s.model + ' · llama.cpp ' + s.surum)),
         btn(T('Kaldır'), async () => { if (await confirmBox(T('Dil modeli silinsin mi?'), T('İndirilen 2,5 GB silinir; Gelişmiş kip yeniden kurulana dek Normal kip gibi çalışır.'), { ok: T('Sil'), danger: true })) call('sil', T('Silindi.')); }, 'ghost sm', 'trash'))
-      : h('div', { class: 'bt-llm-adim' }, icon('download'), h('div', null, h('b', null, s.durum === 'hata' ? T('Kurulamadı') : s.durum === 'durdu' ? T('İndirme durduruldu') : T('1. Dil modelini kur')),
+      : h('div', { class: 'bt-llm-step' }, icon('download'), h('div', null, h('b', null, s.durum === 'hata' ? T('Kurulamadı') : s.durum === 'durdu' ? T('İndirme durduruldu') : T('1. Dil modelini kur')),
         h('div', { class: 'small muted' }, s.durum === 'hata' ? s.hata : T('{0} indirilir (yarım kalırsa kaldığı yerden sürer).', fmtBytes(s.boyut))), hardware),
-        btn(s.durum === 'hata' || s.durum === 'durdu' || s.yarim ? T('Sürdür') : T('İndir ve kur'), () => call('kur'), 'primary sm', 'download'));
+        btn(s.durum === 'hata' || s.durum === 'durdu' || s.partial ? T('Sürdür') : T('İndir ve kur'), () => call('kur'), 'primary sm', 'download'));
   const installed = ['kurulu', 'hazir'].includes(s.durum);
-  const step2 = h('div', { class: 'bt-llm-adim' }, icon(s.durum === 'hazir' ? 'check' : 'play'),
+  const step2 = h('div', { class: 'bt-llm-step' }, icon(s.durum === 'hazir' ? 'check' : 'play'),
     h('div', null, h('b', null, s.durum === 'hazir' ? T('Kurulum tamamlandı: model çalışıyor') : T('2. Test et')),
       h('div', { class: 'small muted' }, t.durum === 'calisiyor' ? T('Model açılıyor ve kısa bir soru soruluyor (ilk açılış yarım dakikayı bulabilir)…')
         : t.durum === 'hata' ? t.hata : t.durum === 'ok' || s.last_test ? T('Açılış {0} sn, yanıt {1} sn: "{2}"', (t.acilis_sn ?? s.last_test?.acilis_sn), (t.sure_sn ?? s.last_test?.sure_sn), (t.yanit ?? s.last_test?.yanit ?? ''))

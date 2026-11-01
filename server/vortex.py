@@ -418,7 +418,7 @@ class VogRun:
 
     def coin_box(self, h, coins):
         b = self.w.boxes[h]
-        b['pet_yok'] = True                        # P.E.T. Vortex kutularını toplayamaz (resmî SSS)
+        b['no_pet'] = True                        # P.E.T. Vortex kutularını toplayamaz (resmî SSS)
         b['al'] = lambda box, c=coins: self.collect(c)
 
     def collect(self, coins):

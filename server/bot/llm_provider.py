@@ -88,10 +88,10 @@ def status():
     out = []
     for k, s in PROVIDERS.items():
         a = d['saglayicilar'].get(k) or {}
-        out.append({'kimlik': k, 'ad': s['ad'], 'tur': s['tur'], 'anahtar_gerekir': s['anahtar'], 'yerel': s['yerel'],
+        out.append({'kimlik': k, 'ad': s['ad'], 'tur': s['tur'], 'key_required': s['anahtar'], 'yerel': s['yerel'],
                     'adres': a.get('adres') or s['adres'], 'model': a.get('model') or s['model'],
-                    'varsayilan_adres': s['adres'], 'anahtar': mask(a.get('anahtar') or ''), 'anahtar_var': bool(a.get('anahtar'))})
-    return {'secili': d['secili'], 'cok_dilli': multilingual(d['secili']), 'liste': out}
+                    'default_url': s['adres'], 'anahtar': mask(a.get('anahtar') or ''), 'has_key': bool(a.get('anahtar'))})
+    return {'secili': d['secili'], 'multilingual': multilingual(d['secili']), 'liste': out}
 
 
 def save(uid, address=None, model=None, key=None, sec=True):

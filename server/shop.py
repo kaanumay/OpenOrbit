@@ -201,7 +201,7 @@ REASONS = {
                      "Takılı eşya satılamaz; önce çıkar (iki config'e de bak)."),
     'eksik_yukleme': ('Some equipment were not available to be loaded into the saved configuration.',
                       "Kayıtlı config'teki bazı eşyalar yüklenemedi (satılmış ya da başka gemide)."),
-    'aktarim_envanter': ('Some equipment cannot be equipped on the new ship and was moved to your inventory.',
+    'transfer_inventory': ('Some equipment cannot be equipped on the new ship and was moved to your inventory.',
                          'Bazı eşyalar yeni gemiye takılamadığı için envantere kaldırıldı.'),
     'yakit_dolu': ("Your P.E.T.'s fuel tank is full.", "P.E.T.'inin yakıt deposu dolu."),
     'arastirma_puani': ('Not enough Research Points available.', 'Yeterli araştırma puanı yok.'),
@@ -785,7 +785,7 @@ class Shop:
         return round((m['premium_oran'] if self.p.premium else 0.0) + (m['oran'] if self.p.d.get('magaza_indirimi', 0) > time.time() else 0.0), 4)
 
     def gate_ok(self, loot):
-        if WORLD_SHOP.get(loot, {}).get('satista') is False:      # Dünya Editörü: satıştan kaldırılan ürün
+        if WORLD_SHOP.get(loot, {}).get('on_sale') is False:      # Dünya Editörü: satıştan kaldırılan ürün
             return False
         if not EG.in_shop(loot):          # panelin ayarı kapalıyken etkinlik görünümleri yalnız etkinliklerinden
             return False
@@ -1790,8 +1790,8 @@ class Shop:
         if ship:
             display = int((display + form.get('hiz_mutlak', 0))                                       # Leonov +20
                           * (1 + form.get('hiz', 0)) * (1 + (lab or 0)) * SET.multiplier('gemi_hiz'))     # panel: geminin hızı
-            if 'ust_hiz' in form:                           # Speed Burst (teknoloji.py): en az bu hız
-                display = max(display, int(form['ust_hiz']))
+            if 'floor_speed' in form:                           # Speed Burst (teknoloji.py): en az bu hız
+                display = max(display, int(form['floor_speed']))
             if 'sabit_hiz' in form:                         # gemi yetenekleri: Travel 450, Fortify 0 (kıpırdamaz)
                 display = int(form['sabit_hiz'])
             if 'azami_hiz' in form:                         # yavaşlatma küresi (Barb, The Stinger, Saboteur): en çok bu hız
@@ -1820,7 +1820,7 @@ class Shop:
         shield_max = min(SET.I32, int(total * (1 + form.get('kalkan', 0)) * SET.multiplier('gemi_kalkan')))
         hp_max = max(1, int(hp * (1 + form.get('can', 0)) * SET.multiplier('gemi_can') + form.get('can_mutlak', 0))) if hp else None
         if hp_max and active:
-            hp_max = max(1, int(hp_max * form.get('can_carpan', 1.0)))   # enfeksiyon: toplam gövdenin %15'i, Pilot Bio dahil
+            hp_max = max(1, int(hp_max * form.get('hp_multiplier', 1.0)))   # enfeksiyon: toplam gövdenin %15'i, Pilot Bio dahil
         return dict(display=display, speed=speed, shield_max=shield_max, absorb=absorb,
                     lasers=len(eq.get('laser', [])), speed_gens=sum(1 for g in gens if g in ITEMS['hiz_jeneratorleri']),
                     shield_gens=ship_gens, hp_max=hp_max)
@@ -2065,11 +2065,11 @@ class Shop:
         sid = self.ship_sid(f.get('shipId'))
         with self.p.lock:
             ship = self.p.d['gemiler'][sid]
-            ship['kayitli_konfig'] = {c: {s: list(v) for s, v in cfg.items()} for c, cfg in ship['konfigler'].items()}
+            ship['saved_config'] = {c: {s: list(v) for s, v in cfg.items()} for c, cfg in ship['konfigler'].items()}
             # Drones and P.E.T. are part of the saved setup too (before, only the ship slots were saved).
-            ship['kayitli_dron_konfig'] = {c: {d: list(v) for d, v in cfg.items()} for c, cfg in ship.get('dron_konfig', {}).items()}
-            ship['kayitli_dron_tasarim'] = {c: {d: dict(per) for d, per in cfg.items()} for c, cfg in ship.get('dron_tasarim', {}).items()}
-            ship['kayitli_pet_konfig'] = {c: {s: list(v) for s, v in cfg.items()} for c, cfg in ship.get('pet_konfig', {}).items()} \
+            ship['saved_drone_config'] = {c: {d: list(v) for d, v in cfg.items()} for c, cfg in ship.get('dron_konfig', {}).items()}
+            ship['saved_drone_design'] = {c: {d: dict(per) for d, per in cfg.items()} for c, cfg in ship.get('dron_tasarim', {}).items()}
+            ship['saved_pet_config'] = {c: {s: list(v) for s, v in cfg.items()} for c, cfg in ship.get('pet_konfig', {}).items()} \
                 if self.pet.owned else {}
             self.p.dirty = True
         self.log('   hangar: %s config kaydedildi' % self.p.ship(sid)['lootId'])
@@ -2081,14 +2081,14 @@ class Shop:
         takılıysa atlanır ("Some equipment were not available …")."""
         sid = self.ship_sid(f.get('shipId'))
         ship = self.p.ship(sid)
-        saved = ship.get('kayitli_konfig')
+        saved = ship.get('saved_config')
         if not saved:
             return [('HangarShipLoadConfigCommand', {'title': stack_msg('eqt_error_generic'), 'description': stack_msg('empty'),
                                                      'resultId': 0})]
         # Drone items, drone designs and P.E.T. items. Saves made before they were stored have no such key: those parts stay as is.
-        s_drones = ship.get('kayitli_dron_konfig')
-        s_designs = ship.get('kayitli_dron_tasarim')
-        s_pet = ship.get('kayitli_pet_konfig') if self.pet.owned else None
+        s_drones = ship.get('saved_drone_config')
+        s_designs = ship.get('saved_drone_design')
+        s_pet = ship.get('saved_pet_config') if self.pet.owned else None
         es, hid = self.p.d['esyalar'], ship['hangarId']
         missing = 0
         touched = [i for cfg in ship['konfigler'].values() for ids in cfg.values() for i in ids]
@@ -2209,7 +2209,7 @@ class Shop:
         msgs = [('HangarShipImportConfigCommand', {'shipId': int(dst), 'errorMessage': None, 'resultId': 1}), self.equipment_cmd(dst)]
         msgs += self.item_updates(touched)                 # aktarılanlar hedef gemide, hedefin eskileri ve takılamayanlar envanterde
         if dropped:
-            msgs.append(KAPI.screen(REASONS['aktarim_envanter'][1 if self.lang == 'tr' else 0]))
+            msgs.append(KAPI.screen(REASONS['transfer_inventory'][1 if self.lang == 'tr' else 0]))
         if self.p.d['aktif_gemi'] in (src, dst):
             msgs += self.apply_stats() + self.drone_msgs() + self.pet.refresh()
         return msgs

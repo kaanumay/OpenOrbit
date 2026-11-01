@@ -492,8 +492,8 @@ class Engine:
             w.hero = type(w.hero)(x, y)
             msgs.append(('MoveCommand', dict(userId=w.hid, x=x, y=y, timeToTarget=0)))
         if 'hedef_kalkan_kapat' in e:             # Disruptor Shield Disarray: kalkanın yarısı süre boyunca kapanır, bitince geri
-            st['kapatilan'] = int(target.shield * e['hedef_kalkan_kapat'])
-            target.shield -= st['kapatilan']
+            st['shut_off'] = int(target.shield * e['hedef_kalkan_kapat'])
+            target.shield -= st['shut_off']
             msgs.append(w.selection(target))
         if 'hedef_atis_araligi' in e:             # DDoL: hedefin lazer beklemesi 3-5 sn
             target.effect.add('atis_bozuk', stop, 0, item, now, aralik=e['hedef_atis_araligi'])
@@ -583,7 +583,7 @@ class Engine:
         msgs += self.visual_off(item, s.get('hedef'))
         if item in self.charging:
             self.discharge(item, now)
-        back = s.pop('kapatilan', 0)
+        back = s.pop('shut_off', 0)
         if back and s.get('hedef') in w.npcs and w.npcs[s['hedef']].alive:
             n = w.npcs[s['hedef']]
             n.shield = min(max(n.d.get('kalkan', 0), n.shield), n.shield + back)

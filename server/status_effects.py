@@ -104,7 +104,7 @@ class Effects:
         """Oyuncunun etkileri profil bonuslarına (profil.mods): yavaşlık hiz, donukluk sabit_hiz 0, isabet düşüşü."""
         out = {}
         if self.get('enfeksiyon', now):
-            out.update(lazer=0.1, roket=0.1, can_carpan=0.85)
+            out.update(lazer=0.1, roket=0.1, hp_multiplier=0.85)
         if self.slow(now):
             out['hiz'] = -self.slow(now)
         if self.frozen(now):
@@ -113,7 +113,7 @@ class Effects:
             out['isabet'] = -self.accuracy_loss(now)
         burst = max((e['deger'] for e in self.get('hizlanma', now)), default=0)
         if burst:
-            out['ust_hiz'] = burst
+            out['floor_speed'] = burst
         cap = self.speed_cap(now)
         if cap is not None:
             out['azami_hiz'] = cap

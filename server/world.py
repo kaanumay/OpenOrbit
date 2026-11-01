@@ -318,14 +318,14 @@ class Metrics:
 
     def summary(self):
         v = [ms for _, ms in self.last]
-        return {'adim': self.step, 'yavas': self.slow, 'ort_ms': round(sum(v) / len(v), 2) if v else 0.0,
-                'en_cok_ms': round(max(v), 2) if v else 0.0}
+        return {'adim': self.step, 'yavas': self.slow, 'avg_ms': round(sum(v) / len(v), 2) if v else 0.0,
+                'max_ms': round(max(v), 2) if v else 0.0}
 
 
 class World:
     @property
     def invulnerable(self):
-        """Test dokunulmazlığı: --dokunulmaz seçeneği ya da panelin ayarı (oyun açıkken de değişir)."""
+        """Test dokunulmazlığı: --invulnerable seçeneği ya da panelin ayarı (oyun açıkken de değişir)."""
         return self._invulnerable or SET.get('dokunulmaz')
 
     @invulnerable.setter
@@ -645,7 +645,7 @@ class World:
             for n in npcs:
                 n.engaged, n.flee, n.children, n.foe, n.park, n.firing = False, False, set(), None, None, False
                 n.pend_dmg = 0                   # zamanlayıcıları dünyayla gitti: kalırsa uzaylı bir daha hasar vermiyordu (npc_hit_tick)
-                n.ab.pop('cagri_sirada', None)
+                n.ab.pop('summon_queued', None)
             WORLD_CACHE[self.cache_key] = dict(an=time.time(), npcs=npcs, boxes=dict(self.boxes), ores=dict(self.ores),
                                             pending=list(self.pending), ore_fields=list(self.ore_fields), next_uid=self.next_uid)
         while len(WORLD_CACHE) > WORLD_CACHE_MAX:
@@ -1111,7 +1111,7 @@ class World:
             return
         x, y = self.random_spot()
         h = self.drop_box(kind, x, y, None, None)
-        self.boxes[h]['anahtarli'] = True
+        self.boxes[h]['keyed'] = True
 
     def load_assets(self):
         """Usable station assets and quest givers of the map's entry messages (foreign ones only listed as unusable)."""
@@ -1259,7 +1259,7 @@ class World:
             self.remove_gate(WORMHOLE_ID)
         x, y = s.get('konum') or self.random_spot()
         g = dict(gateId=WORMHOLE_ID, x=x, y=y, hedef=s['hedef'], designId=1, gizli=True, solucan=True, varis='rastgele')
-        self.wormhole = (g, now + s['tasinma_sn'] if s.get('tasinma_sn') else float('inf'))
+        self.wormhole = (g, now + s['relocate_sec'] if s.get('relocate_sec') else float('inf'))
         self.add_gate(g)
         self.log('   solucan deliği (%d,%d)' % (x, y))
 
@@ -1961,7 +1961,7 @@ class World:
         collected by your P.E.T.")."""
         with self.lock:
             b = self.boxes.get(h)
-            if not b or not self.own(b) or (by_pet and b.get('pet_yok')):      # Vortex of Greed kutularını P.E.T. toplayamaz (Ö4)
+            if not b or not self.own(b) or (by_pet and b.get('no_pet')):      # Vortex of Greed kutularını P.E.T. toplayamaz (Ö4)
                 return False
             foreign = b['tip'] in CARGO_BOXES and not self.own_tag(b.get('mal')) and SET.get('kargo_sahipligi')
             if foreign and by_pet:
@@ -1995,8 +1995,8 @@ class World:
                 del self.boxes[h]
             extra = b.pop('ek', None) if cargo_box else None           # kutudaki ek kaynaklar (extra_loot box) ilk alımda
             msgs = pre + [self.beam_msg(by_pet)] + ([] if left else [('RemoveCollectableCommand', {'collected': True, 'hash': h})])
-            if foreign and not b.get('calindi'):             # başkasının kutusu: ceza bir kez (kısmi alımda kutu yerde kalır)
-                b['calindi'] = True
+            if foreign and not b.get('stolen'):             # başkasının kutusu: ceza bir kez (kısmi alımda kutu yerde kalır)
+                b['stolen'] = True
                 msgs += self.cargo_penalty(b['mal'])
                 BG.on_box_taken(b['mal'], self.p.d['pilot'].get('userName', ''))
             if cargo_box:
@@ -2032,7 +2032,7 @@ class World:
                 self.log('   etkinlik kutusu %s: %s' % (b['tip'], ', '.join('%s x%d' % x for x in got) or '-'))
             elif b['tip'] == 'BONUS_BOX':
                 what, amount = b['icerik']
-                seq = self.rules.get('bonus_dizisi')
+                seq = self.rules.get('bonus_sequence')
                 if seq:                                  # Cubikon Mezarlığı: ilki 1.000 UCB-100, sonra giderek LCB-10 (wiki)
                     what, amount = seq[min(self.boxes_taken, len(seq) - 1)]
                     self.boxes_taken += 1
@@ -2154,7 +2154,7 @@ class World:
         msgs = []
         if ep:
             msgs.append(legacy('0|LM|ST|EP|%d|%d|%d' % (ep, tot['ep'], tot['seviye'])))
-        if tot.get('seviye_atladi'):
+        if tot.get('leveled_up'):
             msgs.append(('LevelUpCommand', {'uid': self.hid, 'newLevel': tot['seviye']}))     # seviye atlama efekti
         if onur:
             msgs.append(legacy('0|LM|ST|HON|%d|%d' % (onur, tot['onur'])))
@@ -2456,7 +2456,7 @@ class World:
             BG.witness(self, 'patron', x, y, ad=n.d.get('ad', ''), kim=self.p.d['pilot'].get('userName', ''))
         msgs = []
         pet_stop = self.pet.npc_gone(n.id) if self.pet else []     # P.E.T. ona ateş ediyorsa lazeri durur
-        if n.d.get('sayilmaz'):                 # sahte Emperor Lordakium: ödülsüz, kutusuz, yeniden doğmaz; patlar
+        if n.d.get('uncounted'):                 # sahte Emperor Lordakium: ödülsüz, kutusuz, yeniden doğmaz; patlar
             if n.id in self.visible:
                 self.visible.discard(n.id)
                 msgs += [('ShipDestroyedCommand', dict(destroyedUserId=n.id, explosionTypeId=0)), ('ShipRemoveCommand', {'userId': n.id})]
@@ -2776,8 +2776,8 @@ class World:
             self.ramp = [min(ramp['azami'], multiplier + ramp['adim']), now]
         if target is not None and not pvp:                        # etkinlik sürerken UCB-100 / CC-C / RSB-75 listedeki uzaylılara (esyalar.json etkinlik_cephane)
             multiplier = LAZER.event_ammo(ammo, target, CAL.is_active) or multiplier
-        if target is not None and ammo in (target.d.get('cephane_carpani') or {}):          # Ö4: etkinlik uzaylısının cephane bonusu
-            multiplier = target.d['cephane_carpani'][ammo]
+        if target is not None and ammo in (target.d.get('ammo_multiplier') or {}):          # Ö4: etkinlik uzaylısının cephane bonusu
+            multiplier = target.d['ammo_multiplier'][ammo]
         flat = LAZER.flat_extra(ship + drones, pvp) if multiplier and (pvp or target is not None) else 0       # Paritydrill / Magmadrill +5, LF-3 +15: çarpanlardan sonra
         return int(base * multiplier * r) + flat, int(base * a.get('kalkan_carpan', 0) * r)
 
@@ -3247,13 +3247,13 @@ class World:
         Protegit'ler ilk atışta hemen çıkıyordu). hit: vuruş değil, bekleyen ilk çağrı. vuran: vuran bot gemisi (yardımcılar botun
         çevresinde doğar, ona saldırır: uzayli.cagiran_bot); oyuncunun vuruşu None."""
         if hit:                         # can eşiği ve periyodik çağrılar da bilsin (uzayli.cagiran_bot)
-            n.ab['cagiran'] = hitter.id if hitter is not None else None
+            n.ab['summoner'] = hitter.id if hitter is not None else None
         v = n.behavior.get('vurulunca_cagir')
         if not v:
             return
         if hit and v.get('ilk_bekleme_sn'):
-            quiet = now - n.ab.get('cagri_vurus', -1e9) > v.get('sakin_sn', 15)
-            n.ab['cagri_vurus'] = now
+            quiet = now - n.ab.get('summon_hit', -1e9) > v.get('sakin_sn', 15)
+            n.ab['summon_hit'] = now
             if quiet:
                 n.next_summon = now + v['ilk_bekleme_sn']
                 self.later(v['ilk_bekleme_sn'], lambda: n.alive and n.id in self.npcs and self.npc_summon(n, time.time(), hit=False))
@@ -3261,19 +3261,19 @@ class World:
         if now < n.next_summon:
             return
         n.children = {c for c in n.children if c in self.npcs and self.npcs[c].alive}
-        if v.get('hepsi_olunce') and n.ab.get('cagrildi'):
+        if v.get('hepsi_olunce') and n.ab.get('summoned'):
             # yedekler ancak yardımcıların hepsi yok edilince, bekleme_sn sonra (Hitac; oyuncu bildirimi 2026-10-30: bekleme her
             # çağrıdan sayılıyor, ölen her yardımcının yerine 1-2 dakikada yenisi geliyordu)
-            if n.children or n.ab.get('cagri_sirada', 0):
+            if n.children or n.ab.get('summon_queued', 0):
                 n.ab.pop('bos', None)
                 return
             n.ab.setdefault('bos', now)
             if now < n.ab['bos'] + v.get('bekleme_sn', 10):
                 return
             n.ab.pop('bos')
-        n.ab['cagrildi'] = True
+        n.ab['summoned'] = True
         room = (v.get('en_cok', v.get('adet', 1)) + (self.alien.extra_summons(n, now) if 'ofke' in n.behavior else 0) - len(n.children)
-                - n.ab.get('cagri_sirada', 0))
+                - n.ab.get('summon_queued', 0))
         if room <= 0:
             return
         count, gap = min(room, v.get('adet', 1)), v.get('aralik_sn', 0)
@@ -3295,12 +3295,12 @@ class World:
                 self.send([n.images['suru']])
 
         def queued():
-            n.ab['cagri_sirada'] -= 1
+            n.ab['summon_queued'] -= 1
             if n.alive and n.id in self.npcs:
                 self.summon_one(n, v, time.time())
         for d in delays:
             if d:
-                n.ab['cagri_sirada'] = n.ab.get('cagri_sirada', 0) + 1
+                n.ab['summon_queued'] = n.ab.get('summon_queued', 0) + 1
                 self.later(d, queued)
             else:
                 self.summon_one(n, v, now)
@@ -3728,8 +3728,8 @@ class World:
         if self.ach_secs >= 60 and not self.hero_dead:
             self.ach_secs = 0
             comp = H.company(self.map_id)
-            self.p.ach('minute', pet=bool(self.pet and self.pet.active), pvp_harita=H.name(self.map_id).startswith('4-'),
-                       dusman_harita=bool(comp and comp != self.p.d['pilot'].get('factionId')))
+            self.p.ach('minute', pet=bool(self.pet and self.pet.active), pvp_map=H.name(self.map_id).startswith('4-'),
+                       enemy_map=bool(comp and comp != self.p.d['pilot'].get('factionId')))
             if self.abilities.cloaked(now) or self.items.cloaked():
                 self.p.ach('cloak_minute')          # başarım PlayerCloaked (dakika)
 
@@ -3759,7 +3759,7 @@ class World:
         try:
             hx, hy = self.hero_pos()
             BG.witness(self, 'oyuncu_oldu', hx, hy, ad=self.p.d['pilot'].get('userName', ''),
-                     katil=getattr(getattr(killer, 'bot', None), 'name', None) or getattr(killer, 'd', {}).get('ad', ''))
+                     killer=getattr(getattr(killer, 'bot', None), 'name', None) or getattr(killer, 'd', {}).get('ad', ''))
         except Exception:
             pass                                         # tanıklık sohbeti ölümü asla engellemesin
         self._effect_destination = None

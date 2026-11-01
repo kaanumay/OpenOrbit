@@ -27,7 +27,7 @@ class MultiClientError(Exception):
 
 class MultiClient:
     def __init__(self, cfg, saves, direction, key, logs, log=print):
-        """anahtar: () -> oyun sunucusunun yönetim anahtarı (arkadas.Arkadas.anahtar; DO_COK_OYUNCULU)."""
+        """anahtar: () -> oyun sunucusunun yönetim anahtarı (arkadas.Arkadas.anahtar; OO_MULTIPLAYER)."""
         self.cfg, self.saves, self.direction, self.key, self.logs, self.log = cfg, saves, direction, key, logs, log
         self.lock = threading.RLock()
         self.is_open = {}                 # kayıt -> {'proc', 'oturum', 'uid', 'basla', 'pilot', 'gunluk'} ('proc' None: açılıyor)
@@ -66,7 +66,7 @@ class MultiClient:
 
     def state(self, live=None):
         """Panelin listesi: ek istemciler (sunucunun canli_durum.json'undaki 'yereller'le: bağlı mı, harita, seviye)."""
-        lv = {y.get('kayit'): y for y in ((live or {}).get('yereller') or [])}
+        lv = {y.get('kayit'): y for y in ((live or {}).get('local_players') or [])}
         now = time.time()
         with self.lock:
             out = []
@@ -76,7 +76,7 @@ class MultiClient:
                             'durum': 'aciliyor' if e['proc'] is None else 'acik' if e['proc'].poll() is None else 'kapaniyor',
                             'sure_sn': int(now - e['basla']),
                             'bagli': bool(y.get('bagli')), 'harita': y.get('harita'), 'seviye': y.get('seviye'), 'uid': e['uid']})
-            return {'istemciler': out, 'son': dict(self.last)}
+            return {'clients': out, 'son': dict(self.last)}
 
     # ------------------------------------------------------------ açma ve kapatma
     def open_(self, slot, folder, main_slot):
@@ -86,8 +86,8 @@ class MultiClient:
         if not self.saves.exists(slot):
             raise MultiClientError(_('Kayıt bulunamadı.'))
         c = IST.check(folder)
-        if not c['gecerli']:
-            raise MultiClientError(_('İstemci klasörü geçersiz: %s', ' '.join(c['sorunlar'])))
+        if not c['valid']:
+            raise MultiClientError(_('İstemci klasörü geçersiz: %s', ' '.join(c['issues'])))
         with self.lock:
             if slot in self.live():
                 raise MultiClientError(_('Bu kayıt zaten bir ek istemcide açık.'))
@@ -146,7 +146,7 @@ class MultiClient:
         with self.lock:
             if self.is_open.get(slot, {}).get('proc') is proc:
                 self.is_open.pop(slot, None)
-            self.last[slot] = {'sure_sn': int(stop), 'erken': stop < EARLY_SEC and not (e or {}).get('kapatildi'), 'kod': code,
+            self.last[slot] = {'sure_sn': int(stop), 'early': stop < EARLY_SEC and not (e or {}).get('kapatildi'), 'kod': code,
                               'zaman': time.strftime('%H:%M:%S'), 'bitis': time.time()}      # panelden kapatılan erken sayılmaz
         self.log('ek istemci kapandı: %s (%d sn, kod %s)' % (slot, stop, code))
         if self.on_exit:

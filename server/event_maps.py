@@ -406,7 +406,7 @@ class MapEvents:
                     ch.summoned = True
                     ch.engaged = n.engaged
                     if c.get('omur_sn'):                     # I-Hitac'ın yumurtası 90 sn sonra kaybolur (uzayli.tick 'omur')
-                        ch.ab['omur'] = now + c['omur_sn']
+                        ch.ab['lifetime'] = now + c['omur_sn']
                     n.children.add(ch.id)
         msgs += self.rover(now)
         if here != getattr(self, 'last_here', None):        # etkinlik başladı/bitti: uzaylılar ve gösterge

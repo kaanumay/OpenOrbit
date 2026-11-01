@@ -432,7 +432,7 @@ def pay_tax(b, k):
         k['gelir'] = int(k.get('gelir', 0)) + pay
         u = k['uyeler'].get(b.name.lower())
         if u is not None:
-            u['katki_donem'] = int(u.get('katki_donem', 0)) + pay     # haftalık ödemede en çok katkı verenlere (klan_yonetim)
+            u['contrib_period'] = int(u.get('contrib_period', 0)) + pay     # haftalık ödemede en çok katkı verenlere (klan_yonetim)
 
 
 def clan_company(c):
@@ -472,7 +472,7 @@ def diplomacy(y, b, k, kl, now):
     if b.r.random() > (0.03 if has_reason else 0.015):
         return
     existing = {d['klan']: d for d in k.get('diplomasi', [])}
-    last = b.k.setdefault('diplo_son', {})            # bir klana teklifi tekrarlamaz: reddedilen ya da yanıtsız kalan 6 saat dinlenir
+    last = b.k.setdefault('last_diplo', {})            # bir klana teklifi tekrarlamaz: reddedilen ya da yanıtsız kalan 6 saat dinlenir
     pending = {r['kime'] for r in k.get('diplo_istek', [])} | {r['kimden'] for r in k.get('diplo_istek', [])}
     wars = [d for d in existing.values() if d['tur'] == 3]
     for d in wars:                              # uzayan savaş: barış ister
@@ -587,9 +587,9 @@ def application_decision(y, b, k, bs, now, final=False):
     """Bot lider başvuruya bakar mı (kesin=False: tepki süresi doldu mu) / kabul eder mi (kesin=True): seviye, ilişki. Oyuncunun
     başvurusu da böyle değerlendirilir (hemen değil, bir süre sonra)."""
     if not final:
-        t = bs.get('_bot_gordu')
+        t = bs.get('_bot_seen')
         if t is None:
-            bs['_bot_gordu'] = now
+            bs['_bot_seen'] = now
             return False
         return now - t > b.r.uniform(30, 240)
     from . import interaction as IX
@@ -696,7 +696,7 @@ def mail_tasks(y, b, now):
             with p.lock:
                 r['durum'] = PS.READ                       # sistem, müzayede, bot postası: okunur geçilir
             continue
-        seen = r.setdefault('_bot_gordu', now)
+        seen = r.setdefault('_bot_seen', now)
         if now - seen < b.k['kisilik']['tepki_sn'] * 20 + b.r.uniform(30, 300):
             continue                                         # postaya hemen değil, birkaç dakika sonra bakar
         with p.lock:
@@ -712,7 +712,7 @@ def mail_template(b, k):
         return None
     if k['niyet'] == 'grup':
         return SPC.template(b, 'posta_grup_evet' if k['kabul'] else 'posta_grup_hayir')
-    text = SPC.template(b, k['kalip'][0], **k['kalip'][1]) if k.get('kalip') else None
+    text = SPC.template(b, k['template'][0], **k['template'][1]) if k.get('template') else None
     return text and (text + ', ' + SPC.template(b, 'posta_cevap') if len(text.split()) < 4 else text)
 
 

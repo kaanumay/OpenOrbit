@@ -157,7 +157,7 @@ class Apotheosis:
                 st['durum'] = 'bitti'
                 self.p.dirty = True
             msgs.append(legacy('0|A|STM|kristallon_apotheosis_not_completed'))
-        elif st.get('durum') == 'patron' and now >= st.get('patron_basi', 0) + D['bekleme_sn'] + D['savas_sn'] + D['kapanis_sn'] \
+        elif st.get('durum') == 'patron' and now >= st.get('boss_start', 0) + D['bekleme_sn'] + D['savas_sn'] + D['kapanis_sn'] \
                 and not (self.run and self.run.phase not in ('bitti', 'kapandi')):
             with self.p.lock:
                 st['durum'] = 'bitti'
@@ -191,7 +191,7 @@ class Apotheosis:
         if ph == COLLECTING:
             left = b - now
         elif ph == FIGHT:
-            left = st.get('patron_basi', now) + D['bekleme_sn'] + D['savas_sn'] - now
+            left = st.get('boss_start', now) + D['bekleme_sn'] + D['savas_sn'] - now
         else:
             left = (nxt if not open_ else b) - now
         lv = self.level()
@@ -237,7 +237,7 @@ class Apotheosis:
         if st['puan'] < D['hedef_puan']:
             return []
         with self.p.lock:
-            st.update(durum='patron', patron_basi=time.time())
+            st.update(durum='patron', boss_start=time.time())
             self.p.dirty = True
         self.saved = None
         self.log('   Kristallon Apotheosis: hedef puan, portallar açıldı')
@@ -278,7 +278,7 @@ class Apotheosis:
         cx, cy = KAPI.MAP_W // 2, KAPI.MAP_H // 2
         x, y = int(sx + (cx - sx) * 0.35), int(sy + (cy - sy) * 0.35 - 1200)
         return [dict(gateId=PORTAL_ID, x=x, y=y, hedef=0, designId=D.get('portal_tasarim', 307), pencere='apotheosis',
-                     ipucu_hedef=MAP)]
+                     hint_target=MAP)]
 
     def portal_window(self, g, w, go):
         self.ensure()
@@ -397,7 +397,7 @@ class ApoRun:
         self.m, self.w = mode, world
         self.g = {'ad': 'Kristallon Apotheosis'}
         st = mode.st
-        self.boss_at = st.get('patron_basi', time.time()) + D['bekleme_sn']
+        self.boss_at = st.get('boss_start', time.time()) + D['bekleme_sn']
         if SET.get('seans_hep_acik'):
             self.boss_at = min(self.boss_at, time.time() + 30)      # hep açık: kısa bekleme
         self.end = self.boss_at + D['savas_sn']

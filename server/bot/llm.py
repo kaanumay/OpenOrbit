@@ -221,7 +221,7 @@ def _memories_note(b, y):
 
 def event_text(o):
     t = o['tur']
-    return {'olum': 'got killed by %s' % (o.get('katil') or 'aliens'), 'oyuncu_oldurdum': 'killed the player %s' % o.get('ad'),
+    return {'olum': 'got killed by %s' % (o.get('killer') or 'aliens'), 'oyuncu_oldurdum': 'killed the player %s' % o.get('ad'),
             'oldurdum': 'killed the player %s' % o.get('kurban'), 'seviye': 'reached level %s' % o.get('seviye'),
             'yeni_gemi': 'bought a %s' % str(o.get('esya', '')).replace('ship_', ''), 'gorev_bitti': 'finished a quest',
             'klan_kurdu': 'founded the clan %s' % o.get('ad'), 'klana_girdi': 'joined the clan %s' % o.get('klan'),
@@ -549,7 +549,7 @@ class Brain:
         self.last_bot_chat = time.time() + 60
         self.last_decision = 0.0
         self.last_event = 0.0
-        self.stats = {'istek': 0, 'hata': 0, 'sure': 0.0, 'dusen': 0}
+        self.stats = {'istek': 0, 'hata': 0, 'sure': 0.0, 'dropped': 0}
         self.muted = []             # süzgeçte atılan model satırları
         self.conversations = {}             # güçlü kip: (bot, oyuncu) -> {b, ad, bas, son, n}: bitince anıya özetlenir
         self.request_times = []           # son bir saatteki bütün isteklerin anları (llm_saatlik: sohbet, anı, karar hepsi)
@@ -620,7 +620,7 @@ class Brain:
             return False
         with self.condition:
             if len(self.queue) >= self.slot * 3 and priority >= EVENT:
-                self.stats['dusen'] += 1
+                self.stats['dropped'] += 1
                 return False
             heapq.heappush(self.queue, (priority, next(self.counter), job))
             self.condition.notify()
@@ -690,7 +690,7 @@ class Brain:
         if not self.ready or not y.setting('llm_sohbet', True) or o['tur'] not in ('olum', 'oyuncu_oldurdum', 'yeni_gemi', 'seviye',
                                                                                   'tanik', 'patron_oldurdum'):
             return False
-        human = o.get('katil') or o.get('ad')
+        human = o.get('killer') or o.get('ad')
         if o['tur'] in ('olum', 'oyuncu_oldurdum') and (not human or str(human).lower() in y.name_index):
             return False
         if o['tur'] == 'tanik':
@@ -707,7 +707,7 @@ class Brain:
         """Bota gelen postaya model yanıtı (toplum.posta_yanitla) -> kuyruğa girdi mi (girmediyse kalıp)."""
         if not y.setting('llm_sohbet', True):
             return False
-        return self.add(MAIL, {'t': y.now, 'fn': self._mail, 'bot': b, 'posta': r, 'karar': k})
+        return self.add(MAIL, {'t': y.now, 'fn': self._mail, 'bot': b, 'posta': r, 'decision': k})
 
     def special(self, y, b, name, purpose):
         """Botun oyuncuya kendiliğinden fısıltısı (sohbet_motoru.ozel_baslat) -> kuyruğa girdi mi."""
@@ -767,7 +767,7 @@ class Brain:
                 dec = IX.decision(y, b, intent, name, who, game_map, msg, y.now)
                 if dec is not None:
                     decision = dec['not']
-                    job['karar'] = dec
+                    job['decision'] = dec
             elif intent == 'yardim':
                 incoming = y.help_call(name, who, game_map, [b], 'firma', y.now, silent=True)
                 decision = ('You decided to HELP: you are flying to him now. Say it in your own words.' if incoming else
@@ -786,8 +786,8 @@ class Brain:
             if text:
                 y.speak(b, 'fisilti', text, recipient=name, now=y.now, priority=True)
             self._spoke(b, name, y.now)
-            if job.get('karar'):
-                IX.apply(y, b, job['karar'], delay=SPC.typing_time(text or 'ok', b) + b.r.uniform(1, 3))
+            if job.get('decision'):
+                IX.apply(y, b, job['decision'], delay=SPC.typing_time(text or 'ok', b) + b.r.uniform(1, 3))
 
     def _room(self, job):
         y, channel, msg, who = self.y, job['kanal'], job['msg'], job['kim']
@@ -894,7 +894,7 @@ class Brain:
         schema = {'type': 'object', 'properties': {'metin': {'type': 'string', 'maxLength': 90},
                                                  'kanal': {'type': 'string', 'enum': ['fisilti', 'firma', 'global', 'hicbiri']}},
                 'required': ['metin', 'kanal']}
-        who = o.get('katil') or o.get('ad') or ''
+        who = o.get('killer') or o.get('ad') or ''
         k = ('You are %s.\n%s\nThis just happened: you %s.\nDo you type something about it? kanal: fisilti = private message to %s, '
              'firma = company chat, global = global chat, hicbiri = say nothing (often the most realistic). metin: one short line.') % (
             b.name, persona(b, y), event_text(o), who or '-')
@@ -907,7 +907,7 @@ class Brain:
             y.speak(b, channel, text, recipient=who if channel == 'fisilti' else None, now=y.now)
 
     def _mail(self, job):
-        y, b, r, dec = self.y, job['bot'], job['posta'], job.get('karar')
+        y, b, r, dec = self.y, job['bot'], job['posta'], job.get('decision')
         name = r['gonderen']
         schema = {'type': 'object', 'properties': {'metin': {'type': 'string', 'maxLength': 240}}, 'required': ['metin']}
         contents = '%s %s' % (r.get('konu', ''), r.get('metin', ''))
@@ -1063,7 +1063,7 @@ class Brain:
         speakers = {a for a, _ in self.conversations}
         self._near = {id(b) for b in y.bots if b.body is not None or b.game_map in maps or b.name.lower() in speakers
                        or any(abs(b.memory.relation(a, now)) >= 0.15 for a in names)
-                       or any(a['kim'].lower() in names for a in b.k.get('anilar') or ())}
+                       or any(a['kim'].lower() in names for a in b.k.get('memories') or ())}
         self._nearby_time = now
         return self._near
 

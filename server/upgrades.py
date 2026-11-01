@@ -401,10 +401,10 @@ class Upgrade:
                 from legacy_protocol import legacy
                 msgs = [legacy('0|A|STM|bn_upgradeBounsHour_content')] if on else []     # "%25 uridyum indirimi" (istemcinin metni)
                 self.send(msgs + self.discount_msgs(now))
-        done = [k for k, b in self.st.items() if not b.get('bildirildi') and now >= b['bitis']]
+        done = [k for k, b in self.st.items() if not b.get('notified') and now >= b['bitis']]
         for k in done:
             with self.p.lock:
-                self.st[k]['bildirildi'] = True
+                self.st[k]['notified'] = True
                 self.p.dirty = True
         if done and self.send:
             self.send([self.update(k.split('|')[0], int(k.split('|')[1]), now) for k in done] + ([self.refresh()] if self.refresh else []))

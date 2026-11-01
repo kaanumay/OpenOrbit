@@ -165,7 +165,7 @@ def _steps(buf, steps, out, depth, ctx=None):
             # üst sınıf kimliği: beklenen değerden farklıysa "_ust" altında saklanır (yeniden kodlama için)
             v = buf.u16()
             if v != _parent_id(s.get('c')):
-                out.setdefault('_ust', {})[str(ctx['n'])] = v
+                out.setdefault('_super', {})[str(ctx['n'])] = v
             ctx['n'] += 1
         if t == 'pid':
             continue
@@ -295,7 +295,7 @@ def _enc_steps(out, steps, f, ctx):
     for s in steps:
         t = s['t']
         if t in ('pid', 'super') and (t == 'pid' or s.get('id', True)):
-            parent = f.get('_ust') or {}
+            parent = f.get('_super') or {}
             v = parent.get(str(ctx['n']), _parent_id(s.get('c')))
             if v is None:
                 raise EncodeError('üst sınıf kimliği bilinmiyor (%s)' % s.get('c'))

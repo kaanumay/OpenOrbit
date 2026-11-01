@@ -394,10 +394,10 @@ class Assembly:
             self.shown = set(keys)
         self.up.m, self.up.send, self.up.refresh = self.m, self.send, self.content
         self.up.tick(now)
-        done = [k for k, b in self.st['uretim'].items() if not b.get('bildirildi') and now >= b['bitis']]
+        done = [k for k, b in self.st['uretim'].items() if not b.get('notified') and now >= b['bitis']]
         for k in done:
             with self.p.lock:
-                self.st['uretim'][k]['bildirildi'] = True
+                self.st['uretim'][k]['notified'] = True
                 self.p.dirty = True
         if done and self.send:
             self.send([self.update(k, now=now) for k in done])

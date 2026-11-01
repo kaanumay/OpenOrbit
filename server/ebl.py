@@ -142,7 +142,7 @@ class Ebl:
             record = done > self.st.get('en_iyi', 0)
             if record:
                 self.st['en_iyi'] = done
-                self.st['en_iyi_an'] = int(time.time() * 1000)
+                self.st['best_at'] = int(time.time() * 1000)
             self.p.dirty = True
         self.p.ach('gate_wave', tur='ETERNAL_GATE', dalga=done)       # başarım: "Eternal Gate'te N. dalgaya ulaş"
         if record:
@@ -266,7 +266,7 @@ class Ebl:
     def when(self):
         """Rank sekmesinin TIME sütunu: istemci metni olduğu gibi yazıyor; ham ms damgası "1792220704339" görünüyordu (H76).
         Biçim kayıttaki seyir defteri tarihleri gibi."""
-        t = self.st.get('en_iyi_an')
+        t = self.st.get('best_at')
         if not t:
             return ''
         return time.strftime('%Y-%m-%d %H:%M', time.localtime(float(t) / (1000.0 if float(t) > 1e11 else 1.0)))

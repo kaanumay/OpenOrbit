@@ -4,10 +4,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from meta import Metadata
 from pe import PE
 
-# İstemci klasörü: DO_ISTEMCI ortam değişkeni (protokol_guncelle.py yeni sürüm için verir), yoksa 1.1.116. Önbellek istemci başına
+# İstemci klasörü: OO_CLIENT ortam değişkeni (protokol_guncelle.py yeni sürüm için verir), yoksa 1.1.116. Önbellek istemci başına
 # (1.1.114'ünki eskisi gibi symbols.pkl).
 _HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.environ.get('DO_ISTEMCI') or os.path.join(os.path.dirname(os.path.dirname(_HERE)), 'DarkOrbit_Version1.1.116')
+ROOT = os.environ.get('OO_CLIENT') or os.path.join(os.path.dirname(os.path.dirname(_HERE)), 'DarkOrbit_Version1.1.116')
 _tag = os.path.basename(os.path.normpath(ROOT))
 CACHE = os.path.join(_HERE, 'symbols.pkl' if _tag == 'DarkOrbit_Version1.1.114' else 'symbols_%s.pkl' % _tag)
 

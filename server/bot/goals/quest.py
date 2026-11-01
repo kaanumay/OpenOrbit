@@ -63,7 +63,7 @@ def npc_types(uid):
 def eligible(bot):
     """Botun şimdi alabileceği görevler (seviyeye yakın olanlar önce)."""
     done = set(bot.k['tamam'])
-    deferred = bot.k.get('ertelenen') or {}
+    deferred = bot.k.get('deferred') or {}
     out = []
     for qid, q in quests().items():
         if qid in done or deferred.get(str(qid), 0) >= bot.level or q['seviye'] > bot.level or any(x not in done and x in quests() for x in q['onceki']):
@@ -157,7 +157,7 @@ def deferred(bot):
     oyuncu da görevi iptal edip sonra döner)."""
     g = bot.k.get('gorev')
     if g:
-        bot.k.setdefault('ertelenen', {})[str(g['id'])] = bot.level
+        bot.k.setdefault('deferred', {})[str(g['id'])] = bot.level
         bot.k['gorev'] = None
     bot.plan['bitti'] = True
 

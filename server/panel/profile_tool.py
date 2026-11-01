@@ -150,7 +150,7 @@ def reset(path, parts):
     with open(tmp, 'w', encoding='utf8', newline='\n') as fh:
         json.dump(d, fh, ensure_ascii=False, indent=1)
     os.replace(tmp, path)
-    return {'sifirlanan': done}
+    return {'reset_items': done}
 
 
 def reset_d(d, parts):
@@ -201,5 +201,5 @@ if __name__ == '__main__':
         # ValueError(kalıp, *değerler): panel iletiyi kendi dilinde kurar (kayitlar.run_tool, dil.py)
         template = e.args[0] if isinstance(e, ValueError) and e.args and isinstance(e.args[0], str) else None
         msg = (template % e.args[1:] if len(e.args) > 1 else template) if template else str(e)
-        print(json.dumps({'ok': False, 'hata': '%s: %s' % (type(e).__name__, msg), 'kalip': template, 'arg': [str(a) for a in e.args[1:]]},
+        print(json.dumps({'ok': False, 'hata': '%s: %s' % (type(e).__name__, msg), 'template': template, 'arg': [str(a) for a in e.args[1:]]},
                          ensure_ascii=False))

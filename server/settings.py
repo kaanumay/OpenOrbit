@@ -17,7 +17,7 @@ Alt ayarlar (2026-10-24, kullanıcı isteği: uridyumu kutulardan, uzaylılardan
 alanlarıyla üstünün hemen ardında). Etkin çarpan üst x alt: carpan('uridyum', 'npc'); kaynağın alt ayarı yoksa yalnız üst. Aralık,
 sınır ve uygulama üstünden, varsayılan x1; hazır ayarlar yalnız üstleri değiştirir. Panel alt ayarları üstünün altında açılan
 "Kaynağa göre" bölümünde gösterir.
-Oyun sunucusu configure() ile dosyayı bağlar (game.main, --ayarlar=<yol> seçeneği ya da save/ayarlar.json). Bağlanmamışken
+Oyun sunucusu configure() ile dosyayı bağlar (game.main, --settings=<yol> seçeneği ya da save/ayarlar.json). Bağlanmamışken
 (testler, araçlar) bütün ayarlar varsayılandır: kullanıcının ayarları testleri etkilemez.
 """
 import json, os, random, sys, threading, time
@@ -87,8 +87,8 @@ SCHEMA = [
        'değeri %60, en çok %100). 0: hiç isabet etmezler.', hi=2.0, limit=100.0),
     _c('npc_hiz', 'Uzaylıların hızı', 'savas', 'Uzaylıların uçuş hızı (hareketsiz olanlar kıpırdamaz).', lo=0.1, hi=3.0, limit=10.0),
     dict(anahtar='npc_saldirganlik', ad='Uzaylıların saldırganlığı', grup='savas', tur='seviye', varsayilan=0,
-         secenekler=['Türüne göre', 'Hepsi saldırgan', 'Hiçbiri saldırgan'], renkler=['', 'err', 'ok'], uygulama='anında',
-         secenek_aciklama=['Oyundaki gibi: saldırgan türler seni görünce saldırır, ötekiler vurulunca karşılık verir.',
+         secenekler=['Türüne göre', 'Hepsi saldırgan', 'Hiçbiri saldırgan'], colors=['', 'err', 'ok'], uygulama='anında',
+         option_description=['Oyundaki gibi: saldırgan türler seni görünce saldırır, ötekiler vurulunca karşılık verir.',
                            'Bütün uzaylılar seni fark edince kovalar ve saldırır.',
                            'Hiçbir uzaylı kendiliğinden saldırmaz; vurduğun uzaylı yine karşılık verir.'],
          aciklama='Uzaylıların seni kendiliğinden kovalayıp kovalamadığı (kapı ve mod dalgalarındakiler dahil).'),
@@ -251,8 +251,8 @@ SCHEMA = [
        '(Curcubitor, Agatus, Lanatum, Chaos Protegit) da oyundaki saat pencerelerinin dışında doğar.'),
     # ---------------------------------------------------------------- müzayede
     dict(anahtar='muzayede_rakip', ad='Sanal rakipler', grup='muzayede', tur='seviye', varsayilan=0,
-         secenekler=list(RIVAL_LEVELS), renkler=['', 'ok', 'ok', 'info', 'err'], uygulama='anında',
-         secenek_aciklama=['Rakip yok: teklifleri yalnız sen verirsin.',
+         secenekler=list(RIVAL_LEVELS), colors=['', 'ok', 'ok', 'info', 'err'], uygulama='anında',
+         option_description=['Rakip yok: teklifleri yalnız sen verirsin.',
                            'Arada bir küçük teklifler verirler; seni hiç geçmezler, teklif verdiğin lot senin.',
                            'Daha sık ve biraz daha yüksek teklifler; seni yine geçmezler.',
                            'Geçtiğinde bir süre sonra karşılık verirler. Bütçelerini aşarsan lot senin; kaybedersen kredin geri gelir.',
@@ -278,9 +278,9 @@ SCHEMA = [
        'sistemine, Şeref Salonu sıralamalarına ve şirketteki sıraya girmezsin. Botlar seni yönetici olarak tanır: sana saldırmaz, '
        'sohbetteki uyarılarına uyar, seni görünce tepki verir. Arkadaş sunucusunda yalnız sunucunun oyuncusu için.', apply_mode='giriş'),
     dict(anahtar='yonetici_gemisi', ad='Yönetici gemisi', grup='yonetici', tur='seviye', varsayilan=0,
-         secenekler=['Kendi gemin', 'UFO', 'Polis', 'G-Admincloak', 'Goliath Admin'], renkler=['', 'info', 'info', 'info', 'info'],
+         secenekler=['Kendi gemin', 'UFO', 'Polis', 'G-Admincloak', 'Goliath Admin'], colors=['', 'info', 'info', 'info', 'info'],
          uygulama='giriş',
-         secenek_aciklama=['Yönetici modunda da kendi geminle görünürsün.',
+         option_description=['Yönetici modunda da kendi geminle görünürsün.',
                            'Yönetici gemisi (ship_admin): oyundaki UFO uzaylısıyla aynı model.',
                            'Polis gemisi (ship_police).',
                            'Yöneticinin gizlenme gemisi (ship_g-admincloak).',
@@ -369,7 +369,7 @@ PRESETS = {
               'degerler': {'npc_hasar': 2.0, 'npc_can': 1.5, 'kredi': 0.75, 'uridyum': 0.75, 'kutu_bolluk': 0.5,
                            'tamir_ucreti': 2.0, 'muzayede_rakip': 4, 'npc_isabet': 1.25, 'npc_saldirganlik': 1,
                            'kalkan_yenilenme': 0.5}},
-    'yaratici': {'ad': 'Yaratıcı', 'aciklama': 'Gemin yok edilmez, cephane bitmez, mağaza ve hizmetler bedava, bekleme yok.',
+    'creative': {'ad': 'Yaratıcı', 'aciklama': 'Gemin yok edilmez, cephane bitmez, mağaza ve hizmetler bedava, bekleme yok.',
                  'degerler': {'dokunulmaz': True, 'sonsuz_cephane': True, 'sonsuz_teknoloji': True, 'magaza_fiyat': 0.0, 'hizmet_fiyat': 0.0,
                               'kapi_fiyat': 0.0, 'tamir_ucreti': 0.0, 'bekleme': 0.0, 'seviye_kisiti_yok': True,
                               'sonsuz_can': True, 'giris_siniri_yok': True, 'pet_yakit': 0.0, 'assembly_ucretsiz': True,
@@ -433,10 +433,10 @@ def write(path, values):
 
 
 def configure(argv=None, path=None):
-    """Ayar dosyasını bağla: path, yoksa --ayarlar=<yol> seçeneği, yoksa save/ayarlar.json. path=False: bağı çöz (varsayılanlar)."""
+    """Ayar dosyasını bağla: path, yoksa --settings=<yol> seçeneği, yoksa save/ayarlar.json. path=False: bağı çöz (varsayılanlar)."""
     if path is None:
         argv = sys.argv if argv is None else argv
-        path = next((a.split('=', 1)[1] for a in argv if a.startswith('--ayarlar=')), DEFAULT_PATH)
+        path = next((a.split('=', 1)[1] for a in argv if a.startswith('--settings=')), DEFAULT_PATH)
     with _lock:
         _state.update(yol=path or None, mtime=None, okuma=0.0, d={})
     return path

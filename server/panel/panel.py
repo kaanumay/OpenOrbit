@@ -153,9 +153,9 @@ ENG = RUN.engine()                                                # macOS: panel
 ENG.log = log
 PATCHER = PATCH.Patcher(log)                                           # istemcinin düzeltmelerini yükleyen BepInEx (istemci_yama.py)
 TOKEN = secrets.token_hex(16)
-STATE = {'oyna': {'calisiyor': False, 'adimlar': [], 'hata': None, 'bitti': None, 'sadece_sunucu': False},
-         'nabiz': time.monotonic(), 'pencere_kapandi': False, 'pencere_izleniyor': False, 'son_yedek': 0.0, 'kapaniyor': False,
-         'sonraki_denetim': time.time() + 8, 'guncellendi': '--guncellendi' in sys.argv, 'srv': None, 'acilis': time.time()}
+STATE = {'oyna': {'calisiyor': False, 'adimlar': [], 'hata': None, 'bitti': None, 'server_only': False},
+         'heartbeat': time.monotonic(), 'window_closed': False, 'window_watched': False, 'last_backup': 0.0, 'kapaniyor': False,
+         'next_check': time.time() + 8, 'updated': bool({'--updated', '--guncellendi'} & set(sys.argv)), 'srv': None, 'acilis': time.time()}
 
 
 def rp_source():
@@ -201,12 +201,12 @@ def world_id(slot, friend=False):
 
 
 def world_file(slot, friend=False):
-    """Sunucunun dünya dosyası (Dünya Editörü; DO_DUNYA) ya da None (standart dünya, silinmiş dünya)."""
+    """Sunucunun dünya dosyası (Dünya Editörü; OO_WORLD) ya da None (standart dünya, silinmiş dünya)."""
     return WLD.file_path(world_id(slot, friend))
 
 
 def bot_file(slot, friend=False):
-    """Sunucunun bot paketi (Botlar sayfası; DO_BOT): kaydın dünyasına atanmış paket ya da None."""
+    """Sunucunun bot paketi (Botlar sayfası; OO_BOT): kaydın dünyasına atanmış paket ya da None."""
     return BT.file_path(BT.world_pack(world_id(slot, friend) or WLD.STANDARD))
 
 
@@ -216,7 +216,7 @@ def world_info(wid):
         w = WLD.summary(wid if wid and WLD.var(wid) else WLD.STANDARD)
     except WLD.WorldError:
         w = WLD.summary(WLD.STANDARD)
-    return {'id': w['id'], 'ad': w['ad'], 'kapak': w['kapak'], 'degisiklik': 0 if w['standart'] else w['degisiklik'], 'standart': w['standart']}
+    return {'id': w['id'], 'ad': w['ad'], 'kapak': w['kapak'], 'changes': 0 if w['standart'] else w['changes'], 'standart': w['standart']}
 
 
 def world_users():
@@ -280,7 +280,7 @@ def _downloaded(path):
     """İndirme bitti: kullanılan istemci geçersizse ya da güncelleniyorsa yeni klasör kullanılsın (kendiliğinden bulunuyorsa ayar boş
     kalır); güncellemede eski klasör silinir."""
     old = STATE.pop('istemci_eski', None)
-    if old or not IST.check(client_folder())['gecerli']:
+    if old or not IST.check(client_folder())['valid']:
         auto = IST.resolve(None)
         same = auto and os.path.normcase(os.path.normpath(auto)) == os.path.normcase(os.path.normpath(path))
         CFG.update({'istemci_klasoru': None if same else path})
@@ -293,7 +293,7 @@ def delete_old_client(old, new_):
     """İstemci güncellemesi: eski sürümün klasörünü sil. Yalnız arşivden açılmış DarkOrbit_Version… klasörü: resmî kurulumu kendi
     başlatıcısı günceller, ona dokunulmaz."""
     if (os.path.normcase(os.path.normpath(old)) == os.path.normcase(os.path.normpath(new_))
-            or not re.match(r'DarkOrbit_Version\d', os.path.basename(os.path.normpath(old))) or not IST.check(old)['gecerli']):
+            or not re.match(r'DarkOrbit_Version\d', os.path.basename(os.path.normpath(old))) or not IST.check(old)['valid']):
         log('eski istemci silinmedi: %s' % old)
         return
     try:
@@ -396,17 +396,17 @@ def event_list():
             nxt = (best - t).days + 1 if best else None
         st = sel.get(key)
         out.append({'anahtar': key, 'ad': _(e.get('ad', key)), 'tur': 'yillik' if yearly else 'haftalik', 'zaman': when,
-                    'takvimde': per is not None, 'kalan_sn': int(per[1] - now) if per else None, 'sonraki_gun': nxt,
+                    'takvimde': per is not None, 'time_left_sec': int(per[1] - now) if per else None, 'next_day': nxt,
                     'durum': st, 'etkin': (st == 'acik') if st else per is not None,
                     'aciklama': _(EVENT_DESCRIPTIONS.get(key, '')),
-                    'cakisan': sorted(_(CAL.EVENTS[j].get('ad', j)) for j in CAL.CONFLICTS[key])})
+                    'conflicting': sorted(_(CAL.EVENTS[j].get('ad', j)) for j in CAL.CONFLICTS[key])})
     # çakışma (takvim.resolve): aynı anda açık çakışanlardan elle açılan, yoksa önce başlayan kalır
     rows = {x['anahtar']: x for x in out}
     on = {k for k, x in rows.items() if x['etkin']}
     keep = CAL.resolve(on, lambda k: (rows[k]['durum'] != 'acik', (CAL.period(k, now) or (0,))[0], k))
     for k in on - keep:
         rows[k]['etkin'] = False
-        rows[k]['bastiran'] = next(rows[j]['ad'] for j in sorted(keep, key=lambda j: rows[j]['ad']) if j in CAL.CONFLICTS[k])
+        rows[k]['suppressed_by'] = next(rows[j]['ad'] for j in sorted(keep, key=lambda j: rows[j]['ad']) if j in CAL.CONFLICTS[k])
     out.sort(key=lambda x: (x['tur'] != 'yillik', not x['etkin'], x['ad'].lower()))
     return out
 
@@ -433,9 +433,9 @@ def api_calendar(q):
     for e in evs:
         x = c[e['anahtar']]
         session = [dict(s, ad=_(SESSION_NAMES[s['kimlik'] if s['tur'] == 'seans' else s['tur']])) for s in x['seanslar']]
-        out.append(dict(e, araliklar=x['araliklar'], etkin_araliklar=x['etkin'], seanslar=session,
+        out.append(dict(e, araliklar=x['araliklar'], active_ranges=x['etkin'], seanslar=session,
                         sonraki=CC.next_(e['anahtar'], now, 400 if e['tur'] == 'yillik' else 70)))
-    return {'simdi': now, 'bas': a, 'bit': b, 'hep_acik': hep, 'etkinlikler': out}
+    return {'simdi': now, 'bas': a, 'bit': b, 'always_open': hep, 'etkinlikler': out}
 
 
 def settings_summary(values):
@@ -471,7 +471,7 @@ def set_events(body):
                 ev[k] = to
             else:
                 ev.pop(k, None)
-    for k, v in (body.get('degisiklik') or {}).items():
+    for k, v in (body.get('changes') or {}).items():
         if k not in CAL.EVENTS:
             continue
         if v in SET.EVENT_STATES:
@@ -494,11 +494,11 @@ def try_migrate():
         return None
     table = PR.listeners()
     if any(PR.listening(p, table) for p in (8081, 8090)):
-        if not STATE.get('tasima_bekliyor'):
+        if not STATE.get('migration_pending'):
             log('eski kayıt taşınmadı: oyun portları açık (Baslat.bat ile açılmış bir sunucu kullanıyor olabilir)')
-        STATE['tasima_bekliyor'] = True
+        STATE['migration_pending'] = True
         return None
-    STATE['tasima_bekliyor'] = False
+    STATE['migration_pending'] = False
     moved = SAV.migrate()
     if moved:
         log('eski kayıt (save/profil.json) yuvaya taşındı: %s' % moved)
@@ -507,7 +507,7 @@ def try_migrate():
 
 def warnings(folder=False):
     out = []
-    if STATE.get('tasima_bekliyor'):
+    if STATE.get('migration_pending'):
         out.append({'tur': 'uyari', 'metin': _('Eski kaydın (server/save/profil.json) kayıt yuvasına taşınması bekliyor: önce dışarıda açık '
                                                'olan sunucuyu kapatın (Sunucu > Portlar).'), 'sayfa': 'sunucu'})
     if FRD.active():
@@ -517,12 +517,12 @@ def warnings(folder=False):
     if not slot:
         out.append({'tur': 'hata', 'metin': _('Henüz kayıt yok: Kayıtlar sayfasından yeni bir kayıt oluşturun.'), 'sayfa': 'kayitlar'})
     c = IST.check(client_folder() if folder is False else folder)
-    if not c['gecerli'] and DL.running():
+    if not c['valid'] and DL.running():
         out.append({'tur': 'uyari', 'metin': _('Oyun istemcisi indiriliyor: %%%d. Bitince oynayabilirsin.', _dl_pct(DL.state())),
                     'sayfa': 'istemci'})
-    elif not c['gecerli']:
+    elif not c['valid']:
         out.append({'tur': 'hata', 'metin': _('Oyun istemcisi bulunamadı: %s İstemci sayfasından klasörü seçin ya da oyunu indirin.',
-                                              ' '.join(c['sorunlar'])), 'sayfa': 'istemci'})
+                                              ' '.join(c['issues'])), 'sayfa': 'istemci'})
     elif c['eski']:                                                  # yeni sürüm çıktı: tek tıkla güncellenir (/api/istemci/guncelle)
         dl, sup = DL.state(), IST.supported()
         run = bool(STATE.get('istemci_eski')) and dl['calisiyor']
@@ -533,10 +533,10 @@ def warnings(folder=False):
             text += ' ' + dl['hata']
         out.append({'tur': 'hata', 'metin': text, 'ilerleme': _dl_pct(dl) if run else None, 'indirme': dl if run else None,
                     'sayfa': 'istemci',
-                    'eylem': {'metin': _('Güncelle'), 'api': '/api/istemci/guncelle', 'calisiyor': run,
-                              'calisiyor_metin': _('Güncelleniyor…')}})
-    elif not c['uyumlu']:
-        out.append({'tur': 'uyari', 'metin': c['sorunlar'][-1], 'sayfa': 'istemci'})
+                    'eylem': {'metin': _('Güncelle'), 'api': '/api/istemci/update', 'calisiyor': run,
+                              'running_text': _('Güncelleniyor…')}})
+    elif not c['compatible']:
+        out.append({'tur': 'uyari', 'metin': c['issues'][-1], 'sayfa': 'istemci'})
     error = RUN.find(CFG)['hata']                                      # Linux ve macOS: Wine ya da Proton (Apple Silicon'da Rosetta)
     if error:
         w = {'tur': 'hata', 'metin': error, 'sayfa': 'istemci'}
@@ -584,9 +584,9 @@ def warnings(folder=False):
 
 
 def status():
-    STATE['nabiz'] = time.monotonic()
-    STATE['pencere_kapandi'] = False                  # bir pencere yine soruyor (ikinci başlatmanın açtığı da)
-    if STATE.get('tasima_bekliyor'):
+    STATE['heartbeat'] = time.monotonic()
+    STATE['window_closed'] = False                  # bir pencere yine soruyor (ikinci başlatmanın açtığı da)
+    if STATE.get('migration_pending'):
         try_migrate()
     slot = SAV.active()
     try:
@@ -594,24 +594,24 @@ def status():
     except (OSError, SaveError):
         active = None
     if active:
-        active['dunya_bilgi'] = world_info(active.get('dunya'))
+        active['world_info'] = world_info(active.get('dunya'))
     vals = game_settings()
     ev = [e['ad'] for e in event_list() if e['etkin'] and e['tur'] == 'yillik']
     slots = SAV.slots()
     folder = client_folder()                     # istemci klasörü araması (glob) bir kez: uyarılar ve yanıt
-    return {'surecler': MANAGER.status(), 'aktif': active, 'kayit_sayisi': len(slots),
-            'ayar_ozet': settings_summary(vals), 'etkinlikler': ev,
-            'uyarilar': warnings(folder), 'oyna': STATE['oyna'], 'istemci_klasoru': folder,
+    return {'processes': MANAGER.status(), 'aktif': active, 'save_count': len(slots),
+            'settings_summary': settings_summary(vals), 'etkinlikler': ev,
+            'warnings': warnings(folder), 'oyna': STATE['oyna'], 'istemci_klasoru': folder,
             'arkadas': {'host': MANAGER.running() and MANAGER.friend, 'misafir': FRD.m['durum'], 'adres': FRD.m['adres']},
             'coklu': multi_status(slots),
-            'panel': {'surum': VERSION, 'pencere_kapandi': STATE['pencere_kapandi'], 'dil': CFG.get('dil'), 'platform': sys.platform,
-                      'kurulum_tamam': CFG.get('kurulum_tamam'), 'guncellendi': STATE['guncellendi'],
-                      'acik_sn': int(time.time() - STATE['acilis'])}}
+            'panel': {'surum': VERSION, 'window_closed': STATE['window_closed'], 'dil': CFG.get('dil'), 'platform': sys.platform,
+                      'kurulum_tamam': CFG.get('kurulum_tamam'), 'updated': STATE['updated'],
+                      'uptime_sec': int(time.time() - STATE['acilis'])}}
 
 
 # ------------------------------------------------------------------ çoklu istemci (coklu.py)
 def multi_env():
-    """Çoklu istemcinin oyun sunucusu ayarları (DO_COK_OYUNCULU; cok_oyunculu.configure): yalnız bu bilgisayar, misafir yok."""
+    """Çoklu istemcinin oyun sunucusu ayarları (OO_MULTIPLAYER; cok_oyunculu.configure): yalnız bu bilgisayar, misafir yok."""
     return json.dumps({'adres': '127.0.0.1', 'misafir': False, 'anahtar': FRD.key, 'kod': VERSION, 'yerel': FRD.local})
 
 
@@ -624,7 +624,7 @@ def multi_wanted(slot):
 def multi_status(slots):
     """Oyna sayfasının Çoklu istemci kartı: açık ek istemciler, son kapanışlar ve ek istemcide açılabilecek kayıtlar."""
     live = read_json(os.path.join(PTH.LOGS, 'canli_durum.json'), None) if MULTI.live() else None
-    out = dict(MULTI.state(live), ayar=CFG.get('coklu_istemci'), en_cok=CFG.get('coklu_en_cok'), kayit_sayisi=len(slots),
+    out = dict(MULTI.state(live), ayar=CFG.get('coklu_istemci'), en_cok=CFG.get('coklu_en_cok'), save_count=len(slots),
                sunucu=MANAGER.running() and (MANAGER.multi or MANAGER.friend), ana=MANAGER.slot if MANAGER.running() else None, kayitlar=[])
     if out['ayar'] and len(slots) > 1:
         for s in slots:
@@ -668,11 +668,11 @@ def clients_closed():
     if MANAGER.client_alive() or MULTI.live():
         return                                        # bir istemci sürüyor: sunucular açık kalır
     game, last = MANAGER.servers.get('oyun'), MANAGER.last_client
-    if not (game and game.alive and MANAGER.client_started and MANAGER.client_started >= game.start and last and not last['erken']):
+    if not (game and game.alive and MANAGER.client_started and MANAGER.client_started >= game.start and last and not last['early']):
         return
     if CFG.get('istemci_kapaninca') == 'kapat':
         MANAGER.stop_servers()
-    if STATE['pencere_kapandi']:
+    if STATE['window_closed']:
         threading.Thread(target=shutdown, daemon=True).start()
 
 
@@ -705,10 +705,10 @@ def launch(server_only=False, friend=False):
             c = IST.check(folder)
             if STATE.get('istemci_eski') and DL.running():
                 raise Error(_('Oyun %s sürümüne güncelleniyor (%%%d). Bitince oynayabilirsin.', IST.supported(), _dl_pct(DL.state())))
-            if not c['gecerli'] and DL.running():
+            if not c['valid'] and DL.running():
                 raise Error(_('Oyun istemcisi henüz iniyor (%%%d). Bitince oynayabilirsin.', _dl_pct(DL.state())))
-            if not c['gecerli']:
-                raise Error(_('İstemci klasörü geçersiz: %s', ' '.join(c['sorunlar'])))
+            if not c['valid']:
+                raise Error(_('İstemci klasörü geçersiz: %s', ' '.join(c['issues'])))
             if MANAGER.client_alive():
                 raise Error(_('Oyun zaten açık.'))
             others = IST.running_clients(MULTI.pids())                     # panelin ek istemcileri sayılmaz
@@ -739,7 +739,7 @@ def launch(server_only=False, friend=False):
         if CFG.get('yedek_acilista') and not same:
             _step(_('Kayıt yedekleniyor'))
             SAV.backup(slot, 'oto', _('Oyna (açılış)'))
-            STATE['son_yedek'] = time.time()
+            STATE['last_backup'] = time.time()
         if not MANAGER.running() and CFG.get('gunluk_dondur'):
             import launcher
             launcher.rotate_logs(PTH.LOGS, names=('gs.log', 'http.log', 'client.log', 'oyun_konsol.log', 'web_konsol.log',
@@ -778,7 +778,7 @@ def start_launch(server_only=False, friend=False):
     o = STATE['oyna']
     if o['calisiyor']:
         raise Error(_('Başlatma sürüyor.'))
-    o.update(calisiyor=True, adimlar=[], hata=None, bitti=None, sadece_sunucu=bool(server_only))
+    o.update(calisiyor=True, adimlar=[], hata=None, bitti=None, server_only=bool(server_only))
     threading.Thread(target=launch, args=(server_only, friend), daemon=True).start()
     return o
 
@@ -792,8 +792,8 @@ def join_friend(b):
         raise Error(_('Önce Kayıtlar sayfasından bir kayıt oluşturun.'))
     folder = client_folder()
     c = IST.check(folder)
-    if not c['gecerli']:
-        raise Error(_('İstemci klasörü geçersiz: %s', ' '.join(c['sorunlar'])))
+    if not c['valid']:
+        raise Error(_('İstemci klasörü geçersiz: %s', ' '.join(c['issues'])))
     if MANAGER.client_alive() or IST.running_clients():
         raise Error(_('Oyun zaten açık.'))
     if MANAGER.running():
@@ -838,9 +838,9 @@ def update_tick(now):
         return
     if mode == 'kapali':
         return
-    if now >= STATE['sonraki_denetim']:
+    if now >= STATE['next_check']:
         st = UPD.check()
-        STATE['sonraki_denetim'] = now + (3600 if st['durum'] == 'hata' else UPDATE_SEC)
+        STATE['next_check'] = now + (3600 if st['durum'] == 'hata' else UPDATE_SEC)
     if st['durum'] == 'var' and mode == 'otomatik' and CFG.get('kurulum_tamam') and idle(strict=True):
         UPD.install_async()
 
@@ -848,7 +848,7 @@ def update_tick(now):
 def restart():
     """Güncellemeden sonra yeniden başla: yeni süreç (pencere açmadan) eski kapanınca aynı portu alır; açık pencere sayfayı yeniler."""
     STATE['kapaniyor'] = True
-    args = [sys.executable, os.path.join(PANEL_DIR, 'panel.py'), '--pencere-yok', '--guncellendi', '--port=%d' % PORT]
+    args = [sys.executable, os.path.join(PANEL_DIR, 'panel.py'), '--no-window', '--updated', '--port=%d' % PORT]
     log('panel güncellendi: yeniden başlatılıyor')
     try:
         if os.name == 'nt':
@@ -868,17 +868,17 @@ def ticker():
         try:
             update_tick(time.time())
             iv = CFG.get('yedek_aralik_dk')
-            if MANAGER.client_alive() and MANAGER.slot and iv and time.time() - STATE['son_yedek'] >= iv * 60:
+            if MANAGER.client_alive() and MANAGER.slot and iv and time.time() - STATE['last_backup'] >= iv * 60:
                 SAV.backup(MANAGER.slot, 'oto', _('Oyun sırasında'))
-                STATE['son_yedek'] = time.time()
+                STATE['last_backup'] = time.time()
             MULTI.backup(iv)                           # ek istemcilerin kayıtları
-            if not STATE['pencere_izleniyor'] and time.monotonic() - STATE['nabiz'] > HEARTBEAT_SEC and not STATE['pencere_kapandi']:
-                STATE['pencere_kapandi'] = True
+            if not STATE['window_watched'] and time.monotonic() - STATE['heartbeat'] > HEARTBEAT_SEC and not STATE['window_closed']:
+                STATE['window_closed'] = True
                 log('panel penceresi kapandı (sayfa artık sormuyor)')
                 if CFG.get('pencere_kapaninca') == 'kapat':
                     MANAGER.stop_client()
                     MULTI.close_all(wait=8)
-            if STATE['pencere_kapandi'] and not MANAGER.client_alive() and not MULTI.live() and not STATE['oyna']['calisiyor']:
+            if STATE['window_closed'] and not MANAGER.client_alive() and not MULTI.live() and not STATE['oyna']['calisiyor']:
                 shutdown()
         except Exception:
             log('zamanlayıcı hatası: %s' % traceback.format_exc())
@@ -947,14 +947,14 @@ def watch_window(proc):
         # kapanış işaretinden ve nabzından anlaşılır (/api/kapandi, ticker; tarayıcıdan çıkılınca da işaret gelir); panel kapanınca
         # bu süreç de kapanır (shutdown)
         return
-    STATE['pencere_izleniyor'] = True
+    STATE['window_watched'] = True
     t0 = time.time()
     proc.wait()
-    STATE['pencere_izleniyor'] = False
+    STATE['window_watched'] = False
     if time.time() - t0 < HANDOVER_SEC:
         # aynı profil klasörüyle açık bir tarayıcı süreci varsa yeni süreç pencereyi ona devredip hemen çıkar (18, 20 ve 22 Ekim:
         # panel açılır açılmaz "kapandı" sayılıp kapanıyordu): pencere açık, kapanışı sayfanın nabzından anlaşılır (ticker)
-        STATE['nabiz'] = time.monotonic()
+        STATE['heartbeat'] = time.monotonic()
         log('panel penceresi açık bir tarayıcı sürecine devredildi; nabızla izleniyor')
         return
     log('panel penceresi kapandı')
@@ -963,7 +963,7 @@ def watch_window(proc):
         MULTI.close_all(wait=8)                   # ek istemcilerin son kaydı sunucuya bırakılsın
         wait_for_client()
         shutdown()
-    STATE['pencere_kapandi'] = True
+    STATE['window_closed'] = True
 
 
 SHORTCUT, OLD_SHORTCUT = 'OpenOrbit.lnk', 'DarkOrbit.lnk'   # eski: 2026-10-24'ten önce konan (kaldırılan "DarkOrbit Panel.pyw"yi açar)
@@ -1097,11 +1097,11 @@ def create_shortcut():
     script = os.path.join(ROOT, 'OpenOrbit Panel.pyw')
     icon = os.path.join(UI_DIR, 'icon.ico')
     lnk = os.path.join(desktop_dir(), SHORTCUT)
-    ps = ("$s=(New-Object -ComObject WScript.Shell).CreateShortcut($env:DO_KISAYOL); $s.TargetPath=$env:DO_HEDEF; "
-          "$s.Arguments=('\"'+$env:DO_BETIK+'\"'); $s.WorkingDirectory=$env:DO_KOK; $s.IconLocation=($env:DO_SIMGE+',0'); "
-          "$s.Description=$env:DO_ACIKLAMA; $s.Save()")
-    env = dict(os.environ, DO_KISAYOL=lnk, DO_HEDEF=target, DO_BETIK=script, DO_KOK=ROOT, DO_SIMGE=icon,
-               DO_ACIKLAMA=_('OpenOrbit yerel sunucu paneli'))
+    ps = ("$s=(New-Object -ComObject WScript.Shell).CreateShortcut($env:OO_SHORTCUT); $s.TargetPath=$env:OO_TARGET; "
+          "$s.Arguments=('\"'+$env:OO_SCRIPT+'\"'); $s.WorkingDirectory=$env:OO_ROOT; $s.IconLocation=($env:OO_ICON+',0'); "
+          "$s.Description=$env:OO_DESCRIPTION; $s.Save()")
+    env = dict(os.environ, OO_SHORTCUT=lnk, OO_TARGET=target, OO_SCRIPT=script, OO_ROOT=ROOT, OO_ICON=icon,
+               OO_DESCRIPTION=_('OpenOrbit yerel sunucu paneli'))
     r = subprocess.run(['powershell', '-NoProfile', '-NonInteractive', '-Command', ps], capture_output=True, text=True, env=env,
                        timeout=30, creationflags=PR.NO_WINDOW, encoding='utf8', errors='replace')
     if r.returncode or not os.path.isfile(lnk):
@@ -1139,8 +1139,8 @@ def _schema_row(s):
     out = dict(s, ad=_(s['ad']), aciklama=_(s['aciklama']))
     if s.get('secenekler'):
         out['secenekler'] = [_(x) for x in s['secenekler']]
-    if s.get('secenek_aciklama'):
-        out['secenek_aciklama'] = [_(x) for x in s['secenek_aciklama']]
+    if s.get('option_description'):
+        out['option_description'] = [_(x) for x in s['option_description']]
     if s.get('birim'):
         out['birim'] = _(s['birim'])
     return out
@@ -1167,7 +1167,7 @@ def api_settings():
     slot = SAV.active()
     return {'sema': [_schema_row(s) for s in SET.SCHEMA], 'gruplar': [{'anahtar': k, 'ad': _(a)} for k, a in SET.GROUPS],
             'degerler': game_settings(), 'varsayilan': SET.DEFAULTS, 'hazir': ready, 'sablonlar': read_json(TEMPLATES, {}),
-            'sunucu_acik': MANAGER.running(), 'kayit': slot, 'kayit_adi': SAV.meta(slot).get('ad', slot) if slot else None,
+            'server_running': MANAGER.running(), 'kayit': slot, 'save_name': SAV.meta(slot).get('ad', slot) if slot else None,
             'kayitlar': [{'id': s, 'ad': SAV.meta(s).get('ad', s)} for s in SAV.slots() if s != slot]}
 
 
@@ -1185,8 +1185,8 @@ def launch_command():
 def api_client():
     sel = CFG.get('istemci_klasoru')
     used = client_folder()
-    return {'secili': sel, 'kullanilan': used, 'kontrol': IST.check(used), 'adaylar': IST.candidates(),
-            'cozunurlukler': IST.RESOLUTIONS, 'ekran': screen_size(), 'ayarlar': CFG.all(),
+    return {'secili': sel, 'kullanilan': used, 'kontrol': IST.check(used), 'candidates': IST.candidates(),
+            'resolutions': IST.RESOLUTIONS, 'ekran': screen_size(), 'ayarlar': CFG.all(),
             'komut': launch_command(), 'calistirici': RUN.summary(CFG), 'desteklenen': IST.supported(),
             'protokol': ADAPTER.state(), 'indirme': DL.state(), 'yama': PATCHER.state(used)}
 
@@ -1211,15 +1211,15 @@ def profile_values(sid):
     pl, g = d.get('pilot') or {}, d.get('gemi') or {}
     return {'pilot': pl.get('userName', ''), 'kredi': pl.get('credits', 0), 'uridyum': pl.get('uridium', 0),
             'onur': pl.get('honourPoints', 0), 'ep': pl.get('ep', 0), 'seviye': pl.get('level', 1),
-            'can': g.get('hitPoints', 0), 'can_azami': g.get('hitMax', 0), 'kalkan': g.get('shield', 0),
+            'can': g.get('hitPoints', 0), 'max_hp': g.get('hitMax', 0), 'kalkan': g.get('shield', 0),
             'kalkan_azami': g.get('shieldMax', 0), 'firma': COMPANIES.get(pl.get('factionId'), '?'),
-            'kullanimda': SAV.in_use(sid)}
+            'in_use': SAV.in_use(sid)}
 
 
 def worlds_status():
     users = world_users()
-    return {'liste': WLD.entries(users), 'kapaklar': WLD.COVERS, 'sunucu_acik': MANAGER.running(),
-            'sunucu_dunyasi': MANAGER.world[0] if MANAGER.running() and MANAGER.world else None, 'kayitlar': [
+    return {'liste': WLD.entries(users), 'covers': WLD.COVERS, 'server_running': MANAGER.running(),
+            'server_world': MANAGER.world[0] if MANAGER.running() and MANAGER.world else None, 'kayitlar': [
                 {'id': k['id'], 'ad': k.get('ad'), 'pilot': k.get('pilot'), 'firma': k.get('firma'), 'seviye': k.get('seviye'),
                  'dunya': k.get('dunya') if k.get('dunya') and WLD.var(k.get('dunya')) else WLD.STANDARD, 'aktif': k.get('aktif')}
                 for k in SAV.list()]}
@@ -1241,8 +1241,8 @@ def world_get(path, q):
         # yeniden_gerekli: sunucu açıldıktan sonra oyun açıkken uygulanamayan bir değişiklik yapıldı (mağaza ve açık artırma canlı)
         return dict(WLD.summary(did, world_users()), sunucu_bu_dunyada=is_open,
                     yeniden_gerekli=is_open and PR.world_signature(WLD.file_path(did)) != MANAGER.world)
-    if path == '/api/dunya/bolum':
-        did, section = world_arg(q), q.get('bolum')
+    if path == '/api/dunya/section':
+        did, section = world_arg(q), q.get('section')
         if section == 'uzaylilar':
             return {'uzaylilar': WLD.aliens(did)}
         if section == 'haritalar':
@@ -1260,7 +1260,7 @@ def world_get(path, q):
         if section == 'ekonomi':
             return WLD.economy(did)
         if section == 'etkinlikler':
-            return {'etkinlikler': WLD.events(did), 'siniflar': WLD.MAP_CLASSES}
+            return {'etkinlikler': WLD.events(did), 'classes': WLD.MAP_CLASSES}
         raise Error(_('Bilinmeyen bölüm.'))
     if path == '/api/dunya/harita':
         return WLD.game_map(world_arg(q), q.get('id'))
@@ -1280,12 +1280,12 @@ def world_post(path, b):
             raise Error(_('Dünya bulunamadı.'))
         SAV.set_meta(sid, dunya=None if did == WLD.STANDARD else did)
         return worlds_status()
-    if path == '/api/dunya/olustur':
-        did = WLD.create(b.get('ad'), b.get('aciklama', ''), b.get('kapak', 'nebula'), source=b.get('kaynak'), from_draft=bool(b.get('taslaktan')))
+    if path == '/api/dunya/create':
+        did = WLD.create(b.get('ad'), b.get('aciklama', ''), b.get('kapak', 'nebula'), source=b.get('kaynak'), from_draft=bool(b.get('from_draft')))
         if b.get('kayit') and SAV.exists(b['kayit']):  # oluşturunca bu kaydın varsayılanı yap
             SAV.set_meta(b['kayit'], dunya=did)
         return dict(worlds_status(), yeni=did)
-    if path == '/api/dunya/guncelle':
+    if path == '/api/dunya/update':
         WLD.update(b.get('id'), name=b.get('ad'), description=b.get('aciklama'), cover=b.get('kapak'))
         return worlds_status()
     if path == '/api/dunya/sil':
@@ -1295,9 +1295,9 @@ def world_post(path, b):
             if k.get('dunya') == did:
                 SAV.set_meta(k['id'], dunya=None)
         return worlds_status()
-    if path == '/api/dunya/kopyala':
+    if path == '/api/dunya/copy':
         return dict(worlds_status(), yeni=WLD.duplicate(b.get('id'), b.get('ad')))
-    if path == '/api/dunya/taslak_at':
+    if path == '/api/dunya/discard_draft':
         WLD.discard_draft()
         return worlds_status()
     if path == '/api/dunya/disari':
@@ -1311,7 +1311,7 @@ def world_post(path, b):
         return {'yol': dest}
     if path == '/api/dunya/kod':                    # paylaşım kodu (Discord'a yapıştırılır)
         return {'kod': WLD.code(world_arg(b))}
-    if path == '/api/dunya/iceri':                  # paylaşım kodundan ya da dosyadan
+    if path == '/api/dunya/import':                  # paylaşım kodundan ya da dosyadan
         if b.get('kod'):
             data = WLD.from_code(b['kod'])
         else:
@@ -1327,18 +1327,18 @@ def world_post(path, b):
         return world_get('/api/dunya', {'dunya': did})
     if path == '/api/dunya/geri_al':
         did = world_arg(b)
-        WLD.revert(did, b.get('dosya'), b.get('yol'), b.get('bolum'))
+        WLD.revert(did, b.get('dosya'), b.get('yol'), b.get('section'))
         return world_get('/api/dunya', {'dunya': did})
     if path == '/api/dunya/gorev':
         did = world_arg(b)
-        WLD.save_quest(did, b.get('id'), b.get('degisiklik') or {})
+        WLD.save_quest(did, b.get('id'), b.get('changes') or {})
         return WLD.quest(did, b.get('id'))
-    if path == '/api/dunya/gorev_yeni':
+    if path == '/api/dunya/new_quest':
         did = world_arg(b)
         qid = WLD.new_quest(did, b.get('ad'), b.get('seviye'), b.get('hedefler') or [], b.get('oduller') or [])
         return WLD.quest(did, qid)
-    if path == '/api/dunya/sunucu_yeniden':         # editörden: dünyanın değişiklikleri için sunucuyu yeniden başlat
-        return h_post('/api/sunucu/yeniden', {})
+    if path == '/api/dunya/server_restart':         # editörden: dünyanın değişiklikleri için sunucuyu yeniden başlat
+        return h_post('/api/sunucu/restart', {})
     raise Error(_('Bilinmeyen istek.'))
 
 
@@ -1346,9 +1346,9 @@ def bots_status():
     users = world_users()
     worlds = [{'id': w['id'], 'ad': w['ad'], 'kapak': w['kapak'], 'standart': w['standart'],
                  'pilotlar': [u.get('pilot') or u.get('ad') for u in w.get('kullananlar') or []]} for w in WLD.entries(users)]
-    return {'liste': BT.entries(), 'dunyalar': worlds, 'kipler': BT.MODES, 'izinler': BT.PERMISSIONS, 'siniflar': BT.SIMPLE_CLASSES,
+    return {'liste': BT.entries(), 'dunyalar': worlds, 'bot_modes': BT.MODES, 'izinler': BT.PERMISSIONS, 'classes': BT.SIMPLE_CLASSES,
             'ayarlar': {k: {'tur': v[0], 'en_az': v[1], 'en_cok': v[2], 'varsayilan': v[3]} for k, v in BT.SETTINGS.items()},
-            'llm_cok_dilli': PRV.multilingual(), 'sunucu_acik': MANAGER.running(), 'sunucu_paketi': getattr(MANAGER, 'bot', None) and MANAGER.bot[0], 'oyun_ayarlari': bot_game_settings()}
+            'llm_multilingual': PRV.multilingual(), 'server_running': MANAGER.running(), 'server_pack': getattr(MANAGER, 'bot', None) and MANAGER.bot[0], 'oyun_ayarlari': bot_game_settings()}
 
 
 def bot_game_settings():
@@ -1386,17 +1386,17 @@ def bot_detail(pid, no):
             return dict(game_channel('/bot/detay', {'no': no}), katalog=BT.edit_catalog(), canli=True)
         except Error:
             # oyun açık ama kanal yanıt vermedi: son kayıt, düzenlenemez (oyun dosyayı yeniden yazar)
-            return dict(BT.bot_detail(pid, no), katalog=BT.edit_catalog(), canli=False, salt_okunur=True)
+            return dict(BT.bot_detail(pid, no), katalog=BT.edit_catalog(), canli=False, read_only=True)
     return dict(BT.bot_detail(pid, no), katalog=BT.edit_catalog(), canli=False)
 
 
 def bot_post(path, b):
     if path == '/api/bot/detay':                   # botu düzenle (bot/duzenle.py): oyun açıkken canlı, kapalıyken dosyada
-        pid, no, value = b.get('id'), int(b.get('no') or 0), b.get('degisiklik') or {}
+        pid, no, value = b.get('id'), int(b.get('no') or 0), b.get('changes') or {}
         if not isinstance(value, dict) or not value:
             raise Error(_('Değişiklik yok.'))
         if is_pack_running(pid):
-            r = game_channel('/bot/duzenle', {'no': no, 'degisiklik': value})
+            r = game_channel('/bot/edit', {'no': no, 'changes': value})
             if r.get('hata'):
                 from bot import edit as ED
                 raise Error(BT.edit_error(ED.EditError(r['hata'], r.get('alan', ''))))
@@ -1411,9 +1411,9 @@ def bot_post(path, b):
             raise Error(_('Adres http:// ya da https:// ile başlamalı.'))
         PRV.save(b['kimlik'], b.get('adres'), b.get('model'), b.get('anahtar'))
         return bot_get('/api/bot/llm', {})
-    if path == '/api/bot/llm/modeller':
+    if path == '/api/bot/llm/models':
         try:
-            return {'modeller': PRV.models(b.get('kimlik'), b.get('adres') or None, b.get('anahtar') or None)}
+            return {'models': PRV.models(b.get('kimlik'), b.get('adres') or None, b.get('anahtar') or None)}
         except PRV.ProviderError as e:
             raise Error(str(e))
     if path == '/api/bot/llm/test' and PRV.setting()['secili'] != PRV.LOCAL:
@@ -1431,16 +1431,16 @@ def bot_post(path, b):
             return dict(operation(), saglayici=PRV.status())
         except LLMS.DownloadError as e:
             raise Error(str(e))
-    if path == '/api/bot/olustur':
+    if path == '/api/bot/create':
         pid = BT.create(b.get('ad'), b.get('aciklama', ''), b.get('dunya'), b.get('kip', 'normal'), b.get('gelisim', 'progressive'),
                          b.get('adet', 60), b.get('dil', 'karisik'), b.get('firma_dagilimi') or (1, 1, 1), b.get('ayarlar') or {},
                          players=player_names(), name_lang_=b.get('ad_dili'), special=b.get('ozel') or '', name_source=b.get('ad_kaynagi'))
         return dict(bots_status(), yeni=pid)
     pid = b.get('id')
-    if path == '/api/bot/guncelle':
+    if path == '/api/bot/update':
         BT.update(pid, name=b.get('ad'), description=b.get('aciklama'), mode=b.get('kip'), progression=b.get('gelisim'), settings=b.get('ayarlar'))
         return bot_get('/api/bot', {'id': pid})
-    if path == '/api/bot/ata':                      # paketi dünyaya ata (o dünyanın eski paketi boşa çıkar)
+    if path == '/api/bot/assign':                      # paketi dünyaya ata (o dünyanın eski paketi boşa çıkar)
         did = b.get('dunya') or None
         if did and not WLD.var(did):
             raise Error(_('Dünya bulunamadı.'))
@@ -1470,8 +1470,8 @@ def bot_post(path, b):
             raise Error(_('Bu paket oyunda açık: önce oyunu kapat.'))
         BT.remove(pid)
         return bots_status()
-    if path == '/api/bot/sunucu_yeniden':
-        return h_post('/api/sunucu/yeniden', {})
+    if path == '/api/bot/server_restart':
+        return h_post('/api/sunucu/restart', {})
     raise Error(_('Bilinmeyen istek.'))
 
 
@@ -1497,7 +1497,7 @@ def h_get(path, q):
         return bot_get(path, q)
     if path.startswith('/api/dunya'):               # Dünya Editörü (dunyalar.py)
         return world_get(path, q)
-    if path == '/api/destekciler':                 # kenar çubuğundaki kayan destekçi şeridi
+    if path == '/api/supporters':                 # kenar çubuğundaki kayan destekçi şeridi
         return {'adlar': supporters()}
     if path == '/api/durum':
         return status()
@@ -1507,20 +1507,20 @@ def h_get(path, q):
         return event_list()
     if path == '/api/kayitlar':
         return {'liste': SAV.list(), 'aktif': SAV.active(), 'silinenler': SAV.deleted(), 'firmalar': COMPANIES}
-    if path == '/api/kayit_profili':
+    if path == '/api/save_profile':
         return profile_values(slot_arg(q))
     if path == '/api/editor':                       # karakter editörü: kaydın taslağı (kayit_editoru.py)
         return SAV.editor_open(slot_arg(q))
     if path == '/api/editor/katalog':               # karakter editörünün eşya kataloğu
         return SAV.editor_catalog()
-    if path == '/api/esya_bilgi':                   # eşya ipucunun değerleri (Hangar, Mağaza, karakter editörü)
+    if path == '/api/item_info':                   # eşya ipucunun değerleri (Hangar, Mağaza, karakter editörü)
         return {'esyalar': SAV.item_info()}
-    if path == '/api/yedekler':
+    if path == '/api/backups':
         sid = slot_arg(q)
         return {'liste': SAV.backups(sid), 'kayit': SAV.summary(sid), 'ayarlar': CFG.all()}
     if path == '/api/istemci':
         return api_client()
-    if path == '/api/panel_ayarlari':
+    if path == '/api/panel_settings':
         return CFG.all()
     if path == '/api/discord_rp':                   # Discord Rich Presence: bağlantı ve profilde görünecek etkinlik (önizleme)
         return {'durum': RP.state, 'hata': RP.error, 'etkinlik': RP.preview(), 'ayarlar': CFG.all()}
@@ -1550,7 +1550,7 @@ def h_get(path, q):
         return dict(UPD.state(), ayar=CFG.get('guncelleme'), bosta=idle())
     if path == '/api/protokol':                     # protokol uyarlamasının durumu (protokol.py)
         return dict(ADAPTER.state(), etkin=IST.supported())
-    if path == '/api/esya_listesi':                 # kayıt düzenleyicinin "eşya ver" listesi
+    if path == '/api/item_list':                 # kayıt düzenleyicinin "eşya ver" listesi
         return {'esyalar': SAV.loot_list()}
     if path == '/api/oyun/magaza':                  # oyun menüleri: mağazanın listesi ve cüzdan (panel_kanali.py)
         return dict(game_channel('/magaza'), gorsel=bool(game_image('dizin.json')))
@@ -1566,23 +1566,23 @@ def h_get(path, q):
         p = os.path.join(PTH.LOGS, 'canli_durum.json')
         d = read_json(p, None)
         if not d or (not MANAGER.running() and time.time() - d.get('zaman', 0) > 15):    # eski dosya: sunucu kapalı
-            return {'var': False, 'sunucu_acik': MANAGER.running()}
+            return {'var': False, 'server_running': MANAGER.running()}
         import event_calendar as CAL
-        d['etkinlik_adlari'] = [_(CAL.EVENTS.get(k, {}).get('ad', k)) for k in d.get('etkinlikler', [])]
-        return {'var': True, 'sunucu_acik': True, 'yas': max(0, time.time() - d.get('zaman', 0)), 'durum': d}
+        d['event_names'] = [_(CAL.EVENTS.get(k, {}).get('ad', k)) for k in d.get('etkinlikler', [])]
+        return {'var': True, 'server_running': True, 'yas': max(0, time.time() - d.get('zaman', 0)), 'durum': d}
     if path == '/api/arkadas':                      # Arkadaşlarınla Oyna: Host (sunucu, adresler, misafirler) ve Join (oturum)
         live = read_json(os.path.join(PTH.LOGS, 'canli_durum.json'), None) if MANAGER.running() else None
         active = SAV.active()
         return {'host': FRD.host_status(live), 'misafir': FRD.state(), 'kayitlar': SAV.list(), 'aktif': active,
-                'istemci_surumu': IST.check(client_folder()).get('surum') or IST.supported(),
+                'client_version': IST.check(client_folder()).get('surum') or IST.supported(),
                 # Host'un dünyası (Dünya Editörü): seçim ('' kaydının dünyası), seçilebilenler ve sunucunun açılacağı dünya
                 'dunya': {'secim': CFG.get('arkadas_dunya') if WLD.var(CFG.get('arkadas_dunya') or '') else '',
-                          'kaydin': world_info(SAV.meta(active).get('dunya') if active else None), 'gecerli': world_info(world_id(active, True)),
+                          'save_world': world_info(SAV.meta(active).get('dunya') if active else None), 'valid': world_info(world_id(active, True)),
                           'liste': [{'id': w['id'], 'ad': w['ad'], 'kapak': w['kapak'], 'standart': w['standart']} for w in WLD.entries()]}}
-    if path == '/api/hakkinda':
+    if path == '/api/about':
         return {'surum': VERSION, 'python': sys.version.split()[0], 'kok': ROOT, 'sunucu': SERVER, 'kayitlar': PTH.SAVES,
                 'gunlukler': PTH.LOGS, 'ayarlar': settings_file(), 'panel': PTH.PANEL, 'port': PORT, 'dil': D.current(), 'discord': DISCORD,
-                'eski_kisayol': bool(old_shortcut())}
+                'old_shortcut': bool(old_shortcut())}
     raise Error(_('Bilinmeyen istek: %s', path))
 
 
@@ -1593,8 +1593,8 @@ def h_post(path, b):
         return world_post(path, b)
     if path == '/api/oyun/al':                      # oyun menüleri: mağazadan satın alma (istemcinin isteğiyle aynı yoldan)
         return game_channel('/magaza/al', {k: b.get(k) for k in ('lootId', 'category', 'amount', 'level')})
-    if path == '/api/oyun/magaza/abone':            # oyun menüleri: booster aboneliği
-        return game_channel('/magaza/abone', {'lootId': b.get('lootId'), 'category': b.get('category')})
+    if path == '/api/oyun/magaza/subscribe':            # oyun menüleri: booster aboneliği
+        return game_channel('/magaza/subscribe', {'lootId': b.get('lootId'), 'category': b.get('category')})
     if path == '/api/oyun/hangar/tasi':             # oyun menüleri: envanter <-> gemi, dron ya da P.E.T. yuvası
         return game_channel('/hangar/tasi', {k: b.get(k) for k in ('gemi', 'konfig', 'esya', 'yon', 'hedef', 'dron', 'kume')})
     if path == '/api/oyun/hangar/islem':            # oyun menüleri: config, satış, P.E.T., CPU işlemleri (panel_kanali.ISLEMLER)
@@ -1612,7 +1612,7 @@ def h_post(path, b):
         return game_channel('/skylab/robot', {'modul': b.get('modul'), 'tip': b.get('tip')})
     # ---- oyun ve sunucular
     if path == '/api/oyna':
-        return start_launch(b.get('sadece_sunucu'))
+        return start_launch(b.get('server_only'))
     if path == '/api/arkadas/ayarlar':
         world = b.get('dunya', CFG.get('arkadas_dunya')) or ''
         if world and not WLD.var(world):
@@ -1621,17 +1621,17 @@ def h_post(path, b):
                     'arkadas_en_cok': b.get('en_cok', CFG.get('arkadas_en_cok')), 'arkadas_dunya': world})
         return h_get('/api/arkadas', {})
     if path == '/api/arkadas/host':                 # arkadaş sunucusu: Oyna gibi, oyun sunucusu --cok-oyunculu
-        return start_launch(b.get('sadece_sunucu'), friend=True)
-    if path == '/api/arkadas/genel_ip':
+        return start_launch(b.get('server_only'), friend=True)
+    if path == '/api/arkadas/public_ip':
         return {'ip': FRD.find_public_ip()}
-    if path == '/api/arkadas/at':
+    if path == '/api/arkadas/kick':
         FRD.at(b.get('oturum'))
         return {}
-    if path == '/api/arkadas/dene':
+    if path == '/api/arkadas/test':
         return FRD.attempt(str(b.get('adres') or ''))
-    if path == '/api/arkadas/katil':
+    if path == '/api/arkadas/join':
         return join_friend(b)
-    if path == '/api/arkadas/ayril':
+    if path == '/api/arkadas/leave':
         FRD.detach()
         return FRD.state()
     if path == '/api/sunucu/durdur':
@@ -1641,7 +1641,7 @@ def h_post(path, b):
             raise Error(_('Ek istemciler açıkken sunucu durdurulamaz: önce onları kapatın.'))
         MANAGER.stop_servers()
         return MANAGER.status()
-    if path == '/api/sunucu/yeniden':
+    if path == '/api/sunucu/restart':
         slot = MANAGER.slot or SAV.active()
         if not slot:
             raise Error(_('Kayıt yok.'))
@@ -1661,7 +1661,7 @@ def h_post(path, b):
     if path == '/api/coklu/kapat':
         MULTI.close(str(b.get('kayit') or ''))
         return MULTI.state()
-    if path == '/api/coklu/hepsini_kapat':
+    if path == '/api/coklu/close_all':
         MULTI.close_all()
         return MULTI.state()
     if path == '/api/portlar/kapat':
@@ -1669,7 +1669,7 @@ def h_post(path, b):
         info = PR.process_info(pid)
         if not (PR.is_our_server(info) or info['ad'].lower() == 'darkorbit.exe'):
             raise Error(_('Bu süreç (%s) panelin sunucusu değil; panel kapatmaz. Gerekirse kendiniz kapatın.', info['ad']))
-        m = re.search(r'"--durdur=([^"]+)"|--durdur=(\S+)', info.get('komut') or '')
+        m = re.search(r'"--stop-file=([^"]+)"|--stop-file=(\S+)', info.get('komut') or '')
         if m:                                       # önceki panelin oyun sunucusu: önce kaydedip kendisi çıksın
             try:
                 open(m.group(1) or m.group(2), 'w').close()
@@ -1692,7 +1692,7 @@ def h_post(path, b):
         SET.write(settings_file(), vals)
         write_legacy_upgrade()
         return api_settings()
-    if path == '/api/ayarlar/kopyala':             # başka bir kaydın ayarları (etkinlik seçimleri dahil) etkin kayda
+    if path == '/api/ayarlar/copy':             # başka bir kaydın ayarları (etkinlik seçimleri dahil) etkin kayda
         slot = SAV.active()
         if not slot:
             raise Error(_('Kayıt yok.'))
@@ -1719,7 +1719,7 @@ def h_post(path, b):
         SET.write(settings_file(), vals)
         write_legacy_upgrade()
         return api_settings()
-    if path == '/api/ayarlar/sablon_kaydet':
+    if path == '/api/ayarlar/save_template':
         name = (b.get('ad') or '').strip()[:40]
         if not name:
             raise Error(_('Şablona bir ad verin.'))
@@ -1728,7 +1728,7 @@ def h_post(path, b):
         user[name] = {'ad': name, 'aciklama': b.get('aciklama') or _('Kendi ayarın'), 'degerler': vals}
         write_json(TEMPLATES, user)
         return api_settings()
-    if path == '/api/ayarlar/sablon_sil':
+    if path == '/api/ayarlar/delete_template':
         user = read_json(TEMPLATES, {})
         user.pop(b.get('ad'), None)
         write_json(TEMPLATES, user)
@@ -1738,25 +1738,25 @@ def h_post(path, b):
     # ---- kayıtlar
     if path == '/api/kayitlar/yeni':
         sid = SAV.create(b.get('ad'), b.get('pilot'), b.get('firma'), b.get('kredi'), b.get('uridyum'), b.get('seviye'), b.get('onur'),
-                         b.get('lazer'), b.get('roket'), bool(b.get('ilerlemeli')), b.get('ayar_kaynagi') or SAV.active(),
+                         b.get('lazer'), b.get('roket'), bool(b.get('ilerlemeli')), b.get('settings_source') or SAV.active(),
                          campaign=bool(b.get('kampanya')))
-        if b.get('aktif_yap', True):
+        if b.get('set_active', True):
             SAV.set_active(sid)
         log('yeni kayıt: %s' % sid)
         return {'id': sid}
     if path == '/api/kayitlar/aktif':
         return {'id': SAV.set_active(slot_arg(b))}
-    if path == '/api/kayitlar/adlandir':
+    if path == '/api/kayitlar/rename':
         return SAV.rename(slot_arg(b), b.get('ad'))
-    if path == '/api/kayitlar/not':
+    if path == '/api/kayitlar/note':
         return SAV.set_note(slot_arg(b), b.get('not'))
-    if path == '/api/kayitlar/kopyala':
+    if path == '/api/kayitlar/copy':
         return {'id': SAV.duplicate(slot_arg(b), b.get('ad'))}
     if path == '/api/kayitlar/sil':
         return {'dosya': SAV.delete(slot_arg(b))}
     if path == '/api/kayitlar/geri_al':
         return {'id': SAV.undelete(b.get('dosya'))}
-    if path == '/api/kayitlar/cop_bosalt':
+    if path == '/api/kayitlar/empty_trash':
         return {'silinen': SAV.purge(b.get('dosya'))}
     if path == '/api/kayitlar/disari':
         sid = slot_arg(b)
@@ -1765,14 +1765,14 @@ def h_post(path, b):
                       filetypes=[(_('DarkOrbit kaydı'), '*.zip')])
         if not dest:
             return {'iptal': True}
-        SAV.export(sid, dest, bool(b.get('yedeklerle', True)))
+        SAV.export(sid, dest, bool(b.get('with_backups', True)))
         return {'yol': dest}
-    if path == '/api/kayitlar/iceri':
+    if path == '/api/kayitlar/import':
         src = dialog('ac', title=_('Kayıt içe aktar'), filetypes=[(_('DarkOrbit kaydı'), '*.zip *.json'), (_('Tümü'), '*.*')])
         if not src:
             return {'iptal': True}
         return {'id': SAV.import_file(src)}
-    if path == '/api/kayitlar/duzenle':
+    if path == '/api/kayitlar/edit':
         return {'degisen': SAV.edit(slot_arg(b), b.get('degerler') or {})}
     # ---- karakter editörü (taslak: Kaydet profile yazar, Vazgeç atar)
     if path == '/api/editor/uygula':
@@ -1781,57 +1781,57 @@ def h_post(path, b):
         sid = slot_arg(b)
         log('karakter editörü: %s kaydedildi' % sid)
         return {'yedek': SAV.editor_commit(sid)}
-    if path == '/api/editor/vazgec':
+    if path == '/api/editor/discard':
         SAV.editor_discard(slot_arg(b))
         return {}
     # ---- yedekler
-    if path == '/api/yedekler/al':
+    if path == '/api/backups/al':
         return {'dosya': SAV.backup(slot_arg(b), 'elle', b.get('not') or '')}
-    if path == '/api/yedekler/geri_yukle':
-        return {'guvenlik': SAV.restore(slot_arg(b), b.get('dosya'))}
-    if path == '/api/yedekler/sil':
+    if path == '/api/backups/restore':
+        return {'safety': SAV.restore(slot_arg(b), b.get('dosya'))}
+    if path == '/api/backups/sil':
         SAV.delete_backup(slot_arg(b), b.get('dosya'))
         return {}
-    if path == '/api/yedekler/not':
+    if path == '/api/backups/note':
         SAV.set_backup_note(slot_arg(b), b.get('dosya'), b.get('not'))
         return {}
-    if path == '/api/yedekler/yeni_kayit':
+    if path == '/api/backups/new_save':
         return {'id': SAV.backup_as_new(slot_arg(b), b.get('dosya'), b.get('ad'))}
     # ---- istemci ve panel ayarları
-    if path == '/api/panel_ayarlari':
+    if path == '/api/panel_settings':
         CFG.update({k: v for k, v in (b.get('degerler') or {}).items() if k != 'aktif_kayit'})
         RP.wake_up.set()                               # Discord Rich Presence ayarı değiştiyse hemen
         return api_client()
-    if path == '/api/istemci/sec':
+    if path == '/api/istemci/select':
         start = client_folder() or ROOT
         p = dialog('klasor', title=_('DarkOrbit oyun klasörünü seçin (içinde DarkOrbit.exe ve DarkOrbit_Data olan)'), initialdir=start)
         if not p:
             return dict(api_client(), iptal=True)
         p = os.path.normpath(p)
         c = IST.check(p)
-        if not c['gecerli'] and os.path.basename(p).lower() == IST.DATA_DIR.lower() and IST.check(os.path.dirname(p))['gecerli']:
+        if not c['valid'] and os.path.basename(p).lower() == IST.DATA_DIR.lower() and IST.check(os.path.dirname(p))['valid']:
             p = os.path.dirname(p)                    # DarkOrbit_Data seçildiyse üst klasörü
             c = IST.check(p)
-        if not c['gecerli']:
+        if not c['valid']:
             sub = [x for x in IST.candidates() if os.path.normcase(x['yol']).startswith(os.path.normcase(p))]
             if sub:
                 p, c = sub[0]['yol'], sub[0]
             else:
-                raise Error(_('Seçilen klasör bir DarkOrbit istemcisi değil: %s', ' '.join(c['sorunlar'])))
+                raise Error(_('Seçilen klasör bir DarkOrbit istemcisi değil: %s', ' '.join(c['issues'])))
         CFG.update({'istemci_klasoru': p})
         return api_client()
-    if path == '/api/istemci/kullan':
+    if path == '/api/istemci/use':
         p = os.path.normpath(b.get('yol') or '')
-        if not IST.check(p)['gecerli']:
+        if not IST.check(p)['valid']:
             raise Error(_('Klasör geçerli bir istemci değil.'))
         CFG.update({'istemci_klasoru': p})
         return api_client()
     if path == '/api/istemci/otomatik':
         CFG.update({'istemci_klasoru': None})
         return api_client()
-    if path == '/api/guncelleme/denetle':
+    if path == '/api/guncelleme/check':
         UPD.check()
-        STATE['sonraki_denetim'] = time.time() + UPDATE_SEC
+        STATE['next_check'] = time.time() + UPDATE_SEC
         return h_get('/api/guncelleme', {})
     if path == '/api/guncelleme/kur':
         if not idle(strict=True):
@@ -1845,13 +1845,13 @@ def h_post(path, b):
         if RUN.find(CFG)['tur'] == 'motor':          # macOS: oyunu açacak Wine da birlikte iner
             ENG.start()
         return DL.start(CFG.get('hizli_indirme'))
-    if path == '/api/istemci/guncelle':             # eski istemci: yeni sürümü indir, eskisini sil; BepInEx yeni klasöre yeniden kurulur
+    if path == '/api/istemci/update':             # eski istemci: yeni sürümü indir, eskisini sil; BepInEx yeni klasöre yeniden kurulur
         if MANAGER.client_alive() or IST.running_clients():
             raise Error(_('Önce oyunu kapatın'))
         old = client_folder()
         if not IST.check(old)['eski']:
             raise Error(_('İstemci zaten güncel.'))
-        new_ = next((c['yol'] for c in IST.candidates() if c['uyumlu']), None)
+        new_ = next((c['yol'] for c in IST.candidates() if c['compatible']), None)
         if new_:                                    # bilgisayarda zaten var
             CFG.update({'istemci_klasoru': new_})
             delete_old_client(old, new_)
@@ -1870,9 +1870,9 @@ def h_post(path, b):
         return ENG.cancel()
     if path == '/api/rosetta/kur':                  # macOS'un yönetici penceresi açılır
         return ENG.install_rosetta()
-    if path == '/api/istemci/indir_durdur':
+    if path == '/api/istemci/download_stop':
         return DL.cancel()
-    if path == '/api/istemci/indir_sil':            # yarım indirmenin geçici klasörü
+    if path == '/api/istemci/download_delete':            # yarım indirmenin geçici klasörü
         try:
             return DL.discard()
         except DownloadError as e:
@@ -1898,7 +1898,7 @@ def h_post(path, b):
         except OSError:
             raise Error(_('Günlük şu an bir sunucuda açık; sunucuyu durdurup yeniden deneyin.'))
         return {}
-    if path == '/api/klasor_ac':
+    if path == '/api/open_folder':
         what = b.get('ne')
         paths = {'proje': ROOT, 'kayitlar': PTH.SAVES, 'gunlukler': PTH.LOGS, 'istemci': client_folder() or ROOT,
                  'sunucu': SERVER}
@@ -1917,7 +1917,7 @@ def h_post(path, b):
         import webbrowser
         webbrowser.open(DISCORD)
         return {}
-    if path == '/api/bagis':                        # destek sayfası varsayılan tarayıcıda (Buy Me a Coffee)
+    if path == '/api/donate':                        # destek sayfası varsayılan tarayıcıda (Buy Me a Coffee)
         import webbrowser
         webbrowser.open(DONATE_URL)
         return {}
@@ -1982,8 +1982,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(200, {'panel': 'darkorbit', 'surum': VERSION, 'pid': os.getpid()})
         if u.path.startswith('/api/'):
             return self._api(h_get, {k: v[0] for k, v in parse_qs(u.query).items()})
-        if u.path.startswith('/oyun_gorsel/'):
-            p = game_image(u.path[len('/oyun_gorsel/'):])
+        if u.path.startswith('/game_images/'):
+            p = game_image(u.path[len('/game_images/'):])
             if not p:
                 return self._send(404, b'yok', 'text/plain')
             if p.endswith('.png'):                  # atlas sayfaları büyük, değişmez; dizin ve adlar yeniden dökümde değişir: önbelleksiz
@@ -2009,8 +2009,8 @@ class Handler(BaseHTTPRequestHandler):
             threading.Thread(target=open_window, args=('http://127.0.0.1:%d/' % PORT,), daemon=True).start()
             return self._send(200, {})
         if u.path == '/api/kapandi':                 # sayfa kapanıyor (sendBeacon): pencere izlenmiyorsa nabız erken düşsün
-            if not STATE['pencere_izleniyor']:
-                STATE['nabiz'] = time.monotonic() - HEARTBEAT_SEC + 8
+            if not STATE['window_watched']:
+                STATE['heartbeat'] = time.monotonic() - HEARTBEAT_SEC + 8
             return self._send(200, {})
         try:
             body = json.loads(raw.decode('utf8') or '{}')
@@ -2032,7 +2032,7 @@ def main():
     global PORT
     PORT = next((int(a.split('=', 1)[1]) for a in sys.argv if a.startswith('--port=') and a.split('=', 1)[1].isdigit()), PORT)
     srv = None
-    if STATE['guncellendi']:                          # güncellemeden sonra: eski süreç portu bırakana dek bekle
+    if STATE['updated']:                          # güncellemeden sonra: eski süreç portu bırakana dek bekle
         for _k in range(75):
             try:
                 srv = Server(('127.0.0.1', PORT), Handler)
@@ -2053,14 +2053,14 @@ def main():
         PORT = srv.server_address[1]
     srv.daemon_threads = True
     STATE['srv'] = srv
-    log('panel açıldı: http://127.0.0.1:%d/ (python %s)%s' % (PORT, sys.version.split()[0], ' (güncellemeden sonra)' if STATE['guncellendi'] else ''))
+    log('panel açıldı: http://127.0.0.1:%d/ (python %s)%s' % (PORT, sys.version.split()[0], ' (güncellemeden sonra)' if STATE['updated'] else ''))
     try_migrate()
     threading.Thread(target=refresh_shortcut, daemon=True).start()
     if not CFG.get('aktif_kayit') and SAV.slots():
         CFG.update({'aktif_kayit': SAV.slots()[0]})
     threading.Thread(target=ticker, daemon=True).start()
     RP.launch()
-    if '--pencere-yok' not in sys.argv:
+    if not {'--no-window', '--pencere-yok'} & set(sys.argv):     # eski adlar: 2026-11-01'den önceki güncelleyici bunlarla yeniden başlatır
         proc = open_window('http://127.0.0.1:%d/' % PORT)
         if proc:
             threading.Thread(target=watch_window, args=(proc,), daemon=True).start()

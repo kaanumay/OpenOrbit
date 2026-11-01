@@ -116,7 +116,7 @@ def info_summary(k, who=None):
                                  or 'none yet'))
     row.append('Members: %s.' % '; '.join('%s (lvl %s, %s, %d days%s)' % (
         u.get('ad', a), u.get('seviye', 1), 'leader' if a == k['lider'] else ranks.get(u.get('rutbe', 0), 'no rank'), seniority_days(u, now),
-        ', paid %s tax this week' % '{:,}'.format(int(u['katki_donem'])) if u.get('katki_donem') else '') for a, u in sorted_members[:20]))
+        ', paid %s tax this week' % '{:,}'.format(int(u['contrib_period'])) if u.get('contrib_period') else '') for a, u in sorted_members[:20]))
     diplo = {1: 'alliance', 2: 'non-aggression pact', 3: 'war'}
     d = [diplo.get(x['tur'], '?') + ' with ' + str((KL.CLANS.get(x['klan']) or {}).get('ad', x.get('ad', '?'))) for x in k['diplomasi']]
     if d:
@@ -145,7 +145,7 @@ def setup_ranks(b, k, kl):
         tiers.remove(1)
     elif b.r.random() < 0.3:
         tiers.remove(3)
-    multiplier = save(k).setdefault('rutbe_kat', {})
+    multiplier = save(k).setdefault('rank_tier', {})
     layout = []
     for i in tiers:
         out = kl.handle('ClanNewRankRequest', {'newRank': names[i]})
@@ -161,7 +161,7 @@ def setup_ranks(b, k, kl):
 
 def _tier_rank(k, multiplier):
     """Katmana (ya da yoksa altındaki en yakın katmana) uyan rütbenin kimliği; hiç yoksa 0."""
-    rank_cats = {int(i): int(v) for i, v in (save(k).get('rutbe_kat') or {}).items() if any(r['id'] == int(i) for r in k['rutbeler'])}
+    rank_cats = {int(i): int(v) for i, v in (save(k).get('rank_tier') or {}).items() if any(r['id'] == int(i) for r in k['rutbeler'])}
     for t in range(multiplier, 4):
         r = next((i for i, v in rank_cats.items() if v == t), None)
         if r is not None:
@@ -172,7 +172,7 @@ def _tier_rank(k, multiplier):
 def assign_roles(y, b, k, kl, now):
     """Üyelere rol: subaylar (üyenin yaklaşık 1/8'i) liderin en güvendikleri arasından, kıdemliler birkaç günlük ve katkılılar,
     yeniler acemi. Her turda en çok üç değişiklik (bir anda herkes terfi etmesin)."""
-    if not save(k).get('rutbe_kat'):
+    if not save(k).get('rank_tier'):
         return 0
     avg = sum(int(u.get('seviye', 1)) for u in k['uyeler'].values()) / max(1, len(k['uyeler']))
     points = []
@@ -182,7 +182,7 @@ def assign_roles(y, b, k, kl, now):
         day = seniority_days(u, now)
         rel = b.memory.relation(u.get('ad', a), now)
         p = 0.45 * min(1.0, day / 14.0) + 0.35 * rel + 0.2 * max(-1.0, min(1.0, (int(u.get('seviye', 1)) - avg) / 6.0))
-        points.append((p + (0.1 if u.get('katki_donem') else 0), day, rel, a, u))
+        points.append((p + (0.1 if u.get('contrib_period') else 0), day, rel, a, u))
     points.sort(key=lambda x: -x[0])
     officer = max(1, len(points) // 8)
     changed = 0
@@ -236,7 +236,7 @@ def bulk_mail(b, kl, state, **f):
 def announce_events(y, b, k, kl, now):
     """Diplomasideki yenilikler (savaş, ittifak, saldırmazlık, biten savaş) haber olur; savaş başlayınca üyelere toplu posta."""
     mgmt = save(k)
-    seen = mgmt.setdefault('diplo_gordu', {})
+    seen = mgmt.setdefault('diplo_seen', {})
     current_time = {str(d['id']): d for d in k['diplomasi']}
     first = not seen and 'diplo_ilk' not in mgmt
     mgmt['diplo_ilk'] = True
@@ -250,7 +250,7 @@ def announce_events(y, b, k, kl, now):
     for i, d in seen.items():
         if i not in current_time and d.get('tur') == 3:
             announce(b, kl, 'klan_duyuru_baris', klan=d.get('ad', '?'))
-    mgmt['diplo_gordu'] = {i: {'tur': d['tur'], 'ad': (KL.CLANS.get(d['klan']) or {}).get('ad', d.get('ad', '?'))}
+    mgmt['diplo_seen'] = {i: {'tur': d['tur'], 'ad': (KL.CLANS.get(d['klan']) or {}).get('ad', d.get('ad', '?'))}
                          for i, d in current_time.items()}
 
 
@@ -299,7 +299,7 @@ def make_payout(b, k, kl, now):
     """Haftalık ödeme: bütçenin ödeme payı, dönemde en çok vergi veren (en çok 3) üyeye katkısıyla orantılı; dönem sıfırlanır.
     Hiç katkısı olmayan üyenin katkısız sayacı artar (üye çıkarmada)."""
     pool = spendable(k, 'odeme')
-    contribution = sorted(((int(u.get('katki_donem', 0)), a, u) for a, u in k['uyeler'].items() if u.get('katki_donem')), key=lambda x: -x[0])[:3]
+    contribution = sorted(((int(u.get('contrib_period', 0)), a, u) for a, u in k['uyeler'].items() if u.get('contrib_period')), key=lambda x: -x[0])[:3]
     paid = []
     if pool >= 100000 and contribution:
         top = sum(x[0] for x in contribution)
@@ -310,8 +310,8 @@ def make_payout(b, k, kl, now):
                 paid.append(u.get('ad', a))
     with KL.LOCK:
         for a, u in k['uyeler'].items():
-            u['katkisiz'] = 0 if u.get('katki_donem') else int(u.get('katkisiz', 0)) + 1
-            u['katki_donem'] = 0
+            u['no_contribution'] = 0 if u.get('contrib_period') else int(u.get('no_contribution', 0)) + 1
+            u['contrib_period'] = 0
     if paid:
         announce(b, kl, 'klan_duyuru_odeme', adlar=', '.join(paid))
         b.event('klan_odeme', now, adlar=paid)
@@ -326,7 +326,7 @@ def kick(y, b, k, kl, now, name=None):
             if a == k['lider']:
                 continue
             rel = b.memory.relation(u.get('ad', a), now)
-            if rel <= -0.45 or (int(u.get('katkisiz', 0)) >= 3 and a in y.name_index and seniority_days(u, now) > 21):
+            if rel <= -0.45 or (int(u.get('no_contribution', 0)) >= 3 and a in y.name_index and seniority_days(u, now) > 21):
                 candidate = a
                 break
         if candidate is None or b.r.random() > 0.5:
@@ -349,7 +349,7 @@ def hand_over(y, b, k, kl, now, name=None):
     if name is None:
         if len(k['uyeler']) < 3 or b.r.random() > 0.02 * (1.2 - b.o('hirs')) * (0.5 + b.mood['yorgunluk']):
             return None
-        officer = {r for r, v in (save(k).get('rutbe_kat') or {}).items() if v == 0}
+        officer = {r for r, v in (save(k).get('rank_tier') or {}).items() if v == 0}
         candidates = [(str(u.get('rutbe', 0)) in officer, b.memory.relation(u.get('ad', a), now), seniority_days(u, now), a)
                    for a, u in k['uyeler'].items() if a != k['lider']]
         if not candidates:

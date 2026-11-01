@@ -172,8 +172,8 @@ class Downloader:
 
     @staticmethod
     def _blank(state):
-        return {'durum': state, 'calisiyor': False, 'alinan': 0, 'toplam': 0, 'acik_boyut': 0, 'dosya': '', 'biten_dosya': 0,
-                'dosya_sayisi': 0, 'hiz': 0, 'kalan_sn': None, 'hata': None, 'hedef': None, 'baslangic': None, 'bitis': None}
+        return {'durum': state, 'calisiyor': False, 'alinan': 0, 'toplam': 0, 'unpacked_size': 0, 'dosya': '', 'done_files': 0,
+                'file_count': 0, 'hiz': 0, 'time_left_sec': None, 'hata': None, 'hedef': None, 'baslangic': None, 'bitis': None}
 
     def state(self):
         with self.lock:
@@ -181,7 +181,7 @@ class Downloader:
         if d['toplam']:
             d['alinan'] = min(d['alinan'], d['toplam'])
         d['url'] = self.url
-        d['yarim'] = not d['calisiyor'] and os.path.isdir(self.stage)       # önceki indirmeden kalan dosyalar
+        d['partial'] = not d['calisiyor'] and os.path.isdir(self.stage)       # önceki indirmeden kalan dosyalar
         return d
 
     def running(self):
@@ -226,7 +226,7 @@ class Downloader:
             if now - t0 >= 1:
                 self.d['hiz'] = int((self.d['alinan'] - b0) / (now - t0))
                 left = max(0, self.d['toplam'] - self.d['alinan'])
-                self.d['kalan_sn'] = int(left / self.d['hiz']) if self.d['hiz'] > 0 else None
+                self.d['time_left_sec'] = int(left / self.d['hiz']) if self.d['hiz'] > 0 else None
 
     def _set(self, **kw):
         with self.lock:
@@ -274,8 +274,8 @@ class Downloader:
             free = shutil.disk_usage(self.root).free
             if free < need + PAY:
                 raise DownloadError(_('Diskte yer yetmiyor: %.1f GB gerekli, %.1f GB boş.', (need + PAY) / LT, free / LT))
-            self._set(durum='indiriliyor', toplam=sum(i.compress_size for i, p in items), acik_boyut=sum(i.file_size for i, p in items),
-                      alinan=sum(i.compress_size for i, p in items if p in done), dosya_sayisi=len(items), biten_dosya=len(done))
+            self._set(durum='indiriliyor', toplam=sum(i.compress_size for i, p in items), unpacked_size=sum(i.file_size for i, p in items),
+                      alinan=sum(i.compress_size for i, p in items if p in done), file_count=len(items), done_files=len(done))
             self.log('istemci indiriliyor: %s (%d dosya, %d zaten var, %d bağlantı)' % (self.url, len(items), len(done), self.connection))
             for i, p in files:
                 if i.is_dir():
@@ -303,7 +303,7 @@ class Downloader:
                         self._set(dosya=os.path.relpath(p, self.stage))
                         self._open(h, i, p)
                         with self.lock:
-                            self.d['biten_dosya'] += 1
+                            self.d['done_files'] += 1
                 except BaseException as e:
                     errors.append(e)
                     self.stop.set()                 # öteki bağlantılar da dursun
@@ -315,8 +315,8 @@ class Downloader:
                 raise next((e for e in errors if not isinstance(e, Cancelled)), errors[0])
             self._set(durum='dogrulaniyor', dosya='')
             c = self.check(self.stage)
-            if not c['gecerli']:
-                raise DownloadError(_('İndirilen klasör bir DarkOrbit istemcisi değil: %s', ' '.join(c['sorunlar'])))
+            if not c['valid']:
+                raise DownloadError(_('İndirilen klasör bir DarkOrbit istemcisi değil: %s', ' '.join(c['issues'])))
             target = self._target(top or os.path.splitext(os.path.basename(self.url))[0])
             for k in range(10):                     # virüs tarayıcısı bir dosyayı tutuyorsa biraz bekle
                 try:
@@ -326,7 +326,7 @@ class Downloader:
                     if k == 9:
                         raise
                     time.sleep(1)
-            self._set(durum='bitti', hedef=target, alinan=self.d['toplam'], kalan_sn=0)
+            self._set(durum='bitti', hedef=target, alinan=self.d['toplam'], time_left_sec=0)
             self.log('istemci indirildi: %s' % target)
             if self.on_done:
                 self.on_done(target)

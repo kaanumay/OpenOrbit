@@ -33,7 +33,7 @@ TEMPLATE = {
 
 
 def memories(b):
-    return b.k.setdefault('anilar', [])
+    return b.k.setdefault('memories', [])
 
 
 def impressions(b):
@@ -123,7 +123,7 @@ def write_impression(b, who, text_, now):
 def set_followup(purpose, now, minutes=10, tool='yok', game_map=''):
     if purpose not in PURPOSES:
         return None
-    return {'amac': purpose, 'vade': now + max(1, min(240, int(minutes or 10))) * 60, 'arac': tool if tool in FOLLOWUP_TOOLS else 'yok',
+    return {'amac': purpose, 'due': now + max(1, min(240, int(minutes or 10))) * 60, 'arac': tool if tool in FOLLOWUP_TOOLS else 'yok',
             'harita': str(game_map or '')[:8], 'bitti': False}
 
 
@@ -173,9 +173,9 @@ def due_followups(y, now, online):
     for b in y.bots:
         for a in memories(b):
             t = a.get('takip')
-            if not t or t.get('bitti') or now < t['vade']:
+            if not t or t.get('bitti') or now < t['due']:
                 continue
-            if now - t['vade'] > GRACE_SEC:
+            if now - t['due'] > GRACE_SEC:
                 t['bitti'] = True                         # fırsat kaçtı
                 continue
             if b.online and b.dead_until <= now and a['kim'].lower() in online:
