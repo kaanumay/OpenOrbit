@@ -26,6 +26,7 @@ from . import soyut as S
 from . import gorunum as GR
 from . import toplum as T
 from . import yonetici as YN
+from .hedefler.pvp import emir_kini
 
 TASIYICI = next(iter(DN.CFG['tipler']))       # NPC.__init__ için var olan bir tür (sonra botun değerleriyle değiştirilir)
 LAZER_MENZIL = DN.SAVAS['lazer_menzil']
@@ -71,9 +72,9 @@ class BotGemi(DN.NPC):
                       genisleme=3 if d['lazer'] >= 12 else 2 if d['lazer'] >= 6 else 1, bot=True)
         self.davranis = {}
         self.hp, self.shield = min(self.hp, d['can']), min(self.shield, d['kalkan'])
-        dronlar = [(K.ESYA['dronlar'][l]['tur'], min(6, 1 + b.seviye // 4)) for l, n in e.get('dron', {}).items()
-                   for _ in range(n) if l in K.ESYA['dronlar']]
-        self.gorseller = {'dron': legacy('0|n|d|%d|0|%s' % (self.id, '|'.join('%d|%d|0|0' % x for x in dronlar)))} if dronlar else {}
+        # dronlar yalnız ek_gorunum'dan (gorunum.mesajlar: formasyon, dron seviyesi, tasarımlar); burada formasyonu 0 olan ikinci bir
+        # dizgi show()'da ondan sonra gidip formasyonu eziyordu (oyuncu bildirimi 2026-11-01: hiçbir bot formasyon kullanmıyor)
+        self.gorseller = {}
 
     def speed(self):
         return self.d['hiz']
@@ -362,6 +363,8 @@ def saldiri_hatasi(w, n, now=None):
         return [legacy('0|A|STM|friendlyfire_disabled')]
     if iliski(w, b) in (1, 2):
         return [legacy('0|A|STM|friendlyfire_disabled')]
+    if int(pl.get('factionId') or 0) == b.firma and iliski(w, b) != 3 and not DN.AY.get('sirket_pvp'):
+        return [legacy('0|A|STM|friendlyfire_disabled')]       # panel: kendi şirketine saldırı kapalı (savaştaki klan hariç)
     if int(pl.get('factionId') or 0) == b.firma and H.company(w.map_id) == b.firma and H.name(w.map_id).split('-')[-1] in ('1', '2'):
         return [legacy('0|A|STM|no_attack_on_start_maps')]
     return []
@@ -473,7 +476,7 @@ def npc_oldur(w, m, n, now):
     """Bot uzaylıyı öldürdü: uzaylı kalkar ve yeniden doğar (kill'in ödülsüz hâli), ödül bota, kargo kutusu yanına (botun; başkaları
     mavi görür). Uzaylı başkasının etiketliyse (oyuncunun ya da başka botun) dünyanın kill'i ödülü ona verir."""
     kim = DN.etiket_sahibi(m, now)
-    if kim is not None and tuple(kim) != ('b', n.id):
+    if (kim is not None and tuple(kim) != ('b', n.id)) or getattr(m, 'hasar_dagilim', None):     # hasar_dagilim: grup uzaylısı, dünya böler
         w.send(w.kill(m))
         n.hedef = None
         return
@@ -705,7 +708,9 @@ def npc_vur(w, n, m, dmg, now, atype, once=(), kalkan=False, ammo=None):
     w.alien.on_hit(m, dmg, n.id, now, oyuncuya=oyuncu_yakin(w, m, now))
     if not m.alive or m.id not in w.npcs:                 # kayboldu ya da kalktı (uzayli.on_hit)
         return
-    DN.etiketle(m, ('h', w.hid) if yardimci(w, n, m, now) else ('b', n.id), now)
+    kim = ('h', w.hid) if yardimci(w, n, m, now) else ('b', n.id)
+    DN.etiketle(m, kim, now)
+    DN.hasar_yaz(m, kim, dmg)                            # grup uzaylısında ödül hasara göre bölünür (etiket_oyuncu)
     hit = ('AttackHitCommand', dict(attackType=DN.attack_type(atype), attackerId=n.id, victimId=m.id, victimHitpoints=int(m.hp),
                                     victimShield=int(m.shield), victimNanoHull=0, damage=dmg, skilled=False, strike=False, cannonType=0))
     msgs = list(once) + [hit] + ([w.selection(m)] if w.target == m.id and m.hp > 0 else [])
@@ -811,6 +816,22 @@ def etiket_odulu(w, m, uid, x, y):
         return
     npc_odulu(b, m)
     kargo_birak(w, m, uid, x, y)
+
+
+def bot_cevrimici(uid):
+    b = _bot(uid)
+    return b is not None and b.cevrimici
+
+
+def dagilim_odulu(w, m, uid, oran, x, y, kutu=False):
+    """Grup uzaylısında botun hasara göre payı (dunya.World.hasara_gore): ödül oran kadar (npc_odulu pay=1/oran), en çok hasar
+    veren botsa kargo kutusu da onun."""
+    b = _bot(uid)
+    if b is None or not b.cevrimici:
+        return
+    npc_odulu(b, m, 1.0 / oran)
+    if kutu:
+        kargo_birak(w, m, uid, x, y)
 
 
 def kutusu_calindi(mal, ad):
@@ -1032,22 +1053,63 @@ def pvp_hedefi(w, n, now):
     if not adaylar:
         return None
     benim = max(0.5, b.deger()['guc'])
+    ev = H.company(w.map_id) == b.firma                  # kendi firmasının haritası: istilacıya karşı haritasını savunur
     av = b.hedef is not None and b.hedef.ad in ('pvp', 'yardim', 'duello')
     rakip = str(b.plan.get('ad', '')).lower() if b.hedef is not None and b.hedef.ad == 'duello' else ''
     en, ep = None, 0.0
     for uid, guc, ad, rel in adaylar:
         oran = guc / benim
         kin = -min(0.0, b.hafiza.iliski(ad, now)) + (0.6 if rel == 3 else 0.0)     # klan savaşı: düşman klanın üyesi
+        kin += emir_kini(b, ad, now)                      # klan emri: avlanacak kişi / odaktaki klan (hedefler/pvp.py)
         if rakip and str(ad).lower() == rakip:
             return uid                                   # düello: meydan okuyana hemen saldırır
+        sav = ev and uid not in w.npcs                    # kendi haritasındaki yabancı firma oyuncusu
         p = (0.04 + 0.5 * b.o('saldirganlik') * b.o('rekabet')) * (2.2 if av else 1.0)
-        p *= max(0.0, 1.6 - oran) * (0.5 + b.ruh['ozguven']) + kin * 0.8
-        if oran > 1.2 + b.o('risk') + kin:
+        if sav:
+            p = max(p, 0.06) * (2.0 + b.o('saldirganlik'))
+        # evinde biraz daha güçlüye de kafa tutar (yardım çağırır); önceden 1,6 kat güçlüde olasılık evde de sıfırdı (canlı 2026-11-01)
+        p *= max(0.0, (2.4 if sav else 1.6) - oran) * (0.5 + b.ruh['ozguven']) + kin * 0.8
+        if oran > 1.2 + b.o('risk') + kin + (0.5 if sav else 0.0):
             p *= 0.1
         if p > ep:
             en, ep = uid, p
     # saniyede değil karar başına (4 sn'de bir) olasılık: hemen değil, bir süre sonra saldırır gibi
-    return en if random.random() < min(0.9, ep * 0.5) else None
+    if en is None or random.random() >= min(0.9, ep * 0.5):
+        return None
+    if ev and en not in w.npcs:
+        savunma_cagri(w, n, en, now)
+    return en
+
+
+SAVUNMA_AZAMI = 2                # bir istilacıya karşı çağrılan en çok yardımcı (sürü değil)
+SAVUNMA_BEKLEME = 60.0           # aynı haritada iki çağrı arası (sn)
+
+
+def savunma_cagri(w, n, uid, now):
+    """Kendi haritasında yabancı oyuncuya saldıran bot, haritadaki boşta kalan firma botlarından en çok SAVUNMA_AZAMI tanesini çağırır
+    (yakın olanlar, saldırganlığa göre; bekleme süresi var; PvP kuralları oyuncuya_saldirabilir ile aynı)."""
+    if now < w.__dict__.get('savunma_t', 0):
+        return
+    o = _oyuncu(w, uid)
+    if o is None:
+        return
+    w.savunma_t = now + SAVUNMA_BEKLEME
+    nx, ny = n.mover.pos(now)
+    adaylar = []
+    for m in w.npcs.values():
+        if m is n or m.bot is None or not m.alive or m.bot.firma != n.bot.firma or m.hedef is not None:
+            continue
+        if m.bot.hedef is not None and m.bot.hedef.ad in ('kapi', 'mod', 'duello', 'grup'):
+            continue
+        if now - m.son_hasar < SAVAS_SN or m.bot.yolda or not oyuncuya_saldirabilir(w, m, o, now):
+            continue
+        mx, my = m.mover.pos(now)
+        mesafe = math.hypot(mx - nx, my - ny)
+        if mesafe < 6000 and random.random() < 0.3 + 0.6 * m.bot.o('saldirganlik'):
+            adaylar.append((mesafe, m))
+    for _, m in sorted(adaylar, key=lambda x: x[0])[:SAVUNMA_AZAMI]:
+        m.hedef = uid
+        m.niyet_t = now
 
 
 def kac(w, n, now):

@@ -5,6 +5,11 @@ Tasarım ve formasyon oyuncu gibi mağaza fiyatıyla alınır: birikiminin küç
 yalnız kozmetik olanlardan (bonuslu tasarımlar gücü değiştirir; güç hesabı tasarım bilmez). Formasyon kişiliğe göre kalıcı:
 saldırgan Arrow/Pincer, temkinli Turtle, kasıcı Star. Unvan oyunun başarım eşiklerinden (uzaylı, EP, onur); gösterip
 göstermemek kişiliğe bağlı. Seçimler bot kaydında (ekip['tasarim'], k['formasyon'], k['formasyonlar']).
+
+Dron tasarımları (oyuncudaki gibi dron başına, mağaza fiyatıyla): bonuslu Havoc (saldırgan: tüm dronlar Havoc ise +%10 dron lazeri) ve
+Hercules (temkinli: +%20 can), ayrıca kozmetik görünümler. Bot kaydında ekip['dron_tasarim'] = {'tasarim': [loot], 'gorunum': [loot]},
+dronların sıralı dizilimine (loot adına göre, dizgideki sıra) göre; tüm dronlar aynı bonuslu tasarımdaysa güç hesabına katılır
+(katalog.degerler). Bazı botlar birini toplar (eşleşen takım), bazıları parası yetmeyince öbürüyle karıştırır.
 """
 import math, zlib
 
@@ -43,6 +48,70 @@ def dron_sayisi(bot):
     return sum(bot.k['ekip'].get('dron', {}).values())
 
 
+def dron_dizisi(bot):
+    """Dronların loot'ları, dizgideki sırayla (loot adına göre)."""
+    return [d for d, k in sorted(bot.k['ekip'].get('dron', {}).items()) for _ in range(k) if d in K.ESYA['dronlar']]
+
+
+def dron_kimlikleri(bot):
+    """Her dron için istemcinin (tasarım, görünüm) kimlikleri (0 standart), dron_dizisi sırasıyla."""
+    dt = bot.k['ekip'].get('dron_tasarim') or {}
+    t, g = dt.get('tasarim') or [], dt.get('gorunum') or []
+    tas = K.ESYA['dron_tasarimlari']
+    out = []
+    for i, _ in enumerate(dron_dizisi(bot)):
+        out.append((tas.get(t[i] if i < len(t) else '', {}).get('id', 0), tas.get(g[i] if i < len(g) else '', {}).get('id', 0)))
+    return out
+
+
+def dron_tercihi(bot):
+    """Bonuslu dron tasarımı: saldırgan Havoc, temkinli Hercules."""
+    return 'drone_designs_havoc' if bot.o('saldirganlik') >= 0.5 else 'drone_designs_hercules'
+
+
+def dron_gorunumleri():
+    """Mağazada satılan kozmetik dron görünümleri (etkinlik fiyatlı pahalılar hariç: en çok 100.000)."""
+    tas = K.ESYA['dron_tasarimlari']
+    return sorted(l for l, v in tas.items() if v.get('yuva') == 'visual' and K.fiyat(l) and K.fiyat(l)[1] <= 100000
+                  and not v.get('etkinlik_basina'))
+
+
+def dron_alisveris(bot):
+    """Bir dron daha: önce bonuslu tasarım (parası yetince; üçte biri parası yetmeyince öbür bonuslu tasarımla karıştırır), sonra
+    bazen kozmetik görünüm. Çağrı başına en çok bir alım."""
+    n = len(dron_dizisi(bot))
+    if not n:
+        return
+    dt = bot.k['ekip'].setdefault('dron_tasarim', {})
+    tas, gor = dt.setdefault('tasarim', []), dt.setdefault('gorunum', [])
+    del tas[n:], gor[n:]
+    tas += [''] * (n - len(tas))
+    gor += [''] * (n - len(gor))
+    ist = dron_tercihi(bot)
+    karisik = _sabit(bot, 'dron') % 3 == 0
+    sira = [ist] + ([x for x in ('drone_designs_havoc', 'drone_designs_hercules') if x != ist] if karisik else [])
+    for i in range(n):
+        if tas[i]:
+            continue
+        for loot in sira:
+            f = K.fiyat(loot)
+            if f and _alabilir(bot, *f) and bot.ode(*f):
+                tas[i] = loot
+                bot.olay('yeni_tasarim', esya=loot)
+                bot.ekip_degisti()
+                return
+        break                                            # parası yetmedi: sıradaki dron beklesin, kozmetiğe geç
+    secenek = dron_gorunumleri()
+    if secenek and bot.r.random() < 0.5 * gosteris(bot):
+        loot = secenek[_sabit(bot, 'gorunum') % len(secenek)]
+        f = K.fiyat(loot)
+        for i in range(n):
+            if not gor[i] and f and _alabilir(bot, *f) and bot.ode(*f):
+                gor[i] = loot
+                bot.olay('yeni_tasarim', esya=loot)
+                return
+
+
 def formasyon_tercihi(bot):
     """Kişiliğe göre istenen formasyon (dron sayısı yetenlerden ilki)."""
     n = dron_sayisi(bot)
@@ -74,6 +143,7 @@ def alisveris(bot, now):
             if f and _alabilir(bot, *f) and bot.ode(*f):
                 e['tasarim'] = loot
                 bot.olay('yeni_tasarim', esya=loot)
+    dron_alisveris(bot)
     sahip = bot.k.setdefault('formasyonlar', ['drone_formation_default'])
     ist = formasyon_tercihi(bot)
     if ist not in sahip:
@@ -121,10 +191,10 @@ def mesajlar(n):
     u = unvan(b)
     if u in BS.TITLES:
         out.append(legacy('0|n|t|%d|%d|%s' % (n.id, BS.TITLES[u], u)))
-    dronlar = [d for d, k in sorted(b.k['ekip'].get('dron', {}).items()) for _ in range(k) if d in K.ESYA['dronlar']]
+    dronlar = dron_dizisi(b)
     if dronlar:
         sv = dron_seviyesi(b)
-        govde = '|'.join('%d|%d|0|0' % (K.ESYA['dronlar'][d]['tur'], sv) for d in dronlar)
+        govde = '|'.join('%d|%d|%d|%d' % (K.ESYA['dronlar'][d]['tur'], sv, t, g) for d, (t, g) in zip(dronlar, dron_kimlikleri(b)))
         f = FORMASYON.get(b.k.get('formasyon') or '', 0)
         out.append(legacy('0|n|d|%d|%d|%s' % (n.id, f, govde)))
     return out

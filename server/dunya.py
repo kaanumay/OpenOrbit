@@ -127,6 +127,21 @@ def etiketle(n, kim, now):
     t = getattr(n, 'etiket', None)
     if t is None or t[0] == kim or now - t[1] > ETIKET_SN:
         n.etiket = (kim, now)
+    elif kim[0] == 'h' and t[0][0] == 'b' and AY.get('etiket_oyuncu') and not grup_npc(n):
+        n.etiket = (kim, now)                                  # oyuncu botun etiketini alır (panel: etiket_oyuncu)
+
+
+def grup_npc(n):
+    """Birlikte dövüşülen uzaylı (Cubikon, Mindfire Behemoth, Invoke XVI gibi sandık düşüren, dünya patronları): etiket_oyuncu açıkken
+    etiketi geçmez, ödül verilen hasara göre bölünür."""
+    return bool(n.d.get('sandik') or n.d.get('patron') or 'Cubikon' in str(n.d.get('ad', '')) or str(getattr(n, 'tip', '')).startswith('wb_'))
+
+
+def hasar_yaz(n, kim, dmg):
+    """Grup uzaylısına verilen hasar kimden ('h', kahraman) ya da ('b', bot): ödül bölüşümü (etiket_paydaslari). Yalnız etiket ve etiket_oyuncu açıkken."""
+    if dmg > 0 and AY.get('etiket') and AY.get('etiket_oyuncu') and grup_npc(n):
+        d = n.__dict__.setdefault('hasar_dagilim', {})
+        d[kim] = d.get(kim, 0) + dmg
 
 
 def etiket_sahibi(n, now):
@@ -2289,6 +2304,7 @@ class World:
                 n.station_retaliation[self.hid] = now    # keep each player's permission on a shared NPC
             if engage:
                 etiketle(n, ('h', self.hid), now)                # ilk ateş eden etiketler (ıska da; P.E.T.'in vuruşu da sahibinin)
+                hasar_yaz(n, ('h', self.hid), dmg)
             if attacker and self.gizli(now):
                 engage = False                   # gizli oyuncunun P.E.T.'i (kamikaze, lazer) uzaylıyı oyuncuya kilitlemez (bildirim 2026-10-28)
             if engage and not n.engaged:
@@ -2477,6 +2493,8 @@ class World:
         (paydaslar); başka bir oyuncunun (arkadaş sunucusu): onun ve grubunun; bir botun: botun (ödül, görev, kargo kutusu ondan
         yana, govde.etiket_odulu). Başkasının etiketlisini bitiren ne ödül ne görev sayımı alır."""
         kim = etiket_sahibi(n, time.time())
+        if getattr(n, 'hasar_dagilim', None) and self.hasara_gore(n, x, y):
+            return [self]
         if kim is not None and kim[0] == 'b' and not (kim[1] in self.npcs and self.npcs[kim[1]].alive):
             kim = None                                     # etiketleyen bot kaçtı ya da öldü: öldüren alır
         if kim is not None and kim[0] == 'h' and kim[1] != self.hid and (self.ortak is None or not any(
@@ -2499,6 +2517,32 @@ class World:
         for b in botlar:
             BG.npc_odulu(b, n, len(pay) + len(botlar))
         return pay
+
+    def hasara_gore(self, n, x, y):
+        """Grup uzaylısının ödülü (EP, onur, kredi, uridyum) oyuncular ve botlar arasında verdikleri hasara göre bölünür (npc_reward
+        oran, govde.npc_odulu pay); kargo kutusu en çok hasar verene. Haritada olmayanın payı kaybolmaz: kalanlar arasında dağılır.
+        -> bölündü mü (tek hasar verenle bölünecek bir şey yok)."""
+        alicilar = []
+        for kim, dmg in n.hasar_dagilim.items():
+            if kim[0] == 'h':
+                w = self if kim[1] == self.hid else next((o for o in (self.ortak.uyeler if self.ortak else [])
+                                                          if o.hid == kim[1] and o.running and not o.hero_dead), None)
+                if w is not None:
+                    alicilar.append((dmg, kim, w))
+            elif kim[1] in self.npcs and self.npcs[kim[1]].alive and BG.bot_cevrimici(kim[1]):
+                alicilar.append((dmg, kim, None))
+        if len(alicilar) < 2:
+            return False
+        toplam = float(sum(a[0] for a in alicilar))
+        ilk = max(alicilar, key=lambda a: a[0])[1]
+        self.log('   %s: ödül hasara göre bölündü (%s)' % (n.d.get('ad'), ', '.join('%s%s %d%%' % (a[1][0], a[1][1], 100 * a[0] / toplam)
+                                                                              for a in alicilar)))
+        for dmg, kim, w in alicilar:
+            if w is not None:
+                w.npc_reward(n, x, y, own=w is self, oran=dmg / toplam, kutu=kim == ilk)
+            else:
+                BG.dagilim_odulu(self, n, kim[1], dmg / toplam, x, y, kutu=kim == ilk)
+        return True
 
     def paydaslar(self):
         """Uzaylının ödülünü paylaşanlar: öldüren ve ortak haritada grubundan aynı haritada yaşayan üyeler (uzaklık önemsiz;
@@ -2530,16 +2574,19 @@ class World:
             o[k] = AY.miktar(k, o.get(k, 0), 'npc')                # panelin ödül çarpanları
         return o
 
-    def npc_reward(self, n, x, y, share=1, own=True):
+    def npc_reward(self, n, x, y, share=1, own=True, oran=1.0, kutu=True):
         """Uzaylının ödülü ve ganimeti bu kahramana (kill; grupta her paydaşın dünyası kendisininkini verir). EP, onur, kredi ve
         uridyum paydaşlar arasında bölünür (yukarı yuvarlanır; P.E.T.'in EP'si de); kargo kutusu, sandıklar, ek ödüller ve
         booster herkese tam, grupta kutular sahibinin (yalnız o görür ve toplar). own: öldüren; başarım, seri, dron EP'si, gemi
-        yeteneğinin yükü, seyir defteri, kapı puanı ve etkinlik kancaları onun; öteki paydaşlara görev olarak sayılır (grup)."""
+        yeteneğinin yükü, seyir defteri, kapı puanı ve etkinlik kancaları onun; öteki paydaşlara görev olarak sayılır (grup).
+        oran < 1: hasara göre pay (grup uzaylısı, hasara_gore): ödül bu orandadır; kutu: kargo kutusu bu kahramana mı."""
         o = self.kill_reward(n)
         if share > 1:
             o = dict(o, **{k: -(-o[k] // share) for k in ('ep', 'onur', 'kredi', 'uridyum')})
+        if oran < 1:
+            o = dict(o, **{k: int(math.ceil(o[k] * oran)) for k in ('ep', 'onur', 'kredi', 'uridyum')})
         in_rad = self.radiation_since is not None
-        sahip = self.hid if share > 1 else None
+        sahip = self.hid if share > 1 or oran < 1 else None
         mal = ('h', self.hid) if AY.get('kargo_sahipligi') else None     # kargo kutusunun sahibi (başkaları mavi görür)
         ek = {}                                            # kutuya giden ek kaynaklar (extra_loot box)
 
@@ -2571,7 +2618,7 @@ class World:
                 n.d['ad'], ' (grup payı 1/%d%s)' % (share, '' if own else ', grup üyesi vurdu') if share > 1 else '',
                 o['ep'], o['onur'], o['kredi'], o['uridyum'], tot['seviye']))
         self.later(0.3, reward)
-        cargo = {} if ETK.no_cargo(n) else self.cargo_of(n)        # Curcubitor: yalnız sandığı (etkinlik_harita)
+        cargo = {} if ETK.no_cargo(n) or not kutu else self.cargo_of(n)        # Curcubitor: yalnız sandığı (etkinlik_harita)
         kind = self.etkinlik.cargo_kind() or ('CANDY_CARGO' if TKV.has_type('CandyCargo') else 'FROM_SHIP')
 
         def cargo_drop():                                  # ödülden (0,3 sn) sonra: ek kaynaklar da kutuda

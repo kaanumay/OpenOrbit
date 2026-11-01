@@ -223,6 +223,8 @@
   "mod_kurallar": ["reminder: no caps, no spam, no insults, no ads. have fun", "chat rules: be respectful, no spam, no links", "keep chat clean please, mods are watching"],
   "emir_tamam": ["on it", "ok boss", "roger", "got it", "yes sir", "omw", "k doing it"],
   "emir_ret": ["cant right now", "busy atm sorry", "not now", "after this, sorry", "too tired, maybe later"],
+  "emir_av": ["hunting {ad} down", "on it, looking for {ad}", "{ad} is a dead man", "roger, going after {ad}", "i'll find {ad}"],
+  "emir_klan_odak": ["focusing {klan} then", "ok {klan} first", "{klan} is priority, got it", "roger, {klan} it is"],
   "emir_us_yok": ["we dont have a station yet", "what base? we have none", "no cbs built yet"],
   "savas_cagri": ["everyone to {harita}, big fight!", "all to {harita} now, enemies everywhere", "{harita} war, come fast", "need everyone on {harita}"],
   "yonetici_ozur": ["sorry {ad}, wont happen again", "ok {ad} got it, my bad", "sorry, stopping now", "ok gm sorry", "understood, my bad"],
@@ -364,6 +366,27 @@
    "ok sent an application",
    "applied, accept me"
   ],
+  "klan_basvuru_dost": [
+   "{ad} helped me out the other day and flies with you, would love to join {klan}",
+   "hey, {ad} saved me in a tough fight a while ago. looking to fly with you guys, lvl {lv}",
+   "{ad} had my back before, so I figured I'd ask to join. lvl {lv}, {stil}",
+   "heard good things and {ad} helped me once, can I join {klan}?"
+  ],
+  "klan_basvuru_grup": [
+   "grouped with {ad} a few times, great pilot. would like to join {klan}, lvl {lv}",
+   "flew with {ad} before and had fun, looking for a clan like this. {stil}",
+   "{ad} is a good wingman, hope you take me too. lvl {lv}"
+  ],
+  "klan_basvuru_pvp": [
+   "lvl {lv}, mostly pvp, looking for an active clan to fly with",
+   "lvl {lv} pvp player, want some people to hunt with. will be online daily",
+   "looking for a pvp clan, I know my way around a fight. lvl {lv}"
+  ],
+  "klan_basvuru_pve": [
+   "lvl {lv}, mostly pve and quests, looking for a friendly clan",
+   "new-ish pilot (lvl {lv}) looking for a chill clan to farm and chat with",
+   "lvl {lv}, I do quests and farming, would like to team up with some people"
+  ],
   "nerede": [
    "on {harita}",
    "{harita}",
@@ -448,12 +471,65 @@
   "genel": [
    "when does the event end",
    "lots of npcs on x-4",
+   "dead chat",
+   "back online, what did i miss",
+   "so many aliens on {harita} today",
+   "need a break from farming lol",
+   "just flying around {harita}, nothing going on",
+   "gotta love a quiet map",
+   "anyone tried the lab upgrades yet?",
+   "lvl {seviye} and still no clue what im doing :D",
+   "good night for hunting"
+  ],
+  "sikayet": [
    "lag for anyone else?",
    "uridium is so slow",
-   "any boss up?",
-   "dead chat",
-   "shields or lasers first?",
-   "when will i ever get goliath"
+   "uri farming is a grind",
+   "ping spiked for a sec there"
+  ],
+  "durum_kapi": [
+   "just finished {kapi}, finally",
+   "{kapi} done, took long enough",
+   "cleared {kapi} :D",
+   "{kapi} wasnt that bad once i got it going"
+  ],
+  "durum_alim": [
+   "bought {esya} just now",
+   "picked up {esya}, lets see if it helps",
+   "got myself {esya} :)",
+   "new toy: {esya}"
+  ],
+  "durum_olum": [
+   "died on {harita} to some random alien, rip",
+   "those aliens on {harita} hit harder than they look",
+   "got jumped on {harita}, need to be more careful",
+   "lost a fight with npcs on {harita} lol"
+  ],
+  "durum_gorev": [
+   "finished the quest {ad}",
+   "{ad} done, next one",
+   "quest {ad} complete, easy rewards"
+  ],
+  "durum_kacti": [
+   "ran from {harita}, too hot there",
+   "got out of {harita} just in time",
+   "{harita} is not worth it right now"
+  ],
+  "durum_kargo": [
+   "cargo is {yuzde}% full, heading to sell",
+   "hold is almost full, time to go back",
+   "carrying so much ore my ship is crawling"
+  ],
+  "durum_kasma": [
+   "farming {harita} for a bit",
+   "{harita} is decent for farming rn",
+   "grinding npcs on {harita}, anyone around?",
+   "farming {harita} at lvl {seviye}, going ok"
+  ],
+  "durum_istat": [
+   "{npc} aliens down so far, still going",
+   "just passed {npc} kills, not bad",
+   "{npc} kills and {olum} deaths, i call it even"
   ],
   "cikis": [
    "bb",
@@ -537,6 +613,52 @@
   "klan_posta_ksi_konu": ["Station under attack: {istasyon}"],
   "klan_posta_ksi": ["our station {istasyon} on {harita} is under attack. everyone online come now"]
  },
+ "diyaloglar": [
+  [
+   ["shields or lasers first?", "what should i upgrade first, shields or lasers?"],
+   ["lasers, then shields", "lasers imo", "shields first, dying a lot is expensive"],
+   ["ok lasers it is, thx", "thanks, going lasers"]
+  ],
+  [
+   ["any boss up?", "anyone seen a boss today?"],
+   ["saw one on {harita} a bit ago", "not on {harita}, sorry"],
+   ["ill check it out", "ty, heading there"]
+  ],
+  [
+   ["when will i ever get goliath", "still no goliath, so far away"],
+   ["keep farming, you will get there", "it took me forever too", "just save up, its worth it"]
+  ],
+  [
+   ["is {harita} good for farming?", "where do you guys farm at lvl {seviye}?"],
+   ["{harita} is fine for me", "i farm {harita}, not too crowded"],
+   ["nice, ill try it"]
+  ],
+  [
+   ["how do you beat the gates solo?", "any tips for the gates?"],
+   ["bring good shields and dont rush the waves", "take your time and repair between waves"]
+  ],
+  [
+   ["what do you all fly?", "which ship is best for pve?"],
+   ["goliath all the way", "depends on your budget tbh", "still in my old ship lol"],
+   ["fair enough", "same here"]
+  ],
+  [
+   ["worth buying a drone yet?", "is the first drone worth it?"],
+   ["yes, the damage boost is real", "not yet, get your ship first"]
+  ],
+  [
+   ["anyone else dying a lot on {harita}?", "{harita} is brutal for me today"],
+   ["yeah those aliens hurt", "just back off and repair, no shame"]
+  ],
+  [
+   ["how long does the lab take?", "is the lab upgrade worth the ore?"],
+   ["a few minutes per ore, just queue it", "worth it for shields at least"]
+  ],
+  [
+   ["gg everyone, good session", "ok that was a good run"],
+   ["gg", "gg, see you around"]
+  ]
+ ],
  "kisaltma": [
   [
    "you",

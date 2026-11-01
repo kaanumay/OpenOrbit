@@ -43,7 +43,10 @@ def attack_error(w, other, now):
         return _denied('friendlyfire_disabled')
     faction = int(a.get('factionId') or 0)
     if faction and faction == int(b.get('factionId') or 0) and 3 not in relations:
+        import ayar as AY
         import harita as H                   # resmî forum 127509: kendi şirketine saldırı serbest (cezalı), ilk iki haritada yasak
+        if not AY.get('sirket_pvp'):
+            return _denied('friendlyfire_disabled')     # panel: kendi şirketine saldırı kapalı
         if H.company(w.map_id) == faction and H.name(w.map_id).split('-')[-1] in ('1', '2'):
             return _denied('no_attack_on_start_maps')
         if not getattr(w, 'dost_uyarildi', False):

@@ -159,6 +159,31 @@ def level_value(row, lv):
     return row[max(0, min(len(row) - 1, int(lv)))]
 
 
+def hp_sync(m):
+    """Panelin KSİ can çarpanı değişince modülün canı, kalkanı (ve rakipte azamisi) oranıyla ölçeklenir (m['ksi']: kayıttaki değerlerin
+    hangi çarpanla ölçeklendiği; yoksa 1,0)."""
+    k = float(AY.get('ksi_can'))
+    old = m.get('ksi', 1.0)
+    if k == old:
+        return
+    r = k / old
+    for f in ('azami', 'can', 'kalkan'):
+        if f in m:
+            m[f] = min(AY.I32, int(m[f] * r))
+    m['ksi'] = k
+
+
+def hp_max(m):
+    """Modülün azami canı (rakipte kayıttaki azami): panelin KSİ can çarpanıyla, en çok 32 bit."""
+    hp_sync(m)
+    return m.get('azami') or min(AY.I32, int(level_value(MODS[m['loot']]['can'], m['seviye']) * float(AY.get('ksi_can'))))
+
+
+def dmg_value(md, lv):
+    """Silah modülünün seviyedeki hasarı: panelin KSİ hasar çarpanıyla (bütün istasyonlar)."""
+    return level_value(md['hasar'], lv) * float(AY.get('ksi_hasar'))
+
+
 def stm(key, **params):
     """İstemcinin metni (flashres) yer tutucularıyla: 0|A|STM|anahtar|%AD%|değer…"""
     return legacy('0|A|STM|%s%s' % (key, ''.join('|%%%s%%|%s' % (k, v) for k, v in params.items())))
@@ -231,6 +256,7 @@ class Cbs:
                     new_shield = int(maximum * D['kalkan_orani'])
                     row.update(azami=maximum, can=int(maximum * max(0.0, min(1.0, hp / old_max))),
                                kalkan=int(new_shield * max(0.0, min(1.0, shield / old_shield))) if hp > 0 and old_shield > 0 else 0)
+                    row.pop('ksi', None)
                     changed = True
                 except (KeyError, TypeError, ValueError, OverflowError):
                     continue
@@ -350,6 +376,10 @@ class Cbs:
         a.setdefault('durum', 'bos')
         a.setdefault('yuvalar', {})
         a.setdefault('deflector', {'acik': False, 'sn': 0.0, 'kapali_bitis': 0.0, 'son': time.time()})
+        for y in a['yuvalar'].values():
+            m = y.get('modul') or (y if 'loot' in y else None)
+            if m is not None and m.get('loot') in MODS:
+                hp_sync(m)
         return a
 
     def klan(self):
@@ -399,10 +429,12 @@ class Cbs:
 
     def module(self, iid):
         m = self.st['moduller'].get(str(iid))
+        if m is None:
+            y = self.slot_of(iid)
+            m = y.get('modul') if y else None
         if m is not None:
-            return m
-        y = self.slot_of(iid)
-        return y.get('modul') if y else None
+            hp_sync(m)
+        return m
 
     def slot_of(self, iid):
         for a in self.asts.values():
@@ -455,8 +487,8 @@ class Cbs:
         return self.host is None or KL.hak(self.p, right)
 
     def mx(self, m):
-        hp = level_value(MODS[m['loot']]['can'], m['seviye'])
-        return hp, int(hp * D['kalkan_orani'])
+        hp = hp_max(m)
+        return hp, min(AY.I32, int(hp * D['kalkan_orani']))
 
     # ------------------------------------------------------------ komutlar
     def module_cmd(self, iid, aid=-1, slot=-1, now=None):
@@ -550,7 +582,7 @@ class Cbs:
             md = MODS[m['loot']]
             dfn += int(m['can'] + m['kalkan'])
             if md.get('silah'):
-                att += level_value(md['hasar'], m['seviye'])
+                att += dmg_value(md, m['seviye'])
             if md.get('onarim_sn'):
                 rep += level_value(md['onarim_sn'], m['seviye'])
         return att // 1000, dfn // 1000, rep
@@ -727,8 +759,8 @@ class Cbs:
         m = m or (y if a.get('sahip') == 'rakip' else self.module(y.get('iid')))
         if not m:
             return None
-        mh = m.get('azami') or level_value(MODS[m['loot']]['can'], m['seviye'])     # rakipte tek oyunculu çarpanla (azami)
-        ms = int(mh * D['kalkan_orani'])
+        mh = hp_max(m)                              # rakipte tek oyunculu çarpanla (azami)
+        ms = min(AY.I32, int(mh * D['kalkan_orani']))
         kind = BATTLESTATION if slot <= DEFLECTOR else SATELLITE
         return ('AssetInfoCommand', dict(assetId=asset_id(aid, slot), type=mod('AssetTypeModule', typeValue=kind),
                                          designId=1 if kind == BATTLESTATION else MODS[m['loot']]['tasarim'],
@@ -1453,7 +1485,7 @@ class Cbs:
             md = MODS[m['loot']]
             total += m['can'] + m['kalkan']
             if md.get('silah'):
-                dps += level_value(md['hasar'], m['seviye']) * boost * md['isabet'] / md['aralik_sn']
+                dps += dmg_value(md, m['seviye']) * boost * md['isabet'] / md['aralik_sn']
         shots = B['sure_sn'] / dunya.SAVAS['npc_saldiri_aralik_sn']
         return dps * B['sure_sn'] / n, total * B['hasar_orani'] / shots / n
 
@@ -1510,7 +1542,7 @@ class Cbs:
             atype = 0 if md['silah'] == 'roket' else 1
             w.send([self.weapon_visual(md, asset_id(aid, int(s)), n.id, hit)])
             if hit:
-                w.hit_npc(n.id, int(level_value(md['hasar'], m['seviye']) * dmg_boost), atype, attacker=asset_id(aid, int(s)), engage=False, source_asset=True)
+                w.hit_npc(n.id, int(dmg_value(md, m['seviye']) * dmg_boost), atype, attacker=asset_id(aid, int(s)), engage=False, source_asset=True)
             else:
                 w.send([('AttackMissedCommand', dict(attackType=dunya.attack_type(atype), targetUserId=n.id, skillColorId=0))])
         return msgs
@@ -1575,8 +1607,8 @@ class Cbs:
             return []
         changed = []
         for s, y in a['yuvalar'].items():
-            mx = y.get('azami') or level_value(MODS[y['loot']]['can'], y['seviye'])
-            ms = int(mx * D['kalkan_orani'])
+            mx = hp_max(y)
+            ms = min(AY.I32, int(mx * D['kalkan_orani']))
             if y['can'] <= 0 or (y['can'] >= mx and y['kalkan'] >= ms):
                 continue
             y['can'] = min(mx, y['can'] + po['can_sn'] * dt)
@@ -1714,7 +1746,7 @@ class Cbs:
             victimId=int(uid), victimHitpoints=int(hit_module['can']), victimShield=int(hit_module['kalkan']),
             victimNanoHull=0, damage=amount, skilled=atype == 1, strike=False, cannonType=0))
         bar = ('AttackHitAssetCommand', dict(assetId=int(uid), hitpointsNow=int(hit_module['can']),
-            hitpointsMax=int(hit_module.get('azami') or level_value(MODS[hit_module['loot']]['can'], hit_module['seviye']))))
+            hitpointsMax=hp_max(hit_module)))
         if self.host is not None and w is not None and w.ortak is not None:
             for o in list(w.ortak.uyeler):
                 if o is not w and o.running and o.target == uid:
@@ -1773,7 +1805,7 @@ class Cbs:
                     visual[1]['isDiminishedBySkillShield'] = laser_factor < 1 or (not target_pet and w.skill_shield())
                 w.send([visual])
                 if hit:
-                    dmg = int(round(level_value(md['hasar'], y['seviye']) * D['rakip']['hasar_carpani'] * laser_factor))
+                    dmg = int(round(dmg_value(md, y['seviye']) * D['rakip']['hasar_carpani'] * laser_factor))
                     if target_pet:
                         actual = target_pet.station_hit(dmg, uid, atype=atype, now=now)
                     else:

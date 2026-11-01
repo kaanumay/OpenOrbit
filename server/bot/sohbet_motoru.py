@@ -5,7 +5,7 @@ Satırlar insan yazma süresi kadar gecikir (konusma.yazma_suresi), global/firma
 mesajları sohbet iş parçacığından gelen'e eklenir, yöneticinin tick'inde işlenir. Gelişmiş kipte önce LLM (llm.py) denenir;
 yetişemezse ya da LLM yoksa konusma.py'nin kalıpları.
 """
-import random, time, traceback
+import random, re, time, traceback
 
 import harita as H
 from . import ad_uslup as AU
@@ -17,6 +17,11 @@ from . import moderasyon as MOD
 from . import yonetici_uyari as YU
 
 OLAY_SN = 5.0
+ALIM_KLAN_SN = 7200.0                   # aynı klanın alım ilanı arası (iki saat)
+ALIM_GENEL_SN = 1500.0                  # herhangi bir klanın ilanı arası
+SIKAYET_SN = 1800.0                     # lag/uridyum sızlanması arası (tüm sohbette)
+TEKRAR_SN = 2700.0                      # aynı satır bu süre içinde ikinci kez yazılmaz
+BOT_ARA_SN = 600.0                      # aynı botun kendiliğinden iki lafı arası en az
 KABA_CARPAN = (0.0, 1.0, 1.6, 2.2)      # kaba_sohbet düzeyine göre hakarete karşılık verme olasılığı çarpanı
 FIRMA = {1: 'MMO', 2: 'EIC', 3: 'VRU'}
 
@@ -64,16 +69,21 @@ class SohbetMotoru:
         self.son_soz = 0.0
         self.eylemler = []             # [(an, bot, (araç, argümanlar))]: kararın eylemi, yanıt yazıldıktan sonra (etkilesim.uygula)
         self._satirlar = []            # son bir dakikadaki bot satırlarının anları (sohbet_dk)
+        self._son_metin = []           # [(an, sadeleşmiş metin)]: son kendiliğinden satırlar (tekrar önleme)
+        self._alim_son = {}            # klan anahtarı (None: hepsi) -> son alım ilanı anı
+        self._sikayet_son = 0.0
 
     def konus(self, b, kanal, metin, alici=None, now=None, hemen=False, oncelik=False):
-        """Bot yazacak: insan yazma süresi kadar sonra gider (fısıltı: alici). oncelik: oyuncuya yanıt; kanal sınırına takılmaz."""
+        """Bot yazacak: insan yazma süresi kadar sonra gider (fısıltı: alici). oncelik: oyuncuya yanıt; kanal sınırına takılmaz.
+        Kuyruğa girerse satırın gideceği anı döndürür (konuşma zinciri bunun üstüne yanıt ekler), girmezse None."""
         if not metin or not self.izin('sohbet'):
-            return
+            return None
         now = now or self.now
         if not oncelik and YU.etkin(b, 'sohbet', now) and b.r.random() < 0.75:
-            return                                       # yönetici sohbet uyarısı: yalnız yanıtlar, çoğu kez susar
+            return None                                  # yönetici sohbet uyarısı: yalnız yanıtlar, çoğu kez susar
         t = now + (0 if hemen else KN.yazma_suresi(metin, b))
         self.giden.append((t, b, kanal, metin, alici, oncelik, t))
+        return t
 
     def bekleyen_metinler(self):
         return [x[3] for x in self.giden]
@@ -374,7 +384,7 @@ class SohbetMotoru:
             self.konus(b, 'fisilti', KN.kalip(b, 'oldurdum') if kaba else 'gg', alici=o.get('ad'), now=now)
             if kaba >= 2 and o.get('ad') and b.r.random() < 0.25 * (kaba - 1) * b.o('saldirganlik'):
                 self.konus(b, 'global', KN.kalip(b, 'laf_oldurdum', ad=o['ad'], harita=H.name(b.harita)), now=now + b.r.uniform(4, 15))
-        elif tur == 'klan_kurdu':
+        elif tur == 'klan_kurdu' and self.alim_serbest(o.get('ad'), now):
             self.konus(b, 'global', KN.kalip(b, 'klan_alim', etiket=o.get('etiket'), klan=o.get('ad'), seviye=max(3, b.seviye - 4)),
                        now=now + b.r.uniform(20, 120))
 
@@ -466,24 +476,137 @@ class SohbetMotoru:
             self.konus(b, 'global', KN.kalip(b, 'laf_firma', firma=b.r.choice([f for f in ('MMO', 'EIC', 'VRU') if f != FIRMA[b.firma]])),
                        now=now)
 
+    def alim_serbest(self, klan, now):
+        """Klan alım ilanı yazılabilir mi (klan başına iki saatte, hepsi birlikte 25 dakikada en çok bir); yazılabilirse sayar."""
+        if now - self._alim_son.get(None, -1e9) < ALIM_GENEL_SN or now - self._alim_son.get(klan, -1e9) < ALIM_KLAN_SN:
+            return False
+        self._alim_son[None] = self._alim_son[klan] = now
+        return True
+
+    def yeni_metin(self, b, durum, now, **f):
+        """Durumun kalıbından, son 45 dakikada yazılmamış bir satır (4 denemede yoksa None)."""
+        self._son_metin = [x for x in self._son_metin if now - x[0] < TEKRAR_SN]
+        for _ in range(4):
+            m = KN.kalip(b, durum, **f)
+            if m and re.sub(r'\W+', '', m.lower()) not in (x[1] for x in self._son_metin):
+                return m
+        return None
+
+    def yazdi(self, b, metin, now):
+        self._son_metin.append((now, re.sub(r'\W+', '', metin.lower())))
+        b._soz_son = now
+
+    def durum_lafi(self, b, now):
+        """Botun gerçekten yaptığı ya da az önce yaptığı bir şeyden (kapı bitti, alışveriş, ölüm, görev, dolu kargo, kasma) bir satır
+        -> (durum, alanlar) ya da None. Seviye ve yeni gemi zaten olay_sohbet'te yazılır; aynı olay iki kez anlatılmaz."""
+        anlatilan = b.__dict__.setdefault('_anlatilan', set())
+        adaylar = []
+        for o in b.olaylar[-12:]:
+            if now - o['t'] > 900 or (o['tur'], o['t']) in anlatilan:
+                continue
+            t = o['tur']
+            if t == 'kapi_tamam':
+                adaylar.append(('durum_kapi', dict(kapi=o['kapi']), o))
+            elif t == 'alim' and not str(o.get('esya', '')).startswith('ship_'):
+                esya = re.sub(r'^(drone|equipment|resource)_', '', str(o.get('esya', ''))).replace('_', ' ')
+                adaylar.append(('durum_alim', dict(esya=esya), o))
+            elif t == 'olum' and o.get('neden') == 'npc':
+                adaylar.append(('durum_olum', dict(harita=o.get('harita', H.name(b.harita))), o))
+            elif t == 'gorev_bitti' and o.get('ad'):
+                adaylar.append(('durum_gorev', dict(ad=o['ad']), o))
+            elif t == 'kacti':
+                adaylar.append(('durum_kacti', dict(harita=o.get('harita', H.name(b.harita))), o))
+        try:
+            if b.kargo_dolu() > 0.85:
+                adaylar.append(('durum_kargo', dict(yuzde=int(b.kargo_dolu() * 100)), None))
+        except Exception:
+            pass
+        if b.hedef is not None and b.hedef.ad == 'kasilma':
+            adaylar.append(('durum_kasma', dict(harita=H.name(b.harita)), None))
+        npc = b.k['istat'].get('npc', 0)
+        if npc >= 50:
+            adaylar.append(('durum_istat', dict(npc=npc, olum=b.k['istat'].get('olum', 0)), None))
+        if not adaylar:
+            return None
+        d, f, o = b.r.choice(adaylar)
+        if o is not None:
+            anlatilan.add((o['tur'], o['t']))
+            if len(anlatilan) > 60:
+                anlatilan.clear()
+        f.setdefault('harita', H.name(b.harita))
+        f.setdefault('seviye', b.seviye)
+        return d, f
+
+    def diyalog_baslat(self, b, acik, kanal, now):
+        """b bir soru/laf yazar; başka bir çevrimiçi bot (aynı dil, firma kanalında aynı firma) insan gecikmesiyle yanıtlar, bazen
+        b de karşılık verir (en çok 3 satır). Yanıt gelmeyebilir; her satırın gideceği an bir öncekinin üstüne eklenir."""
+        sohbet = KN.diyalog(b)
+        if not sohbet:
+            return False
+        al = lambda x, tur: KN.diyalog_satiri(x, tur, harita=H.name(x.harita), seviye=x.seviye)
+        m = al(b, sohbet[0])
+        if not m or re.sub(r'\W+', '', m.lower()) in (x[1] for x in self._son_metin):
+            return False
+        t = self.konus(b, kanal, m, now=now)
+        if t is None:
+            return False
+        self.yazdi(b, m, now)
+        adaylar = [c for c in acik if c is not b and KN.dil(c) == KN.dil(b) and (kanal == 'global' or c.firma == b.firma)]
+        if not adaylar:
+            return True
+        c = max(adaylar, key=lambda x: x.o('sosyallik') * x.r.random())
+        if b.r.random() > 0.3 + 0.55 * c.o('sosyallik'):
+            return True                                  # kimse yanıtlamadı
+        for i, tur in enumerate(sohbet[1:]):
+            kim = c if i % 2 == 0 else b
+            m = next((x for x in (al(kim, tur) for _ in range(3)) if x and re.sub(r'\W+', '', x.lower()) not in
+                      (y[1] for y in self._son_metin)), None)
+            if not m:
+                break
+            t = self.konus(kim, kanal, m, now=t + kim.r.uniform(5, 22))
+            if t is None:
+                break
+            self._son_metin.append((now, re.sub(r'\W+', '', m.lower())))
+        return True
+
     def kendiliginden(self, now):
-        """Ara sıra bir bot kendiliğinden yazar (genel sohbet, grup arama, alım ilanı, müzayede): kanal sınırı içinde."""
+        """Ara sıra bir bot kendiliğinden yazar: yaptığı şeyden satır, kısa konuşma, grup arama, ticaret, genel laf, nadiren klan alım
+        ilanı ve sızlanma. Kanal sınırı içinde; aynı satır, aynı bot ve aynı klanın ilanı sık tekrarlanmaz."""
         if self.llm is not None and self.llm.hazir:
             return                                   # Gelişmiş kipte kendiliğinden sohbeti model yapar (llm.bot_sohbet)
         acik = [b for b in self.botlar if b.cevrimici and b.olu_bitis <= now]
-        if not acik or random.random() > 0.08 * min(1.0, len(acik) / 10.0):
+        if not acik or random.random() > 0.065 * min(1.0, len(acik) / 10.0):
             return
-        b = max(acik, key=lambda b: b.o('konuskanlik') * b.r.random())
+        musait = [b for b in acik if now - b.__dict__.get('_soz_son', -1e9) >= BOT_ARA_SN]
+        if not musait:
+            return
+        b = max(musait, key=lambda b: b.o('konuskanlik') * b.r.random())
         k = b.r.random()
         if b.k.get('klan') and b.arketip == 'lider' and k < 0.3:
             import klan as KL
             c = KL.KLANLAR.get(b.k['klan'])
-            if c is not None and c['lider'] == b.ad.lower():
-                self.konus(b, 'global', KN.kalip(b, 'klan_alim', etiket=c['etiket'], klan=c['ad'], seviye=max(3, b.seviye - 4)), now=now)
-                return
+            if c is not None and c['lider'] == b.ad.lower() and self.alim_serbest(b.k['klan'], now):
+                m = self.yeni_metin(b, 'klan_alim', now, etiket=c['etiket'], klan=c['ad'], seviye=max(3, b.seviye - 4))
+                if m and self.konus(b, 'global', m, now=now) is not None:
+                    self.yazdi(b, m, now)
+                    return
         if b.arketip == 'tuccar' and k < 0.4:
-            self.konus(b, 'global', KN.kalip(b, 'ticaret', esya='LF-3'), now=now)
+            m, kanal = self.yeni_metin(b, 'ticaret', now, esya='LF-3'), 'global'
         elif b.o('sosyallik') > 0.6 and k < 0.35:
-            self.konus(b, 'firma', KN.kalip(b, 'grup_ara', harita=H.name(b.harita)), now=now)
+            m, kanal = self.yeni_metin(b, 'grup_ara', now, harita=H.name(b.harita)), 'firma'
         else:
-            self.konus(b, b.r.choice(('global', 'firma')), KN.kalip(b, 'genel'), now=now)
+            kanal, r = b.r.choice(('global', 'firma')), b.r.random()
+            m = None
+            if r < 0.4:
+                d = self.durum_lafi(b, now)
+                m = self.yeni_metin(b, d[0], now, **d[1]) if d else None
+            elif r < 0.75:
+                if self.diyalog_baslat(b, acik, kanal, now):
+                    return
+            elif r < 0.8 and now - self._sikayet_son >= SIKAYET_SN:
+                self._sikayet_son = now
+                m = self.yeni_metin(b, 'sikayet', now)
+            if m is None:
+                m = self.yeni_metin(b, 'genel', now)
+        if m and self.konus(b, kanal, m, now=now) is not None:
+            self.yazdi(b, m, now)

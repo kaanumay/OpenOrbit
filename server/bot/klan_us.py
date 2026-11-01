@@ -277,6 +277,7 @@ def yaris_adimi(y, b, k, h, asts, now):
             m.update(_yeni_modul(loot), seviye=m['seviye'])
             m['can'] = CB.level_value(CB.MODS[loot]['can'], m['seviye'])
             m['kalkan'] = int(m['can'] * CB.D['kalkan_orani'])
+            m.pop('ksi', None)                           # taban değerler: panelin KSİ can çarpanına cbs.hp_sync ölçekler
     with h.lock:
         r = a.setdefault('yaris', {}).setdefault(str(k['id']), {'moduller': [], 't': 0})
         r['moduller'].append(m)
@@ -298,6 +299,7 @@ def gelistir(y, b, k, h, asts, now):
                 with h.lock:
                     m['can'] = CB.level_value(CB.MODS[m['loot']]['can'], m['seviye'])
                     m['kalkan'] = int(m['can'] * CB.D['kalkan_orani'])
+                    m.pop('ksi', None)
                     a['surum'] = a.get('surum', 0) + 1
                     h.dirty = True
                 return
@@ -307,10 +309,11 @@ def gelistir(y, b, k, h, asts, now):
         if m is None or not _ode(k, 'ksi', fiyat(m['loot'], m['seviye'] + 1)):
             continue
         with h.lock:
-            oran = m['can'] / max(1, CB.level_value(CB.MODS[m['loot']]['can'], m['seviye']))
+            oran = m['can'] / max(1, CB.hp_max(m))          # ölçekli canın oranı (panelin KSİ can çarpanı)
             m['seviye'] += 1
             m['can'] = int(CB.level_value(CB.MODS[m['loot']]['can'], m['seviye']) * min(1.0, oran))
             m['kalkan'] = int(CB.level_value(CB.MODS[m['loot']]['can'], m['seviye']) * CB.D['kalkan_orani'] * min(1.0, oran))
+            m.pop('ksi', None)
             a['surum'] = a.get('surum', 0) + 1
             h.dirty = True
         s['son_yukseltme'] = now
@@ -318,15 +321,55 @@ def gelistir(y, b, k, h, asts, now):
         return
 
 
-def savun(y, b, k, asts, now):
-    """İstasyona oyuncu saldırıyor: çevrimiçi üyeler istasyonun haritasına (klan_emir 'git'), haber ve toplu posta (savunma_sn'de
-    bir), lider saldırana kin duyar."""
+SAVUNMA_ILK = 2                  # saldırı başlar başlamaz yollanan üye sayısı
+SAVUNMA_DALGA = 1                # sonraki her dalgadaki üye sayısı
+SAVUNMA_ARA_SN = 75.0            # dalgalar arası (sn): üsse yavaş yavaş akarlar, sürü olmaz
+SAVUNMA_SON_SN = 90              # saldırı bundan eski ise bitmiş sayılır, sıradakiler yollanmaz
+
+
+def savunma_kota(saldiranlar):
+    """Bir saldırıda yollanacak en çok üye: saldıran sayısıyla büyür (tek oyuncuya 5, her ek saldırana 3 daha; en çok 12)."""
+    return min(12, 5 + 3 * max(0, saldiranlar - 1))
+
+
+def _dalga(y, b, k, st, harita, n, now):
+    """Sıradaki üyelerden en çok n tanesini istasyonun haritasına yollar (klan_emir 'git') -> yollanan sayısı."""
     from . import klan_emir as KE
-    s = ksi(k)
-    for aid, a in _benim(asts, k).items():
-        if now - a.get('son_oyuncu', 0) > 90 or now - s.get('son_savunma', 0) < ayar()['savunma_sn']:
+    giden = 0
+    while st['sirada'] and giden < n and st['yollanan'] < st['kota']:
+        ad = st['sirada'].pop(0)
+        o = y.ada.get(ad.lower())
+        if o is None or not (o.cevrimici and o.olu_bitis <= now and o.k.get('klan') == k['id']):
             continue
-        s['son_savunma'] = now
+        if KE.uyar_mi(o, b.ad, True, now) and KE.uygula(y, o, {'tur': 'git', 'harita': harita}, b.ad, None, now)[0] == 'geliyorum':
+            giden += 1
+            st['yollanan'] += 1
+    return giden
+
+
+def savun(y, b, k, asts, now):
+    """İstasyona oyuncu saldırıyor: haber ve toplu posta (savunma_sn'de bir), lider saldırana kin duyar. Çevrimiçi üyeler hepsi birden
+    değil, kademeli yollanır (klan_emir 'git'): ilk SAVUNMA_ILK hemen, kalanı SAVUNMA_ARA_SN'de bir SAVUNMA_DALGA; toplam
+    savunma_kota(saldıran sayısı). Saldırı SAVUNMA_SON_SN'den uzun süredir yoksa sıra bırakılır. Bekleyen sıra klanın kaydında
+    (k['ksi']['savunma'], klanlar.json): sunucu yeniden başlasa da süren saldırıda kalanlar yollanır."""
+    bek = ksi(k).setdefault('savunma', {})
+    for aid, a in _benim(asts, k).items():
+        suruyor = now - a.get('son_oyuncu', 0) <= SAVUNMA_SON_SN
+        st = bek.get(str(aid))
+        if st is not None:
+            if not suruyor:
+                bek.pop(str(aid), None)                      # saldırı bitti: sıradakiler yollanmaz
+                continue
+            if a.get('son_saldiran') and a['son_saldiran'] not in st['saldiranlar']:
+                st['saldiranlar'].append(a['son_saldiran'])
+                st['kota'] = max(st['kota'], savunma_kota(len(st['saldiranlar'])))
+            if now >= st['sonraki'] and st['sirada']:
+                st['sonraki'] = now + SAVUNMA_ARA_SN
+                _dalga(y, b, k, st, st['harita'], SAVUNMA_DALGA, now)
+            continue
+        if not suruyor or now - ksi(k).get('son_savunma', 0) < ayar()['savunma_sn']:
+            continue
+        ksi(k)['son_savunma'] = now
         ist, harita = CB.AST[aid]['ad'], H.name(CB.AST[aid]['harita'])
         kim = a.get('son_saldiran') or ''
         if kim:
@@ -335,12 +378,13 @@ def savun(y, b, k, asts, now):
         KY.duyur(b, kl, 'klan_duyuru_ksi_saldiri', istasyon=ist, harita=harita)
         if KL.hak(b.profil, 'roundmail'):
             KY.toplu_posta(b, kl, 'klan_posta_ksi', istasyon=ist, harita=harita)
-        giden = 0
-        for o in y.botlar:
-            if o.k.get('klan') == k['id'] and o.cevrimici and o.olu_bitis <= now and KE.uyar_mi(o, b.ad, True, now):
-                if KE.uygula(y, o, {'tur': 'git', 'harita': harita}, b.ad, None, now)[0] == 'geliyorum':
-                    giden += 1
-        y.log('   botlar: [%s] %s istasyonu saldırı altında (%s), %d üye savunmaya' % (k['etiket'], ist, kim or '?', giden))
+        uyeler = [o for o in y.botlar if o.k.get('klan') == k['id'] and o.cevrimici and o.olu_bitis <= now]
+        random.shuffle(uyeler)
+        st = bek[str(aid)] = dict(harita=harita, sirada=[o.ad for o in uyeler], yollanan=0, kota=savunma_kota(1),
+                                  saldiranlar=[kim] if kim else [], sonraki=now + SAVUNMA_ARA_SN)
+        giden = _dalga(y, b, k, st, harita, SAVUNMA_ILK, now)
+        y.log('   botlar: [%s] %s istasyonu saldırı altında (%s), %d üye savunmaya (kalan %d kademeli)'
+              % (k['etiket'], ist, kim or '?', giden, len(st['sirada'])))
         b.olay('ksi_savunma', now, istasyon=ist, saldiran=kim)
         return
 

@@ -2,7 +2,7 @@
 
 Stok bot.k['stok'] {loot: adet}: yeni pilot oyuncu gibi 1.000 LCB-10 ve 20 R-310 ile başlar; bonus kutularından ve görevlerden
 cephane gelir, gerisi mağazadan alınır (oyuncu her atışta lazer sayısı kadar mermi harcar: dunya.World.attack). Seçim:
-  lazer  sıradan uzaylıya LCB-10; dayanıklı uzaylıya (LCB-10 ile 90 sn'den uzun) x2/x3 (MCB-25/50), PvP'de RSB-75 ya da x3,
+  lazer  sıradan uzaylıya LCB-10; dayanıklı uzaylıya (LCB-10 ile 90 sn'den uzun) x2/x3/x4 (MCB-25/50, UCB-100), PvP'de RSB-75 ya da x4/x3,
          kalkanı yüksek oyuncuya SAB-50 (izin 'ozel_cephane'); stok yoksa elinde ne varsa
   roket  elindeki en güçlüsü (izin 'roket'); bekleme 4 sn, R0K-T01 CPU'suyla yarısı
 İkmal (karar anında): LCB-10 stoku birkaç saatlik ihtiyacın altına inince kredinin bir payıyla, roket ve özel cephane kişiliğe ve
@@ -12,6 +12,7 @@ from . import katalog as K
 
 LCB, MCB25, MCB50, SAB, RSB = ('ammunition_laser_lcb-10', 'ammunition_laser_mcb-25', 'ammunition_laser_mcb-50',
                                'ammunition_laser_sab-50', 'ammunition_laser_rsb-75')
+UCB = 'ammunition_laser_ucb-100'                     # x4: kapı ve mod ödüllerinden gelir; mağaza fiyatı olursa ikmal de alır
 MAYINLAR = ('ammunition_mine_acm-01', 'ammunition_mine_ddm-01')          # standart ve doğrudan hasarlı (uridyumla)
 MAYIN_BEKLEME = K.ESYA['savas_esyalari']['mayin']['bekleme_sn']
 ROKETLER = ('ammunition_rocket_r-310', 'ammunition_rocket_plt-2026', 'ammunition_rocket_plt-2021', 'ammunition_rocket_plt-3030')
@@ -40,18 +41,20 @@ def lazer_sec(bot, ehp=0.0, pvp=False):
     tutumlu = bot.o('tutumluluk')
     if ozel:
         if pvp:
-            for c in (RSB, MCB50, MCB25):
+            for c in (RSB, UCB, MCB50, MCB25):
                 if s.get(c, 0) > 0:
                     return c
         dps = bot.deger()['dps']
         if ehp and dps > 0 and ehp / dps > ZOR_SN:
+            if s.get(UCB, 0) > 0 and (tutumlu < 0.5 or ehp / dps > 3 * ZOR_SN):
+                return UCB
             if s.get(MCB50, 0) > 0 and (tutumlu < 0.5 or ehp / dps > 3 * ZOR_SN):
                 return MCB50
             if s.get(MCB25, 0) > 0:
                 return MCB25
     if s.get(LCB, 0) > 0:
         return LCB
-    return next((c for c in (MCB25, MCB50, RSB) if s.get(c, 0) > 0), None)      # SAB-50 gövdeye vurmaz: yalnız PvP'de kalkana
+    return next((c for c in (MCB25, MCB50, UCB, RSB) if s.get(c, 0) > 0), None)      # SAB-50 gövdeye vurmaz: yalnız PvP'de kalkana
 
 
 def roket_sec(bot):
@@ -235,6 +238,8 @@ def ikmal(bot):
             al(MCB25, 500 + 1500 * (1 - t), 0.25)
         if bot.seviye >= 8 and s.get(MCB50, 0) < 200 and bot.k['uridyum'] > 3000 * (1 + t):
             al(MCB50, 1000 + 3000 * (1 - t), 0.2)
+        if bot.seviye >= 10 and s.get(UCB, 0) < 200 and bot.k['uridyum'] > 8000 * (1 + t):
+            al(UCB, 500 + 1500 * (1 - t), 0.2)              # fiyatı yoksa (mağazada satılmıyor) al() atlar
         if bot.seviye >= 8 and bot.o('saldirganlik') > 0.5 and s.get(RSB, 0) < 50 and bot.k['uridyum'] > 5000 * (1 + t):
             al(RSB, 200, 0.1)
     if bot.izin.get('mayin', True) and bot.seviye >= 8 and bot.o('saldirganlik') + bot.o('risk') > 0.9 \
@@ -243,6 +248,11 @@ def ikmal(bot):
     if bot.izin.get('ekstra', True) and bot.izin.get('pvp', True) and bot.seviye >= 8 and s.get('ammunition_specialammo_emp-01', 0) < 2 \
             and bot.k['uridyum'] > 5000 * (1 + t) and bot.o('risk') < 0.7:
         al('ammunition_specialammo_emp-01', 5, 0.1)
+    if bot.izin.get('ozel_cephane', True) and bot.izin.get('pvp', True) and bot.seviye >= 8 and bot.k['uridyum'] > 4000 * (1 + t):
+        from . import aktif as AK
+        for c in AK.YAVASLATICI:                           # yavaşlatma ve dondurma: PvP'de (aktif.yavaslat), az stok
+            if s.get(c, 0) < 3 and bot.o('saldirganlik') + bot.o('risk') > 0.8:
+                al(c, 3, 0.05)
     if alinan:
         bot.ist('ikmal')
     return alinan

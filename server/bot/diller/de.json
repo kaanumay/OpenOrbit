@@ -28,6 +28,12 @@
   "mod_kurallar": ["erinnerung: keine caps, kein spam, keine beleidigungen, keine werbung", "chatregeln: respekt, kein spam, keine links", "haltet den chat sauber bitte"],
   "emir_tamam": ["mach ich", "ok chef", "verstanden", "jawohl", "bin unterwegs", "ok wird gemacht"],
   "emir_ret": ["grad nicht", "bin beschaeftigt sorry", "nicht jetzt", "erst das hier, sorry", "zu muede, spaeter"],
+  "emir_av": ["jage {ad}", "bin dran, suche {ad}", "{ad} ist fällig", "roger, ich hol mir {ad}"],
+  "emir_klan_odak": ["dann fokus auf {klan}", "ok erst {klan}", "{klan} hat prio, verstanden"],
+  "klan_basvuru_dost": ["{ad} hat mir neulich geholfen, würde gern bei {klan} mitfliegen", "{ad} hatte mir den Rücken freigehalten, Lvl {lv}, darf ich rein?", "{ad} hat mir mal geholfen, daher meine Bewerbung. Lvl {lv}"],
+  "klan_basvuru_grup": ["war ein paar Mal mit {ad} in der Gruppe, super Pilot. möchte zu {klan}, Lvl {lv}", "bin mit {ad} geflogen, hat Spaß gemacht. {stil}", "{ad} ist ein guter Flügelmann, nehmt mich auch. Lvl {lv}"],
+  "klan_basvuru_pvp": ["Lvl {lv}, meist pvp, suche einen aktiven clan", "Lvl {lv} pvp spieler, suche leute zum jagen", "suche einen pvp clan, Lvl {lv}"],
+  "klan_basvuru_pve": ["Lvl {lv}, meist pve und quests, suche einen netten clan", "Lvl {lv}, quests und farmen, will mit leuten zusammen fliegen", "eher neu (Lvl {lv}), suche einen entspannten clan"],
   "emir_us_yok": ["wir haben noch keine station", "welche basis? haben keine", "noch keine cbs gebaut"],
   "savas_cagri": ["alle nach {harita}, grosse schlacht!", "alle sofort nach {harita}, ueberall gegner", "krieg auf {harita}, kommt schnell", "brauche alle auf {harita}"],
   "yonetici_ozur": ["sorry {ad}, kommt nicht wieder vor", "ok {ad}, verstanden, mein fehler", "sorry, hoer schon auf", "ok gm sorry"],
@@ -71,7 +77,16 @@
   "grup_ara": ["suche gruppe {harita}", "farmt jemand {harita}?", "gruppe fuer quests?", "lfg {harita}"],
   "klan_alim": ["[{etiket}] {klan} sucht leute, ab lvl {seviye}", "{klan} sucht aktive spieler", "[{etiket}] rekrutiert, pn an mich"],
   "ticaret": ["bitte keiner auf {esya} bieten :D", "auktionspreise schon wieder verrueckt", "wo farmt man am besten credits?"],
-  "genel": ["wann endet das event", "viele npcs auf x-4", "laggt es bei euch auch?", "uridium dauert ewig", "ist ein boss da?", "toter chat", "erst schilde oder laser?", "wann krieg ich endlich ne goliath"],
+  "genel": ["wann endet das event", "viele npcs auf x-4", "toter chat", "wieder da, was hab ich verpasst", "heute so viele aliens auf {harita}", "brauch ne pause vom farmen lol", "fliege nur auf {harita} rum, nix los", "ruhige karte, so mag ich das", "hat wer schon die labor upgrades probiert?", "lvl {seviye} und immer noch keinen plan :D", "gute nacht zum jagen"],
+  "sikayet": ["laggt es bei euch auch?", "uridium dauert ewig", "uri farmen ist so zäh", "ping war grad kurz hoch"],
+  "durum_kapi": ["endlich {kapi} fertig", "{kapi} geschafft, hat lang genug gedauert", "{kapi} clear :D", "{kapi} war gar nicht so schlimm, als es mal lief"],
+  "durum_alim": ["grad {esya} gekauft", "{esya} geholt, mal sehen obs hilft", "hab mir {esya} gegönnt :)", "neues spielzeug: {esya}"],
+  "durum_olum": ["auf {harita} an irgendein alien gestorben, rip", "die aliens auf {harita} hauen härter als gedacht", "auf {harita} überrascht worden, muss besser aufpassen", "kampf gegen npcs auf {harita} verloren lol"],
+  "durum_gorev": ["quest {ad} fertig", "{ad} erledigt, nächste", "quest {ad} geschafft, leichte belohnung"],
+  "durum_kacti": ["von {harita} abgehauen, zu heiß da", "grad noch rechtzeitig aus {harita} raus", "{harita} lohnt sich grad nicht"],
+  "durum_kargo": ["laderaum {yuzde}% voll, geh verkaufen", "laderaum fast voll, zeit zurückzufliegen", "so viel erz an bord, mein schiff kriecht nur noch"],
+  "durum_kasma": ["farm grad ein bisschen auf {harita}", "{harita} ist grad ganz ok zum farmen", "farme npcs auf {harita}, wer noch da?", "farme {harita} mit lvl {seviye}, läuft"],
+  "durum_istat": ["schon {npc} aliens down, weiter gehts", "grad über {npc} kills, nicht schlecht", "{npc} kills und {olum} tode, passt schon"],
   "cikis": ["bb", "muss los", "bis dann", "gute nacht alle", "tschau"],
   "cevap_selam": ["hi", "hey", "yo {ad}", "hallo", "wb"],
   "cevap_soru": ["kp", "weiss nich", "glaub schon", "glaub nicht", "schau ins wiki", "keine ahnung", "vllt"],
@@ -129,5 +144,51 @@
   "yoklama": ["jemand da", "wer ist online", "ist wer on", "wer ist da", "ist hier wer"],
   "oyun": ["karte", "schiff", "laser", "quest", "aufgabe", "schild", "level", "clan", "uridium", "credits", "farmen", "drohne", "boss"]
  },
- "zararli": ["bring dich um", "töte dich", "häng dich auf", "verreck", "krepier", "stirb doch", "selbstmord", "hurensohn", "hure", "schlampe", "schwuchtel", "neger", "spasti", "vergewaltig\\w*", "nazi", "hitler"]
+ "zararli": ["bring dich um", "töte dich", "häng dich auf", "verreck", "krepier", "stirb doch", "selbstmord", "hurensohn", "hure", "schlampe", "schwuchtel", "neger", "spasti", "vergewaltig\\w*", "nazi", "hitler"],
+ "diyaloglar": [
+  [
+   ["erst schilde oder laser?", "was soll ich zuerst upgraden, schilde oder laser?"],
+   ["laser, dann schilde", "laser würd ich sagen", "erst schilde, sterben ist teuer"],
+   ["ok dann laser, danke", "danke, nehm laser"]
+  ],
+  [
+   ["ist ein boss da?", "hat wer heute nen boss gesehen?"],
+   ["vorhin einen auf {harita} gesehen", "auf {harita} nicht, sorry"],
+   ["schau ich mir an", "danke, flieg hin"]
+  ],
+  [
+   ["wann krieg ich endlich ne goliath", "immer noch keine goliath, so weit weg"],
+   ["weiter farmen, das wird schon", "hat bei mir auch ewig gedauert", "einfach sparen, lohnt sich"]
+  ],
+  [
+   ["ist {harita} gut zum farmen?", "wo farmt ihr mit lvl {seviye}?"],
+   ["{harita} passt für mich", "ich farm {harita}, nicht so voll"],
+   ["nice, probier ich"]
+  ],
+  [
+   ["wie schafft ihr die gates solo?", "tipps für die gates?"],
+   ["gute schilde mitnehmen und die wellen nicht hetzen", "lass dir zeit und repariere zwischen den wellen"]
+  ],
+  [
+   ["was fliegt ihr so?", "welches schiff ist am besten für pve?"],
+   ["goliath, ganz klar", "kommt aufs budget an", "noch mein altes schiff lol"],
+   ["fair", "bei mir auch"]
+  ],
+  [
+   ["lohnt sich schon ne drohne?", "lohnt sich die erste drohne?"],
+   ["ja, der schaden merkt man", "noch nicht, hol dir erst das schiff"]
+  ],
+  [
+   ["sterbt ihr auch so oft auf {harita}?", "{harita} ist heute brutal für mich"],
+   ["ja die aliens tun weh", "einfach zurückziehen und reparieren, keine schande"]
+  ],
+  [
+   ["wie lange dauert das labor?", "lohnt sich das labor upgrade fürs erz?"],
+   ["ein paar minuten pro erz, einfach einreihen", "für schilde auf jeden fall"]
+  ],
+  [
+   ["gg alle, gute runde", "ok das war ne gute runde"],
+   ["gg", "gg, man sieht sich"]
+  ]
+ ]
 }

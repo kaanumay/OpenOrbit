@@ -28,6 +28,12 @@
   "mod_kurallar": ["przypominam: bez capsa, spamu, obrazania i reklam", "zasady czatu: szacunek, bez spamu, bez linkow", "trzymajmy czat w czystosci"],
   "emir_tamam": ["robi sie", "ok szefie", "przyjalem", "tak jest", "lece", "ok zrobione"],
   "emir_ret": ["teraz nie moge", "zajety sorki", "nie teraz", "po tym, sorki", "zmeczony, pozniej"],
+  "emir_av": ["poluje na {ad}", "juz, szukam {ad}", "{ad} jest skonczony", "jasne, ide po {ad}"],
+  "emir_klan_odak": ["to skupiam sie na {klan}", "ok najpierw {klan}", "{klan} to priorytet, jasne"],
+  "klan_basvuru_dost": ["{ad} pomogl mi niedawno, chcialbym latac z {klan}", "{ad} ochronil mi tyly, lvl {lv}, moge dolaczyc?", "{ad} raz mi pomogl, stad moje zgloszenie. lvl {lv}"],
+  "klan_basvuru_grup": ["latalem w grupie z {ad} kilka razy, swietny pilot. chce do {klan}, lvl {lv}", "latalem z {ad}, bylo fajnie. {stil}", "{ad} to dobry skrzydlowy, wezcie i mnie. lvl {lv}"],
+  "klan_basvuru_pvp": ["lvl {lv}, glownie pvp, szukam aktywnego klanu", "gracz pvp lvl {lv}, szukam ludzi do polowan", "szukam klanu pvp, lvl {lv}"],
+  "klan_basvuru_pve": ["lvl {lv}, glownie pve i questy, szukam przyjaznego klanu", "lvl {lv}, questy i farmienie, chce grac w ekipie", "dosc nowy (lvl {lv}), szukam spokojnego klanu"],
   "emir_us_yok": ["nie mamy jeszcze stacji", "jaka baza? nie mamy", "nie ma jeszcze cbs"],
   "savas_cagri": ["wszyscy na {harita}, wielka bitwa!", "wszyscy na {harita} teraz, wrogowie wszedzie", "wojna na {harita}, szybko", "potrzebuje wszystkich na {harita}"],
   "yonetici_ozur": ["sorki {ad}, wiecej nie bedzie", "ok {ad} rozumiem, moja wina", "sorry, juz przestaje", "ok gm sorry"],
@@ -71,7 +77,16 @@
   "grup_ara": ["szukam grupy {harita}", "ktos farmi {harita}?", "grupa na misje?", "lfg {harita}"],
   "klan_alim": ["[{etiket}] {klan} rekrutuje, lvl {seviye}+", "{klan} szuka aktywnych graczy", "[{etiket}] rekrutacja, pw"],
   "ticaret": ["niech nikt nie licytuje {esya} pls :D", "ceny na aukcji znowu kosmiczne", "gdzie najlepiej farmic kredyty?"],
-  "genel": ["kiedy konczy sie event", "duzo npc na x-4", "tez wam laguje?", "uridium idzie wolno", "jest jakis boss?", "martwy czat", "najpierw tarcze czy lasery?", "kiedy w koncu bede mial goliatha"],
+  "genel": ["kiedy koniec eventu", "dużo npc na x-4", "martwy czat", "wróciłem, co mnie ominęło", "ale dużo obcych dziś na {harita}", "muszę odpocząć od farmienia xd", "latam po {harita}, nic się nie dzieje", "spokojna mapa, lubię to", "ktoś już testował ulepszenia w laboratorium?", "lvl {seviye} i dalej nie wiem co robię :D", "dobra noc na polowanie"],
+  "sikayet": ["też macie lagi?", "uridium idzie strasznie wolno", "farmienie uri to męczarnia", "na chwilę skoczył mi ping"],
+  "durum_kapi": ["w końcu skończyłem {kapi}", "{kapi} zrobione, trochę to trwało", "{kapi} czysto :D", "{kapi} nie było takie złe jak już ruszyło"],
+  "durum_alim": ["właśnie kupiłem {esya}", "wziąłem {esya}, zobaczymy czy pomoże", "sprawiłem sobie {esya} :)", "nowa zabawka: {esya}"],
+  "durum_olum": ["zginąłem na {harita} od jakiegoś obcego, rip", "obcy na {harita} biją mocniej niż wyglądają", "dorwali mnie na {harita}, muszę uważać", "przegrałem z npc na {harita} xd"],
+  "durum_gorev": ["skończyłem misję {ad}", "{ad} zrobione, następna", "misja {ad} zaliczona, łatwa nagroda"],
+  "durum_kacti": ["uciekłem z {harita}, za gorąco", "zwiałem z {harita} w ostatniej chwili", "{harita} teraz się nie opłaca"],
+  "durum_kargo": ["ładownia pełna w {yuzde}%, lecę sprzedać", "ładownia prawie pełna, czas wracać", "tyle rudy że statek ledwo się wlecze"],
+  "durum_kasma": ["farmię trochę na {harita}", "{harita} jest teraz spoko do farmienia", "bije npc na {harita}, ktoś jest?", "farmię {harita} na lvl {seviye}, idzie"],
+  "durum_istat": ["już {npc} obcych padło, lecę dalej", "właśnie przebiłem {npc} killi, nieźle", "{npc} killi i {olum} zgonów, wychodzi na zero"],
   "cikis": ["bb", "spadam", "nara", "dobranoc wszystkim", "papa"],
   "cevap_selam": ["siema", "hej", "elo {ad}", "czesc", "wb"],
   "cevap_soru": ["nie wiem", "nie jestem pewien", "chyba tak", "chyba nie", "sprawdz wiki", "nie mam pojecia", "moze"],
@@ -129,5 +144,51 @@
   "yoklama": ["ktoś jest", "jest ktoś", "kto jest online", "ktoś online"],
   "oyun": ["mapa", "statek", "laser", "misja", "zadanie", "tarcza", "poziom", "klan", "uridium", "kredyty", "farmić", "dron", "boss"]
  },
- "zararli": ["zabij się", "powieś się", "zdechnij", "umrzyj", "samobójstwo", "dziwka", "pedał", "ciota", "czarnuch", "upośledzony", "gwałt\\w*", "nazista", "hitler"]
+ "zararli": ["zabij się", "powieś się", "zdechnij", "umrzyj", "samobójstwo", "dziwka", "pedał", "ciota", "czarnuch", "upośledzony", "gwałt\\w*", "nazista", "hitler"],
+ "diyaloglar": [
+  [
+   ["najpierw tarcze czy lasery?", "co ulepszać najpierw, tarcze czy lasery?"],
+   ["lasery, potem tarcze", "ja bym brał lasery", "najpierw tarcze, umieranie kosztuje"],
+   ["ok to lasery, dzięki", "dzięki, idę w lasery"]
+  ],
+  [
+   ["jest jakiś boss?", "ktoś widział dziś bossa?"],
+   ["widziałem jednego na {harita} przed chwilą", "na {harita} nie ma, sorry"],
+   ["sprawdzę", "dzięki, lecę tam"]
+  ],
+  [
+   ["kiedy ja w końcu będę miał goliatha", "dalej bez goliatha, tak daleko"],
+   ["farm dalej, dojdziesz", "u mnie też to trwało wieki", "zbieraj, warto"]
+  ],
+  [
+   ["czy {harita} jest dobre do farmienia?", "gdzie farmicie na lvl {seviye}?"],
+   ["{harita} mi pasuje", "farmię {harita}, mało ludzi"],
+   ["spoko, spróbuję"]
+  ],
+  [
+   ["jak robicie bramy solo?", "jakieś rady na bramy?"],
+   ["weź dobre tarcze i nie spiesz się z falami", "nie spiesz się i naprawiaj między falami"]
+  ],
+  [
+   ["czym latacie?", "jaki statek najlepszy do pve?"],
+   ["goliath zdecydowanie", "zależy od budżetu", "dalej mój stary statek xd"],
+   ["ma sens", "u mnie tak samo"]
+  ],
+  [
+   ["opłaca się już dron?", "czy pierwszy dron jest wart?"],
+   ["tak, obrażenia czuć", "jeszcze nie, najpierw statek"]
+  ],
+  [
+   ["też tak często giniecie na {harita}?", "{harita} mnie dziś niszczy"],
+   ["no ci obcy bolą", "cofnij się i napraw, żaden wstyd"]
+  ],
+  [
+   ["ile trwa laboratorium?", "opłaca się ulepszenie w laboratorium za rudę?"],
+   ["parę minut na rudę, po prostu dodaj do kolejki", "na tarcze na pewno"]
+  ],
+  [
+   ["gg wszyscy, dobra sesja", "ok to była dobra runda"],
+   ["gg", "gg, do zobaczenia"]
+  ]
+ ]
 }

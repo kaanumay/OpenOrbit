@@ -98,8 +98,16 @@ SCHEMA = [
        'değeri çoğunda 450, Kristallon türlerinde 550, hareketsizlerde 1.000 birim; dünya patronlarının saldırıları dahil).', lo=0.1, hi=3.0, sinir=20.0),
     _b('yavaslatan_atis', 'Yavaşlatan uzaylı atışları', 'savas', 'Barb, The Stinger, Saboteur ve Mindfire Behemoth gibi '
        'uzaylıların atışları gemini yavaşlatır. Kapatılırsa yalnız hasar verirler.', varsayilan=True),
+    _b('sirket_pvp', 'Kendi şirketine saldırı', 'savas', 'Aynı şirketten oyunculara ve botlara saldırabilirsin (oyundaki gibi): '
+       'şirketin X-1 ve X-2 haritalarında yasak, yok etmek ceza getirir. Kapatılırsa kendi şirketine saldıramazsın (savaştaki klanlar '
+       'hariç).', varsayilan=True),
     _c('radyasyon', 'Radyasyon hasarı', 'savas', 'Harita sınırının dışındaki radyasyonun gövdeye verdiği hasar. 0: radyasyon '
        'zarar vermez.', lo=0.0, hi=5.0, sinir=100.0),
+    _c('ksi_can', 'Klan Savaş İstasyonu canı', 'savas', 'Bütün Klan Savaş İstasyonlarının (seninkinin, bot klanlarının ve rakip klanların) '
+       'modüllerinin canı ve kalkanı. Değişince modüllerin mevcut canı oranıyla ölçeklenir; istemcide çubuklar haritaya yeniden '
+       'girince ya da modül vurulunca yenilenir.', uygulama='harita', lo=0.1, hi=10.0, sinir=1000.0),
+    _c('ksi_hasar', 'Klan Savaş İstasyonu hasarı', 'savas', 'Bütün Klan Savaş İstasyonlarının silah modüllerinin verdiği hasar '
+       '(uzaylılara ve rakip istasyonun sana).', lo=0.0, hi=10.0, sinir=1000.0),
     # ---------------------------------------------------------------- ödüller
     _c('kredi', 'Kredi kazancı', 'odul', 'Uzaylı, kutu, görev, kapı ve etkinliklerden kazanılan kredi (satış ve iadeler '
        'hariç).', hi=50.0, sinir=100000.0),
@@ -121,6 +129,10 @@ SCHEMA = [
     _b('etiket', 'Uzaylı etiketleme', 'odul', 'Uzaylıya ilk ateş eden onu etiketler: ödülü, görev sayımı ve kargo kutusu onun (ya da '
        'grubunun) olur, başkası bitirse de. Etiket sahibi 15 saniye vurmazsa etiket düşer. Kapatılırsa ödül son vuranın.',
        varsayilan=True),
+    _b('etiket_oyuncu', 'Oyuncu bot etiketini alır', 'odul', "Bir botun etiketlediği uzaylıya sen ateş edersen etiket sana geçer: "
+       'ödül, görev sayımı ve kargo kutusu senin olur (aynı gruptaki botlar yine paylaşır). Cubikon, Mindfire Behemoth ve dünya '
+       'patronları gibi birlikte dövüşülen uzaylılarda etiket geçmez: ödül, verilen hasara göre oyuncu ve botlar arasında bölünür; '
+       'kargo kutusu en çok hasar verene gider. Etiket ayarı kapalıysa etkisizdir.', varsayilan=False),
     _b('kargo_sahipligi', 'Kargo kutusu sahipliği', 'odul', "Uzaylının kargo kutusu yalnız sahibinindir; başkalarına mavi görünür "
        "(oyunun Ayarlar > Ekran'daki başkalarının kargo kutuları seçeneği açıksa). Aynı firmadan birinin kutusunu toplamak onur "
        'kaybettirir: o gün ilki 10, her seferinde iki katı. Kapatılırsa herkes toplar, ceza yok.', varsayilan=True),

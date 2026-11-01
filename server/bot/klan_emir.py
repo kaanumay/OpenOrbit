@@ -7,6 +7,8 @@
   al      "get lf-3", "buy iris", "sg3n-b02 alın"                                          -> onu biriktirip alır (alisveris birikim)
   gemi    "use goliath", "fly vengeance", "goliath'a geçin"                               -> o gemiyi biriktirir, alınca uçar; zevki o olur
   yapi    "full shield", "full speed", "balanced"                                          -> jeneratörleri kalkana/hıza dağıtır (kalkan_payi)
+  avla    "hunt Kaan", "x destroyed me, find them", "kill <ad>", "<ad>'i avlayın"            -> o kişiyi arar ve saldırır (30 dk)
+  klan_odak "focus [TAG]", "prioritize <klan>", "focus clan X over Y"                      -> 2 saat o klanın üyeleri kin gibi öncelik
   dur     "stop", "dismissed", "serbest"                                                   -> emirler kalkar
 "N of you" / "3 kişi" sayısı: en sadık N bot. Uyma olasılığı sadakat, sana ilişki ve liderlik (lider sensen) ile; yorgun bot
 reddedebilir. Yanıt kısa kalıp (emir_tamam, emir_ret, geliyorum). İzin 'klan_emir'.
@@ -44,6 +46,60 @@ _YAPI = (('kalkan', re.compile(r'\b(full|all|max)\s*(shields?|shd|kalkan)|\b(tam
 _GEMI_FIIL = re.compile(r'\b(use|fly|switch|ride|change to|kullan\w*|u[çc]un|ge[çc]in|binin)\b', re.I)
 _AL = re.compile(r'\b(get|buy|equip|grab|save (up )?for|al[ıi]n|alsın|biriktir\w*|tak[ıi]n)\b', re.I)
 YAPI_PAYI = {'kalkan': 0.95, 'hiz': 0.3, 'denge': 0.6}
+AV_SN = GIT_SN
+KLAN_ODAK_SN = ODAK_SN
+_AD = r"([\w.\-]{2,20}?)"
+_AV_EN = re.compile(r"\b(?:hunt|kill|get|find|destroy|attack|chase|murder|take out|go after)\s+(?:down\s+)?(?:the\s+)?(?:player\s+)?([\w.\-]{2,20})", re.I)
+_AV_EN_KISI = re.compile(r"\b([\w.\-]{2,20})\s+(?:just\s+)?(?:destroyed|killed|shot|ganked|attacked|blew up|murdered|got)\s+me\b", re.I)
+_AV_TR = re.compile(_AD + r"(?:['’][a-zçğıöşü]*)?\s+(?:avla\w*|bulun|bul|öldür\w*|oldur\w*|yakalay\w*|gebert\w*|vurun)\b", re.I)
+_AV_TR_KISI = re.compile(_AD + r"\s+beni\s+(?:öldürdü|oldurdu|vurdu|patlattı|patlatti)\b", re.I)
+_AV_KISI_FIIL = re.compile(r"\b(destroyed|killed|shot|ganked|attacked|blew up|murdered)\s+me\b|\bbeni\s+(öldürdü|oldurdu|vurdu|"
+                           r"patlatt[ıi])", re.I)
+_AV_FIIL = re.compile(r"\b(hunt|kill|get|find|destroy|chase|avla\w*|bulun|bul|öldür\w*|oldur\w*)\b", re.I)
+_AV_YOK = {'enemies', 'enemy', 'players', 'player', 'aliens', 'alien', 'npcs', 'npc', 'them', 'him', 'her', 'it', 'the', 'all', 'everyone',
+           'anyone', 'someone', 'somebody', 'us', 'you', 'me', 'my', 'our', 'some', 'any', 'those', 'these', 'that', 'this', 'down', 'pvp',
+           'pve', 'more', 'on', 'in', 'at', 'to', 'out', 'ready', 'up', 'a', 'an', 'one', 'ones', 'now', 'there', 'here', 'lf-3', 'beni',
+           'onu', 'onlari', 'hepsini', 'herkesi', 'dusmanlari', 'düşmanları', 'bir', 'bunu', 'şunu', 'sunu', 'bu', 'o', 'şu', 'su'}
+_KLAN_ODAK = re.compile(r"\b(focus|prioriti[sz]e|target|go for|[öo]ncelik\w*|odaklan\w*|hedef al\w*)\b", re.I)
+_KLAN_SONRA = re.compile(r"\b(over|instead of|rather than|before|not|then|yerine|ya[çc]|ama)\b", re.I)
+
+
+def av_adi(s, bilinen=None, adlar=()):
+    """Av emrindeki kişi adı ("hunt Kaan", "x destroyed me, find them", "Kaan'ı avlayın") ya da None. bilinen(ad): öyle biri var mı
+    (olağan sohbet "herkes düşman avlasın" emir sanılmasın diye; verilmezse her ad kabul). adlar: çevrimiçi bilinen adlar; av fiili
+    varken metinde geçen en uzun ad (oyuncu adlarında #, *, (), boşluk, sembol olur: "#Platonik", "亗TÜRK亗"; canlı 2026-11-01)."""
+    adaylar = [m.group(1) for rx in (_AV_EN, _AV_TR) for m in rx.finditer(s)]
+    fiil = _AV_FIIL.search(s) or _AV_KISI_FIIL.search(s)
+    if _AV_FIIL.search(s):
+        adaylar += [m.group(1) for rx in (_AV_EN_KISI, _AV_TR_KISI) for m in [rx.search(s)] if m]
+    for a in adaylar:
+        if a.lower() not in _AV_YOK and not KN.HARITA.fullmatch(a) and (bilinen is None or bilinen(a)):
+            return a
+    if fiil:
+        kucuk = s.lower()
+        for a in sorted((str(x) for x in adlar if len(str(x).strip()) >= 3), key=len, reverse=True):
+            i = kucuk.find(a.lower())
+            if i >= 0 and not (i and kucuk[i - 1].isalnum()) and not kucuk[i + len(a):i + len(a) + 1].isalnum():
+                return a
+    return None
+
+
+def klan_bul(s, kendi=None):
+    """Metinde geçen klan (etiket [TAG] ya da adı), "X over Y" ise X; kendi klanın hariç -> klan kaydı ya da None."""
+    import klan as KL
+    sonra = _KLAN_SONRA.search(s)
+    s = s[:sonra.start()] if sonra and sonra.start() > 2 else s
+    en = None
+    with KL.LOCK:
+        klanlar = [c for c in KL.KLANLAR.values() if c['id'] != kendi]
+    for c in klanlar:
+        for rx in (r'\[\s*%s\s*\]' % re.escape(c.get('etiket', '') or '\0'),
+                   (r'(?<![\w])%s(?![\w])' % re.escape(c['etiket'])) if len(c.get('etiket', '')) >= 3 else None,
+                   (r'(?<![\w])%s(?![\w])' % re.escape(c['ad'])) if len(c.get('ad', '')) >= 3 else None):
+            m = re.search(rx, s, re.I) if rx else None
+            if m and (en is None or m.start() < en[0]):
+                en = (m.start(), c)
+    return en[1] if en else None
 
 
 def _esyalar():
@@ -69,8 +125,9 @@ def esya_bul(metin):
     return _ESYA[m.group(1).lower()] if m else None
 
 
-def coz(metin):
-    """Klan emri -> {'tur', 'harita'?, 'hedef'?, 'esya'?, 'yapi'?, 'sayi'?} ya da None (emir değil: olağan sohbet)."""
+def coz(metin, kendi_klan=None, bilinen=None, adlar=()):
+    """Klan emri -> {'tur', 'harita'?, 'hedef'?, 'esya'?, 'yapi'?, 'sayi'?} ya da None (emir değil: olağan sohbet). kendi_klan: emri
+    verenin klanı (klan odağında hariç); bilinen: av emrindeki adın varlığını sınayan işlev (av_adi)."""
     s = str(metin or '')
     if s.rstrip().endswith('?'):
         return None                                      # soru emir değil ("gates?" "kim kapı yapar?")
@@ -87,6 +144,13 @@ def coz(metin):
     esya = esya_bul(s) if _AL.search(s) or _GEMI_FIIL.search(s) else None     # "nice goliath" emir değil
     if esya:
         return dict(e, tur='gemi' if esya.startswith('ship_') else 'al', esya=esya)
+    if _KLAN_ODAK.search(s):
+        c = klan_bul(s, kendi_klan)
+        if c is not None:
+            return dict(e, tur='klan_odak', klan=c['id'])
+    av = av_adi(s, bilinen, adlar)
+    if av:
+        return dict(e, tur='avla', hedef=av)
     if _SAVUN.search(s) and _US.search(s) and not harita:
         return dict(e, tur='us')
     if _GEL.search(s) and not harita:
@@ -128,6 +192,8 @@ def uygula(y, b, e, ad, kisi, now):
     if tur == 'dur':
         b.k['niyet'] = None
         b.k.pop('emir', None)
+        b.k.pop('av_emri', None)
+        b.k.pop('klan_odagi', None)
         b.sonraki_karar = now
         return 'emir_tamam', {}
     if tur == 'yapi':
@@ -148,6 +214,28 @@ def uygula(y, b, e, ad, kisi, now):
         B.zorla(b, e['hedef'], plan={}, pay=1.3, sure=ODAK_SN, now=now)
         b.k['emir'] = {'tur': 'odak', 'hedef': e['hedef'], 'kim': ad, 't': now}
         return 'emir_tamam', {}
+    if tur == 'avla':
+        from .hedefler import pvp as PV
+        t = PV.hedef_bul(y, e['hedef'])
+        if t is None or t[0].lower() == ad.lower() or t[0].lower() == b.ad.lower():
+            return 'emir_ret', {}
+        if t[1] == b.firma:
+            return 'duello_ayni', {}                    # kendi firmasına saldıramaz
+        if t[3] is not None and t[3] == b.k.get('klan'):
+            return 'emir_ret', {}                       # klan arkadaşı
+        if not y.izin('pvp') or t[4] and not y.izin('oyuncuya_saldir') or b.seviye < (y.ayar('pvp_seviye', 6) or 1):
+            return 'emir_ret', {}
+        b.k['av_emri'] = {'ad': t[0].lower(), 'bitis': now + AV_SN, 'kim': ad}
+        B.zorla(b, 'pvp', plan={}, pay=1.6, sure=AV_SN, now=now)
+        return 'emir_av', {'ad': t[0]}
+    if tur == 'klan_odak':
+        import klan as KL
+        c = KL.KLANLAR.get(e['klan'])
+        if c is None or c['id'] == b.k.get('klan') or b.seviye < (y.ayar('pvp_seviye', 6) or 1) or not y.izin('pvp'):
+            return 'emir_ret', {}
+        b.k['klan_odagi'] = {'klan': c['id'], 'bitis': now + KLAN_ODAK_SN, 'kim': ad}
+        B.zorla(b, 'pvp', plan={}, pay=1.0, sure=KLAN_ODAK_SN, now=now)
+        return 'emir_klan_odak', {'klan': c.get('etiket') and '[%s]' % c['etiket'] or c['ad']}
     m = None
     if tur == 'git':
         from .araclar import _harita
@@ -169,15 +257,17 @@ def isle(y, kanal, msg, kim, dinleyen, now):
     """Sohbet motorundan: klan kanalındaki (ya da bota fısıltıdaki) mesaj klan emriyse uygular ve yanıtlatır -> işlendi mi."""
     if not y.izin('klan_emir') or kanal not in ('klan', 'fisilti'):
         return False
-    e = coz(msg)
-    if e is None:
-        return False
     import klan as KL
     import topluluk as TP
+    from .hedefler import pvp as PV
     ad = kim.get('userId', '')
     kisi = TP.bul(ad=ad)
     kl = KL.klani(kisi.profil) if kisi is not None else None
     if kl is None or ad.lower() in y.ada:
+        return False
+    adlar = [b.ad for b in y.botlar if b.cevrimici] + [k.ad for k in TP.hepsi().values()]
+    e = coz(msg, kl['id'], lambda a: PV.hedef_bul(y, a) is not None, adlar)
+    if e is None:
         return False
     uyeler = [b for b in dinleyen if b.k.get('klan') == kl['id'] and b.cevrimici and b.olu_bitis <= now]
     if not uyeler:
@@ -190,7 +280,7 @@ def isle(y, kanal, msg, kim, dinleyen, now):
             break
         if e['tur'] == 'dur' or uyar_mi(b, ad, lider, now):
             kalip, alan = uygula(y, b, e, ad, kisi, now)
-            kabul += kalip != 'gelemem'
+            kabul += kalip not in ('gelemem', 'duello_ayni')
         else:
             kalip, alan = 'emir_ret', {}
         if i < 4 or kalip == 'geliyorum':                 # herkes yazmaz: ilk birkaçı ve yola çıkanlar

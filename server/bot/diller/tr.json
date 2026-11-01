@@ -191,6 +191,8 @@
   "mod_kurallar": ["hatırlatma: büyük harf, spam, hakaret, reklam yok. iyi oyunlar", "sohbet kuralları: saygı, spam yok, link yok", "sohbeti temiz tutalım lütfen"],
   "emir_tamam": ["tamamdır", "ok başkan", "anlaşıldı", "hallediyorum", "emredersin", "yoldayım", "tmm yapıyorum"],
   "emir_ret": ["şu an olmaz", "meşgulüm kusura bakma", "şimdi değil", "bunu bitireyim sonra", "çok yorgunum, sonra"],
+  "emir_av": ["{ad} avda", "tamam, {ad}'i arıyorum", "{ad} yandı", "anlaşıldı, {ad}'in peşindeyim", "{ad}'i bulurum"],
+  "emir_klan_odak": ["o zaman {klan}'a odaklanıyorum", "tamam önce {klan}", "{klan} öncelik, anlaşıldı", "anlaşıldı, {klan}"],
   "emir_us_yok": ["daha istasyonumuz yok ki", "ne üssü? yok bizde", "cbs kurmadık daha"],
   "savas_cagri": ["herkes {harita}'ye, büyük savaş!", "hepiniz {harita}'ye, düşman dolu", "{harita} savaş var, çabuk gelin", "herkes {harita}'ye lazım"],
   "yonetici_ozur": ["pardon {ad}, bi daha olmaz", "tamam {ad} anladım, kusura bakma", "özür dilerim, kesiyorum", "ok gm sorry", "tamamdır, düzeltiyorum"],
@@ -331,6 +333,27 @@
    "tmm başvurdum",
    "başvurdum kabul et"
   ],
+  "klan_basvuru_dost": [
+   "{ad} geçen gün bana yardım etti, sizinle uçuyor. {klan} klanına katılmak isterim",
+   "selam, {ad} zor bir kavgada beni kurtarmıştı. sizinle uçmak istiyorum, lvl {lv}",
+   "{ad} bana destek olmuştu, ben de katılayım dedim. lvl {lv}, {stil}",
+   "{ad} bir keresinde yardım etmişti, iyi şeyler duydum. {klan}'a katılabilir miyim?"
+  ],
+  "klan_basvuru_grup": [
+   "{ad} ile birkaç kez grup olduk, çok iyi pilot. {klan}'a katılmak istiyorum, lvl {lv}",
+   "{ad} ile uçmuştum, keyifliydi. böyle bir klan arıyorum. {stil}",
+   "{ad} iyi bir kanat adamı, umarım beni de alırsınız. lvl {lv}"
+  ],
+  "klan_basvuru_pvp": [
+   "lvl {lv}, çoğunlukla pvp, aktif bir klan arıyorum",
+   "lvl {lv} pvp oyuncusuyum, birlikte avlanacak insan arıyorum. her gün çevrimiçiyim",
+   "pvp klanı arıyorum, kavgadan anlarım. lvl {lv}"
+  ],
+  "klan_basvuru_pve": [
+   "lvl {lv}, çoğunlukla pve ve görev, samimi bir klan arıyorum",
+   "yeni sayılırım (lvl {lv}), sohbet edip birlikte farm yapacak bir klan arıyorum",
+   "lvl {lv}, görev ve farm yapıyorum, birlikte takılacak insanlar arıyorum"
+  ],
   "nerede": [
    "{harita} deyim",
    "{harita}",
@@ -416,12 +439,65 @@
   "genel": [
    "bu event ne zaman bitiyor",
    "x-4 te npc çok",
+   "kimse yok mu",
+   "döndüm, ne kaçırdım",
+   "bugün {harita} da çok uzaylı var",
+   "kasmaktan biraz mola lazım",
+   "{harita} da dolanıyorum, olay yok",
+   "sakin harita da güzel şey",
+   "laboratuvar yükseltmesini deneyen var mı",
+   "{seviye} level oldum hala ne yaptığımı bilmiyorum :D",
+   "avlanmak için güzel bir gece"
+  ],
+  "sikayet": [
    "lag var mı sizde de",
    "uridium kasmak çok zor",
-   "boss çıktı mı",
-   "kimse yok mu",
-   "kalkan mı lazer mi",
-   "ilk goliathımı ne zaman alcam ya"
+   "uri kasmak çile",
+   "bir an ping fırladı"
+  ],
+  "durum_kapi": [
+   "{kapi} bitti sonunda",
+   "{kapi} tamam, uzun sürdü",
+   "{kapi} temizlendi :D",
+   "{kapi} oturunca o kadar da zor değilmiş"
+  ],
+  "durum_alim": [
+   "az önce {esya} aldım",
+   "{esya} aldım, bakalım işe yarayacak mı",
+   "kendime {esya} aldım :)",
+   "yeni oyuncak: {esya}"
+  ],
+  "durum_olum": [
+   "{harita} da bir uzaylıya yenildim, rip",
+   "{harita} daki uzaylılar göründüğünden sert vuruyor",
+   "{harita} da pusuya düştüm, daha dikkatli olmalı",
+   "{harita} da npc lere kaybettim lol"
+  ],
+  "durum_gorev": [
+   "{ad} görevini bitirdim",
+   "{ad} tamam, sıradaki",
+   "{ad} görevi bitti, kolay ödül"
+  ],
+  "durum_kacti": [
+   "{harita} dan kaçtım, orası çok sıcak",
+   "{harita} dan son anda çıktım",
+   "{harita} şu an değmez"
+  ],
+  "durum_kargo": [
+   "kargo %{yuzde} dolu, satmaya gidiyorum",
+   "kargo neredeyse dolu, dönme vakti",
+   "o kadar cevher taşıyorum ki gemi sürünüyor"
+  ],
+  "durum_kasma": [
+   "bir süre {harita} da kasıyorum",
+   "{harita} şu an kasmak için fena değil",
+   "{harita} da npc kesiyorum, kimse var mı",
+   "{seviye} levelda {harita} da kasıyorum, gidiyor"
+  ],
+  "durum_istat": [
+   "şimdiye kadar {npc} uzaylı kestim, devam",
+   "{npc} kesimi geçtim, fena değil",
+   "{npc} kesim {olum} ölüm, başabaş sayılır"
   ],
   "cikis": [
    "bb",
@@ -506,6 +582,52 @@
   "klan_posta_ksi_konu": ["İstasyon saldırı altında: {istasyon}"],
   "klan_posta_ksi": ["{istasyon} istasyonumuz {harita} haritasında vuruluyor. çevrimiçi olan herkes hemen gelsin"]
  },
+ "diyaloglar": [
+  [
+   ["önce kalkan mı lazer mi?", "neyi önce geliştireyim, kalkan mı lazer mi?"],
+   ["önce lazer, sonra kalkan", "bence lazer", "önce kalkan, çok ölmek pahalı"],
+   ["tamam lazer o zaman, sağol", "eyw lazere gidiyorum"]
+  ],
+  [
+   ["boss çıktı mı?", "bugün boss gören var mı?"],
+   ["biraz önce {harita} da gördüm", "{harita} da yok, yazık"],
+   ["bakıcam, sağol", "eyw oraya gidiyorum"]
+  ],
+  [
+   ["ilk goliathımı ne zaman alcam ya", "goliathım hala yok, çok uzak"],
+   ["kasmaya devam, alırsın", "ben de çok uğraştım", "biriktir, değer"]
+  ],
+  [
+   ["{harita} kasmak için iyi mi?", "{seviye} levelda nerede kasıyorsunuz?"],
+   ["{harita} bana yetiyor", "ben {harita} da kasıyorum, kalabalık değil"],
+   ["güzel, deniycem"]
+  ],
+  [
+   ["kapıları tek başına nasıl geçiyorsunuz?", "kapı için tüyo var mı?"],
+   ["iyi kalkan getir, dalgalara acele etme", "sakin ol, dalgalar arasında tamir et"]
+  ],
+  [
+   ["ne uçuyorsunuz?", "pve için en iyi gemi hangisi?"],
+   ["goliath tam gaz", "bütçeye bağlı aslında", "ben hala eski gemideyim lol"],
+   ["mantıklı", "aynen ben de"]
+  ],
+  [
+   ["drone almaya değer mi artık?", "ilk drone değer mi?"],
+   ["evet, hasar artışı belli oluyor", "daha değil, önce geminizi alın"]
+  ],
+  [
+   ["{harita} da çok ölen var mı?", "{harita} bugün bana zor geliyor"],
+   ["evet o uzaylılar acıtıyor", "geri çekil tamir et, ayıp değil"]
+  ],
+  [
+   ["laboratuvar ne kadar sürüyor?", "laboratuvar yükseltmesi cevhere değer mi?"],
+   ["cevher başına birkaç dakika, kuyruğa at", "en azından kalkan için değer"]
+  ],
+  [
+   ["gg millet, güzel seanstı", "tamam bu güzel bir tur oldu"],
+   ["gg", "gg, görüşürüz"]
+  ]
+ ],
  "kisaltma": [
   [
    "selam",

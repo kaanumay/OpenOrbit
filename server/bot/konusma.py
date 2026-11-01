@@ -13,6 +13,7 @@ KALIPLAR = {}
 for _kod, _d in DILLER.items():
     for _durum, _satirlar in _d.get('kaliplar', {}).items():
         KALIPLAR.setdefault(_durum, {})[_kod] = _satirlar
+DIYALOG = {k: d.get('diyaloglar', []) for k, d in DILLER.items()}   # dil -> [konuşma]; konuşma = [tur]; tur = [alternatif satırlar]
 KISALTMA = {k: [tuple(x) for x in d.get('kisaltma', ())] for k, d in DILLER.items()}
 ASCII = {k: (str.maketrans(d['ascii']) if d.get('ascii') else None, d.get('ascii_oran', 0.0)) for k, d in DILLER.items()}
 EMOJI = (':D', ':)', 'xD', '^^', ':P', ';)', 'xd')
@@ -35,6 +36,21 @@ def kalip(bot, durum, **f):
     except (KeyError, IndexError):
         return None
     return uslupla(metin, bot.k['kisilik'].get('uslup') or {}, bot.r, d)
+
+
+def diyalog(bot):
+    """Botun dilinde rastgele bir kısa konuşma (turlar: ilk satır soru/laf, sonrakiler yanıt) ya da None."""
+    k = DIYALOG.get(dil(bot)) or DIYALOG.get('en')
+    return bot.r.choice(k) if k else None
+
+
+def diyalog_satiri(bot, tur, **f):
+    """Konuşmanın bir turundan (alternatifli satırlar) botun satırı, alanlar doldurulmuş, üslup uygulanmış -> metin ya da None."""
+    try:
+        metin = bot.r.choice(tur).format(**f)
+    except (KeyError, IndexError):
+        return None
+    return uslupla(metin, bot.k['kisilik'].get('uslup') or {}, bot.r, dil(bot))
 
 
 def uslupla(metin, u, r=random, d='tr'):

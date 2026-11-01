@@ -102,15 +102,25 @@ def donat(ekip, kalkan_payi=0.6):
     return {'gemi': g, 'lazer': lz, 'kalkan': ks[:nk], 'hiz': hz[:nh], 'lazer_yuva': g['laser'] + dron_yuva, 'jen_yuva': yuva}
 
 
+def dron_takimi(ekip):
+    """Bütün dronlar aynı bonuslu tasarımdaysa (Havoc, Hercules …) takım bonusu (profil.design_mods ile aynı kural), yoksa {}."""
+    n = sum(ekip.get('dron', {}).values())
+    t = ((ekip.get('dron_tasarim') or {}).get('tasarim') or [])[:n]
+    return ESYA['dron_tasarimlari'].get(t[0], {}).get('takim', {}) if n and len(t) == n and t[0] and len(set(t)) == 1 else {}
+
+
 def degerler(ekip, kalkan_payi=0.6):
     """Botun savaş değerleri: dps (saniyede hasar, uzaylıya), can, kalkan, emme, ehp (etkin can), hız, güç puanı."""
     y = donat(ekip, kalkan_payi)
     carpan = ESYA['lazer_cephane'].get(ekip.get('cephane'), {}).get('carpan', 1)
     hasar = sum(y['lazer']) * carpan * 0.88 * SAVAS['lazer_isabet']          # 0,88: rastgelenin ortalaması (0,76-1,0)
+    takim = dron_takimi(ekip)
+    dron_yuva = sum(ESYA['dronlar'].get(d, {}).get('yuva', 1) * n for d, n in ekip.get('dron', {}).items())
+    hasar *= 1 + takim.get('dron_lazer', 0) * min(1.0, dron_yuva / max(1, len(y['lazer'])))        # Havoc: yalnız dron lazerlerine
     dps = hasar / LAZER_ARALIK
     kalkan = sum(k for k, _ in y['kalkan'])
     emme = (sum(k * e for k, e in y['kalkan']) / kalkan) if kalkan else 0.0
-    can = y['gemi']['hp']
+    can = y['gemi']['hp'] * (1 + takim.get('can', 0))               # Hercules takımı: +%20 can
     ehp = can + kalkan * 2.5 * min(1.0, emme + 0.2)         # kalkan hasarın çoğunu emer ve hedefler arasında dolar
     hiz = y['gemi']['temel_hiz'] + sum(y['hiz'])
     return dict(dps=dps, can=can, kalkan=kalkan, emme=emme, ehp=ehp, hiz=hiz, guc=guc_puani(dps, ehp),

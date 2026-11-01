@@ -19,6 +19,8 @@ from . import katalog as K
 SE = K.ESYA['savas_esyalari']
 TEK = K.ESYA['teknoloji']['esyalar']
 EMP = 'ammunition_specialammo_emp-01'
+DCR, RIC = 'ammunition_specialammo_dcr-250', 'ammunition_specialammo_r-ic3'      # yavaşlatma, dondurma (savas_esya.rocket_hit'in etkileri)
+YAVASLATICI = (DCR, RIC)
 XENOMIT = '3'
 
 
@@ -228,7 +230,10 @@ def savas(w, n, now, d, oran, saldiranlar):
         degisti |= insta_shield(w, n, now)
     if saldiranlar and oran < 0.4:
         degisti |= backup_shields(w, n, now) or battle_repair(w, n, now, d['can'])
-    if oyuncu_ya_da_bot or (n.hedef is not None and n.hedef in w.npcs and w.npcs[n.hedef].bot is not None):
+    # PvP: biri ona saldırıyor ya da o bir oyuncuya / bota saldırıyor (karşılık vermeyen oyuncuya saldırırken de: önceden yalnız
+    # vurulunca giriyordu, yavaşlatan roketler hiç atılmıyordu; canlı 2026-11-01)
+    pvp_hedef = n.hedef is not None and ((n.hedef in w.npcs and w.npcs[n.hedef].bot is not None) or BG._oyuncu(w, n.hedef) is not None)
+    if oyuncu_ya_da_bot or pvp_hedef:
         energy_leech(w, n, now)
         if n.bot.o('saldirganlik') > 0.5:
             x, y = n.mover.pos(now)
@@ -243,4 +248,32 @@ def savas(w, n, now, d, oran, saldiranlar):
                     dus.append((None, t))                 # güvenli bölgedeki ve korunan botlara değil
             if len(dus) >= 1 and random.random() < 0.5:
                 smart_bomb(w, n, now, dus)
+        o = BG._oyuncu(w, n.hedef) if n.hedef is not None else None
+        if o is not None:
+            yavaslat(w, n, o, oran, now)
     return degisti
+
+
+def yavaslat(w, n, o, oran, now):
+    """Üstüne saldırdığı oyuncuya DCR-250 (hız -%30, 5 sn) ya da canı azaldıysa R-IC3 (2 sn donma): oyuncunun roket etkisi
+    (esyalar.json 'etki', dunya.hero_effect) ve görseli aynen; bekleme süreleri roketinki."""
+    from . import silah as SL, govde as BG
+    b = n.bot
+    if not b.izin.get('ozel_cephane', True) or not BG.oyuncuya_saldirabilir(w, n, o, now):
+        return False
+    x, y = n.mover.pos(now)
+    hx, hy = o.hero_pos(now)
+    if math.hypot(hx - x, hy - y) > BG.LAZER_MENZIL or o.hero_etki.d.keys() & {'yavas', 'donuk'}:
+        return False
+    for loot in ((RIC,) if oran < 0.35 else ()) + ((DCR,) if oran < 0.6 or b.o('saldirganlik') > 0.5 else ()):
+        r = K.ESYA['roketler'][loot]
+        if SL.stok(b).get(loot, 0) > 0 and hazir(n, loot, now):
+            (kind, (val, sec)), = r['etki'].items()
+            SL.harca(b, loot, 1)
+            bekle(n, loot, now, r['bekleme_sn'])
+            o.hero_effect(kind, sec, val, source=loot)
+            o.send([legacy('0|n|fx|start|%s|%d' % (r['fx'], o.hid))])
+            o.later(sec, lambda fx=r['fx']: o.send([legacy('0|n|fx|end|%s|%d' % (fx, o.hid))]))
+            b.ist('yavaslat')
+            return True
+    return False

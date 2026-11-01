@@ -28,6 +28,12 @@
   "mod_kurallar": ["lembrete: sem caps, spam, ofensas ou propaganda", "regras do chat: respeito, sem spam, sem links", "mantenham o chat limpo por favor"],
   "emir_tamam": ["to indo", "ok chefe", "entendido", "sim senhor", "a caminho", "beleza fazendo"],
   "emir_ret": ["agora nao da", "ocupado foi mal", "agora nao", "depois disso, foi mal", "cansado, depois"],
+  "emir_av": ["caçando {ad}", "to indo, procurando {ad}", "{ad} ta morto", "entendido, vou atras de {ad}"],
+  "emir_klan_odak": ["entao foco em {klan}", "ok primeiro {klan}", "{klan} e prioridade, entendi"],
+  "klan_basvuru_dost": ["{ad} me ajudou outro dia, adoraria voar com {klan}", "{ad} me deu cobertura, lvl {lv}, posso entrar?", "{ad} me ajudou uma vez, por isso me candidatei. lvl {lv}"],
+  "klan_basvuru_grup": ["fiz grupo com {ad} algumas vezes, otimo piloto. quero entrar no {klan}, lvl {lv}", "voei com {ad} e foi divertido. {stil}", "{ad} e um bom parceiro, me aceitem tambem. lvl {lv}"],
+  "klan_basvuru_pvp": ["lvl {lv}, mais pvp, procuro um clan ativo", "jogador pvp lvl {lv}, procuro gente pra cacar", "procuro clan pvp, lvl {lv}"],
+  "klan_basvuru_pve": ["lvl {lv}, mais pve e missoes, procuro um clan amigavel", "lvl {lv}, missoes e farm, quero jogar em equipe", "meio novo (lvl {lv}), procuro um clan tranquilo"],
   "emir_us_yok": ["ainda nao temos estacao", "que base? nao temos", "nenhuma cbs ainda"],
   "savas_cagri": ["todo mundo no {harita}, batalha grande!", "todos no {harita} agora, inimigo pra todo lado", "guerra no {harita}, venham rapido", "preciso de todos no {harita}"],
   "yonetici_ozur": ["foi mal {ad}, nao repito", "ok {ad} entendi, erro meu", "desculpa, ja parei", "ok gm sorry"],
@@ -71,7 +77,16 @@
   "grup_ara": ["procuro grupo {harita}", "alguem farmando {harita}?", "grupo pra missao?", "lfg {harita}"],
   "klan_alim": ["[{etiket}] {klan} recrutando, lvl {seviye}+", "{klan} procura jogadores ativos", "[{etiket}] recrutando, chama pv"],
   "ticaret": ["ninguem da lance no {esya} pfv :D", "leilao caro demais de novo", "onde farmar credito melhor?"],
-  "genel": ["quando acaba o evento", "muito npc no x-4", "ta lagando pra mais alguem?", "uridium ta muito lento", "tem boss?", "chat morto", "escudo ou laser primeiro?", "quando vou ter a goliath"],
+  "genel": ["quando acaba o evento", "muitos npcs no x-4", "chat morto", "voltei, o que eu perdi", "tanto alien hoje no {harita}", "preciso de uma pausa do farm kkk", "só rodando pelo {harita}, nada acontecendo", "mapa tranquilo, assim que eu gosto", "alguém já testou as melhorias do laboratório?", "lvl {seviye} e ainda sem ideia do que to fazendo :D", "boa noite pra caçar"],
+  "sikayet": ["mais alguém com lag?", "o uridium demora demais", "farmar uri é um saco", "o ping subiu do nada agora"],
+  "durum_kapi": ["finalmente terminei {kapi}", "{kapi} feito, demorou", "{kapi} limpo :D", "{kapi} nem foi tão ruim depois que engrenou"],
+  "durum_alim": ["acabei de comprar {esya}", "peguei {esya}, vamos ver se ajuda", "me dei {esya} de presente :)", "brinquedo novo: {esya}"],
+  "durum_olum": ["morri no {harita} pra um alien qualquer, rip", "os aliens do {harita} batem mais forte do que parece", "me pegaram no {harita}, preciso tomar mais cuidado", "perdi pros npcs no {harita} kkk"],
+  "durum_gorev": ["terminei a missão {ad}", "{ad} feita, próxima", "missão {ad} completa, recompensa fácil"],
+  "durum_kacti": ["fugi do {harita}, tava quente demais", "saí do {harita} bem na hora", "{harita} não compensa agora"],
+  "durum_kargo": ["carga em {yuzde}%, indo vender", "porão quase cheio, hora de voltar", "tanto minério que a nave ta se arrastando"],
+  "durum_kasma": ["farmando um pouco no {harita}", "{harita} ta bom pra farmar agora", "matando npc no {harita}, alguém por aí?", "farmando {harita} no lvl {seviye}, ta indo"],
+  "durum_istat": ["já são {npc} aliens, seguindo", "acabei de passar de {npc} kills, nada mal", "{npc} kills e {olum} mortes, ta empatado"],
   "cikis": ["bb", "fui", "falou", "boa noite galera", "tchau"],
   "cevap_selam": ["eae", "oi", "salve {ad}", "opa", "wb"],
   "cevap_soru": ["sei la", "nao sei", "acho que sim", "acho que nao", "olha na wiki", "nem ideia", "talvez"],
@@ -129,5 +144,51 @@
   "yoklama": ["alguém aí", "tem alguém", "quem tá on", "quem está on"],
   "oyun": ["mapa", "nave", "laser", "missão", "escudo", "nível", "clã", "urídio", "créditos", "farmar", "drone", "chefe"]
  },
- "zararli": ["se mata", "mate-se", "vai morrer", "se enforca", "morre logo", "puta", "vadia", "viado", "retardado", "estupro", "estuprar", "nazista", "hitler"]
+ "zararli": ["se mata", "mate-se", "vai morrer", "se enforca", "morre logo", "puta", "vadia", "viado", "retardado", "estupro", "estuprar", "nazista", "hitler"],
+ "diyaloglar": [
+  [
+   ["escudo ou laser primeiro?", "o que melhoro primeiro, escudo ou laser?"],
+   ["laser, depois escudo", "laser na minha opinião", "escudo primeiro, morrer sai caro"],
+   ["ok laser então, vlw", "valeu, vou de laser"]
+  ],
+  [
+   ["tem algum boss?", "alguém viu boss hoje?"],
+   ["vi um no {harita} agora pouco", "no {harita} não, foi mal"],
+   ["vou dar uma olhada", "vlw, indo lá"]
+  ],
+  [
+   ["quando eu vou ter a goliath", "ainda sem goliath, ta longe"],
+   ["continua farmando, você chega lá", "pra mim também demorou uma eternidade", "junta, vale a pena"]
+  ],
+  [
+   ["o {harita} é bom pra farmar?", "onde vocês farmam no lvl {seviye}?"],
+   ["{harita} ta bom pra mim", "eu farmo no {harita}, pouca gente"],
+   ["show, vou testar"]
+  ],
+  [
+   ["como vocês fazem os portões solo?", "alguma dica pros portões?"],
+   ["leva escudo bom e não apressa as ondas", "vai com calma e repara entre as ondas"]
+  ],
+  [
+   ["vocês voam de quê?", "qual a melhor nave pra pve?"],
+   ["goliath com certeza", "depende do bolso", "ainda na minha nave velha kkk"],
+   ["faz sentido", "eu também"]
+  ],
+  [
+   ["já vale comprar drone?", "o primeiro drone vale a pena?"],
+   ["vale, o dano aumenta bem", "ainda não, pega a nave primeiro"]
+  ],
+  [
+   ["mais alguém morrendo muito no {harita}?", "o {harita} ta brutal pra mim hoje"],
+   ["sim, esses aliens doem", "recua e repara, sem vergonha"]
+  ],
+  [
+   ["quanto tempo leva o laboratório?", "a melhoria do laboratório vale o minério?"],
+   ["uns minutos por minério, só colocar na fila", "pra escudo vale sim"]
+  ],
+  [
+   ["gg pessoal, boa sessão", "ok essa foi boa"],
+   ["gg", "gg, até mais"]
+  ]
+ ]
 }

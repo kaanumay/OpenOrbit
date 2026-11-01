@@ -47,6 +47,13 @@ def profil(bot):
     """Botun profili (ilk istenince kurulur, her istekte güncellenir)."""
     if bot.profil is None:
         bot.profil = BotProfil(bot)
+        import klan as KL
+        me = KL.ad(bot.profil)
+        with KL.LOCK:
+            k = next((c for c in KL.KLANLAR.values() if me in c['uyeler']), None)
+            if k is not None:
+                KL._kopya(k, bot.profil)          # iskelet klansız (clanId 0) kurulur: oyuncunun klanındaki bot yeniden başlatınca
+                                                   # klansız kalıp emir dinlemiyor, başka klana başvuruyordu (canlı 2026-11-01)
     guncelle(bot)
     return bot.profil
 
@@ -375,7 +382,7 @@ def klan_isleri(y, b, now):
         if b.seviye >= 3 and b.r.random() < 0.25 * (0.4 + b.o('sosyallik')):
             aday = klan_sec(y, b, list(KL.KLANLAR.values()))
             if aday is not None and b.k['kredi'] >= KL.BASVURU_UCRETI * 3:
-                msg = 'lvl %d, %s' % (b.seviye, 'pvp' if b.o('saldirganlik') > 0.6 else 'pve')
+                msg = basvuru_metni(b, aday, now)
                 KL.Klan(p, log=y.log).handle('ApplyClanRequest', {'clanId': aday['id'], 'message': msg})
                 _para_geri(b)
                 b.olay('klana_basvurdu', now, klan=aday['ad'])
@@ -449,17 +456,23 @@ def diplomasi(y, b, k, kl, now):
         o = KL.KLANLAR.get(r['kimden'])
         if o is not None:
             dusman = len(_uyeler(o) & {a.lower() for a in b.hafiza.kinliler(-0.3, now)})
+            il = _klan_iliskisi(y, b, o, now)[0]
             if r['tur'] == 0:                       # barış
                 kabul = b.r.random() < 0.25 + 0.5 * (1 - b.o('saldirganlik')) - 0.1 * dusman
             else:
-                ayni = klan_firmasi(o) == klan_firmasi(k)
-                kabul = ayni and not dusman and b.r.random() < 0.3 + 0.5 * b.o('sosyallik') + (0.2 if r['tur'] == 2 else 0)
+                # başka firmadan da olur, ama oyuncu klanından ve ona kötü bakmıyorsa: saldırmazlık hemen, ittifak için iyi ilişki
+                ayni = (klan_firmasi(o) == klan_firmasi(k)
+                        or bool(_insanlar(y, o)) and il >= (0.2 if r['tur'] == 1 else 0.0))
+                kabul = ayni and not dusman and b.r.random() < 0.3 + 0.5 * b.o('sosyallik') + (0.2 if r['tur'] == 2 else 0) + 0.4 * max(0, il)
             kl.handle('ClanEditDiploOfferRequest', {'diploId': r['id'], 'status': 'allow' if kabul else 'deny'})
             b.olay('diplomasi', now, form=r['tur'], klan=o['ad'], etiket=o.get('etiket', ''), kabul=kabul, gelen=True)
         return
-    if b.r.random() > 0.015:
-        return                                      # yeni girişim nadir (lider aşağı yukarı saatte bir düşünür)
+    # yeni girişim nadir (lider aşağı yukarı saatte bir düşünür); oyuncu klanıyla bir nedeni (yardım, kin) varsa iki kat sık
+    sebepli = any(_klan_iliskisi(y, b, c, now)[2] for c in list(KL.KLANLAR.values()) if c['id'] != k['id'] and _insanlar(y, c))
+    if b.r.random() > (0.03 if sebepli else 0.015):
+        return
     mevcut = {d['klan']: d for d in k.get('diplomasi', [])}
+    son = b.k.setdefault('diplo_son', {})            # bir klana teklifi tekrarlamaz: reddedilen ya da yanıtsız kalan 6 saat dinlenir
     bekleyen = {r['kime'] for r in k.get('diplo_istek', [])} | {r['kimden'] for r in k.get('diplo_istek', [])}
     savaslar = [d for d in mevcut.values() if d['tur'] == 3]
     for d in savaslar:                              # uzayan savaş: barış ister
@@ -473,7 +486,18 @@ def diplomasi(y, b, k, kl, now):
     for c in list(KL.KLANLAR.values()):
         if c['id'] == k['id'] or c['id'] in mevcut or c['id'] in bekleyen or not c.get('uyeler'):
             continue
+        if now - son.get(str(c['id']), 0) < 6 * 3600:
+            continue
         cf = klan_firmasi(c)
+        if _insanlar(y, c):                         # oyuncu klanı: boyuna bakılmaz (tek kişilik klan da teklif alır), ilişki belirler
+            il, kin, sebep = _klan_iliskisi(y, b, c, now)
+            if (kin or il <= -0.3) and cf != firma and cf and b.o('saldirganlik') > 0.4 and len(savaslar) < 2:
+                adaylar.append((0.8 + 0.3 * b.o('saldirganlik') + 0.25 * min(3, kin), 3, c))        # üyelerimizi öldürdü
+            elif il >= 0.2 and (cf == firma or il >= 0.25):
+                adaylar.append((0.7 + 0.5 * il + b.r.uniform(0, 0.2), 1 if b.o('sosyallik') > 0.5 or il >= 0.5 else 2, c))   # yardım etti
+            elif cf == firma and il > -0.3:
+                adaylar.append((0.4 * b.o('sosyallik') + 0.4 + b.r.uniform(0, 0.3), 1 if b.o('sosyallik') > 0.6 else 2, c))
+            continue
         boy = 1.0 - min(1.0, abs(len(c['uyeler']) - len(k['uyeler'])) / max(5.0, len(k['uyeler'])))
         if cf == firma:
             tur = 1 if b.o('sosyallik') > 0.5 else 2
@@ -497,7 +521,23 @@ def diplomasi(y, b, k, kl, now):
     metin = {1: 'alliance?', 2: 'nap?', 3: 'see you in space'}[tur]
     out = kl.handle('ClanNewDiplomacyRequest', {'diploClanID': c['id'], 'diploForm': tur, 'desc': metin})
     if out and out[0][1].get('success'):
+        son[str(c['id'])] = now
         b.olay('diplomasi', now, form=tur, klan=c['ad'], etiket=c.get('etiket', ''), gelen=False)
+
+
+def _insanlar(y, c):
+    """Klandaki gerçek oyuncular (bot olmayan üyeler)."""
+    return _uyeler(c) - set(y.ada)
+
+
+def _klan_iliskisi(y, b, c, now):
+    """Botun bir klana ilişkisi (hafızasındaki üyeleriyle): (en iyi/en kötü ilişki, kinli üye sayısı, sebep var mı). Yardım eden
+    ya da bizimkileri öldüren oyuncunun klanı diplomasi için 'sebepli' sayılır."""
+    ad = _uyeler(c)
+    ils = [b.hafiza.iliski(a, now) for a in ad if a in b.hafiza.d]
+    kin = len(ad & {a.lower() for a in b.hafiza.kinliler(-0.3, now)})
+    il = max(ils) if ils and max(ils) >= 0.2 else min(ils) if ils and min(ils) <= -0.3 else 0.0
+    return il, kin, abs(il) >= 0.2 or bool(kin)
 
 
 def klan_sec(y, b, klanlar):
@@ -515,8 +555,32 @@ def klan_sec(y, b, klanlar):
         ort = sum(int(u.get('seviye', 1)) for u in uy) / max(1, len(uy))
         pvp = 'pvp' in str(c.get('aciklama', '')).lower()
         uyum = 1.0 - abs(ort - b.seviye) / 12.0 + (0.3 if pvp == (b.o('saldirganlik') > 0.6) else 0) + min(0.3, len(uy) / 30.0)
+        uyum += 2.0 * _dost_uye(b, c)[1]             # yardım ettiği, grup olduğu, arkadaş olduğu birinin klanı öne çıkar
         adaylar.append((uyum + b.r.uniform(-0.2, 0.2), c))
     return max(adaylar, key=lambda x: x[0])[1] if adaylar else None
+
+
+def _dost_uye(b, c):
+    """Klanın botun en yakın ilişkideki üyesi: (ad, ilişki 0..1); iyi (>= 0.2) bir ilişki yoksa (None, 0)."""
+    en = (None, 0.0)
+    for a, e in b.hafiza.d.items():
+        if a in c.get('uyeler', {}) and b.hafiza.iliski(a) >= max(0.2, en[1]):
+            en = (e.get('ad', a), b.hafiza.iliski(a))
+    return en
+
+
+def basvuru_metni(b, c, now=None):
+    """Klan başvurusunun yazısı (botun dilinde, kalıplardan): tanıdığı bir üye varsa nedeni (yardım etti ya da grup oldular),
+    yoksa seviye ve oyun tarzı."""
+    from . import konusma as KN
+    ad, il = _dost_uye(b, c)
+    lv, stil = b.seviye, ('pvp' if b.o('saldirganlik') > 0.6 else 'pve')
+    f = dict(ad=ad or '', klan=c.get('ad', ''), lv=lv, stil=stil)
+    if ad:
+        anahtar = 'klan_basvuru_dost' if b.hafiza.sayi(ad, 'yardim_etti') or b.hafiza.sayi(ad, 'arkadas') else 'klan_basvuru_grup'
+    else:
+        anahtar = 'klan_basvuru_pvp' if stil == 'pvp' else 'klan_basvuru_pve'
+    return KN.kalip(b, anahtar, **f) or 'lvl %d, %s' % (lv, stil)
 
 
 def basvuru_karari(y, b, k, bs, now, kesin=False):
