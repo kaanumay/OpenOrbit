@@ -29,6 +29,8 @@
     <Reference Include="$(Istemci)\BepInEx\interop\UnityEngine.UI.dll" Private="false" />
     <Reference Include="$(Istemci)\BepInEx\interop\UnityEngine.AssetBundleModule.dll" Private="false" />
     <Reference Include="$(Istemci)\BepInEx\interop\UnityEngine.ImageConversionModule.dll" Private="false" />
+    <Reference Include="$(Istemci)\BepInEx\interop\UnityEngine.IMGUIModule.dll" Private="false" />
+    <Reference Include="$(Istemci)\BepInEx\interop\UnityEngine.InputLegacyModule.dll" Private="false" />
   </ItemGroup>
   <Target Name="Kopyala" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(MSBuildThisFileDirectory)" />
