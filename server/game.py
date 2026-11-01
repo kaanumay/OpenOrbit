@@ -1116,7 +1116,11 @@ class Session:
         elif name == 'LegacyModule':                  # old text protocol (legacy_protocol.py)
             key, parts = legacy_parse(f)
             if key == 'S|CFG' and len(parts) > 2:
+                before = self.profile.d['ship'].get('speed')
                 msgs = self.shop.switch_config(parts[2])
+                if msgs and w:
+                    with w.lock:           # a flight already under way takes the new config's speed at once
+                        msgs += w.respeed_flight(before)
                 if msgs:
                     self.send(msgs, 'config switch')
             elif key == 'i' and len(parts) > 1 and parts[1].isdigit():

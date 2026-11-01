@@ -3340,6 +3340,14 @@ class World:
         before = self.p.d['ship'].get('speed')
         mover = self.hero
         msgs = self.stats_msgs() if self.stats_msgs else []
+        return msgs + self.respeed_flight(before, now, mover)
+
+    def respeed_flight(self, before, now=None, mover=None):
+        """Ship speed changed from `before` (effect, config switch): reschedule the ongoing flight from where the ship is now,
+        to the same destination, at the new speed (the client only re-tweens on a new MoveCommand)."""
+        now = time.time() if now is None else now
+        mover = self.hero if mover is None else mover
+        msgs = []
         speed = self.p.d['ship'].get('speed')
         if speed == before or speed is None or self.hero_dead or self.jumping or self.hero is not mover:
             return msgs
@@ -3354,6 +3362,8 @@ class World:
         else:
             self._effect_destination = None
             ms = mover.go(*target, speed, now)
+        if self.shared:                         # other players on a shared map see the new pace too (as on_move)
+            self.shared.movement(self, target[0], target[1], ms)
         msgs.append(('MoveCommand', dict(userId=self.hid, x=int(target[0]), y=int(target[1]), timeToTarget=ms)))
         return msgs
 
