@@ -716,6 +716,9 @@
    ]
   },
   "ability_solaris_inc": {
+   "visual": {
+    "appearance": 87
+   },
    "name": "Incinerate",
    "duration_sec": 0,
    "cooldown_sec": 60,
@@ -732,6 +735,9 @@
    ]
   },
   "ability_solaris-plus_incinerate-plus": {
+   "visual": {
+    "appearance": 87
+   },
    "name": "Incinerate Plus",
    "duration_sec": 0,
    "cooldown_sec": 60,
