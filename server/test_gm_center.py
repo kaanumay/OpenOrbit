@@ -9,7 +9,9 @@ from gm_center import gate_status
 
 class GateStatusTests(unittest.TestCase):
     def test_kappa_at_113_of_120_is_not_dispatchable(self):
-        state = gate_status(built=False, completed=True, wave=0, now=100)
+        # The supplied screenshot shows 113 / 120 parts: this gate is not built.
+        built = 113 >= 120
+        state = gate_status(built=built, completed=True, wave=0, now=100)
         self.assertEqual(state["status"], "building")
         self.assertFalse(state["can_send"])
 
