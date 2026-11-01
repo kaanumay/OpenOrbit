@@ -432,6 +432,8 @@ class Session:
         self.extra.add(self.store)
         self.profile.window_hooks['returnee_login'] = self.store.returnee_active
         self.extra.rbp.hero = lambda: bool(self.store.rh().get('connected'))           # Recall Battle Pass: the state in Return of Hero
+        # Season Pass quest finished -> event systems (Recall Battle Pass, Return of Hero: COMPLETE_SEASON_PASS_QUESTS quests)
+        self.season.quest_done = lambda cat: self.extra.event('sp_quest', dict(category=cat))
         self.profile.window_hooks['diminish_quests'] = self.extra.urgent.menu_visible   # Urgent Missions: only while there is a quest (urgent_quests.py)
         for kind, s in (('vortex', self.extra.vortex), ('world_boss', self.extra.boss), ('mimesis', self.extra.mimesis),   # Ö4
                         ('apotheosis', self.extra.apo)):                                                       # 1.1.115
