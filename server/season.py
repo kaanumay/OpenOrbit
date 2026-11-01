@@ -224,6 +224,7 @@ class Season:
         self.p, self.log = profile, log
         self.m = None              # shop (rewards, money messages; the session binds)
         self.send = None           # sending to the session (quest progress comes from events)
+        self.quest_done = None     # Season Pass quest finished (category '5'/'6'/'2') -> msgs; the session sends it to the event systems
         self.map_id = None
         # prevents a nested event only within the same thread: events arriving at the same time from the world (kill, collect) and the session (buy, sell)
         # were knocking each other out with a shared flag
@@ -467,7 +468,10 @@ class Season:
         for q in done:
             msgs += self.complete(q)
         for q in done:                                              # season quests: finish N daily/weekly
-            msgs += self._event('sp_quest', dict(category=GT.SP_CATEGORY[MISSIONS[q]['type']]))
+            cat = GT.SP_CATEGORY[MISSIONS[q]['type']]
+            msgs += self._event('sp_quest', dict(category=cat))
+            if self.quest_done:                                     # Recall Battle Pass, Return of Hero quests that count them
+                msgs += self.quest_done(cat)
         return msgs
 
     def complete(self, qid):
