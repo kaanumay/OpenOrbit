@@ -478,8 +478,8 @@ def olaylar(game, q):
 def gm_admin(game):
     s = oturum(game)
     import gm_konsol as GMK
-    if not GMK.enabled(s.profil):
-        raise Hata(403, 'GM Center kapalı: Geliştirici > GM konsolu ayarını açın.')
+    if s.profil is not game.PROFIL or getattr(s, 'misafir', None) is not None or not GMK.enabled(s.profil):
+        raise Hata(403, 'GM Center yalnızca sunucu hostunun açık GM oturumunda kullanılabilir.')
     return s
 
 
