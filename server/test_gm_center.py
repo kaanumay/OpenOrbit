@@ -4,7 +4,7 @@ Run from the server directory: python -m unittest test_gm_center
 """
 import unittest
 
-from gm_center import gate_status
+from gm_center import gate_progress, gate_status
 
 
 class GateStatusTests(unittest.TestCase):
@@ -22,10 +22,13 @@ class GateStatusTests(unittest.TestCase):
 
     def test_next_build_progress_does_not_replace_current_gate_progress(self):
         current_gate = {"parcalar": list(range(1, 121)), "hazir": True, "sonraki": list(range(1, 114))}
-        current = len(current_gate["parcalar"])
-        next_build = len(current_gate["sonraki"]) if current_gate["hazir"] else 0
-        self.assertEqual(current, 120)
-        self.assertEqual(next_build, 113)
+        progress = gate_progress(current_gate, 120)
+        self.assertEqual(progress["parts"], 120)
+        self.assertTrue(progress["built"])
+        self.assertTrue(progress["prepared"])
+        self.assertEqual(progress["next_parts"], 113)
+        self.assertEqual(progress["next_required"], 120)
+        self.assertFalse(progress["next_built"])
 
     def test_built_gate_requires_first_manual_completion(self):
         state = gate_status(built=True, completed=False, wave=0, now=100)
