@@ -24,8 +24,8 @@ public sealed class GMCenterOverlay : MonoBehaviour
     sealed class GateRow
     {
         public string Key = "", Name = "", Status = "", Reason = "";
-        public int GateId, Parts, Required, TimeLeft;
-        public bool CanSend, CanCollect, Built;
+        public int GateId, Parts, Required, NextParts, NextRequired, TimeLeft;
+        public bool CanSend, CanCollect, Built, Prepared, NextBuilt;
     }
 
     enum Page { Dashboard, Players, Dispatch, Commands, Logs }
@@ -232,10 +232,14 @@ public sealed class GMCenterOverlay : MonoBehaviour
                         GateId = Number(item, "gate_id"),
                         Parts = Number(item, "parts"),
                         Required = Number(item, "required"),
+                        NextParts = Number(item, "next_parts"),
+                        NextRequired = Number(item, "next_required"),
                         TimeLeft = Number(item, "time_left"),
                         CanSend = Flag(item, "can_send"),
                         CanCollect = Flag(item, "can_collect"),
-                        Built = Flag(item, "built")
+                        Built = Flag(item, "built"),
+                        Prepared = Flag(item, "prepared"),
+                        NextBuilt = Flag(item, "next_built")
                     });
                 }
             }
@@ -512,8 +516,13 @@ public sealed class GMCenterOverlay : MonoBehaviour
             {
                 GUILayout.BeginHorizontal(GUI.skin.box);
                 GUILayout.BeginVertical(GUILayout.ExpandWidth(true));
-                GUILayout.Label(gate.Name + "   " + gate.Parts + " / " + gate.Required);
-                GUILayout.Label(gate.Status + "  ·  " + gate.Reason);
+                GUILayout.Label(gate.Name + "   ·   " +
+                    (gate.Built ? "GOTOWA BRAMA: " : "BUDOWA BRAMY: ") +
+                    gate.Parts + " / " + gate.Required);
+                if (gate.Prepared || gate.NextParts > 0)
+                    GUILayout.Label("KOLEJNA BUDOWA: " + gate.NextParts + " / " + gate.NextRequired +
+                        (gate.NextBuilt ? "  ·  KOMPLET" : ""));
+                GUILayout.Label((gate.Prepared ? "PRZYGOTOWANA / AKTYWNA · " : "") + gate.Status + "  ·  " + gate.Reason);
                 GUILayout.EndVertical();
 
                 if (gate.CanSend)
