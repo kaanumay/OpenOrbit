@@ -458,7 +458,7 @@ class Manager:
                 if name == 'web' and env_json:       # the session of the server's own player (multiplayer SETTINGS['local'])
                     cmd.append('--session=%s' % json.loads(env_json)['local'])
                 if name == 'game':
-                    stop_file = os.path.join(self.logs, '.durdur_oyun')
+                    stop_file = os.path.join(self.logs, '.stop_game')
                     cmd += ['--settings=%s' % settings, '--stop-file=%s' % stop_file] + (['--control'] if control else [])
                     if env_json:
                         cmd.append('--multiplayer')

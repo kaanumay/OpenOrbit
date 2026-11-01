@@ -413,7 +413,14 @@ def write(path, values):
     tmp = path + '.tmp'
     with open(tmp, 'w', encoding='utf8', newline='\n') as fh:
         json.dump(d, fh, ensure_ascii=False, indent=1)
-    os.replace(tmp, path)
+    for k in range(6):                         # Windows: the game server reading it or a virus scanner can lock it for a moment
+        try:
+            os.replace(tmp, path)
+            break
+        except PermissionError:
+            if k == 5:
+                raise
+            time.sleep(0.05 * (k + 1))
     return d
 
 

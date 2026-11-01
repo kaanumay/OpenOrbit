@@ -132,7 +132,7 @@ def profile_summary(d):
     pl, g, k = d.get('pilot') or {}, d.get('ship') or {}, d.get('position') or {}
     base, next_ = level_bounds(pl.get('level', 1))
     return {'ship_appearance': g.get('typeId'), 'level_base': base, 'next_level': next_, 'drone_count': len(d.get('drones') or []),
-            'pet': (d.get('pet') or {}).get('name'), 'premium': bool(pl.get('premium')),'pilot': pl.get('userName') or '?', 'company': COMPANIES.get(pl.get('factionId'), '?'), 'firma_id': pl.get('factionId'),
+            'pet': (d.get('pet') or {}).get('name'), 'premium': bool(pl.get('premium')),'pilot': pl.get('userName') or '?', 'company': COMPANIES.get(pl.get('factionId'), '?'), 'company_id': pl.get('factionId'),
             'level': pl.get('level', 1), 'ep': pl.get('ep', 0), 'honor': pl.get('honourPoints', 0), 'credits': pl.get('credits', 0),
             'uridium': pl.get('uridium', 0), 'ship': ship_name(g.get('typeId')), 'map': _map_name(k.get('mapId', 0)),
             'play_sec': int(d.get('play_sec') or 0), 'created': d.get('created'),
