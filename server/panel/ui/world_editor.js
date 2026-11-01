@@ -446,7 +446,7 @@ function alienDetail(u, entries, refresh) {
   const deriveAlien = async () => {
     const name = await promptBox(T('Derive new alien'), T("The new alien's name shown in the game"), '-=[ ' + npcName(u) + ' X ]=-'); if (name == null) return;
     const n = Math.max(0, ...entries.filter(x => x.tip.startsWith('custom_')).map(x => +x.tip.slice('custom_'.length) || 0)) + 1;
-    const new_ = Object.assign(JSON.parse(JSON.stringify(t)), { name, model: t.model || u.tip, npc_id: null, _source: 'Dünya Editörü: ' + u.tip });
+    const new_ = Object.assign(JSON.parse(JSON.stringify(t)), { name, model: t.model || u.tip, npc_id: null, _source: 'World Editor: ' + u.tip });
     delete new_.npc_id; delete new_.event; delete new_.maps;
     const r = await wePatch('npc.json', jp('types', 'custom_' + n), new_, { ms: 0 });
     if (r) { toast(T("New alien created. You can add it to a map's spawn list from the Maps section."), 'ok'); DE.alien = null; DE.sec.aliens.selected = 'custom_' + n; DE.sec.aliens.filter_by = 'new'; weRenderSection(); }

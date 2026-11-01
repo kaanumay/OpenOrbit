@@ -1901,7 +1901,7 @@ class Cbs:
                 n = 8 if MODS[loot]['max_count'] > 1 else 1
                 self.p.add_resource(loot, n)
             self.st
-            msgs.append(GALAXY.screen('GM: modül seti envantere'))
+            msgs.append(GALAXY.screen('GM: module set added to the inventory'))
         aid = self.near
         if aid and ('build' in what or 'accept' in what):
             a = self.ast(aid)
@@ -1911,7 +1911,7 @@ class Cbs:
                 a['build_end'] = 0
                 if a['state'] == 'vacant':
                     a.update(state='building', build_sec=60)
-            msgs.append(GALAXY.screen('GM: kurulum bitti'))
+            msgs.append(GALAXY.screen('GM: construction finished'))
         if aid and 'deflector' in what:
             df = self.ast(aid)['deflector']
             df['on'] = not df.get('on')
@@ -1926,7 +1926,7 @@ class Cbs:
         if aid and 'rival' in what:
             a = self.ast(aid)
             if a['state'] in ('built', 'building') and a.get('owner') != 'rival':
-                msgs.append(GALAXY.screen('GM: burada kendi istasyonun var'))
+                msgs.append(GALAXY.screen('GM: your own station is here'))
             else:
                 a.update(rival=D['rival']['clans'][0], rival_progress=1.0, rival_company=1 if self.faction() != 1 else 2)
                 msgs += self.rival_build(aid, a, time.time())

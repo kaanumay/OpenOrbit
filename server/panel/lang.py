@@ -69,6 +69,18 @@ def t(text, *args):
     return text % args if args else text
 
 
+def remote(out):
+    """Another server's refusal (multiplayer.refused) in this panel's language; None if it sent no template (an older server: its
+    'message' is shown as it is)."""
+    text, args = out.get('text'), out.get('args')
+    if not isinstance(text, str) or not isinstance(args, list):
+        return None
+    try:
+        return t(text, *[t(a) if isinstance(a, str) else a for a in args])
+    except (TypeError, ValueError):
+        return None
+
+
 if __name__ == '__main__':      # for translators: the texts missing in a language (key = English text, JSON)
     code = sys.argv[1] if len(sys.argv) > 1 else ''
     if code not in LANGUAGES or code == 'en':

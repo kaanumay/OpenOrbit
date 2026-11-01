@@ -133,40 +133,40 @@ class EventGates:
 
     # ------------------------------------------------------------ entry
     def allowed(self, key, now=None):
-        """-> (girilebilir mi, neden)."""
+        """-> (can it be entered, reason)."""
         now = time.time() if now is None else now
         g, G = GATES[key], self.gate(key)
         if G.get('ready'):
-            return True, 'sürüyor'
+            return True, 'running'
         if g.get('event') and not CAL.is_active(g['event'], now):
-            return False, 'etkinlik yok'
+            return False, 'no event'
         rule = g.get('rule', {})
         if SET.get('no_entry_limit'):                       # panel: no daily/yearly/one-time and no cooldown
             rule = {k: v for k, v in rule.items() if k not in ('once', 'daily', 'yearly', 'cooldown_sec')}
         if rule.get('cpu'):
-            return False, 'CPU ile açılır'            # Quarantine Zone, Permafrost Fissure: the CPU sets up the gate (pve_modes.py)
+            return False, 'opened with the CPU'            # Quarantine Zone, Permafrost Fissure: the CPU sets up the gate (pve_modes.py)
         if rule.get('quest') and str(rule['quest']) not in (self.p.d.get('quests') or {}).get('active', {}):
-            return False, 'görev gerekli'             # Devolarium Attack: only while the "Preemptive Strike Force" quest is running
+            return False, 'quest required'             # Devolarium Attack: only while the "Preemptive Strike Force" quest is running
         if rule.get('level') and self.p.d['pilot'].get('level', 1) < rule['level']:
-            return False, 'seviye %d gerekli' % rule['level']
+            return False, 'level %d required' % rule['level']
         if rule.get('max_level') and self.p.d['pilot'].get('level', 1) > rule['max_level']:
-            return False, 'seviye en çok %d' % rule['max_level']          # the old Invasion: a gate by level range
+            return False, 'level at most %d' % rule['max_level']          # the old Invasion: a gate by level range
         if rule.get('company') and rule['company'] != self.p.d['pilot'].get('factionId'):
-            return False, 'başka firmanın kapısı'
+            return False, "another company's gate"
         if rule.get('once') and G.get('done', 0) > 0:
-            return False, 'tamamlandı'
+            return False, 'completed'
         if rule.get('daily'):
             group = [k for k, x in GATES.items() if x.get('rule', {}).get('group', k) == rule.get('group', key)]
             if any(self.gate(k).get('last_day') == today(now) for k in group):
-                return False, 'bugün girildi'
+                return False, 'entered today'
         if rule.get('yearly') and G.get('last_year') == today(now)[:4]:
-            return False, 'bu yıl girildi'
+            return False, 'entered this year'
         if rule.get('daily') and 0 < 86400 - (now - time.mktime(time.localtime(now)[:3] + (0, 0, 0, 0, 0, -1))) < 300:
-            return False, 'günlük sıfırlamaya 5 dk kaldı'                # forum 143902
+            return False, '5 min left until the daily reset'                # forum 143902
         if rule.get('period') and not CAL.forced(g.get('event')) and not CAL._span_at(rule['period'], datetime.datetime.fromtimestamp(now)):
-            return False, 'kapı dönemi dışında'                            # The Breach: 11 December - 1 January (forum 134831)
+            return False, 'outside the gate period'                            # The Breach: 11 December - 1 January (forum 134831)
         if rule.get('cooldown_sec') and now < G.get('last_end', 0) + rule['cooldown_sec']:
-            return False, 'bekleme %d sn' % (G['last_end'] + rule['cooldown_sec'] - now)
+            return False, 'cooldown %d s' % (G['last_end'] + rule['cooldown_sec'] - now)
         return True, ''
 
     def here(self, want, map_id):

@@ -210,11 +210,11 @@ def decode_module(buf, depth=0):
 def decode_message(payload):
     """Decodes a message payload -> (id, name, fields, remaining_bytes, error)."""
     if len(payload) < 2:
-        return None, '?', {}, len(payload), 'kısa yük'
+        return None, '?', {}, len(payload), 'short payload'
     mid = struct.unpack('>H', payload[:2])[0]
     m = spec().by_id.get(mid)
     if m is None:
-        return mid, '?%d' % mid, {}, len(payload) - 2, 'bilinmeyen mesaj kimliği'
+        return mid, '?%d' % mid, {}, len(payload) - 2, 'unknown message id'
     buf = Buf(payload)
     buf.o = 2
     out = {}

@@ -285,7 +285,7 @@ class LlmSetup:
             self.log('language model provider test: %s' % r)
         except Exception as e:
             with self.lock:
-                self.t = {'state': 'error', 'error': str(e), 'provider': uid}
+                self.t = {'state': 'error', 'error': _(str(e)), 'provider': uid}
             self.log('language model provider test failed: %r' % e)
 
     def _test(self):
@@ -301,5 +301,5 @@ class LlmSetup:
             self.log('language model test: %s' % r)
         except Exception as e:
             with self.lock:
-                self.t = {'state': 'error', 'error': str(e)}
+                self.t = {'state': 'error', 'error': _(str(e))}
             self.log('language model test failed: %r' % e)

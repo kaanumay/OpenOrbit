@@ -683,7 +683,7 @@ class Clan:
         s = (people().get(name(x)) or None)
         o = getattr(s.session, 'social', None) if s is not None and s.session is not None else None
         if o is not None:
-            s.send([o.clan.tag_cmd()], 'klan etiketi')
+            s.send([o.clan.tag_cmd()], 'clan tag')
             o.clan_changed()
 
     def push(self, k, extra=None, skip_self=True):
@@ -709,7 +709,7 @@ class Clan:
         _copy(None, s.profile)
         o = getattr(s.session, 'social', None) if s.session is not None else None
         if o is not None:
-            s.send([o.clan.no_clan(), o.clan.tag_cmd()], 'klandan çıktı')
+            s.send([o.clan.no_clan(), o.clan.tag_cmd()], 'left the clan')
             o.clan_changed()
 
     @staticmethod
@@ -1063,9 +1063,9 @@ class Clan:
         o = getattr(s.session, 'social', None) if s is not None and s.session is not None else None
         if o is not None:
             s.send([('JoinClanCommand', {'clanAllInfoCommand': o.clan.all_info()}), o.clan.tag_cmd()] if accept else [o.clan.no_clan()],
-                     'klan başvurusu')
+                     'clan application')
             if not accept and o.clan.m:
-                s.send(o.clan.m.money_msgs(), 'başvuru ücreti')
+                s.send(o.clan.m.money_msgs(), 'application fee')
         return reply(True, err() if accept else err('err_clan_decline'))
 
     def change_leader(self, f):
@@ -1262,7 +1262,7 @@ class Clan:
             s.profile.gain(credits=net, reason='clan_hl_auszahlungen', detail=k['name'])
             o = s.session
             if o is not None and getattr(o, 'shop', None) is not None:
-                s.send(o.shop.money_msgs(), 'klan ödemesi')
+                s.send(o.shop.money_msgs(), 'clan payment')
         self.changed(k)
         return [('PayoutClanCommand', {'success': True, 'errorMsg': err('success_clan_payout'),
                                        'clanTaxLogCommand': mod('ClanTaxLogCommand', **log), 'clanInfoCommand': self.info()})] + \

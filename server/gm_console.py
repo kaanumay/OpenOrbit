@@ -119,10 +119,12 @@ class Console:
     def w(self):
         return self.s.world
 
-    def say(self, text):
+    def say(self, text, tr=None):
+        """GM message on the screen: Turkish for a Turkish client (tr), English otherwise; the log is English."""
         from galaxy_gates import screen
         self.log('   GM: %s' % text)
-        return [screen('GM: ' + text)]
+        shop = getattr(self.s, 'shop', None)
+        return [screen('GM: ' + (tr if tr and getattr(shop, 'lang', None) == 'tr' else text))]
 
     def handle(self, name, f):
         if not enabled(self.s.profile):
@@ -133,13 +135,13 @@ class Console:
         cmd = (f.get('name') or '').strip()
         fn = getattr(self, 'cmd_' + cmd, None)
         if not fn:
-            return self.say('bilinmeyen komut %s' % cmd)
+            return self.say('unknown command %s' % cmd, 'bilinmeyen komut %s' % cmd)
         try:
             return fn(values(f.get('attributes')), flat(f.get('attributes')))
         except Exception as e:                      # the console must not crash the game
             import traceback
             self.log(traceback.format_exc())
-            return self.say('%s hatası: %s' % (cmd, e))
+            return self.say('%s error: %s' % (cmd, e), '%s hatası: %s' % (cmd, e))
 
     # ------------------------------------------------------------ opening lists
     def init_cmd(self):
@@ -164,7 +166,7 @@ class Console:
         import map_links as H
         dest = num(d.get('map'))
         if dest not in H.NAMES and not H.client_map_name(dest):
-            return self.say('harita %s yok' % d.get('map'))
+            return self.say('no map %s' % d.get('map'), 'harita %s yok' % d.get('map'))
         x, y = num(d.get('x')), num(d.get('y'))
         if not x and not y:
             pos = None
@@ -188,11 +190,11 @@ class Console:
             seen = [n for n in alive if n.id in w.visible]
             if name == 'me':
                 if w.hero_dead:
-                    return self.say('gemi zaten yok edilmiş')
+                    return self.say('the ship is already destroyed', 'gemi zaten yok edilmiş')
                 msgs = []
                 w.p.set_hull(hp=0, shield=0)
                 w.hero_death(msgs)
-                return msgs + self.say('gemin yok edildi')
+                return msgs + self.say('your ship was destroyed', 'gemin yok edildi')
             if name == 'target':
                 near = [n for n in alive if n.id == w.target]
             elif name == 'unselected':
@@ -206,7 +208,7 @@ class Console:
                     n.hp, n.shield = 1, 0
                     if n.id == w.target:
                         msgs.append(w.selection(n))
-                return msgs + self.say('%d uzaylının canı 1' % len(near))
+                return msgs + self.say('%d aliens at 1 HP' % len(near), '%d uzaylının canı 1' % len(near))
             else:
                 rng = num(val, 1000)
                 hx, hy = w.hero_pos(now)
@@ -214,7 +216,7 @@ class Console:
             msgs = []
             for n in near:
                 msgs += w.kill(n)
-        return msgs + self.say('%d uzaylı öldürüldü (%s)' % (len(near), name if name != 'range' else 'menzil %s' % val))
+        return msgs + self.say('%d aliens killed (%s)' % (len(near), name if name != 'range' else 'range %s' % val), '%d uzaylı öldürüldü (%s)' % (len(near), name if name != 'range' else 'menzil %s' % val))
 
     def cmd_quest(self, rows, d):
         import quest as QU
@@ -226,21 +228,21 @@ class Console:
                 done = [int(q) for q in list(quests.st['active'])]
                 for q in done:
                     msgs += quests.complete(q)
-                return msgs + self.say('%d görev bitirildi' % len(done))
+                return msgs + self.say('%d quests completed' % len(done), '%d görev bitirildi' % len(done))
             q = num(val)
             if q not in QU.QUESTS:
-                return self.say('görev yok: %s' % val)
+                return self.say('no quest: %s' % val, 'görev yok: %s' % val)
             if name == 'accept':
-                return quests.accept(q) + self.say('görev alındı: %d' % q)
+                return quests.accept(q) + self.say('quest taken: %d' % q, 'görev alındı: %d' % q)
             if name == 'finish':
                 if str(q) not in quests.st['active']:
                     msgs += quests.accept(q)
-                return msgs + quests.complete(q) + self.say('görev bitti: %d' % q)
+                return msgs + quests.complete(q) + self.say('quest completed: %d' % q, 'görev bitti: %d' % q)
             if name == 'fail':
-                return quests.fail(q, 'GM') + self.say('görev başarısız: %d' % q)
+                return quests.fail(q, 'GM') + self.say('quest failed: %d' % q, 'görev başarısız: %d' % q)
             if name == 'cancel':
-                return quests.cancel(q) + self.say('görev iptal: %d' % q)
-        return self.say('görev komutu anlaşılmadı')
+                return quests.cancel(q) + self.say('quest cancelled: %d' % q, 'görev iptal: %d' % q)
+        return self.say('quest command not understood', 'görev komutu anlaşılmadı')
 
     def cmd_book(self, rows, d):
         m = self.s.shop
@@ -250,10 +252,10 @@ class Console:
             msgs = []
             for g, k in grants:
                 msgs += m.reward(g, k)
-            return msgs + m.money_msgs() + self.say('paket %s x%d (%d eşya)' % (loot, n, len(grants)))
+            return msgs + m.money_msgs() + self.say('package %s x%d (%d items)' % (loot, n, len(grants)), 'paket %s x%d (%d eşya)' % (loot, n, len(grants)))
         loot, n = d.get('item'), max(1, num(d.get('amount'), 1))
         if not loot:
-            return self.say('eşya yok')
+            return self.say('no such item', 'eşya yok')
         msgs = m.reward(loot, n)
         lv = num(d.get('level'))
         if lv > 1:
@@ -267,7 +269,7 @@ class Console:
         want = str(d.get('npcType') or '')
         tip, model, name = spawn_type(want)
         if not tip:
-            return self.say('uzaylı türü yok: %s' % want)
+            return self.say('no alien type: %s' % want, 'uzaylı türü yok: %s' % want)
         n = max(1, min(50, num(d.get('amount'), 1)))
         prep = (lambda x: setattr(x, 'd', dict(x.d, name=name))) if name else None
         now = time.time()
@@ -292,7 +294,7 @@ class Console:
                 hx, hy = w.hero_pos(now)
                 near = sorted((math.hypot(b['x'] - hx, b['y'] - hy), h) for h, b in w.boxes.items() if b['tip'] == kind and w.own(b))
                 got = sum(1 for _, h in near[:n] if w.take_box(h) is not False)
-            return self.say('%s toplandı: %d' % (kind, got))
+            return self.say('%s collected: %d' % (kind, got), '%s toplandı: %d' % (kind, got))
         with w.lock:
             hx, hy = w.hero_pos(now)
             for k in range(n):
@@ -306,7 +308,7 @@ class Console:
         if not w:
             return []
         w.invulnerable = not w._invulnerable
-        return self.say('dokunulmazlık %s' % ('açık' if w._invulnerable else 'kapalı'))
+        return self.say('invulnerability %s' % ('on' if w._invulnerable else 'off'), 'dokunulmazlık %s' % ('açık' if w._invulnerable else 'kapalı'))
 
     def cmd_cooldown(self, rows, d):
         import ship_ability as SA
@@ -324,13 +326,13 @@ class Console:
             self.w.rocket_ready = 0.0
             self.w.ammo_ready = {}
             msgs += [SA.timer_msg(p, i, now) for i in SA.ship_items(p)]
-        return msgs + self.say('bekleme süreleri sıfırlandı')
+        return msgs + self.say('cooldowns reset', 'bekleme süreleri sıfırlandı')
 
     def cmd_pet(self, rows, d):
         import pet as PETM
         pet = self.s.pet
         if not pet.owned:
-            return self.say('P.E.T. yok')
+            return self.say('no P.E.T.', 'P.E.T. yok')
         lv = max(0, min(len(PETM.PET['levels']) - 1, num(d.get('lv') or d.get('petLevel'))))
         with pet.p.lock:
             pet.d['level'] = lv
@@ -340,7 +342,7 @@ class Console:
         return [('PetLevelUpdateCommand', dict(petLevel=lv, petExperiencePointsUntilNextLevel=pet.next_xp(), designId=pet.ship_type(),
                                                expansionStage=1)),
                 ('PetExperiencePointsUpdateCommand', dict(currentExperiencePoints=pet.d['ep'], maxExperiencePoints=pet.next_xp()))] + \
-            self.say('P.E.T. seviyesi %d' % lv)
+            self.say('P.E.T. level %d' % lv, 'P.E.T. seviyesi %d' % lv)
 
     def cmd_galaxyGates(self, rows, d):
         import galaxy_gates as GALAXY
@@ -349,15 +351,15 @@ class Console:
             if name == 'bookGGReward':
                 key = str(val or '').strip().lower()
                 if key not in GALAXY.GATES:
-                    return self.say('kapı yok: %s' % val)
+                    return self.say('no gate: %s' % val, 'kapı yok: %s' % val)
                 w = self.w
                 msgs, info = k.finish(key, w.reward_msgs if w else None)
-                return msgs + self.say('%s ödülü verildi' % GALAXY.GATES[key]['name'])
+                return msgs + self.say('%s reward given' % GALAXY.GATES[key]['name'], '%s ödülü verildi' % GALAXY.GATES[key]['name'])
             if name in ('setup', 'galaxyGates'):
                 parts = [x.strip() for x in str(val or '').split(',')]
                 key = parts[0].lower() if parts and parts[0] else ''
                 if key not in GALAXY.GATES:
-                    return self.say('kapı yok: %s' % (parts[0] if parts else ''))
+                    return self.say('no gate: %s' % (parts[0] if parts else ''), 'kapı yok: %s' % (parts[0] if parts else ''))
                 flat = dict((n, v) for n, v in flat_items(sub))
                 g = GALAXY.GATES[key]
                 lifes = num(flat.get('lifes') or (parts[1] if len(parts) > 1 else 0)) or g['hp']
@@ -368,21 +370,21 @@ class Console:
                     G.update(ready=True, hp=lifes, lives_bought=0, parts=list(range(1, g['part'] + 1)),
                              wave=len(g['waves']) - 1 if last else max(0, min(len(g['waves']) - 1, wave - 1 if wave else 0)))
                     k.p.dirty = True
-                return self.say('%s kuruldu: %d can, dalga %d (X-1 portalı)' % (g['name'], lifes, G['wave'] + 1))
-        return self.say('kapı komutu anlaşılmadı')
+                return self.say('%s built: %d lives, wave %d (X-1 portal)' % (g['name'], lifes, G['wave'] + 1), '%s kuruldu: %d can, dalga %d (X-1 portalı)' % (g['name'], lifes, G['wave'] + 1))
+        return self.say('gate command not understood', 'kapı komutu anlaşılmadı')
 
     def cmd_addEternalBlacklightPoints(self, rows, d):
         n = next((num(v) for k, v in d.items() if num(v)), 0)
         ebl = self.s.pve.ebl if self.s.pve else None
         if not ebl or not getattr(ebl, 'run', None):
-            return self.say('EBL koşusu yok')
+            return self.say('no EBL run', 'EBL koşusu yok')
         with ebl.p.lock:
             ebl.run['points'] = ebl.run.get('points', 0) + n
             ebl.p.dirty = True
-        return self.say('EBL puanı +%d (%d)' % (n, ebl.run['points']))
+        return self.say('EBL points +%d (%d)' % (n, ebl.run['points']), 'EBL puanı +%d (%d)' % (n, ebl.run['points']))
 
     def cmd_battleStation(self, rows, d):
         cbs = getattr(self.s, 'cbs', None)
         if cbs and hasattr(cbs, 'gm'):
             return cbs.gm(rows, d)
-        return self.say('Clan Battle Station sunucuda henüz yok')
+        return self.say('Clan Battle Station is not on the server yet', 'Clan Battle Station sunucuda henüz yok')

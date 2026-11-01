@@ -268,7 +268,7 @@ class TitleHunt:
         return msgs + [self.info_cmd(now)]
 
     def end_window(self, now):
-        msgs = self.drop('pencere bitti', now)
+        msgs = self.drop('window over', now)
         with self.p.lock:
             self.st['titles'] = {}
             self.p.dirty = True
@@ -318,14 +318,14 @@ class TitleHunt:
                     break
             w = self.world
             if self.held() and w and (w.in_station() or getattr(w, 'gate', None)):
-                msgs += self.drop('üs/kapı', now)
+                msgs += self.drop('base/gate', now)
         return msgs
 
     def event_end(self, now):
         """Event ended: reward by ranking (once) and the state is reset."""
         if self.st.get('period') is None:
             return []
-        msgs = self.drop('etkinlik bitti', now)
+        msgs = self.drop('event over', now)
         rank = next(i + 1 for i, r in enumerate(self.ranking()) if r[2])
         t = RK.TABLES.get(RANK_TYPE) or {}
         r = next((r for r in t.get('ranges', []) if r['from_'] <= rank <= r['e']), None)

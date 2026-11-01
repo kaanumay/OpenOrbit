@@ -118,6 +118,6 @@ def summary():
     """Log line: the selected world's name, the patch count and the skipped ones."""
     w = world()
     if not w:
-        return 'dünya: standart'
+        return 'world: standard'
     n = sum(len(v or {}) for v in (w.get('patches') or {}).values())
-    return 'dünya: %s (%d değişiklik%s)' % (w.get('name') or '?', n, ', atlanan: %s' % _SKIPPED if _SKIPPED else '')
+    return 'world: %s (%d changes%s)' % (w.get('name') or '?', n, ', skipped: %s' % _SKIPPED if _SKIPPED else '')

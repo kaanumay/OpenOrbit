@@ -42,7 +42,7 @@ def free_port(preference=DEFAULT_PORT):
             continue
         finally:
             s.close()
-    raise RuntimeError('boş port yok')
+    raise RuntimeError('No free port.')
 
 
 class Server:
@@ -59,20 +59,21 @@ class Server:
     def launch(self, wait_sec=180):
         k = setup()
         if k is None:
-            raise RuntimeError('dil modeli kurulu değil')
+            raise RuntimeError('The language model is not installed.')
         self.port = free_port()
         cmd = [k['server'], '-m', os.path.join(folder(), MODEL_FILE), '--host', '127.0.0.1', '--port', str(self.port),
                '-c', str(CONTEXT_SIZE * self.slot // 2), '-np', str(self.slot), '-ngl', '99', '--jinja', '--no-webui']
         kw = {}
         if sys.platform == 'win32':
             kw['creationflags'] = 0x08000000                 # CREATE_NO_WINDOW
-        daily = open(os.path.join(PTH.LOGS, 'llm_sunucu.log'), 'ab')
+        daily = open(os.path.join(PTH.LOGS, 'llm_server.log'), 'ab')
         self.proc = subprocess.Popen(cmd, stdout=daily, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
                                      cwd=os.path.dirname(k['server']), **kw)
         last = time.time() + wait_sec
         while time.time() < last:
             if self.proc.poll() is not None:
-                raise RuntimeError('llama-server kapandı (çıkış %s; günlük: logs/llm_sunucu.log)' % self.proc.returncode)
+                self.log('llama-server exited: %s' % self.proc.returncode)
+                raise RuntimeError('llama-server closed (log: logs/llm_server.log).')
             try:
                 with urlopen('http://127.0.0.1:%d/health' % self.port, timeout=2) as r:
                     if r.status == 200 and json.loads(r.read() or b'{}').get('status', 'ok') == 'ok':
@@ -82,7 +83,8 @@ class Server:
                 pass
             time.sleep(0.5)
         self.stop()
-        raise RuntimeError('llama-server %d sn içinde hazır olmadı' % wait_sec)
+        self.log('llama-server was not ready in %d s' % wait_sec)
+        raise RuntimeError('llama-server did not become ready in time.')
 
     def stop(self):
         self.ready = False

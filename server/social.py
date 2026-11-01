@@ -77,7 +77,7 @@ class Social:
 
     def warp_done(self, msgs, changed):
         if self.send:
-            self.send(msgs, 'gemi ışınlama')
+            self.send(msgs, 'ship teleport')
         if changed and self.reload:
             self.reload()
 

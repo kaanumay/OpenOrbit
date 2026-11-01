@@ -282,7 +282,7 @@ class Patcher:
 
     def _run(self, folder):
         try:
-            self.log('BepInEx indiriliyor: %s, %s' % (BEPINEX['url'], UNITY['url']))
+            self.log('downloading BepInEx: %s, %s' % (BEPINEX['url'], UNITY['url']))
             archive, unity = self._download(BEPINEX), self._download(UNITY)
             with self.lock:
                 self.d['state'] = 'installing'

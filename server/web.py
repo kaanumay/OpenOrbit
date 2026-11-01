@@ -181,23 +181,30 @@ def login_node(o=None):
 
 
 INFO = {      # Settings -> Support / Account Center ... (official forum 127724, 150766): a local info page in place of the official sites (adaptation)
-    'forum': ('Forum', 'Bu yerel sunucunun forumu yok. Oyun kuralları ve açıklamalar için belgeler/forum_tr klasörüne bak.'),
-    'help': ('Yardım', 'Oyun içi yardım için panelin "Nasıl Oynanır" bölümüne bak.'),
-    'credits': ('Emeği geçenler', 'OpenOrbit: tek oyunculu yerel sunucu.'),
-    'imprint': ('Künye', 'OpenOrbit: tek oyunculu yerel sunucu; ticari bir hizmet değildir.'),
-    'support': ('Destek', 'Destek bileti yerine panelin günlüklerine (server/logs) bak; sohbetteki /report raporları '
-                'server/logs/chat_reports.jsonl dosyasına yazılır.'),
-    'accountCenter': ('Hesap Merkezi', 'Hesap ayarları (ad, şifre, bülten) yerel profilde tutulur; pilot adını oyundaki Pilot Profili '
-                      'penceresinden değiştirebilirsin.'),
+    'forum': (('Forum', 'This local server has no forum. See the panel and the project README for the rules and explanations.'),
+              ('Forum', 'Bu yerel sunucunun forumu yok. Kurallar ve açıklamalar için panele ve projenin README dosyasına bak.')),
+    'help': (('Help', 'For in-game help, see the panel.'), ('Yardım', 'Oyun içi yardım için panele bak.')),
+    'credits': (('Credits', 'OpenOrbit: a single-player local server.'), ('Emeği geçenler', 'OpenOrbit: tek oyunculu yerel sunucu.')),
+    'imprint': (('Imprint', 'OpenOrbit: a single-player local server; not a commercial service.'),
+                ('Künye', 'OpenOrbit: tek oyunculu yerel sunucu; ticari bir hizmet değildir.')),
+    'support': (('Support', 'Instead of a support ticket, look at the panel logs (server/logs); /report reports from the chat are '
+                 'written to server/logs/chat_reports.jsonl.'),
+                ('Destek', 'Destek bileti yerine panelin günlüklerine (server/logs) bak; sohbetteki /report raporları '
+                 'server/logs/chat_reports.jsonl dosyasına yazılır.')),
+    'accountCenter': (('Account Center', 'Account settings (name, password, newsletter) are kept in the local profile; you can change '
+                       'your pilot name in the in-game Pilot Profile window.'),
+                      ('Hesap Merkezi', 'Hesap ayarları (ad, şifre, bülten) yerel profilde tutulur; pilot adını oyundaki Pilot Profili '
+                       'penceresinden değiştirebilirsin.')),
 }
 
 
 def links():
-    return {k: BASE + 'bilgi/' + k for k in INFO}
+    return {k: BASE + 'info/' + k for k in INFO}
 
 
 def info_page(kind):
-    title, text = INFO.get(kind, ('OpenOrbit', ''))
+    texts = INFO.get(kind)
+    title, text = (texts[1] if stored_lang() == 'tr' else texts[0]) if texts else ('OpenOrbit', '')
     return ('<!doctype html><html><head><meta charset="utf-8"><title>%s</title></head><body style="background:#000;color:#9cf;'
             'font-family:Verdana;padding:24px"><h2>%s</h2><p>%s</p></body></html>' % (title, title, text))
 
@@ -371,7 +378,7 @@ def redirect_page(sid=None):
                'setTimeout(function(){console.log(%s);setTimeout(go,400);},300);' % json.dumps(msg))
     else:
         js += 'go();'
-    return ('<!doctype html><html><body style="background:#000;color:#9cf;font-family:Verdana">DarkOrbit yerel sunucu<script>'
+    return ('<!doctype html><html><body style="background:#000;color:#9cf;font-family:Verdana">OpenOrbit local server<script>'
             + js + '</script></body></html>')
 
 
@@ -390,8 +397,8 @@ class H(BaseHTTPRequestHandler):
         elif port == 8090 and base == '/':
             q = parse_qs(path.split('?', 1)[1]) if '?' in path else {}
             ctype, out = 'text/html; charset=utf-8', redirect_page((q.get('session') or [None])[0])
-        elif base.startswith('/bilgi/'):
-            ctype, out = 'text/html; charset=utf-8', info_page(base[len('/bilgi/'):])
+        elif base.startswith('/info/'):
+            ctype, out = 'text/html; charset=utf-8', info_page(base[len('/info/'):])
         elif 'indexInternal.es' in path:
             o = session(cookie(self, 'dosid'))
             if o and o[0] != SESSION:

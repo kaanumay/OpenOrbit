@@ -95,11 +95,11 @@ def equip_allowed(p, iid, ship_loot, current):
     loot = p.d['items'].get(str(iid), '')
     rec = state(p, iid)
     if not rec:
-        return 'QFC kaydı yok'
+        return 'no QFC record'
     if rec['ship'] != ship_loot:
-        return 'bu QFC %s gemisine bağlı' % rec['ship']
+        return 'this QFC is bound to the %s ship' % rec['ship']
     if any(kind(p.d['items'].get(str(i), '')) == kind(loot) for i in current if i != iid):
-        return 'gemide zaten bir %s QFC var' % kind(loot).upper()
+        return 'the ship already has a %s QFC' % kind(loot).upper()
     return None
 
 

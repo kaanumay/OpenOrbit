@@ -57,13 +57,13 @@ LIMITS = {'width': (640, 7680), 'height': (480, 4320), 'monitor': (0, 8), 'backu
 def clean(key, v):
     """Validate the value -> a valid value or ValueError."""
     if key not in DEFAULTS:
-        raise ValueError('bilinmeyen ayar: %s' % key)
+        raise ValueError('unknown setting: %s' % key)
     d = DEFAULTS[key]
     if key == 'lang':
         return v if v in D.LANGUAGES else None
     if key in CHOICES:
         if v not in CHOICES[key]:
-            raise ValueError('%s: geçersiz seçim' % key)
+            raise ValueError('%s: invalid choice' % key)
         return v
     if isinstance(d, bool):
         return bool(v)

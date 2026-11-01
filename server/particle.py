@@ -177,7 +177,7 @@ def equip_allowed(p, iid, slot, current):
     if slot == 'cannon':
         kind = CANNONS[loot]['type']
         if any(CANNONS.get(p.d['items'].get(str(i), ''), {}).get('type') == kind for i in current if i != iid):
-            return 'gemide zaten bir %s topu var' % kind
+            return 'the ship already has a %s cannon' % kind
     return None
 
 
@@ -446,15 +446,15 @@ class Shot:
         iid = cannon_for(p, element)
         why = None
         if iid is None:
-            why = 'takılı %s topu yok' % element
+            why = 'no %s cannon equipped' % element
         elif not self.ready(COOLDOWN_CANNON, now):
             why = 'cooldown'
         elif p.ammo(slug) <= 0:
-            why = 'slug yok'
+            why = 'no ammo'
         elif w.in_peace(*w.hero_pos(now)):
-            why = 'güvenli bölge'
+            why = 'safe zone'
         elif not self.in_range(n, now, C['range']):
-            why = 'menzil dışı'
+            why = 'out of range'
         if why:
             if not auto:
                 w.log('   cannon not fired (%s): %s' % (slug, why))
@@ -529,15 +529,15 @@ class Shot:
         power, area, best = drive_power(p, ids) if ids else (0, DR['area'], 1)
         why = None
         if not ids:
-            why = 'takılı sürücü yok'
+            why = 'no drive equipped'
         elif not self.ready(COOLDOWN_DRIVE, now):
             why = 'cooldown'
         elif p.ammo(gsp) < len(ids):
-            why = 'GSP yetmiyor'
+            why = 'not enough GSP'
         elif w.in_peace(*w.hero_pos(now)):
-            why = 'güvenli bölge'
+            why = 'safe zone'
         elif not self.in_range(n, now, DR['range']):
-            why = 'menzil dışı'
+            why = 'out of range'
         if why:
             if not auto:
                 w.log('   drive not fired (%s): %s' % (gsp, why))

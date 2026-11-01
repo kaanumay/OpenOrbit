@@ -46,15 +46,15 @@ class Adapter:
                 line = line.rstrip()
                 with self.lock:
                     self.d['lines'] = (self.d['lines'] + [line])[-80:]
-                m = re.search(r'fark: (\{.*\})', line)
+                m = re.search(r'diff: (\{.*\})', line)
                 if m:
                     with self.lock:
                         self.d['summary'] = dict(self.d['summary'] or {}, **json.loads(m.group(1)))
-                m = re.search(r'rapor: (.+)$', line)
+                m = re.search(r'report: (.+)$', line)
                 if m:
                     with self.lock:
                         self.d['summary'] = dict(self.d['summary'] or {}, report=m.group(1).strip())
-                m = re.search(r'^istemci (\S+) ->', line)
+                m = re.search(r'^client (\S+) ->', line)
                 if m:
                     with self.lock:
                         self.d['summary'] = dict(self.d['summary'] or {}, version=m.group(1))

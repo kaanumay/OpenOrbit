@@ -171,30 +171,36 @@ def _new_uid(full):
             return u
 
 
+def refused(status, error, text, *args):
+    """A refusal for the other panel: the English message plus the template and its arguments, so that panel shows it in its own
+    language (friends.message / multi_client)."""
+    return status, {'error': error, 'message': text % args if args else text, 'text': text, 'args': list(args)}
+
+
 def valid_profile(d):
     """Can the uploaded save be played -> error text or None."""
     if not isinstance(d, dict):
-        return 'kayıt bir JSON nesnesi değil'
+        return 'the save is not a JSON object'
     pl, g, k = d.get('pilot'), d.get('ship'), d.get('position')
     if not (isinstance(pl, dict) and isinstance(g, dict) and isinstance(k, dict)):
-        return 'kayıtta pilot, gemi ya da konum yok'
+        return 'the save has no pilot, ship or position'
     if not isinstance(pl.get('userId'), int) or isinstance(pl.get('userId'), bool) or not str(pl.get('userName') or '').strip():
-        return 'pilotun kimliği ya da adı yok'
+        return 'the pilot has no id or name'
     if not all(isinstance(k.get(a), (int, float)) for a in ('mapId', 'x', 'y')):
-        return 'kayıttaki konum geçersiz'
+        return 'the position in the save is invalid'
     return None
 
 
 def login(body, ip, seed, server_uid, main=None):
     """POST /misafir/giris -> (status code, response). main: the server's own profile (its name cannot be the same as another player's)."""
     if int(body.get('version') or 0) != PROTOCOL:
-        return 409, {'error': 'version', 'message': 'Hesap gönderiminin sürümü farklı (sunucu %d): ikiniz de paneli güncelleyin.' % PROTOCOL}
+        return refused(409, 'version', 'The account upload version differs (server %d): both of you should update the panel.', PROTOCOL)
     if SETTINGS['password']:
         now = time.time()
         with COND:
             h = FAILED.get(ip)
             if h and h[1] > now:
-                return 429, {'error': 'wait', 'message': 'Çok fazla yanlış şifre: %d saniye sonra yeniden dene.' % (h[1] - now + 1)}
+                return refused(429, 'wait', 'Too many wrong passwords: try again in %d seconds.', int(h[1] - now + 1))
         if not equal(body.get('password'), SETTINGS['password']):
             with COND:
                 h = FAILED.setdefault(ip, [0, 0])
@@ -202,12 +208,12 @@ def login(body, ip, seed, server_uid, main=None):
                 if h[0] >= ATTEMPT_LIMIT:
                     h[:] = [0, now + LOCK_SEC]
                     log('friends: wrong password limit for %s, %d s lock' % (ip, LOCK_SEC))
-            return 403, {'error': 'password', 'message': 'Katılma şifresi yanlış.'}
+            return refused(403, 'password', 'Wrong join password.')
         with COND:
             FAILED.pop(ip, None)
     key = str(body.get('key') or '')
     if len(key) < 16:
-        return 400, {'error': 'key', 'message': 'Misafir anahtarı eksik.'}
+        return refused(400, 'key', 'The guest key is missing.')
     with COND:
         old = next((m for m in GUESTS.values() if equal(m.key, key) and not m.finished), None)
         if old:                                  # logging in again: the latest state on the server continues
@@ -216,17 +222,17 @@ def login(body, ip, seed, server_uid, main=None):
             log('guest returned: %s (%s)' % (old.summary()['name'], ip))
             return 200, {'session': old.token, 'uid': old.uid, 'version': old.version, 'ongoing': True}
         if sum(1 for m in GUESTS.values() if not m.finished) >= SETTINGS['max_count']:
-            return 503, {'error': 'full', 'message': 'Sunucu dolu (en çok %d misafir).' % SETTINGS['max_count']}
+            return refused(503, 'full', 'Server full (at most %d guests).', SETTINGS['max_count'])
     d = body.get('profile')
     err = valid_profile(d)
     if err:
-        return 400, {'error': 'profile', 'message': 'Kayıt geçersiz: %s.' % err}
+        return refused(400, 'profile', 'The save is invalid: %s.', err)
     name = str((d.get('pilot') or {}).get('userName') or '').strip().lower()
     with COND:
         names = {_name(m.profile) for m in GUESTS.values() if not m.finished and m.profile is not None} |             {_name(y.profile) for y in LOCAL_PLAYERS.values()} | ({_name(main)} if main is not None else set())
     if name in names:                               # chat, mail, group, directory and clan find the player by name (like add_local)
-        return 409, {'error': 'name', 'message': 'Sunucuda "%s" adlı bir pilot zaten var: aynı adla iki oyuncu sohbette, postada, grupta ve '
-                                            'klanda karışır. Pilot adını değiştirip yeniden katıl.' % d['pilot']['userName']}
+        return refused(409, 'name', 'There is already a pilot named "%s" on the server: two players with the same name get mixed up in chat, '
+                       'mail, groups and clans. Change your pilot name and join again.', d['pilot']['userName'])
     with COND:
         uid = _new_uid({server_uid} | {m.uid for m in GUESTS.values()} | {y.uid for y in LOCAL_PLAYERS.values()})
         m = Guest(secrets.token_urlsafe(18), key, uid, d['pilot']['userId'], str(body.get('address') or ''), ip)
@@ -251,7 +257,7 @@ def poll_profile(q):
     """GET /misafir/profil: waits until a version newer than N arrives or the time runs out."""
     m = _guest(q)
     if not m:
-        return 404, {'error': 'session', 'message': 'Bu sunucuda böyle bir misafir oturumu yok.'}
+        return refused(404, 'session', 'There is no such guest session on this server.')
     try:
         have, wait = int(q.get('version') or 0), min(WAIT_MAX, max(0.0, float(q.get('wait') or 0)))
     except ValueError:
@@ -272,9 +278,9 @@ def exit(q, close_session):
     """POST /misafir/cikis: if connected the game connection closes, the final state is given, the save is deleted."""
     m = _guest(q)
     if not m:
-        return 404, {'error': 'session', 'message': 'Bu sunucuda böyle bir misafir oturumu yok.'}
+        return refused(404, 'session', 'There is no such guest session on this server.')
     if not m.finished:
-        finish(m, close_session, 'misafir ayrıldı')
+        finish(m, close_session, 'guest left')
     return 200, {'version': m.version, 'profile': m.export(), 'finished': True}
 
 
@@ -312,13 +318,13 @@ def tick(close_session):
     now = time.time()
     for m in entries():
         if m.session is None and now - m.last > IDLE_SEC:
-            finish(m, close_session, 'uzun süre bağlanmadı')
+            finish(m, close_session, 'not connected for a long time')
     with COND:
         for k in [k for k, m in GUESTS.items() if m.finished and now - m.end_time > END_SEC]:
             del GUESTS[k]
     for y in local_players():
         if y.session is None and now - y.last > IDLE_SEC:
-            finish_local(y, close_session, 'uzun süre bağlanmadı')
+            finish_local(y, close_session, 'not connected for a long time')
 
 
 def shutdown(wait=2.0):
@@ -389,35 +395,35 @@ def add_local(body, seed, main):
     """POST /local/add -> (status code, response). main: the server's own profile (game.PROFILE)."""
     save, route = str(body.get('record') or ''), str(body.get('route') or '')
     if not re.fullmatch(r'[a-z0-9_]{1,40}', save) or os.path.basename(route) != 'profile.json' or not os.path.isfile(route):
-        return 400, {'error': 'record', 'message': 'Kayıt bulunamadı.'}
+        return refused(400, 'record', 'Save not found.')
     if not os.path.normcase(os.path.realpath(route)).startswith(os.path.normcase(os.path.realpath(PTH.SAVES)) + os.sep):
-        return 400, {'error': 'record', 'message': 'Kayıt, kayıt klasöründe değil.'}
+        return refused(400, 'record', 'The save is not in the saves folder.')
     if _same_path(route, main.path):
-        return 409, {'error': 'main', 'message': 'Bu kayıt ana istemcide açık.'}
+        return refused(409, 'main', 'This save is open in the main client.')
     with COND:
         old = next((y for y in LOCAL_PLAYERS.values() if _same_path(y.route, route)), None)
         if old and old.finished:
-            return 409, {'error': 'closing', 'message': 'Bu kaydın önceki istemcisi kapanıyor: birkaç saniye sonra yeniden dene.'}
+            return refused(409, 'closing', "This save's previous client is closing: try again in a few seconds.")
         if old:                                  # client reopened: the session on the server continues
             old.last = time.time()
             return 200, {'session': old.token, 'uid': old.uid, 'ongoing': True}
         if sum(1 for y in LOCAL_PLAYERS.values() if not y.finished) >= LOCAL_MAX:
-            return 503, {'error': 'full', 'message': 'Sunucuda en çok %d ek istemci açılabilir.' % LOCAL_MAX}
+            return refused(503, 'full', 'At most %d extra clients can be open on the server.', LOCAL_MAX)
         full = {main.user_id} | {m.uid for m in GUESTS.values() if not m.finished} | {y.uid for y in LOCAL_PLAYERS.values()}
     try:
         p = LocalProfile(seed, route, full, save)
     except (OSError, ValueError, KeyError, TypeError) as e:
-        return 400, {'error': 'profile', 'message': 'Kayıt okunamadı: %s' % e}
+        return refused(400, 'profile', 'The save could not be read: %s', str(e))
     err = valid_profile(p.d)
     if err:
-        return 400, {'error': 'profile', 'message': 'Kayıt geçersiz: %s.' % err}
+        return refused(400, 'profile', 'The save is invalid: %s.', err)
     with COND:
         names = {_name(main)} | {_name(m.profile) for m in GUESTS.values() if not m.finished} | {_name(y.profile) for y in LOCAL_PLAYERS.values()}
         if _name(p) in names:                       # chat, mail, group and directory find the player by name
-            return 409, {'error': 'name', 'message': 'Sunucuda "%s" adlı bir pilot zaten var: aynı adla iki oyuncu sohbette, postada ve '
-                                                'grupta karışır. Bu kaydın pilot adını değiştir.' % p.d['pilot']['userName']}
+            return refused(409, 'name', 'There is already a pilot named "%s" on the server: two players with the same name get mixed up in '
+                           "chat, mail and groups. Change this save's pilot name.", p.d['pilot']['userName'])
         if any(_same_path(y.route, route) for y in LOCAL_PLAYERS.values()):
-            return 409, {'error': 'closing', 'message': 'Bu kayıt az önce açıldı.'}
+            return refused(409, 'closing', 'This save was opened a moment ago.')
         y = LocalPlayer(secrets.token_urlsafe(18), save, route, p)
         LOCAL_PLAYERS[y.token] = y
     log('extra player: %s (save %s), id on the server %d%s' % (p.d['pilot'].get('userName'), save, y.uid,
@@ -451,8 +457,8 @@ def remove_local(b, close_session):
     with COND:
         y = LOCAL_PLAYERS.get(str(b.get('session') or ''))
     if not y:
-        return 404, {'error': 'session', 'message': 'Bu sunucuda böyle bir ek oyuncu yok.'}
-    finish_local(y, close_session, 'istemci kapandı')
+        return refused(404, 'session', 'There is no such extra player on this server.')
+    finish_local(y, close_session, 'client closed')
     return 200, {'done': True}
 
 
@@ -608,7 +614,7 @@ def http(c, addr, game):
         local = ip in ('127.0.0.1', '::1')
         management = local and SETTINGS['key'] and equal(b.get('key'), SETTINGS['key'])
         if u.path.startswith('/misafir/') and not SETTINGS['guest']:
-            code, out = 403, {'error': 'off', 'message': 'Bu sunucu misafir kabul etmiyor.'}
+            code, out = refused(403, 'off', 'This server does not accept guests.')
         elif u.path == '/local/add' and method == 'POST' and management:
             code, out = add_local(b, game.TEMPLATE.entry.get('seed'), game.PROFILE)
         elif u.path == '/local/remove' and method == 'POST' and management:
@@ -627,7 +633,7 @@ def http(c, addr, game):
         elif u.path == '/yonetim/kick' and method == 'POST' and management:
             m = next((x for x in entries() if x.token.startswith(str(b.get('session') or '-'))), None)
             if m:
-                finish(m, game.close_session, 'sunucu çıkardı')
+                finish(m, game.close_session, 'removed by the server')
             code, out = (200, {'done': True}) if m else (404, {'error': 'session'})
         else:
             code, out = 404, {'error': 'none'}

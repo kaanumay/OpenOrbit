@@ -15,7 +15,7 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import quote
 from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
 
-from lang import t as _
+from lang import t as _, remote
 
 GAME_PORT = 8081
 CHAT_PORT = 7771
@@ -121,7 +121,7 @@ def request(host, port, method, path, body=None, timeout=10):
 
 
 def _message(code, out):
-    return out.get('message') or _('The server refused the request (HTTP %s).', code)
+    return remote(out) or out.get('message') or _('The server refused the request (HTTP %s).', code)
 
 
 # ------------------------------------------------------------------ panel side

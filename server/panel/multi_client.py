@@ -12,7 +12,7 @@ import json, os, threading, time
 from urllib.error import HTTPError, URLError
 from urllib.request import ProxyHandler, Request, build_opener
 
-from lang import t as _
+from lang import t as _, remote
 import client as IST
 import processes as PR
 
@@ -105,7 +105,7 @@ class MultiClient:
             self.last_backup[slot] = time.time()
             code, out = self.request('/local/add', {'record': slot, 'route': self.saves.profile(slot)})
             if code != 200:
-                raise MultiClientError(out.get('message') or _("The game server didn't take the save (HTTP %s).", code))
+                raise MultiClientError(remote(out) or out.get('message') or _("The game server didn't take the save (HTTP %s).", code))
             daily = os.path.join(self.logs, 'client_%s.log' % slot)
             import launcher
             launcher.rotate_logs(self.logs, names=(os.path.basename(daily),))

@@ -144,11 +144,11 @@ def synth(sy, loot, ids, rng=random):
         if len(ids) < r['count']:
             ids += [i for i in sorted(free) if ok(i) and i not in ids][:r['count'] - len(ids)]
         if len(ids) < r['count']:
-            return sy.fail('%s yetmiyor (%d/%d)' % (r['input'], len(ids), r['count']))
+            return sy.fail('not enough %s (%d/%d)' % (r['input'], len(ids), r['count']))
         ids = ids[:r['count']]
         cost = {'currency_uridium': r['uridium']}
         if INV.spend(p, cost, 'buy_SPECIAL', 'resonator') is None:
-            return sy.fail('bedel yetmiyor (%s)' % cost)
+            return sy.fail('cost not covered (%s)' % cost)
         main = [a for a, _ in (ensure(p, ids[0]) or {}).get('attribute', [])]
         with p.lock:
             for i in ids:
@@ -161,7 +161,7 @@ def synth(sy, loot, ids, rng=random):
         src = source_for(p, e['type'])
         cost = {src: r['source_amount'], 'currency_uridium': r['uridium']}
         if not src or INV.spend(p, cost, 'buy_SPECIAL', 'resonator') is None:
-            return sy.fail('bedel yetmiyor (%s)' % cost)
+            return sy.fail('cost not covered (%s)' % cost)
         attrs = fill(e['type'], e['quality'], [SOURCES[src]['attribute']], e['attribute_count'], rng)
     new = create(p, loot, attrs)
     msgs = [('InventoryItemRemovedCommand', {'itemId': i}) for i in removed] + INV.update_msgs(sy.m, p, list(cost))

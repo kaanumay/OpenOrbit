@@ -774,7 +774,7 @@ class Brain:
                          'You decided NOT to help (too far, too weak or busy). Say it in your own words.')
         k = ('%sYou are %s. %s Your style: %s.\nYou feel %s about %s (a %s player).\n\nEarlier private messages (context only, '
              'maybe already answered):\n%s\n\nNEWEST private message from %s: "%s"\n\n%s %s Reply ONLY to this newest message with '
-             'one short line (metin), like a real person. Never echo his words.') % (
+             'one short line (text), like a real person. Never echo his words.') % (
             (game_info(fac) + '\n\n') if kind == 'question_game' else '', b.name, chat_persona(b, y), style(b),
             'friendly' if rel > 0.2 else 'annoyed' if rel < -0.2 else 'neutral', name + shared_history(b, name),
             COMPANY.get(fac, '?'), chat_history(y, names=[b.name, name], exclude=msg, n=10, sec=1800), name, msg,
@@ -895,8 +895,8 @@ class Brain:
                                                  'channel': {'type': 'string', 'enum': ['whisper', 'company', 'global', 'none']}},
                 'required': ['text', 'channel']}
         who = o.get('killer') or o.get('name') or ''
-        k = ('You are %s.\n%s\nThis just happened: you %s.\nDo you type something about it? kanal: whisper = private message to %s, '
-             'firma = company chat, global = global chat, none = say nothing (often the most realistic). metin: one short line.') % (
+        k = ('You are %s.\n%s\nThis just happened: you %s.\nDo you type something about it? channel: whisper = private message to %s, '
+             'company = company chat, global = global chat, none = say nothing (often the most realistic). text: one short line.') % (
             b.name, persona(b, y), event_text(o), who or '-')
         r = self.ask(k, schema, max_count=80)
         channel = r.get('channel')
@@ -915,9 +915,9 @@ class Brain:
         fac = int(TP_company(name) or b.company)
         # (the boolean "yanıtla" field was removed: the model took a refusal for "do not reply" and dropped the good text too)
         k = ('%sYou are %s. %s Your style: %s.\nYou feel %s about %s.\n\n%s sent you an in-game MAIL.\nSubject: "%s"\nText: "%s"\n\n%s'
-             'Write your answer mail (metin): 1-3 short casual sentences (at least 6 words; give a reason if you say no), like a '
+             'Write your answer mail (text): 1-3 short casual sentences (at least 6 words; give a reason if you say no), like a '
              'gamer writing a quick mail, no greeting formulas like "Dear", no signature. Real players answer personal mails; only '
-             'for spam or nonsense leave metin empty.') % (
+             'for spam or nonsense leave text empty.') % (
             (game_info(fac) + '\n\n') if game else '', b.name, chat_persona(b, y), style(b),
             'friendly' if b.memory.relation(name) > 0.2 else 'neutral', name + shared_history(b, name), name, str(r.get('subject', ''))[:60],
             str(r.get('text', ''))[:600],
@@ -942,7 +942,7 @@ class Brain:
               'private_chat': 'you just feel like chatting: ask him something casual (how it goes, his gear, his plans)'}[purpose]
         schema = {'type': 'object', 'properties': {'text': {'type': 'string', 'maxLength': 80}}, 'required': ['text']}
         k = ('You are %s. %s Your style: %s.\nYou are friends with %s.%s\n\nEarlier private messages:\n%s\n\nYou start a private '
-             'chat with him: %s. One short line (metin), like a real friend in a game, not a status report. %s') % (
+             'chat with him: %s. One short line (text), like a real friend in a game, not a status report. %s') % (
             b.name, chat_persona(b, y), style(b), name, shared_history(b, name), chat_history(y, names=[b.name, name], n=6, sec=3600), ne,
             short_info(b.company))
         r = self.ask(k, schema, max_count=60, temperature=0.85)
@@ -1032,9 +1032,9 @@ class Brain:
         schema = {'type': 'object', 'properties': {'decisions': {'type': 'array', 'items': {'type': 'object', 'properties': {
             'bot': {'type': 'string', 'enum': [b.name for b in bots]}, 'target': {'type': 'string', 'enum': list(DECISION_GOALS)},
             'map': {'type': 'string', 'maxLength': 8}}, 'required': ['bot', 'target', 'map']}}}, 'required': ['decisions']}
-        k = ('For each pilot choose what he does in the next 10-20 minutes (kasilma = farm aliens, gorev = quests, pvp = hunt enemy '
-             'players, alisveris = buy upgrades, dinlenme = take a break at base), realistically for his personality, mood and recent '
-             'events (the scores are gut feelings, not orders). For kasilma put one of his listed maps in harita, otherwise leave it '
+        k = ('For each pilot choose what he does in the next 10-20 minutes (grinding = farm aliens, quest = quests, pvp = hunt enemy '
+             'players, shopping = buy upgrades, resting = take a break at base), realistically for his personality, mood and recent '
+             'events (the scores are gut feelings, not orders). For grinding put one of his listed maps in map, otherwise leave it '
              'empty.\n\n%s') % '\n'.join(lines)
         r = self.ask(k, schema, max_count=240, temperature=0.7)
         with y.lock:
@@ -1158,12 +1158,12 @@ class Brain:
              'summary: ONE short concrete sentence, first person (what happened, what was said or agreed, places, times), like "%s '
              'asked me how to farm on 2-3, I promised to show him later". emotion: how you feel about %s now, from -1 (hate) to 1 '
              '(really like). importance: 1 small, 2 notable, 3 big. impression: your overall impression of %s in one sentence, from '
-             'everything you know (update the old one). takip: only if something is left to do later, else amac none: soz = a '
-             'plan or promise you both agreed on (meet, duel, group up, help), intikam = you want to get back at him, tesekkur = '
-             'you want to thank him later, rekabet = a rivalry to continue, merak = you want to ask him something later. dakika: '
-             'in how many minutes it should happen (from what was said; 10 if nothing was said). tool: what you do then: duello = '
+             'everything you know (update the old one). followup: only if something is left to do later, else purpose none: promise = a '
+             'plan or promise you both agreed on (meet, duel, group up, help), revenge = you want to get back at him, thanks = '
+             'you want to thank him later, rivalry = a rivalry to continue, curiosity = you want to ask him something later. minutes: '
+             'in how many minutes it should happen (from what was said; 10 if nothing was said). tool: what you do then: duel = '
              'fight him, group_invite = invite him to your group, follow = fly to his map, go_help = help him on his map, none = '
-             'only write to him. harita: the agreed map (like 4-4) or empty.') % (b.name, who, name, once or ' nothing', name, dump, name,
+             'only write to him. map: the agreed map (like 4-4) or empty.') % (b.name, who, name, once or ' nothing', name, dump, name,
                                                                              name, name)
         r = self.ask(k, schema, max_count=240, temperature=0.4)
         with y.lock:
@@ -1204,7 +1204,7 @@ class Brain:
         schema = {'type': 'object', 'properties': {'text': {'type': 'string', 'maxLength': 90}}, 'required': ['text']}
         with y.lock:
             k = ('You are %s. %s Your style: %s.\nAbout %s:%s\n\nEarlier private messages:\n%s\n\nYou start a private chat with %s '
-                 'because of this memory: "%s" (%s). Purpose: %s. %s One short line (metin), like a real player who remembers him; '
+                 'because of this memory: "%s" (%s). Purpose: %s. %s One short line (text), like a real player who remembers him; '
                  'mention the memory naturally, not word for word.') % (
                 b.name, chat_persona(b, y), style(b), name, shared_history(b, name), chat_history(y, names=[b.name, name], n=10, sec=7200),
                 name, a['summary'], MEM.time_ago(y.now - a['t']), ne, action)

@@ -498,7 +498,7 @@ def try_migrate():
     table = PR.listeners()
     if any(PR.listening(p, table) for p in (8081, 8090)):
         if not STATE.get('migration_pending'):
-            log('old save not moved: game ports are open (a server opened with Baslat.bat may be in use)')
+            log('old save not moved: game ports are open (a server started by hand may be in use)')
         STATE['migration_pending'] = True
         return None
     STATE['migration_pending'] = False
@@ -1442,7 +1442,7 @@ def bot_post(path, b):
         try:
             return {'models': PRV.models(b.get('uid'), b.get('address') or None, b.get('key') or None)}
         except PRV.ProviderError as e:
-            raise Error(str(e))
+            raise Error(_(str(e)))
     if path == '/api/bot/llm/test' and PRV.setting()['selected'] != PRV.LOCAL:
         try:
             return dict(LLM.test_remote(), provider=PRV.status())

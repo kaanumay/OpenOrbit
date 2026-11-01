@@ -2334,7 +2334,7 @@ class Shop:
                         fail('dron %s dolu ya da eşya başka gemide' % f.get('droneId'))
                     elif loot in held or (loot.startswith(REPBOT) and any(l.startswith(REPBOT) for l in held)):
                         # one of each extra per config, ship and drones together (client FAQ drones_specials_p)
-                        fail('%s: config\'te var (gemi ya da dron)' % loot)
+                        fail('%s: already in the config (ship or drone)' % loot)
                         err = 'special_generic_hint'
                     else:
                         detach(iid)
@@ -2356,7 +2356,7 @@ class Shop:
                     elif slot in PC.SLOTS and PC.equip_allowed(self.p, iid, slot, lst):
                         fail('%s: %s' % (loot, PC.equip_allowed(self.p, iid, slot, lst)), 'same_cannon')   # one cannon of each type
                     elif slot == 'extra' and EX.slot_bonus_of([loot]) and EX.slot_bonus_of(loots(lst)):
-                        fail('%s: config\'te yuva CPU\'su var' % loot, 'single_slot_cpu')       # one slot CPU per config (wiki)
+                        fail('%s: the config already has a slot CPU' % loot, 'single_slot_cpu')       # one slot CPU per config (wiki)
                     elif slot == 'extra' and (loot in extras_of(dcfg.values(), iid) or loot in loots(lst) or loot.startswith(REPBOT)
                                               and any(l.startswith(REPBOT) for l in extras_of([lst] + list(dcfg.values()), iid))):
                         # one repair robot per config (user report 2026-10-24: two could be fitted); the client's text
@@ -2370,7 +2370,7 @@ class Shop:
                         lst.append(iid)
                         moved.append((iid, loot))
                 else:
-                    fail('bilinmeyen panel %r -> %r' % (src, dst))
+                    fail('unknown panel %r -> %r' % (src, dst))
             if moved:
                 self.p.dirty = True
                 self.p.sync_equipment()

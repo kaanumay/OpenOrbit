@@ -121,7 +121,7 @@ class Synthesis:
         p = self.p
         done = p.d.get(EXTRA_COUNT, {}).get(r['recipe'], 0)
         if r.get('max_count') and done >= r['max_count']:
-            return self.fail('%s en çok %d kez' % (r['recipe'], r['max_count']))
+            return self.fail('%s at most %d times' % (r['recipe'], r['max_count']))
         free = set(self.free_items())
         chosen = []
         for loot, n in r['inputs'].items():
@@ -130,11 +130,11 @@ class Synthesis:
             ok = [i for i in dict.fromkeys(ids) if i in free and p.d['items'].get(str(i)) == loot]
             ok += [i for i in sorted(free) if p.d['items'].get(str(i)) == loot and i not in ok]
             if len(ok) < n:
-                return self.fail('%s yetmiyor (%d/%d)' % (loot, len(ok), n))
+                return self.fail('not enough %s (%d/%d)' % (loot, len(ok), n))
             chosen += ok[:n]
         rest = {l: n for l, n in r['inputs'].items() if not l.startswith(INSTANCE)}
         if rest and INV.spend(p, rest, 'buy_SPECIAL', 'assembly') is None:
-            return self.fail('bedel yetmiyor (%s)' % rest)
+            return self.fail('cost not covered (%s)' % rest)
         with p.lock:
             for i in chosen:
                 p.d['items'].pop(str(i), None)
@@ -160,7 +160,7 @@ class Synthesis:
             return self.extra(EXTRA[(parts[0], star)], [int(x) for x in (f.get('itemIds') or [])])
         r = RECIPES.get((parts[0], star))
         if not r:
-            return self.fail('tarif yok (%s)' % f.get('synthesisId'))
+            return self.fail('no recipe (%s)' % f.get('synthesisId'))
         free = set(self.free_items())
         ids = [int(x) for x in (f.get('itemIds') or [])]
         ok = lambda i: (i in free and self.p.d['items'].get(str(i)) == r['input']
@@ -170,10 +170,10 @@ class Synthesis:
             rest = sorted((i for i in free if ok(i) and i not in ids), key=lambda i: PC.level(self.p, i))
             ids += rest[:r['count'] - len(ids)]
         if len(ids) < r['count']:
-            return self.fail('%s yetmiyor (%d/%d)' % (r['input'], len(ids), r['count']))
+            return self.fail('not enough %s (%d/%d)' % (r['input'], len(ids), r['count']))
         ids = ids[:r['count']]
         if INV.spend(self.p, dict(r['charge']), 'buy_SPECIAL', 'synthesis') is None:
-            return self.fail('bedel yetmiyor (%s)' % r['charge'])
+            return self.fail('cost not covered (%s)' % r['charge'])
         refund = {}
         for i in ids:
             for k, v in PC.upgrade_returns(self.p, i, D['refund']).items():

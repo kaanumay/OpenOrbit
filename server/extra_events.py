@@ -86,7 +86,7 @@ class ExtraEvents:
             try:
                 out += s.handle(name, f) or []
             except Exception:
-                self.log('   Ö3 request error (%s):\n%s' % (name, traceback.format_exc()))
+                self.log('   extra events: request error (%s):\n%s' % (name, traceback.format_exc()))
         return out
 
     def _each(self, meth, *a):
@@ -97,7 +97,7 @@ class ExtraEvents:
                 try:
                     out += fn(*a) or []
                 except Exception:
-                    self.log('   Ö3 %s error (%s):\n%s' % (meth, type(s).__name__, traceback.format_exc()))
+                    self.log('   extra events: %s error (%s):\n%s' % (meth, type(s).__name__, traceback.format_exc()))
         return out
 
     def login_msgs(self):

@@ -36,7 +36,7 @@ PROVIDERS = {
     'xai': dict(name='xAI Grok', type='openai', address='https://api.x.ai/v1', model='grok-3-mini', key=True, local=False),
     'ollama': dict(name='Ollama', type='openai', address='http://127.0.0.1:11434/v1', model='qwen3:8b', key=False, local=True),
     'lmstudio': dict(name='LM Studio', type='openai', address='http://127.0.0.1:1234/v1', model='', key=False, local=True),
-    'special': dict(name='Özel (OpenAI uyumlu)', type='openai', address='http://127.0.0.1:8080/v1', model='', key=False, local=True),
+    'special': dict(name='Custom (OpenAI-compatible)', type='openai', address='http://127.0.0.1:8080/v1', model='', key=False, local=True),
 }
 _THINK = re.compile(r'<think>.*?</think>\s*', re.S)
 _LOCK = threading.Lock()
@@ -99,11 +99,11 @@ def status():
 def save(uid, address=None, model=None, key=None, sec=True):
     """Write the provider's setting; if the key is None or empty the old one stays ('-' deletes)."""
     if uid not in PROVIDERS:
-        raise ProviderError('Bilinmeyen sağlayıcı.')
+        raise ProviderError('Unknown provider.')
     if address is not None:
         address = str(address).strip()
     if address and not re.fullmatch(r'https?://[^\s]+', address):
-        raise ProviderError('Adres http:// ya da https:// ile başlamalı.')
+        raise ProviderError('The address must start with http:// or https://.')
     with _LOCK:
         d = setting()
         a = dict(d['providers'].get(uid) or {})
@@ -180,7 +180,7 @@ def _call(c, route, body=None, timestamp=60):
 def models(uid, address=None, key=None):
     """The provider's models (/models). If no key is given the saved one is used."""
     if uid not in PROVIDERS or uid == LOCAL:
-        raise ProviderError('Bilinmeyen sağlayıcı.')
+        raise ProviderError('Unknown provider.')
     a = dict(setting()['providers'].get(uid) or {})
     if address:
         a['address'] = address
@@ -212,10 +212,10 @@ def _json(text):
     text = _THINK.sub('', text or '')
     i = text.find('{')
     if i < 0:
-        raise ValueError('yanıtta JSON yok')
+        raise ValueError('no JSON in the reply')
     d = json.JSONDecoder(strict=False).raw_decode(text[i:])[0]       # strict=False: raw line break inside the text
     if not isinstance(d, dict):
-        raise ValueError('yanıt JSON nesnesi değil')
+        raise ValueError('the reply is not a JSON object')
     return d
 
 
@@ -234,9 +234,9 @@ class Remote:
 
     def launch(self, wait_sec=None):
         if PROVIDERS[self.c['uid']]['key'] and not self.c['key']:
-            raise ProviderError('API anahtarı girilmemiş.')
+            raise ProviderError('Enter the API key first.')
         if not self.c['model']:
-            raise ProviderError('Model seçilmemiş.')
+            raise ProviderError('Choose a model first.')
         try:                                # connection and key check: an HTTP error stops, a single bad reply from the model does not
             self.ask('Reply with JSON.', 'Say hi.', schema={'type': 'object', 'properties': {'answer': {'type': 'string'}},
                                                           'required': ['answer']}, max_count=40, timestamp=60)
@@ -251,7 +251,7 @@ class Remote:
     def ask(self, system, user, schema=None, max_count=220, temperature=0.8, timestamp=60):
         """A single call -> (text or JSON object, duration in s)."""
         if time.time() < self.wait:
-            raise ProviderError('istek sınırı: bekleniyor')
+            raise ProviderError('Request limit: waiting.')
         t0 = time.time()
         for _ in range(4):                  # on each 400 one parameter or JSON step is dropped
             try:
@@ -265,7 +265,7 @@ class Remote:
                 if e.code != 400 or not self._adapt(e.text, schema):
                     raise
         else:
-            raise ProviderError('sağlayıcı isteği kabul etmedi')
+            raise ProviderError('The provider refused the request.')
         return (_json(text) if schema is not None else _THINK.sub('', text).strip()), time.time() - t0
 
     def _adapt(self, text, schema):
@@ -326,7 +326,7 @@ class Remote:
         ch = (d.get('choices') or [{}])[0]
         text = (ch.get('message') or {}).get('content') or ''
         if not text.strip():
-            raise ValueError('boş yanıt (%s)' % ch.get('finish_reason'))
+            raise ValueError('empty reply (%s)' % ch.get('finish_reason'))
         return text
 
     def _anthropic(self, system, user, schema, max_count, temperature, timestamp):
@@ -345,10 +345,10 @@ class Remote:
         self._count(u.get('input_tokens', 0) + u.get('cache_read_input_tokens', 0) + u.get('cache_creation_input_tokens', 0),
                   u.get('cache_read_input_tokens', 0), u.get('output_tokens', 0))
         if d.get('stop_reason') == 'refusal':
-            raise ValueError('model yanıtlamayı reddetti')
+            raise ValueError('the model refused to answer')
         text = ''.join(b.get('text', '') for b in d.get('content') or [] if b.get('type') == 'text')
         if not text.strip():
-            raise ValueError('boş yanıt (%s)' % d.get('stop_reason'))
+            raise ValueError('empty reply (%s)' % d.get('stop_reason'))
         return text
 
 

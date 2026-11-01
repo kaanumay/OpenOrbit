@@ -502,7 +502,7 @@ class Quests:
                            or (f['type'] == 'ammunition' and kind == 'ammo' and kw.get('count', 0) > 0
                                and GT.ammo_kind(kw.get('loot', '')) in (('1', '2', '3') if f['ammo_class'] == '0' else (f['ammo_class'],))))
                 if hit:
-                    msgs += self.fail(int(qs), 'kısıt: %s' % f['type'])
+                    msgs += self.fail(int(qs), 'restriction: %s' % f['type'])
                     break
         return msgs
 
@@ -518,17 +518,17 @@ class Quests:
         for qs in list(self.st['active']):
             q = QUESTS.get(int(qs))
             if q and q.get('event') and not event_open(q, now):
-                msgs += self.fail(int(qs), 'etkinlik bitti')
+                msgs += self.fail(int(qs), 'event over')
                 continue
             if (q and q.get('pool') and 'difficulty' in q['pool'] and q['pool']['type'] != 'daily'
                     and now - self.st['active'][qs].get(ACCEPT, now) > 14 * 86400):
-                msgs += self.fail(int(qs), '14 gün geçti')        # forum 129125: an accepted quest does not drop when the period ends; weekly 14 days
+                msgs += self.fail(int(qs), '14 days passed')        # forum 129125: an accepted quest does not drop when the period ends; weekly 14 days
                 continue
             if not q or not q.get('duration_sec'):
                 continue
             start = self.st['active'][qs].get(START, now)
             if now - start >= q['duration_sec']:
-                msgs += self.fail(int(qs), 'süre doldu')
+                msgs += self.fail(int(qs), 'time is up')
                 continue
             for c in conditions(q['root']):
                 if c['type'] == HASTE:

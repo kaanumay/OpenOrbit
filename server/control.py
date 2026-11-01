@@ -144,7 +144,7 @@ class Control:
             s = K.session()
             msgs = s.shop.reward(loot, n) or []
             if msgs:
-                s.send(msgs, 'kontrol: ver %s x%d' % (loot, n))
+                s.send(msgs, 'control: give %s x%d' % (loot, n))
             return len(msgs)
 
         def phase_out(game_map=None, x=None, y=None):
@@ -260,7 +260,7 @@ class Control:
                 else:
                     self.G.P.encode_message(m[0], m[1])          # an unknown field/type error should surface here
                     msgs.append((m[0], m[1]))
-            s.send(msgs, 'kontrol: %d mesaj' % len(msgs))
+            s.send(msgs, 'control: %d messages' % len(msgs))
             return {'sent': len(msgs)}
         if k == 'py':
             return self.run_py(r['code'])

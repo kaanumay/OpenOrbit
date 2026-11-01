@@ -203,7 +203,7 @@ class Mail:
             if k is None:
                 out.append(self.notify(got))
             else:
-                k.send([box.notify(got)], 'posta: %s' % own)        # the mail icon if connected
+                k.send([box.notify(got)], 'mail: %s' % own)        # the mail icon if connected
         self.log('   mail sent: %s -> %s' % (subject[:50], extra['recipients']))
         return out
 

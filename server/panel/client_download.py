@@ -118,14 +118,14 @@ class HttpFile:
                     while self.rpos < self.pos:
                         b = self.resp.read(self.pos - self.rpos)
                         if not b:
-                            raise ConnectionError('bağlantı kapandı')
+                            raise ConnectionError('connection closed')
                         self.rpos += len(b)
                 if self.resp is None or self.rpos != self.pos:
                     self._close()
                     self.resp, self.rpos = self._request(self.pos), self.pos
                 data = self.resp.read(min(n, CHUNK))
                 if not data:
-                    raise ConnectionError('bağlantı kapandı')
+                    raise ConnectionError('connection closed')
             except (OSError, http.client.HTTPException) as e:          # URLError, timeout, dropped connection
                 self._close()
                 if block(e):
@@ -244,7 +244,7 @@ class Downloader:
         h.seek(i.header_offset)
         fh = h.read(30)
         if fh[:4] != b'PK':
-            raise zipfile.BadZipFile('yerel başlık yok: %s' % i.filename)
+            raise zipfile.BadZipFile('no local header: %s' % i.filename)
         h.read(int.from_bytes(fh[26:28], 'little') + int.from_bytes(fh[28:30], 'little'))   # name and extra field
         os.makedirs(os.path.dirname(p), exist_ok=True)
         part = p + '.part'

@@ -122,14 +122,14 @@ class Abilities:
         s = SKILLS.get(sid)
         cur = level(self.p, sid)
         cost = s['cost'][cur] if s and cur < len(s['values']) else None
-        why = ('yetenek yok' if not s else 'en üst seviye' if cost is None else 'ön koşul' if not requirements_met(self.p, sid)
-               else 'puan yetmiyor' if st['points'] < cost['points'] else 'kredi yetmiyor' if self.p.d['pilot'].get('credits', 0) < cost['credits']
-               else 'Seprom yetmiyor' if self.seprom() < cost['seprom'] else None)
+        why = ('no skill' if not s else 'top level' if cost is None else 'prerequisite' if not requirements_met(self.p, sid)
+               else 'not enough points' if st['points'] < cost['points'] else 'not enough credits' if self.p.d['pilot'].get('credits', 0) < cost['credits']
+               else 'not enough Seprom' if self.seprom() < cost['seprom'] else None)
         if why:
             self.log('   skill %s did not level up: %s' % (sid, why))
-            stack = {'ön koşul': lambda: self.m.reason('prerequisite'), 'puan yetmiyor': lambda: self.m.reason('research_points'),
-                     'kredi yetmiyor': lambda: self.m.stack('not_enough_credits'),
-                     'Seprom yetmiyor': lambda: self.m.stack('tf_message_not_enough_seprom')}.get(why, lambda: self.m.stack('eqt_error_generic'))
+            stack = {'prerequisite': lambda: self.m.reason('prerequisite'), 'not enough points': lambda: self.m.reason('research_points'),
+                     'not enough credits': lambda: self.m.stack('not_enough_credits'),
+                     'not enough Seprom': lambda: self.m.stack('tf_message_not_enough_seprom')}.get(why, lambda: self.m.stack('eqt_error_generic'))
             return [('UpLevelSkillTreeCommand', dict(id=sid, researchPoints=st['points'], stack=stack(), success=False, curLevel=cur))]
         with self.p.lock:
             st['points'] -= cost['points']

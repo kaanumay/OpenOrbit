@@ -357,7 +357,7 @@ class Session:
         self.shop = Shop(self.profile, TEMPLATE.replies, log)
         self.quest = Quests(self.profile, log)
         self.quest.grant = self.quest_reward
-        self.quest.send = lambda m: self.send(m, 'görev süresi')
+        self.quest.send = lambda m: self.send(m, 'quest timer')
         self.quest.state = lambda: self.world.quest_state() if self.world else {}      # MISCELLANEOUS sub-conditions (hidden, radiation, low HP)
         self.shop.quest = self.quest.event                        # collection quests: ore produced in the refinery
         self.daily = DailyLogin(self.profile, self.shop, log)      # daily login calendar
@@ -397,7 +397,7 @@ class Session:
         self.season = SZN.Season(self.profile, log)                                  # Season Pass (season.py)
         self.ticket = BPS.BattlePass(self.profile, log)                            # Battle Pass and key exchange (battle_pass.py)
         self.reward = DRW.DailyReward(self.profile, log)                              # Mini Client, Monthly Deluxe, Unity reward (daily_rewards.py)
-        for _o, _note in ((self.season, 'Season Pass'), (self.ticket, 'Battle Pass'), (self.reward, 'günlük ödül')):
+        for _o, _note in ((self.season, 'Season Pass'), (self.ticket, 'Battle Pass'), (self.reward, 'daily reward')):
             _o.m = self.shop
             _o.send = (lambda note: lambda m: self.send(m, note))(_note)
         self.shop.tickets = (self.season, self.ticket, self.reward)
@@ -409,7 +409,7 @@ class Session:
         ACV.set_events(achievement_groups())
         self.bank_next = 0.0
         self.achievement = Achievements(self.profile, log)                               # achievements and titles
-        self.achievement.send = lambda m: self.send(m, 'başarım')
+        self.achievement.send = lambda m: self.send(m, 'achievement')
         self.profile.ach = self.ach_event
         self.gates.world = lambda: self.world
         self.gates.info_tpl = next((m for e in TEMPLATE.replies.get('GalaxyGateBuilderInfoRequest', []) for m in e['response']
@@ -466,7 +466,7 @@ class Session:
         self.logout_timer = None
         save_profile(self.profile)
         try:
-            self.send([legacy('0|l')], 'çıkış')
+            self.send([legacy('0|l')], 'logout')
         except OSError:
             pass
         self.close()
@@ -501,14 +501,14 @@ class Session:
             self.pass_event(kind, **kw)
             msgs = self.extra.event(kind, kw)        # Ö3's event quests (Galaxy Trek)
             if msgs:
-                self.send(msgs, 'etkinlik görevi')
+                self.send(msgs, 'event quest')
             msgs = self.quest.event(kind, **kw) if kind != 'kill' else []      # E6: the single measuring point (quest_tracker.measure)
             if msgs:
-                self.send(msgs, 'görev')
+                self.send(msgs, 'quest')
         if kind == 'death':                       # "without dying" quests fail (quest.py)
             failed = self.quest.broken('death')
             if failed:
-                self.send(failed, 'görev başarısız')
+                self.send(failed, 'quest failed')
         if kind == 'level':                       # level up: the invitation hint for the new feature (hints.py)
             hint = self.hint.level(kw.get('value', 1))
             if hint:
@@ -520,7 +520,7 @@ class Session:
         per = lambda k: (CAL.period(k, now) or (0,))[0]
         msgs = self.hint.event_tips(EVM.specs(now), per)
         if msgs:
-            self.send(msgs, 'etkinlik bildirimi')
+            self.send(msgs, 'event notice')
 
     def quest_event(self, kind, **kw):
         """The world's quest events: quests and Pass quests (kills go to the Passes from the achievement event; an alien a group member kills on the same
@@ -530,7 +530,7 @@ class Session:
             self.pass_event(kind, **kw)
             msgs = self.extra.event(kind, kw) + (self.extra.urgent.kill(kw.get('npc')) if group else [])
             if msgs:
-                self.send(msgs, 'etkinlik görevi')
+                self.send(msgs, 'event quest')
         return self.quest.event(kind, **kw)
 
     def quest_state_events(self):
@@ -726,7 +726,7 @@ class Session:
         if (comp and comp != self.profile.d['pilot'].get('factionId')) or H.name(map_id).startswith('4-'):
             msgs += self.hint.show(IP.PVP_WARNING)   # another company's map or 4-X: PvP warning (once)
         if msgs:
-            self.send(msgs, 'görev: harita')
+            self.send(msgs, 'quest: map')
         self.profile.ach('map', map=int(map_id))       # achievement: discover the maps
 
     # ------------------------------------------------------------ quests
@@ -836,17 +836,17 @@ class Session:
             self.subscription_next = now + 5.0
             msgs = self.shop.subscription_tick(now)     # booster subscription (forum 127558)
             if msgs:
-                self.send(msgs, 'booster aboneliği')
+                self.send(msgs, 'booster subscription')
         if now >= self.extra_next:
             self.extra_next = now + 1.0
             msgs = self.extra.tick(now)                  # events of Ö3: period ends, timed occurrences
             if msgs:
-                self.send(msgs, 'etkinlik: zaman')
+                self.send(msgs, 'event: time')
         if now >= self.social_next:
             self.social_next = now + 5.0
             msgs = self.social.tick(now)              # auction: items won in periods that have ended
             if msgs:
-                self.send(msgs, 'müzayede: dönem sonu')
+                self.send(msgs, 'auction: period end')
         self.assembly.tick(now)
         self.skylab.tick(now)
         if now >= self.bank_next:
@@ -925,7 +925,7 @@ class Session:
             self.map_pending = True      # before the login bundle: even if the client's ReadyRequest comes right away it does not slip through
             RT.daily_rank(self.profile)        # rank if the day changed (the client reads it only from ShipInitializationCommand)
             self.send(self.with_quests(login_batch('entry', first=False, profile=self.profile)),
-                      'harita değişimi: %s -> %s, giriş demeti' % (H.name(old), H.name(dest)))
+                      'map change: %s -> %s, login bundle' % (H.name(old), H.name(dest)))
             self.profile.d['position'].pop('at_portal', None)
 
     def bind_login(self, f):
@@ -992,7 +992,7 @@ class Session:
                 return
             self.revive_on_login()
             RT.daily_rank(self.profile)                     # daily rank (ShipInitializationCommand.dailyRank)
-            self.send(self.with_quests(login_batch('entry', profile=self.profile)), 'giriş demeti')
+            self.send(self.with_quests(login_batch('entry', profile=self.profile)), 'login bundle')
             self.map_pending = True
         elif name == 'ReadyRequest' and (self.map_pending or (w and w.reload_pending)):
             with self.state_lock:      # touch the world outside the lock (a map change takes this lock from the world thread)
@@ -1003,7 +1003,7 @@ class Session:
             # since it was only put in place of the record in the bundle it never went, the tab said "No Items" (live test H69)
             unstable = [GM.list_cmd(self.profile)]
             self.send(login_batch('ready', profile=self.profile) + self.shop.login_msgs() + self.pet.login_msgs() + self.achievement.title_msgs()
-                      + self.new_.login_msgs() + unstable + self.extra.login_msgs(), 'hazır demeti')
+                      + self.new_.login_msgs() + unstable + self.extra.login_msgs(), 'ready bundle')
             if start:
                 self.start_world()
                 self.achievement.sync()              # level, P.E.T. level, equipped items (those reached earlier also count)
@@ -1012,9 +1012,9 @@ class Session:
                 self.event_tips()                # description of the running event (once per period)
                 group = GR.login_msgs(TP.person(self.profile))     # a member who returns after the connection dropped: the group and pending invitations (group.py)
                 if group:
-                    self.send(group, 'grup: giriş')
+                    self.send(group, 'group: login')
             else:
-                self.send(self.cbs.attach(self.world), 'CBS: harita yeniden yüklendi')
+                self.send(self.cbs.attach(self.world), 'CBS: map reloaded')
                 self.world.resend()
             if self.ready_n > 1:                 # map loaded (portal, warp, respawn): the client rebuilds the menu
                 self.extra.on_ready()               # (the Urgent Missions icon, urgent_quests.py)
@@ -1042,11 +1042,11 @@ class Session:
                 # a quest can only be taken next to the quest giver (Mission Control); the client's text "Fly to Mission Control to see if
                 # there are any missions for you."
                 log('   quest not taken: far from the quest giver (%s)' % f.get('questId'))
-                self.send([legacy('0|A|STM|msg_maybe_quest_at_nyx'), self.quest.list_cmd()], 'görev: uzak')
+                self.send([legacy('0|A|STM|msg_maybe_quest_at_nyx'), self.quest.list_cmd()], 'quest: far away')
             else:
-                self.send(self.quest.accept(f.get('questId')) + self.quest_state_events(), 'görev: kabul')
+                self.send(self.quest.accept(f.get('questId')) + self.quest_state_events(), 'quest: accept')
         elif name == 'QuestCancelRequest':
-            self.send(self.quest.cancel(f.get('questId')), 'görev: iptal')
+            self.send(self.quest.cancel(f.get('questId')), 'quest: cancel')
         elif name == 'QuestInfoRequest':
             self.send(self.quest.info(f.get('questId')), quiet=True)
         elif name == 'QuestPrivilegeRequest':
@@ -1057,35 +1057,35 @@ class Session:
             self.send([self.quest.list_cmd()], quiet=True)
         elif name == 'QuestGiverApproachedRequest':
             msgs = self.quest.event('giver') if w and w.near_giver == f.get('questGiverId') else []
-            self.send(msgs or [self.quest.list_cmd()], 'görev verici')
+            self.send(msgs or [self.quest.list_cmd()], 'quest giver')
         elif name == 'TradeRequest' and w:
             self.send([w.trade_info()], 'rafineri: fiyatlar')
         elif name == 'KillScreenRepairRequest' and w:
             w.kill_screen_repair(f)
         elif name == 'AchievementListRequest':
-            self.send(self.achievement.request(f), 'başarımlar')
+            self.send(self.achievement.request(f), 'achievements')
         elif name == 'SkillTreeListRequest':
-            self.send([self.skill.list_cmd()], 'yetenek ağacı')
+            self.send([self.skill.list_cmd()], 'skill tree')
         elif name == 'ConvertResearchPointsRequest':
-            self.send(self.skill.convert(), 'yetenek ağacı: pilot puanı')
+            self.send(self.skill.convert(), 'skill tree: pilot points')
         elif name == 'UpLevelSkillTreeRequest':
-            self.send(self.skill.up_level(f), 'yetenek ağacı: seviye')
+            self.send(self.skill.up_level(f), 'skill tree: level')
         elif name == 'ResetSkillTreeRequest':
-            self.send(self.skill.reset(), 'yetenek ağacı: sıfırlama')
+            self.send(self.skill.reset(), 'skill tree: reset')
         elif name == 'DailyLoginRewardDayRequest':
-            self.send([self.daily.info_cmd()], 'günlük giriş: bilgi')
+            self.send([self.daily.info_cmd()], 'daily login: info')
         elif name == 'DailyLoginClaimTodayRequest':
-            self.send(self.daily.claim(), 'günlük giriş: ödül')
+            self.send(self.daily.claim(), 'daily login: reward')
         elif name == 'GalaxyGateBuilderInfoRequest':
-            self.send(self.gates.info_request(), 'kapı üreticisi: bilgi')
+            self.send(self.gates.info_request(), 'gate builder: info')
         elif name == 'GalaxyGateBuilderGetGatePartsRequest':
             self.send([self.gates.parts_cmd(f)], quiet=True)
         elif name == 'GalaxyGateBuilderMultiEnergyRequest':
-            self.send(self.gates.spin(f), 'kapı üreticisi: çekiliş')
+            self.send(self.gates.spin(f), 'gate builder: spin')
         elif name == 'GalaxyGateBuilderSetupGateRequest':
-            self.send(self.gates.setup(f), 'kapı üreticisi: hazırlık')
+            self.send(self.gates.setup(f), 'gate builder: prepare')
         elif name == 'GalaxyGateBuilderBuyLifeRequest':
-            self.send(self.gates.buy_life(f), 'kapı üreticisi: can')
+            self.send(self.gates.buy_life(f), 'gate builder: lives')
         elif name == 'GalaxyGateBuilderSaveSpinAmountRequest':
             self.gates.save_spin(f)
         elif name == 'PetRequest':
@@ -1101,7 +1101,7 @@ class Session:
             k = self.profile.d['position']
             here = (k.get('mapId'), k.get('x'), k.get('y'))
             msgs, changed = self.shop.activate(f, in_station=w.in_station() if w else True, travel=True)
-            self.send(msgs, 'hangar: gemi etkinleştirme')
+            self.send(msgs, 'hangar: activate ship')
             if changed and w:
                 w.items.reveal()      # changing ship at the base ends the cloak CPU (fandom Cloak; except Ship Warp: ship_warp.py)
                 if k['mapId'] != here[0]:                    # the new ship is waiting on another map: switch to it
@@ -1110,7 +1110,7 @@ class Session:
                     w.reload_ship(pos=(k['x'], k['y']) if (k['x'], k['y']) != here[1:] else None)
         elif name == 'HangarShipChangeShipModelRequest':
             msgs, reload = self.shop.change_model(f)
-            self.send(msgs, 'hangar: tasarım')
+            self.send(msgs, 'hangar: design')
             if reload and w:
                 w.reload_ship()      # ShipInitializationCommand with the new appearance (the client reloads the map)
         elif name == 'LegacyModule':                  # old text protocol (legacy_protocol.py)
@@ -1118,13 +1118,13 @@ class Session:
             if key == 'S|CFG' and len(parts) > 2:
                 msgs = self.shop.switch_config(parts[2])
                 if msgs:
-                    self.send(msgs, 'config geçişi')
+                    self.send(msgs, 'config switch')
             elif key == 'i' and len(parts) > 1 and parts[1].isdigit():
                 if w:                                 # the client asks about an id it does not know (record: the real server sends it again)
                     w.info_request(int(parts[1]))
             elif key == 'JCPU' and CIT.has_ajp(self.profile):  # advanced jump CPU (AJP-01): the space map's jump panel
                 if len(parts) > 1 and parts[1] == 'GET':
-                    self.send([CIT.jcpu_list(self.profile), CIT.vouchers_msg(self.profile)], 'gelişmiş atlama listesi')
+                    self.send([CIT.jcpu_list(self.profile), CIT.vouchers_msg(self.profile)], 'advanced jump list')
                 elif w:
                     with w.lock:
                         w.items.jcpu(parts)
@@ -1149,17 +1149,17 @@ class Session:
                 if resp:
                     self.send(resp, 'pencere: %s' % item)
         elif name == 'HangarShipAutoBuyCpuAmmoRequest':   # ammo choice for the auto-buy CPU in the hangar
-            self.send(self.shop.auto_buy_ammo(f), 'otomatik alım cephanesi')
+            self.send(self.shop.auto_buy_ammo(f), 'auto-buy ammo')
         elif name == 'HallOfFameTopRequest':
             self.send(RT.hof_top(self.profile, f), 'Hall of Fame: %s' % f.get('type'))
         elif name == 'HallOfFamePagesRequest':
-            self.send(RT.hof_pages(self.profile, f), 'Hall of Fame sayfası')
+            self.send(RT.hof_pages(self.profile, f), 'Hall of Fame page')
         elif name == 'HallOfFameDataListRequest':
             self.send(RT.hof_events(self.profile, f), 'Hall of Fame etkinlikleri')
         elif name == 'LogbookDataListRequest':
             self.send(RT.logbook(self.profile, f), 'seyir defteri')
         elif name == 'BalanceInfoListRequest':
-            self.send(RT.balance(self.profile, f), 'hesap geçmişi')
+            self.send(RT.balance(self.profile, f), 'account history')
         elif name == 'LogoutCancelRequest':
             self.logout_cancel()
         elif name == 'HintWindowClosedRequest':      # the real server does not reply (record); a closed hint must not open again
@@ -1172,31 +1172,31 @@ class Session:
                         self.profile.dirty = True
         elif name == 'InternalPilotBioRequest':
             # an id not in the record (another player on the friend server): the card in the record becomes the template, the fields from their profile
-            self.send(self.pilot_bio(TEMPLATE.response(name, f) or TEMPLATE.response(name, {}) or [], int(f.get('userId') or 0)), 'pilot kartı')
+            self.send(self.pilot_bio(TEMPLATE.response(name, f) or TEMPLATE.response(name, {}) or [], int(f.get('userId') or 0)), 'pilot card')
         elif name == 'InternalPilotBioUpdateRequest':
             with self.profile.lock:
                 old = self.profile.d.get('pilot_bio', {})
                 self.profile.d['pilot_bio'] = dict({k: v for k, v in f.items() if k not in ('_', 'userId')},
                                              **({'statusMessage': old['statusMessage']} if 'statusMessage' in old else {}))
                 self.profile.dirty = True
-            self.send([('InternalPilotBioUpdateResultsCommand', {'success': True, 'baseStackCommand': None})], 'pilot kartı: kayıt')
+            self.send([('InternalPilotBioUpdateResultsCommand', {'success': True, 'baseStackCommand': None})], 'pilot card: record')
         elif name == 'InternalPilotBioUpdateStatusRequest':          # status text on the pilot card (Ö1; UIPilotSheetSystem)
             with self.profile.lock:
                 self.profile.d.setdefault('pilot_bio', {})['statusMessage'] = str(f.get('statusMessage') or '')[:STATUS_MAX]
                 self.profile.dirty = True
-            self.send([('InternalPilotBioUpdateResultsCommand', {'success': True, 'baseStackCommand': None})], 'pilot kartı: durum')
+            self.send([('InternalPilotBioUpdateResultsCommand', {'success': True, 'baseStackCommand': None})], 'pilot card: status')
         elif name == 'InternalPilotBioUpdateUserNameRequest':        # renaming in profile editing (Ö1; UIEditProfileSystem)
-            self.send([self.rename(f.get('userName'))], 'pilot kartı: ad')
+            self.send([self.rename(f.get('userName'))], 'pilot card: name')
         elif name == 'GroupInvitationBlockToggleRequest':
             with self.profile.lock:                         # record: opened and closed on every request
                 self.profile.d['invite_block'] = not self.profile.d.get('invite_block', False)
                 self.profile.dirty = True
-            self.send([('InvitationBlockModule', {'active': self.profile.d['invite_block']})], 'grup daveti engeli')
+            self.send([('InvitationBlockModule', {'active': self.profile.d['invite_block']})], 'group invitation block')
         elif name in GR.REQUESTS:
             # group (group.py): other players on the friend server; in single player there is nobody (invite: error 2 CANDIDATE_NONEXISTENT)
             resp = GR.handle(TP.person(self.profile), name, f)
             if resp:
-                self.send(resp, 'grup: %s' % name)
+                self.send(resp, 'group: %s' % name)
         elif name in CT.REQUESTS:                                    # the contacts tab of the contacts and mail window (contacts.py)
             resp = CT.handle(TP.person(self.profile), name, f)
             if resp:
@@ -1234,11 +1234,11 @@ class Session:
             if resp:
                 self.send(resp, 'Restabilize: %s' % name)
         elif name == 'RankRewardRequest' and RK.reward(f) is not None:     # ranking reward tables (Ö1; ranking_rewards.py)
-            self.send(RK.reward(f), 'sıralama ödülleri')
+            self.send(RK.reward(f), 'ranking rewards')
         elif name in GMC.REQUESTS:                                          # GM console (Ö2; gm_console.py)
-            self.send(self.gm.handle(name, f), 'GM konsolu: %s' % (f.get('name') or name))
+            self.send(self.gm.handle(name, f), 'GM console: %s' % (f.get('name') or name))
         elif name == 'EvoucherHistoryListRequest':                          # the coupon window's history: there is no code decoding locally (Ö1)
-            self.send([('EvoucherHistoryListCommand', {'list': []})], 'kupon geçmişi')
+            self.send([('EvoucherHistoryListCommand', {'list': []})], 'voucher history')
         elif name == 'UridiumBankClaimRequest':
             before = self.profile.d['pilot'].get('uridium', 0)
             self.send(BANK.claim(self.profile, self.shop.money_msgs, log), 'Uridium Bank')
@@ -1250,7 +1250,7 @@ class Session:
             if resp is None:
                 resp = TEMPLATE.response(name, f)
             if resp:
-                self.send(resp, 'mağaza/hangar: %s' % name)
+                self.send(resp, 'shop/hangar: %s' % name)
             if w and name == 'HangarShipMoveItemsRequest' and w.repairing and not w.repair_rate():
                 w.stop_repair()          # repair robot removed
             if name == 'HangarShipMoveItemsRequest':
@@ -1259,12 +1259,12 @@ class Session:
             tpl = next((m for m in TEMPLATE.entry.get('ready', []) if m['_m'] == 'MenuInitializationCommand'), None)
             if tpl and self.profile.slot_bar_set(f, tpl['slotBars']):
                 self.send([('MenuInitializationCommand', self.profile.patch_template('MenuInitializationCommand', tpl))]
-                          + self.quest.event('slot_bar', **self.profile.slot_bar_state(tpl['slotBars'])), 'kısayol çubuğu')
+                          + self.quest.event('slot_bar', **self.profile.slot_bar_state(tpl['slotBars'])), 'shortcut bar')
         elif name in PVM.REQUESTS:
             self.send(self.pve.handle(name, f), 'mod: %s' % name)      # stage 8's modes (pve_modes.py)
         elif name == 'ChangeClanFirmaRequest':                         # switching company (clan.switch_company): the new company's X-1
             msgs, home = self.social.clan.switch_company(f)
-            self.send(msgs, 'şirket değişimi')
+            self.send(msgs, 'company change')
             if home:
                 if self.profile is PROFILE:
                     H.PLAYER_FACTION = self.profile.d['pilot'].get('factionId')
@@ -1281,7 +1281,7 @@ class Session:
         elif self.extra.handles(name):
             resp = self.extra.handle(name, f)                             # events of Ö3 (extra_events.py)
             if resp:
-                self.send(resp, 'etkinlik: %s' % name)
+                self.send(resp, 'event: %s' % name)
         elif name in WORLD_REQUESTS and w:
             getattr(w, WORLD_REQUESTS[name])(f)
         elif self.profile.apply(name, f):
@@ -1292,7 +1292,7 @@ class Session:
                 tpl = next((m for m in TEMPLATE.entry.get('ready', []) if m['_m'] == 'MenuInitializationCommand'), None)
                 if tpl:
                     self.send([('MenuInitializationCommand', self.profile.patch_template('MenuInitializationCommand', tpl))],
-                              'arayüz: kısayol çubukları')
+                              'UI: shortcut bars')
             if name == 'UIWindowUpdateRequest':
                 if f.get('maximized'):
                     self.windows.opened(f.get('itemId'))
@@ -1305,7 +1305,7 @@ class Session:
         else:
             resp = no_popups(TEMPLATE.response(name, f) or [])
             if resp:
-                self.send(resp, 'kayıtlı yanıt: %s' % name)
+                self.send(resp, 'recorded reply: %s' % name)
             elif name != 'ReadyRequest':
                 log('   unanswered: %s' % name)
 
@@ -1378,7 +1378,7 @@ class Session:
         item = self.windows.guess()
         log('   payment button -> shop (last window: %s)' % (item or '-'))
         with self.packet_lock:
-            self.send(PAY.redirect(self.shop, item), 'ödeme düğmesi: mağaza')
+            self.send(PAY.redirect(self.shop, item), 'payment button: shop')
 
     def inject(self, name, f):
         """Control channel: a request as if the client sent it ('<=' in the trace)."""

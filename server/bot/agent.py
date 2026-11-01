@@ -4,7 +4,7 @@ At each thinking moment (think) the model proceeds step by step: short thought -
 llm_agent_steps steps, ends with "finish". Three kinds of tools:
   observation   read-only: state, maps, shop, quests, events, surroundings, clan, ledger, memories (so it does not decide blind)
   action        agent_tools.py's tools (goal intents, shopping, quest, mode, gate, social ...): the package's permissions apply as they are
-  self-management: ledger (long-term goals), remind (wakes itself up after N minutes), not_al (note into the memory book)
+  self-management: ledger (long-term goals), remind (wakes itself up after N minutes), take_note (note into the memory book)
 Decision tools go to the rule-based decision engine as strong intents (brain.force): flight, combat and detail stay in ship/abstract_sim.
 
 When it thinks (llm.Brain._agent_tick): once every llm_decision_min; on an important event (died, level, quest done, new ship, cargo full,
@@ -227,7 +227,7 @@ OBSERVATIONS = {
     'surroundings': (observe_surroundings, 'who is online: real players, your friends, your enemies, pilots on your map', ''),
     'clan': (observe_clan, 'your clan: members, ranks, treasury, budget, diplomacy, battle stations (look before managing it)', ''),
     'ledger': (observe_notebook, 'your written goals and reminders', ''),
-    'memories': (observe_memories, 'your memories (of one person if ad is given)', 'ad?'),
+    'memories': (observe_memories, 'your memories (of one person if name is given)', 'name?'),
 }
 
 
@@ -238,7 +238,7 @@ def self_notebook(y, b, arg):
     if operation == 'add':
         text = ' '.join(str(arg.get('text') or '').split())[:160]
         if not text:
-            return 'failed: metin is empty'
+            return 'failed: text is empty'
         is_open = [x for x in d if not x.get('finished')]
         if len(is_open) >= NOTEBOOK_MAX:
             return 'failed: you already have %d goals; finish or delete one first' % len(is_open)
@@ -257,14 +257,14 @@ def self_notebook(y, b, arg):
     if operation == 'delete':
         d.remove(x)
         return 'ok: goal deleted'
-    return 'failed: islem must be add, finish or delete'
+    return 'failed: operation must be add, finish or delete'
 
 
 def self_remind(y, b, arg):
     try:
         minutes = max(1, min(240, int(arg.get('minutes') or 0)))
     except (TypeError, ValueError):
-        return 'failed: dakika must be a number'
+        return 'failed: minutes must be a number'
     text = ' '.join(str(arg.get('text') or '').split())[:160]
     h = b.k.setdefault('reminder', [])
     same = next((x for x in h if x['text'] == (text or 'check how things are going')), None)
@@ -280,55 +280,55 @@ def self_remind(y, b, arg):
 def k_not(y, b, arg):
     text = ' '.join(str(arg.get('text') or '').split())[:200]
     if not text:
-        return 'failed: metin is empty'
+        return 'failed: text is empty'
     MEM.add(b, str(arg.get('name') or b.name), text, 'not', 0.0, 2, y.now, merge=False)
     return 'ok: noted'
 
 
 SELF = {
-    'ledger': (self_notebook, 'manage your long-term goals: islem ekle (metin), bitir (no) or sil (no)', 'islem, metin?, no?'),
-    'remind': (self_remind, 'wake yourself up later to think again: in dakika minutes, about metin', 'dakika, metin'),
-    'not_al': (k_not, 'write a private note into your memory (about ad, optional)', 'metin, ad?'),
+    'ledger': (self_notebook, 'manage your long-term goals: operation add (text), finish (no) or delete (no)', 'operation, text?, no?'),
+    'remind': (self_remind, 'wake yourself up later to think again: in minutes minutes, about text', 'minutes, text'),
+    'take_note': (k_not, 'write a private note into your memory (about name, optional)', 'text, name?'),
 }
 
 # action tools: name in agent_tools.py -> (English description, arguments); permissions are in agent_tools.call
 ACTIONS = {
-    'hunt_npcs': ('go farm aliens (on harita if given, one of the maps from haritalar)', 'harita?'),
+    'hunt_npcs': ('go farm aliens (on map if given, one of the maps from maps)', 'map?'),
     'do_quest': ('continue your active quest', ''),
-    'pick_quest': ('take a specific quest from gorevler (name or #number)', 'quest'),
+    'pick_quest': ('take a specific quest from quests (name or #number)', 'quest'),
     'hunt_pvp': ('go hunt enemy-company players', ''),
-    'buy_item': ('buy a specific upgrade from magaza (by its name)', 'item'),
-    'save_up': ('save money for one upgrade from magaza (shopping then buys only that); empty esya clears it', 'item'),
+    'buy_item': ('buy a specific upgrade from shop (by its name)', 'item'),
+    'save_up': ('save money for one upgrade from shop (shopping then buys only that); empty item clears it', 'item'),
     'go_shopping': ('buy the best upgrade you can afford', ''),
     'sell_cargo': ('fly to a station and sell your cargo ore', ''),
-    'enter_mode': ('enter an open mode from etkinlikler (by name)', 'mod'),
+    'enter_mode': ('enter an open mode from events (by name)', 'mod'),
     'run_gate': ('run your ready galaxy gate', ''),
     'rest': ('go back to base and take a break', ''),
-    'session': ('decide to stay online dakika more minutes (5-180)', 'minutes'),
+    'session': ('decide to stay online minutes more minutes (5-180)', 'minutes'),
     'go_offline': ('log off now', ''),
-    'follow': ('fly to the map where player ad is', 'name'),
-    'go_help': ('go help player ad (on harita)', 'ad, harita?'),
-    'duel': ('go fight player ad on harita', 'ad, harita'),
-    'group_invite': ('invite player ad to your group', 'name'),
+    'follow': ('fly to the map where player name is', 'name'),
+    'go_help': ('go help player name (on map)', 'name, map?'),
+    'duel': ('go fight player name on map', 'name, map'),
+    'group_invite': ('invite player name to your group', 'name'),
     'leave_group': ('leave your group', ''),
-    'add_friend': ('send a friend request to ad', 'name'),
+    'add_friend': ('send a friend request to name', 'name'),
     'apply_to_clan': ('apply to a clan (name or tag)', 'clan'),
     'clan_description': ('leader: rewrite your clan description (who you are, rules, recruiting)', 'text'),
     'clan_announce': ('post clan news', 'text'),
-    'clan_mail': ('send a mail to all clan members', 'konu, metin'),
-    'clan_rank': ('create (ekle), delete (sil) or set the rights (haklar) of a clan rank', 'islem, rutbe, haklar?'),
-    'member_rank': ('give a member a rank (empty rutbe removes it)', 'ad, rutbe'),
+    'clan_mail': ('send a mail to all clan members', 'subject, text'),
+    'clan_rank': ('create (add), delete (delete) or set the rights (rights) of a clan rank', 'operation, rank, rights?'),
+    'member_rank': ('give a member a rank (empty rank removes it)', 'name, rank'),
     'kick_member': ('kick a member from the clan', 'name'),
     'transfer_leadership': ('hand the clan leadership to a member', 'name'),
     'clan_tax': ('set the clan tax, 0-5 percent', 'ratio'),
-    'clan_budget': ('leader: split the treasury in percent: station, payouts, war (sum at most 90)', 'ksi, odeme, savas'),
-    'clan_payout': ('pay a member from the treasury', 'ad, miktar'),
+    'clan_budget': ('leader: split the treasury in percent: station, payouts, war (sum at most 90)', 'cbs, payment, combat'),
+    'clan_payout': ('pay a member from the treasury', 'name, amount'),
     'clan_station': ('target a free asteroid for your clan battle station (its name)', 'station'),
-    'clan_diplomacy': ('offer alliance (ittifak), non-aggression (saldirmazlik), war (savas) or peace (baris) to a clan', 'klan, tur, metin?'),
-    'diplomacy_reply': ('accept (kabul true) or refuse a diplomacy offer from a clan', 'klan, kabul'),
-    'whisper': ('send a private chat message to ad', 'ad, metin'),
-    'write_chat': ('write in a chat channel (kanal: global, firma, klan or grup)', 'kanal, metin'),
-    'send_mail': ('send an in-game mail to ad', 'ad, konu, metin'),
+    'clan_diplomacy': ('offer alliance (alliance), non-aggression (non_aggression), war (war) or peace (peace) to a clan', 'clan, type, text?'),
+    'diplomacy_reply': ('accept (accept true) or refuse a diplomacy offer from a clan', 'clan, accept'),
+    'whisper': ('send a private chat message to name', 'name, text'),
+    'write_chat': ('write in a chat channel (channel: global, company, clan or group)', 'channel, text'),
+    'send_mail': ('send an in-game mail to name', 'name, subject, text'),
 }
 TOOL_NAMES = list(OBSERVATIONS) + [k for k in SELF if k not in OBSERVATIONS] + list(ACTIONS) + ['finish']
 
@@ -345,7 +345,7 @@ def catalog(y):
         if permission and not y.permission(permission):
             continue
         out.append('- %s(%s): %s' % (k, a, d))
-    out.append('- bitir(): you are done thinking for now')
+    out.append('- finish(): you are done thinking for now')
     return '\n'.join(out)
 
 
@@ -462,7 +462,7 @@ def think(br, b, reason, max_count=STEPS):
         if finished or not looked or i == max_count - 1:
             break                                          # action only: thinking ends (no extra request)
         message += [{'role': 'assistant', 'content': json.dumps(r, ensure_ascii=False)},
-                  {'role': 'user', 'content': 'Results:\n%s\n\n%s' % ('\n'.join(results), 'This is your LAST step: act now or bitir.'
+                  {'role': 'user', 'content': 'Results:\n%s\n\n%s' % ('\n'.join(results), 'This is your LAST step: act now or finish.'
                                                                     if i == max_count - 2 else 'Your next step as JSON.')}]
     with y.lock:
         trace = b.k.setdefault('agent', [])

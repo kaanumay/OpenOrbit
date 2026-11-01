@@ -872,7 +872,7 @@ class Abilities:
         else:
             n.ab['damage_bonus'] = n.ab.get('damage_bonus', 0) + k['damage']
             w.hero_effect('weakness', 3600, k['damage'], source='kapsul_%d' % n.id)
-        self.drop_capsule(aid, 'toplandı')
+        self.drop_capsule(aid, 'collected')
         # collection visual (Ö1): a glowing ring around the Emperor for 4 s; type 0 damage (red), 1 shield, 2 HP (client:
         # EmperorSibelonBuffRingCommandHandler, diameter radius x 2; the radius is an adaptation)
         x, y = n.mover.pos(time.time())
@@ -890,9 +890,9 @@ class Abilities:
         for aid, c in list(self.capsules.items()):
             owner = w.npcs.get(c['owner'])
             if not owner or not owner.alive:
-                self.drop_capsule(aid, 'sahipsiz kaldı')
+                self.drop_capsule(aid, 'left without owner')
             elif not w.hero_dead and math.hypot(c['x'] - hx, c['y'] - hy) <= owner.behavior['capsules'].get('harvest_distance', 150):
-                self.drop_capsule(aid, 'oyuncu yok etti')
+                self.drop_capsule(aid, 'destroyed by a player')
 
     def capsule_msgs(self):
         """When the map reloads the capsules are announced again."""
