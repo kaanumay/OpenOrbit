@@ -160,7 +160,7 @@ class Upgrade:
                 ref['upgrade'] = n
             elif kind == 'module':                       # HP and shield to the new level's maximum (cbs.mx)
                 ref[1]['level'] = n
-                ref[1]['can'], ref[1]['kalkan'] = self.m.cbs.mx(ref[1])
+                ref[1]['hp'], ref[1]['shield'] = self.m.cbs.mx(ref[1])
             else:
                 self.p.d.setdefault('upgrade_level', {})[str(ref)] = n
             self.p.dirty = True
@@ -205,7 +205,7 @@ class Upgrade:
         pct = int(round((bonus_hour(now) + (self.m.discount() if self.m else 0.0)) * 100))
         if pct and need.get('currency_uridium'):
             need['currency_uridium'] = need['currency_uridium'] * max(0, 100 - pct) // 100
-        return {} if SET.get('assembly_free') else need, SET.duration(sum(r['sure_sn'] for r in rows), 'upgrade')            # panel: cooldown
+        return {} if SET.get('assembly_free') else need, SET.duration(sum(r['duration_sec'] for r in rows), 'upgrade')            # panel: cooldown
 
     def build(self, f, now=None):
         now = now or time.time()
@@ -290,7 +290,7 @@ class Upgrade:
         minute was charged while the window showed Isochronate (live test H58)."""
         now = time.time() if now is None else now
         rows = UP[key]['levels'][b['level'] - b['count']:b['level']]
-        total = SET.duration(sum(r['sure_sn'] for r in rows), 'upgrade') or 1
+        total = SET.duration(sum(r['duration_sec'] for r in rows), 'upgrade') or 1
         frac = min(1.0, max(0.0, (b['end_time'] - now) / total))
         need = {}
         for r in rows:

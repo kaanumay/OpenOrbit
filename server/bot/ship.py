@@ -59,7 +59,7 @@ class BotShip(WD.NPC):
         d = bot.value()
         self.d = {}
         self.refresh()
-        self.hp, self.shield = d['can'], d['kalkan']
+        self.hp, self.shield = d['hp'], d['shield']
 
     def refresh(self):
         """Equipment changed: look, values, drones."""
@@ -67,11 +67,11 @@ class BotShip(WD.NPC):
         d = b.value()
         e = b.k['gear']
         self.model = e['ship']
-        self.d = dict(name=b.name, hp=int(d['can']), kalkan=int(d['kalkan']), damage=0, speed=int(d['speed']), aggressive=False,
+        self.d = dict(name=b.name, hp=int(d['hp']), shield=int(d['shield']), damage=0, speed=int(d['speed']), aggressive=False,
                       reward=dict(ep=0, honor=0, credits=0, uridium=0), cargo={}, npc_id=0,
                       spread=3 if d['laser'] >= 12 else 2 if d['laser'] >= 6 else 1, bot=True)
         self.behavior = {}
-        self.hp, self.shield = min(self.hp, d['can']), min(self.shield, d['kalkan'])
+        self.hp, self.shield = min(self.hp, d['hp']), min(self.shield, d['shield'])
         # drones only from extra_look (appearance.messages: formation, drone level, designs); a second string here with formation 0
         # went after it in show() and overwrote the formation (player report 2026-11-01: no bot uses a formation)
         self.images = {}
@@ -89,7 +89,7 @@ def appearance(w, n):
     return ('ShipCreateCommand', dict(
         userId=n.id, typeId=GR.tip(b), expansionStage=n.d['spread'], userName=b.name, x=int(x), y=int(y),
         clanTag='CM' if b.__dict__.get('moderator') else pl.get('clanTag', ''),        # chat moderator (bot/moderation.py)
-        factionId=b.firma, clanId=int(pl.get('clanId') or 0), dailyRank=pl.get('dailyRank', 1), warnBox=False,
+        factionId=b.company, clanId=int(pl.get('clanId') or 0), dailyRank=pl.get('dailyRank', 1), warnBox=False,
         clanDiplomacy=WD.mod('ClanRelationModule', type=relation(w, b)), galaxyGatesDone=GR.rings(b), useSystemFont=False, npc=False,
         cloaked=False, motherShipId=0, positionIndex=0, designSet='', modifier=[],
         minimapStrategyModule=WD.mod('MinimapStrategyModule', minimapStrategy=0), specialNpcType=''))
@@ -212,14 +212,14 @@ def spawn_point(w, b):
     # only one that just jumped spawns at the portal: those that jumped while the player was away and stayed abstract all came out of the portal together when the player arrived
     # (player report: waiting at the portal on 2-1 and moving to 2-2, 10-20 bots came out of the portal at the same time as the player)
     if arrival is not None and time.time() - arrival[1] < ARRIVAL_SEC:
-        gx, gy = H.arrival(arrival[0], int(w.map_id), b.firma)
+        gx, gy = H.arrival(arrival[0], int(w.map_id), b.company)
         a, r = random.uniform(0, 2 * math.pi), random.uniform(80, 280)      # scattered around the portal (not on top of each other)
         return int(gx + math.cos(a) * r), int(gy + math.sin(a) * r)
     x, y = b.k.get('x') or 0, b.k.get('y') or 0
     if 300 < x < w.map_w - 300 and 300 < y < w.map_h - 300:
         return int(x), int(y)
     s = w.station
-    if s and s.get('type') == b.firma:          # newly entered or returned to base: around its own station (like the real game)
+    if s and s.get('type') == b.company:          # newly entered or returned to base: around its own station (like the real game)
         a, r = random.uniform(0, 2 * math.pi), random.uniform(250, 1300)
         return (int(max(400, min(w.map_w - 400, s['posX'] + math.cos(a) * r))),
                 int(max(400, min(w.map_h - 400, s['posY'] + math.sin(a) * r))))
@@ -363,9 +363,9 @@ def attack_error(w, n, now=None):
         return [legacy('0|A|STM|friendlyfire_disabled')]
     if relation(w, b) in (1, 2):
         return [legacy('0|A|STM|friendlyfire_disabled')]
-    if int(pl.get('factionId') or 0) == b.firma and relation(w, b) != 3 and not WD.SET.get('company_pvp'):
+    if int(pl.get('factionId') or 0) == b.company and relation(w, b) != 3 and not WD.SET.get('company_pvp'):
         return [legacy('0|A|STM|friendlyfire_disabled')]       # panel: attacking one's own company is off (except a clan at war)
-    if int(pl.get('factionId') or 0) == b.firma and H.company(w.map_id) == b.firma and H.name(w.map_id).split('-')[-1] in ('1', '2'):
+    if int(pl.get('factionId') or 0) == b.company and H.company(w.map_id) == b.company and H.name(w.map_id).split('-')[-1] in ('1', '2'):
         return [legacy('0|A|STM|no_attack_on_start_maps')]
     return []
 
@@ -520,7 +520,7 @@ def _ammo(n, target, m, o):
     b = n.bot
     if getattr(n, 'ammo_target', (None,))[0] != target or WP.stock(b).get(n.ammo_target[1], 0) <= 0:
         pvp = o is not None or (m is not None and m.bot is not None)
-        ehp = 0 if pvp or m is None else m.d.get('hp', 0) + m.d.get('kalkan', 0)
+        ehp = 0 if pvp or m is None else m.d.get('hp', 0) + m.d.get('shield', 0)
         n.ammo_target = (target, WP.pick_laser(b, ehp, pvp))
     ammo = n.ammo_target[1]
     if ammo is None:
@@ -529,8 +529,8 @@ def _ammo(n, target, m, o):
     if not WP.spend(b, ammo, laser):
         return None
     from . import lab as LB
-    n.lab_shot = LB.bonus(b, LB.LAZER)                   # the lab bonus of this shot
-    LB.spend(b, LB.LAZER, laser)
+    n.lab_shot = LB.bonus(b, LB.LASER)                   # the lab bonus of this shot
+    LB.spend(b, LB.LASER, laser)
     return ammo
 
 
@@ -592,14 +592,14 @@ def fire(w, n, now):
         AC.chain_impulse(w, n, now)
     run = ('AttackLaserRunCommand', dict(attackerId=n.id, targetId=target, laserColor=_color(n.bot, ammo), isDiminishedBySkillShield=False,
                                          skilledLaser=False, visualType=0))
-    is_hard = o is not None or (m is not None and (m.bot is not None or (m.d.get('hp', 0) + m.d.get('kalkan', 0))
+    is_hard = o is not None or (m is not None and (m.bot is not None or (m.d.get('hp', 0) + m.d.get('shield', 0))
                                                / max(1, n.bot.value()['dps']) > WP.HARD_SEC))
     landed = random.random() < AC.aim(n, WD.COMBAT['laser_hit_chance'], is_hard)      # AIM CPU (Xenomit)
     if o is not None:
         msgs = [run]
         if landed:
             dmg = _fire(n.bot, pvp=True, ammo=ammo)
-            AC.leech(n, dmg, n.bot.value()['can'], now)
+            AC.leech(n, dmg, n.bot.value()['hp'], now)
             msgs += o.hurt_hero(dmg, killer=n, cause=0, source_asset=True, now=now)
         else:
             msgs.append(('AttackMissedCommand', dict(attackType=WD.attack_type(1), targetUserId=target, skillColorId=0)))
@@ -612,7 +612,7 @@ def fire(w, n, now):
         _broadcast(w, [run, ('AttackMissedCommand', dict(attackType=WD.attack_type(1), targetUserId=target, skillColorId=0))], n.id, target)
         return
     dmg = _fire(n.bot, pvp=m.bot is not None, ammo=ammo)
-    AC.leech(n, dmg, n.bot.value()['can'], now)
+    AC.leech(n, dmg, n.bot.value()['hp'], now)
     if m.bot is not None:
         _broadcast(w, [run], n.id, target)
         bot_damage(w, m, dmg, n.id, now, killer_bot=n.bot)
@@ -628,7 +628,7 @@ def salvo(w, n, target, m, o, now):
     if now < getattr(n, 'salvo_ready', 0):
         return
     pvp = o is not None or (m is not None and m.bot is not None)
-    is_hard = m is not None and m.bot is None and (m.d.get('hp', 0) + m.d.get('kalkan', 0)) / max(1, b.value()['dps']) > WP.HARD_SEC
+    is_hard = m is not None and m.bot is None and (m.d.get('hp', 0) + m.d.get('shield', 0)) / max(1, b.value()['dps']) > WP.HARD_SEC
     fr = TECH.pick_launcher_rocket(b) if (pvp or is_hard) else None
     pos = _position(w, target, now)
     nx, ny = n.mover.pos(now)
@@ -804,9 +804,9 @@ def _bot(uid):
     return next((b for b in y_.bots if b.uid == uid), None) if y_ is not None else None
 
 
-def bot_firma(uid):
+def bot_company(uid):
     b = _bot(uid)
-    return b.firma if b is not None else None
+    return b.company if b is not None else None
 
 
 def tag_reward(w, m, uid, x, y):
@@ -857,13 +857,13 @@ def can_attack_player(w, n, o, now):
     nx, ny = n.mover.pos(now)
     if _in_peace(w, hx, hy) or _in_peace(w, nx, ny) or relation(o, n.bot) in (1, 2):
         return False                                     # its clan is an ally or in non-aggression
-    return int(o.p.d['pilot'].get('factionId') or 0) != n.bot.firma or not (
-        H.company(w.map_id) == n.bot.firma and H.name(w.map_id).split('-')[-1] in ('1', '2'))
+    return int(o.p.d['pilot'].get('factionId') or 0) != n.bot.company or not (
+        H.company(w.map_id) == n.bot.company and H.name(w.map_id).split('-')[-1] in ('1', '2'))
 
 
 def can_attack_bot(w, n, m, now):
     from . import admin_warnings as AW
-    if not m.alive or m.bot.firma == n.bot.firma or AW.active(n.bot, 'pvp', now):
+    if not m.alive or m.bot.company == n.bot.company or AW.active(n.bot, 'pvp', now):
         return False
     if (n.bot.k.get('clan') and n.bot.k.get('clan') == m.bot.k.get('clan')) or T.clan_relation(n.bot, m.bot) in (1, 2):
         return False
@@ -927,8 +927,8 @@ def think(w, n, now):
         from . import extras as EX
         k = REGEN_RATE * b.k['personality']['reaction_sec'] * 1.0
         rep = EX.repair_sec(b)
-        n.shield = min(d['kalkan'], n.shield + d['kalkan'] * k * 2)
-        n.hp = min(d['can'], n.hp + d['can'] * max(k, b.k['personality']['reaction_sec'] / rep if rep else 0))     # repair robot
+        n.shield = min(d['shield'], n.shield + d['shield'] * k * 2)
+        n.hp = min(d['hp'], n.hp + d['hp'] * max(k, b.k['personality']['reaction_sec'] / rep if rep else 0))     # repair robot
     nx, ny = n.mover.pos(now)
     b.k['x'], b.k['y'] = int(nx), int(ny)
     if b.__dict__.get('exit_request') and not any(now - t < 6 for t in n.attacker.values()):
@@ -938,11 +938,11 @@ def think(w, n, now):
         return                                           # picks up a box on its route (on every job; when not fighting)
     if b.target is not None and b.target.concrete(b, n, w, now):
         return
-    ratio = (n.hp + n.shield) / max(1, d['can'] + d['kalkan'])
+    ratio = (n.hp + n.shield) / max(1, d['hp'] + d['shield'])
     attackers = [u for u, t in n.attacker.items() if now - t < 6]
     from . import active_items as AC
     if AC.combat(w, n, now, d, ratio, attackers):         # Insta-Shield, Backup Shields, Battle Repair, Smart Bomb, Energy Leech
-        ratio = (n.hp + n.shield) / max(1, d['can'] + d['kalkan'])
+        ratio = (n.hp + n.shield) / max(1, d['hp'] + d['shield'])
     # 1) danger: HP is low and it is being hit -> flee
     in_gate = is_gate_world(w)
     if attackers and ratio < 0.18 + 0.32 * (1 - b.o('risk')) and not in_gate:
@@ -1036,7 +1036,7 @@ def pvp_target(w, n, now):
     candidates = []
     if y.permission('attack_player') and y.permission('pvp'):
         for o in ([w] + [x for x in (w.shared.members if w.shared else []) if x is not w]):
-            if not o.running or int(o.p.d['pilot'].get('factionId') or 0) == b.firma:
+            if not o.running or int(o.p.d['pilot'].get('factionId') or 0) == b.company:
                 continue
             hx, hy = o.hero_pos(now)
             if math.hypot(hx - nx, hy - ny) > sight or not can_attack_player(w, n, o, now):
@@ -1053,7 +1053,7 @@ def pvp_target(w, n, now):
     if not candidates:
         return None
     own = max(0.5, b.value()['power'])
-    ev = H.company(w.map_id) == b.firma                  # its own company's map: defends its map against an invader
+    ev = H.company(w.map_id) == b.company                  # its own company's map: defends its map against an invader
     hunt = b.target is not None and b.target.name in ('pvp', 'assist', 'duel')
     rival = str(b.plan.get('name', '')).lower() if b.target is not None and b.target.name == 'duel' else ''
     en, ep = None, 0.0
@@ -1064,7 +1064,7 @@ def pvp_target(w, n, now):
         if rival and str(name).lower() == rival:
             return uid                                   # duel: attacks the challenger at once
         defending = ev and uid not in w.npcs                    # a foreign company's player on its own map
-        p = (0.04 + 0.5 * b.o('aggression') * b.o('rekabet')) * (2.2 if hunt else 1.0)
+        p = (0.04 + 0.5 * b.o('aggression') * b.o('rivalry')) * (2.2 if hunt else 1.0)
         if defending:
             p = max(p, 0.06) * (2.0 + b.o('aggression'))
         # at home it also stands up to a somewhat stronger one (calls for help); before, the probability at 1.6x stronger was zero at home too (live 2026-11-01)
@@ -1097,7 +1097,7 @@ def call_defense(w, n, uid, now):
     nx, ny = n.mover.pos(now)
     candidates = []
     for m in w.npcs.values():
-        if m is n or m.bot is None or not m.alive or m.bot.firma != n.bot.firma or m.target is not None:
+        if m is n or m.bot is None or not m.alive or m.bot.company != n.bot.company or m.target is not None:
             continue
         if m.bot.target is not None and m.bot.target.name in ('gate', 'mod', 'duel', 'group'):
             continue
@@ -1124,10 +1124,10 @@ def flee(w, n, now):
         if b.o('risk') < 0.6:
             AC.cloak(w, n, now)                         # cloaking CPU
         drop_mine(w, n, nx, ny, now)
-    gs = [g for g in H.gates(w.map_id, b.firma) if not g.get('fee') and g['target'] in K.MAPS
-          and K.can_enter(g['target'], b.firma, b.level)]
+    gs = [g for g in H.gates(w.map_id, b.company) if not g.get('fee') and g['target'] in K.MAPS
+          and K.can_enter(g['target'], b.company, b.level)]
     s = w.station
-    if s and s.get('type') == b.firma:
+    if s and s.get('type') == b.company:
         sx, sy = s['posX'], s['posY']
         if not gs or math.hypot(sx - nx, sy - ny) < min(math.hypot(g['x'] - nx, g['y'] - ny) for g in gs):
             _go_to(w, n, sx, sy, now)
@@ -1178,7 +1178,7 @@ def portala(w, n, now, urgent=False):
                 b.arrival = (int(w.map_id), time.time())
                 b.ist('jump_cpu')
             return
-    g = next((g for g in H.gates(w.map_id, b.firma) if g['target'] == b.en_route[0]), None)
+    g = next((g for g in H.gates(w.map_id, b.company) if g['target'] == b.en_route[0]), None)
     if g is None:
         b.en_route = None
         return
@@ -1222,7 +1222,7 @@ def can_kill(b, m):
     v = c.get(m.tip)
     if v is None or v[1] != b.value()['power']:
         d = b.value()
-        ehp = m.d.get('hp', 0) + m.d.get('kalkan', 0)
+        ehp = m.d.get('hp', 0) + m.d.get('shield', 0)
         incoming = m.d.get('damage', 0) * K.COMBAT['npc_hit_chance'] / K.NPC_INTERVAL
         duration = ehp / max(1.0, d['dps'])
         v = c[m.tip] = (duration < 180 and duration * incoming < d['ehp'] * (0.4 + 0.5 * b.o('risk')), d['power'])
@@ -1289,10 +1289,10 @@ def go_logout(w, n, now):
     n.target = None
     nx, ny = n.mover.pos(now)
     s = w.station
-    if s and s.get('type') == b.firma:
+    if s and s.get('type') == b.company:
         hx, hy = s['posX'], s['posY']
     else:
-        g = min(H.gates(w.map_id, b.firma) or [{'x': nx, 'y': ny}], key=lambda g: math.hypot(g['x'] - nx, g['y'] - ny))
+        g = min(H.gates(w.map_id, b.company) or [{'x': nx, 'y': ny}], key=lambda g: math.hypot(g['x'] - nx, g['y'] - ny))
         hx, hy = g['x'], g['y']
     if math.hypot(hx - nx, hy - ny) > 250:
         p = n.approach_points.get('exit')
@@ -1345,7 +1345,7 @@ def start_escort(w, n, now):
     nx, ny = n.mover.pos(now)
     duration = random.uniform(60, 180)
     name = str(w.p.d['pilot'].get('userName', ''))
-    if (w.p.d['pilot'].get('factionId') == b.firma and not w.hero_dead and not w.jumping
+    if (w.p.d['pilot'].get('factionId') == b.company and not w.hero_dead and not w.jumping
             and math.hypot(*(a - c for a, c in zip(w.hero_pos(now), (nx, ny)))) < ESCORT_RANGE):
         p = 0.08 * (0.3 + b.o('sociability')) * (0.5 + b.o('helpfulness')) * (1 + 3 * max(0.0, b.memory.relation(name, now)))
         if random.random() < p:
@@ -1354,7 +1354,7 @@ def start_escort(w, n, now):
             return
     allies = set(b.memory.allies(0.25, now))
     for m in w.npcs.values():
-        if m is n or m.bot is None or not m.alive or m.bot.firma != b.firma or m.bot.name not in allies:
+        if m is n or m.bot is None or not m.alive or m.bot.company != b.company or m.bot.name not in allies:
             continue
         if math.hypot(*(a - c for a, c in zip(m.mover.pos(now), (nx, ny)))) < ESCORT_RANGE and random.random() < 0.3:
             n.escort = (m.id, now + duration, random.uniform(0, 2 * math.pi))
@@ -1496,7 +1496,7 @@ def collect_box(w, n, now):
 
 
 def _box_company(w, owner_tag):
-    return w.p.d['pilot'].get('factionId') if owner_tag[0] == 'h' and owner_tag[1] == w.hid else bot_firma(owner_tag[1]) if owner_tag[0] == 'b' else None
+    return w.p.d['pilot'].get('factionId') if owner_tag[0] == 'h' and owner_tag[1] == w.hid else bot_company(owner_tag[1]) if owner_tag[0] == 'b' else None
 
 
 def _stolen_today(b):
@@ -1516,7 +1516,7 @@ def is_theft(w, b, owner_tag):
     if not b.permission.get('box_stealing', True) or AW.active(b, 'box'):
         return False                                     # the manager's box warning (bot/admin_warnings.py)
     p = 0.35 * b.o('aggression') * (1 - b.o('helpfulness'))
-    if _box_company(w, owner_tag) == b.firma:
+    if _box_company(w, owner_tag) == b.company:
         if _stolen_today(b)['n'] >= 1:
             return False                               # got a penalty once today: does not take again
         p *= 0.15
@@ -1528,7 +1528,7 @@ def theft_penalty(w, b, owner_tag):
     if the owner is the player, the bot does not get worse in their eyes but the player loses their box."""
     fac = _box_company(w, owner_tag)
     b.ist('box_stolen')
-    if fac != b.firma:
+    if fac != b.company:
         return
     d = _stolen_today(b)
     b.earn(honor=-10 * 2 ** min(d['n'], 16))
@@ -1542,7 +1542,7 @@ def theft_penalty(w, b, owner_tag):
 def recover(w, n, now, d):
     """Damaged but nobody is hitting: leaves the hunt and stops, waits until the shield and repair robot are full (if near its own base it
     withdraws to the station) -> is it waiting. A real player does not dive at a new alien with half HP."""
-    ratio = (n.hp + n.shield) / max(1, d['can'] + d['kalkan'])
+    ratio = (n.hp + n.shield) / max(1, d['hp'] + d['shield'])
     b = n.bot
     if getattr(n, 'recovering', False):
         if ratio >= 0.9:
@@ -1554,7 +1554,7 @@ def recover(w, n, now, d):
     n.target = None
     s = w.station
     nx, ny = n.mover.pos(now)
-    if s and s.get('type') == b.firma and math.hypot(s['posX'] - nx, s['posY'] - ny) < 4000:
+    if s and s.get('type') == b.company and math.hypot(s['posX'] - nx, s['posY'] - ny) < 4000:
         return rest(w, n, now)
     _stop(w, n, now)
     n.next_think = now + random.uniform(2, 4)
@@ -1570,10 +1570,10 @@ def park_spot(w, n, now):
     nx, ny = n.mover.pos(now)
     full = [getattr(m, 'park', None) for m in w.npcs.values() if m.bot is not None and m is not n]
     full = [p for p in full if p is not None]
-    portals = [g for g in H.gates(w.map_id, b.firma) if not g.get('fee') and math.hypot(g['x'] - nx, g['y'] - ny) < 6000]
+    portals = [g for g in H.gates(w.map_id, b.company) if not g.get('fee') and math.hypot(g['x'] - nx, g['y'] - ny) < 6000]
     for _ in range(12):
         k = random.random()
-        if s and s.get('type') == b.firma and k < 0.5:
+        if s and s.get('type') == b.company and k < 0.5:
             a, r = random.uniform(0, 2 * math.pi), random.uniform(350, 1700)
             p = (s['posX'] + math.cos(a) * r, s['posY'] + math.sin(a) * r)
         elif portals and k < 0.75:

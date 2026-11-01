@@ -21,7 +21,7 @@ Active events:
   - systems: Upgrade Hour, Dispatch Day, gate energy discount, Kronos day, gold box, map events, Battle Pass ...
 The player's choice: the admin panel's Events page (settings.py event_state: for each event on / off / by calendar;
 all yearly and weekly events; reported at login) comes first. Game server option: --event name1,name2 opens them
-regardless of date (weekly ones too); --event hepsi opens all yearly events, --event none opens no yearly event (weekly ones continue).
+regardless of date (weekly ones too); --event all opens all yearly events, --event none opens no yearly event (weekly ones continue).
 """
 import datetime, functools, json, os, sys, time
 import game_data as DATA
@@ -38,7 +38,7 @@ COUNTED_AS = {}                            # event -> events that also count in 
 for _k, _e in EVENTS.items():
     if _e.get('counts_as'):
         COUNTED_AS.setdefault(_e['counts_as'], []).append(_k)
-FORCED, MODE = set(), 'calendar'          # calendar | hepsi (all) | none (for yearly ones)
+FORCED, MODE = set(), 'calendar'          # calendar | all | none (for yearly ones)
 # week cycles ('week_cycle') are counted from this Monday; ISO week parity left a three-week gap in a 53-week year (2026)
 WEEK_START = datetime.date(2024, 1, 8)
 DAY, CYCLE = datetime.timedelta(days=1), datetime.timedelta(weeks=52)
@@ -77,7 +77,7 @@ CONFLICTS = {k: {j for j, f in EVENTS.items() if j != k and _tags(e) & _tags(f)}
 
 
 def configure(argv=None):
-    """The --event option: 'hepsi' (all), 'none' or comma-separated event names."""
+    """The --event option: 'all', 'none' or comma-separated event names."""
     global MODE
     argv = sys.argv if argv is None else argv
     FORCED.clear()
@@ -88,7 +88,7 @@ def configure(argv=None):
             continue
         for x in val.split(','):
             x = x.strip().lower()
-            if x in ('hepsi', 'none'):
+            if x in ('all', 'none'):
                 MODE = x
             elif x in EVENTS:
                 FORCED.add(x)
@@ -361,7 +361,7 @@ def _on(key, now=None):
     if e.get('world_status') in ('on', 'off'):     # the world's setting (after the save's Events setting)
         return e['world_status'] == 'on'
     yearly = 'periods' in e
-    if key in FORCED or (yearly and MODE == 'hepsi'):
+    if key in FORCED or (yearly and MODE == 'all'):
         return True
     if yearly and MODE == 'none':
         return False
@@ -371,9 +371,9 @@ def _on(key, now=None):
 
 
 def forced(key):
-    """Whether the event is open regardless of date ('on' in the panel, --event name or hepsi): map sections' windows do not count."""
+    """Whether the event is open regardless of date ('on' in the panel, --event name or all): map sections' windows do not count."""
     st = SET.event_state(key)
-    return st == 'on' or key in FORCED or (MODE == 'hepsi' and 'periods' in EVENTS[key]) or (
+    return st == 'on' or key in FORCED or (MODE == 'all' and 'periods' in EVENTS[key]) or (
         not st and EVENTS[key].get('world_status') == 'on')
 
 
@@ -411,20 +411,20 @@ def time_left(key, now=None):
 def gate_rewards(key, now=None):
     """Galaxy Gate rewards of the active events ('gate_reward'): [(lootId, count, probability)] (Empyrian / Prosperous Fragment ...);
     excluding the bundle's items (gate_bundles)."""
-    return [tuple(r) for k in sorted(active(now)) for s in EVENTS[k].get('gate_reward', []) if key in s['kapilar'] and not s.get('package')
+    return [tuple(r) for k in sorted(active(now)) for s in EVENTS[k].get('gate_reward', []) if key in s['gates'] and not s.get('package')
             for r in s.get('items', [])]
 
 
 def gate_choices(key, now=None):
     """The active events' choice rewards at this gate (the 'choice' of a 'gate_reward' row: one of [[lootId, count(, weight)]] with 'probability', equal if there is no weight;
     'non_repeating': a design the player owns does not drop): GG Special Rewards Weekend bundles, LF-4 day."""
-    return [s for k in sorted(active(now)) for s in EVENTS[k].get('gate_reward', []) if key in s['kapilar'] and s.get('choice')]
+    return [s for k in sorted(active(now)) for s in EVENTS[k].get('gate_reward', []) if key in s['gates'] and s.get('choice')]
 
 
 def gate_bundles(key, now=None):
     """The active events' reward bundles at this gate ('gate_reward' row with a 'package' name: drops with 'probability', the 'items' entries
     [lootId, count, probability] with their own probabilities; Prosperous Package): when it drops the achievement's CollectPackage condition counts too (gate.finish)."""
-    return [s for k in sorted(active(now)) for s in EVENTS[k].get('gate_reward', []) if key in s['kapilar'] and s.get('package')]
+    return [s for k in sorted(active(now)) for s in EVENTS[k].get('gate_reward', []) if key in s['gates'] and s.get('package')]
 
 
 def achievement_groups(now=None):

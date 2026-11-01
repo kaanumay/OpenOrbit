@@ -50,7 +50,7 @@ def observe_status(y, b, arg):
     target = b.target.name if b.target is not None else 'nothing'
     out.append('On map %s, doing: %s for %d min.' % (H.name(b.game_map), target, max(0, y.now - b.goal_start) // 60))
     out.append("You fly for %s: %d-x maps are your company's, 4-x maps are shared PvP land, the other companies' maps are enemy "
-               "land." % (('MMO', 'EIC', 'VRU')[b.firma - 1], b.firma))
+               "land." % (('MMO', 'EIC', 'VRU')[b.company - 1], b.company))
     if not _laser(b):
         out.append('You have NO laser ammo: you cannot fight until you get some (credits) or sell cargo.')
     g = b.k.get('quest')
@@ -71,10 +71,10 @@ def observe_maps(y, b, arg):
     row = []
     for utility, m, r in bg.game_map[:7]:
         risk = 'high' if r['deaths_per_hour'] > 0.5 else 'medium' if r['deaths_per_hour'] > 0.15 else 'low'
-        route = K.route(b.game_map, m, b.firma, b.level) or [m]
+        route = K.route(b.game_map, m, b.company, b.level) or [m]
         names = sorted({str(v['name']) for v, n in K.map_npcs(m)})[:4]
         owner = H.company(m)
-        owner_label = 'your company' if owner == b.firma else 'enemy company' if owner else 'shared PvP'
+        owner_label = 'your company' if owner == b.company else 'enemy company' if owner else 'shared PvP'
         row.append('%s (%s): EP/h %s, credits/h %s, uridium/h %.0f, death risk %s, %d jumps, aliens: %s' % (
             H.name(m), owner_label, _fmt_money(r['ep_per_hour']), _fmt_money(r['credits_per_hour']), r['uridium_per_hour'], risk, len(route) - 1,
             ', '.join(names) or '-'))
@@ -174,7 +174,7 @@ def observe_surroundings(y, b, arg):
         out.append('People you hold a grudge against online: %s.' % ', '.join('%s (on %s)' % (x.name, H.name(x.game_map)) for x in grudge))
     here = [x for x in y.on_map.get(b.game_map, ()) if x is not b][:8]
     if here:
-        out.append('Pilots on your map: %s.' % ', '.join('%s (%s)' % (x.name, ('MMO', 'EIC', 'VRU')[x.firma - 1]) for x in here))
+        out.append('Pilots on your map: %s.' % ', '.join('%s (%s)' % (x.name, ('MMO', 'EIC', 'VRU')[x.company - 1]) for x in here))
     return ' '.join(out) or 'Nobody you know is around.'
 
 
@@ -412,7 +412,7 @@ def schema():
         'arg': {'type': 'object', 'properties': {
             'map': s, 'name': s, 'item': s, 'quest': s, 'mod': s, 'clan': s, 'channel': s, 'text': s, 'subject': s, 'operation': s,
             'rank': s, 'rights': s, 'type': s, 'station': s, 'accept': {'type': 'boolean'}, 'ratio': {'type': 'integer'},
-            'amount': {'type': 'integer'}, 'ksi': {'type': 'integer'}, 'payment': {'type': 'integer'}, 'combat': {'type': 'integer'},
+            'amount': {'type': 'integer'}, 'cbs': {'type': 'integer'}, 'payment': {'type': 'integer'}, 'combat': {'type': 'integer'},
             'minutes': {'type': 'integer'}, 'no': {'type': 'integer'}}}},
         'required': ['tool', 'arg']}
     return {'type': 'object', 'properties': {
@@ -474,12 +474,12 @@ def think(br, b, reason, max_count=STEPS):
 def wake_state(b):
     """State consumed by wakers -> function that restores it (so the reminder, the cargo/savings warning and events are not lost if the
     job cannot enter the queue or goes stale)."""
-    d = {k: b.__dict__[k] for k in ('_ajan_olay_t', '_kargo_uyandi', '_birikim_uyandi') if k in b.__dict__}
+    d = {k: b.__dict__[k] for k in ('_agent_event_t', '_cargo_woke', '_savings_woke') if k in b.__dict__}
     h = b.k.get('reminder')
     h = list(h) if h is not None else None
 
     def refund():
-        for k in ('_ajan_olay_t', '_kargo_uyandi', '_birikim_uyandi'):
+        for k in ('_agent_event_t', '_cargo_woke', '_savings_woke'):
             if k in d:
                 b.__dict__[k] = d[k]
             else:

@@ -126,7 +126,7 @@ def target(k, now):
     n = w.npcs.get(t) if t is not None else None
     if n is not None and n.alive:
         return mod('TargetModule', shipType=mod('ShipIconModule', shipIcon=npc_icon(n.d.get('name'))), name=str(n.d.get('name', '')),
-                   health=hp(n.hp, n.d.get('hp', 0), n.shield, n.d.get('kalkan', 0)))
+                   health=hp(n.hp, n.d.get('hp', 0), n.shield, n.d.get('shield', 0)))
     o = TP.find(uid=t) if t is not None else None
     if o is not None and o.uid != k.uid:
         return mod('TargetModule', shipType=mod('ShipIconModule', shipIcon=icon(o.profile.ship()['lootId'])), name=o.name,

@@ -371,42 +371,42 @@
   "effects": {
    "general_experience": [
     "ep",
-    "hepsi"
+    "all"
    ],
    "general_honour": [
     "honor",
-    "hepsi"
+    "all"
    ],
    "general_bonus-box-uridium": [
     "bonus_uridium",
-    "hepsi"
+    "all"
    ],
    "general_cargo": [
     "cargo_space",
-    "hepsi"
+    "all"
    ],
    "pet_fuel-consumption": [
     "pet_fuel",
-    "hepsi"
+    "all"
    ],
    "pet_heat-up": [
     "pet_heat",
-    "hepsi"
+    "all"
    ],
    "pet_range-up": [
-    "pet_menzil",
-    "hepsi"
+    "pet_range",
+    "all"
    ],
    "pet_hp": [
-    "pet_can",
-    "hepsi"
+    "pet_hp",
+    "all"
    ],
    "gg_rocket-damage": [
     "rocket",
     "gate"
    ],
    "gg_shield": [
-    "kalkan",
+    "shield",
     "gate"
    ],
    "gg_evasion": [
@@ -442,19 +442,19 @@
     "abg"
    ],
    "gg_abg-shield": [
-    "kalkan",
+    "shield",
     "abg"
    ],
    "sp_mission-points": [
     "season_points",
-    "hepsi"
+    "all"
    ],
    "sp_mission-points-gp": [
     "season_points",
-    "hepsi"
+    "all"
    ]
   },
-  "_uyarlama": "Taban kademe (BASE I-VI) olasılıkları, ilk adlar (istemci ad listesi göndermiyor; soyadı ailenin çevirisi), U.P.S. bölümlerinin ikinci yeteneği (Neo havuzundan), Bonus Hunter değerleri, mağazadaki N.O.V.A.'nın Neo/Eos olasılığı (yarı yarıya). Takılı N.O.V.A. yalnız oyundayken enerji harcar (çevrimdışı süre sayılmaz); dinlenenler çevrimdışı da dolar.",
+  "_adaptation": "Taban kademe (BASE I-VI) olasılıkları, ilk adlar (istemci ad listesi göndermiyor; soyadı ailenin çevirisi), U.P.S. bölümlerinin ikinci yeteneği (Neo havuzundan), Bonus Hunter değerleri, mağazadaki N.O.V.A.'nın Neo/Eos olasılığı (yarı yarıya). Takılı N.O.V.A. yalnız oyundayken enerji harcar (çevrimdışı süre sayılmaz); dinlenenler çevrimdışı da dolar.",
   "_pet_artis": "P.E.T. yeteneklerinin seviye başına artışı 0,9 / 0,9 / 1,7 (Ranger) / 0,9: resmî Türk forumu 163881 (N.O.V.A. 2023)"
  },
  "armory": {
@@ -1310,7 +1310,7 @@
    ]
   ],
   "daily_quest_token": 10,
-  "_uyarlama": "Dönem başlangıcı (2026-01-01), dönemin gemileri (listeden sırayla üçer), Helios/Nidhogg sırası (çift dönem Helios), kilitlenen geminin dönem bitince de kalması (tek oyunculu: 1.200 çekiliş bir dönemde bitmez), Season Pass günlük görevi başına 10 Armory Token (SSS: günlük görevler). Lucky Draw'da gösterilip havuzda olmayan eşyaların oranı (%0,0666, kırmızı satırdaki MR-T03 gibi; eksiği en sık üç cephaneden)."
+  "_adaptation": "Dönem başlangıcı (2026-01-01), dönemin gemileri (listeden sırayla üçer), Helios/Nidhogg sırası (çift dönem Helios), kilitlenen geminin dönem bitince de kalması (tek oyunculu: 1.200 çekiliş bir dönemde bitmez), Season Pass günlük görevi başına 10 Armory Token (SSS: günlük görevler). Lucky Draw'da gösterilip havuzda olmayan eşyaların oranı (%0,0666, kırmızı satırdaki MR-T03 gibi; eksiği en sık üç cephaneden)."
  },
  "qfc": {
   "kinds": {
@@ -1486,7 +1486,7 @@
   "echo": {
    "GREEN_ECHO_BOX": {
     "name": "Common Echo Chest",
-    "anahtar": "resource_echo-key-green",
+    "key": "resource_echo-key-green",
     "qualities": [
      10,
      20
@@ -1494,7 +1494,7 @@
    },
    "BLUE_ECHO_BOX": {
     "name": "Rare Echo Chest",
-    "anahtar": "resource_echo-key-blue",
+    "key": "resource_echo-key-blue",
     "qualities": [
      20,
      30
@@ -1502,7 +1502,7 @@
    },
    "PURPLE_ECHO_BOX": {
     "name": "Epic Echo Chest",
-    "anahtar": "resource_echo-key-purple",
+    "key": "resource_echo-key-purple",
     "qualities": [
      30,
      40
@@ -1510,7 +1510,7 @@
    },
    "RED_ECHO_BOX": {
     "name": "Legendary Echo Chest",
-    "anahtar": "resource_echo-key-red",
+    "key": "resource_echo-key-red",
     "qualities": [
      40
     ]
@@ -1528,13 +1528,13 @@
    "45": "PURPLE_ECHO_BOX",
    "50": "RED_ECHO_BOX"
   },
-  "_uyarlama": "Bağlanılan gemi: oyuncunun gemilerinden rastgele (yoksa etkin gemi). Ek nitelik havuzları, ek niteliğin ilk değeri (aralığın yarısı), seviye başına artış (aralığın %10-25'i), azami değer (aralığın üstünün iki katı), 30/40'ın 5. seviyeden sonraki bedelleri (20'ninkilerle aynı oranda), sandığın kalite olasılıkları (düşük kalite 2/3), hangi patron seviyesinin hangi sandığı düşürdüğü."
+  "_adaptation": "Bağlanılan gemi: oyuncunun gemilerinden rastgele (yoksa etkin gemi). Ek nitelik havuzları, ek niteliğin ilk değeri (aralığın yarısı), seviye başına artış (aralığın %10-25'i), azami değer (aralığın üstünün iki katı), 30/40'ın 5. seviyeden sonraki bedelleri (20'ninkilerle aynı oranda), sandığın kalite olasılıkları (düşük kalite 2/3), hangi patron seviyesinin hangi sandığı düşürdüğü."
  },
  "autopilot": {
   "premium_sec": 2592000,
   "laser_range": 562,
   "range_ratio": 0.9,
   "_range_ratio": "Share of the real laser range sent to the bot (laserRange), bonuses and SL-01 included. A lower share makes the bot fight closer, so it stays in range when the target moves or positions drift.",
-  "_uyarlama": "Tek oyunculuda herkes Premium (profilin premium alanı): kalan süre her açılışta 30 gün; lazer menzili kayıttaki 562."
+  "_adaptation": "Tek oyunculuda herkes Premium (profilin premium alanı): kalan süre her açılışta 30 gün; lazer menzili kayıttaki 562."
  }
 }

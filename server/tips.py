@@ -51,7 +51,7 @@ def used(p, kind):
     if kind == SHIP_DESIGN:
         return any(s.get('designs') for s in p.d.get('ships', {}).values())
     if kind == GALAXY_GATE:
-        return any(g.get('parts') or g.get('done') for g in ((p.d.get('kapilar') or {}).get('kapilar') or {}).values() if g)
+        return any(g.get('parts') or g.get('done') for g in ((p.d.get('gates') or {}).get('gates') or {}).values() if g)
     return False
 
 

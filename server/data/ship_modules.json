@@ -54,7 +54,7 @@
    "type": "DAMAGE",
    "effects": {
     "pvp": 0.15,
-    "kalkan": -0.05,
+    "shield": -0.05,
     "speed": -0.1
    },
    "ships": [
@@ -78,7 +78,7 @@
     "laser": 0.1,
     "rocket": 0.1,
     "evasion": 0.05,
-    "can": -0.08
+    "hp": -0.08
    },
    "ships": [
     "ship_mimesis"
@@ -90,7 +90,7 @@
     "laser": 0.12,
     "rocket": 0.12,
     "evasion": 0.05,
-    "kalkan": -0.05
+    "shield": -0.05
    },
    "ships": [
     "ship_mimesis"
@@ -145,7 +145,7 @@
    "effects": {
     "laser": 0.1,
     "evasion": -0.05,
-    "kalkan": -0.05
+    "shield": -0.05
    },
    "ships": [
     "ship_retiarus",
@@ -216,7 +216,7 @@
    "effects": {
     "laser": 0.1,
     "rocket": 0.1,
-    "can": -0.08
+    "hp": -0.08
    },
    "ships": [
     "ship_tartarus",
@@ -228,7 +228,7 @@
    "effects": {
     "laser": 0.12,
     "rocket": 0.12,
-    "kalkan": -0.12
+    "shield": -0.12
    },
    "ships": [
     "ship_tartarus",
@@ -265,7 +265,7 @@
   "equipment_shipupgrade_dmg-x1": {
    "type": "DAMAGE",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [],
     "restabilize": {
      "refund": 2,
@@ -284,7 +284,7 @@
   "equipment_shipupgrade_dmg-x2": {
    "type": "DAMAGE",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [],
     "restabilize": {
      "refund": 4,
@@ -303,7 +303,7 @@
   "equipment_shipupgrade_dmg-x3": {
    "type": "DAMAGE",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [],
     "restabilize": {
      "refund": 4,
@@ -322,7 +322,7 @@
   "equipment_shipupgrade_dmg-xa01": {
    "type": "DAMAGE",
    "unstable": {
-    "en_az": 0.04,
+    "min_value": 0.04,
     "preference": [
      "ship_pusat-plus",
      "ship_sentinel",
@@ -347,7 +347,7 @@
   "equipment_shipupgrade_dmg-xh01": {
    "type": "DAMAGE",
    "unstable": {
-    "en_az": 0.04,
+    "min_value": 0.04,
     "preference": [
      "ship_berserker",
      "ship_sentinel"
@@ -369,7 +369,7 @@
   "equipment_shipupgrade_dmg-xhd01": {
    "type": "DAMAGE",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [
      "ship_citadel",
      "ship_citadel-plus",
@@ -405,7 +405,7 @@
   "equipment_shipupgrade_dmg-xof01": {
    "type": "DAMAGE",
    "unstable": {
-    "en_az": 0.04,
+    "min_value": 0.04,
     "preference": [],
     "restabilize": {
      "refund": 4,
@@ -432,7 +432,7 @@
   "equipment_shipupgrade_dmg-xof02": {
    "type": "DAMAGE",
    "unstable": {
-    "en_az": 0.05,
+    "min_value": 0.05,
     "preference": [],
     "restabilize": {
      "refund": 4,
@@ -454,7 +454,7 @@
   "equipment_shipupgrade_dmg-xsp01": {
    "type": "DAMAGE",
    "unstable": {
-    "en_az": 0.09,
+    "min_value": 0.09,
     "preference": [],
     "restabilize": {
      "refund": 20,
@@ -476,7 +476,7 @@
   "equipment_shipupgrade_dmg-xt10": {
    "type": "DAMAGE",
    "unstable": {
-    "en_az": 0.1,
+    "min_value": 0.1,
     "preference": [
      "ship_orcus",
      "ship_centurion"
@@ -498,7 +498,7 @@
   "equipment_shipupgrade_dmg-xu01": {
    "type": "DAMAGE",
    "unstable": {
-    "en_az": 0.05,
+    "min_value": 0.05,
     "preference": [
      "ship_citadel-plus",
      "ship_goliath-plus",
@@ -524,7 +524,7 @@
   "equipment_shipupgrade_dmg-xu02": {
    "type": "DAMAGE",
    "unstable": {
-    "en_az": 0.05,
+    "min_value": 0.05,
     "preference": [
      "ship_solaris-plus",
      "ship_solace-plus",
@@ -556,7 +556,7 @@
   "equipment_shipupgrade_dmg-xu03": {
    "type": "DAMAGE",
    "unstable": {
-    "en_az": 0.05,
+    "min_value": 0.05,
     "preference": [
      "ship_solaris-plus",
      "ship_solace-plus",
@@ -589,7 +589,7 @@
   "equipment_shipupgrade_dmg-xv01": {
    "type": "DAMAGE",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [
      "ship_berserker",
      "ship_solaris"
@@ -614,7 +614,7 @@
   "equipment_shipupgrade_dmg-xv02": {
    "type": "DAMAGE",
    "unstable": {
-    "en_az": 0.05,
+    "min_value": 0.05,
     "preference": [
      "ship_solaris",
      "ship_berserker",
@@ -638,7 +638,7 @@
   "equipment_shipupgrade_dmg-xv03": {
    "type": "DAMAGE",
    "unstable": {
-    "en_az": 0.05,
+    "min_value": 0.05,
     "preference": [
      "ship_solaris",
      "ship_berserker",
@@ -663,7 +663,7 @@
   "equipment_shipupgrade_dmg-xw01": {
    "type": "DAMAGE",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [],
     "restabilize": {
      "refund": 2,
@@ -692,7 +692,7 @@
   "equipment_shipupgrade_dmg-zpve": {
    "type": "DAMAGE",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [
      "ship_spectrum",
      "ship_mimesis"
@@ -717,7 +717,7 @@
   "equipment_shipupgrade_dmg-zpvp": {
    "type": "DAMAGE",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [
      "ship_diminisher",
      "ship_tartarus"
@@ -742,7 +742,7 @@
   "equipment_shipupgrade_dmg-zpvp02": {
    "type": "DAMAGE",
    "unstable": {
-    "en_az": 0.05,
+    "min_value": 0.05,
     "preference": [
      "ship_spearhead-plus",
      "ship_tempest",
@@ -768,7 +768,7 @@
   "equipment_shipupgrade_hp-a01": {
    "type": "HP",
    "effects": {
-    "can": 0.05
+    "hp": 0.05
    },
    "ships": [
     "ship_aegis",
@@ -779,7 +779,7 @@
   "equipment_shipupgrade_hp-bes01": {
    "type": "HP",
    "effects": {
-    "can": 0.2
+    "hp": 0.2
    },
    "ships": [
     "ship_g-bastion",
@@ -790,7 +790,7 @@
   "equipment_shipupgrade_hp-c01": {
    "type": "HP",
    "effects": {
-    "can": 0.1
+    "hp": 0.1
    },
    "ships": [
     "ship_citadel",
@@ -802,7 +802,7 @@
   "equipment_shipupgrade_hp-cht01": {
    "type": "HP",
    "effects": {
-    "can": 0.12
+    "hp": 0.12
    },
    "ships": [
     "ship_cyborg",
@@ -814,7 +814,7 @@
   "equipment_shipupgrade_hp-d01": {
    "type": "HP",
    "effects": {
-    "can": 0.2
+    "hp": 0.2
    },
    "ships": [
     "ship_disruptor"
@@ -823,7 +823,7 @@
   "equipment_shipupgrade_hp-dim01": {
    "type": "HP",
    "effects": {
-    "can": 0.1
+    "hp": 0.1
    },
    "ships": [
     "ship_diminisher"
@@ -832,7 +832,7 @@
   "equipment_shipupgrade_hp-ham01": {
    "type": "HP",
    "effects": {
-    "can": 0.15
+    "hp": 0.15
    },
    "ships": [
     "ship_hammerclaw",
@@ -845,7 +845,7 @@
    "effects": {
     "laser": 0.05,
     "rocket": 0.05,
-    "kalkan": -0.02
+    "shield": -0.02
    },
    "ships": [
     "ship_holo"
@@ -854,7 +854,7 @@
   "equipment_shipupgrade_hp-mtch01": {
    "type": "HP",
    "effects": {
-    "can": 0.08
+    "hp": 0.08
    },
    "ships": [
     "ship_hammerclaw",
@@ -871,7 +871,7 @@
   "equipment_shipupgrade_hp-npc01": {
    "type": "HP",
    "effects": {
-    "can": 0.13
+    "hp": 0.13
    },
    "ships": [
     "ship_sentinel",
@@ -884,7 +884,7 @@
   "equipment_shipupgrade_hp-s01": {
    "type": "HP",
    "effects": {
-    "can": 0.15
+    "hp": 0.15
    },
    "ships": [
     "ship_spearhead",
@@ -896,7 +896,7 @@
   "equipment_shipupgrade_hp-sol01": {
    "type": "HP",
    "effects": {
-    "can": 0.15
+    "hp": 0.15
    },
    "ships": [
     "ship_solace",
@@ -906,7 +906,7 @@
   "equipment_shipupgrade_hp-t01": {
    "type": "HP",
    "effects": {
-    "can": 0.25
+    "hp": 0.25
    },
    "ships": [
     "ship_tartarus",
@@ -916,7 +916,7 @@
   "equipment_shipupgrade_hp-vp01": {
    "type": "HP",
    "effects": {
-    "can": 0.15
+    "hp": 0.15
    },
    "ships": [
     "ship_vengeance",
@@ -932,7 +932,7 @@
   "equipment_shipupgrade_hp-x1": {
    "type": "HP",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [],
     "restabilize": {
      "refund": 2,
@@ -951,7 +951,7 @@
   "equipment_shipupgrade_hp-x2": {
    "type": "HP",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [],
     "restabilize": {
      "refund": 16,
@@ -970,7 +970,7 @@
   "equipment_shipupgrade_hp-x3": {
    "type": "HP",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [],
     "restabilize": {
      "refund": 4,
@@ -992,7 +992,7 @@
   "equipment_shipupgrade_hp-xa01": {
    "type": "HP",
    "unstable": {
-    "en_az": 0.05,
+    "min_value": 0.05,
     "preference": [
      "ship_pusat-plus",
      "ship_sentinel",
@@ -1017,7 +1017,7 @@
   "equipment_shipupgrade_hp-xh01": {
    "type": "HP",
    "unstable": {
-    "en_az": 0.04,
+    "min_value": 0.04,
     "preference": [
      "ship_berserker",
      "ship_sentinel"
@@ -1039,7 +1039,7 @@
   "equipment_shipupgrade_hp-xhd01": {
    "type": "HP",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [
      "ship_citadel",
      "ship_citadel-plus",
@@ -1073,7 +1073,7 @@
   "equipment_shipupgrade_hp-xof01": {
    "type": "HP",
    "unstable": {
-    "en_az": 0.04,
+    "min_value": 0.04,
     "preference": [],
     "restabilize": {
      "refund": 4,
@@ -1100,7 +1100,7 @@
   "equipment_shipupgrade_hp-xof02": {
    "type": "HP",
    "unstable": {
-    "en_az": 0.05,
+    "min_value": 0.05,
     "preference": [],
     "restabilize": {
      "refund": 4,
@@ -1122,7 +1122,7 @@
   "equipment_shipupgrade_hp-xsp01": {
    "type": "HP",
    "unstable": {
-    "en_az": 0.09,
+    "min_value": 0.09,
     "preference": [],
     "restabilize": {
      "refund": 20,
@@ -1144,7 +1144,7 @@
   "equipment_shipupgrade_hp-xt10": {
    "type": "HP",
    "unstable": {
-    "en_az": 0.1,
+    "min_value": 0.1,
     "preference": [
      "ship_orcus",
      "ship_centurion"
@@ -1166,7 +1166,7 @@
   "equipment_shipupgrade_hp-xu01": {
    "type": "HP",
    "unstable": {
-    "en_az": 0.05,
+    "min_value": 0.05,
     "preference": [
      "ship_citadel-plus",
      "ship_goliath-plus",
@@ -1192,7 +1192,7 @@
   "equipment_shipupgrade_hp-xu02": {
    "type": "HP",
    "unstable": {
-    "en_az": 0.05,
+    "min_value": 0.05,
     "preference": [
      "ship_solaris-plus",
      "ship_solace-plus",
@@ -1224,7 +1224,7 @@
   "equipment_shipupgrade_hp-xu03": {
    "type": "HP",
    "unstable": {
-    "en_az": 0.05,
+    "min_value": 0.05,
     "preference": [
      "ship_solaris-plus",
      "ship_solace-plus",
@@ -1257,7 +1257,7 @@
   "equipment_shipupgrade_hp-xv01": {
    "type": "HP",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [
      "ship_berserker",
      "ship_solaris"
@@ -1282,7 +1282,7 @@
   "equipment_shipupgrade_hp-xv02": {
    "type": "HP",
    "unstable": {
-    "en_az": 0.05,
+    "min_value": 0.05,
     "preference": [
      "ship_solaris",
      "ship_berserker",
@@ -1306,7 +1306,7 @@
   "equipment_shipupgrade_hp-xv03": {
    "type": "HP",
    "unstable": {
-    "en_az": 0.1,
+    "min_value": 0.1,
     "preference": [
      "ship_solaris",
      "ship_berserker",
@@ -1331,7 +1331,7 @@
   "equipment_shipupgrade_hp-xw01": {
    "type": "HP",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [],
     "restabilize": {
      "refund": 2,
@@ -1350,7 +1350,7 @@
   "equipment_shipupgrade_hp-zpve": {
    "type": "HP",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [
      "ship_spectrum",
      "ship_mimesis"
@@ -1375,7 +1375,7 @@
   "equipment_shipupgrade_hp-zpvp": {
    "type": "HP",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [
      "ship_diminisher",
      "ship_tartarus"
@@ -1400,7 +1400,7 @@
   "equipment_shipupgrade_hp-zpvp02": {
    "type": "HP",
    "unstable": {
-    "en_az": 0.05,
+    "min_value": 0.05,
     "preference": [
      "ship_spearhead-plus",
      "ship_tempest",
@@ -1426,7 +1426,7 @@
   "equipment_shipupgrade_shd-bach01": {
    "type": "SHIELD",
    "effects": {
-    "kalkan": 0.15
+    "shield": 0.15
    },
    "ships": [
     "ship_g-champion",
@@ -1441,10 +1441,10 @@
   "equipment_shipupgrade_shd-c01": {
    "type": "SHIELD",
    "effects": {
-    "kalkan": 0.15,
+    "shield": 0.15,
     "laser": 0.05,
     "rocket": 0.05,
-    "can": -0.05
+    "hp": -0.05
    },
    "ships": [
     "ship_citadel",
@@ -1456,10 +1456,10 @@
   "equipment_shipupgrade_shd-cht01": {
    "type": "SHIELD",
    "effects": {
-    "can": -0.05,
+    "hp": -0.05,
     "laser": 0.05,
     "rocket": 0.05,
-    "kalkan": 0.15
+    "shield": 0.15
    },
    "ships": [
     "ship_cyborg",
@@ -1471,7 +1471,7 @@
   "equipment_shipupgrade_shd-dim01": {
    "type": "SHIELD",
    "effects": {
-    "kalkan": 0.25
+    "shield": 0.25
    },
    "ships": [
     "ship_diminisher"
@@ -1480,7 +1480,7 @@
   "equipment_shipupgrade_shd-gol01": {
    "type": "SHIELD",
    "effects": {
-    "kalkan": 0.05,
+    "shield": 0.05,
     "evasion": 0.05
    },
    "ships": [
@@ -1493,7 +1493,7 @@
   "equipment_shipupgrade_shd-holo": {
    "type": "SHIELD",
    "effects": {
-    "kalkan": 0.08
+    "shield": 0.08
    },
    "ships": [
     "ship_holo"
@@ -1502,9 +1502,9 @@
   "equipment_shipupgrade_shd-ms01": {
    "type": "SHIELD",
    "effects": {
-    "kalkan": 0.08,
+    "shield": 0.08,
     "evasion": 0.05,
-    "can": -0.05
+    "hp": -0.05
    },
    "ships": [
     "ship_mimesis"
@@ -1513,9 +1513,9 @@
   "equipment_shipupgrade_shd-sen01": {
    "type": "SHIELD",
    "effects": {
-    "kalkan": 0.15,
+    "shield": 0.15,
     "shield_penetration": 0.05,
-    "can": -0.05
+    "hp": -0.05
    },
    "ships": [
     "ship_sentinel"
@@ -1524,7 +1524,7 @@
   "equipment_shipupgrade_shd-sh01": {
    "type": "SHIELD",
    "effects": {
-    "kalkan": 0.1,
+    "shield": 0.1,
     "laser": 0.05,
     "rocket": 0.05,
     "speed": -0.05
@@ -1539,7 +1539,7 @@
   "equipment_shipupgrade_shd-sh02": {
    "type": "SHIELD",
    "effects": {
-    "kalkan": 0.15,
+    "shield": 0.15,
     "speed": -0.05
    },
    "ships": [
@@ -1552,7 +1552,7 @@
   "equipment_shipupgrade_shd-sk01": {
    "type": "SHIELD",
    "effects": {
-    "kalkan": 0.12,
+    "shield": 0.12,
     "laser": -0.05,
     "rocket": -0.05
    },
@@ -1567,8 +1567,8 @@
   "equipment_shipupgrade_shd-sl01": {
    "type": "SHIELD",
    "effects": {
-    "kalkan": 0.1,
-    "can": -0.05
+    "shield": 0.1,
+    "hp": -0.05
    },
    "ships": [
     "ship_sentinel",
@@ -1579,9 +1579,9 @@
   "equipment_shipupgrade_shd-t01": {
    "type": "SHIELD",
    "effects": {
-    "kalkan": 0.15,
+    "shield": 0.15,
     "evasion": 0.1,
-    "can": -0.1
+    "hp": -0.1
    },
    "ships": [
     "ship_tartarus",
@@ -1591,7 +1591,7 @@
   "equipment_shipupgrade_shd-x1": {
    "type": "SHIELD",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [],
     "restabilize": {
      "refund": 2,
@@ -1610,7 +1610,7 @@
   "equipment_shipupgrade_shd-x2": {
    "type": "SHIELD",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [],
     "restabilize": {
      "refund": 4,
@@ -1629,7 +1629,7 @@
   "equipment_shipupgrade_shd-x3": {
    "type": "SHIELD",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [],
     "restabilize": {
      "refund": 4,
@@ -1648,7 +1648,7 @@
   "equipment_shipupgrade_shd-xa01": {
    "type": "SHIELD",
    "unstable": {
-    "en_az": 0.04,
+    "min_value": 0.04,
     "preference": [
      "ship_pusat-plus",
      "ship_sentinel",
@@ -1673,7 +1673,7 @@
   "equipment_shipupgrade_shd-xh01": {
    "type": "SHIELD",
    "unstable": {
-    "en_az": 0.04,
+    "min_value": 0.04,
     "preference": [
      "ship_berserker",
      "ship_sentinel"
@@ -1695,7 +1695,7 @@
   "equipment_shipupgrade_shd-xhd01": {
    "type": "SHIELD",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [
      "ship_citadel",
      "ship_citadel-plus",
@@ -1731,7 +1731,7 @@
   "equipment_shipupgrade_shd-xof01": {
    "type": "SHIELD",
    "unstable": {
-    "en_az": 0.04,
+    "min_value": 0.04,
     "preference": [],
     "restabilize": {
      "refund": 4,
@@ -1758,7 +1758,7 @@
   "equipment_shipupgrade_shd-xof02": {
    "type": "SHIELD",
    "unstable": {
-    "en_az": 0.05,
+    "min_value": 0.05,
     "preference": [],
     "restabilize": {
      "refund": 4,
@@ -1780,7 +1780,7 @@
   "equipment_shipupgrade_shd-xsp01": {
    "type": "SHIELD",
    "unstable": {
-    "en_az": 0.09,
+    "min_value": 0.09,
     "preference": [],
     "restabilize": {
      "refund": 20,
@@ -1802,7 +1802,7 @@
   "equipment_shipupgrade_shd-xt10": {
    "type": "SHIELD",
    "unstable": {
-    "en_az": 0.1,
+    "min_value": 0.1,
     "preference": [
      "ship_orcus",
      "ship_centurion"
@@ -1824,7 +1824,7 @@
   "equipment_shipupgrade_shd-xu01": {
    "type": "SHIELD",
    "unstable": {
-    "en_az": 0.05,
+    "min_value": 0.05,
     "preference": [
      "ship_citadel-plus",
      "ship_goliath-plus",
@@ -1850,7 +1850,7 @@
   "equipment_shipupgrade_shd-xu02": {
    "type": "SHIELD",
    "unstable": {
-    "en_az": 0.05,
+    "min_value": 0.05,
     "preference": [
      "ship_solaris-plus",
      "ship_solace-plus",
@@ -1882,7 +1882,7 @@
   "equipment_shipupgrade_shd-xu03": {
    "type": "SHIELD",
    "unstable": {
-    "en_az": 0.05,
+    "min_value": 0.05,
     "preference": [
      "ship_solaris-plus",
      "ship_solace-plus",
@@ -1915,7 +1915,7 @@
   "equipment_shipupgrade_shd-xv01": {
    "type": "SHIELD",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [
      "ship_berserker",
      "ship_solaris"
@@ -1940,7 +1940,7 @@
   "equipment_shipupgrade_shd-xv02": {
    "type": "SHIELD",
    "unstable": {
-    "en_az": 0.05,
+    "min_value": 0.05,
     "preference": [
      "ship_solaris",
      "ship_berserker",
@@ -1964,7 +1964,7 @@
   "equipment_shipupgrade_shd-xv03": {
    "type": "SHIELD",
    "unstable": {
-    "en_az": 0.1,
+    "min_value": 0.1,
     "preference": [
      "ship_solaris",
      "ship_berserker",
@@ -1989,7 +1989,7 @@
   "equipment_shipupgrade_shd-xw01": {
    "type": "SHIELD",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [],
     "restabilize": {
      "refund": 2,
@@ -2008,7 +2008,7 @@
   "equipment_shipupgrade_shd-zpve": {
    "type": "SHIELD",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [
      "ship_spectrum",
      "ship_mimesis"
@@ -2033,7 +2033,7 @@
   "equipment_shipupgrade_shd-zpvp": {
    "type": "SHIELD",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [
      "ship_diminisher",
      "ship_tartarus"
@@ -2058,7 +2058,7 @@
   "equipment_shipupgrade_shd-zpvp02": {
    "type": "SHIELD",
    "unstable": {
-    "en_az": 0.05,
+    "min_value": 0.05,
     "preference": [
      "ship_spearhead-plus",
      "ship_tempest",
@@ -2097,7 +2097,7 @@
    "type": "SPECIAL",
    "effects": {
     "hit": 0.1,
-    "can": -0.05
+    "hp": -0.05
    },
    "ships": [
     "ship_citadel",
@@ -2204,7 +2204,7 @@
    "type": "SPECIAL",
    "effects": {
     "hit": 0.05,
-    "kalkan": -0.05
+    "shield": -0.05
    },
    "ships": [
     "ship_sentinel",
@@ -2244,7 +2244,7 @@
   "equipment_shipupgrade_spc-spe01": {
    "type": "SPECIAL",
    "effects": {
-    "kalkan": 0.1,
+    "shield": 0.1,
     "rocket": 0.2
    },
    "ships": [
@@ -2269,7 +2269,7 @@
    "effects": {
     "evasion": 0.1,
     "speed": 0.02,
-    "kalkan": -0.1
+    "shield": -0.1
    },
    "ships": [
     "ship_vengeance",
@@ -2285,7 +2285,7 @@
   "equipment_shipupgrade_spc-x1": {
    "type": "SPECIAL",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [],
     "restabilize": {
      "refund": 2,
@@ -2304,7 +2304,7 @@
   "equipment_shipupgrade_spc-x2": {
    "type": "SPECIAL",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [],
     "restabilize": {
      "refund": 2,
@@ -2323,7 +2323,7 @@
   "equipment_shipupgrade_spc-x3": {
    "type": "SPECIAL",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [],
     "restabilize": {
      "refund": 4,
@@ -2351,7 +2351,7 @@
   "equipment_shipupgrade_spc-xa01": {
    "type": "SPECIAL",
    "unstable": {
-    "en_az": 0.05,
+    "min_value": 0.05,
     "preference": [
      "ship_pusat-plus",
      "ship_sentinel",
@@ -2385,7 +2385,7 @@
   "equipment_shipupgrade_spc-xh01": {
    "type": "SPECIAL",
    "unstable": {
-    "en_az": 0.04,
+    "min_value": 0.04,
     "preference": [
      "ship_berserker",
      "ship_sentinel"
@@ -2416,7 +2416,7 @@
   "equipment_shipupgrade_spc-xhd01": {
    "type": "SPECIAL",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [
      "ship_citadel",
      "ship_citadel-plus",
@@ -2452,7 +2452,7 @@
   "equipment_shipupgrade_spc-xof01": {
    "type": "SPECIAL",
    "unstable": {
-    "en_az": 0.04,
+    "min_value": 0.04,
     "preference": [],
     "restabilize": {
      "refund": 4,
@@ -2479,7 +2479,7 @@
   "equipment_shipupgrade_spc-xof02": {
    "type": "SPECIAL",
    "unstable": {
-    "en_az": 0.05,
+    "min_value": 0.05,
     "preference": [],
     "restabilize": {
      "refund": 4,
@@ -2553,7 +2553,7 @@
   "equipment_shipupgrade_spc-xsp01": {
    "type": "SPECIAL",
    "unstable": {
-    "en_az": 0.09,
+    "min_value": 0.09,
     "preference": [],
     "restabilize": {
      "refund": 20,
@@ -2575,7 +2575,7 @@
   "equipment_shipupgrade_spc-xt10": {
    "type": "SPECIAL",
    "unstable": {
-    "en_az": 0.1,
+    "min_value": 0.1,
     "preference": [
      "ship_orcus",
      "ship_centurion"
@@ -2597,7 +2597,7 @@
   "equipment_shipupgrade_spc-xu01": {
    "type": "SPECIAL",
    "unstable": {
-    "en_az": 0.05,
+    "min_value": 0.05,
     "preference": [
      "ship_citadel-plus",
      "ship_goliath-plus",
@@ -2623,7 +2623,7 @@
   "equipment_shipupgrade_spc-xu02": {
    "type": "SPECIAL",
    "unstable": {
-    "en_az": 0.05,
+    "min_value": 0.05,
     "preference": [
      "ship_solaris-plus",
      "ship_solace-plus",
@@ -2655,7 +2655,7 @@
   "equipment_shipupgrade_spc-xu03": {
    "type": "SPECIAL",
    "unstable": {
-    "en_az": 0.05,
+    "min_value": 0.05,
     "preference": [
      "ship_solaris-plus",
      "ship_solace-plus",
@@ -2688,7 +2688,7 @@
   "equipment_shipupgrade_spc-xv01": {
    "type": "SPECIAL",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [
      "ship_berserker",
      "ship_solaris"
@@ -2713,7 +2713,7 @@
   "equipment_shipupgrade_spc-xv02": {
    "type": "SPECIAL",
    "unstable": {
-    "en_az": 0.05,
+    "min_value": 0.05,
     "preference": [
      "ship_solaris",
      "ship_berserker",
@@ -2737,7 +2737,7 @@
   "equipment_shipupgrade_spc-xv03": {
    "type": "SPECIAL",
    "unstable": {
-    "en_az": 0.05,
+    "min_value": 0.05,
     "preference": [
      "ship_solaris",
      "ship_berserker",
@@ -2771,7 +2771,7 @@
   "equipment_shipupgrade_spc-xw01": {
    "type": "SPECIAL",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [],
     "restabilize": {
      "refund": 2,
@@ -2790,7 +2790,7 @@
   "equipment_shipupgrade_spc-zpve": {
    "type": "SPECIAL",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [
      "ship_spectrum",
      "ship_mimesis"
@@ -2815,7 +2815,7 @@
   "equipment_shipupgrade_spc-zpvp": {
    "type": "SPECIAL",
    "unstable": {
-    "en_az": null,
+    "min_value": null,
     "preference": [
      "ship_diminisher",
      "ship_tartarus"
@@ -2840,7 +2840,7 @@
   "equipment_shipupgrade_spc-zpvp02": {
    "type": "SPECIAL",
    "unstable": {
-    "en_az": 0.05,
+    "min_value": 0.05,
     "preference": [
      "ship_spearhead-plus",
      "ship_tempest",

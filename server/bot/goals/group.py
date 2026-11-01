@@ -44,7 +44,7 @@ class Group(Goal):
             return
         m = int(k.profile.d['position'].get('mapId', bot.game_map))
         bot.plan.update(leader=k.uid, map=m)
-        if m in K.MAPS and K.can_enter(m, bot.firma, bot.level):
+        if m in K.MAPS and K.can_enter(m, bot.company, bot.level):
             S.go(bot, m, y, now)
 
     def abstract(self, bot, dt, y):

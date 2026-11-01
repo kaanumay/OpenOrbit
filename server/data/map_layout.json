@@ -1,12 +1,12 @@
 {
  "_description": "Harita düzeni (harita_duzeni.py): engeller (MapAddPOICommand NO_ACCESS; istemci gemiyi kenarda durdurur, mini haritada taralı), portal yerleri, portalın hedef haritadaki varış yeri (\"rastgele\": hedef haritada rastgele bir yer), tek yönlü varış portalları (arrival_portals [x, y, firma]: tasarım 52, görünmez, atlanamaz), kapı ve mod portallarının tasarıma göre yeri (design_spot), Palladium alanı (ShieldDamage POI'si ve cevherler; alanın içinde gizlenme kapalı: dunya.rules_tick), mayın alanları (Mines POI'leri ve mayınlar), güvenli bölgeler [x, y, yarıçap], yapının yeri (5-2 korsan istasyonu, X-BL görev verici), yapı varlığının yeri (structure_asset; yoksa yapının yeri) ve yaklaşma bölgesinin yarıçapı (structure_radius), öteki bölgeler (bolgeler [poiId, POIType, şekil, tasarım, koordinatlar]: olduğu gibi), inler (türün sabit doğma noktaları), dolasma (uzaylılar engellerin çevresinden dolaşır), portal_safe (portal güvenli bölgesinin yarıçapı). engeller: [poiId, x0, y0, x1, y1, tasarım (POIDesign: 0 NONE görünmez, 3 ASTEROIDS_MIXED_WITH_SCRAP, 4 5-1'in labirenti, 14 Black Light), çokgense koordinatları (olduğu gibi gönderilir; sunucuda çevreleyen dikdörtgen)].",
- "_kaynak": {
+ "_source": {
   "5-X": "Engeller, Palladium alanları, mayın alanları, portal ve varış yerleri: Lyzard-NS/emu-dark NettyBaseReloaded/Game/World.cs (case 29/91/92/93) ve Spacemap.cs; fandom 5-1/5-3 harita kaplamalarıyla aynı (59 ve 87 dikdörtgen, ortanca sapma ~480 birim). Portalların firması istemcinin spacemap-config.xml ipuçlarından (emu-dark'ınkiyle çelişiyor); varış yeri portalın kendisine bağlı (emu-dark). 5-2 istasyonu (10400, 6800) emu-dark CreatePirateStation; yorumdaki SpaceStation3..23 parçaları istasyonun görünmez gövdesi, alansız çokgenler atlandı. 5-4 portalı fandom 5-4 \"top-right at roughly 193-34\". 5-3 çıkışları 4-4'te rastgele yere (emu-dark Vector.Random). Battleray'in yeri fandom 5-3 kaplaması (sağ alt, ~0,93 x 0,89).",
   "X-BL": "Duvarlar, portallar, görev verici ve CBS: oyuncuların mini harita ekran görüntüleri (board-fr 127829 s. 70; 385x275, iç çerçeve x 27-373, y 48-262 piksel; 1 piksel ~61 birim). İnler forumun tarifinden: 1-BL Invoke sol dikdörtgende, Mindfire sağ dikdörtgende; 2-BL Invoke alt dikdörtgende, Mindfire orta-sol karede; 3-BL Invoke sağ, Mindfire sol dikdörtgende (en çok 3 Invoke, 1 Mindfire; 15 dk). Portal güvenli bölgeleri \"çok küçük\" (FR70).",
   "official_recording": "Resmî sunucunun 2026-10-25 kaydı (server/kayit/referans, yerelde; OpenOrbitReferans eklentisi): 5-1, 5-2, 5-3 ve BL-2'nin bütün bölgeleri (engeller, Palladium, mayın alanları, 5-2 istasyonunun gövdesi ve Equippable Zone'u), 4-5, 5-X, 2-8 ve BL-2 portalları, 4-5 -> 5-1 -> 5-2 -> 5-3 varış yerleri (hedefte aynı firmanın tek yönlü portalı), 5-2 istasyonu (merkez, güvenli bölge 1.500, ticaret noktası), BL-2 görev vericisi, 2-1 ve 2-8'in kapı/mod portalları. Aşağıdaki 5-X ve X-BL kaynaklarının bu haritalardaki yerini aldı (5-3'ün inleri, 1-BL ve 3-BL eski kaynaktan).",
   "5-4": "fandom 5-4: 5-2'den atlayınca haritanın sağ tarafında kırık portallardan birinin yanına ışınlanılır, çıkış portalı solda (30-50 civarı). Varış yerleri 5-3'ün sağdaki kırık portallarının (aynı boyut, 42000x26200) firma başına yerleri (UYARLAMA: 5-4 için kayıt yok; 5-2'nin 93 varışlarıyla aynı üç nokta). Enkaz engelleri ve 4-4 çıkışı kaynakta koordinatsız: kayıt gelene dek eklenmedi (harita.EXTRA_GATES: dönüş portalı 5-2'ye, solda)"
  },
- "_uyarlama": "X-BL portal güvenli bölgesi 500; 1-BL ve 3-BL'nin engel tasarımı ve görev vericinin yaklaşma bölgesi (150) BL-2'ninki (ölçülmedi); inlerin tam yeri; mayın türü ACM-01 ve sayısı (alan başına mayin_adet; emu-dark 150); mayın alanları harita dışına taşıyor (kayıttaki gibi), mayınlar harita içine düşer.",
+ "_adaptation": "X-BL portal güvenli bölgesi 500; 1-BL ve 3-BL'nin engel tasarımı ve görev vericinin yaklaşma bölgesi (150) BL-2'ninki (ölçülmedi); inlerin tam yeri; mayın türü ACM-01 ve sayısı (alan başına mayin_adet; emu-dark 150); mayın alanları harita dışına taşıyor (kayıttaki gibi), mayınlar harita içine düşer.",
  "mine": {
   "type": "ammunition_mine_acm-01",
   "count": 150,
@@ -19,8 +19,8 @@
  "maps": {
   "476": {
    "_name": "DSE 3 (resmî istemcide Battlefield III)",
-   "_kaynak": "Oyuncu bildirimi 2026-10-28, resmî oyunun mini harita görüntüsü (Battlefield III 143/76): ortada taralı engel (7.000-13.000 x 4.000-8.000), engelin altında solda ve sağda bekleyen uzaylı kümeleri",
-   "_uyarlama": "İniş yeri (merkez) ve küme yarıçapı/fark mesafesi görüntüden kestirim; pusu yalnız 'yok et' seviyelerinde (koru/eşlikte uzaylılar dost gemiye gelir)",
+   "_source": "Oyuncu bildirimi 2026-10-28, resmî oyunun mini harita görüntüsü (Battlefield III 143/76): ortada taralı engel (7.000-13.000 x 4.000-8.000), engelin altında solda ve sağda bekleyen uzaylı kümeleri",
+   "_adaptation": "İniş yeri (merkez) ve küme yarıçapı/fark mesafesi görüntüden kestirim; pusu yalnız 'yok et' seviyelerinde (koru/eşlikte uzaylılar dost gemiye gelir)",
    "obstacles": [
     [
      "DSE3",
@@ -2201,7 +2201,7 @@
   },
   "200": {
    "_name": "LoW",
-   "_uyarlama": "Kırmızı uçuş yasağı bölgeleri (resmî forum Group Gate SSS: oyuncular geçemez, NPC'ler geçer; yani dolasma yok): koordinatlar wiki'nin LoW harita görselinden (664x492, oyunun 21000x13100'üne ölçeklenmiş) çıkarıldı, yaklaşık (±500-1000), resmî sunucunun değerleri değil. Tasarım 6 (SIMPLE) canlıda denenmedi.",
+   "_adaptation": "Kırmızı uçuş yasağı bölgeleri (resmî forum Group Gate SSS: oyuncular geçemez, NPC'ler geçer; yani dolasma yok): koordinatlar wiki'nin LoW harita görselinden (664x492, oyunun 21000x13100'üne ölçeklenmiş) çıkarıldı, yaklaşık (±500-1000), resmî sunucunun değerleri değil. Tasarım 6 (SIMPLE) canlıda denenmedi.",
    "obstacles": [
     [
      "LoWA",

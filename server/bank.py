@@ -32,12 +32,12 @@ def price(p):
 
 def info_cmd(p):
     return ('UridiumBankInfoCommand', dict(maxValue=B['maximum'], textKey='', secondsLeft=-1,
-                                           price='%d C' % price(p) if value(p) >= B['en_az'] else '', imgKey='', currentValue=value(p)))
+                                           price='%d C' % price(p) if value(p) >= B['min_value'] else '', imgKey='', currentValue=value(p)))
 
 
 def claim(p, money_msgs=None, log=print):
     v, cost = value(p), price(p)
-    if v < B['en_az'] or p.d['pilot'].get('credits', 0) < cost:
+    if v < B['min_value'] or p.d['pilot'].get('credits', 0) < cost:
         log('   Uridium Bank: could not claim (accumulated %d, credits %d / %d)' % (v, p.d['pilot'].get('credits', 0), cost))
         return [info_cmd(p)]
     p.gain(credits=-cost, uridium=v, reason='title_uridium_bank')

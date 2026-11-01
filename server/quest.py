@@ -73,7 +73,7 @@ AVOID_DAMAGE = 8             # damage limit display (its value is the damage tak
 # (client: GameDefineSystem.InitMiscellaneousConditionTypes) -> (session state, expected value): 3 visible, 4 hidden, 5 in a radiation
 # zone, 7 HP below one tenth (the session provides the state: Gorevler.state).
 ENDURANCE, DAMAGE, COORDINATES, MISCELLANEOUS = 3, 7, 11, 19
-MISC_STATE = {3: ('hidden', False), 4: ('hidden', True), 5: ('radiation', True), 7: ('az_can', True)}
+MISC_STATE = {3: ('hidden', False), 4: ('hidden', True), 5: ('radiation', True), 7: ('low_hp', True)}
 START = '_bas'               # start time in the active quest's values (timed quests and challenges)
 PERIOD = '_donem'            # the period in which the daily/weekly quest was accepted
 ACCEPT = '_accept'             # the moment a pool quest was accepted (14 days of the weekly GG ore quest)
@@ -376,7 +376,7 @@ class Quests:
                 for a in self.st['active']):
             self.log('   quest could not be accepted: %s (only one %s ore quest at a time)' % (qid, q['pool']['type']))    # forum 129125
             return [self.list_cmd()]
-        vals = {START: time.time()} if q.get('sure_sn') or q.get('challenge') else {}
+        vals = {START: time.time()} if q.get('duration_sec') or q.get('challenge') else {}
         if q.get('pool'):
             vals[PERIOD] = period_key(qid)
             vals[ACCEPT] = time.time()
@@ -385,7 +385,7 @@ class Quests:
         with self.p.lock:
             self.st['active'][str(qid)] = vals
             self.p.dirty = True
-        self.log('   quest accepted: %d %s%s' % (qid, q['name'], ' (%d sn)' % q['sure_sn'] if q.get('sure_sn') else ''))
+        self.log('   quest accepted: %d %s%s' % (qid, q['name'], ' (%d sn)' % q['duration_sec'] if q.get('duration_sec') else ''))
         msgs = [('QuestInitializationCommand', {'quest': self.definition(qid)}), self.list_cmd()] + self.mark_msgs(qid)
         msgs += self.event('level', value=self.p.d['pilot'].get('level', 1))        # "Level N": the current level
         return msgs + self.event('map', map=self.map_id) if self.map_id is not None else msgs
@@ -524,10 +524,10 @@ class Quests:
                     and now - self.st['active'][qs].get(ACCEPT, now) > 14 * 86400):
                 msgs += self.fail(int(qs), '14 gün geçti')        # forum 129125: an accepted quest does not drop when the period ends; weekly 14 days
                 continue
-            if not q or not q.get('sure_sn'):
+            if not q or not q.get('duration_sec'):
                 continue
             start = self.st['active'][qs].get(START, now)
-            if now - start >= q['sure_sn']:
+            if now - start >= q['duration_sec']:
                 msgs += self.fail(int(qs), 'süre doldu')
                 continue
             for c in conditions(q['root']):

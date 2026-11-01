@@ -21,7 +21,7 @@ once, USABLE_ONCE_PER_SCHEDULE / USABLE_LIMIT_PER_SCHEDULE once / max_uses times
 to an active event, otherwise the calendar day). CostScalingFactor: within the same period the materials grow by this ratio with every
 production. Recipes that ask for a ship (Plus ships): the base ship is spent from the inactive ones; the client's counter also counts the
 active one (inventory.client_count); only when producing with the active ship does the game show its "ship in use" warning.
-In the profile: assembly {uretim: {recipe: {count, end_time, previous}}, counter: {recipe: total}, daily: {recipe: [day, count]}, seen: [recipe],
+In the profile: assembly {production: {recipe: {count, end_time, previous}}, counter: {recipe: total}, daily: {recipe: [day, count]}, seen: [recipe],
 filters: {}}.
 """
 import json, math, os, time
@@ -38,7 +38,7 @@ T = json.load(open(os.path.join(HERE, 'data', 'recipes.json'), encoding='utf8'))
 INGREDIENTS = {loot for r in T.values() for loot in r.get('parts', {})}      # counters sent at login (shop.count_msgs)
 ALREADY_OWNS, ALREADY_USED, ALREADY_USED_LIMIT = 0, 1, 2          # RecipeUnavailableType (client)
 # recipes unlocked by a condition (wiki): the Spartan drone design once the Kronos gate is completed
-UNLOCK = {'recipe_blueprint-spartan': lambda p: ((p.d.get('kapilar') or {}).get('kapilar', {}).get('kronos') or {}).get('done', 0) > 0,
+UNLOCK = {'recipe_blueprint-spartan': lambda p: ((p.d.get('gates') or {}).get('gates', {}).get('kronos') or {}).get('done', 0) > 0,
           'recipe_blueprint-immunizer-cpu': lambda p: True}        # Quarantine Zone is permanent in single player (stage 8)
 SKIP_U_PER_MIN = 1                                                # adaptation: remaining minutes cost 1 uridium
 NO_LIMIT = 'ALWAYS_USABLE'
@@ -149,7 +149,7 @@ class Assembly:
     @property
     def st(self):
         d = self.p.d.setdefault('assembly', {})
-        for k, v in (('uretim', {}), ('counter', {}), ('daily', {}), ('seen', []), ('filters', {})):
+        for k, v in (('production', {}), ('counter', {}), ('daily', {}), ('seen', []), ('filters', {})):
             d.setdefault(k, v)
         return d
 
@@ -163,7 +163,7 @@ class Assembly:
         seen = set(out)
         out += [k for k in event_recipes(self.p) if k not in seen]
         seen = set(out)
-        return out + sorted(k for k in self.st['uretim'] if k in T and k not in seen)
+        return out + sorted(k for k in self.st['production'] if k in T and k not in seen)
 
     def used_today(self, key):
         """Production count in this period (period_of: the event period or the day)."""
@@ -190,7 +190,7 @@ class Assembly:
 
     def status(self, key, now=None):
         now = now or time.time()
-        b = self.st['uretim'].get(key)
+        b = self.st['production'].get(key)
         if b:
             if now < b['end_time']:
                 return mod('AssemblyRecipeBuildStatusModule', buildAmount=b['count'], remainingTimeMillis=int((b['end_time'] - now) * 1000),
@@ -248,8 +248,8 @@ class Assembly:
     def build(self, f):
         key, amount = f.get('recipeLootId', ''), max(1, int(f.get('amount') or 1))
         r = T.get(key)
-        if not r or key not in self.visible() or key in self.st['uretim']:
-            self.log('   Assembly: cannot produce %s (%s)' % (key, 'no such recipe' if not r else 'in progress' if key in self.st['uretim'] else 'not visible'))
+        if not r or key not in self.visible() or key in self.st['production']:
+            self.log('   Assembly: cannot produce %s (%s)' % (key, 'no such recipe' if not r else 'in progress' if key in self.st['production'] else 'not visible'))
             return [self.update(key)] if r else []
         left = self.limit_left(key)
         if left is not None:
@@ -269,24 +269,24 @@ class Assembly:
         removed = INV.spend(self.p, need, reason='buy_SPECIAL', detail=key)
         now = time.time()
         with self.p.lock:
-            self.st['uretim'][key] = dict(count=amount, end_time=now + SET.duration(r['sure_sn'] * amount, 'assembly'), previous=self.st['counter'].get(key, 0))
+            self.st['production'][key] = dict(count=amount, end_time=now + SET.duration(r['duration_sec'] * amount, 'assembly'), previous=self.st['counter'].get(key, 0))
             if key not in self.st['seen']:
                 self.st['seen'].append(key)
             if r['usage'] != NO_LIMIT or r['scale'] != 1:
                 self.st['daily'][key] = [period_of(key), self.used_today(key) + amount]
             self.p.dirty = True
         self.p.ach('assembly_build', recipe=key, count=amount)
-        self.log('   Assembly: %s x%d started (%d s; %s)' % (key, amount, r['sure_sn'] * amount, need))
+        self.log('   Assembly: %s x%d started (%d s; %s)' % (key, amount, r['duration_sec'] * amount, need))
         return INV.update_msgs(self.m, self.p, list(need), removed) + [self.update(key, f.get('targetItemId', 0))]
 
     def collect(self, f, now=None):
         key = f.get('recipeLootId', '')
-        b = self.st['uretim'].get(key)
+        b = self.st['production'].get(key)
         now = now or time.time()
         if not b or now < b['end_time']:
             return [self.update(key)] if key in T else []
         with self.p.lock:
-            del self.st['uretim'][key]
+            del self.st['production'][key]
             self.st['counter'][key] = self.st['counter'].get(key, 0) + b['count']
             self.p.dirty = True
         msgs = []
@@ -321,7 +321,7 @@ class Assembly:
 
     def skip(self, f):
         key = f.get('recipeLootId', '')
-        b = self.st['uretim'].get(key)
+        b = self.st['production'].get(key)
         now = time.time()
         if not b or now >= b['end_time']:
             return [self.update(key)] if key in T else []
@@ -395,10 +395,10 @@ class Assembly:
             self.shown = set(keys)
         self.up.m, self.up.send, self.up.refresh = self.m, self.send, self.content
         self.up.tick(now)
-        done = [k for k, b in self.st['uretim'].items() if not b.get('notified') and now >= b['end_time']]
+        done = [k for k, b in self.st['production'].items() if not b.get('notified') and now >= b['end_time']]
         for k in done:
             with self.p.lock:
-                self.st['uretim'][k]['notified'] = True
+                self.st['production'][k]['notified'] = True
                 self.p.dirty = True
         if done and self.send:
             self.send([self.update(k, now=now) for k in done])

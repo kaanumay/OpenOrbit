@@ -69,7 +69,7 @@ def effect_def(p, item):
 
 def duration(p, item):
     o = special(p, item)
-    return o['sure_sn'] if 'sure_sn' in o else ABILITIES[item]['sure_sn'] * factor(p, item, 'sure')
+    return o['duration_sec'] if 'duration_sec' in o else ABILITIES[item]['duration_sec'] * factor(p, item, 'duration')
 
 
 def cooldown(p, item):
@@ -170,7 +170,7 @@ def timer_fields(p, item, now=None):
     return dict(activatable=True, timerState=READY, maxTime=0, time=0)
 
 
-HECATE_BEAM = {k: dict(sure_sn=5, first=8050, increase=6000, slow=0.1, npc=('experiment_beacon',))      # forum 143093 (Plutus Deneyleri)
+HECATE_BEAM = {k: dict(duration_sec=5, first=8050, increase=6000, slow=0.1, npc=('experiment_beacon',))      # forum 143093 (Plutus Deneyleri)
                for k in ('ability_hecate_particle-beam', 'ability_hecate-plus_particle-beam-plus')}
 GROUP_RANGE = 1000          # range of the group abilities (not in the source: adaptation)
 PVP_SLOW = 0.4             # forum 160373: Hyperion Anchor slows the player by 40%
@@ -318,7 +318,7 @@ class Engine:
 
     def heal_bot(self, n, hp=0, shield=0):
         h0, s0 = n.hp, n.shield
-        n.hp, n.shield = min(n.d['hp'], n.hp + hp), min(n.d['kalkan'], n.shield + shield)
+        n.hp, n.shield = min(n.d['hp'], n.hp + hp), min(n.d['shield'], n.shield + shield)
         # player report 2026-11-01: the repair was not visible; "+amount" above the bot (world.heal_msgs's HL line, the healing hero)
         msgs = [legacy('0|A|HL|%d|%d|%s|%d|%d' % (self.w.hid, n.id, kind, int(v), int(v) - int(v0)))
                 for kind, v0, v in (('HPT', h0, n.hp), ('SHD', s0, n.shield)) if int(v) > int(v0)]
@@ -586,7 +586,7 @@ class Engine:
         back = s.pop('shut_off', 0)
         if back and s.get('target') in w.npcs and w.npcs[s['target']].alive:
             n = w.npcs[s['target']]
-            n.shield = min(max(n.d.get('kalkan', 0), n.shield), n.shield + back)
+            n.shield = min(max(n.d.get('shield', 0), n.shield), n.shield + back)
             if w.target == n.id:
                 msgs.append(w.selection(n))
         if 'shield_loss' in e and not w.hero_dead:      # Weaken Shields: when the effect ends 30% of YOUR OWN shield goes
@@ -692,7 +692,7 @@ class Engine:
                     self.heal_mates(i, 'shield_repair', stop, now)
         for i, b in list(self.beams.items()):          # Hecate: 8,050 + 6,000 x elapsed s per second (forum 143093)
             h = HECATE_BEAM[i]
-            if now - b['start'] > h['sure_sn'] or w.hero_dead:
+            if now - b['start'] > h['duration_sec'] or w.hero_dead:
                 del self.beams[i]
                 continue
             if now - b['last'] < 1:

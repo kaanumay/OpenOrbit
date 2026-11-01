@@ -80,7 +80,7 @@ def speed_generators():
 
 
 def new_gear():
-    return {'ship': 'ship_phoenix', 'laser': {'equipment_weapon_laser_lf-1': 1}, 'kalkan': {}, 'speed': {}, 'drone': {},
+    return {'ship': 'ship_phoenix', 'laser': {'equipment_weapon_laser_lf-1': 1}, 'shield': {}, 'speed': {}, 'drone': {},
             'ammunition': AMMO[0]}
 
 
@@ -92,14 +92,14 @@ def outfit(gear, shield_share=0.6):
     drone_slots = sum(ITEMS['drones'].get(d, {}).get('slot', 1) * n for d, n in gear.get('drone', {}).items())
     lasers = sorted((ITEMS['lasers'][l]['damage'] for l, n in gear.get('laser', {}).items() for _ in range(n) if l in ITEMS['lasers']),
                 reverse=True)[:g['laser'] + drone_slots]
-    shields = sorted(((ITEMS['shield_generators'][k]['kalkan'], ITEMS['shield_generators'][k]['absorb'])
-                 for k, n in gear.get('kalkan', {}).items() for _ in range(n) if k in ITEMS['shield_generators']), reverse=True)
+    shields = sorted(((ITEMS['shield_generators'][k]['shield'], ITEMS['shield_generators'][k]['absorb'])
+                 for k, n in gear.get('shield', {}).items() for _ in range(n) if k in ITEMS['shield_generators']), reverse=True)
     speeds = sorted((ITEMS['speed_generators'][k]['speed'] for k, n in gear.get('speed', {}).items() for _ in range(n)
                  if k in ITEMS['speed_generators']), reverse=True)
     slot = g['generators']
     nk = min(len(shields), max(int(round(slot * shield_share)), slot - len(speeds)))
     n_speed = min(len(speeds), slot - nk)
-    return {'ship': g, 'laser': lasers, 'kalkan': shields[:nk], 'speed': speeds[:n_speed], 'laser_slots': g['laser'] + drone_slots, 'gen_slot': slot}
+    return {'ship': g, 'laser': lasers, 'shield': shields[:nk], 'speed': speeds[:n_speed], 'laser_slots': g['laser'] + drone_slots, 'gen_slot': slot}
 
 
 def drone_set(gear):
@@ -118,13 +118,13 @@ def values(gear, shield_share=0.6):
     drone_slots = sum(ITEMS['drones'].get(d, {}).get('slot', 1) * n for d, n in gear.get('drone', {}).items())
     damage *= 1 + set_bonus.get('drone_laser', 0) * min(1.0, drone_slots / max(1, len(y['laser'])))        # Havoc: only to the drone lasers
     dps = damage / LASER_INTERVAL
-    shield = sum(k for k, _ in y['kalkan'])
-    absorb = (sum(k * e for k, e in y['kalkan']) / shield) if shield else 0.0
-    hp = y['ship']['hp'] * (1 + set_bonus.get('can', 0))               # Hercules set: +20% HP
+    shield = sum(k for k, _ in y['shield'])
+    absorb = (sum(k * e for k, e in y['shield']) / shield) if shield else 0.0
+    hp = y['ship']['hp'] * (1 + set_bonus.get('hp', 0))               # Hercules set: +20% HP
     ehp = hp + shield * 2.5 * min(1.0, absorb + 0.2)         # the shield absorbs most of the damage and refills between targets
     speed = y['ship']['base_speed'] + sum(y['speed'])
-    return dict(dps=dps, can=hp, kalkan=shield, absorb=absorb, ehp=ehp, speed=speed, power=power_score(dps, ehp),
-                laser=len(y['laser']), laser_slots=y['laser_slots'], gen=len(y['kalkan']) + len(y['speed']), gen_slot=y['gen_slot'])
+    return dict(dps=dps, hp=hp, shield=shield, absorb=absorb, ehp=ehp, speed=speed, power=power_score(dps, ehp),
+                laser=len(y['laser']), laser_slots=y['laser_slots'], gen=len(y['shield']) + len(y['speed']), gen_slot=y['gen_slot'])
 
 
 def power_score(dps, ehp):
@@ -143,7 +143,7 @@ def npc_value(tip):
         return _npc_cache[tip]
     t = NPC['types'].get(tip)
     v = None if not t else dict(
-        tip=tip, name=t['name'], ehp=t['hp'] + t['kalkan'], dps=t['damage'] * t.get('hit', COMBAT['npc_hit_chance'])
+        tip=tip, name=t['name'], ehp=t['hp'] + t['shield'], dps=t['damage'] * t.get('hit', COMBAT['npc_hit_chance'])
         / t.get('shot_interval_sec', NPC_INTERVAL), aggressive=bool(t.get('aggressive')), reward=t['reward'], speed=t['speed'],
         uid=t.get('npc_id', 0))
     _npc_cache[tip] = v

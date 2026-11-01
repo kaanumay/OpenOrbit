@@ -15,7 +15,7 @@ LOGO = 'oo_rp_logo'
 BADGE = 'oo_rp_badge_%s_r2'                    # company emblem (small image)
 GITHUB = 'https://github.com/kaanumay/OpenOrbit'
 INTERVAL_SEC = 15
-FIRMA = {1: 'mmo', 2: 'eic', 3: 'vru'}
+COMPANY = {1: 'mmo', 2: 'eic', 3: 'vru'}
 
 
 def region(game_map, gate):
@@ -36,7 +36,7 @@ def ship_name(loot):
 
 def event(live, setting, _, state):
     """The panel's state -> the SET_ACTIVITY activity (None: nothing to show). The preview shows this too.
-    live: canli_durum.json (if the game server is running); state: 'in_game' | 'friend' (on a friend's server) | 'entry' | 'starting'
+    live: live_status.json (if the game server is running); state: 'in_game' | 'friend' (on a friend's server) | 'entry' | 'starting'
     | 'panel'."""
     a = lambda k: setting.get('rp_' + k)
     if state != 'in_game' or not live:
@@ -67,14 +67,14 @@ def event(live, setting, _, state):
         else:
             status = _('Flying through space')
         sub = [x for x in (location.get('map') if a('map') else None, status) if x]
-        firma = FIRMA.get(pl.get('company'))
+        company = COMPANY.get(pl.get('company'))
         e = {'details': ' · '.join(x.strip() for x in parent if x.strip()) or _('In space'),
              'state': ' · '.join(sub) or _('In game'),
              'assets': {'large_image': region(location.get('map'), gate) if a('map') else LOGO,
                         'large_text': (_('%s map', location['map']) if a('map') and location.get('map') else 'OpenOrbit')}}
-        if a('company') and firma:
-            e['assets'].update(small_image=BADGE % firma, small_text=firma.upper())
-        if a('sure') and live.get('session_start'):
+        if a('company') and company:
+            e['assets'].update(small_image=BADGE % company, small_text=company.upper())
+        if a('duration') and live.get('session_start'):
             e['timestamps'] = {'start': int(live['session_start'])}
         friends = live.get('friend')
         if a('group') and friends and friends.get('guests'):

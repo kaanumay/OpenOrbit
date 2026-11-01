@@ -47,7 +47,7 @@ import settings as SET
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 K = DATA.load('gates.json')
-KAPI = K['kapilar']
+KAPI = K['gates']
 BY_ID = {v['uid']: k for k, v in KAPI.items()}
 BY_MAP = {m: k for k, v in KAPI.items() for m in v['maps']}
 SIZES = {int(m): tuple(s) for v in KAPI.values() for m, s in v['sizes'].items()}     # gate maps that differ from the standard size
@@ -80,7 +80,7 @@ def mod(name, **f):
 
 def rings(profile):
     """The profile's gate rings (galaxyGatesDone): the bits of gates completed at least once (a gate completed via Dispatch counts too)."""
-    gates = (profile.d.get('kapilar') or {}).get('kapilar', {})
+    gates = (profile.d.get('gates') or {}).get('gates', {})
     return sum(bit for key, bit in RINGS.items() if gates.get(key, {}).get('done'))
 
 
@@ -117,7 +117,7 @@ def register_npcs(types):
         for n, w in enumerate(g['waves']):
             for i, a in enumerate(w['alien_spawns']):
                 types[npc_type(key, n, i)] = dict(
-                    name=a['display_name'], model=a['type'], hp=a['hp'], kalkan=a['kalkan'], damage=a['damage'], speed=a['speed'],
+                    name=a['display_name'], model=a['type'], hp=a['hp'], shield=a['shield'], damage=a['damage'], speed=a['speed'],
                     aggressive=True, reward=dict(a['reward']), cargo=dict(a['cargo']), npc_id=a['npc_id'], gate=key,
                     shield_absorb=a.get('shield_absorb', GATE_ABSORB))
                 if a.get('behavior'):
@@ -209,7 +209,7 @@ def pace(name):
 
 
 def fresh(g, old=None):
-    out = {'parts': sorted((old or {}).get('next', [])), 'ready': False, 'wave': 0, 'can': g['can'], 'lives_bought': 0,
+    out = {'parts': sorted((old or {}).get('next', [])), 'ready': False, 'wave': 0, 'hp': g['hp'], 'lives_bought': 0,
            'done': (old or {}).get('done', 0)}      # parts collected while a ready gate is in progress (next) go to the new gate
     if 'sources' in g:
         out['source'] = {}                # Kronos: how many parts came from which gate
@@ -236,7 +236,7 @@ def bonus_selection(now=None):
     """This period's bonus gates -> {gate: (lootId, count)}; fixed within the period (a choice seeded with the period's index)."""
     B = K.get('bonus') or {}
     n = int(SET.get('gate_bonus_count'))
-    gates = [k for k in B.get('kapilar', []) if k in KAPI]
+    gates = [k for k in B.get('gates', []) if k in KAPI]
     pool = B.get('rewards', [])
     if n <= 0 or not gates or not pool:
         return {}
@@ -298,22 +298,22 @@ class Gates:
     @property
     def d(self):
         """The gate section in the profile (created if absent). Lockless: the profile lock cannot be re-entered, callers use it inside the lock."""
-        d = self.p.d.get('kapilar')
+        d = self.p.d.get('gates')
         if d is None:
-            d = self.p.d['kapilar'] = {'energy': 0, 'multiplier': 0, 'spin': 1, 'log_disk': 0, 'voucher': 0, 'kapilar': {}}
+            d = self.p.d['gates'] = {'energy': 0, 'multiplier': 0, 'spin': 1, 'log_disk': 0, 'voucher': 0, 'gates': {}}
         if 'booty' in d:                       # old profile: gate loot was kept separately -> other_items (lootId)
             other = self.p.d.setdefault('other_items', {})
             for k, n in d.pop('booty').items():
                 other[LOOT_IDS.get(k, k)] = other.get(LOOT_IDS.get(k, k), 0) + n
         for k, g in KAPI.items():
-            if k not in d['kapilar']:
-                d['kapilar'][k] = fresh(g)
+            if k not in d['gates']:
+                d['gates'][k] = fresh(g)
             elif 'sources' in g:
-                d['kapilar'][k].setdefault('source', {})
+                d['gates'][k].setdefault('source', {})
         return d
 
     def gate(self, key):
-        return self.d['kapilar'][key]
+        return self.d['gates'][key]
 
     def built(self, key):
         return len(self.gate(key)['parts']) >= KAPI[key]['part']
@@ -404,7 +404,7 @@ class Gates:
             out['probabilityModules'] = [dict(m, percentage=pct.get(m.get('category'), m.get('percentage', 0)))
                                          for m in out['probabilityModules']]
         out.update(currPart=len(self.parts(key)), currWave=sub_waves(g, G['wave']), state=self.state(key),
-                   livesLeft=G['can'] if G['ready'] else -1, lifePrice=self.life_price(key), multiplier=self.d['multiplier'], mode=key,
+                   livesLeft=G['hp'] if G['ready'] else -1, lifePrice=self.life_price(key), multiplier=self.d['multiplier'], mode=key,
                    id=g['uid'], bonusGGRewardModules=self.bonus_modules(key))
         if 'sources' in g:
             # Kronos: progress per gate as in the record (the name is what the client shows, "Alpha", "Beta" ...)
@@ -670,13 +670,13 @@ class Gates:
         G = self.gate(key)
         with self.p.lock:
             if not G['ready']:
-                G.update(ready=True, wave=0, can=SET.count('gate_lives', KAPI[key]['can']), lives_bought=0)     # panel: gate lives
+                G.update(ready=True, wave=0, hp=SET.count('gate_lives', KAPI[key]['hp']), lives_bought=0)     # panel: gate lives
             self.p.dirty = True
         w = self.world()
         if w and w.map_id == str(self.home()) and not any(x['gateId'] == PORTAL_BASE + KAPI[key]['uid'] for x in w.gates):
             w.add_gate(self.home_portal(key, w.station))
-        self.log('   %s gate ready: %d lives' % (KAPI[key]['name'], G['can']))
-        return [('GalaxyGateBuilderSetupGateCommand', dict(livesLeft=G['can'], lifePrice=self.life_price(key), id=gid, errorCode=0))]
+        self.log('   %s gate ready: %d lives' % (KAPI[key]['name'], G['hp']))
+        return [('GalaxyGateBuilderSetupGateCommand', dict(livesLeft=G['hp'], lifePrice=self.life_price(key), id=gid, errorCode=0))]
 
     def buy_life(self, f):
         gid = f.get('gateId')
@@ -687,21 +687,21 @@ class Gates:
             return [screen('You cannot buy more lives for this gate.'),
                     ('GalaxyGateBuilderBuyLifeCommand', dict(samples=self.d['energy'], multiplier=self.d['multiplier'], gateId=gid or 0,
                                                              errorCode=ERR_NONE, lifePrice=price, money=self.money(), gateMode=key,
-                                                             livesLeft=G['can']))]
+                                                             livesLeft=G['hp']))]
         err = ERR_OTHER if price < 0 else ERR_MONEY if self.money() < price else ERR_NONE
         if not err:
             with self.p.lock:
                 self.p.d['pilot']['uridium'] = self.money() - price
                 G = self.gate(key)
-                G['can'] += 1
+                G['hp'] += 1
                 G['lives_bought'] += 1
                 self.p.dirty = True
             RT.money(self.p, 'uridium', -price, 'buy_SPECIAL')
-            self.log('   %s gate lives bought (%d U), lives %d' % (KAPI[key]['name'], price, G['can']))
-        G = self.gate(key) if key else {'can': -1}
+            self.log('   %s gate lives bought (%d U), lives %d' % (KAPI[key]['name'], price, G['hp']))
+        G = self.gate(key) if key else {'hp': -1}
         msgs = [('GalaxyGateBuilderBuyLifeCommand', dict(samples=self.d['energy'], multiplier=self.d['multiplier'], gateId=gid or 0, errorCode=err,
                                                          lifePrice=self.life_price(key) if key else -1, money=self.money(),
-                                                         gateMode=key or '', livesLeft=G['can']))]
+                                                         gateMode=key or '', livesLeft=G['hp']))]
         return (self.m.money_msgs() if self.m and not err else []) + msgs
 
     def home(self):
@@ -863,7 +863,7 @@ class Gates:
             new = fresh(g, self.gate(key))
             new['done'] += 1
             new['parts'] = sorted(set(new['parts']) | set(random.sample(range(1, g['part'] + 1), min(R['part'], g['part']))))
-            self.d['kapilar'][key] = new
+            self.d['gates'][key] = new
             self.p.dirty = True
         kronos = self.kronos_part(key, dispatch)
         bm, bonus, ship = self.claim_bonus(key, mark=not dispatch)   # timed gate bonus; one taken via Dispatch does not count as "taken" (forum 160334)
@@ -914,7 +914,7 @@ class Run:
         self.next_group = 0          # the time of the next escort group of a boss whose shield dropped
         self.protected = {}            # Delta: protected alien -> the escort in its group (Insta-Shield while alive)
         now = time.time()
-        if not G['ready'] or G['can'] <= 0:
+        if not G['ready'] or G['hp'] <= 0:
             self.phase, self.t = 'void', now          # no gate: only the exit portal
             world.add_gate(gates.exit_portal(key, self.map))
         elif wave_map(self.g, G['wave']) != self.map:
@@ -927,7 +927,7 @@ class Run:
             world.send(self.say('ongoing' if G['wave'] else 'entry'))
             if not G['wave']:                       # time from entering the first wave (in the session; in a multi-map gate across maps too)
                 gates.__dict__.setdefault('start', {})[key] = now
-        world.log('   %s gate: wave %d/%d, lives %d (%s)' % (self.g['name'], G['wave'] + 1, len(self.g['waves']), G['can'], self.phase))
+        world.log('   %s gate: wave %d/%d, lives %d (%s)' % (self.g['name'], G['wave'] + 1, len(self.g['waves']), G['hp'], self.phase))
 
     def wave(self):
         G = self.k.gate(self.key)
@@ -938,7 +938,7 @@ class Run:
         G = self.k.gate(self.key)
         waves = self.g['waves']
         n = min(G['wave'], len(waves) - 1)
-        vals = dict(gate=self.g['name'].replace(' Gate', ''), wave=n + 1, total=len(waves), can=G['can'], anahtar=self.key,
+        vals = dict(gate=self.g['name'].replace(' Gate', ''), wave=n + 1, total=len(waves), hp=G['hp'], key=self.key,
                     groups=len(waves[n]['groups']))
         vals.update(extra)
         m = self.messages().get(event, {})
@@ -969,7 +969,7 @@ class Run:
         left = int(math.ceil(self.t - now))
         if left in K['countdown'] and left != self.counted:
             self.counted = left
-            self.w.send(self.say('countdown', sn=left))
+            self.w.send(self.say('countdown', sec=left))
 
     def wave_msg(self):
         """The wave counter in sub-wave units (client "Wave: {0} / {1}", total GetGateTotalWaves; in Hades the stage is a quarter of it)."""
@@ -1040,8 +1040,8 @@ class Run:
             self.keep.clear()
             w.remove_gate(self.k.exit_portal(self.key, self.map)['gateId'])
             # end of the countdown, lives left (the client's lifes_left "%! lives left"), the wave's name (the user's real game footage)
-            msgs = (self.wave_msgs() + [legacy('0|A|STM|atk_wave_started|%%COUNT%%|%d' % (G['wave'] + 1))] + self.say('countdown', sn=0)
-                    + [stm('lifes_left', '%!', G['can'])] + self.say('wave_started'))
+            msgs = (self.wave_msgs() + [legacy('0|A|STM|atk_wave_started|%%COUNT%%|%d' % (G['wave'] + 1))] + self.say('countdown', sec=0)
+                    + [stm('lifes_left', '%!', G['hp'])] + self.say('wave_started'))
             if G['wave'] == self.wave_count() - 1:
                 msgs += self.say('last_wave')
             w.send(msgs)
@@ -1182,7 +1182,7 @@ class Run:
             more = self.sub + 1 < len(self.wave()['groups'])
             sec = int(round(self.g['shield_gap_sec'] * SET.multiplier('wave_wait')))
             self.next_group = now + sec if more else 0
-            w.send(self.sub_msgs() + self.shield(boss, False) + (self.say('shield_gap', name=self.boss, sn=sec) if more
+            w.send(self.sub_msgs() + self.shield(boss, False) + (self.say('shield_gap', name=self.boss, sec=sec) if more
                                                                   else self.say('protection_ended', name=self.boss)))
             return
         if self.next_group and now >= self.next_group:
@@ -1225,7 +1225,7 @@ class Run:
         w.add_gate(out)
         w.auto_jump(out, K.get('exit_wait_sec', 5))      # forum 127543: to X-1 by itself after the rewards
         msgs += [('GalaxyGateBuilderGateCompleteCommand', dict(gateId=self.g['uid'], currPart=len(info['new']['parts'])))]
-        msgs += self.say('wave_finished', wave=len(self.g['waves']), sn=0)[:1] + self.say('done')
+        msgs += self.say('wave_finished', wave=len(self.g['waves']), sec=0)[:1] + self.say('done')
         if info['kronos']:
             got, total = info['kronos']
             msgs += self.say('kronos_part', sk='s' if got == 1 else 'p', wild=dict(COUNT=got))
@@ -1241,10 +1241,10 @@ class Run:
         k, G = self.k, self.k.gate(self.key)
         with k.p.lock:
             if not SET.get('infinite_lives'):                    # panel: no lives are spent at the gate
-                G['can'] = max(0, G['can'] - 1)
-            left = G['can']
+                G['hp'] = max(0, G['hp'] - 1)
+            left = G['hp']
             if left <= 0:
-                k.d['kapilar'][self.key] = fresh(self.g, G)
+                k.d['gates'][self.key] = fresh(self.g, G)
             k.p.dirty = True
         self.w.send([('GalaxyGateBuilderGateLifeLostCommand', dict(gateId=self.g['uid'], livesLeft=left))])
         self.w.log('   %s gate life lost: %d left%s' % (self.g['name'], left, ' (gate lost)' if left <= 0 else ''))

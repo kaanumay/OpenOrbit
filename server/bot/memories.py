@@ -18,7 +18,7 @@ import time
 MAX_MEMORIES = 60                      # memories per bot (the least valuable one drops)
 MERGE_SEC = 1800              # an event of the same type with the same person is counted if repeated within this time ("x3")
 GRACE_SEC = 6 * 3600            # after a follow-up's due time passes it waits this long (if the person did not come online it is forgotten)
-PURPOSES = ('promise', 'intikam', 'thanks', 'rekabet', 'merak')
+PURPOSES = ('promise', 'revenge', 'thanks', 'rivalry', 'curiosity')
 FOLLOWUP_TOOLS = ('none', 'follow', 'group_invite', 'duel', 'go_help')
 
 # game event -> (note, type, emotion, importance); {ad} is the player
@@ -108,8 +108,8 @@ def text(b, who, now):
     return out
 
 
-PURPOSE_NAME = {'promise': 'a plan you agreed on', 'intikam': 'you want revenge', 'thanks': 'you owe him thanks', 'rekabet': 'a rivalry',
-           'merak': 'something you wanted to ask him'}
+PURPOSE_NAME = {'promise': 'a plan you agreed on', 'revenge': 'you want revenge', 'thanks': 'you owe him thanks', 'rivalry': 'a rivalry',
+           'curiosity': 'something you wanted to ask him'}
 
 
 def important(b, now, n=3, humans=None):
@@ -152,16 +152,16 @@ def from_event(y, b, name, kind, now=None):
     a = add(b, name, summary.format(name=name), t, emotion, importance, now)
     if a.get('followup'):
         return a
-    if kind == 'killed_me' and a['n'] >= 2 and b.o('aggression') > 0.45 and _firma(name) not in (0, b.firma) and b.permission.get('pvp', True):
-        a['followup'] = set_followup('intikam', now, b.r.uniform(3, 15), 'duel')             # if hit twice: revenge
+    if kind == 'killed_me' and a['n'] >= 2 and b.o('aggression') > 0.45 and _company(name) not in (0, b.company) and b.permission.get('pvp', True):
+        a['followup'] = set_followup('revenge', now, b.r.uniform(3, 15), 'duel')             # if hit twice: revenge
     elif kind == 'helped_me' and b.r.random() < 0.4 + 0.5 * b.o('sociability'):
         a['followup'] = set_followup('thanks', now, b.r.uniform(2, 8))
-    elif kind == 'insult' and a['n'] >= 2 and b.o('rekabet') > 0.5:
-        a['followup'] = set_followup('rekabet', now, b.r.uniform(5, 30))
+    elif kind == 'insult' and a['n'] >= 2 and b.o('rivalry') > 0.5:
+        a['followup'] = set_followup('rivalry', now, b.r.uniform(5, 30))
     return a
 
 
-def _firma(name):
+def _company(name):
     try:
         import community as TP
         k = TP.find(name=name)
@@ -195,5 +195,5 @@ def pick_gossip(b, now, r):
 
 def hear_gossip(listener, narrator, a, now):
     """The bot that heard the gossip: its relationship with the person changes slightly, a low-importance "heard" memory."""
-    listener.memory.event(a['who'], 'gossip_good' if a['emotion'] > 0.1 else 'gossip_bad' if a['emotion'] < -0.1 else 'sohbet', now)
+    listener.memory.event(a['who'], 'gossip_good' if a['emotion'] > 0.1 else 'gossip_bad' if a['emotion'] < -0.1 else 'chat', now)
     add(listener, a['who'], 'heard from %s: %s' % (narrator.name, a['summary']), 'heard', a['emotion'] * 0.5, 1, now)

@@ -430,11 +430,11 @@ class ApoRun:
 
     def snapshot(self):
         b = self.boss
-        return dict(ratio=self.left(), hp=b.hp / float(max(1, b.d['hp'])), kalkan=b.shield / float(max(1, b.d['kalkan'])),
+        return dict(ratio=self.left(), hp=b.hp / float(max(1, b.d['hp'])), shield=b.shield / float(max(1, b.d['shield'])),
                     damage=self.dealt, s=self.s, end_time=self.end)
 
     def boss_max(self):
-        return self.boss.d['hp'] + self.boss.d['kalkan']
+        return self.boss.d['hp'] + self.boss.d['shield']
 
     def left(self):
         b = self.boss
@@ -452,7 +452,7 @@ class ApoRun:
         b.gate, b.engaged = True, True
         b.damage_hook = self.boss_hit
         if r:
-            b.hp, b.shield = max(1, int(b.d['hp'] * r['hp'])), int(b.d['kalkan'] * r['kalkan'])
+            b.hp, b.shield = max(1, int(b.d['hp'] * r['hp'])), int(b.d['shield'] * r['shield'])
         self.boss = b
         self.phase = 'combat'
         now = time.time()

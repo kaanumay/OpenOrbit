@@ -28,7 +28,7 @@
    "vog_interceptor": {
     "name": "-=[ Interceptor ]=-",
     "hp": 90000,
-    "kalkan": 60000,
+    "shield": 60000,
     "damage": 500,
     "speed": 320,
     "aggressive": true,
@@ -55,7 +55,7 @@
    "vog_barracuda": {
     "name": "-=[ Barracuda ]=-",
     "hp": 270000,
-    "kalkan": 150000,
+    "shield": 150000,
     "damage": 6000,
     "speed": 280,
     "aggressive": true,
@@ -82,7 +82,7 @@
    "vog_saboteur": {
     "name": "-=[ Saboteur ]=-",
     "hp": 300000,
-    "kalkan": 225000,
+    "shield": 225000,
     "damage": 4000,
     "speed": 260,
     "aggressive": true,
@@ -112,7 +112,7 @@
    "time_sec": 600,
    "name": "-=[ Deadly Battleray ]=-",
    "hp": 1125000,
-   "kalkan": 900000,
+   "shield": 900000,
    "damage": 14000,
    "speed": 200,
    "aggressive": true,
@@ -284,8 +284,8 @@
     ]
    }
   },
-  "_kaynak": "vortex_of_greed.json: resmî SSS 2025-08, kayıttaki yanıt 2026-10-15 (dükkân ve haftalık sınır), istemcinin metinleri; tools/buyuk_icerikler.py",
-  "_uyarlama": "Uzaylılar normal türlerinin 1,5 katı can/kalkan (kaynak yalnız \"daha çok can\" diyor); hazine sahibinin ödülü 500 SC + 1 CNC + unvan; tahliye yarıçapı 500 ve konumlar oyuncudan 3.000 uzakta; ölünce taşınan paralar SAE_SHIP_BOX; tek harita (483); Vanguard uridyumla (mağaza)."
+  "_source": "vortex_of_greed.json: resmî SSS 2025-08, kayıttaki yanıt 2026-10-15 (dükkân ve haftalık sınır), istemcinin metinleri; tools/buyuk_icerikler.py",
+  "_adaptation": "Uzaylılar normal türlerinin 1,5 katı can/kalkan (kaynak yalnız \"daha çok can\" diyor); hazine sahibinin ödülü 500 SC + 1 CNC + unvan; tahliye yarıçapı 500 ve konumlar oyuncudan 3.000 uzakta; ölünce taşınan paralar SAE_SHIP_BOX; tek harita (483); Vanguard uridyumla (mağaza)."
  },
  "world_boss": {
   "event": "world_boss",
@@ -330,7 +330,7 @@
     "model": "DREADFYRE_FORTRESS",
     "npc_id": 501,
     "hp": 16000000,
-    "kalkan": 8000000,
+    "shield": 8000000,
     "damage": 0,
     "speed": 150,
     "aggressive": true,
@@ -348,7 +348,7 @@
     "model": "DREADFYRE_GUARDIAN",
     "npc_id": 502,
     "hp": 300000,
-    "kalkan": 150000,
+    "shield": 150000,
     "damage": 0,
     "speed": 0,
     "aggressive": true,
@@ -365,7 +365,7 @@
     "model": "DREADFYRE_HARBINGER",
     "npc_id": 503,
     "hp": 120000,
-    "kalkan": 60000,
+    "shield": 60000,
     "damage": 3500,
     "speed": 320,
     "aggressive": true,
@@ -1121,16 +1121,16 @@
    "type": "DREADFYRE_HARBINGER_BOX",
    "lifetime_sec": 60,
    "buffs": [
-    "can",
+    "hp",
     "speed",
-    "kalkan",
+    "shield",
     "improvement"
    ]
   },
   "part": "resource_collectable_infiltrator-fragment",
   "fragment_honor": 1,
-  "_kaynak": "world_boss_2025.json: resmî SSS 2025/2026 (EN, TR), darkorbitwiki, istemcinin metinleri ve game.xml; tools/buyuk_icerikler.py",
-  "_uyarlama": "NPC değerleri ve saldırıların hasarları kaynakta yok (araştırmanın tek oyunculu önerileri, s=1); can oyuncunun gücüne göre ölçeklenir (guc); kademe eşikleri savaşın Fortress canının katları; sıralama sanal (kaldırılan can payından); Guardian kalkanları toplamsal (4 etkin = dokunulmaz)."
+  "_source": "world_boss_2025.json: resmî SSS 2025/2026 (EN, TR), darkorbitwiki, istemcinin metinleri ve game.xml; tools/buyuk_icerikler.py",
+  "_adaptation": "NPC değerleri ve saldırıların hasarları kaynakta yok (araştırmanın tek oyunculu önerileri, s=1); can oyuncunun gücüne göre ölçeklenir (guc); kademe eşikleri savaşın Fortress canının katları; sıralama sanal (kaldırılan can payından); Guardian kalkanları toplamsal (4 etkin = dokunulmaz)."
  },
  "mimesis": {
   "event": "mimesis_mutiny",
@@ -1145,7 +1145,7 @@
   ],
   "portal_design": 1,
   "tooltip": "ttip_jumpgate_escort",
-  "anahtar": "resource_key_access-escort",
+  "key": "resource_key_access-escort",
   "key_max": 100,
   "hours": [
    10,
@@ -1164,7 +1164,7 @@
    23
   ],
   "entry_sec": 300,
-  "sure_sn": 2700,
+  "duration_sec": 2700,
   "ship": {
    "name": "-=[ EM Freighter ]=-",
    "model": "277",
@@ -1300,7 +1300,7 @@
    "route_sec": 60
   },
   "single_player": {
-   "can": 0.3,
+   "hp": 0.3,
    "damage": 0.25
   },
   "kinds": {
@@ -1309,7 +1309,7 @@
     "model": "286",
     "npc_id": 242,
     "hp": 900000,
-    "kalkan": 600000,
+    "shield": 600000,
     "damage": 9500,
     "speed": 300,
     "aggressive": true,
@@ -1341,7 +1341,7 @@
     "model": "285",
     "npc_id": 241,
     "hp": 900000,
-    "kalkan": 600000,
+    "shield": 600000,
     "damage": 9500,
     "speed": 300,
     "aggressive": true,
@@ -1373,7 +1373,7 @@
     "model": "287",
     "npc_id": 243,
     "hp": 2450000,
-    "kalkan": 1625000,
+    "shield": 1625000,
     "damage": 15500,
     "speed": 300,
     "aggressive": true,
@@ -1405,7 +1405,7 @@
     "model": "289",
     "npc_id": 286,
     "hp": 2800000,
-    "kalkan": 1750000,
+    "shield": 1750000,
     "damage": 15500,
     "speed": 300,
     "aggressive": true,
@@ -1424,7 +1424,7 @@
     "model": "288",
     "npc_id": 244,
     "hp": 3000000,
-    "kalkan": 6000000,
+    "shield": 6000000,
     "damage": 0,
     "speed": 300,
     "aggressive": false,
@@ -1456,7 +1456,7 @@
     "model": "289",
     "npc_id": 245,
     "hp": 5250000,
-    "kalkan": 3500000,
+    "shield": 3500000,
     "damage": 25500,
     "speed": 300,
     "aggressive": true,
@@ -1545,7 +1545,7 @@
     "model": "291",
     "npc_id": 247,
     "hp": 5250000,
-    "kalkan": 3500000,
+    "shield": 3500000,
     "damage": 25500,
     "speed": 300,
     "aggressive": true,
@@ -1634,7 +1634,7 @@
     "model": "293",
     "npc_id": 250,
     "hp": 5250000,
-    "kalkan": 3500000,
+    "shield": 3500000,
     "damage": 28500,
     "speed": 300,
     "aggressive": true,
@@ -1723,7 +1723,7 @@
     "model": "290",
     "npc_id": 246,
     "hp": 4200000,
-    "kalkan": 2800000,
+    "shield": 2800000,
     "damage": 12000,
     "speed": 300,
     "aggressive": true,
@@ -1812,7 +1812,7 @@
     "model": "292",
     "npc_id": 248,
     "hp": 3000000,
-    "kalkan": 2000000,
+    "shield": 2000000,
     "damage": 12500,
     "speed": 300,
     "aggressive": true,
@@ -1901,7 +1901,7 @@
     "model": "294",
     "npc_id": 251,
     "hp": 6750000,
-    "kalkan": 4500000,
+    "shield": 4500000,
     "damage": 30000,
     "speed": 300,
     "aggressive": true,
@@ -1990,7 +1990,7 @@
     "model": "349",
     "npc_id": 287,
     "hp": 2100000,
-    "kalkan": 0,
+    "shield": 0,
     "damage": 6000,
     "speed": 0,
     "aggressive": true,
@@ -2392,21 +2392,21 @@
     {
      "name": "Heal",
      "probability": 0.25,
-     "type": "can",
-     "can": 120000
+     "type": "hp",
+     "hp": 120000
     },
     {
      "name": "Flux",
      "probability": 0.1,
      "type": "speed",
-     "sure_sn": 15,
+     "duration_sec": 15,
      "speed": 0.1
     },
     {
      "name": "Heal Field",
      "probability": 0.25,
      "type": "hp_field",
-     "can": 50000,
+     "hp": 50000,
      "radius": 500
     },
     {
@@ -2420,20 +2420,20 @@
      "probability": 0.1,
      "type": "skill",
      "skill": "ability_berserker_rvg",
-     "sure_sn": 10
+     "duration_sec": 10
     },
     {
      "name": "Shield",
      "probability": 0.15,
-     "type": "kalkan",
-     "kalkan": 80000
+     "type": "shield",
+     "shield": 80000
     },
     {
      "name": "Assimilate",
      "probability": 0.05,
      "type": "skill",
      "skill": "ability_orcus_assimilate",
-     "sure_sn": 10
+     "duration_sec": 10
     }
    ]
   },
@@ -2442,8 +2442,8 @@
    "pm_reflectormimesis": 0.5
   },
   "key_uridium": 5000,
-  "_kaynak": "mimesis_mutiny.json: resmî SSS 2020-2026, darkorbitwiki (Mimesis türleri, boxes/mimesis-box, galaxy-gates/mimesis-mutiny-gate: Mimesis Chest), istemcinin metinleri ve game.xml; tools/buyuk_icerikler.py",
-  "_uyarlama": "Rota (4 nokta + fener), dalgalar ve puanlar kaynakta yok (araştırmanın önerileri); tek oyunculu: dalgalar oyuncunun gücüyle (World Boss ölçeği): can x0,3 x güç, hasar x0,25 x güç (0,5-1,5); EM Freighter canı en güçlü dalganın 240 sn ateşine dayanacak kadar (en az 2.000.000); sıralama sanal (oyuncu 1.); firma haritaları: MMO 433, EIC 436, VRU 430 (her firmanın ilk Escort haritası); Byte Remnant türün ödülüne doğrudan (ek_odul; mimesis._register) ve kutuya; kutu miktarları, ağırlıkları ve MINI_BOSS / BOSS eşlemesi kaynakta yok (normal kutu: türün Byte ödülünün yarısı; elit kutu: yarısı ile tamamı arası + bir satır); buff çekilişi mimesis_sandik.py."
+  "_source": "mimesis_mutiny.json: resmî SSS 2020-2026, darkorbitwiki (Mimesis türleri, boxes/mimesis-box, galaxy-gates/mimesis-mutiny-gate: Mimesis Chest), istemcinin metinleri ve game.xml; tools/buyuk_icerikler.py",
+  "_adaptation": "Rota (4 nokta + fener), dalgalar ve puanlar kaynakta yok (araştırmanın önerileri); tek oyunculu: dalgalar oyuncunun gücüyle (World Boss ölçeği): can x0,3 x güç, hasar x0,25 x güç (0,5-1,5); EM Freighter canı en güçlü dalganın 240 sn ateşine dayanacak kadar (en az 2.000.000); sıralama sanal (oyuncu 1.); firma haritaları: MMO 433, EIC 436, VRU 430 (her firmanın ilk Escort haritası); Byte Remnant türün ödülüne doğrudan (ek_odul; mimesis._register) ve kutuya; kutu miktarları, ağırlıkları ve MINI_BOSS / BOSS eşlemesi kaynakta yok (normal kutu: türün Byte ödülünün yarısı; elit kutu: yarısı ile tamamı arası + bir satır); buff çekilişi mimesis_sandik.py."
  },
  "kristallon_apotheosis": {
   "event": "kristallon_apotheosis",
@@ -2581,7 +2581,7 @@
    "model": "EMPEROR_KRISTALLON_BOSS_2",
    "npc_id": 518,
    "hp": 12000000,
-   "kalkan": 6000000,
+   "shield": 6000000,
    "damage": 18000,
    "speed": 160,
    "aggressive": true,
@@ -3015,8 +3015,8 @@
     4
    ]
   ],
-  "_kaynak": "board-en 130459 (FAQ Kristallon Apotheosis); istemci 1.1.115 (pencere apotheosis, harita 510, portal 307, VisualModifier 158 buz, 159 yarık, 160 radyasyon kılavuzu); tools/surum_115.py; yenilgi olasılıkları ve haftalık sınırlar resmî sunucu kaydı (2026-10-25)",
-  "_uyarlama": "Tek oyunculu: sunucu çapındaki toplama hedefi oyuncunun kendi puanı (1000); toplama uzaylıları harita başına 4 + 1-2 (Icy, Kristallon, Boss Kristallon kopyaları, güçleri haritanın 'guc'ü), 15 sn'de yeniden doğar. Patronun canı, hasarı ve saldırıların zamanı, alanı, hasarı uyarlama (canı oyuncunun gücüyle, dunya_patronu.scale; seviye başına +%15); evreler %66 ve %33'te. Haftalık sıra tek oyunculuda haftanın yenilgi sayısından: 3+ 1., 2 2., 1 4. (ödülleri pazar sıfırlanınca). Katılım ödülü verilen hasar patronun canının %1'ini geçince.",
+  "_source": "board-en 130459 (FAQ Kristallon Apotheosis); istemci 1.1.115 (pencere apotheosis, harita 510, portal 307, VisualModifier 158 buz, 159 yarık, 160 radyasyon kılavuzu); tools/surum_115.py; yenilgi olasılıkları ve haftalık sınırlar resmî sunucu kaydı (2026-10-25)",
+  "_adaptation": "Tek oyunculu: sunucu çapındaki toplama hedefi oyuncunun kendi puanı (1000); toplama uzaylıları harita başına 4 + 1-2 (Icy, Kristallon, Boss Kristallon kopyaları, güçleri haritanın 'guc'ü), 15 sn'de yeniden doğar. Patronun canı, hasarı ve saldırıların zamanı, alanı, hasarı uyarlama (canı oyuncunun gücüyle, dunya_patronu.scale; seviye başına +%15); evreler %66 ve %33'te. Haftalık sıra tek oyunculuda haftanın yenilgi sayısından: 3+ 1., 2 2., 1 4. (ödülleri pazar sıfırlanınca). Katılım ödülü verilen hasar patronun canının %1'ini geçince.",
   "weekly_limit": {
    "participation": 3,
    "defeats": 3,

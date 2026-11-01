@@ -95,7 +95,7 @@ class Infiltration:
         if boss and random.random() < boss['probability']:      # hidden Boss Kristallon: in place of one commando (the loot of the Uber Kristallon)
             kinds[random.randrange(n)] = boss['type']
         self.round = dict(map=self.map_for(cls), class_name=cls, kinds=kinds, count=n, killed=0,
-                          end_time=now + D.get('sure_sn', 600), spawned=False)
+                          end_time=now + D.get('duration_sec', 600), spawned=False)
         self.log('   Infiltration: commando team %s (%d)' % (H.name(self.round['map']), n))
         msgs = [legacy('0|A|STM|msg_infiltration_spawned_map_single|%%MAP%%|%s' % H.name(self.round['map'])), self.status_cmd(now)]
         if self.world and int(self.world.map_id) == self.round['map']:

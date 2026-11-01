@@ -208,7 +208,7 @@ class BattlePass:
 
     # ------------------------------------------------------------ requests
     def keys_for(self, q):
-        return self.bp['rewards'].get(q, {}).get('anahtar', 0)
+        return self.bp['rewards'].get(q, {}).get('key', 0)
 
     def ticket_rewards(self, qs):
         """Ticket rewards (keyless pass): if the Battle Pass was bought, those of the collected targets."""

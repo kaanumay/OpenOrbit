@@ -163,21 +163,21 @@ def level_value(row, lv):
 def hp_sync(m):
     """When the panel's CBS HP multiplier changes, a module's HP and shield (and for a rival the maximum) are scaled proportionally (m['ksi']: the
     multiplier the saved values were scaled with; 1.0 if missing)."""
-    k = float(SET.get('ksi_can'))
-    old = m.get('ksi', 1.0)
+    k = float(SET.get('cbs_hp'))
+    old = m.get('cbs', 1.0)
     if k == old:
         return
     r = k / old
-    for f in ('maximum', 'can', 'kalkan'):
+    for f in ('maximum', 'hp', 'shield'):
         if f in m:
             m[f] = min(SET.I32, int(m[f] * r))
-    m['ksi'] = k
+    m['cbs'] = k
 
 
 def hp_max(m):
     """A module's maximum HP (for a rival, the saved maximum): with the panel's CBS HP multiplier, at most 32 bits."""
     hp_sync(m)
-    return m.get('maximum') or min(SET.I32, int(level_value(MODS[m['loot']]['can'], m['level']) * float(SET.get('ksi_can'))))
+    return m.get('maximum') or min(SET.I32, int(level_value(MODS[m['loot']]['hp'], m['level']) * float(SET.get('cbs_hp'))))
 
 
 def dmg_value(md, lv):
@@ -246,18 +246,18 @@ class Cbs:
                 if not md:
                     continue
                 try:
-                    old_max, hp, shield = (float(row[k]) for k in ('maximum', 'can', 'kalkan'))
+                    old_max, hp, shield = (float(row[k]) for k in ('maximum', 'hp', 'shield'))
                     level = float(row['level'])
                     if not all(math.isfinite(v) for v in (old_max, hp, shield, level)) or old_max <= 0 or level != int(level):
                         continue
-                    maximum = int(level_value(md['can'], int(level)) * D['rival']['hp_multiplier'])
+                    maximum = int(level_value(md['hp'], int(level)) * D['rival']['hp_multiplier'])
                     if maximum <= 0:
                         continue
                     old_shield = int(old_max * D['shield_ratio'])
                     new_shield = int(maximum * D['shield_ratio'])
-                    row.update(maximum=maximum, can=int(maximum * max(0.0, min(1.0, hp / old_max))),
-                               kalkan=int(new_shield * max(0.0, min(1.0, shield / old_shield))) if hp > 0 and old_shield > 0 else 0)
-                    row.pop('ksi', None)
+                    row.update(maximum=maximum, hp=int(maximum * max(0.0, min(1.0, hp / old_max))),
+                               shield=int(new_shield * max(0.0, min(1.0, shield / old_shield))) if hp > 0 and old_shield > 0 else 0)
+                    row.pop('cbs', None)
                     changed = True
                 except (KeyError, TypeError, ValueError, OverflowError):
                     continue
@@ -284,8 +284,8 @@ class Cbs:
             for _ in range(n):
                 d['order'] += 1
                 iid = ITEM_BASE + d['order']
-                hp = level_value(MODS[loot]['can'], 0)
-                d['modules'][str(iid)] = dict(loot=loot, level=0, can=hp, kalkan=int(hp * D['shield_ratio']))
+                hp = level_value(MODS[loot]['hp'], 0)
+                d['modules'][str(iid)] = dict(loot=loot, level=0, hp=hp, shield=int(hp * D['shield_ratio']))
             self.p.dirty = True
 
     @property
@@ -377,7 +377,7 @@ class Cbs:
         a = self.asteroids.setdefault(str(aid), {})
         a.setdefault('state', 'vacant')
         a.setdefault('slots', {})
-        a.setdefault('deflector', {'on': False, 'sn': 0.0, 'closed_until': 0.0, 'last': time.time()})
+        a.setdefault('deflector', {'on': False, 'sec': 0.0, 'closed_until': 0.0, 'last': time.time()})
         for y in a['slots'].values():
             m = y.get('module') or (y if 'loot' in y else None)
             if m is not None and m.get('loot') in MODS:
@@ -502,11 +502,11 @@ class Cbs:
         left = max(0, int(y.get('install_end', 0) - now))
         rep = max(0, int(y.get('repair_end', 0) - now))
         owner = (y.get('owner_name') or self.p.d['pilot'].get('userName', '')) if aid > 0 else ''
-        return mod('StationModuleModule', asteroidId=aid, itemId=int(iid), slotId=slot, type=md['type'], currentHitpoints=int(m['can']),
-                   maxHitpoints=mh, currentShield=int(m['kalkan']), maxShield=ms, upgradeLevel=int(m['level']),
+        return mod('StationModuleModule', asteroidId=aid, itemId=int(iid), slotId=slot, type=md['type'], currentHitpoints=int(m['hp']),
+                   maxHitpoints=mh, currentShield=int(m['shield']), maxShield=ms, upgradeLevel=int(m['level']),
                    ownerName=owner, installationSeconds=int(y.get('install_sec', 0)),
                    installationSecondsLeft=left, emergencyRepairSecondsLeft=rep,
-                   emergencyRepairSecondsTotal=D['emergency_repair']['sure_sn'] if rep else 0, emergencyRepairCost=D['emergency_repair']['charge'])
+                   emergencyRepairSecondsTotal=D['emergency_repair']['duration_sec'] if rep else 0, emergencyRepairCost=D['emergency_repair']['charge'])
 
     def available_cmd(self):
         free = [iid for iid in sorted(self.st['modules'], key=int) if not self.where(iid)]
@@ -567,7 +567,7 @@ class Cbs:
             return 0.0
         for slot, y in a['slots'].items():
             m = self.module(y['iid'])
-            if not m or MODS[m['loot']].get('booster') != kind or y.get('install_end', 0) > now or m['can'] <= 0:
+            if not m or MODS[m['loot']].get('booster') != kind or y.get('install_end', 0) > now or m['hp'] <= 0:
                 continue
             top = level_value(MODS[m['loot']]['booster_percent'], m['level'])
             t = (now - max(y.get('install_end', 0), a.get('founded', 0))) / (D['booster']['growth_hours'] * 3600.0)
@@ -582,7 +582,7 @@ class Cbs:
             if not m:
                 continue
             md = MODS[m['loot']]
-            dfn += int(m['can'] + m['kalkan'])
+            dfn += int(m['hp'] + m['shield'])
             if md.get('weapon'):
                 att += dmg_value(md, m['level'])
             if md.get('repair_sec'):
@@ -608,7 +608,7 @@ class Cbs:
         df = a['deflector']
         att, dfn, rep = self.ratings(aid, now)
         return mod('BattleStationStatusCommand', mapAssetId=asset_id(aid), battleStationId=aid, battleStationName=ASTEROIDS[aid]['name'],
-                   deflectorShieldActive=bool(df['on']), deflectorShieldSeconds=int(df['sn']), deflectorShieldSecondsMax=D['deflector_max_sec'],
+                   deflectorShieldActive=bool(df['on']), deflectorShieldSeconds=int(df['sec']), deflectorShieldSecondsMax=D['deflector_max_sec'],
                    attackRating=att, defenceRating=dfn, repairRating=rep, honorBoosterRating=int(round(self.booster_pct(aid, 'honor', now))),
                    experienceBoosterRating=int(round(self.booster_pct(aid, 'ep', now))),
                    damageBoosterRating=int(round(self.booster_pct(aid, 'damage', now))), deflectorShieldRate=int(self.deflector_rate(now, aid)),
@@ -694,7 +694,7 @@ class Cbs:
                 continue
             sx, sy = satellite_pos(aid, s)
             loot = m['loot']
-            dead = m['can'] <= 0
+            dead = m['hp'] <= 0
             out.append((asset_id(aid, s), SATELLITE, self.asset_cmd(asset_id(aid, s), SATELLITE, sx, sy, 'wreck' if dead else MODS[loot]['code'],
                                                                    design=0 if dead else MODS[loot]['design'], stage=m['level'],
                                                                    clan=clan, faction=fac, relation=rel)))
@@ -703,7 +703,7 @@ class Cbs:
                 continue
             df = a['deflector']
             if df.get('on'):
-                cmd[1]['modifier'] = [self.deflector_modifier(uid, 34, True, int(df.get('sn', 0)))]
+                cmd[1]['modifier'] = [self.deflector_modifier(uid, 34, True, int(df.get('sec', 0)))]
             elif kind == BATTLESTATION:
                 seconds = max(0, math.ceil(df.get('closed_until', 0) - time.time()))
                 if seconds:
@@ -732,7 +732,7 @@ class Cbs:
         if df['on']:
             # Clearing timer 35 after shield 34 would delete the active shield's own timer (both effect 49).
             msgs = [('VisualModifierCommand', self.deflector_modifier(hub, 35, False))] if hub in shown else []
-            return msgs + [('VisualModifierCommand', self.deflector_modifier(uid, 34, True, df.get('sn', 0)))
+            return msgs + [('VisualModifierCommand', self.deflector_modifier(uid, 34, True, df.get('sec', 0)))
                            for uid, _ in assets]
         msgs = [('VisualModifierCommand', self.deflector_modifier(uid, 34, False)) for uid, _ in assets]
         seconds = max(0, math.ceil(df.get('closed_until', 0) - now))
@@ -767,7 +767,7 @@ class Cbs:
         return ('AssetInfoCommand', dict(assetId=asset_id(aid, slot), type=mod('AssetTypeModule', typeValue=kind),
                                          designId=1 if kind == BATTLESTATION else MODS[m['loot']]['design'],
                                          expansionStage=self.hub_stage(aid) if kind == BATTLESTATION else int(m['level']),
-                                         hitpoints=int(m['can']), maxHitpoints=mh, shielded=ms > 0, shieldEnergy=int(m['kalkan']),
+                                         hitpoints=int(m['hp']), maxHitpoints=mh, shielded=ms > 0, shieldEnergy=int(m['shield']),
                                          maxShieldEnergy=ms))
 
     # ------------------------------------------------------------ world
@@ -989,7 +989,7 @@ class Cbs:
             return self.error('ITEM_NOT_OWNED')
         if self.where(iid):
             return self.error('ITEM_ALREADY_EQUIPPED_IN_ANOTHER_ASTEROID')
-        if m['can'] <= 0:
+        if m['hp'] <= 0:
             return self.error('ITEM_HITPOINTS_ZERO')
         if any(y.get('install_end', 0) > now and y.get('owner', me) == me for b in self.asteroids.values()
                for y in b.get('slots', {}).values()):
@@ -1095,7 +1095,7 @@ class Cbs:
         ist, asteroids = self.stats(a), self.asteroids
         with self.lock:
             a.update(state='built', founded=now)
-            a['deflector'] = {'on': True, 'sn': D['on_build_deflector_min'] * 60.0, 'closed_until': 0.0, 'last': now}   # forum 127469
+            a['deflector'] = {'on': True, 'sec': D['on_build_deflector_min'] * 60.0, 'closed_until': 0.0, 'last': now}   # forum 127469
             ist['all'] = ist.get('all', 0) + 1
             ist['max_count'] = max(ist.get('max_count', 0), sum(1 for b in asteroids.values() if b.get('state') == 'built'
                                                        and b.get('owner') != 'rival' and b.get('clan') == a.get('clan')))
@@ -1132,10 +1132,10 @@ class Cbs:
         changed, exhausted = False, False
         while True:
             if df['on']:
-                elapsed = min(max(0.0, df['sn']), now - cursor)
-                df['sn'] = max(0.0, df['sn'] - elapsed)
+                elapsed = min(max(0.0, df['sec']), now - cursor)
+                df['sec'] = max(0.0, df['sec'] - elapsed)
                 cursor += elapsed
-                if df['sn'] > 0:
+                if df['sec'] > 0:
                     break
                 # Downtime starts at the actual exhaustion instant, even after a delayed tick.
                 df.update(on=False, closed_until=cursor + D['deflector_end_off_min'] * 60)
@@ -1145,11 +1145,11 @@ class Cbs:
             else:
                 deadline = df.get('closed_until', 0)
                 stop = min(now, max(cursor, deadline))
-                if stop == cursor and df['sn'] <= 0:
+                if stop == cursor and df['sec'] <= 0:
                     stop = now
-                df['sn'] = min(D['deflector_max_sec'], df['sn'] + self.deflector_charge(cursor, stop, aid))
+                df['sec'] = min(D['deflector_max_sec'], df['sec'] + self.deflector_charge(cursor, stop, aid))
                 cursor = stop
-                if cursor < deadline or df['sn'] <= 0:
+                if cursor < deadline or df['sec'] <= 0:
                     break
                 df['on'] = True
                 changed = True
@@ -1197,7 +1197,7 @@ class Cbs:
         a = self.ast(aid)
         y = a['slots'].get(str(slot))
         m = self.module(y['iid']) if y else None
-        if not m or m['can'] <= 0:
+        if not m or m['hp'] <= 0:
             return self.error('REPAIR_NO_MODULE')
         now = time.time()
         if y.get('repair_end', 0) > now:
@@ -1207,7 +1207,7 @@ class Cbs:
             return self.error('REPAIR_NO_MONEY')
         self.p.gain(uridium=-cost, reason='battlestation_emergency_repair')
         with self.lock:
-            y['repair_end'] = now + D['emergency_repair']['sure_sn']
+            y['repair_end'] = now + D['emergency_repair']['duration_sec']
             self.mark()
         self.note(aid, 'EMERGENCY_REPAIR', moduleType=m['loot'], moduleLevel=m['level'], slot=slot if slot > DEFLECTOR else -1)
         return [self.status_msg(aid, now), stm('msg_emergency_repair_started', STATION=ASTEROIDS[aid]['name'])] + self.m.money_msgs()
@@ -1217,12 +1217,12 @@ class Cbs:
         rep = 0
         for y in a['slots'].values():
             m = self.module(y['iid'])
-            if m and MODS[m['loot']].get('repair_sec') and m['can'] > 0 and y.get('install_end', 0) <= now:
+            if m and MODS[m['loot']].get('repair_sec') and m['hp'] > 0 and y.get('install_end', 0) <= now:
                 rep = level_value(MODS[m['loot']]['repair_sec'], m['level'])
         changed = []
         for slot, y in a['slots'].items():
             m = self.module(y['iid'])
-            if not m or m['can'] <= 0:
+            if not m or m['hp'] <= 0:
                 continue
             mh, ms = self.mx(m)
             heal = 0
@@ -1232,11 +1232,11 @@ class Cbs:
                 heal += rep
             elif now - a.get('last_damage', 0) > D['passive_repair']['delay_sec']:
                 heal += D['passive_repair']['hp_sec']
-            before = (m['can'], m['kalkan'])
-            m['can'] = min(mh, m['can'] + heal)
+            before = (m['hp'], m['shield'])
+            m['hp'] = min(mh, m['hp'] + heal)
             if now - a.get('last_damage', 0) > 10:
-                m['kalkan'] = min(ms, m['kalkan'] + ms * 0.02)
-            if (m['can'], m['kalkan']) != before:
+                m['shield'] = min(ms, m['shield'] + ms * 0.02)
+            if (m['hp'], m['shield']) != before:
                 changed.append(int(slot))
         w = self.world
         if changed and w and int(w.map_id) == int(ASTEROIDS[aid]['map']) and int(now) % 5 == 0:
@@ -1251,14 +1251,14 @@ class Cbs:
         from shop import stack_msg
         if self.where(iid):
             return [('HangarShipRepairModuleCommand', dict(errorMessage=stack_msg('eqt_error_playerMayNotRepair'), itemId=iid,
-                                                            currentHitPoints=int(m['can']), maxHitPoints=mh, resultId=1))]
-        cost = max(D['repair_cost']['en_az'], int((mh - m['can']) * D['repair_cost']['per_hp_U']))
-        if m['can'] >= mh or self.p.d['pilot'].get('uridium', 0) < cost:
-            return [('HangarShipRepairModuleCommand', dict(errorMessage=stack_msg('empty'), itemId=iid, currentHitPoints=int(m['can']),
+                                                            currentHitPoints=int(m['hp']), maxHitPoints=mh, resultId=1))]
+        cost = max(D['repair_cost']['min_value'], int((mh - m['hp']) * D['repair_cost']['per_hp_U']))
+        if m['hp'] >= mh or self.p.d['pilot'].get('uridium', 0) < cost:
+            return [('HangarShipRepairModuleCommand', dict(errorMessage=stack_msg('empty'), itemId=iid, currentHitPoints=int(m['hp']),
                                                             maxHitPoints=mh, resultId=1))]
         self.p.gain(uridium=-cost, reason='repair_module')
         with self.p.lock:
-            m['can'], m['kalkan'] = mh, ms
+            m['hp'], m['shield'] = mh, ms
             self.p.dirty = True
         self.log('   CBS: module repaired %s (%d U)' % (m['loot'], cost))
         return [('HangarShipRepairModuleCommand', dict(errorMessage=stack_msg('empty'), itemId=iid, currentHitPoints=mh, maxHitPoints=mh,
@@ -1297,18 +1297,18 @@ class Cbs:
         y = a['slots'].get(str(slot))
         rival = a.get('owner') == 'rival'
         m = y if rival else (self.module(y['iid']) if y else None)
-        if not m or m['can'] <= 0:
+        if not m or m['hp'] <= 0:
             return []
         dmg = max(0, int(dmg))
         if shield_only:
-            dmg = min(dmg, m['kalkan'])
-        to_shield = dmg if shield_only else 0 if hull_only else min(m['kalkan'], int(dmg * 0.8))
-        m['kalkan'] -= to_shield
-        m['can'] = max(0, m['can'] - (dmg - to_shield))
+            dmg = min(dmg, m['shield'])
+        to_shield = dmg if shield_only else 0 if hull_only else min(m['shield'], int(dmg * 0.8))
+        m['shield'] -= to_shield
+        m['hp'] = max(0, m['hp'] - (dmg - to_shield))
         a['last_damage'] = time.time()
         self.mark()
         msgs = [c for c in [self.info_cmd(aid, slot, m)] if c]
-        if m['can'] <= 0:
+        if m['hp'] <= 0:
             msgs += self.module_destroyed(aid, slot, attacker_name)
         return msgs
 
@@ -1396,7 +1396,7 @@ class Cbs:
             for y in a['slots'].values():
                 m = self.module(y['iid'])
                 if m:
-                    m['can'], m['kalkan'] = 0, 0
+                    m['hp'], m['shield'] = 0, 0
                 self.give_back(y)                       # shared: destroyed module to its owner
             ist = self.stats(a)
             ist['demolished'] = ist.get('demolished', 0) + 1
@@ -1457,7 +1457,7 @@ class Cbs:
         x, y = position(aid)
         n = random.randint(*D['raid']['count'])
         hp_each, dmg_each = self.raid_power(aid, n, time.time())
-        prep = lambda nn: PS.scale_npc(nn, hp=max(1.0, hp_each / max(1, nn.d['hp'] + nn.d['kalkan'])),     # the type's damage to the player
+        prep = lambda nn: PS.scale_npc(nn, hp=max(1.0, hp_each / max(1, nn.d['hp'] + nn.d['shield'])),     # the type's damage to the player
                                        extra={'station_damage': max(nn.d['damage'], int(dmg_each))})
         for _ in range(n):
             a, r = random.uniform(0, 2 * math.pi), random.uniform(900, 1300)
@@ -1482,14 +1482,14 @@ class Cbs:
         dps = total = 0.0
         for slot_info in self.ast(aid)['slots'].values():
             m = self.module(slot_info['iid'])
-            if not m or m['can'] <= 0:
+            if not m or m['hp'] <= 0:
                 continue
             md = MODS[m['loot']]
-            total += m['can'] + m['kalkan']
+            total += m['hp'] + m['shield']
             if md.get('weapon'):
                 dps += dmg_value(md, m['level']) * boost * md['hit'] / md['interval_sec']
-        shots = B['sure_sn'] / world_module.COMBAT['npc_attack_interval_sec']
-        return dps * B['sure_sn'] / n, total * B['damage_ratio'] / shots / n
+        shots = B['duration_sec'] / world_module.COMBAT['npc_attack_interval_sec']
+        return dps * B['duration_sec'] / n, total * B['damage_ratio'] / shots / n
 
     def raid_fight(self, aid, a, now):
         w = self.world
@@ -1499,7 +1499,7 @@ class Cbs:
         for i in [i for i, k in list(self.raiders.items()) if k == aid and i not in w.npcs]:
             self.raiders.pop(i, None)
         # the aliens hit the modules (those not fighting the player)
-        targets = [int(s) for s, slot_info in a['slots'].items() if self.module(slot_info['iid']) and self.module(slot_info['iid'])['can'] > 0]
+        targets = [int(s) for s, slot_info in a['slots'].items() if self.module(slot_info['iid']) and self.module(slot_info['iid'])['hp'] > 0]
         for n in alive:
             if n.engaged or now < self.next_shot.get(n.id, 0):
                 continue
@@ -1529,7 +1529,7 @@ class Cbs:
         for s, slot_info in a['slots'].items():
             m = self.module(slot_info['iid'])
             md = MODS[m['loot']] if m else {}
-            if not m or not md.get('weapon') or m['can'] <= 0 or slot_info.get('install_end', 0) > now:
+            if not m or not md.get('weapon') or m['hp'] <= 0 or slot_info.get('install_end', 0) > now:
                 continue
             key = (aid, int(s))
             if now < self.next_shot.get(key, 0):
@@ -1557,7 +1557,7 @@ class Cbs:
             if a.get('owner') == 'rival' or a.get('rival') is not None:
                 with self.lock:
                     if a.get('owner') == 'rival':
-                        a.update(state='vacant', slots={}, deflector={'on': False, 'sn': 0.0, 'closed_until': 0.0, 'last': now})
+                        a.update(state='vacant', slots={}, deflector={'on': False, 'sec': 0.0, 'closed_until': 0.0, 'last': now})
                         a.pop('owner', None)
                     for f in ('rival', 'rival_progress', 'rival_speed', 'rival_company', 'rival_last'):
                         a.pop(f, None)
@@ -1611,10 +1611,10 @@ class Cbs:
         for s, y in a['slots'].items():
             mx = hp_max(y)
             ms = min(SET.I32, int(mx * D['shield_ratio']))
-            if y['can'] <= 0 or (y['can'] >= mx and y['kalkan'] >= ms):
+            if y['hp'] <= 0 or (y['hp'] >= mx and y['shield'] >= ms):
                 continue
-            y['can'] = min(mx, y['can'] + po['hp_sec'] * dt)
-            y['kalkan'] = min(ms, y['kalkan'] + ms * 0.02 * dt)
+            y['hp'] = min(mx, y['hp'] + po['hp_sec'] * dt)
+            y['shield'] = min(ms, y['shield'] + ms * 0.02 * dt)
             changed.append(int(s))
         if not changed:
             return []
@@ -1636,8 +1636,8 @@ class Cbs:
             slots[str(s)] = sats[(s - 2) % len(sats)] if s < 4 else rnd.choice(sats[:5])
         slot_info = {}
         for s, loot in slots.items():
-            hp = int(level_value(MODS[loot]['can'], 0) * D['rival']['hp_multiplier'])      # single player: so one ship can destroy it
-            slot_info[s] = dict(loot=loot, level=0, can=hp, kalkan=int(hp * D['shield_ratio']), maximum=hp)
+            hp = int(level_value(MODS[loot]['hp'], 0) * D['rival']['hp_multiplier'])      # single player: so one ship can destroy it
+            slot_info[s] = dict(loot=loot, level=0, hp=hp, shield=int(hp * D['shield_ratio']), maximum=hp)
         for y in list(a['slots'].values()):            # shared: uninstalled modules to their owners
             self.give_back(y)
         with self.lock:
@@ -1682,7 +1682,7 @@ class Cbs:
         a = self.ast(aid)
         y = a['slots'].get(str(slot)) if a['state'] == 'built' else None
         m = (y if a.get('owner') == 'rival' else self.module(y.get('iid'))) if y else None
-        return m if m and m.get('can', 0) > 0 else None
+        return m if m and m.get('hp', 0) > 0 else None
 
     def asset_pos(self, uid):
         """Selection is available for friendly and shielded assets too."""
@@ -1734,20 +1734,20 @@ class Cbs:
         if a.get('owner') == 'bot':                     # a bot clan knows who hit it (defense, grudge: clan_stations); destruction reward
             a.update(last_player=a['attack_at'], last_attacker=self.p.d['pilot'].get('userName', ''), last_attacker_clan=self.clan_name())
         hit_module = self.asset_module(uid)
-        hp_before, shield_before = hit_module['can'], hit_module['kalkan']
+        hp_before, shield_before = hit_module['hp'], hit_module['shield']
         msgs = self.damage_module(aid, slot, dmg, self.clan_name(), shield_only=shield_only, hull_only=hull_only)
         w = self.world
         if w is not None:
-            w.last_shield_hit = shield_before - hit_module['kalkan']
+            w.last_shield_hit = shield_before - hit_module['shield']
         # AssetInfo invokes BuildSelect -> UnitDeselect on every hit, clearing
         # ShipInfo.IsAtk and making a moving hero face its route instead of the target.
         # AttackHit updates Entity numeric values and emits the floating damage number.
         msgs = [(name, fields) for name, fields in msgs if name != 'AssetInfoCommand']
-        amount = int(hp_before - hit_module['can'] + shield_before - hit_module['kalkan'])
+        amount = int(hp_before - hit_module['hp'] + shield_before - hit_module['shield'])
         hit = ('AttackHitCommand', dict(attackType=world_module.attack_type(atype), attackerId=attacker if attacker is not None else w.hid if w else self.p.user_id,
-            victimId=int(uid), victimHitpoints=int(hit_module['can']), victimShield=int(hit_module['kalkan']),
+            victimId=int(uid), victimHitpoints=int(hit_module['hp']), victimShield=int(hit_module['shield']),
             victimNanoHull=0, damage=amount, skilled=atype == 1, strike=False, cannonType=0))
-        bar = ('AttackHitAssetCommand', dict(assetId=int(uid), hitpointsNow=int(hit_module['can']),
+        bar = ('AttackHitAssetCommand', dict(assetId=int(uid), hitpointsNow=int(hit_module['hp']),
             hitpointsMax=hp_max(hit_module)))
         if self.host is not None and w is not None and w.shared is not None:
             for o in list(w.shared.members):
@@ -1776,7 +1776,7 @@ class Cbs:
                 if not y:
                     continue
                 md = MODS[y['loot']]
-                if not md.get('weapon') or y['can'] <= 0 or w.hero_dead:
+                if not md.get('weapon') or y['hp'] <= 0 or w.hero_dead:
                     continue
                 sx, sy = satellite_pos(aid, int(s))
                 key = ('rival', aid, int(s))
@@ -1859,7 +1859,7 @@ class Cbs:
                             timerCounter=max(0, int(a.get('build_end', 0) - time.time())) if a['state'] == 'building' else 0,
                             deflectorDownTime=max(0, int(df.get('closed_until', 0) - time.time())),
                             damageBonus=float(self.booster_pct(aid, 'damage')), defStatus=bool(df.get('on')),
-                            hasDeflectorModul=has_def, deflectorIsActive=bool(df.get('on')), deflectorTime=int(df.get('sn', 0)),
+                            hasDeflectorModul=has_def, deflectorIsActive=bool(df.get('on')), deflectorTime=int(df.get('sec', 0)),
                             allModuleCount=len(a['slots']), mapName=H.name(ASTEROIDS[aid]['map']), buildCompleted=a['state'] == 'built',
                             maxAmountOfModule=SLOTS, honourBonus=float(self.booster_pct(aid, 'honor')), stationId=aid))
         longest = max(ist.get('longest_sec', 0), max([int(time.time() - a.get('founded', time.time())) for a in self.asteroids.values()
@@ -1916,7 +1916,7 @@ class Cbs:
             df = self.ast(aid)['deflector']
             df['on'] = not df.get('on')
             df['closed_until'] = 0 if df['on'] else time.time() + 3600
-            df['sn'] = max(df.get('sn', 0), 3600) if df['on'] else df.get('sn', 0)
+            df['sec'] = max(df.get('sec', 0), 3600) if df['on'] else df.get('sec', 0)
             df['last'] = time.time()
             self.bump(self.ast(aid))
             self.mark()
@@ -1952,7 +1952,7 @@ def refund_race(cid, modules):
     if k is None or not modules:
         return
     with KL.LOCK:
-        k.setdefault('ksi', {}).setdefault('stock', []).extend(modules)
+        k.setdefault('cbs', {}).setdefault('stock', []).extend(modules)
 
 
 def bot_build(aid, k, modules, minutes, log=print):

@@ -36,14 +36,14 @@ DEFAULTS = {
     'wine_prefix': '',                # Wine prefix / Proton data folder (empty: save/wine or save/proton)
     'discord_rp': True,             # Discord Rich Presence (discord_rp.py); rp_*: what shows on the profile
     'rp_pilot': False,              # pilot name (privacy: off by default)
-    'rp_klan': True,
-    'rp_gemi': True,
-    'rp_seviye': True,
-    'rp_harita': True,              # map name and the area's image
-    'rp_durum': True,               # in combat (target), gate wave, safe zone, ship destroyed
-    'rp_firma': True,               # the company's emblem
-    'rp_sure': True,                # the session's elapsed time
-    'rp_grup': True,                # Play with Friends: group size
+    'rp_clan': True,
+    'rp_ship': True,
+    'rp_level': True,
+    'rp_map': True,              # map name and the area's image
+    'rp_state': True,               # in combat (target), gate wave, safe zone, ship destroyed
+    'rp_company': True,               # the company's emblem
+    'rp_duration': True,                # the session's elapsed time
+    'rp_group': True,                # Play with Friends: group size
     'rp_buttons': True,            # Discord server and GitHub buttons
     'rp_in_panel': True,             # even when the game is closed (in the panel)
 }

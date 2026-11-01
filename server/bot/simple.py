@@ -72,7 +72,7 @@ def gear(map_id, power=1.0, r=random):
     drones = max(0, min(8, int(round(drones * min(power, 1.3) * r.uniform(0.7, 1.2))))) if drone else 0
     slot = g['laser'] + drones * (2 if drone == 'drone_iris' else 1)
     return {'ship': ship, 'laser': {laser: max(1, int(round(slot * full)))},
-            'kalkan': {shield: max(1, int(round(g['generators'] * full * 0.8)))}, 'speed': {}, 'drone': {drone: drones} if drones else {},
+            'shield': {shield: max(1, int(round(g['generators'] * full * 0.8)))}, 'speed': {}, 'drone': {drone: drones} if drones else {},
             'ammunition': 'ammunition_laser_mcb-25' if power >= 1.4 else K.AMMO[0]}
 
 

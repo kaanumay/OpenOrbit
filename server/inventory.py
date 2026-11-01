@@ -58,7 +58,7 @@ def count(p, loot):
     if loot in ORES:
         return p.ore_count(ORES[loot])
     if loot == 'resource_logfile':
-        return int((p.d.get('kapilar') or {}).get('log_disk', 0))
+        return int((p.d.get('gates') or {}).get('log_disk', 0))
     if loot.startswith('ammunition_'):
         return p.ammo(loot)
     if loot.startswith('tech_'):
@@ -108,7 +108,7 @@ def spend(p, need, reason='buy_SPECIAL', detail=''):
             p.remove_ores({ORES[loot]: n})
         elif loot == 'resource_logfile':
             with p.lock:
-                p.d['kapilar']['log_disk'] -= n
+                p.d['gates']['log_disk'] -= n
                 p.dirty = True
         elif loot.startswith('ammunition_'):
             p.use_ammo(loot, n, event=False)            # already counted above as 'spend' (no double count)

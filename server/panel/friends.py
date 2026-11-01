@@ -2,7 +2,7 @@
 
 Host: the panel starts the game server with --multiplayer (server/multiplayer.py): the game (TCP 8081) and chat (TCP 7771) are listened on all
 networks, the player enters the game with their own save. Guests send their saves through the game port; the server keeps them only in memory
-(they do not appear on this computer's Saves page). Connected guests come from the game server's canli_durum.json; removing a guest is
+(they do not appear on this computer's Saves page). Connected guests come from the game server's live_status.json; removing a guest is
 via /yonetim/kick (only from this computer, with the panel's admin key for this start).
 Join: the selected save is backed up and sent to the friend's server (POST /misafir/giris), web.py starts in a way that shows that server
 (--remote), the client opens. While the game runs, every new version on the server (long poll, GET /misafir/profil) is written to its own
@@ -143,7 +143,7 @@ class Friend:
     def host_env(self):
         """The game server's OO_MULTIPLAYER environment variable (multiplayer.configure)."""
         return json.dumps({'password': self.cfg.get('friend_password'), 'max_count': self.cfg.get('friend_max'),
-                           'anahtar': self.key, 'code': self.code, 'local': self.local})
+                           'key': self.key, 'code': self.code, 'local': self.local})
 
     def host_status(self, live):
         is_open = self.direction.running() and self.direction.friend
@@ -159,7 +159,7 @@ class Friend:
     def at(self, session):
         if not (self.direction.running() and self.direction.friend):
             raise FriendError(_('The friend server is not running.'))
-        code, out = request('127.0.0.1', GAME_PORT, 'POST', '/yonetim/kick', {'anahtar': self.key, 'session': str(session or '')})
+        code, out = request('127.0.0.1', GAME_PORT, 'POST', '/yonetim/kick', {'key': self.key, 'session': str(session or '')})
         if code != 200:
             raise FriendError(_('Guest not found: they may have already left.'))
         self.log('friend server: guest removed (%s)' % str(session)[:8])
@@ -174,7 +174,7 @@ class Friend:
     def state(self):
         with self.lock:
             m = dict(self.m)
-        m.pop('anahtar', None)
+        m.pop('key', None)
         m['last_address'] = self.cfg.get('friend_last_address')
         return m
 
@@ -226,11 +226,11 @@ class Friend:
             m['original_uid'] = d['pilot']['userId']
             self._step(_('Uploading account'))
             key = secrets.token_urlsafe(24)
-            code, r = request(host, port, 'POST', '/misafir/giris', {'version': PROTOCOL, 'password': password or '', 'anahtar': key,
+            code, r = request(host, port, 'POST', '/misafir/giris', {'version': PROTOCOL, 'password': password or '', 'key': key,
                                                                     'address': host, 'profile': d}, timeout=60)
             if code != 200:
                 raise FriendError(_message(code, r))
-            m.update(session=r['session'], anahtar=key, uid=r['uid'], version=r['version'], file=self._file(slot))
+            m.update(session=r['session'], key=key, uid=r['uid'], version=r['version'], file=self._file(slot))
             self._mark(slot)
             self.log('joined friend server: %s:%d (save %s, id on the server %s)' % (host, port, slot, r['uid']))
             self._step(_('Preparing web login'))
@@ -258,7 +258,7 @@ class Friend:
     def _mark(self, slot):
         """The slot's slot.json: the ongoing session (if left half-finished the next join fetches the final state) and the last written state of the file."""
         m = self.m
-        self.saves.set_meta(slot, friend={'address': m['address'], 'session': m['session'], 'anahtar': m['anahtar'], 'version': m['version'],
+        self.saves.set_meta(slot, friend={'address': m['address'], 'session': m['session'], 'key': m['key'], 'version': m['version'],
                                          'uid': m['original_uid'], 'file': m['file']})
 
     def _write(self, slot, d, version):
@@ -294,7 +294,7 @@ class Friend:
         m = self.m
         while m.get('session') == session and m['state'] in ('connecting', 'in_game'):
             try:
-                code, r = request(host, port, 'GET', '/misafir/profil?session=%s&anahtar=%s&version=%d&wait=%d' % (
+                code, r = request(host, port, 'GET', '/misafir/profil?session=%s&key=%s&version=%d&wait=%d' % (
                     quote(session), quote(key), m['version'], LONG_POLL_SEC), timeout=LONG_POLL_SEC + 20)
             except FriendError:
                 m['connection'] = False
@@ -351,7 +351,7 @@ class Friend:
         host, port = resolve_address(m['address'])
         reached = False
         try:
-            code, r = request(host, port, 'POST', '/misafir/cikis', {'session': m['session'], 'anahtar': m['anahtar']}, timeout=30)
+            code, r = request(host, port, 'POST', '/misafir/cikis', {'session': m['session'], 'key': m['key']}, timeout=30)
             if code == 200 and r.get('profile'):
                 self._write(slot, r['profile'], int(r.get('version') or 0))
             reached = True
@@ -382,7 +382,7 @@ class Friend:
         self._step(_('Closing an unfinished session'))
         try:
             host, port = resolve_address(a.get('address'))
-            code, r = request(host, port, 'POST', '/misafir/cikis', {'session': a['session'], 'anahtar': a.get('anahtar')}, timeout=20)
+            code, r = request(host, port, 'POST', '/misafir/cikis', {'session': a['session'], 'key': a.get('key')}, timeout=20)
             d = r.get('profile')
             if code == 200 and d and int(r.get('version') or 0) > int(a.get('version') or 0) and self._file(slot) == a.get('file') \
                     and isinstance(d.get('pilot'), dict) and d['pilot'].get('userId') == a.get('uid'):

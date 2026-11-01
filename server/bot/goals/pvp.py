@@ -13,7 +13,7 @@ def find_target(y, name):
         return None
     x = y.name_index.get(a)
     if x is not None:
-        return x.name, x.firma, (x.game_map if x.online else None), x.k.get('clan'), False
+        return x.name, x.company, (x.game_map if x.online else None), x.k.get('clan'), False
     import community as TP
     import clan as KL
     k = TP.find(name=a)
@@ -44,7 +44,7 @@ def order_target(bot, y, now):
     a = bot.k.get('hunt_order')
     if a and now < a['end_time']:
         t = find_target(y, a['name'])
-        if t is not None and t[2] and t[1] != bot.firma and K.route(bot.game_map, t[2], bot.firma, bot.level):
+        if t is not None and t[2] and t[1] != bot.company and K.route(bot.game_map, t[2], bot.company, bot.level):
             return t[0], t[2]
     f = bot.k.get('clan_focus')
     if f and now < f['end_time']:
@@ -52,7 +52,7 @@ def order_target(bot, y, now):
         c = KL.CLANS.get(f['clan'])
         for u in (c or {}).get('members', ()):
             t = find_target(y, u)
-            if t is not None and t[2] and t[1] != bot.firma and K.route(bot.game_map, t[2], bot.firma, bot.level):
+            if t is not None and t[2] and t[1] != bot.company and K.route(bot.game_map, t[2], bot.company, bot.level):
                 return t[0], t[2]
     return None
 
@@ -70,7 +70,7 @@ class PvpHunt(Goal):
 
     def points(self, bot, b):
         o = bot.traits
-        p = 0.1 + 0.55 * o['aggression'] * o['rekabet'] + (0.35 if bot.archetype == 'hunter' else 0)
+        p = 0.1 + 0.55 * o['aggression'] * o['rivalry'] + (0.35 if bot.archetype == 'hunter' else 0)
         p += 0.45 * bot.mood['anger'] * o['aggression']
         p *= 0.6 + 0.6 * bot.mood['confidence']
         if b.y is not None and bot.memory.grudges() and b.y.online_name(bot.memory.grudges()):
@@ -88,7 +88,7 @@ class PvpHunt(Goal):
             target_map = order[1]                           # clan order: goes to find the named person (or a member of the focus clan)
             bot.plan['hunt'] = order[0]
             grudge = order
-        elif grudge is not None and K.route(bot.game_map, grudge.game_map, bot.firma, bot.level):
+        elif grudge is not None and K.route(bot.game_map, grudge.game_map, bot.company, bot.level):
             target_map = grudge.game_map                        # revenge: goes to find the one who killed it
             bot.plan['hunt'] = grudge.name
         elif y is not None:
@@ -96,24 +96,24 @@ class PvpHunt(Goal):
             power = bot.value()['power']
             candidates = []
             for m, enemy in y.enemy_population(bot).items():
-                if not enemy or not K.can_enter(m, bot.firma, bot.level) or not K.route(bot.game_map, m, bot.firma, bot.level):
+                if not enemy or not K.can_enter(m, bot.company, bot.level) or not K.route(bot.game_map, m, bot.company, bot.level):
                     continue
                 threat = max(d.value()['power'] for d in enemy) / max(1.0, power)
                 candidates.append((len(enemy) - 2.5 * max(0.0, threat - 1.0 - bot.o('risk')), m))
             if candidates:
                 target_map = max(candidates)[1]
         if (y is not None and grudge is None and y.prime(b.now) and b.setting('big_battle', True) and bot.r.random() < 0.75
-                and K.can_enter(y.front(b.now), bot.firma, bot.level) and K.route(bot.game_map, y.front(b.now), bot.firma, bot.level)):
+                and K.can_enter(y.front(b.now), bot.company, bot.level) and K.route(bot.game_map, y.front(b.now), bot.company, bot.level)):
             target_map = y.front(b.now)                    # big war: companies gather at the rush hour's front
             call = y.__dict__.setdefault('front_call', {})
-            key = (bot.firma, int(b.now // 3600))
+            key = (bot.company, int(b.now // 3600))
             if key not in call and bot.o('talkativeness') + bot.o('aggression') > 1.0:
                 call[key] = bot.name
                 import map_links as H
                 from .. import speech as SPC
                 y.speak(bot, 'company', SPC.template(bot, 'battle_call', map=H.name(target_map)), now=b.now + bot.r.uniform(3, 20))
         if target_map is None:
-            target_map = next((m for m in (13 + bot.firma - 1, 16, 29) if K.can_enter(m, bot.firma, bot.level)), bot.game_map)
+            target_map = next((m for m in (13 + bot.company - 1, 16, 29) if K.can_enter(m, bot.company, bot.level)), bot.game_map)
         bot.plan['map'] = int(target_map)
         S.go(bot, target_map, y, b.now)
 
@@ -136,7 +136,7 @@ class PvpHunt(Goal):
         if uid is None:
             t = find_target(y, name) if y is not None else None
             if (t is not None and t[2] and t[2] != bot.game_map and now >= bot.__dict__.get('_hunt_trail', 0)
-                    and K.route(bot.game_map, t[2], bot.firma, bot.level)):
+                    and K.route(bot.game_map, t[2], bot.company, bot.level)):
                 bot._hunt_trail = now + 30
                 bot.plan['map'] = int(t[2])
                 S.go(bot, t[2], y, now)                  # the hunted moved to another map: follow

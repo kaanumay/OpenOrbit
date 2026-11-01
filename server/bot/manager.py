@@ -56,8 +56,8 @@ DEFAULTS = {                 # the pack's settings (panel/bots.py validates the 
     'prime_end': 23,
     'prime_pvp': 2.0,          # multiplier for PvP desire in prime time (1: no difference)
     'big_battle': True,       # in prime time the companies' PvP bots gather on a shared front map
-    'permissions': {'shop': True, 'quest': True, 'pvp': True, 'sohbet': True, 'clan': True, 'clan_found': True, 'friend': True,
-                'group': True, 'auction': True, 'attack_player': True, 'assist': True, 'box_stealing': True, 'cargo': True, 'rocket': True, 'custom_ammunition': True, 'ekstra': True, 'mine': True, 'lab': True, 'skylab': True, 'technology': True, 'booty': True, 'assembly': True, 'gate': True, 'event': True, 'modes': True, 'clan_diplomacy': True, 'clan_order': True, 'gate_filler': True},
+    'permissions': {'shop': True, 'quest': True, 'pvp': True, 'chat': True, 'clan': True, 'clan_found': True, 'friend': True,
+                'group': True, 'auction': True, 'attack_player': True, 'assist': True, 'box_stealing': True, 'cargo': True, 'rocket': True, 'custom_ammunition': True, 'extras': True, 'mine': True, 'lab': True, 'skylab': True, 'technology': True, 'booty': True, 'assembly': True, 'gate': True, 'event': True, 'modes': True, 'clan_diplomacy': True, 'clan_order': True, 'gate_filler': True},
 }
 
 
@@ -96,7 +96,7 @@ class Manager(ChatEngine):
     def speed(self, bot):
         """The bot's progress speed: the pack's speed x its company's strength."""
         fg = self.settings.get('company_power') or [1, 1, 1]
-        return float(self.settings.get('speed', 1.0)) * float(fg[bot.firma - 1])
+        return float(self.settings.get('speed', 1.0)) * float(fg[bot.company - 1])
 
     # ------------------------------------------------------------ loading / saving
     def load(self, now=None):
@@ -143,7 +143,7 @@ class Manager(ChatEngine):
             self.jumpstart([b for b in self.bots if b.k in new_], now)
         for b in sorted(self.bots, key=lambda b: b.r.random()):
             if not b.saved:
-                self.signup_queue.setdefault(b.firma, []).append(b)
+                self.signup_queue.setdefault(b.company, []).append(b)
         for f in self.signup_queue:
             self.next_signup[f] = now + self.setting('signup_sec', 15) * b.r.uniform(0.2, 1.0)
         t = save.get('t')
@@ -167,7 +167,7 @@ class Manager(ChatEngine):
                 for e in new_:
                     if e['type'] != 'name':
                         continue
-                    b = self.name_index.pop(NL._k(e['eski']), None)
+                    b = self.name_index.pop(NL._k(e['old']), None)
                     if b is not None:
                         b.k['name'] = e['new']
                         self.name_index[b.name.lower()] = b
@@ -179,8 +179,8 @@ class Manager(ChatEngine):
             for b in self.bots:
                 h = b.memory.d
                 for e in new_:
-                    if e['type'] == 'name' and NL._k(e['eski']) in h:
-                        x = h.pop(NL._k(e['eski']))
+                    if e['type'] == 'name' and NL._k(e['old']) in h:
+                        x = h.pop(NL._k(e['old']))
                         x['name'] = e['new']
                         h[NL._k(e['new'])] = x
                     elif e['type'] == 'delete':
@@ -232,7 +232,7 @@ class Manager(ChatEngine):
         try:
             self.save()
         except Exception as e:                           # on shutdown the other saves (guests, clan) must not be skipped
-            self.log('   botlar: kaydedilemedi (%r)' % e)
+            self.log('   bots: could not be saved (%r)' % e)
 
     def _loop(self):
         while self.running:
@@ -272,7 +272,7 @@ class Manager(ChatEngine):
                 except Exception:
                     self.log_error('pvp')
             for name, fn in (('society', lambda: self._society_tick(now)),
-                           ('sohbet', lambda: self.chat_tick(now)), ('llm', lambda: self.llm.tick(now) if self.llm else None)):
+                           ('chat', lambda: self.chat_tick(now)), ('llm', lambda: self.llm.tick(now) if self.llm else None)):
                 try:
                     fn()
                 except Exception:
@@ -325,7 +325,7 @@ class Manager(ChatEngine):
             b.last_abstract = now
             # gets tired as the session drags on (devoted ones late)
             b.mood.it(fatigue=dt / (3600.0 * (1.5 + 3 * (b.k['personality']['habit'] == 'devoted'))))
-            b.ist('sure_sn', int(dt))
+            b.ist('duration_sec', int(dt))
             from . import events as EV
             EV.battle_pass(b, min(dt, 60.0))             # pass quests and Season Pass progress as they play (limited after sleep)
             EV.season_pass(b, min(dt, 60.0))
@@ -391,7 +391,7 @@ class Manager(ChatEngine):
 
     def entry(self, b, now, silent=False):
         if b.game_map not in K.MAPS:                  # it had exited at a gate (or on a closed map): returns to base
-            b.k['map'] = K.ev(b.firma)
+            b.k['map'] = K.ev(b.company)
             b.plan = {}
         b.online = True
         b.session_end = now + PS.session_min(b.k['personality'], b.r) * 60
@@ -427,7 +427,7 @@ class Manager(ChatEngine):
             self.on_map.get(old, set()).discard(b)
             self.on_map.setdefault(b.game_map, set()).add(b)
         QU.advance(b, QU.VISIT_MAP, game_map=b.game_map, y=self)
-        if b.game_map == K.ev(b.firma):
+        if b.game_map == K.ev(b.company):
             QU.advance(b, QU.HOME, game_map=b.game_map, y=self)
         for d in list(self.worlds):
             d.map_changed(b, old)
@@ -451,7 +451,7 @@ class Manager(ChatEngine):
 
     def enemy_population(self, bot):
         """map -> [online enemy-company bots]."""
-        return {m: [x for x in s if x.firma != bot.firma and x.dead_until <= self.now] for m, s in self.on_map.items()}
+        return {m: [x for x in s if x.company != bot.company and x.dead_until <= self.now] for m, s in self.on_map.items()}
 
     def state(self):
         with self.lock:
@@ -467,23 +467,23 @@ class Manager(ChatEngine):
             if m not in K.MAPS:
                 continue                                 # gate maps: each bot has its own copy
             live = [b for b in s if b.dead_until <= now and b.body is None and not b.en_route]
-            if len(live) < 2 or not K.pvp_map(m, live[0].firma) and len({b.firma for b in live}) < 2:
+            if len(live) < 2 or not K.pvp_map(m, live[0].company) and len({b.company for b in live}) < 2:
                 continue
             companies = {}
             for b in live:
-                companies.setdefault(b.firma, []).append(b)
+                companies.setdefault(b.company, []).append(b)
             for a in live:
                 if a.dead_until > now:
                     continue
                 hunt = a.target is not None and a.target.name == 'pvp'
-                enemy_count = len(live) - len(companies[a.firma])     # a count instead of building an enemy list for each bot (O(n^2) in big packs)
+                enemy_count = len(live) - len(companies[a.company])     # a count instead of building an enemy list for each bot (O(n^2) in big packs)
                 if not enemy_count:
                     continue
                 # on X-1/X-2, attacking another company on its own company's map is allowed; encounter probability
                 p = (0.12 if hunt else 0.006 * a.o('aggression')) * min(1.0, enemy_count / 3.0)
                 if a.r.random() >= p:
                     continue
-                f = a.r.choice([f for f in companies if f != a.firma])
+                f = a.r.choice([f for f in companies if f != a.company])
                 target = a.r.choice(companies[f])
                 if a.k.get('clan'):
                     from . import society as TP
@@ -539,10 +539,10 @@ class Manager(ChatEngine):
         fg = self.setting('company_power', [1, 1, 1])
         t0 = time.time()
         for b in bots:
-            hour = b.r.lognormvariate(math.log(avg) - 0.5, 1.0) * float(fg[b.firma - 1]) * (0.6 + 0.8 * b.o('ambition'))
+            hour = b.r.lognormvariate(math.log(avg) - 0.5, 1.0) * float(fg[b.company - 1]) * (0.6 + 0.8 * b.o('ambition'))
             hour = min(hour, avg * 8)
             self.fast(b, hour * 3600, now, step=max(1800.0, hour * 3600 / 60))
-        self.log('   botlar: jumpstart %d bot, %.1f sn' % (len(bots), time.time() - t0))
+        self.log('   bots: jumpstart %d bots, %.1f s' % (len(bots), time.time() - t0))
 
     def catch_up(self, seconds, now):
         """Part of the time elapsed while the player was away: bots progress in proportion to their tendency to be online."""
@@ -590,7 +590,7 @@ def server(route, log=print):
                 log('   bots: Advanced mode but no language model installed (Bots > Advanced mode): continuing like Normal mode')
         ACTIVE = y
         y.launch()
-        log('botlar: "%s" (%s, %d bot) %.1f sn' % (package.get('name', uid), package.get('mode', 'normal'), len(y.bots), time.time() - t0))
+        log('bots: "%s" (%s, %d bots) %.1f s' % (package.get('name', uid), package.get('mode', 'normal'), len(y.bots), time.time() - t0))
 
     threading.Thread(target=rate, name='bots-setup', daemon=True).start()
 

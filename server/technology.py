@@ -122,7 +122,7 @@ class Technology:
                 self.ending[item] = s['end_time']
                 if item == 'tech_npc-nuke':            # when the map changes the remaining hits continue (hits every interval_sec from the start)
                     c = ITEMS[item]
-                    start, total = s['end_time'] - c['sure_sn'], int(c['sure_sn'] // c['interval_sec'])
+                    start, total = s['end_time'] - c['duration_sec'], int(c['duration_sec'] // c['interval_sec'])
                     done = min(total, max(0, int((now - start) // c['interval_sec'])))
                     self.nuke = dict(next=start + (done + 1) * c['interval_sec'], remaining=total - done)
             elif now < s.get('ready', 0):
@@ -150,7 +150,7 @@ class Technology:
 
     def hp_floor(self, now=None):
         """Anti-AI Emergency Reserves: alien damage cannot bring HP below this (0 if none)."""
-        return ITEMS['tech_anti-ai-emergency-reserves']['en_az_can'] if self.active('tech_anti-ai-emergency-reserves', now) else 0
+        return ITEMS['tech_anti-ai-emergency-reserves']['min_hp'] if self.active('tech_anti-ai-emergency-reserves', now) else 0
 
     def mine_protected(self, now=None):
         return self.active('tech_anti-mine-transmitter', now)
@@ -188,7 +188,7 @@ class Technology:
         if not SET.get('infinite_technology'):          # panel: infinite tech (not used up; at least one still needed)
             add(p, item, -1)
         p.ach('spend', loot=item, count=1)           # Quests/Pass "use an item": counted with or without infinite tech
-        sec, cd = c.get('sure_sn', 0), c.get('cooldown_sec', 0) * SET.multiplier('skill_cooldown', 'technology')      # panel
+        sec, cd = c.get('duration_sec', 0), c.get('cooldown_sec', 0) * SET.multiplier('skill_cooldown', 'technology')      # panel
         with p.lock:
             state(p)[item] = dict(end_time=now + sec, ready=now + sec + cd, duration_ms=int(sec * 1000), cooldown_ms=int(cd * 1000))
             p.dirty = True
@@ -205,12 +205,12 @@ class Technology:
         w, p = self.w, self.p
         g = p.d['ship']
         hx, hy = w.hero_pos(now)
-        if 'kalkan' in c:                                               # Backup Shield
+        if 'shield' in c:                                               # Backup Shield
             if g.get('shield', 0) >= g.get('shieldMax', 0):
                 return None
             sh0 = g.get('shield', 0)
-            p.set_hull(shield=sh0 + c['kalkan'])
-            return [legacy('0|n|A|S|%s|%d' % (c['eski'], w.hid)),
+            p.set_hull(shield=sh0 + c['shield'])
+            return [legacy('0|n|A|S|%s|%d' % (c['old'], w.hid)),
                     ('AttributeShieldUpdateCommand', {'shieldNow': int(g['shield']), 'shieldMax': g.get('shieldMax', 0)})] + w.heal_msgs(sh0=sh0)
         if item == 'tech_chain-impulse':
             near = sorted(((math.hypot(nx - hx, ny - hy), n) for n in w.npcs.values() if n.alive
@@ -230,10 +230,10 @@ class Technology:
         if item == 'tech_npc-nuke':
             # client: "burst of damage to NPCs in an area around your ship once every 10 seconds": no target needed, sure_sn / interval_sec hits
             # to all aliens around the ship (nuke_tick)
-            self.nuke = dict(next=now + c['interval_sec'], remaining=int(c['sure_sn'] // c['interval_sec']))
+            self.nuke = dict(next=now + c['interval_sec'], remaining=int(c['duration_sec'] // c['interval_sec']))
             return [used_msg('NNK')]
         if item == 'tech_speed-burst':
-            w.hero_effect('speed_up', c['sure_sn'], c['speed'], source=item)
+            w.hero_effect('speed_up', c['duration_sec'], c['speed'], source=item)
         if item == 'tech_burning-trail':
             self.charges, self.trail_n = [], 0
         return self.visual(item, True)

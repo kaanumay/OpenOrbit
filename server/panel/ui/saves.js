@@ -60,11 +60,11 @@ const KL = { trash: false };
 async function renderSaves() {
   if (SE.slot) return renderEditor();
   await loadGameImages();
-  const r = await act(() => api('/api/kayitlar')); if (!r || S.page !== 'saves' || SE.slot) return;
+  const r = await act(() => api('/api/saves')); if (!r || S.page !== 'saves' || SE.slot) return;
   const active = r.entries.find(k => k.active), others = r.entries.filter(k => !k.active);
   const tools = h('div', { class: 'row wrap' },
     btn(T('New save'), () => newSaveModal(), 'primary', 'plus'),
-    btn(T('Import…'), () => act(() => api('/api/kayitlar/import', {}), x => x.cancelled ? T('Cancelled.') : T('Save imported.')).then(() => renderSaves()), '', 'upload'),
+    btn(T('Import…'), () => act(() => api('/api/saves/import', {}), x => x.cancelled ? T('Cancelled.') : T('Save imported.')).then(() => renderSaves()), '', 'upload'),
     h('span', { class: 'spacer' }),
     r.entries.length ? h('span', { class: 'small muted' }, T('{0} saves', r.entries.length)) : null,
     btn(T('Saves folder'), () => act(() => api('/api/open_folder', { ne: 'saves' })), 'ghost', 'folder'));
@@ -84,15 +84,15 @@ function saveMenu(k, ev) {
     extra ? { label: extraWhy ? T('Open in extra client ({0})', extraWhy) : T('Open in extra client'), iconEl: 'play', disabled: !!extraWhy,
       fn: () => openExtra(k.id, k.pilot).then(() => S.page === 'saves' && renderSaves()) } : null,
     extra ? '-' : null,
-    { label: T('Rename'), ic: 'edit', fn: async () => { const v = await promptBox(T('Rename save'), T('Save name'), k.name); if (v != null) act(() => api('/api/kayitlar/rename', { id: k.id, name: v }), T('Name changed.')).then(renderSaves); } },
-    { label: T('Add / edit note'), ic: 'note', fn: async () => { const v = await promptBox(T('Save note'), T('Note'), k.not_, { multiline: true }); if (v != null) act(() => api('/api/kayitlar/note', { id: k.id, not: v })).then(renderSaves); } },
-    { label: T('Copy'), ic: 'copy', fn: async () => { const v = await promptBox(T('Copy save'), T('Name of the new save'), T('{0} (copy)', k.name)); if (v != null) act(() => api('/api/kayitlar/copy', { id: k.id, name: v }), T('Copied.')).then(renderSaves); } },
-    { label: T('Export (.zip)…'), ic: 'download', fn: () => act(() => api('/api/kayitlar/disari', { id: k.id, with_backups: true }), x => x.cancelled ? T('Cancelled.') : T('Exported: {0}', x.route)) },
+    { label: T('Rename'), ic: 'edit', fn: async () => { const v = await promptBox(T('Rename save'), T('Save name'), k.name); if (v != null) act(() => api('/api/saves/rename', { id: k.id, name: v }), T('Name changed.')).then(renderSaves); } },
+    { label: T('Add / edit note'), ic: 'note', fn: async () => { const v = await promptBox(T('Save note'), T('Note'), k.not_, { multiline: true }); if (v != null) act(() => api('/api/saves/note', { id: k.id, not: v })).then(renderSaves); } },
+    { label: T('Copy'), ic: 'copy', fn: async () => { const v = await promptBox(T('Copy save'), T('Name of the new save'), T('{0} (copy)', k.name)); if (v != null) act(() => api('/api/saves/copy', { id: k.id, name: v }), T('Copied.')).then(renderSaves); } },
+    { label: T('Export (.zip)…'), ic: 'download', fn: () => act(() => api('/api/saves/export', { id: k.id, with_backups: true }), x => x.cancelled ? T('Cancelled.') : T('Exported: {0}', x.route)) },
     { label: T('Open folder'), ic: 'folder', fn: () => act(() => api('/api/open_folder', { ne: 'record', id: k.id })) },
     '-',
     { label: T('Delete'), ic: 'trash', danger: true, disabled: k.in_use, fn: async () => {
       if (await confirmBox(T('Delete the save?'), T('"{0}" ({1}) goes to the trash; you can restore it at the bottom of the Saves page.', k.name, k.pilot), { ok: T('Delete'), danger: true }))
-        act(() => api('/api/kayitlar/sil', { id: k.id }), T('Moved to the trash.')).then(renderSaves);
+        act(() => api('/api/saves/delete', { id: k.id }), T('Moved to the trash.')).then(renderSaves);
     } },
   ].filter(Boolean));
 }
@@ -123,7 +123,7 @@ function saveScene(k) {
         meta('calendar', T('Last played'), fmtWhen(k.last_played || k.last_save))),
       k.not_ ? h('div', { class: 'note' }, k.not_) : null,
       h('div', { class: 'row wrap se-action' },
-        btn(T('Play'), () => { go('play'); act(() => api('/api/oyna', {})); }, 'orange', 'play', { disabled: k.in_use }),
+        btn(T('Play'), () => { go('play'); act(() => api('/api/play', {})); }, 'orange', 'play', { disabled: k.in_use }),
         btn(T('Character editor'), () => seOpen(k), 'primary', 'edit'),
         btn(T('Backups ({0})', k.backup_count), () => backupsModal(k.id), '', 'clock'),
         h('span', { class: 'spacer' }),
@@ -147,7 +147,7 @@ function saveCard(k) {
       h('span', null, icon('ship'), k.ship_appearance ? itemName(k.ship_appearance) : k.ship), h('span', null, icon('clock'), fmtWhen(k.last_played || k.last_save))),
     k.not_ ? h('div', { class: 'note' }, k.not_) : null,
     h('div', { class: 'row wrap', style: { gap: '6px', marginTop: 'auto' } },
-      btn(T('Make active'), () => act(() => api('/api/kayitlar/aktif', { id: k.id }), T('Active save: {0}', k.name)).then(() => { renderSaves(); poll(); }), 'primary sm', 'check'),
+      btn(T('Make active'), () => act(() => api('/api/saves/active', { id: k.id }), T('Active save: {0}', k.name)).then(() => { renderSaves(); poll(); }), 'primary sm', 'check'),
       btn(T('Editor'), () => seOpen(k), 'sm', 'edit'),
       btn(T('Backups'), () => backupsModal(k.id), 'sm ghost', 'clock')));
 }
@@ -159,38 +159,38 @@ function trash(entries) {
     h('table', { class: 'table' }, h('thead', null, h('tr', null, h('th', null, T('Save file')), h('th', null, T('Pilot')), h('th', null, T('Deleted')), h('th'))),
       h('tbody', null, entries.map(x => h('tr', null, h('td', null, x.name), h('td', null, `${x.pilot} · ${lvl(x.level)}`), h('td', { class: 'muted' }, fmtWhen(x.deletion)),
         h('td', { class: 'num' }, h('div', { class: 'actions', style: { justifyContent: 'flex-end' } },
-          btn(T('Restore'), () => act(() => api('/api/kayitlar/geri_al', { file: x.file }), T('Save restored.')).then(renderSaves), 'sm', 'undo'),
+          btn(T('Restore'), () => act(() => api('/api/saves/undo', { file: x.file }), T('Save restored.')).then(renderSaves), 'sm', 'undo'),
           btn(T('Delete permanently'), async () => {
             if (await confirmBox(T('Delete permanently?'), T('The save "{0}" and its backups are deleted from disk. This cannot be undone.', x.name), { ok: T('Delete permanently'), danger: true }))
-              act(() => api('/api/kayitlar/empty_trash', { file: x.file }), T('Deleted permanently.')).then(renderSaves);
+              act(() => api('/api/saves/empty_trash', { file: x.file }), T('Deleted permanently.')).then(renderSaves);
           }, 'danger sm', 'trash'))))))),
     entries.length > 1 ? h('div', { class: 'row', style: { marginTop: '12px', justifyContent: 'flex-end' } },
       btn(T('Empty the trash'), async () => {
         if (await confirmBox(T('Empty the trash?'), T('{0} saves will be deleted permanently.', entries.length), { ok: T('Empty'), danger: true }))
-          act(() => api('/api/kayitlar/empty_trash', {}), T('Trash emptied.')).then(renderSaves);
+          act(() => api('/api/saves/empty_trash', {}), T('Trash emptied.')).then(renderSaves);
       }, 'danger sm', 'trash')) : null);
   return d;
 }
 
 // ================================================================== CHARACTER EDITOR
-const SE = { slot: null, name: '', v: null, tab: 'pilot', ship: null, config: null, busy: false, catalog: null, search: '', ammoFilled: false, invKind: 'hepsi', resourceSearch: '' };
+const SE = { slot: null, name: '', v: null, tab: 'pilot', ship: null, config: null, busy: false, catalog: null, search: '', ammoFilled: false, invKind: 'all', resourceSearch: '' };
 const SE_TABS = [
   ['pilot', N('Pilot'), 'user', 'pilotSheet_normal'], ['hangar', N('Hangar'), 'hangar', 'hangar_normal'], ['drones', N('Drones'), 'drone', null],
   ['pet', 'P.E.T.', 'paw', 'pet_normal'], ['inventory', N('Inventory'), 'box', 'assembly_normal'], ['ammunition', N('Ammunition'), 'ammo', null],
   ['sources', N('Resources'), 'gem', 'refinement_normal'], ['boosters', N('Boosters'), 'zap', 'booster_normal'], ['maintenance', N('Maintenance'), 'wrench', 'settings_normal'],
   ['stats', N('Statistics'), 'star', null],
 ];
-const SE_CATEGORY = { hepsi: N('All'), ship: N('Ships'), design: N('Ship designs'), laser: N('Lasers'), rocket_launcher: N('Rocket launchers'), generator: N('Generators'),
-  ekstra: N('Extras and CPUs'), module: N('Modules and cores'), heavy: N('Heavy weapons'), drone: N('Drones and formations'), pet: 'P.E.T.', ammunition: N('Ammunition'),
+const SE_CATEGORY = { all: N('All'), ship: N('Ships'), design: N('Ship designs'), laser: N('Lasers'), rocket_launcher: N('Rocket launchers'), generator: N('Generators'),
+  extras: N('Extras and CPUs'), module: N('Modules and cores'), heavy: N('Heavy weapons'), drone: N('Drones and formations'), pet: 'P.E.T.', ammunition: N('Ammunition'),
   booster: N('Boosters'), source: N('Resources'), package: N('Packages'), other: N('More') };
-const SE_CATEGORY_ICON = { hepsi: 'layers', ship: 'ship', design: 'wand', laser: 'zap', rocket_launcher: 'target', generator: 'shield', ekstra: 'cpu', module: 'layers', heavy: 'crosshair',
+const SE_CATEGORY_ICON = { all: 'layers', ship: 'ship', design: 'wand', laser: 'zap', rocket_launcher: 'target', generator: 'shield', extras: 'cpu', module: 'layers', heavy: 'crosshair',
   drone: 'drone', pet: 'paw', ammunition: 'ammo', booster: 'zap', source: 'gem', package: 'gift', other: 'box' };
 const SE_AMMO = [['laser', N('Laser ammo')], ['rocket', N('Rockets')], ['rocket_launcher', N('Rocket launcher ammo')], ['mine', N('Mines')], ['special', N('Special ammo')], ['other', N('More')]];
 const SE_RESET = [['hints', N('Show tips again (closed and already shown ones, event notices)')],
   ['ui', N('Reset menu bars and window positions')], ['game_settings', N("Reset the game's Settings window (graphics, sound, gameplay)")],
   ['active_quests', N('Drop accepted missions (finished ones stay)')], ['history', N('Clear the logbook and account history')]];
 const SE_FIELD = { name: N('Pilot name'), company: N('Company'), level: N('Level'), ep: N('Experience (EP)'), credits: N('Credits'), uridium: N('Uridium'), honor: N('Honor'),
-  premium: 'Premium', active_ship: N('Active ship'), map: N('Map'), can: N('Ship hit points') };
+  premium: 'Premium', active_ship: N('Active ship'), map: N('Map'), hp: N('Ship hit points') };
 
 function seOpen(k) {
   Object.assign(SE, { slot: k.id, name: k.name, v: null, tab: 'pilot', ship: null, config: null });
@@ -229,7 +229,7 @@ function seLock() {
 async function seApply(...ops) {
   if (!SE.v || SE.v.read_only || SE.busy) return false;
   SE.busy = true; document.body.classList.add('se-busy');
-  const v = await act(() => api('/api/editor/uygula', { id: SE.slot, ops }));
+  const v = await act(() => api('/api/editor/apply', { id: SE.slot, ops }));
   SE.busy = false; document.body.classList.remove('se-busy');
   if (v && SE.slot) { SE.v = v; seRender(); return true; }
   return false;
@@ -260,8 +260,8 @@ function seRender() {
 
 // tab icon: the panel's image (images/ke_<tab>.webp, Orders.md OP-013: delivered ones go to SE_IMAGE), otherwise the game's menu sprite, otherwise a line icon
 const SE_IMAGE = new Set(['pilot', 'hangar', 'drones', 'pet', 'inventory', 'ammunition', 'sources', 'boosters', 'maintenance']);
-const seTabIcon = (s, size) => SE_IMAGE.has(s[0]) ? h('span', { class: 'se-tab-icon gorsel' }, art('ke_' + s[0], 'se-tab-art'))
-  : s[3] && GI.index?.sprite[s[3]] ? h('span', { class: 'se-tab-icon oyun' }, sprite(s[3], size)) : h('span', { class: 'se-tab-icon' }, icon(s[2]));
+const seTabIcon = (s, size) => SE_IMAGE.has(s[0]) ? h('span', { class: 'se-tab-icon image' }, art('ke_' + s[0], 'se-tab-art'))
+  : s[3] && GI.index?.sprite[s[3]] ? h('span', { class: 'se-tab-icon game' }, sprite(s[3], size)) : h('span', { class: 'se-tab-icon' }, icon(s[2]));
 const seTabDescription = id => T({ pilot: N('Name, company, level, experience, honor and wallet.'), hangar: N('Ships, two configs, designs and slots: click to equip or unequip.'),
   drones: N('Drones, their levels, upgrades and equipment.'), pet: N('P.E.T.: level, fuel, open slots and equipment.'),
   inventory: N('Unequipped items: equip them, change their level or delete them.'), ammunition: N('Laser ammo, rockets, mines and special ammo.'),
@@ -295,7 +295,7 @@ function seIdentity(v) {
       h('div', { class: 'grow' }, h('div', { class: 'row between small muted' }, h('span', null, itemName(g.lootId)), h('span', { class: 'mono' }, fmtShort(p.ep) + ' EP')),
         epBar(p.ep, p.level_base, p.next_level))),
     h('div', { class: 'se-wallet' }, sell('credits', p.credits, T('Credits')), sell('uridium', p.uridium, T('Uridium')), sell('honor', p.honor, T('Honor'))),
-    h('div', { class: 'se-values' }, value('hitpoints_100x100', 'heart', d.can, d.max_hp), value('shield_100x100', 'shield', d.kalkan, d.shield_max),
+    h('div', { class: 'se-values' }, value('hitpoints_100x100', 'heart', d.hp, d.max_hp), value('shield_100x100', 'shield', d.shield, d.shield_max),
       value('speed_100x100', 'gauge', g.value.speed), value('damage_laser_100x100', 'zap', g.value.damage)));
 }
 
@@ -361,7 +361,7 @@ function seCell(e, tgt) {
 const seEmptyCell = (tgt, iconEl = 'plus', title = T('Empty slot: equip')) => h('button', { class: 'se-cell vacant', type: 'button', title: title, disabled: SE.v.read_only,
   onclick: () => sePickEquip(tgt) }, icon(iconEl));
 function seSlotBox(name, c, tgt, extra) {
-  return h('div', { class: 'se-slot' + (c.items.length >= c.capacity && c.capacity ? ' dolu' : '') },
+  return h('div', { class: 'se-slot' + (c.items.length >= c.capacity && c.capacity ? ' filled' : '') },
     h('div', { class: 'se-slot-head' }, h('b', null, name), h('span', { class: 'row', style: { gap: '6px' } }, extra, h('span', { class: 'mono' }, c.items.length + ' / ' + c.capacity))),
     h('div', { class: 'se-cells' }, c.items.map(e => seCell(e, tgt)), Array.from({ length: Math.max(0, c.capacity - c.items.length) }, () => seEmptyCell(tgt))));
 }
@@ -434,14 +434,14 @@ function seEdit(e) {
       const k = h('span');
       const c = () => k.replaceChildren(stepBox(st.right, pool.right, n => { st.right = n; c(); }));
       c();
-      sections.push(h('div', { class: 'se-edit satir' }, h('div', { class: 'lbl' }, T('Rerolls left')), k));
+      sections.push(h('div', { class: 'se-edit line' }, h('div', { class: 'lbl' }, T('Rerolls left')), k));
     }
     if (pool.star) {
       const stars = h('div', { class: 'se-stars' });
       const c = () => stars.replaceChildren(...Array.from({ length: pool.star + 1 }, (_, n) => h('button', { type: 'button', class: n && n <= st.star ? 'on' : '',
         title: n ? '★'.repeat(n) : T('No stars'), onclick: () => { st.star = n; c(); } }, icon(n ? 'star' : 'x'))));
       c();
-      sections.push(h('div', { class: 'se-edit satir' }, h('div', { class: 'lbl' }, T('Stars')), stars));
+      sections.push(h('div', { class: 'se-edit line' }, h('div', { class: 'lbl' }, T('Stars')), stars));
     }
   }
   const m = modal({ title: T('Edit item'), sub: itemName(e.lootId), wide: !!pool,
@@ -480,7 +480,7 @@ function sePickEquip(tgt) {
   const v = SE.v;
   const eligible = v.inventory.filter(e => seIsUsable(e) && (tgt.target === 'ship' ? e.targets.includes('ship') && e.slot === tgt.slot
     : tgt.target === 'drone' ? e.targets.includes('drone') && (tgt.slot === 'design') === (e.slot === 'design')
-      : e.targets.includes('pet') && (tgt.slot === 'heat' ? e.heat : e.pet_yuva === tgt.slot)))
+      : e.targets.includes('pet') && (tgt.slot === 'heat' ? e.heat : e.pet_slot === tgt.slot)))
     .sort((a, b) => seIsEquipped(b) - seIsEquipped(a));          // items of the other config first: free copies stay free
   const title = tgt.target === 'drone' ? (tgt.slot === 'design' ? T('Drone design') : T('Drone equipment')) : slotName(tgt.slot);
   const m = modal({ title: T('{0}: equip an item', title), wide: true, body: [
@@ -495,20 +495,20 @@ function sePickEquip(tgt) {
 
 // ---- catalog: everything that can be added, categories, search, count (the game's reward path)
 async function seCatalog(o = {}) {
-  if (!SE.catalog) { const r = await act(() => api('/api/editor/katalog')); if (!r) return; SE.catalog = r; }
+  if (!SE.catalog) { const r = await act(() => api('/api/editor/catalog')); if (!r) return; SE.catalog = r; }
   let entries = SE.catalog.items;
   if (o.equip) entries = entries.filter(([, , gy, py, dr]) => o.equip.target === 'ship' ? gy === o.equip.slot
     : o.equip.target === 'pet' ? (o.equip.slot === 'heat' ? py === 'lasers' || py === 'generators' : py === o.equip.slot) : dr && (o.equip.slot === 'design') === (gy === null && !py));
   if (o.on) entries = entries.filter(([l]) => l.startsWith(o.on));
   const tally = {}; for (const [, k] of entries) tally[k] = (tally[k] || 0) + 1;
-  const categories = ['hepsi', ...SE.catalog.categories.filter(k => tally[k])];
-  const st = { multiplier: o.multiplier && tally[o.multiplier] ? o.multiplier : categories.length === 2 ? categories[1] : 'hepsi', search: '', sec: null };
+  const categories = ['all', ...SE.catalog.categories.filter(k => tally[k])];
+  const st = { multiplier: o.multiplier && tally[o.multiplier] ? o.multiplier : categories.length === 2 ? categories[1] : 'all', search: '', sec: null };
   const grid = h('div', { class: 'se-cat-grid' }), left = h('div', { class: 'se-cat-list' }), sub = h('div', { class: 'se-cat-bottom' });
   const search = h('input', { class: 'input', placeholder: T('Search: name or lootId…'), oninput: e => { st.search = e.target.value.trim().toLowerCase(); render(); } });
   const render = () => {
     left.replaceChildren(...categories.map(k => h('button', { class: k === st.multiplier ? 'on' : '', type: 'button', onclick: () => { st.multiplier = k; render(); } },
-      icon(SE_CATEGORY_ICON[k] || 'box'), h('span', null, T(SE_CATEGORY[k] || k)), h('small', null, fmtN(k === 'hepsi' ? entries.length : tally[k])))));
-    const its = entries.filter(([l, k]) => (st.multiplier === 'hepsi' || k === st.multiplier) && (!st.search || l.includes(st.search) || itemName(l).toLowerCase().includes(st.search)));
+      icon(SE_CATEGORY_ICON[k] || 'box'), h('span', null, T(SE_CATEGORY[k] || k)), h('small', null, fmtN(k === 'all' ? entries.length : tally[k])))));
+    const its = entries.filter(([l, k]) => (st.multiplier === 'all' || k === st.multiplier) && (!st.search || l.includes(st.search) || itemName(l).toLowerCase().includes(st.search)));
     const visible = its.slice(0, 300);
     // the selection only changes the class (if the grid were redrawn the scroll would go back to the top)
     const sec = (l, el) => { st.sec = l; grid.querySelectorAll('.se-cat-item.on').forEach(x => x.classList.remove('on')); el.classList.add('on'); renderSub(); };
@@ -606,7 +606,7 @@ function seHangar(v) {
         h('div', { class: 'row wrap', style: { gap: '8px' } }, h('h2', { class: 'se-ship-title' }, itemName(g.lootId)),
           g.active ? badge(T('Active ship'), 'ok') : null, g.favorite ? badge(T('Favorite'), 'orange') : null),
         g.design ? h('div', { class: 'small muted' }, T('Look: {0}', itemName(g.design))) : null,
-        h('div', { class: 'se-gauges' }, value('hitpoints_100x100', 'heart', T('Hit points'), g.value.can), value('shield_100x100', 'shield', T('Shield'), g.value.kalkan),
+        h('div', { class: 'se-gauges' }, value('hitpoints_100x100', 'heart', T('Hit points'), g.value.hp), value('shield_100x100', 'shield', T('Shield'), g.value.shield),
           value('speed_100x100', 'gauge', T('Speed'), g.value.speed), value('damage_laser_100x100', 'zap', T('Laser damage'), g.value.damage), value(null, 'box', T('Cargo'), g.value.cargo)),
         g.designs.length > 1 || !ro ? h('div', null, h('div', { class: 'lbl', style: { marginBottom: '6px' } }, T('Look')), designs) : null,
         h('div', { class: 'seg' }, Object.keys(g.configs).map(c => h('button', { class: c === SE.config ? 'on info' : '', onclick: () => { SE.config = c; seRender(); } },
@@ -696,9 +696,9 @@ function seInventory(v) {
   const g = seShip(v), ro = v.read_only;
   const empty = v.inventory.filter(e => !seIsEquipped(e));          // inventory tab: only items equipped nowhere (delete, edit)
   const kinds = [...new Set(empty.map(e => e.slot))];
-  if (SE.invKind !== 'hepsi' && !kinds.includes(SE.invKind)) SE.invKind = 'hepsi';
+  if (SE.invKind !== 'all' && !kinds.includes(SE.invKind)) SE.invKind = 'all';
   const q = SE.search.toLowerCase();
-  const entries = empty.filter(e => (SE.invKind === 'hepsi' || e.slot === SE.invKind) && (!q || itemName(e.lootId).toLowerCase().includes(q) || e.lootId.includes(q)));
+  const entries = empty.filter(e => (SE.invKind === 'all' || e.slot === SE.invKind) && (!q || itemName(e.lootId).toLowerCase().includes(q) || e.lootId.includes(q)));
   const grid = h('div', { class: 'se-inv' }, groupItems(entries).map(gr => {
     const e = gr[0];
     return seItemButton({ class: 'se-inv-item', type: 'button', onclick: ev => !ro && popMenu(ev.currentTarget, [
@@ -713,8 +713,8 @@ function seInventory(v) {
     h('div', { class: 'card se-card' }, h('div', { class: 'row wrap', style: { gap: '10px' } },
       h('input', { class: 'input game-search', placeholder: T('Search…'), value: SE.search, oninput: e => seSearch(e, v => { SE.search = v; }) }),
       h('span', { class: 'spacer' }), ro ? null : btn(T('Add item'), () => seCatalog({}), 'primary sm', 'plus')),
-    kinds.length > 1 ? h('div', { class: 'seg', style: { marginTop: '12px', flexWrap: 'wrap' } }, ['hepsi', ...kinds].map(t => h('button', { class: t === SE.invKind ? 'on info' : '',
-      onclick: () => { SE.invKind = t; seRender(); } }, t === 'hepsi' ? T('All') : t === 'design' ? T('Drone designs') : slotName(t)))) : null),
+    kinds.length > 1 ? h('div', { class: 'seg', style: { marginTop: '12px', flexWrap: 'wrap' } }, ['all', ...kinds].map(t => h('button', { class: t === SE.invKind ? 'on info' : '',
+      onclick: () => { SE.invKind = t; seRender(); } }, t === 'all' ? T('All') : t === 'design' ? T('Drone designs') : slotName(t)))) : null),
     entries.length ? h('div', { class: 'card se-card' }, grid) : h('div', { class: 'card empty' }, icon('box'), h('div', null, empty.length ? T('No items match the search.') : T('Inventory is empty: everything is equipped.'))));
 }
 
@@ -775,8 +775,8 @@ function seMaintenance(v) {
   const boxes = Object.fromEntries(SE_RESET.map(([k]) => [k, h('input', { type: 'checkbox', disabled: ro })]));
   return h('div', { class: 'stack' },
     seCard(T('Ship and location'), 'wrench',
-      row('heart', T('Repair ship'), T('HP {0} / {1}, shield {2} / {3}.', fmtN(d.can), fmtN(d.max_hp), fmtN(d.kalkan), fmtN(d.shield_max)),
-        btn(T('Repair'), () => seApply({ operation: 'repair' }), 'sm', 'wrench', { disabled: ro || (d.can >= d.max_hp && d.kalkan >= d.shield_max) })),
+      row('heart', T('Repair ship'), T('HP {0} / {1}, shield {2} / {3}.', fmtN(d.hp), fmtN(d.max_hp), fmtN(d.shield), fmtN(d.shield_max)),
+        btn(T('Repair'), () => seApply({ operation: 'repair' }), 'sm', 'wrench', { disabled: ro || (d.hp >= d.max_hp && d.shield >= d.shield_max) })),
       row('map', T('Move to home station'), T("Now on {0}; the company's home map is {1}. Use it if you got stuck on a map.", d.map_name, d.main_map),
         btn(T('Move'), () => seApply({ operation: 'home_base' }), 'sm', 'map', { disabled: ro })),
       row('sliders', T('Key bindings'), T("Back to default (the in-game Settings > Reset doesn't reach the server)."),
@@ -810,7 +810,7 @@ function seStats(v) {
       badge(T('Rank points') + ': ' + fmtN(p.rankPoints || 0), 'info'), badge(T('Time played') + ': ' + fmtDur(s.play_sec || 0), '')),
       h('div', { class: 'se-stats' }, SE_POINTS.map(([k, name]) => h('div', { class: 'row' }, h('span', { class: 'grow muted' }, T(name)), h('b', null, fmtN(p[k] || 0)))))),
     seCard(T('Gates'), 'globe', table([T('Gate'), T('Completions'), T('Best time'), T('Last time')],
-      (s.kapilar || []).map(k => h('tr', null, h('td', null, k.name), h('td', { class: 'num' }, fmtN(k.done)), h('td', { class: 'num' }, seDuration(k.best)), h('td', { class: 'num' }, seDuration(k.last)))),
+      (s.gates || []).map(k => h('tr', null, h('td', null, k.name), h('td', { class: 'num' }, fmtN(k.done)), h('td', { class: 'num' }, seDuration(k.best)), h('td', { class: 'num' }, seDuration(k.last)))),
       T('No gates completed yet.')),
       h('div', { class: 'small muted', style: { marginTop: '6px' } }, T('Time runs from entering the first wave to completion; gates finished before this version have no time.'))),
     seCard(T('Destroyed aliens'), 'zap', table([T('Aliens'), T('Count'), T('Points')],
@@ -830,12 +830,12 @@ function seChanges() {
     : typeof x === 'number' ? fmtN(x) : String(x);
   const section = (title, ...contents) => contents.flat().filter(Boolean).length ? h('div', { class: 'se-diff' }, h('div', { class: 'lbl' }, title), ...contents) : null;
   const items = (o, cls) => Object.keys(o).length ? h('div', { class: 'se-diff-items' }, Object.entries(o).map(([l, n]) => h('div', { class: 'se-diff-item ' + cls },
-    itemIcon(l, 32), h('span', null, itemName(l)), h('b', null, (cls === 'arti' ? '+' : '−') + fmtN(n))))) : null;
+    itemIcon(l, 32), h('span', null, itemName(l)), h('b', null, (cls === 'added' ? '+' : '−') + fmtN(n))))) : null;
   const m = modal({ title: T('Unsaved changes'), sub: T('Pressing Save writes these to the save; its previous state is kept as a "Before restore" backup.'), wide: true,
     body: [
       section(T('Values'), f.fields.map(([k, a, b]) => h('div', { class: 'se-diff-field' }, h('span', null, T(SE_FIELD[k] || k)), h('s', null, value(k, a)), icon('arrowR'), h('b', null, value(k, b))))),
-      section(T('Added items'), items(f.added, 'arti')),
-      section(T('Removed items'), items(f.leaving, 'eksi')),
+      section(T('Added items'), items(f.added, 'added')),
+      section(T('Removed items'), items(f.leaving, 'removed')),
       section(T('Amounts'), f.counts.map(([l, a, b]) => h('div', { class: 'se-diff-field' }, h('span', { class: 'row', style: { gap: '8px' } }, itemIcon(l, 26), itemName(l)), h('s', null, fmtN(a)), icon('arrowR'), h('b', null, fmtN(b))))),
       section(T('Boosters'), f.boosters.length ? h('div', { class: 'small' }, f.boosters.map(itemName).join(', ')) : null),
       section(T('Levels'), f.levels.length ? h('div', { class: 'small' }, [...new Set(f.levels)].map(l => l === 'pet' ? 'P.E.T.' : itemName(l)).join(', ')) : null),
@@ -846,7 +846,7 @@ function seChanges() {
 }
 
 async function seSave() {
-  const r = await act(() => api('/api/editor/kaydet', { id: SE.slot }), T('Saved. The previous state was backed up.'));
+  const r = await act(() => api('/api/editor/save', { id: SE.slot }), T('Saved. The previous state was backed up.'));
   if (r && SE.slot) { SE.v = null; renderEditor(); }
 }
 async function seCancel() {

@@ -31,7 +31,7 @@ import json, math, os, random, time
 import game_data as DATA
 import ranks as RT
 import settings as SET
-import lasers as LAZER
+import lasers as LASERS
 import map_links as H
 import upgrades as UPG
 
@@ -73,7 +73,7 @@ DESTROYED_NONE, DESTROYED_KAMIKAZE = 0, 1
 SLOTS = {'lasers': 'equipment_weapon_laser_', 'generators': 'equipment_generator_shield_', 'gears': 'equipment_petgear_',
          'protocols': 'equipment_aiprotocol_', 'visual': 'pet_designs_'}
 ALL_SLOTS = tuple(SLOTS) + ('heat',)     # heat: a laser or shield generator (the slotSet of the move request is "heat")
-NOVA_KEYS = {'can': 'pet_can', 'range': 'pet_menzil', 'heat': 'pet_heat', 'fuel': 'pet_fuel'}     # N.O.V.A. abilities (nova.py)
+NOVA_KEYS = {'hp': 'pet_hp', 'range': 'pet_range', 'heat': 'pet_heat', 'fuel': 'pet_fuel'}     # N.O.V.A. abilities (nova.py)
 UNIQUE = ('gears',)                      # the same gear cannot be fitted twice; protocols can be fitted several times (3 Radar Protocol; user 2026-10-24)
 
 
@@ -157,7 +157,7 @@ def locator_id(n):
 
 def new_pet(profile):
     """The purchased P.E.T. (level 0, 10,000 fuel). Its equipment is in each ship's own two configs (profile.pet_config)."""
-    return {'uid': 7001, 'name': PET['name'], 'level': 0, 'ep': 0, 'can': PET['can'], 'kalkan': 0, 'fuel': PET['start_fuel'],
+    return {'uid': 7001, 'name': PET['name'], 'level': 0, 'ep': 0, 'hp': PET['hp'], 'shield': 0, 'fuel': PET['start_fuel'],
             'destroyed': False, 'gear': PASSIVE, 'slot': dict(PET['start_slots']), 'heat': 0.0, 'hp_upgrade': 0}
 
 
@@ -258,8 +258,8 @@ class Pet:
     def hp_max(self):
         """Base HP + G-HP1 upgrades (+10,000 each), with the AI-HP protocol and HEAT's HP bonus (recording: the maximum HP of level 20
         P.E.T.s (50,000 + G-HP1) x1.10 / x1.20, with AI-HP x1.14)."""
-        base = PET['can'] + PET['hp_upgrade']['step'] * self.d.get('hp_upgrade', 0)
-        return int(base * (1 + self.proto('can') + self.heat_bonuses().get('can', 0)))
+        base = PET['hp'] + PET['hp_upgrade']['step'] * self.d.get('hp_upgrade', 0)
+        return int(base * (1 + self.proto('hp') + self.heat_bonuses().get('hp', 0)))
 
     def heat_items(self, slot):
         """Lasers/generators in the HEAT slot: counted only if the HEAT level has reached slot_level (4)."""
@@ -276,11 +276,11 @@ class Pet:
     def shields(self):
         """Generators: (shield, absorption); SG3N-PX01 HEAT bonus and upgrade level (client GENERATOR_SHIELD_UPGRADE 1%)."""
         shield_table, hl = ITEMS['shield_generators'], self.heat_lv()
-        return [(shield_table[g]['kalkan'] * (1 + px_bonus(g, hl)) * UPG.factor(g, lv, UPG.SHIELD), shield_table[g]['absorb']) for g, lv in self.upgraded('generators')
+        return [(shield_table[g]['shield'] * (1 + px_bonus(g, hl)) * UPG.factor(g, lv, UPG.SHIELD), shield_table[g]['absorb']) for g, lv in self.upgraded('generators')
                 if g in shield_table]
 
     def shield_max(self):
-        return int(sum(k for k, e in self.shields()) * (1 + self.row()['kalkan'] + self.proto('kalkan')))
+        return int(sum(k for k, e in self.shields()) * (1 + self.row()['shield'] + self.proto('shield')))
 
     def absorb(self):
         sh = self.shields()
@@ -294,7 +294,7 @@ class Pet:
         """The lasers' total damage: lasers.py's hit as on the ship (AAP-1's target_multiplier, alien bonus), the LF-PX01 HEAT
         bonus and upgrade level (client LASER_DAMAGE_UPGRADE 0.5%)."""
         hl = self.heat_lv()
-        return sum(LAZER.hit(l, target, pvp=pvp) * (1 + px_bonus(l, hl)) * UPG.factor(l, lv, UPG.LASER)
+        return sum(LASERS.hit(l, target, pvp=pvp) * (1 + px_bonus(l, hl)) * UPG.factor(l, lv, UPG.LASER)
                    for l, lv in self.upgraded('lasers') if l in ITEMS['lasers'])
 
     def speed(self):
@@ -403,7 +403,7 @@ class Pet:
         per = self.p.ship_row().get('per_heat', 0) * lv
         out = {k: v + per for k, v in heat_bonus(lv).items()}
         if per:
-            for k in ('npc', 'pvp_damage', 'can', 'shield_penetration', 'hit', 'evasion'):
+            for k in ('npc', 'pvp_damage', 'hp', 'shield_penetration', 'hit', 'evasion'):
                 out.setdefault(k, per)
         return out
 
@@ -417,7 +417,7 @@ class Pet:
         G-BC1/G-BH1 marker while within the ship's range."""
         if not (self.owned and self.active):
             return {}
-        out = {k: v for k, v in self.heat_bonuses().items() if k != 'can'}
+        out = {k: v for k, v in self.heat_bonuses().items() if k != 'hp'}
         if self.in_beacon:
             for k, v in self.gear(self.beacon[0]).get('bonus', {}).items():
                 out[k] = out.get(k, 0) + v
@@ -461,7 +461,7 @@ class Pet:
         step = PET['hp_upgrade']['step']
         with self.p.lock:
             self.d['hp_upgrade'] = self.d.get('hp_upgrade', 0) + 1
-            self.d['can'] = min(self.hp_max(), self.d['can'] + step)
+            self.d['hp'] = min(self.hp_max(), self.d['hp'] + step)
             self.p.dirty = True
         self.log('   P.E.T. HP upgrade %d: maximum HP %d' % (self.d['hp_upgrade'], self.hp_max()))
         return [self.hp_msg(), self.status_msg()] if self.active else []
@@ -484,7 +484,7 @@ class Pet:
         d = self.d
         return ('PetStatusCommand', dict(
             petId=self.pid, petLevel=d['level'], petExperiencePoints=d['ep'], petExperiencePointsUntilNextLevel=self.next_xp(),
-            petHitPoints=int(d['can']), petHitPointsMax=self.hp_max(), petShieldEnergyNow=int(d['kalkan']),
+            petHitPoints=int(d['hp']), petHitPointsMax=self.hp_max(), petShieldEnergyNow=int(d['shield']),
             petShieldEnergyMax=self.shield_max(), petCurrentFuel=int(d['fuel']), petMaxFuel=PET['max_fuel'], petSpeed=self.speed(),
             petName=d['name'], petLootId=''))
 
@@ -527,11 +527,11 @@ class Pet:
         return ('PetGearSelectCommand', dict(gearType=gear_type(t), optionalParams=opt))
 
     def hp_msg(self):
-        return ('PetHitpointsUpdateCommand', dict(hitpointsNow=int(self.d['can']), hitpointsMax=self.hp_max(),
+        return ('PetHitpointsUpdateCommand', dict(hitpointsNow=int(self.d['hp']), hitpointsMax=self.hp_max(),
                                                   useRepairGear=self.d.get('gear') == REPAIR_PET))
 
     def shield_msg(self):
-        return ('PetShieldUpdateCommand', dict(petShieldNow=int(self.d['kalkan']), petShieldMax=self.shield_max()))
+        return ('PetShieldUpdateCommand', dict(petShieldNow=int(self.d['shield']), petShieldMax=self.shield_max()))
 
     def fuel_msg(self):
         return ('PetFuelUpdateCommand', dict(petFuelNow=int(self.d['fuel']), petFuelMax=PET['max_fuel']))
@@ -564,7 +564,7 @@ class Pet:
         if not self.owned:
             return dict(base, _='HangarShipPetView')       # the field name 'name': collides with mod()
         d, lo = self.d, self.loadout()
-        base.update(rootId=PET['loot'], name=d['name'], level=d['level'], exp=d['ep'], expNextLevel=self.next_xp(), hitPoints=int(d['can']),
+        base.update(rootId=PET['loot'], name=d['name'], level=d['level'], exp=d['ep'], expNextLevel=self.next_xp(), hitPoints=int(d['hp']),
                     maxHitPoints=self.hp_max(), fuel=int(d['fuel']), maxFuel=PET['max_fuel'], lasers=len(lo['lasers']),
                     maxLasers=self.open_slots('lasers'), shieldGenerators=len(lo['generators']),
                     maxLaserSlots=self.open_slots('lasers'), maxGeneratorSlots=self.open_slots('generators'),
@@ -724,8 +724,8 @@ class Pet:
         self.active, self.task, self.shooting = True, None, None
         self.tick_t = self.next_second = now
         with self.p.lock:
-            self.d['can'] = min(self.d['can'], self.hp_max())
-            self.d['kalkan'] = min(self.d['kalkan'], self.shield_max())
+            self.d['hp'] = min(self.d['hp'], self.hp_max())
+            self.d['shield'] = min(self.d['shield'], self.shield_max())
             self.p.dirty = True
         if self.d.get('gear') not in {t for t, lv, ok in self.gear_list() if ok} or self.d.get('gear') in (TRADE_POD, HEAT_RELEASE, HP_LINK):
             self.d['gear'] = PASSIVE
@@ -734,7 +734,7 @@ class Pet:
         self.heat_sent = int(self.d.get('heat', 0))
         self.send([self.activation_msg(x, y), self.status_msg()] + self.gear_msgs() + [self.heat_msg(now)] + self.stats_msgs())
         self.log('   P.E.T. launched: level %d, HP %d/%d, shield %d, fuel %d, %d lasers, gear %d' % (
-            self.d['level'], self.d['can'], self.hp_max(), self.d['kalkan'], self.d['fuel'], len(self.lasers()), self.d['gear']))
+            self.d['level'], self.d['hp'], self.hp_max(), self.d['shield'], self.d['fuel'], len(self.lasers()), self.d['gear']))
 
     def disrupt(self, now, sec=5):
         """EMP: the P.E.T. is out of action for sn seconds (log_msg_pet_disruption_on/off), then launches again by itself (the duration is an adaptation)."""
@@ -838,10 +838,10 @@ class Pet:
         if t == REPAIR_PET or old == REPAIR_PET:
             msgs.append(self.hp_msg())
         if t == HEAT_RELEASE:
-            self.release_end = now + self.gear(HEAT_RELEASE).get('sure_sn', 4)
+            self.release_end = now + self.gear(HEAT_RELEASE).get('duration_sec', 4)
             msgs.append(self.release_visual(True))
         if t == HP_LINK:
-            self.link_end = now + self.gear(HP_LINK).get('sure_sn', 20)
+            self.link_end = now + self.gear(HP_LINK).get('duration_sec', 20)
             msgs.append(self.link_visual(True))
         # the client's texts: "Guard mode activated", "P.E.T. repairs the ship now.", the combat gear without lasers
         msgs += [legacy('0|A|STM|%s' % k) for k in (
@@ -861,7 +861,7 @@ class Pet:
             return self.end_release(now, notify=False)                  # time is up (4 s: 4 hits)
         changed = self.add_heat(-g.get('heat_sec', 0))
         with self.p.lock:
-            d['can'] = min(self.hp_max(), max(1, d['can'] - g.get('hp_sec', 0)))      # the gear does not destroy the P.E.T. (adaptation); HEAT
+            d['hp'] = min(self.hp_max(), max(1, d['hp'] - g.get('hp_sec', 0)))      # the gear does not destroy the P.E.T. (adaptation); HEAT
             self.p.dirty = True                                                    # drops so the maximum HP does too
         px, py = self.pos(now)
         hit = [n for n in list(w.npcs.values()) if n.alive and math.hypot(n.mover.pos(now)[0] - px, n.mover.pos(now)[1] - py) <= g.get('range', 0)]
@@ -870,7 +870,7 @@ class Pet:
         if hit:
             self.last_fight = now
         msgs = [self.hp_msg(), self.heat_msg(now)] + (self.stats_msgs() if changed else [])
-        if d.get('heat', 0) <= 0 or d['can'] <= g.get('hp_sec', 0):
+        if d.get('heat', 0) <= 0 or d['hp'] <= g.get('hp_sec', 0):
             msgs += self.end_release(now, notify=False)                 # HEAT ended or HP is not enough
         return msgs
 
@@ -901,11 +901,11 @@ class Pet:
         if not (self.link_end and self.active) or dmg <= 0:
             return 0
         d = self.d
-        taken = min(dmg, d['can'])
+        taken = min(dmg, d['hp'])
         with self.p.lock:
-            d['can'] -= taken
+            d['hp'] -= taken
             self.p.dirty = True
-        if d['can'] <= 0:
+        if d['hp'] <= 0:
             self.destroyed(DESTROYED_NONE)
         else:
             self.send([self.hp_msg()])
@@ -928,7 +928,7 @@ class Pet:
         """G-BC1/G-BH1: the P.E.T. leaves a marker where it is (a bonus to the ship in range); the selected gear does not change, the cooldown starts."""
         g = self.gear(t)
         x, y = self.pos(now)
-        self.beacon, self.in_beacon = (t, x, y, now + g.get('sure_sn', 30)), False
+        self.beacon, self.in_beacon = (t, x, y, now + g.get('duration_sec', 30)), False
         self.ready[t] = now + g.get('cooldown_sec', 240)
         self.send([self.select_msg(), ('PetGearActivationChangeCommand', dict(gearType=gear_type(t), active=False))]
                   + self.beacon_step(now))
@@ -961,7 +961,7 @@ class Pet:
             return
         with self.p.lock:
             pl['uridium'] = pl.get('uridium', 0) - cost
-            self.d.update(destroyed=False, can=max(1, int(self.hp_max() * PET['repair_hp'])), kalkan=self.shield_max())
+            self.d.update(destroyed=False, hp=max(1, int(self.hp_max() * PET['repair_hp'])), shield=self.shield_max())
             self.p.dirty = True
         RT.money(self.p, 'uridium', -cost, 'repair_pet')
         msgs = [('PetRepairCompleteCommand', {}), self.init_msg(), self.repair_button()]
@@ -1103,14 +1103,14 @@ class Pet:
             self.fuel_sent, self.next_fuel_msg = int(d['fuel']), now + 10      # the fuel gauge at most every 10 s
             msgs.append(self.fuel_msg())
         g = d.get('gear')
-        if g == REPAIR_PET and d['can'] < self.hp_max() and not self.in_fight(now):     # forum 127074: does not work in combat
+        if g == REPAIR_PET and d['hp'] < self.hp_max() and not self.in_fight(now):     # forum 127074: does not work in combat
             with self.p.lock:
-                d['can'] = min(self.hp_max(), d['can'] + self.gear(REPAIR_PET).get('hp_sec', 0))
+                d['hp'] = min(self.hp_max(), d['hp'] + self.gear(REPAIR_PET).get('hp_sec', 0))
                 self.p.dirty = True
             msgs.append(self.hp_msg())
-        if d['kalkan'] < self.shield_max() and now - max(w.last_combat, self.last_fight) >= ITEMS['out_of_combat_sec']:
+        if d['shield'] < self.shield_max() and now - max(w.last_combat, self.last_fight) >= ITEMS['out_of_combat_sec']:
             with self.p.lock:
-                d['kalkan'] = min(self.shield_max(), d['kalkan'] + max(1, self.shield_max() * ITEMS['shield_regen_sec']))
+                d['shield'] = min(self.shield_max(), d['shield'] + max(1, self.shield_max() * ITEMS['shield_regen_sec']))
                 self.p.dirty = True
             msgs.append(self.shield_msg())
         if g == COMBO_REPAIR:
@@ -1119,7 +1119,7 @@ class Pet:
             cost = cg.get('extra_fuel', 0) * SET.multiplier('pet_fuel')     # forum 127074: 5 s repair, 15 s cooldown, fuel on activation
             hurt = ship.get('hitPoints', 0) < ship.get('hitMax', 0) and now - w.last_hurt >= ITEMS['out_of_combat_sec']
             if hurt and now >= self.csr_end and now >= self.csr_ready and d['fuel'] >= cost:
-                self.csr_end = now + cg.get('sure_sn', 5)
+                self.csr_end = now + cg.get('duration_sec', 5)
                 self.csr_ready = self.csr_end + cg.get('cooldown_sec', 15)
                 with self.p.lock:
                     d['fuel'] -= cost
@@ -1287,7 +1287,7 @@ class Pet:
             a = ITEMS['laser_ammo'].get(ammo, {'multiplier': 1})
             r = random.uniform(*ITEMS['damage_random'])
             shield = int(base * a.get('shield_multiplier', 0) * r)
-            dmg = shield or int(base * a.get('multiplier', 1) * r) + LAZER.flat_extra(self.lasers(), bool(asset))     # Paritydrill +5: after the multipliers
+            dmg = shield or int(base * a.get('multiplier', 1) * r) + LASERS.flat_extra(self.lasers(), bool(asset))     # Paritydrill +5: after the multipliers
             if asset:
                 w.hit_asset(uid, dmg, 1, shield_only=bool(shield), attacker=self.pid)
                 if not w.asset_at(uid):
@@ -1387,8 +1387,8 @@ class Pet:
 
     def selection_msg(self):
         """The player selected their own P.E.T. (world.select): HP and shield in the target bar."""
-        return ('ShipSelectionCommand', dict(userId=self.pid, shipType=self.look or self.ship_type(), shield=int(self.d['kalkan']),
-                                             shieldMax=self.shield_max(), hitpoints=int(self.d['can']), hitpointsMax=self.hp_max(),
+        return ('ShipSelectionCommand', dict(userId=self.pid, shipType=self.look or self.ship_type(), shield=int(self.d['shield']),
+                                             shieldMax=self.shield_max(), hitpoints=int(self.d['hp']), hitpointsMax=self.hp_max(),
                                              nanoHull=0, maxNanoHull=0, shieldSkill=False))
 
     def station_hit(self, dmg, attacker, atype=0, now=None):
@@ -1402,18 +1402,18 @@ class Pet:
         now = time.time() if now is None else now
         d = self.d
         with self.p.lock:
-            shield = min(d['kalkan'], int(dmg * self.absorb()))
-            hull = min(d['can'], dmg - shield)
-            d['kalkan'] -= shield
-            d['can'] -= hull
+            shield = min(d['shield'], int(dmg * self.absorb()))
+            hull = min(d['hp'], dmg - shield)
+            d['shield'] -= shield
+            d['hp'] -= hull
             self.p.dirty = True
         amount = int(shield + hull)
         if amount:
             self.last_fight = now
             w.send([('AttackHitCommand', dict(attackType=mod('AttackTypeModule', attackTypeValue=atype), attackerId=int(attacker),
-                victimId=self.pid, victimHitpoints=int(d['can']), victimShield=int(d['kalkan']), victimNanoHull=0,
+                victimId=self.pid, victimHitpoints=int(d['hp']), victimShield=int(d['shield']), victimNanoHull=0,
                 damage=amount, skilled=False, strike=False, cannonType=0)), self.hp_msg(), self.shield_msg()])
-            if d['can'] <= 0:
+            if d['hp'] <= 0:
                 self.destroyed(DESTROYED_NONE)
         return amount
 
@@ -1425,21 +1425,21 @@ class Pet:
             return
         d = self.d
         with self.p.lock:
-            to_shield = min(d['kalkan'], int(dmg * self.absorb()))
-            d['kalkan'] -= to_shield
-            d['can'] = max(0, d['can'] - (dmg - to_shield))
+            to_shield = min(d['shield'], int(dmg * self.absorb()))
+            d['shield'] -= to_shield
+            d['hp'] = max(0, d['hp'] - (dmg - to_shield))
             self.p.dirty = True
         self.w.send([('AttackHitCommand', dict(attackType=mod('AttackTypeModule', attackTypeValue=1), attackerId=self.w.hid,
-                                               victimId=self.pid, victimHitpoints=int(d['can']), victimShield=int(d['kalkan']),
+                                               victimId=self.pid, victimHitpoints=int(d['hp']), victimShield=int(d['shield']),
                                                victimNanoHull=0, damage=dmg, skilled=False, strike=False, cannonType=0)),
                      self.hp_msg(), self.shield_msg()])
-        if d['can'] <= 0:
+        if d['hp'] <= 0:
             self.destroyed(DESTROYED_NONE)
 
     def kamikaze_due(self, now):
         """G-KK1 is ready, HP below the threshold and an enemy in range (attacking the ship or the ship's target): it explodes."""
         kamikaze_cfg = self.gear(KAMIKAZE)
-        if not self.kamikaze_armed(now) or self.d['can'] > self.hp_max() * kamikaze_cfg.get('threshold', 0):
+        if not self.kamikaze_armed(now) or self.d['hp'] > self.hp_max() * kamikaze_cfg.get('threshold', 0):
             return False
         w = self.w
         px, py = self.pos(now)
@@ -1485,7 +1485,7 @@ class Pet:
 
     def destroyed(self, kind, killer=None):
         with self.p.lock:
-            self.d.update(destroyed=True, can=0, kalkan=0)
+            self.d.update(destroyed=True, hp=0, shield=0)
             self.p.dirty = True
         self.deactivate(notify=False)
         self.send([('ShipDestroyedCommand', dict(destroyedUserId=self.pid, explosionTypeId=0)), ('ShipRemoveCommand', {'userId': self.pid}),
@@ -1527,8 +1527,8 @@ class Pet:
             return []
         hp, sh = self.hp_max(), self.shield_max()
         with self.p.lock:
-            self.d['can'] = min(self.d['can'], hp)
-            self.d['kalkan'] = min(self.d['kalkan'], sh)
+            self.d['hp'] = min(self.d['hp'], hp)
+            self.d['shield'] = min(self.d['shield'], sh)
         if self.d.get('gear') not in {t for t, lv, ok in self.gear_list() if ok}:
             self.d['gear'] = GUARD
         look = []

@@ -360,12 +360,12 @@ class Console:
                     return self.say('kapı yok: %s' % (parts[0] if parts else ''))
                 flat = dict((n, v) for n, v in flat_items(sub))
                 g = KAPI.KAPI[key]
-                lifes = num(flat.get('lifes') or (parts[1] if len(parts) > 1 else 0)) or g['can']
+                lifes = num(flat.get('lifes') or (parts[1] if len(parts) > 1 else 0)) or g['hp']
                 wave = num(flat.get('wave') or (parts[2] if len(parts) > 2 else 0))
                 last = str(flat.get('lastWave') or (parts[3] if len(parts) > 3 else '')).lower() in ('true', '1')
                 with k.p.lock:
                     G = k.gate(key)
-                    G.update(ready=True, can=lifes, lives_bought=0, parts=list(range(1, g['part'] + 1)),
+                    G.update(ready=True, hp=lifes, lives_bought=0, parts=list(range(1, g['part'] + 1)),
                              wave=len(g['waves']) - 1 if last else max(0, min(len(g['waves']) - 1, wave - 1 if wave else 0)))
                     k.p.dirty = True
                 return self.say('%s kuruldu: %d can, dalga %d (X-1 portalı)' % (g['name'], lifes, G['wave'] + 1))

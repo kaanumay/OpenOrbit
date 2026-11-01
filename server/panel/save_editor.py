@@ -54,7 +54,7 @@ CATEGORIES = (
     ('ship', ('ShipType',), ()), ('design', ('ShipDesignType',), ()), ('laser', ('LaserType',), ('equipment_weapon_laser_',)),
     ('rocket_launcher', ('HellstormLauncherType',), ('equipment_weapon_rocketlauncher_',)),
     ('generator', ('ShieldType', 'EngineType'), ('equipment_generator_',)),
-    ('ekstra', ('CPUType', 'ExtraType', 'HardwareType', 'RobotType', 'TechType'), ('equipment_extra_',)),
+    ('extras', ('CPUType', 'ExtraType', 'HardwareType', 'RobotType', 'TechType'), ('equipment_extra_',)),
     ('module', ('ShipUpgradeType', 'QuantumFluidCoreType'), ('equipment_shipupgrade_', 'equipment_core_')),
     ('heavy', ('CannonType', 'CannonShieldType', 'DriveType', 'LensType'), ('equipment_cannon', 'equipment_lens_', 'equipment_drive')),
     ('drone', ('DroneType', 'DroneFormationType', 'DroneDesignType', 'DroneCustomizationType'), ('drone_',)),
@@ -90,7 +90,7 @@ def catalog():
 
 # ------------------------------------------------------------------ item info (the panel's hint)
 # the server's bonus key -> the client's attribute name (metinler_<lang>.json "n": the panel writes in that language)
-ATTRIBUTE_NAME = {'laser': 'dmg_laser', 'rocket': 'dmg_rockets', 'can': 'hitpoints', 'kalkan': 'shield', 'speed': 'speed', 'ep': 'experience',
+ATTRIBUTE_NAME = {'laser': 'dmg_laser', 'rocket': 'dmg_rockets', 'hp': 'hitpoints', 'shield': 'shield', 'speed': 'speed', 'ep': 'experience',
                'honor': 'honour', 'evasion': 'evasion', 'npc': 'dmg_npc', 'pvp': 'dmg_pvp', 'laser_hit_chance': 'hitchance_laser',
                'rocket_hit_chance': 'hitchance_rocket', 'shield_penetration': 'shield_penetration'}
 BOOSTER_NAME = {'DAMAGE': 'damage', 'HITPOINTS': 'hitpoints', 'SHIELD': 'shield', 'EXPERIENCE_POINTS': 'experience', 'HONOUR_POINTS': 'honour'}
@@ -138,7 +138,7 @@ def info():
             row(l)['up'] = [[u['percent'] / 100.0, UPG.max_level(l), u['type']] for u in up]
         if v.get('class_name') in ('ShipType', 'ShipDesignType'):
             gr = E['ships'].get(l) or E['ships'].get(l.split('_design_')[0]) or {}
-            stats(l, 'can', v.get('can') or gr.get('hp'))
+            stats(l, 'hp', v.get('hp') or gr.get('hp'))
             stats(l, 'speed', v.get('speed') or gr.get('base_speed'))
             stats(l, 'cargo', v.get('cargo') or gr.get('cargo'))
             row(l)['slot_info'] = {k: n for k, n in (v.get('slots') or {}).items() if n}
@@ -150,7 +150,7 @@ def info():
         stats(l, 'damage', v.get('damage'))
         stats(l, 'pvp_damage', v.get('pvp_damage'))
     for l, v in E['shield_generators'].items():
-        stats(l, 'kalkan', v.get('kalkan'))
+        stats(l, 'shield', v.get('shield'))
         stats(l, 'absorb', v.get('absorb'), 'p')
     for l, v in E['speed_generators'].items():
         stats(l, 'speed', v.get('speed'))
@@ -161,14 +161,14 @@ def info():
             stats(l, 'damage', v.get('damage'))
             stats(l, 'hit', v.get('hit'), 'p')
     for l, v in E['repair_robots'].items():
-        stats(l, 'full_repair', v.get('full_repair_sec'), 'sn')
+        stats(l, 'full_repair', v.get('full_repair_sec'), 'sec')
         stats(l, 'hp_per_minute', v.get('hp_per_minute'))
     for l, v in E['extras'].items():
         if not isinstance(v, dict):
             continue
         stats(l, 'right', v.get('right'))
         stats(l, 'extra_slot', v.get('extra_slot'))
-        stats(l, 'cooldown', v.get('cooldown_sec'), 'sn')
+        stats(l, 'cooldown', v.get('cooldown_sec'), 'sec')
         stats(l, 'cargo_multiplier', v.get('cargo_multiplier'), 'x')
     for l, v in E['formations'].items():
         bonus(l, {k: x for k, x in v.items() if k != 'id'})
@@ -185,15 +185,15 @@ def info():
                 row(l).setdefault('m', []).append([BOOSTER_NAME[k], x / 100.0])
             else:
                 stats(l, 'booster_' + k.lower(), x / 100.0, 'p')
-        h = hour.get(l) or BOOSTER.B['sure_sn'] / 3600          # duration of a shop booster (booster.add)
-        stats(l, 'sure', h, 'sa')
+        h = hour.get(l) or BOOSTER.B['duration_sec'] / 3600          # duration of a shop booster (booster.add)
+        stats(l, 'duration', h, 'sa')
         if effect:
             row(l)['ph'] = {'HOURS': '%g' % h, 'BOOSTERVALUE': next(iter(effect.values()))}
     for l, v in GM.M.items():
         if 'unstable' in v:
             unstable = v['unstable']
             row(l)['gm'] = unstable.get('preference', [])
-            stats(l, 'en_az', unstable.get('en_az'), 'p')
+            stats(l, 'min_value', unstable.get('min_value'), 'p')
             a = unstable['interval']
             stats(l, 'value_range', '%d-%d%%' % tuple(a['caps']) + (' / %d-%d%%' % tuple(a['lowercase']) if a.get('lowercase') else ''), 't')
             stats(l, 'reroll', unstable['restabilize']['right'])
@@ -206,7 +206,7 @@ def info():
         stats(l, 'extra_attribute', v.get('extra'))
         stats(l, 'reroll', PC.rerolls(l))
     for l, v in PC.SHIELDS.items():
-        stats(l, 'savunma', v.get('savunma'))
+        stats(l, 'defense', v.get('defense'))
         stats(l, 'element', v.get('element'), 'e')
         stats(l, 'extra_attribute', v.get('extra'))
         stats(l, 'reroll', PC.rerolls(l))
@@ -214,13 +214,13 @@ def info():
         stats(l, 'damage', v.get('damage'))
         stats(l, 'shot', v.get('shot'))
     for l, v in PC.LENSES.items():
-        stats(l, 'savunma', v.get('savunma'))
+        stats(l, 'defense', v.get('defense'))
     for l, v in QF.TYPES.items():
         stats(l, 'quality', v.get('quality'))
         stats(l, 'value_range', '%g-%g%%' % tuple(v['interval']), 't')
         stats(l, 'max_level', QF.MAX_LV)
     for l, v in PETM.GEARS.items():
-        for k, label in (('range', 'range'), ('sure_sn', 'sure_sn'), ('cooldown_sec', 'cooldown')):
+        for k, label in (('range', 'range'), ('duration_sec', 'duration_sec'), ('cooldown_sec', 'cooldown')):
             if isinstance(v.get(k), list):
                 stats(l, label, ' / '.join(str(x) for x in v[k]), 't')
     for l, v in PETM.PROTOCOLS.items():
@@ -336,14 +336,14 @@ def stats(pr):
                   for k, n in c['npc'].items() if n), key=lambda x: -x[1])
     player = sorted(([RT.R['ship_points'].get(k, {}).get('name', k.replace('ship_', '')), int(n)] for k, n in c['player'].items() if n),
                     key=lambda x: -x[1])
-    roster_row = (pr.d.get('kapilar') or {}).get('kapilar') or {}
+    roster_row = (pr.d.get('gates') or {}).get('gates') or {}
     duration = pr.d.get('gate_times') or {}
-    gates = [{'anahtar': k, 'name': GT.KAPI[k]['name'], 'done': int((roster_row.get(k) or {}).get('done', 0)), **(duration.get(k) or {})}
+    gates = [{'key': k, 'name': GT.KAPI[k]['name'], 'done': int((roster_row.get(k) or {}).get('done', 0)), **(duration.get(k) or {})}
                for k in GT.KAPI if (roster_row.get(k) or {}).get('done') or k in duration]
     pve = pr.d.get('pve') or {}
     return {'points': RT.breakdown(pr), 'npc': npc, 'player': player,
             'death': {'enemy': c['death_by_enemy'], 'radiation': c['death_by_radiation'], 'other': c['death_other']},
-            'quest': c['quest'], 'friendly': c['friendly'], 'kapilar': gates,
+            'quest': c['quest'], 'friendly': c['friendly'], 'gates': gates,
             'modes': {'ebl': int((pve.get('ebl') or {}).get('best', 0)), 'labyrinth': int((pr.d.get('labyrinth') or {}).get('hunts', 0)),
                        'mimesis': int(max((pr.d.get('mimesis') or {}).get('trips') or [0]))},
             'play_sec': int(pr.d.get('play_sec') or 0)}
@@ -391,7 +391,7 @@ def appearance(pr, m, original=None):
                         'favorite': bool(g.get('favorite')), 'active_config': str(g['active_config']), 'slots': slots, 'configs': configs,
                         'drones': drones, 'pet': pet or None, 'designs': m.designs(sid),
                         'position': g.get('position'), 'registered': bool(g.get('saved_config')),
-                        'value': {'can': st.get('hp_max') or row.get('hp'), 'kalkan': st.get('shield_max'), 'speed': st.get('display'),
+                        'value': {'hp': st.get('hp_max') or row.get('hp'), 'shield': st.get('shield_max'), 'speed': st.get('display'),
                                   'cargo': row.get('cargo'), 'damage': damage, 'laser': st.get('lasers')}})
     ships.sort(key=lambda x: (not x['active'], not x['favorite'], int(x['id'])))
 
@@ -407,7 +407,7 @@ def appearance(pr, m, original=None):
             continue
         e = _item(p, i)
         e.update(targets=targets(l), slot=SHP.slot_of(l) or PETM.slot_for(l) or ('design' if l in SHP.DESIGNS else 'other'),
-                 pet_yuva=PETM.slot_for(l), heat=bool(PETM.heat_slot_ok(l)), maximum=maximum(l),
+                 pet_slot=PETM.slot_for(l), heat=bool(PETM.heat_slot_ok(l)), maximum=maximum(l),
                  ship=place[0] if place else None, configs=sorted(place[1]) if place else [])
         inventory.append(e)
     for g in ships:                                  # upgrade limit of the fitted items (level window)
@@ -440,8 +440,8 @@ def appearance(pr, m, original=None):
                   'uridium': pl.get('uridium', 0), 'premium': bool(pl.get('premium')), 'clan': pl.get('clanTag') or '',
                   'rank': (p.d.get('rank') or {}).get('rank'), 'bank': p.d.get('bank', 0), 'play_sec': int(p.d.get('play_sec') or 0),
                   'created': p.d.get('created'), 'skill_points': (p.d.get('skills') or {}).get('points', 0)},
-        'state': {'can': int(p.d['ship'].get('hitPoints', 0)), 'max_hp': p.d['ship'].get('hitMax', 0),
-                  'kalkan': int(p.d['ship'].get('shield', 0)), 'shield_max': p.d['ship'].get('shieldMax', 0),
+        'state': {'hp': int(p.d['ship'].get('hitPoints', 0)), 'max_hp': p.d['ship'].get('hitMax', 0),
+                  'shield': int(p.d['ship'].get('shield', 0)), 'shield_max': p.d['ship'].get('shieldMax', 0),
                   'map': k.get('mapId'), 'map_name': H.name(k.get('mapId', 0)), 'main_map': H.name(HOME_MAP.get(pl.get('factionId'), 5)),
                   'cargo': p.cargo_used(), 'cargo_max': p.d['ship'].get('cargoSpaceMax', 0)},
         'ships': ships, 'active_ship': p.d['active_ship'], 'drones': drone_list, 'max_drones': SHP.ITEMS['max_drones'],
@@ -491,7 +491,7 @@ def diff(a, b):
         import map_links as H
         fields.append(['map', H.name(a.get('position', {}).get('mapId', 0)), H.name(b.get('position', {}).get('mapId', 0))])
     if int(a.get('ship', {}).get('hitPoints', 0)) != int(b.get('ship', {}).get('hitPoints', 0)):
-        fields.append(['can', int(a['ship'].get('hitPoints', 0)), int(b['ship'].get('hitPoints', 0))])
+        fields.append(['hp', int(a['ship'].get('hitPoints', 0)), int(b['ship'].get('hitPoints', 0))])
     say = lambda d: {l: sum(1 for x in d.values() if x == l) for l in set(d.values())}
     items_a, items_b = say(a.get('items', {})), say(b.get('items', {}))
     ga = say({k: s['lootId'] for k, s in a.get('ships', {}).items()})
@@ -829,7 +829,7 @@ def op_pet(pr, m, o):
             d.setdefault('slot', {})[y] = _int(n, 0, PETM.PET['max_slots'].get(y, 0))
     if o.get('repair'):
         d['destroyed'] = False
-        d['can'] = m.pet.hp_max()
+        d['hp'] = m.pet.hp_max()
     pr.dirty = True
 
 

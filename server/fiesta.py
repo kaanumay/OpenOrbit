@@ -31,7 +31,7 @@ PORTAL_ID = EKP.PORTAL_BASE + 90                  # the single Fiesta portal in 
 TITLE_TRANQUIL = 'title_fiestagate_dec2025'      # "Epoch Lit" (client text): on completing the Tranquil level
 
 # the gates go to the event gate engine (imported before game.py EKP.register_npcs: alien types are registered too)
-for _k, _g in (D.get('kapilar') or {}).items():
+for _k, _g in (D.get('gates') or {}).items():
     EKP.GATES[_k] = _g
     for _m in _g['maps']:
         EKP.BY_MAP[int(_m)] = _k
@@ -102,7 +102,7 @@ class Fiesta:
     def gate_cmd(self):
         cmds = []
         for z in D.get('difficulties', []):
-            g = D['kapilar'][z['gate']]
+            g = D['gates'][z['gate']]
             o = g['reward']
             probs = [mod('LootProbabilityModule', lootId=l, minLootAmount=n, maxLootAmount=n, probabilityPercentage=round(c * 100, 3))
                      for l, n, c in o.get('chance', [])]

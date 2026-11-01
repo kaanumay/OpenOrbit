@@ -8,25 +8,25 @@ import math, random, re, time
 
 from . import name_style as NS
 
-TRAITS = ('aggression', 'rekabet', 'sociability', 'patience', 'risk', 'loyalty', 'helpfulness', 'talkativeness', 'frugality',
+TRAITS = ('aggression', 'rivalry', 'sociability', 'patience', 'risk', 'loyalty', 'helpfulness', 'talkativeness', 'frugality',
               'ambition')
 
 # archetype -> (share of the population, trait averages, description). The shares roughly follow a real server's distribution: most
 # players grind aliens, a few are hunters and leaders; "casual" players log in for a few hours a week and progress slowly.
 ARCHETYPES = {
-    'grinder':  (0.27, dict(aggression=.35, rekabet=.50, sociability=.35, patience=.85, risk=.30, loyalty=.60, helpfulness=.50,
+    'grinder':  (0.27, dict(aggression=.35, rivalry=.50, sociability=.35, patience=.85, risk=.30, loyalty=.60, helpfulness=.50,
                            talkativeness=.30, frugality=.60, ambition=.75), 'PvE kasıcı'),
-    'hunter':    (0.14, dict(aggression=.90, rekabet=.90, sociability=.45, patience=.40, risk=.80, loyalty=.50, helpfulness=.30,
+    'hunter':    (0.14, dict(aggression=.90, rivalry=.90, sociability=.45, patience=.40, risk=.80, loyalty=.50, helpfulness=.30,
                            talkativeness=.55, frugality=.35, ambition=.70), 'PvP avcısı'),
-    'social':  (0.14, dict(aggression=.30, rekabet=.35, sociability=.90, patience=.50, risk=.40, loyalty=.80, helpfulness=.80,
+    'social':  (0.14, dict(aggression=.30, rivalry=.35, sociability=.90, patience=.50, risk=.40, loyalty=.80, helpfulness=.80,
                            talkativeness=.90, frugality=.50, ambition=.40), 'social'),
-    'trader':  (0.08, dict(aggression=.20, rekabet=.55, sociability=.55, patience=.70, risk=.35, loyalty=.50, helpfulness=.40,
+    'trader':  (0.08, dict(aggression=.20, rivalry=.55, sociability=.55, patience=.70, risk=.35, loyalty=.50, helpfulness=.40,
                            talkativeness=.50, frugality=.85, ambition=.60), 'tüccar'),
-    'quester': (0.16, dict(aggression=.40, rekabet=.45, sociability=.40, patience=.70, risk=.45, loyalty=.55, helpfulness=.60,
+    'quester': (0.16, dict(aggression=.40, rivalry=.45, sociability=.40, patience=.70, risk=.45, loyalty=.55, helpfulness=.60,
                            talkativeness=.35, frugality=.55, ambition=.65), 'görevci'),
-    'casual':   (0.17, dict(aggression=.30, rekabet=.20, sociability=.50, patience=.35, risk=.50, loyalty=.40, helpfulness=.55,
+    'casual':   (0.17, dict(aggression=.30, rivalry=.20, sociability=.50, patience=.35, risk=.50, loyalty=.40, helpfulness=.55,
                            talkativeness=.50, frugality=.30, ambition=.25), 'casual'),
-    'leader':   (0.04, dict(aggression=.55, rekabet=.75, sociability=.85, patience=.60, risk=.55, loyalty=.90, helpfulness=.70,
+    'leader':   (0.04, dict(aggression=.55, rivalry=.75, sociability=.85, patience=.60, risk=.55, loyalty=.90, helpfulness=.70,
                            talkativeness=.75, frugality=.60, ambition=.85), 'leader'),
 }
 
@@ -145,7 +145,7 @@ def generate_roster(seed, count, company_distribution=(1, 1, 1), lang='mixed', e
     out = []
     for no in range(1, count + 1):
         o = special[no - 1] if no <= len(special) else {}
-        firma = o.get('company') or next(remaining, None) or r.randint(1, 3)
+        company = o.get('company') or next(remaining, None) or r.randint(1, 3)
         name_langs = name_lang if name_lang in LANGUAGES else pick_mixed(r)
         chat = o.get('lang') or (lang if lang in LANGUAGES else name_langs)          # mixed: a bot with a German name speaks German
         real = [x for x in (pool or {}).get(name_langs) or [y for v in (pool or {}).values() for y in v]
@@ -162,7 +162,7 @@ def generate_roster(seed, count, company_distribution=(1, 1, 1), lang='mixed', e
             else:
                 name = 'Pilot%d' % r.randint(1000, 99999)
         used.add(name.lower())
-        x = dict(no=no, name=name, company=firma, personality=dict(generate_personality(r, archetype=o.get('archetype'), lang=chat), name_lang=o.get('lang') or name_langs))
+        x = dict(no=no, name=name, company=company, personality=dict(generate_personality(r, archetype=o.get('archetype'), lang=chat), name_lang=o.get('lang') or name_langs))
         if o:
             x['special'] = True                             # the user's bot (marked in the panel's Roster)
         out.append(x)
@@ -201,7 +201,7 @@ class Mood:
 
 # ------------------------------------------------------------------------------------------------------------ memory
 EVENTS = {          # event -> effect on the relationship
-    'killed_me': -0.35, 'i_killed': -0.05, 'helped_me': 0.25, 'i_helped': 0.1, 'sohbet': 0.03, 'insult': -0.2,
+    'killed_me': -0.35, 'i_killed': -0.05, 'helped_me': 0.25, 'i_helped': 0.1, 'chat': 0.03, 'insult': -0.2,
     'praise': 0.12, 'group': 0.08, 'clan': 0.1, 'friend': 0.2, 'reddetti': -0.08, 'hunted_together': 0.05,
     'gossip_good': 0.06, 'gossip_bad': -0.08,          # heard from another bot (memories.hear_gossip)
 }

@@ -10,7 +10,7 @@ multiplier(key, source) like SET.multiplier: parent multiplier x the source's su
 """
 import settings as SET
 
-FIELDS = ('ep', 'credits', 'uridium', 'honor', 'npc_can', 'npc_damage', 'shop_price', 'repair_cost')   # Fields editable in the special profile
+FIELDS = ('ep', 'credits', 'uridium', 'honor', 'npc_hp', 'npc_damage', 'shop_price', 'repair_cost')   # Fields editable in the special profile
 PROFILES = ('standard', 'player', 'casual', 'fast', 'hard', 'special')
 
 

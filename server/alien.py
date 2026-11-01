@@ -134,7 +134,7 @@ class Abilities:
         o = n.behavior.get('anger')
         if not o:
             return False
-        return sum(1 for t in n.attackers.values() if now - t <= o.get('sure_sn', 10)) >= o.get('attacker', 2)
+        return sum(1 for t in n.attackers.values() if now - t <= o.get('duration_sec', 10)) >= o.get('attacker', 2)
 
     def extra_summons(self, n, now):
         """What is added to the summon limit while enraged."""
@@ -152,10 +152,10 @@ class Abilities:
                 n.ab[key] = now
                 self.summon(n, c['type'], c['count'], now)
         t = n.behavior.get('reverse_controls') if to_player else None
-        if t and 'reverse' not in n.ab and n.hp > 0 and (n.shield <= n.d['kalkan'] * t['shield_ratio'] if 'shield_ratio' in t
+        if t and 'reverse' not in n.ab and n.hp > 0 and (n.shield <= n.d['shield'] * t['shield_ratio'] if 'shield_ratio' in t
                                                       else n.hp <= n.d['hp'] * t['hp_ratio']):
             n.ab['reverse'] = now                                   # once
-            self.reverse_controls(n, t['sn'])
+            self.reverse_controls(n, t['sec'])
         if 'emp_on_shield_down' in n.behavior and to_player:      # Obscured Mimesis: an EMP pulse every time the shield runs out
             if n.shield > 0:
                 n.ab.pop('emp_shield', None)
@@ -268,7 +268,7 @@ class Abilities:
         """The fake Emperor type (looks the same as the real one; 1 HP, does not fire, no reward, explodes when hit)."""
         key = 'sahte_' + n.tip
         if key not in self.CFG['types']:
-            self.CFG['types'][key] = dict(name=n.d['name'], model=n.model, hp=1, kalkan=0, damage=0, speed=n.d['speed'], aggressive=False,
+            self.CFG['types'][key] = dict(name=n.d['name'], model=n.model, hp=1, shield=0, damage=0, speed=n.d['speed'], aggressive=False,
                                       reward=dict(ep=0, honor=0, credits=0, uridium=0), cargo={}, uncounted=True,
                                       behavior={'explode_on_death': {'damage': k.get('explosion', 60000),
                                                                  'radius': k.get('explosion_radius', 500)}})
@@ -295,7 +295,7 @@ class Abilities:
         t = n.behavior.get('reverse_shot')
         if t and hit and not self.w.hero_dead and now >= n.ab.get('reverse_next', 0):
             n.ab['reverse_next'] = now + t['cooldown_sec']
-            self.reverse_controls(n, t['sn'])
+            self.reverse_controls(n, t['sec'])
         s = n.behavior.get('slowing_shots')
         if not s or not hit or self.w.hero_dead or not SET.get('slowing_shots'):          # panel: can be turned off
             return
@@ -305,10 +305,10 @@ class Abilities:
         src = 'slow_%s' % n.tip
         if 'speed' in s:
             w.hero_effects.remove('speed_limit', source=src)          # renews, does not stack
-            w.hero_effect('speed_limit', s['sn'], s['speed'], source=src)
+            w.hero_effect('speed_limit', s['sec'], s['speed'], source=src)
         else:
             w.hero_effects.remove('slow', source=src)
-            w.hero_effect('slow', s['sn'], s['ratio'], source=src)
+            w.hero_effect('slow', s['sec'], s['ratio'], source=src)
 
     def extra_target(self, n, now):
         """Multiple targets (Mindfire Behemoth): at critical HP it also fires at the P.E.T."""
@@ -417,7 +417,7 @@ class Abilities:
         s = d.get('singularity')
         if s and now >= n.ab.get('singularity', 0) and aliens <= s['range'] * SET.multiplier('npc_range'):
             n.ab['singularity'] = now + s['cooldown_sec']
-            for i in range(int(min(s['sure_sn'], s['maximum'] / max(1, s['damage_per_sec'])))):
+            for i in range(int(min(s['duration_sec'], s['maximum'] / max(1, s['damage_per_sec'])))):
                 hit(s['damage_per_sec'], i + 1.0)
         o = d.get('death_beam')
         if o and now >= n.ab.get('beam', 0) and aliens > o['distance']:
@@ -516,7 +516,7 @@ class Abilities:
         visual = t.get('visual', True)                     # the Reflector Mimesis's radiation: no vortex
         if visual and not any(d_.get('visual') for d_ in self.hero_dots):
             self.w.send([self.singularity_visual(True)])    # live test H30: there was damage, no visual
-        self.hero_dots.append(dict(npc=n.id, end_time=now + t['sure_sn'], remaining=t['maximum'], damage_per_sec=t['damage_per_sec'], next=now + 1.0,
+        self.hero_dots.append(dict(npc=n.id, end_time=now + t['duration_sec'], remaining=t['maximum'], damage_per_sec=t['damage_per_sec'], next=now + 1.0,
                                    range=rng, visual=visual))
         self.w.log('   %s singularity started' % n.d['name'])
 
@@ -622,7 +622,7 @@ class Abilities:
         n.ab['reload'] = now + 1.0
         k = n.behavior['disappear']
         n.hp = min(n.d['hp'], n.hp + k.get('hp_sec', 0))
-        n.shield = min(n.d['kalkan'], n.shield + k.get('shield_per_sec', 0))
+        n.shield = min(n.d['shield'], n.shield + k.get('shield_per_sec', 0))
 
     # ------------------------------------------------------------ healing, following, periodic summoning, EMP, the player's speed
     def heal(self, n, now):
@@ -782,7 +782,7 @@ class Abilities:
             st = n.ab['flee'] = dict(state='flee', target=self.flee_spot(n, now), reload=0.0)
             self.flee_move(n, st, now)
             self.w.log('   %s fleeing at low HP (HP %%%d)' % (n.d['name'], 100 * n.hp // max(1, n.d['hp'])))
-        if n.hp >= n.d['hp'] * LOW['return_ratio'] and n.shield >= n.d['kalkan'] * LOW['return_ratio']:
+        if n.hp >= n.d['hp'] * LOW['return_ratio'] and n.shield >= n.d['shield'] * LOW['return_ratio']:
             del n.ab['flee']                                       # tamamen yenilendi: normal yapay zekâ
             n.next_think = now
             return None
@@ -801,7 +801,7 @@ class Abilities:
             r = LOW['regeneration']
             if now - n.last_hit >= r['cooldown_sec']:
                 n.hp = min(n.d['hp'], n.hp + int(n.d['hp'] * r['hp_ratio_per_sec']))
-                n.shield = min(n.d['kalkan'], n.shield + int(n.d['kalkan'] * r['shield_ratio_per_sec']))
+                n.shield = min(n.d['shield'], n.shield + int(n.d['shield'] * r['shield_ratio_per_sec']))
                 if self.w.target == n.id:
                     self.w.send([self.w.selection(n)])
         return 'park'
@@ -809,7 +809,7 @@ class Abilities:
     # ------------------------------------------------------------ Emperor Sibelon: speed and capsules
     def speed_skill(self, n, now):
         h = n.behavior['speed_skill']
-        if 'speed' not in n.ab and n.shield <= n.d['kalkan'] * h.get('shield_ratio', 0.1):
+        if 'speed' not in n.ab and n.shield <= n.d['shield'] * h.get('shield_ratio', 0.1):
             n.ab['speed'] = h['speed']
             n.ab['capsule_at'] = now
             self.w.log('   %s sped up (%d)' % (n.d['name'], h['speed']))
@@ -847,7 +847,7 @@ class Abilities:
         x, y = self.far_spot(n.mover.pos(time.time()), 2500)
         kind = random.choice(CAPSULES)
         self.capsules[aid] = dict(x=x, y=y, type=kind, owner=n.id)
-        w.send([asset_create(aid, BUFF_CAPSULE, x, y, name='%s-Buff' % {'can': 'HP', 'kalkan': 'SHD', 'damage': 'DMG'}[kind],
+        w.send([asset_create(aid, BUFF_CAPSULE, x, y, name='%s-Buff' % {'hp': 'HP', 'shield': 'SHD', 'damage': 'DMG'}[kind],
                              design=CAPSULES.index(kind))])
         w.log('   capsule appeared: %s (%d,%d)' % (kind, x, y))
 
@@ -865,10 +865,10 @@ class Abilities:
         """The Emperor collected the capsule: HP/shield refills 10% or the damage increases and the player's drops (lifted when the Emperor dies)."""
         w = self.w
         kind = self.capsules[aid]['type']
-        if kind == 'can':
-            n.hp = min(n.d['hp'], n.hp + n.d['hp'] * k['can'])
-        elif kind == 'kalkan':
-            n.shield = min(n.d['kalkan'], n.shield + n.d['kalkan'] * k['kalkan'])
+        if kind == 'hp':
+            n.hp = min(n.d['hp'], n.hp + n.d['hp'] * k['hp'])
+        elif kind == 'shield':
+            n.shield = min(n.d['shield'], n.shield + n.d['shield'] * k['shield'])
         else:
             n.ab['damage_bonus'] = n.ab.get('damage_bonus', 0) + k['damage']
             w.hero_effect('weakness', 3600, k['damage'], source='kapsul_%d' % n.id)
@@ -876,7 +876,7 @@ class Abilities:
         # collection visual (Ö1): a glowing ring around the Emperor for 4 s; type 0 damage (red), 1 shield, 2 HP (client:
         # EmperorSibelonBuffRingCommandHandler, diameter radius x 2; the radius is an adaptation)
         x, y = n.mover.pos(time.time())
-        w.send([('EmperorSibelonBuffRingCommand', dict(avatarId=n.id, type={'damage': 0, 'kalkan': 1, 'can': 2}[kind], radius=RING_RADIUS,
+        w.send([('EmperorSibelonBuffRingCommand', dict(avatarId=n.id, type={'damage': 0, 'shield': 1, 'hp': 2}[kind], radius=RING_RADIUS,
                                                        x=int(x), y=int(y)))])
         if w.target == n.id:
             w.send([w.selection(n)])

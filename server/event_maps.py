@@ -74,7 +74,7 @@ def roll(spec, mods=None):
     pct = lambda l, c: c + bonus.get('proxium_chance', 0) * 100 if l == PROXIUM else c
     out = [(l, amount(a, l)) for l, a, *c in spec.get('guaranteed', [])]
     out += [(l, amount(a, l)) for l, a, c in spec.get('additional', []) if random.random() * 100 < pct(l, c)]   # with a separate probability (Permafrost Proxium)
-    if spec.get('mod', 'one_of') == 'hepsi':
+    if spec.get('mod', 'one_of') == 'all':
         return out + [(l, amount(a, l)) for l, a, *c in rows if random.random() * 100 < pct(l, c[0] if c and c[0] is not None else 100)]
     weights = [pct(l, c[0] if c and c[0] is not None else 1) for l, a, *c in rows]
     if not rows or sum(weights) <= 0:
@@ -104,15 +104,15 @@ def route_at(k, g, now):
     start = ROVER.setdefault(k, now)
     if now < start:
         return None
-    return g['route'][int((now - start) // g['sure_sn']) % len(g['route'])]
+    return g['route'][int((now - start) // g['duration_sec']) % len(g['route'])]
 
 
 def route_leg(k, g, now):
     """The roamer's leg on this map: (previous map, next map, moment it leaves this map)."""
     start = ROVER.setdefault(k, now)
-    i = int((now - start) // g['sure_sn'])
+    i = int((now - start) // g['duration_sec'])
     r = g['route']
-    return r[(i - 1) % len(r)], r[(i + 1) % len(r)], start + (i + 1) * g['sure_sn']
+    return r[(i - 1) % len(r)], r[(i + 1) % len(r)], start + (i + 1) * g['duration_sec']
 
 
 def gate_to(w, name):
@@ -341,7 +341,7 @@ class MapEvents:
             c = w.spawn_npc_at(tip, x, y)
             c.summoned = True
             st['boss'].append(c.id)
-        st['end_time'] = now + p.get('sure_sn', 1800)
+        st['end_time'] = now + p.get('duration_sec', 1800)
         w.log('   event boss summoned (%s): %s x%d' % (k, ', '.join(kinds), len(st['boss'])))
         first = w.npcs.get(st['boss'][0]) if st['boss'] else None
         if first:

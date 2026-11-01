@@ -16,7 +16,7 @@ LAB = K.ITEMS['lab']
 RECIPES = {int(u): {int(t): n for t, n in g.items()} for u, g in LAB['recipes'].items()}      # 4, 5, 6
 BONUS = {int(p): {int(c): v for c, v in g.items()} for p, g in LAB['bonuses'].items()}
 UNIT = {int(p): v for p, v in LAB['unit'].items()}
-LAZER, ROCKET, SHIELD = 0, 1, 2
+LASER, ROCKET, SHIELD = 0, 1, 2
 PROMETID, DURANIUM, PROMERIUM = 4, 5, 6
 
 
@@ -81,7 +81,7 @@ def load(bot, part, ore, count):
 def will_upgrade(bot):
     if not bot.permission.get('lab', True) or bot.level < 4:
         return False
-    return bot.o('ambition') * 0.5 + bot.o('rekabet') * 0.3 + (1 - bot.o('frugality')) * 0.4 > 0.55
+    return bot.o('ambition') * 0.5 + bot.o('rivalry') * 0.3 + (1 - bot.o('frugality')) * 0.4 > 0.55
 
 
 def _is_promerium_good(bot, need):
@@ -97,7 +97,7 @@ def _is_promerium_good(bot, need):
     finally:
         bot.k['cargo'] = original
         bot.k['stats']['refining'] = counter
-    return BONUS[LAZER][PROMERIUM] * prom > BONUS[LAZER][PROMETID] * prometid
+    return BONUS[LASER][PROMERIUM] * prom > BONUS[LASER][PROMETID] * prometid
 
 
 def decision(bot, hourly_ammo):
@@ -107,17 +107,17 @@ def decision(bot, hourly_ammo):
         return
     cargo = _cargo(bot)
     target = hourly_ammo * (1 + bot.o('ambition'))                     # about one or two hours of shots
-    v = lab_data(bot).get(str(LAZER))
+    v = lab_data(bot).get(str(LASER))
     if not v or v[1] < target * 0.3:
-        need = int(target / UNIT[LAZER]) + 1
+        need = int(target / UNIT[LASER]) + 1
         if cargo.get('3', 0) > 0 and _is_promerium_good(bot, need):     # Promerium (+30%) if there is Xenomit and it gains more
             refine(bot, PROMETID, need * 10)
             refine(bot, DURANIUM, need * 10)
             if refine(bot, PROMERIUM, need):
-                load(bot, LAZER, PROMERIUM, need)
+                load(bot, LASER, PROMERIUM, need)
         else:
             refine(bot, PROMETID, need)
-            load(bot, LAZER, PROMETID, need)
+            load(bot, LASER, PROMETID, need)
     v = lab_data(bot).get(str(SHIELD))
     if bot.o('risk') < 0.6 and (not v or v[1] < 1800):
         refine(bot, DURANIUM, 60)

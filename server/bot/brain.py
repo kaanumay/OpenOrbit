@@ -92,12 +92,12 @@ def map_candidates(bot, value, y=None):
     courage = PS.clamp(0.3 + 0.6 * o['risk'] + 0.2 * bot.mood['confidence'] - 0.3)
     foreign = y.setting('foreign_map', True) if y is not None else True
     out = []
-    lv, firma = bot.level, bot.firma
+    lv, company = bot.level, bot.company
     for m in K.MAPS:
-        if not K.can_enter(m, firma, lv):
+        if not K.can_enter(m, company, lv):
             continue
         owner = K.H.company(m)
-        if owner and owner != firma and not foreign:
+        if owner and owner != company and not foreign:
             continue
         r = K.evaluate_map(m, value['dps'], value['ehp'], courage)
         if not r['targets']:
@@ -105,13 +105,13 @@ def map_candidates(bot, value, y=None):
         earnings = (r['ep_per_hour'] * (0.6 + o['ambition']) / 10.0 + r['credits_per_hour'] * (0.5 + o['frugality']) / 10.0
                   + r['uridium_per_hour'] * 25.0 + r['honor_per_hour'] * 5.0)
         risk = r['deaths_per_hour'] * (1.6 - o['risk']) * 0.35
-        route = K.route(bot.game_map, m, firma, lv)
+        route = K.route(bot.game_map, m, company, lv)
         if route is None:
             continue
         jump = len(route) - 1
-        pvp = K.pvp_map(m, firma)
+        pvp = K.pvp_map(m, company)
         preference = 1.0 + (0.25 * (o['aggression'] - 0.5) if pvp else 0.1) + (0.15 if m == bot.game_map else 0)
-        if owner and owner != firma:
+        if owner and owner != company:
             preference -= 0.35 * (1 - o['risk'])
         # crowding: bots on a map share the same aliens (real players drift to empty maps; avoids piling onto the starting maps)
         crowd = len(y.on_map.get(m, ())) - (1 if m == bot.game_map else 0) if y is not None else 0

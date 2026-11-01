@@ -242,7 +242,7 @@ class Control:
             rows = TRACE.since(r.get('after') or 0, r.get('name'), r.get('direction'), r.get('full', False), r.get('limit', 200))
             return {'order': TRACE.seq, 'messages': [_row(e, long) for e in rows]}
         if k == 'wait':
-            e = TRACE.wait(TRACE.seq if r.get('after') is None else r['after'], r['name'], r.get('direction'), r.get('sure', 10))
+            e = TRACE.wait(TRACE.seq if r.get('after') is None else r['after'], r['name'], r.get('direction'), r.get('duration', 10))
             return {'found': e is not None, 'message': _row(e, long) if e else None, 'order': TRACE.seq}
         if k == 'request':
             s = self.session()

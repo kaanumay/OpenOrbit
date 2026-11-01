@@ -55,7 +55,7 @@ class Bot:
         k['personality']['_name'] = k['name']                     # from time zone and taste name (personality comes back from the roster on every start)
         self.mood = PS.Mood(k['mood'], k.get('mood_time'))
         self.memory = PS.Memory(k['memory'])
-        self.r = random.Random('%s|%s|%s' % (k['name'], k['no'], k['stats'].get('sure_sn', 0)))     # deterministic (simulation)
+        self.r = random.Random('%s|%s|%s' % (k['name'], k['no'], k['stats'].get('duration_sec', 0)))     # deterministic (simulation)
         # temporary
         self.online = False
         self.session_end = 0.0
@@ -94,7 +94,7 @@ class Bot:
         return self.k.get('registered', True)
 
     @property
-    def firma(self):
+    def company(self):
         return self.k['company']
 
     @property
@@ -142,7 +142,7 @@ class Bot:
         from . import loot as LT
         dmg, hp, shd = LT.booster_share(self, 'DAMAGE'), LT.booster_share(self, 'HITPOINTS'), LT.booster_share(self, 'SHIELD')
         if dmg or hp or shd:
-            d = dict(d, dps=d['dps'] * (1 + dmg), can=d['can'] * (1 + hp), kalkan=d['kalkan'] * (1 + shd),
+            d = dict(d, dps=d['dps'] * (1 + dmg), hp=d['hp'] * (1 + hp), shield=d['shield'] * (1 + shd),
                      ehp=d['ehp'] * (1 + 0.5 * hp + 0.5 * shd))
         return d
 
@@ -151,7 +151,7 @@ class Bot:
         kills more slowly and takes more damage). power is the equipment itself (comparison, panel)."""
         if self._value is None:
             d = K.values(self.k['gear'], self.shield_share())
-            d['dps'] /= max(0.1, self.game_settings.multiplier('npc_can', 'map'))
+            d['dps'] /= max(0.1, self.game_settings.multiplier('npc_hp', 'map'))
             d['ehp'] /= max(0.1, self.game_settings.multiplier('npc_damage', 'map'))
             self._value = d
         return self._value
@@ -213,7 +213,7 @@ class Bot:
         elif loot in K.ITEMS['lasers']:
             e['laser'][loot] = e['laser'].get(loot, 0) + n
         elif loot in K.ITEMS['shield_generators']:
-            e['kalkan'][loot] = e['kalkan'].get(loot, 0) + n
+            e['shield'][loot] = e['shield'].get(loot, 0) + n
         elif loot in K.ITEMS['speed_generators']:
             e['speed'][loot] = e['speed'].get(loot, 0) + n
         elif loot in K.ITEMS['drones']:
@@ -262,19 +262,19 @@ class Bot:
         LB.decision(self, WP.hourly_ammo(self))
         price = K.ore_prices(self.k['honor'], self.game_settings.multiplier('ore_price'))
         cargo = self.k.setdefault('cargo', {})
-        kredi = 0
+        credits = 0
         for t in list(cargo):
             if int(t) in price:
-                kredi += price[int(t)] * cargo.pop(t)
+                credits += price[int(t)] * cargo.pop(t)
             elif int(t) in K.CARGO_ORE:              # what the refinery does not sell (Palladium: to the trader in 5-2 for gate energy) to storage
                 from . import weapons as WP
                 name = K.ITEMS['ores']['kinds'].get(str(t), 'resource_ore_%s' % t)
                 WP.stock(self)[name] = WP.stock(self).get(name, 0) + cargo.pop(t)
-        if kredi:
-            self.earn(credits=kredi)
-            self.ist('ore_credits', kredi)
-            self.event('sold_ore', credits=kredi)
-        return kredi
+        if credits:
+            self.earn(credits=credits)
+            self.ist('ore_credits', credits)
+            self.event('sold_ore', credits=credits)
+        return credits
 
     def event(self, kind, now=None, **f):
         """Event queue (at most 30): for the brain and the LLM context."""
@@ -289,7 +289,7 @@ class Bot:
     def summary(self):
         """A short status for the panel and the LLM."""
         d = self.value()
-        return dict(no=self.k['no'], name=self.name, company=self.firma, archetype=self.archetype, level=self.level, ep=self.k['ep'],
+        return dict(no=self.k['no'], name=self.name, company=self.company, archetype=self.archetype, level=self.level, ep=self.k['ep'],
                     credits=self.k['credits'], uridium=self.k['uridium'], honor=self.k['honor'], ship=self.k['gear']['ship'],
                     power=round(d['power'], 1), map=K.H.name(self.game_map), online=self.online, clan=self.k['clan'],
                     target=self.k['target'], concrete=self.body is not None, stats=dict(self.k['stats']), registered=self.saved,

@@ -21,14 +21,14 @@ def scale_npc(n, hp=1.0, dmg=1.0, reward=1.0, extra=None):
     """Strengthens the alien for this instance: a copy of the type's values (the type is shared, the instance separate)."""
     d = dict(n.d)
     d['hp'] = max(1, int(d['hp'] * hp))
-    d['kalkan'] = int(d['kalkan'] * hp)
+    d['shield'] = int(d['shield'] * hp)
     d['damage'] = int(d['damage'] * dmg)
     d['reward'] = {k: int(v * reward) for k, v in d['reward'].items()}
     d['cargo'] = {k: int(v * reward) for k, v in d.get('cargo', {}).items() if int(v * reward) > 0}
     if extra:
         d.update(extra)
     n.d = d
-    n.hp, n.shield = d['hp'], d['kalkan']
+    n.hp, n.shield = d['hp'], d['shield']
     return n
 
 

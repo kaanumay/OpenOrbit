@@ -4,7 +4,7 @@
   {
    "energy": 16,
    "solar": 170,
-   "uretim": {
+   "production": {
     "raw": 2200,
     "prometid_duranium": 110,
     "promerium": 11,
@@ -20,7 +20,7 @@
   {
    "energy": 19,
    "solar": 210,
-   "uretim": {
+   "production": {
     "raw": 7400,
     "prometid_duranium": 370,
     "promerium": 37,
@@ -36,7 +36,7 @@
   {
    "energy": 24,
    "solar": 270,
-   "uretim": {
+   "production": {
     "raw": 15045,
     "prometid_duranium": 752,
     "promerium": 75,
@@ -52,7 +52,7 @@
   {
    "energy": 31,
    "solar": 350,
-   "uretim": {
+   "production": {
     "raw": 24890,
     "prometid_duranium": 1245,
     "promerium": 124,
@@ -68,7 +68,7 @@
   {
    "energy": 40,
    "solar": 450,
-   "uretim": {
+   "production": {
     "raw": 36781,
     "prometid_duranium": 1839,
     "promerium": 184,
@@ -84,7 +84,7 @@
   {
    "energy": 51,
    "solar": 570,
-   "uretim": {
+   "production": {
     "raw": 50604,
     "prometid_duranium": 2530,
     "promerium": 253,
@@ -100,7 +100,7 @@
   {
    "energy": 64,
    "solar": 710,
-   "uretim": {
+   "production": {
     "raw": 66274,
     "prometid_duranium": 3314,
     "promerium": 331,
@@ -116,7 +116,7 @@
   {
    "energy": 79,
    "solar": 870,
-   "uretim": {
+   "production": {
     "raw": 83720,
     "prometid_duranium": 4186,
     "promerium": 419,
@@ -132,7 +132,7 @@
   {
    "energy": 96,
    "solar": 1050,
-   "uretim": {
+   "production": {
     "raw": 102884,
     "prometid_duranium": 5144,
     "promerium": 514,
@@ -148,7 +148,7 @@
   {
    "energy": 115,
    "solar": 1250,
-   "uretim": {
+   "production": {
     "raw": 123715,
     "prometid_duranium": 6186,
     "promerium": 619,
@@ -164,7 +164,7 @@
   {
    "energy": 136,
    "solar": 1470,
-   "uretim": {
+   "production": {
     "raw": 146171,
     "prometid_duranium": 7309,
     "promerium": 731,
@@ -180,7 +180,7 @@
   {
    "energy": 159,
    "solar": 1710,
-   "uretim": {
+   "production": {
     "raw": 170212,
     "prometid_duranium": 8511,
     "promerium": 851,
@@ -196,7 +196,7 @@
   {
    "energy": 184,
    "solar": 1970,
-   "uretim": {
+   "production": {
     "raw": 195805,
     "prometid_duranium": 9790,
     "promerium": 979,
@@ -212,7 +212,7 @@
   {
    "energy": 211,
    "solar": 2250,
-   "uretim": {
+   "production": {
     "raw": 222919,
     "prometid_duranium": 11146,
     "promerium": 1115,
@@ -228,7 +228,7 @@
   {
    "energy": 240,
    "solar": 2550,
-   "uretim": {
+   "production": {
     "raw": 251526,
     "prometid_duranium": 12576,
     "promerium": 1258,
@@ -244,7 +244,7 @@
   {
    "energy": 271,
    "solar": 2870,
-   "uretim": {
+   "production": {
     "raw": 281600,
     "prometid_duranium": 14080,
     "promerium": 1408,
@@ -260,7 +260,7 @@
   {
    "energy": 304,
    "solar": 3210,
-   "uretim": {
+   "production": {
     "raw": 313118,
     "prometid_duranium": 15656,
     "promerium": 1566,
@@ -276,7 +276,7 @@
   {
    "energy": 339,
    "solar": 3570,
-   "uretim": {
+   "production": {
     "raw": 346059,
     "prometid_duranium": 17303,
     "promerium": 1730,
@@ -292,7 +292,7 @@
   {
    "energy": 376,
    "solar": 3950,
-   "uretim": {
+   "production": {
     "raw": 380401,
     "prometid_duranium": 19020,
     "promerium": 1902,
@@ -308,7 +308,7 @@
   {
    "energy": 415,
    "solar": 4350,
-   "uretim": {
+   "production": {
     "raw": 416126,
     "prometid_duranium": 20806,
     "promerium": 2081,
@@ -325,121 +325,121 @@
  "costs": {
   "basicSolarStorage": [
    {
-    "sure_sn": 3600,
+    "duration_sec": 3600,
     "uridium": 0,
     "credits": 0,
     "source": 0
    },
    {
-    "sure_sn": 8280,
+    "duration_sec": 8280,
     "uridium": 1487,
     "credits": 16352,
     "source": 707
    },
    {
-    "sure_sn": 13440,
+    "duration_sec": 13440,
     "uridium": 2468,
     "credits": 27144,
     "source": 2923
    },
    {
-    "sure_sn": 19020,
+    "duration_sec": 19020,
     "uridium": 3536,
     "credits": 38891,
     "source": 8000
    },
    {
-    "sure_sn": 24840,
+    "duration_sec": 24840,
     "uridium": 4673,
     "credits": 51403,
     "source": 17469
    },
    {
-    "sure_sn": 30900,
+    "duration_sec": 30900,
     "uridium": 5869,
     "credits": 64560,
     "source": 33068
    },
    {
-    "sure_sn": 37200,
+    "duration_sec": 37200,
     "uridium": 7116,
     "credits": 78279,
     "source": 56718
    },
    {
-    "sure_sn": 43680,
+    "duration_sec": 43680,
     "uridium": 8409,
     "credits": 92499,
     "source": 90510
    },
    {
-    "sure_sn": 50280,
+    "duration_sec": 50280,
     "uridium": 9743,
     "credits": 107171,
     "source": 136688
    },
    {
-    "sure_sn": 57060,
+    "duration_sec": 57060,
     "uridium": 11114,
     "credits": 122257,
     "source": 197642
    },
    {
-    "sure_sn": 63960,
+    "duration_sec": 63960,
     "uridium": 12520,
     "credits": 137725,
     "source": 275902
    },
    {
-    "sure_sn": 71040,
+    "duration_sec": 71040,
     "uridium": 13959,
     "credits": 153550,
     "source": 374123
    },
    {
-    "sure_sn": 78180,
+    "duration_sec": 78180,
     "uridium": 15428,
     "credits": 169708,
     "source": 495087
    },
    {
-    "sure_sn": 85440,
+    "duration_sec": 85440,
     "uridium": 16925,
     "credits": 186180,
     "source": 641694
    },
    {
-    "sure_sn": 92820,
+    "duration_sec": 92820,
     "uridium": 18450,
     "credits": 202949,
     "source": 816957
    },
    {
-    "sure_sn": 100260,
+    "duration_sec": 100260,
     "uridium": 20000,
     "credits": 220000,
     "source": 1024000
    },
    {
-    "sure_sn": 107880,
+    "duration_sec": 107880,
     "uridium": 21575,
     "credits": 237320,
     "source": 1266051
    },
    {
-    "sure_sn": 115500,
+    "duration_sec": 115500,
     "uridium": 23172,
     "credits": 254896,
     "source": 1546443
    },
    {
-    "sure_sn": 123240,
+    "duration_sec": 123240,
     "uridium": 24793,
     "credits": 272719,
     "source": 1868605
    },
    {
-    "sure_sn": 131100,
+    "duration_sec": 131100,
     "uridium": 26434,
     "credits": 290777,
     "source": 2236068
@@ -447,121 +447,121 @@
   ],
   "collectors": [
    {
-    "sure_sn": 3600,
+    "duration_sec": 3600,
     "uridium": 500,
     "credits": 5500,
     "source": 50
    },
    {
-    "sure_sn": 8280,
+    "duration_sec": 8280,
     "uridium": 1189,
     "credits": 13081,
     "source": 566
    },
    {
-    "sure_sn": 13440,
+    "duration_sec": 13440,
     "uridium": 1974,
     "credits": 21715,
     "source": 2338
    },
    {
-    "sure_sn": 19020,
+    "duration_sec": 19020,
     "uridium": 2828,
     "credits": 31113,
     "source": 6400
    },
    {
-    "sure_sn": 24840,
+    "duration_sec": 24840,
     "uridium": 3738,
     "credits": 41122,
     "source": 13975
    },
    {
-    "sure_sn": 30900,
+    "duration_sec": 30900,
     "uridium": 4695,
     "credits": 51648,
     "source": 26454
    },
    {
-    "sure_sn": 37200,
+    "duration_sec": 37200,
     "uridium": 5693,
     "credits": 62623,
     "source": 45375
    },
    {
-    "sure_sn": 43680,
+    "duration_sec": 43680,
     "uridium": 6727,
     "credits": 73999,
     "source": 72408
    },
    {
-    "sure_sn": 50280,
+    "duration_sec": 50280,
     "uridium": 7794,
     "credits": 85737,
     "source": 109350
    },
    {
-    "sure_sn": 57060,
+    "duration_sec": 57060,
     "uridium": 8891,
     "credits": 97805,
     "source": 158114
    },
    {
-    "sure_sn": 63960,
+    "duration_sec": 63960,
     "uridium": 10016,
     "credits": 110180,
     "source": 220721
    },
    {
-    "sure_sn": 71040,
+    "duration_sec": 71040,
     "uridium": 11167,
     "credits": 122840,
     "source": 299298
    },
    {
-    "sure_sn": 78180,
+    "duration_sec": 78180,
     "uridium": 12342,
     "credits": 135766,
     "source": 396070
    },
    {
-    "sure_sn": 85440,
+    "duration_sec": 85440,
     "uridium": 13540,
     "credits": 148944,
     "source": 513355
    },
    {
-    "sure_sn": 92820,
+    "duration_sec": 92820,
     "uridium": 14760,
     "credits": 162359,
     "source": 653566
    },
    {
-    "sure_sn": 100260,
+    "duration_sec": 100260,
     "uridium": 16000,
     "credits": 176000,
     "source": 819200
    },
    {
-    "sure_sn": 107880,
+    "duration_sec": 107880,
     "uridium": 17260,
     "credits": 189856,
     "source": 1012841
    },
    {
-    "sure_sn": 115500,
+    "duration_sec": 115500,
     "uridium": 18538,
     "credits": 203917,
     "source": 1237154
    },
    {
-    "sure_sn": 123240,
+    "duration_sec": 123240,
     "uridium": 19834,
     "credits": 218175,
     "source": 1494884
    },
    {
-    "sure_sn": 131100,
+    "duration_sec": 131100,
     "uridium": 21147,
     "credits": 232622,
     "source": 1788854
@@ -569,121 +569,121 @@
   ],
   "xenoModule": [
    {
-    "sure_sn": 3600,
+    "duration_sec": 3600,
     "uridium": 750,
     "credits": 8250,
     "source": 75
    },
    {
-    "sure_sn": 8280,
+    "duration_sec": 8280,
     "uridium": 1784,
     "credits": 19622,
     "source": 849
    },
    {
-    "sure_sn": 13440,
+    "duration_sec": 13440,
     "uridium": 2961,
     "credits": 32573,
     "source": 3507
    },
    {
-    "sure_sn": 19020,
+    "duration_sec": 19020,
     "uridium": 4243,
     "credits": 46669,
     "source": 9600
    },
    {
-    "sure_sn": 24840,
+    "duration_sec": 24840,
     "uridium": 5608,
     "credits": 61683,
     "source": 20963
    },
    {
-    "sure_sn": 30900,
+    "duration_sec": 30900,
     "uridium": 7043,
     "credits": 77472,
     "source": 39682
    },
    {
-    "sure_sn": 37200,
+    "duration_sec": 37200,
     "uridium": 8540,
     "credits": 93935,
     "source": 68062
    },
    {
-    "sure_sn": 43680,
+    "duration_sec": 43680,
     "uridium": 10091,
     "credits": 110998,
     "source": 108612
    },
    {
-    "sure_sn": 50280,
+    "duration_sec": 50280,
     "uridium": 11691,
     "credits": 128605,
     "source": 164025
    },
    {
-    "sure_sn": 57060,
+    "duration_sec": 57060,
     "uridium": 13337,
     "credits": 146708,
     "source": 237171
    },
    {
-    "sure_sn": 63960,
+    "duration_sec": 63960,
     "uridium": 15025,
     "credits": 165270,
     "source": 331082
    },
    {
-    "sure_sn": 71040,
+    "duration_sec": 71040,
     "uridium": 16751,
     "credits": 184260,
     "source": 448948
    },
    {
-    "sure_sn": 78180,
+    "duration_sec": 78180,
     "uridium": 18514,
     "credits": 203649,
     "source": 594105
    },
    {
-    "sure_sn": 85440,
+    "duration_sec": 85440,
     "uridium": 20311,
     "credits": 223416,
     "source": 770033
    },
    {
-    "sure_sn": 92820,
+    "duration_sec": 92820,
     "uridium": 22140,
     "credits": 243539,
     "source": 980349
    },
    {
-    "sure_sn": 100260,
+    "duration_sec": 100260,
     "uridium": 24000,
     "credits": 264000,
     "source": 1228800
    },
    {
-    "sure_sn": 107880,
+    "duration_sec": 107880,
     "uridium": 25889,
     "credits": 284784,
     "source": 1519261
    },
    {
-    "sure_sn": 115500,
+    "duration_sec": 115500,
     "uridium": 27807,
     "credits": 305875,
     "source": 1855731
    },
    {
-    "sure_sn": 123240,
+    "duration_sec": 123240,
     "uridium": 29751,
     "credits": 327262,
     "source": 2242327
    },
    {
-    "sure_sn": 131100,
+    "duration_sec": 131100,
     "uridium": 31721,
     "credits": 348933,
     "source": 2683282
@@ -691,121 +691,121 @@
   ],
   "prometidDuraniumRefinery": [
    {
-    "sure_sn": 6000,
+    "duration_sec": 6000,
     "uridium": 750,
     "credits": 8250,
     "source": 75
    },
    {
-    "sure_sn": 13800,
+    "duration_sec": 13800,
     "uridium": 1784,
     "credits": 19622,
     "source": 849
    },
    {
-    "sure_sn": 22440,
+    "duration_sec": 22440,
     "uridium": 2961,
     "credits": 32573,
     "source": 3507
    },
    {
-    "sure_sn": 31680,
+    "duration_sec": 31680,
     "uridium": 4243,
     "credits": 46669,
     "source": 9600
    },
    {
-    "sure_sn": 41400,
+    "duration_sec": 41400,
     "uridium": 5608,
     "credits": 61683,
     "source": 20963
    },
    {
-    "sure_sn": 51540,
+    "duration_sec": 51540,
     "uridium": 7043,
     "credits": 77472,
     "source": 39682
    },
    {
-    "sure_sn": 61980,
+    "duration_sec": 61980,
     "uridium": 8540,
     "credits": 93935,
     "source": 68062
    },
    {
-    "sure_sn": 72480,
+    "duration_sec": 72480,
     "uridium": 10091,
     "credits": 110998,
     "source": 108612
    },
    {
-    "sure_sn": 83820,
+    "duration_sec": 83820,
     "uridium": 11691,
     "credits": 128605,
     "source": 164025
    },
    {
-    "sure_sn": 95100,
+    "duration_sec": 95100,
     "uridium": 13337,
     "credits": 146708,
     "source": 237171
    },
    {
-    "sure_sn": 106620,
+    "duration_sec": 106620,
     "uridium": 15025,
     "credits": 165270,
     "source": 331082
    },
    {
-    "sure_sn": 118380,
+    "duration_sec": 118380,
     "uridium": 16751,
     "credits": 184260,
     "source": 448948
    },
    {
-    "sure_sn": 130260,
+    "duration_sec": 130260,
     "uridium": 18514,
     "credits": 203649,
     "source": 594105
    },
    {
-    "sure_sn": 142380,
+    "duration_sec": 142380,
     "uridium": 20311,
     "credits": 223416,
     "source": 770033
    },
    {
-    "sure_sn": 154680,
+    "duration_sec": 154680,
     "uridium": 22140,
     "credits": 243539,
     "source": 980349
    },
    {
-    "sure_sn": 167160,
+    "duration_sec": 167160,
     "uridium": 24000,
     "credits": 264000,
     "source": 1228800
    },
    {
-    "sure_sn": 179760,
+    "duration_sec": 179760,
     "uridium": 25889,
     "credits": 284784,
     "source": 1519261
    },
    {
-    "sure_sn": 192540,
+    "duration_sec": 192540,
     "uridium": 27807,
     "credits": 305875,
     "source": 1855731
    },
    {
-    "sure_sn": 205440,
+    "duration_sec": 205440,
     "uridium": 29751,
     "credits": 327262,
     "source": 2242327
    },
    {
-    "sure_sn": 218460,
+    "duration_sec": 218460,
     "uridium": 31721,
     "credits": 348933,
     "source": 2683282
@@ -813,121 +813,121 @@
   ],
   "promeriumRefinery": [
    {
-    "sure_sn": 10800,
+    "duration_sec": 10800,
     "uridium": 1250,
     "credits": 13750,
     "source": 125
    },
    {
-    "sure_sn": 24840,
+    "duration_sec": 24840,
     "uridium": 2973,
     "credits": 32703,
     "source": 1414
    },
    {
-    "sure_sn": 40380,
+    "duration_sec": 40380,
     "uridium": 4935,
     "credits": 54288,
     "source": 5846
    },
    {
-    "sure_sn": 57000,
+    "duration_sec": 57000,
     "uridium": 7071,
     "credits": 77782,
     "source": 16000
    },
    {
-    "sure_sn": 75240,
+    "duration_sec": 75240,
     "uridium": 9346,
     "credits": 102805,
     "source": 34939
    },
    {
-    "sure_sn": 92700,
+    "duration_sec": 92700,
     "uridium": 11738,
     "credits": 129119,
     "source": 66136
    },
    {
-    "sure_sn": 111540,
+    "duration_sec": 111540,
     "uridium": 14233,
     "credits": 156558,
     "source": 113437
    },
    {
-    "sure_sn": 130980,
+    "duration_sec": 130980,
     "uridium": 16818,
     "credits": 184997,
     "source": 181019
    },
    {
-    "sure_sn": 150840,
+    "duration_sec": 150840,
     "uridium": 19486,
     "credits": 214341,
     "source": 273375
    },
    {
-    "sure_sn": 171180,
+    "duration_sec": 171180,
     "uridium": 22228,
     "credits": 244513,
     "source": 395285
    },
    {
-    "sure_sn": 191880,
+    "duration_sec": 191880,
     "uridium": 25041,
     "credits": 275450,
     "source": 551803
    },
    {
-    "sure_sn": 213060,
+    "duration_sec": 213060,
     "uridium": 27918,
     "credits": 307100,
     "source": 748246
    },
    {
-    "sure_sn": 234480,
+    "duration_sec": 234480,
     "uridium": 30856,
     "credits": 339416,
     "source": 990175
    },
    {
-    "sure_sn": 256320,
+    "duration_sec": 256320,
     "uridium": 33851,
     "credits": 372360,
     "source": 1283388
    },
    {
-    "sure_sn": 278460,
+    "duration_sec": 278460,
     "uridium": 36900,
     "credits": 405898,
     "source": 1633915
    },
    {
-    "sure_sn": 300840,
+    "duration_sec": 300840,
     "uridium": 40000,
     "credits": 440000,
     "source": 2048000
    },
    {
-    "sure_sn": 323580,
+    "duration_sec": 323580,
     "uridium": 43149,
     "credits": 474639,
     "source": 2532102
    },
    {
-    "sure_sn": 346560,
+    "duration_sec": 346560,
     "uridium": 46345,
     "credits": 509792,
     "source": 3092885
    },
    {
-    "sure_sn": 369780,
+    "duration_sec": 369780,
     "uridium": 49585,
     "credits": 545438,
     "source": 3737211
    },
    {
-    "sure_sn": 393240,
+    "duration_sec": 393240,
     "uridium": 52869,
     "credits": 581554,
     "source": 4472136
@@ -935,121 +935,121 @@
   ],
   "sepromRefinery": [
    {
-    "sure_sn": 21600,
+    "duration_sec": 21600,
     "uridium": 2500,
     "credits": 27500,
     "source": 250
    },
    {
-    "sure_sn": 49620,
+    "duration_sec": 49620,
     "uridium": 5946,
     "credits": 65406,
     "source": 2828
    },
    {
-    "sure_sn": 80700,
+    "duration_sec": 80700,
     "uridium": 9871,
     "credits": 108576,
     "source": 11691
    },
    {
-    "sure_sn": 114000,
+    "duration_sec": 114000,
     "uridium": 14142,
     "credits": 155563,
     "source": 32000
    },
    {
-    "sure_sn": 149040,
+    "duration_sec": 149040,
     "uridium": 18692,
     "credits": 205610,
     "source": 69877
    },
    {
-    "sure_sn": 185460,
+    "duration_sec": 185460,
     "uridium": 23476,
     "credits": 258239,
     "source": 132272
    },
    {
-    "sure_sn": 223140,
+    "duration_sec": 223140,
     "uridium": 28465,
     "credits": 313116,
     "source": 226873
    },
    {
-    "sure_sn": 261900,
+    "duration_sec": 261900,
     "uridium": 33636,
     "credits": 369994,
     "source": 362039
    },
    {
-    "sure_sn": 301680,
+    "duration_sec": 301680,
     "uridium": 38971,
     "credits": 428683,
     "source": 546750
    },
    {
-    "sure_sn": 342360,
+    "duration_sec": 342360,
     "uridium": 44457,
     "credits": 489027,
     "source": 790569
    },
    {
-    "sure_sn": 383820,
+    "duration_sec": 383820,
     "uridium": 50082,
     "credits": 550901,
     "source": 1103607
    },
    {
-    "sure_sn": 426060,
+    "duration_sec": 426060,
     "uridium": 55836,
     "credits": 614199,
     "source": 1496492
    },
    {
-    "sure_sn": 469020,
+    "duration_sec": 469020,
     "uridium": 61712,
     "credits": 678831,
     "source": 1980349
    },
    {
-    "sure_sn": 512640,
+    "duration_sec": 512640,
     "uridium": 67702,
     "credits": 744720,
     "source": 2566777
    },
    {
-    "sure_sn": 556860,
+    "duration_sec": 556860,
     "uridium": 73800,
     "credits": 811796,
     "source": 3267830
    },
    {
-    "sure_sn": 601740,
+    "duration_sec": 601740,
     "uridium": 80000,
     "credits": 880000,
     "source": 4096000
    },
    {
-    "sure_sn": 647160,
+    "duration_sec": 647160,
     "uridium": 86298,
     "credits": 949279,
     "source": 5064204
    },
    {
-    "sure_sn": 693060,
+    "duration_sec": 693060,
     "uridium": 92690,
     "credits": 1019585,
     "source": 6185770
    },
    {
-    "sure_sn": 739560,
+    "duration_sec": 739560,
     "uridium": 99170,
     "credits": 1090874,
     "source": 7474422
    },
    {
-    "sure_sn": 786480,
+    "duration_sec": 786480,
     "uridium": 105737,
     "credits": 1163108,
     "source": 8944272

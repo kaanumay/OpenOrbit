@@ -19,8 +19,8 @@ import admin_mode as YM
 from . import name_style as NS
 from . import speech as SPC
 
-DURATION_MIN = {'sohbet': 30, 'pvp': 240, 'box': 1440}
-GENERAL = {'sohbet': 30, 'pvp': 60}
+DURATION_MIN = {'chat': 30, 'pvp': 240, 'box': 1440}
+GENERAL = {'chat': 30, 'pvp': 60}
 COMMENT_SEC = 900
 SIGHT = 1600
 
@@ -45,7 +45,7 @@ WEAK = _stem_regex([
     'dikkat edin', 'etme', 'etmeyin', 'olmaz', 'calmayin', 'almayin', 'saldirmayin', 'oldurmeyin', 'yazmayin', 'atmayin', 'hor auf', 'hoer auf', 'hort auf', 'lass das', 'stopp', 'deja', 'dejen', 'basta', 'arrete', 'przestan', 'dosc',
     'pare', 'parem', 'chega', 'прекрат', 'хватит', 'стоп'])
 TOPICS = {
-    'sohbet': _stem_regex(['spam', 'flood', 'caps', 'insult', 'swear', 'curs', 'toxic', 'rude', 'offensive', 'language', 'chat', 'kufur',
+    'chat': _stem_regex(['spam', 'flood', 'caps', 'insult', 'swear', 'curs', 'toxic', 'rude', 'offensive', 'language', 'chat', 'kufur',
                       'hakaret', 'buyuk harf', 'kaba', 'argo', 'sohbet', 'beleidig', 'schimpf', 'flame', 'insult', 'groser', 'grossier',
                       'obraz', 'wyzwisk', 'xing', 'спам', 'флуд', 'мат', 'оскорб', 'капс', 'чат']),
     'pvp': _stem_regex(['kill', 'attack', 'grief', 'camp', 'newbie', 'noob', 'low level', 'lowbie', 'gank', 'pk', 'oldur', 'saldir', 'kesme',
@@ -98,7 +98,7 @@ def note(b, now=None):
     is_open = [k for k in DURATION_MIN if now < u.get(k, 0)]
     if not is_open:
         return ''
-    ne = {'sohbet': 'spamming or rude chat', 'pvp': 'attacking or killing other pilots', 'box': "taking other pilots' cargo boxes"}
+    ne = {'chat': 'spamming or rude chat', 'pvp': 'attacking or killing other pilots', 'box': "taking other pilots' cargo boxes"}
     return ' The game master warned him about %s %d min ago: he obeys and avoids it.' % (
         ' and '.join(ne[k] for k in is_open), max(1, int((now - u.get('last', now)) // 60)))
 

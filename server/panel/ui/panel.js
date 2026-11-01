@@ -154,7 +154,7 @@ const lvl = v => T('Lv') + ' ' + (v ?? '?');
 
 // ------------------------------------------------------------------ API
 async function api(path, body) {
-  const opt = { headers: { 'X-Panel-Belirteci': TOKEN } };
+  const opt = { headers: { 'X-Panel-Token': TOKEN } };
   if (body !== undefined) {
     opt.method = 'POST'; opt.headers['Content-Type'] = 'application/json'; opt.body = JSON.stringify(body);
   }
@@ -323,7 +323,7 @@ function renderChrome() {
 }
 
 async function poll() {
-  try { S.state = await api('/api/durum'); S.offline = false; } catch (e) { S.offline = true; }
+  try { S.state = await api('/api/status'); S.offline = false; } catch (e) { S.offline = true; }
   if (S.state?.panel?.updated && S.state.panel.uptime_sec < 60 && !S.updToast) { S.updToast = true; toast(T('The panel was updated and restarted.'), 'ok'); }
   renderChrome();
   if (S.page === 'play') { renderPlayBody(); liveTick(); }
@@ -333,7 +333,7 @@ async function poll() {
   if (poll.n % 3 === 0) auctionEventTick();      // auction notifications (~5 s)
   setTimeout(poll, S.state?.play?.running ? 500 : 1500);
 }
-window.addEventListener('pagehide', () => navigator.sendBeacon && navigator.sendBeacon('/api/kapandi', '{}'));
+window.addEventListener('pagehide', () => navigator.sendBeacon && navigator.sendBeacon('/api/closed', '{}'));
 
 // ================================================================== PLAY
 function renderPlay() { S.sig = {}; $('#content').replaceChildren(h('div', { class: 'stack', id: 'play' })); renderPlayBody(); }
@@ -379,12 +379,12 @@ function renderPlayBody() {
     main = h('button', { class: 'play-btn running', disabled: true }, icon('check'), T('GAME RUNNING'));
     sub.push(btn(T('Close the game'), async () => {
       if (await confirmBox(T('Close the game?'), T('The client will be closed. Your save is kept on the server; quitting with the in-game logout button is safer.'),
-        { ok: T('Close'), danger: true })) act(() => api('/api/istemci/kapat', {}));
+        { ok: T('Close'), danger: true })) act(() => api('/api/client/close', {}));
     }, 'danger sm', 'power'));
   } else {
-    main = h('button', { class: 'play-btn', disabled: !a || clientMissing, onclick: () => act(() => api('/api/oyna', {})) }, icon('play'), T('PLAY'));
-    if (srv) sub.push(btn(T('Stop the server'), () => act(() => api('/api/sunucu/durdur', {}), T('Servers stopped.')), 'ghost sm', 'stop'));
-    else sub.push(btn(T('Start the server only'), () => act(() => api('/api/oyna', { server_only: true })), 'ghost sm', 'server', { disabled: !a }));
+    main = h('button', { class: 'play-btn', disabled: !a || clientMissing, onclick: () => act(() => api('/api/play', {})) }, icon('play'), T('PLAY'));
+    if (srv) sub.push(btn(T('Stop the server'), () => act(() => api('/api/server/stop', {}), T('Servers stopped.')), 'ghost sm', 'stop'));
+    else sub.push(btn(T('Start the server only'), () => act(() => api('/api/play', { server_only: true })), 'ghost sm', 'server', { disabled: !a }));
   }
   const playCol = h('div', { class: 'play-col' }, main, h('div', { class: 'play-sub' }, sub),
     a ? h('div', { class: 'small muted' }, running ? (S.panelCfg?.when_client_closes === 'on' || d.multi?.clients?.length ? T('Have a good flight! The servers stay on when you close the game.')
@@ -400,7 +400,7 @@ function renderPlayBody() {
   }
   const last = d.processes.client.last;
   const early = last && last.early && !running ? h('div', { class: 'alert warning' }, icon('alert'),
-    h('div', null, T('The client closed {0} s after starting ({1}). The servers were left running. Check the client log.', last.sure_sn, last.time)),
+    h('div', null, T('The client closed {0} s after starting ({1}). The servers were left running. Check the client log.', last.duration_sec, last.time)),
     btn(T('Log'), () => { go('server'); setTimeout(() => showLog(d.panel.platform === 'win32' ? 'client.log' : 'wine.log'), 100); }, 'sm')) : null;
 
   // ---- warnings
@@ -422,8 +422,8 @@ function renderPlayBody() {
     h('div', { class: 'row wrap', style: { marginTop: '14px' } }, btn(T('Manage events'), () => go('events'), 'sm', 'calendar'),
       btn(T('Calendar'), () => go('calendar'), 'ghost sm', 'agenda')));
   const srvCard = h('div', { class: 'card' }, h('h2', null, icon('server'), T('Server')),
-    h('div', { class: 'check-list' }, [[T('Web login (8090, 80)'), st.web, d.processes.servers.web.sure_sn],
-      [T('Game server (8081)'), st.game, d.processes.servers.game.sure_sn], [T('Client'), st.client, d.processes.client.sure_sn]].map(([n, v, t]) =>
+    h('div', { class: 'check-list' }, [[T('Web login (8090, 80)'), st.web, d.processes.servers.web.duration_sec],
+      [T('Game server (8081)'), st.game, d.processes.servers.game.duration_sec], [T('Client'), st.client, d.processes.client.duration_sec]].map(([n, v, t]) =>
       h('div', null, dot(stCls(v)), h('span', null, n), h('span', { class: 'muted small', style: { marginLeft: 'auto' } },
         stText(v) + (v === 'on' && t != null ? ' · ' + fmtDur(t) : ''))))),
     h('div', { class: 'row' }, btn(T('Server and logs'), () => go('server'), 'sm', 'server')));
@@ -433,12 +433,12 @@ function renderPlayBody() {
 }
 
 // ---- multiple clients (multi_client.py, /api/coklu): after PLAY, extra clients to the same server with the other saves
-const multiSig = c => c && JSON.stringify(Object.assign({}, c, { clients: (c.clients || []).map(x => Object.assign({}, x, { sure_sn: null })) }));
+const multiSig = c => c && JSON.stringify(Object.assign({}, c, { clients: (c.clients || []).map(x => Object.assign({}, x, { duration_sec: null })) }));
 async function openExtra(id, pilot) {
   S.multiBusy = id; S.sig.play = null; renderPlayBody();
-  const r = await act(() => api('/api/coklu/ac', { record: id }), T('Opening extra client: {0}', pilot));
+  const r = await act(() => api('/api/multi/open', { record: id }), T('Opening extra client: {0}', pilot));
   S.multiBusy = null; S.sig.play = null;
-  try { S.state = await api('/api/durum'); } catch (e) { /* at the next poll */ }
+  try { S.state = await api('/api/status'); } catch (e) { /* at the next poll */ }
   renderChrome(); renderPlayBody();
   return r;
 }
@@ -463,13 +463,13 @@ function multiCard(d) {
   const openRows = open.map(x => h('tr', null, h('td', null, h('b', null, x.pilot),
       [(c.saves || []).find(k => k.id === x.record)?.name || x.record].filter(a => a !== x.pilot).map(a => h('div', { class: 'small muted' }, a))),
     h('td', null, x.level ?? '—'), h('td', null, x.map || '—'),
-    h('td', null, x.state === 'aciliyor' ? badge(T('Opening'), 'info') : x.state === 'closing' ? badge(T('Closing'), 'orange')
+    h('td', null, x.state === 'opening' ? badge(T('Opening'), 'info') : x.state === 'closing' ? badge(T('Closing'), 'orange')
       : x.connected ? badge(T('In game'), 'ok') : badge(T('Connecting'), 'info')),
-    h('td', { class: 'muted small' }, (x.pid ? 'PID ' + x.pid + ' · ' : '') + fmtDur(x.sure_sn)),
+    h('td', { class: 'muted small' }, (x.pid ? 'PID ' + x.pid + ' · ' : '') + fmtDur(x.duration_sec)),
     h('td', { class: 'num' }, h('div', { class: 'actions', style: { justifyContent: 'flex-end' } }, logBtn(x.record),
       btn(T('Close'), async () => {
         if (await confirmBox(T('Close {0}?', x.pilot), T("The extra client's window closes; the save's latest state is written."), { ok: T('Close'), danger: true }))
-          act(() => api('/api/coklu/kapat', { record: x.record }), T('Closing {0}.', x.pilot));
+          act(() => api('/api/multi/close', { record: x.record }), T('Closing {0}.', x.pilot));
       }, 'ghost sm', 'power', { disabled: x.state !== 'on' })))));
   const otherRows = others.map(k => {
     const why = extraBlock(d, k), busy = S.multiBusy === k.id;
@@ -480,13 +480,13 @@ function multiCard(d) {
   });
   const early = Object.entries(c.last || {}).filter(([id, s]) => s.early && now - s.end_time < 120 && !open.some(x => x.record === id)).map(([id, s]) =>
     h('div', { class: 'alert warning' }, icon('alert'), h('div', null, T('The extra client of the save {0} closed {1} s after opening ({2}). Check the client log.',
-      (c.saves || []).find(k => k.id === id)?.name || id, s.sure_sn, s.time)), logBtn(id)));
+      (c.saves || []).find(k => k.id === id)?.name || id, s.duration_sec, s.time)), logBtn(id)));
   return h('div', { class: 'card', id: 'multi-card' },
     h('div', { class: 'row between wrap' }, h('h2', null, icon('monitor'), T('Multi-client')),
       h('div', { class: 'row wrap', style: { gap: '6px' } }, badge(T('{0} / {1} extra clients', open.length, c.max_count), open.length ? 'ok' : ''),
         open.length > 1 ? btn(T('Turn all off'), async () => {
           if (await confirmBox(T('Close all extra clients?'), T("{0} windows close; the saves' latest state is written. The main client stays open.", open.length), { ok: T('Turn all off'), danger: true }))
-            act(() => api('/api/coklu/close_all', {}), T('Closing the extra clients.'));
+            act(() => api('/api/multi/close_all', {}), T('Closing the extra clients.'));
         }, 'ghost sm', 'power') : null,
         btn('', () => go('client'), 'ghost sm icon', 'sliders', { title: T('Multi-client settings') }))),
     h('p', { class: 'desc' }, desc),
@@ -498,11 +498,11 @@ function multiCard(d) {
       : !c.setting ? null : h('div', { class: 'small muted' }, T('No other save to open.')));
 }
 
-// ---- live status (the game server's canli_durum.json; live_status.py, /api/canli)
+// ---- live status (the game server's live_status.json; live_status.py, /api/canli)
 async function liveTick() {
   if (S.page !== 'play' || S.liveBusy) return;
   S.liveBusy = true;
-  try { S.live = await api('/api/canli'); } catch (e) { S.live = null; } finally { S.liveBusy = false; }
+  try { S.live = await api('/api/live'); } catch (e) { S.live = null; } finally { S.liveBusy = false; }
   const c = $('#canli-card'), want = srvState(S.state).game === 'on' || !!S.live?.var;
   if (c && want) c.replaceWith(liveCard());
   else if (!!c !== want) { S.sig.play = null; renderPlayBody(); }     // let the card appear / disappear
@@ -525,7 +525,7 @@ function liveCard() {
   if (w.loop) facts.push([T('Loop'), T('{0} ms avg. · max {1} ms', w.loop.avg_ms, w.loop.max_ms) + (w.loop.slow ? ' · ' + T('{0} slow ticks', fmtN(w.loop.slow)) : '')]);
   return h('div', { class: 'card', id: 'live-card' }, h('div', { class: 'row between wrap' }, head, h('div', { class: 'row wrap', style: { gap: '6px' } }, flags)),
     h('div', { class: 'grid g2', style: { marginTop: '12px' } },
-      h('div', { class: 'stack', style: { gap: '10px' } }, meter(T('Hit points'), g.can, g.max_hp, 'hp'), meter(T('Shield'), g.kalkan, g.shield_max, 'sh'), meter(T('Cargo'), g.cargo, g.cargo_max, 'cg')),
+      h('div', { class: 'stack', style: { gap: '10px' } }, meter(T('Hit points'), g.hp, g.max_hp, 'hp'), meter(T('Shield'), g.shield, g.shield_max, 'sh'), meter(T('Cargo'), g.cargo, g.cargo_max, 'cg')),
       h('div', { class: 'kv one' }, facts.map(([a, b]) => h('div', null, h('span', { class: 'muted' }, a), h('b', { title: b }, b))))),
     h('div', { class: 'live-sub' }, h('div', { class: 'stats', style: { marginTop: 0 } },
       [[T('Level'), p.level, 'lv'], [T('Credits'), p.credits, 'cr'], [T('Uridium'), p.uridium, 'ur'], [T('Honor'), p.honor, 'hn']].map(([a, v, c]) =>
@@ -534,10 +534,10 @@ function liveCard() {
 }
 
 async function switchSaveMenu(anchor) {
-  const r = await act(() => api('/api/kayitlar')); if (!r) return;
+  const r = await act(() => api('/api/saves')); if (!r) return;
   popMenu(anchor, [...r.entries.map(k => ({
     label: `${k.name} — ${k.pilot} (${lvl(k.level)})${k.active ? '  ✓' : ''}`, ic: k.active ? 'check' : 'save',
-    fn: () => act(() => api('/api/kayitlar/aktif', { id: k.id }), T('Active save: {0}', k.name)).then(() => poll()),
+    fn: () => act(() => api('/api/saves/active', { id: k.id }), T('Active save: {0}', k.name)).then(() => poll()),
   })), '-', { label: T('New save…'), ic: 'plus', fn: () => newSaveModal() }, { label: T('Manage saves'), ic: 'save', fn: () => go('saves') }]);
 }
 
@@ -552,7 +552,7 @@ const copyText = t => navigator.clipboard.writeText(t).then(() => toast(T('Copie
 const clock = sec => sec ? new Date(sec * 1000).toLocaleTimeString(LOC(), { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '—';
 
 async function renderFriends() {
-  const v = await act(() => api('/api/arkadas'));
+  const v = await act(() => api('/api/friend'));
   if (!v || S.page !== 'friend') return;
   FRD.data = v;
   drawFriends();
@@ -573,7 +573,7 @@ async function friendsTick() {
   if (S.friendsBusy) return;
   S.friendsBusy = true;
   let v;
-  try { v = await api('/api/arkadas'); } catch (e) { return; } finally { S.friendsBusy = false; }
+  try { v = await api('/api/friend'); } catch (e) { return; } finally { S.friendsBusy = false; }
   if (S.page !== 'friend') return;
   FRD.data = v;
   if (friendsMode(v, S.state) !== S.sig.friendsMode) return drawFriends();
@@ -622,14 +622,14 @@ function hostView(v) {
   let main; const sub = [];
   if (busy) main = h('button', { class: 'play-btn busy', disabled: true }, h('span', { class: 'spin', style: { borderTopColor: '#021120' } }), T('STARTING'));
   else if (dmg.on && running) main = h('button', { class: 'play-btn running', disabled: true }, icon('check'), T('GAME RUNNING'));
-  else main = h('button', { class: 'play-btn', disabled: !d?.active || guest || (running && !dmg.on), onclick: () => act(() => api('/api/arkadas/host', {})) },
+  else main = h('button', { class: 'play-btn', disabled: !d?.active || guest || (running && !dmg.on), onclick: () => act(() => api('/api/friend/host', {})) },
     icon(dmg.on ? 'play' : 'users'), dmg.on ? T('PLAY') : T('HOST'));
   if (dmg.on) sub.push(btn(T('Stop server'), async () => {
     if (dmg.guests.length && !await confirmBox(T('Stop the server?'), T('Connected guests are dropped from the game; their saves stay on their own computers in their latest state.'),
       { ok: T('Close'), danger: true })) return;
-    act(() => api('/api/sunucu/durdur', {}), T('Servers stopped.'));
+    act(() => api('/api/server/stop', {}), T('Servers stopped.'));
   }, 'danger sm', 'stop', { disabled: running || busy }));
-  else sub.push(btn(T('Start the server only'), () => act(() => api('/api/arkadas/host', { server_only: true })), 'ghost sm', 'server',
+  else sub.push(btn(T('Start the server only'), () => act(() => api('/api/friend/host', { server_only: true })), 'ghost sm', 'server',
     { disabled: !d?.active || guest || busy }));
   const hint = guest ? T("You are on a friend's server right now: leave it first.") : single ? T('Your single-player server is running: Host restarts it as a friend server.')
     : dmg.on ? (S.panelCfg?.when_client_closes === 'on' ? T('The server stays on when you close the game.') : T('The server also stops when you close the game (Server > Behavior).')) : null;
@@ -639,10 +639,10 @@ function hostView(v) {
   // settings
   const pw = h('input', { class: 'input', value: dmg.password, placeholder: T('No password'), maxlength: 64 });
   const max = h('select', { class: 'input', style: { width: '110px' } }, Array.from({ length: 16 }, (_, i) => i + 1).map(n => h('option', { value: n, selected: n === dmg.max_count }, n)));
-  const save = () => act(() => api('/api/arkadas/ayarlar', { password: pw.value, max_count: +max.value }), T('Saved.'))
+  const save = () => act(() => api('/api/friend/settings', { password: pw.value, max_count: +max.value }), T('Saved.'))
     .then(r => { if (r) { FRD.data = r; } });
   pw.addEventListener('change', save); max.addEventListener('change', save);
-  const world = v.world ? h('select', { class: 'input', onchange: e => act(() => api('/api/arkadas/ayarlar', { world: e.target.value }), T('Saved.'))
+  const world = v.world ? h('select', { class: 'input', onchange: e => act(() => api('/api/friend/settings', { world: e.target.value }), T('Saved.'))
     .then(r => { if (r) { FRD.data = r; drawFriends(); } }) },
     h('option', { value: '', selected: !v.world.choice }, T("Your save's world ({0})", v.world.save_world.name)),
     v.world.entries.map(w => h('option', { value: w.id, selected: v.world.choice === w.id }, w.name))) : null;
@@ -659,7 +659,7 @@ function hostView(v) {
   const addrCard = h('div', { class: 'card' }, h('h2', null, icon('globe'), T('Address to give your friends')),
     h('div', { class: 'stack', style: { gap: '8px' } }, dmg.ips.map(x => ipRow(x.ip, x.type)),
       dmg.public_ip ? ipRow(dmg.public_ip, 'general') : h('div', { class: 'row' }, btn(T('Find my public IP'), async () => {
-        const r = await act(() => api('/api/arkadas/public_ip', {})); if (r) { FRD.data.host.public_ip = r.ip; drawFriends(); }
+        const r = await act(() => api('/api/friend/public_ip', {})); if (r) { FRD.data.host.public_ip = r.ip; drawFriends(); }
       }, 'sm', 'search'), h('span', { class: 'small dim' }, T('Asks api.ipify.org.')))),
     h('p', { class: 'desc', style: { marginTop: '12px' } }, T('If you are in the same home (same router), give your home network address. For friends over the internet, give your public IP (with port forwarding) or your virtual network address (Radmin VPN, ZeroTier, Tailscale).')));
 
@@ -699,7 +699,7 @@ function guestsCard(dmg) {
         h('td', { class: 'mono' }, g.ip), h('td', null, g.connected ? badge(T('In game'), 'ok') : badge(T('Not connected'), '')), h('td', null, fmtDur(now - g.entry)),
         h('td', { class: 'num' }, btn(T('Kick'), async () => {
           if (await confirmBox(T('Kick {0}?', g.name), T('Their connection is closed. Their save stays on their own computer in its latest state.'), { ok: T('Kick'), danger: true }))
-            act(() => api('/api/arkadas/kick', { session: g.session }), T('{0} removed.', g.name));
+            act(() => api('/api/friend/kick', { session: g.session }), T('{0} removed.', g.name));
         }, 'ghost sm', 'x')))))) :
       h('p', { class: 'desc' }, T('No guests yet. Your friends connect by entering your address under Play with Friends > Join a friend.')));
 }
@@ -716,14 +716,14 @@ function joinView(v) {
   const info = h('div', { id: 'friend-info' }, FRD.info ? serverInfo(FRD.info, v) : null);
   const test = btn(T('Test connection'), async ev => {
     const b = ev.currentTarget; b.disabled = true;
-    const r = await act(() => api('/api/arkadas/test', { address: address.value }));
+    const r = await act(() => api('/api/friend/test', { address: address.value }));
     b.disabled = false; FRD.info = r || null;
     info.replaceChildren(r ? serverInfo(r, v) : '');
   }, 'sm', 'search');
   const blocked = st.game === 'on' ? T('Your own server is running: stop it first to join.') : st.client === 'on' ? T('The game is open: close it first.')
     : !v.saves.length ? T('First create a save on the Saves page.') : null;
   const join = h('button', { class: 'play-btn', disabled: !!blocked, onclick: () =>
-    act(() => api('/api/arkadas/join', { address: address.value, password: pw.value, record: slot.value })).then(r => { if (r) renderFriends(); }) }, icon('play'), T('JOIN'));
+    act(() => api('/api/friend/join', { address: address.value, password: pw.value, record: slot.value })).then(r => { if (r) renderFriends(); }) }, icon('play'), T('JOIN'));
   const left = h('div', { class: 'stack', style: { gap: '12px' } }, h('div', { class: 'slot-name' }, T("Join your friend's server")),
     field(T("Your friend's address (IP or domain name)"), h('div', { class: 'row' }, address, test)), h('div', { class: 'grid g2' }, field(T('Password'), pw), field(T('Save to use'), slot)), info);
   const hero = h('div', { class: 'hero' }, left, h('div', { class: 'play-col' }, join,
@@ -755,7 +755,7 @@ function joinStatus(v) {
     m.not ? h('div', { class: 'alert warning', style: { marginTop: '10px' } }, icon('alert'), h('div', null, m.not)) : null,
     h('div', { class: 'row', style: { marginTop: '14px' } }, btn(T('Leave'), async () => {
       if (await confirmBox(T("Leave your friend's server?"), T('The game closes and the latest state of your save is written to this computer.'), { ok: T('Leave'), danger: true }))
-        act(() => api('/api/arkadas/leave', {})).then(() => friendsTick());
+        act(() => api('/api/friend/leave', {})).then(() => friendsTick());
     }, 'danger', 'power', { disabled: m.state === 'leaving' }), h('span', { class: 'small muted' }, T('Closing the game also leaves.'))));
 }
 const joinInfo = () => h('div', { class: 'card' }, h('h2', null, icon('info'), T('Where is my save?')),
@@ -807,7 +807,7 @@ function newSaveModal() {
     body: [...f.el, h('label', { class: 'row small' }, h('span', { class: 'switch' }, active, h('span')), T('Make it the active save'))],
     foot: [btn(T('Cancel'), () => m.close(), 'ghost'), btn(T('Create'), async ev => {
       const b = ev.currentTarget; b.disabled = true;
-      const r = await act(() => api('/api/kayitlar/yeni', Object.assign(f.values(), { set_active: active.checked })), T('Save created.'));
+      const r = await act(() => api('/api/saves/new', Object.assign(f.values(), { set_active: active.checked })), T('Save created.'));
       b.disabled = false;
       if (r) { m.close(); if (S.page === 'saves') renderSaves(); poll(); }
     }, 'primary', 'plus')],
@@ -820,7 +820,7 @@ async function backupsModal(id) {
     const r = await act(() => api('/api/backups?id=' + encodeURIComponent(id))); if (!r) return;
     const k = r.record, cfg = r.settings;
     const note = h('input', { class: 'input', placeholder: T('Note (optional): e.g. Before the gate') });
-    const take = btn(T('Back up now'), () => act(() => api('/api/backups/al', { id, not: note.value }), T('Backup taken.')).then(load), 'primary', 'save');
+    const take = btn(T('Back up now'), () => act(() => api('/api/backups/buy', { id, not: note.value }), T('Backup taken.')).then(load), 'primary', 'save');
     const tog = h('input', { type: 'checkbox', checked: cfg.backup_on_launch, onchange: e => act(() => api('/api/panel_settings', { values: { backup_on_launch: e.target.checked } }), T('Saved.')) });
     const keep = h('input', { class: 'input num', type: 'number', min: 1, max: 200, value: cfg.backup_count,
       onchange: e => act(() => api('/api/panel_settings', { values: { backup_count: +e.target.value } }), T('Saved.')) });
@@ -840,7 +840,7 @@ async function backupsModal(id) {
           { label: T('Open as a new save'), ic: 'plus', fn: async () => { const v = await promptBox(T('New save from backup'), T('Name of the new save'), `${k.name} (${b.time.slice(0, 10)})`); if (v != null) act(() => api('/api/backups/new_save', { id, file: b.file, name: v }), T('New save created.')).then(() => S.page === 'saves' && renderSaves()); } },
           { label: T('Note'), ic: 'note', fn: async () => { const v = await promptBox(T('Backup note'), T('Note'), b.not_); if (v != null) act(() => api('/api/backups/note', { id, file: b.file, not: v })).then(load); } },
           '-',
-          { label: T('Delete'), ic: 'trash', danger: true, fn: async () => { if (await confirmBox(T('Delete the backup?'), T('The {0} backup will be deleted from disk.', b.time), { ok: T('Delete'), danger: true })) act(() => api('/api/backups/sil', { id, file: b.file }), T('Backup deleted.')).then(load); } },
+          { label: T('Delete'), ic: 'trash', danger: true, fn: async () => { if (await confirmBox(T('Delete the backup?'), T('The {0} backup will be deleted from disk.', b.time), { ok: T('Delete'), danger: true })) act(() => api('/api/backups/delete', { id, file: b.file }), T('Backup deleted.')).then(load); } },
         ]), 'ghost sm icon', 'more')))));
     const body = [
       k.in_use ? h('div', { class: 'alert info' }, icon('info'), h('div', null, T('The save is in the game: you can take backups; close the game and the server to restore.'))) : null,
@@ -862,14 +862,14 @@ async function backupsModal(id) {
 
 // ================================================================== GAME SETTINGS
 const MULTIPLIER_VALUES = [0, 0.1, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.75, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2, 2.5, 3, 4, 5, 6, 7.5, 10, 12.5, 15, 20, 25, 30, 40, 50];
-const APPLY_WHEN = { 'anında': ['an', N('Instant')], 'map': ['map', N('On map change')], 'giriş': ['entry', N('On next login')], 'başlatma': ['baslatma', N('On server restart')] };
+const APPLY_WHEN = { 'instant': ['instant', N('Instant')], 'map': ['map', N('On map change')], 'login': ['entry', N('On next login')], 'restart': ['restart', N('On server restart')] };
 let saveTimer = null, pending = {};
 function queueSave(key, value) {
   pending[key] = value;
   clearTimeout(saveTimer);
   saveTimer = setTimeout(async () => {
     const body = pending; pending = {};
-    const r = await act(() => api('/api/ayarlar', { values: body }));
+    const r = await act(() => api('/api/settings', { values: body }));
     if (r) { S.setting = r; markChanged(); flashSaved(); }
   }, 350);
 }
@@ -897,19 +897,19 @@ function markChanged() {
 }
 
 async function renderSettings() {
-  const r = await act(() => api('/api/ayarlar')); if (!r || S.page !== 'settings') return;
+  const r = await act(() => api('/api/settings')); if (!r || S.page !== 'settings') return;
   S.setting = r;
   const val = k => r.values[k] ?? r.default[k];
   const presets = Object.entries(r.ready).map(([key, p]) => h('button', { class: 'preset', onclick: async () => {
     if (await confirmBox(T('Apply "{0}"?', p.name), T("All game settings switch to this preset's values (your event choices don't change)."), { ok: T('Apply') }))
-      act(() => api('/api/ayarlar/hazir', { name: key }), T('"{0}" applied.', p.name)).then(renderSettings);
+      act(() => api('/api/settings/presets', { name: key }), T('"{0}" applied.', p.name)).then(renderSettings);
   } }, h('b', null, p.name), h('span', null, p.description)));
   const user = Object.entries(r.templates || {}).map(([key, p]) => h('div', { class: 'preset', onclick: async e => {
     if (e.target.closest('.x')) return;
     if (await confirmBox(T('Apply "{0}"?', p.name), T("All game settings switch to this template's values."), { ok: T('Apply') }))
-      act(() => api('/api/ayarlar/hazir', { name: key }), T('"{0}" applied.', p.name)).then(renderSettings);
+      act(() => api('/api/settings/presets', { name: key }), T('"{0}" applied.', p.name)).then(renderSettings);
   } }, h('b', null, '★ ', p.name), h('span', null, T('{0} changes', Object.keys(p.values).length)),
-    btn('', async () => { if (await confirmBox(T('Delete the template?'), T('The template "{0}" will be deleted.', p.name), { ok: T('Delete'), danger: true })) act(() => api('/api/ayarlar/delete_template', { name: key })).then(renderSettings); }, 'ghost sm icon x', 'x', { title: T('Delete') })));
+    btn('', async () => { if (await confirmBox(T('Delete the template?'), T('The template "{0}" will be deleted.', p.name), { ok: T('Delete'), danger: true })) act(() => api('/api/settings/delete_template', { name: key })).then(renderSettings); }, 'ghost sm icon x', 'x', { title: T('Delete') })));
   const copySel = h('select', { class: 'input', style: { maxWidth: '240px' } }, (r.saves || []).map(k => h('option', { value: k.id }, k.name)));
   const saveCard = r.record ? h('div', { class: 'card' }, h('h2', null, icon('save'), T("This save's settings: {0}", r.save_name)),
     h('p', { class: 'desc' }, T('Game settings and event choices belong to each save; when the active save changes, the settings change too.')),
@@ -917,26 +917,26 @@ async function renderSettings() {
       btn(T('Copy from this save'), async () => {
         const src = r.saves.find(k => k.id === copySel.value);
         if (src && await confirmBox(T('Copy the settings?'), T('All game settings and event choices of the save "{0}" are copied to this save.', src.name), { ok: T('Copy') }))
-          act(() => api('/api/ayarlar/copy', { source: src.id }), T('Settings copied.')).then(renderSettings);
+          act(() => api('/api/settings/copy', { source: src.id }), T('Settings copied.')).then(renderSettings);
       }, 'sm', 'copy')) : null) : null;
   const presetCard = h('div', { class: 'card' }, h('h2', null, icon('star'), T('Presets')),
     h('p', { class: 'desc' }, T('Apply a set of settings with one click, or keep your current settings as a template.')),
     h('div', { class: 'preset-bar' }, presets, user),
     h('div', { class: 'row', style: { marginTop: '12px' } },
-      btn(T('Save the current settings as a template'), async () => { const v = await promptBox(T('Save as template'), T('Template name'), ''); if (v) act(() => api('/api/ayarlar/save_template', { name: v }), T('Template saved.')).then(renderSettings); }, 'sm', 'save'),
+      btn(T('Save the current settings as a template'), async () => { const v = await promptBox(T('Save as template'), T('Template name'), ''); if (v) act(() => api('/api/settings/save_template', { name: v }), T('Template saved.')).then(renderSettings); }, 'sm', 'save'),
       h('span', { class: 'spacer' }),
-      btn(T('Reset all to defaults'), async () => { if (await confirmBox(T('Reset to defaults?'), T("All game settings go back to their defaults (your event choices don't change)."), { ok: T('Revert') })) act(() => api('/api/ayarlar/sifirla', {}), T('Back to defaults.')).then(renderSettings); }, 'ghost sm', 'undo')));
+      btn(T('Reset all to defaults'), async () => { if (await confirmBox(T('Reset to defaults?'), T("All game settings go back to their defaults (your event choices don't change)."), { ok: T('Revert') })) act(() => api('/api/settings/reset', {}), T('Back to defaults.')).then(renderSettings); }, 'ghost sm', 'undo')));
   const info = h('div', { class: 'alert info' }, icon('info'), h('div', null,
     h('span', { id: 'saved-note' }, T('Changes are saved automatically.')), ' ' + T('Tags show when a setting takes effect:') + ' ',
     ...Object.values(APPLY_WHEN).map(([c, t]) => [h('span', { class: 'tag ' + c }, T(t)), ' ']),
     r.server_running ? h('div', { style: { marginTop: '4px' } }, T('The server is running: "Instant" settings change in the game right away.')) : null));
   S.settingsOpen = S.settingsOpen || {};
   const groups = r.groups.map(g => {
-    const items = r.schema.filter(s => s.group === g.anahtar && !s.parent);
+    const items = r.schema.filter(s => s.group === g.key && !s.parent);
     if (!items.length) return null;
-    return h('div', { class: 'card set-group', 'data-grup': g.anahtar }, h('h2', null, g.name, h('span', { class: 'muted small grp-count' })),
+    return h('div', { class: 'card set-group', 'data-group': g.key }, h('h2', null, g.name, h('span', { class: 'muted small grp-count' })),
       items.map(s => {
-        const row = settingRow(s, val(s.anahtar), r.default[s.anahtar]), kids = r.schema.filter(c => c.parent === s.anahtar);
+        const row = settingRow(s, val(s.key), r.default[s.key]), kids = r.schema.filter(c => c.parent === s.key);
         return kids.length ? [row, subPanel(row, kids, val, r.default)] : row;
       }));
   }).filter(Boolean);
@@ -986,7 +986,7 @@ async function renderSettings() {
 function settingRow(s, v, def) {
   const [tc, tagText] = APPLY_WHEN[s.apply_mode] || ['', s.apply_mode];
   // sub-setting (s.ust): on the parent, the apply label; in its place the effective multiplier (paintEff). data-v: the displayed value (even without releasing the slider)
-  const row = h('div', { class: 'set-row' + (s.parent ? ' sub' : ''), 'data-key': s.anahtar, 'data-v': v });
+  const row = h('div', { class: 'set-row' + (s.parent ? ' sub' : ''), 'data-key': s.key, 'data-v': v });
   // linked setting (s.condition): shown below it only while that on/off setting is on
   if (s.condition) { row.dataset.condition = s.condition; row.classList.toggle('condition-off', !(S.setting.values[s.condition] ?? S.setting.default[s.condition])); }
   const head = h('div', null, h('div', { class: 'name' }, s.name, s.parent ? h('span', { class: 'eff' }) : h('span', { class: 'tag ' + tc }, T(tagText))),
@@ -994,7 +994,7 @@ function settingRow(s, v, def) {
   let ctl;
   // the slider is in the recommended range (min..max); any value up to limit can be typed by hand into the number box (settings.py), outside the range it is marked "manual"
   const top = s.cap ?? s.max;
-  const over = h('span', { class: 'tag elle', title: T('Outside the recommended range ({0} – {1}); the largest value you can type is {2}.', fmtMult(s.min ?? 0), fmtMult(s.max ?? 0), fmtMult(top)) }, T('Manual'));
+  const over = h('span', { class: 'tag manual', title: T('Outside the recommended range ({0} – {1}); the largest value you can type is {2}.', fmtMult(s.min ?? 0), fmtMult(s.max ?? 0), fmtMult(top)) }, T('Manual'));
   const markOver = x => { over.hidden = !(x > s.max); };
   if (s.type === 'multiplier') {
     const vals = MULTIPLIER_VALUES.filter(x => x >= s.min && x <= s.max);
@@ -1004,27 +1004,27 @@ function settingRow(s, v, def) {
     const range = h('input', { type: 'range', min: 0, max: vals.length - 1, step: 1, value: near(v) });
     const num = h('input', { class: 'input num', type: 'number', min: s.min, max: top, step: 'any', value: v, title: T('At most {0}', fmtMult(top)) });
     const paint = () => range.style.setProperty('--p', (range.value / (vals.length - 1) * 100) + '%');
-    const show = x => { num.value = x; lab.textContent = '×' + fmtMult(x); markOver(x); row.dataset.v = x; paintEff(s.parent || s.anahtar); };
+    const show = x => { num.value = x; lab.textContent = '×' + fmtMult(x); markOver(x); row.dataset.v = x; paintEff(s.parent || s.key); };
     range.addEventListener('input', () => { show(vals[+range.value]); paint(); });
-    range.addEventListener('change', () => queueSave(s.anahtar, vals[+range.value]));
+    range.addEventListener('change', () => queueSave(s.key, vals[+range.value]));
     num.addEventListener('change', () => {
       const x = Math.min(top, Math.max(s.min, parseFloat(String(num.value).replace(',', '.')) || 0));
-      show(x); range.value = near(x); paint(); queueSave(s.anahtar, x);
+      show(x); range.value = near(x); paint(); queueSave(s.key, x);
     });
-    const reset = btn('', () => { show(def); range.value = near(def); paint(); queueSave(s.anahtar, def); }, 'ghost sm icon', 'undo', { title: T('Default (×{0})', fmtMult(def)) });
+    const reset = btn('', () => { show(def); range.value = near(def); paint(); queueSave(s.key, def); }, 'ghost sm icon', 'undo', { title: T('Default (×{0})', fmtMult(def)) });
     paint(); markOver(v);
     ctl = h('div', { class: 'ctl' }, h('div', { style: { flex: 1, minWidth: '140px' } }, range), over, lab, num, reset);
   } else if (s.type === 'number') {
     const num = h('input', { class: 'input num', type: 'number', min: s.min, max: top, step: 1, value: v, title: T('At most {0}', fmtMult(top)) });
     const fix = x => Math.min(top, Math.max(s.min, Math.round(parseFloat(String(x).replace(',', '.')) || 0)));
-    num.addEventListener('change', () => { const x = fix(num.value); num.value = x; markOver(x); queueSave(s.anahtar, x); });
-    const reset = btn('', () => { num.value = def; markOver(def); queueSave(s.anahtar, def); }, 'ghost sm icon', 'undo', { title: T('Default ({0})', def) });
+    num.addEventListener('change', () => { const x = fix(num.value); num.value = x; markOver(x); queueSave(s.key, x); });
+    const reset = btn('', () => { num.value = def; markOver(def); queueSave(s.key, def); }, 'ghost sm icon', 'undo', { title: T('Default ({0})', def) });
     markOver(v);
     ctl = h('div', { class: 'ctl' }, over, num, s.unit ? h('span', { class: 'mult' }, s.unit) : null, reset);
   } else if (s.type === 'bool') {
     const cb = h('input', { type: 'checkbox', checked: v, onchange: e => {
-      queueSave(s.anahtar, e.target.checked);
-      document.querySelectorAll(`.set-row[data-condition="${s.anahtar}"]`).forEach(c => c.classList.toggle('condition-off', !e.target.checked));
+      queueSave(s.key, e.target.checked);
+      document.querySelectorAll(`.set-row[data-condition="${s.key}"]`).forEach(c => c.classList.toggle('condition-off', !e.target.checked));
     } });
     ctl = h('div', { class: 'ctl' }, h('label', { class: 'switch' }, cb, h('span')));
   } else if (s.type === 'level') {
@@ -1032,7 +1032,7 @@ function settingRow(s, v, def) {
     const say = i => (s.option_description || [])[i] || '';
     const desc = h('div', { class: 'level-desc' }, say(v));
     const seg = h('div', { class: 'seg' }, s.options.map((name, i) => h('button', { class: (i === v ? 'on ' : '') + ((s.colors || [])[i] || ''), onclick: e => {
-      seg.querySelectorAll('button').forEach(b => b.classList.remove('on')); e.currentTarget.classList.add('on'); desc.textContent = say(i); queueSave(s.anahtar, i);
+      seg.querySelectorAll('button').forEach(b => b.classList.remove('on')); e.currentTarget.classList.add('on'); desc.textContent = say(i); queueSave(s.key, i);
     } }, name)));
     ctl = h('div', { class: 'ctl', style: { flexDirection: 'column', alignItems: 'flex-end' } }, seg);
     head.append(desc);
@@ -1045,7 +1045,7 @@ function subPanel(row, kids, val, defs) {
   const key = row.dataset.key;
   const sub = h('div', { class: 'set-sub', 'data-parent': key },
     h('p', { class: 'sub-note' }, T('Each row is multiplied by the overall multiplier above: overall ×2 and row ×3 give ×6.')),
-    kids.map(c => settingRow(c, val(c.anahtar), defs[c.anahtar])));
+    kids.map(c => settingRow(c, val(c.key), defs[c.key])));
   row.firstChild.append(h('button', { class: 'set-toggle', type: 'button', onclick: () => { S.settingsOpen[key] = sub.hidden; setOpen(row, sub, sub.hidden); } },
     icon('chevR'), T('Fine-tune'), h('span', { class: 'cnt' }, kids.length), h('span', { class: 'n' })));
   setOpen(row, sub, !!S.settingsOpen[key]);
@@ -1064,12 +1064,12 @@ const fmtMult = x => (Math.round(x * 100) / 100).toLocaleString(LOC());
 
 // ================================================================== EVENTS
 async function renderEvents(list) {
-  const r = list || await act(() => api('/api/etkinlikler')); if (!r || S.page !== 'events') return;
-  const set = (key, v) => act(() => api('/api/etkinlikler', { changes: { [key]: v } })).then(x => x && renderEvents(x));
-  const bulk = (to, kind) => act(() => api('/api/etkinlikler', { hepsi: to, kind }), T('Updated.')).then(x => x && renderEvents(x));
+  const r = list || await act(() => api('/api/events')); if (!r || S.page !== 'events') return;
+  const set = (key, v) => act(() => api('/api/events', { changes: { [key]: v } })).then(x => x && renderEvents(x));
+  const bulk = (to, kind) => act(() => api('/api/events', { all: to, kind }), T('Updated.')).then(x => x && renderEvents(x));
   const row = e => {
     const state = e.state || 'calendar';
-    const status = e.etkin ? badge(e.state === 'on' && !e.in_calendar ? T('On (manual)') : T('On'), 'ok')
+    const status = e.enabled ? badge(e.state === 'on' && !e.in_calendar ? T('On (manual)') : T('On'), 'ok')
       : e.suppressed_by ? badge(T('Off (conflict: {0})', e.suppressed_by), 'err')
       : badge(e.state === 'off' && e.in_calendar ? T('Off (manual)') : T('Off'), e.state === 'off' ? 'err' : '');
     const cal = e.in_calendar ? (e.time_left_sec != null ? T('on by calendar · {0} left', fmtDur(e.time_left_sec)) : T('on by calendar'))
@@ -1079,7 +1079,7 @@ async function renderEvents(list) {
         h('div', { class: 'when' }, '📅 ', e.time, ' · ', cal),
         e.conflicting && e.conflicting.length ? h('div', { class: 'help muted small' }, T('Cannot run together with: {0}', e.conflicting.join(', '))) : null),
       h('div', { class: 'seg' }, [['calendar', T('By calendar'), 'info'], ['on', T('On'), 'ok'], ['off', T('Off'), 'err']].map(([k, t, c]) =>
-        h('button', { class: (state === k ? 'on ' : '') + c, onclick: () => set(e.anahtar, k === 'calendar' ? null : k) }, t))));
+        h('button', { class: (state === k ? 'on ' : '') + c, onclick: () => set(e.key, k === 'calendar' ? null : k) }, t))));
   };
   const yearly = r.filter(e => e.type === 'yearly'), weekly = r.filter(e => e.type === 'weekly');
   $('#content').replaceChildren(h('div', { class: 'stack' },
@@ -1099,7 +1099,7 @@ async function renderEvents(list) {
 // Views: hourly (the 24 hours of the selected day, rows and sessions), daily (the day's detailed list), weekly (7 days from Monday),
 // monthly (6-week grid). Bar: filled per the calendar, outlined if manually open, faded if manually closed. Times are local time.
 const CAL = { appearance: 'weekly', day: null, filter_by: { yearly: true, weekly: true, session: true }, search: '', data: null, coverage: null };
-const CAL_VIEW = [['hourly', N('Hourly')], ['daily', N('Log')], ['weekly', N('Weekly')], ['aylik', N('Monthly')]];
+const CAL_VIEW = [['hourly', N('Hourly')], ['daily', N('Log')], ['weekly', N('Weekly')], ['monthly', N('Monthly')]];
 const CAL_COLOR = ['#38c4ff', '#ff8a3d', '#3ddc97', '#ff6b81', '#a29bfe', '#ffc857', '#1dd1a1', '#f368e0', '#54a0ff', '#ff7f50', '#00d2d3', '#c8d6e5'];
 const calColor = k => { let x = 7; for (const c of k) x = (x * 31 + c.charCodeAt(0)) >>> 0; return CAL_COLOR[x % CAL_COLOR.length]; };
 const dayStart = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
@@ -1116,13 +1116,13 @@ const KIND_NAME = { yearly: N('Yearly'), weekly: N('Weekly') };
 function calRange() {
   const g = dayStart(CAL.day || new Date());
   if (CAL.appearance === 'weekly') { const a = addDays(g, -((g.getDay() + 6) % 7)); return [a, addDays(a, 7)]; }
-  if (CAL.appearance === 'aylik') { const f = new Date(g.getFullYear(), g.getMonth(), 1); const a = addDays(f, -((f.getDay() + 6) % 7)); return [a, addDays(a, 42)]; }
+  if (CAL.appearance === 'monthly') { const f = new Date(g.getFullYear(), g.getMonth(), 1); const a = addDays(f, -((f.getDay() + 6) % 7)); return [a, addDays(a, 42)]; }
   return [g, addDays(g, 1)];
 }
 function calGo(appearance, day) { if (appearance) CAL.appearance = appearance; if (day) CAL.day = day; renderCalendar(); }
 function calShift(n) {
   const g = dayStart(CAL.day || new Date());
-  calGo(null, CAL.appearance === 'aylik' ? new Date(g.getFullYear(), g.getMonth() + n, 1) : addDays(g, CAL.appearance === 'weekly' ? 7 * n : n));
+  calGo(null, CAL.appearance === 'monthly' ? new Date(g.getFullYear(), g.getMonth() + n, 1) : addDays(g, CAL.appearance === 'weekly' ? 7 * n : n));
 }
 function enterCalendar() {
   CAL.day = CAL.day || new Date();
@@ -1132,7 +1132,7 @@ function enterCalendar() {
 async function renderCalendar() {
   const [a, b] = calRange();
   let r;
-  try { r = await api(`/api/takvim?start=${a.getTime() / 1000}&bit=${b.getTime() / 1000}`); } catch (e) { toast(e.message, 'err'); return; }
+  try { r = await api(`/api/calendar?start=${a.getTime() / 1000}&bit=${b.getTime() / 1000}`); } catch (e) { toast(e.message, 'err'); return; }
   if (S.page !== 'calendar') return;
   CAL.data = r; CAL.coverage = [a.getTime() / 1000, b.getTime() / 1000];
   drawCalendar();
@@ -1142,12 +1142,12 @@ async function renderCalendar() {
 function calRows() {
   const q = CAL.search.trim().toLocaleLowerCase(LOC());
   return CAL.data.events.filter(e => CAL.filter_by[e.type] && (!q || e.name.toLocaleLowerCase(LOC()).includes(q)))
-    .map(e => Object.assign({}, e, { color: calColor(e.anahtar), sessions: CAL.filter_by.session ? e.sessions.filter(s => s.ranges.length) : [] }))
+    .map(e => Object.assign({}, e, { color: calColor(e.key), sessions: CAL.filter_by.session ? e.sessions.filter(s => s.ranges.length) : [] }))
     .filter(e => e.active_ranges.length || e.ranges.length || e.sessions.length);
 }
 function drawCalendar() {
   const r = CAL.data, [A, B] = CAL.coverage, g = CAL.appearance;
-  const title = g === 'aylik' ? dfmt((A + B) / 2, { month: 'long', year: 'numeric' })
+  const title = g === 'monthly' ? dfmt((A + B) / 2, { month: 'long', year: 'numeric' })
     : g === 'weekly' ? dfmt(A, { day: 'numeric', month: 'short' }) + ' – ' + dfmt(B - 1, { day: 'numeric', month: 'short', year: 'numeric' })
       : dfmt(A, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   const chip = (k, t) => h('button', { class: 'cal-filter' + (CAL.filter_by[k] ? ' on' : ''), onclick: () => { CAL.filter_by[k] = !CAL.filter_by[k]; drawCalendar(); } }, T(t));
@@ -1166,23 +1166,23 @@ function drawCalendar() {
       h('span', null, h('i', { class: 'cal-sw sub' }), T('session / spawn hours')),
       r.always_open ? h('span', { class: 'badge info' }, T('Game setting: sessions always open')) : null));
   const rows = calRows();
-  const view = g === 'aylik' ? calMonth(rows) : g === 'daily' ? calDay(rows) : calGantt(rows);
+  const view = g === 'monthly' ? calMonth(rows) : g === 'daily' ? calDay(rows) : calGantt(rows);
   $('#content').replaceChildren(h('div', { class: 'stack' }, bar, calSummary(r), view));
 }
 
 // ---- summary: those open now and the upcoming ones (independent of the view)
 function calSummary(r) {
   const now = Date.now() / 1000;
-  const on = r.events.filter(e => e.etkin);
+  const on = r.events.filter(e => e.enabled);
   const next = r.events.filter(e => e.state !== 'off' && e.next && e.next[0] > now + 1).sort((x, y) => x.next[0] - y.next[0]).slice(0, 8);
   const dotc = k => h('i', { class: 'cal-dot', style: { background: calColor(k) } });
   return h('div', { class: 'grid g2' },
     h('div', { class: 'card' }, h('h2', null, icon('zap'), T('Active now ({0})', on.length)),
-      on.length ? h('div', { class: 'chips' }, on.map(e => h('button', { class: 'chip cal-chip', onclick: () => calDetail(e.anahtar) }, dotc(e.anahtar), e.name,
+      on.length ? h('div', { class: 'chips' }, on.map(e => h('button', { class: 'chip cal-chip', onclick: () => calDetail(e.key) }, dotc(e.key), e.name,
         e.state === 'on' && !e.in_calendar ? h('span', { class: 'dim' }, T('forced')) : e.time_left_sec != null ? h('span', { class: 'dim' }, fmtDur(e.time_left_sec)) : null)))
         : h('p', { class: 'desc' }, T('No event is active right now.'))),
     h('div', { class: 'card' }, h('h2', null, icon('clock'), T('Coming up')),
-      next.length ? h('div', { class: 'cal-next' }, next.map(e => h('div', { class: 'row', onclick: () => calDetail(e.anahtar) }, dotc(e.anahtar),
+      next.length ? h('div', { class: 'cal-next' }, next.map(e => h('div', { class: 'row', onclick: () => calDetail(e.key) }, dotc(e.key),
         h('div', { class: 'grow' }, h('div', { class: 'ellipsis', style: { maxWidth: 'none' }, title: e.name }, e.name),
           h('div', { class: 'small muted' }, calSpan(e.next[0], e.next[1]))),     // the date is under the name: so the badge does not overflow in a narrow card
         badge(T('in {0}', fmtDur(e.next[0] - now)), 'info'))))
@@ -1205,13 +1205,13 @@ function calGantt(rows) {
   const evRow = e => {
     const st = e.state, bars = st === 'on' ? [bar(A, B, 'forced', e.color, e.name + ' · ' + T('forced on'))]
       : e.ranges.map(([s, x]) => bar(s, x, st === 'off' ? 'off' : '', e.color, e.name + ' · ' + calSpan(s, x) + (st === 'off' ? ' · ' + T('forced off') : '')));
-    return [h('div', { class: 'cal-row' }, h('div', { class: 'cal-name', onclick: () => calDetail(e.anahtar), title: e.description || e.name },
+    return [h('div', { class: 'cal-row' }, h('div', { class: 'cal-name', onclick: () => calDetail(e.key), title: e.description || e.name },
       h('i', { class: 'cal-dot', style: { background: e.color } }), h('span', { class: 'ellipsis', style: { maxWidth: 'none' } }, e.name),
       st ? badge(st === 'on' ? T('forced on') : T('forced off'), st === 'on' ? 'ok' : 'err') : null),
       h('div', { class: 'cal-track', style: { '--cols': cols } }, bars, nowLine())),
     ...e.sessions.map(s => h('div', { class: 'cal-row sub' }, h('div', { class: 'cal-name', title: s.maps.join(', ') }, '↳ ', h('span', { class: 'ellipsis', style: { maxWidth: 'none' } },
       s.name + (s.maps.length ? ' · ' + s.maps.join(', ') : ''))),
-      h('div', { class: 'cal-track', style: { '--cols': cols } }, s.ranges.map(([a, b, f]) => bar(a, b, 'sub' + (f === 1 ? ' cift' : ''), e.color,
+      h('div', { class: 'cal-track', style: { '--cols': cols } }, s.ranges.map(([a, b, f]) => bar(a, b, 'sub' + (f === 1 ? ' double' : ''), e.color,
         s.name + ' · ' + calSpan(a, b) + (f === 1 ? ' · ' + T('double rewards') : f > 1 ? ' · ' + T('entry until {0}', hhmm(f)) : ''))), nowLine())))];
   };
   return h('div', { class: 'card cal-gantt-card' }, rows.length ? h('div', { class: 'cal-gantt' },
@@ -1235,12 +1235,12 @@ function calDay(rows) {
   const end = new Date(B * 1000);
   return h('div', { class: 'grid g2 tk-day' },
     h('div', { class: 'card' }, h('h2', null, icon('calendar'), T('All day ({0})', allDay.length)),
-      allDay.length ? h('div', { class: 'stack', style: { gap: '10px' } }, allDay.map(e => h('div', { class: 'cal-item', onclick: () => calDetail(e.anahtar) },
+      allDay.length ? h('div', { class: 'stack', style: { gap: '10px' } }, allDay.map(e => h('div', { class: 'cal-item', onclick: () => calDetail(e.key) },
         h('div', { class: 'row' }, dotc(e), h('b', null, e.name), badge(T(KIND_NAME[e.type]), ''), e.state ? badge(e.state === 'on' ? T('forced on') : T('forced off'), e.state === 'on' ? 'ok' : 'err') : null),
         e.description ? h('div', { class: 'small muted' }, e.description) : null, h('div', { class: 'small dim' }, '📅 ', e.time))))
         : h('p', { class: 'desc' }, T('No all-day events on this day.'))),
     h('div', { class: 'card' }, h('h2', null, icon('clock'), T('Timed ({0})', timed.length)),
-      timed.length ? h('div', { class: 'cal-agenda' }, timed.map(t => h('div', { class: 'cal-item row' + (now >= t.x ? ' past' : ''), onclick: () => calDetail(t.e.anahtar) },
+      timed.length ? h('div', { class: 'cal-agenda' }, timed.map(t => h('div', { class: 'cal-item row' + (now >= t.x ? ' past' : ''), onclick: () => calDetail(t.e.key) },
         h('span', { class: 'mono cal-time' }, hhmm(t.s) + '–' + (t.x >= B && !end.getHours() ? '24:00' : hhmm(t.x))), dotc(t.e),
         h('div', { style: { flex: 1, minWidth: 0 } }, h('div', null, t.name), t.sub ? h('div', { class: 'small muted' }, t.sub,
           t.f === 1 ? ' · ' + T('double rewards') : t.f > 1 ? ' · ' + T('entry until {0}', hhmm(t.f)) : '') : null),
@@ -1273,14 +1273,14 @@ function calMonth(rows) {
 
 // ---- the event's details: description, calendar, intervals in this view, sessions; manual open / closed choice
 function calDetail(key) {
-  const e = CAL.data.events.find(x => x.anahtar === key); if (!e) return;
+  const e = CAL.data.events.find(x => x.key === key); if (!e) return;
   const now = Date.now() / 1000, st = e.state || 'calendar';
-  const set = v => act(() => api('/api/etkinlikler', { changes: { [key]: v } }), T('Updated.')).then(x => { if (x) { m.close(); renderCalendar(); } });
+  const set = v => act(() => api('/api/events', { changes: { [key]: v } }), T('Updated.')).then(x => { if (x) { m.close(); renderCalendar(); } });
   const iv = e.state === 'on' ? [] : e.ranges;
   const cur = e.next && e.next[0] <= now + 1 ? T('On the calendar now · {0} left', fmtDur(e.next[1] - now))
     : e.next ? T('Next on the calendar: {0} (in {1})', calSpan(e.next[0], e.next[1]), fmtDur(e.next[0] - now)) : T('No upcoming period on the calendar.');
   const m = modal({
-    title: e.name, sub: T(KIND_NAME[e.type]) + ' · ' + (e.etkin ? T('active now') : T('inactive now')), wide: true,
+    title: e.name, sub: T(KIND_NAME[e.type]) + ' · ' + (e.enabled ? T('active now') : T('inactive now')), wide: true,
     body: h('div', { class: 'stack', style: { gap: '12px' } },
       e.description ? h('div', null, e.description) : null,
       h('div', { class: 'kv one cal-kv' }, [[T('Calendar'), e.time], [T('Status'), cur]].map(([a, b]) => h('div', null, h('span', { class: 'muted' }, a), h('b', null, b)))),
@@ -1304,7 +1304,7 @@ const checkRow = (ok, text, warn) => h('div', { class: ok ? 'ok' : warn ? 'wr' :
 const WINDOW_MODES = [['windowed', N('Window')], ['borderless', N('Borderless fullscreen')], ['fullscreen', N('Fullscreen')]];
 function resolutionList(r) {
   const res = r.resolutions.map(([w, hh]) => `${w}x${hh}`);
-  const scr = r.ekran ? `${r.ekran[0]}x${r.ekran[1]}` : null;
+  const scr = r.screen ? `${r.screen[0]}x${r.screen[1]}` : null;
   if (scr && !res.includes(scr)) res.push(scr);
   return { res, scr };
 }
@@ -1317,7 +1317,7 @@ function dlBox(st, refresh, { haveClient = false } = {}) {      // haveClient: t
   const call = (path, msg) => act(() => api(path, {}), msg).then(x => { if (x) refresh(x); });
   const discard = async () => {
     if (await confirmBox(T('Delete the unfinished download?'), T('The downloaded files (istemci_indiriliyor in the project folder) are deleted; the next download starts from the beginning.'), { ok: T('Delete'), danger: true }))
-      call('/api/istemci/download_delete', T('The unfinished download was deleted.'));
+      call('/api/client/download_delete', T('The unfinished download was deleted.'));
   };
   const head = { preparing: T('Preparing the download…'), downloading: T('Downloading the game: {0}%', pct), verifying: T('Checking the files…'),
     finished: T('The game was downloaded and installed.'), error: T('The download stopped.'), stopped: T('Download paused ({0}%).', pct) }[st.state]
@@ -1329,9 +1329,9 @@ function dlBox(st, refresh, { haveClient = false } = {}) {      // haveClient: t
     : st.state === 'stopped' || st.partial ? T('When you resume, only the missing files are downloaded.')
     : st.state === 'vacant' ? T("The DarkOrbit {0} client is downloaded from the game's official download server and installed into the project folder: about 3.5 GB to download, 4.3 GB on disk. The client files are not modified.", (/(\d+\.\d+\.\d+)\.zip/.exec(st.url || '') || [])[1] || '')
     : '';
-  const btns = run ? [btn(T('Stop'), () => call('/api/istemci/download_stop', T('Stopping the download…')), 'ghost sm', 'stop')]
+  const btns = run ? [btn(T('Stop'), () => call('/api/client/download_stop', T('Stopping the download…')), 'ghost sm', 'stop')]
     : st.state === 'finished' ? []
-    : [haveClient ? null : btn(st.state === 'error' ? T('Try again') : st.state === 'stopped' || st.partial ? T('Resume') : T('Download and install'), () => call('/api/istemci/indir'), 'primary sm', 'download'),
+    : [haveClient ? null : btn(st.state === 'error' ? T('Try again') : st.state === 'stopped' || st.partial ? T('Resume') : T('Download and install'), () => call('/api/client/download'), 'primary sm', 'download'),
       st.partial ? btn(T('Delete unfinished download'), discard, 'ghost sm', 'trash') : null];
   return h('div', { class: 'dl-box ' + (st.state === 'error' ? 'err' : st.state === 'finished' ? 'ok' : '') },
     h('b', null, head),
@@ -1351,7 +1351,7 @@ function dlWatch(wrap, st, onDone, opts) {
   draw(st);
   const id = setInterval(async () => {
     if (!wrap.isConnected) { clearInterval(id); return; }
-    let s; try { s = await api('/api/istemci/indirme'); } catch (e) { return; }
+    let s; try { s = await api('/api/client/download_status'); } catch (e) { return; }
     const was = JSON.parse(sig);
     const n = JSON.stringify(s);
     if (n === sig) return;
@@ -1366,9 +1366,9 @@ function engineBox(m, refresh, { engine = true } = {}) {
   const call = (path, msg) => act(() => api(path, {}), msg).then(x => { if (x) refresh(x); });
   const pct = m.total ? Math.floor(100 * m.claimed / m.total) : 0, run = m.running, ros = m.rosetta;
   const rosetta = !ros.required ? null : ros.var ? h('div', { class: 'check-list', style: { margin: 0 } }, checkRow(true, T('Rosetta 2 is installed')))
-    : h('div', { class: 'alert hata' }, icon('alert'), h('div', null, T("Rosetta 2 is not installed: on Apple Silicon the Wine that opens the game runs with it. Installing it asks for your macOS administrator password."),
+    : h('div', { class: 'alert error' }, icon('alert'), h('div', null, T("Rosetta 2 is not installed: on Apple Silicon the Wine that opens the game runs with it. Installing it asks for your macOS administrator password."),
       ros.error ? h('div', { class: 'small' }, ros.error) : null),
-      btn(ros.state === 'installing' ? T('Installing…') : T("Install Rosetta"), () => call('/api/rosetta/kur'), 'primary sm', 'download', { disabled: ros.state === 'installing' }));
+      btn(ros.state === 'installing' ? T('Installing…') : T("Install Rosetta"), () => call('/api/rosetta/install'), 'primary sm', 'download', { disabled: ros.state === 'installing' }));
   const old = m.macos_old ? h('div', { class: 'alert warning' }, icon('alert'), h('div', null, T('DXMT needs macOS 14 Sonoma or newer (this Mac: {0}); the game may not open.', m.macos))) : null;
   if (!engine) return h('div', { class: 'stack', style: { gap: '10px' } }, rosetta, old);
   const head = run ? (m.state === 'installing' ? T('Installing Wine…') : T('Downloading Wine and DXMT: {0}%', pct))
@@ -1378,8 +1378,8 @@ function engineBox(m, refresh, { engine = true } = {}) {
       m.time_left_sec != null && m.speed ? T('{0} remaining', fmtDur(m.time_left_sec)) : null].filter(Boolean).join(' · ')
     : m.state === 'error' ? m.error : m.state === 'built' ? m.folder
     : T("{0} is downloaded and installed (about {1}); it is also downloaded by itself on the first PLAY.", m.name, fmtBytes(m.size));
-  const btns = run ? [btn(T('Stop'), () => call('/api/motor/durdur', T('Stopping the download…')), 'ghost sm', 'stop')]
-    : m.state === 'built' ? [] : [btn(m.state === 'error' || m.state === 'stopped' ? T('Try again') : T('Download and install'), () => call('/api/motor/kur'), 'primary sm', 'download')];
+  const btns = run ? [btn(T('Stop'), () => call('/api/engine/stop', T('Stopping the download…')), 'ghost sm', 'stop')]
+    : m.state === 'built' ? [] : [btn(m.state === 'error' || m.state === 'stopped' ? T('Try again') : T('Download and install'), () => call('/api/engine/install'), 'primary sm', 'download')];
   return h('div', { class: 'stack', style: { gap: '10px' } },
     h('div', { class: 'dl-box ' + (m.state === 'error' ? 'err' : m.state === 'built' ? 'ok' : '') }, h('b', null, head),
       run ? h('div', { class: 'meter' }, h('div', { class: 'meter-bar' }, h('span', { style: { width: pct + '%' } }))) : null,
@@ -1394,7 +1394,7 @@ function engineWatch(wrap, m, opts) {
   draw(m);
   const id = setInterval(async () => {
     if (!wrap.isConnected) { clearInterval(id); return; }
-    let x; try { x = await api('/api/motor'); } catch (e) { return; }
+    let x; try { x = await api('/api/engine'); } catch (e) { return; }
     if (JSON.stringify(x) !== sig) draw(x);
   }, 1000);
   return id;
@@ -1410,8 +1410,8 @@ function patchBox(y, refresh) {
   const info = run ? `${fmtBytes(y.claimed)} / ${fmtBytes(y.total)}` : y.state === 'error' ? y.error
     : y.state === 'built' ? T("Fixes the auction countdown, the rank window and shop totals. On the game's first start BepInEx takes about half a minute to get ready.")
     : T("The plugin that fixes small client bugs is loaded with BepInEx: {0} is installed into the game folder (about {1}); it is also installed by itself on the first PLAY.", y.name, fmtBytes(y.total));
-  const btns = run ? [btn(T('Stop'), () => call('/api/yama/durdur'), 'ghost sm', 'stop')]
-    : y.state === 'built' ? [] : [btn(y.state === 'error' || y.state === 'stopped' ? T('Try again') : T('Download and install'), () => call('/api/yama/kur'), 'primary sm', 'download')];
+  const btns = run ? [btn(T('Stop'), () => call('/api/patch/stop'), 'ghost sm', 'stop')]
+    : y.state === 'built' ? [] : [btn(y.state === 'error' || y.state === 'stopped' ? T('Try again') : T('Download and install'), () => call('/api/patch/install'), 'primary sm', 'download')];
   return h('div', { class: 'dl-box ' + (y.state === 'error' ? 'err' : y.state === 'built' ? 'ok' : '') }, h('b', null, head),
     run ? h('div', { class: 'meter' }, h('div', { class: 'meter-bar' }, h('span', { style: { width: pct + '%' } }))) : null,
     info ? h('div', { class: 'small muted dl-info' }, info) : null,
@@ -1424,7 +1424,7 @@ function patchWatch(wrap, y) {
   draw(y);
   const id = setInterval(async () => {
     if (!wrap.isConnected) { clearInterval(id); return; }
-    let x; try { x = await api('/api/yama'); } catch (e) { return; }
+    let x; try { x = await api('/api/patch'); } catch (e) { return; }
     if (JSON.stringify(x) !== sig) draw(x);
   }, 1000);
   return id;
@@ -1447,7 +1447,7 @@ function runnerCard(c, cfg, saveCfg) {
   const found = [...c.protons.map(p => ['proton', p.route, p.name]), ...c.wines.map(w => ['wine', w, 'Wine'])];
   return h('div', { class: 'card' }, h('h2', null, icon('zap'), 'Wine / Proton'),
     h('p', { class: 'desc' }, T("The game is a Windows program; on Linux and macOS it opens with Wine or Proton. Automatic: Steam's Proton on Linux (through umu-run if it is installed), otherwise Wine; on macOS the Wine and DXMT that the panel installs itself (plain Wine can't draw the game's Direct3D 11 graphics on macOS). The client runs in its own prefix, which is set up the first time it opens (this can take about half a minute).")),
-    c.error && !(mac && c.engine && !c.engine.rosetta.var) ? h('div', { class: 'alert hata' }, icon('alert'), h('div', null, c.error))
+    c.error && !(mac && c.engine && !c.engine.rosetta.var) ? h('div', { class: 'alert error' }, icon('alert'), h('div', null, c.error))
       : h('div', { class: 'alert info' }, icon('info'), h('div', null, T('In use: {0}', used))),
     mWrap ? h('div', { style: { marginTop: '12px' } }, mWrap) : null,
     h('div', { class: 'stack', style: { gap: '14px', marginTop: '12px' } },
@@ -1462,7 +1462,7 @@ function runnerCard(c, cfg, saveCfg) {
 }
 
 async function renderClient(data) {
-  const r = data || await act(() => api('/api/istemci')); if (!r || S.page !== 'client') return;
+  const r = data || await act(() => api('/api/client')); if (!r || S.page !== 'client') return;
   const c = r.control, cfg = r.settings;
   const dlWrap = !c.valid || DL_ACTIVE(r.download) ? h('div', { class: 'dl-wrap' }) : null;
   const yWrap = c.valid && r.patch.required ? h('div', { class: 'dl-wrap' }) : null;
@@ -1474,7 +1474,7 @@ async function renderClient(data) {
     h('div', { class: 'check-list' },
       checkRow(c.exe, 'DarkOrbit.exe'), checkRow(c.data, T('DarkOrbit_Data folder')),
       c.valid ? checkRow(c.compatible, versionText(c, r.supported), !c.compatible) : null),
-    c.issues.length && !c.valid && !r.download.running ? h('div', { class: 'alert hata' }, icon('alert'), h('div', null, c.issues.join(' '))) : null,
+    c.issues.length && !c.valid && !r.download.running ? h('div', { class: 'alert error' }, icon('alert'), h('div', null, c.issues.join(' '))) : null,
     h('hr', { class: 'sep' }), h('div', { class: 'lbl' }, T('Download the game')),
     h('div', { class: 'set-row' }, h('div', null, h('div', { class: 'name' }, T('Fast download')),
       h('div', { class: 'help' }, T('When on, the game downloads over 3 connections at once; when off, over a single connection (slower). Applies to the next download.'))),
@@ -1483,13 +1483,13 @@ async function renderClient(data) {
     yWrap ? [h('hr', { class: 'sep' }), h('div', { class: 'lbl' }, T('Client fixes (BepInEx)')), yWrap] : null,
     h('div', { id: 'proto-box' }),
     h('div', { class: 'row wrap', style: { marginTop: '12px' } },
-      btn(T('Choose folder…'), () => act(() => api('/api/istemci/select', {}), x => x.cancelled ? T('Cancelled.') : T('Client folder saved.')).then(x => x && renderClient(x)), 'primary', 'folder'),
-      btn(T('Find automatically'), () => act(() => api('/api/istemci/otomatik', {}), T('Automatic search is on.')).then(x => x && renderClient(x)), '', 'search'),
+      btn(T('Choose folder…'), () => act(() => api('/api/client/select', {}), x => x.cancelled ? T('Cancelled.') : T('Client folder saved.')).then(x => x && renderClient(x)), 'primary', 'folder'),
+      btn(T('Find automatically'), () => act(() => api('/api/client/auto', {}), T('Automatic search is on.')).then(x => x && renderClient(x)), '', 'search'),
       btn(T('Open folder'), () => act(() => api('/api/open_folder', { ne: 'client' })), 'ghost', 'folder')),
     r.candidates.length > 1 || (r.candidates.length === 1 && r.candidates[0].route !== c.route) ? [h('hr', { class: 'sep' }), h('div', { class: 'lbl' }, T('Clients found')),
       h('div', { class: 'stack', style: { gap: '8px', marginTop: '8px' } }, r.candidates.map(a => h('div', { class: 'row' },
         badge(a.version || '?', a.compatible ? 'ok' : 'warn'), h('span', { class: 'mono', style: { flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }, title: a.route }, a.route),
-        a.route === c.route ? badge(T('in use'), 'info') : btn(T('Use'), () => act(() => api('/api/istemci/use', { route: a.route }), T('Saved.')).then(x => x && renderClient(x)), 'sm'))))] : null);
+        a.route === c.route ? badge(T('in use'), 'info') : btn(T('Use'), () => act(() => api('/api/client/use', { route: a.route }), T('Saved.')).then(x => x && renderClient(x)), 'sm'))))] : null);
 
   const { res, scr } = resolutionList(r);
   const cur = `${cfg.width}x${cfg.height}`;
@@ -1536,7 +1536,7 @@ async function renderClient(data) {
 async function protoTick(force) {
   const box = $('#proto-box'); if (!box) return;
   if (!force && !(S.proto && S.proto.running)) return;
-  let r; try { r = await api('/api/protokol'); } catch (e) { return; }
+  let r; try { r = await api('/api/protocol'); } catch (e) { return; }
   const sig = JSON.stringify(r);
   if (!force && S.sig.proto === sig) return;
   S.sig.proto = sig; S.proto = r;
@@ -1545,19 +1545,19 @@ async function protoTick(force) {
   if (!need && !run && !r.summary && !r.error) { box.replaceChildren(); return; }
   const kv = [[N('Added'), o.added], [N('Removed'), o.deleted], [N('IDs changed'), o.uid], [N('Fields changed'), o.fields],
     [N('Encoding changed'), o.write], [N('Decoding changed'), o.read_at], [N('Unclear fields'), o.ambiguous]].filter(([, v]) => v != null);
-  const width = () => act(() => api('/api/protokol/uret', {}), T('Protocol tool started.')).then(() => protoTick(true));
-  const use = () => act(() => api('/api/protokol/uygula', { version: o.version }), T('Applying…')).then(() => protoTick(true));
+  const width = () => act(() => api('/api/protocol/generate', {}), T('Protocol tool started.')).then(() => protoTick(true));
+  const use = () => act(() => api('/api/protocol/apply', { version: o.version }), T('Applying…')).then(() => protoTick(true));
   box.replaceChildren(h('div', { class: 'alert ' + (r.error ? 'error' : need ? 'warning' : 'info'), style: { marginTop: '12px' } }, icon(r.error ? 'alert' : 'info'),
     h('div', { class: 'stack', style: { gap: '6px', flex: 1, minWidth: 0 } },
-      h('div', null, need ? T("The server's active protocol is for {0}. Adapt the new client: it builds the protocol from this client's code and reports the differences (the active files are left alone).", r.etkin)
-        : T('Active protocol: {0}.', r.etkin)),
+      h('div', null, need ? T("The server's active protocol is for {0}. Adapt the new client: it builds the protocol from this client's code and reports the differences (the active files are left alone).", r.enabled)
+        : T('Active protocol: {0}.', r.enabled)),
       run ? h('div', { class: 'row' }, h('span', { class: 'spin' }), h('span', { class: 'small' }, (r.lines || []).slice(-1)[0] || T('Running…'))) : null,
       r.error ? h('div', { class: 'small' }, r.error) : null,
       kv.length ? h('div', { class: 'small' }, `${o.version || ''}: ` + kv.map(([k, v]) => `${T(k)} ${v}`).join(' · ')) : null,
       o.report ? h('div', { class: 'small mono', style: { overflow: 'hidden', textOverflow: 'ellipsis' } }, o.report) : null,
       h('div', { class: 'row wrap' },
         need && !run ? btn(T('Adapt the new client'), width, 'primary sm', 'refresh') : null,
-        !run && r.is === 'produce' && !r.error && o.version && o.version !== r.etkin ? btn(T('Apply the {0} protocol', o.version), use, 'sm', 'check') : null,
+        !run && r.is === 'produce' && !r.error && o.version && o.version !== r.enabled ? btn(T('Apply the {0} protocol', o.version), use, 'sm', 'check') : null,
         !run && r.is === 'apply' && !r.error ? h('span', { class: 'small' }, T('Applied; the game server uses the new protocol after a restart.')) : null))));
 }
 
@@ -1587,7 +1587,7 @@ async function renderServer() {
         h('label', { class: 'row small muted' }, h('span', { class: 'switch' }, h('input', { type: 'checkbox', checked: logState.auto, onchange: e => { logState.auto = e.target.checked; } }), h('span')), T('Live')),
         btn('', () => loadLog(), 'ghost sm icon', 'refresh', { title: T('Refresh') }),
         btn(T('Folder'), () => act(() => api('/api/open_folder', { ne: 'logs' })), 'ghost sm', 'folder'),
-        btn(T('Clear'), async () => { if (await confirmBox(T('Clear the log?'), T('{0} will be emptied.', logState.name), { ok: T('Clear'), danger: true })) act(() => api('/api/gunluk/temizle', { name: logState.name }), T('Cleared.')).then(loadLog); }, 'ghost sm', 'trash'))),
+        btn(T('Clear'), async () => { if (await confirmBox(T('Clear the log?'), T('{0} will be emptied.', logState.name), { ok: T('Clear'), danger: true })) act(() => api('/api/log/clear', { name: logState.name }), T('Cleared.')).then(loadLog); }, 'ghost sm', 'trash'))),
     h('div', { class: 'log-tabs', id: 'log-tabs', style: { margin: '10px 0' } }), h('div', { class: 'log-view', id: 'log-view' }));
   $('#content').replaceChildren(h('div', { class: 'stack' }, h('div', { class: 'grid g3', id: 'srv-cards' }), h('div', { class: 'grid g2' }, behav, ports), logs));
   S.sig = {};
@@ -1599,38 +1599,38 @@ async function renderServer() {
 function renderServerCards() {
   const box = $('#srv-cards'), d = S.state; if (!box || !d) return;
   // the signature uses the time text shown on screen (fmtDur): the per-second sure_sn rebuilt the cards on every poll and swallowed the click on the button under the mouse
-  const s = d.processes, duration = x => x && Object.assign({}, x, { sure_sn: x.sure_sn == null ? null : fmtDur(x.sure_sn) });
+  const s = d.processes, duration = x => x && Object.assign({}, x, { duration_sec: x.duration_sec == null ? null : fmtDur(x.duration_sec) });
   const sig = JSON.stringify([Object.assign({}, s, { servers: { web: duration(s.servers.web), game: duration(s.servers.game) }, client: duration(s.client) }), d.play.running]);
   if (S.sig.srv === sig) return; S.sig.srv = sig;
   const busy = d.play.running, cl = s.client.state === 'on';
   const card = (title, iconEl, st, ports, extra, actions) => h('div', { class: 'card status-card' },
     h('div', { class: 'big' }, icon(iconEl), title), h('div', { class: 'row', style: { marginTop: '8px' } }, dot(stCls(st.state)), h('b', null, stText(st.state)),
-      st.pid ? h('span', { class: 'muted small' }, `PID ${st.pid} · ${fmtDur(st.sure_sn)}`) : null, st.exit_code != null && st.state === 'crashed' ? badge(T('exit {0}', st.exit_code), 'err') : null),
+      st.pid ? h('span', { class: 'muted small' }, `PID ${st.pid} · ${fmtDur(st.duration_sec)}`) : null, st.exit_code != null && st.state === 'crashed' ? badge(T('exit {0}', st.exit_code), 'err') : null),
     ports ? h('div', { class: 'ports' }, Object.entries(ports).map(([p, on]) => badge(on ? T('{0} listening', p) : T('{0} closed', p), on ? 'ok' : ''))) : h('div', { style: { height: '12px' } }),
     extra, h('div', { class: 'actions' }, actions));
   const w = s.servers.web, o = s.servers.game, srvOn = w.state === 'on' || o.state === 'on';
   box.replaceChildren(
     card(T('Web server'), 'link', w, w.ports, h('div', { class: 'small muted' }, T("The client's web login, map list and language selection.")), [btn(T('Log'), () => showLog('http.log'), 'sm'), btn(T('Console'), () => showLog('web_konsol.log'), 'ghost sm')]),
     card(T('Game server'), 'server', o, o.ports, h('div', { class: 'small muted' }, s.record ? T('Save: {0}', s.record) + (s.control_channel ? ' · ' + T('control channel open (8099)') : '') : T('Game world, saving, chat (7771).')),
-      [srvOn ? btn(T('Stop'), () => act(() => api('/api/sunucu/durdur', {}), T('Stopped.')), 'danger sm', 'stop', { disabled: cl || busy, title: cl ? T('Close the game first') : '' })
-        : btn(T('Start'), () => act(() => api('/api/oyna', { server_only: true })), 'primary sm', 'play', { disabled: busy }),
+      [srvOn ? btn(T('Stop'), () => act(() => api('/api/server/stop', {}), T('Stopped.')), 'danger sm', 'stop', { disabled: cl || busy, title: cl ? T('Close the game first') : '' })
+        : btn(T('Start'), () => act(() => api('/api/play', { server_only: true })), 'primary sm', 'play', { disabled: busy }),
       // icon only: so the four buttons fit the card width and "Console" does not drop to the bottom on its own
-      btn(null, () => act(() => api('/api/sunucu/restart', {}), T('Restarted.')), 'sm icon', 'refresh', { disabled: busy || !srvOn, title: T('Restart') + ' — ' + T('If the game is running, the client must reconnect') }),
+      btn(null, () => act(() => api('/api/server/restart', {}), T('Restarted.')), 'sm icon', 'refresh', { disabled: busy || !srvOn, title: T('Restart') + ' — ' + T('If the game is running, the client must reconnect') }),
       btn(T('Log'), () => showLog('gs.log'), 'ghost sm'), btn(T('Console'), () => showLog('oyun_konsol.log'), 'ghost sm')]),
-    card(T('Client'), 'monitor', s.client, null, h('div', { class: 'small muted' }, s.client.last ? T('Last closed {0} · ran for {1}', s.client.last.time, fmtDur(s.client.last.sure_sn)) : T('The original Unity client.')),
-      [cl ? btn(T('Close'), async () => { if (await confirmBox(T('Close the client?'), T('The game window will be closed.'), { ok: T('Close'), danger: true })) act(() => api('/api/istemci/kapat', {})); }, 'danger sm', 'power')
-        : btn(T('Play'), () => { go('play'); act(() => api('/api/oyna', {})); }, 'orange sm', 'play', { disabled: busy }),
+    card(T('Client'), 'monitor', s.client, null, h('div', { class: 'small muted' }, s.client.last ? T('Last closed {0} · ran for {1}', s.client.last.time, fmtDur(s.client.last.duration_sec)) : T('The original Unity client.')),
+      [cl ? btn(T('Close'), async () => { if (await confirmBox(T('Close the client?'), T('The game window will be closed.'), { ok: T('Close'), danger: true })) act(() => api('/api/client/close', {})); }, 'danger sm', 'power')
+        : btn(T('Play'), () => { go('play'); act(() => api('/api/play', {})); }, 'orange sm', 'play', { disabled: busy }),
       btn(T('Log'), () => showLog('client.log'), 'ghost sm')]));
 }
 
 async function checkPorts() {
   const box = $('#port-list'); if (!box) return;
   box.replaceChildren(h('div', { class: 'row muted small' }, h('span', { class: 'spin' }), T('Checking…')));
-  const r = await act(() => api('/api/portlar')); if (!r) { box.replaceChildren(); return; }
+  const r = await act(() => api('/api/ports')); if (!r) { box.replaceChildren(); return; }
   box.replaceChildren(r.length ? h('div', { class: 'stack', style: { gap: '8px', marginBottom: '12px' } }, r.map(p => h('div', { class: 'alert ' + (p.ours ? 'warning' : 'error') }, icon('alert'),
     h('div', null, h('b', null, `${p.port} (${p.name})`), ` — ${p.process} (PID ${p.pid ?? '?'})`, h('div', { class: 'mono dim', style: { marginTop: '3px' } }, p.command || ''),
       p.ours ? h('div', { class: 'small' }, T('A server of this project left over from a previous session.')) : h('div', { class: 'small' }, T("Another program: the panel won't close it; close it yourself."))),
-    p.ours ? btn(T('Close'), () => act(() => api('/api/portlar/kapat', { pid: p.pid }), T('Process closed.')).then(() => checkPorts()), 'sm', 'x') : null)))
+    p.ours ? btn(T('Close'), () => act(() => api('/api/ports/close', { pid: p.pid }), T('Process closed.')).then(() => checkPorts()), 'sm', 'x') : null)))
     : h('div', { class: 'row small', style: { marginBottom: '12px', color: 'var(--ok)' } }, icon('check'), T('No process outside the panel is holding the ports.')));
 }
 
@@ -1638,7 +1638,7 @@ function showLog(name) { logState.name = name; loadLog(); const v = $('#log-view
 async function loadLog(quiet) {
   const view = $('#log-view'); if (!view) return;
   let r;
-  try { r = await api('/api/gunluk?name=' + encodeURIComponent(logState.name) + '&satir=' + logState.row); } catch (e) { if (!quiet) toast(e.message, 'err'); return; }
+  try { r = await api('/api/log?name=' + encodeURIComponent(logState.name) + '&satir=' + logState.row); } catch (e) { if (!quiet) toast(e.message, 'err'); return; }
   const tabs = $('#log-tabs');
   if (tabs) tabs.replaceChildren(...r.entries.map(g => h('button', { class: 'btn sm ' + (g.name === logState.name ? 'primary' : 'ghost'), onclick: () => { logState.name = g.name; loadLog(); } },
     g.name, g.size != null ? h('span', { class: 'dim', style: { fontWeight: 400 } }, fmtBytes(g.size)) : null)));
@@ -1650,7 +1650,7 @@ async function loadLog(quiet) {
   view.dataset.sig = sig;
   view.replaceChildren(...(r.var ? lines.map(l => {
     const low = l.toLowerCase();
-    const cls = /error|hata|traceback|exception|çöktü|failed/.test(low) ? 'e' : /uyar|warn|yanıtsız/.test(low) ? 'w' : /^\d\d:\d\d:\d\d -> /.test(l) ? 'i' : '';
+    const cls = /error|hata|traceback|exception|çöktü|failed/.test(low) ? 'e' : /uyar|warn|yanıtsız|unanswered/.test(low) ? 'w' : /^\d\d:\d\d:\d\d -> /.test(l) ? 'i' : '';
     return h('div', { class: cls }, l);
   }) : [h('div', { class: 't' }, T("This log doesn't exist yet."))]));
   if (atBottom || !quiet) view.scrollTop = view.scrollHeight;
@@ -1697,22 +1697,22 @@ function updCard() {
           h('div', { class: 'help' }, T('When on, a new version installs by itself once the game and servers are closed; when off, you are only notified.'))),
           h('div', { class: 'ctl' }, h('label', { class: 'switch' }, h('input', { type: 'checkbox', checked: r.setting === 'auto', onchange: e => toggle(e.target.checked) }), h('span')))),
         h('div', { class: 'row wrap' },
-          btn(T('Check now'), () => act(() => api('/api/guncelleme/check', {})).then(x => x && draw(x)), '', 'refresh', { disabled: run }),
-          r.state === 'exists' ? btn(T('Install update'), () => act(() => api('/api/guncelleme/kur', {})).then(x => x && draw(x)), 'primary', 'download', { disabled: !r.idle }) : null,
+          btn(T('Check now'), () => act(() => api('/api/update/check', {})).then(x => x && draw(x)), '', 'refresh', { disabled: run }),
+          r.state === 'exists' ? btn(T('Install update'), () => act(() => api('/api/update/install', {})).then(x => x && draw(x)), 'primary', 'download', { disabled: !r.idle }) : null,
           h('span', { class: 'small muted mono' }, r.storage)))));
   };
-  const load = () => api('/api/guncelleme').then(draw).catch(() => {});
+  const load = () => api('/api/update').then(draw).catch(() => {});
   load();
   S.timers.push(setInterval(() => { if (card.isConnected) load(); }, 2000));
   return card;
 }
 
 // ---- Discord Rich Presence (discord_rp.py, /api/discord_rp): the game's live state on the Discord profile; the player chooses what is shown
-const RP_FIELDS = [['rp_pilot', N('Pilot name'), N('Your in-game name (off by default).')], ['rp_klan', N('Clan tag'), N('Shown before your name as [TAG].')],
-  ['rp_gemi', N('Ship'), N('Name of the active ship.')], ['rp_seviye', N('Level'), N("The pilot's level.")],
-  ['rp_harita', N('Map'), N('Map name and the region image.')], ['rp_durum', N('What you are doing'), N('Combat target, gate wave, safe zone.')],
-  ['rp_firma', N('Company'), N('Company emblem (small image).')], ['rp_sure', N('Session time'), N('Time since you entered the game.')],
-  ['rp_grup', N('Group'), N('Play with Friends: number of players on your server.')], ['rp_buttons', N('Buttons'), N("Discord server and GitHub links (visible to others).")],
+const RP_FIELDS = [['rp_pilot', N('Pilot name'), N('Your in-game name (off by default).')], ['rp_clan', N('Clan tag'), N('Shown before your name as [TAG].')],
+  ['rp_ship', N('Ship'), N('Name of the active ship.')], ['rp_level', N('Level'), N("The pilot's level.")],
+  ['rp_map', N('Map'), N('Map name and the region image.')], ['rp_state', N('What you are doing'), N('Combat target, gate wave, safe zone.')],
+  ['rp_company', N('Company'), N('Company emblem (small image).')], ['rp_duration', N('Session time'), N('Time since you entered the game.')],
+  ['rp_group', N('Group'), N('Play with Friends: number of players on your server.')], ['rp_buttons', N('Buttons'), N("Discord server and GitHub links (visible to others).")],
   ['rp_in_panel', N('While the game is closed'), N('Shows "In the panel" while only the panel is open.')]];
 const RP_STATUS = { connected: [N("Connected to Discord"), 'ok'], discord_not_running: [N('Discord is not running'), 'warn'], error: [N('Error'), 'err'], off: [N('Off'), ''] };
 function rpCard() {
@@ -1732,7 +1732,7 @@ function rpCard() {
     const sw = (k, dis) => h('label', { class: 'switch' }, h('input', { type: 'checkbox', checked: a[k], disabled: dis, onchange: ev => save({ [k]: ev.target.checked }) }), h('span'));
     start = e && e.timestamps ? e.timestamps.start : null;
     const g = e && e.assets || {};
-    const preview = h('div', { class: 'rp-card' + (on && e ? '' : ' bos') }, h('div', { class: 'rp-top' }, T('Playing')),
+    const preview = h('div', { class: 'rp-card' + (on && e ? '' : ' empty') }, h('div', { class: 'rp-top' }, T('Playing')),
       on && e ? h('div', { class: 'rp-inner' },
         h('div', { class: 'rp-image' }, g.large_image ? h('img', { class: 'rp-large', src: local(g.large_image), sub: '', title: g.large_text || '' }) : null,
           g.small_image ? h('img', { class: 'rp-small', src: local(g.small_image), sub: '', title: g.small_text || '' }) : null),
@@ -1745,7 +1745,7 @@ function rpCard() {
         h('div', { class: 'set-row' }, h('div', null, h('div', { class: 'name' }, T('Rich Presence')),
           h('div', { class: 'help' }, r.state === 'discord_not_running' ? T('Connects automatically when Discord opens.') : r.state === 'error' ? r.error : T('Turning it off removes it from your profile at once.'))),
           h('div', { class: 'ctl' }, sw('discord_rp'))),
-        h('div', { class: 'rp-fields' + (on ? '' : ' kapali') }, RP_FIELDS.map(([k, name, assist]) => h('div', { class: 'set-row sub' },
+        h('div', { class: 'rp-fields' + (on ? '' : ' off') }, RP_FIELDS.map(([k, name, assist]) => h('div', { class: 'set-row sub' },
           h('div', null, h('div', { class: 'name' }, T(name)), h('div', { class: 'help' }, T(assist))), h('div', { class: 'ctl' }, sw(k, !on)))))),
       h('div', { class: 'stack', style: { gap: '8px' } }, h('div', { class: 'small muted' }, T('Your profile will look like this:')), preview)));
   };
@@ -1784,13 +1784,13 @@ async function renderPanel() {
         r.old_shortcut ? h('div', { class: 'alert info', style: { marginBottom: '12px' } }, icon('info'),
           h('div', null, T('The old desktop shortcut (DarkOrbit) points to the removed launcher. Create shortcut puts the new one there and removes the old one.'))) : null,
         btn(T('Create shortcut'), async () => {
-          if (await act(() => api('/api/kisayol', {}), x => T('Shortcut created: {0}', x.route))) renderPanel();
+          if (await act(() => api('/api/shortcut', {}), x => T('Shortcut created: {0}', x.route))) renderPanel();
         }, 'primary', 'plus')),
       h('div', { class: 'card' }, h('h2', null, icon('power'), T('Close the panel')),
         h('p', { class: 'desc' }, T('The panel and the servers it started close. If the game is running, close it first.')),
         btn(T('Close the panel'), async () => {
           if (await confirmBox(T('Close the panel?'), T('The panel and the servers it started will close.'), { ok: T('Close'), danger: true }))
-            act(() => api('/api/kapat', {})).then(x => { if (x) { setTimeout(() => window.close(), 400); document.body.replaceChildren(h('div', { class: 'empty', style: { paddingTop: '26vh' } }, art('no_connection'), h('h3', null, T('Panel closed')), h('div', null, T('You can close this window.')))); } });
+            act(() => api('/api/close', {})).then(x => { if (x) { setTimeout(() => window.close(), 400); document.body.replaceChildren(h('div', { class: 'empty', style: { paddingTop: '26vh' } }, art('no_connection'), h('h3', null, T('Panel closed')), h('div', null, T('You can close this window.')))); } });
         }, 'danger', 'power'))),
     h('div', { class: 'card' }, h('h2', null, icon('folder'), T('Folders')),
       pathRow(T('Project'), r.root, 'project'), pathRow(T('Save slots'), r.saves, 'saves'), pathRow(T('Logs'), r.logs, 'logs'),
@@ -1825,7 +1825,7 @@ async function drawWizard() {
   root.classList.add('busy');                      // buttons are locked while loading (so a double click does not skip a step)
   root.querySelectorAll('.wz-foot button, .wz-body button').forEach(b => { b.disabled = true; });
   let p;
-  try { p = await WZ_PAGES[id](); } catch (e) { p = { title: T('Something went wrong'), content: h('div', { class: 'alert hata' }, icon('alert'), h('div', null, e.message)) }; }
+  try { p = await WZ_PAGES[id](); } catch (e) { p = { title: T('Something went wrong'), content: h('div', { class: 'alert error' }, icon('alert'), h('div', null, e.message)) }; }
   if (token !== WZ.draw || !$('#wizard')) return;
   root.classList.remove('busy');
   const done = !!S.panelCfg?.setup_done;
@@ -1861,9 +1861,9 @@ async function skipWizard() {
 async function finishWizard(play) {
   const r = await act(() => api('/api/panel_settings', { values: { setup_done: true } })); if (!r) return false;
   S.panelCfg = r.settings;
-  if (WZ.shortcut) await act(() => api('/api/kisayol', {}), x => T('Shortcut created: {0}', x.route));
+  if (WZ.shortcut) await act(() => api('/api/shortcut', {}), x => T('Shortcut created: {0}', x.route));
   closeWizard(); go('play');
-  if (play) act(() => api('/api/oyna', {}));
+  if (play) act(() => api('/api/play', {}));
   else toast(T('Setup complete. Have a good flight!'), 'ok');
   return false;
 }
@@ -1876,7 +1876,7 @@ async function chooseLang(code) {
 }
 function currentPreset(r) {
   const v = (vals, k) => vals[k] ?? r.default[k];
-  return Object.keys(r.ready).find(key => r.schema.every(s => v(r.values, s.anahtar) === v(r.ready[key].values, s.anahtar))) || null;
+  return Object.keys(r.ready).find(key => r.schema.every(s => v(r.values, s.key) === v(r.ready[key].values, s.key))) || null;
 }
 const pick = (el, cls = 'on') => { el.parentNode.querySelectorAll(':scope > *').forEach(x => x.classList.remove(cls)); el.classList.add(cls); };
 
@@ -1904,28 +1904,28 @@ const WZ_PAGES = {
   }),
   // ---- 3. game folder
   folder: async () => {
-    const r = await api('/api/istemci');
+    const r = await api('/api/client');
     const c = r.control;
     let dl = r.download;
     const none = !c.valid && !r.candidates.length;
     if (none && dl.state === 'vacant' && !WZ.dlAuto) {     // game not found: start downloading by itself (resume if it was left half done)
       WZ.dlAuto = true;
-      dl = await act(() => api('/api/istemci/indir', {})) || dl;
+      dl = await act(() => api('/api/client/download', {})) || dl;
     }
     if (c.valid && c.compatible && dl.running) {      // while a download is in progress a compatible client was found or selected: the download stops
-      dl = await act(() => api('/api/istemci/download_stop', {}), T('Download stopped: the client that was found is used.')) || dl;
+      dl = await act(() => api('/api/client/download_stop', {}), T('Download stopped: the client that was found is used.')) || dl;
     }
     const dlWrap = (!c.valid && (none || DL_ACTIVE(dl))) || (c.valid && (dl.running || dl.partial)) ? h('div', { class: 'dl-wrap' }) : null;
     const bg = !c.valid && dl.running;
     let m = r.runner?.type === 'engine' ? r.runner.engine : null;   // macOS: the Wine that will open the game is downloaded by itself too
-    if (m && m.state === 'none' && !WZ.engineAuto) { WZ.engineAuto = true; m = await act(() => api('/api/motor/kur', {})) || m; }
+    if (m && m.state === 'none' && !WZ.engineAuto) { WZ.engineAuto = true; m = await act(() => api('/api/engine/install', {})) || m; }
     const mWrap = m ? h('div', { class: 'dl-wrap' }) : null;
     let y = c.valid && r.patch.required ? r.patch : null;  // BepInEx for the client's fixes is installed by itself too
-    if (y && y.state === 'none' && !WZ.patchAuto) { WZ.patchAuto = true; y = await act(() => api('/api/yama/kur', {})) || y; }
+    if (y && y.state === 'none' && !WZ.patchAuto) { WZ.patchAuto = true; y = await act(() => api('/api/patch/install', {})) || y; }
     const yWrap = y ? h('div', { class: 'dl-wrap' }) : null;
     const chosen = x => { if (x) drawWizard(); };
-    const use = p => act(() => api('/api/istemci/use', { route: p })).then(chosen);
-    const browse = () => act(() => api('/api/istemci/select', {}), x => x.cancelled ? T('Cancelled.') : T('Game folder selected.')).then(chosen);
+    const use = p => act(() => api('/api/client/use', { route: p })).then(chosen);
+    const browse = () => act(() => api('/api/client/select', {}), x => x.cancelled ? T('Cancelled.') : T('Game folder selected.')).then(chosen);
     const rows = r.candidates.map(a => h('button', { class: 'wz-opt' + (a.route === c.route ? ' on' : ''), type: 'button', onclick: () => use(a.route) },
       h('span', { class: 'wz-radio' }), h('span', { class: 'mono' }, a.route), badge(a.version || '?', a.compatible ? 'ok' : 'warn')));
     return {
@@ -1953,7 +1953,7 @@ const WZ_PAGES = {
   },
   // ---- 4. ilk pilot
   pilot: async () => {
-    const r = await api('/api/kayitlar');
+    const r = await api('/api/saves');
     if (r.entries.length && !WZ.newPilot) {
       const a = r.entries.find(k => k.active) || r.entries[0];
       return {
@@ -1973,7 +1973,7 @@ const WZ_PAGES = {
       title: T('Create your first pilot'), sub: T("You start from scratch with a new pilot. Your company sets your starting map; it can't be changed later."),
       content: [...f.el, r.entries.length ? h('div', { class: 'row' }, btn(T('Cancel'), () => { WZ.newPilot = false; drawWizard(); }, 'ghost', 'undo')) : null],
       next: { label: T('Create pilot'), icon: 'plus', fn: async () => {
-        const x = await act(() => api('/api/kayitlar/yeni', Object.assign(f.values(), { set_active: true })), T('Pilot created.'));
+        const x = await act(() => api('/api/saves/new', Object.assign(f.values(), { set_active: true })), T('Pilot created.'));
         if (!x) return false;
         WZ.created = x.id; WZ.newPilot = false; poll();
         return true;
@@ -1982,7 +1982,7 @@ const WZ_PAGES = {
   },
   // ---- 5. game settings: preset and game window
   settings: async () => {
-    const [r, c] = await Promise.all([api('/api/ayarlar'), api('/api/istemci')]);
+    const [r, c] = await Promise.all([api('/api/settings'), api('/api/client')]);
     if (WZ.presetStart === undefined) { WZ.presetStart = currentPreset(r); WZ.preset = WZ.presetStart; }
     const cfg = c.settings;
     if (!WZ.display) WZ.display = { window_mode: cfg.window_mode, width: cfg.width, height: cfg.height };
@@ -2003,7 +2003,7 @@ const WZ_PAGES = {
         h('div', { class: 'grid g2' }, field(T('Window mode'), mode), field(T('Resolution'), sel))],
       next: { fn: async () => {
         if (WZ.preset && WZ.preset !== WZ.presetStart) {
-          if (!await act(() => api('/api/ayarlar/hazir', { name: WZ.preset }))) return false;
+          if (!await act(() => api('/api/settings/presets', { name: WZ.preset }))) return false;
           WZ.presetStart = WZ.preset;
         }
         return !!await act(() => api('/api/panel_settings', { values: WZ.display }));
@@ -2012,7 +2012,7 @@ const WZ_PAGES = {
   },
   // ---- 6. summary
   finished: async () => {
-    const [d, c, a] = await Promise.all([api('/api/durum'), api('/api/istemci'), api('/api/ayarlar')]);
+    const [d, c, a] = await Promise.all([api('/api/status'), api('/api/client'), api('/api/settings')]);
     const k = c.control, cfg = c.settings, pre = currentPreset(a);
     const canPlay = !!d.active && k.valid;
     const dlRun = !k.valid && c.download.running;
@@ -2072,11 +2072,11 @@ const gameIcon = (lid, size, firma, iconEl = 'hangar') => {
 // description, note, source; attribute names; English if missing in the language) and the server's values (/api/esya_bilgi: damage, shield, bonuses,
 // ships, upgrade, sale). Instance-specific info (upgrade level, random attributes, allowance) is in the _item of the icon's parent.
 const IP = { text: null, en: null, lang: null, info: null, el: null, time: 0, box: null, loading: null };
-const HINT_LABEL = { damage: N('Damage'), pvp_damage: N('Damage to players'), kalkan: N('Shield'), absorb: N('Damage absorption'), speed: N('Speed'), can: N('Hit points'), cargo: N('Cargo'),
+const HINT_LABEL = { damage: N('Damage'), pvp_damage: N('Damage to players'), shield: N('Shield'), absorb: N('Damage absorption'), speed: N('Speed'), hp: N('Hit points'), cargo: N('Cargo'),
   laser_multiplier: N('Laser damage'), hit: N('Hit chance'), full_repair: N('Full repair'), hp_per_minute: N('Repair per minute'), right: N('Charges per refill'), extra_slot: N('Extra slots added'),
-  cooldown: N('Cooldown'), cargo_multiplier: N('Cargo'), drone_shield: N('Drone shield'), drone_laser: N('Drone laser damage'), sure: N('Duration'), en_az: N('Minimum bonus'),
+  cooldown: N('Cooldown'), cargo_multiplier: N('Cargo'), drone_shield: N('Drone shield'), drone_laser: N('Drone laser damage'), duration: N('Duration'), min_value: N('Minimum bonus'),
   value_range: N('Value range'), reroll: N('Rerolls left'), base_damage: N('Base damage'), element: N('Element'), extra_attribute: N('Extra attributes'),
-  savunma: N('Defense'), shot: N('Shots'), quality: N('Quality'), max_level: N('Highest level'), range: N('Range'), sure_sn: N('Duration (s)'),
+  defense: N('Defense'), shot: N('Shots'), quality: N('Quality'), max_level: N('Highest level'), range: N('Range'), duration_sec: N('Duration (s)'),
   level_bonus: N('By level'), booster_shield_regeneration: N('Shield regen'), booster_repair: N('Repairs'), booster_collect_resources: N('Resource collection'),
   booster_collect_resources_newbie: N('Resource collection'), booster_ability_cooldown_time: N('Ability cooldown') };
 const IP_ELEMENT = { thermal: N('Thermal'), corrosive: N('Corrosive'), electro: N('Electro') };
@@ -2099,7 +2099,7 @@ const attributeName = a => IP.text?.n[a] || IP.en?.n[a] || a.replace(/_/g, ' ');
 const hintPercent = v => (v > 0 ? '+' : '') + (Math.round(v * 1000) / 10).toLocaleString(LOC()) + '%';
 function hintValue(v, b) {
   if (typeof v === 'string') return b === 'e' ? T(IP_ELEMENT[v] || v) : v;
-  return { p: () => (Math.round(v * 1000) / 10).toLocaleString(LOC()) + '%', x: () => '×' + fmtN(v), sn: () => fmtDur(v), sa: () => fmtDur(v * 3600) }[b]?.() ?? fmtN(v);
+  return { p: () => (Math.round(v * 1000) / 10).toLocaleString(LOC()) + '%', x: () => '×' + fmtN(v), sec: () => fmtDur(v), sa: () => fmtDur(v * 3600) }[b]?.() ?? fmtN(v);
 }
 // placeholders in the description (%HOURS%, %BOOSTERVALUE% ...; "+%%BOOSTERVALUE%" = "+%" and the value) with their value, or "..." if absent; <br> is a line break,
 // other tags are dropped
@@ -2132,7 +2132,7 @@ function itemHint(lid, es, firma) {
       r.right != null ? row(T('Rerolls left'), r.right) : null));
   }
   const ships = r?.ships || (r?.ship ? [r.ship] : null) || b.gm;
-  if (ships?.length) body.push(h('div', { class: 'tip-block' }, h('div', { class: 'tip-title' }, r?.ships || r?.ship ? T('Ships it works on') : b.stats?.some(d => d[0] === 'en_az') ? T('Ships it rolls more often') : T('Ships it works on')),
+  if (ships?.length) body.push(h('div', { class: 'tip-block' }, h('div', { class: 'tip-title' }, r?.ships || r?.ship ? T('Ships it works on') : b.stats?.some(d => d[0] === 'min_value') ? T('Ships it rolls more often') : T('Ships it works on')),
     h('div', { class: 'tip-ships' }, ships.map(g => h('span', null, gameIcon(g, 22, firma, 'ship'), itemName(g))))));
   if (es?.right != null) body.push(row(T('Charges left'), fmtN(es.right[0]) + ' / ' + fmtN(es.right[1])));
   if (txt?.[4]) body.push(h('div', { class: 'ip-not' }, icon('info'), hintPlaceholder(txt[4], ph)));
@@ -2150,7 +2150,7 @@ document.addEventListener('mouseover', e => {
   const el = e.target.closest?.('[data-loot]');
   if (el === IP.el) return;
   closeHint();
-  if (!el || el.closest('.ipucu')) return;
+  if (!el || el.closest('.tooltip')) return;
   IP.el = el;
   for (let n = el; n && n !== document.body; n = n.parentElement) if (n.title) { n.dataset.title = n.title; n.removeAttribute('title'); }   // instead of the browser's name balloon
   IP.time = setTimeout(async () => {
@@ -2201,7 +2201,7 @@ const SHP = { data: null, multiplier: null, search: '', level: {} };
 
 async function renderShop() {
   await loadGameImages();
-  try { SHP.data = await api('/api/oyun/magaza'); } catch (e) { return gameError(e, 'shop'); }
+  try { SHP.data = await api('/api/game/shop'); } catch (e) { return gameError(e, 'shop'); }
   if (!SHP.data.categories.includes(SHP.multiplier)) SHP.multiplier = SHP.data.categories[0];
   const grid = h('div', { class: 'shop-grid' });
   const entries = () => {
@@ -2241,7 +2241,7 @@ function shopCard(it) {
 
 async function shopBuy(it, n, lv, b) {
   b.disabled = true;
-  const r = await act(() => api('/api/oyun/al', { lootId: it.lootId, category: it.category, amount: n, level: lv }));
+  const r = await act(() => api('/api/game/buy', { lootId: it.lootId, category: it.category, amount: n, level: lv }));
   b.disabled = false;
   if (!r) return;
   if (!r.done) return toast(GAME_TEXT[r.error] ? T(GAME_TEXT[r.error]) : T('Could not buy ({0}).', r.error || '?'), 'err');
@@ -2251,7 +2251,7 @@ async function shopBuy(it, n, lv, b) {
 
 async function shopSubscribe(it, b) {
   b.disabled = true;
-  const r = await act(() => api('/api/oyun/magaza/subscribe', { lootId: it.lootId, category: it.category }));
+  const r = await act(() => api('/api/game/shop/subscribe', { lootId: it.lootId, category: it.category }));
   if (r && !r.done) toast(gameText(r.error), 'err');
   renderShop();
 }
@@ -2269,7 +2269,7 @@ const HG = { ship: null, config: null, section: 'ship', drone: null, slot: {}, m
 async function renderHangar() {
   await loadGameImages();
   let v;
-  try { v = await api('/api/oyun/hangar?ship=' + encodeURIComponent(HG.ship || '')); } catch (e) { return gameError(e, 'hangar'); }
+  try { v = await api('/api/game/hangar?ship=' + encodeURIComponent(HG.ship || '')); } catch (e) { return gameError(e, 'hangar'); }
   HG.ship = v.ship;
   if (!v.configs[HG.config]) HG.config = v.active_config;
   if (HG.section === 'pet' && !v.pet) HG.section = 'ship';
@@ -2313,11 +2313,11 @@ async function renderHangar() {
   else if (HG.section === 'pet') {
     const pb = v.pet_info, pc = v.pet[HG.config];
     const openSlot = y => pc[y].price > 0 ? btn('+1 (' + formatMoney('uridium', pc[y].price) + ')', async () => await confirmBox(T('Unlock a {0} slot?', slotName(y)),
-      T('{0} uridium will be spent.', fmtN(pc[y].price)), { ok: T('Open') }) && hangarAction({ operation: 'pet_yuva', slot: y }, T('Slot unlocked.')), 'sm ghost') : null;
+      T('{0} uridium will be spent.', fmtN(pc[y].price)), { ok: T('Open') }) && hangarAction({ operation: 'pet_slot', slot: y }, T('Slot unlocked.')), 'sm ghost') : null;
     section = h('div', { class: 'stack' },
       h('div', { class: 'row wrap', style: { gap: '10px' } }, h('b', null, pb.name || 'P.E.T.'), badge(T('Lv {0}', pb.level), 'info'),
         btn(T('Rename ({0})', formatMoney('uridium', pb.rename_price)), async () => { const name = await promptBox(T("P.E.T.'s name"), T('1-24 letters or digits'), pb.name || '');
-          if (name != null && name !== pb.name) hangarAction({ operation: 'pet_ad', name }, T("The P.E.T.'s name changed.")); }, 'sm ghost'),
+          if (name != null && name !== pb.name) hangarAction({ operation: 'pet_name', name }, T("The P.E.T.'s name changed.")); }, 'sm ghost'),
         pc.heat.capacity ? h('div', { class: 'seg' }, [['', T('Normal slots')], ['heat', 'HEAT']].map(([k, t]) => h('button', { class: HG.set === k ? 'on info' : '',
           onclick: () => { HG.set = k; renderHangar(); } }, t))) : null),
       !pb.heat_unlocked && pc.heat.capacity ? h('p', { class: 'desc', style: { margin: 0 } }, T("HEAT slots take effect once the P.E.T.'s HEAT level is high enough.")) : null,
@@ -2390,14 +2390,14 @@ function hangarInventory(v, lock, iconName, lvlBadge) {
 
 async function hangarMove(request, b) {
   b.disabled = true;
-  const r = await act(() => api('/api/oyun/hangar/tasi', Object.assign({ ship: HG.ship, config: HG.config }, request)));
+  const r = await act(() => api('/api/game/hangar/move', Object.assign({ ship: HG.ship, config: HG.config }, request)));
   if (r && !r.done) toast(r.error === 'station' ? T('Equipment can only be changed in a safe zone.') : gameText(r.error), 'err');
   renderHangar();
 }
 
 // the hangar's other actions (panel_channel.OPS): on success an info text, then refresh
 async function hangarAction(request, okText, after) {
-  const r = await act(() => api('/api/oyun/hangar/islem', Object.assign({ ship: HG.ship }, request)));
+  const r = await act(() => api('/api/game/hangar/action', Object.assign({ ship: HG.ship }, request)));
   if (r && !r.done) toast(r.error === 'station' ? T('Equipment can only be changed in a safe zone.') : gameText(r.error), 'err');
   else if (r) { if (okText) toast(okText, 'ok'); if (after) after(); }
   renderHangar();
@@ -2416,7 +2416,7 @@ function hangarTransfer(v) {
 
 async function hangarSetActive(ship, b) {
   b.disabled = true;
-  const r = await act(() => api('/api/oyun/hangar/etkin', { ship }));
+  const r = await act(() => api('/api/game/hangar/activate', { ship }));
   if (r && !r.done) toast(gameText(r.error), 'err');
   else if (r) toast(T('Active ship changed.'), 'ok');
   renderHangar();
@@ -2424,7 +2424,7 @@ async function hangarSetActive(ship, b) {
 
 async function hangarDesign(lootId, b) {
   b.disabled = true;
-  const r = await act(() => api('/api/oyun/hangar/tasarim', { ship: HG.ship, lootId }));
+  const r = await act(() => api('/api/game/hangar/design', { ship: HG.ship, lootId }));
   if (r && !r.done) toast(r.error === 'station' ? T('Equipment can only be changed in a safe zone.') : gameText(r.error), 'err');
   renderHangar();
 }
@@ -2459,7 +2459,7 @@ const SK = { send: {} };
 async function renderSkylab() {
   await loadGameImages();
   let v;
-  try { v = await api('/api/oyun/skylab'); } catch (e) { return gameError(e, 'skylab'); }
+  try { v = await api('/api/game/skylab'); } catch (e) { return gameError(e, 'skylab'); }
   const oreIcon = (name, size) => GI.index?.sprite[name + '_100x100'] ? sprite(name + '_100x100', size) : h('span', { class: 'sprite vacant', style: { width: size + 'px', height: size + 'px' } }, icon('lab'));
   const storage = v.storage.map(o => h('div', { class: 'sk-ore' }, oreIcon(o.name.toLowerCase(), 44),
     h('div', { class: 'grow' }, h('div', { class: 'row between' }, h('b', null, oreName(o.name)), h('span', { class: 'mono' }, fmtN(o.amount) + ' / ' + fmtN(o.capacity))),
@@ -2482,11 +2482,11 @@ async function renderSkylab() {
       h('div', { class: 'row', style: { gap: '10px' } }, SK_ORE[m.id] ? oreIcon(SK_ORE[m.id], 48) : h('span', { class: 'sprite vacant', style: { width: '48px', height: '48px' } }, icon('lab')),
         h('div', { class: 'grow' }, h('b', null, skModuleName(m.id)), h('div', { class: 'mono' }, T('Lv {0} / {1}', m.level, m.maximum)))),
       h('div', { class: 'row wrap', style: { gap: '6px' } }, state,
-        m.uretim ? badge(T('{0} / h', fmtN(m.uretim)), '') : null, m.energy ? badge(T('{0} energy', fmtN(m.energy)), 'orange') : null,
+        m.production ? badge(T('{0} / h', fmtN(m.production)), '') : null, m.energy ? badge(T('{0} energy', fmtN(m.energy)), 'orange') : null,
         m.efficiency ? badge(T('efficiency {0}%', m.efficiency), '') : null),
-      c && m.remaining == null ? h('div', { class: 'sk-cost' }, T('{0} C., {1} each of Prometium / Endurium / Terbium, {2}', fmtN(c.credits), fmtN(c.source), fmtDur(c.sure_sn))) : null,
+      c && m.remaining == null ? h('div', { class: 'sk-cost' }, T('{0} C., {1} each of Prometium / Endurium / Terbium, {2}', fmtN(c.credits), fmtN(c.source), fmtDur(c.duration_sec))) : null,
       h('div', { class: 'row wrap', style: { gap: '6px' } }, buttons),
-      m.robot && !rate ? h('div', { class: 'sk-robot' }, h('span', { class: 'lbl' }, T('Robots: {0} / {1}', m.robot.etkin, m.robot.maximum) + (m.robot.in_storage ? ' · ' + T('{0} in storage', m.robot.in_storage) : '')),
+      m.robot && !rate ? h('div', { class: 'sk-robot' }, h('span', { class: 'lbl' }, T('Robots: {0} / {1}', m.robot.enabled, m.robot.maximum) + (m.robot.in_storage ? ' · ' + T('{0} in storage', m.robot.in_storage) : '')),
         h('div', { class: 'row', style: { gap: '6px' } }, ['1', '2'].map(t => btn('+' + (t === '1' ? '1%' : '4%') + ' · ' + formatMoney(m.robot.price[t][0], m.robot.price[t][1]),
           () => skylabRobot(m.id, t), 'sm ghost', null, { title: T('Robot that works for 48 hours') })))) : null);
   });
@@ -2507,7 +2507,7 @@ async function renderSkylab() {
 
 async function skylabAction(modul, operation, mod) {
   const amounts = operation === 'startTransport' && mod !== 'instantFinish' ? SK.send : {};
-  const r = await act(() => api('/api/oyun/skylab/islem', { modul, operation, mod: mod || '', amounts }));
+  const r = await act(() => api('/api/game/skylab/action', { modul, operation, mod: mod || '', amounts }));
   if (r) {
     if (r.errors.length) toast(skText(r.errors[0]), 'err');
     else if (r.achievements.length) toast(skText(r.achievements[r.achievements.length - 1]), 'ok');
@@ -2517,7 +2517,7 @@ async function skylabAction(modul, operation, mod) {
 }
 
 async function skylabRobot(modul, tip) {
-  const r = await act(() => api('/api/oyun/skylab/robot', { modul, tip }));
+  const r = await act(() => api('/api/game/skylab/robot', { modul, tip }));
   if (r && !r.done) toast(skText(r.errors[0]), 'err');
   else if (r) toast(T('Robot bought.'), 'ok');
   renderSkylab();
@@ -2530,10 +2530,10 @@ async function skylabRobot(modul, tip) {
 const AUCTION_KIND = { hour: N('Hourly'), day: N('Log'), week: N('Weekly') };
 const AUCTION_GROUP = { ship: N('Ships'), shipdesign: N('Ship designs'), extra: N('Extras'), module: N('Modules'), booster: N('Boosters'),
   battery: N('Laser ammo'), rocket: N('Rockets'), generator: N('Generators'), weapon: N('Weapons'), special: N('Custom') };
-const AUCTION_STATUS = [['hepsi', N('All')], ['bid', N('My bids')], ['leading', N('Leading')], ['not_leading', N('Not leading')], ['auto', N('Automatic')], ['alarm', N('With alarm')]];
+const AUCTION_STATUS = [['all', N('All')], ['bid', N('My bids')], ['leading', N('Leading')], ['not_leading', N('Not leading')], ['auto', N('Automatic')], ['alarm', N('With alarm')]];
 Object.assign(GAME_TEXT, { auction_bid_minBid_not_reached: N('The bid must be at least 10,000 credits above the highest bid.'), auction_bid_credits_to_little: N('You do not have enough credits.'),
   auction_buy_instant_invalid: N('This lot cannot be bought instantly.'), items_shop_error_ship_contains_ship: N('You already own this ship.'), auction_error_generic: N('The auction action failed.') });
-const MZ = { type: 'hepsi', group: 'hepsi', state: 'hepsi', search: '', end_time: {}, last: null };
+const MZ = { type: 'all', group: 'all', state: 'all', search: '', end_time: {}, last: null };
 const auctionKey = l => l.type + '|' + l.loot;
 function auctionEventText(o) {
   const name = itemName(o.loot);
@@ -2546,18 +2546,18 @@ const auctionEventKind = t => ({ won: 'ok', auto_bid: 'info', outbid: 'err', aut
 async function renderAuction() {
   await loadGameImages();
   let v;
-  try { v = await api('/api/oyun/muzayede'); } catch (e) { return gameError(e, 'auction'); }
+  try { v = await api('/api/game/auction'); } catch (e) { return gameError(e, 'auction'); }
   const now = Date.now() / 1000;
   for (const [k, n] of Object.entries(v.remaining)) MZ.end_time[k] = now + n;
   if (v.events.length) MZ.last = Math.max(MZ.last || 0, v.events[0].no);
   const groups = [...new Set(v.lots.map(l => l.group))];
-  const sec = l => (MZ.type === 'hepsi' || l.type === MZ.type) && (MZ.group === 'hepsi' || l.group === MZ.group)
+  const sec = l => (MZ.type === 'all' || l.type === MZ.type) && (MZ.group === 'all' || l.group === MZ.group)
     && (!MZ.search || itemName(l.loot).toLowerCase().includes(MZ.search.toLowerCase()))
-    && ({ hepsi: true, bid: l.mine > 0, leading: l.leading, not_leading: !l.leading, auto: !!l.auto, alarm: !!l.alarm })[MZ.state];
+    && ({ all: true, bid: l.mine > 0, leading: l.leading, not_leading: !l.leading, auto: !!l.auto, alarm: !!l.alarm })[MZ.state];
   const visible = v.lots.filter(sec).sort((a, b) => (b.leading - a.leading) || (!!b.auto - !!a.auto) || ['hour', 'day', 'week'].indexOf(a.type) - ['hour', 'day', 'week'].indexOf(b.type)
     || itemName(a.loot).localeCompare(itemName(b.loot)));
   const joinable = visible.filter(l => !l.leading), total = joinable.reduce((t, l) => t + l.next, 0);
-  const counter = k => h('span', { class: 'pill auc-counter', 'data-tur': k }, h('span', { class: 'lbl' }, T(AUCTION_KIND[k])), h('b', null, fmtDur(MZ.end_time[k] - now)));
+  const counter = k => h('span', { class: 'pill auc-counter', 'data-kind': k }, h('span', { class: 'lbl' }, T(AUCTION_KIND[k])), h('b', null, fmtDur(MZ.end_time[k] - now)));
   const search = h('input', { class: 'input game-search', placeholder: T('Search…'), value: MZ.search, oninput: e => { MZ.search = e.target.value; clearTimeout(MZ.searchTimer); MZ.searchTimer = setTimeout(renderAuction, 250); } });
   const seg = (entries, value, assign) => h('div', { class: 'seg', style: { flexWrap: 'wrap' } }, entries.map(([k, t]) => h('button', { class: k === value ? 'on info' : '', onclick: () => { assign(k); renderAuction(); } }, t)));
   $('#content').replaceChildren(h('div', { class: 'stack' },
@@ -2572,9 +2572,9 @@ async function renderAuction() {
           btn(T('Auto-bid on shown lots…'), () => auctionBulkAuto(visible, v), 'sm', null, { disabled: !visible.length }),
           visible.some(l => l.auto) ? btn(T('Turn off auto-bids'), () => auctionBulkDisable(visible.filter(l => l.auto)), 'sm ghost') : null)),
       h('div', { class: 'row wrap', style: { gap: '8px', marginTop: '12px' } },
-        seg([['hepsi', T('All')]].concat(['hour', 'day', 'week'].map(k => [k, T(AUCTION_KIND[k])])), MZ.type, k => { MZ.type = k; }),
+        seg([['all', T('All')]].concat(['hour', 'day', 'week'].map(k => [k, T(AUCTION_KIND[k])])), MZ.type, k => { MZ.type = k; }),
         seg(AUCTION_STATUS.map(([k, t]) => [k, T(t)]), MZ.state, k => { MZ.state = k; })),
-      h('div', { style: { marginTop: '8px' } }, seg([['hepsi', T('All groups')]].concat(groups.map(g => [g, AUCTION_GROUP[g] ? T(AUCTION_GROUP[g]) : g])), MZ.group, k => { MZ.group = k; })),
+      h('div', { style: { marginTop: '8px' } }, seg([['all', T('All groups')]].concat(groups.map(g => [g, AUCTION_GROUP[g] ? T(AUCTION_GROUP[g]) : g])), MZ.group, k => { MZ.group = k; })),
       !v.rival ? h('p', { class: 'desc', style: { margin: '10px 0 0' } }, T('Virtual rivals are off: you are the only bidder. You can turn them on in Game Settings > Auction.')) : null),
     h('div', { class: 'auc-grid' }, visible.length ? visible.map(l => auctionCard(l, v)) : h('div', { class: 'empty' }, T('No lots.'))),
     h('div', { class: 'auc-bottom' },
@@ -2596,7 +2596,7 @@ async function renderAuction() {
 function auctionCard(l, v) {
   const inp = h('input', { class: 'input num', type: 'number', min: l.next, step: v.increase, value: l.next });
   const state = l.leading ? badge(T("You're leading"), 'ok') : l.highest ? badge(T('Highest: {0}', l.highest_name || '—'), 'warn') : badge(T('No bids'));
-  return h('div', { class: 'auc-card' + (l.leading ? ' onde' : '') },
+  return h('div', { class: 'auc-card' + (l.leading ? ' leading' : '') },
     h('div', { class: 'row', style: { gap: '10px', alignItems: 'flex-start' } }, gameIcon(l.loot, 64, v.company, 'gavel'),
       h('div', { class: 'grow' }, h('div', { class: 'shop-name', style: { minHeight: 0 } }, itemName(l.loot)),
         h('div', { class: 'row wrap', style: { gap: '4px', marginTop: '4px' } }, badge(T(AUCTION_KIND[l.type])), l.count > 1 ? badge('× ' + fmtN(l.count)) : null,
@@ -2616,14 +2616,14 @@ function auctionCard(l, v) {
 
 async function auctionBid(l, price, b) {
   b.disabled = true;
-  const r = await act(() => api('/api/oyun/muzayede/teklif', { type: l.type, loot: l.loot, price }));
+  const r = await act(() => api('/api/game/auction/bid', { type: l.type, loot: l.loot, price }));
   if (r && !r.done) toast(gameText(r.error), 'err');
   else if (r) toast(T('Bid placed: {0}, {1}', itemName(l.loot), formatMoney('credits', price)), 'ok');
   renderAuction();
 }
 
 async function auctionAll(lots) {
-  const r = await act(() => api('/api/oyun/muzayede/hepsi', { lots: lots.map(l => [l.type, l.loot]) }));
+  const r = await act(() => api('/api/game/auction/all', { lots: lots.map(l => [l.type, l.loot]) }));
   if (r) {
     if (r.given) toast(T('Bids placed on {0} lots: {1} in total', r.given, formatMoney('credits', r.amount)), 'ok');
     for (const [k, n] of Object.entries(r.errors)) toast(gameText(k) + ' (' + n + ')', 'err');
@@ -2632,7 +2632,7 @@ async function auctionAll(lots) {
 }
 
 async function auctionInstant(l) {
-  const r = await act(() => api('/api/oyun/muzayede/anlik', { type: l.type, loot: l.loot }));
+  const r = await act(() => api('/api/game/auction/instant', { type: l.type, loot: l.loot }));
   if (r && !r.done) toast(gameText(r.error), 'err');
   else if (r) toast(T('Bought: {0}', itemName(l.loot)), 'ok');
   renderAuction();
@@ -2640,7 +2640,7 @@ async function auctionInstant(l) {
 
 // auto-bid: up to the maximum amount, bids the lowest valid bid each time it is outbid (on the game server; even when the panel is closed)
 function auctionAutoWindow(l, v) {
-  const inp = h('input', { class: 'input', type: 'number', min: v.en_az, step: v.increase, value: l.auto?.maximum || Math.max(l.next * 2, v.en_az * 5) });
+  const inp = h('input', { class: 'input', type: 'number', min: v.min_value, step: v.increase, value: l.auto?.maximum || Math.max(l.next * 2, v.min_value * 5) });
   const m = modal({ title: T('Auto-bid: {0}', itemName(l.loot)), sub: T('Each time you are outbid, the lowest valid bid is placed, up to this amount. It works in the game even with the panel closed.'),
     body: [field(T('At most (credits)'), inp)], foot: [l.auto ? btn(T('Close'), () => { m.close(); auctionRule('auto', l, { maximum: 0 }, T('Auto-bid off.')); }, 'ghost') : null,
       btn(T('Cancel'), () => m.close(), 'ghost'), btn(T('Save'), () => { m.close(); auctionRule('auto', l, { maximum: +inp.value | 0 }, T('Auto-bid on.')); }, 'primary')] });
@@ -2658,21 +2658,21 @@ function auctionAlarmWindow(l) {
 }
 
 async function auctionRule(kind, l, fields, okText) {
-  const r = await act(() => api('/api/oyun/muzayede/' + kind, Object.assign({ type: l.type, loot: l.loot }, fields)));
+  const r = await act(() => api('/api/game/auction/' + kind, Object.assign({ type: l.type, loot: l.loot }, fields)));
   if (r) toast(okText, 'ok');
   renderAuction();
 }
 
 function auctionBulkAuto(lots, v) {
-  const inp = h('input', { class: 'input', type: 'number', min: v.en_az, step: v.increase, value: v.en_az * 10 });
+  const inp = h('input', { class: 'input', type: 'number', min: v.min_value, step: v.increase, value: v.min_value * 10 });
   const m = modal({ title: T('Auto-bid on {0} lots', lots.length), sub: T('The same maximum for every lot. Bids are placed when you are outbid, as long as you have credits.'),
     body: [field(T('At most per lot (credits)'), inp)], foot: [btn(T('Cancel'), () => m.close(), 'ghost'), btn(T('Save'), async () => {
-      m.close(); for (const l of lots) await api('/api/oyun/muzayede/oto', { type: l.type, loot: l.loot, maximum: +inp.value | 0 }).catch(() => null);
+      m.close(); for (const l of lots) await api('/api/game/auction/auto', { type: l.type, loot: l.loot, maximum: +inp.value | 0 }).catch(() => null);
       toast(T('Auto-bid turned on for {0} lots.', lots.length), 'ok'); renderAuction(); }, 'primary')] });
 }
 
 async function auctionBulkDisable(lots) {
-  for (const l of lots) await api('/api/oyun/muzayede/oto', { type: l.type, loot: l.loot, maximum: 0 }).catch(() => null);
+  for (const l of lots) await api('/api/game/auction/auto', { type: l.type, loot: l.loot, maximum: 0 }).catch(() => null);
   toast(T('Auto-bids off.'), 'ok');
   renderAuction();
 }
@@ -2686,7 +2686,7 @@ async function auctionEventTick() {
   if (srvState(S.state).game !== 'on' || auctionEventTick.busy) return;
   auctionEventTick.busy = true;
   try {
-    const r = await api('/api/oyun/muzayede/olaylar?last=' + (MZ.last || 0));
+    const r = await api('/api/game/auction/events?last=' + (MZ.last || 0));
     const new_ = r.events.filter(o => o.no > (MZ.last || 0)).reverse();
     if (MZ.last !== null) for (const o of new_) {
       toast(T('Auction') + ': ' + auctionEventText(o), auctionEventKind(o.tip), 7000);
@@ -2705,7 +2705,7 @@ async function boot() {
   let cfg = null;
   try { cfg = await api('/api/panel_settings'); } catch (e) { /* panel closed: poll reports */ }
   S.panelCfg = cfg;
-  try { I18N.list = (await api('/api/diller')).languages; } catch (e) { /* old list: Turkish, English */ }
+  try { I18N.list = (await api('/api/languages')).languages; } catch (e) { /* old list: Turkish, English */ }
   await setLang((cfg && cfg.lang) || guessLang());
   applyStatic();
   buildNav();

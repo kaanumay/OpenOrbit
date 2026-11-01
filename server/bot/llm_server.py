@@ -127,9 +127,9 @@ def test(log=print):
         opening = time.time() - t0
         response, duration = s.ask('Sen bir uzay oyununda pilotsun. Kısa yanıt ver.',
                             'Bir arkadaşın "selam, nasılsın?" yazdı. JSON ver: cevap alanına kısa bir Türkçe yanıt, durum alanına "TAMAM".',
-                            schema={'type': 'object', 'properties': {'cevap': {'type': 'string'}, 'state': {'type': 'string'}},
-                                  'required': ['cevap', 'state']}, max_count=80)
+                            schema={'type': 'object', 'properties': {'answer': {'type': 'string'}, 'state': {'type': 'string'}},
+                                  'required': ['answer', 'state']}, max_count=80)
         ok = isinstance(response, dict) and 'TAMAM' in str(response.get('state', '')).upper()
-        return {'ok': ok, 'startup_sec': round(opening, 1), 'sure_sn': round(duration, 2), 'response': response.get('cevap') if isinstance(response, dict) else str(response)}
+        return {'ok': ok, 'startup_sec': round(opening, 1), 'duration_sec': round(duration, 2), 'response': response.get('answer') if isinstance(response, dict) else str(response)}
     finally:
         s.stop()

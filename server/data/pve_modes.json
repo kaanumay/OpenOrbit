@@ -2113,8 +2113,8 @@
     20
    ]
   },
-  "_kaynak": "darkorbitwiki voyagers-ascent, resmî forum; Whisper/Voidmare değerleri zorluk başına",
-  "_uyarlama": "dalga dizilişleri (kaynakta yok), Nightmare değerleri (Expert x 1,8), SD Fragment = Igni Shard, CGL Fragment = resource_beacon-crystal (istemcinin çevirisi: Chronotic Gravitron Lens Fragment)"
+  "_source": "darkorbitwiki voyagers-ascent, resmî forum; Whisper/Voidmare değerleri zorluk başına",
+  "_adaptation": "dalga dizilişleri (kaynakta yok), Nightmare değerleri (Expert x 1,8), SD Fragment = Igni Shard, CGL Fragment = resource_beacon-crystal (istemcinin çevirisi: Chronotic Gravitron Lens Fragment)"
  },
  "trinity": {
   "maps": {
@@ -2157,7 +2157,7 @@
   "free": 1,
   "vip_extra": 2,
   "vip_damage": 0.2,
-  "kp": "resource_collectable_quantum-prism",
+  "qp": "resource_collectable_quantum-prism",
   "xy": "resource_collectable_xyralith",
   "cannon_share": 0.05,
   "difficulties": [
@@ -5082,7 +5082,7 @@
    {
     "level": 1,
     "cost": 0,
-    "sure_sn": 0,
+    "duration_sec": 0,
     "rarity": [
      80.0,
      10.0,
@@ -5096,7 +5096,7 @@
    {
     "level": 2,
     "cost": 10,
-    "sure_sn": 9000,
+    "duration_sec": 9000,
     "rarity": [
      70.0,
      20.0,
@@ -5110,7 +5110,7 @@
    {
     "level": 3,
     "cost": 11,
-    "sure_sn": 9000,
+    "duration_sec": 9000,
     "rarity": [
      60.0,
      30.0,
@@ -5124,7 +5124,7 @@
    {
     "level": 4,
     "cost": 12,
-    "sure_sn": 9000,
+    "duration_sec": 9000,
     "rarity": [
      50.0,
      40.0,
@@ -5138,7 +5138,7 @@
    {
     "level": 5,
     "cost": 13,
-    "sure_sn": 9000,
+    "duration_sec": 9000,
     "rarity": [
      40.0,
      50.0,
@@ -5152,7 +5152,7 @@
    {
     "level": 6,
     "cost": 14,
-    "sure_sn": 9000,
+    "duration_sec": 9000,
     "rarity": [
      40.0,
      48.4,
@@ -5166,7 +5166,7 @@
    {
     "level": 7,
     "cost": 15,
-    "sure_sn": 12000,
+    "duration_sec": 12000,
     "rarity": [
      40.0,
      46.8,
@@ -5180,7 +5180,7 @@
    {
     "level": 8,
     "cost": 17,
-    "sure_sn": 12000,
+    "duration_sec": 12000,
     "rarity": [
      40.0,
      45.2,
@@ -5194,7 +5194,7 @@
    {
     "level": 9,
     "cost": 19,
-    "sure_sn": 12000,
+    "duration_sec": 12000,
     "rarity": [
      40.0,
      43.6,
@@ -5208,7 +5208,7 @@
    {
     "level": 10,
     "cost": 21,
-    "sure_sn": 12000,
+    "duration_sec": 12000,
     "rarity": [
      40.0,
      42.0,
@@ -5222,7 +5222,7 @@
    {
     "level": 11,
     "cost": 23,
-    "sure_sn": 12000,
+    "duration_sec": 12000,
     "rarity": [
      39.5,
      41.5,
@@ -5236,7 +5236,7 @@
    {
     "level": 12,
     "cost": 25,
-    "sure_sn": 30000,
+    "duration_sec": 30000,
     "rarity": [
      39.0,
      41.0,
@@ -5250,7 +5250,7 @@
    {
     "level": 13,
     "cost": 28,
-    "sure_sn": 30000,
+    "duration_sec": 30000,
     "rarity": [
      38.5,
      40.5,
@@ -5264,7 +5264,7 @@
    {
     "level": 14,
     "cost": 31,
-    "sure_sn": 30000,
+    "duration_sec": 30000,
     "rarity": [
      38.0,
      40.0,
@@ -5278,7 +5278,7 @@
    {
     "level": 15,
     "cost": 34,
-    "sure_sn": 30000,
+    "duration_sec": 30000,
     "rarity": [
      37.5,
      39.5,
@@ -5292,7 +5292,7 @@
    {
     "level": 16,
     "cost": 37,
-    "sure_sn": 30000,
+    "duration_sec": 30000,
     "rarity": [
      37.0,
      39.0,
@@ -5306,7 +5306,7 @@
    {
     "level": 17,
     "cost": 41,
-    "sure_sn": 30000,
+    "duration_sec": 30000,
     "rarity": [
      36.5,
      38.5,
@@ -5320,7 +5320,7 @@
    {
     "level": 18,
     "cost": 45,
-    "sure_sn": 30000,
+    "duration_sec": 30000,
     "rarity": [
      36.0,
      38.0,
@@ -5334,7 +5334,7 @@
    {
     "level": 19,
     "cost": 50,
-    "sure_sn": 30000,
+    "duration_sec": 30000,
     "rarity": [
      35.5,
      37.5,
@@ -5348,7 +5348,7 @@
    {
     "level": 20,
     "cost": 55,
-    "sure_sn": 30000,
+    "duration_sec": 30000,
     "rarity": [
      35.0,
      37.0,
@@ -5362,7 +5362,7 @@
    {
     "level": 21,
     "cost": 61,
-    "sure_sn": 30000,
+    "duration_sec": 30000,
     "rarity": [
      34.4,
      37.35,
@@ -5376,7 +5376,7 @@
    {
     "level": 22,
     "cost": 67,
-    "sure_sn": 30000,
+    "duration_sec": 30000,
     "rarity": [
      33.8,
      37.7,
@@ -5390,7 +5390,7 @@
    {
     "level": 23,
     "cost": 74,
-    "sure_sn": 60000,
+    "duration_sec": 60000,
     "rarity": [
      33.2,
      38.05,
@@ -5404,7 +5404,7 @@
    {
     "level": 24,
     "cost": 81,
-    "sure_sn": 60000,
+    "duration_sec": 60000,
     "rarity": [
      32.6,
      38.4,
@@ -5418,7 +5418,7 @@
    {
     "level": 25,
     "cost": 89,
-    "sure_sn": 60000,
+    "duration_sec": 60000,
     "rarity": [
      32.0,
      38.75,
@@ -5432,7 +5432,7 @@
    {
     "level": 26,
     "cost": 98,
-    "sure_sn": 60000,
+    "duration_sec": 60000,
     "rarity": [
      31.4,
      39.1,
@@ -5446,7 +5446,7 @@
    {
     "level": 27,
     "cost": 108,
-    "sure_sn": 60000,
+    "duration_sec": 60000,
     "rarity": [
      30.8,
      39.45,
@@ -5460,7 +5460,7 @@
    {
     "level": 28,
     "cost": 119,
-    "sure_sn": 60000,
+    "duration_sec": 60000,
     "rarity": [
      30.2,
      39.8,
@@ -5474,7 +5474,7 @@
    {
     "level": 29,
     "cost": 131,
-    "sure_sn": 60000,
+    "duration_sec": 60000,
     "rarity": [
      29.6,
      40.15,
@@ -5488,7 +5488,7 @@
    {
     "level": 30,
     "cost": 144,
-    "sure_sn": 60000,
+    "duration_sec": 60000,
     "rarity": [
      29.0,
      40.5,
@@ -5502,7 +5502,7 @@
    {
     "level": 31,
     "cost": 158,
-    "sure_sn": 60000,
+    "duration_sec": 60000,
     "rarity": [
      28.87,
      40.5,
@@ -5516,7 +5516,7 @@
    {
     "level": 32,
     "cost": 174,
-    "sure_sn": 90000,
+    "duration_sec": 90000,
     "rarity": [
      28.74,
      40.5,
@@ -5530,7 +5530,7 @@
    {
     "level": 33,
     "cost": 191,
-    "sure_sn": 90000,
+    "duration_sec": 90000,
     "rarity": [
      28.61,
      40.5,
@@ -5544,7 +5544,7 @@
    {
     "level": 34,
     "cost": 210,
-    "sure_sn": 90000,
+    "duration_sec": 90000,
     "rarity": [
      28.48,
      40.5,
@@ -5558,7 +5558,7 @@
    {
     "level": 35,
     "cost": 231,
-    "sure_sn": 90000,
+    "duration_sec": 90000,
     "rarity": [
      28.35,
      40.5,
@@ -5572,7 +5572,7 @@
    {
     "level": 36,
     "cost": 254,
-    "sure_sn": 90000,
+    "duration_sec": 90000,
     "rarity": [
      28.22,
      40.5,
@@ -5586,7 +5586,7 @@
    {
     "level": 37,
     "cost": 279,
-    "sure_sn": 120000,
+    "duration_sec": 120000,
     "rarity": [
      28.09,
      40.5,
@@ -5600,7 +5600,7 @@
    {
     "level": 38,
     "cost": 306,
-    "sure_sn": 120000,
+    "duration_sec": 120000,
     "rarity": [
      27.96,
      40.5,
@@ -5614,7 +5614,7 @@
    {
     "level": 39,
     "cost": 335,
-    "sure_sn": 120000,
+    "duration_sec": 120000,
     "rarity": [
      27.83,
      40.5,
@@ -5628,7 +5628,7 @@
    {
     "level": 40,
     "cost": 366,
-    "sure_sn": 120000,
+    "duration_sec": 120000,
     "rarity": [
      27.7,
      40.5,
@@ -6263,8 +6263,8 @@
    ]
   },
   "skip_per_minute": 1,
-  "_kaynak": "resmî Trinity Trials SSS (kurallar, OS tablosu, geçiş puanları), kayıttaki geçiş ve ödül açıklaması, darkorbitwiki uzaylı değerleri",
-  "_uyarlama": "dalga dizilişleri (kaynakta yok), OS atlama bedeli (kalan dakika başına 1 Xyralith), paket içerikleri"
+  "_source": "resmî Trinity Trials SSS (kurallar, OS tablosu, geçiş puanları), kayıttaki geçiş ve ödül açıklaması, darkorbitwiki uzaylı değerleri",
+  "_adaptation": "dalga dizilişleri (kaynakta yok), OS atlama bedeli (kalan dakika başına 1 Xyralith), paket içerikleri"
  },
  "astral": {
   "cpu": "ammunition_ggportal_astral-cpu",
@@ -7358,7 +7358,7 @@
     "frenzied": 98
    },
    {
-    "name": "can",
+    "name": "hp",
     "design": 99,
     "frenzied": null
    }
@@ -7499,53 +7499,53 @@
   },
   "reward": [
    {
-    "en_az": 1,
+    "min_value": 1,
     "max_count": 4,
     "astralite": 250,
     "salvage": 25,
-    "anahtar": 0
+    "key": 0
    },
    {
-    "en_az": 5,
+    "min_value": 5,
     "max_count": 5,
     "astralite": 350,
     "salvage": 35,
-    "anahtar": 0
+    "key": 0
    },
    {
-    "en_az": 6,
+    "min_value": 6,
     "max_count": 9,
     "astralite": 525,
     "salvage": 55,
-    "anahtar": 0
+    "key": 0
    },
    {
-    "en_az": 10,
+    "min_value": 10,
     "max_count": 10,
     "astralite": 800,
     "salvage": 85,
-    "anahtar": 0
+    "key": 0
    },
    {
-    "en_az": 11,
+    "min_value": 11,
     "max_count": 14,
     "astralite": 1050,
     "salvage": 120,
-    "anahtar": 1
+    "key": 1
    },
    {
-    "en_az": 15,
+    "min_value": 15,
     "max_count": 15,
     "astralite": 1250,
     "salvage": 150,
-    "anahtar": 2
+    "key": 2
    },
    {
-    "en_az": 16,
+    "min_value": 16,
     "max_count": 16,
     "astralite": 1400,
     "salvage": 170,
-    "anahtar": 3
+    "key": 3
    }
   ],
   "points": {
@@ -7596,8 +7596,8 @@
     "15": 5.0
    }
   },
-  "_kaynak": "resmî forum SSS 2022-2026, darkorbitwiki: 15 rift (5 ve 10 ara patron, 15 son patron), kiralık gemiler ve yüklemesi, kapı türleri, rift sonu ödülleri, puan formülü",
-  "_uyarlama": "rift dalgaları kaynaktaki iki örnek koşudan (kapı türü normal/çılgın), güçlenme oranları, patron çarpanları, ödül havuzları ve seviyeleri (kaynak yalnız \"oyunda görülür\" diyor), Salvage Core ve anahtar olasılıkları"
+  "_source": "resmî forum SSS 2022-2026, darkorbitwiki: 15 rift (5 ve 10 ara patron, 15 son patron), kiralık gemiler ve yüklemesi, kapı türleri, rift sonu ödülleri, puan formülü",
+  "_adaptation": "rift dalgaları kaynaktaki iki örnek koşudan (kapı türü normal/çılgın), güçlenme oranları, patron çarpanları, ödül havuzları ve seviyeleri (kaynak yalnız \"oyunda görülür\" diyor), Salvage Core ve anahtar olasılıkları"
  },
  "echoes": {
   "level_requirement": 15,
@@ -7645,7 +7645,7 @@
       500
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 2,
@@ -7721,7 +7721,7 @@
       30
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 3,
@@ -7756,7 +7756,7 @@
       900
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 4,
@@ -7846,7 +7846,7 @@
       5
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 5,
@@ -7871,7 +7871,7 @@
       30
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 6,
@@ -7979,7 +7979,7 @@
       1000
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 7,
@@ -8039,7 +8039,7 @@
       50
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 8,
@@ -8097,7 +8097,7 @@
       1500
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 9,
@@ -8149,7 +8149,7 @@
       10
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 10,
@@ -8174,7 +8174,7 @@
       3
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 11,
@@ -8233,7 +8233,7 @@
       1500
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 12,
@@ -8346,7 +8346,7 @@
       60
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 13,
@@ -8415,7 +8415,7 @@
       2500
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 14,
@@ -8502,7 +8502,7 @@
       10000
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 15,
@@ -8527,7 +8527,7 @@
       75
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 16,
@@ -8587,7 +8587,7 @@
       2000
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 17,
@@ -8675,7 +8675,7 @@
       80
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 18,
@@ -8727,7 +8727,7 @@
       3500
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 19,
@@ -8871,7 +8871,7 @@
       12000
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 20,
@@ -8896,7 +8896,7 @@
       100
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 21,
@@ -9051,7 +9051,7 @@
       2500
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 22,
@@ -9099,7 +9099,7 @@
       120
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 23,
@@ -9187,7 +9187,7 @@
       4500
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 24,
@@ -9293,7 +9293,7 @@
       15000
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 25,
@@ -9318,7 +9318,7 @@
       3
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 26,
@@ -9439,7 +9439,7 @@
       3000
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 27,
@@ -9493,7 +9493,7 @@
       80
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 28,
@@ -9581,7 +9581,7 @@
       6000
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 29,
@@ -9635,7 +9635,7 @@
       10000
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 30,
@@ -9660,7 +9660,7 @@
       15
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 31,
@@ -9804,7 +9804,7 @@
       3500
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 32,
@@ -9904,7 +9904,7 @@
       100
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 33,
@@ -9998,7 +9998,7 @@
       7500
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 34,
@@ -10052,7 +10052,7 @@
       15000
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 35,
@@ -10077,7 +10077,7 @@
       20
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 36,
@@ -10215,7 +10215,7 @@
       4000
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 37,
@@ -10274,7 +10274,7 @@
       130
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 38,
@@ -10338,7 +10338,7 @@
       9000
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 39,
@@ -10410,7 +10410,7 @@
       20000
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 40,
@@ -10435,7 +10435,7 @@
       1
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 41,
@@ -10579,9 +10579,9 @@
       4500
      ]
     ],
-    "sure_sn": null,
+    "duration_sec": null,
     "power": 1.5,
-    "_uyarlama": "kaynakta yok: 31. seviyenin dalgaları"
+    "_adaptation": "kaynakta yok: 31. seviyenin dalgaları"
    },
    {
     "level": 42,
@@ -10681,9 +10681,9 @@
       5
      ]
     ],
-    "sure_sn": 300,
+    "duration_sec": 300,
     "power": 1.5,
-    "_uyarlama": "kaynakta yok: 32. seviyenin dalgaları"
+    "_adaptation": "kaynakta yok: 32. seviyenin dalgaları"
    },
    {
     "level": 43,
@@ -10777,9 +10777,9 @@
       150
      ]
     ],
-    "sure_sn": null,
+    "duration_sec": null,
     "power": 1.5,
-    "_uyarlama": "kaynakta yok: 33. seviyenin dalgaları"
+    "_adaptation": "kaynakta yok: 33. seviyenin dalgaları"
    },
    {
     "level": 44,
@@ -10833,14 +10833,14 @@
       7000
      ]
     ],
-    "sure_sn": null,
+    "duration_sec": null,
     "power": 1.5,
-    "_uyarlama": "kaynakta yok: 34. seviyenin dalgaları"
+    "_adaptation": "kaynakta yok: 34. seviyenin dalgaları"
    },
    {
     "level": 45,
     "type": "boss",
-    "can": 9.375,
+    "hp": 9.375,
     "_can": "Oyuncu bildirimi 2026-10-28 (Emperor Sibelon zayıf): tek Emperor'un canı/kalkanı 6,4 M ile 40. ve 50. seviyelerin Gygerim Overlord'unun (60 M) onda biriydi, önceki seviyelerin dalgalarından da zayıftı. Can ve kalkan Overlord'unkine (60 M) çıkar, hasar aynı kalır",
     "waves": [
      {
@@ -10862,7 +10862,7 @@
       1
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    },
    {
     "level": 46,
@@ -11000,9 +11000,9 @@
       5000
      ]
     ],
-    "sure_sn": null,
+    "duration_sec": null,
     "power": 1.5,
-    "_uyarlama": "kaynakta yok: 36. seviyenin dalgaları"
+    "_adaptation": "kaynakta yok: 36. seviyenin dalgaları"
    },
    {
     "level": 47,
@@ -11061,9 +11061,9 @@
       8
      ]
     ],
-    "sure_sn": null,
+    "duration_sec": null,
     "power": 1.5,
-    "_uyarlama": "kaynakta yok: 37. seviyenin dalgaları"
+    "_adaptation": "kaynakta yok: 37. seviyenin dalgaları"
    },
    {
     "level": 48,
@@ -11127,9 +11127,9 @@
       250
      ]
     ],
-    "sure_sn": null,
+    "duration_sec": null,
     "power": 1.5,
-    "_uyarlama": "kaynakta yok: 38. seviyenin dalgaları"
+    "_adaptation": "kaynakta yok: 38. seviyenin dalgaları"
    },
    {
     "level": 49,
@@ -11201,9 +11201,9 @@
       9000
      ]
     ],
-    "sure_sn": null,
+    "duration_sec": null,
     "power": 1.5,
-    "_uyarlama": "kaynakta yok: 39. seviyenin dalgaları"
+    "_adaptation": "kaynakta yok: 39. seviyenin dalgaları"
    },
    {
     "level": 50,
@@ -11228,11 +11228,11 @@
       30
      ]
     ],
-    "sure_sn": null
+    "duration_sec": null
    }
   ],
   "roster": 5,
-  "sure_sn": 600,
+  "duration_sec": 600,
   "scale_level": 0.06,
   "repeat": {
    "uridium_base": 40,
@@ -11258,8 +11258,8 @@
   "friendly": {
    "guard": "277",
    "escort": "126",
-   "can": 400000,
-   "kalkan": 200000
+   "hp": 400000,
+   "shield": 200000
   },
   "ranking": [
    {
@@ -11492,8 +11492,8 @@
     "window_dse_fail_con1"
    ]
   },
-  "_kaynak": "darkorbitwiki deep-space-echoes-gate (1-40. seviye dalgaları, ilk geçiş ödülleri), resmî SSS (kurallar, seviye türleri), kayıttaki ExpeditionInfoCommand (sıralama ödülleri, koşul metinleri)",
-  "_uyarlama": "41-49 dalgaları (31-39 x1,5), 40/45/50 patronları, güçlenme, süre (10 dk), tekrar ödülü, atlama bedeli, korunacak ve eşlik edilecek gemi (EM Freighter, Demaner Freighter görünümü) ve değerleri"
+  "_source": "darkorbitwiki deep-space-echoes-gate (1-40. seviye dalgaları, ilk geçiş ödülleri), resmî SSS (kurallar, seviye türleri), kayıttaki ExpeditionInfoCommand (sıralama ödülleri, koşul metinleri)",
+  "_adaptation": "41-49 dalgaları (31-39 x1,5), 40/45/50 patronları, güçlenme, süre (10 dk), tekrar ödülü, atlama bedeli, korunacak ve eşlik edilecek gemi (EM Freighter, Demaner Freighter görünümü) ve değerleri"
  },
  "ebl": {
   "cpu": "ammunition_ggportal_eternal-blacklight-cpu",
@@ -12263,7 +12263,7 @@
   "boosters": [
    {
     "type": 1,
-    "anahtar": "npc",
+    "key": "npc",
     "values": [
      4,
      8,
@@ -12272,7 +12272,7 @@
    },
    {
     "type": 2,
-    "anahtar": "laser",
+    "key": "laser",
     "values": [
      5,
      10,
@@ -12281,7 +12281,7 @@
    },
    {
     "type": 3,
-    "anahtar": "rocket",
+    "key": "rocket",
     "values": [
      5,
      10,
@@ -12290,7 +12290,7 @@
    },
    {
     "type": 4,
-    "anahtar": "laser_hit_chance",
+    "key": "laser_hit_chance",
     "values": [
      3,
      6,
@@ -12299,7 +12299,7 @@
    },
    {
     "type": 6,
-    "anahtar": "kalkan",
+    "key": "shield",
     "values": [
      5,
      10,
@@ -12308,7 +12308,7 @@
    },
    {
     "type": 5,
-    "anahtar": "can",
+    "key": "hp",
     "values": [
      5,
      10,
@@ -12317,14 +12317,14 @@
    },
    {
     "type": 7,
-    "anahtar": "speed",
+    "key": "speed",
     "values": [
      5
     ]
    },
    {
     "type": 0,
-    "anahtar": "cooldown",
+    "key": "cooldown",
     "values": [
      5
     ]
@@ -12338,55 +12338,55 @@
   "booster_decay": 0.7,
   "death_reward": [
    {
-    "en_az": 1,
+    "min_value": 1,
     "max_count": 10,
     "part": 10,
     "iac": false
    },
    {
-    "en_az": 11,
+    "min_value": 11,
     "max_count": 25,
     "part": 50,
     "iac": false
    },
    {
-    "en_az": 26,
+    "min_value": 26,
     "max_count": 50,
     "part": 150,
     "iac": true
    },
    {
-    "en_az": 51,
+    "min_value": 51,
     "max_count": 60,
     "part": 500,
     "iac": true
    },
    {
-    "en_az": 61,
+    "min_value": 61,
     "max_count": 101,
     "part": 750,
     "iac": true
    },
    {
-    "en_az": 102,
+    "min_value": 102,
     "max_count": 152,
     "part": 1500,
     "iac": true
    },
    {
-    "en_az": 153,
+    "min_value": 153,
     "max_count": 203,
     "part": 3000,
     "iac": true
    },
    {
-    "en_az": 204,
+    "min_value": 204,
     "max_count": 254,
     "part": 5000,
     "iac": true
    },
    {
-    "en_az": 255,
+    "min_value": 255,
     "max_count": 1000000000,
     "part": 9000,
     "iac": true
@@ -12399,8 +12399,8 @@
   ],
   "part": "resource_collectable_blacklight-shard",
   "level": 17,
-  "_kaynak": "darkorbitwiki eternal-blacklight-gate, resmî forum SSS (EN/ES/RU), fandom: 51 dalga, 6 oda, tur başına x1,8, kontrol noktaları ve booster puanları, ölüm ödülü kademeleri, 75.000 uridyum sınırı",
-  "_uyarlama": "zayıf/güçlü dalga sürümleri ödül oranıyla (can ve hasar da), Saturn Bastion değerleri, booster kademe olasılıkları (60/30/10), isabet booster değerleri, IAC olasılığı ve adedi; Strokelight Barrage hareket etmez, mayın bırakmaz"
+  "_source": "darkorbitwiki eternal-blacklight-gate, resmî forum SSS (EN/ES/RU), fandom: 51 dalga, 6 oda, tur başına x1,8, kontrol noktaları ve booster puanları, ölüm ödülü kademeleri, 75.000 uridyum sınırı",
+  "_adaptation": "zayıf/güçlü dalga sürümleri ödül oranıyla (can ve hasar da), Saturn Bastion değerleri, booster kademe olasılıkları (60/30/10), isabet booster değerleri, IAC olasılığı ve adedi; Strokelight Barrage hareket etmez, mayın bırakmaz"
  },
  "kinds": {
   "pm_whisper_1": {
@@ -12408,7 +12408,7 @@
    "model": "396",
    "npc_id": 517,
    "hp": 37800,
-   "kalkan": 37800,
+   "shield": 37800,
    "damage": 250,
    "speed": 320,
    "aggressive": true,
@@ -12422,7 +12422,7 @@
    "behavior": {
     "reverse_at_hp_threshold": {
      "ratio": 0.1,
-     "sure_sn": 5,
+     "duration_sec": 5,
      "cooldown_sec": 30
     }
    }
@@ -12432,7 +12432,7 @@
    "model": "395",
    "npc_id": 516,
    "hp": 504000,
-   "kalkan": 252000,
+   "shield": 252000,
    "damage": 3000,
    "speed": 200,
    "aggressive": true,
@@ -12445,7 +12445,7 @@
    "cargo": {},
    "behavior": {
     "fuse_if_untouched": {
-     "sn": 5,
+     "sec": 5,
      "range": 500,
      "ratio": 0.05
     }
@@ -12456,7 +12456,7 @@
    "model": "396",
    "npc_id": 517,
    "hp": 109800,
-   "kalkan": 109800,
+   "shield": 109800,
    "damage": 700,
    "speed": 320,
    "aggressive": true,
@@ -12470,7 +12470,7 @@
    "behavior": {
     "reverse_at_hp_threshold": {
      "ratio": 0.1,
-     "sure_sn": 5,
+     "duration_sec": 5,
      "cooldown_sec": 30
     }
    }
@@ -12480,7 +12480,7 @@
    "model": "395",
    "npc_id": 516,
    "hp": 1464000,
-   "kalkan": 732000,
+   "shield": 732000,
    "damage": 9000,
    "speed": 200,
    "aggressive": true,
@@ -12493,7 +12493,7 @@
    "cargo": {},
    "behavior": {
     "fuse_if_untouched": {
-     "sn": 5,
+     "sec": 5,
      "range": 500,
      "ratio": 0.05
     }
@@ -12504,7 +12504,7 @@
    "model": "396",
    "npc_id": 517,
    "hp": 253800,
-   "kalkan": 253800,
+   "shield": 253800,
    "damage": 1600,
    "speed": 320,
    "aggressive": true,
@@ -12518,7 +12518,7 @@
    "behavior": {
     "reverse_at_hp_threshold": {
      "ratio": 0.1,
-     "sure_sn": 5,
+     "duration_sec": 5,
      "cooldown_sec": 30
     }
    }
@@ -12528,7 +12528,7 @@
    "model": "395",
    "npc_id": 516,
    "hp": 3384000,
-   "kalkan": 1692000,
+   "shield": 1692000,
    "damage": 17000,
    "speed": 200,
    "aggressive": true,
@@ -12541,7 +12541,7 @@
    "cargo": {},
    "behavior": {
     "fuse_if_untouched": {
-     "sn": 5,
+     "sec": 5,
      "range": 500,
      "ratio": 0.05
     }
@@ -12552,7 +12552,7 @@
    "model": "396",
    "npc_id": 517,
    "hp": 427500,
-   "kalkan": 427500,
+   "shield": 427500,
    "damage": 2900,
    "speed": 320,
    "aggressive": true,
@@ -12566,7 +12566,7 @@
    "behavior": {
     "reverse_at_hp_threshold": {
      "ratio": 0.1,
-     "sure_sn": 5,
+     "duration_sec": 5,
      "cooldown_sec": 30
     }
    }
@@ -12576,7 +12576,7 @@
    "model": "395",
    "npc_id": 516,
    "hp": 5700000,
-   "kalkan": 2850000,
+   "shield": 2850000,
    "damage": 36000,
    "speed": 200,
    "aggressive": true,
@@ -12589,7 +12589,7 @@
    "cargo": {},
    "behavior": {
     "fuse_if_untouched": {
-     "sn": 5,
+     "sec": 5,
      "range": 500,
      "ratio": 0.05
     }
@@ -12600,7 +12600,7 @@
    "model": "396",
    "npc_id": 517,
    "hp": 769500,
-   "kalkan": 769500,
+   "shield": 769500,
    "damage": 5220,
    "speed": 320,
    "aggressive": true,
@@ -12614,18 +12614,18 @@
    "behavior": {
     "reverse_at_hp_threshold": {
      "ratio": 0.1,
-     "sure_sn": 5,
+     "duration_sec": 5,
      "cooldown_sec": 30
     }
    },
-   "_uyarlama": "Expert x 1,8"
+   "_adaptation": "Expert x 1,8"
   },
   "pm_voidmare_5": {
    "name": "-=[ Voidmare ]=-",
    "model": "395",
    "npc_id": 516,
    "hp": 10260000,
-   "kalkan": 5130000,
+   "shield": 5130000,
    "damage": 64800,
    "speed": 200,
    "aggressive": true,
@@ -12638,19 +12638,19 @@
    "cargo": {},
    "behavior": {
     "fuse_if_untouched": {
-     "sn": 5,
+     "sec": 5,
      "range": 500,
      "ratio": 0.05
     }
    },
-   "_uyarlama": "Expert x 1,8"
+   "_adaptation": "Expert x 1,8"
   },
   "pm_magmastalker_easy": {
    "name": "-=[ Magma Stalker ]=-",
    "model": "386",
    "npc_id": 513,
    "hp": 8000,
-   "kalkan": 8000,
+   "shield": 8000,
    "damage": 50,
    "speed": 380,
    "aggressive": true,
@@ -12671,7 +12671,7 @@
    "model": "385",
    "npc_id": 512,
    "hp": 45000,
-   "kalkan": 45000,
+   "shield": 45000,
    "damage": 6000,
    "speed": 220,
    "aggressive": true,
@@ -12689,7 +12689,7 @@
    "behavior": {
     "slowing_shots": {
      "ratio": 0.3,
-     "sn": 3
+     "sec": 3
     }
    }
   },
@@ -12698,7 +12698,7 @@
    "model": "388",
    "npc_id": 515,
    "hp": 8000,
-   "kalkan": 8000,
+   "shield": 8000,
    "damage": 50,
    "speed": 380,
    "aggressive": true,
@@ -12719,7 +12719,7 @@
    "model": "387",
    "npc_id": 514,
    "hp": 45000,
-   "kalkan": 45000,
+   "shield": 45000,
    "damage": 6000,
    "speed": 220,
    "aggressive": true,
@@ -12740,7 +12740,7 @@
    "model": "386",
    "npc_id": 513,
    "hp": 6000,
-   "kalkan": 6000,
+   "shield": 6000,
    "damage": 150,
    "speed": 380,
    "aggressive": true,
@@ -12761,7 +12761,7 @@
    "model": "385",
    "npc_id": 512,
    "hp": 75000,
-   "kalkan": 75000,
+   "shield": 75000,
    "damage": 6000,
    "speed": 220,
    "aggressive": true,
@@ -12781,7 +12781,7 @@
    "behavior": {
     "slowing_shots": {
      "ratio": 0.3,
-     "sn": 3
+     "sec": 3
     }
    }
   },
@@ -12790,7 +12790,7 @@
    "model": "388",
    "npc_id": 515,
    "hp": 6000,
-   "kalkan": 6000,
+   "shield": 6000,
    "damage": 150,
    "speed": 380,
    "aggressive": true,
@@ -12811,7 +12811,7 @@
    "model": "387",
    "npc_id": 514,
    "hp": 75000,
-   "kalkan": 75000,
+   "shield": 75000,
    "damage": 6000,
    "speed": 220,
    "aggressive": true,
@@ -12834,7 +12834,7 @@
    "model": "386",
    "npc_id": 513,
    "hp": 12000,
-   "kalkan": 12000,
+   "shield": 12000,
    "damage": 250,
    "speed": 380,
    "aggressive": true,
@@ -12855,7 +12855,7 @@
    "model": "385",
    "npc_id": 512,
    "hp": 75000,
-   "kalkan": 75000,
+   "shield": 75000,
    "damage": 6000,
    "speed": 220,
    "aggressive": true,
@@ -12875,7 +12875,7 @@
    "behavior": {
     "slowing_shots": {
      "ratio": 0.3,
-     "sn": 3
+     "sec": 3
     }
    }
   },
@@ -12884,7 +12884,7 @@
    "model": "388",
    "npc_id": 515,
    "hp": 12000,
-   "kalkan": 12000,
+   "shield": 12000,
    "damage": 250,
    "speed": 380,
    "aggressive": true,
@@ -12907,7 +12907,7 @@
    "model": "387",
    "npc_id": 514,
    "hp": 75000,
-   "kalkan": 75000,
+   "shield": 75000,
    "damage": 6000,
    "speed": 220,
    "aggressive": true,
@@ -12930,7 +12930,7 @@
    "model": "386",
    "npc_id": 513,
    "hp": 32400,
-   "kalkan": 32400,
+   "shield": 32400,
    "damage": 350,
    "speed": 380,
    "aggressive": true,
@@ -12953,7 +12953,7 @@
    "model": "385",
    "npc_id": 512,
    "hp": 202500,
-   "kalkan": 202500,
+   "shield": 202500,
    "damage": 6000,
    "speed": 220,
    "aggressive": true,
@@ -12973,7 +12973,7 @@
    "behavior": {
     "slowing_shots": {
      "ratio": 0.3,
-     "sn": 3
+     "sec": 3
     }
    }
   },
@@ -12982,7 +12982,7 @@
    "model": "388",
    "npc_id": 515,
    "hp": 32400,
-   "kalkan": 32400,
+   "shield": 32400,
    "damage": 350,
    "speed": 380,
    "aggressive": true,
@@ -13005,7 +13005,7 @@
    "model": "387",
    "npc_id": 514,
    "hp": 202500,
-   "kalkan": 202500,
+   "shield": 202500,
    "damage": 6000,
    "speed": 220,
    "aggressive": true,
@@ -13028,7 +13028,7 @@
    "model": "386",
    "npc_id": 513,
    "hp": 64800,
-   "kalkan": 64800,
+   "shield": 64800,
    "damage": 450,
    "speed": 380,
    "aggressive": true,
@@ -13051,7 +13051,7 @@
    "model": "385",
    "npc_id": 512,
    "hp": 405000,
-   "kalkan": 405000,
+   "shield": 405000,
    "damage": 6000,
    "speed": 220,
    "aggressive": true,
@@ -13072,7 +13072,7 @@
    "behavior": {
     "slowing_shots": {
      "ratio": 0.3,
-     "sn": 3
+     "sec": 3
     }
    }
   },
@@ -13081,7 +13081,7 @@
    "model": "388",
    "npc_id": 515,
    "hp": 64800,
-   "kalkan": 64800,
+   "shield": 64800,
    "damage": 450,
    "speed": 380,
    "aggressive": true,
@@ -13104,7 +13104,7 @@
    "model": "387",
    "npc_id": 514,
    "hp": 405000,
-   "kalkan": 405000,
+   "shield": 405000,
    "damage": 6000,
    "speed": 220,
    "aggressive": true,
@@ -13128,7 +13128,7 @@
    "model": "132",
    "npc_id": 132,
    "hp": 80000,
-   "kalkan": 40000,
+   "shield": 40000,
    "damage": 900,
    "speed": 340,
    "aggressive": true,
@@ -13139,14 +13139,14 @@
     "uridium": 20
    },
    "cargo": {},
-   "_uyarlama": "değer kaynakta yok"
+   "_adaptation": "değer kaynakta yok"
   },
   "pm_petdecoy": {
    "name": "-=[ P.E.T. Decoy ]=-",
    "model": "131",
    "npc_id": 131,
    "hp": 40000,
-   "kalkan": 20000,
+   "shield": 20000,
    "damage": 500,
    "speed": 360,
    "aggressive": true,
@@ -13157,14 +13157,14 @@
     "uridium": 10
    },
    "cargo": {},
-   "_uyarlama": "değer kaynakta yok"
+   "_adaptation": "değer kaynakta yok"
   },
   "pm_saturndefcom": {
    "name": "-=[ Saturn Defcom ]=-",
    "model": "ship_defcom",
    "npc_id": 79,
    "hp": 12000,
-   "kalkan": 50000,
+   "shield": 50000,
    "damage": 500,
    "speed": 300,
    "aggressive": true,
@@ -13187,7 +13187,7 @@
    "model": "ship_yamato",
    "npc_id": 78,
    "hp": 8000,
-   "kalkan": 20000,
+   "shield": 20000,
    "damage": 400,
    "speed": 300,
    "aggressive": true,
@@ -13210,7 +13210,7 @@
    "model": "ship_liberator",
    "npc_id": 80,
    "hp": 16000,
-   "kalkan": 30000,
+   "shield": 30000,
    "damage": 900,
    "speed": 300,
    "aggressive": true,
@@ -13233,7 +13233,7 @@
    "model": "296",
    "npc_id": 253,
    "hp": 450000,
-   "kalkan": 300000,
+   "shield": 300000,
    "damage": 6000,
    "speed": 300,
    "aggressive": true,
@@ -13244,14 +13244,14 @@
     "uridium": 112
    },
    "cargo": {},
-   "_uyarlama": "değer kaynakta yok"
+   "_adaptation": "değer kaynakta yok"
   },
   "pm_saturnspearhead": {
    "name": "-=[ Saturn Spearhead ]=-",
    "model": "ship_spearhead",
    "npc_id": 97,
    "hp": 100000,
-   "kalkan": 120000,
+   "shield": 120000,
    "damage": 1400,
    "speed": 300,
    "aggressive": true,
@@ -13275,7 +13275,7 @@
    "model": "ship_v-lightning",
    "npc_id": 93,
    "hp": 180000,
-   "kalkan": 100000,
+   "shield": 100000,
    "damage": 3000,
    "speed": 300,
    "aggressive": true,
@@ -13299,7 +13299,7 @@
    "model": "ship_bigboy",
    "npc_id": 83,
    "hp": 128000,
-   "kalkan": 150000,
+   "shield": 150000,
    "damage": 2500,
    "speed": 300,
    "aggressive": true,
@@ -13323,7 +13323,7 @@
    "model": "ship_v-avenger",
    "npc_id": 94,
    "hp": 180000,
-   "kalkan": 200000,
+   "shield": 200000,
    "damage": 3000,
    "speed": 300,
    "aggressive": true,
@@ -13347,7 +13347,7 @@
    "model": "ship_piranha",
    "npc_id": 82,
    "hp": 64000,
-   "kalkan": 80000,
+   "shield": 80000,
    "damage": 900,
    "speed": 300,
    "aggressive": true,
@@ -13370,7 +13370,7 @@
    "model": "ship_nostromo",
    "npc_id": 81,
    "hp": 64000,
-   "kalkan": 80000,
+   "shield": 80000,
    "damage": 900,
    "speed": 300,
    "aggressive": true,
@@ -13393,7 +13393,7 @@
    "model": "128",
    "npc_id": 123,
    "hp": 120000,
-   "kalkan": 100000,
+   "shield": 100000,
    "damage": 1500,
    "speed": 320,
    "aggressive": true,
@@ -13404,14 +13404,14 @@
     "uridium": 30
    },
    "cargo": {},
-   "_uyarlama": "değer kaynakta yok"
+   "_adaptation": "değer kaynakta yok"
   },
   "pm_ufonit": {
    "name": "-=[ Ufonit ]=-",
    "model": "21",
    "npc_id": 26,
    "hp": 60000,
-   "kalkan": 50000,
+   "shield": 50000,
    "damage": 1000,
    "speed": 300,
    "aggressive": true,
@@ -13422,14 +13422,14 @@
     "uridium": 32
    },
    "cargo": {},
-   "_kaynak": "vortex_of_terror.json (fandom): can, kalkan, hasar, ödül; hız \"Between 290-310\""
+   "_source": "vortex_of_terror.json (fandom): can, kalkan, hasar, ödül; hız \"Between 290-310\""
   },
   "pm_unidentifieddestroyer": {
    "name": "-=[ Unidentified Destroyer ]=-",
    "model": "100",
    "npc_id": 50,
    "hp": 500000,
-   "kalkan": 400000,
+   "shield": 400000,
    "damage": 3500,
    "speed": 280,
    "aggressive": true,
@@ -13440,14 +13440,14 @@
     "uridium": 125
    },
    "cargo": {},
-   "_uyarlama": "değer kaynakta yok"
+   "_adaptation": "değer kaynakta yok"
   },
   "pm_reflectormimesis": {
    "name": "-=[ Reflector Mimesis ]=-",
    "model": "283",
    "npc_id": 239,
    "hp": 4500000,
-   "kalkan": 2500000,
+   "shield": 2500000,
    "damage": 50000,
    "speed": 300,
    "aggressive": true,
@@ -13472,7 +13472,7 @@
    "model": "9371",
    "npc_id": 407,
    "hp": 300000,
-   "kalkan": 200000,
+   "shield": 200000,
    "damage": 4000,
    "speed": 0,
    "aggressive": true,
@@ -13483,14 +13483,14 @@
     "uridium": 75
    },
    "cargo": {},
-   "_uyarlama": "değer kaynakta yok"
+   "_adaptation": "değer kaynakta yok"
   },
   "pm_bosskucurbium": {
    "name": "..::{ Boss Kucurbium }::..",
    "model": "83",
    "npc_id": 41,
    "hp": 800000,
-   "kalkan": 600000,
+   "shield": 600000,
    "damage": 46000,
    "speed": 180,
    "aggressive": true,
@@ -13515,7 +13515,7 @@
    "model": "124",
    "npc_id": 113,
    "hp": 6400000,
-   "kalkan": 6400000,
+   "shield": 6400000,
    "damage": 35000,
    "speed": 200,
    "aggressive": true,
@@ -13540,7 +13540,7 @@
    "model": "278",
    "npc_id": 233,
    "hp": 495000,
-   "kalkan": 200000,
+   "shield": 200000,
    "damage": 6500,
    "speed": 300,
    "aggressive": true,
@@ -13565,7 +13565,7 @@
    "model": "248",
    "npc_id": 128,
    "hp": 60000000,
-   "kalkan": 60000000,
+   "shield": 60000000,
    "damage": 30000,
    "speed": 150,
    "aggressive": true,
@@ -13582,7 +13582,7 @@
    "model": "349",
    "npc_id": 287,
    "hp": 2100000,
-   "kalkan": 0,
+   "shield": 0,
    "damage": 6000,
    "speed": 0,
    "aggressive": true,
@@ -13599,7 +13599,7 @@
    "model": "277",
    "npc_id": 240,
    "hp": 400000,
-   "kalkan": 200000,
+   "shield": 200000,
    "damage": 0,
    "speed": 0,
    "aggressive": false,
@@ -13617,7 +13617,7 @@
    "model": "126",
    "npc_id": 116,
    "hp": 400000,
-   "kalkan": 200000,
+   "shield": 200000,
    "damage": 0,
    "speed": 90,
    "aggressive": false,
@@ -13635,7 +13635,7 @@
    "model": "73",
    "npc_id": 4,
    "hp": 20000,
-   "kalkan": 10000,
+   "shield": 10000,
    "damage": 390,
    "speed": 125,
    "aggressive": true,
@@ -13659,7 +13659,7 @@
    "model": "31",
    "npc_id": 16,
    "hp": 80000,
-   "kalkan": 40000,
+   "shield": 40000,
    "damage": 1500,
    "speed": 150,
    "aggressive": true,
@@ -13684,7 +13684,7 @@
    "model": "25",
    "npc_id": 17,
    "hp": 24000,
-   "kalkan": 12000,
+   "shield": 12000,
    "damage": 800,
    "speed": 300,
    "aggressive": true,
@@ -13709,7 +13709,7 @@
    "model": "74",
    "npc_id": 5,
    "hp": 200000,
-   "kalkan": 200000,
+   "shield": 200000,
    "damage": 2650,
    "speed": 100,
    "aggressive": true,
@@ -13733,7 +13733,7 @@
    "model": "76",
    "npc_id": 7,
    "hp": 40000,
-   "kalkan": 40000,
+   "shield": 40000,
    "damage": 3200,
    "speed": 320,
    "aggressive": true,
@@ -13757,7 +13757,7 @@
    "model": "46",
    "npc_id": 20,
    "hp": 800000,
-   "kalkan": 800000,
+   "shield": 800000,
    "damage": 12350,
    "speed": 175,
    "aggressive": true,
@@ -13782,7 +13782,7 @@
    "model": "47",
    "npc_id": 34,
    "hp": 1600000,
-   "kalkan": 1600000,
+   "shield": 1600000,
    "damage": 24000,
    "speed": 100,
    "aggressive": true,
@@ -13807,7 +13807,7 @@
    "model": "40",
    "npc_id": 33,
    "hp": 320000,
-   "kalkan": 320000,
+   "shield": 320000,
    "damage": 8000,
    "speed": 350,
    "aggressive": true,
@@ -13832,7 +13832,7 @@
    "model": "42",
    "npc_id": 36,
    "hp": 400000,
-   "kalkan": 320000,
+   "shield": 320000,
    "damage": 9600,
    "speed": 335,
    "aggressive": true,
@@ -13857,7 +13857,7 @@
    "model": "213",
    "npc_id": 175,
    "hp": 1200000,
-   "kalkan": 750000,
+   "shield": 750000,
    "damage": 12000,
    "speed": 450,
    "aggressive": true,
@@ -13881,7 +13881,7 @@
    "model": "111",
    "npc_id": 58,
    "hp": 60000,
-   "kalkan": 40000,
+   "shield": 40000,
    "damage": 500,
    "speed": 600,
    "aggressive": true,
@@ -13905,7 +13905,7 @@
    "model": "112",
    "npc_id": 59,
    "hp": 180000,
-   "kalkan": 100000,
+   "shield": 100000,
    "damage": 6000,
    "speed": 430,
    "aggressive": true,
@@ -13929,7 +13929,7 @@
    "model": "114",
    "npc_id": 61,
    "hp": 300000,
-   "kalkan": 200000,
+   "shield": 200000,
    "damage": 15000,
    "speed": 350,
    "aggressive": true,
@@ -13954,7 +13954,7 @@
    "model": "258",
    "npc_id": 165,
    "hp": 1600000,
-   "kalkan": 1200000,
+   "shield": 1200000,
    "damage": 32000,
    "speed": 400,
    "aggressive": true,
@@ -13978,7 +13978,7 @@
    "model": "102",
    "npc_id": 65,
    "hp": 400000,
-   "kalkan": 300000,
+   "shield": 300000,
    "damage": 5000,
    "speed": 370,
    "aggressive": true,
@@ -14003,7 +14003,7 @@
    "model": "100",
    "npc_id": 63,
    "hp": 60000,
-   "kalkan": 50000,
+   "shield": 50000,
    "damage": 1000,
    "speed": 370,
    "aggressive": true,
@@ -14028,7 +14028,7 @@
    "model": "217",
    "npc_id": 176,
    "hp": 9000000,
-   "kalkan": 4800000,
+   "shield": 4800000,
    "damage": 17000,
    "speed": 150,
    "aggressive": true,
@@ -14052,7 +14052,7 @@
    "model": "35",
    "npc_id": 23,
    "hp": 1600000,
-   "kalkan": 1200000,
+   "shield": 1200000,
    "damage": 20000,
    "speed": 250,
    "aggressive": true,
@@ -14077,7 +14077,7 @@
    "model": "29",
    "npc_id": 22,
    "hp": 200000,
-   "kalkan": 160000,
+   "shield": 160000,
    "damage": 4700,
    "speed": 340,
    "aggressive": true,
@@ -14102,7 +14102,7 @@
    "model": "45",
    "npc_id": 37,
    "hp": 3200000,
-   "kalkan": 2400000,
+   "shield": 2400000,
    "damage": 40000,
    "speed": 240,
    "aggressive": true,
@@ -14127,7 +14127,7 @@
    "model": "37",
    "npc_id": 29,
    "hp": 16000,
-   "kalkan": 16000,
+   "shield": 16000,
    "damage": 640,
    "speed": 250,
    "aggressive": true,
@@ -14152,7 +14152,7 @@
    "model": "41",
    "npc_id": 35,
    "hp": 2400000,
-   "kalkan": 1600000,
+   "shield": 1600000,
    "damage": 32000,
    "speed": 100,
    "aggressive": true,
@@ -14177,7 +14177,7 @@
    "model": "82",
    "npc_id": 40,
    "hp": 1600000,
-   "kalkan": 1200000,
+   "shield": 1200000,
    "damage": 6500,
    "speed": 200,
    "aggressive": true,
@@ -14202,7 +14202,7 @@
    "model": "95",
    "npc_id": 48,
    "hp": 400000,
-   "kalkan": 200000,
+   "shield": 200000,
    "damage": 11500,
    "speed": 400,
    "aggressive": true,
@@ -14228,7 +14228,7 @@
    "model": "81",
    "npc_id": 12,
    "hp": 50000,
-   "kalkan": 40000,
+   "shield": 40000,
    "damage": 1500,
    "speed": 500,
    "aggressive": true,
@@ -14252,7 +14252,7 @@
    "model": "81",
    "npc_id": 53,
    "hp": 400000,
-   "kalkan": 320000,
+   "shield": 320000,
    "damage": 12000,
    "speed": 300,
    "aggressive": true,
@@ -14277,7 +14277,7 @@
    "model": "103",
    "npc_id": 56,
    "hp": 100000,
-   "kalkan": 80000,
+   "shield": 80000,
    "damage": 2000,
    "speed": 475,
    "aggressive": true,
@@ -14301,7 +14301,7 @@
    "model": "101",
    "npc_id": 54,
    "hp": 1600000,
-   "kalkan": 1200000,
+   "shield": 1200000,
    "damage": 0,
    "speed": 200,
    "aggressive": true,
@@ -14326,7 +14326,7 @@
    "model": "254",
    "npc_id": 166,
    "hp": 2400000,
-   "kalkan": 1600000,
+   "shield": 1600000,
    "damage": 90000,
    "speed": 320,
    "aggressive": true,
@@ -14351,7 +14351,7 @@
    "model": "ship_g-bastion",
    "npc_id": 81,
    "hp": 520000,
-   "kalkan": 380000,
+   "shield": 380000,
    "damage": 9000,
    "speed": 300,
    "aggressive": true,
@@ -14368,7 +14368,7 @@
    "model": "320",
    "npc_id": 266,
    "hp": 4500000,
-   "kalkan": 500000,
+   "shield": 500000,
    "damage": 20000,
    "speed": 0,
    "aggressive": true,
@@ -14393,7 +14393,7 @@
    "model": "214",
    "npc_id": 268,
    "hp": 600000,
-   "kalkan": 0,
+   "shield": 0,
    "damage": 0,
    "speed": 600,
    "aggressive": true,
@@ -14417,7 +14417,7 @@
    "model": "217",
    "npc_id": 269,
    "hp": 300000,
-   "kalkan": 300000,
+   "shield": 300000,
    "damage": 0,
    "speed": 600,
    "aggressive": true,
@@ -14441,7 +14441,7 @@
    "model": "159",
    "npc_id": 159,
    "hp": 520000,
-   "kalkan": 380000,
+   "shield": 380000,
    "damage": 9000,
    "speed": 420,
    "aggressive": true,
@@ -14458,7 +14458,7 @@
    "model": "297",
    "npc_id": 254,
    "hp": 4500000,
-   "kalkan": 2500000,
+   "shield": 2500000,
    "damage": 50000,
    "speed": 300,
    "aggressive": true,

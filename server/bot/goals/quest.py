@@ -24,7 +24,7 @@ def quests():
             _id_type.setdefault(str(t.get('npc_id', '')), []).append(tip)
         out = {}
         for qid, q in QU.QUESTS.items():
-            if q.get('kinds') != [2] or q.get('sure_sn'):
+            if q.get('kinds') != [2] or q.get('duration_sec'):
                 continue
             conditions = []
             ok = True
@@ -84,17 +84,17 @@ def next_up(bot):
         return None
     for c in q['conditions']:
         if g['conditions'].get(str(c['id']), 0) < c['target']:
-            maps = [m for h in c['maps'] for m in map_list(h, bot.firma)]
+            maps = [m for h in c['maps'] for m in map_list(h, bot.company)]
             if c['type'] == VISIT_MAP:
-                maps = [m for h in c['matches'] for m in map_list(h, bot.firma)]
+                maps = [m for h in c['matches'] for m in map_list(h, bot.company)]
             elif c['type'] == HOME:
-                maps = [K.ev(bot.firma)]
+                maps = [K.ev(bot.company)]
             elif c['type'] == KILL_NPC and not maps:
                 # no map given: the nearest map where that alien appears and that it can enter
                 types = {t for k in c['matches'] for t in npc_types(k)}
-                maps = [m for m in K.MAPS if K.can_enter(m, bot.firma, bot.level)
+                maps = [m for m in K.MAPS if K.can_enter(m, bot.company, bot.level)
                         and any(v['tip'] in types for v, _ in K.map_npcs(m))]
-            maps = [m for m in maps if K.can_enter(m, bot.firma, bot.level)]
+            maps = [m for m in maps if K.can_enter(m, bot.company, bot.level)]
             return c, maps
         if q['ordered']:
             continue
@@ -119,11 +119,11 @@ def advance(bot, kind, n=1, npc_id=None, game_map=None, y=None):
             continue
         if kind == KILL_NPC and npc_id is not None and str(npc_id) not in c['matches']:
             continue
-        maps = [m for h in c['maps'] for m in map_list(h, bot.firma)]
+        maps = [m for h in c['maps'] for m in map_list(h, bot.company)]
         if kind == VISIT_MAP:
-            maps = [m for h in c['matches'] for m in map_list(h, bot.firma)]
+            maps = [m for h in c['matches'] for m in map_list(h, bot.company)]
         elif kind == HOME:
-            maps = [K.ev(bot.firma)]
+            maps = [K.ev(bot.company)]
         if maps and game_map not in maps:
             continue
         g['conditions'][key] = min(c['target'], g['conditions'].get(key, 0) + n)
@@ -212,7 +212,7 @@ class Quest(Goal):
             if not maps:
                 deferred(bot)
                 return
-        target_map = min(maps, key=lambda m: len(K.route(bot.game_map, m, bot.firma, bot.level) or range(99)))
+        target_map = min(maps, key=lambda m: len(K.route(bot.game_map, m, bot.company, bot.level) or range(99)))
         bot.plan['condition'] = c['id']
         bot.plan['map'] = target_map
         bot.plan['tip'] = next((v['tip'] for v, _ in K.map_npcs(target_map) if v['tip'] in types), None)

@@ -24,7 +24,7 @@ class ModeRun(Goal):
         return bot._mode_candidate is not None
 
     def points(self, bot, b):
-        return 0.7 + 0.5 * bot.o('ambition') + 0.3 * bot.o('rekabet') - 0.5 * bot.mood['fatigue'] + 0.2 * bot.mood['boredom']
+        return 0.7 + 0.5 * bot.o('ambition') + 0.3 * bot.o('rivalry') - 0.5 * bot.mood['fatigue'] + 0.2 * bot.mood['boredom']
 
     def start(self, bot, b):
         m = bot.__dict__.get('_mode_candidate')
@@ -33,7 +33,7 @@ class ModeRun(Goal):
             bot._mode_candidate, bot._mode_next_check = None, b.now + 1800   # could not enter: looks at other things for half an hour (so it does not idle)
             return
         ul, top, duration, reward = MD.run(bot, m, bot.r)
-        bot.plan.update(mod=m.uid, ul=ul, top=top, sure=duration, reward=reward, end_time=b.now + duration)
+        bot.plan.update(mod=m.uid, ul=ul, top=top, duration=duration, reward=reward, end_time=b.now + duration)
         bot._mode_candidate = None
         bot._mode_next_check = 0
         if m.game_map:
@@ -47,12 +47,12 @@ class ModeRun(Goal):
         if m is not None:
             o = bot.plan.get('reward') or {}
             bot.reward('npc', y.speed(bot), ep=o.get('ep', 0), credits=o.get('credits', 0), uridium=o.get('uridium', 0), honor=o.get('honor', 0))
-            m.finish(bot, bot.plan['ul'], bot.plan['top'], bot.plan['sure'], bot.r)
+            m.finish(bot, bot.plan['ul'], bot.plan['top'], bot.plan['duration'], bot.r)
             m.save(bot, bot.plan['ul'], bot.plan['top'])
             bot.ist('mode_run')
             bot.event('mode_done', mod=m.name, progress='%d/%d' % (bot.plan['ul'], bot.plan['top']))
         if bot.game_map not in K.MAPS:
-            S.jump_to(bot, K.ev(bot.firma), y)
+            S.jump_to(bot, K.ev(bot.company), y)
         bot.plan['finished'] = True
 
     def concrete(self, bot, g, w, now):

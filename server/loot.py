@@ -28,8 +28,8 @@ OPEN_SEC = 3                                   # opening time (whole seconds: th
 BL_CACHE = 'UNSTABLE_BLACKLIGHT_CACHE'
 KEYS = {}                                     # key -> the first box type that uses it (for the HUD code)
 for _k, _b in BOXES.items():
-    KEYS.setdefault(_b['anahtar'], _k)
-CODES = {b['code']: KEYS[b['anahtar']] for b in BOXES.values() if b.get('code')}   # HUD code -> box type (the "0|A|BK...|0" lines at login)
+    KEYS.setdefault(_b['key'], _k)
+CODES = {b['code']: KEYS[b['key']] for b in BOXES.values() if b.get('code')}   # HUD code -> box type (the "0|A|BK...|0" lines at login)
 
 
 def active(kind, now=None):
@@ -92,7 +92,7 @@ def pick_all(p, kind, rng=random):
     box = BOXES[kind]
     rows = box['reward'] or box.get('reward_event', {}).get(box_event(kind)) or []
     if not rows:                             # Battle Pass Box collected after the event ended: the key back
-        return [(box['anahtar'], 1)]
+        return [(box['key'], 1)]
     if kind == BL_CACHE:                     # wiki: the design at random, 10,000 uridium if already owned
         loot = rng.choice(rows)[0]
         return [('currency_uridium', K['bl_repeat_uridium']) if owned(p, loot) else (loot, 1)]
@@ -120,4 +120,4 @@ def key_line(p, kind):
     BKP Prosperous, BKPR Prometheus; green was sent as BKP, the client wrote Prosperous: user report 2026-10-24); None for a key
     with no counter (Battle Pass Key)."""
     b = BOXES[kind]
-    return '0|A|%s|%d' % (b['code'], p.resource(b['anahtar'])) if b.get('code') else None
+    return '0|A|%s|%d' % (b['code'], p.resource(b['key'])) if b.get('code') else None

@@ -12,9 +12,9 @@ import player_profile as PF
 from . import catalog as K
 from .personality import EMOTION_BASELINE
 
-TRAITS = ('aggression', 'rekabet', 'sociability', 'patience', 'risk', 'loyalty', 'helpfulness', 'talkativeness', 'frugality', 'ambition')
-CATEGORY = {'laser': 'lasers', 'kalkan': 'shield_generators', 'speed': 'speed_generators', 'drone': 'drones', 'ekstra': 'extras'}
-MAX_COUNTS = {'laser': 100, 'kalkan': 100, 'speed': 100, 'drone': 10, 'ekstra': 100000}
+TRAITS = ('aggression', 'rivalry', 'sociability', 'patience', 'risk', 'loyalty', 'helpfulness', 'talkativeness', 'frugality', 'ambition')
+CATEGORY = {'laser': 'lasers', 'shield': 'shield_generators', 'speed': 'speed_generators', 'drone': 'drones', 'extras': 'extras'}
+MAX_COUNTS = {'laser': 100, 'shield': 100, 'speed': 100, 'drone': 10, 'extras': 100000}
 
 
 class EditError(ValueError):
@@ -30,13 +30,13 @@ def _short(loot):
 def catalog():
     """The editor's options: ships (excluding designs), items, ammo, maps."""
     E = K.ITEMS
-    out = {'ships': [{'loot': l, 'name': _short(l), 'laser': v['laser'], 'gen': v['generators'], 'ekstra': v.get('extra', 1)}
+    out = {'ships': [{'loot': l, 'name': _short(l), 'laser': v['laser'], 'gen': v['generators'], 'extras': v.get('extra', 1)}
                        for l, v in sorted(E['ships'].items(), key=lambda x: (x[1]['hp'], x[0])) if 'base' not in v],
            'ammunition': [{'loot': l, 'name': _short(l)} for l in list(E['laser_ammo']) + list(E['rockets'])],
            'maps': [{'id': m, 'name': H.name(m)} for m in K.MAPS]}
     for multiplier, key in CATEGORY.items():
         out[multiplier] = [{'loot': l, 'name': _short(l)} for l in E[key]]
-    for x in out['ekstra']:                  # an extra's count is the remaining uses, not a quantity (bot/extras.py): when added it is fitted with full uses
+    for x in out['extras']:                  # an extra's count is the remaining uses, not a quantity (bot/extras.py): when added it is fitted with full uses
         x['right'] = int((E['extras'][x['loot']] or {}).get('right', 1))
     return out
 
@@ -88,19 +88,19 @@ def appearance(k, roster_row, online=None):
                 'friends': list(k.get('friends') or [])},
         mood={d: round(float((k.get('mood') or {}).get(d, EMOTION_BASELINE[d])), 3) for d in EMOTION_BASELINE},
         gear={'ship': e.get('ship'), 'ammunition': e.get('ammunition'), **{multiplier: dict(e.get(multiplier) or {}) for multiplier in CATEGORY}},
-        slot={'laser': gear['laser_slots'], 'gen': gear['gen_slot'], 'ekstra': g.get('extra', 1), 'ship_laser': g['laser']},
+        slot={'laser': gear['laser_slots'], 'gen': gear['gen_slot'], 'extras': g.get('extra', 1), 'ship_laser': g['laser']},
         power={'power': round(stats.get('power', 0), 1), 'dps': round(stats.get('dps', 0)), 'ehp': round(stats.get('ehp', 0))},
         stock={l: int(n) for l, n in (k.get('stock') or {}).items()},
         cargo={_short(kinds.get(str(t), 'ore_%s' % t)): int(n) for t, n in (k.get('cargo') or {}).items() if n},
         cargo_capacity=capacity, quest=quest, done=len(k.get('done') or ()), stats=dict(k.get('stats') or {}),
         gate_times=dict(k.get('gate_times') or {}),
-        warning={x: v for x, v in (k.get('warning') or {}).items() if x in ('sohbet', 'pvp', 'box') and v > time.time()},     # admin warning
+        warning={x: v for x, v in (k.get('warning') or {}).items() if x in ('chat', 'pvp', 'box') and v > time.time()},     # admin warning
         skylab=dict((k.get('skylab') or {}).get('mod') or {}), formation=k.get('formation'),
-        relations=sorted(({'anahtar': a, 'name': v.get('name', a), 'd': round(v.get('d', 0), 3), 'n': v.get('n', {})}
+        relations=sorted(({'key': a, 'name': v.get('name', a), 'd': round(v.get('d', 0), 3), 'n': v.get('n', {})}
                           for a, v in (k.get('memory') or {}).items()), key=lambda x: -abs(x['d'])),
         memories=[{'id': _memory_id(a), 'who': a['who'], 'summary': a['summary'], 't': a['t'], 'n': a.get('n', 1), 'type': a.get('type'),
                  'importance': a.get('importance'), 'followup': a.get('followup')} for a in sorted(k.get('memories') or [], key=lambda a: -a['t'])],
-        impression=[{'anahtar': a, 'name': v.get('name', a), 'text': v.get('text', '')} for a, v in (k.get('impression') or {}).items()],
+        impression=[{'key': a, 'name': v.get('name', a), 'text': v.get('text', '')} for a, v in (k.get('impression') or {}).items()],
         ledger=[x['text'] for x in k.get('ledger') or [] if not x.get('finished')],
         reminder=[{'text': x.get('text'), 'time_left_sec': max(0, int(x.get('due', now) - now))} for x in k.get('reminder') or []],
         savings=k.get('savings'), agent=list(k.get('agent') or [])[-20:])

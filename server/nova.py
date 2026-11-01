@@ -107,7 +107,7 @@ class Nova:
         here, out = where(map_id), {}
         for y in c['skills']:
             key, place = D['effects'].get(y['type'], (None, None))
-            if key and (place == 'hepsi' or place == here or (place == 'gate' and here == 'abg')):
+            if key and (place == 'all' or place == here or (place == 'gate' and here == 'abg')):
                 out[key] = out.get(key, 0) + value(y['type'], y['base'], y['level']) / 100.0
         return out
 

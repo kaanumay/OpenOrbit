@@ -107,7 +107,7 @@ class HitacLottery:
         """Event box: all of the 'guaranteed' rows; if pool (letter_extra) is given one row with equal weight, if chance ([lootId, count, probability]) is given
         each with its own probability (event_maps.roll)."""
         h = w.drop_box(kind, x, y, None, life)
-        spec = {'type': kind, 'mod': 'one_of' if pool else 'hepsi', 'guaranteed': rows}
+        spec = {'type': kind, 'mod': 'one_of' if pool else 'all', 'guaranteed': rows}
         if pool:
             spec['contents'] = pool
         elif chance:

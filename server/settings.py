@@ -8,10 +8,10 @@ any value up to `limit` can be typed by hand into the number box (UPPER_LIMIT if
 go to the client in a 32-bit field (HP, shield, damage), the server's load (number of aliens and boxes) or a logical upper bound (number of gates).
 When the file changes (saved from the panel) it is re-read within REFRESH_SEC at the latest, and takes effect while the game is open too. Each setting's
 'apply_mode' says when it takes effect:
-  anında    at the next event (damage, reward, box contents ...)
-  harita    when the map is rebuilt (map change, respawn after death): number of NPCs and boxes
-  giriş     when re-entering the game (events are announced to the client at login; popup windows)
-  başlatma  when the server restarts
+  instant   at the next event (damage, reward, box contents ...)
+  map       when the map is rebuilt (map change, respawn after death): number of NPCs and boxes
+  login     when re-entering the game (events are announced to the client at login; popup windows)
+  restart   when the server restarts
 Sub-settings (2026-10-24, user request: adjust uridium separately for boxes, aliens, gates): the multipliers in SUBS have sub-multipliers by
 source (key <parent>_<source>: uridium_npc, shop_price_credits ...; in the schema they follow their parent right after it with the 'parent' and 'source'
 fields). The effective multiplier is parent x sub: multiplier('uridium', 'npc'); if the source has no sub-setting, only the parent. Range,
@@ -27,26 +27,26 @@ DEFAULT_PATH = os.path.join(HERE, 'save', 'settings.json')
 REFRESH_SEC = 1.0
 
 GROUPS = (('ship', 'Your ship'), ('combat', 'Combat and aliens'), ('reward', 'Rewards'), ('progress', 'Progression'), ('world', 'World'),
-           ('gate', 'Gates and modes'), ('economy', 'Economy'), ('sure', 'Timers'), ('auction', 'Auction'), ('ui', 'Interface'),
+           ('gate', 'Gates and modes'), ('economy', 'Economy'), ('duration', 'Timers'), ('auction', 'Auction'), ('ui', 'Interface'),
            ('manager', 'Admin'), ('developer', 'Developer'))
 RIVAL_LEVELS = ('Off', 'Timid', 'Moderate', 'Competitive', 'Aggressive')
 UPPER_LIMIT = 10000.0             # the largest value multipliers can be typed by hand ('limit' if not given)
 I32 = 2 ** 31 - 1               # the upper bound of values that go to the client in a 32-bit field (the protocol would overflow: HP, shield, price)
 
 
-def _c(key, name, group, description, apply_mode='anında', lo=0.0, hi=10.0, step=0.1, default=1.0, limit=UPPER_LIMIT, condition=None):
+def _c(key, name, group, description, apply_mode='instant', lo=0.0, hi=10.0, step=0.1, default=1.0, limit=UPPER_LIMIT, condition=None):
     """Multiplier: a slider (lo..hi, recommended) and a number box (lo..limit) in the panel. condition: visible only while that on/off setting is on."""
-    return dict(anahtar=key, name=name, group=group, type='multiplier', default=default, min=lo, max=hi, cap=max(hi, limit), step=step,
+    return dict(key=key, name=name, group=group, type='multiplier', default=default, min=lo, max=hi, cap=max(hi, limit), step=step,
                 description=description, apply_mode=apply_mode, **({'condition': condition} if condition else {}))
 
 
-def _b(key, name, group, description, apply_mode='anında', default=False):
-    return dict(anahtar=key, name=name, group=group, type='bool', default=default, description=description, apply_mode=apply_mode)
+def _b(key, name, group, description, apply_mode='instant', default=False):
+    return dict(key=key, name=name, group=group, type='bool', default=default, description=description, apply_mode=apply_mode)
 
 
-def _n(key, name, group, description, apply_mode='anında', lo=0, hi=10, default=1, unit='', limit=None):
+def _n(key, name, group, description, apply_mode='instant', lo=0, hi=10, default=1, unit='', limit=None):
     """Integer (count, hours): a number box in the panel; hi is the recommended upper bound, limit the largest that can be typed by hand (hi if missing)."""
-    return dict(anahtar=key, name=name, group=group, type='number', default=default, min=lo, max=hi, cap=max(hi, limit or hi),
+    return dict(key=key, name=name, group=group, type='number', default=default, min=lo, max=hi, cap=max(hi, limit or hi),
                 unit=unit, description=description, apply_mode=apply_mode)
 
 
@@ -78,11 +78,11 @@ SCHEMA = [
                                                     'all.', limit=1000.0),
     _c('player_damage', 'Damage you deal', 'combat', 'Damage you deal to aliens, players and bots with lasers, rockets, launchers, mines, Smart Bomb, '
                                                     'cannons, the P.E.T. and abilities.', lo=0.1, limit=1000.0),
-    _c('npc_can', 'Alien hit points and shields', 'combat', 'Alien hit points and shields. A lower value kills aliens faster.', apply_mode='map', lo=0.1, limit=100.0),
+    _c('npc_hp', 'Alien hit points and shields', 'combat', 'Alien hit points and shields. A lower value kills aliens faster.', apply_mode='map', lo=0.1, limit=100.0),
     _c('npc_hit_chance', 'Alien hit chance', 'combat', 'Chance that aliens hit your ship and P.E.T. (game value 60%, at most 100%). 0: they never hit.', hi=2.0, limit=100.0),
     _c('npc_speed', 'Alien speed', 'combat', 'Flight speed of aliens (stationary ones stay put).', lo=0.1, hi=3.0, limit=10.0),
-    dict(anahtar='npc_aggression', name='Alien aggression', group='combat', type='level', default=0,
-         options=['By type', 'All aggressive', 'None aggressive'], colors=['', 'err', 'ok'], apply_mode='anında',
+    dict(key='npc_aggression', name='Alien aggression', group='combat', type='level', default=0,
+         options=['By type', 'All aggressive', 'None aggressive'], colors=['', 'err', 'ok'], apply_mode='instant',
          option_description=['As in the game: aggressive types attack when they see you, the others fight back when shot.',
                            'Every alien chases and attacks you once it notices you.',
                            'No alien attacks on its own; an alien you shoot still fights back.'],
@@ -96,7 +96,7 @@ SCHEMA = [
                                                              'X-1 and X-2 maps, destroying them brings a penalty. When off, you cannot attack your own company '
                                                              '(except clans at war).', default=True),
     _c('radiation', 'Radiation damage', 'combat', 'Hull damage from radiation outside the map border. 0: radiation does no harm.', lo=0.0, hi=5.0, limit=100.0),
-    _c('ksi_can', 'Clan Battle Station HP', 'combat', "Health and shield of every Clan Battle Station module (yours, bot clans' and rival clans'). When "
+    _c('cbs_hp', 'Clan Battle Station HP', 'combat', "Health and shield of every Clan Battle Station module (yours, bot clans' and rival clans'). When "
                                                      "changed, the modules' current health scales proportionally; in-game bars refresh when you re-enter "
                                                      'the map or a module is hit.', apply_mode='map', lo=0.1, hi=10.0, limit=1000.0),
     _c('cbs_damage', 'Clan Battle Station damage', 'combat', 'Damage dealt by the weapon modules of every Clan Battle Station (to aliens, and by a rival station '
@@ -221,23 +221,23 @@ SCHEMA = [
        lo=0.0, hi=5.0, limit=1000.0, condition='legacy_upgrade'),
     _c('pet_fuel', 'P.E.T. fuel use', 'economy', "The P.E.T.'s fuel use per minute. 0: it uses no fuel.", lo=0.0, hi=5.0,
        limit=100.0),
-    _c('skylab_uretim', 'Skylab production', 'economy', 'Hourly output of Skylab collectors and refineries.', hi=20.0),
+    _c('skylab_production', 'Skylab production', 'economy', 'Hourly output of Skylab collectors and refineries.', hi=20.0),
     _c('skylab_storage', 'Skylab storage capacity', 'economy', 'Capacity of the Skylab storage for each resource.', hi=20.0,
        limit=1000.0),
     # ---------------------------------------------------------------- timers
-    _c('cooldown', 'Crafting and waiting times', 'sure', 'Assembly crafting, Skylab upgrades and transport, Dispatch missions, item upgrades. Lower value: '
+    _c('cooldown', 'Crafting and waiting times', 'duration', 'Assembly crafting, Skylab upgrades and transport, Dispatch missions, item upgrades. Lower value: '
                                                          'faster (applies to newly started ones).', lo=0.0, hi=5.0, limit=100.0),
-    _c('skill_cooldown', 'Ability and item cooldowns', 'sure', "Cooldown of ship abilities, CPUs, mines, Smart Bomb, Insta-Shield, tech items and special rockets.", lo=0.05, hi=5.0, limit=100.0),
-    _c('booster_sure', 'Booster duration', 'sure', 'How long boosters stay active (applies to newly activated ones).', lo=0.1,
+    _c('skill_cooldown', 'Ability and item cooldowns', 'duration', "Cooldown of ship abilities, CPUs, mines, Smart Bomb, Insta-Shield, tech items and special rockets.", lo=0.05, hi=5.0, limit=100.0),
+    _c('booster_duration', 'Booster duration', 'duration', 'How long boosters stay active (applies to newly activated ones).', lo=0.1,
        hi=10.0, limit=1000.0),
-    _b('no_level_limit', 'No level restrictions', 'sure', "Portals and the jump CPU have no level requirement: you can enter every map."),
-    _b('session_always_open', 'Session events always open', 'sure', 'Events that open at set hours (Vortex of Greed, Treacherous Domain, Mimesis Mutiny) stay open for '
+    _b('no_level_limit', 'No level restrictions', 'duration', "Portals and the jump CPU have no level requirement: you can enter every map."),
+    _b('session_always_open', 'Session events always open', 'duration', 'Events that open at set hours (Vortex of Greed, Treacherous Domain, Mimesis Mutiny) stay open for '
                                                                     'the whole event: the portal is always open, and a session, battle or run starts when you enter. '
                                                                     "Event aliens (Curcubitor, Agatus, Lanatum, Chaos Protegit) also spawn outside the game's hourly "
                                                                     'windows.'),
     # ---------------------------------------------------------------- auction
-    dict(anahtar='auction_rivals', name='Virtual rivals', group='auction', type='level', default=0,
-         options=list(RIVAL_LEVELS), colors=['', 'ok', 'ok', 'info', 'err'], apply_mode='anında',
+    dict(key='auction_rivals', name='Virtual rivals', group='auction', type='level', default=0,
+         options=list(RIVAL_LEVELS), colors=['', 'ok', 'ok', 'info', 'err'], apply_mode='instant',
          option_description=['No rivals: only you place bids.',
                            'They place small bids now and then; they never outbid you, so any lot you bid on is yours.',
                            'More frequent and slightly higher bids; they still never outbid you.',
@@ -259,15 +259,15 @@ SCHEMA = [
     _b('kill_streak', 'Kill streak announcements', 'ui', 'Destroy aliens in quick succession to get the "Triple Kill", "Unstoppable", "Godlike", "Like a '
                                                          'Boss" announcement and sound (3, 6, 10, 15 kills; at most 10 s apart).'),
     _b('no_ads', 'Hide login pop-ups', 'ui', 'The daily bonus, tip and Season Pass windows that open at login are not sent (you can still open '
-                                             'them from the menus).', apply_mode='giriş'),
+                                             'them from the menus).', apply_mode='login'),
     # ---------------------------------------------------------------- admin (admin_mode.py)
     _b('admin_mode', 'Admin mode', 'manager', 'You become an administrator in the game: an admin badge (yellow A) before your name, and you are '
                                               'left out of the rank system, the Hall of Fame rankings and the company ranking. Bots know you as an '
                                               'admin: they never attack you, follow your warnings in chat and react when they see you. On a friend '
-                                              'server only for the host player.', apply_mode='giriş'),
-    dict(anahtar='admin_ship', name='Admin ship', group='manager', type='level', default=0,
+                                              'server only for the host player.', apply_mode='login'),
+    dict(key='admin_ship', name='Admin ship', group='manager', type='level', default=0,
          options=['Your own ship', 'UFO', 'Police', 'G-Admincloak', 'Goliath Admin'], colors=['', 'info', 'info', 'info', 'info'],
-         apply_mode='giriş',
+         apply_mode='login',
          option_description=['In admin mode you still show your own ship.',
                            "Admin ship (ship_admin): the same model as the game's UFO alien.",
                            'Police ship (ship_police).',
@@ -275,15 +275,15 @@ SCHEMA = [
                            "The Goliath's admin design (admincloak)."],
          description="In admin mode your ship looks like this; its stats (hit points, speed, equipment) are your own ship's."),
     _b('admin_spectator', 'Spectator (invulnerable)', 'manager', 'In admin mode aliens and bots do not attack you and you take no damage; you can roam the maps '
-                                                                 'freely and watch the bots.', apply_mode='anında'),
-    _b('admin_chat', 'Admin in chat', 'manager', "In admin mode your chat messages show as an admin's (in the game's admin colour).", apply_mode='giriş', default=True),
+                                                                 'freely and watch the bots.', apply_mode='instant'),
+    _b('admin_chat', 'Admin in chat', 'manager', "In admin mode your chat messages show as an admin's (in the game's admin colour).", apply_mode='login', default=True),
     _b('gm_console', 'GM console', 'manager', "The game's hidden admin window: in game press Ctrl, then Shift, then Z. Teleport to maps, spawn "
                                               'aliens and boxes, give items and packages, finish quests, set up gates, reset cooldowns, '
                                               'invulnerability. While on, an admin badge shows before your name (the client recognises the admin '
-                                              'by rank 6000).', apply_mode='giriş'),
+                                              'by rank 6000).', apply_mode='login'),
     # ---------------------------------------------------------------- developer
     _b('nearby_npc', 'Spawn aliens nearby', 'developer', 'Testing aid: one of each of the first four alien types spawns right next to your ship.', apply_mode='map'),
-    _b('control', 'Live test control channel', 'developer', 'Developer tool (control.py, 127.0.0.1:8099): message trace and request injection.', apply_mode='başlatma'),
+    _b('control', 'Live test control channel', 'developer', 'Developer tool (control.py, 127.0.0.1:8099): message trace and request injection.', apply_mode='restart'),
 ]
 
 # sub-settings: parent multiplier -> its sources [(source, name, description)]; the counterpart in the game is where multiplier(parent, source) is called
@@ -308,7 +308,7 @@ SUBS = {
               ('event', 'Event drops', 'Boxes from event and event gate aliens, Chromin boxes, Hitac lottery letters.'),
               ('gate', 'Gates', 'Lucky rewards of Galaxy Gates and event gates (designs, LF-4 …).'),
               ('mod', 'Modes', "Astral's salvage core and keys, EBL's extra reward.")),
-    'npc_damage': _PLACE, 'npc_can': _PLACE,
+    'npc_damage': _PLACE, 'npc_hp': _PLACE,
     'player_damage': (('pve', 'Vs aliens (PvE)', 'Damage you deal to aliens (NPCs).'),
                      ('pvp', 'Vs players (PvP)', 'Damage you deal to other players with lasers and rockets.'),
                      ('bot', 'Vs bots', 'Damage you deal to bots.')),
@@ -331,11 +331,11 @@ SUBS = {
                         ('technology', 'Tech items', 'Energy Leech, Chain Impulse, Battle Repair Bot, Speed Burst …'),
                         ('particle', 'Particle cannons and drive', 'Particle weapons and the Singularity Drive.')),
 }
-SCHEMA = [x for s in SCHEMA for x in [s] + [dict(s, anahtar='%s_%s' % (s['anahtar'], k), name=name, description=description, default=1.0,
-                                                 parent=s['anahtar'], source=k) for k, name, description in SUBS.get(s['anahtar'], ())]]
-SUB = {(s['parent'], s['source']): s['anahtar'] for s in SCHEMA if s.get('parent')}
-BY_KEY = {s['anahtar']: s for s in SCHEMA}
-DEFAULTS = {s['anahtar']: s['default'] for s in SCHEMA}
+SCHEMA = [x for s in SCHEMA for x in [s] + [dict(s, key='%s_%s' % (s['key'], k), name=name, description=description, default=1.0,
+                                                 parent=s['key'], source=k) for k, name, description in SUBS.get(s['key'], ())]]
+SUB = {(s['parent'], s['source']): s['key'] for s in SCHEMA if s.get('parent')}
+BY_KEY = {s['key']: s for s in SCHEMA}
+DEFAULTS = {s['key']: s['default'] for s in SCHEMA}
 EVENT_STATES = ('on', 'off')         # otherwise by the calendar
 
 # presets (the panel's "Presets" list): only the changed keys, the others are default
@@ -348,10 +348,10 @@ PRESETS = {
     'fast': {'name': 'Fast progress', 'description': 'Five times the rewards; aliens are plentiful and respawn quickly.',
               'values': {'credits': 5.0, 'uridium': 5.0, 'ep': 5.0, 'honor': 5.0, 'collecting': 5.0, 'drop': 3.0, 'box_abundance': 3.0,
                            'box_respawn': 0.3, 'npc_count': 1.5, 'npc_respawn': 0.3, 'shop_price': 0.5, 'mode_reward': 5.0,
-                           'drone_xp': 5.0, 'pet_ep': 5.0, 'season_points': 3.0, 'skylab_uretim': 3.0, 'ore_abundance': 2.0,
+                           'drone_xp': 5.0, 'pet_ep': 5.0, 'season_points': 3.0, 'skylab_production': 3.0, 'ore_abundance': 2.0,
                            'wave_wait': 0.5}},
     'hard': {'name': 'Hard', 'description': 'Aliens hit harder and last longer, rewards are low, rivals are aggressive.',
-              'values': {'npc_damage': 2.0, 'npc_can': 1.5, 'credits': 0.75, 'uridium': 0.75, 'box_abundance': 0.5,
+              'values': {'npc_damage': 2.0, 'npc_hp': 1.5, 'credits': 0.75, 'uridium': 0.75, 'box_abundance': 0.5,
                            'repair_cost': 2.0, 'auction_rivals': 4, 'npc_hit_chance': 1.25, 'npc_aggression': 1,
                            'shield_regen': 0.5}},
     'creative': {'name': 'Creative', 'description': "Your ship can't be destroyed, ammo never runs out, the shop and services are free, no waiting.",
@@ -515,7 +515,7 @@ def summary(values=None):
     d = _current() if values is None else clean(values)
     out = []
     for s in SCHEMA:
-        v = d.get(s['anahtar'], s['default'])
+        v = d.get(s['key'], s['default'])
         if v == s['default']:
             continue
         if s['type'] == 'multiplier':

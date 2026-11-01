@@ -135,7 +135,7 @@ def _gate(y, b, name, who, now, text=''):
         return _result('gate', False, 'You are busy in your own gate/event now: say so.', ('reply_no', {}))
     fac = int(who.get('factionId') or 0)
     p = 0.3 + 0.35 * b.o('sociability') + 0.35 * b.o('ambition') + 0.6 * b.memory.relation(name, now) - 0.3 * b.mood['fatigue']
-    if fac and fac != b.firma:
+    if fac and fac != b.company:
         p -= 0.6
     if b.r.random() >= p:
         return _result('gate', False, 'You decided NOT to join his gate. Say it in your own words.', ('reply_no', {}))
@@ -147,10 +147,10 @@ def _gate(y, b, name, who, now, text=''):
 # ------------------------------------------------------------------------------------------------------------ private message
 def _private(y, b, name, who, now):
     """"PM me": a willing bot writes its reply as a whisper instead of to the channel ('fisilti': the chat and LLM paths look at it)."""
-    if not y.permission('sohbet'):
+    if not y.permission('chat'):
         return None
     fac = int(who.get('factionId') or 0)
-    p = 0.3 + 0.5 * b.o('sociability') + 0.3 * b.o('helpfulness') + 0.6 * b.memory.relation(name, now) - (0.3 if fac and fac != b.firma
+    p = 0.3 + 0.5 * b.o('sociability') + 0.3 * b.o('helpfulness') + 0.6 * b.memory.relation(name, now) - (0.3 if fac and fac != b.company
                                                                                                         else 0)
     if b.r.random() >= p:
         return None
@@ -166,7 +166,7 @@ def _duel(y, b, name, who, game_map, now):
     its map (if the bot can enter it) or the map named, otherwise 4-4. A bot from the same company does not duel (cannot attack its own
     company)."""
     fac = int(who.get('factionId') or 0)
-    if fac == b.firma:
+    if fac == b.company:
         return _result('duel', False, 'He is in YOUR company: you cannot fight your own company, say so (or joke about it).',
                       ('duel_same', {}))
     if not (y.permission('pvp') and y.permission('attack_player')):
@@ -175,7 +175,7 @@ def _duel(y, b, name, who, game_map, now):
     if o is None or o.session is None:
         return None
     player_level = int(o.profile.d['pilot'].get('level', 1))
-    p = 0.05 + 0.5 * b.o('aggression') + 0.25 * b.o('rekabet') + 0.3 * b.mood['anger'] - 0.5 * b.memory.relation(name, now) \
+    p = 0.05 + 0.5 * b.o('aggression') + 0.25 * b.o('rivalry') + 0.3 * b.mood['anger'] - 0.5 * b.memory.relation(name, now) \
         - 0.07 * max(0, player_level - b.level) + 0.03 * max(0, b.level - player_level)
     if b.target is not None and b.target.name in ('quest', 'mod', 'gate', 'group'):
         p -= 0.25
@@ -183,8 +183,8 @@ def _duel(y, b, name, who, game_map, now):
         return _result('duel', False, 'You decided NOT to fight him (busy or not worth it). Answer in character: a short taunt '
                                        'or a lazy no.', ('duel_refuse', {}))
     candidates = [TL._game_map(game_map) if game_map else None, int(o.profile.d['position'].get('mapId', 0)), DUEL_MAP]
-    m = next((m for m in candidates if m and m in K.MAPS and K.can_enter(m, b.firma, b.level)
-              and K.route(b.game_map, m, b.firma, b.level)), None)
+    m = next((m for m in candidates if m and m in K.MAPS and K.can_enter(m, b.company, b.level)
+              and K.route(b.game_map, m, b.company, b.level)), None)
     if m is None:
         return _result('duel', False, 'You would fight him but you cannot reach him (level too low): say so.', ('cant_come', {}))
     return _result('duel', True, 'You ACCEPT the fight: you are flying to %s to find and attack him. Say it in your own words '
@@ -205,13 +205,13 @@ def _follow(y, b, name, who, game_map, text, now):
     if m == b.game_map:
         return _result('followup', True, 'You are already on %s too: say so (he can find you there).' % here,
                       ('used_in', {'map': here}))
-    if not K.can_enter(m, b.firma, b.level) or not K.route(b.game_map, m, b.firma, b.level):
+    if not K.can_enter(m, b.company, b.level) or not K.route(b.game_map, m, b.company, b.level):
         return _result('followup', False, 'You CANNOT go to %s (your level is too low or it is enemy land): say so.' % H.name(m),
                       ('cant_come', {}))
     from . import society
     fac = int(who.get('factionId') or 0)
     p = 0.2 + 0.5 * b.o('helpfulness') + 0.6 * b.memory.relation(name, now) - 0.3 * b.mood['fatigue']
-    if fac and fac != b.firma:
+    if fac and fac != b.company:
         p -= 0.6
     if b.target is not None and b.target.name in ('quest', 'mod', 'gate'):
         p -= 0.2
@@ -242,7 +242,7 @@ def _friend(y, b, name, who, now):
         return _result('friend', None, 'You are already friends with him: say so.')
     p = 0.25 + 0.5 * b.o('sociability') + 0.7 * b.memory.relation(name, now)
     fac = int(who.get('factionId') or 0)
-    if fac and fac != b.firma:
+    if fac and fac != b.company:
         p -= 0.3
     if b.r.random() >= p:
         return _result('friend', False, 'You decided NOT to add him (you barely know him). Say it in your own words, not rude.',
@@ -264,7 +264,7 @@ def _clan(y, b, name, who, text, now):
         if bot_clan is not None:
             return _result('clan', False, 'You are already in the clan [%s] %s and stay loyal: decline in your own words.' % (
                 bot_clan['tag'], bot_clan['name']), ('clan_member', {'tag': bot_clan['tag'], 'leader': bot_clan['leader']}))
-        if not y.permission('clan') or society.clan_company(ok) not in (0, b.firma):
+        if not y.permission('clan') or society.clan_company(ok) not in (0, b.company):
             return _result('clan', False, 'You decided NOT to join his clan. Say it in your own words.', ('reply_no', {}))
         p = 0.15 + 0.4 * b.o('sociability') + 0.7 * b.memory.relation(name, now) - 0.03 * max(0, b.level - int(
             o.profile.d['pilot'].get('level', 1)) - 4)

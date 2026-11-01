@@ -61,7 +61,7 @@ SETTINGS = {
     'llm_agent_steps': ('full', 1, 10, 3),
     'llm_hourly': ('full', 0, 20000, 200),             # hourly limit for all language model requests (0: unlimited)
 }
-PERMISSIONS = ('shop', 'quest', 'pvp', 'attack_player', 'sohbet', 'clan', 'clan_found', 'friend', 'group', 'auction', 'assist', 'box_stealing', 'cargo', 'rocket', 'custom_ammunition', 'ekstra', 'mine', 'lab', 'skylab', 'technology', 'booty', 'assembly', 'gate', 'event', 'modes', 'clan_diplomacy', 'clan_order', 'gate_filler', 'clan_cbs')
+PERMISSIONS = ('shop', 'quest', 'pvp', 'attack_player', 'chat', 'clan', 'clan_found', 'friend', 'group', 'auction', 'assist', 'box_stealing', 'cargo', 'rocket', 'custom_ammunition', 'extras', 'mine', 'lab', 'skylab', 'technology', 'booty', 'assembly', 'gate', 'event', 'modes', 'clan_diplomacy', 'clan_order', 'gate_filler', 'clan_cbs')
 SIMPLE_CLASSES = ('X-1', 'X-2', 'X-3', 'X-4', '4-X', 'X-5', 'X-6', 'X-7', 'X-8', '4-5')
 
 
@@ -224,7 +224,7 @@ def generate_roster(seed, count, distribution, lang, existing=(), name_lang=None
 
 
 CUSTOM_MAX = 500
-NAME_SOURCES = ('uretim', 'dostats')      # names: the generator (real server style) or the real players on dostats.info
+NAME_SOURCES = ('production', 'dostats')      # names: the generator (real server style) or the real players on dostats.info
 _COMPANY_NAME = {'mmo': 1, 'eic': 2, 'vru': 3}
 _ARCHETYPE_NAME = {'grinder': 'grinder', 'pve': 'grinder', 'hunter': 'hunter', 'pvp': 'hunter', 'social': 'social', 'trader': 'trader',
                'quester': 'quester', 'casual': 'casual', 'leader': 'leader', 'kasıcı': 'grinder', 'avcı': 'hunter', 'tüccar': 'trader',
@@ -310,7 +310,7 @@ def create(name, description='', world=None, mode='normal', progression='progres
         d = {'name': name, 'description': str(description or '')[:DESCRIPTION_LENGTH], 'world': None, 'mode': mode,
              'progression': progression if progression in PROGRESSIONS else 'progressive', 'seed': random.randrange(1, 2 ** 31),
              'lang': lang if lang in LANGUAGES else 'mixed', 'name_lang': name_lang_ if name_lang_ in LANGUAGES else 'mixed',
-             'company_distribution': _distribution(company_distribution), 'name_source': name_source if name_source in NAME_SOURCES else 'uretim',
+             'company_distribution': _distribution(company_distribution), 'name_source': name_source if name_source in NAME_SOURCES else 'production',
              'settings': clean_settings(settings or {}), 'created': _now()}
         summary = _custom_lang(d, parse_custom(special, players))
         n = max(len(summary), _count(d) or max(COUNT_MIN, min(COUNT_MAX, int(count or 60))))
@@ -486,7 +486,7 @@ def bot_name(pid, no, name, players=()):
         old, x['name'] = x['name'], name
         _save(pid, d)
         if old != name:
-            NL.add([{'type': 'name', 'eski': old, 'new': name}])      # clans, guides, memories (the game applies them)
+            NL.add([{'type': 'name', 'old': old, 'new': name}])      # clans, guides, memories (the game applies them)
 
 
 def reset(pid, event=True):
@@ -614,7 +614,7 @@ def clans(pid):
         bot = sum(1 for a in members if a in names)
         if not bot:
             continue
-        s = k.get('ksi') or {}
+        s = k.get('cbs') or {}
         out.append({'name': k.get('name', ''), 'tag': k.get('tag', ''), 'logo': k.get('logo'), 'company': k.get('company', 0),
                     'leader': (members.get(k.get('leader')) or {}).get('name', k.get('leader')), 'bot_leader': k.get('leader') in names,
                     'member': len(members), 'bot': bot, 'treasury': k.get('treasury', 0), 'tax': k.get('tax', 0), 'budget': k.get('budget'),
@@ -649,7 +649,7 @@ def detail(pid):
                      'agent': (s.get('agent') or [])[-6:],                    # the agent's latest steps (bot/agent.py; strong provider)
                      'memory': _memory(s)})
     out = dict(summary(pid), settings=clean_settings({}, d['settings']),          # new settings in old packages default
-               llm_usage=live_llm(pid), lang=d.get('lang'), name_lang=name_lang(d), name_source=d.get('name_source', 'uretim'), languages=list(LANGUAGES),
+               llm_usage=live_llm(pid), lang=d.get('lang'), name_lang=name_lang(d), name_source=d.get('name_source', 'production'), languages=list(LANGUAGES),
                company_distribution=d.get('company_distribution'), roster=rows, clans=clans(pid),
                has_state=bool(c))
     return out

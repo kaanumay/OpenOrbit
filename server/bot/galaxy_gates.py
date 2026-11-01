@@ -14,7 +14,7 @@ import json, math, os, random
 from . import catalog as K
 
 D = json.load(open(os.path.join(K.HERE, 'data', 'gates.json'), encoding='utf8'))
-KAPI = D['kapilar']
+KAPI = D['gates']
 ABG = ('alpha', 'beta', 'gamma')
 ORDER = ('alpha', 'beta', 'gamma', 'lambda', 'hades', 'delta', 'epsilon', 'kappa', 'zeta', 'streuner')
 ENERGY = 'resource_extra-energy'
@@ -44,7 +44,7 @@ def difficulty(gate):
         ehp = dps = 0.0
         for u in d.get('alien_spawns', []):
             n = u.get('count', 1)
-            ehp += n * (u.get('hp', 0) + u.get('kalkan', 0))
+            ehp += n * (u.get('hp', 0) + u.get('shield', 0))
             dps += min(n, 2) * u.get('damage', 0) * K.COMBAT['npc_hit_chance'] * 0.6 / K.NPC_INTERVAL  # the player pulls them one by one, escapes out of range
             for k, v in (u.get('reward') or {}).items():
                 reward[k] = reward.get(k, 0) + v * n
@@ -131,7 +131,7 @@ def target_gate(bot):
         if k in st['built'] or KAPI[k].get('not_producible'):
             continue
         duration, death = estimate(bot, k)
-        if death < KAPI[k]['can'] * 1.5:
+        if death < KAPI[k]['hp'] * 1.5:
             return k
     return None
 
@@ -145,7 +145,7 @@ def generator(bot):
         return 0
     n = stock(bot).get(ENERGY, 0)
     t = bot.o('frugality')
-    if bot.o('ambition') + bot.o('rekabet') > 1.1 and bot.k['uridium'] > D['energy_price'] * 300 * (1 + 2 * t):
+    if bot.o('ambition') + bot.o('rivalry') > 1.1 and bot.k['uridium'] > D['energy_price'] * 300 * (1 + 2 * t):
         n += int(bot.k['uridium'] * 0.15 // D['energy_price'])
     return draw(bot, k, min(n, 200)) if n else 0
 
@@ -155,7 +155,7 @@ def run_result(bot, gate, rng=random):
     """Result of the run -> (did it succeed, time s)."""
     duration, death = estimate(bot, gate)
     death = rng.gauss(death, 0.3 * death + 0.2)
-    return death < KAPI[gate]['can'], duration * rng.uniform(1.1, 1.6) + 120
+    return death < KAPI[gate]['hp'], duration * rng.uniform(1.1, 1.6) + 120
 
 
 def grant_reward(bot, gate, speed=1.0):
@@ -201,6 +201,6 @@ def can_run(bot):
     """A built and passable gate or None."""
     st = state(bot)
     for k in st['built']:
-        if estimate(bot, k)[1] < KAPI[k]['can']:
+        if estimate(bot, k)[1] < KAPI[k]['hp']:
             return k
     return None

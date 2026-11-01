@@ -17,7 +17,7 @@ class Resting(Goal):
 
     def start(self, bot, b):
         if bot.r.random() < 0.6:
-            S.go(bot, K.ev(bot.firma), b.y, b.now)
+            S.go(bot, K.ev(bot.company), b.y, b.now)
 
     def abstract(self, bot, dt, y):
         if S.journey(bot, y):

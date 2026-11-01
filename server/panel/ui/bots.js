@@ -31,7 +31,7 @@ const BT_PERMS = {
   quest: [N('Quests'), N('They complete the quest chain.')],
   pvp: [N('PvP'), N('Bots fight each other.')],
   attack_player: [N("Don't attack you"), N('Bots of the enemy company may attack when they see you.')],
-  sohbet: [N('Chat'), N('They write in global, company, clan and group chat, and reply to whispers.')],
+  chat: [N('Chat'), N('They write in global, company, clan and group chat, and reply to whispers.')],
   clan: [N('Joining clans'), N('They apply to clans that match their personalities (yours too).')],
   clan_found: [N('Founding clans'), N('Bots with a leader spirit and plenty of money found clans and evaluate applications.')],
   friend: [N('Friendship'), N('They consider friend requests and send requests to people they have played with.')],
@@ -41,7 +41,7 @@ const BT_PERMS = {
   cargo: [N('Cargo and ore selling'), N("They collect aliens' cargo boxes; when the cargo is full they return to their own station (X-1, X-8) and sell the ore.")],
   rocket: [N('Rockets'), N("They buy rockets and fire them in combat (from R-310 to PLT-3030, depending on their money).")],
   custom_ammunition: [N('Special ammo'), N("They use x2/x3 (MCB-25/50) on tough aliens and RSB-75 in PvP, bought with uridium. If off, LCB-10 only.")],
-  ekstra: [N("CPUs and extras"), N("They buy and use repair bots, the rocket CPU, cargo CPU, HM-7, jump and cloaking CPUs, Insta-Shield and Smart Bomb.")],
+  extras: [N("CPUs and extras"), N("They buy and use repair bots, the rocket CPU, cargo CPU, HM-7, jump and cloaking CPUs, Insta-Shield and Smart Bomb.")],
   mine: [N('Mines'), N('Aggressive bots buy mines and drop them behind them when fleeing from you.')],
   lab: [N('Refining and lab'), N('They refine ore from their cargo and load it into their lasers, rockets and shields (Prometid, Duranium, Promerium, Seprom).')],
   skylab: [N('Skylab'), N('They build and upgrade a Skylab; they transport its ore to their ship and sell it or use it in the lab.')],
@@ -69,7 +69,7 @@ const btWorldName = id => (BT.entries?.worlds || []).find(w => w.id === id)?.nam
 
 // ------------------------------------------------------------------ entry point
 async function renderBots() {
-  const r = await act(() => api('/api/botlar')); if (!r || S.page !== 'bots') return;
+  const r = await act(() => api('/api/bots')); if (!r || S.page !== 'bots') return;
   BT.entries = r;
   if (BT.pid && !r.entries.some(p => p.id === BT.pid)) BT.pid = null;
   if (!BT.pid) return btLibrary();
@@ -103,7 +103,7 @@ function btLibrary() {
       h('div', null, h('h2', null, icon('bot'), T('Bots')),
         h('p', { class: 'desc' }, T("Create a bot pack and assign it to a world: while you play in that world, the bots are on the maps like real players. The roster is generated once; you meet the same bots every time you log in, and they keep progressing even when you're away.")),
         h('div', { class: 'row wrap' }, btn(T('New bot pack'), () => btWizard(), 'primary', 'plus')))),
-    h('div', { class: 'bt-grid' }, r.entries.map(card), h('button', { class: 'bt-card yeni', onclick: () => btWizard() }, icon('plus'), h('span', null, T('New bot pack'))))));
+    h('div', { class: 'bt-grid' }, r.entries.map(card), h('button', { class: 'bt-card new', onclick: () => btWizard() }, icon('plus'), h('span', null, T('New bot pack'))))));
 }
 
 function btPackMenu(anchor, p) {
@@ -116,7 +116,7 @@ function btPackMenu(anchor, p) {
     '-',
     { label: T('Delete'), ic: 'trash', danger: true, fn: async () => {
       if (!await confirmBox(T('Delete "{0}"?', p.name), T("The pack and the bots' progress are deleted (kept in the save/botlar/_silinenler folder)."), { ok: T('Delete'), danger: true })) return;
-      const x = await act(() => api('/api/bot/sil', { id: p.id }), T('Bot pack deleted.')); if (x) { BT.entries = x; if (BT.pid === p.id) BT.pid = null; renderBots(); } } },
+      const x = await act(() => api('/api/bot/delete', { id: p.id }), T('Bot pack deleted.')); if (x) { BT.entries = x; if (BT.pid === p.id) BT.pid = null; renderBots(); } } },
   ]);
 }
 
@@ -137,7 +137,7 @@ async function btAssign(p, did) {
 function btWizard() {
   const r = BT.entries;
   const w = { name: '', description: '', world: (r.worlds.find(d => !r.entries.some(p => p.world === d.id)) || r.worlds[0] || {}).id || null, mode: 'normal',
-    progression: 'progressive', count: 80, lang: 'mixed', name_lang: 'mixed', name_source: 'uretim', company_distribution: [1, 1, 1], special: '', settings: { jumpstart_hours: 60, simple_power: 1, simple_friendly: 0.5,
+    progression: 'progressive', count: 80, lang: 'mixed', name_lang: 'mixed', name_source: 'production', company_distribution: [1, 1, 1], special: '', settings: { jumpstart_hours: 60, simple_power: 1, simple_friendly: 0.5,
       simple_maps: { 'X-1': 2, 'X-2': 2, 'X-3': 2, 'X-4': 2, '4-X': 3, 'X-5': 1, 'X-6': 1, 'X-7': 1, 'X-8': 1, '4-5': 2 } } };
   let step = 0;
   const body = h('div', { class: 'stack', style: { gap: '14px' } });
@@ -221,7 +221,7 @@ function btPickLang(value, onchange, mixedName, locked) {
 const BT_NAME_SOURCE_DESCRIPTION = N("Generated names are decorated like on real servers (-»Λd«-, ツ, ᵀᴹ). With DOStats, names and clan tags are taken from real players on dostats.info (needs internet; applies to newly added bots and regeneration).");
 function btNameSource(value, onchange) {
   return h('select', { class: 'input', onchange: e => onchange(e.target.value) },
-    [['uretim', T('Generated')], ['dostats', T('DOStats (real players)')]].map(([v, name]) => h('option', { value: v, selected: v === value }, name)));
+    [['production', T('Generated')], ['dostats', T('DOStats (real players)')]].map(([v, name]) => h('option', { value: v, selected: v === value }, name)));
 }
 // the built-in language model is English only; if another provider is chosen the language is free in Advanced mode too (bot/llm_provider.py)
 const btLangLocked = mode => mode === 'advanced' && !BT.entries?.llm_multilingual;
@@ -278,7 +278,7 @@ function btSimpleSettings(a, render, wizard = false, save = null) {
 // ================================================================== EDITOR
 const BT_TABS = [
   ['general', N('Public'), 'sliders'], ['roster', N('Roster'), 'users'], ['behavior', N('Behavior'), 'target'], ['access', N('Permissions'), 'shield'],
-  ['sohbet', N('Chat'), 'chat'], ['clans', N('Clans'), 'star'], ['simple', N('Simple mode'), 'bot'], ['advanced', N('Advanced mode'), 'brain'],
+  ['chat', N('Chat'), 'chat'], ['clans', N('Clans'), 'star'], ['simple', N('Simple mode'), 'bot'], ['advanced', N('Advanced mode'), 'brain'],
 ];
 
 async function btEditor() {
@@ -286,7 +286,7 @@ async function btEditor() {
   if (!d || S.page !== 'bots') return;
   BT.d = d;
   const tabs = BT_TABS.filter(([k]) => (k !== 'simple' || d.mode === 'simple') && (k !== 'advanced' || d.mode === 'advanced')
-    && (d.mode !== 'simple' || !['behavior', 'sohbet'].includes(k)));
+    && (d.mode !== 'simple' || !['behavior', 'chat'].includes(k)));
   if (!tabs.some(([k]) => k === BT.tab)) BT.tab = 'general';
   btFill($('#content'), h('div', { class: 'stack' },
     h('div', { class: 'card bt-bar' }, btn('', () => { BT.pid = null; renderBots(); }, 'ghost icon', 'arrowL', { title: T('Bot packs') }),
@@ -303,13 +303,13 @@ async function btEditor() {
       d.restart_needed ? btn(T('Restart the server'), () => act(() => api('/api/bot/server_restart', {}), T('Server is restarting.')).then(() => setTimeout(btEditor, 1500)), 'sm orange', 'refresh') : null) : null,
     h('div', { class: 'seg bt-tabs' }, tabs.map(([k, name, iconEl]) => h('button', { type: 'button', class: BT.tab === k ? 'on' : '',
       onclick: () => { BT.tab = k; btEditor(); } }, icon(iconEl), T(name)))),
-    h('div', { id: 'bt-area' }, ({ general: btGeneral, roster: btRoster, behavior: btBehavior, access: btAccess, sohbet: btChat, clans: btClans, simple: btSimple, advanced: btAdvanced })[BT.tab](d))));
+    h('div', { id: 'bt-area' }, ({ general: btGeneral, roster: btRoster, behavior: btBehavior, access: btAccess, chat: btChat, clans: btClans, simple: btSimple, advanced: btAdvanced })[BT.tab](d))));
 }
 
 function btSaveStatus(state) {
   const el = $('#bt-kayit'); if (!el) return;
   el.className = 'we-save-status ' + state;
-  btFill(el, ...(state === 'kaydediliyor' ? [h('span', { class: 'spin' }), T('Saving…')] : state === 'kaydedildi' ? [icon('check'), T('Saved')] : []));
+  btFill(el, ...(state === 'saving' ? [h('span', { class: 'spin' }), T('Saving…')] : state === 'saved' ? [icon('check'), T('Saved')] : []));
 }
 // a change: waits 450 ms and goes in a single request (settings are merged)
 function btPatch(fields) {
@@ -317,14 +317,14 @@ function btPatch(fields) {
     if (k === 'settings') BT.pending.settings = Object.assign(BT.pending.settings || {}, v);
     else BT.pending[k] = v;
   }
-  btSaveStatus('kaydediliyor');
+  btSaveStatus('saving');
   clearTimeout(BT.timer);
   BT.timer = setTimeout(async () => {
     const body = Object.assign({ id: BT.pid }, BT.pending); BT.pending = {};
     const x = await act(() => api('/api/bot/update', body));
     if (!x) return btSaveStatus('');
     const mode = BT.d.mode;
-    BT.d = x; btSaveStatus('kaydedildi');
+    BT.d = x; btSaveStatus('saved');
     if (body.mode && body.mode !== mode || body.name) btEditor();
   }, 450);
 }
@@ -374,7 +374,7 @@ function btGeneral(d) {
       btRow(T('Reset progress'), T("The bots' level, money, equipment, clans and relationships are deleted; names and personalities stay."),
         btn(T('Reset'), async () => {
           if (!await confirmBox(T('Reset progress?'), T('Bots start from scratch (redistributed in Jumpstart).'), { ok: T('Reset'), danger: true })) return;
-          const x = await act(() => api('/api/bot/sifirla', { id: d.id }), T('Progress reset.')); if (x) { BT.d = x; btEditor(); }
+          const x = await act(() => api('/api/bot/reset', { id: d.id }), T('Progress reset.')); if (x) { BT.d = x; btEditor(); }
         }, 'sm danger', 'trash'))));
 }
 
@@ -383,7 +383,7 @@ function btRoster(d) {
   const byArchetype = {};
   d.roster.forEach(b => { byArchetype[b.archetype] = (byArchetype[b.archetype] || 0) + 1; });
   const f = d.company_distribution.slice();
-  let count = d.count, lang = d.lang || 'mixed', nameLang = d.name_lang || lang, nameSource = d.name_source || 'uretim', special = '';
+  let count = d.count, lang = d.lang || 'mixed', nameLang = d.name_lang || lang, nameSource = d.name_source || 'production', special = '';
   const control = d.mode === 'simple' ? h('div', { class: 'alert info' }, icon('info'), h('div', null, T('In Simple mode, the bot count comes from the map counts in the Simple mode tab.')))
     : h('div', { class: 'stack', style: { gap: '10px' } },
       btRow(T('Bot count'), T("Increasing adds new bots, decreasing removes the last ones; existing bots don't change."), btNumber(count, v => { count = v; }, { min: 1, max: 3000 })),
@@ -395,10 +395,10 @@ function btRoster(d) {
         : T('After Apply, all bots speak this language.'), btChatLang(d.mode, lang, v => { lang = v; })),
       field(T('Your own bots'), btCustomField('', v => { special = v; }), h('div', { class: 'small muted' }, T('Apply: names not in the roster are added as new bots. Regenerate: they come first in the roster.'))),
       h('div', { class: 'row wrap', style: { justifyContent: 'flex-end' } },
-        btn(T('Apply'), async () => { const x = await act(() => api('/api/bot/kadro', { id: d.id, count, company_distribution: f, lang, name_lang: nameLang, name_source: nameSource, special }), T('Roster updated.')); if (x) { BT.d = x; btEditor(); } }, 'sm primary', 'check'),
+        btn(T('Apply'), async () => { const x = await act(() => api('/api/bot/roster', { id: d.id, count, company_distribution: f, lang, name_lang: nameLang, name_source: nameSource, special }), T('Roster updated.')); if (x) { BT.d = x; btEditor(); } }, 'sm primary', 'check'),
         btn(T('Regenerate'), async () => {
           if (!await confirmBox(T('Regenerate the roster?'), T('All bots are regenerated with new names and personalities, and their progress is deleted.'), { ok: T('Regenerate'), danger: true })) return;
-          const x = await act(() => api('/api/bot/kadro', { id: d.id, count, company_distribution: f, lang, name_lang: nameLang, name_source: nameSource, special, regenerate: true }), T('Roster regenerated.')); if (x) { BT.d = x; btEditor(); }
+          const x = await act(() => api('/api/bot/roster', { id: d.id, count, company_distribution: f, lang, name_lang: nameLang, name_source: nameSource, special, regenerate: true }), T('Roster regenerated.')); if (x) { BT.d = x; btEditor(); }
         }, 'sm danger', 'refresh')));
   return h('div', { class: 'stack' },
     h('div', { class: 'card' }, h('h2', null, icon('users'), T('Roster')),
@@ -485,7 +485,7 @@ function btRosterTable(roster) {
   return h('div', null, tool, h('div', { class: 'bt-table' }, table));
 }
 
-const BT_TRAIT = { aggression: N('aggressive'), rekabet: N('competitive'), sociability: N('social'), patience: N('patient'), risk: N('risk-taking'), loyalty: N('loyal'),
+const BT_TRAIT = { aggression: N('aggressive'), rivalry: N('competitive'), sociability: N('social'), patience: N('patient'), risk: N('risk-taking'), loyalty: N('loyal'),
   helpfulness: N('helpful'), talkativeness: N('talkative'), frugality: N('thrifty'), ambition: N('ambitious') };
 function btTraitSummary(o) {
   const en = Object.entries(o || {}).sort((a, b) => b[1] - a[1]).slice(0, 2);
@@ -525,7 +525,7 @@ function btChat(d) {
   return h('div', null, h('div', { class: 'card' }, h('h2', null, icon('chat'), T('Chat')),
     btRow(T('Trash talk'), T('How much bots provoke: Off (always polite), Light, Harsh (taunts in global after a kill, answers insults hard), Very harsh (often taunts enemy companies and you). Never swearing or real threats.'),
       btSeg([[0, T('Off')], [1, T('Light')], [2, T('Harsh')], [3, T('Very harsh')]], a.rude_chat, v => btSetting('rude_chat', v))),
-    btRow(T('Chat'), T(BT_PERMS.sohbet[1]), btKey(a.permissions.sohbet !== false, v => btSetting('permissions', { sohbet: v }))),
+    btRow(T('Chat'), T(BT_PERMS.chat[1]), btKey(a.permissions.chat !== false, v => btSetting('permissions', { chat: v }))),
     btRow(T('Channel density'), T("Maximum bot lines per minute in global and company chat (so chat doesn't get flooded)."),
       btSlider(a.chat_min, v => btSetting('chat_min', v), { min: 0, max: 30, step: 1, fmt: v => T('{0}/min', v) })),
     h('div', { class: 'alert info' }, icon('info'), h('div', null, d.mode === 'advanced'
@@ -548,7 +548,7 @@ function btClans(d) {
     h('div', { class: 'bt-clan-body' },
       h('div', { class: 'bt-clan-name' }, h('b', null, '[' + k.tag + '] ' + k.name), badge(T('{0} members', k.member), '')),
       h('div', { class: 'small muted' }, [T('Leader: {0}', k.leader), T('Treasury: {0} credits', fmtN(k.treasury)), T('Tax: {0}%', k.tax)].join(' · ')),
-      k.budget ? h('div', { class: 'small muted' }, T('Budget: station {0}%, payouts {1}%, war {2}%', ...['ksi', 'payment', 'combat'].map(a => Math.round(100 * (k.budget[a] || 0))))) : null,
+      k.budget ? h('div', { class: 'small muted' }, T('Budget: station {0}%, payouts {1}%, war {2}%', ...['cbs', 'payment', 'combat'].map(a => Math.round(100 * (k.budget[a] || 0))))) : null,
       k.ranks.length ? h('div', { class: 'small muted' }, T('Ranks: {0}', k.ranks.join(', '))) : null,
       h('div', { class: 'small' }, k.stations.length ? T('Station: {0}', k.stations.join(', ')) : k.race ? T('Racing for a station: {0}', k.race) : T('No station')),
       k.diplomacy.length ? h('div', { class: 'small muted' }, k.diplomacy.map(x => T(BT_DIPLOMACY[x.type] || '?') + ': ' + x.name).join(' · ')) : null,
@@ -590,11 +590,11 @@ function btAgentTrace(b) {
   return h('a', { href: '#', class: 'small muted bt-agent', title: T('Click for details'),
     onclick: e => { e.preventDefault(); e.stopPropagation(); btBotDetail(b.no, last ? 'thought' : 'memory'); } }, icon('brain'), last ? last.thought : T('On their mind'));
 }
-const BT_PURPOSE = { promise: N('promise'), intikam: N('revenge'), thanks: N('thanks'), rekabet: N('rivalry'), merak: N('a question') };
+const BT_PURPOSE = { promise: N('promise'), revenge: N('revenge'), thanks: N('thanks'), rivalry: N('rivalry'), curiosity: N('a question') };
 const BT_MOOD = { anger: N('Anger'), morale: N('Morale'), boredom: N('Boredom'), fatigue: N('Tiredness'), confidence: N('Confidence') };
-const BT_GEAR = [['laser', N('Lasers'), 'laser'], ['kalkan', N('Shield generators'), 'gen'], ['speed', N('Speed generators'), 'gen'], ['drone', N('Drones')], ['ekstra', N('Extras'), 'ekstra']];
+const BT_GEAR = [['laser', N('Lasers'), 'laser'], ['shield', N('Shield generators'), 'gen'], ['speed', N('Speed generators'), 'gen'], ['drone', N('Drones')], ['extras', N('Extras'), 'extras']];
 const BT_STATS = { npc: N('Aliens killed'), player: N('Players killed'), death: N('Deaths'), box: N('Bonus box'), cargo_box: N('Cargo boxes'),
-  box_stolen: N("Others' cargo boxes"), purchase: N('Purchases'), quest: N('Quests finished'), sure_sn: N('Time played'),
+  box_stolen: N("Others' cargo boxes"), purchase: N('Purchases'), quest: N('Quests finished'), duration_sec: N('Time played'),
   spend_kredi: N('Credits spent'), spend_uridyum: N('Uridium spent'), ore_credits: N('Credits from ore sales'), resupply: N('Ammo restocks'),
   box_opened: N('Booty boxes opened'), key_pickup: N('Keys bought'), refining: N('Refining'), lab_load: N('Lab upgrades loaded'),
   skylab_upgrade: N('Skylab upgrades'), skylab_transport: N('Skylab transports'), technology: N('Tech items built'), assembly: N('Assembly crafting'),
@@ -602,13 +602,13 @@ const BT_STATS = { npc: N('Aliens killed'), player: N('Players killed'), death: 
   event_npc: N('Event alien'), event_box: N('Event box'), event_drop: N('Event loot'), pass_quest: N('Battle Pass tasks'),
   battle_pass: N('Battle Pass'), season_level: N('Season Pass levels'), dispatch: N('Dispatch'), galaxy_trek: N('Galaxy Trek'), mine: N('Mines'),
   smart_bomb: N('Smart Bomb'), emp: N('EMP'), salvo: N('Rocket salvos'), hidden: N('Cloaking'), jump_cpu: N("Jump CPU") };
-const BT_STATS_FEATURED = ['npc', 'player', 'death', 'quest', 'gate_done', 'sure_sn'];          // the big boxes of the Statistics section
-const BT_WARNING = { sohbet: N('chat'), pvp: N('PvP'), box: N('cargo box') };
+const BT_STATS_FEATURED = ['npc', 'player', 'death', 'quest', 'gate_done', 'duration_sec'];          // the big boxes of the Statistics section
+const BT_WARNING = { chat: N('chat'), pvp: N('PvP'), box: N('cargo box') };
 const seDurationBt = sec => sec ? (sec >= 3600 ? Math.floor(sec / 3600) + ':' : '') + String(Math.floor(sec / 60) % 60).padStart(sec >= 3600 ? 2 : 1, '0') + ':' + String(Math.round(sec) % 60).padStart(2, '0') : '—';
 const btShort = l => String(l || '').split('_').pop().toUpperCase();
 const btCapitalize = m => m ? m.charAt(0).toLocaleUpperCase(LOC()) + m.slice(1) : m;
 const BT_EVENT = { killed_me: N('shot me down'), i_killed: N('I shot him down'), helped_me: N('helped me'), i_helped: N('I helped'),
-  sohbet: N('chat'), insult: N('insult'), praise: N('praise'), group: N('group'), clan: N('clan'), friend: N('friendship'), reddetti: N('turned me down'),
+  chat: N('chat'), insult: N('insult'), praise: N('praise'), group: N('group'), clan: N('clan'), friend: N('friendship'), reddetti: N('turned me down'),
   hunted_together: N('farmed together'), challenge: N('challenged me'), gossip_good: N('good gossip'), gossip_bad: N('bad gossip'),
   warned: N('warned by the admin') };
 const BT_HABIT = { daytime: N('Daytime player'), evening: N('Evening player'), night_owl: N('Night owl'), devoted: N('Devoted') };
@@ -647,19 +647,19 @@ const BT_D_TABS = [['profile', N('Profile'), 'user', N('Name, level, wallet, map
   ['thought', N('Thoughts'), 'chat', N("The language model's latest decisions and the tools it used.")],
   ['stats', N('Statistics'), 'gauge', N('Counters, gate times, warnings, friends and Skylab.')]];
 const BT_D_IMAGE = { profile: 'ke_pilot', hangar: 'ke_hangar', personality: 'bt_personality', memory: 'bt_memory', thought: 'bt_thought', stats: 'bt_stats' };   // Orders.md OP-013, OP-019
-const btDetailIcon = s => BT_D_IMAGE[s[0]] ? h('span', { class: 'se-tab-icon gorsel' }, art(BT_D_IMAGE[s[0]], 'se-tab-art')) : h('span', { class: 'se-tab-icon' }, icon(s[2]));
+const btDetailIcon = s => BT_D_IMAGE[s[0]] ? h('span', { class: 'se-tab-icon image' }, art(BT_D_IMAGE[s[0]], 'se-tab-art')) : h('span', { class: 'se-tab-icon' }, icon(s[2]));
 
 async function btBotDetail(no, tab = 'profile') {
   const pid = BT.d.id;
   let v;
-  try { [v] = await Promise.all([api('/api/bot/detay?id=' + encodeURIComponent(pid) + '&no=' + no), loadGameImages()]); } catch (e) { toast(e.message, 'err'); return; }
+  try { [v] = await Promise.all([api('/api/bot/detail?id=' + encodeURIComponent(pid) + '&no=' + no), loadGameImages()]); } catch (e) { toast(e.message, 'err'); return; }
   let value = {};
   const multiplier = v.catalog;
   const lock = !!v.read_only;
   const fc = () => btCompany[v.company - 1].toLowerCase();
   const side = h('aside', { class: 'bt-detail-side' }), main = h('div', { class: 'bt-detail-main' }), state = h('div', { class: 'bt-detail-status' });
   const save = btn(T('Save'), async () => {
-    const x = await act(() => api('/api/bot/detay', { id: pid, no, changes: value }), T('Saved.'));
+    const x = await act(() => api('/api/bot/detail', { id: pid, no, changes: value }), T('Saved.'));
     if (x) { v = x; value = {}; render(); BT.d = await api('/api/bot?id=' + encodeURIComponent(pid)).catch(() => BT.d); }
   }, 'primary', 'check');
   const cancel = btn(T('Cancel'), () => { value = {}; render(); }, 'ghost', 'undo');
@@ -721,7 +721,7 @@ async function btBotDetail(no, tab = 'profile') {
         onkeydown: e => { if (e.key === 'Enter') regenerate.click(); } }),
       regenerate = btn(T('Rename'), async () => {
         if (name === v.name) return;
-        const x = await act(() => api('/api/bot/ad', { id: pid, no, name }), T('Saved.'));
+        const x = await act(() => api('/api/bot/name', { id: pid, no, name }), T('Saved.'));
         if (x) { BT.d = x; v.name = name; render(); }
       }, '', 'edit', { disabled: true })),
       h('div', { class: 'small dim' }, T('3-20 characters: letters, digits, _ . -  The name changes right away, without Save.')));
@@ -758,13 +758,13 @@ async function btBotDetail(no, tab = 'profile') {
     const mood = Object.assign({}, v.mood, value.mood);
     const moodRow = ([k, name_]) => {
       const value = h('b', null, Math.round((mood[k] ?? 0) * 100));
-      return h('div', { class: 'bt-trait ruh-' + k }, h('span', null, T(name_)), value,
+      return h('div', { class: 'bt-trait mood-' + k }, h('span', null, T(name_)), value,
         percent(mood[k] ?? 0, x => { value.textContent = Math.round(x * 100); mapping('mood', k, x); }, 'bt-mood'));
     };
     return [card(T('Traits'), 'brain', h('p', { class: 'desc' }, T('Set when the roster was generated; change it and the bot decides accordingly (aggressive bots lean to PvP, social ones to chat, thrifty ones to saving).')),
       h('div', { class: 'bt-personality' }, h('div', { class: 'bt-radar-box' }, r.svg), h('div', { class: 'bt-traits' }, Object.entries(BT_TRAIT).map(traitRow)))),
     v.var ? card(T('Mood'), 'heart', h('p', { class: 'desc' }, T('Its current feelings: they settle back over time. An angry bot seeks revenge, a tired one logs off early.')),
-      h('div', { class: 'bt-traits iki' }, Object.entries(BT_MOOD).map(moodRow))) : null];
+      h('div', { class: 'bt-traits two' }, Object.entries(BT_MOOD).map(moodRow))) : null];
   }
 
   // ---- Hangar: ship, equipment boxes, ammo, cargo
@@ -773,7 +773,7 @@ async function btBotDetail(no, tab = 'profile') {
     const e = v.gear, f = fc();
     const ship = get_value('ship', e.ship);
     const g = multiplier.ships.find(x => x.loot === ship) || {};
-    const slot = { laser: g.laser, gen: g.gen, ekstra: g.ekstra };
+    const slot = { laser: g.laser, gen: g.gen, extras: g.extras };
     const item = (l, n, update, remove_, maximum) => h('div', { class: 'bt-item' }, gameIcon(l, 44, f, 'box'),
       h('div', { class: 'bt-item-name', title: itemName(l) }, itemName(l)),
       h('div', { class: 'bt-item-bottom' }, count(n, update, { min: 0, max: maximum, cls: 'num' }), remove_ ? remove(remove_) : null));
@@ -785,12 +785,12 @@ async function btBotDetail(no, tab = 'profile') {
       const var_ = Object.entries(owner).filter(([, n]) => n > 0);
       const equipped = x => Object.values(Object.assign({}, e[x], (value.gear || {})[x])).reduce((a, n) => a + n, 0);
       // shield and speed share the same generator slots; an extra's count is the uses left (JP-01 10 uses): each takes a slot
-      const total = slot_info === 'gen' ? equipped('kalkan') + equipped('speed') : k === 'ekstra' ? var_.length : equipped(k);
+      const total = slot_info === 'gen' ? equipped('shield') + equipped('speed') : k === 'extras' ? var_.length : equipped(k);
       return h('div', { class: 'bt-cat' },
         h('div', { class: 'bt-cat-head' }, h('b', null, T(name_)), h('span', { class: 'se-count' }, slot_info && slot[slot_info] != null ? T('{0} / {1} slots', total, slot[slot_info]) : fmtN(total)),
           h('span', { class: 'spacer' }), addSelect(multiplier[k].filter(x => !owner[x.loot]), l => { write(Object.assign({}, owner, { [l]: (multiplier[k].find(x => x.loot === l) || {}).right || 1 })); render(); })),
         var_.length ? h('div', { class: 'bt-items' }, var_.map(([l, n]) => item(l, n, x => write(Object.assign({}, owner, { [l]: x })),
-          () => { const y = Object.assign({}, owner); delete y[l]; write(y); render(); }, k === 'ekstra' ? 100000 : k === 'drone' ? 10 : 100))) : empty(T('Nothing equipped.')));
+          () => { const y = Object.assign({}, owner); delete y[l]; write(y); render(); }, k === 'extras' ? 100000 : k === 'drone' ? 10 : 100))) : empty(T('Nothing equipped.')));
     };
     const stock = Object.assign({}, v.stock, value.stock);
     const cargo = Object.values(v.cargo).reduce((a, n) => a + n, 0), capacity = v.cargo_capacity || 1;
@@ -800,7 +800,7 @@ async function btBotDetail(no, tab = 'profile') {
         h('div', { class: 'bt-ship-right' },
           field(T('Ship'), h('select', { class: 'input', disabled: lock, onchange: ev => { change('ship', ev.target.value); render(); } },
             multiplier.ships.map(x => h('option', { value: x.loot, selected: x.loot === ship }, x.name)))),
-          h('div', { class: 'bt-slots' }, [['zap', g.laser, T('laser')], ['shield', g.gen, T('generator')], ['cpu', g.ekstra, T('extra')]].map(([iconEl, n, name_]) =>
+          h('div', { class: 'bt-slots' }, [['zap', g.laser, T('laser')], ['shield', g.gen, T('generator')], ['cpu', g.extras, T('extra')]].map(([iconEl, n, name_]) =>
             h('span', { class: 'chip' }, icon(iconEl), h('b', null, n ?? '?'), name_))),
           field(T('Ammo in use'), h('select', { class: 'input', disabled: lock, onchange: ev => change('ammunition', ev.target.value) },
             multiplier.ammunition.filter(x => x.loot.includes('_laser_')).map(x => h('option', { value: x.loot, selected: x.loot === get_value('ammunition', e.ammunition) }, x.name)))),
@@ -826,19 +826,19 @@ async function btBotDetail(no, tab = 'profile') {
   function memory() {
     if (!v.var) return [missing()];
     const deleted = (a, k) => (value[a] || []).includes(k);
-    const relation = v.relations.filter(x => !deleted('delete_relation', x.anahtar)).map(x => {
-      const d = get_value('relation', {})[x.anahtar] ?? x.d;
+    const relation = v.relations.filter(x => !deleted('delete_relation', x.key)).map(x => {
+      const d = get_value('relation', {})[x.key] ?? x.d;
       const value = h('b', { class: d >= 0 ? 'good' : 'bad' }, (d > 0 ? '+' : '') + d.toFixed(2));
       const saves = slider({ min: -100, max: 100, step: 5, value: Math.round(d * 100), disabled: lock, oninput: e => {
-        const y = +e.target.value / 100; value.textContent = (y > 0 ? '+' : '') + y.toFixed(2); value.className = y >= 0 ? 'good' : 'bad'; mapping('relation', x.anahtar, y); } }, 'bt-relation-range');
+        const y = +e.target.value / 100; value.textContent = (y > 0 ? '+' : '') + y.toFixed(2); value.className = y >= 0 ? 'good' : 'bad'; mapping('relation', x.key, y); } }, 'bt-relation-range');
       return h('div', { class: 'bt-relation' }, h('div', null, h('b', null, x.name),
         h('div', { class: 'small dim' }, Object.entries(x.n || {}).map(([t, n]) => (BT_EVENT[t] ? T(BT_EVENT[t]) : t) + ' ' + n).join(', '))),
       h('div', { class: 'bt-relation-scale' }, h('span', { class: 'small dim' }, T('Enemy')), saves, h('span', { class: 'small dim' }, T('Friend'))), value,
-      remove(() => entries('delete_relation', x.anahtar)));
+      remove(() => entries('delete_relation', x.key)));
     });
-    const impression = v.impression.filter(x => !deleted('delete_impression', x.anahtar)).map(x => h('div', { class: 'bt-note' }, h('b', null, x.name),
-      h('textarea', { class: 'input', rows: 2, disabled: lock, oninput: e => mapping('impression', x.anahtar, e.target.value) }, get_value('impression', {})[x.anahtar] ?? x.text),
-      remove(() => entries('delete_impression', x.anahtar))));
+    const impression = v.impression.filter(x => !deleted('delete_impression', x.key)).map(x => h('div', { class: 'bt-note' }, h('b', null, x.name),
+      h('textarea', { class: 'input', rows: 2, disabled: lock, oninput: e => mapping('impression', x.key, e.target.value) }, get_value('impression', {})[x.key] ?? x.text),
+      remove(() => entries('delete_impression', x.key))));
     const memories = v.memories.filter(a => !deleted('delete_memory', a.id)).map(a => {
       const waiting = a.followup && !a.followup.finished && !deleted('cancel_followup', a.id);
       return h('div', { class: 'bt-memory' }, h('div', { class: 'bt-memory-head' }, h('b', null, a.who), h('span', { class: 'small dim' }, T('{0} ago', fmtDur(now - a.t))),
@@ -885,7 +885,7 @@ async function btBotDetail(no, tab = 'profile') {
   function stats() {
     if (!v.var) return [missing()];
     const ist = v.stats || {};
-    const value = (k, n) => k === 'sure_sn' ? fmtDur(n) : fmtN(Math.round(n));
+    const value = (k, n) => k === 'duration_sec' ? fmtDur(n) : fmtN(Math.round(n));
     const remaining = Object.entries(ist).filter(([k]) => !BT_STATS_FEATURED.includes(k)).sort((a, b) => (BT_STATS[a[0]] ? 0 : 1) - (BT_STATS[b[0]] ? 0 : 1));
     return [
       h('div', { class: 'stats bt-detail-stats' }, BT_STATS_FEATURED.map(k => h('div', { class: 'stat' }, h('div', { class: 'k' }, T(BT_STATS[k])), h('div', { class: 'v' }, value(k, ist[k] || 0))))),
@@ -969,7 +969,7 @@ function btLlmWatch(box, right) {
     if (selected !== s.provider.selected || s.new_form) { selected = s.provider.selected; btFill(right, btLlmProvider(s.provider, x => render(Object.assign(x, { new_form: true })))); }
     btFill(box, selected === 'local' ? h('div', { class: 'stack', style: { gap: '10px' } }, btLlmWarning(), btLlmBox(s, render)) : btLlmRemoteBox(s, render));
   };
-  api('/api/bot/llm').then(render).catch(e => btFill(box, h('div', { class: 'alert hata' }, icon('alert'), h('div', null, e.message))));
+  api('/api/bot/llm').then(render).catch(e => btFill(box, h('div', { class: 'alert error' }, icon('alert'), h('div', null, e.message))));
   const id = setInterval(async () => {
     if (!box.isConnected) return clearInterval(id);
     let s; try { s = await api('/api/bot/llm'); } catch (e) { return; }
@@ -981,8 +981,8 @@ function btLlmWatch(box, right) {
 const BT_PROVIDER_NAME = { local: N('Built-in local model (Qwen3 4B)'), special: N('Custom (OpenAI-compatible)') };
 function btLlmProvider(provider, new_) {
   const p = provider.entries.find(x => x.uid === provider.selected);
-  const f = { address: p.address, model: p.model, anahtar: '' };
-  const send = (body, msg) => act(() => api('/api/bot/llm/saglayici', body), msg).then(x => { if (x) new_(x); });
+  const f = { address: p.address, model: p.model, key: '' };
+  const send = (body, msg) => act(() => api('/api/bot/llm/provider', body), msg).then(x => { if (x) new_(x); });
   const sec = h('select', { class: 'input', onchange: e => send({ uid: e.target.value }, T('Saved.')) },
     provider.entries.map(x => h('option', { value: x.uid, selected: x.uid === provider.selected }, BT_PROVIDER_NAME[x.uid] ? T(BT_PROVIDER_NAME[x.uid]) : x.name)));
   const rows = [btRow(T('Provider'), T("The bots' chat and decisions come from this model."), sec)];
@@ -990,7 +990,7 @@ function btLlmProvider(provider, new_) {
   // model: typed by hand first; when models are fetched it becomes a dropdown (a datalist filtered and did not open in a filled box)
   const modelBox = h('div', null, h('input', { class: 'input', value: f.model, oninput: e => { f.model = e.target.value.trim(); } }));
   const load = async () => {
-    const x = await act(() => api('/api/bot/llm/models', { uid: provider.selected, address: f.address, anahtar: f.anahtar }), r => T('{0} models found.', r.models.length));
+    const x = await act(() => api('/api/bot/llm/models', { uid: provider.selected, address: f.address, key: f.key }), r => T('{0} models found.', r.models.length));
     if (!x || !x.models.length) return;
     const models = x.models.includes(f.model) || !f.model ? x.models : [f.model].concat(x.models);
     if (!f.model) f.model = models[0];
@@ -1000,13 +1000,13 @@ function btLlmProvider(provider, new_) {
     btRow(T('Address'), p.local ? T('The OpenAI-compatible address of the server running on your computer (…/v1). The server must be running.') : T('You usually do not need to change this.'),
       h('input', { class: 'input', value: f.address, placeholder: p.default_url, oninput: e => { f.address = e.target.value.trim(); } })),
     btRow(p.key_required ? T('API key') : T('API key (optional)'), T('Stored only on this computer; it never goes into bot packs.'),
-      h('input', { class: 'input', type: 'password', autocomplete: 'off', oninput: e => { f.anahtar = e.target.value.trim(); },
-        placeholder: p.has_key ? T('Saved ({0}); type to change', p.anahtar) : p.key_required ? T('Paste your API key') : T('Leave empty if not needed') })),
+      h('input', { class: 'input', type: 'password', autocomplete: 'off', oninput: e => { f.key = e.target.value.trim(); },
+        placeholder: p.has_key ? T('Saved ({0}); type to change', p.key) : p.key_required ? T('Paste your API key') : T('Leave empty if not needed') })),
     btRow(T('Model'), T('A fast, cheap chat model is enough; reasoning models answer slowly.'),
       h('div', { class: 'row', style: { gap: '6px' } }, modelBox, btn(T('Fetch models'), load, 'ghost sm', 'download'))),
     h('div', { class: 'row', style: { gap: '8px', justifyContent: 'flex-end' } },
-      p.has_key ? btn(T('Remove key'), () => send({ uid: provider.selected, anahtar: '-' }, T('Deleted.')), 'ghost sm', 'trash') : null,
-      btn(T('Save'), () => send({ uid: provider.selected, address: f.address, model: f.model, anahtar: f.anahtar }, T('Saved.')), 'primary sm', 'check')),
+      p.has_key ? btn(T('Remove key'), () => send({ uid: provider.selected, key: '-' }, T('Deleted.')), 'ghost sm', 'trash') : null,
+      btn(T('Save'), () => send({ uid: provider.selected, address: f.address, model: f.model, key: f.key }, T('Saved.')), 'primary sm', 'check')),
     h('div', { class: 'alert info' }, icon('info'), h('div', null, T('With this provider bots speak their own chat language (chosen on the Roster tab). With paid providers the requests are billed to your account: the "Bots thinking at the same time" and "Review decisions" settings set how many requests are made.'))));
   return h('div', { class: 'stack', style: { gap: '4px' } }, rows);
 }
@@ -1016,7 +1016,7 @@ function btLlmRemoteBox(s, render) {
   return h('div', { class: 'bt-llm-step' }, icon(t.state === 'ok' ? 'check' : 'play'),
     h('div', null, h('b', null, t.state === 'ok' ? T('The provider works') : T('Test')),
       h('div', { class: 'small muted' }, t.state === 'running' ? T('Asking the provider a short question…') : t.state === 'error' ? t.error
-        : t.state === 'ok' ? T('Answer in {0} s: "{1}"', t.sure_sn, t.response ?? '') : T('After saving, the provider is asked a short question; if it answers, the bots talk through it.'))),
+        : t.state === 'ok' ? T('Answer in {0} s: "{1}"', t.duration_sec, t.response ?? '') : T('After saving, the provider is asked a short question; if it answers, the bots talk through it.'))),
     t.state === 'running' ? h('span', { class: 'spin' }) : btn(T('Test'), () => act(() => api('/api/bot/llm/test', {})).then(x => { if (x) render(x); }), 'primary sm', 'play'));
 }
 
@@ -1027,7 +1027,7 @@ function btLlmBox(s, render) {
   const low = s.memory_gb != null && s.memory_gb < s.min_memory_gb;
   const hardware = h('div', { class: 'small muted' }, T('This computer: {0} GB memory, {1} cores.', s.memory_gb ?? '?', s.cores ?? '?'),
     low ? h('b', { style: { color: 'var(--warn)', marginLeft: '6px' } }, T('Recommended at least {0} GB.', s.min_memory_gb)) : null);
-  if (!s.supported) return h('div', { class: 'alert hata' }, icon('alert'), h('div', null, T("There is no ready-made language model server for this computer's processor: use Normal mode.")));
+  if (!s.supported) return h('div', { class: 'alert error' }, icon('alert'), h('div', null, T("There is no ready-made language model server for this computer's processor: use Normal mode.")));
   const step1 = s.running
     ? h('div', { class: 'dl-box' }, h('b', null, s.state === 'installing' ? T('Installing…') : T('Downloading: %{0}', pct)),
       h('div', { class: 'meter' }, h('div', { class: 'meter-bar' }, h('span', { style: { width: pct + '%' } }))),
@@ -1039,12 +1039,12 @@ function btLlmBox(s, render) {
         btn(T('Remove'), async () => { if (await confirmBox(T('Delete the language model?'), T('The downloaded 2.5 GB is deleted; Advanced mode works like Normal mode until it is installed again.'), { ok: T('Delete'), danger: true })) call('delete', T('Deleted.')); }, 'ghost sm', 'trash'))
       : h('div', { class: 'bt-llm-step' }, icon('download'), h('div', null, h('b', null, s.state === 'error' ? T('Could not be installed') : s.state === 'stopped' ? T('Download stopped') : T('1. Install the language model')),
         h('div', { class: 'small muted' }, s.state === 'error' ? s.error : T('{0} will be downloaded (resumes where it left off if interrupted).', fmtBytes(s.size))), hardware),
-        btn(s.state === 'error' || s.state === 'stopped' || s.partial ? T('Resume') : T('Download and install'), () => call('kur'), 'primary sm', 'download'));
+        btn(s.state === 'error' || s.state === 'stopped' || s.partial ? T('Resume') : T('Download and install'), () => call('install'), 'primary sm', 'download'));
   const installed = ['built', 'ready'].includes(s.state);
   const step2 = h('div', { class: 'bt-llm-step' }, icon(s.state === 'ready' ? 'check' : 'play'),
     h('div', null, h('b', null, s.state === 'ready' ? T('Setup complete: the model is running') : T('2. Test')),
       h('div', { class: 'small muted' }, t.state === 'running' ? T('The model is loading and a short question is being asked (the first launch can take up to half a minute)…')
-        : t.state === 'error' ? t.error : t.state === 'ok' || s.last_test ? T('Opening {0} s, reply {1} s: "{2}"', (t.startup_sec ?? s.last_test?.startup_sec), (t.sure_sn ?? s.last_test?.sure_sn), (t.response ?? s.last_test?.response ?? ''))
+        : t.state === 'error' ? t.error : t.state === 'ok' || s.last_test ? T('Opening {0} s, reply {1} s: "{2}"', (t.startup_sec ?? s.last_test?.startup_sec), (t.duration_sec ?? s.last_test?.duration_sec), (t.response ?? s.last_test?.response ?? ''))
         : T('The model is loaded once and answers a short question; if it replies, setup is complete.'))),
     t.state === 'running' ? h('span', { class: 'spin' }) : btn(T('Test'), () => call('test'), (installed && s.state !== 'ready' ? 'primary' : 'ghost') + ' sm', 'play', { disabled: !installed }));
   return h('div', { class: 'stack', style: { gap: '4px' } }, step1, step2,
@@ -1067,7 +1067,7 @@ function btGameSettingCard(d) {
   };
   const description = h('div', { class: 'help' }, describe());
   const renderCustom = () => game_settings.profile !== 'special' ? null : info.fields.map(a => btRow(T(a.name), T(a.description),
-    btSlider(game_settings.values[a.anahtar] ?? 1, v => { game_settings.values[a.anahtar] = v; save(); }, { min: a.en_az, max: a.max_count, step: 0.05, fmt: v => '×' + v.toFixed(2) })));
+    btSlider(game_settings.values[a.key] ?? 1, v => { game_settings.values[a.key] = v; save(); }, { min: a.min_value, max: a.max_count, step: 0.05, fmt: v => '×' + v.toFixed(2) })));
   const special = h('div', null, renderCustom());
   return h('div', { class: 'card' }, h('h2', null, icon('sliders'), T('Game settings')),
     h('p', { class: 'desc' }, T("Bots' reward and difficulty multipliers are separate from your game settings: even if you pick an easy setting for yourself, bots progress with what you choose here.")),

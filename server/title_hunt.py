@@ -282,7 +282,7 @@ class TitleHunt:
         import auction as MZ
         msgs = []
         for tid, t in list(self.st['titles'].items()):
-            if t['owner'] == 'rival' and now - t['start'] >= t.get('sure', 600):
+            if t['owner'] == 'rival' and now - t['start'] >= t.get('duration', 600):
                 with self.p.lock:
                     self.st['rivals'][t['name']] = self.st['rivals'].get(t['name'], 0.0) + (now - t['start']) / 60.0
                     self.p.dirty = True
@@ -290,7 +290,7 @@ class TitleHunt:
             elif t['owner'] == 'npc' and random.random() < D.get('rival_capture', 0.08):
                 name = '%s%s' % (random.choice(MZ.R['names']), random.choice(MZ.R['attachments']))
                 with self.p.lock:
-                    self.st['titles'][tid] = dict(t, owner='rival', name=name, start=now, sure=random.randint(*D.get('rival_duration', [300, 1500])))
+                    self.st['titles'][tid] = dict(t, owner='rival', name=name, start=now, duration=random.randint(*D.get('rival_duration', [300, 1500])))
                     self.p.dirty = True
                 msgs.append(self.owner_one(tid))
         return msgs

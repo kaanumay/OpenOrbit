@@ -72,7 +72,7 @@ class Dispatch:
         d = self.p.d.setdefault('dispatch', {})
         d.setdefault('slot', D['slots']['start'])
         d.setdefault('sent', {})
-        d.setdefault('kapilar', {})
+        d.setdefault('gates', {})
         return d
 
     def free_slot(self):
@@ -96,7 +96,7 @@ class Dispatch:
     def retriever_list(self, status, now=None):
         now = now or time.time()
         if status == AVAILABLE:
-            lst = [mod('DispatchModule', duration=SET.duration(r['sure_sn'], 'dispatch'), id=int(i), slotId=0) for i, r in sorted(R.items(), key=lambda x: int(x[0]))]
+            lst = [mod('DispatchModule', duration=SET.duration(r['duration_sec'], 'dispatch'), id=int(i), slotId=0) for i, r in sorted(R.items(), key=lambda x: int(x[0]))]
         else:
             lst = [mod('DispatchModule', duration=max(0, int(g['end_time'] - now)), id=g['id'], slotId=int(s))
                    for s, g in sorted(self.st['sent'].items())]
@@ -116,10 +116,10 @@ class Dispatch:
             return [('DispatchLootMessageCommand', dict(messageType=NO_RESOURCE, loots=[loot(l, n) for l, n in miss.items()]))]
         removed = INV.spend(self.p, r['fee'], reason='buy_SPECIAL', detail=r['code'])
         with self.p.lock:
-            self.st['sent'][str(slot)] = dict(id=int(rid), end_time=time.time() + SET.duration(r['sure_sn'], 'dispatch'))
+            self.st['sent'][str(slot)] = dict(id=int(rid), end_time=time.time() + SET.duration(r['duration_sec'], 'dispatch'))
             self.p.dirty = True
         self.p.ach('dispatch_send', code=r['code'])
-        self.log('   Dispatch: %s sent (slot %d, %d s)' % (r['code'], slot, r['sure_sn']))
+        self.log('   Dispatch: %s sent (slot %d, %d s)' % (r['code'], slot, r['duration_sec']))
         # the list is not sent: on every DispatchGetRetrieverListCommand (whatever its state) the client draws the ongoing dispatches from its own
         # cache onto the open tab (DispatchGetRetrieverListUpdateEvent -> CreateUIDispatchProgressItem; only statusType 1 refreshes the
         # cache). The in-progress list was drawn into Available (H34), and the Available list drew the old cache: the latest dispatch was not
@@ -239,20 +239,20 @@ class Dispatch:
         out = []
         for key in self.gate_keys():
             g = KAPI.KAPI[key]
-            if key in self.st['kapilar']:
-                left = self.st['kapilar'][key] - now
+            if key in self.st['gates']:
+                left = self.st['gates'][key] - now
                 out.append(mod('DispatchGateModule', gateId=g['uid'], status=IN_PROGRESS if left > 0 else READY, timeLeft=max(0, int(left))))
             else:
                 # Every gate is in the list; dispatching rejects a gate that is not built or has never been completed (the client's texts
                 # dispatch_error-no-gate "Please prepare a Gate manually ...", dispatch_error-incomplete-gate "... complete the Gate manually
                 # at least once ..."). Listing only suitable gates left the tab empty (player report 2026-10-28, img3)
                 out.append(mod('DispatchGateModule', gateId=g['uid'], status=AVAILABLE,
-                               timeLeft=SET.duration(D['gate']['sure_sn'], 'dispatch')))      # the "Time required" column while sendable (live test H35)
+                               timeLeft=SET.duration(D['gate']['duration_sec'], 'dispatch')))      # the "Time required" column while sendable (live test H35)
         return [('DispatchGetGateListCommand', {'gateList': out})]
 
     def send_gate(self, f):
         key = KAPI.BY_ID.get(f.get('gateId'))
-        if not key or key not in self.gate_keys() or key in self.st['kapilar']:
+        if not key or key not in self.gate_keys() or key in self.st['gates']:
             return [('DispatchMessageCommand', {'messageType': ERROR_NO_GATE})]
         if not self.k.built(key) or self.k.gate(key)['wave'] != 0:          # built and at wave 1 (forum 160334)
             return [('DispatchMessageCommand', {'messageType': ERROR_NO_GATE})]
@@ -264,7 +264,7 @@ class Dispatch:
             return [('DispatchLootMessageCommand', dict(messageType=NO_RESOURCE, loots=[loot(l, n) for l, n in miss.items()]))]
         INV.spend(self.p, cost)
         with self.p.lock:
-            self.st['kapilar'][key] = time.time() + SET.duration(D['gate']['sure_sn'], 'dispatch')
+            self.st['gates'][key] = time.time() + SET.duration(D['gate']['duration_sec'], 'dispatch')
             self.k.gate(key)['ready'] = False
             self.p.dirty = True
         self.log('   Dispatch: gate %s sent' % KAPI.KAPI[key]['name'])
@@ -273,12 +273,12 @@ class Dispatch:
     def collect_gate(self, f, now=None):
         key = KAPI.BY_ID.get(f.get('gateId'))
         now = now or time.time()
-        if not key or key not in self.st['kapilar']:
+        if not key or key not in self.st['gates']:
             return [('DispatchMessageCommand', {'messageType': ERROR_COLLECT})]
-        if now < self.st['kapilar'][key]:
+        if now < self.st['gates'][key]:
             return [('DispatchMessageCommand', {'messageType': ERROR_NOT_READY})]
         with self.p.lock:
-            del self.st['kapilar'][key]
+            del self.st['gates'][key]
             self.p.dirty = True
         self.p.ach('dispatch', incident='DISPATCH_GATE')                 # achievement: "N Gate Dispatch"
         msgs = self.k.dispatch_complete(key, D['dispatch_day_multiplier'] if dispatch_day(now) else 1)     # Dispatch Day applies to the gate too

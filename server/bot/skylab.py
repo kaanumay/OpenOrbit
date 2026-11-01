@@ -73,11 +73,11 @@ def production(st, m):
     if lv <= 0:
         return 0
     if m in COLLECTORS:
-        return row(lv)['uretim']['raw']
+        return row(lv)['production']['raw']
     if m in REFINERIES:
-        return row(lv)['uretim'][REFINERIES[m][2]]
+        return row(lv)['production'][REFINERIES[m][2]]
     if m == 'XENO_MODULE':
-        return row(lv)['uretim'][XENO['column']]
+        return row(lv)['production'][XENO['column']]
     return 0
 
 
@@ -108,7 +108,7 @@ def advance(bot, now):
     """Production since the last computation and finished upgrades (abstract, step by step) -> state."""
     st = state(bot, now)
     t = max(st['last'], now - 24 * 3600)                 # after a long gap at most one day of production (like the catch-up limit)
-    k = bot.game_settings.multiplier('skylab_uretim')
+    k = bot.game_settings.multiplier('skylab_production')
     while t < now:
         end_time = st['build'][1] if st.get('build') else None
         nxt = min(now, t + STEP_SEC, end_time if end_time and end_time > t else now)
@@ -176,7 +176,7 @@ def invest(bot, now):
         return None
     for o in RESOURCES:
         st['storage'][o] -= c['source']
-    st['build'] = [m, now + c['sure_sn']]
+    st['build'] = [m, now + c['duration_sec']]
     bot.ist('skylab_upgrade')
     return m
 

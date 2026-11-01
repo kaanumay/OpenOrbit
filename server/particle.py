@@ -42,7 +42,7 @@ COOLDOWN_CANNON, COOLDOWN_DRIVE = 60, 61             # CooldownType (shortcut ba
 CPU_CANNON, CPU_DRIVE = 'equipment_extra_cpu_rg-sl', 'equipment_extra_cpu_ags-x'
 DMG_KEY = {'thermal': 'cannon_damage_thermal', 'corrosive': 'cannon_corrosive_damage', 'electro': 'cannon_electro_damage'}
 DRIVE_SHIP_KEYS = {'drive_experience': 'ep', 'drive_honour': 'honor', 'drive_evasion': 'evasion',     # the effect of the drive/lens and the breaker on the ship
-                   'experience': 'ep', 'honour': 'honor', 'hitpoints': 'can'}
+                   'experience': 'ep', 'honour': 'honor', 'hitpoints': 'hp'}
 
 
 def mod(_cls, **f):
@@ -493,7 +493,7 @@ class Shot:
         elif e == 'corrosive':                                   # Nidhogg: corrosion weakness
             A = C['abrasion']
             k = self.corrosive.get(n.id, [0, 0])
-            k = [min(A['multiplier'], (k[0] if k[1] > now else 0) + 1), now + A['sn']]
+            k = [min(A['multiplier'], (k[0] if k[1] > now else 0) + 1), now + A['sec']]
             self.corrosive[n.id] = k
             if n.alive:
                 w.send([('VisualModifierCommand', dict(userId=n.id, modifier=VM_CORROSIVE, attribute=k[0], additionalAttribute='',
@@ -549,7 +549,7 @@ class Shot:
         x, y = n.mover.pos(now)
         import ship_ability as SA
         bonus = SA.take(p, 'next_gsp')                 # Hyperion Quantum Amplifier: +10% on this shot
-        zone = self.resonate({'x': x, 'y': y, 'end_time': now + DR['sure_sn'], 'next': now, 'damage': power * GSP[gsp] * (1 + bonus), 'target': n.id,
+        zone = self.resonate({'x': x, 'y': y, 'end_time': now + DR['duration_sec'], 'next': now, 'damage': power * GSP[gsp] * (1 + bonus), 'target': n.id,
                               'vm': vm, 'area': area}, now)
         self.zones.append(zone)
         w.send(w.ammo_msgs(gsp) + [('PlayVisualEffectCommand', dict(activatorId=w.hid, targetIds=[n.id], visualEffect=shot)),
@@ -566,12 +566,12 @@ class Shot:
         a = RS.strike_mods(self.p)
         if not a:
             return z
-        duration, total = float(DR['sure_sn']), 1.0
+        duration, total = float(DR['duration_sec']), 1.0
         if 'collapse' in a:
             duration, total = duration * 0.75, total * (1 + a['collapse'] / 100.0)
         elif 'evernight' in a:
             duration, total = duration * 1.25, total * (1 + a['evernight'] / 100.0)
-        per = z['damage'] * total * DR['sure_sn'] / duration
+        per = z['damage'] * total * DR['duration_sec'] / duration
         z.update(end_time=now + duration, damage=per, area=z['area'] * (1 + a.get('expansion', 0) / 100.0), resonator=a)
         if 'aftershock' in a:                       # 75% over the field's duration, 25% at the end (radius +x)
             z['aftershock_dmg'] = per * 0.25 * duration

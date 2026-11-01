@@ -3417,7 +3417,7 @@
      "Styxus",
      "Lanatum"
     ],
-    "_kaynak": "events/immortal-union: UCB-100 x6 (VB-142 x7: lazer_cephane vb-142)"
+    "_source": "events/immortal-union: UCB-100 x6 (VB-142 x7: lazer_cephane vb-142)"
    }
   },
   "prosperous": {
@@ -3431,7 +3431,7 @@
      "72",
      "39"
     ],
-    "_kaynak": "events/prosperous-mutation-event: CC-C / UCB-100 x7,5: Emperor (Kristallon, Lordakium, Sibelon), Lordakium (77), Devolarium (72), Uber Devolarium (39)"
+    "_source": "events/prosperous-mutation-event: CC-C / UCB-100 x7,5: Emperor (Kristallon, Lordakium, Sibelon), Lordakium (77), Devolarium (72), Uber Devolarium (39)"
    },
    "ammunition_laser_spacecup_group-c": {
     "multiplier": 7.5,
@@ -3456,7 +3456,7 @@
      "event_sheer_chaos_interceptor",
      "event_sheer_chaos_annihilator"
     ],
-    "_kaynak": "events/protegit-pandemonium: UCB-100 x6 (olağan x4) Chaos NPC'lere. İstemcide Chaos Devolarium = Devolarium Aberration, Chaos Kristallon = Kristallon Oddity, Chaos Uber Kristallon = UberKristallon Oddity (npc_name_200-209); Chaos Boss Lordakia, P.E.T. serisi, Scorcher, Ravager oyunda yok"
+    "_source": "events/protegit-pandemonium: UCB-100 x6 (olağan x4) Chaos NPC'lere. İstemcide Chaos Devolarium = Devolarium Aberration, Chaos Kristallon = Kristallon Oddity, Chaos Uber Kristallon = UberKristallon Oddity (npc_name_200-209); Chaos Boss Lordakia, P.E.T. serisi, Scorcher, Ravager oyunda yok"
    }
   },
   "empyrian": {
@@ -3477,7 +3477,7 @@
      "npc121",
      "80"
     ],
-    "_kaynak": "events/empyrian-march: UCB-100 x7,5 (olağan x4): Boss Sibelon, Boss Lordakium, Boss Kristallon, Uber Devolarium, Uber Sibelon, Uber Lordakium, Uber Kristallon, Uber Saboteur, Uber Annihilator, Uber Battleray, Uber Barracuda, Deadly Battleray, Cubikon"
+    "_source": "events/empyrian-march: UCB-100 x7,5 (olağan x4): Boss Sibelon, Boss Lordakium, Boss Kristallon, Uber Devolarium, Uber Sibelon, Uber Lordakium, Uber Kristallon, Uber Saboteur, Uber Annihilator, Uber Battleray, Uber Barracuda, Deadly Battleray, Cubikon"
    }
   },
   "hitac": {
@@ -3486,7 +3486,7 @@
     "names": [
      "Hitac"
     ],
-    "_kaynak": "events/hitac-assault: RSB-75, bütün Hitac NPC'lerine x7,5 (olağan x6)"
+    "_source": "events/hitac-assault: RSB-75, bütün Hitac NPC'lerine x7,5 (olağan x6)"
    }
   }
  },
@@ -3747,68 +3747,68 @@
  },
  "shield_generators": {
   "equipment_generator_shield_sg3n-a01": {
-   "kalkan": 1000,
+   "shield": 1000,
    "absorb": 0.4
   },
   "equipment_generator_shield_sg3n-a02": {
-   "kalkan": 2000,
+   "shield": 2000,
    "absorb": 0.5,
    "_not": "istemcinin Equipment verisi ve metni 2.000"
   },
   "equipment_generator_shield_sg3n-a03": {
-   "kalkan": 5000,
+   "shield": 5000,
    "absorb": 0.6
   },
   "equipment_generator_shield_sg3n-b00": {
-   "kalkan": 9000,
+   "shield": 9000,
    "absorb": 0.7
   },
   "equipment_generator_shield_sg3n-b01": {
-   "kalkan": 9500,
+   "shield": 9500,
    "absorb": 0.7
   },
   "equipment_generator_shield_sg3n-b02": {
-   "kalkan": 10000,
+   "shield": 10000,
    "absorb": 0.8
   },
   "equipment_generator_shield_sg3n-b03": {
-   "kalkan": 11450,
+   "shield": 11450,
    "absorb": 0.8
   },
   "equipment_generator_shield_ugs-hp01": {
-   "kalkan": 30000,
+   "shield": 30000,
    "absorb": 0.8,
    "_not": "istemcinin Equipment verisi; oyunda kaynağı yok"
   },
   "equipment_generator_shield_fs-01": {
-   "kalkan": 3200,
+   "shield": 3200,
    "absorb": 0.7,
    "regeneration": 0.0625
   },
   "equipment_generator_shield_fs-02": {
-   "kalkan": 5600,
+   "shield": 5600,
    "absorb": 0.75,
    "regeneration": 0.0625
   },
   "equipment_generator_shield_fs-03": {
-   "kalkan": 8000,
+   "shield": 8000,
    "absorb": 0.8,
    "regeneration": 0.0625
   },
   "equipment_generator_shield_fs-04": {
-   "kalkan": 11400,
+   "shield": 11400,
    "absorb": 0.8,
    "_not": "istemci: kalkan yenilenmesi +%6,25 (FS-01…04; yenilenme: gemide ve dronlarda takılı başına, profil.ship_mods)",
    "regeneration": 0.0625
   },
   "equipment_generator_shield_sg3n-p01": {
-   "kalkan": 11900,
+   "shield": 11900,
    "absorb": 0.8,
    "pet_only": true,
    "_not": "P.E.T. kalkan jeneratörü"
   },
   "equipment_generator_shield_sg3n-px01": {
-   "kalkan": 11900,
+   "shield": 11900,
    "absorb": 0.8,
    "pet_only": true,
    "_not": "P.E.T. kalkan jeneratörü; HEAT bonusu P.E.T. HEAT ile"
@@ -3953,7 +3953,7 @@
    "base_speed": 300,
    "base": "ship_goliath",
    "bonus": {
-    "kalkan": 0.1
+    "shield": 0.1
    }
   },
   "ship_g-centaur": {
@@ -3966,7 +3966,7 @@
    "base_speed": 300,
    "base": "ship_goliath",
    "bonus": {
-    "can": 0.1
+    "hp": 0.1
    }
   },
   "ship_g-champion": {
@@ -4044,7 +4044,7 @@
    "base_speed": 300,
    "base": "ship_goliath",
    "bonus": {
-    "kalkan": 0.1
+    "shield": 0.1
    }
   },
   "ship_g-peacemaker": {
@@ -4139,7 +4139,7 @@
     ],
     "bonus": {
      "hp_flat": 96000,
-     "kalkan": 1.0,
+     "shield": 1.0,
      "speed_absolute": 20,
      "cargo_absolute": 500,
      "home_laser": 0.5,
@@ -4239,7 +4239,7 @@
    "cargo": 1600,
    "base_speed": 300,
    "bonus": {
-    "kalkan": 0.1
+    "shield": 0.1
    }
   },
   "ship_solace": {
@@ -4251,7 +4251,7 @@
    "cargo": 1600,
    "base_speed": 300,
    "bonus": {
-    "kalkan": 0.1
+    "shield": 0.1
    }
   },
   "ship_spearhead": {
@@ -4272,7 +4272,7 @@
    "cargo": 1600,
    "base_speed": 300,
    "bonus": {
-    "kalkan": 0.25
+    "shield": 0.25
    }
   },
   "ship_tartarus": {
@@ -4307,7 +4307,7 @@
    "base_speed": 380,
    "base": "ship_vengeance",
    "bonus": {
-    "kalkan": 0.1
+    "shield": 0.1
    }
   },
   "ship_v-corsair": {
@@ -4402,7 +4402,7 @@
    "base_speed": 300,
    "base": "ship_goliath",
    "bonus": {
-    "can": 0.2
+    "hp": 0.2
    }
   },
   "ship_basilisk": {
@@ -4520,7 +4520,7 @@
    "base_speed": 310,
    "source": "client",
    "bonus": {
-    "can": 0.25
+    "hp": 0.25
    }
   },
   "ship_hammerclaw-plus": {
@@ -4533,7 +4533,7 @@
    "base_speed": 310,
    "source": "client",
    "bonus": {
-    "can": 0.25
+    "hp": 0.25
    }
   },
   "ship_hecate": {
@@ -4548,7 +4548,7 @@
    "bonus": {
     "laser": 0.07,
     "rocket": 0.07,
-    "kalkan": 0.1
+    "shield": 0.1
    }
   },
   "ship_hecate-plus": {
@@ -4563,7 +4563,7 @@
    "bonus": {
     "laser": 0.07,
     "rocket": 0.07,
-    "kalkan": 0.1
+    "shield": 0.1
    }
   },
   "ship_holo": {
@@ -4620,7 +4620,7 @@
    "base_speed": 300,
    "source": "client",
    "bonus": {
-    "kalkan": 0.1,
+    "shield": 0.1,
     "shield_penetration": 0.05
    }
   },
@@ -4709,7 +4709,7 @@
    "base_speed": 310,
    "source": "client",
    "bonus": {
-    "kalkan": 0.15
+    "shield": 0.15
    }
   },
   "ship_solaris": {
@@ -4760,7 +4760,7 @@
    "base_speed": 320,
    "source": "client",
    "bonus": {
-    "kalkan": 0.25
+    "shield": 0.25
    }
   },
   "ship_tartarus-plus": {
@@ -4886,32 +4886,32 @@
   {
    "points": 0,
    "laser": 0.0,
-   "kalkan": 0.0
+   "shield": 0.0
   },
   {
    "points": 100,
    "laser": 0.02,
-   "kalkan": 0.04
+   "shield": 0.04
   },
   {
    "points": 200,
    "laser": 0.04,
-   "kalkan": 0.08
+   "shield": 0.08
   },
   {
    "points": 400,
    "laser": 0.06,
-   "kalkan": 0.12
+   "shield": 0.12
   },
   {
    "points": 800,
    "laser": 0.08,
-   "kalkan": 0.16
+   "shield": 0.16
   },
   {
    "points": 1600,
    "laser": 0.1,
-   "kalkan": 0.2
+   "shield": 0.2
   }
  ],
  "drone_points": {
@@ -5201,7 +5201,7 @@
     25,
     25
    ],
-   "_kaynak": "Resmî Türk forumu 127526 'Droit Level Puanlaması Tablosu (Oyuncu İmhaları)': satır öldürülen gemi, sütun öldüren gemi; tabloda olmayan gemi Goliath sınıfı"
+   "_source": "Resmî Türk forumu 127526 'Droit Level Puanlaması Tablosu (Oyuncu İmhaları)': satır öldürülen gemi, sütun öldüren gemi; tabloda olmayan gemi Goliath sınıfı"
   }
  },
  "formations": {
@@ -5210,7 +5210,7 @@
   },
   "drone_formation_f-01-tu": {
    "id": 1,
-   "kalkan": 0.1,
+   "shield": 0.1,
    "laser": -0.075,
    "rocket": -0.075
   },
@@ -5238,23 +5238,23 @@
   "drone_formation_f-06-da": {
    "id": 6,
    "rocket": 0.3,
-   "kalkan": -0.2,
+   "shield": -0.2,
    "shield_penetration": 0.1
   },
   "drone_formation_f-07-di": {
    "id": 7,
-   "can": -0.3,
+   "hp": -0.3,
    "shield_refill_sec": 0.01,
    "shield_refill_max": 5000
   },
   "drone_formation_f-08-ch": {
    "id": 8,
    "rocket": 0.65,
-   "can": -0.2
+   "hp": -0.2
   },
   "drone_formation_f-09-mo": {
    "id": 9,
-   "can": 0.2,
+   "hp": 0.2,
    "shield_penetration": 0.2,
    "shield_decay_sec": 0.05
   },
@@ -5265,8 +5265,8 @@
   },
   "drone_formation_f-11-he": {
    "id": 11,
-   "can": 0.2,
-   "kalkan": 0.2,
+   "hp": 0.2,
+   "shield": 0.2,
    "laser": -0.05
   },
   "drone_formation_f-12-ba": {
@@ -5283,7 +5283,7 @@
   },
   "drone_formation_f-3d-rg": {
    "id": 14,
-   "kalkan": 0.85,
+   "shield": 0.85,
    "speed": -0.05,
    "laser": -0.25,
    "rocket_cooldown": 0.25,
@@ -5292,7 +5292,7 @@
   "drone_formation_f-3d-dr": {
    "id": 15,
    "laser": 0.2,
-   "kalkan": -0.25,
+   "shield": -0.25,
    "speed": -0.05,
    "absorb": -0.05
   },
@@ -5300,12 +5300,12 @@
    "id": 16,
    "honor": 0.2,
    "laser": -0.2,
-   "can": -0.2,
-   "kalkan": -0.2
+   "hp": -0.2,
+   "shield": -0.2
   },
   "drone_formation_f-3d-dm": {
    "id": 17,
-   "kalkan": 0.3,
+   "shield": 0.3,
    "rocket_cooldown": -0.25,
    "laser": -0.5,
    "speed": -0.5,
@@ -5321,7 +5321,7 @@
   "drone_formation_f-3d-x": {
    "id": 19,
    "ep": 0.05,
-   "can": 0.08,
+   "hp": 0.08,
    "honor": -1.0,
    "npc_laser": 0.05,
    "pvp_laser": -1.0
@@ -5496,7 +5496,7 @@
  "pet": {
   "loot": "pet_pet10",
   "name": "P.E.T.",
-  "can": 50000,
+  "hp": 50000,
   "start_fuel": 10000,
   "max_fuel": 100000,
   "fuel_buy": {
@@ -5537,7 +5537,7 @@
     "fuel_per_min": 5,
     "repair_uridium": 0,
     "damage": 0.0,
-    "kalkan": 0.0,
+    "shield": 0.0,
     "slot": {
      "lasers": 1,
      "generators": 2,
@@ -5550,7 +5550,7 @@
     "fuel_per_min": 10,
     "repair_uridium": 0,
     "damage": 0.0,
-    "kalkan": 0.02,
+    "shield": 0.02,
     "slot": {
      "lasers": 2,
      "generators": 3,
@@ -5563,7 +5563,7 @@
     "fuel_per_min": 13,
     "repair_uridium": 0,
     "damage": 0.02,
-    "kalkan": 0.02,
+    "shield": 0.02,
     "slot": {
      "lasers": 2,
      "generators": 4,
@@ -5576,7 +5576,7 @@
     "fuel_per_min": 17,
     "repair_uridium": 10,
     "damage": 0.02,
-    "kalkan": 0.04,
+    "shield": 0.04,
     "slot": {
      "lasers": 3,
      "generators": 5,
@@ -5589,7 +5589,7 @@
     "fuel_per_min": 20,
     "repair_uridium": 20,
     "damage": 0.02,
-    "kalkan": 0.04,
+    "shield": 0.04,
     "slot": {
      "lasers": 3,
      "generators": 6,
@@ -5602,7 +5602,7 @@
     "fuel_per_min": 25,
     "repair_uridium": 30,
     "damage": 0.04,
-    "kalkan": 0.04,
+    "shield": 0.04,
     "slot": {
      "lasers": 4,
      "generators": 7,
@@ -5615,7 +5615,7 @@
     "fuel_per_min": 27,
     "repair_uridium": 50,
     "damage": 0.04,
-    "kalkan": 0.06,
+    "shield": 0.06,
     "slot": {
      "lasers": 4,
      "generators": 8,
@@ -5628,7 +5628,7 @@
     "fuel_per_min": 33,
     "repair_uridium": 70,
     "damage": 0.06,
-    "kalkan": 0.06,
+    "shield": 0.06,
     "slot": {
      "lasers": 5,
      "generators": 9,
@@ -5641,7 +5641,7 @@
     "fuel_per_min": 34,
     "repair_uridium": 90,
     "damage": 0.06,
-    "kalkan": 0.06,
+    "shield": 0.06,
     "slot": {
      "lasers": 5,
      "generators": 10,
@@ -5654,7 +5654,7 @@
     "fuel_per_min": 39,
     "repair_uridium": 120,
     "damage": 0.06,
-    "kalkan": 0.08,
+    "shield": 0.08,
     "slot": {
      "lasers": 6,
      "generators": 11,
@@ -5667,7 +5667,7 @@
     "fuel_per_min": 41,
     "repair_uridium": 150,
     "damage": 0.08,
-    "kalkan": 0.08,
+    "shield": 0.08,
     "slot": {
      "lasers": 6,
      "generators": 12,
@@ -5680,7 +5680,7 @@
     "fuel_per_min": 43,
     "repair_uridium": 180,
     "damage": 0.08,
-    "kalkan": 0.1,
+    "shield": 0.1,
     "slot": {
      "lasers": 7,
      "generators": 13,
@@ -5693,7 +5693,7 @@
     "fuel_per_min": 44,
     "repair_uridium": 220,
     "damage": 0.1,
-    "kalkan": 0.1,
+    "shield": 0.1,
     "slot": {
      "lasers": 7,
      "generators": 14,
@@ -5706,7 +5706,7 @@
     "fuel_per_min": 44,
     "repair_uridium": 260,
     "damage": 0.1,
-    "kalkan": 0.12,
+    "shield": 0.12,
     "slot": {
      "lasers": 8,
      "generators": 15,
@@ -5719,7 +5719,7 @@
     "fuel_per_min": 46,
     "repair_uridium": 300,
     "damage": 0.12,
-    "kalkan": 0.12,
+    "shield": 0.12,
     "slot": {
      "lasers": 9,
      "generators": 16,
@@ -5732,7 +5732,7 @@
     "fuel_per_min": 47,
     "repair_uridium": 350,
     "damage": 0.12,
-    "kalkan": 0.14,
+    "shield": 0.14,
     "slot": {
      "lasers": 10,
      "generators": 17,
@@ -5745,7 +5745,7 @@
     "fuel_per_min": 47,
     "repair_uridium": 350,
     "damage": 0.14,
-    "kalkan": 0.14,
+    "shield": 0.14,
     "slot": {
      "lasers": 10,
      "generators": 18,
@@ -5758,7 +5758,7 @@
     "fuel_per_min": 47,
     "repair_uridium": 350,
     "damage": 0.14,
-    "kalkan": 0.16,
+    "shield": 0.16,
     "slot": {
      "lasers": 11,
      "generators": 19,
@@ -5771,7 +5771,7 @@
     "fuel_per_min": 47,
     "repair_uridium": 350,
     "damage": 0.16,
-    "kalkan": 0.16,
+    "shield": 0.16,
     "slot": {
      "lasers": 11,
      "generators": 20,
@@ -5784,7 +5784,7 @@
     "fuel_per_min": 47,
     "repair_uridium": 350,
     "damage": 0.16,
-    "kalkan": 0.18,
+    "shield": 0.18,
     "slot": {
      "lasers": 12,
      "generators": 21,
@@ -5797,7 +5797,7 @@
     "fuel_per_min": 47,
     "repair_uridium": 350,
     "damage": 0.16,
-    "kalkan": 0.18,
+    "shield": 0.18,
     "slot": {
      "lasers": 12,
      "generators": 22,
@@ -6002,7 +6002,7 @@
      0.3
     ],
     "trade_fuel": 50,
-    "_uyarlama": "trade_fuel: her satışın bir kerelik yakıt bedeli. İstemci \"You have to use P.E.T. fuel to trade\" (desc_trade_window_costs_petgear_trade) der; miktar hiçbir kaynakta yok (darkorbitwiki, fandom, resmî Pet 10 SSS, rapor_MEK MEK-P12). Resmî forum \"[GI] P.E.T 10 Cargo Trader\" (2015): \"one-time cost\" (Thaumanovic), satışta 39 yakıt, \"minute payout\" (SauronL), 50-100 yakıt (başka oyuncu). Sabit 50 = 12,5 U (1.000 yakıt 250 U), seviye 7 P.E.T.'in (33/dk) ~1,5 dakikalık tüketimi; AI-ECO ve panelin pet_yakit çarpanı uygulanır"
+    "_adaptation": "trade_fuel: her satışın bir kerelik yakıt bedeli. İstemci \"You have to use P.E.T. fuel to trade\" (desc_trade_window_costs_petgear_trade) der; miktar hiçbir kaynakta yok (darkorbitwiki, fandom, resmî Pet 10 SSS, rapor_MEK MEK-P12). Resmî forum \"[GI] P.E.T 10 Cargo Trader\" (2015): \"one-time cost\" (Thaumanovic), satışta 39 yakıt, \"minute payout\" (SauronL), 50-100 yakıt (başka oyuncu). Sabit 50 = 12,5 U (1.000 yakıt 250 U), seviye 7 P.E.T.'in (33/dk) ~1,5 dakikalık tüketimi; AI-ECO ve panelin pet_yakit çarpanı uygulanır"
    },
    "equipment_petgear_g-rep1": {
     "type": 9,
@@ -6072,7 +6072,7 @@
      400,
      750
     ],
-    "sure_sn": 5,
+    "duration_sec": 5,
     "cooldown_sec": 15,
     "_not": "Resmî Türk forumu 127074: 5 sn onarım, 15 sn bekleme; yakıt (extra_fuel) etkinleştirme başına"
    },
@@ -6102,7 +6102,7 @@
      8750,
      13000
     ],
-    "sure_sn": 4,
+    "duration_sec": 4,
     "range": [
      150,
      175,
@@ -6119,7 +6119,7 @@
    },
    "equipment_petgear_g-hpl1": {
     "type": 16,
-    "sure_sn": 20,
+    "duration_sec": 20,
     "cooldown_sec": 240,
     "pet_damage": 1.25,
     "_not": "Resmî Türk forumu 127074 (P.E.T. Kullanım Kılavuzu): bağlıyken gemiye gelen gövde hasarı P.E.T.'e geçer, P.E.T. korumada ve '%25 ekstra hasar' verir; 20 sn, 240 sn bekleme; 'daha yüksek oranda yakıt tüketir' (oran yok: beacon'ların %30'u, uyarlama)",
@@ -6127,7 +6127,7 @@
    },
    "equipment_petgear_g-bc1": {
     "type": 18,
-    "sure_sn": 120,
+    "duration_sec": 120,
     "cooldown_sec": 240,
     "range": 1000,
     "bonus": {
@@ -6139,11 +6139,11 @@
    },
    "equipment_petgear_g-bh1": {
     "type": 19,
-    "sure_sn": 120,
+    "duration_sec": 120,
     "cooldown_sec": 240,
     "range": 1000,
     "bonus": {
-     "can": 0.035
+     "hp": 0.035
     },
     "_not": "Resmî Türk forumu 127074 ve 156747: seviye 1 süre 120 sn, etki %3,5, bekleme 240 sn, etkinken %30 daha fazla yakıt; menzil 1.000 uyarlama",
     "fuel_multiplier": 1.3
@@ -6207,7 +6207,7 @@
      45000,
      0
     ],
-    "kalkan": [
+    "shield": [
      0.01,
      0.02,
      0.04,
@@ -6263,7 +6263,7 @@
      45000,
      0
     ],
-    "can": [
+    "hp": [
      0.01,
      0.02,
      0.04,
@@ -6463,7 +6463,7 @@
      "threshold": 150,
      "bonus": {
       "npc": 0.05,
-      "can": 0.05
+      "hp": 0.05
      },
      "cooldown_sec": 86400
     },
@@ -6471,7 +6471,7 @@
      "threshold": 225,
      "bonus": {
       "shield_penetration": 0.05,
-      "can": 0.05
+      "hp": 0.05
      },
      "cooldown_sec": 86400
     },
@@ -6490,7 +6490,7 @@
       "npc": 0.05,
       "pvp": 0.15,
       "laser_hit_chance": 0.1,
-      "can": 0.1
+      "hp": 0.1
      },
      "cooldown_sec": 300
     }
@@ -6507,7 +6507,7 @@
     0.04,
     0.08
    ],
-   "_kaynak": "wiki (P.E.T. HEAT): wiki eşikleri 150/300/450/600/750 (5. satırdaki \"100\" yazım hatası), bonuslar birikir, soğuma gecikmeleri 12 sa/24 sa/24 sa/15 dk/5 dk, 7 HEAT yuvası (lazer ya da kalkan jeneratörü) 4. seviyeden etkin, LF-PX01/SG3N-PX01 HEAT seviyesine göre +%0,5/1/2/4/8. Gerçek kayıt (20261025_152841_gercek, PetHeatUpdateCommand): seviye 0'da petHeatAmountMax 75 (çubuk azamisi bir sonraki eşik) ve etkin P.E.T. dakikada +1,8957 (savaşta fark görülmedi: combat_gain_sec 0); kayıt yalnız seviye 0'ı gösterdiğinden eşikler wiki'nin 150/300/450/600/750'sinin yarısı (75/150/225/300/375; varsayım, HEAT atlayan oturum kaydı gerekir). AI-AH protokolü kazancı artırır; gecikme bitince saniyede 0,5 puan soğur, bir alt seviyeye inince o seviyenin gecikmesi başlar. Bonuslar P.E.T. uzaydayken gemiye; can bonusu P.E.T.'in kendi canına (kayıt: seviye 20 P.E.T.'lerin azami canı (50.000 + G-HP1) x1,10 / x1,20, AI-HP'yle x1,14; E5)."
+   "_source": "wiki (P.E.T. HEAT): wiki eşikleri 150/300/450/600/750 (5. satırdaki \"100\" yazım hatası), bonuslar birikir, soğuma gecikmeleri 12 sa/24 sa/24 sa/15 dk/5 dk, 7 HEAT yuvası (lazer ya da kalkan jeneratörü) 4. seviyeden etkin, LF-PX01/SG3N-PX01 HEAT seviyesine göre +%0,5/1/2/4/8. Gerçek kayıt (20261025_152841_gercek, PetHeatUpdateCommand): seviye 0'da petHeatAmountMax 75 (çubuk azamisi bir sonraki eşik) ve etkin P.E.T. dakikada +1,8957 (savaşta fark görülmedi: combat_gain_sec 0); kayıt yalnız seviye 0'ı gösterdiğinden eşikler wiki'nin 150/300/450/600/750'sinin yarısı (75/150/225/300/375; varsayım, HEAT atlayan oturum kaydı gerekir). AI-AH protokolü kazancı artırır; gecikme bitince saniyede 0,5 puan soğur, bir alt seviyeye inince o seviyenin gecikmesi başlar. Bonuslar P.E.T. uzaydayken gemiye; can bonusu P.E.T.'in kendi canına (kayıt: seviye 20 P.E.T.'lerin azami canı (50.000 + G-HP1) x1,10 / x1,20, AI-HP'yle x1,14; E5)."
   },
   "hp_upgrade": {
    "loot": "pet_upgrade-g-hp1",
@@ -6534,7 +6534,7 @@
     50000,
     50000
    ],
-   "_kaynak": "wiki (P.E.T. seviye tablosu MAX HP / HP UPGRADE): her yükseltme +10.000 can; P.E.T. seviyesi kadar yükseltme (seviye 20: 250.000); n. yükseltmenin fiyatı tablonun n. satırı. Mağazada G-HP1 (istemci: pet_upgrade-g-hp1, buy_pet_hull)."
+   "_source": "wiki (P.E.T. seviye tablosu MAX HP / HP UPGRADE): her yükseltme +10.000 can; P.E.T. seviyesi kadar yükseltme (seviye 20: 250.000); n. yükseltmenin fiyatı tablonun n. satırı. Mağazada G-HP1 (istemci: pet_upgrade-g-hp1, buy_pet_hull)."
   },
   "fuel_formula": "Dakikalık tüketim seviye tablosundan (gerçek kayıt: seviye 7 = 33, 13 = 44). Resmî forum 127074'ün '1 + 2 x seviye + 2 x protokol + 4 x dişli' formülü her zaman tek sayı verir, kayıttaki 44'ü üretemez: uygulanmadı. Çarpanlar: yakıt protokolü, Kombo Koruma, etkin beacon/HP Link x1,3, ısı seviyesi başına +%5 (forum: 'yüksek ısıda daha fazla yakıt'; oran uyarlama)",
   "kamikaze_banned": [
@@ -6558,7 +6558,7 @@
    "slot": "design",
    "drone_shield": 0.15,
    "set_bonus": {
-    "can": 0.2
+    "hp": 0.2
    }
   },
   "drone_designs_demon-silver": {
@@ -6588,7 +6588,7 @@
    "slot": "design",
    "per_drone": {
     "laser": 0.005,
-    "can": 0.02
+    "hp": 0.02
    },
    "set_bonus": {
     "cooldown": 0.1,
@@ -6602,11 +6602,11 @@
    "slot": "design",
    "per_drone": {
     "laser": 0.01,
-    "can": 0.01
+    "hp": 0.01
    },
    "set_bonus": {
-    "kalkan": 0.1,
-    "can": 0.05
+    "shield": 0.1,
+    "hp": 0.05
    }
   },
   "drone_designs_cerberus": {
@@ -6650,7 +6650,7 @@
     "npc": 0.01
    },
    "set_bonus": {
-    "kalkan": 0.1,
+    "shield": 0.1,
     "cooldown": 0.08
    }
   },
@@ -6659,7 +6659,7 @@
    "slot": "design",
    "per_drone": {
     "npc": 0.01,
-    "can": 0.015
+    "hp": 0.015
    },
    "set_bonus": {
     "top": 0.1,
@@ -9219,35 +9219,35 @@
     "uridium": 10000,
     "template": "package_event-deal-stellar2022-1",
     "calendar": "chromin",
-    "_kaynak": "resmî Türk forumu Chromin Rush duyuruları: \"uygun fiyata 60.000 Chromin\" paketi (istemcinin Chromin Pack öğesi); fiyat 10.000 U uyarlama. XL/XXL eklenmedi: adetleri kaynakta yok, istemcide simgeleri yok (canlı 2026-10-26)"
+    "_source": "resmî Türk forumu Chromin Rush duyuruları: \"uygun fiyata 60.000 Chromin\" paketi (istemcinin Chromin Pack öğesi); fiyat 10.000 U uyarlama. XL/XXL eklenmedi: adetleri kaynakta yok, istemcide simgeleri yok (canlı 2026-10-26)"
    },
    {
     "lootId": "deal_blackBooty",
     "uridium": 21000,
     "template": "package_event-deal-stellar2022-1",
     "calendar": "obsidian_booty",
-    "_kaynak": "resmî Türk forumu (Obsidyen, Apocalypse, Kırmızı ve Mavi kutu SSS): anahtar paketleri (Küçük 5 … Platin 135); istemcide tek \"deal\" öğesi var: 5 anahtar, anahtar başı 4.200 U (Laurel anahtar paketiyle aynı oran; uyarlama)"
+    "_source": "resmî Türk forumu (Obsidyen, Apocalypse, Kırmızı ve Mavi kutu SSS): anahtar paketleri (Küçük 5 … Platin 135); istemcide tek \"deal\" öğesi var: 5 anahtar, anahtar başı 4.200 U (Laurel anahtar paketiyle aynı oran; uyarlama)"
    },
    {
     "lootId": "deal_masqueBooty",
     "uridium": 21000,
     "template": "package_event-deal-stellar2022-1",
     "calendar": "apocalypse_booty",
-    "_kaynak": "resmî Türk forumu (Obsidyen, Apocalypse, Kırmızı ve Mavi kutu SSS): anahtar paketleri (Küçük 5 … Platin 135); istemcide tek \"deal\" öğesi var: 5 anahtar, anahtar başı 4.200 U (Laurel anahtar paketiyle aynı oran; uyarlama)"
+    "_source": "resmî Türk forumu (Obsidyen, Apocalypse, Kırmızı ve Mavi kutu SSS): anahtar paketleri (Küçük 5 … Platin 135); istemcide tek \"deal\" öğesi var: 5 anahtar, anahtar başı 4.200 U (Laurel anahtar paketiyle aynı oran; uyarlama)"
    },
    {
     "lootId": "deal_booty-key-overhaul-march-red",
     "uridium": 2500,
     "template": "resource_booty-key",
     "calendar": "rb_booty",
-    "_kaynak": "Resmî Türk forumu 130230/127496 (Kırmızı ve Mavi Korsan Kutuları): anahtarlar etkinlikte ödemeyle satılır, Assembly'de kırmızı 10 Scrap/5 Aurus/3 Schism, mavi 20/10/5; mavi kutuda şanslar kırmızının iki katı. Tek oyunculu uyarlama: R&B etkinliği sürerken anahtar başına uridyum (kırmızı 2.500 U, mavi 5.000 U; tarifin malzeme oranı); istemcide simgesi olan deal_booty-key-overhaul-march-red/blue öğeleri (\"Red/Blue Booty Key\"; resource_booty-key-red/blue ve deal_booty-key-red/blue beyaz simge, canlı 2026-10-30) yeşil anahtarın şablonuyla, içerik 1 anahtar (oyuncu bildirimi 2026-10-30: etkinlikte mağazada yoktu)"
+    "_source": "Resmî Türk forumu 130230/127496 (Kırmızı ve Mavi Korsan Kutuları): anahtarlar etkinlikte ödemeyle satılır, Assembly'de kırmızı 10 Scrap/5 Aurus/3 Schism, mavi 20/10/5; mavi kutuda şanslar kırmızının iki katı. Tek oyunculu uyarlama: R&B etkinliği sürerken anahtar başına uridyum (kırmızı 2.500 U, mavi 5.000 U; tarifin malzeme oranı); istemcide simgesi olan deal_booty-key-overhaul-march-red/blue öğeleri (\"Red/Blue Booty Key\"; resource_booty-key-red/blue ve deal_booty-key-red/blue beyaz simge, canlı 2026-10-30) yeşil anahtarın şablonuyla, içerik 1 anahtar (oyuncu bildirimi 2026-10-30: etkinlikte mağazada yoktu)"
    },
    {
     "lootId": "deal_booty-key-overhaul-march-blue",
     "uridium": 5000,
     "template": "resource_booty-key",
     "calendar": "rb_booty",
-    "_kaynak": "Resmî Türk forumu 130230/127496 (Kırmızı ve Mavi Korsan Kutuları): anahtarlar etkinlikte ödemeyle satılır, Assembly'de kırmızı 10 Scrap/5 Aurus/3 Schism, mavi 20/10/5; mavi kutuda şanslar kırmızının iki katı. Tek oyunculu uyarlama: R&B etkinliği sürerken anahtar başına uridyum (kırmızı 2.500 U, mavi 5.000 U; tarifin malzeme oranı); istemcide simgesi olan deal_booty-key-overhaul-march-red/blue öğeleri (\"Red/Blue Booty Key\"; resource_booty-key-red/blue ve deal_booty-key-red/blue beyaz simge, canlı 2026-10-30) yeşil anahtarın şablonuyla, içerik 1 anahtar (oyuncu bildirimi 2026-10-30: etkinlikte mağazada yoktu)"
+    "_source": "Resmî Türk forumu 130230/127496 (Kırmızı ve Mavi Korsan Kutuları): anahtarlar etkinlikte ödemeyle satılır, Assembly'de kırmızı 10 Scrap/5 Aurus/3 Schism, mavi 20/10/5; mavi kutuda şanslar kırmızının iki katı. Tek oyunculu uyarlama: R&B etkinliği sürerken anahtar başına uridyum (kırmızı 2.500 U, mavi 5.000 U; tarifin malzeme oranı); istemcide simgesi olan deal_booty-key-overhaul-march-red/blue öğeleri (\"Red/Blue Booty Key\"; resource_booty-key-red/blue ve deal_booty-key-red/blue beyaz simge, canlı 2026-10-30) yeşil anahtarın şablonuyla, içerik 1 anahtar (oyuncu bildirimi 2026-10-30: etkinlikte mağazada yoktu)"
    }
   ],
   "ammunition": [
@@ -9513,7 +9513,7 @@
     "template": "ammunition_specialammo_emp-01",
     "calendar": "winter",
     "fixed": true,
-    "_kaynak": "forum Soğuk Dalga SSS 1298683, kış SSS 1380212: etkinlik boyunca dükkânda birimi 300 U"
+    "_source": "forum Soğuk Dalga SSS 1298683, kış SSS 1380212: etkinlik boyunca dükkânda birimi 300 U"
    },
    {
     "lootId": "ammunition_specialammo_wiz-x",
@@ -9521,7 +9521,7 @@
     "template": "ammunition_specialammo_emp-01",
     "calendar": "winter",
     "fixed": true,
-    "_kaynak": "forum kış SSS 1380212: etkinlik cephanesi dükkânda; fiyat fiyatlar.json"
+    "_source": "forum kış SSS 1380212: etkinlik cephanesi dükkânda; fiyat fiyatlar.json"
    },
    {
     "lootId": "ammunition_laser_vb-142",
@@ -9529,7 +9529,7 @@
     "template": "ammunition_laser_job-100",
     "calendar": "immortal_union",
     "fixed": true,
-    "_kaynak": "forum Ölümsüz Birlik SSS: etkinlik süresince dükkândan 5 Uridium"
+    "_source": "forum Ölümsüz Birlik SSS: etkinlik süresince dükkândan 5 Uridium"
    },
    {
     "lootId": "ammunition_laser_spacecup_group-a",
@@ -9537,7 +9537,7 @@
     "template": "ammunition_laser_job-100",
     "calendar": "spacecup",
     "fixed": true,
-    "_kaynak": "forum Space Cup SSS: CC-A..H etkinlik sonuna dek mağazada; fiyat fiyatlar.json (group-c/d 1,5 U)"
+    "_source": "forum Space Cup SSS: CC-A..H etkinlik sonuna dek mağazada; fiyat fiyatlar.json (group-c/d 1,5 U)"
    },
    {
     "lootId": "ammunition_laser_spacecup_group-b",
@@ -9545,7 +9545,7 @@
     "template": "ammunition_laser_job-100",
     "calendar": "spacecup",
     "fixed": true,
-    "_kaynak": "forum Space Cup SSS: CC-A..H etkinlik sonuna dek mağazada; fiyat fiyatlar.json (group-c/d 1,5 U)"
+    "_source": "forum Space Cup SSS: CC-A..H etkinlik sonuna dek mağazada; fiyat fiyatlar.json (group-c/d 1,5 U)"
    },
    {
     "lootId": "ammunition_laser_spacecup_group-c",
@@ -9553,7 +9553,7 @@
     "template": "ammunition_laser_job-100",
     "calendar": "spacecup",
     "fixed": true,
-    "_kaynak": "forum Space Cup SSS: CC-A..H etkinlik sonuna dek mağazada; fiyat fiyatlar.json (group-c/d 1,5 U)"
+    "_source": "forum Space Cup SSS: CC-A..H etkinlik sonuna dek mağazada; fiyat fiyatlar.json (group-c/d 1,5 U)"
    },
    {
     "lootId": "ammunition_laser_spacecup_group-d",
@@ -9561,7 +9561,7 @@
     "template": "ammunition_laser_job-100",
     "calendar": "spacecup",
     "fixed": true,
-    "_kaynak": "forum Space Cup SSS: CC-A..H etkinlik sonuna dek mağazada; fiyat fiyatlar.json (group-c/d 1,5 U)"
+    "_source": "forum Space Cup SSS: CC-A..H etkinlik sonuna dek mağazada; fiyat fiyatlar.json (group-c/d 1,5 U)"
    },
    {
     "lootId": "ammunition_laser_spacecup_group-e",
@@ -9569,7 +9569,7 @@
     "template": "ammunition_laser_job-100",
     "calendar": "spacecup",
     "fixed": true,
-    "_kaynak": "forum Space Cup SSS: CC-A..H etkinlik sonuna dek mağazada; fiyat fiyatlar.json (group-c/d 1,5 U)"
+    "_source": "forum Space Cup SSS: CC-A..H etkinlik sonuna dek mağazada; fiyat fiyatlar.json (group-c/d 1,5 U)"
    },
    {
     "lootId": "ammunition_laser_spacecup_group-f",
@@ -9577,7 +9577,7 @@
     "template": "ammunition_laser_job-100",
     "calendar": "spacecup",
     "fixed": true,
-    "_kaynak": "forum Space Cup SSS: CC-A..H etkinlik sonuna dek mağazada; fiyat fiyatlar.json (group-c/d 1,5 U)"
+    "_source": "forum Space Cup SSS: CC-A..H etkinlik sonuna dek mağazada; fiyat fiyatlar.json (group-c/d 1,5 U)"
    },
    {
     "lootId": "ammunition_laser_spacecup_group-g",
@@ -9585,7 +9585,7 @@
     "template": "ammunition_laser_job-100",
     "calendar": "spacecup",
     "fixed": true,
-    "_kaynak": "forum Space Cup SSS: CC-A..H etkinlik sonuna dek mağazada; fiyat fiyatlar.json (group-c/d 1,5 U)"
+    "_source": "forum Space Cup SSS: CC-A..H etkinlik sonuna dek mağazada; fiyat fiyatlar.json (group-c/d 1,5 U)"
    },
    {
     "lootId": "ammunition_laser_spacecup_group-h",
@@ -9593,7 +9593,7 @@
     "template": "ammunition_laser_job-100",
     "calendar": "spacecup",
     "fixed": true,
-    "_kaynak": "forum Space Cup SSS: CC-A..H etkinlik sonuna dek mağazada; fiyat fiyatlar.json (group-c/d 1,5 U)"
+    "_source": "forum Space Cup SSS: CC-A..H etkinlik sonuna dek mağazada; fiyat fiyatlar.json (group-c/d 1,5 U)"
    }
   ],
   "booster": [
@@ -11791,7 +11791,7 @@
    "COLLECT_RESOURCES": 100,
    "ABILITY_COOLDOWN_TIME": 55
   },
-  "sure_sn": 36000,
+  "duration_sec": 36000,
   "hour": {
    "booster_cd-dlb": 1,
    "booster_dmg-dlb": 1,
@@ -11851,7 +11851,7 @@
     "booster_npc-b02",
     "booster_rep-s01"
    ],
-   "_kaynak": "darkorbitwiki equipment/boosters: Boss/Uber uzaylıdan 1-10 sa B01 türleri ve P-EP-B01 (P.E.T. EP) ile 1 saatlik DLB, NPC-B01/B02 ve REP-S01; türler eşit ağırlıkla, kinds_1h sabit 1 sa (olasılık uyarlama)"
+   "_source": "darkorbitwiki equipment/boosters: Boss/Uber uzaylıdan 1-10 sa B01 türleri ve P-EP-B01 (P.E.T. EP) ile 1 saatlik DLB, NPC-B01/B02 ve REP-S01; türler eşit ağırlıkla, kinds_1h sabit 1 sa (olasılık uyarlama)"
   },
   "_dmg_pvp01": "DMG-PVP01, istemcinin Booster verisi: DAMAGE 1 (uzaylılara da), DAMAGE_PVP 5 ve DAMAGE_FACTIONS 4 (oyunculara: bot oyuncularla)",
   "special_chance_sources": [
@@ -12055,7 +12055,7 @@
  "_formasyon_anahtarlari": "formasyonlar (belgeler/wiki/drones_pet.md): lazer, roket, npc (uzaylılara lazer+roket), npc_lazer (uzaylılara lazer), pvp_lazer (oyunculara; bot oyuncular gelince), mayin, kalkan, can, hiz, emme (kalkan emme; 3D Drill \"Shield Spread\" da), kacinma, kalkan_delme (uzaylının kalkan emmesini düşürür: Moth +%20, Double Arrow +%10, Pincer -%10), shield_refill_sec (saniyede azami kalkanın oranı kadar dolum, savaşta da; shield_refill_max sınırı: Diamond %1 en çok 5.000, 3D Dome %0,5), shield_decay_sec (saniyede azami kalkanın oranı kadar erime, savaş dışında da: Moth, 3D Wheel; istemci \"drains shields by 5% per second\"), roket_bekleme, fircatici_bekleme (roket fırlatıcısı: Star +%33, 3D Ring +%25, 3D Dome -%25), ep, onur. Turtle istemcide yalnız lazer ve roket -%7,5 (\"laser and rocket damage decrease by 7.5%\"; E5)",
  "_roketler": "roketler (belgeler/wiki/rockets.md; görsel kimlikleri ve bekleme grupları istemcinin kodundan): hasar, kimlik (0|v mesajındaki roket görseli), ozel (kendi bekleme grubu: cooldown_group = istemcinin CooldownType'ı, bekleme_sn), etki {state: [değer, sn]} (durum.py: yavas, isabet, donuk), fx (0|n|fx görseli), target_multiplier. Ayrıca: hull_only (SP-100X), shield_damage/shield_steal/self_slow (SR-5), look_sec (WIZ-X). isabet: roketin taban isabeti (yoksa npc.json roket_isabet); wikiwiki 弾薬 R-310 %70, PLT-2026 %80, PLT-2021 %90, PLT-3030 %65 (istemci items_ammunition_rocket_plt-3030_description \"lower accuracy rate\").",
  "combat_items": {
-  "_kaynak": "belgeler/wiki/extras_cpu_tech.md, rockets.md; istemcinin kodu (mayın türleri, bekleme grupları ve süreleri, EMP menzili 455, fırlatıcı menzili 650). Uyarlamalar _not alanlarında.",
+  "_source": "belgeler/wiki/extras_cpu_tech.md, rockets.md; istemcinin kodu (mayın türleri, bekleme grupları ve süreleri, EMP menzili 455, fırlatıcı menzili 650). Uyarlamalar _not alanlarında.",
   "mine": {
    "npc_adaptation": true,
    "_npc_not": "Yerel tek oyunculu PvE uyarlaması: NPC mayın tetikler ve etkilenir. Resmî oyunda sıradan mayınlar oyuncu gemilerini etkiler.",
@@ -12074,24 +12074,24 @@
    "ammunition_mine_acm-01": {
     "tip": 1,
     "damage_type": "standard",
-    "kalkan": 0.2,
-    "can": 0.2
+    "shield": 0.2,
+    "hp": 0.2
    },
    "ammunition_mine_ddm-01": {
     "tip": 4,
     "damage_type": "direct",
-    "can": 0.2
+    "hp": 0.2
    },
    "curcubitor_mayini": {
     "tip": 20,
     "damage_type": "direct",
-    "can": 0.2,
+    "hp": 0.2,
     "lifetime_sec": 15,
-    "_kaynak": "Curcubitor'un Trick mayını (istemcinin curcubitorMine modeli): resmî sunucu kaydı 2026-10-27, ölümden 1,4 sn sonra öldüğü yerde typeId 20, 15 sn sonra kalkar; etkisi DDM-01 gibi (wiki: canın %20'si)"
+    "_source": "Curcubitor'un Trick mayını (istemcinin curcubitorMine modeli): resmî sunucu kaydı 2026-10-27, ölümden 1,4 sn sonra öldüğü yerde typeId 20, 15 sn sonra kalkar; etkisi DDM-01 gibi (wiki: canın %20'si)"
    },
    "ammunition_mine_sabm-01": {
     "tip": 3,
-    "kalkan": 0.5
+    "shield": 0.5
    },
    "ammunition_mine_empm-01": {
     "tip": 2,
@@ -12108,12 +12108,12 @@
    "ammunition_mine_im-01": {
     "tip": 17,
     "damage_type": "standard",
-    "can": 0.2,
+    "hp": 0.2,
     "infection": {
-     "sn": 900,
+     "sec": 900,
      "slow": 0.1,
      "damage_bonus": 0.1,
-     "can": -0.15
+     "hp": -0.15
     },
     "_not": "Parasite Tide Event FAQ: 900 sn; +%10 hasar, -%15 gövde, -%10 hız; tekrar bulaşma süreyi yeniler"
    },
@@ -12136,8 +12136,8 @@
    "mine_count": 10,
    "xenomit": 100,
    "radius": 600,
-   "kalkan": 0.2,
-   "can": 0.2,
+   "shield": 0.2,
+   "hp": 0.2,
    "cooldown_group": 2,
    "cooldown_sec": 60,
    "_not": "yarıçap uyarlama; bekleme istemcinin tablosundan (wiki \"mayınlarla aynı\" diyor)"
@@ -12147,7 +12147,7 @@
    "mine": "ammunition_mine_acm-01",
    "mine_count": 10,
    "xenomit": 100,
-   "sure_sn": 3,
+   "duration_sec": 3,
    "cooldown_group": 3,
    "cooldown_sec": 30
   },
@@ -13084,8 +13084,8 @@
      "type": 2,
      "capacity": 5,
      "bonus": {
-      "can": 0.3,
-      "kalkan": 0.25
+      "hp": 0.3,
+      "shield": 0.25
      }
     },
     "equipment_weapon_rocketlauncher_neptune": {
@@ -13265,13 +13265,13 @@
      "gg_kronos_10_2",
      "gg_kronos_10_3"
     ],
-    "_kaynak": "Resmî Türk forumu 127576 (Hangar-Ekstralar): Saturn Verici CPU yakınında rastgele bir Saturn uzaylısı çıkarır (Venom, Sentinel, Spectrum, Diminisher, Solace, Spearhead, Citadel, Aegis, Goliath); Galaksi Kapısı dışındaki Saturn'ler PvP görevlerinde düşman oyuncu sayılır; X-5..X-8, X-BL ve savaş haritalarında. Türler Kronos kapısının Saturn uzaylıları"
+    "_source": "Resmî Türk forumu 127576 (Hangar-Ekstralar): Saturn Verici CPU yakınında rastgele bir Saturn uzaylısı çıkarır (Venom, Sentinel, Spectrum, Diminisher, Solace, Spearhead, Citadel, Aegis, Goliath); Galaksi Kapısı dışındaki Saturn'ler PvP görevlerinde düşman oyuncu sayılır; X-5..X-8, X-BL ve savaş haritalarında. Türler Kronos kapısının Saturn uzaylıları"
    }
   },
   "_uzayli_cpu": "Chaos Alien CPU'ları ve Cubi Portal (istemcinin metinleri): haritası (X-3..X-7 sınıfı ya da 4-x savaş haritası) uygunsa yakına kademesinden rastgele bir uzaylı; haritada CPU uzaylısı yaşarken yenisi doğmaz (msg_aliencpu_npc_already_exists), güvenli bölgede kullanılmaz (msg_aliencpu_dmz). Bekleme grupları istemcinin CooldownType'ı (ALIEN_CPU 56, CUBI_PORTAL 55); süre uyarlama. Kademeler uyarlama (common: Aberration/Oddity, rare: Boss ve Uber, legend: Awakened ve Sheer Chaos); \"Chaos Cubikon\"un istemcide ayrı NPC'si yok: Cubikon. Kaos türleri tools/etkinlik_uzaylilari.py. Saturn Transmitter (ss-cpu): Satürn uzaylıları oyuncu sayılır (bot oyuncular); Ice Portal (frozen-portal) kaynaksız; Bountiful Alien CPU BİLİNEN (Aşama 7b)",
   "ghost": {
    "menu": "ammunition_specialammo_ghostifier",
-   "sure_sn": 60,
+   "duration_sec": 60,
    "visual": 26,
    "cooldown_group": 53,
    "cooldown_sec": 120,
@@ -13284,7 +13284,7 @@
   }
  },
  "technology": {
-  "_kaynak": "belgeler/wiki/extras_cpu_tech.md (wiki: etkiler); görseller istemcinin kodundan (VisualModifierCommand gorsel, 0|n|A|S|SBU, 0|n|ECI, 0|n|BT, 0|n|NNK). Süre ve beklemelerin çoğu ne wiki'de ne istemcide var: uyarlama. Eşyalar Assembly ile (yol haritası Aşama 5) profilin \"teknoloji\" sayacına girer. Bekleme: Backup Shield 2 ve Battle Repair Bot 2 600 sn, Speed Burst 180 sn (darkorbitwiki etkinlik sayfaları); Burning Trail, Explosive Charging Blob ve NPC Nuke için yalnız eski fandom 20 dk var, güncel wiki ve istemci sayı vermiyor: 120 sn uyarlama kaldı (BT/ECB/NNK istemcide \"minutes\" birimli ama değersiz). Beklemeler çevrimdışıyken de işler (fandom'un \"giriş yapılmayınca durur\" kuralı güncel kaynakta yok: uyarlama).",
+  "_source": "belgeler/wiki/extras_cpu_tech.md (wiki: etkiler); görseller istemcinin kodundan (VisualModifierCommand gorsel, 0|n|A|S|SBU, 0|n|ECI, 0|n|BT, 0|n|NNK). Süre ve beklemelerin çoğu ne wiki'de ne istemcide var: uyarlama. Eşyalar Assembly ile (yol haritası Aşama 5) profilin \"teknoloji\" sayacına girer. Bekleme: Backup Shield 2 ve Battle Repair Bot 2 600 sn, Speed Burst 180 sn (darkorbitwiki etkinlik sayfaları); Burning Trail, Explosive Charging Blob ve NPC Nuke için yalnız eski fandom 20 dk var, güncel wiki ve istemci sayı vermiyor: 120 sn uyarlama kaldı (BT/ECB/NNK istemcide \"minutes\" birimli ama değersiz). Beklemeler çevrimdışıyken de işler (fandom'un \"giriş yapılmayınca durur\" kuralı güncel kaynakta yok: uyarlama).",
   "ammo_types": [
    "ammunition_laser_lcb-10",
    "ammunition_laser_mcb-25",
@@ -13294,7 +13294,7 @@
   "items": {
    "tech_energy-leech": {
     "visual": 59,
-    "sure_sn": 900,
+    "duration_sec": 900,
     "cooldown_sec": 900,
     "laser_hp": 0.1,
     "_not": "lazer hasarının %10'u cana; SAB-50, RSB-75 gibi özel cephaneyle çalışmaz (yalnız cephaneler); süre ve bekleme uyarlama"
@@ -13307,33 +13307,33 @@
     "_not": "yarıçap ve bekleme uyarlama"
    },
    "tech_precision-targeter": {
-    "sure_sn": 900,
+    "duration_sec": 900,
     "cooldown_sec": 300,
     "rocket_full_hit": true,
     "_not": "roketler hep isabet eder; süre istemci tf_tech_RPM_1_data_duration \"15 minutes\", bekleme wikiwiki TECH CENTER \"5分\""
    },
    "tech_backup-shields": {
     "cooldown_sec": 120,
-    "kalkan": 75000,
-    "eski": "SBU",
+    "shield": 75000,
+    "old": "SBU",
     "_not": "kalkan doluyken kullanılmaz; bekleme uyarlama"
    },
    "tech_shield-backup2": {
     "cooldown_sec": 600,
-    "kalkan": 400000,
-    "eski": "SBU2",
+    "shield": 400000,
+    "old": "SBU2",
     "_not": "bekleme 600 sn: darkorbitwiki events/agatus-breach \"Cooldown: 600s\" (fandom 20 dk, eski)"
    },
    "tech_battle-repair-bot": {
     "visual": 60,
-    "sure_sn": 10,
+    "duration_sec": 10,
     "cooldown_sec": 120,
     "hp_sec": 10000,
     "_not": "savaşta da onarır; süre uyarlama"
    },
    "tech_battle-repair-bot2": {
     "visual": 61,
-    "sure_sn": 10,
+    "duration_sec": 10,
     "cooldown_sec": 600,
     "hp_sec": 20000,
     "shield_per_sec": 35000,
@@ -13341,7 +13341,7 @@
    },
    "tech_explosive-charging-blob": {
     "visual": 73,
-    "sure_sn": 6,
+    "duration_sec": 6,
     "cooldown_sec": 120,
     "damage": [
      50000,
@@ -13351,7 +13351,7 @@
     "_not": "istemci tf_tech_ECB_descr: 6 sn sonra patlar, en çok 350.000; dolum süresi boyunca hasar 50.000'den 350.000'e çıkar, sonunda çevredeki uzaylılara patlar; gemi yok olursa o anki hasarla patlar (uyarlama: istemcide hedefe yapışır)"
    },
    "tech_burning-trail": {
-    "sure_sn": 10,
+    "duration_sec": 10,
     "cooldown_sec": 120,
     "damage": 40000,
     "trigger": 150,
@@ -13360,23 +13360,23 @@
     "interval_sec": 2
    },
    "tech_npc-nuke": {
-    "sure_sn": 60,
+    "duration_sec": 60,
     "cooldown_sec": 120,
     "damage": 100000,
     "interval_sec": 10,
     "radius": 700,
-    "_uyarlama": "yarıçap 700 kaynakta yok (Chain Impulse ile aynı); bekleme 120 sn (wiki: 20 dk)",
+    "_adaptation": "yarıçap 700 kaynakta yok (Chain Impulse ile aynı); bekleme 120 sn (wiki: 20 dk)",
     "_not": "istemci items_tech_npc-nuke_description: gemi çevresindeki uzaylılara 10 sn'de bir 100.000 (toplam 600.000); hedef gerekmez"
    },
    "tech_anti-ai-emergency-reserves": {
     "visual": 100,
-    "sure_sn": 10,
+    "duration_sec": 10,
     "cooldown_sec": 120,
-    "en_az_can": 1
+    "min_hp": 1
    },
    "tech_frost-field": {
     "visual": 102,
-    "sure_sn": 8,
+    "duration_sec": 8,
     "cooldown_sec": 120,
     "radius": 500,
     "slow": 0.3,
@@ -13385,19 +13385,19 @@
    },
    "tech_anti-mine-transmitter": {
     "visual": 96,
-    "sure_sn": 60,
+    "duration_sec": 60,
     "cooldown_sec": 120,
     "mine_protection": true
    },
    "tech_speed-burst": {
     "visual": 95,
-    "sure_sn": 2,
+    "duration_sec": 2,
     "cooldown_sec": 180,
     "speed": 1800,
     "_not": "bekleme 180 sn: darkorbitwiki events/immortal-union ve protegit-pandemonium \"Cooldown: 180s\""
    },
    "tech_versus-laser-overdrive": {
-    "sure_sn": 900,
+    "duration_sec": 900,
     "cooldown_sec": 900,
     "base_laser": 500,
     "_not": "darkorbitwiki tech-items: taban lazer hasarı +500 (lazer başına; gemi ve dron lazerleri), 15 dk; yalnız Vortex of Greed haritasında (483) kullanılır, gemi haritadan ayrılınca ya da orada yok olunca etki silinir (teknoloji.py, dunya.laser_damage). İstemci: \"substantial PvP damage boost\"",
@@ -13462,17 +13462,17 @@
   },
   "ship_centurion_design_centurion-ability2": {
    "bonus": {
-    "can": -0.15
+    "hp": -0.15
    }
   },
   "ship_centurion_design_centurion-ability3": {
    "bonus": {
-    "kalkan": -0.1
+    "shield": -0.1
    }
   },
   "ship_centurion_design_centurion-ability4": {
    "bonus": {
-    "can": -0.15
+    "hp": -0.15
    }
   },
   "ship_centurion_design_centurion-ability5": {
@@ -13490,7 +13490,7 @@
   "ship_centurion_design_centurion-ability8": {
    "laser": 15,
    "bonus": {
-    "can": -0.2
+    "hp": -0.2
    }
   },
   "ship_centurion_design_centurion-ability9": {
@@ -13504,7 +13504,7 @@
    "bonus": {
     "laser": 0.08,
     "rocket": 0.08,
-    "kalkan": -0.1
+    "shield": -0.1
    }
   },
   "ship_centurion_design_centurion-damage10": {
@@ -13512,14 +13512,14 @@
    "bonus": {
     "laser": 0.12,
     "rocket": 0.12,
-    "kalkan": -0.1
+    "shield": -0.1
    }
   },
   "ship_centurion_design_centurion-damage2": {
    "bonus": {
     "laser": 0.08,
     "rocket": 0.08,
-    "can": -0.15
+    "hp": -0.15
    }
   },
   "ship_centurion_design_centurion-damage3": {
@@ -13554,8 +13554,8 @@
    "bonus": {
     "laser": 0.12,
     "rocket": 0.12,
-    "can": -0.15,
-    "kalkan": -0.1
+    "hp": -0.15,
+    "shield": -0.1
    }
   },
   "ship_centurion_design_centurion-damage8": {
@@ -13563,7 +13563,7 @@
    "bonus": {
     "laser": 0.12,
     "rocket": 0.12,
-    "kalkan": -0.1
+    "shield": -0.1
    }
   },
   "ship_centurion_design_centurion-damage9": {
@@ -13581,52 +13581,52 @@
    "bonus": {
     "laser": -0.05,
     "rocket": -0.05,
-    "can": 0.15
+    "hp": 0.15
    }
   },
   "ship_centurion_design_centurion-hp10": {
    "generators": 15,
    "bonus": {
-    "can": 0.35,
-    "kalkan": -0.1
+    "hp": 0.35,
+    "shield": -0.1
    }
   },
   "ship_centurion_design_centurion-hp2": {
    "bonus": {
-    "can": 0.15,
-    "kalkan": -0.1
+    "hp": 0.15,
+    "shield": -0.1
    }
   },
   "ship_centurion_design_centurion-hp3": {
    "base_speed": 290,
    "bonus": {
-    "can": 0.15
+    "hp": 0.15
    }
   },
   "ship_centurion_design_centurion-hp4": {
    "bonus": {
-    "can": 0.15,
+    "hp": 0.15,
     "evasion": -0.05
    }
   },
   "ship_centurion_design_centurion-hp5": {
    "generators": 15,
    "bonus": {
-    "can": 0.15
+    "hp": 0.15
    }
   },
   "ship_centurion_design_centurion-hp6": {
    "rocket": 0,
    "bonus": {
-    "can": 0.15
+    "hp": 0.15
    }
   },
   "ship_centurion_design_centurion-hp7": {
    "bonus": {
     "laser": -0.05,
     "rocket": -0.05,
-    "can": 0.35,
-    "kalkan": -0.1
+    "hp": 0.35,
+    "shield": -0.1
    }
   },
   "ship_centurion_design_centurion-hp8": {
@@ -13634,13 +13634,13 @@
    "bonus": {
     "laser": -0.05,
     "rocket": -0.05,
-    "can": 0.35
+    "hp": 0.35
    }
   },
   "ship_centurion_design_centurion-hp9": {
    "base_speed": 290,
    "bonus": {
-    "can": 0.35,
+    "hp": 0.35,
     "evasion": -0.05
    }
   },
@@ -13648,7 +13648,7 @@
    "bonus": {
     "laser": -0.05,
     "rocket": -0.05,
-    "kalkan": 0.12
+    "shield": 0.12
    }
   },
   "ship_centurion_design_centurion-shield10": {
@@ -13656,45 +13656,45 @@
    "bonus": {
     "laser": -0.05,
     "rocket": -0.05,
-    "kalkan": 0.2
+    "shield": 0.2
    }
   },
   "ship_centurion_design_centurion-shield2": {
    "bonus": {
-    "kalkan": 0.12,
-    "can": -0.15
+    "shield": 0.12,
+    "hp": -0.15
    }
   },
   "ship_centurion_design_centurion-shield3": {
    "base_speed": 290,
    "bonus": {
-    "kalkan": 0.12
+    "shield": 0.12
    }
   },
   "ship_centurion_design_centurion-shield4": {
    "bonus": {
-    "kalkan": 0.12,
+    "shield": 0.12,
     "evasion": -0.05
    }
   },
   "ship_centurion_design_centurion-shield5": {
    "laser": 15,
    "bonus": {
-    "kalkan": 0.12
+    "shield": 0.12
    }
   },
   "ship_centurion_design_centurion-shield6": {
    "rocket": 0,
    "bonus": {
-    "kalkan": 0.12
+    "shield": 0.12
    }
   },
   "ship_centurion_design_centurion-shield7": {
    "bonus": {
     "laser": -0.05,
     "rocket": -0.05,
-    "kalkan": 0.2,
-    "can": -0.15
+    "shield": 0.2,
+    "hp": -0.15
    }
   },
   "ship_centurion_design_centurion-shield8": {
@@ -13702,33 +13702,33 @@
    "bonus": {
     "laser": -0.05,
     "rocket": -0.05,
-    "kalkan": 0.2
+    "shield": 0.2
    }
   },
   "ship_centurion_design_centurion-shield9": {
    "base_speed": 290,
    "bonus": {
-    "kalkan": 0.2,
+    "shield": 0.2,
     "evasion": -0.05
    }
   },
   "ship_centurion_design_centurion-speed1": {
    "base_speed": 310,
    "bonus": {
-    "kalkan": -0.1
+    "shield": -0.1
    }
   },
   "ship_centurion_design_centurion-speed10": {
    "base_speed": 315,
    "laser": 15,
    "bonus": {
-    "kalkan": -0.1
+    "shield": -0.1
    }
   },
   "ship_centurion_design_centurion-speed2": {
    "base_speed": 310,
    "bonus": {
-    "can": -0.15
+    "hp": -0.15
    }
   },
   "ship_centurion_design_centurion-speed3": {
@@ -13755,8 +13755,8 @@
   "ship_centurion_design_centurion-speed7": {
    "base_speed": 315,
    "bonus": {
-    "can": -0.15,
-    "kalkan": -0.1
+    "hp": -0.15,
+    "shield": -0.1
    }
   },
   "ship_centurion_design_centurion-speed8": {
@@ -13764,7 +13764,7 @@
    "bonus": {
     "laser": -0.05,
     "rocket": -0.05,
-    "kalkan": -0.1
+    "shield": -0.1
    }
   },
   "ship_centurion_design_centurion-speed9": {
@@ -13829,7 +13829,7 @@
   "push_step": 0.15,
   "friend_honor": -100,
   "friend_credits": -1000,
-  "_kaynak": "Resmî Türk forumu 127379 (Pushing): aynı oyuncuyu günde 5'ten fazla kesince her seferinde %15 az şeref/TP, 0'a inince imha sayılmaz; 127509 ve 127321: kendi şirketinin gemisini (ve P.E.T.'ini) kesmek kazanç vermez, katlanan eksi şeref (-100, -200, -400 …) ve -1.000 kredi",
-  "_uyarlama": "taban ödül kaynakta yok: şeref 100 x, TP 1.000 x kurbanın rütbe gemi puanı (rutbe.json ship_points)"
+  "_source": "Resmî Türk forumu 127379 (Pushing): aynı oyuncuyu günde 5'ten fazla kesince her seferinde %15 az şeref/TP, 0'a inince imha sayılmaz; 127509 ve 127321: kendi şirketinin gemisini (ve P.E.T.'ini) kesmek kazanç vermez, katlanan eksi şeref (-100, -200, -400 …) ve -1.000 kredi",
+  "_adaptation": "taban ödül kaynakta yok: şeref 100 x, TP 1.000 x kurbanın rütbe gemi puanı (rutbe.json ship_points)"
  }
 }

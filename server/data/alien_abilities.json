@@ -14,7 +14,7 @@
      2,
      3
     ],
-    "dogma": [
+    "spawn_range": [
      100,
      2650
     ],
@@ -51,8 +51,8 @@
     "shield_per_sec": 0,
     "cooldown_sec": 10
    },
-   "_kaynak": "aliens.md: vurulunca Protegit salar (tabloda 30x Protegit), saldırılmazken saniyede 125.000'e kadar can; fandom: Protegit'ler 20-30'luk sürüyle hemen çıkar, Cubikon ölünce kimseyi kovalamadan dolaşır ve sonra kaybolur",
-   "_uyarlama": "çağrıda 25 Protegit (en çok 30), 4 sn bekleme; sürü saniyede 2-3'lük gruplarla oyuncunun 500-1100 birim çevresinde (biraz uzağından ekranın hemen dışına) çıkar; çağrı başında ShipSpawnChildSwarmCommand Cubikon'u açar (istemci SpawnChildrenEffect, animatör npc_cubikon open; kullanıcı bildirimi ve video 2026-10-27); ilk vuruştan 3 sn sonra çıkarlar (kullanıcı bildirimi 2026-10-25: ilk atışta hemen çıkıyorlardı); yenilenme 10 sn vurulmayınca; Cubikon ölünce Protegit'ler 10-20 sn dolaşıp kaybolur (kullanıcı bildirimi 2026-10-25: en çok 20 sn; öteki Cubikon'larınkiler etkilenmez). Protegit'ler saldırırken vur-kaç yapar: oyuncunun 150-320 birim yanına gelir, 1-2,5 sn (bir iki atış), 450-850 birime uzaklaşır (menzildeyse atış sürer), 0,8-2,5 sn sonra yine yaklaşır; her biri kendi yanında, dağınık (kullanıcı bildirimi 2026-10-27; önceden hepsi oyuncunun dibinde toplanıyordu); saldırmazken Cubikon'un 250-750 birim çevresinde dolaşır; oyuncu Cubikon'dan 1.600 birimden uzaksa peşini bırakır, Cubikon'un çevresinde dolaşır (kullanıcı bildirimi 2026-10-25: oyuncuyu çok uzağa kovalıyorlardı); resmî sunucu kaydı 2026-10-27: ilk vuruştan 5,4 sn sonra 20 Protegit (0|n|s|<Cubikon>|20|<kimlikler>), Cubikon'un ve oyuncunun 100-2.650 birim çevresinde (ortanca ~1.500) doğar; adet, ilk bekleme ve doğma yarıçapı buna göre (gruplama takılmaya karşı kalır)",
+   "_source": "aliens.md: vurulunca Protegit salar (tabloda 30x Protegit), saldırılmazken saniyede 125.000'e kadar can; fandom: Protegit'ler 20-30'luk sürüyle hemen çıkar, Cubikon ölünce kimseyi kovalamadan dolaşır ve sonra kaybolur",
+   "_adaptation": "çağrıda 25 Protegit (en çok 30), 4 sn bekleme; sürü saniyede 2-3'lük gruplarla oyuncunun 500-1100 birim çevresinde (biraz uzağından ekranın hemen dışına) çıkar; çağrı başında ShipSpawnChildSwarmCommand Cubikon'u açar (istemci SpawnChildrenEffect, animatör npc_cubikon open; kullanıcı bildirimi ve video 2026-10-27); ilk vuruştan 3 sn sonra çıkarlar (kullanıcı bildirimi 2026-10-25: ilk atışta hemen çıkıyorlardı); yenilenme 10 sn vurulmayınca; Cubikon ölünce Protegit'ler 10-20 sn dolaşıp kaybolur (kullanıcı bildirimi 2026-10-25: en çok 20 sn; öteki Cubikon'larınkiler etkilenmez). Protegit'ler saldırırken vur-kaç yapar: oyuncunun 150-320 birim yanına gelir, 1-2,5 sn (bir iki atış), 450-850 birime uzaklaşır (menzildeyse atış sürer), 0,8-2,5 sn sonra yine yaklaşır; her biri kendi yanında, dağınık (kullanıcı bildirimi 2026-10-27; önceden hepsi oyuncunun dibinde toplanıyordu); saldırmazken Cubikon'un 250-750 birim çevresinde dolaşır; oyuncu Cubikon'dan 1.600 birimden uzaksa peşini bırakır, Cubikon'un çevresinde dolaşır (kullanıcı bildirimi 2026-10-25: oyuncuyu çok uzağa kovalıyorlardı); resmî sunucu kaydı 2026-10-27: ilk vuruştan 5,4 sn sonra 20 Protegit (0|n|s|<Cubikon>|20|<kimlikler>), Cubikon'un ve oyuncunun 100-2.650 birim çevresinde (ortanca ~1.500) doğar; adet, ilk bekleme ve doğma yarıçapı buna göre (gruplama takılmaya karşı kalır)",
    "summons_scatter_on_death": {
     "lifetime_sec": [
      10,
@@ -68,7 +68,7 @@
      "count": 3
     }
    ],
-   "_kaynak": "aliens.md (Lordakium Spore): Lordakium 3 spor"
+   "_source": "aliens.md (Lordakium Spore): Lordakium 3 spor"
   },
   "21": {
    "_name": "Boss Lordakium",
@@ -78,7 +78,7 @@
      "count": 4
     }
    ],
-   "_kaynak": "aliens.md: Boss Lordakium 4 spor"
+   "_source": "aliens.md: Boss Lordakium 4 spor"
   },
   "35": {
    "_name": "Uber Lordakium",
@@ -88,7 +88,7 @@
      "count": 5
     }
    ],
-   "_kaynak": "aliens.md: Uber Lordakium 5 spor"
+   "_source": "aliens.md: Uber Lordakium 5 spor"
   },
   "62": {
    "_name": "Battleray",
@@ -104,14 +104,14 @@
    },
    "anger": {
     "attacker": 2,
-    "sure_sn": 10,
+    "duration_sec": 10,
     "damage_multiplier": 1.5,
     "extra_summon": 2,
     "repair_hp_per_sec": 30000,
     "laser_color": 6
    },
-   "_kaynak": "aliens.md: Interceptor çağırır; çağırdıkları yaşarken anında kalkan (ISH) ve saniyede 600 onarım; iki ya da daha çok saldıran (P.E.T. 10 sayılır) öfkelendirir: UCB-100 yerine RSB-75, daha çok Interceptor, 30.000 onarım",
-   "_uyarlama": "çağrıda 7 Interceptor (resmî Türk forumu 1885: oyuncu başına 7) (fandom: Deadly Battleray en çok 2 ile \"daha az\" çağırır), 15 sn bekleme; öfke son 10 sn'deki saldıranlarla; RSB-75/UCB-100 = x1,5 hasar"
+   "_source": "aliens.md: Interceptor çağırır; çağırdıkları yaşarken anında kalkan (ISH) ve saniyede 600 onarım; iki ya da daha çok saldıran (P.E.T. 10 sayılır) öfkelendirir: UCB-100 yerine RSB-75, daha çok Interceptor, 30.000 onarım",
+   "_adaptation": "çağrıda 7 Interceptor (resmî Türk forumu 1885: oyuncu başına 7) (fandom: Deadly Battleray en çok 2 ile \"daha az\" çağırır), 15 sn bekleme; öfke son 10 sn'deki saldıranlarla; RSB-75/UCB-100 = x1,5 hasar"
   },
   "167": {
    "_name": "Uber Battleray",
@@ -127,14 +127,14 @@
    },
    "anger": {
     "attacker": 2,
-    "sure_sn": 10,
+    "duration_sec": 10,
     "damage_multiplier": 1.5,
     "extra_summon": 2,
     "repair_hp_per_sec": 30000,
     "laser_color": 6
    },
-   "_uyarlama": "wiki yetenek yazmıyor: Battleray'inkiler",
-   "_kaynak": "fandom: Uber Interceptor çağırır (saldırgan)"
+   "_adaptation": "wiki yetenek yazmıyor: Battleray'inkiler",
+   "_source": "fandom: Uber Interceptor çağırır (saldırgan)"
   },
   "121": {
    "_name": "Deadly Battleray",
@@ -146,11 +146,11 @@
    },
    "anger": {
     "attacker": 3,
-    "sure_sn": 10,
+    "duration_sec": 10,
     "extra_summon": 5
    },
-   "_kaynak": "aliens.md: Interceptor'larla savunur, ikiden fazla oyuncu saldırmadıkça en çok iki",
-   "_uyarlama": "20 sn bekleme; öfke: üç saldıranla (oyuncu, P.E.T. ve bir oyuncu daha; burada saldiran 2 yapılırsa oyuncu ve P.E.T. yeter) en çok 7 Interceptor (Battleray'inki kadar)"
+   "_source": "aliens.md: Interceptor'larla savunur, ikiden fazla oyuncu saldırmadıkça en çok iki",
+   "_adaptation": "20 sn bekleme; öfke: üç saldıranla (oyuncu, P.E.T. ve bir oyuncu daha; burada saldiran 2 yapılırsa oyuncu ve P.E.T. yeter) en çok 7 Interceptor (Battleray'inki kadar)"
   },
   "177": {
    "_name": "Invoke XVI",
@@ -161,8 +161,8 @@
      "count": 8
     }
    ],
-   "_kaynak": "aliens.md: hareketsiz; bir miktar can kaybedince 8 Impulse II çağırır",
-   "_uyarlama": "canın %75'inde, bir kez"
+   "_source": "aliens.md: hareketsiz; bir miktar can kaybedince 8 Impulse II çağırır",
+   "_adaptation": "canın %75'inde, bir kez"
   },
   "178": {
    "_name": "Mindfire Behemoth",
@@ -171,13 +171,13 @@
    },
    "slowing_shots": {
     "ratio": 0.5,
-    "sn": 3
+    "sec": 3
    },
    "multi_target": {
     "hp_ratio": 0.25
    },
-   "_kaynak": "aliens.md: yakındaki gizli pilotları hemen görünür kılar; Saboteur gibi yavaşlatan mermiler; kritik canda birden çok hedef; fandom: canının %50'sini kaybedince 4 Attend IX",
-   "_uyarlama": "gizlenme bozma 1.500 birim; yavaşlatma %50, 3 sn; birden çok hedef canın %25'inde (oyuncu ve P.E.T.). Şok dalgası (+/- işaretli pilotlar) birden çok oyuncu ister: bot oyuncularla.",
+   "_source": "aliens.md: yakındaki gizli pilotları hemen görünür kılar; Saboteur gibi yavaşlatan mermiler; kritik canda birden çok hedef; fandom: canının %50'sini kaybedince 4 Attend IX",
+   "_adaptation": "gizlenme bozma 1.500 birim; yavaşlatma %50, 3 sn; birden çok hedef canın %25'inde (oyuncu ve P.E.T.). Şok dalgası (+/- işaretli pilotlar) birden çok oyuncu ister: bot oyuncularla.",
    "summon_at_hp_threshold": [
     {
      "type": "217",
@@ -192,8 +192,8 @@
     "damage": 3000,
     "cooldown_sec": 6
    },
-   "_kaynak": "aliens.md: azami hasar 1.000 lazer / 3.000 roket",
-   "_uyarlama": "6 sn'de bir roket"
+   "_source": "aliens.md: azami hasar 1.000 lazer / 3.000 roket",
+   "_adaptation": "6 sn'de bir roket"
   },
   "61": {
    "_name": "Annihilator",
@@ -203,8 +203,8 @@
     "launcher": true,
     "count": 3
    },
-   "_kaynak": "aliens.md: 15.000 / +12.000 roket fırlatıcı",
-   "_uyarlama": "fandom (Hellstorm): 5 sn'de 3 roket yükler, salvo toplam 12.000"
+   "_source": "aliens.md: 15.000 / +12.000 roket fırlatıcı",
+   "_adaptation": "fandom (Hellstorm): 5 sn'de 3 roket yükler, salvo toplam 12.000"
   },
   "166": {
    "_name": "Uber Annihilator",
@@ -214,51 +214,51 @@
     "launcher": true,
     "count": 3
    },
-   "_kaynak": "aliens.md: 90.000 / +12.000 roket fırlatıcı"
+   "_source": "aliens.md: 90.000 / +12.000 roket fırlatıcı"
   },
   "60": {
    "_name": "Saboteur",
    "slowing_shots": {
     "speed": 120,
-    "sn": 5,
+    "sec": 5,
     "range": 300
    },
-   "_uyarlama": "Barb'ın yavaşlatma küresi gibi",
-   "_kaynak": "fandom (Saboteur, Slowdown Orb): hızı 120 yapar, 5 sn, menzil ~300, birikmez"
+   "_adaptation": "Barb'ın yavaşlatma küresi gibi",
+   "_source": "fandom (Saboteur, Slowdown Orb): hızı 120 yapar, 5 sn, menzil ~300, birikmez"
   },
   "165": {
    "_name": "Uber Saboteur",
    "slowing_shots": {
     "speed": 120,
-    "sn": 5,
+    "sec": 5,
     "range": 300
    },
-   "_uyarlama": "Saboteur'ünki"
+   "_adaptation": "Saboteur'ünki"
   },
   "283": {
    "_name": "Barb",
    "slowing_shots": {
     "speed": 120,
-    "sn": 5,
+    "sec": 5,
     "range": 300
    },
-   "_kaynak": "aliens.md: Slowdown Orb hızı 5 sn 120'ye indirir, yenilenir ama birikmez, menzil ~300, EMP kaldırır"
+   "_source": "aliens.md: Slowdown Orb hızı 5 sn 120'ye indirir, yenilenir ama birikmez, menzil ~300, EMP kaldırır"
   },
   "281": {
    "_name": "The Stinger",
    "slowing_shots": {
     "speed": 120,
-    "sn": 5,
+    "sec": 5,
     "range": 300
    },
    "singularity": {
     "damage_per_sec": 20000,
     "maximum": 300000,
-    "sure_sn": 15,
+    "duration_sec": 15,
     "range": 800,
     "cooldown_sec": 30
    },
-   "_kaynak": "aliens.md: Slowdown Orb; Pirate Singularity hedefine saniyede 20.000, en çok 300.000, 15 sn, menzil 800, bekleme 30 sn"
+   "_source": "aliens.md: Slowdown Orb; Pirate Singularity hedefine saniyede 20.000, en çok 300.000, 15 sn, menzil 800, bekleme 30 sn"
   },
   "114": {
    "_name": "Emperor Lordakium",
@@ -272,8 +272,8 @@
     "hp_sec": 40000,
     "shield_per_sec": 40000
    },
-   "_kaynak": "aliens.md: ~1.280.000 can kaybedince kaybolur, iki sahte Lordakium'la yeniden belirir; sahtelerin 1 canı var, vurulunca büyük patlama; gerçeği aranırken can ve kalkan doldurur",
-   "_uyarlama": "patlama 60.000 hasar, 500 birim; sahteler 90 sn sonra kaybolur; gizliyken saniyede 40.000 can ve kalkan; harita kenarına varınca kaybolma yok; gerçeği ve sahteleri oyuncunun 1.500 birim çevresinde, ayrı yönlerde belirir (görüş 1.800; önceden 2.500 öteye gidip görünmüyorlardı, oyuncu bildirimi 2026-10-30)"
+   "_source": "aliens.md: ~1.280.000 can kaybedince kaybolur, iki sahte Lordakium'la yeniden belirir; sahtelerin 1 canı var, vurulunca büyük patlama; gerçeği aranırken can ve kalkan doldurur",
+   "_adaptation": "patlama 60.000 hasar, 500 birim; sahteler 90 sn sonra kaybolur; gizliyken saniyede 40.000 can ve kalkan; harita kenarına varınca kaybolma yok; gerçeği ve sahteleri oyuncunun 1.500 birim çevresinde, ayrı yönlerde belirir (görüş 1.800; önceden 2.500 öteye gidip görünmüyorlardı, oyuncu bildirimi 2026-10-30)"
   },
   "115": {
    "_name": "Emperor Kristallon",
@@ -283,14 +283,14 @@
     "delay_sec": 2,
     "group": 4
    },
-   "_kaynak": "aliens.md: ~30 sn'de bir 300.000 hasarlık yapışkan bomba, yakın duran oyuncular paylaşır",
-   "_uyarlama": "tek oyunculu: hasar Hades'in en küçük grubuna (4) bölünür (75.000). Statik yük (+/- kutuplu pilotlar) birden çok oyuncu ister: bot oyuncularla."
+   "_source": "aliens.md: ~30 sn'de bir 300.000 hasarlık yapışkan bomba, yakın duran oyuncular paylaşır",
+   "_adaptation": "tek oyunculu: hasar Hades'in en küçük grubuna (4) bölünür (75.000). Statik yük (+/- kutuplu pilotlar) birden çok oyuncu ister: bot oyuncularla."
   },
   "108": {
    "_name": "Boss Curcubitor",
    "reverse_controls": {
     "hp_ratio": 0.5,
-    "sn": 5
+    "sec": 5
    },
    "sticky_bomb": {
     "damage": 120000,
@@ -298,8 +298,8 @@
     "delay_sec": 10,
     "group": 1
    },
-   "_kaynak": "darkorbitwiki aliens/boss-curcubitor: kırmızı hale vurulan geminin kontrollerini ters çevirir; yeşil hale yapışkan bomba (10 sn geri sayım, en çok 120k hasar)",
-   "_uyarlama": "halka renkleri kaynakta sürekli değişiyor: ters kontrol canın yarısında bir kez 5 sn, bomba 30 sn'de bir (Emperor Kristallon gibi)"
+   "_source": "darkorbitwiki aliens/boss-curcubitor: kırmızı hale vurulan geminin kontrollerini ters çevirir; yeşil hale yapışkan bomba (10 sn geri sayım, en çok 120k hasar)",
+   "_adaptation": "halka renkleri kaynakta sürekli değişiyor: ters kontrol canın yarısında bir kez 5 sn, bomba 30 sn'de bir (Emperor Kristallon gibi)"
   },
   "113": {
    "_name": "Emperor Sibelon",
@@ -312,12 +312,12 @@
     "interval_sec": 15,
     "collect_ms": 3000,
     "harvest_distance": 150,
-    "can": 0.1,
-    "kalkan": 0.1,
+    "hp": 0.1,
+    "shield": 0.1,
     "damage": 0.1
    },
-   "_kaynak": "aliens.md: kalkanı biterken hızı ~380'e çıkar; haritada güçlendirme kapsülleri belirir: HP (~%10 can), SHD (~%10 kalkan), DMG (hasarı ~%10 artar, oyuncularınki ~%10 düşer)",
-   "_uyarlama": "kalkan %10'un altına inince; 15 sn'de bir kapsül, en çok 3; Emperor en yakın kapsüle gidip 3 sn'de toplar; oyuncu kapsülün 150 birim yakınından geçerse kapsül yok olur"
+   "_source": "aliens.md: kalkanı biterken hızı ~380'e çıkar; haritada güçlendirme kapsülleri belirir: HP (~%10 can), SHD (~%10 kalkan), DMG (hasarı ~%10 artar, oyuncularınki ~%10 düşer)",
+   "_adaptation": "kalkan %10'un altına inince; 15 sn'de bir kapsül, en çok 3; Emperor en yakın kapsüle gidip 3 sn'de toplar; oyuncu kapsülün 150 birim yakınından geçerse kapsül yok olur"
   },
   "128": {
    "_name": "Gygerim Overlord",
@@ -326,8 +326,8 @@
     "interval_sec": 2,
     "distance": 1500
    },
-   "_kaynak": "darkorbitwiki aliens/gygerim-overlord: Death Ray, ışınlar haritanın dışından gelir, hasar Overlord'a uzaklığa bağlı; yeterince uzaktayken 2 sn'de bir ortalama 60.000 hasar",
-   "_uyarlama": "uzaklığa bağlı hasar eğrisi kaynakta yok: oyuncu Overlord'dan 1.500 birimden uzaktayken (lazer 700, roket 900, Overlord'un menzili 1.000) 2 sn'de bir 60.000 x %80-120; yakındayken ışın yok. Quarantine Zone ve Compromising Invasion'ın Overlord'u (npc_kimlik 128) aynı"
+   "_source": "darkorbitwiki aliens/gygerim-overlord: Death Ray, ışınlar haritanın dışından gelir, hasar Overlord'a uzaklığa bağlı; yeterince uzaktayken 2 sn'de bir ortalama 60.000 hasar",
+   "_adaptation": "uzaklığa bağlı hasar eğrisi kaynakta yok: oyuncu Overlord'dan 1.500 birimden uzaktayken (lazer 700, roket 900, Overlord'un menzili 1.000) 2 sn'de bir 60.000 x %80-120; yakındayken ışın yok. Quarantine Zone ve Compromising Invasion'ın Overlord'u (npc_kimlik 128) aynı"
   },
   "260": {
    "_name": "Agatus",
@@ -337,8 +337,8 @@
     "cooldown_sec": 15,
     "max_count": 4
    },
-   "_kaynak": "aliens.md agatus_x3..x8: \"drops ACM-1 mines at 50% health\"",
-   "_uyarlama": "canı %50'nin altındayken savaşırken 15 sn'de bir uzaylının konumuna ACM-1; aynı anda en çok 4 mayın (kaynakta sayı yok). Spinel çağırması etkinlikler.json agatus.patron'da"
+   "_source": "aliens.md agatus_x3..x8: \"drops ACM-1 mines at 50% health\"",
+   "_adaptation": "canı %50'nin altındayken savaşırken 15 sn'de bir uzaylının konumuna ACM-1; aynı anda en çok 4 mayın (kaynakta sayı yok). Spinel çağırması etkinlikler.json agatus.patron'da"
   },
   "266": {
    "_name": "Strokelight Barrage",
@@ -357,8 +357,8 @@
      500
     ]
    },
-   "_kaynak": "aliens.md: azami hasar lazer 20.000 / roket 300.000; fandom (Strokelight Barrage): Abide I ve Steadfast III çağırabilir; düşük canda hedefinin çevresine ACM-1 yaratır (fandom ACM-1)",
-   "_uyarlama": "30 sn'de bir roket; savaşırken vurulmasa da 25 sn'de bir 2 Abide I ve 1 Steadfast III (en çok 4 ve 2 yaşarken; sayılar kaynakta yok); canı %20'nin altındayken (düşük can) 20 sn'de bir oyuncunun 250-500 birim çevresine ACM-1, en çok 3 mayın (sayılar kaynakta yok)",
+   "_source": "aliens.md: azami hasar lazer 20.000 / roket 300.000; fandom (Strokelight Barrage): Abide I ve Steadfast III çağırabilir; düşük canda hedefinin çevresine ACM-1 yaratır (fandom ACM-1)",
+   "_adaptation": "30 sn'de bir roket; savaşırken vurulmasa da 25 sn'de bir 2 Abide I ve 1 Steadfast III (en çok 4 ve 2 yaşarken; sayılar kaynakta yok); canı %20'nin altındayken (düşük can) 20 sn'de bir oyuncunun 250-500 birim çevresine ACM-1, en çok 3 mayın (sayılar kaynakta yok)",
    "periodic_summon": {
     "cooldown_sec": 25,
     "summons": [
@@ -383,8 +383,8 @@
     "max_count": 3,
     "cooldown_sec": 30
    },
-   "_kaynak": "aliens.md: 3 klon (Cloned Mimesis) yaratır, klonlar bir şey yapmaz",
-   "_uyarlama": "vurulunca, en çok 3 klon, 30 sn bekleme"
+   "_source": "aliens.md: 3 klon (Cloned Mimesis) yaratır, klonlar bir şey yapmaz",
+   "_adaptation": "vurulunca, en çok 3 klon, 30 sn bekleme"
   },
   "237": {
    "_name": "Terror Mimesis",
@@ -395,7 +395,7 @@
      "count": 5
     }
    ],
-   "_kaynak": "aliens.md: canının %50'sinde 5 Kamikaze Mimesis çağırır"
+   "_source": "aliens.md: canının %50'sinde 5 Kamikaze Mimesis çağırır"
   },
   "238": {
    "_name": "Kamikaze Mimesis",
@@ -403,21 +403,21 @@
     "damage": 20000,
     "radius": 500
    },
-   "_kaynak": "aliens.md: lazer atmaz, gemine yaklaşınca patlar (20.000 bomba hasarı)",
-   "_uyarlama": "patlama uzaklığı 500, ödülsüz kalkar"
+   "_source": "aliens.md: lazer atmaz, gemine yaklaşınca patlar (20.000 bomba hasarı)",
+   "_adaptation": "patlama uzaklığı 500, ödülsüz kalkar"
   },
   "239": {
    "_name": "Reflector Mimesis",
    "singularity": {
     "damage_per_sec": 10000,
     "maximum": 100000,
-    "sure_sn": 10,
+    "duration_sec": 10,
     "range": 800,
     "cooldown_sec": 30,
     "visual": false
    },
-   "_kaynak": "aliens.md: lazer ve radyasyon hasarı (10 sn boyunca saniyede 10.000)",
-   "_uyarlama": "menzil 800, 30 sn bekleme; tekilliğin girdabı gösterilmez"
+   "_source": "aliens.md: lazer ve radyasyon hasarı (10 sn boyunca saniyede 10.000)",
+   "_adaptation": "menzil 800, 30 sn bekleme; tekilliğin girdabı gösterilmez"
   },
   "38": {
    "_name": "Uber StreuneR",
@@ -426,8 +426,8 @@
     "cooldown_sec": 6,
     "type": 3
    },
-   "_kaynak": "fandom: PLT-2021 roketi, 4.000 hasar",
-   "_uyarlama": "6 sn'de bir (StreuneR'ınki)"
+   "_source": "fandom: PLT-2021 roketi, 4.000 hasar",
+   "_adaptation": "6 sn'de bir (StreuneR'ınki)"
   },
   "59": {
    "_name": "Barracuda",
@@ -438,8 +438,8 @@
     "radius": 500,
     "damage_hp_ratio": 1.0
    },
-   "_kaynak": "fandom (Kamikaze): canı %20'ye inince kırmızı parlar, 5 sn yerinde durur, sonra hedefe yaklaşır ve yeniden dener; menzildeyse kalan canına göre alan hasarıyla patlar",
-   "_uyarlama": "patlama yarıçapı 500, hasar kalan canı kadar; yaklaşma 5 sn"
+   "_source": "fandom (Kamikaze): canı %20'ye inince kırmızı parlar, 5 sn yerinde durur, sonra hedefe yaklaşır ve yeniden dener; menzildeyse kalan canına göre alan hasarıyla patlar",
+   "_adaptation": "patlama yarıçapı 500, hasar kalan canı kadar; yaklaşma 5 sn"
   },
   "164": {
    "_name": "Uber Barracuda",
@@ -450,34 +450,34 @@
     "radius": 500,
     "damage_hp_ratio": 1.0
    },
-   "_kaynak": "fandom: Barracuda'nın yetenekleri"
+   "_source": "fandom: Barracuda'nın yetenekleri"
   },
   "24": {
    "_name": "Boss StreuneR",
    "reverse_controls": {
     "shield_ratio": 0,
-    "sn": 5
+    "sec": 5
    },
-   "_kaynak": "fandom: kalkanı bitince geminin yönünü ters çevirir",
-   "_uyarlama": "5 sn (Boss Saimon'unki), bir kez"
+   "_source": "fandom: kalkanı bitince geminin yönünü ters çevirir",
+   "_adaptation": "5 sn (Boss Saimon'unki), bir kez"
   },
   "17": {
    "_name": "Boss Saimon",
    "reverse_controls": {
     "hp_ratio": 0.25,
-    "sn": 5
+    "sec": 5
    },
-   "_kaynak": "fandom: canı azken hareketi 5 sn ters çevirir (Boss StreuneR gibi)",
-   "_uyarlama": "düşük can %25, bir kez"
+   "_source": "fandom: canı azken hareketi 5 sn ters çevirir (Boss StreuneR gibi)",
+   "_adaptation": "düşük can %25, bir kez"
   },
   "148": {
    "_name": "Streuner Turret",
    "reverse_shot": {
-    "sn": 4,
+    "sec": 4,
     "cooldown_sec": 8
    },
-   "_kaynak": "fandom (Streuner Turret): ışını oyuncunun kontrollerini tersine çevirir (Boss StreuneR'dan alınan etki)",
-   "_uyarlama": "4 sn ters, 8 sn beklemeyle (süre ve bekleme kaynakta yok; Boss StreuneR'unki 5 sn, bir kez)"
+   "_source": "fandom (Streuner Turret): ışını oyuncunun kontrollerini tersine çevirir (Boss StreuneR'dan alınan etki)",
+   "_adaptation": "4 sn ters, 8 sn beklemeyle (süre ve bekleme kaynakta yok; Boss StreuneR'unki 5 sn, bir kez)"
   },
   "149": {
    "_name": "Streuner Specialist",
@@ -489,8 +489,8 @@
      "streuner soldier"
     ]
    },
-   "_kaynak": "fandom (Streuner Specialist, Healing Wave): 3 sn'de bir öteki Streuner'ların gövdesini 6.000 onarır; kendini onarmaz, öteki Specialist'in dalgası onu onarır; resmî Türk forumu 127494: \"sadece Streuner Soldierleri tamir etmektedir\"",
-   "_uyarlama": "dalganın menzili 1.500 birim (kaynakta yok)"
+   "_source": "fandom (Streuner Specialist, Healing Wave): 3 sn'de bir öteki Streuner'ların gövdesini 6.000 onarır; kendini onarmaz, öteki Specialist'in dalgası onu onarır; resmî Türk forumu 127494: \"sadece Streuner Soldierleri tamir etmektedir\"",
+   "_adaptation": "dalganın menzili 1.500 birim (kaynakta yok)"
   },
   "153": {
    "_name": "Aider Streuner",
@@ -506,8 +506,8 @@
      450
     ]
    },
-   "_kaynak": "darkorbitwiki (Aider Streuner) ve fandom (Streuner Metammorphosis: \"Aider Streuners will follow Recruit Streuners and will also heal other aliens near it\"; Specialist'in dalgası Aider'inkine benzer)",
-   "_uyarlama": "3 sn'de 150 (kendi canının %10'u), menzil 1.000, yakındaki her uzaylıya; Recruit Streuner'in çevresinde 150-450 birimde dolaşır (kaynakta sayı yok)"
+   "_source": "darkorbitwiki (Aider Streuner) ve fandom (Streuner Metammorphosis: \"Aider Streuners will follow Recruit Streuners and will also heal other aliens near it\"; Specialist'in dalgası Aider'inkine benzer)",
+   "_adaptation": "3 sn'de 150 (kendi canının %10'u), menzil 1.000, yakındaki her uzaylıya; Recruit Streuner'in çevresinde 150-450 birimde dolaşır (kaynakta sayı yok)"
   },
   "158": {
    "_name": "Streuner Rocketeer",
@@ -521,8 +521,8 @@
      }
     ]
    },
-   "_kaynak": "fandom (Streuner Rocketeer, Seeker Rocket): Seeker Rocket çağırır (yalnız onunla saldırır); darkorbitwiki Kuiper Gate",
-   "_uyarlama": "8 sn'de bir, en çok 2 roket yaşarken (kaynakta sayı yok). Kuiper kapısının Rocketeer'ındaki davranis.roket (3000 hasar) ve lazer hasarı bu yetenekle birlikte kalkmalı (kapilar.json, tools/kapilar.py: KAPI akışı)"
+   "_source": "fandom (Streuner Rocketeer, Seeker Rocket): Seeker Rocket çağırır (yalnız onunla saldırır); darkorbitwiki Kuiper Gate",
+   "_adaptation": "8 sn'de bir, en çok 2 roket yaşarken (kaynakta sayı yok). Kuiper kapısının Rocketeer'ındaki davranis.roket (3000 hasar) ve lazer hasarı bu yetenekle birlikte kalkmalı (kapilar.json, tools/kapilar.py: KAPI akışı)"
   },
   "159": {
    "_name": "Seeker Rocket",
@@ -534,8 +534,8 @@
    "player_speed": {
     "extra": 20
    },
-   "_kaynak": "fandom (Seeker Rocket): hız oyuncununki + 20; oyuncuya yaklaşınca 6.000 alan hasarıyla patlar, hasar patlama anındaki uzaklığa bağlı; vurulup yok edilebilir",
-   "_uyarlama": "patlama uzaklığı 500; hasar temasta 6.000, 500 birimde yarısı (3.000)"
+   "_source": "fandom (Seeker Rocket): hız oyuncununki + 20; oyuncuya yaklaşınca 6.000 alan hasarıyla patlar, hasar patlama anındaki uzaklığa bağlı; vurulup yok edilebilir",
+   "_adaptation": "patlama uzaklığı 500; hasar temasta 6.000, 500 birimde yarısı (3.000)"
   },
   "243": {
    "_name": "Medic Mimesis",
@@ -547,14 +547,14 @@
      "mimesis"
     ]
    },
-   "_kaynak": "darkorbitwiki (Medic Mimesis, Mimesis Mutiny): yakındaki Mimesis uzaylılarını iyileştirir",
-   "_uyarlama": "3 sn'de hedefin azami canının %5'i, menzil 1.500 (kaynakta sayı yok)"
+   "_source": "darkorbitwiki (Medic Mimesis, Mimesis Mutiny): yakındaki Mimesis uzaylılarını iyileştirir",
+   "_adaptation": "3 sn'de hedefin azami canının %5'i, menzil 1.500 (kaynakta sayı yok)"
   },
   "246": {
    "_name": "Obscured Mimesis",
    "emp_on_shield_down": true,
-   "_kaynak": "darkorbitwiki (Obscured Mimesis): kalkanını kaybedince EMP darbesi savurur",
-   "_uyarlama": "EMP oyuncunun hedefini sıfırlar, gizlenmeyi bitirir ve mini haritayı 5 sn parazitler (EMP-01'in oyuncuya etkisi gibi)"
+   "_source": "darkorbitwiki (Obscured Mimesis): kalkanını kaybedince EMP darbesi savurur",
+   "_adaptation": "EMP oyuncunun hedefini sıfırlar, gizlenmeyi bitirir ve mini haritayı 5 sn parazitler (EMP-01'in oyuncuya etkisi gibi)"
   },
   "248": {
    "_name": "Mirror Mimesis",
@@ -564,8 +564,8 @@
     "max_count": 4,
     "cooldown_sec": 20
    },
-   "_kaynak": "darkorbitwiki (Mirror Mimesis): savaşta zayıf klonlarını yaratır",
-   "_uyarlama": "vurulunca 2 klon, en çok 4, 20 sn bekleme; klon %10 can/kalkan, %20 hasar, ödülsüz (etk_mirror_klon: tools/etkinlik_uzaylilari.py)"
+   "_source": "darkorbitwiki (Mirror Mimesis): savaşta zayıf klonlarını yaratır",
+   "_adaptation": "vurulunca 2 klon, en çok 4, 20 sn bekleme; klon %10 can/kalkan, %20 hasar, ödülsüz (etk_mirror_klon: tools/etkinlik_uzaylilari.py)"
   },
   "251": {
    "_name": "Marker Mimesis",
@@ -578,38 +578,38 @@
     "delay_sec": 2,
     "group": 1
    },
-   "_kaynak": "darkorbitwiki (Marker Mimesis): gemiye yapışan bomba, 100-300 bin hasar",
-   "_uyarlama": "30 sn'de bir, 2 sn gecikmeli (Emperor Kristallon'un yapışkan bombası gibi); hasar her bombada aralıktan rastgele"
+   "_source": "darkorbitwiki (Marker Mimesis): gemiye yapışan bomba, 100-300 bin hasar",
+   "_adaptation": "30 sn'de bir, 2 sn gecikmeli (Emperor Kristallon'un yapışkan bombası gibi); hasar her bombada aralıktan rastgele"
   },
   "285": {
    "_name": "Spookfish",
    "critical_emp": {
     "hp_ratio": 0.2
    },
-   "_kaynak": "fandom (Spookfish): kritik canda EMP-01 salar (Saimon gibi)",
-   "_uyarlama": "kritik can %20, bir kez"
+   "_source": "fandom (Spookfish): kritik canda EMP-01 salar (Saimon gibi)",
+   "_adaptation": "kritik can %20, bir kez"
   },
   "300": {
    "_name": "Hitac Underboss",
    "slowing_shots": {
     "speed": 120,
-    "sn": 5,
+    "sec": 5,
     "range": 300
    },
    "periodic_emp": {
     "cooldown_sec": 30,
     "range": 800
    },
-   "_kaynak": "darkorbitwiki (Hitac Underboss): yavaşlatma ve EMP Impulse kullanır",
-   "_uyarlama": "yavaşlatma Saboteur'un küresi gibi (hız 120, 5 sn, menzil 300); EMP Impulse savaşırken 800 birimde 30 sn'de bir (kaynakta sayı yok)"
+   "_source": "darkorbitwiki (Hitac Underboss): yavaşlatma ve EMP Impulse kullanır",
+   "_adaptation": "yavaşlatma Saboteur'un küresi gibi (hız 120, 5 sn, menzil 300); EMP Impulse savaşırken 800 birimde 30 sn'de bir (kaynakta sayı yok)"
   },
   "46": {
    "_name": "Hooligan",
    "player_speed": {
     "hp_ratio": 0.2
    },
-   "_kaynak": "fandom (Hooligan, Critical Health): kritik canda hızı oyuncununkine eşitlenir",
-   "_uyarlama": "kritik can %20; Hooligan kaçmaz (low_hp), oyuncuyla aynı hızda savaşır"
+   "_source": "fandom (Hooligan, Critical Health): kritik canda hızı oyuncununkine eşitlenir",
+   "_adaptation": "kritik can %20; Hooligan kaçmaz (low_hp), oyuncuyla aynı hızda savaşır"
   },
   "147": {
    "_name": "Streuner Emperor",
@@ -627,8 +627,8 @@
     "damage": 4000,
     "cooldown_sec": 8
    },
-   "_kaynak": "Resmî Türk forumu 127494 (Kuiper): \"Streuner Emperor sizinle savaşmaya başladıktan belli bir süre sonra Streuner Turret çıkarmaktadır. Ayrıca size SAR-02 roketi de atmaktadır.\"",
-   "_uyarlama": "Turret 30 sn'de bir, aynı anda en çok 1 (Kuiper IV'ün Turret türü gg_streuner_3_0); SAR-02 salvosu 8 sn'de bir 4.000 hasar (kaynakta sayı yok)"
+   "_source": "Resmî Türk forumu 127494 (Kuiper): \"Streuner Emperor sizinle savaşmaya başladıktan belli bir süre sonra Streuner Turret çıkarmaktadır. Ayrıca size SAR-02 roketi de atmaktadır.\"",
+   "_adaptation": "Turret 30 sn'de bir, aynı anda en çok 1 (Kuiper IV'ün Turret türü gg_streuner_3_0); SAR-02 salvosu 8 sn'de bir 4.000 hasar (kaynakta sayı yok)"
   },
   "150": {
    "_name": "Streuner Soldier",
@@ -636,8 +636,8 @@
     "damage": 2000,
     "cooldown_sec": 6
    },
-   "_kaynak": "Resmî Türk forumu 127494 (Kuiper): \"Streuner Soldier ... lazerle beraber normal olarak roket de atmaktadır.\"",
-   "_uyarlama": "6 sn'de bir 2.000 (StreuneR'un 1.000-3.000 ölçüsünde; kaynakta sayı yok)"
+   "_source": "Resmî Türk forumu 127494 (Kuiper): \"Streuner Soldier ... lazerle beraber normal olarak roket de atmaktadır.\"",
+   "_adaptation": "6 sn'de bir 2.000 (StreuneR'un 1.000-3.000 ölçüsünde; kaynakta sayı yok)"
   },
   "120": {
    "_name": "Century Falcon",
@@ -646,23 +646,23 @@
     "shield_per_sec": 0,
     "cooldown_sec": 10
    },
-   "_kaynak": "Resmî Türk forumu 126411 (LoW): Century Falcon hasar almazken kendini onarır",
-   "_uyarlama": "vurulmadan 10 sn sonra saniyede azami canın %1'i (12.000.000 x 0,01; kaynakta sayı yok)"
+   "_source": "Resmî Türk forumu 126411 (LoW): Century Falcon hasar almazken kendini onarır",
+   "_adaptation": "vurulmadan 10 sn sonra saniyede azami canın %1'i (12.000.000 x 0,01; kaynakta sayı yok)"
   },
   "53": {
    "_name": "Uber Protegit",
    "slowing_shots": {
     "speed": 120,
-    "sn": 5,
+    "sec": 5,
     "range": 300
    },
-   "_kaynak": "Resmî Türk forumu 127347 (??? haritası): Uber Protegit'ler yavaşlatır",
-   "_uyarlama": "Saboteur'ün yavaşlatan atışı (hız 120, 5 sn, 300 menzil)"
+   "_source": "Resmî Türk forumu 127347 (??? haritası): Uber Protegit'ler yavaşlatır",
+   "_adaptation": "Saboteur'ün yavaşlatan atışı (hız 120, 5 sn, 300 menzil)"
   }
  },
  "capsule_types": [
-  "can",
-  "kalkan",
+  "hp",
+  "shield",
   "damage"
  ],
  "low_hp": {
@@ -682,7 +682,7 @@
     "kristallin"
    ]
   },
-  "_kaynak": "fandom (Low health, Parking, Critical Health): genelde %20'nin altında uzaylı haritanın kenarındaki sabit noktalara kaçar ve kaçarken ateş etmeyi sürdürür; kritik canda oyuncunun tersine haritanın köşesine gider, orada durup kalkanını/canını yeniler, vurulabilir ve karşılık vermez; Kristallon ve Kristallin'in menzili düşük canda nadiren artar; mothership (Cubikon, Ice Meteoroid) ve korsanlar kaçmaz; Barracuda patlar",
-  "_uyarlama": "kaçış noktaları: haritanın dört köşesi ve dört kenar ortası (700 birim içeride), oyuncudan en uzağı; yenilenme saniyede can %1, kalkan %5 (kaynakta sayı yok) ve tamamen dolunca dönüş; menzil artışı x1,2 (kaynakta sayı yok); etkinlik uzaylıları kendi akışlarında (patron süresi, kota) olduğundan kaçmaz; Hooligan kaçmaz çünkü kritik canda hızı oyuncununkine eşitlenir (tehdit)"
+  "_source": "fandom (Low health, Parking, Critical Health): genelde %20'nin altında uzaylı haritanın kenarındaki sabit noktalara kaçar ve kaçarken ateş etmeyi sürdürür; kritik canda oyuncunun tersine haritanın köşesine gider, orada durup kalkanını/canını yeniler, vurulabilir ve karşılık vermez; Kristallon ve Kristallin'in menzili düşük canda nadiren artar; mothership (Cubikon, Ice Meteoroid) ve korsanlar kaçmaz; Barracuda patlar",
+  "_adaptation": "kaçış noktaları: haritanın dört köşesi ve dört kenar ortası (700 birim içeride), oyuncudan en uzağı; yenilenme saniyede can %1, kalkan %5 (kaynakta sayı yok) ve tamamen dolunca dönüş; menzil artışı x1,2 (kaynakta sayı yok); etkinlik uzaylıları kendi akışlarında (patron süresi, kota) olduğundan kaçmaz; Hooligan kaçmaz çünkü kritik canda hızı oyuncununkine eşitlenir (tehdit)"
  }
 }

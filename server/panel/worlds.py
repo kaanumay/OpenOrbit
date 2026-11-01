@@ -29,7 +29,7 @@ SECTIONS = {
     'shop': [('shop', '/products/')],
     'auction': [('social.json', '/auction/')],
     'boxes': [('npc.json', '/bonus_box'), ('boxes.json', '/boxes/')],
-    'kapilar': [('gates.json', '/kapilar/')],
+    'gates': [('gates.json', '/gates/')],
     'events': [('events.json', '/events/')],
     'economy': [('levels.json', '/levels'), ('ranks.json', '/')],
 }
@@ -37,16 +37,16 @@ PATHS = [(d, re.compile(r)) for d, r in (
     ('npc.json', r'^/types/[^/]+$'), ('npc.json', r'^/maps/[^/]+/(npc|bonus_boxes)$'), ('map_layout.json', r'^/maps/[^/]+$'),
     ('quests.json', r'^/quests/\d+$'), ('quest_extras.json', r'^/quests/\d+$'), ('shop', r'^/products/[^/]+$'),
     ('social.json', r'^/auction/lots$'), ('npc.json', r'^/bonus_(boxes|box_4x)$'), ('boxes.json', r'^/boxes/[^/]+$'),
-    ('gates.json', r'^/kapilar/[^/]+$'), ('events.json', r'^/events/[^/]+$'),
+    ('gates.json', r'^/gates/[^/]+$'), ('events.json', r'^/events/[^/]+$'),
     ('levels.json', r'^/levels$'), ('ranks.json', r'^/(formula|thresholds)$'), ('items.json', r'^/ores/maps/[^/]+$'), ('items.json', r'^/ores/respawn_sec$'))]
 GATE_REWARD = ('ep', 'honor', 'uridium', 'xenomit', 'log_disk', 'voucher')           # the edited numbers of a gate reward
-GATE_ALIEN = ('count', 'hp', 'kalkan', 'damage', 'speed')                       # the edited values of a wave alien
+GATE_ALIEN = ('count', 'hp', 'shield', 'damage', 'speed')                       # the edited values of a wave alien
 PACKAGE = 'package'                                                             # loot.PACKAGE: a row with several items in a box reward
-NPC_NUMBERS = ('hp', 'kalkan', 'damage', 'speed')
+NPC_NUMBERS = ('hp', 'shield', 'damage', 'speed')
 REWARD = ('ep', 'honor', 'credits', 'uridium')
 # quest condition types (quest.py, quest_tracker.py): what the editor understands -> the meaning of the match
 CONDITION = {6: 'npc', 27: 'npc', 34: 'map', 67: 'item', 51: 'none', 55: 'none', 52: 'ore', 28: 'none', 53: 'none', 62: 'none',
-         35: 'none', 42: 'none', 2: 'sure', 3: 'sure', 63: 'sure', 13: 'none', 12: 'none', 7: 'none', 9: 'none', 80: 'gate'}
+         35: 'none', 42: 'none', 2: 'duration', 3: 'duration', 63: 'duration', 13: 'none', 12: 'none', 7: 'none', 9: 'none', 80: 'gate'}
 SUB_MAP = 77
 QUEST_TEMPLATES = {          # a new quest's goal type -> (condition type, display, match)
     'hunt': (6, 6), 'collect': (67, 67), 'exploring': (34, 34), 'sell': (52, 52), 'box': (55, 55), 'cargo': (51, 51),
@@ -395,7 +395,7 @@ def clean_up(did, file, route, v):
         v = dict(v)
         v['name'] = ' '.join(str(v.get('name') or '').split())[:60] or '?'
         for k in NPC_NUMBERS:
-            v[k] = _int(v.get(k, 0), 0, 50_000_000 if k in ('hp', 'kalkan') else 1_000_000 if k == 'damage' else 2000)
+            v[k] = _int(v.get(k, 0), 0, 50_000_000 if k in ('hp', 'shield') else 1_000_000 if k == 'damage' else 2000)
         v['aggressive'] = bool(v.get('aggressive'))
         v['reward'] = {k: _int((v.get('reward') or {}).get(k, 0), 0, 10 ** 9) for k in REWARD}
         v['cargo'] = {str(_int(k, 0, 99)): _int(n, 0, 100_000) for k, n in (v.get('cargo') or {}).items() if _int(n, 0, 100_000) > 0}
@@ -566,11 +566,11 @@ def _groups(groups, i, old, new_):
 def _clean_gate(key, v, types=None):
     """Galaxy Gate: part, HP, reward counts, ammo reward, probability and amount of lucky rewards, the waves' alien values
     (when a count changes the subgroups scale proportionally). The wave and alien list structure from the standard (galaxy_gates.py's counters depend on it)."""
-    base = raw('gates.json')['kapilar'].get(key)
+    base = raw('gates.json')['gates'].get(key)
     if base is None or not isinstance(v, dict):
         raise WorldError(_('Gate not found.'))
     out = copy.deepcopy(base)
-    for k in ('part', 'can'):
+    for k in ('part', 'hp'):
         if k in v:
             out[k] = _int(v[k], 1, 10000)
     o, value_reward = out['reward'], v.get('reward') or {}
@@ -598,7 +598,7 @@ def _clean_gate(key, v, types=None):
             if kind != a['type'] and not a.get('permanent') and a['type'] != 'player' and kind.isdigit() and kind in (types or {}):
                 t = types[kind]                          # replace the alien with another type: the type's values, the count and place in the wave stay the same
                 a.update(type=kind, name=re.sub(r'^[-=\[\]:.{}\s]+|[-=\[\]:.{}\s]+$', '', t['name']) or kind, display_name=t['name'],
-                         npc_id=t.get('npc_id', a.get('npc_id')), hp=t['hp'], kalkan=t['kalkan'], damage=t['damage'], speed=t['speed'],
+                         npc_id=t.get('npc_id', a.get('npc_id')), hp=t['hp'], shield=t['shield'], damage=t['damage'], speed=t['speed'],
                          reward=dict(t.get('reward') or {}), cargo=dict(t.get('cargo') or {}))
                 a.pop('behavior', None)
             for k in GATE_ALIEN:
@@ -668,7 +668,7 @@ def _clean_event(key, v, types):
                              **{m: _int(value_map['quota'].get(m, h['quota'].get(m, max(h['quota'].values(), default=20))), 0, 10000)
                                 for m in MAP_CLASSES if m in h['maps']})
         if isinstance(value_map.get('boss'), dict) and h.get('boss'):
-            for k, parent in (('count', 50), ('sure_sn', 86400)):
+            for k, parent in (('count', 50), ('duration_sec', 86400)):
                 if k in value_map['boss']:
                     h['boss'][k] = _int(value_map['boss'][k], 0 if k == 'count' else 60, parent)
     return out
@@ -714,11 +714,11 @@ def aliens(did):
     patch_count = w['patches'].get('npc.json') or {}
     out = []
     for tip, t in npc['types'].items():
-        out.append({'tip': tip, 'name': t['name'], 'hp': t['hp'], 'kalkan': t['kalkan'], 'damage': t['damage'], 'speed': t['speed'],
+        out.append({'tip': tip, 'name': t['name'], 'hp': t['hp'], 'shield': t['shield'], 'damage': t['damage'], 'speed': t['speed'],
                     'aggressive': t['aggressive'], 'reward': t.get('reward') or {}, 'cargo': t.get('cargo') or {}, 'icon': npc_icon(tip, t),
                     'model': t.get('model'), 'npc_id': t.get('npc_id'), 'event': bool(t.get('event')) or tip.startswith('event_'), 'used_in': used_in.get(tip, []),
                     'changed': DATA.build_path('types', tip) in patch_count, 'new': tip not in base,
-                    'standard': {k: base[tip].get(k) for k in ('name', 'hp', 'kalkan', 'damage', 'speed', 'aggressive', 'reward', 'cargo')} if tip in base else None,
+                    'standard': {k: base[tip].get(k) for k in ('name', 'hp', 'shield', 'damage', 'speed', 'aggressive', 'reward', 'cargo')} if tip in base else None,
                     'full': t})
     return out
 
@@ -728,7 +728,7 @@ def map_name(mid):
     return H.NAMES.get(int(mid)) or str(mid)
 
 
-def _firma(name):
+def _company(name):
     return {'1': 'mmo', '2': 'eic', '3': 'vru'}.get(name[0]) if re.match(r'^\d-\d$', name) and name[0] in '123' else \
         'bl' if name.startswith('BL') else 'pirate' if name.startswith('5-') else 'combat' if name.startswith('4-') else 'other'
 
@@ -743,7 +743,7 @@ def maps(did):
         name = map_name(mid)
         changed = any(y in patch_count for y in (DATA.build_path('maps', mid, 'npc'), DATA.build_path('maps', mid, 'bonus_boxes'),
                                        '~' + DATA.build_path('maps', mid))) or DATA.build_path('ores', 'maps', name) in ores
-        out.append({'id': mid, 'name': name, 'company': _firma(name), 'alien': sum(g['count'] for g in m.get('npc', [])),
+        out.append({'id': mid, 'name': name, 'company': _company(name), 'alien': sum(g['count'] for g in m.get('npc', [])),
                     'type': len(m.get('npc', [])), 'bonus_boxes': m.get('bonus_boxes', 0), 'changed': changed})
     order = lambda x: ({'mmo': 0, 'eic': 1, 'vru': 2, 'combat': 3, 'pirate': 4, 'bl': 5}.get(x['company'], 6), x['name'])
     return sorted(out, key=order)
@@ -771,7 +771,7 @@ def game_map(did, mid):
         ist = list(H.STATION_POS.get(int(mid)) or max(H.CORNERS, key=lambda c: min((((c[0] - g['x']) ** 2 + (c[1] - g['y']) ** 2) ** .5 for g in gs), default=0)))
     types = npc['types']
     base = raw('npc.json')['maps'].get(mid) or {}
-    return {'id': mid, 'name': map_name(mid), 'company': _firma(map_name(mid)), 'size': [w, h],
+    return {'id': mid, 'name': map_name(mid), 'company': _company(map_name(mid)), 'size': [w, h],
             'npc': [dict(g, name=types.get(g['tip'], {}).get('name', g['tip']), icon=npc_icon(g['tip'], types.get(g['tip'], {})),
                          aggressive=types.get(g['tip'], {}).get('aggressive', False)) for g in m.get('npc', [])],
             'bonus_boxes': m.get('bonus_boxes', 0), 'portals': portals, 'station': ist, 'structure': layout.get('structure'),
@@ -834,7 +834,7 @@ def quest(did, qid):
     w = read(did)
     patch_count = set(w['patches'].get(file) or {})
     o = _quest_summary(qid, q, file, patch_count)
-    o.update(previous=q.get('previous', []), conditions=conditions(q['root']), sure_sn=q.get('sure_sn'), title=q.get('title', ''), description=q.get('description', ''),
+    o.update(previous=q.get('previous', []), conditions=conditions(q['root']), duration_sec=q.get('duration_sec'), title=q.get('title', ''), description=q.get('description', ''),
              standard={'level': base['level'], 'rewards': base.get('rewards', []), 'previous': base.get('previous', []),
                        'conditions': conditions(base['root'])} if base else None,
              names={str(x): all_[str(x)][1].get('name', str(x)) for x in q.get('previous', []) if str(x) in all_})
@@ -986,28 +986,28 @@ def boxes(did):
     for kind, b in k['boxes'].items():
         if not b.get('reward'):                    # Battle Pass Box (per event), those whose contents are elsewhere
             continue
-        out.append({'type': kind, 'name': b['name'], 'anahtar': b['anahtar'], 'maps': b['maps'], 'count': b['count'], 'renew_sec': b['renew_sec'],
+        out.append({'type': kind, 'name': b['name'], 'key': b['key'], 'maps': b['maps'], 'count': b['count'], 'renew_sec': b['renew_sec'],
                     'calendar': b.get('calendar'), 'reward': b['reward'], 'changed': b != kb.get(kind), 'spawns': bool(b['maps'] and b['count'])})
     return {'bonus': npc['bonus_boxes'], 'bonus_4x': npc['bonus_box_4x'], 'bonus_changed': npc['bonus_boxes'] != base['bonus_boxes'],
             'bonus_4x_changed': npc['bonus_box_4x'] != base['bonus_box_4x'], 'boxes': out, 'classes': list(raw('boxes.json')['maps'])}
 
 
 def gates(did):
-    k = world_data(did, 'gates.json')['kapilar']
-    kb = raw('gates.json')['kapilar']
+    k = world_data(did, 'gates.json')['gates']
+    kb = raw('gates.json')['gates']
     out = []
     for key, g in k.items():
         o = g['reward']
-        out.append({'key': key, 'name': g['name'], 'part': g['part'], 'can': g['can'], 'changed': g != kb.get(key),
+        out.append({'key': key, 'name': g['name'], 'part': g['part'], 'hp': g['hp'], 'changed': g != kb.get(key),
                     'reward': {x: o.get(x) for x in GATE_REWARD if x in o}, 'ammunition': o.get('ammunition') or {},
                     'chance': [{'item': x['item'], 'count': x.get('count'), 'probability': x.get('probability', 0), 'package': x['item'] == 'ore_pack'}
                              for x in o.get('chance', [])],
-                    'standard': {'part': kb[key]['part'], 'can': kb[key]['can'], 'reward': {x: kb[key]['reward'].get(x) for x in GATE_REWARD}} if key in kb else None,
+                    'standard': {'part': kb[key]['part'], 'hp': kb[key]['hp'], 'reward': {x: kb[key]['reward'].get(x) for x in GATE_REWARD}} if key in kb else None,
                     'waves': [{'name': w['name'], 'alien_spawns': [{'type': a['type'], 'name': a.get('display_name') or a.get('name'), 'count': a['count'], 'hp': a['hp'],
                                                                'changed_kind': key in kb and i < len(kb[key]['waves'][n]['alien_spawns']) and a['type'] != kb[key]['waves'][n]['alien_spawns'][i]['type'],
                                                                'fixed': bool(a.get('permanent')) or a['type'] == 'player',
-                                                               'kalkan': a['kalkan'], 'damage': a['damage'], 'speed': a['speed'], 'permanent': bool(a.get('permanent')),
-                                                               'en_az': sum(1 for grp in w['groups'] for j, _ in grp if j == i),
+                                                               'shield': a['shield'], 'damage': a['damage'], 'speed': a['speed'], 'permanent': bool(a.get('permanent')),
+                                                               'min_value': sum(1 for grp in w['groups'] for j, _ in grp if j == i),
                                                                'icon': npc_icon(a['type'], {})}
                                                               for i, a in enumerate(w['alien_spawns'])]} for n, w in enumerate(g['waves'])]})
     return out
@@ -1060,7 +1060,7 @@ def events(did):
             game_map = {'maps': h.get('maps', []), 'quota': h.get('quota', {}),
                       'alien_spawns': [{'type': a['type'], 'count': a['count'], 'name': (types.get(a['type'].replace('{x}', 'x2')) or types.get(a['type'].replace('{x}', 'x3')) or {}).get('name', a['type']),
                                      'icon': npc_icon(a['type'], types.get(a['type'].replace('{x}', 'x2')) or {})} for a in h.get('alien_spawns', [])],
-                      'boss': {k: h['boss'][k] for k in ('count', 'sure_sn') if k in h['boss']} if h.get('boss') else None,
+                      'boss': {k: h['boss'][k] for k in ('count', 'duration_sec') if k in h['boss']} if h.get('boss') else None,
                       'selectable': event_classes(h, types)}
         kind = 'map' if h else 'yearly' if 'periods' in x else 'weekly'
         out.append({'key': key, 'name': x.get('name', key), 'type': kind, 'periods': [r[:2] for r in x.get('periods', [])] if 'periods' in x else None,

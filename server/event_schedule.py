@@ -1,4 +1,4 @@
-"""The panel's event calendar (panel.py /api/takvim): events' open intervals and sessions within [start, bit).
+"""The panel's event calendar (panel.py /api/calendar): events' open intervals and sessions within [start, bit).
 
 - event: event_calendar.intervals (same rule as period; the panel's manual choice is separate: the panel passes it as 'statuses')
 - map sections ('map', 'map_extra'): those with their own periods or spawn times (event_calendar.section_intervals)
@@ -59,7 +59,7 @@ def sessions(a, b):
                 if d + _hm(x) < b and d + _hm(y) > a]})
     m = BIG_CONTENT.get('mimesis')
     if m:
-        duration, entry = m.get('sure_sn', 2700), m.get('entry_sec', 300)
+        duration, entry = m.get('duration_sec', 2700), m.get('entry_sec', 300)
         out.append({'uid': 'mimesis', 'event': m.get('event'), 'ranges': [
             [s, s + datetime.timedelta(seconds=duration), s + datetime.timedelta(seconds=entry)]
             for s, _ in _starts(a, b, [datetime.timedelta(hours=h) for h in m.get('hours', [])], duration=duration)]})
@@ -99,17 +99,17 @@ def schedule(start, bit, always_open=False, statuses=None):
     for k in CAL.EVENTS:
         iv = [_ts(r) for r in CAL.intervals(k, a, b)]
         st = statuses.get(k)
-        out[k] = {'ranges': iv, 'etkin': [[start, bit]] if st == 'on' else [] if st == 'off' else iv, 'sessions': []}
+        out[k] = {'ranges': iv, 'enabled': [[start, bit]] if st == 'on' else [] if st == 'off' else iv, 'sessions': []}
     for k, e in CAL.EVENTS.items():
         for i, s in enumerate(_sections(e)):
             iv = [_ts(r) + [0] for r in CAL.section_intervals(s, a, b, always_open)]
             out[k]['sessions'].append({'uid': 'map_%d' % i, 'type': 'alien' if 'alien_spawns' in s else 'box' if 'boxes' in s else 'map',
-                                       'maps': s.get('maps', []), 'ranges': _cut(iv, out[k]['etkin'])})
+                                       'maps': s.get('maps', []), 'ranges': _cut(iv, out[k]['enabled'])})
     for x in sessions(a, b):
         if x['event'] in out:
             iv = [[start, bit, 0]] if always_open else [_ts(r) for r in x['ranges']]
             out[x['event']]['sessions'].append({'uid': x['uid'], 'type': 'session', 'maps': [],
-                                                   'ranges': _cut(iv, out[x['event']]['etkin'])})
+                                                   'ranges': _cut(iv, out[x['event']]['enabled'])})
     return out
 
 

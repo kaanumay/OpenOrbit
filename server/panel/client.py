@@ -88,7 +88,7 @@ def version_of(folder):
 def check(folder):
     """Validate the folder -> {'valid', 'route', 'exe', 'data', 'version', 'compatible', 'issues' [...], 'size_mb'} plus a flag for a folder
     older than the supported version (the panel updates)."""
-    out = {'route': folder or '', 'valid': False, 'exe': False, 'data': False, 'version': None, 'compatible': False, 'eski': False,
+    out = {'route': folder or '', 'valid': False, 'exe': False, 'data': False, 'version': None, 'compatible': False, 'old': False,
            'issues': []}
     if not folder:
         out['issues'].append(_('No client folder selected.'))
@@ -106,7 +106,7 @@ def check(folder):
     if out['valid']:
         out['version'] = version_of(folder)
         out['compatible'] = out['version'] == supported()
-        out['eski'] = bool(out['version']) and vkey(out['version']) < vkey(supported())
+        out['old'] = bool(out['version']) and vkey(out['version']) < vkey(supported())
         if out['version'] and not out['compatible']:
             out['issues'].append(_('The server was written for version %s; if the protocol differs in version %s, the login or some '
                                    'windows may not work.', supported(), out['version']))

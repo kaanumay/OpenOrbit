@@ -37,7 +37,7 @@ Private rooms (official forum 127334: /create, /close, /invite, /join, /leave; t
   /close -> close {roomName} (creator only); /leave -> removeUser {roomName, whisperId}. Error response with errorMsg (the client's
   ChatIcErrorTranslator: 'Not creator of this channel' -> inviteErrorNotYourRoom, 'user no longer logged in' ->
   inviteErrorUserNotFound); success response data {success: true}. /report -> Request <room path>/reportUser {targetUserId, targetGlobalId, reason, reasonKey, message}:
-  written to the file server/logs/sohbet_raporlari.jsonl (forum 132515).
+  written to the file server/logs/chat_reports.jsonl (forum 132515).
 Announcements (announcement()): a message from the system user (role system). The client treats a system message as a localization key
 ("key|old|new|...": it translates the key's text and substitutes the pairs; an unknown key comes out empty). That is why the text is put in place of
 the translation of the 'dochat.chat.system' key ("System"/"Sistem").
@@ -53,7 +53,7 @@ SYSTEM_KEY = 'dochat.chat.system'
 SYSTEM_TEXT = {'en': 'System', 'tr': 'Sistem'}       # the client's translation (resource_chat); in another language both are tried
 ROOM_LIMIT = 3                    # one private room per player (adaptation: the client has the noMorePrivateRoomsAllowed text, but no number)
 FLOOD_LIMIT, FLOOD_SEC = 8, 10        # server-side flood control: more than 8 messages in 10 s are dropped (adaptation; the client's floodWarning warns on its own)
-REPORT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs', 'sohbet_raporlari.jsonl')
+REPORT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs', 'chat_reports.jsonl')
 
 
 # ------------------------------------------------------------ APlay frame and binary JSON

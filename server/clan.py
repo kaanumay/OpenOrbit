@@ -153,7 +153,7 @@ def _move(k, p):
         k.setdefault(f, v)
     k['members'] = {me: {'name': p.d['pilot'].get('userName', ''), 'uid': p.user_id, 'rank': k.pop('my_rank', 0),
                         'joined': k['founded']}}
-    k.update(leader=me, anahtar=secrets.token_hex(8), version=1, applications=[], rejected=[], diplomacy=[], diplomacy_requests=[], income=0)
+    k.update(leader=me, key=secrets.token_hex(8), version=1, applications=[], rejected=[], diplomacy=[], diplomacy_requests=[], income=0)
 
 
 def profiles():
@@ -192,8 +192,8 @@ def bind(p, log=print):
             if 'members' not in s:
                 with p.lock:
                     _move(s, p)
-            cid, key = int(s['id']), s.get('anahtar')
-            m = next((c for c in CLANS.values() if c.get('anahtar') == key), None)
+            cid, key = int(s['id']), s.get('key')
+            m = next((c for c in CLANS.values() if c.get('key') == key), None)
             if m is None and key in DELETED.values():
                 pass
             elif m is None and cid not in CLANS:
@@ -481,7 +481,7 @@ class Clan:
             return None
         with LOCK:
             m = CLANS.get(int(s.get('id', 0)))
-            if m is None or m.get('anahtar') != s.get('anahtar') or self.me not in m['members']:
+            if m is None or m.get('key') != s.get('key') or self.me not in m['members']:
                 m = bind(self.p, self.log)
             return m
 
@@ -830,7 +830,7 @@ class Clan:
             k = CLANS[cid] = {'id': cid, 'tag': tag, 'name': cname, 'description': desc, 'founded': stamp(), 'purchase': 0,
                                 'recruit_info': 0, 'tax': 0, 'treasury': 0, 'treasury_log': [], 'ts': '',
                                 'company': int(self.p.d['pilot'].get('factionId', 0)), 'clan_news': [], 'messages': [],
-                                'ranks': [], 'order': 1, 'leader': me, 'anahtar': secrets.token_hex(8), 'version': 0,
+                                'ranks': [], 'order': 1, 'leader': me, 'key': secrets.token_hex(8), 'version': 0,
                                 'members': {me: dict(live(self.p), rank=0, joined=stamp())}, 'applications': [], 'rejected': [],
                                 'diplomacy': [], 'diplomacy_requests': [], 'income': 0}
             for c in CLANS.values():                      # their applications to other clans are dropped
@@ -994,7 +994,7 @@ class Clan:
         1-3 company; it was ignored, the affiliation did not change: user 2026-10-24)."""
         k = self.k
         tag, cname = str(f.get('clanTag', k['tag'])).strip(), str(f.get('clanName', k['name'])).strip()
-        firma = int(f.get('newFraction', k['company']) or 0)
+        company = int(f.get('newFraction', k['company']) or 0)
         reply = lambda ok, key='empty', **a: [('EditClanInfoCommand', {'success': ok, 'clanId': k['id'], 'clanInfoCommand': self.info(),
                                                                        'errorMsg': err(key, **a)})]
         if k['leader'] != self.me:
@@ -1017,7 +1017,7 @@ class Clan:
             if renamed:
                 k['name_changed_at'] = time.time()
             k.update(tag=tag, name=cname, ts=str(f.get('clanTS', k['ts']))[:100], purchase=int(f.get('recruitingStatus') or 0),
-                     recruit_info=int(f.get('recuritingInfo') or 0), company=firma if firma in (0,) + tuple(X1) else k['company'])
+                     recruit_info=int(f.get('recuritingInfo') or 0), company=company if company in (0,) + tuple(X1) else k['company'])
         self.changed(k)
         return reply(True) + [self.tag_cmd()]
 
@@ -1276,7 +1276,7 @@ class Clan:
         extra = self.cbs.clan_disbanded(k) if self.cbs else []          # forum 127469: the station is destroyed, the asteroid empties
         with LOCK:
             CLANS.pop(k['id'], None)
-            DELETED[k['id']] = k['anahtar']
+            DELETED[k['id']] = k['key']
             others = [a for a in k['members'] if a != self.me]
             for c in CLANS.values():                   # its diplomacy and requests
                 c['diplomacy'] = [d for d in c['diplomacy'] if d['clan'] != k['id']]

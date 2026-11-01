@@ -1,12 +1,12 @@
 /* OpenOrbit panel — World Editor (world_editor.js). On top of panel.css's variables and components.
    Covers are transitions drawn in code (when OP-010 arrives gorsel/dunya_<cover>.webp); the map canvas is SVG in game units. */
-body[data-page=dunya] .topbar { --hdr: url(images/hdr_dunya.webp); }
-body[data-page=dunya] .content > * { max-width: 1400px; }
+body[data-page=world] .topbar { --hdr: url(images/hdr_world.webp); }
+body[data-page=world] .content > * { max-width: 1400px; }
 
 /* ---------------------------------------------------------------- kapaklar */
 .we-cover { position: relative; overflow: hidden; border-radius: var(--radius-sm); background-size: cover; background-position: center; flex: none;
   --a: #1d4f8f; --b: #071222; --g1: #5fb4ff; --g2: #16365f; --ring: rgba(140, 220, 255, .55); }
-.we-cover.buyuk { width: 100%; aspect-ratio: 16 / 7; border-radius: var(--radius) var(--radius) 0 0; }
+.we-cover.large { width: 100%; aspect-ratio: 16 / 7; border-radius: var(--radius) var(--radius) 0 0; }
 .we-cover.lowercase { width: 64px; height: 40px; }
 .we-cover.mini { width: 44px; height: 28px; border-radius: 3px; }
 .we-cover:not([style*=background-image]) {
@@ -20,7 +20,7 @@ body[data-page=dunya] .content > * { max-width: 1400px; }
 .we-cover .hl { position: absolute; width: 72%; aspect-ratio: 1; right: -1%; top: -1%; border-radius: 50%; border: 1px solid var(--ring);
   transform: rotateX(72deg) rotateZ(-18deg); opacity: .8; }
 .we-cover.mini .hl, .we-cover.lowercase .hl { border-width: 1px; }
-.k-standart { --a: #1b5596; --g1: #69b8ff; --g2: #173d6b; --ring: rgba(255, 185, 77, .55); }
+.k-standard { --a: #1b5596; --g1: #69b8ff; --g2: #173d6b; --ring: rgba(255, 185, 77, .55); }
 .k-nebula { --a: #164f74; --b: #08101f; --g1: #5ee8ff; --g2: #3a2a7a; --ring: rgba(155, 113, 244, .7); }
 .k-crimson { --a: #6b1a24; --b: #12070b; --g1: #ff7a5a; --g2: #5a1414; --ring: rgba(255, 120, 90, .5); }
 .k-ice { --a: #2a6a8f; --b: #061420; --g1: #d8f6ff; --g2: #3e7ea8; --ring: rgba(200, 245, 255, .65); }
@@ -50,9 +50,9 @@ body[data-page=dunya] .content > * { max-width: 1400px; }
 .we-card-desc { min-height: 2.6em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .we-card-pilot { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--steel); min-height: 18px; }
 .we-card-pilot svg { width: 14px; height: 14px; color: var(--accent); flex: none; }
-.we-card.yeni { align-items: center; justify-content: center; gap: 6px; min-height: 280px; border-style: dashed; border-color: var(--line-2);
+.we-card.new { align-items: center; justify-content: center; gap: 6px; min-height: 280px; border-style: dashed; border-color: var(--line-2);
   background: rgba(8, 14, 27, .55); padding: 20px; text-align: center; }
-.we-card.yeni b { font: 600 17px var(--display); letter-spacing: .03em; }
+.we-card.new b { font: 600 17px var(--display); letter-spacing: .03em; }
 .we-new-icon { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; border: 1px solid var(--line-hi); color: var(--accent);
   background: var(--accent-soft); box-shadow: var(--glow); margin-bottom: 6px; }
 .we-new-icon svg { width: 26px; height: 26px; }
@@ -64,9 +64,9 @@ body[data-page=dunya] .content > * { max-width: 1400px; }
 .we-bar .badge svg { width: 11px; height: 11px; margin-right: 3px; vertical-align: -1px; }
 .we-save-status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); min-width: 110px; justify-content: flex-end; }
 .we-save-status svg { width: 14px; height: 14px; }
-.we-save-status.kaydedildi { color: var(--ok); animation: de-parla 1.6s ease-out; }
+.we-save-status.saved { color: var(--ok); animation: we-flash 1.6s ease-out; }
 .we-save-status .spin { width: 12px; height: 12px; border-width: 2px; }
-@keyframes de-parla { from { text-shadow: 0 0 10px rgba(62, 229, 155, .9); } to { text-shadow: none; } }
+@keyframes we-flash { from { text-shadow: 0 0 10px rgba(62, 229, 155, .9); } to { text-shadow: none; } }
 #we-warning { display: grid; gap: 10px; }
 .we-draft { display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: var(--radius); border: 1px solid rgba(64, 223, 255, .25);
   background: linear-gradient(90deg, rgba(64, 223, 255, .09), rgba(64, 223, 255, .02)); }
@@ -134,7 +134,7 @@ body[data-page=dunya] .content > * { max-width: 1400px; }
 .we-map-chip:hover { border-color: var(--c); }
 .we-map-chip.on { background: color-mix(in srgb, var(--c) 30%, transparent); border-color: var(--c); color: #fff; box-shadow: 0 0 12px color-mix(in srgb, var(--c) 35%, transparent); }
 .we-map-chip.changed::after { content: ""; position: absolute; top: 3px; right: 3px; width: 5px; height: 5px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 5px var(--amber); }
-.f-mmo { --c: var(--mmo); } .f-eic { --c: var(--eic); } .f-vru { --c: var(--vru); } .f-savas { --c: var(--amber); } .f-korsan { --c: #c58cff; } .f-bl { --c: #8b9bb4; } .f-diger { --c: var(--steel); }
+.f-mmo { --c: var(--mmo); } .f-eic { --c: var(--eic); } .f-vru { --c: var(--vru); } .f-combat { --c: var(--amber); } .f-pirate { --c: #c58cff; } .f-bl { --c: #8b9bb4; } .f-other { --c: var(--steel); }
 
 /* overview */
 .we-overview-card { display: grid; grid-template-columns: minmax(240px, 380px) minmax(0, 1fr); gap: 20px; padding: 0; overflow: hidden; }
@@ -180,11 +180,11 @@ body[data-page=dunya] .content > * { max-width: 1400px; }
 .we-map-group-name { font: 600 10.5px var(--display); letter-spacing: .14em; text-transform: uppercase; color: var(--c); }
 .we-map-group-chips { display: flex; flex-wrap: wrap; gap: 4px; }
 .we-map-group-chips .we-map-chip { min-width: 0; padding: 3px 7px; font-size: 12px; }
-.we-layout.dar { grid-template-columns: 54px minmax(0, 1fr); }
-.we-layout.dar .de-menu { padding: 6px; }
-.we-layout.dar .de-menu button { justify-content: center; padding: 9px 0; position: relative; }
-.we-layout.dar .de-menu button span { display: none; }
-.we-layout.dar .de-menu button .we-count { display: block; position: absolute; top: 2px; right: 2px; min-width: 0; padding: 0 4px; font-size: 9.5px; }
+.we-layout.narrow { grid-template-columns: 54px minmax(0, 1fr); }
+.we-layout.narrow .de-menu { padding: 6px; }
+.we-layout.narrow .de-menu button { justify-content: center; padding: 9px 0; position: relative; }
+.we-layout.narrow .de-menu button span { display: none; }
+.we-layout.narrow .de-menu button .we-count { display: block; position: absolute; top: 2px; right: 2px; min-width: 0; padding: 0 4px; font-size: 9.5px; }
 .we-canvas-card { min-width: 0; display: grid; gap: 8px; }
 .we-tools { display: flex; align-items: center; gap: 10px; }
 .we-tools .seg { flex-wrap: nowrap; flex: none; }
@@ -216,12 +216,12 @@ body[data-page=dunya] .content > * { max-width: 1400px; }
 .de-svg .in .beacon, .de-svg .portal .beacon { pointer-events: auto; }
 .de-svg .portal .portal-halo { fill: none; stroke: rgba(64, 223, 255, .5); }
 .de-svg .portal.on .portal-halo { stroke: #fff; stroke-width: 2.5; }
-.de-svg .portal.tasindi .portal-halo { stroke: var(--amber); }
+.de-svg .portal.moved .portal-halo { stroke: var(--amber); }
 .de-svg .handle { fill: #fff; stroke: var(--accent); stroke-width: 2; vector-effect: non-scaling-stroke; cursor: ew-resize; }
-.de-svg .etiket { fill: rgba(230, 240, 251, .85); font: 600 calc(var(--s) * 340px) var(--display); text-anchor: middle; paint-order: stroke;
+.de-svg .label { fill: rgba(230, 240, 251, .85); font: 600 calc(var(--s) * 340px) var(--display); text-anchor: middle; paint-order: stroke;
   stroke: rgba(3, 7, 15, .9); stroke-width: calc(var(--s) * 80px); pointer-events: none; letter-spacing: .02em; }
-.de-svg .etiket.lowercase { font-size: calc(var(--s) * 270px); fill: #d6c2ff; }
-.de-svg .etiket.ortada { dominant-baseline: middle; }
+.de-svg .label.lowercase { font-size: calc(var(--s) * 270px); fill: #d6c2ff; }
+.de-svg .label.centered { dominant-baseline: middle; }
 .we-canvas-bottom { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .we-legend { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .we-legend i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-left: 8px; }
@@ -300,7 +300,7 @@ body[data-page=dunya] .content > * { max-width: 1400px; }
 .we-lot { padding: 6px 10px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: rgba(8, 14, 27, .7); }
 .we-lot:hover { border-color: var(--line-2); }
 .we-lot-name { font: 600 13.5px var(--display); letter-spacing: .02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.we-count.mavi { background: var(--accent-soft); color: var(--accent); margin-left: 4px; }
+.we-count.blue { background: var(--accent-soft); color: var(--accent); margin-left: 4px; }
 
 /* ---------------------------------------------------------------- Play page: world chip */
 .game-world { display: inline-flex; align-items: center; gap: 10px; margin-top: 12px; padding: 5px 10px 5px 5px; border: 1px solid var(--line-2); border-radius: var(--radius-sm);
@@ -315,8 +315,8 @@ body[data-page=dunya] .content > * { max-width: 1400px; }
 @media (max-width: 1180px) {
   .we-layout { grid-template-columns: minmax(0, 1fr); }
   .de-menu { position: static; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
-  .we-layout.dar { grid-template-columns: minmax(0, 1fr); }
-  .we-layout.dar .de-menu button span { display: inline; }
+  .we-layout.narrow { grid-template-columns: minmax(0, 1fr); }
+  .we-layout.narrow .de-menu button span { display: inline; }
   .we-map { grid-template-columns: minmax(0, 1fr); }
   .we-map-panel { position: static; max-height: none; }
 }
@@ -331,12 +331,12 @@ body[data-page=dunya] .content > * { max-width: 1400px; }
 
 /* ---------------------------------------------------------------- images (OP-008 ... OP-012) */
 .we-icon { width: 24px; height: 24px; object-fit: contain; flex: none; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .5)); }
-.we-icon.orta { width: 30px; height: 30px; }
-.we-icon.buyuk { width: 30px; height: 30px; margin: -4px 0; }
+.we-icon.medium { width: 30px; height: 30px; }
+.we-icon.large { width: 30px; height: 30px; margin: -4px 0; }
 .de-menu button .we-icon { opacity: .72; transition: opacity .15s, filter .15s; }
 .de-menu button:hover .we-icon, .de-menu button.on .we-icon { opacity: 1; }
 .de-menu button.on .we-icon { filter: drop-shadow(0 0 6px rgba(64, 223, 255, .55)); }
-.we-layout.dar .de-menu .we-icon { width: 28px; height: 28px; }
+.we-layout.narrow .de-menu .we-icon { width: 28px; height: 28px; }
 .we-summary-box.soon .we-icon { filter: grayscale(.8); }
 .we-draft-art { width: 58px; height: 58px; margin: -8px 0; flex: none; }
 .we-empty { display: flex; align-items: center; gap: 18px; color: var(--muted); }
@@ -357,7 +357,7 @@ body[data-page=dunya] .content > * { max-width: 1400px; }
 .we-class.on { border-color: var(--line-hi); color: var(--accent); background: var(--accent-soft); }
 .we-ore { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; align-items: center; gap: 8px; }
 .we-gate-icon { width: 36px; height: 36px; object-fit: contain; flex: none; }
-.we-gate-icon.buyuk { width: 56px; height: 56px; }
+.we-gate-icon.large { width: 56px; height: 56px; }
 .we-wave { border: 1px solid var(--line); border-radius: var(--radius-sm); background: rgba(6, 11, 22, .6); }
 .we-wave.on { border-color: var(--line-2); }
 .we-wave-title { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border: 0; background: none; color: var(--text); cursor: pointer;
@@ -376,7 +376,7 @@ body[data-page=dunya] .content > * { max-width: 1400px; }
 /* ---------------------------------------------------------------- events and economy (A4) */
 .we-period { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: rgba(8, 14, 27, .7); }
 .we-period.history { opacity: .5; }
-.we-period.simdi { border-color: rgba(62, 229, 155, .45); }
+.we-period.now { border-color: rgba(62, 229, 155, .45); }
 .we-date { width: 150px; padding: 5px 8px; }
 .we-quota { display: flex; flex-wrap: wrap; gap: 8px 14px; }
 .we-level-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 6px 14px; }

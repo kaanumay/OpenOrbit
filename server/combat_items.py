@@ -827,8 +827,8 @@ class Items:
 
     def mine_npc(self, n, cfg, f, now, source):
         w = self.w
-        sh = min(n.shield, n.d['kalkan'] * cfg.get('kalkan', 0) * f)       # SAB-M01 50% x (Lance + Detonation) at most 100% (wiki)
-        hp = n.d['hp'] * cfg.get('can', 0) * f
+        sh = min(n.shield, n.d['shield'] * cfg.get('shield', 0) * f)       # SAB-M01 50% x (Lance + Detonation) at most 100% (wiki)
+        hp = n.d['hp'] * cfg.get('hp', 0) * f
         if cfg.get('damage_type') == 'standard':
             sh = min(n.shield, int(hp * n.d.get('shield_absorb', _N['combat']['npc_shield_absorb'])))
             hp = min(max(0, n.hp - 1), hp - sh)
@@ -840,8 +840,8 @@ class Items:
             w.npc_effect(n, 'slow', cfg['slow'][1], cfg['slow'][0], source=source)
         inf = cfg.get('infection')
         if inf:
-            w.npc_effect(n, 'slow', inf['sn'], inf['slow'], source=source)
-            w.npc_effect(n, 'damage_bonus', inf['sn'], inf['damage_bonus'], source=source)
+            w.npc_effect(n, 'slow', inf['sec'], inf['slow'], source=source)
+            w.npc_effect(n, 'damage_bonus', inf['sec'], inf['damage_bonus'], source=source)
         if not sh and not hp and not n.engaged and ('slow' in cfg or inf):
             n.engaged = True                   # the slowed alien turns on the attacker
 
@@ -854,14 +854,14 @@ class Items:
         place = 'wave' if getattr(npc_owner, 'hunt', False) else 'map'
         k = SET.multiplier('npc_damage', place) if npc_owner else 1.0
         shield, hull = g.get('shield', 0), g.get('hitPoints', 0)
-        sh = min(shield, int(g.get('shieldMax', 0) * cfg.get('kalkan', 0) * f * k))
-        hp = int(g.get('hitMax', 0) * cfg.get('can', 0) * f * k)
+        sh = min(shield, int(g.get('shieldMax', 0) * cfg.get('shield', 0) * f * k))
+        hp = int(g.get('hitMax', 0) * cfg.get('hp', 0) * f * k)
         if cfg.get('damage_type') == 'standard':
             sh = min(shield, int(hp * p.d.get('shield_absorb', 0.8)))
             hp = min(max(0, hull - 1), hp - sh)          # ACM/IM alone does not destroy a ship
         elif cfg.get('damage_type') == 'direct':
             base = p.ship_row().get('hp', g.get('hitMax', 0)) + SKL.mods(p).get('hp_flat', 0)
-            hp = int(base * cfg.get('can', 0) * f * k)   # DD-M01: base hull + Pilot Bio
+            hp = int(base * cfg.get('hp', 0) * f * k)   # DD-M01: base hull + Pilot Bio
         if w.hero_effects.invulnerable(now) or w.invulnerable:
             sh = hp = 0
         if cfg.get('emp'):
@@ -872,7 +872,7 @@ class Items:
         infection = cfg.get('infection')
         if not sh and not hp:
             if infection:
-                w.hero_effect('infection', infection['sn'], source=source)
+                w.hero_effect('infection', infection['sec'], source=source)
             return
         w.last_combat = w.last_hurt = now
         w.stop_repair()
@@ -890,7 +890,7 @@ class Items:
             w.hero_death(msgs, npc_owner, note='killed_by_mine')
         self.send(msgs)
         if infection and not w.hero_dead:
-            w.hero_effect('infection', infection['sn'], source=source)  # first the ACM damage, then the hull capacity change
+            w.hero_effect('infection', infection['sec'], source=source)  # first the ACM damage, then the hull capacity change
 
     def lure_tick(self, now):
         """AGL-M01: Agatus and Spinels come to the bait (when not attacking)."""
@@ -944,10 +944,10 @@ class Items:
         if paid is None:
             self.log('   Insta-Shield: not enough mines or Xenomit')
             return
-        w.hero_effect('immune_until', c['sure_sn'], source=c['menu'])
+        w.hero_effect('immune_until', c['duration_sec'], source=c['menu'])
         self.send([legacy('0|n|ISH|%d' % w.hid)] + paid + [self.cooldown(c['menu'], now)]
                   + self.status(c['menu'], S['smart_bomb']['menu']))
-        self.log('   Insta-Shield: %d s no damage' % c['sure_sn'])
+        self.log('   Insta-Shield: %d s no damage' % c['duration_sec'])
 
     def emp(self, now):
         w, p, c = self.w, self.p, S['emp']
@@ -1024,9 +1024,9 @@ class Items:
         if w.hero_dead or p.ammo(loot) <= 0 or not self.ready(c['cooldown_group'], now):
             return
         p.use_ammo(loot, 1)
-        self.ghost_end = now + c['sure_sn']
+        self.ghost_end = now + c['duration_sec']
         self.send(w.ammo_msgs(loot) + [self.cooldown(loot, now), self.ghost_msg(True)])
-        self.log('   Ghostifier: %d sn' % c['sure_sn'])
+        self.log('   Ghostifier: %d sn' % c['duration_sec'])
 
     # ------------------------------------------------------------ cloak CPU
     def cloaked(self):
@@ -1228,7 +1228,7 @@ class Items:
         self.log('   special rocket: %s' % rocket)
 
     def special_hit(self, rocket, uid):
-        import lasers as LAZER
+        import lasers as LASERS
         w, p = self.w, self.p
         n = w.npcs.get(uid)
         asset = w.asset_at(uid) if not n else None
@@ -1238,7 +1238,7 @@ class Items:
             return
         impact = w.hit_asset if asset else w.hit_npc
         r = ROCKETS[rocket]
-        dmg = r.get('damage', 0) * ((LAZER.name_match(r.get('target_multiplier', {}), n) or 1) if n else 1)      # AGT-500: Agatus'a x5
+        dmg = r.get('damage', 0) * ((LASERS.name_match(r.get('target_multiplier', {}), n) or 1) if n else 1)      # AGT-500: Agatus'a x5
         if dmg:
             mods = p.mods()
             impact(uid, int(dmg * random.uniform(0.85, 1.0) * (1 + mods.get('rocket', 0) + (mods.get('npc', 0) if n else 0))), 0,

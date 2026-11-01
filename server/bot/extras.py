@@ -22,7 +22,7 @@ SLE = ('equipment_extra_cpu_sle-01', 'equipment_extra_cpu_sle-02', 'equipment_ex
 
 
 def equipped(bot):
-    return bot.k['gear'].setdefault('ekstra', {})
+    return bot.k['gear'].setdefault('extras', {})
 
 
 def var(bot, loot):
@@ -60,12 +60,12 @@ def repair_sec(bot):
     for r in reversed(ORDER):
         if var(bot, r):
             v = REPAIR_BOTS[r]
-            return v.get('full_repair_sec') or (bot.value()['can'] / max(1, v.get('hp_per_minute', 1000)) * 60)
+            return v.get('full_repair_sec') or (bot.value()['hp'] / max(1, v.get('hp_per_minute', 1000)) * 60)
     return None
 
 
 def cargo_multiplier(gear):
-    return EXTRAS[CARGO_CPU]['cargo_multiplier'] if (gear.get('ekstra') or {}).get(CARGO_CPU) else 1.0
+    return EXTRAS[CARGO_CPU]['cargo_multiplier'] if (gear.get('extras') or {}).get(CARGO_CPU) else 1.0
 
 
 # ------------------------------------------------------------------------------------------------------------ shopping
@@ -89,7 +89,7 @@ def utility(bot, loot):
         return 0.05 * o('aggression') if lv >= 12 and trace.get('pvp', True) else 0.0
     if loot in (AIM1, AIM2):
         sky = (bot.k.get('skylab') or {}).get('mod', {}).get('XENO_MODULE', 0)
-        return 0.06 * o('rekabet') if lv >= 14 and sky >= 3 and not var(bot, AIM1) and not var(bot, AIM2) else 0.0
+        return 0.06 * o('rivalry') if lv >= 14 and sky >= 3 and not var(bot, AIM1) and not var(bot, AIM2) else 0.0
     if loot in SLE:
         empty = slot(bot) - len(equipped(bot))
         extra = EXTRAS[loot]['extra_slot'] - max((EXTRAS[s]['extra_slot'] for s in SLE if var(bot, s)), default=0)
@@ -99,7 +99,7 @@ def utility(bot, loot):
 
 def candidates(bot):
     """Shopping candidates [(power gain, currency, price, loot)]: extras that are useful and not owned, if there is a free slot (or a slot CPU)."""
-    if not bot.permission.get('ekstra', True):
+    if not bot.permission.get('extras', True):
         return []
     power = bot.value()['power']
     empty = slot(bot) - len(equipped(bot))
@@ -133,7 +133,7 @@ def equip(bot, loot):
 # ------------------------------------------------------------------------------------------------------------ use
 def jump(bot, target):
     """Does the jump CPU shorten this trip: target is the base (X-1), from a map the CPU allows, has uses -> the CPU used or None."""
-    if target != K.ev(bot.firma) or not bot.permission.get('ekstra', True):
+    if target != K.ev(bot.company) or not bot.permission.get('extras', True):
         return None
     import map_links as H
     name = H.name(bot.game_map)
@@ -152,7 +152,7 @@ def jump(bot, target):
 
 def cloak(bot):
     """Escapes a strong enemy with the cloak CPU -> was it used."""
-    if not bot.permission.get('ekstra', True):
+    if not bot.permission.get('extras', True):
         return False
     return any(use(bot, g) for g in CLOAK if var(bot, g))
 

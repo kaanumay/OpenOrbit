@@ -38,7 +38,7 @@ EXIT_ID = EKP.PORTAL_BASE + 96
 FREIGHTER = 'mm_freighter'
 POI_ZONE = 'payloadEscortProtectionZone'
 RANK_TYPE = 5
-KEY = D.get('anahtar', 'resource_key_access-escort')
+KEY = D.get('key', 'resource_key_access-escort')
 RUN_SEC = 3600
 BYTE = 'resource_collectable_byte-remnant'
 
@@ -51,7 +51,7 @@ def _register():
         world_module.CFG['types'][k] = t
     g = D.get('ship')
     if g:
-        world_module.CFG['types'][FREIGHTER] = dict(name=g['name'], model=g['model'], npc_id=g['npc_id'], hp=g['min_hp'], kalkan=0,
+        world_module.CFG['types'][FREIGHTER] = dict(name=g['name'], model=g['model'], npc_id=g['npc_id'], hp=g['min_hp'], shield=0,
                                               damage=0, speed=g['speed'], aggressive=False, friendly=True, reward={}, cargo={})
     if D.get('ranking'):
         RK.TABLES[RANK_TYPE] = {'ranges': [dict(from_=r['from_'], e=r['e'], items=r['rewards'], title=r.get('title'))
@@ -81,7 +81,7 @@ def run_state(now=None):
         a = base.timestamp()
         key = base.strftime('%Y-%m-%d-%H')
         if now < a + D['entry_sec']:
-            return key, True, a + D['entry_sec'] - now, 0, a + D['sure_sn']
+            return key, True, a + D['entry_sec'] - now, 0, a + D['duration_sec']
     for k in range(1, 48):
         nx = base + datetime.timedelta(hours=k)
         if nx.hour in hours:
@@ -127,7 +127,7 @@ class Mimesis:
         now = time.time() if now is None else now
         return mod('PayloadEscortTimeInfoCommand', timeToGateClose=int(close_left) if open_ else 0,
                    timeToNextSpawn=int(next_left) if not open_ else 0,
-                   timeToSessionEnd=int(end - now) if end else (D['sure_sn'] if open_ else 0))
+                   timeToSessionEnd=int(end - now) if end else (D['duration_sec'] if open_ else 0))
 
     def info_cmd(self, in_session=None):
         return ('PayloadEscortInfoCommand', dict(timeInfoCommand=self.time_cmd(), playerRankRanges=RK.ranges(RANK_TYPE),
@@ -308,7 +308,7 @@ class MmRun:
         self.m, self.w = mode, world
         self.g = {'name': 'Mimesis Mutiny'}
         now = time.time()
-        self.end = end or now + D['sure_sn']
+        self.end = end or now + D['duration_sec']
         self.leg = 0                                 # the next route point
         self.phase = 'wait'                         # wait, route, point, beacon, finished
         self.wave = set()
@@ -322,7 +322,7 @@ class MmRun:
         import world_boss as WB
         s = WB.scale(mode.p, world, None)           # the player's strength (the equipment's sustained laser damage / 60,000, 0.25-2.5)
         k = D['single_player']
-        self.hp_f = k['can'] * s                     # adaptation (live round): with fixed x0.3 / x0.5 the first wave destroyed the 356,000-HP ship in 25 s,
+        self.hp_f = k['hp'] * s                     # adaptation (live round): with fixed x0.3 / x0.5 the first wave destroyed the 356,000-HP ship in 25 s,
         self.dmg_f = k['damage'] * max(0.5, min(1.5, s))     # and the player could not finish off one Mimesis in that time
 
     @property
@@ -348,7 +348,7 @@ class MmRun:
         n.gate = True
         n.next_think = time.time() + 10 ** 6
         hp = self.ship_hp()
-        n.d = dict(n.d, hp=hp, kalkan=0)
+        n.d = dict(n.d, hp=hp, shield=0)
         n.hp, n.shield = hp, 0
         self.ship = n
         w.log('   Mimesis Mutiny: EM Freighter %d HP' % hp)

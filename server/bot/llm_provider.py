@@ -20,23 +20,23 @@ import paths as PTH
 LOCAL = 'local'
 # id -> name, type ('openai' compatible or 'anthropic'), default address and model, whether a key is needed, whether it runs on the computer
 PROVIDERS = {
-    LOCAL: dict(name='Dahili yerel model (Qwen3 4B)', type='dahili', address='', model='', anahtar=False, local=True),
-    'openai': dict(name='OpenAI', type='openai', address='https://api.openai.com/v1', model='gpt-4.1-mini', anahtar=True, local=False),
+    LOCAL: dict(name='Dahili yerel model (Qwen3 4B)', type='builtin', address='', model='', key=False, local=True),
+    'openai': dict(name='OpenAI', type='openai', address='https://api.openai.com/v1', model='gpt-4.1-mini', key=True, local=False),
     'anthropic': dict(name='Anthropic Claude', type='anthropic', address='https://api.anthropic.com/v1', model='claude-haiku-5-5',
-                      anahtar=True, local=False),
+                      key=True, local=False),
     'gemini': dict(name='Google Gemini', type='openai', address='https://generativelanguage.googleapis.com/v1beta/openai',
-                   model='gemini-2.5-flash', anahtar=True, local=False),
-    'deepseek': dict(name='DeepSeek', type='openai', address='https://api.deepseek.com/v1', model='deepseek-chat', anahtar=True, local=False),
-    'openrouter': dict(name='OpenRouter', type='openai', address='https://openrouter.ai/api/v1', model='openai/gpt-4.1-mini', anahtar=True,
+                   model='gemini-2.5-flash', key=True, local=False),
+    'deepseek': dict(name='DeepSeek', type='openai', address='https://api.deepseek.com/v1', model='deepseek-chat', key=True, local=False),
+    'openrouter': dict(name='OpenRouter', type='openai', address='https://openrouter.ai/api/v1', model='openai/gpt-4.1-mini', key=True,
                        local=False),
-    'groq': dict(name='Groq', type='openai', address='https://api.groq.com/openai/v1', model='llama-3.3-70b-versatile', anahtar=True,
+    'groq': dict(name='Groq', type='openai', address='https://api.groq.com/openai/v1', model='llama-3.3-70b-versatile', key=True,
                  local=False),
-    'mistral': dict(name='Mistral', type='openai', address='https://api.mistral.ai/v1', model='mistral-small-latest', anahtar=True,
+    'mistral': dict(name='Mistral', type='openai', address='https://api.mistral.ai/v1', model='mistral-small-latest', key=True,
                     local=False),
-    'xai': dict(name='xAI Grok', type='openai', address='https://api.x.ai/v1', model='grok-3-mini', anahtar=True, local=False),
-    'ollama': dict(name='Ollama', type='openai', address='http://127.0.0.1:11434/v1', model='qwen3:8b', anahtar=False, local=True),
-    'lmstudio': dict(name='LM Studio', type='openai', address='http://127.0.0.1:1234/v1', model='', anahtar=False, local=True),
-    'special': dict(name='Özel (OpenAI uyumlu)', type='openai', address='http://127.0.0.1:8080/v1', model='', anahtar=False, local=True),
+    'xai': dict(name='xAI Grok', type='openai', address='https://api.x.ai/v1', model='grok-3-mini', key=True, local=False),
+    'ollama': dict(name='Ollama', type='openai', address='http://127.0.0.1:11434/v1', model='qwen3:8b', key=False, local=True),
+    'lmstudio': dict(name='LM Studio', type='openai', address='http://127.0.0.1:1234/v1', model='', key=False, local=True),
+    'special': dict(name='Özel (OpenAI uyumlu)', type='openai', address='http://127.0.0.1:8080/v1', model='', key=False, local=True),
 }
 _THINK = re.compile(r'<think>.*?</think>\s*', re.S)
 _LOCK = threading.Lock()
@@ -72,7 +72,7 @@ def selected():
 def full(uid, a):
     s = PROVIDERS[uid]
     return {'uid': uid, 'type': s['type'], 'address': (a.get('address') or s['address']).rstrip('/'),
-            'model': a.get('model') or s['model'], 'anahtar': a.get('anahtar') or ''}
+            'model': a.get('model') or s['model'], 'key': a.get('key') or ''}
 
 
 def multilingual(uid=None):
@@ -90,9 +90,9 @@ def status():
     out = []
     for k, s in PROVIDERS.items():
         a = d['providers'].get(k) or {}
-        out.append({'uid': k, 'name': s['name'], 'type': s['type'], 'key_required': s['anahtar'], 'local': s['local'],
+        out.append({'uid': k, 'name': s['name'], 'type': s['type'], 'key_required': s['key'], 'local': s['local'],
                     'address': a.get('address') or s['address'], 'model': a.get('model') or s['model'],
-                    'default_url': s['address'], 'anahtar': mask(a.get('anahtar') or ''), 'has_key': bool(a.get('anahtar'))})
+                    'default_url': s['address'], 'key': mask(a.get('key') or ''), 'has_key': bool(a.get('key'))})
     return {'selected': d['selected'], 'multilingual': multilingual(d['selected']), 'entries': out}
 
 
@@ -112,9 +112,9 @@ def save(uid, address=None, model=None, key=None, sec=True):
         if model is not None:
             a['model'] = str(model).strip()[:200]
         if key == '-':
-            a.pop('anahtar', None)
+            a.pop('key', None)
         elif key:
-            a['anahtar'] = str(key).strip()
+            a['key'] = str(key).strip()
         d['providers'][uid] = a
         if sec:
             d['selected'] = uid
@@ -130,9 +130,9 @@ def save(uid, address=None, model=None, key=None, sec=True):
 def _headers(c):
     h = {'Content-Type': 'application/json', 'User-Agent': 'OpenOrbit'}
     if c['type'] == 'anthropic':
-        h.update({'x-api-key': c['anahtar'], 'anthropic-version': '2023-06-01'})
-    elif c['anahtar']:
-        h['Authorization'] = 'Bearer ' + c['anahtar']
+        h.update({'x-api-key': c['key'], 'anthropic-version': '2023-06-01'})
+    elif c['key']:
+        h['Authorization'] = 'Bearer ' + c['key']
     if c['uid'] == 'openrouter':
         h.update({'HTTP-Referer': 'https://github.com/OpenOrbit', 'X-Title': 'OpenOrbit'})
     return h
@@ -185,7 +185,7 @@ def models(uid, address=None, key=None):
     if address:
         a['address'] = address
     if key:
-        a['anahtar'] = key
+        a['key'] = key
     c = full(uid, a)
     d = _call(c, '/models' + ('?limit=100' if c['type'] == 'anthropic' else ''), timestamp=20)
     entries = d.get('data') if isinstance(d, dict) else d
@@ -233,13 +233,13 @@ class Remote:
         self.usage = {'request': 0, 'input': 0, 'cache': 0, 'output': 0}     # token count (cached input counted separately)
 
     def launch(self, wait_sec=None):
-        if PROVIDERS[self.c['uid']]['anahtar'] and not self.c['anahtar']:
+        if PROVIDERS[self.c['uid']]['key'] and not self.c['key']:
             raise ProviderError('API anahtarı girilmemiş.')
         if not self.c['model']:
             raise ProviderError('Model seçilmemiş.')
         try:                                # connection and key check: an HTTP error stops, a single bad reply from the model does not
-            self.ask('Reply with JSON.', 'Say hi.', schema={'type': 'object', 'properties': {'cevap': {'type': 'string'}},
-                                                          'required': ['cevap']}, max_count=40, timestamp=60)
+            self.ask('Reply with JSON.', 'Say hi.', schema={'type': 'object', 'properties': {'answer': {'type': 'string'}},
+                                                          'required': ['answer']}, max_count=40, timestamp=60)
         except ValueError as e:
             self.log('   bots: the provider trial reply is malformed (%s), opening anyway' % e)
         self.ready = True
@@ -370,7 +370,7 @@ def test(log=print):
     opening = time.time() - t0
     response, duration = s.ask('You are a pilot in a space game. Answer briefly.',
                         'A friend wrote "selam, nasılsın?". Give JSON: in cevap a short reply in Turkish, in durum the word "TAMAM".',
-                        schema={'type': 'object', 'properties': {'cevap': {'type': 'string'}, 'state': {'type': 'string'}},
-                              'required': ['cevap', 'state']}, max_count=80)
+                        schema={'type': 'object', 'properties': {'answer': {'type': 'string'}, 'state': {'type': 'string'}},
+                              'required': ['answer', 'state']}, max_count=80)
     ok = 'TAMAM' in str(response.get('state', '')).upper()
-    return {'ok': ok, 'startup_sec': round(opening, 1), 'sure_sn': round(duration, 2), 'response': response.get('cevap'), 'provider': s.name}
+    return {'ok': ok, 'startup_sec': round(opening, 1), 'duration_sec': round(duration, 2), 'response': response.get('answer'), 'provider': s.name}

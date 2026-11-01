@@ -147,7 +147,7 @@ class PlutusExperiment:
     def beacon_hit(n, dmg):
         """The tower cannot be destroyed: the damage it takes is counted, its HP is restored (the damage hook of world.hit_npc)."""
         n.dealt += dmg
-        n.hp, n.shield = n.d['hp'], n.d['kalkan']
+        n.hp, n.shield = n.d['hp'], n.d['shield']
 
     def step(self, w, now):
         e, msgs = self.enc, []
@@ -199,7 +199,7 @@ class PlutusExperiment:
         if not npc.tip.startswith(PREFIX) or npc.tip == BEACON:
             return []
         risk = npc.tip[len(PREFIX):].rsplit('_', 1)[0]
-        t = tier(risk, min(getattr(npc, 'dealt', 0), npc.d['hp'] + npc.d['kalkan']))
+        t = tier(risk, min(getattr(npc, 'dealt', 0), npc.d['hp'] + npc.d['shield']))
         if t:
             h = w.drop_box(t['type'], x, y, None, 900)
             w.boxes[h]['al'] = lambda b, t=t: self.collect(w, t)

@@ -26,7 +26,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 _PATH = os.path.join(HERE, 'data', 'extra_events.json')
 D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('galaxy_trek', {})
 EVENT = 'galaxy_trek'
-KEY = D.get('anahtar', 'resource_ftl-key')
+KEY = D.get('key', 'resource_ftl-key')
 PLANETS = D.get('planet', 40)
 QUEST_BY_ID = {q['definition']['id']: q for q in D.get('quests', [])}
 

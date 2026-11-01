@@ -1,7 +1,7 @@
 {
  "_description": "Clan Battle Station -> server/data/cbs.json (yol haritası Ö5).",
- "_kaynak": "Resmî DarkOrbit FR CBS FAQ (modüller, 2023-01-05), DE CBS FAQ (2019-04-06), RU CBS FAQ (2020-10-25; 2017 dengelemesi): board-fr.darkorbit.com/threads/lexique-2-0-station-de-combat-de-clan.133912, board-de.darkorbit.com/threads/faq-clan-battlestations-cbs.2972, board-ru.darkorbit.com/threads/klanovye-boevye-stancii-kbs-faq.1453, board-en.darkorbit.com/threads/clan-battle-station-faq.819.",
- "_uyarlama": "Silah hasarı/canı/menzili/isabeti, Hull/REPM/booster canları ve booster azami %3-10 değerleri resmî FAQ değerleri; can/hasar seviye başına +%2 (L16 = L1 x 1,30). Deflector birikim hızı seviye başına tabanın +%1'i (120 dk/sa -> L16 138 dk/sa; prime time x5). Deflector modülünün ayrı 1.040.000 can değeri kaynakta doğrulanmamış yerel değerdir. Sayısal atış aralıkları (lazer 1,5/2,5/3 sn, roket 4 sn), onarım hızı, kurulum süresi (50 sn), deflector birikimi (48 sa), acil onarım bedeli (500 U), modül yıkma ödülleri, prime time 18:00-21:00 ve uzaylı baskınları tek oyunculu uyarlamadır. Sanal rakip modül canı/hasarı varsayılan olarak tam değerdedir (çarpan 1,0); önceden 0,2/0,05 idi. Mevcut kayıtların hasarlı modül canı otomatik doldurulmaz.",
+ "_source": "Resmî DarkOrbit FR CBS FAQ (modüller, 2023-01-05), DE CBS FAQ (2019-04-06), RU CBS FAQ (2020-10-25; 2017 dengelemesi): board-fr.darkorbit.com/threads/lexique-2-0-station-de-combat-de-clan.133912, board-de.darkorbit.com/threads/faq-clan-battlestations-cbs.2972, board-ru.darkorbit.com/threads/klanovye-boevye-stancii-kbs-faq.1453, board-en.darkorbit.com/threads/clan-battle-station-faq.819.",
+ "_adaptation": "Silah hasarı/canı/menzili/isabeti, Hull/REPM/booster canları ve booster azami %3-10 değerleri resmî FAQ değerleri; can/hasar seviye başına +%2 (L16 = L1 x 1,30). Deflector birikim hızı seviye başına tabanın +%1'i (120 dk/sa -> L16 138 dk/sa; prime time x5). Deflector modülünün ayrı 1.040.000 can değeri kaynakta doğrulanmamış yerel değerdir. Sayısal atış aralıkları (lazer 1,5/2,5/3 sn, roket 4 sn), onarım hızı, kurulum süresi (50 sn), deflector birikimi (48 sa), acil onarım bedeli (500 U), modül yıkma ödülleri, prime time 18:00-21:00 ve uzaylı baskınları tek oyunculu uyarlamadır. Sanal rakip modül canı/hasarı varsayılan olarak tam değerdedir (çarpan 1,0); önceden 0,2/0,05 idi. Mevcut kayıtların hasarlı modül canı otomatik doldurulmaz.",
  "asteroids": [
   {
    "uid": 1,
@@ -197,7 +197,7 @@
    "center": true,
    "max_count": 1,
    "design": 0,
-   "can": [
+   "hp": [
     5850000,
     5967000,
     6084000,
@@ -224,7 +224,7 @@
    "center": true,
    "max_count": 1,
    "design": 0,
-   "can": [
+   "hp": [
     1040000,
     1060800,
     1081600,
@@ -251,7 +251,7 @@
    "center": false,
    "max_count": 1,
    "design": 3,
-   "can": [
+   "hp": [
     1040000,
     1060800,
     1081600,
@@ -296,7 +296,7 @@
    "center": false,
    "max_count": 8,
    "design": 4,
-   "can": [
+   "hp": [
     1560000,
     1591200,
     1622400,
@@ -345,7 +345,7 @@
    "center": false,
    "max_count": 8,
    "design": 5,
-   "can": [
+   "hp": [
     1560000,
     1591200,
     1622400,
@@ -394,7 +394,7 @@
    "center": false,
    "max_count": 8,
    "design": 6,
-   "can": [
+   "hp": [
     1560000,
     1591200,
     1622400,
@@ -443,7 +443,7 @@
    "center": false,
    "max_count": 8,
    "design": 7,
-   "can": [
+   "hp": [
     1560000,
     1591200,
     1622400,
@@ -492,7 +492,7 @@
    "center": false,
    "max_count": 8,
    "design": 8,
-   "can": [
+   "hp": [
     1560000,
     1591200,
     1622400,
@@ -541,7 +541,7 @@
    "center": false,
    "max_count": 1,
    "design": 9,
-   "can": [
+   "hp": [
     1040000,
     1060800,
     1081600,
@@ -587,7 +587,7 @@
    "center": false,
    "max_count": 1,
    "design": 10,
-   "can": [
+   "hp": [
     1040000,
     1060800,
     1081600,
@@ -633,7 +633,7 @@
    "center": false,
    "max_count": 1,
    "design": 11,
-   "can": [
+   "hp": [
     1040000,
     1060800,
     1081600,
@@ -696,7 +696,7 @@
  "emergency_repair": {
   "charge": 500,
   "hp_sec": 7500,
-  "sure_sn": 1200
+  "duration_sec": 1200
  },
  "passive_repair": {
   "hp_sec": 260,
@@ -726,7 +726,7 @@
  },
  "repair_cost": {
   "per_hp_U": 0.001,
-  "en_az": 100
+  "min_value": 100
  },
  "raid": {
   "per_hour": 2,
@@ -790,7 +790,7 @@
    ]
   },
   "range": 1500,
-  "sure_sn": 90,
+  "duration_sec": 90,
   "damage_ratio": 0.25
  },
  "rival": {
@@ -818,7 +818,7 @@
  "on_build_deflector_min": 1440,
  "_forum_127469": "Resmî Türk forumu 127469 (KSİ SSS): acil tamir 20 dakika x 7.500 dp/s; yeni kurulan istasyonda deflektör açık ve 1440 dakika yüklü (on_build_off_min artık kullanılmıyor)",
  "bot_clan": {
-  "_uyarlama": "Bot klanlarının istasyonu (bot/klan_us.py): modüller klan kasasından krediyle alınır (oyunda Assembly'de kaynakla üretilir; fiyatlar uyarlama: tam takım yaklaşık 10 M, kurulmuş istasyonun seviye yükseltmesi fiyat x level_multiplier x yeni seviye, L15'e dek modül başına ~30 M: tam seviye istasyon nadir). Yıkılan modülün onarımı fiyatın repair_ratio'ı; yükseltme klan başına upgrade_sec'de bir; kurma süresi build_min aralığında (oyuncunun 5-60 dakikası içinde); saldırıda savunma çağrısı defense_sec'de bir.",
+  "_adaptation": "Bot klanlarının istasyonu (bot/klan_us.py): modüller klan kasasından krediyle alınır (oyunda Assembly'de kaynakla üretilir; fiyatlar uyarlama: tam takım yaklaşık 10 M, kurulmuş istasyonun seviye yükseltmesi fiyat x level_multiplier x yeni seviye, L15'e dek modül başına ~30 M: tam seviye istasyon nadir). Yıkılan modülün onarımı fiyatın repair_ratio'ı; yükseltme klan başına upgrade_sec'de bir; kurma süresi build_min aralığında (oyuncunun 5-60 dakikası içinde); saldırıda savunma çağrısı defense_sec'de bir.",
   "price": {
    "module_hulm-1": 1600000,
    "module_defm-1": 1400000,

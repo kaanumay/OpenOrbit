@@ -60,11 +60,11 @@ def apply(events):
     """Into the calendar's events (in place): the gates' optional reward and the contents of the map boxes."""
     gates = {}
     for loot, y in paths('gate'):
-        gates.setdefault((y['event'], tuple(y['kapilar']), y['probability']), []).append([loot, 1])
+        gates.setdefault((y['event'], tuple(y['gates']), y['probability']), []).append([loot, 1])
     for (ev, keys, chance), rows in gates.items():
         for k, e in events.items():
             if k.startswith(ev):                               # gg_weekend_1, _3, _4
-                e.setdefault('gate_reward', []).append(dict(kapilar=list(keys), probability=chance, choice=rows, non_repeating=True))
+                e.setdefault('gate_reward', []).append(dict(gates=list(keys), probability=chance, choice=rows, non_repeating=True))
     for loot, y in paths('map'):
         e = events[y['event']]
         for s in ([e['map']] if 'map' in e else []) + e.get('map_extra', []):

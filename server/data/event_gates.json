@@ -1,19 +1,19 @@
 {
  "_description": "Etkinlik kapıları ve Frozen Labyrinth -> server/data/event_gates.json (yol haritası Aşama 7b; sunucu: etkinlik_kapi.py,\nlabirent.py).\n\nKaynaklar belgeler/wiki/etkinlikler/ (darkorbitwiki, fandom ve resmî forumdan derlenen veri):\n  gauntlet_of_plutus.json   Easy (X-1, haritalar 450-455, portal 235) ve Normal (X-8, 410-415, portal 24): 5 harita dalgaları rastgele\n                            sırayla, patron haritasında 4 kule + Plutus; günde bir giriş (iki mod birlikte), 5 can, süre ölçülür.\n                            Easy'de uzaylılar yarı güçte ve yarı ödüllü (wiki: \"2x weaker\").\n  vortex_of_terror.json     Halloween; X-4, 8 harita (227, 230-236, istemci \"GG Trial of Terror\"), portal 81; 12 saat bekleme; \"ya da\"\n                            dalgalarından biri girişte rastgele seçilir (wiki seçimi anlatmıyor); bitiş ödülü yok, Frightful Curcubitor\n                            kutusu düşürür.\n  kutular_ve_etkinlikler.json  Birthday Gate (Y6, harita 57 \"GG Y6\", portal 15): 11 Aralık, 3 can, yılda bir.\n  frozen_labyrinth.json     16 harita (430-445, ATLAS A-C giriş), bölgeler, 2019 kapı tablosu, uzaylılar, anahtar düşme olasılıkları,\n                            Skoll, Synk.\n  permafrost_fissure.json   Permafrost Fissure (X-1, Subglacial CPU, istemcinin harita 228'i): 10 bölümün 45 dalgası tek kapıda, UFO ve\n                            Ufonit'in Proxium kutuları, bitiş ödülü (Proxium Drop Booster ...). cold_wave_2014.json: The Breach (Easy ve\n                            Hard; 20 can, 3 dalga). devolarium_attack.json: Devolarium Attack (yalnız \"Preemptive Strike Force\" görevi\n                            sürerken; harita 223). plutus_deney.json: Plutus' Experiments (üç risk, kule, uzaylı kademeleri, kutu tablosu,\n                            ilerleme puanı takası) -> 'deney' bölümü (sunucu: plutus_deney.py).\nGörünümler istemcinin game.xml'i ve lib_ships'i (gemi türü / npcId): Cote Lo 260/213, Kodkod 261/214, Aura Dun Jig 262/215,\nLac Lion 263/216, Natal Nap 264/217, Plutus 265/218, Plutus Warhead 266/219, Plutus Turret 267/220, Ufonit 21/26, Demon Drone 151\n(\"deamon drone npc\"), Frightful Curcubitor 317, Frozen Icy 103/221, Frozen Kristallin 109/222, Frozen Kristallon\n154/223, Frozen Boss Kristallin 110/224, Frozen Boss Kristallon 155/225, Frozen Meteoroid 101/226, Frozen Super Meteoroid 33/227,\nSkoll 127/280, Synk 271/228 (demaNeR kapilar.json'dan). Kutu türleri istemcinin lib_collectables'ı (GOP_EASY_BOX, GOP_NORMAL_BOX, DEMON_BOX,\nFRIGHTFUL_CURCUBITOR_BOSS_BOX, FROZEN_LABYRINTH_BOX …).\nUyarlamalar (kaynak vermediği için) \"_uyarlama\" notlarında: Demon Drone ve Frightful Curcubitor değerleri, Warhead hasarı, kutu\nadetleri ve olasılıkları, labirent nüfusu, Synk ve Skoll aralıkları, hızlar.",
- "kapilar": {
+ "gates": {
   "plutus_easy": {
    "uid": 1,
    "name": "Gauntlet of Plutus (Easy)",
    "event": "plutus",
    "entry": "X-1",
    "portal": 235,
-   "can": 5,
+   "hp": 5,
    "mod": "easy",
    "rule": {
     "daily": true,
     "group": "plutus",
     "random": true,
-    "sure": true,
+    "duration": true,
     "entry_sec": 15
    },
    "maps": [
@@ -34,7 +34,7 @@
        "name": "Lac Lion",
        "display_name": "-=[ Lac Lion ]=-",
        "hp": 600000,
-       "kalkan": 0,
+       "shield": 0,
        "damage": 3000,
        "speed": 500,
        "npc_id": 216,
@@ -80,7 +80,7 @@
        "name": "Cote Lo",
        "display_name": "-=[ Cote Lo ]=-",
        "hp": 80000,
-       "kalkan": 29000,
+       "shield": 29000,
        "damage": 1750,
        "speed": 400,
        "npc_id": 213,
@@ -126,7 +126,7 @@
        "name": "Cote Lo",
        "display_name": "-=[ Cote Lo ]=-",
        "hp": 80000,
-       "kalkan": 29000,
+       "shield": 29000,
        "damage": 1750,
        "speed": 400,
        "npc_id": 213,
@@ -172,7 +172,7 @@
        "name": "Kristallon",
        "display_name": "-=[ Kristallon ]=-",
        "hp": 200000,
-       "kalkan": 150000,
+       "shield": 150000,
        "damage": 2225,
        "speed": 200,
        "npc_id": 10,
@@ -211,7 +211,7 @@
        "name": "Lordakium",
        "display_name": "-=[ Lordakium ]=-",
        "hp": 150000,
-       "kalkan": 100000,
+       "shield": 100000,
        "damage": 1800,
        "speed": 200,
        "npc_id": 8,
@@ -250,7 +250,7 @@
        "name": "Aura Dun Jig",
        "display_name": "-=[ Aura Dun Jig ]=-",
        "hp": 200000,
-       "kalkan": 185000,
+       "shield": 185000,
        "damage": 5500,
        "speed": 300,
        "npc_id": 215,
@@ -297,7 +297,7 @@
        "name": "Kodkod",
        "display_name": "-=[ Kodkod ]=-",
        "hp": 220000,
-       "kalkan": 35000,
+       "shield": 35000,
        "damage": 3250,
        "speed": 300,
        "npc_id": 214,
@@ -343,7 +343,7 @@
        "name": "Uber Lordakium",
        "display_name": "( UberLordakium )",
        "hp": 1200000,
-       "kalkan": 800000,
+       "shield": 800000,
        "damage": 16000,
        "speed": 180,
        "npc_id": 35,
@@ -445,7 +445,7 @@
           1
          ]
         ],
-        "_kaynak": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
+        "_source": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
        }
       }
      ],
@@ -467,7 +467,7 @@
        "name": "Lac Lion",
        "display_name": "-=[ Lac Lion ]=-",
        "hp": 600000,
-       "kalkan": 0,
+       "shield": 0,
        "damage": 3000,
        "speed": 500,
        "npc_id": 216,
@@ -513,7 +513,7 @@
        "name": "Barracuda",
        "display_name": "-=[ Barracuda ]=-",
        "hp": 90000,
-       "kalkan": 50000,
+       "shield": 50000,
        "damage": 3000,
        "speed": 280,
        "npc_id": 59,
@@ -552,7 +552,7 @@
        "name": "Saboteur",
        "display_name": "-=[ Saboteur ]=-",
        "hp": 100000,
-       "kalkan": 75000,
+       "shield": 75000,
        "damage": 2000,
        "speed": 260,
        "npc_id": 60,
@@ -591,7 +591,7 @@
        "name": "Annihilator",
        "display_name": "-=[ Annihilator ]=-",
        "hp": 150000,
-       "kalkan": 100000,
+       "shield": 100000,
        "damage": 7500,
        "speed": 240,
        "npc_id": 61,
@@ -693,7 +693,7 @@
           1
          ]
         ],
-        "_kaynak": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
+        "_source": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
        }
       }
      ],
@@ -715,7 +715,7 @@
        "name": "Interceptor",
        "display_name": "-=[ Interceptor ]=-",
        "hp": 30000,
-       "kalkan": 20000,
+       "shield": 20000,
        "damage": 250,
        "speed": 320,
        "npc_id": 58,
@@ -760,7 +760,7 @@
        "name": "Aura Dun Jig",
        "display_name": "-=[ Aura Dun Jig ]=-",
        "hp": 200000,
-       "kalkan": 185000,
+       "shield": 185000,
        "damage": 5500,
        "speed": 300,
        "npc_id": 215,
@@ -807,7 +807,7 @@
        "name": "Kodkod",
        "display_name": "-=[ Kodkod ]=-",
        "hp": 220000,
-       "kalkan": 35000,
+       "shield": 35000,
        "damage": 3250,
        "speed": 300,
        "npc_id": 214,
@@ -859,7 +859,7 @@
        "name": "Cote Lo",
        "display_name": "-=[ Cote Lo ]=-",
        "hp": 80000,
-       "kalkan": 29000,
+       "shield": 29000,
        "damage": 1750,
        "speed": 400,
        "npc_id": 213,
@@ -923,7 +923,7 @@
        "name": "Melter",
        "display_name": "-=[ Melter ]=-",
        "hp": 200000,
-       "kalkan": 150000,
+       "shield": 150000,
        "damage": 2500,
        "speed": 240,
        "npc_id": 65,
@@ -963,7 +963,7 @@
        "name": "Scorcher",
        "display_name": "-=[ Scorcher ]=-",
        "hp": 100000,
-       "kalkan": 100000,
+       "shield": 100000,
        "damage": 1500,
        "speed": 280,
        "npc_id": 64,
@@ -1009,7 +1009,7 @@
        "name": "Infernal",
        "display_name": "-=[ Infernal ]=-",
        "hp": 30000,
-       "kalkan": 25000,
+       "shield": 25000,
        "damage": 500,
        "speed": 320,
        "npc_id": 63,
@@ -1049,7 +1049,7 @@
        "name": "Natal Nap",
        "display_name": "-=[ Natal Nap ]=-",
        "hp": 1500000,
-       "kalkan": 97500,
+       "shield": 97500,
        "damage": 9000,
        "speed": 150,
        "npc_id": 217,
@@ -1157,7 +1157,7 @@
           1
          ]
         ],
-        "_kaynak": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
+        "_source": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
        }
       }
      ],
@@ -1179,7 +1179,7 @@
        "name": "Kodkod",
        "display_name": "-=[ Kodkod ]=-",
        "hp": 220000,
-       "kalkan": 35000,
+       "shield": 35000,
        "damage": 3250,
        "speed": 300,
        "npc_id": 214,
@@ -1225,7 +1225,7 @@
        "name": "Devourer",
        "display_name": "-=[ Devourer ]=-",
        "hp": 1000000,
-       "kalkan": 500000,
+       "shield": 500000,
        "damage": 6000,
        "speed": 120,
        "npc_id": 66,
@@ -1266,7 +1266,7 @@
        "name": "Aura Dun Jig",
        "display_name": "-=[ Aura Dun Jig ]=-",
        "hp": 200000,
-       "kalkan": 185000,
+       "shield": 185000,
        "damage": 5500,
        "speed": 300,
        "npc_id": 215,
@@ -1313,7 +1313,7 @@
        "name": "Lac Lion",
        "display_name": "-=[ Lac Lion ]=-",
        "hp": 600000,
-       "kalkan": 0,
+       "shield": 0,
        "damage": 3000,
        "speed": 500,
        "npc_id": 216,
@@ -1359,7 +1359,7 @@
        "name": "Saturn Spearhead",
        "display_name": "-=[ Saturn Spearhead ]=-",
        "hp": 50000,
-       "kalkan": 60000,
+       "shield": 60000,
        "damage": 700,
        "speed": 300,
        "npc_id": 97,
@@ -1398,7 +1398,7 @@
        "name": "Saturn Venom",
        "display_name": "-=[ Saturn Venom ]=-",
        "hp": 128000,
-       "kalkan": 75000,
+       "shield": 75000,
        "damage": 4250,
        "speed": 300,
        "npc_id": 87,
@@ -1437,7 +1437,7 @@
        "name": "Natal Nap",
        "display_name": "-=[ Natal Nap ]=-",
        "hp": 1500000,
-       "kalkan": 97500,
+       "shield": 97500,
        "damage": 9000,
        "speed": 150,
        "npc_id": 217,
@@ -1545,7 +1545,7 @@
           1
          ]
         ],
-        "_kaynak": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
+        "_source": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
        }
       }
      ],
@@ -1567,7 +1567,7 @@
        "name": "Saturn Aegis",
        "display_name": "-=[ Saturn Aegis ]=-",
        "hp": 137500,
-       "kalkan": 75000,
+       "shield": 75000,
        "damage": 2500,
        "speed": 300,
        "npc_id": 99,
@@ -1606,7 +1606,7 @@
        "name": "Lac Lion",
        "display_name": "-=[ Lac Lion ]=-",
        "hp": 600000,
-       "kalkan": 0,
+       "shield": 0,
        "damage": 3000,
        "speed": 500,
        "npc_id": 216,
@@ -1652,7 +1652,7 @@
        "name": "Kodkod",
        "display_name": "-=[ Kodkod ]=-",
        "hp": 220000,
-       "kalkan": 35000,
+       "shield": 35000,
        "damage": 3250,
        "speed": 300,
        "npc_id": 214,
@@ -1698,7 +1698,7 @@
        "name": "Saturn Citadel",
        "display_name": "-=[ Saturn Citadel ]=-",
        "hp": 275000,
-       "kalkan": 100000,
+       "shield": 100000,
        "damage": 3250,
        "speed": 300,
        "npc_id": 98,
@@ -1737,7 +1737,7 @@
        "name": "Aura Dun Jig",
        "display_name": "-=[ Aura Dun Jig ]=-",
        "hp": 200000,
-       "kalkan": 185000,
+       "shield": 185000,
        "damage": 5500,
        "speed": 300,
        "npc_id": 215,
@@ -1784,7 +1784,7 @@
        "name": "Devolarium",
        "display_name": "-=[ Devolarium ]=-",
        "hp": 50000,
-       "kalkan": 50000,
+       "shield": 50000,
        "damage": 600,
        "speed": 150,
        "npc_id": 3,
@@ -1823,7 +1823,7 @@
        "name": "Boss Sibelon",
        "display_name": "..::{ Boss Sibelon }::..",
        "hp": 400000,
-       "kalkan": 400000,
+       "shield": 400000,
        "damage": 6175,
        "speed": 140,
        "npc_id": 20,
@@ -1863,7 +1863,7 @@
        "name": "Aura Dun Jig",
        "display_name": "-=[ Aura Dun Jig ]=-",
        "hp": 200000,
-       "kalkan": 185000,
+       "shield": 185000,
        "damage": 5500,
        "speed": 300,
        "npc_id": 215,
@@ -1910,7 +1910,7 @@
        "name": "Devolarium",
        "display_name": "-=[ Devolarium ]=-",
        "hp": 50000,
-       "kalkan": 50000,
+       "shield": 50000,
        "damage": 600,
        "speed": 150,
        "npc_id": 3,
@@ -1949,7 +1949,7 @@
        "name": "Boss Devolarium",
        "display_name": "..::{ Boss Devolarium }::..",
        "hp": 200000,
-       "kalkan": 200000,
+       "shield": 200000,
        "damage": 2325,
        "speed": 140,
        "npc_id": 18,
@@ -1989,7 +1989,7 @@
        "name": "Natal Nap",
        "display_name": "-=[ Natal Nap ]=-",
        "hp": 1500000,
-       "kalkan": 97500,
+       "shield": 97500,
        "damage": 9000,
        "speed": 150,
        "npc_id": 217,
@@ -2097,7 +2097,7 @@
           1
          ]
         ],
-        "_kaynak": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
+        "_source": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
        }
       }
      ],
@@ -2119,7 +2119,7 @@
        "name": "Kodkod",
        "display_name": "-=[ Kodkod ]=-",
        "hp": 220000,
-       "kalkan": 35000,
+       "shield": 35000,
        "damage": 3250,
        "speed": 300,
        "npc_id": 214,
@@ -2165,7 +2165,7 @@
        "name": "Boss Sibelonit",
        "display_name": "..::{ Boss Sibelonit }::..",
        "hp": 80000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 2175,
        "speed": 280,
        "npc_id": 19,
@@ -2205,7 +2205,7 @@
        "name": "Sibelonit",
        "display_name": "-=[ Sibelonit ]=-",
        "hp": 20000,
-       "kalkan": 20000,
+       "shield": 20000,
        "damage": 1600,
        "speed": 300,
        "npc_id": 7,
@@ -2244,7 +2244,7 @@
        "name": "Lac Lion",
        "display_name": "-=[ Lac Lion ]=-",
        "hp": 600000,
-       "kalkan": 0,
+       "shield": 0,
        "damage": 3000,
        "speed": 500,
        "npc_id": 216,
@@ -2290,7 +2290,7 @@
        "name": "Sibelon",
        "display_name": "-=[ Sibelon ]=-",
        "hp": 100000,
-       "kalkan": 100000,
+       "shield": 100000,
        "damage": 1325,
        "speed": 150,
        "npc_id": 5,
@@ -2329,7 +2329,7 @@
        "name": "Turret",
        "display_name": "Plutus Turret",
        "hp": 1000000,
-       "kalkan": 0,
+       "shield": 0,
        "damage": 1000,
        "speed": 0,
        "npc_id": 220,
@@ -2355,7 +2355,7 @@
        "name": "Plutus",
        "display_name": "..::{ Plutus }::..",
        "hp": 2500000,
-       "kalkan": 300000,
+       "shield": 300000,
        "damage": 10000,
        "speed": 300,
        "npc_id": 218,
@@ -2384,7 +2384,7 @@
         }
        },
        "radioactive": {
-        "sure_sn": 10,
+        "duration_sec": 10,
         "damage_per_sec": 20000,
         "max_ratio": 0.25,
         "circle": 3,
@@ -2420,7 +2420,7 @@
      "name": "Warhead",
      "display_name": "Plutus Warhead",
      "hp": 15000,
-     "kalkan": 0,
+     "shield": 0,
      "damage": 10000,
      "speed": 450,
      "npc_id": 219,
@@ -2432,14 +2432,14 @@
      },
      "cargo": {},
      "count": 1,
-     "_uyarlama": "wiki 350.000 hasar (tek atış); tek oyunculuda 20.000 (Easy 10.000)"
+     "_adaptation": "wiki 350.000 hasar (tek atış); tek oyunculuda 20.000 (Easy 10.000)"
     },
     "bountiful": {
      "type": "263",
      "name": "Lac Lion",
      "display_name": "-=[ Bountiful Lac Lion ]=-",
      "hp": 600000,
-     "kalkan": 0,
+     "shield": 0,
      "damage": 3000,
      "speed": 500,
      "npc_id": 216,
@@ -2463,7 +2463,7 @@
       "probability": 1.0,
       "lifetime_sec": 600,
       "mod": "one_of",
-      "_kaynak": "wiki \"Bountiful Alien CPU content\"; adetler uyarlama (Normal Kolay'ın iki katı: forum 143902)",
+      "_source": "wiki \"Bountiful Alien CPU content\"; adetler uyarlama (Normal Kolay'ın iki katı: forum 143902)",
       "contents": [
        [
         "equipment_weapon_laser_lf-4-hp",
@@ -2523,7 +2523,7 @@
      "name": "Cote Lo",
      "display_name": "-=[ Fleeing Cote Lo ]=-",
      "hp": 80000,
-     "kalkan": 29000,
+     "shield": 29000,
      "damage": 1750,
      "speed": 400,
      "npc_id": 213,
@@ -2547,7 +2547,7 @@
      "empower": {
       "damage": 0.1,
       "speed": 0.1,
-      "sure_sn": 60
+      "duration_sec": 60
      }
     }
    },
@@ -2590,13 +2590,13 @@
    "event": "plutus",
    "entry": "X-8",
    "portal": 24,
-   "can": 5,
+   "hp": 5,
    "mod": "normal",
    "rule": {
     "daily": true,
     "group": "plutus",
     "random": true,
-    "sure": true,
+    "duration": true,
     "entry_sec": 1
    },
    "maps": [
@@ -2617,7 +2617,7 @@
        "name": "Lac Lion",
        "display_name": "-=[ Lac Lion ]=-",
        "hp": 1200000,
-       "kalkan": 0,
+       "shield": 0,
        "damage": 6000,
        "speed": 500,
        "npc_id": 216,
@@ -2663,7 +2663,7 @@
        "name": "Cote Lo",
        "display_name": "-=[ Cote Lo ]=-",
        "hp": 160000,
-       "kalkan": 58000,
+       "shield": 58000,
        "damage": 3500,
        "speed": 400,
        "npc_id": 213,
@@ -2709,7 +2709,7 @@
        "name": "Cote Lo",
        "display_name": "-=[ Cote Lo ]=-",
        "hp": 160000,
-       "kalkan": 58000,
+       "shield": 58000,
        "damage": 3500,
        "speed": 400,
        "npc_id": 213,
@@ -2755,7 +2755,7 @@
        "name": "Kristallon",
        "display_name": "-=[ Kristallon ]=-",
        "hp": 400000,
-       "kalkan": 300000,
+       "shield": 300000,
        "damage": 4450,
        "speed": 200,
        "npc_id": 10,
@@ -2794,7 +2794,7 @@
        "name": "Lordakium",
        "display_name": "-=[ Lordakium ]=-",
        "hp": 300000,
-       "kalkan": 200000,
+       "shield": 200000,
        "damage": 3600,
        "speed": 200,
        "npc_id": 8,
@@ -2833,7 +2833,7 @@
        "name": "Aura Dun Jig",
        "display_name": "-=[ Aura Dun Jig ]=-",
        "hp": 400000,
-       "kalkan": 370000,
+       "shield": 370000,
        "damage": 11000,
        "speed": 300,
        "npc_id": 215,
@@ -2880,7 +2880,7 @@
        "name": "Kodkod",
        "display_name": "-=[ Kodkod ]=-",
        "hp": 440000,
-       "kalkan": 70000,
+       "shield": 70000,
        "damage": 6500,
        "speed": 300,
        "npc_id": 214,
@@ -2926,7 +2926,7 @@
        "name": "Uber Lordakium",
        "display_name": "( UberLordakium )",
        "hp": 2400000,
-       "kalkan": 1600000,
+       "shield": 1600000,
        "damage": 32000,
        "speed": 180,
        "npc_id": 35,
@@ -3018,7 +3018,7 @@
           1
          ]
         ],
-        "_kaynak": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
+        "_source": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
        }
       }
      ],
@@ -3040,7 +3040,7 @@
        "name": "Lac Lion",
        "display_name": "-=[ Lac Lion ]=-",
        "hp": 1200000,
-       "kalkan": 0,
+       "shield": 0,
        "damage": 6000,
        "speed": 500,
        "npc_id": 216,
@@ -3086,7 +3086,7 @@
        "name": "Barracuda",
        "display_name": "-=[ Barracuda ]=-",
        "hp": 180000,
-       "kalkan": 100000,
+       "shield": 100000,
        "damage": 6000,
        "speed": 280,
        "npc_id": 59,
@@ -3125,7 +3125,7 @@
        "name": "Saboteur",
        "display_name": "-=[ Saboteur ]=-",
        "hp": 200000,
-       "kalkan": 150000,
+       "shield": 150000,
        "damage": 4000,
        "speed": 260,
        "npc_id": 60,
@@ -3164,7 +3164,7 @@
        "name": "Annihilator",
        "display_name": "-=[ Annihilator ]=-",
        "hp": 300000,
-       "kalkan": 200000,
+       "shield": 200000,
        "damage": 15000,
        "speed": 240,
        "npc_id": 61,
@@ -3256,7 +3256,7 @@
           1
          ]
         ],
-        "_kaynak": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
+        "_source": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
        }
       }
      ],
@@ -3278,7 +3278,7 @@
        "name": "Interceptor",
        "display_name": "-=[ Interceptor ]=-",
        "hp": 60000,
-       "kalkan": 40000,
+       "shield": 40000,
        "damage": 500,
        "speed": 320,
        "npc_id": 58,
@@ -3323,7 +3323,7 @@
        "name": "Aura Dun Jig",
        "display_name": "-=[ Aura Dun Jig ]=-",
        "hp": 400000,
-       "kalkan": 370000,
+       "shield": 370000,
        "damage": 11000,
        "speed": 300,
        "npc_id": 215,
@@ -3370,7 +3370,7 @@
        "name": "Kodkod",
        "display_name": "-=[ Kodkod ]=-",
        "hp": 440000,
-       "kalkan": 70000,
+       "shield": 70000,
        "damage": 6500,
        "speed": 300,
        "npc_id": 214,
@@ -3422,7 +3422,7 @@
        "name": "Cote Lo",
        "display_name": "-=[ Cote Lo ]=-",
        "hp": 160000,
-       "kalkan": 58000,
+       "shield": 58000,
        "damage": 3500,
        "speed": 400,
        "npc_id": 213,
@@ -3486,7 +3486,7 @@
        "name": "Melter",
        "display_name": "-=[ Melter ]=-",
        "hp": 400000,
-       "kalkan": 300000,
+       "shield": 300000,
        "damage": 5000,
        "speed": 240,
        "npc_id": 65,
@@ -3526,7 +3526,7 @@
        "name": "Scorcher",
        "display_name": "-=[ Scorcher ]=-",
        "hp": 200000,
-       "kalkan": 200000,
+       "shield": 200000,
        "damage": 3000,
        "speed": 280,
        "npc_id": 64,
@@ -3572,7 +3572,7 @@
        "name": "Infernal",
        "display_name": "-=[ Infernal ]=-",
        "hp": 60000,
-       "kalkan": 50000,
+       "shield": 50000,
        "damage": 1000,
        "speed": 320,
        "npc_id": 63,
@@ -3612,7 +3612,7 @@
        "name": "Natal Nap",
        "display_name": "-=[ Natal Nap ]=-",
        "hp": 3000000,
-       "kalkan": 195000,
+       "shield": 195000,
        "damage": 18000,
        "speed": 150,
        "npc_id": 217,
@@ -3710,7 +3710,7 @@
           1
          ]
         ],
-        "_kaynak": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
+        "_source": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
        }
       }
      ],
@@ -3732,7 +3732,7 @@
        "name": "Kodkod",
        "display_name": "-=[ Kodkod ]=-",
        "hp": 440000,
-       "kalkan": 70000,
+       "shield": 70000,
        "damage": 6500,
        "speed": 300,
        "npc_id": 214,
@@ -3778,7 +3778,7 @@
        "name": "Devourer",
        "display_name": "-=[ Devourer ]=-",
        "hp": 2000000,
-       "kalkan": 1000000,
+       "shield": 1000000,
        "damage": 12000,
        "speed": 120,
        "npc_id": 66,
@@ -3819,7 +3819,7 @@
        "name": "Aura Dun Jig",
        "display_name": "-=[ Aura Dun Jig ]=-",
        "hp": 400000,
-       "kalkan": 370000,
+       "shield": 370000,
        "damage": 11000,
        "speed": 300,
        "npc_id": 215,
@@ -3866,7 +3866,7 @@
        "name": "Lac Lion",
        "display_name": "-=[ Lac Lion ]=-",
        "hp": 1200000,
-       "kalkan": 0,
+       "shield": 0,
        "damage": 6000,
        "speed": 500,
        "npc_id": 216,
@@ -3912,7 +3912,7 @@
        "name": "Saturn Spearhead",
        "display_name": "-=[ Saturn Spearhead ]=-",
        "hp": 100000,
-       "kalkan": 120000,
+       "shield": 120000,
        "damage": 1400,
        "speed": 300,
        "npc_id": 97,
@@ -3951,7 +3951,7 @@
        "name": "Saturn Venom",
        "display_name": "-=[ Saturn Venom ]=-",
        "hp": 256000,
-       "kalkan": 150000,
+       "shield": 150000,
        "damage": 8500,
        "speed": 300,
        "npc_id": 87,
@@ -3990,7 +3990,7 @@
        "name": "Natal Nap",
        "display_name": "-=[ Natal Nap ]=-",
        "hp": 3000000,
-       "kalkan": 195000,
+       "shield": 195000,
        "damage": 18000,
        "speed": 150,
        "npc_id": 217,
@@ -4088,7 +4088,7 @@
           1
          ]
         ],
-        "_kaynak": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
+        "_source": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
        }
       }
      ],
@@ -4110,7 +4110,7 @@
        "name": "Saturn Aegis",
        "display_name": "-=[ Saturn Aegis ]=-",
        "hp": 275000,
-       "kalkan": 150000,
+       "shield": 150000,
        "damage": 5000,
        "speed": 300,
        "npc_id": 99,
@@ -4149,7 +4149,7 @@
        "name": "Lac Lion",
        "display_name": "-=[ Lac Lion ]=-",
        "hp": 1200000,
-       "kalkan": 0,
+       "shield": 0,
        "damage": 6000,
        "speed": 500,
        "npc_id": 216,
@@ -4195,7 +4195,7 @@
        "name": "Kodkod",
        "display_name": "-=[ Kodkod ]=-",
        "hp": 440000,
-       "kalkan": 70000,
+       "shield": 70000,
        "damage": 6500,
        "speed": 300,
        "npc_id": 214,
@@ -4241,7 +4241,7 @@
        "name": "Saturn Citadel",
        "display_name": "-=[ Saturn Citadel ]=-",
        "hp": 550000,
-       "kalkan": 200000,
+       "shield": 200000,
        "damage": 6500,
        "speed": 300,
        "npc_id": 98,
@@ -4280,7 +4280,7 @@
        "name": "Aura Dun Jig",
        "display_name": "-=[ Aura Dun Jig ]=-",
        "hp": 400000,
-       "kalkan": 370000,
+       "shield": 370000,
        "damage": 11000,
        "speed": 300,
        "npc_id": 215,
@@ -4327,7 +4327,7 @@
        "name": "Devolarium",
        "display_name": "-=[ Devolarium ]=-",
        "hp": 100000,
-       "kalkan": 100000,
+       "shield": 100000,
        "damage": 1200,
        "speed": 150,
        "npc_id": 3,
@@ -4366,7 +4366,7 @@
        "name": "Boss Sibelon",
        "display_name": "..::{ Boss Sibelon }::..",
        "hp": 800000,
-       "kalkan": 800000,
+       "shield": 800000,
        "damage": 12350,
        "speed": 140,
        "npc_id": 20,
@@ -4406,7 +4406,7 @@
        "name": "Aura Dun Jig",
        "display_name": "-=[ Aura Dun Jig ]=-",
        "hp": 400000,
-       "kalkan": 370000,
+       "shield": 370000,
        "damage": 11000,
        "speed": 300,
        "npc_id": 215,
@@ -4453,7 +4453,7 @@
        "name": "Devolarium",
        "display_name": "-=[ Devolarium ]=-",
        "hp": 100000,
-       "kalkan": 100000,
+       "shield": 100000,
        "damage": 1200,
        "speed": 150,
        "npc_id": 3,
@@ -4492,7 +4492,7 @@
        "name": "Boss Devolarium",
        "display_name": "..::{ Boss Devolarium }::..",
        "hp": 400000,
-       "kalkan": 400000,
+       "shield": 400000,
        "damage": 4650,
        "speed": 140,
        "npc_id": 18,
@@ -4532,7 +4532,7 @@
        "name": "Natal Nap",
        "display_name": "-=[ Natal Nap ]=-",
        "hp": 3000000,
-       "kalkan": 195000,
+       "shield": 195000,
        "damage": 18000,
        "speed": 150,
        "npc_id": 217,
@@ -4630,7 +4630,7 @@
           1
          ]
         ],
-        "_kaynak": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
+        "_source": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
        }
       }
      ],
@@ -4652,7 +4652,7 @@
        "name": "Kodkod",
        "display_name": "-=[ Kodkod ]=-",
        "hp": 440000,
-       "kalkan": 70000,
+       "shield": 70000,
        "damage": 6500,
        "speed": 300,
        "npc_id": 214,
@@ -4698,7 +4698,7 @@
        "name": "Boss Sibelonit",
        "display_name": "..::{ Boss Sibelonit }::..",
        "hp": 160000,
-       "kalkan": 160000,
+       "shield": 160000,
        "damage": 4350,
        "speed": 280,
        "npc_id": 19,
@@ -4738,7 +4738,7 @@
        "name": "Sibelonit",
        "display_name": "-=[ Sibelonit ]=-",
        "hp": 40000,
-       "kalkan": 40000,
+       "shield": 40000,
        "damage": 3200,
        "speed": 300,
        "npc_id": 7,
@@ -4777,7 +4777,7 @@
        "name": "Lac Lion",
        "display_name": "-=[ Lac Lion ]=-",
        "hp": 1200000,
-       "kalkan": 0,
+       "shield": 0,
        "damage": 6000,
        "speed": 500,
        "npc_id": 216,
@@ -4823,7 +4823,7 @@
        "name": "Sibelon",
        "display_name": "-=[ Sibelon ]=-",
        "hp": 200000,
-       "kalkan": 200000,
+       "shield": 200000,
        "damage": 2650,
        "speed": 150,
        "npc_id": 5,
@@ -4862,7 +4862,7 @@
        "name": "Turret",
        "display_name": "Plutus Turret",
        "hp": 2000000,
-       "kalkan": 0,
+       "shield": 0,
        "damage": 2000,
        "speed": 0,
        "npc_id": 220,
@@ -4888,7 +4888,7 @@
        "name": "Plutus",
        "display_name": "..::{ Plutus }::..",
        "hp": 5000000,
-       "kalkan": 600000,
+       "shield": 600000,
        "damage": 20000,
        "speed": 300,
        "npc_id": 218,
@@ -4917,7 +4917,7 @@
         }
        },
        "radioactive": {
-        "sure_sn": 10,
+        "duration_sec": 10,
         "damage_per_sec": 40000,
         "max_ratio": 0.25,
         "circle": 3,
@@ -4935,7 +4935,7 @@
         "probability": 0.35,
         "lifetime_sec": 900,
         "mod": "one_of",
-        "_kaynak": "forum 2019: %35; içerik wiki",
+        "_source": "forum 2019: %35; içerik wiki",
         "contents": [
          [
           "currency_uridium",
@@ -5050,7 +5050,7 @@
      "name": "Warhead",
      "display_name": "Plutus Warhead",
      "hp": 30000,
-     "kalkan": 1,
+     "shield": 1,
      "damage": 20000,
      "speed": 450,
      "npc_id": 219,
@@ -5062,14 +5062,14 @@
      },
      "cargo": {},
      "count": 1,
-     "_uyarlama": "wiki 350.000 hasar (tek atış); tek oyunculuda 20.000 (Easy 10.000)"
+     "_adaptation": "wiki 350.000 hasar (tek atış); tek oyunculuda 20.000 (Easy 10.000)"
     },
     "bountiful": {
      "type": "263",
      "name": "Lac Lion",
      "display_name": "-=[ Bountiful Lac Lion ]=-",
      "hp": 1200000,
-     "kalkan": 0,
+     "shield": 0,
      "damage": 6000,
      "speed": 500,
      "npc_id": 216,
@@ -5093,7 +5093,7 @@
       "probability": 1.0,
       "lifetime_sec": 600,
       "mod": "one_of",
-      "_kaynak": "wiki \"Bountiful Alien CPU content\"; adetler uyarlama (Normal Kolay'ın iki katı: forum 143902)",
+      "_source": "wiki \"Bountiful Alien CPU content\"; adetler uyarlama (Normal Kolay'ın iki katı: forum 143902)",
       "contents": [
        [
         "equipment_weapon_laser_lf-4-hp",
@@ -5163,7 +5163,7 @@
      "name": "Cote Lo",
      "display_name": "-=[ Fleeing Cote Lo ]=-",
      "hp": 160000,
-     "kalkan": 58000,
+     "shield": 58000,
      "damage": 3500,
      "speed": 400,
      "npc_id": 213,
@@ -5187,7 +5187,7 @@
      "empower": {
       "damage": 0.1,
       "speed": 0.1,
-      "sure_sn": 60
+      "duration_sec": 60
      }
     }
    },
@@ -5230,7 +5230,7 @@
    "event": "halloween",
    "entry": "X-4",
    "portal": 81,
-   "can": 5,
+   "hp": 5,
    "rule": {
     "cooldown_sec": 43200,
     "random": true,
@@ -5256,7 +5256,7 @@
        "name": "Lordakia",
        "display_name": "-=[ Lordakia ]=-",
        "hp": 2000,
-       "kalkan": 2000,
+       "shield": 2000,
        "damage": 80,
        "speed": 320,
        "npc_id": 2,
@@ -5298,7 +5298,7 @@
        "name": "Boss Lordakia",
        "display_name": "..::{ Boss Lordakia }::..",
        "hp": 8000,
-       "kalkan": 8000,
+       "shield": 8000,
        "damage": 320,
        "speed": 320,
        "npc_id": 15,
@@ -5369,7 +5369,7 @@
        "name": "Curcubitor",
        "display_name": "-=[ Curcubitor ]=-",
        "hp": 32000,
-       "kalkan": 24000,
+       "shield": 24000,
        "damage": 600,
        "speed": 280,
        "npc_id": 109,
@@ -5441,7 +5441,7 @@
        "name": "Uber Lordakia",
        "display_name": "( UberLordakia )",
        "hp": 16000,
-       "kalkan": 16000,
+       "shield": 16000,
        "damage": 640,
        "speed": 250,
        "npc_id": 29,
@@ -5514,7 +5514,7 @@
        "name": "Sibelonit",
        "display_name": "-=[ Sibelonit ]=-",
        "hp": 40000,
-       "kalkan": 40000,
+       "shield": 40000,
        "damage": 3200,
        "speed": 320,
        "npc_id": 7,
@@ -5553,7 +5553,7 @@
        "name": "Lordakia",
        "display_name": "-=[ Lordakia ]=-",
        "hp": 2000,
-       "kalkan": 2000,
+       "shield": 2000,
        "damage": 80,
        "speed": 320,
        "npc_id": 2,
@@ -5601,7 +5601,7 @@
        "name": "Sibelon",
        "display_name": "-=[ Sibelon ]=-",
        "hp": 200000,
-       "kalkan": 200000,
+       "shield": 200000,
        "damage": 2650,
        "speed": 100,
        "npc_id": 5,
@@ -5640,7 +5640,7 @@
        "name": "Sibelonit",
        "display_name": "-=[ Sibelonit ]=-",
        "hp": 40000,
-       "kalkan": 40000,
+       "shield": 40000,
        "damage": 3200,
        "speed": 320,
        "npc_id": 7,
@@ -5679,7 +5679,7 @@
        "name": "Demon Drone",
        "display_name": "-=[ Demon Drone ]=-",
        "hp": 1500000,
-       "kalkan": 1000000,
+       "shield": 1000000,
        "damage": 12000,
        "speed": 350,
        "npc_id": 151,
@@ -5690,7 +5690,7 @@
         "uridium": 1000
        },
        "cargo": {},
-       "_uyarlama": "kaynak değer vermiyor",
+       "_adaptation": "kaynak değer vermiyor",
        "count": 1,
        "box": {
         "type": "DEMON_BOX",
@@ -5810,7 +5810,7 @@
        "name": "Sibelonit",
        "display_name": "-=[ Sibelonit ]=-",
        "hp": 40000,
-       "kalkan": 40000,
+       "shield": 40000,
        "damage": 3200,
        "speed": 320,
        "npc_id": 7,
@@ -5855,7 +5855,7 @@
        "name": "Boss Devolarium",
        "display_name": "..::{ Boss Devolarium }::..",
        "hp": 400000,
-       "kalkan": 400000,
+       "shield": 400000,
        "damage": 4650,
        "speed": 140,
        "npc_id": 18,
@@ -5928,7 +5928,7 @@
        "name": "Uber Sibelon",
        "display_name": "( UberSibelon )",
        "hp": 1600000,
-       "kalkan": 1600000,
+       "shield": 1600000,
        "damage": 24000,
        "speed": 100,
        "npc_id": 34,
@@ -6001,7 +6001,7 @@
        "name": "Curcubitor",
        "display_name": "-=[ Curcubitor ]=-",
        "hp": 94000,
-       "kalkan": 70500,
+       "shield": 70500,
        "damage": 1200,
        "speed": 280,
        "npc_id": 109,
@@ -6078,7 +6078,7 @@
        "name": "Mordon",
        "display_name": "-=[ Mordon ]=-",
        "hp": 20000,
-       "kalkan": 10000,
+       "shield": 10000,
        "damage": 390,
        "speed": 125,
        "npc_id": 4,
@@ -6130,7 +6130,7 @@
        "name": "Boss Mordon",
        "display_name": "..::{ Boss Mordon }::..",
        "hp": 80000,
-       "kalkan": 40000,
+       "shield": 40000,
        "damage": 1500,
        "speed": 150,
        "npc_id": 16,
@@ -6210,7 +6210,7 @@
        "name": "Ufonit",
        "display_name": "-=[ Ufonit ]=-",
        "hp": 60000,
-       "kalkan": 50000,
+       "shield": 50000,
        "damage": 1000,
        "speed": 320,
        "npc_id": 26,
@@ -6243,7 +6243,7 @@
        "name": "Sibelonit",
        "display_name": "-=[ Sibelonit ]=-",
        "hp": 40000,
-       "kalkan": 40000,
+       "shield": 40000,
        "damage": 3200,
        "speed": 320,
        "npc_id": 7,
@@ -6288,7 +6288,7 @@
        "name": "Uber Kristallon",
        "display_name": "( UberKristallon )",
        "hp": 3200000,
-       "kalkan": 2400000,
+       "shield": 2400000,
        "damage": 40000,
        "speed": 240,
        "npc_id": 37,
@@ -6373,7 +6373,7 @@
        "name": "Uber Sibelon",
        "display_name": "( UberSibelon )",
        "hp": 1600000,
-       "kalkan": 1600000,
+       "shield": 1600000,
        "damage": 24000,
        "speed": 100,
        "npc_id": 34,
@@ -6446,7 +6446,7 @@
        "name": "Demon Drone",
        "display_name": "-=[ Demon Drone ]=-",
        "hp": 1500000,
-       "kalkan": 1000000,
+       "shield": 1000000,
        "damage": 12000,
        "speed": 350,
        "npc_id": 151,
@@ -6457,7 +6457,7 @@
         "uridium": 1000
        },
        "cargo": {},
-       "_uyarlama": "kaynak değer vermiyor",
+       "_adaptation": "kaynak değer vermiyor",
        "count": 1,
        "box": {
         "type": "DEMON_BOX",
@@ -6577,7 +6577,7 @@
        "name": "Boss Sibelonit",
        "display_name": "..::{ Boss Sibelonit }::..",
        "hp": 160000,
-       "kalkan": 160000,
+       "shield": 160000,
        "damage": 4350,
        "speed": 300,
        "npc_id": 19,
@@ -6651,7 +6651,7 @@
        "name": "Sibelonit",
        "display_name": "-=[ Sibelonit ]=-",
        "hp": 40000,
-       "kalkan": 40000,
+       "shield": 40000,
        "damage": 3200,
        "speed": 320,
        "npc_id": 7,
@@ -6697,7 +6697,7 @@
        "name": "Sibelon",
        "display_name": "-=[ Sibelon ]=-",
        "hp": 200000,
-       "kalkan": 200000,
+       "shield": 200000,
        "damage": 2650,
        "speed": 100,
        "npc_id": 5,
@@ -6736,7 +6736,7 @@
        "name": "Curcubitor",
        "display_name": "-=[ Curcubitor ]=-",
        "hp": 180000,
-       "kalkan": 135000,
+       "shield": 135000,
        "damage": 3100,
        "speed": 280,
        "npc_id": 109,
@@ -6819,7 +6819,7 @@
        "name": "Boss Sibelon",
        "display_name": "..::{ Boss Sibelon }::..",
        "hp": 800000,
-       "kalkan": 800000,
+       "shield": 800000,
        "damage": 12350,
        "speed": 175,
        "npc_id": 20,
@@ -6892,7 +6892,7 @@
        "name": "Ufonit",
        "display_name": "-=[ Ufonit ]=-",
        "hp": 60000,
-       "kalkan": 50000,
+       "shield": 50000,
        "damage": 1000,
        "speed": 320,
        "npc_id": 26,
@@ -6937,7 +6937,7 @@
        "name": "Uber Kristallon",
        "display_name": "( UberKristallon )",
        "hp": 3200000,
-       "kalkan": 2400000,
+       "shield": 2400000,
        "damage": 40000,
        "speed": 240,
        "npc_id": 37,
@@ -7011,7 +7011,7 @@
        "name": "Uber Lordakium",
        "display_name": "( UberLordakium )",
        "hp": 2400000,
-       "kalkan": 1600000,
+       "shield": 1600000,
        "damage": 32000,
        "speed": 100,
        "npc_id": 35,
@@ -7085,7 +7085,7 @@
        "name": "Uber Kristallin",
        "display_name": "( UberKristallin )",
        "hp": 400000,
-       "kalkan": 320000,
+       "shield": 320000,
        "damage": 9600,
        "speed": 335,
        "npc_id": 36,
@@ -7159,7 +7159,7 @@
        "name": "Melter",
        "display_name": "-=[ Melter ]=-",
        "hp": 400000,
-       "kalkan": 300000,
+       "shield": 300000,
        "damage": 5000,
        "speed": 240,
        "npc_id": 65,
@@ -7199,7 +7199,7 @@
        "name": "Uber Sibelon",
        "display_name": "( UberSibelon )",
        "hp": 1600000,
-       "kalkan": 1600000,
+       "shield": 1600000,
        "damage": 24000,
        "speed": 100,
        "npc_id": 34,
@@ -7272,7 +7272,7 @@
        "name": "Melter",
        "display_name": "-=[ Melter ]=-",
        "hp": 400000,
-       "kalkan": 300000,
+       "shield": 300000,
        "damage": 5000,
        "speed": 240,
        "npc_id": 65,
@@ -7324,7 +7324,7 @@
        "name": "Demon Drone",
        "display_name": "-=[ Demon Drone ]=-",
        "hp": 1500000,
-       "kalkan": 1000000,
+       "shield": 1000000,
        "damage": 12000,
        "speed": 350,
        "npc_id": 151,
@@ -7335,7 +7335,7 @@
         "uridium": 1000
        },
        "cargo": {},
-       "_uyarlama": "kaynak değer vermiyor",
+       "_adaptation": "kaynak değer vermiyor",
        "count": 1,
        "box": {
         "type": "DEMON_BOX",
@@ -7455,7 +7455,7 @@
        "name": "Sibelon",
        "display_name": "-=[ Sibelon ]=-",
        "hp": 200000,
-       "kalkan": 200000,
+       "shield": 200000,
        "damage": 2650,
        "speed": 100,
        "npc_id": 5,
@@ -7494,7 +7494,7 @@
        "name": "Curcubitor",
        "display_name": "-=[ Curcubitor ]=-",
        "hp": 270000,
-       "kalkan": 202500,
+       "shield": 202500,
        "damage": 4300,
        "speed": 280,
        "npc_id": 109,
@@ -7571,7 +7571,7 @@
        "name": "Boss Sibelon",
        "display_name": "..::{ Boss Sibelon }::..",
        "hp": 800000,
-       "kalkan": 800000,
+       "shield": 800000,
        "damage": 12350,
        "speed": 175,
        "npc_id": 20,
@@ -7644,7 +7644,7 @@
        "name": "Ufonit",
        "display_name": "-=[ Ufonit ]=-",
        "hp": 60000,
-       "kalkan": 50000,
+       "shield": 50000,
        "damage": 1000,
        "speed": 320,
        "npc_id": 26,
@@ -7688,7 +7688,7 @@
        "name": "Uber Sibelon",
        "display_name": "( UberSibelon )",
        "hp": 1600000,
-       "kalkan": 1600000,
+       "shield": 1600000,
        "damage": 24000,
        "speed": 100,
        "npc_id": 34,
@@ -7761,7 +7761,7 @@
        "name": "Demon Drone",
        "display_name": "-=[ Demon Drone ]=-",
        "hp": 1500000,
-       "kalkan": 1000000,
+       "shield": 1000000,
        "damage": 12000,
        "speed": 350,
        "npc_id": 151,
@@ -7772,7 +7772,7 @@
         "uridium": 1000
        },
        "cargo": {},
-       "_uyarlama": "kaynak değer vermiyor",
+       "_adaptation": "kaynak değer vermiyor",
        "count": 1,
        "box": {
         "type": "DEMON_BOX",
@@ -7892,7 +7892,7 @@
        "name": "Boss Curcubitor",
        "display_name": "-=[ Boss Curcubitor ]=-",
        "hp": 3600000,
-       "kalkan": 2700000,
+       "shield": 2700000,
        "damage": 40000,
        "speed": 300,
        "npc_id": 108,
@@ -7932,7 +7932,7 @@
        "name": "Boss Sibelon",
        "display_name": "..::{ Boss Sibelon }::..",
        "hp": 800000,
-       "kalkan": 800000,
+       "shield": 800000,
        "damage": 12350,
        "speed": 175,
        "npc_id": 20,
@@ -8005,7 +8005,7 @@
        "name": "Boss Kristallon",
        "display_name": "..::{ Boss Kristallon }::..",
        "hp": 1600000,
-       "kalkan": 1200000,
+       "shield": 1200000,
        "damage": 20000,
        "speed": 250,
        "npc_id": 23,
@@ -8078,7 +8078,7 @@
        "name": "Uber Sibelon",
        "display_name": "( UberSibelon )",
        "hp": 1600000,
-       "kalkan": 1600000,
+       "shield": 1600000,
        "damage": 24000,
        "speed": 100,
        "npc_id": 34,
@@ -8151,7 +8151,7 @@
        "name": "Curcubitor",
        "display_name": "-=[ Curcubitor ]=-",
        "hp": 360000,
-       "kalkan": 270000,
+       "shield": 270000,
        "damage": 5700,
        "speed": 280,
        "npc_id": 109,
@@ -8228,7 +8228,7 @@
        "name": "Frightful Curcubitor",
        "display_name": "..::{ Frightful Curcubitor }::..",
        "hp": 12000000,
-       "kalkan": 8000000,
+       "shield": 8000000,
        "damage": 40000,
        "speed": 250,
        "npc_id": 317,
@@ -8239,7 +8239,7 @@
         "uridium": 10000
        },
        "cargo": {},
-       "_uyarlama": "kaynak değer vermiyor",
+       "_adaptation": "kaynak değer vermiyor",
        "count": 1,
        "box": {
         "type": "FRIGHTFUL_CURCUBITOR_BOSS_BOX",
@@ -8307,7 +8307,7 @@
           3
          ]
         ],
-        "_uyarlama": "adetler kaynakta yok"
+        "_adaptation": "adetler kaynakta yok"
        },
        "permanent": true,
        "behavior": {
@@ -8342,7 +8342,7 @@
      "name": "Curcubitor",
      "display_name": "-=[ Curcubitor ]=-",
      "hp": 360000,
-     "kalkan": 270000,
+     "shield": 270000,
      "damage": 5700,
      "speed": 280,
      "npc_id": 109,
@@ -8365,8 +8365,8 @@
    "reward": {},
    "dark": true,
    "_dark": "haritalar karanlık, yalnız geminin baktığı yön aydınlık (kullanıcının gerçek oyundaki gözlemi; istemcide VisualModifier FLASHLIGHT 62 / FlashLightEffect; kamuya açık kaynaklarda yazılı değil)",
-   "_kaynak": "wiki vortex-of-terrors-gate (8 harita, 90 Curcubitor; 2023 oyuncu yorumu da 90), resmî forum SSS 2020-2026 (X-4, 12 saat bekleme, bitiş ödülü yok, kapıda Curcubitor yalnız Treat bırakır); can 5 eski sürümden (SSS can sayısı vermiyor)",
-   "_uyarlama": "\"ya da\" dalgalarından biri rastgele; Box A Uber, Box B Boss (%25), Box C Curcubitor (%15) uzaylılarından (kaynak hangisinin düşürdüğünü vermiyor); Frightful Curcubitor yapışkan bomba ve Curcubitor çağırır",
+   "_source": "wiki vortex-of-terrors-gate (8 harita, 90 Curcubitor; 2023 oyuncu yorumu da 90), resmî forum SSS 2020-2026 (X-4, 12 saat bekleme, bitiş ödülü yok, kapıda Curcubitor yalnız Treat bırakır); can 5 eski sürümden (SSS can sayısı vermiyor)",
+   "_adaptation": "\"ya da\" dalgalarından biri rastgele; Box A Uber, Box B Boss (%25), Box C Curcubitor (%15) uzaylılarından (kaynak hangisinin düşürdüğünü vermiyor); Frightful Curcubitor yapışkan bomba ve Curcubitor çağırır",
    "messages": {
     "done": {
      "caps": "key:log_msg_gg_completed_tunnel_of_terror"
@@ -8380,7 +8380,7 @@
    "gate_kind": "BIRTHDAY",
    "entry": "X-1",
    "portal": 15,
-   "can": 3,
+   "hp": 3,
    "rule": {
     "yearly": true
    },
@@ -8397,7 +8397,7 @@
        "name": "Streuner",
        "display_name": "-=[ Streuner ]=-",
        "hp": 800,
-       "kalkan": 400,
+       "shield": 400,
        "damage": 20,
        "speed": 172,
        "npc_id": 1,
@@ -8438,7 +8438,7 @@
        "name": "Lordakia",
        "display_name": "-=[ Lordakia ]=-",
        "hp": 2000,
-       "kalkan": 2000,
+       "shield": 2000,
        "damage": 80,
        "speed": 242,
        "npc_id": 2,
@@ -8480,7 +8480,7 @@
        "name": "Mordon",
        "display_name": "-=[ Mordon ]=-",
        "hp": 20000,
-       "kalkan": 10000,
+       "shield": 10000,
        "damage": 390,
        "speed": 200,
        "npc_id": 4,
@@ -8525,7 +8525,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 3000,
-       "kalkan": 3000,
+       "shield": 3000,
        "damage": 100,
        "speed": 280,
        "npc_id": 6,
@@ -8569,7 +8569,7 @@
        "name": "Devolarium",
        "display_name": "-=[ Devolarium ]=-",
        "hp": 100000,
-       "kalkan": 100000,
+       "shield": 100000,
        "damage": 1200,
        "speed": 150,
        "npc_id": 3,
@@ -8614,7 +8614,7 @@
        "name": "Kristallin",
        "display_name": "-=[ Kristallin ]=-",
        "hp": 25000,
-       "kalkan": 20000,
+       "shield": 20000,
        "damage": 825,
        "speed": 300,
        "npc_id": 9,
@@ -8659,7 +8659,7 @@
        "name": "Sibelon",
        "display_name": "-=[ Sibelon ]=-",
        "hp": 200000,
-       "kalkan": 200000,
+       "shield": 200000,
        "damage": 2650,
        "speed": 150,
        "npc_id": 5,
@@ -8698,7 +8698,7 @@
        "name": "Sibelonit",
        "display_name": "-=[ Sibelonit ]=-",
        "hp": 30000,
-       "kalkan": 30000,
+       "shield": 30000,
        "damage": 2400,
        "speed": 300,
        "npc_id": 7,
@@ -8743,7 +8743,7 @@
        "name": "Kristallon",
        "display_name": "-=[ Kristallon ]=-",
        "hp": 200000,
-       "kalkan": 150000,
+       "shield": 150000,
        "damage": 2225,
        "speed": 200,
        "npc_id": 10,
@@ -8782,7 +8782,7 @@
        "name": "Barracuda",
        "display_name": "-=[ Barracuda ]=-",
        "hp": 135000,
-       "kalkan": 75000,
+       "shield": 75000,
        "damage": 4500,
        "speed": 280,
        "npc_id": 59,
@@ -8807,7 +8807,7 @@
        "name": "Saboteur",
        "display_name": "-=[ Saboteur ]=-",
        "hp": 150000,
-       "kalkan": 112500,
+       "shield": 112500,
        "damage": 3000,
        "speed": 260,
        "npc_id": 60,
@@ -8852,7 +8852,7 @@
        "name": "DemaNeR",
        "display_name": "-=[ DemaNeR ]=-",
        "hp": 400000,
-       "kalkan": 300000,
+       "shield": 300000,
        "damage": 5000,
        "speed": 300,
        "npc_id": 39,
@@ -8878,7 +8878,7 @@
        "name": "DemaNeR",
        "display_name": "-=[ DemaNeR ]=-",
        "hp": 300000,
-       "kalkan": 225000,
+       "shield": 225000,
        "damage": 3750,
        "speed": 300,
        "npc_id": 39,
@@ -8924,7 +8924,7 @@
        "name": "Boss Lordakium",
        "display_name": "..::{ Boss Lordakium }::...",
        "hp": 900000,
-       "kalkan": 600000,
+       "shield": 600000,
        "damage": 12000,
        "speed": 180,
        "npc_id": 21,
@@ -8950,7 +8950,7 @@
        "name": "Protegit",
        "display_name": "-=[ Protegit ]=-",
        "hp": 25000,
-       "kalkan": 20000,
+       "shield": 20000,
        "damage": 750,
        "speed": 420,
        "npc_id": 12,
@@ -8995,7 +8995,7 @@
        "name": "Devourer",
        "display_name": "-=[ Devourer ]=-",
        "hp": 1000000,
-       "kalkan": 500000,
+       "shield": 500000,
        "damage": 6000,
        "speed": 120,
        "npc_id": 66,
@@ -9022,7 +9022,7 @@
        "name": "Scorcher",
        "display_name": "-=[ Scorcher ]=-",
        "hp": 100000,
-       "kalkan": 100000,
+       "shield": 100000,
        "damage": 1500,
        "speed": 280,
        "npc_id": 64,
@@ -9115,8 +9115,8 @@
      ]
     ]
    },
-   "_kaynak": "fandom ve JP wiki (Y6, 2012): 13 dalga, güç çarpanları, ödül sandığı; 3 can, yılda bir (11 Aralık)",
-   "_uyarlama": "EP JP wiki'nin 221.333'ü (fandom 2.324.000); BDR-1212 hesap yaşına göre -> 2.500 BDR-1211",
+   "_source": "fandom ve JP wiki (Y6, 2012): 13 dalga, güç çarpanları, ödül sandığı; 3 can, yılda bir (11 Aralık)",
+   "_adaptation": "EP JP wiki'nin 221.333'ü (fandom 2.324.000); BDR-1212 hesap yaşına göre -> 2.500 BDR-1211",
    "messages": {
     "done": {
      "caps": "key:log_msg_gg_completed_bday"
@@ -9129,7 +9129,7 @@
    "event": null,
    "entry": "X-7",
    "portal": 84,
-   "can": 1,
+   "hp": 1,
    "rule": {
     "cpu": "ammunition_ggportal_quarantine-zone-cpu"
    },
@@ -9146,7 +9146,7 @@
        "name": "Viral Kristallon",
        "display_name": "-=[ Viral Kristallon ]=-",
        "hp": 600000,
-       "kalkan": 400000,
+       "shield": 400000,
        "damage": 4000,
        "speed": 240,
        "npc_id": 156,
@@ -9202,7 +9202,7 @@
        "name": "Viral Gygerthrall",
        "display_name": "-=[ Viral Gygerthrall ]=-",
        "hp": 240000,
-       "kalkan": 200000,
+       "shield": 200000,
        "damage": 2500,
        "speed": 320,
        "npc_id": 157,
@@ -9220,7 +9220,7 @@
        "name": "Gygerim Overlord",
        "display_name": "-=[ Gygerim Overlord ]=-",
        "hp": 60000000,
-       "kalkan": 60000000,
+       "shield": 60000000,
        "damage": 30000,
        "speed": 0,
        "npc_id": 128,
@@ -9269,7 +9269,7 @@
      "name": "Viral Gygerthrall",
      "display_name": "-=[ Viral Gygerthrall ]=-",
      "hp": 240000,
-     "kalkan": 200000,
+     "shield": 200000,
      "damage": 2500,
      "speed": 320,
      "npc_id": 157,
@@ -9287,7 +9287,7 @@
      "name": "Plague Rocket",
      "display_name": "-=[ Plague Rocket ]=-",
      "hp": 60000,
-     "kalkan": 0,
+     "shield": 0,
      "damage": 95000,
      "speed": 420,
      "npc_id": 162,
@@ -9416,8 +9416,8 @@
      ]
     }
    },
-   "_kaynak": "darkorbitwiki quarantine-zone, resmî SSS: Immunizer CPU, tek can, 50 Viral Kristallon sonra Gygerim Overlord, Quarantine Box",
-   "_uyarlama": "tek oyunculu (2-8 oyuncu yerine), ek dalga sayıları, Overlord’un ölüm ışını uzaylı yeteneği (uzayli_yetenekleri.json 128), uzaktakini seçmesi yok",
+   "_source": "darkorbitwiki quarantine-zone, resmî SSS: Immunizer CPU, tek can, 50 Viral Kristallon sonra Gygerim Overlord, Quarantine Box",
+   "_adaptation": "tek oyunculu (2-8 oyuncu yerine), ek dalga sayıları, Overlord’un ölüm ışını uzaylı yeteneği (uzayli_yetenekleri.json 128), uzaktakini seçmesi yok",
    "messages": {
     "done": {
      "caps": "key:log_msg_gg_completed_quarantine_zone"
@@ -9433,7 +9433,7 @@
    "event": null,
    "entry": "X-1",
    "portal": 41,
-   "can": 100000,
+   "hp": 100000,
    "rule": {
     "level": 22
    },
@@ -9450,7 +9450,7 @@
        "name": "Streuner",
        "display_name": "-=[ Streuner ]=-",
        "hp": 640000,
-       "kalkan": 320000,
+       "shield": 320000,
        "damage": 15000,
        "speed": 172,
        "npc_id": 1,
@@ -9468,7 +9468,7 @@
        "name": "Lordakia",
        "display_name": "-=[ Lordakia ]=-",
        "hp": 1600000,
-       "kalkan": 1600000,
+       "shield": 1600000,
        "damage": 65000,
        "speed": 242,
        "npc_id": 2,
@@ -9486,7 +9486,7 @@
        "name": "Uber Saimon",
        "display_name": "( UberSaimon )",
        "hp": 748000,
-       "kalkan": 374400,
+       "shield": 374400,
        "damage": 250000,
        "speed": 280,
        "npc_id": 31,
@@ -9504,7 +9504,7 @@
        "name": "Annihilator",
        "display_name": "-=[ Annihilator ]=-",
        "hp": 300000,
-       "kalkan": 200000,
+       "shield": 200000,
        "damage": 15000,
        "speed": 240,
        "npc_id": 61,
@@ -9530,7 +9530,7 @@
        "name": "Boss Sibelon",
        "display_name": "..::{ Boss Sibelon }::..",
        "hp": 1600000,
-       "kalkan": 1600000,
+       "shield": 1600000,
        "damage": 24000,
        "speed": 140,
        "npc_id": 20,
@@ -9556,7 +9556,7 @@
        "name": "Uber Devolarium",
        "display_name": "( UberDevolarium )",
        "hp": 800000,
-       "kalkan": 800000,
+       "shield": 800000,
        "damage": 9600,
        "speed": 160,
        "npc_id": 32,
@@ -9626,7 +9626,7 @@
        "name": "Hooligan",
        "display_name": "-=[ Hooligan ]=-",
        "hp": 750000,
-       "kalkan": 600000,
+       "shield": 600000,
        "damage": 9000,
        "speed": 280,
        "npc_id": 46,
@@ -9651,7 +9651,7 @@
        "name": "Revenant Slender",
        "display_name": "-=[ Revenant Slender ]=-",
        "hp": 1000000,
-       "kalkan": 1000000,
+       "shield": 1000000,
        "damage": 10000,
        "speed": 300,
        "npc_id": 262,
@@ -9669,7 +9669,7 @@
        "name": "P.E.T. Scout",
        "display_name": "-=[ P.E.T. Scout ]=-",
        "hp": 3000,
-       "kalkan": 3000,
+       "shield": 3000,
        "damage": 150,
        "speed": 380,
        "npc_id": 130,
@@ -9687,7 +9687,7 @@
        "name": "Saturn Phoenix",
        "display_name": "-=[ Saturn Phoenix ]=-",
        "hp": 4000,
-       "kalkan": 10000,
+       "shield": 10000,
        "damage": 150,
        "speed": 300,
        "npc_id": 77,
@@ -9711,7 +9711,7 @@
        "name": "Saturn Spearhead",
        "display_name": "-=[ Saturn Spearhead ]=-",
        "hp": 400000,
-       "kalkan": 480000,
+       "shield": 480000,
        "damage": 400,
        "speed": 300,
        "npc_id": 97,
@@ -9736,7 +9736,7 @@
        "name": "Saturn Aegis",
        "display_name": "-=[ Saturn Aegis ]=-",
        "hp": 1100000,
-       "kalkan": 600000,
+       "shield": 600000,
        "damage": 400,
        "speed": 300,
        "npc_id": 99,
@@ -9761,7 +9761,7 @@
        "name": "Saturn Citadel",
        "display_name": "-=[ Saturn Citadel ]=-",
        "hp": 2200000,
-       "kalkan": 800000,
+       "shield": 800000,
        "damage": 6500,
        "speed": 300,
        "npc_id": 98,
@@ -9786,7 +9786,7 @@
        "name": "Binary Bot",
        "display_name": "-=[ Binary Bot ]=-",
        "hp": 800000,
-       "kalkan": 600000,
+       "shield": 600000,
        "damage": 9000,
        "speed": 290,
        "npc_id": 57,
@@ -9804,7 +9804,7 @@
        "name": "Emperor Kristallon",
        "display_name": "-=[ Emperor Kristallon ]=-",
        "hp": 704000,
-       "kalkan": 528000,
+       "shield": 528000,
        "damage": 3000,
        "speed": 180,
        "npc_id": 115,
@@ -9830,7 +9830,7 @@
        "name": "Emperor Lordakium",
        "display_name": "-=[ Emperor Lordakium ]=-",
        "hp": 480000,
-       "kalkan": 320000,
+       "shield": 320000,
        "damage": 2000,
        "speed": 180,
        "npc_id": 114,
@@ -9856,7 +9856,7 @@
        "name": "Emperor Sibelon",
        "display_name": "-=[ Emperor Sibelon ]=-",
        "hp": 320000,
-       "kalkan": 320000,
+       "shield": 320000,
        "damage": 2000,
        "speed": 200,
        "npc_id": 113,
@@ -9968,7 +9968,7 @@
        "name": "Boss Kristallon",
        "display_name": "..::{ Boss Kristallon }::..",
        "hp": 1600000,
-       "kalkan": 1200000,
+       "shield": 1200000,
        "damage": 20000,
        "speed": 180,
        "npc_id": 23,
@@ -9994,7 +9994,7 @@
        "name": "Boss Lordakium",
        "display_name": "..::{ Boss Lordakium }::...",
        "hp": 2400000,
-       "kalkan": 1600000,
+       "shield": 1600000,
        "damage": 32000,
        "speed": 180,
        "npc_id": 21,
@@ -10020,7 +10020,7 @@
        "name": "Boss Lordakium",
        "display_name": "..::{ Boss Lordakium }::...",
        "hp": 1200000,
-       "kalkan": 800000,
+       "shield": 800000,
        "damage": 16000,
        "speed": 180,
        "npc_id": 21,
@@ -10046,7 +10046,7 @@
        "name": "Uber Lordakium",
        "display_name": "( UberLordakium )",
        "hp": 2400000,
-       "kalkan": 1600000,
+       "shield": 1600000,
        "damage": 32000,
        "speed": 180,
        "npc_id": 35,
@@ -10072,7 +10072,7 @@
        "name": "Uber Kristallon",
        "display_name": "( UberKristallon )",
        "hp": 3200000,
-       "kalkan": 2400000,
+       "shield": 2400000,
        "damage": 40000,
        "speed": 180,
        "npc_id": 37,
@@ -10136,7 +10136,7 @@
        "name": "Ufonit",
        "display_name": "-=[ Ufonit ]=-",
        "hp": 60000,
-       "kalkan": 50000,
+       "shield": 50000,
        "damage": 1000,
        "speed": 320,
        "npc_id": 26,
@@ -10154,7 +10154,7 @@
        "name": "UFO",
        "display_name": "-=[ UFO ]=-",
        "hp": 10000000,
-       "kalkan": 10000000,
+       "shield": 10000000,
        "damage": 5000,
        "speed": 200,
        "npc_id": 25,
@@ -10172,7 +10172,7 @@
        "name": "Ufonit",
        "display_name": "-=[ Ufonit ]=-",
        "hp": 300000,
-       "kalkan": 250000,
+       "shield": 250000,
        "damage": 5000,
        "speed": 320,
        "npc_id": 26,
@@ -10190,7 +10190,7 @@
        "name": "Kucurbium",
        "display_name": "-=[ Kucurbium ]=-",
        "hp": 4800000,
-       "kalkan": 3600000,
+       "shield": 3600000,
        "damage": 15000,
        "speed": 200,
        "npc_id": 40,
@@ -10216,7 +10216,7 @@
        "name": "Kucurbium",
        "display_name": "-=[ Kucurbium ]=-",
        "hp": 1650000,
-       "kalkan": 1200000,
+       "shield": 1200000,
        "damage": 5000,
        "speed": 200,
        "npc_id": 40,
@@ -10242,7 +10242,7 @@
        "name": "Boss Kucurbium",
        "display_name": "..::{ Boss Kucurbium }::..",
        "hp": 3200000,
-       "kalkan": 2400000,
+       "shield": 2400000,
        "damage": 10000,
        "speed": 180,
        "npc_id": 41,
@@ -10312,7 +10312,7 @@
        "name": "Corsair",
        "display_name": "-=[ Corsair ]=-",
        "hp": 800000,
-       "kalkan": 480000,
+       "shield": 480000,
        "damage": 32000,
        "speed": 300,
        "npc_id": 45,
@@ -10339,7 +10339,7 @@
        "name": "Corsair",
        "display_name": "-=[ Corsair ]=-",
        "hp": 400000,
-       "kalkan": 240000,
+       "shield": 240000,
        "damage": 16000,
        "speed": 300,
        "npc_id": 45,
@@ -10366,7 +10366,7 @@
        "name": "Barracuda",
        "display_name": "-=[ Barracuda ]=-",
        "hp": 360000,
-       "kalkan": 200000,
+       "shield": 200000,
        "damage": 12000,
        "speed": 280,
        "npc_id": 59,
@@ -10391,7 +10391,7 @@
        "name": "Outcast",
        "display_name": "-=[ Outcast ]=-",
        "hp": 300000,
-       "kalkan": 160000,
+       "shield": 160000,
        "damage": 9000,
        "speed": 280,
        "npc_id": 44,
@@ -10418,7 +10418,7 @@
        "name": "Emperor Kristallon",
        "display_name": "-=[ Emperor Kristallon ]=-",
        "hp": 1408000,
-       "kalkan": 1056000,
+       "shield": 1056000,
        "damage": 6000,
        "speed": 180,
        "npc_id": 115,
@@ -10444,7 +10444,7 @@
        "name": "Emperor Kristallon",
        "display_name": "-=[ Emperor Kristallon ]=-",
        "hp": 7040000,
-       "kalkan": 5280000,
+       "shield": 5280000,
        "damage": 30000,
        "speed": 180,
        "npc_id": 115,
@@ -10550,7 +10550,7 @@
        "name": "Uber Interceptor",
        "display_name": "( UberInterceptor )",
        "hp": 480000,
-       "kalkan": 320000,
+       "shield": 320000,
        "damage": 4000,
        "speed": 360,
        "npc_id": 163,
@@ -10575,7 +10575,7 @@
        "name": "Uber Barracuda",
        "display_name": "( UberBarracuda )",
        "hp": 1440000,
-       "kalkan": 800000,
+       "shield": 800000,
        "damage": 48000,
        "speed": 280,
        "npc_id": 164,
@@ -10600,7 +10600,7 @@
        "name": "Uber Saboteur",
        "display_name": "( UberSaboteur )",
        "hp": 1600000,
-       "kalkan": 1200000,
+       "shield": 1200000,
        "damage": 32000,
        "speed": 260,
        "npc_id": 165,
@@ -10625,7 +10625,7 @@
        "name": "Uber Annihilator",
        "display_name": "( UberAnnihilator )",
        "hp": 2400000,
-       "kalkan": 1600000,
+       "shield": 1600000,
        "damage": 90000,
        "speed": 260,
        "npc_id": 166,
@@ -10651,7 +10651,7 @@
        "name": "Uber Battleray",
        "display_name": "( UberBattleray )",
        "hp": 2640000,
-       "kalkan": 2080000,
+       "shield": 2080000,
        "damage": 51200,
        "speed": 250,
        "npc_id": 167,
@@ -10677,7 +10677,7 @@
        "name": "Emperor Sibelon",
        "display_name": "-=[ Emperor Sibelon ]=-",
        "hp": 1040000,
-       "kalkan": 1040000,
+       "shield": 1040000,
        "damage": 6000,
        "speed": 200,
        "npc_id": 113,
@@ -10703,7 +10703,7 @@
        "name": "Emperor Sibelon",
        "display_name": "-=[ Emperor Sibelon ]=-",
        "hp": 6400000,
-       "kalkan": 6400000,
+       "shield": 6400000,
        "damage": 35000,
        "speed": 200,
        "npc_id": 113,
@@ -10779,7 +10779,7 @@
        "name": "Vital Gygerthrall",
        "display_name": "-=[ Vital Gygerthrall ]=-",
        "hp": 720000,
-       "kalkan": 600000,
+       "shield": 600000,
        "damage": 7500,
        "speed": 320,
        "npc_id": 155,
@@ -10797,7 +10797,7 @@
        "name": "Vital Kristallon",
        "display_name": "-=[ Vital Kristallon ]=-",
        "hp": 2400000,
-       "kalkan": 1600000,
+       "shield": 1600000,
        "damage": 16000,
        "speed": 240,
        "npc_id": 156,
@@ -10816,7 +10816,7 @@
        "display_name": "-=[ Evil You ]=-",
        "count": 1,
        "hp": 750000,
-       "kalkan": 500000,
+       "shield": 500000,
        "damage": 35000,
        "speed": 320,
        "npc_id": 103,
@@ -10847,7 +10847,7 @@
        "name": "Undefinied",
        "display_name": "-=[ Undefinied ]=-",
        "hp": 3000000,
-       "kalkan": 500000,
+       "shield": 500000,
        "damage": 35000,
        "speed": 280,
        "npc_id": 50,
@@ -10903,7 +10903,7 @@
        "name": "Gygerim Overlord",
        "display_name": "-=[ Gygerim Overlord ]=-",
        "hp": 32500000,
-       "kalkan": 30000000,
+       "shield": 30000000,
        "damage": 30000,
        "speed": 0,
        "npc_id": 128,
@@ -10928,8 +10928,8 @@
      ]
     }
    ],
-   "_kaynak": "darkorbitwiki compromising-invasion: 8 ana dalga ve grup değerleri, 100.000 can; ödül 100. elit görevinki",
-   "_uyarlama": "kapı 22. seviyede X-1’de; ödül 122106 (100. elit görev) tarafından verilir; kapı görev etkinken bitirilince görev tamamlanır (kapının kendi ödülü yok: aynı iki tasarım ikinci kez verilirdi; \"bir_kez\" de yok: kapıyı görevi almadan bitiren pilot 122106 için sonsuza kadar takılı kalırdı)",
+   "_source": "darkorbitwiki compromising-invasion: 8 ana dalga ve grup değerleri, 100.000 can; ödül 100. elit görevinki",
+   "_adaptation": "kapı 22. seviyede X-1’de; ödül 122106 (100. elit görev) tarafından verilir; kapı görev etkinken bitirilince görev tamamlanır (kapının kendi ödülü yok: aynı iki tasarım ikinci kez verilirdi; \"bir_kez\" de yok: kapıyı görevi almadan bitiren pilot 122106 için sonsuza kadar takılı kalırdı)",
    "messages": {
     "done": {
      "caps": "key:log_msg_gg_completed_black_light"
@@ -10942,7 +10942,7 @@
    "event": null,
    "entry": "X-1",
    "portal": 83,
-   "can": 2,
+   "hp": 2,
    "rule": {
     "cpu": "ammunition_ggportal_permafrost-fissure-cpu",
     "cpu_hp": 2
@@ -10960,7 +10960,7 @@
        "name": "Sibelonit",
        "display_name": "-=[ Sibelonit ]=-",
        "hp": 40000,
-       "kalkan": 40000,
+       "shield": 40000,
        "damage": 3200,
        "speed": 300,
        "npc_id": 7,
@@ -10985,7 +10985,7 @@
        "name": "Devolarium",
        "display_name": "-=[ Devolarium ]=-",
        "hp": 100000,
-       "kalkan": 100000,
+       "shield": 100000,
        "damage": 1200,
        "speed": 150,
        "npc_id": 3,
@@ -11028,7 +11028,7 @@
        "name": "Sibelonit",
        "display_name": "-=[ Sibelonit ]=-",
        "hp": 40000,
-       "kalkan": 40000,
+       "shield": 40000,
        "damage": 3200,
        "speed": 300,
        "npc_id": 7,
@@ -11053,7 +11053,7 @@
        "name": "Devolarium",
        "display_name": "-=[ Devolarium ]=-",
        "hp": 100000,
-       "kalkan": 100000,
+       "shield": 100000,
        "damage": 1200,
        "speed": 150,
        "npc_id": 3,
@@ -11078,7 +11078,7 @@
        "name": "Boss Devolarium",
        "display_name": "..::{ Boss Devolarium }::..",
        "hp": 400000,
-       "kalkan": 400000,
+       "shield": 400000,
        "damage": 4650,
        "speed": 140,
        "npc_id": 18,
@@ -11126,7 +11126,7 @@
        "name": "Sibelonit",
        "display_name": "-=[ Sibelonit ]=-",
        "hp": 40000,
-       "kalkan": 40000,
+       "shield": 40000,
        "damage": 3200,
        "speed": 300,
        "npc_id": 7,
@@ -11151,7 +11151,7 @@
        "name": "Saboteur",
        "display_name": "-=[ Saboteur ]=-",
        "hp": 200000,
-       "kalkan": 150000,
+       "shield": 150000,
        "damage": 4000,
        "speed": 260,
        "npc_id": 60,
@@ -11176,7 +11176,7 @@
        "name": "Devolarium",
        "display_name": "-=[ Devolarium ]=-",
        "hp": 100000,
-       "kalkan": 100000,
+       "shield": 100000,
        "damage": 1200,
        "speed": 150,
        "npc_id": 3,
@@ -11201,7 +11201,7 @@
        "name": "Boss Devolarium",
        "display_name": "..::{ Boss Devolarium }::..",
        "hp": 400000,
-       "kalkan": 400000,
+       "shield": 400000,
        "damage": 4650,
        "speed": 140,
        "npc_id": 18,
@@ -11253,7 +11253,7 @@
        "name": "Sibelonit",
        "display_name": "-=[ Sibelonit ]=-",
        "hp": 40000,
-       "kalkan": 40000,
+       "shield": 40000,
        "damage": 3200,
        "speed": 300,
        "npc_id": 7,
@@ -11278,7 +11278,7 @@
        "name": "Saboteur",
        "display_name": "-=[ Saboteur ]=-",
        "hp": 200000,
-       "kalkan": 150000,
+       "shield": 150000,
        "damage": 4000,
        "speed": 260,
        "npc_id": 60,
@@ -11303,7 +11303,7 @@
        "name": "Devolarium",
        "display_name": "-=[ Devolarium ]=-",
        "hp": 100000,
-       "kalkan": 100000,
+       "shield": 100000,
        "damage": 1200,
        "speed": 150,
        "npc_id": 3,
@@ -11328,7 +11328,7 @@
        "name": "Uber Devolarium",
        "display_name": "( UberDevolarium )",
        "hp": 800000,
-       "kalkan": 800000,
+       "shield": 800000,
        "damage": 9600,
        "speed": 150,
        "npc_id": 32,
@@ -11380,7 +11380,7 @@
        "name": "Ufonit",
        "display_name": "-=[ Ufonit ]=-",
        "hp": 60000,
-       "kalkan": 50000,
+       "shield": 50000,
        "damage": 1000,
        "speed": 320,
        "npc_id": 26,
@@ -11432,7 +11432,7 @@
           10
          ]
         ],
-        "_kaynak": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
+        "_source": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
        }
       },
       {
@@ -11440,7 +11440,7 @@
        "name": "Lordakium",
        "display_name": "-=[ Lordakium ]=-",
        "hp": 300000,
-       "kalkan": 200000,
+       "shield": 200000,
        "damage": 3600,
        "speed": 200,
        "npc_id": 8,
@@ -11483,7 +11483,7 @@
        "name": "Sibelon",
        "display_name": "-=[ Sibelon ]=-",
        "hp": 200000,
-       "kalkan": 200000,
+       "shield": 200000,
        "damage": 2650,
        "speed": 150,
        "npc_id": 5,
@@ -11508,7 +11508,7 @@
        "name": "Sibelonit",
        "display_name": "-=[ Sibelonit ]=-",
        "hp": 40000,
-       "kalkan": 40000,
+       "shield": 40000,
        "damage": 3200,
        "speed": 300,
        "npc_id": 7,
@@ -11533,7 +11533,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -11579,7 +11579,7 @@
        "name": "Sibelon",
        "display_name": "-=[ Sibelon ]=-",
        "hp": 200000,
-       "kalkan": 200000,
+       "shield": 200000,
        "damage": 2650,
        "speed": 150,
        "npc_id": 5,
@@ -11604,7 +11604,7 @@
        "name": "Sibelonit",
        "display_name": "-=[ Sibelonit ]=-",
        "hp": 40000,
-       "kalkan": 40000,
+       "shield": 40000,
        "damage": 3200,
        "speed": 300,
        "npc_id": 7,
@@ -11629,7 +11629,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -11675,7 +11675,7 @@
        "name": "Sibelon",
        "display_name": "-=[ Sibelon ]=-",
        "hp": 200000,
-       "kalkan": 200000,
+       "shield": 200000,
        "damage": 2650,
        "speed": 150,
        "npc_id": 5,
@@ -11700,7 +11700,7 @@
        "name": "Boss Sibelon",
        "display_name": "..::{ Boss Sibelon }::..",
        "hp": 800000,
-       "kalkan": 800000,
+       "shield": 800000,
        "damage": 12350,
        "speed": 140,
        "npc_id": 20,
@@ -11726,7 +11726,7 @@
        "name": "Sibelonit",
        "display_name": "-=[ Sibelonit ]=-",
        "hp": 40000,
-       "kalkan": 40000,
+       "shield": 40000,
        "damage": 3200,
        "speed": 300,
        "npc_id": 7,
@@ -11751,7 +11751,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -11801,7 +11801,7 @@
        "name": "Sibelon",
        "display_name": "-=[ Sibelon ]=-",
        "hp": 200000,
-       "kalkan": 200000,
+       "shield": 200000,
        "damage": 2650,
        "speed": 150,
        "npc_id": 5,
@@ -11826,7 +11826,7 @@
        "name": "Boss Sibelon",
        "display_name": "..::{ Boss Sibelon }::..",
        "hp": 800000,
-       "kalkan": 800000,
+       "shield": 800000,
        "damage": 12350,
        "speed": 140,
        "npc_id": 20,
@@ -11852,7 +11852,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -11898,7 +11898,7 @@
        "name": "Uber Sibelon",
        "display_name": "( UberSibelon )",
        "hp": 1600000,
-       "kalkan": 1600000,
+       "shield": 1600000,
        "damage": 24000,
        "speed": 150,
        "npc_id": 34,
@@ -11924,7 +11924,7 @@
        "name": "Ufonit",
        "display_name": "-=[ Ufonit ]=-",
        "hp": 60000,
-       "kalkan": 50000,
+       "shield": 50000,
        "damage": 1000,
        "speed": 320,
        "npc_id": 26,
@@ -11976,7 +11976,7 @@
           10
          ]
         ],
-        "_kaynak": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
+        "_source": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
        }
       }
      ],
@@ -12002,7 +12002,7 @@
        "name": "Devolarium",
        "display_name": "-=[ Devolarium ]=-",
        "hp": 100000,
-       "kalkan": 100000,
+       "shield": 100000,
        "damage": 1200,
        "speed": 150,
        "npc_id": 3,
@@ -12027,7 +12027,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -12051,7 +12051,7 @@
        "name": "Saboteur",
        "display_name": "-=[ Saboteur ]=-",
        "hp": 200000,
-       "kalkan": 150000,
+       "shield": 150000,
        "damage": 4000,
        "speed": 260,
        "npc_id": 60,
@@ -12098,7 +12098,7 @@
        "name": "Devolarium",
        "display_name": "-=[ Devolarium ]=-",
        "hp": 100000,
-       "kalkan": 100000,
+       "shield": 100000,
        "damage": 1200,
        "speed": 150,
        "npc_id": 3,
@@ -12123,7 +12123,7 @@
        "name": "Boss Devolarium",
        "display_name": "..::{ Boss Devolarium }::..",
        "hp": 400000,
-       "kalkan": 400000,
+       "shield": 400000,
        "damage": 4650,
        "speed": 140,
        "npc_id": 18,
@@ -12149,7 +12149,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -12195,7 +12195,7 @@
        "name": "Devolarium",
        "display_name": "-=[ Devolarium ]=-",
        "hp": 100000,
-       "kalkan": 100000,
+       "shield": 100000,
        "damage": 1200,
        "speed": 150,
        "npc_id": 3,
@@ -12220,7 +12220,7 @@
        "name": "Boss Devolarium",
        "display_name": "..::{ Boss Devolarium }::..",
        "hp": 400000,
-       "kalkan": 400000,
+       "shield": 400000,
        "damage": 4650,
        "speed": 140,
        "npc_id": 18,
@@ -12246,7 +12246,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -12270,7 +12270,7 @@
        "name": "Saboteur",
        "display_name": "-=[ Saboteur ]=-",
        "hp": 200000,
-       "kalkan": 150000,
+       "shield": 150000,
        "damage": 4000,
        "speed": 260,
        "npc_id": 60,
@@ -12321,7 +12321,7 @@
        "name": "Devolarium",
        "display_name": "-=[ Devolarium ]=-",
        "hp": 100000,
-       "kalkan": 100000,
+       "shield": 100000,
        "damage": 1200,
        "speed": 150,
        "npc_id": 3,
@@ -12346,7 +12346,7 @@
        "name": "Boss Devolarium",
        "display_name": "..::{ Boss Devolarium }::..",
        "hp": 400000,
-       "kalkan": 400000,
+       "shield": 400000,
        "damage": 4650,
        "speed": 140,
        "npc_id": 18,
@@ -12372,7 +12372,7 @@
        "name": "Uber Devolarium",
        "display_name": "( UberDevolarium )",
        "hp": 800000,
-       "kalkan": 800000,
+       "shield": 800000,
        "damage": 9600,
        "speed": 150,
        "npc_id": 32,
@@ -12398,7 +12398,7 @@
        "name": "Saboteur",
        "display_name": "-=[ Saboteur ]=-",
        "hp": 200000,
-       "kalkan": 150000,
+       "shield": 150000,
        "damage": 4000,
        "speed": 260,
        "npc_id": 60,
@@ -12423,7 +12423,7 @@
        "name": "Ufonit",
        "display_name": "-=[ Ufonit ]=-",
        "hp": 60000,
-       "kalkan": 50000,
+       "shield": 50000,
        "damage": 1000,
        "speed": 320,
        "npc_id": 26,
@@ -12475,7 +12475,7 @@
           10
          ]
         ],
-        "_kaynak": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
+        "_source": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
        }
       }
      ],
@@ -12513,7 +12513,7 @@
        "name": "Uber Mordon",
        "display_name": "( UberMordon )",
        "hp": 160000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 3120,
        "speed": 200,
        "npc_id": 30,
@@ -12539,7 +12539,7 @@
        "name": "Saboteur",
        "display_name": "-=[ Saboteur ]=-",
        "hp": 200000,
-       "kalkan": 150000,
+       "shield": 150000,
        "damage": 4000,
        "speed": 260,
        "npc_id": 60,
@@ -12564,7 +12564,7 @@
        "name": "Boss Devolarium",
        "display_name": "..::{ Boss Devolarium }::..",
        "hp": 400000,
-       "kalkan": 400000,
+       "shield": 400000,
        "damage": 4650,
        "speed": 140,
        "npc_id": 18,
@@ -12590,7 +12590,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -12640,7 +12640,7 @@
        "name": "Streuner Rocketeer",
        "display_name": "-=[ Streuner Rocketeer ]=-",
        "hp": 120000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 0,
        "speed": 260,
        "npc_id": 158,
@@ -12658,7 +12658,7 @@
        "name": "Uber Mordon",
        "display_name": "( UberMordon )",
        "hp": 160000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 3120,
        "speed": 200,
        "npc_id": 30,
@@ -12684,7 +12684,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -12708,7 +12708,7 @@
        "name": "Saboteur",
        "display_name": "-=[ Saboteur ]=-",
        "hp": 200000,
-       "kalkan": 150000,
+       "shield": 150000,
        "damage": 4000,
        "speed": 260,
        "npc_id": 60,
@@ -12759,7 +12759,7 @@
        "name": "Uber Mordon",
        "display_name": "( UberMordon )",
        "hp": 160000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 3120,
        "speed": 200,
        "npc_id": 30,
@@ -12785,7 +12785,7 @@
        "name": "Boss Devolarium",
        "display_name": "..::{ Boss Devolarium }::..",
        "hp": 400000,
-       "kalkan": 400000,
+       "shield": 400000,
        "damage": 4650,
        "speed": 140,
        "npc_id": 18,
@@ -12811,7 +12811,7 @@
        "name": "Saboteur",
        "display_name": "-=[ Saboteur ]=-",
        "hp": 200000,
-       "kalkan": 150000,
+       "shield": 150000,
        "damage": 4000,
        "speed": 260,
        "npc_id": 60,
@@ -12836,7 +12836,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -12886,7 +12886,7 @@
        "name": "Streuner Rocketeer",
        "display_name": "-=[ Streuner Rocketeer ]=-",
        "hp": 120000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 0,
        "speed": 260,
        "npc_id": 158,
@@ -12904,7 +12904,7 @@
        "name": "Uber Mordon",
        "display_name": "( UberMordon )",
        "hp": 160000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 3120,
        "speed": 200,
        "npc_id": 30,
@@ -12930,7 +12930,7 @@
        "name": "Boss Devolarium",
        "display_name": "..::{ Boss Devolarium }::..",
        "hp": 400000,
-       "kalkan": 400000,
+       "shield": 400000,
        "damage": 4650,
        "speed": 140,
        "npc_id": 18,
@@ -12956,7 +12956,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -12980,7 +12980,7 @@
        "name": "Saboteur",
        "display_name": "-=[ Saboteur ]=-",
        "hp": 200000,
-       "kalkan": 150000,
+       "shield": 150000,
        "damage": 4000,
        "speed": 260,
        "npc_id": 60,
@@ -13005,7 +13005,7 @@
        "name": "Ufonit",
        "display_name": "-=[ Ufonit ]=-",
        "hp": 60000,
-       "kalkan": 50000,
+       "shield": 50000,
        "damage": 1000,
        "speed": 320,
        "npc_id": 26,
@@ -13057,7 +13057,7 @@
           10
          ]
         ],
-        "_kaynak": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
+        "_source": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
        }
       }
      ],
@@ -13099,7 +13099,7 @@
        "name": "Uber Devolarium",
        "display_name": "( UberDevolarium )",
        "hp": 800000,
-       "kalkan": 800000,
+       "shield": 800000,
        "damage": 9600,
        "speed": 150,
        "npc_id": 32,
@@ -13125,7 +13125,7 @@
        "name": "Sibelon",
        "display_name": "-=[ Sibelon ]=-",
        "hp": 200000,
-       "kalkan": 200000,
+       "shield": 200000,
        "damage": 2650,
        "speed": 150,
        "npc_id": 5,
@@ -13150,7 +13150,7 @@
        "name": "Uber Mordon",
        "display_name": "( UberMordon )",
        "hp": 160000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 3120,
        "speed": 200,
        "npc_id": 30,
@@ -13198,7 +13198,7 @@
        "name": "Boss Sibelon",
        "display_name": "..::{ Boss Sibelon }::..",
        "hp": 800000,
-       "kalkan": 800000,
+       "shield": 800000,
        "damage": 12350,
        "speed": 140,
        "npc_id": 20,
@@ -13224,7 +13224,7 @@
        "name": "Uber Mordon",
        "display_name": "( UberMordon )",
        "hp": 160000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 3120,
        "speed": 200,
        "npc_id": 30,
@@ -13250,7 +13250,7 @@
        "name": "Lordakium",
        "display_name": "-=[ Lordakium ]=-",
        "hp": 300000,
-       "kalkan": 200000,
+       "shield": 200000,
        "damage": 3600,
        "speed": 200,
        "npc_id": 8,
@@ -13275,7 +13275,7 @@
        "name": "Saboteur",
        "display_name": "-=[ Saboteur ]=-",
        "hp": 200000,
-       "kalkan": 150000,
+       "shield": 150000,
        "damage": 4000,
        "speed": 260,
        "npc_id": 60,
@@ -13326,7 +13326,7 @@
        "name": "Boss Sibelon",
        "display_name": "..::{ Boss Sibelon }::..",
        "hp": 800000,
-       "kalkan": 800000,
+       "shield": 800000,
        "damage": 12350,
        "speed": 140,
        "npc_id": 20,
@@ -13352,7 +13352,7 @@
        "name": "Uber Mordon",
        "display_name": "( UberMordon )",
        "hp": 160000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 3120,
        "speed": 200,
        "npc_id": 30,
@@ -13378,7 +13378,7 @@
        "name": "Boss Lordakium",
        "display_name": "..::{ Boss Lordakium }::...",
        "hp": 1200000,
-       "kalkan": 800000,
+       "shield": 800000,
        "damage": 16000,
        "speed": 180,
        "npc_id": 21,
@@ -13404,7 +13404,7 @@
        "name": "Sibelonit",
        "display_name": "-=[ Sibelonit ]=-",
        "hp": 40000,
-       "kalkan": 40000,
+       "shield": 40000,
        "damage": 3200,
        "speed": 300,
        "npc_id": 7,
@@ -13429,7 +13429,7 @@
        "name": "Saboteur",
        "display_name": "-=[ Saboteur ]=-",
        "hp": 200000,
-       "kalkan": 150000,
+       "shield": 150000,
        "damage": 4000,
        "speed": 260,
        "npc_id": 60,
@@ -13484,7 +13484,7 @@
        "name": "Uber Sibelon",
        "display_name": "( UberSibelon )",
        "hp": 1600000,
-       "kalkan": 1600000,
+       "shield": 1600000,
        "damage": 24000,
        "speed": 150,
        "npc_id": 34,
@@ -13510,7 +13510,7 @@
        "name": "Uber Mordon",
        "display_name": "( UberMordon )",
        "hp": 160000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 3120,
        "speed": 200,
        "npc_id": 30,
@@ -13536,7 +13536,7 @@
        "name": "Uber Lordakium",
        "display_name": "( UberLordakium )",
        "hp": 2400000,
-       "kalkan": 1600000,
+       "shield": 1600000,
        "damage": 32000,
        "speed": 180,
        "npc_id": 35,
@@ -13562,7 +13562,7 @@
        "name": "Streuner Rocketeer",
        "display_name": "-=[ Streuner Rocketeer ]=-",
        "hp": 120000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 0,
        "speed": 260,
        "npc_id": 158,
@@ -13580,7 +13580,7 @@
        "name": "Saboteur",
        "display_name": "-=[ Saboteur ]=-",
        "hp": 200000,
-       "kalkan": 150000,
+       "shield": 150000,
        "damage": 4000,
        "speed": 260,
        "npc_id": 60,
@@ -13605,7 +13605,7 @@
        "name": "Sibelonit",
        "display_name": "-=[ Sibelonit ]=-",
        "hp": 40000,
-       "kalkan": 40000,
+       "shield": 40000,
        "damage": 3200,
        "speed": 300,
        "npc_id": 7,
@@ -13630,7 +13630,7 @@
        "name": "Ufonit",
        "display_name": "-=[ Ufonit ]=-",
        "hp": 60000,
-       "kalkan": 50000,
+       "shield": 50000,
        "damage": 1000,
        "speed": 320,
        "npc_id": 26,
@@ -13682,7 +13682,7 @@
           10
          ]
         ],
-        "_kaynak": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
+        "_source": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
        }
       }
      ],
@@ -13728,7 +13728,7 @@
        "name": "Boss Sibelon",
        "display_name": "..::{ Boss Sibelon }::..",
        "hp": 800000,
-       "kalkan": 800000,
+       "shield": 800000,
        "damage": 12350,
        "speed": 140,
        "npc_id": 20,
@@ -13754,7 +13754,7 @@
        "name": "Uber Sibelon",
        "display_name": "( UberSibelon )",
        "hp": 1600000,
-       "kalkan": 1600000,
+       "shield": 1600000,
        "damage": 24000,
        "speed": 150,
        "npc_id": 34,
@@ -13780,7 +13780,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -13826,7 +13826,7 @@
        "name": "Sibelon",
        "display_name": "-=[ Sibelon ]=-",
        "hp": 200000,
-       "kalkan": 200000,
+       "shield": 200000,
        "damage": 2650,
        "speed": 150,
        "npc_id": 5,
@@ -13851,7 +13851,7 @@
        "name": "Boss Sibelon",
        "display_name": "..::{ Boss Sibelon }::..",
        "hp": 800000,
-       "kalkan": 800000,
+       "shield": 800000,
        "damage": 12350,
        "speed": 140,
        "npc_id": 20,
@@ -13877,7 +13877,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -13901,7 +13901,7 @@
        "name": "Ufonit",
        "display_name": "-=[ Ufonit ]=-",
        "hp": 60000,
-       "kalkan": 50000,
+       "shield": 50000,
        "damage": 1000,
        "speed": 320,
        "npc_id": 26,
@@ -13953,7 +13953,7 @@
           10
          ]
         ],
-        "_kaynak": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
+        "_source": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
        }
       }
      ],
@@ -13987,7 +13987,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -14011,7 +14011,7 @@
        "name": "Boss Sibelon",
        "display_name": "..::{ Boss Sibelon }::..",
        "hp": 800000,
-       "kalkan": 800000,
+       "shield": 800000,
        "damage": 12350,
        "speed": 140,
        "npc_id": 20,
@@ -14037,7 +14037,7 @@
        "name": "UFO",
        "display_name": "-=[ UFO ]=-",
        "hp": 10000000,
-       "kalkan": 10000000,
+       "shield": 10000000,
        "damage": 5000,
        "speed": 200,
        "npc_id": 25,
@@ -14089,7 +14089,7 @@
           20
          ]
         ],
-        "_kaynak": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
+        "_source": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
        }
       }
      ],
@@ -14119,7 +14119,7 @@
        "name": "Sibelon",
        "display_name": "-=[ Sibelon ]=-",
        "hp": 200000,
-       "kalkan": 200000,
+       "shield": 200000,
        "damage": 2650,
        "speed": 150,
        "npc_id": 5,
@@ -14144,7 +14144,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -14186,7 +14186,7 @@
        "name": "Boss Sibelon",
        "display_name": "..::{ Boss Sibelon }::..",
        "hp": 800000,
-       "kalkan": 800000,
+       "shield": 800000,
        "damage": 12350,
        "speed": 140,
        "npc_id": 20,
@@ -14212,7 +14212,7 @@
        "name": "Streuner Rocketeer",
        "display_name": "-=[ Streuner Rocketeer ]=-",
        "hp": 120000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 0,
        "speed": 260,
        "npc_id": 158,
@@ -14230,7 +14230,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -14276,7 +14276,7 @@
        "name": "Uber Sibelon",
        "display_name": "( UberSibelon )",
        "hp": 1600000,
-       "kalkan": 1600000,
+       "shield": 1600000,
        "damage": 24000,
        "speed": 150,
        "npc_id": 34,
@@ -14302,7 +14302,7 @@
        "name": "Streuner Rocketeer",
        "display_name": "-=[ Streuner Rocketeer ]=-",
        "hp": 120000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 0,
        "speed": 260,
        "npc_id": 158,
@@ -14320,7 +14320,7 @@
        "name": "Saboteur",
        "display_name": "-=[ Saboteur ]=-",
        "hp": 200000,
-       "kalkan": 150000,
+       "shield": 150000,
        "damage": 4000,
        "speed": 260,
        "npc_id": 60,
@@ -14345,7 +14345,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -14395,7 +14395,7 @@
        "name": "Uber Lordakium",
        "display_name": "( UberLordakium )",
        "hp": 2400000,
-       "kalkan": 1600000,
+       "shield": 1600000,
        "damage": 32000,
        "speed": 180,
        "npc_id": 35,
@@ -14421,7 +14421,7 @@
        "name": "Streuner Rocketeer",
        "display_name": "-=[ Streuner Rocketeer ]=-",
        "hp": 120000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 0,
        "speed": 260,
        "npc_id": 158,
@@ -14439,7 +14439,7 @@
        "name": "Saboteur",
        "display_name": "-=[ Saboteur ]=-",
        "hp": 200000,
-       "kalkan": 150000,
+       "shield": 150000,
        "damage": 4000,
        "speed": 260,
        "npc_id": 60,
@@ -14464,7 +14464,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -14488,7 +14488,7 @@
        "name": "Ufonit",
        "display_name": "-=[ Ufonit ]=-",
        "hp": 60000,
-       "kalkan": 50000,
+       "shield": 50000,
        "damage": 1000,
        "speed": 320,
        "npc_id": 26,
@@ -14540,7 +14540,7 @@
           10
          ]
         ],
-        "_kaynak": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
+        "_source": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
        }
       }
      ],
@@ -14578,7 +14578,7 @@
        "name": "Streuner Rocketeer",
        "display_name": "-=[ Streuner Rocketeer ]=-",
        "hp": 120000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 0,
        "speed": 260,
        "npc_id": 158,
@@ -14596,7 +14596,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -14638,7 +14638,7 @@
        "name": "Streuner Rocketeer",
        "display_name": "-=[ Streuner Rocketeer ]=-",
        "hp": 120000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 0,
        "speed": 260,
        "npc_id": 158,
@@ -14656,7 +14656,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -14698,7 +14698,7 @@
        "name": "Streuner Rocketeer",
        "display_name": "-=[ Streuner Rocketeer ]=-",
        "hp": 120000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 0,
        "speed": 260,
        "npc_id": 158,
@@ -14716,7 +14716,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -14740,7 +14740,7 @@
        "name": "Saboteur",
        "display_name": "-=[ Saboteur ]=-",
        "hp": 200000,
-       "kalkan": 150000,
+       "shield": 150000,
        "damage": 4000,
        "speed": 260,
        "npc_id": 60,
@@ -14787,7 +14787,7 @@
        "name": "Streuner Rocketeer",
        "display_name": "-=[ Streuner Rocketeer ]=-",
        "hp": 120000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 0,
        "speed": 260,
        "npc_id": 158,
@@ -14805,7 +14805,7 @@
        "name": "Saboteur",
        "display_name": "-=[ Saboteur ]=-",
        "hp": 200000,
-       "kalkan": 150000,
+       "shield": 150000,
        "damage": 4000,
        "speed": 260,
        "npc_id": 60,
@@ -14830,7 +14830,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -14854,7 +14854,7 @@
        "name": "Ufonit",
        "display_name": "-=[ Ufonit ]=-",
        "hp": 60000,
-       "kalkan": 50000,
+       "shield": 50000,
        "damage": 1000,
        "speed": 320,
        "npc_id": 26,
@@ -14906,7 +14906,7 @@
           10
          ]
         ],
-        "_kaynak": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
+        "_source": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
        }
       }
      ],
@@ -14940,7 +14940,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -14964,7 +14964,7 @@
        "name": "Sibelonit",
        "display_name": "-=[ Sibelonit ]=-",
        "hp": 40000,
-       "kalkan": 40000,
+       "shield": 40000,
        "damage": 3200,
        "speed": 300,
        "npc_id": 7,
@@ -14989,7 +14989,7 @@
        "name": "Lordakium",
        "display_name": "-=[ Lordakium ]=-",
        "hp": 300000,
-       "kalkan": 200000,
+       "shield": 200000,
        "damage": 3600,
        "speed": 200,
        "npc_id": 8,
@@ -15014,7 +15014,7 @@
        "name": "Streuner Rocketeer",
        "display_name": "-=[ Streuner Rocketeer ]=-",
        "hp": 120000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 0,
        "speed": 260,
        "npc_id": 158,
@@ -15058,7 +15058,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -15082,7 +15082,7 @@
        "name": "Sibelonit",
        "display_name": "-=[ Sibelonit ]=-",
        "hp": 40000,
-       "kalkan": 40000,
+       "shield": 40000,
        "damage": 3200,
        "speed": 300,
        "npc_id": 7,
@@ -15107,7 +15107,7 @@
        "name": "Boss Lordakium",
        "display_name": "..::{ Boss Lordakium }::...",
        "hp": 1200000,
-       "kalkan": 800000,
+       "shield": 800000,
        "damage": 16000,
        "speed": 180,
        "npc_id": 21,
@@ -15155,7 +15155,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -15179,7 +15179,7 @@
        "name": "Sibelonit",
        "display_name": "-=[ Sibelonit ]=-",
        "hp": 40000,
-       "kalkan": 40000,
+       "shield": 40000,
        "damage": 3200,
        "speed": 300,
        "npc_id": 7,
@@ -15204,7 +15204,7 @@
        "name": "Uber Lordakium",
        "display_name": "( UberLordakium )",
        "hp": 2400000,
-       "kalkan": 1600000,
+       "shield": 1600000,
        "damage": 32000,
        "speed": 180,
        "npc_id": 35,
@@ -15230,7 +15230,7 @@
        "name": "Streuner Rocketeer",
        "display_name": "-=[ Streuner Rocketeer ]=-",
        "hp": 120000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 0,
        "speed": 260,
        "npc_id": 158,
@@ -15274,7 +15274,7 @@
        "name": "Ufonit",
        "display_name": "-=[ Ufonit ]=-",
        "hp": 60000,
-       "kalkan": 50000,
+       "shield": 50000,
        "damage": 1000,
        "speed": 320,
        "npc_id": 26,
@@ -15326,7 +15326,7 @@
           10
          ]
         ],
-        "_kaynak": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
+        "_source": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
        }
       },
       {
@@ -15334,7 +15334,7 @@
        "name": "Streuner Rocketeer",
        "display_name": "-=[ Streuner Rocketeer ]=-",
        "hp": 120000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 0,
        "speed": 260,
        "npc_id": 158,
@@ -15370,7 +15370,7 @@
        "name": "Sibelonit",
        "display_name": "-=[ Sibelonit ]=-",
        "hp": 40000,
-       "kalkan": 40000,
+       "shield": 40000,
        "damage": 3200,
        "speed": 300,
        "npc_id": 7,
@@ -15395,7 +15395,7 @@
        "name": "Streuner Rocketeer",
        "display_name": "-=[ Streuner Rocketeer ]=-",
        "hp": 120000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 0,
        "speed": 260,
        "npc_id": 158,
@@ -15431,7 +15431,7 @@
        "name": "Streuner Rocketeer",
        "display_name": "-=[ Streuner Rocketeer ]=-",
        "hp": 120000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 0,
        "speed": 260,
        "npc_id": 158,
@@ -15449,7 +15449,7 @@
        "name": "Sibelonit",
        "display_name": "-=[ Sibelonit ]=-",
        "hp": 40000,
-       "kalkan": 40000,
+       "shield": 40000,
        "damage": 3200,
        "speed": 300,
        "npc_id": 7,
@@ -15492,7 +15492,7 @@
        "name": "Saboteur",
        "display_name": "-=[ Saboteur ]=-",
        "hp": 200000,
-       "kalkan": 150000,
+       "shield": 150000,
        "damage": 4000,
        "speed": 260,
        "npc_id": 60,
@@ -15517,7 +15517,7 @@
        "name": "Lordakium",
        "display_name": "-=[ Lordakium ]=-",
        "hp": 300000,
-       "kalkan": 200000,
+       "shield": 200000,
        "damage": 3600,
        "speed": 200,
        "npc_id": 8,
@@ -15542,7 +15542,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -15588,7 +15588,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -15612,7 +15612,7 @@
        "name": "Ufonit",
        "display_name": "-=[ Ufonit ]=-",
        "hp": 60000,
-       "kalkan": 50000,
+       "shield": 50000,
        "damage": 1000,
        "speed": 320,
        "npc_id": 26,
@@ -15664,7 +15664,7 @@
           10
          ]
         ],
-        "_kaynak": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
+        "_source": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
        }
       },
       {
@@ -15672,7 +15672,7 @@
        "name": "Streuner Rocketeer",
        "display_name": "-=[ Streuner Rocketeer ]=-",
        "hp": 120000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 0,
        "speed": 260,
        "npc_id": 158,
@@ -15712,7 +15712,7 @@
        "name": "Saboteur",
        "display_name": "-=[ Saboteur ]=-",
        "hp": 200000,
-       "kalkan": 150000,
+       "shield": 150000,
        "damage": 4000,
        "speed": 260,
        "npc_id": 60,
@@ -15737,7 +15737,7 @@
        "name": "Lordakium",
        "display_name": "-=[ Lordakium ]=-",
        "hp": 300000,
-       "kalkan": 200000,
+       "shield": 200000,
        "damage": 3600,
        "speed": 200,
        "npc_id": 8,
@@ -15762,7 +15762,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -15786,7 +15786,7 @@
        "name": "Streuner Rocketeer",
        "display_name": "-=[ Streuner Rocketeer ]=-",
        "hp": 120000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 0,
        "speed": 260,
        "npc_id": 158,
@@ -15830,7 +15830,7 @@
        "name": "Saboteur",
        "display_name": "-=[ Saboteur ]=-",
        "hp": 200000,
-       "kalkan": 150000,
+       "shield": 150000,
        "damage": 4000,
        "speed": 260,
        "npc_id": 60,
@@ -15855,7 +15855,7 @@
        "name": "Boss Lordakium",
        "display_name": "..::{ Boss Lordakium }::...",
        "hp": 1200000,
-       "kalkan": 800000,
+       "shield": 800000,
        "damage": 16000,
        "speed": 180,
        "npc_id": 21,
@@ -15881,7 +15881,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -15905,7 +15905,7 @@
        "name": "Streuner Rocketeer",
        "display_name": "-=[ Streuner Rocketeer ]=-",
        "hp": 120000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 0,
        "speed": 260,
        "npc_id": 158,
@@ -15949,7 +15949,7 @@
        "name": "UFO",
        "display_name": "-=[ UFO ]=-",
        "hp": 10000000,
-       "kalkan": 10000000,
+       "shield": 10000000,
        "damage": 5000,
        "speed": 200,
        "npc_id": 25,
@@ -16001,7 +16001,7 @@
           20
          ]
         ],
-        "_kaynak": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
+        "_source": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
        }
       },
       {
@@ -16009,7 +16009,7 @@
        "name": "Sibelonit",
        "display_name": "-=[ Sibelonit ]=-",
        "hp": 40000,
-       "kalkan": 40000,
+       "shield": 40000,
        "damage": 3200,
        "speed": 300,
        "npc_id": 7,
@@ -16034,7 +16034,7 @@
        "name": "Streuner Rocketeer",
        "display_name": "-=[ Streuner Rocketeer ]=-",
        "hp": 120000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 0,
        "speed": 260,
        "npc_id": 158,
@@ -16074,7 +16074,7 @@
        "name": "Streuner Rocketeer",
        "display_name": "-=[ Streuner Rocketeer ]=-",
        "hp": 120000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 0,
        "speed": 260,
        "npc_id": 158,
@@ -16143,8 +16143,8 @@
      ]
     ]
    },
-   "_kaynak": "fandom Permafrost Fissure (belgeler/wiki/etkinlikler/permafrost_fissure.json): 10 haritadaki 45 dalga, UFO ve Ufonit kutuları, bitiş ödülleri; istemci metni: Subglacial CPU kapıyı HQ yakınında açar, açıksa 2 can ekler",
-   "_uyarlama": "istemcide tek harita (228): 10 harita bölümü art arda aynı haritada; can, portal tasarımı ve X-1 girişi kaynaksız; aynı dalgadaki uzaylıların hepsi birlikte doğar (wiki \"Spawn Group\"); Sibelon, Devolarium … sunucunun kendi NPC türleri",
+   "_source": "fandom Permafrost Fissure (belgeler/wiki/etkinlikler/permafrost_fissure.json): 10 haritadaki 45 dalga, UFO ve Ufonit kutuları, bitiş ödülleri; istemci metni: Subglacial CPU kapıyı HQ yakınında açar, açıksa 2 can ekler",
+   "_adaptation": "istemcide tek harita (228): 10 harita bölümü art arda aynı haritada; can, portal tasarımı ve X-1 girişi kaynaksız; aynı dalgadaki uzaylıların hepsi birlikte doğar (wiki \"Spawn Group\"); Sibelon, Devolarium … sunucunun kendi NPC türleri",
    "messages": {
     "done": {
      "caps": "key:log_msg_gg_completed_permafrost_fissure"
@@ -16158,7 +16158,7 @@
    "gate_kind": "COLDWAVE_EASY",
    "entry": "X-1",
    "portal": 77,
-   "can": 20,
+   "hp": 20,
    "rule": {
     "period": [
      [
@@ -16180,7 +16180,7 @@
        "name": "Icy",
        "display_name": "Icy",
        "hp": 20000,
-       "kalkan": 16000,
+       "shield": 16000,
        "damage": 400,
        "speed": 320,
        "npc_id": 56,
@@ -16205,7 +16205,7 @@
        "name": "Ice Meteoroid",
        "display_name": "Ice Meteoroid",
        "hp": 320000,
-       "kalkan": 240000,
+       "shield": 240000,
        "damage": 0,
        "speed": 40,
        "npc_id": 54,
@@ -16250,7 +16250,7 @@
        "name": "Icy",
        "display_name": "Icy",
        "hp": 20000,
-       "kalkan": 16000,
+       "shield": 16000,
        "damage": 400,
        "speed": 320,
        "npc_id": 56,
@@ -16275,7 +16275,7 @@
        "name": "Super Ice Meteoroid",
        "display_name": "Super Ice Meteoroid",
        "hp": 640000,
-       "kalkan": 480000,
+       "shield": 480000,
        "damage": 0,
        "speed": 40,
        "npc_id": 55,
@@ -16302,7 +16302,7 @@
        "name": "Ice Meteoroid",
        "display_name": "Ice Meteoroid",
        "hp": 320000,
-       "kalkan": 240000,
+       "shield": 240000,
        "damage": 0,
        "speed": 40,
        "npc_id": 54,
@@ -16351,7 +16351,7 @@
        "name": "Skoll",
        "display_name": "..::{ Skoll }::..",
        "hp": 3000000,
-       "kalkan": 3000000,
+       "shield": 3000000,
        "damage": 4000,
        "speed": 300,
        "npc_id": 280,
@@ -16369,7 +16369,7 @@
        "name": "Ice Meteoroid",
        "display_name": "Ice Meteoroid",
        "hp": 320000,
-       "kalkan": 240000,
+       "shield": 240000,
        "damage": 0,
        "speed": 40,
        "npc_id": 54,
@@ -16396,7 +16396,7 @@
        "name": "Super Ice Meteoroid",
        "display_name": "Super Ice Meteoroid",
        "hp": 640000,
-       "kalkan": 480000,
+       "shield": 480000,
        "damage": 0,
        "speed": 40,
        "npc_id": 55,
@@ -16456,8 +16456,8 @@
      ]
     ]
    },
-   "_kaynak": "fandom Winter events \"Cold Wave 2014\" (belgeler/wiki/etkinlikler/cold_wave_2014.json): 3 dalga, 20 can, Easy 1/5, iki ödül tablosu; istemci haritaları 77 (Easy) ve 78 (Hard), tamamlama metinleri log_msg_gg_completed_coldwave_easy/hard",
-   "_uyarlama": "Kronos Gate parçası verilmez (sunucunun 21 parçalık Kronos tablosu sekiz kapıdan; Cold Wave onlardan değil, Easy’de miktar wiki’de bozuk); uzaylı değerleri sunucunun etkinlik NPC’leri ve Skoll (wiki can/hasar vermiyor); portal tasarımı 77/78 (harita numaralarıyla aynı, tahmin); kış etkinliği (kis) penceresinde",
+   "_source": "fandom Winter events \"Cold Wave 2014\" (belgeler/wiki/etkinlikler/cold_wave_2014.json): 3 dalga, 20 can, Easy 1/5, iki ödül tablosu; istemci haritaları 77 (Easy) ve 78 (Hard), tamamlama metinleri log_msg_gg_completed_coldwave_easy/hard",
+   "_adaptation": "Kronos Gate parçası verilmez (sunucunun 21 parçalık Kronos tablosu sekiz kapıdan; Cold Wave onlardan değil, Easy’de miktar wiki’de bozuk); uzaylı değerleri sunucunun etkinlik NPC’leri ve Skoll (wiki can/hasar vermiyor); portal tasarımı 77/78 (harita numaralarıyla aynı, tahmin); kış etkinliği (kis) penceresinde",
    "messages": {
     "done": {
      "caps": "key:log_msg_gg_completed_coldwave_easy"
@@ -16471,7 +16471,7 @@
    "gate_kind": "COLDWAVE_HARD",
    "entry": "X-1",
    "portal": 78,
-   "can": 20,
+   "hp": 20,
    "rule": {
     "period": [
      [
@@ -16494,7 +16494,7 @@
        "name": "Icy",
        "display_name": "Icy",
        "hp": 100000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 2000,
        "speed": 320,
        "npc_id": 56,
@@ -16519,7 +16519,7 @@
        "name": "Ice Meteoroid",
        "display_name": "Ice Meteoroid",
        "hp": 1600000,
-       "kalkan": 1200000,
+       "shield": 1200000,
        "damage": 0,
        "speed": 40,
        "npc_id": 54,
@@ -16564,7 +16564,7 @@
        "name": "Icy",
        "display_name": "Icy",
        "hp": 100000,
-       "kalkan": 80000,
+       "shield": 80000,
        "damage": 2000,
        "speed": 320,
        "npc_id": 56,
@@ -16589,7 +16589,7 @@
        "name": "Super Ice Meteoroid",
        "display_name": "Super Ice Meteoroid",
        "hp": 3200000,
-       "kalkan": 2400000,
+       "shield": 2400000,
        "damage": 0,
        "speed": 40,
        "npc_id": 55,
@@ -16616,7 +16616,7 @@
        "name": "Ice Meteoroid",
        "display_name": "Ice Meteoroid",
        "hp": 1600000,
-       "kalkan": 1200000,
+       "shield": 1200000,
        "damage": 0,
        "speed": 40,
        "npc_id": 54,
@@ -16665,7 +16665,7 @@
        "name": "Skoll",
        "display_name": "..::{ Skoll }::..",
        "hp": 15000000,
-       "kalkan": 15000000,
+       "shield": 15000000,
        "damage": 20000,
        "speed": 300,
        "npc_id": 280,
@@ -16683,7 +16683,7 @@
        "name": "Ice Meteoroid",
        "display_name": "Ice Meteoroid",
        "hp": 1600000,
-       "kalkan": 1200000,
+       "shield": 1200000,
        "damage": 0,
        "speed": 40,
        "npc_id": 54,
@@ -16710,7 +16710,7 @@
        "name": "Super Ice Meteoroid",
        "display_name": "Super Ice Meteoroid",
        "hp": 3200000,
-       "kalkan": 2400000,
+       "shield": 2400000,
        "damage": 0,
        "speed": 40,
        "npc_id": 55,
@@ -16774,8 +16774,8 @@
      ]
     ]
    },
-   "_kaynak": "fandom Winter events \"Cold Wave 2014\" (belgeler/wiki/etkinlikler/cold_wave_2014.json): 3 dalga, 20 can, Easy 1/5, iki ödül tablosu; istemci haritaları 77 (Easy) ve 78 (Hard), tamamlama metinleri log_msg_gg_completed_coldwave_easy/hard",
-   "_uyarlama": "Kronos Gate parçası verilmez (sunucunun 21 parçalık Kronos tablosu sekiz kapıdan; Cold Wave onlardan değil, Easy’de miktar wiki’de bozuk); uzaylı değerleri sunucunun etkinlik NPC’leri ve Skoll (wiki can/hasar vermiyor); portal tasarımı 77/78 (harita numaralarıyla aynı, tahmin); kış etkinliği (kis) penceresinde",
+   "_source": "fandom Winter events \"Cold Wave 2014\" (belgeler/wiki/etkinlikler/cold_wave_2014.json): 3 dalga, 20 can, Easy 1/5, iki ödül tablosu; istemci haritaları 77 (Easy) ve 78 (Hard), tamamlama metinleri log_msg_gg_completed_coldwave_easy/hard",
+   "_adaptation": "Kronos Gate parçası verilmez (sunucunun 21 parçalık Kronos tablosu sekiz kapıdan; Cold Wave onlardan değil, Easy’de miktar wiki’de bozuk); uzaylı değerleri sunucunun etkinlik NPC’leri ve Skoll (wiki can/hasar vermiyor); portal tasarımı 77/78 (harita numaralarıyla aynı, tahmin); kış etkinliği (kis) penceresinde",
    "messages": {
     "done": {
      "caps": "key:log_msg_gg_completed_coldwave_hard"
@@ -16789,7 +16789,7 @@
    "gate_kind": "STARTER_GATE",
    "entry": "X-1",
    "portal": 2,
-   "can": 3,
+   "hp": 3,
    "rule": {
     "quest": 20012
    },
@@ -16806,7 +16806,7 @@
        "name": "Streuner",
        "display_name": "-=[ Streuner ]=-",
        "hp": 800,
-       "kalkan": 400,
+       "shield": 400,
        "damage": 20,
        "speed": 172,
        "npc_id": 1,
@@ -16827,7 +16827,7 @@
        "name": "Boss Streuner",
        "display_name": "..::{ Boss Streuner }::..",
        "hp": 3200,
-       "kalkan": 1600,
+       "shield": 1600,
        "damage": 100,
        "speed": 220,
        "npc_id": 14,
@@ -16867,7 +16867,7 @@
        "name": "Lordakia",
        "display_name": "-=[ Lordakia ]=-",
        "hp": 2000,
-       "kalkan": 2000,
+       "shield": 2000,
        "damage": 80,
        "speed": 242,
        "npc_id": 2,
@@ -16889,7 +16889,7 @@
        "name": "Boss Lordakia",
        "display_name": "..::{ Boss Lordakia }::..",
        "hp": 8000,
-       "kalkan": 8000,
+       "shield": 8000,
        "damage": 320,
        "speed": 240,
        "npc_id": 15,
@@ -16913,7 +16913,7 @@
        "name": "Boss Saimon",
        "display_name": "..::{ Boss Saimon }::..",
        "hp": 24000,
-       "kalkan": 12000,
+       "shield": 12000,
        "damage": 800,
        "speed": 250,
        "npc_id": 17,
@@ -16961,7 +16961,7 @@
        "name": "Saimon",
        "display_name": "-=[ Saimon ]=-",
        "hp": 6000,
-       "kalkan": 6000,
+       "shield": 6000,
        "damage": 200,
        "speed": 280,
        "npc_id": 6,
@@ -16985,7 +16985,7 @@
        "name": "Mordon",
        "display_name": "-=[ Mordon ]=-",
        "hp": 20000,
-       "kalkan": 10000,
+       "shield": 10000,
        "damage": 390,
        "speed": 200,
        "npc_id": 4,
@@ -17028,7 +17028,7 @@
        "name": "Boss Saimon",
        "display_name": "..::{ Boss Saimon }::..",
        "hp": 24000,
-       "kalkan": 12000,
+       "shield": 12000,
        "damage": 800,
        "speed": 250,
        "npc_id": 17,
@@ -17054,7 +17054,7 @@
        "name": "Devolarium",
        "display_name": "-=[ Devolarium ]=-",
        "hp": 50000,
-       "kalkan": 0,
+       "shield": 0,
        "damage": 1000,
        "speed": 150,
        "npc_id": 3,
@@ -17120,8 +17120,8 @@
      ]
     ]
    },
-   "_kaynak": "fandom Devolarium Attack ve Preemptive Strike Force (belgeler/wiki/etkinlikler/devolarium_attack.json): 4 dalga (hepsi x1, son Devolarium yarım canlı ve kalkansız), ödül; yalnız \"Preemptive Strike Force\" (20012) görevi sürerken; istemci haritası 223",
-   "_uyarlama": "can ve portal tasarımı kaynaksız; wiki’deki \"her gemide 100.000+ can\" kapıya özgü bir kural değil (gemilerin genel canı), oyuncuya buff verilmez",
+   "_source": "fandom Devolarium Attack ve Preemptive Strike Force (belgeler/wiki/etkinlikler/devolarium_attack.json): 4 dalga (hepsi x1, son Devolarium yarım canlı ve kalkansız), ödül; yalnız \"Preemptive Strike Force\" (20012) görevi sürerken; istemci haritası 223",
+   "_adaptation": "can ve portal tasarımı kaynaksız; wiki’deki \"her gemide 100.000+ can\" kapıya özgü bir kural değil (gemilerin genel canı), oyuncuya buff verilmez",
    "messages": {
     "done": {
      "caps": "key:galaxy_gate_starter_done"
@@ -17158,7 +17158,7 @@
         4
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         439,
         "BR",
@@ -17196,7 +17196,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         440,
         "TR",
@@ -17238,7 +17238,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         444,
         "TL",
@@ -17280,7 +17280,7 @@
         1
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         432,
         "BR",
@@ -17323,7 +17323,7 @@
         4
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         434,
         "BL",
@@ -17361,7 +17361,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         433,
         "TR",
@@ -17403,7 +17403,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         430,
         "TR",
@@ -17445,7 +17445,7 @@
         1
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         436,
         "TL",
@@ -17488,7 +17488,7 @@
         4
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         433,
         "BL",
@@ -17526,7 +17526,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         435,
         "TL",
@@ -17568,7 +17568,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         445,
         "TL",
@@ -17610,7 +17610,7 @@
         1
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         430,
         "BR",
@@ -17653,7 +17653,7 @@
         4
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         438,
         "BR",
@@ -17691,7 +17691,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         430,
         "BL",
@@ -17733,7 +17733,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         440,
         "TL",
@@ -17775,7 +17775,7 @@
         1
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         435,
         "BL",
@@ -17818,7 +17818,7 @@
         4
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         444,
         "TR",
@@ -17856,7 +17856,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         443,
         "TL",
@@ -17898,7 +17898,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         438,
         "TR",
@@ -17940,7 +17940,7 @@
         1
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         440,
         "TR",
@@ -17983,7 +17983,7 @@
         4
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         432,
         "TR",
@@ -18021,7 +18021,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         436,
         "TL",
@@ -18063,7 +18063,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         439,
         "BR",
@@ -18105,7 +18105,7 @@
         1
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         438,
         "BR",
@@ -18148,7 +18148,7 @@
         4
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         443,
         "BR",
@@ -18186,7 +18186,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         437,
         "TR",
@@ -18228,7 +18228,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         445,
         "BL",
@@ -18270,7 +18270,7 @@
         1
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         438,
         "TL",
@@ -18313,7 +18313,7 @@
         4
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         439,
         "TL",
@@ -18351,7 +18351,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         439,
         "TR",
@@ -18393,7 +18393,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         430,
         "BL",
@@ -18435,7 +18435,7 @@
         1
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         438,
         "TR",
@@ -18478,7 +18478,7 @@
         4
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         441,
         "BR",
@@ -18516,7 +18516,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         437,
         "TL",
@@ -18558,7 +18558,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         430,
         "TR",
@@ -18600,7 +18600,7 @@
         1
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         433,
         "TL",
@@ -18643,7 +18643,7 @@
         4
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         439,
         "BL",
@@ -18681,7 +18681,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         437,
         "TR",
@@ -18723,7 +18723,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         434,
         "TR",
@@ -18765,7 +18765,7 @@
         1
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         435,
         "BL",
@@ -18808,7 +18808,7 @@
         4
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         440,
         "TR",
@@ -18846,7 +18846,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         431,
         "BL",
@@ -18888,7 +18888,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         437,
         "BL",
@@ -18930,7 +18930,7 @@
         1
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         434,
         "BR",
@@ -18973,7 +18973,7 @@
         4
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         436,
         "TR",
@@ -19011,7 +19011,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         445,
         "BL",
@@ -19053,7 +19053,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         439,
         "BR",
@@ -19095,7 +19095,7 @@
         1
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         438,
         "TL",
@@ -19138,7 +19138,7 @@
         4
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         431,
         "TR",
@@ -19176,7 +19176,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         440,
         "TL",
@@ -19218,7 +19218,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         435,
         "TL",
@@ -19260,7 +19260,7 @@
         1
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         441,
         "TR",
@@ -19303,7 +19303,7 @@
         4
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         434,
         "TR",
@@ -19341,7 +19341,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         441,
         "BL",
@@ -19383,7 +19383,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         440,
         "BR",
@@ -19425,7 +19425,7 @@
         1
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         442,
         "TL",
@@ -19468,7 +19468,7 @@
         4
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         441,
         "BR",
@@ -19506,7 +19506,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         445,
         "BR",
@@ -19548,7 +19548,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         431,
         "TR",
@@ -19590,7 +19590,7 @@
         1
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         433,
         "TL",
@@ -19633,7 +19633,7 @@
         4
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         437,
         "TL",
@@ -19671,7 +19671,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         440,
         "BL",
@@ -19713,7 +19713,7 @@
         2
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         442,
         "TR",
@@ -19755,7 +19755,7 @@
         1
        ]
       ],
-      "kapilar": {
+      "gates": {
        "TL": [
         440,
         "BR",
@@ -19787,7 +19787,7 @@
     "name": "Frozen Icy",
     "display_name": "-=[ Frozen Icy ]=-",
     "hp": 25000,
-    "kalkan": 12500,
+    "shield": 12500,
     "damage": 500,
     "speed": 400,
     "npc_id": 221,
@@ -19806,7 +19806,7 @@
      "6": 1
     },
     "count": 1,
-    "anahtar": [
+    "key": [
      0.05,
      1
     ]
@@ -19816,7 +19816,7 @@
     "name": "Frozen Kristallin",
     "display_name": "-=[ Frozen Kristallin ]=-",
     "hp": 62500,
-    "kalkan": 50000,
+    "shield": 50000,
     "damage": 1500,
     "speed": 300,
     "npc_id": 222,
@@ -19835,7 +19835,7 @@
      "6": 1
     },
     "count": 1,
-    "anahtar": [
+    "key": [
      0.1,
      1
     ]
@@ -19845,7 +19845,7 @@
     "name": "Frozen Kristallon",
     "display_name": "-=[ Frozen Kristallon ]=-",
     "hp": 125000,
-    "kalkan": 125000,
+    "shield": 125000,
     "damage": 2500,
     "speed": 250,
     "npc_id": 223,
@@ -19863,7 +19863,7 @@
      "5": 40
     },
     "count": 1,
-    "anahtar": [
+    "key": [
      0.2,
      1
     ]
@@ -19873,7 +19873,7 @@
     "name": "Frozen Boss Kristallin",
     "display_name": "-=[ Frozen Boss Kristallin ]=-",
     "hp": 250000,
-    "kalkan": 225000,
+    "shield": 225000,
     "damage": 6000,
     "speed": 280,
     "npc_id": 224,
@@ -19893,7 +19893,7 @@
      "3": 8
     },
     "count": 1,
-    "anahtar": [
+    "key": [
      0.3,
      1
     ],
@@ -19913,7 +19913,7 @@
     "name": "Frozen Boss Kristallon",
     "display_name": "-=[ Frozen Boss Kristallon ]=-",
     "hp": 500000,
-    "kalkan": 500000,
+    "shield": 500000,
     "damage": 6000,
     "speed": 220,
     "npc_id": 225,
@@ -19933,7 +19933,7 @@
      "3": 20
     },
     "count": 1,
-    "anahtar": [
+    "key": [
      0.4,
      1
     ],
@@ -19953,7 +19953,7 @@
     "name": "Frozen Meteoroid",
     "display_name": "-=[ Frozen Meteoroid ]=-",
     "hp": 2000000,
-    "kalkan": 1500000,
+    "shield": 1500000,
     "damage": 6500,
     "speed": 40,
     "npc_id": 226,
@@ -19973,7 +19973,7 @@
      "3": 256
     },
     "count": 1,
-    "anahtar": [
+    "key": [
      0.5,
      2
     ],
@@ -19999,7 +19999,7 @@
     "name": "Frozen Super Meteoroid",
     "display_name": "-=[ Frozen Super Meteoroid ]=-",
     "hp": 7000000,
-    "kalkan": 3000000,
+    "shield": 3000000,
     "damage": 8500,
     "speed": 40,
     "npc_id": 227,
@@ -20019,7 +20019,7 @@
      "3": 1024
     },
     "count": 1,
-    "anahtar": [
+    "key": [
      0.8,
      2
     ],
@@ -20045,7 +20045,7 @@
     "name": "Skoll",
     "display_name": "..::{ Skoll }::..",
     "hp": 15000000,
-    "kalkan": 15000000,
+    "shield": 15000000,
     "damage": 20000,
     "speed": 300,
     "npc_id": 280,
@@ -20057,7 +20057,7 @@
     },
     "cargo": {},
     "count": 1,
-    "anahtar": [
+    "key": [
      1.0,
      3
     ],
@@ -20087,7 +20087,7 @@
     "name": "Synk",
     "display_name": "-=[ Synk ]=-",
     "hp": 10000,
-    "kalkan": 0,
+    "shield": 0,
     "damage": 0,
     "speed": 480,
     "npc_id": 228,
@@ -20104,7 +20104,7 @@
      "type": "FROZEN_LABYRINTH_BOX",
      "probability": 1.0,
      "lifetime_sec": 900,
-     "mod": "hepsi",
+     "mod": "all",
      "contents": [
       [
        "ship_holo_design_holo-frost",
@@ -20141,7 +20141,7 @@
        100
       ]
      ],
-     "_kaynak": "wiki ve resmî Türk forumu 158403: Synk ödül kutusu (BDR-1212 500-1.000 ve BDR-1211 1.000-2.000; unvan başarımla)"
+     "_source": "wiki ve resmî Türk forumu 158403: Synk ödül kutusu (BDR-1212 500-1.000 ve BDR-1211 1.000-2.000; unvan başarımla)"
     }
    },
    "lab_iceterion": {
@@ -20149,7 +20149,7 @@
     "name": "Iceterion",
     "display_name": "-=[ Iceterion ]=-",
     "hp": 1000000,
-    "kalkan": 0,
+    "shield": 0,
     "damage": 0,
     "speed": 120,
     "npc_id": 228,
@@ -20173,7 +20173,7 @@
       600
      ]
     },
-    "_uyarlama": "IceMine istemcide ayrı eşya değil: yavaşlatan mayın (SLM-01) görünümü; aralık, sayı ve menzil uyarlama"
+    "_adaptation": "IceMine istemcide ayrı eşya değil: yavaşlatan mayın (SLM-01) görünümü; aralık, sayı ve menzil uyarlama"
    }
   },
   "key_cost": 1,
@@ -20225,8 +20225,8 @@
     23
    ]
   ],
-  "_kaynak": "wiki (bölgeler, uzaylılar, anahtar olasılıkları, Skoll, Synk ödülü), fandom 2019 kapı tablosu (bölge köşe kapıları; 2020 tablosu da belgede), istemci FrozenLabyrinth* komutları",
-  "_uyarlama": "nüfus (kaynak yalnız meteorları sayıyor), Skoll her 5 dakikada %35 olasılıkla bulunulan haritada, Synk 5-10 dakikada rastgele harita ve bölgede; açık saatler tek oyunculuda bütün gün; Iceterion yok (değeri bilinmiyor)"
+  "_source": "wiki (bölgeler, uzaylılar, anahtar olasılıkları, Skoll, Synk ödülü), fandom 2019 kapı tablosu (bölge köşe kapıları; 2020 tablosu da belgede), istemci FrozenLabyrinth* komutları",
+  "_adaptation": "nüfus (kaynak yalnız meteorları sayıyor), Skoll her 5 dakikada %35 olasılıkla bulunulan haritada, Synk 5-10 dakikada rastgele harita ve bölgede; açık saatler tek oyunculuda bütün gün; Iceterion yok (değeri bilinmiyor)"
  },
  "experiment": {
   "event": "plutus",
@@ -20239,7 +20239,7 @@
    "model": "267",
    "npc_id": 220,
    "hp": 2000000000,
-   "kalkan": 0,
+   "shield": 0,
    "damage": 0,
    "speed": 0,
    "aggressive": false,
@@ -20258,7 +20258,7 @@
       "name": "Saimon Aberration",
       "display_name": "-=[ Saimon Aberration ]=-",
       "hp": 2400000,
-      "kalkan": 2400000,
+      "shield": 2400000,
       "damage": 250,
       "speed": 280,
       "npc_id": 200,
@@ -20283,7 +20283,7 @@
       "name": "Boss Saimon Aberration",
       "display_name": "..::{ Boss Saimon Aberration }::..",
       "hp": 6000000,
-      "kalkan": 6000000,
+      "shield": 6000000,
       "damage": 1000,
       "speed": 250,
       "npc_id": 201,
@@ -20310,7 +20310,7 @@
       "name": "Mordon Aberration",
       "display_name": "-=[ Mordon Aberration ]=-",
       "hp": 7000000,
-      "kalkan": 7000000,
+      "shield": 7000000,
       "damage": 488,
       "speed": 200,
       "npc_id": 202,
@@ -20336,7 +20336,7 @@
       "name": "Boss Mordon Aberration",
       "display_name": "..::{ Boss Mordon Aberration }::..",
       "hp": 12000000,
-      "kalkan": 12000000,
+      "shield": 12000000,
       "damage": 1875,
       "speed": 180,
       "npc_id": 203,
@@ -20363,7 +20363,7 @@
       "name": "Devolarium Aberration",
       "display_name": "-=[ Devolarium Aberration ]=-",
       "hp": 18000000,
-      "kalkan": 18000000,
+      "shield": 18000000,
       "damage": 1500,
       "speed": 150,
       "npc_id": 204,
@@ -20621,7 +20621,7 @@
       "name": "Kristallin Oddity",
       "display_name": "-=[ Kristallin Oddity ]=-",
       "hp": 12000000,
-      "kalkan": 12000000,
+      "shield": 12000000,
       "damage": 2062,
       "speed": 300,
       "npc_id": 205,
@@ -20647,7 +20647,7 @@
       "name": "Boss Kristallin Oddity",
       "display_name": "..::{ Boss Kristallin Oddity }::..",
       "hp": 24000000,
-      "kalkan": 24000000,
+      "shield": 24000000,
       "damage": 5875,
       "speed": 280,
       "npc_id": 206,
@@ -20674,7 +20674,7 @@
       "name": "Kristallon Oddity",
       "display_name": "-=[ Kristallon Oddity ]=-",
       "hp": 36000000,
-      "kalkan": 36000000,
+      "shield": 36000000,
       "damage": 5562,
       "speed": 200,
       "npc_id": 207,
@@ -20700,7 +20700,7 @@
       "name": "Boss Kristallon Oddity",
       "display_name": "..::{ Boss Kristallon Oddity }::..",
       "hp": 60000000,
-      "kalkan": 60000000,
+      "shield": 60000000,
       "damage": 25000,
       "speed": 180,
       "npc_id": 208,
@@ -20727,7 +20727,7 @@
       "name": "Uber Kristallon Oddity",
       "display_name": "( Uber Kristallon Oddity )",
       "hp": 90000000,
-      "kalkan": 90000000,
+      "shield": 90000000,
       "damage": 50000,
       "speed": 180,
       "npc_id": 209,
@@ -21213,7 +21213,7 @@
       "name": "Awakened Lordakium",
       "display_name": "-=[ Awakened Lordakium ]=-",
       "hp": 72000000,
-      "kalkan": 72000000,
+      "shield": 72000000,
       "damage": 4500,
       "speed": 200,
       "npc_id": 210,
@@ -21239,7 +21239,7 @@
       "name": "Awakened Overlord",
       "display_name": "-=[ Awakened Overlord ]=-",
       "hp": 100000000,
-      "kalkan": 100000000,
+      "shield": 100000000,
       "damage": 20000,
       "speed": 180,
       "npc_id": 211,
@@ -21266,7 +21266,7 @@
       "name": "Awakened Devourer",
       "display_name": "-=[ Awakened Devourer ]=-",
       "hp": 100000000,
-      "kalkan": 100000000,
+      "shield": 100000000,
       "damage": 40000,
       "speed": 180,
       "npc_id": 212,
@@ -21594,8 +21594,8 @@
     ]
    }
   ],
-  "_kaynak": "fandom Plutus Experiment Event (belgeler/wiki/etkinlikler/plutus_deney.json): üç risk, kutu kademeleri (hasar aralığı -> ilerleme puanı, Tarnom, Opitite, ekstralar), ilerleme puanı takası; istemci metinleri msg_npc_spawning_beacon_*",
-  "_uyarlama": "takvimde Plutus’ Experiments yok: Gauntlet of Plutus penceresinde (takvimde plutus_deney varsa o); işaret kulesi 401-404 haritalarında değil X-1 / X-5 / 4-4’te doğar; hangi uzaylının çıkacağını belirleyen hasar eşikleri, Overlord/Devourer toplam canı, ekstra şansları (chance %10, small %2, rare %0,5) kaynaksız; High Risk PvP yerine PvE; ilerleme penceresi ölü olduğundan puan eşiklerinin ödülü ulaşılınca otomatik, sıfırlama (15.000 uridyum) yok"
+  "_source": "fandom Plutus Experiment Event (belgeler/wiki/etkinlikler/plutus_deney.json): üç risk, kutu kademeleri (hasar aralığı -> ilerleme puanı, Tarnom, Opitite, ekstralar), ilerleme puanı takası; istemci metinleri msg_npc_spawning_beacon_*",
+  "_adaptation": "takvimde Plutus’ Experiments yok: Gauntlet of Plutus penceresinde (takvimde plutus_deney varsa o); işaret kulesi 401-404 haritalarında değil X-1 / X-5 / 4-4’te doğar; hangi uzaylının çıkacağını belirleyen hasar eşikleri, Overlord/Devourer toplam canı, ekstra şansları (chance %10, small %2, rare %0,5) kaynaksız; High Risk PvP yerine PvE; ilerleme penceresi ölü olduğundan puan eşiklerinin ödülü ulaşılınca otomatik, sıfırlama (15.000 uridyum) yok"
  },
  "cpu": {
   "ammunition_specialammo_bountiful-alien-cpu-normal": {
@@ -21612,7 +21612,7 @@
    ],
    "event": "plutus",
    "npc_limit": 250,
-   "_kaynak": "darkorbitwiki gauntlet-of-plutus-gate / equipment/cpu: Normal X-5..X-8, Easy X-3..X-5 ve savaş haritaları (4-x); 250 NPC üstünde, DMZ’de ve CPU uzaylısı yaşarken kullanılamaz; etkinlik bitince silinir. Bekleme: öteki uzaylı CPU’ları gibi (uyarlama)"
+   "_source": "darkorbitwiki gauntlet-of-plutus-gate / equipment/cpu: Normal X-5..X-8, Easy X-3..X-5 ve savaş haritaları (4-x); 250 NPC üstünde, DMZ’de ve CPU uzaylısı yaşarken kullanılamaz; etkinlik bitince silinir. Bekleme: öteki uzaylı CPU’ları gibi (uyarlama)"
   },
   "ammunition_specialammo_bountiful-alien-cpu-easy": {
    "maps": [
@@ -21627,7 +21627,7 @@
    ],
    "event": "plutus",
    "npc_limit": 250,
-   "_kaynak": "darkorbitwiki gauntlet-of-plutus-gate / equipment/cpu: Normal X-5..X-8, Easy X-3..X-5 ve savaş haritaları (4-x); 250 NPC üstünde, DMZ’de ve CPU uzaylısı yaşarken kullanılamaz; etkinlik bitince silinir. Bekleme: öteki uzaylı CPU’ları gibi (uyarlama)"
+   "_source": "darkorbitwiki gauntlet-of-plutus-gate / equipment/cpu: Normal X-5..X-8, Easy X-3..X-5 ve savaş haritaları (4-x); 250 NPC üstünde, DMZ’de ve CPU uzaylısı yaşarken kullanılamaz; etkinlik bitince silinir. Bekleme: öteki uzaylı CPU’ları gibi (uyarlama)"
   }
  }
 }

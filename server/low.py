@@ -167,7 +167,7 @@ class Low:
             w.send([self.show_relay()])
         r = self.relay
         r['last'], r['defender'] = now, True
-        tip, n = L['role']['savunma']
+        tip, n = L['role']['defense']
         self.spawn(tip, n, near=(r['x'], r['y']))
         no = self.st['role'] + 1
         self.say('role', no=no)
@@ -190,12 +190,12 @@ class Low:
     def relay_step(self, now):
         """The relay's progress (seconds; a hit counts damage/damage x sn): a percent message, activates when full; the next relay appears."""
         w, r, cfg = self.w, self.relay, L['role']
-        pct = min(100, int(100 * r['progress'] / cfg['sn']))
+        pct = min(100, int(100 * r['progress'] / cfg['sec']))
         no = self.st['role'] + 1
         if pct // 25 > r['percent'] // 25 and pct < 100:
             r['percent'] = pct
             self.say('relay_progress', no=no, percent=pct)
-        if r['progress'] < cfg['sn']:
+        if r['progress'] < cfg['sec']:
             return
         msgs = [ALN.asset_remove(r['uid'], RELAY_STATION), legacy('0|A|STM|msg_relaisstation_activated')]
         if no >= 2 and cfg.get('pirates'):                        # forum 126411: when relays 2-4 activate, pirates appear around them
@@ -256,7 +256,7 @@ class Low:
     def charge(self):
         """The relay's charge in damage units: (current, required)."""
         cfg = L['role']
-        return int(self.relay['progress'] / cfg['sn'] * cfg['damage']), cfg['damage']
+        return int(self.relay['progress'] / cfg['sec'] * cfg['damage']), cfg['damage']
 
     def asset_pos(self, uid):
         r = self.relay
@@ -279,7 +279,7 @@ class Low:
     def asset_hit(self, uid, dmg):
         """A hit charges the relay (indicator: AttackHitAssetCommand's HP is the charge)."""
         cfg = L['role']
-        self.relay['progress'] = min(cfg['sn'], self.relay['progress'] + dmg / float(cfg['damage']) * cfg['sn'])
+        self.relay['progress'] = min(cfg['sec'], self.relay['progress'] + dmg / float(cfg['damage']) * cfg['sec'])
         now, need = self.charge()
         msgs = [('AttackHitAssetCommand', dict(assetId=int(uid), hitpointsNow=now, hitpointsMax=need))]
         self.relay_step(time.time())

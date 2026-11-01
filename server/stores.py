@@ -369,18 +369,18 @@ class Stores:
         from shop import stack_msg
         return ('EventReturnOfHeroActionCommand', dict(
             btnEnable=True, returnType=int(rtype), errorMessage=error if isinstance(error, dict) else stack_msg(error or 'empty'),
-            inviterName=st.get('veteran', '') if bound else '', bootKeyLootId=CT['anahtar'], inviterId=int(st.get('code', 0)),
+            inviterName=st.get('veteran', '') if bound else '', bootKeyLootId=CT['key'], inviterId=int(st.get('code', 0)),
             eventReturnOfHeroQuestCommand=mod('EventReturnOfHeroQuestCommand', dailyNextRefreshSecond=int(max(0, tomorrow - nows)),
                                               dailyQuests=[self.rh_quest_module(q, st) for q in daily],
                                               noRepeatNextRefreshSecond=int(CAL.time_left(CT['calendar'])),
                                               noRepeatQuests=[self.rh_quest_module(q, st) for q in once]),
             eventReturnOfHeroContributorListCommand=mod('EventReturnOfHeroContributorListCommand', contributorList=[]),
-            activityStatus=4 if bound else 2, bootKeyAmount=float(INV.count(self.p, CT['anahtar']))))
+            activityStatus=4 if bound else 2, bootKeyAmount=float(INV.count(self.p, CT['key']))))
 
     def rh_exchange_info(self):
         st = self.rh()
         rows = [dict(r, claimCount=int(st.get('exchange', {}).get(r['exchangeReward'], 0))) for r in CT['exchange']]
-        return ('BattlePassKeyExchangeInfoCommand', dict(rewardList=rows, numOfKeys=int(INV.count(self.p, CT['anahtar'])), exchangeType=2))
+        return ('BattlePassKeyExchangeInfoCommand', dict(rewardList=rows, numOfKeys=int(INV.count(self.p, CT['key'])), exchangeType=2))
 
     def rh_action(self, f):
         if not CAL.is_active(CT['calendar']):
@@ -403,7 +403,7 @@ class Stores:
             key = str(f.get('exchange') or '')
             r = RH_X.get(key)
             done = st.get('exchange', {}).get(key, 0)
-            if not r or done >= r['limit'] or INV.spend(self.p, {CT['anahtar']: r['cost']}, 'buy_SPECIAL', 'return_of_hero') is None:
+            if not r or done >= r['limit'] or INV.spend(self.p, {CT['key']: r['cost']}, 'buy_SPECIAL', 'return_of_hero') is None:
                 return [self.rh_cmd(0, 'captain_hangar_error_not_enough_resources')]
             with self.p.lock:
                 st.setdefault('exchange', {})[key] = done + 1
@@ -412,8 +412,8 @@ class Stores:
             for x in r['listOfloot']:
                 msgs += self.m.reward(x['lootId'], x['amount']) if self.m else []
             self.log('   Return of Hero exchange: %s (%d keys)' % (key, r['cost']))
-            return msgs + [('BattlePassKeyExchangeUpdateCommand', dict(spcId=0, numOfKeys=int(INV.count(self.p, CT['anahtar'])),
-                                                                       claimCount=done + 1, exchangeReward=key, lootId=CT['anahtar'])),
+            return msgs + [('BattlePassKeyExchangeUpdateCommand', dict(spcId=0, numOfKeys=int(INV.count(self.p, CT['key'])),
+                                                                       claimCount=done + 1, exchangeReward=key, lootId=CT['key'])),
                            self.rh_cmd(1), self.rh_exchange_info()]
         return []
 
@@ -434,9 +434,9 @@ class Stores:
                 with self.p.lock:
                     st.setdefault('done', []).append(q['id'])
                     self.p.dirty = True
-                self.p.add_resource(CT['anahtar'], n)
+                self.p.add_resource(CT['key'], n)
                 msgs.append(('EventQuestCompletedCommand', dict(eventType='ReturnOfHero', repeatableType='DAILY' if q in daily else 'NONE')))
-                msgs += INV.update_msgs(self.m, self.p, [CT['anahtar']])
+                msgs += INV.update_msgs(self.m, self.p, [CT['key']])
                 self.log('   Return of Hero quest finished: %d (+%d keys)' % (q['id'], n))
         if any(n == 'EventQuestCompletedCommand' for n, f in msgs):
             msgs += [self.rh_cmd(1), self.rh_exchange_info()]       # the key count of the exchange rows (refreshed when the tab opens)

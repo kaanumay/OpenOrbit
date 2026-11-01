@@ -690,7 +690,7 @@
    "ratio": 0.4
   },
   "abrasion": {
-   "sn": 20,
+   "sec": 20,
    "ratio": 0.05,
    "multiplier": 5
   },
@@ -699,115 +699,115 @@
    "reduction": 0.15,
    "radius": 400
   },
-  "_uyarlama": "gemiye özel UL topun kendi gemisinde temel hasarı x1,25 (SSS: \"substantial boost\"); zincirin atlama yarıçapı 400; aşındırma zaafı oyuncunun bütün hasarına"
+  "_adaptation": "gemiye özel UL topun kendi gemisinde temel hasarı x1,25 (SSS: \"substantial boost\"); zincirin atlama yarıçapı 400; aşındırma zaafı oyuncunun bütün hasarına"
  },
  "breakers": {
   "equipment_cannon_shield_mr-c01": {
    "element": "corrosive",
    "order": 0,
-   "savunma": 40,
+   "defense": 40,
    "extra": 1
   },
   "equipment_cannon_shield_mr-c02": {
    "element": "corrosive",
    "order": 1,
-   "savunma": 120,
+   "defense": 120,
    "extra": 2
   },
   "equipment_cannon_shield_mr-c03": {
    "element": "corrosive",
    "order": 2,
-   "savunma": 240,
+   "defense": 240,
    "extra": 2
   },
   "equipment_cannon_shield_mr-c04": {
    "element": "corrosive",
    "order": 3,
-   "savunma": 480,
+   "defense": 480,
    "extra": 3
   },
   "equipment_cannon_shield_mr-c05": {
    "element": "corrosive",
    "order": 4,
-   "savunma": 560,
+   "defense": 560,
    "extra": 3
   },
   "equipment_cannon_shield_mr-c06": {
    "element": "corrosive",
    "order": 5,
-   "savunma": 640,
+   "defense": 640,
    "extra": 4
   },
   "equipment_cannon_shield_mr-e01": {
    "element": "electro",
    "order": 0,
-   "savunma": 60,
+   "defense": 60,
    "extra": 1
   },
   "equipment_cannon_shield_mr-e02": {
    "element": "electro",
    "order": 1,
-   "savunma": 80,
+   "defense": 80,
    "extra": 2
   },
   "equipment_cannon_shield_mr-e03": {
    "element": "electro",
    "order": 2,
-   "savunma": 100,
+   "defense": 100,
    "extra": 2
   },
   "equipment_cannon_shield_mr-e04": {
    "element": "electro",
    "order": 3,
-   "savunma": 120,
+   "defense": 120,
    "extra": 3
   },
   "equipment_cannon_shield_mr-e05": {
    "element": "electro",
    "order": 4,
-   "savunma": 140,
+   "defense": 140,
    "extra": 3
   },
   "equipment_cannon_shield_mr-e06": {
    "element": "electro",
    "order": 5,
-   "savunma": 160,
+   "defense": 160,
    "extra": 4
   },
   "equipment_cannon_shield_mr-t01": {
    "element": "thermal",
    "order": 0,
-   "savunma": 40,
+   "defense": 40,
    "extra": 1
   },
   "equipment_cannon_shield_mr-t02": {
    "element": "thermal",
    "order": 1,
-   "savunma": 120,
+   "defense": 120,
    "extra": 2
   },
   "equipment_cannon_shield_mr-t03": {
    "element": "thermal",
    "order": 2,
-   "savunma": 240,
+   "defense": 240,
    "extra": 2
   },
   "equipment_cannon_shield_mr-t04": {
    "element": "thermal",
    "order": 3,
-   "savunma": 480,
+   "defense": 480,
    "extra": 3
   },
   "equipment_cannon_shield_mr-t05": {
    "element": "thermal",
    "order": 4,
-   "savunma": 560,
+   "defense": 560,
    "extra": 3
   },
   "equipment_cannon_shield_mr-t06": {
    "element": "thermal",
    "order": 5,
-   "savunma": 640,
+   "defense": 640,
    "extra": 4
   }
  },
@@ -890,7 +890,7 @@
  "drive_common": {
   "range": 600,
   "area": 600,
-  "sure_sn": 8,
+  "duration_sec": 8,
   "cooldown_sec": 10,
   "hit": 0.85,
   "set": [
@@ -949,16 +949,16 @@
     156
    ]
   },
-  "_uyarlama": "alan istemci items_package_event-deal-voyagers-igni-l_description \"AOE damage within a 600-radius zone for 8s\", Apex/Prime \"900-radius zone when 6 units are equipped\" (set: [adet, çarpan, alan]); ateş menzili (menzil) uyarlama; alan 8 sn boyunca saniyede bir vurur (her vuruşta sürücülerin toplam hasarı); sürücü hasarına seviye başına %0,5"
+  "_adaptation": "alan istemci items_package_event-deal-voyagers-igni-l_description \"AOE damage within a 600-radius zone for 8s\", Apex/Prime \"900-radius zone when 6 units are equipped\" (set: [adet, çarpan, alan]); ateş menzili (menzil) uyarlama; alan 8 sn boyunca saniyede bir vurur (her vuruşta sürücülerin toplam hasarı); sürücü hasarına seviye başına %0,5"
  },
  "lenses": {
   "equipment_lens_gl-chron": {
    "name": "Chronotic Graviton Lens",
-   "savunma": 75
+   "defense": 75
   },
   "equipment_lens_gl-omega": {
    "name": "Grav-Lens Omega",
-   "savunma": 150
+   "defense": 150
   }
  },
  "attributes": {
@@ -2697,7 +2697,7 @@
    "hit_chance": "hit",
    "pvp/factions/ignore_def/def_bonus/evasion/strike_anti": "oyunculara karşı (bot oyuncularla)"
   },
-  "_uyarlama": "aralıklar kalite sırasıyla doğrusal (C/MR-x01 en düşük, UL/MR-x06 en yüksek); yüzde (penetrasyon tam sayı)"
+  "_adaptation": "aralıklar kalite sırasıyla doğrusal (C/MR-x01 en düşük, UL/MR-x06 en yüksek); yüzde (penetrasyon tam sayı)"
  },
  "renewal": {
   "right": [
@@ -2729,7 +2729,7 @@
   ],
   "refund": 0.8,
   "chip_item": "resource_collectable_optigrad-chip",
-  "_kaynak": "https://darkorbitwiki.com/guides/assembly-cannons-and-refractors-restabilize/ (2026-02-27): top 7 kalite, kırıcı MR-01..06 (aynı ilk 6 değer); iade: top SSS'si (geri dönüşümde yükseltme malzemesinin %80'i). Kalite sırasıyla: değiştirme sınırı, değiştirme bedeli (OptiGrad Chip), geri dönüşümün çipi (UL dahil); kırıcıda ilk 6 değer"
+  "_source": "https://darkorbitwiki.com/guides/assembly-cannons-and-refractors-restabilize/ (2026-02-27): top 7 kalite, kırıcı MR-01..06 (aynı ilk 6 değer); iade: top SSS'si (geri dönüşümde yükseltme malzemesinin %80'i). Kalite sırasıyla: değiştirme sınırı, değiştirme bedeli (OptiGrad Chip), geri dönüşümün çipi (UL dahil); kırıcıda ilk 6 değer"
  },
  "lock": {
   "levels": [
@@ -2753,7 +2753,7 @@
    3
   ],
   "refund": 0.5,
-  "_uyarlama": "Horizon Shard bedeli kilitli nitelik sayısına göre, Containment Node kilitli nitelik başına"
+  "_adaptation": "Horizon Shard bedeli kilitli nitelik sayısına göre, Containment Node kilitli nitelik başına"
  },
  "synthesis": {
   "recipes": [
@@ -6492,6 +6492,6 @@
    "ship_venom": 67
   },
   "refund": 0.5,
-  "_uyarlama": "grup ve tablo adları istemcinin çevirilerinden (Synthesis_table_1 Nidhogg, _2 Helios, _3 Indra, Synthesis_drive_1/2); UL gemi topu 4 LEG (wiki; SSS iki gemide 5); sürücü/mercek tarifleri 5 adet + 1.000 U (darkorbitwiki intensify-synthesis, kayıt)"
+  "_adaptation": "grup ve tablo adları istemcinin çevirilerinden (Synthesis_table_1 Nidhogg, _2 Helios, _3 Indra, Synthesis_drive_1/2); UL gemi topu 4 LEG (wiki; SSS iki gemide 5); sürücü/mercek tarifleri 5 adet + 1.000 U (darkorbitwiki intensify-synthesis, kayıt)"
  }
 }

@@ -121,7 +121,7 @@ class UrgentQuests:
         if fresh:
             with self.p.lock:
                 q['shown'] = True
-                q['end_time'] = now + D.get('sure_sn', 1200)
+                q['end_time'] = now + D.get('duration_sec', 1200)
                 self.p.dirty = True
             self.log('   Urgent Mission: %s' % q.get('targets'))
         return self.sync(now) + [self.init_cmd(now)] + ([legacy('0|A|STM|diminishing_quest_available')] if fresh else [])

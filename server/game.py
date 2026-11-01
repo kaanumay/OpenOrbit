@@ -227,7 +227,7 @@ DEAD_LEGACY = {'0|TR', '0|8'}
 # the mode portals in the record (2-1: Deep Space Echoes 300, Trinity Trials 304): the server's own portals (echoes.py, arena.py) went a second
 # time at the same place (reference comparison 2026-10-25)
 SERVER_GATE_DESIGNS = {300, 304}
-# requests the real server does not answer either (record): so they do not show up as "yanıtsız" in the log
+# requests the real server does not answer either (record): so they do not show up as "unanswered" in the log
 SILENT = {'TrackVariableRequest',
           'CommandCenterNewsClickedRequest', 'PerformanceTrackingSendInfoRequest',
           'ProActionBarOpenStateChangeRequest', 'QuestGiverWindowClosedRequest', 'CommandCenterUpdateDontShowRequest',
@@ -599,7 +599,7 @@ class Session:
                 self.profile.dirty = True
             KL.name_changed(old, name)
             import name_log as NL                          # other players' contact lists (friends, requests, blocked) and the bots' memory
-            NL.add([{'type': 'name', 'eski': old, 'new': name}])
+            NL.add([{'type': 'name', 'old': old, 'new': name}])
             from bot import manager as MGR
             if MGR.ACTIVE is not None:
                 MGR.ACTIVE.apply_name_log()
@@ -1138,7 +1138,7 @@ class Session:
             elif key in ('LF', 'JCPU'):
                 pass                                  # LF|c, JCPU|GET at every login; the real server does not reply either (record)
             else:
-                log('   yanıtsız: LegacyModule %s' % key)
+                log('   unanswered: LegacyModule %s' % key)
         elif name == 'UIButtonTriggerRequest':
             item = f.get('itemId')
             self.windows.opened(item)
@@ -1219,14 +1219,14 @@ class Session:
                 else self.skylab
             resp = sysm.handle(name, f)
             if resp is None:
-                log('   yanıtsız: %s' % name)
+                log('   unanswered: %s' % name)
             elif resp:
                 self.send(resp, '%s: %s' % (name.split('Request')[0], name))
         elif name.startswith(('SeasonPass', 'BattlePass')) or name in DRW_REQUESTS:
             sysm = self.season if name.startswith('SeasonPass') else self.ticket if name.startswith('BattlePass') else self.reward
             resp = sysm.handle(name, f)
             if resp is None:
-                log('   yanıtsız: %s' % name)
+                log('   unanswered: %s' % name)
             elif resp:
                 self.send(resp, name.split('Request')[0])
         elif name.startswith('UnstableModule') or name == 'RerollWindowSettingsRequest':
@@ -1307,7 +1307,7 @@ class Session:
             if resp:
                 self.send(resp, 'kayıtlı yanıt: %s' % name)
             elif name != 'ReadyRequest':
-                log('   yanıtsız: %s' % name)
+                log('   unanswered: %s' % name)
 
     def run(self):
         log('connect %s' % (self.addr,))
@@ -1535,7 +1535,7 @@ def main():
     threading.Thread(target=autosave, daemon=True).start()
     if os.environ.get('OO_WORLD'):
         threading.Thread(target=watch_world, daemon=True).start()
-    CD.start(sys.modules[__name__], LOG_DIR, log)     # the panel's live state page (<logs>/canli_durum.json)
+    CD.start(sys.modules[__name__], LOG_DIR, log)     # the panel's live state page (<logs>/live_status.json)
     PCH.start(sys.modules[__name__], LOG_DIR, log)     # the panel's in-game menus (Shop, Hangar, Skylab, Auction): local channel
     if CONTROL:
         CTL.Control(sys.modules[__name__]).start()

@@ -8,7 +8,7 @@ regenerates the roster, reduces the bot count or deletes the package, it appends
   {'n', 't', 'type': 'clan_leave', 'name': name}                    its progress was reset: leaves the clans, its acquaintances remain
 Every consumer stores the last sequence it applied (profile 'bot_name_log', clan file 'bot_name_log', package state.json) and applies only the
 new ones once: a change made while the game is closed at the next login, while it is open at once through the panel channel (panel_channel
-/bot/ad_kaydi). Even if someone else later takes a deleted name, the old event does not touch them.
+/bot/name_log). Even if someone else later takes a deleted name, the old event does not touch them.
 It works by name: when the roster is regenerated the new bots take the old ones' ids (1800000000 + sequence).
 Mail already sent and received is history and stays as it is.
 """
@@ -85,7 +85,7 @@ def apply_list(lst, events):
         if e['type'] == 'name':
             new_ = []
             for x in out:
-                if _k(x) == _k(e['eski']):
+                if _k(x) == _k(e['old']):
                     x, changed = e['new'], True
                 if not any(_k(y) == _k(x) for y in new_):
                     new_.append(x)
@@ -103,7 +103,7 @@ def apply_clan(k, events):
     changed = False
     for e in events:
         if e['type'] == 'name':
-            old, new_ = _k(e['eski']), _k(e['new'])
+            old, new_ = _k(e['old']), _k(e['new'])
             if old in k['members'] and old != new_:
                 k['members'][new_] = dict(k['members'].pop(old), name=e['new'])
                 if k['leader'] == old:
@@ -168,7 +168,7 @@ def apply_clans(KL):
             s = apply_clan(k, new_)
             if s == 'vacant':
                 KL.CLANS.pop(cid, None)
-                KL.DELETED[cid] = k.get('anahtar')
+                KL.DELETED[cid] = k.get('key')
                 for c in KL.CLANS.values():
                     c['diplomacy'] = [d for d in c.get('diplomacy', []) if d['clan'] != cid]
                     c['diplomacy_requests'] = [r for r in c.get('diplomacy_requests', []) if cid not in (r['from_clan'], r['to'])]

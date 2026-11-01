@@ -70,14 +70,14 @@ class Skylab:
         d = self.p.d.get('skylab')
         if not d:
             d = self.p.d['skylab'] = {
-                'modules': {k: {'level': v[0], 'etkin': v[1], 'upgrade': None} for k, v in S['start']['modules'].items()},
+                'modules': {k: {'level': v[0], 'enabled': v[1], 'upgrade': None} for k, v in S['start']['modules'].items()},
                 'storage': {k: float(v) for k, v in S['start']['storage'].items()},
                 'robots': {}, 'backup': {}, 'transport': None, 'last': time.time()}
             self.p.dirty = True
         return d
 
     def module(self, key):
-        return self.st['modules'].setdefault(key, {'level': 0, 'etkin': False, 'upgrade': None})
+        return self.st['modules'].setdefault(key, {'level': 0, 'enabled': False, 'upgrade': None})
 
     def level(self, key):
         return self.module(key)['level']
@@ -90,7 +90,7 @@ class Skylab:
         m = self.module(key)
         if m.get('upgrade'):
             return 'UPGRADE'
-        return 'ACTIVE' if m['etkin'] and m['level'] > 0 else 'INACTIVE'
+        return 'ACTIVE' if m['enabled'] and m['level'] > 0 else 'INACTIVE'
 
     def working(self, key):
         return self.state(key) == 'ACTIVE'
@@ -123,13 +123,13 @@ class Skylab:
         lv = self.level(key)
         if lv <= 0:
             return 0
-        k = SET.multiplier('skylab_uretim')                     # panel: Skylab production
+        k = SET.multiplier('skylab_production')                     # panel: Skylab production
         if key in COLLECTORS:
-            return int(row(lv)['uretim']['raw'] * self.efficiency(key) / 100 * k)
+            return int(row(lv)['production']['raw'] * self.efficiency(key) / 100 * k)
         if key in REFINERIES:
-            return int(row(lv)['uretim'][REFINERIES[key][2]] * k)
+            return int(row(lv)['production'][REFINERIES[key][2]] * k)
         if key == 'XENO_MODULE':
-            return int(row(lv)['uretim'][XENO['column']] * k)
+            return int(row(lv)['production'][XENO['column']] * k)
         return 0
 
     # ------------------------------------------------------------ time
@@ -217,7 +217,7 @@ class Skylab:
         self.pending_quest.append((key, m['level']))      # quest_notify: when the lock is released
         others = self.consumption() - (self.energy(key) if self.working(key) else 0)
         if key not in ALWAYS_ON and others + self.energy(key) > self.solar():
-            m['etkin'] = False                              # not enough energy: it stays off
+            m['enabled'] = False                              # not enough energy: it stays off
         self.p.dirty = True
         self.log('   Skylab: %s level %d' % (key, m['level']))
         return [('_receipt', key, '', [], [code])]
@@ -313,7 +313,7 @@ class Skylab:
         left = max(0, int(m['upgrade'] - now)) if m.get('upgrade') else 0
         upgrade = mod('SkylabModuleUpgradeCommand', timeLeft=left, credits=c['credits'] if c else 0, terbium=c['source'] if c else 0,
                       uridiumInstant=self.finish_price(key, now) if left else (c['uridium'] if c else 0),
-                      endurium=c['source'] if c else 0, prometium=c['source'] if c else 0, timeNormal=SET.duration(c['sure_sn'], 'skylab') // 60 if c else 0)
+                      endurium=c['source'] if c else 0, prometium=c['source'] if c else 0, timeNormal=SET.duration(c['duration_sec'], 'skylab') // 60 if c else 0)
         info = mod('SkylabCollectorInfoCommand', production=self.production(key), maxTime=0, leftTime=0)
         prod, xeno, ores = None, mod('SkylabXenoInfoCommand', activeEfficiency=0, activeConsumption=0, inactiveConsumption=0,
                                      activeEnergy=0), []
@@ -353,7 +353,7 @@ class Skylab:
             return 0
         c = COSTS[MODULES[key]['group']][m['level']]
         u = SET.price('service_price', c['uridium'], 'skylab')
-        return max(1 if u else 0, int(math.ceil(u * (m['upgrade'] - now) / max(1, SET.duration(c['sure_sn'], 'skylab')))))
+        return max(1 if u else 0, int(math.ceil(u * (m['upgrade'] - now) / max(1, SET.duration(c['duration_sec'], 'skylab')))))
 
     def check_upgrade(self, key):
         """Can it be upgraded -> error code or None."""
@@ -365,7 +365,7 @@ class Skylab:
             return 31
         if key == 'PROMERIUM_REFINERY' and self.level(key) + 1 > self.level('XENO_MODULE'):     # official forum: Xeno module limit
             return self.raw('skylab_message_upgrade_xenomoduleLevel')
-        if key != 'SOLAR_MODULE' and self.module(key)['etkin'] and \
+        if key != 'SOLAR_MODULE' and self.module(key)['enabled'] and \
                 self.consumption() - (self.energy(key) if self.working(key) else 0) + self.energy(key, self.level(key) + 1) > self.solar():
             return 41
         return None
@@ -385,11 +385,11 @@ class Skylab:
             for ore, _ in UPGRADE_RES:
                 self.st['storage'][ore] -= c['source']
             m = self.module(key)
-            m['upgrade'] = now + SET.duration(c['sure_sn'], 'skylab')       # panel: waiting time
+            m['upgrade'] = now + SET.duration(c['duration_sec'], 'skylab')       # panel: waiting time
             if m['level'] == 0:
-                m['etkin'] = True                          # a newly built module runs when it finishes (if energy suffices)
+                m['enabled'] = True                          # a newly built module runs when it finishes (if energy suffices)
             self.p.dirty = True
-        self.log('   Skylab: %s -> %d upgrade started (%d s, %d C, %d x3 resources)' % (key, m['level'] + 1, c['sure_sn'], c['credits'],
+        self.log('   Skylab: %s -> %d upgrade started (%d s, %d C, %d x3 resources)' % (key, m['level'] + 1, c['duration_sec'], c['credits'],
                                                                                         c['source']))
         return [], [40]
 
@@ -403,7 +403,7 @@ class Skylab:
         INV.spend(self.p, {'currency_uridium': c['uridium']}, reason='buy_SPECIAL', detail='skylab_' + key.lower())
         with self.p.lock:
             if self.level(key) == 0:
-                self.module(key)['etkin'] = True
+                self.module(key)['enabled'] = True
             self.finish_upgrade(key, 45)
         self.notify_quest()
         self.log('   Skylab: %s upgraded instantly (%d U)' % (key, c['uridium']))
@@ -430,7 +430,7 @@ class Skylab:
         with self.p.lock:
             m['upgrade'] = None
             if m['level'] == 0:
-                m['etkin'] = False
+                m['enabled'] = False
             self.p.dirty = True
         self.log('   Skylab: %s upgrade cancelled (what was spent is not returned)' % key)
         return [], [43]
@@ -444,10 +444,10 @@ class Skylab:
                 return [36], []
             if m.get('upgrade'):
                 return [42], []
-            if not m['etkin'] and self.consumption() + self.energy(key) > self.solar():
+            if not m['enabled'] and self.consumption() + self.energy(key) > self.solar():
                 return [39], []
         with self.p.lock:
-            m['etkin'] = on
+            m['enabled'] = on
             self.p.dirty = True
         return [], [38 if on else 37]
 

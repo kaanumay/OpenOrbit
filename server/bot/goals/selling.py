@@ -19,7 +19,7 @@ def threshold(bot):
 
 def nearest_station(bot):
     """The sell map with the shortest route."""
-    return min(K.sell_maps(bot.firma), key=lambda m: len(K.route(bot.game_map, m, bot.firma, bot.level) or range(99)))
+    return min(K.sell_maps(bot.company), key=lambda m: len(K.route(bot.game_map, m, bot.company, bot.level) or range(99)))
 
 
 def danger(bot, g, w, now):
@@ -30,7 +30,7 @@ def danger(bot, g, w, now):
     if any(u not in w.npcs or w.npcs[u].bot is not None for u in last):
         return True
     d = bot.value()
-    return bool(last) and (g.hp + g.shield) / max(1, d['can'] + d['kalkan']) < 0.5
+    return bool(last) and (g.hp + g.shield) / max(1, d['hp'] + d['shield']) < 0.5
 
 
 @target

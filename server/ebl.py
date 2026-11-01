@@ -183,7 +183,7 @@ class Ebl:
         if not r:
             return 0
         done = r['wave']
-        tier = next((t for t in D['death_reward'] if t['en_az'] <= done <= t['max_count']), None)
+        tier = next((t for t in D['death_reward'] if t['min_value'] <= done <= t['max_count']), None)
         msgs = []
         if tier and done:
             msgs += self.m.prize(D['part'], tier['part'])
@@ -240,7 +240,7 @@ class Ebl:
         r = self.run
         if not r or int(map_id) not in D['maps']:
             return {}
-        keys = {b['type']: b['anahtar'] for b in D['boosters']}
+        keys = {b['type']: b['key'] for b in D['boosters']}
         return {keys[int(t)]: v / 100.0 for t, v in r['active'].items() if int(t) in keys}
 
     # ------------------------------------------------------------ indicators

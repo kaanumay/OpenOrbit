@@ -1,6 +1,6 @@
 {
  "_description": "Eksik eşya sistemleri -> server/data/esyalar_o6.json ve esyalar.json ek_magaza (yol haritası Ö6).",
- "_kaynak": "belgeler/wiki/esyalar_o6.json; tools/esyalar_o6.py",
+ "_source": "belgeler/wiki/esyalar_o6.json; tools/esyalar_o6.py",
  "phrases": {
   "items": [
    "ammunition_specialammo_emote_alien-angry",
@@ -37,9 +37,9 @@
   ],
   "cooldown_group": 58,
   "cooldown_sec": 20,
-  "sure_sn": 5,
+  "duration_sec": 5,
   "price_uridium": 50,
-  "_uyarlama": "fiyat (istemcinin 999 U değeri bilinmeyen eşyanın yer tutucusu); süre 5 sn ve ortak bekleme 20 sn resmî Mimesis Mutiny SSS'sinden"
+  "_adaptation": "fiyat (istemcinin 999 U değeri bilinmeyen eşyanın yer tutucusu); süre 5 sn ve ortak bekleme 20 sn resmî Mimesis Mutiny SSS'sinden"
  },
  "boosters": {
   "kinds": {
@@ -346,7 +346,7 @@
      },
      "unit": "%",
      "fixed": {
-      "sure": -25
+      "duration": -25
      }
     },
     "evernight": {
@@ -382,7 +382,7 @@
      },
      "unit": "%",
      "fixed": {
-      "sure": 25
+      "duration": 25
      }
     },
     "aftershock": {
@@ -487,7 +487,7 @@
        4.0
       ]
      },
-     "unit": "sn",
+     "unit": "sec",
      "fixed": {}
     }
    },
@@ -557,7 +557,7 @@
        2.0
       ]
      },
-     "unit": "sn",
+     "unit": "sec",
      "fixed": {
       "reduction": 30
      }
@@ -795,7 +795,7 @@
     "aegis": "synthesis_resonator_aegis"
    }
   },
-  "_uyarlama": "Resonator yayımlanmamış içerik: kaliteye bölünmüş aralıklar, nitelik adedi (1,2,2,3,3,4,4), tarifler (C: türün 3 kaynağı + 1.000 U; üstü 4 alt kalite + uridyum), başarı %100 (pencerede oran yok), kaynakların mağaza fiyatı, \"en iyi Strike Resonator etkin\" kuralı (hangarda yuvası yok)."
+  "_adaptation": "Resonator yayımlanmamış içerik: kaliteye bölünmüş aralıklar, nitelik adedi (1,2,2,3,3,4,4), tarifler (C: türün 3 kaynağı + 1.000 U; üstü 4 alt kalite + uridyum), başarı %100 (pencerede oran yok), kaynakların mağaza fiyatı, \"en iyi Strike Resonator etkin\" kuralı (hangarda yuvası yok)."
  },
  "extra_recipes": {
   "group": "title_assembly",
@@ -1091,6 +1091,6 @@
     "adaptation": true
    }
   ],
-  "_uyarlama": "malzemeler istemcinin benzer tariflerinden (belgeler/wiki/esyalar_o6.json tarifler.liste); USABLE_ONCE tasarımlar bir kez"
+  "_adaptation": "malzemeler istemcinin benzer tariflerinden (belgeler/wiki/esyalar_o6.json tarifler.liste); USABLE_ONCE tasarımlar bir kez"
  }
 }

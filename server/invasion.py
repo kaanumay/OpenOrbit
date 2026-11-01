@@ -18,9 +18,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 _PATH = os.path.join(HERE, 'data', 'extra_events.json')
 D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('invasion', {})
 EVENT = 'invasion'
-MAPS = {int(m): k for k, g in (D.get('kapilar') or {}).items() for m in g['maps']}
+MAPS = {int(m): k for k, g in (D.get('gates') or {}).items() for m in g['maps']}
 
-for _k, _g in (D.get('kapilar') or {}).items():           # before game.py EKP.register_npcs: the alien types are registered too
+for _k, _g in (D.get('gates') or {}).items():           # before game.py EKP.register_npcs: the alien types are registered too
     EKP.GATES[_k] = _g
     for _m in _g['maps']:
         EKP.BY_MAP[int(_m)] = _k
@@ -78,7 +78,7 @@ class Invasion:
 
     def on_wave(self, key, total):
         """Wave over (event gate): the counter and the message of the next attack wave."""
-        if key not in (D.get('kapilar') or {}):
+        if key not in (D.get('gates') or {}):
             return []
         from legacy_protocol import legacy
         with self.p.lock:

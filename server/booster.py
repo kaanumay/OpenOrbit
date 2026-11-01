@@ -21,7 +21,7 @@ ALIAS = O6['alias']                              # boosters the client does not 
 ATTRS = ['ABILITY_COOLDOWN_TIME', 'COLLECT_RESOURCES', 'COLLECT_RESOURCES_NEWBIE', 'EXPERIENCE_POINTS', 'HITPOINTS', 'HONOUR_POINTS',
          'DAMAGE', 'REPAIR', 'SHIELD', 'SHIELD_REGENERATION']                      # order in the record
 # client type -> the server's bonus key (player_profile.mods(): summed with formation and drone designs)
-MOD_KEYS = {'DAMAGE': ('laser', 'rocket'), 'HITPOINTS': ('can',), 'SHIELD': ('kalkan',), 'SHIELD_REGENERATION': ('shield_regen',),
+MOD_KEYS = {'DAMAGE': ('laser', 'rocket'), 'HITPOINTS': ('hp',), 'SHIELD': ('shield',), 'SHIELD_REGENERATION': ('shield_regen',),
             'REPAIR': ('repair',), 'EXPERIENCE_POINTS': ('ep',), 'HONOUR_POINTS': ('honor',), 'COLLECT_RESOURCES': ('cargo',),
             'ABILITY_COOLDOWN_TIME': ('cooldown',)}
 
@@ -88,10 +88,10 @@ def add(p, loot, n=1, seconds=None, hours=None):
         e = state(p).setdefault(loot, {'end_time': 0, 'remaining': 0})
         if seconds is None:
             h = hours or B['hour'].get(loot)
-            duration = h * 3600 if h else B['sure_sn']
-            e['end_time'] = max(e.get('end_time', 0), now) + n * duration * SET.multiplier('booster_sure')     # panel: booster duration
+            duration = h * 3600 if h else B['duration_sec']
+            e['end_time'] = max(e.get('end_time', 0), now) + n * duration * SET.multiplier('booster_duration')     # panel: booster duration
         else:
-            e['remaining'] = e.get('remaining', 0) + seconds * SET.multiplier('booster_sure')
+            e['remaining'] = e.get('remaining', 0) + seconds * SET.multiplier('booster_duration')
         p.dirty = True
 
 

@@ -36,7 +36,7 @@ import settings as SET
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'event_gates.json'), encoding='utf8'))
-GATES = D['kapilar']
+GATES = D['gates']
 DARK_MAPS = {int(m) for g in GATES.values() if g.get('dark') for m in g['maps']}      # flashlight (world.map_effect_msgs)
 BY_MAP = {m: k for k, g in GATES.items() for m in g['maps']}
 LAB = D['labyrinth']
@@ -69,11 +69,11 @@ def time_score(secs):
 
 
 def _tip(a, key=None, aggressive=True):
-    d = dict(name=a['display_name'], model=str(a['type']), hp=a['hp'], kalkan=a['kalkan'], damage=a['damage'], speed=a['speed'],
+    d = dict(name=a['display_name'], model=str(a['type']), hp=a['hp'], shield=a['shield'], damage=a['damage'], speed=a['speed'],
              aggressive=a.get('aggressive', aggressive), reward=dict(a['reward']), cargo=dict(a.get('cargo', {})), npc_id=a['npc_id'])
     if key:
         d['gate'] = key
-    for k in ('box', 'behavior', 'anahtar', 'drop', 'renew_sec', 'points', 'extra_reward', 'cpu_increase', 'radioactive', 'range', 'hit',
+    for k in ('box', 'behavior', 'key', 'drop', 'renew_sec', 'points', 'extra_reward', 'cpu_increase', 'radioactive', 'range', 'hit',
               'shield_absorb', 'fugitive', 'empower'):
         if a.get(k):
             d[k] = a[k]
@@ -126,7 +126,7 @@ class EventGates:
         return self.p.d.setdefault('event_gates', {})
 
     def gate(self, key):
-        return self.d.setdefault(key, dict(ready=False, wave=0, can=GATES[key]['can'], done=0))
+        return self.d.setdefault(key, dict(ready=False, wave=0, hp=GATES[key]['hp'], done=0))
 
     def home(self):
         return KAPI.HOME_MAP.get(self.p.d['pilot'].get('factionId'), 5)
@@ -233,10 +233,10 @@ class EventGates:
                 random.shuffle(rest)
                 order += rest + [i for i in part if waves[i].get('fixed')]
         with self.p.lock:
-            G.update(ready=True, wave=0, can=SET.count('gate_lives', g['can']), order=order, start=now, last_day=today(now),
+            G.update(ready=True, wave=0, hp=SET.count('gate_lives', g['hp']), order=order, start=now, last_day=today(now),
                      last_year=today(now)[:4])                   # panel: gate lives
             self.p.dirty = True
-        self.log('   %s set up (%d waves, %d lives)' % (g['name'], len(order), G['can']))
+        self.log('   %s set up (%d waves, %d lives)' % (g['name'], len(order), G['hp']))
 
     def dest(self, key):
         """The map to land on when entering the gate: the next wave's in a running gate, the first wave's if not set up."""
@@ -271,7 +271,7 @@ class EventGates:
         now = time.time() if now is None else now
         with self.p.lock:
             G = self.gate(key)
-            G.update(ready=False, wave=0, can=GATES[key]['can'], last_end=now)
+            G.update(ready=False, wave=0, hp=GATES[key]['hp'], last_end=now)
             G.pop('order', None)
             G.pop('cpu_increase', None)
             self.p.dirty = True
@@ -315,7 +315,7 @@ class EventGates:
         best = G.get('best_sec')
         with self.p.lock:
             G['done'] = G.get('done', 0) + 1
-            if g.get('rule', {}).get('sure') and g.get('mod') != 'easy' and secs <= 3600:   # forum 143902: Normal only, under 60 min
+            if g.get('rule', {}).get('duration') and g.get('mod') != 'easy' and secs <= 3600:   # forum 143902: Normal only, under 60 min
                 if best is None or secs < best:
                     G['best_sec'] = secs
                 G['durations'] = sorted(G.get('durations', []) + [secs])[:5]
@@ -328,7 +328,7 @@ class EventGates:
         if record:
             self.p.ach('record_plutus')               # champion achievement (Gauntlet of Plutus; a timed single gate): personal record
         self.log('   %s completed: %s%s' % (g['name'], fmt_time(secs), ' (new record)' if record else ''))
-        return msgs, dict(new={'parts': []}, kronos=None, sure=secs)
+        return msgs, dict(new={'parts': []}, kronos=None, duration=secs)
 
     # ------------------------------------------------------------ event points (Gauntlet of Plutus)
     def score(self, key, now=None):
@@ -357,7 +357,7 @@ class EventGates:
     # ------------------------------------------------------------ Gauntlet of Plutus indicator
     def plutus_cmds(self, key, now=None):
         g = GATES.get(key, {})
-        if not g.get('rule', {}).get('sure'):
+        if not g.get('rule', {}).get('duration'):
             return []
         now = time.time() if now is None else now
         G = self.gate(key)
@@ -370,7 +370,7 @@ class EventGates:
             mode, t = PLUTUS_DONE, tomorrow.timestamp() - now            # left until tomorrow
         else:
             mode, t = PLUTUS_OPEN, CAL.time_left(g['event'], now)      # the event's remaining time
-        status = dict(_='PlutusStatusCommand', lifes=int(G.get('can', g['can'])), mode=mode, timeLeft=int(max(0, t)))
+        status = dict(_='PlutusStatusCommand', lifes=int(G.get('hp', g['hp'])), mode=mode, timeLeft=int(max(0, t)))
         entries = [dict(_='PlutusScoreEntryModule', score=time_score(s), timeInSeconds=int(s)) for s in G.get('durations', [])]
         return [('PlutusInfoCommand', dict(playerPoints=int(self.score(key, now)['points']), scoreEntriesList=entries, status=status,
                                            playerRanges=RK.ranges(RK.PLUTUS),          # the reward tab's ranges (stage 1)
@@ -390,7 +390,7 @@ class Run(KAPI.Run):
         self.rad, self.rad_next = None, 0.0     # the radioactive field in progress (radio_tick) and the earliest time of the next
         self.sub, self.counted, self.left, self.exposed, self.boss = 0, None, None, False, ''
         now = time.time()
-        if not G['ready'] or G['can'] <= 0:
+        if not G['ready'] or G['hp'] <= 0:
             self.phase, self.t = 'void', now
             world.add_gate(event_gate.exit_portal(key, self.map))
         elif self.cur_map() != self.map:
@@ -402,7 +402,7 @@ class Run(KAPI.Run):
             wait = self.g.get('rule', {}).get('entry_sec')         # Plutus: Normal 1 s, Easy 15 s (forum 143902)
             self.phase, self.t = 'intro', now + (KAPI.pace('intro_wait_sec') if wait is None else wait * SET.multiplier('wave_wait'))
             world.send(self.say('ongoing' if G['wave'] else 'entry') + self.k.plutus_cmds(key, now))
-        world.log('   %s: wave %d/%d, lives %d (%s)' % (self.g['name'], G['wave'] + 1, self.wave_count(), G['can'], self.phase))
+        world.log('   %s: wave %d/%d, lives %d (%s)' % (self.g['name'], G['wave'] + 1, self.wave_count(), G['hp'], self.phase))
 
     def messages(self):
         return dict(KAPI.K['messages'], **self.g.get('messages', {}))
@@ -451,10 +451,10 @@ class Run(KAPI.Run):
             d = random.uniform(*spec['distance']) if i else spec['distance'][0]
             m = spec['radius']
             circles.append((min(max(m, hx + math.cos(a) * d), w.map_w - m), min(max(m, hy + math.sin(a) * d), w.map_h - m)))
-        self.rad = dict(circles=circles, end_time=now + spec['warning_sec'] + spec['sure_sn'], next=now + spec['warning_sec'])
+        self.rad = dict(circles=circles, end_time=now + spec['warning_sec'] + spec['duration_sec'], next=now + spec['warning_sec'])
         w.send([KAPI.screen('Plutus: Space Uncertainty! Get into a green circle!', big=True)]
                + [poi('plutusSpaceUncertainty%d' % i, x, y, spec['radius']) for i, (x, y) in enumerate(circles)])
-        w.log('   %s: radioactive field (%d circles, %d s)' % (self.g['name'], len(circles), spec['sure_sn']))
+        w.log('   %s: radioactive field (%d circles, %d s)' % (self.g['name'], len(circles), spec['duration_sec']))
 
     def radio_pulse(self, boss, spec, now):
         """Per-second pulse: heal if inside the circle, damage if outside."""
@@ -483,8 +483,8 @@ class Run(KAPI.Run):
         """galaxy_gates.Run.say, with the wave count in the chosen order."""
         G = self.k.gate(self.key)
         n = min(G['wave'], self.wave_count() - 1)
-        vals = dict(gate=self.g['name'], wave=n + 1, total=self.wave_count(), can=G['can'], anahtar=self.key,
-                    groups=len(self.wave()['groups']), sure='')
+        vals = dict(gate=self.g['name'], wave=n + 1, total=self.wave_count(), hp=G['hp'], key=self.key,
+                    groups=len(self.wave()['groups']), duration='')
         vals.update(extra)
         m = self.messages().get(event, {})
         return [KAPI.screen(m[kind].format(**vals), big=kind == 'caps', NAME=self.g['name'], WAVE='%d/%d' % (vals['wave'], vals['total']))
@@ -556,7 +556,7 @@ class Run(KAPI.Run):
             return
         self.counted = None
         self.w.add_gate(self.k.exit_portal(self.key, self.map))
-        self.w.send(self.say('wave_finished', wave=G['wave'], sn=KAPI.pace('wave_break_sec')) + self.k.plutus_cmds(self.key))
+        self.w.send(self.say('wave_finished', wave=G['wave'], sec=KAPI.pace('wave_break_sec')) + self.k.plutus_cmds(self.key))
         self.phase, self.t = 'break', now + KAPI.pace('wave_break_sec')
         self.w.log('   %s: wave %s finished' % (self.g['name'], label))
 
@@ -564,7 +564,7 @@ class Run(KAPI.Run):
         k, w = self.k, self.w
         msgs, info = k.finish(self.key, w.reward_msgs)
         w.add_gate(k.exit_portal(self.key, self.map))
-        msgs += self.say('done', sure=fmt_time(info['sure'])) + k.plutus_cmds(self.key)
+        msgs += self.say('done', duration=fmt_time(info['duration'])) + k.plutus_cmds(self.key)
         w.send(msgs)
         self.phase = 'done'
 
@@ -575,8 +575,8 @@ class Run(KAPI.Run):
         k, G = self.k, self.k.gate(self.key)
         with k.p.lock:
             if not SET.get('infinite_lives'):                    # panel: no lives are spent in the gate
-                G['can'] = max(0, G['can'] - 1)
-            left = G['can']
+                G['hp'] = max(0, G['hp'] - 1)
+            left = G['hp']
             k.p.dirty = True
         if left <= 0:
             k.end(self.key)

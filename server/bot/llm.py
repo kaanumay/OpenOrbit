@@ -38,9 +38,9 @@ from . import llm_server as LS
 WHISPER, ROOM, EVENT, DECISION, BOT_CHAT = 0, 1, 2, 3, 4
 MAIL = EVENT                      # mail is not urgent: if the queue is full it is answered with a template
 DECISION_GOALS = ('grinding', 'quest', 'pvp', 'shopping', 'resting')
-FIRMA = {1: 'MMO', 2: 'EIC', 3: 'VRU'}
+COMPANY = {1: 'MMO', 2: 'EIC', 3: 'VRU'}
 CHANNEL = {'global': 'global', 'company': 'company', 'clan': 'clan', 'group': 'group'}
-TRAIT_NAME = {'aggression': 'aggressive', 'rekabet': 'competitive', 'sociability': 'sociable', 'patience': 'patient', 'risk': 'risk-taking',
+TRAIT_NAME = {'aggression': 'aggressive', 'rivalry': 'competitive', 'sociability': 'sociable', 'patience': 'patient', 'risk': 'risk-taking',
               'loyalty': 'loyal', 'helpfulness': 'helpful', 'talkativeness': 'chatty', 'frugality': 'thrifty', 'ambition': 'ambitious'}
 GOAL_NAME = {'grinding': 'farming aliens', 'quest': 'doing quests', 'pvp': 'hunting enemy players', 'shopping': 'shopping',
             'resting': 'taking a break at base', 'exploring': 'checking out a new map', 'group': 'playing in a group',
@@ -166,7 +166,7 @@ def chat_persona(b, y=None):
               sorted(b.memory.d.values(), key=lambda e: -abs(e['d']))[:3] if abs(e['d']) >= 0.2]
     events = [x for x in (event_text(o) for o in b.events[-6:] if o['type'] not in ('said', 'tool') and now - o['t'] < 600) if x]
     return '%s: %s, level %d, flies a %s, on %s (%s), %s.%s%s%s' % (
-        b.name, FIRMA[b.firma], b.level, b.k['gear']['ship'].replace('ship_', '').replace('-', ' '), H.name(b.game_map),
+        b.name, COMPANY[b.company], b.level, b.k['gear']['ship'].replace('ship_', '').replace('-', ' '), H.name(b.game_map),
         GOAL_NAME.get(b.target.name, 'flying around') if b.target is not None else 'flying around', _mood(b.mood), _social(b),
         (' Knows: %s.' % ', '.join(relation)) if relation else '', (' Just now he %s.' % '; '.join(events[-2:])) if events else '') + \
         lang_note(b)
@@ -201,10 +201,10 @@ def persona(b, y=None):
     relation = ['%s (%s)' % (e['name'], 'friend' if e['d'] > 0 else 'holds a grudge') for e in
               sorted(b.memory.d.values(), key=lambda e: -abs(e['d']))[:4] if abs(e['d']) >= 0.15]
     events = [x for x in (event_text(o) for o in b.events[-6:] if o['type'] not in ('said', 'tool')) if x]
-    ev = '%d-1 to %d-4' % (b.firma, b.firma) if b.level < 10 else '%d-1 to %d-8 and 4-x' % (b.firma, b.firma)
+    ev = '%d-1 to %d-4' % (b.company, b.company) if b.level < 10 else '%d-1 to %d-8 and 4-x' % (b.company, b.company)
     return ("%s: %s pilot, level %d (own company maps: %s; other companies' maps are enemy territory), flies a %s, on map %s, "
             '%s, %s. Plays like %s. Personality: %s; not very %s. Mood: %s.%s%s') % (
-        b.name, FIRMA[b.firma], b.level, ev, b.k['gear']['ship'].replace('ship_', '').replace('-', ' '), H.name(b.game_map), target, currency,
+        b.name, COMPANY[b.company], b.level, ev, b.k['gear']['ship'].replace('ship_', '').replace('-', ' '), H.name(b.game_map), target, currency,
         ARCHETYPE_NAME.get(b.archetype, 'a normal player'), dominant, weak, _mood(b.mood),
         (' People: %s.' % ', '.join(relation)) if relation else '', (' Recently: %s.' % '; '.join(events)) if events else '') + lang_note(b) + \
         _memories_note(b, y) + AW.note(b, y.now if y is not None else None)
@@ -247,7 +247,7 @@ def _map_aliens(m):
 def game_info(f):
     """The model's game knowledge, for the player of company f (the asker's company: so the answer is right for them). Generated from the data
     (including the World Editor's changes)."""
-    f = f if f in FIRMA else 1
+    f = f if f in COMPANY else 1
     maps = [(f - 1) * 4 + i for i in range(1, 5)] + [16 + (f - 1) * 4 + i for i in range(1, 5)] + [13, 14, 15, 16, 29]
     row = ['%s: %s' % (H.name(m), ', '.join(a)) for m in maps for a in [[x for x in _map_aliens(m) if 'Boss' not in x]]
              if a]
@@ -260,7 +260,7 @@ def game_info(f):
             'piranha, nostromo, bigboy (credits) -> leonov, vengeance, goliath (uridium). Lasers, weakest to strongest: LF-1, MP-1 (credits), LF-2, LF-3 '
             '(uridium). Quests come from the quest giver on your base map and give lots of EP; uridium comes from bonus boxes, quests '
             'and aliens. You level up by killing aliens and finishing quests.') % (
-        FIRMA[f], FIRMA[f], f, FIRMA[f], f, f, f, f, '; '.join(row))
+        COMPANY[f], COMPANY[f], f, COMPANY[f], f, f, f, f, '; '.join(row))
 
 
 QUESTION = re.compile(r'\?\s*$|^\s*(how|what|where|why|who|when|which|can|could|anyone|any|is|are|do|does|did|should|wanna|u|you)\b', re.I)
@@ -280,7 +280,7 @@ KINDS = (
 )
 
 
-def TP_firma(name):
+def TP_company(name):
     import community as TP
     k = TP.find(name=name)
     return int(k.profile.d['pilot'].get('factionId', 0)) if k is not None else 0
@@ -297,15 +297,15 @@ SHIPS = ('phoenix', 'liberator', 'piranha', 'nostromo', 'bigboy', 'leonov', 'ven
 def short_info(f):
     """Short and correct game knowledge for spontaneous chats (bot_sohbet, group remark, private whisper): the model made up ships and maps
     ("viking", "corsair"; an EIC bot called a VRU bot to 3-5 for a "new alien")."""
-    f = f if f in FIRMA else 1
+    f = f if f in COMPANY else 1
     return ('Facts (never invent other ships, maps or aliens): a %s pilot plays on %d-1 to %d-8, MMO maps are 1-x, EIC 2-x, VRU 3-x '
             '(the other companies\' maps are enemy land), 4-1 to 4-5 are shared PvP maps. Ships: %s.') % (
-        FIRMA[f], f, f, ', '.join(SHIPS))
+        COMPANY[f], f, f, ', '.join(SHIPS))
 
 
 def foreign_map(b, text):
     """Whether the line talks about another company's map (in spontaneous chat: bots do not suggest a trip to an enemy map)."""
-    return any(int(a) != b.firma for a, _ in re.findall(r'\b([1-3])-([1-8])\b', str(text or '')))
+    return any(int(a) != b.company for a, _ in re.findall(r'\b([1-3])-([1-8])\b', str(text or '')))
 
 
 def is_question(msg):
@@ -316,13 +316,13 @@ def side(b, fac, name):
     """The pilot's side relative to the speaker (the small model mixed up companies: a VRU bot joined an EIC call "VRU ile savaşalım")."""
     if not fac:
         return ''
-    if b.firma == fac:
-        return 'He is %s like %s: a teammate, he sides with %s.' % (FIRMA[b.firma], name, FIRMA[b.firma])
+    if b.company == fac:
+        return 'He is %s like %s: a teammate, he sides with %s.' % (COMPANY[b.company], name, COMPANY[b.company])
     return 'He is %s, %s is %s: on the rival side; he always sides with %s against %s.' % (
-        FIRMA[b.firma], name, FIRMA.get(fac, '?'), FIRMA[b.firma], FIRMA.get(fac, '?'))
+        COMPANY[b.company], name, COMPANY.get(fac, '?'), COMPANY[b.company], COMPANY.get(fac, '?'))
 
 
-FIRMA_NO = {'mmo': 1, 'mars': 1, 'eic': 2, 'earth': 2, 'vru': 3, 'venus': 3}
+COMPANY_NO = {'mmo': 1, 'mars': 1, 'eic': 2, 'earth': 2, 'vru': 3, 'venus': 3}
 COMPANY_NAME = re.compile(r'\b(mmo|eic|vru|mars|earth|venus)\b', re.I)
 
 
@@ -330,13 +330,13 @@ def company_note(msg, fac, candidate):
     """If companies are mentioned in the message (a call, boasting, a taunt) it writes explicitly how each side will react."""
     if not COMPANY_NAME.search(msg) or not fac:
         return ''
-    friendly = [b.name for b in candidate if b.firma == fac]
-    enemy = [b.name for b in candidate if b.firma != fac]
+    friendly = [b.name for b in candidate if b.company == fac]
+    enemy = [b.name for b in candidate if b.company != fac]
     out = ' The message is about the companies.'
-    names = {FIRMA[FIRMA_NO[m.lower()]] for m in COMPANY_NAME.findall(msg)} - {FIRMA.get(fac)}
+    names = {COMPANY[COMPANY_NO[m.lower()]] for m in COMPANY_NAME.findall(msg)} - {COMPANY.get(fac)}
     if names and message_kind(msg) == 'taunt':
         out += ' It insults %s: %s pilots feel insulted and hit back at %s (never at their own company).' % (
-            ' and '.join(sorted(names)), ' and '.join(sorted(names)), FIRMA.get(fac, '?'))
+            ' and '.join(sorted(names)), ' and '.join(sorted(names)), COMPANY.get(fac, '?'))
     if friendly:
         out += ' His teammates (%s) may agree with him.' % ', '.join(friendly)
     if enemy:
@@ -352,7 +352,7 @@ def map_note(msg, fac):
         owner = int(a)
         if fac and owner != fac:
             out.append(' Note: %s-%s belongs to %s, it is enemy land for a %s player; %s players start on %d-1.' % (
-                a, b_, FIRMA[owner], FIRMA.get(fac, '?'), FIRMA.get(fac, '?'), fac))
+                a, b_, COMPANY[owner], COMPANY.get(fac, '?'), COMPANY.get(fac, '?'), fac))
     return ''.join(out[:1])
 
 
@@ -445,7 +445,7 @@ def _numbers(b, name):
                        ('i_helped', 'you helped him %d times'), ('helped_me', 'he helped you %d times'),
                        ('killed_me', 'he killed you %d times'), ('i_killed', 'you killed him %d times'),
                        ('challenge', 'he challenged you to a duel'), ('friend', 'you are friends'),
-                       ('insult', 'he insulted you %d times'), ('sohbet', 'chatted %d times')):
+                       ('insult', 'he insulted you %d times'), ('chat', 'chatted %d times')):
         k = e['n'].get(kind, 0)
         if k:
             out.append(text % k if '%d' in text else text)
@@ -483,7 +483,7 @@ def style(b):
         t = 'friendly and chatty, jokes a lot'
     elif o['helpfulness'] > 0.7:
         t = 'helpful, likes to give tips'
-    elif o['rekabet'] > 0.7:
+    elif o['rivalry'] > 0.7:
         t = 'tryhard and competitive, a little cocky'
     else:
         t = 'laid-back and casual'
@@ -549,7 +549,7 @@ class Brain:
         self.last_bot_chat = time.time() + 60
         self.last_decision = 0.0
         self.last_event = 0.0
-        self.stats = {'request': 0, 'error': 0, 'sure': 0.0, 'dropped': 0}
+        self.stats = {'request': 0, 'error': 0, 'duration': 0.0, 'dropped': 0}
         self.muted = []             # model lines dropped by the filter
         self.conversations = {}             # strong mode: (bot, player) -> {b, name, start, last, n}: summarized into a memory when finished
         self.request_times = []           # the moments of all requests in the last hour (llm_hourly: chat, memory, decision, all)
@@ -665,13 +665,13 @@ class Brain:
         except ValueError:                                   # the reply was cut off at the limit or the JSON is broken: once more, calmer
             self.stats['regenerate'] = self.stats.get('regenerate', 0) + 1
             r, duration = self.server.ask(system, user, schema=schema, max_count=int(max_count * 1.5), temperature=0.6)
-        self.stats['sure'] += duration
+        self.stats['duration'] += duration
         return r
 
     # ------------------------------------------------------------ the manager's hooks
     def chat(self, y, g, now):
         """Whether the incoming message goes to the model (True) or to the templates."""
-        if not self.ready or not y.setting('llm_chat', True) or not y.permission('sohbet'):
+        if not self.ready or not y.setting('llm_chat', True) or not y.permission('chat'):
             return False
         if g[0] == 'whisper':
             b, msg, who = g[1], g[2], g[3]
@@ -728,7 +728,7 @@ class Brain:
         y = self.y
         is_open = [b for b in y.bots if b.online and b.dead_until <= now]
         human_wrote = any(now - x[0] < 60 and str(x[1]).lower() not in y.name_index for x in y.history[-10:])
-        if y.setting('llm_chat', True) and y.permission('sohbet') and now >= self.last_bot_chat and len(is_open) >= 2 and not human_wrote:
+        if y.setting('llm_chat', True) and y.permission('chat') and now >= self.last_bot_chat and len(is_open) >= 2 and not human_wrote:
             self.last_bot_chat = now + 120 + 240 * (1 - min(1.0, len(is_open) / 30))
             self.add(BOT_CHAT, {'t': now, 'fn': self._bot_chat})
         if STRONG:
@@ -751,7 +751,7 @@ class Brain:
     def _whisper(self, job):
         y, b, msg, who = self.y, job['bot'], job['msg'], job['who']
         name = who.get('userId', '')
-        fac = int(who.get('factionId') or 0) or b.firma
+        fac = int(who.get('factionId') or 0) or b.company
         schema = {'type': 'object', 'properties': {'text': {'type': 'string', 'maxLength': 90}}, 'required': ['text']}
         rel = b.memory.relation(name)
         # The decision on a request (group, help) is made by the personality-based decision engine, which carries out the action; the model only says the decision in the bot's voice.
@@ -777,11 +777,11 @@ class Brain:
              'one short line (metin), like a real person. Never echo his words.') % (
             (game_info(fac) + '\n\n') if kind == 'question_game' else '', b.name, chat_persona(b, y), style(b),
             'friendly' if rel > 0.2 else 'annoyed' if rel < -0.2 else 'neutral', name + shared_history(b, name),
-            FIRMA.get(fac, '?'), chat_history(y, names=[b.name, name], exclude=msg, n=10, sec=1800), name, msg,
+            COMPANY.get(fac, '?'), chat_history(y, names=[b.name, name], exclude=msg, n=10, sec=1800), name, msg,
             '' if decision else REACTION.get(kind, ''), decision)
         r = self.ask(k, schema, temperature=0.6)
         with y.lock:
-            b.memory.event(name, 'sohbet', y.now)
+            b.memory.event(name, 'chat', y.now)
             text = self._text(b, r.get('text'), echo=msg)
             if text:
                 y.speak(b, 'whisper', text, recipient=name, now=y.now, priority=True)
@@ -825,13 +825,13 @@ class Brain:
                 candidate = [b for b, _ in decisions] or candidate
             m = COMPANY_NAME.search(msg) if kind == 'roll_call' else None
             if m:                                        # "any eic online?": only that company's pilots say "buradayım"
-                f = FIRMA_NO[m.group(1).lower()]
-                candidate = [b for b in listener if b.firma == f][:3]
+                f = COMPANY_NO[m.group(1).lower()]
+                candidate = [b for b in listener if b.company == f][:3]
             elif fac and not addressed and COMPANY_NAME.search(msg):
                 # another company is mentioned ("MMO noobs", "VRU is the best"): that company's pilots and a teammate react
-                mentioned = {FIRMA_NO[x.lower()] for x in COMPANY_NAME.findall(msg)} - {fac}
-                to_them = [b for b in candidate if b.firma in mentioned] + [b for b in listener if b.firma in mentioned and b not in candidate]
-                candidate = (to_them[:2] + [b for b in candidate if b.firma == fac][:1]) or candidate
+                mentioned = {COMPANY_NO[x.lower()] for x in COMPANY_NAME.findall(msg)} - {fac}
+                to_them = [b for b in candidate if b.company in mentioned] + [b for b in listener if b.company in mentioned and b not in candidate]
+                candidate = (to_them[:2] + [b for b in candidate if b.company == fac][:1]) or candidate
             history = chat_history(y, channel, exclude=msg, route=job.get('route'))
         if not candidate:
             return
@@ -860,11 +860,11 @@ class Brain:
         k = ('%sPilots in the %s chat:%s\n%s\n\nEarlier chat (context only, it may already be answered - do not go back to old '
              'topics):\n%s\n\nNEWEST message, from %s (a %s player): "%s"\n\n%s Reply ONLY to this newest message. Each answer is one '
              'short line in that pilot\'s own style. Never repeat or echo what someone already said.') % (
-            (game_info(fac or candidate[0].firma) + '\n\n') if kind == 'question_game' else '', CHANNEL.get(channel, channel),
+            (game_info(fac or candidate[0].company) + '\n\n') if kind == 'question_game' else '', CHANNEL.get(channel, channel),
             ' (they are all in the same group as %s: his teammates right now)' % name if channel == 'group' else '',
             '\n'.join('- %s Style: %s. %s%s' % (chat_persona(b, y), style(b), side(b, fac, name),
                                               MEM.text(b, name, y.now) if STRONG else '') for b in candidate), history, name,
-            FIRMA.get(fac, '?'), msg, rule + company_note(msg, fac, candidate))
+            COMPANY.get(fac, '?'), msg, rule + company_note(msg, fac, candidate))
         r = self.ask(k, schema, max_count=320, temperature=0.65 if kind.startswith('question') or addressed else 0.85)
         with y.lock:
             order = 0
@@ -876,7 +876,7 @@ class Brain:
                 text = self._text(b, text, echo=msg) if b is not None else ''
                 if b is None or not b.online or not text:
                     continue
-                b.memory.event(name, 'praise' if kind == 'congrats' else 'insult' if kind == 'taunt' and addressed else 'sohbet', y.now)
+                b.memory.event(name, 'praise' if kind == 'congrats' else 'insult' if kind == 'taunt' and addressed else 'chat', y.now)
                 is_whisper = any(kb is b and dec.get('whisper') for kb, dec in decisions)
                 y.speak(b, 'whisper' if is_whisper else channel, text, recipient=name if is_whisper else None, now=y.now + order * b.r.uniform(2, 6),
                         priority=True)
@@ -912,7 +912,7 @@ class Brain:
         schema = {'type': 'object', 'properties': {'text': {'type': 'string', 'maxLength': 240}}, 'required': ['text']}
         contents = '%s %s' % (r.get('subject', ''), r.get('text', ''))
         game = message_kind(contents) == 'question_game' or (is_question(contents) and GAME.search(contents))
-        fac = int(TP_firma(name) or b.firma)
+        fac = int(TP_company(name) or b.company)
         # (the boolean "yanıtla" field was removed: the model took a refusal for "do not reply" and dropped the good text too)
         k = ('%sYou are %s. %s Your style: %s.\nYou feel %s about %s.\n\n%s sent you an in-game MAIL.\nSubject: "%s"\nText: "%s"\n\n%s'
              'Write your answer mail (metin): 1-3 short casual sentences (at least 6 words; give a reason if you say no), like a '
@@ -944,7 +944,7 @@ class Brain:
         k = ('You are %s. %s Your style: %s.\nYou are friends with %s.%s\n\nEarlier private messages:\n%s\n\nYou start a private '
              'chat with him: %s. One short line (metin), like a real friend in a game, not a status report. %s') % (
             b.name, chat_persona(b, y), style(b), name, shared_history(b, name), chat_history(y, names=[b.name, name], n=6, sec=3600), ne,
-            short_info(b.firma))
+            short_info(b.company))
         r = self.ask(k, schema, max_count=60, temperature=0.85)
         with y.lock:
             text = r.get('text') if not foreign_map(b, r.get('text')) else ''
@@ -957,7 +957,7 @@ class Brain:
         k = ('You are %s. %s Your style: %s.\nYou are in a group with %s, playing together right now.%s\n\nRecent group chat:\n%s\n\n'
              'Write one short line in the group chat to him, like a real teammate: where to go next, a quick comment on the '
              'farming or a boss, a joke, a short question. Not a status report, nothing already said. %s') % (
-            b.name, chat_persona(b, y), style(b), name, shared_history(b, name), chat_history(y, 'group', n=6, sec=900), short_info(b.firma))
+            b.name, chat_persona(b, y), style(b), name, shared_history(b, name), chat_history(y, 'group', n=6, sec=900), short_info(b.company))
         r = self.ask(k, schema, max_count=60, temperature=0.9)
         with y.lock:
             text = self._text(b, r.get('text')) if not foreign_map(b, r.get('text')) else ''
@@ -972,14 +972,14 @@ class Brain:
             if len(is_open) < 2:
                 return
             r0 = is_open[0].r
-            channel = 'global' if r0.random() < 0.3 and len({b.firma for b in is_open}) > 1 else 'company'
+            channel = 'global' if r0.random() < 0.3 and len({b.company for b in is_open}) > 1 else 'company'
             if channel == 'global':                         # global: from different companies, banter between companies is normal
-                companies = r0.sample(sorted({b.firma for b in is_open}), 2)
-                group = [max((b for b in is_open if b.firma == f), key=lambda b: b.o('talkativeness') * b.r.random()) for f in companies]
+                companies = r0.sample(sorted({b.company for b in is_open}), 2)
+                group = [max((b for b in is_open if b.company == f), key=lambda b: b.o('talkativeness') * b.r.random()) for f in companies]
                 group += sorted([b for b in is_open if b not in group], key=lambda b: -b.o('talkativeness') * b.r.random())[:1]
             else:
                 fac = r0.choice([1, 2, 3])
-                group = [b for b in is_open if b.firma == fac] or is_open
+                group = [b for b in is_open if b.company == fac] or is_open
                 group = sorted(group, key=lambda b: -b.o('talkativeness') * b.r.random())[:3]
             if len(group) < 2:
                 return
@@ -992,7 +992,7 @@ class Brain:
              'they are old):\n%s\n\nWrite a NEW short natural exchange between them (2-5 lines, a few words each). %s starts it: %s. '
              'The others react to what was actually said (answer, joke, disagree, ask back) - a real back-and-forth in their own '
              'styles, not separate statements. Never status reports.') % (
-            short_info(group[0].firma) if channel == 'company' else short_info(0).split(': a ')[0] + ': MMO maps are 1-x, EIC 2-x, VRU '
+            short_info(group[0].company) if channel == 'company' else short_info(0).split(': a ')[0] + ': MMO maps are 1-x, EIC 2-x, VRU '
                                                                    '3-x, 4-x are shared PvP maps. Ships: ' + ', '.join(SHIPS) + '.',
             'same company' if channel == 'company' else 'global',
             '' if channel == 'company' else ' (players of rival companies: light banter between companies is normal, everyone stays '
@@ -1082,7 +1082,7 @@ class Brain:
         for b in is_open:
             if now - b.__dict__.get('_agent_busy', 0) < 180:
                 continue                                   # thinking
-            if '_llm_karar' not in b.__dict__:               # so the first thinking moments are spread out (not all thinking at once at start)
+            if '_llm_decision' not in b.__dict__:               # so the first thinking moments are spread out (not all thinking at once at start)
                 b._llm_decision = now - b.r.uniform(0, 0.8) * minutes * 60
             far = id(b) not in nearby
             refund = AGT.wake_state(b)                    # if the job cannot enter the queue or goes stale, the reason should not be lost
@@ -1183,9 +1183,9 @@ class Brain:
         """A memory's consequence: the bot writes the player a whisper that brings up the subject, and acts if needed (duel, invite, follow, help)."""
         y, b, a = self.y, job['bot'], job['memory_log']
         t, name = a['followup'], a['who']
-        ne = {'promise': 'follow up on what you two agreed, now it is time', 'intikam': 'you are coming for revenge: tell him so (short '
-              'trash talk, in character, no real hate)', 'thanks': 'thank him for it, casually', 'rekabet': 'poke him about your '
-              'rivalry', 'merak': 'ask him what you wanted to ask'}[t['purpose']]
+        ne = {'promise': 'follow up on what you two agreed, now it is time', 'revenge': 'you are coming for revenge: tell him so (short '
+              'trash talk, in character, no real hate)', 'thanks': 'thank him for it, casually', 'rivalry': 'poke him about your '
+              'rivalry', 'curiosity': 'ask him what you wanted to ask'}[t['purpose']]
         game_map = t.get('map') or ''
         if t['tool'] in ('duel', 'go_help', 'follow') and not game_map:
             import community as TP
@@ -1194,7 +1194,7 @@ class Brain:
         tool = t['tool']
         if tool in ('duel', 'go_help', 'follow'):     # should not say "geliyorum" to a place it cannot reach (live: the MMO bot to EIC's 2-1)
             m = TL._game_map(game_map) if game_map else None
-            if m is None or not K.can_enter(m, b.firma, b.level) or not K.route(b.game_map, m, b.firma, b.level):
+            if m is None or not K.can_enter(m, b.company, b.level) or not K.route(b.game_map, m, b.company, b.level):
                 tool = 'none'
                 ne += ('. He is on %s right now, where you cannot get to him: say you will deal with it another time (or ask him '
                        'to come somewhere you both can go)' % (game_map or 'an unknown map'))

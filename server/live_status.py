@@ -1,5 +1,5 @@
 """The panel's live status page (roadmap Ö2): every few seconds the game server writes the game's current state to a JSON file
-(<log folder>/canli_durum.json); the panel (server/panel/panel.py, /api/canli) reads and shows it. No separate channel is opened to the
+(<log folder>/live_status.json); the panel (server/panel/panel.py, /api/live) reads and shows it. No separate channel is opened to the
 server; the file is written under a temporary name and moved into place, so the panel never reads a half file.
 
 Contents: connection, pilot (level, EP, credits, uridium, honor), ship (HP, shield, cargo), position (map, x, y), map
@@ -46,8 +46,8 @@ def snapshot(game):
          'pilot': {'name': pl.get('userName'), 'level': pl.get('level', 1), 'ep': pl.get('ep', 0), 'credits': pl.get('credits', 0),
                    'uridium': pl.get('uridium', 0), 'honor': pl.get('honourPoints', 0), 'company': pl.get('factionId'),
                    'clan': pl.get('clanTag') or None},
-         'ship': {'name': ship.get('lootId'), 'can': int(g.get('hitPoints', 0)), 'max_hp': g.get('hitMax', 0),
-                  'kalkan': int(g.get('shield', 0)), 'shield_max': g.get('shieldMax', 0), 'cargo': p.cargo_used(),
+         'ship': {'name': ship.get('lootId'), 'hp': int(g.get('hitPoints', 0)), 'max_hp': g.get('hitMax', 0),
+                  'shield': int(g.get('shield', 0)), 'shield_max': g.get('shieldMax', 0), 'cargo': p.cargo_used(),
                   'cargo_max': g.get('cargoSpaceMax', 0)},
          'position': {'map': H.name(k.get('mapId')), 'map_id': k.get('mapId'), 'x': int(k.get('x', 0)), 'y': int(k.get('y', 0))},
          'events': sorted(CAL.active()), 'play_sec': int(played),
@@ -82,7 +82,7 @@ def write(path, data):
 
 
 def start(game, folder, log=print):
-    path = os.path.join(folder, 'canli_durum.json')
+    path = os.path.join(folder, 'live_status.json')
 
     def loop():
         warned = False

@@ -7,7 +7,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 30,
@@ -25,7 +25,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 30,
@@ -43,7 +43,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 30,
@@ -61,7 +61,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 30,
@@ -79,7 +79,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 30,
@@ -97,7 +97,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 30,
@@ -115,7 +115,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "ammunition_laser_ucb-100": 15000,
@@ -131,7 +131,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "ammunition_laser_ucb-100": 10000,
@@ -150,7 +150,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_micro-transistors": 2,
@@ -167,7 +167,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_hybrid-processor": 3,
@@ -183,7 +183,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_hybrid-processor": 3
@@ -198,7 +198,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_byte-remnant": 1000
@@ -213,7 +213,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "equipment_weapon_laser_aa-1": 1
@@ -228,7 +228,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "equipment_weapon_laser_aa-1": 1
@@ -243,7 +243,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_byte-remnant": 1000
@@ -258,7 +258,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "equipment_weapon_laser_aap-1": 1
@@ -273,7 +273,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "equipment_weapon_laser_aap-1": 1
@@ -288,7 +288,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_atlas-shard": 1500
@@ -303,7 +303,7 @@
    "max_count": 3,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_infiltrator-fragment": 2000
@@ -318,7 +318,7 @@
    "max_count": 3,
    "scale": 1.1,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 5000
@@ -333,7 +333,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 15000
@@ -348,7 +348,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 15000
@@ -363,7 +363,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 15000
@@ -378,7 +378,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 15000
@@ -393,7 +393,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 15000
@@ -408,7 +408,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 15000
@@ -423,7 +423,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 15000
@@ -438,7 +438,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 15000
@@ -453,7 +453,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 15000
@@ -468,7 +468,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 15000
@@ -483,7 +483,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 2500
@@ -498,7 +498,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 2500
@@ -513,7 +513,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 10000
@@ -528,7 +528,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 10000
@@ -543,7 +543,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 10000
@@ -558,7 +558,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 20000
@@ -573,7 +573,7 @@
    "max_count": 5,
    "scale": 1.1,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 2000
@@ -588,7 +588,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 10000
@@ -603,7 +603,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 50000
@@ -618,7 +618,7 @@
    "max_count": 5,
    "scale": 1.1,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 2000
@@ -633,7 +633,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 2000
@@ -648,7 +648,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 8000
@@ -663,7 +663,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 8000
@@ -678,7 +678,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 6000
@@ -693,7 +693,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 5000
@@ -708,7 +708,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 30000
@@ -723,7 +723,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 8000
@@ -738,7 +738,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 5000
@@ -753,7 +753,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 8000
@@ -768,7 +768,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 8000
@@ -783,7 +783,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 8000
@@ -798,7 +798,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 5000
@@ -813,7 +813,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 15000
@@ -828,7 +828,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 6000
@@ -843,7 +843,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 3500
@@ -858,7 +858,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 15000
@@ -873,7 +873,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 8000
@@ -888,7 +888,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 15000
@@ -903,7 +903,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 8000
@@ -918,7 +918,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 15000
@@ -933,7 +933,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 15000
@@ -948,7 +948,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 15000
@@ -963,7 +963,7 @@
    "max_count": 5,
    "scale": 1.1,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_agate-splinter": 2000
@@ -978,7 +978,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_golden-candy-corn": 15,
@@ -996,7 +996,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_golden-candy-corn": 25,
@@ -1014,7 +1014,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_golden-candy-corn": 15,
@@ -1032,7 +1032,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_golden-candy-corn": 50,
@@ -1050,7 +1050,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_golden-candy-corn": 25,
@@ -1068,7 +1068,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_golden-candy-corn": 25,
@@ -1086,7 +1086,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_golden-candy-corn": 15,
@@ -1104,7 +1104,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_golden-candy-corn": 15,
@@ -1122,7 +1122,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_golden-candy-corn": 15,
@@ -1140,7 +1140,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 150,
@@ -1159,7 +1159,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_boltrum": 650,
@@ -1176,7 +1176,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_scrapium": 20,
@@ -1193,7 +1193,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_polychromium": 1000,
@@ -1210,7 +1210,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-case": 5,
@@ -1228,7 +1228,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_scrapium": 140,
@@ -1244,7 +1244,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 420,
@@ -1260,7 +1260,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_boltrum": 50,
@@ -1276,7 +1276,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_charopos-shard": 1400,
@@ -1292,7 +1292,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_charopos-shard": 200,
@@ -1308,7 +1308,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_scrapium": 20,
@@ -1327,7 +1327,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_mindfire-cerebrum": 100,
@@ -1349,7 +1349,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_booty-key": 20,
@@ -1369,7 +1369,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 5,
@@ -1386,7 +1386,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 4,
@@ -1402,7 +1402,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_scrapium": 20,
@@ -1419,7 +1419,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_atlas-shard": 500,
@@ -1436,7 +1436,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_astralite": 500
@@ -1452,7 +1452,7 @@
    "max_count": 3,
    "scale": 1.1,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 2700
@@ -1467,7 +1467,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 5400
@@ -1482,7 +1482,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_darksilver-coin": 25
@@ -1498,7 +1498,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_infiltrator-fragment": 450
@@ -1513,7 +1513,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-case": 4,
@@ -1529,7 +1529,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 5,
@@ -1546,7 +1546,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 4,
@@ -1562,7 +1562,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 5,
@@ -1579,7 +1579,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_infiltrator-fragment": 500
@@ -1594,7 +1594,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_infiltrator-fragment": 1000
@@ -1609,7 +1609,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_byte-remnant": 2000
@@ -1624,7 +1624,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_candy-corn": 5000
@@ -1639,7 +1639,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_golden-candy-corn": 35,
@@ -1657,7 +1657,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_golden-candy-corn": 35,
@@ -1675,7 +1675,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_candy-corn": 10000
@@ -1690,7 +1690,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_neu": 500
@@ -1707,7 +1707,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_infiltrator-fragment": 6000
@@ -1722,7 +1722,7 @@
    "max_count": 2,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_infiltrator-fragment": 6000
@@ -1737,7 +1737,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_neu": 500
@@ -1752,7 +1752,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_booty-key": 50,
@@ -1772,7 +1772,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "ammunition_laser_ucb-100": 25000,
@@ -1788,7 +1788,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_booty-key": 200,
@@ -1808,7 +1808,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_champion-token": 40
@@ -1823,7 +1823,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_champion-token": 40
@@ -1838,7 +1838,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_champion-token": 40
@@ -1853,7 +1853,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_champion-token": 40
@@ -1868,7 +1868,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_champion-token": 40
@@ -1883,7 +1883,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_champion-token": 40
@@ -1898,7 +1898,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_champion-token": 80
@@ -1913,7 +1913,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_champion-token": 80
@@ -1928,7 +1928,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_champion-token": 80
@@ -1943,7 +1943,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_champion-token": 80
@@ -1958,7 +1958,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_champion-token": 80
@@ -1973,7 +1973,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_champion-token": 80
@@ -1988,7 +1988,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_champion-token": 120
@@ -2003,7 +2003,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_champion-token": 120
@@ -2018,7 +2018,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_champion-token": 120
@@ -2033,7 +2033,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_champion-token": 120
@@ -2048,7 +2048,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_champion-token": 120
@@ -2063,7 +2063,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_champion-token": 120
@@ -2078,7 +2078,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_champion-token": 120
@@ -2093,7 +2093,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_champion-token": 120
@@ -2108,7 +2108,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_champion-token": 120
@@ -2123,7 +2123,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_champion-token": 120
@@ -2138,7 +2138,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_champion-token": 120
@@ -2153,7 +2153,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_champion-token": 120
@@ -2168,7 +2168,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_champion-token": 120
@@ -2183,7 +2183,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_champion-token": 120
@@ -2198,7 +2198,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chaos-fragment": 120
@@ -2213,7 +2213,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chaos-fragment": 1000
@@ -2228,7 +2228,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chaos-fragment": 1500
@@ -2243,7 +2243,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chaos-fragment": 750
@@ -2258,7 +2258,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 3,
@@ -2275,7 +2275,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 440,
@@ -2292,7 +2292,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 10,
@@ -2309,7 +2309,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-condenser": 3,
@@ -2325,7 +2325,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-condenser": 3,
@@ -2341,7 +2341,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 15000
@@ -2356,7 +2356,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 80000
@@ -2371,7 +2371,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 30000
@@ -2386,7 +2386,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 15000
@@ -2401,7 +2401,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 80000
@@ -2416,7 +2416,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 15000
@@ -2431,7 +2431,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 80000
@@ -2446,7 +2446,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 15000
@@ -2461,7 +2461,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 80000
@@ -2476,7 +2476,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 15000
@@ -2491,7 +2491,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 30000
@@ -2506,7 +2506,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 20000
@@ -2521,7 +2521,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 30000
@@ -2536,7 +2536,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 80000
@@ -2551,7 +2551,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 15000
@@ -2566,7 +2566,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 15000
@@ -2581,7 +2581,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 80000
@@ -2596,7 +2596,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 15000
@@ -2611,7 +2611,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 80000
@@ -2626,7 +2626,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 15000
@@ -2641,7 +2641,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 20000
@@ -2656,7 +2656,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 80000
@@ -2671,7 +2671,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 30000
@@ -2686,7 +2686,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 15000
@@ -2701,7 +2701,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 80000
@@ -2716,7 +2716,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 80000
@@ -2731,7 +2731,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 80000
@@ -2746,7 +2746,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 1888
@@ -2761,7 +2761,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 15000
@@ -2776,7 +2776,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 80000
@@ -2791,7 +2791,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 80000
@@ -2806,7 +2806,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 30000
@@ -2821,7 +2821,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 15000
@@ -2836,7 +2836,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 80000
@@ -2851,7 +2851,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 15000
@@ -2866,7 +2866,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 15000
@@ -2881,7 +2881,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 15000
@@ -2896,7 +2896,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 15000
@@ -2911,7 +2911,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 30000
@@ -2926,7 +2926,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 30000
@@ -2941,7 +2941,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 15000
@@ -2956,7 +2956,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 15000
@@ -2971,7 +2971,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 15000
@@ -2986,7 +2986,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_chromin": 80000
@@ -3001,7 +3001,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_boltrum": 2,
@@ -3017,7 +3017,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "currency_uridium": 5000,
@@ -3035,7 +3035,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_charopos-shard": 200,
@@ -3051,7 +3051,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_indoctrineoil": 450,
@@ -3070,7 +3070,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_atlas-shard": 100
@@ -3085,7 +3085,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_scrapium": 10,
@@ -3103,7 +3103,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 2250
@@ -3118,7 +3118,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 1500
@@ -3133,7 +3133,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 750
@@ -3148,7 +3148,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 10,
@@ -3166,7 +3166,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "currency_uridium": 2000
@@ -3181,7 +3181,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_byte-remnant": 1500
@@ -3196,7 +3196,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_byte-remnant": 1500
@@ -3211,7 +3211,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_blacklight-shard": 4500,
@@ -3229,7 +3229,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_blacklight-shard": 14500,
@@ -3247,7 +3247,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_atlas-shard": 450
@@ -3262,7 +3262,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_golden-candy-corn": 40,
@@ -3280,7 +3280,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 7000
@@ -3295,7 +3295,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_blacklight-shard": 25000,
@@ -3311,7 +3311,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 3540
@@ -3326,7 +3326,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_charopos-shard": 600,
@@ -3342,7 +3342,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_charopos-shard": 800,
@@ -3358,7 +3358,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_infiltrator-fragment": 2500
@@ -3373,7 +3373,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_byte-remnant": 4500
@@ -3388,7 +3388,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_ignishard-l01": 200
@@ -3404,7 +3404,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_ether-shard": 10,
@@ -3421,7 +3421,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_hybrid-processor": 1,
@@ -3438,7 +3438,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_hybrid-processor": 1,
@@ -3454,7 +3454,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "currency_uridium": 24000
@@ -3470,7 +3470,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_blueprint_apis-part": 45
@@ -3486,7 +3486,7 @@
    "max_count": 4,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_infiltrator-fragment": 5000
@@ -3501,7 +3501,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 8,
@@ -3518,7 +3518,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-case": 4,
@@ -3535,7 +3535,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-case": 4,
@@ -3553,7 +3553,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 8,
@@ -3570,7 +3570,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_infiltrator-fragment": 5000
@@ -3585,7 +3585,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_infiltrator-fragment": 7500
@@ -3600,7 +3600,7 @@
    "max_count": 3,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_infiltrator-fragment": 4000
@@ -3615,7 +3615,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-condenser": 2,
@@ -3632,7 +3632,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-case": 4,
@@ -3649,7 +3649,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 4,
@@ -3667,7 +3667,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-case": 4,
@@ -3684,7 +3684,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-case": 4,
@@ -3701,7 +3701,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 4,
@@ -3718,7 +3718,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-case": 4,
@@ -3735,7 +3735,7 @@
    "max_count": 4,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_infiltrator-fragment": 5000
@@ -3750,7 +3750,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "currency_uridium": 33000
@@ -3766,7 +3766,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_blueprint_zeus-part": 45
@@ -3782,7 +3782,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_byte-remnant": 3000
@@ -3797,7 +3797,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_byte-remnant": 1500,
@@ -3813,7 +3813,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "equipment_weapon_laser_aap-1": 1
@@ -3828,7 +3828,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "equipment_weapon_laser_aa-1": 1
@@ -3843,7 +3843,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 5,
@@ -3860,7 +3860,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_infiltrator-fragment": 1000
@@ -3875,7 +3875,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_scrapium": 500,
@@ -3891,7 +3891,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "currency_uridium": 150000,
@@ -3909,7 +3909,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_eternal-fragment": 500,
@@ -3927,7 +3927,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_proxium": 30,
@@ -3944,7 +3944,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_atlas-shard": 750
@@ -3959,7 +3959,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_atlas-shard": 375
@@ -3974,7 +3974,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 1800
@@ -3989,7 +3989,7 @@
    "max_count": 10,
    "scale": 1.1,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 290
@@ -4004,7 +4004,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 900
@@ -4019,7 +4019,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 600
@@ -4034,7 +4034,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_charopos-shard": 150,
@@ -4050,7 +4050,7 @@
    "max_count": 10,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_infiltrator-fragment": 180
@@ -4065,7 +4065,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-case": 10,
@@ -4083,7 +4083,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 6450
@@ -4098,7 +4098,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 150
@@ -4113,7 +4113,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 400
@@ -4128,7 +4128,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 5000
@@ -4143,7 +4143,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 400
@@ -4158,7 +4158,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 4850
@@ -4173,7 +4173,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 300
@@ -4188,7 +4188,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 6450
@@ -4203,7 +4203,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 7150
@@ -4218,7 +4218,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 3950
@@ -4233,7 +4233,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 3950
@@ -4248,7 +4248,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 3950
@@ -4263,7 +4263,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 250
@@ -4278,7 +4278,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 250
@@ -4293,7 +4293,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 1600
@@ -4308,7 +4308,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 550
@@ -4323,7 +4323,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 200
@@ -4338,7 +4338,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 550
@@ -4353,7 +4353,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 200
@@ -4368,7 +4368,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 500
@@ -4383,7 +4383,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 5450
@@ -4398,7 +4398,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 4650
@@ -4413,7 +4413,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 1050
@@ -4428,7 +4428,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 1000
@@ -4443,7 +4443,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 350
@@ -4458,7 +4458,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 2850
@@ -4473,7 +4473,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 2850
@@ -4488,7 +4488,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 350
@@ -4503,7 +4503,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 2850
@@ -4518,7 +4518,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 1450
@@ -4533,7 +4533,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 15000
@@ -4548,7 +4548,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 200
@@ -4563,7 +4563,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 11500
@@ -4578,7 +4578,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 8100
@@ -4593,7 +4593,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 300
@@ -4608,7 +4608,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 250
@@ -4623,7 +4623,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 21450
@@ -4638,7 +4638,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 1950
@@ -4653,7 +4653,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 4300
@@ -4668,7 +4668,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 50
@@ -4683,7 +4683,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 3950
@@ -4698,7 +4698,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 100
@@ -4713,7 +4713,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 10700
@@ -4728,7 +4728,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 200
@@ -4743,7 +4743,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 1700
@@ -4758,7 +4758,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 300
@@ -4773,7 +4773,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 200
@@ -4788,7 +4788,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 100
@@ -4803,7 +4803,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 50
@@ -4818,7 +4818,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 700
@@ -4833,7 +4833,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_flower-token": 150
@@ -4848,7 +4848,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 2
@@ -4864,7 +4864,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 500
@@ -4879,7 +4879,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_charopos-shard": 25,
@@ -4895,7 +4895,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_candy-corn": 35000,
@@ -4913,7 +4913,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_charopos-shard": 250,
@@ -4929,7 +4929,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_candy-corn": 15000,
@@ -4947,7 +4947,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_charopos-shard": 100,
@@ -4963,7 +4963,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_candy-corn": 5000,
@@ -4981,7 +4981,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_charopos-shard": 50,
@@ -4997,7 +4997,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_golden-candy-corn": 35,
@@ -5015,7 +5015,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_golden-candy-corn": 35,
@@ -5033,7 +5033,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-case": 8,
@@ -5051,7 +5051,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 1200,
@@ -5068,7 +5068,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_golden-candy-corn": 15,
@@ -5086,7 +5086,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-case": 8,
@@ -5104,7 +5104,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-case": 8,
@@ -5122,7 +5122,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-case": 8,
@@ -5140,7 +5140,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_atlas-shard": 240
@@ -5155,7 +5155,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_atlas-shard": 120
@@ -5170,7 +5170,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_solidus": 500,
@@ -5187,7 +5187,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_beacon-crystal": 200
@@ -5203,7 +5203,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 3600,
+   "duration_sec": 3600,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 20,
@@ -5220,7 +5220,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_golden-candy-corn": 35,
@@ -5238,7 +5238,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_charopos-shard": 1600,
@@ -5254,7 +5254,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_charopos-shard": 200,
@@ -5270,7 +5270,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 8,
@@ -5287,7 +5287,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 4,
@@ -5304,7 +5304,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 7,
@@ -5321,7 +5321,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 8,
@@ -5338,7 +5338,7 @@
    "max_count": 5,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "ammunition_laser_ucb-100": 25000,
@@ -5354,7 +5354,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_proxium": 15
@@ -5370,7 +5370,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_atlas-shard": 300
@@ -5385,7 +5385,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_indoctrineoil": 450,
@@ -5404,7 +5404,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 1800,
+   "duration_sec": 1800,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 50,
@@ -5421,7 +5421,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_byte-remnant": 1500
@@ -5436,7 +5436,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_byte-remnant": 1500
@@ -5451,7 +5451,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "currency_uridium": 2000
@@ -5466,7 +5466,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_byte-remnant": 2000
@@ -5481,7 +5481,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_blacklight-shard": 4500,
@@ -5499,7 +5499,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_blacklight-shard": 14500,
@@ -5517,7 +5517,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_atlas-shard": 450
@@ -5532,7 +5532,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_golden-candy-corn": 40,
@@ -5550,7 +5550,7 @@
    "max_count": 2,
    "scale": 1.1,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 7000
@@ -5565,7 +5565,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 7000
@@ -5580,7 +5580,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_blacklight-shard": 25000,
@@ -5596,7 +5596,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 3540
@@ -5611,7 +5611,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_charopos-shard": 600,
@@ -5627,7 +5627,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_charopos-shard": 800,
@@ -5643,7 +5643,7 @@
    "max_count": 2,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_infiltrator-fragment": 2500
@@ -5658,7 +5658,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_byte-remnant": 4500
@@ -5673,7 +5673,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 180,
@@ -5690,7 +5690,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 600
@@ -5705,7 +5705,7 @@
    "max_count": 2,
    "scale": 1.1,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 1500
@@ -5720,7 +5720,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 36000,
+   "duration_sec": 36000,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 240,
@@ -5737,7 +5737,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_hydra-alloy": 500,
@@ -5757,7 +5757,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_hybrid-alloy": 30
@@ -5773,7 +5773,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_golden-candy-corn": 25,
@@ -5792,7 +5792,7 @@
    "max_count": 3,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_infiltrator-fragment": 4000
@@ -5807,7 +5807,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_atlas-shard": 2100
@@ -5822,7 +5822,7 @@
    "max_count": 3,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_infiltrator-fragment": 4000
@@ -5837,7 +5837,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_golden-candy-corn": 25,
@@ -5856,7 +5856,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_pulse-core": 1600
@@ -5871,7 +5871,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_pulse-core": 2000
@@ -5886,7 +5886,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_pulse-core": 1200
@@ -5901,7 +5901,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_pulse-core": 1600
@@ -5916,7 +5916,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_pulse-core": 1200
@@ -5931,7 +5931,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_pulse-core": 1600
@@ -5946,7 +5946,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_charopos-shard": 150,
@@ -5962,7 +5962,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_indoctrineoil": 500,
@@ -5981,7 +5981,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_ether-shard": 10,
@@ -5998,7 +5998,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_ether-shard": 10,
@@ -6015,7 +6015,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-case": 2,
@@ -6032,7 +6032,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 2,
@@ -6049,7 +6049,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_kyhalon": 160,
@@ -6069,7 +6069,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_kyhalon": 160,
@@ -6089,7 +6089,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_kyhalon": 160,
@@ -6109,7 +6109,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "equipment_weapon_laser_lf-5": 1,
@@ -6126,7 +6126,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "equipment_weapon_laser_lf-5": 1,
@@ -6143,7 +6143,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_ether-shard": 10,
@@ -6160,7 +6160,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "equipment_weapon_laser_lf-4": 1,
@@ -6178,7 +6178,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_micro-transistors": 2,
@@ -6196,7 +6196,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 1800,
+   "duration_sec": 1800,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 40,
@@ -6213,7 +6213,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 8,
@@ -6231,7 +6231,7 @@
    "max_count": 2,
    "scale": 1.1,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 1500
@@ -6246,7 +6246,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 36000,
+   "duration_sec": 36000,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 40,
@@ -6265,7 +6265,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_indoctrineoil": 450,
@@ -6284,7 +6284,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 440,
@@ -6301,7 +6301,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_boltrum": 60,
@@ -6318,7 +6318,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_boltrum": 50,
@@ -6336,7 +6336,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_boltrum": 40,
@@ -6353,7 +6353,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_boltrum": 90,
@@ -6371,7 +6371,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_boltrum": 10,
@@ -6389,7 +6389,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 180,
@@ -6406,7 +6406,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_scrapium": 100,
@@ -6423,7 +6423,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 120,
@@ -6440,7 +6440,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_boltrum": 40,
@@ -6457,7 +6457,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_boltrum": 10,
@@ -6474,7 +6474,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 300,
@@ -6491,7 +6491,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 12,
@@ -6508,7 +6508,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 1800,
+   "duration_sec": 1800,
    "level": 0,
    "parts": {
     "resource_collectable_boltrum": 10,
@@ -6525,7 +6525,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 14400,
+   "duration_sec": 14400,
    "level": 0,
    "parts": {
     "resource_collectable_scrapium": 50,
@@ -6542,7 +6542,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_neptune-alloy": 500,
@@ -6562,7 +6562,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 3000
@@ -6577,7 +6577,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_charopos-shard": 250,
@@ -6593,7 +6593,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_opitite": 5000,
@@ -6610,7 +6610,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_opitite": 2500,
@@ -6627,7 +6627,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_opitite": 2000,
@@ -6644,7 +6644,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_opitite": 2000,
@@ -6661,7 +6661,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_opitite": 5000,
@@ -6678,7 +6678,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_opitite": 12000,
@@ -6695,7 +6695,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_opitite": 2000,
@@ -6712,7 +6712,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_charopos-shard": 200,
@@ -6728,7 +6728,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_ouroboros-alloy": 500,
@@ -6748,7 +6748,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 1200
@@ -6763,7 +6763,7 @@
    "max_count": 8,
    "scale": 1.1,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 300
@@ -6778,7 +6778,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 600
@@ -6793,7 +6793,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 300
@@ -6808,7 +6808,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_astralite": 1450,
@@ -6825,7 +6825,7 @@
    "max_count": 8,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_infiltrator-fragment": 2000
@@ -6840,7 +6840,7 @@
    "max_count": 5,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_infiltrator-fragment": 6000
@@ -6855,7 +6855,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_hybrid-processor": 2,
@@ -6872,7 +6872,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_hybrid-processor": 2,
@@ -6888,7 +6888,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-case": 6,
@@ -6905,7 +6905,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-case": 4,
@@ -6922,7 +6922,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 4,
@@ -6940,7 +6940,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-case": 6,
@@ -6957,7 +6957,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_golden-candy-corn": 30,
@@ -6975,7 +6975,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-case": 4,
@@ -6992,7 +6992,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-case": 4,
@@ -7009,7 +7009,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-case": 3,
@@ -7026,7 +7026,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 4,
@@ -7043,7 +7043,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_scrapium": 500,
@@ -7059,7 +7059,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-case": 3,
@@ -7076,7 +7076,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 8,
@@ -7093,7 +7093,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 8,
@@ -7110,7 +7110,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 1500
@@ -7125,7 +7125,7 @@
    "max_count": 5,
    "scale": 1.1,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 400
@@ -7140,7 +7140,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 600
@@ -7155,7 +7155,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 300
@@ -7170,7 +7170,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 390
@@ -7185,7 +7185,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_charopos-shard": 250,
@@ -7201,7 +7201,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_charopos-shard": 150,
@@ -7217,7 +7217,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_charopos-shard": 100,
@@ -7233,7 +7233,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_infiltrator-fragment": 200
@@ -7248,7 +7248,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 14400,
+   "duration_sec": 14400,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 80,
@@ -7265,7 +7265,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 2000
@@ -7280,7 +7280,7 @@
    "max_count": 10,
    "scale": 1.1,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 300
@@ -7295,7 +7295,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 1000
@@ -7310,7 +7310,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 500
@@ -7325,7 +7325,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 900
@@ -7340,7 +7340,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_booty-key": 75,
@@ -7360,7 +7360,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 4,
@@ -7377,7 +7377,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 12,
@@ -7394,7 +7394,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 10,
@@ -7411,7 +7411,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_scrapium": 500
@@ -7426,7 +7426,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_charopos-shard": 200,
@@ -7442,7 +7442,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-case": 4,
@@ -7458,7 +7458,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_boltrum": 500,
@@ -7474,7 +7474,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_scrapium": 10,
@@ -7491,7 +7491,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 160,
@@ -7508,7 +7508,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_infiltrator-fragment": 8
@@ -7523,7 +7523,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_schism": 10,
@@ -7540,7 +7540,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_proxium": 130,
@@ -7556,7 +7556,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "currency_uridium": 4000,
@@ -7574,7 +7574,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_infiltrator-fragment": 2
@@ -7589,7 +7589,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_infiltrator-fragment": 800
@@ -7604,7 +7604,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 6,
@@ -7622,7 +7622,7 @@
    "max_count": 12,
    "scale": 1.1,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 250
@@ -7637,7 +7637,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 3600
@@ -7652,7 +7652,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-case": 4,
@@ -7668,7 +7668,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 5,
@@ -7685,7 +7685,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_boltrum": 85,
@@ -7703,7 +7703,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 1650
@@ -7718,7 +7718,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_atlas-shard": 35
@@ -7734,7 +7734,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 1275
@@ -7749,7 +7749,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 423
@@ -7764,7 +7764,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_spvoucher": 10
@@ -7780,7 +7780,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_spvoucher": 10
@@ -7797,7 +7797,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_spvoucher": 10
@@ -7813,7 +7813,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_spvoucher": 10
@@ -7829,7 +7829,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_spvoucher": 5
@@ -7846,7 +7846,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_spvoucher": 10
@@ -7862,7 +7862,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_spvoucher": 10
@@ -7878,7 +7878,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_spvoucher": 5
@@ -7895,7 +7895,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_spvoucher": 10
@@ -7912,7 +7912,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_spvoucher": 10
@@ -7928,7 +7928,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_spvoucher": 10
@@ -7945,7 +7945,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_spvoucher": 10
@@ -7961,7 +7961,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_spvoucher": 10
@@ -7978,7 +7978,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_spvoucher": 10
@@ -7995,7 +7995,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_spvoucher": 5
@@ -8012,7 +8012,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_spvoucher": 10
@@ -8028,7 +8028,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_spvoucher": 10
@@ -8045,7 +8045,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_spvoucher": 5
@@ -8062,7 +8062,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 12,
@@ -8079,7 +8079,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-case": 6,
@@ -8097,7 +8097,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "currency_uridium": 10000,
@@ -8115,7 +8115,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 1800
@@ -8130,7 +8130,7 @@
    "max_count": 15,
    "scale": 1.1,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 200
@@ -8145,7 +8145,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 900
@@ -8160,7 +8160,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 300
@@ -8175,7 +8175,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_golden-candy-corn": 10,
@@ -8194,7 +8194,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_schism": 10,
@@ -8210,7 +8210,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_boltrum": 2,
@@ -8228,7 +8228,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_prismatic-socket": 1,
@@ -8245,7 +8245,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-condenser": 1,
@@ -8262,7 +8262,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_micro-transistors": 2,
@@ -8281,7 +8281,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_hybrid-processor": 2,
@@ -8299,7 +8299,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_byte-remnant": 1500
@@ -8314,7 +8314,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "currency_uridium": 2000
@@ -8329,7 +8329,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_indoctrineoil": 30,
@@ -8348,7 +8348,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_blacklight-shard": 4500,
@@ -8366,7 +8366,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_blacklight-shard": 14500,
@@ -8384,7 +8384,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_atlas-shard": 450
@@ -8399,7 +8399,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_golden-candy-corn": 40,
@@ -8417,7 +8417,7 @@
    "max_count": 2,
    "scale": 1.1,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 7000
@@ -8432,7 +8432,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 7000
@@ -8447,7 +8447,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_blacklight-shard": 25000,
@@ -8463,7 +8463,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 3540
@@ -8478,7 +8478,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_charopos-shard": 600,
@@ -8494,7 +8494,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_charopos-shard": 800,
@@ -8510,7 +8510,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_infiltrator-fragment": 2500
@@ -8525,7 +8525,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_byte-remnant": 4500
@@ -8540,7 +8540,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 43200,
+   "duration_sec": 43200,
    "level": 0,
    "parts": {
     "ship_citadel": 1,
@@ -8558,7 +8558,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 43200,
+   "duration_sec": 43200,
    "level": 0,
    "parts": {
     "ship_goliath": 1,
@@ -8577,7 +8577,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 43200,
+   "duration_sec": 43200,
    "level": 0,
    "parts": {
     "ship_hammerclaw": 1,
@@ -8596,7 +8596,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 43200,
+   "duration_sec": 43200,
    "level": 0,
    "parts": {
     "ship_hecate": 1,
@@ -8615,7 +8615,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 43200,
+   "duration_sec": 43200,
    "level": 0,
    "parts": {
     "ship_liberator": 1,
@@ -8633,7 +8633,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 43200,
+   "duration_sec": 43200,
    "level": 0,
    "parts": {
     "ship_pusat": 1,
@@ -8652,7 +8652,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 43200,
+   "duration_sec": 43200,
    "level": 0,
    "parts": {
     "ship_retiarus": 1,
@@ -8671,7 +8671,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 43200,
+   "duration_sec": 43200,
    "level": 0,
    "parts": {
     "ship_solace": 1,
@@ -8690,7 +8690,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 43200,
+   "duration_sec": 43200,
    "level": 0,
    "parts": {
     "ship_solaris": 1,
@@ -8709,7 +8709,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 43200,
+   "duration_sec": 43200,
    "level": 0,
    "parts": {
     "ship_spearhead": 1,
@@ -8728,7 +8728,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 43200,
+   "duration_sec": 43200,
    "level": 0,
    "parts": {
     "ship_spectrum": 1,
@@ -8747,7 +8747,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 43200,
+   "duration_sec": 43200,
    "level": 0,
    "parts": {
     "ship_tartarus": 1,
@@ -8766,7 +8766,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 2,
@@ -8783,7 +8783,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_micro-transistors": 2,
@@ -8802,7 +8802,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 740,
@@ -8821,7 +8821,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 2,
@@ -8838,7 +8838,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_indoctrineoil": 60,
@@ -8857,7 +8857,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 10,
@@ -8875,7 +8875,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_styxus-shard": 200,
@@ -8891,7 +8891,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_styxus-shard": 1400,
@@ -8907,7 +8907,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 10,
+   "duration_sec": 10,
    "level": 0,
    "parts": {
     "drone_designs_havoc": 1,
@@ -8924,7 +8924,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_byte-remnant": 1500
@@ -8939,7 +8939,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "currency_uridium": 2000
@@ -8954,7 +8954,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_styxus-shard": 700,
@@ -8970,7 +8970,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_indoctrineoil": 20,
@@ -8989,7 +8989,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_blacklight-shard": 4500,
@@ -9007,7 +9007,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_blacklight-shard": 14500,
@@ -9025,7 +9025,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_atlas-shard": 450
@@ -9040,7 +9040,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_golden-candy-corn": 40,
@@ -9058,7 +9058,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 7000
@@ -9073,7 +9073,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_blacklight-shard": 25000,
@@ -9089,7 +9089,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 3540
@@ -9104,7 +9104,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_charopos-shard": 600,
@@ -9120,7 +9120,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_charopos-shard": 800,
@@ -9136,7 +9136,7 @@
    "max_count": 2,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_infiltrator-fragment": 2500
@@ -9151,7 +9151,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_byte-remnant": 4500
@@ -9166,7 +9166,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 4,
@@ -9183,7 +9183,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 12,
@@ -9200,7 +9200,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 10,
@@ -9217,7 +9217,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_scrapium": 500
@@ -9232,7 +9232,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_charopos-shard": 200,
@@ -9248,7 +9248,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-case": 4,
@@ -9264,7 +9264,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 10,
@@ -9282,7 +9282,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_charopos-shard": 75,
@@ -9298,7 +9298,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-condenser": 2,
@@ -9316,7 +9316,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_glacial-fragment": 4,
@@ -9332,7 +9332,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_tarnom": 300,
@@ -9349,7 +9349,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_tarnom": 750,
@@ -9366,7 +9366,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_tarnom": 1750,
@@ -9383,7 +9383,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_tarnom": 1750,
@@ -9400,7 +9400,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_tarnom": 1750,
@@ -9417,7 +9417,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_tarnom": 1000,
@@ -9434,7 +9434,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-case": 8,
@@ -9451,7 +9451,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_prismatic-socket": 10,
@@ -9468,7 +9468,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-case": 6,
@@ -9485,7 +9485,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-case": 6,
@@ -9502,7 +9502,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "ammunition_laser_ucb-100": 20000,
@@ -9518,7 +9518,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "currency_uridium": 2800
@@ -9534,7 +9534,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "currency_credits": 500000,
@@ -9552,7 +9552,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "currency_uridium": 2800
@@ -9568,7 +9568,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "currency_credits": 500000,
@@ -9586,7 +9586,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "currency_uridium": 1800
@@ -9602,7 +9602,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "currency_credits": 500000,
@@ -9620,7 +9620,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "currency_uridium": 6500
@@ -9636,7 +9636,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "currency_credits": 1000000,
@@ -9654,7 +9654,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "currency_uridium": 250
@@ -9670,7 +9670,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "currency_credits": 20000
@@ -9686,7 +9686,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_triskelion-alloy": 500,
@@ -9706,7 +9706,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_micro-transistors": 2,
@@ -9725,7 +9725,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_proxium": 25,
@@ -9743,7 +9743,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_infiltrator-fragment": 625
@@ -9758,7 +9758,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_boltrum": 215,
@@ -9776,7 +9776,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_charopos-shard": 150,
@@ -9792,7 +9792,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_boltrum": 10,
@@ -9809,7 +9809,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "ammunition_laser_ucb-100": 100
@@ -9825,7 +9825,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 12,
@@ -9842,7 +9842,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_nano-condenser": 2,
@@ -9859,7 +9859,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_styxus-shard": 1400,
@@ -9875,7 +9875,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 12,
@@ -9892,7 +9892,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_high-frequency-cable": 10,
@@ -9910,7 +9910,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 1500
@@ -9925,7 +9925,7 @@
    "max_count": 10,
    "scale": 1.1,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 225
@@ -9940,7 +9940,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 750
@@ -9955,7 +9955,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_collectable_luminium": 300
@@ -9970,7 +9970,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_ore_duranium": 10,
@@ -9988,7 +9988,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_ore_duranium": 20,
@@ -10006,7 +10006,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_ore_duranium": 70,
@@ -10024,7 +10024,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_ore_duranium": 1,
@@ -10042,7 +10042,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_ore_duranium": 1,
@@ -10060,7 +10060,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_ore_duranium": 1,
@@ -10078,7 +10078,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 900,
+   "duration_sec": 900,
    "level": 0,
    "parts": {
     "resource_ore_duranium": 1,
@@ -10096,7 +10096,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_ore_duranium": 1,
@@ -10114,7 +10114,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_ore_duranium": 1,
@@ -10132,7 +10132,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_ore_duranium": 1,
@@ -10150,7 +10150,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_ore_prometium": 5,
@@ -10173,7 +10173,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "ammunition_specialammo_ghostifier": 1,
@@ -10189,7 +10189,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "ammunition_firework_fwx-s": 5,
@@ -10208,7 +10208,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "ammunition_laser_lcb-10": 5,
@@ -10232,7 +10232,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "ammunition_mine_acm-01": 5,
@@ -10252,7 +10252,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "ammunition_rocket_r-310": 5,
@@ -10275,7 +10275,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "ammunition_rocketlauncher_hstrm-01": 5,
@@ -10296,7 +10296,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "ammunition_specialammo_emp-01": 5
@@ -10311,7 +10311,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "recipe_recipe-test17": 1,
@@ -10327,7 +10327,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_booty-key-silver": 1,
@@ -10345,7 +10345,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_ore_duranium": 200,
@@ -10363,7 +10363,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 10,
+   "duration_sec": 10,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 150,
@@ -10381,7 +10381,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_ore_duranium": 20,
@@ -10399,7 +10399,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 10,
+   "duration_sec": 10,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 150,
@@ -10417,7 +10417,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 10,
+   "duration_sec": 10,
    "level": 0,
    "parts": {
     "resource_collectable_mucosum": 150,
@@ -10435,7 +10435,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 180,
+   "duration_sec": 180,
    "level": 0,
    "parts": {
     "resource_ore_duranium": 100,
@@ -10453,7 +10453,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_ore_duranium": 50,
@@ -10471,7 +10471,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_ore_duranium": 200,
@@ -10489,7 +10489,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_ore_duranium": 200,
@@ -10507,7 +10507,7 @@
    "max_count": null,
    "scale": 1.0,
    "stackable": true,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_ore_duranium": 20,
@@ -10525,7 +10525,7 @@
    "max_count": 1,
    "scale": 1.0,
    "stackable": false,
-   "sure_sn": 5,
+   "duration_sec": 5,
    "level": 0,
    "parts": {
     "resource_ore_duranium": 20,

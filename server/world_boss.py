@@ -126,7 +126,7 @@ class WorldBoss:
 
     def h_ref(self):
         """Tier unit: the last battle's Fortress active HP (if none yet, computed from the player's power)."""
-        return self.st['h_ref'] or int(scale(self.p, None) * (D['npcs']['dreadfyre_fortress']['hp'] + D['npcs']['dreadfyre_fortress']['kalkan']))
+        return self.st['h_ref'] or int(scale(self.p, None) * (D['npcs']['dreadfyre_fortress']['hp'] + D['npcs']['dreadfyre_fortress']['shield']))
 
     def tier_need(self, k):
         row = D['tier'][k - 1]
@@ -166,7 +166,7 @@ class WorldBoss:
         day = (datetime.date.today() - datetime.timedelta(days=kind)).isoformat()
         row = (st.get('event') if kind == 2 else st.get('days', {}).get(day)) or {}
         me = mod('WorldBossRankingInfoModule', username=self.p.d['pilot'].get('userName', ''), score=min(int(row['damage']), 2 ** 31 - 1),
-                 rank=int(row.get('order') or D['virtual_rank'][-1][1]), timeTaken=int(row.get('sn', 0))) if row.get('damage') else None
+                 rank=int(row.get('order') or D['virtual_rank'][-1][1]), timeTaken=int(row.get('sec', 0))) if row.get('damage') else None
         return ('WorldBossRankingInfoCommand', dict(isActive=active(), titleStr='', myRank=me, prevRank=None, nextRank=None,
                                                     rankingInfoList=[me] if me else []))
 
@@ -182,7 +182,7 @@ class WorldBoss:
             for row in (days.setdefault(today.isoformat(), {}), st.setdefault('event', {})):
                 row['damage'] = row.get('damage', 0) + dmg
                 if dmg and now - st.get('last', 0) < 60:
-                    row['sn'] = row.get('sn', 0) + now - st['last']
+                    row['sec'] = row.get('sec', 0) + now - st['last']
                 if rank:
                     row['order'] = min(row.get('order') or rank, rank)
             if dmg:
@@ -374,13 +374,13 @@ class WbRun:
         return dict(start=self.start, end=self.end, boss_at=self.boss_at, escape_at=self.escape_at, phase=self.phase, s=self.s,
                     dealt=self.dealt, paid=sorted(self.paid),
                     mines=sorted(self.mines_done),
-                    fortress=[f.hp / float(max(1, f.d['hp'])), f.shield / float(max(1, f.d['kalkan']))] if f and f.alive else None,
+                    fortress=[f.hp / float(max(1, f.d['hp'])), f.shield / float(max(1, f.d['shield']))] if f and f.alive else None,
                     guardians=[[g.alive, g.downed, g.hp / float(max(1, g.d['hp']))] for g in self.guardians])
 
     def fortress_max(self):
         f = self.fortress
         if f:
-            return f.d['hp'] + f.d['kalkan']
+            return f.d['hp'] + f.d['shield']
         return self.m.h_ref()
 
     def fortress_left(self):
@@ -424,7 +424,7 @@ class WbRun:
         f.damage_hook = self.fortress_hit
         self.fortress = f
         with self.m.p.lock:
-            self.m.st['h_ref'] = f.d['hp'] + f.d['kalkan']
+            self.m.st['h_ref'] = f.d['hp'] + f.d['shield']
             self.m.p.dirty = True
         r = D['guardian_distance']
         for dx, dy in ((0, -1), (1, 0), (0, 1), (-1, 0)):
@@ -442,7 +442,7 @@ class WbRun:
         self.next.update(rocket=0, radiation=time.time() + 20, laser=time.time() + 10, revive=time.time() + 30, move=0, ram=0,
                          field=0, seeker=0)
         if restore and restore.get('fortress'):                   # resumed battle: HP, fallen and dead Guardians, phase
-            f.hp, f.shield = int(f.d['hp'] * restore['fortress'][0]), int(f.d['kalkan'] * restore['fortress'][1])
+            f.hp, f.shield = int(f.d['hp'] * restore['fortress'][0]), int(f.d['shield'] * restore['fortress'][1])
             saved = restore['guardians']        # those who died on the previous return had been filtered out: missing slots are dead (otherwise the extra Guardians stayed at full HP)
             saved = saved + [[False, False, 0.0]] * (len(self.guardians) - len(saved))
             for g, (alive, downed, ratio) in zip(self.guardians, saved):
@@ -501,7 +501,7 @@ class WbRun:
         msgs = []
         for g in down[:count]:
             g.downed, g.summoned, g.up_since = False, False, time.time()
-            g.hp, g.shield = g.d['hp'], g.d['kalkan']
+            g.hp, g.shield = g.d['hp'], g.d['shield']
             msgs += [self.field_visual(g, True)]
         if msgs:
             self.w.send(msgs + [KAPI.screen('A Dreadfyre Guardian has returned!')])
@@ -799,10 +799,10 @@ class WbRun:
         if kind == 'speed':
             w.hero_effect('speed_up', max(60, int(self.close_at - time.time())), int(g.get('speed', 300) * 1.1), source='dreadfyre')
             text = 'Speed boost!'
-        elif kind == 'kalkan':
+        elif kind == 'shield':
             p.set_hull(shield=min(g.get('shieldMax', 0), g.get('shield', 0) + int(g.get('shieldMax', 0) * 0.15)))
             text = 'Shield boost!'
-        elif kind == 'can':
+        elif kind == 'hp':
             p.set_hull(hp=min(g.get('hitMax', 0), g.get('hitPoints', 0) + int(g.get('hitMax', 0) * 0.15)))
             text = 'Hull boost!'
         else:

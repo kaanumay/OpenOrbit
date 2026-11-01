@@ -109,7 +109,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -125,7 +125,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -154,7 +154,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -209,7 +209,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -457,7 +457,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -473,7 +473,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -489,7 +489,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -584,7 +584,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -691,7 +691,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -720,7 +720,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -899,7 +899,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -968,7 +968,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -984,7 +984,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -1000,7 +1000,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -1016,7 +1016,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -1032,7 +1032,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -1410,7 +1410,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -1452,7 +1452,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -1481,7 +1481,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -1510,7 +1510,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -1565,7 +1565,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -1620,7 +1620,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -1649,7 +1649,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -2079,7 +2079,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -2594,7 +2594,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -2675,7 +2675,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -2691,7 +2691,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -2707,7 +2707,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -2912,7 +2912,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -2954,7 +2954,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -2970,7 +2970,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -4782,7 +4782,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],
@@ -4899,7 +4899,7 @@
     {
      "route": "gate",
      "event": "gg_weekend",
-     "kapilar": [
+     "gates": [
       "zeta",
       "kappa"
      ],

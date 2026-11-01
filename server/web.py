@@ -8,7 +8,7 @@ Guest of a friend server (the panel's "Play with Friends", panel/friends.py): wi
 the id is given by the server). --address: the local address to listen on (default 127.0.0.1). On macOS 80 and 843 are opened on 0.0.0.0 and only connections from this
 computer are accepted (platform_compat.py: macOS does not open ports below 1024 on 127.0.0.1 for non-root).
 Multi-client (panel/multi_client.py): the extra client is opened with http://127.0.0.1:8090/?session=<key>#darkorbit://; the key is asked of the game server
-(GET /yerel/oturum: the save's profile and its id on the server), the login page writes it to the dosid cookie, the client comes to login.php with the
+(GET /local/session: the save's profile and its id on the server), the login page writes it to the dosid cookie, the client comes to login.php with the
 PHPSESSID cookie: id, ship, map, language and 2D are that save's. An unknown extra key does not fall to the main player (the main client
 would): the login page gives a warning, login.php returns a failure.
 """
@@ -91,7 +91,7 @@ _direct = build_opener(ProxyHandler({}))   # so the system's proxy is not used t
 
 
 def extra_session(sid):
-    """The extra session of multi-client: asked of the game server (GET /yerel/oturum; kept for a short time) -> {'uid', 'route', 'record'}
+    """The extra session of multi-client: asked of the game server (GET /local/session; kept for a short time) -> {'uid', 'route', 'record'}
     or None. As a guest of a friend's server (--uid) there is no extra session."""
     if not sid or sid == SESSION or UID or not SESSION_RE.fullmatch(sid):
         return None
@@ -101,7 +101,7 @@ def extra_session(sid):
     if c and now - c[0] < (60 if c[1] else 2):
         return c[1]
     try:
-        with _direct.open('http://%s/yerel/oturum?session=%s' % (GAME_SERVER, quote(sid)), timeout=3) as r:
+        with _direct.open('http://%s/local/session?session=%s' % (GAME_SERVER, quote(sid)), timeout=3) as r:
             d = json.loads(r.read().decode('utf8'))
         v = {'uid': int(d['uid']), 'route': str(d['route']), 'record': str(d.get('record') or '')}
     except Exception:                   # 404 (unknown), the server is single-player or closed
@@ -186,7 +186,7 @@ INFO = {      # Settings -> Support / Account Center ... (official forum 127724,
     'credits': ('Emeği geçenler', 'OpenOrbit: tek oyunculu yerel sunucu.'),
     'imprint': ('Künye', 'OpenOrbit: tek oyunculu yerel sunucu; ticari bir hizmet değildir.'),
     'support': ('Destek', 'Destek bileti yerine panelin günlüklerine (server/logs) bak; sohbetteki /report raporları '
-                'server/logs/sohbet_raporlari.jsonl dosyasına yazılır.'),
+                'server/logs/chat_reports.jsonl dosyasına yazılır.'),
     'accountCenter': ('Hesap Merkezi', 'Hesap ayarları (ad, şifre, bülten) yerel profilde tutulur; pilot adını oyundaki Pilot Profili '
                       'penceresinden değiştirebilirsin.'),
 }
@@ -266,7 +266,7 @@ def gate_rewards_xml():
     from xml.sax.saxutils import quoteattr
     import game_data as DATA          # the selected world's gates (OO_WORLD)
     try:
-        gates = DATA.load('gates.json')['kapilar']
+        gates = DATA.load('gates.json')['gates']
     except (OSError, ValueError, KeyError):
         gates = {}
     out = []

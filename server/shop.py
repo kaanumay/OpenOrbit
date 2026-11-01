@@ -228,7 +228,7 @@ RES_REPLACEMENT = {'drone_have_max': ('items_drone_have_max', {}),
 # resources that are ingredients in Assembly recipes (those sold in the shop: Prismatic Socket, Nano Case ...; assembly.py)
 ASSEMBLY_PARTS = {l for r in json.load(open(os.path.join(HERE, 'data', 'recipes.json'), encoding='utf8'))['recipes'].values()
                   for l in r['parts'] if l.startswith('resource_')}
-STAT_TABLES = (('lasers', 'damage'), ('shield_generators', 'kalkan'), ('speed_generators', 'speed'))
+STAT_TABLES = (('lasers', 'damage'), ('shield_generators', 'shield'), ('speed_generators', 'speed'))
 # no effect, not sold (hidden in the shop): the Radar CPU (diplomacy colors: bot players). The Serum CPU cures IM-01 infection
 NO_EFFECT = ('equipment_extra_cpu_rd-x',)
 PAY_CURRENCY = {'currency_uridium': ('uridium', 'URI'), 'currency_credits': ('credits', 'CRE'), 'currency_experience': ('ep', 'EP'),
@@ -1697,9 +1697,9 @@ class Shop:
             # "Upgrade lvl. Damage/Shield" is written as in the client: level + 1 as in Assembly
             up = UPG.drone_level(x)
             weapon = ((1 + lv['laser'] + team) * UPG.factor(x['lootId'], up, UPG.DRONE_DAMAGE) - 1) * 100
-            shield = ((1 + lv['kalkan'] + shd) * UPG.factor(x['lootId'], up, UPG.DRONE_SHIELD) - 1) * 100
+            shield = ((1 + lv['shield'] + shd) * UPG.factor(x['lootId'], up, UPG.DRONE_SHIELD) - 1) * 100
             drones.append(mod('SingleDroneEquipmentMsg', level=x['level'], visual=[look] if look else [],
-                              shieldBouns=round(shield - lv['kalkan'] * 100, 2), repairValue='', defaults=list(dc.get(str(x['uid']), [])),
+                              shieldBouns=round(shield - lv['shield'] * 100, 2), repairValue='', defaults=list(dc.get(str(x['uid']), [])),
                               weaponBouns=round(weapon - lv['laser'] * 100, 2), damageUpgradeLevel=up + 1, shieldUpgradeLevel=up + 1,
                               design=[design] if design else [], shieldEffect=round(shield, 2),
                               position=i, droneId=x['uid'], damage=0.0, repairType='', weaponEffect=round(weapon, 2)))
@@ -1800,15 +1800,15 @@ class Shop:
         shield_table = ITEMS['shield_generators']
         glv = (self.p.d.get('equipment_level') if active else self.p.loadout_levels(sid) or {}) or {}
         glv = glv.get('generators', [])
-        shields = [(shield_table[g]['kalkan'] * UPG.factor(g, glv[i] if i < len(glv) else 0, UPG.SHIELD), shield_table[g]['absorb'])
+        shields = [(shield_table[g]['shield'] * UPG.factor(g, glv[i] if i < len(glv) else 0, UPG.SHIELD), shield_table[g]['absorb'])
                    for i, g in enumerate(gens) if g in shield_table]
         ship_gens = len(shields)
         cid = self.p.ship(sid)['active_config']
         for (x, loots), (dloot, dup, ilv) in zip(self.p.drone_loadout(sid), self.p.drone_levels(sid)):
             # drone level and the drone's design (Hercules: +15% to that drone's shield generators); the drone's and generator's upgrade
-            bonus = 1 + LEVELS[x['level'] - 1]['kalkan'] + DESIGNS.get(self.p.drone_design(x, 'design', cid, sid) or '', {}).get('drone_shield', 0)
+            bonus = 1 + LEVELS[x['level'] - 1]['shield'] + DESIGNS.get(self.p.drone_design(x, 'design', cid, sid) or '', {}).get('drone_shield', 0)
             bonus *= UPG.factor(dloot, dup, UPG.DRONE_SHIELD)
-            shields += [(shield_table[g]['kalkan'] * bonus * UPG.factor(g, ilv[j] if j < len(ilv) else 0, UPG.SHIELD), shield_table[g]['absorb'])
+            shields += [(shield_table[g]['shield'] * bonus * UPG.factor(g, ilv[j] if j < len(ilv) else 0, UPG.SHIELD), shield_table[g]['absorb'])
                         for j, g in enumerate(loots) if g in shield_table]
         total = sum(k for k, e in shields)
         absorb = sum(k * e for k, e in shields) / total if total else 0.8
@@ -1816,8 +1816,8 @@ class Shop:
         hp = self.p.ship_row(sid).get('hp')
         total *= 1 + ((active and self.p.lab_bonus(3)) or 0)     # shield upgrade (Duranium, Promerium, Seprom, Osmium)
         # the panel's ship HP and shield multipliers; the shield goes to the client as 32 bits (AttributeShieldUpdateCommand)
-        shield_max = min(SET.I32, int(total * (1 + form.get('kalkan', 0)) * SET.multiplier('ship_shield')))
-        hp_max = max(1, int(hp * (1 + form.get('can', 0)) * SET.multiplier('ship_hp') + form.get('hp_flat', 0))) if hp else None
+        shield_max = min(SET.I32, int(total * (1 + form.get('shield', 0)) * SET.multiplier('ship_shield')))
+        hp_max = max(1, int(hp * (1 + form.get('hp', 0)) * SET.multiplier('ship_hp') + form.get('hp_flat', 0))) if hp else None
         if hp_max and active:
             hp_max = max(1, int(hp_max * form.get('hp_multiplier', 1.0)))   # infection: 15% of the total hull, Pilot Bio included
         return dict(display=display, speed=speed, shield_max=shield_max, absorb=absorb,
@@ -1844,7 +1844,7 @@ class Shop:
                  laserCount=s['lasers'], speedGenerators=s['speed_gens'], shieldGenerators=s['shield_gens'], shipId=int(sid),
                  isActive=sid == self.p.d['active_ship'], isFavorite=bool(ship.get('favorite')), lootId='',
                  curDesignLootId=self.p.ship_look(sid), designList=self.designs(sid),
-                 repairVouchers=int((self.p.d.get('kapilar') or {}).get('voucher', 0)))      # repair vouchers of the gates
+                 repairVouchers=int((self.p.d.get('gates') or {}).get('voucher', 0)))      # repair vouchers of the gates
         t['maxSpeed'] = s['display'] or 0                       # not the 355 in the save if it is absent from the ship data
         return ('HangarShipDetailCommand', t)
 
@@ -1964,7 +1964,7 @@ class Shop:
 
     def module_item(self, iid, m):
         msg = self.inv_item(int(iid), m['loot'], 1, level=int(m.get('level', 0)))
-        msg[1]['item']['inventoryItemAttributes'] = [mod('InventoryItemAttributeModule', key=0, value=str(int(m.get('can', 0))))]
+        msg[1]['item']['inventoryItemAttributes'] = [mod('InventoryItemAttributeModule', key=0, value=str(int(m.get('hp', 0))))]
         return msg
 
     def ship_count_msgs(self, loots):

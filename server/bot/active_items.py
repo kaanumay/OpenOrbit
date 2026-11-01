@@ -70,9 +70,9 @@ def backup_shields(w, n, now):
     v = TECH_DATA['tech_backup-shields']
     if not ready(n, 'sbu', now) or not TECH.use(n.bot, 'tech_backup-shields'):
         return False
-    n.shield += v['kalkan']
+    n.shield += v['shield']
     wait(n, 'sbu', now, v['cooldown_sec'])
-    _broadcast(w, [legacy('0|n|A|S|%s|%d' % (v['eski'], n.id))], n.id)
+    _broadcast(w, [legacy('0|n|A|S|%s|%d' % (v['old'], n.id))], n.id)
     return True
 
 
@@ -83,12 +83,12 @@ def battle_repair(w, n, now, hp):
         return False
     wait(n, 'brb', now, v['cooldown_sec'])
     visual(w, n, v['visual'], True)
-    for i in range(int(v['sure_sn'])):
+    for i in range(int(v['duration_sec'])):
         def repair():
             if n.alive:
                 n.hp = min(hp, n.hp + v['hp_sec'])
         w.later(i + 1, repair)
-    w.later(v['sure_sn'], lambda: visual(w, n, v['visual'], False) if n.alive else None)
+    w.later(v['duration_sec'], lambda: visual(w, n, v['visual'], False) if n.alive else None)
     return True
 
 
@@ -98,10 +98,10 @@ def energy_leech(w, n, now):
     v = TECH_DATA['tech_energy-leech']
     if now < n.__dict__.get('leech_end', 0) or not ready(n, 'ela', now) or not TECH.use(n.bot, 'tech_energy-leech'):
         return
-    n.leech_end = now + v['sure_sn']
-    wait(n, 'ela', now, v['cooldown_sec'] + v['sure_sn'])
+    n.leech_end = now + v['duration_sec']
+    wait(n, 'ela', now, v['cooldown_sec'] + v['duration_sec'])
     visual(w, n, v['visual'], True)
-    w.later(v['sure_sn'], lambda: visual(w, n, v['visual'], False) if n.alive else None)
+    w.later(v['duration_sec'], lambda: visual(w, n, v['visual'], False) if n.alive else None)
 
 
 def leech(n, dmg, hp, now):
@@ -133,9 +133,9 @@ def insta_shield(w, n, now):
     from . import extras as EX
     c = CIT['insta_shield']
     b = n.bot
-    if not EX.var(b, EX.ISH) or not b.permission.get('ekstra', True) or not ready(n, 'ish', now) or not cost(b, c):
+    if not EX.var(b, EX.ISH) or not b.permission.get('extras', True) or not ready(n, 'ish', now) or not cost(b, c):
         return False
-    n.immune_until = now + c['sure_sn']
+    n.immune_until = now + c['duration_sec']
     wait(n, 'ish', now, c['cooldown_sec'])
     _broadcast(w, [legacy('0|n|ISH|%d' % n.id)], n.id)
     return True
@@ -146,7 +146,7 @@ def smart_bomb(w, n, now, enemies):
     from . import extras as EX
     c = CIT['smart_bomb']
     b = n.bot
-    if not enemies or not EX.var(b, EX.SMB) or not b.permission.get('ekstra', True) or not ready(n, 'smb', now) or not cost(b, c):
+    if not enemies or not EX.var(b, EX.SMB) or not b.permission.get('extras', True) or not ready(n, 'smb', now) or not cost(b, c):
         return False
     wait(n, 'smb', now, c['cooldown_sec'])
     _broadcast(w, [legacy('0|n|SMB|%d' % n.id)], n.id)
@@ -154,10 +154,10 @@ def smart_bomb(w, n, now, enemies):
     for o, t in enemies:
         if o is not None:
             g = o.p.d['ship']
-            o.send(o.hurt_hero(int(g.get('hitPoints', 0) * c['can'] + g.get('shield', 0) * c['kalkan']), killer=n, cause=0,
+            o.send(o.hurt_hero(int(g.get('hitPoints', 0) * c['hp'] + g.get('shield', 0) * c['shield']), killer=n, cause=0,
                                source_asset=True, now=now))
         elif t is not None:
-            BG.bot_damage(w, t, int(t.hp * c['can'] + t.shield * c['kalkan']), n.id, now, killer_bot=b)
+            BG.bot_damage(w, t, int(t.hp * c['hp'] + t.shield * c['shield']), n.id, now, killer_bot=b)
     b.ist('smart_bomb')
     return True
 
@@ -214,7 +214,7 @@ def aim(n, hit, is_hard):
     from . import extras as EX
     b = n.bot
     cpu = next((c for c in (EX.AIM2, EX.AIM1) if EX.var(b, c)), None)
-    if not cpu or not is_hard or not b.permission.get('ekstra', True) or not spend_xenomit(b, CIT['aim_cpu']['xenomit']):
+    if not cpu or not is_hard or not b.permission.get('extras', True) or not spend_xenomit(b, CIT['aim_cpu']['xenomit']):
         return hit
     return 1 - (1 - hit) * (1 - K.ITEMS['extras'][cpu]['aim'])
 
@@ -229,7 +229,7 @@ def combat(w, n, now, d, ratio, attackers):
     if attackers and ratio < 0.35 and player_or_bot:
         changed |= insta_shield(w, n, now)
     if attackers and ratio < 0.4:
-        changed |= backup_shields(w, n, now) or battle_repair(w, n, now, d['can'])
+        changed |= backup_shields(w, n, now) or battle_repair(w, n, now, d['hp'])
     # PvP: someone is attacking it or it is attacking a player / bot (also when attacking a player who does not fight back: it used to start
     # only when hit, so slowing rockets were never fired; live 2026-11-01)
     pvp_target = n.target is not None and ((n.target in w.npcs and w.npcs[n.target].bot is not None) or BG._player(w, n.target) is not None)
@@ -243,7 +243,7 @@ def combat(w, n, now, d, ratio, attackers):
             if o is not None and not o.hero_dead and BG.can_attack_player(w, n, o, now) and math.hypot(*(a - c for a, c in zip(o.hero_pos(now), (x, y)))) <= r:
                 victims.append((o, None))
             for t in list(w.npcs.values()):
-                if t.bot is not None and t is not n and t.bot.firma != n.bot.firma and BG.can_attack_bot(w, n, t, now) \
+                if t.bot is not None and t is not n and t.bot.company != n.bot.company and BG.can_attack_bot(w, n, t, now) \
                         and math.hypot(*(a - c for a, c in zip(t.mover.pos(now), (x, y)))) <= r:
                     victims.append((None, t))                 # not against bots in a safe zone or under protection
             if len(victims) >= 1 and random.random() < 0.5:

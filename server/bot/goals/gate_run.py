@@ -16,12 +16,12 @@ class GateRun(Goal):
         return bot.level >= 10 and GT.can_run(bot) is not None
 
     def points(self, bot, b):
-        return 0.9 + 0.4 * bot.o('ambition') + 0.2 * bot.o('rekabet') - 0.5 * bot.mood['fatigue']
+        return 0.9 + 0.4 * bot.o('ambition') + 0.2 * bot.o('rivalry') - 0.5 * bot.mood['fatigue']
 
     def start(self, bot, b):
         k = GT.can_run(bot)
         success, duration = GT.run_result(bot, k, bot.r)
-        bot.plan.update(gate=k, success=success, end_time=b.now + duration, sure=duration)
+        bot.plan.update(gate=k, success=success, end_time=b.now + duration, duration=duration)
         game_map = GT.KAPI[k].get('map')
         if game_map:
             S.jump_to(bot, game_map, b.y)                    # gate map: leaves your map
@@ -39,11 +39,11 @@ class GateRun(Goal):
             st['kronos'] = 0
         if bot.plan.get('success'):
             GT.grant_reward(bot, k, y.speed(bot))
-            GT.record_duration(bot.k, k, bot.plan.get('sure') or 0)
+            GT.record_duration(bot.k, k, bot.plan.get('duration') or 0)
         else:
             bot.ist('gate_lost')
             bot.event('gate_lost', gate=GT.KAPI[k]['name'])
-        S.jump_to(bot, K.ev(bot.firma), y)                 # the gate's exit: X-1
+        S.jump_to(bot, K.ev(bot.company), y)                 # the gate's exit: X-1
         bot.plan['finished'] = True
 
     def concrete(self, bot, g, w, now):

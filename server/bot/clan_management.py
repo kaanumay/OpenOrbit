@@ -111,7 +111,7 @@ def info_summary(k, who=None):
     b = k.get('budget') or {}
     if b:
         row.append('Budget shares of the treasury: station %d%%, payouts %d%%, war %d%%, the rest is reserve.' % (
-            100 * b.get('ksi', 0), 100 * b.get('payment', 0), 100 * b.get('combat', 0)))
+            100 * b.get('cbs', 0), 100 * b.get('payment', 0), 100 * b.get('combat', 0)))
     row.append('Ranks: %s.' % (', '.join('%s (%s)' % (r['name'], ', '.join(r['rights']) or 'no rights') for r in k['ranks'])
                                  or 'none yet'))
     row.append('Members: %s.' % '; '.join('%s (lvl %s, %s, %d days%s)' % (
@@ -265,7 +265,7 @@ def set_budget(b, k, now, cbs=None, payment=None, combat=None):
         combat = 0.25 if in_combat else 0.12 if b.o('aggression') > 0.6 else 0.04
     if payment is None:
         payment = 0.06 + 0.2 * b.o('sociability') * (1 - 0.6 * b.o('ambition'))
-    pay = {'ksi': max(0.0, float(cbs)), 'payment': max(0.0, float(payment)), 'combat': max(0.0, float(combat))}
+    pay = {'cbs': max(0.0, float(cbs)), 'payment': max(0.0, float(payment)), 'combat': max(0.0, float(combat))}
     top = sum(pay.values())
     if top > 0.9:
         pay = {a: v * 0.9 / top for a, v in pay.items()}
@@ -378,7 +378,7 @@ def weekly_goal(b, k, kl, now):
     """According to the budget's focus, the week's target becomes news (money for the station, grinding, PvP)."""
     from . import clan_stations as CBA
     budget = k.get('budget') or {}
-    if CBA.is_open() and budget.get('ksi', 0) >= max(budget.get('combat', 0), 0.3) and not CBA.stations(k):
+    if CBA.is_open() and budget.get('cbs', 0) >= max(budget.get('combat', 0), 0.3) and not CBA.stations(k):
         return announce(b, kl, 'clan_announce_target_cbs')
     if budget.get('combat', 0) >= 0.2:
         return announce(b, kl, 'clan_announce_target_pvp')

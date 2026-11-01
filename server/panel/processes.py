@@ -373,7 +373,7 @@ class Process:
             return {'state': 'off'}
         code = self.proc.poll()
         if code is None:
-            return {'state': 'on', 'pid': self.proc.pid, 'sure_sn': int(time.time() - self.started_at)}
+            return {'state': 'on', 'pid': self.proc.pid, 'duration_sec': int(time.time() - self.started_at)}
         return {'state': 'off' if self.stopped else 'crashed', 'exit_code': code}
 
 
@@ -538,7 +538,7 @@ class Manager:
         code = proc.wait()
         stop = time.time() - (self.client_started or time.time())
         early = stop < EARLY_EXIT_SEC
-        self.last_client = {'sure_sn': int(stop), 'early': early, 'code': code, 'time': time.strftime('%H:%M:%S')}
+        self.last_client = {'duration_sec': int(stop), 'early': early, 'code': code, 'time': time.strftime('%H:%M:%S')}
         self.log('client closed (%d s, code %s)%s' % (stop, code, ' — closed early, servers stay open' if early else ''))
         if self.on_client_exit:
             try:
@@ -558,7 +558,7 @@ class Manager:
             st['ports'] = {p: listening(p, table) for p in PORTS[name]}
         cl = {'state': 'on' if self.client_alive() else 'off'}
         if self.client_alive():
-            cl.update(pid=self.client.pid, sure_sn=int(time.time() - self.client_started))
+            cl.update(pid=self.client.pid, duration_sec=int(time.time() - self.client_started))
         cl['last'] = self.last_client
         return {'servers': srv, 'client': cl, 'profile': self.profile, 'record': self.slot,
                 'control_channel': listening(8099, table), 'friend': self.friend, 'multi': self.multi, 'guest': self.guest}

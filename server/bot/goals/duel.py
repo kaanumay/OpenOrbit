@@ -26,7 +26,7 @@ class Duel(Goal):
         return n.get('target') == self.name and bool((n.get('plan') or {}).get('name'))
 
     def points(self, bot, b):
-        return 0.5 + 0.4 * bot.o('rekabet')
+        return 0.5 + 0.4 * bot.o('rivalry')
 
     def start(self, bot, b):
         bot.plan.update((bot.k.get('intent') or {}).get('plan') or {})
@@ -41,7 +41,7 @@ class Duel(Goal):
             bot.plan['finished'] = True                     # the player left
             return
         m = int(o.profile.d['position'].get('mapId', 0))
-        if m != bot.game_map and m in K.MAPS and K.can_enter(m, bot.firma, bot.level) and K.route(bot.game_map, m, bot.firma,
+        if m != bot.game_map and m in K.MAPS and K.can_enter(m, bot.company, bot.level) and K.route(bot.game_map, m, bot.company,
                                                                                                      bot.level):
             bot.plan['map'] = m
             S.go(bot, m, y)                             # changed map: follow

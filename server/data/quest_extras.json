@@ -1,7 +1,7 @@
 {
  "_description": "server/data/gorev_ekleri.json: görev penceresinin Daily, Weekly, Event ve meydan okuma (Challenge) sekmeleri ile wiki'de olmayan\ngörevler (yol haritası E6). gorev.py bunları gorevler.json'unkilerle birlikte sunar. Üreten: tools/gorev_ekleri.py.",
- "_kaynak": "kayıt (kimlik, tür, seviye, simge, öncelik, önceki görev; günlük ve haftalık seçimin başlangıcı), istemci (başlık, meydan okumaların ve \"Level N\" görevlerinin açıklaması), fandom (Mission list: Tetrathrin ve Kyhalon görevleri; Blacklight missions; görev ve meydan okuma sayfaları), darkorbitwiki (Epic Missions, Blacklight missions, Challenges: koordinat, MISCELLANEOUS, cephane kısıtı, puan, tarif ve Blacklight Trace koşulları; Epic Missions (seviye 22), Elite Missions (100 görev), Daily Missions (seviye havuzları) ve Special Missions (etkinlik görevleri); \"kaynak\" alanı hangisinin kullanıldığını söyler)",
- "_uyarlama": "Etkinlik görevlerinin (501021-501025) koşul ve ödülleri; meydan okumaların sıralamasız sürümü (puan bitirme süresi, ödülsüz: darkorbitwiki da ödül vermez); ENDURANCE süreleri ms (TIMER gibi; doğrulanmadı); \"Level N\" görevleri ödülsüz; koordinat varışı 500 birim yarıçaplı (istemci yalnız gösterir); \"Hurry up!\" gibi sayaç gösterimi (TIMER) yok, süre sınırı HASTE ile gösterilir; X-4 Mission Control istemcide yok, dönüşler herhangi bir görev vereninde; booster_ep-b01 / booster_cd-b01 darkorbitwiki ödül adlarından tahmin; firmaya özgü meydan okumalar (17/186/187, 170/181/182, 190/191/192) yalnız o firmanın pilotuna görünür; Eradication (122006) ödülü resmî Türk forumu 149871'e göre 25.000.000 Şeref (wiki Uridium yazıyordu); elit görevlerin hasar koşulu \"Damage Enemy Players\" kayıtlı DAMAGE_PLAYERS (30) biçimiyle, \"Damage NPCs\" hedefsiz DAMAGE_NPCS ile; silah koşulları (\"using R-310 rockets\", \"with lasers\", \"without using rockets\") ölçülmez (ölüm olayı silahı taşımaz, istemcide ilgili alt koşul yok): bu görevlerde yalnız hedef sayılır; \"Complete Compromising Invasion Galaxy Gate\" etkinlik_kapi.py dosyasının ISTILA_GATE olayına bağlı (istemcinin GalaxyGateType adlarında yok: koşul metni canlıda doğrulanmadı); seviye havuzlu günlüklerde Armory Token yalnız wiki satırında geçenlerde, seviye 3 görevleri oyuncunun firma liderinden; Prosperous görevleri (506641-506644) istemci başlıklarıyla fandom değerlerinde (darkorbitwiki sayfasının New Horizons / Cosmic Crisis / Peace Treaty / Ray Of Hope adlı Prosperous Mutation günlüklerinin istemcide başlığı yok); Winter Birthday #1 506587-506592, #2 516593-516598 (istemcide ikişer kimlik ailesi); Hitac Assault ikiz kimlikleri 510143-510145 eklenmedi; Chaos Omen / Astral Ascension epikleri istemci adlarıyla eşlendi (Going Dark = Cleaning, Survive Death = It’s Getting Dark, Into the Unknown = Unknown, Double Down = Double Effort); Freighter Protection (500483) mimesis.py içindeki günlük uyarlamayla verildiği için görev olarak eklenmedi; Permafrost Fissure görevleri (506233-506235) takvim anahtarsız (kapı CPU ile hep açık), ödülleri fandom değerleriyle. Resmî Türk forumunun eski etkinlik görevleri (506156-506160 Saimon İsyanı, 10. Yıl 506201-506229 / 512210-512216, Epidemi Alarmı 506248-506267 / 512248-512267, Karaşimşek Dalgası 517306-517315): koşul ve ödüller forum tablolarından; \"SG-03/SG-02\" FS-03/FS-02, \"Sunucular Arası Harita\" 4-4, Karaşimşek günlükleri gün sırasız; başarısızlık koşullarından yalnız ölüm ölçülür.",
+ "_source": "kayıt (kimlik, tür, seviye, simge, öncelik, önceki görev; günlük ve haftalık seçimin başlangıcı), istemci (başlık, meydan okumaların ve \"Level N\" görevlerinin açıklaması), fandom (Mission list: Tetrathrin ve Kyhalon görevleri; Blacklight missions; görev ve meydan okuma sayfaları), darkorbitwiki (Epic Missions, Blacklight missions, Challenges: koordinat, MISCELLANEOUS, cephane kısıtı, puan, tarif ve Blacklight Trace koşulları; Epic Missions (seviye 22), Elite Missions (100 görev), Daily Missions (seviye havuzları) ve Special Missions (etkinlik görevleri); \"kaynak\" alanı hangisinin kullanıldığını söyler)",
+ "_adaptation": "Etkinlik görevlerinin (501021-501025) koşul ve ödülleri; meydan okumaların sıralamasız sürümü (puan bitirme süresi, ödülsüz: darkorbitwiki da ödül vermez); ENDURANCE süreleri ms (TIMER gibi; doğrulanmadı); \"Level N\" görevleri ödülsüz; koordinat varışı 500 birim yarıçaplı (istemci yalnız gösterir); \"Hurry up!\" gibi sayaç gösterimi (TIMER) yok, süre sınırı HASTE ile gösterilir; X-4 Mission Control istemcide yok, dönüşler herhangi bir görev vereninde; booster_ep-b01 / booster_cd-b01 darkorbitwiki ödül adlarından tahmin; firmaya özgü meydan okumalar (17/186/187, 170/181/182, 190/191/192) yalnız o firmanın pilotuna görünür; Eradication (122006) ödülü resmî Türk forumu 149871'e göre 25.000.000 Şeref (wiki Uridium yazıyordu); elit görevlerin hasar koşulu \"Damage Enemy Players\" kayıtlı DAMAGE_PLAYERS (30) biçimiyle, \"Damage NPCs\" hedefsiz DAMAGE_NPCS ile; silah koşulları (\"using R-310 rockets\", \"with lasers\", \"without using rockets\") ölçülmez (ölüm olayı silahı taşımaz, istemcide ilgili alt koşul yok): bu görevlerde yalnız hedef sayılır; \"Complete Compromising Invasion Galaxy Gate\" etkinlik_kapi.py dosyasının ISTILA_GATE olayına bağlı (istemcinin GalaxyGateType adlarında yok: koşul metni canlıda doğrulanmadı); seviye havuzlu günlüklerde Armory Token yalnız wiki satırında geçenlerde, seviye 3 görevleri oyuncunun firma liderinden; Prosperous görevleri (506641-506644) istemci başlıklarıyla fandom değerlerinde (darkorbitwiki sayfasının New Horizons / Cosmic Crisis / Peace Treaty / Ray Of Hope adlı Prosperous Mutation günlüklerinin istemcide başlığı yok); Winter Birthday #1 506587-506592, #2 516593-516598 (istemcide ikişer kimlik ailesi); Hitac Assault ikiz kimlikleri 510143-510145 eklenmedi; Chaos Omen / Astral Ascension epikleri istemci adlarıyla eşlendi (Going Dark = Cleaning, Survive Death = It’s Getting Dark, Into the Unknown = Unknown, Double Down = Double Effort); Freighter Protection (500483) mimesis.py içindeki günlük uyarlamayla verildiği için görev olarak eklenmedi; Permafrost Fissure görevleri (506233-506235) takvim anahtarsız (kapı CPU ile hep açık), ödülleri fandom değerleriyle. Resmî Türk forumunun eski etkinlik görevleri (506156-506160 Saimon İsyanı, 10. Yıl 506201-506229 / 512210-512216, Epidemi Alarmı 506248-506267 / 512248-512267, Karaşimşek Dalgası 517306-517315): koşul ve ödüller forum tablolarından; \"SG-03/SG-02\" FS-03/FS-02, \"Sunucular Arası Harita\" 4-4, Karaşimşek günlükleri gün sırasız; başarısızlık koşullarından yalnız ölüm ölçülür.",
  "_skipped": {
   "30": "PvP meydan okuması (sıralama ve botlar)",
   "33": "PvP meydan okuması (sıralama ve botlar)",
@@ -3533,7 +3533,7 @@
     2602
    ],
    "rewards": [],
-   "sure_sn": 240,
+   "duration_sec": 240,
    "failed": [
     {
      "type": "death"
@@ -4533,7 +4533,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 1800,
+   "duration_sec": 1800,
    "failed": [
     {
      "type": "death"
@@ -4729,7 +4729,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 1200
+   "duration_sec": 1200
   },
   "140": {
    "name": "Plague of Sibelonites (2)",
@@ -4842,7 +4842,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 3600
+   "duration_sec": 3600
   },
   "141": {
    "name": "Plague of Sibelonites (3)",
@@ -4955,7 +4955,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 6000
+   "duration_sec": 6000
   },
   "152": {
    "name": "Plague of Sibelonites (4)",
@@ -5068,7 +5068,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 9000
+   "duration_sec": 9000
   },
   "153": {
    "name": "Plague of Sibelonites (5)",
@@ -5181,7 +5181,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 12000
+   "duration_sec": 12000
   },
   "142": {
    "name": "Get a move on (1)",
@@ -5294,7 +5294,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 600
+   "duration_sec": 600
   },
   "143": {
    "name": "Get a move on (2)",
@@ -5407,7 +5407,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 1200
+   "duration_sec": 1200
   },
   "144": {
    "name": "Get a move on (3)",
@@ -5520,7 +5520,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 2700
+   "duration_sec": 2700
   },
   "145": {
    "name": "StreuneR invasion (1)",
@@ -5633,7 +5633,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 1200
+   "duration_sec": 1200
   },
   "146": {
    "name": "StreuneR invasion (2)",
@@ -5746,7 +5746,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 2400
+   "duration_sec": 2400
   },
   "147": {
    "name": "StreuneR invasion (3)",
@@ -5859,7 +5859,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 4800
+   "duration_sec": 4800
   },
   "150": {
    "name": "StreuneR invasion (4)",
@@ -5972,7 +5972,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 7200
+   "duration_sec": 7200
   },
   "151": {
    "name": "StreuneR invasion (5)",
@@ -6085,7 +6085,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 9600
+   "duration_sec": 9600
   },
   "148": {
    "name": "Resource shortage",
@@ -6198,7 +6198,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 600
+   "duration_sec": 600
   },
   "168": {
    "name": "Top secret",
@@ -6503,7 +6503,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 600,
+   "duration_sec": 600,
    "failed": [
     {
      "type": "kills",
@@ -7253,7 +7253,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 60,
+   "duration_sec": 60,
    "failed": [
     {
      "type": "death"
@@ -10553,7 +10553,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 6000
+   "duration_sec": 6000
   },
   "130": {
    "name": "Steal EIC resources (1)",
@@ -10686,7 +10686,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 6000
+   "duration_sec": 6000
   },
   "131": {
    "name": "Steal VRU resources (1)",
@@ -10819,7 +10819,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 6000
+   "duration_sec": 6000
   },
   "133": {
    "name": "Steal MMO resources (2)",
@@ -10952,7 +10952,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 6000
+   "duration_sec": 6000
   },
   "134": {
    "name": "Steal EIC resources (2)",
@@ -11085,7 +11085,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 6000
+   "duration_sec": 6000
   },
   "135": {
    "name": "Steal VRU resources (2)",
@@ -11218,7 +11218,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 6000
+   "duration_sec": 6000
   },
   "136": {
    "name": "Steal MMO resources (3)",
@@ -11351,7 +11351,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 6000
+   "duration_sec": 6000
   },
   "137": {
    "name": "Steal EIC resources (3)",
@@ -11484,7 +11484,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 6000
+   "duration_sec": 6000
   },
   "138": {
    "name": "Steal VRU resources (3)",
@@ -11617,7 +11617,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 6000
+   "duration_sec": 6000
   },
   "156": {
    "name": "Steal MMO resources (4)",
@@ -11750,7 +11750,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 8400
+   "duration_sec": 8400
   },
   "155": {
    "name": "Steal EIC resources (4)",
@@ -11883,7 +11883,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 8400
+   "duration_sec": 8400
   },
   "154": {
    "name": "Steal VRU resources (4)",
@@ -12016,7 +12016,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 8400
+   "duration_sec": 8400
   },
   "157": {
    "name": "Steal MMO resources (5)",
@@ -12149,7 +12149,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 12000
+   "duration_sec": 12000
   },
   "160": {
    "name": "Steal EIC resources (5)",
@@ -12282,7 +12282,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 12000
+   "duration_sec": 12000
   },
   "159": {
    "name": "Steal VRU resources (5)",
@@ -12415,7 +12415,7 @@
     ]
    },
    "rewards": [],
-   "sure_sn": 12000
+   "duration_sec": 12000
   },
   "101001": {
    "name": "One Step Behind",
@@ -15041,7 +15041,7 @@
      1
     ]
    ],
-   "sure_sn": 2700
+   "duration_sec": 2700
   },
   "408001": {
    "name": "Operation Alcatraz",
@@ -17628,7 +17628,7 @@
      50
     ]
    ],
-   "sure_sn": 600
+   "duration_sec": 600
   },
   "417001": {
    "name": "Beneath the Martian Flag",
@@ -18268,7 +18268,7 @@
      1
     ]
    ],
-   "sure_sn": 300
+   "duration_sec": 300
   },
   "418001": {
    "name": "Beneath the Terran Flag",
@@ -18755,7 +18755,7 @@
      1
     ]
    ],
-   "sure_sn": 3600,
+   "duration_sec": 3600,
    "failed": [
     {
      "type": "death"
@@ -22643,7 +22643,7 @@
      1500000
     ]
    ],
-   "sure_sn": 120
+   "duration_sec": 120
   },
   "117057": {
    "name": "Virtue is a Lie",
@@ -22766,7 +22766,7 @@
      1500000
     ]
    ],
-   "sure_sn": 420
+   "duration_sec": 420
   },
   "117058": {
    "name": "Organizing Chaos",
@@ -22889,7 +22889,7 @@
      1500000
     ]
    ],
-   "sure_sn": 600
+   "duration_sec": 600
   },
   "117059": {
    "name": "The Word of Mars",
@@ -23012,7 +23012,7 @@
      1500000
     ]
    ],
-   "sure_sn": 3600
+   "duration_sec": 3600
   },
   "117060": {
    "name": "Reap the Weak",
@@ -23135,7 +23135,7 @@
      1500000
     ]
    ],
-   "sure_sn": 160
+   "duration_sec": 160
   },
   "117061": {
    "name": "Public Appearance",
@@ -23258,7 +23258,7 @@
      1500000
     ]
    ],
-   "sure_sn": 460
+   "duration_sec": 460
   },
   "117062": {
    "name": "Miracle Touch",
@@ -23381,7 +23381,7 @@
      1500000
     ]
    ],
-   "sure_sn": 360
+   "duration_sec": 360
   },
   "117063": {
    "name": "Tinkering with Heaven",
@@ -23534,7 +23534,7 @@
      1500000
     ]
    ],
-   "sure_sn": 1800
+   "duration_sec": 1800
   },
   "117064": {
    "name": "A Single Plot",
@@ -23657,7 +23657,7 @@
      1500000
     ]
    ],
-   "sure_sn": 180
+   "duration_sec": 180
   },
   "117065": {
    "name": "Cold Eyes, Frozen Heart",
@@ -23784,7 +23784,7 @@
      1
     ]
    ],
-   "sure_sn": 300
+   "duration_sec": 300
   },
   "117066": {
    "name": "Sensitive Strike",
@@ -26930,7 +26930,7 @@
      2500000
     ]
    ],
-   "sure_sn": 21600
+   "duration_sec": 21600
   },
   "124017": {
    "name": "Once We Ruled",
@@ -27073,7 +27073,7 @@
      2500000
     ]
    ],
-   "sure_sn": 14400
+   "duration_sec": 14400
   },
   "124018": {
    "name": "Fundamental Failings",
@@ -27216,7 +27216,7 @@
      2500000
     ]
    ],
-   "sure_sn": 86400
+   "duration_sec": 86400
   },
   "124019": {
    "name": "Edges of Reality",
@@ -27463,7 +27463,7 @@
      1
     ]
    ],
-   "sure_sn": 18000,
+   "duration_sec": 18000,
    "failed": [
     {
      "type": "death"
@@ -43380,7 +43380,7 @@
      10
     ]
    ],
-   "sure_sn": 86400
+   "duration_sec": 86400
   },
   "300011": {
    "name": "Duranium Scavanger",
@@ -43522,7 +43522,7 @@
      5
     ]
    ],
-   "sure_sn": 86400
+   "duration_sec": 86400
   },
   "300012": {
    "name": "Signal Anomalies",
@@ -43668,7 +43668,7 @@
      10
     ]
    ],
-   "sure_sn": 86400
+   "duration_sec": 86400
   },
   "300013": {
    "name": "Irradiant Selection",
@@ -43874,7 +43874,7 @@
      10
     ]
    ],
-   "sure_sn": 86400
+   "duration_sec": 86400
   },
   "300014": {
    "name": "Oblivion",
@@ -44016,7 +44016,7 @@
      5
     ]
    ],
-   "sure_sn": 86400
+   "duration_sec": 86400
   },
   "300015": {
    "name": "Silencing Saimon",
@@ -44162,7 +44162,7 @@
      10
     ]
    ],
-   "sure_sn": 86400
+   "duration_sec": 86400
   },
   "300016": {
    "name": "A Symbiotic Relationship",
@@ -44308,7 +44308,7 @@
      10
     ]
    ],
-   "sure_sn": 86400
+   "duration_sec": 86400
   },
   "300017": {
    "name": "Turncoat in our Midst",
@@ -44514,7 +44514,7 @@
      10
     ]
    ],
-   "sure_sn": 86400
+   "duration_sec": 86400
   },
   "300018": {
    "name": "Crimson Chaos",
@@ -44690,7 +44690,7 @@
      10
     ]
    ],
-   "sure_sn": 86400
+   "duration_sec": 86400
   },
   "300019": {
    "name": "Edge of the Orbit",
@@ -44832,7 +44832,7 @@
      5
     ]
    ],
-   "sure_sn": 86400
+   "duration_sec": 86400
   },
   "300020": {
    "name": "The Art of War",
@@ -45098,7 +45098,7 @@
      10
     ]
    ],
-   "sure_sn": 86400
+   "duration_sec": 86400
   },
   "300021": {
    "name": "Let's Make a Deal",
@@ -45244,7 +45244,7 @@
      10
     ]
    ],
-   "sure_sn": 86400
+   "duration_sec": 86400
   },
   "310022": {
    "name": "Destination: Known",
@@ -45462,7 +45462,7 @@
      10
     ]
    ],
-   "sure_sn": 86400,
+   "duration_sec": 86400,
    "failed": [
     {
      "type": "death"
@@ -45668,7 +45668,7 @@
      10
     ]
    ],
-   "sure_sn": 86400
+   "duration_sec": 86400
   },
   "310024": {
    "name": "Smoke and Mirrors",
@@ -45839,7 +45839,7 @@
      10
     ]
    ],
-   "sure_sn": 86400
+   "duration_sec": 86400
   },
   "310025": {
    "name": "Burning Titans",
@@ -46010,7 +46010,7 @@
      10
     ]
    ],
-   "sure_sn": 86400
+   "duration_sec": 86400
   },
   "310026": {
    "name": "Sinking Feeling",
@@ -46211,7 +46211,7 @@
      10
     ]
    ],
-   "sure_sn": 86400
+   "duration_sec": 86400
   },
   "310027": {
    "name": "Adrift in the Rift",
@@ -46382,7 +46382,7 @@
      10
     ]
    ],
-   "sure_sn": 86400
+   "duration_sec": 86400
   },
   "317028": {
    "name": "Enemy Retaliation",
@@ -46600,7 +46600,7 @@
      10
     ]
    ],
-   "sure_sn": 86400,
+   "duration_sec": 86400,
    "failed": [
     {
      "type": "death"
@@ -46746,7 +46746,7 @@
      10
     ]
    ],
-   "sure_sn": 86400
+   "duration_sec": 86400
   },
   "317030": {
    "name": "Galactic Politics",
@@ -46917,7 +46917,7 @@
      10
     ]
    ],
-   "sure_sn": 86400
+   "duration_sec": 86400
   },
   "317031": {
    "name": "The Exiled",
@@ -47088,7 +47088,7 @@
      10
     ]
    ],
-   "sure_sn": 86400
+   "duration_sec": 86400
   },
   "317032": {
    "name": "Revelations",
@@ -47253,7 +47253,7 @@
      10
     ]
    ],
-   "sure_sn": 86400
+   "duration_sec": 86400
   },
   "318001": {
    "name": "Dive into the echo",
@@ -47480,7 +47480,7 @@
      10
     ]
    ],
-   "sure_sn": 86400
+   "duration_sec": 86400
   },
   "318002": {
    "name": "Deep Space Echoes",
@@ -47797,7 +47797,7 @@
      10
     ]
    ],
-   "sure_sn": 86400
+   "duration_sec": 86400
   },
   "506587": {
    "name": "UNN Breaking News",
@@ -47994,7 +47994,7 @@
      100
     ]
    ],
-   "sure_sn": 180
+   "duration_sec": 180
   },
   "506588": {
    "name": "Something's Different",
@@ -49965,7 +49965,7 @@
      1
     ]
    ],
-   "sure_sn": 900,
+   "duration_sec": 900,
    "failed": [
     {
      "type": "death"
@@ -53814,7 +53814,7 @@
      2
     ]
    ],
-   "sure_sn": 180
+   "duration_sec": 180
   },
   "506220": {
    "name": "Lost Science",
@@ -55391,7 +55391,7 @@
      1
     ]
    ],
-   "sure_sn": 900,
+   "duration_sec": 900,
    "failed": [
     {
      "type": "death"

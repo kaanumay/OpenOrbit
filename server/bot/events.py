@@ -138,7 +138,7 @@ def battle_pass(bot, dt):
     st = bot.k.setdefault('pass', {})
     if st.get('period') != k:
         st.clear()
-        st.update(period=k, done=0, purchased=False, sure=0.0, exchange={})
+        st.update(period=k, done=0, purchased=False, duration=0.0, exchange={})
     p = BT['passes'][k]
     rewards = list((p.get('rewards') or {}).values())
     if not st['purchased'] and not p.get('keyless') and bot.level >= 12 and bot.o('ambition') > 0.6 \
@@ -147,16 +147,16 @@ def battle_pass(bot, dt):
         bot.ist('battle_pass')
         stock = LT.stock(bot)
         stock['resource_battle-pass-key'] = stock.get('resource_battle-pass-key', 0) + st['done']     # collected up to that moment
-    st['sure'] += dt
-    while st['sure'] >= PASS_QUEST_SEC and st['done'] < len(rewards):
-        st['sure'] -= PASS_QUEST_SEC
+    st['duration'] += dt
+    while st['duration'] >= PASS_QUEST_SEC and st['done'] < len(rewards):
+        st['duration'] -= PASS_QUEST_SEC
         o = rewards[st['done']]
         st['done'] += 1
         for loot, n in o.get('reward', []):
             LT.give(bot, loot, n)
         if st['purchased']:
             stock = LT.stock(bot)
-            stock['resource_battle-pass-key'] = stock.get('resource_battle-pass-key', 0) + o.get('anahtar', 0)
+            stock['resource_battle-pass-key'] = stock.get('resource_battle-pass-key', 0) + o.get('key', 0)
         bot.ist('pass_quest')
     exchange(bot, st)
 

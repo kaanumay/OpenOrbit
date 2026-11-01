@@ -173,7 +173,7 @@ def _build_company(company, now):
     from bot import society as TB
     import admin_mode as YM
     bots = {b.uid: b for b in _bots() or ()}
-    out = [(TB.points(b), uid) for uid, b in bots.items() if b.firma == company and b.saved]
+    out = [(TB.points(b), uid) for uid, b in bots.items() if b.company == company and b.saved]
     for uid, k in TP.all_().items():
         if uid not in bots and int(k.profile.d['pilot'].get('factionId') or 0) == company and not YM.mi(profile=k.profile):
             out.append((breakdown(k.profile, now)['rankPoints'], uid))

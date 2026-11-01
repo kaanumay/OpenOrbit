@@ -31,7 +31,7 @@ const WE_SECTIONS = [
   ['shop', N('Shop'), 'cart', N('Price and currency of products; remove a product from sale.'), true],
   ['auction', N('Auction'), 'gavel', N('Hourly, daily and weekly lots: item, quantity, buy-now price.'), true],
   ['boxes', N('Boxes and Loot'), 'gift', N('Contents of bonus boxes and booty boxes.'), true],
-  ['kapilar', N('Galaxy Gates'), 'ring', N('Waves, aliens and gate rewards.'), true],
+  ['gates', N('Galaxy Gates'), 'ring', N('Waves, aliens and gate rewards.'), true],
   ['events', N('Events'), 'calendar', N('Which event is on when in this world; the aliens of map events.'), true],
   ['economy', N('Rewards and Economy'), 'star', N('Level thresholds, rank point formula and rank thresholds.'), true],
 ];
@@ -52,7 +52,7 @@ function weCover(cover, cls = '') {
 // ------------------------------------------------------------------ entry point
 async function renderWorld() {
   await loadGameImages();
-  const r = await act(() => api('/api/dunyalar')); if (!r || S.page !== 'world') return;
+  const r = await act(() => api('/api/worlds')); if (!r || S.page !== 'world') return;
   DE.entries = r;
   if (DE.did && !r.entries.some(w => w.id === DE.did)) DE.did = null;
   if (!DE.did) return weLibrary();
@@ -79,10 +79,10 @@ function weLibrary() {
           h('span', { class: 'spacer' }),
           btn('', ev => weWorldMenu(ev.currentTarget, w), 'sm ghost icon', 'more', { title: T('More') }))));
   };
-  const new_ = h('button', { class: 'we-card yeni', type: 'button', onclick: () => weNewWorld() },
+  const new_ = h('button', { class: 'we-card new', type: 'button', onclick: () => weNewWorld() },
     h('div', { class: 'we-new-icon' }, icon('plus')), h('b', null, T('New world')), h('span', { class: 'muted small' }, T('Start from the standard world or copy a world.')));
   const pilotRow = k => {
-    const sel = h('select', { class: 'input', onchange: e => act(() => api('/api/kayitlar/dunya', { id: k.id, world: e.target.value }),
+    const sel = h('select', { class: 'input', onchange: e => act(() => api('/api/saves/world', { id: k.id, world: e.target.value }),
       T('{0}: default world changed.', k.pilot || k.name)).then(x => { if (x) { DE.entries = x; weLibrary(); poll(); } }) },
       r.entries.map(w => h('option', { value: w.id, selected: w.id === k.world }, w.name)));
     return h('tr', null, h('td', null, h('b', null, k.pilot || '?'), ' ', badge(k.company || '?', firmaCls(k.company)), k.active ? ' ' : null,
@@ -107,7 +107,7 @@ function weAssignMenu(anchor, w) {
   const ks = DE.entries.saves;
   if (!ks.length) return toast(T('Create a save first.'), 'info');
   popMenu(anchor, ks.map(k => ({ label: (k.pilot || k.name) + (k.world === w.id ? '  ✓' : ''), ic: k.world === w.id ? 'check' : 'users',
-    fn: () => act(() => api('/api/kayitlar/dunya', { id: k.id, world: w.id }), T('{0} now enters the world "{1}".', k.pilot || k.name, w.name))
+    fn: () => act(() => api('/api/saves/world', { id: k.id, world: w.id }), T('{0} now enters the world "{1}".', k.pilot || k.name, w.name))
       .then(x => { if (x) { DE.entries = x; poll(); S.page === 'world' && (DE.did ? weEditor() : weLibrary()); } }) })));
 }
 
@@ -116,19 +116,19 @@ function weWorldMenu(anchor, w) {
     { label: w.standard ? T('View') : T('Edit'), iconEl: 'edit', fn: () => weOpen(w.id) },
     { label: T('Copy'), ic: 'copy', fn: async () => {
       const name = await promptBox(T('Copy world'), T('Name of the new world'), w.standard ? T('New world') : T('{0} (copy)', w.name)); if (name == null) return;
-      const x = await act(() => api('/api/dunya/copy', { id: w.id, name }), T('Copied.')); if (x) { DE.entries = x; weLibrary(); } } },
+      const x = await act(() => api('/api/world/copy', { id: w.id, name }), T('Copied.')); if (x) { DE.entries = x; weLibrary(); } } },
     { label: T('Share / export'), ic: 'download', fn: () => weExport(w) },
   ];
   if (!w.standard) items.push({ label: T('Rename'), ic: 'edit', fn: () => weRename(w) }, '-',
     { label: T('Delete'), ic: 'trash', danger: true, fn: async () => {
       if (!await confirmBox(T('Delete "{0}"?', w.name), T('The world is deleted; pilots whose default world is this one go back to the standard world. A deleted world is kept in the save/dunyalar/_silinenler folder.'), { ok: T('Delete'), danger: true })) return;
-      const x = await act(() => api('/api/dunya/sil', { id: w.id }), T('World deleted.')); if (x) { DE.entries = x; if (DE.did === w.id) DE.did = null; renderWorld(); } } });
+      const x = await act(() => api('/api/world/delete', { id: w.id }), T('World deleted.')); if (x) { DE.entries = x; if (DE.did === w.id) DE.did = null; renderWorld(); } } });
   popMenu(anchor, items);
 }
 
 async function weRename(w) {
   const name = await promptBox(T('Rename'), T('World name'), w.name); if (name == null) return;
-  const x = await act(() => api('/api/dunya/update', { id: w.id, name }), T('Saved.')); if (x) { DE.entries = x; renderWorld(); }
+  const x = await act(() => api('/api/world/update', { id: w.id, name }), T('Saved.')); if (x) { DE.entries = x; renderWorld(); }
 }
 
 // new world: name, description, cover, start (standard or a world); if taslaktan=true, the standard world's draft
@@ -152,7 +152,7 @@ function weNewWorld({ from_draft = false } = {}) {
     body: h('div', { class: 'stack', style: { gap: '14px' } }, from_draft ? art('drone_record', 'we-save-art') : null, field(T('Name'), name), field(T('Description'), is_open),
       field(T('Cover'), covers), source ? field(T('Start from'), source) : null, assign),
     foot: [btn(T('Cancel'), () => m.close(), 'ghost'), btn(T('Create'), async () => {
-      const x = await act(() => api('/api/dunya/create', Object.assign({}, w, { from_draft })), T('World created: {0}', w.name.trim()));
+      const x = await act(() => api('/api/world/create', Object.assign({}, w, { from_draft })), T('World created: {0}', w.name.trim()));
       if (!x) return;
       m.close(); DE.entries = x; poll(); weOpen(x.new, from_draft ? DE.section : 'general');
     }, 'primary', 'check')] });
@@ -160,7 +160,7 @@ function weNewWorld({ from_draft = false } = {}) {
 
 // ================================================================== EDITOR
 async function weEditor() {
-  const summary = await act(() => api('/api/dunya?world=' + encodeURIComponent(DE.did))); if (!summary || S.page !== 'world') return;
+  const summary = await act(() => api('/api/world?world=' + encodeURIComponent(DE.did))); if (!summary || S.page !== 'world') return;
   DE.summary = summary;
   const root = h('div', { class: 'stack', id: 'we-root' });
   fill($('#content'), root);
@@ -188,20 +188,20 @@ function weSaveStatus(d) {
   DE.state = d;
   const el = $('#we-save-status'); if (!el) return;
   el.className = 'we-save-status ' + d;
-  fill(el, ...(d === 'kaydediliyor' ? [h('span', { class: 'spin' }), T('Saving…')] : d === 'kaydedildi'
+  fill(el, ...(d === 'saving' ? [h('span', { class: 'spin' }), T('Saving…')] : d === 'saved'
     ? [icon('check'), weIsStandard() ? T('Written to draft') : T('Saved')] : []));
 }
 
 function weWarning() {
   const el = $('#we-warning'); if (!el) return;
   const w = DE.summary, out = [];
-  if (w.standard) out.push(h('div', { class: 'we-draft' + (w.changes ? ' dolu' : '') }, art('drone_lock', 'we-draft-art'),
+  if (w.standard) out.push(h('div', { class: 'we-draft' + (w.changes ? ' filled' : '') }, art('drone_lock', 'we-draft-art'),
     h('div', null, h('b', null, w.changes ? T('{0} unsaved changes', w.changes) : T("The standard world can't be edited")),
       h('div', { class: 'small' }, w.changes ? T('The standard world is protected. To keep these changes, save them to a new world.')
         : T('You can change anything you like: changes are kept in a draft, and you save them as a new world to bring them into the game.'))),
     w.changes ? btn(T('Discard draft'), async () => {
       if (await confirmBox(T('Discard the draft?'), T('The {0} changes you made in the standard world are deleted.', w.changes), { ok: T('Discard'), danger: true }))
-        act(() => api('/api/dunya/discard_draft', {}), T('Draft discarded.')).then(x => x && weEditor());
+        act(() => api('/api/world/discard_draft', {}), T('Draft discarded.')).then(x => x && weEditor());
     }, 'sm ghost', 'trash') : null,
     btn(T('Save as new world'), () => weNewWorld({ from_draft: true }), 'sm orange', 'save', { disabled: !w.changes })));
   if (w.server_in_this_world && !w.restart_needed) out.push(h('div', { class: 'alert info' }, icon('zap'),
@@ -210,7 +210,7 @@ function weWarning() {
     h('div', null, T('Some changes take effect when the server restarts (when the game is closed, PLAY restarts it automatically). Shop and auction changes are already live in game.')),
     btn(T('Restart the server'), async () => {
       if (await confirmBox(T('Restart the server?'), T("If you're in the game, your connection drops; the client reconnects. Your save is kept."), { ok: T('Restart') }))
-        act(() => api('/api/dunya/server_restart', {}), T('The server was restarted.')).then(x => x && weEditor());
+        act(() => api('/api/world/server_restart', {}), T('The server was restarted.')).then(x => x && weEditor());
     }, 'sm', 'refresh')));
   fill(el, ...out);
   el.style.display = out.length ? '' : 'none';
@@ -236,29 +236,29 @@ function weMenuCount() {
 function weRenderSection() {
   const b = WE_SECTIONS.find(x => x[0] === DE.section) || WE_SECTIONS[0];
   const area = $('#we-field'); if (!area) return;
-  area.parentNode.classList.toggle('dar', b[0] === 'maps');          // room for the map canvas: menu icon strip
+  area.parentNode.classList.toggle('narrow', b[0] === 'maps');          // room for the map canvas: menu icon strip
   fill(area, h('div', { class: 'empty' }, h('div', { class: 'spin', style: { margin: '30px auto' } })));
-  ({ general: weGeneral, maps: weMaps, alien_spawns: weAliens, quests: weQuests, shop: weShop, auction: weAuction, boxes: weBoxes, kapilar: weGates, events: weEvents, economy: weEconomy }[b[0]])(area, b);
+  ({ general: weGeneral, maps: weMaps, alien_spawns: weAliens, quests: weQuests, shop: weShop, auction: weAuction, boxes: weBoxes, gates: weGates, events: weEvents, economy: weEconomy }[b[0]])(area, b);
 }
-const weTitle = (b, ...extras) => h('div', { class: 'row between wrap we-section-head' }, h('div', null, h('h2', null, weIcon(b[0], 'we-icon buyuk'), T(b[1])),
+const weTitle = (b, ...extras) => h('div', { class: 'row between wrap we-section-head' }, h('div', null, h('h2', null, weIcon(b[0], 'we-icon large'), T(b[1])),
   h('div', { class: 'muted small' }, T(b[3]))), h('div', { class: 'row wrap', style: { gap: '8px' } }, ...extras));
 
 // change: patch (file + path -> full value); on standard, to the draft. Debounced (for the same key the last value goes).
 function wePatch(file, route, value, { ms = 450, after } = {}) {
   const k = file + route;
-  clearTimeout(DE.timer[k]); weSaveStatus('kaydediliyor');
+  clearTimeout(DE.timer[k]); weSaveStatus('saving');
   return new Promise(res => {
     DE.timer[k] = setTimeout(async () => {
       delete DE.timer[k];
-      const r = await act(() => api('/api/dunya/yama', { world: DE.did, file, route, value }));
-      if (r) { DE.summary = Object.assign(DE.summary, r); weMenuCount(); weWarning(); weSaveStatus('kaydedildi'); if (after) after(r); }
+      const r = await act(() => api('/api/world/patch', { world: DE.did, file, route, value }));
+      if (r) { DE.summary = Object.assign(DE.summary, r); weMenuCount(); weWarning(); weSaveStatus('saved'); if (after) after(r); }
       else weSaveStatus('ready');
       res(r);
     }, ms);
   });
 }
 async function weRevert(file, route, section) {
-  const r = await act(() => api('/api/dunya/geri_al', { world: DE.did, file, route, section }), T('Reset to standard.'));
+  const r = await act(() => api('/api/world/undo', { world: DE.did, file, route, section }), T('Reset to standard.'));
   if (r) { DE.summary = Object.assign(DE.summary, r); weMenuCount(); weWarning(); }
   return r;
 }
@@ -276,18 +276,18 @@ const weStd = (std, now, back, fmt = fmtN) => std == null || JSON.stringify(std)
   : h('button', { type: 'button', class: 'we-standard', title: T('Reset to the standard value'), onclick: back }, icon('undo'), T('Standard: {0}', fmt(std)));
 
 // ================================================================== SHARED PICKERS
-const ITEM_CATEGORY = [['hepsi', N('All')], ['ammunition', N('Ammunition')], ['equipment', N('Equipment')], ['ship', N('Ships')],
+const ITEM_CATEGORY = [['all', N('All')], ['ammunition', N('Ammunition')], ['equipment', N('Equipment')], ['ship', N('Ships')],
   ['drone', N('Drones')], ['resource', N('Resources')], ['booster', N('Boosters')], ['currency', N('Currency')], ['other', N('More')]];
 const itemCategory = l => { const p = l.split('_')[0]; return ITEM_CATEGORY.some(k => k[0] === p) ? p : 'other'; };
 
 async function pickItem(title = T('Select item')) {
-  if (!DE.items) { const r = await act(() => api('/api/dunya/esyalar')); if (!r) return null; DE.items = r.items; }
+  if (!DE.items) { const r = await act(() => api('/api/world/items')); if (!r) return null; DE.items = r.items; }
   return new Promise(res => {
-    let multiplier = 'hepsi', q = '', limit = 120, done = false;
+    let multiplier = 'all', q = '', limit = 120, done = false;
     const grid = h('div', { class: 'we-picker-grid' });
     const render = () => {
       const s = q.trim().toLowerCase();
-      const list = DE.items.filter(l => (multiplier === 'hepsi' || itemCategory(l) === multiplier) && (!s || l.includes(s) || itemName(l).toLowerCase().includes(s)));
+      const list = DE.items.filter(l => (multiplier === 'all' || itemCategory(l) === multiplier) && (!s || l.includes(s) || itemName(l).toLowerCase().includes(s)));
       fill(grid, ...list.slice(0, limit).map(l => h('button', { type: 'button', class: 'we-picker-item', title: l,
         onclick: () => { done = true; m.close(); res(l); } }, gameIcon(l, 44, null, 'box'), h('span', null, itemName(l)))),
         list.length > limit ? h('button', { type: 'button', class: 'btn sm we-more', onclick: () => { limit += 240; render(); } }, T('{0} more items', fmtN(list.length - limit))) : null,
@@ -303,7 +303,7 @@ async function pickItem(title = T('Select item')) {
 }
 
 async function alienList() {
-  if (!DE.alien) { const r = await act(() => api('/api/dunya/section?section=alien_spawns&world=' + encodeURIComponent(DE.did))); if (!r) return null; DE.alien = r.alien_spawns; }
+  if (!DE.alien) { const r = await act(() => api('/api/world/section?section=alien_spawns&world=' + encodeURIComponent(DE.did))); if (!r) return null; DE.alien = r.alien_spawns; }
   return DE.alien;
 }
 const npcIcon = (u, size) => u && u.icon && GI.index?.sprite[u.icon] ? sprite(u.icon, size) : h('span', { class: 'sprite vacant we-npc-empty', style: { width: size + 'px', height: size + 'px' } }, icon('alien'));
@@ -316,13 +316,13 @@ async function pickAlien(title = T('Select alien'), { with_id = false, numeric =
     const grid = h('div', { class: 'we-picker-grid npc' });
     const render = () => {
       const s = q.trim().toLowerCase();
-      const l = entries.filter(u => (!with_id || u.npc_id != null) && (!numeric || /^\d+$/.test(u.tip)) && (filter_by === 'hepsi' || (filter_by === 'map' ? u.used_in.length || u.new : u.event))
+      const l = entries.filter(u => (!with_id || u.npc_id != null) && (!numeric || /^\d+$/.test(u.tip)) && (filter_by === 'all' || (filter_by === 'map' ? u.used_in.length || u.new : u.event))
         && (!s || npcName(u).toLowerCase().includes(s)));
       fill(grid, ...l.map(u => h('button', { type: 'button', class: 'we-picker-item', onclick: () => { done = true; m.close(); res(u); } },
         npcIcon(u, 44), h('span', null, npcName(u)), h('small', { class: 'muted' }, T('HP {0}', fmtN(u.hp))))),
         !l.length ? h('div', { class: 'empty small muted' }, T('No matching aliens.')) : null);
     };
-    const seg = h('div', { class: 'seg' }, [['map', N('Spawning on maps')], ['event', N('Event')], ['hepsi', N('All')]].map(([k, name]) =>
+    const seg = h('div', { class: 'seg' }, [['map', N('Spawning on maps')], ['event', N('Event')], ['all', N('All')]].map(([k, name]) =>
       h('button', { class: k === filter_by ? 'on info' : '', onclick: e => { filter_by = k; seg.querySelectorAll('button').forEach(b => b.classList.remove('on', 'info')); e.currentTarget.classList.add('on', 'info'); render(); } }, T(name))));
     const m = modal({ title: title, wide: true, onclose: () => { if (!done) res(null); }, body: h('div', { class: 'stack', style: { gap: '10px' } },
       h('input', { class: 'input', placeholder: T('Search aliens…'), oninput: e => { q = e.target.value; render(); } }), seg, grid) });
@@ -332,7 +332,7 @@ async function pickAlien(title = T('Select alien'), { with_id = false, numeric =
 
 let WE_MAPS = null;
 async function pickMap(title, selected = [], { multi = true } = {}) {
-  if (!WE_MAPS) { const r = await act(() => api('/api/dunya/section?section=maps&world=' + encodeURIComponent(DE.did))); if (!r) return null; WE_MAPS = r.maps; }
+  if (!WE_MAPS) { const r = await act(() => api('/api/world/section?section=maps&world=' + encodeURIComponent(DE.did))); if (!r) return null; WE_MAPS = r.maps; }
   return new Promise(res => {
     const sec = new Set(selected.map(String)); let done = false;
     const group = h('div', { class: 'we-map-chips' });
@@ -351,9 +351,9 @@ function weGeneral(area, b) {
   const covers = h('div', { class: 'we-covers' });
   const renderCover = () => fill(covers, ...DE.entries.covers.filter(k => k !== 'standard').map(k =>
     h('button', { type: 'button', class: 'we-cover-pick' + (w.cover === k ? ' on' : ''), disabled: w.standard, onclick: () =>
-      act(() => api('/api/dunya/update', { id: w.id, cover: k })).then(x => { if (x) { DE.entries = x; w.cover = k; renderCover(); $('#de-kok .we-bar .we-cover').replaceWith(weCover(k, 'lowercase')); } }) }, weCover(k))));
+      act(() => api('/api/world/update', { id: w.id, cover: k })).then(x => { if (x) { DE.entries = x; w.cover = k; renderCover(); $('#de-kok .we-bar .we-cover').replaceWith(weCover(k, 'lowercase')); } }) }, weCover(k))));
   renderCover();
-  const saveMeta = (fieldName, v) => act(() => api('/api/dunya/update', { id: w.id, [fieldName]: v })).then(x => { if (x) { DE.entries = x; w[fieldName] = v; weSaveStatus('kaydedildi'); } });
+  const saveMeta = (fieldName, v) => act(() => api('/api/world/update', { id: w.id, [fieldName]: v })).then(x => { if (x) { DE.entries = x; w[fieldName] = v; weSaveStatus('saved'); } });
   const card = h('div', { class: 'card we-overview-card' }, weCover(w.cover, 'caps'),
     h('div', { class: 'stack', style: { gap: '12px' } },
       w.standard ? h('div', null, h('h3', { class: 'de-h3' }, icon('lock'), w.name), h('p', { class: 'muted' }, w.description))
@@ -366,8 +366,8 @@ function weGeneral(area, b) {
     h('p', { class: 'desc' }, w.changes ? T('What differs from standard in this world. You can reset a section to standard with one click.') : T('This world is still identical to the standard world. Start editing from the sections on the left.')),
     h('div', { class: 'we-summary-grid' }, WE_SECTIONS.filter(x => x[0] !== 'general').map(x => {
       const n = w.sections[x[0]] || 0;
-      return h('div', { class: 'we-summary-box' + (n ? ' dolu' : '') + (x[4] ? '' : ' soon') },
-        h('div', { class: 'row', style: { gap: '8px' } }, weIcon(x[0], 'we-icon orta'), h('b', null, T(x[1]))),
+      return h('div', { class: 'we-summary-box' + (n ? ' filled' : '') + (x[4] ? '' : ' soon') },
+        h('div', { class: 'row', style: { gap: '8px' } }, weIcon(x[0], 'we-icon medium'), h('b', null, T(x[1]))),
         h('div', { class: 'we-summary-count' }, x[4] ? (n ? T('{0} changes', n) : T('Standard')) : T('Coming soon')),
         h('div', { class: 'row', style: { gap: '6px' } }, x[4] ? btn(T('Open'), () => { DE.section = x[0]; weMenuCount(); weRenderSection(); }, 'sm', 'chevR') : null,
           n ? btn('', async () => {
@@ -397,19 +397,19 @@ async function weAliens(area, b) {
   const maxHp = Math.max(...entries.map(u => u.hp)), scale = v => Math.max(3, Math.log10(1 + v) / Math.log10(1 + maxHp) * 100);   // HP/shield bar (logarithmic)
   const render = () => {
     const s = f.q.trim().toLowerCase();
-    const l = entries.filter(u => (f.filter_by === 'hepsi' || (f.filter_by === 'map' ? u.used_in.length || u.new : f.filter_by === 'event' ? u.event
+    const l = entries.filter(u => (f.filter_by === 'all' || (f.filter_by === 'map' ? u.used_in.length || u.new : f.filter_by === 'event' ? u.event
       : f.filter_by === 'changed' ? u.changed : u.new)) && (!s || npcName(u).toLowerCase().includes(s)));
-    fill(grid, ...l.map(u => h('button', { type: 'button', class: 'de-npc' + (f.selected === u.tip ? ' on' : '') + (u.changed ? ' degisti' : ''),
+    fill(grid, ...l.map(u => h('button', { type: 'button', class: 'de-npc' + (f.selected === u.tip ? ' on' : '') + (u.changed ? ' changed' : ''),
       onclick: () => { f.selected = u.tip; render(); } }, npcIcon(u, 40),
       h('div', { class: 'we-npc-name' }, h('b', null, npcName(u)), h('div', { class: 'we-bars' },
-        h('i', { class: 'hp', style: { width: scale(u.hp) + '%' } }), h('i', { class: 'sh', style: { width: scale(u.kalkan) + '%' } }))),
+        h('i', { class: 'hp', style: { width: scale(u.hp) + '%' } }), h('i', { class: 'sh', style: { width: scale(u.shield) + '%' } }))),
       u.new ? badge(T('New'), 'orange') : u.aggressive ? h('span', { class: 'we-aggressive', title: T('Hostile') }, icon('zap')) : null)),
       !l.length ? h('div', { class: 'empty small muted' }, T('No matching aliens.')) : null);
     const u = entries.find(x => x.tip === f.selected) || l[0];
     if (u && !f.selected) { f.selected = u.tip; grid.querySelector('.de-npc')?.classList.add('on'); }
     fill(detail, u ? alienDetail(u, entries, render) : h('div', { class: 'empty muted' }, T('Pick an alien from the left.')));
   };
-  const seg = h('div', { class: 'seg' }, [['map', N('On maps')], ['event', N('Event')], ['changed', N('Modified')], ['new', N('New')], ['hepsi', N('All')]].map(([k, name]) =>
+  const seg = h('div', { class: 'seg' }, [['map', N('On maps')], ['event', N('Event')], ['changed', N('Modified')], ['new', N('New')], ['all', N('All')]].map(([k, name]) =>
     h('button', { class: f.filter_by === k ? 'on info' : '', onclick: () => { f.filter_by = k; weRenderSection(); } }, T(name))));
   fill(area, h('div', { class: 'card' }, weTitle(b, h('input', { class: 'input', style: { width: '200px' }, placeholder: T('Search aliens…'), value: f.q, oninput: e => { f.q = e.target.value; render(); } }), seg),
     h('div', { class: 'we-two-col' }, grid, detail)));
@@ -420,22 +420,22 @@ function alienDetail(u, entries, refresh) {
   const t = JSON.parse(JSON.stringify(u.full)), std = u.standard;
   const route = jp('types', u.tip);
   const save = () => {
-    Object.assign(u, { name: t.name, hp: t.hp, kalkan: t.kalkan, damage: t.damage, speed: t.speed, aggressive: t.aggressive, reward: t.reward, cargo: t.cargo, full: t, changed: true });
+    Object.assign(u, { name: t.name, hp: t.hp, shield: t.shield, damage: t.damage, speed: t.speed, aggressive: t.aggressive, reward: t.reward, cargo: t.cargo, full: t, changed: true });
     wePatch('npc.json', route, t);
   };
   const back = async () => { if (await weRevert('npc.json', route)) { DE.alien = null; weRenderSection(); } };
-  const row = (name, fieldName, opts) => h('div', { class: 'we-field-row' + (std && std[fieldName] !== t[fieldName] ? ' degisti' : '') },
+  const row = (name, fieldName, opts) => h('div', { class: 'we-field-row' + (std && std[fieldName] !== t[fieldName] ? ' changed' : '') },
     h('label', null, name), weNumber(t[fieldName], v => { t[fieldName] = v; save(); refreshRows(); }, opts),
     std ? weStd(std[fieldName], t[fieldName], () => { t[fieldName] = std[fieldName]; save(); refreshRows(); }) : null);
   const box = h('div', { class: 'stack', style: { gap: '8px' } });
   const refreshRows = () => fill(box, 
-    row(T('Hit points'), 'hp', { max: 50000000, step: 100, width: 110 }), row(T('Shield'), 'kalkan', { max: 50000000, step: 100, width: 110 }),
+    row(T('Hit points'), 'hp', { max: 50000000, step: 100, width: 110 }), row(T('Shield'), 'shield', { max: 50000000, step: 100, width: 110 }),
     row(T('Damage'), 'damage', { max: 1000000, step: 10 }), row(T('Speed'), 'speed', { max: 2000, step: 5 }),
-    h('div', { class: 'we-field-row' + (std && std.aggressive !== t.aggressive ? ' degisti' : '') }, h('label', null, T('Hostile')),
+    h('div', { class: 'we-field-row' + (std && std.aggressive !== t.aggressive ? ' changed' : '') }, h('label', null, T('Hostile')),
       h('label', { class: 'switch' }, h('input', { type: 'checkbox', checked: t.aggressive, onchange: e => { t.aggressive = e.target.checked; save(); refreshRows(); } }), h('span')),
       h('span', { class: 'small muted' }, t.aggressive ? T('Attacks you on sight.') : T('Fights back only when attacked.'))),
     h('div', { class: 'we-subtitle' }, T('Kill reward')),
-    h('div', { class: 'we-reward-grid' }, REWARD_FIELD.map(([k, name, g]) => h('div', { class: 'we-reward' + (std && (std.reward || {})[k] !== t.reward[k] ? ' degisti' : '') },
+    h('div', { class: 'we-reward-grid' }, REWARD_FIELD.map(([k, name, g]) => h('div', { class: 'we-reward' + (std && (std.reward || {})[k] !== t.reward[k] ? ' changed' : '') },
       art(g, 'we-reward-icon'), h('div', null, h('div', { class: 'small muted' }, T(name)), weNumber(t.reward[k] || 0, v => { t.reward[k] = v; save(); }, { max: 1e9, step: k === 'uridium' ? 1 : 10, width: 86 }))))),
     h('div', { class: 'we-subtitle' }, T('Cargo box (ore)')),
     h('div', { class: 'we-cargo' }, Object.entries(ORE_NAME).filter(([i]) => t.cargo[i] || +i < 8).map(([i, loot]) =>
@@ -446,7 +446,7 @@ function alienDetail(u, entries, refresh) {
   const deriveAlien = async () => {
     const name = await promptBox(T('Derive new alien'), T("The new alien's name shown in the game"), '-=[ ' + npcName(u) + ' X ]=-'); if (name == null) return;
     const n = Math.max(0, ...entries.filter(x => x.tip.startsWith('custom_')).map(x => +x.tip.slice('custom_'.length) || 0)) + 1;
-    const new_ = Object.assign(JSON.parse(JSON.stringify(t)), { name, model: t.model || u.tip, npc_id: null, _kaynak: 'Dünya Editörü: ' + u.tip });
+    const new_ = Object.assign(JSON.parse(JSON.stringify(t)), { name, model: t.model || u.tip, npc_id: null, _source: 'Dünya Editörü: ' + u.tip });
     delete new_.npc_id; delete new_.event; delete new_.maps;
     const r = await wePatch('npc.json', jp('types', 'custom_' + n), new_, { ms: 0 });
     if (r) { toast(T("New alien created. You can add it to a map's spawn list from the Maps section."), 'ok'); DE.alien = null; DE.sec.aliens.selected = 'custom_' + n; DE.sec.aliens.filter_by = 'new'; weRenderSection(); }
@@ -474,7 +474,7 @@ const MAP_LAYER = [['gridline', N('Grid')], ['block', N('Obstacles')], ['safe', 
 const MAP_COMPANY = { mmo: N('MMO'), eic: N('EIC'), vru: N('VRU'), combat: N('Battle'), pirate: N('Pirate'), bl: N('Black Light'), other: N('More') };
 
 async function weMaps(area, b) {
-  const r = await act(() => api('/api/dunya/section?section=maps&world=' + encodeURIComponent(DE.did))); if (!r || DE.section !== 'maps') return;
+  const r = await act(() => api('/api/world/section?section=maps&world=' + encodeURIComponent(DE.did))); if (!r || DE.section !== 'maps') return;
   WE_MAPS = r.maps;
   await alienList();
   const f = DE.sec.hr || (DE.sec.hr = {});
@@ -484,11 +484,11 @@ async function weMaps(area, b) {
   r.maps.forEach(x => (groups[x.company] = groups[x.company] || []).push(x));
   const entries = h('div', { class: 'we-map-list' }, Object.entries(groups).map(([fi, xs]) => h('div', { class: 'we-map-group' },
     h('div', { class: 'we-map-group-name f-' + fi }, T(MAP_COMPANY[fi] || fi)),
-    h('div', { class: 'we-map-group-chips' }, xs.map(x => h('button', { type: 'button', class: 'we-map-chip f-' + x.company + (x.id === f.selected ? ' on' : '') + (x.changed ? ' degisti' : ''),
+    h('div', { class: 'we-map-group-chips' }, xs.map(x => h('button', { type: 'button', class: 'we-map-chip f-' + x.company + (x.id === f.selected ? ' on' : '') + (x.changed ? ' changed' : ''),
       title: T('{0} aliens', fmtN(x.alien)), onclick: () => { f.selected = x.id; f.object = null; weRenderSection(); } }, x.name))))));
   const canvas = h('div', { class: 'we-canvas-card' }), panel = h('div', { class: 'we-map-panel' });
   fill(area, h('div', { class: 'card we-map-card' }, weTitle(b), entries, h('div', { class: 'we-map' }, canvas, panel)));
-  const hm = await act(() => api('/api/dunya/harita?world=' + encodeURIComponent(DE.did) + '&id=' + f.selected)); if (!hm || DE.section !== 'maps') return;
+  const hm = await act(() => api('/api/world/map?world=' + encodeURIComponent(DE.did) + '&id=' + f.selected)); if (!hm || DE.section !== 'maps') return;
   mapEditor(hm, canvas, panel, f);
 }
 
@@ -543,16 +543,16 @@ function mapEditor(hm, canvas, panel, f) {
       c.addEventListener('pointerdown', e => f.tool === 'sec' && dragStart(e, { type: 'safe', i }, ([x, y]) => { z[0] = x; z[1] = y; }, saveLayout));
       svg.append(c, beacon('safe', z[0], z[1], 520)); if (on) svg.append(handle(z, () => saveLayout())); });
     if (f.layer.region) npc.filter(g => g.region).forEach(g => { const z = g.region, on = f.object?.type === 'region' && f.object.tip === g.tip;
-      const gr = el('g', { class: 'region' + (on ? ' on' : '') + (aliens(g.tip)?.aggressive ? ' saldirgan' : '') });
-      gr.append(el('circle', { cx: z[0], cy: z[1], r: z[2] }), el('text', { x: z[0], y: z[1], class: 'etiket ortada' }, document.createTextNode(npcName(aliens(g.tip)) + ' ×' + g.count)));
+      const gr = el('g', { class: 'region' + (on ? ' on' : '') + (aliens(g.tip)?.aggressive ? ' aggressive' : '') });
+      gr.append(el('circle', { cx: z[0], cy: z[1], r: z[2] }), el('text', { x: z[0], y: z[1], class: 'label centered' }, document.createTextNode(npcName(aliens(g.tip)) + ' ×' + g.count)));
       gr.addEventListener('pointerdown', e => f.tool === 'sec' && dragStart(e, { type: 'region', tip: g.tip }, ([x, y]) => { z[0] = x; z[1] = y; }, saveNpc));
       svg.append(gr); if (on) svg.append(handle(z, () => saveNpc())); });
     if (f.layer.in) Object.entries(layout.lairs).forEach(([tip, pts]) => pts.forEach((p, i) => { const on = f.object?.type === 'in' && f.object.tip === tip && f.object.i === i;
       const pg = el('g', { class: 'in' + (on ? ' on' : '') }, el('circle', { cx: p[0], cy: p[1], r: 420 * S1, class: 'in-halo' }), beacon('in', p[0], p[1], 720));
       pg.addEventListener('pointerdown', e => f.tool === 'sec' && dragStart(e, { type: 'in', tip, i }, ([x, y]) => { p[0] = x; p[1] = y; }, saveLayout));
-      svg.append(pg, el('text', { x: p[0], y: p[1] + 620 * S1, class: 'etiket lowercase' }, document.createTextNode(npcName(aliens(tip))))); }));
+      svg.append(pg, el('text', { x: p[0], y: p[1] + 620 * S1, class: 'label lowercase' }, document.createTextNode(npcName(aliens(tip))))); }));
     if (f.layer.portal) hm.portals.forEach(g => { const on = f.object?.type === 'portal' && f.object.key === g.key, r = 330 * S1;
-      const gr = el('g', { class: 'portal' + (on ? ' on' : '') + (layout.portals[g.key] ? ' tasindi' : '') });
+      const gr = el('g', { class: 'portal' + (on ? ' on' : '') + (layout.portals[g.key] ? ' moved' : '') });
       gr.append(el('circle', { cx: g.x, cy: g.y, r: r * 1.9, class: 'portal-area' }), el('circle', { cx: g.x, cy: g.y, r: r * 1.25, class: 'portal-halo' }), beacon('portal', g.x, g.y, 900),
         el('text', { x: g.x, y: g.y - r * 2.3, class: 'tag' }, document.createTextNode('→ ' + g.target)));
       gr.addEventListener('pointerdown', e => f.tool === 'sec' && dragStart(e, { type: 'portal', key: g.key }, ([x, y]) => { g.x = x; g.y = y; layout.portals[g.key] = [x, y]; }, saveLayout));
@@ -645,10 +645,10 @@ function popMenuAt(x, y, items) {
 // ================================================================== QUESTS
 const QU_KIND = { 6: ['alien', N('Kill'), 'npc'], 27: ['alien', N('Kill (total)'), 'npc'], 67: ['box', N('Collect'), 'item'], 34: ['map', N('Go to map'), 'map'],
   52: ['cart', N('Sell ore'), 'ore'], 55: ['gift', N('Collect bonus boxes'), null], 51: ['box', N('Collect cargo boxes'), null], 28: ['users', N('Defeat a player'), null],
-  2: ['clock', N('Time limit'), 'sure'], 63: ['clock', N('Real-time duration'), 'sure'], 3: ['clock', N('Stay on the map'), 'sure'], 62: ['flag', N('Return to the quest giver'), null],
+  2: ['clock', N('Time limit'), 'duration'], 63: ['clock', N('Real-time duration'), 'duration'], 3: ['clock', N('Stay on the map'), 'duration'], 62: ['flag', N('Return to the quest giver'), null],
   53: ['star', N('Reach a level'), null], 35: ['x', N('Die'), null], 42: ['link', N('Use a portal'), null], 80: ['ring', N('Complete a Galaxy Gate'), null],
   13: ['zap', N('Travel distance'), null], 7: ['zap', N('Deal damage'), null], 9: ['shield', N('Take damage'), null] };
-const QU_FILTER = [['hepsi', N('All')], ['main', N('Main quests')], ['repeat', N('Daily and weekly')], ['event', N('Event')], ['changed', N('Modified')], ['new', N('New')], ['off', N('Off')]];
+const QU_FILTER = [['all', N('All')], ['main', N('Main quests')], ['repeat', N('Daily and weekly')], ['event', N('Event')], ['changed', N('Modified')], ['new', N('New')], ['off', N('Off')]];
 const ORE_OLD = { 1: 'resource_ore_prometium', 2: 'resource_ore_endurium', 3: 'resource_ore_terbium', 4: 'resource_ore_xenomit', 11: 'resource_ore_prometid',
   12: 'resource_ore_duranium', 13: 'resource_ore_promerium', 14: 'resource_ore_seprom', 15: 'resource_ore_palladium', 42: 'resource_ore_osmium' };
 
@@ -672,21 +672,21 @@ function conditionText(c) {
   const t = QU_KIND[c.type];
   if (!t) return T('Custom condition (type {0})', c.type);
   if (t[2] === 'map') return conditionTarget(c);
-  const target = t[2] === 'sure' ? fmtDur(c.target / 1000) : fmtN(c.target), ne = conditionTarget(c);
+  const target = t[2] === 'duration' ? fmtDur(c.target / 1000) : fmtN(c.target), ne = conditionTarget(c);
   return ne ? T('{0} {1}', target, ne) : target;
 }
 
 async function weQuests(area, b) {
   await alienList();
-  const r = await act(() => api('/api/dunya/section?section=quests&world=' + encodeURIComponent(DE.did))); if (!r || DE.section !== 'quests') return;
+  const r = await act(() => api('/api/world/section?section=quests&world=' + encodeURIComponent(DE.did))); if (!r || DE.section !== 'quests') return;
   const f = DE.sec.quests || (DE.sec.quests = { q: '', filter_by: 'main', selected: null, cap: 150 });
   const entries = h('div', { class: 'we-quest-list' }), detail = h('div', { class: 'we-detail' });
-  const eligible = g => ({ hepsi: true, main: !g.pool && !g.event && g.kinds.includes(2), repeat: g.pool || g.kinds.some(t => t === 3 || t === 6),
+  const eligible = g => ({ all: true, main: !g.pool && !g.event && g.kinds.includes(2), repeat: g.pool || g.kinds.some(t => t === 3 || t === 6),
     event: g.event || g.kinds.includes(5), changed: g.changed, new: g.new, off: g.off })[f.filter_by];
   const render = () => {
     const s = f.q.trim().toLowerCase();
     const l = r.quests.filter(g => eligible(g) && (!s || g.name.toLowerCase().includes(s) || String(g.id) === s));
-    fill(entries, ...l.slice(0, f.cap).map(g => h('button', { type: 'button', class: 'we-quest' + (f.selected === g.id ? ' on' : '') + (g.changed ? ' degisti' : '') + (g.off ? ' kapali' : ''),
+    fill(entries, ...l.slice(0, f.cap).map(g => h('button', { type: 'button', class: 'we-quest' + (f.selected === g.id ? ' on' : '') + (g.changed ? ' changed' : '') + (g.off ? ' off' : ''),
       onclick: () => { f.selected = g.id; render(); } }, h('span', { class: 'we-lv' }, g.level || '—'),
       h('div', { class: 'we-quest-name' }, h('b', null, g.name), h('div', { class: 'small muted ellipsis' }, g.conditions.slice(0, 3).map(c => (QU_KIND[c.type] ? T(QU_KIND[c.type][1]) : '?') + ' ' + conditionText(c)).join(' · '))),
       h('div', { class: 'we-quest-reward' }, g.rewards.slice(0, 3).map(([l]) => gameIcon(l, 22, null, 'gift'))),
@@ -706,18 +706,18 @@ async function weQuests(area, b) {
 async function questDetail(qid, box, updated) {
   if (box.dataset.q !== String(qid)) fill(box, h('div', { class: 'empty' }, h('div', { class: 'spin', style: { margin: '30px auto' } })));
   box.dataset.q = qid;
-  const g = await act(() => api('/api/dunya/gorev?world=' + encodeURIComponent(DE.did) + '&id=' + qid)); if (!g || box.dataset.q !== String(qid)) return;
+  const g = await act(() => api('/api/world/quest?world=' + encodeURIComponent(DE.did) + '&id=' + qid)); if (!g || box.dataset.q !== String(qid)) return;
   const std = g.standard;
   const save = async (changes, regenerate = true) => {
-    weSaveStatus('kaydediliyor');
-    const x = await act(() => api('/api/dunya/gorev', { world: DE.did, id: qid, changes }));
+    weSaveStatus('saving');
+    const x = await act(() => api('/api/world/quest', { world: DE.did, id: qid, changes }));
     if (!x) return weSaveStatus('ready');
-    const summary = await api('/api/dunya?world=' + encodeURIComponent(DE.did)).catch(() => null); if (summary) { DE.summary = summary; weMenuCount(); weWarning(); }
-    weSaveStatus('kaydedildi'); updated({ id: x.id, rewards: x.rewards, level: x.level, conditions: x.conditions.map(c => ({ type: c.type, target: c.target, matches: c.matches })), changed: x.changed, off: x.off, name: x.name });
+    const summary = await api('/api/world?world=' + encodeURIComponent(DE.did)).catch(() => null); if (summary) { DE.summary = summary; weMenuCount(); weWarning(); }
+    weSaveStatus('saved'); updated({ id: x.id, rewards: x.rewards, level: x.level, conditions: x.conditions.map(c => ({ type: c.type, target: c.target, matches: c.matches })), changed: x.changed, off: x.off, name: x.name });
     if (regenerate) questDetail(qid, box, updated);
   };
   let timer = null;
-  const delay = (fn, ms = 500) => { clearTimeout(timer); weSaveStatus('kaydediliyor'); timer = setTimeout(fn, ms); };
+  const delay = (fn, ms = 500) => { clearTimeout(timer); weSaveStatus('saving'); timer = setTimeout(fn, ms); };
   const condition = (c, i) => {
     const t = QU_KIND[c.type] || ['info', N('Custom condition'), null], kind = t[2], sc = std?.conditions?.[i];
     const subMaps = (c.sub.find(a => a.type === 77) || {}).matches || [];
@@ -733,13 +733,13 @@ async function questDetail(qid, box, updated) {
     return h('div', { class: 'we-condition', 'data-i': i }, h('div', { class: 'we-condition-icon' }, icon(t[0])),
       h('div', { class: 'we-condition-body' }, h('div', { class: 'small muted' }, T(t[1])),
         h('div', { class: 'row wrap', style: { gap: '8px' } },
-          kind === 'sure' ? h('span', { class: 'we-condition-text' }, fmtDur(c.target / 1000)) : c.type === 34 ? null : weNumber(c.target, v => delay(() => save({ conditions: [{ id: c.id, target: v }] }, false)), { min: 0, max: 1e7, width: 70 }),
-          kind && kind !== 'sure' ? h('button', { type: 'button', class: 'chip link de-kosul-hedef', onclick: pickTarget, title: T('Switch') },
+          kind === 'duration' ? h('span', { class: 'we-condition-text' }, fmtDur(c.target / 1000)) : c.type === 34 ? null : weNumber(c.target, v => delay(() => save({ conditions: [{ id: c.id, target: v }] }, false)), { min: 0, max: 1e7, width: 70 }),
+          kind && kind !== 'duration' ? h('button', { type: 'button', class: 'chip link de-kosul-hedef', onclick: pickTarget, title: T('Switch') },
             kind === 'item' ? gameIcon(c.matches[0], 20, null, 'box') : kind === 'npc' ? npcIcon((DE.alien || []).find(u => String(u.npc_id) === String(c.matches[0])), 20) : icon(t[0]),
             conditionTarget(c) || T('Select'), icon('edit')) : null,
           ['npc', 'item', null].includes(kind) && c.type !== 62 ? h('button', { type: 'button', class: 'chip link', onclick: mapRestriction, title: T('Map restriction') }, icon('map'),
             subMaps.length ? subMaps.map(mapLabel).join(', ') : T('On every map')) : null,
-          sc && sc.target !== c.target && kind !== 'sure' ? weStd(sc.target, c.target, () => save({ conditions: [{ id: c.id, target: sc.target }] })) : null)));
+          sc && sc.target !== c.target && kind !== 'duration' ? weStd(sc.target, c.target, () => save({ conditions: [{ id: c.id, target: sc.target }] })) : null)));
   };
   const reward = ([l, n], i) => h('div', { class: 'we-reward-chip' }, gameIcon(l, 36, null, 'gift'), h('div', { class: 'we-reward-chip-name' }, h('div', { class: 'small ellipsis', title: l }, itemName(l)),
     weNumber(n, v => { g.rewards[i][1] = Math.max(1, v); delay(() => save({ rewards: g.rewards }, false)); }, { min: 1, max: 1e9, width: 84 })),
@@ -779,7 +779,7 @@ async function questDetail(qid, box, updated) {
 const _quFile = g => g.source === 'main' ? 'quests.json' : 'quest_extras.json';
 
 async function pickQuest() {
-  const r = await act(() => api('/api/dunya/section?section=quests&world=' + encodeURIComponent(DE.did))); if (!r) return null;
+  const r = await act(() => api('/api/world/section?section=quests&world=' + encodeURIComponent(DE.did))); if (!r) return null;
   return new Promise(res => {
     let q = '', done = false;
     const l = h('div', { class: 'we-quest-list short' });
@@ -813,14 +813,14 @@ function newQuest() {
     const selectable = ['hunt', 'collect', 'sell', 'exploring'].includes(x.type);
     return h('div', { class: 'we-condition', 'data-h': i }, h('div', { class: 'we-condition-icon' }, icon(s[1])), h('div', { class: 'we-condition-body' }, h('div', { class: 'small muted' }, T(s[3])),
       h('div', { class: 'row wrap', style: { gap: '8px' } }, x.type !== 'exploring' ? weNumber(x.target, v => { x.target = Math.max(1, v); }, { min: 1, max: 1e7, width: 70 }) : null,
-        selectable ? h('button', { type: 'button', class: 'chip link de-kosul-hedef' + (x.matches?.length ? '' : ' bos'), onclick: sec },
+        selectable ? h('button', { type: 'button', class: 'chip link de-kosul-hedef' + (x.matches?.length ? '' : ' empty'), onclick: sec },
           x.loot ? gameIcon(x.loot, 20, null, 'box') : x.icon ? npcIcon(x.icon, 20) : icon(s[1]), x.tag || T('Select'), icon('edit')) : null,
         x.type !== 'exploring' ? h('button', { type: 'button', class: 'chip link', onclick: async () => { const l = await pickMap(T('Only on these maps'), x.map || []); if (l) { x.map = l; render(); } } },
           icon('map'), x.map?.length ? x.map.join(', ') : T('On every map')) : null)),
       btn('', () => { g.targets.splice(i, 1); render(); }, 'sm ghost icon', 'x'));
   };
   const render = () => {
-    const steps = h('div', { class: 'we-steps' }, [N('Objectives'), N('Rewards'), N('Name and level')].map((a, i) => h('div', { class: 'we-step' + (i === step ? ' on' : i < step ? ' bitti' : '') }, h('b', null, i + 1), T(a))));
+    const steps = h('div', { class: 'we-steps' }, [N('Objectives'), N('Rewards'), N('Name and level')].map((a, i) => h('div', { class: 'we-step' + (i === step ? ' on' : i < step ? ' finished' : '') }, h('b', null, i + 1), T(a))));
     let iconEl;
     if (step === 0) iconEl = [h('p', { class: 'desc' }, T('What should the pilot do? Add one or more objectives; the quest ends when all are complete.')),
       h('div', { class: 'we-templates' }, QU_TEMPLATE.map(([k, icon2, name, is_open]) => h('button', { type: 'button', class: 'we-template', onclick: () => {
@@ -840,10 +840,10 @@ function newQuest() {
     fill(sub, btn(step ? T('Back') : T('Cancel'), () => { if (step) { step--; render(); } else m.close(); }, 'ghost', step ? 'arrowL' : null),
       step < 2 ? btn(T('Next'), () => { step++; render(); }, 'primary', 'arrowR', { disabled: missing, title: missing ? T('Choose what to do for each objective.') : null })
         : btn(T('Create quest'), async () => {
-          const x = await act(() => api('/api/dunya/new_quest', { world: DE.did, name: g.name, level: g.level, targets: g.targets.map(y => ({ type: y.type, target: y.target, matches: y.matches, map: y.map })), rewards: g.rewards }), T('Quest created.'));
+          const x = await act(() => api('/api/world/new_quest', { world: DE.did, name: g.name, level: g.level, targets: g.targets.map(y => ({ type: y.type, target: y.target, matches: y.matches, map: y.map })), rewards: g.rewards }), T('Quest created.'));
           if (!x) return;
           m.close(); DE.sec.quests = { q: '', filter_by: 'new', selected: x.id, cap: 150 };
-          const summary = await api('/api/dunya?world=' + encodeURIComponent(DE.did)).catch(() => null); if (summary) { DE.summary = summary; weMenuCount(); weWarning(); }
+          const summary = await api('/api/world?world=' + encodeURIComponent(DE.did)).catch(() => null); if (summary) { DE.summary = summary; weMenuCount(); weWarning(); }
           weRenderSection();
         }, 'primary', 'check'));
   };
@@ -852,18 +852,18 @@ function newQuest() {
 
 // ================================================================== SHOP
 async function weShop(area, b) {
-  const r = await act(() => api('/api/dunya/section?section=shop&world=' + encodeURIComponent(DE.did))); if (!r || DE.section !== 'shop') return;
+  const r = await act(() => api('/api/world/section?section=shop&world=' + encodeURIComponent(DE.did))); if (!r || DE.section !== 'shop') return;
   const cats = Object.keys(r.categories);
   if (!cats.length) return fill(area, h('div', { class: 'card' }, weTitle(b), h('div', { class: 'empty muted' }, T('Shop catalog not found (data/yanitlar.json).'))));
-  const f = DE.sec.shop || (DE.sec.shop = { multiplier: cats[0], q: '', filter_by: 'hepsi' });
+  const f = DE.sec.shop || (DE.sec.shop = { multiplier: cats[0], q: '', filter_by: 'all' });
   if (!cats.includes(f.multiplier)) f.multiplier = cats[0];
   const grid = h('div', { class: 'shop-grid we-shop' });
   const priceText = (u, p) => fmtN(u) + (p === 'C' ? ' C.' : ' U.');
   const render = () => {
     const s = f.q.trim().toLowerCase();
-    const l = r.categories[f.multiplier].filter(it => (f.filter_by === 'hepsi' || (f.filter_by === 'changed' ? it.world : it.world?.on_sale === false)) && (!s || itemName(it.lootId).toLowerCase().includes(s) || it.lootId.includes(s)));
+    const l = r.categories[f.multiplier].filter(it => (f.filter_by === 'all' || (f.filter_by === 'changed' ? it.world : it.world?.on_sale === false)) && (!s || itemName(it.lootId).toLowerCase().includes(s) || it.lootId.includes(s)));
     fill(grid, ...l.map(it => { const d = it.world || {}, closed = d.on_sale === false, changed = d.price != null;
-      return h('button', { type: 'button', class: 'shop-card we-shop-card' + (closed ? ' kapali' : '') + (it.world ? ' degisti' : ''), onclick: () => editProduct(it, render) },
+      return h('button', { type: 'button', class: 'shop-card we-shop-card' + (closed ? ' off' : '') + (it.world ? ' changed' : ''), onclick: () => editProduct(it, render) },
         gameIcon(it.lootId, 64, null, 'cart'), h('div', { class: 'shop-name', title: it.lootId }, itemName(it.lootId)),
         h('div', { class: 'shop-price ' + ((changed ? d.currency : it.currency) === 'C' ? 'cred' : 'uri') }, closed ? T('Not for sale') : priceText(changed ? d.price : it.price, changed ? d.currency : it.currency)),
         changed && !closed ? h('div', { class: 'small dim we-strikethrough' }, priceText(it.price, it.currency)) : null); }),
@@ -876,7 +876,7 @@ async function weShop(area, b) {
     h('div', { class: 'row wrap', style: { gap: '10px', marginTop: '12px' } },
       h('div', { class: 'seg' }, cats.map(c => h('button', { class: c === f.multiplier ? 'on info' : '', onclick: () => { f.multiplier = c; weRenderSection(); } }, CAT[c] ? T(CAT[c]) : c,
         r.categories[c].some(it => it.world) ? h('span', { class: 'we-dot' }) : null))),
-      h('div', { class: 'seg' }, [['hepsi', N('All')], ['changed', N('Modified')], ['off', N('Removed from sale')]].map(([k, name]) =>
+      h('div', { class: 'seg' }, [['all', N('All')], ['changed', N('Modified')], ['off', N('Removed from sale')]].map(([k, name]) =>
         h('button', { class: f.filter_by === k ? 'on info' : '', onclick: () => { f.filter_by = k; weRenderSection(); } }, T(name))))),
     h('p', { class: 'small muted', style: { margin: '10px 0 0' } }, T('The shop price multiplier in Game Settings is applied on top of these prices. Drones and leveled P.E.T. products follow their own pricing rule.'))),
     grid));
@@ -913,17 +913,17 @@ function bulkPrice(products, refresh) {
       m.close(); const l = products.filter(it => !it.fixed && it.world?.on_sale !== false);
       for (const it of l) {
         const value = { price: Math.round(it.price * percent / 100), currency: it.currency };
-        const r = percent === 100 ? await weRevert('shop', jp('products', it.lootId)) : await act(() => api('/api/dunya/yama', { world: DE.did, file: 'shop', route: jp('products', it.lootId), value }));
+        const r = percent === 100 ? await weRevert('shop', jp('products', it.lootId)) : await act(() => api('/api/world/patch', { world: DE.did, file: 'shop', route: jp('products', it.lootId), value }));
         if (r) { it.world = percent === 100 ? null : value; DE.summary = Object.assign(DE.summary, r); }
       }
-      weMenuCount(); weWarning(); weSaveStatus('kaydedildi'); toast(T('Price of {0} products updated.', l.length), 'ok'); refresh();
+      weMenuCount(); weWarning(); weSaveStatus('saved'); toast(T('Price of {0} products updated.', l.length), 'ok'); refresh();
     }, 'primary', 'check')] });
 }
 
 // ================================================================== AUCTION
 const WE_AUCTION_KIND = [['hour', N('Hourly')], ['day', N('Log')], ['week', N('Weekly')]];
 async function weAuction(area, b) {
-  const r = await act(() => api('/api/dunya/section?section=auction&world=' + encodeURIComponent(DE.did))); if (!r || DE.section !== 'auction') return;
+  const r = await act(() => api('/api/world/section?section=auction&world=' + encodeURIComponent(DE.did))); if (!r || DE.section !== 'auction') return;
   const lots = r.lots;
   const save = () => wePatch('social.json', jp('auction', 'lots'), lots.map(l => [l.loot, l.group, l.type, l.count, l.instant, l.price]));
   const groupOf = loot => loot.startsWith('ammunition_laser') ? 'battery' : loot.startsWith('ammunition_rocket') ? 'rocket' : loot.startsWith('ship_') ? 'ship'
@@ -933,7 +933,7 @@ async function weAuction(area, b) {
   const render = () => {
     const s = f.q.trim().toLowerCase(), ls = lots.filter(l => l.type === f.type && (!s || itemName(l.loot).toLowerCase().includes(s)));
     const tab = h('div', { class: 'seg' }, WE_AUCTION_KIND.map(([kind, name]) => h('button', { class: f.type === kind ? 'on info' : '', onclick: () => { f.type = kind; render(); } },
-      T(name), ' ', h('span', { class: 'we-count mavi' }, lots.filter(l => l.type === kind).length))));
+      T(name), ' ', h('span', { class: 'we-count blue' }, lots.filter(l => l.type === kind).length))));
     const add = btn(T('Add lot'), async () => {
       const loot = await pickItem(T('Add lot: {0}', T(WE_AUCTION_KIND.find(x => x[0] === f.type)[1]))); if (!loot) return;
       if (lots.some(l => l.type === f.type && l.loot === loot)) return toast(T('This item is already in this period.'), 'info');
@@ -988,17 +988,17 @@ const MAP_CLASS_NAME = { 'X-1..X-8': N('Company maps (X-1 – X-8)'), 'X-2..X-8'
 // the box's in-game image (atlas), otherwise its key's icon
 const BOX_SPRITE = { PIRATE_BOOTY: 'booty_box_green', PIRATE_BOOTY_GOLD: 'booty_box_gold', PIRATE_BOOTY_RED: 'booty_box_red', PIRATE_BOOTY_BLUE: 'booty_box_blue',
   PIRATE_BOOTY_SILVER: 'booty_box_silver', BLACK_BOOTY_BOX: 'blackBooty_100x100', MASQUE_BOOTY_BOX: 'masqueBooty_100x100' };
-const boxIcon = (k, size) => GI.index?.sprite[BOX_SPRITE[k.type]] ? sprite(BOX_SPRITE[k.type], size) : gameIcon(k.anahtar, size, null, 'gift');
+const boxIcon = (k, size) => GI.index?.sprite[BOX_SPRITE[k.type]] ? sprite(BOX_SPRITE[k.type], size) : gameIcon(k.key, size, null, 'gift');
 
 async function weBoxes(area, b) {
-  const r = await act(() => api('/api/dunya/section?section=boxes&world=' + encodeURIComponent(DE.did))); if (!r || DE.section !== 'boxes') return;
+  const r = await act(() => api('/api/world/section?section=boxes&world=' + encodeURIComponent(DE.did))); if (!r || DE.section !== 'boxes') return;
   const f = DE.sec.box_kinds || (DE.sec.box_kinds = { selected: 'bonus' });
   const entries = h('div', { class: 'we-npc-list' }), detail = h('div', { class: 'we-detail' });
   const items = [{ id: 'bonus', name: T('Bonus box'), sub: T('On all maps (except 4-X)'), icon: 'bonus_box', changed: r.bonus_changed },
     { id: 'bonus_4x', name: T('Rich bonus box'), sub: T('On battle maps (4-X)'), icon: 'bonus_box_green', changed: r.bonus_4x_changed },
     ...r.boxes.map(k => ({ id: k.type, name: k.name, sub: !k.spawns ? T('Does not spawn on maps') : k.calendar ? T('During the event') : T('Always'), box: k, changed: k.changed }))];
   const render = () => {
-    fill(entries, ...items.map(o => h('button', { type: 'button', class: 'de-npc' + (f.selected === o.id ? ' on' : '') + (o.changed ? ' degisti' : ''),
+    fill(entries, ...items.map(o => h('button', { type: 'button', class: 'de-npc' + (f.selected === o.id ? ' on' : '') + (o.changed ? ' changed' : ''),
       onclick: () => { f.selected = o.id; render(); } }, o.box ? boxIcon(o.box, 36) : (GI.index?.sprite[o.icon] ? sprite(o.icon, 36) : icon('gift')),
       h('div', { class: 'we-npc-name' }, h('b', null, o.name), h('div', { class: 'small muted' }, o.sub)))));
     const o = items.find(x => x.id === f.selected) || items[0];
@@ -1055,7 +1055,7 @@ function boxDetail(o, r) {
   renderClass();
   return h('div', { class: 'stack', style: { gap: '12px' } },
     h('div', { class: 'we-detail-head' }, boxIcon(k, 56), h('div', null, h('div', { class: 'de-h3' }, k.name),
-      h('div', { class: 'small muted' }, T('To open: {0}', itemName(k.anahtar)), k.calendar ? ' · ' + T('spawns only while the event is running') : ''))),
+      h('div', { class: 'small muted' }, T('To open: {0}', itemName(k.key)), k.calendar ? ' · ' + T('spawns only while the event is running') : ''))),
     h('div', { class: 'we-field-row' }, h('label', null, T('Quantity on map')), weNumber(k.count, v => { k.count = v; save(); }, { min: 0, max: 100, width: 56 }),
       h('span', { class: 'small muted' }, T('at the same time on each map'))),
     k.renew_sec ? h('div', { class: 'we-field-row' }, h('label', null, T('Respawn')),
@@ -1074,14 +1074,14 @@ const GATE_REWARD_FIELD = [['ep', N('Experience'), 'source_experience'], ['honor
 const ROMAN = n => ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV'][n] || String(n + 1);
 
 async function weGates(area, b) {
-  const r = await act(() => api('/api/dunya/section?section=kapilar&world=' + encodeURIComponent(DE.did))); if (!r || DE.section !== 'kapilar') return;
-  const f = DE.sec.kp || (DE.sec.kp = { selected: r.kapilar[0]?.key, on: {} });
+  const r = await act(() => api('/api/world/section?section=kapilar&world=' + encodeURIComponent(DE.did))); if (!r || DE.section !== 'gates') return;
+  const f = DE.sec.qp || (DE.sec.qp = { selected: r.gates[0]?.key, on: {} });
   const entries = h('div', { class: 'we-npc-list' }), detail = h('div', { class: 'we-detail' });
   const render = () => {
-    fill(entries, ...r.kapilar.map(g => h('button', { type: 'button', class: 'de-npc' + (f.selected === g.key ? ' on' : '') + (g.changed ? ' degisti' : ''),
-      onclick: () => { f.selected = g.key; render(); } }, art('ed_kapilar', 'we-gate-icon'),
+    fill(entries, ...r.gates.map(g => h('button', { type: 'button', class: 'de-npc' + (f.selected === g.key ? ' on' : '') + (g.changed ? ' changed' : ''),
+      onclick: () => { f.selected = g.key; render(); } }, art('ed_gates', 'we-gate-icon'),
       h('div', { class: 'we-npc-name' }, h('b', null, g.name), h('div', { class: 'small muted' }, T('{0} waves · {1} parts', g.waves.length, g.part))))));
-    const g = r.kapilar.find(x => x.key === f.selected) || r.kapilar[0];
+    const g = r.gates.find(x => x.key === f.selected) || r.gates[0];
     fill(detail, gateDetail(g, f));
   };
   fill(area, h('div', { class: 'card' }, weTitle(b), h('div', { class: 'we-two-col narrow-list' }, entries, detail)));
@@ -1089,13 +1089,13 @@ async function weGates(area, b) {
 }
 
 function gateDetail(g, f) {
-  const route = jp('kapilar', g.key), std = g.standard;
+  const route = jp('gates', g.key), std = g.standard;
   const save = () => {
     g.changed = true;
-    return wePatch('gates.json', route, { part: g.part, can: g.can, reward: Object.assign({}, g.reward, { ammunition: g.ammunition, chance: g.chance.map(x => ({ count: x.count, probability: x.probability })) }),
-      waves: g.waves.map(w => ({ alien_spawns: w.alien_spawns.map(a => ({ type: a.type, count: a.count, hp: a.hp, kalkan: a.kalkan, damage: a.damage, speed: a.speed })) })) });
+    return wePatch('gates.json', route, { part: g.part, hp: g.hp, reward: Object.assign({}, g.reward, { ammunition: g.ammunition, chance: g.chance.map(x => ({ count: x.count, probability: x.probability })) }),
+      waves: g.waves.map(w => ({ alien_spawns: w.alien_spawns.map(a => ({ type: a.type, count: a.count, hp: a.hp, shield: a.shield, damage: a.damage, speed: a.speed })) })) });
   };
-  const row = (name, k, opts) => h('div', { class: 'we-field-row' + (std && std[k] !== g[k] ? ' degisti' : '') }, h('label', null, name),
+  const row = (name, k, opts) => h('div', { class: 'we-field-row' + (std && std[k] !== g[k] ? ' changed' : '') }, h('label', null, name),
     weNumber(g[k], v => { g[k] = v; save(); }, opts), std ? weStd(std[k], g[k], () => { g[k] = std[k]; save(); weRenderSection(); }) : null);
   const ammo = h('div', { class: 'we-rewards' });
   const renderAmmo = () => fill(ammo, ...Object.entries(g.ammunition).map(([l, n]) => h('div', { class: 'we-reward-chip' }, gameIcon(l, 32, null, 'gift'),
@@ -1112,22 +1112,22 @@ function gateDetail(g, f) {
           a.changed_kind ? badge(T('Changed'), 'orange') : null, h('span', { class: 'spacer' }),
           a.fixed ? null : btn(T('Switch'), async () => {
             const u = await pickAlien(T('Which alien should this wave have?'), { numeric: true }); if (!u) return;
-            Object.assign(a, { type: u.tip, name: u.name, icon: u.icon, hp: u.hp, kalkan: u.kalkan, damage: u.damage, speed: u.speed, changed_kind: true });
+            Object.assign(a, { type: u.tip, name: u.name, icon: u.icon, hp: u.hp, shield: u.shield, damage: u.damage, speed: u.speed, changed_kind: true });
             await save(); weRenderSection(); }, 'sm ghost', 'refresh', { title: T('Replace the alien with a different type (quantity and position stay the same)') })),
         h('div', { class: 'we-box-controls' },
-          value(T('Quantity'), a.count, v => { a.count = Math.max(a.en_az, v); save(); summary.textContent = T('{0} aliens', fmtN(w.alien_spawns.reduce((t, x) => t + x.count, 0))); }, { min: a.en_az, max: 5000, width: 46 }),
+          value(T('Quantity'), a.count, v => { a.count = Math.max(a.min_value, v); save(); summary.textContent = T('{0} aliens', fmtN(w.alien_spawns.reduce((t, x) => t + x.count, 0))); }, { min: a.min_value, max: 5000, width: 46 }),
           value(T('Hit points'), a.hp, v => { a.hp = v; save(); }, { max: 50000000, step: 1000, width: 80 }),
-          value(T('Shield'), a.kalkan, v => { a.kalkan = v; save(); }, { max: 50000000, step: 1000, width: 80 }),
+          value(T('Shield'), a.shield, v => { a.shield = v; save(); }, { max: 50000000, step: 1000, width: 80 }),
           value(T('Damage'), a.damage, v => { a.damage = v; save(); }, { max: 1000000, step: 50, width: 62 })))))) : null;
     const summary = h('span', { class: 'small muted' }, T('{0} aliens', fmtN(total)));
-    return h('div', { class: 'we-wave' + (is_open ? ' acik' : '') }, h('button', { type: 'button', class: 'we-wave-title', onclick: () => { f.on[g.key + n] = !is_open; weRenderSection(); } },
+    return h('div', { class: 'we-wave' + (is_open ? ' open' : '') }, h('button', { type: 'button', class: 'we-wave-title', onclick: () => { f.on[g.key + n] = !is_open; weRenderSection(); } },
       icon(is_open ? 'chevR' : 'chevR'), h('b', null, T('Wave {0}', ROMAN(n))), h('span', { class: 'we-wave-icons' }, w.alien_spawns.slice(0, 6).map(a => npcIcon(a, 22))), h('span', { class: 'spacer' }), summary), body);
   };
   return h('div', { class: 'stack', style: { gap: '12px' } },
-    h('div', { class: 'we-detail-head' }, art('ed_kapilar', 'we-gate-icon buyuk'), h('div', null, h('div', { class: 'de-h3' }, g.name), h('div', { class: 'small muted' }, T('{0} waves', g.waves.length)))),
-    row(T('Parts required'), 'part', { min: 1, max: 10000, width: 64 }), row(T('Hit points'), 'can', { min: 1, max: 100, width: 50 }),
+    h('div', { class: 'we-detail-head' }, art('ed_gates', 'we-gate-icon large'), h('div', null, h('div', { class: 'de-h3' }, g.name), h('div', { class: 'small muted' }, T('{0} waves', g.waves.length)))),
+    row(T('Parts required'), 'part', { min: 1, max: 10000, width: 64 }), row(T('Hit points'), 'hp', { min: 1, max: 100, width: 50 }),
     h('div', { class: 'we-subtitle' }, T('Gate reward')),
-    h('div', { class: 'we-reward-grid' }, GATE_REWARD_FIELD.filter(([k]) => k in g.reward).map(([k, name, looks]) => h('div', { class: 'we-reward' + (std && std.reward[k] !== g.reward[k] ? ' degisti' : '') },
+    h('div', { class: 'we-reward-grid' }, GATE_REWARD_FIELD.filter(([k]) => k in g.reward).map(([k, name, looks]) => h('div', { class: 'we-reward' + (std && std.reward[k] !== g.reward[k] ? ' changed' : '') },
       looks.startsWith('source_') ? art(looks, 'we-reward-icon') : gameIcon(looks || null, 30, null, 'gift'), h('div', null, h('div', { class: 'small muted' }, T(name)),
         weNumber(g.reward[k] || 0, v => { g.reward[k] = v; save(); }, { max: 1e10, step: k === 'ep' ? 10000 : k === 'honor' ? 1000 : 10, width: 92 }))))),
     h('div', { class: 'we-subtitle' }, T('Ammo and item reward')), ammo,
@@ -1150,13 +1150,13 @@ const today = (day = 0) => new Date(Date.now() + day * 86400000).toISOString().s
 
 async function weEvents(area, b) {
   await alienList();
-  const r = await act(() => api('/api/dunya/section?section=events&world=' + encodeURIComponent(DE.did))); if (!r || DE.section !== 'events') return;
+  const r = await act(() => api('/api/world/section?section=events&world=' + encodeURIComponent(DE.did))); if (!r || DE.section !== 'events') return;
   const f = DE.sec.label || (DE.sec.label = { filter_by: 'map', q: '', selected: null, history: false });
   const entries = h('div', { class: 'we-npc-list' }), detail = h('div', { class: 'we-detail' });
   const render = () => {
     const s = f.q.trim().toLowerCase();
     const l = r.events.filter(e => (f.filter_by === 'changed' ? e.changed : e.type === f.filter_by) && (!s || e.name.toLowerCase().includes(s)));
-    fill(entries, ...l.map(e => h('button', { type: 'button', class: 'de-npc' + (f.selected === e.key ? ' on' : '') + (e.changed ? ' degisti' : ''),
+    fill(entries, ...l.map(e => h('button', { type: 'button', class: 'de-npc' + (f.selected === e.key ? ' on' : '') + (e.changed ? ' changed' : ''),
       onclick: () => { f.selected = e.key; render(); } }, e.map?.alien_spawns[0] ? npcIcon(e.map.alien_spawns[0], 34) : weIcon('events', 'we-gate-icon'),
       h('div', { class: 'we-npc-name' }, h('b', null, e.name), h('div', { class: 'small muted' },
         e.world_status === 'on' ? T('Always on in this world') : e.world_status === 'off' ? T('Off in this world') : T('By calendar')))) ),
@@ -1178,7 +1178,7 @@ function eventDetail(e, r, f) {
     map: e.map ? { maps: e.map.maps, alien_spawns: e.map.alien_spawns.map(a => ({ count: a.count })), quota: e.map.quota, boss: e.map.boss } : undefined }); };
   const state = h('div', { class: 'seg' }, EVENT_STATUS.map(([k, name, c]) => h('button', { class: e.world_status === k ? 'on ' + c : '',
     onclick: () => { e.world_status = k; save(); weRenderSection(); } }, T(name))));
-  const out = [h('div', { class: 'we-detail-head' }, e.map?.alien_spawns[0] ? npcIcon(e.map.alien_spawns[0], 56) : weIcon('events', 'we-gate-icon buyuk'),
+  const out = [h('div', { class: 'we-detail-head' }, e.map?.alien_spawns[0] ? npcIcon(e.map.alien_spawns[0], 56) : weIcon('events', 'we-gate-icon large'),
     h('div', null, h('div', { class: 'de-h3' }, e.name), h('div', { class: 'small muted' }, { map: T('Map event'), yearly: T('Yearly event'), weekly: T('Weekly event') }[e.type]))),
     h('div', { class: 'we-field-row' }, h('label', null, T('In this world')), state)];
   if (e.periods) {
@@ -1190,7 +1190,7 @@ function eventDetail(e, r, f) {
         const yearly = d[0].length === 5;
         const entry = (j) => h('input', { class: 'input we-date', type: yearly ? 'text' : 'date', value: d[j], placeholder: yearly ? T('MM-DD') : null,
           onchange: ev => { d[j] = ev.target.value; save(); } });
-        return h('div', { class: 'we-period' + (!yearly && d[1] < todayStr ? ' gecmis' : '') + (!yearly && d[0] <= todayStr && todayStr <= d[1] ? ' simdi' : '') },
+        return h('div', { class: 'we-period' + (!yearly && d[1] < todayStr ? ' past' : '') + (!yearly && d[0] <= todayStr && todayStr <= d[1] ? ' now' : '') },
           entry(0), h('span', { class: 'muted' }, '–'), entry(1), yearly ? badge(T('Every year'), 'info') : null,
           !yearly && d[0] <= todayStr && todayStr <= d[1] ? badge(T('Now'), 'ok') : null, h('span', { class: 'spacer' }),
           btn('', () => { e.periods.splice(i, 1); save(); renderPeriods(); }, 'sm ghost icon', 'x', { title: T('Delete period') }));
@@ -1223,7 +1223,7 @@ function eventDetail(e, r, f) {
         weNumber(gameMap.quota[m], v => { gameMap.quota[m] = v; save(); }, { max: 10000, width: 56 })))) : null,
       gameMap.boss ? h('div', { class: 'we-field-row' }, h('label', null, T('Boss')), h('label', { class: 'we-wave-value' }, h('span', null, T('Quantity')),
         weNumber(gameMap.boss.count, v => { gameMap.boss.count = v; save(); }, { max: 50, width: 46 })),
-        h('label', { class: 'we-wave-value' }, h('span', null, T('Duration (min)')), weNumber(Math.round(gameMap.boss.sure_sn / 60), v => { gameMap.boss.sure_sn = Math.max(1, v) * 60; save(); }, { min: 1, max: 1440, width: 52 }))) : null);
+        h('label', { class: 'we-wave-value' }, h('span', null, T('Duration (min)')), weNumber(Math.round(gameMap.boss.duration_sec / 60), v => { gameMap.boss.duration_sec = Math.max(1, v) * 60; save(); }, { min: 1, max: 1440, width: 52 }))) : null);
   }
   if (e.changed) out.push(btn(T('Reset event to standard'), async () => { if (await weRevert('events.json', route)) weRenderSection(); }, 'sm ghost', 'undo'));
   return h('div', { class: 'stack', style: { gap: '12px' } }, out);
@@ -1236,20 +1236,20 @@ const RANK_FORMULA = [['ep', N('Per experience point')], ['honor', N('Per honor 
   ['phoenix', N('Per Phoenix destroyed')]];
 
 async function weEconomy(area, b) {
-  const r = await act(() => api('/api/dunya/section?section=economy&world=' + encodeURIComponent(DE.did))); if (!r || DE.section !== 'economy') return;
+  const r = await act(() => api('/api/world/section?section=economy&world=' + encodeURIComponent(DE.did))); if (!r || DE.section !== 'economy') return;
   const f = DE.sec.extra || (DE.sec.extra = { all: false });
   const lv = r.levels.map(x => x.slice()), es = r.thresholds.slice(), fo = Object.assign({}, r.formula);
   const saveLevels = () => wePatch('levels.json', jp('levels'), lv.map(x => x[1]));
   const limit = f.all ? lv.length : 26;
-  const levels = h('div', { class: 'we-level-grid' }, lv.slice(1, limit).map((x, i) => h('label', { class: 'we-wave-value' + (x[1] !== r.levels_default[i + 1][1] ? ' degisti' : '') },
+  const levels = h('div', { class: 'we-level-grid' }, lv.slice(1, limit).map((x, i) => h('label', { class: 'we-wave-value' + (x[1] !== r.levels_default[i + 1][1] ? ' changed' : '') },
     h('span', { class: 'we-lv' }, x[0]), weNumber(x[1], v => { x[1] = v; saveLevels(); }, { min: 1, max: 1e15, step: 1000, width: 112 }))));
   const percent = h('div', { class: 'chips' }, [50, 75, 125, 200].map(p => h('button', { type: 'button', class: 'chip link', onclick: () => {
     lv.forEach((x, i) => { if (i) x[1] = Math.max(lv[i - 1][1] + 1, Math.round(r.levels_default[i][1] * p / 100)); }); saveLevels().then(() => weRenderSection()); } }, '%' + p)));
-  const formula = h('div', { class: 'stack', style: { gap: '4px' } }, RANK_FORMULA.filter(([k]) => k in fo).map(([k, name]) => h('div', { class: 'we-field-row' + (fo[k] !== r.formula_default[k] ? ' degisti' : '') },
+  const formula = h('div', { class: 'stack', style: { gap: '4px' } }, RANK_FORMULA.filter(([k]) => k in fo).map(([k, name]) => h('div', { class: 'we-field-row' + (fo[k] !== r.formula_default[k] ? ' changed' : '') },
     h('label', { style: { width: '240px' } }, T(name)), h('input', { class: 'input num', type: 'number', step: 'any', value: fo[k], style: { width: '110px' },
       onchange: ev => { fo[k] = +ev.target.value || 0; wePatch('ranks.json', jp('formula'), fo); } }),
     weStd(r.formula_default[k], fo[k], () => { fo[k] = r.formula_default[k]; wePatch('ranks.json', jp('formula'), fo).then(() => weRenderSection()); }, x => String(x)))));
-  const thresholds = h('div', { class: 'we-level-grid wide' }, es.slice(1).map((n, i) => h('label', { class: 'we-wave-value' + (n !== r.thresholds_default[i + 1] ? ' degisti' : '') },
+  const thresholds = h('div', { class: 'we-level-grid wide' }, es.slice(1).map((n, i) => h('label', { class: 'we-wave-value' + (n !== r.thresholds_default[i + 1] ? ' changed' : '') },
     h('span', { class: 'ellipsis', style: { width: '150px' } }, r.ranks[i + 1] || i + 2),
     weNumber(n, v => { es[i + 1] = v; wePatch('ranks.json', jp('thresholds'), es); }, { min: 1, max: 1e9, step: 100, width: 92 }))));
   const back = (file, route, name) => btn(T('Reset to standard'), async () => { if (await weRevert(file, route)) weRenderSection(); }, 'sm ghost', 'undo', { title: name });
@@ -1267,7 +1267,7 @@ async function weEconomy(area, b) {
 
 // ================================================================== SHARING (export / import, share code)
 async function weExport(w) {
-  const r = await act(() => api('/api/dunya/kod', { world: w.id })); if (!r) return;
+  const r = await act(() => api('/api/world/code', { world: w.id })); if (!r) return;
   const long = r.code.length > 1900;
   const code = h('textarea', { class: 'input mono we-code', rows: 4, readonly: true }, r.code);
   const m = modal({ title: T('Share world "{0}"', w.name), wide: true, body: h('div', { class: 'stack', style: { gap: '12px' } },
@@ -1275,7 +1275,7 @@ async function weExport(w) {
       w.standard ? T('Draft of the standard world') : T('{0} changes', w.changes)))),
     h('div', { class: 'we-share-paths' },
       h('div', { class: 'we-share-path' }, icon('download'), h('b', null, T('As a file')), h('div', { class: 'small muted' }, T('A .json file: your friend adds it with "Import" in their World Editor.')),
-        btn(T('Save to file'), () => act(() => api('/api/dunya/disari', { world: w.id })).then(x => { if (x && x.route) { toast(T('Saved: {0}', x.route), 'ok'); m.close(); } }), 'sm primary', 'download')),
+        btn(T('Save to file'), () => act(() => api('/api/world/export', { world: w.id })).then(x => { if (x && x.route) { toast(T('Saved: {0}', x.route), 'ok'); m.close(); } }), 'sm primary', 'download')),
       h('div', { class: 'we-share-path' }, icon('copy'), h('b', null, T('Share code')), h('div', { class: 'small muted' },
         long ? T("The code is {0} characters long: it won't fit in a Discord message, so share it as a file or send it as a text file.", fmtN(r.code.length))
           : T('The code is {0} characters long: you can paste it into chat or Discord.', fmtN(r.code.length))),
@@ -1291,9 +1291,9 @@ function weImport() {
   const m = modal({ title: T('Import world'), wide: true, body: h('div', { class: 'stack', style: { gap: '12px' } },
     h('div', { class: 'we-share-paths' },
       h('div', { class: 'we-share-path' }, icon('folder'), h('b', null, T('From file')), h('div', { class: 'small muted' }, T('Choose the shared .json file.')),
-        btn(T('Choose file…'), () => act(() => api('/api/dunya/import', {})).then(result), 'sm primary', 'upload')),
+        btn(T('Choose file…'), () => act(() => api('/api/world/import', {})).then(result), 'sm primary', 'upload')),
       h('div', { class: 'we-share-path' }, icon('copy'), h('b', null, T('From share code')), h('div', { class: 'small muted' }, T('Paste the code below.')),
-        btn(T('Import from code'), () => code.value.trim() ? act(() => api('/api/dunya/import', { code: code.value })).then(result) : toast(T('Paste the code first.'), 'info'), 'sm', 'upload'))),
+        btn(T('Import from code'), () => code.value.trim() ? act(() => api('/api/world/import', { code: code.value })).then(result) : toast(T('Paste the code first.'), 'info'), 'sm', 'upload'))),
     code, h('div', { class: 'small dim' }, T('An imported world is added as a new world; it never overwrites any world.'))),
     foot: [btn(T('Cancel'), () => m.close(), 'ghost')] });
 }
@@ -1317,9 +1317,9 @@ function playWorldChip(a) {
     w.standard ? icon('lock') : w.changes ? badge(T('{0} changes', w.changes), 'orange') : null, icon('chevR'));
 }
 async function playWorldMenu(anchor, a) {
-  const r = await act(() => api('/api/dunyalar')); if (!r) return;
+  const r = await act(() => api('/api/worlds')); if (!r) return;
   popMenu(anchor, [...r.entries.map(w => ({ label: w.name + (w.id === a.world_info.id ? '  ✓' : ''), ic: w.standard ? 'lock' : 'globe',
-    fn: () => act(() => api('/api/kayitlar/dunya', { id: a.id, world: w.id }), T('{0} now enters the world "{1}".', a.pilot, w.name)).then(x => x && poll()) })),
+    fn: () => act(() => api('/api/saves/world', { id: a.id, world: w.id }), T('{0} now enters the world "{1}".', a.pilot, w.name)).then(x => x && poll()) })),
     '-', { label: T('World Editor'), ic: 'edit', fn: () => { DE.did = a.world_info.id; DE.section = 'general'; go('world'); } }]);
 }
 
@@ -1334,6 +1334,6 @@ function hostWorldChip(v) {
     w.standard ? icon('lock') : w.changes ? badge(T('{0} changes', w.changes), 'orange') : null, icon('chevR'));
 }
 function hostPickWorld(id) {
-  act(() => api('/api/arkadas/ayarlar', { world: id }), FRD.data?.host?.on ? T('This world opens when the server restarts.') : T('Saved.'))
+  act(() => api('/api/friend/settings', { world: id }), FRD.data?.host?.on ? T('This world opens when the server restarts.') : T('Saved.'))
     .then(r => { if (r) { FRD.data = r; drawFriends(); } });
 }

@@ -5958,7 +5958,7 @@
      40
     ]
    ],
-   "sure_sn": 300
+   "duration_sec": 300
   },
   "108008": {
    "name": "Puppeteer",
@@ -6350,7 +6350,7 @@
      40
     ]
    ],
-   "sure_sn": 600
+   "duration_sec": 600
   },
   "108011": {
    "name": "Prepare for Trouble",
@@ -7050,7 +7050,7 @@
      45
     ]
    ],
-   "sure_sn": 480
+   "duration_sec": 480
   },
   "109003": {
    "name": "Studio Attack",
@@ -7396,7 +7396,7 @@
      45
     ]
    ],
-   "sure_sn": 720
+   "duration_sec": 720
   },
   "109006": {
    "name": "Fair Game",
@@ -8520,7 +8520,7 @@
      50
     ]
    ],
-   "sure_sn": 1200
+   "duration_sec": 1200
   },
   "110005": {
    "name": "Race to a Rescue",
@@ -9036,7 +9036,7 @@
      58
     ]
    ],
-   "sure_sn": 3600
+   "duration_sec": 3600
   },
   "110009": {
    "name": "Patience and Distraction",
@@ -21405,7 +21405,7 @@
      400
     ]
    ],
-   "sure_sn": 2400
+   "duration_sec": 2400
   },
   "118015": {
    "name": "Dogfights",
@@ -22692,7 +22692,7 @@
      440
     ]
    ],
-   "sure_sn": 3600
+   "duration_sec": 3600
   },
   "119002": {
    "name": "Suddenly, Sibelons",
@@ -23333,7 +23333,7 @@
      540
     ]
    ],
-   "sure_sn": 7200
+   "duration_sec": 7200
   },
   "119008": {
    "name": "Sharp Retort",
@@ -23930,7 +23930,7 @@
      180
     ]
    ],
-   "sure_sn": 5400
+   "duration_sec": 5400
   },
   "119013": {
    "name": "Cry Havoc!",

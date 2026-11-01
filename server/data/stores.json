@@ -1,6 +1,6 @@
 {
  "_description": "Uridyumla çalışan dükkân pencereleri -> server/data/dukkanlar.json, esyalar.json (ek_magaza, odeme_paketleri, payment_prices)",
- "_kaynak": "belgeler/wiki/dukkanlar_o7.json; dukkanlar_o7",
+ "_source": "belgeler/wiki/dukkanlar_o7.json; dukkanlar_o7",
  "mileage": {
   "calendar": "mileage_market",
   "token": "resource_collectable_mileage-coin",
@@ -724,7 +724,7 @@
     "priority": 18
    }
   ],
-  "_uyarlama": "fiyatlar uridyum (suggested_uridium); jeton paketleri mağazada (Extras) etkinlik süresince birer kez"
+  "_adaptation": "fiyatlar uridyum (suggested_uridium); jeton paketleri mağazada (Extras) etkinlik süresince birer kez"
  },
  "vip": {
   "calendar": "vip_merchant",
@@ -968,7 +968,7 @@
     "order": 8
    }
   ],
-  "_uyarlama": "takas satırları oyuncu iletilerinden ve uyarlama; VIP paketlerinin içerikleri kısmen uyarlama"
+  "_adaptation": "takas satırları oyuncu iletilerinden ve uyarlama; VIP paketlerinin içerikleri kısmen uyarlama"
  },
  "returnee": {
   "wait_days": 14,
@@ -1122,7 +1122,7 @@
    }
   ],
   "min_level": 2,
-  "_uyarlama": "kampanya 15 gün, takvim 7 gün; hoş geldin ve takvim ödülleri, paket içerikleri uyarlama (resmî liste yok)"
+  "_adaptation": "kampanya 15 gün, takvim 7 gün; hoş geldin ve takvim ödülleri, paket içerikleri uyarlama (resmî liste yok)"
  },
  "pre_bf": {
   "calendar": "pre_prometheus",
@@ -1279,11 +1279,11 @@
    "4": 10,
    "5": 15
   },
-  "_uyarlama": "pencere yalnız bilgi; Prometheus Day paketlerinin (bfnov*) içerikleri istemcide metin: indirimleri uygulanmıyor"
+  "_adaptation": "pencere yalnız bilgi; Prometheus Day paketlerinin (bfnov*) içerikleri istemcide metin: indirimleri uygulanmıyor"
  },
  "rehero": {
   "calendar": "return_of_hero",
-  "anahtar": "resource_booty-key-returnee",
+  "key": "resource_booty-key-returnee",
   "day": 7,
   "daily_count": 5,
   "once_count": 13,
@@ -4442,8 +4442,8 @@
    "Orion",
    "Vega"
   ],
-  "_kaynak": "takas listesi ve bağlanma süresi (girişten 24 saat): board-en 130459 (FAQ Kristallon Apotheosis)",
-  "_uyarlama": "görevler Season Pass havuzundan (13 tekrarsız + günde 5, 7 gün) ve anahtar ödülü uyarlama; veteran sanal (botlar gelince gerçek)"
+  "_source": "takas listesi ve bağlanma süresi (girişten 24 saat): board-en 130459 (FAQ Kristallon Apotheosis)",
+  "_adaptation": "görevler Season Pass havuzundan (13 tekrarsız + günde 5, 7 gün) ve anahtar ödülü uyarlama; veteran sanal (botlar gelince gerçek)"
  },
  "stellar": {
   "level": [
@@ -4660,6 +4660,6 @@
     ]
    }
   ],
-  "_uyarlama": "hesap başına bir kez, seviye 5 ve üstü (istemcinin düğme kuralı 5-14; tek oyunculuda Solaris'in tek yolu, üst sınır yok); fiyat uyarlama; Forerunner/Warden EP 327.680.000 -> 32.768.000 (tek oyunculu)"
+  "_adaptation": "hesap başına bir kez, seviye 5 ve üstü (istemcinin düğme kuralı 5-14; tek oyunculuda Solaris'in tek yolu, üst sınır yok); fiyat uyarlama; Forerunner/Warden EP 327.680.000 -> 32.768.000 (tek oyunculu)"
  }
 }

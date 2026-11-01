@@ -4,38 +4,38 @@ While the game is open the save file cannot be edited (the server saves every 10
 inside the server. Requests go through the session's on_packet as if the client sent them (price, rules, quest and achievement counters are the same as in game);
 the server's replies also go to the real client, and the windows and HUD in the game update instantly.
 
-HTTP, only 127.0.0.1:PORT. The key is random on every start: <log folder>/panel_kanali.json {port, anahtar} (the panel reads it, requests carry the
+HTTP, only 127.0.0.1:PORT. The key is random on every start: <log folder>/panel_channel.json {port, anahtar} (the panel reads it, requests carry the
 X-Anahtar header). 409 if the server's own player (game.CURRENT) is not connected.
-  GET  /magaza   credits, uridium, categories and each category's products (shop.shop_list: the list the client sees)
-  POST /magaza/al {lootId, category, amount, level}  ShopItemBuyRequest -> {done, error (BaseKey name of ShopItemBuyCommand.errorMessage
+  GET  /shop   credits, uridium, categories and each category's products (shop.shop_list: the list the client sees)
+  POST /shop/buy {lootId, category, amount, level}  ShopItemBuyRequest -> {done, error (BaseKey name of ShopItemBuyCommand.errorMessage
                  or the raw text; the panel translates, the client also shows it on its own screen), credits, uridium}
-  POST /magaza/subscribe {lootId, category}  turn a booster subscription on/off (ShopItemBuyRequest action toggleSubscription)
+  POST /shop/subscribe {lootId, category}  turn a booster subscription on/off (ShopItemBuyRequest action toggleSubscription)
   GET  /hangar?ship=<id>  ships (favorite, saved config), the two configs of the selected ship (or the active one): ship slots, drones
                  (items, design and appearance slot), P.E.T. (name, level, slots and HEAT, slot-unlock prices); the ship's designs;
                  CPUs (on/off, ammo of the auto-buy); items in the inventory not fitted anywhere: where they can be fitted
                  (ship, drone, pet), upgrade level, sale value; whether at the station
-  POST /hangar/tasi {ship, config, item, direction: equip|unequip, target: ship|drone|pet, drone, set: heat}  HangarShipMoveItemsRequest
-  POST /hangar/etkin {ship}  HangarShipActivateShipRequest (only at the station, as in game) -> {done, error}
-  POST /hangar/tasarim {ship, lootId}  HangarShipChangeShipModelRequest -> {done, error}
-  POST /hangar/islem {operation, ...}  the other operations of the game's hangar menu (OPS): making a config active, clearing, saving,
+  POST /hangar/move {ship, config, item, direction: equip|unequip, target: ship|drone|pet, drone, set: heat}  HangarShipMoveItemsRequest
+  POST /hangar/activate {ship}  HangarShipActivateShipRequest (only at the station, as in game) -> {done, error}
+  POST /hangar/design {ship, lootId}  HangarShipChangeShipModelRequest -> {done, error}
+  POST /hangar/action {operation, ...}  the other operations of the game's hangar menu (OPS): making a config active, clearing, saving,
                  loading, transferring to another ship, favorite, selling items and drones, P.E.T. name and slot, CPU on/off and auto-buy ammo
 Safe zone: in game equipment changes only at the station (with the panel's "Hangar at portals" setting also in the portal's safe zone) and some time
   after combat; the client checks this (BeaconCommand inStation / inPeaceArea), the server handles a fitting request regardless of position.
   Since the panel bypasses the client, the channel applies the same rule with the world's in_station (STATION operations; error 'station').
   GET  /skylab   modules (level, state, energy, production, upgrade cost and remaining time), storage, energy, transport; the accumulated
                  production is processed first (the client's window refresh: SkylabActionRequest, construction empty: no window opens in the client)
-  POST /skylab/islem {module, operation, mod, amounts: {ore id: count}}  SkylabActionRequest (upgrade, instantUpgrade,
+  POST /skylab/action {module, operation, mod, amounts: {ore id: count}}  SkylabActionRequest (upgrade, instantUpgrade,
                  instantFinishUpgrade, abortUpgrade, setActive, setInactive, startTransport) -> {done, errors, achievements}
                  (BaseKey names; skylab.last_operation)
   POST /skylab/robot {module, tip: 1|2}  SkylabPurchaseRobotRequest -> {done, errors}
-  GET  /muzayede  lots (highest bid and its owner, the player's bid, whether leading, lowest valid bid, instant buy, auto-bid
+  GET  /auction  lots (highest bid and its owner, the player's bid, whether leading, lowest valid bid, instant buy, auto-bid
                  and alarm rule), remaining times of the periods, history, events; first as in the client's list (the period end is processed)
-  POST /muzayede/teklif {type, loot, price}  AuctionBidRequest -> {done, error}
-  POST /muzayede/hepsi {lots: [[type, loot]]}  the lowest valid bid on every lot (those not leading) -> {given, amount, errors}
-  POST /muzayede/anlik {type, loot}  AuctionQuickBuyRequest -> {done, error}
-  POST /muzayede/oto {type, loot, maximum}  auto-bid rule (maximum 0: off; auction.auto)
-  POST /muzayede/alarm {type, loot, when_outbid, min}  alarm rule (removed if both are empty)
-  GET  /muzayede/olaylar?last=<no>  events after this number (the panel's notifications)
+  POST /auction/bid {type, loot, price}  AuctionBidRequest -> {done, error}
+  POST /auction/all {lots: [[type, loot]]}  the lowest valid bid on every lot (those not leading) -> {given, amount, errors}
+  POST /auction/instant {type, loot}  AuctionQuickBuyRequest -> {done, error}
+  POST /auction/auto {type, loot, maximum}  auto-bid rule (maximum 0: off; auction.auto)
+  POST /auction/alarm {type, loot, when_outbid, min}  alarm rule (removed if both are empty)
+  GET  /auction/events?last=<no>  events after this number (the panel's notifications)
 """
 import json, os, secrets, threading, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -299,8 +299,8 @@ OPS = {
     'sell': ('HangarShipSellItemRequest', lambda b, p: {'itemList': [{'itemId': int(i), 'quantity': 1} for i in b.get('items') or []]},
             'HangarShipSellItemCommand'),
     'drone_sell': ('HangarShipSellDroneRequest', lambda b, p: {'droneId': int(b.get('drone') or 0)}, 'HangarShipSellDroneCommand'),
-    'pet_ad': ('HangarShipRenamePetRequest', lambda b, p: {'name': str(b.get('name') or '')}, 'HangarShipRenamePetCommand'),
-    'pet_yuva': ('HangarShipUnlockSlotRequest', lambda b, p: {'slotset': str(b.get('slot') or '')}, 'HangarShipUnlockSlotCommand'),
+    'pet_name': ('HangarShipRenamePetRequest', lambda b, p: {'name': str(b.get('name') or '')}, 'HangarShipRenamePetCommand'),
+    'pet_slot': ('HangarShipUnlockSlotRequest', lambda b, p: {'slotset': str(b.get('slot') or '')}, 'HangarShipUnlockSlotCommand'),
     'cpu_ammo': ('HangarShipAutoBuyCpuAmmoRequest', lambda b, p: {'itemId': int(b.get('item') or 0), 'ammoLootId': str(b.get('ammunition') or '')},
                     'HangarShipAutoBuyCpuAmmoCommand'),
 }
@@ -349,11 +349,11 @@ def skylab(game):
         for k in SKY.ORDER:
             m, c = skylab.module(k), skylab.upgrade_cost(k)
             modules.append({'id': k, 'level': m['level'], 'maximum': SKY.MODULES[k]['maximum'], 'state': skylab.state(k),
-                             'energy': skylab.energy(k), 'uretim': skylab.production(k),
-                             'cost': dict(c, sure_sn=SET.duration(c['sure_sn'], 'skylab')) if c else None,     # with the panel's wait multiplier
+                             'energy': skylab.energy(k), 'production': skylab.production(k),
+                             'cost': dict(c, duration_sec=SET.duration(c['duration_sec'], 'skylab')) if c else None,     # with the panel's wait multiplier
                              'remaining': max(0, int(m['upgrade'] - now)) if m.get('upgrade') else None, 'finish': skylab.finish_price(k, now),
                              'toggleable': k not in SKY.ALWAYS_ON, 'efficiency': skylab.efficiency(k) if k in SKY.COLLECTORS else None,
-                             'robot': {'etkin': len(st['robots'].get(k, [])), 'in_storage': len(st['backup'].get(k, [])),
+                             'robot': {'enabled': len(st['robots'].get(k, [])), 'in_storage': len(st['backup'].get(k, [])),
                                        'maximum': SKY.ROBOTS['maximum'], 'price': {t: skylab.robot_price(t) for t in ('1', '2')}}
                              if k in SKY.COLLECTORS else None})
         t = st.get('transport')
@@ -407,7 +407,7 @@ def auction(game):
                            'leading': auc.top(lot, now)[1], 'next': auc.next_bid(lot, now), 'auto': auc.d['auto'].get(key),
                            'alarm': auc.d['alarms'].get(key)})
         return dict(wallet(s), lots=lots, remaining={k: MZ.period_end(k, now) - int(now) for k in MZ.SPAN}, increase=MZ.D['increase'],
-                    en_az=MZ.D['min_bid'], history=auc.history(now)[:30], events=auc.d['events'][:30], rival=MZ.rival_level(),
+                    min_value=MZ.D['min_bid'], history=auc.history(now)[:30], events=auc.d['events'][:30], rival=MZ.rival_level(),
                     uid=s.profile.user_id)
 
 
@@ -489,7 +489,7 @@ def start(game, folder, log=print):
 
         def _handle(self, fn):
             if not secrets.compare_digest(self.headers.get('X-Anahtar') or '', key):
-                return self._reply(403, {'error': 'anahtar'})
+                return self._reply(403, {'error': 'key'})
             try:
                 return self._reply(200, fn())
             except Error as e:
@@ -501,15 +501,15 @@ def start(game, folder, log=print):
         def do_GET(self):
             u = urlparse(self.path)
             q = {k: v[0] for k, v in parse_qs(u.query).items()}
-            if u.path == '/magaza':
+            if u.path == '/shop':
                 return self._handle(lambda: shop(game))
             if u.path == '/hangar':
                 return self._handle(lambda: hangar(game, q))
             if u.path == '/skylab':
                 return self._handle(lambda: skylab(game))
-            if u.path == '/muzayede':
+            if u.path == '/auction':
                 return self._handle(lambda: auction(game))
-            if u.path == '/muzayede/olaylar':
+            if u.path == '/auction/events':
                 return self._handle(lambda: events(game, q))
             self._reply(404, {'error': 'none'})
 
@@ -519,12 +519,12 @@ def start(game, folder, log=print):
                 b = json.loads(self.rfile.read(n).decode('utf8') or '{}') if n else {}
             except ValueError:
                 return self._reply(400, {'error': 'json'})
-            paths = {'/magaza/al': buy, '/magaza/subscribe': subscriber, '/hangar/tasi': carry, '/hangar/etkin': active, '/hangar/tasarim': design,
-                      '/hangar/islem': hangar_action,
-                      '/skylab/islem': skylab_action, '/skylab/robot': robot, '/muzayede/teklif': bid, '/muzayede/hepsi': all_,
-                      '/muzayede/anlik': instant, '/muzayede/oto': lambda g, b: rule(g, b, 'auto'),
-                      '/muzayede/alarm': lambda g, b: rule(g, b, 'alarms'), '/bot/ad_kaydi': bot_name_log,
-                      '/bot/detay': bot_detail, '/bot/edit': edit_bot}
+            paths = {'/shop/buy': buy, '/shop/subscribe': subscriber, '/hangar/move': carry, '/hangar/activate': active, '/hangar/design': design,
+                      '/hangar/action': hangar_action,
+                      '/skylab/action': skylab_action, '/skylab/robot': robot, '/auction/bid': bid, '/auction/all': all_,
+                      '/auction/instant': instant, '/auction/auto': lambda g, b: rule(g, b, 'auto'),
+                      '/auction/alarm': lambda g, b: rule(g, b, 'alarms'), '/bot/name_log': bot_name_log,
+                      '/bot/detail': bot_detail, '/bot/edit': edit_bot}
             if self.path in paths and isinstance(b, dict):
                 return self._handle(lambda: paths[self.path](game, b))
             self._reply(404, {'error': 'none'})
@@ -536,8 +536,8 @@ def start(game, folder, log=print):
         return None
     srv.daemon_threads = True
     threading.Thread(target=srv.serve_forever, daemon=True).start()
-    path = os.path.join(folder, 'panel_kanali.json')
+    path = os.path.join(folder, 'panel_channel.json')
     with open(path + '.tmp', 'w', encoding='utf8') as fh:
-        json.dump({'port': srv.server_address[1], 'anahtar': key, 'pid': os.getpid()}, fh)
+        json.dump({'port': srv.server_address[1], 'key': key, 'pid': os.getpid()}, fh)
     os.replace(path + '.tmp', path)
     return srv

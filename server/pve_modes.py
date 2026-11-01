@@ -117,9 +117,9 @@ class PveModes:
             return None
         if G.get('ready'):
             with self.p.lock:
-                G['can'] += g['rule']['cpu_hp']
+                G['hp'] += g['rule']['cpu_hp']
                 self.p.dirty = True
-            self.log('   %s: +%d lives (%d)' % (g['name'], g['rule']['cpu_hp'], G['can']))
+            self.log('   %s: +%d lives (%d)' % (g['name'], g['rule']['cpu_hp'], G['hp']))
             return [KAPI.screen('%s: %d lives added.' % (g['name'], g['rule']['cpu_hp']), big=True)]
         self.k.enter(key)
         for x in self.k.entry_portals(w.map_id, w.station):

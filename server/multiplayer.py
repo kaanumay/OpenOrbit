@@ -15,7 +15,7 @@ first bytes are "GET "/"POST"; the game client's first packet starts with a leng
        replaced with a temporary id so that it is unique on the server (most saves start with the same id from the seed), and reverts to
        the old one when given back (in the id fields: convert_ids). Logging in again with the same key (connection lost, panel reopened)
        continues the session and the latest state on the server. address: the address the guest uses to connect to this server (the chat's
-  address comes from it). GET  /misafir/profil?session=&anahtar=&version=N&wait=25
+  address comes from it). GET  /misafir/profil?session=&key=&version=N&wait=25
        long poll: when a version newer than N of the save arrives (it saves every 10 s when the game changes; GuestProfile.save) or when
        the time is up -> {version, connected, finished, profile (if new)}. The guest's panel writes every new version to its own save slot.
   POST /misafir/cikis {session, anahtar}   -> the final state; the session ends (the game connection closes if the game is open), the save
@@ -28,11 +28,11 @@ When the server is shut down (the panel's "Stop") the guests' final state is pub
 
 Multi-client (clients opened with the other saves on this computer after the panel's PLAY; panel/multi_client.py): the server is opened in
 the same mode, accepts no guests (OO_MULTIPLAYER guest: false, address 127.0.0.1); on Host together with guests. Only from 127.0.0.1:
-  POST /yerel/ekle {anahtar, record, route}  -> {session, uid, ongoing}: the slot's profile.json is loaded as an extra player (LocalProfile:
+  POST /local/add {anahtar, record, route}  -> {session, uid, ongoing}: the slot's profile.json is loaded as an extra player (LocalProfile:
        written directly to the file; if its id equals another player's on the server, a stable temporary id per save in memory).
        If the same slot is added again (the client was reopened) the session continues. The main save, the same pilot name and a full
-  server are rejected. POST /yerel/cikar {anahtar, session}     -> if connected the game connection closes, the final state is written, the
-  slot is released GET  /yerel/oturum?session=              -> {uid, route, record}: web.py gives the extra client's login with this
+  server are rejected. POST /local/remove {anahtar, session}     -> if connected the game connection closes, the final state is written, the
+  slot is released GET  /local/session?session=              -> {uid, route, record}: web.py gives the extra client's login with this
 """
 import collections, gzip, hmac, json, os, random, re, secrets, socket, threading, time, zlib
 from urllib.parse import parse_qs, urlparse
@@ -53,7 +53,7 @@ CHAT_PORT = 7771
 LOCAL_LOWER, LOCAL_UPPER = 2100000000, 2147000000     # temporary ids of the extra players (separate from the guests')
 LOCAL_MAX = 16               # the server's limit (the panel's own limit is smaller: coklu_en_cok)
 
-SETTINGS = {'on': False, 'password': '', 'max_count': 4, 'anahtar': None, 'code': '', 'address': '0.0.0.0', 'local': '', 'guest': True}
+SETTINGS = {'on': False, 'password': '', 'max_count': 4, 'key': None, 'code': '', 'address': '0.0.0.0', 'local': '', 'guest': True}
 COND = threading.Condition()
 GUESTS = {}                 # session key -> Guest
 LOCAL_PLAYERS = {}                   # session key -> LocalPlayer (the multi-client's extra players)
@@ -77,7 +77,7 @@ def configure(raw, logger=print):
     # local: the session of the server's own player (the panel produces it on every launch, and gives it to its own web.py too). The fixed
     # 'localtest' was a passwordless login on a server opened through a tunnel (connections appear from 127.0.0.1)
     SETTINGS.update(on=True, password=str(d.get('password') or ''), max_count=max(1, min(16, int(d.get('max_count') or 4))),
-                anahtar=d.get('anahtar') or None, code=str(d.get('code') or ''), address=str(d.get('address') or '0.0.0.0'),
+                key=d.get('key') or None, code=str(d.get('code') or ''), address=str(d.get('address') or '0.0.0.0'),
                 local=str(d.get('local') or '') or secrets.token_urlsafe(24), guest=bool(d.get('guest', True)))
 
 
@@ -205,9 +205,9 @@ def login(body, ip, seed, server_uid, main=None):
             return 403, {'error': 'password', 'message': 'Katılma şifresi yanlış.'}
         with COND:
             FAILED.pop(ip, None)
-    key = str(body.get('anahtar') or '')
+    key = str(body.get('key') or '')
     if len(key) < 16:
-        return 400, {'error': 'anahtar', 'message': 'Misafir anahtarı eksik.'}
+        return 400, {'error': 'key', 'message': 'Misafir anahtarı eksik.'}
     with COND:
         old = next((m for m in GUESTS.values() if equal(m.key, key) and not m.finished), None)
         if old:                                  # logging in again: the latest state on the server continues
@@ -242,7 +242,7 @@ def _guest(q):
     """The guest holding the session and key, or None."""
     with COND:
         m = GUESTS.get(str(q.get('session') or ''))
-    if m and equal(m.key, q.get('anahtar')):
+    if m and equal(m.key, q.get('key')):
         return m
     return None
 
@@ -386,7 +386,7 @@ def _name(profile):
 
 
 def add_local(body, seed, main):
-    """POST /yerel/ekle -> (status code, response). main: the server's own profile (game.PROFILE)."""
+    """POST /local/add -> (status code, response). main: the server's own profile (game.PROFILE)."""
     save, route = str(body.get('record') or ''), str(body.get('route') or '')
     if not re.fullmatch(r'[a-z0-9_]{1,40}', save) or os.path.basename(route) != 'profile.json' or not os.path.isfile(route):
         return 400, {'error': 'record', 'message': 'Kayıt bulunamadı.'}
@@ -447,7 +447,7 @@ def finish_local(y, close_session, reason):
 
 
 def remove_local(b, close_session):
-    """POST /yerel/cikar."""
+    """POST /local/cikar."""
     with COND:
         y = LOCAL_PLAYERS.get(str(b.get('session') or ''))
     if not y:
@@ -606,14 +606,14 @@ def http(c, addr, game):
             return _reply(c, 400, {'error': 'json'})
         ip = addr[0]
         local = ip in ('127.0.0.1', '::1')
-        management = local and SETTINGS['anahtar'] and equal(b.get('anahtar'), SETTINGS['anahtar'])
+        management = local and SETTINGS['key'] and equal(b.get('key'), SETTINGS['key'])
         if u.path.startswith('/misafir/') and not SETTINGS['guest']:
             code, out = 403, {'error': 'off', 'message': 'Bu sunucu misafir kabul etmiyor.'}
-        elif u.path == '/yerel/ekle' and method == 'POST' and management:
+        elif u.path == '/local/add' and method == 'POST' and management:
             code, out = add_local(b, game.TEMPLATE.entry.get('seed'), game.PROFILE)
-        elif u.path == '/yerel/cikar' and method == 'POST' and management:
+        elif u.path == '/local/remove' and method == 'POST' and management:
             code, out = remove_local(b, game.close_session)
-        elif u.path == '/yerel/oturum' and local:
+        elif u.path == '/local/session' and local:
             y = find_local(q.get('session'))
             code, out = (200, {'uid': y.uid, 'route': y.route, 'record': y.save}) if y else (404, {'error': 'session'})
         elif u.path == '/misafir/bilgi':
@@ -631,7 +631,7 @@ def http(c, addr, game):
             code, out = (200, {'done': True}) if m else (404, {'error': 'session'})
         else:
             code, out = 404, {'error': 'none'}
-        if u.path not in ('/misafir/profil', '/yerel/oturum'):
+        if u.path not in ('/misafir/profil', '/local/session'):
             log('friends: %s %s <- %s -> %d' % (method, u.path, ip, code))
         _reply(c, code, out, gz)
     except (OSError, ValueError, zlib.error) as e:      # a broken gzip body too (it used to drop with no response)

@@ -23,7 +23,7 @@ COMPLAINT_SEC = 1800.0                     # between lag/uridium complaints (in 
 REPEAT_SEC = 2700.0                      # the same line is not written a second time within this period
 BOT_GAP_SEC = 600.0                      # minimum gap between two spontaneous remarks of the same bot
 RUDE_FACTOR = (0.0, 1.0, 1.6, 2.2)      # multiplier of the probability of answering an insult, by rude_chat level
-FIRMA = {1: 'MMO', 2: 'EIC', 3: 'VRU'}
+COMPANY = {1: 'MMO', 2: 'EIC', 3: 'VRU'}
 
 
 def user(b):
@@ -34,8 +34,8 @@ def user(b):
         # with the [CM] tag, in the "mod" role: the client patch (panel/plugin/Patches.cs ModeratorColor) draws it in its own color; on an
         # unpatched client it is white (the client colors only the admin, and that one hides the tag and writes "Manager")
         return {'userId': b.name, 'id': str(b.uid), 'globalId': str(b.uid), 'role': MOD.CHAT_ROLE, 'clanTag': MOD.TAG,
-                'factionId': str(b.firma), 'instanceId': '1'}
-    return {'userId': b.name, 'id': str(b.uid), 'globalId': str(b.uid), 'role': 'chatter', 'clanTag': tag, 'factionId': str(b.firma),
+                'factionId': str(b.company), 'instanceId': '1'}
+    return {'userId': b.name, 'id': str(b.uid), 'globalId': str(b.uid), 'role': 'chatter', 'clanTag': tag, 'factionId': str(b.company),
             'instanceId': '1'}
 
 
@@ -43,7 +43,7 @@ def channel_path(b, channel):
     if channel == 'global':
         return '/room/global/yerel/'
     if channel == 'company':
-        return '/room/faction/%d/' % b.firma
+        return '/room/faction/%d/' % b.company
     if channel == 'clan':
         return '/room/clan/%d/' % b.k['clan'] if b.k.get('clan') else None
     if channel == 'group':
@@ -76,10 +76,10 @@ class ChatEngine:
     def speak(self, b, channel, text, recipient=None, now=None, immediate=False, priority=False):
         """A bot will write: it goes out after a human typing time (whisper: recipient). priority: a reply to the player; not subject to the channel limit.
         If queued, returns the time the line will go out (the conversation chain adds replies on top of it), otherwise None."""
-        if not text or not self.permission('sohbet'):
+        if not text or not self.permission('chat'):
             return None
         now = now or self.now
-        if not priority and AW.active(b, 'sohbet', now) and b.r.random() < 0.75:
+        if not priority and AW.active(b, 'chat', now) and b.r.random() < 0.75:
             return None                                  # manager's chat warning: only replies, mostly stays silent
         t = now + (0 if immediate else SPC.typing_time(text, b))
         self.outgoing.append((t, b, channel, text, recipient, priority, t))
@@ -180,7 +180,7 @@ class ChatEngine:
         fac = int(who.get('factionId') or 0)
         out = [b for b in self.bots if b.online and b.dead_until <= self.now]
         if channel == 'company':
-            out = [b for b in out if b.firma == fac]
+            out = [b for b in out if b.company == fac]
         elif channel == 'clan':
             out = [b for b in out if b.profile is not None and who.get('clanTag') and b.profile.d['pilot'].get('clanTag') == who['clanTag']]
         elif channel == 'group':
@@ -200,7 +200,7 @@ class ChatEngine:
         listener = self.listeners(channel, who)
         mentioned = [b for b in listener if NS.is_mentioned(b.name, msg)]
         for b in mentioned:
-            b.memory.event(name, 'sohbet', now)
+            b.memory.event(name, 'chat', now)
             if kind in IX.INTENTS and kind != 'assist':
                 self.answer_request(b, kind, name, who, game_map, msg, channel, now)
             elif kind == 'insult':
@@ -251,7 +251,7 @@ class ChatEngine:
         for b in sorted(candidates, key=lambda b: -b.o('helpfulness') * b.r.uniform(0.6, 1.4)):
             if len(incoming) >= (max_count or self.setting('help_max', 3)):
                 break
-            if b.firma != fac or not K.can_enter(m, b.firma, b.level) or not K.route(b.game_map, m, b.firma, b.level):
+            if b.company != fac or not K.can_enter(m, b.company, b.level) or not K.route(b.game_map, m, b.company, b.level):
                 continue
             p = 0.15 + 0.6 * b.o('helpfulness') + 0.5 * b.memory.relation(name, now) - 0.3 * b.mood['fatigue']
             if b.target is not None and b.target.name in ('quest', 'group'):
@@ -270,13 +270,13 @@ class ChatEngine:
         same company that have a clan (leader first)."""
         fac = int(who.get('factionId') or 0)
         if kind == 'duel':                               # a challenge is accepted by someone from another company
-            for b in sorted([b for b in listener if b.firma != fac], key=lambda b: -b.o('aggression') * b.r.uniform(0.5, 1.5))[:4]:
+            for b in sorted([b for b in listener if b.company != fac], key=lambda b: -b.o('aggression') * b.r.uniform(0.5, 1.5))[:4]:
                 k = IX.decision(self, b, 'duel', name, who, game_map, msg, now)
                 if k and k['accept']:
                     b._request_decision = k
                     return [b]
             return []
-        candidate = [b for b in listener if not fac or b.firma == fac]
+        candidate = [b for b in listener if not fac or b.company == fac]
         if kind == 'gate':                                 # gate filler: the requested number (3 if none) who accept
             import re
             m = re.search(r'\b([1-7])\b', msg or '')
@@ -317,7 +317,7 @@ class ChatEngine:
         name = who.get('userId', '')
         kind, game_map = SPC.intent(msg)
         kind = IX.offer_reply(b, name, msg, now) or kind       # "shall we group?" -> "sure": group request
-        b.memory.event(name, 'sohbet', now)
+        b.memory.event(name, 'chat', now)
         if kind in IX.INTENTS and kind != 'assist':
             self.answer_request(b, kind, name, who, game_map, msg, 'whisper', now)
         elif kind == 'assist':
@@ -357,11 +357,11 @@ class ChatEngine:
                 self.speak(b, 'company', SPC.template(b, 'witness_death', name=o['name']), now=now + b.r.uniform(2, 10))
             return
         if kind == 'diplomacy' and (o.get('accept') or not o.get('incoming')) and o.get('form') in (0, 1, 3) and b.r.random() < 0.4 + 0.5 * talk:
-            durum = {0: 'peace', 1: 'alliance', 3: 'war_declared'}[o['form']]
+            state = {0: 'peace', 1: 'alliance', 3: 'war_declared'}[o['form']]
             if o['form'] == 0 and not o.get('incoming'):
                 return                                   # peace request: not announced until accepted
             self.speak(b, 'global' if o['form'] == 3 else 'company',
-                       SPC.template(b, durum, clan=o.get('clan', ''), tag=o.get('tag') or o.get('clan', '')), now=now + b.r.uniform(5, 30))
+                       SPC.template(b, state, clan=o.get('clan', ''), tag=o.get('tag') or o.get('clan', '')), now=now + b.r.uniform(5, 30))
             return
         if kind == 'i_killed_boss' and b.r.random() < 0.3 * talk:
             self.speak(b, 'company', SPC.template(b, 'i_killed_boss'), now=now + b.r.uniform(2, 8))
@@ -399,7 +399,7 @@ class ChatEngine:
     def start_private(self, now):
         """A friend bot whispers to the player spontaneously: a greeting on login, now and then a group offer or small talk (at most once per
         12 minutes per player; only bots of the same company with a good relationship to them). A positive reply to a group offer becomes an invite (offer)."""
-        if not self.permission('sohbet'):
+        if not self.permission('chat'):
             return
         seen = self.__dict__.setdefault('human_first', {})
         last = self.__dict__.setdefault('human_whisper', {})
@@ -409,7 +409,7 @@ class ChatEngine:
             if now - last.get(a, 0) < 720 or now - first < 20:
                 continue
             fac = int(k.profile.d['pilot'].get('factionId', 0))
-            friendly = [b for b in self.bots if b.online and b.dead_until <= now and b.firma == fac and b.memory.relation(k.name, now) >= 0.3]
+            friendly = [b for b in self.bots if b.online and b.dead_until <= now and b.company == fac and b.memory.relation(k.name, now) >= 0.3]
             if not friendly:
                 continue
             b = max(friendly, key=lambda b: b.memory.relation(k.name, now) * b.r.uniform(0.6, 1.4))
@@ -431,7 +431,7 @@ class ChatEngine:
 
     def group_banter_line(self, now):
         """A bot in a group with a human now and then writes to the group chat (where are we going, nice kill ...): once every 4-8 minutes."""
-        if not self.permission('sohbet'):
+        if not self.permission('chat'):
             return
         import group as GR
         for k in self.online_humans():
@@ -467,13 +467,13 @@ class ChatEngine:
         if not is_open:
             return
         b = max(is_open, key=lambda b: b.o('aggression') * b.r.random())
-        enemy = [k for k in self.online_humans() if int(k.profile.d['pilot'].get('factionId', 0)) != b.firma]
+        enemy = [k for k in self.online_humans() if int(k.profile.d['pilot'].get('factionId', 0)) != b.company]
         grudge = [k for k in enemy if b.memory.relation(k.name, now) < -0.2]
         if (grudge or enemy) and b.r.random() < (0.8 if grudge else 0.3 * (rude - 1)):
             k = b.r.choice(grudge or enemy)
             self.speak(b, 'global', SPC.template(b, 'banter_player', name=k.name, map=H.name(b.game_map)), now=now)
         else:
-            self.speak(b, 'global', SPC.template(b, 'banter_company', company=b.r.choice([f for f in ('MMO', 'EIC', 'VRU') if f != FIRMA[b.firma]])),
+            self.speak(b, 'global', SPC.template(b, 'banter_company', company=b.r.choice([f for f in ('MMO', 'EIC', 'VRU') if f != COMPANY[b.company]])),
                        now=now)
 
     def can_recruit(self, clan, now):
@@ -551,7 +551,7 @@ class ChatEngine:
         if t is None:
             return False
         self.wrote(b, m, now)
-        candidates = [c for c in is_open if c is not b and SPC.lang(c) == SPC.lang(b) and (channel == 'global' or c.firma == b.firma)]
+        candidates = [c for c in is_open if c is not b and SPC.lang(c) == SPC.lang(b) and (channel == 'global' or c.company == b.company)]
         if not candidates:
             return True
         c = max(candidates, key=lambda x: x.o('sociability') * x.r.random())

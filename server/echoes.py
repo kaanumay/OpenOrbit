@@ -65,7 +65,7 @@ class Echoes:
         if s.get('period') != period():
             first, top = s.get('first', []), s.get('highest', 0)
             s.clear()
-            s.update(period=period(), level=1, highest=0, sure=0, first=first, roster=[], none=[], order={}, run=False)
+            s.update(period=period(), level=1, highest=0, duration=0, first=first, roster=[], none=[], order={}, run=False)
             if top:                    # the first-place player in the single-player ranking: the title is given in info_cmd (st is also read under the profile lock)
                 s['title_pending'] = True
             self.p.dirty = True
@@ -196,7 +196,7 @@ class Echoes:
     def scale(self, n, i, wave):
         lvl = LEVELS[self.level['map']]
         f = (1 + D['scale_level'] * (self.level['no'] - 1)) * lvl.get('power', 1.0)
-        return PS.scale_npc(n, f * lvl.get('can', 1.0), f, 1.0)        # HP: only the HP/shield multiplier (the boss of level 45)
+        return PS.scale_npc(n, f * lvl.get('hp', 1.0), f, 1.0)        # HP: only the HP/shield multiplier (the boss of level 45)
 
     def attach(self, world):
         self.world = world
@@ -208,7 +208,7 @@ class Echoes:
             world.add_gate(self.hall_portal(world))
             return None
         self.level['start'] = time.time()
-        self.level['end_time'] = self.level['start'] + (LEVELS[self.level['map']].get('sure_sn') or D['sure_sn'])
+        self.level['end_time'] = self.level['start'] + (LEVELS[self.level['map']].get('duration_sec') or D['duration_sec'])
         world.gate = PS.Run(world, self, intro_sec=5, break_sec=4)
         msgs = [('ExpeditionStartInstanceCommand', dict(seconds=int(self.level['end_time'] - self.level['start']))),
                 KAPI.screen('Level %d: %s' % (self.level['no'], {'destroy': 'Destroy all enemies.', 'guard': 'Protect the ship!',
@@ -247,9 +247,9 @@ class Echoes:
         # take_shot: half the shots go to the friendly, damage 0.7-1.0 (avg. 0.85), shot interval
         dps = dps * f * 0.5 * 0.85 / world_module.COMBAT['npc_attack_interval_sec']
         need = dps * self.ALLY_SURVIVE_SEC
-        hp = max(float(D['friendly']['can']), need * 2 / 3)
-        sh = max(float(D['friendly']['kalkan']), need / 3)
-        n.d = dict(n.d, hp=int(hp), kalkan=int(sh))         # the type's copy (the type is shared)
+        hp = max(float(D['friendly']['hp']), need * 2 / 3)
+        sh = max(float(D['friendly']['shield']), need / 3)
+        n.d = dict(n.d, hp=int(hp), shield=int(sh))         # the type's copy (the type is shared)
         n.hp, n.shield = int(hp), int(sh)
 
     def take_shot(self, n, now):
@@ -331,7 +331,7 @@ class Echoes:
         with self.p.lock:
             st['level'] = n + 1
             st['highest'] = max(st['highest'], n)
-            st['sure'] = st.get('sure', 0) + secs
+            st['duration'] = st.get('duration', 0) + secs
             self.p.dirty = True
         self.p.ach('gate', type='EXPEDITION_GATE')
         self.level = None
@@ -414,14 +414,14 @@ class Echoes:
             self.titles(next(r['title'] for r in D['ranking'] if r['from_'] == 1))
             st.pop('title_pending')
         me = st['highest']
-        ranks = [mod('ExpeditionRankUserInfoCommand', rank=1, curLevel=me, clearanceTime=int(st.get('sure', 0)),
+        ranks = [mod('ExpeditionRankUserInfoCommand', rank=1, curLevel=me, clearanceTime=int(st.get('duration', 0)),
                      userId=self.p.d['pilot'].get('userId', 0), userName=self.p.d['pilot'].get('userName', ''))] if me else []
         rewards = [mod('RankRewardCommand', rankType=13, rewardContentModuleList=[mod('RewardModule', lootId=l, amount=n) for l, n in r['items']],
                        rewardRange=mod('RankRewardRangeModule', **{'from': r['from_'], 'to': r['e']})) for r in D['ranking']]
         n = min(st['level'], len(LEVELS))
         lvl = LEVELS[n]
         t = D['repeat']
-        clear = mod('ExpeditionClearanceTimeCommand', seconds=int(st.get('sure', 0)), faction=mod('FactionModule',
+        clear = mod('ExpeditionClearanceTimeCommand', seconds=int(st.get('duration', 0)), faction=mod('FactionModule',
                     faction=self.p.d['pilot'].get('factionId', 1)), userName=self.p.d['pilot'].get('userName', ''),
                     shipLootId=self.p.ship_look(), userId=self.p.d['pilot'].get('userId', 0))
         end = datetime.date.today().replace(day=28) + datetime.timedelta(days=4)
@@ -432,7 +432,7 @@ class Echoes:
             firstRewards=[mod('ExpeditionRewardCommand', lootId=l, amount=a if isinstance(a, int) else a[0])
                           for l, a in (lvl['first'] if n not in st['first'] else [])],
             expeditionClearanceTimeCommand=clear, eventEndTime=end.strftime('%d.%m.%Y') + ' 23:59',
-            timeLimit=int(lvl.get('sure_sn') or D['sure_sn']), popup=False, myRank=1 if me else -1,
+            timeLimit=int(lvl.get('duration_sec') or D['duration_sec']), popup=False, myRank=1 if me else -1,
             normalRewards=[mod('ExpeditionRewardCommand', lootId='currency_uridium', amount=t['uridium_base'] + t['uridium_level'] * n),
                            mod('ExpeditionRewardCommand', lootId='ammunition_laser_ucb-100', amount=t['ucb_base'] + t['ucb_level'] * n)],
             maxLevel=me))

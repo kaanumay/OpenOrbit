@@ -1,7 +1,7 @@
 /* OpenOrbit panel — Saves and the character editor (saves.js). On top of panel.css's variables and components.
    Company color --company-color (f-mmo / f-eic / f-vru); ship, P.E.T. and portrait images are the game's own sprites (panel.js sprite()).
    Scene backgrounds (Orders.md OP-014): ships in the middle of the hangar runway (sahne_hangar), the ID card and P.E.T. in space (sahne_uzay). */
-body[data-page=kayitlar] .content > * { max-width: 1400px; }
+body[data-page=saves] .content > * { max-width: 1400px; }
 :root { --se-hangar: url(images/sahne_hangar.webp) center / cover; --se-space: url(images/sahne_uzay.webp) center / cover; }
 .f-mmo { --company-color: var(--mmo); }
 .f-eic { --company-color: var(--eic); }
@@ -143,10 +143,10 @@ body.se-busy .se-main { opacity: .75; transition: opacity .2s .15s; pointer-even
 .se-tab-icon svg { width: 18px; height: 18px; }
 .se-main-head .se-tab-icon { width: 42px; height: 42px; border-radius: var(--radius-sm); border: 1px solid var(--line-hi); background: var(--accent-soft); box-shadow: var(--glow); }
 .se-main-head .se-tab-icon svg { width: 22px; height: 22px; }
-.se-tab-icon.oyun .sprite { filter: drop-shadow(0 0 4px rgba(64, 223, 255, .35)); }
+.se-tab-icon.game .sprite { filter: drop-shadow(0 0 4px rgba(64, 223, 255, .35)); }
 .se-tab-art { width: 22px; height: 22px; object-fit: contain; }
 .se-main-head .se-tab-art { width: 32px; height: 32px; }
-.se-menu button:not(.on) .se-tab-icon.oyun { opacity: .78; }
+.se-menu button:not(.on) .se-tab-icon.game { opacity: .78; }
 .se-count { font: 600 11px var(--mono); color: var(--steel); background: rgba(4, 9, 18, .75); border: 1px solid var(--line-2); border-radius: 3px; padding: 1px 6px; letter-spacing: 0; }
 .se-count.none { color: var(--dim); }
 
@@ -334,15 +334,15 @@ body.se-busy .se-main { opacity: .75; transition: opacity .2s .15s; pointer-even
 .se-diff-items { display: flex; flex-wrap: wrap; gap: 6px; }
 .se-diff-item { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px 3px 3px; border-radius: var(--radius-sm); border: 1px solid var(--line); font-size: 12.5px;
   background: rgba(4, 9, 18, .5); }
-.se-diff-item.arti b { color: var(--ok); }
-.se-diff-item.eksi b { color: var(--err); }
+.se-diff-item.added b { color: var(--ok); }
+.se-diff-item.removed b { color: var(--err); }
 
 /* item editing window */
 .se-edit-head { display: flex; align-items: center; gap: 12px; }
 .se-edit-head .sprite { padding: 4px; border-radius: 3px; border: 1px solid rgba(64, 223, 255, .22); box-sizing: content-box;
   background: radial-gradient(circle at 50% 40%, rgba(64, 223, 255, .12), rgba(4, 9, 18, .9) 75%); }
 .se-edit { display: grid; gap: 8px; padding: 12px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: rgba(4, 9, 18, .45); }
-.se-edit.satir { display: flex; align-items: center; justify-content: space-between; }
+.se-edit.line { display: flex; align-items: center; justify-content: space-between; }
 .se-attr { display: grid; gap: 6px; }
 .se-attr > .btn { justify-self: start; }
 .se-attr-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; align-items: center; }

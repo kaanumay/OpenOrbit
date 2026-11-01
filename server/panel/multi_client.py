@@ -1,9 +1,9 @@
 """Multi-client (panel): after PLAY, extra game clients with the other saves on this computer.
 
 The game server is opened in multi-session mode (if the panel setting multi_client is on and there are at least two saves; on a friend
-server it already is). The extra client's save is added to the server with POST /yerel/ekle (server/multiplayer.py: the server writes
+server it already is). The extra client's save is added to the server with POST /local/add (server/multiplayer.py: the server writes
 directly to the slot's profile.json; if its id equals another player's, a temporary id in memory), the client is opened with
-http://127.0.0.1:8090/?session=<key>#darkorbit:// (web.py asks the server for the key). When the client closes, POST /yerel/cikar: the
+http://127.0.0.1:8090/?session=<key>#darkorbit:// (web.py asks the server for the key). When the client closes, POST /local/remove: the
 final state is written, the slot is freed. Extra clients are opened in window mode, the window title is the pilot's name; their logs are
 logs/client_<save>.log. The main save, a save that is open, the same pilot name and going over the limit are rejected; while an extra
 client is open, actions that restart the server are blocked in the panel (panel.py). Plan and problems thought out in advance:
@@ -37,7 +37,7 @@ class MultiClient:
 
     # ------------------------------------------------------------ game server
     def request(self, path, body):
-        data = json.dumps(dict(body, anahtar=self.key())).encode('utf8')
+        data = json.dumps(dict(body, key=self.key())).encode('utf8')
         req = Request(GAME + path, data=data, headers={'Content-Type': 'application/json'}, method='POST')
         try:
             with OPENER.open(req, timeout=15) as r:
@@ -65,7 +65,7 @@ class MultiClient:
             return {e['proc'].pid for e in self.is_open.values() if e['proc'] is not None}
 
     def state(self, live=None):
-        """The panel's list: extra clients (with the server's canli_durum.json 'yereller': connected?, map, level)."""
+        """The panel's list: extra clients (with the server's live_status.json 'yereller': connected?, map, level)."""
         lv = {y.get('record'): y for y in ((live or {}).get('local_players') or [])}
         now = time.time()
         with self.lock:
@@ -73,8 +73,8 @@ class MultiClient:
             for s, e in self.is_open.items():
                 y = lv.get(s) or {}
                 out.append({'record': s, 'pilot': e['pilot'], 'pid': e['proc'].pid if e['proc'] else None,
-                            'state': 'aciliyor' if e['proc'] is None else 'on' if e['proc'].poll() is None else 'closing',
-                            'sure_sn': int(now - e['start']),
+                            'state': 'opening' if e['proc'] is None else 'on' if e['proc'].poll() is None else 'closing',
+                            'duration_sec': int(now - e['start']),
                             'connected': bool(y.get('connected')), 'map': y.get('map'), 'level': y.get('level'), 'uid': e['uid']})
             return {'clients': out, 'last': dict(self.last)}
 
@@ -103,7 +103,7 @@ class MultiClient:
             if self.cfg.get('backup_on_launch'):
                 self.saves.backup(slot, 'auto', _('Extra client (start)'))
             self.last_backup[slot] = time.time()
-            code, out = self.request('/yerel/ekle', {'record': slot, 'route': self.saves.profile(slot)})
+            code, out = self.request('/local/add', {'record': slot, 'route': self.saves.profile(slot)})
             if code != 200:
                 raise MultiClientError(out.get('message') or _("The game server didn't take the save (HTTP %s).", code))
             daily = os.path.join(self.logs, 'client_%s.log' % slot)
@@ -116,7 +116,7 @@ class MultiClient:
                 self.is_open.pop(slot, None)
             if out and out.get('session'):            # if it registered with the server, release it (otherwise the save was thought to be editable)
                 try:
-                    self.request('/yerel/cikar', {'session': out['session']})
+                    self.request('/local/remove', {'session': out['session']})
                 except Exception:
                     pass
             raise
@@ -138,7 +138,7 @@ class MultiClient:
         stop = time.time() - (e['start'] if e else time.time())
         if e and e['session'] and self.direction.running():
             try:
-                c, out = self.request('/yerel/cikar', {'session': e['session']})
+                c, out = self.request('/local/remove', {'session': e['session']})
                 if c not in (200, 404):
                     self.log('extra client save could not be released (%s): %s' % (c, out))
             except MultiClientError as err:
@@ -146,7 +146,7 @@ class MultiClient:
         with self.lock:
             if self.is_open.get(slot, {}).get('proc') is proc:
                 self.is_open.pop(slot, None)
-            self.last[slot] = {'sure_sn': int(stop), 'early': stop < EARLY_SEC and not (e or {}).get('closed'), 'code': code,
+            self.last[slot] = {'duration_sec': int(stop), 'early': stop < EARLY_SEC and not (e or {}).get('closed'), 'code': code,
                               'time': time.strftime('%H:%M:%S'), 'end_time': time.time()}      # one closed from the panel does not count as early
         self.log('extra client closed: %s (%d s, code %s)' % (slot, stop, code))
         if self.on_exit:

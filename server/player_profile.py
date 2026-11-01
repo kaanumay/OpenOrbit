@@ -71,7 +71,7 @@ def stack_cap(loot):
     return _STACK.get(loot)
 import skill_tree as SKILL
 import ship_ability as SA
-import lasers as LAZER
+import lasers as LASERS
 import combat_items as CIT
 import extras as EX
 import ranks as RT
@@ -883,10 +883,10 @@ class Profile:
         n = min(len(self.config().get('upgrades', [])), row.get('module_max', 0))
         for k, v in row.get('per_module', {}).items():
             out[k] = out.get(k, 0) + v * n
-        hp = LAZER.hp_bonus(self.d.get('equipment', {}).get('laser', [])       # LF-4 Hyperplasmoid: HP +0.5% per laser (on drones too)
+        hp = LASERS.hp_bonus(self.d.get('equipment', {}).get('laser', [])       # LF-4 Hyperplasmoid: HP +0.5% per laser (on drones too)
                             + [l for _, loots in self.d.get('drone_equipment', []) for l in loots])
         if hp:
-            out['can'] = out.get('can', 0) + hp
+            out['hp'] = out.get('hp', 0) + hp
         shield_table = item()['shield_generators']                                  # Fusion Shield: shield regeneration +6.25% per fitted one
         gens = self.d.get('equipment', {}).get('generators', []) + [g for _, loots in self.d.get('drone_equipment', []) for g in loots]
         reg = sum(shield_table.get(g, {}).get('regeneration', 0) for g in gens)

@@ -68,7 +68,7 @@ def _error(m):
 @tool('hunt_npcs', 'Uzaylı kas (harita verilirse oraya gidip orada).', {'map': 'string, ör. "1-3" (isteğe bağlı)'})
 def hunt_npcs(y, bot, map=None):
     m = _game_map(map) if map else None
-    if map and (m is None or not K.can_enter(m, bot.firma, bot.level)):
+    if map and (m is None or not K.can_enter(m, bot.company, bot.level)):
         return _error('haritaya girilemez')
     B.force(bot, 'grinding', plan={'map': m} if m else {}, pay=0.8, now=y.now if y else None)
     return _ok()
@@ -115,7 +115,7 @@ def go_help(y, bot, map=None, name=''):
         import community as TP
         k = TP.find(name=name)
         m = int(k.profile.d['position'].get('mapId', 0)) if k is not None else None
-    if m is None or m not in K.MAPS or not K.can_enter(m, bot.firma, bot.level) or not K.route(bot.game_map, m, bot.firma, bot.level):
+    if m is None or m not in K.MAPS or not K.can_enter(m, bot.company, bot.level) or not K.route(bot.game_map, m, bot.company, bot.level):
         return _error('oraya gidemez')
     B.force(bot, 'assist', plan={'map': m, 'name': name}, pay=1.2, duration=900, now=y.now if y else None)
     if name:
@@ -127,7 +127,7 @@ def go_help(y, bot, map=None, name=''):
       permission='pvp')
 def duel(y, bot, name='', map=None):
     m = _game_map(map) if map else None
-    if not name or m is None or not K.can_enter(m, bot.firma, bot.level) or not K.route(bot.game_map, m, bot.firma, bot.level):
+    if not name or m is None or not K.can_enter(m, bot.company, bot.level) or not K.route(bot.game_map, m, bot.company, bot.level):
         return _error('oraya gidemez')
     B.force(bot, 'duel', plan={'map': m, 'name': name}, pay=1.5, duration=900, now=y.now if y else None)
     bot.memory.event(name, 'challenge', y.now if y else None)
@@ -141,7 +141,7 @@ def go_offline(y, bot):
 
 
 # ------------------------------------------------------------------------------------------------------------ social
-@tool('write_chat', 'Bir kanala yaz.', {'channel': 'global | firma | klan | grup', 'text': 'string'}, permission='sohbet')
+@tool('write_chat', 'Bir kanala yaz.', {'channel': 'global | firma | klan | grup', 'text': 'string'}, permission='chat')
 def write_chat(y, bot, channel='company', text=''):
     if channel not in ('global', 'company', 'clan', 'group') or not str(text).strip():
         return _error('kanal ya da metin geçersiz')
@@ -149,7 +149,7 @@ def write_chat(y, bot, channel='company', text=''):
     return _ok()
 
 
-@tool('whisper', 'Birine özel mesaj yaz.', {'name': 'string', 'text': 'string'}, permission='sohbet')
+@tool('whisper', 'Birine özel mesaj yaz.', {'name': 'string', 'text': 'string'}, permission='chat')
 def whisper(y, bot, name='', text=''):
     if not name or not str(text).strip():
         return _error('ad ya da metin yok')
@@ -162,14 +162,14 @@ def group_invite(y, bot, name=''):
     import group as GR
     from . import society
     out = GR.handle(society.person(bot), 'InvitationCreationRequest', {'name': name})
-    hata = next((m[1].get('error') for m in out or () if m[0] == 'InvitationErrorCommand'), None)
-    if hata is not None:                               # the player is in another group, offline, invitation limit ...: stays as words
+    error = next((m[1].get('error') for m in out or () if m[0] == 'InvitationErrorCommand'), None)
+    if error is not None:                               # the player is in another group, offline, invitation limit ...: stays as words
         from . import interaction as IX
         IX.make_promise(bot, 'group', name, y.now if y else 0)
         reason = {GR.GROUP_FULL: 'grup dolu', GR.CANDIDATE_IN_GROUP: 'o zaten bir grupta', GR.CANDIDATE_NONEXISTENT: 'o çevrimiçi değil',
                  GR.BOSS_ONLY: 'yalnız grup lideri davet edebilir', GR.MAX_INVITER: 'çok fazla bekleyen davetin var',
                  GR.MAX_CANDIDATE: 'onun çok fazla bekleyen daveti var', GR.CANDIDATE_BLOCKING: 'seni engellemiş',
-                 GR.DUPLICATE_INVITATION: 'davetin zaten gitti, yanıtını bekliyor'}.get(hata, 'hata %s' % hata)
+                 GR.DUPLICATE_INVITATION: 'davetin zaten gitti, yanıtını bekliyor'}.get(error, 'hata %s' % error)
         return _error('davet gitmedi: %s' % reason)
     return _ok()
 
@@ -202,7 +202,7 @@ def accept_friend(y, bot, name=''):
     return _ok()
 
 
-@tool('send_mail', 'Birine oyun içi posta gönder.', {'name': 'string', 'subject': 'string', 'text': 'string'}, permission='sohbet')
+@tool('send_mail', 'Birine oyun içi posta gönder.', {'name': 'string', 'subject': 'string', 'text': 'string'}, permission='chat')
 def send_mail(y, bot, name='', subject='', text=''):
     import mail as PS
     from . import society
@@ -346,14 +346,14 @@ def clan_tax(y, bot, ratio=0):
 
 
 @tool('clan_budget', 'Kasanın paylarını ayarla (yüzde; toplamı en çok 90, kalanı yedek): istasyon, üyelere ödeme, savaş.',
-      {'ksi': 'integer', 'payment': 'integer', 'combat': 'integer'}, permission='clan')
-def clan_budget(y, bot, ksi=None, payment=None, combat=None):
+      {'cbs': 'integer', 'payment': 'integer', 'combat': 'integer'}, permission='clan')
+def clan_budget(y, bot, cbs=None, payment=None, combat=None):
     from . import clan_management as CMG
     k, kl = _clan(bot)
     if k is None or k['leader'] != bot.name.lower():
         return _error('yalnız lider')
-    b = CMG.set_budget(bot, k, y.now if y else 0, *[None if v is None else max(0, int(v)) / 100.0 for v in (ksi, payment, combat)])
-    return _ok('istasyon %d%%, ödeme %d%%, savaş %d%%' % (100 * b['ksi'], 100 * b['payment'], 100 * b['combat']))
+    b = CMG.set_budget(bot, k, y.now if y else 0, *[None if v is None else max(0, int(v)) / 100.0 for v in (cbs, payment, combat)])
+    return _ok('istasyon %d%%, ödeme %d%%, savaş %d%%' % (100 * b['cbs'], 100 * b['payment'], 100 * b['combat']))
 
 
 @tool('clan_payout', 'Kasadan bir üyeye kredi öde.', {'name': 'string', 'amount': 'integer'}, permission='clan')

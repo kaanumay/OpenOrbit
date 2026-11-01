@@ -40,7 +40,7 @@ def _candidates(bot):
         if loot.startswith('ship_'):
             y['ship'] = loot
         else:
-            group = 'laser' if loot in K.ITEMS['lasers'] else 'kalkan' if loot in K.ITEMS['shield_generators'] else \
+            group = 'laser' if loot in K.ITEMS['lasers'] else 'shield' if loot in K.ITEMS['shield_generators'] else \
                 'speed' if loot in K.ITEMS['speed_generators'] else 'drone'
             y[group][loot] = y[group].get(loot, 0) + 1
         if filler:                                        # the drone's empty slots get filled by the laser to be bought later
@@ -121,15 +121,15 @@ def candidate(bot):
     wealth = currency['C'] + currency['U'] * EXCHANGE_RATE
     efficiency = lambda c: c[0] / max(1.0, credit_equiv(c) + 0.25 * wealth) * 1e5
     t = bot.o('frugality')
-    hedefi = next((c for c in all_candidates if c[3] == bot.k.get('savings')), None)
-    if hedefi is not None:                       # its own chosen saving goal (the agent's save-up tool): it buys only that
-        if currency[hedefi[1]] >= hedefi[2]:
-            return hedefi, hedefi
+    target = next((c for c in all_candidates if c[3] == bot.k.get('savings')), None)
+    if target is not None:                       # its own chosen saving goal (the agent's save-up tool): it buys only that
+        if currency[target[1]] >= target[2]:
+            return target, target
         # purchases that do not delay the goal's accumulation are free (another currency, or money left over above the goal): it used to look only
         # at the goal, a bot saving for an 80,000 U ship stood idle with 66M credits without buying shields/engines (player report 2026-11-01)
-        free = [c for c in all_candidates if c[1] != hedefi[1] and currency[c[1]] >= c[2] * (1 + 0.3 * bot.o('frugality'))
-                   or c[1] == hedefi[1] and currency[c[1]] - c[2] >= hedefi[2]]
-        return max(free, key=lambda c: c[0], default=None), hedefi
+        free = [c for c in all_candidates if c[1] != target[1] and currency[c[1]] >= c[2] * (1 + 0.3 * bot.o('frugality'))
+                   or c[1] == target[1] and currency[c[1]] - c[2] >= target[2]]
+        return max(free, key=lambda c: c[0], default=None), target
     affordable = [c for c in all_candidates if currency[c[1]] >= c[2] * (1 + 0.3 * t)]        # a thrifty bot leaves a little reserve
     g = income(bot)
     horizon = 1.0 + 1.5 * t

@@ -72,7 +72,7 @@ def pick_mine(bot):
 
 
 def rocket_cooldown(bot):
-    return ROCKET_COOLDOWN * (0.5 if 'equipment_extra_cpu_rok-t01' in (bot.k['gear'].get('ekstra') or {}) else 1.0)
+    return ROCKET_COOLDOWN * (0.5 if 'equipment_extra_cpu_rok-t01' in (bot.k['gear'].get('extras') or {}) else 1.0)
 
 
 def rocket_dps(bot, rocket):
@@ -113,15 +113,15 @@ def grind_plan(bot, ehp):
     lasers = pick_laser(bot, ehp)
     rocket = pick_rocket(bot)
     from . import lab as LB, technology as TECH
-    laser_dps = d['dps'] * multiplier(lasers) / max(1, multiplier(bot.k['gear'].get('ammunition'))) * (1 + LB.bonus(bot, LB.LAZER)) if lasers else 0.0
+    laser_dps = d['dps'] * multiplier(lasers) / max(1, multiplier(bot.k['gear'].get('ammunition'))) * (1 + LB.bonus(bot, LB.LASER)) if lasers else 0.0
     is_hard = d['dps'] > 0 and ehp / d['dps'] > HARD_SEC
     rkt_dps = rocket_dps(bot, rocket) * (1 + LB.bonus(bot, LB.ROCKET)) if rocket else 0.0
     if rkt_dps and is_hard and (bot.__dict__.get('_targeter', 0) > bot.hour() or TECH.use(bot, 'tech_precision-targeter')):
         if bot.__dict__.get('_targeter', 0) <= bot.hour():
-            bot._targeter = bot.hour() + TECH.TECH['tech_precision-targeter']['sure_sn']
+            bot._targeter = bot.hour() + TECH.TECH['tech_precision-targeter']['duration_sec']
         rkt_dps /= (K.ITEMS['rockets'].get(rocket) or {}).get('hit', 0.8)            # Precision Targeter: rockets always hit
     from . import extras as EX
-    aim = next((c for c in (EX.AIM2, EX.AIM1) if EX.var(bot, c)), None) if is_hard and bot.permission.get('ekstra', True) else None
+    aim = next((c for c in (EX.AIM2, EX.AIM1) if EX.var(bot, c)), None) if is_hard and bot.permission.get('extras', True) else None
     if aim and bot.k.get('cargo', {}).get('3', 0) >= 1000:                     # AIM CPU: 10 Xenomit per shot
         hit = K.COMBAT['laser_hit_chance']
         laser_dps *= (1 - (1 - hit) * (1 - K.ITEMS['extras'][aim]['aim'])) / hit
@@ -149,7 +149,7 @@ def consume(bot, ehp_total, lasers, rocket, dps, laser_dps):
             k = bot.k['cargo']
             k['3'] = max(0, k.get('3', 0) - int(spent / max(1, len(d['laser'])) * 10))     # AIM CPU: 10 Xenomit per shot
         from . import lab as LB
-        LB.spend(bot, LB.LAZER, spent)                      # laboratory load per round
+        LB.spend(bot, LB.LASER, spent)                      # laboratory load per round
     if rocket:
         from . import lab as LB
         LB.spend(bot, LB.ROCKET, spend(bot, rocket, duration * ratio / rocket_cooldown(bot)))
@@ -245,7 +245,7 @@ def resupply(bot):
     if bot.permission.get('mine', True) and bot.level >= 8 and bot.o('aggression') + bot.o('risk') > 0.9 \
             and sum(s.get(m, 0) for m in MINES) < 5 and bot.k['uridium'] > 4000 * (1 + t):
         buy(MINES[bot.r.random() < 0.3], 10 + 20 * (1 - t), 0.1)
-    if bot.permission.get('ekstra', True) and bot.permission.get('pvp', True) and bot.level >= 8 and s.get('ammunition_specialammo_emp-01', 0) < 2 \
+    if bot.permission.get('extras', True) and bot.permission.get('pvp', True) and bot.level >= 8 and s.get('ammunition_specialammo_emp-01', 0) < 2 \
             and bot.k['uridium'] > 5000 * (1 + t) and bot.o('risk') < 0.7:
         buy('ammunition_specialammo_emp-01', 5, 0.1)
     if bot.permission.get('custom_ammunition', True) and bot.permission.get('pvp', True) and bot.level >= 8 and bot.k['uridium'] > 4000 * (1 + t):

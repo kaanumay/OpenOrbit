@@ -254,7 +254,7 @@ class Voyagers(Arena):
             if not v or not n.alive or not n.engaged:
                 continue
             nx, ny = n.mover.pos(now)
-            if now - max(n.last_hit, getattr(n, 'born', now - 10)) < v['sn'] or math.hypot(hx - nx, hy - ny) > v['range']:
+            if now - max(n.last_hit, getattr(n, 'born', now - 10)) < v['sec'] or math.hypot(hx - nx, hy - ny) > v['range']:
                 continue
             if now < getattr(n, 'next_missile', 0):
                 continue
@@ -329,7 +329,7 @@ class Trinity(Arena):
         msgs = []
         if str(n) in z['milestones']:                # every 5 waves Quantum Prism, Xyralith, pass points
             k = z['milestones'][str(n)]
-            msgs += self.grant(self.D['kp'], k['qp']) + self.grant(self.D['xy'], k['xy'])
+            msgs += self.grant(self.D['qp'], k['qp']) + self.grant(self.D['xy'], k['xy'])
             if k['points']:
                 self.reward_pass.add(k['points'])
             msgs.append(KAPI.screen('Wave %d reward: %d Quantum Prism, %d Xyralith, %d pass points' % (n, k['qp'], k['xy'], k['points'])))
@@ -382,11 +382,11 @@ class Trinity(Arena):
         left = int(max(0, o['end_time'] - now)) if o.get('end_time') else 0
         building = bool(o.get('end_time'))          # while an upgrade is running the window shows the skip cost (Xyralith); official screen: "Xyralith 9/9"
         skip = self.skip_cost(left)
-        cost_id = self.D['xy'] if building else self.D['kp']
+        cost_id = self.D['xy'] if building else self.D['qp']
         q = lambda r: [dict(_='TupleTwoModule', param0=str(i + 1), param1='%.1f' % v) for i, v in enumerate(r['rarity'])]
         return ('TrinityTrialsDropLevelCommand', dict(
             costLootAmount=skip if building else (0 if mx else nxt['cost']), currentLevel=lv, nextLevel=min(lv + 1, len(rows)), building=bool(o.get('end_time')),
-            max=mx, skipConsume=skip, currentLevelQualityRandomList=q(cur), totalBuildSeconds=0 if mx else nxt['sure_sn'],
+            max=mx, skipConsume=skip, currentLevelQualityRandomList=q(cur), totalBuildSeconds=0 if mx else nxt['duration_sec'],
             lootAmount=int(self.p.resource(cost_id)), nextLevelQualityRandomList=q(nxt), buildSeconds=left, costLootId=cost_id))
 
     def skip_cost(self, left):
@@ -401,13 +401,13 @@ class Trinity(Arena):
         # the window's state determines the action (the costLootId sent by the client is ignored): upgrade if none is running, skip if one is
         if not o.get('end_time') and o['level'] < len(self.D['os']):
             row = self.D['os'][o['level']]
-            if self.p.resource(self.D['kp']) >= row['cost']:
-                self.p.add_resource(self.D['kp'], -row['cost'])
+            if self.p.resource(self.D['qp']) >= row['cost']:
+                self.p.add_resource(self.D['qp'], -row['cost'])
                 with self.p.lock:
-                    o.update(target=o['level'] + 1, end_time=now + row['sure_sn'])
+                    o.update(target=o['level'] + 1, end_time=now + row['duration_sec'])
                     self.p.dirty = True
                 ok = True
-                self.log('   Trinity OS: %d -> %d started (%d s)' % (o['level'], o['target'], row['sure_sn']))
+                self.log('   Trinity OS: %d -> %d started (%d s)' % (o['level'], o['target'], row['duration_sec']))
         elif o.get('end_time'):
             cost = self.skip_cost(o['end_time'] - now)
             if self.p.resource(self.D['xy']) >= cost:

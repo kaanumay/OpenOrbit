@@ -86,7 +86,7 @@ def booster(bot, loot):
     now = bot.hour()
     for kind, v in (BOOSTER['kinds'].get(loot) or {}).items():
         e = b.get(kind)
-        end_time = max(now, e[1] if e else now) + BOOSTER['sure_sn']
+        end_time = max(now, e[1] if e else now) + BOOSTER['duration_sec']
         b[kind] = [min(BOOSTER['cap'].get(kind, v), v), end_time]
     bot.loadout_changed()
 
@@ -107,7 +107,7 @@ def extra_loot(bot, tip, n=1):
 
 # ------------------------------------------------------------------------------------------------------------ boxes
 def key_item(kind):
-    return LOOT.BOXES[kind]['anahtar']
+    return LOOT.BOXES[kind]['key']
 
 
 def can_open(bot, kind):
@@ -179,7 +179,7 @@ def abstract(bot, dt, y):
 
 
 # ------------------------------------------------------------------------------------------------------------ assembly
-def _yeter(bot, parts):
+def _enough(bot, parts):
     s = stock(bot)
     for p, n in parts.items():
         if p in CURRENCY:
@@ -231,7 +231,7 @@ def assembly(bot):
         r = RECIPES[key]
         if r['usage'] == 'USABLE_ONCE' and crafted.get(key):
             continue
-        if not _yeter(bot, r['parts']):
+        if not _enough(bot, r['parts']):
             continue
         earnings = sum(value(l, n) for l, n in r['result'].items())
         cost = sum(value(p, n) for p, n in r['parts'].items() if not p.startswith('resource_collectable'))

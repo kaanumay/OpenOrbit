@@ -1,5 +1,5 @@
 /* OpenOrbit panel - Bots (bots.js). Classes are prefixed bt-; colors come from the panel.css variables. */
-body[data-page=botlar] .topbar { --hdr: url(images/hdr_botlar.webp); }
+body[data-page=bots] .topbar { --hdr: url(images/hdr_bots.webp); }
 
 /* ---------------------------------------------------------------- library */
 .bt-intro { display: flex; align-items: center; gap: 18px; }
@@ -12,17 +12,17 @@ body[data-page=botlar] .topbar { --hdr: url(images/hdr_botlar.webp); }
 .bt-card:hover { border-color: var(--line-hi); transform: translateY(-2px); box-shadow: 0 12px 30px rgba(0, 0, 0, .35), 0 0 0 1px rgba(64, 223, 255, .1); }
 .bt-card-top { display: flex; align-items: center; gap: 12px; padding: 14px; border-bottom: 1px solid var(--line);
   background: linear-gradient(90deg, rgba(64, 223, 255, .08), transparent 70%); border-radius: var(--radius) var(--radius) 0 0; }
-.bt-card-top.k-basit { background: linear-gradient(90deg, rgba(62, 229, 155, .08), transparent 70%); }
-.bt-card-top.k-gelismis { background: linear-gradient(90deg, rgba(255, 165, 74, .11), transparent 70%); }
+.bt-card-top.k-simple { background: linear-gradient(90deg, rgba(62, 229, 155, .08), transparent 70%); }
+.bt-card-top.k-advanced { background: linear-gradient(90deg, rgba(255, 165, 74, .11), transparent 70%); }
 .bt-card-top b { font: 600 17px/1.2 var(--display); letter-spacing: .02em; }
 .bt-card-art { width: 54px; height: 54px; object-fit: contain; flex: none; }
 .bt-card-body { display: flex; flex-direction: column; gap: 9px; padding: 12px 14px; flex: 1; }
 .bt-card-body .badge svg { width: 11px; height: 11px; margin-right: 3px; vertical-align: -1px; }
 .bt-card-bottom { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-top: 1px solid var(--line); }
-.bt-card.yeni { align-items: center; justify-content: center; gap: 8px; min-height: 230px; border-style: dashed; border-color: var(--line-2);
+.bt-card.new { align-items: center; justify-content: center; gap: 8px; min-height: 230px; border-style: dashed; border-color: var(--line-2);
   background: rgba(8, 14, 27, .55); color: var(--accent); }
-.bt-card.yeni svg { width: 30px; height: 30px; }
-.bt-card.yeni span { font: 600 16px var(--display); letter-spacing: .03em; color: var(--text); }
+.bt-card.new svg { width: 30px; height: 30px; }
+.bt-card.new span { font: 600 16px var(--display); letter-spacing: .03em; color: var(--text); }
 .bt-companies { display: flex; height: 6px; border-radius: 3px; overflow: hidden; background: rgba(4, 9, 18, .9); border: 1px solid var(--line-2); }
 .bt-companies i { display: block; height: 100%; }
 .bt-companies i.mmo { background: var(--mmo); }
@@ -36,7 +36,7 @@ body[data-page=botlar] .topbar { --hdr: url(images/hdr_botlar.webp); }
 .bt-steps span b { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: rgba(4, 9, 18, .9); font-size: 11px; }
 .bt-steps span.on { color: #fff; border-color: var(--accent); box-shadow: 0 0 12px rgba(64, 223, 255, .18); }
 .bt-steps span.on b { background: var(--accent); color: #031019; }
-.bt-steps span.tamam { color: var(--ok); }
+.bt-steps span.done { color: var(--ok); }
 .bt-modes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .bt-mode { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 14px; border-radius: var(--radius); cursor: pointer; text-align: left;
   border: 1px solid var(--line-2); background: rgba(8, 14, 27, .7); color: var(--muted); font: inherit; transition: border-color .15s, box-shadow .15s; }
@@ -138,7 +138,7 @@ tr:hover .bt-name { color: var(--accent); }
 .bt-rank { display: inline-flex; vertical-align: middle; }
 .bt-ship { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
 .bt-activity { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 12px; background: rgba(110, 160, 220, .08); border: 1px solid var(--line); white-space: nowrap; }
-.bt-roster td.k-hedef { min-width: 170px; }
+.bt-roster td.k-target { min-width: 170px; }
 .bt-roster .bt-agent { max-width: 280px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .bt-roster .bt-agent svg { vertical-align: -2px; margin-right: 4px; }
 .bt-resource { display: inline-flex; align-items: center; gap: 6px; }
@@ -179,14 +179,14 @@ tr:hover .bt-name { color: var(--accent); }
 .bt-radar circle { fill: #eafcff; stroke: var(--accent); stroke-width: 1.5; }
 .bt-radar text { fill: var(--muted); font: 600 9.5px var(--display); letter-spacing: .04em; }
 .bt-traits { display: grid; gap: 4px 22px; }
-.bt-traits.iki { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.bt-traits.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .bt-trait { display: grid; grid-template-columns: 112px 34px minmax(0, 1fr); align-items: center; gap: 8px; font-size: 13px; }
 .bt-trait > span { color: var(--steel); }
 .bt-trait > b { font: 600 14px var(--display); text-align: right; font-variant-numeric: tabular-nums; color: #fff; }
 .bt-trait .bt-mood::-webkit-slider-runnable-track { background: linear-gradient(90deg, #b07a22, var(--amber) var(--p, 50%), rgba(110, 160, 220, .18) var(--p, 50%)); }
 .bt-trait .bt-mood::-webkit-slider-thumb { border-color: var(--amber); box-shadow: 0 0 10px rgba(255, 185, 77, .55); }
-.ruh-ofke .bt-mood::-webkit-slider-runnable-track { background: linear-gradient(90deg, #a3303b, var(--err) var(--p, 50%), rgba(110, 160, 220, .18) var(--p, 50%)); }
-.ruh-ofke .bt-mood::-webkit-slider-thumb { border-color: var(--err); box-shadow: 0 0 10px rgba(255, 93, 108, .55); }
+.mood-anger .bt-mood::-webkit-slider-runnable-track { background: linear-gradient(90deg, #a3303b, var(--err) var(--p, 50%), rgba(110, 160, 220, .18) var(--p, 50%)); }
+.mood-anger .bt-mood::-webkit-slider-thumb { border-color: var(--err); box-shadow: 0 0 10px rgba(255, 93, 108, .55); }
 
 /* hangar */
 .bt-ship-card { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 20px; align-items: center; }

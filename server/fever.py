@@ -22,7 +22,7 @@ _PATH = os.path.join(HERE, 'data', 'extra_events.json')
 D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('fever', {})
 EVENT = 'fever'
 # the client's effect name -> profile.mods() key (damage to aliens: 'npc'; cooldown reduction 'cooldown')
-MODS = {'SHIELD': 'kalkan', 'SPEED': 'speed', 'EVASION': 'evasion', 'HITPOINTS': 'can', 'DAMAGE_NPC': 'npc', 'DAMAGE': 'npc',
+MODS = {'SHIELD': 'shield', 'SPEED': 'speed', 'EVASION': 'evasion', 'HITPOINTS': 'hp', 'DAMAGE_NPC': 'npc', 'DAMAGE': 'npc',
         'ABILITY_COOLDOWN_TIME': 'cooldown', 'EXPERIENCE_POINTS': 'ep', 'HONOUR_POINTS': 'honor', 'LASER_HIT_CHANCE': 'laser_hit_chance',
         'ROCKET_DAMAGE': 'rocket', 'LASER_DAMAGE_PLAYER': 'laser'}
 

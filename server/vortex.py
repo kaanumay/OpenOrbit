@@ -46,7 +46,7 @@ def _register():
         world_module.CFG['types'][D['boss']['type']] = {x: y for x, y in D['boss'].items() if x not in ('type', 'time_sec')}
     # the evacuation zone's anchor: the client looks for the VisualModifier's target among ships (UnitHelper.GetShip; no effect appeared
     # on an entity, live tour Ö4): an invisible, friendly, motionless ship
-    world_module.CFG['types'][ZONE_TYPE] = dict(name='', model='84', npc_id=0, hp=1, kalkan=0, damage=0, speed=0, aggressive=False, friendly=True,
+    world_module.CFG['types'][ZONE_TYPE] = dict(name='', model='84', npc_id=0, hp=1, shield=0, damage=0, speed=0, aggressive=False, friendly=True,
                                           reward={}, cargo={})
 
 

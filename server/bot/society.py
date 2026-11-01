@@ -33,7 +33,7 @@ class BotProfile(PF.Profile):
 def _skeleton(bot):
     return {
         'version': 1, 'created': '2026-01-01 00:00:00',
-        'pilot': {'userId': bot.uid, 'userName': bot.name, 'factionId': bot.firma, 'clanId': 0, 'clanTag': '', 'level': 1, 'ep': 0,
+        'pilot': {'userId': bot.uid, 'userName': bot.name, 'factionId': bot.company, 'clanId': 0, 'clanTag': '', 'level': 1, 'ep': 0,
                   'honourPoints': 0, 'credits': 0, 'uridium': 0, 'premium': False, 'dailyRank': 1, 'useSystemFont': False},
         'ship': {'typeId': 'ship_phoenix', 'speed': 320, 'shield': 0, 'shieldMax': 0, 'hitPoints': 104000, 'hitMax': 104000},
         'position': {'mapId': bot.game_map, 'x': 0, 'y': 0},
@@ -70,14 +70,14 @@ def update(bot):
         k['credits'] = max(0, k['credits'] + int(pl.get('credits', 0)) - last[0])
         k['uridium'] = max(0, k['uridium'] + int(pl.get('uridium', 0)) - last[1])
     k['rank'] = rank(bot)                      # the panel's roster shows it too
-    pl.update(userName=bot.name, factionId=bot.firma, level=k['level'], ep=k['ep'], honourPoints=k['honor'], credits=k['credits'],
+    pl.update(userName=bot.name, factionId=bot.company, level=k['level'], ep=k['ep'], honourPoints=k['honor'], credits=k['credits'],
               uridium=k['uridium'], dailyRank=k['rank'])
     bot._fmt_money = (k['credits'], k['uridium'])
     ship = k['gear']['ship']
     p.d['ships']['1']['lootId'] = ship
-    g.update(typeId=ship, speed=int(d['speed']), hitMax=int(d['can']), shieldMax=int(d['kalkan']))
+    g.update(typeId=ship, speed=int(d['speed']), hitMax=int(d['hp']), shieldMax=int(d['shield']))
     if bot.body is None:
-        g.update(hitPoints=int(d['can']), shield=int(d['kalkan']))
+        g.update(hitPoints=int(d['hp']), shield=int(d['shield']))
     else:
         g.update(hitPoints=int(bot.body.hp), shield=int(bot.body.shield))
     p.d['position'].update(mapId=bot.game_map, x=int(k.get('x') or 0), y=int(k.get('y') or 0))
@@ -106,7 +106,7 @@ def points(bot):
     import ranks as RT
     F = RT.R['formula']
     k, i = bot.k, bot.k['stats']
-    day = (bot.hour() - k['registered_at']) // 86400 if k.get('registered_at') else i.get('sure_sn', 0) // 86400   # old save: time played
+    day = (bot.hour() - k['registered_at']) // 86400 if k.get('registered_at') else i.get('duration_sec', 0) // 86400   # old save: time played
     return k['ep'] * F['ep'] + k['honor'] * F['honor'] + k['level'] * F['level'] + i.get('npc_points', 0) * F['npc'] \
         + i.get('player_points', 0) * F['player'] + i.get('quest', 0) * F['quest'] + max(0, day) * F['day'] \
         + RT.R['ship_type'].get(k['gear']['ship'], 0) * F['ship'] + i.get('death', 0) * F['death_by_enemy']
@@ -119,7 +119,7 @@ def rank(bot):
     p = points(bot)
     threshold = RT.R['thresholds']
     r = max(1, min(len(threshold), sum(1 for e in threshold if p >= e)))
-    s = RT.company_rank(bot.uid, bot.firma, p)
+    s = RT.company_rank(bot.uid, bot.company, p)
     return r if s is None else min(r, s)
 
 
@@ -216,7 +216,7 @@ def tick(y, now):
                 clan_actions(y, b, now)
             if y.permission('auction'):
                 auction(y, b, now)
-            if y.permission('sohbet'):
+            if y.permission('chat'):
                 mail_tasks(y, b, now)
         except Exception as e:                # one bot's error must not stop the others
             y.log('   bots: %s social error: %r' % (b.name, e))
@@ -228,7 +228,7 @@ def handshake(y, b, now):
     over time. Before, relationships arose only from chat and help: in 44 minutes 423 of 499 pilots had met nobody."""
     if b.r.random() > 0.3 * (0.3 + b.o('sociability')) or b.target is None or b.target.name not in ('grinding', 'quest'):
         return
-    nearby = [o for o in y.on_map.get(b.game_map, ()) if o is not b and o.firma == b.firma and o.online and o.dead_until <= now]
+    nearby = [o for o in y.on_map.get(b.game_map, ()) if o is not b and o.company == b.company and o.online and o.dead_until <= now]
     if not nearby:
         return
     acquaintances = [o for o in nearby if b.memory.relation(o.name, now) > 0]
@@ -287,7 +287,7 @@ def decide_group(y, b, name, uid, now):
     p = 0.25 + 0.5 * b.o('sociability') + 0.6 * b.memory.relation(name, now) - 0.04 * max(0, diff - 3) - 0.3 * b.mood['fatigue']
     if b.target is not None and b.target.name == 'quest':
         p -= 0.15
-    if o is not None and int(o.profile.d['pilot'].get('factionId', 0)) != b.firma:
+    if o is not None and int(o.profile.d['pilot'].get('factionId', 0)) != b.company:
         p -= 0.5
     return b.r.random() < max(0.03, min(0.95, p))
 
@@ -485,7 +485,7 @@ def diplomacy(y, b, k, kl, now):
             kl.handle('ClanNewDiplomacyRequest', {'diploClanID': d['clan'], 'diploForm': 0, 'desc': 'gg, peace?'})
             b.event('diplomacy', now, form=0, clan=d.get('name', ''), incoming=False)
             return
-    firma = clan_company(k) or b.firma
+    company = clan_company(k) or b.company
     enemies = {a.lower() for a in b.memory.grudges(-0.3, now)}
     candidates = []
     for c in list(KL.CLANS.values()):
@@ -496,15 +496,15 @@ def diplomacy(y, b, k, kl, now):
         cc = clan_company(c)
         if _humans(y, c):                         # player clan: size is not considered (a one-person clan also gets an offer), the relationship decides
             il, grudge, reason = _clan_relation(y, b, c, now)
-            if (grudge or il <= -0.3) and cc != firma and cc and b.o('aggression') > 0.4 and len(wars) < 2:
+            if (grudge or il <= -0.3) and cc != company and cc and b.o('aggression') > 0.4 and len(wars) < 2:
                 candidates.append((0.8 + 0.3 * b.o('aggression') + 0.25 * min(3, grudge), 3, c))        # killed our members
-            elif il >= 0.2 and (cc == firma or il >= 0.25):
+            elif il >= 0.2 and (cc == company or il >= 0.25):
                 candidates.append((0.7 + 0.5 * il + b.r.uniform(0, 0.2), 1 if b.o('sociability') > 0.5 or il >= 0.5 else 2, c))   # helped
-            elif cc == firma and il > -0.3:
+            elif cc == company and il > -0.3:
                 candidates.append((0.4 * b.o('sociability') + 0.4 + b.r.uniform(0, 0.3), 1 if b.o('sociability') > 0.6 else 2, c))
             continue
         size = 1.0 - min(1.0, abs(len(c['members']) - len(k['members'])) / max(5.0, len(k['members'])))
-        if cc == firma:
+        if cc == company:
             kind = 1 if b.o('sociability') > 0.5 else 2
             candidates.append((0.4 * b.o('sociability') + 0.3 * size + b.r.uniform(0, 0.3), kind, c))
         elif cc and b.o('aggression') > 0.55 and len(wars) < 2:
@@ -552,7 +552,7 @@ def pick_clan(y, b, clans):
     for c in clans:
         if any(str(x.get('name', '')).lower() == b.name.lower() for x in c.get('applications', [])):
             return None
-        if c.get('company') and c['company'] != b.firma or b.name.lower() in [str(r).lower() for r in c.get('rejected', [])]:
+        if c.get('company') and c['company'] != b.company or b.name.lower() in [str(r).lower() for r in c.get('rejected', [])]:
             continue
         uy = list(c['members'].values())
         if len(uy) >= 50:
@@ -655,7 +655,7 @@ def auction(y, b, now):
     if defend:
         importance, lot, end, old = max(defend, key=lambda a: a[0])           # outbid: counter (returns to the window like a player)
     else:
-        request = (0.6 if b.archetype == 'trader' else 0.2) * (0.5 + b.o('rekabet')) * (0.6 + 0.8 * b.o('ambition'))
+        request = (0.6 if b.archetype == 'trader' else 0.2) * (0.5 + b.o('rivalry')) * (0.6 + 0.8 * b.o('ambition'))
         if not candidates or b.r.random() > request:
             return
         weight = [a[0] ** 3 * (1 + (a[1].get('price') or 0) / 50000.0) for a in candidates]      # important and valuable lot first
@@ -669,7 +669,7 @@ def auction(y, b, now):
     value = int((lot.get('price') or 0) * LT.EXCHANGE_RATE) or 1000000
     remaining = max(0.0, (end - now) / MZ.SPAN[lot['type']])
     ambition = b.o('ambition')
-    cap = value * (0.35 + 0.4 * b.o('rekabet') + 0.25 * (1 - remaining)) * (0.7 + 0.3 * (b.archetype == 'trader'))
+    cap = value * (0.35 + 0.4 * b.o('rivalry') + 0.25 * (1 - remaining)) * (0.7 + 0.3 * (b.archetype == 'trader'))
     if importance >= 3:
         cap *= 1 + ambition + 0.25 * (importance - 3)       # CPU and ship: an ambitious bot goes up to twice the buy-now value
     cap = min(cap, free * (0.5 + (0.45 * ambition if importance >= 3 else 0)))
@@ -737,7 +737,7 @@ def reply_mail(y, b, r, now):
     intent, game_map = SPC.intent(text)
     k = IX.decision(y, b, intent, name, who, game_map, text, now, mailer=True) if intent in IX.INTENTS and intent != 'assist' else None
     IX.apply(y, b, k)
-    b.memory.event(name, 'sohbet', now)
+    b.memory.event(name, 'chat', now)
     b.event('mail_received', now, name=name)
     subject = 'Re: ' + str(r.get('subject', ''))[:46]
     if y.llm is not None and y.llm.ready and y.llm.mailer(y, b, r, k):

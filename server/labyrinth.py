@@ -68,7 +68,7 @@ def portals(map_id, home):
     out = []
     for zi, z in enumerate(ZONES):
         for ci, c in enumerate(ZONES):
-            dest, dz, dc = m['zones'][z]['kapilar'][c]
+            dest, dz, dc = m['zones'][z]['gates'][c]
             x, y = corner(map_id, z, c)
             ax, ay = corner(dest, dz, dc)
             cx, cy = zone_center(dest, dz)
@@ -81,11 +81,11 @@ def portals(map_id, home):
 
 
 def state(p):
-    return p.d.setdefault('labyrinth', {'anahtar': 0, 'hunts': 0})
+    return p.d.setdefault('labyrinth', {'key': 0, 'hunts': 0})
 
 
 def keys(p):
-    return int(state(p).get('anahtar', 0))
+    return int(state(p).get('key', 0))
 
 
 def key_cmd(p):
@@ -95,7 +95,7 @@ def key_cmd(p):
 def add_keys(p, n):
     """Add a Labyrinth Key (dropped by an alien or the Ice Box's key) -> client messages."""
     with p.lock:
-        state(p)['anahtar'] = keys(p) + n
+        state(p)['key'] = keys(p) + n
         p.dirty = True
     p.ach('loot', loot=FLB_KEY, amount=n)                          # Frozen Labyrinth Pass: "collect Labyrinth Key" (battle_pass.py)
     return [key_cmd(p), KAPI.screen('+%d Labyrinth Key (%d)' % (n, keys(p)))]
@@ -105,7 +105,7 @@ def expire_keys(p, now=None):
     """If the event has ended, the remaining keys are deleted (wiki)."""
     if keys(p) and not CAL.is_active(L['event'], now):
         with p.lock:
-            state(p)['anahtar'] = 0
+            state(p)['key'] = 0
             p.dirty = True
         return True
     return False
@@ -159,7 +159,7 @@ class Labyrinth:
             self.log('   labyrinth: no key (%d needed)' % need)
             return False, [KAPI.screen('key:log_msg_flb_no_accesskey')]
         with self.p.lock:
-            state(self.p)['anahtar'] = keys(self.p) - need
+            state(self.p)['key'] = keys(self.p) - need
             self.p.dirty = True
         self.log('   labyrinth: %d keys spent (%d left) -> %s' % (need, keys(self.p), MAPS[g['target']]['name']))
         self.p.ach('spend', loot=FLB_KEY, count=need)                # Frozen Labyrinth Pass: "use Labyrinth Key" (battle_pass.py)
@@ -170,7 +170,7 @@ class Labyrinth:
         if not n.tip.startswith('lab_'):
             return []
         w, msgs = self.w, []
-        a = n.d.get('anahtar')
+        a = n.d.get('key')
         if a and random.random() < a[0]:
             msgs += add_keys(self.p, a[1])
             self.log('   labyrinth: +%d keys (%d)' % (a[1], keys(self.p)))

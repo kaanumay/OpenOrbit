@@ -6,7 +6,7 @@
    "series": "ammo",
    "tier": 1,
    "description": "dispatch_label_description_retriever_a01",
-   "sure_sn": 10800,
+   "duration_sec": 10800,
    "fee": {
     "currency_credits": 200000
    },
@@ -20,7 +20,7 @@
    "series": "ammo",
    "tier": 2,
    "description": "dispatch_label_description_retriever_a02",
-   "sure_sn": 21600,
+   "duration_sec": 21600,
    "fee": {
     "currency_uridium": 2000
    },
@@ -34,7 +34,7 @@
    "series": "ammo",
    "tier": 3,
    "description": "dispatch_label_description_retriever_a03",
-   "sure_sn": 21600,
+   "duration_sec": 21600,
    "fee": {
     "currency_uridium": 2000,
     "resource_collectable_permit": 1
@@ -49,7 +49,7 @@
    "series": "ammo",
    "tier": 4,
    "description": "dispatch_label_description_retriever_a04",
-   "sure_sn": 32400,
+   "duration_sec": 32400,
    "fee": {
     "currency_uridium": 5000,
     "resource_collectable_permit": 1
@@ -64,7 +64,7 @@
    "series": "ammo",
    "tier": 5,
    "description": "dispatch_label_description_retriever_a05",
-   "sure_sn": 43200,
+   "duration_sec": 43200,
    "fee": {
     "currency_uridium": 10000,
     "resource_collectable_permit": 1
@@ -79,7 +79,7 @@
    "series": "ammo",
    "tier": 6,
    "description": "dispatch_label_description_retriever_a06",
-   "sure_sn": 43200,
+   "duration_sec": 43200,
    "fee": {
     "currency_uridium": 10000,
     "resource_collectable_permit-plus": 1
@@ -94,7 +94,7 @@
    "series": "basic",
    "tier": 1,
    "description": "dispatch_label_description_retriever_b01",
-   "sure_sn": 10800,
+   "duration_sec": 10800,
    "fee": {
     "currency_credits": 200000
    },
@@ -108,7 +108,7 @@
    "series": "basic",
    "tier": 2,
    "description": "dispatch_label_description_retriever_b02",
-   "sure_sn": 21600,
+   "duration_sec": 21600,
    "fee": {
     "currency_uridium": 2000
    },
@@ -122,7 +122,7 @@
    "series": "basic",
    "tier": 3,
    "description": "dispatch_label_description_retriever_b03",
-   "sure_sn": 21600,
+   "duration_sec": 21600,
    "fee": {
     "currency_uridium": 2000,
     "resource_collectable_permit": 1
@@ -137,7 +137,7 @@
    "series": "basic",
    "tier": 4,
    "description": "dispatch_label_description_retriever_b04",
-   "sure_sn": 32400,
+   "duration_sec": 32400,
    "fee": {
     "currency_uridium": 5000,
     "resource_collectable_permit": 1
@@ -152,7 +152,7 @@
    "series": "basic",
    "tier": 5,
    "description": "dispatch_label_description_retriever_b05",
-   "sure_sn": 43200,
+   "duration_sec": 43200,
    "fee": {
     "currency_uridium": 10000,
     "resource_collectable_permit": 1
@@ -167,7 +167,7 @@
    "series": "basic",
    "tier": 6,
    "description": "dispatch_label_description_retriever_b06",
-   "sure_sn": 43200,
+   "duration_sec": 43200,
    "fee": {
     "currency_uridium": 10000,
     "resource_collectable_permit-plus": 1
@@ -182,7 +182,7 @@
    "series": "hitac",
    "tier": 3,
    "description": "dispatch_label_description_retriever_h03",
-   "sure_sn": 18000,
+   "duration_sec": 18000,
    "fee": {
     "currency_uridium": 5000,
     "resource_collectable_permit": 1
@@ -197,7 +197,7 @@
    "series": "hitac",
    "tier": 4,
    "description": "dispatch_label_description_retriever_h04",
-   "sure_sn": 25200,
+   "duration_sec": 25200,
    "fee": {
     "currency_uridium": 10000,
     "resource_collectable_permit": 1
@@ -212,7 +212,7 @@
    "series": "hitac",
    "tier": 5,
    "description": "dispatch_label_description_retriever_h05",
-   "sure_sn": 32400,
+   "duration_sec": 32400,
    "fee": {
     "currency_uridium": 15000,
     "resource_collectable_permit": 1
@@ -227,7 +227,7 @@
    "series": "resource",
    "tier": 1,
    "description": "dispatch_label_description_retriever_r01",
-   "sure_sn": 10800,
+   "duration_sec": 10800,
    "fee": {
     "currency_credits": 200000
    },
@@ -241,7 +241,7 @@
    "series": "resource",
    "tier": 2,
    "description": "dispatch_label_description_retriever_r02",
-   "sure_sn": 21600,
+   "duration_sec": 21600,
    "fee": {
     "currency_uridium": 2000
    },
@@ -255,7 +255,7 @@
    "series": "resource",
    "tier": 3,
    "description": "dispatch_label_description_retriever_r03",
-   "sure_sn": 21600,
+   "duration_sec": 21600,
    "fee": {
     "currency_uridium": 2000,
     "resource_collectable_permit": 1
@@ -270,7 +270,7 @@
    "series": "resource",
    "tier": 4,
    "description": "dispatch_label_description_retriever_r04",
-   "sure_sn": 32400,
+   "duration_sec": 32400,
    "fee": {
     "currency_uridium": 5000,
     "resource_collectable_permit": 1
@@ -285,7 +285,7 @@
    "series": "resource",
    "tier": 5,
    "description": "dispatch_label_description_retriever_r05",
-   "sure_sn": 43200,
+   "duration_sec": 43200,
    "fee": {
     "currency_uridium": 10000,
     "resource_collectable_permit": 1
@@ -300,7 +300,7 @@
    "series": "resource",
    "tier": 6,
    "description": "dispatch_label_description_retriever_r06",
-   "sure_sn": 43200,
+   "duration_sec": 43200,
    "fee": {
     "currency_uridium": 10000,
     "resource_collectable_permit-plus": 1
@@ -724,7 +724,7 @@
  "dispatch_day_multiplier": 1.5,
  "gate": {
   "ggeu": "resource_collectable_ggeu",
-  "sure_sn": 3600
+  "duration_sec": 3600
  },
  "fixed": {
   "ammo": {
@@ -811,7 +811,7 @@
   }
  },
  "_etkinlik_oduller": "Etkinlik sürerken dönüşe eklenen kalem (takvim.py etkinlik anahtarı -> lootId -> toplayıcı kodu: [en az, en çok]). darkorbitwiki events/chaos-omen: Chaos Fragment Retriever Dispatch'ten (R-01 5-10, R-02 10-20, R-03 15-25, R-04 20-30, R-05 35-50, R-06 65-80) ve Gate Dispatch'ten gelir; kapı için sayı verilmiyor: 'kapi' R-01 aralığı (uyarlama). Protegit Pandemonium'da da sürer (ETKINLIKLER-27); adetler Dispatch Day çarpanından etkilenmez.",
- "_kaynak": "Ödül listeleri, yuva fiyatları, Dispatch Day (pazartesi, cuma) ve kapı gönderimi (1 GGEU, dalga 1'deki kurulu kapı) wiki'den (darkorbitwiki.com/dispatch-retriever, /dispatch-gate; belgeler/arastirma/sistemler_modlar.md 1.15). Uyarlama (wiki adet ve olasılık vermiyor): her gönderimde listeden reward_count farklı ödül; adet base_count x (1 + tier_increase x (kademe-1)), tekil olanlar 1; seyrek olanların seçilme ağırlığı düşük; Dispatch Day'de adetler x1,5; kapı gönderimi 1 saat. Gerçek sunucu kaydına göre (20261025_152841_gercek): dönüş başına 4 farklı rastgele kalem ve sabit kalemler (sabit); kademe 1 adetleri kayıttan (Scrap 2, Mucosum 8, Tetrathrin 1, Bifenon 4, Polychromium 6, her alloy 1); kayıtta olmayan kalemlerin adetleri uyarlama. Etkinlik ödülleri: event_rewards.",
+ "_source": "Ödül listeleri, yuva fiyatları, Dispatch Day (pazartesi, cuma) ve kapı gönderimi (1 GGEU, dalga 1'deki kurulu kapı) wiki'den (darkorbitwiki.com/dispatch-retriever, /dispatch-gate; belgeler/arastirma/sistemler_modlar.md 1.15). Uyarlama (wiki adet ve olasılık vermiyor): her gönderimde listeden reward_count farklı ödül; adet base_count x (1 + tier_increase x (kademe-1)), tekil olanlar 1; seyrek olanların seçilme ağırlığı düşük; Dispatch Day'de adetler x1,5; kapı gönderimi 1 saat. Gerçek sunucu kaydına göre (20261025_152841_gercek): dönüş başına 4 farklı rastgele kalem ve sabit kalemler (sabit); kademe 1 adetleri kayıttan (Scrap 2, Mucosum 8, Tetrathrin 1, Bifenon 4, Polychromium 6, her alloy 1); kayıtta olmayan kalemlerin adetleri uyarlama. Etkinlik ödülleri: event_rewards.",
  "tier_count": {
   "resource_collectable_mucosum": [
    6,

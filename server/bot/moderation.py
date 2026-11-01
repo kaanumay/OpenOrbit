@@ -24,7 +24,7 @@ NOTICE = {'tr': 'Susturuldun: {0} dk kaldı.', 'en': 'You are muted: {0} min lef
 
 
 def is_open(y):
-    return bool(y.setting('moderator', False)) and y.permission('sohbet')
+    return bool(y.setting('moderator', False)) and y.permission('chat')
 
 
 def sec(y):

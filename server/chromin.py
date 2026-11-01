@@ -36,10 +36,10 @@ def active(now=None):
 
 def box_for(npc, gate):
     """The Chromin box of a gate alien -> (box type, amount) or None (the gate is not a Chromin gate)."""
-    total = (D.get('kapilar') or {}).get(gate)
+    total = (D.get('gates') or {}).get(gate)
     if not total:
         return None
-    strength = npc.d.get('hp', 0) + npc.d.get('kalkan', 0)
+    strength = npc.d.get('hp', 0) + npc.d.get('shield', 0)
     n = max(1, int(round(D.get('per_gate', 2700) * strength / float(total) / max(0.01, D.get('probability', 1.0)))))
     kind = 'CHROMIN_BOX_1'
     for k, at in D.get('box_thresholds', []):
@@ -100,7 +100,7 @@ class Chromin:
             return []
         kind, n = b
         h = w.drop_box(kind, x, y, None, D.get('lifetime_sec', 300))
-        w.boxes[h]['event'] = {'type': kind, 'mod': 'hepsi', 'guaranteed': [[LOOT, n]]}
+        w.boxes[h]['event'] = {'type': kind, 'mod': 'all', 'guaranteed': [[LOOT, n]]}
         return []
 
     def tick(self, now):

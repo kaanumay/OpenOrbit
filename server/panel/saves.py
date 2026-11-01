@@ -136,7 +136,7 @@ def profile_summary(d):
             'level': pl.get('level', 1), 'ep': pl.get('ep', 0), 'honor': pl.get('honourPoints', 0), 'credits': pl.get('credits', 0),
             'uridium': pl.get('uridium', 0), 'ship': ship_name(g.get('typeId')), 'map': _map_name(k.get('mapId', 0)),
             'play_sec': int(d.get('play_sec') or 0), 'created': d.get('created'),
-            'can': g.get('hitPoints'), 'max_hp': g.get('hitMax'),
+            'hp': g.get('hitPoints'), 'max_hp': g.get('hitMax'),
             'clan': pl.get('clanTag') or '', 'ship_count': len(d.get('ships') or {}) or 1}
 
 

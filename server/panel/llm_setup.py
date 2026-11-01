@@ -264,7 +264,7 @@ class LlmSetup:
         """Test of the selected remote provider (bot/llm_provider.test): a short question, an answer in Turkish."""
         from bot import llm_provider as PRV
         c = PRV.selected()
-        if PRV.PROVIDERS[c['uid']]['anahtar'] and not c['anahtar']:
+        if PRV.PROVIDERS[c['uid']]['key'] and not c['key']:
             raise DownloadError(_('Enter the API key first.'))
         if not c['model']:
             raise DownloadError(_('Choose a model first.'))

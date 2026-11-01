@@ -63,21 +63,21 @@ def apply(w, e, now=None):
     now = time.time() if now is None else now
     t = e['type']
     w.log('   Mimesis Chest effect: %s' % e['name'])
-    if t == 'can':
-        return heal(w, hp=e['can'])
-    if t == 'kalkan':
-        return heal(w, shield=e['kalkan'])
+    if t == 'hp':
+        return heal(w, hp=e['hp'])
+    if t == 'shield':
+        return heal(w, shield=e['shield'])
     if t == 'hp_field':
         for v in near(w, e['radius'], now)[1:]:
-            v.deliver(heal(v, hp=e['can']))
-        return heal(w, hp=e['can'])
+            v.deliver(heal(v, hp=e['hp']))
+        return heal(w, hp=e['hp'])
     if t == 'speed':
-        return timed(w, 'flux', e['sure_sn'], {'mods': {'speed': e['speed']}}, None)
+        return timed(w, 'flux', e['duration_sec'], {'mods': {'speed': e['speed']}}, None)
     if t == 'skill':
         item = e['skill']
         if SA.is_active(w.p, item, now):
             return []                                       # does not trigger if the same ship ability is active (wiki)
-        return timed(w, item, e['sure_sn'], dict(SA.ABILITIES[item]['effect']), item)
+        return timed(w, item, e['duration_sec'], dict(SA.ABILITIES[item]['effect']), item)
     if t == 'tech':
         item = e['tech']
         if w.tech.active(item, now):
@@ -102,9 +102,9 @@ def timed(w, name, sec, value, item):
 def frost(w, item, c, now):
     """Frost Field: the technique's effect once per second for sure_sn (technology.Technology.second: slowing and damage in the radius)."""
     if getattr(w, '_chest_freeze', 0) > now:
-        w._chest_freeze = now + c['sure_sn']              # running: its duration is refreshed
+        w._chest_freeze = now + c['duration_sec']              # running: its duration is refreshed
         return []
-    w._chest_freeze = now + c['sure_sn']
+    w._chest_freeze = now + c['duration_sec']
 
     def tick():
         t = time.time()

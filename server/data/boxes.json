@@ -17,7 +17,7 @@
  "boxes": {
   "PIRATE_BOOTY": {
    "name": "Green Box",
-   "anahtar": "resource_booty-key",
+   "key": "resource_booty-key",
    "code": "BK",
    "missing_message": "msg_loot_failed_no_booty-key-green",
    "maps": [
@@ -302,7 +302,7 @@
   },
   "PIRATE_BOOTY_GOLD": {
    "name": "Gold Box",
-   "anahtar": "resource_booty-key",
+   "key": "resource_booty-key",
    "code": "BK",
    "missing_message": "msg_loot_failed_no_booty-key-green",
    "maps": [
@@ -602,7 +602,7 @@
   },
   "PIRATE_BOOTY_RED": {
    "name": "Red Box",
-   "anahtar": "resource_booty-key-red",
+   "key": "resource_booty-key-red",
    "code": "BKR",
    "missing_message": "msg_loot_failed_no_booty-key-red",
    "maps": [
@@ -782,7 +782,7 @@
   },
   "PIRATE_BOOTY_BLUE": {
    "name": "Blue Box",
-   "anahtar": "resource_booty-key-blue",
+   "key": "resource_booty-key-blue",
    "code": "BKB",
    "missing_message": "msg_loot_failed_no_booty-key-blue",
    "maps": [
@@ -962,7 +962,7 @@
   },
   "BLACK_BOOTY_BOX": {
    "name": "Obsidian Box",
-   "anahtar": "resource_booty-key-black",
+   "key": "resource_booty-key-black",
    "code": "BKBB",
    "missing_message": "msg_loot_failed_no_booty-key-black",
    "maps": [
@@ -1151,7 +1151,7 @@
   },
   "PIRATE_BOOTY_SILVER": {
    "name": "Silver Box",
-   "anahtar": "resource_booty-key-silver",
+   "key": "resource_booty-key-silver",
    "code": "BKS",
    "missing_message": "msg_loot_failed_no_booty-key-silver",
    "maps": [
@@ -1216,7 +1216,7 @@
   },
   "UNSTABLE_BLACKLIGHT_CACHE": {
    "name": "Black Light Cache",
-   "anahtar": "resource_booty-key-blacklight-cipher",
+   "key": "resource_booty-key-blacklight-cipher",
    "code": "BKBLC",
    "missing_message": "msg_loot_failed_no_booty-key-blacklight-cipher",
    "maps": [
@@ -1484,7 +1484,7 @@
   },
   "BLACKLIGHT-CRYPT": {
    "name": "Black Light Crypt",
-   "anahtar": "resource_booty-key-blacklight-decoder",
+   "key": "resource_booty-key-blacklight-decoder",
    "code": "BKBLD",
    "missing_message": "msg_loot_failed_no_booty-key-blacklight-decoder",
    "maps": [
@@ -1542,7 +1542,7 @@
   },
   "ASTRAL_BOOTY_BOX": {
    "name": "Astral Box",
-   "anahtar": "resource_booty-key-astral",
+   "key": "resource_booty-key-astral",
    "code": "BKA",
    "missing_message": "msg_loot_failed_no_booty-key-astral",
    "maps": [
@@ -1656,7 +1656,7 @@
   },
   "ASTRAL_PRIME_BOOTY_BOX": {
    "name": "Prime Astral Box",
-   "anahtar": "resource_booty-key-astral-prime",
+   "key": "resource_booty-key-astral-prime",
    "code": "BKAP",
    "missing_message": "msg_loot_failed_no_booty-key-astral-prime",
    "maps": [
@@ -1805,7 +1805,7 @@
   },
   "MASQUE_BOOTY_BOX": {
    "name": "Apocalypse Box",
-   "anahtar": "resource_booty-key-masque",
+   "key": "resource_booty-key-masque",
    "code": "BKM",
    "missing_message": "msg_loot_failed_no_booty-key-masque",
    "maps": [
@@ -1999,7 +1999,7 @@
   },
   "PROMETHEUS_BOOTY_BOX": {
    "name": "Prometheus Box",
-   "anahtar": "resource_booty-key-prometheus",
+   "key": "resource_booty-key-prometheus",
    "code": "BKPR",
    "missing_message": "msg_loot_failed_no_booty-key-prometheus",
    "maps": [
@@ -2263,7 +2263,7 @@
   },
   "PERSEUS_BLESSING_BOOTY_BOX": {
    "name": "Perseus Blessing",
-   "anahtar": "resource_booty-key-perseus",
+   "key": "resource_booty-key-perseus",
    "code": "BKPG",
    "missing_message": "msg_loot_failed_no_booty-key-perseus",
    "maps": [
@@ -2492,7 +2492,7 @@
   },
   "LAUREL_BOX": {
    "name": "Laurel Box",
-   "anahtar": "resource_booty-key-laurel",
+   "key": "resource_booty-key-laurel",
    "code": "BKLL",
    "missing_message": "msg_loot_failed_no_booty-key-laurel",
    "maps": [
@@ -2593,7 +2593,7 @@
   },
   "BATTLEPASS": {
    "name": "Battle Pass Box",
-   "anahtar": "resource_battle-pass-key",
+   "key": "resource_battle-pass-key",
    "code": null,
    "missing_message": "msg_loot_failed_no_booty-key-battle-pass-key",
    "maps": [
@@ -3964,7 +3964,7 @@
   },
   "EMPYRIAN_BOOTY_BOX": {
    "name": "Empyrian Box",
-   "anahtar": "resource_booty-key-empyrian",
+   "key": "resource_booty-key-empyrian",
    "code": "BKE",
    "missing_message": "msg_loot_failed_no_booty-key-empyrian",
    "maps": [
@@ -4221,11 +4221,11 @@
      0.025
     ]
    ],
-   "_kaynak": "wiki: aşama ve eşya olasılıkları, Epic tasarım paketleri"
+   "_source": "wiki: aşama ve eşya olasılıkları, Epic tasarım paketleri"
   },
   "PROSPEROUS_BOOTY_BOX": {
    "name": "Prosperous Box",
-   "anahtar": "resource_booty-key-prosperous",
+   "key": "resource_booty-key-prosperous",
    "code": "BKP",
    "missing_message": "msg_loot_failed_no_booty-key-prosperous",
    "maps": [
@@ -4512,11 +4512,11 @@
      0.4
     ]
    ],
-   "_kaynak": "wiki: aşama ve eşya olasılıkları, Epic tasarım paketleri; DMG-VEN01 (wiki: Plague Mutation ödülü, Prosperous'a eşlenir) %0,4 ağırlıkla (uyarlama)"
+   "_source": "wiki: aşama ve eşya olasılıkları, Epic tasarım paketleri; DMG-VEN01 (wiki: Plague Mutation ödülü, Prosperous'a eşlenir) %0,4 ağırlıkla (uyarlama)"
   },
   "LUCENT_ALIEN_EGG_BOOTY_BOX": {
    "name": "Lucent Egg",
-   "anahtar": "resource_booty-key-lucent",
+   "key": "resource_booty-key-lucent",
    "code": "BKL",
    "missing_message": "msg_loot_failed_no_booty-key-lucent",
    "maps": [
@@ -4764,11 +4764,11 @@
      0.5
     ]
    ],
-   "_kaynak": "wiki: içerik (olasılık yok: tasarımlar %0,5 ağırlık, diğerleri 3; uyarlama)"
+   "_source": "wiki: içerik (olasılık yok: tasarımlar %0,5 ağırlık, diğerleri 3; uyarlama)"
   },
   "GREEN_ECHO_BOX": {
    "name": "Common Echo Chest",
-   "anahtar": "resource_echo-key-green",
+   "key": "resource_echo-key-green",
    "code": "BKEG",
    "missing_message": "msg_loot_failed_no_echo-key-green",
    "maps": [],
@@ -4802,7 +4802,7 @@
   },
   "BLUE_ECHO_BOX": {
    "name": "Rare Echo Chest",
-   "anahtar": "resource_echo-key-blue",
+   "key": "resource_echo-key-blue",
    "code": "BKEB",
    "missing_message": "msg_loot_failed_no_echo-key-blue",
    "maps": [],
@@ -4836,7 +4836,7 @@
   },
   "PURPLE_ECHO_BOX": {
    "name": "Epic Echo Chest",
-   "anahtar": "resource_echo-key-purple",
+   "key": "resource_echo-key-purple",
    "code": "BKEP",
    "missing_message": "msg_loot_failed_no_echo-key-purple",
    "maps": [],
@@ -4870,7 +4870,7 @@
   },
   "RED_ECHO_BOX": {
    "name": "Legendary Echo Chest",
-   "anahtar": "resource_echo-key-red",
+   "key": "resource_echo-key-red",
    "code": "BKER",
    "missing_message": "msg_loot_failed_no_echo-key-red",
    "maps": [],
@@ -4894,7 +4894,7 @@
   },
   "APOTHEOSIS": {
    "name": "Apotheosis Booty Box",
-   "anahtar": "resource_booty-key-apotheosis",
+   "key": "resource_booty-key-apotheosis",
    "code": "BKAPO",
    "missing_message": "msg_loot_failed_no_booty-key-apotheosis",
    "maps": [],
@@ -5070,7 +5070,7 @@
     ]
    ],
    "_tool": "version_115",
-   "_kaynak": "board-en 130459 (FAQ Kristallon Apotheosis): Emperor Kristallon yenilince 20 kutu; istemcinin box_APOTHEOSIS varlığı, HUD sayacı BKAPO"
+   "_source": "board-en 130459 (FAQ Kristallon Apotheosis): Emperor Kristallon yenilince 20 kutu; istemcinin box_APOTHEOSIS varlığı, HUD sayacı BKAPO"
   }
  },
  "_event_boxes": "EMPYRIAN_BOOTY_BOX, PROSPEROUS_BOOTY_BOX, LUCENT_ALIEN_EGG_BOOTY_BOX tools/etkinlik_kutulari.py ile; takvim = etkinlik adı."

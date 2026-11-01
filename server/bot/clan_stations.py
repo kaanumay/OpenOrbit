@@ -46,7 +46,7 @@ def _registry():
 
 def cbs(k):
     with KL.LOCK:
-        s = k.setdefault('ksi', {})
+        s = k.setdefault('cbs', {})
         s.setdefault('stock', [])
         return s
 
@@ -64,7 +64,7 @@ def _mine(asteroids, k):
 
 def need(k):
     """Remaining cost of the next CBS target: the price of the missing modules if there is no station, otherwise the next upgrade."""
-    s = k.get('ksi') or {}
+    s = k.get('cbs') or {}
     h, asteroids = _registry()
     if asteroids is None:
         return 0
@@ -95,8 +95,8 @@ def summary(k):
         row.append('Your battle station %s (%s): %s, deflector %s, modules %s.' % (
             CB.ASTEROIDS[aid]['name'], H.name(CB.ASTEROIDS[aid]['map']), 'building' if a['state'] == 'building' else 'built',
             'on' if (a.get('deflector') or {}).get('on') else 'off',
-            ', '.join('%s L%d%s' % (CB.MODS[m['loot']]['code'], m['level'] + 1, ' destroyed' if m['can'] <= 0 else '') for m in mods)))
-    s = k.get('ksi') or {}
+            ', '.join('%s L%d%s' % (CB.MODS[m['loot']]['code'], m['level'] + 1, ' destroyed' if m['hp'] <= 0 else '') for m in mods)))
+    s = k.get('cbs') or {}
     if s.get('target'):
         a = asteroids.get(str(s['target'])) or {}
         ours = len(((a.get('race') or {}).get(str(k['id'])) or {}).get('modules') or ())
@@ -142,8 +142,8 @@ def value(aid, k):
     on, _, last = name.partition('-')
     v = 3.0 if on == '4' else 2.5 if last.upper() == 'BL' else 2.0 if last in ('5', '6', '7') else 1.2
     owner = H.company(m)
-    firma = int(k.get('company') or 0) or int((k['members'].get(k['leader']) or {}).get('company') or 0)
-    return v + (0.5 if owner and owner == firma else -0.6 if owner else 0)
+    company = int(k.get('company') or 0) or int((k['members'].get(k['leader']) or {}).get('company') or 0)
+    return v + (0.5 if owner and owner == company else -0.6 if owner else 0)
 
 
 def build_plan(b):
@@ -163,8 +163,8 @@ def build_plan(b):
 
 
 def _new_module(loot):
-    hp = CB.level_value(CB.MODS[loot]['can'], 0)
-    return {'loot': loot, 'level': 0, 'can': hp, 'kalkan': int(hp * CB.D['shield_ratio'])}
+    hp = CB.level_value(CB.MODS[loot]['hp'], 0)
+    return {'loot': loot, 'level': 0, 'hp': hp, 'shield': int(hp * CB.D['shield_ratio'])}
 
 
 def pick_target(k, asteroids, now):
@@ -196,7 +196,7 @@ def _to_upgrade(a, b):
     candidates = []
     for s, y in a.get('slots', {}).items():
         m = y.get('module')
-        if not m or m['can'] <= 0 or m['level'] >= 15:
+        if not m or m['hp'] <= 0 or m['level'] >= 15:
             continue
         md = CB.MODS[m['loot']]
         on = 0.0
@@ -265,19 +265,19 @@ def race_step(y, b, k, h, asteroids, now):
     loot = missing[0]
     m = next((x for x in s['stock'] if x['loot'] == loot), None)
     if m is None:
-        if not _pay(k, 'ksi', price(loot)):
+        if not _pay(k, 'cbs', price(loot)):
             return                                       # money accumulates
         m = _new_module(loot)
     else:
         s['stock'].remove(m)
-        if m['can'] <= 0:                                # a module that was destroyed and came back: repaired first
-            if not _pay(k, 'ksi', int(price(loot) * setting()['repair_ratio'])):
+        if m['hp'] <= 0:                                # a module that was destroyed and came back: repaired first
+            if not _pay(k, 'cbs', int(price(loot) * setting()['repair_ratio'])):
                 s['stock'].append(m)
                 return
             m.update(_new_module(loot), level=m['level'])
-            m['can'] = CB.level_value(CB.MODS[loot]['can'], m['level'])
-            m['kalkan'] = int(m['can'] * CB.D['shield_ratio'])
-            m.pop('ksi', None)                           # base values: cbs.hp_sync scales them to the panel's CBS HP multiplier
+            m['hp'] = CB.level_value(CB.MODS[loot]['hp'], m['level'])
+            m['shield'] = int(m['hp'] * CB.D['shield_ratio'])
+            m.pop('cbs', None)                           # base values: cbs.hp_sync scales them to the panel's CBS HP multiplier
     with h.lock:
         r = a.setdefault('race', {}).setdefault(str(k['id']), {'modules': [], 't': 0})
         r['modules'].append(m)
@@ -295,25 +295,25 @@ def develop(y, b, k, h, asteroids, now):
             continue
         for y_ in a['slots'].values():
             m = y_.get('module')
-            if m and m['can'] <= 0 and _pay(k, 'ksi', int(price(m['loot']) * setting()['repair_ratio'])):
+            if m and m['hp'] <= 0 and _pay(k, 'cbs', int(price(m['loot']) * setting()['repair_ratio'])):
                 with h.lock:
-                    m['can'] = CB.level_value(CB.MODS[m['loot']]['can'], m['level'])
-                    m['kalkan'] = int(m['can'] * CB.D['shield_ratio'])
-                    m.pop('ksi', None)
+                    m['hp'] = CB.level_value(CB.MODS[m['loot']]['hp'], m['level'])
+                    m['shield'] = int(m['hp'] * CB.D['shield_ratio'])
+                    m.pop('cbs', None)
                     a['version'] = a.get('version', 0) + 1
                     h.dirty = True
                 return
         if now - s.get('last_upgrade', 0) < setting()['upgrade_sec']:
             continue
         m = _to_upgrade(a, b)
-        if m is None or not _pay(k, 'ksi', price(m['loot'], m['level'] + 1)):
+        if m is None or not _pay(k, 'cbs', price(m['loot'], m['level'] + 1)):
             continue
         with h.lock:
-            ratio = m['can'] / max(1, CB.hp_max(m))          # the scaled HP ratio (the panel's CBS HP multiplier)
+            ratio = m['hp'] / max(1, CB.hp_max(m))          # the scaled HP ratio (the panel's CBS HP multiplier)
             m['level'] += 1
-            m['can'] = int(CB.level_value(CB.MODS[m['loot']]['can'], m['level']) * min(1.0, ratio))
-            m['kalkan'] = int(CB.level_value(CB.MODS[m['loot']]['can'], m['level']) * CB.D['shield_ratio'] * min(1.0, ratio))
-            m.pop('ksi', None)
+            m['hp'] = int(CB.level_value(CB.MODS[m['loot']]['hp'], m['level']) * min(1.0, ratio))
+            m['shield'] = int(CB.level_value(CB.MODS[m['loot']]['hp'], m['level']) * CB.D['shield_ratio'] * min(1.0, ratio))
+            m.pop('cbs', None)
             a['version'] = a.get('version', 0) + 1
             h.dirty = True
         s['last_upgrade'] = now
@@ -352,7 +352,7 @@ def defend(y, b, k, asteroids, now):
     all sent at once but in stages (clan_orders 'git'): the first DEFENSE_FIRST immediately, the rest DEFENSE_WAVE every DEFENSE_GAP_SEC; total
     defense_quota(number of attackers). If there has been no attack for longer than DEFENSE_LAST_SEC the queue is dropped. The pending queue is in the clan's record
     (k['ksi']['savunma'], clans.json): even if the server restarts, the rest are sent in an ongoing attack."""
-    defense_state = cbs(k).setdefault('savunma', {})
+    defense_state = cbs(k).setdefault('defense', {})
     for aid, a in _mine(asteroids, k).items():
         ongoing = now - a.get('last_player', 0) <= DEFENSE_LAST_SEC
         st = defense_state.get(str(aid))

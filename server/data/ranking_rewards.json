@@ -3,7 +3,7 @@
  "tables": {
   "2": {
    "name": "Gauntlet of Plutus",
-   "_kaynak": "wiki etkinlik sayfası (gauntlet_of_plutus.json ranking); premium ay = 30 gün",
+   "_source": "wiki etkinlik sayfası (gauntlet_of_plutus.json ranking); premium ay = 30 gün",
    "ranges": [
     {
      "from_": 1,
@@ -241,7 +241,7 @@
   },
   "7": {
    "name": "Eternal Black Light",
-   "_kaynak": "forum 2020 tablosu (eternal_black_light.json reward_sets[0]; sonraki setler aynı miktarlarla, P.E.T. tasarımsız); unvan Eylül 2026 seti",
+   "_source": "forum 2020 tablosu (eternal_black_light.json reward_sets[0]; sonraki setler aynı miktarlarla, P.E.T. tasarımsız); unvan Eylül 2026 seti",
    "ranges": [
     {
      "from_": 1,
@@ -479,7 +479,7 @@
   },
   "9": {
    "name": "Astral Ascension",
-   "_kaynak": "kayıt (yanitlar.json RankRewardCommand, Ekim 2026 seti)",
+   "_source": "kayıt (yanitlar.json RankRewardCommand, Ekim 2026 seti)",
    "ranges": [
     {
      "from_": 1,

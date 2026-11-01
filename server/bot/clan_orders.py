@@ -40,12 +40,12 @@ _FOCUS = (('gate', re.compile(r'\b(gates?|gg|galaxy gates?|kap[ıi]\w*|alpha|bet
          ('selling', re.compile(r'\b(sell\w*|ore|cargo|cevher\w*|kargo\w*)\b', re.I)),
          ('mod', re.compile(r'\b(events?|etkinli\w*)\b', re.I)),
          ('grinding', re.compile(r'\b(farm\w*|grind\w*|npcs?|aliens?|uzayl[ıi]\w*|kas[ıi]n|kas[ıi]l\w*|kasma\w*)\b', re.I)))
-_LAYOUT = (('kalkan', re.compile(r'\b(full|all|max)\s*(shields?|shd|kalkan)|\b(tam|full)\s*kalkan', re.I)),
+_LAYOUT = (('shield', re.compile(r'\b(full|all|max)\s*(shields?|shd|kalkan)|\b(tam|full)\s*kalkan', re.I)),
          ('speed', re.compile(r'\b(full|all|max)\s*(speed|spd|h[ıi]z)|\b(tam|full)\s*h[ıi]z', re.I)),
          ('baseline', re.compile(r'\b(balanced|half|hybrid|dengeli|yar[ıi] yar[ıi]ya)\b', re.I)))
 _SHIP_VERB = re.compile(r'\b(use|fly|switch|ride|change to|kullan\w*|u[çc]un|ge[çc]in|binin)\b', re.I)
 _BUY = re.compile(r'\b(get|buy|equip|grab|save (up )?for|al[ıi]n|alsın|biriktir\w*|tak[ıi]n)\b', re.I)
-LAYOUT_SHARE = {'kalkan': 0.95, 'speed': 0.3, 'baseline': 0.6}
+LAYOUT_SHARE = {'shield': 0.95, 'speed': 0.3, 'baseline': 0.6}
 HUNT_SEC = GO_SEC
 CLAN_FOCUS_SEC = FOCUS_SEC
 _NAME = r"([\w.\-]{2,20}?)"
@@ -220,7 +220,7 @@ def apply(y, b, e, name, person, now):
         t = PV.find_target(y, e['target'])
         if t is None or t[0].lower() == name.lower() or t[0].lower() == b.name.lower():
             return 'order_refuse', {}
-        if t[1] == b.firma:
+        if t[1] == b.company:
             return 'duel_same', {}                    # cannot attack its own company
         if t[3] is not None and t[3] == b.k.get('clan'):
             return 'order_refuse', {}                       # clan mate
@@ -247,7 +247,7 @@ def apply(y, b, e, name, person, now):
         m = base_map(person.profile) if person is not None else None
         if m is None:
             return 'order_no_base', {}
-    if not m or m not in K.MAPS or not K.can_enter(m, b.firma, b.level) or not K.route(b.game_map, m, b.firma, b.level):
+    if not m or m not in K.MAPS or not K.can_enter(m, b.company, b.level) or not K.route(b.game_map, m, b.company, b.level):
         return 'cant_come', {}
     B.force(b, 'assist', plan={'map': int(m), 'name': name}, pay=1.6, duration=BASE_SEC if kind == 'us' else GO_SEC, now=now)
     b.memory.event(name, 'i_helped', now)

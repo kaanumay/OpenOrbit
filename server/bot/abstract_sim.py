@@ -22,7 +22,7 @@ def go(bot, target, y=None, now=None):
     if target == bot.game_map:
         bot.en_route = None
         return True
-    route = K.route(bot.game_map, target, bot.firma, bot.level)
+    route = K.route(bot.game_map, target, bot.company, bot.level)
     if not route:
         bot.en_route = None
         return False
@@ -151,7 +151,7 @@ def farm(bot, dt, y, target_kind=None):
 
 def x1_cut(bot):
     """At high level in their own X-1 the reward shrinks (npc.json x1_odul; world.World.grant_loot)."""
-    if H.map_class(bot.game_map) != 'X-1' or H.company(bot.game_map) != bot.firma:
+    if H.map_class(bot.game_map) != 'X-1' or H.company(bot.game_map) != bot.company:
         return 1.0
     return next((k for l, k in reversed(K.COMBAT['x1_reward']) if bot.level >= l), 1.0)
 
@@ -163,7 +163,7 @@ def pick_repair(bot, y, killer=None):
     m = bot.game_map
     if m not in K.MAPS or y is not None and y.mode == 'simple':
         return 'station'
-    route = K.route(m, K.ev(bot.firma), bot.firma, bot.level)
+    route = K.route(m, K.ev(bot.company), bot.company, bot.level)
     far = len(route) - 1 if route else 0
     if far < 1:
         return 'station'                           # already at home: a station repair is both free and close
@@ -198,7 +198,7 @@ def death(bot, y, reason='npc', killer=None, now=None):
         bot.dead_until = now + bot.r.uniform(5, 15)    # chose immediately on the death screen
         x, yy = bot.k.get('x') or 0, bot.k.get('y') or 0
         if repair == 'portal':
-            g = min(H.gates(bot.game_map, bot.firma) or [{'x': x, 'y': yy}], key=lambda g: math.hypot(g['x'] - x, g['y'] - yy))
+            g = min(H.gates(bot.game_map, bot.company) or [{'x': x, 'y': yy}], key=lambda g: math.hypot(g['x'] - x, g['y'] - yy))
             bot.k['x'], bot.k['y'] = int(g['x'] + bot.r.uniform(-150, 150)), int(g['y'] + bot.r.uniform(-150, 150))
         else:
             bot.in_place_repair = True                  # the body spawns with 10% HP and 10 s of protection (ship.tick)
@@ -207,8 +207,8 @@ def death(bot, y, reason='npc', killer=None, now=None):
         bot.next_decision = bot.dead_until
         return
     bot.k['x'] = bot.k['y'] = None                    # to base: spawns around the station, not at the place of death
-    ev = H.x8_home(bot.firma, bot.level, bot.game_map) if bot.level >= 12 else None
-    target = int(ev) if ev else K.ev(bot.firma)
+    ev = H.x8_home(bot.company, bot.level, bot.game_map) if bot.level >= 12 else None
+    target = int(ev) if ev else K.ev(bot.company)
     if y is not None:
         y.bot_died(bot, killer)
     if target != bot.game_map:

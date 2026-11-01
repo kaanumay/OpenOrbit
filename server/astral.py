@@ -188,12 +188,12 @@ class Astral:
             runs.append(int(r['points']))
             self.st['runs'] = sorted(runs, reverse=True)[:20]
             p.dirty = True
-        row = next((x for x in D['reward'] if x['en_az'] <= reached <= x['max_count']), D['reward'][0])
+        row = next((x for x in D['reward'] if x['min_value'] <= reached <= x['max_count']), D['reward'][0])
         msgs, got = [], []
         give = [('resource_collectable_astralite', row['astralite'])]
         if random.random() < SET.chance('drop', SALVAGE_CHANCE, 'mod'):     # panel: drop chance
             give.append(('resource_collectable_salvage-core', row['salvage']))
-        keys = sum(1 for _ in range(row['anahtar']) if random.random() < SET.chance('drop', KEY_CHANCE, 'mod'))
+        keys = sum(1 for _ in range(row['key']) if random.random() < SET.chance('drop', KEY_CHANCE, 'mod'))
         if keys:
             give.append(('resource_booty-key-astral', keys))
         if r['atlas']:
@@ -307,7 +307,7 @@ class Astral:
             return []
         lvl_bonus = 3 if r['frenzied'] else 0
         pool = D['pool'].get(t, [])
-        if t == 'can':
+        if t == 'hp':
             return self.heal(0.5) + [KAPI.screen('50% of your hit points restored.')]
         if t == 'ammunition':
             msgs = []
@@ -423,13 +423,13 @@ class Astral:
         r = self.run
         if not r:
             return mod('RogueLiteCashOutCommand', confirmedList=[], chanceUpList=[])
-        row = next((x for x in D['reward'] if x['en_az'] <= r['rift'] <= x['max_count']), D['reward'][0])
+        row = next((x for x in D['reward'] if x['min_value'] <= r['rift'] <= x['max_count']), D['reward'][0])
         duration = [self.item_mod('resource_collectable_astralite', 0, row['astralite'])]
         if r['atlas']:
             duration.append(self.item_mod('resource_collectable_atlas-shard', 0, r['atlas']))
         chance = [self.item_mod('resource_collectable_salvage-core', 0, row['salvage'])]
-        if row['anahtar']:
-            chance.append(self.item_mod('resource_booty-key-astral', 0, row['anahtar']))
+        if row['key']:
+            chance.append(self.item_mod('resource_booty-key-astral', 0, row['key']))
         return mod('RogueLiteCashOutCommand', confirmedList=duration, chanceUpList=chance)
 
     def info_cmd(self, at_gate=False):

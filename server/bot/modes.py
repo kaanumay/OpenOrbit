@@ -35,7 +35,7 @@ def kind_value(tip):
     t = PVE['kinds'].get(tip) or K.NPC['types'].get(str(tip))
     if not t:
         return None
-    return t.get('hp', 0), t.get('kalkan', 0), t.get('damage', 0), t.get('reward') or {}
+    return t.get('hp', 0), t.get('shield', 0), t.get('damage', 0), t.get('reward') or {}
 
 
 def wave(groups, health=1.0, damage=1.0, table=None):
@@ -46,7 +46,7 @@ def wave(groups, health=1.0, damage=1.0, table=None):
         for x in group:
             tip, n = x[0], x[1]                          # [type, count] or [type, count, is it a boss]
             v = (table or {}).get(tip)
-            v = (v.get('hp', 0), v.get('kalkan', 0), v.get('damage', 0), v.get('reward') or {}) if v else kind_value(tip)
+            v = (v.get('hp', 0), v.get('shield', 0), v.get('damage', 0), v.get('reward') or {}) if v else kind_value(tip)
             if not v:
                 continue
             hp, kl, dmg, rew = v
@@ -171,7 +171,7 @@ class EventGate(Mod):
         self.uid, self.g = 'egate_' + k, g
         self.name = g['name']
         self.game_map = (g.get('maps') or [None])[0]
-        self.hp = min(int(g.get('can', 1)), 50)
+        self.hp = min(int(g.get('hp', 1)), 50)
         self.rule = g.get('rule') or {}
         self.level = self.rule.get('level', 1)
 
@@ -189,7 +189,7 @@ class EventGate(Mod):
         k, st = self.rule, state(bot, self.uid)
         if bot.level < k.get('level', 1) or bot.level > k.get('max_level', 99):
             return False
-        if k.get('company') and k['company'] != bot.firma:
+        if k.get('company') and k['company'] != bot.company:
             return False
         if k.get('once') and st.get('number'):
             return False
@@ -306,7 +306,7 @@ class Trinity(Mod):
         milestone = reached // 5                                   # a milestone every 5 waves: Quantum Prism and Xyralith
         d = self.difficulty(bot) + 1
         if milestone:
-            grant_list(bot, [[self.T['kp'], milestone], [self.T['xy'], milestone * 10 * d]], rng)
+            grant_list(bot, [[self.T['qp'], milestone], [self.T['xy'], milestone * 10 * d]], rng)
 
 
 class Astral(Mod):
@@ -335,11 +335,11 @@ class Astral(Mod):
         return out
 
     def finish(self, bot, reached, total, duration, rng):
-        row = next((r for r in self.A['reward'] if r['en_az'] <= reached <= r['max_count']), None)
+        row = next((r for r in self.A['reward'] if r['min_value'] <= reached <= r['max_count']), None)
         if row:
             grant_list(bot, [['resource_collectable_astralite', row.get('astralite', 0)],
                             ['resource_collectable_salvage-core', row.get('salvage', 0)],
-                            ['resource_booty-key-astral', row.get('anahtar', 0)]], rng)
+                            ['resource_booty-key-astral', row.get('key', 0)]], rng)
 
 
 class Ebl(Mod):
@@ -365,7 +365,7 @@ class Ebl(Mod):
         return out
 
     def finish(self, bot, reached, total, duration, rng):
-        row = next((r for r in self.E['death_reward'] if r['en_az'] <= reached <= r['max_count']), self.E['death_reward'][-1]
+        row = next((r for r in self.E['death_reward'] if r['min_value'] <= reached <= r['max_count']), self.E['death_reward'][-1]
                    if reached > self.E['death_reward'][-1]['max_count'] else None)
         if row:
             grant_list(bot, [['resource_collectable_blacklight-shard', row.get('part', 0)]], rng)
@@ -376,7 +376,7 @@ class Echoes(Mod):
     E = PVE['echoes']
     game_map = E['maps'][0]
     level = E['level_requirement']
-    time_limit = E['sure_sn']
+    time_limit = E['duration_sec']
 
     def level_no(self, bot):
         return min(len(self.E['levels']) - 1, state(bot, self.uid).get('cleared', 0))
@@ -459,7 +459,7 @@ class Mimesis(Mod):
     uid, name = 'mimesis', 'Mimesis Mutiny'
     M = BIG_CONTENT['mimesis']
     game_map = M['maps'].get(str(1)) if isinstance(M['maps'], dict) else M['maps'][0]
-    time_limit = M['sure_sn']
+    time_limit = M['duration_sec']
     level = 10
 
     def is_open(self, now):
@@ -469,10 +469,10 @@ class Mimesis(Mod):
         return bot.level >= self.level and state(bot, self.uid).get('hour') != time.strftime('%Y-%m-%d %H')
 
     def cost(self, bot):
-        return _spend_or_take(bot, self.M['anahtar'], self.M.get('key_uridium'))
+        return _spend_or_take(bot, self.M['key'], self.M.get('key_uridium'))
 
     def affordable(self, bot):
-        return _has_or_can_buy(bot, self.M['anahtar'], self.M.get('key_uridium'))
+        return _has_or_can_buy(bot, self.M['key'], self.M.get('key_uridium'))
 
     def waves(self, bot):
         table = self.M['kinds']
@@ -505,7 +505,7 @@ class WorldBoss(Mod):
     def waves(self, bot):
         f = self.W['npcs'].get('dreadfyre_fortress') or next(iter(self.W['npcs'].values()))
         pay = 0.02                                           # the bot's damage share on a crowded server
-        return [(((f['hp'] + f['kalkan']) * pay), 0.0, {})]
+        return [(((f['hp'] + f['shield']) * pay), 0.0, {})]
 
     def finish(self, bot, reached, total, duration, rng):
         state(bot, self.uid)['windowed'] = time.strftime('%Y-%m-%d %H')
@@ -532,7 +532,7 @@ class Apotheosis(Mod):
 
     def waves(self, bot):
         p = self.A['boss']
-        return [((p['hp'] + p['kalkan']) * 0.03, p['damage'] * 0.6 * K.COMBAT['npc_hit_chance'] / K.NPC_INTERVAL, {})]
+        return [((p['hp'] + p['shield']) * 0.03, p['damage'] * 0.6 * K.COMBAT['npc_hit_chance'] / K.NPC_INTERVAL, {})]
 
     def finish(self, bot, reached, total, duration, rng):
         state(bot, self.uid)['windowed'] = time.strftime('%Y-%m-%d %H')
@@ -563,7 +563,7 @@ class Labyrinth(Mod):
     def finish(self, bot, reached, total, duration, rng):
         aliens = self.L['alien_spawns']
         aliens = aliens if isinstance(aliens, list) else list(aliens.values())
-        key = sum((u.get('anahtar') or 0) * u.get('count', 5) * 0.3 for u in aliens if isinstance(u.get('anahtar'), (int, float)))
+        key = sum((u.get('key') or 0) * u.get('count', 5) * 0.3 for u in aliens if isinstance(u.get('key'), (int, float)))
         if key:
             grant_list(bot, [['resource_key_labyrinth', int(key * reached)]], rng)
 
@@ -680,7 +680,7 @@ def dispatch(bot, now):
     k, t = max(eligible, key=lambda x: x[1].get('tier', 1))
     for p, n in t.get('fee', {}).items():
         bot.pay('C' if p == 'currency_credits' else 'U', n)
-    st.update(type=k, end_time=now + t['sure_sn'])
+    st.update(type=k, end_time=now + t['duration_sec'])
 
 
 def galaxy_trek(bot, now):

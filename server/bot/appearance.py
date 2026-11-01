@@ -31,7 +31,7 @@ def _stable_hash(bot, salt):
 
 def showiness(bot):
     """Love of showing off (0-1): for those who are not thrifty, are competitive and are social."""
-    return max(0.0, min(1.0, 0.5 * (1 - bot.o('frugality')) + 0.3 * bot.o('rekabet') + 0.2 * bot.o('sociability')))
+    return max(0.0, min(1.0, 0.5 * (1 - bot.o('frugality')) + 0.3 * bot.o('rivalry') + 0.2 * bot.o('sociability')))
 
 
 def _can_afford(bot, currency, price):

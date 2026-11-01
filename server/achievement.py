@@ -82,7 +82,7 @@ def in_season(a):
 def _index():
     out = {}
     for aid, a in ACH.items():
-        if not a['etkin'] or not in_season(a):
+        if not a['enabled'] or not in_season(a):
             continue
         for c in a['levels']:
             k = KINDS.get(c['class_name'])
@@ -109,7 +109,7 @@ def set_events(names):
 METAS = {}                       # referenced achievement -> MetaAchievements (score: its completed level)
 for _aid, _a in ACH.items():
     for _c in _a['levels']:
-        if _a['etkin'] and _c['class_name'] == 'MetaAchievement':
+        if _a['enabled'] and _c['class_name'] == 'MetaAchievement':
             for _ref in _c.get('parameters', {}).get('achievementId', []):
                 METAS.setdefault(_ref, set()).add(_aid)
 
@@ -275,7 +275,7 @@ class Achievements:
                         st.get('time', {}).pop(aid, None)
                         st['date'][aid] = now
                         self.p.dirty = True
-            for aid in list(BY_KIND.get(kind, ())) + [a for a, k in SERVER_SIDE.items() if k == kind and ACH.get(a, {}).get('etkin')]:
+            for aid in list(BY_KIND.get(kind, ())) + [a for a, k in SERVER_SIDE.items() if k == kind and ACH.get(a, {}).get('enabled')]:
                 c = self.current(aid)
                 k = (SERVER_SIDE.get(aid) or KINDS.get(c['class_name'])) if c else None
                 if not k or kind not in (k if isinstance(k, tuple) else (k,)):
@@ -374,7 +374,7 @@ class Achievements:
         st = state(self.p)
         done, running = [], []
         for aid, a in ACH.items():
-            if not a['etkin']:
+            if not a['enabled']:
                 continue
             lv = self.level(aid)
             if lv:

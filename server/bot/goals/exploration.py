@@ -6,8 +6,8 @@ from .. import abstract_sim as S
 
 def new_maps(bot):
     seen = set(bot.k.get('seen', [])) | {bot.game_map}
-    return [m for m in K.MAPS if m not in seen and K.can_enter(m, bot.firma, bot.level)
-            and (K.H.company(m) in (None, bot.firma) or bot.o('risk') > 0.6)]
+    return [m for m in K.MAPS if m not in seen and K.can_enter(m, bot.company, bot.level)
+            and (K.H.company(m) in (None, bot.company) or bot.o('risk') > 0.6)]
 
 
 @target
@@ -23,7 +23,7 @@ class Exploration(Goal):
 
     def start(self, bot, b):
         maps = new_maps(bot)
-        maps.sort(key=lambda m: len(K.route(bot.game_map, m, bot.firma, bot.level) or range(99)))
+        maps.sort(key=lambda m: len(K.route(bot.game_map, m, bot.company, bot.level) or range(99)))
         bot.plan['map'] = maps[0]
         if not S.go(bot, maps[0], b.y, b.now):
             bot.k.setdefault('seen', []).append(maps[0])

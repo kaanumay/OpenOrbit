@@ -28,7 +28,7 @@ import booster as BOOSTER
 import ship_ability as SA
 import status_effects as STATE
 import extras as EX
-import lasers as LAZER
+import lasers as LASERS
 import combat_items as CIT
 import technology as TECH
 import mimesis_chest as MCH
@@ -127,11 +127,11 @@ def tag_alien(n, who, now):
     t = getattr(n, 'tag', None)
     if t is None or t[0] == who or now - t[1] > TAG_SEC:
         n.tag = (who, now)
-    elif who[0] == 'h' and t[0][0] == 'b' and SET.get('player_tag') and not grup_npc(n):
+    elif who[0] == 'h' and t[0][0] == 'b' and SET.get('player_tag') and not group_npc(n):
         n.tag = (who, now)                                  # the player takes the bot's tag (panel: player_tag)
 
 
-def grup_npc(n):
+def group_npc(n):
     """An alien fought together (world bosses that drop a chest, like Cubikon, Mindfire Behemoth, Invoke XVI): when player_tag is on,
     the tag does not pass, and the reward is split by damage dealt."""
     return bool(n.d.get('chest') or n.d.get('boss') or 'Cubikon' in str(n.d.get('name', '')) or str(getattr(n, 'tip', '')).startswith('wb_'))
@@ -139,7 +139,7 @@ def grup_npc(n):
 
 def record_damage(n, who, dmg):
     """The damage dealt to a group alien by who ('h', hero) or ('b', bot): reward sharing (tag_sharers). Only when tag and player_tag are on."""
-    if dmg > 0 and SET.get('tag') and SET.get('player_tag') and grup_npc(n):
+    if dmg > 0 and SET.get('tag') and SET.get('player_tag') and group_npc(n):
         d = n.__dict__.setdefault('damage_split', {})
         d[who] = d.get(who, 0) + dmg
 
@@ -217,12 +217,12 @@ class NPC:
 
     def __init__(self, uid, tip, x, y, wave=False):
         self.id, self.tip, self.d = uid, tip, CFG['types'][tip]
-        k = SET.multiplier('npc_can', 'wave' if wave else 'map')     # wave: alien of a gate and mode wave
+        k = SET.multiplier('npc_hp', 'wave' if wave else 'map')     # wave: alien of a gate and mode wave
         if k != 1.0 and not self.d.get('friendly'):        # the panel's HP multiplier: a copy of the type, not the shared dict (n.d maximum value)
-            self.d = dict(self.d, hp=max(1, int(self.d['hp'] * k)), kalkan=min(SET.I32, int(self.d['kalkan'] * k)))
+            self.d = dict(self.d, hp=max(1, int(self.d['hp'] * k)), shield=min(SET.I32, int(self.d['shield'] * k)))
         self.model = self.d.get('model', tip)      # the client's ship model (differs from the type key for types sharing the same model)
         self.mover = Mover(x, y)
-        self.hp, self.shield = self.d['hp'], self.d['kalkan']
+        self.hp, self.shield = self.d['hp'], self.d['shield']
         self.engaged = False
         self.gate = False                   # Galaxy Gate alien: does not respawn
         self.hunt = False                   # wave alien (gates, modes): does not let go of the player, does not flee to wander
@@ -439,7 +439,7 @@ class World:
         self.next_shield = 0.0
         self.next_form_shield = 0.0    # the formation's shield refill/drain (form_shield_tick)
         self.next_overdrive = 0.0      # SL-01, Prometheus: extra damage every 5 s (lasers.py)
-        self.anger = LAZER.Fervor()       # Asmodeus Fervor
+        self.anger = LASERS.Fervor()       # Asmodeus Fervor
         self.ramp = [1.0, 0.0]        # IDB-125: multiplier, last hit
         self.crit = False              # the last laser_damage was an Odysseus crit (strike in the hit message)
         self.quick_buy = None          # when money changes, the state of the quick-buy items in the shortcut bar (shop.py)
@@ -453,7 +453,7 @@ class World:
         self.drone_item = None         # inventory item of the drone that levels up (Assembly's Upgrade tab reads the level from it)
         self.unit_msgs = None          # look tied to the ship (title, drones, modules): when the ship is rebuilt in place (badge_refresh)
         self.stats_msgs = None         # when the drone level changes, shield etc. are recalculated (shop.apply_stats)
-        self.settings_version, self.next_ayar = None, 0.0     # when the panel's settings file changes, the ship's values are recalculated (settings_tick)
+        self.settings_version, self.next_setting = None, 0.0     # when the panel's settings file changes, the ship's values are recalculated (settings_tick)
         self.ore_pack = None           # when ore counts change, the hangar inventory (shop.py)
         self.quest_event = None        # quest progress: (event, ...) -> messages (quest.py)
         self.lab_msgs = None           # upgrade state (LabUpdateItemCommand, shop.py)
@@ -597,7 +597,7 @@ class World:
         want = '-psyche' if amor else '-amor'
         if not any(o is not self and o.running and self.is_group_member(o.hid) and want in o.p.ship_look() for o in self.shared.members):
             return {}
-        return {'kalkan': 0.10, 'can': 0.05} if amor else {'laser': 0.10, 'rocket': 0.10}
+        return {'shield': 0.10, 'hp': 0.05} if amor else {'laser': 0.10, 'rocket': 0.10}
 
     def later(self, delay, fn):
         self.timers.append((time.time() + delay, fn))
@@ -1079,7 +1079,7 @@ class World:
             o = next((w for w in self.shared.members if w.hid == owner_tag[1]), None)
             fac = o.p.d['pilot'].get('factionId') if o is not None else None
         elif owner_tag[0] == 'b':
-            fac = BG.bot_firma(owner_tag[1])
+            fac = BG.bot_company(owner_tag[1])
         if fac != self.p.d['pilot'].get('factionId'):
             return []
         d = self.p.d.setdefault('cargo_theft', {})
@@ -1529,7 +1529,7 @@ class World:
                 self.send([self.asset_msg(st[0], st[3], True)])
                 return
             with self.p.lock:
-                self.p.d['kapilar']['voucher'] -= REPAIR_VOUCHERS
+                self.p.d['gates']['voucher'] -= REPAIR_VOUCHERS
                 self.p.dirty = True
             hp0 = g.get('hitPoints', 0)
             self.p.set_hull(hp=g.get('hitMax', 0))
@@ -1608,9 +1608,9 @@ class World:
             elif by_hm7:
                 self.log('   sale with HM-7 (left %d)' % EX.use(self.p, 'equipment_extra_hmd-07'))
             totals = self.p.remove_ores({t: n})
-            kredi = n * price
+            credits = n * price
             msgs = [('AttributeOreCountUpdateCommand', {'oreCountList': totals})]
-            msgs += self.reward_msgs(self.p.gain(credits=kredi, reason=RT.ore_desc(t), count=n), credits=kredi)
+            msgs += self.reward_msgs(self.p.gain(credits=credits, reason=RT.ore_desc(t), count=n), credits=credits)
             if self.ore_pack:
                 msgs.append(self.ore_pack([t]))
             msgs += self.quest('sell', ore=t, amount=n)
@@ -1618,7 +1618,7 @@ class World:
                 msgs += self.p.menu_changes([CIT.HM7])         # if the last use was spent, the shortcut icon goes inactive at once
             self.send(msgs)
             self.sold = self.sold or self.at_trade()
-            self.log('   sold: %s x%d = %d credits' % (ORE['kinds'].get(str(t), t), n, kredi))
+            self.log('   sold: %s x%d = %d credits' % (ORE['kinds'].get(str(t), t), n, credits))
 
     # ------------------------------------------------------------ portals
     def check_gates(self, now):
@@ -1762,7 +1762,7 @@ class World:
         # official server recording (2026-10-25): the maximum shield of an alien with a shield is the definition's plus 1 (StreuneR 30,000 / 30,001, Curcubitor
         # 270,000 / 270,001, Boss Curcubitor 5,400,001); a full shield is the definition itself
         return ('ShipSelectionCommand', dict(userId=n.id, shipType=stype, shield=int(n.shield),
-                                             shieldMax=n.d['kalkan'] + 1 if n.d['kalkan'] else 0,
+                                             shieldMax=n.d['shield'] + 1 if n.d['shield'] else 0,
                                              hitpoints=int(n.hp), hitpointsMax=n.d['hp'], nanoHull=0, maxNanoHull=0, shieldSkill=False))
 
     def asset_at(self, uid):
@@ -2090,7 +2090,7 @@ class World:
         while the lock is held -> did opening start."""
         kind = b['tip']
         box = LOOT.BOXES[kind]
-        key, msgs = box['anahtar'], []
+        key, msgs = box['key'], []
         if self.opening:
             self.send([legacy('0|LM|ST|BAH')])
             return False
@@ -2127,7 +2127,7 @@ class World:
         """Opening finished: a key is spent, a reward from the contents is given with the shop's reward function (the beam and counter end by themselves)."""
         kind = b['tip']
         box = LOOT.BOXES[kind]
-        key, msgs = box['anahtar'], []
+        key, msgs = box['key'], []
         if self.p.resource(key) < 1:                                    # the key was lost while opening (sale, other spending)
             self.send([legacy('0|A|STM|%s' % box['missing_message'])])
             return False
@@ -2603,7 +2603,7 @@ class World:
             g_ = n.d.get('empower')
             if g_ and own:                                   # Plutus runaway: temporary damage and speed power, the time is renewed on killing again
                 self.hero_effects.remove('skill', source='fugitive')
-                self.hero_effects.add('skill', g_['sure_sn'], {'mods': {'laser': g_['damage'], 'rocket': g_['damage'], 'speed': g_['speed']}}, 'fugitive',
+                self.hero_effects.add('skill', g_['duration_sec'], {'mods': {'laser': g_['damage'], 'rocket': g_['damage'], 'speed': g_['speed']}}, 'fugitive',
                                    time.time())
                 quest += self.stats_msgs() if self.stats_msgs else []
             if getattr(n, 'saturn', False) and own:          # the Saturn Sender CPU's alien: an enemy player in the PvP quest (forum 127576)
@@ -2666,7 +2666,7 @@ class World:
         """Instant state for quest sub-conditions (MISCELLANEOUS): cloaked, in the radiation zone, HP below a tenth."""
         g = self.p.d['ship']
         return {'hidden': bool(self.abilities.cloaked() or self.items.cloaked()), 'radiation': self.radiation_since is not None,
-                'az_can': g.get('hitPoints', 0) < 0.1 * g.get('hitMax', 0)}
+                'low_hp': g.get('hitPoints', 0) < 0.1 * g.get('hitMax', 0)}
 
     def pvp_drone_points(self, victim_ship):
         """Drone points on killing a player (official forum 127526 table: row the one killed, column the killer ship; unknown is the Goliath class)."""
@@ -2745,20 +2745,20 @@ class World:
         vlo = self.tech.laser_bonus(now)                          # Versus Laser Overdrive: +500 to base damage per laser (VoG)
         # Per-laser abilities also work on drone lasers (overdrive, x3.5 ...); set bonuses, count-based effects (Mortifier/
         # Asmodeus/Anchorlock sets, Odysseus crit, Anchorlock slow) and Asmodeus Fervor count ship lasers only (wiki "only ship").
-        base = sum((LAZER.hit(l, target, pvp=pvp) + vlo) * UPG.factor(l, lv, UPG.LASER) for l, lv in self.laser_levels()) \
-            * (1 + LAZER.set_bonus(ship, pvp=pvp) + self.anger.bonus(ship, now))
-        self.crit = bool(ship) and random.random() < LAZER.crit_chance(ship)
+        base = sum((LASERS.hit(l, target, pvp=pvp) + vlo) * UPG.factor(l, lv, UPG.LASER) for l, lv in self.laser_levels()) \
+            * (1 + LASERS.set_bonus(ship, pvp=pvp) + self.anger.bonus(ship, now))
+        self.crit = bool(ship) and random.random() < LASERS.crit_chance(ship)
         if self.crit:
-            base += LAZER.crit_damage(ship)                       # Odysseus crit
-        extra = LAZER.overdrive(ship + drones, target, pvp)
+            base += LASERS.crit_damage(ship)                       # Odysseus crit
+        extra = LASERS.overdrive(ship + drones, target, pvp)
         if extra and now >= self.next_overdrive:                  # SL-01 +38, Caucasus +100, Prometheus +200 (x3.5 Black Light): every 5 s
             base += extra
-            self.next_overdrive = now + LAZER.OVERDRIVE_SEC
+            self.next_overdrive = now + LASERS.OVERDRIVE_SEC
         mods = self.p.mods()
         dlv = self.p.d.get('drone_equipment_level', [])
         for k, (level, loots) in enumerate(self.p.d.get('drone_equipment', [])):
             dloot, dup, ilv = dlv[k] if k < len(dlv) else (None, 0, [])
-            hits = sum((LAZER.hit(l, target, pvp=pvp) + vlo) * UPG.factor(l, ilv[j] if j < len(ilv) else 0, UPG.LASER)
+            hits = sum((LASERS.hit(l, target, pvp=pvp) + vlo) * UPG.factor(l, ilv[j] if j < len(ilv) else 0, UPG.LASER)
                        for j, l in enumerate(loots) if l in lasers)
             base += (hits * (1 + DRONE_LEVELS[level - 1]['laser'] + mods.get('drone_laser', 0))      # Havoc, Cerberus: to the drone laser
                      * UPG.factor(dloot, dup, UPG.DRONE_DAMAGE))
@@ -2767,23 +2767,23 @@ class World:
                  * (1 + self.p.lab_bonus(0)))                                                   # laser upgrade
         a = ITEMS['laser_ammo'].get(ammo, {'multiplier': 1})
         r = random.uniform(*ITEMS['damage_random'])
-        multiplier = a.get('pvp_multiplier', a.get('multiplier', 1)) if pvp else (LAZER.name_match(a.get('target_multiplier', {}), target) or a.get('multiplier', 1))   # SBL-100 x8 to Sibelon …
-        if not pvp and LAZER.name_match(a.get('target_multiplier', {}), target) and time.strftime('%m-%d') in a.get('day_multiplier', {}):
+        multiplier = a.get('pvp_multiplier', a.get('multiplier', 1)) if pvp else (LASERS.name_match(a.get('target_multiplier', {}), target) or a.get('multiplier', 1))   # SBL-100 x8 to Sibelon …
+        if not pvp and LASERS.name_match(a.get('target_multiplier', {}), target) and time.strftime('%m-%d') in a.get('day_multiplier', {}):
             multiplier = a['day_multiplier'][time.strftime('%m-%d')]          # VB-142: 14 February x8 (forum 161430)
         ramp = a.get('ramp')
         if ramp:                                                  # IDB-125: from x1, +1.25 per hit, at most x6; resets after 3 s
             multiplier = 1.0 if now - self.ramp[1] > ramp['reset_sec'] else self.ramp[0]
             self.ramp = [min(ramp['maximum'], multiplier + ramp['step']), now]
         if target is not None and not pvp:                        # while an event runs UCB-100 / CC-C / RSB-75 for the aliens in the list (items.json event_ammo)
-            multiplier = LAZER.event_ammo(ammo, target, CAL.is_active) or multiplier
+            multiplier = LASERS.event_ammo(ammo, target, CAL.is_active) or multiplier
         if target is not None and ammo in (target.d.get('ammo_multiplier') or {}):          # Ö4: ammo bonus of the event alien
             multiplier = target.d['ammo_multiplier'][ammo]
-        flat = LAZER.flat_extra(ship + drones, pvp) if multiplier and (pvp or target is not None) else 0       # Paritydrill / Magmadrill +5, LF-3 +15: after the multipliers
+        flat = LASERS.flat_extra(ship + drones, pvp) if multiplier and (pvp or target is not None) else 0       # Paritydrill / Magmadrill +5, LF-3 +15: after the multipliers
         return int(base * multiplier * r) + flat, int(base * a.get('shield_multiplier', 0) * r)
 
     def laser_range(self):
         """Laser range: -25% if SL-01 is equipped (on the ship or a drone) (lasers.py); the accumulated charge of Momentum/Stockpile (+5 per charge)."""
-        return int(COMBAT['laser_range'] * LAZER.range_factor(self.lasers() + self.drone_lasers())) + SA.range_bonus(self.p)
+        return int(COMBAT['laser_range'] * LASERS.range_factor(self.lasers() + self.drone_lasers())) + SA.range_bonus(self.p)
 
     def other_ammo(self, kind, empty, need):
         """The strongest ordinary ammo in hand in place of the ammo that ran out -> lootId (laser: AUTO_AMMO order; rocket: by damage, excluding special
@@ -3078,7 +3078,7 @@ class World:
             if dmg:
                 self.hit_npc(n.id, dmg, 1, strike=self.crit, ammo=ammo)
                 self.tech.leech(ammo, dmg)               # Energy Leech
-            proc = LAZER.slow_proc(self.lasers())        # LF-5 Anchorlock: slowing by chance depending on count
+            proc = LASERS.slow_proc(self.lasers())        # LF-5 Anchorlock: slowing by chance depending on count
             if proc and n.alive and random.random() < proc[0]:
                 self.npc_effect(n, 'slow', proc[2], proc[1], source='lf-5-al')
         else:
@@ -3310,9 +3310,9 @@ class World:
         x, y, r = *n.mover.pos(now), 200
         bot = self.alien.summoner_bot(n)
         if bot is not None:             # summoned by the bot: spawns around the bot, attacks the bot
-            (x, y), r = bot.mover.pos(now), random.uniform(*v['dogma']) if v.get('dogma') else 250
-        elif v.get('dogma'):            # from a bit away from the player to just outside the screen (Cubikon; user report 2026-10-27)
-            (x, y), r = self.hero_pos(now), random.uniform(*v['dogma'])
+            (x, y), r = bot.mover.pos(now), random.uniform(*v['spawn_range']) if v.get('spawn_range') else 250
+        elif v.get('spawn_range'):            # from a bit away from the player to just outside the screen (Cubikon; user report 2026-10-27)
+            (x, y), r = self.hero_pos(now), random.uniform(*v['spawn_range'])
         a = random.uniform(0, 2 * math.pi)
         c = self.spawn_npc_at(v['type'], min(max(x + math.cos(a) * r, 300), self.map_w - 300),
                               min(max(y + math.sin(a) * r, 300), self.map_h - 300))
@@ -3330,7 +3330,7 @@ class World:
         n.next_regen = now + 1.0
         hp, sh = n.hp, n.shield
         n.hp = min(n.d['hp'], n.hp + r.get('hp_sec', 0))
-        n.shield = min(n.d['kalkan'], n.shield + r.get('shield_per_sec', 0))
+        n.shield = min(n.d['shield'], n.shield + r.get('shield_per_sec', 0))
         if (n.hp, n.shield) != (hp, sh) and self.target == n.id:
             self.send([self.selection(n)])
 
@@ -3493,9 +3493,9 @@ class World:
     def settings_tick(self, now):
         """The panel's settings file changed (checked once a second): the ship's HP, shield, speed and cargo values are recalculated while the game runs
         (shop.apply_stats; only the changed value is sent). Once on entering the map too: settings changed while the game was off."""
-        if now < self.next_ayar or not self.stats_msgs or self.hero_dead:
+        if now < self.next_setting or not self.stats_msgs or self.hero_dead:
             return
-        self.next_ayar = now + 1.0
+        self.next_setting = now + 1.0
         v = SET.version()
         if v != self.settings_version:
             self.settings_version = v
@@ -3651,7 +3651,7 @@ class World:
         loot, hours = got
         BOOSTER.add(self.p, loot, seconds=hours * 3600)
         self.log('   booster found: %s (%d hours)' % (loot, hours))
-        shown = max(1, int(round(hours * SET.multiplier('booster_sure'))))      # BOOSTER.add extends the duration by the panel's multiplier
+        shown = max(1, int(round(hours * SET.multiplier('booster_duration'))))      # BOOSTER.add extends the duration by the panel's multiplier
         return ([('BoosterFoundOnMapCommand', {'lootId': loot, 'hours': shown}), BOOSTER.update_cmd(self.p)]
                 + (self.stats_msgs() if self.stats_msgs else []))
 
@@ -3826,7 +3826,7 @@ class World:
 
     def vouchers(self):
         """Repair coupons (the "repair credit" produced by gates; client: ttip_repair-vouchers_count)."""
-        return int((self.p.d.get('kapilar') or {}).get('voucher', 0))
+        return int((self.p.d.get('gates') or {}).get('voucher', 0))
 
     def repair_offers(self):
         """Options on the death screen: type -> uridium price. Repair at the station is free; repair at the portal if there is a portal on the map.
@@ -3901,7 +3901,7 @@ class World:
                 msgs += self.money_msgs() if self.money_msgs else []
             elif kind in (REPAIR_GATE, REPAIR_LOCATION) and self.vouchers() > 0 and not self.gate and not self.rules.get('free_repair'):
                 with self.p.lock:
-                    self.p.d['kapilar']['voucher'] -= 1          # repair coupon used (client: repair_voucher_used)
+                    self.p.d['gates']['voucher'] -= 1          # repair coupon used (client: repair_voucher_used)
                     self.p.dirty = True
                 self.log('   repair coupon used (left %d)' % self.vouchers())
             g = self.p.d['ship']
@@ -4292,7 +4292,7 @@ class World:
                 try:
                     self.step(time.time())
                 except Exception:               # so the thread does not die (aliens and timers would stop); the next step tries again
-                    self.step_error('adım')
+                    self.step_error('step')
                 finally:
                     batch, self._batch = self._batch, None
                 if batch:                       # under the lock: before the session's later messages, in the same order
@@ -4301,7 +4301,7 @@ class World:
                     except OSError:
                         self.running = False
                     except Exception:
-                        self.step_error('gönderim')
+                        self.step_error('send')
                 self.perf.add((time.perf_counter() - t0) * 1000.0)
 
     def step_error(self, what):
@@ -4321,7 +4321,7 @@ class World:
             try:                               # if one fails, the other timers in the same step must not be lost
                 fn()
             except Exception:
-                self.step_error('zamanlayıcı')
+                self.step_error('timer')
         if self.collect_wish:
             self.collect_tick(now)
         if self.opening:
