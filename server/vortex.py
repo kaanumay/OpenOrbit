@@ -558,7 +558,7 @@ class VogRun:
         def ready():                               # after 10 s the "Free repairs" option opens (the countdown text goes away)
             if w.hero_dead and w.gate is self:
                 w.send([('KillScreenUpdateCommand', {'options': w.repair_options()})])
-        w.later(D['dogma_cooldown_sec'] + 0.3, ready)
+        w.later(D['spawn_cooldown_sec'] + 0.3, ready)
         return None
 
     def revive(self):
@@ -568,12 +568,12 @@ class VogRun:
         return {world_module.REPAIR_BASE: 0, REPAIR_SAE: 0}
 
     def repair_texts(self, kind):
-        left = max(0, int(D['dogma_cooldown_sec'] - (time.time() - (self.w.death_time or 0))))
+        left = max(0, int(D['spawn_cooldown_sec'] - (time.time() - (self.w.death_time or 0))))
         return ('ttip_killscreen_repair_sae', 'ttip_killscreen_repair_sae', 'btn_killscreen_repair_for_free',
                 ('desc_killscreen_option_available_countdown_sae', {'COUNTDOWN': left}) if left else ('', {}))
 
     def repair(self, kind):
         """STRIKE_AND_EXIT: after 10 s at a random point on the map with full HP -> (x, y) or None (wait)."""
-        if kind != REPAIR_SAE or time.time() - (self.w.death_time or 0) < D['dogma_cooldown_sec'] or self.left:
+        if kind != REPAIR_SAE or time.time() - (self.w.death_time or 0) < D['spawn_cooldown_sec'] or self.left:
             return None
         return self.random_spot()

@@ -146,7 +146,7 @@
   "equipment_weapon_laser_lf-4-md": {
    "damage": 230,
    "_not": "LF-4 Magmadrill; oyunculara lazer başına +5 düz (wiki: hesabın en sonunda eklenir, lazer.flat_extra; PvP bot oyuncularla)",
-   "pvp_ek": 5
+   "pvp_extra": 5
   },
   "equipment_weapon_laser_lf-4-pd": {
    "damage": 230,

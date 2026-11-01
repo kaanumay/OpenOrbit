@@ -87,7 +87,7 @@ function btCompanyBar(f) {
 function btLibrary() {
   const r = BT.entries;
   const card = p => h('div', { class: 'bt-card', onclick: e => { if (!e.target.closest('button')) btOpen(p.id); } },
-    h('div', { class: 'bt-card-top k-' + p.mode }, btArt('bot_kip_' + p.mode, 'drone_editor', 'bt-card-art'),
+    h('div', { class: 'bt-card-top k-' + p.mode }, btArt('bot_mode_' + p.mode, 'drone_editor', 'bt-card-art'),
       h('div', null, h('b', null, p.name), h('div', { class: 'small muted' }, T(BT_MODES[p.mode].name) + ' · ' + T('{0} bots', p.count)))),
     h('div', { class: 'bt-card-body' },
       h('div', { class: 'row wrap', style: { gap: '6px' } }, p.world ? badge([icon('globe'), btWorldName(p.world)], 'info') : badge(T('Not assigned to a world'), 'warn'),
@@ -176,7 +176,7 @@ function btStep1(w) {
 
 function btStep2(w, render) {
   const card = k => h('button', { type: 'button', class: 'bt-mode' + (w.mode === k ? ' on' : ''), onclick: () => { w.mode = k; render(); } },
-    btArt('bot_kip_' + k, 'drone_editor', 'bt-mode-art'), h('b', null, icon(BT_MODES[k].ic), T(BT_MODES[k].name)), h('div', { class: 'small' }, T(BT_MODES[k].summary)));
+    btArt('bot_mode_' + k, 'drone_editor', 'bt-mode-art'), h('b', null, icon(BT_MODES[k].ic), T(BT_MODES[k].name)), h('div', { class: 'small' }, T(BT_MODES[k].summary)));
   return h('div', { class: 'stack', style: { gap: '12px' } }, h('div', { class: 'bt-modes' }, ['simple', 'normal', 'advanced'].map(card)),
     w.mode === 'advanced' ? btLlmWarning(true) : null);
 }
@@ -290,7 +290,7 @@ async function btEditor() {
   if (!tabs.some(([k]) => k === BT.tab)) BT.tab = 'general';
   btFill($('#content'), h('div', { class: 'stack' },
     h('div', { class: 'card bt-bar' }, btn('', () => { BT.pid = null; renderBots(); }, 'ghost icon', 'arrowL', { title: T('Bot packs') }),
-      btArt('bot_kip_' + d.mode, 'drone_editor', 'bt-bar-art'),
+      btArt('bot_mode_' + d.mode, 'drone_editor', 'bt-bar-art'),
       h('div', { class: 'bt-bar-name' }, h('div', { class: 'row', style: { gap: '8px' } }, h('b', null, d.name), badge(T(BT_MODES[d.mode].name), 'orange'),
         d.world ? badge([icon('globe'), btWorldName(d.world)], 'info') : badge(T('Not assigned to a world'), 'warn')),
         h('div', { class: 'muted small ellipsis' }, T('{0} bots', d.count) + (d.level_avg != null ? ' · ' + T('average level {0}', d.level_avg) : ''))),
@@ -538,7 +538,7 @@ function btChat(d) {
 const BT_DIPLOMACY = { 1: N('alliance'), 2: N('non-aggression'), 3: N('war') };
 function btClanLogo(k) {
   if (!k.logo) return h('div', { class: 'bt-clan-logo vacant' }, String(k.tag || '?').slice(0, 4));
-  const im = h('img', { class: 'bt-clan-logo', src: 'images/klan_logo/' + k.logo + '.webp', sub: '' });
+  const im = h('img', { class: 'bt-clan-logo', src: 'images/clan_logo/' + k.logo + '.webp', sub: '' });
   im.onerror = () => im.replaceWith(btClanLogo({ tag: k.tag }));
   return im;
 }
@@ -608,7 +608,7 @@ const seDurationBt = sec => sec ? (sec >= 3600 ? Math.floor(sec / 3600) + ':' : 
 const btShort = l => String(l || '').split('_').pop().toUpperCase();
 const btCapitalize = m => m ? m.charAt(0).toLocaleUpperCase(LOC()) + m.slice(1) : m;
 const BT_EVENT = { killed_me: N('shot me down'), i_killed: N('I shot him down'), helped_me: N('helped me'), i_helped: N('I helped'),
-  chat: N('chat'), insult: N('insult'), praise: N('praise'), group: N('group'), clan: N('clan'), friend: N('friendship'), reddetti: N('turned me down'),
+  chat: N('chat'), insult: N('insult'), praise: N('praise'), group: N('group'), clan: N('clan'), friend: N('friendship'), declined: N('turned me down'),
   hunted_together: N('farmed together'), challenge: N('challenged me'), gossip_good: N('good gossip'), gossip_bad: N('bad gossip'),
   warned: N('warned by the admin') };
 const BT_HABIT = { daytime: N('Daytime player'), evening: N('Evening player'), night_owl: N('Night owl'), devoted: N('Devoted') };

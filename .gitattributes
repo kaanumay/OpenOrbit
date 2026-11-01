@@ -1,2 +1,2 @@
-# GitHub arşivi (Code > Download ZIP) bu dosyaya commit ve tarihi yazar; panelin güncelleme denetimi okur
+# GitHub's archive (Code > Download ZIP) writes the commit and date into this file; the panel's update check reads it
 server/surum.txt export-subst

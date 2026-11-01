@@ -1,7 +1,7 @@
 {
  "_description": "Market dengesi: mağazada gerçek parayla (Payment) satılan ve tek oyunculuda eklenen (ek_magaza) bütün ürünlerin fiyatları tek",
  "_source": "tools/market_dengesi.py",
- "kur": 100,
+ "exchange_rate": 100,
  "package_discount": 0.85,
  "protection": 1.25,
  "_rule": "değer = kayıttaki mağaza fiyatı ya da sınıf değeri; tek ürün fiyatı = değer; paket = max(toplam x 0.85, uridyum x 1.25); 2 anlamlı basamak; içeriği tamamen kredi sınıfı olan kredi",

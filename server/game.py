@@ -1446,7 +1446,7 @@ def server_info():
         client = open(os.path.join(DATA, 'protocols', 'version.txt'), encoding='utf8').read().strip() or '1.1.116'
     except OSError:
         client = '1.1.116'
-    client = max(client, '1.1.116', key=lambda v: tuple(int(x) for x in v.split('.')))     # surum.txt may be stale after an update
+    client = max(client, '1.1.116', key=lambda v: tuple(int(x) for x in v.split('.')))     # version.txt may be stale after an update
     # 'sunucu', 'protokol' and X-DarkOrbit: this is the friend version negotiation, old panels read it too: does not change
     return {'sunucu': 'darkorbit', 'protokol': CO.PROTOCOL, 'code': CO.SETTINGS['code'], 'client': client,
             'pilot': PROFILE.d['pilot'].get('userName', ''), 'players': names, 'guest': len(ms), 'max_count': CO.SETTINGS['max_count'],

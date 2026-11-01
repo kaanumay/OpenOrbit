@@ -202,7 +202,7 @@ class Mood:
 # ------------------------------------------------------------------------------------------------------------ memory
 EVENTS = {          # event -> effect on the relationship
     'killed_me': -0.35, 'i_killed': -0.05, 'helped_me': 0.25, 'i_helped': 0.1, 'chat': 0.03, 'insult': -0.2,
-    'praise': 0.12, 'group': 0.08, 'clan': 0.1, 'friend': 0.2, 'reddetti': -0.08, 'hunted_together': 0.05,
+    'praise': 0.12, 'group': 0.08, 'clan': 0.1, 'friend': 0.2, 'declined': -0.08, 'hunted_together': 0.05,
     'gossip_good': 0.06, 'gossip_bad': -0.08,          # heard from another bot (memories.hear_gossip)
 }
 

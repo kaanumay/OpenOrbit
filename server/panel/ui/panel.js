@@ -361,7 +361,7 @@ function renderPlayBody() {
     left = h('div', null,
       h('div', { class: 'row', style: { gap: '8px' } }, h('span', { class: 'slot-name' }, a.name),
         btn(T('Switch'), ev => switchSaveMenu(ev.currentTarget), 'ghost sm', 'refresh')),
-      h('div', { class: 'pilot' }, firmaCls(a.company) ? art('firma_' + firmaCls(a.company), 'crest-sm') : null, a.pilot, badge(a.company, firmaCls(a.company)), a.clan ? badge('[' + a.clan + ']', 'info') : null),
+      h('div', { class: 'pilot' }, firmaCls(a.company) ? art('company_' + firmaCls(a.company), 'crest-sm') : null, a.pilot, badge(a.company, firmaCls(a.company)), a.clan ? badge('[' + a.clan + ']', 'info') : null),
       h('div', { class: 'meta' },
         [[T('Level'), a.level], [T('Ship'), a.ship], [T('Map'), a.map], [T('Play time'), fmtDur(a.play_sec)],
           [T('Last played'), fmtWhen(a.last_played || a.last_save)]].map(([k, v]) => h('span', null, k + ' ', h('b', null, v)))),
@@ -782,7 +782,7 @@ function pilotForm({ start = true } = {}) {
   const cards = FIRMS.map(([id, k, n, c, m]) => {
     const el = h('div', { class: 'radio-card' + (id === st.company ? ' on' : ''), style: { '--c': c }, onclick: () => {
       st.company = id; el.parentNode.querySelectorAll('.radio-card').forEach(x => x.classList.remove('on')); el.classList.add('on');
-    } }, art('firma_' + k.toLowerCase(), 'crest'), h('b', null, k), h('span', null, n), h('span', null, T('Start: {0}', m)));
+    } }, art('company_' + k.toLowerCase(), 'crest'), h('b', null, k), h('span', null, n), h('span', null, T('Start: {0}', m)));
     return el;
   });
   const el = [field(T('Pilot name (shown in the game)'), pilot), field(T('Company'), h('div', { class: 'radio-cards' }, cards)),
@@ -1659,7 +1659,7 @@ async function loadLog(quiet) {
 // ================================================================== PANEL
 // ---- updates (updater.py, /api/guncelleme): the latest version on GitHub, automatic installation
 const UPD_TEXT = { up_to_date: N('The panel is up to date.'), var: N('A new version is available.'), downloading: N('Downloading the new version…'), installing: N('Installing the new version…'),
-  installed: N('New version installed: if the game and servers are closed, the panel restarts now.'), bilinmiyor: N('Not checked yet.'),
+  installed: N('New version installed: if the game and servers are closed, the panel restarts now.'), unknown: N('Not checked yet.'),
   local_changes: N("There is a new version on GitHub, but this copy has local changes: get the update with git."),
   local_ahead: N("This copy has commits that are not on GitHub yet: nothing to install.") };
 const fmtVersion = v => v && v.version ? v.version.slice(0, 7) + (v.date ? ' · ' + new Date(v.date).toLocaleString(LOC(), { dateStyle: 'medium', timeStyle: 'short' }) : '') : T('unknown');
@@ -1845,7 +1845,7 @@ async function drawWizard() {
     WZ.step > 0 ? btn(T('Back'), () => wzGo(WZ.step - 1), '', 'arrowL') : null,
     p.extra || null, nextBtn);
   root.replaceChildren(h('div', { class: 'wz-box' },
-    h('div', { class: 'wz-head' }, h('img', { src: 'images/amblem.webp', sub: '' }),
+    h('div', { class: 'wz-head' }, h('img', { src: 'images/emblem.webp', sub: '' }),
       h('div', null, h('div', { class: 'wz-brand' }, 'OPENORBIT'), h('div', { class: 'wz-kicker' }, WZ.step === 0 ? 'Kurulum · Setup' : T('Setup'))), steps),
     h('div', { class: 'wz-body' }, h('div', { class: 'wz-main' }, h('h2', null, p.title), p.sub ? h('div', { class: 'wz-sub' }, p.sub) : null, p.content),
       art('drone_' + id, 'wz-art')),

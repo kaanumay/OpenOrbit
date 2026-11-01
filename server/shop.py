@@ -62,7 +62,7 @@ import skill_tree as SKL
 HERE = os.path.dirname(os.path.abspath(__file__))
 ITEMS = json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))
 _F = json.load(open(os.path.join(HERE, 'data', 'prices.json'), encoding='utf8'))
-PRICE, EXCHANGE_RATE = _F['prices'], _F['kur']        # market balance (tools/market_balance.py); KUR: how many credits 1 U is
+PRICE, EXCHANGE_RATE = _F['prices'], _F['exchange_rate']        # market balance (tools/market_balance.py); KUR: how many credits 1 U is
 WORLD_SHOP = DATA.load('shop')['products']    # World Editor: lootId -> {price, currency ('C' | 'U'), on_sale}; refreshed with refresh() while the game is open
 
 

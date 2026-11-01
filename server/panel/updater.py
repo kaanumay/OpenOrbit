@@ -22,7 +22,7 @@ from lang import t as _
 REPO = 'kaanumay/OpenOrbit'
 BRANCH = 'main'
 API = 'https://api.github.com'
-VERSION_FILE = os.path.join('server', 'surum.txt')        # "$Format:%H %cI$" -> "<commit> <date>" in GitHub's archive
+VERSION_FILE = os.path.join('server', 'surum.txt')        # name kept (the old updater reads it); "$Format:%H %cI$" -> "<commit> <date>" in GitHub's archive
 BACKUP_COUNT = 2
 TIMEOUT = 30
 MAX_SIZE = 500 << 20                                        # archive limit (bytes)
@@ -68,7 +68,7 @@ class Updater:
         self.dir = os.path.join(save_dir, 'update')
         self.state_path = os.path.join(save_dir, 'update.json')
         self.lock = threading.Lock()
-        self.d = {'state': 'bilinmiyor', 'running': False, 'last': None, 'last_check': None, 'error': None, 'claimed': 0, 'total': 0,
+        self.d = {'state': 'unknown', 'running': False, 'last': None, 'last_check': None, 'error': None, 'claimed': 0, 'total': 0,
                   'changed': 0, 'removed': 0, 'backup': None, 'installed': None}
         self._inst = (0.0, None)                                 # cache of the installed version (so git does not run on every poll)
 
@@ -326,7 +326,7 @@ class Updater:
             old = set(st['files'])
         elif before['version']:
             old = self.tree(before['version'])
-        backup = os.path.join(self.dir, 'backup_%s_%s' % ((before['version'] or 'bilinmiyor')[:7], time.strftime('%Y%m%d_%H%M%S')))
+        backup = os.path.join(self.dir, 'backup_%s_%s' % ((before['version'] or 'unknown')[:7], time.strftime('%Y%m%d_%H%M%S')))
 
         def keep(rel):                                    # the old state to the backup
             src = os.path.join(self.root, *rel.split('/'))

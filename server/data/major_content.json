@@ -155,7 +155,7 @@
   "vip_limit": 15400,
   "vip_earnings": 1.5,
   "vip_kept_on_death": 0.3,
-  "dogma_cooldown_sec": 10,
+  "spawn_cooldown_sec": 10,
   "currency": "resource_collectable_stellar-coin",
   "vip_item": "resource_vog-vanguard",
   "store": {

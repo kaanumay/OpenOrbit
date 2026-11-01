@@ -12,7 +12,7 @@ EXCHANGE_RATE = 100                 # how many credits 1 uridium is worth (fiyat
 MAX_TRIP_ITEMS = 15           # at most this many items in one shopping trip
 try:
     import json, os
-    EXCHANGE_RATE = json.load(open(os.path.join(K.HERE, 'data', 'prices.json'), encoding='utf8')).get('kur', EXCHANGE_RATE)
+    EXCHANGE_RATE = json.load(open(os.path.join(K.HERE, 'data', 'prices.json'), encoding='utf8')).get('exchange_rate', EXCHANGE_RATE)
 except (OSError, ValueError):
     pass
 

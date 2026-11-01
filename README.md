@@ -220,7 +220,7 @@ off or check by hand.
 <br>
 
 - **Downloaded as a ZIP** (no Git needed): the new version's archive (about 2 MB) is downloaded, changed files are replaced
-  and removed files are taken out. Old versions are kept in `server/save/guncelleme/` (last two updates).
+  and removed files are taken out. Old versions are kept in `server/save/update/` (last two updates).
 - **Cloned with Git:** the panel fast-forwards with `git`. If you changed tracked files or have commits of your own, it
   changes nothing and tells you.
 - Your saves, settings, logs, worlds, downloaded game images and the game client are never touched.
@@ -266,13 +266,13 @@ off or check by hand.
 
 | Path | Contents |
 | --- | --- |
-| `server/save/kayitlar/<save>/` | A save slot: `profil.json`, its settings and its backups (`yedek/`) |
-| `server/save/dunyalar/` | Your worlds from the World Editor |
+| `server/save/slots/<save>/` | A save slot: `profile.json`, its settings and its backups (`backups/`) |
+| `server/save/worlds/` | Your worlds from the World Editor |
 | `server/save/panel.json` | Panel settings (language, game folder, display, backups) |
 | `server/logs/` | Server, client and panel logs |
 | `DarkOrbit_Version1.1.116/` | The game client, if the panel downloaded it |
 | `server/cdn/do_img/` | Game images fetched from the official CDN the first time the game shows them |
-| `server/save/proton/`, `server/save/wine/`, `server/save/wine_motoru/` | Linux and macOS: the game's prefix and the panel's Wine |
+| `server/save/proton/`, `server/save/wine/`, `server/save/wine_engine/` | Linux and macOS: the game's prefix and the panel's Wine |
 
 Everything is created on first run and stays on your computer.
 
@@ -284,8 +284,8 @@ Join the **[OpenOrbit Discord](https://discord.com/invite/openorbit)** for annou
 suggestions, with English and Turkish channels, a screenshots channel and a place to find people to play with. You can also
 join from the panel's **Panel** page.
 
-**Translating the panel:** the texts live in `server/panel/ui/<code>.json` (the key is the Turkish text). Add the
-language to `DILLER` in `server/panel/lang.py`; `python server/panel/lang.py <code>` lists the texts still missing, with their
+**Translating the panel:** the texts live in `server/panel/ui/<code>.json` (the key is the English text). Add the
+language to `LANGUAGES` in `server/panel/lang.py`; `python server/panel/lang.py <code>` lists the texts still missing, with their
 English. Missing texts fall back to English, so a partial translation already works.
 
 ## Legal

@@ -48,7 +48,7 @@ const petImage = (lv, size) => spr(GI.index?.sprite['pet10-' + (lv || 0) + '_top
 const itemIcon = (lid, size, firma) => gameIcon(lid, size, firma || companyLower(SE.v?.pilot.company), 'box');
 // the company's character portrait in the game (CommonUI eic_char), otherwise the panel's crest
 const portrait = (f, cls = 'se-portrait', size = 112) => GI.index?.sprite[companyLower(f) + '_char'] ? h('span', { class: cls }, sprite(companyLower(f) + '_char', size))
-  : h('span', { class: cls + ' emblem' }, art('firma_' + (companyLower(f) || 'eic'), 'crest'));
+  : h('span', { class: cls + ' emblem' }, art('company_' + (companyLower(f) || 'eic'), 'crest'));
 function epBar(ep, base, next_, cls = '') {
   const p = next_ ? Math.max(0, Math.min(1, (ep - base) / Math.max(1, next_ - base))) : 1;
   return h('div', { class: 'se-ep ' + cls, title: next_ ? T('{0} / {1} EP', fmtN(ep), fmtN(next_)) : T('Highest level') }, h('span', { style: { width: (p * 100).toFixed(1) + '%' } }));
@@ -547,7 +547,7 @@ function sePilot(v) {
   const companies = h('div', { class: 'radio-cards' }, FIRMS.map(([id, k, n, c, m]) => h('div', { class: 'radio-card' + (id === p.company ? ' on' : ''), style: { '--c': c },
     onclick: async () => { if (ro || id === p.company) return;
       if (await confirmBox(T('Change company?'), T('{0} becomes a {1} pilot; the ship moves to the {2} home station.', p.name, k, m), { ok: T('Switch') })) op({ company: id }); } },
-  art('firma_' + k.toLowerCase(), 'crest'), h('b', null, k), h('span', null, n))));
+  art('company_' + k.toLowerCase(), 'crest'), h('b', null, k), h('span', null, n))));
   const prem = h('input', { type: 'checkbox', checked: p.premium, disabled: ro, onchange: e => op({ premium: e.target.checked }) });
   const lvlLabel = h('b', null, p.level);
   const lv = h('div', { class: 'se-lv-edit' },

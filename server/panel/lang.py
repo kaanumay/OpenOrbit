@@ -72,7 +72,7 @@ def t(text, *args):
 if __name__ == '__main__':      # for translators: the texts missing in a language (key = English text, JSON)
     code = sys.argv[1] if len(sys.argv) > 1 else ''
     if code not in LANGUAGES or code == 'en':
-        sys.exit('kullanım: python lang.py <%s>' % '|'.join(k for k in LANGUAGES if k != 'en'))
+        sys.exit('usage: python lang.py <%s>' % '|'.join(k for k in LANGUAGES if k != 'en'))
     sys.stdout.reconfigure(encoding='utf-8')
     have = mapping(code)
     json.dump({k: k for k in mapping('tr') if k not in have}, sys.stdout, ensure_ascii=False, indent=0)

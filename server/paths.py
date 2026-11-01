@@ -26,7 +26,7 @@ DATA = os.path.join(HERE, 'data')
 TEMPLATES = ('login.json', 'maps.json', 'responses.json')
 DEFAULT_TEMPLATE = os.path.join(DATA, 'defaults')
 
-# Save format v1 (Turkish names) -> v2, once, before anything reads the saves (save_migration.py: backup, lock, resumable).
+# Save format v1 (Turkish names) -> v3, once, before anything reads the saves (save_migration.py: backup, lock, resumable).
 # A failure is kept here instead of raised: the panel shows it and does not start the servers; game.py / web.py exit with it.
 MIGRATION_ERROR = None
 try:

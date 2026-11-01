@@ -55,7 +55,7 @@ def hit(loot, target=None, pvp=False):
 def flat_extra(loots, pvp=False):
     """Sum of the flat extra damage per laser (LF-4 Paritydrill +5 on an alien, Magmadrill +5 on a player). Wiki: "flat +5 added at the end
     of all calculations" (3 x LF-4-PD, MCB-50: 230 x 3 x 3 + 3 x 5 = 2085): added after the ammo multiplier, not part of the multipliers."""
-    key = 'pvp_ek' if pvp else 'alien_extra'
+    key = 'pvp_extra' if pvp else 'alien_extra'
     return sum(LS[l].get(key, 0) for l in loots if l in LS)
 
 

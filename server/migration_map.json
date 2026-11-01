@@ -5779,6 +5779,7 @@
 "bilet": "ticket",
 "bilgi": "info",
 "bilinmeyen": "unknown",
+"bilinmiyor": "unknown",
 "bir_kez": "once",
 "birak": "release",
 "biri": "one_of",
@@ -5915,6 +5916,7 @@
 "dk": "min",
 "dogal": "natural",
 "dogma": "spawn_range",
+"dogma_cooldown_sec": "spawn_cooldown_sec",
 "dogrudan": "direct",
 "dogrulaniyor": "verifying",
 "dogum_gunu": "birthday",
@@ -6818,6 +6820,7 @@
 "kullanici": "user",
 "kume": "set",
 "kupon": "voucher",
+"kur": "exchange_rate",
 "kural": "rule",
 "kural_buyuk": "rule_caps",
 "kural_hakaret": "rule_insult",
@@ -7102,6 +7105,7 @@
 "puan": "points",
 "pve_modlari": "pve_modes",
 "pvp_avla": "hunt_pvp",
+"pvp_ek": "pvp_extra",
 "pvp_hasar": "pvp_damage",
 "pvp_lazer": "pvp_laser",
 "pvp_seviye": "pvp_level",
@@ -7121,6 +7125,7 @@
 "rapor": "report",
 "rastgele": "random",
 "reddeden": "declined",
+"reddetti": "declined",
 "rehber": "contacts",
 "rekabet": "rivalry",
 "reklam": "ads",
@@ -7603,7 +7608,8 @@
 "harcama_": "spend_",
 "etk_": "event_",
 "istila_eski_": "invasion_old_",
-"ozel_": "custom_"
+"ozel_": "custom_",
+"klan_": "clan_"
 },
 "suffix_values": {
 "_kabul": "_accept"

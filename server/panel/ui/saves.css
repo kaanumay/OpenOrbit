@@ -1,8 +1,8 @@
 /* OpenOrbit panel — Saves and the character editor (saves.js). On top of panel.css's variables and components.
    Company color --company-color (f-mmo / f-eic / f-vru); ship, P.E.T. and portrait images are the game's own sprites (panel.js sprite()).
-   Scene backgrounds (Orders.md OP-014): ships in the middle of the hangar runway (sahne_hangar), the ID card and P.E.T. in space (sahne_uzay). */
+   Scene backgrounds (Orders.md OP-014): ships in the middle of the hangar runway (scene_hangar), the ID card and P.E.T. in space (scene_space). */
 body[data-page=saves] .content > * { max-width: 1400px; }
-:root { --se-hangar: url(images/sahne_hangar.webp) center / cover; --se-space: url(images/sahne_uzay.webp) center / cover; }
+:root { --se-hangar: url(images/scene_hangar.webp) center / cover; --se-space: url(images/scene_space.webp) center / cover; }
 .f-mmo { --company-color: var(--mmo); }
 .f-eic { --company-color: var(--eic); }
 .f-vru { --company-color: var(--vru); }
