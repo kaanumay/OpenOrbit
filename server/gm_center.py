@@ -93,28 +93,27 @@ def player_snapshot(person):
 
 
 def dispatch_snapshot(person, now=None):
-    """Return gate state for an online or offline profile without mutating it."""
-    import dispatch as DSP
+    """Return gate state for online or offline profiles without changing them."""
     import kapi as KAPI
 
     now = time.time() if now is None else float(now)
     profile = person.profil
-    # Reuse the live session systems when available. Offline profiles use the
-    # same domain classes over their persisted state, but remain read-only here.
-    if person.oturum is not None:
-        dispatch = person.oturum.dispatch
-        gates = person.oturum.kapilar
-    else:
-        gates = KAPI.Kapilar(profile)
-        dispatch = DSP.Dispatch(profile, gates)
-
     rows = []
     with profile.lock:
-        sent = dispatch.st.get("kapilar", {})
-        for key in dispatch.gate_keys():
-            definition = KAPI.KAPI[key]
-            state = gates.gate(key)
-            is_built = gates.built(key)
+        # Read only persisted state. Do not instantiate Dispatch/Kapilar here:
+        # their convenience properties initialize missing default dictionaries.
+        gate_section = profile.d.get("kapilar") or {}
+        gate_states = gate_section.get("kapilar") or {}
+        dispatch_section = profile.d.get("dispatch") or {}
+        sent = dispatch_section.get("kapilar") or {}
+
+        for key, definition in KAPI.KAPI.items():
+            if key == "hades":  # grup kapısı Dispatch ile gönderilmez
+                continue
+            state = gate_states.get(key) or KAPI.fresh(definition)
+            parts = len(state.get("parcalar") or [])
+            required = int(definition["parca"])
+            is_built = parts >= required
             until = sent.get(key)
             eligibility = gate_status(
                 built=is_built,
@@ -127,8 +126,8 @@ def dispatch_snapshot(person, now=None):
                 "key": key,
                 "name": definition.get("ad", key),
                 "gate_id": int(definition["kimlik"]),
-                "parts": len(state.get("parcalar") or []),
-                "required": int(definition["parca"]),
+                "parts": parts,
+                "required": required,
                 "built": is_built,
                 "prepared": bool(state.get("hazir")),
                 "wave": int(state.get("dalga") or 0),
