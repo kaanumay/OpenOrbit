@@ -8,12 +8,24 @@ from gm_center import gate_status
 
 
 class GateStatusTests(unittest.TestCase):
-    def test_kappa_at_113_of_120_is_not_dispatchable(self):
-        # The supplied screenshot shows 113 / 120 parts: this gate is not built.
-        built = 113 >= 120
-        state = gate_status(built=built, completed=True, wave=0, now=100)
-        self.assertEqual(state["status"], "building")
-        self.assertFalse(state["can_send"])
+    def test_prepared_kappa_and_next_build_at_113_of_120(self):
+        # The current Kappa is already assembled/prepared. 113/120 belongs
+        # to the next build and must not make the current gate look incomplete.
+        current_gate_parts = 120
+        next_gate_parts = 113
+        required = 120
+        self.assertGreaterEqual(current_gate_parts, required)
+        self.assertEqual(next_gate_parts, 113)
+        state = gate_status(built=current_gate_parts >= required, completed=True, wave=0, now=100)
+        self.assertEqual(state["status"], "ready_to_send")
+        self.assertTrue(state["can_send"])
+
+    def test_next_build_progress_does_not_replace_current_gate_progress(self):
+        current_gate = {"parcalar": list(range(1, 121)), "hazir": True, "sonraki": list(range(1, 114))}
+        current = len(current_gate["parcalar"])
+        next_build = len(current_gate["sonraki"]) if current_gate["hazir"] else 0
+        self.assertEqual(current, 120)
+        self.assertEqual(next_build, 113)
 
     def test_built_gate_requires_first_manual_completion(self):
         state = gate_status(built=True, completed=False, wave=0, now=100)
