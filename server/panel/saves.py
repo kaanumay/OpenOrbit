@@ -89,7 +89,7 @@ def _v2_slot_path(rel):
 
 def validate_profile(d):
     """Profil sözlüğü mü? (içe aktarma, geri yükleme)"""
-    if not (isinstance(d, dict) and isinstance(d.get('pilot'), dict) and isinstance(d.get('gemi'), dict)
+    if not (isinstance(d, dict) and isinstance(d.get('pilot'), dict) and isinstance(d.get('ship'), dict)
             and isinstance(d.get('position'), dict) and 'mapId' in d['position']):
         raise SaveError(_('This file is not a DarkOrbit profile (no pilot, ship and position sections).'))
     return d
@@ -102,7 +102,7 @@ def level_for(ep):
     global _LEVELS
     if _LEVELS is None:
         try:
-            _LEVELS = _read_json(os.path.join(SERVER, 'data', 'levels.json'))['seviyeler']
+            _LEVELS = _read_json(os.path.join(SERVER, 'data', 'levels.json'))['levels']
         except (OSError, ValueError, KeyError):
             _LEVELS = [[1, 0]]
     lv = 1
@@ -129,15 +129,15 @@ def level_bounds(level):
 
 def profile_summary(d):
     """Profilden panelin gösterdiği özet."""
-    pl, g, k = d.get('pilot') or {}, d.get('gemi') or {}, d.get('position') or {}
+    pl, g, k = d.get('pilot') or {}, d.get('ship') or {}, d.get('position') or {}
     base, next_ = level_bounds(pl.get('level', 1))
     return {'ship_appearance': g.get('typeId'), 'level_base': base, 'next_level': next_, 'drone_count': len(d.get('drones') or []),
-            'pet': (d.get('pet') or {}).get('ad'), 'premium': bool(pl.get('premium')),'pilot': pl.get('userName') or '?', 'firma': COMPANIES.get(pl.get('factionId'), '?'), 'firma_id': pl.get('factionId'),
-            'seviye': pl.get('level', 1), 'ep': pl.get('ep', 0), 'onur': pl.get('honourPoints', 0), 'kredi': pl.get('credits', 0),
-            'uridyum': pl.get('uridium', 0), 'gemi': ship_name(g.get('typeId')), 'harita': _map_name(k.get('mapId', 0)),
+            'pet': (d.get('pet') or {}).get('name'), 'premium': bool(pl.get('premium')),'pilot': pl.get('userName') or '?', 'company': COMPANIES.get(pl.get('factionId'), '?'), 'firma_id': pl.get('factionId'),
+            'level': pl.get('level', 1), 'ep': pl.get('ep', 0), 'honor': pl.get('honourPoints', 0), 'credits': pl.get('credits', 0),
+            'uridium': pl.get('uridium', 0), 'ship': ship_name(g.get('typeId')), 'map': _map_name(k.get('mapId', 0)),
             'play_sec': int(d.get('play_sec') or 0), 'created': d.get('created'),
             'can': g.get('hitPoints'), 'max_hp': g.get('hitMax'),
-            'klan': pl.get('clanTag') or '', 'ship_count': len(d.get('ships') or {}) or 1}
+            'clan': pl.get('clanTag') or '', 'ship_count': len(d.get('ships') or {}) or 1}
 
 
 class Saves:
@@ -255,7 +255,7 @@ class Saves:
                     os.rmdir(old_bk)
                 except OSError:
                     pass
-            _write_json(os.path.join(d, 'slot.json'), {'ad': _('Main save (%s)', pr['pilot']), 'created': pr['created'] or
+            _write_json(os.path.join(d, 'slot.json'), {'name': _('Main save (%s)', pr['pilot']), 'created': pr['created'] or
                                                         time.strftime('%Y-%m-%d %H:%M:%S'), 'not': 'Eski save/profil.json'})
             shutil.move(self.legacy, os.path.join(d, 'profile.json'))
             if not self.cfg.get('active_save') or not self.exists(self.cfg.get('active_save')):
@@ -276,7 +276,7 @@ class Saves:
             self._cache[p] = c = (st.st_mtime_ns, s)
         m = self.meta(slot)
         out = dict(c[1])
-        out.update(id=slot, ad=m.get('ad') or slot, not_=m.get('not', ''), save_created=m.get('created'),
+        out.update(id=slot, name=m.get('name') or slot, not_=m.get('not', ''), save_created=m.get('created'),
                    last_played=m.get('last_played'), last_save=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(st.st_mtime)),
                    size=st.st_size, backup_count=len(self.backup_files(slot)), active=(slot == self.active()),
                    in_use=self.in_use(slot), world=m.get('world') or 'standard', draft=self._draft_valid(slot))
@@ -290,7 +290,7 @@ class Saves:
             except OSError:
                 continue
         out.sort(key=lambda x: (not x['active'], -(time.mktime(time.strptime(x['last_played'], '%Y-%m-%d %H:%M:%S'))
-                                                    if x.get('last_played') else 0), x['ad'].lower()))
+                                                    if x.get('last_played') else 0), x['name'].lower()))
         return out
 
     # ------------------------------------------------------------ yeni, ad, kopya, silme
@@ -306,10 +306,10 @@ class Saves:
         if not out.get('ok'):
             if out.get('template'):
                 raise SaveError(_(out['template'], *out.get('arg') or ()))
-            raise SaveError(out.get('hata') or _('The profile tool failed.'))
+            raise SaveError(out.get('error') or _('The profile tool failed.'))
         return out
 
-    def create(self, label, pilot, firma, credits=None, uridium=None, level=None, honor=None, laser=None, rocket=None, progressive=False,
+    def create(self, label, pilot, company, credits=None, uridium=None, level=None, honor=None, laser=None, rocket=None, progressive=False,
                settings_source=None, campaign=False):
         """Yeni kayıt (profile_tool.py yeni). Başlangıç değerleri isteğe bağlı (boş: tohumdaki): kredi, uridyum, seviye (1-50),
         onur, LCB-10 lazer cephanesi ve R-310 roketi adedi; sınırlara kırpılır. ilerlemeli: Season Pass ilk sezondan sırayla. kampanya: başlangıç
@@ -319,8 +319,8 @@ class Saves:
             raise SaveError(_('The pilot name must be 3-20 characters (letters, digits, spaces, - _ . [ ] ( ) ).'))
         if not label:
             raise SaveError(_('Give the save a name.'))
-        firma = int(firma)
-        if firma not in COMPANIES:
+        company = int(company)
+        if company not in COMPANIES:
             raise SaveError(_('Choose a company (MMO, EIC or VRU).'))
         try:
             credits, uridium, level, honor, laser, rocket = [None if v in (None, '') else int(float(v))
@@ -331,9 +331,9 @@ class Saves:
             sid = self.new_id(label)
             d = os.path.join(self.root, sid)
             os.makedirs(os.path.join(d, 'backups'), exist_ok=True)
-            args = ['yeni', os.path.join(d, 'profile.json'), pilot, str(firma)]
-            for key, v, lo, hi in (('kredi', credits, 0, 10 ** 12), ('uridyum', uridium, 0, 10 ** 12), ('seviye', level, 1, 50),
-                                   ('onur', honor, 0, 10 ** 12), ('lazer', laser, 0, 10 ** 9), ('roket', rocket, 0, 10 ** 9)):
+            args = ['new', os.path.join(d, 'profile.json'), pilot, str(company)]
+            for key, v, lo, hi in (('credits', credits, 0, 10 ** 12), ('uridium', uridium, 0, 10 ** 12), ('level', level, 1, 50),
+                                   ('honor', honor, 0, 10 ** 12), ('laser', laser, 0, 10 ** 9), ('rocket', rocket, 0, 10 ** 9)):
                 if v not in (None, ''):
                     args += ['--%s=%d' % (key, min(hi, max(lo, v)))]
             if progressive:
@@ -345,7 +345,7 @@ class Saves:
             except Exception:
                 shutil.rmtree(d, ignore_errors=True)
                 raise
-            _write_json(os.path.join(d, 'slot.json'), {'ad': label, 'created': time.strftime('%Y-%m-%d %H:%M:%S'), 'not': ''})
+            _write_json(os.path.join(d, 'slot.json'), {'name': label, 'created': time.strftime('%Y-%m-%d %H:%M:%S'), 'not': ''})
             if settings_source and self.exists(settings_source):        # ayarlar başka bir kayıttan (yoksa eski ortak dosyadan)
                 self.copy_settings(settings_source, sid)
             return sid
@@ -355,7 +355,7 @@ class Saves:
         if not label:
             raise SaveError(_('The name cannot be empty.'))
         self.dir(slot)
-        return self.set_meta(slot, ad=label[:60])
+        return self.set_meta(slot, name=label[:60])
 
     def set_note(self, slot, text):
         return self.set_meta(slot, **{'not': (text or '')[:500]})
@@ -363,14 +363,14 @@ class Saves:
     def duplicate(self, slot, label=None):
         src = self.dir(slot)
         with self.lock:
-            label = (label or '').strip() or _('%s (copy)', self.meta(slot).get('ad') or slot)
+            label = (label or '').strip() or _('%s (copy)', self.meta(slot).get('name') or slot)
             sid = self.new_id(label)
             dst = os.path.join(self.root, sid)
             os.makedirs(os.path.join(dst, 'backups'), exist_ok=True)
             _copy_atomic(os.path.join(src, 'profile.json'), os.path.join(dst, 'profile.json'))
             if os.path.isfile(os.path.join(src, 'web_settings.json')):
                 shutil.copy2(os.path.join(src, 'web_settings.json'), os.path.join(dst, 'web_settings.json'))
-            meta = {'ad': label, 'created': time.strftime('%Y-%m-%d %H:%M:%S'), 'not': _('Copied from: %s', self.meta(slot).get('ad') or slot)}
+            meta = {'name': label, 'created': time.strftime('%Y-%m-%d %H:%M:%S'), 'not': _('Copied from: %s', self.meta(slot).get('name') or slot)}
             if self.meta(slot).get('world'):              # varsayılan dünya (Dünya Editörü) kopyaya geçer
                 meta['world'] = self.meta(slot)['world']
             _write_json(os.path.join(dst, 'slot.json'), meta)
@@ -407,7 +407,7 @@ class Saves:
             except (OSError, ValueError):
                 pr = {'pilot': '?'}
             t = time.strptime(m.group(2) + m.group(3), '%Y%m%d%H%M%S')
-            out.append({'dosya': name, 'ad': meta.get('ad') or m.group(1), 'pilot': pr.get('pilot'), 'seviye': pr.get('seviye'),
+            out.append({'file': name, 'name': meta.get('name') or m.group(1), 'pilot': pr.get('pilot'), 'level': pr.get('level'),
                         'deletion': time.strftime('%Y-%m-%d %H:%M:%S', t)})
         return out
 
@@ -429,7 +429,7 @@ class Saves:
     def purge(self, name=None):
         """Çöp kutusundan kalıcı sil (name verilmezse hepsi) -> silinen sayısı."""
         with self.lock:
-            names = [name] if name else [x['dosya'] for x in self.deleted()]
+            names = [name] if name else [x['file'] for x in self.deleted()]
             for n in names:
                 shutil.rmtree(self._trash_dir(n))
             return len(names)
@@ -471,7 +471,7 @@ class Saves:
                             except ValueError:
                                 meta = {}
                             break
-                    label = (label or meta.get('ad') or profile_summary(d)['pilot']).strip()
+                    label = (label or meta.get('name') or profile_summary(d)['pilot']).strip()
                     sid = self.new_id(label)
                     dst = os.path.join(self.root, sid)
                     os.makedirs(os.path.join(dst, 'backups'), exist_ok=True)
@@ -499,7 +499,7 @@ class Saves:
                 dst = os.path.join(self.root, sid)
                 os.makedirs(os.path.join(dst, 'backups'), exist_ok=True)
                 _write_json(os.path.join(dst, 'profile.json'), SM.migrate_obj(d))
-            _write_json(os.path.join(dst, 'slot.json'), {'ad': label[:60], 'created': time.strftime('%Y-%m-%d %H:%M:%S'),
+            _write_json(os.path.join(dst, 'slot.json'), {'name': label[:60], 'created': time.strftime('%Y-%m-%d %H:%M:%S'),
                                                           'not': _('Imported: %s', os.path.basename(path))})
             return sid
 
@@ -511,7 +511,7 @@ class Saves:
         with self.lock:
             p = self.profile(slot)
             d = validate_profile(_read_json(p))
-            pl, g = d['pilot'], d['gemi']
+            pl, g = d['pilot'], d['ship']
             changed = []
             if 'pilot' in values:
                 name = str(values['pilot']).strip()
@@ -520,8 +520,8 @@ class Saves:
                 if name != pl.get('userName'):
                     pl['userName'] = name
                     changed.append(_('pilot name'))
-            for key, field, lo, hi, label in (('kredi', 'credits', 0, 10 ** 12, 'credits'), ('uridyum', 'uridium', 0, 10 ** 12, 'uridium'),
-                                              ('onur', 'honourPoints', -10 ** 12, 10 ** 12, 'honor'), ('ep', 'ep', 0, 2 ** 62, 'EP')):
+            for key, field, lo, hi, label in (('credits', 'credits', 0, 10 ** 12, 'credits'), ('uridium', 'uridium', 0, 10 ** 12, 'uridium'),
+                                              ('honor', 'honourPoints', -10 ** 12, 10 ** 12, 'honor'), ('ep', 'ep', 0, 2 ** 62, 'EP')):
                 if key in values and values[key] not in (None, ''):
                     v = min(hi, max(lo, int(values[key])))
                     if v != pl.get(field):
@@ -562,7 +562,7 @@ class Saves:
     def loot_list(self):
         """Kayıt düzenleyicinin eşya listesi (profile_tool.py liste; ilk istekten sonra bellekte)."""
         if getattr(self, '_loots', None) is None:
-            self._loots = self.run_tool('liste')['esyalar']
+            self._loots = self.run_tool('entries')['items']
         return self._loots
 
     # ------------------------------------------------------------ karakter editörü (taslak)
@@ -637,12 +637,12 @@ class Saves:
         """Editörün eşya kataloğu (save_editor.py katalog; ilk istekten sonra bellekte)."""
         if getattr(self, '_catalog', None) is None:
             self._catalog = self.run_tool('catalog', tool='save_editor.py')
-        return {'esyalar': self._catalog['esyalar'], 'categories': self._catalog['categories']}
+        return {'items': self._catalog['items'], 'categories': self._catalog['categories']}
 
     def item_info(self):
         """Eşya ipucunun değerleri (save_editor.py bilgi; ilk istekten sonra bellekte): panelin Hangar, Mağaza ve editör sayfaları."""
         if getattr(self, '_info', None) is None:
-            self._info = self.run_tool('info', tool='save_editor.py')['esyalar']
+            self._info = self.run_tool('info', tool='save_editor.py')['items']
         return self._info
 
     # ------------------------------------------------------------ yedekler
@@ -674,7 +674,7 @@ class Saves:
                 self._cache[p] = c = (st.st_mtime_ns, s)
             kind, stamp = f.split('_', 1)
             t = time.strptime(stamp[:15], '%Y%m%d_%H%M%S')
-            out.append(dict(c[1], dosya=f, tur=kind, kind_name=_(KIND_NAMES[kind]), time=time.strftime('%Y-%m-%d %H:%M:%S', t),
+            out.append(dict(c[1], file=f, type=kind, kind_name=_(KIND_NAMES[kind]), time=time.strftime('%Y-%m-%d %H:%M:%S', t),
                             size=st.st_size, not_=notes.get(f, '')))
         return out
 
@@ -766,7 +766,7 @@ class Saves:
         with self.lock:
             p = self._backup_path(slot, name)
             d = validate_profile(_read_json(p))
-            label = (label or '').strip() or _('%s (backup %s)', self.meta(slot).get('ad') or slot, name.split('_', 1)[1][:8])
+            label = (label or '').strip() or _('%s (backup %s)', self.meta(slot).get('name') or slot, name.split('_', 1)[1][:8])
             sid = self.new_id(label)
             dst = os.path.join(self.root, sid)
             os.makedirs(os.path.join(dst, 'backups'), exist_ok=True)
@@ -774,7 +774,7 @@ class Saves:
             web = os.path.join(self.dir(slot), 'web_settings.json')
             if os.path.isfile(web):
                 shutil.copy2(web, os.path.join(dst, 'web_settings.json'))
-            _write_json(os.path.join(dst, 'slot.json'), {'ad': label[:60], 'created': time.strftime('%Y-%m-%d %H:%M:%S'),
-                                                          'not': _('From backup: %s / %s (%s)', self.meta(slot).get('ad') or slot, name,
+            _write_json(os.path.join(dst, 'slot.json'), {'name': label[:60], 'created': time.strftime('%Y-%m-%d %H:%M:%S'),
+                                                          'not': _('From backup: %s / %s (%s)', self.meta(slot).get('name') or slot, name,
                                                                                                profile_summary(d)['pilot'])})
             return sid

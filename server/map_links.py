@@ -78,10 +78,10 @@ def _load():
             continue
         scale_factor = SCALE.get(ref, 1.0) if SCALE.get(ref, 1.0) > 1 else 1.0
         g = dict(gateId=GATE_ID_BASE + key, key=key, x=int(_snap_x(int(pos.group(1))) * scale_factor), y=int(_snap_y(int(pos.group(2))) * scale_factor),
-                 hedef=int(to.group(1)))
+                 target=int(to.group(1)))
         fac, own = re.search(r'<faction>(\w+)</faction>', body), re.search(r'<visibleOwnFaction>(\w+)</visibleOwnFaction>', body)
         if fac:
-            g['firma'] = FACTIONS.get(fac.group(1))
+            g['company'] = FACTIONS.get(fac.group(1))
         if fac and own and own.group(1) == 'true':
             g['only_company'] = FACTIONS.get(fac.group(1))       # 5-X'te her firmanın kendi portalı (yalnız o firmaya görünür)
         gates.setdefault(ref, []).append(g)
@@ -106,19 +106,19 @@ TUTORIAL_GATE, TUTORIAL_MAX_LEVEL = 150000774, 10
 # msg_hidden_pirate_map_no_silverkey; resmî sunucu kaydı: 5-X'teki gibi her firmanın bir portalı), 5-4'ten 5-2'ye dönüş; LoW'un
 # portalı X-3'te (low.py).
 # (harita, anahtar, x, y, hedef, ek alanlar); portal kimliği GATE_ID_BASE + anahtar (istemcinin anahtarları 920042'ye kadar)
-_SILVER = {'fee': 'silver_key', 'ipucu': 'ttip_jumpgate_hiddenPirateMap'}
+_SILVER = {'fee': 'silver_key', 'tooltip': 'ttip_jumpgate_hiddenPirateMap'}
 # LoW portalı: resmî sunucu kaydı 2026-10-27, 1-3 ve 2-3'te (2000, 2000), 3-3'te (18500, 2000); tasarım 34
 LOW_DESIGN = 34
 LOW_START = (1000, 11800)       # LoW'a girişin varış yeri: haritanın sol alt köşesi (wiki "lower left corner"; emu-dark LowPortal.cs)
-EXTRA_GATES = [(92, 990006, 18500, 11500, 94, dict(_SILVER, firma=1, only_company=1)),
-               (92, 990001, 18500, 11500, 94, dict(_SILVER, firma=2, only_company=2)),
-               (92, 990007, 18500, 11500, 94, dict(_SILVER, firma=3, only_company=3)),
+EXTRA_GATES = [(92, 990006, 18500, 11500, 94, dict(_SILVER, company=1, only_company=1)),
+               (92, 990001, 18500, 11500, 94, dict(_SILVER, company=2, only_company=2)),
+               (92, 990007, 18500, 11500, 94, dict(_SILVER, company=3, only_company=3)),
                (94, 990002, 4000, 13000, 92, {}),
-               (3, 990003, 2000, 2000, 200, {'low': True, 'arrival': LOW_START, 'tasarim': LOW_DESIGN}),
-               (7, 990004, 2000, 2000, 200, {'low': True, 'arrival': LOW_START, 'tasarim': LOW_DESIGN}),
-               (11, 990005, 18500, 2000, 200, {'low': True, 'arrival': LOW_START, 'tasarim': LOW_DESIGN})]
+               (3, 990003, 2000, 2000, 200, {'low': True, 'arrival': LOW_START, 'design': LOW_DESIGN}),
+               (7, 990004, 2000, 2000, 200, {'low': True, 'arrival': LOW_START, 'design': LOW_DESIGN}),
+               (11, 990005, 18500, 2000, 200, {'low': True, 'arrival': LOW_START, 'design': LOW_DESIGN})]
 for _m, _k, _x, _y, _to, _extra in EXTRA_GATES:
-    GATES.setdefault(_m, []).append(dict(gateId=GATE_ID_BASE + _k, key=_k, x=_x, y=_y, hedef=_to, **_extra))
+    GATES.setdefault(_m, []).append(dict(gateId=GATE_ID_BASE + _k, key=_k, x=_x, y=_y, target=_to, **_extra))
 # korsan ve Black Light haritalarının portalları düzendeki yerlerinde (ipucu ızgarasına oturtulan yer kabaca); varış yeri portala
 # bağlı (5-X: hedefte kırık portalın yanı; 5-3'ten 4-4'e rastgele): harita_duzeni.json
 for _m, _gs in GATES.items():
@@ -137,8 +137,8 @@ ENTRY_DESIGN, ONE_WAY_DESIGN = 51, 52
 ONE_WAY_GATE_BASE = GATE_ID_BASE + 991000        # tek yönlü portalların kimliği: + harita x 10 + firma
 for _m, _gs in GATES.items():
     for _g in _gs:
-        if _g.get('firma') and (_m in PIRATE_MAPS or _g['hedef'] in PIRATE_MAPS):
-            _g.update(tasarim=ENTRY_DESIGN, decorations=[_g['firma']])
+        if _g.get('company') and (_m in PIRATE_MAPS or _g['target'] in PIRATE_MAPS):
+            _g.update(design=ENTRY_DESIGN, decorations=[_g['company']])
 # maps-config 5-X için 1 yazıyor; wiki seviye 12 (belgeler/wiki/maps.md)
 for _m, _n in NAMES.items():
     if _n.startswith('5-'):
@@ -188,7 +188,7 @@ def map_world(map_id, tpl):
             w, h = map_size(map_id)
             ready.append({'_m': 'SpaceStationCommand', 'posX': w // 2, 'posY': h // 2, 'peaceRadius': 0, 'id': 0,
                           'type': LOW_STATION[int(map_id)]})
-        return {'giris': entry, 'hazir': ready + gate_msgs + ML.poi_msgs(map_id)}
+        return {'entry': entry, 'ready': ready + gate_msgs + ML.poi_msgs(map_id)}
     cx, cy = STATION_POS.get(int(map_id)) or max(CORNERS, key=lambda c: min((math.hypot(c[0] - g['x'], c[1] - g['y']) for g in gs),
                                                                             default=0))
     turn = (OUTPOST_TURN if int(map_id) in OUTPOST_MAPS else 0) + math.radians(STATION_TURN.get(int(map_id), 0))
@@ -200,7 +200,7 @@ def map_world(map_id, tpl):
 
     base = 151000000 + int(map_id) * 100
     ids, entry, ready = {}, [], []
-    for m in tpl.get('giris', []):
+    for m in tpl.get('entry', []):
         if m['_m'] == 'AssetCreateCommand':                    # görev verici (34) dahil: görevlere dönüş her ana istasyonda
             ids[m['assetId']] = base + len(ids)
             x, y = place(m['posX'], m['posY'])
@@ -209,10 +209,10 @@ def map_world(map_id, tpl):
             if int(map_id) in OUTPOST_MAPS and a['type']['typeValue'] in OUTPOST:
                 a['type'] = dict(a['type'], typeValue=OUTPOST[a['type']['typeValue']])
             entry.append(a)
-    for m in tpl.get('giris', []):
+    for m in tpl.get('entry', []):
         if m['_m'] == 'MapAssetActionAvailableCommand' and m['mapAssetId'] in ids:
             entry.append(dict(m, mapAssetId=ids[m['mapAssetId']]))
-    for m in tpl.get('hazir', []):
+    for m in tpl.get('ready', []):
         if m['_m'] == 'SpaceStationCommand':
             ready.append(dict(m, posX=cx, posY=cy, type=fac))
         elif m['_m'] == 'MapAddPOICommand':
@@ -227,7 +227,7 @@ def map_world(map_id, tpl):
             sc = list(m['shapeCoordinates'])
             sc[0], sc[1] = place(sc[0], sc[1])
             ready.append(dict(m, poiId=pid, shapeCoordinates=sc))
-    return {'giris': entry, 'hazir': ready + gate_msgs}
+    return {'entry': entry, 'ready': ready + gate_msgs}
 
 
 # istasyon dışı yapılar (wiki haritalar: X-5 ve X-BL'de Mission Control, 5-2'de Trader); kayıttaki 2-1 istasyonunun görev vericisi
@@ -251,7 +251,7 @@ DECOR_STATION_TYPES = set(STRUCTURE_STATION.values()) | set(LOW_STATION.values()
 def structure(map_id, tpl, gs):
     """İstasyonsuz haritanın tek yapısı -> (giriş mesajları, hazır mesajları)."""
     kind = STRUCTURES.get(int(map_id))
-    src = next((m for m in tpl.get('giris', []) if m['_m'] == 'AssetCreateCommand' and m['type']['typeValue'] == kind), None)
+    src = next((m for m in tpl.get('entry', []) if m['_m'] == 'AssetCreateCommand' and m['type']['typeValue'] == kind), None)
     if not kind or not src:
         return [], []
     spots = CORNERS + [(10500, 6550), (10500, 2000), (10500, 11100), (2000, 6550), (19000, 6550)]   # köşeler, kenar ortaları, merkez
@@ -269,7 +269,7 @@ def structure(map_id, tpl, gs):
         peace = next((r for x, y, r in ML.safe_zones(map_id) if (x, y) == (cx, cy)), 0)
         ready.append({'_m': 'SpaceStationCommand', 'posX': cx, 'posY': cy, 'peaceRadius': peace, 'id': 0,
                       'type': STRUCTURE_STATION[int(map_id)]})
-    for m in tpl.get('hazir', []):                # yaklaşma bölgesi (görev vericininki questGiver_<kimlik>)
+    for m in tpl.get('ready', []):                # yaklaşma bölgesi (görev vericininki questGiver_<kimlik>)
         if m['_m'] == 'MapAddPOICommand' and m['poiId'] in ('mapAssetRangeZone-%d' % src['assetId'], 'questGiver_%d' % src['assetId']):
             sc = list(m['shapeCoordinates'])
             sc[0], sc[1], sc[2] = ax, ay, radius or sc[2]
@@ -298,7 +298,7 @@ def gates(map_id, faction=None):
 
 def arrival(src_map, dst_map, faction=None):
     """Hedef haritada, kaynak haritaya geri götüren portalın konumu (gemi oraya iner). faction: oyuncunun firması (gates)."""
-    back = next((g for g in gates(dst_map, faction) if g['hedef'] == int(src_map)), None)
+    back = next((g for g in gates(dst_map, faction) if g['target'] == int(src_map)), None)
     if back:
         return back['x'], back['y']
     w, h = map_size(dst_map)          # tek yönlü giriş (5-1, 5-3, 4-4): haritanın gerçek ortası (büyük haritalar)
@@ -378,7 +378,7 @@ def asset_available(asset_id, tip, near, wild=()):
 def jumpgate_create(g, faction=None):
     """faction: oyuncunun firması; 5-X'te başka firmanın portalı görünmez gider (resmî sunucu kaydı: mini haritada yok, balonsuz)."""
     hidden = g.get('invisible') or (g.get('only_company') and faction not in (None, g['only_company']))
-    return ('JumpgateCreateCommand', dict(gateId=g['gateId'], factionId=0, designId=g.get('designId', g.get('tasarim', 1)), x=g['x'],
+    return ('JumpgateCreateCommand', dict(gateId=g['gateId'], factionId=0, designId=g.get('designId', g.get('design', 1)), x=g['x'],
                                           y=g['y'], isVisibleOnMinimap=not (hidden or g.get('hidden')),   # 4-5'teki gizli solucan deliği
                                           showBubble=not hidden, decoratorAssetTypes=g.get('decorations', [])))
 
@@ -411,19 +411,19 @@ def client_map_name(map_id):
 
 def gate_tip(g):
     """Portalın ipucu -> (anahtar, [(yer tutucu değeri, tür)]): tür 5 flashres anahtarı, 6 harita kimliği, 0 düz metin."""
-    if g.get('ipucu'):
-        return g['ipucu'], ([(str(g['hint_target']), 6)] if g.get('hint_target') else [])
-    dest = int(g.get('hint_target') or g.get('hedef') or 0)
-    if not g.get('cikis') and dest not in NAMES:                       # galaksi dışına (moda, kapıya) giden kapı
-        key = DESIGN_TIPS.get(g.get('designId')) or MODE_TIPS.get(g.get('kapi'))
+    if g.get('tooltip'):
+        return g['tooltip'], ([(str(g['hint_target']), 6)] if g.get('hint_target') else [])
+    dest = int(g.get('hint_target') or g.get('target') or 0)
+    if not g.get('exit') and dest not in NAMES:                       # galaksi dışına (moda, kapıya) giden kapı
+        key = DESIGN_TIPS.get(g.get('designId')) or MODE_TIPS.get(g.get('gate'))
         if key:
             return key, []
-        if MODE_NAMES.get(g.get('kapi')):
-            return 'ttip_jumpgate', [(MODE_NAMES[g['kapi']], 5)]
+        if MODE_NAMES.get(g.get('gate')):
+            return 'ttip_jumpgate', [(MODE_NAMES[g['gate']], 5)]
     if dest and client_map_name(dest):
         return 'ttip_jumpgate', [(str(dest), 6)]
-    if g.get('ad'):
-        return 'ttip_jumpgate', [(g['ad'], 0)]
+    if g.get('name'):
+        return 'ttip_jumpgate', [(g['name'], 0)]
     return 'faq_jumpgate', []                                           # "Atlama kapısı"
 
 

@@ -119,8 +119,8 @@ def protons():
         d = os.path.realpath(d)
         if d not in seen and os.path.isfile(os.path.join(d, 'proton')):
             seen.add(d)
-            out.append({'ad': os.path.basename(d), 'route': d, 'steam': steam})
-    out.sort(key=lambda p: _version_key(p['ad']), reverse=True)
+            out.append({'name': os.path.basename(d), 'route': d, 'steam': steam})
+    out.sort(key=lambda p: _version_key(p['name']), reverse=True)
     return out
 
 
@@ -188,30 +188,30 @@ def rosetta_error():
 def find(cfg):
     """Kullanılacak çalıştırıcı -> {'tur': yerel|motor|wine|proton|ozel, 'yol', 'ad', 'onek', 'umu', 'steam', 'hata'}. yol: wine
     programı, Proton klasörü ya da özel komut (motor kurulmadıysa None: OYNA kurar); hata: istemci açılamaz (kullanıcıya gösterilir)."""
-    r = {'tur': 'local', 'route': None, 'ad': None, 'prefix': None, 'umu': None, 'steam': None, 'hata': None}
+    r = {'type': 'local', 'route': None, 'name': None, 'prefix': None, 'umu': None, 'steam': None, 'error': None}
     if WINDOWS:
         return r
     choice, route, prefix = cfg.get('runner'), cfg.get('runner_path').strip(), cfg.get('wine_prefix').strip()
     umu = shutil.which('umu-run') if LINUX else None
     if choice == 'auto':
         choice = 'engine' if MAC else 'proton' if LINUX and (umu or protons()) else 'wine'
-    r['tur'] = choice
-    if choice == 'ozel':
+    r['type'] = choice
+    if choice == 'special':
         r.update(route=route, prefix=os.path.expanduser(prefix) if prefix else None)
         if not route:
-            r['hata'] = _('The custom command is empty: enter it in the Wine / Proton card on the Client page.')
+            r['error'] = _('The custom command is empty: enter it in the Wine / Proton card on the Client page.')
         return r
     r['prefix'] = os.path.expanduser(prefix) if prefix else default_prefix(choice)
     if choice == 'engine':
         if not MAC:
-            r['hata'] = _("The panel's Wine is for macOS only: choose Automatic or Wine.")
+            r['error'] = _("The panel's Wine is for macOS only: choose Automatic or Wine.")
             return r
         m = engine()
-        r.update(route=m.wine(), ad=m.name(), hata=rosetta_error())
+        r.update(route=m.wine(), name=m.name(), error=rosetta_error())
         return r
     if choice == 'proton':
         if not LINUX:
-            r['hata'] = _("Proton runs only on Linux: choose Wine.")
+            r['error'] = _("Proton runs only on Linux: choose Wine.")
             return r
         found = protons()
         p = found[0] if found else None
@@ -219,28 +219,28 @@ def find(cfg):
             d = os.path.expanduser(route)
             d = os.path.dirname(d) if os.path.basename(d) == 'proton' else d
             if not os.path.isfile(os.path.join(d, 'proton')):
-                r['hata'] = _('Proton not found: there is no proton script in %s.', d)
+                r['error'] = _('Proton not found: there is no proton script in %s.', d)
                 return r
-            p = next((x for x in found if x['route'] == os.path.realpath(d)), {'ad': os.path.basename(d), 'route': d, 'steam': None})
+            p = next((x for x in found if x['route'] == os.path.realpath(d)), {'name': os.path.basename(d), 'route': d, 'steam': None})
         if not p and not umu:
-            r['hata'] = _("Proton not found: install a Proton version in Steam (Library > Tools) or choose Wine.")
+            r['error'] = _("Proton not found: install a Proton version in Steam (Library > Tools) or choose Wine.")
             return r
         steam = (p and p['steam']) or next(iter(steam_folders()), None)
-        r.update(route=p and p['route'], ad=p['ad'] if p else 'UMU-Proton', umu=umu, steam=steam)
+        r.update(route=p and p['route'], name=p['name'] if p else 'UMU-Proton', umu=umu, steam=steam)
         return r
     w = shutil.which(os.path.expanduser(route)) if route else next(iter(wines()), None)
     if not w:
         if route:
-            r['hata'] = _('Wine not found: %s', route)
+            r['error'] = _('Wine not found: %s', route)
         elif not LINUX:
-            r['hata'] = _("Wine not found: choose Automatic (the panel installs the Wine that opens the game) or enter the path of the wine program.")
+            r['error'] = _("Wine not found: choose Automatic (the panel installs the Wine that opens the game) or enter the path of the wine program.")
         elif cfg.get('runner') == 'auto':
-            r['hata'] = _("Neither Wine nor Proton was found: install a Proton version in Steam (Library > Tools) or install "
+            r['error'] = _("Neither Wine nor Proton was found: install a Proton version in Steam (Library > Tools) or install "
                           "Wine (e.g. sudo apt install wine).")
         else:
-            r['hata'] = _("Wine not found: install Wine (e.g. sudo apt install wine) or choose Proton.")
+            r['error'] = _("Wine not found: install Wine (e.g. sudo apt install wine) or choose Proton.")
         return r
-    r.update(route=w, ad=wine_version(w) or 'wine', hata=rosetta_error())
+    r.update(route=w, name=wine_version(w) or 'wine', error=rosetta_error())
     return r
 
 
@@ -261,17 +261,17 @@ def command(cfg, exe, args, prepare=True):
     """İstemcinin başlatma komutu ve ortamı -> (komut, ortam); ortam None: panelinki. Çalıştırıcı yoksa (motor kurulmadıysa da)
     RuntimeError. hazirla: önekte S: sürücüsünü kur (gösterilecek komutta False)."""
     r = find(cfg)
-    if r['tur'] == 'local':
+    if r['type'] == 'local':
         return [exe] + args, None
-    if r['hata']:
-        raise RuntimeError(r['hata'])
+    if r['error']:
+        raise RuntimeError(r['error'])
     env = dict(os.environ)
-    if r['tur'] == 'ozel':
+    if r['type'] == 'special':
         if r['prefix']:
             env['WINEPREFIX'] = r['prefix']
         dll_override(env, 'winhttp=n,b')
         return shlex.split(r['route']) + [exe] + args, env
-    if r['tur'] in ('wine', 'engine'):
+    if r['type'] in ('wine', 'engine'):
         if not r['route']:
             raise RuntimeError(_("The panel's Wine isn't installed yet: press PLAY or install it on the Client page."))
         env['WINEPREFIX'] = r['prefix']

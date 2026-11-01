@@ -1,8 +1,8 @@
 {
  "_description": "Sonsuz ve rogue-lite PvE modları -> server/data/pve_modlari.json (yol haritası Aşama 8; sunucu: pve_modlari.py, arena.py,\nebl.py, astral.py, echoes.py).\n\nKaynaklar belgeler/wiki/pve_modlari/ (darkorbitwiki, resmî forum SSS'leri, fandom; derlenmiş JSON) ve kayıttaki yanıtlar\n(server/data/yanitlar.json: Trinity Trials geçişi, OS modülü tablosu, ödül açıklamaları; Deep Space Echoes bilgisi ve sıralama\nödülleri). Görünümler istemcinin game.xml'i (gemi türü / npcId): Whisper = Terror Shrike 396/517, Voidmare = Nightmare Reaper\n395/516, Pyrospire 385/512, Magma Stalker 386/513, Vinespire 387/514, Spore Stalker 388/515, P.E.T. Scout/Decoy/Raider 130-132,\nGygerim Overlord 248/128, Gygerthrall 128/123, Mimesis 278-294, Missile Storm 9371/407, Ufonit 21/26, Cowering Cyborg 296/253,\nUnidentified Destroyer 100/50. Portal tasarımları lib_portals: Voyagers 306, Trinity 304, Expedition 300/301, Astral 86 ve kapı\ntürleri 87-100. Haritalar maps-config: Voyager 509, Hellfire I-V 499-503, Genome I-V 504-508, Astral 466-468, Command Hall 473,\nDSE 1-8 474-481.\nKaynağın vermediği değerler (dalga dizilişleri, kutu adetleri, ölçekler …) uyarlama; her bölümün '_uyarlama' notunda.",
  "voyagers": {
-  "harita": 509,
-  "giris": [
+  "map": 509,
+  "entry": [
    "X-1",
    "X-8"
   ],
@@ -19,15 +19,15 @@
   "vip_damage": 0.2,
   "difficulties": [
    {
-    "ad": "Easy",
+    "name": "Easy",
     "kinds": {
      "Whisper": "pm_whisper_1",
      "Voidmare": "pm_voidmare_1"
     },
     "waves": [
      {
-      "ad": "1",
-      "gruplar": [
+      "name": "1",
+      "groups": [
        [
         [
          "pm_whisper_1",
@@ -37,8 +37,8 @@
       ]
      },
      {
-      "ad": "2",
-      "gruplar": [
+      "name": "2",
+      "groups": [
        [
         [
          "pm_whisper_1",
@@ -48,8 +48,8 @@
       ]
      },
      {
-      "ad": "3",
-      "gruplar": [
+      "name": "3",
+      "groups": [
        [
         [
          "pm_whisper_1",
@@ -59,8 +59,8 @@
       ]
      },
      {
-      "ad": "4",
-      "gruplar": [
+      "name": "4",
+      "groups": [
        [
         [
          "pm_whisper_1",
@@ -70,8 +70,8 @@
       ]
      },
      {
-      "ad": "5",
-      "gruplar": [
+      "name": "5",
+      "groups": [
        [
         [
          "pm_whisper_1",
@@ -87,8 +87,8 @@
       ]
      },
      {
-      "ad": "6",
-      "gruplar": [
+      "name": "6",
+      "groups": [
        [
         [
          "pm_whisper_1",
@@ -98,8 +98,8 @@
       ]
      },
      {
-      "ad": "7",
-      "gruplar": [
+      "name": "7",
+      "groups": [
        [
         [
          "pm_whisper_1",
@@ -109,8 +109,8 @@
       ]
      },
      {
-      "ad": "8",
-      "gruplar": [
+      "name": "8",
+      "groups": [
        [
         [
          "pm_whisper_1",
@@ -126,8 +126,8 @@
       ]
      },
      {
-      "ad": "9",
-      "gruplar": [
+      "name": "9",
+      "groups": [
        [
         [
          "pm_whisper_1",
@@ -137,8 +137,8 @@
       ]
      },
      {
-      "ad": "10",
-      "gruplar": [
+      "name": "10",
+      "groups": [
        [
         [
          "pm_whisper_1",
@@ -154,8 +154,8 @@
       ]
      },
      {
-      "ad": "11",
-      "gruplar": [
+      "name": "11",
+      "groups": [
        [
         [
          "pm_whisper_1",
@@ -165,8 +165,8 @@
       ]
      },
      {
-      "ad": "12",
-      "gruplar": [
+      "name": "12",
+      "groups": [
        [
         [
          "pm_whisper_1",
@@ -182,8 +182,8 @@
       ]
      },
      {
-      "ad": "13",
-      "gruplar": [
+      "name": "13",
+      "groups": [
        [
         [
          "pm_whisper_1",
@@ -193,8 +193,8 @@
       ]
      },
      {
-      "ad": "14",
-      "gruplar": [
+      "name": "14",
+      "groups": [
        [
         [
          "pm_whisper_1",
@@ -210,8 +210,8 @@
       ]
      },
      {
-      "ad": "15",
-      "gruplar": [
+      "name": "15",
+      "groups": [
        [
         [
          "pm_whisper_1",
@@ -227,8 +227,8 @@
       ]
      },
      {
-      "ad": "16",
-      "gruplar": [
+      "name": "16",
+      "groups": [
        [
         [
          "pm_whisper_1",
@@ -244,8 +244,8 @@
       ]
      },
      {
-      "ad": "17",
-      "gruplar": [
+      "name": "17",
+      "groups": [
        [
         [
          "pm_whisper_1",
@@ -255,8 +255,8 @@
       ]
      },
      {
-      "ad": "18",
-      "gruplar": [
+      "name": "18",
+      "groups": [
        [
         [
          "pm_whisper_1",
@@ -272,8 +272,8 @@
       ]
      },
      {
-      "ad": "19",
-      "gruplar": [
+      "name": "19",
+      "groups": [
        [
         [
          "pm_whisper_1",
@@ -283,8 +283,8 @@
       ]
      },
      {
-      "ad": "20",
-      "gruplar": [
+      "name": "20",
+      "groups": [
        [
         [
          "pm_whisper_1",
@@ -362,22 +362,22 @@
       ]
      ]
     },
-    "puan": {
+    "points": {
      "1": 223,
      "2": 263,
      "3": 310
     }
    },
    {
-    "ad": "Normal",
+    "name": "Normal",
     "kinds": {
      "Whisper": "pm_whisper_2",
      "Voidmare": "pm_voidmare_2"
     },
     "waves": [
      {
-      "ad": "1",
-      "gruplar": [
+      "name": "1",
+      "groups": [
        [
         [
          "pm_whisper_2",
@@ -387,8 +387,8 @@
       ]
      },
      {
-      "ad": "2",
-      "gruplar": [
+      "name": "2",
+      "groups": [
        [
         [
          "pm_whisper_2",
@@ -398,8 +398,8 @@
       ]
      },
      {
-      "ad": "3",
-      "gruplar": [
+      "name": "3",
+      "groups": [
        [
         [
          "pm_whisper_2",
@@ -409,8 +409,8 @@
       ]
      },
      {
-      "ad": "4",
-      "gruplar": [
+      "name": "4",
+      "groups": [
        [
         [
          "pm_whisper_2",
@@ -420,8 +420,8 @@
       ]
      },
      {
-      "ad": "5",
-      "gruplar": [
+      "name": "5",
+      "groups": [
        [
         [
          "pm_whisper_2",
@@ -437,8 +437,8 @@
       ]
      },
      {
-      "ad": "6",
-      "gruplar": [
+      "name": "6",
+      "groups": [
        [
         [
          "pm_whisper_2",
@@ -448,8 +448,8 @@
       ]
      },
      {
-      "ad": "7",
-      "gruplar": [
+      "name": "7",
+      "groups": [
        [
         [
          "pm_whisper_2",
@@ -459,8 +459,8 @@
       ]
      },
      {
-      "ad": "8",
-      "gruplar": [
+      "name": "8",
+      "groups": [
        [
         [
          "pm_whisper_2",
@@ -476,8 +476,8 @@
       ]
      },
      {
-      "ad": "9",
-      "gruplar": [
+      "name": "9",
+      "groups": [
        [
         [
          "pm_whisper_2",
@@ -487,8 +487,8 @@
       ]
      },
      {
-      "ad": "10",
-      "gruplar": [
+      "name": "10",
+      "groups": [
        [
         [
          "pm_whisper_2",
@@ -504,8 +504,8 @@
       ]
      },
      {
-      "ad": "11",
-      "gruplar": [
+      "name": "11",
+      "groups": [
        [
         [
          "pm_whisper_2",
@@ -515,8 +515,8 @@
       ]
      },
      {
-      "ad": "12",
-      "gruplar": [
+      "name": "12",
+      "groups": [
        [
         [
          "pm_whisper_2",
@@ -532,8 +532,8 @@
       ]
      },
      {
-      "ad": "13",
-      "gruplar": [
+      "name": "13",
+      "groups": [
        [
         [
          "pm_whisper_2",
@@ -543,8 +543,8 @@
       ]
      },
      {
-      "ad": "14",
-      "gruplar": [
+      "name": "14",
+      "groups": [
        [
         [
          "pm_whisper_2",
@@ -560,8 +560,8 @@
       ]
      },
      {
-      "ad": "15",
-      "gruplar": [
+      "name": "15",
+      "groups": [
        [
         [
          "pm_whisper_2",
@@ -577,8 +577,8 @@
       ]
      },
      {
-      "ad": "16",
-      "gruplar": [
+      "name": "16",
+      "groups": [
        [
         [
          "pm_whisper_2",
@@ -594,8 +594,8 @@
       ]
      },
      {
-      "ad": "17",
-      "gruplar": [
+      "name": "17",
+      "groups": [
        [
         [
          "pm_whisper_2",
@@ -605,8 +605,8 @@
       ]
      },
      {
-      "ad": "18",
-      "gruplar": [
+      "name": "18",
+      "groups": [
        [
         [
          "pm_whisper_2",
@@ -622,8 +622,8 @@
       ]
      },
      {
-      "ad": "19",
-      "gruplar": [
+      "name": "19",
+      "groups": [
        [
         [
          "pm_whisper_2",
@@ -633,8 +633,8 @@
       ]
      },
      {
-      "ad": "20",
-      "gruplar": [
+      "name": "20",
+      "groups": [
        [
         [
          "pm_whisper_2",
@@ -712,22 +712,22 @@
       ]
      ]
     },
-    "puan": {
+    "points": {
      "1": 365,
      "2": 430,
      "3": 506
     }
    },
    {
-    "ad": "Hard",
+    "name": "Hard",
     "kinds": {
      "Whisper": "pm_whisper_3",
      "Voidmare": "pm_voidmare_3"
     },
     "waves": [
      {
-      "ad": "1",
-      "gruplar": [
+      "name": "1",
+      "groups": [
        [
         [
          "pm_whisper_3",
@@ -737,8 +737,8 @@
       ]
      },
      {
-      "ad": "2",
-      "gruplar": [
+      "name": "2",
+      "groups": [
        [
         [
          "pm_whisper_3",
@@ -748,8 +748,8 @@
       ]
      },
      {
-      "ad": "3",
-      "gruplar": [
+      "name": "3",
+      "groups": [
        [
         [
          "pm_whisper_3",
@@ -759,8 +759,8 @@
       ]
      },
      {
-      "ad": "4",
-      "gruplar": [
+      "name": "4",
+      "groups": [
        [
         [
          "pm_whisper_3",
@@ -770,8 +770,8 @@
       ]
      },
      {
-      "ad": "5",
-      "gruplar": [
+      "name": "5",
+      "groups": [
        [
         [
          "pm_whisper_3",
@@ -787,8 +787,8 @@
       ]
      },
      {
-      "ad": "6",
-      "gruplar": [
+      "name": "6",
+      "groups": [
        [
         [
          "pm_whisper_3",
@@ -798,8 +798,8 @@
       ]
      },
      {
-      "ad": "7",
-      "gruplar": [
+      "name": "7",
+      "groups": [
        [
         [
          "pm_whisper_3",
@@ -809,8 +809,8 @@
       ]
      },
      {
-      "ad": "8",
-      "gruplar": [
+      "name": "8",
+      "groups": [
        [
         [
          "pm_whisper_3",
@@ -826,8 +826,8 @@
       ]
      },
      {
-      "ad": "9",
-      "gruplar": [
+      "name": "9",
+      "groups": [
        [
         [
          "pm_whisper_3",
@@ -837,8 +837,8 @@
       ]
      },
      {
-      "ad": "10",
-      "gruplar": [
+      "name": "10",
+      "groups": [
        [
         [
          "pm_whisper_3",
@@ -854,8 +854,8 @@
       ]
      },
      {
-      "ad": "11",
-      "gruplar": [
+      "name": "11",
+      "groups": [
        [
         [
          "pm_whisper_3",
@@ -865,8 +865,8 @@
       ]
      },
      {
-      "ad": "12",
-      "gruplar": [
+      "name": "12",
+      "groups": [
        [
         [
          "pm_whisper_3",
@@ -882,8 +882,8 @@
       ]
      },
      {
-      "ad": "13",
-      "gruplar": [
+      "name": "13",
+      "groups": [
        [
         [
          "pm_whisper_3",
@@ -893,8 +893,8 @@
       ]
      },
      {
-      "ad": "14",
-      "gruplar": [
+      "name": "14",
+      "groups": [
        [
         [
          "pm_whisper_3",
@@ -910,8 +910,8 @@
       ]
      },
      {
-      "ad": "15",
-      "gruplar": [
+      "name": "15",
+      "groups": [
        [
         [
          "pm_whisper_3",
@@ -927,8 +927,8 @@
       ]
      },
      {
-      "ad": "16",
-      "gruplar": [
+      "name": "16",
+      "groups": [
        [
         [
          "pm_whisper_3",
@@ -944,8 +944,8 @@
       ]
      },
      {
-      "ad": "17",
-      "gruplar": [
+      "name": "17",
+      "groups": [
        [
         [
          "pm_whisper_3",
@@ -955,8 +955,8 @@
       ]
      },
      {
-      "ad": "18",
-      "gruplar": [
+      "name": "18",
+      "groups": [
        [
         [
          "pm_whisper_3",
@@ -972,8 +972,8 @@
       ]
      },
      {
-      "ad": "19",
-      "gruplar": [
+      "name": "19",
+      "groups": [
        [
         [
          "pm_whisper_3",
@@ -983,8 +983,8 @@
       ]
      },
      {
-      "ad": "20",
-      "gruplar": [
+      "name": "20",
+      "groups": [
        [
         [
          "pm_whisper_3",
@@ -1062,22 +1062,22 @@
       ]
      ]
     },
-    "puan": {
+    "points": {
      "1": 531,
      "2": 557,
      "3": 584
     }
    },
    {
-    "ad": "Expert",
+    "name": "Expert",
     "kinds": {
      "Whisper": "pm_whisper_4",
      "Voidmare": "pm_voidmare_4"
     },
     "waves": [
      {
-      "ad": "1",
-      "gruplar": [
+      "name": "1",
+      "groups": [
        [
         [
          "pm_whisper_4",
@@ -1087,8 +1087,8 @@
       ]
      },
      {
-      "ad": "2",
-      "gruplar": [
+      "name": "2",
+      "groups": [
        [
         [
          "pm_whisper_4",
@@ -1098,8 +1098,8 @@
       ]
      },
      {
-      "ad": "3",
-      "gruplar": [
+      "name": "3",
+      "groups": [
        [
         [
          "pm_whisper_4",
@@ -1109,8 +1109,8 @@
       ]
      },
      {
-      "ad": "4",
-      "gruplar": [
+      "name": "4",
+      "groups": [
        [
         [
          "pm_whisper_4",
@@ -1120,8 +1120,8 @@
       ]
      },
      {
-      "ad": "5",
-      "gruplar": [
+      "name": "5",
+      "groups": [
        [
         [
          "pm_whisper_4",
@@ -1137,8 +1137,8 @@
       ]
      },
      {
-      "ad": "6",
-      "gruplar": [
+      "name": "6",
+      "groups": [
        [
         [
          "pm_whisper_4",
@@ -1148,8 +1148,8 @@
       ]
      },
      {
-      "ad": "7",
-      "gruplar": [
+      "name": "7",
+      "groups": [
        [
         [
          "pm_whisper_4",
@@ -1159,8 +1159,8 @@
       ]
      },
      {
-      "ad": "8",
-      "gruplar": [
+      "name": "8",
+      "groups": [
        [
         [
          "pm_whisper_4",
@@ -1176,8 +1176,8 @@
       ]
      },
      {
-      "ad": "9",
-      "gruplar": [
+      "name": "9",
+      "groups": [
        [
         [
          "pm_whisper_4",
@@ -1187,8 +1187,8 @@
       ]
      },
      {
-      "ad": "10",
-      "gruplar": [
+      "name": "10",
+      "groups": [
        [
         [
          "pm_whisper_4",
@@ -1204,8 +1204,8 @@
       ]
      },
      {
-      "ad": "11",
-      "gruplar": [
+      "name": "11",
+      "groups": [
        [
         [
          "pm_whisper_4",
@@ -1215,8 +1215,8 @@
       ]
      },
      {
-      "ad": "12",
-      "gruplar": [
+      "name": "12",
+      "groups": [
        [
         [
          "pm_whisper_4",
@@ -1232,8 +1232,8 @@
       ]
      },
      {
-      "ad": "13",
-      "gruplar": [
+      "name": "13",
+      "groups": [
        [
         [
          "pm_whisper_4",
@@ -1243,8 +1243,8 @@
       ]
      },
      {
-      "ad": "14",
-      "gruplar": [
+      "name": "14",
+      "groups": [
        [
         [
          "pm_whisper_4",
@@ -1260,8 +1260,8 @@
       ]
      },
      {
-      "ad": "15",
-      "gruplar": [
+      "name": "15",
+      "groups": [
        [
         [
          "pm_whisper_4",
@@ -1277,8 +1277,8 @@
       ]
      },
      {
-      "ad": "16",
-      "gruplar": [
+      "name": "16",
+      "groups": [
        [
         [
          "pm_whisper_4",
@@ -1294,8 +1294,8 @@
       ]
      },
      {
-      "ad": "17",
-      "gruplar": [
+      "name": "17",
+      "groups": [
        [
         [
          "pm_whisper_4",
@@ -1305,8 +1305,8 @@
       ]
      },
      {
-      "ad": "18",
-      "gruplar": [
+      "name": "18",
+      "groups": [
        [
         [
          "pm_whisper_4",
@@ -1322,8 +1322,8 @@
       ]
      },
      {
-      "ad": "19",
-      "gruplar": [
+      "name": "19",
+      "groups": [
        [
         [
          "pm_whisper_4",
@@ -1333,8 +1333,8 @@
       ]
      },
      {
-      "ad": "20",
-      "gruplar": [
+      "name": "20",
+      "groups": [
        [
         [
          "pm_whisper_4",
@@ -1412,22 +1412,22 @@
       ]
      ]
     },
-    "puan": {
+    "points": {
      "1": 613,
      "2": 643,
      "3": 675
     }
    },
    {
-    "ad": "Nightmare",
+    "name": "Nightmare",
     "kinds": {
      "Whisper": "pm_whisper_5",
      "Voidmare": "pm_voidmare_5"
     },
     "waves": [
      {
-      "ad": "1",
-      "gruplar": [
+      "name": "1",
+      "groups": [
        [
         [
          "pm_whisper_5",
@@ -1437,8 +1437,8 @@
       ]
      },
      {
-      "ad": "2",
-      "gruplar": [
+      "name": "2",
+      "groups": [
        [
         [
          "pm_whisper_5",
@@ -1448,8 +1448,8 @@
       ]
      },
      {
-      "ad": "3",
-      "gruplar": [
+      "name": "3",
+      "groups": [
        [
         [
          "pm_whisper_5",
@@ -1459,8 +1459,8 @@
       ]
      },
      {
-      "ad": "4",
-      "gruplar": [
+      "name": "4",
+      "groups": [
        [
         [
          "pm_whisper_5",
@@ -1470,8 +1470,8 @@
       ]
      },
      {
-      "ad": "5",
-      "gruplar": [
+      "name": "5",
+      "groups": [
        [
         [
          "pm_whisper_5",
@@ -1487,8 +1487,8 @@
       ]
      },
      {
-      "ad": "6",
-      "gruplar": [
+      "name": "6",
+      "groups": [
        [
         [
          "pm_whisper_5",
@@ -1498,8 +1498,8 @@
       ]
      },
      {
-      "ad": "7",
-      "gruplar": [
+      "name": "7",
+      "groups": [
        [
         [
          "pm_whisper_5",
@@ -1509,8 +1509,8 @@
       ]
      },
      {
-      "ad": "8",
-      "gruplar": [
+      "name": "8",
+      "groups": [
        [
         [
          "pm_whisper_5",
@@ -1526,8 +1526,8 @@
       ]
      },
      {
-      "ad": "9",
-      "gruplar": [
+      "name": "9",
+      "groups": [
        [
         [
          "pm_whisper_5",
@@ -1537,8 +1537,8 @@
       ]
      },
      {
-      "ad": "10",
-      "gruplar": [
+      "name": "10",
+      "groups": [
        [
         [
          "pm_whisper_5",
@@ -1554,8 +1554,8 @@
       ]
      },
      {
-      "ad": "11",
-      "gruplar": [
+      "name": "11",
+      "groups": [
        [
         [
          "pm_whisper_5",
@@ -1565,8 +1565,8 @@
       ]
      },
      {
-      "ad": "12",
-      "gruplar": [
+      "name": "12",
+      "groups": [
        [
         [
          "pm_whisper_5",
@@ -1582,8 +1582,8 @@
       ]
      },
      {
-      "ad": "13",
-      "gruplar": [
+      "name": "13",
+      "groups": [
        [
         [
          "pm_whisper_5",
@@ -1593,8 +1593,8 @@
       ]
      },
      {
-      "ad": "14",
-      "gruplar": [
+      "name": "14",
+      "groups": [
        [
         [
          "pm_whisper_5",
@@ -1610,8 +1610,8 @@
       ]
      },
      {
-      "ad": "15",
-      "gruplar": [
+      "name": "15",
+      "groups": [
        [
         [
          "pm_whisper_5",
@@ -1627,8 +1627,8 @@
       ]
      },
      {
-      "ad": "16",
-      "gruplar": [
+      "name": "16",
+      "groups": [
        [
         [
          "pm_whisper_5",
@@ -1644,8 +1644,8 @@
       ]
      },
      {
-      "ad": "17",
-      "gruplar": [
+      "name": "17",
+      "groups": [
        [
         [
          "pm_whisper_5",
@@ -1655,8 +1655,8 @@
       ]
      },
      {
-      "ad": "18",
-      "gruplar": [
+      "name": "18",
+      "groups": [
        [
         [
          "pm_whisper_5",
@@ -1672,8 +1672,8 @@
       ]
      },
      {
-      "ad": "19",
-      "gruplar": [
+      "name": "19",
+      "groups": [
        [
         [
          "pm_whisper_5",
@@ -1683,8 +1683,8 @@
       ]
      },
      {
-      "ad": "20",
-      "gruplar": [
+      "name": "20",
+      "groups": [
        [
         [
          "pm_whisper_5",
@@ -1762,7 +1762,7 @@
       ]
      ]
     },
-    "puan": {
+    "points": {
      "1": 708,
      "2": 743,
      "3": 780
@@ -1770,7 +1770,7 @@
    }
   ],
   "reward_pass": {
-   "seviyeler": [
+   "levels": [
     0,
     100,
     200,
@@ -2117,7 +2117,7 @@
   "_uyarlama": "dalga dizilişleri (kaynakta yok), Nightmare değerleri (Expert x 1,8), SD Fragment = Igni Shard, CGL Fragment = resource_beacon-crystal (istemcinin çevirisi: Chronotic Gravitron Lens Fragment)"
  },
  "trinity": {
-  "haritalar": {
+  "maps": {
    "1": [
     499,
     500,
@@ -2147,7 +2147,7 @@
     6
    ]
   },
-  "giris": [
+  "entry": [
    "X-1",
    "X-8"
   ],
@@ -2162,7 +2162,7 @@
   "cannon_share": 0.05,
   "difficulties": [
    {
-    "ad": "Easy",
+    "name": "Easy",
     "os_level": 1,
     "kinds": {
      "Magma Stalker": "pm_magmastalker_easy",
@@ -2173,8 +2173,8 @@
     "arenas": {
      "1": [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "pm_magmastalker_easy",
@@ -2184,8 +2184,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "pm_magmastalker_easy",
@@ -2195,8 +2195,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "pm_magmastalker_easy",
@@ -2206,8 +2206,8 @@
        ]
       },
       {
-       "ad": "4",
-       "gruplar": [
+       "name": "4",
+       "groups": [
         [
          [
           "pm_magmastalker_easy",
@@ -2217,8 +2217,8 @@
        ]
       },
       {
-       "ad": "5",
-       "gruplar": [
+       "name": "5",
+       "groups": [
         [
          [
           "pm_magmastalker_easy",
@@ -2234,8 +2234,8 @@
        ]
       },
       {
-       "ad": "6",
-       "gruplar": [
+       "name": "6",
+       "groups": [
         [
          [
           "pm_magmastalker_easy",
@@ -2251,8 +2251,8 @@
        ]
       },
       {
-       "ad": "7",
-       "gruplar": [
+       "name": "7",
+       "groups": [
         [
          [
           "pm_magmastalker_easy",
@@ -2262,8 +2262,8 @@
        ]
       },
       {
-       "ad": "8",
-       "gruplar": [
+       "name": "8",
+       "groups": [
         [
          [
           "pm_magmastalker_easy",
@@ -2273,8 +2273,8 @@
        ]
       },
       {
-       "ad": "9",
-       "gruplar": [
+       "name": "9",
+       "groups": [
         [
          [
           "pm_magmastalker_easy",
@@ -2290,8 +2290,8 @@
        ]
       },
       {
-       "ad": "10",
-       "gruplar": [
+       "name": "10",
+       "groups": [
         [
          [
           "pm_magmastalker_easy",
@@ -2307,8 +2307,8 @@
        ]
       },
       {
-       "ad": "11",
-       "gruplar": [
+       "name": "11",
+       "groups": [
         [
          [
           "pm_magmastalker_easy",
@@ -2318,8 +2318,8 @@
        ]
       },
       {
-       "ad": "12",
-       "gruplar": [
+       "name": "12",
+       "groups": [
         [
          [
           "pm_magmastalker_easy",
@@ -2335,8 +2335,8 @@
        ]
       },
       {
-       "ad": "13",
-       "gruplar": [
+       "name": "13",
+       "groups": [
         [
          [
           "pm_magmastalker_easy",
@@ -2346,8 +2346,8 @@
        ]
       },
       {
-       "ad": "14",
-       "gruplar": [
+       "name": "14",
+       "groups": [
         [
          [
           "pm_magmastalker_easy",
@@ -2357,8 +2357,8 @@
        ]
       },
       {
-       "ad": "15",
-       "gruplar": [
+       "name": "15",
+       "groups": [
         [
          [
           "pm_magmastalker_easy",
@@ -2374,8 +2374,8 @@
        ]
       },
       {
-       "ad": "16",
-       "gruplar": [
+       "name": "16",
+       "groups": [
         [
          [
           "pm_magmastalker_easy",
@@ -2385,8 +2385,8 @@
        ]
       },
       {
-       "ad": "17",
-       "gruplar": [
+       "name": "17",
+       "groups": [
         [
          [
           "pm_magmastalker_easy",
@@ -2396,8 +2396,8 @@
        ]
       },
       {
-       "ad": "18",
-       "gruplar": [
+       "name": "18",
+       "groups": [
         [
          [
           "pm_magmastalker_easy",
@@ -2413,8 +2413,8 @@
        ]
       },
       {
-       "ad": "19",
-       "gruplar": [
+       "name": "19",
+       "groups": [
         [
          [
           "pm_magmastalker_easy",
@@ -2424,8 +2424,8 @@
        ]
       },
       {
-       "ad": "20",
-       "gruplar": [
+       "name": "20",
+       "groups": [
         [
          [
           "pm_magmastalker_easy",
@@ -2443,8 +2443,8 @@
      ],
      "2": [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "pm_sporestalker_easy",
@@ -2454,8 +2454,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "pm_sporestalker_easy",
@@ -2465,8 +2465,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "pm_sporestalker_easy",
@@ -2476,8 +2476,8 @@
        ]
       },
       {
-       "ad": "4",
-       "gruplar": [
+       "name": "4",
+       "groups": [
         [
          [
           "pm_sporestalker_easy",
@@ -2487,8 +2487,8 @@
        ]
       },
       {
-       "ad": "5",
-       "gruplar": [
+       "name": "5",
+       "groups": [
         [
          [
           "pm_sporestalker_easy",
@@ -2504,8 +2504,8 @@
        ]
       },
       {
-       "ad": "6",
-       "gruplar": [
+       "name": "6",
+       "groups": [
         [
          [
           "pm_sporestalker_easy",
@@ -2521,8 +2521,8 @@
        ]
       },
       {
-       "ad": "7",
-       "gruplar": [
+       "name": "7",
+       "groups": [
         [
          [
           "pm_sporestalker_easy",
@@ -2532,8 +2532,8 @@
        ]
       },
       {
-       "ad": "8",
-       "gruplar": [
+       "name": "8",
+       "groups": [
         [
          [
           "pm_sporestalker_easy",
@@ -2543,8 +2543,8 @@
        ]
       },
       {
-       "ad": "9",
-       "gruplar": [
+       "name": "9",
+       "groups": [
         [
          [
           "pm_sporestalker_easy",
@@ -2560,8 +2560,8 @@
        ]
       },
       {
-       "ad": "10",
-       "gruplar": [
+       "name": "10",
+       "groups": [
         [
          [
           "pm_sporestalker_easy",
@@ -2577,8 +2577,8 @@
        ]
       },
       {
-       "ad": "11",
-       "gruplar": [
+       "name": "11",
+       "groups": [
         [
          [
           "pm_sporestalker_easy",
@@ -2588,8 +2588,8 @@
        ]
       },
       {
-       "ad": "12",
-       "gruplar": [
+       "name": "12",
+       "groups": [
         [
          [
           "pm_sporestalker_easy",
@@ -2605,8 +2605,8 @@
        ]
       },
       {
-       "ad": "13",
-       "gruplar": [
+       "name": "13",
+       "groups": [
         [
          [
           "pm_sporestalker_easy",
@@ -2616,8 +2616,8 @@
        ]
       },
       {
-       "ad": "14",
-       "gruplar": [
+       "name": "14",
+       "groups": [
         [
          [
           "pm_sporestalker_easy",
@@ -2627,8 +2627,8 @@
        ]
       },
       {
-       "ad": "15",
-       "gruplar": [
+       "name": "15",
+       "groups": [
         [
          [
           "pm_sporestalker_easy",
@@ -2644,8 +2644,8 @@
        ]
       },
       {
-       "ad": "16",
-       "gruplar": [
+       "name": "16",
+       "groups": [
         [
          [
           "pm_sporestalker_easy",
@@ -2655,8 +2655,8 @@
        ]
       },
       {
-       "ad": "17",
-       "gruplar": [
+       "name": "17",
+       "groups": [
         [
          [
           "pm_sporestalker_easy",
@@ -2666,8 +2666,8 @@
        ]
       },
       {
-       "ad": "18",
-       "gruplar": [
+       "name": "18",
+       "groups": [
         [
          [
           "pm_sporestalker_easy",
@@ -2683,8 +2683,8 @@
        ]
       },
       {
-       "ad": "19",
-       "gruplar": [
+       "name": "19",
+       "groups": [
         [
          [
           "pm_sporestalker_easy",
@@ -2694,8 +2694,8 @@
        ]
       },
       {
-       "ad": "20",
-       "gruplar": [
+       "name": "20",
+       "groups": [
         [
          [
           "pm_sporestalker_easy",
@@ -2716,22 +2716,22 @@
      "5": {
       "qp": 21,
       "xy": 2,
-      "puan": 42
+      "points": 42
      },
      "10": {
       "qp": 21,
       "xy": 2,
-      "puan": 42
+      "points": 42
      },
      "15": {
       "qp": 21,
       "xy": 2,
-      "puan": 43
+      "points": 43
      },
      "20": {
       "qp": 21,
       "xy": 3,
-      "puan": 43
+      "points": 43
      }
     },
     "drop": [
@@ -2742,7 +2742,7 @@
     ]
    },
    {
-    "ad": "Normal",
+    "name": "Normal",
     "os_level": 6,
     "kinds": {
      "Magma Stalker": "pm_magmastalker_normal",
@@ -2753,8 +2753,8 @@
     "arenas": {
      "1": [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "pm_magmastalker_normal",
@@ -2764,8 +2764,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "pm_magmastalker_normal",
@@ -2775,8 +2775,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "pm_magmastalker_normal",
@@ -2786,8 +2786,8 @@
        ]
       },
       {
-       "ad": "4",
-       "gruplar": [
+       "name": "4",
+       "groups": [
         [
          [
           "pm_magmastalker_normal",
@@ -2797,8 +2797,8 @@
        ]
       },
       {
-       "ad": "5",
-       "gruplar": [
+       "name": "5",
+       "groups": [
         [
          [
           "pm_magmastalker_normal",
@@ -2814,8 +2814,8 @@
        ]
       },
       {
-       "ad": "6",
-       "gruplar": [
+       "name": "6",
+       "groups": [
         [
          [
           "pm_magmastalker_normal",
@@ -2831,8 +2831,8 @@
        ]
       },
       {
-       "ad": "7",
-       "gruplar": [
+       "name": "7",
+       "groups": [
         [
          [
           "pm_magmastalker_normal",
@@ -2842,8 +2842,8 @@
        ]
       },
       {
-       "ad": "8",
-       "gruplar": [
+       "name": "8",
+       "groups": [
         [
          [
           "pm_magmastalker_normal",
@@ -2853,8 +2853,8 @@
        ]
       },
       {
-       "ad": "9",
-       "gruplar": [
+       "name": "9",
+       "groups": [
         [
          [
           "pm_magmastalker_normal",
@@ -2870,8 +2870,8 @@
        ]
       },
       {
-       "ad": "10",
-       "gruplar": [
+       "name": "10",
+       "groups": [
         [
          [
           "pm_magmastalker_normal",
@@ -2887,8 +2887,8 @@
        ]
       },
       {
-       "ad": "11",
-       "gruplar": [
+       "name": "11",
+       "groups": [
         [
          [
           "pm_magmastalker_normal",
@@ -2898,8 +2898,8 @@
        ]
       },
       {
-       "ad": "12",
-       "gruplar": [
+       "name": "12",
+       "groups": [
         [
          [
           "pm_magmastalker_normal",
@@ -2915,8 +2915,8 @@
        ]
       },
       {
-       "ad": "13",
-       "gruplar": [
+       "name": "13",
+       "groups": [
         [
          [
           "pm_magmastalker_normal",
@@ -2926,8 +2926,8 @@
        ]
       },
       {
-       "ad": "14",
-       "gruplar": [
+       "name": "14",
+       "groups": [
         [
          [
           "pm_magmastalker_normal",
@@ -2937,8 +2937,8 @@
        ]
       },
       {
-       "ad": "15",
-       "gruplar": [
+       "name": "15",
+       "groups": [
         [
          [
           "pm_magmastalker_normal",
@@ -2954,8 +2954,8 @@
        ]
       },
       {
-       "ad": "16",
-       "gruplar": [
+       "name": "16",
+       "groups": [
         [
          [
           "pm_magmastalker_normal",
@@ -2965,8 +2965,8 @@
        ]
       },
       {
-       "ad": "17",
-       "gruplar": [
+       "name": "17",
+       "groups": [
         [
          [
           "pm_magmastalker_normal",
@@ -2976,8 +2976,8 @@
        ]
       },
       {
-       "ad": "18",
-       "gruplar": [
+       "name": "18",
+       "groups": [
         [
          [
           "pm_magmastalker_normal",
@@ -2993,8 +2993,8 @@
        ]
       },
       {
-       "ad": "19",
-       "gruplar": [
+       "name": "19",
+       "groups": [
         [
          [
           "pm_magmastalker_normal",
@@ -3004,8 +3004,8 @@
        ]
       },
       {
-       "ad": "20",
-       "gruplar": [
+       "name": "20",
+       "groups": [
         [
          [
           "pm_magmastalker_normal",
@@ -3023,8 +3023,8 @@
      ],
      "2": [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "pm_sporestalker_normal",
@@ -3034,8 +3034,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "pm_sporestalker_normal",
@@ -3045,8 +3045,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "pm_sporestalker_normal",
@@ -3056,8 +3056,8 @@
        ]
       },
       {
-       "ad": "4",
-       "gruplar": [
+       "name": "4",
+       "groups": [
         [
          [
           "pm_sporestalker_normal",
@@ -3067,8 +3067,8 @@
        ]
       },
       {
-       "ad": "5",
-       "gruplar": [
+       "name": "5",
+       "groups": [
         [
          [
           "pm_sporestalker_normal",
@@ -3084,8 +3084,8 @@
        ]
       },
       {
-       "ad": "6",
-       "gruplar": [
+       "name": "6",
+       "groups": [
         [
          [
           "pm_sporestalker_normal",
@@ -3101,8 +3101,8 @@
        ]
       },
       {
-       "ad": "7",
-       "gruplar": [
+       "name": "7",
+       "groups": [
         [
          [
           "pm_sporestalker_normal",
@@ -3112,8 +3112,8 @@
        ]
       },
       {
-       "ad": "8",
-       "gruplar": [
+       "name": "8",
+       "groups": [
         [
          [
           "pm_sporestalker_normal",
@@ -3123,8 +3123,8 @@
        ]
       },
       {
-       "ad": "9",
-       "gruplar": [
+       "name": "9",
+       "groups": [
         [
          [
           "pm_sporestalker_normal",
@@ -3140,8 +3140,8 @@
        ]
       },
       {
-       "ad": "10",
-       "gruplar": [
+       "name": "10",
+       "groups": [
         [
          [
           "pm_sporestalker_normal",
@@ -3157,8 +3157,8 @@
        ]
       },
       {
-       "ad": "11",
-       "gruplar": [
+       "name": "11",
+       "groups": [
         [
          [
           "pm_sporestalker_normal",
@@ -3168,8 +3168,8 @@
        ]
       },
       {
-       "ad": "12",
-       "gruplar": [
+       "name": "12",
+       "groups": [
         [
          [
           "pm_sporestalker_normal",
@@ -3185,8 +3185,8 @@
        ]
       },
       {
-       "ad": "13",
-       "gruplar": [
+       "name": "13",
+       "groups": [
         [
          [
           "pm_sporestalker_normal",
@@ -3196,8 +3196,8 @@
        ]
       },
       {
-       "ad": "14",
-       "gruplar": [
+       "name": "14",
+       "groups": [
         [
          [
           "pm_sporestalker_normal",
@@ -3207,8 +3207,8 @@
        ]
       },
       {
-       "ad": "15",
-       "gruplar": [
+       "name": "15",
+       "groups": [
         [
          [
           "pm_sporestalker_normal",
@@ -3224,8 +3224,8 @@
        ]
       },
       {
-       "ad": "16",
-       "gruplar": [
+       "name": "16",
+       "groups": [
         [
          [
           "pm_sporestalker_normal",
@@ -3235,8 +3235,8 @@
        ]
       },
       {
-       "ad": "17",
-       "gruplar": [
+       "name": "17",
+       "groups": [
         [
          [
           "pm_sporestalker_normal",
@@ -3246,8 +3246,8 @@
        ]
       },
       {
-       "ad": "18",
-       "gruplar": [
+       "name": "18",
+       "groups": [
         [
          [
           "pm_sporestalker_normal",
@@ -3263,8 +3263,8 @@
        ]
       },
       {
-       "ad": "19",
-       "gruplar": [
+       "name": "19",
+       "groups": [
         [
          [
           "pm_sporestalker_normal",
@@ -3274,8 +3274,8 @@
        ]
       },
       {
-       "ad": "20",
-       "gruplar": [
+       "name": "20",
+       "groups": [
         [
          [
           "pm_sporestalker_normal",
@@ -3296,22 +3296,22 @@
      "5": {
       "qp": 21,
       "xy": 2,
-      "puan": 43
+      "points": 43
      },
      "10": {
       "qp": 21,
       "xy": 2,
-      "puan": 43
+      "points": 43
      },
      "15": {
       "qp": 21,
       "xy": 2,
-      "puan": 44
+      "points": 44
      },
      "20": {
       "qp": 21,
       "xy": 3,
-      "puan": 45
+      "points": 45
      }
     },
     "drop": [
@@ -3322,7 +3322,7 @@
     ]
    },
    {
-    "ad": "Hard",
+    "name": "Hard",
     "os_level": 11,
     "kinds": {
      "Magma Stalker": "pm_magmastalker_hard",
@@ -3333,8 +3333,8 @@
     "arenas": {
      "1": [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "pm_magmastalker_hard",
@@ -3344,8 +3344,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "pm_magmastalker_hard",
@@ -3355,8 +3355,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "pm_magmastalker_hard",
@@ -3366,8 +3366,8 @@
        ]
       },
       {
-       "ad": "4",
-       "gruplar": [
+       "name": "4",
+       "groups": [
         [
          [
           "pm_magmastalker_hard",
@@ -3377,8 +3377,8 @@
        ]
       },
       {
-       "ad": "5",
-       "gruplar": [
+       "name": "5",
+       "groups": [
         [
          [
           "pm_magmastalker_hard",
@@ -3394,8 +3394,8 @@
        ]
       },
       {
-       "ad": "6",
-       "gruplar": [
+       "name": "6",
+       "groups": [
         [
          [
           "pm_magmastalker_hard",
@@ -3411,8 +3411,8 @@
        ]
       },
       {
-       "ad": "7",
-       "gruplar": [
+       "name": "7",
+       "groups": [
         [
          [
           "pm_magmastalker_hard",
@@ -3422,8 +3422,8 @@
        ]
       },
       {
-       "ad": "8",
-       "gruplar": [
+       "name": "8",
+       "groups": [
         [
          [
           "pm_magmastalker_hard",
@@ -3433,8 +3433,8 @@
        ]
       },
       {
-       "ad": "9",
-       "gruplar": [
+       "name": "9",
+       "groups": [
         [
          [
           "pm_magmastalker_hard",
@@ -3450,8 +3450,8 @@
        ]
       },
       {
-       "ad": "10",
-       "gruplar": [
+       "name": "10",
+       "groups": [
         [
          [
           "pm_magmastalker_hard",
@@ -3467,8 +3467,8 @@
        ]
       },
       {
-       "ad": "11",
-       "gruplar": [
+       "name": "11",
+       "groups": [
         [
          [
           "pm_magmastalker_hard",
@@ -3478,8 +3478,8 @@
        ]
       },
       {
-       "ad": "12",
-       "gruplar": [
+       "name": "12",
+       "groups": [
         [
          [
           "pm_magmastalker_hard",
@@ -3495,8 +3495,8 @@
        ]
       },
       {
-       "ad": "13",
-       "gruplar": [
+       "name": "13",
+       "groups": [
         [
          [
           "pm_magmastalker_hard",
@@ -3506,8 +3506,8 @@
        ]
       },
       {
-       "ad": "14",
-       "gruplar": [
+       "name": "14",
+       "groups": [
         [
          [
           "pm_magmastalker_hard",
@@ -3517,8 +3517,8 @@
        ]
       },
       {
-       "ad": "15",
-       "gruplar": [
+       "name": "15",
+       "groups": [
         [
          [
           "pm_magmastalker_hard",
@@ -3534,8 +3534,8 @@
        ]
       },
       {
-       "ad": "16",
-       "gruplar": [
+       "name": "16",
+       "groups": [
         [
          [
           "pm_magmastalker_hard",
@@ -3545,8 +3545,8 @@
        ]
       },
       {
-       "ad": "17",
-       "gruplar": [
+       "name": "17",
+       "groups": [
         [
          [
           "pm_magmastalker_hard",
@@ -3556,8 +3556,8 @@
        ]
       },
       {
-       "ad": "18",
-       "gruplar": [
+       "name": "18",
+       "groups": [
         [
          [
           "pm_magmastalker_hard",
@@ -3573,8 +3573,8 @@
        ]
       },
       {
-       "ad": "19",
-       "gruplar": [
+       "name": "19",
+       "groups": [
         [
          [
           "pm_magmastalker_hard",
@@ -3584,8 +3584,8 @@
        ]
       },
       {
-       "ad": "20",
-       "gruplar": [
+       "name": "20",
+       "groups": [
         [
          [
           "pm_magmastalker_hard",
@@ -3603,8 +3603,8 @@
      ],
      "2": [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "pm_sporestalker_hard",
@@ -3614,8 +3614,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "pm_sporestalker_hard",
@@ -3625,8 +3625,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "pm_sporestalker_hard",
@@ -3636,8 +3636,8 @@
        ]
       },
       {
-       "ad": "4",
-       "gruplar": [
+       "name": "4",
+       "groups": [
         [
          [
           "pm_sporestalker_hard",
@@ -3647,8 +3647,8 @@
        ]
       },
       {
-       "ad": "5",
-       "gruplar": [
+       "name": "5",
+       "groups": [
         [
          [
           "pm_sporestalker_hard",
@@ -3664,8 +3664,8 @@
        ]
       },
       {
-       "ad": "6",
-       "gruplar": [
+       "name": "6",
+       "groups": [
         [
          [
           "pm_sporestalker_hard",
@@ -3681,8 +3681,8 @@
        ]
       },
       {
-       "ad": "7",
-       "gruplar": [
+       "name": "7",
+       "groups": [
         [
          [
           "pm_sporestalker_hard",
@@ -3692,8 +3692,8 @@
        ]
       },
       {
-       "ad": "8",
-       "gruplar": [
+       "name": "8",
+       "groups": [
         [
          [
           "pm_sporestalker_hard",
@@ -3703,8 +3703,8 @@
        ]
       },
       {
-       "ad": "9",
-       "gruplar": [
+       "name": "9",
+       "groups": [
         [
          [
           "pm_sporestalker_hard",
@@ -3720,8 +3720,8 @@
        ]
       },
       {
-       "ad": "10",
-       "gruplar": [
+       "name": "10",
+       "groups": [
         [
          [
           "pm_sporestalker_hard",
@@ -3737,8 +3737,8 @@
        ]
       },
       {
-       "ad": "11",
-       "gruplar": [
+       "name": "11",
+       "groups": [
         [
          [
           "pm_sporestalker_hard",
@@ -3748,8 +3748,8 @@
        ]
       },
       {
-       "ad": "12",
-       "gruplar": [
+       "name": "12",
+       "groups": [
         [
          [
           "pm_sporestalker_hard",
@@ -3765,8 +3765,8 @@
        ]
       },
       {
-       "ad": "13",
-       "gruplar": [
+       "name": "13",
+       "groups": [
         [
          [
           "pm_sporestalker_hard",
@@ -3776,8 +3776,8 @@
        ]
       },
       {
-       "ad": "14",
-       "gruplar": [
+       "name": "14",
+       "groups": [
         [
          [
           "pm_sporestalker_hard",
@@ -3787,8 +3787,8 @@
        ]
       },
       {
-       "ad": "15",
-       "gruplar": [
+       "name": "15",
+       "groups": [
         [
          [
           "pm_sporestalker_hard",
@@ -3804,8 +3804,8 @@
        ]
       },
       {
-       "ad": "16",
-       "gruplar": [
+       "name": "16",
+       "groups": [
         [
          [
           "pm_sporestalker_hard",
@@ -3815,8 +3815,8 @@
        ]
       },
       {
-       "ad": "17",
-       "gruplar": [
+       "name": "17",
+       "groups": [
         [
          [
           "pm_sporestalker_hard",
@@ -3826,8 +3826,8 @@
        ]
       },
       {
-       "ad": "18",
-       "gruplar": [
+       "name": "18",
+       "groups": [
         [
          [
           "pm_sporestalker_hard",
@@ -3843,8 +3843,8 @@
        ]
       },
       {
-       "ad": "19",
-       "gruplar": [
+       "name": "19",
+       "groups": [
         [
          [
           "pm_sporestalker_hard",
@@ -3854,8 +3854,8 @@
        ]
       },
       {
-       "ad": "20",
-       "gruplar": [
+       "name": "20",
+       "groups": [
         [
          [
           "pm_sporestalker_hard",
@@ -3876,22 +3876,22 @@
      "5": {
       "qp": 21,
       "xy": 2,
-      "puan": 44
+      "points": 44
      },
      "10": {
       "qp": 21,
       "xy": 2,
-      "puan": 45
+      "points": 45
      },
      "15": {
       "qp": 21,
       "xy": 2,
-      "puan": 45
+      "points": 45
      },
      "20": {
       "qp": 21,
       "xy": 3,
-      "puan": 46
+      "points": 46
      }
     },
     "drop": [
@@ -3906,7 +3906,7 @@
     ]
    },
    {
-    "ad": "Expert",
+    "name": "Expert",
     "os_level": 21,
     "kinds": {
      "Magma Stalker": "pm_magmastalker_expert",
@@ -3917,8 +3917,8 @@
     "arenas": {
      "1": [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "pm_magmastalker_expert",
@@ -3928,8 +3928,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "pm_magmastalker_expert",
@@ -3939,8 +3939,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "pm_magmastalker_expert",
@@ -3950,8 +3950,8 @@
        ]
       },
       {
-       "ad": "4",
-       "gruplar": [
+       "name": "4",
+       "groups": [
         [
          [
           "pm_magmastalker_expert",
@@ -3961,8 +3961,8 @@
        ]
       },
       {
-       "ad": "5",
-       "gruplar": [
+       "name": "5",
+       "groups": [
         [
          [
           "pm_magmastalker_expert",
@@ -3978,8 +3978,8 @@
        ]
       },
       {
-       "ad": "6",
-       "gruplar": [
+       "name": "6",
+       "groups": [
         [
          [
           "pm_magmastalker_expert",
@@ -3995,8 +3995,8 @@
        ]
       },
       {
-       "ad": "7",
-       "gruplar": [
+       "name": "7",
+       "groups": [
         [
          [
           "pm_magmastalker_expert",
@@ -4006,8 +4006,8 @@
        ]
       },
       {
-       "ad": "8",
-       "gruplar": [
+       "name": "8",
+       "groups": [
         [
          [
           "pm_magmastalker_expert",
@@ -4017,8 +4017,8 @@
        ]
       },
       {
-       "ad": "9",
-       "gruplar": [
+       "name": "9",
+       "groups": [
         [
          [
           "pm_magmastalker_expert",
@@ -4034,8 +4034,8 @@
        ]
       },
       {
-       "ad": "10",
-       "gruplar": [
+       "name": "10",
+       "groups": [
         [
          [
           "pm_magmastalker_expert",
@@ -4051,8 +4051,8 @@
        ]
       },
       {
-       "ad": "11",
-       "gruplar": [
+       "name": "11",
+       "groups": [
         [
          [
           "pm_magmastalker_expert",
@@ -4062,8 +4062,8 @@
        ]
       },
       {
-       "ad": "12",
-       "gruplar": [
+       "name": "12",
+       "groups": [
         [
          [
           "pm_magmastalker_expert",
@@ -4079,8 +4079,8 @@
        ]
       },
       {
-       "ad": "13",
-       "gruplar": [
+       "name": "13",
+       "groups": [
         [
          [
           "pm_magmastalker_expert",
@@ -4090,8 +4090,8 @@
        ]
       },
       {
-       "ad": "14",
-       "gruplar": [
+       "name": "14",
+       "groups": [
         [
          [
           "pm_magmastalker_expert",
@@ -4101,8 +4101,8 @@
        ]
       },
       {
-       "ad": "15",
-       "gruplar": [
+       "name": "15",
+       "groups": [
         [
          [
           "pm_magmastalker_expert",
@@ -4118,8 +4118,8 @@
        ]
       },
       {
-       "ad": "16",
-       "gruplar": [
+       "name": "16",
+       "groups": [
         [
          [
           "pm_magmastalker_expert",
@@ -4129,8 +4129,8 @@
        ]
       },
       {
-       "ad": "17",
-       "gruplar": [
+       "name": "17",
+       "groups": [
         [
          [
           "pm_magmastalker_expert",
@@ -4140,8 +4140,8 @@
        ]
       },
       {
-       "ad": "18",
-       "gruplar": [
+       "name": "18",
+       "groups": [
         [
          [
           "pm_magmastalker_expert",
@@ -4157,8 +4157,8 @@
        ]
       },
       {
-       "ad": "19",
-       "gruplar": [
+       "name": "19",
+       "groups": [
         [
          [
           "pm_magmastalker_expert",
@@ -4168,8 +4168,8 @@
        ]
       },
       {
-       "ad": "20",
-       "gruplar": [
+       "name": "20",
+       "groups": [
         [
          [
           "pm_magmastalker_expert",
@@ -4187,8 +4187,8 @@
      ],
      "2": [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "pm_sporestalker_expert",
@@ -4198,8 +4198,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "pm_sporestalker_expert",
@@ -4209,8 +4209,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "pm_sporestalker_expert",
@@ -4220,8 +4220,8 @@
        ]
       },
       {
-       "ad": "4",
-       "gruplar": [
+       "name": "4",
+       "groups": [
         [
          [
           "pm_sporestalker_expert",
@@ -4231,8 +4231,8 @@
        ]
       },
       {
-       "ad": "5",
-       "gruplar": [
+       "name": "5",
+       "groups": [
         [
          [
           "pm_sporestalker_expert",
@@ -4248,8 +4248,8 @@
        ]
       },
       {
-       "ad": "6",
-       "gruplar": [
+       "name": "6",
+       "groups": [
         [
          [
           "pm_sporestalker_expert",
@@ -4265,8 +4265,8 @@
        ]
       },
       {
-       "ad": "7",
-       "gruplar": [
+       "name": "7",
+       "groups": [
         [
          [
           "pm_sporestalker_expert",
@@ -4276,8 +4276,8 @@
        ]
       },
       {
-       "ad": "8",
-       "gruplar": [
+       "name": "8",
+       "groups": [
         [
          [
           "pm_sporestalker_expert",
@@ -4287,8 +4287,8 @@
        ]
       },
       {
-       "ad": "9",
-       "gruplar": [
+       "name": "9",
+       "groups": [
         [
          [
           "pm_sporestalker_expert",
@@ -4304,8 +4304,8 @@
        ]
       },
       {
-       "ad": "10",
-       "gruplar": [
+       "name": "10",
+       "groups": [
         [
          [
           "pm_sporestalker_expert",
@@ -4321,8 +4321,8 @@
        ]
       },
       {
-       "ad": "11",
-       "gruplar": [
+       "name": "11",
+       "groups": [
         [
          [
           "pm_sporestalker_expert",
@@ -4332,8 +4332,8 @@
        ]
       },
       {
-       "ad": "12",
-       "gruplar": [
+       "name": "12",
+       "groups": [
         [
          [
           "pm_sporestalker_expert",
@@ -4349,8 +4349,8 @@
        ]
       },
       {
-       "ad": "13",
-       "gruplar": [
+       "name": "13",
+       "groups": [
         [
          [
           "pm_sporestalker_expert",
@@ -4360,8 +4360,8 @@
        ]
       },
       {
-       "ad": "14",
-       "gruplar": [
+       "name": "14",
+       "groups": [
         [
          [
           "pm_sporestalker_expert",
@@ -4371,8 +4371,8 @@
        ]
       },
       {
-       "ad": "15",
-       "gruplar": [
+       "name": "15",
+       "groups": [
         [
          [
           "pm_sporestalker_expert",
@@ -4388,8 +4388,8 @@
        ]
       },
       {
-       "ad": "16",
-       "gruplar": [
+       "name": "16",
+       "groups": [
         [
          [
           "pm_sporestalker_expert",
@@ -4399,8 +4399,8 @@
        ]
       },
       {
-       "ad": "17",
-       "gruplar": [
+       "name": "17",
+       "groups": [
         [
          [
           "pm_sporestalker_expert",
@@ -4410,8 +4410,8 @@
        ]
       },
       {
-       "ad": "18",
-       "gruplar": [
+       "name": "18",
+       "groups": [
         [
          [
           "pm_sporestalker_expert",
@@ -4427,8 +4427,8 @@
        ]
       },
       {
-       "ad": "19",
-       "gruplar": [
+       "name": "19",
+       "groups": [
         [
          [
           "pm_sporestalker_expert",
@@ -4438,8 +4438,8 @@
        ]
       },
       {
-       "ad": "20",
-       "gruplar": [
+       "name": "20",
+       "groups": [
         [
          [
           "pm_sporestalker_expert",
@@ -4460,22 +4460,22 @@
      "5": {
       "qp": 21,
       "xy": 2,
-      "puan": 46
+      "points": 46
      },
      "10": {
       "qp": 21,
       "xy": 2,
-      "puan": 47
+      "points": 47
      },
      "15": {
       "qp": 21,
       "xy": 2,
-      "puan": 48
+      "points": 48
      },
      "20": {
       "qp": 21,
       "xy": 3,
-      "puan": 49
+      "points": 49
      }
     },
     "drop": [
@@ -4490,7 +4490,7 @@
     ]
    },
    {
-    "ad": "Nightmare",
+    "name": "Nightmare",
     "os_level": 31,
     "kinds": {
      "Magma Stalker": "pm_magmastalker_nightmare",
@@ -4501,8 +4501,8 @@
     "arenas": {
      "1": [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "pm_magmastalker_nightmare",
@@ -4512,8 +4512,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "pm_magmastalker_nightmare",
@@ -4523,8 +4523,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "pm_magmastalker_nightmare",
@@ -4534,8 +4534,8 @@
        ]
       },
       {
-       "ad": "4",
-       "gruplar": [
+       "name": "4",
+       "groups": [
         [
          [
           "pm_magmastalker_nightmare",
@@ -4545,8 +4545,8 @@
        ]
       },
       {
-       "ad": "5",
-       "gruplar": [
+       "name": "5",
+       "groups": [
         [
          [
           "pm_magmastalker_nightmare",
@@ -4562,8 +4562,8 @@
        ]
       },
       {
-       "ad": "6",
-       "gruplar": [
+       "name": "6",
+       "groups": [
         [
          [
           "pm_magmastalker_nightmare",
@@ -4579,8 +4579,8 @@
        ]
       },
       {
-       "ad": "7",
-       "gruplar": [
+       "name": "7",
+       "groups": [
         [
          [
           "pm_magmastalker_nightmare",
@@ -4590,8 +4590,8 @@
        ]
       },
       {
-       "ad": "8",
-       "gruplar": [
+       "name": "8",
+       "groups": [
         [
          [
           "pm_magmastalker_nightmare",
@@ -4601,8 +4601,8 @@
        ]
       },
       {
-       "ad": "9",
-       "gruplar": [
+       "name": "9",
+       "groups": [
         [
          [
           "pm_magmastalker_nightmare",
@@ -4618,8 +4618,8 @@
        ]
       },
       {
-       "ad": "10",
-       "gruplar": [
+       "name": "10",
+       "groups": [
         [
          [
           "pm_magmastalker_nightmare",
@@ -4635,8 +4635,8 @@
        ]
       },
       {
-       "ad": "11",
-       "gruplar": [
+       "name": "11",
+       "groups": [
         [
          [
           "pm_magmastalker_nightmare",
@@ -4646,8 +4646,8 @@
        ]
       },
       {
-       "ad": "12",
-       "gruplar": [
+       "name": "12",
+       "groups": [
         [
          [
           "pm_magmastalker_nightmare",
@@ -4663,8 +4663,8 @@
        ]
       },
       {
-       "ad": "13",
-       "gruplar": [
+       "name": "13",
+       "groups": [
         [
          [
           "pm_magmastalker_nightmare",
@@ -4674,8 +4674,8 @@
        ]
       },
       {
-       "ad": "14",
-       "gruplar": [
+       "name": "14",
+       "groups": [
         [
          [
           "pm_magmastalker_nightmare",
@@ -4685,8 +4685,8 @@
        ]
       },
       {
-       "ad": "15",
-       "gruplar": [
+       "name": "15",
+       "groups": [
         [
          [
           "pm_magmastalker_nightmare",
@@ -4702,8 +4702,8 @@
        ]
       },
       {
-       "ad": "16",
-       "gruplar": [
+       "name": "16",
+       "groups": [
         [
          [
           "pm_magmastalker_nightmare",
@@ -4713,8 +4713,8 @@
        ]
       },
       {
-       "ad": "17",
-       "gruplar": [
+       "name": "17",
+       "groups": [
         [
          [
           "pm_magmastalker_nightmare",
@@ -4724,8 +4724,8 @@
        ]
       },
       {
-       "ad": "18",
-       "gruplar": [
+       "name": "18",
+       "groups": [
         [
          [
           "pm_magmastalker_nightmare",
@@ -4741,8 +4741,8 @@
        ]
       },
       {
-       "ad": "19",
-       "gruplar": [
+       "name": "19",
+       "groups": [
         [
          [
           "pm_magmastalker_nightmare",
@@ -4752,8 +4752,8 @@
        ]
       },
       {
-       "ad": "20",
-       "gruplar": [
+       "name": "20",
+       "groups": [
         [
          [
           "pm_magmastalker_nightmare",
@@ -4771,8 +4771,8 @@
      ],
      "2": [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "pm_sporestalker_nightmare",
@@ -4782,8 +4782,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "pm_sporestalker_nightmare",
@@ -4793,8 +4793,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "pm_sporestalker_nightmare",
@@ -4804,8 +4804,8 @@
        ]
       },
       {
-       "ad": "4",
-       "gruplar": [
+       "name": "4",
+       "groups": [
         [
          [
           "pm_sporestalker_nightmare",
@@ -4815,8 +4815,8 @@
        ]
       },
       {
-       "ad": "5",
-       "gruplar": [
+       "name": "5",
+       "groups": [
         [
          [
           "pm_sporestalker_nightmare",
@@ -4832,8 +4832,8 @@
        ]
       },
       {
-       "ad": "6",
-       "gruplar": [
+       "name": "6",
+       "groups": [
         [
          [
           "pm_sporestalker_nightmare",
@@ -4849,8 +4849,8 @@
        ]
       },
       {
-       "ad": "7",
-       "gruplar": [
+       "name": "7",
+       "groups": [
         [
          [
           "pm_sporestalker_nightmare",
@@ -4860,8 +4860,8 @@
        ]
       },
       {
-       "ad": "8",
-       "gruplar": [
+       "name": "8",
+       "groups": [
         [
          [
           "pm_sporestalker_nightmare",
@@ -4871,8 +4871,8 @@
        ]
       },
       {
-       "ad": "9",
-       "gruplar": [
+       "name": "9",
+       "groups": [
         [
          [
           "pm_sporestalker_nightmare",
@@ -4888,8 +4888,8 @@
        ]
       },
       {
-       "ad": "10",
-       "gruplar": [
+       "name": "10",
+       "groups": [
         [
          [
           "pm_sporestalker_nightmare",
@@ -4905,8 +4905,8 @@
        ]
       },
       {
-       "ad": "11",
-       "gruplar": [
+       "name": "11",
+       "groups": [
         [
          [
           "pm_sporestalker_nightmare",
@@ -4916,8 +4916,8 @@
        ]
       },
       {
-       "ad": "12",
-       "gruplar": [
+       "name": "12",
+       "groups": [
         [
          [
           "pm_sporestalker_nightmare",
@@ -4933,8 +4933,8 @@
        ]
       },
       {
-       "ad": "13",
-       "gruplar": [
+       "name": "13",
+       "groups": [
         [
          [
           "pm_sporestalker_nightmare",
@@ -4944,8 +4944,8 @@
        ]
       },
       {
-       "ad": "14",
-       "gruplar": [
+       "name": "14",
+       "groups": [
         [
          [
           "pm_sporestalker_nightmare",
@@ -4955,8 +4955,8 @@
        ]
       },
       {
-       "ad": "15",
-       "gruplar": [
+       "name": "15",
+       "groups": [
         [
          [
           "pm_sporestalker_nightmare",
@@ -4972,8 +4972,8 @@
        ]
       },
       {
-       "ad": "16",
-       "gruplar": [
+       "name": "16",
+       "groups": [
         [
          [
           "pm_sporestalker_nightmare",
@@ -4983,8 +4983,8 @@
        ]
       },
       {
-       "ad": "17",
-       "gruplar": [
+       "name": "17",
+       "groups": [
         [
          [
           "pm_sporestalker_nightmare",
@@ -4994,8 +4994,8 @@
        ]
       },
       {
-       "ad": "18",
-       "gruplar": [
+       "name": "18",
+       "groups": [
         [
          [
           "pm_sporestalker_nightmare",
@@ -5011,8 +5011,8 @@
        ]
       },
       {
-       "ad": "19",
-       "gruplar": [
+       "name": "19",
+       "groups": [
         [
          [
           "pm_sporestalker_nightmare",
@@ -5022,8 +5022,8 @@
        ]
       },
       {
-       "ad": "20",
-       "gruplar": [
+       "name": "20",
+       "groups": [
         [
          [
           "pm_sporestalker_nightmare",
@@ -5044,22 +5044,22 @@
      "5": {
       "qp": 21,
       "xy": 2,
-      "puan": 49
+      "points": 49
      },
      "10": {
       "qp": 21,
       "xy": 2,
-      "puan": 50
+      "points": 50
      },
      "15": {
       "qp": 21,
       "xy": 2,
-      "puan": 50
+      "points": 50
      },
      "20": {
       "qp": 21,
       "xy": 3,
-      "puan": 51
+      "points": 51
      }
     },
     "drop": [
@@ -5080,7 +5080,7 @@
   ],
   "os": [
    {
-    "seviye": 1,
+    "level": 1,
     "cost": 0,
     "sure_sn": 0,
     "rarity": [
@@ -5094,7 +5094,7 @@
     ]
    },
    {
-    "seviye": 2,
+    "level": 2,
     "cost": 10,
     "sure_sn": 9000,
     "rarity": [
@@ -5108,7 +5108,7 @@
     ]
    },
    {
-    "seviye": 3,
+    "level": 3,
     "cost": 11,
     "sure_sn": 9000,
     "rarity": [
@@ -5122,7 +5122,7 @@
     ]
    },
    {
-    "seviye": 4,
+    "level": 4,
     "cost": 12,
     "sure_sn": 9000,
     "rarity": [
@@ -5136,7 +5136,7 @@
     ]
    },
    {
-    "seviye": 5,
+    "level": 5,
     "cost": 13,
     "sure_sn": 9000,
     "rarity": [
@@ -5150,7 +5150,7 @@
     ]
    },
    {
-    "seviye": 6,
+    "level": 6,
     "cost": 14,
     "sure_sn": 9000,
     "rarity": [
@@ -5164,7 +5164,7 @@
     ]
    },
    {
-    "seviye": 7,
+    "level": 7,
     "cost": 15,
     "sure_sn": 12000,
     "rarity": [
@@ -5178,7 +5178,7 @@
     ]
    },
    {
-    "seviye": 8,
+    "level": 8,
     "cost": 17,
     "sure_sn": 12000,
     "rarity": [
@@ -5192,7 +5192,7 @@
     ]
    },
    {
-    "seviye": 9,
+    "level": 9,
     "cost": 19,
     "sure_sn": 12000,
     "rarity": [
@@ -5206,7 +5206,7 @@
     ]
    },
    {
-    "seviye": 10,
+    "level": 10,
     "cost": 21,
     "sure_sn": 12000,
     "rarity": [
@@ -5220,7 +5220,7 @@
     ]
    },
    {
-    "seviye": 11,
+    "level": 11,
     "cost": 23,
     "sure_sn": 12000,
     "rarity": [
@@ -5234,7 +5234,7 @@
     ]
    },
    {
-    "seviye": 12,
+    "level": 12,
     "cost": 25,
     "sure_sn": 30000,
     "rarity": [
@@ -5248,7 +5248,7 @@
     ]
    },
    {
-    "seviye": 13,
+    "level": 13,
     "cost": 28,
     "sure_sn": 30000,
     "rarity": [
@@ -5262,7 +5262,7 @@
     ]
    },
    {
-    "seviye": 14,
+    "level": 14,
     "cost": 31,
     "sure_sn": 30000,
     "rarity": [
@@ -5276,7 +5276,7 @@
     ]
    },
    {
-    "seviye": 15,
+    "level": 15,
     "cost": 34,
     "sure_sn": 30000,
     "rarity": [
@@ -5290,7 +5290,7 @@
     ]
    },
    {
-    "seviye": 16,
+    "level": 16,
     "cost": 37,
     "sure_sn": 30000,
     "rarity": [
@@ -5304,7 +5304,7 @@
     ]
    },
    {
-    "seviye": 17,
+    "level": 17,
     "cost": 41,
     "sure_sn": 30000,
     "rarity": [
@@ -5318,7 +5318,7 @@
     ]
    },
    {
-    "seviye": 18,
+    "level": 18,
     "cost": 45,
     "sure_sn": 30000,
     "rarity": [
@@ -5332,7 +5332,7 @@
     ]
    },
    {
-    "seviye": 19,
+    "level": 19,
     "cost": 50,
     "sure_sn": 30000,
     "rarity": [
@@ -5346,7 +5346,7 @@
     ]
    },
    {
-    "seviye": 20,
+    "level": 20,
     "cost": 55,
     "sure_sn": 30000,
     "rarity": [
@@ -5360,7 +5360,7 @@
     ]
    },
    {
-    "seviye": 21,
+    "level": 21,
     "cost": 61,
     "sure_sn": 30000,
     "rarity": [
@@ -5374,7 +5374,7 @@
     ]
    },
    {
-    "seviye": 22,
+    "level": 22,
     "cost": 67,
     "sure_sn": 30000,
     "rarity": [
@@ -5388,7 +5388,7 @@
     ]
    },
    {
-    "seviye": 23,
+    "level": 23,
     "cost": 74,
     "sure_sn": 60000,
     "rarity": [
@@ -5402,7 +5402,7 @@
     ]
    },
    {
-    "seviye": 24,
+    "level": 24,
     "cost": 81,
     "sure_sn": 60000,
     "rarity": [
@@ -5416,7 +5416,7 @@
     ]
    },
    {
-    "seviye": 25,
+    "level": 25,
     "cost": 89,
     "sure_sn": 60000,
     "rarity": [
@@ -5430,7 +5430,7 @@
     ]
    },
    {
-    "seviye": 26,
+    "level": 26,
     "cost": 98,
     "sure_sn": 60000,
     "rarity": [
@@ -5444,7 +5444,7 @@
     ]
    },
    {
-    "seviye": 27,
+    "level": 27,
     "cost": 108,
     "sure_sn": 60000,
     "rarity": [
@@ -5458,7 +5458,7 @@
     ]
    },
    {
-    "seviye": 28,
+    "level": 28,
     "cost": 119,
     "sure_sn": 60000,
     "rarity": [
@@ -5472,7 +5472,7 @@
     ]
    },
    {
-    "seviye": 29,
+    "level": 29,
     "cost": 131,
     "sure_sn": 60000,
     "rarity": [
@@ -5486,7 +5486,7 @@
     ]
    },
    {
-    "seviye": 30,
+    "level": 30,
     "cost": 144,
     "sure_sn": 60000,
     "rarity": [
@@ -5500,7 +5500,7 @@
     ]
    },
    {
-    "seviye": 31,
+    "level": 31,
     "cost": 158,
     "sure_sn": 60000,
     "rarity": [
@@ -5514,7 +5514,7 @@
     ]
    },
    {
-    "seviye": 32,
+    "level": 32,
     "cost": 174,
     "sure_sn": 90000,
     "rarity": [
@@ -5528,7 +5528,7 @@
     ]
    },
    {
-    "seviye": 33,
+    "level": 33,
     "cost": 191,
     "sure_sn": 90000,
     "rarity": [
@@ -5542,7 +5542,7 @@
     ]
    },
    {
-    "seviye": 34,
+    "level": 34,
     "cost": 210,
     "sure_sn": 90000,
     "rarity": [
@@ -5556,7 +5556,7 @@
     ]
    },
    {
-    "seviye": 35,
+    "level": 35,
     "cost": 231,
     "sure_sn": 90000,
     "rarity": [
@@ -5570,7 +5570,7 @@
     ]
    },
    {
-    "seviye": 36,
+    "level": 36,
     "cost": 254,
     "sure_sn": 90000,
     "rarity": [
@@ -5584,7 +5584,7 @@
     ]
    },
    {
-    "seviye": 37,
+    "level": 37,
     "cost": 279,
     "sure_sn": 120000,
     "rarity": [
@@ -5598,7 +5598,7 @@
     ]
    },
    {
-    "seviye": 38,
+    "level": 38,
     "cost": 306,
     "sure_sn": 120000,
     "rarity": [
@@ -5612,7 +5612,7 @@
     ]
    },
    {
-    "seviye": 39,
+    "level": 39,
     "cost": 335,
     "sure_sn": 120000,
     "rarity": [
@@ -5626,7 +5626,7 @@
     ]
    },
    {
-    "seviye": 40,
+    "level": 40,
     "cost": 366,
     "sure_sn": 120000,
     "rarity": [
@@ -5640,7 +5640,7 @@
     ]
    }
   ],
-  "esyalar": {
+  "items": {
    "1": {
     "top": [
      "equipment_weapon_cannon_c-helios",
@@ -5713,7 +5713,7 @@
    }
   ],
   "reward_pass": {
-   "seviyeler": [
+   "levels": [
     100,
     200,
     300,
@@ -6268,34 +6268,34 @@
  },
  "astral": {
   "cpu": "ammunition_ggportal_astral-cpu",
-  "giris": "X-1",
+  "entry": "X-1",
   "portal": 86,
-  "haritalar": [
+  "maps": [
    466,
    467,
    468
   ],
   "ships": [
    {
-    "ad": "Sentinel",
+    "name": "Sentinel",
     "lootId": "ship_sentinel",
     "shipId": 66,
     "loadout": "rl_sentinel"
    },
    {
-    "ad": "Diminisher",
+    "name": "Diminisher",
     "lootId": "ship_diminisher",
     "shipId": 64,
     "loadout": "rl_diminisher"
    },
    {
-    "ad": "Pusat",
+    "name": "Pusat",
     "lootId": "ship_pusat",
     "shipId": 91,
     "loadout": "rl_pusat"
    },
    {
-    "ad": "Zephyr",
+    "name": "Zephyr",
     "lootId": "ship_zephyr",
     "shipId": 393,
     "loadout": "rl_zephyr"
@@ -6339,9 +6339,9 @@
     ]
    ],
    "drones": {
-    "tur": "drone_iris",
-    "adet": 5,
-    "lazer": "equipment_weapon_laser_lf-3",
+    "type": "drone_iris",
+    "count": 5,
+    "laser": "equipment_weapon_laser_lf-3",
     "per_drone": 2
    },
    "ammunition": {
@@ -6354,13 +6354,13 @@
   },
   "rifts": [
    {
-    "ad": "1",
+    "name": "1",
     "boss": false,
     "sets": [
      [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "pm_petraider",
@@ -6370,8 +6370,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "pm_petdecoy",
@@ -6381,8 +6381,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "73",
@@ -6394,8 +6394,8 @@
      ],
      [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "pm_saturndefcom",
@@ -6405,8 +6405,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "25",
@@ -6416,8 +6416,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "pm_petraider",
@@ -6430,13 +6430,13 @@
     ]
    },
    {
-    "ad": "2",
+    "name": "2",
     "boss": false,
     "sets": [
      [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "event_curcubitor_x5",
@@ -6446,8 +6446,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "73",
@@ -6457,8 +6457,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "pm_petdecoy",
@@ -6470,8 +6470,8 @@
      ],
      [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "pm_saturndefcom",
@@ -6481,8 +6481,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "pm_saturnyamato",
@@ -6492,8 +6492,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "pm_saturnyamato",
@@ -6506,13 +6506,13 @@
     ]
    },
    {
-    "ad": "3",
+    "name": "3",
     "boss": false,
     "sets": [
      [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "pm_saturnliberator",
@@ -6522,8 +6522,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "event_curcubitor_x5",
@@ -6533,8 +6533,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "pm_petraider",
@@ -6546,8 +6546,8 @@
      ],
      [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "pm_petdecoy",
@@ -6557,8 +6557,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "pm_saturnliberator",
@@ -6568,8 +6568,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "37",
@@ -6582,13 +6582,13 @@
     ]
    },
    {
-    "ad": "4",
+    "name": "4",
     "boss": false,
     "sets": [
      [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "24",
@@ -6598,8 +6598,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "pm_coweringcyborg",
@@ -6609,8 +6609,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "37",
@@ -6622,8 +6622,8 @@
      ],
      [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "pm_petdecoy",
@@ -6633,8 +6633,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "73",
@@ -6644,8 +6644,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "pm_petdecoy",
@@ -6658,13 +6658,13 @@
     ]
    },
    {
-    "ad": "5",
+    "name": "5",
     "boss": true,
     "sets": [
      [
       {
-       "ad": "boss",
-       "gruplar": [
+       "name": "boss",
+       "groups": [
         [
          [
           "lab_frozen_kristallin",
@@ -6678,13 +6678,13 @@
     ]
    },
    {
-    "ad": "6",
+    "name": "6",
     "boss": false,
     "sets": [
      [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "pm_saturnspearhead",
@@ -6694,8 +6694,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "25",
@@ -6705,8 +6705,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "pm_saturnlightning",
@@ -6718,8 +6718,8 @@
      ],
      [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "event_spinel_x5",
@@ -6729,8 +6729,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "76",
@@ -6740,8 +6740,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "lab_frozen_icy",
@@ -6754,13 +6754,13 @@
     ]
    },
    {
-    "ad": "7",
+    "name": "7",
     "boss": false,
     "sets": [
      [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "pm_saturnspearhead",
@@ -6770,8 +6770,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "pm_saturnbigboy",
@@ -6781,8 +6781,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "pm_saturnavenger",
@@ -6794,8 +6794,8 @@
      ],
      [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "event_lanatum_x5",
@@ -6805,8 +6805,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "pm_saturnspearhead",
@@ -6816,8 +6816,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "event_lanatum_x5",
@@ -6830,13 +6830,13 @@
     ]
    },
    {
-    "ad": "8",
+    "name": "8",
     "boss": false,
     "sets": [
      [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "pm_saturnbigboy",
@@ -6846,8 +6846,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "pm_saturnpiranha",
@@ -6857,8 +6857,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "lab_frozen_icy",
@@ -6870,8 +6870,8 @@
      ],
      [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "pm_coweringcyborg",
@@ -6881,8 +6881,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "pm_coweringcyborg",
@@ -6892,8 +6892,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "25",
@@ -6906,13 +6906,13 @@
     ]
    },
    {
-    "ad": "9",
+    "name": "9",
     "boss": false,
     "sets": [
      [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "event_lanatum_x5",
@@ -6922,8 +6922,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "pm_saturnliberator",
@@ -6933,8 +6933,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "pm_saturnbigboy",
@@ -6946,8 +6946,8 @@
      ],
      [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "event_spinel_x5",
@@ -6957,8 +6957,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "37",
@@ -6968,8 +6968,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "event_lanatum_x5",
@@ -6982,13 +6982,13 @@
     ]
    },
    {
-    "ad": "10",
+    "name": "10",
     "boss": true,
     "sets": [
      [
       {
-       "ad": "boss",
-       "gruplar": [
+       "name": "boss",
+       "groups": [
         [
          [
           "event_icy",
@@ -7002,13 +7002,13 @@
     ]
    },
    {
-    "ad": "11",
+    "name": "11",
     "boss": false,
     "sets": [
      [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "73",
@@ -7018,8 +7018,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "25",
@@ -7029,8 +7029,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "pm_saturnnostromo",
@@ -7042,8 +7042,8 @@
      ],
      [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "pm_gygerthrall",
@@ -7053,8 +7053,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "78",
@@ -7064,8 +7064,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "pm_gygerthrall",
@@ -7078,13 +7078,13 @@
     ]
    },
    {
-    "ad": "12",
+    "name": "12",
     "boss": false,
     "sets": [
      [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "73",
@@ -7094,8 +7094,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "37",
@@ -7105,8 +7105,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "pm_saturnnostromo",
@@ -7118,8 +7118,8 @@
      ],
      [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "pm_ufonit",
@@ -7129,8 +7129,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "25",
@@ -7140,8 +7140,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "pm_ufonit",
@@ -7154,13 +7154,13 @@
     ]
    },
    {
-    "ad": "13",
+    "name": "13",
     "boss": false,
     "sets": [
      [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "pm_saturnavenger",
@@ -7170,8 +7170,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "25",
@@ -7181,8 +7181,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "pm_saturnnostromo",
@@ -7194,8 +7194,8 @@
      ],
      [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "76",
@@ -7205,8 +7205,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "76",
@@ -7216,8 +7216,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "76",
@@ -7230,13 +7230,13 @@
     ]
    },
    {
-    "ad": "14",
+    "name": "14",
     "boss": false,
     "sets": [
      [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "pm_saturnlightning",
@@ -7246,8 +7246,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "pm_saturnspearhead",
@@ -7257,8 +7257,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "pm_saturnnostromo",
@@ -7270,8 +7270,8 @@
      ],
      [
       {
-       "ad": "1",
-       "gruplar": [
+       "name": "1",
+       "groups": [
         [
          [
           "pm_ufonit",
@@ -7281,8 +7281,8 @@
        ]
       },
       {
-       "ad": "2",
-       "gruplar": [
+       "name": "2",
+       "groups": [
         [
          [
           "78",
@@ -7292,8 +7292,8 @@
        ]
       },
       {
-       "ad": "3",
-       "gruplar": [
+       "name": "3",
+       "groups": [
         [
          [
           "pm_unidentifieddestroyer",
@@ -7306,13 +7306,13 @@
     ]
    },
    {
-    "ad": "15",
+    "name": "15",
     "boss": true,
     "sets": [
      [
       {
-       "ad": "boss",
-       "gruplar": [
+       "name": "boss",
+       "groups": [
         [
          [
           "27",
@@ -7328,38 +7328,38 @@
   ],
   "gate_kinds": [
    {
-    "ad": "weapon",
-    "tasarim": 87,
+    "name": "weapon",
+    "design": 87,
     "frenzied": 88
    },
    {
-    "ad": "generator",
-    "tasarim": 89,
+    "name": "generator",
+    "design": 89,
     "frenzied": 90
    },
    {
-    "ad": "ammunition",
-    "tasarim": 91,
+    "name": "ammunition",
+    "design": 91,
     "frenzied": 92
    },
    {
-    "ad": "booster",
-    "tasarim": 93,
+    "name": "booster",
+    "design": 93,
     "frenzied": 94
    },
    {
-    "ad": "modul",
-    "tasarim": 95,
+    "name": "module",
+    "design": 95,
     "frenzied": 96
    },
    {
-    "ad": "kaynak",
-    "tasarim": 97,
+    "name": "source",
+    "design": 97,
     "frenzied": 98
    },
    {
-    "ad": "can",
-    "tasarim": 99,
+    "name": "can",
+    "design": 99,
     "frenzied": null
    }
   ],
@@ -7413,7 +7413,7 @@
      12
     ]
    ],
-   "modul": [
+   "module": [
     [
      "equipment_shipupgrade_dmg-xa01",
      1,
@@ -7489,7 +7489,7 @@
      1
     ]
    ],
-   "kaynak": [
+   "source": [
     [
      "resource_collectable_atlas-shard",
      30,
@@ -7548,7 +7548,7 @@
     "anahtar": 3
    }
   ],
-  "puan": {
+  "points": {
    "per_rift_cleared": 300,
    "per_frenzied_rift_cleared": 350,
    "frenzied_replaces_normal": true,
@@ -7603,10 +7603,10 @@
   "level_requirement": 15,
   "ticket": "resource_key_access-dse",
   "ticket_price": 8000,
-  "giris": "X-1",
+  "entry": "X-1",
   "portal": 300,
   "hall": 473,
-  "haritalar": [
+  "maps": [
    474,
    475,
    476,
@@ -7616,14 +7616,14 @@
    480,
    481
   ],
-  "seviyeler": [
+  "levels": [
    {
-    "seviye": 1,
-    "tur": "destroy",
+    "level": 1,
+    "type": "destroy",
     "waves": [
      {
-      "ad": "1",
-      "gruplar": [
+      "name": "1",
+      "groups": [
        [
         [
          "84",
@@ -7639,7 +7639,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_ore_seprom",
       500
@@ -7648,12 +7648,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 2,
-    "tur": "guard",
+    "level": 2,
+    "type": "guard",
     "waves": [
      {
-      "ad": "2",
-      "gruplar": [
+      "name": "2",
+      "groups": [
        [
         [
          "pm_reflectormimesis",
@@ -7669,8 +7669,8 @@
       ]
      },
      {
-      "ad": "3",
-      "gruplar": [
+      "name": "3",
+      "groups": [
        [
         [
          "pm_reflectormimesis",
@@ -7692,8 +7692,8 @@
       ]
      },
      {
-      "ad": "4",
-      "gruplar": [
+      "name": "4",
+      "groups": [
        [
         [
          "pm_reflectormimesis",
@@ -7715,7 +7715,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_collectable_bifenon",
       30
@@ -7724,12 +7724,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 3,
-    "tur": "destroy",
+    "level": 3,
+    "type": "destroy",
     "waves": [
      {
-      "ad": "5",
-      "gruplar": [
+      "name": "5",
+      "groups": [
        [
         [
          "75",
@@ -7739,8 +7739,8 @@
       ]
      },
      {
-      "ad": "6",
-      "gruplar": [
+      "name": "6",
+      "groups": [
        [
         [
          "75",
@@ -7750,7 +7750,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "ammunition_rocket_plt-3030",
       900
@@ -7759,12 +7759,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 4,
-    "tur": "escort",
+    "level": 4,
+    "type": "escort",
     "waves": [
      {
-      "ad": "7",
-      "gruplar": [
+      "name": "7",
+      "groups": [
        [
         [
          "76",
@@ -7774,8 +7774,8 @@
       ]
      },
      {
-      "ad": "8",
-      "gruplar": [
+      "name": "8",
+      "groups": [
        [
         [
          "76",
@@ -7785,8 +7785,8 @@
       ]
      },
      {
-      "ad": "9",
-      "gruplar": [
+      "name": "9",
+      "groups": [
        [
         [
          "76",
@@ -7796,8 +7796,8 @@
       ]
      },
      {
-      "ad": "10",
-      "gruplar": [
+      "name": "10",
+      "groups": [
        [
         [
          "27",
@@ -7807,8 +7807,8 @@
       ]
      },
      {
-      "ad": "11",
-      "gruplar": [
+      "name": "11",
+      "groups": [
        [
         [
          "76",
@@ -7818,8 +7818,8 @@
       ]
      },
      {
-      "ad": "12",
-      "gruplar": [
+      "name": "12",
+      "groups": [
        [
         [
          "76",
@@ -7829,8 +7829,8 @@
       ]
      },
      {
-      "ad": "13",
-      "gruplar": [
+      "name": "13",
+      "groups": [
        [
         [
          "27",
@@ -7840,7 +7840,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_booty-key",
       5
@@ -7849,12 +7849,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 5,
-    "tur": "boss",
+    "level": 5,
+    "type": "boss",
     "waves": [
      {
-      "ad": "14",
-      "gruplar": [
+      "name": "14",
+      "groups": [
        [
         [
          "pm_bosskucurbium",
@@ -7865,7 +7865,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_collectable_axion-beam-regulator",
       30
@@ -7874,12 +7874,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 6,
-    "tur": "escort",
+    "level": 6,
+    "type": "escort",
     "waves": [
      {
-      "ad": "1",
-      "gruplar": [
+      "name": "1",
+      "groups": [
        [
         [
          "75",
@@ -7889,8 +7889,8 @@
       ]
      },
      {
-      "ad": "2",
-      "gruplar": [
+      "name": "2",
+      "groups": [
        [
         [
          "75",
@@ -7900,8 +7900,8 @@
       ]
      },
      {
-      "ad": "3",
-      "gruplar": [
+      "name": "3",
+      "groups": [
        [
         [
          "75",
@@ -7911,8 +7911,8 @@
       ]
      },
      {
-      "ad": "4",
-      "gruplar": [
+      "name": "4",
+      "groups": [
        [
         [
          "75",
@@ -7922,8 +7922,8 @@
       ]
      },
      {
-      "ad": "5",
-      "gruplar": [
+      "name": "5",
+      "groups": [
        [
         [
          "75",
@@ -7939,8 +7939,8 @@
       ]
      },
      {
-      "ad": "6",
-      "gruplar": [
+      "name": "6",
+      "groups": [
        [
         [
          "75",
@@ -7956,8 +7956,8 @@
       ]
      },
      {
-      "ad": "7",
-      "gruplar": [
+      "name": "7",
+      "groups": [
        [
         [
          "75",
@@ -7973,7 +7973,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_ore_seprom",
       1000
@@ -7982,12 +7982,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 7,
-    "tur": "destroy",
+    "level": 7,
+    "type": "destroy",
     "waves": [
      {
-      "ad": "8",
-      "gruplar": [
+      "name": "8",
+      "groups": [
        [
         [
          "75",
@@ -8033,7 +8033,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_collectable_bifenon",
       50
@@ -8042,12 +8042,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 8,
-    "tur": "guard",
+    "level": 8,
+    "type": "guard",
     "waves": [
      {
-      "ad": "9",
-      "gruplar": [
+      "name": "9",
+      "groups": [
        [
         [
          "72",
@@ -8057,8 +8057,8 @@
       ]
      },
      {
-      "ad": "10",
-      "gruplar": [
+      "name": "10",
+      "groups": [
        [
         [
          "72",
@@ -8068,8 +8068,8 @@
       ]
      },
      {
-      "ad": "11",
-      "gruplar": [
+      "name": "11",
+      "groups": [
        [
         [
          "72",
@@ -8091,7 +8091,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "ammunition_rocket_plt-3030",
       1500
@@ -8100,12 +8100,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 9,
-    "tur": "destroy",
+    "level": 9,
+    "type": "destroy",
     "waves": [
      {
-      "ad": "12",
-      "gruplar": [
+      "name": "12",
+      "groups": [
        [
         [
          "pm_emperorsibelon",
@@ -8115,8 +8115,8 @@
       ]
      },
      {
-      "ad": "13",
-      "gruplar": [
+      "name": "13",
+      "groups": [
        [
         [
          "pm_emperorsibelon",
@@ -8126,8 +8126,8 @@
       ]
      },
      {
-      "ad": "14",
-      "gruplar": [
+      "name": "14",
+      "groups": [
        [
         [
          "pm_emperorsibelon",
@@ -8143,7 +8143,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_booty-key",
       10
@@ -8152,12 +8152,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 10,
-    "tur": "boss",
+    "level": 10,
+    "type": "boss",
     "waves": [
      {
-      "ad": "15",
-      "gruplar": [
+      "name": "15",
+      "groups": [
        [
         [
          "28",
@@ -8168,7 +8168,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_echo-key-green",
       3
@@ -8177,12 +8177,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 11,
-    "tur": "destroy",
+    "level": 11,
+    "type": "destroy",
     "waves": [
      {
-      "ad": "1",
-      "gruplar": [
+      "name": "1",
+      "groups": [
        [
         [
          "75",
@@ -8198,8 +8198,8 @@
       ]
      },
      {
-      "ad": "2",
-      "gruplar": [
+      "name": "2",
+      "groups": [
        [
         [
          "75",
@@ -8227,7 +8227,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_ore_seprom",
       1500
@@ -8236,12 +8236,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 12,
-    "tur": "escort",
+    "level": 12,
+    "type": "escort",
     "waves": [
      {
-      "ad": "3",
-      "gruplar": [
+      "name": "3",
+      "groups": [
        [
         [
          "31",
@@ -8257,8 +8257,8 @@
       ]
      },
      {
-      "ad": "4",
-      "gruplar": [
+      "name": "4",
+      "groups": [
        [
         [
          "220",
@@ -8268,8 +8268,8 @@
       ]
      },
      {
-      "ad": "5",
-      "gruplar": [
+      "name": "5",
+      "groups": [
        [
         [
          "220",
@@ -8279,8 +8279,8 @@
       ]
      },
      {
-      "ad": "6",
-      "gruplar": [
+      "name": "6",
+      "groups": [
        [
         [
          "220",
@@ -8290,8 +8290,8 @@
       ]
      },
      {
-      "ad": "7",
-      "gruplar": [
+      "name": "7",
+      "groups": [
        [
         [
          "220",
@@ -8301,8 +8301,8 @@
       ]
      },
      {
-      "ad": "8",
-      "gruplar": [
+      "name": "8",
+      "groups": [
        [
         [
          "220",
@@ -8312,8 +8312,8 @@
       ]
      },
      {
-      "ad": "9",
-      "gruplar": [
+      "name": "9",
+      "groups": [
        [
         [
          "220",
@@ -8323,8 +8323,8 @@
       ]
      },
      {
-      "ad": "10",
-      "gruplar": [
+      "name": "10",
+      "groups": [
        [
         [
          "220",
@@ -8340,7 +8340,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_collectable_tetrathrin",
       60
@@ -8349,12 +8349,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 13,
-    "tur": "destroy",
+    "level": 13,
+    "type": "destroy",
     "waves": [
      {
-      "ad": "11",
-      "gruplar": [
+      "name": "11",
+      "groups": [
        [
         [
          "76",
@@ -8364,8 +8364,8 @@
       ]
      },
      {
-      "ad": "12",
-      "gruplar": [
+      "name": "12",
+      "groups": [
        [
         [
          "220",
@@ -8381,8 +8381,8 @@
       ]
      },
      {
-      "ad": "13",
-      "gruplar": [
+      "name": "13",
+      "groups": [
        [
         [
          "220",
@@ -8398,8 +8398,8 @@
       ]
      },
      {
-      "ad": "14",
-      "gruplar": [
+      "name": "14",
+      "groups": [
        [
         [
          "pm_missilestorm",
@@ -8409,7 +8409,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "ammunition_rocket_plt-3030",
       2500
@@ -8418,12 +8418,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 14,
-    "tur": "guard",
+    "level": 14,
+    "type": "guard",
     "waves": [
      {
-      "ad": "15",
-      "gruplar": [
+      "name": "15",
+      "groups": [
        [
         [
          "72",
@@ -8433,8 +8433,8 @@
       ]
      },
      {
-      "ad": "16",
-      "gruplar": [
+      "name": "16",
+      "groups": [
        [
         [
          "72",
@@ -8450,8 +8450,8 @@
       ]
      },
      {
-      "ad": "17",
-      "gruplar": [
+      "name": "17",
+      "groups": [
        [
         [
          "72",
@@ -8473,8 +8473,8 @@
       ]
      },
      {
-      "ad": "18",
-      "gruplar": [
+      "name": "18",
+      "groups": [
        [
         [
          "76",
@@ -8496,7 +8496,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "ammunition_laser_ucb-100",
       10000
@@ -8505,12 +8505,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 15,
-    "tur": "boss",
+    "level": 15,
+    "type": "boss",
     "waves": [
      {
-      "ad": "19",
-      "gruplar": [
+      "name": "19",
+      "groups": [
        [
         [
          "95",
@@ -8521,7 +8521,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_collectable_axion-beam-regulator",
       75
@@ -8530,12 +8530,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 16,
-    "tur": "destroy",
+    "level": 16,
+    "type": "destroy",
     "waves": [
      {
-      "ad": "1",
-      "gruplar": [
+      "name": "1",
+      "groups": [
        [
         [
          "78",
@@ -8581,7 +8581,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_ore_seprom",
       2000
@@ -8590,12 +8590,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 17,
-    "tur": "guard",
+    "level": 17,
+    "type": "guard",
     "waves": [
      {
-      "ad": "2",
-      "gruplar": [
+      "name": "2",
+      "groups": [
        [
         [
          "76",
@@ -8617,8 +8617,8 @@
       ]
      },
      {
-      "ad": "3",
-      "gruplar": [
+      "name": "3",
+      "groups": [
        [
         [
          "pm_hexormimesis",
@@ -8634,8 +8634,8 @@
       ]
      },
      {
-      "ad": "4",
-      "gruplar": [
+      "name": "4",
+      "groups": [
        [
         [
          "pm_hexormimesis",
@@ -8669,7 +8669,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_collectable_tetrathrin",
       80
@@ -8678,12 +8678,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 18,
-    "tur": "destroy",
+    "level": 18,
+    "type": "destroy",
     "waves": [
      {
-      "ad": "5",
-      "gruplar": [
+      "name": "5",
+      "groups": [
        [
         [
          "31",
@@ -8699,8 +8699,8 @@
       ]
      },
      {
-      "ad": "6",
-      "gruplar": [
+      "name": "6",
+      "groups": [
        [
         [
          "pm_missilestorm",
@@ -8710,8 +8710,8 @@
       ]
      },
      {
-      "ad": "7",
-      "gruplar": [
+      "name": "7",
+      "groups": [
        [
         [
          "pm_missilestorm",
@@ -8721,7 +8721,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "ammunition_rocket_plt-3030",
       3500
@@ -8730,12 +8730,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 19,
-    "tur": "escort",
+    "level": 19,
+    "type": "escort",
     "waves": [
      {
-      "ad": "8",
-      "gruplar": [
+      "name": "8",
+      "groups": [
        [
         [
          "152",
@@ -8751,8 +8751,8 @@
       ]
      },
      {
-      "ad": "9",
-      "gruplar": [
+      "name": "9",
+      "groups": [
        [
         [
          "npc268",
@@ -8774,8 +8774,8 @@
       ]
      },
      {
-      "ad": "10",
-      "gruplar": [
+      "name": "10",
+      "groups": [
        [
         [
          "npc268",
@@ -8797,8 +8797,8 @@
       ]
      },
      {
-      "ad": "11",
-      "gruplar": [
+      "name": "11",
+      "groups": [
        [
         [
          "npc268",
@@ -8814,8 +8814,8 @@
       ]
      },
      {
-      "ad": "12",
-      "gruplar": [
+      "name": "12",
+      "groups": [
        [
         [
          "npc268",
@@ -8831,8 +8831,8 @@
       ]
      },
      {
-      "ad": "13",
-      "gruplar": [
+      "name": "13",
+      "groups": [
        [
         [
          "npc268",
@@ -8848,8 +8848,8 @@
       ]
      },
      {
-      "ad": "14",
-      "gruplar": [
+      "name": "14",
+      "groups": [
        [
         [
          "npc268",
@@ -8865,7 +8865,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "ammunition_laser_ucb-100",
       12000
@@ -8874,12 +8874,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 20,
-    "tur": "boss",
+    "level": 20,
+    "type": "boss",
     "waves": [
      {
-      "ad": "15",
-      "gruplar": [
+      "name": "15",
+      "groups": [
        [
         [
          "pm_bosskucurbium",
@@ -8890,7 +8890,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_collectable_axion-beam-regulator",
       100
@@ -8899,12 +8899,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 21,
-    "tur": "escort",
+    "level": 21,
+    "type": "escort",
     "waves": [
      {
-      "ad": "1",
-      "gruplar": [
+      "name": "1",
+      "groups": [
        [
         [
          "220",
@@ -8926,8 +8926,8 @@
       ]
      },
      {
-      "ad": "2",
-      "gruplar": [
+      "name": "2",
+      "groups": [
        [
         [
          "npc268",
@@ -8943,8 +8943,8 @@
       ]
      },
      {
-      "ad": "3",
-      "gruplar": [
+      "name": "3",
+      "groups": [
        [
         [
          "npc268",
@@ -8960,8 +8960,8 @@
       ]
      },
      {
-      "ad": "4",
-      "gruplar": [
+      "name": "4",
+      "groups": [
        [
         [
          "npc268",
@@ -8977,8 +8977,8 @@
       ]
      },
      {
-      "ad": "5",
-      "gruplar": [
+      "name": "5",
+      "groups": [
        [
         [
          "npc268",
@@ -8994,8 +8994,8 @@
       ]
      },
      {
-      "ad": "6",
-      "gruplar": [
+      "name": "6",
+      "groups": [
        [
         [
          "220",
@@ -9011,8 +9011,8 @@
       ]
      },
      {
-      "ad": "7",
-      "gruplar": [
+      "name": "7",
+      "groups": [
        [
         [
          "220",
@@ -9028,8 +9028,8 @@
       ]
      },
      {
-      "ad": "8",
-      "gruplar": [
+      "name": "8",
+      "groups": [
        [
         [
          "220",
@@ -9045,7 +9045,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_ore_seprom",
       2500
@@ -9054,12 +9054,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 22,
-    "tur": "destroy",
+    "level": 22,
+    "type": "destroy",
     "waves": [
      {
-      "ad": "9",
-      "gruplar": [
+      "name": "9",
+      "groups": [
        [
         [
          "79",
@@ -9093,7 +9093,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_collectable_tetrathrin",
       120
@@ -9102,12 +9102,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 23,
-    "tur": "guard",
+    "level": 23,
+    "type": "guard",
     "waves": [
      {
-      "ad": "10",
-      "gruplar": [
+      "name": "10",
+      "groups": [
        [
         [
          "75",
@@ -9129,8 +9129,8 @@
       ]
      },
      {
-      "ad": "11",
-      "gruplar": [
+      "name": "11",
+      "groups": [
        [
         [
          "75",
@@ -9152,8 +9152,8 @@
       ]
      },
      {
-      "ad": "12",
-      "gruplar": [
+      "name": "12",
+      "groups": [
        [
         [
          "75",
@@ -9181,7 +9181,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "ammunition_rocket_plt-3030",
       4500
@@ -9190,12 +9190,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 24,
-    "tur": "destroy",
+    "level": 24,
+    "type": "destroy",
     "waves": [
      {
-      "ad": "13",
-      "gruplar": [
+      "name": "13",
+      "groups": [
        [
         [
          "220",
@@ -9223,8 +9223,8 @@
       ]
      },
      {
-      "ad": "14",
-      "gruplar": [
+      "name": "14",
+      "groups": [
        [
         [
          "220",
@@ -9258,8 +9258,8 @@
       ]
      },
      {
-      "ad": "15",
-      "gruplar": [
+      "name": "15",
+      "groups": [
        [
         [
          "220",
@@ -9287,7 +9287,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "ammunition_laser_ucb-100",
       15000
@@ -9296,12 +9296,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 25,
-    "tur": "boss",
+    "level": 25,
+    "type": "boss",
     "waves": [
      {
-      "ad": "16",
-      "gruplar": [
+      "name": "16",
+      "groups": [
        [
         [
          "pm_gygerimoverlord",
@@ -9312,7 +9312,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_echo-key-blue",
       3
@@ -9321,12 +9321,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 26,
-    "tur": "escort",
+    "level": 26,
+    "type": "escort",
     "waves": [
      {
-      "ad": "1",
-      "gruplar": [
+      "name": "1",
+      "groups": [
        [
         [
          "pm_mimesisturret",
@@ -9354,8 +9354,8 @@
       ]
      },
      {
-      "ad": "2",
-      "gruplar": [
+      "name": "2",
+      "groups": [
        [
         [
          "npc268",
@@ -9371,8 +9371,8 @@
       ]
      },
      {
-      "ad": "3",
-      "gruplar": [
+      "name": "3",
+      "groups": [
        [
         [
          "npc268",
@@ -9388,8 +9388,8 @@
       ]
      },
      {
-      "ad": "4",
-      "gruplar": [
+      "name": "4",
+      "groups": [
        [
         [
          "npc268",
@@ -9405,8 +9405,8 @@
       ]
      },
      {
-      "ad": "5",
-      "gruplar": [
+      "name": "5",
+      "groups": [
        [
         [
          "npc268",
@@ -9422,8 +9422,8 @@
       ]
      },
      {
-      "ad": "6",
-      "gruplar": [
+      "name": "6",
+      "groups": [
        [
         [
          "25",
@@ -9433,7 +9433,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_ore_seprom",
       3000
@@ -9442,12 +9442,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 27,
-    "tur": "destroy",
+    "level": 27,
+    "type": "destroy",
     "waves": [
      {
-      "ad": "7",
-      "gruplar": [
+      "name": "7",
+      "groups": [
        [
         [
          "76",
@@ -9487,7 +9487,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_collectable_axion-beam-regulator",
       80
@@ -9496,12 +9496,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 28,
-    "tur": "guard",
+    "level": 28,
+    "type": "guard",
     "waves": [
      {
-      "ad": "8",
-      "gruplar": [
+      "name": "8",
+      "groups": [
        [
         [
          "75",
@@ -9523,8 +9523,8 @@
       ]
      },
      {
-      "ad": "9",
-      "gruplar": [
+      "name": "9",
+      "groups": [
        [
         [
          "75",
@@ -9546,8 +9546,8 @@
       ]
      },
      {
-      "ad": "10",
-      "gruplar": [
+      "name": "10",
+      "groups": [
        [
         [
          "31",
@@ -9575,7 +9575,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "ammunition_rocket_plt-3030",
       6000
@@ -9584,12 +9584,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 29,
-    "tur": "destroy",
+    "level": 29,
+    "type": "destroy",
     "waves": [
      {
-      "ad": "11",
-      "gruplar": [
+      "name": "11",
+      "groups": [
        [
         [
          "78",
@@ -9629,7 +9629,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "ammunition_laser_rsb-75",
       10000
@@ -9638,12 +9638,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 30,
-    "tur": "boss",
+    "level": 30,
+    "type": "boss",
     "waves": [
      {
-      "ad": "12",
-      "gruplar": [
+      "name": "12",
+      "groups": [
        [
         [
          "95",
@@ -9654,7 +9654,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_collectable_indoctrine-accelerator",
       15
@@ -9663,12 +9663,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 31,
-    "tur": "escort",
+    "level": 31,
+    "type": "escort",
     "waves": [
      {
-      "ad": "1",
-      "gruplar": [
+      "name": "1",
+      "groups": [
        [
         [
          "72",
@@ -9696,8 +9696,8 @@
       ]
      },
      {
-      "ad": "2",
-      "gruplar": [
+      "name": "2",
+      "groups": [
        [
         [
          "220",
@@ -9713,8 +9713,8 @@
       ]
      },
      {
-      "ad": "3",
-      "gruplar": [
+      "name": "3",
+      "groups": [
        [
         [
          "220",
@@ -9730,8 +9730,8 @@
       ]
      },
      {
-      "ad": "4",
-      "gruplar": [
+      "name": "4",
+      "groups": [
        [
         [
          "220",
@@ -9747,8 +9747,8 @@
       ]
      },
      {
-      "ad": "5",
-      "gruplar": [
+      "name": "5",
+      "groups": [
        [
         [
          "220",
@@ -9764,8 +9764,8 @@
       ]
      },
      {
-      "ad": "6",
-      "gruplar": [
+      "name": "6",
+      "groups": [
        [
         [
          "220",
@@ -9781,8 +9781,8 @@
       ]
      },
      {
-      "ad": "7",
-      "gruplar": [
+      "name": "7",
+      "groups": [
        [
         [
          "220",
@@ -9798,7 +9798,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_ore_seprom",
       3500
@@ -9807,12 +9807,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 32,
-    "tur": "destroy",
+    "level": 32,
+    "type": "destroy",
     "waves": [
      {
-      "ad": "8",
-      "gruplar": [
+      "name": "8",
+      "groups": [
        [
         [
          "npc268",
@@ -9840,8 +9840,8 @@
       ]
      },
      {
-      "ad": "9",
-      "gruplar": [
+      "name": "9",
+      "groups": [
        [
         [
          "npc268",
@@ -9863,8 +9863,8 @@
       ]
      },
      {
-      "ad": "10",
-      "gruplar": [
+      "name": "10",
+      "groups": [
        [
         [
          "npc268",
@@ -9898,7 +9898,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_collectable_axion-beam-regulator",
       100
@@ -9907,12 +9907,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 33,
-    "tur": "guard",
+    "level": 33,
+    "type": "guard",
     "waves": [
      {
-      "ad": "11",
-      "gruplar": [
+      "name": "11",
+      "groups": [
        [
         [
          "78",
@@ -9928,8 +9928,8 @@
       ]
      },
      {
-      "ad": "12",
-      "gruplar": [
+      "name": "12",
+      "groups": [
        [
         [
          "78",
@@ -9957,8 +9957,8 @@
       ]
      },
      {
-      "ad": "13",
-      "gruplar": [
+      "name": "13",
+      "groups": [
        [
         [
          "78",
@@ -9992,7 +9992,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "ammunition_rocket_plt-3030",
       7500
@@ -10001,12 +10001,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 34,
-    "tur": "destroy",
+    "level": 34,
+    "type": "destroy",
     "waves": [
      {
-      "ad": "14",
-      "gruplar": [
+      "name": "14",
+      "groups": [
        [
         [
          "pm_missilestorm",
@@ -10046,7 +10046,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "ammunition_laser_rsb-75",
       15000
@@ -10055,12 +10055,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 35,
-    "tur": "boss",
+    "level": 35,
+    "type": "boss",
     "waves": [
      {
-      "ad": "15",
-      "gruplar": [
+      "name": "15",
+      "groups": [
        [
         [
          "28",
@@ -10071,7 +10071,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_collectable_indoctrine-accelerator",
       20
@@ -10080,12 +10080,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 36,
-    "tur": "escort",
+    "level": 36,
+    "type": "escort",
     "waves": [
      {
-      "ad": "1",
-      "gruplar": [
+      "name": "1",
+      "groups": [
        [
         [
          "31",
@@ -10107,8 +10107,8 @@
       ]
      },
      {
-      "ad": "2",
-      "gruplar": [
+      "name": "2",
+      "groups": [
        [
         [
          "npc268",
@@ -10124,8 +10124,8 @@
       ]
      },
      {
-      "ad": "3",
-      "gruplar": [
+      "name": "3",
+      "groups": [
        [
         [
          "npc268",
@@ -10141,8 +10141,8 @@
       ]
      },
      {
-      "ad": "4",
-      "gruplar": [
+      "name": "4",
+      "groups": [
        [
         [
          "npc268",
@@ -10158,8 +10158,8 @@
       ]
      },
      {
-      "ad": "5",
-      "gruplar": [
+      "name": "5",
+      "groups": [
        [
         [
          "npc268",
@@ -10175,8 +10175,8 @@
       ]
      },
      {
-      "ad": "6",
-      "gruplar": [
+      "name": "6",
+      "groups": [
        [
         [
          "npc268",
@@ -10192,8 +10192,8 @@
       ]
      },
      {
-      "ad": "7",
-      "gruplar": [
+      "name": "7",
+      "groups": [
        [
         [
          "npc268",
@@ -10209,7 +10209,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_ore_seprom",
       4000
@@ -10218,12 +10218,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 37,
-    "tur": "destroy",
+    "level": 37,
+    "type": "destroy",
     "waves": [
      {
-      "ad": "8",
-      "gruplar": [
+      "name": "8",
+      "groups": [
        [
         [
          "75",
@@ -10239,8 +10239,8 @@
       ]
      },
      {
-      "ad": "9",
-      "gruplar": [
+      "name": "9",
+      "groups": [
        [
         [
          "75",
@@ -10268,7 +10268,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_collectable_axion-beam-regulator",
       130
@@ -10277,12 +10277,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 38,
-    "tur": "guard",
+    "level": 38,
+    "type": "guard",
     "waves": [
      {
-      "ad": "10",
-      "gruplar": [
+      "name": "10",
+      "groups": [
        [
         [
          "76",
@@ -10298,8 +10298,8 @@
       ]
      },
      {
-      "ad": "11",
-      "gruplar": [
+      "name": "11",
+      "groups": [
        [
         [
          "pm_reflectormimesis",
@@ -10315,8 +10315,8 @@
       ]
      },
      {
-      "ad": "12",
-      "gruplar": [
+      "name": "12",
+      "groups": [
        [
         [
          "pm_reflectormimesis",
@@ -10332,7 +10332,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "ammunition_rocket_plt-3030",
       9000
@@ -10341,12 +10341,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 39,
-    "tur": "destroy",
+    "level": 39,
+    "type": "destroy",
     "waves": [
      {
-      "ad": "13",
-      "gruplar": [
+      "name": "13",
+      "groups": [
        [
         [
          "78",
@@ -10404,7 +10404,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "ammunition_laser_rsb-75",
       20000
@@ -10413,12 +10413,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 40,
-    "tur": "boss",
+    "level": 40,
+    "type": "boss",
     "waves": [
      {
-      "ad": "boss",
-      "gruplar": [
+      "name": "boss",
+      "groups": [
        [
         [
          "pm_gygerimoverlord",
@@ -10429,7 +10429,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_echo-key-purple",
       1
@@ -10438,12 +10438,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 41,
-    "tur": "escort",
+    "level": 41,
+    "type": "escort",
     "waves": [
      {
-      "ad": "1",
-      "gruplar": [
+      "name": "1",
+      "groups": [
        [
         [
          "72",
@@ -10471,8 +10471,8 @@
       ]
      },
      {
-      "ad": "2",
-      "gruplar": [
+      "name": "2",
+      "groups": [
        [
         [
          "220",
@@ -10488,8 +10488,8 @@
       ]
      },
      {
-      "ad": "3",
-      "gruplar": [
+      "name": "3",
+      "groups": [
        [
         [
          "220",
@@ -10505,8 +10505,8 @@
       ]
      },
      {
-      "ad": "4",
-      "gruplar": [
+      "name": "4",
+      "groups": [
        [
         [
          "220",
@@ -10522,8 +10522,8 @@
       ]
      },
      {
-      "ad": "5",
-      "gruplar": [
+      "name": "5",
+      "groups": [
        [
         [
          "220",
@@ -10539,8 +10539,8 @@
       ]
      },
      {
-      "ad": "6",
-      "gruplar": [
+      "name": "6",
+      "groups": [
        [
         [
          "220",
@@ -10556,8 +10556,8 @@
       ]
      },
      {
-      "ad": "7",
-      "gruplar": [
+      "name": "7",
+      "groups": [
        [
         [
          "220",
@@ -10573,7 +10573,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_ore_seprom",
       4500
@@ -10584,12 +10584,12 @@
     "_uyarlama": "kaynakta yok: 31. seviyenin dalgaları"
    },
    {
-    "seviye": 42,
-    "tur": "destroy",
+    "level": 42,
+    "type": "destroy",
     "waves": [
      {
-      "ad": "8",
-      "gruplar": [
+      "name": "8",
+      "groups": [
        [
         [
          "npc268",
@@ -10617,8 +10617,8 @@
       ]
      },
      {
-      "ad": "9",
-      "gruplar": [
+      "name": "9",
+      "groups": [
        [
         [
          "npc268",
@@ -10640,8 +10640,8 @@
       ]
      },
      {
-      "ad": "10",
-      "gruplar": [
+      "name": "10",
+      "groups": [
        [
         [
          "npc268",
@@ -10675,7 +10675,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_collectable_indoctrineoil",
       5
@@ -10686,12 +10686,12 @@
     "_uyarlama": "kaynakta yok: 32. seviyenin dalgaları"
    },
    {
-    "seviye": 43,
-    "tur": "guard",
+    "level": 43,
+    "type": "guard",
     "waves": [
      {
-      "ad": "11",
-      "gruplar": [
+      "name": "11",
+      "groups": [
        [
         [
          "78",
@@ -10707,8 +10707,8 @@
       ]
      },
      {
-      "ad": "12",
-      "gruplar": [
+      "name": "12",
+      "groups": [
        [
         [
          "78",
@@ -10736,8 +10736,8 @@
       ]
      },
      {
-      "ad": "13",
-      "gruplar": [
+      "name": "13",
+      "groups": [
        [
         [
          "78",
@@ -10771,7 +10771,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "ammunition_specialammo_dcr-250",
       150
@@ -10782,12 +10782,12 @@
     "_uyarlama": "kaynakta yok: 33. seviyenin dalgaları"
    },
    {
-    "seviye": 44,
-    "tur": "destroy",
+    "level": 44,
+    "type": "destroy",
     "waves": [
      {
-      "ad": "14",
-      "gruplar": [
+      "name": "14",
+      "groups": [
        [
         [
          "pm_missilestorm",
@@ -10827,7 +10827,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "ammunition_laser_spacecup_group-c",
       7000
@@ -10838,14 +10838,14 @@
     "_uyarlama": "kaynakta yok: 34. seviyenin dalgaları"
    },
    {
-    "seviye": 45,
-    "tur": "boss",
+    "level": 45,
+    "type": "boss",
     "can": 9.375,
     "_can": "Oyuncu bildirimi 2026-10-28 (Emperor Sibelon zayıf): tek Emperor'un canı/kalkanı 6,4 M ile 40. ve 50. seviyelerin Gygerim Overlord'unun (60 M) onda biriydi, önceki seviyelerin dalgalarından da zayıftı. Can ve kalkan Overlord'unkine (60 M) çıkar, hasar aynı kalır",
     "waves": [
      {
-      "ad": "boss",
-      "gruplar": [
+      "name": "boss",
+      "groups": [
        [
         [
          "pm_emperorsibelon",
@@ -10856,7 +10856,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_echo-key-red",
       1
@@ -10865,12 +10865,12 @@
     "sure_sn": null
    },
    {
-    "seviye": 46,
-    "tur": "escort",
+    "level": 46,
+    "type": "escort",
     "waves": [
      {
-      "ad": "1",
-      "gruplar": [
+      "name": "1",
+      "groups": [
        [
         [
          "31",
@@ -10892,8 +10892,8 @@
       ]
      },
      {
-      "ad": "2",
-      "gruplar": [
+      "name": "2",
+      "groups": [
        [
         [
          "npc268",
@@ -10909,8 +10909,8 @@
       ]
      },
      {
-      "ad": "3",
-      "gruplar": [
+      "name": "3",
+      "groups": [
        [
         [
          "npc268",
@@ -10926,8 +10926,8 @@
       ]
      },
      {
-      "ad": "4",
-      "gruplar": [
+      "name": "4",
+      "groups": [
        [
         [
          "npc268",
@@ -10943,8 +10943,8 @@
       ]
      },
      {
-      "ad": "5",
-      "gruplar": [
+      "name": "5",
+      "groups": [
        [
         [
          "npc268",
@@ -10960,8 +10960,8 @@
       ]
      },
      {
-      "ad": "6",
-      "gruplar": [
+      "name": "6",
+      "groups": [
        [
         [
          "npc268",
@@ -10977,8 +10977,8 @@
       ]
      },
      {
-      "ad": "7",
-      "gruplar": [
+      "name": "7",
+      "groups": [
        [
         [
          "npc268",
@@ -10994,7 +10994,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_ore_seprom",
       5000
@@ -11005,12 +11005,12 @@
     "_uyarlama": "kaynakta yok: 36. seviyenin dalgaları"
    },
    {
-    "seviye": 47,
-    "tur": "destroy",
+    "level": 47,
+    "type": "destroy",
     "waves": [
      {
-      "ad": "8",
-      "gruplar": [
+      "name": "8",
+      "groups": [
        [
         [
          "75",
@@ -11026,8 +11026,8 @@
       ]
      },
      {
-      "ad": "9",
-      "gruplar": [
+      "name": "9",
+      "groups": [
        [
         [
          "75",
@@ -11055,7 +11055,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_collectable_indoctrineoil",
       8
@@ -11066,12 +11066,12 @@
     "_uyarlama": "kaynakta yok: 37. seviyenin dalgaları"
    },
    {
-    "seviye": 48,
-    "tur": "guard",
+    "level": 48,
+    "type": "guard",
     "waves": [
      {
-      "ad": "10",
-      "gruplar": [
+      "name": "10",
+      "groups": [
        [
         [
          "76",
@@ -11087,8 +11087,8 @@
       ]
      },
      {
-      "ad": "11",
-      "gruplar": [
+      "name": "11",
+      "groups": [
        [
         [
          "pm_reflectormimesis",
@@ -11104,8 +11104,8 @@
       ]
      },
      {
-      "ad": "12",
-      "gruplar": [
+      "name": "12",
+      "groups": [
        [
         [
          "pm_reflectormimesis",
@@ -11121,7 +11121,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "ammunition_specialammo_dcr-250",
       250
@@ -11132,12 +11132,12 @@
     "_uyarlama": "kaynakta yok: 38. seviyenin dalgaları"
    },
    {
-    "seviye": 49,
-    "tur": "destroy",
+    "level": 49,
+    "type": "destroy",
     "waves": [
      {
-      "ad": "13",
-      "gruplar": [
+      "name": "13",
+      "groups": [
        [
         [
          "78",
@@ -11195,7 +11195,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "ammunition_laser_spacecup_group-c",
       9000
@@ -11206,12 +11206,12 @@
     "_uyarlama": "kaynakta yok: 39. seviyenin dalgaları"
    },
    {
-    "seviye": 50,
-    "tur": "boss",
+    "level": 50,
+    "type": "boss",
     "waves": [
      {
-      "ad": "boss",
-      "gruplar": [
+      "name": "boss",
+      "groups": [
        [
         [
          "pm_gygerimoverlord",
@@ -11222,7 +11222,7 @@
       ]
      }
     ],
-    "ilk": [
+    "first": [
      [
       "resource_collectable_indoctrine-accelerator",
       30
@@ -11234,7 +11234,7 @@
   "roster": 5,
   "sure_sn": 600,
   "scale_level": 0.06,
-  "tekrar": {
+  "repeat": {
    "uridium_base": 40,
    "uridium_level": 8,
    "ucb_base": 10,
@@ -11263,9 +11263,9 @@
   },
   "ranking": [
    {
-    "den": 6,
+    "from_": 6,
     "e": 10,
-    "esyalar": [
+    "items": [
      [
       "currency_uridium",
       80000
@@ -11290,9 +11290,9 @@
     "title": "title_expedition_202505_03"
    },
    {
-    "den": 51,
+    "from_": 51,
     "e": 100,
-    "esyalar": [
+    "items": [
      [
       "currency_uridium",
       15000
@@ -11308,9 +11308,9 @@
     ]
    },
    {
-    "den": 101,
+    "from_": 101,
     "e": 999999999,
-    "esyalar": [
+    "items": [
      [
       "currency_uridium",
       8000
@@ -11326,9 +11326,9 @@
     ]
    },
    {
-    "den": 1,
+    "from_": 1,
     "e": 1,
-    "esyalar": [
+    "items": [
      [
       "currency_uridium",
       600000
@@ -11357,9 +11357,9 @@
     "title": "title_expedition_202505_01"
    },
    {
-    "den": 11,
+    "from_": 11,
     "e": 25,
-    "esyalar": [
+    "items": [
      [
       "currency_uridium",
       35000
@@ -11379,9 +11379,9 @@
     ]
    },
    {
-    "den": 3,
+    "from_": 3,
     "e": 3,
-    "esyalar": [
+    "items": [
      [
       "currency_uridium",
       300000
@@ -11410,9 +11410,9 @@
     "title": "title_expedition_202505_02"
    },
    {
-    "den": 26,
+    "from_": 26,
     "e": 50,
-    "esyalar": [
+    "items": [
      [
       "currency_uridium",
       25000
@@ -11428,9 +11428,9 @@
     ]
    },
    {
-    "den": 4,
+    "from_": 4,
     "e": 5,
-    "esyalar": [
+    "items": [
      [
       "currency_uridium",
       200000
@@ -11455,9 +11455,9 @@
     "title": "title_expedition_202505_03"
    },
    {
-    "den": 2,
+    "from_": 2,
     "e": 2,
-    "esyalar": [
+    "items": [
      [
       "currency_uridium",
       400000
@@ -11497,7 +11497,7 @@
  },
  "ebl": {
   "cpu": "ammunition_ggportal_eternal-blacklight-cpu",
-  "haritalar": [
+  "maps": [
    460,
    461,
    462,
@@ -11506,7 +11506,7 @@
    465
   ],
   "portal": 14,
-  "tur": 51,
+  "type": 51,
   "kind_multiplier": 1.8,
   "uridium_limit": 75000,
   "control": {
@@ -11519,10 +11519,10 @@
   },
   "waves": [
    {
-    "ad": "1",
+    "name": "1",
     "room": 1,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_mordon",
@@ -11544,10 +11544,10 @@
     ]
    },
    {
-    "ad": "2",
+    "name": "2",
     "room": 1,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_bossmordon",
@@ -11557,10 +11557,10 @@
     ]
    },
    {
-    "ad": "3",
+    "name": "3",
     "room": 1,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_bosssaimon",
@@ -11576,10 +11576,10 @@
     ]
    },
    {
-    "ad": "4",
+    "name": "4",
     "room": 1,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_sibelon",
@@ -11589,10 +11589,10 @@
     ]
    },
    {
-    "ad": "5",
+    "name": "5",
     "room": 1,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_sibelonit",
@@ -11608,10 +11608,10 @@
     ]
    },
    {
-    "ad": "6",
+    "name": "6",
     "room": 1,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_bosssibelon",
@@ -11621,10 +11621,10 @@
     ]
    },
    {
-    "ad": "7",
+    "name": "7",
     "room": 1,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_ubersibelon",
@@ -11634,10 +11634,10 @@
     ]
    },
    {
-    "ad": "8",
+    "name": "8",
     "room": 1,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_ubersibelonit",
@@ -11647,10 +11647,10 @@
     ]
    },
    {
-    "ad": "9",
+    "name": "9",
     "room": 1,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_ubertalin",
@@ -11660,10 +11660,10 @@
     ]
    },
    {
-    "ad": "10",
+    "name": "10",
     "room": 1,
-    "carpan": 0.8,
-    "gruplar": [
+    "multiplier": 0.8,
+    "groups": [
      [
       [
        "pm_ebl_impulse",
@@ -11673,10 +11673,10 @@
     ]
    },
    {
-    "ad": "11",
+    "name": "11",
     "room": 2,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_interceptor",
@@ -11686,10 +11686,10 @@
     ]
    },
    {
-    "ad": "12",
+    "name": "12",
     "room": 2,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_interceptor",
@@ -11699,10 +11699,10 @@
     ]
    },
    {
-    "ad": "13",
+    "name": "13",
     "room": 2,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_barracuda",
@@ -11712,10 +11712,10 @@
     ]
    },
    {
-    "ad": "14",
+    "name": "14",
     "room": 2,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_annihilator",
@@ -11725,10 +11725,10 @@
     ]
    },
    {
-    "ad": "15",
+    "name": "15",
     "room": 2,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_impulse",
@@ -11738,10 +11738,10 @@
     ]
    },
    {
-    "ad": "16",
+    "name": "16",
     "room": 2,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_ubersaboteur",
@@ -11751,10 +11751,10 @@
     ]
    },
    {
-    "ad": "17",
+    "name": "17",
     "room": 2,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_melter",
@@ -11764,10 +11764,10 @@
     ]
    },
    {
-    "ad": "18",
+    "name": "18",
     "room": 2,
-    "carpan": 1.2,
-    "gruplar": [
+    "multiplier": 1.2,
+    "groups": [
      [
       [
        "pm_ebl_infernal",
@@ -11777,10 +11777,10 @@
     ]
    },
    {
-    "ad": "19",
+    "name": "19",
     "room": 2,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_infernal",
@@ -11790,10 +11790,10 @@
     ]
    },
    {
-    "ad": "20",
+    "name": "20",
     "room": 2,
-    "carpan": 0.1,
-    "gruplar": [
+    "multiplier": 0.1,
+    "groups": [
      [
       [
        "pm_ebl_attend",
@@ -11803,10 +11803,10 @@
     ]
    },
    {
-    "ad": "21",
+    "name": "21",
     "room": 3,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_bosstalon",
@@ -11816,10 +11816,10 @@
     ]
    },
    {
-    "ad": "22",
+    "name": "22",
     "room": 3,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_bosstalin",
@@ -11829,10 +11829,10 @@
     ]
    },
    {
-    "ad": "23",
+    "name": "23",
     "room": 3,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_ubertalon",
@@ -11842,10 +11842,10 @@
     ]
    },
    {
-    "ad": "24",
+    "name": "24",
     "room": 3,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_ubertalin",
@@ -11855,10 +11855,10 @@
     ]
    },
    {
-    "ad": "25",
+    "name": "25",
     "room": 3,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_impulse",
@@ -11868,10 +11868,10 @@
     ]
    },
    {
-    "ad": "26",
+    "name": "26",
     "room": 3,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_uberlordakia",
@@ -11887,10 +11887,10 @@
     ]
    },
    {
-    "ad": "27",
+    "name": "27",
     "room": 3,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_uberlordakium",
@@ -11900,10 +11900,10 @@
     ]
    },
    {
-    "ad": "28",
+    "name": "28",
     "room": 3,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_kucurbium",
@@ -11913,10 +11913,10 @@
     ]
    },
    {
-    "ad": "29",
+    "name": "29",
     "room": 3,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_convict",
@@ -11926,10 +11926,10 @@
     ]
    },
    {
-    "ad": "30",
+    "name": "30",
     "room": 3,
-    "carpan": 0.1,
-    "gruplar": [
+    "multiplier": 0.1,
+    "groups": [
      [
       [
        "pm_ebl_attend",
@@ -11939,10 +11939,10 @@
     ]
    },
    {
-    "ad": "31",
+    "name": "31",
     "room": 4,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_protegit",
@@ -11964,10 +11964,10 @@
     ]
    },
    {
-    "ad": "32",
+    "name": "32",
     "room": 4,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_uberprotegit",
@@ -11983,10 +11983,10 @@
     ]
    },
    {
-    "ad": "33",
+    "name": "33",
     "room": 4,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_icy",
@@ -12008,10 +12008,10 @@
     ]
    },
    {
-    "ad": "34",
+    "name": "34",
     "room": 4,
-    "carpan": 2.5,
-    "gruplar": [
+    "multiplier": 2.5,
+    "groups": [
      [
       [
        "pm_ebl_icemeteoroid",
@@ -12021,10 +12021,10 @@
     ]
    },
    {
-    "ad": "35",
+    "name": "35",
     "room": 4,
-    "carpan": 0.1,
-    "gruplar": [
+    "multiplier": 0.1,
+    "groups": [
      [
       [
        "pm_ebl_attend",
@@ -12034,10 +12034,10 @@
     ]
    },
    {
-    "ad": "36",
+    "name": "36",
     "room": 4,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_saturnbastion",
@@ -12047,10 +12047,10 @@
     ]
    },
    {
-    "ad": "37",
+    "name": "37",
     "room": 4,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_icemeteoroid",
@@ -12060,10 +12060,10 @@
     ]
    },
    {
-    "ad": "38",
+    "name": "38",
     "room": 4,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_icy",
@@ -12085,10 +12085,10 @@
     ]
    },
    {
-    "ad": "39",
+    "name": "39",
     "room": 4,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_impulse",
@@ -12098,10 +12098,10 @@
     ]
    },
    {
-    "ad": "40",
+    "name": "40",
     "room": 4,
-    "carpan": 0.1,
-    "gruplar": [
+    "multiplier": 0.1,
+    "groups": [
      [
       [
        "pm_ebl_attend",
@@ -12111,10 +12111,10 @@
     ]
    },
    {
-    "ad": "41",
+    "name": "41",
     "room": 5,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_uberannihilator",
@@ -12124,10 +12124,10 @@
     ]
    },
    {
-    "ad": "42",
+    "name": "42",
     "room": 5,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_impulse",
@@ -12137,10 +12137,10 @@
     ]
    },
    {
-    "ad": "43",
+    "name": "43",
     "room": 5,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_attend",
@@ -12150,10 +12150,10 @@
     ]
    },
    {
-    "ad": "44",
+    "name": "44",
     "room": 5,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_ubertalin",
@@ -12163,10 +12163,10 @@
     ]
    },
    {
-    "ad": "45",
+    "name": "45",
     "room": 5,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_impulse",
@@ -12176,10 +12176,10 @@
     ]
    },
    {
-    "ad": "46",
+    "name": "46",
     "room": 5,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_attend",
@@ -12189,10 +12189,10 @@
     ]
    },
    {
-    "ad": "47",
+    "name": "47",
     "room": 5,
-    "carpan": 1.8,
-    "gruplar": [
+    "multiplier": 1.8,
+    "groups": [
      [
       [
        "pm_ebl_ubertalon",
@@ -12202,10 +12202,10 @@
     ]
    },
    {
-    "ad": "48",
+    "name": "48",
     "room": 5,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_impulse",
@@ -12215,10 +12215,10 @@
     ]
    },
    {
-    "ad": "49",
+    "name": "49",
     "room": 5,
-    "carpan": 0.5,
-    "gruplar": [
+    "multiplier": 0.5,
+    "groups": [
      [
       [
        "pm_ebl_attend",
@@ -12228,10 +12228,10 @@
     ]
    },
    {
-    "ad": "50",
+    "name": "50",
     "room": 5,
-    "carpan": 0.4,
-    "gruplar": [
+    "multiplier": 0.4,
+    "groups": [
      [
       [
        "pm_ebl_attend",
@@ -12247,10 +12247,10 @@
     ]
    },
    {
-    "ad": "51",
+    "name": "51",
     "room": 6,
-    "carpan": 1.0,
-    "gruplar": [
+    "multiplier": 1.0,
+    "groups": [
      [
       [
        "pm_ebl_strokelightbarrage",
@@ -12262,7 +12262,7 @@
   ],
   "boosters": [
    {
-    "tur": 1,
+    "type": 1,
     "anahtar": "npc",
     "values": [
      4,
@@ -12271,8 +12271,8 @@
     ]
    },
    {
-    "tur": 2,
-    "anahtar": "lazer",
+    "type": 2,
+    "anahtar": "laser",
     "values": [
      5,
      10,
@@ -12280,8 +12280,8 @@
     ]
    },
    {
-    "tur": 3,
-    "anahtar": "roket",
+    "type": 3,
+    "anahtar": "rocket",
     "values": [
      5,
      10,
@@ -12289,7 +12289,7 @@
     ]
    },
    {
-    "tur": 4,
+    "type": 4,
     "anahtar": "laser_hit_chance",
     "values": [
      3,
@@ -12298,7 +12298,7 @@
     ]
    },
    {
-    "tur": 6,
+    "type": 6,
     "anahtar": "kalkan",
     "values": [
      5,
@@ -12307,7 +12307,7 @@
     ]
    },
    {
-    "tur": 5,
+    "type": 5,
     "anahtar": "can",
     "values": [
      5,
@@ -12316,14 +12316,14 @@
     ]
    },
    {
-    "tur": 7,
-    "anahtar": "hiz",
+    "type": 7,
+    "anahtar": "speed",
     "values": [
      5
     ]
    },
    {
-    "tur": 0,
+    "type": 0,
     "anahtar": "cooldown",
     "values": [
      5
@@ -12398,380 +12398,380 @@
    0.3
   ],
   "part": "resource_collectable_blacklight-shard",
-  "seviye": 17,
+  "level": 17,
   "_kaynak": "darkorbitwiki eternal-blacklight-gate, resmî forum SSS (EN/ES/RU), fandom: 51 dalga, 6 oda, tur başına x1,8, kontrol noktaları ve booster puanları, ölüm ödülü kademeleri, 75.000 uridyum sınırı",
   "_uyarlama": "zayıf/güçlü dalga sürümleri ödül oranıyla (can ve hasar da), Saturn Bastion değerleri, booster kademe olasılıkları (60/30/10), isabet booster değerleri, IAC olasılığı ve adedi; Strokelight Barrage hareket etmez, mayın bırakmaz"
  },
  "kinds": {
   "pm_whisper_1": {
-   "ad": "-=[ Whisper ]=-",
+   "name": "-=[ Whisper ]=-",
    "model": "396",
-   "npc_kimlik": 517,
+   "npc_id": 517,
    "hp": 37800,
    "kalkan": 37800,
-   "hasar": 250,
-   "hiz": 320,
+   "damage": 250,
+   "speed": 320,
    "aggressive": true,
    "reward": {
     "ep": 0,
-    "onur": 0,
-    "kredi": 0,
-    "uridyum": 0
+    "honor": 0,
+    "credits": 0,
+    "uridium": 0
    },
-   "kargo": {},
+   "cargo": {},
    "behavior": {
     "reverse_at_hp_threshold": {
-     "oran": 0.1,
+     "ratio": 0.1,
      "sure_sn": 5,
-     "bekleme_sn": 30
+     "cooldown_sec": 30
     }
    }
   },
   "pm_voidmare_1": {
-   "ad": "-=[ Voidmare ]=-",
+   "name": "-=[ Voidmare ]=-",
    "model": "395",
-   "npc_kimlik": 516,
+   "npc_id": 516,
    "hp": 504000,
    "kalkan": 252000,
-   "hasar": 3000,
-   "hiz": 200,
+   "damage": 3000,
+   "speed": 200,
    "aggressive": true,
    "reward": {
     "ep": 0,
-    "onur": 0,
-    "kredi": 0,
-    "uridyum": 0
+    "honor": 0,
+    "credits": 0,
+    "uridium": 0
    },
-   "kargo": {},
+   "cargo": {},
    "behavior": {
     "fuse_if_untouched": {
      "sn": 5,
-     "menzil": 500,
-     "oran": 0.05
+     "range": 500,
+     "ratio": 0.05
     }
    }
   },
   "pm_whisper_2": {
-   "ad": "-=[ Whisper ]=-",
+   "name": "-=[ Whisper ]=-",
    "model": "396",
-   "npc_kimlik": 517,
+   "npc_id": 517,
    "hp": 109800,
    "kalkan": 109800,
-   "hasar": 700,
-   "hiz": 320,
+   "damage": 700,
+   "speed": 320,
    "aggressive": true,
    "reward": {
     "ep": 0,
-    "onur": 0,
-    "kredi": 0,
-    "uridyum": 0
+    "honor": 0,
+    "credits": 0,
+    "uridium": 0
    },
-   "kargo": {},
+   "cargo": {},
    "behavior": {
     "reverse_at_hp_threshold": {
-     "oran": 0.1,
+     "ratio": 0.1,
      "sure_sn": 5,
-     "bekleme_sn": 30
+     "cooldown_sec": 30
     }
    }
   },
   "pm_voidmare_2": {
-   "ad": "-=[ Voidmare ]=-",
+   "name": "-=[ Voidmare ]=-",
    "model": "395",
-   "npc_kimlik": 516,
+   "npc_id": 516,
    "hp": 1464000,
    "kalkan": 732000,
-   "hasar": 9000,
-   "hiz": 200,
+   "damage": 9000,
+   "speed": 200,
    "aggressive": true,
    "reward": {
     "ep": 0,
-    "onur": 0,
-    "kredi": 0,
-    "uridyum": 0
+    "honor": 0,
+    "credits": 0,
+    "uridium": 0
    },
-   "kargo": {},
+   "cargo": {},
    "behavior": {
     "fuse_if_untouched": {
      "sn": 5,
-     "menzil": 500,
-     "oran": 0.05
+     "range": 500,
+     "ratio": 0.05
     }
    }
   },
   "pm_whisper_3": {
-   "ad": "-=[ Whisper ]=-",
+   "name": "-=[ Whisper ]=-",
    "model": "396",
-   "npc_kimlik": 517,
+   "npc_id": 517,
    "hp": 253800,
    "kalkan": 253800,
-   "hasar": 1600,
-   "hiz": 320,
+   "damage": 1600,
+   "speed": 320,
    "aggressive": true,
    "reward": {
     "ep": 0,
-    "onur": 0,
-    "kredi": 0,
-    "uridyum": 0
+    "honor": 0,
+    "credits": 0,
+    "uridium": 0
    },
-   "kargo": {},
+   "cargo": {},
    "behavior": {
     "reverse_at_hp_threshold": {
-     "oran": 0.1,
+     "ratio": 0.1,
      "sure_sn": 5,
-     "bekleme_sn": 30
+     "cooldown_sec": 30
     }
    }
   },
   "pm_voidmare_3": {
-   "ad": "-=[ Voidmare ]=-",
+   "name": "-=[ Voidmare ]=-",
    "model": "395",
-   "npc_kimlik": 516,
+   "npc_id": 516,
    "hp": 3384000,
    "kalkan": 1692000,
-   "hasar": 17000,
-   "hiz": 200,
+   "damage": 17000,
+   "speed": 200,
    "aggressive": true,
    "reward": {
     "ep": 0,
-    "onur": 0,
-    "kredi": 0,
-    "uridyum": 0
+    "honor": 0,
+    "credits": 0,
+    "uridium": 0
    },
-   "kargo": {},
+   "cargo": {},
    "behavior": {
     "fuse_if_untouched": {
      "sn": 5,
-     "menzil": 500,
-     "oran": 0.05
+     "range": 500,
+     "ratio": 0.05
     }
    }
   },
   "pm_whisper_4": {
-   "ad": "-=[ Whisper ]=-",
+   "name": "-=[ Whisper ]=-",
    "model": "396",
-   "npc_kimlik": 517,
+   "npc_id": 517,
    "hp": 427500,
    "kalkan": 427500,
-   "hasar": 2900,
-   "hiz": 320,
+   "damage": 2900,
+   "speed": 320,
    "aggressive": true,
    "reward": {
     "ep": 0,
-    "onur": 0,
-    "kredi": 0,
-    "uridyum": 0
+    "honor": 0,
+    "credits": 0,
+    "uridium": 0
    },
-   "kargo": {},
+   "cargo": {},
    "behavior": {
     "reverse_at_hp_threshold": {
-     "oran": 0.1,
+     "ratio": 0.1,
      "sure_sn": 5,
-     "bekleme_sn": 30
+     "cooldown_sec": 30
     }
    }
   },
   "pm_voidmare_4": {
-   "ad": "-=[ Voidmare ]=-",
+   "name": "-=[ Voidmare ]=-",
    "model": "395",
-   "npc_kimlik": 516,
+   "npc_id": 516,
    "hp": 5700000,
    "kalkan": 2850000,
-   "hasar": 36000,
-   "hiz": 200,
+   "damage": 36000,
+   "speed": 200,
    "aggressive": true,
    "reward": {
     "ep": 0,
-    "onur": 0,
-    "kredi": 0,
-    "uridyum": 0
+    "honor": 0,
+    "credits": 0,
+    "uridium": 0
    },
-   "kargo": {},
+   "cargo": {},
    "behavior": {
     "fuse_if_untouched": {
      "sn": 5,
-     "menzil": 500,
-     "oran": 0.05
+     "range": 500,
+     "ratio": 0.05
     }
    }
   },
   "pm_whisper_5": {
-   "ad": "-=[ Whisper ]=-",
+   "name": "-=[ Whisper ]=-",
    "model": "396",
-   "npc_kimlik": 517,
+   "npc_id": 517,
    "hp": 769500,
    "kalkan": 769500,
-   "hasar": 5220,
-   "hiz": 320,
+   "damage": 5220,
+   "speed": 320,
    "aggressive": true,
    "reward": {
     "ep": 0,
-    "onur": 0,
-    "kredi": 0,
-    "uridyum": 0
+    "honor": 0,
+    "credits": 0,
+    "uridium": 0
    },
-   "kargo": {},
+   "cargo": {},
    "behavior": {
     "reverse_at_hp_threshold": {
-     "oran": 0.1,
+     "ratio": 0.1,
      "sure_sn": 5,
-     "bekleme_sn": 30
+     "cooldown_sec": 30
     }
    },
    "_uyarlama": "Expert x 1,8"
   },
   "pm_voidmare_5": {
-   "ad": "-=[ Voidmare ]=-",
+   "name": "-=[ Voidmare ]=-",
    "model": "395",
-   "npc_kimlik": 516,
+   "npc_id": 516,
    "hp": 10260000,
    "kalkan": 5130000,
-   "hasar": 64800,
-   "hiz": 200,
+   "damage": 64800,
+   "speed": 200,
    "aggressive": true,
    "reward": {
     "ep": 0,
-    "onur": 0,
-    "kredi": 0,
-    "uridyum": 0
+    "honor": 0,
+    "credits": 0,
+    "uridium": 0
    },
-   "kargo": {},
+   "cargo": {},
    "behavior": {
     "fuse_if_untouched": {
      "sn": 5,
-     "menzil": 500,
-     "oran": 0.05
+     "range": 500,
+     "ratio": 0.05
     }
    },
    "_uyarlama": "Expert x 1,8"
   },
   "pm_magmastalker_easy": {
-   "ad": "-=[ Magma Stalker ]=-",
+   "name": "-=[ Magma Stalker ]=-",
    "model": "386",
-   "npc_kimlik": 513,
+   "npc_id": 513,
    "hp": 8000,
    "kalkan": 8000,
-   "hasar": 50,
-   "hiz": 380,
+   "damage": 50,
+   "speed": 380,
    "aggressive": true,
    "reward": {
     "ep": 0,
-    "onur": 2,
-    "kredi": 256,
-    "uridyum": 1
+    "honor": 2,
+    "credits": 256,
+    "uridium": 1
    },
-   "kargo": {
+   "cargo": {
     "0": 4,
     "2": 4,
     "1": 4
    }
   },
   "pm_pyrospire_easy": {
-   "ad": "-=[ Pyrospire ]=-",
+   "name": "-=[ Pyrospire ]=-",
    "model": "385",
-   "npc_kimlik": 512,
+   "npc_id": 512,
    "hp": 45000,
    "kalkan": 45000,
-   "hasar": 6000,
-   "hiz": 220,
+   "damage": 6000,
+   "speed": 220,
    "aggressive": true,
    "reward": {
     "ep": 0,
-    "onur": 2,
-    "kredi": 1536,
-    "uridyum": 1
+    "honor": 2,
+    "credits": 1536,
+    "uridium": 1
    },
-   "kargo": {
+   "cargo": {
     "0": 4,
     "2": 4,
     "1": 4
    },
    "behavior": {
     "slowing_shots": {
-     "oran": 0.3,
+     "ratio": 0.3,
      "sn": 3
     }
    }
   },
   "pm_sporestalker_easy": {
-   "ad": "-=[ Spore Stalker ]=-",
+   "name": "-=[ Spore Stalker ]=-",
    "model": "388",
-   "npc_kimlik": 515,
+   "npc_id": 515,
    "hp": 8000,
    "kalkan": 8000,
-   "hasar": 50,
-   "hiz": 380,
+   "damage": 50,
+   "speed": 380,
    "aggressive": true,
    "reward": {
     "ep": 0,
-    "onur": 1,
-    "kredi": 256,
-    "uridyum": 1
+    "honor": 1,
+    "credits": 256,
+    "uridium": 1
    },
-   "kargo": {
+   "cargo": {
     "0": 4,
     "2": 4,
     "1": 4
    }
   },
   "pm_vinespire_easy": {
-   "ad": "-=[ Vinespire ]=-",
+   "name": "-=[ Vinespire ]=-",
    "model": "387",
-   "npc_kimlik": 514,
+   "npc_id": 514,
    "hp": 45000,
    "kalkan": 45000,
-   "hasar": 6000,
-   "hiz": 220,
+   "damage": 6000,
+   "speed": 220,
    "aggressive": true,
    "reward": {
     "ep": 0,
-    "onur": 1,
-    "kredi": 1536,
-    "uridyum": 1
+    "honor": 1,
+    "credits": 1536,
+    "uridium": 1
    },
-   "kargo": {
+   "cargo": {
     "0": 4,
     "2": 4,
     "1": 4
    }
   },
   "pm_magmastalker_normal": {
-   "ad": "-=[ Magma Stalker ]=-",
+   "name": "-=[ Magma Stalker ]=-",
    "model": "386",
-   "npc_kimlik": 513,
+   "npc_id": 513,
    "hp": 6000,
    "kalkan": 6000,
-   "hasar": 150,
-   "hiz": 380,
+   "damage": 150,
+   "speed": 380,
    "aggressive": true,
    "reward": {
     "ep": 121,
-    "onur": 1,
-    "kredi": 192,
-    "uridyum": 0
+    "honor": 1,
+    "credits": 192,
+    "uridium": 0
    },
-   "kargo": {
+   "cargo": {
     "0": 2,
     "2": 2,
     "1": 2
    }
   },
   "pm_pyrospire_normal": {
-   "ad": "-=[ Pyrospire ]=-",
+   "name": "-=[ Pyrospire ]=-",
    "model": "385",
-   "npc_kimlik": 512,
+   "npc_id": 512,
    "hp": 75000,
    "kalkan": 75000,
-   "hasar": 6000,
-   "hiz": 220,
+   "damage": 6000,
+   "speed": 220,
    "aggressive": true,
    "reward": {
     "ep": 487,
-    "onur": 3,
-    "kredi": 2560,
-    "uridyum": 1
+    "honor": 3,
+    "credits": 2560,
+    "uridium": 1
    },
-   "kargo": {
+   "cargo": {
     "0": 6,
     "2": 6,
     "1": 6,
@@ -12780,48 +12780,48 @@
    },
    "behavior": {
     "slowing_shots": {
-     "oran": 0.3,
+     "ratio": 0.3,
      "sn": 3
     }
    }
   },
   "pm_sporestalker_normal": {
-   "ad": "-=[ Spore Stalker ]=-",
+   "name": "-=[ Spore Stalker ]=-",
    "model": "388",
-   "npc_kimlik": 515,
+   "npc_id": 515,
    "hp": 6000,
    "kalkan": 6000,
-   "hasar": 150,
-   "hiz": 380,
+   "damage": 150,
+   "speed": 380,
    "aggressive": true,
    "reward": {
     "ep": 0,
-    "onur": 1,
-    "kredi": 269,
-    "uridyum": 1
+    "honor": 1,
+    "credits": 269,
+    "uridium": 1
    },
-   "kargo": {
+   "cargo": {
     "0": 2,
     "2": 2,
     "1": 2
    }
   },
   "pm_vinespire_normal": {
-   "ad": "-=[ Vinespire ]=-",
+   "name": "-=[ Vinespire ]=-",
    "model": "387",
-   "npc_kimlik": 514,
+   "npc_id": 514,
    "hp": 75000,
    "kalkan": 75000,
-   "hasar": 6000,
-   "hiz": 220,
+   "damage": 6000,
+   "speed": 220,
    "aggressive": true,
    "reward": {
     "ep": 0,
-    "onur": 4,
-    "kredi": 3584,
-    "uridyum": 2
+    "honor": 4,
+    "credits": 3584,
+    "uridium": 2
    },
-   "kargo": {
+   "cargo": {
     "0": 6,
     "2": 6,
     "1": 6,
@@ -12830,42 +12830,42 @@
    }
   },
   "pm_magmastalker_hard": {
-   "ad": "-=[ Magma Stalker ]=-",
+   "name": "-=[ Magma Stalker ]=-",
    "model": "386",
-   "npc_kimlik": 513,
+   "npc_id": 513,
    "hp": 12000,
    "kalkan": 12000,
-   "hasar": 250,
-   "hiz": 380,
+   "damage": 250,
+   "speed": 380,
    "aggressive": true,
    "reward": {
     "ep": 256,
-    "onur": 3,
-    "kredi": 384,
-    "uridyum": 1
+    "honor": 3,
+    "credits": 384,
+    "uridium": 1
    },
-   "kargo": {
+   "cargo": {
     "0": 6,
     "2": 6,
     "1": 6
    }
   },
   "pm_pyrospire_hard": {
-   "ad": "-=[ Pyrospire ]=-",
+   "name": "-=[ Pyrospire ]=-",
    "model": "385",
-   "npc_kimlik": 512,
+   "npc_id": 512,
    "hp": 75000,
    "kalkan": 75000,
-   "hasar": 6000,
-   "hiz": 220,
+   "damage": 6000,
+   "speed": 220,
    "aggressive": true,
    "reward": {
     "ep": 426,
-    "onur": 3,
-    "kredi": 2560,
-    "uridyum": 1
+    "honor": 3,
+    "credits": 2560,
+    "uridium": 1
    },
-   "kargo": {
+   "cargo": {
     "0": 6,
     "2": 6,
     "1": 6,
@@ -12874,27 +12874,27 @@
    },
    "behavior": {
     "slowing_shots": {
-     "oran": 0.3,
+     "ratio": 0.3,
      "sn": 3
     }
    }
   },
   "pm_sporestalker_hard": {
-   "ad": "-=[ Spore Stalker ]=-",
+   "name": "-=[ Spore Stalker ]=-",
    "model": "388",
-   "npc_kimlik": 515,
+   "npc_id": 515,
    "hp": 12000,
    "kalkan": 12000,
-   "hasar": 250,
-   "hiz": 380,
+   "damage": 250,
+   "speed": 380,
    "aggressive": true,
    "reward": {
     "ep": 387,
-    "onur": 4,
-    "kredi": 614,
-    "uridyum": 2
+    "honor": 4,
+    "credits": 614,
+    "uridium": 2
    },
-   "kargo": {
+   "cargo": {
     "0": 8,
     "2": 8,
     "1": 8,
@@ -12903,21 +12903,21 @@
    }
   },
   "pm_vinespire_hard": {
-   "ad": "-=[ Vinespire ]=-",
+   "name": "-=[ Vinespire ]=-",
    "model": "387",
-   "npc_kimlik": 514,
+   "npc_id": 514,
    "hp": 75000,
    "kalkan": 75000,
-   "hasar": 6000,
-   "hiz": 220,
+   "damage": 6000,
+   "speed": 220,
    "aggressive": true,
    "reward": {
     "ep": 645,
-    "onur": 6,
-    "kredi": 4096,
-    "uridyum": 2
+    "honor": 6,
+    "credits": 4096,
+    "uridium": 2
    },
-   "kargo": {
+   "cargo": {
     "0": 8,
     "2": 8,
     "1": 8,
@@ -12926,21 +12926,21 @@
    }
   },
   "pm_magmastalker_expert": {
-   "ad": "-=[ Magma Stalker ]=-",
+   "name": "-=[ Magma Stalker ]=-",
    "model": "386",
-   "npc_kimlik": 513,
+   "npc_id": 513,
    "hp": 32400,
    "kalkan": 32400,
-   "hasar": 350,
-   "hiz": 380,
+   "damage": 350,
+   "speed": 380,
    "aggressive": true,
    "reward": {
     "ep": 653,
-    "onur": 7,
-    "kredi": 1037,
-    "uridyum": 3
+    "honor": 7,
+    "credits": 1037,
+    "uridium": 3
    },
-   "kargo": {
+   "cargo": {
     "0": 16,
     "2": 16,
     "1": 16,
@@ -12949,21 +12949,21 @@
    }
   },
   "pm_pyrospire_expert": {
-   "ad": "-=[ Pyrospire ]=-",
+   "name": "-=[ Pyrospire ]=-",
    "model": "385",
-   "npc_kimlik": 512,
+   "npc_id": 512,
    "hp": 202500,
    "kalkan": 202500,
-   "hasar": 6000,
-   "hiz": 220,
+   "damage": 6000,
+   "speed": 220,
    "aggressive": true,
    "reward": {
     "ep": 261,
-    "onur": 3,
-    "kredi": 1659,
-    "uridyum": 1
+    "honor": 3,
+    "credits": 1659,
+    "uridium": 1
    },
-   "kargo": {
+   "cargo": {
     "0": 22,
     "2": 22,
     "1": 22,
@@ -12972,27 +12972,27 @@
    },
    "behavior": {
     "slowing_shots": {
-     "oran": 0.3,
+     "ratio": 0.3,
      "sn": 3
     }
    }
   },
   "pm_sporestalker_expert": {
-   "ad": "-=[ Spore Stalker ]=-",
+   "name": "-=[ Spore Stalker ]=-",
    "model": "388",
-   "npc_kimlik": 515,
+   "npc_id": 515,
    "hp": 32400,
    "kalkan": 32400,
-   "hasar": 350,
-   "hiz": 380,
+   "damage": 350,
+   "speed": 380,
    "aggressive": true,
    "reward": {
     "ep": 653,
-    "onur": 7,
-    "kredi": 1037,
-    "uridyum": 3
+    "honor": 7,
+    "credits": 1037,
+    "uridium": 3
    },
-   "kargo": {
+   "cargo": {
     "0": 16,
     "2": 16,
     "1": 16,
@@ -13001,21 +13001,21 @@
    }
   },
   "pm_vinespire_expert": {
-   "ad": "-=[ Vinespire ]=-",
+   "name": "-=[ Vinespire ]=-",
    "model": "387",
-   "npc_kimlik": 514,
+   "npc_id": 514,
    "hp": 202500,
    "kalkan": 202500,
-   "hasar": 6000,
-   "hiz": 220,
+   "damage": 6000,
+   "speed": 220,
    "aggressive": true,
    "reward": {
     "ep": 261,
-    "onur": 3,
-    "kredi": 1659,
-    "uridyum": 1
+    "honor": 3,
+    "credits": 1659,
+    "uridium": 1
    },
-   "kargo": {
+   "cargo": {
     "0": 22,
     "2": 22,
     "1": 22,
@@ -13024,21 +13024,21 @@
    }
   },
   "pm_magmastalker_nightmare": {
-   "ad": "-=[ Magma Stalker ]=-",
+   "name": "-=[ Magma Stalker ]=-",
    "model": "386",
-   "npc_kimlik": 513,
+   "npc_id": 513,
    "hp": 64800,
    "kalkan": 64800,
-   "hasar": 450,
-   "hiz": 380,
+   "damage": 450,
+   "speed": 380,
    "aggressive": true,
    "reward": {
     "ep": 787,
-    "onur": 9,
-    "kredi": 1152,
-    "uridyum": 3
+    "honor": 9,
+    "credits": 1152,
+    "uridium": 3
    },
-   "kargo": {
+   "cargo": {
     "0": 33,
     "2": 33,
     "1": 33,
@@ -13047,21 +13047,21 @@
    }
   },
   "pm_pyrospire_nightmare": {
-   "ad": "-=[ Pyrospire ]=-",
+   "name": "-=[ Pyrospire ]=-",
    "model": "385",
-   "npc_kimlik": 512,
+   "npc_id": 512,
    "hp": 405000,
    "kalkan": 405000,
-   "hasar": 6000,
-   "hiz": 220,
+   "damage": 6000,
+   "speed": 220,
    "aggressive": true,
    "reward": {
     "ep": 1279,
-    "onur": 11,
-    "kredi": 7680,
-    "uridyum": 4
+    "honor": 11,
+    "credits": 7680,
+    "uridium": 4
    },
-   "kargo": {
+   "cargo": {
     "0": 34,
     "2": 34,
     "1": 34,
@@ -13071,27 +13071,27 @@
    },
    "behavior": {
     "slowing_shots": {
-     "oran": 0.3,
+     "ratio": 0.3,
      "sn": 3
     }
    }
   },
   "pm_sporestalker_nightmare": {
-   "ad": "-=[ Spore Stalker ]=-",
+   "name": "-=[ Spore Stalker ]=-",
    "model": "388",
-   "npc_kimlik": 515,
+   "npc_id": 515,
    "hp": 64800,
    "kalkan": 64800,
-   "hasar": 450,
-   "hiz": 380,
+   "damage": 450,
+   "speed": 380,
    "aggressive": true,
    "reward": {
     "ep": 1381,
-    "onur": 15,
-    "kredi": 2074,
-    "uridyum": 5
+    "honor": 15,
+    "credits": 2074,
+    "uridium": 5
    },
-   "kargo": {
+   "cargo": {
     "0": 33,
     "2": 33,
     "1": 33,
@@ -13100,21 +13100,21 @@
    }
   },
   "pm_vinespire_nightmare": {
-   "ad": "-=[ Vinespire ]=-",
+   "name": "-=[ Vinespire ]=-",
    "model": "387",
-   "npc_kimlik": 514,
+   "npc_id": 514,
    "hp": 405000,
    "kalkan": 405000,
-   "hasar": 6000,
-   "hiz": 220,
+   "damage": 6000,
+   "speed": 220,
    "aggressive": true,
    "reward": {
     "ep": 2302,
-    "onur": 20,
-    "kredi": 13824,
-    "uridyum": 6
+    "honor": 20,
+    "credits": 13824,
+    "uridium": 6
    },
-   "kargo": {
+   "cargo": {
     "0": 34,
     "2": 34,
     "1": 34,
@@ -13124,57 +13124,57 @@
    }
   },
   "pm_petraider": {
-   "ad": "-=[ P.E.T. Raider ]=-",
+   "name": "-=[ P.E.T. Raider ]=-",
    "model": "132",
-   "npc_kimlik": 132,
+   "npc_id": 132,
    "hp": 80000,
    "kalkan": 40000,
-   "hasar": 900,
-   "hiz": 340,
+   "damage": 900,
+   "speed": 340,
    "aggressive": true,
    "reward": {
     "ep": 4000,
-    "onur": 40,
-    "kredi": 20000,
-    "uridyum": 20
+    "honor": 40,
+    "credits": 20000,
+    "uridium": 20
    },
-   "kargo": {},
+   "cargo": {},
    "_uyarlama": "değer kaynakta yok"
   },
   "pm_petdecoy": {
-   "ad": "-=[ P.E.T. Decoy ]=-",
+   "name": "-=[ P.E.T. Decoy ]=-",
    "model": "131",
-   "npc_kimlik": 131,
+   "npc_id": 131,
    "hp": 40000,
    "kalkan": 20000,
-   "hasar": 500,
-   "hiz": 360,
+   "damage": 500,
+   "speed": 360,
    "aggressive": true,
    "reward": {
     "ep": 2000,
-    "onur": 20,
-    "kredi": 10000,
-    "uridyum": 10
+    "honor": 20,
+    "credits": 10000,
+    "uridium": 10
    },
-   "kargo": {},
+   "cargo": {},
    "_uyarlama": "değer kaynakta yok"
   },
   "pm_saturndefcom": {
-   "ad": "-=[ Saturn Defcom ]=-",
+   "name": "-=[ Saturn Defcom ]=-",
    "model": "ship_defcom",
-   "npc_kimlik": 79,
+   "npc_id": 79,
    "hp": 12000,
    "kalkan": 50000,
-   "hasar": 500,
-   "hiz": 300,
+   "damage": 500,
+   "speed": 300,
    "aggressive": true,
    "reward": {
     "ep": 1600,
-    "onur": 16,
-    "kredi": 3200,
-    "uridyum": 12
+    "honor": 16,
+    "credits": 3200,
+    "uridium": 12
    },
-   "kargo": {
+   "cargo": {
     "0": 75,
     "2": 75,
     "1": 75,
@@ -13183,21 +13183,21 @@
    }
   },
   "pm_saturnyamato": {
-   "ad": "-=[ Saturn Yamato ]=-",
+   "name": "-=[ Saturn Yamato ]=-",
    "model": "ship_yamato",
-   "npc_kimlik": 78,
+   "npc_id": 78,
    "hp": 8000,
    "kalkan": 20000,
-   "hasar": 400,
-   "hiz": 300,
+   "damage": 400,
+   "speed": 300,
    "aggressive": true,
    "reward": {
     "ep": 200,
-    "onur": 2,
-    "kredi": 800,
-    "uridyum": 7
+    "honor": 2,
+    "credits": 800,
+    "uridium": 7
    },
-   "kargo": {
+   "cargo": {
     "0": 45,
     "2": 45,
     "1": 45,
@@ -13206,21 +13206,21 @@
    }
   },
   "pm_saturnliberator": {
-   "ad": "-=[ Saturn Liberator ]=-",
+   "name": "-=[ Saturn Liberator ]=-",
    "model": "ship_liberator",
-   "npc_kimlik": 80,
+   "npc_id": 80,
    "hp": 16000,
    "kalkan": 30000,
-   "hasar": 900,
-   "hiz": 300,
+   "damage": 900,
+   "speed": 300,
    "aggressive": true,
    "reward": {
     "ep": 200,
-    "onur": 2,
-    "kredi": 800,
-    "uridyum": 7
+    "honor": 2,
+    "credits": 800,
+    "uridium": 7
    },
-   "kargo": {
+   "cargo": {
     "0": 75,
     "2": 75,
     "1": 75,
@@ -13229,39 +13229,39 @@
    }
   },
   "pm_coweringcyborg": {
-   "ad": "-=[ Cowering Cyborg ]=-",
+   "name": "-=[ Cowering Cyborg ]=-",
    "model": "296",
-   "npc_kimlik": 253,
+   "npc_id": 253,
    "hp": 450000,
    "kalkan": 300000,
-   "hasar": 6000,
-   "hiz": 300,
+   "damage": 6000,
+   "speed": 300,
    "aggressive": true,
    "reward": {
     "ep": 22500,
-    "onur": 225,
-    "kredi": 112500,
-    "uridyum": 112
+    "honor": 225,
+    "credits": 112500,
+    "uridium": 112
    },
-   "kargo": {},
+   "cargo": {},
    "_uyarlama": "değer kaynakta yok"
   },
   "pm_saturnspearhead": {
-   "ad": "-=[ Saturn Spearhead ]=-",
+   "name": "-=[ Saturn Spearhead ]=-",
    "model": "ship_spearhead",
-   "npc_kimlik": 97,
+   "npc_id": 97,
    "hp": 100000,
    "kalkan": 120000,
-   "hasar": 1400,
-   "hiz": 300,
+   "damage": 1400,
+   "speed": 300,
    "aggressive": true,
    "reward": {
     "ep": 7500,
-    "onur": 75,
-    "kredi": 20000,
-    "uridyum": 20
+    "honor": 75,
+    "credits": 20000,
+    "uridium": 20
    },
-   "kargo": {
+   "cargo": {
     "0": 100,
     "2": 100,
     "1": 100,
@@ -13271,21 +13271,21 @@
    }
   },
   "pm_saturnlightning": {
-   "ad": "-=[ Saturn Lightning ]=-",
+   "name": "-=[ Saturn Lightning ]=-",
    "model": "ship_v-lightning",
-   "npc_kimlik": 93,
+   "npc_id": 93,
    "hp": 180000,
    "kalkan": 100000,
-   "hasar": 3000,
-   "hiz": 300,
+   "damage": 3000,
+   "speed": 300,
    "aggressive": true,
    "reward": {
     "ep": 12800,
-    "onur": 128,
-    "kredi": 25600,
-    "uridyum": 28
+    "honor": 128,
+    "credits": 25600,
+    "uridium": 28
    },
-   "kargo": {
+   "cargo": {
     "0": 100,
     "2": 100,
     "1": 100,
@@ -13295,21 +13295,21 @@
    }
   },
   "pm_saturnbigboy": {
-   "ad": "-=[ Saturn Bigboy ]=-",
+   "name": "-=[ Saturn Bigboy ]=-",
    "model": "ship_bigboy",
-   "npc_kimlik": 83,
+   "npc_id": 83,
    "hp": 128000,
    "kalkan": 150000,
-   "hasar": 2500,
-   "hiz": 300,
+   "damage": 2500,
+   "speed": 300,
    "aggressive": true,
    "reward": {
     "ep": 25600,
-    "onur": 256,
-    "kredi": 12800,
-    "uridyum": 56
+    "honor": 256,
+    "credits": 12800,
+    "uridium": 56
    },
-   "kargo": {
+   "cargo": {
     "0": 150,
     "2": 150,
     "1": 150,
@@ -13319,21 +13319,21 @@
    }
   },
   "pm_saturnavenger": {
-   "ad": "-=[ Saturn Avenger ]=-",
+   "name": "-=[ Saturn Avenger ]=-",
    "model": "ship_v-avenger",
-   "npc_kimlik": 94,
+   "npc_id": 94,
    "hp": 180000,
    "kalkan": 200000,
-   "hasar": 3000,
-   "hiz": 300,
+   "damage": 3000,
+   "speed": 300,
    "aggressive": true,
    "reward": {
     "ep": 12800,
-    "onur": 128,
-    "kredi": 25600,
-    "uridyum": 28
+    "honor": 128,
+    "credits": 25600,
+    "uridium": 28
    },
-   "kargo": {
+   "cargo": {
     "0": 100,
     "2": 100,
     "1": 100,
@@ -13343,21 +13343,21 @@
    }
   },
   "pm_saturnpiranha": {
-   "ad": "-=[ Saturn Piranha ]=-",
+   "name": "-=[ Saturn Piranha ]=-",
    "model": "ship_piranha",
-   "npc_kimlik": 82,
+   "npc_id": 82,
    "hp": 64000,
    "kalkan": 80000,
-   "hasar": 900,
-   "hiz": 300,
+   "damage": 900,
+   "speed": 300,
    "aggressive": true,
    "reward": {
     "ep": 6400,
-    "onur": 64,
-    "kredi": 6400,
-    "uridyum": 15
+    "honor": 64,
+    "credits": 6400,
+    "uridium": 15
    },
-   "kargo": {
+   "cargo": {
     "0": 75,
     "2": 75,
     "1": 75,
@@ -13366,21 +13366,21 @@
    }
   },
   "pm_saturnnostromo": {
-   "ad": "-=[ Saturn Nostromo ]=-",
+   "name": "-=[ Saturn Nostromo ]=-",
    "model": "ship_nostromo",
-   "npc_kimlik": 81,
+   "npc_id": 81,
    "hp": 64000,
    "kalkan": 80000,
-   "hasar": 900,
-   "hiz": 300,
+   "damage": 900,
+   "speed": 300,
    "aggressive": true,
    "reward": {
     "ep": 6400,
-    "onur": 64,
-    "kredi": 6400,
-    "uridyum": 18
+    "honor": 64,
+    "credits": 6400,
+    "uridium": 18
    },
-   "kargo": {
+   "cargo": {
     "0": 75,
     "2": 75,
     "1": 75,
@@ -13389,75 +13389,75 @@
    }
   },
   "pm_gygerthrall": {
-   "ad": "-=[ Gygerthrall ]=-",
+   "name": "-=[ Gygerthrall ]=-",
    "model": "128",
-   "npc_kimlik": 123,
+   "npc_id": 123,
    "hp": 120000,
    "kalkan": 100000,
-   "hasar": 1500,
-   "hiz": 320,
+   "damage": 1500,
+   "speed": 320,
    "aggressive": true,
    "reward": {
     "ep": 6000,
-    "onur": 60,
-    "kredi": 30000,
-    "uridyum": 30
+    "honor": 60,
+    "credits": 30000,
+    "uridium": 30
    },
-   "kargo": {},
+   "cargo": {},
    "_uyarlama": "değer kaynakta yok"
   },
   "pm_ufonit": {
-   "ad": "-=[ Ufonit ]=-",
+   "name": "-=[ Ufonit ]=-",
    "model": "21",
-   "npc_kimlik": 26,
+   "npc_id": 26,
    "hp": 60000,
    "kalkan": 50000,
-   "hasar": 1000,
-   "hiz": 300,
+   "damage": 1000,
+   "speed": 300,
    "aggressive": true,
    "reward": {
     "ep": 6400,
-    "onur": 32,
-    "kredi": 12800,
-    "uridyum": 32
+    "honor": 32,
+    "credits": 12800,
+    "uridium": 32
    },
-   "kargo": {},
+   "cargo": {},
    "_kaynak": "vortex_of_terror.json (fandom): can, kalkan, hasar, ödül; hız \"Between 290-310\""
   },
   "pm_unidentifieddestroyer": {
-   "ad": "-=[ Unidentified Destroyer ]=-",
+   "name": "-=[ Unidentified Destroyer ]=-",
    "model": "100",
-   "npc_kimlik": 50,
+   "npc_id": 50,
    "hp": 500000,
    "kalkan": 400000,
-   "hasar": 3500,
-   "hiz": 280,
+   "damage": 3500,
+   "speed": 280,
    "aggressive": true,
    "reward": {
     "ep": 25000,
-    "onur": 250,
-    "kredi": 125000,
-    "uridyum": 125
+    "honor": 250,
+    "credits": 125000,
+    "uridium": 125
    },
-   "kargo": {},
+   "cargo": {},
    "_uyarlama": "değer kaynakta yok"
   },
   "pm_reflectormimesis": {
-   "ad": "-=[ Reflector Mimesis ]=-",
+   "name": "-=[ Reflector Mimesis ]=-",
    "model": "283",
-   "npc_kimlik": 239,
+   "npc_id": 239,
    "hp": 4500000,
    "kalkan": 2500000,
-   "hasar": 50000,
-   "hiz": 300,
+   "damage": 50000,
+   "speed": 300,
    "aggressive": true,
    "reward": {
     "ep": 819200,
-    "onur": 4096,
-    "kredi": 4096000,
-    "uridyum": 1250
+    "honor": 4096,
+    "credits": 4096000,
+    "uridium": 1250
    },
-   "kargo": {
+   "cargo": {
     "0": 4000,
     "1": 4000,
     "2": 4000,
@@ -13468,39 +13468,39 @@
    }
   },
   "pm_missilestorm": {
-   "ad": "-=[ Missile Storm ]=-",
+   "name": "-=[ Missile Storm ]=-",
    "model": "9371",
-   "npc_kimlik": 407,
+   "npc_id": 407,
    "hp": 300000,
    "kalkan": 200000,
-   "hasar": 4000,
-   "hiz": 0,
+   "damage": 4000,
+   "speed": 0,
    "aggressive": true,
    "reward": {
     "ep": 15000,
-    "onur": 150,
-    "kredi": 75000,
-    "uridyum": 75
+    "honor": 150,
+    "credits": 75000,
+    "uridium": 75
    },
-   "kargo": {},
+   "cargo": {},
    "_uyarlama": "değer kaynakta yok"
   },
   "pm_bosskucurbium": {
-   "ad": "..::{ Boss Kucurbium }::..",
+   "name": "..::{ Boss Kucurbium }::..",
    "model": "83",
-   "npc_kimlik": 41,
+   "npc_id": 41,
    "hp": 800000,
    "kalkan": 600000,
-   "hasar": 46000,
-   "hiz": 180,
+   "damage": 46000,
+   "speed": 180,
    "aggressive": true,
    "reward": {
     "ep": 204800,
-    "onur": 1024,
-    "kredi": 3276800,
-    "uridyum": 2048
+    "honor": 1024,
+    "credits": 3276800,
+    "uridium": 2048
    },
-   "kargo": {
+   "cargo": {
     "0": 1200,
     "2": 1200,
     "1": 1200,
@@ -13511,21 +13511,21 @@
    }
   },
   "pm_emperorsibelon": {
-   "ad": "-=[ Emperor Sibelon ]=-",
+   "name": "-=[ Emperor Sibelon ]=-",
    "model": "124",
-   "npc_kimlik": 113,
+   "npc_id": 113,
    "hp": 6400000,
    "kalkan": 6400000,
-   "hasar": 35000,
-   "hiz": 200,
+   "damage": 35000,
+   "speed": 200,
    "aggressive": true,
    "reward": {
     "ep": 409600,
-    "onur": 2048,
-    "kredi": 1400000,
-    "uridyum": 4608
+    "honor": 2048,
+    "credits": 1400000,
+    "uridium": 4608
    },
-   "kargo": {
+   "cargo": {
     "0": 2560,
     "2": 2560,
     "1": 2560,
@@ -13536,21 +13536,21 @@
    }
   },
   "pm_hexormimesis": {
-   "ad": "-=[ Hexor Mimesis ]=-",
+   "name": "-=[ Hexor Mimesis ]=-",
    "model": "278",
-   "npc_kimlik": 233,
+   "npc_id": 233,
    "hp": 495000,
    "kalkan": 200000,
-   "hasar": 6500,
-   "hiz": 300,
+   "damage": 6500,
+   "speed": 300,
    "aggressive": true,
    "reward": {
     "ep": 25600,
-    "onur": 128,
-    "kredi": 128000,
-    "uridyum": 100
+    "honor": 128,
+    "credits": 128000,
+    "uridium": 100
    },
-   "kargo": {
+   "cargo": {
     "0": 400,
     "1": 400,
     "2": 400,
@@ -13561,91 +13561,91 @@
    }
   },
   "pm_gygerimoverlord": {
-   "ad": "-=[ Gygerim Overlord ]=-",
+   "name": "-=[ Gygerim Overlord ]=-",
    "model": "248",
-   "npc_kimlik": 128,
+   "npc_id": 128,
    "hp": 60000000,
    "kalkan": 60000000,
-   "hasar": 30000,
-   "hiz": 150,
+   "damage": 30000,
+   "speed": 150,
    "aggressive": true,
    "reward": {
     "ep": 440000,
-    "onur": 44000,
-    "kredi": 0,
-    "uridyum": 28000
+    "honor": 44000,
+    "credits": 0,
+    "uridium": 28000
    },
-   "kargo": {}
+   "cargo": {}
   },
   "pm_mimesisturret": {
-   "ad": "-=[ Mimesis Turret ]=-",
+   "name": "-=[ Mimesis Turret ]=-",
    "model": "349",
-   "npc_kimlik": 287,
+   "npc_id": 287,
    "hp": 2100000,
    "kalkan": 0,
-   "hasar": 6000,
-   "hiz": 0,
+   "damage": 6000,
+   "speed": 0,
    "aggressive": true,
    "reward": {
     "ep": 0,
-    "onur": 0,
-    "kredi": 0,
-    "uridyum": 0
+    "honor": 0,
+    "credits": 0,
+    "uridium": 0
    },
-   "kargo": {}
+   "cargo": {}
   },
   "pm_ally_guard": {
-   "ad": "-=[ Command Freighter ]=-",
+   "name": "-=[ Command Freighter ]=-",
    "model": "277",
-   "npc_kimlik": 240,
+   "npc_id": 240,
    "hp": 400000,
    "kalkan": 200000,
-   "hasar": 0,
-   "hiz": 0,
+   "damage": 0,
+   "speed": 0,
    "aggressive": false,
    "friendly": true,
    "reward": {
     "ep": 0,
-    "onur": 0,
-    "kredi": 0,
-    "uridyum": 0
+    "honor": 0,
+    "credits": 0,
+    "uridium": 0
    },
-   "kargo": {}
+   "cargo": {}
   },
   "pm_ally_escort": {
-   "ad": "-=[ Escort Freighter ]=-",
+   "name": "-=[ Escort Freighter ]=-",
    "model": "126",
-   "npc_kimlik": 116,
+   "npc_id": 116,
    "hp": 400000,
    "kalkan": 200000,
-   "hasar": 0,
-   "hiz": 90,
+   "damage": 0,
+   "speed": 90,
    "aggressive": false,
    "friendly": true,
    "reward": {
     "ep": 0,
-    "onur": 0,
-    "kredi": 0,
-    "uridyum": 0
+    "honor": 0,
+    "credits": 0,
+    "uridium": 0
    },
-   "kargo": {}
+   "cargo": {}
   },
   "pm_ebl_mordon": {
-   "ad": "-=[ Mordon ]=-",
+   "name": "-=[ Mordon ]=-",
    "model": "73",
-   "npc_kimlik": 4,
+   "npc_id": 4,
    "hp": 20000,
    "kalkan": 10000,
-   "hasar": 390,
-   "hiz": 125,
+   "damage": 390,
+   "speed": 125,
    "aggressive": true,
    "reward": {
     "ep": 3200,
-    "onur": 16,
-    "kredi": 6400,
-    "uridyum": 8
+    "honor": 16,
+    "credits": 6400,
+    "uridium": 8
    },
-   "kargo": {
+   "cargo": {
     "0": 80,
     "2": 80,
     "1": 80,
@@ -13655,21 +13655,21 @@
    }
   },
   "pm_ebl_bossmordon": {
-   "ad": "..::{ Boss Mordon }::..",
+   "name": "..::{ Boss Mordon }::..",
    "model": "31",
-   "npc_kimlik": 16,
+   "npc_id": 16,
    "hp": 80000,
    "kalkan": 40000,
-   "hasar": 1500,
-   "hiz": 150,
+   "damage": 1500,
+   "speed": 150,
    "aggressive": true,
    "reward": {
     "ep": 12800,
-    "onur": 64,
-    "kredi": 25671,
-    "uridyum": 32
+    "honor": 64,
+    "credits": 25671,
+    "uridium": 32
    },
-   "kargo": {
+   "cargo": {
     "0": 320,
     "2": 320,
     "1": 320,
@@ -13680,21 +13680,21 @@
    }
   },
   "pm_ebl_bosssaimon": {
-   "ad": "..::{ Boss Saimon }::..",
+   "name": "..::{ Boss Saimon }::..",
    "model": "25",
-   "npc_kimlik": 17,
+   "npc_id": 17,
    "hp": 24000,
    "kalkan": 12000,
-   "hasar": 800,
-   "hiz": 300,
+   "damage": 800,
+   "speed": 300,
    "aggressive": true,
    "reward": {
     "ep": 6400,
-    "onur": 32,
-    "kredi": 6400,
-    "uridyum": 16
+    "honor": 32,
+    "credits": 6400,
+    "uridium": 16
    },
-   "kargo": {
+   "cargo": {
     "0": 160,
     "2": 160,
     "1": 160,
@@ -13705,21 +13705,21 @@
    }
   },
   "pm_ebl_sibelon": {
-   "ad": "-=[ Sibelon ]=-",
+   "name": "-=[ Sibelon ]=-",
    "model": "74",
-   "npc_kimlik": 5,
+   "npc_id": 5,
    "hp": 200000,
    "kalkan": 200000,
-   "hasar": 2650,
-   "hiz": 100,
+   "damage": 2650,
+   "speed": 100,
    "aggressive": true,
    "reward": {
     "ep": 12800,
-    "onur": 64,
-    "kredi": 102400,
-    "uridyum": 32
+    "honor": 64,
+    "credits": 102400,
+    "uridium": 32
    },
-   "kargo": {
+   "cargo": {
     "0": 200,
     "2": 200,
     "1": 200,
@@ -13729,21 +13729,21 @@
    }
   },
   "pm_ebl_sibelonit": {
-   "ad": "-=[ Sibelonit ]=-",
+   "name": "-=[ Sibelonit ]=-",
    "model": "76",
-   "npc_kimlik": 7,
+   "npc_id": 7,
    "hp": 40000,
    "kalkan": 40000,
-   "hasar": 3200,
-   "hiz": 320,
+   "damage": 3200,
+   "speed": 320,
    "aggressive": true,
    "reward": {
     "ep": 3200,
-    "onur": 16,
-    "kredi": 12800,
-    "uridyum": 12
+    "honor": 16,
+    "credits": 12800,
+    "uridium": 12
    },
-   "kargo": {
+   "cargo": {
     "0": 100,
     "2": 100,
     "1": 100,
@@ -13753,21 +13753,21 @@
    }
   },
   "pm_ebl_bosssibelon": {
-   "ad": "..::{ Boss Sibelon }::..",
+   "name": "..::{ Boss Sibelon }::..",
    "model": "46",
-   "npc_kimlik": 20,
+   "npc_id": 20,
    "hp": 800000,
    "kalkan": 800000,
-   "hasar": 12350,
-   "hiz": 175,
+   "damage": 12350,
+   "speed": 175,
    "aggressive": true,
    "reward": {
     "ep": 51200,
-    "onur": 256,
-    "kredi": 409600,
-    "uridyum": 128
+    "honor": 256,
+    "credits": 409600,
+    "uridium": 128
    },
-   "kargo": {
+   "cargo": {
     "0": 800,
     "2": 800,
     "1": 800,
@@ -13778,21 +13778,21 @@
    }
   },
   "pm_ebl_ubersibelon": {
-   "ad": "-=[ Uber Sibelon ]=-",
+   "name": "-=[ Uber Sibelon ]=-",
    "model": "47",
-   "npc_kimlik": 34,
+   "npc_id": 34,
    "hp": 1600000,
    "kalkan": 1600000,
-   "hasar": 24000,
-   "hiz": 100,
+   "damage": 24000,
+   "speed": 100,
    "aggressive": true,
    "reward": {
     "ep": 102400,
-    "onur": 512,
-    "kredi": 819200,
-    "uridyum": 256
+    "honor": 512,
+    "credits": 819200,
+    "uridium": 256
    },
-   "kargo": {
+   "cargo": {
     "0": 1200,
     "2": 1200,
     "1": 1200,
@@ -13803,21 +13803,21 @@
    }
   },
   "pm_ebl_ubersibelonit": {
-   "ad": "-=[ Uber Sibelonit ]=-",
+   "name": "-=[ Uber Sibelonit ]=-",
    "model": "40",
-   "npc_kimlik": 33,
+   "npc_id": 33,
    "hp": 320000,
    "kalkan": 320000,
-   "hasar": 8000,
-   "hiz": 350,
+   "damage": 8000,
+   "speed": 350,
    "aggressive": true,
    "reward": {
     "ep": 25600,
-    "onur": 128,
-    "kredi": 102400,
-    "uridyum": 96
+    "honor": 128,
+    "credits": 102400,
+    "uridium": 96
    },
-   "kargo": {
+   "cargo": {
     "0": 800,
     "2": 800,
     "1": 800,
@@ -13828,21 +13828,21 @@
    }
   },
   "pm_ebl_ubertalin": {
-   "ad": "-=[ Uber Talin ]=-",
+   "name": "-=[ Uber Talin ]=-",
    "model": "42",
-   "npc_kimlik": 36,
+   "npc_id": 36,
    "hp": 400000,
    "kalkan": 320000,
-   "hasar": 9600,
-   "hiz": 335,
+   "damage": 9600,
+   "speed": 335,
    "aggressive": true,
    "reward": {
     "ep": 51200,
-    "onur": 256,
-    "kredi": 102400,
-    "uridyum": 128
+    "honor": 256,
+    "credits": 102400,
+    "uridium": 128
    },
-   "kargo": {
+   "cargo": {
     "0": 800,
     "2": 800,
     "1": 800,
@@ -13853,21 +13853,21 @@
    }
   },
   "pm_ebl_impulse": {
-   "ad": "-=[ Impulse ]=-",
+   "name": "-=[ Impulse ]=-",
    "model": "213",
-   "npc_kimlik": 175,
+   "npc_id": 175,
    "hp": 1200000,
    "kalkan": 750000,
-   "hasar": 12000,
-   "hiz": 450,
+   "damage": 12000,
+   "speed": 450,
    "aggressive": true,
    "reward": {
     "ep": 55000,
-    "onur": 200,
-    "kredi": 200000,
-    "uridyum": 45
+    "honor": 200,
+    "credits": 200000,
+    "uridium": 45
    },
-   "kargo": {
+   "cargo": {
     "0": 350,
     "2": 350,
     "1": 350,
@@ -13877,21 +13877,21 @@
    }
   },
   "pm_ebl_interceptor": {
-   "ad": "-=[ Interceptor ]=-",
+   "name": "-=[ Interceptor ]=-",
    "model": "111",
-   "npc_kimlik": 58,
+   "npc_id": 58,
    "hp": 60000,
    "kalkan": 40000,
-   "hasar": 500,
-   "hiz": 600,
+   "damage": 500,
+   "speed": 600,
    "aggressive": true,
    "reward": {
     "ep": 7500,
-    "onur": 40,
-    "kredi": 25000,
-    "uridyum": 20
+    "honor": 40,
+    "credits": 25000,
+    "uridium": 20
    },
-   "kargo": {
+   "cargo": {
     "0": 100,
     "2": 100,
     "1": 100,
@@ -13901,21 +13901,21 @@
    }
   },
   "pm_ebl_barracuda": {
-   "ad": "-=[ Barracuda ]=-",
+   "name": "-=[ Barracuda ]=-",
    "model": "112",
-   "npc_kimlik": 59,
+   "npc_id": 59,
    "hp": 180000,
    "kalkan": 100000,
-   "hasar": 6000,
-   "hiz": 430,
+   "damage": 6000,
+   "speed": 430,
    "aggressive": true,
    "reward": {
     "ep": 15000,
-    "onur": 56,
-    "kredi": 90000,
-    "uridyum": 25
+    "honor": 56,
+    "credits": 90000,
+    "uridium": 25
    },
-   "kargo": {
+   "cargo": {
     "0": 200,
     "2": 200,
     "1": 200,
@@ -13925,21 +13925,21 @@
    }
   },
   "pm_ebl_annihilator": {
-   "ad": "-=[ Annihilator ]=-",
+   "name": "-=[ Annihilator ]=-",
    "model": "114",
-   "npc_kimlik": 61,
+   "npc_id": 61,
    "hp": 300000,
    "kalkan": 200000,
-   "hasar": 15000,
-   "hiz": 350,
+   "damage": 15000,
+   "speed": 350,
    "aggressive": true,
    "reward": {
     "ep": 75000,
-    "onur": 128,
-    "kredi": 250000,
-    "uridyum": 65
+    "honor": 128,
+    "credits": 250000,
+    "uridium": 65
    },
-   "kargo": {
+   "cargo": {
     "0": 300,
     "2": 300,
     "1": 300,
@@ -13950,21 +13950,21 @@
    }
   },
   "pm_ebl_ubersaboteur": {
-   "ad": "-=[ Uber Saboteur ]=-",
+   "name": "-=[ Uber Saboteur ]=-",
    "model": "258",
-   "npc_kimlik": 165,
+   "npc_id": 165,
    "hp": 1600000,
    "kalkan": 1200000,
-   "hasar": 32000,
-   "hiz": 400,
+   "damage": 32000,
+   "speed": 400,
    "aggressive": true,
    "reward": {
     "ep": 90000,
-    "onur": 130,
-    "kredi": 500000,
-    "uridyum": 150
+    "honor": 130,
+    "credits": 500000,
+    "uridium": 150
    },
-   "kargo": {
+   "cargo": {
     "0": 1500,
     "2": 1500,
     "1": 1500,
@@ -13974,21 +13974,21 @@
    }
   },
   "pm_ebl_melter": {
-   "ad": "-=[ Melter ]=-",
+   "name": "-=[ Melter ]=-",
    "model": "102",
-   "npc_kimlik": 65,
+   "npc_id": 65,
    "hp": 400000,
    "kalkan": 300000,
-   "hasar": 5000,
-   "hiz": 370,
+   "damage": 5000,
+   "speed": 370,
    "aggressive": true,
    "reward": {
     "ep": 55000,
-    "onur": 13,
-    "kredi": 400000,
-    "uridyum": 256
+    "honor": 13,
+    "credits": 400000,
+    "uridium": 256
    },
-   "kargo": {
+   "cargo": {
     "0": 300,
     "2": 300,
     "1": 300,
@@ -13999,21 +13999,21 @@
    }
   },
   "pm_ebl_infernal": {
-   "ad": "-=[ Infernal ]=-",
+   "name": "-=[ Infernal ]=-",
    "model": "100",
-   "npc_kimlik": 63,
+   "npc_id": 63,
    "hp": 60000,
    "kalkan": 50000,
-   "hasar": 1000,
-   "hiz": 370,
+   "damage": 1000,
+   "speed": 370,
    "aggressive": true,
    "reward": {
     "ep": 8000,
-    "onur": 4,
-    "kredi": 25000,
-    "uridyum": 16
+    "honor": 4,
+    "credits": 25000,
+    "uridium": 16
    },
-   "kargo": {
+   "cargo": {
     "0": 100,
     "2": 100,
     "1": 100,
@@ -14024,21 +14024,21 @@
    }
   },
   "pm_ebl_attend": {
-   "ad": "-=[ Attend ]=-",
+   "name": "-=[ Attend ]=-",
    "model": "217",
-   "npc_kimlik": 176,
+   "npc_id": 176,
    "hp": 9000000,
    "kalkan": 4800000,
-   "hasar": 17000,
-   "hiz": 150,
+   "damage": 17000,
+   "speed": 150,
    "aggressive": true,
    "reward": {
     "ep": 350000,
-    "onur": 750,
-    "kredi": 1000000,
-    "uridyum": 275
+    "honor": 750,
+    "credits": 1000000,
+    "uridium": 275
    },
-   "kargo": {
+   "cargo": {
     "0": 500,
     "2": 500,
     "1": 500,
@@ -14048,21 +14048,21 @@
    }
   },
   "pm_ebl_bosstalon": {
-   "ad": "..::{ Boss Talon }::..",
+   "name": "..::{ Boss Talon }::..",
    "model": "35",
-   "npc_kimlik": 23,
+   "npc_id": 23,
    "hp": 1600000,
    "kalkan": 1200000,
-   "hasar": 20000,
-   "hiz": 250,
+   "damage": 20000,
+   "speed": 250,
    "aggressive": true,
    "reward": {
     "ep": 204800,
-    "onur": 1024,
-    "kredi": 1638400,
-    "uridyum": 512
+    "honor": 1024,
+    "credits": 1638400,
+    "uridium": 512
    },
-   "kargo": {
+   "cargo": {
     "0": 1200,
     "2": 1200,
     "1": 1200,
@@ -14073,21 +14073,21 @@
    }
   },
   "pm_ebl_bosstalin": {
-   "ad": "..::{ Boss Talin }::..",
+   "name": "..::{ Boss Talin }::..",
    "model": "29",
-   "npc_kimlik": 22,
+   "npc_id": 22,
    "hp": 200000,
    "kalkan": 160000,
-   "hasar": 4700,
-   "hiz": 340,
+   "damage": 4700,
+   "speed": 340,
    "aggressive": true,
    "reward": {
     "ep": 25600,
-    "onur": 128,
-    "kredi": 51200,
-    "uridyum": 64
+    "honor": 128,
+    "credits": 51200,
+    "uridium": 64
    },
-   "kargo": {
+   "cargo": {
     "0": 400,
     "2": 400,
     "1": 400,
@@ -14098,21 +14098,21 @@
    }
   },
   "pm_ebl_ubertalon": {
-   "ad": "-=[ Uber Talon ]=-",
+   "name": "-=[ Uber Talon ]=-",
    "model": "45",
-   "npc_kimlik": 37,
+   "npc_id": 37,
    "hp": 3200000,
    "kalkan": 2400000,
-   "hasar": 40000,
-   "hiz": 240,
+   "damage": 40000,
+   "speed": 240,
    "aggressive": true,
    "reward": {
     "ep": 409600,
-    "onur": 2048,
-    "kredi": 3276800,
-    "uridyum": 1024
+    "honor": 2048,
+    "credits": 3276800,
+    "uridium": 1024
    },
-   "kargo": {
+   "cargo": {
     "0": 2400,
     "2": 2400,
     "1": 2400,
@@ -14123,21 +14123,21 @@
    }
   },
   "pm_ebl_uberlordakia": {
-   "ad": "-=[ Uber Lordakia ]=-",
+   "name": "-=[ Uber Lordakia ]=-",
    "model": "37",
-   "npc_kimlik": 29,
+   "npc_id": 29,
    "hp": 16000,
    "kalkan": 16000,
-   "hasar": 640,
-   "hiz": 250,
+   "damage": 640,
+   "speed": 250,
    "aggressive": true,
    "reward": {
     "ep": 6400,
-    "onur": 32,
-    "kredi": 6400,
-    "uridyum": 16
+    "honor": 32,
+    "credits": 6400,
+    "uridium": 16
    },
-   "kargo": {
+   "cargo": {
     "0": 160,
     "2": 160,
     "1": 160,
@@ -14148,21 +14148,21 @@
    }
   },
   "pm_ebl_uberlordakium": {
-   "ad": "-=[ Uber Lordakium ]=-",
+   "name": "-=[ Uber Lordakium ]=-",
    "model": "41",
-   "npc_kimlik": 35,
+   "npc_id": 35,
    "hp": 2400000,
    "kalkan": 1600000,
-   "hasar": 32000,
-   "hiz": 100,
+   "damage": 32000,
+   "speed": 100,
    "aggressive": true,
    "reward": {
     "ep": 204800,
-    "onur": 1024,
-    "kredi": 1638400,
-    "uridyum": 512
+    "honor": 1024,
+    "credits": 1638400,
+    "uridium": 512
    },
-   "kargo": {
+   "cargo": {
     "0": 1200,
     "2": 1200,
     "1": 1200,
@@ -14173,21 +14173,21 @@
    }
   },
   "pm_ebl_kucurbium": {
-   "ad": "-=[ Kucurbium ]=-",
+   "name": "-=[ Kucurbium ]=-",
    "model": "82",
-   "npc_kimlik": 40,
+   "npc_id": 40,
    "hp": 1600000,
    "kalkan": 1200000,
-   "hasar": 6500,
-   "hiz": 200,
+   "damage": 6500,
+   "speed": 200,
    "aggressive": true,
    "reward": {
     "ep": 204800,
-    "onur": 1024,
-    "kredi": 3276800,
-    "uridyum": 512
+    "honor": 1024,
+    "credits": 3276800,
+    "uridium": 512
    },
-   "kargo": {
+   "cargo": {
     "0": 1200,
     "2": 1200,
     "1": 1200,
@@ -14198,21 +14198,21 @@
    }
   },
   "pm_ebl_convict": {
-   "ad": "-=[ Convict ]=-",
+   "name": "-=[ Convict ]=-",
    "model": "95",
-   "npc_kimlik": 48,
+   "npc_id": 48,
    "hp": 400000,
    "kalkan": 200000,
-   "hasar": 11500,
-   "hiz": 400,
+   "damage": 11500,
+   "speed": 400,
    "aggressive": true,
    "reward": {
     "ep": 30000,
-    "onur": 100,
-    "kredi": 220000,
-    "uridyum": 150
+    "honor": 100,
+    "credits": 220000,
+    "uridium": 150
    },
-   "kargo": {
+   "cargo": {
     "0": 400,
     "2": 400,
     "1": 400,
@@ -14224,21 +14224,21 @@
    }
   },
   "pm_ebl_protegit": {
-   "ad": "-=[ Protegit ]=-",
+   "name": "-=[ Protegit ]=-",
    "model": "81",
-   "npc_kimlik": 12,
+   "npc_id": 12,
    "hp": 50000,
    "kalkan": 40000,
-   "hasar": 1500,
-   "hiz": 500,
+   "damage": 1500,
+   "speed": 500,
    "aggressive": true,
    "reward": {
     "ep": 6400,
-    "onur": 32,
-    "kredi": 12800,
-    "uridyum": 16
+    "honor": 32,
+    "credits": 12800,
+    "uridium": 16
    },
-   "kargo": {
+   "cargo": {
     "0": 100,
     "2": 100,
     "1": 100,
@@ -14248,21 +14248,21 @@
    }
   },
   "pm_ebl_uberprotegit": {
-   "ad": "-=[ Uber Protegit ]=-",
+   "name": "-=[ Uber Protegit ]=-",
    "model": "81",
-   "npc_kimlik": 53,
+   "npc_id": 53,
    "hp": 400000,
    "kalkan": 320000,
-   "hasar": 12000,
-   "hiz": 300,
+   "damage": 12000,
+   "speed": 300,
    "aggressive": true,
    "reward": {
     "ep": 6400,
-    "onur": 32,
-    "kredi": 12800,
-    "uridyum": 16
+    "honor": 32,
+    "credits": 12800,
+    "uridium": 16
    },
-   "kargo": {
+   "cargo": {
     "0": 800,
     "2": 800,
     "1": 800,
@@ -14273,21 +14273,21 @@
    }
   },
   "pm_ebl_icy": {
-   "ad": "-=[ Icy ]=-",
+   "name": "-=[ Icy ]=-",
    "model": "103",
-   "npc_kimlik": 56,
+   "npc_id": 56,
    "hp": 100000,
    "kalkan": 80000,
-   "hasar": 2000,
-   "hiz": 475,
+   "damage": 2000,
+   "speed": 475,
    "aggressive": true,
    "reward": {
     "ep": 6400,
-    "onur": 32,
-    "kredi": 12800,
-    "uridyum": 16
+    "honor": 32,
+    "credits": 12800,
+    "uridium": 16
    },
-   "kargo": {
+   "cargo": {
     "0": 100,
     "2": 100,
     "1": 100,
@@ -14297,21 +14297,21 @@
    }
   },
   "pm_ebl_icemeteoroid": {
-   "ad": "-=[ Ice Meteoroid ]=-",
+   "name": "-=[ Ice Meteoroid ]=-",
    "model": "101",
-   "npc_kimlik": 54,
+   "npc_id": 54,
    "hp": 1600000,
    "kalkan": 1200000,
-   "hasar": 0,
-   "hiz": 200,
+   "damage": 0,
+   "speed": 200,
    "aggressive": true,
    "reward": {
     "ep": 1000000,
-    "onur": 5000,
-    "kredi": 3000000,
-    "uridyum": 1800
+    "honor": 5000,
+    "credits": 3000000,
+    "uridium": 1800
    },
-   "kargo": {
+   "cargo": {
     "0": 1200,
     "2": 1200,
     "1": 1200,
@@ -14322,21 +14322,21 @@
    }
   },
   "pm_ebl_uberannihilator": {
-   "ad": "-=[ Uber Annihilator ]=-",
+   "name": "-=[ Uber Annihilator ]=-",
    "model": "254",
-   "npc_kimlik": 166,
+   "npc_id": 166,
    "hp": 2400000,
    "kalkan": 1600000,
-   "hasar": 90000,
-   "hiz": 320,
+   "damage": 90000,
+   "speed": 320,
    "aggressive": true,
    "reward": {
     "ep": 300000,
-    "onur": 200,
-    "kredi": 1000000,
-    "uridyum": 220
+    "honor": 200,
+    "credits": 1000000,
+    "uridium": 220
    },
-   "kargo": {
+   "cargo": {
     "0": 1200,
     "2": 1200,
     "1": 1200,
@@ -14347,63 +14347,63 @@
    }
   },
   "pm_ebl_saturnbastion": {
-   "ad": "-=[ Saturn Bastion ]=-",
+   "name": "-=[ Saturn Bastion ]=-",
    "model": "ship_g-bastion",
-   "npc_kimlik": 81,
+   "npc_id": 81,
    "hp": 520000,
    "kalkan": 380000,
-   "hasar": 9000,
-   "hiz": 300,
+   "damage": 9000,
+   "speed": 300,
    "aggressive": true,
    "reward": {
     "ep": 51200,
-    "onur": 512,
-    "kredi": 45000,
-    "uridyum": 100
+    "honor": 512,
+    "credits": 45000,
+    "uridium": 100
    },
-   "kargo": {}
+   "cargo": {}
   },
   "pm_ebl_strokelightbarrage": {
-   "ad": "-=[ Strokelight Barrage ]=-",
+   "name": "-=[ Strokelight Barrage ]=-",
    "model": "320",
-   "npc_kimlik": 266,
+   "npc_id": 266,
    "hp": 4500000,
    "kalkan": 500000,
-   "hasar": 20000,
-   "hiz": 0,
+   "damage": 20000,
+   "speed": 0,
    "aggressive": true,
    "reward": {
     "ep": 3500000,
-    "onur": 350000,
-    "kredi": 6500000,
-    "uridyum": 4000
+    "honor": 350000,
+    "credits": 6500000,
+    "uridium": 4000
    },
-   "kargo": {},
+   "cargo": {},
    "behavior": {
     "summon_on_hit": {
-     "tur": "pm_ebl_abide",
-     "adet": 2,
+     "type": "pm_ebl_abide",
+     "count": 2,
      "max_count": 4,
-     "bekleme_sn": 25
+     "cooldown_sec": 25
     }
    }
   },
   "pm_ebl_abide": {
-   "ad": "-=[ Abide ]=-",
+   "name": "-=[ Abide ]=-",
    "model": "214",
-   "npc_kimlik": 268,
+   "npc_id": 268,
    "hp": 600000,
    "kalkan": 0,
-   "hasar": 0,
-   "hiz": 600,
+   "damage": 0,
+   "speed": 600,
    "aggressive": true,
    "reward": {
     "ep": 15000,
-    "onur": 55,
-    "kredi": 55000,
-    "uridyum": 10
+    "honor": 55,
+    "credits": 55000,
+    "uridium": 10
    },
-   "kargo": {
+   "cargo": {
     "0": 80,
     "2": 80,
     "1": 80,
@@ -14413,21 +14413,21 @@
    }
   },
   "pm_ebl_steadfast": {
-   "ad": "-=[ Steadfast ]=-",
+   "name": "-=[ Steadfast ]=-",
    "model": "217",
-   "npc_kimlik": 269,
+   "npc_id": 269,
    "hp": 300000,
    "kalkan": 300000,
-   "hasar": 0,
-   "hiz": 600,
+   "damage": 0,
+   "speed": 600,
    "aggressive": true,
    "reward": {
     "ep": 15000,
-    "onur": 55,
-    "kredi": 55000,
-    "uridyum": 10
+    "honor": 55,
+    "credits": 55000,
+    "uridium": 10
    },
-   "kargo": {
+   "cargo": {
     "0": 80,
     "2": 80,
     "1": 80,
@@ -14437,38 +14437,38 @@
    }
   },
   "pm_ebl_barrageseekerrocket": {
-   "ad": "-=[ Barrage Seeker Rocket ]=-",
+   "name": "-=[ Barrage Seeker Rocket ]=-",
    "model": "159",
-   "npc_kimlik": 159,
+   "npc_id": 159,
    "hp": 520000,
    "kalkan": 380000,
-   "hasar": 9000,
-   "hiz": 420,
+   "damage": 9000,
+   "speed": 420,
    "aggressive": true,
    "reward": {
     "ep": 0,
-    "onur": 0,
-    "kredi": 0,
-    "uridyum": 0
+    "honor": 0,
+    "credits": 0,
+    "uridium": 0
    },
-   "kargo": {}
+   "cargo": {}
   },
   "pm_ebl_phasingcyborg": {
-   "ad": "-=[ Phasing Cyborg ]=-",
+   "name": "-=[ Phasing Cyborg ]=-",
    "model": "297",
-   "npc_kimlik": 254,
+   "npc_id": 254,
    "hp": 4500000,
    "kalkan": 2500000,
-   "hasar": 50000,
-   "hiz": 300,
+   "damage": 50000,
+   "speed": 300,
    "aggressive": true,
    "reward": {
     "ep": 819200,
-    "onur": 4096,
-    "kredi": 4096000,
-    "uridyum": 1250
+    "honor": 4096,
+    "credits": 4096000,
+    "uridium": 1250
    },
-   "kargo": {}
+   "cargo": {}
   }
  }
 }

@@ -20,7 +20,7 @@ REQUESTS = {'ContactRequest', 'ContactListRequest', 'ContactListSettingsModule',
 CREATE, ACCEPT, REJECT, DELETE_REQUEST, REMOVE_FRIEND, BLOCK, UNBLOCK = range(7)
 # ContactListEntryTypeModule.entryType
 FRIEND, CLAN, INCOMING, OUTGOING, REJECTED, BLOCKED = range(6)
-LISTS = (('arkadas', FRIEND), ('incoming', INCOMING), ('outgoing', OUTGOING), ('declined', REJECTED), ('blocked', BLOCKED))
+LISTS = (('friend', FRIEND), ('incoming', INCOMING), ('outgoing', OUTGOING), ('declined', REJECTED), ('blocked', BLOCKED))
 FILTER = {'showClanMembers': True, 'showRequests': True, 'showFriends': True, 'showBlacklistPlayers': False}
 
 LOCK = threading.RLock()
@@ -87,7 +87,7 @@ def lines(p, people):
     c = KL.clan_of(p)                                    # klan üyeleri (istemcinin "Clan members" süzgeci)
     for low, u in (c or {}).get('members', {}).items():
         if low != KL.name(p):
-            names.setdefault(low, [u.get('ad', low), []])[1].append(CLAN)
+            names.setdefault(low, [u.get('name', low), []])[1].append(CLAN)
     by_name = {k.name.lower(): k for k in people.values()}
     out = {}
     for low, (target_name, kinds) in names.items():
@@ -183,7 +183,7 @@ def handle(k, name, f):
     if kind == CREATE:
         if b is None or b.uid == k.uid:
             out.append(stm('msg_grp_inv_err_candidate_nonexistant'))
-        elif _var(r['arkadas'], target_name):
+        elif _var(r['friend'], target_name):
             out.append(stm('log_msg_err_already_contact', NAME=target_name))
         elif _var(r['outgoing'], target_name):
             out.append(stm('log_msg_err_already_requested', NAME=target_name))
@@ -198,12 +198,12 @@ def handle(k, name, f):
             out.append(stm('log_msg_contact_invite_sent', NAME=target_name))
     elif kind == ACCEPT and _var(r['incoming'], target_name):
         _remove(p, 'incoming', target_name)
-        _add(p, 'arkadas', target_name)
+        _add(p, 'friend', target_name)
         out.append(stm('log_msg_contact_added', NAME=target_name))
         if b is not None:
             _remove(b.profile, 'outgoing', k.name)
             _remove(b.profile, 'declined', k.name)
-            _add(b.profile, 'arkadas', k.name)
+            _add(b.profile, 'friend', k.name)
             to_other.append(stm('log_msg_contact_added', NAME=k.name))
     elif kind == REJECT and _var(r['incoming'], target_name):
         _remove(p, 'incoming', target_name)
@@ -216,18 +216,18 @@ def handle(k, name, f):
         _remove(p, 'declined', target_name)
         if b is not None:
             _remove(b.profile, 'incoming', k.name)
-    elif kind == REMOVE_FRIEND and _var(r['arkadas'], target_name):
-        _remove(p, 'arkadas', target_name)
+    elif kind == REMOVE_FRIEND and _var(r['friend'], target_name):
+        _remove(p, 'friend', target_name)
         out.append(stm('log_msg_contact_removed', NAME=target_name))
         if b is not None:
-            _remove(b.profile, 'arkadas', k.name)
+            _remove(b.profile, 'friend', k.name)
     elif kind == BLOCK and target_name and target_name.lower() != k.name.lower():
-        for entries in ('arkadas', 'incoming', 'outgoing', 'declined'):
+        for entries in ('friend', 'incoming', 'outgoing', 'declined'):
             _remove(p, entries, target_name)
         _add(p, 'blocked', target_name)
         out.append(stm('log_msg_contact_blocked', NAME=target_name))
         if b is not None:
-            for entries in ('arkadas', 'incoming', 'outgoing'):
+            for entries in ('friend', 'incoming', 'outgoing'):
                 _remove(b.profile, entries, k.name)
     elif kind == UNBLOCK and _var(r['blocked'], target_name):
         _remove(p, 'blocked', target_name)

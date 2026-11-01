@@ -21,7 +21,7 @@ SERVER = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, SERVER)
 DATA = os.path.join(SERVER, 'data')
 HOME_MAP = {1: 1, 2: 5, 3: 9}             # game.py HOME_MAP: firma -> X-1
-START_AMMO = {'lazer': 'ammunition_laser_lcb-10', 'roket': 'ammunition_rocket_r-310'}     # yeni kaydın başlangıç cephanesi (tohumda da)
+START_AMMO = {'laser': 'ammunition_laser_lcb-10', 'rocket': 'ammunition_rocket_r-310'}     # yeni kaydın başlangıç cephanesi (tohumda da)
 
 
 def _load(name):
@@ -37,7 +37,7 @@ def station_pos(map_id):
     rec = maps.get(str(map_id))
     if rec is None:
         rec = H.map_world(map_id, maps.get('5'))
-    for m in rec.get('hazir', []):
+    for m in rec.get('ready', []):
         if m['_m'] == 'SpaceStationCommand' and m.get('type') not in H.DECOR_STATION_TYPES:
             return int(m['posX']), int(m['posY'])
     return None
@@ -45,42 +45,42 @@ def station_pos(map_id):
 
 def level_ep(level):
     """Seviyenin EP eşiği (data/levels.json; en büyük seviyeye kırpılır) -> (seviye, EP)."""
-    table = _load('levels.json').get('seviyeler') or [[1, 0]]
+    table = _load('levels.json').get('levels') or [[1, 0]]
     lv = max(table[0][0], min(int(level), table[-1][0]))
     return lv, next(need for l, need in table if l == lv)
 
 
-def new_(path, pilot, firma, kredi=None, uridyum=None, seviye=None, onur=None, lazer=None, roket=None, ilerlemeli=False, kampanya=False):
+def new_(path, pilot, company, credits=None, uridium=None, level=None, honor=None, laser=None, rocket=None, progressive=False, campaign=False):
     if os.path.exists(path):
         raise ValueError('A profile already exists at this path.')
     from player_profile import Profile
-    firma = int(firma)
+    company = int(company)
     pr = Profile(_load('login.json').get('seed'), path)
     pl = pr.d['pilot']
     pl['userName'] = pilot
-    pl['factionId'] = firma
-    if kredi is not None:
-        pl['credits'] = kredi
-    if uridyum is not None:
-        pl['uridium'] = uridyum
-    if seviye is not None:                                  # seviye EP'den hesaplanır (oyun da öyle): EP seviyenin eşiği
-        pl['level'], pl['ep'] = level_ep(seviye)
-    if onur is not None:
-        pl['honourPoints'] = onur
-    for key, n in (('lazer', lazer), ('roket', roket)):
+    pl['factionId'] = company
+    if credits is not None:
+        pl['credits'] = credits
+    if uridium is not None:
+        pl['uridium'] = uridium
+    if level is not None:                                  # seviye EP'den hesaplanır (oyun da öyle): EP seviyenin eşiği
+        pl['level'], pl['ep'] = level_ep(level)
+    if honor is not None:
+        pl['honourPoints'] = honor
+    for key, n in (('laser', laser), ('rocket', rocket)):
         if n is not None:
             pr.d['ammunition'][START_AMMO[key]] = n
-    mid = HOME_MAP[firma]
+    mid = HOME_MAP[company]
     pos = station_pos(mid)
     if pos:
         pr.d['position'] = {'mapId': mid, 'x': pos[0], 'y': pos[1]}
     pr.d['created'] = time.strftime('%Y-%m-%d %H:%M:%S')
-    if ilerlemeli:                                          # Season Pass ilk sezondan sırayla (sezon.py)
-        pr.d['ilerlemeli'] = True
-    if kampanya:                                            # başlangıç kampanyası: "Level N" görevleri (gorev.KAMPANYA_SN boyunca)
-        pr.d['kampanya'] = int(time.time())
+    if progressive:                                          # Season Pass ilk sezondan sırayla (sezon.py)
+        pr.d['progressive'] = True
+    if campaign:                                            # başlangıç kampanyası: "Level N" görevleri (gorev.KAMPANYA_SN boyunca)
+        pr.d['campaign'] = int(time.time())
     pr.save(force=True)
-    return {'harita': mid, 'position': pos, 'template': bool(_load('login.json'))}
+    return {'map': mid, 'position': pos, 'template': bool(_load('login.json'))}
 
 
 def home_base(path):
@@ -94,12 +94,12 @@ def home_base(path):
     with open(tmp, 'w', encoding='utf8', newline='\n') as fh:
         json.dump(d, fh, ensure_ascii=False, indent=1)
     os.replace(tmp, path)
-    return {'harita': mid, 'position': pos}
+    return {'map': mid, 'position': pos}
 
 
 def known_loots():
     """Verilebilecek lootId -> tür (istemcinin eşya verisi; sunucunun eşya tabloları)."""
-    out = {k: (v.get('tur') or '') for k, v in (_load('client_items.json').get('esyalar') or {}).items()
+    out = {k: (v.get('type') or '') for k, v in (_load('client_items.json').get('items') or {}).items()
            if not k.startswith(('shipId_', 'paymentItem_'))}
     es = _load('items.json')
     prefixes = {k.split('_', 1)[0] for k in out}
@@ -130,13 +130,13 @@ def give(path, items, pr=None):
     m = Shop(pr, _load('responses.json'), notes.append)      # oyundaki şablonlar: takılan ekipmanın HangarShipEquipmentCommand'ı
     m.gates = KAPI.Gates(pr, notes.append)
     m.new_ = NS.NewSystems(pr, m, notes.append)
-    before = (len(pr.d.get('esyalar', {})), len(pr.d.get('ships', {})), len(pr.d.get('drones', [])))
+    before = (len(pr.d.get('items', {})), len(pr.d.get('ships', {})), len(pr.d.get('drones', [])))
     for loot, n in items:
         m.reward(loot, n)
     if save:
         pr.save(force=True)
-    after = (len(pr.d.get('esyalar', {})), len(pr.d.get('ships', {})), len(pr.d.get('drones', [])))
-    return {'given': [[l, n] for l, n in items], 'esya': after[0] - before[0], 'gemi': after[1] - before[1],
+    after = (len(pr.d.get('items', {})), len(pr.d.get('ships', {})), len(pr.d.get('drones', [])))
+    return {'given': [[l, n] for l, n in items], 'item': after[0] - before[0], 'ship': after[1] - before[1],
             'drone': after[2] - before[2], 'notes': [x.strip() for x in notes if x.strip()][-20:]}
 
 
@@ -178,17 +178,17 @@ def reset_d(d, parts):
 def main(argv):
     opts = {a.split('=', 1)[0][2:]: a.split('=', 1)[1] for a in argv if a.startswith('--') and '=' in a}
     args = [a for a in argv if not a.startswith('--')]
-    if args[:1] == ['yeni'] and len(args) == 4:
-        num = {k: int(opts[k]) for k in ('kredi', 'uridyum', 'seviye', 'onur', 'lazer', 'roket') if k in opts}
-        return new_(args[1], args[2], args[3], ilerlemeli=opts.get('ilerlemeli') == '1', kampanya=opts.get('kampanya') == '1', **num)
+    if args[:1] == ['new'] and len(args) == 4:
+        num = {k: int(opts[k]) for k in ('credits', 'uridium', 'level', 'honor', 'laser', 'rocket') if k in opts}
+        return new_(args[1], args[2], args[3], progressive=opts.get('progressive') == '1', campaign=opts.get('campaign') == '1', **num)
     if args[:1] == ['home_base'] and len(args) == 2:
         return home_base(args[1])
     if args[:1] == ['give'] and len(args) == 3:
         return give(args[1], json.loads(args[2]))
     if args[:1] == ['reset'] and len(args) == 3:
         return reset(args[1], [x for x in args[2].split(',') if x])
-    if args[:1] == ['liste'] and len(args) == 1:
-        return {'esyalar': sorted(known_loots().items())}
+    if args[:1] == ['entries'] and len(args) == 1:
+        return {'items': sorted(known_loots().items())}
     raise ValueError('kullanım: profile_tool.py yeni <yol> <pilot> <firma> | ana_us <yol> | ver <yol> <json> | sifirla <yol> <bölümler> | liste')
 
 
@@ -201,5 +201,5 @@ if __name__ == '__main__':
         # ValueError(kalıp, *değerler): panel iletiyi kendi dilinde kurar (kayitlar.run_tool, dil.py)
         template = e.args[0] if isinstance(e, ValueError) and e.args and isinstance(e.args[0], str) else None
         msg = (template % e.args[1:] if len(e.args) > 1 else template) if template else str(e)
-        print(json.dumps({'ok': False, 'hata': '%s: %s' % (type(e).__name__, msg), 'template': template, 'arg': [str(a) for a in e.args[1:]]},
+        print(json.dumps({'ok': False, 'error': '%s: %s' % (type(e).__name__, msg), 'template': template, 'arg': [str(a) for a in e.args[1:]]},
                          ensure_ascii=False))

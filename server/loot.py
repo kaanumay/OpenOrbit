@@ -21,8 +21,8 @@ K = DATA.load('boxes.json')
 BOXES = K['boxes']
 for _k, _b in BOXES.items():                 # etkinlik görünümleri: kutunun yerel tasarım satırları (wiki tablosunun dışında; pick_all)
     _b['local'] = EG.box_rows(_k)
-PACKAGE = 'paket'                               # Epic paketi satırı: ['paket', [[lootId, adet], ...], ağırlık]; açılışta parçaların hepsi
-MAPS = {k: re.compile(v) for k, v in K['haritalar'].items()}
+PACKAGE = 'package'                               # Epic paketi satırı: ['paket', [[lootId, adet], ...], ağırlık]; açılışta parçaların hepsi
+MAPS = {k: re.compile(v) for k, v in K['maps'].items()}
 GREEN_KEY = 'resource_booty-key'
 OPEN_SEC = 3                                   # açılış süresi (tam saniye: istemcinin sayacı): resmî ~5 sn, kullanıcının kararı 3 sn
 BL_CACHE = 'UNSTABLE_BLACKLIGHT_CACHE'
@@ -48,8 +48,8 @@ def box_event(kind, now=None):
 
 def spawns(map_name, now=None):
     """Bu haritada doğan kutular -> [(tür, adet)]."""
-    return [(k, b['adet']) for k, b in BOXES.items()
-            if active(k, now) and any(MAPS[m].match(map_name or '') for m in b['haritalar'])]
+    return [(k, b['count']) for k, b in BOXES.items()
+            if active(k, now) and any(MAPS[m].match(map_name or '') for m in b['maps'])]
 
 
 def respawn_delay(kind):
@@ -67,7 +67,7 @@ def owned(p, loot):
         return any(s['lootId'] == loot for s in p.d['ships'].values())
     if loot.startswith('drone_') and any(d.get('lootId') == loot for d in p.d.get('drones', [])):
         return True
-    return p.resource(loot) > 0 or loot in p.d.get('esyalar', {}).values()     # dron ve P.E.T. tasarımları envanterde
+    return p.resource(loot) > 0 or loot in p.d.get('items', {}).values()     # dron ve P.E.T. tasarımları envanterde
 
 
 def unique(loot):

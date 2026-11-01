@@ -4,185 +4,185 @@
  "_uyarlama": "Silah hasarı/canı/menzili/isabeti, Hull/REPM/booster canları ve booster azami %3-10 değerleri resmî FAQ değerleri; can/hasar seviye başına +%2 (L16 = L1 x 1,30). Deflector birikim hızı seviye başına tabanın +%1'i (120 dk/sa -> L16 138 dk/sa; prime time x5). Deflector modülünün ayrı 1.040.000 can değeri kaynakta doğrulanmamış yerel değerdir. Sayısal atış aralıkları (lazer 1,5/2,5/3 sn, roket 4 sn), onarım hızı, kurulum süresi (50 sn), deflector birikimi (48 sa), acil onarım bedeli (500 U), modül yıkma ödülleri, prime time 18:00-21:00 ve uzaylı baskınları tek oyunculu uyarlamadır. Sanal rakip modül canı/hasarı varsayılan olarak tam değerdedir (çarpan 1,0); önceden 0,2/0,05 idi. Mevcut kayıtların hasarlı modül canı otomatik doldurulmaz.",
  "asteroids": [
   {
-   "kimlik": 1,
-   "ad": "Aries",
-   "harita": 3,
+   "uid": 1,
+   "name": "Aries",
+   "map": 3,
    "x_percent": 50.59048,
    "y_percent": 18.64885,
    "name_key": "battleStation_name_1"
   },
   {
-   "kimlik": 2,
-   "ad": "Balzar",
-   "harita": 4,
+   "uid": 2,
+   "name": "Balzar",
+   "map": 4,
    "x_percent": 21.3,
    "y_percent": 70.33588,
    "name_key": "battleStation_name_2"
   },
   {
-   "kimlik": 3,
-   "ad": "Cetus",
-   "harita": 17,
+   "uid": 3,
+   "name": "Cetus",
+   "map": 17,
    "x_percent": 82.07143,
    "y_percent": 19.46565,
    "name_key": "battleStation_name_3"
   },
   {
-   "kimlik": 4,
-   "ad": "Draco",
-   "harita": 18,
+   "uid": 4,
+   "name": "Draco",
+   "map": 18,
    "x_percent": 47.69524,
    "y_percent": 47.66412,
    "name_key": "battleStation_name_4"
   },
   {
-   "kimlik": 5,
-   "ad": "Equleus",
-   "harita": 19,
+   "uid": 5,
+   "name": "Equleus",
+   "map": 19,
    "x_percent": 47.78571,
    "y_percent": 55.41985,
    "name_key": "battleStation_name_5"
   },
   {
-   "kimlik": 6,
-   "ad": "Fornax",
-   "harita": 7,
+   "uid": 6,
+   "name": "Fornax",
+   "map": 7,
    "x_percent": 50.59048,
    "y_percent": 18.64885,
    "name_key": "battleStation_name_6"
   },
   {
-   "kimlik": 7,
-   "ad": "Gemini",
-   "harita": 8,
+   "uid": 7,
+   "name": "Gemini",
+   "map": 8,
    "x_percent": 77.07619,
    "y_percent": 65.56489,
    "name_key": "battleStation_name_7"
   },
   {
-   "kimlik": 8,
-   "ad": "Hydra",
-   "harita": 21,
+   "uid": 8,
+   "name": "Hydra",
+   "map": 21,
    "x_percent": 49.84286,
    "y_percent": 68.99237,
    "name_key": "battleStation_name_8"
   },
   {
-   "kimlik": 9,
-   "ad": "Indus",
-   "harita": 22,
+   "uid": 9,
+   "name": "Indus",
+   "map": 22,
    "x_percent": 41,
    "y_percent": 47,
    "name_key": "battleStation_name_9"
   },
   {
-   "kimlik": 10,
-   "ad": "Julius",
-   "harita": 23,
+   "uid": 10,
+   "name": "Julius",
+   "map": 23,
    "x_percent": 49.84286,
    "y_percent": 44.67939,
    "name_key": "battleStation_name_10"
   },
   {
-   "kimlik": 11,
-   "ad": "Kepler",
-   "harita": 11,
+   "uid": 11,
+   "name": "Kepler",
+   "map": 11,
    "x_percent": 50.59048,
    "y_percent": 18.64885,
    "name_key": "battleStation_name_11"
   },
   {
-   "kimlik": 12,
-   "ad": "Lynx",
-   "harita": 12,
+   "uid": 12,
+   "name": "Lynx",
+   "map": 12,
    "x_percent": 22.28095,
    "y_percent": 68.69466,
    "name_key": "battleStation_name_12"
   },
   {
-   "kimlik": 13,
-   "ad": "Mensa",
-   "harita": 25,
+   "uid": 13,
+   "name": "Mensa",
+   "map": 25,
    "x_percent": 51.52381,
    "y_percent": 69.14504,
    "name_key": "battleStation_name_13"
   },
   {
-   "kimlik": 14,
-   "ad": "Nashira",
-   "harita": 26,
+   "uid": 14,
+   "name": "Nashira",
+   "map": 26,
    "x_percent": 46.66667,
    "y_percent": 63.47328,
    "name_key": "battleStation_name_14"
   },
   {
-   "kimlik": 15,
-   "ad": "Orion",
-   "harita": 27,
+   "uid": 15,
+   "name": "Orion",
+   "map": 27,
    "x_percent": 50.02857,
    "y_percent": 35.72519,
    "name_key": "battleStation_name_15"
   },
   {
-   "kimlik": 16,
-   "ad": "Volan",
-   "harita": 13,
+   "uid": 16,
+   "name": "Volan",
+   "map": 13,
    "x_percent": 47.97143,
    "y_percent": 43.63359,
    "name_key": "battleStation_name_16"
   },
   {
-   "kimlik": 17,
-   "ad": "Wican",
-   "harita": 14,
+   "uid": 17,
+   "name": "Wican",
+   "map": 14,
    "x_percent": 54.60476,
    "y_percent": 44.9771,
    "name_key": "battleStation_name_17"
   },
   {
-   "kimlik": 18,
-   "ad": "Xenitor",
-   "harita": 15,
+   "uid": 18,
+   "name": "Xenitor",
+   "map": 15,
    "x_percent": 42.18095,
    "y_percent": 46.16794,
    "name_key": "battleStation_name_18"
   },
   {
-   "kimlik": 19,
-   "ad": "Yukian",
-   "harita": 16,
+   "uid": 19,
+   "name": "Yukian",
+   "map": 16,
    "x_percent": 21.55714,
    "y_percent": 22.6374,
    "name_key": "battleStation_name_19"
   },
   {
-   "kimlik": 20,
-   "ad": "Zerpan",
-   "harita": 29,
+   "uid": 20,
+   "name": "Zerpan",
+   "map": 29,
    "x_percent": 28.65714,
    "y_percent": 21.44275,
    "name_key": "battleStation_name_20"
   },
   {
-   "kimlik": 21,
-   "ad": "Adnomis",
-   "harita": 306,
+   "uid": 21,
+   "name": "Adnomis",
+   "map": 306,
    "x_percent": 52,
    "y_percent": 53,
    "name_key": "battleStation_name_21"
   },
   {
-   "kimlik": 22,
-   "ad": "Kardlatot",
-   "harita": 307,
+   "uid": 22,
+   "name": "Kardlatot",
+   "map": 307,
    "x_percent": 61.02381,
    "y_percent": 64.45038,
    "name_key": "battleStation_name_22"
   },
   {
-   "kimlik": 23,
-   "ad": "Detea Ay",
-   "harita": 308,
+   "uid": 23,
+   "name": "Detea Ay",
+   "map": 308,
    "x_percent": 56,
    "y_percent": 88,
    "name_key": "battleStation_name_23"
@@ -190,13 +190,13 @@
  ],
  "modules": {
   "module_hulm-1": {
-   "ad": "Hull Module",
+   "name": "Hull Module",
    "code": "HULM-1",
-   "tur": 2,
+   "type": 2,
    "category": "hull",
    "center": true,
    "max_count": 1,
-   "tasarim": 0,
+   "design": 0,
    "can": [
     5850000,
     5967000,
@@ -217,13 +217,13 @@
    ]
   },
   "module_defm-1": {
-   "ad": "Deflector Module",
+   "name": "Deflector Module",
    "code": "DEFM-1",
-   "tur": 3,
+   "type": 3,
    "category": "deflector",
    "center": true,
    "max_count": 1,
-   "tasarim": 0,
+   "design": 0,
    "can": [
     1040000,
     1060800,
@@ -244,13 +244,13 @@
    ]
   },
   "module_repm-1": {
-   "ad": "Repair Module",
+   "name": "Repair Module",
    "code": "REPM-1",
-   "tur": 4,
+   "type": 4,
    "category": "engineering_bay",
    "center": false,
    "max_count": 1,
-   "tasarim": 3,
+   "design": 3,
    "can": [
     1040000,
     1060800,
@@ -289,13 +289,13 @@
    ]
   },
   "module_ltm-lr": {
-   "ad": "LR Laser Module",
+   "name": "LR Laser Module",
    "code": "LTM-LR",
-   "tur": 7,
+   "type": 7,
    "category": "lasers",
    "center": false,
    "max_count": 8,
-   "tasarim": 4,
+   "design": 4,
    "can": [
     1560000,
     1591200,
@@ -314,8 +314,8 @@
     1996800,
     2028000
    ],
-   "weapon": "lazer",
-   "hasar": [
+   "weapon": "laser",
+   "damage": [
     59850,
     61047,
     62244,
@@ -333,18 +333,18 @@
     76608,
     77805
    ],
-   "menzil": 590,
+   "range": 590,
    "interval_sec": 1.5,
    "hit": 0.9
   },
   "module_ltm-mr": {
-   "ad": "MR Laser Module",
+   "name": "MR Laser Module",
    "code": "LTM-MR",
-   "tur": 6,
+   "type": 6,
    "category": "lasers",
    "center": false,
    "max_count": 8,
-   "tasarim": 5,
+   "design": 5,
    "can": [
     1560000,
     1591200,
@@ -363,8 +363,8 @@
     1996800,
     2028000
    ],
-   "weapon": "lazer",
-   "hasar": [
+   "weapon": "laser",
+   "damage": [
     48450,
     49419,
     50388,
@@ -382,18 +382,18 @@
     62016,
     62985
    ],
-   "menzil": 650,
+   "range": 650,
    "interval_sec": 2.5,
    "hit": 0.7
   },
   "module_ltm-hr": {
-   "ad": "HR Laser Module",
+   "name": "HR Laser Module",
    "code": "LTM-HR",
-   "tur": 5,
+   "type": 5,
    "category": "lasers",
    "center": false,
    "max_count": 8,
-   "tasarim": 6,
+   "design": 6,
    "can": [
     1560000,
     1591200,
@@ -412,8 +412,8 @@
     1996800,
     2028000
    ],
-   "weapon": "lazer",
-   "hasar": [
+   "weapon": "laser",
+   "damage": [
     28500,
     29070,
     29640,
@@ -431,18 +431,18 @@
     36480,
     37050
    ],
-   "menzil": 720,
+   "range": 720,
    "interval_sec": 3.0,
    "hit": 0.6
   },
   "module_ram-la": {
-   "ad": "LA Rocket Module",
+   "name": "LA Rocket Module",
    "code": "RAM-LA",
-   "tur": 9,
+   "type": 9,
    "category": "rockets",
    "center": false,
    "max_count": 8,
-   "tasarim": 7,
+   "design": 7,
    "can": [
     1560000,
     1591200,
@@ -461,8 +461,8 @@
     1996800,
     2028000
    ],
-   "weapon": "roket",
-   "hasar": [
+   "weapon": "rocket",
+   "damage": [
     85500,
     87210,
     88920,
@@ -480,18 +480,18 @@
     109440,
     111150
    ],
-   "menzil": 900,
+   "range": 900,
    "interval_sec": 4,
    "hit": 0.5
   },
   "module_ram-ma": {
-   "ad": "MA Rocket Module",
+   "name": "MA Rocket Module",
    "code": "RAM-MA",
-   "tur": 8,
+   "type": 8,
    "category": "rockets",
    "center": false,
    "max_count": 8,
-   "tasarim": 8,
+   "design": 8,
    "can": [
     1560000,
     1591200,
@@ -510,8 +510,8 @@
     1996800,
     2028000
    ],
-   "weapon": "roket",
-   "hasar": [
+   "weapon": "rocket",
+   "damage": [
     71250,
     72675,
     74100,
@@ -529,18 +529,18 @@
     91200,
     92625
    ],
-   "menzil": 780,
+   "range": 780,
    "interval_sec": 4,
    "hit": 0.7
   },
   "module_honm-1": {
-   "ad": "Honor Booster Module",
+   "name": "Honor Booster Module",
    "code": "HONM-1",
-   "tur": 10,
+   "type": 10,
    "category": "boosters",
    "center": false,
    "max_count": 1,
-   "tasarim": 9,
+   "design": 9,
    "can": [
     1040000,
     1060800,
@@ -559,7 +559,7 @@
     1331200,
     1352000
    ],
-   "booster": "onur",
+   "booster": "honor",
    "booster_percent": [
     3.0,
     3.47,
@@ -580,13 +580,13 @@
    ]
   },
   "module_dmgm-1": {
-   "ad": "Damage Booster Module",
+   "name": "Damage Booster Module",
    "code": "DMGM-1",
-   "tur": 11,
+   "type": 11,
    "category": "boosters",
    "center": false,
    "max_count": 1,
-   "tasarim": 10,
+   "design": 10,
    "can": [
     1040000,
     1060800,
@@ -605,7 +605,7 @@
     1331200,
     1352000
    ],
-   "booster": "hasar",
+   "booster": "damage",
    "booster_percent": [
     3.0,
     3.47,
@@ -626,13 +626,13 @@
    ]
   },
   "module_xpm-1": {
-   "ad": "Experience Booster Module",
+   "name": "Experience Booster Module",
    "code": "XPM-1",
-   "tur": 12,
+   "type": 12,
    "category": "boosters",
    "center": false,
    "max_count": 1,
-   "tasarim": 11,
+   "design": 11,
    "can": [
     1040000,
     1060800,
@@ -692,18 +692,18 @@
  "on_build_off_min": 30,
  "install_sec": 50,
  "swap_sec": 240,
- "menzil": 600,
+ "range": 600,
  "emergency_repair": {
   "charge": 500,
-  "can_sn": 7500,
+  "hp_sec": 7500,
   "sure_sn": 1200
  },
  "passive_repair": {
-  "can_sn": 260,
+  "hp_sec": 260,
   "delay_sec": 30
  },
  "booster": {
-  "baslangic": 1.0,
+  "start": 1.0,
   "growth_hours": 20,
   "cap": 0.5
  },
@@ -714,14 +714,14 @@
  "ore_multiplier": 1.1,
  "demolish_reward": {
   "base": {
-   "roket": 1000,
-   "lazer": 800,
+   "rocket": 1000,
+   "laser": 800,
    "other": 500
   },
   "per_level": 107,
   "center": {
-   "uridyum": 5000,
-   "kredi": 50000
+   "uridium": 5000,
+   "credits": 50000
   }
  },
  "repair_cost": {
@@ -731,7 +731,7 @@
  "raid": {
   "per_hour": 2,
   "interval_min": 20,
-  "adet": [
+  "count": [
    6,
    12
   ],
@@ -789,7 +789,7 @@
     "113"
    ]
   },
-  "menzil": 1500,
+  "range": 1500,
   "sure_sn": 90,
   "damage_ratio": 0.25
  },

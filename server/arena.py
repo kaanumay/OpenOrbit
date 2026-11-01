@@ -54,8 +54,8 @@ class Arena:
     @property
     def st(self):
         s = self.p.d.setdefault('pve', {}).setdefault(self.key, {})
-        if s.get('gun') != today():
-            s.update(gun=today(), entries={})
+        if s.get('day') != today():
+            s.update(day=today(), entries={})
             self.p.dirty = True
         return s
 
@@ -79,19 +79,19 @@ class Arena:
     # ------------------------------------------------------------ portal
     def portals(self, map_id, station):
         cls = H.map_class(map_id)
-        if cls not in self.D['giris'] or H.company(map_id) != self.p.d['pilot'].get('factionId'):
+        if cls not in self.D['entry'] or H.company(map_id) != self.p.d['pilot'].get('factionId'):
             return []
         # haritanın üst ortasında yan yana (resmî sunucu kaydı: 2-1'de Trinity Trials portalı (10700, 3000)); üs üst ortadaysa (2-8)
         # alt ortada
         x, y = KAPI.MAP_W // 2 + 200 - (2 - self.slot) * 1400, 3000
         if station and math.hypot(x - station['posX'], y - station['posY']) < 2500:
             y = KAPI.MAP_H - y
-        return [dict(gateId=PORTAL_BASE + self.slot, x=x, y=y, hedef=0,
-                     designId=self.D['portal'], kapi=self.key, windowed=self.key, giris=cls)]
+        return [dict(gateId=PORTAL_BASE + self.slot, x=x, y=y, target=0,
+                     designId=self.D['portal'], gate=self.key, windowed=self.key, entry=cls)]
 
     # ------------------------------------------------------------ koşu
     def start(self, difficulty, where, free, dest):
-        self.run = dict(difficulty=difficulty, giris=where, free=free, start=None, harita=dest, dalga=0)
+        self.run = dict(difficulty=difficulty, entry=where, free=free, start=None, map=dest, wave=0)
         self.log('   %s: zorluk %d (%s, %s)' % (self.name, difficulty, where, 'ücretsiz' if free else 'token'))
 
     def use_entry(self):
@@ -99,8 +99,8 @@ class Arena:
         r = self.run
         with self.p.lock:
             if r['free']:
-                if self.free_used(r['giris']) < self.free_max():
-                    self.st['entries'][r['giris']] = self.free_used(r['giris']) + 1
+                if self.free_used(r['entry']) < self.free_max():
+                    self.st['entries'][r['entry']] = self.free_used(r['entry']) + 1
                 else:
                     self.st['bonus'] = max(0, self.st.get('bonus', 0) - 1)
             self.p.dirty = True
@@ -122,12 +122,12 @@ class Arena:
     def wave_started(self, i):
         if i == 0 and self.run and self.run['start'] is None:
             self.run['start'] = time.time()
-        self.run['dalga'] = i
+        self.run['wave'] = i
         self.world.send([KAPI.screen('%s - Wave %d/%d' % (self.name, i + 1, self.wave_count()), big=True)])
 
     def on_death(self):
         """Mod haritasında ölüm: koşu biter (yeniden giriş gerekir)."""
-        self.log('   %s: oyuncu yok edildi, koşu bitti (dalga %d)' % (self.name, (self.run or {}).get('dalga', 0) + 1))
+        self.log('   %s: oyuncu yok edildi, koşu bitti (dalga %d)' % (self.name, (self.run or {}).get('wave', 0) + 1))
         self.failed()
         self.run = None
         return 0
@@ -141,8 +141,8 @@ class Arena:
     def exit_portal(self, world):
         x, y = world.map_w // 2, world.map_h // 2
         home = KAPI.HOME_MAP.get(self.p.d['pilot'].get('factionId'), 5)
-        return dict(gateId=PORTAL_BASE + 50 + self.slot, x=x, y=y, hedef=home, designId=1, kapi=self.key, cikis=True,
-                    arrival='istasyon')
+        return dict(gateId=PORTAL_BASE + 50 + self.slot, x=x, y=y, target=home, designId=1, gate=self.key, exit=True,
+                    arrival='station')
 
     def attach(self, world):
         """Mod haritası açıldı: koşu varsa dalgalar, yoksa yalnız çıkış."""
@@ -155,7 +155,7 @@ class Arena:
 
     def grant(self, loot, n):
         if loot.startswith('currency_') and self.world:
-            kw = {'currency_uridium': 'uridyum', 'currency_credits': 'kredi', 'currency_experience': 'ep', 'currency_honour': 'onur'}
+            kw = {'currency_uridium': 'uridium', 'currency_credits': 'credits', 'currency_experience': 'ep', 'currency_honour': 'honor'}
             return self.world.grant_loot(loot, n, 'mod')
         return self.m.reward(loot, n) if self.m else []
 
@@ -205,8 +205,8 @@ class Voyagers(Arena):
         if not 1 <= lvl <= self.opened() or not self.can_enter(where, free):
             self.log('   Voyagers: girilemez (zorluk %d / açık %d, %s)' % (lvl, self.opened(), 'ücretsiz' if free else 'token'))
             return None, [self.window(where), KAPI.screen('You cannot enter this difficulty right now.')]
-        self.start(lvl, where, free, self.D['harita'])
-        return self.D['harita'], None
+        self.start(lvl, where, free, self.D['map'])
+        return self.D['map'], None
 
     def wave_done(self, i, now):
         if i + 1 >= self.wave_count():
@@ -224,7 +224,7 @@ class Voyagers(Arena):
         msgs, got = [], []
         if stars:
             msgs, got = self.grant_rows(z['rewards'][str(stars)])
-            self.reward_pass.add(z['puan'][str(stars)])
+            self.reward_pass.add(z['points'][str(stars)])
         with self.p.lock:
             s = self.st
             best = s.setdefault('best', {})
@@ -235,12 +235,12 @@ class Voyagers(Arena):
                 if r['difficulty'] == s.get('on', 1) and r['difficulty'] < len(self.D['difficulties']):
                     s['on'] = r['difficulty'] + 1
             self.p.dirty = True
-        self.p.ach('gate', tur='VOYAGERS_GATE')
+        self.p.ach('gate', type='VOYAGERS_GATE')
         msgs += [KAPI.screen('key:log_msg_gg_completed_voyagersascentrial', big=True),          # istemcinin metni; süre ve yıldız
-                 KAPI.screen("Voyagers' Ascent %s completed in %s: %d star%s" % (z['ad'], fmt(secs), stars, '' if stars == 1 else 's'))]
+                 KAPI.screen("Voyagers' Ascent %s completed in %s: %d star%s" % (z['name'], fmt(secs), stars, '' if stars == 1 else 's'))]
         w.add_gate(self.exit_portal(w))
         w.send(msgs + [self.reward_pass.cmd('VoyagersPassCommand')])
-        self.log('   Voyagers %s: %d sn, %d yıldız; %s' % (z['ad'], secs, stars, ', '.join(got) or '-'))
+        self.log('   Voyagers %s: %d sn, %d yıldız; %s' % (z['name'], secs, stars, ', '.join(got) or '-'))
         self.run = None
 
     def tick(self, now):
@@ -254,12 +254,12 @@ class Voyagers(Arena):
             if not v or not n.alive or not n.engaged:
                 continue
             nx, ny = n.mover.pos(now)
-            if now - max(n.last_hit, getattr(n, 'born', now - 10)) < v['sn'] or math.hypot(hx - nx, hy - ny) > v['menzil']:
+            if now - max(n.last_hit, getattr(n, 'born', now - 10)) < v['sn'] or math.hypot(hx - nx, hy - ny) > v['range']:
                 continue
             if now < getattr(n, 'next_missile', 0):
                 continue
             n.next_missile = now + 1.0
-            dmg = int(self.p.d['gemi'].get('hitMax', 0) * v['oran'])
+            dmg = int(self.p.d['ship'].get('hitMax', 0) * v['ratio'])
             w.send(w.hurt_hero(dmg, n, atype=2, now=now))
 
 
@@ -277,17 +277,17 @@ class Trinity(Arena):
     def os_state(self, now=None):
         """OS modülü: süresi dolan yükseltme tamamlanır."""
         now = time.time() if now is None else now
-        o = self.p.d.setdefault('pve', {}).setdefault(self.key + '_os', {'seviye': 1})
-        if o.get('bitis') and now >= o['bitis']:
+        o = self.p.d.setdefault('pve', {}).setdefault(self.key + '_os', {'level': 1})
+        if o.get('end_time') and now >= o['end_time']:
             with self.p.lock:
-                o['seviye'] = o.pop('hedef', o['seviye'] + 1)
-                o.pop('bitis', None)
+                o['level'] = o.pop('target', o['level'] + 1)
+                o.pop('end_time', None)
                 self.p.dirty = True
-            self.log('   Trinity OS modülü: seviye %d' % o['seviye'])
+            self.log('   Trinity OS modülü: seviye %d' % o['level'])
         return o
 
     def os_level(self):
-        return self.os_state()['seviye']
+        return self.os_state()['level']
 
     def opened(self):
         lv = self.os_level()
@@ -317,7 +317,7 @@ class Trinity(Arena):
         if attr not in self.arenas_today(now) or not 1 <= lvl <= self.opened() or not self.can_enter(where, free):
             self.log('   Trinity: girilemez (arena %d bugün %s, zorluk %d / %d)' % (attr, self.arenas_today(now), lvl, self.opened()))
             return None, [self.window(where, now), KAPI.screen('This arena or difficulty is not available right now.')]
-        dest = self.D['haritalar'][str(attr)][lvl - 1]
+        dest = self.D['maps'][str(attr)][lvl - 1]
         self.start(lvl, where, free, dest)
         self.run['arena'] = attr
         self.use_entry()                           # Trinity: giriş hakkı girerken düşer
@@ -330,9 +330,9 @@ class Trinity(Arena):
         if str(n) in z['milestones']:                # her 5 dalgada Quantum Prism, Xyralith, geçiş puanı
             k = z['milestones'][str(n)]
             msgs += self.grant(self.D['kp'], k['qp']) + self.grant(self.D['xy'], k['xy'])
-            if k['puan']:
-                self.reward_pass.add(k['puan'])
-            msgs.append(KAPI.screen('Wave %d reward: %d Quantum Prism, %d Xyralith, %d pass points' % (n, k['qp'], k['xy'], k['puan'])))
+            if k['points']:
+                self.reward_pass.add(k['points'])
+            msgs.append(KAPI.screen('Wave %d reward: %d Quantum Prism, %d Xyralith, %d pass points' % (n, k['qp'], k['xy'], k['points'])))
         if n >= self.wave_count():
             msgs += self.complete(z)
             self.world.send(msgs)
@@ -349,7 +349,7 @@ class Trinity(Arena):
         z = self.D['difficulties'][self.run['difficulty'] - 1]
         counts, weights = zip(*z['drop'])
         n = random.choices(counts, weights)[0] if sum(weights) >= 100 else (counts[0] if random.random() * 100 < weights[0] else 0)
-        eq = self.D['esyalar'][str(self.run['arena'])]
+        eq = self.D['items'][str(self.run['arena'])]
         out = []
         for _ in range(n):
             r = self.roll_rarity()
@@ -362,11 +362,11 @@ class Trinity(Arena):
         got = self.drop()
         for loot in got:
             msgs += self.grant(loot, 1)
-        self.p.ach('gate', tur='TRINITY_GATE')
+        self.p.ach('gate', type='TRINITY_GATE')
         msgs += [KAPI.screen('key:log_msg_gg_completed_trinitytrials', big=True),
-                 KAPI.screen('Trinity Trials %s completed! Equipment: %d' % (z['ad'], len(got)))]
+                 KAPI.screen('Trinity Trials %s completed! Equipment: %d' % (z['name'], len(got)))]
         w.add_gate(self.exit_portal(w))
-        self.log('   Trinity %s bitti: %s' % (z['ad'], ', '.join(got) or 'donanım yok'))
+        self.log('   Trinity %s bitti: %s' % (z['name'], ', '.join(got) or 'donanım yok'))
         self.run = None
         return msgs + [self.reward_pass.cmd('TrinityTrialsPassCommand')]
 
@@ -374,18 +374,18 @@ class Trinity(Arena):
     def drop_level_cmd(self, now=None):
         now = time.time() if now is None else now
         o = self.os_state(now)
-        lv = o['seviye']
+        lv = o['level']
         rows = self.D['os']
         mx = lv >= len(rows)
         nxt = rows[min(lv, len(rows) - 1)]
         cur = rows[lv - 1]
-        left = int(max(0, o['bitis'] - now)) if o.get('bitis') else 0
-        building = bool(o.get('bitis'))          # yükseltme sürerken pencere atlama bedelini (Xyralith) gösterir; resmî ekran: "Xyralith 9/9"
+        left = int(max(0, o['end_time'] - now)) if o.get('end_time') else 0
+        building = bool(o.get('end_time'))          # yükseltme sürerken pencere atlama bedelini (Xyralith) gösterir; resmî ekran: "Xyralith 9/9"
         skip = self.skip_cost(left)
         cost_id = self.D['xy'] if building else self.D['kp']
         q = lambda r: [dict(_='TupleTwoModule', param0=str(i + 1), param1='%.1f' % v) for i, v in enumerate(r['rarity'])]
         return ('TrinityTrialsDropLevelCommand', dict(
-            costLootAmount=skip if building else (0 if mx else nxt['cost']), currentLevel=lv, nextLevel=min(lv + 1, len(rows)), building=bool(o.get('bitis')),
+            costLootAmount=skip if building else (0 if mx else nxt['cost']), currentLevel=lv, nextLevel=min(lv + 1, len(rows)), building=bool(o.get('end_time')),
             max=mx, skipConsume=skip, currentLevelQualityRandomList=q(cur), totalBuildSeconds=0 if mx else nxt['sure_sn'],
             lootAmount=int(self.p.resource(cost_id)), nextLevelQualityRandomList=q(nxt), buildSeconds=left, costLootId=cost_id))
 
@@ -399,21 +399,21 @@ class Trinity(Arena):
         o = self.os_state(now)
         ok = False
         # eylemi pencerenin durumu belirler (istemcinin gönderdiği costLootId'ye bakılmaz): yükseltme sürmüyorsa yükselt, sürüyorsa atla
-        if not o.get('bitis') and o['seviye'] < len(self.D['os']):
-            row = self.D['os'][o['seviye']]
+        if not o.get('end_time') and o['level'] < len(self.D['os']):
+            row = self.D['os'][o['level']]
             if self.p.resource(self.D['kp']) >= row['cost']:
                 self.p.add_resource(self.D['kp'], -row['cost'])
                 with self.p.lock:
-                    o.update(hedef=o['seviye'] + 1, bitis=now + row['sure_sn'])
+                    o.update(target=o['level'] + 1, end_time=now + row['sure_sn'])
                     self.p.dirty = True
                 ok = True
-                self.log('   Trinity OS: %d -> %d başladı (%d sn)' % (o['seviye'], o['hedef'], row['sure_sn']))
-        elif o.get('bitis'):
-            cost = self.skip_cost(o['bitis'] - now)
+                self.log('   Trinity OS: %d -> %d başladı (%d sn)' % (o['level'], o['target'], row['sure_sn']))
+        elif o.get('end_time'):
+            cost = self.skip_cost(o['end_time'] - now)
             if self.p.resource(self.D['xy']) >= cost:
                 self.p.add_resource(self.D['xy'], -cost)
                 with self.p.lock:
-                    o['bitis'] = now
+                    o['end_time'] = now
                     self.p.dirty = True
                 self.os_state(now)
                 ok = True

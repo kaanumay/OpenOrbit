@@ -23,7 +23,7 @@ FIRST = tuple(int(x) for x in SEASONS[0]['season'].split('-'))
 
 def in_shop(loot):
     """Mağazada satılır mı: etkinlik görünümü değilse ya da panelin ayarı açıksa."""
-    return loot not in ITEMS or bool(SET.get(D['ayar']))
+    return loot not in ITEMS or bool(SET.get(D['setting']))
 
 
 def paths(kind):
@@ -46,30 +46,30 @@ def exchange_rows(event):
     """Etkinliğin anahtar değişimine eklenen tasarım satırları (BattlePassKeyExchangeRewardModule; kayıttaki tasarımlar gibi özel)."""
     return [dict(_='BattlePassKeyExchangeRewardModule', cost=y['charge'], limit=y['cap'], exchangeReward=exchange_id(loot),
                  listOfloot=[dict(_='BattlePassKeyExchangeLootModule', lootId=loot, amount=1)], priority=2, isSpecial=True, claimCount=0)
-            for loot, y in paths('exchange') if y['etkinlik'] == event]
+            for loot, y in paths('exchange') if y['event'] == event]
 
 
 def box_rows(box):
     """Kutunun yerel tasarım satırları [lootId, 1, ağırlık] (ganimet.pick'te tasarım çekilişine katılır): wiki tablosunda olmayan
     görünümler ve kutunun eski Red / Blue P.E.T. havuzu ('kutu_ek'); tablosunda zaten olan tasarım ek satır olmaz ('tablo')."""
-    return [[loot, 1, y['weight']] for loot, y in paths('kutu') if y['kutu'] == box and not y.get('table')] + \
+    return [[loot, 1, y['weight']] for loot, y in paths('box') if y['box'] == box and not y.get('table')] + \
            [list(r) for r in D.get('box_extra', {}).get(box, [])]
 
 
 def apply(events):
     """takvim'in etkinliklerine (yerinde): kapıların seçimli ödülü ve harita kutularının içeriği."""
     gates = {}
-    for loot, y in paths('kapi'):
-        gates.setdefault((y['etkinlik'], tuple(y['kapilar']), y['probability']), []).append([loot, 1])
+    for loot, y in paths('gate'):
+        gates.setdefault((y['event'], tuple(y['kapilar']), y['probability']), []).append([loot, 1])
     for (ev, keys, chance), rows in gates.items():
         for k, e in events.items():
             if k.startswith(ev):                               # gg_hafta_sonu_1, _3, _4
                 e.setdefault('gate_reward', []).append(dict(kapilar=list(keys), probability=chance, choice=rows, non_repeating=True))
-    for loot, y in paths('harita'):
-        e = events[y['etkinlik']]
-        for s in ([e['harita']] if 'harita' in e else []) + e.get('map_extra', []):
+    for loot, y in paths('map'):
+        e = events[y['event']]
+        for s in ([e['map']] if 'map' in e else []) + e.get('map_extra', []):
             for b in s.get('boxes', []):
-                if b['tur'] == y['kutu']:
+                if b['type'] == y['box']:
                     b['contents'].append([loot, 1, y['weight']])
 
 
@@ -86,6 +86,6 @@ def season_track(key, rows, sid):
     s = season(sid)
     swap = {RECORDED['drone']: s['drone'], RECORDED['pet']: s['pet']}
     out = [[lv, swap.get(l, l), n] for lv, l, n in rows]
-    if key == 'gold' and s['gemi']:
-        out[-1] = [out[-1][0], s['gemi'], 1]
+    if key == 'gold' and s['ship']:
+        out[-1] = [out[-1][0], s['ship'], 1]
     return out

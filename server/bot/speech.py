@@ -11,7 +11,7 @@ from .language_data import LANGUAGES, CODES
 # durum -> {dil: satırlar}, dil -> kısaltmalar: bot/languages/<kod>.json (dil_verisi)
 TEMPLATES = {}
 for _code, _d in LANGUAGES.items():
-    for _state, _lines in _d.get('kaliplar', {}).items():
+    for _state, _lines in _d.get('templates', {}).items():
         TEMPLATES.setdefault(_state, {})[_code] = _lines
 DIALOGUE = {k: d.get('dialogues', []) for k, d in LANGUAGES.items()}   # dil -> [konuşma]; konuşma = [tur]; tur = [alternatif satırlar]
 ABBREVIATIONS = {k: [tuple(x) for x in d.get('abbreviation', ())] for k, d in LANGUAGES.items()}
@@ -20,13 +20,13 @@ EMOJI = (':D', ':)', 'xD', '^^', ':P', ';)', 'xd')
 
 
 def lang(bot):
-    d = bot.k['personality'].get('dil')
+    d = bot.k['personality'].get('lang')
     return d if d in LANGUAGES else 'en'
 
 
-def template(bot, durum, **f):
+def template(bot, state, **f):
     """Durumun kalıplarından biri (botun dilinde), alanları doldurulmuş, üslubu uygulanmış -> metin ya da None."""
-    k = TEMPLATES.get(durum)
+    k = TEMPLATES.get(state)
     if not k:
         return None
     d = lang(bot)
@@ -71,7 +71,7 @@ def apply_style(text, u, r=random, d='tr'):
         text += r.choice(('.', '!', '...'))
     if r.random() < u.get('emoji', 0.3) * 0.6 and not text.endswith(EMOJI):
         text += ' ' + r.choice(EMOJI)
-    if r.random() < u.get('hata', 0.08) and len(text) > 4:
+    if r.random() < u.get('error', 0.08) and len(text) > 4:
         i = r.randrange(1, len(text) - 2)
         if text[i - 1].isalpha() and text[i].isalpha() and text[i + 1].isalpha() and text[i + 2:i + 3].isalpha():
             # yalnız uzun sözcüğün içinde: "eic" -> "iec", "2-1" gibi kısa adlar bozulmaz
@@ -116,8 +116,8 @@ def _lang_expr(name):
     return re.compile(r'(?<!\w)(%s)(?!\w)' % '|'.join(re.escape(w) for w in promises), re.I) if promises else None
 
 
-_LANG = {name: _lang_expr(name) for name in ('selam', 'yardim', 'grup', 'klan', 'arkadas', 'takip', 'duello', 'gorev', 'ozel', 'hakaret',
-                                        'soru', 'tesekkur', 'pvp')}
+_LANG = {name: _lang_expr(name) for name in ('greeting', 'assist', 'group', 'clan', 'friend', 'followup', 'duel', 'quest', 'special', 'insult',
+                                        'question', 'thanks', 'pvp')}
 
 
 def _var(rx, name, text):
@@ -130,18 +130,18 @@ def intent(text):
     None; ve geçen harita adı. İsteklerin (grup, klan, arkadaşlık, takip) kararını interaction.py verir."""
     m = MAP_RE.search(text)
     game_map = ('%s-%s' % (m.group(1), m.group(2).upper() if m.group(2).isalpha() else m.group(2))) if m else None
-    if _var(_FOLLOW, 'takip', text) or (game_map and _COME.search(text) and not _var(_HELP, 'yardim', text)):
-        return 'takip', game_map                       # "come to 2-3", "2-1e gelsene": yardım değil
-    if _var(_PRIVATE, 'ozel', text):
-        return 'ozel', game_map                        # "bana özelden yaz": yanıt fısıltıyla
-    if _var(_DUEL, 'duello', text):
-        return 'duello', game_map
+    if _var(_FOLLOW, 'followup', text) or (game_map and _COME.search(text) and not _var(_HELP, 'assist', text)):
+        return 'followup', game_map                       # "come to 2-3", "2-1e gelsene": yardım değil
+    if _var(_PRIVATE, 'special', text):
+        return 'special', game_map                        # "bana özelden yaz": yanıt fısıltıyla
+    if _var(_DUEL, 'duel', text):
+        return 'duel', game_map
     if _GATE.search(text):
-        return 'kapi', game_map                        # "need fillers for hades", "lf low", "kapı için adam lazım": kapı dolgusu
-    if _var(_HELP, 'yardim', text) and _var(_QUEST, 'gorev', text) and not _var(_PVP, 'pvp', text):
-        return 'gorev', game_map                       # "help me with a quest": grup (grubun öldürdüğü herkesin görevine sayılır)
-    for name, rx in (('yardim', _HELP), ('grup', _GROUP), ('klan', _CLAN), ('arkadas', _FRIEND), ('hakaret', _INSULT), ('tesekkur', _THANKS), ('selam', _GREETING),
-                   ('soru', _QUESTION)):
+        return 'gate', game_map                        # "need fillers for hades", "lf low", "kapı için adam lazım": kapı dolgusu
+    if _var(_HELP, 'assist', text) and _var(_QUEST, 'quest', text) and not _var(_PVP, 'pvp', text):
+        return 'quest', game_map                       # "help me with a quest": grup (grubun öldürdüğü herkesin görevine sayılır)
+    for name, rx in (('assist', _HELP), ('group', _GROUP), ('clan', _CLAN), ('friend', _FRIEND), ('insult', _INSULT), ('thanks', _THANKS), ('greeting', _GREETING),
+                   ('question', _QUESTION)):
         if _var(rx, name, text):
             return name, game_map
     return None, game_map

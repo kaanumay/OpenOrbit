@@ -10,7 +10,7 @@ Kaynaklar: Delta, Epsilon, Zeta, Kappa ve Kronos kapılarının (galaxy_gates.py
 (CHROMIN_BOX_1..3, miktara göre küçük/orta/büyük; istemcinin kutu adları "Chromin"). Miktar kapı başına toplamın (wiki ~2.700)
 uzaylının gücüne (can + kalkan) oranı; kapının bütün uzaylıları öldürülünce beklenen toplam o kadar. Bütün Chromin girişleri (kutu,
 paket, görev, GM) mağazanın ödül yolundan geçer: sınır orada uygulanır (gain).
-Profilde: chromin {donem: etkinliğin başladığı zaman damgası, tavan_uyarisi: bool}.
+Profilde: chromin {period: etkinliğin başladığı zaman damgası, tavan_uyarisi: bool}.
 """
 import json, os, random, time
 
@@ -25,7 +25,7 @@ _PATH = os.path.join(HERE, 'data', 'extra_events.json')
 D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('chromin', {})
 LOOT = 'resource_collectable_chromin'
 EVENT = 'chromin'
-CAP = D.get('azami', 160000)
+CAP = D.get('maximum', 160000)
 CREDITS_PER = D.get('credit_ratio', 1)          # sınırı aşan Chromin başına kredi
 HONOR_PER = D.get('honor_ratio', 0.05)          # etkinlik sonunda kalan Chromin başına onur
 
@@ -74,14 +74,14 @@ class Chromin:
         if got:
             total = self.p.add_resource(LOOT, got)
             msgs += self.m.resource_msgs(LOOT, total, got)
-        if active() and self.st.get('donem') is None:
+        if active() and self.st.get('period') is None:
             with self.p.lock:
-                self.st['donem'] = CAL.period(EVENT)[0] if CAL.period(EVENT) else time.time()
+                self.st['period'] = CAL.period(EVENT)[0] if CAL.period(EVENT) else time.time()
                 self.p.dirty = True
         if extra:
             cr = int(extra * CREDITS_PER)
-            tot = self.p.gain(kredi=cr, neden='chromin_compensation')
-            msgs += self.m.money_msgs() + [legacy('0|LM|ST|CRE|%d|%d' % (cr, tot['kredi']))]
+            tot = self.p.gain(credits=cr, reason='chromin_compensation')
+            msgs += self.m.money_msgs() + [legacy('0|LM|ST|CRE|%d|%d' % (cr, tot['credits']))]
             RT.note(self.p, 'history_chromin_compensation', count=cr)    # istemci %AMOUNT%'a count'u koyuyor (canlı tur 2)
             self.log('   Chromin sınırı: %d fazlası %d krediye' % (extra, cr))
         if have + got >= CAP and not self.st.get('cap_warning'):
@@ -96,24 +96,24 @@ class Chromin:
         if not active() or int(w.map_id) not in KAPI.BY_MAP or npc.d.get('uncounted'):
             return []
         b = box_for(npc, KAPI.BY_MAP[int(w.map_id)])
-        if not b or random.random() >= SET.chance('drop', D.get('probability', 1.0), 'etkinlik'):
+        if not b or random.random() >= SET.chance('drop', D.get('probability', 1.0), 'event'):
             return []
         kind, n = b
-        h = w.drop_box(kind, x, y, None, D.get('omur_sn', 300))
-        w.boxes[h]['event'] = {'tur': kind, 'mod': 'hepsi', 'guaranteed': [[LOOT, n]]}
+        h = w.drop_box(kind, x, y, None, D.get('lifetime_sec', 300))
+        w.boxes[h]['event'] = {'type': kind, 'mod': 'hepsi', 'guaranteed': [[LOOT, n]]}
         return []
 
     def tick(self, now):
         """Etkinlik bitti: kalan Chromin onura (bir kez); sınır uyarısı yeni etkinlikte yeniden."""
-        if active(now) or self.st.get('donem') is None:
+        if active(now) or self.st.get('period') is None:
             return []
         n = self.amount()
         msgs = []
         if n:
             hon = int(n * HONOR_PER)
             self.p.add_resource(LOOT, -n)
-            tot = self.p.gain(onur=hon, neden='chromin_honor')
-            msgs += self.m.resource_msgs(LOOT, 0, -n) + [legacy('0|LM|ST|HON|%d|%d' % (hon, tot['onur']))]
+            tot = self.p.gain(honor=hon, reason='chromin_honor')
+            msgs += self.m.resource_msgs(LOOT, 0, -n) + [legacy('0|LM|ST|HON|%d|%d' % (hon, tot['honor']))]
             RT.note(self.p, 'history_msg_event_chromin_honor_converted', count=hon)
             self.log('   Chromin Rush bitti: %d Chromin -> %d onur' % (n, hon))
         with self.p.lock:

@@ -8,7 +8,7 @@ import json, os, threading
 import lang as D
 
 DEFAULTS = {
-    'dil': None,                    # dil.DILLER'den bir kod; None: henüz seçilmedi (kurulum sihirbazı dil seçimiyle açılır)
+    'lang': None,                    # dil.DILLER'den bir kod; None: henüz seçilmedi (kurulum sihirbazı dil seçimiyle açılır)
     'setup_done': False,         # ilk açılış sihirbazı bitti (ya da atlandı)
     'active_save': None,            # save/kayitlar/<kimlik>
     'client_folder': None,        # None: kendiliğinden (proje kökündeki en yeni DarkOrbit_Version* klasörü)
@@ -49,7 +49,7 @@ DEFAULTS = {
 }
 CHOICES = {'window_mode': ('windowed', 'fullscreen', 'borderless'), 'when_client_closes': ('close', 'on'),
            'when_window_closes': ('wait', 'close'), 'update': ('auto', 'notify', 'off'),
-           'runner': ('auto', 'engine', 'wine', 'proton', 'ozel')}
+           'runner': ('auto', 'engine', 'wine', 'proton', 'special')}
 LIMITS = {'width': (640, 7680), 'height': (480, 4320), 'monitor': (0, 8), 'backup_count': (1, 200), 'backup_interval_min': (0, 600),
           'friend_max': (1, 16), 'multi_client_max': (1, 8)}
 
@@ -59,7 +59,7 @@ def clean(key, v):
     if key not in DEFAULTS:
         raise ValueError('bilinmeyen ayar: %s' % key)
     d = DEFAULTS[key]
-    if key == 'dil':
+    if key == 'lang':
         return v if v in D.LANGUAGES else None
     if key in CHOICES:
         if v not in CHOICES[key]:

@@ -23,8 +23,8 @@ import event_calendar as CAL
 import event_gate as EKP
 
 L = EKP.LAB
-MAPS = {int(k): v for k, v in L['haritalar'].items()}
-NAMES = {v['ad']: k for k, v in MAPS.items()}
+MAPS = {int(k): v for k, v in L['maps'].items()}
+NAMES = {v['name']: k for k, v in MAPS.items()}
 ZONES = ['TL', 'TR', 'BL', 'BR']
 PORTAL_BASE = 152900000               # + harita * 100 + bölge * 10 + köşe (0-3), merkez + 4
 INSET = 1800                          # köşe portallarının bölge kenarından uzaklığı
@@ -73,10 +73,10 @@ def portals(map_id, home):
             ax, ay = corner(dest, dz, dc)
             cx, cy = zone_center(dest, dz)
             k = 600.0 / max(1.0, math.hypot(cx - ax, cy - ay))          # varış: hedef köşe portalının bölge ortasına doğru yanı
-            out.append(dict(gateId=PORTAL_BASE + int(map_id) * 100 + zi * 10 + ci, x=x, y=y, hedef=dest, designId=L['portal'],
-                            kapi='labyrinth', paid=True, arrival=(int(ax + (cx - ax) * k), int(ay + (cy - ay) * k))))
+            out.append(dict(gateId=PORTAL_BASE + int(map_id) * 100 + zi * 10 + ci, x=x, y=y, target=dest, designId=L['portal'],
+                            gate='labyrinth', paid=True, arrival=(int(ax + (cx - ax) * k), int(ay + (cy - ay) * k))))
         x, y = zone_center(map_id, z)
-        out.append(dict(gateId=PORTAL_BASE + int(map_id) * 100 + zi * 10 + 4, x=x, y=y, hedef=home, designId=1, kapi='labyrinth', arrival='istasyon'))
+        out.append(dict(gateId=PORTAL_BASE + int(map_id) * 100 + zi * 10 + 4, x=x, y=y, target=home, designId=1, gate='labyrinth', arrival='station'))
     return out
 
 
@@ -103,7 +103,7 @@ def add_keys(p, n):
 
 def expire_keys(p, now=None):
     """Etkinlik bittiyse kalan anahtarlar silinir (wiki)."""
-    if keys(p) and not CAL.is_active(L['etkinlik'], now):
+    if keys(p) and not CAL.is_active(L['event'], now):
         with p.lock:
             state(p)['anahtar'] = 0
             p.dirty = True
@@ -152,7 +152,7 @@ class Labyrinth:
         """Köşe portalı: bir Labyrinth Key -> (geçebilir mi, mesajlar)."""
         if not g.get('paid'):
             return True, []
-        if not CAL.is_active(L['etkinlik']) or not self.open_hours(time.time()):    # etkinlik bitti ya da kapı saati değil
+        if not CAL.is_active(L['event']) or not self.open_hours(time.time()):    # etkinlik bitti ya da kapı saati değil
             return False, [KAPI.screen('key:log_msg_flb_not_running')]
         need = L.get('key_cost', 1)
         if keys(self.p) < need:
@@ -161,8 +161,8 @@ class Labyrinth:
         with self.p.lock:
             state(self.p)['anahtar'] = keys(self.p) - need
             self.p.dirty = True
-        self.log('   labirent: %d anahtar harcandı (kalan %d) -> %s' % (need, keys(self.p), MAPS[g['hedef']]['ad']))
-        self.p.ach('spend', loot=FLB_KEY, adet=need)                # Frozen Labyrinth Pass: "Labyrinth Key kullan" (savas_bileti.py)
+        self.log('   labirent: %d anahtar harcandı (kalan %d) -> %s' % (need, keys(self.p), MAPS[g['target']]['name']))
+        self.p.ach('spend', loot=FLB_KEY, count=need)                # Frozen Labyrinth Pass: "Labyrinth Key kullan" (savas_bileti.py)
         return True, [key_cmd(self.p)]
 
     # ------------------------------------------------------------ ölüm
@@ -197,16 +197,16 @@ class Labyrinth:
             self.next_skoll = now + L['skoll']['interval_sec']
             if not any(n.tip == SKOLL for n in self.w.npcs.values()) and random.random() < L['skoll']['probability']:
                 z = random.choice(ZONES)
-                for _ in range(L['skoll'].get('adet', 1)):   # forum 158403: 5 dakikada üç Skoll
+                for _ in range(L['skoll'].get('count', 1)):   # forum 158403: 5 dakikada üç Skoll
                     self.spawn(SKOLL, z)
-                self.w.send([KAPI.screen('key:msg_npc_skoll-labyrinth_spawn_now', big=True, MAP=MAPS[self.map]['ad'],
+                self.w.send([KAPI.screen('key:msg_npc_skoll-labyrinth_spawn_now', big=True, MAP=MAPS[self.map]['name'],
                                          ZONE=ZONES.index(z) + 1)])
-                self.log('   labirent: Skoll doğdu (%s %s)' % (MAPS[self.map]['ad'], z))
+                self.log('   labirent: Skoll doğdu (%s %s)' % (MAPS[self.map]['name'], z))
         self.synk_check(now)
 
     def iceterion_tick(self, now):
         """Iceterion (forum 158403): haritada bir tane; öldürülemez; oyuncu yakınındayken aralıkla çevresine IceMine bırakır."""
-        cfg = (L.get('alien_spawns') or {}).get(ICETERION, {}).get('mayin')
+        cfg = (L.get('alien_spawns') or {}).get(ICETERION, {}).get('mine')
         if not cfg:
             return
         ice = next((n for n in self.w.npcs.values() if n.tip == ICETERION and n.alive), None)
@@ -219,18 +219,18 @@ class Labyrinth:
             return
         ice.next_mine = now + cfg['interval_sec']
         hx, hy = self.w.hero_pos(now)
-        if math.hypot(*(a - b for a, b in zip(ice.mover.pos(now), (hx, hy)))) > cfg['menzil']:
+        if math.hypot(*(a - b for a, b in zip(ice.mover.pos(now), (hx, hy)))) > cfg['range']:
             return
-        if sum(1 for k in self.w.items.mines.values() if k['sahip'] == ice.id) >= cfg['max_count']:
+        if sum(1 for k in self.w.items.mines.values() if k['owner'] == ice.id) >= cfg['max_count']:
             return
-        a, r = random.uniform(0, 2 * math.pi), random.uniform(*cfg['yaricap'])
-        self.w.items.alien_mine(cfg['tur'], hx + math.cos(a) * r, hy + math.sin(a) * r, ice.id, now)
+        a, r = random.uniform(0, 2 * math.pi), random.uniform(*cfg['radius'])
+        self.w.items.alien_mine(cfg['type'], hx + math.cos(a) * r, hy + math.sin(a) * r, ice.id, now)
 
     def open_hours(self, now):
         """Labirent kapıları saatlerde açık (forum 158403; hafta içi / hafta sonu dilimleri); panelin 'seans_hep_acik' ayarıyla ya da
         etkinlik zorla açılmışsa (--event) hep."""
         import settings as SET
-        if SET.get('session_always_open') or not L.get('hours') or CAL.forced(L['etkinlik']):
+        if SET.get('session_always_open') or not L.get('hours') or CAL.forced(L['event']):
             return True
         t = time.localtime(now)
         h = t.tm_hour + t.tm_min / 60.0
@@ -243,7 +243,7 @@ class Labyrinth:
         return s
 
     def new_synk(self, now, when):
-        s = {'harita': random.choice(list(MAPS)), 'region': random.choice(ZONES), 'spawn': when}
+        s = {'map': random.choice(list(MAPS)), 'region': random.choice(ZONES), 'spawn': when}
         with self.p.lock:
             state(self.p)['synk'] = s
             self.p.dirty = True
@@ -252,12 +252,12 @@ class Labyrinth:
     def synk_check(self, now):
         s = self.synk_state(now)
         alive = self.synk_id in self.w.npcs
-        if s['harita'] == self.map and now >= s['spawn'] and not alive:
+        if s['map'] == self.map and now >= s['spawn'] and not alive:
             n = self.spawn(SYNK, s['region'])
             self.synk_id = n.id
-            self.w.send([KAPI.screen('key:msg_npc_synk_spawn_now', big=True, MAP=MAPS[self.map]['ad'], ZONE=ZONES.index(s['region']) + 1),
+            self.w.send([KAPI.screen('key:msg_npc_synk_spawn_now', big=True, MAP=MAPS[self.map]['name'], ZONE=ZONES.index(s['region']) + 1),
                          self.synk_cmd(now)])
-            self.log('   labirent: Synk doğdu (%s %s)' % (MAPS[self.map]['ad'], s['region']))
+            self.log('   labirent: Synk doğdu (%s %s)' % (MAPS[self.map]['name'], s['region']))
 
     def synk_killed(self, now):
         st = state(self.p)
@@ -275,7 +275,7 @@ class Labyrinth:
     def synk_cmd(self, now=None):
         now = time.time() if now is None else now
         s = self.synk_state(now)
-        return ('FrozenLabyrinthSynkInfoCommand', dict(zone=ZONES.index(s['region']) + 1, mapName=MAPS[s['harita']]['ad'],
+        return ('FrozenLabyrinthSynkInfoCommand', dict(zone=ZONES.index(s['region']) + 1, mapName=MAPS[s['map']]['name'],
                                                        isGateActive=now >= s['spawn'], respawnInSeconds=int(max(0, s['spawn'] - now))))
 
     def info_msgs(self, now=None):
@@ -285,6 +285,6 @@ class Labyrinth:
                              lastKillTime=(r[1].d.get('labyrinth') or {}).get('last_hunt', ''))
         top, me = TP.ranking(self.p, lambda x: int((x.d.get('labyrinth') or {}).get('hunts', 0)))
         rank = dict(_='FrozenLabyrinthRankInfoCommand', myRank=row(me), topRankers=[row(r) for r in top] or [row(me)])
-        left = int(max(0, CAL.time_left(L['etkinlik'], now)))
+        left = int(max(0, CAL.time_left(L['event'], now)))
         times = dict(_='FrozenLabyrinthTimeInfoCommand', timeToEndLabyrinth=left, timeToNextLabyrinth=0)
         return [('FrozenLabyrinthInfoCommand', dict(rankInfo=rank, labyrinthKeys=keys(self.p), timeInfo=times)), self.synk_cmd(now)]

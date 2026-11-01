@@ -94,13 +94,13 @@ def spawn_type(want):
     115 -> Battleray, Ufo 25 -> Boss Saimon). Sunucuda kimliği olmayan: gemi türü bir tür anahtarıysa o, adı bir türünkiyle aynıysa o,
     yoksa yedek türün değerleriyle istemcinin modeli ve adı (model, ad dolu)."""
     T = world_types()
-    same = [k for k, v in T.items() if str(v.get('npc_kimlik')) == want and not k.startswith(('eg_', 'kp_'))]
+    same = [k for k, v in T.items() if str(v.get('npc_id')) == want and not k.startswith(('eg_', 'kp_'))]
     if same:
         return min(same, key=lambda k: (not k.isdigit(), k.startswith(DERIVED))), None, None
     kind, name = GM_NPC.get(want) or (None, None)
     if not name:
         return (want, None, None) if want in T else (None, None, None)
-    alike = next((k for k, v in T.items() if _plain(v.get('ad')) == _plain(name) and not k.startswith(('eg_', 'kp_'))), None)
+    alike = next((k for k, v in T.items() if _plain(v.get('name')) == _plain(name) and not k.startswith(('eg_', 'kp_'))), None)
     if alike:
         return alike, None, None
     name = name if name.startswith(('-=', '..', '(', '\\', '<')) else '-=[ %s ]=-' % name
@@ -148,7 +148,7 @@ class Console:
         import quest as QU
         boxes = ['BONUS_BOX'] + sorted(LOOT.BOXES) + sorted({k for k in world.CFG.get('box_kinds', [])})
         box_list = mod('CCListRangeModule', valueList=[mod('CCStringValueModule', name=b, value=b) for b in dict.fromkeys(boxes)])
-        quest_list = mod('CCListRangeModule', valueList=[mod('CCQuestValueModule', name='%d %s' % (q, d['ad']), value=q)
+        quest_list = mod('CCListRangeModule', valueList=[mod('CCQuestValueModule', name='%d %s' % (q, d['name']), value=q)
                                                          for q, d in sorted(QU.QUESTS.items())])
         attr = lambda name, rng=None, sub=(): mod('CCAttributeModule', name=name, subAttributes=list(sub), singleAttributeSelection=True,
                                                    range=rng or mod('CCAbstractRangeModule'), toolTip='')
@@ -269,14 +269,14 @@ class Console:
         if not tip:
             return self.say('uzaylı türü yok: %s' % want)
         n = max(1, min(50, num(d.get('amount'), 1)))
-        prep = (lambda x: setattr(x, 'd', dict(x.d, ad=name))) if name else None
+        prep = (lambda x: setattr(x, 'd', dict(x.d, name=name))) if name else None
         now = time.time()
         with w.lock:
             hx, hy = w.hero_pos(now)
             for k in range(n):
                 a = 2 * math.pi * k / n
                 w.spawn_npc_at(tip, hx + math.cos(a) * 600, hy + math.sin(a) * 600, model=model, prep=prep)
-        return self.say('%s x%d' % (name or world_types()[tip]['ad'], n))
+        return self.say('%s x%d' % (name or world_types()[tip]['name'], n))
 
     def cmd_box(self, rows, d):
         import world
@@ -316,8 +316,8 @@ class Console:
             p.d[CIT.TIMERS] = {}
             for st in SA.state(p).values():
                 if isinstance(st, dict):
-                    st['hazir'] = 0
-                    st['bitis'] = min(st.get('bitis', 0), now)
+                    st['ready'] = 0
+                    st['end_time'] = min(st.get('end_time', 0), now)
             p.dirty = True
         msgs = p.menu_changes()
         if self.w:
@@ -331,10 +331,10 @@ class Console:
         pet = self.s.pet
         if not pet.owned:
             return self.say('P.E.T. yok')
-        lv = max(0, min(len(PETM.PET['seviyeler']) - 1, num(d.get('lv') or d.get('petLevel'))))
+        lv = max(0, min(len(PETM.PET['levels']) - 1, num(d.get('lv') or d.get('petLevel'))))
         with pet.p.lock:
-            pet.d['seviye'] = lv
-            pet.d['ep'] = PETM.PET['seviyeler'][lv]['ep']
+            pet.d['level'] = lv
+            pet.d['ep'] = PETM.PET['levels'][lv]['ep']
             pet.p.dirty = True
         pet.p.ach('pet_level', value=lv)
         return [('PetLevelUpdateCommand', dict(petLevel=lv, petExperiencePointsUntilNextLevel=pet.next_xp(), designId=pet.ship_type(),
@@ -352,7 +352,7 @@ class Console:
                     return self.say('kapı yok: %s' % val)
                 w = self.w
                 msgs, info = k.finish(key, w.reward_msgs if w else None)
-                return msgs + self.say('%s ödülü verildi' % KAPI.KAPI[key]['ad'])
+                return msgs + self.say('%s ödülü verildi' % KAPI.KAPI[key]['name'])
             if name in ('setup', 'galaxyGates'):
                 parts = [x.strip() for x in str(val or '').split(',')]
                 key = parts[0].lower() if parts and parts[0] else ''
@@ -365,10 +365,10 @@ class Console:
                 last = str(flat.get('lastWave') or (parts[3] if len(parts) > 3 else '')).lower() in ('true', '1')
                 with k.p.lock:
                     G = k.gate(key)
-                    G.update(hazir=True, can=lifes, lives_bought=0, parcalar=list(range(1, g['part'] + 1)),
-                             dalga=len(g['waves']) - 1 if last else max(0, min(len(g['waves']) - 1, wave - 1 if wave else 0)))
+                    G.update(ready=True, can=lifes, lives_bought=0, parts=list(range(1, g['part'] + 1)),
+                             wave=len(g['waves']) - 1 if last else max(0, min(len(g['waves']) - 1, wave - 1 if wave else 0)))
                     k.p.dirty = True
-                return self.say('%s kuruldu: %d can, dalga %d (X-1 portalı)' % (g['ad'], lifes, G['dalga'] + 1))
+                return self.say('%s kuruldu: %d can, dalga %d (X-1 portalı)' % (g['name'], lifes, G['wave'] + 1))
         return self.say('kapı komutu anlaşılmadı')
 
     def cmd_addEternalBlacklightPoints(self, rows, d):
@@ -377,9 +377,9 @@ class Console:
         if not ebl or not getattr(ebl, 'run', None):
             return self.say('EBL koşusu yok')
         with ebl.p.lock:
-            ebl.run['puan'] = ebl.run.get('puan', 0) + n
+            ebl.run['points'] = ebl.run.get('points', 0) + n
             ebl.p.dirty = True
-        return self.say('EBL puanı +%d (%d)' % (n, ebl.run['puan']))
+        return self.say('EBL puanı +%d (%d)' % (n, ebl.run['points']))
 
     def cmd_battleStation(self, rows, d):
         cbs = getattr(self.s, 'cbs', None)

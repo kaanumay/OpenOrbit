@@ -1,6 +1,6 @@
 """Botların Skylab'ı: oyuncununkiyle aynı tablolar ve kurallar (data/skylab.json; oyunun skylab.py'si), soyut ve tembel hesap.
 
-Durum bot.k['skylab'] = {'mod': {modül: seviye}, 'depo': {cevher: adet}, 'son': an, 'insa': [modül, bitiş] | None, 'tasima': an}
+Durum bot.k['skylab'] = {'mod': {modül: seviye}, 'depo': {ore: adet}, 'son': an, 'insa': [modül, bitiş] | None, 'tasima': an}
   üretim     toplayıcılar ham cevher, Xeno modülü Xenomit, rafineriler depodaki girdilerden sırayla (Prometid/Duranium ->
              Promerium -> Seprom); depo sınırı depo modülünün seviyesinden; çalışan modüllerin enerjisi güneşi aşamaz (aşan
              modül en son kurulan sırayla kapalı sayılır)
@@ -14,7 +14,7 @@ import json, os
 from . import catalog as K
 
 S = json.load(open(os.path.join(K.HERE, 'data', 'skylab.json'), encoding='utf8'))
-ROW = S['seviyeler']
+ROW = S['levels']
 MOD = S['modules']
 COSTS = S['costs']
 ORES = S['ores']                       # skylab cevheri -> [ad, depo sütunu, kargo cevheri]
@@ -36,8 +36,8 @@ def row(lv):
 def state(bot, now):
     st = bot.k.get('skylab')
     if st is None:
-        st = bot.k['skylab'] = {'mod': {m: lv for m, (lv, _) in S['baslangic']['modules'].items()},
-                                'storage': {o: float(n) for o, n in S['baslangic']['storage'].items()}, 'last': now, 'build': None,
+        st = bot.k['skylab'] = {'mod': {m: lv for m, (lv, _) in S['start']['modules'].items()},
+                                'storage': {o: float(n) for o, n in S['start']['storage'].items()}, 'last': now, 'build': None,
                                 'transport': now}
     return st
 
@@ -90,7 +90,7 @@ def produce(st, hour, multiplier=1.0):
         if m in is_open:
             add(ore, production(st, m) * hour * multiplier)
     if 'XENO_MODULE' in is_open:
-        add(XENO['cevher'], production(st, 'XENO_MODULE') * hour * multiplier)
+        add(XENO['ore'], production(st, 'XENO_MODULE') * hour * multiplier)
     for m in REFINE_ORDER:
         if m not in is_open:
             continue
@@ -117,15 +117,15 @@ def advance(bot, now):
             m = st['build'][0]
             st['mod'][m] = level(st, m) + 1
             st['build'] = None
-            bot.event('skylab', modul=m, seviye=st['mod'][m])
+            bot.event('skylab', module=m, level=st['mod'][m])
     st['last'] = now
     return st
 
 
 # ------------------------------------------------------------------------------------------------------------ yükseltme
 def cost(st, m):
-    g, lv = MOD[m]['grup'], level(st, m)
-    if not g or lv >= MOD[m]['azami']:
+    g, lv = MOD[m]['group'], level(st, m)
+    if not g or lv >= MOD[m]['maximum']:
         return None
     return COSTS[g][lv]
 
@@ -168,13 +168,13 @@ def invest(bot, now):
     c = cost(st, m) if m else None
     if not c:
         return None
-    credits = c['kredi'] * bot.game_settings.multiplier('service_price', 'skylab')
-    if bot.k['kredi'] < credits * (2.5 - bot.o('frugality') - 0.5 * bot.o('patience')) or any(st['storage'].get(o, 0) < c['kaynak'] for o in RESOURCES):
+    credits = c['credits'] * bot.game_settings.multiplier('service_price', 'skylab')
+    if bot.k['credits'] < credits * (2.5 - bot.o('frugality') - 0.5 * bot.o('patience')) or any(st['storage'].get(o, 0) < c['source'] for o in RESOURCES):
         return None
     if not bot.pay('C', credits):
         return None
     for o in RESOURCES:
-        st['storage'][o] -= c['kaynak']
+        st['storage'][o] -= c['source']
     st['build'] = [m, now + c['sure_sn']]
     bot.ist('skylab_upgrade')
     return m
@@ -202,7 +202,7 @@ def carry(bot, now, max_count):
         cargo = ORES[ore][2]
         out[cargo] = out.get(cargo, 0) + n
     for t, n in out.items():
-        bot.k['kargo'][str(t)] = bot.k['kargo'].get(str(t), 0) + n
+        bot.k['cargo'][str(t)] = bot.k['cargo'].get(str(t), 0) + n
     if out:
         bot.ist('skylab_transport', sum(out.values()))
     return out

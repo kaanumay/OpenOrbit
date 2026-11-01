@@ -197,7 +197,7 @@ def pet_signature(w, m):
     if not (pet and pet.active and pet.w is m):
         return None
     import clan as KL
-    return pet.pid, pet.look, pet.d['ad'], pet.d['seviye'], KL.relation(w.p, m.p)
+    return pet.pid, pet.look, pet.d['name'], pet.d['level'], KL.relation(w.p, m.p)
 
 
 def uid_list(m):

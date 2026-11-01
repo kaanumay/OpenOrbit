@@ -37,12 +37,12 @@ import upgrades as UPG
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ITEMS = json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))
-COMBAT = DATA.load('npc.json')['savas']
+COMBAT = DATA.load('npc.json')['combat']
 PET = ITEMS['pet']
 GEARS = PET['gears']
 PROTOCOLS = PET['protocols']
 HEAT = PET['heat']
-HEAT_ROWS = HEAT['seviyeler']
+HEAT_ROWS = HEAT['levels']
 HEAT_MAX = HEAT_ROWS[-1]['threshold']
 HEATING, STABLE, COOLING = 0, 1, 2       # PetHeatUpdateCommand.heatState (istemci: " +" beyaz, " =" sarı, " --" mavi)
 PID_SHARED = 160000000                    # arkadaş sunucusunda P.E.T. kimliklerinin başlangıcı (uzaylılar 150300000, CBS 157000000)
@@ -73,7 +73,7 @@ DESTROYED_NONE, DESTROYED_KAMIKAZE = 0, 1
 SLOTS = {'lasers': 'equipment_weapon_laser_', 'generators': 'equipment_generator_shield_', 'gears': 'equipment_petgear_',
          'protocols': 'equipment_aiprotocol_', 'visual': 'pet_designs_'}
 ALL_SLOTS = tuple(SLOTS) + ('heat',)     # heat: lazer ya da kalkan jeneratörü (taşıma isteğinin slotSet'i "heat")
-NOVA_KEYS = {'can': 'pet_can', 'menzil': 'pet_menzil', 'heat': 'pet_heat', 'fuel': 'pet_fuel'}     # N.O.V.A. yetenekleri (nova.py)
+NOVA_KEYS = {'can': 'pet_can', 'range': 'pet_menzil', 'heat': 'pet_heat', 'fuel': 'pet_fuel'}     # N.O.V.A. yetenekleri (nova.py)
 UNIQUE = ('gears',)                      # aynı dişli iki kez takılmaz; protokoller birden çok kez (3 Radar Protocol; kullanıcı 2026-10-24)
 
 
@@ -152,13 +152,13 @@ def locator_id(n):
     olmayanlar (sahte Emperor'lar, kimliği bilinmeyen etkinlik uzaylıları) düşman sayılmaz."""
     if not n.alive or n.d.get('friendly'):
         return 0
-    return int(n.d.get('npc_kimlik') or 0)
+    return int(n.d.get('npc_id') or 0)
 
 
 def new_pet(profile):
     """Satın alınan P.E.T. (seviye 0, 10.000 yakıt). Donanımı her geminin kendi iki config'inde (profil.pet_config)."""
-    return {'kimlik': 7001, 'ad': PET['ad'], 'seviye': 0, 'ep': 0, 'can': PET['can'], 'kalkan': 0, 'fuel': PET['start_fuel'],
-            'destroyed': False, 'gear': PASSIVE, 'yuva': dict(PET['start_slots']), 'heat': 0.0, 'hp_upgrade': 0}
+    return {'uid': 7001, 'name': PET['name'], 'level': 0, 'ep': 0, 'can': PET['can'], 'kalkan': 0, 'fuel': PET['start_fuel'],
+            'destroyed': False, 'gear': PASSIVE, 'slot': dict(PET['start_slots']), 'heat': 0.0, 'hp_upgrade': 0}
 
 
 class Pet:
@@ -208,14 +208,14 @@ class Pet:
     def pid(self):
         """Kayıttaki 7001; arkadaş sunucusunda oyuncuya göre (öteki oyuncuların P.E.T.'leriyle aynı haritada karışmasın)."""
         import multiplayer as CO
-        return PID_SHARED + self.p.user_id % 10 ** 7 if CO.is_open() else self.d['kimlik']
+        return PID_SHARED + self.p.user_id % 10 ** 7 if CO.is_open() else self.d['uid']
 
     @property
     def alive(self):
         return self.owned and not self.d['destroyed']
 
     def row(self, lv=None):
-        return PET['seviyeler'][self.d['seviye'] if lv is None else lv]
+        return PET['levels'][self.d['level'] if lv is None else lv]
 
     def config(self, cid=None, sid=None):
         """Bir geminin (varsayılan: etkin) bir config'inde P.E.T.'in yuvaları: P.E.T. tek, donanımı geminin (hangarın) kaydında."""
@@ -226,12 +226,12 @@ class Pet:
 
     def loadout(self, cid=None):
         """Bir config'teki takılı eşyalar: yuva -> lootId listesi."""
-        es = self.p.d['esyalar']
+        es = self.p.d['items']
         return {s: [es[str(i)] for i in ids if str(i) in es] for s, ids in self.config(cid).items()}
 
     def leveled(self, slot):
         """Takılı dişliler/protokoller: [(lootId, seviye 1-3)]."""
-        es = self.p.d['esyalar']
+        es = self.p.d['items']
         return [(es[str(i)], self.p.item_level(i)) for i in self.config()[slot] if str(i) in es]
 
     def proto(self, key):
@@ -249,7 +249,7 @@ class Pet:
         for l, lv in self.leveled('gears'):
             g = GEARS.get(l)
             if g:
-                out.setdefault(g['tur'], (l, at_level(g, lv), lv))
+                out.setdefault(g['type'], (l, at_level(g, lv), lv))
         return out
 
     def gear(self, t):
@@ -269,7 +269,7 @@ class Pet:
 
     def upgraded(self, slot):
         """Yuvadaki lazerler ya da jeneratörler (HEAT yuvasındakiler heat_items gibi) yükseltme seviyeleriyle [(lootId, seviye)]."""
-        es, lv, c = self.p.d['esyalar'], self.p.d.get('upgrade_level', {}), self.config()
+        es, lv, c = self.p.d['items'], self.p.d.get('upgrade_level', {}), self.config()
         ids = c[slot] + (c['heat'] if self.heat_lv() >= HEAT['slot_level'] else [])
         return [(es[str(i)], int(lv.get(str(i), 0))) for i in ids if str(i) in es and slot_for(es[str(i)]) == slot]
 
@@ -299,7 +299,7 @@ class Pet:
 
     def speed(self):
         """P.E.T. gemiyi izler: gemiyle aynı hız (kayıt: başka oyuncunun P.E.T.'i 395)."""
-        return self.p.d['gemi'].get('speed', 300)
+        return self.p.d['ship'].get('speed', 300)
 
     def design(self):
         """Takılı P.E.T. tasarımı (lootId) ya da None."""
@@ -311,7 +311,7 @@ class Pet:
         t = DESIGNS.get(self.design() or '')
         if t:
             return t
-        lv = self.d['seviye']
+        lv = self.d['level']
         return [t for need, t in PET['ship_type'] if lv >= need][-1]
 
     def fuel_per_min(self, now=None):
@@ -334,8 +334,8 @@ class Pet:
             return 1                         # istemci: HangarAuxiliary.ReturnPetMaxSlotCount "visual" sabit
         if slot == 'generators':             # jeneratör yuvası seviyeyle gelmez: başlangıç 2 + satın alınanlar (gerçek kayıt: seviye 7'de 2)
             worn = (len(c.get(slot, [])) for s in self.p.d['ships'].values() for c in s.get('pet_config', {}).values())
-            return max(self.d['yuva'].get(slot, 0), max(worn, default=0))       # eski profilde takılı olan hep açık
-        return max(self.d['yuva'].get(slot, 0), self.row()['yuva'].get(slot, 0))
+            return max(self.d['slot'].get(slot, 0), max(worn, default=0))       # eski profilde takılı olan hep açık
+        return max(self.d['slot'].get(slot, 0), self.row()['slot'].get(slot, 0))
 
     def slot_price(self, slot):
         """Bir sonraki yuvanın uridyum fiyatı; en çok yuvaya ulaşıldıysa 0. HEAT yuvalarının ilki de ücretli (wiki 20.000)."""
@@ -373,7 +373,7 @@ class Pet:
             if t + need <= now:
                 t += need
                 d['heat'] = target
-                d['heat_cooldown'] = t + HEAT_ROWS[heat_level(target)]['bekleme_sn']
+                d['heat_cooldown'] = t + HEAT_ROWS[heat_level(target)]['cooldown_sec']
             else:
                 d['heat'] -= (now - t) * rate
                 t = now
@@ -441,7 +441,7 @@ class Pet:
     def stop_heat(self, now):
         """P.E.T. uzaydan çekildi: bulunduğu seviyenin soğuma gecikmesi başlar."""
         with self.p.lock:
-            self.d['heat_cooldown'] = now + HEAT_ROWS[heat_level(self.d.get('heat', 0))]['bekleme_sn']
+            self.d['heat_cooldown'] = now + HEAT_ROWS[heat_level(self.d.get('heat', 0))]['cooldown_sec']
             self.d['heat_time'] = now
             self.p.dirty = True
 
@@ -455,7 +455,7 @@ class Pet:
         if not self.owned:
             return None
         n, prices = self.d.get('hp_upgrade', 0), PET['hp_upgrade']['prices']
-        return prices[n] if n < min(self.d['seviye'], len(prices)) else None
+        return prices[n] if n < min(self.d['level'], len(prices)) else None
 
     def upgrade_hull(self):
         step = PET['hp_upgrade']['step']
@@ -483,23 +483,23 @@ class Pet:
     def status_msg(self):
         d = self.d
         return ('PetStatusCommand', dict(
-            petId=self.pid, petLevel=d['seviye'], petExperiencePoints=d['ep'], petExperiencePointsUntilNextLevel=self.next_xp(),
+            petId=self.pid, petLevel=d['level'], petExperiencePoints=d['ep'], petExperiencePointsUntilNextLevel=self.next_xp(),
             petHitPoints=int(d['can']), petHitPointsMax=self.hp_max(), petShieldEnergyNow=int(d['kalkan']),
             petShieldEnergyMax=self.shield_max(), petCurrentFuel=int(d['fuel']), petMaxFuel=PET['max_fuel'], petSpeed=self.speed(),
-            petName=d['ad'], petLootId=''))
+            petName=d['name'], petLootId=''))
 
     def next_xp(self):
         """Sonraki seviyenin toplam EP'si; en yüksek seviyede güncel EP (kayıt: seviye 20 P.E.T.'lerinde ikisi eşit)."""
-        lv = self.d['seviye']
-        rows = PET['seviyeler']
+        lv = self.d['level']
+        rows = PET['levels']
         return rows[lv + 1]['ep'] if lv + 1 < len(rows) else self.d['ep']
 
     def activation_msg(self, x, y):
         pl = self.p.d['pilot']
         self.look = self.ship_type()
         return ('PetHeroActivationCommand', dict(
-            ownerId=self.p.user_id, petId=self.pid, shipType=self.ship_type(), expansionStage=1, petName=self.d['ad'],
-            factionId=pl.get('factionId', 1), clanId=0, petLevel=self.d['seviye'], clanTag='', x=int(x), y=int(y), petSpeed=self.speed(),
+            ownerId=self.p.user_id, petId=self.pid, shipType=self.ship_type(), expansionStage=1, petName=self.d['name'],
+            factionId=pl.get('factionId', 1), clanId=0, petLevel=self.d['level'], clanTag='', x=int(x), y=int(y), petSpeed=self.speed(),
             minimapStrategyModule=mod('MinimapStrategyModule', minimapStrategy=0)))
 
     def gear_msgs(self):
@@ -564,7 +564,7 @@ class Pet:
         if not self.owned:
             return dict(base, _='HangarShipPetView')       # alan adı 'name': mod() ile çakışır
         d, lo = self.d, self.loadout()
-        base.update(rootId=PET['loot'], name=d['ad'], level=d['seviye'], exp=d['ep'], expNextLevel=self.next_xp(), hitPoints=int(d['can']),
+        base.update(rootId=PET['loot'], name=d['name'], level=d['level'], exp=d['ep'], expNextLevel=self.next_xp(), hitPoints=int(d['can']),
                     maxHitPoints=self.hp_max(), fuel=int(d['fuel']), maxFuel=PET['max_fuel'], lasers=len(lo['lasers']),
                     maxLasers=self.open_slots('lasers'), shieldGenerators=len(lo['generators']),
                     maxLaserSlots=self.open_slots('lasers'), maxGeneratorSlots=self.open_slots('generators'),
@@ -604,9 +604,9 @@ class Pet:
             return [reply(0)]
         with self.p.lock:
             self.p.d['pilot']['uridium'] = u - price
-            self.d['yuva'][slot] = self.open_slots(slot) + 1
+            self.d['slot'][slot] = self.open_slots(slot) + 1
             self.p.dirty = True
-        RT.money(self.p, 'uridyum', -price, 'buy_SPECIAL')
+        RT.money(self.p, 'uridium', -price, 'buy_SPECIAL')
         self.log('   P.E.T. yuvası açıldı: %s %d (%d U)' % (slot, self.open_slots(slot), price))
         return [reply(1)]
 
@@ -623,9 +623,9 @@ class Pet:
         if ok:
             with self.p.lock:
                 self.p.d['pilot']['uridium'] -= price
-                self.d['ad'] = name
+                self.d['name'] = name
                 self.p.dirty = True
-            RT.money(self.p, 'uridyum', -price, 'buy_SPECIAL')
+            RT.money(self.p, 'uridium', -price, 'buy_SPECIAL')
             self.log('   P.E.T. adı: %s (%d U)' % (name, price))
         elif err:
             self.log('   P.E.T. adı olmadı: %r (%s)' % (name, err))
@@ -694,8 +694,8 @@ class Pet:
         game.xml türü) ve süren hareketi."""
         pl, (x, y), m = self.p.d['pilot'], self.pos(now), self.mover
         msgs = [('PetActivationCommand', dict(
-            ownerId=self.p.user_id, petId=self.pid, petDesignId=self.look, expansionStage=1, petName=self.d['ad'],
-            petFactionId=pl.get('factionId', 1), petClanID=pl.get('clanId', 0), petLevel=self.d['seviye'], clanTag=pl.get('clanTag', ''),
+            ownerId=self.p.user_id, petId=self.pid, petDesignId=self.look, expansionStage=1, petName=self.d['name'],
+            petFactionId=pl.get('factionId', 1), petClanID=pl.get('clanId', 0), petLevel=self.d['level'], clanTag=pl.get('clanTag', ''),
             clanRelationship=mod('ClanRelationModule', type=0), x=int(x), y=int(y), petSpeed=self.speed(), isInIdleMode=False,
             isVisible=not self.hidden(now), minimapStrategyModule=mod('MinimapStrategyModule', minimapStrategy=0)))]
         if m.t1 > now:
@@ -734,7 +734,7 @@ class Pet:
         self.heat_sent = int(self.d.get('heat', 0))
         self.send([self.activation_msg(x, y), self.status_msg()] + self.gear_msgs() + [self.heat_msg(now)] + self.stats_msgs())
         self.log('   P.E.T. çıktı: seviye %d, can %d/%d, kalkan %d, yakıt %d, %d lazer, dişli %d' % (
-            self.d['seviye'], self.d['can'], self.hp_max(), self.d['kalkan'], self.d['fuel'], len(self.lasers()), self.d['gear']))
+            self.d['level'], self.d['can'], self.hp_max(), self.d['kalkan'], self.d['fuel'], len(self.lasers()), self.d['gear']))
 
     def disrupt(self, now, sec=5):
         """EMP: P.E.T. sn saniye etkin dışı (log_msg_pet_disruption_on/off), sonra kendiliğinden yeniden çıkar (süre uyarlama)."""
@@ -861,23 +861,23 @@ class Pet:
             return self.end_release(now, notify=False)                  # süre doldu (4 sn: 4 vuruş)
         changed = self.add_heat(-g.get('heat_sec', 0))
         with self.p.lock:
-            d['can'] = min(self.hp_max(), max(1, d['can'] - g.get('can_sn', 0)))      # dişli P.E.T.'i yok etmez (uyarlama); HEAT
+            d['can'] = min(self.hp_max(), max(1, d['can'] - g.get('hp_sec', 0)))      # dişli P.E.T.'i yok etmez (uyarlama); HEAT
             self.p.dirty = True                                                    # düşünce azami can da
         px, py = self.pos(now)
-        hit = [n for n in list(w.npcs.values()) if n.alive and math.hypot(n.mover.pos(now)[0] - px, n.mover.pos(now)[1] - py) <= g.get('menzil', 0)]
+        hit = [n for n in list(w.npcs.values()) if n.alive and math.hypot(n.mover.pos(now)[0] - px, n.mover.pos(now)[1] - py) <= g.get('range', 0)]
         for n in hit:
             w.hit_npc(n.id, int(g.get('damage_per_sec', 0)), 1, attacker=self.pid)
         if hit:
             self.last_fight = now
         msgs = [self.hp_msg(), self.heat_msg(now)] + (self.stats_msgs() if changed else [])
-        if d.get('heat', 0) <= 0 or d['can'] <= g.get('can_sn', 0):
+        if d.get('heat', 0) <= 0 or d['can'] <= g.get('hp_sec', 0):
             msgs += self.end_release(now, notify=False)                 # HEAT bitti ya da can yetmiyor
         return msgs
 
     def end_release(self, now, notify=True):
         """Heat Release bitti: görsel kapanır, bekleme başlar, P.E.T. korumaya döner."""
         self.release_end = 0.0
-        self.release_ready = now + self.gear(HEAT_RELEASE).get('bekleme_sn', 60)
+        self.release_ready = now + self.gear(HEAT_RELEASE).get('cooldown_sec', 60)
         self.release_wait = True
         with self.p.lock:
             self.d['gear'] = GUARD
@@ -913,7 +913,7 @@ class Pet:
     def end_link(self, now, notify=True):
         """HP Link bitti: görsel kapanır, bekleme başlar, P.E.T. korumaya döner."""
         self.link_end = 0.0
-        self.ready[HP_LINK] = now + self.gear(HP_LINK).get('bekleme_sn', 240)
+        self.ready[HP_LINK] = now + self.gear(HP_LINK).get('cooldown_sec', 240)
         with self.p.lock:
             self.d['gear'] = GUARD
             self.p.dirty = True
@@ -928,7 +928,7 @@ class Pet:
         g = self.gear(t)
         x, y = self.pos(now)
         self.beacon, self.in_beacon = (t, x, y, now + g.get('sure_sn', 30)), False
-        self.ready[t] = now + g.get('bekleme_sn', 240)
+        self.ready[t] = now + g.get('cooldown_sec', 240)
         self.send([self.select_msg(), ('PetGearActivationChangeCommand', dict(gearType=gear_type(t), active=False))]
                   + self.beacon_step(now))
         self.log('   P.E.T. işareti: %s (%d, %d)' % (TIMED[t], x, y))
@@ -942,7 +942,7 @@ class Pet:
                 self.beacon = None
             else:
                 hx, hy = self.w.hero_pos(now)
-                inside = math.hypot(hx - x, hy - y) <= self.gear(t).get('menzil', 0)
+                inside = math.hypot(hx - x, hy - y) <= self.gear(t).get('range', 0)
         if inside == self.in_beacon:
             return []
         self.in_beacon = inside
@@ -962,7 +962,7 @@ class Pet:
             pl['uridium'] = pl.get('uridium', 0) - cost
             self.d.update(destroyed=False, can=max(1, int(self.hp_max() * PET['repair_hp'])), kalkan=self.shield_max())
             self.p.dirty = True
-        RT.money(self.p, 'uridyum', -cost, 'repair_pet')
+        RT.money(self.p, 'uridium', -cost, 'repair_pet')
         msgs = [('PetRepairCompleteCommand', {}), self.init_msg(), self.repair_button()]
         if cost and self.w and self.w.money_msgs:
             msgs += self.w.money_msgs()
@@ -974,26 +974,26 @@ class Pet:
         P.E.T. etkin olmalı. amount: otomatik alım CPU'su (FB-X: 10.000; fiyat aynı oranda)."""
         f = dict(PET['fuel_buy'])
         if amount:
-            f.update(uridyum=f['uridyum'] * amount // f['adet'], adet=amount)
-        f['uridyum'] = SET.price('service_price', f['uridyum'], 'pet')     # panel: hizmet ücretleri
+            f.update(uridium=f['uridium'] * amount // f['count'], count=amount)
+        f['uridium'] = SET.price('service_price', f['uridium'], 'pet')     # panel: hizmet ücretleri
         pl = self.p.d['pilot']
         if not self.active:
             self.send([legacy('0|A|STM|log_msg_bought_fuel_hotkey_inactive')])
-        elif self.d['fuel'] + f['adet'] > PET['max_fuel']:
+        elif self.d['fuel'] + f['count'] > PET['max_fuel']:
             self.send([legacy('0|A|STM|log_msg_bought_fuel_hotkey_full')])
-        elif pl.get('uridium', 0) < f['uridyum']:
+        elif pl.get('uridium', 0) < f['uridium']:
             self.send([legacy('0|A|STM|not_enough_uridium')])
         else:
             with self.p.lock:
-                pl['uridium'] -= f['uridyum']
-                self.d['fuel'] += f['adet']
+                pl['uridium'] -= f['uridium']
+                self.d['fuel'] += f['count']
                 self.p.dirty = True
-            RT.money(self.p, 'uridyum', -f['uridyum'], 'buy_PETFUEL', qty=f['adet'])
+            RT.money(self.p, 'uridium', -f['uridium'], 'buy_PETFUEL', qty=f['count'])
             msgs = [self.fuel_msg(), legacy('0|A|STM|log_msg_bought_fuel_hotkey')]
             if self.w and self.w.money_msgs:
                 msgs += self.w.money_msgs()
             self.send(msgs)
-            self.log('   P.E.T. yakıtı alındı: +%d (%d U)' % (f['adet'], f['uridyum']))
+            self.log('   P.E.T. yakıtı alındı: +%d (%d U)' % (f['count'], f['uridium']))
 
     # ------------------------------------------------------------ uzay
     def attach(self, world):
@@ -1104,7 +1104,7 @@ class Pet:
         g = d.get('gear')
         if g == REPAIR_PET and d['can'] < self.hp_max() and not self.in_fight(now):     # forum 127074: savaşta çalışmaz
             with self.p.lock:
-                d['can'] = min(self.hp_max(), d['can'] + self.gear(REPAIR_PET).get('can_sn', 0))
+                d['can'] = min(self.hp_max(), d['can'] + self.gear(REPAIR_PET).get('hp_sec', 0))
                 self.p.dirty = True
             msgs.append(self.hp_msg())
         if d['kalkan'] < self.shield_max() and now - max(w.last_combat, self.last_fight) >= ITEMS['out_of_combat_sec']:
@@ -1113,19 +1113,19 @@ class Pet:
                 self.p.dirty = True
             msgs.append(self.shield_msg())
         if g == COMBO_REPAIR:
-            ship = self.p.d['gemi']
+            ship = self.p.d['ship']
             cg = self.gear(COMBO_REPAIR)
             cost = cg.get('extra_fuel', 0) * SET.multiplier('pet_fuel')     # forum 127074: 5 sn onarım, 15 sn bekleme, yakıt etkinleştirmede
             hurt = ship.get('hitPoints', 0) < ship.get('hitMax', 0) and now - w.last_hurt >= ITEMS['out_of_combat_sec']
             if hurt and now >= self.csr_end and now >= self.csr_ready and d['fuel'] >= cost:
                 self.csr_end = now + cg.get('sure_sn', 5)
-                self.csr_ready = self.csr_end + cg.get('bekleme_sn', 15)
+                self.csr_ready = self.csr_end + cg.get('cooldown_sec', 15)
                 with self.p.lock:
                     d['fuel'] -= cost
                     self.p.dirty = True
             if hurt and now < self.csr_end:
                 hp0 = ship['hitPoints']
-                self.p.set_hull(hp=hp0 + cg.get('can_sn', 0))
+                self.p.set_hull(hp=hp0 + cg.get('hp_sec', 0))
                 msgs.append(('HitpointInfoCommand', dict(hitpoints=int(ship['hitPoints']), hitpointsMax=ship.get('hitMax', 0),
                                                          nanoHull=ship.get('nanoHull', 0), nanoHullMax=ship.get('maxNanoHull', 0))))
                 msgs += w.heal_msgs(hp0)                                  # "+can" sayısı (Ö1)
@@ -1174,12 +1174,12 @@ class Pet:
         self.next_follow = now + 0.5
 
     def range_bonus(self):
-        return 1 + self.proto('menzil')
+        return 1 + self.proto('range')
 
     def gear_range(self, t):
         """Dişlinin menzili (AI-R dahil); 3X dişliler (4. seviye) HEAT seviyesi başına menzil kazanır (menzil_isi: G-EL/G-RL +180, G-AL/G-AR +108)."""
         g = self.gear(t)
-        return (g.get('menzil', 0) + g.get('heat_range', 0) * self.heat_lv()) * self.range_bonus()
+        return (g.get('range', 0) + g.get('heat_range', 0) * self.heat_lv()) * self.range_bonus()
 
     def collect_step(self, now, g):
         """Otomatik toplayıcı: menzildeki en yakın kutuya/cevhere git, varınca topla. Çalıştıysa True."""
@@ -1265,13 +1265,13 @@ class Pet:
             return True
         if now < self.next_shot:
             return True
-        ammo = self.p.d['selected']['lazer']
+        ammo = self.p.d['selected']['laser']
         if self.p.use_ammo(ammo, len(lasers)) is None:
             if self.shooting:
                 self.stop_shooting()
             return False
         if self.shooting != uid:
-            self.log('   P.E.T. ateş ediyor: %s (%d lazer, %s)' % (n.d['ad'] if n else 'CBS %s' % uid, len(lasers), ammo))
+            self.log('   P.E.T. ateş ediyor: %s (%d lazer, %s)' % (n.d['name'] if n else 'CBS %s' % uid, len(lasers), ammo))
         self.shooting = uid
         self.next_shot = now + ITEMS['laser_ammo'].get(ammo, {}).get('interval_sec', COMBAT['laser_interval_sec'])
         self.last_fight = now                  # not w.last_combat: the pilot is not in combat, repair and shield regeneration keep running
@@ -1280,13 +1280,13 @@ class Pet:
                                                                    isDiminishedBySkillShield=False, skilledLaser=False, visualType=0))])
         if random.random() < SET.chance('player_hit_chance', COMBAT['laser_hit_chance'] * (1 + self.proto('hit'))):
             base = self.laser_damage(n, pvp=bool(asset))
-            base *= 1 + self.row()['hasar'] + self.proto('lazer') + (self.proto('alien') if n else 0)
+            base *= 1 + self.row()['damage'] + self.proto('laser') + (self.proto('alien') if n else 0)
             if self.d.get('gear') == HP_LINK:
                 base *= self.gear(HP_LINK).get('pet_damage', 1)
-            a = ITEMS['laser_ammo'].get(ammo, {'carpan': 1})
+            a = ITEMS['laser_ammo'].get(ammo, {'multiplier': 1})
             r = random.uniform(*ITEMS['damage_random'])
             shield = int(base * a.get('shield_multiplier', 0) * r)
-            dmg = shield or int(base * a.get('carpan', 1) * r) + LAZER.flat_extra(self.lasers(), bool(asset))     # Paritydrill +5: çarpanlardan sonra
+            dmg = shield or int(base * a.get('multiplier', 1) * r) + LAZER.flat_extra(self.lasers(), bool(asset))     # Paritydrill +5: çarpanlardan sonra
             if asset:
                 w.hit_asset(uid, dmg, 1, shield_only=bool(shield), attacker=self.pid)
                 if not w.asset_at(uid):
@@ -1346,7 +1346,7 @@ class Pet:
         if not self.trading:
             return
         self.trading = self.trade_paid = False
-        cool = self.gear(TRADE_POD).get('bekleme_sn', 0)
+        cool = self.gear(TRADE_POD).get('cooldown_sec', 0)
         self.trade_ready = now + cool
         self.trade_wait = cool > 0
         self.relaunch = False
@@ -1443,7 +1443,7 @@ class Pet:
         w = self.w
         px, py = self.pos(now)
         return any(n.alive and not n.d.get('friendly') and (n.engaged or n.id == w.target)
-                   and math.hypot(n.mover.pos(now)[0] - px, n.mover.pos(now)[1] - py) <= kamikaze_cfg['menzil'] for n in list(w.npcs.values()))             or bool(self.assets_in_blast(px, py, kamikaze_cfg['menzil']))
+                   and math.hypot(n.mover.pos(now)[0] - px, n.mover.pos(now)[1] - py) <= kamikaze_cfg['range'] for n in list(w.npcs.values()))             or bool(self.assets_in_blast(px, py, kamikaze_cfg['range']))
 
     def assets_in_blast(self, px, py, r):
         """Patlama menzilindeki vurulabilir klan üssü modülleri (cbs.assets_near; oyuncu bildirimi 2026-10-30: kamikaze üslere işlemiyordu)."""
@@ -1460,7 +1460,7 @@ class Pet:
 
     def ship_hurt(self, now):
         """Gemi hasar aldı (dunya.hurt_hero): G-KK1 geminin canı eşiğin altına inince de patlar (istemci "your P.E.T. or ship")."""
-        ship = self.p.d['gemi']
+        ship = self.p.d['ship']
         if self.active and self.kamikaze_armed(now) and ship.get('hitPoints', 0) <= ship.get('hitMax', 0) * self.gear(KAMIKAZE).get('threshold', 0):
             self.kamikaze(now)
 
@@ -1469,17 +1469,17 @@ class Pet:
         120/60/30 sn; bitince msg_pet_kamikaze-gear_cooldown_ready). "Kamikaze used" iletisini istemci kendisi gösteriyor."""
         w, kamikaze_cfg = self.w, self.gear(KAMIKAZE)
         px, py = self.pos(now)
-        hit = [n for n in list(w.npcs.values()) if n.alive and math.hypot(n.mover.pos(now)[0] - px, n.mover.pos(now)[1] - py) <= kamikaze_cfg['menzil']]
-        assets = self.assets_in_blast(px, py, kamikaze_cfg['menzil'])
-        self.ready[KAMIKAZE] = now + kamikaze_cfg.get('bekleme_sn', 0)
+        hit = [n for n in list(w.npcs.values()) if n.alive and math.hypot(n.mover.pos(now)[0] - px, n.mover.pos(now)[1] - py) <= kamikaze_cfg['range']]
+        assets = self.assets_in_blast(px, py, kamikaze_cfg['range'])
+        self.ready[KAMIKAZE] = now + kamikaze_cfg.get('cooldown_sec', 0)
         with self.p.lock:
             self.d['gear'] = GUARD
             self.p.dirty = True
         self.destroyed(DESTROYED_KAMIKAZE)
         for n in hit:
-            w.hit_npc(n.id, kamikaze_cfg['hasar'], 1, attacker=self.pid)
+            w.hit_npc(n.id, kamikaze_cfg['damage'], 1, attacker=self.pid)
         for uid in assets:
-            self.send(w.asset_targets.asset_damage(uid, kamikaze_cfg['hasar'], attacker=self.pid))
+            self.send(w.asset_targets.asset_damage(uid, kamikaze_cfg['damage'], attacker=self.pid))
         self.log('   P.E.T. kamikaze: %d NPC, %d üs modülü vuruldu' % (len(hit), len(assets)))
 
     def destroyed(self, kind, killer=None):
@@ -1489,7 +1489,7 @@ class Pet:
         self.deactivate(notify=False)
         self.send([('ShipDestroyedCommand', dict(destroyedUserId=self.pid, explosionTypeId=0)), ('ShipRemoveCommand', {'userId': self.pid}),
                    ('PetIsDestroyedCommand', dict(destroyedType=kind)), self.init_msg(), self.repair_button()])
-        self.log('   P.E.T. yok edildi%s' % (' (%s)' % killer.d['ad'] if killer else ''))
+        self.log('   P.E.T. yok edildi%s' % (' (%s)' % killer.d['name'] if killer else ''))
 
     def hero_died(self):
         """Gemi yok edildi: P.E.T. de durur (yeniden doğunca elle çıkarılır)."""
@@ -1506,17 +1506,17 @@ class Pet:
         d = self.d
         with self.p.lock:
             d['ep'] += add
-            old = d['seviye']
-            while d['seviye'] + 1 < len(PET['seviyeler']) and d['ep'] >= PET['seviyeler'][d['seviye'] + 1]['ep']:
-                d['seviye'] += 1
+            old = d['level']
+            while d['level'] + 1 < len(PET['levels']) and d['ep'] >= PET['levels'][d['level'] + 1]['ep']:
+                d['level'] += 1
             self.p.dirty = True
         msgs = [('PetExperiencePointsUpdateCommand', dict(currentExperiencePoints=d['ep'], maxExperiencePoints=self.next_xp()))]
-        if d['seviye'] > old:
+        if d['level'] > old:
             self.look = self.ship_type()
-            msgs += [('PetLevelUpdateCommand', dict(petLevel=d['seviye'], petExperiencePointsUntilNextLevel=self.next_xp(),
+            msgs += [('PetLevelUpdateCommand', dict(petLevel=d['level'], petExperiencePointsUntilNextLevel=self.next_xp(),
                                                     designId=self.ship_type(), expansionStage=1)), self.status_msg()]
-            self.log('   P.E.T. seviye atladı: %d' % d['seviye'])
-            self.p.ach('pet_level', value=d['seviye'])
+            self.log('   P.E.T. seviye atladı: %d' % d['level'])
+            self.p.ach('pet_level', value=d['level'])
         return msgs
 
     def refresh(self):

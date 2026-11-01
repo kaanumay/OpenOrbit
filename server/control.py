@@ -86,7 +86,7 @@ def _row(e, long):
     s = json.dumps(_json(f), ensure_ascii=False)
     if long and len(s) > long:
         s = s[:long] + '…'
-    return {'order': seq, 'time': time.strftime('%H:%M:%S', time.localtime(t)) + ('%.3f' % (t % 1))[1:], 'direction': direction, 'ad': field_name,
+    return {'order': seq, 'time': time.strftime('%H:%M:%S', time.localtime(t)) + ('%.3f' % (t % 1))[1:], 'direction': direction, 'name': field_name,
             'fields': s}
 
 
@@ -115,15 +115,15 @@ class Control:
         p = G.PROFILE.d
         s = G.CURRENT
         w = s.world if s else None
-        out = {'connected': s is not None, 'order': TRACE.seq, 'harita': p['position'].get('mapId'),
+        out = {'connected': s is not None, 'order': TRACE.seq, 'map': p['position'].get('mapId'),
                'map_name': G.H.name(p['position'].get('mapId')), 'position': [p['position'].get('x'), p['position'].get('y')],
-               'gemi': {k: p['gemi'].get(k) for k in ('typeId', 'hitPoints', 'hitMax', 'shield', 'shieldMax', 'cargoSpace')},
+               'ship': {k: p['ship'].get(k) for k in ('typeId', 'hitPoints', 'hitMax', 'shield', 'shieldMax', 'cargoSpace')},
                'pilot': {k: p['pilot'].get(k) for k in ('userName', 'level', 'credits', 'uridium', 'ep', 'honourPoints',
                                                         'factionId', 'clanTag')}}
         if w:
             with w.lock:
                 hx, hy = w.hero_pos()
-                out['world'] = {'position': [int(hx), int(hy)], 'alien': len(w.npcs), 'kutu': len(w.boxes),
+                out['world'] = {'position': [int(hx), int(hy)], 'alien': len(w.npcs), 'box': len(w.boxes),
                                 'in_station': bool(w.in_station()), 'selected': getattr(w, 'target', None)}
         return out
 
@@ -134,8 +134,8 @@ class Control:
         def currency(credits=0, uridium=0, ep=0, honor=0):
             """Para/EP/onur ekler (eksi verilebilir), HUD'u günceller."""
             s = K.session()
-            tot = G.PROFILE.gain(kredi=credits, uridyum=uridium, ep=ep, onur=honor)
-            msgs = s.world.reward_msgs(tot, ep=ep, onur=honor) if s.world and (ep or honor) else []
+            tot = G.PROFILE.gain(credits=credits, uridium=uridium, ep=ep, honor=honor)
+            msgs = s.world.reward_msgs(tot, ep=ep, honor=honor) if s.world and (ep or honor) else []
             s.send(msgs + s.shop.money_msgs(), 'kontrol: para')
             return tot
 
@@ -152,7 +152,7 @@ class Control:
             s = K.session()
             dest = int(game_map or G.PROFILE.d['position']['mapId'])
             s.change_map(dest, None, pos=(int(x), int(y)) if x is not None else None)
-            return {'harita': dest, 'position': [x, y]}
+            return {'map': dest, 'position': [x, y]}
 
         def alien(tip, count=1, far=400, angle=0.0, stop=True):
             """Geminin çevresinde NPC doğurur -> kimlikler. dur: saldırıya uğrayana dek yerinde durur (ekrandan tıklamak için)."""
@@ -180,7 +180,7 @@ class Control:
                 for n in w.npcs.values():
                     if n.alive:
                         x, y = n.mover.pos(now)
-                        rows.append((int(math.hypot(x - hx, y - hy)), n.id, n.d.get('ad'), [int(x), int(y)], int(n.hp), int(n.shield)))
+                        rows.append((int(math.hypot(x - hx, y - hy)), n.id, n.d.get('name'), [int(x), int(y)], int(n.hp), int(n.shield)))
             return sorted(rows)[:count]
 
         def clean_up(radius=3000):
@@ -204,7 +204,7 @@ class Control:
 
         def repair():
             """Can ve kalkan dolu."""
-            g = G.PROFILE.d['gemi']
+            g = G.PROFILE.d['ship']
             G.PROFILE.set_hull(hp=g.get('hitMax'), shield=g.get('shieldMax'))
             w = K.session().world
             if w:
@@ -212,7 +212,7 @@ class Control:
                     w.send([w.hp_msg()])
             return [g.get('hitPoints'), g.get('shield')]
 
-        return dict(currency=currency, give=give, phase_out=phase_out, alien=alien, yakin=nearby, clean_up=clean_up, repair=repair)
+        return dict(currency=currency, give=give, phase_out=phase_out, alien=alien, nearby=nearby, clean_up=clean_up, repair=repair)
 
     def run_py(self, code):
         s = self.G.CURRENT
@@ -234,21 +234,21 @@ class Control:
     def handle(self, r):
         k = r.get('command')
         long = r.get('long', 600)
-        if k == 'durum':
+        if k == 'state':
             return self.state()
         if k == 'last':
             return {'order': TRACE.seq}
         if k == 'iz':
-            rows = TRACE.since(r.get('after') or 0, r.get('ad'), r.get('direction'), r.get('full', False), r.get('limit', 200))
+            rows = TRACE.since(r.get('after') or 0, r.get('name'), r.get('direction'), r.get('full', False), r.get('limit', 200))
             return {'order': TRACE.seq, 'messages': [_row(e, long) for e in rows]}
         if k == 'wait':
-            e = TRACE.wait(TRACE.seq if r.get('after') is None else r['after'], r['ad'], r.get('direction'), r.get('sure', 10))
+            e = TRACE.wait(TRACE.seq if r.get('after') is None else r['after'], r['name'], r.get('direction'), r.get('sure', 10))
             return {'found': e is not None, 'message': _row(e, long) if e else None, 'order': TRACE.seq}
         if k == 'request':
             s = self.session()
-            f = self.full_fields(r['ad'], r.get('fields', {}))
+            f = self.full_fields(r['name'], r.get('fields', {}))
             before = TRACE.seq
-            s.inject(r['ad'], f)
+            s.inject(r['name'], f)
             time.sleep(r.get('wait', 0.4))
             return {'fields': _json(f), 'replies': [_row(e, long) for e in TRACE.since(before, direction='->', limit=0)]}
         if k == 'send':
@@ -265,8 +265,8 @@ class Control:
         if k == 'py':
             return self.run_py(r['code'])
         if k == 'fields':
-            sp = self.G.P.spec().by_class.get(r['ad'])
-            return {'ad': r['ad'], 'steps': sp['steps'] if sp else None}
+            sp = self.G.P.spec().by_class.get(r['name'])
+            return {'name': r['name'], 'steps': sp['steps'] if sp else None}
         raise ValueError('bilinmeyen komut %r' % k)
 
     # ------------------------------------------------------------------ sunucu
@@ -287,9 +287,9 @@ class Control:
                 if not line.strip():
                     continue
                 try:
-                    out = {'tamam': True, 'result': self.handle(json.loads(line))}
+                    out = {'done': True, 'result': self.handle(json.loads(line))}
                 except Exception as e:
-                    out = {'tamam': False, 'hata': '%s: %s' % (type(e).__name__, e), 'iz': traceback.format_exc()[-1500:]}
+                    out = {'done': False, 'error': '%s: %s' % (type(e).__name__, e), 'iz': traceback.format_exc()[-1500:]}
                 f.write((json.dumps(out, ensure_ascii=False) + '\n').encode('utf8'))
                 f.flush()
         except OSError:

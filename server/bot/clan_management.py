@@ -23,8 +23,8 @@ TIER_RIGHTS = (                                   # rütbe katmanı -> hakları 
     ['hiremember', 'news', 'battle_station_replace_module'],
     [],
     [])
-INTERVALS = {'rutbe': 600, 'rol': 3 * 3600, 'aciklama': 3600, 'announcement': 900, 'tax': 6 * 3600, 'budget': 6 * 3600, 'odeme': 7 * DAY,
-          'kick': 12 * 3600, 'handover': 12 * 3600, 'hedef': 5 * DAY}
+INTERVALS = {'rank': 600, 'rol': 3 * 3600, 'description': 3600, 'announcement': 900, 'tax': 6 * 3600, 'budget': 6 * 3600, 'payment': 7 * DAY,
+          'kick': 12 * 3600, 'handover': 12 * 3600, 'target': 5 * DAY}
 
 
 LOGO_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'panel', 'ui', 'images', 'clan_logo')
@@ -83,14 +83,14 @@ def find_member(k, name):
     """Üye (ad küçük harf, kayıt) ya da (None, None): adı ya da görünen adı eşleşir."""
     s = str(name or '').strip().lower()
     for a, u in k['members'].items():
-        if s in (a, str(u.get('ad', '')).lower()):
+        if s in (a, str(u.get('name', '')).lower()):
             return a, u
     return None, None
 
 
 def find_rank(k, name):
     s = str(name or '').strip().lower()
-    return next((r for r in k['ranks'] if r['ad'].lower() == s), None)
+    return next((r for r in k['ranks'] if r['name'].lower() == s), None)
 
 
 def seniority_days(u, now):
@@ -103,32 +103,32 @@ def seniority_days(u, now):
 def info_summary(k, who=None):
     """Klanın durumu (ajanın gözlemi): üyeler ve rütbeleri, kasa, vergi, bütçe, diplomasi, başvurular."""
     now = time.time()
-    ranks = {r['id']: r['ad'] for r in k['ranks']}
-    sorted_members = sorted(k['members'].items(), key=lambda uid_member: (uid_member[0] != k['lider'], -int(uid_member[1].get('seviye', 1))))
+    ranks = {r['id']: r['name'] for r in k['ranks']}
+    sorted_members = sorted(k['members'].items(), key=lambda uid_member: (uid_member[0] != k['leader'], -int(uid_member[1].get('level', 1))))
     row = ['Clan [%s] %s, leader %s, %d members, treasury %s credits, tax %d%%.' % (
-        k['etiket'], k['ad'], (k['members'].get(k['lider']) or {}).get('ad', k['lider']), len(k['members']), '{:,}'.format(int(k['treasury'])),
+        k['tag'], k['name'], (k['members'].get(k['leader']) or {}).get('name', k['leader']), len(k['members']), '{:,}'.format(int(k['treasury'])),
         int(k.get('tax') or 0))]
     b = k.get('budget') or {}
     if b:
         row.append('Budget shares of the treasury: station %d%%, payouts %d%%, war %d%%, the rest is reserve.' % (
-            100 * b.get('ksi', 0), 100 * b.get('odeme', 0), 100 * b.get('savas', 0)))
-    row.append('Ranks: %s.' % (', '.join('%s (%s)' % (r['ad'], ', '.join(r['haklar']) or 'no rights') for r in k['ranks'])
+            100 * b.get('ksi', 0), 100 * b.get('payment', 0), 100 * b.get('combat', 0)))
+    row.append('Ranks: %s.' % (', '.join('%s (%s)' % (r['name'], ', '.join(r['rights']) or 'no rights') for r in k['ranks'])
                                  or 'none yet'))
     row.append('Members: %s.' % '; '.join('%s (lvl %s, %s, %d days%s)' % (
-        u.get('ad', a), u.get('seviye', 1), 'leader' if a == k['lider'] else ranks.get(u.get('rutbe', 0), 'no rank'), seniority_days(u, now),
+        u.get('name', a), u.get('level', 1), 'leader' if a == k['leader'] else ranks.get(u.get('rank', 0), 'no rank'), seniority_days(u, now),
         ', paid %s tax this week' % '{:,}'.format(int(u['contrib_period'])) if u.get('contrib_period') else '') for a, u in sorted_members[:20]))
     diplo = {1: 'alliance', 2: 'non-aggression pact', 3: 'war'}
-    d = [diplo.get(x['tur'], '?') + ' with ' + str((KL.CLANS.get(x['klan']) or {}).get('ad', x.get('ad', '?'))) for x in k['diplomacy']]
+    d = [diplo.get(x['type'], '?') + ' with ' + str((KL.CLANS.get(x['clan']) or {}).get('name', x.get('name', '?'))) for x in k['diplomacy']]
     if d:
         row.append('Diplomacy: %s.' % ', '.join(d))
     incoming = [r for r in k.get('diplomacy_requests', []) if r['to'] == k['id']]
     if incoming:
         row.append('Diplomacy offers waiting for your answer: %s.' % ', '.join('%s from %s' % (
-            {0: 'peace', 1: 'alliance', 2: 'non-aggression'}.get(r['tur'], '?'), (KL.CLANS.get(r['from_clan']) or {}).get('ad', '?'))
+            {0: 'peace', 1: 'alliance', 2: 'non-aggression'}.get(r['type'], '?'), (KL.CLANS.get(r['from_clan']) or {}).get('name', '?'))
             for r in incoming))
     if k.get('applications'):
-        row.append('Applications: %s.' % ', '.join(str(x.get('ad')) for x in k['applications'][:8]))
-    row.append('Description: %s' % (' '.join(str(k.get('aciklama') or '').split())[:200] or '(empty)'))
+        row.append('Applications: %s.' % ', '.join(str(x.get('name')) for x in k['applications'][:8]))
+    row.append('Description: %s' % (' '.join(str(k.get('description') or '').split())[:200] or '(empty)'))
     return '\n'.join(row)
 
 
@@ -137,7 +137,7 @@ def setup_ranks(b, k, kl):
     """Rütbesiz klana 3-4 rütbe (adları botun dilinde, bir takım halinde) ve katmanlarının hakları."""
     if k['ranks']:
         return False
-    names = [a.strip() for a in (raw(b, 'klan_rutbeler') or 'Officer|Veteran|Member|Recruit').split('|') if a.strip()][:4]
+    names = [a.strip() for a in (raw(b, 'clan_ranks') or 'Officer|Veteran|Member|Recruit').split('|') if a.strip()][:4]
     if len(names) < 4:
         names += ['Member', 'Recruit'][len(names) - 2:]
     tiers = [0, 1, 2, 3]
@@ -152,10 +152,10 @@ def setup_ranks(b, k, kl):
         r = find_rank(k, names[i])
         if is_successful(out) and r is not None:
             multiplier[str(r['id'])] = i
-            layout.append({'rankId': r['id'], 'rankName': r['ad'], 'rights': TIER_RIGHTS[i]})
+            layout.append({'rankId': r['id'], 'rankName': r['name'], 'rights': TIER_RIGHTS[i]})
     if layout:
         kl.handle('EditClanRanksRequest', {'ranks': layout})
-        b.event('clan_rank', ad=', '.join(d['rankName'] for d in layout))
+        b.event('clan_rank', name=', '.join(d['rankName'] for d in layout))
     return bool(layout)
 
 
@@ -174,14 +174,14 @@ def assign_roles(y, b, k, kl, now):
     yeniler acemi. Her turda en çok üç değişiklik (bir anda herkes terfi etmesin)."""
     if not save(k).get('rank_tier'):
         return 0
-    avg = sum(int(u.get('seviye', 1)) for u in k['members'].values()) / max(1, len(k['members']))
+    avg = sum(int(u.get('level', 1)) for u in k['members'].values()) / max(1, len(k['members']))
     points = []
     for a, u in k['members'].items():
-        if a == k['lider']:
+        if a == k['leader']:
             continue
         day = seniority_days(u, now)
-        rel = b.memory.relation(u.get('ad', a), now)
-        p = 0.45 * min(1.0, day / 14.0) + 0.35 * rel + 0.2 * max(-1.0, min(1.0, (int(u.get('seviye', 1)) - avg) / 6.0))
+        rel = b.memory.relation(u.get('name', a), now)
+        p = 0.45 * min(1.0, day / 14.0) + 0.35 * rel + 0.2 * max(-1.0, min(1.0, (int(u.get('level', 1)) - avg) / 6.0))
         points.append((p + (0.1 if u.get('contrib_period') else 0), day, rel, a, u))
     points.sort(key=lambda x: -x[0])
     officer = max(1, len(points) // 8)
@@ -189,7 +189,7 @@ def assign_roles(y, b, k, kl, now):
     for i, (p, day, rel, a, u) in enumerate(points):
         multiplier = 0 if i < officer and day >= 2 and rel >= 0.1 else 1 if day >= 5 and p >= 0.35 else 2 if day >= 1 else 3
         rid = _tier_rank(k, multiplier)
-        if rid and int(u.get('rutbe', 0)) != rid:
+        if rid and int(u.get('rank', 0)) != rid:
             if is_successful(kl.handle('EditClanMemberRequest', {'rankId': rid, 'memberId': int(u.get('uid', 0))})):
                 changed += 1
                 if changed >= 3:
@@ -200,20 +200,20 @@ def assign_roles(y, b, k, kl, now):
 def write_description(b, k, kl, now, force=False):
     """Klanın açıklaması: odağı (PvP, PvE, istasyon), kuralı, alım (en düşük seviye ya da dolu). Klanın kimliği değişince yeniden."""
     from . import clan_stations as CBA
-    pvp = b.o('aggression') > 0.6 or any(d['tur'] == 3 for d in k['diplomacy'])
+    pvp = b.o('aggression') > 0.6 or any(d['type'] == 3 for d in k['diplomacy'])
     cbs = CBA.stations(k)
     full = len(k['members']) >= KL.MAX_MEMBERS - 2
     signature = [pvp, bool(cbs), full]
     y = save(k)
     if not force and y.get('description_signature') == signature and now - y.get('description_time', 0) < b.r.uniform(4, 9) * DAY:
         return False
-    avg = sum(int(u.get('seviye', 1)) for u in k['members'].values()) / max(1, len(k['members']))
-    parts = [SPC.template(b, 'klan_aciklama_odak_pvp' if pvp else 'klan_aciklama_odak_pve', klan=k['ad'], etiket=k['etiket'])]
+    avg = sum(int(u.get('level', 1)) for u in k['members'].values()) / max(1, len(k['members']))
+    parts = [SPC.template(b, 'clan_description_focus_pvp' if pvp else 'clan_description_focus_pve', clan=k['name'], tag=k['tag'])]
     if cbs:
-        parts.append(SPC.template(b, 'klan_aciklama_odak_ksi', istasyon=cbs[0]))
+        parts.append(SPC.template(b, 'clan_description_focus_cbs', station=cbs[0]))
     if b.r.random() < 0.8:
-        parts.append(SPC.template(b, 'klan_aciklama_kural'))
-    parts.append(SPC.template(b, 'klan_aciklama_dolu') if full else SPC.template(b, 'klan_aciklama_alim', seviye=max(1, int(avg * 0.6))))
+        parts.append(SPC.template(b, 'clan_description_rules'))
+    parts.append(SPC.template(b, 'clan_description_full') if full else SPC.template(b, 'clan_description_recruiting', level=max(1, int(avg * 0.6))))
     text = '\n'.join(p for p in parts if p)
     if not text or not is_successful(kl.handle('ChangeClanDescriptionRequest', {'desc': text[:2000]})):
         return False
@@ -229,7 +229,7 @@ def announce(b, kl, state, **f):
 
 
 def bulk_mail(b, kl, state, **f):
-    subject, text = SPC.template(b, state + '_konu', **f), SPC.template(b, state, **f)
+    subject, text = SPC.template(b, state + '_subject', **f), SPC.template(b, state, **f)
     return bool(subject and text) and is_successful(kl.handle('ClanSendAllMessageRequest', {'subject': subject[:50], 'msgText': text}))
 
 
@@ -243,14 +243,14 @@ def announce_events(y, b, k, kl, now):
     for i, d in current_time.items():
         if i in seen or first:
             continue
-        name = (KL.CLANS.get(d['klan']) or {}).get('ad', d.get('ad', '?'))
-        state = {1: 'klan_duyuru_ittifak', 2: 'klan_duyuru_saldirmazlik', 3: 'klan_duyuru_savas'}.get(d['tur'])
-        if state and announce(b, kl, state, klan=name) and d['tur'] == 3 and KL.right(b.profile, 'roundmail'):
-            bulk_mail(b, kl, 'klan_posta_savas', klan=name)
+        name = (KL.CLANS.get(d['clan']) or {}).get('name', d.get('name', '?'))
+        state = {1: 'clan_announce_alliance', 2: 'clan_announce_non_aggression', 3: 'clan_announce_war'}.get(d['type'])
+        if state and announce(b, kl, state, clan=name) and d['type'] == 3 and KL.right(b.profile, 'roundmail'):
+            bulk_mail(b, kl, 'clan_mail_war', clan=name)
     for i, d in seen.items():
-        if i not in current_time and d.get('tur') == 3:
-            announce(b, kl, 'klan_duyuru_baris', klan=d.get('ad', '?'))
-    mgmt['diplo_seen'] = {i: {'tur': d['tur'], 'ad': (KL.CLANS.get(d['klan']) or {}).get('ad', d.get('ad', '?'))}
+        if i not in current_time and d.get('type') == 3:
+            announce(b, kl, 'clan_announce_peace', clan=d.get('name', '?'))
+    mgmt['diplo_seen'] = {i: {'type': d['type'], 'name': (KL.CLANS.get(d['clan']) or {}).get('name', d.get('name', '?'))}
                          for i, d in current_time.items()}
 
 
@@ -258,14 +258,14 @@ def set_budget(b, k, now, cbs=None, payment=None, combat=None):
     """Kasanın payları (0-1; toplamı en çok 0,9, kalanı yedek). Verilmeyenleri durum ve kişilik belirler: istasyonu yoksa KSİ
     payı yüksek, savaştaysa savaş; cömert ve az hırslı lider üyelerine daha çok dağıtır."""
     from . import clan_stations as CBA
-    in_combat = any(d['tur'] == 3 for d in k['diplomacy'])
+    in_combat = any(d['type'] == 3 for d in k['diplomacy'])
     if cbs is None:
         cbs = (0.55 if not CBA.stations(k) else 0.3) * (0.7 + 0.6 * b.o('ambition')) if CBA.is_open() else 0.0
     if combat is None:
         combat = 0.25 if in_combat else 0.12 if b.o('aggression') > 0.6 else 0.04
     if payment is None:
         payment = 0.06 + 0.2 * b.o('sociability') * (1 - 0.6 * b.o('ambition'))
-    pay = {'ksi': max(0.0, float(cbs)), 'odeme': max(0.0, float(payment)), 'savas': max(0.0, float(combat))}
+    pay = {'ksi': max(0.0, float(cbs)), 'payment': max(0.0, float(payment)), 'combat': max(0.0, float(combat))}
     top = sum(pay.values())
     if top > 0.9:
         pay = {a: v * 0.9 / top for a, v in pay.items()}
@@ -298,7 +298,7 @@ def set_tax(b, k, kl, now, ratio=None):
 def make_payout(b, k, kl, now):
     """Haftalık ödeme: bütçenin ödeme payı, dönemde en çok vergi veren (en çok 3) üyeye katkısıyla orantılı; dönem sıfırlanır.
     Hiç katkısı olmayan üyenin katkısız sayacı artar (üye çıkarmada)."""
-    pool = spendable(k, 'odeme')
+    pool = spendable(k, 'payment')
     contribution = sorted(((int(u.get('contrib_period', 0)), a, u) for a, u in k['members'].items() if u.get('contrib_period')), key=lambda x: -x[0])[:3]
     paid = []
     if pool >= 100000 and contribution:
@@ -307,14 +307,14 @@ def make_payout(b, k, kl, now):
             amount = min(int(pool * multiplier / top), KL.payout_limit(u, now))
             if amount >= 10000 and is_successful(kl.handle('PayoutClanRequest', {'amount': amount, 'payoutUserId': int(u.get('uid', 0)),
                                                                            'reason': 'top contributor'})):
-                paid.append(u.get('ad', a))
+                paid.append(u.get('name', a))
     with KL.LOCK:
         for a, u in k['members'].items():
             u['no_contribution'] = 0 if u.get('contrib_period') else int(u.get('no_contribution', 0)) + 1
             u['contrib_period'] = 0
     if paid:
-        announce(b, kl, 'klan_duyuru_odeme', adlar=', '.join(paid))
-        b.event('clan_payout', now, adlar=paid)
+        announce(b, kl, 'clan_announce_payout', names=', '.join(paid))
+        b.event('clan_payout', now, names=paid)
     return paid
 
 
@@ -323,9 +323,9 @@ def kick(y, b, k, kl, now, name=None):
     if name is None:
         candidate = None
         for a, u in k['members'].items():
-            if a == k['lider']:
+            if a == k['leader']:
                 continue
-            rel = b.memory.relation(u.get('ad', a), now)
+            rel = b.memory.relation(u.get('name', a), now)
             if rel <= -0.45 or (int(u.get('no_contribution', 0)) >= 3 and a in y.name_index and seniority_days(u, now) > 21):
                 candidate = a
                 break
@@ -337,10 +337,10 @@ def kick(y, b, k, kl, now, name=None):
         return None
     o = y.name_index.get(a)
     if o is not None:
-        o.k['klan'] = None
+        o.k['clan'] = None
         T.update(o)
-    b.event('kicked_from_clan', now, ad=u.get('ad', a))
-    return u.get('ad', a)
+    b.event('kicked_from_clan', now, name=u.get('name', a))
+    return u.get('name', a)
 
 
 def hand_over(y, b, k, kl, now, name=None):
@@ -350,27 +350,27 @@ def hand_over(y, b, k, kl, now, name=None):
         if len(k['members']) < 3 or b.r.random() > 0.02 * (1.2 - b.o('ambition')) * (0.5 + b.mood['fatigue']):
             return None
         officer = {r for r, v in (save(k).get('rank_tier') or {}).items() if v == 0}
-        candidates = [(str(u.get('rutbe', 0)) in officer, b.memory.relation(u.get('ad', a), now), seniority_days(u, now), a)
-                   for a, u in k['members'].items() if a != k['lider']]
+        candidates = [(str(u.get('rank', 0)) in officer, b.memory.relation(u.get('name', a), now), seniority_days(u, now), a)
+                   for a, u in k['members'].items() if a != k['leader']]
         if not candidates:
             return None
         name = max(candidates)[3]
     a, u = find_member(k, name)
-    if u is None or a == k['lider'] or not is_successful(kl.handle('ChangeClanLeaderRequest', {'newLeaderId': int(u.get('uid', 0))})):
+    if u is None or a == k['leader'] or not is_successful(kl.handle('ChangeClanLeaderRequest', {'newLeaderId': int(u.get('uid', 0))})):
         return None
-    b.event('resigned_leadership', now, ad=u.get('ad', a))
-    return u.get('ad', a)
+    b.event('resigned_leadership', now, name=u.get('name', a))
+    return u.get('name', a)
 
 
 def distribute(y, b, k, kl, now):
     """Bir haftadır tek kişi kalan klanı lideri dağıtır (nadir)."""
-    if len(k['members']) > 1 or seniority_days(k['members'].get(k['lider']) or {}, now) < 7 or b.r.random() > 0.1:
+    if len(k['members']) > 1 or seniority_days(k['members'].get(k['leader']) or {}, now) < 7 or b.r.random() > 0.1:
         return False
     if not is_successful(kl.handle('DeleteClanRequest', {})):
         return False
-    b.k['klan'] = None
+    b.k['clan'] = None
     T.update(b)
-    b.event('disbanded_clan', now, klan=k['ad'])
+    b.event('disbanded_clan', now, clan=k['name'])
     return True
 
 
@@ -378,32 +378,32 @@ def weekly_goal(b, k, kl, now):
     """Bütçenin odağına göre haftanın hedefi haber olur (istasyon için para, kasma, PvP)."""
     from . import clan_stations as CBA
     budget = k.get('budget') or {}
-    if CBA.is_open() and budget.get('ksi', 0) >= max(budget.get('savas', 0), 0.3) and not CBA.stations(k):
-        return announce(b, kl, 'klan_duyuru_hedef_ksi')
-    if budget.get('savas', 0) >= 0.2:
-        return announce(b, kl, 'klan_duyuru_hedef_pvp')
-    return announce(b, kl, 'klan_duyuru_hedef_kas')
+    if CBA.is_open() and budget.get('ksi', 0) >= max(budget.get('combat', 0), 0.3) and not CBA.stations(k):
+        return announce(b, kl, 'clan_announce_target_cbs')
+    if budget.get('combat', 0) >= 0.2:
+        return announce(b, kl, 'clan_announce_target_pvp')
+    return announce(b, kl, 'clan_announce_target_farm')
 
 
 def manage(y, b, k, kl, now):
     """Kurallı yönetim (toplum.klan_isleri'nden, sosyal turda): her iş kendi aralığıyla; lider her şeyi, subay haklarınca."""
-    leader = k['lider'] == b.name.lower()
-    if not leader and (not kl.right('news', k) or k['lider'] not in y.name_index):
+    leader = k['leader'] == b.name.lower()
+    if not leader and (not kl.right('news', k) or k['leader'] not in y.name_index):
         return                                            # oyuncunun klanında subay bot klanı yönetmez (lider sensin)
     if leader:
-        if is_due(k, 'rutbe', now):
+        if is_due(k, 'rank', now):
             setup_ranks(b, k, kl)
             if not k.get('logo') and pick_logo(k):
                 KL.changed(k)                             # logo klanlar.json'a (panelin Klanlar sekmesi)
         if is_due(k, 'rol', now):
             assign_roles(y, b, k, kl, now)
-        if is_due(k, 'aciklama', now):
+        if is_due(k, 'description', now):
             write_description(b, k, kl, now)
         if is_due(k, 'budget', now) or not k.get('budget'):
             set_budget(b, k, now)
         if is_due(k, 'tax', now):
             set_tax(b, k, kl, now)
-        if is_due(k, 'odeme', now) and seniority_days(k['members'].get(k['lider']) or {}, now) >= 6:
+        if is_due(k, 'payment', now) and seniority_days(k['members'].get(k['leader']) or {}, now) >= 6:
             make_payout(b, k, kl, now)
         if is_due(k, 'kick', now):
             kick(y, b, k, kl, now)
@@ -413,5 +413,5 @@ def manage(y, b, k, kl, now):
     CBA.manage(y, b, k, kl, now)                            # Klan Savaş İstasyonu: yarış, gelişme, savunma (kurma hakkıyla)
     if is_due(k, 'announcement', now):
         announce_events(y, b, k, kl, now)
-    if is_due(k, 'hedef', now, INTERVALS['hedef'] * b.r.uniform(0.8, 1.4)):
+    if is_due(k, 'target', now, INTERVALS['target'] * b.r.uniform(0.8, 1.4)):
         weekly_goal(b, k, kl, now)

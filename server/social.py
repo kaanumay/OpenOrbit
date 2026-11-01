@@ -119,14 +119,14 @@ class Social:
         ok = self.chat.authenticate(ep, self.chat_user(), self.rooms(), lang)
         if ok and not self.welcomed:                  # harita değişiminde istemci yeniden bağlanabilir: duyuru oturumda bir kez
             self.welcomed = True
-            mode = 'tek' if not CO.is_open() else 'arkadas' if CO.SETTINGS['guest'] else 'multi'    # coklu: çoklu istemci (bu bilgisayar)
-            text = {'tek': '%s, yerel sunucuya hoş geldin. Burada sohbet, posta, klan ve müzayede tek oyunculudur.',
-                    'arkadas': '%s, arkadaş sunucusuna hoş geldin. Sohbet, posta, grup, rehber, klanlar ve sıralamalar ortak; '
+            mode = 'single' if not CO.is_open() else 'friend' if CO.SETTINGS['guest'] else 'multi'    # coklu: çoklu istemci (bu bilgisayar)
+            text = {'single': '%s, yerel sunucuya hoş geldin. Burada sohbet, posta, klan ve müzayede tek oyunculudur.',
+                    'friend': '%s, arkadaş sunucusuna hoş geldin. Sohbet, posta, grup, rehber, klanlar ve sıralamalar ortak; '
                                'müzayede her oyuncunun kendisinin.',
                     'multi': '%s, yerel sunucuya hoş geldin. Bu bilgisayardaki öteki kayıtlarınla aynı evrendesin: sohbet, posta, grup, '
                              'rehber, klanlar ve sıralamalar ortak; müzayede her oyuncunun kendisinin.'}[mode] if lang == 'tr' else {
-                    'tek': '%s, welcome to your local server. Chat, mail, clan and auction are single-player here.',
-                    'arkadas': "%s, welcome to your friend's server. Chat, mail, groups, contacts, clans and rankings are shared; "
+                    'single': '%s, welcome to your local server. Chat, mail, clan and auction are single-player here.',
+                    'friend': "%s, welcome to your friend's server. Chat, mail, groups, contacts, clans and rankings are shared; "
                                "auction is each player's own.",
                     'multi': '%s, welcome to your local server. You share this universe with your other saves on this computer: chat, '
                              "mail, groups, contacts, clans and rankings are shared; auction is each player's own."}[mode]

@@ -18,11 +18,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 _PATH = os.path.join(HERE, 'data', 'extra_events.json')
 D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('invasion', {})
 EVENT = 'invasion'
-MAPS = {int(m): k for k, g in (D.get('kapilar') or {}).items() for m in g['haritalar']}
+MAPS = {int(m): k for k, g in (D.get('kapilar') or {}).items() for m in g['maps']}
 
 for _k, _g in (D.get('kapilar') or {}).items():           # game.py EKP.register_npcs'den önce: uzaylı türleri de kaydedilir
     EKP.GATES[_k] = _g
-    for _m in _g['haritalar']:
+    for _m in _g['maps']:
         EKP.BY_MAP[int(_m)] = _k
 
 
@@ -41,17 +41,17 @@ class Invasion:
     @property
     def st(self):
         d = self.p.d.setdefault('invasion', {})
-        d.setdefault('puan', {'1': 0, '2': 0, '3': 0})
-        d.setdefault('dalga', 0)
+        d.setdefault('points', {'1': 0, '2': 0, '3': 0})
+        d.setdefault('wave', 0)
         return d
 
     def faction(self):
         return str(self.p.d['pilot'].get('factionId', 2))
 
     def info_cmd(self):
-        s = self.st['puan']
+        s = self.st['points']
         return ('InvasionEventInitCommand', {'score_MMO': int(s['1']), 'score_EIC': int(s['2']), 'score_VRU': int(s['3']),
-                                             'waveCount': int(self.st['dalga'])})
+                                             'waveCount': int(self.st['wave'])})
 
     def on_map(self):
         return self.world is not None and int(self.world.map_id) in MAPS
@@ -72,7 +72,7 @@ class Invasion:
         if not active() or int(w.map_id) not in MAPS or not getattr(npc, 'gate', False):
             return []
         with self.p.lock:
-            self.st['puan'][self.faction()] += 1               # uzaylı başına firmaya 1 puan
+            self.st['points'][self.faction()] += 1               # uzaylı başına firmaya 1 puan
             self.p.dirty = True
         return []
 
@@ -82,16 +82,16 @@ class Invasion:
             return []
         from legacy_protocol import legacy
         with self.p.lock:
-            self.st['dalga'] = total
+            self.st['wave'] = total
             self.p.dirty = True
         return [self.info_cmd(), legacy('0|A|STM|atk_wave_started|%%COUNT%%|%d' % (total + 1))]
 
     def tick(self, now):
         if not active(now):
             return self.event_end(now)
-        if self.st.get('donem') is None:
+        if self.st.get('period') is None:
             with self.p.lock:
-                self.st['donem'] = (CAL.period(EVENT, now) or (now,))[0]
+                self.st['period'] = (CAL.period(EVENT, now) or (now,))[0]
                 self.p.dirty = True
         msgs = []
         if now >= self.next_score:                         # sanal puanlar: öteki firmalar ve oyuncunun firmasının sanal ekibi
@@ -99,7 +99,7 @@ class Invasion:
             lo, hi = D.get('minute_points', [20, 60])
             with self.p.lock:
                 for f in ('1', '2', '3'):
-                    self.st['puan'][f] += random.randint(lo, hi)
+                    self.st['points'][f] += random.randint(lo, hi)
                 self.p.dirty = True
         if self.on_map() and now >= self.next_info:
             self.next_info = now + 30
@@ -109,16 +109,16 @@ class Invasion:
     def event_end(self, now):
         """Etkinlik bitti: firmanın sırasına göre hasar boosterı (bir kez)."""
         st = self.p.d.get('invasion')
-        if not st or st.get('donem') is None:
+        if not st or st.get('period') is None:
             return []
-        order = sorted(st['puan'], key=lambda f: -st['puan'][f])
+        order = sorted(st['points'], key=lambda f: -st['points'][f])
         rank = order.index(self.faction())
         msgs = []
         rows = D.get('reward', [])
         if rank < len(rows):
             loot, hours = rows[rank]
             msgs += self.m.reward(loot, hours)
-            self.log('   Invasion bitti: firma %d. (%s), ödül %s %d saat' % (rank + 1, st['puan'], loot, hours))
+            self.log('   Invasion bitti: firma %d. (%s), ödül %s %d saat' % (rank + 1, st['points'], loot, hours))
         with self.p.lock:
             self.p.d['invasion'] = {}
             self.p.dirty = True

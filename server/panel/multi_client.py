@@ -2,7 +2,7 @@
 
 Oyun sunucusu çok oturumlu kipte açılır (panel ayarı coklu_istemci açık ve en az iki kayıt varsa; arkadaş sunucusunda zaten öyle).
 Ek istemcinin kaydı sunucuya POST /yerel/ekle ile eklenir (server/multiplayer.py: sunucu yuvanın profil.json'una doğrudan yazar;
-kimliği başka bir oyuncununkiyle aynıysa bellekte geçici kimlik), istemci http://127.0.0.1:8090/?oturum=<anahtar>#darkorbit:// ile
+kimliği başka bir oyuncununkiyle aynıysa bellekte geçici kimlik), istemci http://127.0.0.1:8090/?session=<anahtar>#darkorbit:// ile
 açılır (web.py anahtarı sunucuya sorar). İstemci kapanınca POST /yerel/cikar: son hâl yazılır, yuva serbest kalır. Ek istemciler
 pencere kipinde açılır, pencere başlığı pilotun adı; günlükleri logs/client_<kayıt>.log. Ana kayıt, açık bir kayıt, aynı pilot adı
 ve sınırın üstü reddedilir; ek istemci açıkken sunucuyu yeniden başlatan işler panelde engellenir (panel.py).
@@ -73,9 +73,9 @@ class MultiClient:
             for s, e in self.is_open.items():
                 y = lv.get(s) or {}
                 out.append({'record': s, 'pilot': e['pilot'], 'pid': e['proc'].pid if e['proc'] else None,
-                            'durum': 'aciliyor' if e['proc'] is None else 'on' if e['proc'].poll() is None else 'closing',
+                            'state': 'aciliyor' if e['proc'] is None else 'on' if e['proc'].poll() is None else 'closing',
                             'sure_sn': int(now - e['start']),
-                            'connected': bool(y.get('connected')), 'harita': y.get('harita'), 'seviye': y.get('seviye'), 'uid': e['uid']})
+                            'connected': bool(y.get('connected')), 'map': y.get('map'), 'level': y.get('level'), 'uid': e['uid']})
             return {'clients': out, 'last': dict(self.last)}
 
     # ------------------------------------------------------------ açma ve kapatma
@@ -94,7 +94,7 @@ class MultiClient:
             n = self.cfg.get('multi_client_max')
             if len(self.live()) >= n:
                 raise MultiClientError(_('At most %d extra clients can be open (Client > Multi-client).', n))
-            self.is_open[slot] = {'proc': None, 'oturum': None, 'uid': None, 'start': time.time(), 'pilot': '', 'daily': None}
+            self.is_open[slot] = {'proc': None, 'session': None, 'uid': None, 'start': time.time(), 'pilot': '', 'daily': None}
         out = None
         try:
             summary = self.saves.summary(slot)
@@ -109,20 +109,20 @@ class MultiClient:
             daily = os.path.join(self.logs, 'client_%s.log' % slot)
             import launcher
             launcher.rotate_logs(self.logs, names=(os.path.basename(daily),))
-            cmd, env = IST.command(self.cfg, folder, daily, session=out['oturum'], window=True)
+            cmd, env = IST.command(self.cfg, folder, daily, session=out['session'], window=True)
             proc = PR.open_client(folder, cmd, env, self.logs)
         except Exception:
             with self.lock:
                 self.is_open.pop(slot, None)
-            if out and out.get('oturum'):            # sunucuya kaydolduysa bırakılsın (yoksa kayıt düzenlenebilir sanılıyordu)
+            if out and out.get('session'):            # sunucuya kaydolduysa bırakılsın (yoksa kayıt düzenlenebilir sanılıyordu)
                 try:
-                    self.request('/yerel/cikar', {'oturum': out['oturum']})
+                    self.request('/yerel/cikar', {'session': out['session']})
                 except Exception:
                     pass
             raise
         pilot = summary.get('pilot') or slot
         with self.lock:
-            self.is_open[slot].update(proc=proc, oturum=out['oturum'], uid=out['uid'], start=time.time(), pilot=pilot, daily=daily)
+            self.is_open[slot].update(proc=proc, session=out['session'], uid=out['uid'], start=time.time(), pilot=pilot, daily=daily)
         m = self.saves.meta(slot)
         self.saves.set_meta(slot, last_played=time.strftime('%Y-%m-%d %H:%M:%S'), play_count=int(m.get('play_count') or 0) + 1)
         PR.window_title(proc.pid, 'DarkOrbit — %s' % pilot)
@@ -136,9 +136,9 @@ class MultiClient:
         with self.lock:
             e = self.is_open.get(slot)
         stop = time.time() - (e['start'] if e else time.time())
-        if e and e['oturum'] and self.direction.running():
+        if e and e['session'] and self.direction.running():
             try:
-                c, out = self.request('/yerel/cikar', {'oturum': e['oturum']})
+                c, out = self.request('/yerel/cikar', {'session': e['session']})
                 if c not in (200, 404):
                     self.log('ek istemcinin kaydı bırakılamadı (%s): %s' % (c, out))
             except MultiClientError as err:
@@ -147,7 +147,7 @@ class MultiClient:
             if self.is_open.get(slot, {}).get('proc') is proc:
                 self.is_open.pop(slot, None)
             self.last[slot] = {'sure_sn': int(stop), 'early': stop < EARLY_SEC and not (e or {}).get('closed'), 'code': code,
-                              'time': time.strftime('%H:%M:%S'), 'bitis': time.time()}      # panelden kapatılan erken sayılmaz
+                              'time': time.strftime('%H:%M:%S'), 'end_time': time.time()}      # panelden kapatılan erken sayılmaz
         self.log('ek istemci kapandı: %s (%d sn, kod %s)' % (slot, stop, code))
         if self.on_exit:
             try:

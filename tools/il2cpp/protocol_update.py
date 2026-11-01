@@ -89,11 +89,11 @@ def compare(old_dir, new_dir):
     pn = json.load(open(os.path.join(new_dir, 'protocol.json'), encoding='utf8'))
     ro = {v['name']: v['steps'] for v in json.load(open(os.path.join(old_dir, 'protocol_read.json'), encoding='utf8')).values()}
     rn = {v['name']: v['steps'] for v in json.load(open(os.path.join(new_dir, 'protocol_read.json'), encoding='utf8')).values()}
-    d = {'added': sorted(set(pn) - set(po)), 'deleted': sorted(set(po) - set(pn)), 'kimlik': [], 'fields': [], 'write': [], 'read': []}
+    d = {'added': sorted(set(pn) - set(po)), 'deleted': sorted(set(po) - set(pn)), 'uid': [], 'fields': [], 'write': [], 'read': []}
     for k in sorted(set(po) & set(pn)):
         a, b = po[k], pn[k]
         if a.get('id') != b.get('id'):
-            d['kimlik'].append((k, a.get('id'), b.get('id')))
+            d['uid'].append((k, a.get('id'), b.get('id')))
         if a.get('fields') != b.get('fields'):
             fa, fb = [tuple(f[:2]) for f in a.get('fields', [])], [tuple(f[:2]) for f in b.get('fields', [])]
             d['fields'].append((k, [f for f in fb if f not in fa], [f for f in fa if f not in fb],
@@ -112,13 +112,13 @@ def write_report(give, d, fixed, left, used, path):
          '`tools/il2cpp/protocol_update.py` ile üretildi (%s). Yeni dosyalar `server/data/protokol/%s/`. Önce "sunucuda '
          'kullanılıyor" işaretlilere bakılmalı.' % (time.strftime('%Y-%m-%d %H:%M'), give), '',
          '| | Sayı |', '|---|---|']
-    for key, name in (('added', 'Eklenen mesaj'), ('deleted', 'Silinen mesaj'), ('kimlik', 'Kimliği değişen'),
+    for key, name in (('added', 'Eklenen mesaj'), ('deleted', 'Silinen mesaj'), ('uid', 'Kimliği değişen'),
                     ('fields', 'Alanları değişen'), ('write', 'Kodlaması (write) değişen'), ('read', 'Okuma adımları değişen')):
         L.append('| %s | %d |' % (name, len(d[key])))
     L.append('| Düzeltilen belirsiz alan | %d |' % len(fixed))
     L.append('| Kalan belirsiz alan | %d |' % len(left))
     L += ['', '## Silinen mesajlar', ''] + ['- `%s`%s' % (short(k), mark(k)) for k in d['deleted']] or ['—']
-    L += ['', '## Kimliği değişen', ''] + ['- `%s`: %s -> %s%s' % (short(k), a, b, mark(k)) for k, a, b in d['kimlik']]
+    L += ['', '## Kimliği değişen', ''] + ['- `%s`: %s -> %s%s' % (short(k), a, b, mark(k)) for k, a, b in d['uid']]
     L += ['', '## Alanları değişen', '']
     for k, add, rem, order in d['fields']:
         L.append('- `%s`%s: eklenen %s; silinen %s%s' % (short(k), mark(k), ', '.join('%s %s' % f for f in add) or '—',
@@ -160,8 +160,8 @@ def run(folder, do_apply=False, log=print):
     rep = os.path.join(ROOT, 'belgeler', 'istemci', 'protokol_farki_%s.md' % give)
     write_report(give, d, fixed, left, server_names(), rep)
     summary = {k: len(v) for k, v in d.items()}
-    summary.update(duzeltilen=len(fixed), ambiguous=len(left), surum=give, report=rep)
-    log('   fark: %s' % json.dumps({k: v for k, v in summary.items() if k not in ('report', 'surum')}, ensure_ascii=False))
+    summary.update(duzeltilen=len(fixed), ambiguous=len(left), version=give, report=rep)
+    log('   fark: %s' % json.dumps({k: v for k, v in summary.items() if k not in ('report', 'version')}, ensure_ascii=False))
     log('   rapor: %s' % rep)
     if do_apply:
         apply(give, log)

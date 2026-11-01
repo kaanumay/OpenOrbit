@@ -96,7 +96,7 @@ def _day(text, plus=0):
 
 
 # gerçek tarihleri bilinen sezonlar: ((yıl, ay), başlangıç, bitiş ya da None = ay kuralının sonu); bitiş günü dahil
-WINDOWS = [(tuple(int(x) for x in w['id'].split('-')), _day(w['baslangic']), _day(w['bitis'], 1) if w.get('bitis') else None)
+WINDOWS = [(tuple(int(x) for x in w['id'].split('-')), _day(w['start']), _day(w['end_time'], 1) if w.get('end_time') else None)
            for w in S.get('calendar', [])]
 
 
@@ -135,7 +135,7 @@ ACTIVE = {}                 # oynanan sezon {sid, bitis} (Sezon.ensure yazar): b
 
 def current_end(now=None):
     """Oynanan sezonun bitişi (kayda özgü); bilinmiyorsa takvimin sezonununki."""
-    return ACTIVE.get('bitis') or season_end(now)
+    return ACTIVE.get('end_time') or season_end(now)
 
 
 def achievement_group(now=None):
@@ -149,7 +149,7 @@ def achievement_group(now=None):
     for aid, a in BS.ACH.items():
         m = re.match(r'achievement_seasonpass_(\d{4})(\d{2})$', aid)
         if m and (int(m.group(1)), int(m.group(2))) <= start and (best is None or m.groups() > best[0]):
-            best = (m.groups(), a['grup'])
+            best = (m.groups(), a['group'])
     return best[1] if best else None
 
 
@@ -178,7 +178,7 @@ def threshold(lv):
 
 
 def pool(qtype, gold):
-    return sorted(q for q, m in MISSIONS.items() if m['tur'] == qtype and m['gold'] == gold)
+    return sorted(q for q, m in MISSIONS.items() if m['type'] == qtype and m['gold'] == gold)
 
 
 def pick(qtype, seed, counts, exclude=()):
@@ -236,52 +236,52 @@ class Season:
 
     def track(self, key):
         """Sezonun ödül sırası: kayıttakinin sezon tasarımları sezonun sırasındakilerle (etkinlik_gorunumleri.season_track)."""
-        return EG.season_track(key, S['reward'][key], self.st.get('donem') or seasons()[-1])
+        return EG.season_track(key, S['reward'][key], self.st.get('period') or seasons()[-1])
 
     def end(self):
         """Oynanan sezonun bitişi: başlangıcı + panelin süresi."""
         return self.st.get('start', time.time()) + duration()
 
     def ended(self, now):
-        return bool(self.st.get('donem')) and (not self.st.get('start') or now >= self.end())
+        return bool(self.st.get('period')) and (not self.st.get('start') or now >= self.end())
 
     def ensure(self, now=None):
         """Sezon, gün ve hafta değiştiyse yenile -> bildirilecek mesajlar."""
         now = time.time() if now is None else now
         st, msgs = self.st, []
-        if '-Q' in st.get('donem', ''):             # eski biçim (takvim çeyreği): çeyreğin ilk gününün sezonu (ilerleme silinmesin)
-            y, q = st['donem'].split('-Q')
+        if '-Q' in st.get('period', ''):             # eski biçim (takvim çeyreği): çeyreğin ilk gününün sezonu (ilerleme silinmesin)
+            y, q = st['period'].split('-Q')
             with self.p.lock:
-                st['donem'] = season_id(datetime.datetime(int(y), int(q) * 3 - 2, 1).timestamp())
-        if st.get('donem') and not st.get('start'):    # takvime bağlı eski kayıt: ilerlemesi kalır, sezonu bugünden sürer
+                st['period'] = season_id(datetime.datetime(int(y), int(q) * 3 - 2, 1).timestamp())
+        if st.get('period') and not st.get('start'):    # takvime bağlı eski kayıt: ilerlemesi kalır, sezonu bugünden sürer
             with self.p.lock:
                 st['start'] = now
-                st.setdefault('played', [st['donem']])
+                st.setdefault('played', [st['period']])
                 self.p.dirty = True
-        if not st.get('donem') or self.ended(now):
+        if not st.get('period') or self.ended(now):
             wait, played = [], list(st.get('played', []))
-            if st.get('donem'):
+            if st.get('period'):
                 ended, wait = self.close_season()
                 msgs += ended
-            sid = next_season(played, bool(self.p.d.get('ilerlemeli')), now)
+            sid = next_season(played, bool(self.p.d.get('progressive')), now)
             with self.p.lock:
                 st.clear()
-                st.update(donem=sid, start=now, played=played + [sid], puan=0, gold=False, ext=False,
-                          claimed={k: [] for k, g, e in TRACKS}, value={}, tamam=[], seasonal=pool(SEASON, False) + pool(SEASON, True),
-                          renewal={'gun': 0, 'hafta': 0}, pending=wait)
+                st.update(period=sid, start=now, played=played + [sid], points=0, gold=False, ext=False,
+                          claimed={k: [] for k, g, e in TRACKS}, value={}, done=[], seasonal=pool(SEASON, False) + pool(SEASON, True),
+                          renewal={'day': 0, 'week': 0}, pending=wait)
                 self.p.dirty = True
-            self.log('   Season Pass sezonu başladı: %s (%s, %d gün)' % (sid, EG.season(sid)['ad'], duration() // 86400))
+            self.log('   Season Pass sezonu başladı: %s (%s, %d gün)' % (sid, EG.season(sid)['name'], duration() // 86400))
             msgs += self.activate_items()
-        ACTIVE.update(sid=st['donem'], bitis=self.end())
+        ACTIVE.update(sid=st['period'], end_time=self.end())
         # havuzdan kalkmış görev kimlikleri (havuz wiki'ye göre yenilendi): liste yeniden çekilir, eski ilerleme silinir
         if any(q not in MISSIONS for q in st.get('daily', [])):
-            st['gun'] = None
+            st['day'] = None
         if any(q not in MISSIONS for q in st.get('weekly', [])):
-            st['hafta'] = None
-        if st.get('gun') != day_id(now):
-            self.reset_list('daily', DAILY, DAILY_N, 'gun', day_id(now))
-        if st.get('hafta') != week_id(now):
-            self.reset_list('weekly', WEEKLY, WEEKLY_N, 'hafta', week_id(now))
+            st['week'] = None
+        if st.get('day') != day_id(now):
+            self.reset_list('daily', DAILY, DAILY_N, 'day', day_id(now))
+        if st.get('week') != week_id(now):
+            self.reset_list('weekly', WEEKLY, WEEKLY_N, 'week', week_id(now))
         return msgs
 
     def reset_list(self, key, qtype, counts, stamp_key, stamp):
@@ -289,9 +289,9 @@ class Season:
         with self.p.lock:
             for q in st.get(key, []):
                 st['value'].pop(str(q), None)
-                if q in st['tamam']:
-                    st['tamam'].remove(q)
-            st[key] = pick(qtype, '%s|%s' % (st['donem'], stamp), counts)
+                if q in st['done']:
+                    st['done'].remove(q)
+            st[key] = pick(qtype, '%s|%s' % (st['period'], stamp), counts)
             st[stamp_key] = stamp
             st['renewal'][stamp_key] = 0
             self.p.dirty = True
@@ -301,14 +301,14 @@ class Season:
         return st.get('daily', []) + st.get('weekly', []) + st.get('seasonal', [])
 
     def level(self):
-        return level_of(self.st.get('puan', 0))
+        return level_of(self.st.get('points', 0))
 
     def image(self):
         """Pencerenin görseli: oynanan sezonunki (resmî CDN'de olmayanlarda kayıttaki)."""
-        return S['images'].get(self.st.get('donem'), S['visual'])
+        return S['images'].get(self.st.get('period'), S['visual'])
 
     def status_code(self, qid):
-        gold, done = MISSIONS[qid]['gold'], qid in self.st['tamam']
+        gold, done = MISSIONS[qid]['gold'], qid in self.st['done']
         if not gold:
             return 3 if done else 0
         if self.st.get('gold'):
@@ -319,7 +319,7 @@ class Season:
     def status_cmd(self, now=None, tips=False):
         st = self.st
         return ('SeasonPassStatusCommand', dict(pointsCost=list(COST), uridiumCost=list(UCOST), goldPass=bool(st.get('gold')),
-                                                showTips=tips, marketingImage=self.image(), seasonName=S['ad'],
+                                                showTips=tips, marketingImage=self.image(), seasonName=S['name'],
                                                 extGoldPass=bool(st.get('ext')),
                                                 timeToEventEnd=max(0, int(self.end() - (time.time() if now is None else now)))))
 
@@ -334,33 +334,33 @@ class Season:
 
     def refresh_info(self):
         y = self.st['renewal']
-        free_left = max(0, 1 - y.get('gun', 0))
+        free_left = max(0, 1 - y.get('day', 0))
         return mod('RefreshQuestInfo', nextDailyUridium=-1 if free_left else refresh_price(self.paid_refreshes('daily')), weeklyCount=0,
                    dailyLeft=free_left, dailyCount=1, nextWeeklyUridium=refresh_price(self.paid_refreshes('weekly')), weeklyLeft=0)
 
     def paid_refreshes(self, key):
         """Bu gün (günlük) ya da hafta (haftalık) satın alınmış yenileme sayısı (günlüğün ilki ücretsiz)."""
         y = self.st['renewal']
-        return max(0, y.get('gun', 0) - 1) if key == 'daily' else y.get('hafta', 0)
+        return max(0, y.get('day', 0) - 1) if key == 'daily' else y.get('week', 0)
 
     def mission_cmd(self):
         st = self.st
         items = [mod('SeasonPassMissionModule', missionStatus=mod('SeasonPassMissionStatusModule', type=self.status_code(q)),
-                     questDefinitionModule=GT.with_state(MISSIONS[q]['definition'], st['value'].get(str(q), {}), q in st['tamam']))
+                     questDefinitionModule=GT.with_state(MISSIONS[q]['definition'], st['value'].get(str(q), {}), q in st['done']))
                  for q in self.missions()]
         return ('SeasonPassMissionInfoCommand', dict(refreshInfo=self.refresh_info(), missionInfoType=0, missionItems=items))
 
     def points_cmd(self):
-        return ('SeasonPointsInfoCommand', {'points': int(self.st.get('puan', 0))})
+        return ('SeasonPointsInfoCommand', {'points': int(self.st.get('points', 0))})
 
     def login_msgs(self):
         msgs = self.ensure()
         # showTips: istemci (UIMainCenterNewSystem.InitWindows) girişte pencereyi açar, bayrağı yalnız kendinde siler. Hiç
         # kaydedilmediği için pencere her girişte açılıyordu (canlı test H56): sezonda bir kez, ipucu yeni sezonda sıfırlanır
-        tips = not self.st.get('ipucu')
+        tips = not self.st.get('tooltip')
         if tips:
             with self.p.lock:
-                self.st['ipucu'] = True
+                self.st['tooltip'] = True
                 self.p.dirty = True
         self.level_event()                                          # başarım (eski profiller: seviye zaten 50'yi geçmiş olabilir)
         return msgs + [self.status_cmd(tips=tips), self.mission_cmd(), self.points_cmd(), self.reward_cmd()] + self.unclaimed_msgs()
@@ -379,16 +379,16 @@ class Season:
             return []
         return [('SeasonPassRewardUnclaimedInfoCommand', dict(captainLimit=NV.D['max_roster'], captainPending=wait,
                                                               captainOwned=self.roster(), captainWarning=self.roster_full('captain_', wait),
-                                                              spcId=0, marketingImage=self.image(), seasonName=S['ad']))]
+                                                              spcId=0, marketingImage=self.image(), seasonName=S['name']))]
 
     # ------------------------------------------------------------ puan ve Gold Pass
     def add_points(self, n, bought=False):
         """Puan ekler. bought: puan paketinden; azami seviyenin üstüne taşan kısmı 1 puan = 10 Onur olur (wiki)."""
         old = self.level()
         with self.p.lock:
-            total = self.st.get('puan', 0) + n
+            total = self.st.get('points', 0) + n
             excess = min(n, max(0, total - threshold(MAX_LEVEL))) if bought else 0
-            self.st['puan'] = total - excess
+            self.st['points'] = total - excess
             self.p.dirty = True
         msgs = []
         if excess:
@@ -396,17 +396,17 @@ class Season:
             if self.m:
                 msgs += self.m.reward('currency_honour', honor)
             else:
-                self.p.gain(onur=honor)
+                self.p.gain(honor=honor)
             self.log('   Season Pass puanı azami seviyeyi aştı: %d puan -> %d Onur' % (excess, honor))
         if self.level() > old:
-            self.log('   Season Pass seviyesi %d (%d puan)' % (self.level(), self.st['puan']))
+            self.log('   Season Pass seviyesi %d (%d puan)' % (self.level(), self.st['points']))
             self.level_event()
             return msgs + [self.points_cmd(), self.reward_cmd()]       # ızgara yalnız ödül listesiyle açılır (canlı test H44)
         return msgs + [self.points_cmd()]
 
     def level_event(self):
         """Başarım: Gold Season Pass'in seviyesi (LevelAbsolute; Gold Pass yoksa 0)."""
-        self.p.ach('season_level', value=self.level() if self.st.get('gold') else 0, grup=achievement_group())
+        self.p.ach('season_level', value=self.level() if self.st.get('gold') else 0, group=achievement_group())
 
     def activate_items(self):
         """Depodaki Gold / Extra Gold Pass bu sezona (Extra yalnız Gold'dan sonra) -> mesajlar."""
@@ -417,17 +417,17 @@ class Season:
             with self.p.lock:
                 st['gold'] = True
                 self.p.dirty = True
-            pend = [q for q in self.missions() if MISSIONS[q]['gold'] and q in st['tamam']]
+            pend = [q for q in self.missions() if MISSIONS[q]['gold'] and q in st['done']]
             for q in pend:                                          # Gold Pass'ten önce biten Gold görevlerinin puanı
                 msgs += self.add_points(points_of(q))
-            self.log('   Gold Pass etkin (%s)%s' % (st['donem'], ', %d görevin puanı' % len(pend) if pend else ''))
+            self.log('   Gold Pass etkin (%s)%s' % (st['period'], ', %d görevin puanı' % len(pend) if pend else ''))
             self.level_event()                                      # Gold Pass'ten önce ulaşılan seviye de sayılır
         if st.get('gold') and not st.get('ext') and self.p.resource(EXT_ITEM) > 0:
             self.p.add_resource(EXT_ITEM, -1)
             with self.p.lock:
                 st['ext'] = True
                 self.p.dirty = True
-            self.log('   Extra Gold Pass etkin (%s)' % st['donem'])
+            self.log('   Extra Gold Pass etkin (%s)' % st['period'])
         return msgs
 
     def grant(self, loot, n):
@@ -457,7 +457,7 @@ class Season:
         msgs, done = [], []
         st = self.st
         for q in self.missions():
-            if q in st['tamam']:
+            if q in st['done']:
                 continue
             vals = st['value'].setdefault(str(q), {})
             m, fin = GT.advance(self.p, MISSIONS[q]['definition']['rootCase'], vals, kind, kw, self.map_id)
@@ -467,16 +467,16 @@ class Season:
         for q in done:
             msgs += self.complete(q)
         for q in done:                                              # sezon görevleri: N günlük/haftalık bitir
-            msgs += self._event('sp_quest', dict(category=GT.SP_CATEGORY[MISSIONS[q]['tur']]))
+            msgs += self._event('sp_quest', dict(category=GT.SP_CATEGORY[MISSIONS[q]['type']]))
         return msgs
 
     def complete(self, qid):
         st = self.st
         with self.p.lock:
-            if qid not in st['tamam']:
-                st['tamam'].append(qid)
+            if qid not in st['done']:
+                st['done'].append(qid)
             self.p.dirty = True
-        qt = MISSIONS[qid]['tur']
+        qt = MISSIONS[qid]['type']
         msgs = [legacy('0|A|STM|%s' % DONE_TEXT[qt]), ('QuestCompletedCommand', {'id': qid, 'rating': 0})]
         locked = MISSIONS[qid]['gold'] and not st.get('gold')
         if not locked:
@@ -560,9 +560,9 @@ class Season:
         if not n or pl.get('uridium', 0) < cost:
             self.log('   Season Pass seviyesi alınamadı: %d seviye, %d U' % (n, cost))
             return [('SeasonPassLevelPurchaseCommand', {'success': False})]
-        tot = self.p.gain(uridyum=-cost, neden='buy_SPECIAL', detay='season_pass_level')
+        tot = self.p.gain(uridium=-cost, reason='buy_SPECIAL', detail='season_pass_level')
         with self.p.lock:
-            self.st['puan'] = max(self.st.get('puan', 0), threshold(cur + n))
+            self.st['points'] = max(self.st.get('points', 0), threshold(cur + n))
             self.p.dirty = True
         self.log('   Season Pass: %d seviye alındı (%d U) -> %d' % (n, cost, self.level()))
         self.level_event()
@@ -574,19 +574,19 @@ class Season:
         self.ensure()
         st, qid = self.st, int(f.get('questId') or 0)
         key = 'daily' if qid in st.get('daily', []) else 'weekly' if qid in st.get('weekly', []) else None
-        if not key or qid in st['tamam']:
+        if not key or qid in st['done']:
             return [self.mission_cmd()]
-        stamp = 'gun' if key == 'daily' else 'hafta'
-        free = key == 'daily' and st['renewal'].get('gun', 0) < 1
+        stamp = 'day' if key == 'daily' else 'week'
+        free = key == 'daily' and st['renewal'].get('day', 0) < 1
         cost = 0 if free else refresh_price(self.paid_refreshes(key))
-        qt, gold = MISSIONS[qid]['tur'], MISSIONS[qid]['gold']
+        qt, gold = MISSIONS[qid]['type'], MISSIONS[qid]['gold']
         cands = [q for q in pool(qt, gold) if q not in st[key]]
         if not cands:                                              # değişecek görev yok: bedel alınmaz
             return [self.mission_cmd()]
         if cost:
             if self.p.d['pilot'].get('uridium', 0) < cost:
                 return [legacy('0|A|STM|not_enough_uridium'), self.mission_cmd()]
-            self.p.gain(uridyum=-cost, neden='buy_SPECIAL', detay='season_pass_refresh')
+            self.p.gain(uridium=-cost, reason='buy_SPECIAL', detail='season_pass_refresh')
         new = random.choice(cands)
         with self.p.lock:
             st[key][st[key].index(qid)] = new
@@ -609,7 +609,7 @@ class Season:
                 if got is not None:
                     msgs += got
                     n += 1
-        self.log('   Season Pass sezonu bitti (%s): %d ödül verildi, %d N.O.V.A. bekliyor' % (self.st.get('donem'), n, len(wait)))
+        self.log('   Season Pass sezonu bitti (%s): %d ödül verildi, %d N.O.V.A. bekliyor' % (self.st.get('period'), n, len(wait)))
         return msgs + [legacy('0|A|STM|sp_season-has-ended_description')], wait
 
     def handle(self, name, f):
@@ -618,7 +618,7 @@ class Season:
         return fn(f) if fn else None
 
     def tick(self, now):
-        if self.p.d.get('season') and (self.st.get('gun') != day_id(now) or self.ended(now)):
+        if self.p.d.get('season') and (self.st.get('day') != day_id(now) or self.ended(now)):
             ended = self.ended(now)
             msgs = self.ensure(now) + [self.status_cmd(now), self.mission_cmd(), self.points_cmd(), self.reward_cmd()]
             msgs += self.unclaimed_msgs() if ended else []

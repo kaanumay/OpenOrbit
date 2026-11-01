@@ -27,27 +27,27 @@ from legacy_protocol import legacy
 HERE = os.path.dirname(os.path.abspath(__file__))
 _PATH = os.path.join(HERE, 'data', 'major_content.json')
 D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('vortex', {})
-EVENT = D.get('etkinlik', 'vortex_of_greed')
-MAP = D.get('harita', 483)
+EVENT = D.get('event', 'vortex_of_greed')
+MAP = D.get('map', 483)
 PORTAL_ID = EKP.PORTAL_BASE + 92          # X-1'deki Vortex portalı (pencereli: seans açıksa girer)
 ZONE_TYPE = 'vog_evacuation'                 # tahliye bölgesinin görünmez çapası (gemi)
 EXIT_AREA, SPOT_LIGHT = 142, 143          # VisualModifierCommand (istemci: EscapeZoneEffect 418, işaret 143)
 REPAIR_SAE = 13                           # KillScreenOptionTypeModule STRIKE_AND_EXIT
 COIN = D.get('currency', 'resource_collectable_stellar-coin')
-NPC_IDS = [D['alien_spawns'][k]['npc_kimlik'] for k in ('vog_interceptor', 'vog_barracuda', 'vog_saboteur')] if D else []
+NPC_IDS = [D['alien_spawns'][k]['npc_id'] for k in ('vog_interceptor', 'vog_barracuda', 'vog_saboteur')] if D else []
 SESSION_WINDOW = 15 * 60                  # "hep açık": her 15 dakikalık dilim
 
 
 def _register():
     """Vortex uzaylıları NPC türü olarak (normal türlerinden 1,5 kat can; istemci tasarımları 551-554)."""
     for k, v in D.get('alien_spawns', {}).items():
-        world_module.CFG['types'][k] = {x: y for x, y in v.items() if x not in ('adet', 'sc', 'kutu')}
+        world_module.CFG['types'][k] = {x: y for x, y in v.items() if x not in ('count', 'sc', 'box')}
     if D.get('boss'):
-        world_module.CFG['types'][D['boss']['tur']] = {x: y for x, y in D['boss'].items() if x not in ('tur', 'time_sec')}
+        world_module.CFG['types'][D['boss']['type']] = {x: y for x, y in D['boss'].items() if x not in ('type', 'time_sec')}
     # tahliye bölgesinin çapası: istemci VisualModifier'ın hedefini gemiler arasında arıyor (UnitHelper.GetShip; varlıkta efekt
     # çıkmadı, canlı tur Ö4): görünmez, dost, hareketsiz bir gemi
-    world_module.CFG['types'][ZONE_TYPE] = dict(ad='', model='84', npc_kimlik=0, hp=1, kalkan=0, hasar=0, hiz=0, aggressive=False, friendly=True,
-                                          reward={}, kargo={})
+    world_module.CFG['types'][ZONE_TYPE] = dict(name='', model='84', npc_id=0, hp=1, kalkan=0, damage=0, speed=0, aggressive=False, friendly=True,
+                                          reward={}, cargo={})
 
 
 _register()
@@ -127,8 +127,8 @@ class Vortex:
     @property
     def st(self):
         d = self.p.d.setdefault('vortex', {})
-        if d.get('hafta') != week_key():
-            d.update(hafta=week_key(), earnings=0)
+        if d.get('week') != week_key():
+            d.update(week=week_key(), earnings=0)
         d.setdefault('earnings', 0)
         d.setdefault('claimed', {})
         return d
@@ -151,11 +151,11 @@ class Vortex:
         sh = D['store'][event]
         bought = self.st['claimed'].get(event, {})
         rows = []
-        for it in sh['esyalar']:
+        for it in sh['items']:
             per, n = bought.get(str(it['eid']), [None, 0])
             used = n if per == period_key(it['limit_type']) else 0
             rows.append(mod('ExchangesShopItem', isSpecial=False, costs=[mod('RewardModule', lootId=COIN, amount=it['price'])],
-                            limitType=it['limit_type'], reward=mod('RewardModule', lootId=it['reward'], amount=it['adet']),
+                            limitType=it['limit_type'], reward=mod('RewardModule', lootId=it['reward'], amount=it['count']),
                             maxLimit=it['cap'], limit=used, eid=it['eid']))
         left = int(CAL.time_left(EVENT)) if active() else 0     # panelden zorlanan etkinliğin de (dönemi yoksa) kalanı
         asset = mod('InventoryItemModule', upgradeLevel=0, lootId=COIN, amount=int(self.p.resource(COIN)), itemId=0, star=0, isNew=False,
@@ -166,7 +166,7 @@ class Vortex:
 
     def buy(self, event, eid):
         sh = D['store'].get(event)
-        it = next((x for x in (sh or {}).get('esyalar', []) if x['eid'] == eid), None)
+        it = next((x for x in (sh or {}).get('items', []) if x['eid'] == eid), None)
         if not it:
             return []
         if sh['vip'] and not self.vip():
@@ -181,8 +181,8 @@ class Vortex:
         with self.p.lock:
             bought[str(eid)] = [per, n + 1]
             self.p.dirty = True
-        msgs = self.m.resource_msgs(COIN, self.p.resource(COIN), -it['price']) + self.m.reward(it['reward'], it['adet'])
-        self.log('   Vortex dükkânı (%s): %s x%d, %d SC' % (event, it['reward'], it['adet'], it['price']))
+        msgs = self.m.resource_msgs(COIN, self.p.resource(COIN), -it['price']) + self.m.reward(it['reward'], it['count'])
+        self.log('   Vortex dükkânı (%s): %s x%d, %d SC' % (event, it['reward'], it['count'], it['price']))
         return [self.shop_cmd(event)] + msgs + self.m.money_msgs()
 
     def handle(self, name, f):
@@ -197,19 +197,19 @@ class Vortex:
 
     # ------------------------------------------------------------ portal
     def portals(self, map_id, station):
-        if not active() or not station or H.map_class(map_id) != D.get('giris', 'X-1') \
+        if not active() or not station or H.map_class(map_id) != D.get('entry', 'X-1') \
                 or H.company(map_id) != self.p.d['pilot'].get('factionId'):
             return []
         sx, sy = station['posX'], station['posY']
         cx, cy = KAPI.MAP_W // 2, KAPI.MAP_H // 2
         x, y = int(sx + (cx - sx) * 0.45), int(sy + (cy - sy) * 0.45 - 900)
-        return [dict(gateId=PORTAL_ID, x=x, y=y, hedef=0, designId=D.get('portal_design', 1), windowed='vortex',
-                     ipucu=D.get('ipucu', 'ttip_jumpgate_sae'))]
+        return [dict(gateId=PORTAL_ID, x=x, y=y, target=0, designId=D.get('portal_design', 1), windowed='vortex',
+                     tooltip=D.get('tooltip', 'ttip_jumpgate_sae'))]
 
     def portal_window(self, g, w, go):
         """X-1'deki portala atlandı (dünya kilidi altında): seans açıksa haritaya."""
-        if self.p.d['pilot'].get('level', 1) < D.get('seviye', 13):
-            w.send([KAPI.screen('You need to reach level %d to enter the Vortex of Greed.' % D.get('seviye', 13))])
+        if self.p.d['pilot'].get('level', 1) < D.get('level', 13):
+            w.send([KAPI.screen('You need to reach level %d to enter the Vortex of Greed.' % D.get('level', 13))])
             return
         open_, a, b, double, nxt = session()
         if not open_:
@@ -275,7 +275,7 @@ class Vortex:
                 self.p.dirty = True
             msgs += self.m.resource_msgs(COIN, self.p.resource(COIN), got)
         if bounty:
-            for loot, n in D['treasure']['esyalar']:
+            for loot, n in D['treasure']['items']:
                 msgs += self.m.reward(loot, n)
             if self.titles and D['treasure'].get('title'):
                 msgs += self.titles(D['treasure']['title'])
@@ -296,7 +296,7 @@ def send_home(mode, world):
         def go():
             if getattr(world, 'labyrinth', None) or getattr(world, 'gate', None) is not None:
                 return
-            mode.change_map(home, None, 'istasyon')
+            mode.change_map(home, None, 'station')
         world.later(3.0, go)
 
 
@@ -312,7 +312,7 @@ class VogRun:
 
     def __init__(self, mode, world, start, end, double):
         self.m, self.w = mode, world
-        self.g = {'ad': 'Vortex of Greed'}
+        self.g = {'name': 'Vortex of Greed'}
         self.start, self.end, self.double = start, end, double
         self.score = 0
         self.npcs = set()
@@ -332,11 +332,11 @@ class VogRun:
 
     # dünya arayüzü
     def wave(self):
-        return 'dalga'
+        return 'wave'
 
     @property
     def phase(self):
-        return 'savas'
+        return 'combat'
 
     def enter_msgs(self):
         return [self.score_cmd(), self.map_info()]
@@ -346,7 +346,7 @@ class VogRun:
 
     def counts(self):
         alive = [self.w.npcs[i] for i in self.npcs if i in self.w.npcs]
-        return [sum(1 for n in alive if n.d.get('npc_kimlik') == k) for k in NPC_IDS]
+        return [sum(1 for n in alive if n.d.get('npc_id') == k) for k in NPC_IDS]
 
     def map_info(self, now=None):
         now = time.time() if now is None else now
@@ -357,7 +357,7 @@ class VogRun:
             spotLightUserY=int(hy), nextSpawnBossSeconds=max(0, int(boss_at - now)) if not self.boss_id and not self.boss_done else 0,
             spotLightUserName=name, spotLightUserX=int(hx), npcRemainingQuantity=self.counts(), npcTypes=list(NPC_IDS),
             bossAlive=bool(self.boss_id and self.boss_id in self.w.npcs), boxRemainingQuantity=sum(1 for h in self.wave_boxes if h in self.w.boxes),
-            boxType=D['box_type'], remainingTime=max(0, int(self.end - now)), bossType=D['boss']['npc_kimlik'],
+            boxType=D['box_type'], remainingTime=max(0, int(self.end - now)), bossType=D['boss']['npc_id'],
             nextSpawnSeconds=max(0, int(self.next_wave - now)) if self.next_wave < self.end else 0,
             stellarCoinLimit=int(self.m.limit())))
 
@@ -405,8 +405,8 @@ class VogRun:
             self.coin_box(h, D['box_sc'])
             self.wave_boxes.add(h)
         alive = self.counts()
-        for (tip, a), have in zip(sorted(D['alien_spawns'].items(), key=lambda kv: kv[1]['npc_kimlik']), alive):
-            for _ in range(max(0, a['adet'] - have)):
+        for (tip, a), have in zip(sorted(D['alien_spawns'].items(), key=lambda kv: kv[1]['npc_id']), alive):
+            for _ in range(max(0, a['count'] - have)):
                 x, y = self.random_spot()
                 n = w.spawn_npc_at(tip, x, y)
                 n.gate = True
@@ -429,7 +429,7 @@ class VogRun:
     def spawn_boss(self):
         w = self.w
         x, y = self.random_spot()
-        n = w.spawn_npc_at(D['boss']['tur'], x, y)
+        n = w.spawn_npc_at(D['boss']['type'], x, y)
         n.gate = True
         self.boss_id = n.id
         self.dirty = True
@@ -456,13 +456,13 @@ class VogRun:
         n.gate = True
         n.next_think = time.time() + 10 ** 6
         self.zones.append([x, y, n.id])
-        vm = ('VisualModifierCommand', dict(userId=n.id, modifier=EXIT_AREA, attribute=D['evacuation']['yaricap'], additionalAttribute='',
+        vm = ('VisualModifierCommand', dict(userId=n.id, modifier=EXIT_AREA, attribute=D['evacuation']['radius'], additionalAttribute='',
                                             count=1, activated=True))
         n.images = {EXIT_AREA: vm}             # görüşe girince yeniden (dunya.show)
         w.send([vm])
 
     def zone_at(self, x, y):
-        r = D['evacuation']['yaricap']
+        r = D['evacuation']['radius']
         return next((z for z in self.zones if math.hypot(x - z[0], y - z[1]) <= r), None)
 
     def evac_tick(self, now):
@@ -479,7 +479,7 @@ class VogRun:
         if self.inside_since is None:
             self.inside_since = now
             self.counted = None
-        left = int(math.ceil(self.inside_since + D['evacuation']['bekleme_sn'] - now))
+        left = int(math.ceil(self.inside_since + D['evacuation']['cooldown_sec'] - now))
         if left <= 0:
             self.evacuate()
         elif left != getattr(self, 'counted', None):
@@ -516,7 +516,7 @@ class VogRun:
         self.m.was_in = False
         home = self.m.home()
         if self.m.change_map:
-            w.later(2.0, lambda: self.m.change_map(home, None, 'istasyon'))
+            w.later(2.0, lambda: self.m.change_map(home, None, 'station'))
 
     def spot(self, on):
         return ('VisualModifierCommand', dict(userId=self.w.hid, modifier=SPOT_LIGHT, attribute=0, additionalAttribute='',
@@ -527,7 +527,7 @@ class VogRun:
         msgs = []
         a = D['alien_spawns'].get(npc.tip)
         if a:
-            h = w.drop_box(a['kutu'], int(x), int(y), None, max(1, int(self.end - time.time())))
+            h = w.drop_box(a['box'], int(x), int(y), None, max(1, int(self.end - time.time())))
             self.coin_box(h, a['sc'])
             self.dirty = True
         elif npc.id == self.boss_id:

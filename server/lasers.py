@@ -6,7 +6,7 @@ uzayli_ek, hedef_carpan, ek_hasar_5sn, menzil, can_lazer_basina) dronlardaki laz
   uzayli_bonus      uzaylılara oransal bonus (LF-3 +%15, Caucasus +%15 PvE; yalnız tabana, overdrive'a değil: fandom DPS 250 = 200 x 1,15 + 100)
   uzayli_ek         uzaylılara düz ek hasar, lazer başına (LF-4 Paritydrill "+5 PvE"; wiki "flat +5 added at the end of all
                     calculations": cephane çarpanından sonra eklenir, flat_extra)
-  hedef_carpan      {ad: çarpan}: adı eşleşen uzaylıya bu lazerin hasarı (Prometheus x3,5 Black Light uzaylılarına, AA-1/AAP-1
+  hedef_carpan      {name: çarpan}: adı eşleşen uzaylıya bu lazerin hasarı (Prometheus x3,5 Black Light uzaylılarına, AA-1/AAP-1
                     yapay zekâ gemilerine: Mimesis ve Cyborg); overdrive'a da işler (fandom Overdrive Mechanism)
   ek_hasar_5sn      5 sn'de bir sonraki isabete düz ek, lazer başına (SL-01 +38, SL-02 +75, SL-03 +150, Caucasus +100, Prometheus +200)
   menzil            lazer menzili değişimi (SL-01/02/03 -%25; gemide bir tane bile varsa)
@@ -31,12 +31,12 @@ OVERDRIVE_SEC = 5.0
 
 
 def name_match(table, target):
-    """{ad: çarpan} tablosunda hedefin adına uyan ilk çarpan (kelime sınırıyla: Sibelon, Sibelonit'e uymaz; büyük/küçük harf
+    """{name: çarpan} tablosunda hedefin adına uyan ilk çarpan (kelime sınırıyla: Sibelon, Sibelonit'e uymaz; büyük/küçük harf
     ayrımsız: Demaner, demaNeR'e uyar) ya da None."""
     if target is None:
         return None
     for name, c in table.items():
-        if re.search(r'(?<![A-Za-z])%s(?![A-Za-z])' % re.escape(name), target.d['ad'], re.I):
+        if re.search(r'(?<![A-Za-z])%s(?![A-Za-z])' % re.escape(name), target.d['name'], re.I):
             return c
     return None
 
@@ -44,7 +44,7 @@ def name_match(table, target):
 def hit(loot, target=None, pvp=False):
     """Bir lazerin uzaylıya isabet hasarı (cephane ve formasyon çarpanından önce)."""
     d = LS[loot]
-    h = random.randint(*d['damage_range']) if 'damage_range' in d else d['hasar']
+    h = random.randint(*d['damage_range']) if 'damage_range' in d else d['damage']
     if pvp:
         return d.get('pvp_damage', h)
     h = h * (1 + d.get('alien_bonus', 0))
@@ -68,8 +68,8 @@ def event_ammo(ammo, target, is_active):
     for ev, tab in EVENT_AMMO.items():
         row = tab.get(ammo)
         if row and is_active(ev) and (getattr(target, 'tip', None) in row.get('types', ())
-                                      or name_match({a: 1 for a in row.get('adlar', ())}, target)):
-            best = max(best or 0, row['carpan'])
+                                      or name_match({a: 1 for a in row.get('names', ())}, target)):
+            best = max(best or 0, row['multiplier'])
     return best
 
 
@@ -88,12 +88,12 @@ def crit_chance(ship):
         k = LS.get(l, {}).get('crit')
         if k:
             n = ship.count(l)
-            out = max(out, min(k['azami'], n * k['per_laser'] + (k['set'] if n >= k['set_threshold'] else 0)))
+            out = max(out, min(k['maximum'], n * k['per_laser'] + (k['set'] if n >= k['set_threshold'] else 0)))
     return out
 
 
 def crit_damage(ship):
-    return sum(LS[l]['hasar'] * LS[l]['crit']['carpan'] for l in ship if 'crit' in LS.get(l, {}))
+    return sum(LS[l]['damage'] * LS[l]['crit']['multiplier'] for l in ship if 'crit' in LS.get(l, {}))
 
 
 def overdrive(ship, target=None, pvp=False):
@@ -104,7 +104,7 @@ def overdrive(ship, target=None, pvp=False):
 
 
 def range_factor(ship):
-    return 1 + min((LS[l].get('menzil', 0) for l in ship if l in LS), default=0)
+    return 1 + min((LS[l].get('range', 0) for l in ship if l in LS), default=0)
 
 
 def hp_bonus(ship):

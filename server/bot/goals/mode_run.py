@@ -33,7 +33,7 @@ class ModeRun(Goal):
             bot._mode_candidate, bot._mode_next_check = None, b.now + 1800   # giremedi: yarım saat başka işlere bakar (boşta dönmesin)
             return
         ul, top, duration, reward = MD.run(bot, m, bot.r)
-        bot.plan.update(mod=m.uid, ul=ul, top=top, sure=duration, reward=reward, bitis=b.now + duration)
+        bot.plan.update(mod=m.uid, ul=ul, top=top, sure=duration, reward=reward, end_time=b.now + duration)
         bot._mode_candidate = None
         bot._mode_next_check = 0
         if m.game_map:
@@ -41,12 +41,12 @@ class ModeRun(Goal):
         bot.event('entered_mode', mod=m.name)
 
     def abstract(self, bot, dt, y):
-        if bot.plan.get('finished') or y.now < bot.plan.get('bitis', 0):
+        if bot.plan.get('finished') or y.now < bot.plan.get('end_time', 0):
             return
         m = next((x for x in MD.modes() if x.uid == bot.plan.get('mod')), None)
         if m is not None:
             o = bot.plan.get('reward') or {}
-            bot.reward('npc', y.speed(bot), ep=o.get('ep', 0), kredi=o.get('kredi', 0), uridyum=o.get('uridyum', 0), onur=o.get('onur', 0))
+            bot.reward('npc', y.speed(bot), ep=o.get('ep', 0), credits=o.get('credits', 0), uridium=o.get('uridium', 0), honor=o.get('honor', 0))
             m.finish(bot, bot.plan['ul'], bot.plan['top'], bot.plan['sure'], bot.r)
             m.save(bot, bot.plan['ul'], bot.plan['top'])
             bot.ist('mode_run')

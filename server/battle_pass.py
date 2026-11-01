@@ -104,7 +104,7 @@ class BattlePass:
     @property
     def bp(self):
         """Dönemin pass'i (ensure'dan sonra)."""
-        return PASSES[self.st['donem'].rsplit('-', 1)[0]]
+        return PASSES[self.st['period'].rsplit('-', 1)[0]]
 
     def end(self):
         return self.st.get('start', 0) + duration()
@@ -114,21 +114,21 @@ class BattlePass:
         pass'i 1. günden başlar (aynı dönemin biten pass'i yeniden başlamaz)."""
         now = time.time() if now is None else now
         st = self.st
-        ev = st.get('donem', '').rsplit('-', 1)[0]
-        if st.get('donem') and not st.get('start'):                    # süresiz eski kayıt: etkinliği sürüyorsa pass bugünden
+        ev = st.get('period', '').rsplit('-', 1)[0]
+        if st.get('period') and not st.get('start'):                    # süresiz eski kayıt: etkinliği sürüyorsa pass bugünden
             with self.p.lock:
-                st['start'] = now if event_key(now) == st['donem'] else 1
+                st['start'] = now if event_key(now) == st['period'] else 1
                 self.p.dirty = True
-        if st.get('donem') and now < self.end() and SET.event_state(ev) != 'off':      # panelde kapatılan etkinliğin pass'i durur
+        if st.get('period') and now < self.end() and SET.event_state(ev) != 'off':      # panelde kapatılan etkinliğin pass'i durur
             CAL.PASS_RUNS[ev] = (st['start'], self.end())
-            return st['donem']
+            return st['period']
         CAL.PASS_RUNS.pop(ev, None)
         extra = event_key(now)
-        if not extra or extra == st.get('donem'):
+        if not extra or extra == st.get('period'):
             return None
         with self.p.lock:
             st.clear()
-            st.update(donem=extra, start=now, purchased=False, value={}, tamam=[], to_collect=[], collected=[], exchange={},
+            st.update(period=extra, start=now, purchased=False, value={}, done=[], to_collect=[], collected=[], exchange={},
                       filters=B['settings'].get('battlePassItemFilters', []))
             self.p.dirty = True
         if self.p.resource(PASS_ITEM) > 0:                       # önceden alınmış Battle Pass bu döneme
@@ -145,13 +145,13 @@ class BattlePass:
 
     def info_cmd(self):
         st, bp = self.st, self.bp
-        rows = [mod('BattlePassQuestModule', acceptabilityStatus=mod('QuestAcceptabilityStatusModule', type=DONE if q in st['tamam'] else RUNNING),
-                    questDefinition=GT.with_state(d, st['value'].get(str(q), {}), q in st['tamam'])) for q, d in bp['quests'].items()]
-        return ('BattlePassInfoCommand', dict(filename=bp['dosya'], statusCommand=self.status_cmd(), battlePassQuestModuleList=rows))
+        rows = [mod('BattlePassQuestModule', acceptabilityStatus=mod('QuestAcceptabilityStatusModule', type=DONE if q in st['done'] else RUNNING),
+                    questDefinition=GT.with_state(d, st['value'].get(str(q), {}), q in st['done'])) for q, d in bp['quests'].items()]
+        return ('BattlePassInfoCommand', dict(filename=bp['file'], statusCommand=self.status_cmd(), battlePassQuestModuleList=rows))
 
     def exchanges(self):
         """Dönemin anahtar değişimi (ensure'dan sonra): etkinliğin kendi tablosu; yoksa (Halloween) tasarımları, ardından kayıttaki liste."""
-        k = self.st['donem'].rsplit('-', 1)[0]
+        k = self.st['period'].rsplit('-', 1)[0]
         if self.bp.get('keyless'):
             return {}
         return dict(PASS_EXCHANGE[k]) if k in PASS_EXCHANGE else dict(EVENT_EXCHANGE.get(k, {}), **EXCHANGE)
@@ -178,7 +178,7 @@ class BattlePass:
             return []
         st, msgs, done = self.st, [], []
         for q, d in self.bp['quests'].items():
-            if q in st['tamam']:
+            if q in st['done']:
                 continue
             m, fin = GT.advance(self.p, d['rootCase'], st['value'].setdefault(str(q), {}), kind, kw, self.map_id, fn=measure)
             msgs += m
@@ -186,7 +186,7 @@ class BattlePass:
                 done.append(q)
         for q in done:
             with self.p.lock:
-                st['tamam'].append(q)
+                st['done'].append(q)
                 st['to_collect'].append(q)
                 self.p.dirty = True
             msgs.append(('QuestCompletedCommand', {'id': q, 'rating': 0}))

@@ -11,7 +11,7 @@ Roket fırlatıcısı (HST-1 kredi, HST-2 uridyum): salvo kapasitesi 3/5, roket 
 """
 from . import catalog as K
 
-TECH = K.ITEMS['technology']['esyalar']
+TECH = K.ITEMS['technology']['items']
 RECIPES = {'tech_backup-shields': ('U', 2800), 'tech_battle-repair-bot': ('U', 2800), 'tech_chain-impulse': ('U', 1800),
          'tech_energy-leech': ('U', 6500), 'tech_precision-targeter': ('U', 250)}
 LAUNCHER = K.ITEMS['combat_items']['launcher']
@@ -36,7 +36,7 @@ def produce(bot):
         return {}
     s = _stock(bot)
     t = bot.o('frugality')
-    wanted = ['tech_precision-targeter'] if bot.permission.get('roket', True) else []
+    wanted = ['tech_precision-targeter'] if bot.permission.get('rocket', True) else []
     if bot.permission.get('pvp', True) and bot.o('aggression') + bot.o('risk') > 0.8:
         wanted += ['tech_backup-shields', 'tech_battle-repair-bot']
     if bot.level >= 12:
@@ -45,7 +45,7 @@ def produce(bot):
     for e in wanted:
         currency, price = RECIPES[e]
         price *= bot.game_settings.multiplier('shop_price')
-        if s.get(e, 0) < 2 and bot.k['uridyum'] > price * (3 + 3 * t) and bot.pay(currency, price):
+        if s.get(e, 0) < 2 and bot.k['uridium'] > price * (3 + 3 * t) and bot.pay(currency, price):
             s[e] = s.get(e, 0) + 1
             out[e] = 1
             bot.ist('assembly')
@@ -80,7 +80,7 @@ def launcher(bot):
 
 
 def pick_launcher_rocket(bot):
-    if not bot.permission.get('roket', True) or not launcher(bot):
+    if not bot.permission.get('rocket', True) or not launcher(bot):
         return None
     s = _stock(bot)
     return next((r for r in reversed(LAUNCHER_ROCKETS) if s.get(r, 0) > 0), None)
@@ -95,12 +95,12 @@ def salvo(bot):
 
 def launcher_dps(bot, rocket):
     capacity, gap = salvo(bot)
-    return LAUNCHER_AMMO[rocket]['hasar'] * capacity / gap if rocket and capacity else 0.0
+    return LAUNCHER_AMMO[rocket]['damage'] * capacity / gap if rocket and capacity else 0.0
 
 
 def candidates(bot):
     """Alışveriş adayları: fırlatıcı (roket izni, 8./10. seviyeden; faydası güç payı)."""
-    if not bot.permission.get('roket', True) or launcher(bot) == HST[1]:
+    if not bot.permission.get('rocket', True) or launcher(bot) == HST[1]:
         return []
     power = bot.value()['power']
     out = []
@@ -113,13 +113,13 @@ def candidates(bot):
 
 def resupply(bot):
     """Fırlatıcı roketi: HSTRM-01 (uridyum) zenginse, yoksa ECO-10 (kredi) -> alınan."""
-    if not launcher(bot) or not bot.permission.get('roket', True) or not bot.permission.get('shop', True):
+    if not launcher(bot) or not bot.permission.get('rocket', True) or not bot.permission.get('shop', True):
         return {}
     s = _stock(bot)
     if sum(s.get(r, 0) for r in LAUNCHER_ROCKETS) >= 50:
         return {}
     t = bot.o('frugality')
-    for r, currency, threshold in ((LAUNCHER_ROCKETS[1], 'uridyum', 20000), (LAUNCHER_ROCKETS[0], 'kredi', 2000000)):
+    for r, currency, threshold in ((LAUNCHER_ROCKETS[1], 'uridium', 20000), (LAUNCHER_ROCKETS[0], 'credits', 2000000)):
         fi = K.price(r)
         if fi and bot.k[currency] > threshold * (1 + t):
             n = int(min(200, bot.k[currency] * 0.1 // fi[1]))

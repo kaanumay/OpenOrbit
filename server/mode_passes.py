@@ -5,7 +5,7 @@ Bir geçiş: seviyeler (her seviyenin puan eşiği), ücretsiz ve VIP sıranın 
 bitişlerinden gelir; seviyeye ulaşılınca ödül alınabilir (PassItemModule.statusType: 0 LOCK, 1 CLAIMED, 2 CLAIMABLE,
 3 BELOW_LEVEL; istemcinin PassItemStatusType'ı). VIP geçiş mağazadan uridyumla (tek oyunculu kural); VIP sırası açılır, puanlar
 'vip_puan' oranında artar. The mode's VIP badge (Trinity / Voyagers VIP Badge) in the inventory also opens the VIP track. Dönem takvim ayı: ay değişince puan, seviye ve alınanlar sıfırlanır (VIP de).
-Profilde: gecisler {ad: {donem, puan, vip, alinan: {"n": [seviye], "v": [seviye]}}}.
+Profilde: gecisler {name: {donem, puan, vip, alinan: {"n": [seviye], "v": [seviye]}}}.
 """
 import datetime, time
 
@@ -24,7 +24,7 @@ def seconds_left(now=None):
 
 
 class Pass:
-    """data: {seviyeler: [eşik puan …] (seviye i+1 için toplam puan), ucretsiz: [[seviye, lootId, adet]], vip: [[…]],
+    """data: {levels: [eşik puan …] (seviye i+1 için toplam puan), ucretsiz: [[seviye, lootId, adet]], vip: [[…]],
     vip_puan: oran, vip_parametreler: [...]}."""
 
     def __init__(self, profile, name, data, badge=None):
@@ -39,21 +39,21 @@ class Pass:
     def st(self):
         g = self.p.d.setdefault('passes', {})
         s = g.get(self.name)
-        if not s or s.get('donem') != period():
-            s = g[self.name] = dict(donem=period(), puan=0, vip=False, claimed={'n': [], 'v': []})
+        if not s or s.get('period') != period():
+            s = g[self.name] = dict(period=period(), points=0, vip=False, claimed={'n': [], 'v': []})
             self.p.dirty = True
         return s
 
     def level(self):
-        pts = self.st['puan']
-        return sum(1 for t in self.D['seviyeler'] if pts >= t)
+        pts = self.st['points']
+        return sum(1 for t in self.D['levels'] if pts >= t)
 
     def add(self, points):
         """Puan ekler (VIP oranıyla) -> eklenen."""
         s = self.st
         n = int(points * (1 + (self.D.get('vip_points', 0) if self.is_vip() else 0)))
         with self.p.lock:
-            s['puan'] += n
+            s['points'] += n
             self.p.dirty = True
         return n
 
@@ -69,14 +69,14 @@ class Pass:
 
     def cmd(self, name, now=None):
         s, cur = self.st, self.level()
-        th = self.D['seviyeler']
+        th = self.D['levels']
         prev = th[cur - 1] if cur > 0 else 0
         nxt = th[cur] - prev if cur < len(th) else 0
         items = lambda rows, vip: [dict(_='PassItemModule', level=l, lootId=loot, amount=n, statusType=self.status(l, vip))
                                    for l, loot, n in rows]
         return (name, dict(isVip=self.is_vip(), normalItemList=items(self.D['free'], False), vipItemList=items(self.D['vip'], True),
                            currentLevel=cur, vipParams=list(self.D.get('vip_params', [])), remainSeconds=seconds_left(now),
-                           nextLevelExp=nxt, currentExp=s['puan'] - prev))
+                           nextLevelExp=nxt, currentExp=s['points'] - prev))
 
     def claim(self, lvl, vip, grant):
         """Ödülü al (grant: lootId, adet -> mesajlar) -> mesajlar ya da None (alınamaz). lvl 0: iki sıranın alınabilir bütün

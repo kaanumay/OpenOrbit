@@ -20,7 +20,7 @@ sürenler kalır). Kullanım: ALWAYS_USABLE sınırsız, USABLE_ONCE bir kez, US
 bir / en_cok kez (dönem: tarif etkin bir etkinliğe bağlıysa etkinlik dönemi, değilse takvim günü). CostScalingFactor: aynı dönemde
 her üretimde malzemeler bu oranla artar. Gemi isteyen tarifler (Plus gemileri): taban gemi etkin olmayanlardan harcanır; istemcinin
 sayacına etkin olan da sayılır (envanter.client_count), yalnız etkin gemiyle üretimde oyunun "ship in use" uyarısı.
-Profilde: assembly {uretim: {tarif: {adet, bitis, onceki}}, sayac: {tarif: toplam}, gunluk: {tarif: [gün, adet]}, gorulen: [tarif],
+Profilde: assembly {uretim: {recipe: {adet, bitis, onceki}}, sayac: {recipe: toplam}, gunluk: {recipe: [gün, adet]}, gorulen: [tarif],
 suzgec: {}}.
 """
 import json, math, os, time
@@ -34,10 +34,10 @@ from legacy_protocol import legacy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 T = json.load(open(os.path.join(HERE, 'data', 'recipes.json'), encoding='utf8'))['recipes']
-INGREDIENTS = {loot for r in T.values() for loot in r.get('parcalar', {})}      # girişte sayaçları gönderilenler (magaza.count_msgs)
+INGREDIENTS = {loot for r in T.values() for loot in r.get('parts', {})}      # girişte sayaçları gönderilenler (magaza.count_msgs)
 ALREADY_OWNS, ALREADY_USED, ALREADY_USED_LIMIT = 0, 1, 2          # RecipeUnavailableType (istemci)
 # koşulla açılan tarifler (wiki): Spartan dron tasarımı Kronos kapısı tamamlanınca
-UNLOCK = {'recipe_blueprint-spartan': lambda p: ((p.d.get('kapilar') or {}).get('kapilar', {}).get('kronos') or {}).get('tamam', 0) > 0,
+UNLOCK = {'recipe_blueprint-spartan': lambda p: ((p.d.get('kapilar') or {}).get('kapilar', {}).get('kronos') or {}).get('done', 0) > 0,
           'recipe_blueprint-immunizer-cpu': lambda p: True}        # Quarantine Zone tek oyunculuda kalıcı (Aşama 8)
 SKIP_U_PER_MIN = 1                                                # uyarlama: kalan dakikası 1 uridyum
 NO_LIMIT = 'ALWAYS_USABLE'
@@ -70,7 +70,7 @@ def event_recipes(p, now=None):
     run, chromin = chromin_recipes(now), set(CAL.EVENTS.get('chromin', {}).get('currency', []))
     out = []
     for k, r in T.items():
-        ps = set(r['parcalar'])
+        ps = set(r['parts'])
         if 'recorded' in r or k in UNLOCK or k in BOT or k.startswith(TEST) or ps & NO_SOURCE:
             continue
         if run is not None and ps & chromin and k not in run:          # Chromin koşusu: yalnız o koşunun tarifleri
@@ -100,7 +100,7 @@ def chromin_recipes(now=None):
 def recipe_event(key, now=None):
     """Tarifi parasıyla bağlayan etkin etkinlik (event_calendar.py 'para'; yoksa None)."""
     import event_calendar as CAL
-    ps = set(T[key]['parcalar'])
+    ps = set(T[key]['parts'])
     return next((k for k in sorted(CAL.active(now)) if ps & set(CAL.EVENTS[k].get('currency', []))), None)
 
 
@@ -109,7 +109,7 @@ def recorded_end(key, now=None):
     None (süresiz, bitişi geçmiş ya da etkinlik parasıyla: onun süresi yerel takvimden, recipe_event)."""
     import event_calendar as CAL
     g = T[key].get('temporary')
-    if g and set(T[key]['parcalar']) & {l for e in CAL.EVENTS.values() for l in e.get('currency', [])}:
+    if g and set(T[key]['parts']) & {l for e in CAL.EVENTS.values() for l in e.get('currency', [])}:
         return None
     if g == 'season':
         import season
@@ -185,16 +185,16 @@ class Assembly:
             return {}
         r = T[key]
         f = r['scale'] ** self.used_today(key) if r['scale'] != 1 else 1
-        return {loot: int(math.ceil(n * f * amount)) for loot, n in r['parcalar'].items()}
+        return {loot: int(math.ceil(n * f * amount)) for loot, n in r['parts'].items()}
 
     def status(self, key, now=None):
         now = now or time.time()
         b = self.st['uretim'].get(key)
         if b:
-            if now < b['bitis']:
-                return mod('AssemblyRecipeBuildStatusModule', buildAmount=b['adet'], remainingTimeMillis=int((b['bitis'] - now) * 1000),
+            if now < b['end_time']:
+                return mod('AssemblyRecipeBuildStatusModule', buildAmount=b['count'], remainingTimeMillis=int((b['end_time'] - now) * 1000),
                            prevBuildCount=b['previous'])
-            return mod('AssemblyRecipeReadyToCollectStatusModule', prevBuildCount=b['previous'], buildAmount=b['adet'])
+            return mod('AssemblyRecipeReadyToCollectStatusModule', prevBuildCount=b['previous'], buildAmount=b['count'])
         left = self.limit_left(key)
         if left == 0:
             kind = ALREADY_USED if T[key]['usage'] in ('USABLE_ONCE', 'USABLE_ONCE_PER_SCHEDULE') else ALREADY_USED_LIMIT
@@ -268,13 +268,13 @@ class Assembly:
         removed = INV.spend(self.p, need, reason='buy_SPECIAL', detail=key)
         now = time.time()
         with self.p.lock:
-            self.st['uretim'][key] = dict(adet=amount, bitis=now + SET.duration(r['sure_sn'] * amount, 'assembly'), previous=self.st['counter'].get(key, 0))
+            self.st['uretim'][key] = dict(count=amount, end_time=now + SET.duration(r['sure_sn'] * amount, 'assembly'), previous=self.st['counter'].get(key, 0))
             if key not in self.st['seen']:
                 self.st['seen'].append(key)
             if r['usage'] != NO_LIMIT or r['scale'] != 1:
                 self.st['daily'][key] = [period_of(key), self.used_today(key) + amount]
             self.p.dirty = True
-        self.p.ach('assembly_build', tarif=key, adet=amount)
+        self.p.ach('assembly_build', recipe=key, count=amount)
         self.log('   Assembly: %s x%d başladı (%d sn; %s)' % (key, amount, r['sure_sn'] * amount, need))
         return INV.update_msgs(self.m, self.p, list(need), removed) + [self.update(key, f.get('targetItemId', 0))]
 
@@ -282,21 +282,21 @@ class Assembly:
         key = f.get('recipeLootId', '')
         b = self.st['uretim'].get(key)
         now = now or time.time()
-        if not b or now < b['bitis']:
+        if not b or now < b['end_time']:
             return [self.update(key)] if key in T else []
         with self.p.lock:
             del self.st['uretim'][key]
-            self.st['counter'][key] = self.st['counter'].get(key, 0) + b['adet']
+            self.st['counter'][key] = self.st['counter'].get(key, 0) + b['count']
             self.p.dirty = True
         msgs = []
         for loot, n in T[key]['result'].items():
-            msgs += self.grant(loot, n * b['adet'])
-        self.p.ach('assembly_collect', tarif=key, adet=b['adet'])
+            msgs += self.grant(loot, n * b['count'])
+        self.p.ach('assembly_collect', recipe=key, count=b['count'])
         # seyir defteri (MSJ-10): istemci (ReturnLogBookInfoText) "his_assembly_…" metnini çevirir; %recipename% info'daki lootId'nin
         # adı (items_<lootId>_fullname; sonucun adı hepsinde var, tarifin adı 35 tarifte yok), %buildamount% count
-        RT.note(self.p, 'his_assembly_recipe_collected_multi' if b['adet'] > 1 else 'his_assembly_recipe_collected',
-                next(iter(T[key]['result'])), b['adet'])
-        self.log('   Assembly: %s x%d toplandı (%s)' % (key, b['adet'], T[key]['result']))
+        RT.note(self.p, 'his_assembly_recipe_collected_multi' if b['count'] > 1 else 'his_assembly_recipe_collected',
+                next(iter(T[key]['result'])), b['count'])
+        self.log('   Assembly: %s x%d toplandı (%s)' % (key, b['count'], T[key]['result']))
         return msgs + [self.update(key, f.get('targetItemId', 0))]
 
     def grant(self, loot, n):
@@ -322,15 +322,15 @@ class Assembly:
         key = f.get('recipeLootId', '')
         b = self.st['uretim'].get(key)
         now = time.time()
-        if not b or now >= b['bitis']:
+        if not b or now >= b['end_time']:
             return [self.update(key)] if key in T else []
-        price = max(1, int(math.ceil((b['bitis'] - now) / 60.0)) * SKIP_U_PER_MIN)
+        price = max(1, int(math.ceil((b['end_time'] - now) / 60.0)) * SKIP_U_PER_MIN)
         if INV.missing(self.p, {'currency_uridium': price}):
             self.log('   Assembly: atlama için uridyum yetmiyor (%d)' % price)
             return [self.update(key)]
         INV.spend(self.p, {'currency_uridium': price}, reason='buy_SPECIAL', detail=key)
         with self.p.lock:
-            b['bitis'] = now
+            b['end_time'] = now
             self.p.dirty = True
         self.log('   Assembly: %s süresi atlandı (%d U)' % (key, price))
         return INV.update_msgs(self.m, self.p, ['currency_uridium']) + [self.update(key)]
@@ -351,7 +351,7 @@ class Assembly:
         return []
 
     def up_state(self):
-        return {k: b['bitis'] for k, b in self.up.st.items()}
+        return {k: b['end_time'] for k, b in self.up.st.items()}
 
     def handle(self, name, f):
         self.up.m, self.up.send, self.up.refresh = self.m, self.send, self.content
@@ -394,7 +394,7 @@ class Assembly:
             self.shown = set(keys)
         self.up.m, self.up.send, self.up.refresh = self.m, self.send, self.content
         self.up.tick(now)
-        done = [k for k, b in self.st['uretim'].items() if not b.get('notified') and now >= b['bitis']]
+        done = [k for k, b in self.st['uretim'].items() if not b.get('notified') and now >= b['end_time']]
         for k in done:
             with self.p.lock:
                 self.st['uretim'][k]['notified'] = True

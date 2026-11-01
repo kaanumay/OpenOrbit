@@ -22,9 +22,9 @@ _PATH = os.path.join(HERE, 'data', 'extra_events.json')
 D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('fever', {})
 EVENT = 'fever'
 # istemcinin etki adı -> profil.mods() anahtarı (uzaylıya hasar: 'npc'; bekleme azalması 'bekleme')
-MODS = {'SHIELD': 'kalkan', 'SPEED': 'hiz', 'EVASION': 'evasion', 'HITPOINTS': 'can', 'DAMAGE_NPC': 'npc', 'DAMAGE': 'npc',
-        'ABILITY_COOLDOWN_TIME': 'cooldown', 'EXPERIENCE_POINTS': 'ep', 'HONOUR_POINTS': 'onur', 'LASER_HIT_CHANCE': 'laser_hit_chance',
-        'ROCKET_DAMAGE': 'roket', 'LASER_DAMAGE_PLAYER': 'lazer'}
+MODS = {'SHIELD': 'kalkan', 'SPEED': 'speed', 'EVASION': 'evasion', 'HITPOINTS': 'can', 'DAMAGE_NPC': 'npc', 'DAMAGE': 'npc',
+        'ABILITY_COOLDOWN_TIME': 'cooldown', 'EXPERIENCE_POINTS': 'ep', 'HONOUR_POINTS': 'honor', 'LASER_HIT_CHANCE': 'laser_hit_chance',
+        'ROCKET_DAMAGE': 'rocket', 'LASER_DAMAGE_PLAYER': 'laser'}
 
 
 def _hm(s):
@@ -45,7 +45,7 @@ def cfg(now=None):
 def slot_for(now=None):
     """Bugünün dilimi (gün 1 = pazartesi) ya da None."""
     t = datetime.datetime.fromtimestamp(time.time() if now is None else now)
-    return next((s for s in cfg(now).get('days', []) if s['gun'] == t.isoweekday()), None)
+    return next((s for s in cfg(now).get('days', []) if s['day'] == t.isoweekday()), None)
 
 
 def window(now=None):
@@ -73,7 +73,7 @@ def ship_matches(slot, loot):
 
 def map_matches(map_id, now=None):
     c, cls = cfg(now), H.map_class(map_id)
-    return cls in c.get('haritalar', []) or int(map_id) in c.get('map_ids', [])
+    return cls in c.get('maps', []) or int(map_id) in c.get('map_ids', [])
 
 
 class Fever:
@@ -115,7 +115,7 @@ class Fever:
         return bool(self._mods)
 
     def module(self, s, now=None):
-        return {'_': 'ShipBoostEventModule', 'day': s['gun'], 'startTime': s['start'], 'endTime': s['bit'], 'shipTypes': list(s['ships']),
+        return {'_': 'ShipBoostEventModule', 'day': s['day'], 'startTime': s['start'], 'endTime': s['bit'], 'shipTypes': list(s['ships']),
                 'eventNameTextKeys': list(cfg(now).get('events', [])),
                 'attributeBoosts': [{'_': 'ShipBoostEventAttributeModule', 'attribute': a, 'boostValue': float(v)}
                                     for a, v in s['effects'].items()]}

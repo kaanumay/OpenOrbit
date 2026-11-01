@@ -10,15 +10,15 @@ carpan(key, kaynak) ayar.carpan gibi: üst çarpan x kaynağın alt çarpanı (e
 """
 import settings as SET
 
-FIELDS = ('ep', 'kredi', 'uridyum', 'onur', 'npc_can', 'npc_damage', 'shop_price', 'repair_cost')   # Özel profilin düzenlenenleri
-PROFILES = ('standard', 'player', 'casual', 'fast', 'hard', 'ozel')
+FIELDS = ('ep', 'credits', 'uridium', 'honor', 'npc_can', 'npc_damage', 'shop_price', 'repair_cost')   # Özel profilin düzenlenenleri
+PROFILES = ('standard', 'player', 'casual', 'fast', 'hard', 'special')
 
 
 class Profile:
     def __init__(self, setting=None):
         setting = setting if isinstance(setting, dict) else {}
-        self.name = setting.get('profil') if setting.get('profil') in PROFILES else 'standard'
-        if self.name == 'ozel':
+        self.name = setting.get('profile') if setting.get('profile') in PROFILES else 'standard'
+        if self.name == 'special':
             self.d = {k: float(v) for k, v in (setting.get('values') or {}).items() if k in SET.DEFAULTS}
         elif self.name in SET.PRESETS:
             self.d = dict(SET.PRESETS[self.name]['values'])

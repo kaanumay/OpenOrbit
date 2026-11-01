@@ -27,7 +27,7 @@ def setup():
             d = json.load(fh)
     except (OSError, ValueError):
         return None
-    if not (d.get('sunucu') and os.path.isfile(d['sunucu']) and os.path.isfile(os.path.join(folder(), MODEL_FILE))):
+    if not (d.get('server') and os.path.isfile(d['server']) and os.path.isfile(os.path.join(folder(), MODEL_FILE))):
         return None
     return d
 
@@ -61,14 +61,14 @@ class Server:
         if k is None:
             raise RuntimeError('dil modeli kurulu değil')
         self.port = free_port()
-        cmd = [k['sunucu'], '-m', os.path.join(folder(), MODEL_FILE), '--host', '127.0.0.1', '--port', str(self.port),
+        cmd = [k['server'], '-m', os.path.join(folder(), MODEL_FILE), '--host', '127.0.0.1', '--port', str(self.port),
                '-c', str(CONTEXT_SIZE * self.slot // 2), '-np', str(self.slot), '-ngl', '99', '--jinja', '--no-webui']
         kw = {}
         if sys.platform == 'win32':
             kw['creationflags'] = 0x08000000                 # CREATE_NO_WINDOW
         daily = open(os.path.join(PTH.LOGS, 'llm_sunucu.log'), 'ab')
         self.proc = subprocess.Popen(cmd, stdout=daily, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
-                                     cwd=os.path.dirname(k['sunucu']), **kw)
+                                     cwd=os.path.dirname(k['server']), **kw)
         last = time.time() + wait_sec
         while time.time() < last:
             if self.proc.poll() is not None:
@@ -127,9 +127,9 @@ def test(log=print):
         opening = time.time() - t0
         response, duration = s.ask('Sen bir uzay oyununda pilotsun. Kısa yanıt ver.',
                             'Bir arkadaşın "selam, nasılsın?" yazdı. JSON ver: cevap alanına kısa bir Türkçe yanıt, durum alanına "TAMAM".',
-                            schema={'type': 'object', 'properties': {'cevap': {'type': 'string'}, 'durum': {'type': 'string'}},
-                                  'required': ['cevap', 'durum']}, max_count=80)
-        ok = isinstance(response, dict) and 'TAMAM' in str(response.get('durum', '')).upper()
+                            schema={'type': 'object', 'properties': {'cevap': {'type': 'string'}, 'state': {'type': 'string'}},
+                                  'required': ['cevap', 'state']}, max_count=80)
+        ok = isinstance(response, dict) and 'TAMAM' in str(response.get('state', '')).upper()
         return {'ok': ok, 'startup_sec': round(opening, 1), 'sure_sn': round(duration, 2), 'response': response.get('cevap') if isinstance(response, dict) else str(response)}
     finally:
         s.stop()

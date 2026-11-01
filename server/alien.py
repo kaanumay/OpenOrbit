@@ -60,7 +60,7 @@ def mod(name, **f):
 def of(d):
     """NPC türünün yetenekleri: npcId'nin yetenekleri + türün kendi "davranis"ı (ikincisi öncelikli; None o yeteneği kapatır: Kappa
     Annihilator'ın fırlatıcısı); not alanları ('_') atılır."""
-    out = {k: v for k, v in ABILITIES.get(d.get('npc_kimlik'), {}).items() if not k.startswith('_')}
+    out = {k: v for k, v in ABILITIES.get(d.get('npc_id'), {}).items() if not k.startswith('_')}
     out.update(d.get('behavior') or {})
     return {k: v for k, v in out.items() if v is not None}
 
@@ -148,12 +148,12 @@ class Abilities:
         n.ab.pop('hidden', None)                                  # Emperor Lordakium bulundu: dolum durur
         for i, c in enumerate(n.behavior.get('summon_at_hp_threshold', [])):
             key = 'esik_%d' % i
-            if key not in n.ab and n.hp <= n.d['hp'] * c['oran']:
+            if key not in n.ab and n.hp <= n.d['hp'] * c['ratio']:
                 n.ab[key] = now
-                self.summon(n, c['tur'], c['adet'], now)
+                self.summon(n, c['type'], c['count'], now)
         t = n.behavior.get('reverse_controls') if to_player else None
         if t and 'reverse' not in n.ab and n.hp > 0 and (n.shield <= n.d['kalkan'] * t['shield_ratio'] if 'shield_ratio' in t
-                                                      else n.hp <= n.d['hp'] * t['can_orani']):
+                                                      else n.hp <= n.d['hp'] * t['hp_ratio']):
             n.ab['reverse'] = now                                   # bir kez
             self.reverse_controls(n, t['sn'])
         if 'emp_on_shield_down' in n.behavior and to_player:      # Obscured Mimesis: kalkanı her bitişinde bir EMP darbesi
@@ -163,7 +163,7 @@ class Abilities:
                 n.ab['emp_shield'] = now
                 self.emp(n, now)
         c = n.behavior.get('critical_emp') if to_player else None
-        if c and 'emp_critical' not in n.ab and 0 < n.hp <= n.d['hp'] * c['can_orani']:
+        if c and 'emp_critical' not in n.ab and 0 < n.hp <= n.d['hp'] * c['hp_ratio']:
             n.ab['emp_critical'] = now                             # Spookfish: kritik canda EMP (bir kez)
             self.emp(n, now)
         k = n.behavior.get('disappear')
@@ -173,7 +173,7 @@ class Abilities:
             prev = n.ab.get('last_hp', n.d['hp'])
             n.ab['last_hp'] = n.hp
             n.ab['loss'] = n.ab.get('loss', 0) + max(0, prev - n.hp)
-            if n.ab['loss'] >= k['hasar']:
+            if n.ab['loss'] >= k['damage']:
                 n.ab['loss'] = 0
                 self.vanish(n, k, now)
 
@@ -197,7 +197,7 @@ class Abilities:
                     self.mirror_end = 0.0
                     w.send([self.visual(w.hid, MIRRORED_CONTROLS, False)])
             w.later(sec, off)
-        w.log('   %s kontrolleri ters çevirdi (%d sn)' % (n.d['ad'], sec))
+        w.log('   %s kontrolleri ters çevirdi (%d sn)' % (n.d['name'], sec))
 
     def summon(self, n, kind, count, now):
         w = self.w
@@ -208,7 +208,7 @@ class Abilities:
             self.adopt(n, c)
             self.trigger_attack(c, self.summoner_bot(n), now)
             n.children.add(c.id)
-        w.log('   %s %d %s çağırdı (can %%%d)' % (n.d['ad'], count, self.CFG['types'][kind]['ad'], 100 * n.hp // max(1, n.d['hp'])))
+        w.log('   %s %d %s çağırdı (can %%%d)' % (n.d['name'], count, self.CFG['types'][kind]['name'], 100 * n.hp // max(1, n.d['hp'])))
 
     def far_spot(self, near, far):
         """Oyuncudan en az "far" uzakta (yoksa en uzak deneme) bir nokta; near: (x, y) yakınında arar (None: haritanın her yeri)."""
@@ -254,7 +254,7 @@ class Abilities:
             f = w.spawn_npc_at(fake, fx, fy)
             f.summoned, f.gate = True, n.gate
             f.ab['lifetime'] = now + k.get('fake_lifetime_sec', 90)
-        w.log('   %s kayboldu: (%d,%d), %d sahte' % (n.d['ad'], x, y, k.get('fake', 2)))
+        w.log('   %s kayboldu: (%d,%d), %d sahte' % (n.d['name'], x, y, k.get('fake', 2)))
 
     def ring_spots(self, hx, hy, r, count):
         """Oyuncunun çevresinde r uzaklıkta, eşit açılarla (rastgele sırayla) count nokta; harita içinde."""
@@ -268,10 +268,10 @@ class Abilities:
         """Sahte Emperor türü (görünüşü gerçeğinin aynısı; 1 can, ateş etmez, ödülsüz, vurulunca patlar)."""
         key = 'sahte_' + n.tip
         if key not in self.CFG['types']:
-            self.CFG['types'][key] = dict(ad=n.d['ad'], model=n.model, hp=1, kalkan=0, hasar=0, hiz=n.d['hiz'], aggressive=False,
-                                      reward=dict(ep=0, onur=0, kredi=0, uridyum=0), kargo={}, uncounted=True,
-                                      behavior={'explode_on_death': {'hasar': k.get('explosion', 60000),
-                                                                 'yaricap': k.get('explosion_radius', 500)}})
+            self.CFG['types'][key] = dict(name=n.d['name'], model=n.model, hp=1, kalkan=0, damage=0, speed=n.d['speed'], aggressive=False,
+                                      reward=dict(ep=0, honor=0, credits=0, uridium=0), cargo={}, uncounted=True,
+                                      behavior={'explode_on_death': {'damage': k.get('explosion', 60000),
+                                                                 'radius': k.get('explosion_radius', 500)}})
         return key
 
     # ------------------------------------------------------------ uzaylının atışı
@@ -294,26 +294,26 @@ class Abilities:
         """Uzaylının lazeri oyuncuya isabet etti: ters atış (Streuner Turret), yavaşlatan atış."""
         t = n.behavior.get('reverse_shot')
         if t and hit and not self.w.hero_dead and now >= n.ab.get('reverse_next', 0):
-            n.ab['reverse_next'] = now + t['bekleme_sn']
+            n.ab['reverse_next'] = now + t['cooldown_sec']
             self.reverse_controls(n, t['sn'])
         s = n.behavior.get('slowing_shots')
         if not s or not hit or self.w.hero_dead or not SET.get('slowing_shots'):          # panel: kapatılabilir
             return
-        if s.get('menzil') and self.dist(n, now) > s['menzil']:
+        if s.get('range') and self.dist(n, now) > s['range']:
             return
         w = self.w
         src = 'slow_%s' % n.tip
-        if 'hiz' in s:
+        if 'speed' in s:
             w.hero_effects.remove('speed_limit', source=src)          # yenilenir, birikmez
-            w.hero_effect('speed_limit', s['sn'], s['hiz'], source=src)
+            w.hero_effect('speed_limit', s['sn'], s['speed'], source=src)
         else:
             w.hero_effects.remove('slow', source=src)
-            w.hero_effect('slow', s['sn'], s['oran'], source=src)
+            w.hero_effect('slow', s['sn'], s['ratio'], source=src)
 
     def extra_target(self, n, now):
         """Birden çok hedef (Mindfire Behemoth): kritik canda P.E.T.'e de ateş eder."""
         c = n.behavior.get('multi_target')
-        return bool(c) and n.hp <= n.d['hp'] * c.get('can_orani', 0.25)
+        return bool(c) and n.hp <= n.d['hp'] * c.get('hp_ratio', 0.25)
 
     # ------------------------------------------------------------ her adım
     def tick(self, now):
@@ -329,7 +329,7 @@ class Abilities:
                 self.summon_repair(n, now)
             if 'cloak_breaker' in d:
                 self.uncloak(n, now)
-            if 'roket' in d:
+            if 'rocket' in d:
                 self.rocket(n, now)
             if 'singularity' in d:
                 self.singularity(n, now)
@@ -384,30 +384,30 @@ class Abilities:
                 if h is not None and h.alive and h.bot is not None:
                     BG.bot_damage(w, h, int(dmg), uid, time.time(), npc=w.npcs.get(uid) or n)
             w.later(delay, at) if delay else at()
-        r = d.get('roket')
-        if r and now >= n.ab.get('roket', 0) and aliens <= w.npc_range(n):
-            n.ab['roket'] = now + r.get('bekleme_sn', 8)
+        r = d.get('rocket')
+        if r and now >= n.ab.get('rocket', 0) and aliens <= w.npc_range(n):
+            n.ab['rocket'] = now + r.get('cooldown_sec', 8)
             if random.random() < self.S['rocket_hit_chance']:
                 from legacy_protocol import legacy
-                BG._broadcast(w, [legacy('0|v|%d|%d|H|%d|0|0' % (n.id, t.id, r.get('tur', 1)))], n.id, t.id)
-                hit(r['hasar'] * random.uniform(0.85, 1.0), self.S['rocket_flight_sec'])
+                BG._broadcast(w, [legacy('0|v|%d|%d|H|%d|0|0' % (n.id, t.id, r.get('type', 1)))], n.id, t.id)
+                hit(r['damage'] * random.uniform(0.85, 1.0), self.S['rocket_flight_sec'])
         b = d.get('sticky_bomb')
         if b and aliens <= w.npc_range(n) * 2:
             if 'bomb' not in n.ab:
                 n.ab['bomb'] = now + b['interval_sec']
             elif now >= n.ab['bomb']:
                 n.ab['bomb'] = now + b['interval_sec']
-                dmg = random.randint(*b['hasar']) if isinstance(b['hasar'], list) else b['hasar']
-                hit(dmg / max(1, b.get('grup', 1)), b.get('delay_sec', 2))
+                dmg = random.randint(*b['damage']) if isinstance(b['damage'], list) else b['damage']
+                hit(dmg / max(1, b.get('group', 1)), b.get('delay_sec', 2))
         k = d.get('explode_on_contact')
-        if k and aliens <= k['yaricap']:
-            dmg = k['hasar'] * ((1 - (1 - k['at_edge']) * min(1.0, aliens / k['yaricap'])) if 'at_edge' in k else 1)
+        if k and aliens <= k['radius']:
+            dmg = k['damage'] * ((1 - (1 - k['at_edge']) * min(1.0, aliens / k['radius'])) if 'at_edge' in k else 1)
             hit(dmg)
             boom = [('ShipDestroyedCommand', dict(destroyedUserId=n.id, explosionTypeId=0))] if n.id in w.visible else []
             w.send(boom + w.remove_npc(n))
             return
         k = d.get('kamikaze_threshold')
-        if k and n.hp <= n.d['hp'] * k['oran'] and n.hp > 0 and aliens <= k['yaricap']:
+        if k and n.hp <= n.d['hp'] * k['ratio'] and n.hp > 0 and aliens <= k['radius']:
             hit(n.hp * k['damage_hp_ratio'])
             boom = [('ShipDestroyedCommand', dict(destroyedUserId=n.id, explosionTypeId=0))] if n.id in w.visible else []
             w.send(boom + w.remove_npc(n))
@@ -415,23 +415,23 @@ class Abilities:
                 w.schedule(random.uniform(*w.respawn_range(n)), 'npc', n.tip)
             return
         s = d.get('singularity')
-        if s and now >= n.ab.get('singularity', 0) and aliens <= s['menzil'] * SET.multiplier('npc_range'):
-            n.ab['singularity'] = now + s['bekleme_sn']
-            for i in range(int(min(s['sure_sn'], s['azami'] / max(1, s['sn_hasar'])))):
-                hit(s['sn_hasar'], i + 1.0)
+        if s and now >= n.ab.get('singularity', 0) and aliens <= s['range'] * SET.multiplier('npc_range'):
+            n.ab['singularity'] = now + s['cooldown_sec']
+            for i in range(int(min(s['sure_sn'], s['maximum'] / max(1, s['damage_per_sec'])))):
+                hit(s['damage_per_sec'], i + 1.0)
         o = d.get('death_beam')
         if o and now >= n.ab.get('beam', 0) and aliens > o['distance']:
             n.ab['beam'] = now + o['interval_sec']
-            hit(o['hasar'] * random.uniform(0.8, 1.2))
+            hit(o['damage'] * random.uniform(0.8, 1.2))
         p = d.get('periodic_summon')
         if p and now >= n.ab.get('periodic', 0):
-            n.ab['periodic'] = now + p['bekleme_sn']
+            n.ab['periodic'] = now + p['cooldown_sec']
             n.ab['summoner'] = t.id
             n.children = {c for c in n.children if c in w.npcs and w.npcs[c].alive}
             for e in p['summons']:
-                room = e['max_count'] - sum(1 for c in n.children if w.npcs[c].tip == e['tur'])
+                room = e['max_count'] - sum(1 for c in n.children if w.npcs[c].tip == e['type'])
                 if room > 0:
-                    self.summon(n, e['tur'], min(e['adet'], room), now)
+                    self.summon(n, e['type'], min(e['count'], room), now)
 
     def expire(self, n):
         """Ömrü biten (sahte Emperor): sessizce kalkar."""
@@ -456,7 +456,7 @@ class Abilities:
         if not n.children or n.hp >= n.d['hp']:
             return
         r = n.behavior['repair_while_summons_alive']
-        amount = n.behavior['anger'].get('repair_hp_per_sec', r['can_sn']) if self.enraged(n, now) else r['can_sn']
+        amount = n.behavior['anger'].get('repair_hp_per_sec', r['hp_sec']) if self.enraged(n, now) else r['hp_sec']
         n.hp = min(n.d['hp'], n.hp + amount)
         if self.w.target == n.id:
             self.w.send([self.w.selection(n)])
@@ -465,35 +465,35 @@ class Abilities:
         w = self.w
         if not (w.abilities.cloaked(now) or w.items.cloaked()) or w.hero_dead:
             return
-        if self.dist(n, now) <= n.behavior['cloak_breaker'].get('menzil', 1500):
+        if self.dist(n, now) <= n.behavior['cloak_breaker'].get('range', 1500):
             w.abilities.reveal()
             w.items.reveal()
             # EMP darbesi (Ö1): istemcinin "EMP Malus Bolt"u mini haritayı parazitler (MapEventsAssemblyHelper.AssembleEmpMalusBolt,
             # 0|n|EMAL|<saniye>; süre uyarlama)
             from legacy_protocol import legacy
             w.send([legacy('0|n|EMAL|%d' % EMP_NOISE_SEC)])
-            w.log('   %s gizlenmeyi bozdu' % n.d['ad'])
+            w.log('   %s gizlenmeyi bozdu' % n.d['name'])
 
     def rocket(self, n, now):
         """Uzaylının roketi ya da roket fırlatıcı salvosu: kendi beklemesiyle, ateş menzilinde."""
-        w, r = self.w, n.behavior['roket']
-        if (not n.engaged or now < n.ab.get('roket', 0) or n.effect.frozen(now) or not self.hero_open(now, n)
+        w, r = self.w, n.behavior['rocket']
+        if (not n.engaged or now < n.ab.get('rocket', 0) or n.effect.frozen(now) or not self.hero_open(now, n)
                 or self.dist(n, now) > w.npc_range(n)):
             return
-        n.ab['roket'] = now + r.get('bekleme_sn', 8)
+        n.ab['rocket'] = now + r.get('cooldown_sec', 8)
         m = w.p.mods()
         hit = random.random() < self.S['rocket_hit_chance'] * (1 - m.get('evasion', 0)) * (1 - n.effect.accuracy_loss(now))
         flight = self.S['rocket_flight_sec']
         if r.get('launcher'):
             import combat_items as CIT
-            kind = CIT.LAUNCHER_AMMO.get('ammunition_rocketlauncher_eco-10', {}).get('tur', 1)
-            cnt = r.get('adet', 5)
+            kind = CIT.LAUNCHER_AMMO.get('ammunition_rocketlauncher_eco-10', {}).get('type', 1)
+            cnt = r.get('count', 5)
             flight = CIT.salvo_time(self.dist(n, now), cnt)        # yerel eğri salvo: hasar son roket varınca
             w.send([CIT.salvo(n.id, w.hid, hit, cnt, kind)])
         else:
             from legacy_protocol import legacy
-            w.send([legacy('0|v|%d|%d|%s|%d|0|0' % (n.id, w.hid, 'H' if hit else 'M', r.get('tur', 1)))])
-        dmg = int(r['hasar'] * random.uniform(0.85, 1.0))
+            w.send([legacy('0|v|%d|%d|%s|%d|0|0' % (n.id, w.hid, 'H' if hit else 'M', r.get('type', 1)))])
+        dmg = int(r['damage'] * random.uniform(0.85, 1.0))
         uid = n.id
 
         def land():
@@ -509,28 +509,28 @@ class Abilities:
     def singularity(self, n, now):
         """The Stinger'ın tekilliği başlar: oyuncunun üzerinde saniyede hasar (dot_tick)."""
         t = n.behavior['singularity']
-        rng = t['menzil'] * SET.multiplier('npc_range')       # panel: alien firing range
+        rng = t['range'] * SET.multiplier('npc_range')       # panel: alien firing range
         if not n.engaged or now < n.ab.get('singularity', 0) or not self.hero_open(now, n) or self.dist(n, now) > rng:
             return
-        n.ab['singularity'] = now + t['bekleme_sn']
+        n.ab['singularity'] = now + t['cooldown_sec']
         visual = t.get('visual', True)                     # Reflector Mimesis'in radyasyonu: girdap yok
         if visual and not any(d_.get('visual') for d_ in self.hero_dots):
             self.w.send([self.singularity_visual(True)])    # canlı test H30: hasar vardı, görsel yoktu
-        self.hero_dots.append(dict(npc=n.id, bitis=now + t['sure_sn'], kalan=t['azami'], sn_hasar=t['sn_hasar'], next=now + 1.0,
-                                   menzil=rng, visual=visual))
-        self.w.log('   %s tekilliği başladı' % n.d['ad'])
+        self.hero_dots.append(dict(npc=n.id, end_time=now + t['sure_sn'], remaining=t['maximum'], damage_per_sec=t['damage_per_sec'], next=now + 1.0,
+                                   range=rng, visual=visual))
+        self.w.log('   %s tekilliği başladı' % n.d['name'])
 
     def kamikaze(self, n, now):
         """Kamikaze Mimesis: oyuncuya yaricap kadar yaklaşınca patlar (bomba hasarı) ve ödülsüz kalkar."""
         t, w = n.behavior['explode_on_contact'], self.w
-        if not n.engaged or not self.hero_open(now, n) or self.dist(n, now) > t['yaricap']:
+        if not n.engaged or not self.hero_open(now, n) or self.dist(n, now) > t['radius']:
             return
-        dmg = t['hasar']
+        dmg = t['damage']
         if 'at_edge' in t:         # Seeker Rocket: hasar patlama anındaki uzaklığa göre (temasta tam, yaricap kenarında "kenarda" kadarı)
-            dmg = int(dmg * (1 - (1 - t['at_edge']) * min(1.0, self.dist(n, now) / t['yaricap'])))
+            dmg = int(dmg * (1 - (1 - t['at_edge']) * min(1.0, self.dist(n, now) / t['radius'])))
         boom = [('ShipDestroyedCommand', dict(destroyedUserId=n.id, explosionTypeId=0))] if n.id in w.visible else []
         w.send(w.hurt_hero(dmg, n, atype=0) + boom + w.remove_npc(n))
-        w.log('   %s patladı: %d hasar' % (n.d['ad'], dmg))
+        w.log('   %s patladı: %d hasar' % (n.d['name'], dmg))
 
     def threshold_kamikaze(self, n, now):
         """Barracuda: canı oran'a inince kırmızı parlar ve bekle_sn yerinde durur (donuk: ateş etmez), sonra oyuncuya yaklaşır;
@@ -539,7 +539,7 @@ class Abilities:
         t, w = n.behavior['kamikaze_threshold'], self.w
         until = n.ab.get('kamikaze')
         if until is None:
-            if n.hp <= 0 or n.hp > n.d['hp'] * t['oran']:
+            if n.hp <= 0 or n.hp > n.d['hp'] * t['ratio']:
                 return
             self.glow(n, t, now)
             return
@@ -552,13 +552,13 @@ class Abilities:
             n.ab['approach'] = now + t['approach_sec']
             n.engaged, n.next_think = True, now
             w.send([self.visual(n.id, RED_GLOW, False)])
-        if self.hero_open(now, n) and self.dist(n, now) <= t['yaricap']:
+        if self.hero_open(now, n) and self.dist(n, now) <= t['radius']:
             dmg = int(n.hp * t['damage_hp_ratio'])
             boom = [('ShipDestroyedCommand', dict(destroyedUserId=n.id, explosionTypeId=0))] if n.id in w.visible else []
             w.send(w.hurt_hero(dmg, n, atype=0) + boom + w.remove_npc(n))
             if not n.gate and not n.summoned:
                 w.schedule(random.uniform(*w.respawn_range(n)), 'npc', n.tip)
-            w.log('   %s kendini patlattı: %d hasar' % (n.d['ad'], dmg))
+            w.log('   %s kendini patlattı: %d hasar' % (n.d['name'], dmg))
         elif now >= n.ab['approach']:
             self.glow(n, t, now)                            # ulaşamadı: yeniden parlar ve bekler
 
@@ -567,7 +567,7 @@ class Abilities:
         n.ab.pop('approach', None)
         self.w.npc_effect(n, 'frozen', t['wait_sec'], source='kamikaze')
         self.w.send([self.visual(n.id, RED_GLOW, True)])
-        self.w.log('   %s kamikazeye hazırlanıyor (can %%%d)' % (n.d['ad'], 100 * n.hp // max(1, n.d['hp'])))
+        self.w.log('   %s kamikazeye hazırlanıyor (can %%%d)' % (n.d['name'], 100 * n.hp // max(1, n.d['hp'])))
 
     def singularity_visual(self, on):
         return self.visual(self.w.hid, SINGULARITY_TARGET, on)
@@ -577,16 +577,16 @@ class Abilities:
         keep = []
         for dot in self.hero_dots:
             n = w.npcs.get(dot['npc'])
-            if not n or not n.alive or now >= dot['bitis'] or dot['kalan'] <= 0 or w.hero_dead:
+            if not n or not n.alive or now >= dot['end_time'] or dot['remaining'] <= 0 or w.hero_dead:
                 continue
             keep.append(dot)
             if now < dot['next']:
                 continue
             dot['next'] += 1.0
-            if self.dist(n, now) > dot['menzil'] or not self.hero_open(now, n):
+            if self.dist(n, now) > dot['range'] or not self.hero_open(now, n):
                 continue
-            dmg = min(dot['sn_hasar'], dot['kalan'])
-            dot['kalan'] -= dmg
+            dmg = min(dot['damage_per_sec'], dot['remaining'])
+            dot['remaining'] -= dmg
             w.send(w.hurt_hero(dmg, n))
         if any(d_.get('visual') for d_ in self.hero_dots) and not any(d_.get('visual') for d_ in keep):
             w.send([self.singularity_visual(False)])
@@ -603,8 +603,8 @@ class Abilities:
         if now < n.ab['bomb']:
             return
         n.ab['bomb'] = now + b['interval_sec']
-        dmg = random.randint(*b['hasar']) if isinstance(b['hasar'], list) else b['hasar']      # Marker Mimesis: 100-300 bin
-        dmg = int(dmg / max(1, b.get('grup', 1)))
+        dmg = random.randint(*b['damage']) if isinstance(b['damage'], list) else b['damage']      # Marker Mimesis: 100-300 bin
+        dmg = int(dmg / max(1, b.get('group', 1)))
         from legacy_protocol import legacy
         w.send([legacy('0|v|%d|%d|H|1|0|0' % (n.id, w.hid))])
         uid = n.id
@@ -613,7 +613,7 @@ class Abilities:
             if not w.hero_dead and not w.jumping:
                 w.send(w.hurt_hero(dmg, w.npcs.get(uid) or n, atype=0))
         w.later(b.get('delay_sec', 2), boom)
-        w.log('   %s yapışkan bomba (%d hasar)' % (n.d['ad'], dmg))
+        w.log('   %s yapışkan bomba (%d hasar)' % (n.d['name'], dmg))
 
     def hidden_regen(self, n, now):
         """Gizli Emperor Lordakium saniyede can ve kalkan doldurur."""
@@ -621,7 +621,7 @@ class Abilities:
             return
         n.ab['reload'] = now + 1.0
         k = n.behavior['disappear']
-        n.hp = min(n.d['hp'], n.hp + k.get('can_sn', 0))
+        n.hp = min(n.d['hp'], n.hp + k.get('hp_sec', 0))
         n.shield = min(n.d['kalkan'], n.shield + k.get('shield_per_sec', 0))
 
     # ------------------------------------------------------------ iyileştirme, izleme, periyodik çağırma, EMP, oyuncunun hızı
@@ -631,17 +631,17 @@ class Abilities:
         h = n.behavior['improvement']
         if now < n.ab.get('improvement', 0):
             return
-        n.ab['improvement'] = now + h['bekleme_sn']
+        n.ab['improvement'] = now + h['cooldown_sec']
         w = self.w
         nx, ny = n.mover.pos(now)
         for m in list(w.npcs.values()):
-            if m is n or not m.alive or m.hp <= 0 or m.hp >= m.d['hp'] or (h.get('hedef')
-                                                                           and not any(s in m.d['ad'].lower() for s in h['hedef'])):
+            if m is n or not m.alive or m.hp <= 0 or m.hp >= m.d['hp'] or (h.get('target')
+                                                                           and not any(s in m.d['name'].lower() for s in h['target'])):
                 continue
             mx, my = m.mover.pos(now)
-            if math.hypot(mx - nx, my - ny) > h['menzil']:
+            if math.hypot(mx - nx, my - ny) > h['range']:
                 continue
-            amount = int(min(m.d['hp'] - m.hp, h['can_sn'] if 'can_sn' in h else m.d['hp'] * h['can_orani']))
+            amount = int(min(m.d['hp'] - m.hp, h['hp_sec'] if 'hp_sec' in h else m.d['hp'] * h['hp_ratio']))
             m.hp += amount
             msgs = [legacy('0|A|HL|%d|%d|HPT|%d|%d' % (n.id, m.id, int(m.hp), amount))] if m.id in w.visible else []
             if w.target == m.id:
@@ -656,9 +656,9 @@ class Abilities:
         n.ab['follow'] = now + 5.0
         f, nx, ny = n.behavior['follow'], *n.mover.pos(now)
         near = [(math.hypot(m.mover.pos(now)[0] - nx, m.mover.pos(now)[1] - ny), m.id) for m in self.w.npcs.values()
-                if m is not n and m.alive and f['hedef'] in m.d['ad'].lower()]
+                if m is not n and m.alive and f['target'] in m.d['name'].lower()]
         if near:
-            n.guard = (min(near)[1], {'yaricap': f['yaricap']})
+            n.guard = (min(near)[1], {'radius': f['radius']})
 
     def periodic_summon(self, n, now):
         """Periyodik çağırma {bekleme_sn, cagrilar [{tur, adet, en_cok}]}: savaşırken, vurulmasa da bekleme_sn'de bir çağırır; her tür
@@ -666,30 +666,30 @@ class Abilities:
         p, w = n.behavior['periodic_summon'], self.w
         if not n.engaged or n.effect.frozen(now) or now < n.ab.get('periodic', 0) or not self.hero_open(now, n):
             return
-        n.ab['periodic'] = now + p['bekleme_sn']
+        n.ab['periodic'] = now + p['cooldown_sec']
         n.children = {c for c in n.children if c in w.npcs and w.npcs[c].alive}
         for e in p['summons']:
-            room = e['max_count'] - sum(1 for c in n.children if w.npcs[c].tip == e['tur'])
+            room = e['max_count'] - sum(1 for c in n.children if w.npcs[c].tip == e['type'])
             if room > 0:
-                self.summon(n, e['tur'], min(e['adet'], room), now)
+                self.summon(n, e['type'], min(e['count'], room), now)
 
     def drop_mines(self, n, now):
         """Mayın bırakma {mayin, can_orani, bekleme_sn, en_cok, hedef, yaricap}: canı can_orani'nın altındayken savaşırken bekleme_sn'de bir
         mayın bırakır (uzaylının konumuna; hedef: oyuncunun çevresine, yaricap [en az, en çok] uzaklıkta); aynı uzaylının en_cok mayını
         yaşarken yenisini bırakmaz. Mayın savas_esya.alien_mine'ın uzaylı mayınıdır (kurulunca oyuncu yakındaysa patlar)."""
         m, w = n.behavior['drop_mine'], self.w
-        if (w.items is None or not n.engaged or n.effect.frozen(now) or n.hp > n.d['hp'] * m['can_orani']
-                or now < n.ab.get('mayin', 0) or not self.hero_open(now, n)):
+        if (w.items is None or not n.engaged or n.effect.frozen(now) or n.hp > n.d['hp'] * m['hp_ratio']
+                or now < n.ab.get('mine', 0) or not self.hero_open(now, n)):
             return
-        n.ab['mayin'] = now + m['bekleme_sn']
-        if sum(1 for k in w.items.mines.values() if k['sahip'] == n.id) >= m['max_count']:
+        n.ab['mine'] = now + m['cooldown_sec']
+        if sum(1 for k in w.items.mines.values() if k['owner'] == n.id) >= m['max_count']:
             return
-        x, y = w.hero_pos(now) if m.get('hedef') else n.mover.pos(now)
-        if m.get('hedef'):
-            a, r = random.uniform(0, 2 * math.pi), random.uniform(*m['yaricap'])
+        x, y = w.hero_pos(now) if m.get('target') else n.mover.pos(now)
+        if m.get('target'):
+            a, r = random.uniform(0, 2 * math.pi), random.uniform(*m['radius'])
             x, y = x + math.cos(a) * r, y + math.sin(a) * r
-        w.items.alien_mine(m['mayin'], min(max(0, x), w.map_w), min(max(0, y), w.map_h), n.id, now)
-        w.log('   %s mayın bıraktı (%s)' % (n.d['ad'], m['mayin']))
+        w.items.alien_mine(m['mine'], min(max(0, x), w.map_w), min(max(0, y), w.map_h), n.id, now)
+        w.log('   %s mayın bıraktı (%s)' % (n.d['name'], m['mine']))
 
     def death_ray(self, n, now):
         """Ölüm ışını {hasar, aralik_sn, uzaklik} (Gygerim Overlord): oyuncu uzaklik'tan uzaktayken (ışınlar haritanın dışından gelir) savaşırken
@@ -699,17 +699,17 @@ class Abilities:
                 or not self.hero_open(now, n)):
             return
         n.ab['beam'] = now + r['interval_sec']
-        dmg = int(r['hasar'] * random.uniform(0.8, 1.2))
+        dmg = int(r['damage'] * random.uniform(0.8, 1.2))
         w.send(w.hurt_hero(dmg, n, atype=0))
-        w.log('   %s ölüm ışını (%d hasar)' % (n.d['ad'], dmg))
+        w.log('   %s ölüm ışını (%d hasar)' % (n.d['name'], dmg))
 
     def periodic_emp(self, n, now):
         """Periyodik EMP {bekleme_sn, menzil}: savaşırken, menzildeyse bekleme_sn'de bir (Hitac Underboss'un EMP Impulse'u)."""
         e = n.behavior['periodic_emp']
-        if not n.engaged or n.effect.frozen(now) or now < n.ab.get('emp_next', 0) or self.dist(n, now) > e['menzil'] \
+        if not n.engaged or n.effect.frozen(now) or now < n.ab.get('emp_next', 0) or self.dist(n, now) > e['range'] \
                 or not self.hero_open(now, n):
             return
-        n.ab['emp_next'] = now + e['bekleme_sn']
+        n.ab['emp_next'] = now + e['cooldown_sec']
         self.emp(n, now)
 
     def emp(self, n, now):
@@ -727,16 +727,16 @@ class Abilities:
             w.target = None
             msgs.append(('ShipDeselectionCommand', {}))
         w.send(msgs)
-        w.log('   %s EMP darbesi savurdu' % n.d['ad'])
+        w.log('   %s EMP darbesi savurdu' % n.d['name'])
 
     def match_speed(self, n, now):
         """Oyuncunun hızı {ek, can_orani}: hızı oyuncununkine eşitlenir (+ek). can_orani varsa yalnız canı o orana inince (Hooligan:
         kritik canda); Seeker Rocket hep (oyuncu + 20)."""
         h = n.behavior['player_speed']
-        if 'can_orani' in h and n.hp > n.d['hp'] * h['can_orani']:
-            n.ab.pop('hiz', None)
+        if 'hp_ratio' in h and n.hp > n.d['hp'] * h['hp_ratio']:
+            n.ab.pop('speed', None)
         else:
-            n.ab['hiz'] = max(1, int(self.w.p.d['gemi'].get('speed', 300)) + h.get('ek', 0))
+            n.ab['speed'] = max(1, int(self.w.p.d['ship'].get('speed', 300)) + h.get('extra', 0))
 
     # ------------------------------------------------------------ düşük can: kaçış ve park (fandom Low health, Parking)
     def flees(self, n):
@@ -744,7 +744,7 @@ class Abilities:
         mothership ve özel patronlar (yeniden_dogma_ozel), korsan haritaları (5-X), duvarlı haritalar, Barracuda (kamikaze) ve hızı
         oyuncununkine eşitlenen Hooligan kaçmaz (fandom: mothership ve korsanlar kaçmaz)."""
         w = self.w
-        if (n.gate or n.summoned or n.hunt or getattr(n, 'passive', False) or n.d['hiz'] <= 0 or w.gate or w.low or w.labyrinth
+        if (n.gate or n.summoned or n.hunt or getattr(n, 'passive', False) or n.d['speed'] <= 0 or w.gate or w.low or w.labyrinth
                 or n.tip in self.S.get('respawn_special', {}) or 'kamikaze_threshold' in n.behavior or 'player_speed' in n.behavior
                 or H.map_class(w.map_id).startswith('5-') or ML.navigates(w.map_id)):
             return False
@@ -753,7 +753,7 @@ class Abilities:
     def flee_range(self, n):
         """Kaçarken ateş menzili: bazı uzaylılarda (Kristallon, Kristallin) düşük canda artar (fandom Low health)."""
         m, r = LOW['range_boost'], self.w.npc_range(n)
-        return r * m['carpan'] if any(s in n.d['ad'].lower() for s in m['ad']) else r
+        return r * m['multiplier'] if any(s in n.d['name'].lower() for s in m['name']) else r
 
     def flee_spot(self, n, now):
         """Oyuncudan en uzak kenar/köşe noktası (güvenli bölgeye ve onun yoluna girmeden); yoksa bulunduğu yer."""
@@ -765,7 +765,7 @@ class Abilities:
         return max(spots, key=lambda s: math.hypot(s[0] - hx, s[1] - hy)) if spots else (int(nx), int(ny))
 
     def flee_move(self, n, st, now):
-        tx, ty = st['hedef']
+        tx, ty = st['target']
         ms = n.mover.go(tx, ty, n.speed() * n.effect.speed_factor(now), now)
         self.w.send([('MoveCommand', dict(userId=n.id, x=int(tx), y=int(ty), timeToTarget=ms))])
 
@@ -775,31 +775,31 @@ class Abilities:
         yenilenir); donus_orani'na yenilenince normal yapay zekâ. -> 'kac' | 'park' | None (dunya.think)."""
         st = n.ab.get('flee')
         if n.effect.frozen(now):
-            return st['durum'] if st else None
+            return st['state'] if st else None
         if st is None:
-            if not (0 < n.hp < n.d['hp'] * LOW['oran']) or not self.flees(n):
+            if not (0 < n.hp < n.d['hp'] * LOW['ratio']) or not self.flees(n):
                 return None
-            st = n.ab['flee'] = dict(durum='flee', hedef=self.flee_spot(n, now), reload=0.0)
+            st = n.ab['flee'] = dict(state='flee', target=self.flee_spot(n, now), reload=0.0)
             self.flee_move(n, st, now)
-            self.w.log('   %s düşük canda kaçıyor (can %%%d)' % (n.d['ad'], 100 * n.hp // max(1, n.d['hp'])))
+            self.w.log('   %s düşük canda kaçıyor (can %%%d)' % (n.d['name'], 100 * n.hp // max(1, n.d['hp'])))
         if n.hp >= n.d['hp'] * LOW['return_ratio'] and n.shield >= n.d['kalkan'] * LOW['return_ratio']:
             del n.ab['flee']                                       # tamamen yenilendi: normal yapay zekâ
             n.next_think = now
             return None
-        if st['durum'] == 'flee':
+        if st['state'] == 'flee':
             if n.mover.t1 > now:
                 return 'flee'
             x, y = n.mover.pos(now)
-            if math.hypot(x - st['hedef'][0], y - st['hedef'][1]) > 150:
+            if math.hypot(x - st['target'][0], y - st['target'][1]) > 150:
                 self.flee_move(n, st, now)                         # yolu kesildi (yavaşlatma, donma): yeniden
                 return 'flee'
-            st['durum'] = 'park'
-            self.w.log('   %s köşeye park etti: (%d,%d)' % (n.d['ad'], x, y))
+            st['state'] = 'park'
+            self.w.log('   %s köşeye park etti: (%d,%d)' % (n.d['name'], x, y))
         n.engaged = False                                          # park: karşılık vermez
         if now >= st['reload']:
             st['reload'] = now + 1.0
             r = LOW['regeneration']
-            if now - n.last_hit >= r['bekleme_sn']:
+            if now - n.last_hit >= r['cooldown_sec']:
                 n.hp = min(n.d['hp'], n.hp + int(n.d['hp'] * r['hp_ratio_per_sec']))
                 n.shield = min(n.d['kalkan'], n.shield + int(n.d['kalkan'] * r['shield_ratio_per_sec']))
                 if self.w.target == n.id:
@@ -809,18 +809,18 @@ class Abilities:
     # ------------------------------------------------------------ Emperor Sibelon: hız ve kapsüller
     def speed_skill(self, n, now):
         h = n.behavior['speed_skill']
-        if 'hiz' not in n.ab and n.shield <= n.d['kalkan'] * h.get('shield_ratio', 0.1):
-            n.ab['hiz'] = h['hiz']
+        if 'speed' not in n.ab and n.shield <= n.d['kalkan'] * h.get('shield_ratio', 0.1):
+            n.ab['speed'] = h['speed']
             n.ab['capsule_at'] = now
-            self.w.log('   %s hızlandı (%d)' % (n.d['ad'], h['hiz']))
+            self.w.log('   %s hızlandı (%d)' % (n.d['name'], h['speed']))
         k = n.behavior.get('capsules')
-        if 'hiz' not in n.ab or not k:
+        if 'speed' not in n.ab or not k:
             return
-        mine = [a for a, c in self.capsules.items() if c['sahip'] == n.id]
-        if len(mine) < k['adet'] and now >= n.ab['capsule_at']:
+        mine = [a for a, c in self.capsules.items() if c['owner'] == n.id]
+        if len(mine) < k['count'] and now >= n.ab['capsule_at']:
             n.ab['capsule_at'] = now + k['interval_sec']
             self.spawn_capsule(n)
-            mine = [a for a, c in self.capsules.items() if c['sahip'] == n.id]
+            mine = [a for a, c in self.capsules.items() if c['owner'] == n.id]
         if not mine or n.effect.frozen(now):
             return
         nx, ny = n.mover.pos(now)
@@ -836,7 +836,7 @@ class Abilities:
             return
         if n.ab.get('capsule') != aid or n.mover.t1 <= now:
             n.ab['capsule'] = aid
-            ms = n.mover.go(c['x'], c['y'], n.ab['hiz'] * n.effect.speed_factor(now), now)
+            ms = n.mover.go(c['x'], c['y'], n.ab['speed'] * n.effect.speed_factor(now), now)
             n.next_think = now + ms / 1000.0 + 0.5          # kovalamayı bırakıp kapsüle gider
             self.w.send([('MoveCommand', dict(userId=n.id, x=int(c['x']), y=int(c['y']), timeToTarget=ms))])
 
@@ -846,8 +846,8 @@ class Abilities:
         aid = self.next_capsule
         x, y = self.far_spot(n.mover.pos(time.time()), 2500)
         kind = random.choice(CAPSULES)
-        self.capsules[aid] = dict(x=x, y=y, tur=kind, sahip=n.id)
-        w.send([asset_create(aid, BUFF_CAPSULE, x, y, name='%s-Buff' % {'can': 'HP', 'kalkan': 'SHD', 'hasar': 'DMG'}[kind],
+        self.capsules[aid] = dict(x=x, y=y, type=kind, owner=n.id)
+        w.send([asset_create(aid, BUFF_CAPSULE, x, y, name='%s-Buff' % {'can': 'HP', 'kalkan': 'SHD', 'damage': 'DMG'}[kind],
                              design=CAPSULES.index(kind))])
         w.log('   kapsül belirdi: %s (%d,%d)' % (kind, x, y))
 
@@ -857,26 +857,26 @@ class Abilities:
             return
         msgs = [asset_remove(aid, BUFF_CAPSULE)]
         if 'collecting' in c:
-            msgs.insert(0, ('StopCapsuleCollectCommand', {'collectorId': c['sahip']}))
+            msgs.insert(0, ('StopCapsuleCollectCommand', {'collectorId': c['owner']}))
         self.w.send(msgs)
-        self.w.log('   kapsül %s: %s' % (why, c['tur']))
+        self.w.log('   kapsül %s: %s' % (why, c['type']))
 
     def collect_capsule(self, n, aid, k):
         """Emperor kapsülü topladı: can/kalkan %10 dolar ya da hasarı artar ve oyuncununki düşer (Emperor ölünce kalkar)."""
         w = self.w
-        kind = self.capsules[aid]['tur']
+        kind = self.capsules[aid]['type']
         if kind == 'can':
             n.hp = min(n.d['hp'], n.hp + n.d['hp'] * k['can'])
         elif kind == 'kalkan':
             n.shield = min(n.d['kalkan'], n.shield + n.d['kalkan'] * k['kalkan'])
         else:
-            n.ab['damage_bonus'] = n.ab.get('damage_bonus', 0) + k['hasar']
-            w.hero_effect('weakness', 3600, k['hasar'], source='kapsul_%d' % n.id)
+            n.ab['damage_bonus'] = n.ab.get('damage_bonus', 0) + k['damage']
+            w.hero_effect('weakness', 3600, k['damage'], source='kapsul_%d' % n.id)
         self.drop_capsule(aid, 'toplandı')
         # toplama görseli (Ö1): Emperor'un çevresinde 4 sn'lik parlayan halka; tür 0 hasar (kırmızı), 1 kalkan, 2 can (istemci:
         # EmperorSibelonBuffRingCommandHandler, çap radius x 2; yarıçap uyarlama)
         x, y = n.mover.pos(time.time())
-        w.send([('EmperorSibelonBuffRingCommand', dict(avatarId=n.id, type={'hasar': 0, 'kalkan': 1, 'can': 2}[kind], radius=RING_RADIUS,
+        w.send([('EmperorSibelonBuffRingCommand', dict(avatarId=n.id, type={'damage': 0, 'kalkan': 1, 'can': 2}[kind], radius=RING_RADIUS,
                                                        x=int(x), y=int(y)))])
         if w.target == n.id:
             w.send([w.selection(n)])
@@ -888,7 +888,7 @@ class Abilities:
         w = self.w
         hx, hy = w.hero_pos(now)
         for aid, c in list(self.capsules.items()):
-            owner = w.npcs.get(c['sahip'])
+            owner = w.npcs.get(c['owner'])
             if not owner or not owner.alive:
                 self.drop_capsule(aid, 'sahipsiz kaldı')
             elif not w.hero_dead and math.hypot(c['x'] - hx, c['y'] - hy) <= owner.behavior['capsules'].get('harvest_distance', 150):
@@ -896,7 +896,7 @@ class Abilities:
 
     def capsule_msgs(self):
         """Harita yeniden yüklenince kapsüller yeniden bildirilir."""
-        return [asset_create(aid, BUFF_CAPSULE, c['x'], c['y'], design=CAPSULES.index(c['tur'])) for aid, c in self.capsules.items()]
+        return [asset_create(aid, BUFF_CAPSULE, c['x'], c['y'], design=CAPSULES.index(c['type'])) for aid, c in self.capsules.items()]
 
     # ------------------------------------------------------------ ölüm
     def on_kill(self, n, x, y):
@@ -907,9 +907,9 @@ class Abilities:
         msgs = []
         if p and not w.hero_dead:
             hx, hy = w.hero_pos()
-            if math.hypot(x - hx, y - hy) <= p['yaricap']:
-                msgs += w.hurt_hero(p['hasar'], n, atype=0)
-                w.log('   %s patladı: %d hasar' % (n.d['ad'], p['hasar']))
+            if math.hypot(x - hx, y - hy) <= p['radius']:
+                msgs += w.hurt_hero(p['damage'], n, atype=0)
+                w.log('   %s patladı: %d hasar' % (n.d['name'], p['damage']))
         g = n.behavior.get('summons_scatter_on_death')
         if g:
             end = time.time()
@@ -917,7 +917,7 @@ class Abilities:
                 c = w.npcs.get(cid)
                 if c and c.alive:
                     c.passive, c.engaged = True, False                    # kimseyi kovalamadan dolaşır (dunya.think)
-                    c.ab['lifetime'] = end + random.uniform(*g['omur_sn'])
+                    c.ab['lifetime'] = end + random.uniform(*g['lifetime_sec'])
         if w.hero_effects.get('weakness'):
             w.hero_effects.remove('weakness', source='kapsul_%d' % n.id)
         left = [d for d in self.hero_dots if d['npc'] != n.id]

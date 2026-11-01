@@ -2,8 +2,8 @@
 Dalgası / Blacklight Surge 145819, Korsan Baskını 133215, Evrensel 4 - Europa 177655; veri data/events.json 'puanlama').
 
 'puanlama' alanları (hepsi isteğe bağlı):
-  npc        {npc_kimlik: puan ya da [kendi firma haritasında, düşman haritasında]}: sıralama puanı; yalnız öldüren alır
-  ilerleme   {npc_kimlik: puan}: ilerleme puanı (Blacklight Surge'ün İlerleme Puanı); kutulardan da gelir: içerik satırı
+  npc        {npc_id: puan ya da [kendi firma haritasında, düşman haritasında]}: sıralama puanı; yalnız öldüren alır
+  ilerleme   {npc_id: puan}: ilerleme puanı (Blacklight Surge'ün İlerleme Puanı); kutulardan da gelir: içerik satırı
              'olay_puani:<etkinlik>' (Hatching Out'un Viral Kutuları: VPP; dunya.grant_loot)
   kapi       {kapı: ilerleme puanı}: kapı tamamlanınca (Hatching Out: Alpha/Beta/Gamma 160 VPP; Dispatch'te yok, çifte ödül günü
              etkilemez)
@@ -15,7 +15,7 @@ Dalgası / Blacklight Surge 145819, Korsan Baskını 133215, Evrensel 4 - Europa
              sırası, tek oyuncu 1.)
   katilim    {esyalar, unvan}: etkinlik sürerken giriş yapan herkese, etkinlik bitince (Europa: talep penceresinden)
 İstemcinin ilerleme satırı '0|LM|ST|EPP|n' ("You received n Progress Points."); sıralama puanının istemcide göstergesi yok.
-Profilde: olay_puan {etkinlik: {donem, puan, ilerleme, esik, katildi}} (etkinlik bitip ödülü verilince silinir).
+Profilde: olay_puan {event: {donem, puan, ilerleme, esik, katildi}} (etkinlik bitip ödülü verilince silinir).
 """
 import map_links as H
 import event_calendar as CAL
@@ -39,9 +39,9 @@ def state(p, ev, now=None):
     per = CAL.period(ev, now) if CAL.is_active(ev, now) else None
     root = p.d.setdefault('event_points', {})
     st = root.get(ev)
-    if st is None or (per and st.get('donem') != per[0]):
+    if st is None or (per and st.get('period') != per[0]):
         with p.lock:
-            st = root[ev] = dict(donem=per[0] if per else None, puan=0, progress=0, threshold=0, joined=False)
+            st = root[ev] = dict(period=per[0] if per else None, points=0, progress=0, threshold=0, joined=False)
             p.dirty = True
     return st
 
@@ -64,7 +64,7 @@ def add(p, ev, n, give, now=None):
             p.dirty = True
         for loot, k in items:
             msgs += give(loot, k) if give else []
-        msgs.append(screen('%s - %s points reached!' % (CAL.EVENTS[ev]['ad'], format(lim, ',')), big=True))
+        msgs.append(screen('%s - %s points reached!' % (CAL.EVENTS[ev]['name'], format(lim, ',')), big=True))
         if st['threshold'] == len(steps) and c.get('reset'):             # Hatching Out: çubuk dolunca baştan
             with p.lock:
                 st['progress'] -= steps[-1][0]
@@ -76,7 +76,7 @@ def score(p, ev, n, now=None):
     if n > 0 and cfg(ev) and CAL.is_active(ev, now):
         st = state(p, ev, now)
         with p.lock:
-            st['puan'] += n
+            st['points'] += n
             p.dirty = True
 
 
@@ -98,7 +98,7 @@ def on_kill(p, map_id, npc_id, give, now=None):
 
 def gate(p, key, give, now=None):
     """Kapı tamamlandı (Dispatch hariç): etkinliğin kapı puanı."""
-    return [m for ev in events() for m in add(p, ev, cfg(ev).get('kapi', {}).get(key, 0), give, now)]
+    return [m for ev in events() for m in add(p, ev, cfg(ev).get('gate', {}).get(key, 0), give, now)]
 
 
 class EventPoints:
@@ -113,7 +113,7 @@ class EventPoints:
         return self.m.prize(loot, n) if self.m else []
 
     def on_kill(self, w, n, x, y):
-        return on_kill(self.p, w.map_id, n.d.get('npc_kimlik'), self.give)
+        return on_kill(self.p, w.map_id, n.d.get('npc_id'), self.give)
 
     def tick(self, now):
         if now < self.next:
@@ -137,19 +137,19 @@ class EventPoints:
         msgs = []
         k = c.get('participation') if st.get('joined') else None
         if k:
-            for loot, n in k.get('esyalar', []):
+            for loot, n in k.get('items', []):
                 msgs += self.give(loot, n)
             if k.get('title') and self.titles:
                 msgs += self.titles(k['title'])
-        ok = st.get('puan', 0) > 0 or (c.get('rank_metric') == 'participation' and st.get('joined'))
-        r = next((r for r in c.get('ranking', []) if r['den'] <= 1 <= r['e']), None) if ok else None
+        ok = st.get('points', 0) > 0 or (c.get('rank_metric') == 'participation' and st.get('joined'))
+        r = next((r for r in c.get('ranking', []) if r['from_'] <= 1 <= r['e']), None) if ok else None
         if r:
-            for loot, n in r['esyalar']:
+            for loot, n in r['items']:
                 msgs += self.give(loot, n)
             if r.get('title') and self.titles:
                 msgs += self.titles(r['title'])
             msgs.append(RK.confirmation(1, RK.DEFAULT_REWARD, r))
-        self.log('   %s bitti: puan %d, ilerleme %d%s' % (CAL.EVENTS[ev]['ad'], st.get('puan', 0), st.get('progress', 0),
+        self.log('   %s bitti: puan %d, ilerleme %d%s' % (CAL.EVENTS[ev]['name'], st.get('points', 0), st.get('progress', 0),
                                                        ', 1. sıra ödülü' if r else ''))
         with self.p.lock:
             del self.p.d['event_points'][ev]

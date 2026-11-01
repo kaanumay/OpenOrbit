@@ -33,11 +33,11 @@ import ranks as RT
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'client_items.json'), encoding='utf8'))
-UP, DIS, ITEMS = D['upgrades'], D['disassembly'], D['esyalar']
-INGREDIENTS = {loot for groups in (UP, DIS) for recipe in groups.values() for level in recipe['seviyeler']
+UP, DIS, ITEMS = D['upgrades'], D['disassembly'], D['items']
+INGREDIENTS = {loot for groups in (UP, DIS) for recipe in groups.values() for level in recipe['levels']
                for costs in (level.get('cost', {}), level.get('jump_to', {})) for loot in costs}
-UP_OF = {loot: k for k, c in UP.items() for loot in c['esyalar']}
-DIS_OF = {loot: k for k, c in DIS.items() for loot in c['esyalar']}
+UP_OF = {loot: k for k, c in UP.items() for loot in c['items']}
+DIS_OF = {loot: k for k, c in DIS.items() for loot in c['items']}
 HOUR = json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))['upgrade_hour']
 LASER, SHIELD, ROCKET = 'LASER_DAMAGE_UPGRADE', 'GENERATOR_SHIELD_UPGRADE', 'ROCKETLAUNCHER_DAMAGE_UPGRADE'
 DRONE_DAMAGE, DRONE_SHIELD = 'DRONE_DAMAGE_UPGRADE', 'DRONE_SHIELD_UPGRADE'
@@ -60,7 +60,7 @@ def legacy_table(is_open=None, multiplier=None):
     if not (SET.get('legacy_upgrade') if is_open is None else is_open):
         return {}
     m = SET.multiplier('legacy_upgrade_price') if multiplier is None else multiplier
-    return {k: [int(round((OLD_FIRST + OLD_INCREASE * i) * OLD_RATIO.get(k, 1.0) * m)) for i in range(len(c['seviyeler']))]
+    return {k: [int(round((OLD_FIRST + OLD_INCREASE * i) * OLD_RATIO.get(k, 1.0) * m)) for i in range(len(c['levels']))]
             for k, c in UP.items()}
 
 
@@ -69,7 +69,7 @@ def row_cost(key, i):
     if SET.get('legacy_upgrade'):
         n = legacy_table()[key][i]
         return {'currency_uridium': n} if n > 0 else {}
-    return {loot: a for loot, a in UP[key]['seviyeler'][i]['cost'].items() if a > 0}
+    return {loot: a for loot, a in UP[key]['levels'][i]['cost'].items() if a > 0}
 
 
 def mod(name, **f):
@@ -79,7 +79,7 @@ def mod(name, **f):
 
 def max_level(loot):
     k = UP_OF.get(loot)
-    return len(UP[k]['seviyeler']) if k else 0
+    return len(UP[k]['levels']) if k else 0
 
 
 def item_level(p, iid):
@@ -88,12 +88,12 @@ def item_level(p, iid):
 
 def badge(loot, level):
     """Hangar rozetinin satırları: yükseltilmişse eşyanın her bonus türü için "anahtar,seviye + 1" (istemcide 1. seviye rozetsiz)."""
-    return ['%s,%d' % (BADGE[u['tur']], level + 1) for u in ITEMS.get(loot, {}).get('upgrade', []) if u['tur'] in BADGE] if level else []
+    return ['%s,%d' % (BADGE[u['type']], level + 1) for u in ITEMS.get(loot, {}).get('upgrade', []) if u['type'] in BADGE] if level else []
 
 
 def spent(p, iid):
     """Eşyanın yükseltmelerine harcanan malzeme (geri dönüşüm ve Synthesis iadesi; Upgrade Hour indirimi sayılmaz)."""
-    k = UP_OF.get(p.d['esyalar'].get(str(iid), ''))
+    k = UP_OF.get(p.d['items'].get(str(iid), ''))
     out = {}
     for i in range(item_level(p, iid) if k else 0):
         for loot, a in row_cost(k, i).items():
@@ -106,8 +106,8 @@ def factor(loot, level, kind):
     if not level:
         return 1.0
     for u in ITEMS.get(loot, {}).get('upgrade', []):
-        if u['tur'] == kind:
-            return 1 + level * u['yuzde'] / 100.0
+        if u['type'] == kind:
+            return 1 + level * u['percent'] / 100.0
     return 1.0
 
 
@@ -137,29 +137,29 @@ class Upgrade:
     # ------------------------------------------------------------ hedefler
     def target(self, key, tid):
         """(tür, lootId, kayıt) ya da None: eşya ('esya', loot, iid) ya da dron ('dron', loot, kayıt)."""
-        loot = self.p.d['esyalar'].get(str(tid))
+        loot = self.p.d['items'].get(str(tid))
         if loot:
-            return 'esya', loot, int(tid)
-        x = next((d for d in self.p.d.get('drones', []) if d['kimlik'] == int(tid or 0)), None)
+            return 'item', loot, int(tid)
+        x = next((d for d in self.p.d.get('drones', []) if d['uid'] == int(tid or 0)), None)
         if x and '-drone' in key:
             return 'drone', x['lootId'], x
         cbs = getattr(self.m, 'cbs', None)
         m = cbs.st['modules'].get(str(tid)) if cbs and '-cbs' in key and not cbs.where(tid) else None
         if m:
-            return 'modul', m['loot'], (int(tid), m)          # Clan Battle Station modülü (takılı değilken; magaza.module_items)
+            return 'module', m['loot'], (int(tid), m)          # Clan Battle Station modülü (takılı değilken; magaza.module_items)
         return None
 
     def level_of(self, kind, ref):
-        if kind == 'modul':
-            return int(ref[1].get('seviye', 0))
+        if kind == 'module':
+            return int(ref[1].get('level', 0))
         return drone_level(ref) if kind == 'drone' else item_level(self.p, ref)
 
     def set_level(self, kind, ref, n):
         with self.p.lock:
             if kind == 'drone':
                 ref['upgrade'] = n
-            elif kind == 'modul':                       # can ve kalkan yeni seviyenin azamisine (cbs.mx)
-                ref[1]['seviye'] = n
+            elif kind == 'module':                       # can ve kalkan yeni seviyenin azamisine (cbs.mx)
+                ref[1]['level'] = n
                 ref[1]['can'], ref[1]['kalkan'] = self.m.cbs.mx(ref[1])
             else:
                 self.p.d.setdefault('upgrade_level', {})[str(ref)] = n
@@ -170,10 +170,10 @@ class Upgrade:
         now = now or time.time()
         b = self.st.get('%s|%d' % (key, int(tid or 0)))
         if b:
-            if now < b['bitis']:
-                return mod('AssemblyRecipeBuildStatusModule', buildAmount=b['seviye'], remainingTimeMillis=int((b['bitis'] - now) * 1000),
+            if now < b['end_time']:
+                return mod('AssemblyRecipeBuildStatusModule', buildAmount=b['level'], remainingTimeMillis=int((b['end_time'] - now) * 1000),
                            prevBuildCount=0)
-            return mod('AssemblyRecipeReadyToCollectStatusModule', prevBuildCount=0, buildAmount=b['seviye'])
+            return mod('AssemblyRecipeReadyToCollectStatusModule', prevBuildCount=0, buildAmount=b['level'])
         return mod('AssemblyRecipeAvailableStatusModule', currentBuildCount=0, isNew=False)
 
     def update(self, key, tid=0, now=None):
@@ -193,7 +193,7 @@ class Upgrade:
     def cost(self, key, cur, n, now=None):
         """cur seviyesinden n seviye: maliyetlerin toplamı ve süre (Upgrade Hour'da uridyum %25, Premium'da %5 az; eski sistemde
         yalnız uridyum)."""
-        rows = UP[key]['seviyeler'][cur:cur + n]
+        rows = UP[key]['levels'][cur:cur + n]
         need = {}
         for i in range(cur, cur + len(rows)):
             for loot, a in row_cost(key, i).items():
@@ -211,20 +211,20 @@ class Upgrade:
         now = now or time.time()
         key, tid = f.get('recipeLootId', ''), int(f.get('targetItemId') or 0)
         t = self.target(key, tid)
-        if key not in UP or not t or t[1] not in UP[key]['esyalar']:
+        if key not in UP or not t or t[1] not in UP[key]['items']:
             self.log('   yükseltme yok: %s hedef %s' % (key, tid))
             return [self.update(key, tid, now)] if key in UP else []
         kind, loot, ref = t
         if '%s|%d' % (key, tid) in self.st:
             return [self.update(key, tid, now)]
         cur = self.level_of(kind, ref)
-        if cur >= len(UP[key]['seviyeler']):
+        if cur >= len(UP[key]['levels']):
             self.log('   yükseltme: %s en üst seviyede' % loot)
             return [self.update(key, tid, now)]
         # amount hedef seviye (0'dan): istemci sayaçtaki seviyenin bir eksiğini gönderir (UpgradeViewSystem/UISingularityDriveSystem
         # .HandleBuildClicked) ve süren yükseltmenin buildAmount'unu da hedef sayar (CollectSteps(şimdiki, buildAmount)). Önce adet
         # sanılıyordu: 0'dan başlayınca aynı, sonra fazla seviye, süre ve bedel çıkıyordu (canlı test H60)
-        target = min(int(f.get('amount') if f.get('amount') is not None else cur + 1), len(UP[key]['seviyeler']))
+        target = min(int(f.get('amount') if f.get('amount') is not None else cur + 1), len(UP[key]['levels']))
         n = target - cur
         if n < 1:
             self.log('   yükseltme: hedef seviye %d şimdikinden (%d) büyük değil (%s)' % (target, cur, loot))
@@ -236,7 +236,7 @@ class Upgrade:
             return [self.update(key, tid, now)]
         removed = INV.spend(self.p, need, reason='buy_SPECIAL', detail=key)
         with self.p.lock:
-            self.st['%s|%d' % (key, tid)] = dict(adet=n, bitis=now + secs, hedef=tid, seviye=cur + n)
+            self.st['%s|%d' % (key, tid)] = dict(count=n, end_time=now + secs, target=tid, level=cur + n)
             self.p.dirty = True
         self.log('   yükseltme başladı: %s %d -> %d (%d sn, %s)' % (loot, cur, cur + n, secs, need))
         return INV.update_msgs(self.m, self.p, list(need), removed) + [self.update(key, tid, now)]
@@ -246,7 +246,7 @@ class Upgrade:
         key = f.get('recipeLootId') or f.get('lootId') or ''
         tid = int(f.get('targetItemId') or f.get('targetId') or 0)
         b = self.st.get('%s|%d' % (key, tid))
-        if not b or now < b['bitis']:
+        if not b or now < b['end_time']:
             return [self.update(key, tid, now)] if key in UP else []
         t = self.target(key, tid)
         with self.p.lock:
@@ -255,10 +255,10 @@ class Upgrade:
         if not t:
             return [self.update(key, tid, now)]
         kind, loot, ref = t
-        self.set_level(kind, ref, b['seviye'])
-        self.p.ach('upgrade', esya=loot, seviye=b['seviye'])
-        RT.note(self.p, 'upgraded_item', loot, b['seviye'])     # seyir defteri: log_message_upgrade_finished (%item% info'dan, %level%)
-        self.log('   yükseltme bitti: %s seviye %d' % (loot, b['seviye']))
+        self.set_level(kind, ref, b['level'])
+        self.p.ach('upgrade', item=loot, level=b['level'])
+        RT.note(self.p, 'upgraded_item', loot, b['level'])     # seyir defteri: log_message_upgrade_finished (%item% info'dan, %level%)
+        self.log('   yükseltme bitti: %s seviye %d' % (loot, b['level']))
         return self.item_msgs(kind, loot, ref) + [self.update(key, tid, now)]
 
     def item_msgs(self, kind, loot, ref):
@@ -268,7 +268,7 @@ class Upgrade:
         self.p.sync_equipment()
         if kind == 'drone':
             return [self.m.drone_item(ref), self.m.equipment_cmd()] + self.m.apply_stats()     # Assembly'deki seviyesi de
-        if kind == 'modul':
+        if kind == 'module':
             return [self.m.module_item(*ref)]
         hm = self.p.hangar_map()
         msgs = [self.m.inv_item(ref, loot, 1, hm.get(ref, 0)), self.m.pack([self.m.hangar_item(ref, loot, 1, hm.get(ref, 0))])]
@@ -289,9 +289,9 @@ class Upgrade:
         (TargetItemRecipeModel.GetSkipIngredients, UpgradeSkipListItem.UpdatePercentage) aynı hesapla gösterir; önce kalan dakika
         başına 1 uridyum alınıyordu, pencere ise Isochronate gösteriyordu (canlı test H58)."""
         now = time.time() if now is None else now
-        rows = UP[key]['seviyeler'][b['seviye'] - b['adet']:b['seviye']]
+        rows = UP[key]['levels'][b['level'] - b['count']:b['level']]
         total = SET.duration(sum(r['sure_sn'] for r in rows), 'upgrade') or 1
-        frac = min(1.0, max(0.0, (b['bitis'] - now) / total))
+        frac = min(1.0, max(0.0, (b['end_time'] - now) / total))
         need = {}
         for r in rows:
             for loot, a in r.get('jump_to', {}).items():
@@ -302,7 +302,7 @@ class Upgrade:
         now = now or time.time()
         key, tid = f.get('recipeLootId', ''), int(f.get('targetItemId') or 0)
         b = self.st.get('%s|%d' % (key, tid))
-        if not b or now >= b['bitis']:
+        if not b or now >= b['end_time']:
             return [self.update(key, tid, now)] if key in UP else []
         need = self.skip_cost(key, b, now)
         miss = INV.missing(self.p, need)
@@ -311,7 +311,7 @@ class Upgrade:
             return [self.update(key, tid, now)]
         removed = INV.spend(self.p, need, reason='buy_SPECIAL', detail=key)
         with self.p.lock:
-            b['bitis'] = now
+            b['end_time'] = now
             self.p.dirty = True
         self.log('   yükseltme atlandı: %s hedef %d (%s)' % (key, tid, need))
         return INV.update_msgs(self.m, self.p, list(need), removed) + [self.update(key, tid, now)]
@@ -319,18 +319,18 @@ class Upgrade:
     # ------------------------------------------------------------ Disassembly
     def disassemble(self, f, now=None):
         key, iid = f.get('recipeLootId', ''), int(f.get('itemId') or 0)
-        loot = self.p.d['esyalar'].get(str(iid))
-        if key not in DIS or not loot or loot not in DIS[key]['esyalar']:
+        loot = self.p.d['items'].get(str(iid))
+        if key not in DIS or not loot or loot not in DIS[key]['items']:
             self.log('   Disassembly yok: %s eşya %s' % (key, iid))
             return [self.update(key, iid)] if key in DIS else []
-        if any(k.endswith('|%d' % iid) and (now or time.time()) < b['bitis'] for k, b in self.st.items()):
+        if any(k.endswith('|%d' % iid) and (now or time.time()) < b['end_time'] for k, b in self.st.items()):
             self.log('   Disassembly yok: eşya %s yükseltiliyor' % iid)               # forum 150401
             return [self.update(key, iid)]
         if iid in self.p.equipped_ids():
             from legacy_protocol import legacy
             return [legacy('0|A|STM|msg_cannot_disassemble_equipped_item'), self.update(key, iid)]
         lv = item_level(self.p, iid)
-        row = next((r for r in DIS[key]['seviyeler'] if r['seviye'] == lv), None)
+        row = next((r for r in DIS[key]['levels'] if r['level'] == lv), None)
         if not row:
             self.log('   Disassembly: %s seviye %d sökülmez' % (loot, lv))
             return [self.update(key, iid)]
@@ -341,7 +341,7 @@ class Upgrade:
             return [self.update(key, iid)]
         INV.spend(self.p, fee, reason='buy_SPECIAL', detail=key)
         with self.p.lock:
-            del self.p.d['esyalar'][str(iid)]
+            del self.p.d['items'][str(iid)]
             self.p.d.get('upgrade_level', {}).pop(str(iid), None)
             self.p.d.get('item_level', {}).pop(str(iid), None)
             self.p.dirty = True
@@ -401,7 +401,7 @@ class Upgrade:
                 from legacy_protocol import legacy
                 msgs = [legacy('0|A|STM|bn_upgradeBounsHour_content')] if on else []     # "%25 uridyum indirimi" (istemcinin metni)
                 self.send(msgs + self.discount_msgs(now))
-        done = [k for k, b in self.st.items() if not b.get('notified') and now >= b['bitis']]
+        done = [k for k, b in self.st.items() if not b.get('notified') and now >= b['end_time']]
         for k in done:
             with self.p.lock:
                 self.st[k]['notified'] = True

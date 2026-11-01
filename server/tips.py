@@ -37,7 +37,7 @@ LEVELS = {2: (THE_SHOP, PREPARE_BATTLE), 3: (BOOST_YOUR_EQUIP,), 4: (GALAXY_GATE
 
 
 def owned_items(p):
-    return set(p.d.get('esyalar', {}).values())
+    return set(p.d.get('items', {}).values())
 
 
 def used(p, kind):
@@ -50,7 +50,7 @@ def used(p, kind):
     if kind == SHIP_DESIGN:
         return any(s.get('designs') for s in p.d.get('ships', {}).values())
     if kind == GALAXY_GATE:
-        return any(g.get('parcalar') or g.get('tamam') for g in ((p.d.get('kapilar') or {}).get('kapilar') or {}).values() if g)
+        return any(g.get('parts') or g.get('done') for g in ((p.d.get('kapilar') or {}).get('kapilar') or {}).values() if g)
     return False
 
 
@@ -106,7 +106,7 @@ class Hints:
         st = self.p.d.setdefault('event_notification', {})
         out = []
         for k, s in specs:
-            text = (s.get('info') or {}).get('metin')
+            text = (s.get('info') or {}).get('text')
             if not text or st.get(k) == period(k):
                 continue
             with self.p.lock:

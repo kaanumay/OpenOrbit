@@ -1,6 +1,6 @@
 {
  "_description": "belgeler/wiki/resources_refining.md (darkorbitwiki: Skylab) + kayıttaki başlangıç durumu -> server/data/skylab.json. Üreten: tools/skylab.py.",
- "seviyeler": [
+ "levels": [
   {
    "energy": 16,
    "solar": 170,
@@ -326,788 +326,788 @@
   "basicSolarStorage": [
    {
     "sure_sn": 3600,
-    "uridyum": 0,
-    "kredi": 0,
-    "kaynak": 0
+    "uridium": 0,
+    "credits": 0,
+    "source": 0
    },
    {
     "sure_sn": 8280,
-    "uridyum": 1487,
-    "kredi": 16352,
-    "kaynak": 707
+    "uridium": 1487,
+    "credits": 16352,
+    "source": 707
    },
    {
     "sure_sn": 13440,
-    "uridyum": 2468,
-    "kredi": 27144,
-    "kaynak": 2923
+    "uridium": 2468,
+    "credits": 27144,
+    "source": 2923
    },
    {
     "sure_sn": 19020,
-    "uridyum": 3536,
-    "kredi": 38891,
-    "kaynak": 8000
+    "uridium": 3536,
+    "credits": 38891,
+    "source": 8000
    },
    {
     "sure_sn": 24840,
-    "uridyum": 4673,
-    "kredi": 51403,
-    "kaynak": 17469
+    "uridium": 4673,
+    "credits": 51403,
+    "source": 17469
    },
    {
     "sure_sn": 30900,
-    "uridyum": 5869,
-    "kredi": 64560,
-    "kaynak": 33068
+    "uridium": 5869,
+    "credits": 64560,
+    "source": 33068
    },
    {
     "sure_sn": 37200,
-    "uridyum": 7116,
-    "kredi": 78279,
-    "kaynak": 56718
+    "uridium": 7116,
+    "credits": 78279,
+    "source": 56718
    },
    {
     "sure_sn": 43680,
-    "uridyum": 8409,
-    "kredi": 92499,
-    "kaynak": 90510
+    "uridium": 8409,
+    "credits": 92499,
+    "source": 90510
    },
    {
     "sure_sn": 50280,
-    "uridyum": 9743,
-    "kredi": 107171,
-    "kaynak": 136688
+    "uridium": 9743,
+    "credits": 107171,
+    "source": 136688
    },
    {
     "sure_sn": 57060,
-    "uridyum": 11114,
-    "kredi": 122257,
-    "kaynak": 197642
+    "uridium": 11114,
+    "credits": 122257,
+    "source": 197642
    },
    {
     "sure_sn": 63960,
-    "uridyum": 12520,
-    "kredi": 137725,
-    "kaynak": 275902
+    "uridium": 12520,
+    "credits": 137725,
+    "source": 275902
    },
    {
     "sure_sn": 71040,
-    "uridyum": 13959,
-    "kredi": 153550,
-    "kaynak": 374123
+    "uridium": 13959,
+    "credits": 153550,
+    "source": 374123
    },
    {
     "sure_sn": 78180,
-    "uridyum": 15428,
-    "kredi": 169708,
-    "kaynak": 495087
+    "uridium": 15428,
+    "credits": 169708,
+    "source": 495087
    },
    {
     "sure_sn": 85440,
-    "uridyum": 16925,
-    "kredi": 186180,
-    "kaynak": 641694
+    "uridium": 16925,
+    "credits": 186180,
+    "source": 641694
    },
    {
     "sure_sn": 92820,
-    "uridyum": 18450,
-    "kredi": 202949,
-    "kaynak": 816957
+    "uridium": 18450,
+    "credits": 202949,
+    "source": 816957
    },
    {
     "sure_sn": 100260,
-    "uridyum": 20000,
-    "kredi": 220000,
-    "kaynak": 1024000
+    "uridium": 20000,
+    "credits": 220000,
+    "source": 1024000
    },
    {
     "sure_sn": 107880,
-    "uridyum": 21575,
-    "kredi": 237320,
-    "kaynak": 1266051
+    "uridium": 21575,
+    "credits": 237320,
+    "source": 1266051
    },
    {
     "sure_sn": 115500,
-    "uridyum": 23172,
-    "kredi": 254896,
-    "kaynak": 1546443
+    "uridium": 23172,
+    "credits": 254896,
+    "source": 1546443
    },
    {
     "sure_sn": 123240,
-    "uridyum": 24793,
-    "kredi": 272719,
-    "kaynak": 1868605
+    "uridium": 24793,
+    "credits": 272719,
+    "source": 1868605
    },
    {
     "sure_sn": 131100,
-    "uridyum": 26434,
-    "kredi": 290777,
-    "kaynak": 2236068
+    "uridium": 26434,
+    "credits": 290777,
+    "source": 2236068
    }
   ],
   "collectors": [
    {
     "sure_sn": 3600,
-    "uridyum": 500,
-    "kredi": 5500,
-    "kaynak": 50
+    "uridium": 500,
+    "credits": 5500,
+    "source": 50
    },
    {
     "sure_sn": 8280,
-    "uridyum": 1189,
-    "kredi": 13081,
-    "kaynak": 566
+    "uridium": 1189,
+    "credits": 13081,
+    "source": 566
    },
    {
     "sure_sn": 13440,
-    "uridyum": 1974,
-    "kredi": 21715,
-    "kaynak": 2338
+    "uridium": 1974,
+    "credits": 21715,
+    "source": 2338
    },
    {
     "sure_sn": 19020,
-    "uridyum": 2828,
-    "kredi": 31113,
-    "kaynak": 6400
+    "uridium": 2828,
+    "credits": 31113,
+    "source": 6400
    },
    {
     "sure_sn": 24840,
-    "uridyum": 3738,
-    "kredi": 41122,
-    "kaynak": 13975
+    "uridium": 3738,
+    "credits": 41122,
+    "source": 13975
    },
    {
     "sure_sn": 30900,
-    "uridyum": 4695,
-    "kredi": 51648,
-    "kaynak": 26454
+    "uridium": 4695,
+    "credits": 51648,
+    "source": 26454
    },
    {
     "sure_sn": 37200,
-    "uridyum": 5693,
-    "kredi": 62623,
-    "kaynak": 45375
+    "uridium": 5693,
+    "credits": 62623,
+    "source": 45375
    },
    {
     "sure_sn": 43680,
-    "uridyum": 6727,
-    "kredi": 73999,
-    "kaynak": 72408
+    "uridium": 6727,
+    "credits": 73999,
+    "source": 72408
    },
    {
     "sure_sn": 50280,
-    "uridyum": 7794,
-    "kredi": 85737,
-    "kaynak": 109350
+    "uridium": 7794,
+    "credits": 85737,
+    "source": 109350
    },
    {
     "sure_sn": 57060,
-    "uridyum": 8891,
-    "kredi": 97805,
-    "kaynak": 158114
+    "uridium": 8891,
+    "credits": 97805,
+    "source": 158114
    },
    {
     "sure_sn": 63960,
-    "uridyum": 10016,
-    "kredi": 110180,
-    "kaynak": 220721
+    "uridium": 10016,
+    "credits": 110180,
+    "source": 220721
    },
    {
     "sure_sn": 71040,
-    "uridyum": 11167,
-    "kredi": 122840,
-    "kaynak": 299298
+    "uridium": 11167,
+    "credits": 122840,
+    "source": 299298
    },
    {
     "sure_sn": 78180,
-    "uridyum": 12342,
-    "kredi": 135766,
-    "kaynak": 396070
+    "uridium": 12342,
+    "credits": 135766,
+    "source": 396070
    },
    {
     "sure_sn": 85440,
-    "uridyum": 13540,
-    "kredi": 148944,
-    "kaynak": 513355
+    "uridium": 13540,
+    "credits": 148944,
+    "source": 513355
    },
    {
     "sure_sn": 92820,
-    "uridyum": 14760,
-    "kredi": 162359,
-    "kaynak": 653566
+    "uridium": 14760,
+    "credits": 162359,
+    "source": 653566
    },
    {
     "sure_sn": 100260,
-    "uridyum": 16000,
-    "kredi": 176000,
-    "kaynak": 819200
+    "uridium": 16000,
+    "credits": 176000,
+    "source": 819200
    },
    {
     "sure_sn": 107880,
-    "uridyum": 17260,
-    "kredi": 189856,
-    "kaynak": 1012841
+    "uridium": 17260,
+    "credits": 189856,
+    "source": 1012841
    },
    {
     "sure_sn": 115500,
-    "uridyum": 18538,
-    "kredi": 203917,
-    "kaynak": 1237154
+    "uridium": 18538,
+    "credits": 203917,
+    "source": 1237154
    },
    {
     "sure_sn": 123240,
-    "uridyum": 19834,
-    "kredi": 218175,
-    "kaynak": 1494884
+    "uridium": 19834,
+    "credits": 218175,
+    "source": 1494884
    },
    {
     "sure_sn": 131100,
-    "uridyum": 21147,
-    "kredi": 232622,
-    "kaynak": 1788854
+    "uridium": 21147,
+    "credits": 232622,
+    "source": 1788854
    }
   ],
   "xenoModule": [
    {
     "sure_sn": 3600,
-    "uridyum": 750,
-    "kredi": 8250,
-    "kaynak": 75
+    "uridium": 750,
+    "credits": 8250,
+    "source": 75
    },
    {
     "sure_sn": 8280,
-    "uridyum": 1784,
-    "kredi": 19622,
-    "kaynak": 849
+    "uridium": 1784,
+    "credits": 19622,
+    "source": 849
    },
    {
     "sure_sn": 13440,
-    "uridyum": 2961,
-    "kredi": 32573,
-    "kaynak": 3507
+    "uridium": 2961,
+    "credits": 32573,
+    "source": 3507
    },
    {
     "sure_sn": 19020,
-    "uridyum": 4243,
-    "kredi": 46669,
-    "kaynak": 9600
+    "uridium": 4243,
+    "credits": 46669,
+    "source": 9600
    },
    {
     "sure_sn": 24840,
-    "uridyum": 5608,
-    "kredi": 61683,
-    "kaynak": 20963
+    "uridium": 5608,
+    "credits": 61683,
+    "source": 20963
    },
    {
     "sure_sn": 30900,
-    "uridyum": 7043,
-    "kredi": 77472,
-    "kaynak": 39682
+    "uridium": 7043,
+    "credits": 77472,
+    "source": 39682
    },
    {
     "sure_sn": 37200,
-    "uridyum": 8540,
-    "kredi": 93935,
-    "kaynak": 68062
+    "uridium": 8540,
+    "credits": 93935,
+    "source": 68062
    },
    {
     "sure_sn": 43680,
-    "uridyum": 10091,
-    "kredi": 110998,
-    "kaynak": 108612
+    "uridium": 10091,
+    "credits": 110998,
+    "source": 108612
    },
    {
     "sure_sn": 50280,
-    "uridyum": 11691,
-    "kredi": 128605,
-    "kaynak": 164025
+    "uridium": 11691,
+    "credits": 128605,
+    "source": 164025
    },
    {
     "sure_sn": 57060,
-    "uridyum": 13337,
-    "kredi": 146708,
-    "kaynak": 237171
+    "uridium": 13337,
+    "credits": 146708,
+    "source": 237171
    },
    {
     "sure_sn": 63960,
-    "uridyum": 15025,
-    "kredi": 165270,
-    "kaynak": 331082
+    "uridium": 15025,
+    "credits": 165270,
+    "source": 331082
    },
    {
     "sure_sn": 71040,
-    "uridyum": 16751,
-    "kredi": 184260,
-    "kaynak": 448948
+    "uridium": 16751,
+    "credits": 184260,
+    "source": 448948
    },
    {
     "sure_sn": 78180,
-    "uridyum": 18514,
-    "kredi": 203649,
-    "kaynak": 594105
+    "uridium": 18514,
+    "credits": 203649,
+    "source": 594105
    },
    {
     "sure_sn": 85440,
-    "uridyum": 20311,
-    "kredi": 223416,
-    "kaynak": 770033
+    "uridium": 20311,
+    "credits": 223416,
+    "source": 770033
    },
    {
     "sure_sn": 92820,
-    "uridyum": 22140,
-    "kredi": 243539,
-    "kaynak": 980349
+    "uridium": 22140,
+    "credits": 243539,
+    "source": 980349
    },
    {
     "sure_sn": 100260,
-    "uridyum": 24000,
-    "kredi": 264000,
-    "kaynak": 1228800
+    "uridium": 24000,
+    "credits": 264000,
+    "source": 1228800
    },
    {
     "sure_sn": 107880,
-    "uridyum": 25889,
-    "kredi": 284784,
-    "kaynak": 1519261
+    "uridium": 25889,
+    "credits": 284784,
+    "source": 1519261
    },
    {
     "sure_sn": 115500,
-    "uridyum": 27807,
-    "kredi": 305875,
-    "kaynak": 1855731
+    "uridium": 27807,
+    "credits": 305875,
+    "source": 1855731
    },
    {
     "sure_sn": 123240,
-    "uridyum": 29751,
-    "kredi": 327262,
-    "kaynak": 2242327
+    "uridium": 29751,
+    "credits": 327262,
+    "source": 2242327
    },
    {
     "sure_sn": 131100,
-    "uridyum": 31721,
-    "kredi": 348933,
-    "kaynak": 2683282
+    "uridium": 31721,
+    "credits": 348933,
+    "source": 2683282
    }
   ],
   "prometidDuraniumRefinery": [
    {
     "sure_sn": 6000,
-    "uridyum": 750,
-    "kredi": 8250,
-    "kaynak": 75
+    "uridium": 750,
+    "credits": 8250,
+    "source": 75
    },
    {
     "sure_sn": 13800,
-    "uridyum": 1784,
-    "kredi": 19622,
-    "kaynak": 849
+    "uridium": 1784,
+    "credits": 19622,
+    "source": 849
    },
    {
     "sure_sn": 22440,
-    "uridyum": 2961,
-    "kredi": 32573,
-    "kaynak": 3507
+    "uridium": 2961,
+    "credits": 32573,
+    "source": 3507
    },
    {
     "sure_sn": 31680,
-    "uridyum": 4243,
-    "kredi": 46669,
-    "kaynak": 9600
+    "uridium": 4243,
+    "credits": 46669,
+    "source": 9600
    },
    {
     "sure_sn": 41400,
-    "uridyum": 5608,
-    "kredi": 61683,
-    "kaynak": 20963
+    "uridium": 5608,
+    "credits": 61683,
+    "source": 20963
    },
    {
     "sure_sn": 51540,
-    "uridyum": 7043,
-    "kredi": 77472,
-    "kaynak": 39682
+    "uridium": 7043,
+    "credits": 77472,
+    "source": 39682
    },
    {
     "sure_sn": 61980,
-    "uridyum": 8540,
-    "kredi": 93935,
-    "kaynak": 68062
+    "uridium": 8540,
+    "credits": 93935,
+    "source": 68062
    },
    {
     "sure_sn": 72480,
-    "uridyum": 10091,
-    "kredi": 110998,
-    "kaynak": 108612
+    "uridium": 10091,
+    "credits": 110998,
+    "source": 108612
    },
    {
     "sure_sn": 83820,
-    "uridyum": 11691,
-    "kredi": 128605,
-    "kaynak": 164025
+    "uridium": 11691,
+    "credits": 128605,
+    "source": 164025
    },
    {
     "sure_sn": 95100,
-    "uridyum": 13337,
-    "kredi": 146708,
-    "kaynak": 237171
+    "uridium": 13337,
+    "credits": 146708,
+    "source": 237171
    },
    {
     "sure_sn": 106620,
-    "uridyum": 15025,
-    "kredi": 165270,
-    "kaynak": 331082
+    "uridium": 15025,
+    "credits": 165270,
+    "source": 331082
    },
    {
     "sure_sn": 118380,
-    "uridyum": 16751,
-    "kredi": 184260,
-    "kaynak": 448948
+    "uridium": 16751,
+    "credits": 184260,
+    "source": 448948
    },
    {
     "sure_sn": 130260,
-    "uridyum": 18514,
-    "kredi": 203649,
-    "kaynak": 594105
+    "uridium": 18514,
+    "credits": 203649,
+    "source": 594105
    },
    {
     "sure_sn": 142380,
-    "uridyum": 20311,
-    "kredi": 223416,
-    "kaynak": 770033
+    "uridium": 20311,
+    "credits": 223416,
+    "source": 770033
    },
    {
     "sure_sn": 154680,
-    "uridyum": 22140,
-    "kredi": 243539,
-    "kaynak": 980349
+    "uridium": 22140,
+    "credits": 243539,
+    "source": 980349
    },
    {
     "sure_sn": 167160,
-    "uridyum": 24000,
-    "kredi": 264000,
-    "kaynak": 1228800
+    "uridium": 24000,
+    "credits": 264000,
+    "source": 1228800
    },
    {
     "sure_sn": 179760,
-    "uridyum": 25889,
-    "kredi": 284784,
-    "kaynak": 1519261
+    "uridium": 25889,
+    "credits": 284784,
+    "source": 1519261
    },
    {
     "sure_sn": 192540,
-    "uridyum": 27807,
-    "kredi": 305875,
-    "kaynak": 1855731
+    "uridium": 27807,
+    "credits": 305875,
+    "source": 1855731
    },
    {
     "sure_sn": 205440,
-    "uridyum": 29751,
-    "kredi": 327262,
-    "kaynak": 2242327
+    "uridium": 29751,
+    "credits": 327262,
+    "source": 2242327
    },
    {
     "sure_sn": 218460,
-    "uridyum": 31721,
-    "kredi": 348933,
-    "kaynak": 2683282
+    "uridium": 31721,
+    "credits": 348933,
+    "source": 2683282
    }
   ],
   "promeriumRefinery": [
    {
     "sure_sn": 10800,
-    "uridyum": 1250,
-    "kredi": 13750,
-    "kaynak": 125
+    "uridium": 1250,
+    "credits": 13750,
+    "source": 125
    },
    {
     "sure_sn": 24840,
-    "uridyum": 2973,
-    "kredi": 32703,
-    "kaynak": 1414
+    "uridium": 2973,
+    "credits": 32703,
+    "source": 1414
    },
    {
     "sure_sn": 40380,
-    "uridyum": 4935,
-    "kredi": 54288,
-    "kaynak": 5846
+    "uridium": 4935,
+    "credits": 54288,
+    "source": 5846
    },
    {
     "sure_sn": 57000,
-    "uridyum": 7071,
-    "kredi": 77782,
-    "kaynak": 16000
+    "uridium": 7071,
+    "credits": 77782,
+    "source": 16000
    },
    {
     "sure_sn": 75240,
-    "uridyum": 9346,
-    "kredi": 102805,
-    "kaynak": 34939
+    "uridium": 9346,
+    "credits": 102805,
+    "source": 34939
    },
    {
     "sure_sn": 92700,
-    "uridyum": 11738,
-    "kredi": 129119,
-    "kaynak": 66136
+    "uridium": 11738,
+    "credits": 129119,
+    "source": 66136
    },
    {
     "sure_sn": 111540,
-    "uridyum": 14233,
-    "kredi": 156558,
-    "kaynak": 113437
+    "uridium": 14233,
+    "credits": 156558,
+    "source": 113437
    },
    {
     "sure_sn": 130980,
-    "uridyum": 16818,
-    "kredi": 184997,
-    "kaynak": 181019
+    "uridium": 16818,
+    "credits": 184997,
+    "source": 181019
    },
    {
     "sure_sn": 150840,
-    "uridyum": 19486,
-    "kredi": 214341,
-    "kaynak": 273375
+    "uridium": 19486,
+    "credits": 214341,
+    "source": 273375
    },
    {
     "sure_sn": 171180,
-    "uridyum": 22228,
-    "kredi": 244513,
-    "kaynak": 395285
+    "uridium": 22228,
+    "credits": 244513,
+    "source": 395285
    },
    {
     "sure_sn": 191880,
-    "uridyum": 25041,
-    "kredi": 275450,
-    "kaynak": 551803
+    "uridium": 25041,
+    "credits": 275450,
+    "source": 551803
    },
    {
     "sure_sn": 213060,
-    "uridyum": 27918,
-    "kredi": 307100,
-    "kaynak": 748246
+    "uridium": 27918,
+    "credits": 307100,
+    "source": 748246
    },
    {
     "sure_sn": 234480,
-    "uridyum": 30856,
-    "kredi": 339416,
-    "kaynak": 990175
+    "uridium": 30856,
+    "credits": 339416,
+    "source": 990175
    },
    {
     "sure_sn": 256320,
-    "uridyum": 33851,
-    "kredi": 372360,
-    "kaynak": 1283388
+    "uridium": 33851,
+    "credits": 372360,
+    "source": 1283388
    },
    {
     "sure_sn": 278460,
-    "uridyum": 36900,
-    "kredi": 405898,
-    "kaynak": 1633915
+    "uridium": 36900,
+    "credits": 405898,
+    "source": 1633915
    },
    {
     "sure_sn": 300840,
-    "uridyum": 40000,
-    "kredi": 440000,
-    "kaynak": 2048000
+    "uridium": 40000,
+    "credits": 440000,
+    "source": 2048000
    },
    {
     "sure_sn": 323580,
-    "uridyum": 43149,
-    "kredi": 474639,
-    "kaynak": 2532102
+    "uridium": 43149,
+    "credits": 474639,
+    "source": 2532102
    },
    {
     "sure_sn": 346560,
-    "uridyum": 46345,
-    "kredi": 509792,
-    "kaynak": 3092885
+    "uridium": 46345,
+    "credits": 509792,
+    "source": 3092885
    },
    {
     "sure_sn": 369780,
-    "uridyum": 49585,
-    "kredi": 545438,
-    "kaynak": 3737211
+    "uridium": 49585,
+    "credits": 545438,
+    "source": 3737211
    },
    {
     "sure_sn": 393240,
-    "uridyum": 52869,
-    "kredi": 581554,
-    "kaynak": 4472136
+    "uridium": 52869,
+    "credits": 581554,
+    "source": 4472136
    }
   ],
   "sepromRefinery": [
    {
     "sure_sn": 21600,
-    "uridyum": 2500,
-    "kredi": 27500,
-    "kaynak": 250
+    "uridium": 2500,
+    "credits": 27500,
+    "source": 250
    },
    {
     "sure_sn": 49620,
-    "uridyum": 5946,
-    "kredi": 65406,
-    "kaynak": 2828
+    "uridium": 5946,
+    "credits": 65406,
+    "source": 2828
    },
    {
     "sure_sn": 80700,
-    "uridyum": 9871,
-    "kredi": 108576,
-    "kaynak": 11691
+    "uridium": 9871,
+    "credits": 108576,
+    "source": 11691
    },
    {
     "sure_sn": 114000,
-    "uridyum": 14142,
-    "kredi": 155563,
-    "kaynak": 32000
+    "uridium": 14142,
+    "credits": 155563,
+    "source": 32000
    },
    {
     "sure_sn": 149040,
-    "uridyum": 18692,
-    "kredi": 205610,
-    "kaynak": 69877
+    "uridium": 18692,
+    "credits": 205610,
+    "source": 69877
    },
    {
     "sure_sn": 185460,
-    "uridyum": 23476,
-    "kredi": 258239,
-    "kaynak": 132272
+    "uridium": 23476,
+    "credits": 258239,
+    "source": 132272
    },
    {
     "sure_sn": 223140,
-    "uridyum": 28465,
-    "kredi": 313116,
-    "kaynak": 226873
+    "uridium": 28465,
+    "credits": 313116,
+    "source": 226873
    },
    {
     "sure_sn": 261900,
-    "uridyum": 33636,
-    "kredi": 369994,
-    "kaynak": 362039
+    "uridium": 33636,
+    "credits": 369994,
+    "source": 362039
    },
    {
     "sure_sn": 301680,
-    "uridyum": 38971,
-    "kredi": 428683,
-    "kaynak": 546750
+    "uridium": 38971,
+    "credits": 428683,
+    "source": 546750
    },
    {
     "sure_sn": 342360,
-    "uridyum": 44457,
-    "kredi": 489027,
-    "kaynak": 790569
+    "uridium": 44457,
+    "credits": 489027,
+    "source": 790569
    },
    {
     "sure_sn": 383820,
-    "uridyum": 50082,
-    "kredi": 550901,
-    "kaynak": 1103607
+    "uridium": 50082,
+    "credits": 550901,
+    "source": 1103607
    },
    {
     "sure_sn": 426060,
-    "uridyum": 55836,
-    "kredi": 614199,
-    "kaynak": 1496492
+    "uridium": 55836,
+    "credits": 614199,
+    "source": 1496492
    },
    {
     "sure_sn": 469020,
-    "uridyum": 61712,
-    "kredi": 678831,
-    "kaynak": 1980349
+    "uridium": 61712,
+    "credits": 678831,
+    "source": 1980349
    },
    {
     "sure_sn": 512640,
-    "uridyum": 67702,
-    "kredi": 744720,
-    "kaynak": 2566777
+    "uridium": 67702,
+    "credits": 744720,
+    "source": 2566777
    },
    {
     "sure_sn": 556860,
-    "uridyum": 73800,
-    "kredi": 811796,
-    "kaynak": 3267830
+    "uridium": 73800,
+    "credits": 811796,
+    "source": 3267830
    },
    {
     "sure_sn": 601740,
-    "uridyum": 80000,
-    "kredi": 880000,
-    "kaynak": 4096000
+    "uridium": 80000,
+    "credits": 880000,
+    "source": 4096000
    },
    {
     "sure_sn": 647160,
-    "uridyum": 86298,
-    "kredi": 949279,
-    "kaynak": 5064204
+    "uridium": 86298,
+    "credits": 949279,
+    "source": 5064204
    },
    {
     "sure_sn": 693060,
-    "uridyum": 92690,
-    "kredi": 1019585,
-    "kaynak": 6185770
+    "uridium": 92690,
+    "credits": 1019585,
+    "source": 6185770
    },
    {
     "sure_sn": 739560,
-    "uridyum": 99170,
-    "kredi": 1090874,
-    "kaynak": 7474422
+    "uridium": 99170,
+    "credits": 1090874,
+    "source": 7474422
    },
    {
     "sure_sn": 786480,
-    "uridyum": 105737,
-    "kredi": 1163108,
-    "kaynak": 8944272
+    "uridium": 105737,
+    "credits": 1163108,
+    "source": 8944272
    }
   ]
  },
  "_spelling_fixes": "darkorbitwiki Skylab tablolarındaki yazım hataları tools/skylab.py (WIKI_YAZIM_DUZELTMELERI, DEPO_DUZELTMELERI) ile düzeltilir: fandom Skylab modül tabloları aynı hücrelerde düzeltilmiş değeri veriyor ve sayı dizisi düzgün; depo = 48 x saatlik üretim.",
  "modules": {
   "BASE_MODULE": {
-   "grup": "basicSolarStorage",
-   "azami": 20
+   "group": "basicSolarStorage",
+   "maximum": 20
   },
   "SOLAR_MODULE": {
-   "grup": "basicSolarStorage",
-   "azami": 20
+   "group": "basicSolarStorage",
+   "maximum": 20
   },
   "STORAGE_MODULE": {
-   "grup": "basicSolarStorage",
-   "azami": 20
+   "group": "basicSolarStorage",
+   "maximum": 20
   },
   "TRANSPORT_MODULE": {
-   "grup": null,
-   "azami": 1
+   "group": null,
+   "maximum": 1
   },
   "PROMETIUM_COLLECTOR": {
-   "grup": "collectors",
-   "azami": 20
+   "group": "collectors",
+   "maximum": 20
   },
   "ENDURIUM_COLLECTOR": {
-   "grup": "collectors",
-   "azami": 20
+   "group": "collectors",
+   "maximum": 20
   },
   "TERBIUM_COLLECTOR": {
-   "grup": "collectors",
-   "azami": 20
+   "group": "collectors",
+   "maximum": 20
   },
   "PROMETID_REFINERY": {
-   "grup": "prometidDuraniumRefinery",
-   "azami": 20
+   "group": "prometidDuraniumRefinery",
+   "maximum": 20
   },
   "DURANIUM_REFINERY": {
-   "grup": "prometidDuraniumRefinery",
-   "azami": 20
+   "group": "prometidDuraniumRefinery",
+   "maximum": 20
   },
   "PROMERIUM_REFINERY": {
-   "grup": "promeriumRefinery",
-   "azami": 20
+   "group": "promeriumRefinery",
+   "maximum": 20
   },
   "SEPROM_REFINERY": {
-   "grup": "sepromRefinery",
-   "azami": 20
+   "group": "sepromRefinery",
+   "maximum": 20
   },
   "XENO_MODULE": {
-   "grup": "xenoModule",
-   "azami": 20
+   "group": "xenoModule",
+   "maximum": 20
   }
  },
- "baslangic": {
+ "start": {
   "modules": {
    "BASE_MODULE": [
     1,
@@ -1228,7 +1228,7 @@
  },
  "_refineries": "ürün, girdiler (birim başına), üretim sütunu. Prometid/Duranium/Promerium tarifleri wiki'nin rafine sayfasından (istemcinin laboratuvar tarifleriyle aynı); Seprom'un girdisi wiki'de yok: 10 Promerium (uyarlama).",
  "xeno": {
-  "cevher": "4",
+  "ore": "4",
   "column": "promerium"
  },
  "_xeno": "Xeno modülü etkinken Skylab deposuna seviyesinin Promerium üretimi kadar Xenomit sağlar (uyarlama: istemcide gemiden Skylab'a taşıma isteği yok; depo sınırı kayıttaki 528 = Promerium sütunu). Wiki: Xenomit sürekli tüketilir.",
@@ -1247,8 +1247,8 @@
    ],
    "bonus": 4
   },
-  "azami": 12,
-  "omur_sn": 172800
+  "maximum": 12,
+  "lifetime_sec": 172800
  },
  "_robots": "wiki: 250 kredi (+%1) ya da 50 uridyum (+%4), toplayıcı başına en çok 12, 48 saat yaşar",
  "transport": {

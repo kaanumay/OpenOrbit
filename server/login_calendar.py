@@ -23,9 +23,9 @@ class DailyLogin:
         """Profildeki takvim: ay ("YYYY-MM"), alınan gün sayısı, son alınan tarih. Ay değişince baştan."""
         t = self.today()
         with self.p.lock:
-            d = self.p.d.setdefault('daily_login', {'ay': '', 'gun': 0, 'last': ''})
+            d = self.p.d.setdefault('daily_login', {'ay': '', 'day': 0, 'last': ''})
             if d['ay'] != t.strftime('%Y-%m'):
-                d.update(ay=t.strftime('%Y-%m'), gun=0)
+                d.update(ay=t.strftime('%Y-%m'), day=0)
                 self.p.dirty = True
         return d
 
@@ -41,11 +41,11 @@ class DailyLogin:
     def today_index(self):
         """Bugünün kutusu (istemcinin `day` alanı, 0'dan): bugün alındıysa son alınan gün."""
         d = self.state()
-        return d['gun'] - 1 if self.claimed_today() and d['gun'] > 0 else d['gun']
+        return d['day'] - 1 if self.claimed_today() and d['day'] > 0 else d['day']
 
     def fields(self):
         d = self.state()
-        return dict(claimed=self.claimed_today(), month=self.today().month, end=d['gun'] >= DAYS,
+        return dict(claimed=self.claimed_today(), month=self.today().month, end=d['day'] >= DAYS,
                     nextMonthSeconds=self.next_month_seconds(), day=self.today_index())
 
     def info_cmd(self):
@@ -54,17 +54,17 @@ class DailyLogin:
     def claim(self):
         """DailyLoginClaimTodayRequest: bugünün ödülü (ayın sıradaki günü; son günde premium ödül de)."""
         d = self.state()
-        if self.claimed_today() or d['gun'] >= DAYS:
-            self.log('   günlük giriş: bugün alındı ya da takvim bitti (gün %d)' % d['gun'])
+        if self.claimed_today() or d['day'] >= DAYS:
+            self.log('   günlük giriş: bugün alındı ya da takvim bitti (gün %d)' % d['day'])
             return [('DailyLoginClaimTodayCommand', dict(err='already_claimed', claimed=False, day=self.today_index()))]
-        reward = DATA['months'][str(self.today().month)][d['gun']]
+        reward = DATA['months'][str(self.today().month)][d['day']]
         with self.p.lock:
-            d['gun'] += 1
+            d['day'] += 1
             d['last'] = self.today().isoformat()
             self.p.dirty = True
-        msgs = self.m.reward(reward['esya'], reward['adet'])
+        msgs = self.m.reward(reward['item'], reward['count'])
         if reward.get('premium'):
-            msgs += self.m.reward(reward['premium']['esya'], reward['premium']['adet'])
-        self.log('   günlük giriş: %d. gün ödülü %s x%d%s' % (d['gun'], reward['esya'], reward['adet'],
-                                                           ' + %s' % reward['premium']['esya'] if reward.get('premium') else ''))
+            msgs += self.m.reward(reward['premium']['item'], reward['premium']['count'])
+        self.log('   günlük giriş: %d. gün ödülü %s x%d%s' % (d['day'], reward['item'], reward['count'],
+                                                           ' + %s' % reward['premium']['item'] if reward.get('premium') else ''))
         return [('DailyLoginClaimTodayCommand', dict(err='', claimed=True, day=self.today_index()))] + msgs + [self.info_cmd()]

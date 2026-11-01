@@ -25,15 +25,15 @@ _PATH = os.path.join(HERE, 'data', 'extra_events.json')
 D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('fiesta', {})
 EVENT = 'fiesta'
 COUPON = D.get('voucher', 'resource_collectable_galaxy-coupon')
-BY_LEVEL = {z['seviye']: z for z in D.get('difficulties', [])}
-BY_GATE = {z['kapi']: z for z in D.get('difficulties', [])}
+BY_LEVEL = {z['level']: z for z in D.get('difficulties', [])}
+BY_GATE = {z['gate']: z for z in D.get('difficulties', [])}
 PORTAL_ID = EKP.PORTAL_BASE + 90                  # X-1'deki tek Fiesta portalı (pencereli)
 TITLE_TRANQUIL = 'title_fiestagate_dec2025'      # "Epoch Lit" (istemci metni): Tranquil seviyesini tamamlayınca
 
 # kapılar etkinlik kapısı motoruna (game.py EKP.register_npcs'den önce içe aktarılır: uzaylı türleri de kaydedilir)
 for _k, _g in (D.get('kapilar') or {}).items():
     EKP.GATES[_k] = _g
-    for _m in _g['haritalar']:
+    for _m in _g['maps']:
         EKP.BY_MAP[int(_m)] = _k
 
 
@@ -76,8 +76,8 @@ class Fiesta:
 
     def point_cmd(self, open_window):
         lv, cur, need = self.level()
-        shows = [mod('EventLootShowCommand', lootId=r['esyalar'][0][0] if r['esyalar'] else '', bg='',
-                     lootAmount=r['esyalar'][0][1] if r['esyalar'] else 0) for r in D.get('track', [])]
+        shows = [mod('EventLootShowCommand', lootId=r['items'][0][0] if r['items'] else '', bg='',
+                     lootAmount=r['items'][0][1] if r['items'] else 0) for r in D.get('track', [])]
         return ('Birthday2025PointRewardCommand', dict(openWindow=bool(open_window), curRewardLevel=lv, curPoints=cur,
                                                        curLevelPoints=need, lootShowCommandList=shows,
                                                        claimedIndexes=sorted(self.st['claimed'])))
@@ -92,7 +92,7 @@ class Fiesta:
             with self.p.lock:
                 self.st['claimed'].append(l)
                 self.p.dirty = True
-            for loot, n in row['esyalar']:
+            for loot, n in row['items']:
                 msgs += self.m.prize(loot, n)
         if todo:
             self.log('   Fiesta Gate ödül çizgisi: %s' % todo)
@@ -102,14 +102,14 @@ class Fiesta:
     def gate_cmd(self):
         cmds = []
         for z in D.get('difficulties', []):
-            g = D['kapilar'][z['kapi']]
+            g = D['kapilar'][z['gate']]
             o = g['reward']
             probs = [mod('LootProbabilityModule', lootId=l, minLootAmount=n, maxLootAmount=n, probabilityPercentage=round(c * 100, 3))
                      for l, n, c in o.get('chance', [])]
-            shows = [mod('EventLootShowCommand', lootId=l, lootAmount=n, bg='') for l, n in o.get('esyalar', [])]
+            shows = [mod('EventLootShowCommand', lootId=l, lootAmount=n, bg='') for l, n in o.get('items', [])]
             if o.get('ep'):
                 shows.insert(0, mod('EventLootShowCommand', lootId='currency_experience', lootAmount=o['ep'], bg=''))
-            cmds.append(mod('Birthday2025GateRewardCommand', level=z['seviye'], costAmount=z['voucher'], costLootId=COUPON,
+            cmds.append(mod('Birthday2025GateRewardCommand', level=z['level'], costAmount=z['voucher'], costLootId=COUPON,
                             lootProbabilityModuleList=probs, lootShowCommandList=shows))
         return ('Birthday2025GateWindowCommand', dict(curLevel=self.st['on'], curLootAmount=self.p.resource(COUPON), commandList=cmds))
 
@@ -122,8 +122,8 @@ class Fiesta:
         sx, sy = station['posX'], station['posY']
         cx, cy = KAPI.MAP_W // 2, KAPI.MAP_H // 2         # istasyondan haritanın ortasına doğru, üretici kapılarından uzakta
         x, y = int(sx + (cx - sx) * 0.3), int(sy + (cy - sy) * 0.3 + 900)
-        return [dict(gateId=PORTAL_ID, x=x, y=y, hedef=0, designId=D.get('portal_design', 15), windowed='fiesta',
-                     ipucu=D.get('ipucu', 'ttip_jumpgate_bday2025'))]
+        return [dict(gateId=PORTAL_ID, x=x, y=y, target=0, designId=D.get('portal_design', 15), windowed='fiesta',
+                     tooltip=D.get('tooltip', 'ttip_jumpgate_bday2025'))]
 
     def portal_window(self, g, w, go):
         """Portala atlandı (dünya kilidi altında): giriş penceresi."""
@@ -133,16 +133,16 @@ class Fiesta:
         z = BY_LEVEL.get(int(level))
         if not z or not active():
             return [self.gate_cmd()]
-        if z['seviye'] > self.st['on']:
+        if z['level'] > self.st['on']:
             return [self.gate_cmd(), screen('Clear the previous difficulty first.')]
         if self.p.resource(COUPON) < z['voucher']:
             return [self.gate_cmd(), screen('key:bday2025_entry_info')]
         self.p.add_resource(COUPON, -z['voucher'])
-        self.k.enter(z['kapi'])
-        self.log('   Fiesta Gate %s: %d kupon' % (z['ad'], z['voucher']))
+        self.k.enter(z['gate'])
+        self.log('   Fiesta Gate %s: %d kupon' % (z['name'], z['voucher']))
         msgs = self.m.resource_msgs(COUPON, self.p.resource(COUPON), -z['voucher'])
         if self.change_map:
-            self.change_map(z['harita'], {'event_gate': True, 'kapi': z['kapi'], 'arrival': EKP.center(z['harita'])}, None)
+            self.change_map(z['map'], {'event_gate': True, 'gate': z['gate'], 'arrival': EKP.center(z['map'])}, None)
         return msgs
 
     def on_finish(self, key):
@@ -153,12 +153,12 @@ class Fiesta:
         before = self.level()[0]
         with self.p.lock:
             self.st['ap'] += z['ap']
-            nxt = z['seviye'] * 2
+            nxt = z['level'] * 2
             if nxt in BY_LEVEL and self.st['on'] < nxt:
                 self.st['on'] = nxt
             self.p.dirty = True
         lv = self.level()[0]
-        self.log('   Fiesta Gate %s bitti: +%d AP (toplam %d, seviye %d)' % (z['ad'], z['ap'], self.st['ap'], lv))
+        self.log('   Fiesta Gate %s bitti: +%d AP (toplam %d, seviye %d)' % (z['name'], z['ap'], self.st['ap'], lv))
         msgs = [screen('+%d Activity Points' % z['ap'], big=True)]
         if z['order'] == 1 and self.titles:          # wiki: "Epoch Lit: Complete the Tranquil level"
             msgs += self.titles(TITLE_TRANQUIL)

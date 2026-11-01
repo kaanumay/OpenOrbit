@@ -46,8 +46,8 @@ def rotation(now=None):
 
 
 def fill(loot, ship, ball):
-    """Şablondaki gemiye özgü satır ve havuzun topu: ul-{top}-{gemi}; Nidhogg döneminde Helios eşyaları Nidhogg karşılıklarıyla."""
-    s = loot.replace('{top}', ball).replace('{gemi}', ship)
+    """Şablondaki gemiye özgü satır ve havuzun topu: ul-{top}-{ship}; Nidhogg döneminde Helios eşyaları Nidhogg karşılıklarıyla."""
+    s = loot.replace('{top}', ball).replace('{ship}', ship)
     if ball == 'nidhogg':
         for a, b in D['convert_nidhogg']:
             s = s.replace(a, b)
@@ -67,19 +67,19 @@ class Armory:
         ships, ball = rotation(now)
         out = [(s, ball) for s in ships]
         k = self.d['lock']
-        if k and (k['gemi'], k['top']) not in out:
-            out = [(k['gemi'], k['top'])] + out[:2]
+        if k and (k['ship'], k['top']) not in out:
+            out = [(k['ship'], k['top'])] + out[:2]
         return out
 
     def selected(self, now=None):
         k = self.d['lock']
         if not k:
             return 0
-        return next((i + 1 for i, g in enumerate(self.groups(now)) if g == (k['gemi'], k['top'])), 0)
+        return next((i + 1 for i, g in enumerate(self.groups(now)) if g == (k['ship'], k['top'])), 0)
 
     def claims(self, ship, ball):
         k = self.d['lock']
-        mine = bool(k) and (k['gemi'], k['top']) == (ship, ball)
+        mine = bool(k) and (k['ship'], k['top']) == (ship, ball)
         n = min(k['spin'], D['cumulative'][-1][1]) if mine else 0
         out = []
         for idx, need, loot, amount, special in D['cumulative']:
@@ -131,12 +131,12 @@ class Armory:
             return [self.info_cmd(now)]
         ship, ball = groups[group - 1]
         k = self.d['lock']
-        if k and (k['gemi'], k['top']) != (ship, ball) and not self.all_claimed():
-            self.log('   Armory: gemi değişmez, birikimli ödüller alınmadı (%s)' % k['gemi'])
+        if k and (k['ship'], k['top']) != (ship, ball) and not self.all_claimed():
+            self.log('   Armory: gemi değişmez, birikimli ödüller alınmadı (%s)' % k['ship'])
             return [legacy('0|A|STM|armoryunlock_draw_prompt'), self.info_cmd(now)]
-        if not k or (k['gemi'], k['top']) != (ship, ball):
+        if not k or (k['ship'], k['top']) != (ship, ball):
             with self.p.lock:
-                self.d['lock'] = {'gemi': ship, 'top': ball, 'spin': 0, 'claimed': []}
+                self.d['lock'] = {'ship': ship, 'top': ball, 'spin': 0, 'claimed': []}
                 self.p.dirty = True
             self.log('   Armory: Mega Draw gemisi %s (%s)' % (ship, ball))
         return [self.info_cmd(now)]
@@ -162,7 +162,7 @@ class Armory:
             return [legacy('0|A|STM|ttip_not_enough_resources'), self.info_cmd(now)]
         INV.spend(self.p, {res: count}, 'armory_unlock_draw')
         rows = D['mega']['probability'] if kind == SPECIAL else D['normal']['probability']
-        ship, ball = (k['gemi'], k['top']) if kind == SPECIAL else ('', 'helios')
+        ship, ball = (k['ship'], k['top']) if kind == SPECIAL else ('', 'helios')
         got = [self.pick(rows, ship, ball, rng) for _ in range(count)]
         with self.p.lock:
             if kind == SPECIAL:
@@ -189,7 +189,7 @@ class Armory:
         row = next((r for r in D['cumulative'] if r[0] == index), None)
         if not k or not row or index in k['claimed'] or k['spin'] < row[1]:
             return [('ArmoryUnlockClaimCommand', dict(claimed=False, index=index)), self.info_cmd(now)]
-        loot = fill(row[2], k['gemi'], k['top'])
+        loot = fill(row[2], k['ship'], k['top'])
         with self.p.lock:
             k['claimed'].append(index)
             self.p.dirty = True

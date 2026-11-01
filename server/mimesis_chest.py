@@ -47,7 +47,7 @@ def heal(w, hp=0, shield=0):
     """Anında can ve/ya da kalkan (azami değeri aşmaz; kalkan jeneratörü yoksa azami 0, hiçbir şey eklenmez) -> mesajlar."""
     if w.hero_dead:
         return []
-    g = w.p.d['gemi']
+    g = w.p.d['ship']
     hp0, sh0 = g.get('hitPoints', 0), g.get('shield', 0)
     w.p.set_hull(hp=hp0 + hp if hp else None, shield=sh0 + shield if shield else None)
     if int(g.get('hitPoints', 0)) <= int(hp0) and int(g.get('shield', 0)) <= int(sh0):
@@ -61,20 +61,20 @@ def heal(w, hp=0, shield=0):
 def apply(w, e, now=None):
     """Bir etkiyi uygula (e: major_content.json mimesis.sandik.etkiler satırı) -> oyuncuya mesajlar."""
     now = time.time() if now is None else now
-    t = e['tur']
-    w.log('   Mimesis Chest etkisi: %s' % e['ad'])
+    t = e['type']
+    w.log('   Mimesis Chest etkisi: %s' % e['name'])
     if t == 'can':
         return heal(w, hp=e['can'])
     if t == 'kalkan':
         return heal(w, shield=e['kalkan'])
     if t == 'hp_field':
-        for v in near(w, e['yaricap'], now)[1:]:
+        for v in near(w, e['radius'], now)[1:]:
             v.deliver(heal(v, hp=e['can']))
         return heal(w, hp=e['can'])
-    if t == 'hiz':
-        return timed(w, 'flux', e['sure_sn'], {'mods': {'hiz': e['hiz']}}, None)
-    if t == 'yetenek':
-        item = e['yetenek']
+    if t == 'speed':
+        return timed(w, 'flux', e['sure_sn'], {'mods': {'speed': e['speed']}}, None)
+    if t == 'skill':
+        item = e['skill']
         if SA.is_active(w.p, item, now):
             return []                                       # aynı gemi yeteneği etkinse tetiklenmez (wiki)
         return timed(w, item, e['sure_sn'], dict(SA.ABILITIES[item]['effect']), item)
@@ -89,11 +89,11 @@ def apply(w, e, now=None):
 def timed(w, name, sec, value, item):
     """Süreli 'yetenek' durum etkisi (aynı etki birikmez, süresi yenilenir); bitince yeteneğin "… stopped" satırı. item: gemi yeteneği."""
     src = '%s:%s' % (SRC, name)
-    w.hero_effects.remove('yetenek', source=src)
-    w.hero_effect('yetenek', sec, value, source=src)
+    w.hero_effects.remove('skill', source=src)
+    w.hero_effect('skill', sec, value, source=src)
 
     def stop():
-        if not any(x['kaynak'] == src for x in w.hero_effects.get('yetenek')) and item:
+        if not any(x['source'] == src for x in w.hero_effects.get('skill')) and item:
             w.send(SA.line(item, True))
     w.later(sec + 0.1, stop)
     return SA.line(item) if item else []

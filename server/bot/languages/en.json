@@ -1,9 +1,9 @@
 {
  "code": "en",
- "ad": "English",
+ "name": "English",
  "weight": 30,
- "adlar": {
-  "parcalar": {
+ "names": {
+  "parts": {
    "on": [
     "Dark",
     "Shadow",
@@ -45,7 +45,7 @@
     "Nuclear",
     "Quantum"
    ],
-   "arka": [
+   "back": [
     "Hunter",
     "Slayer",
     "Killer",
@@ -85,7 +85,7 @@
     "Panther",
     "X"
    ],
-   "tek": [
+   "single": [
     "Maverick",
     "Ghostrider",
     "Nightmare",
@@ -120,7 +120,7 @@
     "Rebel",
     "Legend"
    ],
-   "ulke": [
+   "country": [
     "PL",
     "DE",
     "ES",
@@ -131,12 +131,12 @@
     "HU",
     "RO"
    ],
-   "ayrac": [
+   "separator": [
     "",
     "_",
     "-"
    ],
-   "sayi": [
+   "number": [
     "1",
     "7",
     "13",
@@ -177,154 +177,154 @@
   "patterns": [
    [
     30,
-    "{on}{arka}"
+    "{on}{back}"
    ],
    [
     15,
-    "{on}{arka}{sayi}"
+    "{on}{back}{number}"
    ],
    [
     10,
-    "xX{on|tek}Xx"
+    "xX{on|single}Xx"
    ],
    [
     10,
-    "{leet:tek|arka}"
+    "{leet:single|back}"
    ],
    [
     10,
-    "{on_k}_{arka_k}"
+    "{on_k}_{back_k}"
    ],
    [
     10,
-    "{tek}{sayi}"
+    "{single}{number}"
    ],
    [
     7,
-    "The{tek|arka}"
+    "The{single|back}"
    ],
    [
     8,
-    "{tek}{ayrac}{ulke}"
+    "{single}{separator}{country}"
    ]
   ]
  },
- "kaliplar": {
-  "laf_oldurdum": ["just sent {ad} back to base lol", "{ad} you fly like my grandma", "anyone else want some? {ad} already got his", "{ad} uninstall maybe", "farmed {ad} on {harita}, next", "{ad} thanks for the honor"],
-  "laf_sert": ["cry more", "says the guy i farm every day", "come to 4-4 and say that", "talk is cheap, fight me", "lol you wish", "keep typing, it wont help your aim"],
-  "laf_firma": ["{firma} is just free honor", "{firma} hiding at base again", "where is {firma}? scared?", "{firma} cant even hold their own maps", "farming {firma} all night ez"],
-  "laf_oyuncu": ["{ad} where are you hiding", "{ad} come to {harita} if you dare", "still waiting for you {ad}", "{ad} your base cant protect you forever"],
-  "mod_uyari_buyuk": ["{ad} please no caps", "{ad} turn off caps pls", "{ad} no need to shout, caps off please"],
-  "mod_uyari_sel": ["{ad} stop spamming please", "{ad} no spam in chat pls", "{ad} slow down, no flooding"],
-  "mod_uyari_hakaret": ["{ad} keep it respectful please", "{ad} no insults in chat, warning", "{ad} watch your language pls"],
-  "mod_uyari_reklam": ["{ad} no links or ads here", "{ad} advertising is not allowed", "{ad} no links in chat please"],
-  "mod_sustur": ["{ad} muted for {dk} min", "{ad} you were warned, {dk} min mute", "muted {ad} ({dk} min), keep it clean guys"],
-  "mod_yasak": ["{ad} banned from chat for {saat}h, too many mutes", "{ad} chat ban {saat}h", "{ad} you are out of chat for {saat} hours"],
-  "mod_kurallar": ["reminder: no caps, no spam, no insults, no ads. have fun", "chat rules: be respectful, no spam, no links", "keep chat clean please, mods are watching"],
-  "emir_tamam": ["on it", "ok boss", "roger", "got it", "yes sir", "omw", "k doing it"],
-  "emir_ret": ["cant right now", "busy atm sorry", "not now", "after this, sorry", "too tired, maybe later"],
-  "emir_av": ["hunting {ad} down", "on it, looking for {ad}", "{ad} is a dead man", "roger, going after {ad}", "i'll find {ad}"],
-  "emir_klan_odak": ["focusing {klan} then", "ok {klan} first", "{klan} is priority, got it", "roger, {klan} it is"],
-  "emir_us_yok": ["we dont have a station yet", "what base? we have none", "no cbs built yet"],
-  "savas_cagri": ["everyone to {harita}, big fight!", "all to {harita} now, enemies everywhere", "{harita} war, come fast", "need everyone on {harita}"],
-  "yonetici_ozur": ["sorry {ad}, wont happen again", "ok {ad} got it, my bad", "sorry, stopping now", "ok gm sorry", "understood, my bad"],
-  "yonetici_selam": ["hi {ad} o/", "gm is here, hello", "hey admin", "welcome {ad}"],
-  "yonetici_gordu": ["gm on {harita} guys", "admin flying around {harita}", "just saw a gm on {harita}", "ufo ship on {harita}, thats an admin"],
-  "savas_ilan": [
-   "we are at war with [{etiket}], shoot on sight",
-   "war declared on {klan}",
-   "[{etiket}] get ready"
+ "templates": {
+  "banter_kill": ["just sent {name} back to base lol", "{name} you fly like my grandma", "anyone else want some? {name} already got his", "{name} uninstall maybe", "farmed {name} on {map}, next", "{name} thanks for the honor"],
+  "banter_harsh": ["cry more", "says the guy i farm every day", "come to 4-4 and say that", "talk is cheap, fight me", "lol you wish", "keep typing, it wont help your aim"],
+  "banter_company": ["{company} is just free honor", "{company} hiding at base again", "where is {company}? scared?", "{company} cant even hold their own maps", "farming {company} all night ez"],
+  "banter_player": ["{name} where are you hiding", "{name} come to {map} if you dare", "still waiting for you {name}", "{name} your base cant protect you forever"],
+  "mod_warning_caps": ["{name} please no caps", "{name} turn off caps pls", "{name} no need to shout, caps off please"],
+  "mod_warning_flood": ["{name} stop spamming please", "{name} no spam in chat pls", "{name} slow down, no flooding"],
+  "mod_warning_insult": ["{name} keep it respectful please", "{name} no insults in chat, warning", "{name} watch your language pls"],
+  "mod_warning_ads": ["{name} no links or ads here", "{name} advertising is not allowed", "{name} no links in chat please"],
+  "mod_mute": ["{name} muted for {min} min", "{name} you were warned, {min} min mute", "muted {name} ({min} min), keep it clean guys"],
+  "mod_ban": ["{name} banned from chat for {hour}h, too many mutes", "{name} chat ban {hour}h", "{name} you are out of chat for {hour} hours"],
+  "mod_rules": ["reminder: no caps, no spam, no insults, no ads. have fun", "chat rules: be respectful, no spam, no links", "keep chat clean please, mods are watching"],
+  "order_done": ["on it", "ok boss", "roger", "got it", "yes sir", "omw", "k doing it"],
+  "order_refuse": ["cant right now", "busy atm sorry", "not now", "after this, sorry", "too tired, maybe later"],
+  "order_hunt": ["hunting {name} down", "on it, looking for {name}", "{name} is a dead man", "roger, going after {name}", "i'll find {name}"],
+  "order_clan_focus": ["focusing {clan} then", "ok {clan} first", "{clan} is priority, got it", "roger, {clan} it is"],
+  "order_no_base": ["we dont have a station yet", "what base? we have none", "no cbs built yet"],
+  "battle_call": ["everyone to {map}, big fight!", "all to {map} now, enemies everywhere", "{map} war, come fast", "need everyone on {map}"],
+  "admin_apology": ["sorry {name}, wont happen again", "ok {name} got it, my bad", "sorry, stopping now", "ok gm sorry", "understood, my bad"],
+  "admin_greeting": ["hi {name} o/", "gm is here, hello", "hey admin", "welcome {name}"],
+  "admin_saw": ["gm on {map} guys", "admin flying around {map}", "just saw a gm on {map}", "ufo ship on {map}, thats an admin"],
+  "war_declared": [
+   "we are at war with [{tag}], shoot on sight",
+   "war declared on {clan}",
+   "[{tag}] get ready"
   ],
-  "ittifak": [
-   "allied with [{etiket}]",
-   "{klan} are our allies now, hold fire",
-   "[{etiket}] friends now"
+  "alliance": [
+   "allied with [{tag}]",
+   "{clan} are our allies now, hold fire",
+   "[{tag}] friends now"
   ],
-  "baris": [
-   "peace with [{etiket}]",
-   "war is over, gg {klan}",
+  "peace": [
+   "peace with [{tag}]",
+   "war is over, gg {clan}",
    "we made peace"
   ],
-  "tanik_patron": [
-   "gg {kim}",
+  "witness_boss": [
+   "gg {who}",
    "nice kill",
    "boss down :D",
-   "gj {kim}",
+   "gj {who}",
    "damn i wanted that one",
    "nice one"
   ],
-  "tanik_olum": [
-   "rip {ad}",
+  "witness_death": [
+   "rip {name}",
    "oof",
    "f",
    "rip",
-   "get back here {ad}",
+   "get back here {name}",
    "that looked painful"
   ],
-  "patron_oldurdum": [
+  "i_killed_boss": [
    "boss down",
    "got the boss :)",
    "nice loot from that boss"
   ],
-  "posta_hosgeldin": [
-   "welcome to [{etiket}]! write me if you need anything",
-   "welcome to {klan}, say hi in clan chat",
+  "mail_welcome": [
+   "welcome to [{tag}]! write me if you need anything",
+   "welcome to {clan}, say hi in clan chat",
    "welcome aboard, see you in clan chat"
   ],
-  "posta_grup_evet": [
+  "mail_group_yes": [
    "sure, invite me when you see me online",
    "yeah sounds good, inv me when we are both on",
    "ok, whisper me when you are on and we go"
   ],
-  "posta_grup_hayir": [
+  "mail_group_no": [
    "sorry, playing solo these days",
    "cant right now, busy with my own quests",
    "not much time this week, sorry"
   ],
-  "posta_cevap": [
+  "mail_reply": [
    "got your message, whisper me in game",
    "hey, saw your mail",
    "ok, lets talk in game"
   ],
-  "duello_kabul": [
-   "{harita}, im waiting",
-   "ok {harita}, come get some",
-   "sure, {harita} now"
+  "duel_accept": [
+   "{map}, im waiting",
+   "ok {map}, come get some",
+   "sure, {map} now"
   ],
-  "duello_ayni": [
+  "duel_same": [
    "we are same company lol",
    "cant shoot my own company",
    "same side man"
   ],
-  "duello_ret": [
+  "duel_refuse": [
    "not now",
    "maybe later",
    "nah, busy"
   ],
-  "ozel_selam": [
-   "yo {ad}, wb",
-   "hey {ad}",
-   "sup {ad}, hows it going",
-   "oh hey {ad}"
+  "private_greeting": [
+   "yo {name}, wb",
+   "hey {name}",
+   "sup {name}, hows it going",
+   "oh hey {name}"
   ],
-  "ozel_grup": [
-   "wanna group up? im on {harita}",
+  "private_group": [
+   "wanna group up? im on {map}",
    "doing quests, wanna join?",
-   "group up {ad}?"
+   "group up {name}?"
   ],
-  "ozel_sohbet": [
+  "private_chat": [
    "hows it going?",
    "got any new gear?",
    "still farming?"
   ],
-  "grup_laf": [
+  "group_banter": [
    "where to next?",
    "nice kills",
    "gotta repair quick",
    "wanna try that boss?",
    "going well"
   ],
-  "pm_cevap": [
+  "pm_reply": [
    "yo, whats up?",
    "here, what do you need?",
    "hey, you wanted a pm?"
@@ -336,78 +336,78 @@
    "yeah inv me",
    "invite me"
   ],
-  "davet_attim": [
+  "invite_sent": [
    "sent inv",
    "inv sent",
    "sure, check inv",
    "yeah sent you an inv"
   ],
-  "zaten_grupta": [
+  "already_in_group": [
    "already in a group",
    "got a group atm",
    "in another group rn"
   ],
-  "klan_basvur": [
-   "apply to [{etiket}]",
-   "sure, apply to [{etiket}]",
-   "apply [{etiket}], ill accept"
+  "clan_apply": [
+   "apply to [{tag}]",
+   "sure, apply to [{tag}]",
+   "apply [{tag}], ill accept"
   ],
-  "klan_uye": [
-   "im in [{etiket}], ask {lider}",
-   "apply to [{etiket}], {lider} handles apps"
+  "clan_member": [
+   "im in [{tag}], ask {leader}",
+   "apply to [{tag}], {leader} handles apps"
   ],
-  "klan_yok": [
+  "no_clan": [
    "no clan here",
    "not in a clan atm",
    "looking for one myself"
   ],
-  "klana_basvurdum": [
+  "applied_to_clan": [
    "applied",
    "ok sent an application",
    "applied, accept me"
   ],
-  "klan_basvuru_dost": [
-   "{ad} helped me out the other day and flies with you, would love to join {klan}",
-   "hey, {ad} saved me in a tough fight a while ago. looking to fly with you guys, lvl {lv}",
-   "{ad} had my back before, so I figured I'd ask to join. lvl {lv}, {stil}",
-   "heard good things and {ad} helped me once, can I join {klan}?"
+  "clan_apply_friend": [
+   "{name} helped me out the other day and flies with you, would love to join {clan}",
+   "hey, {name} saved me in a tough fight a while ago. looking to fly with you guys, lvl {lv}",
+   "{name} had my back before, so I figured I'd ask to join. lvl {lv}, {style}",
+   "heard good things and {name} helped me once, can I join {clan}?"
   ],
-  "klan_basvuru_grup": [
-   "grouped with {ad} a few times, great pilot. would like to join {klan}, lvl {lv}",
-   "flew with {ad} before and had fun, looking for a clan like this. {stil}",
-   "{ad} is a good wingman, hope you take me too. lvl {lv}"
+  "clan_apply_group": [
+   "grouped with {name} a few times, great pilot. would like to join {clan}, lvl {lv}",
+   "flew with {name} before and had fun, looking for a clan like this. {style}",
+   "{name} is a good wingman, hope you take me too. lvl {lv}"
   ],
-  "klan_basvuru_pvp": [
+  "clan_apply_pvp": [
    "lvl {lv}, mostly pvp, looking for an active clan to fly with",
    "lvl {lv} pvp player, want some people to hunt with. will be online daily",
    "looking for a pvp clan, I know my way around a fight. lvl {lv}"
   ],
-  "klan_basvuru_pve": [
+  "clan_apply_pve": [
    "lvl {lv}, mostly pve and quests, looking for a friendly clan",
    "new-ish pilot (lvl {lv}) looking for a chill clan to farm and chat with",
    "lvl {lv}, I do quests and farming, would like to team up with some people"
   ],
-  "nerede": [
-   "on {harita}",
-   "{harita}",
-   "farming on {harita}"
+  "used_in": [
+   "on {map}",
+   "{map}",
+   "farming on {map}"
   ],
-  "geliyorum": [
+  "coming": [
    "omw",
    "coming",
-   "on my way to {harita}"
+   "on my way to {map}"
   ],
-  "gelemem": [
+  "cant_come": [
    "cant go there",
    "cant enter that map",
    "cant come rn"
   ],
-  "arkadas_tamam": [
+  "friend_done": [
    "added",
    "sent you a request",
    "sure, added"
   ],
-  "selam": [
+  "greeting": [
    "hi all",
    "hello",
    "yo",
@@ -416,19 +416,19 @@
    "hi",
    "good evening all"
   ],
-  "seviye": [
-   "lvl {seviye} finally",
-   "just hit level {seviye}",
-   "level {seviye} :D",
-   "ding {seviye}"
+  "level": [
+   "lvl {level} finally",
+   "just hit level {level}",
+   "level {level} :D",
+   "ding {level}"
   ],
-  "yeni_gemi": [
-   "finally got my {gemi}",
-   "new ship: {gemi}",
-   "bought {gemi} :D",
-   "{gemi} at last"
+  "new_ship": [
+   "finally got my {ship}",
+   "new ship: {ship}",
+   "bought {ship} :D",
+   "{ship} at last"
   ],
-  "oldurdum": [
+  "i_killed": [
    "gg",
    "gg wp",
    "ez",
@@ -437,7 +437,7 @@
    "come again",
    "gg :)"
   ],
-  "oldum": [
+  "died": [
    "gg",
    "lucky",
    "rematch?",
@@ -446,106 +446,106 @@
    "nice one",
    "wp"
   ],
-  "oldum_kizgin": [
+  "died_angry": [
    "i'll find you",
    "won't forget this",
    "always hitting weak ones huh",
    "coming back with my clan"
   ],
-  "grup_ara": [
-   "lf group {harita}",
-   "anyone farming {harita}?",
+  "group_search": [
+   "lf group {map}",
+   "anyone farming {map}?",
    "group for quests?",
-   "lfg {harita}"
+   "lfg {map}"
   ],
-  "klan_alim": [
-   "[{etiket}] {klan} recruiting, lvl {seviye}+",
-   "{klan} looking for active players",
-   "[{etiket}] recruiting pm me"
+  "clan_recruit": [
+   "[{tag}] {clan} recruiting, lvl {level}+",
+   "{clan} looking for active players",
+   "[{tag}] recruiting pm me"
   ],
-  "ticaret": [
-   "nobody bid on {esya} pls :D",
+  "trade": [
+   "nobody bid on {item} pls :D",
    "auction prices crazy again",
    "best place to farm credits?"
   ],
-  "genel": [
+  "general": [
    "when does the event end",
    "lots of npcs on x-4",
    "dead chat",
    "back online, what did i miss",
-   "so many aliens on {harita} today",
+   "so many aliens on {map} today",
    "need a break from farming lol",
-   "just flying around {harita}, nothing going on",
+   "just flying around {map}, nothing going on",
    "gotta love a quiet map",
    "anyone tried the lab upgrades yet?",
-   "lvl {seviye} and still no clue what im doing :D",
+   "lvl {level} and still no clue what im doing :D",
    "good night for hunting"
   ],
-  "sikayet": [
+  "complaint": [
    "lag for anyone else?",
    "uridium is so slow",
    "uri farming is a grind",
    "ping spiked for a sec there"
   ],
-  "durum_kapi": [
-   "just finished {kapi}, finally",
-   "{kapi} done, took long enough",
-   "cleared {kapi} :D",
-   "{kapi} wasnt that bad once i got it going"
+  "status_gate": [
+   "just finished {gate}, finally",
+   "{gate} done, took long enough",
+   "cleared {gate} :D",
+   "{gate} wasnt that bad once i got it going"
   ],
-  "durum_alim": [
-   "bought {esya} just now",
-   "picked up {esya}, lets see if it helps",
-   "got myself {esya} :)",
-   "new toy: {esya}"
+  "status_purchase": [
+   "bought {item} just now",
+   "picked up {item}, lets see if it helps",
+   "got myself {item} :)",
+   "new toy: {item}"
   ],
-  "durum_olum": [
-   "died on {harita} to some random alien, rip",
-   "those aliens on {harita} hit harder than they look",
-   "got jumped on {harita}, need to be more careful",
-   "lost a fight with npcs on {harita} lol"
+  "status_death": [
+   "died on {map} to some random alien, rip",
+   "those aliens on {map} hit harder than they look",
+   "got jumped on {map}, need to be more careful",
+   "lost a fight with npcs on {map} lol"
   ],
-  "durum_gorev": [
-   "finished the quest {ad}",
-   "{ad} done, next one",
-   "quest {ad} complete, easy rewards"
+  "status_quest": [
+   "finished the quest {name}",
+   "{name} done, next one",
+   "quest {name} complete, easy rewards"
   ],
-  "durum_kacti": [
-   "ran from {harita}, too hot there",
-   "got out of {harita} just in time",
-   "{harita} is not worth it right now"
+  "status_fled": [
+   "ran from {map}, too hot there",
+   "got out of {map} just in time",
+   "{map} is not worth it right now"
   ],
-  "durum_kargo": [
-   "cargo is {yuzde}% full, heading to sell",
+  "status_cargo": [
+   "cargo is {percent}% full, heading to sell",
    "hold is almost full, time to go back",
    "carrying so much ore my ship is crawling"
   ],
-  "durum_kasma": [
-   "farming {harita} for a bit",
-   "{harita} is decent for farming rn",
-   "grinding npcs on {harita}, anyone around?",
-   "farming {harita} at lvl {seviye}, going ok"
+  "status_grind": [
+   "farming {map} for a bit",
+   "{map} is decent for farming rn",
+   "grinding npcs on {map}, anyone around?",
+   "farming {map} at lvl {level}, going ok"
   ],
-  "durum_istat": [
+  "status_stats": [
    "{npc} aliens down so far, still going",
    "just passed {npc} kills, not bad",
-   "{npc} kills and {olum} deaths, i call it even"
+   "{npc} kills and {death} deaths, i call it even"
   ],
-  "cikis": [
+  "exit": [
    "bb",
    "gtg",
    "cya",
    "night all",
    "bye"
   ],
-  "cevap_selam": [
+  "reply_greeting": [
    "hi",
    "hey",
-   "yo {ad}",
+   "yo {name}",
    "hello",
    "welcome back"
   ],
-  "cevap_soru": [
+  "reply_question": [
    "idk",
    "not sure",
    "i think so",
@@ -554,7 +554,7 @@
    "no idea",
    "maybe"
   ],
-  "cevap_evet": [
+  "reply_yes": [
    "ok coming",
    "sure",
    "on my way",
@@ -562,7 +562,7 @@
    "omw",
    "ok"
   ],
-  "cevap_hayir": [
+  "reply_no": [
    "not now",
    "busy",
    "later",
@@ -570,48 +570,48 @@
    "no thanks",
    "sorry"
   ],
-  "cevap_hakaret": [
+  "reply_insult": [
    "you too",
    "ok",
    "k",
    "talk less fight more",
    ":)"
   ],
-  "tesekkur": [
+  "thanks": [
    "thanks",
    "ty",
    "thx",
    "thank you"
   ],
-  "yardima_gidiyor": [
-   "omw to {harita}",
-   "coming {harita}",
+  "going_to_help": [
+   "omw to {map}",
+   "coming {map}",
    "hold on",
    "how many?"
   ],
-  "klan_rutbeler": ["Officer|Veteran|Member|Recruit", "Commander|Elite|Pilot|Rookie", "Captain|Lieutenant|Soldier|Cadet", "Co-Leader|Senior|Member|Trial"],
-  "klan_aciklama_odak_pvp": ["{klan} [{etiket}] - PvP clan, we hunt enemies on their own maps", "[{etiket}] {klan}: war, honor, pvp. no cowards", "{klan} active pvp clan, 4-x is ours"],
-  "klan_aciklama_odak_pve": ["{klan} [{etiket}] - quests and farming, we grow together", "[{etiket}] {klan}: pve, gates, quests. we help each other", "{klan} chill clan, farm and level up together"],
-  "klan_aciklama_odak_ksi": ["our station: {istasyon}. everyone defends", "{istasyon} is ours, we hold it"],
-  "klan_aciklama_kural": ["rules: be active, talk in clan chat, never attack members", "low tax, respect everyone, be online a few days a week", "never leave a clanmate alone"],
-  "klan_aciklama_alim": ["recruiting, min level {seviye}. apply", "we take new members (lvl {seviye}+)", "applications open, level {seviye} and up"],
-  "klan_aciklama_dolu": ["clan is full, not recruiting right now", "recruitment closed"],
-  "klan_duyuru_ittifak": ["we are allied with {klan} now, do not attack them", "new ally: {klan}"],
-  "klan_duyuru_saldirmazlik": ["nap signed with {klan}", "we have a nap with {klan}, leave them alone"],
-  "klan_duyuru_savas": ["we are at war with {klan}! shoot on sight", "WAR: {klan}. everyone get ready"],
-  "klan_duyuru_baris": ["war with {klan} is over", "peace with {klan}, gg"],
-  "klan_duyuru_odeme": ["weekly payout from the treasury: {adlar}. thanks", "top contributors got paid: {adlar}"],
-  "klan_duyuru_hedef_ksi": ["goal this week: our own battle station. pay tax, fill the bank", "saving up for a station, everyone farm"],
-  "klan_duyuru_hedef_kas": ["this week: farm and quests, level up", "goal: everyone gets one more level"],
-  "klan_duyuru_hedef_pvp": ["pvp week, collect honor", "goal: hunt the enemy company on 4-x"],
-  "klan_duyuru_ksi_yaris": ["we started building at {istasyon} ({harita}), modules paid by the bank", "{istasyon} on {harita} will be ours, building now"],
-  "klan_duyuru_ksi_kuruldu": ["our station is up: {istasyon} ({harita})! gz all", "{istasyon} is ours now, gg everyone"],
-  "klan_duyuru_ksi_yikildi": ["we lost {istasyon} ({harita}). we will rebuild", "{istasyon} is down, refill the bank"],
-  "klan_duyuru_ksi_saldiri": ["{istasyon} under attack! everyone to {harita}", "station is being hit, regroup on {harita}"],
-  "klan_posta_savas_konu": ["War: {klan}"],
-  "klan_posta_savas": ["war with {klan} has started. do not fly alone, make groups, shoot on sight. report losses in clan chat"],
-  "klan_posta_ksi_konu": ["Station under attack: {istasyon}"],
-  "klan_posta_ksi": ["our station {istasyon} on {harita} is under attack. everyone online come now"]
+  "clan_ranks": ["Officer|Veteran|Member|Recruit", "Commander|Elite|Pilot|Rookie", "Captain|Lieutenant|Soldier|Cadet", "Co-Leader|Senior|Member|Trial"],
+  "clan_description_focus_pvp": ["{clan} [{tag}] - PvP clan, we hunt enemies on their own maps", "[{tag}] {clan}: war, honor, pvp. no cowards", "{clan} active pvp clan, 4-x is ours"],
+  "clan_description_focus_pve": ["{clan} [{tag}] - quests and farming, we grow together", "[{tag}] {clan}: pve, gates, quests. we help each other", "{clan} chill clan, farm and level up together"],
+  "clan_description_focus_cbs": ["our station: {station}. everyone defends", "{station} is ours, we hold it"],
+  "clan_description_rules": ["rules: be active, talk in clan chat, never attack members", "low tax, respect everyone, be online a few days a week", "never leave a clanmate alone"],
+  "clan_description_recruiting": ["recruiting, min level {level}. apply", "we take new members (lvl {level}+)", "applications open, level {level} and up"],
+  "clan_description_full": ["clan is full, not recruiting right now", "recruitment closed"],
+  "clan_announce_alliance": ["we are allied with {clan} now, do not attack them", "new ally: {clan}"],
+  "clan_announce_non_aggression": ["nap signed with {clan}", "we have a nap with {clan}, leave them alone"],
+  "clan_announce_war": ["we are at war with {clan}! shoot on sight", "WAR: {clan}. everyone get ready"],
+  "clan_announce_peace": ["war with {clan} is over", "peace with {clan}, gg"],
+  "clan_announce_payout": ["weekly payout from the treasury: {names}. thanks", "top contributors got paid: {names}"],
+  "clan_announce_target_cbs": ["goal this week: our own battle station. pay tax, fill the bank", "saving up for a station, everyone farm"],
+  "clan_announce_target_farm": ["this week: farm and quests, level up", "goal: everyone gets one more level"],
+  "clan_announce_target_pvp": ["pvp week, collect honor", "goal: hunt the enemy company on 4-x"],
+  "clan_announce_cbs_race": ["we started building at {station} ({map}), modules paid by the bank", "{station} on {map} will be ours, building now"],
+  "clan_announce_cbs_built": ["our station is up: {station} ({map})! gz all", "{station} is ours now, gg everyone"],
+  "clan_announce_cbs_destroyed": ["we lost {station} ({map}). we will rebuild", "{station} is down, refill the bank"],
+  "clan_announce_cbs_attack": ["{station} under attack! everyone to {map}", "station is being hit, regroup on {map}"],
+  "clan_mail_war_subject": ["War: {clan}"],
+  "clan_mail_war": ["war with {clan} has started. do not fly alone, make groups, shoot on sight. report losses in clan chat"],
+  "clan_mail_cbs_subject": ["Station under attack: {station}"],
+  "clan_mail_cbs": ["our station {station} on {map} is under attack. everyone online come now"]
  },
  "dialogues": [
   [
@@ -621,7 +621,7 @@
   ],
   [
    ["any boss up?", "anyone seen a boss today?"],
-   ["saw one on {harita} a bit ago", "not on {harita}, sorry"],
+   ["saw one on {map} a bit ago", "not on {map}, sorry"],
    ["ill check it out", "ty, heading there"]
   ],
   [
@@ -629,8 +629,8 @@
    ["keep farming, you will get there", "it took me forever too", "just save up, its worth it"]
   ],
   [
-   ["is {harita} good for farming?", "where do you guys farm at lvl {seviye}?"],
-   ["{harita} is fine for me", "i farm {harita}, not too crowded"],
+   ["is {map} good for farming?", "where do you guys farm at lvl {level}?"],
+   ["{map} is fine for me", "i farm {map}, not too crowded"],
    ["nice, ill try it"]
   ],
   [
@@ -647,7 +647,7 @@
    ["yes, the damage boost is real", "not yet, get your ship first"]
   ],
   [
-   ["anyone else dying a lot on {harita}?", "{harita} is brutal for me today"],
+   ["anyone else dying a lot on {map}?", "{map} is brutal for me today"],
    ["yeah those aliens hurt", "just back off and repair, no shame"]
   ],
   [
@@ -697,5 +697,5 @@
  "ascii_ratio": 0.0,
  "intent": {},
  "reaction": {},
- "zararli": []
+ "harmful": []
 }

@@ -366,11 +366,11 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rg
   padding: 10px 13px 10px 50px; position: relative; backdrop-filter: blur(4px); min-height: 56px; }
 .stat::before { content: ""; position: absolute; left: 10px; top: 50%; width: 32px; height: 32px; margin-top: -16px;
   background: var(--icon, none) center / contain no-repeat; filter: drop-shadow(0 0 6px rgba(64, 223, 255, .25)); }
-.stat:has(.v.cr) { --icon: url(images/source_kredi.webp); }
-.stat:has(.v.ur) { --icon: url(images/source_uridyum.webp); }
-.stat:has(.v.hn) { --icon: url(images/source_onur.webp); }
+.stat:has(.v.cr) { --icon: url(images/source_credits.webp); }
+.stat:has(.v.ur) { --icon: url(images/source_uridium.webp); }
+.stat:has(.v.hn) { --icon: url(images/source_honor.webp); }
 .stat:has(.v.ep) { --icon: url(images/source_experience.webp); }
-.stat:has(.v.lv) { --icon: url(images/source_seviye.webp); }
+.stat:has(.v.lv) { --icon: url(images/source_level.webp); }
 .stat:not(:has(.v.cr, .v.ur, .v.hn, .v.ep, .v.lv)) { padding-left: 13px; }
 .stat .k { font: 600 10.5px/1.2 var(--display); color: var(--muted); letter-spacing: .14em; text-transform: uppercase; }
 .stat .v { font: 600 20px/1.2 var(--display); font-variant-numeric: tabular-nums; margin-top: 3px; letter-spacing: .02em;

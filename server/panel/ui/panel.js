@@ -10,7 +10,7 @@ const $ = (s, r = document) => r.querySelector(s);
 
 // ------------------------------------------------------------------ dil
 // diller: /api/diller (lang.py LANGUAGES); sözlükte olmayan metin İngilizce (kaynak) kalır
-const I18N = { lang: 'tr', dict: {}, list: [{ code: 'tr', ad: 'Türkçe', local: 'tr-TR', coverage: 100 }, { code: 'en', ad: 'English', local: 'en-US', coverage: 100 }] };
+const I18N = { lang: 'tr', dict: {}, list: [{ code: 'tr', name: 'Türkçe', local: 'tr-TR', coverage: 100 }, { code: 'en', name: 'English', local: 'en-US', coverage: 100 }] };
 function T(s, ...a) {
   let r = I18N.dict[s] ?? s;
   if (a.length) r = r.replace(/\{(\d+)\}/g, (m, i) => a[+i] == null ? '' : String(a[+i]));
@@ -37,10 +37,10 @@ function applyStatic() {
   coffee.replaceChildren(button);
   // altında son destekçiler sola kayarak geçer (sayfadaki Recent supporters; çevrimdışıysa liste boş gelir, şerit hiç çıkmaz)
   api('/api/supporters').then(d => {
-    if (!d.adlar || !d.adlar.length || !button.isConnected) return;   // dil değişince applyStatic yeniden kurduysa eskisi eklenmesin
-    const group = () => h('span', { class: 'coffee-group' }, d.adlar.map(a => h('span', null, a)));
-    const duration = Math.max(12, d.adlar.join('').length * 0.45 + d.adlar.length * 2);   // ad sayısı arttıkça hız sabit kalsın
-    coffee.append(h('button', { class: 'coffee-strip', type: 'button', title: T('Recent supporters'), 'aria-label': T('Recent supporters') + ': ' + d.adlar.join(', '), onclick: open_ },
+    if (!d.names || !d.names.length || !button.isConnected) return;   // dil değişince applyStatic yeniden kurduysa eskisi eklenmesin
+    const group = () => h('span', { class: 'coffee-group' }, d.names.map(a => h('span', null, a)));
+    const duration = Math.max(12, d.names.join('').length * 0.45 + d.names.length * 2);   // ad sayısı arttıkça hız sabit kalsın
+    coffee.append(h('button', { class: 'coffee-strip', type: 'button', title: T('Recent supporters'), 'aria-label': T('Recent supporters') + ': ' + d.names.join(', '), onclick: open_ },
       h('span', { class: 'coffee-marquee', style: { animationDuration: duration + 's' } }, group(), group())));
   }).catch(() => {});
 }
@@ -161,8 +161,8 @@ async function api(path, body) {
   let r;
   try { r = await fetch(path, opt); } catch (e) { throw new Error(T("Can't reach the panel: it may have closed.")); }
   const d = await r.json().catch(() => ({}));
-  if (r.status === 403 && d.hata && d.hata !== 'host' && !api.reloading) { api.reloading = true; location.reload(); }   // panel yeniden başladı
-  if (!r.ok) throw new Error(d.hata || ('HTTP ' + r.status));
+  if (r.status === 403 && d.error && d.error !== 'host' && !api.reloading) { api.reloading = true; location.reload(); }   // panel yeniden başladı
+  if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
   return d;
 }
 async function act(fn, okMsg) {
@@ -228,35 +228,35 @@ function popMenu(anchor, items) {
 
 // ------------------------------------------------------------------ sayfalar ve çerçeve
 const PAGES = [
-  { id: 'play', ad: N('Play'), ic: 'play', sub: N('See your save, check your settings and start the game.') },
-  { id: 'arkadas', ad: N('Play with Friends'), ic: 'users', sub: N("Host a server or join your friend's server. Everyone plays with their own save.") },
-  { id: 'saves', ad: N('Saves'), ic: 'save', sub: N('Save slots, backups, copying, import and export.') },
-  { id: 'settings', ad: N('Game Settings'), ic: 'sliders', sub: N('Multipliers and rules. Saved automatically; most apply instantly while the game is running.') },
-  { id: 'world', ad: N('World Editor'), ic: 'globe', sub: N('Change the maps, aliens, quests, shop and auction; create your own worlds.') },
-  { id: 'bots', ad: N('Bots'), ic: 'bot', beta: true, sub: N('Bots that develop, talk and found clans like real players: create a pack and assign it to a world.') },
-  { id: 'events', ad: N('Events'), ic: 'calendar', sub: N('Each event by calendar, or switched on / off by hand.') },
-  { id: 'calendar', ad: N('Event Calendar'), ic: 'agenda', sub: N('Events and their sessions in hourly, daily, weekly and monthly views (local time).') },
-  { id: 'client', ad: N('Client'), ic: 'monitor', sub: N('Game folder, version check and display options.') },
-  { id: 'sunucu', ad: N('Server'), ic: 'server', sub: N('Server processes, ports, behavior and logs.') },
-  { id: 'panel', ad: N('Panel'), ic: 'info', sub: N('Language, setup wizard, updates, desktop shortcut, folders and about the panel.') },
+  { id: 'play', name: N('Play'), ic: 'play', sub: N('See your save, check your settings and start the game.') },
+  { id: 'friend', name: N('Play with Friends'), ic: 'users', sub: N("Host a server or join your friend's server. Everyone plays with their own save.") },
+  { id: 'saves', name: N('Saves'), ic: 'save', sub: N('Save slots, backups, copying, import and export.') },
+  { id: 'settings', name: N('Game Settings'), ic: 'sliders', sub: N('Multipliers and rules. Saved automatically; most apply instantly while the game is running.') },
+  { id: 'world', name: N('World Editor'), ic: 'globe', sub: N('Change the maps, aliens, quests, shop and auction; create your own worlds.') },
+  { id: 'bots', name: N('Bots'), ic: 'bot', beta: true, sub: N('Bots that develop, talk and found clans like real players: create a pack and assign it to a world.') },
+  { id: 'events', name: N('Events'), ic: 'calendar', sub: N('Each event by calendar, or switched on / off by hand.') },
+  { id: 'calendar', name: N('Event Calendar'), ic: 'agenda', sub: N('Events and their sessions in hourly, daily, weekly and monthly views (local time).') },
+  { id: 'client', name: N('Client'), ic: 'monitor', sub: N('Game folder, version check and display options.') },
+  { id: 'server', name: N('Server'), ic: 'server', sub: N('Server processes, ports, behavior and logs.') },
+  { id: 'panel', name: N('Panel'), ic: 'info', sub: N('Language, setup wizard, updates, desktop shortcut, folders and about the panel.') },
   // oyun içi menüler: kenar çubuğunun ayrı bölümünde, yalnız oyun açıkken (panel_channel.py); simge oyunun kendi görseli (sprite)
   // sıra sayfaların üstündeki sekmelerle aynı (OYUN_SAYFALARI)
-  { id: 'shop', ad: N('Shop'), ic: 'cart', sprite: 'shop_normal', oyun: true, sub: N('The in-game shop: what you buy arrives in the game right away.') },
-  { id: 'hangar', ad: N('Hangar'), ic: 'hangar', sprite: 'hangar_normal', oyun: true, sub: N('Your ships and their equipment: click an item to equip or unequip it; it changes in the game right away.') },
-  { id: 'skylab', ad: N('Skylab'), ic: 'lab', sprite: 'skylab_normal', oyun: true, sub: N('Modules, production, storage and transport to your ship; the same as the Skylab in the game.') },
-  { id: 'auction', ad: N('Auction'), ic: 'gavel', sprite: 'auction_normal', oyun: true, sub: N('Bid, bid on everything, set auto-bids and alarms; they work in the game even with the panel closed.') },
+  { id: 'shop', name: N('Shop'), ic: 'cart', sprite: 'shop_normal', game: true, sub: N('The in-game shop: what you buy arrives in the game right away.') },
+  { id: 'hangar', name: N('Hangar'), ic: 'hangar', sprite: 'hangar_normal', game: true, sub: N('Your ships and their equipment: click an item to equip or unequip it; it changes in the game right away.') },
+  { id: 'skylab', name: N('Skylab'), ic: 'lab', sprite: 'skylab_normal', game: true, sub: N('Modules, production, storage and transport to your ship; the same as the Skylab in the game.') },
+  { id: 'auction', name: N('Auction'), ic: 'gavel', sprite: 'auction_normal', game: true, sub: N('Bid, bid on everything, set auto-bids and alarms; they work in the game even with the panel closed.') },
 ];
-const S = { durum: null, page: null, sig: {}, timers: [] };
+const S = { state: null, page: null, sig: {}, timers: [] };
 
 function buildNav() {
   const nav = $('#nav');
   const navBtn = p => h('button', { 'data-page': p.id, class: p.id === S.page ? 'active' : null, onclick: () => go(p.id) },
-    p.oyun && GI.index?.sprite[p.sprite] ? sprite(p.sprite, 18) : icon(p.ic),
-    h('span', null, T(p.ad)), p.beta ? h('span', { class: 'beta-label' }, 'Beta') : null,
+    p.game && GI.index?.sprite[p.sprite] ? sprite(p.sprite, 18) : icon(p.ic),
+    h('span', null, T(p.name)), p.beta ? h('span', { class: 'beta-label' }, 'Beta') : null,
     h('span', { class: 'badge', id: 'nav-badge-' + p.id, style: { display: 'none' } }));
-  nav.replaceChildren(...PAGES.filter(p => !p.oyun).map(navBtn),
+  nav.replaceChildren(...PAGES.filter(p => !p.game).map(navBtn),
     h('div', { class: 'nav-game', id: 'nav-game', style: { display: 'none' } }, h('div', { class: 'nav-title' }, T('In-game')),
-      PAGES.filter(p => p.oyun).map(navBtn)));
+      PAGES.filter(p => p.game).map(navBtn)));
 }
 function go(id, push = true) {
   if (!PAGES.find(p => p.id === id)) id = 'play';
@@ -265,45 +265,45 @@ function go(id, push = true) {
   if (push && location.hash !== '#' + id) history.replaceState(null, '', '#' + id);
   document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('active', b.dataset.page === id));
   const p = PAGES.find(x => x.id === id);
-  $('#page-title').replaceChildren(T(p.ad), ...(p.beta ? [h('span', { class: 'beta-label' }, 'Beta')] : [])); $('#page-sub').textContent = T(p.sub);
+  $('#page-title').replaceChildren(T(p.name), ...(p.beta ? [h('span', { class: 'beta-label' }, 'Beta')] : [])); $('#page-sub').textContent = T(p.sub);
   $('#content').replaceChildren(h('div', { class: 'empty' }, h('div', { class: 'spin', style: { margin: '30px auto' } })));
   RENDER[id]();
 }
 window.addEventListener('hashchange', () => go(location.hash.slice(1), false));
 
 function srvState(d) {
-  const s = d?.processes; if (!s) return { web: 'off', oyun: 'off', client: 'off' };
-  return { web: s.servers.web.durum, oyun: s.servers.oyun.durum, client: s.client.durum };
+  const s = d?.processes; if (!s) return { web: 'off', game: 'off', client: 'off' };
+  return { web: s.servers.web.state, game: s.servers.game.state, client: s.client.state };
 }
 const stCls = v => v === 'on' ? 'ok' : v === 'crashed' ? 'err' : '';
 const stText = v => ({ on: T('On'), off: T('Off'), crashed: T('Crashed') }[v] || v);
 
 function renderChrome() {
-  const d = S.durum, st = srvState(d);
+  const d = S.state, st = srvState(d);
   const side = $('#side-status');
   side.replaceChildren(
-    ...[[T('Web server'), st.web], [T('Game server'), st.oyun], [T('Client'), st.client]].map(([n, v]) =>
+    ...[[T('Web server'), st.web], [T('Game server'), st.game], [T('Client'), st.client]].map(([n, v]) =>
       h('div', { class: 'row' }, h('span', null, n), h('span', { class: 'row', style: { gap: '6px' } }, dot(stCls(v)), stText(v)))),
-    h('div', { class: 'give' }, S.offline ? T('No connection to the panel') : 'Panel ' + (d?.panel?.surum || '')));
+    h('div', { class: 'give' }, S.offline ? T('No connection to the panel') : 'Panel ' + (d?.panel?.version || '')));
   const tr = $('#top-right');
   const kids = [];
   if (S.offline) kids.push(h('span', { class: 'pill' }, dot('err'), T('Panel closed')));
   else if (d) {
-    if (d.active) kids.push(h('span', { class: 'pill' }, icon('save'), T('Save:') + ' ', h('b', null, d.active.ad)));
-    const running = st.client === 'on', srv = st.oyun === 'on';
+    if (d.active) kids.push(h('span', { class: 'pill' }, icon('save'), T('Save:') + ' ', h('b', null, d.active.name)));
+    const running = st.client === 'on', srv = st.game === 'on';
     kids.push(h('span', { class: 'pill' }, dot(d.play.running ? 'busy' : running ? 'ok' : srv ? 'warn' : ''),
       d.play.running ? T('Starting…') : running ? T('Game running') : srv ? T('Server running') : T('Off')));
     const extras = d.multi?.clients?.length;
     if (extras) kids.push(h('span', { class: 'pill', style: { cursor: 'pointer' }, onclick: () => go('play') }, icon('monitor'), T('{0} extra clients', extras)));
-    const friends = d.arkadas || {};
-    if (friends.host || FRD_ACTIVE(friends.guest)) kids.push(h('span', { class: 'pill', style: { cursor: 'pointer' }, onclick: () => go('arkadas') }, icon('users'),
+    const friends = d.friend || {};
+    if (friends.host || FRD_ACTIVE(friends.guest)) kids.push(h('span', { class: 'pill', style: { cursor: 'pointer' }, onclick: () => go('friend') }, icon('users'),
       friends.host ? T('Friend server running') : T("On a friend's server:") + ' ', friends.host ? null : h('b', null, friends.address)));
   }
   tr.replaceChildren(...kids);
-  const navGame = $('#nav-game'), gameOpen = st.oyun === 'on' && st.client === 'on';
+  const navGame = $('#nav-game'), gameOpen = st.game === 'on' && st.client === 'on';
   if (navGame) navGame.style.display = gameOpen ? '' : 'none';
   // oyun kapanınca oyun içi sayfadaki kullanıcı Oyna sayfasına döner (sayfanın verisi oyun sunucusundan)
-  if (d && !gameOpen && PAGES.find(p => p.id === S.page)?.oyun) {
+  if (d && !gameOpen && PAGES.find(p => p.id === S.page)?.game) {
     if (S.game_was_open) toast(T('The game closed: back to the Play page.'), 'info');
     go('play');
   }
@@ -315,23 +315,23 @@ function renderChrome() {
   if (d) {
     setBadge('saves', d.save_count ? String(d.save_count) : '', '');
     setBadge('events', d.events.length ? String(d.events.length) : '', 'orange');
-    const errs = d.warnings.filter(u => u.tur === 'hata').length;
-    setBadge('sunucu', st.oyun === 'crashed' || st.web === 'crashed' ? '!' : '', 'err');
+    const errs = d.warnings.filter(u => u.type === 'error').length;
+    setBadge('server', st.game === 'crashed' || st.web === 'crashed' ? '!' : '', 'err');
     setBadge('play', errs ? '!' : '', 'err');
     setBadge('settings', d.settings_summary.length ? String(d.settings_summary.length) : '', 'info');
   }
 }
 
 async function poll() {
-  try { S.durum = await api('/api/durum'); S.offline = false; } catch (e) { S.offline = true; }
-  if (S.durum?.panel?.updated && S.durum.panel.uptime_sec < 60 && !S.updToast) { S.updToast = true; toast(T('The panel was updated and restarted.'), 'ok'); }
+  try { S.state = await api('/api/durum'); S.offline = false; } catch (e) { S.offline = true; }
+  if (S.state?.panel?.updated && S.state.panel.uptime_sec < 60 && !S.updToast) { S.updToast = true; toast(T('The panel was updated and restarted.'), 'ok'); }
   renderChrome();
   if (S.page === 'play') { renderPlayBody(); liveTick(); }
-  if (S.page === 'sunucu') renderServerCards();
-  if (S.page === 'arkadas' && FRD.data) friendsTick();
+  if (S.page === 'server') renderServerCards();
+  if (S.page === 'friend' && FRD.data) friendsTick();
   poll.n = (poll.n || 0) + 1;
   if (poll.n % 3 === 0) auctionEventTick();      // açık artırma bildirimleri (~5 sn)
-  setTimeout(poll, S.durum?.play?.running ? 500 : 1500);
+  setTimeout(poll, S.state?.play?.running ? 500 : 1500);
 }
 window.addEventListener('pagehide', () => navigator.sendBeacon && navigator.sendBeacon('/api/kapandi', '{}'));
 
@@ -339,16 +339,16 @@ window.addEventListener('pagehide', () => navigator.sendBeacon && navigator.send
 function renderPlay() { S.sig = {}; $('#content').replaceChildren(h('div', { class: 'stack', id: 'play' })); renderPlayBody(); }
 
 function renderPlayBody() {
-  const d = S.durum, root = $('#oyna');
+  const d = S.state, root = $('#oyna');
   if (!root) return;
   if (!d) return;
-  const sig = JSON.stringify([d.active, d.processes.servers.web.durum, d.processes.servers.oyun.durum, d.processes.client.durum,
+  const sig = JSON.stringify([d.active, d.processes.servers.web.state, d.processes.servers.game.state, d.processes.client.state,
     d.processes.client.last, d.play, d.warnings, d.settings_summary, d.events, multiSig(d.multi), S.multiBusy, Math.floor(Date.now() / 30000)]);
   if (S.sig.play === sig) return;
   S.sig.play = sig;
   const st = srvState(d), a = d.active, o = d.play;
-  const running = st.client === 'on', srv = st.oyun === 'on';
-  const blocking = d.warnings.filter(u => u.tur === 'hata');
+  const running = st.client === 'on', srv = st.game === 'on';
+  const blocking = d.warnings.filter(u => u.type === 'error');
   const clientMissing = blocking.some(u => u.page === 'client');
 
   // ---- kahraman kartı
@@ -359,21 +359,21 @@ function renderPlayBody() {
       h('div', { class: 'row', style: { marginTop: '16px' } }, btn(T('Create a new save'), () => newSaveModal(), 'primary', 'plus')));
   } else {
     left = h('div', null,
-      h('div', { class: 'row', style: { gap: '8px' } }, h('span', { class: 'slot-name' }, a.ad),
+      h('div', { class: 'row', style: { gap: '8px' } }, h('span', { class: 'slot-name' }, a.name),
         btn(T('Switch'), ev => switchSaveMenu(ev.currentTarget), 'ghost sm', 'refresh')),
-      h('div', { class: 'pilot' }, firmaCls(a.firma) ? art('firma_' + firmaCls(a.firma), 'crest-sm') : null, a.pilot, badge(a.firma, firmaCls(a.firma)), a.klan ? badge('[' + a.klan + ']', 'info') : null),
+      h('div', { class: 'pilot' }, firmaCls(a.company) ? art('firma_' + firmaCls(a.company), 'crest-sm') : null, a.pilot, badge(a.company, firmaCls(a.company)), a.clan ? badge('[' + a.clan + ']', 'info') : null),
       h('div', { class: 'meta' },
-        [[T('Level'), a.seviye], [T('Ship'), a.gemi], [T('Map'), a.harita], [T('Play time'), fmtDur(a.play_sec)],
+        [[T('Level'), a.level], [T('Ship'), a.ship], [T('Map'), a.map], [T('Play time'), fmtDur(a.play_sec)],
           [T('Last played'), fmtWhen(a.last_played || a.last_save)]].map(([k, v]) => h('span', null, k + ' ', h('b', null, v)))),
       a.world_info ? playWorldChip(a) : null,                    // kaydın varsayılan dünyası (world_editor.js)
       h('div', { class: 'stats' },
-        [[T('Credits'), a.kredi, 'cr'], [T('Uridium'), a.uridyum, 'ur'], [T('Honor'), a.onur, 'hn'], [T('Experience'), a.ep, 'ep']].map(([k, v, c]) =>
+        [[T('Credits'), a.credits, 'cr'], [T('Uridium'), a.uridium, 'ur'], [T('Honor'), a.honor, 'hn'], [T('Experience'), a.ep, 'ep']].map(([k, v, c]) =>
           h('div', { class: 'stat' }, h('div', { class: 'k' }, k), h('div', { class: 'v ' + c }, fmtN(v))))));
   }
   let main, sub = [];
   if (o.running) {
     const prep = o.steps.length && o.steps[o.steps.length - 1].progress;      // BepInEx'in ilk açılış hazırlığı (istemci_yama.isit)
-    main = h('button', { class: 'play-btn busy' + (prep ? ' prep' : ''), disabled: true, style: prep ? { '--p': prep.yuzde + '%' } : null },
+    main = h('button', { class: 'play-btn busy' + (prep ? ' prep' : ''), disabled: true, style: prep ? { '--p': prep.percent + '%' } : null },
       prep ? null : h('span', { class: 'spin', style: { borderTopColor: '#021120' } }), prep ? T('PREPARING') : T('STARTING'));
   } else if (running) {
     main = h('button', { class: 'play-btn running', disabled: true }, icon('check'), T('GAME RUNNING'));
@@ -394,27 +394,27 @@ function renderPlayBody() {
   // ---- başlatma adımları
   let steps = null;
   const recent = o.finished && (Date.now() / 1000 - o.finished < 45);
-  if (o.steps.length && (o.running || o.hata || recent)) {
+  if (o.steps.length && (o.running || o.error || recent)) {
     steps = h('div', { class: 'card' }, h('h2', null, icon('zap'), o.server_only ? T('Server launch') : T('Game launch')),
       stepList(o.steps));
   }
   const last = d.processes.client.last;
   const early = last && last.early && !running ? h('div', { class: 'alert warning' }, icon('alert'),
     h('div', null, T('The client closed {0} s after starting ({1}). The servers were left running. Check the client log.', last.sure_sn, last.time)),
-    btn(T('Log'), () => { go('sunucu'); setTimeout(() => showLog(d.panel.platform === 'win32' ? 'client.log' : 'wine.log'), 100); }, 'sm')) : null;
+    btn(T('Log'), () => { go('server'); setTimeout(() => showLog(d.panel.platform === 'win32' ? 'client.log' : 'wine.log'), 100); }, 'sm')) : null;
 
   // ---- uyarılar
-  const warns = d.warnings.map(u => h('div', { class: 'alert ' + (u.tur === 'hata' ? 'hata' : 'warning') }, icon('alert'),
-    h('div', { style: u.progress != null ? { flex: '1' } : null }, u.metin,
+  const warns = d.warnings.map(u => h('div', { class: 'alert ' + (u.type === 'error' ? 'error' : 'warning') }, icon('alert'),
+    h('div', { style: u.progress != null ? { flex: '1' } : null }, u.text,
       u.progress != null ? h('div', { class: 'meter' }, h('div', { class: 'meter-bar' }, h('span', { style: { width: u.progress + '%' } }))) : null,
-      u.download && u.download.toplam ? h('div', { class: 'small dl-info' }, dlInfo(u.download)) : null),
-    u.action ? btn(u.action.running ? u.action.running_text || T('Installing…') : u.action.metin, () => act(() => api(u.action.api, {})), 'primary sm', null, { disabled: !!u.action.running }) : null,
+      u.download && u.download.total ? h('div', { class: 'small dl-info' }, dlInfo(u.download)) : null),
+    u.action ? btn(u.action.running ? u.action.running_text || T('Installing…') : u.action.text, () => act(() => api(u.action.api, {})), 'primary sm', null, { disabled: !!u.action.running }) : null,
     u.page ? btn(T('Go'), () => go(u.page), 'sm') : null));
 
   // ---- özet kartları
   const setCard = h('div', { class: 'card' }, h('h2', null, icon('sliders'), T('Active settings')),
     h('p', { class: 'desc' }, d.settings_summary.length ? T('Different from the defaults:') : T('All settings are at their defaults.')),
-    h('div', { class: 'chips' }, d.settings_summary.map(x => h('span', { class: 'chip' }, x.ad, h('b', null, x.value)))),
+    h('div', { class: 'chips' }, d.settings_summary.map(x => h('span', { class: 'chip' }, x.name, h('b', null, x.value)))),
     h('div', { class: 'row', style: { marginTop: '14px' } }, btn(T('Edit settings'), () => go('settings'), 'sm', 'sliders')));
   const evCard = h('div', { class: 'card' }, h('h2', null, icon('calendar'), T('Active events')),
     h('p', { class: 'desc' }, d.events.length ? T('Yearly events active when you enter the game:') : T('No yearly event is on right now.')),
@@ -423,10 +423,10 @@ function renderPlayBody() {
       btn(T('Calendar'), () => go('calendar'), 'ghost sm', 'agenda')));
   const srvCard = h('div', { class: 'card' }, h('h2', null, icon('server'), T('Server')),
     h('div', { class: 'check-list' }, [[T('Web login (8090, 80)'), st.web, d.processes.servers.web.sure_sn],
-      [T('Game server (8081)'), st.oyun, d.processes.servers.oyun.sure_sn], [T('Client'), st.client, d.processes.client.sure_sn]].map(([n, v, t]) =>
+      [T('Game server (8081)'), st.game, d.processes.servers.game.sure_sn], [T('Client'), st.client, d.processes.client.sure_sn]].map(([n, v, t]) =>
       h('div', null, dot(stCls(v)), h('span', null, n), h('span', { class: 'muted small', style: { marginLeft: 'auto' } },
         stText(v) + (v === 'on' && t != null ? ' · ' + fmtDur(t) : ''))))),
-    h('div', { class: 'row' }, btn(T('Server and logs'), () => go('sunucu'), 'sm', 'server')));
+    h('div', { class: 'row' }, btn(T('Server and logs'), () => go('server'), 'sm', 'server')));
 
   root.replaceChildren(...[...warns, hero, steps, early, multiCard(d), srv || S.live?.var ? liveCard() : null,
     h('div', { class: 'grid g3' }, setCard, evCard, srvCard)].filter(Boolean));
@@ -438,49 +438,49 @@ async function openExtra(id, pilot) {
   S.multiBusy = id; S.sig.play = null; renderPlayBody();
   const r = await act(() => api('/api/coklu/ac', { record: id }), T('Opening extra client: {0}', pilot));
   S.multiBusy = null; S.sig.play = null;
-  try { S.durum = await api('/api/durum'); } catch (e) { /* bir sonraki yoklamada */ }
+  try { S.state = await api('/api/durum'); } catch (e) { /* bir sonraki yoklamada */ }
   renderChrome(); renderPlayBody();
   return r;
 }
 function extraBlock(d, k) {
   const c = d.multi, open = c.clients || [];
   const pilots = [(c.saves || []).find(x => x.id === c.main)?.pilot, ...open.map(x => x.pilot)].filter(Boolean).map(p => p.toLowerCase());
-  return srvState(d).oyun !== 'on' ? T('PLAY first') : d.play.running ? T('Starting') : k.corrupt ? T('Save corrupt')
-    : k.arkadas ? T("On a friend's server") : open.length >= c.max_count ? T('Limit reached ({0})', c.max_count)
+  return srvState(d).game !== 'on' ? T('PLAY first') : d.play.running ? T('Starting') : k.corrupt ? T('Save corrupt')
+    : k.friend ? T("On a friend's server") : open.length >= c.max_count ? T('Limit reached ({0})', c.max_count)
     : pilots.includes((k.pilot || '').toLowerCase()) ? T('Same pilot name already open') : S.multiBusy ? T('Opening…') : null;
 }
 function multiCard(d) {
   const c = d.multi; if (!c) return null;
-  const open = c.clients || [], st = srvState(d), srv = st.oyun === 'on';
-  if (!open.length && (!c.ayar || c.save_count < 2)) return null;      // kapalı ya da başka kayıt yok: kart yok (İstemci sayfasında ayar)
+  const open = c.clients || [], st = srvState(d), srv = st.game === 'on';
+  if (!open.length && (!c.setting || c.save_count < 2)) return null;      // kapalı ya da başka kayıt yok: kart yok (İstemci sayfasında ayar)
   const now = Date.now() / 1000;
-  const others = (c.saves || []).filter(k => !k.ek && k.id !== c.main);
+  const others = (c.saves || []).filter(k => !k.extra && k.id !== c.main);
   const desc = !srv ? T('After PLAY you can open extra clients with your other saves on the same server: each in its own window, with its own pilot. They see each other in game and can group up and fly together.')
-    : !c.sunucu ? (st.client === 'on' ? T('The server started in single-player mode: for an extra client, close the game and press PLAY again.')
+    : !c.server ? (st.client === 'on' ? T('The server started in single-player mode: for an extra client, close the game and press PLAY again.')
       : T('The server is in single-player mode: it restarts in multi-session mode when the first extra client opens.'))
     : T("Extra clients connect to this server; the window title is the pilot's name. Each client uses about 600 MB of memory.");
-  const logBtn = id => btn('', () => { go('sunucu'); setTimeout(() => showLog('client_' + id + '.log'), 100); }, 'ghost sm icon', 'note', { title: T('Log') });
+  const logBtn = id => btn('', () => { go('server'); setTimeout(() => showLog('client_' + id + '.log'), 100); }, 'ghost sm icon', 'note', { title: T('Log') });
   const openRows = open.map(x => h('tr', null, h('td', null, h('b', null, x.pilot),
-      [(c.saves || []).find(k => k.id === x.record)?.ad || x.record].filter(a => a !== x.pilot).map(a => h('div', { class: 'small muted' }, a))),
-    h('td', null, x.seviye ?? '—'), h('td', null, x.harita || '—'),
-    h('td', null, x.durum === 'aciliyor' ? badge(T('Opening'), 'info') : x.durum === 'closing' ? badge(T('Closing'), 'orange')
+      [(c.saves || []).find(k => k.id === x.record)?.name || x.record].filter(a => a !== x.pilot).map(a => h('div', { class: 'small muted' }, a))),
+    h('td', null, x.level ?? '—'), h('td', null, x.map || '—'),
+    h('td', null, x.state === 'aciliyor' ? badge(T('Opening'), 'info') : x.state === 'closing' ? badge(T('Closing'), 'orange')
       : x.connected ? badge(T('In game'), 'ok') : badge(T('Connecting'), 'info')),
     h('td', { class: 'muted small' }, (x.pid ? 'PID ' + x.pid + ' · ' : '') + fmtDur(x.sure_sn)),
     h('td', { class: 'num' }, h('div', { class: 'actions', style: { justifyContent: 'flex-end' } }, logBtn(x.record),
       btn(T('Close'), async () => {
         if (await confirmBox(T('Close {0}?', x.pilot), T("The extra client's window closes; the save's latest state is written."), { ok: T('Close'), danger: true }))
           act(() => api('/api/coklu/kapat', { record: x.record }), T('Closing {0}.', x.pilot));
-      }, 'ghost sm', 'power', { disabled: x.durum !== 'on' })))));
+      }, 'ghost sm', 'power', { disabled: x.state !== 'on' })))));
   const otherRows = others.map(k => {
     const why = extraBlock(d, k), busy = S.multiBusy === k.id;
     return h('div', { class: 'row multi-row' }, h('span', { style: { minWidth: 0, flex: 1 } }, h('b', null, k.pilot || '?'), ' ',
-      badge(k.firma || '?', firmaCls(k.firma)), h('span', { class: 'small muted' }, ' ' + lvl(k.seviye) + ' · ' + k.ad)),
+      badge(k.company || '?', firmaCls(k.company)), h('span', { class: 'small muted' }, ' ' + lvl(k.level) + ' · ' + k.name)),
       why && !busy ? h('span', { class: 'small dim' }, why) : null,
       btn(busy ? T('Opening…') : T('Open in extra client'), () => openExtra(k.id, k.pilot), 'primary sm', busy ? null : 'play', { disabled: !!why || busy }));
   });
-  const early = Object.entries(c.last || {}).filter(([id, s]) => s.early && now - s.bitis < 120 && !open.some(x => x.record === id)).map(([id, s]) =>
+  const early = Object.entries(c.last || {}).filter(([id, s]) => s.early && now - s.end_time < 120 && !open.some(x => x.record === id)).map(([id, s]) =>
     h('div', { class: 'alert warning' }, icon('alert'), h('div', null, T('The extra client of the save {0} closed {1} s after opening ({2}). Check the client log.',
-      (c.saves || []).find(k => k.id === id)?.ad || id, s.sure_sn, s.time)), logBtn(id)));
+      (c.saves || []).find(k => k.id === id)?.name || id, s.sure_sn, s.time)), logBtn(id)));
   return h('div', { class: 'card', id: 'multi-card' },
     h('div', { class: 'row between wrap' }, h('h2', null, icon('monitor'), T('Multi-client')),
       h('div', { class: 'row wrap', style: { gap: '6px' } }, badge(T('{0} / {1} extra clients', open.length, c.max_count), open.length ? 'ok' : ''),
@@ -495,7 +495,7 @@ function multiCard(d) {
       h('thead', null, h('tr', null, [T('Pilot'), T('Level'), T('Map'), T('Status'), T('Duration'), ''].map(x => h('th', null, x)))),
       h('tbody', null, openRows)) : null,
     others.length ? h('div', { class: 'stack', style: { gap: '6px' } }, otherRows)
-      : !c.ayar ? null : h('div', { class: 'small muted' }, T('No other save to open.')));
+      : !c.setting ? null : h('div', { class: 'small muted' }, T('No other save to open.')));
 }
 
 // ---- canlı durum (oyun sunucusunun durum.json'u; live_status.py, /api/canli)
@@ -503,7 +503,7 @@ async function liveTick() {
   if (S.page !== 'play' || S.liveBusy) return;
   S.liveBusy = true;
   try { S.live = await api('/api/canli'); } catch (e) { S.live = null; } finally { S.liveBusy = false; }
-  const c = $('#canli-card'), want = srvState(S.durum).oyun === 'on' || !!S.live?.var;
+  const c = $('#canli-card'), want = srvState(S.state).game === 'on' || !!S.live?.var;
   if (c && want) c.replaceWith(liveCard());
   else if (!!c !== want) { S.sig.play = null; renderPlayBody(); }     // kart çıksın / kalksın
 }
@@ -516,36 +516,36 @@ function liveCard() {
   const r = S.live;
   const head = h('h2', null, icon('zap'), T('Live status'));
   if (!r || !r.var) return h('div', { class: 'card', id: 'live-card' }, head, h('p', { class: 'desc' }, T("Waiting for the game server's status…")));
-  const d = r.durum, w = d.world || {}, g = d.gemi, p = d.pilot, k = d.position;
+  const d = r.state, w = d.world || {}, g = d.ship, p = d.pilot, k = d.position;
   const flags = [d.connected ? badge(T('Client connected'), 'ok') : badge(T('Client not connected'), ''), r.age > 10 ? badge(T('Status {0} s old', Math.round(r.age)), 'warn') : null,
     w.dead ? badge(T('Ship destroyed'), 'err') : null, w.in_combat ? badge(T('In combat'), 'orange') : null, w.safe ? badge(T('In a safe zone'), 'info') : null];
-  const facts = [[T('Map'), `${k.harita} (${fmtN(k.x)}, ${fmtN(k.y)})`], [T('Ship'), (g.ad || '').replace('ship_', '')], [T('Aliens'), w.alien != null ? fmtN(w.alien) : '—'],
-    [T('Boxes / ore'), w.kutu != null ? fmtN(w.kutu) + ' / ' + fmtN(w.cevher) : '—'], [T('Target'), w.hedef || '—'], [T('Play time'), fmtDur(d.play_sec)]];
-  if (w.kapi) facts.push([T('Gate'), `${w.kapi.ad || ''}${w.kapi.dalga ? ' · ' + w.kapi.dalga : ''}${w.kapi.stage ? ' · ' + w.kapi.stage : ''}`]);
+  const facts = [[T('Map'), `${k.map} (${fmtN(k.x)}, ${fmtN(k.y)})`], [T('Ship'), (g.name || '').replace('ship_', '')], [T('Aliens'), w.alien != null ? fmtN(w.alien) : '—'],
+    [T('Boxes / ore'), w.box != null ? fmtN(w.box) + ' / ' + fmtN(w.ore) : '—'], [T('Target'), w.target || '—'], [T('Play time'), fmtDur(d.play_sec)]];
+  if (w.gate) facts.push([T('Gate'), `${w.gate.name || ''}${w.gate.wave ? ' · ' + w.gate.wave : ''}${w.gate.stage ? ' · ' + w.gate.stage : ''}`]);
   if (w.loop) facts.push([T('Loop'), T('{0} ms avg. · max {1} ms', w.loop.avg_ms, w.loop.max_ms) + (w.loop.slow ? ' · ' + T('{0} slow ticks', fmtN(w.loop.slow)) : '')]);
   return h('div', { class: 'card', id: 'live-card' }, h('div', { class: 'row between wrap' }, head, h('div', { class: 'row wrap', style: { gap: '6px' } }, flags)),
     h('div', { class: 'grid g2', style: { marginTop: '12px' } },
-      h('div', { class: 'stack', style: { gap: '10px' } }, meter(T('Hit points'), g.can, g.max_hp, 'hp'), meter(T('Shield'), g.kalkan, g.shield_max, 'sh'), meter(T('Cargo'), g.kargo, g.cargo_max, 'cg')),
+      h('div', { class: 'stack', style: { gap: '10px' } }, meter(T('Hit points'), g.can, g.max_hp, 'hp'), meter(T('Shield'), g.kalkan, g.shield_max, 'sh'), meter(T('Cargo'), g.cargo, g.cargo_max, 'cg')),
       h('div', { class: 'kv one' }, facts.map(([a, b]) => h('div', null, h('span', { class: 'muted' }, a), h('b', { title: b }, b))))),
     h('div', { class: 'live-sub' }, h('div', { class: 'stats', style: { marginTop: 0 } },
-      [[T('Level'), p.seviye, 'lv'], [T('Credits'), p.kredi, 'cr'], [T('Uridium'), p.uridyum, 'ur'], [T('Honor'), p.onur, 'hn']].map(([a, v, c]) =>
+      [[T('Level'), p.level, 'lv'], [T('Credits'), p.credits, 'cr'], [T('Uridium'), p.uridium, 'ur'], [T('Honor'), p.honor, 'hn']].map(([a, v, c]) =>
         h('div', { class: 'stat' }, h('div', { class: 'k' }, a), h('div', { class: 'v ' + c }, fmtN(v))))),
       d.event_names && d.event_names.length ? h('div', { class: 'chips', style: { marginTop: '10px' } }, d.event_names.map(n => h('span', { class: 'chip' }, n))) : null));
 }
 
 async function switchSaveMenu(anchor) {
   const r = await act(() => api('/api/kayitlar')); if (!r) return;
-  popMenu(anchor, [...r.liste.map(k => ({
-    label: `${k.ad} — ${k.pilot} (${lvl(k.seviye)})${k.active ? '  ✓' : ''}`, ic: k.active ? 'check' : 'save',
-    fn: () => act(() => api('/api/kayitlar/aktif', { id: k.id }), T('Active save: {0}', k.ad)).then(() => poll()),
+  popMenu(anchor, [...r.entries.map(k => ({
+    label: `${k.name} — ${k.pilot} (${lvl(k.level)})${k.active ? '  ✓' : ''}`, ic: k.active ? 'check' : 'save',
+    fn: () => act(() => api('/api/kayitlar/aktif', { id: k.id }), T('Active save: {0}', k.name)).then(() => poll()),
   })), '-', { label: T('New save…'), ic: 'plus', fn: () => newSaveModal() }, { label: T('Manage saves'), ic: 'save', fn: () => go('saves') }]);
 }
 
 // ================================================================== ARKADAŞLARINLA OYNA (friends.py, /api/arkadas)
-const IP_KIND = { local: [N('Home network'), 'ok'], radmin: [N('Radmin VPN'), 'info'], tailscale: [N('Tailscale'), 'info'], genel: [N('Public'), 'orange'],
+const IP_KIND = { local: [N('Home network'), 'ok'], radmin: [N('Radmin VPN'), 'info'], tailscale: [N('Tailscale'), 'info'], general: [N('Public'), 'orange'],
   connection: [N('Link-local'), ''] };
 const FRD_STATUS = { connecting: [N('Connecting'), 'info'], in_game: [N('In game'), 'ok'], leaving: [N('Leaving'), 'orange'], finished: [N('Left'), ''],
-  hata: [N('Error'), 'err'] };
+  error: [N('Error'), 'err'] };
 const FRD_ACTIVE = s => ['connecting', 'in_game', 'leaving'].includes(s);
 const FRD = { tab: null, address: null, password: '', record: null, info: null, data: null };
 const copyText = t => navigator.clipboard.writeText(t).then(() => toast(T('Copied: {0}', t), 'ok'), () => toast(t, 'info'));
@@ -553,30 +553,30 @@ const clock = sec => sec ? new Date(sec * 1000).toLocaleTimeString(LOC(), { hour
 
 async function renderFriends() {
   const v = await act(() => api('/api/arkadas'));
-  if (!v || S.page !== 'arkadas') return;
+  if (!v || S.page !== 'friend') return;
   FRD.data = v;
   drawFriends();
 }
 function drawFriends() {
-  const v = FRD.data, d = S.durum;
-  if (!FRD.tab) FRD.tab = v.guest.durum !== 'none' ? 'join' : 'host';
+  const v = FRD.data, d = S.state;
+  if (!FRD.tab) FRD.tab = v.guest.state !== 'none' ? 'join' : 'host';
   if (FRD.address == null) FRD.address = v.guest.last_address || '';
   const tabs = h('div', { class: 'seg' }, [['host', T('Host a server')], ['join', T('Join a friend')]].map(([k, t]) =>
     h('button', { class: FRD.tab === k ? 'on info' : '', onclick: () => { FRD.tab = k; drawFriends(); } }, t)));
-  $('#content').replaceChildren(h('div', { class: 'stack', id: 'arkadas' }, h('div', { class: 'row' }, tabs),
+  $('#content').replaceChildren(h('div', { class: 'stack', id: 'friend' }, h('div', { class: 'row' }, tabs),
     ...(FRD.tab === 'host' ? hostView(v) : joinView(v))));
   S.sig.friendsMode = friendsMode(v, d); S.sig.friendsDyn = friendsDyn(v);
 }
-const friendsMode = (v, d) => JSON.stringify([FRD.tab, v.host.on, v.guest.durum, d?.play, srvState(d), v.saves.map(k => k.id), d?.active?.id]);
+const friendsMode = (v, d) => JSON.stringify([FRD.tab, v.host.on, v.guest.state, d?.play, srvState(d), v.saves.map(k => k.id), d?.active?.id]);
 const friendsDyn = v => JSON.stringify([v.host.guests, v.guest.steps, v.guest.last_sync, v.guest.connection, v.guest.not, v.host.public_ip]);
 async function friendsTick() {
   if (S.friendsBusy) return;
   S.friendsBusy = true;
   let v;
   try { v = await api('/api/arkadas'); } catch (e) { return; } finally { S.friendsBusy = false; }
-  if (S.page !== 'arkadas') return;
+  if (S.page !== 'friend') return;
   FRD.data = v;
-  if (friendsMode(v, S.durum) !== S.sig.friendsMode) return drawFriends();
+  if (friendsMode(v, S.state) !== S.sig.friendsMode) return drawFriends();
   if (friendsDyn(v) === S.sig.friendsDyn) return;
   S.sig.friendsDyn = friendsDyn(v);
   const g = $('#ark-misafirler'); if (g) g.replaceWith(guestsCard(v.host));
@@ -585,23 +585,23 @@ async function friendsTick() {
 
 function launchSteps(o) {
   const recent = o.finished && (Date.now() / 1000 - o.finished < 45);
-  if (!o.steps.length || !(o.running || o.hata || recent)) return null;
+  if (!o.steps.length || !(o.running || o.error || recent)) return null;
   return stepList(o.steps);
 }
-const stepList = list => h('div', { class: 'steps' }, list.map(s => [h('div', { class: 'step ' + s.durum },
-  h('span', { class: 'ic' }, s.durum === 'running' ? h('span', { class: 'spin' }) : icon(s.durum === 'hata' ? 'x' : 'check')),
-  h('span', null, s.metin), h('span', { class: 'dim small', style: { marginLeft: 'auto' } }, s.time)),
-  s.progress && s.durum === 'running' ? prepBox(s.progress) : null]));
+const stepList = list => h('div', { class: 'steps' }, list.map(s => [h('div', { class: 'step ' + s.state },
+  h('span', { class: 'ic' }, s.state === 'running' ? h('span', { class: 'spin' }) : icon(s.state === 'error' ? 'x' : 'check')),
+  h('span', null, s.text), h('span', { class: 'dim small', style: { marginLeft: 'auto' } }, s.time)),
+  s.progress && s.state === 'running' ? prepBox(s.progress) : null]));
 
 // BepInEx'in ilk açılış hazırlığı (istemci_yama.isit/ilerleme): oyun penceresi henüz görünmez, oyuncu oyunun açılmadığını sanmasın
 const PREP_STAGE = [N('Starting the client'), N('Generating bridge assemblies'), N('Writing files')];
 function prepBox(p) {
   return h('div', { class: 'prep' },
-    h('div', { class: 'prep-head' }, icon('zap'), h('span', null, T('Preparing the fixes for the first launch')), h('b', null, '%' + p.yuzde)),
-    h('div', { class: 'meter' }, h('div', { class: 'meter-bar' }, h('span', { style: { width: p.yuzde + '%' } }))),
+    h('div', { class: 'prep-head' }, icon('zap'), h('span', null, T('Preparing the fixes for the first launch')), h('b', null, '%' + p.percent)),
+    h('div', { class: 'meter' }, h('div', { class: 'meter-bar' }, h('span', { style: { width: p.percent + '%' } }))),
     h('div', { class: 'prep-stages' }, PREP_STAGE.map((a, i) => {
-      const st = i < p.stage ? 'tamam' : i === p.stage ? 'running' : 'waiting';
-      return h('div', { class: 'prep-stage ' + st }, h('span', { class: 'ic' }, st === 'tamam' ? icon('check') : st === 'running'
+      const st = i < p.stage ? 'done' : i === p.stage ? 'running' : 'waiting';
+      return h('div', { class: 'prep-stage ' + st }, h('span', { class: 'ic' }, st === 'done' ? icon('check') : st === 'running'
         ? h('span', { class: 'spin' }) : h('span', { class: 'dot-sm' })), h('span', null, T(a)));
     })),
     h('div', { class: 'small muted' }, T("This happens only once, on the first launch; the game window stays hidden meanwhile. When it's done the game opens by itself, you don't need to press anything."),
@@ -610,14 +610,14 @@ function prepBox(p) {
 
 // ---- Host
 function hostView(v) {
-  const dmg = v.host, d = S.durum, st = srvState(d), busy = d?.play?.running, running = st.client === 'on';
-  const single = st.oyun === 'on' && !dmg.on, guest = FRD_ACTIVE(v.guest.durum);
+  const dmg = v.host, d = S.state, st = srvState(d), busy = d?.play?.running, running = st.client === 'on';
+  const single = st.game === 'on' && !dmg.on, guest = FRD_ACTIVE(v.guest.state);
   const left = h('div', null, h('div', { class: 'slot-name' }, T('Friend server')),
     h('div', { class: 'pilot' }, dmg.on ? T('Your server is running') : T('Server off'),
       dmg.on ? badge(T('{0} / {1} guests', dmg.guests.length, dmg.max_count), 'ok') : null, dmg.password ? badge(T('Password protected'), 'info') : null),
     h('div', { class: 'muted' }, dmg.on ? T('Your friends join with one of the addresses below. You play with your own save.')
       : T('When you host, you play with your own save; your friends join with theirs.')),
-    d?.active ? h('div', { class: 'meta' }, h('span', null, T('Save:') + ' ', h('b', null, d.active.ad)), h('span', null, T('Pilot') + ' ', h('b', null, d.active.pilot))) : null,
+    d?.active ? h('div', { class: 'meta' }, h('span', null, T('Save:') + ' ', h('b', null, d.active.name)), h('span', null, T('Pilot') + ' ', h('b', null, d.active.pilot))) : null,
     v.world ? hostWorldChip(v) : null);                                // sunucunun dünyası (world_editor.js)
   let main; const sub = [];
   if (busy) main = h('button', { class: 'play-btn busy', disabled: true }, h('span', { class: 'spin', style: { borderTopColor: '#021120' } }), T('STARTING'));
@@ -644,8 +644,8 @@ function hostView(v) {
   pw.addEventListener('change', save); max.addEventListener('change', save);
   const world = v.world ? h('select', { class: 'input', onchange: e => act(() => api('/api/arkadas/ayarlar', { world: e.target.value }), T('Saved.'))
     .then(r => { if (r) { FRD.data = r; drawFriends(); } }) },
-    h('option', { value: '', selected: !v.world.choice }, T("Your save's world ({0})", v.world.save_world.ad)),
-    v.world.liste.map(w => h('option', { value: w.id, selected: v.world.choice === w.id }, w.ad))) : null;
+    h('option', { value: '', selected: !v.world.choice }, T("Your save's world ({0})", v.world.save_world.name)),
+    v.world.entries.map(w => h('option', { value: w.id, selected: v.world.choice === w.id }, w.name))) : null;
   const setCard = h('div', { class: 'card' }, h('h2', null, icon('sliders'), T('Server settings')),
     h('div', { class: 'grid g2' }, field(T('Join password'), pw), field(T('Maximum guests'), max)),
     world ? h('div', { style: { marginTop: '12px' } }, field(T("Server's world"), world),
@@ -655,10 +655,10 @@ function hostView(v) {
 
   // adresler
   const ipRow = (ip, kind) => h('div', { class: 'row between' }, h('b', { class: 'mono' }, ip), h('span', { class: 'row', style: { gap: '6px' } },
-    badge(T((IP_KIND[kind] || IP_KIND.genel)[0]), (IP_KIND[kind] || IP_KIND.genel)[1]), btn('', () => copyText(ip), 'ghost sm', 'copy', { title: T('Copy') })));
+    badge(T((IP_KIND[kind] || IP_KIND.general)[0]), (IP_KIND[kind] || IP_KIND.general)[1]), btn('', () => copyText(ip), 'ghost sm', 'copy', { title: T('Copy') })));
   const addrCard = h('div', { class: 'card' }, h('h2', null, icon('globe'), T('Address to give your friends')),
-    h('div', { class: 'stack', style: { gap: '8px' } }, dmg.ips.map(x => ipRow(x.ip, x.tur)),
-      dmg.public_ip ? ipRow(dmg.public_ip, 'genel') : h('div', { class: 'row' }, btn(T('Find my public IP'), async () => {
+    h('div', { class: 'stack', style: { gap: '8px' } }, dmg.ips.map(x => ipRow(x.ip, x.type)),
+      dmg.public_ip ? ipRow(dmg.public_ip, 'general') : h('div', { class: 'row' }, btn(T('Find my public IP'), async () => {
         const r = await act(() => api('/api/arkadas/public_ip', {})); if (r) { FRD.data.host.public_ip = r.ip; drawFriends(); }
       }, 'sm', 'search'), h('span', { class: 'small dim' }, T('Asks api.ipify.org.')))),
     h('p', { class: 'desc', style: { marginTop: '12px' } }, T('If you are in the same home (same router), give your home network address. For friends over the internet, give your public IP (with port forwarding) or your virtual network address (Radmin VPN, ZeroTier, Tailscale).')));
@@ -670,7 +670,7 @@ function hostView(v) {
         h('tr', null, h('td', null, h('b', null, a)), h('td', { class: 'mono' }, b), h('td', null, c))))),
     h('p', { class: 'desc', style: { marginTop: '10px' } }, T('No UDP port is needed. The web login (80, 8090) stays on this computer only; do not open those.')),
     h('div', { class: 'stack', style: { gap: '8px', marginTop: '6px' } },
-      S.durum?.panel?.platform && S.durum.panel.platform !== 'win32'
+      S.state?.panel?.platform && S.state.panel.platform !== 'win32'
         ? h('div', { class: 'note' }, h('b', null, '1. '), T("Firewall: if macOS asks, allow incoming connections for Python. On Linux, if a firewall (e.g. ufw) is on:"),
           h('div', { class: 'cmd', style: { marginTop: '6px' } }, `sudo ufw allow ${dmg.game_port},${dmg.chat_port}/tcp`))
         : h('div', { class: 'note' }, h('b', null, '1. '), T('Windows Firewall: when the server first starts, allow access in the window shown for Python (Private networks). If no window appeared, in a command prompt opened as administrator:'),
@@ -695,11 +695,11 @@ function guestsCard(dmg) {
   return h('div', { class: 'card', id: 'friend-guests' }, h('h2', null, icon('users'), T('Guests')),
     dmg.guests.length ? h('table', { class: 'table' },
       h('thead', null, h('tr', null, [T('Pilot'), T('Level'), T('Map'), T('Address'), T('Status'), T('Duration'), ''].map(x => h('th', null, x)))),
-      h('tbody', null, dmg.guests.map(g => h('tr', null, h('td', null, h('b', null, g.ad)), h('td', null, g.seviye), h('td', null, g.harita || '—'),
-        h('td', { class: 'mono' }, g.ip), h('td', null, g.connected ? badge(T('In game'), 'ok') : badge(T('Not connected'), '')), h('td', null, fmtDur(now - g.giris)),
+      h('tbody', null, dmg.guests.map(g => h('tr', null, h('td', null, h('b', null, g.name)), h('td', null, g.level), h('td', null, g.map || '—'),
+        h('td', { class: 'mono' }, g.ip), h('td', null, g.connected ? badge(T('In game'), 'ok') : badge(T('Not connected'), '')), h('td', null, fmtDur(now - g.entry)),
         h('td', { class: 'num' }, btn(T('Kick'), async () => {
-          if (await confirmBox(T('Kick {0}?', g.ad), T('Their connection is closed. Their save stays on their own computer in its latest state.'), { ok: T('Kick'), danger: true }))
-            act(() => api('/api/arkadas/kick', { oturum: g.oturum }), T('{0} removed.', g.ad));
+          if (await confirmBox(T('Kick {0}?', g.name), T('Their connection is closed. Their save stays on their own computer in its latest state.'), { ok: T('Kick'), danger: true }))
+            act(() => api('/api/arkadas/kick', { session: g.session }), T('{0} removed.', g.name));
         }, 'ghost sm', 'x')))))) :
       h('p', { class: 'desc' }, T('No guests yet. Your friends connect by entering your address under Play with Friends > Join a friend.')));
 }
@@ -707,12 +707,12 @@ function guestsCard(dmg) {
 // ---- Join
 function joinView(v) {
   const m = v.guest;
-  if (FRD_ACTIVE(m.durum)) return [joinStatus(v), joinInfo()];
-  const d = S.durum, st = srvState(d);
+  if (FRD_ACTIVE(m.state)) return [joinStatus(v), joinInfo()];
+  const d = S.state, st = srvState(d);
   const address = h('input', { class: 'input', value: FRD.address, placeholder: '192.168.1.20', oninput: e => { FRD.address = e.target.value; } });
   const pw = h('input', { class: 'input', type: 'password', value: FRD.password, placeholder: T('Leave empty if there is no password'), oninput: e => { FRD.password = e.target.value; } });
   const slot = h('select', { class: 'input', onchange: e => { FRD.record = e.target.value; } },
-    v.saves.map(k => h('option', { value: k.id, selected: k.id === (FRD.record || v.active) }, `${k.ad} — ${k.pilot} (${lvl(k.seviye)})`)));
+    v.saves.map(k => h('option', { value: k.id, selected: k.id === (FRD.record || v.active) }, `${k.name} — ${k.pilot} (${lvl(k.level)})`)));
   const info = h('div', { id: 'friend-info' }, FRD.info ? serverInfo(FRD.info, v) : null);
   const test = btn(T('Test connection'), async ev => {
     const b = ev.currentTarget; b.disabled = true;
@@ -720,7 +720,7 @@ function joinView(v) {
     b.disabled = false; FRD.info = r || null;
     info.replaceChildren(r ? serverInfo(r, v) : '');
   }, 'sm', 'search');
-  const blocked = st.oyun === 'on' ? T('Your own server is running: stop it first to join.') : st.client === 'on' ? T('The game is open: close it first.')
+  const blocked = st.game === 'on' ? T('Your own server is running: stop it first to join.') : st.client === 'on' ? T('The game is open: close it first.')
     : !v.saves.length ? T('First create a save on the Saves page.') : null;
   const join = h('button', { class: 'play-btn', disabled: !!blocked, onclick: () =>
     act(() => api('/api/arkadas/join', { address: address.value, password: pw.value, record: slot.value })).then(r => { if (r) renderFriends(); }) }, icon('play'), T('JOIN'));
@@ -728,8 +728,8 @@ function joinView(v) {
     field(T("Your friend's address (IP or domain name)"), h('div', { class: 'row' }, address, test)), h('div', { class: 'grid g2' }, field(T('Password'), pw), field(T('Save to use'), slot)), info);
   const hero = h('div', { class: 'hero' }, left, h('div', { class: 'play-col' }, join,
     h('div', { class: 'small muted' }, blocked || T("Your save is backed up, sent to your friend's server and the game opens."))));
-  const last = ['finished', 'hata'].includes(m.durum) ? h('div', { class: 'card' }, h('h2', null, icon(m.durum === 'hata' ? 'alert' : 'check'),
-    m.durum === 'hata' ? T('Join failed') : T('Last session')), stepList(m.steps),
+  const last = ['finished', 'error'].includes(m.state) ? h('div', { class: 'card' }, h('h2', null, icon(m.state === 'error' ? 'alert' : 'check'),
+    m.state === 'error' ? T('Join failed') : T('Last session')), stepList(m.steps),
     m.not ? h('div', { class: 'alert warning', style: { marginTop: '10px' } }, icon('alert'), h('div', null, m.not)) : null,
     m.last_sync ? h('p', { class: 'desc', style: { marginTop: '10px' } }, T('Last save sync: {0}', clock(m.last_sync))) : null) : null;
   return [hero, last, joinInfo()].filter(Boolean);
@@ -742,21 +742,21 @@ function serverInfo(r, v) {
       h('div', null, h('span', null, a), h('b', null, b)))),
     h('div', { class: 'wz-summary' }, checkRow(r.compatible, r.compatible ? T('Panel versions match') : T('Panel versions differ: both of you should update the panel')),
       checkRow(sameClient, sameClient ? T('Same game version') : T('Different game version (yours {0})', v.client_version)),
-      checkRow(r.yer, r.yer ? T('Server has room') : T('Server full'))));
+      checkRow(r.place, r.place ? T('Server has room') : T('Server full'))));
 }
 function joinStatus(v) {
-  const m = v.guest, [t, c] = FRD_STATUS[m.durum] || [m.durum, ''];
+  const m = v.guest, [t, c] = FRD_STATUS[m.state] || [m.state, ''];
   const slot = v.saves.find(k => k.id === m.record);
   return h('div', { class: 'card', id: 'friend-join-status' }, h('div', { class: 'row between wrap' }, h('h2', null, icon('users'), T("Your friend's server")), badge(T(t), c)),
-    h('div', { class: 'kv', style: { margin: '12px 0' } }, [[T('Address'), m.address], [T('Host pilot'), m.sunucu?.pilot || '—'],
-      [T('Save file'), slot ? `${slot.ad} — ${slot.pilot}` : m.record], [T('Last sync'), clock(m.last_sync)],
+    h('div', { class: 'kv', style: { margin: '12px 0' } }, [[T('Address'), m.address], [T('Host pilot'), m.server?.pilot || '—'],
+      [T('Save file'), slot ? `${slot.name} — ${slot.pilot}` : m.record], [T('Last sync'), clock(m.last_sync)],
       [T('Connection'), m.connection ? T('Good') : T('Lost, retrying…')]].map(([a, b]) => h('div', null, h('span', null, a), h('b', null, b)))),
     stepList(m.steps),
     m.not ? h('div', { class: 'alert warning', style: { marginTop: '10px' } }, icon('alert'), h('div', null, m.not)) : null,
     h('div', { class: 'row', style: { marginTop: '14px' } }, btn(T('Leave'), async () => {
       if (await confirmBox(T("Leave your friend's server?"), T('The game closes and the latest state of your save is written to this computer.'), { ok: T('Leave'), danger: true }))
         act(() => api('/api/arkadas/leave', {})).then(() => friendsTick());
-    }, 'danger', 'power', { disabled: m.durum === 'leaving' }), h('span', { class: 'small muted' }, T('Closing the game also leaves.'))));
+    }, 'danger', 'power', { disabled: m.state === 'leaving' }), h('span', { class: 'small muted' }, T('Closing the game also leaves.'))));
 }
 const joinInfo = () => h('div', { class: 'card' }, h('h2', null, icon('info'), T('Where is my save?')),
   h('div', { class: 'check-list' }, [N('Your save is backed up before joining (Saves > Backups).'),
@@ -772,7 +772,7 @@ const joinInfo = () => h('div', { class: 'card' }, h('h2', null, icon('info'), T
 const FIRMS = [[1, 'MMO', 'Mars Mining Operations', 'var(--mmo)', '1-1'], [2, 'EIC', 'Earth Industries Corp.', 'var(--eic)', '2-1'],
   [3, 'VRU', 'Venus Resources Unlimited', 'var(--vru)', '3-1']];
 function pilotForm({ start = true } = {}) {
-  const st = { firma: 2 };
+  const st = { company: 2 };
   const name = h('input', { class: 'input', placeholder: T('e.g. Main save, Quick test…') });
   const pilot = h('input', { class: 'input', placeholder: T('3-20 characters'), maxlength: 20 });
   // başlangıç değerleri (isteğe bağlı; boş: şablondaki): kredi, uridyum, seviye (EP'si seviyenin eşiği), onur, cephane
@@ -780,8 +780,8 @@ function pilotForm({ start = true } = {}) {
   const credits = num(0), uri = num(0), level = num(1, 50), honor = num(0), laser = num(0), rocket = num(0);
   const progressive = h('input', { type: 'checkbox' }), campaign = h('input', { type: 'checkbox' });
   const cards = FIRMS.map(([id, k, n, c, m]) => {
-    const el = h('div', { class: 'radio-card' + (id === st.firma ? ' on' : ''), style: { '--c': c }, onclick: () => {
-      st.firma = id; el.parentNode.querySelectorAll('.radio-card').forEach(x => x.classList.remove('on')); el.classList.add('on');
+    const el = h('div', { class: 'radio-card' + (id === st.company ? ' on' : ''), style: { '--c': c }, onclick: () => {
+      st.company = id; el.parentNode.querySelectorAll('.radio-card').forEach(x => x.classList.remove('on')); el.classList.add('on');
     } }, art('firma_' + k.toLowerCase(), 'crest'), h('b', null, k), h('span', null, n), h('span', null, T('Start: {0}', m)));
     return el;
   });
@@ -795,8 +795,8 @@ function pilotForm({ start = true } = {}) {
     h('label', { class: 'row small', title: T('The new-server "Level 1", "Level 5" … "Level 25" quests: big rewards (ships, equipment, uridium, Premium) as you reach each level. They stay in the quest list for 30 days from when the save is created. When off, these quests never appear.') },
       h('span', { class: 'switch' }, campaign, h('span')), T('Starter campaign'))];
   const v = x => start ? x.value : '';
-  return { el, pilot, values: () => ({ ad: name.value.trim() || pilot.value.trim(), pilot: pilot.value.trim(), firma: st.firma,
-    kredi: v(credits), uridyum: v(uri), seviye: v(level), onur: v(honor), lazer: v(laser), roket: v(rocket), ilerlemeli: progressive.checked, kampanya: campaign.checked }) };
+  return { el, pilot, values: () => ({ name: name.value.trim() || pilot.value.trim(), pilot: pilot.value.trim(), company: st.company,
+    credits: v(credits), uridium: v(uri), level: v(level), honor: v(honor), laser: v(laser), rocket: v(rocket), progressive: progressive.checked, campaign: campaign.checked }) };
 }
 
 function newSaveModal() {
@@ -826,21 +826,21 @@ async function backupsModal(id) {
       onchange: e => act(() => api('/api/panel_settings', { values: { backup_count: +e.target.value } }), T('Saved.')) });
     const iv = h('input', { class: 'input num', type: 'number', min: 0, max: 600, value: cfg.backup_interval_min,
       onchange: e => act(() => api('/api/panel_settings', { values: { backup_interval_min: +e.target.value } }), T('Saved.')) });
-    const rows = r.liste.map(b => h('tr', null,
+    const rows = r.entries.map(b => h('tr', null,
       h('td', null, h('div', null, fmtWhen(b.time)), h('div', { class: 'dim small' }, b.time)),
-      h('td', null, badge(b.kind_name, b.tur === 'manual' ? 'info' : b.tur === 'before' ? 'orange' : '')),
-      h('td', null, `${b.pilot} · ${lvl(b.seviye)}`), h('td', { class: 'num' }, fmtN(b.kredi)), h('td', { class: 'num' }, fmtN(b.uridyum)),
+      h('td', null, badge(b.kind_name, b.type === 'manual' ? 'info' : b.type === 'before' ? 'orange' : '')),
+      h('td', null, `${b.pilot} · ${lvl(b.level)}`), h('td', { class: 'num' }, fmtN(b.credits)), h('td', { class: 'num' }, fmtN(b.uridium)),
       h('td', { class: 'small muted' }, b.not_ || ''),
       h('td', { class: 'num' }, h('div', { class: 'actions', style: { justifyContent: 'flex-end', flexWrap: 'nowrap' } },
         btn(T('Restore'), async () => {
-          if (await confirmBox(T('Restore the backup?'), T('The save "{0}" goes back to {1}. The current state is kept first as a "Before restore" backup.', k.ad, b.time), { ok: T('Restore') }))
-            act(() => api('/api/backups/restore', { id, dosya: b.dosya }), T('Restored.')).then(load);
+          if (await confirmBox(T('Restore the backup?'), T('The save "{0}" goes back to {1}. The current state is kept first as a "Before restore" backup.', k.name, b.time), { ok: T('Restore') }))
+            act(() => api('/api/backups/restore', { id, file: b.file }), T('Restored.')).then(load);
         }, 'sm', 'undo', { disabled: k.in_use, title: k.in_use ? T("Can't restore while the game is running") : '' }),
         btn('', ev => popMenu(ev.currentTarget, [
-          { label: T('Open as a new save'), ic: 'plus', fn: async () => { const v = await promptBox(T('New save from backup'), T('Name of the new save'), `${k.ad} (${b.time.slice(0, 10)})`); if (v != null) act(() => api('/api/backups/new_save', { id, dosya: b.dosya, ad: v }), T('New save created.')).then(() => S.page === 'saves' && renderSaves()); } },
-          { label: T('Note'), ic: 'note', fn: async () => { const v = await promptBox(T('Backup note'), T('Note'), b.not_); if (v != null) act(() => api('/api/backups/note', { id, dosya: b.dosya, not: v })).then(load); } },
+          { label: T('Open as a new save'), ic: 'plus', fn: async () => { const v = await promptBox(T('New save from backup'), T('Name of the new save'), `${k.name} (${b.time.slice(0, 10)})`); if (v != null) act(() => api('/api/backups/new_save', { id, file: b.file, name: v }), T('New save created.')).then(() => S.page === 'saves' && renderSaves()); } },
+          { label: T('Note'), ic: 'note', fn: async () => { const v = await promptBox(T('Backup note'), T('Note'), b.not_); if (v != null) act(() => api('/api/backups/note', { id, file: b.file, not: v })).then(load); } },
           '-',
-          { label: T('Delete'), ic: 'trash', danger: true, fn: async () => { if (await confirmBox(T('Delete the backup?'), T('The {0} backup will be deleted from disk.', b.time), { ok: T('Delete'), danger: true })) act(() => api('/api/backups/sil', { id, dosya: b.dosya }), T('Backup deleted.')).then(load); } },
+          { label: T('Delete'), ic: 'trash', danger: true, fn: async () => { if (await confirmBox(T('Delete the backup?'), T('The {0} backup will be deleted from disk.', b.time), { ok: T('Delete'), danger: true })) act(() => api('/api/backups/sil', { id, file: b.file }), T('Backup deleted.')).then(load); } },
         ]), 'ghost sm icon', 'more')))));
     const body = [
       k.in_use ? h('div', { class: 'alert info' }, icon('info'), h('div', null, T('The save is in the game: you can take backups; close the game and the server to restore.'))) : null,
@@ -854,7 +854,7 @@ async function backupsModal(id) {
         h('tbody', null, rows))) : h('div', { class: 'empty' }, art('empty_save'), h('div', null, T('This save has no backups.'))),
       h('div', { class: 'small dim' }, T('Manual backups are never deleted automatically. The newest {0} automatic backups are kept.', cfg.backup_count))];
     if (m) { m.box.querySelector('.body').replaceChildren(...body.filter(Boolean)); }
-    else m = modal({ title: T('Backups — {0}', k.ad), sub: `${k.pilot} · ${k.firma} · ${T('Level')} ${k.seviye}`, wide: true, body, foot: [btn(T('Close'), () => m.close(), '')],
+    else m = modal({ title: T('Backups — {0}', k.name), sub: `${k.pilot} · ${k.company} · ${T('Level')} ${k.level}`, wide: true, body, foot: [btn(T('Close'), () => m.close(), '')],
       onclose: () => { if (S.page === 'saves') renderSaves(); } });
   }
   load();
@@ -862,7 +862,7 @@ async function backupsModal(id) {
 
 // ================================================================== OYUN AYARLARI
 const MULTIPLIER_VALUES = [0, 0.1, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.75, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2, 2.5, 3, 4, 5, 6, 7.5, 10, 12.5, 15, 20, 25, 30, 40, 50];
-const APPLY_WHEN = { 'anında': ['an', N('Instant')], 'harita': ['harita', N('On map change')], 'giriş': ['giris', N('On next login')], 'başlatma': ['baslatma', N('On server restart')] };
+const APPLY_WHEN = { 'anında': ['an', N('Instant')], 'map': ['map', N('On map change')], 'giriş': ['entry', N('On next login')], 'başlatma': ['baslatma', N('On server restart')] };
 let saveTimer = null, pending = {};
 function queueSave(key, value) {
   pending[key] = value;
@@ -870,7 +870,7 @@ function queueSave(key, value) {
   saveTimer = setTimeout(async () => {
     const body = pending; pending = {};
     const r = await act(() => api('/api/ayarlar', { values: body }));
-    if (r) { S.ayar = r; markChanged(); flashSaved(); }
+    if (r) { S.setting = r; markChanged(); flashSaved(); }
   }, 350);
 }
 function flashSaved() {
@@ -879,7 +879,7 @@ function flashSaved() {
   clearTimeout(el._t); el._t = setTimeout(() => { el.textContent = T('Changes are saved automatically.'); el.style.color = ''; }, 1600);
 }
 function markChanged() {
-  const r = S.ayar; if (!r) return;
+  const r = S.setting; if (!r) return;
   document.querySelectorAll('.set-row[data-key]').forEach(row => {
     const k = row.dataset.key, v = r.values[k] ?? r.default[k];
     row.classList.toggle('changed', v !== r.default[k]);
@@ -898,32 +898,32 @@ function markChanged() {
 
 async function renderSettings() {
   const r = await act(() => api('/api/ayarlar')); if (!r || S.page !== 'settings') return;
-  S.ayar = r;
+  S.setting = r;
   const val = k => r.values[k] ?? r.default[k];
-  const presets = Object.entries(r.hazir).map(([key, p]) => h('button', { class: 'preset', onclick: async () => {
-    if (await confirmBox(T('Apply "{0}"?', p.ad), T("All game settings switch to this preset's values (your event choices don't change)."), { ok: T('Apply') }))
-      act(() => api('/api/ayarlar/hazir', { ad: key }), T('"{0}" applied.', p.ad)).then(renderSettings);
-  } }, h('b', null, p.ad), h('span', null, p.aciklama)));
+  const presets = Object.entries(r.ready).map(([key, p]) => h('button', { class: 'preset', onclick: async () => {
+    if (await confirmBox(T('Apply "{0}"?', p.name), T("All game settings switch to this preset's values (your event choices don't change)."), { ok: T('Apply') }))
+      act(() => api('/api/ayarlar/hazir', { name: key }), T('"{0}" applied.', p.name)).then(renderSettings);
+  } }, h('b', null, p.name), h('span', null, p.description)));
   const user = Object.entries(r.templates || {}).map(([key, p]) => h('div', { class: 'preset', onclick: async e => {
     if (e.target.closest('.x')) return;
-    if (await confirmBox(T('Apply "{0}"?', p.ad), T("All game settings switch to this template's values."), { ok: T('Apply') }))
-      act(() => api('/api/ayarlar/hazir', { ad: key }), T('"{0}" applied.', p.ad)).then(renderSettings);
-  } }, h('b', null, '★ ', p.ad), h('span', null, T('{0} changes', Object.keys(p.values).length)),
-    btn('', async () => { if (await confirmBox(T('Delete the template?'), T('The template "{0}" will be deleted.', p.ad), { ok: T('Delete'), danger: true })) act(() => api('/api/ayarlar/delete_template', { ad: key })).then(renderSettings); }, 'ghost sm icon x', 'x', { title: T('Delete') })));
-  const copySel = h('select', { class: 'input', style: { maxWidth: '240px' } }, (r.saves || []).map(k => h('option', { value: k.id }, k.ad)));
+    if (await confirmBox(T('Apply "{0}"?', p.name), T("All game settings switch to this template's values."), { ok: T('Apply') }))
+      act(() => api('/api/ayarlar/hazir', { name: key }), T('"{0}" applied.', p.name)).then(renderSettings);
+  } }, h('b', null, '★ ', p.name), h('span', null, T('{0} changes', Object.keys(p.values).length)),
+    btn('', async () => { if (await confirmBox(T('Delete the template?'), T('The template "{0}" will be deleted.', p.name), { ok: T('Delete'), danger: true })) act(() => api('/api/ayarlar/delete_template', { name: key })).then(renderSettings); }, 'ghost sm icon x', 'x', { title: T('Delete') })));
+  const copySel = h('select', { class: 'input', style: { maxWidth: '240px' } }, (r.saves || []).map(k => h('option', { value: k.id }, k.name)));
   const saveCard = r.record ? h('div', { class: 'card' }, h('h2', null, icon('save'), T("This save's settings: {0}", r.save_name)),
     h('p', { class: 'desc' }, T('Game settings and event choices belong to each save; when the active save changes, the settings change too.')),
     (r.saves || []).length ? h('div', { class: 'row' }, copySel,
       btn(T('Copy from this save'), async () => {
         const src = r.saves.find(k => k.id === copySel.value);
-        if (src && await confirmBox(T('Copy the settings?'), T('All game settings and event choices of the save "{0}" are copied to this save.', src.ad), { ok: T('Copy') }))
-          act(() => api('/api/ayarlar/copy', { kaynak: src.id }), T('Settings copied.')).then(renderSettings);
+        if (src && await confirmBox(T('Copy the settings?'), T('All game settings and event choices of the save "{0}" are copied to this save.', src.name), { ok: T('Copy') }))
+          act(() => api('/api/ayarlar/copy', { source: src.id }), T('Settings copied.')).then(renderSettings);
       }, 'sm', 'copy')) : null) : null;
   const presetCard = h('div', { class: 'card' }, h('h2', null, icon('star'), T('Presets')),
     h('p', { class: 'desc' }, T('Apply a set of settings with one click, or keep your current settings as a template.')),
     h('div', { class: 'preset-bar' }, presets, user),
     h('div', { class: 'row', style: { marginTop: '12px' } },
-      btn(T('Save the current settings as a template'), async () => { const v = await promptBox(T('Save as template'), T('Template name'), ''); if (v) act(() => api('/api/ayarlar/save_template', { ad: v }), T('Template saved.')).then(renderSettings); }, 'sm', 'save'),
+      btn(T('Save the current settings as a template'), async () => { const v = await promptBox(T('Save as template'), T('Template name'), ''); if (v) act(() => api('/api/ayarlar/save_template', { name: v }), T('Template saved.')).then(renderSettings); }, 'sm', 'save'),
       h('span', { class: 'spacer' }),
       btn(T('Reset all to defaults'), async () => { if (await confirmBox(T('Reset to defaults?'), T("All game settings go back to their defaults (your event choices don't change)."), { ok: T('Revert') })) act(() => api('/api/ayarlar/sifirla', {}), T('Back to defaults.')).then(renderSettings); }, 'ghost sm', 'undo')));
   const info = h('div', { class: 'alert info' }, icon('info'), h('div', null,
@@ -931,10 +931,10 @@ async function renderSettings() {
     ...Object.values(APPLY_WHEN).map(([c, t]) => [h('span', { class: 'tag ' + c }, T(t)), ' ']),
     r.server_running ? h('div', { style: { marginTop: '4px' } }, T('The server is running: "Instant" settings change in the game right away.')) : null));
   S.settingsOpen = S.settingsOpen || {};
-  const groups = r.gruplar.map(g => {
-    const items = r.schema.filter(s => s.grup === g.anahtar && !s.parent);
+  const groups = r.groups.map(g => {
+    const items = r.schema.filter(s => s.group === g.anahtar && !s.parent);
     if (!items.length) return null;
-    return h('div', { class: 'card set-group', 'data-grup': g.anahtar }, h('h2', null, g.ad, h('span', { class: 'muted small grp-count' })),
+    return h('div', { class: 'card set-group', 'data-grup': g.anahtar }, h('h2', null, g.name, h('span', { class: 'muted small grp-count' })),
       items.map(s => {
         const row = settingRow(s, val(s.anahtar), r.default[s.anahtar]), kids = r.schema.filter(c => c.parent === s.anahtar);
         return kids.length ? [row, subPanel(row, kids, val, r.default)] : row;
@@ -988,15 +988,15 @@ function settingRow(s, v, def) {
   // alt ayar (s.ust): uygulama etiketi üstünde; yerine etkin çarpan (paintEff). data-v: gösterilen değer (sürgü bırakılmadan da)
   const row = h('div', { class: 'set-row' + (s.parent ? ' sub' : ''), 'data-key': s.anahtar, 'data-v': v });
   // bağlı ayar (s.kosul): yalnız o açma kapama ayarı açıkken, onun altında görünür
-  if (s.condition) { row.dataset.condition = s.condition; row.classList.toggle('condition-off', !(S.ayar.values[s.condition] ?? S.ayar.default[s.condition])); }
-  const head = h('div', null, h('div', { class: 'name' }, s.ad, s.parent ? h('span', { class: 'eff' }) : h('span', { class: 'tag ' + tc }, T(tagText))),
-    h('div', { class: 'help' }, s.aciklama));
+  if (s.condition) { row.dataset.condition = s.condition; row.classList.toggle('condition-off', !(S.setting.values[s.condition] ?? S.setting.default[s.condition])); }
+  const head = h('div', null, h('div', { class: 'name' }, s.name, s.parent ? h('span', { class: 'eff' }) : h('span', { class: 'tag ' + tc }, T(tagText))),
+    h('div', { class: 'help' }, s.description));
   let ctl;
   // sürgü önerilen aralıkta (min..max); sayı kutusuna elle sinir'e dek her değer yazılır (settings.py), aralığın dışı "elle" işaretli
   const top = s.cap ?? s.max;
   const over = h('span', { class: 'tag elle', title: T('Outside the recommended range ({0} – {1}); the largest value you can type is {2}.', fmtMult(s.min ?? 0), fmtMult(s.max ?? 0), fmtMult(top)) }, T('Manual'));
   const markOver = x => { over.hidden = !(x > s.max); };
-  if (s.tur === 'carpan') {
+  if (s.type === 'multiplier') {
     const vals = MULTIPLIER_VALUES.filter(x => x >= s.min && x <= s.max);
     if (!vals.includes(s.max)) vals.push(s.max);
     const near = x => vals.reduce((best_i, y, i) => Math.abs(y - x) < Math.abs(vals[best_i] - x) ? i : best_i, 0);
@@ -1014,20 +1014,20 @@ function settingRow(s, v, def) {
     const reset = btn('', () => { show(def); range.value = near(def); paint(); queueSave(s.anahtar, def); }, 'ghost sm icon', 'undo', { title: T('Default (×{0})', fmtMult(def)) });
     paint(); markOver(v);
     ctl = h('div', { class: 'ctl' }, h('div', { style: { flex: 1, minWidth: '140px' } }, range), over, lab, num, reset);
-  } else if (s.tur === 'sayi') {
+  } else if (s.type === 'number') {
     const num = h('input', { class: 'input num', type: 'number', min: s.min, max: top, step: 1, value: v, title: T('At most {0}', fmtMult(top)) });
     const fix = x => Math.min(top, Math.max(s.min, Math.round(parseFloat(String(x).replace(',', '.')) || 0)));
     num.addEventListener('change', () => { const x = fix(num.value); num.value = x; markOver(x); queueSave(s.anahtar, x); });
     const reset = btn('', () => { num.value = def; markOver(def); queueSave(s.anahtar, def); }, 'ghost sm icon', 'undo', { title: T('Default ({0})', def) });
     markOver(v);
     ctl = h('div', { class: 'ctl' }, over, num, s.unit ? h('span', { class: 'mult' }, s.unit) : null, reset);
-  } else if (s.tur === 'bool') {
+  } else if (s.type === 'bool') {
     const cb = h('input', { type: 'checkbox', checked: v, onchange: e => {
       queueSave(s.anahtar, e.target.checked);
       document.querySelectorAll(`.set-row[data-condition="${s.anahtar}"]`).forEach(c => c.classList.toggle('condition-off', !e.target.checked));
     } });
     ctl = h('div', { class: 'ctl' }, h('label', { class: 'switch' }, cb, h('span')));
-  } else if (s.tur === 'seviye') {
+  } else if (s.type === 'level') {
     // seçeneklerin açıklaması ve rengi şemadan (settings.py: secenek_aciklama, renkler; panel dilinde gelir)
     const say = i => (s.option_description || [])[i] || '';
     const desc = h('div', { class: 'level-desc' }, say(v));
@@ -1068,20 +1068,20 @@ async function renderEvents(list) {
   const set = (key, v) => act(() => api('/api/etkinlikler', { changes: { [key]: v } })).then(x => x && renderEvents(x));
   const bulk = (to, kind) => act(() => api('/api/etkinlikler', { hepsi: to, kind }), T('Updated.')).then(x => x && renderEvents(x));
   const row = e => {
-    const state = e.durum || 'calendar';
-    const status = e.etkin ? badge(e.durum === 'on' && !e.in_calendar ? T('On (manual)') : T('On'), 'ok')
+    const state = e.state || 'calendar';
+    const status = e.etkin ? badge(e.state === 'on' && !e.in_calendar ? T('On (manual)') : T('On'), 'ok')
       : e.suppressed_by ? badge(T('Off (conflict: {0})', e.suppressed_by), 'err')
-      : badge(e.durum === 'off' && e.in_calendar ? T('Off (manual)') : T('Off'), e.durum === 'off' ? 'err' : '');
+      : badge(e.state === 'off' && e.in_calendar ? T('Off (manual)') : T('Off'), e.state === 'off' ? 'err' : '');
     const cal = e.in_calendar ? (e.time_left_sec != null ? T('on by calendar · {0} left', fmtDur(e.time_left_sec)) : T('on by calendar'))
       : (e.next_day != null ? T('by calendar in {0} days', e.next_day) : T('off by calendar now'));
     return h('div', { class: 'ev-row' },
-      h('div', null, h('div', { class: 'name' }, e.ad, status), h('div', { class: 'help muted small' }, e.aciklama),
+      h('div', null, h('div', { class: 'name' }, e.name, status), h('div', { class: 'help muted small' }, e.description),
         h('div', { class: 'when' }, '📅 ', e.time, ' · ', cal),
         e.conflicting && e.conflicting.length ? h('div', { class: 'help muted small' }, T('Cannot run together with: {0}', e.conflicting.join(', '))) : null),
       h('div', { class: 'seg' }, [['calendar', T('By calendar'), 'info'], ['on', T('On'), 'ok'], ['off', T('Off'), 'err']].map(([k, t, c]) =>
         h('button', { class: (state === k ? 'on ' : '') + c, onclick: () => set(e.anahtar, k === 'calendar' ? null : k) }, t))));
   };
-  const yearly = r.filter(e => e.tur === 'yearly'), weekly = r.filter(e => e.tur === 'weekly');
+  const yearly = r.filter(e => e.type === 'yearly'), weekly = r.filter(e => e.type === 'weekly');
   $('#content').replaceChildren(h('div', { class: 'stack' },
     h('div', { class: 'alert info' }, icon('info'), h('div', null, T("Event aliens, boxes and discounts on the map change while the game is running; the client's event icons and windows update when you re-enter the game (changing maps or logging out and in is enough).")),
       btn(T('Show on calendar'), () => go('calendar'), 'sm', 'agenda'), btn(T('Turn all events off'), () => bulk('off'), 'sm', 'power')),
@@ -1098,7 +1098,7 @@ async function renderEvents(list) {
 // ================================================================== ETKİNLİK TAKVİMİ (event_schedule.py, /api/takvim)
 // Görünümler: saatlik (seçili günün 24 saati, satırlar ve seanslar), günlük (o günün ayrıntılı listesi), haftalık (pazartesiden 7 gün),
 // aylık (6 haftalık ızgara). Çubuk: takvime göre dolu, elle açık çizgili, elle kapalı soluk. Zamanlar yerel saat.
-const CAL = { appearance: 'weekly', gun: null, filter_by: { yearly: true, weekly: true, session: true }, search: '', data: null, coverage: null };
+const CAL = { appearance: 'weekly', day: null, filter_by: { yearly: true, weekly: true, session: true }, search: '', data: null, coverage: null };
 const CAL_VIEW = [['hourly', N('Hourly')], ['daily', N('Log')], ['weekly', N('Weekly')], ['aylik', N('Monthly')]];
 const CAL_COLOR = ['#38c4ff', '#ff8a3d', '#3ddc97', '#ff6b81', '#a29bfe', '#ffc857', '#1dd1a1', '#f368e0', '#54a0ff', '#ff7f50', '#00d2d3', '#c8d6e5'];
 const calColor = k => { let x = 7; for (const c of k) x = (x * 31 + c.charCodeAt(0)) >>> 0; return CAL_COLOR[x % CAL_COLOR.length]; };
@@ -1114,18 +1114,18 @@ const calSpan = (s, e) => {                      // "24 Eki 19:00 – 23:00" ya 
 const KIND_NAME = { yearly: N('Yearly'), weekly: N('Weekly') };
 
 function calRange() {
-  const g = dayStart(CAL.gun || new Date());
+  const g = dayStart(CAL.day || new Date());
   if (CAL.appearance === 'weekly') { const a = addDays(g, -((g.getDay() + 6) % 7)); return [a, addDays(a, 7)]; }
   if (CAL.appearance === 'aylik') { const f = new Date(g.getFullYear(), g.getMonth(), 1); const a = addDays(f, -((f.getDay() + 6) % 7)); return [a, addDays(a, 42)]; }
   return [g, addDays(g, 1)];
 }
-function calGo(appearance, day) { if (appearance) CAL.appearance = appearance; if (day) CAL.gun = day; renderCalendar(); }
+function calGo(appearance, day) { if (appearance) CAL.appearance = appearance; if (day) CAL.day = day; renderCalendar(); }
 function calShift(n) {
-  const g = dayStart(CAL.gun || new Date());
+  const g = dayStart(CAL.day || new Date());
   calGo(null, CAL.appearance === 'aylik' ? new Date(g.getFullYear(), g.getMonth() + n, 1) : addDays(g, CAL.appearance === 'weekly' ? 7 * n : n));
 }
 function enterCalendar() {
-  CAL.gun = CAL.gun || new Date();
+  CAL.day = CAL.day || new Date();
   renderCalendar();
   S.timers.push(setInterval(() => { if (document.visibilityState === 'visible' && !document.querySelector('.modal')) renderCalendar(); }, 60000));
 }
@@ -1141,7 +1141,7 @@ async function renderCalendar() {
 // görünümde gösterilecek satırlar: süzgeçler; aralıkta açık olan, seansı olan ya da elle açılmış etkinlikler
 function calRows() {
   const q = CAL.search.trim().toLocaleLowerCase(LOC());
-  return CAL.data.events.filter(e => CAL.filter_by[e.tur] && (!q || e.ad.toLocaleLowerCase(LOC()).includes(q)))
+  return CAL.data.events.filter(e => CAL.filter_by[e.type] && (!q || e.name.toLocaleLowerCase(LOC()).includes(q)))
     .map(e => Object.assign({}, e, { color: calColor(e.anahtar), sessions: CAL.filter_by.session ? e.sessions.filter(s => s.ranges.length) : [] }))
     .filter(e => e.active_ranges.length || e.ranges.length || e.sessions.length);
 }
@@ -1174,16 +1174,16 @@ function drawCalendar() {
 function calSummary(r) {
   const now = Date.now() / 1000;
   const on = r.events.filter(e => e.etkin);
-  const next = r.events.filter(e => e.durum !== 'off' && e.next && e.next[0] > now + 1).sort((x, y) => x.next[0] - y.next[0]).slice(0, 8);
+  const next = r.events.filter(e => e.state !== 'off' && e.next && e.next[0] > now + 1).sort((x, y) => x.next[0] - y.next[0]).slice(0, 8);
   const dotc = k => h('i', { class: 'cal-dot', style: { background: calColor(k) } });
   return h('div', { class: 'grid g2' },
     h('div', { class: 'card' }, h('h2', null, icon('zap'), T('Active now ({0})', on.length)),
-      on.length ? h('div', { class: 'chips' }, on.map(e => h('button', { class: 'chip cal-chip', onclick: () => calDetail(e.anahtar) }, dotc(e.anahtar), e.ad,
-        e.durum === 'on' && !e.in_calendar ? h('span', { class: 'dim' }, T('forced')) : e.time_left_sec != null ? h('span', { class: 'dim' }, fmtDur(e.time_left_sec)) : null)))
+      on.length ? h('div', { class: 'chips' }, on.map(e => h('button', { class: 'chip cal-chip', onclick: () => calDetail(e.anahtar) }, dotc(e.anahtar), e.name,
+        e.state === 'on' && !e.in_calendar ? h('span', { class: 'dim' }, T('forced')) : e.time_left_sec != null ? h('span', { class: 'dim' }, fmtDur(e.time_left_sec)) : null)))
         : h('p', { class: 'desc' }, T('No event is active right now.'))),
     h('div', { class: 'card' }, h('h2', null, icon('clock'), T('Coming up')),
       next.length ? h('div', { class: 'cal-next' }, next.map(e => h('div', { class: 'row', onclick: () => calDetail(e.anahtar) }, dotc(e.anahtar),
-        h('div', { class: 'grow' }, h('div', { class: 'ellipsis', style: { maxWidth: 'none' }, title: e.ad }, e.ad),
+        h('div', { class: 'grow' }, h('div', { class: 'ellipsis', style: { maxWidth: 'none' }, title: e.name }, e.name),
           h('div', { class: 'small muted' }, calSpan(e.next[0], e.next[1]))),     // tarih adın altında: dar kartta rozet taşmasın
         badge(T('in {0}', fmtDur(e.next[0] - now)), 'info'))))
         : h('p', { class: 'desc' }, T('No event starts soon.'))));
@@ -1203,16 +1203,16 @@ function calGantt(rows) {
       d.toLocaleDateString(LOC(), { weekday: 'short', day: 'numeric' }));
   });
   const evRow = e => {
-    const st = e.durum, bars = st === 'on' ? [bar(A, B, 'forced', e.color, e.ad + ' · ' + T('forced on'))]
-      : e.ranges.map(([s, x]) => bar(s, x, st === 'off' ? 'off' : '', e.color, e.ad + ' · ' + calSpan(s, x) + (st === 'off' ? ' · ' + T('forced off') : '')));
-    return [h('div', { class: 'cal-row' }, h('div', { class: 'cal-name', onclick: () => calDetail(e.anahtar), title: e.aciklama || e.ad },
-      h('i', { class: 'cal-dot', style: { background: e.color } }), h('span', { class: 'ellipsis', style: { maxWidth: 'none' } }, e.ad),
+    const st = e.state, bars = st === 'on' ? [bar(A, B, 'forced', e.color, e.name + ' · ' + T('forced on'))]
+      : e.ranges.map(([s, x]) => bar(s, x, st === 'off' ? 'off' : '', e.color, e.name + ' · ' + calSpan(s, x) + (st === 'off' ? ' · ' + T('forced off') : '')));
+    return [h('div', { class: 'cal-row' }, h('div', { class: 'cal-name', onclick: () => calDetail(e.anahtar), title: e.description || e.name },
+      h('i', { class: 'cal-dot', style: { background: e.color } }), h('span', { class: 'ellipsis', style: { maxWidth: 'none' } }, e.name),
       st ? badge(st === 'on' ? T('forced on') : T('forced off'), st === 'on' ? 'ok' : 'err') : null),
       h('div', { class: 'cal-track', style: { '--cols': cols } }, bars, nowLine())),
-    ...e.sessions.map(s => h('div', { class: 'cal-row sub' }, h('div', { class: 'cal-name', title: s.haritalar.join(', ') }, '↳ ', h('span', { class: 'ellipsis', style: { maxWidth: 'none' } },
-      s.ad + (s.haritalar.length ? ' · ' + s.haritalar.join(', ') : ''))),
+    ...e.sessions.map(s => h('div', { class: 'cal-row sub' }, h('div', { class: 'cal-name', title: s.maps.join(', ') }, '↳ ', h('span', { class: 'ellipsis', style: { maxWidth: 'none' } },
+      s.name + (s.maps.length ? ' · ' + s.maps.join(', ') : ''))),
       h('div', { class: 'cal-track', style: { '--cols': cols } }, s.ranges.map(([a, b, f]) => bar(a, b, 'sub' + (f === 1 ? ' cift' : ''), e.color,
-        s.ad + ' · ' + calSpan(a, b) + (f === 1 ? ' · ' + T('double rewards') : f > 1 ? ' · ' + T('entry until {0}', hhmm(f)) : ''))), nowLine())))];
+        s.name + ' · ' + calSpan(a, b) + (f === 1 ? ' · ' + T('double rewards') : f > 1 ? ' · ' + T('entry until {0}', hhmm(f)) : ''))), nowLine())))];
   };
   return h('div', { class: 'card cal-gantt-card' }, rows.length ? h('div', { class: 'cal-gantt' },
     h('div', { class: 'cal-row head' }, h('div', { class: 'cal-name muted small' }, T('{0} events', rows.length)), h('div', { class: 'cal-track ticks', style: { '--cols': cols } }, ticks)),
@@ -1224,10 +1224,10 @@ function calDay(rows) {
   const [A, B] = CAL.coverage, now = Date.now() / 1000;
   const allDay = [], timed = [];
   for (const e of rows) {
-    const iv = e.durum === 'on' ? [[A, B]] : e.durum === 'off' ? [] : e.ranges;
+    const iv = e.state === 'on' ? [[A, B]] : e.state === 'off' ? [] : e.ranges;
     if (iv.some(([s, x]) => s <= A && x >= B)) allDay.push(e);
-    else iv.forEach(([s, x]) => timed.push({ e, s, x, ad: e.ad }));
-    e.sessions.forEach(sec => sec.ranges.forEach(([s, x, f]) => timed.push({ e, s, x, f, ad: e.ad, sub: sec.ad + (sec.haritalar.length ? ' · ' + sec.haritalar.join(', ') : '') })));
+    else iv.forEach(([s, x]) => timed.push({ e, s, x, name: e.name }));
+    e.sessions.forEach(sec => sec.ranges.forEach(([s, x, f]) => timed.push({ e, s, x, f, name: e.name, sub: sec.name + (sec.maps.length ? ' · ' + sec.maps.join(', ') : '') })));
   }
   timed.sort((p, q) => p.s - q.s || p.x - q.x);
   const status = (s, x) => now >= x ? badge(T('Over'), '') : now >= s ? badge(T('Running · {0} left', fmtDur(x - now)), 'ok') : badge(T('in {0}', fmtDur(s - now)), 'info');
@@ -1236,13 +1236,13 @@ function calDay(rows) {
   return h('div', { class: 'grid g2 tk-day' },
     h('div', { class: 'card' }, h('h2', null, icon('calendar'), T('All day ({0})', allDay.length)),
       allDay.length ? h('div', { class: 'stack', style: { gap: '10px' } }, allDay.map(e => h('div', { class: 'cal-item', onclick: () => calDetail(e.anahtar) },
-        h('div', { class: 'row' }, dotc(e), h('b', null, e.ad), badge(T(KIND_NAME[e.tur]), ''), e.durum ? badge(e.durum === 'on' ? T('forced on') : T('forced off'), e.durum === 'on' ? 'ok' : 'err') : null),
-        e.aciklama ? h('div', { class: 'small muted' }, e.aciklama) : null, h('div', { class: 'small dim' }, '📅 ', e.time))))
+        h('div', { class: 'row' }, dotc(e), h('b', null, e.name), badge(T(KIND_NAME[e.type]), ''), e.state ? badge(e.state === 'on' ? T('forced on') : T('forced off'), e.state === 'on' ? 'ok' : 'err') : null),
+        e.description ? h('div', { class: 'small muted' }, e.description) : null, h('div', { class: 'small dim' }, '📅 ', e.time))))
         : h('p', { class: 'desc' }, T('No all-day events on this day.'))),
     h('div', { class: 'card' }, h('h2', null, icon('clock'), T('Timed ({0})', timed.length)),
       timed.length ? h('div', { class: 'cal-agenda' }, timed.map(t => h('div', { class: 'cal-item row' + (now >= t.x ? ' past' : ''), onclick: () => calDetail(t.e.anahtar) },
         h('span', { class: 'mono cal-time' }, hhmm(t.s) + '–' + (t.x >= B && !end.getHours() ? '24:00' : hhmm(t.x))), dotc(t.e),
-        h('div', { style: { flex: 1, minWidth: 0 } }, h('div', null, t.ad), t.sub ? h('div', { class: 'small muted' }, t.sub,
+        h('div', { style: { flex: 1, minWidth: 0 } }, h('div', null, t.name), t.sub ? h('div', { class: 'small muted' }, t.sub,
           t.f === 1 ? ' · ' + T('double rewards') : t.f > 1 ? ' · ' + T('entry until {0}', hhmm(t.f)) : '') : null),
         status(t.s, t.x))))
         : h('p', { class: 'desc' }, T('No timed events or sessions on this day.'))));
@@ -1256,16 +1256,16 @@ function calMonth(rows) {
     const d = addDays(new Date(A * 1000), i), s = d.getTime() / 1000, x = addDays(d, 1).getTime() / 1000;
     const items = [];
     for (const e of rows) {
-      const iv = e.durum === 'on' ? [[s, x]] : e.durum === 'off' ? [] : e.ranges.filter(([p, q]) => p < x && q > s);
-      if (iv.length) items.push({ e, saat: iv[0][0] > s ? hhmm(iv[0][0]) : null, full: iv.some(([p, q]) => p <= s && q >= x) });
-      else if (e.sessions.some(sec => sec.ranges.some(([p, q]) => p < x && q > s))) items.push({ e, saat: null, full: false, session: true });
+      const iv = e.state === 'on' ? [[s, x]] : e.state === 'off' ? [] : e.ranges.filter(([p, q]) => p < x && q > s);
+      if (iv.length) items.push({ e, hour: iv[0][0] > s ? hhmm(iv[0][0]) : null, full: iv.some(([p, q]) => p <= s && q >= x) });
+      else if (e.sessions.some(sec => sec.ranges.some(([p, q]) => p < x && q > s))) items.push({ e, hour: null, full: false, session: true });
     }
-    items.sort((p, q) => (p.e.tur !== 'yearly') - (q.e.tur !== 'yearly') || (!p.full) - (!q.full));
+    items.sort((p, q) => (p.e.type !== 'yearly') - (q.e.type !== 'yearly') || (!p.full) - (!q.full));
     const max = 4;
     return h('div', { class: 'cal-cell' + (d.getMonth() !== month ? ' other' : '') + (d.getTime() === today ? ' today' : ''), onclick: () => calGo('daily', d) },
       h('div', { class: 'cal-dnum' }, d.getDate()),
-      items.slice(0, max).map(it => h('div', { class: 'cal-mchip' + (it.e.durum === 'on' ? ' forced' : ''), style: { '--c': it.e.color }, title: it.e.ad },
-        it.saat ? h('span', { class: 'dim' }, it.saat + ' ') : null, it.e.ad)),
+      items.slice(0, max).map(it => h('div', { class: 'cal-mchip' + (it.e.state === 'on' ? ' forced' : ''), style: { '--c': it.e.color }, title: it.e.name },
+        it.hour ? h('span', { class: 'dim' }, it.hour + ' ') : null, it.e.name)),
       items.length > max ? h('div', { class: 'small muted' }, T('+{0} more', items.length - max)) : null);
   });
   return h('div', { class: 'card' }, h('div', { class: 'cal-month' }, heads, cells));
@@ -1274,21 +1274,21 @@ function calMonth(rows) {
 // ---- etkinliğin ayrıntısı: açıklama, takvim, bu görünümdeki aralıklar, seanslar; elle açık / kapalı seçimi
 function calDetail(key) {
   const e = CAL.data.events.find(x => x.anahtar === key); if (!e) return;
-  const now = Date.now() / 1000, st = e.durum || 'calendar';
+  const now = Date.now() / 1000, st = e.state || 'calendar';
   const set = v => act(() => api('/api/etkinlikler', { changes: { [key]: v } }), T('Updated.')).then(x => { if (x) { m.close(); renderCalendar(); } });
-  const iv = e.durum === 'on' ? [] : e.ranges;
+  const iv = e.state === 'on' ? [] : e.ranges;
   const cur = e.next && e.next[0] <= now + 1 ? T('On the calendar now · {0} left', fmtDur(e.next[1] - now))
     : e.next ? T('Next on the calendar: {0} (in {1})', calSpan(e.next[0], e.next[1]), fmtDur(e.next[0] - now)) : T('No upcoming period on the calendar.');
   const m = modal({
-    title: e.ad, sub: T(KIND_NAME[e.tur]) + ' · ' + (e.etkin ? T('active now') : T('inactive now')), wide: true,
+    title: e.name, sub: T(KIND_NAME[e.type]) + ' · ' + (e.etkin ? T('active now') : T('inactive now')), wide: true,
     body: h('div', { class: 'stack', style: { gap: '12px' } },
-      e.aciklama ? h('div', null, e.aciklama) : null,
+      e.description ? h('div', null, e.description) : null,
       h('div', { class: 'kv one cal-kv' }, [[T('Calendar'), e.time], [T('Status'), cur]].map(([a, b]) => h('div', null, h('span', { class: 'muted' }, a), h('b', null, b)))),
       h('div', null, h('div', { class: 'lbl' }, T('In this view')), iv.length ? h('div', { class: 'chips', style: { marginTop: '6px' } }, iv.slice(0, 24).map(([s, x]) => h('span', { class: 'chip' }, calSpan(s, x))),
         iv.length > 24 ? h('span', { class: 'small muted' }, T('+{0} more', iv.length - 24)) : null)
-        : h('div', { class: 'small muted' }, e.durum === 'on' ? T('Forced on: always in effect.') : T('Not on the calendar in this view.'))),
+        : h('div', { class: 'small muted' }, e.state === 'on' ? T('Forced on: always in effect.') : T('Not on the calendar in this view.'))),
       e.sessions.length ? h('div', null, h('div', { class: 'lbl' }, T('Sessions and spawn hours')), h('div', { class: 'stack', style: { gap: '6px', marginTop: '6px' } },
-        e.sessions.map(s => h('div', { class: 'small' }, h('b', null, s.ad), s.haritalar.length ? ' · ' + s.haritalar.join(', ') : '',
+        e.sessions.map(s => h('div', { class: 'small' }, h('b', null, s.name), s.maps.length ? ' · ' + s.maps.join(', ') : '',
           h('div', { class: 'muted' }, s.ranges.length ? [...new Set(s.ranges.map(([a, b]) => hhmm(a) + '–' + hhmm(b)))].slice(0, 12).join(', ') : T('Not in this view')))))) : null,
       h('div', null, h('div', { class: 'lbl' }, T('In game')), h('div', { class: 'seg', style: { marginTop: '6px' } },
         [['calendar', T('By calendar'), 'info'], ['on', T('On'), 'ok'], ['off', T('Off'), 'err']].map(([k, t, c]) =>
@@ -1298,8 +1298,8 @@ function calDetail(key) {
 }
 
 // ================================================================== İSTEMCİ
-const versionText = (c, supported) => !c.surum ? T('Unknown version')
-  : c.compatible ? T('Version {0} (compatible with the server)', c.surum) : T('Version {0} — the server was written for {1}', c.surum, supported);
+const versionText = (c, supported) => !c.version ? T('Unknown version')
+  : c.compatible ? T('Version {0} (compatible with the server)', c.version) : T('Version {0} — the server was written for {1}', c.version, supported);
 const checkRow = (ok, text, warn) => h('div', { class: ok ? 'ok' : warn ? 'wr' : 'no' }, icon(ok ? 'check' : warn ? 'alert' : 'x'), text);
 const WINDOW_MODES = [['windowed', N('Window')], ['borderless', N('Borderless fullscreen')], ['fullscreen', N('Fullscreen')]];
 function resolutionList(r) {
@@ -1310,8 +1310,8 @@ function resolutionList(r) {
 }
 
 // ---- oyunu indirme (client_download.py, /api/istemci/indirme): sihirbazın oyun klasörü adımı ve İstemci sayfası
-const DL_ACTIVE = st => st.running || st.partial || ['hata', 'stopped', 'finished'].includes(st.durum);
-const dlPct = st => st.toplam ? Math.floor(100 * st.claimed / st.toplam) : 0;
+const DL_ACTIVE = st => st.running || st.partial || ['error', 'stopped', 'finished'].includes(st.state);
+const dlPct = st => st.total ? Math.floor(100 * st.claimed / st.total) : 0;
 function dlBox(st, refresh, { haveClient = false } = {}) {      // haveClient: geçerli istemci var, yarım dosyalar yalnız silinir
   const pct = dlPct(st), run = st.running;
   const call = (path, msg) => act(() => api(path, {}), msg).then(x => { if (x) refresh(x); });
@@ -1320,29 +1320,29 @@ function dlBox(st, refresh, { haveClient = false } = {}) {      // haveClient: g
       call('/api/istemci/download_delete', T('The unfinished download was deleted.'));
   };
   const head = { preparing: T('Preparing the download…'), downloading: T('Downloading the game: {0}%', pct), verifying: T('Checking the files…'),
-    finished: T('The game was downloaded and installed.'), hata: T('The download stopped.'), stopped: T('Download paused ({0}%).', pct) }[st.durum]
+    finished: T('The game was downloaded and installed.'), error: T('The download stopped.'), stopped: T('Download paused ({0}%).', pct) }[st.state]
     || (st.partial ? T('The previous download was not finished.') : T('Download the game'));
-  const info = st.durum === 'downloading' ? dlInfo(st)
-    : st.durum === 'finished' ? st.hedef
-    : st.durum === 'hata' ? st.hata
+  const info = st.state === 'downloading' ? dlInfo(st)
+    : st.state === 'finished' ? st.target
+    : st.state === 'error' ? st.error
     : haveClient && st.partial ? T('The selected client is in use; you can delete the unfinished files.')
-    : st.durum === 'stopped' || st.partial ? T('When you resume, only the missing files are downloaded.')
-    : st.durum === 'vacant' ? T("The DarkOrbit {0} client is downloaded from the game's official download server and installed into the project folder: about 3.5 GB to download, 4.3 GB on disk. The client files are not modified.", (/(\d+\.\d+\.\d+)\.zip/.exec(st.url || '') || [])[1] || '')
+    : st.state === 'stopped' || st.partial ? T('When you resume, only the missing files are downloaded.')
+    : st.state === 'vacant' ? T("The DarkOrbit {0} client is downloaded from the game's official download server and installed into the project folder: about 3.5 GB to download, 4.3 GB on disk. The client files are not modified.", (/(\d+\.\d+\.\d+)\.zip/.exec(st.url || '') || [])[1] || '')
     : '';
   const btns = run ? [btn(T('Stop'), () => call('/api/istemci/download_stop', T('Stopping the download…')), 'ghost sm', 'stop')]
-    : st.durum === 'finished' ? []
-    : [haveClient ? null : btn(st.durum === 'hata' ? T('Try again') : st.durum === 'stopped' || st.partial ? T('Resume') : T('Download and install'), () => call('/api/istemci/indir'), 'primary sm', 'download'),
+    : st.state === 'finished' ? []
+    : [haveClient ? null : btn(st.state === 'error' ? T('Try again') : st.state === 'stopped' || st.partial ? T('Resume') : T('Download and install'), () => call('/api/istemci/indir'), 'primary sm', 'download'),
       st.partial ? btn(T('Delete unfinished download'), discard, 'ghost sm', 'trash') : null];
-  return h('div', { class: 'dl-box ' + (st.durum === 'hata' ? 'err' : st.durum === 'finished' ? 'ok' : '') },
+  return h('div', { class: 'dl-box ' + (st.state === 'error' ? 'err' : st.state === 'finished' ? 'ok' : '') },
     h('b', null, head),
-    run || st.durum === 'stopped' ? h('div', { class: 'meter' }, h('div', { class: 'meter-bar' }, h('span', { style: { width: pct + '%' } }))) : null,
-    info ? h('div', { class: 'small muted dl-info', title: st.dosya || '' }, info) : null,
+    run || st.state === 'stopped' ? h('div', { class: 'meter' }, h('div', { class: 'meter-bar' }, h('span', { style: { width: pct + '%' } }))) : null,
+    info ? h('div', { class: 'small muted dl-info', title: st.file || '' }, info) : null,
     btns.some(Boolean) ? h('div', { class: 'row wrap' }, btns) : null);
 }
 // indirmenin satırı: inen / toplam, hız, kalan süre, dosya
 function dlInfo(st) {
-  return [`${fmtBytes(st.claimed)} / ${fmtBytes(st.toplam)}`, st.hiz ? `${fmtBytes(st.hiz)}/${T('s')}` : null,
-    st.time_left_sec != null && st.hiz ? T('{0} remaining', fmtDur(st.time_left_sec)) : null, T('file {0}/{1}', st.done_files, st.file_count)].filter(Boolean).join(' · ');
+  return [`${fmtBytes(st.claimed)} / ${fmtBytes(st.total)}`, st.speed ? `${fmtBytes(st.speed)}/${T('s')}` : null,
+    st.time_left_sec != null && st.speed ? T('{0} remaining', fmtDur(st.time_left_sec)) : null, T('file {0}/{1}', st.done_files, st.file_count)].filter(Boolean).join(' · ');
 }
 // kutuyu saniyede bir yeniler; iş bitince (bitti) onDone. -> setInterval kimliği
 function dlWatch(wrap, st, onDone, opts) {
@@ -1356,7 +1356,7 @@ function dlWatch(wrap, st, onDone, opts) {
     const n = JSON.stringify(s);
     if (n === sig) return;
     sig = n; draw(s);
-    if (s.durum === 'finished' && was.durum !== 'finished' && onDone) onDone(s);
+    if (s.state === 'finished' && was.state !== 'finished' && onDone) onDone(s);
   }, 1000);
   return id;
 }
@@ -1364,24 +1364,24 @@ function dlWatch(wrap, st, onDone, opts) {
 // ---- macOS: panelin kurduğu Wine + DXMT ve Rosetta 2 (wine_engine.py, /api/motor): Wine / Proton kartı ve sihirbazın oyun klasörü adımı
 function engineBox(m, refresh, { engine = true } = {}) {
   const call = (path, msg) => act(() => api(path, {}), msg).then(x => { if (x) refresh(x); });
-  const pct = m.toplam ? Math.floor(100 * m.claimed / m.toplam) : 0, run = m.running, ros = m.rosetta;
+  const pct = m.total ? Math.floor(100 * m.claimed / m.total) : 0, run = m.running, ros = m.rosetta;
   const rosetta = !ros.required ? null : ros.var ? h('div', { class: 'check-list', style: { margin: 0 } }, checkRow(true, T('Rosetta 2 is installed')))
     : h('div', { class: 'alert hata' }, icon('alert'), h('div', null, T("Rosetta 2 is not installed: on Apple Silicon the Wine that opens the game runs with it. Installing it asks for your macOS administrator password."),
-      ros.hata ? h('div', { class: 'small' }, ros.hata) : null),
-      btn(ros.durum === 'installing' ? T('Installing…') : T("Install Rosetta"), () => call('/api/rosetta/kur'), 'primary sm', 'download', { disabled: ros.durum === 'installing' }));
+      ros.error ? h('div', { class: 'small' }, ros.error) : null),
+      btn(ros.state === 'installing' ? T('Installing…') : T("Install Rosetta"), () => call('/api/rosetta/kur'), 'primary sm', 'download', { disabled: ros.state === 'installing' }));
   const old = m.macos_old ? h('div', { class: 'alert warning' }, icon('alert'), h('div', null, T('DXMT needs macOS 14 Sonoma or newer (this Mac: {0}); the game may not open.', m.macos))) : null;
   if (!engine) return h('div', { class: 'stack', style: { gap: '10px' } }, rosetta, old);
-  const head = run ? (m.durum === 'installing' ? T('Installing Wine…') : T('Downloading Wine and DXMT: {0}%', pct))
-    : m.durum === 'built' ? T('The Wine that opens the game is ready: {0}', m.ad) : m.durum === 'hata' ? T('Wine could not be installed.')
-    : m.durum === 'stopped' ? T('The Wine download was stopped.') : T("The Wine that opens the game isn't installed yet.");
-  const info = run ? [`${fmtBytes(m.claimed)} / ${fmtBytes(m.toplam)}`, m.hiz ? `${fmtBytes(m.hiz)}/${T('s')}` : null,
-      m.time_left_sec != null && m.hiz ? T('{0} remaining', fmtDur(m.time_left_sec)) : null].filter(Boolean).join(' · ')
-    : m.durum === 'hata' ? m.hata : m.durum === 'built' ? m.folder
-    : T("{0} is downloaded and installed (about {1}); it is also downloaded by itself on the first PLAY.", m.ad, fmtBytes(m.size));
+  const head = run ? (m.state === 'installing' ? T('Installing Wine…') : T('Downloading Wine and DXMT: {0}%', pct))
+    : m.state === 'built' ? T('The Wine that opens the game is ready: {0}', m.name) : m.state === 'error' ? T('Wine could not be installed.')
+    : m.state === 'stopped' ? T('The Wine download was stopped.') : T("The Wine that opens the game isn't installed yet.");
+  const info = run ? [`${fmtBytes(m.claimed)} / ${fmtBytes(m.total)}`, m.speed ? `${fmtBytes(m.speed)}/${T('s')}` : null,
+      m.time_left_sec != null && m.speed ? T('{0} remaining', fmtDur(m.time_left_sec)) : null].filter(Boolean).join(' · ')
+    : m.state === 'error' ? m.error : m.state === 'built' ? m.folder
+    : T("{0} is downloaded and installed (about {1}); it is also downloaded by itself on the first PLAY.", m.name, fmtBytes(m.size));
   const btns = run ? [btn(T('Stop'), () => call('/api/motor/durdur', T('Stopping the download…')), 'ghost sm', 'stop')]
-    : m.durum === 'built' ? [] : [btn(m.durum === 'hata' || m.durum === 'stopped' ? T('Try again') : T('Download and install'), () => call('/api/motor/kur'), 'primary sm', 'download')];
+    : m.state === 'built' ? [] : [btn(m.state === 'error' || m.state === 'stopped' ? T('Try again') : T('Download and install'), () => call('/api/motor/kur'), 'primary sm', 'download')];
   return h('div', { class: 'stack', style: { gap: '10px' } },
-    h('div', { class: 'dl-box ' + (m.durum === 'hata' ? 'err' : m.durum === 'built' ? 'ok' : '') }, h('b', null, head),
+    h('div', { class: 'dl-box ' + (m.state === 'error' ? 'err' : m.state === 'built' ? 'ok' : '') }, h('b', null, head),
       run ? h('div', { class: 'meter' }, h('div', { class: 'meter-bar' }, h('span', { style: { width: pct + '%' } }))) : null,
       info ? h('div', { class: 'small muted dl-info' }, info) : null,
       btns.length ? h('div', { class: 'row wrap' }, btns) : null),
@@ -1403,16 +1403,16 @@ function engineWatch(wrap, m, opts) {
 // ---- istemcinin düzeltmelerini yükleyen BepInEx (client_patch.py, /api/yama): İstemci sayfası ve sihirbazın oyun klasörü adımı
 function patchBox(y, refresh) {
   const call = path => act(() => api(path, {})).then(x => { if (x) refresh(x); });
-  const pct = y.toplam ? Math.floor(100 * y.claimed / y.toplam) : 0, run = y.running;
-  const head = run ? (y.durum === 'installing' ? T('Installing BepInEx…') : T('Downloading BepInEx: {0}%', pct))
-    : y.durum === 'built' ? T('Client fixes ready: {0}', y.ad) : y.durum === 'hata' ? T('BepInEx could not be installed.')
-    : y.durum === 'stopped' ? T('The BepInEx download was stopped.') : T("BepInEx isn't installed yet.");
-  const info = run ? `${fmtBytes(y.claimed)} / ${fmtBytes(y.toplam)}` : y.durum === 'hata' ? y.hata
-    : y.durum === 'built' ? T("Fixes the auction countdown, the rank window and shop totals. On the game's first start BepInEx takes about half a minute to get ready.")
-    : T("The plugin that fixes small client bugs is loaded with BepInEx: {0} is installed into the game folder (about {1}); it is also installed by itself on the first PLAY.", y.ad, fmtBytes(y.toplam));
+  const pct = y.total ? Math.floor(100 * y.claimed / y.total) : 0, run = y.running;
+  const head = run ? (y.state === 'installing' ? T('Installing BepInEx…') : T('Downloading BepInEx: {0}%', pct))
+    : y.state === 'built' ? T('Client fixes ready: {0}', y.name) : y.state === 'error' ? T('BepInEx could not be installed.')
+    : y.state === 'stopped' ? T('The BepInEx download was stopped.') : T("BepInEx isn't installed yet.");
+  const info = run ? `${fmtBytes(y.claimed)} / ${fmtBytes(y.total)}` : y.state === 'error' ? y.error
+    : y.state === 'built' ? T("Fixes the auction countdown, the rank window and shop totals. On the game's first start BepInEx takes about half a minute to get ready.")
+    : T("The plugin that fixes small client bugs is loaded with BepInEx: {0} is installed into the game folder (about {1}); it is also installed by itself on the first PLAY.", y.name, fmtBytes(y.total));
   const btns = run ? [btn(T('Stop'), () => call('/api/yama/durdur'), 'ghost sm', 'stop')]
-    : y.durum === 'built' ? [] : [btn(y.durum === 'hata' || y.durum === 'stopped' ? T('Try again') : T('Download and install'), () => call('/api/yama/kur'), 'primary sm', 'download')];
-  return h('div', { class: 'dl-box ' + (y.durum === 'hata' ? 'err' : y.durum === 'built' ? 'ok' : '') }, h('b', null, head),
+    : y.state === 'built' ? [] : [btn(y.state === 'error' || y.state === 'stopped' ? T('Try again') : T('Download and install'), () => call('/api/yama/kur'), 'primary sm', 'download')];
+  return h('div', { class: 'dl-box ' + (y.state === 'error' ? 'err' : y.state === 'built' ? 'ok' : '') }, h('b', null, head),
     run ? h('div', { class: 'meter' }, h('div', { class: 'meter-bar' }, h('span', { style: { width: pct + '%' } }))) : null,
     info ? h('div', { class: 'small muted dl-info' }, info) : null,
     btns.length ? h('div', { class: 'row wrap' }, btns) : null);
@@ -1433,31 +1433,31 @@ function patchWatch(wrap, y) {
 // ---- Linux ve macOS: istemciyi açan Wine ya da Proton (client_runner.py; /api/istemci 'calistirici', Windows'ta null)
 function runnerCard(c, cfg, saveCfg) {
   const mac = c.platform === 'darwin';
-  const kinds = [['auto', T('Automatic')], ['engine', T("Panel's Wine")], ['wine', 'Wine'], ['proton', 'Proton'], ['ozel', T('Custom command')]]
+  const kinds = [['auto', T('Automatic')], ['engine', T("Panel's Wine")], ['wine', 'Wine'], ['proton', 'Proton'], ['special', T('Custom command')]]
     .filter(([k]) => mac ? k !== 'proton' : k !== 'engine');
   const seg = h('div', { class: 'seg' }, kinds.map(([k, t]) =>
     h('button', { class: cfg.runner === k ? 'on info' : '', onclick: () => saveCfg({ runner: k, runner_path: '' }) }, t)));
-  const used = c.tur === 'proton' ? `${c.ad}${c.umu ? ' (umu-run)' : ''}` : c.tur === 'ozel' ? c.route : c.ad;
+  const used = c.type === 'proton' ? `${c.name}${c.umu ? ' (umu-run)' : ''}` : c.type === 'special' ? c.route : c.name;
   const mWrap = mac ? h('div', { class: 'dl-wrap' }) : null;
-  if (mWrap && c.engine) S.timers.push(engineWatch(mWrap, c.engine, { engine: c.tur === 'engine' }));
-  const pathIn = h('input', { class: 'input mono', value: cfg.runner_path, placeholder: cfg.runner === 'ozel' ? T('e.g. umu-run') : T('Empty: found automatically'),
+  if (mWrap && c.engine) S.timers.push(engineWatch(mWrap, c.engine, { engine: c.type === 'engine' }));
+  const pathIn = h('input', { class: 'input mono', value: cfg.runner_path, placeholder: cfg.runner === 'special' ? T('e.g. umu-run') : T('Empty: found automatically'),
     onchange: e => saveCfg({ runner_path: e.target.value.trim() }) });
-  const prefixIn = h('input', { class: 'input mono', value: cfg.wine_prefix, placeholder: c.default_prefix[c.tur] || T("Empty: Wine's default"),
+  const prefixIn = h('input', { class: 'input mono', value: cfg.wine_prefix, placeholder: c.default_prefix[c.type] || T("Empty: Wine's default"),
     onchange: e => saveCfg({ wine_prefix: e.target.value.trim() }) });
-  const found = [...c.protons.map(p => ['proton', p.route, p.ad]), ...c.wines.map(w => ['wine', w, 'Wine'])];
+  const found = [...c.protons.map(p => ['proton', p.route, p.name]), ...c.wines.map(w => ['wine', w, 'Wine'])];
   return h('div', { class: 'card' }, h('h2', null, icon('zap'), 'Wine / Proton'),
     h('p', { class: 'desc' }, T("The game is a Windows program; on Linux and macOS it opens with Wine or Proton. Automatic: Steam's Proton on Linux (through umu-run if it is installed), otherwise Wine; on macOS the Wine and DXMT that the panel installs itself (plain Wine can't draw the game's Direct3D 11 graphics on macOS). The client runs in its own prefix, which is set up the first time it opens (this can take about half a minute).")),
-    c.hata && !(mac && c.engine && !c.engine.rosetta.var) ? h('div', { class: 'alert hata' }, icon('alert'), h('div', null, c.hata))
+    c.error && !(mac && c.engine && !c.engine.rosetta.var) ? h('div', { class: 'alert hata' }, icon('alert'), h('div', null, c.error))
       : h('div', { class: 'alert info' }, icon('info'), h('div', null, T('In use: {0}', used))),
     mWrap ? h('div', { style: { marginTop: '12px' } }, mWrap) : null,
     h('div', { class: 'stack', style: { gap: '14px', marginTop: '12px' } },
       field(T('Runner'), seg),
-      c.tur === 'engine' ? null : field(cfg.runner === 'ozel' ? T('Command (put in front of the client)') : T('Path (wine program or Proton folder)'), pathIn),
+      c.type === 'engine' ? null : field(cfg.runner === 'special' ? T('Command (put in front of the client)') : T('Path (wine program or Proton folder)'), pathIn),
       field(T('Prefix folder (WINEPREFIX)'), prefixIn)),
     found.length ? [h('hr', { class: 'sep' }), h('div', { class: 'lbl' }, T('Found')),
       h('div', { class: 'stack', style: { gap: '8px', marginTop: '8px' } }, found.map(([k, route, name]) => h('div', { class: 'row' },
         badge(name, 'info'), h('span', { class: 'mono', style: { flex: 1, minWidth: 0, wordBreak: 'break-all' } }, route),
-        c.tur === k && c.route === route ? badge(T('in use'), 'ok') : btn(T('Use'), () => saveCfg({ runner: k, runner_path: route }), 'sm'))))] : null,
+        c.type === k && c.route === route ? badge(T('in use'), 'ok') : btn(T('Use'), () => saveCfg({ runner: k, runner_path: route }), 'sm'))))] : null,
     h('div', { class: 'small muted', style: { marginTop: '12px' } }, T("If the game doesn't open, look at the wine.log log on the Server page.")));
 }
 
@@ -1488,16 +1488,16 @@ async function renderClient(data) {
       btn(T('Open folder'), () => act(() => api('/api/open_folder', { ne: 'client' })), 'ghost', 'folder')),
     r.candidates.length > 1 || (r.candidates.length === 1 && r.candidates[0].route !== c.route) ? [h('hr', { class: 'sep' }), h('div', { class: 'lbl' }, T('Clients found')),
       h('div', { class: 'stack', style: { gap: '8px', marginTop: '8px' } }, r.candidates.map(a => h('div', { class: 'row' },
-        badge(a.surum || '?', a.compatible ? 'ok' : 'warn'), h('span', { class: 'mono', style: { flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }, title: a.route }, a.route),
+        badge(a.version || '?', a.compatible ? 'ok' : 'warn'), h('span', { class: 'mono', style: { flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }, title: a.route }, a.route),
         a.route === c.route ? badge(T('in use'), 'info') : btn(T('Use'), () => act(() => api('/api/istemci/use', { route: a.route }), T('Saved.')).then(x => x && renderClient(x)), 'sm'))))] : null);
 
   const { res, scr } = resolutionList(r);
   const cur = `${cfg.width}x${cfg.height}`;
   const custom = !res.includes(cur);
   const sel = h('select', { class: 'input', style: { width: '220px' }, onchange: e => {
-    if (e.target.value === 'ozel') { cw.style.display = ''; return; }
+    if (e.target.value === 'special') { cw.style.display = ''; return; }
     const [w, hh] = e.target.value.split('x').map(Number); saveCfg({ width: w, height: hh });
-  } }, res.map(x => h('option', { value: x, selected: x === cur }, x + (x === scr ? '  (' + T('screen') + ')' : ''))), h('option', { value: 'ozel', selected: custom }, T('Custom…')));
+  } }, res.map(x => h('option', { value: x, selected: x === cur }, x + (x === scr ? '  (' + T('screen') + ')' : ''))), h('option', { value: 'special', selected: custom }, T('Custom…')));
   const wIn = h('input', { class: 'input num', type: 'number', value: cfg.width }), hIn = h('input', { class: 'input num', type: 'number', value: cfg.height });
   const cw = h('div', { class: 'row', style: { display: custom ? '' : 'none' } }, wIn, '×', hIn, btn(T('Apply'), () => saveCfg({ width: +wIn.value, height: +hIn.value }), 'sm'));
   const mode = h('div', { class: 'seg' }, WINDOW_MODES.map(([k, t]) =>
@@ -1542,29 +1542,29 @@ async function protoTick(force) {
   S.sig.proto = sig; S.proto = r;
   const c = S.protoClient || {}, o = r.summary || {}, run = r.running;
   const need = c.valid && !c.compatible;
-  if (!need && !run && !r.summary && !r.hata) { box.replaceChildren(); return; }
-  const kv = [[N('Added'), o.added], [N('Removed'), o.deleted], [N('IDs changed'), o.kimlik], [N('Fields changed'), o.fields],
+  if (!need && !run && !r.summary && !r.error) { box.replaceChildren(); return; }
+  const kv = [[N('Added'), o.added], [N('Removed'), o.deleted], [N('IDs changed'), o.uid], [N('Fields changed'), o.fields],
     [N('Encoding changed'), o.write], [N('Decoding changed'), o.read_at], [N('Unclear fields'), o.ambiguous]].filter(([, v]) => v != null);
   const width = () => act(() => api('/api/protokol/uret', {}), T('Protocol tool started.')).then(() => protoTick(true));
-  const use = () => act(() => api('/api/protokol/uygula', { surum: o.surum }), T('Applying…')).then(() => protoTick(true));
-  box.replaceChildren(h('div', { class: 'alert ' + (r.hata ? 'hata' : need ? 'warning' : 'info'), style: { marginTop: '12px' } }, icon(r.hata ? 'alert' : 'info'),
+  const use = () => act(() => api('/api/protokol/uygula', { version: o.version }), T('Applying…')).then(() => protoTick(true));
+  box.replaceChildren(h('div', { class: 'alert ' + (r.error ? 'error' : need ? 'warning' : 'info'), style: { marginTop: '12px' } }, icon(r.error ? 'alert' : 'info'),
     h('div', { class: 'stack', style: { gap: '6px', flex: 1, minWidth: 0 } },
       h('div', null, need ? T("The server's active protocol is for {0}. Adapt the new client: it builds the protocol from this client's code and reports the differences (the active files are left alone).", r.etkin)
         : T('Active protocol: {0}.', r.etkin)),
       run ? h('div', { class: 'row' }, h('span', { class: 'spin' }), h('span', { class: 'small' }, (r.lines || []).slice(-1)[0] || T('Running…'))) : null,
-      r.hata ? h('div', { class: 'small' }, r.hata) : null,
-      kv.length ? h('div', { class: 'small' }, `${o.surum || ''}: ` + kv.map(([k, v]) => `${T(k)} ${v}`).join(' · ')) : null,
+      r.error ? h('div', { class: 'small' }, r.error) : null,
+      kv.length ? h('div', { class: 'small' }, `${o.version || ''}: ` + kv.map(([k, v]) => `${T(k)} ${v}`).join(' · ')) : null,
       o.report ? h('div', { class: 'small mono', style: { overflow: 'hidden', textOverflow: 'ellipsis' } }, o.report) : null,
       h('div', { class: 'row wrap' },
         need && !run ? btn(T('Adapt the new client'), width, 'primary sm', 'refresh') : null,
-        !run && r.is === 'produce' && !r.hata && o.surum && o.surum !== r.etkin ? btn(T('Apply the {0} protocol', o.surum), use, 'sm', 'check') : null,
-        !run && r.is === 'apply' && !r.hata ? h('span', { class: 'small' }, T('Applied; the game server uses the new protocol after a restart.')) : null))));
+        !run && r.is === 'produce' && !r.error && o.version && o.version !== r.etkin ? btn(T('Apply the {0} protocol', o.version), use, 'sm', 'check') : null,
+        !run && r.is === 'apply' && !r.error ? h('span', { class: 'small' }, T('Applied; the game server uses the new protocol after a restart.')) : null))));
 }
 
 // ================================================================== SUNUCU
-let logState = { ad: 'gs.log', row: 400, filter_by: '', auto: true };
+let logState = { name: 'gs.log', row: 400, filter_by: '', auto: true };
 async function renderServer() {
-  const cfg = await act(() => api('/api/panel_settings')); if (!cfg || S.page !== 'sunucu') return;
+  const cfg = await act(() => api('/api/panel_settings')); if (!cfg || S.page !== 'server') return;
   S.panelCfg = cfg;
   const saveCfg = vals => act(() => api('/api/panel_settings', { values: vals }), T('Saved.')).then(() => renderServer());
   const seg = (key, opts) => h('div', { class: 'seg' }, opts.map(([k, t]) => h('button', { class: cfg[key] === k ? 'on info' : '', onclick: () => saveCfg({ [key]: k }) }, t)));
@@ -1587,7 +1587,7 @@ async function renderServer() {
         h('label', { class: 'row small muted' }, h('span', { class: 'switch' }, h('input', { type: 'checkbox', checked: logState.auto, onchange: e => { logState.auto = e.target.checked; } }), h('span')), T('Live')),
         btn('', () => loadLog(), 'ghost sm icon', 'refresh', { title: T('Refresh') }),
         btn(T('Folder'), () => act(() => api('/api/open_folder', { ne: 'logs' })), 'ghost sm', 'folder'),
-        btn(T('Clear'), async () => { if (await confirmBox(T('Clear the log?'), T('{0} will be emptied.', logState.ad), { ok: T('Clear'), danger: true })) act(() => api('/api/gunluk/temizle', { ad: logState.ad }), T('Cleared.')).then(loadLog); }, 'ghost sm', 'trash'))),
+        btn(T('Clear'), async () => { if (await confirmBox(T('Clear the log?'), T('{0} will be emptied.', logState.name), { ok: T('Clear'), danger: true })) act(() => api('/api/gunluk/temizle', { name: logState.name }), T('Cleared.')).then(loadLog); }, 'ghost sm', 'trash'))),
     h('div', { class: 'log-tabs', id: 'log-tabs', style: { margin: '10px 0' } }), h('div', { class: 'log-view', id: 'log-view' }));
   $('#content').replaceChildren(h('div', { class: 'stack' }, h('div', { class: 'grid g3', id: 'srv-cards' }), h('div', { class: 'grid g2' }, behav, ports), logs));
   S.sig = {};
@@ -1597,18 +1597,18 @@ async function renderServer() {
 }
 
 function renderServerCards() {
-  const box = $('#srv-cards'), d = S.durum; if (!box || !d) return;
+  const box = $('#srv-cards'), d = S.state; if (!box || !d) return;
   // imza ekrandaki süre metniyle (fmtDur): saniyelik sure_sn her yoklamada kartları yeniden kurup fare altındaki düğmenin tıklamasını yutuyordu
   const s = d.processes, duration = x => x && Object.assign({}, x, { sure_sn: x.sure_sn == null ? null : fmtDur(x.sure_sn) });
-  const sig = JSON.stringify([Object.assign({}, s, { servers: { web: duration(s.servers.web), oyun: duration(s.servers.oyun) }, client: duration(s.client) }), d.play.running]);
+  const sig = JSON.stringify([Object.assign({}, s, { servers: { web: duration(s.servers.web), game: duration(s.servers.game) }, client: duration(s.client) }), d.play.running]);
   if (S.sig.srv === sig) return; S.sig.srv = sig;
-  const busy = d.play.running, cl = s.client.durum === 'on';
+  const busy = d.play.running, cl = s.client.state === 'on';
   const card = (title, iconEl, st, ports, extra, actions) => h('div', { class: 'card status-card' },
-    h('div', { class: 'big' }, icon(iconEl), title), h('div', { class: 'row', style: { marginTop: '8px' } }, dot(stCls(st.durum)), h('b', null, stText(st.durum)),
-      st.pid ? h('span', { class: 'muted small' }, `PID ${st.pid} · ${fmtDur(st.sure_sn)}`) : null, st.exit_code != null && st.durum === 'crashed' ? badge(T('exit {0}', st.exit_code), 'err') : null),
+    h('div', { class: 'big' }, icon(iconEl), title), h('div', { class: 'row', style: { marginTop: '8px' } }, dot(stCls(st.state)), h('b', null, stText(st.state)),
+      st.pid ? h('span', { class: 'muted small' }, `PID ${st.pid} · ${fmtDur(st.sure_sn)}`) : null, st.exit_code != null && st.state === 'crashed' ? badge(T('exit {0}', st.exit_code), 'err') : null),
     ports ? h('div', { class: 'ports' }, Object.entries(ports).map(([p, on]) => badge(on ? T('{0} listening', p) : T('{0} closed', p), on ? 'ok' : ''))) : h('div', { style: { height: '12px' } }),
     extra, h('div', { class: 'actions' }, actions));
-  const w = s.servers.web, o = s.servers.oyun, srvOn = w.durum === 'on' || o.durum === 'on';
+  const w = s.servers.web, o = s.servers.game, srvOn = w.state === 'on' || o.state === 'on';
   box.replaceChildren(
     card(T('Web server'), 'link', w, w.ports, h('div', { class: 'small muted' }, T("The client's web login, map list and language selection.")), [btn(T('Log'), () => showLog('http.log'), 'sm'), btn(T('Console'), () => showLog('web_konsol.log'), 'ghost sm')]),
     card(T('Game server'), 'server', o, o.ports, h('div', { class: 'small muted' }, s.record ? T('Save: {0}', s.record) + (s.control_channel ? ' · ' + T('control channel open (8099)') : '') : T('Game world, saving, chat (7771).')),
@@ -1627,25 +1627,25 @@ async function checkPorts() {
   const box = $('#port-list'); if (!box) return;
   box.replaceChildren(h('div', { class: 'row muted small' }, h('span', { class: 'spin' }), T('Checking…')));
   const r = await act(() => api('/api/portlar')); if (!r) { box.replaceChildren(); return; }
-  box.replaceChildren(r.length ? h('div', { class: 'stack', style: { gap: '8px', marginBottom: '12px' } }, r.map(p => h('div', { class: 'alert ' + (p.ours ? 'warning' : 'hata') }, icon('alert'),
-    h('div', null, h('b', null, `${p.port} (${p.ad})`), ` — ${p.process} (PID ${p.pid ?? '?'})`, h('div', { class: 'mono dim', style: { marginTop: '3px' } }, p.command || ''),
+  box.replaceChildren(r.length ? h('div', { class: 'stack', style: { gap: '8px', marginBottom: '12px' } }, r.map(p => h('div', { class: 'alert ' + (p.ours ? 'warning' : 'error') }, icon('alert'),
+    h('div', null, h('b', null, `${p.port} (${p.name})`), ` — ${p.process} (PID ${p.pid ?? '?'})`, h('div', { class: 'mono dim', style: { marginTop: '3px' } }, p.command || ''),
       p.ours ? h('div', { class: 'small' }, T('A server of this project left over from a previous session.')) : h('div', { class: 'small' }, T("Another program: the panel won't close it; close it yourself."))),
     p.ours ? btn(T('Close'), () => act(() => api('/api/portlar/kapat', { pid: p.pid }), T('Process closed.')).then(() => checkPorts()), 'sm', 'x') : null)))
     : h('div', { class: 'row small', style: { marginBottom: '12px', color: 'var(--ok)' } }, icon('check'), T('No process outside the panel is holding the ports.')));
 }
 
-function showLog(name) { logState.ad = name; loadLog(); const v = $('#log-view'); if (v) v.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+function showLog(name) { logState.name = name; loadLog(); const v = $('#log-view'); if (v) v.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
 async function loadLog(quiet) {
   const view = $('#log-view'); if (!view) return;
   let r;
-  try { r = await api('/api/gunluk?ad=' + encodeURIComponent(logState.ad) + '&satir=' + logState.row); } catch (e) { if (!quiet) toast(e.message, 'err'); return; }
+  try { r = await api('/api/gunluk?name=' + encodeURIComponent(logState.name) + '&satir=' + logState.row); } catch (e) { if (!quiet) toast(e.message, 'err'); return; }
   const tabs = $('#log-tabs');
-  if (tabs) tabs.replaceChildren(...r.liste.map(g => h('button', { class: 'btn sm ' + (g.ad === logState.ad ? 'primary' : 'ghost'), onclick: () => { logState.ad = g.ad; loadLog(); } },
-    g.ad, g.size != null ? h('span', { class: 'dim', style: { fontWeight: 400 } }, fmtBytes(g.size)) : null)));
+  if (tabs) tabs.replaceChildren(...r.entries.map(g => h('button', { class: 'btn sm ' + (g.name === logState.name ? 'primary' : 'ghost'), onclick: () => { logState.name = g.name; loadLog(); } },
+    g.name, g.size != null ? h('span', { class: 'dim', style: { fontWeight: 400 } }, fmtBytes(g.size)) : null)));
   const atBottom = view.scrollHeight - view.scrollTop - view.clientHeight < 40;
   const f = logState.filter_by.toLowerCase();
   const lines = r.lines.filter(l => !f || l.toLowerCase().includes(f));
-  const sig = logState.ad + '|' + f + '|' + lines.length + '|' + (lines[lines.length - 1] || '');
+  const sig = logState.name + '|' + f + '|' + lines.length + '|' + (lines[lines.length - 1] || '');
   if (quiet && view.dataset.sig === sig) return;
   view.dataset.sig = sig;
   view.replaceChildren(...(r.var ? lines.map(l => {
@@ -1662,7 +1662,7 @@ const UPD_TEXT = { up_to_date: N('The panel is up to date.'), var: N('A new vers
   installed: N('New version installed: if the game and servers are closed, the panel restarts now.'), bilinmiyor: N('Not checked yet.'),
   local_changes: N("There is a new version on GitHub, but this copy has local changes: get the update with git."),
   local_ahead: N("This copy has commits that are not on GitHub yet: nothing to install.") };
-const fmtVersion = v => v && v.surum ? v.surum.slice(0, 7) + (v.tarih ? ' · ' + new Date(v.tarih).toLocaleString(LOC(), { dateStyle: 'medium', timeStyle: 'short' }) : '') : T('unknown');
+const fmtVersion = v => v && v.version ? v.version.slice(0, 7) + (v.date ? ' · ' + new Date(v.date).toLocaleString(LOC(), { dateStyle: 'medium', timeStyle: 'short' }) : '') : T('unknown');
 function updCard() {
   const card = h('div', { class: 'card' }, h('h2', null, icon('refresh'), T('Updates')),
     h('p', { class: 'desc' }, T("The panel checks the latest version on GitHub and installs it if it is newer. Your saves, settings and game client are not changed; the old versions of changed files are backed up.")),
@@ -1671,10 +1671,10 @@ function updCard() {
   const draw = r => {
     const s = JSON.stringify(r); if (s === sig) return; sig = s;
     const body = card.querySelector('.upd-body'); if (!body) return;
-    const run = r.running || ['downloading', 'installing'].includes(r.durum);
-    const cls = r.durum === 'hata' ? 'hata' : ['exists', 'installed', 'local_changes'].includes(r.durum) ? 'warning' : 'info';
-    const text = r.durum === 'hata' ? r.hata : r.running && r.durum !== 'downloading' && r.durum !== 'installing' ? T('Checking…') : T(UPD_TEXT[r.durum] || r.durum);
-    const pct = r.toplam ? Math.floor(100 * r.claimed / r.toplam) : null;
+    const run = r.running || ['downloading', 'installing'].includes(r.state);
+    const cls = r.state === 'error' ? 'error' : ['exists', 'installed', 'local_changes'].includes(r.state) ? 'warning' : 'info';
+    const text = r.state === 'error' ? r.error : r.running && r.state !== 'downloading' && r.state !== 'installing' ? T('Checking…') : T(UPD_TEXT[r.state] || r.state);
+    const pct = r.total ? Math.floor(100 * r.claimed / r.total) : null;
     const save = k => act(() => api('/api/panel_settings', { values: { update: k } }), T('Saved.')).then(x => x && load());
     const toggle = on => {                               // kapalıyken yeni sürüm yalnız haber verilir (bildir)
       save(on ? 'auto' : 'notify');
@@ -1687,18 +1687,18 @@ function updCard() {
         h('div', null, 'GitHub', h('b', null, r.last ? fmtVersion(r.last) : '—')),
         h('div', null, T('Installation type'), h('b', null, r.built.style === 'git' ? T('Git clone (fast-forwarded with git)') : T('Downloaded ZIP'))),
         h('div', null, T('Last check'), h('b', null, r.last_check ? fmtWhen(new Date(r.last_check * 1000).toISOString()) : '—'))),
-      r.last && r.last.message && r.durum === 'exists' ? h('div', { class: 'small muted', style: { marginTop: '6px' } }, T('Latest change: {0}', r.last.message)) : null,
+      r.last && r.last.message && r.state === 'exists' ? h('div', { class: 'small muted', style: { marginTop: '6px' } }, T('Latest change: {0}', r.last.message)) : null,
       h('div', { class: 'alert ' + cls, style: { marginTop: '12px' } }, icon(cls === 'info' ? 'info' : 'alert'),
-        h('div', null, text, r.durum === 'downloading' ? ' ' + (pct != null ? pct + '% · ' : '') + fmtBytes(r.claimed) : '',
-          r.durum === 'exists' && !r.idle ? h('div', { class: 'small' }, T('The game, the servers or another task is running: it can be installed once they are closed.')) : null)),
-      r.durum === 'downloading' && pct != null ? h('div', { class: 'meter', style: { marginTop: '8px' } }, h('div', { class: 'meter-bar' }, h('span', { style: { width: pct + '%' } }))) : null,
+        h('div', null, text, r.state === 'downloading' ? ' ' + (pct != null ? pct + '% · ' : '') + fmtBytes(r.claimed) : '',
+          r.state === 'exists' && !r.idle ? h('div', { class: 'small' }, T('The game, the servers or another task is running: it can be installed once they are closed.')) : null)),
+      r.state === 'downloading' && pct != null ? h('div', { class: 'meter', style: { marginTop: '8px' } }, h('div', { class: 'meter-bar' }, h('span', { style: { width: pct + '%' } }))) : null,
       h('div', { class: 'stack', style: { gap: '12px', marginTop: '14px' } },
         h('div', { class: 'set-row' }, h('div', null, h('div', { class: 'name' }, T('Automatic updates')),
           h('div', { class: 'help' }, T('When on, a new version installs by itself once the game and servers are closed; when off, you are only notified.'))),
-          h('div', { class: 'ctl' }, h('label', { class: 'switch' }, h('input', { type: 'checkbox', checked: r.ayar === 'auto', onchange: e => toggle(e.target.checked) }), h('span')))),
+          h('div', { class: 'ctl' }, h('label', { class: 'switch' }, h('input', { type: 'checkbox', checked: r.setting === 'auto', onchange: e => toggle(e.target.checked) }), h('span')))),
         h('div', { class: 'row wrap' },
           btn(T('Check now'), () => act(() => api('/api/guncelleme/check', {})).then(x => x && draw(x)), '', 'refresh', { disabled: run }),
-          r.durum === 'exists' ? btn(T('Install update'), () => act(() => api('/api/guncelleme/kur', {})).then(x => x && draw(x)), 'primary', 'download', { disabled: !r.idle }) : null,
+          r.state === 'exists' ? btn(T('Install update'), () => act(() => api('/api/guncelleme/kur', {})).then(x => x && draw(x)), 'primary', 'download', { disabled: !r.idle }) : null,
           h('span', { class: 'small muted mono' }, r.storage)))));
   };
   const load = () => api('/api/guncelleme').then(draw).catch(() => {});
@@ -1714,7 +1714,7 @@ const RP_FIELDS = [['rp_pilot', N('Pilot name'), N('Your in-game name (off by de
   ['rp_firma', N('Company'), N('Company emblem (small image).')], ['rp_sure', N('Session time'), N('Time since you entered the game.')],
   ['rp_grup', N('Group'), N('Play with Friends: number of players on your server.')], ['rp_buttons', N('Buttons'), N("Discord server and GitHub links (visible to others).")],
   ['rp_in_panel', N('While the game is closed'), N('Shows "In the panel" while only the panel is open.')]];
-const RP_STATUS = { connected: [N("Connected to Discord"), 'ok'], discord_not_running: [N('Discord is not running'), 'warn'], hata: [N('Error'), 'err'], off: [N('Off'), ''] };
+const RP_STATUS = { connected: [N("Connected to Discord"), 'ok'], discord_not_running: [N('Discord is not running'), 'warn'], error: [N('Error'), 'err'], off: [N('Off'), ''] };
 function rpCard() {
   const head = h('span', { class: 'rp-status' });
   const body = h('div', { class: 'rp-body' });
@@ -1727,7 +1727,7 @@ function rpCard() {
   const save = vals => act(() => api('/api/panel_settings', { values: vals })).then(x => x && load());
   const draw = r => {
     const s = JSON.stringify(r); if (s === sig) return; sig = s;
-    const a = r.settings, e = r.etkinlik, on = a.discord_rp, [dt, dc] = RP_STATUS[r.durum] || RP_STATUS.off;
+    const a = r.settings, e = r.event, on = a.discord_rp, [dt, dc] = RP_STATUS[r.state] || RP_STATUS.off;
     head.replaceChildren(badge(T(dt), dc));
     const sw = (k, dis) => h('label', { class: 'switch' }, h('input', { type: 'checkbox', checked: a[k], disabled: dis, onchange: ev => save({ [k]: ev.target.checked }) }), h('span'));
     start = e && e.timestamps ? e.timestamps.start : null;
@@ -1743,7 +1743,7 @@ function rpCard() {
     body.replaceChildren(h('div', { class: 'grid g2', style: { alignItems: 'start' } },
       h('div', { class: 'stack rp-setting', style: { gap: '4px' } },
         h('div', { class: 'set-row' }, h('div', null, h('div', { class: 'name' }, T('Rich Presence')),
-          h('div', { class: 'help' }, r.durum === 'discord_not_running' ? T('Connects automatically when Discord opens.') : r.durum === 'hata' ? r.hata : T('Turning it off removes it from your profile at once.'))),
+          h('div', { class: 'help' }, r.state === 'discord_not_running' ? T('Connects automatically when Discord opens.') : r.state === 'error' ? r.error : T('Turning it off removes it from your profile at once.'))),
           h('div', { class: 'ctl' }, sw('discord_rp'))),
         h('div', { class: 'rp-fields' + (on ? '' : ' kapali') }, RP_FIELDS.map(([k, name, assist]) => h('div', { class: 'set-row sub' },
           h('div', null, h('div', { class: 'name' }, T(name)), h('div', { class: 'help' }, T(assist))), h('div', { class: 'ctl' }, sw(k, !on)))))),
@@ -1760,9 +1760,9 @@ async function renderPanel() {
   const r = await act(() => api('/api/about')); if (!r || S.page !== 'panel') return;
   const pathRow = (label, p, ne) => h('div', { class: 'set-row' }, h('div', null, h('div', { class: 'name' }, label), h('div', { class: 'help mono' }, p)),
     h('div', { class: 'ctl' }, ne ? btn(T('Open'), () => act(() => api('/api/open_folder', { ne })), 'sm', 'folder') : null));
-  const langSeg = h('div', { class: 'seg diller' }, I18N.list.map(({ code: k, ad: t }) => h('button', { class: I18N.lang === k ? 'on info' : '', onclick: async () => {
+  const langSeg = h('div', { class: 'seg diller' }, I18N.list.map(({ code: k, name: t }) => h('button', { class: I18N.lang === k ? 'on info' : '', onclick: async () => {
     if (k === I18N.lang) return;
-    const x = await act(() => api('/api/panel_settings', { values: { dil: k } })); if (x) location.reload();
+    const x = await act(() => api('/api/panel_settings', { values: { lang: k } })); if (x) location.reload();
   } }, t)));
   $('#content').replaceChildren(h('div', { class: 'stack' },
     h('div', { class: 'grid g2' },
@@ -1796,7 +1796,7 @@ async function renderPanel() {
       pathRow(T('Project'), r.root, 'project'), pathRow(T('Save slots'), r.saves, 'saves'), pathRow(T('Logs'), r.logs, 'logs'),
       pathRow(T('Game settings file'), r.settings), pathRow(T('Panel settings file'), r.panel)),
     h('div', { class: 'card' }, h('h2', null, icon('info'), T('About')),
-      h('div', { class: 'kv', style: { maxWidth: '520px' } }, h('div', null, T('Panel version'), h('b', null, r.surum)), h('div', null, 'Python', h('b', null, r.python)),
+      h('div', { class: 'kv', style: { maxWidth: '520px' } }, h('div', null, T('Panel version'), h('b', null, r.version)), h('div', null, 'Python', h('b', null, r.python)),
         h('div', null, T('Panel address'), h('b', null, '127.0.0.1:' + r.port)), h('div', { style: { gridColumn: '1 / -1' } }, T('Internet'), h('b', null, T("for updates, downloading the game and the game's images")))),
       h('p', { class: 'desc', style: { marginTop: '14px' } }, T("OpenOrbit: a single-player, offline local server. The client, graphics and texts belong to Bigpoint GmbH; for personal use only.")))));
 }
@@ -1804,7 +1804,7 @@ async function renderPanel() {
 // ================================================================== KURULUM SİHİRBAZI
 // İlk açılışta (panel.json'da 'dil' ya da 'kurulum_tamam' yoksa) ve Panel sayfasından. Adımlar mevcut API'leri kullanır;
 // sonunda 'kurulum_tamam' yazılır.
-const WZ_STEPS = [['dil', N('Language')], ['welcome', N('Welcome')], ['folder', N('Game folder')], ['pilot', N('Pilot')], ['settings', N('Game settings')], ['finished', N('Ready')]];
+const WZ_STEPS = [['lang', N('Language')], ['welcome', N('Welcome')], ['folder', N('Game folder')], ['pilot', N('Pilot')], ['settings', N('Game settings')], ['finished', N('Ready')]];
 const WZ = { step: 0, draw: 0 };
 
 function openWizard(step = 0) {
@@ -1868,7 +1868,7 @@ async function finishWizard(play) {
   return false;
 }
 async function chooseLang(code) {
-  const r = await act(() => api('/api/panel_settings', { values: { dil: code } })); if (!r) return;
+  const r = await act(() => api('/api/panel_settings', { values: { lang: code } })); if (!r) return;
   S.panelCfg = r.settings;
   await setLang(code);
   applyStatic(); buildNav(); go(S.page || 'play', false); renderChrome();
@@ -1876,14 +1876,14 @@ async function chooseLang(code) {
 }
 function currentPreset(r) {
   const v = (vals, k) => vals[k] ?? r.default[k];
-  return Object.keys(r.hazir).find(key => r.schema.every(s => v(r.values, s.anahtar) === v(r.hazir[key].values, s.anahtar))) || null;
+  return Object.keys(r.ready).find(key => r.schema.every(s => v(r.values, s.anahtar) === v(r.ready[key].values, s.anahtar))) || null;
 }
 const pick = (el, cls = 'on') => { el.parentNode.querySelectorAll(':scope > *').forEach(x => x.classList.remove(cls)); el.classList.add(cls); };
 
 const WZ_PAGES = {
   // ---- 1. dil (her dil kendi adıyla; tarayıcının dili öne çıkar)
-  dil: async () => {
-    const cur = S.panelCfg?.dil, hint = cur || guessLang();
+  lang: async () => {
+    const cur = S.panelCfg?.lang, hint = cur || guessLang();
     const card = ({ code, name, coverage }) => h('button', { class: 'wz-lang' + (cur === code ? ' on' : hint === code ? ' hint' : ''), type: 'button', onclick: () => chooseLang(code) },
       h('span', { class: 'code' }, code.toUpperCase()), h('b', null, name), coverage < 100 ? h('span', null, coverage + '%') : null);
     return { title: 'Dil seçin · Choose your language', sub: 'Panel bu dilde açılır; sonra Panel sayfasından değişir. · You can change it later on the Panel page.',
@@ -1908,7 +1908,7 @@ const WZ_PAGES = {
     const c = r.control;
     let dl = r.download;
     const none = !c.valid && !r.candidates.length;
-    if (none && dl.durum === 'vacant' && !WZ.dlAuto) {     // oyun bulunamadı: indirmeye kendiliğinden başla (yarım kaldıysa sürdür)
+    if (none && dl.state === 'vacant' && !WZ.dlAuto) {     // oyun bulunamadı: indirmeye kendiliğinden başla (yarım kaldıysa sürdür)
       WZ.dlAuto = true;
       dl = await act(() => api('/api/istemci/indir', {})) || dl;
     }
@@ -1917,17 +1917,17 @@ const WZ_PAGES = {
     }
     const dlWrap = (!c.valid && (none || DL_ACTIVE(dl))) || (c.valid && (dl.running || dl.partial)) ? h('div', { class: 'dl-wrap' }) : null;
     const bg = !c.valid && dl.running;
-    let m = r.runner?.tur === 'engine' ? r.runner.engine : null;   // macOS: oyunu açacak Wine da kendiliğinden iner
-    if (m && m.durum === 'none' && !WZ.engineAuto) { WZ.engineAuto = true; m = await act(() => api('/api/motor/kur', {})) || m; }
+    let m = r.runner?.type === 'engine' ? r.runner.engine : null;   // macOS: oyunu açacak Wine da kendiliğinden iner
+    if (m && m.state === 'none' && !WZ.engineAuto) { WZ.engineAuto = true; m = await act(() => api('/api/motor/kur', {})) || m; }
     const mWrap = m ? h('div', { class: 'dl-wrap' }) : null;
     let y = c.valid && r.patch.required ? r.patch : null;  // istemcinin düzeltmeleri için BepInEx de kendiliğinden kurulur
-    if (y && y.durum === 'none' && !WZ.patchAuto) { WZ.patchAuto = true; y = await act(() => api('/api/yama/kur', {})) || y; }
+    if (y && y.state === 'none' && !WZ.patchAuto) { WZ.patchAuto = true; y = await act(() => api('/api/yama/kur', {})) || y; }
     const yWrap = y ? h('div', { class: 'dl-wrap' }) : null;
     const chosen = x => { if (x) drawWizard(); };
     const use = p => act(() => api('/api/istemci/use', { route: p })).then(chosen);
     const browse = () => act(() => api('/api/istemci/select', {}), x => x.cancelled ? T('Cancelled.') : T('Game folder selected.')).then(chosen);
     const rows = r.candidates.map(a => h('button', { class: 'wz-opt' + (a.route === c.route ? ' on' : ''), type: 'button', onclick: () => use(a.route) },
-      h('span', { class: 'wz-radio' }), h('span', { class: 'mono' }, a.route), badge(a.surum || '?', a.compatible ? 'ok' : 'warn')));
+      h('span', { class: 'wz-radio' }), h('span', { class: 'mono' }, a.route), badge(a.version || '?', a.compatible ? 'ok' : 'warn')));
     return {
       title: T('DarkOrbit game folder'),
       sub: T("Folder of the original DarkOrbit client: it must contain DarkOrbit.exe and DarkOrbit_Data. The panel doesn't change the client's own files; it installs BepInEx next to them for small fixes."),
@@ -1954,16 +1954,16 @@ const WZ_PAGES = {
   // ---- 4. ilk pilot
   pilot: async () => {
     const r = await api('/api/kayitlar');
-    if (r.liste.length && !WZ.newPilot) {
-      const a = r.liste.find(k => k.active) || r.liste[0];
+    if (r.entries.length && !WZ.newPilot) {
+      const a = r.entries.find(k => k.active) || r.entries[0];
       return {
         title: WZ.created ? T('Your pilot is ready') : T('Pilot'),
-        sub: WZ.created ? T('The save was created and made active.') : T('You already have {0} save(s): continue with the active one or create a new pilot.', r.liste.length),
+        sub: WZ.created ? T('The save was created and made active.') : T('You already have {0} save(s): continue with the active one or create a new pilot.', r.entries.length),
         content: [h('div', { class: 'card save-card active' },
           h('div', { class: 'head' }, h('div', { style: { minWidth: 0, flex: 1 } },
-            h('div', { class: 'row', style: { gap: '8px' } }, h('span', { class: 'title' }, a.pilot), badge(a.firma || '?', firmaCls(a.firma)), badge(T('ACTIVE'), 'info')),
-            h('div', { class: 'sub' }, `${a.ad} · ${T('Level')} ${a.seviye ?? '?'} · ${a.gemi} · ${a.harita}`)))),
-          r.liste.length > 1 ? h('div', { class: 'small muted' }, T('You can switch the active save later on the Saves page.')) : null,
+            h('div', { class: 'row', style: { gap: '8px' } }, h('span', { class: 'title' }, a.pilot), badge(a.company || '?', firmaCls(a.company)), badge(T('ACTIVE'), 'info')),
+            h('div', { class: 'sub' }, `${a.name} · ${T('Level')} ${a.level ?? '?'} · ${a.ship} · ${a.map}`)))),
+          r.entries.length > 1 ? h('div', { class: 'small muted' }, T('You can switch the active save later on the Saves page.')) : null,
           h('div', { class: 'row' }, btn(T('Create a new pilot'), () => { WZ.newPilot = true; drawWizard(); }, 'ghost', 'plus'))],
         next: {},
       };
@@ -1971,7 +1971,7 @@ const WZ_PAGES = {
     const f = pilotForm({ start: false });
     return {
       title: T('Create your first pilot'), sub: T("You start from scratch with a new pilot. Your company sets your starting map; it can't be changed later."),
-      content: [...f.el, r.liste.length ? h('div', { class: 'row' }, btn(T('Cancel'), () => { WZ.newPilot = false; drawWizard(); }, 'ghost', 'undo')) : null],
+      content: [...f.el, r.entries.length ? h('div', { class: 'row' }, btn(T('Cancel'), () => { WZ.newPilot = false; drawWizard(); }, 'ghost', 'undo')) : null],
       next: { label: T('Create pilot'), icon: 'plus', fn: async () => {
         const x = await act(() => api('/api/kayitlar/yeni', Object.assign(f.values(), { set_active: true })), T('Pilot created.'));
         if (!x) return false;
@@ -1986,8 +1986,8 @@ const WZ_PAGES = {
     if (WZ.presetStart === undefined) { WZ.presetStart = currentPreset(r); WZ.preset = WZ.presetStart; }
     const cfg = c.settings;
     if (!WZ.display) WZ.display = { window_mode: cfg.window_mode, width: cfg.width, height: cfg.height };
-    const presets = h('div', { class: 'preset-bar' }, Object.entries(r.hazir).map(([key, p]) => h('button', { class: 'preset' + (WZ.preset === key ? ' on' : ''), type: 'button',
-      onclick: e => { WZ.preset = key; pick(e.currentTarget); } }, h('b', null, p.ad), h('span', null, p.aciklama))));
+    const presets = h('div', { class: 'preset-bar' }, Object.entries(r.ready).map(([key, p]) => h('button', { class: 'preset' + (WZ.preset === key ? ' on' : ''), type: 'button',
+      onclick: e => { WZ.preset = key; pick(e.currentTarget); } }, h('b', null, p.name), h('span', null, p.description))));
     const mode = h('div', { class: 'seg' }, WINDOW_MODES.map(([k, t]) => h('button', { class: WZ.display.window_mode === k ? 'on info' : '', type: 'button',
       onclick: e => { WZ.display.window_mode = k; e.currentTarget.parentNode.querySelectorAll('button').forEach(b => b.className = ''); e.currentTarget.className = 'on info'; } }, T(t))));
     const { res, scr } = resolutionList(c);
@@ -2003,7 +2003,7 @@ const WZ_PAGES = {
         h('div', { class: 'grid g2' }, field(T('Window mode'), mode), field(T('Resolution'), sel))],
       next: { fn: async () => {
         if (WZ.preset && WZ.preset !== WZ.presetStart) {
-          if (!await act(() => api('/api/ayarlar/hazir', { ad: WZ.preset }))) return false;
+          if (!await act(() => api('/api/ayarlar/hazir', { name: WZ.preset }))) return false;
           WZ.presetStart = WZ.preset;
         }
         return !!await act(() => api('/api/panel_settings', { values: WZ.display }));
@@ -2017,10 +2017,10 @@ const WZ_PAGES = {
     const canPlay = !!d.active && k.valid;
     const dlRun = !k.valid && c.download.running;
     const mode = (WINDOW_MODES.find(([x]) => x === cfg.window_mode) || [, cfg.window_mode])[1];
-    const rows = [[true, T('Language'), langOf(I18N.lang).ad],
-      [k.valid, T('Game folder'), k.valid ? k.route + (k.surum ? ' · ' + k.surum : '') : dlRun ? T('Downloading: {0}% (you can follow it on the Client page)', dlPct(c.download)) : T('Not selected: choose it on the Client page.')],
-      [!!d.active, T('Pilot'), d.active ? `${d.active.pilot} · ${d.active.firma}` : T('Not created: create one on the Saves page.')],
-      [true, T('Game settings'), pre ? a.hazir[pre].ad : T('Custom')],
+    const rows = [[true, T('Language'), langOf(I18N.lang).name],
+      [k.valid, T('Game folder'), k.valid ? k.route + (k.version ? ' · ' + k.version : '') : dlRun ? T('Downloading: {0}% (you can follow it on the Client page)', dlPct(c.download)) : T('Not selected: choose it on the Client page.')],
+      [!!d.active, T('Pilot'), d.active ? `${d.active.pilot} · ${d.active.company}` : T('Not created: create one on the Saves page.')],
+      [true, T('Game settings'), pre ? a.ready[pre].name : T('Custom')],
       [true, T('Game window'), `${T(mode)} · ${cfg.width}×${cfg.height}`]];
     const sc = h('input', { type: 'checkbox', checked: WZ.shortcut, onchange: e => { WZ.shortcut = e.target.checked; } });
     return {
@@ -2038,11 +2038,11 @@ const WZ_PAGES = {
 // Mağaza, Hangar ve Skylab oyun sunucusundan (panel_channel.py: istemcinin istekleriyle aynı yol; oyundaki pencereler de güncellenir).
 // Görseller ve eşya adları istemcinin BepInEx eklentisinin dökümü (/oyun_gorsel/: atlas sayfaları, dizin.json, adlar_<dil>.json).
 // Üç sayfanın üstünde aynı çubuk: sayfalar arasında geçiş, cüzdan ve güvenli bölge (donanım yalnız orada değişir: panel_kanali.istasyonda).
-const GI = { index: null, adlar: {}, dil: null };
+const GI = { index: null, names: {}, lang: null };
 async function loadGameImages() {
   const j = async n => { const r = await fetch('/game_images/' + n); if (!r.ok) throw new Error(r.status); return r.json(); };
   if (!GI.index) { try { GI.index = await j('dizin.json'); buildNav(); renderChrome(); } catch (e) { /* döküm yok: simgeler, ham adlar */ } }
-  if (GI.index && GI.dil !== I18N.lang) { try { GI.adlar = await j('adlar_' + I18N.lang + '.json'); GI.dil = I18N.lang; } catch (e) { GI.adlar = {}; } }
+  if (GI.index && GI.lang !== I18N.lang) { try { GI.names = await j('adlar_' + I18N.lang + '.json'); GI.lang = I18N.lang; } catch (e) { GI.names = {}; } }
 }
 // oyunun bir sprite'ı: atlas sayfasından kırpılır, kutuya (boy x boy) orantılı sığdırılır (dizin: sayfa, x, y, g, y, tam g, tam y, ox, oy)
 function sprite(name, size) {
@@ -2061,7 +2061,7 @@ function itemSprite(lid, firma) {
     for (const b of ['_100x100', '_63x63', '_top', '_30x30', '']) if (GI.index?.sprite[c + b]) return c + b;
   return null;
 }
-const itemName = lid => GI.adlar[lid] || lid.slice(lid.indexOf('_') + 1).replace(/[_-]/g, ' ').toUpperCase();
+const itemName = lid => GI.names[lid] || lid.slice(lid.indexOf('_') + 1).replace(/[_-]/g, ' ').toUpperCase();
 const gameIcon = (lid, size, firma, iconEl = 'hangar') => {
   const sp = lid && itemSprite(lid, firma), el = sp ? sprite(sp, size) : h('span', { class: 'sprite vacant', style: { width: size + 'px', height: size + 'px' } }, icon(iconEl));
   if (lid) el.dataset.loot = lid;                // eşya ipucu (esyaIpucu)
@@ -2071,12 +2071,12 @@ const gameIcon = (lid, size, firma, iconEl = 'hangar') => {
 // ---- eşya ipucu: simgenin üstünde durunca oyunun metinleri (eklentinin dökümü metinler_<dil>.json: ad, tür, ipucu açıklaması,
 // açıklama, not, kaynak; nitelik adları; dilde yoksa İngilizce) ve sunucunun değerleri (/api/esya_bilgi: hasar, kalkan, bonuslar,
 // gemiler, yükseltme, satış). Örneğe özgü bilgi (yükseltme seviyesi, rastgele nitelikler, hak) simgenin bir üst öğesinin _esya'sında.
-const IP = { metin: null, en: null, dil: null, info: null, el: null, time: 0, kutu: null, loading: null };
-const HINT_LABEL = { hasar: N('Damage'), pvp_damage: N('Damage to players'), kalkan: N('Shield'), absorb: N('Damage absorption'), hiz: N('Speed'), can: N('Hit points'), kargo: N('Cargo'),
+const IP = { text: null, en: null, lang: null, info: null, el: null, time: 0, box: null, loading: null };
+const HINT_LABEL = { damage: N('Damage'), pvp_damage: N('Damage to players'), kalkan: N('Shield'), absorb: N('Damage absorption'), speed: N('Speed'), can: N('Hit points'), cargo: N('Cargo'),
   laser_multiplier: N('Laser damage'), hit: N('Hit chance'), full_repair: N('Full repair'), hp_per_minute: N('Repair per minute'), right: N('Charges per refill'), extra_slot: N('Extra slots added'),
   cooldown: N('Cooldown'), cargo_multiplier: N('Cargo'), drone_shield: N('Drone shield'), drone_laser: N('Drone laser damage'), sure: N('Duration'), en_az: N('Minimum bonus'),
   value_range: N('Value range'), reroll: N('Rerolls left'), base_damage: N('Base damage'), element: N('Element'), extra_attribute: N('Extra attributes'),
-  savunma: N('Defense'), shot: N('Shots'), quality: N('Quality'), max_level: N('Highest level'), menzil: N('Range'), sure_sn: N('Duration (s)'),
+  savunma: N('Defense'), shot: N('Shots'), quality: N('Quality'), max_level: N('Highest level'), range: N('Range'), sure_sn: N('Duration (s)'),
   level_bonus: N('By level'), booster_shield_regeneration: N('Shield regen'), booster_repair: N('Repairs'), booster_collect_resources: N('Resource collection'),
   booster_collect_resources_newbie: N('Resource collection'), booster_ability_cooldown_time: N('Ability cooldown') };
 const IP_ELEMENT = { thermal: N('Thermal'), corrosive: N('Corrosive'), electro: N('Electro') };
@@ -2087,15 +2087,15 @@ const HINT_SLOT = { lasers: N('Laser'), generators: N('Generator'), extras: N('E
 const HINT_PLACE = { SHIP: N('Ship'), PET: 'P.E.T.', DRONE: N('Drone') };
 async function loadHints() {
   const j = async n => { const r = await fetch('/game_images/' + n); if (!r.ok) throw new Error(r.status); return r.json(); };
-  if (GI.index && IP.dil !== I18N.lang) {
-    IP.dil = I18N.lang;
-    try { IP.metin = await j('metinler_' + I18N.lang + '.json'); } catch (e) { IP.metin = null; }
+  if (GI.index && IP.lang !== I18N.lang) {
+    IP.lang = I18N.lang;
+    try { IP.text = await j('metinler_' + I18N.lang + '.json'); } catch (e) { IP.text = null; }
     if (!IP.en && I18N.lang !== 'en') { try { IP.en = await j('metinler_en.json'); } catch (e) { /* eski döküm: yalnız adlar */ } }
   }
-  if (!IP.info) { try { IP.info = (await api('/api/item_info')).esyalar; } catch (e) { IP.info = {}; } }
+  if (!IP.info) { try { IP.info = (await api('/api/item_info')).items; } catch (e) { IP.info = {}; } }
 }
-const hintText = lid => IP.metin?.e[lid] || IP.en?.e[lid] || null;
-const attributeName = a => IP.metin?.n[a] || IP.en?.n[a] || a.replace(/_/g, ' ');
+const hintText = lid => IP.text?.e[lid] || IP.en?.e[lid] || null;
+const attributeName = a => IP.text?.n[a] || IP.en?.n[a] || a.replace(/_/g, ' ');
 const hintPercent = v => (v > 0 ? '+' : '') + (Math.round(v * 1000) / 10).toLocaleString(LOC()) + '%';
 function hintValue(v, b) {
   if (typeof v === 'string') return b === 'e' ? T(IP_ELEMENT[v] || v) : v;
@@ -2124,43 +2124,43 @@ function itemHint(lid, es, firma) {
       curUpgrade ? row(T('Current level'), '+' + curUpgrade + ' · ' + hintPercent(y * curUpgrade), 'bonus') : null));
   }
   const r = es?.rng;
-  if (r?.nitelik?.length) {
-    const fraction = r.tur === 'modul';
+  if (r?.attribute?.length) {
+    const fraction = r.type === 'module';
     body.push(h('div', { class: 'tip-block rng' }, h('div', { class: 'tip-title' }, T("This item's attributes")),
-      r.nitelik.map(([a, v]) => row(attributeName(a), hintPercent(fraction ? v : v / 100), 'bonus')),
-      r.seviye ? row(T('Level'), r.seviye) : null, r.star ? row(T('Stars'), '★'.repeat(r.star)) : null,
+      r.attribute.map(([a, v]) => row(attributeName(a), hintPercent(fraction ? v : v / 100), 'bonus')),
+      r.level ? row(T('Level'), r.level) : null, r.star ? row(T('Stars'), '★'.repeat(r.star)) : null,
       r.right != null ? row(T('Rerolls left'), r.right) : null));
   }
-  const ships = r?.ships || (r?.gemi ? [r.gemi] : null) || b.gm;
-  if (ships?.length) body.push(h('div', { class: 'tip-block' }, h('div', { class: 'tip-title' }, r?.ships || r?.gemi ? T('Ships it works on') : b.stats?.some(d => d[0] === 'en_az') ? T('Ships it rolls more often') : T('Ships it works on')),
+  const ships = r?.ships || (r?.ship ? [r.ship] : null) || b.gm;
+  if (ships?.length) body.push(h('div', { class: 'tip-block' }, h('div', { class: 'tip-title' }, r?.ships || r?.ship ? T('Ships it works on') : b.stats?.some(d => d[0] === 'en_az') ? T('Ships it rolls more often') : T('Ships it works on')),
     h('div', { class: 'tip-ships' }, ships.map(g => h('span', null, gameIcon(g, 22, firma, 'ship'), itemName(g))))));
   if (es?.right != null) body.push(row(T('Charges left'), fmtN(es.right[0]) + ' / ' + fmtN(es.right[1])));
   if (txt?.[4]) body.push(h('div', { class: 'ip-not' }, icon('info'), hintPlaceholder(txt[4], ph)));
   const sub = [b.tk ? T('Fits: {0}', b.tk.map(x => T(HINT_PLACE[x] || x)).join(', ')) : null, b.sell ? T('Sells for {0}', fmtN(b.sell) + ' C.') : null].filter(Boolean);
   if (txt?.[5]) body.push(h('div', { class: 'tip-resource' }, hintPlaceholder(txt[5], ph)));
-  return h('div', { class: 'ipucu' },
+  return h('div', { class: 'tooltip' },
     h('div', { class: 'tip-head' }, gameIcon(lid, 52, firma, 'box'), h('div', { style: { minWidth: 0 } },
       h('b', null, itemName(lid) + (es?.upgrade ? ' +' + es.upgrade : '')), txt?.[1] ? h('div', { class: 'tip-kind' }, txt[1]) : null,
-      es?.seviye ? h('div', { class: 'tip-kind' }, T('Lv {0}', es.seviye)) : null)),
+      es?.level ? h('div', { class: 'tip-kind' }, T('Lv {0}', es.level)) : null)),
     body.length ? body : h('div', { class: 'tip-description dim' }, lid),
     sub.length ? h('div', { class: 'tip-bottom' }, sub.join(' · ')) : null);
 }
-function closeHint() { clearTimeout(IP.time); IP.el = null; IP.kutu?.remove(); IP.kutu = null; }
+function closeHint() { clearTimeout(IP.time); IP.el = null; IP.box?.remove(); IP.box = null; }
 document.addEventListener('mouseover', e => {
   const el = e.target.closest?.('[data-loot]');
   if (el === IP.el) return;
   closeHint();
   if (!el || el.closest('.ipucu')) return;
   IP.el = el;
-  for (let n = el; n && n !== document.body; n = n.parentElement) if (n.title) { n.dataset.baslik = n.title; n.removeAttribute('title'); }   // tarayıcının ad balonu yerine
+  for (let n = el; n && n !== document.body; n = n.parentElement) if (n.title) { n.dataset.title = n.title; n.removeAttribute('title'); }   // tarayıcının ad balonu yerine
   IP.time = setTimeout(async () => {
     await (IP.loading ||= loadHints().finally(() => { IP.loading = null; }));
     if (IP.el !== el || !el.isConnected) return;
     let es = null;
     for (let n = el; n && !es; n = n.parentElement) es = n._item || null;
-    const k = itemHint(el.dataset.loot, es, el.dataset.firma);
+    const k = itemHint(el.dataset.loot, es, el.dataset.company);
     document.body.append(k);
-    IP.kutu = k;
+    IP.box = k;
     const r = el.getBoundingClientRect(), w = k.offsetWidth, hh = k.offsetHeight;
     k.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.right + 10 + w > window.innerWidth ? r.left - w - 10 : r.right + 10)) + 'px';
     k.style.top = Math.max(8, Math.min(window.innerHeight - hh - 8, r.top)) + 'px';
@@ -2168,7 +2168,7 @@ document.addEventListener('mouseover', e => {
 });
 document.addEventListener('mousedown', closeHint, true);
 document.addEventListener('scroll', closeHint, true);
-const formatMoney = (cur, n) => fmtN(n) + (cur === 'credits' || cur === 'kredi' ? ' C.' : ' U.');
+const formatMoney = (cur, n) => fmtN(n) + (cur === 'credits' || cur === 'credits' ? ' C.' : ' U.');
 // sunucunun hata ve bilgi anahtarları (BaseKey adları, panel_kanali'nin kendi anahtarları); ham metin (boşluklu) olduğu gibi
 const GAME_TEXT = { not_enough_credits: N('You do not have enough credits.'), not_enough_uridium: N('You do not have enough uridium.'), shop_item_not_found: N('This item is not on sale right now.'),
   drone_have_max: N('You already have the maximum number of drones.'), info_text_switch_hangar_station_only: N('You can only change ships while at a station.'),
@@ -2186,7 +2186,7 @@ function gameHeader(v, page, ...extras) {
   return h('div', { class: 'card game-top' },
     h('div', { class: 'game-tabs' }, GAME_PAGES.map(([id, name, sp, iconEl]) => h('button', { class: 'game-tab' + (id === page ? ' on' : ''), type: 'button',
       onclick: () => id !== page && go(id) }, GI.index?.sprite[sp] ? sprite(sp, 22) : icon(iconEl), h('span', null, T(name))))),
-    h('div', { class: 'row wrap', style: { gap: '8px', justifyContent: 'flex-end' } }, currency('kredi', v.kredi), currency('uridyum', v.uridyum),
+    h('div', { class: 'row wrap', style: { gap: '8px', justifyContent: 'flex-end' } }, currency('credits', v.credits), currency('uridium', v.uridium),
       h('span', { class: 'pill ' + (v.in_station ? 'game-safe' : 'game-space'), title: v.in_station ? T('Equipment can be changed.') : T('Equipment can only be changed in a safe zone.') },
         dot(v.in_station ? 'ok' : 'warn'), v.in_station ? T('In a safe zone') : T('In space')), ...extras));
 }
@@ -2197,7 +2197,7 @@ function gameError(e, page) {
 // ================================================================== OYUN İÇİ: MAĞAZA
 const SHP_CATEGORY = { ship: N('Ships'), shipdesign: N('Ship designs'), laser: N('Lasers'), ammunition: N('Ammunition'), generator: N('Generators'),
   extras: N('Extras'), booster: N('Boosters'), drone: N('Drones'), petgear: N('P.E.T. gear'), protocol: N('Protocols'), customization: N('Customization') };
-const SHP = { data: null, multiplier: null, search: '', seviye: {} };
+const SHP = { data: null, multiplier: null, search: '', level: {} };
 
 async function renderShop() {
   await loadGameImages();
@@ -2205,7 +2205,7 @@ async function renderShop() {
   if (!SHP.data.categories.includes(SHP.multiplier)) SHP.multiplier = SHP.data.categories[0];
   const grid = h('div', { class: 'shop-grid' });
   const entries = () => {
-    const q = SHP.search.trim().toLowerCase(), its = (SHP.data.esyalar[SHP.multiplier] || []).filter(it => !q || itemName(it.lootId).toLowerCase().includes(q));
+    const q = SHP.search.trim().toLowerCase(), its = (SHP.data.items[SHP.multiplier] || []).filter(it => !q || itemName(it.lootId).toLowerCase().includes(q));
     grid.replaceChildren(...its.map(shopCard));
     if (!its.length) grid.append(h('div', { class: 'empty' }, T('No products.')));
   };
@@ -2223,16 +2223,16 @@ async function renderShop() {
 function shopCard(it) {
   // seviyeli ürün (P.E.T. dişlisi, protokol): fiyat seviye başına, maxAmount P.E.T.'in izin verdiği en yüksek seviye (magaza.shop_list)
   const leveled = (it.price || []).length > 1, unaffordable = it.maxAmount === -1;
-  const lv = Math.min(SHP.seviye[it.lootId] || 1, leveled ? Math.max(1, it.maxAmount) : 1);
+  const lv = Math.min(SHP.level[it.lootId] || 1, leveled ? Math.max(1, it.maxAmount) : 1);
   const many = !leveled && (!!it.amountsSelectable || it.maxAmount > 1);
   const count = many ? h('input', { class: 'input num', type: 'number', min: 1, max: it.maxAmount > 0 ? it.maxAmount : null, value: 1 }) : null;
   // sunucunun cost metni İngilizce biçimli ("190,000 U."): fiyat panelin sayı biçimiyle yazılır
   const price = it.price?.length ? fmtN(it.price[lv - 1]) + (it.currency === 'real' ? ' U.' : ' C.') : it.cost;
   return h('div', { class: 'shop-card' + (unaffordable ? ' unavailable' : '') },
-    gameIcon(it.lootId, 84, SHP.data.firma, 'cart'),
+    gameIcon(it.lootId, 84, SHP.data.company, 'cart'),
     h('div', { class: 'shop-name', title: it.lootId }, itemName(it.lootId)),
     leveled ? h('div', { class: 'seg shop-lv' }, it.price.map((p, i) => h('button', { class: i + 1 === lv ? 'on info' : '', disabled: i + 1 > Math.max(1, it.maxAmount),
-      onclick: () => { SHP.seviye[it.lootId] = i + 1; renderShop(); } }, T('Lv {0}', i + 1)))) : null,
+      onclick: () => { SHP.level[it.lootId] = i + 1; renderShop(); } }, T('Lv {0}', i + 1)))) : null,
     h('div', { class: 'shop-price ' + (it.currency === 'real' ? 'uri' : 'cred') }, price),
     h('div', { class: 'row', style: { gap: '6px', justifyContent: 'center' } }, count,
       btn(T('Buy'), e => shopBuy(it, count ? Math.max(1, +count.value | 0) : 1, lv, e.currentTarget), 'sm primary', null, { disabled: unaffordable })),
@@ -2244,7 +2244,7 @@ async function shopBuy(it, n, lv, b) {
   const r = await act(() => api('/api/oyun/al', { lootId: it.lootId, category: it.category, amount: n, level: lv }));
   b.disabled = false;
   if (!r) return;
-  if (!r.tamam) return toast(GAME_TEXT[r.hata] ? T(GAME_TEXT[r.hata]) : T('Could not buy ({0}).', r.hata || '?'), 'err');
+  if (!r.done) return toast(GAME_TEXT[r.error] ? T(GAME_TEXT[r.error]) : T('Could not buy ({0}).', r.error || '?'), 'err');
   toast(T('Bought: {0}', (n > 1 ? fmtN(n) + ' × ' : '') + itemName(it.lootId)), 'ok');
   renderShop();                       // cüzdan ve liste (alınan tekil eşya listeden düşer, adetler paraya göre)
 }
@@ -2252,7 +2252,7 @@ async function shopBuy(it, n, lv, b) {
 async function shopSubscribe(it, b) {
   b.disabled = true;
   const r = await act(() => api('/api/oyun/magaza/subscribe', { lootId: it.lootId, category: it.category }));
-  if (r && !r.tamam) toast(gameText(r.hata), 'err');
+  if (r && !r.done) toast(gameText(r.error), 'err');
   renderShop();
 }
 
@@ -2262,70 +2262,70 @@ async function shopSubscribe(it, b) {
 // Satış kipinde envanterden seçilenler birlikte satılır. Güvenli bölge dışında donanım değişmez (düğmeler kapalı, sunucu da reddeder).
 const HG_SLOT = { laser: N('Lasers'), rocket: N('Rocket launcher'), generators: N('Generators'), extra: N('Extras'), upgrades: N('Ship modules'),
   QuantumFluidCore: 'Quantum Fluid Core', cannon: N('Particle cannons'), cannonShield: N('Breakers'), drive: 'Singularity Drive', lens: N('Lenses'),
-  lasers: N('Lasers'), gears: N('Gears'), protocols: N('Protocols'), visual: N('Look'), heat: 'HEAT', tasarim: N('Drone designs'), other: N('More') };
+  lasers: N('Lasers'), gears: N('Gears'), protocols: N('Protocols'), visual: N('Look'), heat: 'HEAT', design: N('Drone designs'), other: N('More') };
 const slotName = y => HG_SLOT[y] ? T(HG_SLOT[y]) : y;
-const HG = { gemi: null, config: null, section: 'ship', drone: null, yuva: {}, mode: 'equip', set: '', selected: {} };
+const HG = { ship: null, config: null, section: 'ship', drone: null, slot: {}, mode: 'equip', set: '', selected: {} };
 
 async function renderHangar() {
   await loadGameImages();
   let v;
-  try { v = await api('/api/oyun/hangar?gemi=' + encodeURIComponent(HG.gemi || '')); } catch (e) { return gameError(e, 'hangar'); }
-  HG.gemi = v.gemi;
+  try { v = await api('/api/oyun/hangar?ship=' + encodeURIComponent(HG.ship || '')); } catch (e) { return gameError(e, 'hangar'); }
+  HG.ship = v.ship;
   if (!v.configs[HG.config]) HG.config = v.active_config;
   if (HG.section === 'pet' && !v.pet) HG.section = 'ship';
-  const drones = v.drones[HG.config] || [], lock = !v.in_station, iconName = (lid, size) => gameIcon(lid, size, v.firma);
+  const drones = v.drones[HG.config] || [], lock = !v.in_station, iconName = (lid, size) => gameIcon(lid, size, v.company);
   if (!drones.find(d => d.id === HG.drone)) HG.drone = drones[0]?.id ?? null;
-  const ship = v.ships.find(g => g.id === v.gemi);
-  const lvlBadge = e => e.seviye ? h('span', { class: 'hg-lv' }, '+' + e.seviye) : null;
+  const ship = v.ships.find(g => g.id === v.ship);
+  const lvlBadge = e => e.level ? h('span', { class: 'hg-lv' }, '+' + e.level) : null;
   const kick = (e, target, drone) => h('button', { class: 'hg-item', type: 'button', disabled: lock, title: itemName(e.lootId) + ' — ' + T('click to unequip'),
-    onclick: ev => hangarMove({ esya: e.id, direction: 'kick', target, drone }, ev.currentTarget) }, iconName(e.lootId, 44));
+    onclick: ev => hangarMove({ item: e.id, direction: 'kick', target, drone }, ev.currentTarget) }, iconName(e.lootId, 44));
   const empty = n => Array.from({ length: Math.max(0, n) }, () => h('span', { class: 'hg-item vacant' }));
   const slotBox = (name, c, target, extra) => h('div', { class: 'hg-slot' }, h('div', { class: 'row between' }, h('b', null, slotName(name)),
-    h('span', { class: 'row', style: { gap: '6px' } }, extra, h('span', { class: 'mono' }, c.esyalar.length + ' / ' + c.capacity))),
-    h('div', { class: 'hg-grid' }, c.esyalar.map(e => kick(e, target)), empty(c.capacity - c.esyalar.length)));
+    h('span', { class: 'row', style: { gap: '6px' } }, extra, h('span', { class: 'mono' }, c.items.length + ' / ' + c.capacity))),
+    h('div', { class: 'hg-grid' }, c.items.map(e => kick(e, target)), empty(c.capacity - c.items.length)));
   // gemiler: etkin önce; yıldız favori (oyunda ışınlanabilen gemiler)
-  const ships = h('div', { class: 'hg-ships' }, [...v.ships].sort((a, b) => b.active - a.active || b.favorite - a.favorite).map(g => h('div', { class: 'hg-ship' + (g.id === v.gemi ? ' on' : ''),
-    title: itemName(g.lootId), onclick: () => { HG.gemi = g.id; renderHangar(); } },
+  const ships = h('div', { class: 'hg-ships' }, [...v.ships].sort((a, b) => b.active - a.active || b.favorite - a.favorite).map(g => h('div', { class: 'hg-ship' + (g.id === v.ship ? ' on' : ''),
+    title: itemName(g.lootId), onclick: () => { HG.ship = g.id; renderHangar(); } },
     h('button', { class: 'hg-star' + (g.favorite ? ' on' : ''), type: 'button', title: g.favorite ? T('Remove from favourites') : T('Make favourite'),
-      onclick: ev => { ev.stopPropagation(); hangarAction({ islem: 'favorite', gemi: g.id, favorite: !g.favorite }); } }, icon('star')),
-    iconName(g.tasarim || g.lootId, 54), h('span', null, itemName(g.lootId)), g.active ? badge(T('Active'), 'ok') : null)));
+      onclick: ev => { ev.stopPropagation(); hangarAction({ operation: 'favorite', ship: g.id, favorite: !g.favorite }); } }, icon('star')),
+    iconName(g.design || g.lootId, 54), h('span', null, itemName(g.lootId)), g.active ? badge(T('Active'), 'ok') : null)));
   const appearance = v.designs.length > 1 ? h('div', { class: 'row wrap', style: { gap: '6px' } }, h('span', { class: 'lbl' }, T('Look')),
     v.designs.map(t => h('button', { class: 'hg-item' + (t === v.appearance ? ' on' : ''), type: 'button', title: itemName(t), disabled: lock && t !== v.appearance,
       onclick: ev => t !== v.appearance && hangarDesign(t, ev.currentTarget) }, iconName(t, 44)))) : null;
   const tools = h('div', { class: 'row wrap hg-tools' },
-    ship.active ? null : btn(T('Make active ship'), e => hangarSetActive(v.gemi, e.currentTarget), 'sm primary', null, { disabled: lock }),
-    ship.active && HG.config !== v.active_config ? btn(T('Use this config'), () => hangarAction({ islem: 'config', config: HG.config }, T('Config changed.')), 'sm primary') : null,
-    btn(T('Save'), () => hangarAction({ islem: 'save', gemi: v.gemi }, T('Both configs saved.')), 'sm', 'save', { title: T('Stores the equipment of both configs for this ship.') }),
-    ship.registered ? btn(T('Load'), () => hangarAction({ islem: 'load', gemi: v.gemi }, T('Saved equipment loaded.')), 'sm', 'download', { disabled: lock }) : null,
+    ship.active ? null : btn(T('Make active ship'), e => hangarSetActive(v.ship, e.currentTarget), 'sm primary', null, { disabled: lock }),
+    ship.active && HG.config !== v.active_config ? btn(T('Use this config'), () => hangarAction({ operation: 'config', config: HG.config }, T('Config changed.')), 'sm primary') : null,
+    btn(T('Save'), () => hangarAction({ operation: 'save', ship: v.ship }, T('Both configs saved.')), 'sm', 'save', { title: T('Stores the equipment of both configs for this ship.') }),
+    ship.registered ? btn(T('Load'), () => hangarAction({ operation: 'load', ship: v.ship }, T('Saved equipment loaded.')), 'sm', 'download', { disabled: lock }) : null,
     btn(T('Transfer…'), () => hangarTransfer(v), 'sm', 'copy', { disabled: lock, title: T("Moves this ship's equipment to another ship.") }),
     btn(T('Clear'), async () => await confirmBox(T('Empty config {0}?', HG.config), T('Items on the ship, drones and P.E.T. go back to the inventory.'),
-      { ok: T('Clear'), danger: true }) && hangarAction({ islem: 'clean_up', gemi: v.gemi, config: HG.config }), 'sm', 'trash', { disabled: lock }));
+      { ok: T('Clear'), danger: true }) && hangarAction({ operation: 'clean_up', ship: v.ship, config: HG.config }), 'sm', 'trash', { disabled: lock }));
   // seçili bölüm
   let section;
   if (HG.section === 'ship') section = h('div', { class: 'hg-slots' }, v.slots.map(y => slotBox(y, v.configs[HG.config][y], 'ship')));
   else if (HG.section === 'drone') section = drones.length ? h('div', { class: 'hg-drones' }, drones.map(d => h('div', { class: 'hg-drone' + (d.id === HG.drone ? ' on' : ''),
     onclick: () => { if (HG.drone !== d.id) { HG.drone = d.id; renderHangar(); } } },
     iconName(d.lootId, 40), h('div', { class: 'grow' }, h('b', null, itemName(d.lootId)), d.id === HG.drone ? h('div', { class: 'lbl' }, T('drone that gets the inventory items')) : null),
-    h('div', { class: 'hg-grid' }, d.esyalar.map(e => kick(e, 'drone', d.id)), empty(d.capacity - d.esyalar.length),
-      [d.tasarim, d.appearance].map(e => e ? kick(e, 'drone', d.id) : null)),
+    h('div', { class: 'hg-grid' }, d.items.map(e => kick(e, 'drone', d.id)), empty(d.capacity - d.items.length),
+      [d.design, d.appearance].map(e => e ? kick(e, 'drone', d.id) : null)),
     btn(T('Sell'), async ev => { ev.stopPropagation(); if (await confirmBox(T('Sell {0}?', itemName(d.lootId)), T('Its items go back to the inventory.'), { ok: T('Sell'), danger: true }))
-      hangarAction({ islem: 'drone_sell', drone: d.id }, T('Drone sold.')); }, 'sm ghost', null, { disabled: lock })))) : h('div', { class: 'empty' }, T('No drones.'));
+      hangarAction({ operation: 'drone_sell', drone: d.id }, T('Drone sold.')); }, 'sm ghost', null, { disabled: lock })))) : h('div', { class: 'empty' }, T('No drones.'));
   else if (HG.section === 'pet') {
     const pb = v.pet_info, pc = v.pet[HG.config];
     const openSlot = y => pc[y].price > 0 ? btn('+1 (' + formatMoney('uridium', pc[y].price) + ')', async () => await confirmBox(T('Unlock a {0} slot?', slotName(y)),
-      T('{0} uridium will be spent.', fmtN(pc[y].price)), { ok: T('Open') }) && hangarAction({ islem: 'pet_yuva', yuva: y }, T('Slot unlocked.')), 'sm ghost') : null;
+      T('{0} uridium will be spent.', fmtN(pc[y].price)), { ok: T('Open') }) && hangarAction({ operation: 'pet_yuva', slot: y }, T('Slot unlocked.')), 'sm ghost') : null;
     section = h('div', { class: 'stack' },
-      h('div', { class: 'row wrap', style: { gap: '10px' } }, h('b', null, pb.ad || 'P.E.T.'), badge(T('Lv {0}', pb.seviye), 'info'),
-        btn(T('Rename ({0})', formatMoney('uridium', pb.rename_price)), async () => { const name = await promptBox(T("P.E.T.'s name"), T('1-24 letters or digits'), pb.ad || '');
-          if (name != null && name !== pb.ad) hangarAction({ islem: 'pet_ad', name }, T("The P.E.T.'s name changed.")); }, 'sm ghost'),
+      h('div', { class: 'row wrap', style: { gap: '10px' } }, h('b', null, pb.name || 'P.E.T.'), badge(T('Lv {0}', pb.level), 'info'),
+        btn(T('Rename ({0})', formatMoney('uridium', pb.rename_price)), async () => { const name = await promptBox(T("P.E.T.'s name"), T('1-24 letters or digits'), pb.name || '');
+          if (name != null && name !== pb.name) hangarAction({ operation: 'pet_ad', name }, T("The P.E.T.'s name changed.")); }, 'sm ghost'),
         pc.heat.capacity ? h('div', { class: 'seg' }, [['', T('Normal slots')], ['heat', 'HEAT']].map(([k, t]) => h('button', { class: HG.set === k ? 'on info' : '',
           onclick: () => { HG.set = k; renderHangar(); } }, t))) : null),
       !pb.heat_unlocked && pc.heat.capacity ? h('p', { class: 'desc', style: { margin: 0 } }, T("HEAT slots take effect once the P.E.T.'s HEAT level is high enough.")) : null,
       h('div', { class: 'hg-slots' }, v.pet_slots.filter(y => y !== 'heat' || pc.heat.capacity || pc.heat.price).map(y => slotBox(y, pc[y], 'pet', openSlot(y)))));
   } else section = v.cpus.length ? h('div', { class: 'hg-cpus' }, v.cpus.map(c => h('div', { class: 'hg-cpu' }, iconName(c.lootId, 40),
-    h('div', { class: 'grow' }, h('b', null, itemName(c.lootId)), c.tur === 'ammunition' ? h('div', { class: 'lbl' }, T('buys {1} when below {0}', fmtN(c.threshold), fmtN(c.adet))) : null),
-    c.tur === 'ackapa' ? btn(c.on ? T('On') : T('Off'), () => hangarAction({ islem: 'cpu', lootId: c.lootId }), 'sm ' + (c.on ? 'primary' : 'ghost'))
-      : h('select', { class: 'input', onchange: e => hangarAction({ islem: 'cpu_ammo', esya: c.id, ammunition: e.target.value }, T('Auto-buy ammo chosen.')) },
+    h('div', { class: 'grow' }, h('b', null, itemName(c.lootId)), c.type === 'ammunition' ? h('div', { class: 'lbl' }, T('buys {1} when below {0}', fmtN(c.threshold), fmtN(c.count))) : null),
+    c.type === 'ackapa' ? btn(c.on ? T('On') : T('Off'), () => hangarAction({ operation: 'cpu', lootId: c.lootId }), 'sm ' + (c.on ? 'primary' : 'ghost'))
+      : h('select', { class: 'input', onchange: e => hangarAction({ operation: 'cpu_ammo', item: c.id, ammunition: e.target.value }, T('Auto-buy ammo chosen.')) },
         h('option', { value: '', disabled: true, selected: !c.selected }, T('Choose ammo')),
         c.options.map(o => h('option', { value: o, selected: o === c.selected }, itemName(o)))))))
     : h('div', { class: 'empty' }, T('The active config has no CPU with settings.'));
@@ -2338,7 +2338,7 @@ async function renderHangar() {
       lock ? h('div', { class: 'hg-warning' }, icon('alert'), v.portal_hangar ? T("Equipment can only be changed at a station or in a portal's safe zone (a little after combat).")
         : T('Equipment can only be changed at a station (a little after combat).')) : null,
       h('div', { class: 'row between wrap', style: { gap: '10px' } },
-        h('div', { class: 'row', style: { gap: '12px' } }, iconName(ship.tasarim || ship.lootId, 64), h('div', null, h('h2', { style: { margin: 0 } }, itemName(ship.lootId)),
+        h('div', { class: 'row', style: { gap: '12px' } }, iconName(ship.design || ship.lootId, 64), h('div', null, h('h2', { style: { margin: 0 } }, itemName(ship.lootId)),
           ship.active ? h('span', { class: 'lbl' }, T('Active ship')) : null)),
         h('div', { class: 'seg' }, Object.keys(v.configs).map(c => h('button', { class: c === HG.config ? 'on info' : '', onclick: () => { HG.config = c; renderHangar(); } },
           T('Config {0}', c), ship.active && c === v.active_config ? ' •' : '')))),
@@ -2355,10 +2355,10 @@ function hangarInventory(v, lock, iconName, lvlBadge) {
   const elsewhere = e => e.configs && e.configs.length > 0;
   const eligible = v.inventory.filter(e => sell ? e.selling && !elsewhere(e)
     : HG.section !== 'cpu' && e.targets.includes(HG.section) && !(e.configs || []).includes(String(HG.config)));
-  const kinds = [...new Set(eligible.map(e => e.yuva))], key = sell ? 'sell' : HG.section;
-  if (!kinds.includes(HG.yuva[key])) HG.yuva[key] = kinds[0];
+  const kinds = [...new Set(eligible.map(e => e.slot))], key = sell ? 'sell' : HG.section;
+  if (!kinds.includes(HG.slot[key])) HG.slot[key] = kinds[0];
   const group = {};
-  for (const e of eligible.filter(e => e.yuva === HG.yuva[key])) (group[e.lootId] = group[e.lootId] || []).push(e);
+  for (const e of eligible.filter(e => e.slot === HG.slot[key])) (group[e.lootId] = group[e.lootId] || []).push(e);
   for (const es of Object.values(group)) es.sort((a, b) => elsewhere(b) - elsewhere(a));      // items of the other config first: free copies stay free
   for (const id of Object.keys(HG.selected)) if (!v.inventory.find(e => String(e.id) === id && e.selling && !elsewhere(e))) delete HG.selected[id];
   const selected = v.inventory.filter(e => HG.selected[e.id]), total = {};
@@ -2367,11 +2367,11 @@ function hangarInventory(v, lock, iconName, lvlBadge) {
     const n = es.filter(e => HG.selected[e.id]).length;
     const b = h('button', { class: 'hg-item' + (n ? ' on' : ''), type: 'button', disabled: !sell && lock,
       title: itemName(lid) + (sell ? ' — ' + T('sale value {0}', formatMoney(es[0].selling[0], es[0].selling[1])) + ' · ' + T('click to select, right-click to deselect') : ' — ' + T('click to equip')),
-      onclick: ev => { if (!sell) return hangarMove({ esya: es[0].id, direction: 'equip', hedef: HG.section, drone: HG.drone, set: HG.section === 'pet' ? HG.set : '' }, ev.currentTarget);
+      onclick: ev => { if (!sell) return hangarMove({ item: es[0].id, direction: 'equip', target: HG.section, drone: HG.drone, set: HG.section === 'pet' ? HG.set : '' }, ev.currentTarget);
         const e = es.find(x => !HG.selected[x.id]); if (e) { HG.selected[e.id] = true; renderHangar(); } },
       oncontextmenu: ev => { if (!sell) return; ev.preventDefault(); const e = es.find(x => HG.selected[x.id]); if (e) { delete HG.selected[e.id]; renderHangar(); } } },
       iconName(lid, 44), lvlBadge(es[0]), es.length > 1 ? h('span', { class: 'hg-count' }, (n ? n + '/' : '') + fmtN(es.length)) : n ? h('span', { class: 'hg-count' }, '✓') : null);
-    b._item = es[0].seviye ? { upgrade: es[0].seviye } : null;        // eşya ipucu: yükseltme seviyesi
+    b._item = es[0].level ? { upgrade: es[0].level } : null;        // eşya ipucu: yükseltme seviyesi
     return b;
   });
   return h('div', { class: 'card' },
@@ -2379,26 +2379,26 @@ function hangarInventory(v, lock, iconName, lvlBadge) {
       h('div', { class: 'row', style: { gap: '10px' } }, h('h2', { style: { margin: 0 } }, T('Inventory')),
         HG.section !== 'cpu' ? h('div', { class: 'seg' }, [['equip', T('Equip')], ['sell', T('Sell')]].map(([k, t]) => h('button', { class: HG.mode === k ? 'on info' : '',
           onclick: () => { HG.mode = k; renderHangar(); } }, t))) : null),
-      h('div', { class: 'seg', style: { flexWrap: 'wrap' } }, kinds.map(y => h('button', { class: y === HG.yuva[key] ? 'on info' : '', onclick: () => { HG.yuva[key] = y; renderHangar(); } }, slotName(y))))),
+      h('div', { class: 'seg', style: { flexWrap: 'wrap' } }, kinds.map(y => h('button', { class: y === HG.slot[key] ? 'on info' : '', onclick: () => { HG.slot[key] = y; renderHangar(); } }, slotName(y))))),
     h('div', { class: 'hg-grid', style: { marginTop: '12px' } }, boxes.length ? boxes : h('div', { class: 'empty' }, sell ? T('No items to sell.') : T('No items to equip.'))),
     sell && selected.length ? h('div', { class: 'hg-sell' }, h('span', null, T('{0} items selected', selected.length), ' · ', h('b', null, Object.entries(total).map(([c, n]) => formatMoney(c, n)).join(' + '))),
       h('div', { class: 'row', style: { gap: '6px' } }, btn(T('Clear selection'), () => { HG.selected = {}; renderHangar(); }, 'sm ghost'),
         btn(T('Sell selected'), async () => await confirmBox(T('Sell {0} items?', selected.length), T('You get {0} for them. This cannot be undone.',
           Object.entries(total).map(([c, n]) => formatMoney(c, n)).join(' + ')), { ok: T('Sell'), danger: true })
-          && hangarAction({ islem: 'sell', esyalar: selected.map(e => e.id) }, T('Sold.'), () => { HG.selected = {}; }), 'sm primary'))) : null);
+          && hangarAction({ operation: 'sell', items: selected.map(e => e.id) }, T('Sold.'), () => { HG.selected = {}; }), 'sm primary'))) : null);
 }
 
 async function hangarMove(request, b) {
   b.disabled = true;
-  const r = await act(() => api('/api/oyun/hangar/tasi', Object.assign({ gemi: HG.gemi, config: HG.config }, request)));
-  if (r && !r.tamam) toast(r.hata === 'istasyon' ? T('Equipment can only be changed in a safe zone.') : gameText(r.hata), 'err');
+  const r = await act(() => api('/api/oyun/hangar/tasi', Object.assign({ ship: HG.ship, config: HG.config }, request)));
+  if (r && !r.done) toast(r.error === 'station' ? T('Equipment can only be changed in a safe zone.') : gameText(r.error), 'err');
   renderHangar();
 }
 
 // hangarın öteki işlemleri (panel_kanali.ISLEMLER): başarıda bilgi metni, sonra yenile
 async function hangarAction(request, okText, after) {
-  const r = await act(() => api('/api/oyun/hangar/islem', Object.assign({ gemi: HG.gemi }, request)));
-  if (r && !r.tamam) toast(r.hata === 'istasyon' ? T('Equipment can only be changed in a safe zone.') : gameText(r.hata), 'err');
+  const r = await act(() => api('/api/oyun/hangar/islem', Object.assign({ ship: HG.ship }, request)));
+  if (r && !r.done) toast(r.error === 'station' ? T('Equipment can only be changed in a safe zone.') : gameText(r.error), 'err');
   else if (r) { if (okText) toast(okText, 'ok'); if (after) after(); }
   renderHangar();
 }
@@ -2406,26 +2406,26 @@ async function hangarAction(request, okText, after) {
 // Transfer System: bu geminin donanımı başka bir gemiye (hedefin yuvaları yetmeli)
 function hangarTransfer(v) {
   let target = null;
-  const entries = h('div', { class: 'hg-ships', style: { flexWrap: 'wrap' } }, v.ships.filter(g => g.id !== v.gemi).map(g => h('div', { class: 'hg-ship', onclick: ev => {
+  const entries = h('div', { class: 'hg-ships', style: { flexWrap: 'wrap' } }, v.ships.filter(g => g.id !== v.ship).map(g => h('div', { class: 'hg-ship', onclick: ev => {
     target = g.id; entries.querySelectorAll('.hg-ship').forEach(x => x.classList.toggle('on', x === ev.currentTarget)); } },
-    gameIcon(g.tasarim || g.lootId, 54, v.firma), h('span', null, itemName(g.lootId)))));
-  const m = modal({ title: T('Transfer equipment'), sub: T('Both configs, drones and P.E.T. equipment of {0} move to the ship you choose.', itemName(v.ships.find(g => g.id === v.gemi).lootId)),
+    gameIcon(g.design || g.lootId, 54, v.company), h('span', null, itemName(g.lootId)))));
+  const m = modal({ title: T('Transfer equipment'), sub: T('Both configs, drones and P.E.T. equipment of {0} move to the ship you choose.', itemName(v.ships.find(g => g.id === v.ship).lootId)),
     body: [entries], wide: true, foot: [btn(T('Cancel'), () => m.close(), 'ghost'), btn(T('Transfer'), () => { if (!target) return toast(T('Choose a ship.'), 'err');
-      m.close(); hangarAction({ islem: 'import_action', gemi: v.gemi, target_ship: target }, T('Equipment transferred.')); }, 'primary')] });
+      m.close(); hangarAction({ operation: 'import_action', ship: v.ship, target_ship: target }, T('Equipment transferred.')); }, 'primary')] });
 }
 
 async function hangarSetActive(ship, b) {
   b.disabled = true;
   const r = await act(() => api('/api/oyun/hangar/etkin', { ship }));
-  if (r && !r.tamam) toast(gameText(r.hata), 'err');
+  if (r && !r.done) toast(gameText(r.error), 'err');
   else if (r) toast(T('Active ship changed.'), 'ok');
   renderHangar();
 }
 
 async function hangarDesign(lootId, b) {
   b.disabled = true;
-  const r = await act(() => api('/api/oyun/hangar/tasarim', { gemi: HG.gemi, lootId }));
-  if (r && !r.tamam) toast(r.hata === 'istasyon' ? T('Equipment can only be changed in a safe zone.') : gameText(r.hata), 'err');
+  const r = await act(() => api('/api/oyun/hangar/tasarim', { ship: HG.ship, lootId }));
+  if (r && !r.done) toast(r.error === 'station' ? T('Equipment can only be changed in a safe zone.') : gameText(r.error), 'err');
   renderHangar();
 }
 
@@ -2461,38 +2461,38 @@ async function renderSkylab() {
   let v;
   try { v = await api('/api/oyun/skylab'); } catch (e) { return gameError(e, 'skylab'); }
   const oreIcon = (name, size) => GI.index?.sprite[name + '_100x100'] ? sprite(name + '_100x100', size) : h('span', { class: 'sprite vacant', style: { width: size + 'px', height: size + 'px' } }, icon('lab'));
-  const storage = v.storage.map(o => h('div', { class: 'sk-ore' }, oreIcon(o.ad.toLowerCase(), 44),
-    h('div', { class: 'grow' }, h('div', { class: 'row between' }, h('b', null, oreName(o.ad)), h('span', { class: 'mono' }, fmtN(o.miktar) + ' / ' + fmtN(o.capacity))),
-      h('div', { class: 'sk-bar' }, h('span', { style: { width: Math.min(100, 100 * o.miktar / Math.max(1, o.capacity)) + '%' } })))));
+  const storage = v.storage.map(o => h('div', { class: 'sk-ore' }, oreIcon(o.name.toLowerCase(), 44),
+    h('div', { class: 'grow' }, h('div', { class: 'row between' }, h('b', null, oreName(o.name)), h('span', { class: 'mono' }, fmtN(o.amount) + ' / ' + fmtN(o.capacity))),
+      h('div', { class: 'sk-bar' }, h('span', { style: { width: Math.min(100, 100 * o.amount / Math.max(1, o.capacity)) + '%' } })))));
   const modules = v.modules.map(m => {
-    const rate = m.seviye === 0, state = m.kalan != null ? badge(T('Upgrading: {0}', fmtDur(m.kalan)), 'info')
-      : rate ? badge(T('Not built')) : m.durum === 'ACTIVE' ? badge(T('Running'), 'ok') : badge(T('Off'), 'warn');
+    const rate = m.level === 0, state = m.remaining != null ? badge(T('Upgrading: {0}', fmtDur(m.remaining)), 'info')
+      : rate ? badge(T('Not built')) : m.state === 'ACTIVE' ? badge(T('Running'), 'ok') : badge(T('Off'), 'warn');
     const c = m.cost, buttons = [];
-    if (m.kalan != null) {
+    if (m.remaining != null) {
       buttons.push(btn(T('Finish ({0} U.)', fmtN(m.finish)), () => skylabAction(m.id, 'instantFinishUpgrade'), 'sm primary'),
         btn(T('Cancel'), async () => await confirmBox(T('Cancel the upgrade?'), T('What was spent is not refunded.'), { ok: T('Cancel it'), danger: true })
           && skylabAction(m.id, 'abortUpgrade'), 'sm'));
     } else if (c) {
       buttons.push(btn(rate ? T('Build') : T('Upgrade'), () => skylabAction(m.id, 'upgrade'), 'sm primary'));
-      if (c.uridyum) buttons.push(btn(T('Instant ({0} U.)', fmtN(c.uridyum)), () => skylabAction(m.id, 'instantUpgrade'), 'sm'));
+      if (c.uridium) buttons.push(btn(T('Instant ({0} U.)', fmtN(c.uridium)), () => skylabAction(m.id, 'instantUpgrade'), 'sm'));
     }
-    if (m.toggleable && !rate && m.kalan == null) buttons.push(btn(m.durum === 'ACTIVE' ? T('Close') : T('Open'),
-      () => skylabAction(m.id, m.durum === 'ACTIVE' ? 'setInactive' : 'setActive'), 'sm ghost'));
-    return h('div', { class: 'sk-module' + (m.durum === 'ACTIVE' ? ' on' : '') },
+    if (m.toggleable && !rate && m.remaining == null) buttons.push(btn(m.state === 'ACTIVE' ? T('Close') : T('Open'),
+      () => skylabAction(m.id, m.state === 'ACTIVE' ? 'setInactive' : 'setActive'), 'sm ghost'));
+    return h('div', { class: 'sk-module' + (m.state === 'ACTIVE' ? ' on' : '') },
       h('div', { class: 'row', style: { gap: '10px' } }, SK_ORE[m.id] ? oreIcon(SK_ORE[m.id], 48) : h('span', { class: 'sprite vacant', style: { width: '48px', height: '48px' } }, icon('lab')),
-        h('div', { class: 'grow' }, h('b', null, skModuleName(m.id)), h('div', { class: 'mono' }, T('Lv {0} / {1}', m.seviye, m.azami)))),
+        h('div', { class: 'grow' }, h('b', null, skModuleName(m.id)), h('div', { class: 'mono' }, T('Lv {0} / {1}', m.level, m.maximum)))),
       h('div', { class: 'row wrap', style: { gap: '6px' } }, state,
         m.uretim ? badge(T('{0} / h', fmtN(m.uretim)), '') : null, m.energy ? badge(T('{0} energy', fmtN(m.energy)), 'orange') : null,
         m.efficiency ? badge(T('efficiency {0}%', m.efficiency), '') : null),
-      c && m.kalan == null ? h('div', { class: 'sk-cost' }, T('{0} C., {1} each of Prometium / Endurium / Terbium, {2}', fmtN(c.kredi), fmtN(c.kaynak), fmtDur(c.sure_sn))) : null,
+      c && m.remaining == null ? h('div', { class: 'sk-cost' }, T('{0} C., {1} each of Prometium / Endurium / Terbium, {2}', fmtN(c.credits), fmtN(c.source), fmtDur(c.sure_sn))) : null,
       h('div', { class: 'row wrap', style: { gap: '6px' } }, buttons),
-      m.robot && !rate ? h('div', { class: 'sk-robot' }, h('span', { class: 'lbl' }, T('Robots: {0} / {1}', m.robot.etkin, m.robot.azami) + (m.robot.in_storage ? ' · ' + T('{0} in storage', m.robot.in_storage) : '')),
+      m.robot && !rate ? h('div', { class: 'sk-robot' }, h('span', { class: 'lbl' }, T('Robots: {0} / {1}', m.robot.etkin, m.robot.maximum) + (m.robot.in_storage ? ' · ' + T('{0} in storage', m.robot.in_storage) : '')),
         h('div', { class: 'row', style: { gap: '6px' } }, ['1', '2'].map(t => btn('+' + (t === '1' ? '1%' : '4%') + ' · ' + formatMoney(m.robot.price[t][0], m.robot.price[t][1]),
           () => skylabRobot(m.id, t), 'sm ghost', null, { title: T('Robot that works for 48 hours') })))) : null);
   });
-  const t = v.transport, send = v.storage.map(o => h('label', { class: 'sk-send' }, oreIcon(o.ad.toLowerCase(), 28),
-    h('input', { class: 'input num', type: 'number', min: 0, max: o.miktar, value: SK.send[o.id] || 0, oninput: e => { SK.send[o.id] = +e.target.value | 0; } })));
-  const transport = t ? h('div', { class: 'stack' }, h('p', { class: 'desc', style: { margin: 0 } }, T('Transport under way: {0} left.', fmtDur(t.kalan))),
+  const t = v.transport, send = v.storage.map(o => h('label', { class: 'sk-send' }, oreIcon(o.name.toLowerCase(), 28),
+    h('input', { class: 'input num', type: 'number', min: 0, max: o.amount, value: SK.send[o.id] || 0, oninput: e => { SK.send[o.id] = +e.target.value | 0; } })));
+  const transport = t ? h('div', { class: 'stack' }, h('p', { class: 'desc', style: { margin: 0 } }, T('Transport under way: {0} left.', fmtDur(t.remaining))),
     h('div', null, btn(T('Finish now ({0} U.)', fmtN(v.instant_price)), () => skylabAction('TRANSPORT_MODULE', 'startTransport', 'instantFinish'), 'sm primary')))
     : h('div', { class: 'stack' }, h('div', { class: 'row wrap', style: { gap: '10px' } }, send),
       h('div', { class: 'row wrap', style: { gap: '8px' } }, btn(T('Send'), () => skylabAction('TRANSPORT_MODULE', 'startTransport', ''), 'sm primary'),
@@ -2511,14 +2511,14 @@ async function skylabAction(modul, operation, mod) {
   if (r) {
     if (r.errors.length) toast(skText(r.errors[0]), 'err');
     else if (r.achievements.length) toast(skText(r.achievements[r.achievements.length - 1]), 'ok');
-    if (r.tamam && operation === 'startTransport') SK.send = {};
+    if (r.done && operation === 'startTransport') SK.send = {};
   }
   renderSkylab();
 }
 
 async function skylabRobot(modul, tip) {
   const r = await act(() => api('/api/oyun/skylab/robot', { modul, tip }));
-  if (r && !r.tamam) toast(skText(r.errors[0]), 'err');
+  if (r && !r.done) toast(skText(r.errors[0]), 'err');
   else if (r) toast(T('Robot bought.'), 'ok');
   renderSkylab();
 }
@@ -2533,11 +2533,11 @@ const AUCTION_GROUP = { ship: N('Ships'), shipdesign: N('Ship designs'), extra: 
 const AUCTION_STATUS = [['hepsi', N('All')], ['bid', N('My bids')], ['leading', N('Leading')], ['not_leading', N('Not leading')], ['auto', N('Automatic')], ['alarm', N('With alarm')]];
 Object.assign(GAME_TEXT, { auction_bid_minBid_not_reached: N('The bid must be at least 10,000 credits above the highest bid.'), auction_bid_credits_to_little: N('You do not have enough credits.'),
   auction_buy_instant_invalid: N('This lot cannot be bought instantly.'), items_shop_error_ship_contains_ship: N('You already own this ship.'), auction_error_generic: N('The auction action failed.') });
-const MZ = { tur: 'hepsi', grup: 'hepsi', durum: 'hepsi', search: '', bitis: {}, last: null };
-const auctionKey = l => l.tur + '|' + l.loot;
+const MZ = { type: 'hepsi', group: 'hepsi', state: 'hepsi', search: '', end_time: {}, last: null };
+const auctionKey = l => l.type + '|' + l.loot;
 function auctionEventText(o) {
   const name = itemName(o.loot);
-  return { outbid: () => T('You were outbid: {0}', name), ending: () => T('{1} min left for {0}.', name, o.dk), won: () => T('Won: {0} ({1})', name, formatMoney('credits', o.price)),
+  return { outbid: () => T('You were outbid: {0}', name), ending: () => T('{1} min left for {0}.', name, o.min), won: () => T('Won: {0} ({1})', name, formatMoney('credits', o.price)),
     lost: () => T('Lost: {0}', name), auto_bid: () => T('Auto-bid: {0}, {1}', name, formatMoney('credits', o.price)),
     auto_limit: () => T('Auto-bid limit reached: {0} ({1} needed)', name, formatMoney('credits', o.required)) }[o.tip]?.() || o.tip;
 }
@@ -2548,16 +2548,16 @@ async function renderAuction() {
   let v;
   try { v = await api('/api/oyun/muzayede'); } catch (e) { return gameError(e, 'auction'); }
   const now = Date.now() / 1000;
-  for (const [k, n] of Object.entries(v.kalan)) MZ.bitis[k] = now + n;
+  for (const [k, n] of Object.entries(v.remaining)) MZ.end_time[k] = now + n;
   if (v.events.length) MZ.last = Math.max(MZ.last || 0, v.events[0].no);
-  const groups = [...new Set(v.lotlar.map(l => l.grup))];
-  const sec = l => (MZ.tur === 'hepsi' || l.tur === MZ.tur) && (MZ.grup === 'hepsi' || l.grup === MZ.grup)
+  const groups = [...new Set(v.lots.map(l => l.group))];
+  const sec = l => (MZ.type === 'hepsi' || l.type === MZ.type) && (MZ.group === 'hepsi' || l.group === MZ.group)
     && (!MZ.search || itemName(l.loot).toLowerCase().includes(MZ.search.toLowerCase()))
-    && ({ hepsi: true, bid: l.mine > 0, leading: l.leading, not_leading: !l.leading, auto: !!l.auto, alarm: !!l.alarm })[MZ.durum];
-  const visible = v.lotlar.filter(sec).sort((a, b) => (b.leading - a.leading) || (!!b.auto - !!a.auto) || ['hour', 'day', 'week'].indexOf(a.tur) - ['hour', 'day', 'week'].indexOf(b.tur)
+    && ({ hepsi: true, bid: l.mine > 0, leading: l.leading, not_leading: !l.leading, auto: !!l.auto, alarm: !!l.alarm })[MZ.state];
+  const visible = v.lots.filter(sec).sort((a, b) => (b.leading - a.leading) || (!!b.auto - !!a.auto) || ['hour', 'day', 'week'].indexOf(a.type) - ['hour', 'day', 'week'].indexOf(b.type)
     || itemName(a.loot).localeCompare(itemName(b.loot)));
   const joinable = visible.filter(l => !l.leading), total = joinable.reduce((t, l) => t + l.next, 0);
-  const counter = k => h('span', { class: 'pill auc-counter', 'data-tur': k }, h('span', { class: 'lbl' }, T(AUCTION_KIND[k])), h('b', null, fmtDur(MZ.bitis[k] - now)));
+  const counter = k => h('span', { class: 'pill auc-counter', 'data-tur': k }, h('span', { class: 'lbl' }, T(AUCTION_KIND[k])), h('b', null, fmtDur(MZ.end_time[k] - now)));
   const search = h('input', { class: 'input game-search', placeholder: T('Search…'), value: MZ.search, oninput: e => { MZ.search = e.target.value; clearTimeout(MZ.searchTimer); MZ.searchTimer = setTimeout(renderAuction, 250); } });
   const seg = (entries, value, assign) => h('div', { class: 'seg', style: { flexWrap: 'wrap' } }, entries.map(([k, t]) => h('button', { class: k === value ? 'on info' : '', onclick: () => { assign(k); renderAuction(); } }, t)));
   $('#content').replaceChildren(h('div', { class: 'stack' },
@@ -2572,9 +2572,9 @@ async function renderAuction() {
           btn(T('Auto-bid on shown lots…'), () => auctionBulkAuto(visible, v), 'sm', null, { disabled: !visible.length }),
           visible.some(l => l.auto) ? btn(T('Turn off auto-bids'), () => auctionBulkDisable(visible.filter(l => l.auto)), 'sm ghost') : null)),
       h('div', { class: 'row wrap', style: { gap: '8px', marginTop: '12px' } },
-        seg([['hepsi', T('All')]].concat(['hour', 'day', 'week'].map(k => [k, T(AUCTION_KIND[k])])), MZ.tur, k => { MZ.tur = k; }),
-        seg(AUCTION_STATUS.map(([k, t]) => [k, T(t)]), MZ.durum, k => { MZ.durum = k; })),
-      h('div', { style: { marginTop: '8px' } }, seg([['hepsi', T('All groups')]].concat(groups.map(g => [g, AUCTION_GROUP[g] ? T(AUCTION_GROUP[g]) : g])), MZ.grup, k => { MZ.grup = k; })),
+        seg([['hepsi', T('All')]].concat(['hour', 'day', 'week'].map(k => [k, T(AUCTION_KIND[k])])), MZ.type, k => { MZ.type = k; }),
+        seg(AUCTION_STATUS.map(([k, t]) => [k, T(t)]), MZ.state, k => { MZ.state = k; })),
+      h('div', { style: { marginTop: '8px' } }, seg([['hepsi', T('All groups')]].concat(groups.map(g => [g, AUCTION_GROUP[g] ? T(AUCTION_GROUP[g]) : g])), MZ.group, k => { MZ.group = k; })),
       !v.rival ? h('p', { class: 'desc', style: { margin: '10px 0 0' } }, T('Virtual rivals are off: you are the only bidder. You can turn them on in Game Settings > Auction.')) : null),
     h('div', { class: 'auc-grid' }, visible.length ? visible.map(l => auctionCard(l, v)) : h('div', { class: 'empty' }, T('No lots.'))),
     h('div', { class: 'auc-bottom' },
@@ -2583,13 +2583,13 @@ async function renderAuction() {
         h('span', { class: 'mono muted' }, new Date(o.time * 1000).toLocaleTimeString(LOC(), { hour: '2-digit', minute: '2-digit' })))))
         : h('div', { class: 'empty' }, T('No events yet.'))),
       h('div', { class: 'card' }, h('h2', null, icon('clock'), T('History')), v.history.length ? h('div', { class: 'auc-list' }, v.history.map(g => h('div', { class: 'auc-event' },
-        gameIcon(g.loot, 26, v.firma, 'gavel'), h('span', { class: 'grow' }, itemName(g.loot), h('span', { class: 'muted' }, ' · ' + T(AUCTION_KIND[g.tur] || g.tur))),
-        h('span', { class: g.kim === v.kimlik ? 'auc-me' : 'muted' }, g.ad || '—'), h('span', { class: 'mono' }, formatMoney('credits', g.bid)))))
+        gameIcon(g.loot, 26, v.company, 'gavel'), h('span', { class: 'grow' }, itemName(g.loot), h('span', { class: 'muted' }, ' · ' + T(AUCTION_KIND[g.type] || g.type))),
+        h('span', { class: g.who === v.uid ? 'auc-me' : 'muted' }, g.name || '—'), h('span', { class: 'mono' }, formatMoney('credits', g.bid)))))
         : h('div', { class: 'empty' }, T('No history.'))))));
   S.timers.push(setInterval(() => {            // dönem sayaçları; dönem bitince liste yenilenir (kazanılan eşya, yeni dönem)
     const t = Date.now() / 1000;
-    document.querySelectorAll('.auc-counter').forEach(el => { el.querySelector('b').textContent = fmtDur(MZ.bitis[el.dataset.tur] - t); });
-    if (Object.values(MZ.bitis).some(b => b - t < -2) && !MZ.refreshing) { MZ.refreshing = true; setTimeout(() => { MZ.refreshing = false; if (S.page === 'auction') renderAuction(); }, 3000); }
+    document.querySelectorAll('.auc-counter').forEach(el => { el.querySelector('b').textContent = fmtDur(MZ.end_time[el.dataset.type] - t); });
+    if (Object.values(MZ.end_time).some(b => b - t < -2) && !MZ.refreshing) { MZ.refreshing = true; setTimeout(() => { MZ.refreshing = false; if (S.page === 'auction') renderAuction(); }, 3000); }
   }, 1000));
 }
 
@@ -2597,10 +2597,10 @@ function auctionCard(l, v) {
   const inp = h('input', { class: 'input num', type: 'number', min: l.next, step: v.increase, value: l.next });
   const state = l.leading ? badge(T("You're leading"), 'ok') : l.highest ? badge(T('Highest: {0}', l.highest_name || '—'), 'warn') : badge(T('No bids'));
   return h('div', { class: 'auc-card' + (l.leading ? ' onde' : '') },
-    h('div', { class: 'row', style: { gap: '10px', alignItems: 'flex-start' } }, gameIcon(l.loot, 64, v.firma, 'gavel'),
+    h('div', { class: 'row', style: { gap: '10px', alignItems: 'flex-start' } }, gameIcon(l.loot, 64, v.company, 'gavel'),
       h('div', { class: 'grow' }, h('div', { class: 'shop-name', style: { minHeight: 0 } }, itemName(l.loot)),
-        h('div', { class: 'row wrap', style: { gap: '4px', marginTop: '4px' } }, badge(T(AUCTION_KIND[l.tur])), l.adet > 1 ? badge('× ' + fmtN(l.adet)) : null,
-          l.auto ? badge(T('Auto ≤ {0}', fmtN(l.auto.azami)), 'info') : null)),
+        h('div', { class: 'row wrap', style: { gap: '4px', marginTop: '4px' } }, badge(T(AUCTION_KIND[l.type])), l.count > 1 ? badge('× ' + fmtN(l.count)) : null,
+          l.auto ? badge(T('Auto ≤ {0}', fmtN(l.auto.maximum)), 'info') : null)),
       // alarm düğmesi başlıkta (alt satırda yer kalmayınca tek başına alta düşüyordu); kuruluysa turuncu
       btn(null, () => auctionAlarmWindow(l), 'sm icon ' + (l.alarm ? 'orange' : 'ghost'), 'bell', { title: l.alarm ? T('Alarm set') : T('Alarm') })),
     h('div', { class: 'auc-row' }, h('span', { class: 'muted' }, T('Highest')), h('b', null, l.highest ? formatMoney('credits', l.highest) : '—')),
@@ -2616,14 +2616,14 @@ function auctionCard(l, v) {
 
 async function auctionBid(l, price, b) {
   b.disabled = true;
-  const r = await act(() => api('/api/oyun/muzayede/teklif', { tur: l.tur, loot: l.loot, price }));
-  if (r && !r.tamam) toast(gameText(r.hata), 'err');
+  const r = await act(() => api('/api/oyun/muzayede/teklif', { type: l.type, loot: l.loot, price }));
+  if (r && !r.done) toast(gameText(r.error), 'err');
   else if (r) toast(T('Bid placed: {0}, {1}', itemName(l.loot), formatMoney('credits', price)), 'ok');
   renderAuction();
 }
 
 async function auctionAll(lots) {
-  const r = await act(() => api('/api/oyun/muzayede/hepsi', { lotlar: lots.map(l => [l.tur, l.loot]) }));
+  const r = await act(() => api('/api/oyun/muzayede/hepsi', { lots: lots.map(l => [l.type, l.loot]) }));
   if (r) {
     if (r.given) toast(T('Bids placed on {0} lots: {1} in total', r.given, formatMoney('credits', r.amount)), 'ok');
     for (const [k, n] of Object.entries(r.errors)) toast(gameText(k) + ' (' + n + ')', 'err');
@@ -2632,33 +2632,33 @@ async function auctionAll(lots) {
 }
 
 async function auctionInstant(l) {
-  const r = await act(() => api('/api/oyun/muzayede/anlik', { tur: l.tur, loot: l.loot }));
-  if (r && !r.tamam) toast(gameText(r.hata), 'err');
+  const r = await act(() => api('/api/oyun/muzayede/anlik', { type: l.type, loot: l.loot }));
+  if (r && !r.done) toast(gameText(r.error), 'err');
   else if (r) toast(T('Bought: {0}', itemName(l.loot)), 'ok');
   renderAuction();
 }
 
 // otomatik teklif: azami tutara kadar, geçildikçe en düşük geçerli teklifi verir (oyun sunucusunda; panel kapalıyken de)
 function auctionAutoWindow(l, v) {
-  const inp = h('input', { class: 'input', type: 'number', min: v.en_az, step: v.increase, value: l.auto?.azami || Math.max(l.next * 2, v.en_az * 5) });
+  const inp = h('input', { class: 'input', type: 'number', min: v.en_az, step: v.increase, value: l.auto?.maximum || Math.max(l.next * 2, v.en_az * 5) });
   const m = modal({ title: T('Auto-bid: {0}', itemName(l.loot)), sub: T('Each time you are outbid, the lowest valid bid is placed, up to this amount. It works in the game even with the panel closed.'),
-    body: [field(T('At most (credits)'), inp)], foot: [l.auto ? btn(T('Close'), () => { m.close(); auctionRule('auto', l, { azami: 0 }, T('Auto-bid off.')); }, 'ghost') : null,
-      btn(T('Cancel'), () => m.close(), 'ghost'), btn(T('Save'), () => { m.close(); auctionRule('auto', l, { azami: +inp.value | 0 }, T('Auto-bid on.')); }, 'primary')] });
+    body: [field(T('At most (credits)'), inp)], foot: [l.auto ? btn(T('Close'), () => { m.close(); auctionRule('auto', l, { maximum: 0 }, T('Auto-bid off.')); }, 'ghost') : null,
+      btn(T('Cancel'), () => m.close(), 'ghost'), btn(T('Save'), () => { m.close(); auctionRule('auto', l, { maximum: +inp.value | 0 }, T('Auto-bid on.')); }, 'primary')] });
 }
 
 function auctionAlarmWindow(l) {
   const a = l.alarm || {};
-  const outbid = h('input', { type: 'checkbox', checked: a.gecilince ?? true });
+  const outbid = h('input', { type: 'checkbox', checked: a.when_outbid ?? true });
   const minutes = h('select', { class: 'input' }, [[0, T('Off')], [5, T('{0} min', 5)], [15, T('{0} min', 15)], [30, T('{0} min', 30)], [60, T('{0} h', 1)], [180, T('{0} h', 3)]]
-    .map(([n, t]) => h('option', { value: n, selected: (a.dk || 0) === n }, t)));
+    .map(([n, t]) => h('option', { value: n, selected: (a.min || 0) === n }, t)));
   const m = modal({ title: T('Alarm: {0}', itemName(l.loot)), sub: T('An alarm shows as a message in the game and a notification in the panel.'),
     body: [h('label', { class: 'row', style: { gap: '8px' } }, outbid, T('Warn me when I am outbid')), field(T('Warn before the period ends'), minutes)],
     foot: [btn(T('Cancel'), () => m.close(), 'ghost'), btn(T('Save'), () => { m.close(); auctionNotifyPermission();
-      auctionRule('alarm', l, { gecilince: outbid.checked, dk: +minutes.value }, outbid.checked || +minutes.value ? T('Alarm set.') : T('Alarm removed.')); }, 'primary')] });
+      auctionRule('alarm', l, { when_outbid: outbid.checked, min: +minutes.value }, outbid.checked || +minutes.value ? T('Alarm set.') : T('Alarm removed.')); }, 'primary')] });
 }
 
 async function auctionRule(kind, l, fields, okText) {
-  const r = await act(() => api('/api/oyun/muzayede/' + kind, Object.assign({ tur: l.tur, loot: l.loot }, fields)));
+  const r = await act(() => api('/api/oyun/muzayede/' + kind, Object.assign({ type: l.type, loot: l.loot }, fields)));
   if (r) toast(okText, 'ok');
   renderAuction();
 }
@@ -2667,12 +2667,12 @@ function auctionBulkAuto(lots, v) {
   const inp = h('input', { class: 'input', type: 'number', min: v.en_az, step: v.increase, value: v.en_az * 10 });
   const m = modal({ title: T('Auto-bid on {0} lots', lots.length), sub: T('The same maximum for every lot. Bids are placed when you are outbid, as long as you have credits.'),
     body: [field(T('At most per lot (credits)'), inp)], foot: [btn(T('Cancel'), () => m.close(), 'ghost'), btn(T('Save'), async () => {
-      m.close(); for (const l of lots) await api('/api/oyun/muzayede/oto', { tur: l.tur, loot: l.loot, azami: +inp.value | 0 }).catch(() => null);
+      m.close(); for (const l of lots) await api('/api/oyun/muzayede/oto', { type: l.type, loot: l.loot, maximum: +inp.value | 0 }).catch(() => null);
       toast(T('Auto-bid turned on for {0} lots.', lots.length), 'ok'); renderAuction(); }, 'primary')] });
 }
 
 async function auctionBulkDisable(lots) {
-  for (const l of lots) await api('/api/oyun/muzayede/oto', { tur: l.tur, loot: l.loot, azami: 0 }).catch(() => null);
+  for (const l of lots) await api('/api/oyun/muzayede/oto', { type: l.type, loot: l.loot, maximum: 0 }).catch(() => null);
   toast(T('Auto-bids off.'), 'ok');
   renderAuction();
 }
@@ -2683,7 +2683,7 @@ function auctionNotifyPermission() {
 
 // yeni açık artırma olayları: her sayfada bildirim (ilk yoklama yalnız başlangıcı belirler); masaüstü bildirimi izin varsa
 async function auctionEventTick() {
-  if (srvState(S.durum).oyun !== 'on' || auctionEventTick.busy) return;
+  if (srvState(S.state).game !== 'on' || auctionEventTick.busy) return;
   auctionEventTick.busy = true;
   try {
     const r = await api('/api/oyun/muzayede/olaylar?last=' + (MZ.last || 0));
@@ -2697,8 +2697,8 @@ async function auctionEventTick() {
   } catch (e) { /* oyuna girilmedi */ } finally { auctionEventTick.busy = false; }
 }
 
-const RENDER = { play: renderPlay, arkadas: renderFriends, saves: () => renderSaves(), settings: renderSettings, events: () => renderEvents(), client: () => renderClient(),
-  calendar: enterCalendar, sunucu: renderServer, panel: renderPanel, world: () => renderWorld(), bots: () => renderBots(), shop: renderShop, hangar: renderHangar, skylab: renderSkylab, auction: renderAuction };
+const RENDER = { play: renderPlay, friend: renderFriends, saves: () => renderSaves(), settings: renderSettings, events: () => renderEvents(), client: () => renderClient(),
+  calendar: enterCalendar, server: renderServer, panel: renderPanel, world: () => renderWorld(), bots: () => renderBots(), shop: renderShop, hangar: renderHangar, skylab: renderSkylab, auction: renderAuction };
 
 // ------------------------------------------------------------------ başlangıç
 async function boot() {
@@ -2706,12 +2706,12 @@ async function boot() {
   try { cfg = await api('/api/panel_settings'); } catch (e) { /* panel kapalı: poll bildirir */ }
   S.panelCfg = cfg;
   try { I18N.list = (await api('/api/diller')).languages; } catch (e) { /* eski liste: Türkçe, İngilizce */ }
-  await setLang((cfg && cfg.dil) || guessLang());
+  await setLang((cfg && cfg.lang) || guessLang());
   applyStatic();
   buildNav();
   loadGameImages();                                       // oyunun görselleri: oyun içi menülerin simgeleri
   go(location.hash.slice(1) || 'play', false);
   poll();
-  if (cfg && (!cfg.dil || !cfg.setup_done)) openWizard(cfg.dil ? 1 : 0);
+  if (cfg && (!cfg.lang || !cfg.setup_done)) openWizard(cfg.lang ? 1 : 0);
 }
 document.addEventListener('DOMContentLoaded', boot);      // sonraki betikler (world_editor.js) yüklendikten sonra

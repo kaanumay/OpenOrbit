@@ -54,8 +54,8 @@ class Autopilot:
         self.laser_range = lambda: D['laser_range']      # oturum bağlar: dünyanın lazer menzili
         self.maps = lambda: (None, {})                    # oturum bağlar: (bulunulan harita, harita -> orada çıkan uzaylıların adları)
         with profile.lock:
-            self.d = profile.d.setdefault('autopilot', {'ayar': '', 'durum': STOP, 'baslangic': 0, 'total_sec': 0, 'oturum': 0})
-            self.d['durum'] = STOP                        # yeni oturum: istemci girişte STOP bildirir
+            self.d = profile.d.setdefault('autopilot', {'setting': '', 'state': STOP, 'start': 0, 'total_sec': 0, 'session': 0})
+            self.d['state'] = STOP                        # yeni oturum: istemci girişte STOP bildirir
 
     # ------------------------------------------------------------ seçimler
     def selection(self):
@@ -63,9 +63,9 @@ class Autopilot:
         haritalara göre listelerin birleşimi."""
         s = self.d.get('choice')
         if s is None:
-            s = {'npc': [], 'kutu': [], 'npc_map': {}}
+            s = {'npc': [], 'box': [], 'npc_map': {}}
             try:
-                old = json.loads(self.d.get('ayar') or '{}')
+                old = json.loads(self.d.get('setting') or '{}')
             except ValueError:
                 old = {}
             self.merge(s, {}, old if isinstance(old, dict) else {})
@@ -77,7 +77,7 @@ class Autopilot:
         """Kaydedilen ayarların seçimlerini haritadan bağımsız seçime işler: her haritanın listesi istemcinin elindekiyle (sunucunun
         son gönderdiği ya da istemcinin son kaydettiği) karşılaştırılır, eklenen seçilir, çıkarılan bırakılır. İstemci yalnız
         bulunduğu haritanınkini değiştirir; ötekiler aynı geldiğinden bir şey değiştirmez."""
-        for field, key, store in ((NPC_LIST, _npc_key, 'npc'), (BOX_LIST, _box_key, 'kutu')):
+        for field, key, store in ((NPC_LIST, _npc_key, 'npc'), (BOX_LIST, _box_key, 'box')):
             before = _maps(old.get(field))
             for mid, items in _maps(new.get(field)).items():
                 prev = {key(e) for e in before.get(mid, [])}
@@ -100,9 +100,9 @@ class Autopilot:
         """İstemciye gidecek ayarlar: kaydedilenler, seçim listeleri her haritanın anahtarıyla (bulunulan harita cur, sonra seçim
         yapılanlar, sonra ötekiler; sınıra dek). names: harita -> orada çıkan uzaylıların adları. Hiç ayar yoksa boş (istemci kendi varsayılanını kurar)."""
         names = names or {}
-        text = self.d.get('ayar') or ''
+        text = self.d.get('setting') or ''
         s = self.selection()
-        if not text and not s['npc'] and not s['kutu']:
+        if not text and not s['npc'] and not s['box']:
             return ''
         try:
             base = json.loads(text) if text else {}
@@ -115,14 +115,14 @@ class Autopilot:
         npcs, boxes = {}, {}
         base[NPC_LIST], base[BOX_LIST] = npcs, boxes
         size = len(json.dumps(base, separators=(',', ':')))
-        box_cost = len(json.dumps(s['kutu'], separators=(',', ':')))
+        box_cost = len(json.dumps(s['box'], separators=(',', ':')))
         for mid in order:
             seen = set(names.get(mid, ())) | {k for k, ms in s['npc_map'].items() if mid in ms}
             row = [e for e in s['npc'] if _npc_key(e) in seen]
             cost = len(json.dumps(row, separators=(',', ':'))) + box_cost + 2 * len(mid) + 8
             if size + cost > LIMIT and mid != cur:
                 continue
-            npcs[mid], boxes[mid] = row, list(s['kutu'])
+            npcs[mid], boxes[mid] = row, list(s['box'])
             size += cost
         return json.dumps(base, separators=(',', ':'))
 
@@ -133,8 +133,8 @@ class Autopilot:
         cur, names = self.maps()                          # dünyanın kilidi profilinkinden önce (dışında) alınır
         with self.p.lock:
             text = self.info_json(cur, names)
-            if text != (self.d.get('ayar') or ''):
-                self.d['ayar'] = text                     # istemcinin elindeki: sonraki kayıt bununla karşılaştırılır
+            if text != (self.d.get('setting') or ''):
+                self.d['setting'] = text                     # istemcinin elindeki: sonraki kayıt bununla karşılaştırılır
                 self.p.dirty = True
         return 'AutopilotInfoCommand', dict(remainingSeconds=D['premium_sec'] if premium else 0, laserRange=int(self.laser_range()),
                                             result=premium, autopilotInfos=text)
@@ -154,11 +154,11 @@ class Autopilot:
                 with self.p.lock:
                     s = self.selection()
                     try:
-                        old = json.loads(self.d.get('ayar') or '{}')
+                        old = json.loads(self.d.get('setting') or '{}')
                     except ValueError:
                         old = {}
                     self.merge(s, old if isinstance(old, dict) else {}, new if isinstance(new, dict) else {})
-                    self.d['ayar'] = text
+                    self.d['setting'] = text
                     self.p.dirty = True
             self.log('   otomatik pilot ayarları %s (%d karakter)' % ('kaydedildi' if ok else 'geçersiz', len(text)))
             return [('AutopilotInfoSaveCommand', {'result': ok})]
@@ -167,12 +167,12 @@ class Autopilot:
             st = st.get('typeValue', st) if isinstance(st, dict) else st
             st = int(st or 0)
             with self.p.lock:
-                if st == START and self.d['durum'] != START:
-                    self.d.update(durum=START, baslangic=now, oturum=self.d.get('oturum', 0) + 1)
+                if st == START and self.d['state'] != START:
+                    self.d.update(state=START, start=now, session=self.d.get('session', 0) + 1)
                     self.log('   otomatik pilot başladı')
-                elif st == STOP and self.d['durum'] == START:
-                    dt = max(0, int(now - self.d.get('baslangic', now)))
-                    self.d.update(durum=STOP, total_sec=self.d.get('total_sec', 0) + dt)
+                elif st == STOP and self.d['state'] == START:
+                    dt = max(0, int(now - self.d.get('start', now)))
+                    self.d.update(state=STOP, total_sec=self.d.get('total_sec', 0) + dt)
                     self.log('   otomatik pilot durdu (%d sn)' % dt)
                 self.p.dirty = True
             return []

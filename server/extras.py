@@ -6,7 +6,7 @@ Pasif etkiler (bu modül sorgular, ilgili modüller uygular):
   roket_bekleme    roket beklemesi çarpanı (R0K-T01 0,5)                                                     dunya.rocket
   mayin_bekleme    mayın ve mayından yapılan eşyaların beklemesi (MIN-T01 -%25, MIN-T02 -%50)                dunya (mayınlar)
   oto_onarim       can eksilince onarım robotu kendiliğinden çalışır (NC-RRB-X)                              dunya.auto_tick
-  oto_alim         {tur: lazer|roket|yakit, esik, adet}: eşiğin altına inince alır (ALB-X, RB-X, FB-X)       dunya.auto_tick
+  oto_alim         {type: lazer|roket|yakit, esik, adet}: eşiğin altına inince alır (ALB-X, RB-X, FB-X)       dunya.auto_tick
   oto_lab          [parça]: yükseltme bitince aynı cevherle ya da (en_iyi) en iyi cevherle yeniden (NC-AWL/AWR/AWB/AGB)
   her_yerde_satis  cevher her yerde satılır, adet sınırı (HM-7, 100 satış)                                  dunya.at_trade
 Etkin olanlar (kısayol çubuğundan; combat_items.py):
@@ -43,7 +43,7 @@ def has(p, key, sid=None):
 
 def owned(p, loot):
     """Ekstra envanterde ya da takılı mı (takılması gerekmeyenler: HM-7 ticaret dronu, satın alınınca kısayol çubuğunda görünür)."""
-    return loot in p.d['esyalar'].values() or loot in equipped(p)
+    return loot in p.d['items'].values() or loot in equipped(p)
 
 
 def slot_bonus(p, sid=None, cid=None):

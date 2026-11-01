@@ -36,7 +36,7 @@ def danger(bot, g, w, now):
 @target
 class Selling(Goal):
     name = 'selling'
-    permission = 'kargo'
+    permission = 'cargo'
     min_sec = 30
 
     def eligible(self, bot, b):
@@ -51,21 +51,21 @@ class Selling(Goal):
             bot.sell_cargo()
             bot.plan['finished'] = True
             return
-        bot.plan['harita'] = nearest_station(bot)
-        S.go(bot, bot.plan['harita'], b.y, b.now)
+        bot.plan['map'] = nearest_station(bot)
+        S.go(bot, bot.plan['map'], b.y, b.now)
 
     def abstract(self, bot, dt, y):
         if S.journey(bot, y):
             return
-        if bot.game_map == bot.plan.get('harita'):
+        if bot.game_map == bot.plan.get('map'):
             bot.sell_cargo()
             bot.plan['finished'] = True
         else:
-            if not S.go(bot, bot.plan.get('harita') or nearest_station(bot), y):
+            if not S.go(bot, bot.plan.get('map') or nearest_station(bot), y):
                 bot.plan['finished'] = True                 # istasyona yol yok: vazgeçer (sonsuza dek denemez)
 
     def concrete(self, bot, g, w, now):
-        if bot.en_route or bot.game_map != bot.plan.get('harita') or danger(bot, g, w, now):
+        if bot.en_route or bot.game_map != bot.plan.get('map') or danger(bot, g, w, now):
             return False                                  # portala uçar ya da oyuncuya/tehlikeye karşılık verir (govde)
         from .. import ship as BG
         s = w.station

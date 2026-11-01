@@ -51,10 +51,10 @@ class Infiltration:
         """Bu etkinlik döneminin şirket puanları {'1','2','3'} (dönem değişince sıfır)."""
         span = CAL.period(EVENT, now)
         d = self.p.d.setdefault('infiltration', {})
-        if span and d.get('donem') != int(span[0]):
-            d.update(donem=int(span[0]), puan={'1': 0, '2': 0, '3': 0})
+        if span and d.get('period') != int(span[0]):
+            d.update(period=int(span[0]), points={'1': 0, '2': 0, '3': 0})
             self.p.dirty = True
-        return d.setdefault('puan', {'1': 0, '2': 0, '3': 0})
+        return d.setdefault('points', {'1': 0, '2': 0, '3': 0})
 
     def score_cmd(self, now=None):
         s = self.scores(now)
@@ -80,32 +80,32 @@ class Infiltration:
         if not r:
             return ('InfiltrationStatusCommand', {'currentNpcs': 0, 'maxNpcs': 0, 'secondsRemaining': 0})
         # currentNpcs = kalan komando (istemci "killed" sayısını maxNpcs - currentNpcs yazar; canlı)
-        return ('InfiltrationStatusCommand', {'currentNpcs': r['adet'] - r['killed'], 'maxNpcs': r['adet'],
-                                              'secondsRemaining': max(0, int(r['bitis'] - now))})
+        return ('InfiltrationStatusCommand', {'currentNpcs': r['count'] - r['killed'], 'maxNpcs': r['count'],
+                                              'secondsRemaining': max(0, int(r['end_time'] - now))})
 
     def map_for(self, cls):
         return next((m for m, n in H.NAMES.items() if H.map_class(m) == cls and H.company(m) == self.faction()), 0)
 
     def start_round(self, now):
-        cls = random.choice(D.get('haritalar', ['X-2', 'X-3', 'X-4', 'X-5', 'X-6', 'X-7', 'X-8']))
+        cls = random.choice(D.get('maps', ['X-2', 'X-3', 'X-4', 'X-5', 'X-6', 'X-7', 'X-8']))
         pool = D.get('kinds', ['75', '73', '76', '78', '81'])
-        n = D.get('adet', 6)
+        n = D.get('count', 6)
         kinds = [random.choice(pool) for _ in range(n)]
         boss = D.get('hidden_boss')
         if boss and random.random() < boss['probability']:      # gizli Boss Kristallon: bir komandonun yerine (Uber Kristallon'un ganimeti)
-            kinds[random.randrange(n)] = boss['tur']
-        self.round = dict(harita=self.map_for(cls), class_name=cls, kinds=kinds, adet=n, killed=0,
-                          bitis=now + D.get('sure_sn', 600), spawned=False)
-        self.log('   Infiltration: komando takımı %s (%d)' % (H.name(self.round['harita']), n))
-        msgs = [legacy('0|A|STM|msg_infiltration_spawned_map_single|%%MAP%%|%s' % H.name(self.round['harita'])), self.status_cmd(now)]
-        if self.world and int(self.world.map_id) == self.round['harita']:
+            kinds[random.randrange(n)] = boss['type']
+        self.round = dict(map=self.map_for(cls), class_name=cls, kinds=kinds, count=n, killed=0,
+                          end_time=now + D.get('sure_sn', 600), spawned=False)
+        self.log('   Infiltration: komando takımı %s (%d)' % (H.name(self.round['map']), n))
+        msgs = [legacy('0|A|STM|msg_infiltration_spawned_map_single|%%MAP%%|%s' % H.name(self.round['map'])), self.status_cmd(now)]
+        if self.world and int(self.world.map_id) == self.round['map']:
             self.spawn(self.world)
         return msgs
 
     def spawn(self, w):
         """Takımın kalan komandoları bu haritada (dünya kilidi altında ya da attach'te)."""
         r = self.round
-        if not r or r['spawned'] or int(w.map_id) != r['harita']:
+        if not r or r['spawned'] or int(w.map_id) != r['map']:
             return
         r['spawned'] = True
         mw, mh = H.map_size(w.map_id)
@@ -120,7 +120,7 @@ class Infiltration:
                 n.reward_multiplier = D.get('reward_multiplier', 2)
                 n.infiltration = self                     # takımın sahibi (arkadaş sunucusunda öteki oyuncu da vurabilir)
                 n.passive = True                     # komandolar ateş etmez (resmî SSS 2013)
-                n.summoned = tip == D.get('hidden_boss', {}).get('tur')       # gizli patron ölünce yeniden doğmaz (etkinlik harita kontrolü de silmez)
+                n.summoned = tip == D.get('hidden_boss', {}).get('type')       # gizli patron ölünce yeniden doğmaz (etkinlik harita kontrolü de silmez)
             n = w.spawn_npc_at(tip, cx + random.randint(-400, 400), cy + random.randint(-400, 400), prep=prep)
             if n is not None:
                 n.engaged = False
@@ -149,10 +149,10 @@ class Infiltration:
         if not r:
             return []
         r['killed'] += 1
-        if r['killed'] >= r['adet']:
-            r['bitis'] = time.time()             # sayaç durur, pencere son durumu (n/n) gösterir
+        if r['killed'] >= r['count']:
+            r['end_time'] = time.time()             # sayaç durur, pencere son durumu (n/n) gösterir
         msgs = [self.status_cmd()]
-        if r['killed'] >= r['adet']:
+        if r['killed'] >= r['count']:
             self.log('   Infiltration: takım yok edildi')
             msgs.append(legacy('0|A|STM|msg_infiltration_success'))
             self.round = None
@@ -171,8 +171,8 @@ class Infiltration:
             self.round = None
             return []
         r = self.round
-        if r and now >= r['bitis']:
-            self.log('   Infiltration: takım kaçtı (%d/%d)' % (r['killed'], r['adet']))
+        if r and now >= r['end_time']:
+            self.log('   Infiltration: takım kaçtı (%d/%d)' % (r['killed'], r['count']))
             msgs = [legacy('0|A|STM|msg_infiltration_defeat')]
             w = self.world
             if w and r.get('ids'):

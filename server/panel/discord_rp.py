@@ -42,43 +42,43 @@ def event(live, setting, _, state):
     if state != 'in_game' or not live:
         if state == 'panel' and not a('in_panel'):
             return None
-        parent, sub = {'giris': (_('At the login screen'), _('About to launch')), 'starting': (_('Starting the game…'), _('About to launch')),
-                    'arkadas': (_("On a friend's server"), _('Playing together'))}.get(state, (_('In the panel'), _('Getting ready to play')))
+        parent, sub = {'entry': (_('At the login screen'), _('About to launch')), 'starting': (_('Starting the game…'), _('About to launch')),
+                    'friend': (_("On a friend's server"), _('Playing together'))}.get(state, (_('In the panel'), _('Getting ready to play')))
         e = {'details': parent, 'state': sub,
              'assets': {'large_image': LOGO, 'large_text': 'OpenOrbit'}}
     else:
-        pl, gm, location, world_info = live.get('pilot', {}), live.get('gemi', {}), live.get('position', {}), live.get('world') or {}
-        parent = [('[%s] ' % pl['klan'] if a('klan') and pl.get('klan') else '') + ((pl.get('ad') or '') if a('pilot') else '')]
-        if a('gemi') and ship_name(gm.get('ad')):
-            parent.append(ship_name(gm['ad']))
-        if a('seviye'):
-            parent.append(_('Level %s', pl.get('seviye', 1)))
-        gate = world_info.get('kapi')
-        if not a('durum'):
+        pl, gm, location, world_info = live.get('pilot', {}), live.get('ship', {}), live.get('position', {}), live.get('world') or {}
+        parent = [('[%s] ' % pl['clan'] if a('clan') and pl.get('clan') else '') + ((pl.get('name') or '') if a('pilot') else '')]
+        if a('ship') and ship_name(gm.get('name')):
+            parent.append(ship_name(gm['name']))
+        if a('level'):
+            parent.append(_('Level %s', pl.get('level', 1)))
+        gate = world_info.get('gate')
+        if not a('state'):
             status = None
         elif world_info.get('dead'):
             status = _('Ship destroyed')
         elif gate:
-            status = ' · '.join(str(x) for x in (gate.get('ad'), gate.get('dalga')) if x)
+            status = ' · '.join(str(x) for x in (gate.get('name'), gate.get('wave')) if x)
         elif world_info.get('in_combat'):
-            status = _('In combat: %s', world_info['hedef']) if world_info.get('hedef') else _('In combat')
+            status = _('In combat: %s', world_info['target']) if world_info.get('target') else _('In combat')
         elif world_info.get('safe'):
             status = _('In a safe zone')
         else:
             status = _('Flying through space')
-        sub = [x for x in (location.get('harita') if a('harita') else None, status) if x]
-        firma = FIRMA.get(pl.get('firma'))
+        sub = [x for x in (location.get('map') if a('map') else None, status) if x]
+        firma = FIRMA.get(pl.get('company'))
         e = {'details': ' · '.join(x.strip() for x in parent if x.strip()) or _('In space'),
              'state': ' · '.join(sub) or _('In game'),
-             'assets': {'large_image': region(location.get('harita'), gate) if a('harita') else LOGO,
-                        'large_text': (_('%s map', location['harita']) if a('harita') and location.get('harita') else 'OpenOrbit')}}
-        if a('firma') and firma:
+             'assets': {'large_image': region(location.get('map'), gate) if a('map') else LOGO,
+                        'large_text': (_('%s map', location['map']) if a('map') and location.get('map') else 'OpenOrbit')}}
+        if a('company') and firma:
             e['assets'].update(small_image=BADGE % firma, small_text=firma.upper())
         if a('sure') and live.get('session_start'):
             e['timestamps'] = {'start': int(live['session_start'])}
-        friends = live.get('arkadas')
-        if a('grup') and friends and friends.get('guests'):
-            e['party'] = {'id': 'openorbit-%s' % (pl.get('ad') or 'host'), 'size': [len(friends['guests']) + 1, friends['max_count'] + 1]}
+        friends = live.get('friend')
+        if a('group') and friends and friends.get('guests'):
+            e['party'] = {'id': 'openorbit-%s' % (pl.get('name') or 'host'), 'size': [len(friends['guests']) + 1, friends['max_count'] + 1]}
     e.update(details_url=GITHUB, state_url=GITHUB)       # kartın yazıları ve görselleri tıklanınca GitHub sayfası
     e['assets'].update({k + '_url': GITHUB for k in ('large', 'small') if k + '_image' in e['assets']})
     if a('buttons'):
@@ -185,7 +185,7 @@ class Presence:
             except Exception as e:
                 self.log('discord rich presence: %r' % e)
                 self.b.close()
-                self.state, self.error, self.last = 'hata', str(e), None
+                self.state, self.error, self.last = 'error', str(e), None
 
     def _step(self):
         if not self.setting.get('discord_rp'):
@@ -197,7 +197,7 @@ class Presence:
             self.state, self.last = 'off', None
             return
         if not self.b.f:
-            if time.monotonic() - self.trial < 30 and self.state in ('discord_not_running', 'hata'):
+            if time.monotonic() - self.trial < 30 and self.state in ('discord_not_running', 'error'):
                 return
             self.trial = time.monotonic()
             if not self.b.open_():

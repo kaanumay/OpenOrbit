@@ -22,9 +22,9 @@ PANEL_DIR = os.path.dirname(os.path.abspath(__file__))
 SERVER = os.path.dirname(PANEL_DIR)
 NO_WINDOW = 0x08000000 if os.name == 'nt' else 0
 PORT_80_COMMAND = 'echo net.ipv4.ip_unprivileged_port_start=80 | sudo tee /etc/sysctl.d/90-openorbit.conf && sudo sysctl --system'
-PORTS = {'web': (8090, 80), 'oyun': (8081, 7771)}
+PORTS = {'web': (8090, 80), 'game': (8081, 7771)}
 PORT_NAMES = {8090: 'Web login', 80: 'Web API', 8081: 'Game', 7771: 'Chat', 8099: 'Control channel'}
-SCRIPTS = {'web': 'web.py', 'oyun': 'game.py'}
+SCRIPTS = {'web': 'web.py', 'game': 'game.py'}
 EARLY_EXIT_SEC = 15
 
 
@@ -170,21 +170,21 @@ def process_info(pid):
             name, command = ps('comm='), ps('args=')
         except (OSError, subprocess.SubprocessError):
             name = command = ''
-        return {'pid': pid, 'ad': os.path.basename(name) or '?', 'command': command}
+        return {'pid': pid, 'name': os.path.basename(name) or '?', 'command': command}
     try:
         cmd = ('$p = Get-CimInstance Win32_Process -Filter "ProcessId=%d"; if ($p) { $p.Name; $p.CommandLine }' % int(pid))
         r = subprocess.run(['powershell', '-NoProfile', '-NonInteractive', '-Command', cmd], capture_output=True, text=True,
                            timeout=15, creationflags=NO_WINDOW, encoding='utf8', errors='replace')
         lines = r.stdout.splitlines()
-        return {'pid': pid, 'ad': lines[0].strip() if lines else '?', 'command': lines[1].strip() if len(lines) > 1 else ''}
+        return {'pid': pid, 'name': lines[0].strip() if lines else '?', 'command': lines[1].strip() if len(lines) > 1 else ''}
     except Exception:
-        return {'pid': pid, 'ad': '?', 'command': ''}
+        return {'pid': pid, 'name': '?', 'command': ''}
 
 
 def is_our_server(info):
     """Bu projenin web.py / game.py süreci mi (komut satırından)?"""
     c = (info.get('command') or '').lower().replace('/', '\\')
-    return 'python' in (info.get('ad') or '').lower() and any(os.path.join(SERVER, s).lower() in c or
+    return 'python' in (info.get('name') or '').lower() and any(os.path.join(SERVER, s).lower() in c or
                                                              ('\\server\\%s' % s) in c for s in SCRIPTS.values())
 
 
@@ -370,11 +370,11 @@ class Process:
 
     def status(self):
         if self.proc is None:
-            return {'durum': 'off'}
+            return {'state': 'off'}
         code = self.proc.poll()
         if code is None:
-            return {'durum': 'on', 'pid': self.proc.pid, 'sure_sn': int(time.time() - self.started_at)}
-        return {'durum': 'off' if self.stopped else 'crashed', 'exit_code': code}
+            return {'state': 'on', 'pid': self.proc.pid, 'sure_sn': int(time.time() - self.started_at)}
+        return {'state': 'off' if self.stopped else 'crashed', 'exit_code': code}
 
 
 class Manager:
@@ -401,7 +401,7 @@ class Manager:
 
     def running(self):
         """Panelin açtığı oyun sunucusu çalışıyor mu?"""
-        s = self.servers.get('oyun')
+        s = self.servers.get('game')
         return bool(s and s.alive)
 
     def foreign_ports(self):
@@ -417,8 +417,8 @@ class Manager:
             pid = owners.get(port)
             if pid in ours:
                 continue
-            info = process_info(pid) if pid else {'pid': None, 'ad': '?', 'command': ''}
-            out.append({'port': port, 'ad': _(PORT_NAMES[port]), 'pid': pid, 'process': info['ad'], 'command': info['command'][:300],
+            info = process_info(pid) if pid else {'pid': None, 'name': '?', 'command': ''}
+            out.append({'port': port, 'name': _(PORT_NAMES[port]), 'pid': pid, 'process': info['name'], 'command': info['command'][:300],
                         'ours': is_our_server(info)})
         return out
 
@@ -442,7 +442,7 @@ class Manager:
                 self.stop_servers()                               # başka kayıt ya da kip: yeniden başlat
             started = []
             py = python_exe()
-            for name in ('web', 'oyun'):
+            for name in ('web', 'game'):
                 s = self.servers.get(name)
                 if s and s.alive:
                     continue
@@ -457,7 +457,7 @@ class Manager:
                 env = {'OO_WORLD': world} if world else None
                 if name == 'web' and env_json:       # sunucunun kendi oyuncusunun oturumu (cok_oyunculu AYAR['yerel'])
                     cmd.append('--session=%s' % json.loads(env_json)['local'])
-                if name == 'oyun':
+                if name == 'game':
                     stop_file = os.path.join(self.logs, '.durdur_oyun')
                     cmd += ['--settings=%s' % settings, '--stop-file=%s' % stop_file] + (['--control'] if control else [])
                     if env_json:
@@ -472,12 +472,12 @@ class Manager:
             self.bot = bot_signature(bot)
             deadline = time.time() + 20
             while time.time() < deadline:
-                if all(listening(PORTS[name][0]) for name in ('web', 'oyun')):
+                if all(listening(PORTS[name][0]) for name in ('web', 'game')):
                     break
-                dead = [name for name in ('web', 'oyun') if not self.servers[name].alive]
+                dead = [name for name in ('web', 'game') if not self.servers[name].alive]
                 if dead:
                     lines = tail(self.servers[dead[0]].console, 12)
-                    raise RuntimeError(_('The %s server closed while starting:\n%s', _({'web': 'Web', 'oyun': 'Game'}[dead[0]]),
+                    raise RuntimeError(_('The %s server closed while starting:\n%s', _({'web': 'Web', 'game': 'Game'}[dead[0]]),
                                          '\n'.join(lines)))
                 time.sleep(0.15)
             else:
@@ -511,7 +511,7 @@ class Manager:
 
     def stop_servers(self):
         with self.lock:
-            for name in ('oyun', 'web'):
+            for name in ('game', 'web'):
                 s = self.servers.get(name)
                 if s:
                     s.stop()
@@ -552,13 +552,13 @@ class Manager:
 
     # ------------------------------------------------------------ durum
     def status(self):
-        srv = {name: (s.status() if s else {'durum': 'off'}) for name, s in ((a, self.servers.get(a)) for a in ('web', 'oyun'))}
+        srv = {name: (s.status() if s else {'state': 'off'}) for name, s in ((a, self.servers.get(a)) for a in ('web', 'game'))}
         table = listeners()
         for name, st in srv.items():
             st['ports'] = {p: listening(p, table) for p in PORTS[name]}
-        cl = {'durum': 'on' if self.client_alive() else 'off'}
+        cl = {'state': 'on' if self.client_alive() else 'off'}
         if self.client_alive():
             cl.update(pid=self.client.pid, sure_sn=int(time.time() - self.client_started))
         cl['last'] = self.last_client
-        return {'servers': srv, 'client': cl, 'profil': self.profile, 'record': self.slot,
-                'control_channel': listening(8099, table), 'arkadas': self.friend, 'multi': self.multi, 'guest': self.guest}
+        return {'servers': srv, 'client': cl, 'profile': self.profile, 'record': self.slot,
+                'control_channel': listening(8099, table), 'friend': self.friend, 'multi': self.multi, 'guest': self.guest}

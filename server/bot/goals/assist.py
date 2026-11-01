@@ -9,13 +9,13 @@ from .. import abstract_sim as S
 
 @target
 class Helping(Goal):
-    name = 'yardim'
-    permission = 'yardim'
+    name = 'assist'
+    permission = 'assist'
     min_sec = 240
 
     def eligible(self, bot, b):
         n = bot.k.get('intent') or {}
-        return n.get('hedef') == self.name and bool((n.get('plan') or {}).get('harita'))
+        return n.get('target') == self.name and bool((n.get('plan') or {}).get('map'))
 
     def points(self, bot, b):
         return 0.3 + 0.5 * bot.o('helpfulness')
@@ -23,7 +23,7 @@ class Helping(Goal):
     def start(self, bot, b):
         plan = (bot.k.get('intent') or {}).get('plan') or {}
         bot.plan.update(plan)
-        if not S.go(bot, plan['harita'], b.y, b.now):
+        if not S.go(bot, plan['map'], b.y, b.now):
             bot.plan['finished'] = True
 
     def abstract(self, bot, dt, y):
@@ -34,7 +34,7 @@ class Helping(Goal):
 
     def concrete(self, bot, g, w, now):
         """Yardım isteyen bu dünyanın kahramanıysa yanına git (düşmanla savaş govde'nin PvP aklında: avdaymış gibi)."""
-        if g.target is not None or bot.plan.get('ad', '').lower() != str(w.p.d['pilot'].get('userName', '')).lower():
+        if g.target is not None or bot.plan.get('name', '').lower() != str(w.p.d['pilot'].get('userName', '')).lower():
             return False
         hx, hy = w.hero_pos(now)
         nx, ny = g.mover.pos(now)

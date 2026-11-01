@@ -1,6 +1,6 @@
 {
  "_description": "belgeler/wiki/boxes.md (darkorbitwiki: kutular) -> server/data/kutular.json: haritalardaki anahtarlı ganimet kutuları.\n\nKutu türleri istemcinin kendi adları (AddBoxCommand.boxType; çeviri dosyasında PIRATE_BOOTY = Green Booty Box …), anahtarlar\nistemcinin eşya kimlikleri (resource_booty-key …), anahtarsız toplama metni istemcinin msg_loot_failed_no_booty-key-* anahtarları,\nseyir defterine \"booty_key_<tür>_used\", HUD'daki anahtar sayacı eski protokolün \"0|A|<kod>|<adet>\" satırı (SetAttributeAssemblyHelper.AssembleBootyKeysUpdate: BK yeşil,\nBKR kırmızı, BKB mavi, BKS gümüş, BKBB obsidiyen, BKBLC / BKBLD Black Light Cipher / Decoder).\nİçerikler wiki'den: kırmızı, mavi ve obsidiyen kutuların grup ve grup içi olasılıkları ve adetleri aynen; yeşil, altın ve gümüş\nkutularda wiki adet ve olasılık vermiyor (adet ADET tablosu, ağırlık AGIRLIK tablosu: uyarlama). Black Light Cache: bir Centurion\ntasarımı (sahipse 10.000 uridyum, wiki); Black Light Crypt: X1 / X2 gemi modülleri (wiki'nin \"?\" satırları atlanır).\nKutu sayıları, yeniden doğma süreleri uyarlama; altın kutular ayın 2. ve 4. cuması; E8: Obsidian, R&B ve Apocalypse haftalık\nrotasyonda (takvim.py obsidian_booty, rb_booty, apocalypse_booty; gerçek oyunun bp-calendar'ı), Perseus' Blessing Perseus' Grace'te,\nBattle Pass Box Battle Pass'li etkinliklerde (içerik etkinliğin grubu: 'reward_event').\nE7: Astral (BKA), Prime Astral (BKAP), Apocalypse (MASQUE_BOOTY_BOX, BKM), Prometheus (BKPR), Perseus' Blessing (BKPG) ve\nLaurel (BKLL) kutuları; kodlar kayıttaki girişin \"0|A|BK…|0\" satırlarından adla eşlendi. Wiki adet vermeyenlerde adet ADET_E7\n(uyarlama); wiki'nin yazım hatalı ya da istemcide başka adla geçen satırları E7_NAMES'te (XHV02 = XV02, HP-XHU2 = HP-XU02, CC-A / CC-C =\nCosmic Class A / C, Prime Coupon = PrimeCoupon, Travel Permit = Deep Space Echoes bileti; Booster Package: damage booster'ın 10 saati,\nuyarlama). \"Package:\" satırları Epic tasarım paketidir: ['paket', [[lootId, adet] …], ağırlık], açılışta paketin hepsi verilir\n(ganimet.pick_all; sahip olunan tasarım paketten atlanır). Prometheus ve Laurel'in anahtarının kaynağı yok: takvimleri E8'in\netkinlikleri (prometheus, athena), o güne dek doğmazlar.\nModül kaynakları (uyarlama): ek mağazada satılan, wiki'ye göre bir etkinlikle kazanılan modüller o etkinliğin Battle Pass Box\nsütununa çok düşük ağırlıkla (BP_EK); Battle Pass'i olmayan Chromin Rush ve Eternal Gate'in modülleri o etkinliklerin araçlarına bırakıldı.\nÜreten: tools/kutular.py.",
- "haritalar": {
+ "maps": {
   "X-2..X-8": "^[123]-[2-8]$",
   "4-X": "^4-\\d$",
   "5-X": "^5-[123]$",
@@ -16,16 +16,16 @@
  "bl_repeat_uridium": 10000,
  "boxes": {
   "PIRATE_BOOTY": {
-   "ad": "Green Box",
+   "name": "Green Box",
    "anahtar": "resource_booty-key",
    "code": "BK",
    "missing_message": "msg_loot_failed_no_booty-key-green",
-   "haritalar": [
+   "maps": [
     "X-2..X-8",
     "4-X",
     "5-X"
    ],
-   "adet": 3,
+   "count": 3,
    "renew_sec": [
     300,
     600
@@ -301,16 +301,16 @@
    ]
   },
   "PIRATE_BOOTY_GOLD": {
-   "ad": "Gold Box",
+   "name": "Gold Box",
    "anahtar": "resource_booty-key",
    "code": "BK",
    "missing_message": "msg_loot_failed_no_booty-key-green",
-   "haritalar": [
+   "maps": [
     "X-2..X-8",
     "4-X",
     "5-X"
    ],
-   "adet": 3,
+   "count": 3,
    "renew_sec": [
     300,
     600
@@ -601,16 +601,16 @@
    ]
   },
   "PIRATE_BOOTY_RED": {
-   "ad": "Red Box",
+   "name": "Red Box",
    "anahtar": "resource_booty-key-red",
    "code": "BKR",
    "missing_message": "msg_loot_failed_no_booty-key-red",
-   "haritalar": [
+   "maps": [
     "X-2..X-8",
     "4-X",
     "5-X"
    ],
-   "adet": 1,
+   "count": 1,
    "renew_sec": [
     600,
     1200
@@ -781,16 +781,16 @@
    ]
   },
   "PIRATE_BOOTY_BLUE": {
-   "ad": "Blue Box",
+   "name": "Blue Box",
    "anahtar": "resource_booty-key-blue",
    "code": "BKB",
    "missing_message": "msg_loot_failed_no_booty-key-blue",
-   "haritalar": [
+   "maps": [
     "X-2..X-8",
     "4-X",
     "5-X"
    ],
-   "adet": 1,
+   "count": 1,
    "renew_sec": [
     600,
     1200
@@ -961,15 +961,15 @@
    ]
   },
   "BLACK_BOOTY_BOX": {
-   "ad": "Obsidian Box",
+   "name": "Obsidian Box",
    "anahtar": "resource_booty-key-black",
    "code": "BKBB",
    "missing_message": "msg_loot_failed_no_booty-key-black",
-   "haritalar": [
+   "maps": [
     "X-2..X-8",
     "5-X"
    ],
-   "adet": 1,
+   "count": 1,
    "renew_sec": [
     600,
     1200
@@ -1150,14 +1150,14 @@
    ]
   },
   "PIRATE_BOOTY_SILVER": {
-   "ad": "Silver Box",
+   "name": "Silver Box",
    "anahtar": "resource_booty-key-silver",
    "code": "BKS",
    "missing_message": "msg_loot_failed_no_booty-key-silver",
-   "haritalar": [
+   "maps": [
     "5-4"
    ],
-   "adet": 6,
+   "count": 6,
    "renew_sec": [
     300,
     600
@@ -1215,14 +1215,14 @@
    ]
   },
   "UNSTABLE_BLACKLIGHT_CACHE": {
-   "ad": "Black Light Cache",
+   "name": "Black Light Cache",
    "anahtar": "resource_booty-key-blacklight-cipher",
    "code": "BKBLC",
    "missing_message": "msg_loot_failed_no_booty-key-blacklight-cipher",
-   "haritalar": [
+   "maps": [
     "BL"
    ],
-   "adet": 2,
+   "count": 2,
    "renew_sec": [
     900,
     1800
@@ -1483,14 +1483,14 @@
    ]
   },
   "BLACKLIGHT-CRYPT": {
-   "ad": "Black Light Crypt",
+   "name": "Black Light Crypt",
    "anahtar": "resource_booty-key-blacklight-decoder",
    "code": "BKBLD",
    "missing_message": "msg_loot_failed_no_booty-key-blacklight-decoder",
-   "haritalar": [
+   "maps": [
     "BL"
    ],
-   "adet": 1,
+   "count": 1,
    "renew_sec": [
     900,
     1800
@@ -1541,15 +1541,15 @@
    ]
   },
   "ASTRAL_BOOTY_BOX": {
-   "ad": "Astral Box",
+   "name": "Astral Box",
    "anahtar": "resource_booty-key-astral",
    "code": "BKA",
    "missing_message": "msg_loot_failed_no_booty-key-astral",
-   "haritalar": [
+   "maps": [
     "X-2..X-8",
     "4-X"
    ],
-   "adet": 1,
+   "count": 1,
    "renew_sec": [
     600,
     1200
@@ -1655,15 +1655,15 @@
    ]
   },
   "ASTRAL_PRIME_BOOTY_BOX": {
-   "ad": "Prime Astral Box",
+   "name": "Prime Astral Box",
    "anahtar": "resource_booty-key-astral-prime",
    "code": "BKAP",
    "missing_message": "msg_loot_failed_no_booty-key-astral-prime",
-   "haritalar": [
+   "maps": [
     "X-2..X-8",
     "4-X"
    ],
-   "adet": 1,
+   "count": 1,
    "renew_sec": [
     900,
     1800
@@ -1804,15 +1804,15 @@
    ]
   },
   "MASQUE_BOOTY_BOX": {
-   "ad": "Apocalypse Box",
+   "name": "Apocalypse Box",
    "anahtar": "resource_booty-key-masque",
    "code": "BKM",
    "missing_message": "msg_loot_failed_no_booty-key-masque",
-   "haritalar": [
+   "maps": [
     "X-2..X-8",
     "5-X"
    ],
-   "adet": 1,
+   "count": 1,
    "renew_sec": [
     600,
     1200
@@ -1998,16 +1998,16 @@
    ]
   },
   "PROMETHEUS_BOOTY_BOX": {
-   "ad": "Prometheus Box",
+   "name": "Prometheus Box",
    "anahtar": "resource_booty-key-prometheus",
    "code": "BKPR",
    "missing_message": "msg_loot_failed_no_booty-key-prometheus",
-   "haritalar": [
+   "maps": [
     "X-2..X-8",
     "4-X",
     "5-X"
    ],
-   "adet": 1,
+   "count": 1,
    "renew_sec": [
     600,
     1200
@@ -2176,7 +2176,7 @@
      0.3545
     ],
     [
-     "paket",
+     "package",
      [
       [
        "ship_spectrum_design_spectrum-inferno",
@@ -2194,7 +2194,7 @@
      0.025
     ],
     [
-     "paket",
+     "package",
      [
       [
        "ship_spectrum_design_spectrum-ocean",
@@ -2216,7 +2216,7 @@
      0.025
     ],
     [
-     "paket",
+     "package",
      [
       [
        "ship_goliath-plus_design_goliath-plus-carbonite",
@@ -2238,7 +2238,7 @@
      0.025
     ],
     [
-     "paket",
+     "package",
      [
       [
        "ship_diminisher_design_diminisher-lava",
@@ -2262,14 +2262,14 @@
    ]
   },
   "PERSEUS_BLESSING_BOOTY_BOX": {
-   "ad": "Perseus Blessing",
+   "name": "Perseus Blessing",
    "anahtar": "resource_booty-key-perseus",
    "code": "BKPG",
    "missing_message": "msg_loot_failed_no_booty-key-perseus",
-   "haritalar": [
+   "maps": [
     "X-1..X-8"
    ],
-   "adet": 1,
+   "count": 1,
    "renew_sec": [
     600,
     1200
@@ -2491,14 +2491,14 @@
    "_forum_tr": "Resmî Türk forumu 1451139, 1455900: İzin Plus ve diğer öğeler (mayın, Ekstra Enerji, P.E.T. Yakıtı, Onarım Kuponu, Uridium/Kredi); adet ve ağırlıklar uyarlama"
   },
   "LAUREL_BOX": {
-   "ad": "Laurel Box",
+   "name": "Laurel Box",
    "anahtar": "resource_booty-key-laurel",
    "code": "BKLL",
    "missing_message": "msg_loot_failed_no_booty-key-laurel",
-   "haritalar": [
+   "maps": [
     "X-1..X-8"
    ],
-   "adet": 1,
+   "count": 1,
    "renew_sec": [
     600,
     1200
@@ -2592,16 +2592,16 @@
    ]
   },
   "BATTLEPASS": {
-   "ad": "Battle Pass Box",
+   "name": "Battle Pass Box",
    "anahtar": "resource_battle-pass-key",
    "code": null,
    "missing_message": "msg_loot_failed_no_booty-key-battle-pass-key",
-   "haritalar": [
+   "maps": [
     "X-2..X-8",
     "4-X",
     "5-X"
    ],
-   "adet": 1,
+   "count": 1,
    "renew_sec": [
     600,
     1200
@@ -3963,16 +3963,16 @@
    "_forum_tr": "Resmî Türk forumu: Plutus kutusu (A-BL %15, Nobilis Plus tasarımları %0,2, Orcus/Pusat P.E.T. %0,25/%0,3; NOS01/SEN01/TAR01 forumda yok: bu modüllerin tek kaynağı olduğu için %0,4 uyarlamayla kaldı), Astral (Mucosum %5, Astral Pusat Plus %1), Kış/Labirent (Citadel Plus Frost %0,5; XW01 forumda yok): her tablo toplamı %100"
   },
   "EMPYRIAN_BOOTY_BOX": {
-   "ad": "Empyrian Box",
+   "name": "Empyrian Box",
    "anahtar": "resource_booty-key-empyrian",
    "code": "BKE",
    "missing_message": "msg_loot_failed_no_booty-key-empyrian",
-   "haritalar": [
+   "maps": [
     "X-2..X-8",
     "4-X",
     "5-X"
    ],
-   "adet": 2,
+   "count": 2,
    "renew_sec": [
     600,
     1200
@@ -4141,7 +4141,7 @@
      1.2999
     ],
     [
-     "paket",
+     "package",
      [
       [
        "ship_g-champion_design_g-champion-argon",
@@ -4163,7 +4163,7 @@
      0.025
     ],
     [
-     "paket",
+     "package",
      [
       [
        "ship_sentinel_design_sentinel-lava",
@@ -4181,7 +4181,7 @@
      0.025
     ],
     [
-     "paket",
+     "package",
      [
       [
        "ship_berserker_design_berserker-sandstorm",
@@ -4199,7 +4199,7 @@
      0.025
     ],
     [
-     "paket",
+     "package",
      [
       [
        "ship_cyborg_design_cyborg-carbonite",
@@ -4224,16 +4224,16 @@
    "_kaynak": "wiki: aşama ve eşya olasılıkları, Epic tasarım paketleri"
   },
   "PROSPEROUS_BOOTY_BOX": {
-   "ad": "Prosperous Box",
+   "name": "Prosperous Box",
    "anahtar": "resource_booty-key-prosperous",
    "code": "BKP",
    "missing_message": "msg_loot_failed_no_booty-key-prosperous",
-   "haritalar": [
+   "maps": [
     "X-2..X-8",
     "4-X",
     "5-X"
    ],
-   "adet": 2,
+   "count": 2,
    "renew_sec": [
     600,
     1200
@@ -4427,7 +4427,7 @@
      0.39
     ],
     [
-     "paket",
+     "package",
      [
       [
        "ship_venom_design_venom-argon",
@@ -4445,7 +4445,7 @@
      0.025
     ],
     [
-     "paket",
+     "package",
      [
       [
        "ship_orcus_design_orcus-inferno",
@@ -4467,7 +4467,7 @@
      0.025
     ],
     [
-     "paket",
+     "package",
      [
       [
        "ship_cyborg_design_cyborg-carbonite",
@@ -4489,7 +4489,7 @@
      0.025
     ],
     [
-     "paket",
+     "package",
      [
       [
        "drone_designs_skull-red",
@@ -4515,14 +4515,14 @@
    "_kaynak": "wiki: aşama ve eşya olasılıkları, Epic tasarım paketleri; DMG-VEN01 (wiki: Plague Mutation ödülü, Prosperous'a eşlenir) %0,4 ağırlıkla (uyarlama)"
   },
   "LUCENT_ALIEN_EGG_BOOTY_BOX": {
-   "ad": "Lucent Egg",
+   "name": "Lucent Egg",
    "anahtar": "resource_booty-key-lucent",
    "code": "BKL",
    "missing_message": "msg_loot_failed_no_booty-key-lucent",
-   "haritalar": [
+   "maps": [
     "X-2..X-8"
    ],
-   "adet": 2,
+   "count": 2,
    "renew_sec": [
     600,
     1200
@@ -4767,12 +4767,12 @@
    "_kaynak": "wiki: içerik (olasılık yok: tasarımlar %0,5 ağırlık, diğerleri 3; uyarlama)"
   },
   "GREEN_ECHO_BOX": {
-   "ad": "Common Echo Chest",
+   "name": "Common Echo Chest",
    "anahtar": "resource_echo-key-green",
    "code": "BKEG",
    "missing_message": "msg_loot_failed_no_echo-key-green",
-   "haritalar": [],
-   "adet": 0,
+   "maps": [],
+   "count": 0,
    "renew_sec": null,
    "calendar": null,
    "ledger": null,
@@ -4801,12 +4801,12 @@
    "_tool": "new_systems"
   },
   "BLUE_ECHO_BOX": {
-   "ad": "Rare Echo Chest",
+   "name": "Rare Echo Chest",
    "anahtar": "resource_echo-key-blue",
    "code": "BKEB",
    "missing_message": "msg_loot_failed_no_echo-key-blue",
-   "haritalar": [],
-   "adet": 0,
+   "maps": [],
+   "count": 0,
    "renew_sec": null,
    "calendar": null,
    "ledger": null,
@@ -4835,12 +4835,12 @@
    "_tool": "new_systems"
   },
   "PURPLE_ECHO_BOX": {
-   "ad": "Epic Echo Chest",
+   "name": "Epic Echo Chest",
    "anahtar": "resource_echo-key-purple",
    "code": "BKEP",
    "missing_message": "msg_loot_failed_no_echo-key-purple",
-   "haritalar": [],
-   "adet": 0,
+   "maps": [],
+   "count": 0,
    "renew_sec": null,
    "calendar": null,
    "ledger": null,
@@ -4869,12 +4869,12 @@
    "_tool": "new_systems"
   },
   "RED_ECHO_BOX": {
-   "ad": "Legendary Echo Chest",
+   "name": "Legendary Echo Chest",
    "anahtar": "resource_echo-key-red",
    "code": "BKER",
    "missing_message": "msg_loot_failed_no_echo-key-red",
-   "haritalar": [],
-   "adet": 0,
+   "maps": [],
+   "count": 0,
    "renew_sec": null,
    "calendar": null,
    "ledger": null,
@@ -4893,12 +4893,12 @@
    "_tool": "new_systems"
   },
   "APOTHEOSIS": {
-   "ad": "Apotheosis Booty Box",
+   "name": "Apotheosis Booty Box",
    "anahtar": "resource_booty-key-apotheosis",
    "code": "BKAPO",
    "missing_message": "msg_loot_failed_no_booty-key-apotheosis",
-   "haritalar": [],
-   "adet": 0,
+   "maps": [],
+   "count": 0,
    "renew_sec": null,
    "calendar": null,
    "ledger": null,

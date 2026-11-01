@@ -25,8 +25,8 @@ import galaxy_gates as KAPI
 import event_calendar as CAL
 
 D = EKP.D.get('experiment') or {}
-EVENT = 'plutus_experiment' if 'plutus_experiment' in CAL.EVENTS else D.get('etkinlik', 'plutus')
-BEACON = (D.get('beacon') or {}).get('tur', 'experiment_beacon')
+EVENT = 'plutus_experiment' if 'plutus_experiment' in CAL.EVENTS else D.get('event', 'plutus')
+BEACON = (D.get('beacon') or {}).get('type', 'experiment_beacon')
 PREFIX = 'experiment_'
 
 
@@ -37,7 +37,7 @@ def type_name(risk, i):
 def _register():
     if not D:
         return
-    world_module.CFG['types'][BEACON] = {k: v for k, v in D['beacon'].items() if k != 'tur'}
+    world_module.CFG['types'][BEACON] = {k: v for k, v in D['beacon'].items() if k != 'type'}
     for key, r in D['risks'].items():
         for i, a in enumerate(r['alien_spawns']):
             world_module.CFG['types'][type_name(key, i)] = EKP._tip(a)
@@ -62,7 +62,7 @@ def risk_of(world, faction):
 
 def tier(risk, dealt):
     """Uzaylıya verilen hasarın kutu kademesi (alt sınırı geçilen en yüksek; alt sınırın altında kutu yok) ya da None."""
-    got = [t for t in D['risks'][risk]['boxes'] if dealt >= t['den']]
+    got = [t for t in D['risks'][risk]['boxes'] if dealt >= t['from_']]
     return got[-1] if got else None
 
 
@@ -85,7 +85,7 @@ class PlutusExperiment:
     def cooldown_left(self, risk, now):
         if SET.get('no_entry_limit'):                       # panel: günlük/yıllık/bir kez ve bekleme süresi yok
             return 0
-        return max(0.0, self.st['last'].get(risk, 0) + D['risks'][risk]['bekleme_sn'] - now)
+        return max(0.0, self.st['last'].get(risk, 0) + D['risks'][risk]['cooldown_sec'] - now)
 
     @staticmethod
     def cooldown_msg(left):
@@ -138,10 +138,10 @@ class PlutusExperiment:
         with self.p.lock:
             self.st['last'][risk] = now
             self.p.dirty = True
-        self.enc = dict(risk=risk, tower=n.id, spawned=now, ilk=None, ipucu=False, warning=False, alien=None)
-        self.log('   Plutus’ Experiments: %s işaret kulesi doğdu (%d, %d)' % (D['risks'][risk]['ad'], x, y))
+        self.enc = dict(risk=risk, tower=n.id, spawned=now, first=None, tooltip=False, warning=False, alien=None)
+        self.log('   Plutus’ Experiments: %s işaret kulesi doğdu (%d, %d)' % (D['risks'][risk]['name'], x, y))
         return [KAPI.screen('key:msg_npc_spawning_beacon_high_risk_spawn') if risk == 'high'
-                else KAPI.screen('A %s beacon has spawned.' % D['risks'][risk]['ad'])]
+                else KAPI.screen('A %s beacon has spawned.' % D['risks'][risk]['name'])]
 
     @staticmethod
     def beacon_hit(n, dmg):
@@ -161,17 +161,17 @@ class PlutusExperiment:
             if b is None:
                 self.enc = None
                 return msgs
-            if e['ilk'] is None:
+            if e['first'] is None:
                 if b.dealt > 0:
-                    e['ilk'] = now
+                    e['first'] = now
                     msgs.append(KAPI.screen('key:msg_npc_spawning_beacon_first_shot'))
                 elif now >= e['spawned'] + D['fire_sec']:       # 2 dakikada atılmadı: kaçar
                     msgs += w.remove_npc(b) + [KAPI.screen('key:msg_npc_spawning_beacon_escaped')]
                     self.enc = None
                 return msgs
-            t = now - e['ilk']
-            if not e['ipucu'] and t >= D['hint_sec']:
-                e['ipucu'] = True
+            t = now - e['first']
+            if not e['tooltip'] and t >= D['hint_sec']:
+                e['tooltip'] = True
                 msgs.append(KAPI.screen('key:msg_npc_spawning_beacon_10_sec'))
             if not e['warning'] and t >= D['wave_sec'] - 10:       # 45 sn'lik sayacın 35. saniyesi (forum 143093)
                 e['warning'] = True
@@ -190,7 +190,7 @@ class PlutusExperiment:
         n.gate, n.hunt, n.dealt = True, True, 0
         n.damage_hook = lambda dmg, n=n: setattr(n, 'dealt', n.dealt + dmg)
         e['alien'] = n.id
-        self.log('   Plutus’ Experiments: kule %d hasar aldı -> %s' % (b.dealt, D['risks'][risk]['alien_spawns'][i]['ad']))
+        self.log('   Plutus’ Experiments: kule %d hasar aldı -> %s' % (b.dealt, D['risks'][risk]['alien_spawns'][i]['name']))
         return msgs
 
     # ------------------------------------------------------------ ödül
@@ -201,9 +201,9 @@ class PlutusExperiment:
         risk = npc.tip[len(PREFIX):].rsplit('_', 1)[0]
         t = tier(risk, min(getattr(npc, 'dealt', 0), npc.d['hp'] + npc.d['kalkan']))
         if t:
-            h = w.drop_box(t['tur'], x, y, None, 900)
+            h = w.drop_box(t['type'], x, y, None, 900)
             w.boxes[h]['al'] = lambda b, t=t: self.collect(w, t)
-            self.log('   Plutus’ Experiments: %s düştü (%d hasar)' % (t['tur'], npc.dealt))
+            self.log('   Plutus’ Experiments: %s düştü (%d hasar)' % (t['type'], npc.dealt))
         return []
 
     def collect(self, w, t):
@@ -212,7 +212,7 @@ class PlutusExperiment:
         for loot, n in t['guaranteed']:
             msgs += w.grant_loot(loot, n)
         for loot, n, chance in t['chance']:
-            if random.random() < SET.chance('drop', chance, 'etkinlik'):
+            if random.random() < SET.chance('drop', chance, 'event'):
                 msgs += w.grant_loot(loot, n)
         return msgs + self.add_points(w, t['pp'])
 
@@ -221,13 +221,13 @@ class PlutusExperiment:
         st = self.st
         with self.p.lock:
             st['pp'] += n
-            due = [r for r in D['point_exchange'] if st['pp'] >= r['puan'] and r['puan'] not in st['claimed']]
-            st['claimed'] += [r['puan'] for r in due]
+            due = [r for r in D['point_exchange'] if st['pp'] >= r['points'] and r['points'] not in st['claimed']]
+            st['claimed'] += [r['points'] for r in due]
             self.p.dirty = True
         msgs = [KAPI.screen('Progression points: +%d (%d)' % (n, st['pp']))]
         for r in due:
             for loot, k in r['reward']:
                 msgs += w.grant_loot(loot, k)
-            msgs.append(KAPI.screen('Progression reward (%d points) received.' % r['puan'], big=True))
-            self.log('   Plutus’ Experiments: %d puan ödülü' % r['puan'])
+            msgs.append(KAPI.screen('Progression reward (%d points) received.' % r['points'], big=True))
+            self.log('   Plutus’ Experiments: %d puan ödülü' % r['points'])
         return msgs

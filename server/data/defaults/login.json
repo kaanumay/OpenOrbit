@@ -1,6 +1,6 @@
 {
- "kaynak": "paylaşılabilir varsayılan şablon (tools/sablon_paylas.py; hesap ve oyuncu kimlikleri takma)",
- "giris": [
+ "source": "paylaşılabilir varsayılan şablon (tools/sablon_paylas.py; hesap ve oyuncu kimlikleri takma)",
+ "entry": [
   {
    "_m": "EnergyUpdateCommand",
    "maxCaptainEnergy": 0,
@@ -14892,7 +14892,7 @@
    "openedFromArchive": false
   }
  ],
- "hazir": [
+ "ready": [
   {
    "_m": "EventActivationStateCommand",
    "type": 15,
@@ -52350,7 +52350,7 @@
    "shipId": 3710086,
    "hangarId": 615176
   },
-  "esyalar": {
+  "items": {
    "98780928": "equipment_weapon_laser_lf-1",
    "98780931": "equipment_generator_speed_g3n-7900",
    "98780932": "equipment_generator_speed_g3n-7900",
@@ -52511,8 +52511,8 @@
    "ammunition_specialammo_bountiful-alien-cpu-easy": 0
   },
   "selected": {
-   "lazer": "ammunition_laser_lcb-10",
-   "roket": "ammunition_rocket_r-310"
+   "laser": "ammunition_laser_lcb-10",
+   "rocket": "ammunition_rocket_r-310"
   },
   "item_id": {
    "ammunition_laser_lcb-10": 98780933,

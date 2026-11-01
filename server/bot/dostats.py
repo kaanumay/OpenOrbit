@@ -42,7 +42,7 @@ def _cache_path():
 
 
 def names(languages, download=None):
-    """{dil: [ad]} (önbellekten ya da siteden; indir verilirse önbelleksiz, testler). Ulaşılamayan sayfa atlanır; hiç ad gelmezse
+    """{lang: [ad]} (önbellekten ya da siteden; indir verilirse önbelleksiz, testler). Ulaşılamayan sayfa atlanır; hiç ad gelmezse
     OSError."""
     from .personality import NAME_PATTERN
     route = _cache_path() if download is None else None
@@ -67,10 +67,10 @@ def names(languages, download=None):
                     except (OSError, ValueError) as e:
                         error = e
             if entries:
-                x = registry[lang] = {'t': time.time(), 'adlar': entries}
+                x = registry[lang] = {'t': time.time(), 'names': entries}
                 changed = True
         if x:
-            out[lang] = [a for a in x['adlar'] if NAME_PATTERN.match(a)]
+            out[lang] = [a for a in x['names'] if NAME_PATTERN.match(a)]
     if changed and route:
         os.makedirs(os.path.dirname(route), exist_ok=True)
         with open(route + '.tmp', 'w', encoding='utf8') as f:

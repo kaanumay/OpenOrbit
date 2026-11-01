@@ -74,23 +74,23 @@ def measure(c, kind, kw, map_id=None):
     if t == 6 and kind == 'kill' and kw.get('avatar', 'NPC') == 'NPC':
         return 1 if not m or str(kw.get('npc')) in m else 0
     if t == 7 and kind == 'damage':
-        return int(kw.get('adet', 0))
+        return int(kw.get('count', 0))
     if t == 9 and kind == 'damage_taken':
-        return int(kw.get('adet', 0))
+        return int(kw.get('count', 0))
     if t in (12, 13) and kind == 'distance':
-        return int(kw.get('adet', 0))
+        return int(kw.get('count', 0))
     if t in (20, 22) and kind == 'ammo':
-        return int(kw.get('adet', 0)) if not m or m[0] in ('0', ammo_kind(kw.get('loot', ''))) else 0
-    if t == 23 and kind == 'loot' and kw.get('kutu'):         # [firma, gemi, uzaylı, ?, cevher]: süzgeçler kutunun kaynağını bilmez
+        return int(kw.get('count', 0)) if not m or m[0] in ('0', ammo_kind(kw.get('loot', ''))) else 0
+    if t == 23 and kind == 'loot' and kw.get('box'):         # [firma, gemi, uzaylı, ?, cevher]: süzgeçler kutunun kaynağını bilmez
         ore = m[4] if len(m) > 4 else '0'
         return int(kw.get('amount', 0)) if not any(x not in ('', '0') for x in m[:3]) and ore in ('', '0', OLD_ORE.get(kw.get('loot'))) else 0
     if t == 27 and kind == 'kill' and kw.get('avatar', 'NPC') == 'NPC':
         return 1 if not m or str(kw.get('npc')) in m else 0
     if t == 29 and kind == 'damage':
         ids = counted(m)
-        return int(kw.get('adet', 0)) if not ids or str(kw.get('npc')) in ids else 0
+        return int(kw.get('count', 0)) if not ids or str(kw.get('npc')) in ids else 0
     if t == 30 and kind == 'damage_player':
-        return int(kw.get('adet', 0))
+        return int(kw.get('count', 0))
     if t == 34 and kind == 'map':
         return 1 if not m or str(kw.get('map')) in m else 0
     if t == 35 and kind == 'death':
@@ -112,18 +112,18 @@ def measure(c, kind, kw, map_id=None):
     if t == 67 and kind == 'loot':
         return int(kw.get('amount', 0)) if not m or kw.get('loot') in m else 0
     if t == 68 and kind == 'gate':
-        return 1 if kw.get('tur') == 'STARTER_GATE' else 0
+        return 1 if kw.get('type') == 'STARTER_GATE' else 0
     if t == 72 and kind == 'ore_update':
-        return 1 if len(m) > 1 and m[0] == kw.get('tur') and kw.get('ore') == 'resource_ore_' + m[1].lower() else 0
+        return 1 if len(m) > 1 and m[0] == kw.get('type') and kw.get('ore') == 'resource_ore_' + m[1].lower() else 0
     if t == 80 and kind == 'gate':
         names = counted(m)
-        return 1 if not names or str(kw.get('tur', '')).replace('_GATE', '') in names else 0
+        return 1 if not names or str(kw.get('type', '')).replace('_GATE', '') in names else 0
     if t == 85 and kind == 'assembly_collect':
-        return int(kw.get('adet', 1)) if not m or kw.get('tarif') in m else 0
+        return int(kw.get('count', 1)) if not m or kw.get('recipe') in m else 0
     if t == 87 and kind == 'objective':
         return 1
     if t == 89 and kind in ('spend', 'ammo'):       # cephane harcamak ('ammo' olayı; Pass görevleri onu 'spend'e çevirir: savas_bileti.measure)
-        return int(kw.get('adet', 0)) if not m or kw.get('loot') in m else 0
+        return int(kw.get('count', 0)) if not m or kw.get('loot') in m else 0
     if t == 95 and kind == 'sp_quest':
         return 1 if not m or str(kw.get('category')) == m[0] else 0
     if t == 96 and kind == 'login':

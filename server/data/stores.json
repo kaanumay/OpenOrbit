@@ -10,7 +10,7 @@
    {
     "id": "event-deal-mileage-coin-starter",
     "lootId": "package_event-deal-mileage-coin-starter",
-    "ad": "Starter Mileage Deal",
+    "name": "Starter Mileage Deal",
     "contents": [
      [
       "resource_collectable_mileage-coin",
@@ -29,12 +29,12 @@
       50
      ]
     ],
-    "uridyum": 15000
+    "uridium": 15000
    },
    {
     "id": "event-deal-mileage-coin-s",
     "lootId": "package_event-deal-mileage-coin-s",
-    "ad": "Mini Mileage Pack",
+    "name": "Mini Mileage Pack",
     "contents": [
      [
       "resource_collectable_mileage-coin",
@@ -53,12 +53,12 @@
       65
      ]
     ],
-    "uridyum": 20000
+    "uridium": 20000
    },
    {
     "id": "event-deal-mileage-coin-m",
     "lootId": "package_event-deal-mileage-coin-m",
-    "ad": "Medium Mileage Pack",
+    "name": "Medium Mileage Pack",
     "contents": [
      [
       "resource_collectable_mileage-coin",
@@ -81,12 +81,12 @@
       950
      ]
     ],
-    "uridyum": 40000
+    "uridium": 40000
    },
    {
     "id": "event-deal-mileage-coin-l",
     "lootId": "package_event-deal-mileage-coin-l",
-    "ad": "Monster Mileage Pack",
+    "name": "Monster Mileage Pack",
     "contents": [
      [
       "resource_collectable_mileage-coin",
@@ -109,12 +109,12 @@
       2500
      ]
     ],
-    "uridyum": 80000
+    "uridium": 80000
    },
    {
     "id": "event-deal-mileage-coin-xl",
     "lootId": "package_event-deal-mileage-coin-xl",
-    "ad": "Massive Mileage Pack",
+    "name": "Massive Mileage Pack",
     "contents": [
      [
       "resource_collectable_mileage-coin",
@@ -141,12 +141,12 @@
       3000
      ]
     ],
-    "uridyum": 140000
+    "uridium": 140000
    },
    {
     "id": "event-deal-mileage-coin-xxl",
     "lootId": "package_event-deal-mileage-coin-xxl",
-    "ad": "Mega Mileage Pack",
+    "name": "Mega Mileage Pack",
     "contents": [
      [
       "resource_collectable_mileage-coin",
@@ -177,12 +177,12 @@
       50
      ]
     ],
-    "uridyum": 180000
+    "uridium": 180000
    },
    {
     "id": "event-deal-mileage-coin-xxxl",
     "lootId": "package_event-deal-mileage-coin-xxxl",
-    "ad": "Maximum Mileage Pack",
+    "name": "Maximum Mileage Pack",
     "contents": [
      [
       "resource_collectable_mileage-coin",
@@ -217,14 +217,14 @@
       300
      ]
     ],
-    "uridyum": 240000
+    "uridium": 240000
    }
   ],
   "discount_packages": [
    {
     "id": "event-deal-mileage-gg-s",
     "lootId": "package_event-deal-mileage-gg-s",
-    "ad": "Small GG Bundle",
+    "name": "Small GG Bundle",
     "contents": [
      [
       "resource_extra-energy",
@@ -243,13 +243,13 @@
       2
      ]
     ],
-    "uridyum": 40000,
+    "uridium": 40000,
     "priority": 1
    },
    {
     "id": "event-deal-mileage-gg-m",
     "lootId": "package_event-deal-mileage-gg-m",
-    "ad": "Medium GG Bundle",
+    "name": "Medium GG Bundle",
     "contents": [
      [
       "resource_extra-energy",
@@ -272,13 +272,13 @@
       50
      ]
     ],
-    "uridyum": 60000,
+    "uridium": 60000,
     "priority": 2
    },
    {
     "id": "event-deal-mileage-gg-l",
     "lootId": "package_event-deal-mileage-gg-l",
-    "ad": "Large GG Bundle",
+    "name": "Large GG Bundle",
     "contents": [
      [
       "resource_extra-energy",
@@ -305,13 +305,13 @@
       8
      ]
     ],
-    "uridyum": 100000,
+    "uridium": 100000,
     "priority": 3
    },
    {
     "id": "event-deal-mileage-bl-s",
     "lootId": "package_event-deal-mileage-bl-s",
-    "ad": "Small Blacklight Bundle",
+    "name": "Small Blacklight Bundle",
     "contents": [
      [
       "ammunition_laser_a-bl",
@@ -334,13 +334,13 @@
       50000
      ]
     ],
-    "uridyum": 120000,
+    "uridium": 120000,
     "priority": 4
    },
    {
     "id": "event-deal-mileage-bl-m",
     "lootId": "package_event-deal-mileage-bl-m",
-    "ad": "Medium Blacklight Bundle",
+    "name": "Medium Blacklight Bundle",
     "contents": [
      [
       "ammunition_laser_a-bl",
@@ -371,13 +371,13 @@
       500
      ]
     ],
-    "uridyum": 250000,
+    "uridium": 250000,
     "priority": 5
    },
    {
     "id": "event-deal-mileage-bl-l",
     "lootId": "package_event-deal-mileage-bl-l",
-    "ad": "Large Blacklight Bundle",
+    "name": "Large Blacklight Bundle",
     "contents": [
      [
       "ammunition_laser_a-bl",
@@ -408,13 +408,13 @@
       950
      ]
     ],
-    "uridyum": 450000,
+    "uridium": 450000,
     "priority": 6
    },
    {
     "id": "event-deal-mileage-bl-xl",
     "lootId": "package_event-deal-mileage-bl-xl",
-    "ad": "Giant Blacklight Bundle",
+    "name": "Giant Blacklight Bundle",
     "contents": [
      [
       "ammunition_laser_a-bl",
@@ -449,13 +449,13 @@
       2000
      ]
     ],
-    "uridyum": 800000,
+    "uridium": 800000,
     "priority": 7
    },
    {
     "id": "event-deal-mileage-gplus-argon",
     "lootId": "package_event-deal-mileage-gplus-argon",
-    "ad": "Argon Goliath Plus Bundle",
+    "name": "Argon Goliath Plus Bundle",
     "contents": [
      [
       "ship_goliath-plus_design_goliath-plus-argon",
@@ -474,13 +474,13 @@
       5
      ]
     ],
-    "uridyum": 80000,
+    "uridium": 80000,
     "priority": 8
    },
    {
     "id": "event-deal-mileage-gplus-carbo",
     "lootId": "package_event-deal-mileage-gplus-carbo",
-    "ad": "Carbonite Goliath Plus Bundle",
+    "name": "Carbonite Goliath Plus Bundle",
     "contents": [
      [
       "ship_goliath-plus_design_goliath-plus-carbonite",
@@ -499,13 +499,13 @@
       5
      ]
     ],
-    "uridyum": 80000,
+    "uridium": 80000,
     "priority": 9
    },
    {
     "id": "event-deal-mileage-gplus-full",
     "lootId": "package_event-deal-mileage-gplus-full",
-    "ad": "Goliath Plus Designs Bundle",
+    "name": "Goliath Plus Designs Bundle",
     "contents": [
      [
       "ship_goliath-plus_design_goliath-plus-argon",
@@ -528,13 +528,13 @@
       5
      ]
     ],
-    "uridyum": 140000,
+    "uridium": 140000,
     "priority": 10
    },
    {
     "id": "event-deal-mileage-tyr-sol-plus",
     "lootId": "package_event-deal-mileage-tyr-sol-plus",
-    "ad": "Tyrannos Solace Plus Bundle",
+    "name": "Tyrannos Solace Plus Bundle",
     "contents": [
      [
       "ship_solace-plus_design_solace-plus-tyrannos",
@@ -553,13 +553,13 @@
       10
      ]
     ],
-    "uridyum": 100000,
+    "uridium": 100000,
     "priority": 11
    },
    {
     "id": "event-deal-mileage-tyr-spectrum",
     "lootId": "package_event-deal-mileage-tyr-spectrum",
-    "ad": "Tyrannos Spectrum Bundle",
+    "name": "Tyrannos Spectrum Bundle",
     "contents": [
      [
       "ship_spectrum_design_spectrum-tyrannos",
@@ -578,13 +578,13 @@
       10
      ]
     ],
-    "uridyum": 100000,
+    "uridium": 100000,
     "priority": 12
    },
    {
     "id": "event-deal-mileage-tyr-full",
     "lootId": "package_event-deal-mileage-tyr-full",
-    "ad": "Tyrannos Designs Bundle",
+    "name": "Tyrannos Designs Bundle",
     "contents": [
      [
       "ship_solace-plus_design_solace-plus-tyrannos",
@@ -607,13 +607,13 @@
       10
      ]
     ],
-    "uridyum": 180000,
+    "uridium": 180000,
     "priority": 13
    },
    {
     "id": "event-deal-mileage-orcus-epion",
     "lootId": "package_event-deal-mileage-orcus-epion",
-    "ad": "Epion Orcus Bundle",
+    "name": "Epion Orcus Bundle",
     "contents": [
      [
       "ship_orcus_design_orcus-epion",
@@ -632,13 +632,13 @@
       10
      ]
     ],
-    "uridyum": 100000,
+    "uridium": 100000,
     "priority": 14
    },
    {
     "id": "event-deal-mileage-orcus-smite",
     "lootId": "package_event-deal-mileage-orcus-smite",
-    "ad": "Smite Orcus Bundle",
+    "name": "Smite Orcus Bundle",
     "contents": [
      [
       "ship_orcus_design_orcus-smite",
@@ -657,13 +657,13 @@
       10
      ]
     ],
-    "uridyum": 100000,
+    "uridium": 100000,
     "priority": 15
    },
    {
     "id": "event-deal-mileage-orcus-full",
     "lootId": "package_event-deal-mileage-orcus-full",
-    "ad": "Orcus Designs Bundle",
+    "name": "Orcus Designs Bundle",
     "contents": [
      [
       "ship_orcus_design_orcus-smite",
@@ -686,13 +686,13 @@
       10
      ]
     ],
-    "uridyum": 180000,
+    "uridium": 180000,
     "priority": 16
    },
    {
     "id": "event-deal-mileage-upgrade",
     "lootId": "package_event-deal-mileage-upgrade",
-    "ad": "Upgrade Bundle",
+    "name": "Upgrade Bundle",
     "contents": [
      [
       "resource_collectable_indoctrine-accelerator",
@@ -707,20 +707,20 @@
       500
      ]
     ],
-    "uridyum": 200000,
+    "uridium": 200000,
     "priority": 17
    },
    {
     "id": "event-deal-mileage-shard",
     "lootId": "package_event-deal-mileage-shard",
-    "ad": "Unstable Shard Bundle",
+    "name": "Unstable Shard Bundle",
     "contents": [
      [
       "resource_collectable_unstable-shard",
       185
      ]
     ],
-    "uridyum": 60000,
+    "uridium": 60000,
     "priority": 18
    }
   ],
@@ -732,31 +732,31 @@
    {
     "id": "event-deal-salvage-core-xl",
     "lootId": "package_event-deal-salvage-core-xl",
-    "ad": "Massive Salvage Core Deal",
+    "name": "Massive Salvage Core Deal",
     "contents": [
      [
       "resource_collectable_salvage-core",
       670
      ]
     ],
-    "uridyum": 100000
+    "uridium": 100000
    },
    {
     "id": "event-deal-unstable-shard-xl",
     "lootId": "package_event-deal-unstable-shard-xl",
-    "ad": "XL Unstable Shard Deal (çeviride 'Unstable Shard Bundles')",
+    "name": "XL Unstable Shard Deal (çeviride 'Unstable Shard Bundles')",
     "contents": [
      [
       "resource_collectable_unstable-shard",
       300
      ]
     ],
-    "uridyum": 100000
+    "uridium": 100000
    },
    {
     "id": "event-deal-permit-l",
     "lootId": "package_event-deal-permit-l",
-    "ad": "Retriever Permit Pack L (çeviride 'Retriever Permit Packs')",
+    "name": "Retriever Permit Pack L (çeviride 'Retriever Permit Packs')",
     "contents": [
      [
       "resource_collectable_permit",
@@ -767,12 +767,12 @@
       6
      ]
     ],
-    "uridyum": 40000
+    "uridium": 40000
    },
    {
     "id": "event-deal-permit-xl",
     "lootId": "package_event-deal-permit-xl",
-    "ad": "XL Retriever Permit Pack",
+    "name": "XL Retriever Permit Pack",
     "contents": [
      [
       "resource_collectable_permit",
@@ -783,12 +783,12 @@
       12
      ]
     ],
-    "uridyum": 60000
+    "uridium": 60000
    },
    {
     "id": "event-deal-permit-ultimate",
     "lootId": "package_event-deal-permit-ultimate",
-    "ad": "Ultimate Retriever Permit Pack",
+    "name": "Ultimate Retriever Permit Pack",
     "contents": [
      [
       "resource_collectable_permit",
@@ -803,7 +803,7 @@
       50
      ]
     ],
-    "uridyum": 120000
+    "uridium": 120000
    }
   ],
   "exchange": [
@@ -827,7 +827,7 @@
      ]
     ],
     "cap": 4,
-    "ozel": true,
+    "special": true,
     "order": 1
    },
    {
@@ -850,7 +850,7 @@
      ]
     ],
     "cap": 4,
-    "ozel": true,
+    "special": true,
     "order": 2
    },
    {
@@ -873,7 +873,7 @@
      ]
     ],
     "cap": 4,
-    "ozel": true,
+    "special": true,
     "order": 3
    },
    {
@@ -888,7 +888,7 @@
      ]
     ],
     "cap": 10,
-    "ozel": false,
+    "special": false,
     "order": 4
    },
    {
@@ -907,7 +907,7 @@
      ]
     ],
     "cap": 20,
-    "ozel": false,
+    "special": false,
     "order": 5
    },
    {
@@ -926,7 +926,7 @@
      ]
     ],
     "cap": 20,
-    "ozel": false,
+    "special": false,
     "order": 6
    },
    {
@@ -945,7 +945,7 @@
      ]
     ],
     "cap": 20,
-    "ozel": false,
+    "special": false,
     "order": 7
    },
    {
@@ -964,7 +964,7 @@
      ]
     ],
     "cap": 0,
-    "ozel": false,
+    "special": false,
     "order": 8
    }
   ],
@@ -1031,7 +1031,7 @@
    {
     "id": "event-deal-returnee-s",
     "lootId": "package_event-deal-returnee-s",
-    "ad": "Small Returnee Bundle",
+    "name": "Small Returnee Bundle",
     "contents": [
      [
       "equipment_weapon_laser_lf-4",
@@ -1046,12 +1046,12 @@
       300
      ]
     ],
-    "uridyum": 30000
+    "uridium": 30000
    },
    {
     "id": "event-deal-returnee-m",
     "lootId": "package_event-deal-returnee-m",
-    "ad": "Medium Returnee Bundle",
+    "name": "Medium Returnee Bundle",
     "contents": [
      [
       "equipment_weapon_laser_lf-4",
@@ -1070,12 +1070,12 @@
       800
      ]
     ],
-    "uridyum": 70000
+    "uridium": 70000
    },
    {
     "id": "event-deal-returnee-l",
     "lootId": "package_event-deal-returnee-l",
-    "ad": "Large Returnee Bundle",
+    "name": "Large Returnee Bundle",
     "contents": [
      [
       "equipment_weapon_laser_lf-4",
@@ -1094,12 +1094,12 @@
       1500
      ]
     ],
-    "uridyum": 130000
+    "uridium": 130000
    },
    {
     "id": "event-deal-returnee-xl",
     "lootId": "package_event-deal-returnee-xl",
-    "ad": "Mega Returnee Bundle",
+    "name": "Mega Returnee Bundle",
     "contents": [
      [
       "equipment_weapon_laser_lf-4",
@@ -1118,7 +1118,7 @@
       3000
      ]
     ],
-    "uridyum": 250000
+    "uridium": 250000
    }
   ],
   "min_level": 2,
@@ -1130,7 +1130,7 @@
    {
     "id": "event-deal-pre-bf-1",
     "lootId": "package_event-deal-pre-bf-1",
-    "ad": "Small Pre-Prometheus Day Deal",
+    "name": "Small Pre-Prometheus Day Deal",
     "contents": [
      [
       "resource_collectable_unstable-shard",
@@ -1141,12 +1141,12 @@
       40
      ]
     ],
-    "uridyum": 25000
+    "uridium": 25000
    },
    {
     "id": "event-deal-pre-bf-2",
     "lootId": "package_event-deal-pre-bf-2",
-    "ad": "Medium Pre-Prometheus Day Deal",
+    "name": "Medium Pre-Prometheus Day Deal",
     "contents": [
      [
       "resource_collectable_unstable-shard",
@@ -1165,12 +1165,12 @@
       3
      ]
     ],
-    "uridyum": 50000
+    "uridium": 50000
    },
    {
     "id": "event-deal-pre-bf-3",
     "lootId": "package_event-deal-pre-bf-3",
-    "ad": "Large Pre-Prometheus Day Deal",
+    "name": "Large Pre-Prometheus Day Deal",
     "contents": [
      [
       "resource_collectable_unstable-shard",
@@ -1197,12 +1197,12 @@
       3
      ]
     ],
-    "uridyum": 90000
+    "uridium": 90000
    },
    {
     "id": "event-deal-pre-bf-4",
     "lootId": "package_event-deal-pre-bf-4",
-    "ad": "Giant Pre-Prometheus Day Deal",
+    "name": "Giant Pre-Prometheus Day Deal",
     "contents": [
      [
       "resource_collectable_unstable-shard",
@@ -1229,12 +1229,12 @@
       3
      ]
     ],
-    "uridyum": 180000
+    "uridium": 180000
    },
    {
     "id": "event-deal-pre-bf-5",
     "lootId": "package_event-deal-pre-bf-5",
-    "ad": "Ultimate Pre-Prometheus Day Deal",
+    "name": "Ultimate Pre-Prometheus Day Deal",
     "contents": [
      [
       "resource_collectable_unstable-shard",
@@ -1269,7 +1269,7 @@
       10
      ]
     ],
-    "uridyum": 400000
+    "uridium": 400000
    }
   ],
   "tiers": {
@@ -1284,7 +1284,7 @@
  "rehero": {
   "calendar": "return_of_hero",
   "anahtar": "resource_booty-key-returnee",
-  "gun": 7,
+  "day": 7,
   "daily_count": 5,
   "once_count": 13,
   "key_reward": {
@@ -4446,14 +4446,14 @@
   "_uyarlama": "görevler Season Pass havuzundan (13 tekrarsız + günde 5, 7 gün) ve anahtar ödülü uyarlama; veteran sanal (botlar gelince gerçek)"
  },
  "stellar": {
-  "seviye": [
+  "level": [
    5,
    null
   ],
   "packages": [
    {
     "lootId": "package_event-deal-stellar2022-1",
-    "uridyum": 400000,
+    "uridium": 400000,
     "contents": [
      [
       "ship_citadel",
@@ -4503,7 +4503,7 @@
    },
    {
     "lootId": "package_event-deal-stellar2022-2",
-    "uridyum": 600000,
+    "uridium": 600000,
     "contents": [
      [
       "ship_pusat",
@@ -4553,7 +4553,7 @@
    },
    {
     "lootId": "package_event-deal-stellar2022-3",
-    "uridyum": 600000,
+    "uridium": 600000,
     "contents": [
      [
       "ship_solace",
@@ -4603,7 +4603,7 @@
    },
    {
     "lootId": "package_event-deal-stellar2022-4",
-    "uridyum": 800000,
+    "uridium": 800000,
     "contents": [
      [
       "ship_solaris",

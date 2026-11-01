@@ -20,7 +20,7 @@ import loot as LOOT                                   # noqa: E402  (oyunun gani
 RECIPES = json.load(open(os.path.join(K.HERE, 'data', 'recipes.json'), encoding='utf8'))['recipes']
 BOOSTER = K.ITEMS['boosters']
 ORE_LOOT = {v: int(k) for k, v in K.ITEMS['ores']['kinds'].items()}     # resource_ore_* -> kargo cevheri
-CURRENCY = {'currency_credits': 'kredi', 'currency_uridium': 'uridyum', 'currency_experience': 'ep', 'currency_honour': 'onur'}
+CURRENCY = {'currency_credits': 'credits', 'currency_uridium': 'uridium', 'currency_experience': 'ep', 'currency_honour': 'honor'}
 _ev = {}
 
 
@@ -33,7 +33,7 @@ def stock(bot):
 def value(loot, n=1, depth=0):
     """Eşyanın bota yaklaşık değeri (kredi)."""
     if loot in CURRENCY:
-        return n * {'kredi': 1, 'uridyum': EXCHANGE_RATE, 'ep': 0.3, 'onur': 3}[CURRENCY[loot]]
+        return n * {'credits': 1, 'uridium': EXCHANGE_RATE, 'ep': 0.3, 'honor': 3}[CURRENCY[loot]]
     if loot in ORE_LOOT:
         return n * K.ore_prices(0).get(ORE_LOOT[loot], 0)
     if loot.startswith('resource_booty-key') and depth < 1:
@@ -68,7 +68,7 @@ def box_value(kind, depth=0):
 def give(bot, loot, n):
     """Ödülü bota: para kazanç, cevher kargoya, booster etkin, eşya ve cephane bot.ekle, gerisi (anahtar, kaynak) stoğa."""
     if loot in CURRENCY:
-        bot.reward('kutu', **{CURRENCY[loot]: n})
+        bot.reward('box', **{CURRENCY[loot]: n})
     elif loot in ORE_LOOT:
         bot.add_cargo({ORE_LOOT[loot]: n})
     elif loot.startswith('booster_'):
@@ -123,7 +123,7 @@ def can_open(bot, kind):
         return False
     price = f[1] * bot.game_settings.multiplier('shop_price')
     t = bot.o('frugality')
-    if box_value(kind) < price * EXCHANGE_RATE * (0.8 + 0.8 * t) or bot.k['uridyum'] < price * (2 + 4 * t):
+    if box_value(kind) < price * EXCHANGE_RATE * (0.8 + 0.8 * t) or bot.k['uridium'] < price * (2 + 4 * t):
         return False
     if not bot.pay('U', price):
         return False
@@ -149,7 +149,7 @@ def open_box(bot, kind, rng=random):
     for loot, n in out:
         give(bot, loot, n)
     bot.ist('box_opened')
-    bot.event('box_opened', kutu=LOOT.BOXES[kind]['ad'])
+    bot.event('box_opened', box=LOOT.BOXES[kind]['name'])
     return out
 
 
@@ -207,8 +207,8 @@ def _spend(bot, parts):
                 del s[p]
 
 
-MATERIALS = [(k, tuple(p for p in r['parcalar'] if p not in CURRENCY)) for k, r in RECIPES.items()
-           if any(p not in CURRENCY for p in r['parcalar']) and 'test' not in k]      # test tarifleri oyuncuya da kapalı      # para tarifleri teknoloji.uret'te
+MATERIALS = [(k, tuple(p for p in r['parts'] if p not in CURRENCY)) for k, r in RECIPES.items()
+           if any(p not in CURRENCY for p in r['parts']) and 'test' not in k]      # test tarifleri oyuncuya da kapalı      # para tarifleri teknoloji.uret'te
 
 
 def assembly(bot):
@@ -231,16 +231,16 @@ def assembly(bot):
         r = RECIPES[key]
         if r['usage'] == 'USABLE_ONCE' and crafted.get(key):
             continue
-        if not _yeter(bot, r['parcalar']):
+        if not _yeter(bot, r['parts']):
             continue
         earnings = sum(value(l, n) for l, n in r['result'].items())
-        cost = sum(value(p, n) for p, n in r['parcalar'].items() if not p.startswith('resource_collectable'))
+        cost = sum(value(p, n) for p, n in r['parts'].items() if not p.startswith('resource_collectable'))
         if earnings - cost > best_score:
             en, best_score = key, earnings - cost
     if en is None:
         return None
     r = RECIPES[en]
-    _spend(bot, r['parcalar'])
+    _spend(bot, r['parts'])
     for loot, n in r['result'].items():
         give(bot, loot, n)
     crafted[en] = crafted.get(en, 0) + 1

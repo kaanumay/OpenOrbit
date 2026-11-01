@@ -59,7 +59,7 @@ class NewSystems:
         if name in LOCK_REQUESTS:
             iid = int(f.get('targetItemId') or 0)
             ok = PC.lock_reroll(self.p, iid, f.get('lockIndexList') or [])
-            self.log('   Singularity Drive yenileme: %s %s' % (self.p.d['esyalar'].get(str(iid)), 'tamam' if ok else 'olmadı'))
+            self.log('   Singularity Drive yenileme: %s %s' % (self.p.d['items'].get(str(iid)), 'done' if ok else 'olmadı'))
             from inventory import update_msgs
             K = PC.D['lock']
             return [('LockAttributeItemRerollCommand', {'result': ok}), PC.lock_list_cmd(self.p)] + \

@@ -18,7 +18,7 @@ import settings as SET
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 T = json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))['technology']
-ITEMS = T['esyalar']
+ITEMS = T['items']
 READY, ACTIVE, COOLING = 0, 1, 2
 ATTACK_ROCKET, ATTACK_ECI = 0, 5            # istemcinin AttackType'ı
 
@@ -53,16 +53,16 @@ def state(p):
 
 
 def is_active(p, item, now=None):
-    return (now or time.time()) < state(p).get(item, {}).get('bitis', 0)
+    return (now or time.time()) < state(p).get(item, {}).get('end_time', 0)
 
 
 def timer_fields(p, item, now=None):
     now = now or time.time()
     s = state(p).get(item, {})
-    if now < s.get('bitis', 0):
-        return dict(activatable=False, timerState=ACTIVE, maxTime=s.get('duration_ms', 0), time=int((s['bitis'] - now) * 1000))
-    if now < s.get('hazir', 0):
-        return dict(activatable=False, timerState=COOLING, maxTime=s.get('cooldown_ms', 0), time=int((s['hazir'] - now) * 1000))
+    if now < s.get('end_time', 0):
+        return dict(activatable=False, timerState=ACTIVE, maxTime=s.get('duration_ms', 0), time=int((s['end_time'] - now) * 1000))
+    if now < s.get('ready', 0):
+        return dict(activatable=False, timerState=COOLING, maxTime=s.get('cooldown_ms', 0), time=int((s['ready'] - now) * 1000))
     return dict(activatable=True, timerState=READY, maxTime=0, time=0)
 
 
@@ -99,7 +99,7 @@ def menu_status(p, item, st):
 def echoes_map(map_id):
     """Uzayın Derinliklerindeki Yankılar haritaları ve salonu: teknoloji eşyaları kullanılamaz (resmî forum 177095)."""
     import echoes as EC
-    return int(map_id or 0) in set(EC.D['haritalar']) | {EC.D['hall']}
+    return int(map_id or 0) in set(EC.D['maps']) | {EC.D['hall']}
 
 
 class Technology:
@@ -115,18 +115,18 @@ class Technology:
         now = time.time()
         for item, s in state(self.p).items():
             maps = ITEMS.get(item, {}).get('map_only')
-            if maps and now < s.get('bitis', 0) and str(world.map_id) not in map(str, maps):
-                s['bitis'] = now                       # Versus Laser Overdrive: gemi Vortex of Greed'den ayrılınca etki silinir (bekleme sürer)
+            if maps and now < s.get('end_time', 0) and str(world.map_id) not in map(str, maps):
+                s['end_time'] = now                       # Versus Laser Overdrive: gemi Vortex of Greed'den ayrılınca etki silinir (bekleme sürer)
                 self.p.dirty = True
-            if now < s.get('bitis', 0):
-                self.ending[item] = s['bitis']
+            if now < s.get('end_time', 0):
+                self.ending[item] = s['end_time']
                 if item == 'tech_npc-nuke':            # harita değişince kalan vuruşlar sürer (vuruşlar başlangıçtan aralik_sn'de bir)
                     c = ITEMS[item]
-                    start, total = s['bitis'] - c['sure_sn'], int(c['sure_sn'] // c['interval_sec'])
+                    start, total = s['end_time'] - c['sure_sn'], int(c['sure_sn'] // c['interval_sec'])
                     done = min(total, max(0, int((now - start) // c['interval_sec'])))
-                    self.nuke = dict(next=start + (done + 1) * c['interval_sec'], kalan=total - done)
-            elif now < s.get('hazir', 0):
-                self.waiting[item] = s['hazir']
+                    self.nuke = dict(next=start + (done + 1) * c['interval_sec'], remaining=total - done)
+            elif now < s.get('ready', 0):
+                self.waiting[item] = s['ready']
 
     def send(self, msgs):
         if msgs:
@@ -163,7 +163,7 @@ class Technology:
         """Energy Leech: sıradan lazer cephanesiyle verilen hasarın %10'u cana."""
         if dmg <= 0 or ammo not in T['ammo_types'] or not self.active('tech_energy-leech'):
             return
-        g = self.p.d['gemi']
+        g = self.p.d['ship']
         if g.get('hitPoints', 0) >= g.get('hitMax', 0):
             return
         self.p.set_hull(hp=g.get('hitPoints', 0) + dmg * ITEMS['tech_energy-leech']['laser_hp'])
@@ -178,7 +178,7 @@ class Technology:
         if not c or count(p, item) <= 0 or w.hero_dead or w.jumping or echoes_map(w.map_id) or                 (c.get('map_only') and str(w.map_id) not in map(str, c['map_only'])):
             w.log('   teknoloji kullanılamaz: %s' % item)
             return False
-        if is_active(p, item, now) or now < state(p).get(item, {}).get('hazir', 0):
+        if is_active(p, item, now) or now < state(p).get(item, {}).get('ready', 0):
             self.send([timer_msg(p, item, now)])
             return False
         msgs = self.start(item, c, now)
@@ -187,10 +187,10 @@ class Technology:
             return False
         if not SET.get('infinite_technology'):          # panel: infinite tech (not used up; at least one still needed)
             add(p, item, -1)
-        p.ach('spend', loot=item, adet=1)           # Quests/Pass "use an item": counted with or without infinite tech
-        sec, cd = c.get('sure_sn', 0), c.get('bekleme_sn', 0) * SET.multiplier('skill_cooldown', 'technology')      # panel
+        p.ach('spend', loot=item, count=1)           # Quests/Pass "use an item": counted with or without infinite tech
+        sec, cd = c.get('sure_sn', 0), c.get('cooldown_sec', 0) * SET.multiplier('skill_cooldown', 'technology')      # panel
         with p.lock:
-            state(p)[item] = dict(bitis=now + sec, hazir=now + sec + cd, duration_ms=int(sec * 1000), cooldown_ms=int(cd * 1000))
+            state(p)[item] = dict(end_time=now + sec, ready=now + sec + cd, duration_ms=int(sec * 1000), cooldown_ms=int(cd * 1000))
             p.dirty = True
         if sec:
             self.ending[item] = now + sec
@@ -203,7 +203,7 @@ class Technology:
     def start(self, item, c, now):
         """Eşyanın başlangıç etkisi -> mesajlar, ya da None (şimdi kullanılamaz: hedef yok, kalkan dolu …)."""
         w, p = self.w, self.p
-        g = p.d['gemi']
+        g = p.d['ship']
         hx, hy = w.hero_pos(now)
         if 'kalkan' in c:                                               # Backup Shield
             if g.get('shield', 0) >= g.get('shieldMax', 0):
@@ -215,13 +215,13 @@ class Technology:
         if item == 'tech_chain-impulse':
             near = sorted(((math.hypot(nx - hx, ny - hy), n) for n in w.npcs.values() if n.alive
                            for nx, ny in [n.mover.pos(now)]), key=lambda t: t[0])
-            targets = [n for d, n in near if d <= c['yaricap']][:c['hedef']]
+            targets = [n for d, n in near if d <= c['radius']][:c['target']]
             if not targets:
                 return None
             msg = legacy('0|n|ECI|1|%d|%s' % (w.hid, '|'.join(str(n.id) for n in targets)))
             def strike():
                 for n in targets:
-                    w.hit_npc(n.id, c['hasar'], ATTACK_ECI, shield_only=True)      # istemci: "chain reaction of shield damage"
+                    w.hit_npc(n.id, c['damage'], ATTACK_ECI, shield_only=True)      # istemci: "chain reaction of shield damage"
                     if not n.alive:
                         p.ach('chain_kill')                 # başarım ChainImpulse
             w.later(0.3, strike)
@@ -230,10 +230,10 @@ class Technology:
         if item == 'tech_npc-nuke':
             # istemci: "burst of damage to NPCs in an area around your ship once every 10 seconds": hedef gerekmez, gemi çevresindeki
             # bütün uzaylılara sure_sn / aralik_sn vuruş (nuke_tick)
-            self.nuke = dict(next=now + c['interval_sec'], kalan=int(c['sure_sn'] // c['interval_sec']))
+            self.nuke = dict(next=now + c['interval_sec'], remaining=int(c['sure_sn'] // c['interval_sec']))
             return [used_msg('NNK')]
         if item == 'tech_speed-burst':
-            w.hero_effect('speed_up', c['sure_sn'], c['hiz'], source=item)
+            w.hero_effect('speed_up', c['sure_sn'], c['speed'], source=item)
         if item == 'tech_burning-trail':
             self.charges, self.trail_n = [], 0
         return self.visual(item, True)
@@ -262,10 +262,10 @@ class Technology:
     def second(self, item, c, now):
         """Saniyede bir süren etkiler: Battle Repair Bot, Frost Field, Burning Trail yükü."""
         w, p = self.w, self.p
-        g = p.d['gemi']
-        if 'can_sn' in c and not w.hero_dead:
+        g = p.d['ship']
+        if 'hp_sec' in c and not w.hero_dead:
             hp0, sh0 = g.get('hitPoints', 0), g.get('shield', 0)
-            p.set_hull(hp=hp0 + c['can_sn'], shield=sh0 + c.get('shield_per_sec', 0))
+            p.set_hull(hp=hp0 + c['hp_sec'], shield=sh0 + c.get('shield_per_sec', 0))
             msgs = [w.hp_msg()]
             if c.get('shield_per_sec'):
                 msgs.append(('AttributeShieldUpdateCommand', {'shieldNow': int(g['shield']), 'shieldMax': g.get('shieldMax', 0)}))
@@ -274,13 +274,13 @@ class Technology:
             hx, hy = w.hero_pos(now)
             for n in list(w.npcs.values()):
                 nx, ny = n.mover.pos(now)
-                if n.alive and math.hypot(nx - hx, ny - hy) <= c['yaricap']:
+                if n.alive and math.hypot(nx - hx, ny - hy) <= c['radius']:
                     w.npc_effect(n, 'slow', 1.5, c['slow'], source=item)
                     w.hit_npc(n.id, c['damage_per_sec'], 1)
         if item == 'tech_burning-trail':
             if self.trail_n % c['interval_sec'] == 0:
                 x, y = w.hero_pos(now)
-                self.charges.append(dict(x=x, y=y, bitis=now + c['omur_sn']))
+                self.charges.append(dict(x=x, y=y, end_time=now + c['lifetime_sec']))
             self.trail_n += 1
 
     def trail_tick(self, now):
@@ -288,7 +288,7 @@ class Technology:
             return
         w, c = self.w, ITEMS['tech_burning-trail']
         for ch in list(self.charges):
-            if now >= ch['bitis']:
+            if now >= ch['end_time']:
                 self.charges.remove(ch)
                 continue
             n = next((n for n in w.npcs.values() if n.alive
@@ -296,7 +296,7 @@ class Technology:
             if n:
                 self.charges.remove(ch)
                 self.send([legacy('0|n|BT|%d' % n.id)])
-                w.hit_npc(n.id, c['hasar'], ATTACK_ROCKET)
+                w.hit_npc(n.id, c['damage'], ATTACK_ROCKET)
 
     def nuke_tick(self, now):
         """NPC Nuke: aralik_sn'de bir, gemi çevresindeki (yaricap) bütün uzaylılara hasar; şok dalgası geminin kimliğinde.
@@ -305,17 +305,17 @@ class Technology:
         if not nk:
             return
         w, c = self.w, ITEMS['tech_npc-nuke']
-        while nk['kalan'] > 0 and now >= nk['next']:
+        while nk['remaining'] > 0 and now >= nk['next']:
             nk['next'] += c['interval_sec']
-            nk['kalan'] -= 1
+            nk['remaining'] -= 1
             hx, hy = w.hero_pos(now)
             hits = [n.id for n in w.npcs.values()
-                    if n.alive and math.hypot(n.mover.pos(now)[0] - hx, n.mover.pos(now)[1] - hy) <= c['yaricap']]
+                    if n.alive and math.hypot(n.mover.pos(now)[0] - hx, n.mover.pos(now)[1] - hy) <= c['radius']]
             self.send([legacy('0|n|NNK|%d' % w.hid)])
             w.last_combat = now
             for uid in hits:
-                w.hit_npc(uid, c['hasar'], ATTACK_ROCKET)
-        if nk['kalan'] <= 0:
+                w.hit_npc(uid, c['damage'], ATTACK_ROCKET)
+        if nk['remaining'] <= 0:
             self.nuke = None
 
     def finish(self, item, now, frac=1.0):
@@ -323,18 +323,18 @@ class Technology:
         self.ending.pop(item, None)
         w, p, c = self.w, self.p, ITEMS[item]
         if item == 'tech_explosive-charging-blob':
-            lo, hi = c['hasar']
+            lo, hi = c['damage']
             dmg = int(lo + (hi - lo) * max(0.0, min(1.0, frac)))
             hx, hy = w.hero_pos(now)
             for n in list(w.npcs.values()):
                 nx, ny = n.mover.pos(now)
-                if n.alive and math.hypot(nx - hx, ny - hy) <= c['yaricap']:
+                if n.alive and math.hypot(nx - hx, ny - hy) <= c['radius']:
                     w.hit_npc(n.id, dmg, ATTACK_ROCKET)
             w.log('   Explosive Charging Blob patladı: %d' % dmg)
         if item == 'tech_npc-nuke':
             self.nuke = None
         s = state(p).get(item, {})
-        self.waiting[item] = s.get('hazir', now)
+        self.waiting[item] = s.get('ready', now)
         self.send(self.visual(item, False) + [timer_msg(p, item, now)])
 
     def on_death(self):
@@ -343,10 +343,10 @@ class Technology:
         for item in list(self.ending):
             s = state(self.p).get(item, {})
             sec = s.get('duration_ms', 0) / 1000.0
-            frac = 1 - (s.get('bitis', now) - now) / sec if sec else 1.0
-            left = s.get('bitis', now) - now
+            frac = 1 - (s.get('end_time', now) - now) / sec if sec else 1.0
+            left = s.get('end_time', now) - now
             with self.p.lock:
-                s['bitis'] = now
-                s['hazir'] = s.get('hazir', now) - max(0.0, left)
+                s['end_time'] = now
+                s['ready'] = s.get('ready', now) - max(0.0, left)
             self.finish(item, now, frac)
         self.charges = []

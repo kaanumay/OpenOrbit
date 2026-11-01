@@ -24,7 +24,7 @@ class Exploration(Goal):
     def start(self, bot, b):
         maps = new_maps(bot)
         maps.sort(key=lambda m: len(K.route(bot.game_map, m, bot.firma, bot.level) or range(99)))
-        bot.plan['harita'] = maps[0]
+        bot.plan['map'] = maps[0]
         if not S.go(bot, maps[0], b.y, b.now):
             bot.k.setdefault('seen', []).append(maps[0])
             bot.plan['finished'] = True
@@ -33,7 +33,7 @@ class Exploration(Goal):
         if S.journey(bot, y):
             return
         S.farm(bot, dt, y)
-        if bot.game_map == bot.plan.get('harita'):
+        if bot.game_map == bot.plan.get('map'):
             bot.plan.setdefault('arrived', 0)
             bot.plan['arrived'] += dt
             if bot.plan['arrived'] > 120:

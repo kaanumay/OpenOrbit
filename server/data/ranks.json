@@ -2,1661 +2,1661 @@
  "_kaynak": "tools/rutbe.py: uzaylı ve gemi puanları resmi sunucunun Hall of Fame puan ayrıntılarından (oyun verisi), rütbeler ve formül belgeler/wiki/progression.md (wiki).",
  "npc_points": {
   "1": {
-   "ad": "-=[ Streuner ]=-",
-   "puan": 0
+   "name": "-=[ Streuner ]=-",
+   "points": 0
   },
   "2": {
-   "ad": "-=[ Lordakia ]=-",
-   "puan": 0
+   "name": "-=[ Lordakia ]=-",
+   "points": 0
   },
   "3": {
-   "ad": "-=[ Devolarium ]=-",
-   "puan": 4
+   "name": "-=[ Devolarium ]=-",
+   "points": 4
   },
   "4": {
-   "ad": "-=[ Mordon ]=-",
-   "puan": 2
+   "name": "-=[ Mordon ]=-",
+   "points": 2
   },
   "5": {
-   "ad": "-=[ Sibelon ]=-",
-   "puan": 5
+   "name": "-=[ Sibelon ]=-",
+   "points": 5
   },
   "6": {
-   "ad": "-=[ Saimon ]=-",
-   "puan": 2
+   "name": "-=[ Saimon ]=-",
+   "points": 2
   },
   "7": {
-   "ad": "-=[ Sibelonit ]=-",
-   "puan": 3
+   "name": "-=[ Sibelonit ]=-",
+   "points": 3
   },
   "8": {
-   "ad": "-=[ Lordakium ]=-",
-   "puan": 6
+   "name": "-=[ Lordakium ]=-",
+   "points": 6
   },
   "9": {
-   "ad": "-=[ Kristallin ]=-",
-   "puan": 3
+   "name": "-=[ Kristallin ]=-",
+   "points": 3
   },
   "10": {
-   "ad": "-=[ Kristallon ]=-",
-   "puan": 8
+   "name": "-=[ Kristallon ]=-",
+   "points": 8
   },
   "11": {
-   "ad": "-=[ StreuneR ]=-",
-   "puan": 2
+   "name": "-=[ StreuneR ]=-",
+   "points": 2
   },
   "12": {
-   "ad": "-=[ Protegit ]=-",
-   "puan": 3
+   "name": "-=[ Protegit ]=-",
+   "points": 3
   },
   "13": {
-   "ad": "-=[ Cubikon ]=-",
-   "puan": 10
+   "name": "-=[ Cubikon ]=-",
+   "points": 10
   },
   "14": {
-   "ad": "..::{ Boss Streuner }::..",
-   "puan": 4
+   "name": "..::{ Boss Streuner }::..",
+   "points": 4
   },
   "15": {
-   "ad": "..::{ Boss Lordakia }::..",
-   "puan": 4
+   "name": "..::{ Boss Lordakia }::..",
+   "points": 4
   },
   "16": {
-   "ad": "..::{ Boss Mordon }::..",
-   "puan": 8
+   "name": "..::{ Boss Mordon }::..",
+   "points": 8
   },
   "17": {
-   "ad": "..::{ Boss Saimon }::..",
-   "puan": 8
+   "name": "..::{ Boss Saimon }::..",
+   "points": 8
   },
   "18": {
-   "ad": "..::{ Boss Devolarium }::..",
-   "puan": 16
+   "name": "..::{ Boss Devolarium }::..",
+   "points": 16
   },
   "19": {
-   "ad": "..::{ Boss Sibelonit }::..",
-   "puan": 12
+   "name": "..::{ Boss Sibelonit }::..",
+   "points": 12
   },
   "20": {
-   "ad": "..::{ Boss Sibelon }::..",
-   "puan": 20
+   "name": "..::{ Boss Sibelon }::..",
+   "points": 20
   },
   "21": {
-   "ad": "..::{ Boss Lordakium }::...",
-   "puan": 24
+   "name": "..::{ Boss Lordakium }::...",
+   "points": 24
   },
   "22": {
-   "ad": "..::{ Boss Kristallin }::..",
-   "puan": 12
+   "name": "..::{ Boss Kristallin }::..",
+   "points": 12
   },
   "23": {
-   "ad": "..::{ Boss Kristallon }::..",
-   "puan": 32
+   "name": "..::{ Boss Kristallon }::..",
+   "points": 32
   },
   "24": {
-   "ad": "..::{ Boss StreuneR }::..",
-   "puan": 8
+   "name": "..::{ Boss StreuneR }::..",
+   "points": 8
   },
   "25": {
-   "ad": "{{{ ::: UFO ::: }}}",
-   "puan": 48
+   "name": "{{{ ::: UFO ::: }}}",
+   "points": 48
   },
   "26": {
-   "ad": "-=[ UFONIT ]=-",
-   "puan": 3
+   "name": "-=[ UFONIT ]=-",
+   "points": 3
   },
   "28": {
-   "ad": "( UberStreuner )",
-   "puan": 8
+   "name": "( UberStreuner )",
+   "points": 8
   },
   "29": {
-   "ad": "( UberLordakia )",
-   "puan": 8
+   "name": "( UberLordakia )",
+   "points": 8
   },
   "30": {
-   "ad": "( UberMordon )",
-   "puan": 16
+   "name": "( UberMordon )",
+   "points": 16
   },
   "31": {
-   "ad": "( UberSaimon )",
-   "puan": 16
+   "name": "( UberSaimon )",
+   "points": 16
   },
   "32": {
-   "ad": "( UberDevolarium )",
-   "puan": 32
+   "name": "( UberDevolarium )",
+   "points": 32
   },
   "33": {
-   "ad": "( UberSibelonit )",
-   "puan": 24
+   "name": "( UberSibelonit )",
+   "points": 24
   },
   "34": {
-   "ad": "( UberSibelon )",
-   "puan": 40
+   "name": "( UberSibelon )",
+   "points": 40
   },
   "35": {
-   "ad": "( UberLordakium )",
-   "puan": 48
+   "name": "( UberLordakium )",
+   "points": 48
   },
   "36": {
-   "ad": "( UberKristallin )",
-   "puan": 24
+   "name": "( UberKristallin )",
+   "points": 24
   },
   "37": {
-   "ad": "( UberKristallon )",
-   "puan": 64
+   "name": "( UberKristallon )",
+   "points": 64
   },
   "38": {
-   "ad": "( UberStreuneR )",
-   "puan": 16
+   "name": "( UberStreuneR )",
+   "points": 16
   },
   "39": {
-   "ad": "-={ demaNeR }=-",
-   "puan": 16
+   "name": "-={ demaNeR }=-",
+   "points": 16
   },
   "40": {
-   "ad": "<=< Kucurbium >=>",
-   "puan": 32
+   "name": "<=< Kucurbium >=>",
+   "points": 32
   },
   "41": {
-   "ad": "<=< BossKucurbium >=>",
-   "puan": 128
+   "name": "<=< BossKucurbium >=>",
+   "points": 128
   },
   "42": {
-   "ad": "-=[ Vagrant ]=-",
-   "puan": 1
+   "name": "-=[ Vagrant ]=-",
+   "points": 1
   },
   "43": {
-   "ad": "-=[ Marauder ]=-",
-   "puan": 2
+   "name": "-=[ Marauder ]=-",
+   "points": 2
   },
   "44": {
-   "ad": "-=[ Outcast ]=-",
-   "puan": 4
+   "name": "-=[ Outcast ]=-",
+   "points": 4
   },
   "45": {
-   "ad": "-=[ Corsair ]=-",
-   "puan": 8
+   "name": "-=[ Corsair ]=-",
+   "points": 8
   },
   "46": {
-   "ad": "-=[ Hooligan ]=-",
-   "puan": 16
+   "name": "-=[ Hooligan ]=-",
+   "points": 16
   },
   "47": {
-   "ad": "-=[ Ravager ]=-",
-   "puan": 32
+   "name": "-=[ Ravager ]=-",
+   "points": 32
   },
   "48": {
-   "ad": "-=[ Convict ]=-",
-   "puan": 32
+   "name": "-=[ Convict ]=-",
+   "points": 32
   },
   "49": {
-   "ad": "GG-=[ Century Falcon ]=-",
-   "puan": 128
+   "name": "GG-=[ Century Falcon ]=-",
+   "points": 128
   },
   "54": {
-   "ad": "<=< Ice Meteoroid >=>",
-   "puan": 32
+   "name": "<=< Ice Meteoroid >=>",
+   "points": 32
   },
   "55": {
-   "ad": "<=< Super Ice Meteoroid >=>",
-   "puan": 128
+   "name": "<=< Super Ice Meteoroid >=>",
+   "points": 128
   },
   "56": {
-   "ad": "<=< Icy >=>",
-   "puan": 3
+   "name": "<=< Icy >=>",
+   "points": 3
   },
   "58": {
-   "ad": "-=[ Interceptor ]=-",
-   "puan": 1
+   "name": "-=[ Interceptor ]=-",
+   "points": 1
   },
   "59": {
-   "ad": "-=[ Barracuda ]=-",
-   "puan": 2
+   "name": "-=[ Barracuda ]=-",
+   "points": 2
   },
   "60": {
-   "ad": "-=[ Saboteur ]=-",
-   "puan": 4
+   "name": "-=[ Saboteur ]=-",
+   "points": 4
   },
   "61": {
-   "ad": "-=[ Annihilator ]=-",
-   "puan": 6
+   "name": "-=[ Annihilator ]=-",
+   "points": 6
   },
   "62": {
-   "ad": "-=[ Battleray ]=-",
-   "puan": 16
+   "name": "-=[ Battleray ]=-",
+   "points": 16
   },
   "63": {
-   "ad": "-=[ Infernal ]=-",
-   "puan": 4
+   "name": "-=[ Infernal ]=-",
+   "points": 4
   },
   "64": {
-   "ad": "-=[ Scorcher ]=-",
-   "puan": 8
+   "name": "-=[ Scorcher ]=-",
+   "points": 8
   },
   "65": {
-   "ad": "-=[ Melter ]=-",
-   "puan": 16
+   "name": "-=[ Melter ]=-",
+   "points": 16
   },
   "66": {
-   "ad": "-=[ Devourer ]=-",
-   "puan": 255
+   "name": "-=[ Devourer ]=-",
+   "points": 255
   },
   "67": {
-   "ad": "GG-=[ Vagrant ]=-",
-   "puan": 1
+   "name": "GG-=[ Vagrant ]=-",
+   "points": 1
   },
   "68": {
-   "ad": "GG-=[ Marauder ]=-",
-   "puan": 2
+   "name": "GG-=[ Marauder ]=-",
+   "points": 2
   },
   "69": {
-   "ad": "GG-=[ Outcast ]=-",
-   "puan": 4
+   "name": "GG-=[ Outcast ]=-",
+   "points": 4
   },
   "70": {
-   "ad": "GG-=[ Corsair ]=-",
-   "puan": 8
+   "name": "GG-=[ Corsair ]=-",
+   "points": 8
   },
   "71": {
-   "ad": "GG-=[ Hooligan ]=-",
-   "puan": 16
+   "name": "GG-=[ Hooligan ]=-",
+   "points": 16
   },
   "72": {
-   "ad": "GG-=[ Ravager ]=-",
-   "puan": 32
+   "name": "GG-=[ Ravager ]=-",
+   "points": 32
   },
   "73": {
-   "ad": "GG-=[ Convict ]=-",
-   "puan": 32
+   "name": "GG-=[ Convict ]=-",
+   "points": 32
   },
   "77": {
-   "ad": "GG-=[ Saturn Phoenix ]=-",
-   "puan": 1
+   "name": "GG-=[ Saturn Phoenix ]=-",
+   "points": 1
   },
   "78": {
-   "ad": "GG-=[ Saturn Yamato ]=-",
-   "puan": 2
+   "name": "GG-=[ Saturn Yamato ]=-",
+   "points": 2
   },
   "79": {
-   "ad": "GG-=[ Saturn Defcom ]=-",
-   "puan": 6
+   "name": "GG-=[ Saturn Defcom ]=-",
+   "points": 6
   },
   "80": {
-   "ad": "GG-=[ Saturn Liberator ]=-",
-   "puan": 6
+   "name": "GG-=[ Saturn Liberator ]=-",
+   "points": 6
   },
   "81": {
-   "ad": "GG-=[ Saturn Nostromo ]=-",
-   "puan": 12
+   "name": "GG-=[ Saturn Nostromo ]=-",
+   "points": 12
   },
   "82": {
-   "ad": "GG-=[ Saturn Piranha ]=-",
-   "puan": 12
+   "name": "GG-=[ Saturn Piranha ]=-",
+   "points": 12
   },
   "83": {
-   "ad": "GG-=[ Saturn Bigboy ]=-",
-   "puan": 14
+   "name": "GG-=[ Saturn Bigboy ]=-",
+   "points": 14
   },
   "84": {
-   "ad": "GG-=[ Saturn Vengeance ]=-",
-   "puan": 16
+   "name": "GG-=[ Saturn Vengeance ]=-",
+   "points": 16
   },
   "85": {
-   "ad": "GG-=[ Saturn Goliath ]=-",
-   "puan": 20
+   "name": "GG-=[ Saturn Goliath ]=-",
+   "points": 20
   },
   "86": {
-   "ad": "GG-=[ Saturn Leonov ]=-",
-   "puan": 4
+   "name": "GG-=[ Saturn Leonov ]=-",
+   "points": 4
   },
   "87": {
-   "ad": "GG-=[ Saturn Venom ]=-",
-   "puan": 20
+   "name": "GG-=[ Saturn Venom ]=-",
+   "points": 20
   },
   "88": {
-   "ad": "GG-=[ Saturn Sentinel ]=-",
-   "puan": 20
+   "name": "GG-=[ Saturn Sentinel ]=-",
+   "points": 20
   },
   "89": {
-   "ad": "GG-=[ Saturn Spectrum ]=-",
-   "puan": 20
+   "name": "GG-=[ Saturn Spectrum ]=-",
+   "points": 20
   },
   "90": {
-   "ad": "GG-=[ Saturn Diminisher ]=-",
-   "puan": 20
+   "name": "GG-=[ Saturn Diminisher ]=-",
+   "points": 20
   },
   "91": {
-   "ad": "GG-=[ Saturn Solace ]=-",
-   "puan": 20
+   "name": "GG-=[ Saturn Solace ]=-",
+   "points": 20
   },
   "92": {
-   "ad": "GG-=[ Saturn Revenge ]=-",
-   "puan": 16
+   "name": "GG-=[ Saturn Revenge ]=-",
+   "points": 16
   },
   "93": {
-   "ad": "GG-=[ Saturn Lightning ]=-",
-   "puan": 16
+   "name": "GG-=[ Saturn Lightning ]=-",
+   "points": 16
   },
   "94": {
-   "ad": "GG-=[ Saturn Avenger ]=-",
-   "puan": 16
+   "name": "GG-=[ Saturn Avenger ]=-",
+   "points": 16
   },
   "95": {
-   "ad": "GG-=[ Saturn Bastion ]=-",
-   "puan": 20
+   "name": "GG-=[ Saturn Bastion ]=-",
+   "points": 20
   },
   "96": {
-   "ad": "GG-=[ Saturn Enforcer ]=-",
-   "puan": 20
+   "name": "GG-=[ Saturn Enforcer ]=-",
+   "points": 20
   },
   "97": {
-   "ad": "GG-=[ Saturn Spearhead ]=-",
-   "puan": 10
+   "name": "GG-=[ Saturn Spearhead ]=-",
+   "points": 10
   },
   "98": {
-   "ad": "GG-=[ Saturn Citadel ]=-",
-   "puan": 40
+   "name": "GG-=[ Saturn Citadel ]=-",
+   "points": 40
   },
   "99": {
-   "ad": "GG-=[ Saturn Aegis ]=-",
-   "puan": 25
+   "name": "GG-=[ Saturn Aegis ]=-",
+   "points": 25
   },
   "100": {
-   "ad": "GG-=[ Saturn Crimson ]=-",
-   "puan": 20
+   "name": "GG-=[ Saturn Crimson ]=-",
+   "points": 20
   },
   "101": {
-   "ad": "GG-=[ Saturn Jade ]=-",
-   "puan": 20
+   "name": "GG-=[ Saturn Jade ]=-",
+   "points": 20
   },
   "102": {
-   "ad": "GG-=[ Saturn Sapphire ]=-",
-   "puan": 20
+   "name": "GG-=[ Saturn Sapphire ]=-",
+   "points": 20
   },
   "103": {
-   "ad": "GG-=[ Evil You ]=-",
-   "puan": 20
+   "name": "GG-=[ Evil You ]=-",
+   "points": 20
   },
   "104": {
-   "ad": "GG-=[ Evil Iris ]=-",
-   "puan": 3
+   "name": "GG-=[ Evil Iris ]=-",
+   "points": 3
   },
   "105": {
-   "ad": "-=[ Hitac-Minion 2.0 ]=-",
-   "puan": 80
+   "name": "-=[ Hitac-Minion 2.0 ]=-",
+   "points": 80
   },
   "106": {
-   "ad": "-=[ Hitac 2.0 ]=-",
-   "puan": 350
+   "name": "-=[ Hitac 2.0 ]=-",
+   "points": 350
   },
   "111": {
-   "ad": "-=[ Protekid ]=-",
-   "puan": 3
+   "name": "-=[ Protekid ]=-",
+   "points": 3
   },
   "112": {
-   "ad": "-=[ Cubikid ]=-",
-   "puan": 10
+   "name": "-=[ Cubikid ]=-",
+   "points": 10
   },
   "113": {
-   "ad": "-=[ Emperor Sibelon ]=-",
-   "puan": 256
+   "name": "-=[ Emperor Sibelon ]=-",
+   "points": 256
   },
   "114": {
-   "ad": "-=[ Emperor Lordakium ]=-",
-   "puan": 384
+   "name": "-=[ Emperor Lordakium ]=-",
+   "points": 384
   },
   "115": {
-   "ad": "-=[ Emperor Kristallon ]=-",
-   "puan": 560
+   "name": "-=[ Emperor Kristallon ]=-",
+   "points": 560
   },
   "116": {
-   "ad": "-={ demaNeR Freighter }=-",
-   "puan": 1200
+   "name": "-={ demaNeR Freighter }=-",
+   "points": 1200
   },
   "117": {
-   "ad": "-={ demaNeR Escort }=-",
-   "puan": 30
+   "name": "-={ demaNeR Escort }=-",
+   "points": 30
   },
   "118": {
-   "ad": "-=[ Skoll ]=-",
-   "puan": 560
+   "name": "-=[ Skoll ]=-",
+   "points": 560
   },
   "119": {
-   "ad": "<=< Skoll\\'s Icy >=>",
-   "puan": 3
+   "name": "<=< Skoll\\'s Icy >=>",
+   "points": 3
   },
   "120": {
-   "ad": "-=[ Century Falcon ]=-",
-   "puan": 385
+   "name": "-=[ Century Falcon ]=-",
+   "points": 385
   },
   "121": {
-   "ad": "-=[ Deadly Battleray ]=-",
-   "puan": 24
+   "name": "-=[ Deadly Battleray ]=-",
+   "points": 24
   },
   "123": {
-   "ad": "<=< Gygerthrall >=>",
-   "puan": 3
+   "name": "<=< Gygerthrall >=>",
+   "points": 3
   },
   "124": {
-   "ad": "-={ Group demaNeR Freighter }=-",
-   "puan": 1200
+   "name": "-={ Group demaNeR Freighter }=-",
+   "points": 1200
   },
   "125": {
-   "ad": "-=[ I-Hitac ]=-",
-   "puan": 1200
+   "name": "-=[ I-Hitac ]=-",
+   "points": 1200
   },
   "126": {
-   "ad": "-=[ I-Egg ]=-",
-   "puan": 0
+   "name": "-=[ I-Egg ]=-",
+   "points": 0
   },
   "127": {
-   "ad": "-=[ I-Gygerthrall ]=-",
-   "puan": 2
+   "name": "-=[ I-Gygerthrall ]=-",
+   "points": 2
   },
   "129": {
-   "ad": "<=< Gygerthrall >=>",
-   "puan": 3
+   "name": "<=< Gygerthrall >=>",
+   "points": 3
   },
   "130": {
-   "ad": "-=[P.E.T. Scout]=-",
-   "puan": 0
+   "name": "-=[P.E.T. Scout]=-",
+   "points": 0
   },
   "131": {
-   "ad": "-=[P.E.T. Decoy]=-",
-   "puan": 2
+   "name": "-=[P.E.T. Decoy]=-",
+   "points": 2
   },
   "132": {
-   "ad": "-=[P.E.T. Raider]=-",
-   "puan": 3
+   "name": "-=[P.E.T. Raider]=-",
+   "points": 3
   },
   "133": {
-   "ad": "-=[P.E.T. Mercenary]=-",
-   "puan": 3
+   "name": "-=[P.E.T. Mercenary]=-",
+   "points": 3
   },
   "134": {
-   "ad": "-=[P.E.T. Medic]=-",
-   "puan": 4
+   "name": "-=[P.E.T. Medic]=-",
+   "points": 4
   },
   "135": {
-   "ad": "-=[P.E.T. Soldier]=-",
-   "puan": 5
+   "name": "-=[P.E.T. Soldier]=-",
+   "points": 5
   },
   "136": {
-   "ad": "-=[P.E.T. Engineer]=-",
-   "puan": 5
+   "name": "-=[P.E.T. Engineer]=-",
+   "points": 5
   },
   "137": {
-   "ad": "-=[P.E.T. Vanguard]=-",
-   "puan": 6
+   "name": "-=[P.E.T. Vanguard]=-",
+   "points": 6
   },
   "138": {
-   "ad": "-=[P.E.T. Infiltrator]=-",
-   "puan": 7
+   "name": "-=[P.E.T. Infiltrator]=-",
+   "points": 7
   },
   "139": {
-   "ad": "-=[P.E.T. Destroyer]=-",
-   "puan": 8
+   "name": "-=[P.E.T. Destroyer]=-",
+   "points": 8
   },
   "140": {
-   "ad": "-=[P.E.T. Commander]=-",
-   "puan": 9
+   "name": "-=[P.E.T. Commander]=-",
+   "points": 9
   },
   "141": {
-   "ad": "-=[P.E.T. Stalker]=-",
-   "puan": 10
+   "name": "-=[P.E.T. Stalker]=-",
+   "points": 10
   },
   "142": {
-   "ad": "-=[P.E.T. Berserker]=-",
-   "puan": 11
+   "name": "-=[P.E.T. Berserker]=-",
+   "points": 11
   },
   "143": {
-   "ad": "-=[P.E.T. Pack Leader]=-",
-   "puan": 12
+   "name": "-=[P.E.T. Pack Leader]=-",
+   "points": 12
   },
   "144": {
-   "ad": "-=[P.E.T. Veteran]=-",
-   "puan": 13
+   "name": "-=[P.E.T. Veteran]=-",
+   "points": 13
   },
   "145": {
-   "ad": "-=[P.E.T. Alpha]=-",
-   "puan": 25
+   "name": "-=[P.E.T. Alpha]=-",
+   "points": 25
   },
   "146": {
-   "ad": "-=[P.E.T. Alpha]=-",
-   "puan": 15
+   "name": "-=[P.E.T. Alpha]=-",
+   "points": 15
   },
   "147": {
-   "ad": "-=[ Streuner Emperor ]=-",
-   "puan": 18
+   "name": "-=[ Streuner Emperor ]=-",
+   "points": 18
   },
   "148": {
-   "ad": "-=[ Streuner Turret ]=-",
-   "puan": 1
+   "name": "-=[ Streuner Turret ]=-",
+   "points": 1
   },
   "149": {
-   "ad": "-=[ Streuner Specialist ]=-",
-   "puan": 1
+   "name": "-=[ Streuner Specialist ]=-",
+   "points": 1
   },
   "150": {
-   "ad": "-=[ Streuner Soldier ]=-",
-   "puan": 4
+   "name": "-=[ Streuner Soldier ]=-",
+   "points": 4
   },
   "151": {
-   "ad": "-=[ Demon Drone ]=-",
-   "puan": 0
+   "name": "-=[ Demon Drone ]=-",
+   "points": 0
   },
   "152": {
-   "ad": "-=[ Recruit Streuner ]=-",
-   "puan": 1
+   "name": "-=[ Recruit Streuner ]=-",
+   "points": 1
   },
   "153": {
-   "ad": "-=[ Aider Streuner ]=-",
-   "puan": 1
+   "name": "-=[ Aider Streuner ]=-",
+   "points": 1
   },
   "154": {
-   "ad": "<=< Plagued Gygerthrall >=>",
-   "puan": 3
+   "name": "<=< Plagued Gygerthrall >=>",
+   "points": 3
   },
   "155": {
-   "ad": "<=< Blighted Gygerthrall >=>",
-   "puan": 4
+   "name": "<=< Blighted Gygerthrall >=>",
+   "points": 4
   },
   "156": {
-   "ad": "-=[ Viral Kristallon ]=-",
-   "puan": 10
+   "name": "-=[ Viral Kristallon ]=-",
+   "points": 10
   },
   "157": {
-   "ad": "<=< Viral Gygerthrall >=>",
-   "puan": 4
+   "name": "<=< Viral Gygerthrall >=>",
+   "points": 4
   },
   "158": {
-   "ad": "-=[ Streuner Rocketeer ]=-",
-   "puan": 1
+   "name": "-=[ Streuner Rocketeer ]=-",
+   "points": 1
   },
   "159": {
-   "ad": "-=[ Seeker Rocket ]=-",
-   "puan": 0
+   "name": "-=[ Seeker Rocket ]=-",
+   "points": 0
   },
   "160": {
-   "ad": "-=[ Blighted Kristallon ]=-",
-   "puan": 10
+   "name": "-=[ Blighted Kristallon ]=-",
+   "points": 10
   },
   "161": {
-   "ad": "-=[ Plagued Kristallin ]=-",
-   "puan": 3
+   "name": "-=[ Plagued Kristallin ]=-",
+   "points": 3
   },
   "162": {
-   "ad": "-=[ Plague Rocket ]=-",
-   "puan": 0
+   "name": "-=[ Plague Rocket ]=-",
+   "points": 0
   },
   "163": {
-   "ad": "( Uber Interceptor )",
-   "puan": 4
+   "name": "( Uber Interceptor )",
+   "points": 4
   },
   "164": {
-   "ad": "( Uber Barracuda )",
-   "puan": 8
+   "name": "( Uber Barracuda )",
+   "points": 8
   },
   "165": {
-   "ad": "( Uber Saboteur )",
-   "puan": 16
+   "name": "( Uber Saboteur )",
+   "points": 16
   },
   "166": {
-   "ad": "( Uber Annihilator )",
-   "puan": 24
+   "name": "( Uber Annihilator )",
+   "points": 24
   },
   "167": {
-   "ad": "( Uber Battleray )",
-   "puan": 50
+   "name": "( Uber Battleray )",
+   "points": 50
   },
   "169": {
-   "ad": "-={ Demaner Corsair }=-",
-   "puan": 5
+   "name": "-={ Demaner Corsair }=-",
+   "points": 5
   },
   "171": {
-   "ad": "-={ demaNeR Freighter }=-",
-   "puan": 1200
+   "name": "-={ demaNeR Freighter }=-",
+   "points": 1200
   },
   "172": {
-   "ad": "-=[ Unidentified ]=-",
-   "puan": 2000
+   "name": "-=[ Unidentified ]=-",
+   "points": 2000
   },
   "173": {
-   "ad": "* Lordakium Spore *",
-   "puan": 1
+   "name": "* Lordakium Spore *",
+   "points": 1
   },
   "174": {
-   "ad": "\\\\ Purpose XXI //",
-   "puan": 5
+   "name": "\\\\ Purpose XXI //",
+   "points": 5
   },
   "175": {
-   "ad": "\\\\ Impulse II //",
-   "puan": 5
+   "name": "\\\\ Impulse II //",
+   "points": 5
   },
   "176": {
-   "ad": "\\\\ Attend IX //",
-   "puan": 10
+   "name": "\\\\ Attend IX //",
+   "points": 10
   },
   "177": {
-   "ad": "\\\\ Invoke XVI //",
-   "puan": 15
+   "name": "\\\\ Invoke XVI //",
+   "points": 15
   },
   "178": {
-   "ad": "\\\\ Mindfire Behemoth //",
-   "puan": 30
+   "name": "\\\\ Mindfire Behemoth //",
+   "points": 30
   },
   "179": {
-   "ad": "\\\\ Urge IV //",
-   "puan": 550
+   "name": "\\\\ Urge IV //",
+   "points": 550
   },
   "180": {
-   "ad": "\\\\ Attitude XIII //",
-   "puan": 550
+   "name": "\\\\ Attitude XIII //",
+   "points": 550
   },
   "181": {
-   "ad": "\\\\ Capital I //",
-   "puan": 550
+   "name": "\\\\ Capital I //",
+   "points": 550
   },
   "182": {
-   "ad": "\\\\ Regard CXI //",
-   "puan": 1100
+   "name": "\\\\ Regard CXI //",
+   "points": 1100
   },
   "183": {
-   "ad": "\\\\ Observe X //",
-   "puan": 1100
+   "name": "\\\\ Observe X //",
+   "points": 1100
   },
   "184": {
-   "ad": "\\\\ Find VII //",
-   "puan": 1100
+   "name": "\\\\ Find VII //",
+   "points": 1100
   },
   "200": {
-   "ad": "-=[ Saimon Aberration ]=-",
-   "puan": 6
+   "name": "-=[ Saimon Aberration ]=-",
+   "points": 6
   },
   "201": {
-   "ad": "-=[ Boss Saimon Aberration ]=-",
-   "puan": 12
+   "name": "-=[ Boss Saimon Aberration ]=-",
+   "points": 12
   },
   "202": {
-   "ad": "-=[ Mordon Aberration ]=-",
-   "puan": 18
+   "name": "-=[ Mordon Aberration ]=-",
+   "points": 18
   },
   "203": {
-   "ad": "-={ Boss Mordon Aberration }=-",
-   "puan": 30
+   "name": "-={ Boss Mordon Aberration }=-",
+   "points": 30
   },
   "204": {
-   "ad": "-={ Devolarium Aberration }=-",
-   "puan": 45
+   "name": "-={ Devolarium Aberration }=-",
+   "points": 45
   },
   "205": {
-   "ad": "-={ Kristallin Oddity }=-",
-   "puan": 40
+   "name": "-={ Kristallin Oddity }=-",
+   "points": 40
   },
   "206": {
-   "ad": "-={ Boss Kristallin Oddity }=-",
-   "puan": 80
+   "name": "-={ Boss Kristallin Oddity }=-",
+   "points": 80
   },
   "207": {
-   "ad": "-={ Kristallon Oddity }=-",
-   "puan": 120
+   "name": "-={ Kristallon Oddity }=-",
+   "points": 120
   },
   "208": {
-   "ad": "-={ Boss Kristallon Oddity }=-",
-   "puan": 200
+   "name": "-={ Boss Kristallon Oddity }=-",
+   "points": 200
   },
   "209": {
-   "ad": "-={ UberKristallon Oddity }=-",
-   "puan": 300
+   "name": "-={ UberKristallon Oddity }=-",
+   "points": 300
   },
   "210": {
-   "ad": "..::{ Awakened Lordakium }::..",
-   "puan": 280
+   "name": "..::{ Awakened Lordakium }::..",
+   "points": 280
   },
   "211": {
-   "ad": "..::{ Awakened Overlord }::..",
-   "puan": 520
+   "name": "..::{ Awakened Overlord }::..",
+   "points": 520
   },
   "212": {
-   "ad": "..::{ Awakened Devourer }::..",
-   "puan": 800
+   "name": "..::{ Awakened Devourer }::..",
+   "points": 800
   },
   "213": {
-   "ad": "=^(Cote Lo)^=",
-   "puan": 2
+   "name": "=^(Cote Lo)^=",
+   "points": 2
   },
   "214": {
-   "ad": "=^(Kodkod)^=",
-   "puan": 5
+   "name": "=^(Kodkod)^=",
+   "points": 5
   },
   "215": {
-   "ad": "=^(Aura Dun Jig)^=",
-   "puan": 8
+   "name": "=^(Aura Dun Jig)^=",
+   "points": 8
   },
   "216": {
-   "ad": "=^(Lac Lion)^=",
-   "puan": 12
+   "name": "=^(Lac Lion)^=",
+   "points": 12
   },
   "217": {
-   "ad": "=^(Natal Nap)^=",
-   "puan": 30
+   "name": "=^(Natal Nap)^=",
+   "points": 30
   },
   "218": {
-   "ad": "=^(Plutus)^=",
-   "puan": 750
+   "name": "=^(Plutus)^=",
+   "points": 750
   },
   "219": {
-   "ad": "-=[ Warhead ]=-",
-   "puan": 0
+   "name": "-=[ Warhead ]=-",
+   "points": 0
   },
   "220": {
-   "ad": "-=[ Turret ]=-",
-   "puan": 0
+   "name": "-=[ Turret ]=-",
+   "points": 0
   },
   "221": {
-   "ad": "-x-[ Frozen Icy ]-x-",
-   "puan": 2
+   "name": "-x-[ Frozen Icy ]-x-",
+   "points": 2
   },
   "222": {
-   "ad": "-x-[ Frozen Kristallin ]-x-",
-   "puan": 3
+   "name": "-x-[ Frozen Kristallin ]-x-",
+   "points": 3
   },
   "223": {
-   "ad": "-x-[ Frozen Kristallon ]-x-",
-   "puan": 4
+   "name": "-x-[ Frozen Kristallon ]-x-",
+   "points": 4
   },
   "224": {
-   "ad": "-x-[ Frozen Boss Kristallin ]-x-",
-   "puan": 12
+   "name": "-x-[ Frozen Boss Kristallin ]-x-",
+   "points": 12
   },
   "225": {
-   "ad": "-x-[ Frozen Boss Kristallon ]-x-",
-   "puan": 24
+   "name": "-x-[ Frozen Boss Kristallon ]-x-",
+   "points": 24
   },
   "226": {
-   "ad": "-x-[ Frozen Meteoroid ]-x-",
-   "puan": 32
+   "name": "-x-[ Frozen Meteoroid ]-x-",
+   "points": 32
   },
   "227": {
-   "ad": "-x-[ Frozen Super Meteoroid ]-x-",
-   "puan": 128
+   "name": "-x-[ Frozen Super Meteoroid ]-x-",
+   "points": 128
   },
   "228": {
-   "ad": "-x-[ Synk ]-x-",
-   "puan": 32
+   "name": "-x-[ Synk ]-x-",
+   "points": 32
   },
   "229": {
-   "ad": "xX[ Chaos Protegit ]Xx",
-   "puan": 3
+   "name": "xX[ Chaos Protegit ]Xx",
+   "points": 3
   },
   "230": {
-   "ad": ">={ Lanatum }=<",
-   "puan": 0
+   "name": ">={ Lanatum }=<",
+   "points": 0
   },
   "233": {
-   "ad": "-=[ Hexor M1mesis ]=-",
-   "puan": 1
+   "name": "-=[ Hexor M1mesis ]=-",
+   "points": 1
   },
   "234": {
-   "ad": "-=[ Raging Mimes1s ]=-",
-   "puan": 1
+   "name": "-=[ Raging Mimes1s ]=-",
+   "points": 1
   },
   "235": {
-   "ad": "-=[ Cloning Mim3sis ]=-",
-   "puan": 1
+   "name": "-=[ Cloning Mim3sis ]=-",
+   "points": 1
   },
   "236": {
-   "ad": "-=[ Cloned Mim3sis ]=-",
-   "puan": 0
+   "name": "-=[ Cloned Mim3sis ]=-",
+   "points": 0
   },
   "237": {
-   "ad": "-=[ Terror Mime5is ]=-",
-   "puan": 2
+   "name": "-=[ Terror Mime5is ]=-",
+   "points": 2
   },
   "238": {
-   "ad": "-=[ Kamikaze Mime5is ]=-",
-   "puan": 0
+   "name": "-=[ Kamikaze Mime5is ]=-",
+   "points": 0
   },
   "239": {
-   "ad": "-=[ Reflector Mimesi5 ]=-",
-   "puan": 4
+   "name": "-=[ Reflector Mimesi5 ]=-",
+   "points": 4
   },
   "241": {
-   "ad": "-=[ Raider Mimes1s ]=-",
-   "puan": 1
+   "name": "-=[ Raider Mimes1s ]=-",
+   "points": 1
   },
   "242": {
-   "ad": "-=[ Assailant M1mesis ]=-",
-   "puan": 1
+   "name": "-=[ Assailant M1mesis ]=-",
+   "points": 1
   },
   "243": {
-   "ad": "-=[ Medic Mim3sis ]=-",
-   "puan": 1
+   "name": "-=[ Medic Mim3sis ]=-",
+   "points": 1
   },
   "244": {
-   "ad": "-=[ Hardy Mime5is ]=-",
-   "puan": 1
+   "name": "-=[ Hardy Mime5is ]=-",
+   "points": 1
   },
   "245": {
-   "ad": "-=[ Piercing Mimesi5 ]=-",
-   "puan": 2
+   "name": "-=[ Piercing Mimesi5 ]=-",
+   "points": 2
   },
   "246": {
-   "ad": "-=[ Obscured M1mes1s ]=-",
-   "puan": 4
+   "name": "-=[ Obscured M1mes1s ]=-",
+   "points": 4
   },
   "247": {
-   "ad": "-=[ Hounding Mim3si5 ]=-",
-   "puan": 2
+   "name": "-=[ Hounding Mim3si5 ]=-",
+   "points": 2
   },
   "248": {
-   "ad": "-=[ Mirror M1m3si5 ]=-",
-   "puan": 4
+   "name": "-=[ Mirror M1m3si5 ]=-",
+   "points": 4
   },
   "249": {
-   "ad": "-=[ Mirror M1m3si5 ]=-",
-   "puan": 0
+   "name": "-=[ Mirror M1m3si5 ]=-",
+   "points": 0
   },
   "250": {
-   "ad": "-=[ Sniper M1mesi5 ]=-",
-   "puan": 2
+   "name": "-=[ Sniper M1mesi5 ]=-",
+   "points": 2
   },
   "251": {
-   "ad": "-=[ Marker Mim3si5 ]=-",
-   "puan": 4
+   "name": "-=[ Marker Mim3si5 ]=-",
+   "points": 4
   },
   "252": {
-   "ad": "~=( Troublemaker Cyborg )=~",
-   "puan": 10
+   "name": "~=( Troublemaker Cyborg )=~",
+   "points": 10
   },
   "253": {
-   "ad": "~=( Cowering Cyborg )=~",
-   "puan": 3
+   "name": "~=( Cowering Cyborg )=~",
+   "points": 3
   },
   "254": {
-   "ad": "~=( Phasing Cyborg )=~",
-   "puan": 750
+   "name": "~=( Phasing Cyborg )=~",
+   "points": 750
   },
   "255": {
-   "ad": "~=( Demolition Cyborg )=~",
-   "puan": 10
+   "name": "~=( Demolition Cyborg )=~",
+   "points": 10
   },
   "256": {
-   "ad": "~=( Shielded Cyborg )=~",
-   "puan": 5
+   "name": "~=( Shielded Cyborg )=~",
+   "points": 5
   },
   "257": {
-   "ad": "~=( Singularity Cyborg )=~",
-   "puan": 15
+   "name": "~=( Singularity Cyborg )=~",
+   "points": 15
   },
   "258": {
-   "ad": "-=[ Warhead ]=-",
-   "puan": 0
+   "name": "-=[ Warhead ]=-",
+   "points": 0
   },
   "261": {
-   "ad": "-=[ Hitac 2.5 ]=-",
-   "puan": 175
+   "name": "-=[ Hitac 2.5 ]=-",
+   "points": 175
   },
   "262": {
-   "ad": "-=[ Revenant Slender ]=-",
-   "puan": 22
+   "name": "-=[ Revenant Slender ]=-",
+   "points": 22
   },
   "263": {
-   "ad": "-=[ Hitac-Minion 2.5 ]=-",
-   "puan": 40
+   "name": "-=[ Hitac-Minion 2.5 ]=-",
+   "points": 40
   },
   "266": {
-   "ad": "\\\\ Strokelight Barrage //",
-   "puan": 25
+   "name": "\\\\ Strokelight Barrage //",
+   "points": 25
   },
   "267": {
-   "ad": "-=[ Barrage Seeker Rocket ]=-",
-   "puan": 0
+   "name": "-=[ Barrage Seeker Rocket ]=-",
+   "points": 0
   },
   "268": {
-   "ad": "\\\\ Abide I //",
-   "puan": 5
+   "name": "\\\\ Abide I //",
+   "points": 5
   },
   "269": {
-   "ad": "\\\\ Steadfast III //",
-   "puan": 5
+   "name": "\\\\ Steadfast III //",
+   "points": 5
   },
   "271": {
-   "ad": "-={ Saturn Spearhead }=-",
-   "puan": 27
+   "name": "-={ Saturn Spearhead }=-",
+   "points": 27
   },
   "272": {
-   "ad": "-={ Saturn Aegis }=-",
-   "puan": 152
+   "name": "-={ Saturn Aegis }=-",
+   "points": 152
   },
   "273": {
-   "ad": "-={ Saturn Citadel }=-",
-   "puan": 2860
+   "name": "-={ Saturn Citadel }=-",
+   "points": 2860
   },
   "274": {
-   "ad": "-={ Saturn Goliath }=-",
-   "puan": 102
+   "name": "-={ Saturn Goliath }=-",
+   "points": 102
   },
   "275": {
-   "ad": "-={ Saturn Spectrum }=-",
-   "puan": 600
+   "name": "-={ Saturn Spectrum }=-",
+   "points": 600
   },
   "276": {
-   "ad": "-={ Saturn Sentinel }=-",
-   "puan": 483
+   "name": "-={ Saturn Sentinel }=-",
+   "points": 483
   },
   "277": {
-   "ad": "-={ Saturn Solace }=-",
-   "puan": 591
+   "name": "-={ Saturn Solace }=-",
+   "points": 591
   },
   "278": {
-   "ad": "-={ Saturn Venom }=-",
-   "puan": 160
+   "name": "-={ Saturn Venom }=-",
+   "points": 160
   },
   "279": {
-   "ad": "-={ Saturn Diminisher }=-",
-   "puan": 217
+   "name": "-={ Saturn Diminisher }=-",
+   "points": 217
   },
   "280": {
-   "ad": "-=[ Skoll ]=-",
-   "puan": 560
+   "name": "-=[ Skoll ]=-",
+   "points": 560
   },
   "281": {
-   "ad": "-=[: The Stinger :]=-",
-   "puan": 512
+   "name": "-=[: The Stinger :]=-",
+   "points": 512
   },
   "282": {
-   "ad": "-=[: Pike :]=-",
-   "puan": 128
+   "name": "-=[: Pike :]=-",
+   "points": 128
   },
   "283": {
-   "ad": "-=[: Barb :]=-",
-   "puan": 64
+   "name": "-=[: Barb :]=-",
+   "points": 64
   },
   "284": {
-   "ad": "-=[: Lanternfish :]=-",
-   "puan": 40
+   "name": "-=[: Lanternfish :]=-",
+   "points": 40
   },
   "285": {
-   "ad": "-=[: Spookfish :]=-",
-   "puan": 25
+   "name": "-=[: Spookfish :]=-",
+   "points": 25
   },
   "286": {
-   "ad": "-=[ Inspirit M1mesi5 ]=-",
-   "puan": 1
+   "name": "-=[ Inspirit M1mesi5 ]=-",
+   "points": 1
   },
   "287": {
-   "ad": "-=[ Mim3si5 Turret ]=-",
-   "puan": 0
+   "name": "-=[ Mim3si5 Turret ]=-",
+   "points": 0
   },
   "288": {
-   "ad": "-=[ Sheer Chaos Interceptor ]=-",
-   "puan": 4
+   "name": "-=[ Sheer Chaos Interceptor ]=-",
+   "points": 4
   },
   "289": {
-   "ad": "-=[ Sheer Chaos Annihilator ]=-",
-   "puan": 24
+   "name": "-=[ Sheer Chaos Annihilator ]=-",
+   "points": 24
   },
   "291": {
-   "ad": "-=[ Sunder Star ]=-",
-   "puan": 0
+   "name": "-=[ Sunder Star ]=-",
+   "points": 0
   },
   "292": {
-   "ad": "-=[ Sunder Star ]=-",
-   "puan": 0
+   "name": "-=[ Sunder Star ]=-",
+   "points": 0
   },
   "293": {
-   "ad": "-=[ Sunder Star ]=-",
-   "puan": 0
+   "name": "-=[ Sunder Star ]=-",
+   "points": 0
   },
   "294": {
-   "ad": "-=[ Sunder Star ]=-",
-   "puan": 0
+   "name": "-=[ Sunder Star ]=-",
+   "points": 0
   },
   "295": {
-   "ad": "-=[ Volatile Energy Reserves ]=-",
-   "puan": 0
+   "name": "-=[ Volatile Energy Reserves ]=-",
+   "points": 0
   },
   "296": {
-   "ad": "-=[ Slow Field ]=-",
-   "puan": 0
+   "name": "-=[ Slow Field ]=-",
+   "points": 0
   },
   "297": {
-   "ad": "-=[ Warhead ]=-",
-   "puan": 0
+   "name": "-=[ Warhead ]=-",
+   "points": 0
   },
   "298": {
-   "ad": "-=[ Sunder Star ]=-",
-   "puan": 0
+   "name": "-=[ Sunder Star ]=-",
+   "points": 0
   },
   "299": {
-   "ad": "-=[ Hitac-Underling ]=-",
-   "puan": 1
+   "name": "-=[ Hitac-Underling ]=-",
+   "points": 1
   },
   "300": {
-   "ad": "-=[ Hitac-Underboss ]=-",
-   "puan": 1
+   "name": "-=[ Hitac-Underboss ]=-",
+   "points": 1
   },
   "301": {
-   "ad": "-=[ Lethal Field ]=-",
-   "puan": 0
+   "name": "-=[ Lethal Field ]=-",
+   "points": 0
   },
   "401": {
-   "ad": "-=[ Sunder Star ]=-",
-   "puan": 0
+   "name": "-=[ Sunder Star ]=-",
+   "points": 0
   },
   "402": {
-   "ad": "-=[ Sunder Star ]=-",
-   "puan": 0
+   "name": "-=[ Sunder Star ]=-",
+   "points": 0
   },
   "403": {
-   "ad": "-=[ Sunder Star ]=-",
-   "puan": 0
+   "name": "-=[ Sunder Star ]=-",
+   "points": 0
   },
   "404": {
-   "ad": "-=[ Sunder Star ]=-",
-   "puan": 0
+   "name": "-=[ Sunder Star ]=-",
+   "points": 0
   },
   "408": {
-   "ad": "-=[ Streuner ]=-",
-   "puan": 0
+   "name": "-=[ Streuner ]=-",
+   "points": 0
   },
   "409": {
-   "ad": "-=[ Saimon ]=-",
-   "puan": 1
+   "name": "-=[ Saimon ]=-",
+   "points": 1
   },
   "410": {
-   "ad": "-=[ Reflector Mimesi5 ]=-",
-   "puan": 1
+   "name": "-=[ Reflector Mimesi5 ]=-",
+   "points": 1
   },
   "411": {
-   "ad": "-=[ Sibelonit ]=-",
-   "puan": 1
+   "name": "-=[ Sibelonit ]=-",
+   "points": 1
   },
   "412": {
-   "ad": "..::{ Boss Sibelonit }::..",
-   "puan": 1
+   "name": "..::{ Boss Sibelonit }::..",
+   "points": 1
   },
   "413": {
-   "ad": "<=< Boss Kucurbium >=>",
-   "puan": 1
+   "name": "<=< Boss Kucurbium >=>",
+   "points": 1
   },
   "414": {
-   "ad": "-=[ Kristallin ]=-",
-   "puan": 1
+   "name": "-=[ Kristallin ]=-",
+   "points": 1
   },
   "415": {
-   "ad": "..::{ Boss Mordon }::..",
-   "puan": 1
+   "name": "..::{ Boss Mordon }::..",
+   "points": 1
   },
   "416": {
-   "ad": "..::{ Boss Saimon }::..",
-   "puan": 1
+   "name": "..::{ Boss Saimon }::..",
+   "points": 1
   },
   "417": {
-   "ad": "-=[ Devolarium ]=-",
-   "puan": 1
+   "name": "-=[ Devolarium ]=-",
+   "points": 1
   },
   "418": {
-   "ad": "-=[ Emperor Sibelon ]=-",
-   "puan": 1
+   "name": "-=[ Emperor Sibelon ]=-",
+   "points": 1
   },
   "419": {
-   "ad": "..::{ Boss Lordakium }::...",
-   "puan": 1
+   "name": "..::{ Boss Lordakium }::...",
+   "points": 1
   },
   "420": {
-   "ad": "-=[ Recruit Streuner ]=-",
-   "puan": 1
+   "name": "-=[ Recruit Streuner ]=-",
+   "points": 1
   },
   "421": {
-   "ad": "\\\\ Find VII //",
-   "puan": 1
+   "name": "\\\\ Find VII //",
+   "points": 1
   },
   "422": {
-   "ad": "-=[ Hexor M1mesis ]=-",
-   "puan": 1
+   "name": "-=[ Hexor M1mesis ]=-",
+   "points": 1
   },
   "423": {
-   "ad": "\\\\ Abide I //",
-   "puan": 1
+   "name": "\\\\ Abide I //",
+   "points": 1
   },
   "425": {
-   "ad": "-=[ Mim3si5 Turret ]=-",
-   "puan": 0
+   "name": "-=[ Mim3si5 Turret ]=-",
+   "points": 0
   },
   "426": {
-   "ad": "-=[ Kristallon ]=-",
-   "puan": 1
+   "name": "-=[ Kristallon ]=-",
+   "points": 1
   },
   "427": {
-   "ad": "-=[ Convict ]=-",
-   "puan": 1
+   "name": "-=[ Convict ]=-",
+   "points": 1
   },
   "428": {
-   "ad": "..::{ Boss Kristallin }::..",
-   "puan": 1
+   "name": "..::{ Boss Kristallin }::..",
+   "points": 1
   },
   "501": {
-   "ad": "-=[ Dreadfyre Fortress ]=-",
-   "puan": 0
+   "name": "-=[ Dreadfyre Fortress ]=-",
+   "points": 0
   },
   "502": {
-   "ad": "-=[ Dreadfyre Guardian ]=-",
-   "puan": 0
+   "name": "-=[ Dreadfyre Guardian ]=-",
+   "points": 0
   },
   "503": {
-   "ad": "-=[ Dreadfyre Harbinger ]=-",
-   "puan": 0
+   "name": "-=[ Dreadfyre Harbinger ]=-",
+   "points": 0
   },
   "510": {
-   "ad": "..::{ Chronospire }::..",
-   "puan": 4
+   "name": "..::{ Chronospire }::..",
+   "points": 4
   },
   "511": {
-   "ad": "-=[ Veil Stalker ]=-",
-   "puan": 1
+   "name": "-=[ Veil Stalker ]=-",
+   "points": 1
   },
   "512": {
-   "ad": "..::{ Pyrospire }::..",
-   "puan": 4
+   "name": "..::{ Pyrospire }::..",
+   "points": 4
   },
   "513": {
-   "ad": "-=[ Magma Stalker ]=-",
-   "puan": 1
+   "name": "-=[ Magma Stalker ]=-",
+   "points": 1
   },
   "514": {
-   "ad": "..::{ Vinespire }::..",
-   "puan": 4
+   "name": "..::{ Vinespire }::..",
+   "points": 4
   },
   "515": {
-   "ad": "-=[ Spore Stalker ]=-",
-   "puan": 1
+   "name": "-=[ Spore Stalker ]=-",
+   "points": 1
   },
   "516": {
-   "ad": "..::{ Boss Voidmare }::..",
-   "puan": 8
+   "name": "..::{ Boss Voidmare }::..",
+   "points": 8
   },
   "551": {
-   "ad": "-=[ Interceptor ]=-",
-   "puan": 1
+   "name": "-=[ Interceptor ]=-",
+   "points": 1
   },
   "552": {
-   "ad": "-=[ Barracuda ]=-",
-   "puan": 2
+   "name": "-=[ Barracuda ]=-",
+   "points": 2
   },
   "553": {
-   "ad": "-=[ Saboteur ]=-",
-   "puan": 4
+   "name": "-=[ Saboteur ]=-",
+   "points": 4
   },
   "554": {
-   "ad": "-=[ Deadly Battleray ]=-",
-   "puan": 24
+   "name": "-=[ Deadly Battleray ]=-",
+   "points": 24
   },
   "999": {
-   "ad": "-=[ Hit Target ]=-",
-   "puan": 0
+   "name": "-=[ Hit Target ]=-",
+   "points": 0
   }
  },
  "ship_points": {
   "ship_phoenix": {
-   "ad": "Phoenix",
-   "puan": 1
+   "name": "Phoenix",
+   "points": 1
   },
   "ship_yamato": {
-   "ad": "Yamato",
-   "puan": 2
+   "name": "Yamato",
+   "points": 2
   },
   "ship_leonov": {
-   "ad": "Leonov",
-   "puan": 4
+   "name": "Leonov",
+   "points": 4
   },
   "ship_defcom": {
-   "ad": "Defcom",
-   "puan": 6
+   "name": "Defcom",
+   "points": 6
   },
   "ship_liberator": {
-   "ad": "Liberator",
-   "puan": 8
+   "name": "Liberator",
+   "points": 8
   },
   "ship_piranha": {
-   "ad": "Piranha",
-   "puan": 12
+   "name": "Piranha",
+   "points": 12
   },
   "ship_nostromo": {
-   "ad": "Nostromo",
-   "puan": 13
+   "name": "Nostromo",
+   "points": 13
   },
   "ship_bigboy": {
-   "ad": "Bigboy",
-   "puan": 14
+   "name": "Bigboy",
+   "points": 14
   },
   "ship_vengeance": {
-   "ad": "Vengeance",
-   "puan": 16
+   "name": "Vengeance",
+   "points": 16
   },
   "ship_goliath": {
-   "ad": "Goliath",
-   "puan": 20
+   "name": "Goliath",
+   "points": 20
   },
   "ship_spearhead": {
-   "ad": "Spearhead",
-   "puan": 10
+   "name": "Spearhead",
+   "points": 10
   },
   "ship_citadel": {
-   "ad": "Citadel",
-   "puan": 40
+   "name": "Citadel",
+   "points": 40
   },
   "ship_aegis": {
-   "ad": "Aegis",
-   "puan": 25
+   "name": "Aegis",
+   "points": 25
   },
   "ship_n-diplomat": {
-   "ad": "N-Diplomat",
-   "puan": 13
+   "name": "N-Diplomat",
+   "points": 13
   },
   "ship_n-envoy": {
-   "ad": "N-Envoy",
-   "puan": 13
+   "name": "N-Envoy",
+   "points": 13
   },
   "ship_n-ambassador": {
-   "ad": "N-Ambassador",
-   "puan": 13
+   "name": "N-Ambassador",
+   "points": 13
   },
   "ship_bb-solemn": {
-   "ad": "BB-Solemn",
-   "puan": 14
+   "name": "BB-Solemn",
+   "points": 14
   },
   "ship_v-adept": {
-   "ad": "V-Adept",
-   "puan": 16
+   "name": "V-Adept",
+   "points": 16
   },
   "ship_v-avenger": {
-   "ad": "V-Avenger",
-   "puan": 16
+   "name": "V-Avenger",
+   "points": 16
   },
   "ship_v-corsair": {
-   "ad": "V-Corsair",
-   "puan": 16
+   "name": "V-Corsair",
+   "points": 16
   },
   "ship_v-revenge": {
-   "ad": "V-Revenge",
-   "puan": 16
+   "name": "V-Revenge",
+   "points": 16
   },
   "ship_v-lightning": {
-   "ad": "V-Lightning",
-   "puan": 16
+   "name": "V-Lightning",
+   "points": 16
   },
   "ship_pusat": {
-   "ad": "Pusat",
-   "puan": 16
+   "name": "Pusat",
+   "points": 16
   },
   "ship_g-saturn": {
-   "ad": "G-Saturn",
-   "puan": 20
+   "name": "G-Saturn",
+   "points": 20
   },
   "ship_g-referee": {
-   "ad": "Referee",
-   "puan": 20
+   "name": "Referee",
+   "points": 20
   },
   "ship_g-ignite": {
-   "ad": "G-Ignite",
-   "puan": 20
+   "name": "G-Ignite",
+   "points": 20
   },
   "ship_g-kick": {
-   "ad": "G-Kick",
-   "puan": 20
+   "name": "G-Kick",
+   "points": 20
   },
   "ship_g-goal": {
-   "ad": "G-Goal",
-   "puan": 20
+   "name": "G-Goal",
+   "points": 20
   },
   "ship_g-surgeon": {
-   "ad": "G-Surgeon",
-   "puan": 20
+   "name": "G-Surgeon",
+   "points": 20
   },
   "ship_g-bastion": {
-   "ad": "G-Bastion",
-   "puan": 20
+   "name": "G-Bastion",
+   "points": 20
   },
   "ship_g-centaur": {
-   "ad": "G-Centaur",
-   "puan": 20
+   "name": "G-Centaur",
+   "points": 20
   },
   "ship_g-enforcer": {
-   "ad": "G-Enforcer",
-   "puan": 20
+   "name": "G-Enforcer",
+   "points": 20
   },
   "ship_g-exalted": {
-   "ad": "G-Exalted",
-   "puan": 20
+   "name": "G-Exalted",
+   "points": 20
   },
   "ship_g-veteran": {
-   "ad": "G-Veteran",
-   "puan": 20
+   "name": "G-Veteran",
+   "points": 20
   },
   "ship_g-peacemaker": {
-   "ad": "G-Peacemaker",
-   "puan": 20
+   "name": "G-Peacemaker",
+   "points": 20
   },
   "ship_g-sovereign": {
-   "ad": "G-Sovereign",
-   "puan": 20
+   "name": "G-Sovereign",
+   "points": 20
   },
   "ship_g-vanquisher": {
-   "ad": "G-Vanquisher",
-   "puan": 20
+   "name": "G-Vanquisher",
+   "points": 20
   },
   "ship_g-champion": {
-   "ad": "G-Champion",
-   "puan": 20
+   "name": "G-Champion",
+   "points": 20
   },
   "ship_g-admin-cloak": {
-   "ad": "G-Admin Cloak",
-   "puan": 10
+   "name": "G-Admin Cloak",
+   "points": 10
   },
   "ship_diminisher": {
-   "ad": "Diminisher",
-   "puan": 20
+   "name": "Diminisher",
+   "points": 20
   },
   "ship_sentinel": {
-   "ad": "Sentinel",
-   "puan": 20
+   "name": "Sentinel",
+   "points": 20
   },
   "ship_solace": {
-   "ad": "Solace",
-   "puan": 20
+   "name": "Solace",
+   "points": 20
   },
   "ship_spectrum": {
-   "ad": "Spectrum",
-   "puan": 20
+   "name": "Spectrum",
+   "points": 20
   },
   "ship_venom": {
-   "ad": "Venom",
-   "puan": 20
+   "name": "Venom",
+   "points": 20
   },
   "ship_s-veteran": {
-   "ad": "S-Veteran",
-   "puan": 10
+   "name": "S-Veteran",
+   "points": 10
   },
   "ship_s-elite": {
-   "ad": "S-Elite",
-   "puan": 10
+   "name": "S-Elite",
+   "points": 10
   },
   "ship_c-veteran": {
-   "ad": "C-Veteran",
-   "puan": 40
+   "name": "C-Veteran",
+   "points": 40
   },
   "ship_c-elite": {
-   "ad": "C-Elite",
-   "puan": 40
+   "name": "C-Elite",
+   "points": 40
   },
   "ship_a-veteran": {
-   "ad": "A-Veteran",
-   "puan": 25
+   "name": "A-Veteran",
+   "points": 25
   },
   "ship_a-elite": {
-   "ad": "A-Elite",
-   "puan": 25
+   "name": "A-Elite",
+   "points": 25
   },
   "ship_tartarus": {
-   "ad": "Tartarus",
-   "puan": 25
+   "name": "Tartarus",
+   "points": 25
   },
   "ship_mimesis": {
-   "ad": "Mimesis",
-   "puan": 20
+   "name": "Mimesis",
+   "points": 20
   },
   "ship_goliath-x": {
-   "ad": "Goliath-X",
-   "puan": 20
+   "name": "Goliath-X",
+   "points": 20
   },
   "ship_yamato-ronin": {
-   "ad": "Yamato Ronin",
-   "puan": 2
+   "name": "Yamato Ronin",
+   "points": 2
   },
   "ship_defcom-raven": {
-   "ad": "Defcom Raven",
-   "puan": 6
+   "name": "Defcom Raven",
+   "points": 6
   },
   "ship_cyborg": {
-   "ad": "Cyborg",
-   "puan": 20
+   "name": "Cyborg",
+   "points": 20
   },
   "ship_hammerclaw": {
-   "ad": "Hammerclaw",
-   "puan": 20
+   "name": "Hammerclaw",
+   "points": 20
   },
   "ship_centurion": {
-   "ad": "Centurion",
-   "puan": 20
+   "name": "Centurion",
+   "points": 20
   },
   "ship_hecate": {
-   "ad": "Hecate",
-   "puan": 20
+   "name": "Hecate",
+   "points": 20
   },
   "ship_disruptor": {
-   "ad": "Disruptor",
-   "puan": 20
+   "name": "Disruptor",
+   "points": 20
   },
   "ship_berserker": {
-   "ad": "Berserker",
-   "puan": 20
+   "name": "Berserker",
+   "points": 20
   },
   "ship_zephyr": {
-   "ad": "Zephyr",
-   "puan": 20
+   "name": "Zephyr",
+   "points": 20
   },
   "ship_solaris": {
-   "ad": "Solaris",
-   "puan": 20
+   "name": "Solaris",
+   "points": 20
   },
   "ship_keres": {
-   "ad": "Keres",
-   "puan": 20
+   "name": "Keres",
+   "points": 20
   },
   "ship_retiarus": {
-   "ad": "Retiarus",
-   "puan": 20
+   "name": "Retiarus",
+   "points": 20
   },
   "ship_orcus": {
-   "ad": "Orcus",
-   "puan": 20
+   "name": "Orcus",
+   "points": 20
   },
   "ship_holo": {
-   "ad": "Holo",
-   "puan": 20
+   "name": "Holo",
+   "points": 20
   },
   "ship_goliath-plus": {
-   "ad": "Goliath Plus",
-   "puan": 20
+   "name": "Goliath Plus",
+   "points": 20
   },
   "ship_citadel-plus": {
-   "ad": "Citadel Plus",
-   "puan": 20
+   "name": "Citadel Plus",
+   "points": 20
   },
   "ship_liberator-plus": {
-   "ad": "Liberator Plus",
-   "puan": 20
+   "name": "Liberator Plus",
+   "points": 20
   },
   "ship_solace-plus": {
-   "ad": "Solace Plus",
-   "puan": 20
+   "name": "Solace Plus",
+   "points": 20
   },
   "ship_solaris-plus": {
-   "ad": "Solaris Plus",
-   "puan": 20
+   "name": "Solaris Plus",
+   "points": 20
   },
   "ship_pusat-plus": {
-   "ad": "Pusat Plus",
-   "puan": 16
+   "name": "Pusat Plus",
+   "points": 16
   },
   "ship_hecate-plus": {
-   "ad": "Hecate Plus",
-   "puan": 20
+   "name": "Hecate Plus",
+   "points": 20
   },
   "ship_hammerclaw-plus": {
-   "ad": "Hammerclaw Plus",
-   "puan": 20
+   "name": "Hammerclaw Plus",
+   "points": 20
   },
   "ship_spearhead-plus": {
-   "ad": "Spearhead Plus",
-   "puan": 10
+   "name": "Spearhead Plus",
+   "points": 10
   },
   "ship_tempest": {
-   "ad": "Tempest",
-   "puan": 20
+   "name": "Tempest",
+   "points": 20
   },
   "ship_tartarus-plus": {
-   "ad": "Tartarus Plus",
-   "puan": 10
+   "name": "Tartarus Plus",
+   "points": 10
   },
   "ship_basilisk": {
-   "ad": "Basilisk",
-   "puan": 20
+   "name": "Basilisk",
+   "points": 20
   },
   "ship_spectrum-plus": {
-   "ad": "Spectrum Plus",
-   "puan": 20
+   "name": "Spectrum Plus",
+   "points": 20
   },
   "ship_paladin": {
-   "ad": "Paladin",
-   "puan": 20
+   "name": "Paladin",
+   "points": 20
   },
   "ship_retiarus-plus": {
-   "ad": "Retiarus Plus",
-   "puan": 20
+   "name": "Retiarus Plus",
+   "points": 20
   },
   "ship_hyperion": {
-   "ad": "Hyperion",
-   "puan": 20
+   "name": "Hyperion",
+   "points": 20
   }
  },
  "ranks": [
   {
-   "rutbe": 1,
-   "ad": "Basic Space Pilot",
-   "tur": "percentOfCompany",
+   "rank": 1,
+   "name": "Basic Space Pilot",
+   "type": "percentOfCompany",
    "value": 20.0
   },
   {
-   "rutbe": 2,
-   "ad": "Space Pilot",
-   "tur": "percentOfCompany",
+   "rank": 2,
+   "name": "Space Pilot",
+   "type": "percentOfCompany",
    "value": 12.9
   },
   {
-   "rutbe": 3,
-   "ad": "Chief Space Pilot",
-   "tur": "percentOfCompany",
+   "rank": 3,
+   "name": "Chief Space Pilot",
+   "type": "percentOfCompany",
    "value": 10.0
   },
   {
-   "rutbe": 4,
-   "ad": "Basic Sergeant",
-   "tur": "percentOfCompany",
+   "rank": 4,
+   "name": "Basic Sergeant",
+   "type": "percentOfCompany",
    "value": 9.0
   },
   {
-   "rutbe": 5,
-   "ad": "Sergeant",
-   "tur": "percentOfCompany",
+   "rank": 5,
+   "name": "Sergeant",
+   "type": "percentOfCompany",
    "value": 8.0
   },
   {
-   "rutbe": 6,
-   "ad": "Chief Sergeant",
-   "tur": "percentOfCompany",
+   "rank": 6,
+   "name": "Chief Sergeant",
+   "type": "percentOfCompany",
    "value": 7.0
   },
   {
-   "rutbe": 7,
-   "ad": "Basic Lieutenant",
-   "tur": "percentOfCompany",
+   "rank": 7,
+   "name": "Basic Lieutenant",
+   "type": "percentOfCompany",
    "value": 6.0
   },
   {
-   "rutbe": 8,
-   "ad": "Lieutenant",
-   "tur": "percentOfCompany",
+   "rank": 8,
+   "name": "Lieutenant",
+   "type": "percentOfCompany",
    "value": 5.0
   },
   {
-   "rutbe": 9,
-   "ad": "Chief Lieutenant",
-   "tur": "percentOfCompany",
+   "rank": 9,
+   "name": "Chief Lieutenant",
+   "type": "percentOfCompany",
    "value": 4.5
   },
   {
-   "rutbe": 10,
-   "ad": "Basic Captain",
-   "tur": "percentOfCompany",
+   "rank": 10,
+   "name": "Basic Captain",
+   "type": "percentOfCompany",
    "value": 4.0
   },
   {
-   "rutbe": 11,
-   "ad": "Captain",
-   "tur": "percentOfCompany",
+   "rank": 11,
+   "name": "Captain",
+   "type": "percentOfCompany",
    "value": 3.5
   },
   {
-   "rutbe": 12,
-   "ad": "Chief Captain",
-   "tur": "percentOfCompany",
+   "rank": 12,
+   "name": "Chief Captain",
+   "type": "percentOfCompany",
    "value": 3.0
   },
   {
-   "rutbe": 13,
-   "ad": "Basic Major",
-   "tur": "percentOfCompany",
+   "rank": 13,
+   "name": "Basic Major",
+   "type": "percentOfCompany",
    "value": 2.5
   },
   {
-   "rutbe": 14,
-   "ad": "Major",
-   "tur": "percentOfCompany",
+   "rank": 14,
+   "name": "Major",
+   "type": "percentOfCompany",
    "value": 2.0
   },
   {
-   "rutbe": 15,
-   "ad": "Chief Major",
-   "tur": "percentOfCompany",
+   "rank": 15,
+   "name": "Chief Major",
+   "type": "percentOfCompany",
    "value": 1.5
   },
   {
-   "rutbe": 16,
-   "ad": "Basic Colonel",
-   "tur": "percentOfCompany",
+   "rank": 16,
+   "name": "Basic Colonel",
+   "type": "percentOfCompany",
    "value": 1.0
   },
   {
-   "rutbe": 17,
-   "ad": "Colonel",
-   "tur": "fixedPlayersPerCompany",
+   "rank": 17,
+   "name": "Colonel",
+   "type": "fixedPlayersPerCompany",
    "value": 20
   },
   {
-   "rutbe": 18,
-   "ad": "Chief Colonel",
-   "tur": "fixedPlayersPerCompany",
+   "rank": 18,
+   "name": "Chief Colonel",
+   "type": "fixedPlayersPerCompany",
    "value": 5
   },
   {
-   "rutbe": 19,
-   "ad": "Basic General",
-   "tur": "fixedPlayersPerCompany",
+   "rank": 19,
+   "name": "Basic General",
+   "type": "fixedPlayersPerCompany",
    "value": 3
   },
   {
-   "rutbe": 20,
-   "ad": "General",
-   "tur": "fixedPlayersPerCompany",
+   "rank": 20,
+   "name": "General",
+   "type": "fixedPlayersPerCompany",
    "value": 2
   },
   {
-   "rutbe": 21,
-   "ad": "Chief General",
-   "tur": "fixedPlayersPerCompany",
+   "rank": 21,
+   "name": "Chief General",
+   "type": "fixedPlayersPerCompany",
    "value": 1
   }
  ],
@@ -1713,13 +1713,13 @@
  "_gemi_turu": "rütbe formülündeki gemi türü: istemcinin game.xml shipId'si (Phoenix 1 … Goliath 10, Citadel 11, Aegis 12, Spearhead 13); tasarımlar ve türevler taban geminin kimliğiyle (kayıt: Liberator 5 -> 5.000 puan). Tabanı klasik gemi olmayanlar (Tartarus …) 10 (uyarlama)",
  "formula": {
   "ep": 1e-05,
-  "onur": 0.01,
+  "honor": 0.01,
   "player": 3,
-  "seviye": 100,
-  "gun": 6,
-  "gemi": 1000,
+  "level": 100,
+  "day": 6,
+  "ship": 1000,
   "npc": 0.5,
-  "gorev": 100,
+  "quest": 100,
   "friendly": -100,
   "death_by_enemy": -4,
   "death_by_radiation": -8,
@@ -1750,7 +1750,7 @@
  ],
  "_esikler": "tek oyunculu uyarlama: gerçek oyunda rütbe her gün şirketteki oyuncular arasındaki sıraya göre verilir (Chief General 1 kişi … Basic Space Pilot %20). Şirkette başka oyuncu olmadığından rütbe, rütbe puanının bu eşiklerine göre (rütbe N için en az esikler[N-1]); bot oyuncular gelince (Aşama 11) gerçek sıralamaya dönülebilir",
  "outlaw": {
-  "onur": -500,
+  "honor": -500,
   "icon": 5000,
   "_not": "onur -500 ve altı: gemide 5000 simgesi (istemcide yalnız simge; Outlaw olduğu çıkarım). Tek oyunculuda onur eksiye düşmüyor (PvP ile, Aşama 11)"
  },

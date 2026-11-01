@@ -88,7 +88,7 @@ def version_of(folder):
 def check(folder):
     """Klasörü doğrula -> {'gecerli', 'yol', 'exe', 'veri', 'surum', 'uyumlu', 'eski' (desteklenenden eski: panel günceller),
     'sorunlar' [...], 'boyut_mb'}."""
-    out = {'route': folder or '', 'valid': False, 'exe': False, 'data': False, 'surum': None, 'compatible': False, 'eski': False,
+    out = {'route': folder or '', 'valid': False, 'exe': False, 'data': False, 'version': None, 'compatible': False, 'eski': False,
            'issues': []}
     if not folder:
         out['issues'].append(_('No client folder selected.'))
@@ -104,12 +104,12 @@ def check(folder):
         out['issues'].append(_('The folder has no %s folder.', DATA_DIR))
     out['valid'] = out['exe'] and out['data']
     if out['valid']:
-        out['surum'] = version_of(folder)
-        out['compatible'] = out['surum'] == supported()
-        out['eski'] = bool(out['surum']) and vkey(out['surum']) < vkey(supported())
-        if out['surum'] and not out['compatible']:
+        out['version'] = version_of(folder)
+        out['compatible'] = out['version'] == supported()
+        out['eski'] = bool(out['version']) and vkey(out['version']) < vkey(supported())
+        if out['version'] and not out['compatible']:
             out['issues'].append(_('The server was written for version %s; if the protocol differs in version %s, the login or some '
-                                   'windows may not work.', supported(), out['surum']))
+                                   'windows may not work.', supported(), out['version']))
         out['metadata'] = os.path.isfile(os.path.join(folder, DATA_DIR, 'il2cpp_data', 'Metadata', 'global-metadata.dat'))
     return out
 
@@ -135,7 +135,7 @@ def candidates():
             c = check(d)
             if c['valid']:
                 out.append(c)
-    out.sort(key=lambda c: (c['compatible'], vkey(c['surum'])), reverse=True)
+    out.sort(key=lambda c: (c['compatible'], vkey(c['version'])), reverse=True)
     return out
 
 
@@ -148,9 +148,9 @@ def resolve(configured):
 
 
 def args(cfg, log_file, session=None, window=False):
-    """Unity başlatma argümanları (panel ayarlarından). oturum: çoklu istemcinin ek istemcisi (web.py giriş sayfası ?oturum= ile
+    """Unity başlatma argümanları (panel ayarlarından). oturum: çoklu istemcinin ek istemcisi (web.py giriş sayfası ?session= ile
     kaydını bulur); pencere: ayardan bağımsız pencere kipi (ek istemciler)."""
-    a = [LOGIN_URL.replace('/#', '/?oturum=%s#' % session) if session else LOGIN_URL]
+    a = [LOGIN_URL.replace('/#', '/?session=%s#' % session) if session else LOGIN_URL]
     mode = 'windowed' if window else cfg.get('window_mode')
     if mode == 'fullscreen':
         a += ['-screen-fullscreen', '1', '-window-mode', 'exclusive']

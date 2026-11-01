@@ -170,3171 +170,3171 @@
  "prices": {
   "ammunition_slug_cos-a04": {
    "value": 300,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 300,
    "category": "ammunition",
    "eski": 300,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "ammunition_slug_els-a04": {
    "value": 300,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 300,
    "category": "ammunition",
    "eski": 300,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "ammunition_slug_ths-a04": {
    "value": 300,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 300,
    "category": "ammunition",
    "eski": 300,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "ammunition_specialammo_emote_alien-angry": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_alien-cheers": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_alien-cool": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_alien-cry": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_alien-dizzy": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_alien-flyingkiss": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_alien-horror": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_alien-laughcry": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_alien-mask-up": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_alien-party": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_alien-roger": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_alien-sick": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_alien-sleepy": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_alien-smile": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_alien-smirk": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_alien-sorry": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_alien-starryeyes": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_alien-wink": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_bunny-confused": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_bunny-cool": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_bunny-sad": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_bunny-sleepy": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_bunny-stare": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_eat-turkey": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_injection": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_like-turkey": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_pumpkin-alien": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_pumpkin-smile": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_snowman-brr": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_snowman-rolleyes": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_specialammo_emote_snowman-thinking": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "C",
    "price": 5000,
    "category": "ammunition",
    "eski": 50,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "ammunition_spool_gsp-300": {
    "value": 20,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 20,
    "category": "ammunition",
    "eski": 20,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "booster_bb-01": {
    "value": 10000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 10000,
    "category": "booster",
    "eski": 10000,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "booster_prm-b01": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "booster",
    "eski": 50000,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "booster_qr-01": {
    "value": 10000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 10000,
    "category": "booster",
    "eski": 10000,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "booster_rc-b00": {
    "value": 10000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 10000,
    "category": "booster",
    "eski": 10000,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "booster_rm-b00": {
    "value": 10000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 10000,
    "category": "booster",
    "eski": 10000,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "captain_captain-gen3-ups": {
    "value": 150000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 150000,
    "category": "extras",
    "eski": 150000,
-   "kaynak": "ek_magaza:yeni_sistemler"
+   "source": "ek_magaza:yeni_sistemler"
   },
   "drone_designs_havoc": {
    "value": 100000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 100000,
    "category": "customization",
    "eski": 100000,
-   "kaynak": "ek_magaza:-"
+   "source": "ek_magaza:-"
   },
   "drone_designs_hercules": {
    "value": 100000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 100000,
    "category": "customization",
    "eski": 100000,
-   "kaynak": "ek_magaza:-"
+   "source": "ek_magaza:-"
   },
   "equipment_extra_hmd-07": {
    "value": 15000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 15000,
    "category": "extras",
    "eski": 15000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_deal-frozenMirage": {
    "value": 1500000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 1300000,
    "category": "customization",
    "eski": 30000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_deal-pusatChroma": {
    "value": 200000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 170000,
    "category": "customization",
    "eski": 30000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_deal-spectrumChroma": {
    "value": 200000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 170000,
    "category": "customization",
    "eski": 30000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-aa-dim-design-2024": {
    "value": 430000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 370000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-aa-feature-dim-2023": {
    "value": 275000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 230000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-aa-feature-pusat-2023": {
    "value": 275000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 230000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-aa-feature-sent-2023": {
    "value": 275000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 230000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-aa-feature-zeph-2023": {
    "value": 325000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 280000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-aa-pusat-design-2024": {
    "value": 225500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 190000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-aa-sent-design-2024": {
    "value": 580000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 490000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-aa-zephyr-design-2024": {
    "value": 225500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 190000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-armory-token": {
    "value": 2500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 2100,
    "category": "extras",
    "eski": 2500,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-armory-token-l": {
    "value": 25000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 21000,
    "category": "extras",
    "eski": 22500,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-armory-token-m": {
    "value": 12500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 11000,
    "category": "extras",
    "eski": 12000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-basilisk": {
    "value": 300000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 300000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-blaze-pusat-full": {
    "value": 140000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 120000,
    "category": "customization",
    "eski": 30000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-blaze-spectrum-full": {
    "value": 140000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 120000,
    "category": "customization",
    "eski": 30000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-dmg-npc-ammo": {
    "value": 52500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 45000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-dmg-npc-boosters": {
    "value": 40000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 34000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-dmg-npc-buster": {
    "value": 65000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 55000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-double-goldpass": {
    "value": 600000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 510000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-dse-key-b-l": {
    "value": 1105000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 940000,
    "category": "extras",
    "eski": 55000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-dse-key-b-m": {
    "value": 552500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 470000,
    "category": "extras",
    "eski": 30000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-dse-key-b-s": {
    "value": 100000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 100000,
    "category": "extras",
    "eski": 5000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-dse-key-g": {
    "value": 400000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 340000,
    "category": "extras",
    "eski": 10000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-dse-key-mix-1": {
    "value": 2000000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 1700000,
    "category": "extras",
    "eski": 150000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-dse-key-mix-2": {
    "value": 1950000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 1700000,
    "category": "extras",
    "eski": 180000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-dse-key-mix-3": {
    "value": 1675000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 1400000,
    "category": "extras",
    "eski": 100000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-dse-key-p-l": {
    "value": 877500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 750000,
    "category": "extras",
    "eski": 65000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-dse-key-p-m": {
    "value": 513750,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 440000,
    "category": "extras",
    "eski": 40000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-dse-key-p-s": {
    "value": 150000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 150000,
    "category": "extras",
    "eski": 12000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-dse-key-r-l": {
    "value": 1400000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 1200000,
    "category": "extras",
    "eski": 130000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-dse-key-r-m": {
    "value": 825000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 700000,
    "category": "extras",
    "eski": 80000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-dse-key-r-s": {
    "value": 250000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 250000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-dusk-citadel-plus": {
    "value": 205000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 170000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-dusklight-berserker": {
    "value": 106250,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 90000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-dusklight-cyborg": {
    "value": 106250,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 90000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-dusklight-double": {
    "value": 212500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 180000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-dusklight-fullpack": {
    "value": 242500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 210000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-dusklight-hecate-plus": {
    "value": 205000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 170000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-dusklight-spectrum": {
    "value": 167000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 140000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-dusklight-spectrum-p": {
    "value": 106250,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 90000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-extra-goldpass": {
    "value": 200000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 200000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-firepower": {
    "value": 216500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 180000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-goldpass": {
    "value": 400000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 400000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-goldpass-premium": {
    "value": 555000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 470000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-halloween-ammo-pack": {
    "value": 60000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 51000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-halloween-corn-pack": {
    "value": 94650,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 80000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-halloween-discovery": {
    "value": 760000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 650000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-halloween-l-corn-pack": {
    "value": 124225,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 110000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-halloween-mega-pack": {
    "value": 100000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 85000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-halloween-s-corn-pack": {
    "value": 3515,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 3000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-halloween-tech": {
    "value": 190000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 160000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-laser-aml": {
    "value": 80000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 80000,
    "category": "laser",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-laser-lf5al": {
    "value": 100000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 100000,
    "category": "laser",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-laser-lf5mf": {
    "value": 100000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 100000,
    "category": "laser",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-laser-osl": {
    "value": 80000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 80000,
    "category": "laser",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-laser-prl": {
    "value": 80000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 80000,
    "category": "laser",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-levelup-l": {
    "value": 156000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 130000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-levelup-m": {
    "value": 46000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 39000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-levelup-s": {
    "value": 17000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 14000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-levelup-xl": {
    "value": 375000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 320000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-lf5al-l": {
    "value": 245000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 210000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-lf5al-m": {
    "value": 195000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 170000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-lf5al-s": {
    "value": 150000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 130000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-mega-armory-token": {
    "value": 3000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 3000,
    "category": "extras",
    "eski": 3000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-mega-armory-token-l": {
    "value": 300000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 260000,
    "category": "extras",
    "eski": 250000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-mega-armory-token-m": {
    "value": 150000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 130000,
    "category": "extras",
    "eski": 135000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-mega-armory-token-s": {
    "value": 30000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 26000,
    "category": "extras",
    "eski": 28000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-mileage-bl-l": {
    "value": 590000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 500000,
    "category": "mileage",
    "eski": 450000,
-   "kaynak": "mileage"
+   "source": "mileage"
   },
   "package_event-deal-mileage-bl-m": {
    "value": 310000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 260000,
    "category": "mileage",
    "eski": 250000,
-   "kaynak": "mileage"
+   "source": "mileage"
   },
   "package_event-deal-mileage-bl-s": {
    "value": 135000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 110000,
    "category": "mileage",
    "eski": 120000,
-   "kaynak": "mileage"
+   "source": "mileage"
   },
   "package_event-deal-mileage-bl-xl": {
    "value": 1235000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 1000000,
    "category": "mileage",
    "eski": 800000,
-   "kaynak": "mileage"
+   "source": "mileage"
   },
   "package_event-deal-mileage-coin-l": {
    "value": 169250,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 140000,
    "category": "extras",
    "eski": 80000,
-   "kaynak": "ek_magaza:dukkanlar_o7"
+   "source": "ek_magaza:dukkanlar_o7"
   },
   "package_event-deal-mileage-coin-m": {
    "value": 84625,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 72000,
    "category": "extras",
    "eski": 40000,
-   "kaynak": "ek_magaza:dukkanlar_o7"
+   "source": "ek_magaza:dukkanlar_o7"
   },
   "package_event-deal-mileage-coin-s": {
    "value": 39050,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 33000,
    "category": "extras",
    "eski": 20000,
-   "kaynak": "ek_magaza:dukkanlar_o7"
+   "source": "ek_magaza:dukkanlar_o7"
   },
   "package_event-deal-mileage-coin-starter": {
    "value": 33500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 28000,
    "category": "extras",
    "eski": 15000,
-   "kaynak": "ek_magaza:dukkanlar_o7"
+   "source": "ek_magaza:dukkanlar_o7"
   },
   "package_event-deal-mileage-coin-xl": {
    "value": 344750,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 290000,
    "category": "extras",
    "eski": 140000,
-   "kaynak": "ek_magaza:dukkanlar_o7"
+   "source": "ek_magaza:dukkanlar_o7"
   },
   "package_event-deal-mileage-coin-xxl": {
    "value": 499000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 420000,
    "category": "extras",
    "eski": 180000,
-   "kaynak": "ek_magaza:dukkanlar_o7"
+   "source": "ek_magaza:dukkanlar_o7"
   },
   "package_event-deal-mileage-coin-xxxl": {
    "value": 705000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 600000,
    "category": "extras",
    "eski": 240000,
-   "kaynak": "ek_magaza:dukkanlar_o7"
+   "source": "ek_magaza:dukkanlar_o7"
   },
   "package_event-deal-mileage-gg-l": {
    "value": 165000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 140000,
    "category": "mileage",
    "eski": 100000,
-   "kaynak": "mileage"
+   "source": "mileage"
   },
   "package_event-deal-mileage-gg-m": {
    "value": 110000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 94000,
    "category": "mileage",
    "eski": 60000,
-   "kaynak": "mileage"
+   "source": "mileage"
   },
   "package_event-deal-mileage-gg-s": {
    "value": 75000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 64000,
    "category": "mileage",
    "eski": 40000,
-   "kaynak": "mileage"
+   "source": "mileage"
   },
   "package_event-deal-mileage-gplus-argon": {
    "value": 151500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 130000,
    "category": "mileage",
    "eski": 80000,
-   "kaynak": "mileage"
+   "source": "mileage"
   },
   "package_event-deal-mileage-gplus-carbo": {
    "value": 151500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 130000,
    "category": "mileage",
    "eski": 80000,
-   "kaynak": "mileage"
+   "source": "mileage"
   },
   "package_event-deal-mileage-gplus-full": {
    "value": 251500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 210000,
    "category": "mileage",
    "eski": 140000,
-   "kaynak": "mileage"
+   "source": "mileage"
   },
   "package_event-deal-mileage-orcus-epion": {
    "value": 200500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 170000,
    "category": "mileage",
    "eski": 100000,
-   "kaynak": "mileage"
+   "source": "mileage"
   },
   "package_event-deal-mileage-orcus-full": {
    "value": 300500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 260000,
    "category": "mileage",
    "eski": 180000,
-   "kaynak": "mileage"
+   "source": "mileage"
   },
   "package_event-deal-mileage-orcus-smite": {
    "value": 200500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 170000,
    "category": "mileage",
    "eski": 100000,
-   "kaynak": "mileage"
+   "source": "mileage"
   },
   "package_event-deal-mileage-shard": {
    "value": 55500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 47000,
    "category": "mileage",
    "eski": 60000,
-   "kaynak": "mileage"
+   "source": "mileage"
   },
   "package_event-deal-mileage-tyr-full": {
    "value": 300500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 260000,
    "category": "mileage",
    "eski": 180000,
-   "kaynak": "mileage"
+   "source": "mileage"
   },
   "package_event-deal-mileage-tyr-sol-plus": {
    "value": 200500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 170000,
    "category": "mileage",
    "eski": 100000,
-   "kaynak": "mileage"
+   "source": "mileage"
   },
   "package_event-deal-mileage-tyr-spectrum": {
    "value": 200500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 170000,
    "category": "mileage",
    "eski": 100000,
-   "kaynak": "mileage"
+   "source": "mileage"
   },
   "package_event-deal-mileage-upgrade": {
    "value": 205000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 170000,
    "category": "mileage",
    "eski": 200000,
-   "kaynak": "mileage"
+   "source": "mileage"
   },
   "package_event-deal-modules-resource-dmg": {
    "value": 150000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 130000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-modules-resource-hp": {
    "value": 150000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 130000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-modules-resource-shd": {
    "value": 150000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 130000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-modules-resource-spc": {
    "value": 150000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 130000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-month-deluxe": {
    "value": 160000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 140000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-orcus-bundle": {
    "value": 380000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 320000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-paladin": {
    "value": 300000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 300000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-permit-l": {
    "value": 26000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 22000,
    "category": "extras",
    "eski": 40000,
-   "kaynak": "ek_magaza:dukkanlar_o7"
+   "source": "ek_magaza:dukkanlar_o7"
   },
   "package_event-deal-permit-ultimate": {
    "value": 105000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 89000,
    "category": "extras",
    "eski": 120000,
-   "kaynak": "ek_magaza:dukkanlar_o7"
+   "source": "ek_magaza:dukkanlar_o7"
   },
   "package_event-deal-permit-xl": {
    "value": 52000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 44000,
    "category": "extras",
    "eski": 60000,
-   "kaynak": "ek_magaza:dukkanlar_o7"
+   "source": "ek_magaza:dukkanlar_o7"
   },
   "package_event-deal-phantasm-berserker": {
    "value": 107250,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 91000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-phantasm-fullpack": {
    "value": 214500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 180000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-phantasm-sentinel": {
    "value": 107250,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 91000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-poisenPusatSet": {
    "value": 100000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 85000,
    "category": "customization",
    "eski": 30000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-poisenSpectrumSet": {
    "value": 100000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 85000,
    "category": "customization",
    "eski": 30000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-powerup-ammo-25": {
    "value": 275000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 230000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-powerup-booster-25": {
    "value": 65000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 55000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-pre-bf-1": {
    "value": 10500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 8900,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "ek_magaza:dukkanlar_o7"
+   "source": "ek_magaza:dukkanlar_o7"
   },
   "package_event-deal-pre-bf-2": {
    "value": 25800,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 22000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:dukkanlar_o7"
+   "source": "ek_magaza:dukkanlar_o7"
   },
   "package_event-deal-pre-bf-3": {
    "value": 49900,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 42000,
    "category": "extras",
    "eski": 90000,
-   "kaynak": "ek_magaza:dukkanlar_o7"
+   "source": "ek_magaza:dukkanlar_o7"
   },
   "package_event-deal-pre-bf-4": {
    "value": 107500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 91000,
    "category": "extras",
    "eski": 180000,
-   "kaynak": "ek_magaza:dukkanlar_o7"
+   "source": "ek_magaza:dukkanlar_o7"
   },
   "package_event-deal-pre-bf-5": {
    "value": 275500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 230000,
    "category": "extras",
    "eski": 400000,
-   "kaynak": "ek_magaza:dukkanlar_o7"
+   "source": "ek_magaza:dukkanlar_o7"
   },
   "package_event-deal-resistance": {
    "value": 177000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 150000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-restabilize-boost": {
    "value": 160750,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 140000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-returnee-l": {
    "value": 410000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 350000,
    "category": "extras",
    "eski": 130000,
-   "kaynak": "ek_magaza:dukkanlar_o7"
+   "source": "ek_magaza:dukkanlar_o7"
   },
   "package_event-deal-returnee-m": {
    "value": 246500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 210000,
    "category": "extras",
    "eski": 70000,
-   "kaynak": "ek_magaza:dukkanlar_o7"
+   "source": "ek_magaza:dukkanlar_o7"
   },
   "package_event-deal-returnee-s": {
    "value": 104000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 88000,
    "category": "extras",
    "eski": 30000,
-   "kaynak": "ek_magaza:dukkanlar_o7"
+   "source": "ek_magaza:dukkanlar_o7"
   },
   "package_event-deal-returnee-xl": {
    "value": 765000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 650000,
    "category": "extras",
    "eski": 250000,
-   "kaynak": "ek_magaza:dukkanlar_o7"
+   "source": "ek_magaza:dukkanlar_o7"
   },
   "package_event-deal-salvage-core-xl": {
    "value": 100500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 85000,
    "category": "extras",
    "eski": 100000,
-   "kaynak": "ek_magaza:dukkanlar_o7"
+   "source": "ek_magaza:dukkanlar_o7"
   },
   "package_event-deal-season-point": {
    "value": 15000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 13000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-season-point-lf5mf": {
    "value": 160000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 140000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-ship-ult-berserker": {
    "value": 354000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 300000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-ship-ult-spectrum": {
    "value": 304000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 260000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-special-gear-l": {
    "value": 231000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 200000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-special-gear-m": {
    "value": 154000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 130000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-special-gear-s": {
    "value": 77000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 65000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-special-gear-xl": {
    "value": 381000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 320000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-stellar2022-1": {
    "value": 1492740,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 1300000,
    "category": "extras",
    "eski": 400000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-stellar2022-2": {
    "value": 2096268,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 1800000,
    "category": "extras",
    "eski": 600000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-stellar2022-3": {
    "value": 2096268,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 1800000,
    "category": "extras",
    "eski": 600000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-stellar2022-4": {
    "value": 2754768,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 2300000,
    "category": "extras",
    "eski": 800000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-team-dusklight": {
    "value": 212500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 180000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-trinity-token": {
    "value": 10000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 10000,
    "category": "extras",
    "eski": 10000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-trinity-vip-discount": {
    "value": 150000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 150000,
    "category": "extras",
    "eski": 150000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-tt-ammo-2604": {
    "value": 800000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 680000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-tt-coupon-2604": {
    "value": 1100000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 940000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-tt-mix-2604": {
    "value": 750000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 640000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-tt-resource-2604": {
    "value": 250000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 210000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-ult-cyborg": {
    "value": 354000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 300000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-unstable-shard-xl": {
    "value": 90000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 76000,
    "category": "extras",
    "eski": 100000,
-   "kaynak": "ek_magaza:dukkanlar_o7"
+   "source": "ek_magaza:dukkanlar_o7"
   },
   "package_event-deal-vog-pep-m": {
    "value": 100000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 85000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-vog-pep-s": {
    "value": 50000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 42000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-vog-vanguard": {
    "value": 100000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 100000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-voyagers-gl-c": {
    "value": 100000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 100000,
    "category": "laser",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-voyagers-gl-o": {
    "value": 510000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 510000,
    "category": "laser",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-voyagers-igni-a": {
    "value": 260000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 260000,
    "category": "laser",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-voyagers-igni-l": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "laser",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-voyagers-igni-p": {
    "value": 400000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 400000,
    "category": "laser",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-wholesome-extrapass": {
    "value": 425000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 360000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-wholesome-goldpass": {
    "value": 835000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 710000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-xyralith-l": {
    "value": 125000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 110000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-xyralith-m": {
    "value": 25000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 21000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-xyralith-s": {
    "value": 2500,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 2500,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-xyralith-xl": {
    "value": 250000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 210000,
    "category": "extras",
    "eski": 25000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_expo-tartarus": {
    "value": 270000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 230000,
    "category": "customization",
    "eski": 30000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_masqueChimera": {
    "value": 70000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 60000,
    "category": "customization",
    "eski": 30000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_pack-defcom-raven": {
    "value": 150000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 150000,
    "category": "ship",
    "eski": 250000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_pack-g-ignite": {
    "value": 200000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 200000,
    "category": "ship",
    "eski": 250000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_pack-n-ambassador": {
    "value": 200000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 200000,
    "category": "ship",
    "eski": 250000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_pack-yamato-ronin": {
    "value": 150000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 150000,
    "category": "ship",
    "eski": 250000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_pd-c-01": {
    "value": 40000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 40000,
    "category": "customization",
    "eski": 30000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_pd-c-02": {
    "value": 40000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 40000,
    "category": "customization",
    "eski": 30000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_pd-c-03": {
    "value": 40000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 40000,
    "category": "customization",
    "eski": 30000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_poisonA-EliteSet": {
    "value": 140000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 120000,
    "category": "customization",
    "eski": 30000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_s-os-01": {
    "value": 240000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 200000,
    "category": "ship",
    "eski": 250000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "pet_upgrade-g-hp1": {
    "value": 5000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 5000,
    "category": "petgear",
    "eski": 5000,
-   "kaynak": "ek_magaza:-"
+   "source": "ek_magaza:-"
   },
   "resource_attack-adhesion": {
    "value": 2000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 2000,
    "category": "extras",
    "eski": 2000,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "resource_attack-aftershock": {
    "value": 2000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 2000,
    "category": "extras",
    "eski": 2000,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "resource_attack-collapse": {
    "value": 2000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 2000,
    "category": "extras",
    "eski": 2000,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "resource_attack-evernight": {
    "value": 2000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 2000,
    "category": "extras",
    "eski": 2000,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "resource_attack-expansion": {
    "value": 2000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 2000,
    "category": "extras",
    "eski": 2000,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "resource_attack-stagnation": {
    "value": 2000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 2000,
    "category": "extras",
    "eski": 2000,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "resource_beacon-crystal": {
    "value": 250,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 250,
    "category": "extras",
    "eski": 250,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_calling-chip": {
    "value": 5000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 5000,
    "category": "extras",
    "eski": 5000,
-   "kaynak": "ek_magaza:yeni_sistemler"
+   "source": "ek_magaza:yeni_sistemler"
   },
   "resource_collectable_containment-node": {
    "value": 2000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 2000,
    "category": "extras",
    "eski": 2000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-helios-citadel-plus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-helios-cyborg": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-helios-diminisher": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-helios-goliath-plus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-helios-hammerclaw-plus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-helios-hyperion": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-helios-orcus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-helios-paladin": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-helios-pusat-plus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-helios-retiarus-plus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-helios-solace-plus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-helios-solaris-plus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-helios-spearhead-plus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-helios-spectrum-plus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-helios-venom": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-indra-citadel-plus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-indra-cyborg": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-indra-diminisher": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-indra-goliath-plus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-indra-hammerclaw-plus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-indra-hyperion": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-indra-orcus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-indra-paladin": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-indra-pusat-plus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-indra-retiarus-plus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-indra-solace-plus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-indra-solaris-plus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-indra-spearhead-plus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-indra-spectrum-plus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-indra-venom": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-nidhogg-citadel-plus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-nidhogg-cyborg": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-nidhogg-diminisher": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-nidhogg-goliath-plus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-nidhogg-hammerclaw-plus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-nidhogg-hyperion": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-nidhogg-orcus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-nidhogg-paladin": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-nidhogg-pusat-plus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-nidhogg-retiarus-plus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-nidhogg-solace-plus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-nidhogg-solaris-plus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-nidhogg-spearhead-plus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-nidhogg-spectrum-plus": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_energy-nidhogg-venom": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "extras",
    "eski": 50000,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_evocation-chip": {
    "value": 40,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 40,
    "category": "extras",
    "eski": 40,
-   "kaynak": "ek_magaza:yeni_sistemler"
+   "source": "ek_magaza:yeni_sistemler"
   },
   "resource_collectable_galaxy-coupon": {
    "value": 601,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 600,
    "category": "extras",
    "eski": 600,
-   "kaynak": "ek_magaza:market_dengesi"
+   "source": "ek_magaza:market_dengesi"
   },
   "resource_collectable_horizon-shard": {
    "value": 500,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 500,
    "category": "extras",
    "eski": 500,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_optigrad-chip": {
    "value": 200,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 200,
    "category": "extras",
    "eski": 200,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_pulse-core": {
    "value": 50,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50,
    "category": "extras",
    "eski": 50,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_collectable_voyagers-oath-token": {
    "value": 10000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 10000,
    "category": "extras",
    "eski": 10000,
-   "kaynak": "ek_magaza:pve_modlari"
+   "source": "ek_magaza:pve_modlari"
   },
   "resource_defensive-detachment": {
    "value": 2000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 2000,
    "category": "extras",
    "eski": 2000,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "resource_defensive-entry-buffer": {
    "value": 2000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 2000,
    "category": "extras",
    "eski": 2000,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "resource_defensive-grav-tolerance": {
    "value": 2000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 2000,
    "category": "extras",
    "eski": 2000,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "resource_defensive-slowing-resistance": {
    "value": 2000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 2000,
    "category": "extras",
    "eski": 2000,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "resource_defensive-zone-adaptation": {
    "value": 2000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 2000,
    "category": "extras",
    "eski": 2000,
-   "kaynak": "ek_magaza:esyalar_o6"
+   "source": "ek_magaza:esyalar_o6"
   },
   "resource_ftl-key": {
    "value": 8298,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 8300,
    "category": "extras",
    "eski": 8300,
-   "kaynak": "ek_magaza:market_dengesi"
+   "source": "ek_magaza:market_dengesi"
   },
   "resource_ignishard-l01": {
    "value": 250,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 250,
    "category": "extras",
    "eski": 250,
-   "kaynak": "ek_magaza:parcacik"
+   "source": "ek_magaza:parcacik"
   },
   "resource_lottery-capsule": {
    "value": 6867,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 6900,
    "category": "extras",
    "eski": 6900,
-   "kaynak": "ek_magaza:market_dengesi"
+   "source": "ek_magaza:market_dengesi"
   },
   "package_event-deal-voyagers-vip-badge": {
    "value": 150000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 150000,
    "category": "extras",
    "eski": 150000,
-   "kaynak": "ek_magaza:pve_modlari"
+   "source": "ek_magaza:pve_modlari"
   },
   "ship_a-elite_design_a-elite-poison": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_defcom_design_defcom-expo2016": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_g-champion_design_g-champion-albania": {
    "value": 20000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 20000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_g-champion_design_g-champion-austria": {
    "value": 20000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 20000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_g-champion_design_g-champion-belgium": {
    "value": 20000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 20000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_g-champion_design_g-champion-croatia": {
    "value": 20000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 20000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_g-champion_design_g-champion-czech-republic": {
    "value": 20000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 20000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_g-champion_design_g-champion-england": {
    "value": 20000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 20000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_g-champion_design_g-champion-france": {
    "value": 20000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 20000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_g-champion_design_g-champion-germany": {
    "value": 20000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 20000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_g-champion_design_g-champion-hungary": {
    "value": 20000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 20000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_g-champion_design_g-champion-iceland": {
    "value": 20000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 20000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_g-champion_design_g-champion-independence": {
    "value": 20000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 20000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_g-champion_design_g-champion-italy": {
    "value": 20000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 20000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_g-champion_design_g-champion-northern-ireland": {
    "value": 20000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 20000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_g-champion_design_g-champion-poland": {
    "value": 20000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 20000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_g-champion_design_g-champion-portugal": {
    "value": 20000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 20000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_g-champion_design_g-champion-republic-of-ireland": {
    "value": 20000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 20000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_g-champion_design_g-champion-romania": {
    "value": 20000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 20000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_g-champion_design_g-champion-russia": {
    "value": 20000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 20000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_g-champion_design_g-champion-slovakia": {
    "value": 20000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 20000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_g-champion_design_g-champion-spain": {
    "value": 20000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 20000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_g-champion_design_g-champion-sweden": {
    "value": 20000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 20000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_g-champion_design_g-champion-switzerland": {
    "value": 20000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 20000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_g-champion_design_g-champion-turkey": {
    "value": 20000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 20000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_g-champion_design_g-champion-ukraine": {
    "value": 20000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 20000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_g-champion_design_g-champion-wales": {
    "value": 20000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 20000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_pusat_design_pusat-blaze": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_spectrum_design_spectrum-blaze": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "ship_yamato_design_yamato-expo2016": {
    "value": 50000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 50000,
    "category": "shipdesign",
    "eski": 50000,
-   "kaynak": "payment"
+   "source": "payment"
   },
   "package_event-deal-ap-boody-key-s": {
    "value": 10000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 8500,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:surum_115"
+   "source": "ek_magaza:surum_115"
   },
   "package_event-deal-ap-boody-key-m": {
    "value": 100000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 85000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:surum_115"
+   "source": "ek_magaza:surum_115"
   },
   "package_event-deal-return-pass-vip-badge": {
    "value": 150000,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 150000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:surum_115"
+   "source": "ek_magaza:surum_115"
   },
   "package_event-deal-return-vip-special": {
    "value": 650000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 550000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:surum_115"
+   "source": "ek_magaza:surum_115"
   },
   "package_event-deal-cnyl": {
    "value": 100000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 85000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-cnym": {
    "value": 50000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 42000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-cnyplatinum": {
    "value": 1247500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 1100000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-cnypremium": {
    "value": 575000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 490000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-cnys": {
    "value": 25000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 21000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-cnyxl": {
    "value": 200000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 170000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-empyrian-exquisite": {
    "value": 1247500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 1100000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-empyrian-l": {
    "value": 100000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 85000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-empyrian-m": {
    "value": 50000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 42000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-empyrian-premium": {
    "value": 575000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 490000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-empyrian-s": {
    "value": 25000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 21000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-empyrian-xl": {
    "value": 200000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 170000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-ftl-l": {
    "value": 165960,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 140000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-ftl-m": {
    "value": 41490,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 35000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-ftl-s": {
    "value": 8298,
-   "rule": "tek",
+   "rule": "single",
    "currency": "U",
    "price": 8300,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-ftl-xl": {
    "value": 414900,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 350000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-ftl-xxl": {
    "value": 1244700,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 1100000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-laurel-key-l": {
    "value": 120000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 100000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-laurel-key-m": {
    "value": 50000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 42000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-laurel-key-s": {
    "value": 25000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 21000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-laurel-key-xl": {
    "value": 200000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 170000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-laurel-key-xxl": {
    "value": 440000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 370000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-lucent-key-l": {
    "value": 125000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 110000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-lucent-key-m": {
    "value": 60000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 51000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-lucent-key-s": {
    "value": 30000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 26000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-lucent-key-xl": {
    "value": 240000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 200000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-perseus-key-l": {
    "value": 125000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 110000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-perseus-key-m": {
    "value": 60000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 51000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-perseus-key-s": {
    "value": 30000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 26000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-perseus-key-xl": {
    "value": 240000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 200000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-perseus-key-xxl": {
    "value": 320000,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 270000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-worldboss-topup-l": {
    "value": 42500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 36000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-worldboss-topup-m": {
    "value": 21250,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 18000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-worldboss-topup-s": {
    "value": 10500,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 8900,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   },
   "package_event-deal-worldboss-topup-xl": {
    "value": 76250,
-   "rule": "paket",
+   "rule": "package",
    "currency": "U",
    "price": 65000,
    "category": "extras",
    "eski": 0,
-   "kaynak": "ek_magaza:esya2"
+   "source": "ek_magaza:esya2"
   }
  },
  "missing": {

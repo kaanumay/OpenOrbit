@@ -2,7 +2,7 @@
 // (DarkOrbit.QuestLocale.GetTitleEx / GetTitle / GetDescriptionEx / GetDescription; Quest.get_Description önce
 // GetLabelEx("quest_description", görev, ...) dener, boş değilse GetDescription'a inmez); dünyaya eklenen görevlerin metni yoktu (başlık
 // satırı boş, canlı 2026-10-28). Panel OYNA'da dünyanın görev metinlerini <istemci>/BepInEx/openorbit/gorev_metinleri.json'a yazar:
-// {"<görev>": {"baslik": "...", "aciklama": "..."}} (panel/dunyalar.gorev_metinleri). Dosya değişince yeniden okunur (en çok saniyede
+// {"<görev>": {"title": "...", "description": "..."}} (panel/dunyalar.gorev_metinleri). Dosya değişince yeniden okunur (en çok saniyede
 // bir bakılır); dosyada olmayan görev ve boş alan istemcinin kendi metniyle.
 using System;
 using System.Collections.Generic;
@@ -76,9 +76,9 @@ static class QuestTexts
             {
                 if (!int.TryParse(g.Name, out int uid))
                     continue;
-                if (g.Value.TryGetProperty("baslik", out var b) && b.ValueKind == JsonValueKind.String && b.GetString().Length > 0)
+                if (g.Value.TryGetProperty("title", out var b) && b.ValueKind == JsonValueKind.String && b.GetString().Length > 0)
                     titles[uid] = b.GetString();
-                if (g.Value.TryGetProperty("aciklama", out var a) && a.ValueKind == JsonValueKind.String && a.GetString().Length > 0)
+                if (g.Value.TryGetProperty("description", out var a) && a.ValueKind == JsonValueKind.String && a.GetString().Length > 0)
                     descriptions[uid] = a.GetString();
             }
         }

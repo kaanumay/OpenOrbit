@@ -23,7 +23,7 @@ _difficulty = {}
 
 
 def state(bot):
-    return bot.k.setdefault('kapi', {'part': {}, 'built': [], 'carpan': 0, 'kronos': 0})
+    return bot.k.setdefault('gate', {'part': {}, 'built': [], 'multiplier': 0, 'kronos': 0})
 
 
 def stock(bot):
@@ -43,9 +43,9 @@ def difficulty(gate):
     for d in waves:
         ehp = dps = 0.0
         for u in d.get('alien_spawns', []):
-            n = u.get('adet', 1)
+            n = u.get('count', 1)
             ehp += n * (u.get('hp', 0) + u.get('kalkan', 0))
-            dps += min(n, 2) * u.get('hasar', 0) * K.COMBAT['npc_hit_chance'] * 0.6 / K.NPC_INTERVAL  # oyuncu tek tek çeker, menzilden kaçar
+            dps += min(n, 2) * u.get('damage', 0) * K.COMBAT['npc_hit_chance'] * 0.6 / K.NPC_INTERVAL  # oyuncu tek tek çeker, menzilden kaçar
             for k, v in (u.get('reward') or {}).items():
                 reward[k] = reward.get(k, 0) + v * n
         out.append((ehp, dps))
@@ -101,23 +101,23 @@ def _draw(bot, st, gate):
         total = KAPI[k]['part']
         var = st['part'].get(k, 0)
         missing = (total - var) / total
-        new_ = r.random() < missing + (1 - missing) * 0.5 or st['carpan'] >= D['max_multiplier']
+        new_ = r.random() < missing + (1 - missing) * 0.5 or st['multiplier'] >= D['max_multiplier']
         if new_:
-            earn = 1 + (st['carpan'] if st['carpan'] >= D['max_multiplier'] else 0)
-            st['carpan'] = 0 if earn > 1 else st['carpan']
+            earn = 1 + (st['multiplier'] if st['multiplier'] >= D['max_multiplier'] else 0)
+            st['multiplier'] = 0 if earn > 1 else st['multiplier']
             st['part'][k] = min(total, var + earn)
             if st['part'][k] >= total and k not in st['built']:
                 st['built'].append(k)
-                bot.event('gate_set_up', kapi=KAPI[k]['ad'])
+                bot.event('gate_set_up', gate=KAPI[k]['name'])
         else:
-            st['carpan'] = min(D['max_multiplier'], st['carpan'] + 1)
+            st['multiplier'] = min(D['max_multiplier'], st['multiplier'] + 1)
         return
     if cat == 1:
         loot, _, count = r.choice(D['ammunition'])
         WP.add(bot, loot, count)
     elif cat == 2:
-        bot.k.setdefault('kargo', {})
-        bot.k['kargo']['3'] = bot.k['kargo'].get('3', 0) + r.randint(*D['xenomit'])
+        bot.k.setdefault('cargo', {})
+        bot.k['cargo']['3'] = bot.k['cargo'].get('3', 0) + r.randint(*D['xenomit'])
     elif cat == 3:
         stock(bot)['resource_jumpvoucher'] = stock(bot).get('resource_jumpvoucher', 0) + 1
     elif cat == 6:
@@ -138,15 +138,15 @@ def target_gate(bot):
 
 def generator(bot):
     """Karar anında: enerjisi varsa çeker; kapıcı ve zengin bot uridyumla da (izin 'kapi', 10. seviyeden)."""
-    if not bot.permission.get('kapi', True) or bot.level < 10:
+    if not bot.permission.get('gate', True) or bot.level < 10:
         return 0
     k = target_gate(bot)
     if not k:
         return 0
     n = stock(bot).get(ENERGY, 0)
     t = bot.o('frugality')
-    if bot.o('ambition') + bot.o('rekabet') > 1.1 and bot.k['uridyum'] > D['energy_price'] * 300 * (1 + 2 * t):
-        n += int(bot.k['uridyum'] * 0.15 // D['energy_price'])
+    if bot.o('ambition') + bot.o('rekabet') > 1.1 and bot.k['uridium'] > D['energy_price'] * 300 * (1 + 2 * t):
+        n += int(bot.k['uridium'] * 0.15 // D['energy_price'])
     return draw(bot, k, min(n, 200)) if n else 0
 
 
@@ -166,13 +166,13 @@ def grant_reward(bot, gate, speed=1.0):
         import ast
         o = ast.literal_eval(o)
     _, aliens = difficulty(gate)
-    bot.reward('gorev', speed, ep=o.get('ep', 0) + aliens.get('ep', 0), onur=o.get('onur', 0) + aliens.get('onur', 0),
-             uridyum=o.get('uridyum', 0) + aliens.get('uridyum', 0), kredi=aliens.get('kredi', 0))
+    bot.reward('quest', speed, ep=o.get('ep', 0) + aliens.get('ep', 0), honor=o.get('honor', 0) + aliens.get('honor', 0),
+             uridium=o.get('uridium', 0) + aliens.get('uridium', 0), credits=aliens.get('credits', 0))
     for loot, n in (o.get('ammunition') or {}).items():
         WP.add(bot, loot, n)
     if o.get('xenomit'):
-        bot.k.setdefault('kargo', {})
-        bot.k['kargo']['3'] = bot.k['kargo'].get('3', 0) + o['xenomit']
+        bot.k.setdefault('cargo', {})
+        bot.k['cargo']['3'] = bot.k['cargo'].get('3', 0) + o['xenomit']
     s = stock(bot)
     for loot, n in (('resource_logfile', o.get('log_disk', 0)), ('resource_jumpvoucher', o.get('voucher', 0)),
                     ('resource_booty-key', (o.get('booty') or {}).get('green_key', 0))):
@@ -183,17 +183,17 @@ def grant_reward(bot, gate, speed=1.0):
         st['kronos'] = min(KAPI['kronos']['part'], st['kronos'] + 1)
         if st['kronos'] >= KAPI['kronos']['part'] and 'kronos' not in st['built']:
             st['built'].append('kronos')
-    if gate not in st.setdefault('tamam', []):
-        st['tamam'].append(gate)                      # kapı halkası (gorunum.halkalar)
+    if gate not in st.setdefault('done', []):
+        st['done'].append(gate)                      # kapı halkası (gorunum.halkalar)
     bot.ist('gate_done')
-    bot.event('gate_done', kapi=KAPI[gate]['ad'])
+    bot.event('gate_done', gate=KAPI[gate]['name'])
 
 
 def record_duration(save, key, sec):
     """Kapının tamamlanma süresi (istatistik; oyuncu isteği 2026-10-30) -> kayit['kapi_sureleri'][key] {en_iyi, son, sayi} (sn)."""
-    d = save.setdefault('gate_times', {}).setdefault(key, {'best': 0, 'last': 0, 'sayi': 0})
+    d = save.setdefault('gate_times', {}).setdefault(key, {'best': 0, 'last': 0, 'number': 0})
     sec = int(max(1, sec))
-    d.update(last=sec, sayi=d['sayi'] + 1, best=min(d['best'], sec) if d['best'] else sec)
+    d.update(last=sec, number=d['number'] + 1, best=min(d['best'], sec) if d['best'] else sec)
     return d
 
 

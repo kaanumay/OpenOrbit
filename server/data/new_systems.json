@@ -76,7 +76,7 @@
     "calling_chip": true
    }
   },
-  "genel": {
+  "general": {
    "captain_captain-generic": {
     "captain_captain-gen1-neo": 50,
     "captain_captain-gen2-eos": 50
@@ -84,7 +84,7 @@
   },
   "skills": {
    "gg_npc-uridium": {
-    "ad": "Autonomous Extraction",
+    "name": "Autonomous Extraction",
     "base": [
      7.5,
      9.0,
@@ -97,7 +97,7 @@
     "spending": 15
    },
    "gg_laser-damage": {
-    "ad": "Cluster Artillery",
+    "name": "Cluster Artillery",
     "base": [
      0.5,
      1.0,
@@ -110,7 +110,7 @@
     "spending": 20
    },
    "gg_speed": {
-    "ad": "Anti-Gravity Thruster",
+    "name": "Anti-Gravity Thruster",
     "base": [
      0.5,
      1.0,
@@ -123,7 +123,7 @@
     "spending": 30
    },
    "gg_completion-experience": {
-    "ad": "Field Intelligence",
+    "name": "Field Intelligence",
     "base": [
      2.5,
      3.0,
@@ -136,7 +136,7 @@
     "spending": 15
    },
    "general_experience": {
-    "ad": "Knowledge Seeker",
+    "name": "Knowledge Seeker",
     "base": [
      0.5,
      1.0,
@@ -149,7 +149,7 @@
     "spending": 15
    },
    "general_bonus-box-uridium": {
-    "ad": "Treasurer",
+    "name": "Treasurer",
     "base": [
      0.5,
      1.0,
@@ -162,7 +162,7 @@
     "spending": 40
    },
    "general_honour": {
-    "ad": "Code of Conduct",
+    "name": "Code of Conduct",
     "base": [
      1.0,
      2.0,
@@ -175,7 +175,7 @@
     "spending": 15
    },
    "general_cargo": {
-    "ad": "Need for Space",
+    "name": "Need for Space",
     "base": [
      0.8,
      1.6,
@@ -188,7 +188,7 @@
     "spending": 20
    },
    "gg_rocket-damage": {
-    "ad": "Damage Skyrocket",
+    "name": "Damage Skyrocket",
     "base": [
      0.5,
      1.0,
@@ -201,7 +201,7 @@
     "spending": 20
    },
    "gg_evasion": {
-    "ad": "Fleet Foot",
+    "name": "Fleet Foot",
     "base": [
      0.5,
      1.0,
@@ -214,7 +214,7 @@
     "spending": 30
    },
    "gg_shield": {
-    "ad": "Sturdy Hull",
+    "name": "Sturdy Hull",
     "base": [
      0.5,
      1.0,
@@ -227,7 +227,7 @@
     "spending": 30
    },
    "pet_fuel-consumption": {
-    "ad": "P.E.T. Conservationist",
+    "name": "P.E.T. Conservationist",
     "base": [
      0.9,
      1.8,
@@ -240,7 +240,7 @@
     "spending": 35
    },
    "pet_heat-up": {
-    "ad": "P.E.T. Ignition",
+    "name": "P.E.T. Ignition",
     "base": [
      0.9,
      1.8,
@@ -253,7 +253,7 @@
     "spending": 20
    },
    "pet_range-up": {
-    "ad": "P.E.T. Ranger",
+    "name": "P.E.T. Ranger",
     "base": [
      1.7,
      3.4,
@@ -266,7 +266,7 @@
     "spending": 20
    },
    "pet_hp": {
-    "ad": "P.E.T. Provision",
+    "name": "P.E.T. Provision",
     "base": [
      0.9,
      1.8,
@@ -279,7 +279,7 @@
     "spending": 30
    },
    "sp_mission-points-gp": {
-    "ad": "Bonus Slayer",
+    "name": "Bonus Slayer",
     "base": [
      0.6,
      1.2,
@@ -292,7 +292,7 @@
     "spending": 20
    },
    "sp_mission-points": {
-    "ad": "Bonus Hunter",
+    "name": "Bonus Hunter",
     "base": [
      0.6,
      1.2,
@@ -308,26 +308,26 @@
   },
   "upgrade": [
    {
-    "seviye": 2,
-    "uridyum": 2000,
+    "level": 2,
+    "uridium": 2000,
     "chip": 250,
     "calling_chip": 1
    },
    {
-    "seviye": 3,
-    "uridyum": 2200,
+    "level": 3,
+    "uridium": 2200,
     "chip": 275,
     "calling_chip": 1
    },
    {
-    "seviye": 4,
-    "uridyum": 2420,
+    "level": 4,
+    "uridium": 2420,
     "chip": 303,
     "calling_chip": 1
    },
    {
-    "seviye": 5,
-    "uridyum": 2662,
+    "level": 5,
+    "uridium": 2662,
     "chip": 333,
     "calling_chip": 1
    }
@@ -340,7 +340,7 @@
    8,
    5
   ],
-  "adlar": [
+  "names": [
    "Arko",
    "Bexa",
    "Cyril",
@@ -374,7 +374,7 @@
     "hepsi"
    ],
    "general_honour": [
-    "onur",
+    "honor",
     "hepsi"
    ],
    "general_bonus-box-uridium": [
@@ -402,39 +402,39 @@
     "hepsi"
    ],
    "gg_rocket-damage": [
-    "roket",
-    "kapi"
+    "rocket",
+    "gate"
    ],
    "gg_shield": [
     "kalkan",
-    "kapi"
+    "gate"
    ],
    "gg_evasion": [
     "evasion",
-    "kapi"
+    "gate"
    ],
    "gg_laser-damage": [
-    "lazer",
-    "kapi"
+    "laser",
+    "gate"
    ],
    "gg_speed": [
-    "hiz",
-    "kapi"
+    "speed",
+    "gate"
    ],
    "gg_npc-uridium": [
     "double_uridium",
-    "kapi"
+    "gate"
    ],
    "gg_completion-experience": [
     "gate_ep",
-    "kapi"
+    "gate"
    ],
    "gg_abg-rocket-damage": [
-    "roket",
+    "rocket",
     "abg"
    ],
    "gg_abg-mine-damage": [
-    "mayin",
+    "mine",
     "abg"
    ],
    "gg_abg-evasion": [
@@ -880,7 +880,7 @@
   "mega": {
    "display": [
     [
-     "equipment_weapon_cannon_ul-{top}-{gemi}",
+     "equipment_weapon_cannon_ul-{top}-{ship}",
      1,
      "sign_colorful",
      1,
@@ -1002,7 +1002,7 @@
      0.05
     ],
     [
-     "equipment_weapon_cannon_ul-{top}-{gemi}",
+     "equipment_weapon_cannon_ul-{top}-{ship}",
      1,
      1,
      0.03
@@ -1273,7 +1273,7 @@
    [
     15,
     1200,
-    "equipment_weapon_cannon_ul-{top}-{gemi}",
+    "equipment_weapon_cannon_ul-{top}-{ship}",
     1,
     true
    ]
@@ -1485,7 +1485,7 @@
   "max_multiplier": 2.0,
   "echo": {
    "GREEN_ECHO_BOX": {
-    "ad": "Common Echo Chest",
+    "name": "Common Echo Chest",
     "anahtar": "resource_echo-key-green",
     "qualities": [
      10,
@@ -1493,7 +1493,7 @@
     ]
    },
    "BLUE_ECHO_BOX": {
-    "ad": "Rare Echo Chest",
+    "name": "Rare Echo Chest",
     "anahtar": "resource_echo-key-blue",
     "qualities": [
      20,
@@ -1501,7 +1501,7 @@
     ]
    },
    "PURPLE_ECHO_BOX": {
-    "ad": "Epic Echo Chest",
+    "name": "Epic Echo Chest",
     "anahtar": "resource_echo-key-purple",
     "qualities": [
      30,
@@ -1509,7 +1509,7 @@
     ]
    },
    "RED_ECHO_BOX": {
-    "ad": "Legendary Echo Chest",
+    "name": "Legendary Echo Chest",
     "anahtar": "resource_echo-key-red",
     "qualities": [
      40

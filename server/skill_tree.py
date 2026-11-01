@@ -24,11 +24,11 @@ def mod(name, **f):
 
 
 def state(p):
-    return p.d.setdefault('skills', {'seviye': {}, 'puan': 0, 'converted': 0, 'resets': 0})
+    return p.d.setdefault('skills', {'level': {}, 'points': 0, 'converted': 0, 'resets': 0})
 
 
 def level(p, sid):
-    return state(p)['seviye'].get(sid, 0)
+    return state(p)['level'].get(sid, 0)
 
 
 def maxed(p, sid):
@@ -48,7 +48,7 @@ def mods(p):
     """Yeteneklerin bonusları (profil.mods'a eklenir): yüzdeler oran, Ship Hull mutlak can. II basamağı I'in devamı (skilltree
     successor; değerler kesintisiz: Ship Hull 5.000, 10.000 → 15.000, 25.000, 50.000): II açıksa I sayılmaz."""
     out = {}
-    for sid, lv in state(p)['seviye'].items():
+    for sid, lv in state(p)['level'].items():
         s = SKILLS.get(sid)
         if not s or not lv or not s['effect'] or (sid.endswith('a') and level(p, sid[:-1] + 'b')):
             continue
@@ -60,7 +60,7 @@ def mods(p):
 def requirements_met(p, sid):
     for r in SKILLS[sid]['prerequisite']:
         pts = [level(p, x) for x in r['skills']]
-        if (sum(pts) if r['tur'] == 'toplam' else min(pts)) < r['puan']:
+        if (sum(pts) if r['type'] == 'total' else min(pts)) < r['points']:
             return False
     return True
 
@@ -86,7 +86,7 @@ class Abilities:
 
     def list_cmd(self):
         st = state(self.p)
-        return ('SkillTreeListCommand', dict(resetPrice=self.reset_price(), list=self.info_list(), researchPoints=st['puan'],
+        return ('SkillTreeListCommand', dict(resetPrice=self.reset_price(), list=self.info_list(), researchPoints=st['points'],
                                              resetCount=st['resets'], logFiles=self.logs(), required=self.required()))
 
     def convert(self):
@@ -97,11 +97,11 @@ class Abilities:
         if ok:
             with self.p.lock:
                 self.k.d['log_disk'] -= need
-                st['puan'] += 1
+                st['points'] += 1
                 st['converted'] += 1
                 self.p.dirty = True
-            self.log('   pilot puanı: %d log diski -> 1 puan (kalan puan %d)' % (need, st['puan']))
-        return [('ConvertResearchPointsCommand', dict(required=self.required(), success=ok, researchPoints=st['puan'],
+            self.log('   pilot puanı: %d log diski -> 1 puan (kalan puan %d)' % (need, st['points']))
+        return [('ConvertResearchPointsCommand', dict(required=self.required(), success=ok, researchPoints=st['points'],
                                                       logfiles=self.logs()))]
 
     def skylab_seprom(self):
@@ -123,20 +123,20 @@ class Abilities:
         cur = level(self.p, sid)
         cost = s['cost'][cur] if s and cur < len(s['values']) else None
         why = ('yetenek yok' if not s else 'en üst seviye' if cost is None else 'ön koşul' if not requirements_met(self.p, sid)
-               else 'puan yetmiyor' if st['puan'] < cost['puan'] else 'kredi yetmiyor' if self.p.d['pilot'].get('credits', 0) < cost['kredi']
+               else 'puan yetmiyor' if st['points'] < cost['points'] else 'kredi yetmiyor' if self.p.d['pilot'].get('credits', 0) < cost['credits']
                else 'Seprom yetmiyor' if self.seprom() < cost['seprom'] else None)
         if why:
             self.log('   yetenek %s yükselmedi: %s' % (sid, why))
             stack = {'ön koşul': lambda: self.m.reason('prerequisite'), 'puan yetmiyor': lambda: self.m.reason('research_points'),
                      'kredi yetmiyor': lambda: self.m.stack('not_enough_credits'),
                      'Seprom yetmiyor': lambda: self.m.stack('tf_message_not_enough_seprom')}.get(why, lambda: self.m.stack('eqt_error_generic'))
-            return [('UpLevelSkillTreeCommand', dict(id=sid, researchPoints=st['puan'], stack=stack(), success=False, curLevel=cur))]
+            return [('UpLevelSkillTreeCommand', dict(id=sid, researchPoints=st['points'], stack=stack(), success=False, curLevel=cur))]
         with self.p.lock:
-            st['puan'] -= cost['puan']
-            self.p.d['pilot']['credits'] -= cost['kredi']
-            st['seviye'][sid] = cur + 1
+            st['points'] -= cost['points']
+            self.p.d['pilot']['credits'] -= cost['credits']
+            st['level'][sid] = cur + 1
             self.p.dirty = True
-        RT.money(self.p, 'kredi', -cost['kredi'], 'buy_SPECIAL')
+        RT.money(self.p, 'credits', -cost['credits'], 'buy_SPECIAL')
         msgs = []
         cargo = min(cost['seprom'], self.p.ore_count(SEPROM))
         if cargo:
@@ -148,26 +148,26 @@ class Abilities:
                 storage[SKYLAB_SEPROM] = storage.get(SKYLAB_SEPROM, 0) - (cost['seprom'] - cargo)
                 self.p.dirty = True
             self.log('   yetenek: %d Seprom Skylab deposundan' % (cost['seprom'] - cargo))
-        self.log('   yetenek %s (%s) seviye %d (-%d kredi, -%d Seprom)' % (sid, s['ad'], cur + 1, cost['kredi'], cost['seprom']))
-        return ([('UpLevelSkillTreeCommand', dict(id=sid, researchPoints=st['puan'], stack=None, success=True, curLevel=cur + 1))]
+        self.log('   yetenek %s (%s) seviye %d (-%d kredi, -%d Seprom)' % (sid, s['name'], cur + 1, cost['credits'], cost['seprom']))
+        return ([('UpLevelSkillTreeCommand', dict(id=sid, researchPoints=st['points'], stack=None, success=True, curLevel=cur + 1))]
                 + self.m.money_msgs() + msgs + self.m.apply_stats() + ([shield_cmd(self.p)] if sid in ('8', '17') else []))
 
     def reset(self):
         """ResetSkillTreeRequest: bütün seviyeler sıfırlanır, harcanan puanlar geri gelir; ücret uridyum, her seferinde iki katı."""
         st = state(self.p)
         price = self.reset_price()
-        spent = sum(sum(c['puan'] for c in SKILLS[s]['cost'][:lv]) for s, lv in st['seviye'].items() if s in SKILLS)
+        spent = sum(sum(c['points'] for c in SKILLS[s]['cost'][:lv]) for s, lv in st['level'].items() if s in SKILLS)
         ok = spent > 0 and self.p.d['pilot'].get('uridium', 0) >= price
         if ok:
             with self.p.lock:
                 self.p.d['pilot']['uridium'] -= price
-                st['seviye'] = {}
-                st['puan'] += spent
+                st['level'] = {}
+                st['points'] += spent
                 st['resets'] += 1
                 self.p.dirty = True
-            RT.money(self.p, 'uridyum', -price, 'buy_SPECIAL')
+            RT.money(self.p, 'uridium', -price, 'buy_SPECIAL')
             self.log('   yetenekler sıfırlandı: %d puan geri, -%d U' % (spent, price))
         msgs = [('ResetSkillTreeCommand', dict(resetPrice=self.reset_price(), stack=None if ok else self.m.stack('eqt_error_generic'),
-                                               list=self.info_list(), logFiles=self.logs(), researchPoints=st['puan'],
+                                               list=self.info_list(), logFiles=self.logs(), researchPoints=st['points'],
                                                resetCount=st['resets'], success=ok))]
         return msgs + (self.m.money_msgs() + self.m.apply_stats() + [shield_cmd(self.p)] if ok else [])

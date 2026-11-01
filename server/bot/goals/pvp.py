@@ -13,7 +13,7 @@ def find_target(y, name):
         return None
     x = y.name_index.get(a)
     if x is not None:
-        return x.name, x.firma, (x.game_map if x.online else None), x.k.get('klan'), False
+        return x.name, x.firma, (x.game_map if x.online else None), x.k.get('clan'), False
     import community as TP
     import clan as KL
     k = TP.find(name=a)
@@ -28,12 +28,12 @@ def order_grudge(bot, name, now):
     """Klan emriyle (klan_emir) verilen av ya da klan odağı: bu kişiye kin gibi davranılır (govde.pvp_hedefi 'kin' terimine eklenir)."""
     a = bot.k.get('hunt_order')
     name = str(name).lower()
-    if a and now < a['bitis'] and a['ad'] == name:
+    if a and now < a['end_time'] and a['name'] == name:
         return 1.0
     f = bot.k.get('clan_focus')
-    if f and now < f['bitis']:
+    if f and now < f['end_time']:
         import clan as KL
-        c = KL.CLANS.get(f['klan'])
+        c = KL.CLANS.get(f['clan'])
         if c is not None and name in c['members']:
             return 0.8
     return 0.0
@@ -42,14 +42,14 @@ def order_grudge(bot, name, now):
 def order_target(bot, y, now):
     """Sürmekte olan av emrinin (ya da klan odağının) çevrimiçi hedefi -> (ad, harita) ya da None."""
     a = bot.k.get('hunt_order')
-    if a and now < a['bitis']:
-        t = find_target(y, a['ad'])
+    if a and now < a['end_time']:
+        t = find_target(y, a['name'])
         if t is not None and t[2] and t[1] != bot.firma and K.route(bot.game_map, t[2], bot.firma, bot.level):
             return t[0], t[2]
     f = bot.k.get('clan_focus')
-    if f and now < f['bitis']:
+    if f and now < f['end_time']:
         import clan as KL
-        c = KL.CLANS.get(f['klan'])
+        c = KL.CLANS.get(f['clan'])
         for u in (c or {}).get('members', ()):
             t = find_target(y, u)
             if t is not None and t[2] and t[1] != bot.firma and K.route(bot.game_map, t[2], bot.firma, bot.level):
@@ -111,10 +111,10 @@ class PvpHunt(Goal):
                 call[key] = bot.name
                 import map_links as H
                 from .. import speech as SPC
-                y.speak(bot, 'firma', SPC.template(bot, 'savas_cagri', harita=H.name(target_map)), now=b.now + bot.r.uniform(3, 20))
+                y.speak(bot, 'company', SPC.template(bot, 'battle_call', map=H.name(target_map)), now=b.now + bot.r.uniform(3, 20))
         if target_map is None:
             target_map = next((m for m in (13 + bot.firma - 1, 16, 29) if K.can_enter(m, bot.firma, bot.level)), bot.game_map)
-        bot.plan['harita'] = int(target_map)
+        bot.plan['map'] = int(target_map)
         S.go(bot, target_map, y, b.now)
 
     def concrete(self, bot, g, w, now):
@@ -138,7 +138,7 @@ class PvpHunt(Goal):
             if (t is not None and t[2] and t[2] != bot.game_map and now >= bot.__dict__.get('_hunt_trail', 0)
                     and K.route(bot.game_map, t[2], bot.firma, bot.level)):
                 bot._hunt_trail = now + 30
-                bot.plan['harita'] = int(t[2])
+                bot.plan['map'] = int(t[2])
                 S.go(bot, t[2], y, now)                  # av başka haritaya geçti: peşinden
                 return True
             return False

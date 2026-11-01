@@ -141,10 +141,10 @@ def decision(bot, y, now=None):
     mood = bot.mood
     mood.update(now)
     intent = bot.k.get('intent')
-    if intent and intent.get('bitis', 0) < now:
+    if intent and intent.get('end_time', 0) < now:
         intent = bot.k['intent'] = None
     duration = now - bot.goal_start
-    run = current is not None and current.name in ('kapi', 'mod') and not bot.plan.get('finished')   # niyet koşuyu bölmesin: oradan yol yok
+    run = current is not None and current.name in ('gate', 'mod') and not bot.plan.get('finished')   # niyet koşuyu bölmesin: oradan yol yok
     if current is not None and not current.finished(bot, b) and (run or duration < current.min_sec and not intent):
         urgent = [h for h in GOALS.values() if h.urgent and h is not current and allowed(h, y) and h.eligible(bot, b)]
         if not urgent:
@@ -157,7 +157,7 @@ def decision(bot, y, now=None):
         if h is current and not h.finished(bot, b):
             # bağlılık: insan bir işi yarıda bırakmaz; sıkıldıkça (aynı iş uzadıkça) azalır
             p += 0.25 * max(0.0, 1 - mood['boredom']) + (0.3 if duration < h.min_sec else 0)
-        if intent and intent.get('hedef') == h.name:
+        if intent and intent.get('target') == h.name:
             p += intent.get('pay', 0.6)
         p *= 1 + bot.r.uniform(-0.08, 0.08)
         candidates.append((h, p))
@@ -171,7 +171,7 @@ def decision(bot, y, now=None):
         if current is not None and sec is not current:
             mood.it(boredom=-0.35)
         bot.target, bot.goal_start, bot.plan = sec, now, {}
-        bot.k['hedef'] = sec.name
+        bot.k['target'] = sec.name
         sec.start(bot, b)
     else:
         mood.it(boredom=0.04 * (1.3 - bot.o('patience')))
@@ -187,7 +187,7 @@ def allowed(h, y):
 def force(bot, name, plan=None, pay=1.0, duration=600, now=None):
     """Araç ya da LLM bir hedefi istedi: niyet olarak eklenir (sonraki kararda güçlü pay) ve hemen karar verilir."""
     now = now or time.time()
-    bot.k['intent'] = dict(hedef=name, pay=pay, bitis=now + duration, plan=plan or {})
+    bot.k['intent'] = dict(target=name, pay=pay, end_time=now + duration, plan=plan or {})
     bot.next_decision = now
 
 

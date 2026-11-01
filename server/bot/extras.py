@@ -30,7 +30,7 @@ def var(bot, loot):
 
 
 def slot(bot):
-    g = K.ITEMS['ships'].get(bot.k['gear']['gemi']) or {}
+    g = K.ITEMS['ships'].get(bot.k['gear']['ship']) or {}
     return int(g.get('extra') or 1) + max((EXTRAS[s]['extra_slot'] for s in SLE if var(bot, s)), default=0)
 
 
@@ -76,11 +76,11 @@ def utility(bot, loot):
         i = ORDER.index(loot) + 1
         return max(0.0, 0.04 * i - 0.04 * repair_level(bot)) * (0.6 + 0.6 * (1 - o('risk')))
     if loot == ROKT:
-        return (0.06 + 0.08 * o('aggression')) if trace.get('roket', True) and lv >= 6 else 0.0
+        return (0.06 + 0.08 * o('aggression')) if trace.get('rocket', True) and lv >= 6 else 0.0
     if loot == CARGO_CPU:
-        return 0.08 if trace.get('kargo', True) and lv >= 5 else 0.0
+        return 0.08 if trace.get('cargo', True) and lv >= 5 else 0.0
     if loot == HM7:
-        return 0.1 if trace.get('kargo', True) and lv >= 8 else 0.0
+        return 0.1 if trace.get('cargo', True) and lv >= 8 else 0.0
     if loot in (JP1, JP2):
         return 0.05 + 0.04 * o('patience') if lv >= 5 and not var(bot, JP1) and not var(bot, JP2) else 0.0
     if loot in CLOAK:
@@ -142,7 +142,7 @@ def jump(bot, target):
         if not var(bot, cpu):
             continue
         a = EXTRAS[cpu]['jump']
-        if 'haritalar' in a and map_class not in a['haritalar']:
+        if 'maps' in a and map_class not in a['maps']:
             continue
         if any(name.startswith(p) for p in a.get('ban', ())):
             continue

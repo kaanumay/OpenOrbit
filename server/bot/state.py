@@ -10,7 +10,7 @@ Kalıcı kayıt (k):
   klan, arkadaslar                  klan kimliği ya da None; arkadaş adları (rehberin kopyası)
   istat                             npc, oyuncu, olum, gorev, sure_sn, harcama
   gorev                             süren görev {id, kosullar: {koşul: sayı}} ya da None; tamam: bitirdiği görevler
-  hedef, niyet                      son hedefi (beyin) ve LLM'in eğilimi {hedef: pay, bitis}
+  hedef, niyet                      son hedefi (beyin) ve LLM'in eğilimi {target: pay, bitis}
 """
 import random, time
 
@@ -27,35 +27,35 @@ class Bot:
     def __init__(self, k):
         self.k = k
         k.setdefault('uid', BOT_UID_BASE + int(k['no']))
-        k.setdefault('seviye', 1)
-        for a in ('ep', 'kredi', 'uridyum', 'onur'):
+        k.setdefault('level', 1)
+        for a in ('ep', 'credits', 'uridium', 'honor'):
             k.setdefault(a, 0)
         k.setdefault('gear', K.new_gear())
-        k.setdefault('harita', K.ev(k['firma']))
+        k.setdefault('map', K.ev(k['company']))
         k.setdefault('x', 0)
         k.setdefault('y', 0)
         k.setdefault('mood', {})
         k.setdefault('memory', {})
-        k.setdefault('klan', None)
+        k.setdefault('clan', None)
         k.setdefault('friends', [])
         k.setdefault('stats', {})
         if 'npc_points' not in k['stats']:       # eski kayıt: öldürmelerin türü yok; uzaylı başına sıradan uzaylıların ortalaması (3,7),
             k['stats']['npc_points'] = round(k['stats'].get('npc', 0) * 3.7)       # oyuncu gemisi başına kendi gemisinin puanı
-            k['stats']['player_points'] = k['stats'].get('player', 0) * T.ship_rank_points(k['gear']['gemi'])
-        k.setdefault('gorev', None)
-        k.setdefault('tamam', [])
-        k.setdefault('kargo', {})
+            k['stats']['player_points'] = k['stats'].get('player', 0) * T.ship_rank_points(k['gear']['ship'])
+        k.setdefault('quest', None)
+        k.setdefault('done', [])
+        k.setdefault('cargo', {})
         k.setdefault('stock', {'ammunition_laser_lcb-10': 1000, 'ammunition_rocket_r-310': 20})     # yeni oyuncunun cephanesi
-        k.setdefault('hedef', None)
+        k.setdefault('target', None)
         k.setdefault('intent', None)
-        if k.get('onur', 0) < 0 and not k.get('_honor_fix'):
-            k['onur'] = 0              # eski kayıt: kargo kutusu cezasıyla eksiye düşen onur bir kez sıfırlanır (govde.calar_mi)
+        if k.get('honor', 0) < 0 and not k.get('_honor_fix'):
+            k['honor'] = 0              # eski kayıt: kargo kutusu cezasıyla eksiye düşen onur bir kez sıfırlanır (govde.calar_mi)
         k['_honor_fix'] = 1
         k['memory'].pop('', None)      # eski kayıt: saldıran bot gemisi adsız hatırlanıyordu (govde._ad)
-        k['personality']['_name'] = k['ad']                     # saat dilimi ve zevk adından (kişilik kadrodan her açılışta yeniden gelir)
+        k['personality']['_name'] = k['name']                     # saat dilimi ve zevk adından (kişilik kadrodan her açılışta yeniden gelir)
         self.mood = PS.Mood(k['mood'], k.get('mood_time'))
         self.memory = PS.Memory(k['memory'])
-        self.r = random.Random('%s|%s|%s' % (k['ad'], k['no'], k['stats'].get('sure_sn', 0)))     # belirlenimci (benzetim)
+        self.r = random.Random('%s|%s|%s' % (k['name'], k['no'], k['stats'].get('sure_sn', 0)))     # belirlenimci (benzetim)
         # geçici
         self.online = False
         self.session_end = 0.0
@@ -82,7 +82,7 @@ class Bot:
     # ------------------------------------------------------------ kısayollar
     @property
     def name(self):
-        return self.k['ad']
+        return self.k['name']
 
     @property
     def uid(self):
@@ -95,15 +95,15 @@ class Bot:
 
     @property
     def firma(self):
-        return self.k['firma']
+        return self.k['company']
 
     @property
     def level(self):
-        return self.k['seviye']
+        return self.k['level']
 
     @property
     def game_map(self):
-        return self.k['harita']
+        return self.k['map']
 
     @property
     def traits(self):
@@ -130,7 +130,7 @@ class Bot:
     def clan_savings(self):
         """Klan kuracak lider kişilikli bot (klansız, 4+ seviye) kuruluş bedelini kenara ayırır: alışveriş ve açık artırma bu
         krediye dokunmaz. Önceden 8 saatte bile hiçbir bot klan kuramıyordu (para hep başka şeye gidiyordu)."""
-        if (self.archetype != 'lider' or self.k.get('klan') is not None or self.level < 4 or not self.permission.get('klan', True)
+        if (self.archetype != 'leader' or self.k.get('clan') is not None or self.level < 4 or not self.permission.get('clan', True)
                 or not self.permission.get('clan_found', True)):
             return 0
         import clan as KL
@@ -151,8 +151,8 @@ class Bot:
         yavaş öldürür, daha çok hasar alır). guc donanımın kendisi (karşılaştırma, panel)."""
         if self._value is None:
             d = K.values(self.k['gear'], self.shield_share())
-            d['dps'] /= max(0.1, self.game_settings.multiplier('npc_can', 'harita'))
-            d['ehp'] /= max(0.1, self.game_settings.multiplier('npc_damage', 'harita'))
+            d['dps'] /= max(0.1, self.game_settings.multiplier('npc_can', 'map'))
+            d['ehp'] /= max(0.1, self.game_settings.multiplier('npc_damage', 'map'))
             self._value = d
         return self._value
 
@@ -162,41 +162,41 @@ class Bot:
             self.body.refresh()
 
     # ------------------------------------------------------------ ilerleme
-    def earn(self, ep=0, kredi=0, uridyum=0, onur=0):
+    def earn(self, ep=0, credits=0, uridium=0, honor=0):
         """Kazanç (ya da kayıp); seviye EP tablosundan (profil.level_for). -> yeni seviyeye çıktı mı."""
         k = self.k
         # küsurat birikir: soyut benzetimin 5 sn'lik adımları uridyumu 0,4 gibi parçalarla verir, kesilince hiç birikmiyordu
         fractions = self.__dict__.setdefault('_fraction', {})
         full = {}
-        for a, v in (('ep', ep), ('kredi', kredi), ('uridyum', uridyum), ('onur', onur)):
+        for a, v in (('ep', ep), ('credits', credits), ('uridium', uridium), ('honor', honor)):
             v = v + fractions.get(a, 0.0)
             full[a] = int(v)
             fractions[a] = v - full[a]
         k['ep'] += full['ep']
-        if full['kredi'] > 0 and full['ep'] > 0 and k.get('klan'):
-            self._clan_income = self.__dict__.get('_clan_income', 0) + full['kredi']   # uzaylı/görev kazancı: klan vergisi (toplum)
-        k['kredi'] = max(0, k['kredi'] + full['kredi'])
-        k['uridyum'] = max(0, k['uridyum'] + full['uridyum'])
-        k['onur'] += full['onur']
+        if full['credits'] > 0 and full['ep'] > 0 and k.get('clan'):
+            self._clan_income = self.__dict__.get('_clan_income', 0) + full['credits']   # uzaylı/görev kazancı: klan vergisi (toplum)
+        k['credits'] = max(0, k['credits'] + full['credits'])
+        k['uridium'] = max(0, k['uridium'] + full['uridium'])
+        k['honor'] += full['honor']
         lv = PF.level_for(k['ep'])
-        if lv != k['seviye']:
-            leveled_up = lv > k['seviye']
-            k['seviye'] = lv
+        if lv != k['level']:
+            leveled_up = lv > k['level']
+            k['level'] = lv
             if leveled_up:
                 self.mood.it(morale=0.2, confidence=0.05)
-                self.event('seviye', seviye=lv)
+                self.event('level', level=lv)
             return leveled_up
         return False
 
-    def reward(self, kaynak, hiz=1.0, **earnings):
+    def reward(self, source, speed=1.0, **earnings):
         """Oyunun ödülü (kaynak: npc, gorev, kutu ya da None): paketin hızı, oyun ayarı profili ve EP/onur boosterlarıyla çarpılır."""
         from . import loot as LT
-        bst = {'ep': 1 + LT.booster_share(self, 'EXPERIENCE_POINTS'), 'onur': 1 + LT.booster_share(self, 'HONOUR_POINTS')}
-        return self.earn(**{k: v * hiz * self.game_settings.multiplier(k, kaynak) * bst.get(k, 1.0) for k, v in earnings.items()})
+        bst = {'ep': 1 + LT.booster_share(self, 'EXPERIENCE_POINTS'), 'honor': 1 + LT.booster_share(self, 'HONOUR_POINTS')}
+        return self.earn(**{k: v * speed * self.game_settings.multiplier(k, source) * bst.get(k, 1.0) for k, v in earnings.items()})
 
     def pay(self, currency, amount):
         """'C' | 'U' ile öde -> ödendi mi."""
-        a = 'kredi' if currency == 'C' else 'uridyum'
+        a = 'credits' if currency == 'C' else 'uridium'
         if self.k[a] < amount:
             return False
         self.k[a] -= int(amount)
@@ -209,13 +209,13 @@ class Bot:
         if loot.startswith('ship_'):
             if not (K.ITEMS['ships'].get(loot) or {}).get('hp'):
                 return False                             # yalnız görünüm olan tasarım: gemi değil
-            e['gemi'] = loot
+            e['ship'] = loot
         elif loot in K.ITEMS['lasers']:
-            e['lazer'][loot] = e['lazer'].get(loot, 0) + n
+            e['laser'][loot] = e['laser'].get(loot, 0) + n
         elif loot in K.ITEMS['shield_generators']:
             e['kalkan'][loot] = e['kalkan'].get(loot, 0) + n
         elif loot in K.ITEMS['speed_generators']:
-            e['hiz'][loot] = e['hiz'].get(loot, 0) + n
+            e['speed'][loot] = e['speed'].get(loot, 0) + n
         elif loot in K.ITEMS['drones']:
             e['drone'][loot] = e['drone'].get(loot, 0) + n
         elif loot in K.ITEMS['combat_items']['launcher']['kinds']:
@@ -237,12 +237,12 @@ class Bot:
     # ------------------------------------------------------------ kargo
     def cargo_fill(self):
         """Kargonun doluluğu (0..1): yer kaplayan cevherler / geminin kargo alanı."""
-        k = self.k.get('kargo') or {}
+        k = self.k.get('cargo') or {}
         return sum(v for t, v in k.items() if int(t) in K.CARGO_ORE) / max(1, K.cargo_capacity(self.k['gear']))
 
     def add_cargo(self, contents):
         """Cevherleri sığdığı kadar kargoya alır -> alınanlar {tür: adet}."""
-        cargo = self.k.setdefault('kargo', {})
+        cargo = self.k.setdefault('cargo', {})
         empty = K.cargo_capacity(self.k['gear']) - sum(v for t, v in cargo.items() if int(t) in K.CARGO_ORE)
         claimed = {}
         for t, v in sorted(contents.items(), key=lambda x: -K.ore_prices(0).get(int(x[0]), 0)):   # değerliler önce
@@ -260,8 +260,8 @@ class Bot:
         from . import lab as LB, weapons as WP, skylab as SK
         SK.carry(self, self.hour(), K.cargo_capacity(self.k['gear']) * 3)      # Skylab'dan gelen cevher (taşıma hakkı kadar)
         LB.decision(self, WP.hourly_ammo(self))
-        price = K.ore_prices(self.k['onur'], self.game_settings.multiplier('ore_price'))
-        cargo = self.k.setdefault('kargo', {})
+        price = K.ore_prices(self.k['honor'], self.game_settings.multiplier('ore_price'))
+        cargo = self.k.setdefault('cargo', {})
         kredi = 0
         for t in list(cargo):
             if int(t) in price:
@@ -271,14 +271,14 @@ class Bot:
                 name = K.ITEMS['ores']['kinds'].get(str(t), 'resource_ore_%s' % t)
                 WP.stock(self)[name] = WP.stock(self).get(name, 0) + cargo.pop(t)
         if kredi:
-            self.earn(kredi=kredi)
+            self.earn(credits=kredi)
             self.ist('ore_credits', kredi)
-            self.event('sold_ore', kredi=kredi)
+            self.event('sold_ore', credits=kredi)
         return kredi
 
     def event(self, kind, now=None, **f):
         """Olay kuyruğu (en çok 30): beyin ve LLM bağlamı için."""
-        self.events.append(dict(tur=kind, t=now or self.hour(), **f))
+        self.events.append(dict(type=kind, t=now or self.hour(), **f))
         del self.events[:-30]
 
     def save(self):
@@ -289,8 +289,8 @@ class Bot:
     def summary(self):
         """Panel ve LLM için kısa durum."""
         d = self.value()
-        return dict(no=self.k['no'], ad=self.name, firma=self.firma, archetype=self.archetype, seviye=self.level, ep=self.k['ep'],
-                    kredi=self.k['kredi'], uridyum=self.k['uridyum'], onur=self.k['onur'], gemi=self.k['gear']['gemi'],
-                    power=round(d['power'], 1), harita=K.H.name(self.game_map), online=self.online, klan=self.k['klan'],
-                    hedef=self.k['hedef'], concrete=self.body is not None, stats=dict(self.k['stats']), registered=self.saved,
-                    kargo=round(self.cargo_fill(), 2))
+        return dict(no=self.k['no'], name=self.name, company=self.firma, archetype=self.archetype, level=self.level, ep=self.k['ep'],
+                    credits=self.k['credits'], uridium=self.k['uridium'], honor=self.k['honor'], ship=self.k['gear']['ship'],
+                    power=round(d['power'], 1), map=K.H.name(self.game_map), online=self.online, clan=self.k['clan'],
+                    target=self.k['target'], concrete=self.body is not None, stats=dict(self.k['stats']), registered=self.saved,
+                    cargo=round(self.cargo_fill(), 2))

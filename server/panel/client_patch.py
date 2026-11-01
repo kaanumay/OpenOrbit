@@ -30,10 +30,10 @@ from client_download import CHUNK, TIMEOUT, DownloadError, Cancelled, safe_path
 PANEL_DIR = os.path.dirname(os.path.abspath(__file__))
 # BepInEx bleeding edge (builds.bepinex.dev): be.788 (2026-09-01) 1.1.115'te denendi (Unity 2022.3.58, IL2CPP metadata v31).
 # Değiştirince sha256 de değişir; kurulu eskisinin üstüne yeniden kurulur.
-BEPINEX = {'ad': 'BepInEx 6.0.0-be.788',
+BEPINEX = {'name': 'BepInEx 6.0.0-be.788',
            'url': 'https://builds.bepinex.dev/projects/bepinex_be/788/BepInEx-Unity.IL2CPP-win-x86-6.0.0-be.788%2B5b766a3.zip',
            'sha256': 'd5954a5993ec39cd1133603d85bff93875d30b6411b712cc13dcf03c8e08a4d3', 'size': 31440336}
-UNITY = {'ad': 'Unity 2022.3.58', 'url': 'https://unity.bepinex.dev/libraries/2022.3.58.zip',
+UNITY = {'name': 'Unity 2022.3.58', 'url': 'https://unity.bepinex.dev/libraries/2022.3.58.zip',
          'sha256': '37b5b6d5f3a8761ecd8415302f0283e86c552c822a456faaec33aae533ba32ae', 'size': 1898155,
          'route': 'BepInEx/unity-libs/2022.3.58.zip'}
 PLUGIN = os.path.join(PANEL_DIR, 'plugin', 'OpenOrbitPatch.dll')
@@ -148,11 +148,11 @@ def progress(folder, start, seen):
         written = 0
     stage = 3 if generated(folder) else 2 if written else 1 if started or now - start > 10 else 0
     t = now - seen.setdefault(stage, now)
-    sub = seen.setdefault('write', seen.get('yuzde', 0)) if stage == 2 else 0   # yazma, gösterilenden sıçramadan sürer
+    sub = seen.setdefault('write', seen.get('percent', 0)) if stage == 2 else 0   # yazma, gösterilenden sıçramadan sürer
     percent = (100 if stage == 3 else sub + (99 - sub) * min(1, written / INTEROP_FILES) if stage == 2
              else 10 + 80 * (1 - math.exp(-t / 25)) if stage == 1 else 9 * (1 - math.exp(-t / 4)))
-    seen['yuzde'] = max(seen.get('yuzde', 0), int(percent))
-    return {'stage': stage, 'yuzde': seen['yuzde'], 'elapsed_sec': int(now - start)}
+    seen['percent'] = max(seen.get('percent', 0), int(percent))
+    return {'stage': stage, 'percent': seen['percent'], 'elapsed_sec': int(now - start)}
 
 
 def warm_up(folder, cmd, env, logs, notify=None, duration=300):
@@ -219,7 +219,7 @@ class Patcher:
 
     @staticmethod
     def _blank(state, folder):
-        return {'durum': state, 'running': False, 'claimed': 0, 'toplam': BEPINEX['size'] + UNITY['size'], 'hata': None,
+        return {'state': state, 'running': False, 'claimed': 0, 'total': BEPINEX['size'] + UNITY['size'], 'error': None,
                 'folder': folder}
 
     def state(self, folder):
@@ -230,8 +230,8 @@ class Patcher:
                                    != os.path.normcase(os.path.abspath(folder))):
             d = self._blank('none', folder)
         if not d['running'] and folder and installed(folder):
-            d['durum'] = 'built'
-        d.update(required=True, ad=BEPINEX['ad'])
+            d['state'] = 'built'
+        d.update(required=True, name=BEPINEX['name'])
         return d
 
     def running(self):
@@ -256,7 +256,7 @@ class Patcher:
         while self.running():
             if step:
                 st = self.state(folder)
-                step(int(100 * st['claimed'] / st['toplam']))
+                step(int(100 * st['claimed'] / st['total']))
             time.sleep(0.3)
         return installed(folder)
 
@@ -277,7 +277,7 @@ class Patcher:
         except (OSError, http.client.HTTPException) as e:
             raise DownloadError(_('Could not connect to the download server (check your internet connection): %s', e))
         if hashlib.sha256(buf).hexdigest() != part['sha256']:
-            raise DownloadError(_('%s is not the expected file (SHA-256 mismatch): try again.', part['ad']))
+            raise DownloadError(_('%s is not the expected file (SHA-256 mismatch): try again.', part['name']))
         return bytes(buf)
 
     def _run(self, folder):
@@ -285,7 +285,7 @@ class Patcher:
             self.log('BepInEx indiriliyor: %s, %s' % (BEPINEX['url'], UNITY['url']))
             archive, unity = self._download(BEPINEX), self._download(UNITY)
             with self.lock:
-                self.d['durum'] = 'installing'
+                self.d['state'] = 'installing'
             with zipfile.ZipFile(io.BytesIO(archive)) as z:
                 for m in z.infolist():
                     p = safe_path(folder, m.filename)
@@ -312,26 +312,26 @@ class Patcher:
                 fh.write(unity)
             plugin(folder)
             with open(route(folder, INSTALL_MARKER), 'w', encoding='utf8') as fh:
-                json.dump({'bepinex': BEPINEX['sha256'], 'unity': UNITY['sha256'], 'ad': BEPINEX['ad'],
+                json.dump({'bepinex': BEPINEX['sha256'], 'unity': UNITY['sha256'], 'name': BEPINEX['name'],
                            'time': time.strftime('%Y-%m-%d %H:%M:%S')}, fh, indent=1)
             with self.lock:
-                self.d.update(durum='built', claimed=self.d['toplam'])
-            self.log('BepInEx kuruldu: %s (%s)' % (BEPINEX['ad'], folder))
+                self.d.update(state='built', claimed=self.d['total'])
+            self.log('BepInEx kuruldu: %s (%s)' % (BEPINEX['name'], folder))
         except Cancelled:
             with self.lock:
-                self.d['durum'] = 'stopped'
+                self.d['state'] = 'stopped'
             self.log('BepInEx kurulumu durduruldu')
         except DownloadError as e:
             with self.lock:
-                self.d.update(durum='hata', hata=str(e))
+                self.d.update(state='error', error=str(e))
             self.log('BepInEx kurulamadı: %s' % e)
         except OSError as e:
             with self.lock:
-                self.d.update(durum='hata', hata=_('Could not write a file: %s', e))
+                self.d.update(state='error', error=_('Could not write a file: %s', e))
             self.log('BepInEx kurulamadı: %r' % e)
         except Exception as e:
             with self.lock:
-                self.d.update(durum='hata', hata=repr(e))
+                self.d.update(state='error', error=repr(e))
             self.log('BepInEx: beklenmeyen hata: %r' % e)
         finally:
             with self.lock:

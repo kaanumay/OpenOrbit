@@ -107,11 +107,11 @@ class HitacLottery:
         """Etkinlik kutusu: 'kesin' satırların hepsi; pool (harf_ek) verilirse eşit ağırlıkla bir satır, sans ([lootId, adet, olasılık]) verilirse
         her biri kendi olasılığıyla (etkinlik_harita.roll)."""
         h = w.drop_box(kind, x, y, None, life)
-        spec = {'tur': kind, 'mod': 'one_of' if pool else 'hepsi', 'guaranteed': rows}
+        spec = {'type': kind, 'mod': 'one_of' if pool else 'hepsi', 'guaranteed': rows}
         if pool:
             spec['contents'] = pool
         elif chance:
-            spec['contents'] = [[l, n, SET.chance('drop', c, 'etkinlik') * 100] for l, n, c in chance]
+            spec['contents'] = [[l, n, SET.chance('drop', c, 'event') * 100] for l, n, c in chance]
         w.boxes[h]['event'] = spec
 
     def on_kill(self, w, npc, x, y):
@@ -120,17 +120,17 @@ class HitacLottery:
         if not active():
             return []
         if npc.tip in MINIONS:
-            b = D.get('minion_box', {'tur': 'HITAC_MINION', 'contents': [['ammunition_laser_mcb-50', 300]], 'harf': 0.5})
-            rows = [[l, a] for l, a in b['contents']] + ([[LETTER, 1]] if random.random() < SET.chance('drop', b.get('harf', 0.5), 'etkinlik') else [])
-            self.drop(w, b['tur'], x, y, rows, b.get('omur_sn', 300))
+            b = D.get('minion_box', {'type': 'HITAC_MINION', 'contents': [['ammunition_laser_mcb-50', 300]], 'letter': 0.5})
+            rows = [[l, a] for l, a in b['contents']] + ([[LETTER, 1]] if random.random() < SET.chance('drop', b.get('letter', 0.5), 'event') else [])
+            self.drop(w, b['type'], x, y, rows, b.get('lifetime_sec', 300))
         elif npc.tip in MOTHERSHIPS:
-            b = D.get('mothership_box', {'tur': 'HITAC', 'capsule_at': 1})
-            self.drop(w, b['tur'], x, y, [[CAPSULE, b['capsule_at']]] + b.get('guaranteed', []), chance=b.get('chance'))      # + 50 ACM-1, 1.000 PLT-3030, şanslı teknoloji
+            b = D.get('mothership_box', {'type': 'HITAC', 'capsule_at': 1})
+            self.drop(w, b['type'], x, y, [[CAPSULE, b['capsule_at']]] + b.get('guaranteed', []), chance=b.get('chance'))      # + 50 ACM-1, 1.000 PLT-3030, şanslı teknoloji
         else:
             for prefix, (kind, chance, *pool) in (D.get('letter_extra') or {}).items():
                 if not npc.tip.startswith(prefix):
                     continue
-                rows = [[LETTER, 1]] if random.random() < SET.chance('drop', chance, 'etkinlik') else []      # panel: düşme şansı
+                rows = [[LETTER, 1]] if random.random() < SET.chance('drop', chance, 'event') else []      # panel: düşme şansı
                 if rows or pool:                   # Underling / Underboss: kutu her zaman düşer, harf şansla, içeriğinden bir satır
                     self.drop(w, kind, x, y, rows, pool=pool[0] if pool else None)
         return []
@@ -150,7 +150,7 @@ class HitacLottery:
         msgs, got = [], []
         for _ in range(n):
             pool = [r for r in (c or {}).get('pool', []) if not LOOT.owned(self.p, r[0]) and r[0] not in got]
-            for loot, count in random.sample(pool, min(c.get('paket', 1), len(pool))) if c else []:
+            for loot, count in random.sample(pool, min(c.get('package', 1), len(pool))) if c else []:
                 got.append(loot)
                 msgs += self.m.reward(loot, count)
             if not pool:
@@ -191,7 +191,7 @@ class HitacLottery:
             msgs += self.m.reward(loot, n)
         msgs += self.m.money_msgs()
         with self.p.lock:
-            self.st['history'].insert(0, {'tarih': time.strftime('%Y-%m-%d %H:%M:%S'), 'adet': q, 'rewards': sorted(got.items())})
+            self.st['history'].insert(0, {'date': time.strftime('%Y-%m-%d %H:%M:%S'), 'count': q, 'rewards': sorted(got.items())})
             del self.st['history'][HISTORY_MAX:]
             self.p.dirty = True
         self.log('   Capsule Converter: %d kapsül -> %s' % (q, ', '.join('%s x%d' % x for x in sorted(got.items()))))
@@ -199,7 +199,7 @@ class HitacLottery:
                                                lotteryItems=self.p.resource(CAPSULE), quantity=self.p.resource(CAPSULE)))] + msgs
 
     def log_cmds(self):
-        return [{'_': 'LotteryLogCommand', 'lcId': i + 1, 'date': e['tarih'], 'amountCapsules': e['adet'],
+        return [{'_': 'LotteryLogCommand', 'lcId': i + 1, 'date': e['date'], 'amountCapsules': e['count'],
                  'converter': 'payment_lottery_text_hitacconverter',
                  'lotteryLogRewardCommandList': [{'_': 'LotteryLogRewardCommand', 'lootId': l, 'amount': n} for l, n in e['rewards']]}
                 for i, e in enumerate(self.st['history'])]

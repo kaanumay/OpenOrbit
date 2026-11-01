@@ -2,13 +2,13 @@
  "_description": "Sıralama ödül tabloları -> server/data/sira_odulleri.json (yol haritası Ö1; sunucu: siralama.py).\n\nİstemcinin akışı: modun penceresi sıralama bilgisiyle ödül aralıklarını alır (PlutusInfoCommand.playerRanges,\nEternalBlacklightRankingEventInfoCommand / RogueLiteRankEventInfoCommand.playerRankRanges: RankRewardRangeModule {from, to}); ödül\nsekmesi her aralık için RankRewardRequest {ranking: aralığın başı, rankType} gönderir; yanıt RankRewardCommand {rankType,\nrewardContentModuleList [RewardModule {lootId, amount} | RewardTitleModule {titleKey}], rewardRange}. rankType istemcinin RankType'ı:\n2 Gauntlet of Plutus, 7 Eternal Black Light, 9 Astral Ascension (Rogue-Lite).\n\nKaynaklar:\n  2  belgeler/wiki/etkinlikler/gauntlet_of_plutus.json \"ranking\" (wiki etkinlik sayfasının kademeleri, metin)\n  7  belgeler/wiki/pve_modlari/eternal_black_light.json ebl.ranking.reward_sets[0] (2020 tablosu; sonraki setler aynı miktarlarla,\n     P.E.T. tasarımları olmadan); unvan en son setinki (Eylül 2026, \"Eternal King\")\n  9  server/data/yanitlar.json: kaydın RankRewardCommand'ları (Ekim 2026 Astral seti)\nTek oyunculuda sıralamada yalnız oyuncu var: tablolar pencerede görünür; dağıtım bot oyuncularla (Aşama 11).",
  "tables": {
   "2": {
-   "ad": "Gauntlet of Plutus",
+   "name": "Gauntlet of Plutus",
    "_kaynak": "wiki etkinlik sayfası (gauntlet_of_plutus.json ranking); premium ay = 30 gün",
    "ranges": [
     {
-     "den": 1,
+     "from_": 1,
      "e": 1,
-     "esyalar": [
+     "items": [
       [
        "pet_designs_pet-goliath-nobilis",
        1
@@ -41,9 +41,9 @@
      "title": "title_achievement_event_gauntletofplutus-champion"
     },
     {
-     "den": 2,
+     "from_": 2,
      "e": 2,
-     "esyalar": [
+     "items": [
       [
        "pet_designs_pet-goliath-nobilis",
        1
@@ -76,9 +76,9 @@
      "title": null
     },
     {
-     "den": 3,
+     "from_": 3,
      "e": 3,
-     "esyalar": [
+     "items": [
       [
        "pet_designs_pet-goliath-nobilis",
        1
@@ -111,9 +111,9 @@
      "title": null
     },
     {
-     "den": 4,
+     "from_": 4,
      "e": 5,
-     "esyalar": [
+     "items": [
       [
        "pet_designs_pet-goliath-nobilis",
        1
@@ -142,9 +142,9 @@
      "title": null
     },
     {
-     "den": 6,
+     "from_": 6,
      "e": 10,
-     "esyalar": [
+     "items": [
       [
        "pet_designs_pet-goliath-nobilis",
        1
@@ -169,9 +169,9 @@
      "title": null
     },
     {
-     "den": 11,
+     "from_": 11,
      "e": 25,
-     "esyalar": [
+     "items": [
       [
        "currency_uridium",
        50000
@@ -192,9 +192,9 @@
      "title": null
     },
     {
-     "den": 26,
+     "from_": 26,
      "e": 50,
-     "esyalar": [
+     "items": [
       [
        "currency_uridium",
        35000
@@ -215,9 +215,9 @@
      "title": null
     },
     {
-     "den": 51,
+     "from_": 51,
      "e": 100,
-     "esyalar": [
+     "items": [
       [
        "currency_uridium",
        25000
@@ -240,13 +240,13 @@
    ]
   },
   "7": {
-   "ad": "Eternal Black Light",
+   "name": "Eternal Black Light",
    "_kaynak": "forum 2020 tablosu (eternal_black_light.json reward_sets[0]; sonraki setler aynı miktarlarla, P.E.T. tasarımsız); unvan Eylül 2026 seti",
    "ranges": [
     {
-     "den": 1,
+     "from_": 1,
      "e": 1,
-     "esyalar": [
+     "items": [
       [
        "currency_uridium",
        750000
@@ -283,9 +283,9 @@
      "title": "title_blacklightRankings-sep2026set1"
     },
     {
-     "den": 2,
+     "from_": 2,
      "e": 2,
-     "esyalar": [
+     "items": [
       [
        "currency_uridium",
        500000
@@ -318,9 +318,9 @@
      "title": "title_blacklightRankings-sep2026set1"
     },
     {
-     "den": 3,
+     "from_": 3,
      "e": 3,
-     "esyalar": [
+     "items": [
       [
        "currency_uridium",
        300000
@@ -353,9 +353,9 @@
      "title": "title_blacklightRankings-sep2026set1"
     },
     {
-     "den": 4,
+     "from_": 4,
      "e": 5,
-     "esyalar": [
+     "items": [
       [
        "currency_uridium",
        200000
@@ -388,9 +388,9 @@
      "title": "title_blacklightRankings-sep2026set1"
     },
     {
-     "den": 6,
+     "from_": 6,
      "e": 10,
-     "esyalar": [
+     "items": [
       [
        "currency_uridium",
        75000
@@ -411,9 +411,9 @@
      "title": null
     },
     {
-     "den": 11,
+     "from_": 11,
      "e": 25,
-     "esyalar": [
+     "items": [
       [
        "currency_uridium",
        50000
@@ -434,9 +434,9 @@
      "title": null
     },
     {
-     "den": 26,
+     "from_": 26,
      "e": 50,
-     "esyalar": [
+     "items": [
       [
        "currency_uridium",
        35000
@@ -457,9 +457,9 @@
      "title": null
     },
     {
-     "den": 51,
+     "from_": 51,
      "e": 100,
-     "esyalar": [
+     "items": [
       [
        "currency_uridium",
        25000
@@ -478,13 +478,13 @@
    ]
   },
   "9": {
-   "ad": "Astral Ascension",
+   "name": "Astral Ascension",
    "_kaynak": "kayıt (yanitlar.json RankRewardCommand, Ekim 2026 seti)",
    "ranges": [
     {
-     "den": 1,
+     "from_": 1,
      "e": 1,
-     "esyalar": [
+     "items": [
       [
        "currency_uridium",
        600000
@@ -521,9 +521,9 @@
      "title": "title_astralRankings-oct2026set1"
     },
     {
-     "den": 2,
+     "from_": 2,
      "e": 2,
-     "esyalar": [
+     "items": [
       [
        "currency_uridium",
        400000
@@ -556,9 +556,9 @@
      "title": "title_astralRankings-oct2026set1"
     },
     {
-     "den": 3,
+     "from_": 3,
      "e": 3,
-     "esyalar": [
+     "items": [
       [
        "currency_uridium",
        300000
@@ -591,9 +591,9 @@
      "title": "title_astralRankings-oct2026set1"
     },
     {
-     "den": 4,
+     "from_": 4,
      "e": 5,
-     "esyalar": [
+     "items": [
       [
        "currency_uridium",
        200000
@@ -626,9 +626,9 @@
      "title": "title_astralRankings-oct2026set1"
     },
     {
-     "den": 6,
+     "from_": 6,
      "e": 10,
-     "esyalar": [
+     "items": [
       [
        "currency_uridium",
        80000
@@ -661,9 +661,9 @@
      "title": null
     },
     {
-     "den": 11,
+     "from_": 11,
      "e": 25,
-     "esyalar": [
+     "items": [
       [
        "currency_uridium",
        35000
@@ -692,9 +692,9 @@
      "title": null
     },
     {
-     "den": 26,
+     "from_": 26,
      "e": 50,
-     "esyalar": [
+     "items": [
       [
        "currency_uridium",
        25000
@@ -719,9 +719,9 @@
      "title": null
     },
     {
-     "den": 51,
+     "from_": 51,
      "e": 100,
-     "esyalar": [
+     "items": [
       [
        "currency_uridium",
        15000

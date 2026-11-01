@@ -37,17 +37,17 @@ from . import llm_server as LS
 
 WHISPER, ROOM, EVENT, DECISION, BOT_CHAT = 0, 1, 2, 3, 4
 MAIL = EVENT                      # posta acele değil: kuyruk dolarsa kalıpla yanıtlanır
-DECISION_GOALS = ('grinding', 'gorev', 'pvp', 'shopping', 'resting')
+DECISION_GOALS = ('grinding', 'quest', 'pvp', 'shopping', 'resting')
 FIRMA = {1: 'MMO', 2: 'EIC', 3: 'VRU'}
-CHANNEL = {'global': 'global', 'firma': 'company', 'klan': 'clan', 'grup': 'group'}
+CHANNEL = {'global': 'global', 'company': 'company', 'clan': 'clan', 'group': 'group'}
 TRAIT_NAME = {'aggression': 'aggressive', 'rekabet': 'competitive', 'sociability': 'sociable', 'patience': 'patient', 'risk': 'risk-taking',
               'loyalty': 'loyal', 'helpfulness': 'helpful', 'talkativeness': 'chatty', 'frugality': 'thrifty', 'ambition': 'ambitious'}
-GOAL_NAME = {'grinding': 'farming aliens', 'gorev': 'doing quests', 'pvp': 'hunting enemy players', 'shopping': 'shopping',
-            'resting': 'taking a break at base', 'exploring': 'checking out a new map', 'grup': 'playing in a group',
-            'yardim': 'going to help someone', 'simple': 'farming aliens'}
-ARCHETYPE_NAME = {'grinder': 'a grinder who mostly farms aliens', 'hunter': 'a PvP hunter', 'sosyal': 'a social player who loves to chat',
+GOAL_NAME = {'grinding': 'farming aliens', 'quest': 'doing quests', 'pvp': 'hunting enemy players', 'shopping': 'shopping',
+            'resting': 'taking a break at base', 'exploring': 'checking out a new map', 'group': 'playing in a group',
+            'assist': 'going to help someone', 'simple': 'farming aliens'}
+ARCHETYPE_NAME = {'grinder': 'a grinder who mostly farms aliens', 'hunter': 'a PvP hunter', 'social': 'a social player who loves to chat',
               'trader': 'a trader who watches the auction', 'quester': 'a quest player', 'casual': 'a casual player',
-              'lider': 'a natural clan leader'}
+              'leader': 'a natural clan leader'}
 SYSTEM_PROMPT = ("You are a real human player of a DarkOrbit-like space MMO, typing in the in-game chat. Never say or hint that you are a "
           "bot or an AI and never break character. Write like a real gamer in a game chat: short (usually 2-10 words), casual, "
           "mostly lowercase, simple words, occasional slang only when it really fits. React to what was ACTUALLY said, like a person: "
@@ -95,10 +95,10 @@ def _lang_expr(promises, extra=False):
 
 # öteki dillerin zararlı ifadeleri (kendine zarar, ölüm dileği, ağır hakaret: bot/languages/<kod>.json zararli); botlar o dillerde de
 # konuşur (COK_DILLI), İngilizce süzgeç onları görmez
-_HARMFUL_LANG = _lang_expr([w for d in SPC.LANGUAGES.values() for w in d.get('zararli', ())])
+_HARMFUL_LANG = _lang_expr([w for d in SPC.LANGUAGES.values() for w in d.get('harmful', ())])
 # mesaj türleri öteki dillerde (bot/languages/<kod>.json tepki): kutlama, veda, dönüş, yoklama; oyun sözcükleri soruyu oyun sorusu yapar
-_REACTION_LANG = {t: _lang_expr([w for d in SPC.LANGUAGES.values() for w in d.get('reaction', {}).get(t, ())], extra=t == 'oyun')
-              for t in ('kutlama', 'veda', 'donus', 'yoklama', 'oyun')}
+_REACTION_LANG = {t: _lang_expr([w for d in SPC.LANGUAGES.values() for w in d.get('reaction', {}).get(t, ())], extra=t == 'game')
+              for t in ('congrats', 'farewell', 'welcome_back', 'roll_call', 'game')}
 
 
 # İngilizceye özgü sözcükler (oyun argosu gg, lol, inv, np, ty sayılmaz); öteki dillerde de geçenler o dilde sayılmaz
@@ -143,7 +143,7 @@ def lang_note(b):
     if not MULTILINGUAL:
         return ''
     d = SPC.lang(b)
-    return ' Chats in %s (always, even with people who write in another language).' % LANG_NAME.get(d, SPC.LANGUAGES.get(d, {}).get('ad', d))
+    return ' Chats in %s (always, even with people who write in another language).' % LANG_NAME.get(d, SPC.LANGUAGES.get(d, {}).get('name', d))
 
 
 def _mood(mood):
@@ -162,11 +162,11 @@ def chat_persona(b, y=None):
     """Sohbet için kısa tarif: kimlik, gemi, harita, ruh hâli, kişilerle ilişkisi ve son 10 dakikanın olayları (uzun tarif modeli
     her satırda işinden, parasından söz ettiriyordu)."""
     now = y.now if y is not None else time.time()
-    relation = ['%s (%s)' % (e['ad'], 'friend' if e['d'] > 0 else 'holds a grudge') for e in
+    relation = ['%s (%s)' % (e['name'], 'friend' if e['d'] > 0 else 'holds a grudge') for e in
               sorted(b.memory.d.values(), key=lambda e: -abs(e['d']))[:3] if abs(e['d']) >= 0.2]
-    events = [x for x in (event_text(o) for o in b.events[-6:] if o['tur'] not in ('said', 'tool') and now - o['t'] < 600) if x]
+    events = [x for x in (event_text(o) for o in b.events[-6:] if o['type'] not in ('said', 'tool') and now - o['t'] < 600) if x]
     return '%s: %s, level %d, flies a %s, on %s (%s), %s.%s%s%s' % (
-        b.name, FIRMA[b.firma], b.level, b.k['gear']['gemi'].replace('ship_', '').replace('-', ' '), H.name(b.game_map),
+        b.name, FIRMA[b.firma], b.level, b.k['gear']['ship'].replace('ship_', '').replace('-', ' '), H.name(b.game_map),
         GOAL_NAME.get(b.target.name, 'flying around') if b.target is not None else 'flying around', _mood(b.mood), _social(b),
         (' Knows: %s.' % ', '.join(relation)) if relation else '', (' Just now he %s.' % '; '.join(events[-2:])) if events else '') + \
         lang_note(b)
@@ -185,7 +185,7 @@ def _social(b):
             out += ' In a group with %s.' % ', '.join(people[u].name for u in g.members if u != b.uid and u in people)
         k = KL.clan_of(b.profile) if b.profile is not None else None
         if k is not None:
-            out += ' Clan [%s] %s%s.' % (k['etiket'], k['ad'], ' (he is the leader)' if k['lider'] == b.name.lower() else '')
+            out += ' Clan [%s] %s%s.' % (k['tag'], k['name'], ' (he is the leader)' if k['leader'] == b.name.lower() else '')
     except Exception:
         pass
     return out
@@ -197,14 +197,14 @@ def persona(b, y=None):
     dominant = ', '.join(TRAIT_NAME[k] for k, v in en[:3])
     weak = ', '.join(TRAIT_NAME[k] for k, v in en[-2:])
     target = GOAL_NAME.get(b.target.name, 'idle') if b.target is not None else 'idle'
-    currency = 'rich' if b.k['kredi'] > 2000000 else 'broke' if b.k['kredi'] < 20000 else 'saving up'
-    relation = ['%s (%s)' % (e['ad'], 'friend' if e['d'] > 0 else 'holds a grudge') for e in
+    currency = 'rich' if b.k['credits'] > 2000000 else 'broke' if b.k['credits'] < 20000 else 'saving up'
+    relation = ['%s (%s)' % (e['name'], 'friend' if e['d'] > 0 else 'holds a grudge') for e in
               sorted(b.memory.d.values(), key=lambda e: -abs(e['d']))[:4] if abs(e['d']) >= 0.15]
-    events = [x for x in (event_text(o) for o in b.events[-6:] if o['tur'] not in ('said', 'tool')) if x]
+    events = [x for x in (event_text(o) for o in b.events[-6:] if o['type'] not in ('said', 'tool')) if x]
     ev = '%d-1 to %d-4' % (b.firma, b.firma) if b.level < 10 else '%d-1 to %d-8 and 4-x' % (b.firma, b.firma)
     return ("%s: %s pilot, level %d (own company maps: %s; other companies' maps are enemy territory), flies a %s, on map %s, "
             '%s, %s. Plays like %s. Personality: %s; not very %s. Mood: %s.%s%s') % (
-        b.name, FIRMA[b.firma], b.level, ev, b.k['gear']['gemi'].replace('ship_', '').replace('-', ' '), H.name(b.game_map), target, currency,
+        b.name, FIRMA[b.firma], b.level, ev, b.k['gear']['ship'].replace('ship_', '').replace('-', ' '), H.name(b.game_map), target, currency,
         ARCHETYPE_NAME.get(b.archetype, 'a normal player'), dominant, weak, _mood(b.mood),
         (' People: %s.' % ', '.join(relation)) if relation else '', (' Recently: %s.' % '; '.join(events)) if events else '') + lang_note(b) + \
         _memories_note(b, y) + AW.note(b, y.now if y is not None else None)
@@ -220,15 +220,15 @@ def _memories_note(b, y):
 
 
 def event_text(o):
-    t = o['tur']
-    return {'olum': 'got killed by %s' % (o.get('killer') or 'aliens'), 'i_killed_player': 'killed the player %s' % o.get('ad'),
-            'oldurdum': 'killed the player %s' % o.get('victim'), 'seviye': 'reached level %s' % o.get('seviye'),
-            'yeni_gemi': 'bought a %s' % str(o.get('esya', '')).replace('ship_', ''), 'quest_done': 'finished a quest',
-            'clan_founded': 'founded the clan %s' % o.get('ad'), 'joined_clan': 'joined the clan %s' % o.get('klan'),
-            'joined_group': 'grouped up with %s' % o.get('ad'), 'fled': 'fled from map %s' % o.get('harita'),
-            'patron_oldurdum': 'killed the boss alien %s' % o.get('ad'),
-            'witness': ('saw %s kill the boss %s right next to you' % (o.get('kim'), o.get('ad')) if o.get('sub') == 'boss'
-                      else 'saw %s get destroyed right next to you' % o.get('ad'))}.get(t, '')
+    t = o['type']
+    return {'death': 'got killed by %s' % (o.get('killer') or 'aliens'), 'i_killed_player': 'killed the player %s' % o.get('name'),
+            'i_killed': 'killed the player %s' % o.get('victim'), 'level': 'reached level %s' % o.get('level'),
+            'new_ship': 'bought a %s' % str(o.get('item', '')).replace('ship_', ''), 'quest_done': 'finished a quest',
+            'clan_founded': 'founded the clan %s' % o.get('name'), 'joined_clan': 'joined the clan %s' % o.get('clan'),
+            'joined_group': 'grouped up with %s' % o.get('name'), 'fled': 'fled from map %s' % o.get('map'),
+            'i_killed_boss': 'killed the boss alien %s' % o.get('name'),
+            'witness': ('saw %s kill the boss %s right next to you' % (o.get('who'), o.get('name')) if o.get('sub') == 'boss'
+                      else 'saw %s get destroyed right next to you' % o.get('name'))}.get(t, '')
 
 
 def _clean_name(name):
@@ -238,7 +238,7 @@ def _clean_name(name):
 def _map_aliens(m):
     names = []
     for v, n in sorted(K.map_npcs(m), key=lambda x: -x[1]):
-        a = _clean_name(v['ad'])
+        a = _clean_name(v['name'])
         if a and a not in names:
             names.append(a)
     return names[:4]
@@ -251,8 +251,8 @@ def game_info(f):
     maps = [(f - 1) * 4 + i for i in range(1, 5)] + [16 + (f - 1) * 4 + i for i in range(1, 5)] + [13, 14, 15, 16, 29]
     row = ['%s: %s' % (H.name(m), ', '.join(a)) for m in maps for a in [[x for x in _map_aliens(m) if 'Boss' not in x]]
              if a]
-    boss = ['%s (%s)' % (H.name(m), ', '.join(sorted({_clean_name(v['ad']) for v, n in K.map_npcs(m) if 'Boss' in v['ad']})[:3]))
-              for m in maps if any('Boss' in v['ad'] for v, n in K.map_npcs(m))]
+    boss = ['%s (%s)' % (H.name(m), ', '.join(sorted({_clean_name(v['name']) for v, n in K.map_npcs(m) if 'Boss' in v['name']})[:3]))
+              for m in maps if any('Boss' in v['name'] for v, n in K.map_npcs(m))]
     row.append('BOSS aliens are on ' + '; '.join(boss[:6]))
     return ('GAME FACTS for a %s player (use them, never invent): %s players start on %d-1, MMO starts on 1-1, EIC on 2-1, VRU on 3-1; '
             'every company has its own maps (MMO 1-x, EIC 2-x, VRU 3-x), other companies\' maps are enemy land. %s home maps: %d-1 '
@@ -268,14 +268,14 @@ GAME = re.compile(r'\b(map|alien|npc|streuner|lordakia|saimon|mordon|sibelon|bos
                   r'nostromo|vengeance|leonov|uri|uridium|credit|level|lvl|clan|group|ep|honor|drone|iris|flax|shield|gen|portal|'
                   r'gate|pvp|farm|start|begin|new|noob|mmo|eic|vru|[1-5]-[1-8x])(e?s)?\b', re.I)    # çoğullar da (bosses, maps)
 KINDS = (
-    ('kutlama', re.compile(r'\b(gz|gratz|grats|congrats|congratulations|well done|nice one|nice|wp|good job|gj)\b', re.I)),
-    ('tesekkur', re.compile(r'\b(ty|thx|thanks|thank you|tyvm)\b', re.I)),
-    ('veda', re.compile(r'\b(bye|cya|gn|good night|gtg|g2g|see ya|see you|later all)\b', re.I)),
-    ('donus', re.compile(r'^\s*(back|im back|i\'m back|re|bk)\b', re.I)),
+    ('congrats', re.compile(r'\b(gz|gratz|grats|congrats|congratulations|well done|nice one|nice|wp|good job|gj)\b', re.I)),
+    ('thanks', re.compile(r'\b(ty|thx|thanks|thank you|tyvm)\b', re.I)),
+    ('farewell', re.compile(r'\b(bye|cya|gn|good night|gtg|g2g|see ya|see you|later all)\b', re.I)),
+    ('welcome_back', re.compile(r'^\s*(back|im back|i\'m back|re|bk)\b', re.I)),
     ('search', re.compile(r'\b(brb|afk|one sec|1 sec)\b', re.I)),
-    ('yoklama', re.compile(r"\b(any(one|body)?|who'?s|who is)\b.*\b(online|on|here|around|alive|awake)\b", re.I)),
-    ('meydan', re.compile(r'\b(duel|duels|1v1|1 v 1|1vs1|fight me|pvp me|come fight|who wants to fight)\b', re.I)),
-    ('selam', re.compile(r'^\s*(hi|hello|hey|yo|sup|hiya|howdy|morning|evening)\b', re.I)),
+    ('roll_call', re.compile(r"\b(any(one|body)?|who'?s|who is)\b.*\b(online|on|here|around|alive|awake)\b", re.I)),
+    ('challenge', re.compile(r'\b(duel|duels|1v1|1 v 1|1vs1|fight me|pvp me|come fight|who wants to fight)\b', re.I)),
+    ('greeting', re.compile(r'^\s*(hi|hello|hey|yo|sup|hiya|howdy|morning|evening)\b', re.I)),
     ('taunt', re.compile(r'\b(noob|noobs|nub|trash|ez|loser|bad|suck|sucks|idiot|stupid|cry|crying|scrub|bot|bots|weak)\b', re.I)),
 )
 
@@ -372,42 +372,42 @@ def message_kind(msg):
     """Oyuncunun mesajının türü: tepki rehberi (TEPKI) için. İstekler (grup, klan, arkadaşlık, gel) 'istek': kararı interaction.py
     verir ("who wants to group up?" oyun sorusu sayılıp harita ipucu alıyordu)."""
     n, _ = SPC.intent(msg)
-    if n in IX.INTENTS and n != 'yardim':
+    if n in IX.INTENTS and n != 'assist':
         return 'request'
     for name, rx in KINDS:
         if rx.search(msg):
             return name
     k = _normalize(msg)
-    for name in ('kutlama', 'veda', 'yoklama', 'donus'):             # öteki diller (bot/languages tepki)
+    for name in ('congrats', 'farewell', 'roll_call', 'welcome_back'):             # öteki diller (bot/languages tepki)
         rx = _REACTION_LANG[name]
-        if rx and rx.search(k) and (name != 'donus' or (len(k.split()) <= 3 and not re.search(r'[1-5]\s*-\s*[1-8]', msg))):
+        if rx and rx.search(k) and (name != 'welcome_back' or (len(k.split()) <= 3 and not re.search(r'[1-5]\s*-\s*[1-8]', msg))):
             # ("2-3'e geldim" dönüş değil, varış)
             return name
-    if n == 'tesekkur':
-        return 'tesekkur'
-    if n == 'hakaret':
+    if n == 'thanks':
+        return 'thanks'
+    if n == 'insult':
         return 'taunt'
-    if is_question(msg) or n == 'soru':
-        game = GAME.search(msg) or (_REACTION_LANG['oyun'] and _REACTION_LANG['oyun'].search(k))
+    if is_question(msg) or n == 'question':
+        game = GAME.search(msg) or (_REACTION_LANG['game'] and _REACTION_LANG['game'].search(k))
         return 'question_game' if game else 'question_personal'
-    if n == 'selam':
-        return 'selam'
+    if n == 'greeting':
+        return 'greeting'
     return 'phrase'
 
 
 REACTION = {
-    'kutlama': 'It congratulates someone. Only the congratulated pilot answers, with a short natural thanks (maybe one tiny '
+    'congrats': 'It congratulates someone. Only the congratulated pilot answers, with a short natural thanks (maybe one tiny '
                'detail); nobody else talks.',
-    'tesekkur': 'It thanks someone. The thanked pilot may answer briefly (np, anytime ...) or nobody.',
-    'veda': 'Someone is leaving. 0-1 pilot says bye casually (like: gn, night man, cya, bye bye). Nothing else.',
-    'donus': 'HE (the writer) is back after a short break, not you. One pilot welcomes him back (wb, wb man ...); if he asks what he missed, that pilot says it in a few words '
+    'thanks': 'It thanks someone. The thanked pilot may answer briefly (np, anytime ...) or nobody.',
+    'farewell': 'Someone is leaving. 0-1 pilot says bye casually (like: gn, night man, cya, bye bye). Nothing else.',
+    'welcome_back': 'HE (the writer) is back after a short break, not you. One pilot welcomes him back (wb, wb man ...); if he asks what he missed, that pilot says it in a few words '
              '(like: not much, same old, nothing really) - never repeat old answers.',
     'search': 'He goes away for a moment (brb / afk). Usually nobody answers; at most one says k or np.',
-    'yoklama': 'He asks who is online. One or two pilots (of the company he names, if he names one) answer that they are here, '
+    'roll_call': 'He asks who is online. One or two pilots (of the company he names, if he names one) answer that they are here, '
                'in a few words (here, yo, yep whats up ...). No game tips.',
-    'selam': 'A greeting. 0-2 pilots greet back casually (like: hey, yo whats up, hi man, sup), maybe ask how it is going. No '
+    'greeting': 'A greeting. 0-2 pilots greet back casually (like: hey, yo whats up, hi man, sup), maybe ask how it is going. No '
              'game advice.',
-    'meydan': 'He challenges people to a fight / duel. Pilots of OTHER companies may accept or taunt back (name a map to meet '
+    'challenge': 'He challenges people to a fight / duel. Pilots of OTHER companies may accept or taunt back (name a map to meet '
               'only if it is enemy land for both or a 4-x map); his teammates may joke or cheer. Short, in character, no tips.',
     'taunt': 'It is a taunt or insult. If someone is targeted he reacts in character: hot-headed pilots trash talk back, calm '
                'ones laugh it off or ignore; short, no real hate.',
@@ -425,8 +425,8 @@ REACTION = {
 }
 
 
-FALLBACK = {'donus': ('wb', 'wb man', 'welcome back'), 'selam': ('hey', 'yo', 'hi'), 'kutlama': ('ty', 'thx', 'thanks man'),
-         'yoklama': ('here', 'yo', 'yep'), 'question_personal': ('lol idk', 'haha', 'not telling :p'),
+FALLBACK = {'welcome_back': ('wb', 'wb man', 'welcome back'), 'greeting': ('hey', 'yo', 'hi'), 'congrats': ('ty', 'thx', 'thanks man'),
+         'roll_call': ('here', 'yo', 'yep'), 'question_personal': ('lol idk', 'haha', 'not telling :p'),
          'taunt': ('lol ok', 'cry more', 'says the guy in a phoenix', 'k')}     # model yanıtı süzgece takılırsa
 
 
@@ -441,15 +441,15 @@ def _numbers(b, name):
     if not e:
         return ''
     out = []
-    for kind, text in (('grup', 'grouped up %d times'), ('hunted_together', 'farmed together %d times'),
+    for kind, text in (('group', 'grouped up %d times'), ('hunted_together', 'farmed together %d times'),
                        ('i_helped', 'you helped him %d times'), ('helped_me', 'he helped you %d times'),
-                       ('killed_me', 'he killed you %d times'), ('oldurdum', 'you killed him %d times'),
-                       ('meydan', 'he challenged you to a duel'), ('arkadas', 'you are friends'),
-                       ('hakaret', 'he insulted you %d times'), ('sohbet', 'chatted %d times')):
+                       ('killed_me', 'he killed you %d times'), ('i_killed', 'you killed him %d times'),
+                       ('challenge', 'he challenged you to a duel'), ('friend', 'you are friends'),
+                       ('insult', 'he insulted you %d times'), ('sohbet', 'chatted %d times')):
         k = e['n'].get(kind, 0)
         if k:
             out.append(text % k if '%d' in text else text)
-    return (' Your history with %s: %s.' % (e['ad'], ', '.join(out[:5]))) if out else ''
+    return (' Your history with %s: %s.' % (e['name'], ', '.join(out[:5]))) if out else ''
 
 
 def chat_history(y, channel=None, names=(), n=6, sec=180, exclude=None, route=None):
@@ -500,10 +500,10 @@ def addressed_bots(y, channel, msg, listener):
            and (len(x) < 5 or not listener or x[1].lower() in {b.name.lower() for b in listener})]      # o kanalı duyanlardan
     kind = message_kind(msg)
     if re.search(r'\b(guys|all|anyone|anybody|everyone|everybody|ppl|people|someone|somebody|yall|y\'all)\b', msg, re.I) \
-            or COMPANY_NAME.search(msg) or kind == 'yoklama':
+            or COMPANY_NAME.search(msg) or kind == 'roll_call':
         return []                                            # herkese ya da bir firmaya ("MMO noobs" son konuşana değil)
-    if last and (re.search(r'\b(you|u|your|ur|yours)\b', msg, re.I) or kind in ('kutlama', 'tesekkur')
-                or (len(msg.split()) <= 3 and kind not in ('question_game', 'selam', 'veda'))):
+    if last and (re.search(r'\b(you|u|your|ur|yours)\b', msg, re.I) or kind in ('congrats', 'thanks')
+                or (len(msg.split()) <= 3 and kind not in ('question_game', 'greeting', 'farewell'))):
         b = y.name_index.get(str(last[-1][1]).lower())
         return [b] if b is not None and b.online else []
     return []
@@ -526,8 +526,8 @@ def pick_topic(b, y):
         a = MEM.pick_gossip(b, y.now, b.r)
         if a is not None and b.r.random() < 0.4:
             b._gossip = a
-            return 'he tells the others about the player %s (%s): "%s"' % (a['kim'], MEM.time_ago(y.now - a['t']), a['summary'])
-    last = [o for o in b.events[-5:] if o['tur'] in ('olum', 'seviye', 'yeni_gemi', 'oldurdum', 'quest_done', 'joined_clan')
+            return 'he tells the others about the player %s (%s): "%s"' % (a['who'], MEM.time_ago(y.now - a['t']), a['summary'])
+    last = [o for o in b.events[-5:] if o['type'] in ('death', 'level', 'new_ship', 'i_killed', 'quest_done', 'joined_clan')
            and y.now - o['t'] < 900]
     if last and b.r.random() < 0.4:
         return 'he mentions that he just %s' % event_text(last[-1])
@@ -549,7 +549,7 @@ class Brain:
         self.last_bot_chat = time.time() + 60
         self.last_decision = 0.0
         self.last_event = 0.0
-        self.stats = {'request': 0, 'hata': 0, 'sure': 0.0, 'dropped': 0}
+        self.stats = {'request': 0, 'error': 0, 'sure': 0.0, 'dropped': 0}
         self.muted = []             # süzgeçte atılan model satırları
         self.conversations = {}             # güçlü kip: (bot, oyuncu) -> {b, ad, bas, son, n}: bitince anıya özetlenir
         self.request_times = []           # son bir saatteki bütün isteklerin anları (llm_saatlik: sohbet, anı, karar hepsi)
@@ -611,8 +611,8 @@ class Brain:
         once = self.usage_trace[0][1] if self.usage_trace else {}
         hour = {k: now.get(k, 0) - once.get(k, 0) for k in ('request', 'input', 'cache', 'output')}
         duration = (time.time() - self.usage_trace[0][0]) if self.usage_trace else 0
-        return {'saat': hour, 'duration_min': round(duration / 60), 'toplam': now, 'cap': self.y.setting('llm_hourly', 200) or 0,
-                'at_limit': self.at_limit(), 'provider': getattr(self.server, 'name', ''), 'hazir': self.ready}
+        return {'hour': hour, 'duration_min': round(duration / 60), 'total': now, 'cap': self.y.setting('llm_hourly', 200) or 0,
+                'at_limit': self.at_limit(), 'provider': getattr(self.server, 'name', ''), 'ready': self.ready}
 
     def add(self, priority, job):
         if self.at_limit():
@@ -647,7 +647,7 @@ class Brain:
             try:
                 job['fn'](job)
             except Exception:
-                self.stats['hata'] += 1
+                self.stats['error'] += 1
                 self.log('   botlar: dil modeli işi başarısız:\n' + traceback.format_exc(limit=3))
                 backup = job.get('backup')
                 if backup:
@@ -675,33 +675,33 @@ class Brain:
             return False
         if g[0] == 'whisper':
             b, msg, who = g[1], g[2], g[3]
-            return self.add(WHISPER, {'t': now, 'fn': self._whisper, 'bot': b, 'msg': msg, 'kim': who,
+            return self.add(WHISPER, {'t': now, 'fn': self._whisper, 'bot': b, 'msg': msg, 'who': who,
                                        'backup': lambda: y.template_whisper(b, msg, who, y.now)})
         route, msg, who = g[1], g[2], g[3]
         from .chat_engine import channel_name
         channel = channel_name(route)
         if channel is None or str(who.get('userId', '')).lower() in y.name_index:
             return True
-        return self.add(ROOM, {'t': now, 'fn': self._room, 'kanal': channel, 'msg': msg, 'kim': who, 'route': route,
+        return self.add(ROOM, {'t': now, 'fn': self._room, 'channel': channel, 'msg': msg, 'who': who, 'route': route,
                                'backup': lambda: y.template_room(route, msg, who, y.now)})
 
     def event(self, y, b, o, now):
         """Botun önemli anı: bazen modele (kısa tepki), değilse kalıplara (False)."""
-        if not self.ready or not y.setting('llm_chat', True) or o['tur'] not in ('olum', 'i_killed_player', 'yeni_gemi', 'seviye',
-                                                                                  'witness', 'patron_oldurdum'):
+        if not self.ready or not y.setting('llm_chat', True) or o['type'] not in ('death', 'i_killed_player', 'new_ship', 'level',
+                                                                                  'witness', 'i_killed_boss'):
             return False
-        human = o.get('killer') or o.get('ad')
-        if o['tur'] in ('olum', 'i_killed_player') and (not human or str(human).lower() in y.name_index):
+        human = o.get('killer') or o.get('name')
+        if o['type'] in ('death', 'i_killed_player') and (not human or str(human).lower() in y.name_index):
             return False
-        if o['tur'] == 'witness':
+        if o['type'] == 'witness':
             human = None                                    # tanıklık: firma sohbetine, fısıltı değil
         chance = 0.35 + 0.5 * b.o('talkativeness')
-        if o['tur'] in ('seviye', 'yeni_gemi'):
+        if o['type'] in ('level', 'new_ship'):
             chance *= 0.3                                      # gerçek oyuncu her seviyeyi ilan etmez
         if b.r.random() > chance or now - self.last_event < 20:
             return True                                     # bu sefer susar (olay tepkileri sohbeti doldurmasın)
         self.last_event = now
-        return self.add(EVENT, {'t': now, 'fn': self._event, 'bot': b, 'olay': o})
+        return self.add(EVENT, {'t': now, 'fn': self._event, 'bot': b, 'incident': o})
 
     def mailer(self, y, b, r, k):
         """Bota gelen postaya model yanıtı (toplum.posta_yanitla) -> kuyruğa girdi mi (girmediyse kalıp)."""
@@ -713,12 +713,12 @@ class Brain:
         """Botun oyuncuya kendiliğinden fısıltısı (sohbet_motoru.ozel_baslat) -> kuyruğa girdi mi."""
         if not y.setting('llm_chat', True):
             return False
-        return self.add(EVENT, {'t': y.now, 'fn': self._private, 'bot': b, 'ad': name, 'amac': purpose})
+        return self.add(EVENT, {'t': y.now, 'fn': self._private, 'bot': b, 'name': name, 'purpose': purpose})
 
     def group_banter_line(self, y, b, name):
         if not y.setting('llm_chat', True):
             return False
-        return self.add(EVENT, {'t': y.now, 'fn': self._group_talk, 'bot': b, 'ad': name})
+        return self.add(EVENT, {'t': y.now, 'fn': self._group_talk, 'bot': b, 'name': name})
 
     def tick(self, now):
         """Yöneticinin tick'inden: botlar arası sohbet ve stratejik kararlar (seyrek, kuyruk boşken)."""
@@ -749,10 +749,10 @@ class Brain:
 
     # ------------------------------------------------------------ işler
     def _whisper(self, job):
-        y, b, msg, who = self.y, job['bot'], job['msg'], job['kim']
+        y, b, msg, who = self.y, job['bot'], job['msg'], job['who']
         name = who.get('userId', '')
         fac = int(who.get('factionId') or 0) or b.firma
-        schema = {'type': 'object', 'properties': {'metin': {'type': 'string', 'maxLength': 90}}, 'required': ['metin']}
+        schema = {'type': 'object', 'properties': {'text': {'type': 'string', 'maxLength': 90}}, 'required': ['text']}
         rel = b.memory.relation(name)
         # Rica (grup, yardım) kararını kişiliğe dayalı karar motoru verir, eylemi o uygular; model yalnız kararı botun ağzından
         # söyler. Küçük model "olur" deyip daveti unutuyordu (canlı 2026-10-29): söz ve eylem böyle hep tutarlı.
@@ -763,13 +763,13 @@ class Brain:
         kind = 'request' if bid else message_kind(msg)
         decision = ''
         with y.lock:
-            if intent in IX.INTENTS and intent != 'yardim':
+            if intent in IX.INTENTS and intent != 'assist':
                 dec = IX.decision(y, b, intent, name, who, game_map, msg, y.now)
                 if dec is not None:
                     decision = dec['not']
                     job['decision'] = dec
-            elif intent == 'yardim':
-                incoming = y.help_call(name, who, game_map, [b], 'firma', y.now, silent=True)
+            elif intent == 'assist':
+                incoming = y.help_call(name, who, game_map, [b], 'company', y.now, silent=True)
                 decision = ('You decided to HELP: you are flying to him now. Say it in your own words.' if incoming else
                          'You decided NOT to help (too far, too weak or busy). Say it in your own words.')
         k = ('%sYou are %s. %s Your style: %s.\nYou feel %s about %s (a %s player).\n\nEarlier private messages (context only, '
@@ -782,7 +782,7 @@ class Brain:
         r = self.ask(k, schema, temperature=0.6)
         with y.lock:
             b.memory.event(name, 'sohbet', y.now)
-            text = self._text(b, r.get('metin'), echo=msg)
+            text = self._text(b, r.get('text'), echo=msg)
             if text:
                 y.speak(b, 'whisper', text, recipient=name, now=y.now, priority=True)
             self._spoke(b, name, y.now)
@@ -790,7 +790,7 @@ class Brain:
                 IX.apply(y, b, job['decision'], delay=SPC.typing_time(text or 'ok', b) + b.r.uniform(1, 3))
 
     def _room(self, job):
-        y, channel, msg, who = self.y, job['kanal'], job['msg'], job['kim']
+        y, channel, msg, who = self.y, job['channel'], job['msg'], job['who']
         name = who.get('userId', '')
         fac = int(who.get('factionId') or 0)
         intent, game_map = SPC.intent(msg)
@@ -804,26 +804,26 @@ class Brain:
             extra = sorted([b for b in listener if b not in addressed], key=lambda b: -b.o('talkativeness') * b.r.random())[:5 - len(addressed)]
             candidate = (addressed + extra)[:5]
             # yardım çağrısı: kimin gideceğini karar motoru seçer (kişilik, güç, yol) ve gönderir; model gidenlere söyletir
-            responders = y.help_call(name, who, game_map, listener, channel, y.now, silent=True) if intent == 'yardim' else []
+            responders = y.help_call(name, who, game_map, listener, channel, y.now, silent=True) if intent == 'assist' else []
             candidate = (responders + [b for b in candidate if b not in responders])[:5]
             decisions = []                                # istek (grup, klan, arkadaş, gel): kim ne karar verdi
             if kind == 'request':
                 if addressed:
                     decisions = [(b, IX.decision(y, b, intent, name, who, game_map, msg, y.now)) for b in addressed[:1]]
-                elif intent in ('grup', 'klan', 'gorev', 'duello', 'ozel', 'kapi'):
+                elif intent in ('group', 'clan', 'quest', 'duel', 'special', 'gate'):
                     decisions = [(b, b.__dict__.pop('_request_decision', None) or IX.decision(y, b, intent, name, who, game_map, msg, y.now))
                                 for b in y.open_call(intent, name, who, game_map, msg, listener, y.now)]
-                elif intent == 'takip' and channel == 'grup':      # grup sohbetinde "follow me / come 2-4": grubun botları
+                elif intent == 'followup' and channel == 'group':      # grup sohbetinde "follow me / come 2-4": grubun botları
                     decisions = [(b, IX.decision(y, b, intent, name, who, game_map, msg, y.now)) for b in listener[:3]]
                 decisions = [(b, dec) for b, dec in decisions if dec is not None]
-                if not decisions and intent == 'duello':
-                    kind = 'meydan'                       # kimse kabul etmedi: laf atışması (TEPKI meydan)
+                if not decisions and intent == 'duel':
+                    kind = 'challenge'                       # kimse kabul etmedi: laf atışması (TEPKI meydan)
                 elif not decisions:
                     return                               # kimse üstlenmedi: gerçek sohbetteki gibi sessizlik
                 for b, dec in decisions:
                     IX.apply(y, b, dec, delay=b.r.uniform(6, 12))     # yanıtı yazdıktan sonra (model ~2 sn + yazma)
                 candidate = [b for b, _ in decisions] or candidate
-            m = COMPANY_NAME.search(msg) if kind == 'yoklama' else None
+            m = COMPANY_NAME.search(msg) if kind == 'roll_call' else None
             if m:                                        # "any eic online?": yalnız o firmanın pilotları "buradayım" der
                 f = FIRMA_NO[m.group(1).lower()]
                 candidate = [b for b in listener if b.firma == f][:3]
@@ -838,17 +838,17 @@ class Brain:
         # kim yanıtlayabilir: hitap edilen (yalnız o), yardıma gidenler, yoksa en çok iki pilot
         responder = responders or (candidate if decisions else None) or addressed or candidate
         max_count = min(3, len(responders)) if responders else len(decisions) if decisions else len(addressed) if addressed else \
-            1 if kind in ('veda', 'tesekkur', 'donus', 'search') else 2
-        min_value = 1 if (responders or decisions or addressed or kind in ('question_game', 'question_personal', 'donus', 'selam', 'yoklama')) else 0
+            1 if kind in ('farewell', 'thanks', 'welcome_back', 'search') else 2
+        min_value = 1 if (responders or decisions or addressed or kind in ('question_game', 'question_personal', 'welcome_back', 'greeting', 'roll_call')) else 0
         schema = {'type': 'object', 'properties': {'replies': {'type': 'array', 'minItems': min_value, 'maxItems': max_count, 'items': {
             'type': 'object', 'properties': {'bot': {'type': 'string', 'enum': [b.name for b in responder]},
-                                             'metin': {'type': 'string', 'maxLength': 90}},
-            'required': ['bot', 'metin']}}}, 'required': ['replies']}
+                                             'text': {'type': 'string', 'maxLength': 90}},
+            'required': ['bot', 'text']}}}, 'required': ['replies']}
         if responders:
-            m = H.name(responders[0].k['intent']['plan']['harita']) if (responders[0].k.get('intent') or {}).get('plan') else 'there'
+            m = H.name(responders[0].k['intent']['plan']['map']) if (responders[0].k.get('intent') or {}).get('plan') else 'there'
             rule = ('These pilots decided to fly to %s to fight the enemy players (not aliens) attacking %s; each says in his own '
                      'words and his own chat language that he is coming: %s.') % (m, name, ', '.join(b.name for b in responders))
-        elif intent == 'yardim':
+        elif intent == 'assist':
             rule = 'Nobody can go help this time; at most one pilot answers (too far or busy).'
         elif decisions:
             rule = 'It is a request. Each of these pilots answers it with his decision, in his own words:\n%s' % '\n'.join(
@@ -861,22 +861,22 @@ class Brain:
              'topics):\n%s\n\nNEWEST message, from %s (a %s player): "%s"\n\n%s Reply ONLY to this newest message. Each answer is one '
              'short line in that pilot\'s own style. Never repeat or echo what someone already said.') % (
             (game_info(fac or candidate[0].firma) + '\n\n') if kind == 'question_game' else '', CHANNEL.get(channel, channel),
-            ' (they are all in the same group as %s: his teammates right now)' % name if channel == 'grup' else '',
+            ' (they are all in the same group as %s: his teammates right now)' % name if channel == 'group' else '',
             '\n'.join('- %s Style: %s. %s%s' % (chat_persona(b, y), style(b), side(b, fac, name),
                                               MEM.text(b, name, y.now) if STRONG else '') for b in candidate), history, name,
             FIRMA.get(fac, '?'), msg, rule + company_note(msg, fac, candidate))
-        r = self.ask(k, schema, max_count=320, temperature=0.65 if kind.startswith('soru') or addressed else 0.85)
+        r = self.ask(k, schema, max_count=320, temperature=0.65 if kind.startswith('question') or addressed else 0.85)
         with y.lock:
             order = 0
             for x in (r.get('replies') or [])[:3]:
                 b = y.name_index.get(str(x.get('bot', '')).lower())
-                text = x.get('metin')
+                text = x.get('text')
                 if kind == 'question_game' and not WHERE_QUESTION.search(msg):
                     text = MAP_SUFFIX.sub('', str(text or ''))   # "is goliath worth it" -> "...worth it" (küçük model harita ekliyordu)
                 text = self._text(b, text, echo=msg) if b is not None else ''
                 if b is None or not b.online or not text:
                     continue
-                b.memory.event(name, 'praise' if kind == 'kutlama' else 'hakaret' if kind == 'taunt' and addressed else 'sohbet', y.now)
+                b.memory.event(name, 'praise' if kind == 'congrats' else 'insult' if kind == 'taunt' and addressed else 'sohbet', y.now)
                 is_whisper = any(kb is b and dec.get('whisper') for kb, dec in decisions)
                 y.speak(b, 'whisper' if is_whisper else channel, text, recipient=name if is_whisper else None, now=y.now + order * b.r.uniform(2, 6),
                         priority=True)
@@ -890,17 +890,17 @@ class Brain:
                 y.speak(b, channel, b.r.choice(backup), now=y.now, priority=True)
 
     def _event(self, job):
-        y, b, o = self.y, job['bot'], job['olay']
-        schema = {'type': 'object', 'properties': {'metin': {'type': 'string', 'maxLength': 90},
-                                                 'kanal': {'type': 'string', 'enum': ['whisper', 'firma', 'global', 'none']}},
-                'required': ['metin', 'kanal']}
-        who = o.get('killer') or o.get('ad') or ''
+        y, b, o = self.y, job['bot'], job['incident']
+        schema = {'type': 'object', 'properties': {'text': {'type': 'string', 'maxLength': 90},
+                                                 'channel': {'type': 'string', 'enum': ['whisper', 'company', 'global', 'none']}},
+                'required': ['text', 'channel']}
+        who = o.get('killer') or o.get('name') or ''
         k = ('You are %s.\n%s\nThis just happened: you %s.\nDo you type something about it? kanal: whisper = private message to %s, '
              'firma = company chat, global = global chat, none = say nothing (often the most realistic). metin: one short line.') % (
             b.name, persona(b, y), event_text(o), who or '-')
         r = self.ask(k, schema, max_count=80)
-        channel = r.get('kanal')
-        text = self._text(b, r.get('metin'))
+        channel = r.get('channel')
+        text = self._text(b, r.get('text'))
         if channel == 'none' or not text or (channel == 'whisper' and not who):
             return
         with y.lock:
@@ -909,8 +909,8 @@ class Brain:
     def _mail(self, job):
         y, b, r, dec = self.y, job['bot'], job['mailer'], job.get('decision')
         name = r['sender']
-        schema = {'type': 'object', 'properties': {'metin': {'type': 'string', 'maxLength': 240}}, 'required': ['metin']}
-        contents = '%s %s' % (r.get('konu', ''), r.get('metin', ''))
+        schema = {'type': 'object', 'properties': {'text': {'type': 'string', 'maxLength': 240}}, 'required': ['text']}
+        contents = '%s %s' % (r.get('subject', ''), r.get('text', ''))
         game = message_kind(contents) == 'question_game' or (is_question(contents) and GAME.search(contents))
         fac = int(TP_firma(name) or b.firma)
         # (boolean "yanıtla" alanı kaldırıldı: model reddi "yanıtlama" sanıp iyi metni de atıyordu)
@@ -919,11 +919,11 @@ class Brain:
              'gamer writing a quick mail, no greeting formulas like "Dear", no signature. Real players answer personal mails; only '
              'for spam or nonsense leave metin empty.') % (
             (game_info(fac) + '\n\n') if game else '', b.name, chat_persona(b, y), style(b),
-            'friendly' if b.memory.relation(name) > 0.2 else 'neutral', name + shared_history(b, name), name, str(r.get('konu', ''))[:60],
-            str(r.get('metin', ''))[:600],
+            'friendly' if b.memory.relation(name) > 0.2 else 'neutral', name + shared_history(b, name), name, str(r.get('subject', ''))[:60],
+            str(r.get('text', ''))[:600],
             (dec['not'] + ' ') if dec else '')
         x = self.ask(k, schema, max_count=160, temperature=0.7)
-        text = ' '.join(str(x.get('metin') or '').split())
+        text = ' '.join(str(x.get('text') or '').split())
         if len(text.split()) < 4 or (not MULTILINGUAL and _FOREIGN.search(text)) or harmful(text):
             if not dec:
                 return
@@ -932,37 +932,37 @@ class Brain:
             if not text:
                 return
         with y.lock:
-            TL.call(y, b, 'send_mail', {'ad': name, 'konu': 'Re: ' + str(r.get('konu', ''))[:46], 'metin': text})
+            TL.call(y, b, 'send_mail', {'name': name, 'subject': 'Re: ' + str(r.get('subject', ''))[:46], 'text': text})
 
     def _private(self, job):
-        y, b, name, purpose = self.y, job['bot'], job['ad'], job['amac']
-        ne = {'ozel_selam': 'he just came online: greet him (a short wb / hey)',
-              'ozel_grup': 'you want to group up with him: ask him (you are on %s doing %s)' % (
+        y, b, name, purpose = self.y, job['bot'], job['name'], job['purpose']
+        ne = {'private_greeting': 'he just came online: greet him (a short wb / hey)',
+              'private_group': 'you want to group up with him: ask him (you are on %s doing %s)' % (
                   H.name(b.game_map), GOAL_NAME.get(b.target.name, 'farming aliens') if b.target is not None else 'farming aliens'),
-              'ozel_sohbet': 'you just feel like chatting: ask him something casual (how it goes, his gear, his plans)'}[purpose]
-        schema = {'type': 'object', 'properties': {'metin': {'type': 'string', 'maxLength': 80}}, 'required': ['metin']}
+              'private_chat': 'you just feel like chatting: ask him something casual (how it goes, his gear, his plans)'}[purpose]
+        schema = {'type': 'object', 'properties': {'text': {'type': 'string', 'maxLength': 80}}, 'required': ['text']}
         k = ('You are %s. %s Your style: %s.\nYou are friends with %s.%s\n\nEarlier private messages:\n%s\n\nYou start a private '
              'chat with him: %s. One short line (metin), like a real friend in a game, not a status report. %s') % (
             b.name, chat_persona(b, y), style(b), name, shared_history(b, name), chat_history(y, names=[b.name, name], n=6, sec=3600), ne,
             short_info(b.firma))
         r = self.ask(k, schema, max_count=60, temperature=0.85)
         with y.lock:
-            text = r.get('metin') if not foreign_map(b, r.get('metin')) else ''
-            text = self._text(b, text) or SPC.template(b, purpose, ad=name, harita=H.name(b.game_map))
+            text = r.get('text') if not foreign_map(b, r.get('text')) else ''
+            text = self._text(b, text) or SPC.template(b, purpose, name=name, map=H.name(b.game_map))
             y.speak(b, 'whisper', text, recipient=name, now=y.now)
 
     def _group_talk(self, job):
-        y, b, name = self.y, job['bot'], job['ad']
-        schema = {'type': 'object', 'properties': {'metin': {'type': 'string', 'maxLength': 80}}, 'required': ['metin']}
+        y, b, name = self.y, job['bot'], job['name']
+        schema = {'type': 'object', 'properties': {'text': {'type': 'string', 'maxLength': 80}}, 'required': ['text']}
         k = ('You are %s. %s Your style: %s.\nYou are in a group with %s, playing together right now.%s\n\nRecent group chat:\n%s\n\n'
              'Write one short line in the group chat to him, like a real teammate: where to go next, a quick comment on the '
              'farming or a boss, a joke, a short question. Not a status report, nothing already said. %s') % (
-            b.name, chat_persona(b, y), style(b), name, shared_history(b, name), chat_history(y, 'grup', n=6, sec=900), short_info(b.firma))
+            b.name, chat_persona(b, y), style(b), name, shared_history(b, name), chat_history(y, 'group', n=6, sec=900), short_info(b.firma))
         r = self.ask(k, schema, max_count=60, temperature=0.9)
         with y.lock:
-            text = self._text(b, r.get('metin')) if not foreign_map(b, r.get('metin')) else ''
+            text = self._text(b, r.get('text')) if not foreign_map(b, r.get('text')) else ''
             if text:
-                y.speak(b, 'grup', text, now=y.now)
+                y.speak(b, 'group', text, now=y.now)
 
     def _bot_chat(self, job):
         from .chat_engine import channel_path
@@ -972,7 +972,7 @@ class Brain:
             if len(is_open) < 2:
                 return
             r0 = is_open[0].r
-            channel = 'global' if r0.random() < 0.3 and len({b.firma for b in is_open}) > 1 else 'firma'
+            channel = 'global' if r0.random() < 0.3 and len({b.firma for b in is_open}) > 1 else 'company'
             if channel == 'global':                         # global: farklı firmalardan, firmalar arası atışma olağan
                 companies = r0.sample(sorted({b.firma for b in is_open}), 2)
                 group = [max((b for b in is_open if b.firma == f), key=lambda b: b.o('talkativeness') * b.r.random()) for f in companies]
@@ -986,16 +986,16 @@ class Brain:
             group[0].__dict__.pop('_gossip', None)
             topic = pick_topic(group[0], y)
         schema = {'type': 'object', 'properties': {'lines': {'type': 'array', 'minItems': 2, 'maxItems': 5, 'items': {
-            'type': 'object', 'properties': {'bot': {'type': 'string', 'enum': [b.name for b in group]}, 'metin': {'type': 'string', 'maxLength': 90}},
-            'required': ['bot', 'metin']}}}, 'required': ['lines']}
+            'type': 'object', 'properties': {'bot': {'type': 'string', 'enum': [b.name for b in group]}, 'text': {'type': 'string', 'maxLength': 90}},
+            'required': ['bot', 'text']}}}, 'required': ['lines']}
         k = ('%s\n\nThese pilots are in the %s chat%s:\n%s\n\nLast lines in the chat (do NOT continue or repeat these, '
              'they are old):\n%s\n\nWrite a NEW short natural exchange between them (2-5 lines, a few words each). %s starts it: %s. '
              'The others react to what was actually said (answer, joke, disagree, ask back) - a real back-and-forth in their own '
              'styles, not separate statements. Never status reports.') % (
-            short_info(group[0].firma) if channel == 'firma' else short_info(0).split(': a ')[0] + ': MMO maps are 1-x, EIC 2-x, VRU '
+            short_info(group[0].firma) if channel == 'company' else short_info(0).split(': a ')[0] + ': MMO maps are 1-x, EIC 2-x, VRU '
                                                                    '3-x, 4-x are shared PvP maps. Ships: ' + ', '.join(SHIPS) + '.',
-            'same company' if channel == 'firma' else 'global',
-            '' if channel == 'firma' else ' (players of rival companies: light banter between companies is normal, everyone stays '
+            'same company' if channel == 'company' else 'global',
+            '' if channel == 'company' else ' (players of rival companies: light banter between companies is normal, everyone stays '
                                         'loyal to his own)',
             '\n'.join('- %s Style: %s.' % (chat_persona(b, y), style(b)) for b in group),
             chat_history(y, channel, n=4, sec=120, route=channel_path(group[0], channel)), group[0].name, topic)
@@ -1004,8 +1004,8 @@ class Brain:
             t = y.now
             for x in r.get('lines') or []:
                 b = y.name_index.get(str(x.get('bot', '')).lower())
-                text = self._text(b, x.get('metin')) if b is not None else ''
-                if b is None or not b.online or not text or (channel == 'firma' and foreign_map(b, text)):
+                text = self._text(b, x.get('text')) if b is not None else ''
+                if b is None or not b.online or not text or (channel == 'company' and foreign_map(b, text)):
                     continue
                 t += b.r.uniform(4, 14)
                 y.speak(b, channel, text, now=t)
@@ -1030,8 +1030,8 @@ class Brain:
                 lines.append('- %s\n  Options with gut-feeling scores: %s\n  Good farming maps: %s' % (
                     persona(b, y), ', '.join('%s %.2f' % x for x in points), maps or '-'))
         schema = {'type': 'object', 'properties': {'decisions': {'type': 'array', 'items': {'type': 'object', 'properties': {
-            'bot': {'type': 'string', 'enum': [b.name for b in bots]}, 'hedef': {'type': 'string', 'enum': list(DECISION_GOALS)},
-            'harita': {'type': 'string', 'maxLength': 8}}, 'required': ['bot', 'hedef', 'harita']}}}, 'required': ['decisions']}
+            'bot': {'type': 'string', 'enum': [b.name for b in bots]}, 'target': {'type': 'string', 'enum': list(DECISION_GOALS)},
+            'map': {'type': 'string', 'maxLength': 8}}, 'required': ['bot', 'target', 'map']}}}, 'required': ['decisions']}
         k = ('For each pilot choose what he does in the next 10-20 minutes (kasilma = farm aliens, gorev = quests, pvp = hunt enemy '
              'players, alisveris = buy upgrades, dinlenme = take a break at base), realistically for his personality, mood and recent '
              'events (the scores are gut feelings, not orders). For kasilma put one of his listed maps in harita, otherwise leave it '
@@ -1042,10 +1042,10 @@ class Brain:
                 b = y.name_index.get(str(x.get('bot', '')).lower())
                 if b is None or not b.online:
                     continue
-                tool = {'grinding': 'hunt_npcs', 'gorev': 'do_quest', 'pvp': 'hunt_pvp', 'shopping': 'go_shopping',
-                        'resting': 'rest'}.get(x.get('hedef'))
+                tool = {'grinding': 'hunt_npcs', 'quest': 'do_quest', 'pvp': 'hunt_pvp', 'shopping': 'go_shopping',
+                        'resting': 'rest'}.get(x.get('target'))
                 if tool:
-                    TL.call(y, b, tool, {'harita': x.get('harita')} if tool == 'hunt_npcs' and x.get('harita') else {})
+                    TL.call(y, b, tool, {'map': x.get('map')} if tool == 'hunt_npcs' and x.get('map') else {})
 
     # ------------------------------------------------------------ ajan (güçlü kip; ajan.py)
     def _nearby(self, y, now):
@@ -1063,7 +1063,7 @@ class Brain:
         speakers = {a for a, _ in self.conversations}
         self._near = {id(b) for b in y.bots if b.body is not None or b.game_map in maps or b.name.lower() in speakers
                        or any(abs(b.memory.relation(a, now)) >= 0.15 for a in names)
-                       or any(a['kim'].lower() in names for a in b.k.get('memories') or ())}
+                       or any(a['who'].lower() in names for a in b.k.get('memories') or ())}
         self._nearby_time = now
         return self._near
 
@@ -1115,7 +1115,7 @@ class Brain:
         """Bot bir oyuncuyla doğrudan konuştu: konuşma 150 sn susunca anıya özetlenir (_ani_ozet)."""
         if not STRONG or not name or str(name).lower() in self.y.name_index:
             return
-        e = self.conversations.setdefault((b.name.lower(), str(name).lower()), {'b': b, 'ad': str(name), 'start': now, 'n': 0})
+        e = self.conversations.setdefault((b.name.lower(), str(name).lower()), {'b': b, 'name': str(name), 'start': now, 'n': 0})
         e['last'] = now
         e['n'] += 1
 
@@ -1123,18 +1123,18 @@ class Brain:
         for key, e in list(self.conversations.items()):
             if now - e['last'] >= 150:
                 del self.conversations[key]
-                self.add(EVENT, {'t': now, 'fn': self._memory_summary, 'bot': e['b'], 'ad': e['ad'], 'start': e['start']})
+                self.add(EVENT, {'t': now, 'fn': self._memory_summary, 'bot': e['b'], 'name': e['name'], 'start': e['start']})
         if now - self.last_follow < 20:
             return
         self.last_follow = now
         is_open = {k.name.lower() for k in y.online_humans()}
         for b, a in MEM.due_followups(y, now, is_open)[:2]:
             if self.add(EVENT, {'t': now, 'fn': self._follow, 'bot': b, 'memory_log': a}):
-                a['takip']['finished'] = True                   # bir kez (iş kuyruğa girdi)
+                a['followup']['finished'] = True                   # bir kez (iş kuyruğa girdi)
 
     def _memory_summary(self, job):
         """Biten konuşma -> botun anısı (tek cümle), kişi hakkındaki izlenim ve varsa sonucu (takip)."""
-        y, b, name = self.y, job['bot'], job['ad']
+        y, b, name = self.y, job['bot'], job['name']
         lower = {b.name.lower(), name.lower()}
         with y.lock:
             lines = [x for x in y.history if x[0] >= job['start'] - 120 and str(x[1]).lower() in lower and (
@@ -1148,11 +1148,11 @@ class Brain:
         schema = {'type': 'object', 'properties': {
             'save': {'type': 'boolean'}, 'summary': {'type': 'string', 'maxLength': 200},
             'emotion': {'type': 'number'}, 'importance': {'type': 'integer', 'enum': [1, 2, 3]}, 'impression': {'type': 'string', 'maxLength': 240},
-            'takip': {'type': 'object', 'properties': {
-                'amac': {'type': 'string', 'enum': ['none'] + list(MEM.PURPOSES)}, 'dakika': {'type': 'integer'},
-                'tool': {'type': 'string', 'enum': list(MEM.FOLLOWUP_TOOLS)}, 'harita': {'type': 'string', 'maxLength': 8}},
-                'required': ['amac', 'dakika', 'tool', 'harita']}},
-            'required': ['save', 'summary', 'emotion', 'importance', 'impression', 'takip']}
+            'followup': {'type': 'object', 'properties': {
+                'purpose': {'type': 'string', 'enum': ['none'] + list(MEM.PURPOSES)}, 'minutes': {'type': 'integer'},
+                'tool': {'type': 'string', 'enum': list(MEM.FOLLOWUP_TOOLS)}, 'map': {'type': 'string', 'maxLength': 8}},
+                'required': ['purpose', 'minutes', 'tool', 'map']}},
+            'required': ['save', 'summary', 'emotion', 'importance', 'impression', 'followup']}
         k = ('You are %s.\n%s\nWhat you already knew about %s:%s\n\nThis conversation with %s just ended:\n%s\n\nWrite a private '
              'note for your own memory, always in English. save: false if it was only small talk with nothing worth remembering. '
              'summary: ONE short concrete sentence, first person (what happened, what was said or agreed, places, times), like "%s '
@@ -1171,10 +1171,10 @@ class Brain:
             summary = ' '.join(str(r.get('summary') or '').split())
             if not r.get('save') or not summary:
                 return
-            t = r.get('takip') or {}
+            t = r.get('followup') or {}
             try:
                 emotion, importance = float(r.get('emotion') or 0), int(r.get('importance') or 1)
-                tk = MEM.set_followup(t.get('amac'), y.now, int(t.get('dakika') or 10), t.get('tool'), t.get('harita'))
+                tk = MEM.set_followup(t.get('purpose'), y.now, int(t.get('minutes') or 10), t.get('tool'), t.get('map'))
             except (TypeError, ValueError):
                 emotion, importance, tk = 0.0, 1, None
             MEM.add(b, name, summary, 'speech', emotion, importance, y.now, followup=tk, merge=False)
@@ -1182,26 +1182,26 @@ class Brain:
     def _follow(self, job):
         """Anının sonucu: bot oyuncuya konuyu açan bir fısıltı yazar, gerekirse eyleme geçer (düello, davet, takip, yardım)."""
         y, b, a = self.y, job['bot'], job['memory_log']
-        t, name = a['takip'], a['kim']
-        ne = {'soz': 'follow up on what you two agreed, now it is time', 'intikam': 'you are coming for revenge: tell him so (short '
-              'trash talk, in character, no real hate)', 'tesekkur': 'thank him for it, casually', 'rekabet': 'poke him about your '
-              'rivalry', 'merak': 'ask him what you wanted to ask'}[t['amac']]
-        game_map = t.get('harita') or ''
-        if t['tool'] in ('duello', 'go_help', 'follow') and not game_map:
+        t, name = a['followup'], a['who']
+        ne = {'promise': 'follow up on what you two agreed, now it is time', 'intikam': 'you are coming for revenge: tell him so (short '
+              'trash talk, in character, no real hate)', 'thanks': 'thank him for it, casually', 'rekabet': 'poke him about your '
+              'rivalry', 'merak': 'ask him what you wanted to ask'}[t['purpose']]
+        game_map = t.get('map') or ''
+        if t['tool'] in ('duel', 'go_help', 'follow') and not game_map:
             import community as TP
             person = TP.find(name=name)
             game_map = H.name(int(person.profile.d['position'].get('mapId', 0))) if person is not None else ''
         tool = t['tool']
-        if tool in ('duello', 'go_help', 'follow'):     # ulaşamayacağı yere "geliyorum" demesin (canlı: MMO botu EIC'nin 2-1'ine)
+        if tool in ('duel', 'go_help', 'follow'):     # ulaşamayacağı yere "geliyorum" demesin (canlı: MMO botu EIC'nin 2-1'ine)
             m = TL._game_map(game_map) if game_map else None
             if m is None or not K.can_enter(m, b.firma, b.level) or not K.route(b.game_map, m, b.firma, b.level):
                 tool = 'none'
                 ne += ('. He is on %s right now, where you cannot get to him: say you will deal with it another time (or ask him '
                        'to come somewhere you both can go)' % (game_map or 'an unknown map'))
-        action = {'duello': 'You are flying to %s to fight him right now.' % game_map, 'group_invite': 'You are inviting him to your '
+        action = {'duel': 'You are flying to %s to fight him right now.' % game_map, 'group_invite': 'You are inviting him to your '
                  'group right now.', 'follow': 'You are flying to his map %s right now.' % game_map, 'go_help': 'You are '
                  'coming to help him on %s right now.' % game_map, 'none': ''}.get(tool, '')
-        schema = {'type': 'object', 'properties': {'metin': {'type': 'string', 'maxLength': 90}}, 'required': ['metin']}
+        schema = {'type': 'object', 'properties': {'text': {'type': 'string', 'maxLength': 90}}, 'required': ['text']}
         with y.lock:
             k = ('You are %s. %s Your style: %s.\nAbout %s:%s\n\nEarlier private messages:\n%s\n\nYou start a private chat with %s '
                  'because of this memory: "%s" (%s). Purpose: %s. %s One short line (metin), like a real player who remembers him; '
@@ -1210,13 +1210,13 @@ class Brain:
                 name, a['summary'], MEM.time_ago(y.now - a['t']), ne, action)
         r = self.ask(k, schema, max_count=80, temperature=0.8)
         with y.lock:
-            text = self._text(b, r.get('metin'))
+            text = self._text(b, r.get('text'))
             if text:
                 y.speak(b, 'whisper', text, recipient=name, now=y.now)
             if tool != 'none':
-                arg = {'ad': name}
-                if tool in ('duello', 'go_help') and game_map:
-                    arg['harita'] = game_map
+                arg = {'name': name}
+                if tool in ('duel', 'go_help') and game_map:
+                    arg['map'] = game_map
                 y.actions.append((y.now + SPC.typing_time(text or 'ok', b) + b.r.uniform(1, 3), b, (tool, arg)))
             t['result'] = text or ''
 
@@ -1270,5 +1270,5 @@ class Brain:
         text = re.sub(r'\bmmo+t?\b', 'mmo', re.sub(r'\bvru[d]\b', 'vru', re.sub(r'\biec\b', 'eic', text, flags=re.I), flags=re.I),
                        flags=re.I)                           # modelin firma adlarını bozması (mmoo, iec)
         u = dict(b.k['personality'].get('style') or {})
-        u.update(emoji=0.0, punctuation=0.0, uppercase=0.0, hata=u.get('hata', 0.05) * 0.4)
+        u.update(emoji=0.0, punctuation=0.0, uppercase=0.0, error=u.get('error', 0.05) * 0.4)
         return SPC.apply_style(text, u, b.r, SPC.lang(b) if MULTILINGUAL else 'en')

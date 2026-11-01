@@ -92,9 +92,9 @@ class UrgentQuests:
     def has_quest(self, now=None):
         """Bekleyen ya da gösterilmiş, süresi dolmamış görev."""
         q = self.st
-        if not q.get('gorev') or q.get('durum') not in (NOT_STARTED, RUNNING):
+        if not q.get('quest') or q.get('state') not in (NOT_STARTED, RUNNING):
             return False
-        return not q.get('shown', True) or (time.time() if now is None else now) < q.get('bitis', 0)
+        return not q.get('shown', True) or (time.time() if now is None else now) < q.get('end_time', 0)
 
     def menu_visible(self, now=None):
         """Öğenin görünürlüğü (profil.WINDOW_HOOKS): etkinlik sürerken ve görev varken."""
@@ -121,7 +121,7 @@ class UrgentQuests:
         if fresh:
             with self.p.lock:
                 q['shown'] = True
-                q['bitis'] = now + D.get('sure_sn', 1200)
+                q['end_time'] = now + D.get('sure_sn', 1200)
                 self.p.dirty = True
             self.log('   Urgent Mission: %s' % q.get('targets'))
         return self.sync(now) + [self.init_cmd(now)] + ([legacy('0|A|STM|diminishing_quest_available')] if fresh else [])
@@ -134,30 +134,30 @@ class UrgentQuests:
         """Haritanın sıradan uzaylılarından 3 hedef (2-4'er)."""
         import world as world_module
         w = self.world
-        rows = (world_module.CFG['haritalar'].get(str(w.map_id)) or {}).get('npc', []) if w else []
+        rows = (world_module.CFG['maps'].get(str(w.map_id)) or {}).get('npc', []) if w else []
         T = world_module.CFG['types']
-        kinds = [r['tip'] for r in rows if r['tip'] in T and T[r['tip']].get('npc_kimlik') and not T[r['tip']].get('boss')]
+        kinds = [r['tip'] for r in rows if r['tip'] in T and T[r['tip']].get('npc_id') and not T[r['tip']].get('boss')]
         if not kinds:
             return None
         pick = random.sample(kinds, min(3, len(kinds)))
-        targets = [(T[k]['npc_kimlik'], random.randint(*D.get('adet', [2, 4]))) for k in pick]
+        targets = [(T[k]['npc_id'], random.randint(*D.get('count', [2, 4]))) for k in pick]
         mult = D.get('reward_multiplier', 3)
-        tot = {'ep': 0, 'onur': 0, 'kredi': 0, 'uridyum': 0}
+        tot = {'ep': 0, 'honor': 0, 'credits': 0, 'uridium': 0}
         for k, (npc_id, n) in zip(pick, targets):
             for a in tot:
                 tot[a] += T[k].get('reward', {}).get(a, 0) * n * mult
-        cur = {'ep': 'currency_experience', 'onur': 'currency_honour', 'kredi': 'currency_credits', 'uridyum': 'currency_uridium'}
+        cur = {'ep': 'currency_experience', 'honor': 'currency_honour', 'credits': 'currency_credits', 'uridium': 'currency_uridium'}
         rewards = [(cur[a], int(v)) for a, v in tot.items() if v]
         qid = QUEST_ID + random.randint(1, 999)
-        return dict(gorev=quest_def(qid, targets, rewards), durum=NOT_STARTED, shown=False, bitis=0, value={},
+        return dict(quest=quest_def(qid, targets, rewards), state=NOT_STARTED, shown=False, end_time=0, value={},
                     rewards=rewards, targets=[[k, n] for k, (_, n) in zip(pick, targets)])
 
     def init_cmd(self, now=None):
         # timeToQuestEnd saniye (canlı: milisaniye 18 dk'yı "12 Days 17 Hrs." gösteriyordu)
         q = self.st
         now = time.time() if now is None else now
-        return ('DiminishingQuestInitializationCommand', dict(quest=q['gorev'], timeToQuestEnd=max(0, int(q['bitis'] - now)),
-                                                              acceptabilityStatus=status(q['durum'])))
+        return ('DiminishingQuestInitializationCommand', dict(quest=q['quest'], timeToQuestEnd=max(0, int(q['end_time'] - now)),
+                                                              acceptabilityStatus=status(q['state'])))
 
     def login_msgs(self):
         """Hazır demeti. İlk girişte menü öğenin o anki görünürlüğüyle kuruldu (UILayoutCommand, profil.WINDOW_HOOKS). Demet her
@@ -170,7 +170,7 @@ class UrgentQuests:
         return self.show(now) if self.icon else []
 
     def on_kill(self, w, npc, x, y):
-        return self.kill(npc.d.get('npc_kimlik'))
+        return self.kill(npc.d.get('npc_id'))
 
     def kill(self, npc_id):
         """Uzaylı öldü (kendisi ya da grup üyesi aynı haritada; game.Session.quest_event) -> mesajlar."""
@@ -178,16 +178,16 @@ class UrgentQuests:
         with self.p.lock:
             q['counter'] = q.get('counter', 0) + 1
             self.p.dirty = True
-        if q.get('durum') != RUNNING:
+        if q.get('state') != RUNNING:
             return []
         import quest_tracker as GT
-        msgs, done = GT.advance(self.p, q['gorev']['rootCase'], q['value'], 'kill', {'npc': npc_id, 'avatar': 'NPC'})
+        msgs, done = GT.advance(self.p, q['quest']['rootCase'], q['value'], 'kill', {'npc': npc_id, 'avatar': 'NPC'})
         if done:
             with self.p.lock:
-                q['durum'] = COMPLETED
+                q['state'] = COMPLETED
                 self.p.dirty = True
             for loot, n in q['rewards']:
-                msgs += self.m.prize(loot, n, 'gorev')
+                msgs += self.m.prize(loot, n, 'quest')
             msgs += [legacy('0|A|STM|diminishing_quest_completed'),
                      ('DiminishingQuestRemoveQuestCommand', {'acceptabilityStatus': status(COMPLETED)})] + self.m.money_msgs()
             self.log('   Urgent Mission tamamlandı: %s' % q['targets'])
@@ -197,7 +197,7 @@ class UrgentQuests:
 
     def reset(self):
         with self.p.lock:
-            for k in ('gorev', 'durum', 'shown', 'bitis', 'value', 'rewards', 'targets'):
+            for k in ('quest', 'state', 'shown', 'end_time', 'value', 'rewards', 'targets'):
                 self.st.pop(k, None)
             self.st['counter'] = 0
             self.st['last'] = time.time()
@@ -210,10 +210,10 @@ class UrgentQuests:
             self.rebuild_at = None
             self.icon = bool(self.icon) or bool(self.vis_sent)    # görünürse simge yaratıldı; yaratılan simge gizlense de kalır
         q = self.st
-        if active(now) and q.get('gorev'):
+        if active(now) and q.get('quest'):
             if not q.get('shown', True):
                 return out + (self.show(now) if self.can_show() else self.sync(now))
-            if now >= q['bitis']:
+            if now >= q['end_time']:
                 self.log('   Urgent Mission süresi doldu')
                 self.reset()
                 return out + [legacy('0|A|STM|diminishing_quest_expired'),
@@ -265,7 +265,7 @@ class UrgentQuests:
 
     def handle(self, name, f):
         q = self.st
-        if name != 'DiminishingQuestAcceptQuestRequest' or not q.get('gorev') or q.get('durum') != NOT_STARTED or \
+        if name != 'DiminishingQuestAcceptQuestRequest' or not q.get('quest') or q.get('state') != NOT_STARTED or \
                 not q.get('shown', True):
             return []
         w = self.world
@@ -273,9 +273,9 @@ class UrgentQuests:
         if not home:
             return [legacy('0|A|STM|diminishing_quest_cannot_accept_outside_base')]
         with self.p.lock:
-            q['durum'] = RUNNING
+            q['state'] = RUNNING
             self.p.dirty = True
         self.log('   Urgent Mission kabul edildi')
         return [('DiminishingQuestAcceptQuestResponse', dict(acceptabilityStatus=status(RUNNING),
-                                                              timeToQuestEnd=max(0, int(q['bitis'] - time.time())))),
+                                                              timeToQuestEnd=max(0, int(q['end_time'] - time.time())))),
                 legacy('0|A|STM|diminishing_quest_accepted')]

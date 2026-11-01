@@ -12,9 +12,9 @@ başka bir uzaylıya geçer); toplam tutma süresi sıralamayı belirler. Unvan 
 Tek oyunculu uyarlama: rakipler sanal (müzayede rakiplerinin adları); uzaylıdaki unvanı arada bir sanal rakip kapar, bir süre tutup
 bırakır; puanları da böyle birikir. Unvan haritada değil başka haritada uzaylıdaysa yalnız listede görünür; oyuncu o haritaya
 gelince bir Underling unvanı taşır (gemi üstünde unvanıyla). Puan: tutulan dakika.
-Profilde: unvan_avi {donem, puan (dk), unvanlar {id: {sahip: 'npc'|'oyuncu'|'rakip', harita, ad, bas}}, rakipler {ad: puan},
+Profilde: unvan_avi {donem, puan (dk), unvanlar {id: {owner: 'npc'|'oyuncu'|'rakip', harita, ad, bas}}, rakipler {name: puan},
 odul_alindi}.
-Çok oyunculu sunucuda her oyuncunun unvanları kendisinin; ortak haritanın uzaylısındaki unvan oyuncunun adıyla (unvanlar {ad: kimlik}):
+Çok oyunculu sunucuda her oyuncunun unvanları kendisinin; ortak haritanın uzaylısındaki unvan oyuncunun adıyla (unvanlar {name: kimlik}):
 iki oyuncu aynı Underling'i kendi unvanının taşıyıcısı sanmasın (önce n.unvan ortaktı). Sıralamada sunucunun öteki oyuncuları da.
 """
 import json, os, random, time
@@ -27,13 +27,13 @@ from legacy_protocol import legacy
 HERE = os.path.dirname(os.path.abspath(__file__))
 _PATH = os.path.join(HERE, 'data', 'extra_events.json')
 D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('title_hunt', {})
-EVENT = D.get('etkinlik', 'title_hunt')
+EVENT = D.get('event', 'title_hunt')
 RANK_TYPE = 12                                     # RankRewardRequest.RankType.TITLE_FRENZY
 WINDOWS = [tuple(w) for w in D.get('hours', [[7, 9], [12, 14], [18, 20], [22, 24]])]
-MAPS = D.get('haritalar', ['X-2', 'X-3', 'X-4', 'X-5', 'X-6', 'X-7', 'X-8'])
+MAPS = D.get('maps', ['X-2', 'X-3', 'X-4', 'X-5', 'X-6', 'X-7', 'X-8'])
 TITLE_KEY = D.get('title', 'title_titlefrenzy_event2026')
 REWARD_TITLE = D.get('reward_title', 'title_titlefrenzy-aug2026-reward')
-COUNT = D.get('adet', 4)
+COUNT = D.get('count', 4)
 HOLD_MAX = D.get('max_hold_sec', 1800)
 CARRIER = D.get('carrier', 'event_hitac_underling_')
 TITLE_ID_BASE = 1500                               # gemi üstündeki unvanın kimliği (istemci anahtarı gösterir)
@@ -82,7 +82,7 @@ class TitleHunt:
     @property
     def st(self):
         d = self.p.d.setdefault('title_hunt', {})
-        for k, v in (('puan', 0.0), ('titles', {}), ('rivals', {})):
+        for k, v in (('points', 0.0), ('titles', {}), ('rivals', {})):
             d.setdefault(k, v)
         return d
 
@@ -102,8 +102,8 @@ class TitleHunt:
             if not t:
                 out.append(('TitleFrenzyOwnerUpdateCommand', {'username': '', 'titleId': tid, 'mapId': 0}))
                 continue
-            name = self.p.d['pilot'].get('userName', '') if t['sahip'] == 'player' else t['ad']
-            out.append(('TitleFrenzyOwnerUpdateCommand', {'username': name, 'titleId': tid, 'mapId': t.get('harita', 0)}))
+            name = self.p.d['pilot'].get('userName', '') if t['owner'] == 'player' else t['name']
+            out.append(('TitleFrenzyOwnerUpdateCommand', {'username': name, 'titleId': tid, 'mapId': t.get('map', 0)}))
         return out
 
     def schedule_cmd(self, now=None):
@@ -119,12 +119,12 @@ class TitleHunt:
     def ranking(self):
         """Oyuncu, sunucunun öteki oyuncuları ve sanal rakipler, puana göre."""
         import community as TP
-        rows = [(self.p.d['pilot'].get('userName', ''), self.st['puan'] + self.held_minutes(), True)]
+        rows = [(self.p.d['pilot'].get('userName', ''), self.st['points'] + self.held_minutes(), True)]
         for k in TP.all_().values():
-            if k.profile is not self.p and (k.profile.d.get('title_hunt') or {}).get('donem') == self.st.get('donem'):
+            if k.profile is not self.p and (k.profile.d.get('title_hunt') or {}).get('period') == self.st.get('period'):
                 o = TitleHunt.__new__(TitleHunt)
                 o.p = k.profile
-                rows.append((k.name, (k.profile.d['title_hunt'].get('puan') or 0.0) + o.held_minutes(), False))
+                rows.append((k.name, (k.profile.d['title_hunt'].get('points') or 0.0) + o.held_minutes(), False))
         rows += [(n, s, False) for n, s in self.st['rivals'].items()]
         rows.sort(key=lambda r: -r[1])
         return rows
@@ -136,7 +136,7 @@ class TitleHunt:
         me = next(i for i, r in enumerate(rows) if r[2])
         return ('TitleFrenzyRankingInfoCommand', dict(isActive=self.enabled(), myRank=mod(me), prevRank=mod(me - 1),
                                                       nextRank=mod(me + 1),
-                                                      rankingInfoList=[mod(i) for i in range(min(len(rows), D.get('liste', 10)))]))
+                                                      rankingInfoList=[mod(i) for i in range(min(len(rows), D.get('entries', 10)))]))
 
     def login_msgs(self):
         if not self.enabled():
@@ -157,11 +157,11 @@ class TitleHunt:
 
     # ------------------------------------------------------------ unvanlar
     def held(self):
-        return [tid for tid, t in self.st['titles'].items() if t['sahip'] == 'player']
+        return [tid for tid, t in self.st['titles'].items() if t['owner'] == 'player']
 
     def held_minutes(self, now=None):
         now = time.time() if now is None else now
-        return sum(max(0, now - t['start']) for t in self.st['titles'].values() if t['sahip'] == 'player') / 60.0
+        return sum(max(0, now - t['start']) for t in self.st['titles'].values() if t['owner'] == 'player') / 60.0
 
     def ship_title_msgs(self):
         """Gemi üstündeki unvan: unvan tutulurken Prestige unvanı, değilse başarımın seçili unvanı (basarim.title_msgs)."""
@@ -174,7 +174,7 @@ class TitleHunt:
         cls = random.choice([m for m in MAPS if m != avoid] or MAPS)
         name = D.get('carrier_name', 'Hitac-Underling')
         with self.p.lock:
-            self.st['titles'][str(tid)] = {'sahip': 'npc', 'harita': map_id(cls, self.faction()), 'class_name': cls, 'ad': name,
+            self.st['titles'][str(tid)] = {'owner': 'npc', 'map': map_id(cls, self.faction()), 'class_name': cls, 'name': name,
                                              'start': time.time() if now is None else now}
             self.p.dirty = True
         return [self.owner_one(tid), legacy('0|A|STM|log_msg_titlefrenzy_takeover|%%NAME%%|%s|%%MAP%%|%s' % (name, cls))]
@@ -190,7 +190,7 @@ class TitleHunt:
             t = self.st['titles'][tid]
             gained = max(0, now - t['start']) / 60.0
             with self.p.lock:
-                self.st['puan'] += gained
+                self.st['points'] += gained
                 self.p.dirty = True
             self.log('   Prestige unvanı %s bırakıldı (%s): +%.1f dk' % (tid, why, gained))
             msgs += self.to_npc(tid, avoid=t.get('class_name'), now=now)
@@ -224,7 +224,7 @@ class TitleHunt:
         if not w or now - self.attached < 2.0:            # uzaylılar istemcide oluşturulduktan sonra
             return []
         cls = H.map_class(w.map_id)
-        mine = [tid for tid, t in self.st['titles'].items() if t['sahip'] == 'npc' and t.get('class_name') == cls]
+        mine = [tid for tid, t in self.st['titles'].items() if t['owner'] == 'npc' and t.get('class_name') == cls]
         if not mine:
             return []
         msgs = []
@@ -245,10 +245,10 @@ class TitleHunt:
         if not tid or not self.enabled():
             return []
         t = self.st['titles'].get(tid)
-        if not t or t['sahip'] != 'npc':
+        if not t or t['owner'] != 'npc':
             return []
         with self.p.lock:
-            self.st['titles'][tid] = {'sahip': 'player', 'harita': int(w.map_id), 'class_name': H.map_class(w.map_id), 'ad': '',
+            self.st['titles'][tid] = {'owner': 'player', 'map': int(w.map_id), 'class_name': H.map_class(w.map_id), 'name': '',
                                          'start': time.time()}
             self.p.dirty = True
         name = self.p.d['pilot'].get('userName', '')
@@ -283,15 +283,15 @@ class TitleHunt:
         import auction as MZ
         msgs = []
         for tid, t in list(self.st['titles'].items()):
-            if t['sahip'] == 'rival' and now - t['start'] >= t.get('sure', 600):
+            if t['owner'] == 'rival' and now - t['start'] >= t.get('sure', 600):
                 with self.p.lock:
-                    self.st['rivals'][t['ad']] = self.st['rivals'].get(t['ad'], 0.0) + (now - t['start']) / 60.0
+                    self.st['rivals'][t['name']] = self.st['rivals'].get(t['name'], 0.0) + (now - t['start']) / 60.0
                     self.p.dirty = True
                 msgs += self.to_npc(tid, avoid=t.get('class_name'), now=now)
-            elif t['sahip'] == 'npc' and random.random() < D.get('rival_capture', 0.08):
-                name = '%s%s' % (random.choice(MZ.R['adlar']), random.choice(MZ.R['attachments']))
+            elif t['owner'] == 'npc' and random.random() < D.get('rival_capture', 0.08):
+                name = '%s%s' % (random.choice(MZ.R['names']), random.choice(MZ.R['attachments']))
                 with self.p.lock:
-                    self.st['titles'][tid] = dict(t, sahip='rival', ad=name, start=now, sure=random.randint(*D.get('rival_duration', [300, 1500])))
+                    self.st['titles'][tid] = dict(t, owner='rival', name=name, start=now, sure=random.randint(*D.get('rival_duration', [300, 1500])))
                     self.p.dirty = True
                 msgs.append(self.owner_one(tid))
         return msgs
@@ -299,9 +299,9 @@ class TitleHunt:
     def tick(self, now):
         if not self.enabled(now):
             return self.event_end(now)
-        if self.st.get('donem') is None:
+        if self.st.get('period') is None:
             with self.p.lock:
-                self.st['donem'] = (CAL.period(EVENT, now) or (now,))[0]
+                self.st['period'] = (CAL.period(EVENT, now) or (now,))[0]
                 self.p.dirty = True
         on = in_window(now)[0]
         msgs = []
@@ -324,19 +324,19 @@ class TitleHunt:
 
     def event_end(self, now):
         """Etkinlik bitti: sıralamaya göre ödül (bir kez) ve durum sıfır."""
-        if self.st.get('donem') is None:
+        if self.st.get('period') is None:
             return []
         msgs = self.drop('etkinlik bitti', now)
         rank = next(i + 1 for i, r in enumerate(self.ranking()) if r[2])
         t = RK.TABLES.get(RANK_TYPE) or {}
-        r = next((r for r in t.get('ranges', []) if r['den'] <= rank <= r['e']), None)
-        if r and self.st['puan'] > 0:
-            for loot, n in r['esyalar']:
+        r = next((r for r in t.get('ranges', []) if r['from_'] <= rank <= r['e']), None)
+        if r and self.st['points'] > 0:
+            for loot, n in r['items']:
                 msgs += self.m.prize(loot, n)
             if r.get('title'):
                 msgs += self.grant_title(r['title'])
             msgs.append(RK.confirmation(rank, RK.DEFAULT_REWARD, r))           # RewardType'ta Title Frenzy yok
-            self.log('   Pursuit of Prestige bitti: %d. sıra (%.1f dk), ödül %s' % (rank, self.st['puan'], r['esyalar']))
+            self.log('   Pursuit of Prestige bitti: %d. sıra (%.1f dk), ödül %s' % (rank, self.st['points'], r['items']))
         with self.p.lock:
             self.p.d['title_hunt'] = {}
             self.p.dirty = True

@@ -22,13 +22,13 @@ class Farming(Goal):
 
     def start(self, bot, b):
         plan = (bot.k.get('intent') or {}).get('plan') or {}
-        m = plan.get('harita')
+        m = plan.get('map')
         if not m:
             # ilk üç aday arasından faydaya göre: herkes aynı "en iyi" haritaya yığılmasın
             first = b.game_map[:3]
             peak = first[0][0] or 1
             m = PS.softmax_pick([(x[1], x[0] / peak) for x in first], 0.15, bot.r)
-        bot.plan['harita'] = int(m)
+        bot.plan['map'] = int(m)
         S.go(bot, m, b.y, b.now)
 
     def abstract(self, bot, dt, y):
@@ -38,5 +38,5 @@ class Farming(Goal):
 
     def finished(self, bot, b):
         # haritası artık uygun değil (güç arttı ya da azaldı): ilk beşte değilse yeniden düşünsün
-        m = bot.plan.get('harita')
+        m = bot.plan.get('map')
         return bool(b.game_map) and m is not None and not bot.en_route and m not in [x[1] for x in b.game_map[:5]]

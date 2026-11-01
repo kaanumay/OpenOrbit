@@ -42,11 +42,11 @@ def user(b):
 def channel_path(b, channel):
     if channel == 'global':
         return '/room/global/yerel/'
-    if channel == 'firma':
+    if channel == 'company':
         return '/room/faction/%d/' % b.firma
-    if channel == 'klan':
-        return '/room/clan/%d/' % b.k['klan'] if b.k.get('klan') else None
-    if channel == 'grup':
+    if channel == 'clan':
+        return '/room/clan/%d/' % b.k['clan'] if b.k.get('clan') else None
+    if channel == 'group':
         import group as GR
         g = GR.group_of(b.uid)
         return '/room/group/group_%d/' % g.id if g is not None else None
@@ -54,8 +54,8 @@ def channel_path(b, channel):
 
 
 def channel_name(route):
-    return 'global' if route.startswith('/room/global/') else 'firma' if route.startswith('/room/faction/') else \
-        'klan' if route.startswith('/room/clan/') else 'grup' if route.startswith('/room/group/') else None
+    return 'global' if route.startswith('/room/global/') else 'company' if route.startswith('/room/faction/') else \
+        'clan' if route.startswith('/room/clan/') else 'group' if route.startswith('/room/group/') else None
 
 
 class ChatEngine:
@@ -123,7 +123,7 @@ class ChatEngine:
         t, b, channel, text, recipient, priority, first = x
         if not b.online:
             return
-        if channel in ('global', 'firma'):
+        if channel in ('global', 'company'):
             if MOD.is_muted(self, b.name, now) > 0:
                 return                                   # moderatör susturdu
             self._lines = [s for s in self._lines if now - s < 60]
@@ -134,7 +134,7 @@ class ChatEngine:
             self._lines.append(now)
         self.history.append((now, b.name, channel if not recipient else 'whisper:' + recipient, text, None if recipient else channel_path(b, channel)))
         del self.history[:-600]               # fısıltı bağlamı kalabalık sohbette hemen silinmesin (güçlü sağlayıcı saatlerce geriye bakar)
-        b.event('said', now, kanal=channel, metin=text, recipient=recipient)
+        b.event('said', now, channel=channel, text=text, recipient=recipient)
         if self.chat is None:
             return
         if recipient:
@@ -163,7 +163,7 @@ class ChatEngine:
         if g[0] == 'room':
             MOD.moderate(self, g[3].get('userId', ''), g[2], channel_name(g[1]), now, g[3].get('role') or 'chatter')
         from . import clan_orders as CO
-        if g[0] == 'room' and channel_name(g[1]) == 'klan' and CO.handle(self, 'klan', g[2], g[3], self.listeners('klan', g[3]), now):
+        if g[0] == 'room' and channel_name(g[1]) == 'clan' and CO.handle(self, 'clan', g[2], g[3], self.listeners('clan', g[3]), now):
             return                                       # klan emri (odak, git, gel, savun, al, gemi, yapı, dur)
         if g[0] == 'whisper' and CO.handle(self, 'whisper', g[2], g[3], [g[1]], now):
             return
@@ -179,11 +179,11 @@ class ChatEngine:
     def listeners(self, channel, who):
         fac = int(who.get('factionId') or 0)
         out = [b for b in self.bots if b.online and b.dead_until <= self.now]
-        if channel == 'firma':
+        if channel == 'company':
             out = [b for b in out if b.firma == fac]
-        elif channel == 'klan':
+        elif channel == 'clan':
             out = [b for b in out if b.profile is not None and who.get('clanTag') and b.profile.d['pilot'].get('clanTag') == who['clanTag']]
-        elif channel == 'grup':
+        elif channel == 'group':
             import group as GR
             import community as TP
             k = TP.find(name=who.get('userId'))
@@ -201,39 +201,39 @@ class ChatEngine:
         mentioned = [b for b in listener if NS.is_mentioned(b.name, msg)]
         for b in mentioned:
             b.memory.event(name, 'sohbet', now)
-            if kind in IX.INTENTS and kind != 'yardim':
+            if kind in IX.INTENTS and kind != 'assist':
                 self.answer_request(b, kind, name, who, game_map, msg, channel, now)
-            elif kind == 'hakaret':
-                b.memory.event(name, 'hakaret', now)
+            elif kind == 'insult':
+                b.memory.event(name, 'insult', now)
                 if b.r.random() < b.o('aggression') * RUDE_FACTOR[self.rude()]:
-                    self.speak(b, channel, SPC.template(b, self.banter(b, 'cevap_hakaret'), ad=name), now=now)
-            elif kind == 'yardim':
+                    self.speak(b, channel, SPC.template(b, self.banter(b, 'reply_insult'), name=name), now=now)
+            elif kind == 'assist':
                 self.help_call(name, who, game_map, [b], channel, now)
             elif b.r.random() < 0.85:
-                self.speak(b, channel, SPC.template(b, {'selam': 'cevap_selam', 'tesekkur': 'tesekkur'}.get(kind, 'cevap_soru'), ad=name),
+                self.speak(b, channel, SPC.template(b, {'greeting': 'reply_greeting', 'thanks': 'thanks'}.get(kind, 'reply_question'), name=name),
                            now=now)
         if mentioned:
             return
-        if kind == 'yardim' and game_map:
+        if kind == 'assist' and game_map:
             self.help_call(name, who, game_map, listener, channel, now)
-        elif kind in ('grup', 'klan', 'gorev', 'duello', 'ozel', 'kapi'):
+        elif kind in ('group', 'clan', 'quest', 'duel', 'special', 'gate'):
             for b in self.open_call(kind, name, who, game_map, msg, listener, now):
                 self.answer_request(b, kind, name, who, game_map, msg, channel, now)
-        elif kind == 'takip' and channel == 'grup':              # grup sohbetinde "follow me / come 2-4": grubun botları
+        elif kind == 'followup' and channel == 'group':              # grup sohbetinde "follow me / come 2-4": grubun botları
             for b in listener[:3]:
                 self.answer_request(b, kind, name, who, game_map, msg, channel, now)
-        elif kind == 'selam':
+        elif kind == 'greeting':
             for b in [b for b in listener if b.r.random() < 0.3 * b.o('sociability')][:2]:
-                self.speak(b, channel, SPC.template(b, 'cevap_selam', ad=name), now=now)
-        elif kind == 'soru' and listener:
+                self.speak(b, channel, SPC.template(b, 'reply_greeting', name=name), now=now)
+        elif kind == 'question' and listener:
             b = max(listener, key=lambda b: b.o('talkativeness') * b.r.random())
             if b.r.random() < 0.3 + 0.4 * b.o('helpfulness'):
-                self.speak(b, channel, SPC.template(b, 'cevap_soru'), now=now)
+                self.speak(b, channel, SPC.template(b, 'reply_question'), now=now)
 
     def help_call(self, name, who, game_map, candidates, channel, now, max_count=None, required=False, silent=False):
         """Yardım çağrısı: aynı firmadan, yardımsever, o haritaya girebilen ve gidebilen botlardan bazıları gelir -> gelenler.
         zorunlu: karar başkasında, olasılık atılmaz; sessiz: kalıp yanıt yazılmaz (Gelişmiş kipte yanıtı model söyler)."""
-        if not self.permission('yardim'):
+        if not self.permission('assist'):
             return []
         fac = int(who.get('factionId') or 0)
         ids = {v: k for k, v in H.NAMES.items()}
@@ -254,14 +254,14 @@ class ChatEngine:
             if b.firma != fac or not K.can_enter(m, b.firma, b.level) or not K.route(b.game_map, m, b.firma, b.level):
                 continue
             p = 0.15 + 0.6 * b.o('helpfulness') + 0.5 * b.memory.relation(name, now) - 0.3 * b.mood['fatigue']
-            if b.target is not None and b.target.name in ('gorev', 'grup'):
+            if b.target is not None and b.target.name in ('quest', 'group'):
                 p -= 0.2
             if required or b.r.random() < p:
                 incoming.append(b)
-                B.force(b, 'yardim', plan={'harita': int(m), 'ad': name}, pay=1.2, duration=900, now=now)
+                B.force(b, 'assist', plan={'map': int(m), 'name': name}, pay=1.2, duration=900, now=now)
                 b.memory.event(name, 'i_helped', now)
                 if not required and not silent:
-                    self.speak(b, channel, SPC.template(b, 'yardima_gidiyor', harita=H.name(m)), now=now)
+                    self.speak(b, channel, SPC.template(b, 'going_to_help', map=H.name(m)), now=now)
         return incoming
 
     def open_call(self, kind, name, who, game_map, msg, listener, now):
@@ -269,37 +269,37 @@ class ChatEngine:
         botlar sırayla düşünür, kabul eden ilk biri (gerçek sohbette olduğu gibi bir kişi "inv" der). Klan: klanı olan, aynı
         firmadan en çok iki bot (lider önce)."""
         fac = int(who.get('factionId') or 0)
-        if kind == 'duello':                               # meydan okumayı başka firmadan biri kabul eder
+        if kind == 'duel':                               # meydan okumayı başka firmadan biri kabul eder
             for b in sorted([b for b in listener if b.firma != fac], key=lambda b: -b.o('aggression') * b.r.uniform(0.5, 1.5))[:4]:
-                k = IX.decision(self, b, 'duello', name, who, game_map, msg, now)
-                if k and k['kabul']:
+                k = IX.decision(self, b, 'duel', name, who, game_map, msg, now)
+                if k and k['accept']:
                     b._request_decision = k
                     return [b]
             return []
         candidate = [b for b in listener if not fac or b.firma == fac]
-        if kind == 'kapi':                                 # kapı dolgusu: istenen sayıda (yoksa 3) kabul eden
+        if kind == 'gate':                                 # kapı dolgusu: istenen sayıda (yoksa 3) kabul eden
             import re
             m = re.search(r'\b([1-7])\b', msg or '')
             n, out = int(m.group(1)) if m else 3, []
             for b in sorted(candidate, key=lambda b: -(b.o('sociability') + b.o('ambition')) * b.r.uniform(0.5, 1.5))[:12]:
-                k = IX.decision(self, b, 'kapi', name, who, game_map, msg, now)
-                if k and k['kabul']:
+                k = IX.decision(self, b, 'gate', name, who, game_map, msg, now)
+                if k and k['accept']:
                     b._request_decision = k
                     out.append(b)
                     if len(out) >= n:
                         break
             return out
-        if kind in ('grup', 'gorev', 'ozel'):
+        if kind in ('group', 'quest', 'special'):
             for b in sorted(candidate, key=lambda b: -b.o('sociability') * b.r.uniform(0.5, 1.5))[:4]:
                 k = IX.decision(self, b, kind, name, who, game_map, msg, now)
-                if k and k['kabul']:
+                if k and k['accept']:
                     b._request_decision = k
                     return [b]
             return []
         import clan as KL
         from . import society
         clan_bots = [b for b in candidate if KL.clan_of(society.profile(b)) is not None]
-        return sorted(clan_bots, key=lambda b: (KL.clan_of(b.profile)['lider'] != b.name.lower(), -b.o('talkativeness')))[:2]
+        return sorted(clan_bots, key=lambda b: (KL.clan_of(b.profile)['leader'] != b.name.lower(), -b.o('talkativeness')))[:2]
 
     def answer_request(self, b, kind, name, who, game_map, msg, channel, now):
         """Normal kip: kararı (etkilesim) uygula, kalıpla söyle."""
@@ -318,20 +318,20 @@ class ChatEngine:
         kind, game_map = SPC.intent(msg)
         kind = IX.offer_reply(b, name, msg, now) or kind       # "gruplaşalım mı?" -> "sure": grup isteği
         b.memory.event(name, 'sohbet', now)
-        if kind in IX.INTENTS and kind != 'yardim':
+        if kind in IX.INTENTS and kind != 'assist':
             self.answer_request(b, kind, name, who, game_map, msg, 'whisper', now)
-        elif kind == 'yardim':
-            if self.help_call(name, who, game_map, [b], 'firma', now):
-                self.outgoing = [x for x in self.outgoing if not (x[1] is b and x[2] == 'firma')]
-                self.speak(b, 'whisper', SPC.template(b, 'cevap_evet'), recipient=name, now=now)
+        elif kind == 'assist':
+            if self.help_call(name, who, game_map, [b], 'company', now):
+                self.outgoing = [x for x in self.outgoing if not (x[1] is b and x[2] == 'company')]
+                self.speak(b, 'whisper', SPC.template(b, 'reply_yes'), recipient=name, now=now)
             else:
-                self.speak(b, 'whisper', SPC.template(b, 'cevap_hayir'), recipient=name, now=now)
-        elif kind == 'hakaret':
-            b.memory.event(name, 'hakaret', now)
+                self.speak(b, 'whisper', SPC.template(b, 'reply_no'), recipient=name, now=now)
+        elif kind == 'insult':
+            b.memory.event(name, 'insult', now)
             if b.r.random() < 0.6 * RUDE_FACTOR[self.rude()]:
-                self.speak(b, 'whisper', SPC.template(b, self.banter(b, 'cevap_hakaret'), ad=name), recipient=name, now=now)
+                self.speak(b, 'whisper', SPC.template(b, self.banter(b, 'reply_insult'), name=name), recipient=name, now=now)
         else:
-            self.speak(b, 'whisper', SPC.template(b, {'selam': 'cevap_selam', 'tesekkur': 'tesekkur'}.get(kind, 'cevap_soru'), ad=name),
+            self.speak(b, 'whisper', SPC.template(b, {'greeting': 'reply_greeting', 'thanks': 'thanks'}.get(kind, 'reply_question'), name=name),
                        recipient=name, now=now)
 
     def event_tick(self, now):
@@ -349,43 +349,43 @@ class ChatEngine:
         if self.llm is not None and self.llm.event(self, b, o, now):
             return
         talk = b.o('talkativeness')
-        kind = o['tur']
+        kind = o['type']
         if kind == 'witness':
-            if o.get('sub') == 'boss' and o.get('kim') and str(o['kim']).lower() != b.name.lower():
-                self.speak(b, 'firma', SPC.template(b, 'tanik_patron', kim=o['kim']), now=now + b.r.uniform(2, 8))
-            elif o.get('sub') == 'player_died' and o.get('ad'):
-                self.speak(b, 'firma', SPC.template(b, 'tanik_olum', ad=o['ad']), now=now + b.r.uniform(2, 10))
+            if o.get('sub') == 'boss' and o.get('who') and str(o['who']).lower() != b.name.lower():
+                self.speak(b, 'company', SPC.template(b, 'witness_boss', who=o['who']), now=now + b.r.uniform(2, 8))
+            elif o.get('sub') == 'player_died' and o.get('name'):
+                self.speak(b, 'company', SPC.template(b, 'witness_death', name=o['name']), now=now + b.r.uniform(2, 10))
             return
-        if kind == 'diplomacy' and (o.get('kabul') or not o.get('incoming')) and o.get('form') in (0, 1, 3) and b.r.random() < 0.4 + 0.5 * talk:
-            durum = {0: 'baris', 1: 'ittifak', 3: 'savas_ilan'}[o['form']]
+        if kind == 'diplomacy' and (o.get('accept') or not o.get('incoming')) and o.get('form') in (0, 1, 3) and b.r.random() < 0.4 + 0.5 * talk:
+            durum = {0: 'peace', 1: 'alliance', 3: 'war_declared'}[o['form']]
             if o['form'] == 0 and not o.get('incoming'):
                 return                                   # barış isteği: kabul edilmeden ilan edilmez
-            self.speak(b, 'global' if o['form'] == 3 else 'firma',
-                       SPC.template(b, durum, klan=o.get('klan', ''), etiket=o.get('etiket') or o.get('klan', '')), now=now + b.r.uniform(5, 30))
+            self.speak(b, 'global' if o['form'] == 3 else 'company',
+                       SPC.template(b, durum, clan=o.get('clan', ''), tag=o.get('tag') or o.get('clan', '')), now=now + b.r.uniform(5, 30))
             return
-        if kind == 'patron_oldurdum' and b.r.random() < 0.3 * talk:
-            self.speak(b, 'firma', SPC.template(b, 'patron_oldurdum'), now=now + b.r.uniform(2, 8))
+        if kind == 'i_killed_boss' and b.r.random() < 0.3 * talk:
+            self.speak(b, 'company', SPC.template(b, 'i_killed_boss'), now=now + b.r.uniform(2, 8))
             return
-        if kind == 'seviye' and b.r.random() < 0.25 * talk:
-            self.speak(b, 'firma', SPC.template(b, 'seviye', seviye=o.get('seviye')), now=now)
-        elif kind == 'yeni_gemi' and b.r.random() < 0.45 * talk:
-            self.speak(b, 'global', SPC.template(b, 'yeni_gemi', gemi=str(o.get('esya', '')).replace('ship_', '').title()), now=now)
-        elif kind in ('olum', 'i_killed_player') and now - self.__dict__.setdefault('_last_whisper', {}).get(
-                str(o.get('killer') or o.get('ad') or '').lower(), 0) < 60:
+        if kind == 'level' and b.r.random() < 0.25 * talk:
+            self.speak(b, 'company', SPC.template(b, 'level', level=o.get('level')), now=now)
+        elif kind == 'new_ship' and b.r.random() < 0.45 * talk:
+            self.speak(b, 'global', SPC.template(b, 'new_ship', ship=str(o.get('item', '')).replace('ship_', '').title()), now=now)
+        elif kind in ('death', 'i_killed_player') and now - self.__dict__.setdefault('_last_whisper', {}).get(
+                str(o.get('killer') or o.get('name') or '').lower(), 0) < 60:
             pass                                         # aynı oyuncuya dakikada en çok bir fısıltı (art arda öldürmede yağmur olmasın)
-        elif kind == 'olum' and o.get('killer') and str(o['killer']).lower() not in self.name_index and b.r.random() < 0.2 + 0.5 * talk:
+        elif kind == 'death' and o.get('killer') and str(o['killer']).lower() not in self.name_index and b.r.random() < 0.2 + 0.5 * talk:
             self._last_whisper[str(o['killer']).lower()] = now
             rude = self.rude()
             angry = rude and b.mood['anger'] > 0.55 - 0.1 * rude and b.o('aggression') > 0.6 - 0.1 * rude
-            self.speak(b, 'whisper', SPC.template(b, 'oldum_kizgin' if angry else 'oldum'), recipient=o['killer'], now=now)
+            self.speak(b, 'whisper', SPC.template(b, 'died_angry' if angry else 'died'), recipient=o['killer'], now=now)
         elif kind == 'i_killed_player' and b.r.random() < 0.25 + 0.3 * talk:
-            self.__dict__.setdefault('_last_whisper', {})[str(o.get('ad') or '').lower()] = now
+            self.__dict__.setdefault('_last_whisper', {})[str(o.get('name') or '').lower()] = now
             rude = self.rude()
-            self.speak(b, 'whisper', SPC.template(b, 'oldurdum') if rude else 'gg', recipient=o.get('ad'), now=now)
-            if rude >= 2 and o.get('ad') and b.r.random() < 0.25 * (rude - 1) * b.o('aggression'):
-                self.speak(b, 'global', SPC.template(b, 'laf_oldurdum', ad=o['ad'], harita=H.name(b.game_map)), now=now + b.r.uniform(4, 15))
-        elif kind == 'clan_founded' and self.can_recruit(o.get('ad'), now):
-            self.speak(b, 'global', SPC.template(b, 'klan_alim', etiket=o.get('etiket'), klan=o.get('ad'), seviye=max(3, b.level - 4)),
+            self.speak(b, 'whisper', SPC.template(b, 'i_killed') if rude else 'gg', recipient=o.get('name'), now=now)
+            if rude >= 2 and o.get('name') and b.r.random() < 0.25 * (rude - 1) * b.o('aggression'):
+                self.speak(b, 'global', SPC.template(b, 'banter_kill', name=o['name'], map=H.name(b.game_map)), now=now + b.r.uniform(4, 15))
+        elif kind == 'clan_founded' and self.can_recruit(o.get('name'), now):
+            self.speak(b, 'global', SPC.template(b, 'clan_recruit', tag=o.get('tag'), clan=o.get('name'), level=max(3, b.level - 4)),
                        now=now + b.r.uniform(20, 120))
 
     def online_humans(self):
@@ -414,20 +414,20 @@ class ChatEngine:
                 continue
             b = max(friendly, key=lambda b: b.memory.relation(k.name, now) * b.r.uniform(0.6, 1.4))
             if now - first < 300 and not last.get(a):
-                purpose = 'ozel_selam'                          # yeni girdi
+                purpose = 'private_greeting'                          # yeni girdi
             elif b.r.random() > 0.35 * (0.5 + b.o('sociability')):
                 last[a] = now - 360                           # bu sefer yazmaz (yarım aralık sonra yine bakar)
                 continue
-            elif self.permission('grup') and b.target is not None and b.target.name in ('grinding', 'gorev') and b.r.random() < 0.6:
-                purpose = 'ozel_grup'
+            elif self.permission('group') and b.target is not None and b.target.name in ('grinding', 'quest') and b.r.random() < 0.6:
+                purpose = 'private_group'
             else:
-                purpose = 'ozel_sohbet'
+                purpose = 'private_chat'
             last[a] = now
-            if purpose == 'ozel_grup':
-                IX.make_offer(b, 'grup', k.name, now)
+            if purpose == 'private_group':
+                IX.make_offer(b, 'group', k.name, now)
             if self.llm is not None and self.llm.ready and self.llm.special(self, b, k.name, purpose):
                 continue
-            self.speak(b, 'whisper', SPC.template(b, purpose, ad=k.name, harita=H.name(b.game_map)), recipient=k.name, now=now + b.r.uniform(2, 10))
+            self.speak(b, 'whisper', SPC.template(b, purpose, name=k.name, map=H.name(b.game_map)), recipient=k.name, now=now + b.r.uniform(2, 10))
 
     def group_banter_line(self, now):
         """İnsanla grupta olan bot arada grup sohbetine yazar (nereye gidiyoruz, iyi kestik ...): 4-8 dakikada bir."""
@@ -448,14 +448,14 @@ class ChatEngine:
             b = max(members, key=lambda b: b.o('talkativeness') * b.r.random())
             if self.llm is not None and self.llm.ready and self.llm.group_banter_line(self, b, k.name):
                 continue
-            self.speak(b, 'grup', SPC.template(b, 'grup_laf'), now=now)
+            self.speak(b, 'group', SPC.template(b, 'group_banter'), now=now)
 
     def rude(self):
         return int(self.setting('rude_chat', 1) or 0)
 
-    def banter(self, b, durum):
+    def banter(self, b, state):
         """Sert düzeyde saldırgan bot hakarete sert karşılık verir."""
-        return 'laf_sert' if self.rude() >= 2 and b.o('aggression') > 0.5 and not b.__dict__.get('moderator') else durum
+        return 'banter_harsh' if self.rude() >= 2 and b.o('aggression') > 0.5 and not b.__dict__.get('moderator') else state
 
     def throw_banter(self, now):
         """Sert ve çok sert düzeyde saldırgan botlar globalde başka firmaya ya da çevrimiçi düşman oyuncuya laf atar (kinliler önce)."""
@@ -471,9 +471,9 @@ class ChatEngine:
         grudge = [k for k in enemy if b.memory.relation(k.name, now) < -0.2]
         if (grudge or enemy) and b.r.random() < (0.8 if grudge else 0.3 * (rude - 1)):
             k = b.r.choice(grudge or enemy)
-            self.speak(b, 'global', SPC.template(b, 'laf_oyuncu', ad=k.name, harita=H.name(b.game_map)), now=now)
+            self.speak(b, 'global', SPC.template(b, 'banter_player', name=k.name, map=H.name(b.game_map)), now=now)
         else:
-            self.speak(b, 'global', SPC.template(b, 'laf_firma', firma=b.r.choice([f for f in ('MMO', 'EIC', 'VRU') if f != FIRMA[b.firma]])),
+            self.speak(b, 'global', SPC.template(b, 'banter_company', company=b.r.choice([f for f in ('MMO', 'EIC', 'VRU') if f != FIRMA[b.firma]])),
                        now=now)
 
     def can_recruit(self, clan, now):
@@ -483,11 +483,11 @@ class ChatEngine:
         self._last_recruit[None] = self._last_recruit[clan] = now
         return True
 
-    def new_text(self, b, durum, now, **f):
+    def new_text(self, b, state, now, **f):
         """Durumun kalıbından, son 45 dakikada yazılmamış bir satır (4 denemede yoksa None)."""
         self._last_text = [x for x in self._last_text if now - x[0] < REPEAT_SEC]
         for _ in range(4):
-            m = SPC.template(b, durum, **f)
+            m = SPC.template(b, state, **f)
             if m and re.sub(r'\W+', '', m.lower()) not in (x[1] for x in self._last_text):
                 return m
         return None
@@ -502,39 +502,39 @@ class ChatEngine:
         told = b.__dict__.setdefault('_told', set())
         candidates = []
         for o in b.events[-12:]:
-            if now - o['t'] > 900 or (o['tur'], o['t']) in told:
+            if now - o['t'] > 900 or (o['type'], o['t']) in told:
                 continue
-            t = o['tur']
+            t = o['type']
             if t == 'gate_done':
-                candidates.append(('durum_kapi', dict(kapi=o['kapi']), o))
-            elif t == 'purchase' and not str(o.get('esya', '')).startswith('ship_'):
-                item = re.sub(r'^(drone|equipment|resource)_', '', str(o.get('esya', ''))).replace('_', ' ')
-                candidates.append(('durum_alim', dict(esya=item), o))
-            elif t == 'olum' and o.get('neden') == 'npc':
-                candidates.append(('durum_olum', dict(harita=o.get('harita', H.name(b.game_map))), o))
-            elif t == 'quest_done' and o.get('ad'):
-                candidates.append(('durum_gorev', dict(ad=o['ad']), o))
+                candidates.append(('status_gate', dict(gate=o['gate']), o))
+            elif t == 'purchase' and not str(o.get('item', '')).startswith('ship_'):
+                item = re.sub(r'^(drone|equipment|resource)_', '', str(o.get('item', ''))).replace('_', ' ')
+                candidates.append(('status_purchase', dict(item=item), o))
+            elif t == 'death' and o.get('reason') == 'npc':
+                candidates.append(('status_death', dict(map=o.get('map', H.name(b.game_map))), o))
+            elif t == 'quest_done' and o.get('name'):
+                candidates.append(('status_quest', dict(name=o['name']), o))
             elif t == 'fled':
-                candidates.append(('durum_kacti', dict(harita=o.get('harita', H.name(b.game_map))), o))
+                candidates.append(('status_fled', dict(map=o.get('map', H.name(b.game_map))), o))
         try:
             if b.cargo_fill() > 0.85:
-                candidates.append(('durum_kargo', dict(yuzde=int(b.cargo_fill() * 100)), None))
+                candidates.append(('status_cargo', dict(percent=int(b.cargo_fill() * 100)), None))
         except Exception:
             pass
         if b.target is not None and b.target.name == 'grinding':
-            candidates.append(('durum_kasma', dict(harita=H.name(b.game_map)), None))
+            candidates.append(('status_grind', dict(map=H.name(b.game_map)), None))
         npc = b.k['stats'].get('npc', 0)
         if npc >= 50:
-            candidates.append(('durum_istat', dict(npc=npc, olum=b.k['stats'].get('olum', 0)), None))
+            candidates.append(('status_stats', dict(npc=npc, death=b.k['stats'].get('death', 0)), None))
         if not candidates:
             return None
         d, f, o = b.r.choice(candidates)
         if o is not None:
-            told.add((o['tur'], o['t']))
+            told.add((o['type'], o['t']))
             if len(told) > 60:
                 told.clear()
-        f.setdefault('harita', H.name(b.game_map))
-        f.setdefault('seviye', b.level)
+        f.setdefault('map', H.name(b.game_map))
+        f.setdefault('level', b.level)
         return d, f
 
     def start_dialog(self, b, is_open, channel, now):
@@ -543,7 +543,7 @@ class ChatEngine:
         chat = SPC.dialogue(b)
         if not chat:
             return False
-        take = lambda x, kind: SPC.dialogue_line(x, kind, harita=H.name(x.game_map), seviye=x.level)
+        take = lambda x, kind: SPC.dialogue_line(x, kind, map=H.name(x.game_map), level=x.level)
         m = take(b, chat[0])
         if not m or re.sub(r'\W+', '', m.lower()) in (x[1] for x in self._last_text):
             return False
@@ -582,20 +582,20 @@ class ChatEngine:
             return
         b = max(available, key=lambda b: b.o('talkativeness') * b.r.random())
         k = b.r.random()
-        if b.k.get('klan') and b.archetype == 'lider' and k < 0.3:
+        if b.k.get('clan') and b.archetype == 'leader' and k < 0.3:
             import clan as KL
-            c = KL.CLANS.get(b.k['klan'])
-            if c is not None and c['lider'] == b.name.lower() and self.can_recruit(b.k['klan'], now):
-                m = self.new_text(b, 'klan_alim', now, etiket=c['etiket'], klan=c['ad'], seviye=max(3, b.level - 4))
+            c = KL.CLANS.get(b.k['clan'])
+            if c is not None and c['leader'] == b.name.lower() and self.can_recruit(b.k['clan'], now):
+                m = self.new_text(b, 'clan_recruit', now, tag=c['tag'], clan=c['name'], level=max(3, b.level - 4))
                 if m and self.speak(b, 'global', m, now=now) is not None:
                     self.wrote(b, m, now)
                     return
         if b.archetype == 'trader' and k < 0.4:
-            m, channel = self.new_text(b, 'ticaret', now, esya='LF-3'), 'global'
+            m, channel = self.new_text(b, 'trade', now, item='LF-3'), 'global'
         elif b.o('sociability') > 0.6 and k < 0.35:
-            m, channel = self.new_text(b, 'grup_ara', now, harita=H.name(b.game_map)), 'firma'
+            m, channel = self.new_text(b, 'group_search', now, map=H.name(b.game_map)), 'company'
         else:
-            channel, r = b.r.choice(('global', 'firma')), b.r.random()
+            channel, r = b.r.choice(('global', 'company')), b.r.random()
             m = None
             if r < 0.4:
                 d = self.status_line(b, now)
@@ -605,8 +605,8 @@ class ChatEngine:
                     return
             elif r < 0.8 and now - self._last_complaint >= COMPLAINT_SEC:
                 self._last_complaint = now
-                m = self.new_text(b, 'sikayet', now)
+                m = self.new_text(b, 'complaint', now)
             if m is None:
-                m = self.new_text(b, 'genel', now)
+                m = self.new_text(b, 'general', now)
         if m and self.speak(b, channel, m, now=now) is not None:
             self.wrote(b, m, now)

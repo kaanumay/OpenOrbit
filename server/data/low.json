@@ -1,31 +1,31 @@
 {
  "_description": "LoW (Lord of War), tek kişilik sürüm (low.py; yol haritası Aşama 4). Wiki (belgeler/arastirma/pve_icerik.md 2.9, darkorbitwiki.com/galaxy-gates/low): portal X-3'te, grup kapısı (en az 3 kişi). Uzaylılar ve sayıları wiki'den (LoW sürümleri: npc.json 90-97, npcId 42-48 ve Century Falcon 120): Vagrant 14, Marauder 17, Outcast 18, Corsair 10, Hooligan 17, Ravager 17, Convict 16; hepsi ölünce dört röle istasyonu sırayla etkinleştirilir, dördüncüden sonra Century Falcon Vagrant'larla gelir. Ödüller uzaylıların kendi ödülleri: wiki'nin tek oyunculu toplamı (7.002.000 EP, 26.400 onur, 35.400 U, 35.355.000 kredi) bunların toplamı. Herkes ölünce 5 dk içinde dönülebilir. Yerleşim (oyuncu bildirimi #13, 2026-10-26): giriş haritanın sol alt köşesinde (harita.LOW_START (1000, 11800): wiki \"lower left corner\", emu-dark LowPortal.cs); dört röle sabit yerlerde (role.yerler: emu-dark CreateRelayStation, wiki görselindeki 4, 9, 11, 13 numaralı yeşil karelerle aynı bölgeler), ilki girişten beri görünür, her biri bir öncekinin etkinleşmesiyle belirir; HQ haritanın ortasında (süs istasyon harita.LOW_STATION, boss burada doğar; emu-dark CreateHealthStation (10400, 6400), resmî kayıt haritanın ortası); kırmızı uçuş yasağı bölgeleri harita_duzeni.json'un 200 kaydında (NO_ACCESS, uzaylılar geçer). Anlatı: istemcinin transmission_groupgate_* metinleri (HQ'dan telsiz; anlati).",
  "_uyarlama": "Uzaylılar türlerine göre sırayla dalga dalga (109'u birden değil). Röle istasyonu vurularak dolar (wiki \"shoot the station until its green indicator loads\", istemcinin transmission_groupgate_relay_station_2 metni; dolum için gereken hasar 300.000 uyarlama; istemcide röleyi seçip vurmak canlıda doğrulandı): yedek olarak yanında (yaricap) sn saniye durunca da dolar. Haritada korsan (rölenin savunanı da) varken ve rölenin sırası gelmeden röle etkinleşmez (istemcinin msg_groupgate_cant_activate_relay_because_npcs_are_alive metni; resmî forum LoW redesign: \"sonraki rölenin açılması için tüm NPC'ler öldürülmeli\"). Vagrant'lar wiki'nin 14'ü: dalgada 4, her rölede 1 savunan, Century Falcon'un eskortu 6. Bitince ortada firmanın X-3'üne dönüş portalı. Rota: wiki görselindeki numaralar sırayı veriyor (1 başlangıç; 2, 3 doğuş; 4 röle; 5, 6 doğuş; 7 HQ; 8 doğuş; 9 röle; 10 doğuş; 11 röle; 12 doğuş; 13 röle; 14 boss) ve 7 doğuş noktası ile 7 uzaylı türü sayıca örtüşüyor; hangi türün hangi noktada doğduğu kaynakta yok (UYARLAMA: dalga sırası, dalga i = i. doğuş noktası; rota bu sıraya göre röleleri araya koyar). Doğuş noktalarının koordinatları (spawn_points) wiki görselinden (664x492, 21000x13100'e ölçeklenmiş) çıkarıldı, yaklaşık (±500-1000), 6 numaralı nokta HQ'nun yanında; oyuncu yaklaşınca doğma (fandom \"bölgeye yaklaşınca\") yerine önceki dalga ölünce doğar. Röle savunanı rölenin çevresinde halkada (spawn_distance) doğar. HQ iyileştirme bölgesi: istemcinin transmission_groupgate_relay_station_bypassed metni (\"ilk röle HQ onarım bölgesini tetikler, bölgeye uçup gemini onar\"), wiki \"speeds HP regeneration in the middle of the map\", resmî forum SSS (savaşırken de iyileşir); yarıçap 1200 wiki görselindeki yeşil daireden (~1000-1200); onarım robotundan bağımsız. SAYI KAYNAKSIZ: heal_hp_per_sec 5000 (wikiwiki.jp \"5.000, bazıları 20.000\"; birim belirsiz, düşük değer HP/sn alındı), relay_increase 0.25 (her ek etkin röle +%25; eski \"onarım %25\" uyarlamasından). Korsan füzeleri (fandom Group Gate SSS: \"korsanlar füze de atar\") eklenmedi: kaynakta tür, hasar, bekleme değeri yok. 3 kişi şartı kasıtlı olarak yok (tek oyunculu).",
- "harita": 200,
+ "map": 200,
  "waves": [["94", 4], ["93", 17], ["92", 18], ["91", 10], ["96", 17], ["97", 17], ["95", 16]],
  "spawn_points": [[1550, 8360], [1830, 4130], [6450, 3330], [9580, 4710], [12300, 10220], [16290, 8200], [15970, 510]],
- "route": [["dalga", 0], ["dalga", 1], ["role", 0], ["dalga", 2], ["dalga", 3], ["dalga", 4], ["role", 1], ["dalga", 5], ["role", 2], ["dalga", 6], ["role", 3], ["boss"]],
+ "route": [["wave", 0], ["wave", 1], ["role", 0], ["wave", 2], ["wave", 3], ["wave", 4], ["role", 1], ["wave", 5], ["role", 2], ["wave", 6], ["role", 3], ["boss"]],
  "boss": "90",
  "escort": ["94", 6],
  "role": {
-  "adet": 4,
+  "count": 4,
   "sn": 20,
-  "hasar": 300000,
-  "yaricap": 600,
+  "damage": 300000,
+  "radius": 600,
   "savunma": ["94", 1],
   "pirates": ["95", 5],
   "_korsanlar": "2-4. röle etkinleşince rölenin çevresinde korsan grubu (resmî Türk forumu 126411); tür ve sayı uyarlama",
   "places": [[2500, 2000], [6200, 11700], [18300, 10900], [18200, 4000]],
-  "center": {"yaricap": 1200, "heal_hp_per_sec": 5000, "relay_increase": 0.25}
+  "center": {"radius": 1200, "heal_hp_per_sec": 5000, "relay_increase": 0.25}
  },
  "return_sec": 300,
  "entry_sec": 6,
  "wave_interval_sec": 4,
  "spawn_distance": [1300, 2200],
- "cikis": {"1": 1, "2": 5, "3": 9},
+ "exit": {"1": 1, "2": 5, "3": 9},
  "_cikis": "Century Falcon ölünce herkes firmasının X-1 istasyonuna gönderilir (resmî Türk forumu 126411); eski X-3 portalının yerine.",
  "narration": {
-  "giris": ["groupgate_map_started", "transmission_groupgate_mission_start_1", "transmission_groupgate_mission_start_2"],
+  "entry": ["groupgate_map_started", "transmission_groupgate_mission_start_1", "transmission_groupgate_mission_start_2"],
   "relay_1": ["transmission_groupgate_relay_station_1"],
   "relay_1_ready": ["transmission_groupgate_relay_station_2"],
   "relay_1_done": ["transmission_groupgate_relay_station_bypassed"],
@@ -35,12 +35,12 @@
   "finished": ["transmission_groupgate_mission_end"]
  },
  "messages": {
-  "giris": "LoW: destroy all Lord of War ships, then activate the {roleler} relay stations.",
+  "entry": "LoW: destroy all Lord of War ships, then activate the {relays} relay stations.",
   "ongoing": "LoW: welcome back! The instance continues.",
-  "dalga": "LoW: {ad} x{adet} incoming ({dalga}/{toplam})",
-  "role": "Relay station {no}/{roleler}: destroy its defender, then use your laser cannons on it.",
-  "relay_progress": "Relay station {no}/{roleler}: {yuzde}%",
-  "relay_done": "Relay station {no}/{roleler} activated!",
+  "wave": "LoW: {name} x{count} incoming ({wave}/{total})",
+  "role": "Relay station {no}/{relays}: destroy its defender, then use your laser cannons on it.",
+  "relay_progress": "Relay station {no}/{relays}: {percent}%",
+  "relay_done": "Relay station {no}/{relays} activated!",
   "boss": "key:msg_boss_appearence",
   "finished": "key:msg_groupgate_finished"
  }

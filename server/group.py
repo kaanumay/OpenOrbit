@@ -114,7 +114,7 @@ def hp(hp, hp_max, shield, shield_max, nano=0, nano_max=0):
 
 
 def ship_hp(p):
-    g = p.d['gemi']
+    g = p.d['ship']
     return hp(g.get('hitPoints', 0), g.get('hitMax', 0), g.get('shield', 0), g.get('shieldMax', 0), g.get('nanoHull', 0),
                g.get('maxNanoHull', 0))
 
@@ -125,7 +125,7 @@ def target(k, now):
     t = w.target if w is not None and w.running else None
     n = w.npcs.get(t) if t is not None else None
     if n is not None and n.alive:
-        return mod('TargetModule', shipType=mod('ShipIconModule', shipIcon=npc_icon(n.d.get('ad'))), name=str(n.d.get('ad', '')),
+        return mod('TargetModule', shipType=mod('ShipIconModule', shipIcon=npc_icon(n.d.get('name'))), name=str(n.d.get('name', '')),
                    health=hp(n.hp, n.d.get('hp', 0), n.shield, n.d.get('kalkan', 0)))
     o = TP.find(uid=t) if t is not None else None
     if o is not None and o.uid != k.uid:
@@ -204,12 +204,12 @@ def remove(a, b, reason):
 
 
 def distribute(exit):
-    """{kimlik: [mesaj]} -> her biri bağlıysa istemcisine (kilit dışında)."""
+    """{uid: [mesaj]} -> her biri bağlıysa istemcisine (kilit dışında)."""
     people = TP.all_()
     for uid, msgs in exit.items():
         k = people.get(uid)
         if k is not None and msgs:
-            k.send(msgs, 'grup')
+            k.send(msgs, 'group')
 
 
 def _add(exit, uid, *msgs):
@@ -516,5 +516,5 @@ def launch():
     """Durum güncellemelerinin iş parçacığı (ilk grup kurulunca bir kez)."""
     global _thread
     if _thread is None:
-        _thread = threading.Thread(target=_loop, name='grup', daemon=True)
+        _thread = threading.Thread(target=_loop, name='group', daemon=True)
         _thread.start()

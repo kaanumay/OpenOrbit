@@ -7,7 +7,7 @@ Arkadaş sunucusunun misafiri (panelin "Arkadaşlarınla Oyna"sı, panel/friends
 --session=<anahtar> --uid=<kimlik> ile istemci oyuna ve sohbete arkadaşın sunucusunda girer (oturum anahtarı profili orada bulur;
 kimlik sunucunun verdiği). --adres: dinlenen yerel adres (öntanımlı 127.0.0.1). macOS'ta 80 ve 843 0.0.0.0'da açılır, yalnız bu
 bilgisayardan gelen bağlantılar kabul edilir (platform_compat.py: macOS root olmayana 1024'ten küçük portu 127.0.0.1'de açmıyor).
-Çoklu istemci (panel/multi_client.py): ek istemci http://127.0.0.1:8090/?oturum=<anahtar>#darkorbit:// ile açılır; anahtar oyun sunucusuna
+Çoklu istemci (panel/multi_client.py): ek istemci http://127.0.0.1:8090/?session=<anahtar>#darkorbit:// ile açılır; anahtar oyun sunucusuna
 sorulur (GET /yerel/oturum: kaydın profili ve sunucudaki kimliği), giriş sayfası onu dosid çerezine yazar, istemci login.php'ye
 PHPSESSID çereziyle gelir: kimlik, gemi, harita, dil ve 2D o kaydınki. Bilinmeyen ek anahtar ana oyuncuya düşmez (ana istemci
 düşerdi): giriş sayfası uyarı verir, login.php başarısız döner.
@@ -58,7 +58,7 @@ def profile(path=None):
     try:
         d = json.load(open(p, encoding='utf8'))
         use2d = bool(((d.get('settings') or {}).get('displaySettingsModule') or {}).get('displayUse2d'))
-        return d['pilot']['userId'], d['gemi']['typeId'], d['position']['mapId'], use2d
+        return d['pilot']['userId'], d['ship']['typeId'], d['position']['mapId'], use2d
     except (OSError, KeyError, ValueError):
         return 1, 'ship_goliath', 1, False
 
@@ -101,7 +101,7 @@ def extra_session(sid):
     if c and now - c[0] < (60 if c[1] else 2):
         return c[1]
     try:
-        with _direct.open('http://%s/yerel/oturum?oturum=%s' % (GAME_SERVER, quote(sid)), timeout=3) as r:
+        with _direct.open('http://%s/yerel/oturum?session=%s' % (GAME_SERVER, quote(sid)), timeout=3) as r:
             d = json.loads(r.read().decode('utf8'))
         v = {'uid': int(d['uid']), 'route': str(d['route']), 'record': str(d.get('record') or '')}
     except Exception:                   # 404 (bilinmeyen), sunucu tek oyunculu ya da kapalı
@@ -272,17 +272,17 @@ def gate_rewards_xml():
     out = []
     for key, g in gates.items():
         R = g.get('reward') or {}
-        rows = [('currency_experience', R.get('ep', 0), 1.0), ('currency_honour', R.get('onur', 0), 1.0),
-                ('currency_uridium', R.get('uridyum', 0), 1.0)]
+        rows = [('currency_experience', R.get('ep', 0), 1.0), ('currency_honour', R.get('honor', 0), 1.0),
+                ('currency_uridium', R.get('uridium', 0), 1.0)]
         rows += [(loot, n, 1.0) for loot, n in sorted((R.get('ammunition') or {}).items())]
         rows += [(GATE_LOOT[k], R.get(k, 0), 1.0) for k in ('xenomit', 'log_disk', 'voucher', 'energy')]
         rows += [(GATE_LOOT.get(k, k), n, 1.0) for k, n in sorted((R.get('booty') or {}).items())]
         for s in R.get('chance', []):
-            if s.get('esya') == 'ore_pack':        # forum 129125: kapının cevher paketi, kalemleri ağırlığıyla
-                rows += [(loot, n[0], s.get('probability', 0) * w) for loot, n, w in s['paket']]
+            if s.get('item') == 'ore_pack':        # forum 129125: kapının cevher paketi, kalemleri ağırlığıyla
+                rows += [(loot, n[0], s.get('probability', 0) * w) for loot, n, w in s['package']]
                 continue
-            opts = s.get('options') if s.get('esya') == 'design_choice' else [s.get('esya')]
-            rows += [(loot, s.get('adet', 1), s.get('probability', 0) / max(1, len(opts))) for loot in opts or []]
+            opts = s.get('options') if s.get('item') == 'design_choice' else [s.get('item')]
+            rows += [(loot, s.get('count', 1), s.get('probability', 0) / max(1, len(opts))) for loot in opts or []]
             # Diametrion'la birlikte gelen üç kaynaktan biri (kapi.finish 'birlikte'): rehberin "min" alanı en az miktar (70-80 ve 8-14 gibi
             # aralıklar yazılamaz), şans sınıfı üçe bölünmüş olasılıktan
             rows += [(loot, n[0] if isinstance(n, list) else n, s.get('probability', 0) / len(s['together'])) for loot, n in s.get('together', [])]
@@ -352,7 +352,7 @@ def cdn_file(base):
 
 
 def redirect_page(sid=None):
-    """Gömülü tarayıcının ilk sayfası: oturum çerezi ve oyun girişine yönlendirme (sid: ek istemcinin ?oturum= anahtarı; bilinmeyen
+    """Gömülü tarayıcının ilk sayfası: oturum çerezi ve oyun girişine yönlendirme (sid: ek istemcinin ?session= anahtarı; bilinmeyen
     anahtarda uyarı, ana oyuncuya düşmez). Kayıtlı giriş dili varsa önce istemciye
     "Unity_ChangeLanguage<dil>" mesajı gider: istemci sayfanın konsol iletilerini dinliyor (GameLoadingManager.UpdateMessage,
     ConsoleMessageLogged -> UpdateWebData: WebGlData.message -> Settings.Language). İstemcinin öteki dil kaynağı tarayıcının lang çerezi (OpenWebLogin) ama tarayıcı her açılışta çerezsiz
@@ -389,7 +389,7 @@ class H(BaseHTTPRequestHandler):
             ctype, out = ROUTES[base](self)
         elif port == 8090 and base == '/':
             q = parse_qs(path.split('?', 1)[1]) if '?' in path else {}
-            ctype, out = 'text/html; charset=utf-8', redirect_page((q.get('oturum') or [None])[0])
+            ctype, out = 'text/html; charset=utf-8', redirect_page((q.get('session') or [None])[0])
         elif base.startswith('/bilgi/'):
             ctype, out = 'text/html; charset=utf-8', info_page(base[len('/bilgi/'):])
         elif 'indexInternal.es' in path:

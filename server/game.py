@@ -133,7 +133,7 @@ class Templates:
         self.entry = _load('login.json', {})
         self.maps = _load('maps.json', {})
         for w in self.maps.values():
-            w['hazir'] = [m for m in w.get('hazir', []) if not (m['_m'] == 'JumpgateCreateCommand' and m['designId'] in SERVER_GATE_DESIGNS)]
+            w['ready'] = [m for m in w.get('ready', []) if not (m['_m'] == 'JumpgateCreateCommand' and m['designId'] in SERVER_GATE_DESIGNS)]
         # yalnız kullanılanlar (E10): ötekilerin hepsini kod karşılıyor; kayıttaki hesabın verisi (başka oyuncuların adları, klan
         # listeleri) bir isteğin yedeğinden pencereye çıkmasın. Dosyada kalırlar: araçların kaynağı (rutbe, pve_modlari, sira_odulleri)
         self.replies = {k: v for k, v in _load('responses.json', {}).items() if k in USED_RESPONSES}
@@ -151,7 +151,7 @@ class Templates:
 
     def station(self, map_id):
         """Haritanın istasyonu (tamir, doğma, hangar): süs istasyonları (5-2'nin korsan istasyonu) sayılmaz."""
-        for m in self.map_world(map_id).get('hazir', []):
+        for m in self.map_world(map_id).get('ready', []):
             if m['_m'] == 'SpaceStationCommand' and m.get('type') not in H.DECOR_STATION_TYPES:
                 return m
         return None
@@ -159,7 +159,7 @@ class Templates:
     def batch(self, kind, profile):
         """'giris' ya da 'hazir' demetini [(ad, alanlar)] olarak üretir."""
         if not self.entry:
-            if kind == 'giris':
+            if kind == 'entry':
                 return [profile.generate('@gemi'), profile.generate('@giris_yaniti')]
             return []
         map_id = profile.d['position']['mapId']
@@ -171,14 +171,14 @@ class Templates:
             if mk == 'WindowItemCommand':
                 # kayıtta Contacts ve Ship Warp girişte üçer kez, her hazır demetinde yine üçer kez (kayıttaki yerle, maximized false:
                 # açık pencere kapanır): girişte bir kez, profildeki yer ve görünürlükle (profil.patch_template)
-                if kind == 'hazir' or m.get('itemId') in windows:
+                if kind == 'ready' or m.get('itemId') in windows:
                     continue
                 windows.add(m.get('itemId'))
             if mk in ('@harita_giris', '@harita_hazir'):
                 lv = profile.d['pilot'].get('level', 1)
-                out += [(n, f) for n, f in self.world_msgs(map_id, 'giris' if mk == '@harita_giris' else 'hazir')
+                out += [(n, f) for n, f in self.world_msgs(map_id, 'entry' if mk == '@harita_giris' else 'ready')
                         if not (n == 'JumpgateCreateCommand' and f['gateId'] == H.TUTORIAL_GATE and lv >= H.TUTORIAL_MAX_LEVEL)]
-            elif kind == 'hazir' and (mk == 'EquipReadyCommand' or m.get('message', '').startswith('0|n|MSG|3|2|msg_equip_')):
+            elif kind == 'ready' and (mk == 'EquipReadyCommand' or m.get('message', '').startswith('0|n|MSG|3|2|msg_equip_')):
                 continue               # kayıtta her yerde true; dünya istasyon bölgesine girip çıktıkça gönderir (dunya.check_gates)
             elif mk.startswith('@'):
                 st = self.station(map_id)               # düşman üssü güvenli bölge değil (dunya.home_station)
@@ -198,7 +198,7 @@ class Templates:
     def asset_removes(self, map_id):
         """Harita değişiminde eski haritanın istasyon/taret nesnelerini kaldır (kayıttaki AssetRemoveCommand gibi)."""
         return [('AssetRemoveCommand', {'assetType': w['type'], 'uid': w['assetId']}) for w in
-                self.map_world(map_id).get('giris', []) if w['_m'] == 'AssetCreateCommand']
+                self.map_world(map_id).get('entry', []) if w['_m'] == 'AssetCreateCommand']
 
     def response(self, name, fields):
         """Salt okunur isteğe kayıttaki yanıtı bulur: tam eşleşme, yoksa yalnız sayfalama/haber alanları farklı olan kayıt.
@@ -307,7 +307,7 @@ def login_batch(kind, first=True, profile=None):
 HOME_MAP = {1: 1, 2: 5, 3: 9}     # firma -> ana harita (X-1)
 # arkadaş sunucusunda oyuncuların ortak dünyası olan haritalar (ortak_harita.py): firma, savaş ve Blacklight haritaları (1-1 … 5-4,
 # BL-1..3); kapı, mod, etkinlik, labirent ve LoW haritaları her oyuncunun kendi kopyası
-SHARED = {k for k in world.CFG['haritalar'] if k.isdigit() and re.match(r'(\d|BL)-\d$', H.name(k)) and int(k) not in KAPI.BY_MAP
+SHARED = {k for k in world.CFG['maps'] if k.isdigit() and re.match(r'(\d|BL)-\d$', H.name(k)) and int(k) not in KAPI.BY_MAP
               and int(k) not in EKP.BY_MAP and int(k) not in LAB.MAPS and int(k) != LOW.MAP}
 NAME_MIN, NAME_MAX, STATUS_MAX = 4, 20, 200    # pilot adı 4-20 (istemci change_pilotname_error_signs_number); durum yazısı uyarlama
 NAME_ILLEGAL = set(' <>@+\'"&%;/\\?|')          # istemci change_pilotname_error_signs_illegal (+ protokolün ayırıcısı |)
@@ -437,7 +437,7 @@ class Session:
                         ('apotheosis', self.extra.apo)):                                                       # 1.1.115
             s.change_map = self.change_map
             self.pve.extra_windows[kind] = s.portal_window
-        self.extra.send = lambda m: self.send(m, 'etkinlik')
+        self.extra.send = lambda m: self.send(m, 'event')
         self.extra.title.base_title = lambda: self.achievement.title_msgs()
         self.gates.titles = self.extra.title.grant_title           # kapı tamamlama unvanı (wiki: All-Star, Boss Of Bosses, Emperor Of Hades Gate)
         self.pve.echoes.titles = self.extra.title.grant_title        # Deep Space Echoes dönem sonu sıralama unvanı (Cosmic Tyrant)
@@ -525,7 +525,7 @@ class Session:
     def quest_event(self, kind, **kw):
         """Dünyanın görev olayları: görevler ve Pass görevleri (öldürme Pass'lere başarım olayından gider; grup üyesinin aynı
         haritada öldürdüğü uzaylı başarım değil, yalnız görev: Pass, etkinlik ve Urgent Missions görevleri de buradan)."""
-        group = kind == 'kill' and kw.get('grup')
+        group = kind == 'kill' and kw.get('group')
         if kind in ('cargo', 'loot', 'sell', 'bonus', 'map', 'ore_update') or group:     # ore_update: Season Pass USE_ORE_UPDATE görevleri
             self.pass_event(kind, **kw)
             msgs = self.extra.event(kind, kw) + (self.extra.urgent.kill(kw.get('npc')) if group else [])
@@ -536,11 +536,11 @@ class Session:
     def quest_state_events(self):
         """Durum koşulları (Ö1): görev kabul edilince şimdiki durum bir kez değerlendirilir (çubuktaki eşya, Skylab modüllerinin
         seviyeleri), yoksa koşul ancak bir sonraki değişiklikte ilerlerdi."""
-        tpl = next((m for m in TEMPLATE.entry.get('hazir', []) if m['_m'] == 'MenuInitializationCommand'), None)
+        tpl = next((m for m in TEMPLATE.entry.get('ready', []) if m['_m'] == 'MenuInitializationCommand'), None)
         msgs = self.quest.event('slot_bar', **self.profile.slot_bar_state(tpl['slotBars'] if tpl else []))
         for key, lv in self.skylab.levels().items():
-            msgs += self.quest.event('skylab', modul=key, seviye=lv)
-        if self.profile.d.get('klan'):
+            msgs += self.quest.event('skylab', module=key, level=lv)
+        if self.profile.d.get('clan'):
             msgs += self.quest.event('clan')                 # IN_CLAN: klanda olmak
         return msgs
 
@@ -599,7 +599,7 @@ class Session:
                 self.profile.dirty = True
             KL.name_changed(old, name)
             import name_log as NL                          # öteki oyuncuların rehberi (arkadaş, istek, engelli) ve botların hafızası
-            NL.add([{'tur': 'ad', 'eski': old, 'yeni': name}])
+            NL.add([{'type': 'name', 'eski': old, 'new': name}])
             from bot import manager as MGR
             if MGR.ACTIVE is not None:
                 MGR.ACTIVE.apply_name_log()
@@ -630,7 +630,7 @@ class Session:
                 'userName': p.d['pilot'].get('userName', ''),          # kayıttaki ad değil, profilinki
                 'userId': p.user_id, 'registrationDate': p.d.get('created', '') + '.0',    # kayıttaki hesabınki değil
                 'ranking': RT.hof_sira(p),                                  # sunucudaki oyuncular arasında (rutbe.hof_top)
-                'clanName': k.get('ad', ''), 'clanRank': next((i + 1 for i, (c, _) in enumerate(order) if c is k), 0),
+                'clanName': k.get('name', ''), 'clanRank': next((i + 1 for i, (c, _) in enumerate(order) if c is k), 0),
                 'clanMemberCount': len(k.get('members', ()))}
         return [(n, dict(f, **{k: v for k, v in dict(bio, **rank).items() if k in f})) if n == 'InternalPilotBioUserProfileCommand'
                 else (n, f) for n, f in resp]
@@ -688,7 +688,7 @@ class Session:
         self.world.quest_list = self.quest.list_cmd
         self.world.stats_msgs = self.shop.apply_stats
         self.world.ore_pack = self.shop.ore_pack
-        self.world.map_msgs = lambda: TEMPLATE.world_msgs(map_id, 'giris')
+        self.world.map_msgs = lambda: TEMPLATE.world_msgs(map_id, 'entry')
         self.world.on_home = self.respawn_home
         self.world.session_tick = self.tick                        # Assembly, Dispatch, Skylab zamanlayıcıları
         self.world.grant = self.shop.reward                       # uzaylının ek ödülündeki ekipman (The Stinger: Caucasus)
@@ -734,7 +734,7 @@ class Session:
         """Görevlerin işaretleri için haritanın görev vericisi ve rafinerisi."""
         g = self.quest
         g.map_id, g.giver, g.trade = int(map_id), None, None
-        for n, a in TEMPLATE.world_msgs(map_id, 'giris'):
+        for n, a in TEMPLATE.world_msgs(map_id, 'entry'):
             if n == 'AssetCreateCommand' and a['type']['typeValue'] == H.QUEST_GIVER:
                 g.giver = (a['assetId'], a['posX'], a['posY'])
             if n == 'AssetCreateCommand' and H.STATION_ASSETS.get(a['type']['typeValue']) == 'ttip_ore_trade':
@@ -856,16 +856,16 @@ class Session:
                 self.send([BANK.info_cmd(self.profile)], quiet=True)
 
     def quest_reward(self, loot, n):
-        cur = {'currency_credits': 'kredi', 'currency_uridium': 'uridyum', 'currency_experience': 'ep', 'currency_honour': 'onur'}
+        cur = {'currency_credits': 'credits', 'currency_uridium': 'uridium', 'currency_experience': 'ep', 'currency_honour': 'honor'}
         if loot in cur:
             cbs = self.profile.cbs_mods() if getattr(self.profile, 'cbs_mods', None) else {}
-            if cur[loot] in ('ep', 'onur'):
+            if cur[loot] in ('ep', 'honor'):
                 n = int(n * (1 + cbs.get(cur[loot], 0)))
-            n = SET.amount(cur[loot], n, 'gorev')           # panelin ödül çarpanları
-            tot = self.profile.gain(neden='quest_won', **{cur[loot]: n})
+            n = SET.amount(cur[loot], n, 'quest')           # panelin ödül çarpanları
+            tot = self.profile.gain(reason='quest_won', **{cur[loot]: n})
             pet = self.pet.gain_xp(n) if cur[loot] == 'ep' else []        # forum 127074: P.E.T. görev EP'sinin %5'ini de kazanır
             return (self.world.reward_msgs(tot, **{cur[loot]: n}) if self.world else []) + (pet or [])
-        return self.shop.prize(loot, n, 'gorev')         # eşya ödülü: panelin mod/görev ödülü çarpanı
+        return self.shop.prize(loot, n, 'quest')         # eşya ödülü: panelin mod/görev ödülü çarpanı
 
     def respawn_home(self):
         """İstasyonsuz haritada istasyonda tamir: firmanın ana haritasında (X-1) istasyonda doğ (gerçek oyundaki gibi); seviye 12+ ve
@@ -878,7 +878,7 @@ class Session:
     def revive_on_login(self):
         """Gemi yok edilmişken oyundan çıkılmışsa: istasyonda ücretsiz tamir (gerçek oyunda çıkıştan sonra portalda ve yerinde tamir
         seçenekleri kalkar, istemcinin ttip_killscreen_logout_1 metni)."""
-        g = self.profile.d['gemi']
+        g = self.profile.d['ship']
         if g.get('hitPoints', 1) > 0:
             return
         k = self.profile.d['position']
@@ -899,8 +899,8 @@ class Session:
         if gate:
             self.profile.ach('jump')                   # başarım: portal atlamaları
         if gate and gate.get('event_gate'):
-            self.event_gates.enter(gate['kapi'])    # etkinlik kapısının girişi: kapı kurulur (canlar, dalga sırası, süre)
-            dest = self.event_gates.dest(gate['kapi'])     # karışık sırada ilk harita (Trial of Terrors)
+            self.event_gates.enter(gate['gate'])    # etkinlik kapısının girişi: kapı kurulur (canlar, dalga sırası, süre)
+            dest = self.event_gates.dest(gate['gate'])     # karışık sırada ilk harita (Trial of Terrors)
         self.pve.on_jump(gate)                   # Astral'ın çıkışı: oyuncunun donanımı geri
         w0 = self.world                          # kilit sırası dünya iş parçacığıyla aynı (world.lock, sonra state_lock): paket
         with (w0.lock if w0 else contextlib.nullcontext()), self.state_lock:     # iş parçacığından tersi kilitleniyordu
@@ -912,7 +912,7 @@ class Session:
                 self.world = None
             self.pet.attach(None)        # etkinse yeni haritada yeniden çıkar
             pos = pos or (gate or {}).get('arrival')      # kapı portalları: kapı haritasının ortasına / X-1'de kapının yanına
-            if pos == 'istasyon':                        # atlama CPU'su ve kapıdan eve dönüş: hedefin istasyonuna (yoksa portalın yanına)
+            if pos == 'station':                        # atlama CPU'su ve kapıdan eve dönüş: hedefin istasyonuna (yoksa portalın yanına)
                 st = TEMPLATE.station(dest)
                 pos = (st['posX'], st['posY']) if st else None
             if pos == 'random':                       # 5-3'ün çıkışları 4-4'te rastgele yere (harita_duzeni.json)
@@ -924,7 +924,7 @@ class Session:
             self.send(msgs + [('JumpToServerCommand', {})], quiet=True)
             self.map_pending = True      # giriş demetinden önce: istemcinin ReadyRequest'i hemen gelse de kaçmaz
             RT.daily_rank(self.profile)        # gün değiştiyse rütbe (istemci yalnız ShipInitializationCommand'dan okur)
-            self.send(self.with_quests(login_batch('giris', first=False, profile=self.profile)),
+            self.send(self.with_quests(login_batch('entry', first=False, profile=self.profile)),
                       'harita değişimi: %s -> %s, giriş demeti' % (H.name(old), H.name(dest)))
             self.profile.d['position'].pop('at_portal', None)
 
@@ -964,7 +964,7 @@ class Session:
         """Öteki oyuncuların istemcisinde bu oyuncunun gemisi (shared_maps.py): kayıttaki başka oyuncunun mesajları
         (ShipCreateCommand, unvan, dronlar, gemi modülleri)."""
         p = self.profile
-        pl, g = p.d['pilot'], p.d['gemi']
+        pl, g = p.d['pilot'], p.d['ship']
         import admin_mode as YM
         direction = YM.is_open(p)                     # yönetici: rozet ve yönetici gemisi öteki oyunculara da
         create = ('ShipCreateCommand', dict(
@@ -992,7 +992,7 @@ class Session:
                 return
             self.revive_on_login()
             RT.daily_rank(self.profile)                     # günlük rütbe (ShipInitializationCommand.dailyRank)
-            self.send(self.with_quests(login_batch('giris', profile=self.profile)), 'giriş demeti')
+            self.send(self.with_quests(login_batch('entry', profile=self.profile)), 'giriş demeti')
             self.map_pending = True
         elif name == 'ReadyRequest' and (self.map_pending or (w and w.reload_pending)):
             with self.state_lock:      # dünyaya kilit dışında dokun (harita değişimi dünya iş parçacığından bu kilidi alır)
@@ -1002,7 +1002,7 @@ class Session:
             # Restabilize sekmesinin listesi: kayıtta girişten sonra ve envanter değişince ayrıca geliyor, giriş demetlerinde yok;
             # yalnız demetteki kaydın yerine konduğu için hiç gitmiyordu, sekme "No Items" diyordu (canlı test H69)
             unstable = [GM.list_cmd(self.profile)]
-            self.send(login_batch('hazir', profile=self.profile) + self.shop.login_msgs() + self.pet.login_msgs() + self.achievement.title_msgs()
+            self.send(login_batch('ready', profile=self.profile) + self.shop.login_msgs() + self.pet.login_msgs() + self.achievement.title_msgs()
                       + self.new_.login_msgs() + unstable + self.extra.login_msgs(), 'hazır demeti')
             if start:
                 self.start_world()
@@ -1213,7 +1213,7 @@ class Session:
             self.send([('CommandCenterInfoCommand', {'ids': ids})], 'Command Center: %d haber' % len(f.get('newsInfo') or []))
         elif name in SILENT:
             if name == 'EggTriggerRequest' and 0 <= f.get('eggTriggerType', -1) < len(EGG_TYPES):
-                self.profile.ach('egg', tur=EGG_TYPES[f['eggTriggerType']])     # gizli başarımlar (EVENT_SECRET); yanıtı yok
+                self.profile.ach('egg', type=EGG_TYPES[f['eggTriggerType']])     # gizli başarımlar (EVENT_SECRET); yanıtı yok
         elif name.startswith(('Assembly', 'Disassembly', 'Dispatch', 'Skylab')):
             sysm = self.assembly if name.startswith(('Assembly', 'Disassembly')) else self.dispatch if name.startswith('Dispatch') \
                 else self.skylab
@@ -1256,7 +1256,7 @@ class Session:
             if name == 'HangarShipMoveItemsRequest':
                 self.profile.ach('sync')       # başarım: takılı eşyalar (Champion/Beacon tasarımı)
         elif name == 'SlotBarConfigSetRequest':
-            tpl = next((m for m in TEMPLATE.entry.get('hazir', []) if m['_m'] == 'MenuInitializationCommand'), None)
+            tpl = next((m for m in TEMPLATE.entry.get('ready', []) if m['_m'] == 'MenuInitializationCommand'), None)
             if tpl and self.profile.slot_bar_set(f, tpl['slotBars']):
                 self.send([('MenuInitializationCommand', self.profile.patch_template('MenuInitializationCommand', tpl))]
                           + self.quest.event('slot_bar', **self.profile.slot_bar_state(tpl['slotBars'])), 'kısayol çubuğu')
@@ -1289,7 +1289,7 @@ class Session:
             if name == 'DisplaySettingsRequest':
                 self.profile.ach('display', use2d=f.get('displayUse2d'))      # başarım: 3B görünüm (Uses3D)
                 # SaveInterfaceSettingsTab changes flags, but the client only applies toolbar visibility on UIBag refresh.
-                tpl = next((m for m in TEMPLATE.entry.get('hazir', []) if m['_m'] == 'MenuInitializationCommand'), None)
+                tpl = next((m for m in TEMPLATE.entry.get('ready', []) if m['_m'] == 'MenuInitializationCommand'), None)
                 if tpl:
                     self.send([('MenuInitializationCommand', self.profile.patch_template('MenuInitializationCommand', tpl))],
                               'arayüz: kısayol çubukları')
@@ -1447,9 +1447,10 @@ def server_info():
     except OSError:
         client = '1.1.116'
     client = max(client, '1.1.116', key=lambda v: tuple(int(x) for x in v.split('.')))     # surum.txt güncellemede eskide kalabilir
+    # 'sunucu', 'protokol' ve X-DarkOrbit: arkadas sürüm pazarlığıdır, eski paneller de okur: değişmez
     return {'sunucu': 'darkorbit', 'protokol': CO.PROTOCOL, 'code': CO.SETTINGS['code'], 'client': client,
             'pilot': PROFILE.d['pilot'].get('userName', ''), 'players': names, 'guest': len(ms), 'max_count': CO.SETTINGS['max_count'],
-            'password': bool(CO.SETTINGS['password']), 'yer': len(ms) < CO.SETTINGS['max_count']}
+            'password': bool(CO.SETTINGS['password']), 'place': len(ms) < CO.SETTINGS['max_count']}
 
 
 def watch_world():
@@ -1547,8 +1548,8 @@ def main():
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind((address, 8081)); s.listen(16)
     log('gs listening %s:8081 | profil: %s %s harita %s | şablon: %s%s%s' % (
-        address, PROFILE.d['pilot'].get('userName'), PROFILE.d['gemi'].get('typeId'), PROFILE.d['position']['mapId'],
-        TEMPLATE.entry.get('kaynak', 'none'), ' | profil dosyası: %s' % PROFILE.path if PROFILE_PATH else '',
+        address, PROFILE.d['pilot'].get('userName'), PROFILE.d['ship'].get('typeId'), PROFILE.d['position']['mapId'],
+        TEMPLATE.entry.get('source', 'none'), ' | profil dosyası: %s' % PROFILE.path if PROFILE_PATH else '',
         (' | arkadaş sunucusu: en çok %d misafir%s' % (CO.SETTINGS['max_count'], ', şifreli' if CO.SETTINGS['password'] else '')
          if CO.SETTINGS['guest'] else ' | çoklu istemci (yalnız bu bilgisayar)') if CO.is_open() else ''))
     while True:

@@ -19,9 +19,9 @@ import technology as TECH
 HERE = os.path.dirname(os.path.abspath(__file__))
 ORES = {loot: int(t) for t, loot in json.load(open(os.path.join(HERE, 'data', 'items.json'), encoding='utf8'))
         ['ores']['kinds'].items()}
-CURRENCY = {'currency_credits': ('credits', 'kredi'), 'currency_uridium': ('uridium', 'uridyum')}
+CURRENCY = {'currency_credits': ('credits', 'credits'), 'currency_uridium': ('uridium', 'uridium')}
 ITEM_PREFIXES = ('equipment_', 'drone_', 'pet_')
-_CLIENT = json.load(open(os.path.join(HERE, 'data', 'client_items.json'), encoding='utf8'))['esyalar']
+_CLIENT = json.load(open(os.path.join(HERE, 'data', 'client_items.json'), encoding='utf8'))['items']
 
 
 def client_item_ok(loot):
@@ -48,7 +48,7 @@ def client_filter(msgs):
 def free_items(p, loot):
     """Takılı olmayan eşya örnekleri (itemId listesi)."""
     eq, lv = p.equipped_ids(), p.d.get('upgrade_level', {})
-    ids = [int(i) for i, l in p.d['esyalar'].items() if l == loot and int(i) not in eq]
+    ids = [int(i) for i, l in p.d['items'].items() if l == loot and int(i) not in eq]
     return sorted(ids, key=lambda i: (int(lv.get(str(i), 0)), i))      # forum 160116: harcanan "stoğundaki en düşük seviyeli"
 
 
@@ -101,9 +101,9 @@ def spend(p, need, reason='buy_SPECIAL', detail=''):
     for loot, n in need.items():
         if n <= 0:
             continue
-        p.ach('spend', loot=loot, adet=n)               # Pass görevleri: eşya harca (gorev_takip.py)
+        p.ach('spend', loot=loot, count=n)               # Pass görevleri: eşya harca (gorev_takip.py)
         if loot in CURRENCY:
-            p.gain(**{CURRENCY[loot][1]: -n, 'neden': reason, 'detay': detail})
+            p.gain(**{CURRENCY[loot][1]: -n, 'reason': reason, 'detail': detail})
         elif loot in ORES:
             p.remove_ores({ORES[loot]: n})
         elif loot == 'resource_logfile':
@@ -122,7 +122,7 @@ def spend(p, need, reason='buy_SPECIAL', detail=''):
         elif loot.startswith(ITEM_PREFIXES):
             for iid in free_items(p, loot)[:n]:
                 with p.lock:
-                    del p.d['esyalar'][str(iid)]
+                    del p.d['items'][str(iid)]
                     p.d.get('item_level', {}).pop(str(iid), None)
                     p.dirty = True
                 removed.append(iid)

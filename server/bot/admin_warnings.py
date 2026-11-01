@@ -19,7 +19,7 @@ import admin_mode as YM
 from . import name_style as NS
 from . import speech as SPC
 
-DURATION_MIN = {'sohbet': 30, 'pvp': 240, 'kutu': 1440}
+DURATION_MIN = {'sohbet': 30, 'pvp': 240, 'box': 1440}
 GENERAL = {'sohbet': 30, 'pvp': 60}
 COMMENT_SEC = 900
 SIGHT = 1600
@@ -52,7 +52,7 @@ TOPICS = {
                    'yeni oyuncu', 'acemi', 'dusuk seviye', 'avla', 'kamp', 'tot', 'angreif', 'neuling', 'anfanger', 'matar', 'atacar',
                    'novato', 'campear', 'tuer', 'attaqu', 'debutant', 'zabija', 'atak', 'nowi', 'nowicjusz', 'kampi', 'campar',
                    'убива', 'атак', 'нович', 'кемп']),
-    'kutu': _stem_regex(['box', 'cargo', 'loot', 'steal', 'kutu', 'kargo', 'ganimet', 'cal', 'kiste', 'beute', 'klau', 'stehl', 'caja',
+    'box': _stem_regex(['box', 'cargo', 'loot', 'steal', 'kutu', 'kargo', 'ganimet', 'cal', 'kiste', 'beute', 'klau', 'stehl', 'caja',
                     'botin', 'robar', 'caisse', 'butin', 'vol', 'skrzyn', 'lup', 'krad', 'caixa', 'saque', 'roub', 'ящик', 'карго',
                     'лут', 'ворова', 'краж']),
 }
@@ -63,7 +63,7 @@ def topics(text):
     k = _normalize(text)
     talk = {name for name, phrase in TOPICS.items() if phrase.search(k)}
     if STRONG.search(k):
-        return talk or {'genel'}
+        return talk or {'general'}
     return talk if WEAK.search(k) else set()
 
 
@@ -76,17 +76,17 @@ def active(b, topic, now=None):
 def warn(b, talk, now, name=''):
     """Uyarıyı uygula (süreler tekrarla uzar) -> uygulanan konular."""
     u = b.k.setdefault('warning', {})
-    u['sayi'] = n = int(u.get('sayi', 0)) + 1 if now - u.get('last', 0) < 86400 else 1
+    u['number'] = n = int(u.get('number', 0)) + 1 if now - u.get('last', 0) < 86400 else 1
     u['last'] = now
     multiplier = min(8, 2 ** (n - 1))
     durations = {}
     for k in talk:
-        durations.update(GENERAL if k == 'genel' else {k: DURATION_MIN[k]})
+        durations.update(GENERAL if k == 'general' else {k: DURATION_MIN[k]})
     for k, minutes in durations.items():
         u[k] = max(u.get(k, 0), now + minutes * 60 * multiplier)
     if name:
         b.memory.event(name, 'warned', now)
-    b.event('admin_warned', now, konu=','.join(sorted(durations)))
+    b.event('admin_warned', now, subject=','.join(sorted(durations)))
     b.mood.it(morale=-0.05)
     return set(durations)
 
@@ -98,7 +98,7 @@ def note(b, now=None):
     is_open = [k for k in DURATION_MIN if now < u.get(k, 0)]
     if not is_open:
         return ''
-    ne = {'sohbet': 'spamming or rude chat', 'pvp': 'attacking or killing other pilots', 'kutu': "taking other pilots' cargo boxes"}
+    ne = {'sohbet': 'spamming or rude chat', 'pvp': 'attacking or killing other pilots', 'box': "taking other pilots' cargo boxes"}
     return ' The game master warned him about %s %d min ago: he obeys and avoids it.' % (
         ' and '.join(ne[k] for k in is_open), max(1, int((now - u.get('last', now)) // 60)))
 
@@ -140,13 +140,13 @@ def handle(m, g, now):
         if m.llm is not None and m.llm.ready:
             return False                                 # dil modeli yanıtlar (persona notu ve sistem istemi)
         for b in (mentioned or [x for x in target if x.r.random() < 0.15])[:2]:
-            m.speak(b, channel or 'whisper', SPC.template(b, 'yonetici_ozur', ad=name), recipient=name if channel is None else None, now=now,
+            m.speak(b, channel or 'whisper', SPC.template(b, 'admin_apology', name=name), recipient=name if channel is None else None, now=now,
                     priority=True)
         return True
     kind, _ = SPC.intent(msg)
-    if kind == 'selam' and channel is not None and not mentioned and (m.llm is None or not m.llm.ready):
+    if kind == 'greeting' and channel is not None and not mentioned and (m.llm is None or not m.llm.ready):
         for b in [b for b in listener if b.r.random() < 0.5 + 0.4 * b.o('sociability')][:3]:
-            m.speak(b, channel, SPC.template(b, 'yonetici_selam', ad=name), now=now, priority=True)
+            m.speak(b, channel, SPC.template(b, 'admin_greeting', name=name), now=now, priority=True)
         return True
     return False
 
@@ -166,5 +166,5 @@ def sight_tick(y, now):
             continue
         last[w.map_id] = now
         b = max(nearby, key=lambda b: b.o('talkativeness') * b.r.random())
-        b.event('yonetici_gordu', now, harita=H.name(w.map_id))
-        y.speak(b, 'firma', SPC.template(b, 'yonetici_gordu', harita=H.name(w.map_id)), now=now)
+        b.event('admin_saw', now, map=H.name(w.map_id))
+        y.speak(b, 'company', SPC.template(b, 'admin_saw', map=H.name(w.map_id)), now=now)

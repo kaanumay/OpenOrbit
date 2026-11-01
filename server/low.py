@@ -21,7 +21,7 @@ from galaxy_gates import mod, screen
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 L = json.load(open(os.path.join(HERE, 'data', 'low.json'), encoding='utf8'))
-MAP = L['harita']
+MAP = L['map']
 RELAY_STATION = 31                  # AssetTypeModule.AssetType (istemci)
 RELAY_BASE = 152100000
 EXIT_ID = H.GATE_ID_BASE + 990010
@@ -29,7 +29,7 @@ POI_HQ = 'lowHqHealing'             # HQ iyileştirme bölgesi (POIType HEALING 
 
 
 def fresh():
-    return {'stage': 'dalga', 'dalga': 0, 'role': 0, 'olum': None}
+    return {'stage': 'wave', 'wave': 0, 'role': 0, 'death': None}
 
 
 class Low:
@@ -42,17 +42,17 @@ class Low:
         self.told = set()           # anlatılan olaylar (low.json anlati): her biri girişten sonra bir kez
         now = time.time()
         st = self.p.d.get('low')
-        returning = bool(st and st.get('stage') != 'finished' and st.get('olum') and now - st['olum'] <= L['return_sec'])
+        returning = bool(st and st.get('stage') != 'finished' and st.get('death') and now - st['death'] <= L['return_sec'])
         with self.p.lock:
-            self.p.d['low'] = dict(st, olum=None) if returning else fresh()
+            self.p.d['low'] = dict(st, death=None) if returning else fresh()
             self.p.dirty = True
         self.t = now + L['entry_sec']
         world.asset_targets = self             # röle seçilir ve vurulur (dunya.asset_laser)
         self.show_relay()                      # sıradaki röle girişten görünür
         self.w.send(self.asset_msgs())         # Low hazır demetinden sonra kurulur (resend yalnız haritayı yeniden yükleyince taşır): canlıda ilk röle istemciye gitmiyordu
-        self.say('ongoing' if returning else 'giris')
+        self.say('ongoing' if returning else 'entry')
         if not returning:
-            self.tell('giris')
+            self.tell('entry')
         self.w.log('   LoW: %s (%s)' % ('kaldığı yerden' if returning else 'baştan', self.st['stage']))
 
     @property
@@ -66,7 +66,7 @@ class Low:
 
     def say(self, key, **kw):
         """Akış metni: "key:" önekliyse istemcinin metni (Century Falcon, bitiş), değilse low.json'un cümlesi."""
-        vals = dict(roleler=L['role']['adet'], toplam=len(L['waves']))
+        vals = dict(relays=L['role']['count'], total=len(L['waves']))
         vals.update(kw)
         self.w.send([screen(L['messages'][key].format(**vals))])
 
@@ -112,7 +112,7 @@ class Low:
         if st['stage'] == 'finished':
             return None
         for s in L['route']:
-            if s[0] == 'boss' or (st['dalga'] if s[0] == 'dalga' else st['role']) <= s[1]:
+            if s[0] == 'boss' or (st['wave'] if s[0] == 'wave' else st['role']) <= s[1]:
                 return tuple(s)
         return ('boss',)
 
@@ -124,15 +124,15 @@ class Low:
         s = self.step()
         if s is None:
             return
-        if s[0] == 'dalga':
+        if s[0] == 'wave':
             if self.alive():
                 return
             i = s[1]
             tip, n = L['waves'][i]
             self.spawn(tip, n, at=L['spawn_points'][i])
-            self.save(stage='dalga', dalga=i + 1)
+            self.save(stage='wave', wave=i + 1)
             self.t = now + L['wave_interval_sec']
-            self.say('dalga', ad=w.alien.CFG['types'][tip]['ad'].strip('-=[] '), adet=n, dalga=i + 1)
+            self.say('wave', name=w.alien.CFG['types'][tip]['name'].strip('-=[] '), count=n, wave=i + 1)
             w.log('   LoW dalga %d: %s x%d' % (i + 1, tip, n))
         elif s[0] == 'role':
             if not (self.relay and self.relay['defender']):
@@ -149,15 +149,15 @@ class Low:
 
     def relay_msg(self):
         r = self.relay
-        return ALN.asset_create(r['kimlik'], RELAY_STATION, r['x'], r['y'], name='Relay Station %d' % (self.st['role'] + 1))
+        return ALN.asset_create(r['uid'], RELAY_STATION, r['x'], r['y'], name='Relay Station %d' % (self.st['role'] + 1))
 
     def show_relay(self):
         """Sıradaki röle istasyonunu sabit yerinde (role.yerler) belirtir (savunanı sırası gelince doğar) -> yaratma iletisi ya da None."""
         no = self.st['role'] + 1
-        if no > L['role']['adet']:
+        if no > L['role']['count']:
             return None
         x, y = L['role']['places'][no - 1]
-        self.relay = dict(kimlik=RELAY_BASE + no, x=x, y=y, progress=0.0, last=time.time(), yuzde=-1, defender=False)
+        self.relay = dict(uid=RELAY_BASE + no, x=x, y=y, progress=0.0, last=time.time(), percent=-1, defender=False)
         return self.relay_msg()
 
     def place_relay(self, now):
@@ -182,7 +182,7 @@ class Low:
             return
         self.tell('relay_%d_ready' % (self.st['role'] + 1))
         hx, hy = w.hero_pos(now)
-        if math.hypot(r['x'] - hx, r['y'] - hy) > cfg['yaricap']:
+        if math.hypot(r['x'] - hx, r['y'] - hy) > cfg['radius']:
             return
         r['progress'] += min(dt, 1.0)
         self.relay_step(now)
@@ -192,12 +192,12 @@ class Low:
         w, r, cfg = self.w, self.relay, L['role']
         pct = min(100, int(100 * r['progress'] / cfg['sn']))
         no = self.st['role'] + 1
-        if pct // 25 > r['yuzde'] // 25 and pct < 100:
-            r['yuzde'] = pct
-            self.say('relay_progress', no=no, yuzde=pct)
+        if pct // 25 > r['percent'] // 25 and pct < 100:
+            r['percent'] = pct
+            self.say('relay_progress', no=no, percent=pct)
         if r['progress'] < cfg['sn']:
             return
-        msgs = [ALN.asset_remove(r['kimlik'], RELAY_STATION), legacy('0|A|STM|msg_relaisstation_activated')]
+        msgs = [ALN.asset_remove(r['uid'], RELAY_STATION), legacy('0|A|STM|msg_relaisstation_activated')]
         if no >= 2 and cfg.get('pirates'):                        # forum 126411: 2-4. röle etkinleşince çevresinde korsanlar
             self.spawn(cfg['pirates'][0], cfg['pirates'][1], at=(r['x'], r['y']))
         self.relay = None
@@ -216,8 +216,8 @@ class Low:
         """Son röle etkinleşince HQ istasyonu hangar ve ticaret verir (forum 126411); öncesinde yanaşılmaz."""
         cx, cy = self.hq()
         cfg = L['role']
-        if self.st['role'] >= cfg['adet'] and math.hypot(x - cx, y - cy) <= cfg['center']['yaricap']:
-            return dict(posX=cx, posY=cy, peaceRadius=cfg['center']['yaricap'], pvpPeace=False)
+        if self.st['role'] >= cfg['count'] and math.hypot(x - cx, y - cy) <= cfg['center']['radius']:
+            return dict(posX=cx, posY=cy, peaceRadius=cfg['center']['radius'], pvpPeace=False)
         return None
 
     # ------------------------------------------------------------ HQ iyileştirme bölgesi
@@ -228,7 +228,7 @@ class Low:
         cx, cy = self.hq()
         return [('MapAddPOICommand', dict(inverted=False, poiTypeSpecification='', poiType=mod('POITypeModule', typeValue=4), shape=0,
                                           active=True, design=mod('POIDesignModule', designValue=6), poiId=POI_HQ,
-                                          shapeCoordinates=[int(cx), int(cy), int(L['role']['center']['yaricap'])]))]
+                                          shapeCoordinates=[int(cx), int(cy), int(L['role']['center']['radius'])]))]
 
     def heal_tick(self, now):
         """HQ bölgesinde saniyede sabit can (iyilestirme_sn_can; etkin her ek röleyle role_artis kadar artar); onarım robotundan ve
@@ -241,10 +241,10 @@ class Low:
         c = L['role']['center']
         cx, cy = self.hq()
         hx, hy = w.hero_pos(now)
-        if math.hypot(hx - cx, hy - cy) > c['yaricap']:
+        if math.hypot(hx - cx, hy - cy) > c['radius']:
             return
         self.tell('hq')
-        g = self.p.d['gemi']
+        g = self.p.d['ship']
         hp0 = g.get('hitPoints', 0)
         if hp0 >= g.get('hitMax', 0):
             return
@@ -256,11 +256,11 @@ class Low:
     def charge(self):
         """Rölenin dolumu hasar biriminde: (şimdiki, gereken)."""
         cfg = L['role']
-        return int(self.relay['progress'] / cfg['sn'] * cfg['hasar']), cfg['hasar']
+        return int(self.relay['progress'] / cfg['sn'] * cfg['damage']), cfg['damage']
 
     def asset_pos(self, uid):
         r = self.relay
-        return (r['x'], r['y']) if r and uid == r['kimlik'] else None
+        return (r['x'], r['y']) if r and uid == r['uid'] else None
 
     def asset_select(self, uid):
         now, need = self.charge()
@@ -279,7 +279,7 @@ class Low:
     def asset_hit(self, uid, dmg):
         """Vuruş röleyi doldurur (gösterge: AttackHitAssetCommand'ın canı dolum)."""
         cfg = L['role']
-        self.relay['progress'] = min(cfg['sn'], self.relay['progress'] + dmg / float(cfg['hasar']) * cfg['sn'])
+        self.relay['progress'] = min(cfg['sn'], self.relay['progress'] + dmg / float(cfg['damage']) * cfg['sn'])
         now, need = self.charge()
         msgs = [('AttackHitAssetCommand', dict(assetId=int(uid), hitpointsNow=now, hitpointsMax=need))]
         self.relay_step(time.time())
@@ -299,8 +299,8 @@ class Low:
     def finish(self):
         w = self.w
         self.save(stage='finished')
-        dest = L['cikis'].get(str(self.p.d['pilot'].get('factionId')), 5)       # firmanın X-1'i (forum 126411: herkes X-1'e atılır)
-        g = dict(gateId=EXIT_ID, x=w.map_w // 2, y=w.map_h // 2, hedef=dest, designId=1, arrival='istasyon')
+        dest = L['exit'].get(str(self.p.d['pilot'].get('factionId')), 5)       # firmanın X-1'i (forum 126411: herkes X-1'e atılır)
+        g = dict(gateId=EXIT_ID, x=w.map_w // 2, y=w.map_h // 2, target=dest, designId=1, arrival='station')
         w.add_gate(g)
         w.auto_jump(g, L.get('exit_wait_sec', 5))
         self.say('finished')
@@ -311,9 +311,9 @@ class Low:
     # ------------------------------------------------------------ dünya olayları
     def on_death(self):
         """Ölünce: dönüş süresi başlar; aşamanın uzaylıları gider (dönünce yeniden gelir)."""
-        self.save(olum=time.time())
-        if self.st['stage'] == 'dalga' and self.alive():
-            self.save(dalga=max(0, self.st['dalga'] - 1))      # yarım kalan dalga dönünce baştan
+        self.save(death=time.time())
+        if self.st['stage'] == 'wave' and self.alive():
+            self.save(wave=max(0, self.st['wave'] - 1))      # yarım kalan dalga dönünce baştan
         elif self.st['stage'] == 'boss':
             self.boss = None
 
@@ -322,5 +322,5 @@ class Low:
         return ([self.relay_msg()] if self.relay else []) + self.zone_msgs()
 
     def cleanup_msgs(self):
-        return ([ALN.asset_remove(self.relay['kimlik'], RELAY_STATION)] if self.relay else []) + \
+        return ([ALN.asset_remove(self.relay['uid'], RELAY_STATION)] if self.relay else []) + \
                ([('MapRemovePOICommand', {'poiId': POI_HQ})] if self.zone_msgs() else [])

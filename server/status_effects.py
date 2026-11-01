@@ -26,14 +26,14 @@ class Effects:
 
     def add(self, kind, sec, value=1.0, source=None, now=None, **extra):
         now = now or time.time()
-        e = dict(extra, bitis=now + sec, value=value, kaynak=source)
+        e = dict(extra, end_time=now + sec, value=value, source=source)
         self.d.setdefault(kind, []).append(e)
         return e
 
     def get(self, kind, now=None):
         """Süren etkiler (bitenler ayıklanır)."""
         now = now or time.time()
-        lst = [e for e in self.d.get(kind, []) if now < e['bitis']]
+        lst = [e for e in self.d.get(kind, []) if now < e['end_time']]
         if lst:
             self.d[kind] = lst
         else:
@@ -42,7 +42,7 @@ class Effects:
 
     def remove(self, kind=None, source=None):
         for k in ([kind] if kind else list(self.d)):
-            self.d[k] = [e for e in self.d.get(k, []) if source is not None and e['kaynak'] != source]
+            self.d[k] = [e for e in self.d.get(k, []) if source is not None and e['source'] != source]
             if not self.d[k]:
                 self.d.pop(k, None)
 
@@ -51,7 +51,7 @@ class Effects:
         now = now or time.time()
         out = set()
         for k in list(self.d):
-            if any(now >= e['bitis'] for e in self.d[k]):
+            if any(now >= e['end_time'] for e in self.d[k]):
                 out.add(k)
                 self.get(k, now)
         return out
@@ -81,7 +81,7 @@ class Effects:
 
     def ability(self, key, now=None):
         """Etkin 'yetenek' etkilerinin bir etkisi (yansit, emme_can …) -> değer ya da None (gemi_yetenek.effect'in sandık karşılığı)."""
-        return next((e['value'][key] for e in self.get('yetenek', now) if key in e['value']), None)
+        return next((e['value'][key] for e in self.get('skill', now) if key in e['value']), None)
 
     def speed_factor(self, now=None):
         return 0.0 if self.frozen(now) else 1.0 - self.slow(now)
@@ -91,11 +91,11 @@ class Effects:
         now = now or time.time()
         hits = []
         for e in self.get('poison', now):
-            if now < e.get('next', 0) or e.get('kalan', 1) <= 0:
+            if now < e.get('next', 0) or e.get('remaining', 1) <= 0:
                 continue
-            dmg = min(e['value'], e.get('kalan', e['value']))
+            dmg = min(e['value'], e.get('remaining', e['value']))
             hits.append(dmg)
-            e['kalan'] = e.get('kalan', dmg) - dmg
+            e['remaining'] = e.get('remaining', dmg) - dmg
             e['value'] = min(e['value'] + e.get('increase', 0), e.get('max_count', e['value']))
             e['next'] = e.get('next', now) + 1.0
         return hits
@@ -104,9 +104,9 @@ class Effects:
         """Oyuncunun etkileri profil bonuslarına (profil.mods): yavaşlık hiz, donukluk sabit_hiz 0, isabet düşüşü."""
         out = {}
         if self.get('infection', now):
-            out.update(lazer=0.1, roket=0.1, hp_multiplier=0.85)
+            out.update(laser=0.1, rocket=0.1, hp_multiplier=0.85)
         if self.slow(now):
-            out['hiz'] = -self.slow(now)
+            out['speed'] = -self.slow(now)
         if self.frozen(now):
             out['fixed_speed'] = 0
         if self.accuracy_loss(now):
@@ -117,11 +117,11 @@ class Effects:
         cap = self.speed_cap(now)
         if cap is not None:
             out['max_speed'] = cap
-        for e in self.get('yetenek', now):
+        for e in self.get('skill', now):
             for k, v in e['value'].get('mods', {}).items():
                 out[k] = out.get(k, 0) + v
         weak = sum(e['value'] for e in self.get('weakness', now))
         if weak:
-            out['lazer'] = out.get('lazer', 0) - weak
-            out['roket'] = out.get('roket', 0) - weak
+            out['laser'] = out.get('laser', 0) - weak
+            out['rocket'] = out.get('rocket', 0) - weak
         return out

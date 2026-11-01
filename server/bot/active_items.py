@@ -17,7 +17,7 @@ from legacy_protocol import legacy
 from . import catalog as K
 
 CIT = K.ITEMS['combat_items']
-TECH_DATA = K.ITEMS['technology']['esyalar']
+TECH_DATA = K.ITEMS['technology']['items']
 EMP = 'ammunition_specialammo_emp-01'
 DCR, RIC = 'ammunition_specialammo_dcr-250', 'ammunition_specialammo_r-ic3'      # yavaşlatma, dondurma (savas_esya.rocket_hit'in etkileri)
 SLOWERS = (DCR, RIC)
@@ -43,11 +43,11 @@ def wait(n, name, now, sec):
 
 
 def xenomit(b):
-    return b.k.get('kargo', {}).get(XENOMIT, 0)
+    return b.k.get('cargo', {}).get(XENOMIT, 0)
 
 
 def spend_xenomit(b, n):
-    k = b.k.setdefault('kargo', {})
+    k = b.k.setdefault('cargo', {})
     if k.get(XENOMIT, 0) < n:
         return False
     k[XENOMIT] -= n
@@ -59,8 +59,8 @@ def spend_xenomit(b, n):
 def cost(b, c):
     """Insta-Shield ve Smart Bomb'un bedeli: 10 ACM-01 mayını ya da 100 Xenomit -> ödendi mi."""
     from . import weapons as WP
-    if WP.stock(b).get(c['mayin'], 0) >= c['mine_count']:
-        return WP.spend(b, c['mayin'], c['mine_count']) == c['mine_count']
+    if WP.stock(b).get(c['mine'], 0) >= c['mine_count']:
+        return WP.spend(b, c['mine'], c['mine_count']) == c['mine_count']
     return spend_xenomit(b, c['xenomit'])
 
 
@@ -71,7 +71,7 @@ def backup_shields(w, n, now):
     if not ready(n, 'sbu', now) or not TECH.use(n.bot, 'tech_backup-shields'):
         return False
     n.shield += v['kalkan']
-    wait(n, 'sbu', now, v['bekleme_sn'])
+    wait(n, 'sbu', now, v['cooldown_sec'])
     _broadcast(w, [legacy('0|n|A|S|%s|%d' % (v['eski'], n.id))], n.id)
     return True
 
@@ -81,12 +81,12 @@ def battle_repair(w, n, now, hp):
     v = TECH_DATA['tech_battle-repair-bot']
     if not ready(n, 'brb', now) or not TECH.use(n.bot, 'tech_battle-repair-bot'):
         return False
-    wait(n, 'brb', now, v['bekleme_sn'])
+    wait(n, 'brb', now, v['cooldown_sec'])
     visual(w, n, v['visual'], True)
     for i in range(int(v['sure_sn'])):
         def repair():
             if n.alive:
-                n.hp = min(hp, n.hp + v['can_sn'])
+                n.hp = min(hp, n.hp + v['hp_sec'])
         w.later(i + 1, repair)
     w.later(v['sure_sn'], lambda: visual(w, n, v['visual'], False) if n.alive else None)
     return True
@@ -99,7 +99,7 @@ def energy_leech(w, n, now):
     if now < n.__dict__.get('leech_end', 0) or not ready(n, 'ela', now) or not TECH.use(n.bot, 'tech_energy-leech'):
         return
     n.leech_end = now + v['sure_sn']
-    wait(n, 'ela', now, v['bekleme_sn'] + v['sure_sn'])
+    wait(n, 'ela', now, v['cooldown_sec'] + v['sure_sn'])
     visual(w, n, v['visual'], True)
     w.later(v['sure_sn'], lambda: visual(w, n, v['visual'], False) if n.alive else None)
 
@@ -118,14 +118,14 @@ def chain_impulse(w, n, now):
     nx, ny = n.mover.pos(now)
     nearby = sorted(((math.hypot(m.mover.pos(now)[0] - nx, m.mover.pos(now)[1] - ny), m) for m in list(w.npcs.values())
                     if m.bot is None and m.alive and not m.d.get('friendly')), key=lambda x: x[0])
-    nearby = [m for dd, m in nearby if dd <= v['yaricap']][:v['hedef']]
+    nearby = [m for dd, m in nearby if dd <= v['radius']][:v['target']]
     if len(nearby) < 3 or not TECH.use(n.bot, 'tech_chain-impulse'):
         return
-    wait(n, 'eci', now, v['bekleme_sn'])
+    wait(n, 'eci', now, v['cooldown_sec'])
     _broadcast(w, [legacy('0|n|ECI|1|%d|%s' % (n.id, '|'.join(str(m.id) for m in nearby)))], n.id)
     from . import ship as BG
     for m in nearby:
-        BG.hit_npc(w, n, m, min(v['hasar'], int(m.shield)), now, 5, shield=True)
+        BG.hit_npc(w, n, m, min(v['damage'], int(m.shield)), now, 5, shield=True)
 
 
 # ------------------------------------------------------------------------------------------------------------ etkin CPU'lar
@@ -136,7 +136,7 @@ def insta_shield(w, n, now):
     if not EX.var(b, EX.ISH) or not b.permission.get('ekstra', True) or not ready(n, 'ish', now) or not cost(b, c):
         return False
     n.immune_until = now + c['sure_sn']
-    wait(n, 'ish', now, c['bekleme_sn'])
+    wait(n, 'ish', now, c['cooldown_sec'])
     _broadcast(w, [legacy('0|n|ISH|%d' % n.id)], n.id)
     return True
 
@@ -148,12 +148,12 @@ def smart_bomb(w, n, now, enemies):
     b = n.bot
     if not enemies or not EX.var(b, EX.SMB) or not b.permission.get('ekstra', True) or not ready(n, 'smb', now) or not cost(b, c):
         return False
-    wait(n, 'smb', now, c['bekleme_sn'])
+    wait(n, 'smb', now, c['cooldown_sec'])
     _broadcast(w, [legacy('0|n|SMB|%d' % n.id)], n.id)
     from . import ship as BG
     for o, t in enemies:
         if o is not None:
-            g = o.p.d['gemi']
+            g = o.p.d['ship']
             o.send(o.hurt_hero(int(g.get('hitPoints', 0) * c['can'] + g.get('shield', 0) * c['kalkan']), killer=n, cause=0,
                                source_asset=True, now=now))
         elif t is not None:
@@ -171,7 +171,7 @@ def emp(w, n, now):
     if WP.stock(b).get(EMP, 0) <= 0 or not ready(n, 'emp', now) or w.in_pvp_peace(x, y) or w.target != n.id:
         return False
     WP.spend(b, EMP, 1)
-    wait(n, 'emp', now, c['bekleme_sn'])
+    wait(n, 'emp', now, c['cooldown_sec'])
     _broadcast(w, [legacy('0|n|EMP|%d' % n.id)], n.id)
     if w.attacking:
         w.laser_stop()                     # istemcinin lazeri ve kırmızı hedef vurgusu da kalksın
@@ -237,7 +237,7 @@ def combat(w, n, now, d, ratio, attackers):
         energy_leech(w, n, now)
         if n.bot.o('aggression') > 0.5:
             x, y = n.mover.pos(now)
-            r = CIT['smart_bomb']['yaricap']
+            r = CIT['smart_bomb']['radius']
             victims = []
             o = BG._player(w, w.hid)
             if o is not None and not o.hero_dead and BG.can_attack_player(w, n, o, now) and math.hypot(*(a - c for a, c in zip(o.hero_pos(now), (x, y)))) <= r:
@@ -270,7 +270,7 @@ def slow_down(w, n, o, ratio, now):
         if WP.stock(b).get(loot, 0) > 0 and ready(n, loot, now):
             (kind, (val, sec)), = r['effect'].items()
             WP.spend(b, loot, 1)
-            wait(n, loot, now, r['bekleme_sn'])
+            wait(n, loot, now, r['cooldown_sec'])
             o.hero_effect(kind, sec, val, source=loot)
             o.send([legacy('0|n|fx|start|%s|%d' % (r['fx'], o.hid))])
             o.later(sec, lambda fx=r['fx']: o.send([legacy('0|n|fx|end|%s|%d' % (fx, o.hid))]))

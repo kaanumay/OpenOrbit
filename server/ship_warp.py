@@ -52,7 +52,7 @@ class Warp:
         ships = []
         for sid in sids:
             s = self.p.ship(sid)
-            ships.append(mod('ShipWarpModule', shipId=int(sid), typeId=s['lootId'], shipDesignName=s.get('tasarim') or '',
+            ships.append(mod('ShipWarpModule', shipId=int(sid), typeId=s['lootId'], shipDesignName=s.get('design') or '',
                              uridiumPrice=pay, voucherPrice=0 if near else 1, hangarId=int(sid), hangarName='',
                              mapId=(s.get('position') or {}).get('mapId', home)))      # geminin bırakıldığı harita (magaza.activate)
         return [('ShipWarpWindowCommand', {'jumpVoucherCount': self.p.resource(VOUCHER), 'uridium': int(self.p.d['pilot'].get('uridium', 0)),

@@ -8,8 +8,8 @@ from .. import abstract_sim as S
 
 @target
 class GateRun(Goal):
-    name = 'kapi'
-    permission = 'kapi'
+    name = 'gate'
+    permission = 'gate'
     min_sec = 3600 * 3          # kapıdayken başka işe geçmez
 
     def eligible(self, bot, b):
@@ -21,16 +21,16 @@ class GateRun(Goal):
     def start(self, bot, b):
         k = GT.can_run(bot)
         success, duration = GT.run_result(bot, k, bot.r)
-        bot.plan.update(kapi=k, success=success, bitis=b.now + duration, sure=duration)
-        game_map = GT.KAPI[k].get('harita')
+        bot.plan.update(gate=k, success=success, end_time=b.now + duration, sure=duration)
+        game_map = GT.KAPI[k].get('map')
         if game_map:
             S.jump_to(bot, game_map, b.y)                    # kapı haritası: senin haritandan kalkar
-        bot.event('entered_gate', kapi=GT.KAPI[k]['ad'])
+        bot.event('entered_gate', gate=GT.KAPI[k]['name'])
 
     def abstract(self, bot, dt, y):
-        if bot.plan.get('finished') or y.now < bot.plan.get('bitis', 0):
+        if bot.plan.get('finished') or y.now < bot.plan.get('end_time', 0):
             return
-        k = bot.plan.get('kapi')
+        k = bot.plan.get('gate')
         st = GT.state(bot)
         if k in st['built']:
             st['built'].remove(k)
@@ -42,7 +42,7 @@ class GateRun(Goal):
             GT.record_duration(bot.k, k, bot.plan.get('sure') or 0)
         else:
             bot.ist('gate_lost')
-            bot.event('gate_lost', kapi=GT.KAPI[k]['ad'])
+            bot.event('gate_lost', gate=GT.KAPI[k]['name'])
         S.jump_to(bot, K.ev(bot.firma), y)                 # kapının çıkışı: X-1
         bot.plan['finished'] = True
 

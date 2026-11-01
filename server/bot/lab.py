@@ -41,7 +41,7 @@ def spend(bot, part, n):
 
 
 def _cargo(bot):
-    return bot.k.setdefault('kargo', {})
+    return bot.k.setdefault('cargo', {})
 
 
 def refine(bot, product, count):
@@ -90,10 +90,10 @@ def _is_promerium_good(bot, need):
         refine(bot, PROMETID, need * 10)
         refine(bot, DURANIUM, need * 10)
         prom = refine(bot, PROMERIUM, need)
-        bot.k['kargo'] = dict(original)
+        bot.k['cargo'] = dict(original)
         prometid = refine(bot, PROMETID, need)
     finally:
-        bot.k['kargo'] = original
+        bot.k['cargo'] = original
         bot.k['stats']['refining'] = counter
     return BONUS[LAZER][PROMERIUM] * prom > BONUS[LAZER][PROMETID] * prometid
 
@@ -121,6 +121,6 @@ def decision(bot, hourly_ammo):
         refine(bot, DURANIUM, 60)
         load(bot, SHIELD, DURANIUM, 60)                           # bir saatlik kalkan
     v = lab_data(bot).get(str(ROCKET))
-    if bot.permission.get('roket', True) and (not v or v[1] < 50):
+    if bot.permission.get('rocket', True) and (not v or v[1] < 50):
         refine(bot, PROMETID, 10)
         load(bot, ROCKET, PROMETID, 10)

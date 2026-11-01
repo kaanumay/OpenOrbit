@@ -18,21 +18,21 @@ ARCHETYPES = {
                            talkativeness=.30, frugality=.60, ambition=.75), 'PvE kasıcı'),
     'hunter':    (0.14, dict(aggression=.90, rekabet=.90, sociability=.45, patience=.40, risk=.80, loyalty=.50, helpfulness=.30,
                            talkativeness=.55, frugality=.35, ambition=.70), 'PvP avcısı'),
-    'sosyal':  (0.14, dict(aggression=.30, rekabet=.35, sociability=.90, patience=.50, risk=.40, loyalty=.80, helpfulness=.80,
-                           talkativeness=.90, frugality=.50, ambition=.40), 'sosyal'),
+    'social':  (0.14, dict(aggression=.30, rekabet=.35, sociability=.90, patience=.50, risk=.40, loyalty=.80, helpfulness=.80,
+                           talkativeness=.90, frugality=.50, ambition=.40), 'social'),
     'trader':  (0.08, dict(aggression=.20, rekabet=.55, sociability=.55, patience=.70, risk=.35, loyalty=.50, helpfulness=.40,
                            talkativeness=.50, frugality=.85, ambition=.60), 'tüccar'),
     'quester': (0.16, dict(aggression=.40, rekabet=.45, sociability=.40, patience=.70, risk=.45, loyalty=.55, helpfulness=.60,
                            talkativeness=.35, frugality=.55, ambition=.65), 'görevci'),
     'casual':   (0.17, dict(aggression=.30, rekabet=.20, sociability=.50, patience=.35, risk=.50, loyalty=.40, helpfulness=.55,
                            talkativeness=.50, frugality=.30, ambition=.25), 'casual'),
-    'lider':   (0.04, dict(aggression=.55, rekabet=.75, sociability=.85, patience=.60, risk=.55, loyalty=.90, helpfulness=.70,
-                           talkativeness=.75, frugality=.60, ambition=.85), 'lider'),
+    'leader':   (0.04, dict(aggression=.55, rekabet=.75, sociability=.85, patience=.60, risk=.55, loyalty=.90, helpfulness=.70,
+                           talkativeness=.75, frugality=.60, ambition=.85), 'leader'),
 }
 
 # arketipin oyuna ayırdığı zaman (çevrimiçi olma eğilimi çarpanı) ve oynarken verimi (dikkat, optimizasyon)
-ACTIVITY = {'grinder': (1.3, 1.15), 'hunter': (1.2, 1.0), 'sosyal': (1.0, 0.8), 'trader': (0.9, 0.95), 'quester': (1.0, 1.0),
-            'casual': (0.55, 0.7), 'lider': (1.3, 1.0)}
+ACTIVITY = {'grinder': (1.3, 1.15), 'hunter': (1.2, 1.0), 'social': (1.0, 0.8), 'trader': (0.9, 0.95), 'quester': (1.0, 1.0),
+            'casual': (0.55, 0.7), 'leader': (1.3, 1.0)}
 
 # oyun alışkanlığı: saat -> çevrimiçi olma eğilimi (0-1) ve oturum uzunluğu (dakika, en az-en çok)
 HABITS = {
@@ -68,15 +68,15 @@ def generate_name(r, lang='mixed'):
     ve ağırlıklı desenler; 'karisik': dosyaların ağırlığıyla bir dil)."""
     from .language_data import LANGUAGES, pick_mixed
     d = LANGUAGES.get(lang) or LANGUAGES[pick_mixed(r)]
-    a = d['adlar']
+    a = d['names']
     pattern = r.choices([x[1] for x in a['patterns']], weights=[x[0] for x in a['patterns']])[0]
-    s = re.sub(r'\{([^}]+)\}', lambda m: _part(m.group(1), a['parcalar'], r), pattern)
+    s = re.sub(r'\{([^}]+)\}', lambda m: _part(m.group(1), a['parts'], r), pattern)
     s = re.sub(r'[^A-Za-z0-9_.\-]', '', s)
-    return s[:20] if len(s) >= 3 else s + r.choice(a['parcalar'].get('sayi') or _NUMBERS)
+    return s[:20] if len(s) >= 3 else s + r.choice(a['parts'].get('number') or _NUMBERS)
 
 
 def _part(name, parts, r):
-    """Desen alanı: {liste}, {liste_k} küçük, {a|b} iki listeden, {liste?} yarı yarıya boş, {leet:liste}."""
+    """Desen alanı: {entries}, {liste_k} küçük, {a|b} iki listeden, {liste?} yarı yarıya boş, {leet:liste}."""
     leet = name.startswith('leet:')
     name = name[5:] if leet else name
     empty = name.endswith('?')
@@ -111,10 +111,10 @@ def generate_personality(r, archetype=None, lang='tr'):
         punctuation=round(clamp(r.gauss(0.3, 0.25)), 2),        # cümle sonu noktalama
         abbreviation=round(clamp(r.gauss(0.5, 0.25)), 2),         # "slm", "nbr", "tmm", "gg", "np"
         emoji=round(clamp(r.gauss(0.3 + talk * 0.2, 0.2)), 2),  # ":D", "xD", "^^"
-        hata=round(clamp(r.gauss(0.08, 0.06), 0, 0.3), 2),    # yazım hatası
+        error=round(clamp(r.gauss(0.08, 0.06), 0, 0.3), 2),    # yazım hatası
         uppercase=round(clamp(r.gauss(0.05 + traits['aggression'] * 0.1, 0.05), 0, 0.4), 2),   # BAĞIRIR
     )
-    return dict(archetype=a, traits=traits, habit=take, style=style, dil=lang,
+    return dict(archetype=a, traits=traits, habit=take, style=style, lang=lang,
                 reaction_sec=round(clamp(r.gauss(0.9, 0.35), 0.35, 2.0), 2))   # insan tepki süresi (sn): somut savaşta gecikme
 
 
@@ -124,12 +124,12 @@ def generate_roster(seed, count, company_distribution=(1, 1, 1), lang='mixed', e
     ad_dili: adların dili ('karisik': dosyaların ağırlığıyla); dil: sohbet dili ('karisik': her bot adının dilinde konuşur).
     ozel: kullanıcının kendi botları [{ad, firma?, arketip?, dil?}] (oyuncu isteği 2026-10-30): kadronun başında, verilmeyen
     alanları ötekiler gibi üretilir; firması verilen, dağılımdaki o firmanın bir yerini alır.
-    havuz: gerçek oyuncu adları {dil: [ad]} (bot/dostats.py): adlar önce oradan, bitince üretilir."""
+    havuz: gerçek oyuncu adları {lang: [ad]} (bot/dostats.py): adlar önce oradan, bitince üretilir."""
     from .language_data import LANGUAGES, pick_mixed
     name_lang = name_lang or lang
     r = random.Random(seed)
     used = {str(a).lower() for a in existing}
-    special = [o for o in special if str(o['ad']).lower() not in used][:count]
+    special = [o for o in special if str(o['name']).lower() not in used][:count]
     total = sum(company_distribution) or 1
     # firmaları paylara göre tam sayıya böl (en büyük kalan), sonra karıştır: dağılım küçük kadroda da tutar
     shares = [count * f / total for f in company_distribution]
@@ -139,19 +139,19 @@ def generate_roster(seed, count, company_distribution=(1, 1, 1), lang='mixed', e
     companies = [f + 1 for f in range(3) for _ in range(number[f])]
     r.shuffle(companies)
     for o in special:                                   # firması verilen özel bot o firmanın bir yerini alır
-        if o.get('firma') in companies:
-            companies.remove(o['firma'])
+        if o.get('company') in companies:
+            companies.remove(o['company'])
     remaining = iter(companies)
     out = []
     for no in range(1, count + 1):
         o = special[no - 1] if no <= len(special) else {}
-        firma = o.get('firma') or next(remaining, None) or r.randint(1, 3)
+        firma = o.get('company') or next(remaining, None) or r.randint(1, 3)
         name_langs = name_lang if name_lang in LANGUAGES else pick_mixed(r)
-        chat = o.get('dil') or (lang if lang in LANGUAGES else name_langs)          # karışık: adı Almanca olan Almanca konuşur
+        chat = o.get('lang') or (lang if lang in LANGUAGES else name_langs)          # karışık: adı Almanca olan Almanca konuşur
         real = [x for x in (pool or {}).get(name_langs) or [y for v in (pool or {}).values() for y in v]
                   if x.lower() not in used and NS.is_case_safe(x)]
         if o:
-            name = str(o['ad'])
+            name = str(o['name'])
         elif real:
             name = r.choice(real)
         else:
@@ -162,9 +162,9 @@ def generate_roster(seed, count, company_distribution=(1, 1, 1), lang='mixed', e
             else:
                 name = 'Pilot%d' % r.randint(1000, 99999)
         used.add(name.lower())
-        x = dict(no=no, ad=name, firma=firma, personality=dict(generate_personality(r, archetype=o.get('archetype'), lang=chat), name_lang=o.get('dil') or name_langs))
+        x = dict(no=no, name=name, company=firma, personality=dict(generate_personality(r, archetype=o.get('archetype'), lang=chat), name_lang=o.get('lang') or name_langs))
         if o:
-            x['ozel'] = True                             # kullanıcının botu (panel: Kadro'da işaretli)
+            x['special'] = True                             # kullanıcının botu (panel: Kadro'da işaretli)
         out.append(x)
     return out
 
@@ -201,14 +201,14 @@ class Mood:
 
 # ------------------------------------------------------------------------------------------------------------ hafıza
 EVENTS = {          # olay -> ilişkiye etkisi
-    'killed_me': -0.35, 'oldurdum': -0.05, 'helped_me': 0.25, 'i_helped': 0.1, 'sohbet': 0.03, 'hakaret': -0.2,
-    'praise': 0.12, 'grup': 0.08, 'klan': 0.1, 'arkadas': 0.2, 'reddetti': -0.08, 'hunted_together': 0.05,
+    'killed_me': -0.35, 'i_killed': -0.05, 'helped_me': 0.25, 'i_helped': 0.1, 'sohbet': 0.03, 'insult': -0.2,
+    'praise': 0.12, 'group': 0.08, 'clan': 0.1, 'friend': 0.2, 'reddetti': -0.08, 'hunted_together': 0.05,
     'gossip_good': 0.06, 'gossip_bad': -0.08,          # başka bottan duyulan (ani.duydu)
 }
 
 
 class Memory:
-    """Kişilere karşı ilişki (-1 kin .. 1 dostluk) ve olay sayıları. Kayıtta {ad_kucuk: {d, n: {olay: sayı}, s: son an}}.
+    """Kişilere karşı ilişki (-1 kin .. 1 dostluk) ve olay sayıları. Kayıtta {ad_kucuk: {d, n: {incident: sayı}, s: son an}}.
     Uzun süre görülmeyen ilişki yavaşça sıfıra döner (unutma); en çok HAFIZA_EN_COK kişi tutulur (en eskisi düşer)."""
     MAX_COUNT = 60
     FORGET_SEC = 6 * 3600
@@ -222,7 +222,7 @@ class Memory:
             return 0.0                                     # kimliği bilinmeyen (adsız) biri: hatırlanacak kimse yok
         now = now or time.time()
         k = str(name).lower()
-        e = self.d.setdefault(k, {'d': 0.0, 'n': {}, 's': now, 'ad': str(name)})
+        e = self.d.setdefault(k, {'d': 0.0, 'n': {}, 's': now, 'name': str(name)})
         self._forget(e, now)
         e['d'] = round(clamp(e['d'] + EVENTS.get(kind, 0) * multiplier, -1, 1), 3)
         e['n'][kind] = e['n'].get(kind, 0) + 1
@@ -250,10 +250,10 @@ class Memory:
         return e['n'].get(kind, 0) if e else 0
 
     def grudges(self, threshold=-0.3, now=None):
-        return [e['ad'] for e in self.d.values() if self.relation(e['ad'], now) <= threshold]
+        return [e['name'] for e in self.d.values() if self.relation(e['name'], now) <= threshold]
 
     def allies(self, threshold=0.3, now=None):
-        return [e['ad'] for e in self.d.values() if self.relation(e['ad'], now) >= threshold]
+        return [e['name'] for e in self.d.values() if self.relation(e['name'], now) >= threshold]
 
 
 def timezone(personality):

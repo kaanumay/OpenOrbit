@@ -24,7 +24,7 @@ def mod(name, **f):
 
 
 def range_mod(r):
-    return mod('RankRewardRangeModule', **{'from': r['den'], 'to': r['e']})
+    return mod('RankRewardRangeModule', **{'from': r['from_'], 'to': r['e']})
 
 
 def ranges(rank_type):
@@ -38,7 +38,7 @@ def reward(f):
     if not t:
         return None
     n = int(f.get('ranking') or 0)
-    r = next((r for r in t['ranges'] if r['den'] <= n <= r['e']), None)
+    r = next((r for r in t['ranges'] if r['from_'] <= n <= r['e']), None)
     if not r:
         return []
     return [('RankRewardCommand', dict(rankType=int(f['rankType']), rewardContentModuleList=items(r), rewardRange=range_mod(r)))]
@@ -59,7 +59,7 @@ def set_title(key, now=None):
 
 
 def items(r, now=None):
-    out = [mod('RewardModule', lootId=l, amount=a) for l, a in r['esyalar']]
+    out = [mod('RewardModule', lootId=l, amount=a) for l, a in r['items']]
     if r.get('title'):
         out.append(mod('RewardTitleModule', titleKey=set_title(r['title'], now)))
     return out

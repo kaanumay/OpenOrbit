@@ -16,40 +16,40 @@ Object.assign(ICONS, {
   list: '<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/>',
 });
 
-const BT = { liste: null, pid: null, d: null, tab: 'genel', timer: null, pending: {} };
+const BT = { entries: null, pid: null, d: null, tab: 'general', timer: null, pending: {} };
 const BT_MODES = {
-  simple: { ad: N('Simple'), ic: 'bot', summary: N('Bots that wander the maps like NPCs without changing maps. They kill aliens; enemy bots attack or flee depending on strength when they see you.') },
-  normal: { ad: N('Normal'), ic: 'users', summary: N('Like a real player: starts at the base, does quests, grinds, buys ships and lasers, does PvP, founds a clan, makes friends, chats. Each bot has its own personality and decisions.') },
-  advanced: { ad: N('Advanced'), ic: 'brain', summary: N('Normal mode plus a language model (built-in Qwen3 4B, OpenAI, Claude, Gemini or your own local LLM): bots really talk with you and with each other, think over your requests and decide, and answer calls for help.') },
+  simple: { name: N('Simple'), ic: 'bot', summary: N('Bots that wander the maps like NPCs without changing maps. They kill aliens; enemy bots attack or flee depending on strength when they see you.') },
+  normal: { name: N('Normal'), ic: 'users', summary: N('Like a real player: starts at the base, does quests, grinds, buys ships and lasers, does PvP, founds a clan, makes friends, chats. Each bot has its own personality and decisions.') },
+  advanced: { name: N('Advanced'), ic: 'brain', summary: N('Normal mode plus a language model (built-in Qwen3 4B, OpenAI, Claude, Gemini or your own local LLM): bots really talk with you and with each other, think over your requests and decide, and answer calls for help.') },
 };
-const BT_ARCHETYPE = { grinder: N('PvE grinder'), hunter: N('PvP hunter'), sosyal: N('Social'), trader: N('Trader'), quester: N('Quester'), casual: N('Relaxed'), lider: N('Leader') };
-const BT_TARGET = { grinding: N('Farming aliens'), gorev: N('Doing quests'), pvp: N('Hunting PvP'), shopping: N('Shopping'), resting: N('Resting'),
-  exploring: N('Exploring'), grup: N('In a group'), yardim: N('Going to help'), simple: N('Farming aliens'), selling: N('Selling cargo'),
-  mod: N('In a mode'), kapi: N('In a galaxy gate'), duello: N('Dueling') };
+const BT_ARCHETYPE = { grinder: N('PvE grinder'), hunter: N('PvP hunter'), social: N('Social'), trader: N('Trader'), quester: N('Quester'), casual: N('Relaxed'), leader: N('Leader') };
+const BT_TARGET = { grinding: N('Farming aliens'), quest: N('Doing quests'), pvp: N('Hunting PvP'), shopping: N('Shopping'), resting: N('Resting'),
+  exploring: N('Exploring'), group: N('In a group'), assist: N('Going to help'), simple: N('Farming aliens'), selling: N('Selling cargo'),
+  mod: N('In a mode'), gate: N('In a galaxy gate'), duel: N('Dueling') };
 const BT_PERMS = {
   shop: [N('Shop'), N('They buy ships, lasers, generators and drones with credits and uridium.')],
-  gorev: [N('Quests'), N('They complete the quest chain.')],
+  quest: [N('Quests'), N('They complete the quest chain.')],
   pvp: [N('PvP'), N('Bots fight each other.')],
   attack_player: [N("Don't attack you"), N('Bots of the enemy company may attack when they see you.')],
   sohbet: [N('Chat'), N('They write in global, company, clan and group chat, and reply to whispers.')],
-  klan: [N('Joining clans'), N('They apply to clans that match their personalities (yours too).')],
+  clan: [N('Joining clans'), N('They apply to clans that match their personalities (yours too).')],
   clan_found: [N('Founding clans'), N('Bots with a leader spirit and plenty of money found clans and evaluate applications.')],
-  arkadas: [N('Friendship'), N('They consider friend requests and send requests to people they have played with.')],
-  grup: [N('Group'), N('They can accept group invites and follow the leader in the group.')],
+  friend: [N('Friendship'), N('They consider friend requests and send requests to people they have played with.')],
+  group: [N('Group'), N('They can accept group invites and follow the leader in the group.')],
   auction: [N('Auction'), N('They bid in auctions and compete with you.')],
-  yardim: [N('Calls for help'), N('Some bots come to a call for help in chat (e.g. "2-4 help").')],
-  kargo: [N('Cargo and ore selling'), N("They collect aliens' cargo boxes; when the cargo is full they return to their own station (X-1, X-8) and sell the ore.")],
-  roket: [N('Rockets'), N("They buy rockets and fire them in combat (from R-310 to PLT-3030, depending on their money).")],
+  assist: [N('Calls for help'), N('Some bots come to a call for help in chat (e.g. "2-4 help").')],
+  cargo: [N('Cargo and ore selling'), N("They collect aliens' cargo boxes; when the cargo is full they return to their own station (X-1, X-8) and sell the ore.")],
+  rocket: [N('Rockets'), N("They buy rockets and fire them in combat (from R-310 to PLT-3030, depending on their money).")],
   custom_ammunition: [N('Special ammo'), N("They use x2/x3 (MCB-25/50) on tough aliens and RSB-75 in PvP, bought with uridium. If off, LCB-10 only.")],
   ekstra: [N("CPUs and extras"), N("They buy and use repair bots, the rocket CPU, cargo CPU, HM-7, jump and cloaking CPUs, Insta-Shield and Smart Bomb.")],
-  mayin: [N('Mines'), N('Aggressive bots buy mines and drop them behind them when fleeing from you.')],
+  mine: [N('Mines'), N('Aggressive bots buy mines and drop them behind them when fleeing from you.')],
   lab: [N('Refining and lab'), N('They refine ore from their cargo and load it into their lasers, rockets and shields (Prometid, Duranium, Promerium, Seprom).')],
   skylab: [N('Skylab'), N('They build and upgrade a Skylab; they transport its ore to their ship and sell it or use it in the lab.')],
   technology: [N('Tech items'), N("They build tech items in the Assembly (Backup Shields, Battle Repair Bot, Chain Impulse, Energy Leech, Precision Targeter) and use them in combat.")],
   booty: [N('Booty boxes'), N('They open the key-locked boxes on the map with keys; for green boxes they buy a key with uridium if it is worth it.')],
   assembly: [N('Assembly'), N("They use the resources collected from aliens to build keys, items and ammo in the Assembly.")],
-  kapi: [N('Galaxy Gates'), N('They collect parts at the generator with gate energy (or uridium), build the gate and run it once they are strong enough.')],
-  etkinlik: [N("Events and passes"), N('They take part in events (event aliens, boxes and currency) and progress the Battle Pass and Season Pass to collect rewards.')],
+  gate: [N('Galaxy Gates'), N('They collect parts at the generator with gate energy (or uridium), build the gate and run it once they are strong enough.')],
+  event: [N("Events and passes"), N('They take part in events (event aliens, boxes and currency) and progress the Battle Pass and Season Pass to collect rewards.')],
   clan_diplomacy: [N('Clan diplomacy'), N("Bot clan leaders propose alliances, non-aggression pacts, wars and peace, and answer incoming requests (including your clan's). They don't attack allies and prioritise members of clans they are at war with.")],
   clan_cbs: [N('Clan battle stations'), N('Bot clans build, upgrade and defend Clan Battle Stations with their treasury; they race you and each other for the free asteroids. While on, there are no fake rival clans.')],
   clan_order: [N('Clan orders'), N('You give the bots in your clan orders in clan chat: "everyone farm", "3 of you go to 4-4", "defend our base", "come help me", "get lf-3", "use goliath", "full shield", "stop". They obey according to their loyalty.')],
@@ -65,17 +65,17 @@ function btArt(name, backup, cls = 'bt-art') {         // görsel gelmediyse (Or
   im.onerror = () => { im.onerror = null; im.src = 'images/' + backup + '.webp'; };
   return im;
 }
-const btWorldName = id => (BT.liste?.worlds || []).find(w => w.id === id)?.ad || T('Unassigned');
+const btWorldName = id => (BT.entries?.worlds || []).find(w => w.id === id)?.name || T('Unassigned');
 
 // ------------------------------------------------------------------ giriş noktası
 async function renderBots() {
   const r = await act(() => api('/api/botlar')); if (!r || S.page !== 'bots') return;
-  BT.liste = r;
-  if (BT.pid && !r.liste.some(p => p.id === BT.pid)) BT.pid = null;
+  BT.entries = r;
+  if (BT.pid && !r.entries.some(p => p.id === BT.pid)) BT.pid = null;
   if (!BT.pid) return btLibrary();
   btEditor();
 }
-function btOpen(pid, tab) { BT.pid = pid; BT.tab = tab || 'genel'; renderBots(); }
+function btOpen(pid, tab) { BT.pid = pid; BT.tab = tab || 'general'; renderBots(); }
 
 function btCompanyBar(f) {
   const top = f.reduce((a, b) => a + b, 0) || 1;
@@ -85,17 +85,17 @@ function btCompanyBar(f) {
 
 // ================================================================== KİTAPLIK
 function btLibrary() {
-  const r = BT.liste;
+  const r = BT.entries;
   const card = p => h('div', { class: 'bt-card', onclick: e => { if (!e.target.closest('button')) btOpen(p.id); } },
     h('div', { class: 'bt-card-top k-' + p.mode }, btArt('bot_kip_' + p.mode, 'drone_editor', 'bt-card-art'),
-      h('div', null, h('b', null, p.ad), h('div', { class: 'small muted' }, T(BT_MODES[p.mode].ad) + ' · ' + T('{0} bots', p.adet)))),
+      h('div', null, h('b', null, p.name), h('div', { class: 'small muted' }, T(BT_MODES[p.mode].name) + ' · ' + T('{0} bots', p.count)))),
     h('div', { class: 'bt-card-body' },
       h('div', { class: 'row wrap', style: { gap: '6px' } }, p.world ? badge([icon('globe'), btWorldName(p.world)], 'info') : badge(T('Not assigned to a world'), 'warn'),
         p.mode !== 'simple' ? badge(p.progression === 'jumpstart' ? 'Jumpstart' : 'Progressive', '') : null),
       btCompanyBar(p.companies),
       h('div', { class: 'small muted' }, p.level_avg != null ? T('Average level {0} · highest {1}', p.level_avg, p.level_max)
         : T('Not played yet: bots start on first login.')),
-      p.aciklama ? h('div', { class: 'small ellipsis' }, p.aciklama) : null),
+      p.description ? h('div', { class: 'small ellipsis' }, p.description) : null),
     h('div', { class: 'bt-card-bottom' }, btn(T('Open'), () => btOpen(p.id), 'sm primary', 'edit'),
       btn('', ev => btPackMenu(ev.currentTarget, p), 'sm ghost icon', 'more', { title: T('More') })));
   btFill($('#content'), h('div', { class: 'stack' },
@@ -103,7 +103,7 @@ function btLibrary() {
       h('div', null, h('h2', null, icon('bot'), T('Bots')),
         h('p', { class: 'desc' }, T("Create a bot pack and assign it to a world: while you play in that world, the bots are on the maps like real players. The roster is generated once; you meet the same bots every time you log in, and they keep progressing even when you're away.")),
         h('div', { class: 'row wrap' }, btn(T('New bot pack'), () => btWizard(), 'primary', 'plus')))),
-    h('div', { class: 'bt-grid' }, r.liste.map(card), h('button', { class: 'bt-card yeni', onclick: () => btWizard() }, icon('plus'), h('span', null, T('New bot pack'))))));
+    h('div', { class: 'bt-grid' }, r.entries.map(card), h('button', { class: 'bt-card yeni', onclick: () => btWizard() }, icon('plus'), h('span', null, T('New bot pack'))))));
 }
 
 function btPackMenu(anchor, p) {
@@ -111,33 +111,33 @@ function btPackMenu(anchor, p) {
     { label: T('Open'), ic: 'edit', fn: () => btOpen(p.id) },
     { label: T('Assign to world'), ic: 'globe', fn: () => btAssignMenu(anchor, p) },
     { label: T('Rename'), ic: 'edit', fn: async () => {
-      const name = await promptBox(T('Rename'), T('Pack name'), p.ad); if (name == null) return;
+      const name = await promptBox(T('Rename'), T('Pack name'), p.name); if (name == null) return;
       if (await act(() => api('/api/bot/update', { id: p.id, name }), T('Saved.'))) renderBots(); } },
     '-',
     { label: T('Delete'), ic: 'trash', danger: true, fn: async () => {
-      if (!await confirmBox(T('Delete "{0}"?', p.ad), T("The pack and the bots' progress are deleted (kept in the save/botlar/_silinenler folder)."), { ok: T('Delete'), danger: true })) return;
-      const x = await act(() => api('/api/bot/sil', { id: p.id }), T('Bot pack deleted.')); if (x) { BT.liste = x; if (BT.pid === p.id) BT.pid = null; renderBots(); } } },
+      if (!await confirmBox(T('Delete "{0}"?', p.name), T("The pack and the bots' progress are deleted (kept in the save/botlar/_silinenler folder)."), { ok: T('Delete'), danger: true })) return;
+      const x = await act(() => api('/api/bot/sil', { id: p.id }), T('Bot pack deleted.')); if (x) { BT.entries = x; if (BT.pid === p.id) BT.pid = null; renderBots(); } } },
   ]);
 }
 
 function btAssignMenu(anchor, p) {
-  const items = BT.liste.worlds.map(w => ({ label: w.ad + (p.world === w.id ? '  ✓' : ''), ic: p.world === w.id ? 'check' : 'globe',
+  const items = BT.entries.worlds.map(w => ({ label: w.name + (p.world === w.id ? '  ✓' : ''), ic: p.world === w.id ? 'check' : 'globe',
     fn: () => btAssign(p, w.id) }));
   items.push('-', { label: T('Remove assignment'), ic: 'x', fn: () => btAssign(p, null), disabled: !p.world });
   popMenu(anchor, items);
 }
 async function btAssign(p, did) {
-  const old = did && BT.liste.liste.find(x => x.world === did && x.id !== p.id);
-  if (old && !await confirmBox(T("Change the world's pack?"), T('The world "{0}" currently has the pack "{1}"; that pack will be left unassigned.', btWorldName(did), old.ad))) return;
-  const x = await act(() => api('/api/bot/assign', { id: p.id, world: did }), did ? T('"{0}" is now in the world "{1}".', p.ad, btWorldName(did)) : T('Assignment removed.'));
-  if (x) { BT.liste = x; renderBots(); }
+  const old = did && BT.entries.entries.find(x => x.world === did && x.id !== p.id);
+  if (old && !await confirmBox(T("Change the world's pack?"), T('The world "{0}" currently has the pack "{1}"; that pack will be left unassigned.', btWorldName(did), old.name))) return;
+  const x = await act(() => api('/api/bot/assign', { id: p.id, world: did }), did ? T('"{0}" is now in the world "{1}".', p.name, btWorldName(did)) : T('Assignment removed.'));
+  if (x) { BT.entries = x; renderBots(); }
 }
 
 // ================================================================== SİHİRBAZ
 function btWizard() {
-  const r = BT.liste;
-  const w = { ad: '', aciklama: '', world: (r.worlds.find(d => !r.liste.some(p => p.world === d.id)) || r.worlds[0] || {}).id || null, mode: 'normal',
-    progression: 'progressive', adet: 80, dil: 'mixed', name_lang: 'mixed', name_source: 'uretim', company_distribution: [1, 1, 1], ozel: '', settings: { jumpstart_hours: 60, simple_power: 1, simple_friendly: 0.5,
+  const r = BT.entries;
+  const w = { name: '', description: '', world: (r.worlds.find(d => !r.entries.some(p => p.world === d.id)) || r.worlds[0] || {}).id || null, mode: 'normal',
+    progression: 'progressive', count: 80, lang: 'mixed', name_lang: 'mixed', name_source: 'uretim', company_distribution: [1, 1, 1], special: '', settings: { jumpstart_hours: 60, simple_power: 1, simple_friendly: 0.5,
       simple_maps: { 'X-1': 2, 'X-2': 2, 'X-3': 2, 'X-4': 2, '4-X': 3, 'X-5': 1, 'X-6': 1, 'X-7': 1, 'X-8': 1, '4-5': 2 } } };
   let step = 0;
   const body = h('div', { class: 'stack', style: { gap: '14px' } });
@@ -145,30 +145,30 @@ function btWizard() {
   const m = modal({ title: T('New bot pack'), wide: true, body: body, foot: footer });
   const steps = [T('Name and world'), T('Mode'), T('Settings')];
   function render() {
-    const parent = h('div', { class: 'bt-steps' }, steps.map((a, i) => h('span', { class: i === step ? 'on' : i < step ? 'tamam' : '' }, h('b', null, i + 1), a)));
+    const parent = h('div', { class: 'bt-steps' }, steps.map((a, i) => h('span', { class: i === step ? 'on' : i < step ? 'done' : '' }, h('b', null, i + 1), a)));
     btFill(body, parent, [btStep1, btStep2, btStep3][step](w, render));
     btFill(footer, btn(T('Cancel'), () => m.close(), 'ghost'), h('span', { class: 'spacer' }),
       step ? btn(T('Back'), () => { step--; render(); }, 'ghost', 'arrowL') : null,
       step < 2 ? btn(T('Next'), () => {
-        if (step === 0 && !w.ad.trim()) return toast(T('Give the bot pack a name.'), 'err');
+        if (step === 0 && !w.name.trim()) return toast(T('Give the bot pack a name.'), 'err');
         step++; render();
       }, 'primary') : btn(T('Create'), async () => {
-        const x = await act(() => api('/api/bot/create', w), T('Bot pack created: {0}', w.ad.trim()));
+        const x = await act(() => api('/api/bot/create', w), T('Bot pack created: {0}', w.name.trim()));
         if (!x) return;
-        m.close(); BT.liste = x; btOpen(x.yeni, w.mode === 'advanced' ? 'advanced' : 'roster');
+        m.close(); BT.entries = x; btOpen(x.new, w.mode === 'advanced' ? 'advanced' : 'roster');
       }, 'primary', 'check'));
   }
   render();
 }
 
 function btStep1(w) {
-  const r = BT.liste;
-  const name = h('input', { class: 'input', value: w.ad, placeholder: T('e.g. Crowded Server, Hunters'), maxlength: 40, oninput: e => { w.ad = e.target.value; } });
-  const is_open = h('textarea', { class: 'input', rows: 2, maxlength: 240, placeholder: T('What kind of server is this pack? (optional)'), oninput: e => { w.aciklama = e.target.value; } }, w.aciklama);
+  const r = BT.entries;
+  const name = h('input', { class: 'input', value: w.name, placeholder: T('e.g. Crowded Server, Hunters'), maxlength: 40, oninput: e => { w.name = e.target.value; } });
+  const is_open = h('textarea', { class: 'input', rows: 2, maxlength: 240, placeholder: T('What kind of server is this pack? (optional)'), oninput: e => { w.description = e.target.value; } }, w.description);
   const world = h('select', { class: 'input', onchange: e => { w.world = e.target.value || null; } },
     r.worlds.map(d => {
-      const p = r.liste.find(x => x.world === d.id);
-      return h('option', { value: d.id, selected: w.world === d.id }, d.ad + (p ? ' — ' + T('Currently: {0}', p.ad) : ''));
+      const p = r.entries.find(x => x.world === d.id);
+      return h('option', { value: d.id, selected: w.world === d.id }, d.name + (p ? ' — ' + T('Currently: {0}', p.name) : ''));
     }), h('option', { value: '', selected: !w.world }, T('No assignment for now')));
   return h('div', { class: 'stack', style: { gap: '14px' } }, field(T('Name'), name), field(T('Description'), is_open),
     field(T('World to run in'), world, h('div', { class: 'small muted' }, T('When a player enters the game in this world, the pack kicks in. A world can have only one pack.'))));
@@ -176,7 +176,7 @@ function btStep1(w) {
 
 function btStep2(w, render) {
   const card = k => h('button', { type: 'button', class: 'bt-mode' + (w.mode === k ? ' on' : ''), onclick: () => { w.mode = k; render(); } },
-    btArt('bot_kip_' + k, 'drone_editor', 'bt-mode-art'), h('b', null, icon(BT_MODES[k].ic), T(BT_MODES[k].ad)), h('div', { class: 'small' }, T(BT_MODES[k].summary)));
+    btArt('bot_kip_' + k, 'drone_editor', 'bt-mode-art'), h('b', null, icon(BT_MODES[k].ic), T(BT_MODES[k].name)), h('div', { class: 'small' }, T(BT_MODES[k].summary)));
   return h('div', { class: 'stack', style: { gap: '12px' } }, h('div', { class: 'bt-modes' }, ['simple', 'normal', 'advanced'].map(card)),
     w.mode === 'advanced' ? btLlmWarning(true) : null);
 }
@@ -224,7 +224,7 @@ function btNameSource(value, onchange) {
     [['uretim', T('Generated')], ['dostats', T('DOStats (real players)')]].map(([v, name]) => h('option', { value: v, selected: v === value }, name)));
 }
 // dahili dil modeli yalnız İngilizce; başka bir sağlayıcı seçiliyse Gelişmiş kipte de dil serbest (bot/llm_provider.py)
-const btLangLocked = mode => mode === 'advanced' && !BT.liste?.llm_multilingual;
+const btLangLocked = mode => mode === 'advanced' && !BT.entries?.llm_multilingual;
 function btChatLang(mode, value, onchange) {
   return btLangLocked(mode) ? btPickLang('en', () => {}, T("Each bot in its name's language"), true) : btPickLang(value, onchange, T("Each bot in its name's language"));
 }
@@ -236,7 +236,7 @@ function btDistribution(f, onchange) {
 function btStep3(w, render) {
   if (w.mode === 'simple') return btSimpleSettings(w.settings, () => render(), true);
   return h('div', { class: 'stack', style: { gap: '14px' } },
-    field(T('Total bots'), btSlider(w.adet, v => { w.adet = v; }, { min: 5, max: 3000, step: 5 }),
+    field(T('Total bots'), btSlider(w.count, v => { w.count = v; }, { min: 5, max: 3000, step: 5 }),
       h('div', { class: 'small muted' }, T('Not all are online at once: each bot has its own play hours. Hundreds of bots are no problem; the number shown as ships on your map is limited.'))),
     field(T('Company distribution (ratio)'), btDistribution(w.company_distribution, f => { w.company_distribution = f; })),
     field(T('Progress'), btSeg([['progressive', 'Progressive'], ['jumpstart', 'Jumpstart']], w.progression, v => { w.progression = v; render(); }),
@@ -248,10 +248,10 @@ function btStep3(w, render) {
       h('div', { class: 'small muted' }, T("The bots' usernames look like those of players of this language."))),
     field(T('Name source'), btNameSource(w.name_source, v => { w.name_source = v; }),
       h('div', { class: 'small muted' }, T(BT_NAME_SOURCE_DESCRIPTION))),
-    field(T('Chat language'), btChatLang(w.mode, w.dil, v => { w.dil = v; }),
+    field(T('Chat language'), btChatLang(w.mode, w.lang, v => { w.lang = v; }),
       h('div', { class: 'small muted' }, btLangLocked(w.mode) ? T('In Advanced mode bots speak English only (the language model is weak in other languages).')
         : T('The language bots use in chat. With "Each bot in its name\'s language", a bot with a German name speaks German.'))),
-    field(T('Your own bots (optional)'), btCustomField(w.ozel, v => { w.ozel = v; })));
+    field(T('Your own bots (optional)'), btCustomField(w.special, v => { w.special = v; })));
 }
 
 // kullanıcının kendi botları (panel/botlar.ozel_cozumle): satır başına "ad, firma, davranış, dil"; ad dışındakiler isteğe bağlı
@@ -265,7 +265,7 @@ function btCustomField(value, onchange) {
 function btSimpleSettings(a, render, wizard = false, save = null) {
   const top = () => Object.entries(a.simple_maps).reduce((s, [k, v]) => s + v * (k === '4-X' ? 4 : ['4-5'].includes(k) ? 1 : 3), 0);
   const total = h('b', null, top());
-  const parent = h('div', { class: 'bt-classes' }, (BT.liste?.classes || Object.keys(a.simple_maps)).map(s => h('label', { class: 'bt-class' },
+  const parent = h('div', { class: 'bt-classes' }, (BT.entries?.classes || Object.keys(a.simple_maps)).map(s => h('label', { class: 'bt-class' },
     h('span', null, BT_CLASS_NAME(s)), btNumber(a.simple_maps[s] ?? 0, v => { a.simple_maps[s] = v; total.textContent = top(); save && save(); }, { min: 0, max: 20 }))));
   return h('div', { class: 'stack', style: { gap: '14px' } },
     field(T('Bots per map'), parent, h('div', { class: 'small muted' }, T("On company maps, once for each company's map (X-3 = 1-3, 2-3, 3-3), and once for shared maps (4-1–4-5). Total:"), total)),
@@ -277,7 +277,7 @@ function btSimpleSettings(a, render, wizard = false, save = null) {
 
 // ================================================================== EDİTÖR
 const BT_TABS = [
-  ['genel', N('Public'), 'sliders'], ['roster', N('Roster'), 'users'], ['behavior', N('Behavior'), 'target'], ['access', N('Permissions'), 'shield'],
+  ['general', N('Public'), 'sliders'], ['roster', N('Roster'), 'users'], ['behavior', N('Behavior'), 'target'], ['access', N('Permissions'), 'shield'],
   ['sohbet', N('Chat'), 'chat'], ['clans', N('Clans'), 'star'], ['simple', N('Simple mode'), 'bot'], ['advanced', N('Advanced mode'), 'brain'],
 ];
 
@@ -287,13 +287,13 @@ async function btEditor() {
   BT.d = d;
   const tabs = BT_TABS.filter(([k]) => (k !== 'simple' || d.mode === 'simple') && (k !== 'advanced' || d.mode === 'advanced')
     && (d.mode !== 'simple' || !['behavior', 'sohbet'].includes(k)));
-  if (!tabs.some(([k]) => k === BT.tab)) BT.tab = 'genel';
+  if (!tabs.some(([k]) => k === BT.tab)) BT.tab = 'general';
   btFill($('#content'), h('div', { class: 'stack' },
     h('div', { class: 'card bt-bar' }, btn('', () => { BT.pid = null; renderBots(); }, 'ghost icon', 'arrowL', { title: T('Bot packs') }),
       btArt('bot_kip_' + d.mode, 'drone_editor', 'bt-bar-art'),
-      h('div', { class: 'bt-bar-name' }, h('div', { class: 'row', style: { gap: '8px' } }, h('b', null, d.ad), badge(T(BT_MODES[d.mode].ad), 'orange'),
+      h('div', { class: 'bt-bar-name' }, h('div', { class: 'row', style: { gap: '8px' } }, h('b', null, d.name), badge(T(BT_MODES[d.mode].name), 'orange'),
         d.world ? badge([icon('globe'), btWorldName(d.world)], 'info') : badge(T('Not assigned to a world'), 'warn')),
-        h('div', { class: 'muted small ellipsis' }, T('{0} bots', d.adet) + (d.level_avg != null ? ' · ' + T('average level {0}', d.level_avg) : ''))),
+        h('div', { class: 'muted small ellipsis' }, T('{0} bots', d.count) + (d.level_avg != null ? ' · ' + T('average level {0}', d.level_avg) : ''))),
       h('span', { class: 'spacer' }), h('span', { class: 'we-save-status', id: 'bt-save' }),
       btn(T('Assign to world'), ev => btAssignMenu(ev.currentTarget, d), 'sm', 'globe'),
       btn('', ev => btPackMenu(ev.currentTarget, d), 'sm ghost icon', 'more', { title: T('More') })),
@@ -303,7 +303,7 @@ async function btEditor() {
       d.restart_needed ? btn(T('Restart the server'), () => act(() => api('/api/bot/server_restart', {}), T('Server is restarting.')).then(() => setTimeout(btEditor, 1500)), 'sm orange', 'refresh') : null) : null,
     h('div', { class: 'seg bt-tabs' }, tabs.map(([k, name, iconEl]) => h('button', { type: 'button', class: BT.tab === k ? 'on' : '',
       onclick: () => { BT.tab = k; btEditor(); } }, icon(iconEl), T(name)))),
-    h('div', { id: 'bt-area' }, ({ genel: btGeneral, roster: btRoster, behavior: btBehavior, access: btAccess, sohbet: btChat, clans: btClans, simple: btSimple, advanced: btAdvanced })[BT.tab](d))));
+    h('div', { id: 'bt-area' }, ({ general: btGeneral, roster: btRoster, behavior: btBehavior, access: btAccess, sohbet: btChat, clans: btClans, simple: btSimple, advanced: btAdvanced })[BT.tab](d))));
 }
 
 function btSaveStatus(state) {
@@ -325,7 +325,7 @@ function btPatch(fields) {
     if (!x) return btSaveStatus('');
     const mode = BT.d.mode;
     BT.d = x; btSaveStatus('kaydedildi');
-    if (body.mode && body.mode !== mode || body.ad) btEditor();
+    if (body.mode && body.mode !== mode || body.name) btEditor();
   }, 450);
 }
 const btSetting = (k, v) => btPatch({ settings: { [k]: v } });
@@ -340,8 +340,8 @@ function btKey(value, onchange) {
 // ------------------------------------------------------------------ Genel
 function btGeneral(d) {
   const a = d.settings;
-  const name = h('input', { class: 'input', value: d.ad, maxlength: 40, onchange: e => btPatch({ ad: e.target.value }) });
-  const is_open = h('input', { class: 'input', value: d.aciklama || '', maxlength: 240, placeholder: T('No description.'), onchange: e => btPatch({ aciklama: e.target.value }) });
+  const name = h('input', { class: 'input', value: d.name, maxlength: 40, onchange: e => btPatch({ name: e.target.value }) });
+  const is_open = h('input', { class: 'input', value: d.description || '', maxlength: 240, placeholder: T('No description.'), onchange: e => btPatch({ description: e.target.value }) });
   const pickMode = async v => {
     if (v === d.mode) return;
     if (v === 'advanced' && !await confirmBox(T('Switch to Advanced mode?'), btLlmWarning(), { ok: T('Switch to Advanced mode') })) return;
@@ -353,13 +353,13 @@ function btGeneral(d) {
   return h('div', { class: 'stack' },
     h('div', { class: 'card' }, h('h2', null, icon('edit'), T('Pack')),
       btRow(T('Name'), null, name), btRow(T('Description'), null, is_open),
-      btRow(T('Mode'), T(BT_MODES[d.mode].summary), btSeg(['simple', 'normal', 'advanced'].map(k => [k, T(BT_MODES[k].ad)]), d.mode, pickMode)),
+      btRow(T('Mode'), T(BT_MODES[d.mode].summary), btSeg(['simple', 'normal', 'advanced'].map(k => [k, T(BT_MODES[k].name)]), d.mode, pickMode)),
       d.mode !== 'simple' ? btRow(T('Progress'), d.progression === 'jumpstart' ? T('The roster starts with a realistic distribution (on first launch).') : T('Everyone starts at level 1 at their own base.'),
         btSeg([['progressive', 'Progressive'], ['jumpstart', 'Jumpstart']], d.progression, v => btPatch({ progression: v }))) : null,
       d.mode !== 'simple' && d.progression === 'jumpstart' ? btRow(T('Average play time (hours)'), T('The middle of the Jumpstart distribution: a few bots start at multiples of it, most start below.'),
         btNumber(a.jumpstart_hours, v => btSetting('jumpstart_hours', v), { min: 1, max: 2000 })) : null),
     d.mode !== 'simple' ? h('div', { class: 'card' }, h('h2', null, icon('clock'), T('Time and progress')),
-      btRow(T('Progression speed'), T('Multiplier of gains: 1 is the pace of a real player.'), btSlider(a.hiz, v => btSetting('hiz', v), { min: 0.1, max: 10, step: 0.1, fmt: v => '×' + v.toFixed(1) })),
+      btRow(T('Progression speed'), T('Multiplier of gains: 1 is the pace of a real player.'), btSlider(a.speed, v => btSetting('speed', v), { min: 0.1, max: 10, step: 0.1, fmt: v => '×' + v.toFixed(1) })),
       btRow(T('Tendency to be online'), T("Bots' desire to be online according to their play hours; the higher it is, the more bots at once."),
         btSlider(a.online_ratio, v => btSetting('online_ratio', v), { min: 0.05, max: 2, step: 0.05, fmt: v => '%' + Math.round(v * 100) })),
       btRow(T('Most online at the same time'), T('0: unlimited.'), btNumber(a.max_online, v => btSetting('max_online', v), { min: 0, max: 3000 })),
@@ -383,7 +383,7 @@ function btRoster(d) {
   const byArchetype = {};
   d.roster.forEach(b => { byArchetype[b.archetype] = (byArchetype[b.archetype] || 0) + 1; });
   const f = d.company_distribution.slice();
-  let count = d.adet, lang = d.dil || 'mixed', nameLang = d.name_lang || lang, nameSource = d.name_source || 'uretim', special = '';
+  let count = d.count, lang = d.lang || 'mixed', nameLang = d.name_lang || lang, nameSource = d.name_source || 'uretim', special = '';
   const control = d.mode === 'simple' ? h('div', { class: 'alert info' }, icon('info'), h('div', null, T('In Simple mode, the bot count comes from the map counts in the Simple mode tab.')))
     : h('div', { class: 'stack', style: { gap: '10px' } },
       btRow(T('Bot count'), T("Increasing adds new bots, decreasing removes the last ones; existing bots don't change."), btNumber(count, v => { count = v; }, { min: 1, max: 3000 })),
@@ -412,42 +412,42 @@ function btRoster(d) {
 
 // Kadro tablosu: ada göre arama, firma ve kişilik süzgeci, sıralama (oyuncu isteği 2026-10-30). Sıralanan değer hep tabloda görünür:
 // kendi sütunu yoksa (EP, onur, kredi …) Seviye'nin yanında vurgulu bir sütun açılır. # süzülmüş ve sıralanmış listedeki yerdir.
-const BT_SORT = [['ad', N('Pilot')], ['seviye', N('Level')], ['rutbe', N('Rank')], ['gemi', N('Ship')], ['harita', N('Map')], ['hedef', N("What it's doing")],
-  ['npc', N('Aliens')], ['player', N('Players')], ['olum', N('Deaths')]];
-const BT_SORT_EXTRA = [['ep', N('Experience (EP)')], ['onur', N('Honor')], ['kredi', N('Credits')], ['uridyum', N('Uridium')], ['kapi', N('Galaxy gates finished')],
-  ['firma', N('Company')], ['archetype', N('Personality')]];
-const BT_SORT_VALUE = { npc: b => b.stats.npc || 0, player: b => b.stats.player || 0, olum: b => b.stats.olum || 0, kapi: b => b.stats.gate_done || 0,
-  harita: b => b.map_name || '', gemi: b => btShipName(b.gemi) };
-const BT_SORT_TEXT = ['ad', 'gemi', 'harita', 'hedef', 'archetype', 'firma'];
-const BT_SORT_NUMBER = new Set(['seviye', 'rutbe', 'npc', 'player', 'olum', 'ep', 'onur', 'kredi', 'uridyum', 'kapi']);
-const BT_CURRENCY = { ep: 'experience', onur: 'onur', kredi: 'kredi', uridyum: 'uridyum' };
+const BT_SORT = [['name', N('Pilot')], ['level', N('Level')], ['rank', N('Rank')], ['ship', N('Ship')], ['map', N('Map')], ['target', N("What it's doing")],
+  ['npc', N('Aliens')], ['player', N('Players')], ['death', N('Deaths')]];
+const BT_SORT_EXTRA = [['ep', N('Experience (EP)')], ['honor', N('Honor')], ['credits', N('Credits')], ['uridium', N('Uridium')], ['gate', N('Galaxy gates finished')],
+  ['company', N('Company')], ['archetype', N('Personality')]];
+const BT_SORT_VALUE = { npc: b => b.stats.npc || 0, player: b => b.stats.player || 0, death: b => b.stats.death || 0, gate: b => b.stats.gate_done || 0,
+  map: b => b.map_name || '', ship: b => btShipName(b.ship) };
+const BT_SORT_TEXT = ['name', 'ship', 'map', 'target', 'archetype', 'company'];
+const BT_SORT_NUMBER = new Set(['level', 'rank', 'npc', 'player', 'death', 'ep', 'honor', 'credits', 'uridium', 'gate']);
+const BT_CURRENCY = { ep: 'experience', honor: 'honor', credits: 'credits', uridium: 'uridium' };
 const btShipName = l => String(l || '').replace('ship_', '').replace(/^\w/, c => c.toUpperCase());
 const btRank = (r, size) => GI.index?.sprite['rank' + r] ? h('span', { class: 'bt-rank', title: T('Rank {0}', r) }, sprite('rank' + r, size)) : h('span', null, r);
 function btRosterTable(roster) {
-  const s = BT.rosterFilter = BT.rosterFilter || { search: '', firma: 0, archetype: '', ozel: false, order: 'no', reverse: false };
+  const s = BT.rosterFilter = BT.rosterFilter || { search: '', company: 0, archetype: '', special: false, order: 'no', reverse: false };
   const table = h('table', { class: 'table bt-roster' }), counter = h('span', { class: 'bt-counter' });
   const value = (b, k) => BT_SORT_VALUE[k] ? BT_SORT_VALUE[k](b) : k === 'no' ? b.no : b[k] ?? '';
   const highlight = () => BT_SORT_EXTRA.find(([k]) => k === s.order && BT_SORT_NUMBER.has(k));       // sıralanan değerin kendi sütunu yok
   const sortBy = k => { if (s.order === k) s.reverse = !s.reverse; else { s.order = k; s.reverse = !BT_SORT_TEXT.includes(k); } render(); };
   const cell = (b, k) => {
-    const f = btCompany[b.firma - 1], n = value(b, k);
-    if (k === 'ad') return h('div', { class: 'bt-pilot' },
-      h('div', { class: 'bt-pilot-name' }, h('a', { href: '#', class: 'bt-name', onclick: e => e.preventDefault() }, b.ad),
-        b.ozel ? h('span', { class: 'badge info bt-custom-badge', title: T('A bot you added') }, T('Custom')) : null),
+    const f = btCompany[b.company - 1], n = value(b, k);
+    if (k === 'name') return h('div', { class: 'bt-pilot' },
+      h('div', { class: 'bt-pilot-name' }, h('a', { href: '#', class: 'bt-name', onclick: e => e.preventDefault() }, b.name),
+        b.special ? h('span', { class: 'badge info bt-custom-badge', title: T('A bot you added') }, T('Custom')) : null),
       h('div', { class: 'bt-pilot-sub' }, h('span', { class: 'bt-company-label' }, f), T(BT_ARCHETYPE[b.archetype] || b.archetype),
         h('span', { class: 'dim' }, btTraitSummary(b.traits))));
-    if (k === 'seviye') return h('b', { class: 'bt-lv' }, n);
-    if (k === 'rutbe') return btRank(n || 1, 22);
-    if (k === 'gemi') return h('div', { class: 'bt-ship' }, shipImage(b.gemi, 30, f.toLowerCase()), h('span', null, n));
-    if (k === 'harita') return n || h('span', { class: 'dim' }, '—');
-    if (k === 'hedef') return [b.hedef ? h('span', { class: 'bt-activity' }, T(BT_TARGET[b.hedef] || b.hedef)) : h('span', { class: 'dim' }, '—'), btAgentTrace(b)];
+    if (k === 'level') return h('b', { class: 'bt-lv' }, n);
+    if (k === 'rank') return btRank(n || 1, 22);
+    if (k === 'ship') return h('div', { class: 'bt-ship' }, shipImage(b.ship, 30, f.toLowerCase()), h('span', null, n));
+    if (k === 'map') return n || h('span', { class: 'dim' }, '—');
+    if (k === 'target') return [b.target ? h('span', { class: 'bt-activity' }, T(BT_TARGET[b.target] || b.target)) : h('span', { class: 'dim' }, '—'), btAgentTrace(b)];
     if (BT_CURRENCY[k]) return h('span', { class: 'bt-resource' }, art('source_' + BT_CURRENCY[k], 'bt-resource-icon'), fmtN(n));
     return n ? fmtN(n) : h('span', { class: 'dim' }, '0');
   };
   const render = () => {
     const search = s.search.trim().toLocaleLowerCase(LOC());
-    const entries = roster.filter(b => (!search || b.ad.toLocaleLowerCase(LOC()).includes(search)) && (!s.firma || b.firma === s.firma)
-      && (!s.archetype || b.archetype === s.archetype) && (!s.ozel || b.ozel));
+    const entries = roster.filter(b => (!search || b.name.toLocaleLowerCase(LOC()).includes(search)) && (!s.company || b.company === s.company)
+      && (!s.archetype || b.archetype === s.archetype) && (!s.special || b.special));
     const direction = s.reverse ? -1 : 1, text = BT_SORT_TEXT.includes(s.order);
     entries.sort((a, b) => { const x = value(a, s.order), y = value(b, s.order);
       return direction * (text ? String(x).localeCompare(String(y), LOC(), { numeric: true }) : (Number(x) || 0) - (Number(y) || 0)) || a.no - b.no; });
@@ -457,11 +457,11 @@ function btRosterTable(roster) {
     table.replaceChildren(
       h('thead', null, h('tr', null, h('th', { class: 'num bt-row-no' }, '#'), column.map(([k, name]) => h('th', { class: 'bt-sorted ' + klass(k), title: T('Click to sort'),
         onclick: () => sortBy(k) }, T(name), icon(k === s.order && s.reverse ? 'down' : 'up'))))),
-      h('tbody', null, entries.length ? entries.map((b, i) => h('tr', { class: 'f-' + btCompany[b.firma - 1].toLowerCase(), onclick: () => btBotDetail(b.no) },
+      h('tbody', null, entries.length ? entries.map((b, i) => h('tr', { class: 'f-' + btCompany[b.company - 1].toLowerCase(), onclick: () => btBotDetail(b.no) },
         h('td', { class: 'num bt-row-no' }, i + 1), column.map(([k]) => h('td', { class: klass(k) }, cell(b, k)))))
         : h('tr', null, h('td', { colspan: column.length + 1, class: 'bt-empty' }, T('No bots match the filter.')))));
     counter.textContent = T('{0} / {1} bots', entries.length, roster.length);
-    firmaSec.querySelectorAll('button').forEach((x, i) => x.classList.toggle('on', i === s.firma));
+    firmaSec.querySelectorAll('button').forEach((x, i) => x.classList.toggle('on', i === s.company));
     sortSelect.value = s.order;
     directionBtn.replaceChildren(icon(s.reverse ? 'down' : 'up'));
     directionBtn.title = s.reverse ? T('Descending: click for ascending') : T('Ascending: click for descending');
@@ -469,7 +469,7 @@ function btRosterTable(roster) {
   const choice = (value, options, on) => h('select', { class: 'input', onchange: e => { on(e.target.value); render(); } },
     options.map(([v, name]) => h('option', { value: v, selected: String(v) === String(value) }, name)));
   const firmaSec = h('div', { class: 'seg bt-company-pick' }, [T('All'), ...btCompany].map((name, i) =>
-    h('button', { type: 'button', class: i ? 'f-' + name.toLowerCase() : '', onclick: () => { s.firma = i; render(); } }, name)));
+    h('button', { type: 'button', class: i ? 'f-' + name.toLowerCase() : '', onclick: () => { s.company = i; render(); } }, name)));
   const sortSelect = choice(s.order, [['no', T('Roster order')]].concat(BT_SORT.concat(BT_SORT_EXTRA).map(([k, name]) => [k, T(name)])), v => {
     s.order = v; s.reverse = !BT_SORT_TEXT.includes(v) && v !== 'no'; });
   const directionBtn = btn('', () => { s.reverse = !s.reverse; render(); }, 'ghost icon');
@@ -479,7 +479,7 @@ function btRosterTable(roster) {
     firmaSec,
     choice(s.archetype, [['', T('All personalities')]].concat(Object.entries(BT_ARCHETYPE).map(([k, name]) => [k, T(name)])), v => { s.archetype = v; }),
     h('div', { class: 'bt-sort' }, h('span', { class: 'small muted' }, T('Sort')), sortSelect, directionBtn),
-    h('label', { class: 'row small bt-custom-toggle' }, btKey(s.ozel, v => { s.ozel = v; render(); }), T('Only your own bots')),
+    h('label', { class: 'row small bt-custom-toggle' }, btKey(s.special, v => { s.special = v; render(); }), T('Only your own bots')),
     h('span', { class: 'spacer' }), counter);
   render();
   return h('div', null, tool, h('div', { class: 'bt-table' }, table));
@@ -514,7 +514,7 @@ function btBehavior(d) {
 
 function btAccess(d) {
   const trace = Object.assign({}, d.settings.permissions);
-  const permissions = (BT.liste?.permissions || Object.keys(BT_PERMS)).filter(k => d.mode !== 'simple' || ['pvp', 'attack_player'].includes(k));
+  const permissions = (BT.entries?.permissions || Object.keys(BT_PERMS)).filter(k => d.mode !== 'simple' || ['pvp', 'attack_player'].includes(k));
   return h('div', { class: 'card' }, h('h2', null, icon('shield'), T('Permissions')),
     h('p', { class: 'desc' }, T('Which parts of the game the bots will use. No bot uses a disabled part.')),
     permissions.map(k => btRow(T(BT_PERMS[k][0]), T(BT_PERMS[k][1]), btKey(trace[k] !== false, v => { trace[k] = v; btSetting('permissions', { [k]: v }); }))));
@@ -537,21 +537,21 @@ function btChat(d) {
 // bot klanları (bot/clan_management.py, bot/clan_stations.py): logo (Orders.md OP-017; yoksa etiket), lider, kasa, bütçe, istasyon, diplomasi
 const BT_DIPLOMACY = { 1: N('alliance'), 2: N('non-aggression'), 3: N('war') };
 function btClanLogo(k) {
-  if (!k.logo) return h('div', { class: 'bt-clan-logo vacant' }, String(k.etiket || '?').slice(0, 4));
+  if (!k.logo) return h('div', { class: 'bt-clan-logo vacant' }, String(k.tag || '?').slice(0, 4));
   const im = h('img', { class: 'bt-clan-logo', src: 'images/klan_logo/' + k.logo + '.webp', sub: '' });
-  im.onerror = () => im.replaceWith(btClanLogo({ etiket: k.etiket }));
+  im.onerror = () => im.replaceWith(btClanLogo({ tag: k.tag }));
   return im;
 }
 function btClans(d) {
   const clans = d.clans || [];
   const card = k => h('div', { class: 'bt-clan' }, btClanLogo(k),
     h('div', { class: 'bt-clan-body' },
-      h('div', { class: 'bt-clan-name' }, h('b', null, '[' + k.etiket + '] ' + k.ad), badge(T('{0} members', k.member), '')),
-      h('div', { class: 'small muted' }, [T('Leader: {0}', k.lider), T('Treasury: {0} credits', fmtN(k.treasury)), T('Tax: {0}%', k.tax)].join(' · ')),
-      k.budget ? h('div', { class: 'small muted' }, T('Budget: station {0}%, payouts {1}%, war {2}%', ...['ksi', 'odeme', 'savas'].map(a => Math.round(100 * (k.budget[a] || 0))))) : null,
+      h('div', { class: 'bt-clan-name' }, h('b', null, '[' + k.tag + '] ' + k.name), badge(T('{0} members', k.member), '')),
+      h('div', { class: 'small muted' }, [T('Leader: {0}', k.leader), T('Treasury: {0} credits', fmtN(k.treasury)), T('Tax: {0}%', k.tax)].join(' · ')),
+      k.budget ? h('div', { class: 'small muted' }, T('Budget: station {0}%, payouts {1}%, war {2}%', ...['ksi', 'payment', 'combat'].map(a => Math.round(100 * (k.budget[a] || 0))))) : null,
       k.ranks.length ? h('div', { class: 'small muted' }, T('Ranks: {0}', k.ranks.join(', '))) : null,
       h('div', { class: 'small' }, k.stations.length ? T('Station: {0}', k.stations.join(', ')) : k.race ? T('Racing for a station: {0}', k.race) : T('No station')),
-      k.diplomacy.length ? h('div', { class: 'small muted' }, k.diplomacy.map(x => T(BT_DIPLOMACY[x.tur] || '?') + ': ' + x.ad).join(' · ')) : null,
+      k.diplomacy.length ? h('div', { class: 'small muted' }, k.diplomacy.map(x => T(BT_DIPLOMACY[x.type] || '?') + ': ' + x.name).join(' · ')) : null,
       k.clan_news.length ? h('div', { class: 'small muted bt-clan-news' }, '“' + k.clan_news[0] + '”') : null));
   return h('div', { class: 'stack' }, h('div', { class: 'card' }, h('h2', null, icon('star'), T('Clans')),
     h('p', { class: 'desc' }, T("Clans founded or joined by the bots (from the server's last save). Leaders manage ranks, description, news, tax, the treasury budget and Clan Battle Stations themselves.")),
@@ -590,26 +590,26 @@ function btAgentTrace(b) {
   return h('a', { href: '#', class: 'small muted bt-agent', title: T('Click for details'),
     onclick: e => { e.preventDefault(); e.stopPropagation(); btBotDetail(b.no, last ? 'thought' : 'memory'); } }, icon('brain'), last ? last.thought : T('On their mind'));
 }
-const BT_PURPOSE = { soz: N('promise'), intikam: N('revenge'), tesekkur: N('thanks'), rekabet: N('rivalry'), merak: N('a question') };
+const BT_PURPOSE = { promise: N('promise'), intikam: N('revenge'), thanks: N('thanks'), rekabet: N('rivalry'), merak: N('a question') };
 const BT_MOOD = { anger: N('Anger'), morale: N('Morale'), boredom: N('Boredom'), fatigue: N('Tiredness'), confidence: N('Confidence') };
-const BT_GEAR = [['lazer', N('Lasers'), 'lazer'], ['kalkan', N('Shield generators'), 'gen'], ['hiz', N('Speed generators'), 'gen'], ['drone', N('Drones')], ['ekstra', N('Extras'), 'ekstra']];
-const BT_STATS = { npc: N('Aliens killed'), player: N('Players killed'), olum: N('Deaths'), kutu: N('Bonus box'), cargo_box: N('Cargo boxes'),
-  box_stolen: N("Others' cargo boxes"), purchase: N('Purchases'), gorev: N('Quests finished'), sure_sn: N('Time played'),
+const BT_GEAR = [['laser', N('Lasers'), 'laser'], ['kalkan', N('Shield generators'), 'gen'], ['speed', N('Speed generators'), 'gen'], ['drone', N('Drones')], ['ekstra', N('Extras'), 'ekstra']];
+const BT_STATS = { npc: N('Aliens killed'), player: N('Players killed'), death: N('Deaths'), box: N('Bonus box'), cargo_box: N('Cargo boxes'),
+  box_stolen: N("Others' cargo boxes"), purchase: N('Purchases'), quest: N('Quests finished'), sure_sn: N('Time played'),
   spend_kredi: N('Credits spent'), spend_uridyum: N('Uridium spent'), ore_credits: N('Credits from ore sales'), resupply: N('Ammo restocks'),
   box_opened: N('Booty boxes opened'), key_pickup: N('Keys bought'), refining: N('Refining'), lab_load: N('Lab upgrades loaded'),
   skylab_upgrade: N('Skylab upgrades'), skylab_transport: N('Skylab transports'), technology: N('Tech items built'), assembly: N('Assembly crafting'),
   mode_run: N('Mode runs'), gate_done: N('Galaxy gates finished'), gate_lost: N('Galaxy gates lost'), gate_draw: N('Gate spins'),
   event_npc: N('Event alien'), event_box: N('Event box'), event_drop: N('Event loot'), pass_quest: N('Battle Pass tasks'),
-  battle_pass: N('Battle Pass'), season_level: N('Season Pass levels'), dispatch: N('Dispatch'), galaxy_trek: N('Galaxy Trek'), mayin: N('Mines'),
+  battle_pass: N('Battle Pass'), season_level: N('Season Pass levels'), dispatch: N('Dispatch'), galaxy_trek: N('Galaxy Trek'), mine: N('Mines'),
   smart_bomb: N('Smart Bomb'), emp: N('EMP'), salvo: N('Rocket salvos'), hidden: N('Cloaking'), jump_cpu: N("Jump CPU") };
-const BT_STATS_FEATURED = ['npc', 'player', 'olum', 'gorev', 'gate_done', 'sure_sn'];          // İstatistik bölümünün büyük kutuları
-const BT_WARNING = { sohbet: N('chat'), pvp: N('PvP'), kutu: N('cargo box') };
+const BT_STATS_FEATURED = ['npc', 'player', 'death', 'quest', 'gate_done', 'sure_sn'];          // İstatistik bölümünün büyük kutuları
+const BT_WARNING = { sohbet: N('chat'), pvp: N('PvP'), box: N('cargo box') };
 const seDurationBt = sec => sec ? (sec >= 3600 ? Math.floor(sec / 3600) + ':' : '') + String(Math.floor(sec / 60) % 60).padStart(sec >= 3600 ? 2 : 1, '0') + ':' + String(Math.round(sec) % 60).padStart(2, '0') : '—';
 const btShort = l => String(l || '').split('_').pop().toUpperCase();
 const btCapitalize = m => m ? m.charAt(0).toLocaleUpperCase(LOC()) + m.slice(1) : m;
-const BT_EVENT = { killed_me: N('shot me down'), oldurdum: N('I shot him down'), helped_me: N('helped me'), i_helped: N('I helped'),
-  sohbet: N('chat'), hakaret: N('insult'), praise: N('praise'), grup: N('group'), klan: N('clan'), arkadas: N('friendship'), reddetti: N('turned me down'),
-  hunted_together: N('farmed together'), meydan: N('challenged me'), gossip_good: N('good gossip'), gossip_bad: N('bad gossip'),
+const BT_EVENT = { killed_me: N('shot me down'), i_killed: N('I shot him down'), helped_me: N('helped me'), i_helped: N('I helped'),
+  sohbet: N('chat'), insult: N('insult'), praise: N('praise'), group: N('group'), clan: N('clan'), friend: N('friendship'), reddetti: N('turned me down'),
+  hunted_together: N('farmed together'), challenge: N('challenged me'), gossip_good: N('good gossip'), gossip_bad: N('bad gossip'),
   warned: N('warned by the admin') };
 const BT_HABIT = { daytime: N('Daytime player'), evening: N('Evening player'), night_owl: N('Night owl'), devoted: N('Devoted') };
 
@@ -640,23 +640,23 @@ function btRadar(o) {
 // ------------------------------------------------------------------ bot editörü: kimlik kartı ve bölüm menüsü solda, bölüm sağda
 // (bot/edit.py; /api/bot/detay). Değişiklikler birikir, Kaydet tek istekte yazar. Oyun bu paketle açıkken canlı bot okunur ve
 // düzenleme hemen oyunda geçerli olur.
-const BT_D_TABS = [['profil', N('Profile'), 'user', N('Name, level, wallet, map and current activity.')],
+const BT_D_TABS = [['profile', N('Profile'), 'user', N('Name, level, wallet, map and current activity.')],
   ['personality', N('Personality'), 'brain', N('The traits behind its decisions and its current mood.')],
   ['hangar', N('Hangar'), 'ship', N('Ship, equipment, ammo and cargo. The best items go into the slots, the rest stays in storage.')],
   ['memory', N('Memory'), 'note', N('What it thinks of people, its memories, goals and reminders.')],
   ['thought', N('Thoughts'), 'chat', N("The language model's latest decisions and the tools it used.")],
   ['stats', N('Statistics'), 'gauge', N('Counters, gate times, warnings, friends and Skylab.')]];
-const BT_D_IMAGE = { profil: 'ke_pilot', hangar: 'ke_hangar', personality: 'bt_personality', memory: 'bt_memory', thought: 'bt_thought', stats: 'bt_stats' };   // Orders.md OP-013, OP-019
+const BT_D_IMAGE = { profile: 'ke_pilot', hangar: 'ke_hangar', personality: 'bt_personality', memory: 'bt_memory', thought: 'bt_thought', stats: 'bt_stats' };   // Orders.md OP-013, OP-019
 const btDetailIcon = s => BT_D_IMAGE[s[0]] ? h('span', { class: 'se-tab-icon gorsel' }, art(BT_D_IMAGE[s[0]], 'se-tab-art')) : h('span', { class: 'se-tab-icon' }, icon(s[2]));
 
-async function btBotDetail(no, tab = 'profil') {
+async function btBotDetail(no, tab = 'profile') {
   const pid = BT.d.id;
   let v;
   try { [v] = await Promise.all([api('/api/bot/detay?id=' + encodeURIComponent(pid) + '&no=' + no), loadGameImages()]); } catch (e) { toast(e.message, 'err'); return; }
   let value = {};
   const multiplier = v.catalog;
   const lock = !!v.read_only;
-  const fc = () => btCompany[v.firma - 1].toLowerCase();
+  const fc = () => btCompany[v.company - 1].toLowerCase();
   const side = h('aside', { class: 'bt-detail-side' }), main = h('div', { class: 'bt-detail-main' }), state = h('div', { class: 'bt-detail-status' });
   const save = btn(T('Save'), async () => {
     const x = await act(() => api('/api/bot/detay', { id: pid, no, changes: value }), T('Saved.'));
@@ -684,23 +684,23 @@ async function btBotDetail(no, tab = 'profil') {
 
   // ---- sol: kimlik kartı (kayıtlı değerler) ve bölüm menüsü
   function uid() {
-    const p = v.profil || {}, f = fc(), e = v.gear || {};
+    const p = v.profile || {}, f = fc(), e = v.gear || {};
     const sell = (name, n, tag) => h('div', { class: 'se-wallet-row' }, art('source_' + name, 'se-currency-icon'), h('span', null, tag), h('b', null, fmtN(n)));
     const stats = (iconEl, n, title) => h('div', { class: 'se-value', title: title }, h('span', { class: 'bt-value-icon' }, icon(iconEl)), h('b', null, n));
-    const cargo = Object.values(v.kargo || {}).reduce((a, n) => a + n, 0);
+    const cargo = Object.values(v.cargo || {}).reduce((a, n) => a + n, 0);
     return h('div', { class: 'card se-identity f-' + f },
-      h('div', { class: 'se-identity-scene' }, h('div', { class: 'se-ring' }), shipImage(e.gemi || 'ship_phoenix', 150, f)),
-      h('div', { class: 'se-identity-head' }, portrait(v.firma, 'se-portrait lowercase', 84),
-        h('div', { style: { minWidth: 0 } }, h('div', { class: 'se-identity-name', title: v.ad }, v.ad),
-          h('div', { class: 'se-pilot small' }, p.klan ? h('span', { class: 'se-clan' }, '[' + p.klan + ']') : null, badge(btCompany[v.firma - 1], f),
+      h('div', { class: 'se-identity-scene' }, h('div', { class: 'se-ring' }), shipImage(e.ship || 'ship_phoenix', 150, f)),
+      h('div', { class: 'se-identity-head' }, portrait(v.company, 'se-portrait lowercase', 84),
+        h('div', { style: { minWidth: 0 } }, h('div', { class: 'se-identity-name', title: v.name }, v.name),
+          h('div', { class: 'se-pilot small' }, p.clan ? h('span', { class: 'se-clan' }, '[' + p.clan + ']') : null, badge(btCompany[v.company - 1], f),
             v.online ? badge(T('Online'), 'ok') : null))),
       h('div', { class: 'bt-detail-label' }, h('div', null, h('b', null, T(BT_ARCHETYPE[v.archetype] || v.archetype)),
         v.habit ? T(BT_HABIT[v.habit] || v.habit) : null), h('div', { class: 'dim' }, btTraitSummary(v.traits))),
       v.var ? [
-        h('div', { class: 'se-lv sm' }, h('div', { class: 'se-lv-num' }, h('small', null, T('Lv')), h('b', null, p.seviye)),
-          h('div', { class: 'grow' }, h('div', { class: 'row between small muted' }, btRank((BT.d.roster.find(b => b.no === no) || {}).rutbe || 1, 18), h('span', { class: 'mono' }, fmtShort(p.ep) + ' EP')),
+        h('div', { class: 'se-lv sm' }, h('div', { class: 'se-lv-num' }, h('small', null, T('Lv')), h('b', null, p.level)),
+          h('div', { class: 'grow' }, h('div', { class: 'row between small muted' }, btRank((BT.d.roster.find(b => b.no === no) || {}).rank || 1, 18), h('span', { class: 'mono' }, fmtShort(p.ep) + ' EP')),
             epBar(p.ep, p.base_ep || 0, p.next_ep))),
-        h('div', { class: 'se-wallet' }, sell('kredi', p.kredi, T('Credits')), sell('uridyum', p.uridyum, T('Uridium')), sell('onur', p.onur, T('Honor'))),
+        h('div', { class: 'se-wallet' }, sell('credits', p.credits, T('Credits')), sell('uridium', p.uridium, T('Uridium')), sell('honor', p.honor, T('Honor'))),
         h('div', { class: 'se-values' }, stats('zap', fmtShort(v.power.power), T('Power')), stats('crosshair', fmtShort(v.power.dps), T('Damage/s')),
           stats('heart', fmtShort(v.power.ehp), T('Effective HP')), stats('box', fmtShort(cargo) + '/' + fmtShort(v.cargo_capacity), T('Cargo')))] : null);
   }
@@ -714,36 +714,36 @@ async function btBotDetail(no, tab = 'profil') {
 
   // ---- Profil
   function profile() {
-    const p = v.profil || {};
-    let name = v.ad;
+    const p = v.profile || {};
+    let name = v.name;
     const nameCard = card(T('Name'), 'edit', h('div', { class: 'bt-detail-name' },
-      h('input', { class: 'input', value: v.ad, maxlength: 20, disabled: lock, oninput: e => { name = e.target.value.trim(); regenerate.disabled = lock || name === v.ad; },
+      h('input', { class: 'input', value: v.name, maxlength: 20, disabled: lock, oninput: e => { name = e.target.value.trim(); regenerate.disabled = lock || name === v.name; },
         onkeydown: e => { if (e.key === 'Enter') regenerate.click(); } }),
       regenerate = btn(T('Rename'), async () => {
-        if (name === v.ad) return;
+        if (name === v.name) return;
         const x = await act(() => api('/api/bot/ad', { id: pid, no, name }), T('Saved.'));
-        if (x) { BT.d = x; v.ad = name; render(); }
+        if (x) { BT.d = x; v.name = name; render(); }
       }, '', 'edit', { disabled: true })),
       h('div', { class: 'small dim' }, T('3-20 characters: letters, digits, _ . -  The name changes right away, without Save.')));
     if (!v.var) return [nameCard, missing()];
     const currency = (key, icon, tag, n, o) => h('div', { class: 'se-currency' }, art('source_' + icon, 'se-currency-icon lg'),
       h('div', { class: 'grow' }, h('label', { class: 'lbl' }, tag), count(get_value(key, n), x => change(key, x), Object.assign({ min: 0, max: 2e12, cls: 'num wide' }, o))));
-    const lv = p.next_ep ? T('Level {0}; next level at {1} EP.', p.seviye, fmtN(p.next_ep)) : T('Level {0}.', p.seviye);
-    const job = [p.hedef ? T(BT_TARGET[p.hedef] || p.hedef) : '—', p.intent && p.intent !== p.hedef ? T('Intends: {0}', T(BT_TARGET[p.intent] || p.intent)) : null];
+    const lv = p.next_ep ? T('Level {0}; next level at {1} EP.', p.level, fmtN(p.next_ep)) : T('Level {0}.', p.level);
+    const job = [p.target ? T(BT_TARGET[p.target] || p.target) : '—', p.intent && p.intent !== p.target ? T('Intends: {0}', T(BT_TARGET[p.intent] || p.intent)) : null];
     return [nameCard,
       card(T('Level and wallet'), 'star', h('div', { class: 'bt-detail-currencies' },
         h('div', null, currency('ep', 'experience', T('Experience (EP)'), p.ep, { max: 1e12 }), h('div', { class: 'small dim bt-detail-note' }, lv)),
-        currency('kredi', 'kredi', T('Credits'), p.kredi), currency('uridyum', 'uridyum', T('Uridium'), p.uridyum),
-        currency('onur', 'onur', T('Honor'), p.onur, { min: -2e12 }))),
+        currency('credits', 'credits', T('Credits'), p.credits), currency('uridium', 'uridium', T('Uridium'), p.uridium),
+        currency('honor', 'honor', T('Honor'), p.honor, { min: -2e12 }))),
       card(T('Location and activity'), 'map',
         btRow(T('Map'), v.online ? T("An online bot's map can't be changed: try once it is offline.") : T('The bot starts on this map the next time it logs in.'),
-          h('select', { class: 'input', disabled: lock || !!v.online, onchange: e => change('harita', Number(e.target.value)) },
-            multiplier.haritalar.map(m => h('option', { value: m.id, selected: m.id === get_value('harita', p.harita) }, m.ad)))),
+          h('select', { class: 'input', disabled: lock || !!v.online, onchange: e => change('map', Number(e.target.value)) },
+            multiplier.maps.map(m => h('option', { value: m.id, selected: m.id === get_value('map', p.map) }, m.name)))),
         btRow(T("What it's doing"), job[1], h('span', { class: 'bt-activity' }, job[0])),
-        btRow(T('Quest'), v.tamam ? T('Finished {0} quests.', v.tamam) : null, v.gorev && !value.cancel_quest
-          ? h('div', { class: 'row', style: { gap: '8px' } }, h('b', null, v.gorev.ad), btn(T('Drop the quest'), () => { change('cancel_quest', true); render(); }, 'ghost sm', 'x', { disabled: lock }))
+        btRow(T('Quest'), v.done ? T('Finished {0} quests.', v.done) : null, v.quest && !value.cancel_quest
+          ? h('div', { class: 'row', style: { gap: '8px' } }, h('b', null, v.quest.name), btn(T('Drop the quest'), () => { change('cancel_quest', true); render(); }, 'ghost sm', 'x', { disabled: lock }))
           : h('span', { class: 'dim' }, value.cancel_quest ? T('Will be dropped') : '—')),
-        btRow(T('Clan'), null, h('span', null, p.klan ? '[' + p.klan + ']' : '—')))];
+        btRow(T('Clan'), null, h('span', null, p.clan ? '[' + p.clan + ']' : '—')))];
   }
 
   // ---- Kişilik: radar + özellik kaydırıcıları, ruh hâli
@@ -771,21 +771,21 @@ async function btBotDetail(no, tab = 'profil') {
   function hangar() {
     if (!v.var) return [missing()];
     const e = v.gear, f = fc();
-    const ship = get_value('gemi', e.gemi);
+    const ship = get_value('ship', e.ship);
     const g = multiplier.ships.find(x => x.loot === ship) || {};
-    const slot = { lazer: g.lazer, gen: g.gen, ekstra: g.ekstra };
+    const slot = { laser: g.laser, gen: g.gen, ekstra: g.ekstra };
     const item = (l, n, update, remove_, maximum) => h('div', { class: 'bt-item' }, gameIcon(l, 44, f, 'box'),
       h('div', { class: 'bt-item-name', title: itemName(l) }, itemName(l)),
       h('div', { class: 'bt-item-bottom' }, count(n, update, { min: 0, max: maximum, cls: 'num' }), remove_ ? remove(remove_) : null));
     const addSelect = (options, on) => h('select', { class: 'input bt-add', disabled: lock, onchange: ev => { if (ev.target.value) on(ev.target.value); } },
-      [h('option', { value: '' }, T('Add…'))].concat(options.map(x => h('option', { value: x.loot }, x.ad))));
+      [h('option', { value: '' }, T('Add…'))].concat(options.map(x => h('option', { value: x.loot }, x.name))));
     const category = ([k, name_, slot_info]) => {
       const owner = Object.assign({}, e[k], (value.gear || {})[k]);
       const write = new_ => { value.gear = Object.assign({}, value.gear, { [k]: new_ }); handle(); };
       const var_ = Object.entries(owner).filter(([, n]) => n > 0);
       const equipped = x => Object.values(Object.assign({}, e[x], (value.gear || {})[x])).reduce((a, n) => a + n, 0);
       // kalkan ve hız aynı jeneratör yuvalarını paylaşır; ekstranın sayısı kalan hakkı (JP-01 10 hak): her biri bir yuva
-      const total = slot_info === 'gen' ? equipped('kalkan') + equipped('hiz') : k === 'ekstra' ? var_.length : equipped(k);
+      const total = slot_info === 'gen' ? equipped('kalkan') + equipped('speed') : k === 'ekstra' ? var_.length : equipped(k);
       return h('div', { class: 'bt-cat' },
         h('div', { class: 'bt-cat-head' }, h('b', null, T(name_)), h('span', { class: 'se-count' }, slot_info && slot[slot_info] != null ? T('{0} / {1} slots', total, slot[slot_info]) : fmtN(total)),
           h('span', { class: 'spacer' }), addSelect(multiplier[k].filter(x => !owner[x.loot]), l => { write(Object.assign({}, owner, { [l]: (multiplier[k].find(x => x.loot === l) || {}).right || 1 })); render(); })),
@@ -793,20 +793,20 @@ async function btBotDetail(no, tab = 'profil') {
           () => { const y = Object.assign({}, owner); delete y[l]; write(y); render(); }, k === 'ekstra' ? 100000 : k === 'drone' ? 10 : 100))) : empty(T('Nothing equipped.')));
     };
     const stock = Object.assign({}, v.stock, value.stock);
-    const cargo = Object.values(v.kargo).reduce((a, n) => a + n, 0), capacity = v.cargo_capacity || 1;
+    const cargo = Object.values(v.cargo).reduce((a, n) => a + n, 0), capacity = v.cargo_capacity || 1;
     return [
       card(T('Ship'), 'ship', h('div', { class: 'bt-ship-card' },
         h('div', { class: 'bt-ship-scene' }, shipImage(ship, 132, f)),
         h('div', { class: 'bt-ship-right' },
-          field(T('Ship'), h('select', { class: 'input', disabled: lock, onchange: ev => { change('gemi', ev.target.value); render(); } },
-            multiplier.ships.map(x => h('option', { value: x.loot, selected: x.loot === ship }, x.ad)))),
-          h('div', { class: 'bt-slots' }, [['zap', g.lazer, T('laser')], ['shield', g.gen, T('generator')], ['cpu', g.ekstra, T('extra')]].map(([iconEl, n, name_]) =>
+          field(T('Ship'), h('select', { class: 'input', disabled: lock, onchange: ev => { change('ship', ev.target.value); render(); } },
+            multiplier.ships.map(x => h('option', { value: x.loot, selected: x.loot === ship }, x.name)))),
+          h('div', { class: 'bt-slots' }, [['zap', g.laser, T('laser')], ['shield', g.gen, T('generator')], ['cpu', g.ekstra, T('extra')]].map(([iconEl, n, name_]) =>
             h('span', { class: 'chip' }, icon(iconEl), h('b', null, n ?? '?'), name_))),
           field(T('Ammo in use'), h('select', { class: 'input', disabled: lock, onchange: ev => change('ammunition', ev.target.value) },
-            multiplier.ammunition.filter(x => x.loot.includes('_laser_')).map(x => h('option', { value: x.loot, selected: x.loot === get_value('ammunition', e.ammunition) }, x.ad)))),
+            multiplier.ammunition.filter(x => x.loot.includes('_laser_')).map(x => h('option', { value: x.loot, selected: x.loot === get_value('ammunition', e.ammunition) }, x.name)))),
           h('div', { class: 'bt-power' }, [[T('Power'), v.power.power], [T('Damage/s'), fmtN(v.power.dps)], [T('Effective HP'), fmtN(v.power.ehp)]].map(([k, n]) =>
             h('div', null, h('span', null, k), h('b', null, n)))),
-          value.gemi || value.gear ? h('div', { class: 'small dim' }, T('Power is recalculated on save.')) : null))),
+          value.ship || value.gear ? h('div', { class: 'small dim' }, T('Power is recalculated on save.')) : null))),
       card(T('Equipment'), 'layers', ...BT_GEAR.map(category)),
       card(T('Ammo and rockets'), 'ammo',
         h('div', { class: 'bt-cat-head' }, h('span', { class: 'small muted' }, T('Ammo, rockets and resources in storage.')), h('span', { class: 'spacer' }),
@@ -815,8 +815,8 @@ async function btBotDetail(no, tab = 'profil') {
       card(T('Cargo'), 'box',
         h('div', { class: 'bt-cargo' }, h('div', { class: 'bt-cargo-bar' }, h('span', { style: { width: Math.min(100, 100 * cargo / capacity) + '%' } })),
           h('span', { class: 'small muted' }, T('{0} of {1}', fmtN(cargo), fmtN(capacity)))),
-        Object.keys(v.kargo).length && !value.empty_cargo
-          ? h('div', { class: 'row wrap', style: { gap: '6px', alignItems: 'center', marginTop: '10px' } }, Object.entries(v.kargo).map(([o, n]) => h('span', { class: 'chip' }, o, h('b', null, fmtN(n)))),
+        Object.keys(v.cargo).length && !value.empty_cargo
+          ? h('div', { class: 'row wrap', style: { gap: '6px', alignItems: 'center', marginTop: '10px' } }, Object.entries(v.cargo).map(([o, n]) => h('span', { class: 'chip' }, o, h('b', null, fmtN(n)))),
             h('span', { class: 'spacer' }), btn(T('Empty the cargo'), () => { change('empty_cargo', true); render(); }, 'ghost sm', 'trash', { disabled: lock }))
           : empty(value.empty_cargo ? T('Will be emptied on save.') : T('Cargo is empty.'))),
     ];
@@ -831,18 +831,18 @@ async function btBotDetail(no, tab = 'profil') {
       const value = h('b', { class: d >= 0 ? 'good' : 'bad' }, (d > 0 ? '+' : '') + d.toFixed(2));
       const saves = slider({ min: -100, max: 100, step: 5, value: Math.round(d * 100), disabled: lock, oninput: e => {
         const y = +e.target.value / 100; value.textContent = (y > 0 ? '+' : '') + y.toFixed(2); value.className = y >= 0 ? 'good' : 'bad'; mapping('relation', x.anahtar, y); } }, 'bt-relation-range');
-      return h('div', { class: 'bt-relation' }, h('div', null, h('b', null, x.ad),
+      return h('div', { class: 'bt-relation' }, h('div', null, h('b', null, x.name),
         h('div', { class: 'small dim' }, Object.entries(x.n || {}).map(([t, n]) => (BT_EVENT[t] ? T(BT_EVENT[t]) : t) + ' ' + n).join(', '))),
       h('div', { class: 'bt-relation-scale' }, h('span', { class: 'small dim' }, T('Enemy')), saves, h('span', { class: 'small dim' }, T('Friend'))), value,
       remove(() => entries('delete_relation', x.anahtar)));
     });
-    const impression = v.impression.filter(x => !deleted('delete_impression', x.anahtar)).map(x => h('div', { class: 'bt-note' }, h('b', null, x.ad),
-      h('textarea', { class: 'input', rows: 2, disabled: lock, oninput: e => mapping('impression', x.anahtar, e.target.value) }, get_value('impression', {})[x.anahtar] ?? x.metin),
+    const impression = v.impression.filter(x => !deleted('delete_impression', x.anahtar)).map(x => h('div', { class: 'bt-note' }, h('b', null, x.name),
+      h('textarea', { class: 'input', rows: 2, disabled: lock, oninput: e => mapping('impression', x.anahtar, e.target.value) }, get_value('impression', {})[x.anahtar] ?? x.text),
       remove(() => entries('delete_impression', x.anahtar))));
     const memories = v.memories.filter(a => !deleted('delete_memory', a.id)).map(a => {
-      const waiting = a.takip && !a.takip.finished && !deleted('cancel_followup', a.id);
-      return h('div', { class: 'bt-memory' }, h('div', { class: 'bt-memory-head' }, h('b', null, a.kim), h('span', { class: 'small dim' }, T('{0} ago', fmtDur(now - a.t))),
-        a.n > 1 ? h('span', { class: 'se-count' }, '×' + a.n) : null, waiting ? badge(T('Pending: {0}', T(BT_PURPOSE[a.takip.amac] || a.takip.amac)), 'warn') : null,
+      const waiting = a.followup && !a.followup.finished && !deleted('cancel_followup', a.id);
+      return h('div', { class: 'bt-memory' }, h('div', { class: 'bt-memory-head' }, h('b', null, a.who), h('span', { class: 'small dim' }, T('{0} ago', fmtDur(now - a.t))),
+        a.n > 1 ? h('span', { class: 'se-count' }, '×' + a.n) : null, waiting ? badge(T('Pending: {0}', T(BT_PURPOSE[a.followup.purpose] || a.followup.purpose)), 'warn') : null,
         h('span', { class: 'spacer' }), waiting ? btn('', () => entries('cancel_followup', a.id), 'ghost sm icon', 'x', { title: T('Cancel the pending plan'), disabled: lock }) : null,
         remove(() => entries('delete_memory', a.id))),
       h('input', { class: 'input', value: get_value('memory_log', {})[a.id] ?? a.summary, disabled: lock, oninput: e => mapping('memory_log', a.id, e.target.value) }));
@@ -861,7 +861,7 @@ async function btBotDetail(no, tab = 'profil') {
             btn(T('Add goal'), () => { change('ledger', ledger.concat([''])); render(); }, 'ghost sm', 'plus', { disabled: lock }))),
         card(T('Reminders and savings'), 'bell',
           v.reminder.length && !value.clear_reminder
-            ? [h('ul', { class: 'bt-mind' }, v.reminder.map(x => h('li', null, x.metin, h('span', { class: 'dim' }, ' (' + T('in {0}', fmtDur(x.time_left_sec)) + ')')))),
+            ? [h('ul', { class: 'bt-mind' }, v.reminder.map(x => h('li', null, x.text, h('span', { class: 'dim' }, ' (' + T('in {0}', fmtDur(x.time_left_sec)) + ')')))),
               h('div', { class: 'row', style: { justifyContent: 'flex-end', marginTop: '6px' } }, btn(T('Delete reminders'), () => { change('clear_reminder', true); render(); }, 'ghost sm', 'trash', { disabled: lock }))]
             : empty(T('No reminders.')),
           h('div', { class: 'bt-savings' }, h('span', { class: 'lbl' }, T('Saving up for')), v.savings && !value.clear_savings
@@ -892,9 +892,9 @@ async function btBotDetail(no, tab = 'profil') {
       card(T('All counters'), 'list', remaining.length ? h('div', { class: 'kv bt-kv' }, remaining.map(([k, n]) => h('div', null, BT_STATS[k] ? T(BT_STATS[k]) : k, h('b', null, value(k, n))))) : empty()),
       h('div', { class: 'grid g2' },
         card(T('Gate times'), 'clock', Object.keys(v.gate_times || {}).length ? h('div', { class: 'kv one' },
-          Object.entries(v.gate_times).map(([g, x]) => h('div', null, g.charAt(0).toUpperCase() + g.slice(1), h('b', null, T('best {0}', seDurationBt(x.best)) + ' · ' + T('{0} times', fmtN(x.sayi))))))
+          Object.entries(v.gate_times).map(([g, x]) => h('div', null, g.charAt(0).toUpperCase() + g.slice(1), h('b', null, T('best {0}', seDurationBt(x.best)) + ' · ' + T('{0} times', fmtN(x.number))))))
           : empty()),
-        card(T('Friends'), 'users', (v.profil.friends || []).length ? h('div', { class: 'row wrap', style: { gap: '6px' } }, v.profil.friends.map(a => h('span', { class: 'chip' }, a))) : empty()),
+        card(T('Friends'), 'users', (v.profile.friends || []).length ? h('div', { class: 'row wrap', style: { gap: '6px' } }, v.profile.friends.map(a => h('span', { class: 'chip' }, a))) : empty()),
         card(T('Admin warning'), 'alert', Object.keys(v.warning || {}).length ? h('div', { class: 'row wrap', style: { gap: '6px' } },
           Object.entries(v.warning).map(([k, t]) => badge(T(BT_WARNING[k] || k) + ' · ' + T('{0} left', fmtDur(Math.max(0, t - Date.now() / 1000))), 'warn'))) : empty(T('No warnings.'))),
         card(T('Skylab'), 'layers', Object.keys(v.skylab || {}).length ? h('div', { class: 'row wrap', style: { gap: '6px' } }, Object.entries(v.skylab).map(([m, n]) => h('span', { class: 'chip' }, m, h('b', null, n)))) : empty())),
@@ -913,7 +913,7 @@ async function btBotDetail(no, tab = 'profil') {
     handle();
   }
   render();
-  const m = modal({ title: T('Bot editor'), sub: T('{0} pack · bot #{1}', BT.d.ad, no), body: h('div', { class: 'bt-detail' }, side, main), onclose: () => btEditor(),
+  const m = modal({ title: T('Bot editor'), sub: T('{0} pack · bot #{1}', BT.d.name, no), body: h('div', { class: 'bt-detail' }, side, main), onclose: () => btEditor(),
     foot: [state, h('span', { class: 'spacer' }), btn(T('Close'), async () => {
       if (Object.keys(value).length && !await confirmBox(T('Changes not saved'), T('Closing discards the unsaved changes.'), { ok: T('Close without saving'), danger: true })) return;
       m.close();
@@ -923,7 +923,7 @@ async function btBotDetail(no, tab = 'profil') {
 
 function btUsage(u) {
   if (!u) return h('div', { class: 'small muted' }, T('Measured once the game runs with this pack.'));
-  const s = u.saat || {}, pay = s.input ? Math.round(100 * (s.cache || 0) / s.input) : 0;
+  const s = u.hour || {}, pay = s.input ? Math.round(100 * (s.cache || 0) / s.input) : 0;
   return h('div', { class: 'small', style: { textAlign: 'right' } },
     h('div', null, T('{0} requests · {1} input tokens ({2}% cached) · {3} output tokens', fmtN(s.request || 0), fmtN(s.input || 0), pay, fmtN(s.output || 0))),
     h('div', { class: 'muted' }, [u.provider, u.cap ? T('Hourly limit: {0} / {1} requests', fmtN(s.request || 0), fmtN(u.cap)) : T('No hourly limit'),
@@ -965,7 +965,7 @@ function btLlmWatch(box, right) {
   // sağlayıcı formu yalnız seçim değişince yeniden çizilir (yoklama yazılanı silmesin); alt kutu dahili modelde kurulum, ötekilerde test
   const render = s => {
     signature = JSON.stringify(s);
-    if (BT.liste) BT.liste.llm_multilingual = s.provider.multilingual;
+    if (BT.entries) BT.entries.llm_multilingual = s.provider.multilingual;
     if (selected !== s.provider.selected || s.new_form) { selected = s.provider.selected; btFill(right, btLlmProvider(s.provider, x => render(Object.assign(x, { new_form: true })))); }
     btFill(box, selected === 'local' ? h('div', { class: 'stack', style: { gap: '10px' } }, btLlmWarning(), btLlmBox(s, render)) : btLlmRemoteBox(s, render));
   };
@@ -978,19 +978,19 @@ function btLlmWatch(box, right) {
 }
 
 // sağlayıcı adları (öteki sağlayıcıların adı kendi markası)
-const BT_PROVIDER_NAME = { local: N('Built-in local model (Qwen3 4B)'), ozel: N('Custom (OpenAI-compatible)') };
+const BT_PROVIDER_NAME = { local: N('Built-in local model (Qwen3 4B)'), special: N('Custom (OpenAI-compatible)') };
 function btLlmProvider(provider, new_) {
-  const p = provider.liste.find(x => x.kimlik === provider.selected);
+  const p = provider.entries.find(x => x.uid === provider.selected);
   const f = { address: p.address, model: p.model, anahtar: '' };
   const send = (body, msg) => act(() => api('/api/bot/llm/saglayici', body), msg).then(x => { if (x) new_(x); });
-  const sec = h('select', { class: 'input', onchange: e => send({ kimlik: e.target.value }, T('Saved.')) },
-    provider.liste.map(x => h('option', { value: x.kimlik, selected: x.kimlik === provider.selected }, BT_PROVIDER_NAME[x.kimlik] ? T(BT_PROVIDER_NAME[x.kimlik]) : x.ad)));
+  const sec = h('select', { class: 'input', onchange: e => send({ uid: e.target.value }, T('Saved.')) },
+    provider.entries.map(x => h('option', { value: x.uid, selected: x.uid === provider.selected }, BT_PROVIDER_NAME[x.uid] ? T(BT_PROVIDER_NAME[x.uid]) : x.name)));
   const rows = [btRow(T('Provider'), T("The bots' chat and decisions come from this model."), sec)];
   if (provider.selected === 'local') return h('div', null, rows);
   // model: önce elle yazılır; modeller çekilince açılır liste olur (datalist dolu kutuda süzülüp açılmıyordu)
   const modelBox = h('div', null, h('input', { class: 'input', value: f.model, oninput: e => { f.model = e.target.value.trim(); } }));
   const load = async () => {
-    const x = await act(() => api('/api/bot/llm/models', { kimlik: provider.selected, address: f.address, anahtar: f.anahtar }), r => T('{0} models found.', r.models.length));
+    const x = await act(() => api('/api/bot/llm/models', { uid: provider.selected, address: f.address, anahtar: f.anahtar }), r => T('{0} models found.', r.models.length));
     if (!x || !x.models.length) return;
     const models = x.models.includes(f.model) || !f.model ? x.models : [f.model].concat(x.models);
     if (!f.model) f.model = models[0];
@@ -1005,68 +1005,68 @@ function btLlmProvider(provider, new_) {
     btRow(T('Model'), T('A fast, cheap chat model is enough; reasoning models answer slowly.'),
       h('div', { class: 'row', style: { gap: '6px' } }, modelBox, btn(T('Fetch models'), load, 'ghost sm', 'download'))),
     h('div', { class: 'row', style: { gap: '8px', justifyContent: 'flex-end' } },
-      p.has_key ? btn(T('Remove key'), () => send({ kimlik: provider.selected, anahtar: '-' }, T('Deleted.')), 'ghost sm', 'trash') : null,
-      btn(T('Save'), () => send({ kimlik: provider.selected, address: f.address, model: f.model, anahtar: f.anahtar }, T('Saved.')), 'primary sm', 'check')),
+      p.has_key ? btn(T('Remove key'), () => send({ uid: provider.selected, anahtar: '-' }, T('Deleted.')), 'ghost sm', 'trash') : null,
+      btn(T('Save'), () => send({ uid: provider.selected, address: f.address, model: f.model, anahtar: f.anahtar }, T('Saved.')), 'primary sm', 'check')),
     h('div', { class: 'alert info' }, icon('info'), h('div', null, T('With this provider bots speak their own chat language (chosen on the Roster tab). With paid providers the requests are billed to your account: the "Bots thinking at the same time" and "Review decisions" settings set how many requests are made.'))));
   return h('div', { class: 'stack', style: { gap: '4px' } }, rows);
 }
 
 function btLlmRemoteBox(s, render) {
   const t = s.test && s.test.provider === s.provider.selected ? s.test : {};
-  return h('div', { class: 'bt-llm-step' }, icon(t.durum === 'ok' ? 'check' : 'play'),
-    h('div', null, h('b', null, t.durum === 'ok' ? T('The provider works') : T('Test')),
-      h('div', { class: 'small muted' }, t.durum === 'running' ? T('Asking the provider a short question…') : t.durum === 'hata' ? t.hata
-        : t.durum === 'ok' ? T('Answer in {0} s: "{1}"', t.sure_sn, t.response ?? '') : T('After saving, the provider is asked a short question; if it answers, the bots talk through it.'))),
-    t.durum === 'running' ? h('span', { class: 'spin' }) : btn(T('Test'), () => act(() => api('/api/bot/llm/test', {})).then(x => { if (x) render(x); }), 'primary sm', 'play'));
+  return h('div', { class: 'bt-llm-step' }, icon(t.state === 'ok' ? 'check' : 'play'),
+    h('div', null, h('b', null, t.state === 'ok' ? T('The provider works') : T('Test')),
+      h('div', { class: 'small muted' }, t.state === 'running' ? T('Asking the provider a short question…') : t.state === 'error' ? t.error
+        : t.state === 'ok' ? T('Answer in {0} s: "{1}"', t.sure_sn, t.response ?? '') : T('After saving, the provider is asked a short question; if it answers, the bots talk through it.'))),
+    t.state === 'running' ? h('span', { class: 'spin' }) : btn(T('Test'), () => act(() => api('/api/bot/llm/test', {})).then(x => { if (x) render(x); }), 'primary sm', 'play'));
 }
 
 function btLlmBox(s, render) {
   const call = (route, msg) => act(() => api('/api/bot/llm/' + route, {}), msg).then(x => { if (x) render(x); });
-  const pct = s.toplam ? Math.floor(100 * s.claimed / s.toplam) : 0;
+  const pct = s.total ? Math.floor(100 * s.claimed / s.total) : 0;
   const t = s.test && !s.test.provider ? s.test : {};          // uzak sağlayıcının testi değil
   const low = s.memory_gb != null && s.memory_gb < s.min_memory_gb;
   const hardware = h('div', { class: 'small muted' }, T('This computer: {0} GB memory, {1} cores.', s.memory_gb ?? '?', s.cores ?? '?'),
     low ? h('b', { style: { color: 'var(--warn)', marginLeft: '6px' } }, T('Recommended at least {0} GB.', s.min_memory_gb)) : null);
   if (!s.supported) return h('div', { class: 'alert hata' }, icon('alert'), h('div', null, T("There is no ready-made language model server for this computer's processor: use Normal mode.")));
   const step1 = s.running
-    ? h('div', { class: 'dl-box' }, h('b', null, s.durum === 'installing' ? T('Installing…') : T('Downloading: %{0}', pct)),
+    ? h('div', { class: 'dl-box' }, h('b', null, s.state === 'installing' ? T('Installing…') : T('Downloading: %{0}', pct)),
       h('div', { class: 'meter' }, h('div', { class: 'meter-bar' }, h('span', { style: { width: pct + '%' } }))),
-      h('div', { class: 'small muted dl-info' }, [`${fmtBytes(s.claimed)} / ${fmtBytes(s.toplam)}`, s.hiz ? `${fmtBytes(s.hiz)}/${T('s')}` : null,
-        s.time_left_sec != null && s.hiz ? T('{0} remaining', fmtDur(s.time_left_sec)) : null, s.part].filter(Boolean).join(' · ')),
+      h('div', { class: 'small muted dl-info' }, [`${fmtBytes(s.claimed)} / ${fmtBytes(s.total)}`, s.speed ? `${fmtBytes(s.speed)}/${T('s')}` : null,
+        s.time_left_sec != null && s.speed ? T('{0} remaining', fmtDur(s.time_left_sec)) : null, s.part].filter(Boolean).join(' · ')),
       h('div', { class: 'row' }, btn(T('Stop'), () => call('stop', T('Stopping the download…')), 'ghost sm', 'stop')))
-    : ['built', 'hazir'].includes(s.durum)
-      ? h('div', { class: 'bt-llm-step' }, icon('check'), h('div', null, h('b', null, T('Installed')), h('div', { class: 'small muted' }, s.model + ' · llama.cpp ' + s.surum)),
+    : ['built', 'ready'].includes(s.state)
+      ? h('div', { class: 'bt-llm-step' }, icon('check'), h('div', null, h('b', null, T('Installed')), h('div', { class: 'small muted' }, s.model + ' · llama.cpp ' + s.version)),
         btn(T('Remove'), async () => { if (await confirmBox(T('Delete the language model?'), T('The downloaded 2.5 GB is deleted; Advanced mode works like Normal mode until it is installed again.'), { ok: T('Delete'), danger: true })) call('delete', T('Deleted.')); }, 'ghost sm', 'trash'))
-      : h('div', { class: 'bt-llm-step' }, icon('download'), h('div', null, h('b', null, s.durum === 'hata' ? T('Could not be installed') : s.durum === 'stopped' ? T('Download stopped') : T('1. Install the language model')),
-        h('div', { class: 'small muted' }, s.durum === 'hata' ? s.hata : T('{0} will be downloaded (resumes where it left off if interrupted).', fmtBytes(s.size))), hardware),
-        btn(s.durum === 'hata' || s.durum === 'stopped' || s.partial ? T('Resume') : T('Download and install'), () => call('kur'), 'primary sm', 'download'));
-  const installed = ['built', 'hazir'].includes(s.durum);
-  const step2 = h('div', { class: 'bt-llm-step' }, icon(s.durum === 'hazir' ? 'check' : 'play'),
-    h('div', null, h('b', null, s.durum === 'hazir' ? T('Setup complete: the model is running') : T('2. Test')),
-      h('div', { class: 'small muted' }, t.durum === 'running' ? T('The model is loading and a short question is being asked (the first launch can take up to half a minute)…')
-        : t.durum === 'hata' ? t.hata : t.durum === 'ok' || s.last_test ? T('Opening {0} s, reply {1} s: "{2}"', (t.startup_sec ?? s.last_test?.startup_sec), (t.sure_sn ?? s.last_test?.sure_sn), (t.response ?? s.last_test?.response ?? ''))
+      : h('div', { class: 'bt-llm-step' }, icon('download'), h('div', null, h('b', null, s.state === 'error' ? T('Could not be installed') : s.state === 'stopped' ? T('Download stopped') : T('1. Install the language model')),
+        h('div', { class: 'small muted' }, s.state === 'error' ? s.error : T('{0} will be downloaded (resumes where it left off if interrupted).', fmtBytes(s.size))), hardware),
+        btn(s.state === 'error' || s.state === 'stopped' || s.partial ? T('Resume') : T('Download and install'), () => call('kur'), 'primary sm', 'download'));
+  const installed = ['built', 'ready'].includes(s.state);
+  const step2 = h('div', { class: 'bt-llm-step' }, icon(s.state === 'ready' ? 'check' : 'play'),
+    h('div', null, h('b', null, s.state === 'ready' ? T('Setup complete: the model is running') : T('2. Test')),
+      h('div', { class: 'small muted' }, t.state === 'running' ? T('The model is loading and a short question is being asked (the first launch can take up to half a minute)…')
+        : t.state === 'error' ? t.error : t.state === 'ok' || s.last_test ? T('Opening {0} s, reply {1} s: "{2}"', (t.startup_sec ?? s.last_test?.startup_sec), (t.sure_sn ?? s.last_test?.sure_sn), (t.response ?? s.last_test?.response ?? ''))
         : T('The model is loaded once and answers a short question; if it replies, setup is complete.'))),
-    t.durum === 'running' ? h('span', { class: 'spin' }) : btn(T('Test'), () => call('test'), (installed && s.durum !== 'hazir' ? 'primary' : 'ghost') + ' sm', 'play', { disabled: !installed }));
+    t.state === 'running' ? h('span', { class: 'spin' }) : btn(T('Test'), () => call('test'), (installed && s.state !== 'ready' ? 'primary' : 'ghost') + ' sm', 'play', { disabled: !installed }));
   return h('div', { class: 'stack', style: { gap: '4px' } }, step1, step2,
-    s.durum === 'hazir' ? h('div', { class: 'alert info' }, icon('info'), h('div', null, T("When the game opens, the model opens too; the bots' chat and decisions come from it. If the model can't keep up, the bots behave as in Normal mode."))) : null);
+    s.state === 'ready' ? h('div', { class: 'alert info' }, icon('info'), h('div', null, T("When the game opens, the model opens too; the bots' chat and decisions come from it. If the model can't keep up, the bots behave as in Normal mode."))) : null);
 }
 
 // ------------------------------------------------------------------ botların oyun ayarı profili (bot/game_settings.py)
 function btGameSettingCard(d) {
-  const game_settings = JSON.parse(JSON.stringify(d.settings.game_settings || { profil: 'standard', values: {} }));
-  const info = BT.liste?.game_settings || { hazir: [], fields: [] };
+  const game_settings = JSON.parse(JSON.stringify(d.settings.game_settings || { profile: 'standard', values: {} }));
+  const info = BT.entries?.game_settings || { ready: [], fields: [] };
   const options = [['standard', T("Standard (the game's own values)")], ['player', T('My game settings')]]
-    .concat(info.hazir.map(x => [x.id, T(x.ad)]), [['ozel', T('Custom')]]);
+    .concat(info.ready.map(x => [x.id, T(x.name)]), [['special', T('Custom')]]);
   const save = () => btSetting('game_settings', game_settings);
-  const sec = h('select', { class: 'input', onchange: e => { game_settings.profil = e.target.value; save(); btFill(special, renderCustom()); description.textContent = describe(); } },
-    options.map(([v, name]) => h('option', { value: v, selected: game_settings.profil === v }, name)));
+  const sec = h('select', { class: 'input', onchange: e => { game_settings.profile = e.target.value; save(); btFill(special, renderCustom()); description.textContent = describe(); } },
+    options.map(([v, name]) => h('option', { value: v, selected: game_settings.profile === v }, name)));
   const describe = () => {
-    const preset = info.hazir.find(x => x.id === game_settings.profil);
-    return preset ? T(preset.aciklama) : game_settings.profil === 'player' ? T('Bots also play with the multipliers from the Game Settings page (on an easy setting they level up fast too).')
-      : game_settings.profil === 'ozel' ? T('The multipliers below apply to bots only.') : T("Bots play with the game's own rewards and aliens; your game settings don't affect them.");
+    const preset = info.ready.find(x => x.id === game_settings.profile);
+    return preset ? T(preset.description) : game_settings.profile === 'player' ? T('Bots also play with the multipliers from the Game Settings page (on an easy setting they level up fast too).')
+      : game_settings.profile === 'special' ? T('The multipliers below apply to bots only.') : T("Bots play with the game's own rewards and aliens; your game settings don't affect them.");
   };
   const description = h('div', { class: 'help' }, describe());
-  const renderCustom = () => game_settings.profil !== 'ozel' ? null : info.fields.map(a => btRow(T(a.ad), T(a.aciklama),
+  const renderCustom = () => game_settings.profile !== 'special' ? null : info.fields.map(a => btRow(T(a.name), T(a.description),
     btSlider(game_settings.values[a.anahtar] ?? 1, v => { game_settings.values[a.anahtar] = v; save(); }, { min: a.en_az, max: a.max_count, step: 0.05, fmt: v => '×' + v.toFixed(2) })));
   const special = h('div', null, renderCustom());
   return h('div', { class: 'card' }, h('h2', null, icon('sliders'), T('Game settings')),

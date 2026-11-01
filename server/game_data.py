@@ -120,4 +120,4 @@ def summary():
     if not w:
         return 'dünya: standart'
     n = sum(len(v or {}) for v in (w.get('patches') or {}).values())
-    return 'dünya: %s (%d değişiklik%s)' % (w.get('ad') or '?', n, ', atlanan: %s' % _SKIPPED if _SKIPPED else '')
+    return 'dünya: %s (%d değişiklik%s)' % (w.get('name') or '?', n, ', atlanan: %s' % _SKIPPED if _SKIPPED else '')

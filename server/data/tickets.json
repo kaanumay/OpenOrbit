@@ -185,7 +185,7 @@
    438750,
    438750
   ],
-  "ad": "sp_season-name_1",
+  "name": "sp_season-name_1",
   "visual": "ingame-news_Season-Pass-Aug-2026",
   "reward": {
    "free": [
@@ -1227,9 +1227,9 @@
   },
   "quests": {
    "701008": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 701008,
@@ -1300,9 +1300,9 @@
     }
    },
    "701005": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 701005,
@@ -1370,9 +1370,9 @@
     }
    },
    "701002": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 701002,
@@ -1440,9 +1440,9 @@
     }
    },
    "700040": {
-    "tur": 3,
+    "type": 3,
     "gold": true,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700040,
@@ -1572,9 +1572,9 @@
     }
    },
    "701059": {
-    "tur": 3,
+    "type": 3,
     "gold": true,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 701059,
@@ -1671,9 +1671,9 @@
     }
    },
    "702020": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 702020,
@@ -1744,9 +1744,9 @@
     }
    },
    "701012": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 701012,
@@ -1822,9 +1822,9 @@
     }
    },
    "701021": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 701021,
@@ -1895,9 +1895,9 @@
     }
    },
    "701022": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 701022,
@@ -1968,9 +1968,9 @@
     }
    },
    "701045": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 701045,
@@ -2040,9 +2040,9 @@
     }
    },
    "701014": {
-    "tur": 6,
+    "type": 6,
     "gold": true,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 701014,
@@ -2172,9 +2172,9 @@
     }
    },
    "701011": {
-    "tur": 6,
+    "type": 6,
     "gold": true,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 701011,
@@ -2250,9 +2250,9 @@
     }
    },
    "700061": {
-    "tur": 6,
+    "type": 6,
     "gold": true,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700061,
@@ -2349,9 +2349,9 @@
     }
    },
    "700026": {
-    "tur": 9,
+    "type": 9,
     "gold": false,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700026,
@@ -2421,9 +2421,9 @@
     }
    },
    "700027": {
-    "tur": 9,
+    "type": 9,
     "gold": false,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700027,
@@ -2493,9 +2493,9 @@
     }
    },
    "700024": {
-    "tur": 9,
+    "type": 9,
     "gold": false,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700024,
@@ -2582,9 +2582,9 @@
     }
    },
    "700025": {
-    "tur": 9,
+    "type": 9,
     "gold": false,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700025,
@@ -2671,9 +2671,9 @@
     }
    },
    "700030": {
-    "tur": 9,
+    "type": 9,
     "gold": false,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700030,
@@ -2741,9 +2741,9 @@
     }
    },
    "700031": {
-    "tur": 9,
+    "type": 9,
     "gold": false,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700031,
@@ -2811,9 +2811,9 @@
     }
    },
    "700028": {
-    "tur": 9,
+    "type": 9,
     "gold": false,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700028,
@@ -2883,9 +2883,9 @@
     }
    },
    "700029": {
-    "tur": 9,
+    "type": 9,
     "gold": false,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700029,
@@ -2967,9 +2967,9 @@
     }
    },
    "700023": {
-    "tur": 9,
+    "type": 9,
     "gold": false,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700023,
@@ -3056,9 +3056,9 @@
     }
    },
    "700034": {
-    "tur": 9,
+    "type": 9,
     "gold": false,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700034,
@@ -3129,9 +3129,9 @@
     }
    },
    "700035": {
-    "tur": 9,
+    "type": 9,
     "gold": false,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700035,
@@ -3201,9 +3201,9 @@
     }
    },
    "700032": {
-    "tur": 9,
+    "type": 9,
     "gold": false,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700032,
@@ -3274,9 +3274,9 @@
     }
    },
    "700033": {
-    "tur": 9,
+    "type": 9,
     "gold": false,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700033,
@@ -3347,9 +3347,9 @@
     }
    },
    "700036": {
-    "tur": 9,
+    "type": 9,
     "gold": false,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700036,
@@ -3417,9 +3417,9 @@
     }
    },
    "700037": {
-    "tur": 9,
+    "type": 9,
     "gold": false,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700037,
@@ -3487,9 +3487,9 @@
     }
    },
    "700058": {
-    "tur": 9,
+    "type": 9,
     "gold": false,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700058,
@@ -3578,9 +3578,9 @@
     }
    },
    "700056": {
-    "tur": 9,
+    "type": 9,
     "gold": false,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700056,
@@ -3650,9 +3650,9 @@
     }
    },
    "700057": {
-    "tur": 9,
+    "type": 9,
     "gold": false,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700057,
@@ -3724,9 +3724,9 @@
     }
    },
    "700054": {
-    "tur": 9,
+    "type": 9,
     "gold": false,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700054,
@@ -3796,9 +3796,9 @@
     }
    },
    "700055": {
-    "tur": 9,
+    "type": 9,
     "gold": false,
-    "kaynak": "record",
+    "source": "record",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 700055,
@@ -3868,9 +3868,9 @@
     }
    },
    "703011": {
-    "tur": 3,
+    "type": 3,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703011,
@@ -4000,9 +4000,9 @@
     }
    },
    "703012": {
-    "tur": 3,
+    "type": 3,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703012,
@@ -4132,9 +4132,9 @@
     }
    },
    "703013": {
-    "tur": 3,
+    "type": 3,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703013,
@@ -4264,9 +4264,9 @@
     }
    },
    "703021": {
-    "tur": 3,
+    "type": 3,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703021,
@@ -4396,9 +4396,9 @@
     }
    },
    "703022": {
-    "tur": 3,
+    "type": 3,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703022,
@@ -4528,9 +4528,9 @@
     }
    },
    "703023": {
-    "tur": 3,
+    "type": 3,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703023,
@@ -4660,9 +4660,9 @@
     }
    },
    "703032": {
-    "tur": 3,
+    "type": 3,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703032,
@@ -4792,9 +4792,9 @@
     }
    },
    "703033": {
-    "tur": 3,
+    "type": 3,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703033,
@@ -4924,9 +4924,9 @@
     }
    },
    "703041": {
-    "tur": 3,
+    "type": 3,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703041,
@@ -5056,9 +5056,9 @@
     }
    },
    "703042": {
-    "tur": 3,
+    "type": 3,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703042,
@@ -5188,9 +5188,9 @@
     }
    },
    "703043": {
-    "tur": 3,
+    "type": 3,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703043,
@@ -5320,9 +5320,9 @@
     }
    },
    "703051": {
-    "tur": 3,
+    "type": 3,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703051,
@@ -5422,9 +5422,9 @@
     }
    },
    "703052": {
-    "tur": 3,
+    "type": 3,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703052,
@@ -5524,9 +5524,9 @@
     }
    },
    "703053": {
-    "tur": 3,
+    "type": 3,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703053,
@@ -5626,9 +5626,9 @@
     }
    },
    "703061": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703061,
@@ -5730,9 +5730,9 @@
     }
    },
    "703062": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703062,
@@ -5834,9 +5834,9 @@
     }
    },
    "703063": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703063,
@@ -5938,9 +5938,9 @@
     }
    },
    "703071": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703071,
@@ -6042,9 +6042,9 @@
     }
    },
    "703072": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703072,
@@ -6146,9 +6146,9 @@
     }
    },
    "703073": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703073,
@@ -6250,9 +6250,9 @@
     }
    },
    "703081": {
-    "tur": 3,
+    "type": 3,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703081,
@@ -6349,9 +6349,9 @@
     }
    },
    "703082": {
-    "tur": 3,
+    "type": 3,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703082,
@@ -6448,9 +6448,9 @@
     }
    },
    "703091": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703091,
@@ -6518,9 +6518,9 @@
     }
    },
    "703092": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703092,
@@ -6588,9 +6588,9 @@
     }
    },
    "703093": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703093,
@@ -6658,9 +6658,9 @@
     }
    },
    "703101": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703101,
@@ -6731,9 +6731,9 @@
     }
    },
    "703102": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703102,
@@ -6804,9 +6804,9 @@
     }
    },
    "703103": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703103,
@@ -6877,9 +6877,9 @@
     }
    },
    "703111": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703111,
@@ -6950,9 +6950,9 @@
     }
    },
    "703113": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703113,
@@ -7023,9 +7023,9 @@
     }
    },
    "703121": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703121,
@@ -7096,9 +7096,9 @@
     }
    },
    "703122": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703122,
@@ -7169,9 +7169,9 @@
     }
    },
    "703123": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703123,
@@ -7242,9 +7242,9 @@
     }
    },
    "703131": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703131,
@@ -7314,9 +7314,9 @@
     }
    },
    "703132": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703132,
@@ -7386,9 +7386,9 @@
     }
    },
    "703141": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703141,
@@ -7459,9 +7459,9 @@
     }
    },
    "703142": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703142,
@@ -7532,9 +7532,9 @@
     }
    },
    "703143": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703143,
@@ -7605,9 +7605,9 @@
     }
    },
    "703151": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703151,
@@ -7675,9 +7675,9 @@
     }
    },
    "703153": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703153,
@@ -7745,9 +7745,9 @@
     }
    },
    "703161": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703161,
@@ -7815,9 +7815,9 @@
     }
    },
    "703163": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703163,
@@ -7885,9 +7885,9 @@
     }
    },
    "703171": {
-    "tur": 3,
+    "type": 3,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 703171,
@@ -7955,9 +7955,9 @@
     }
    },
    "704011": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704011,
@@ -8033,9 +8033,9 @@
     }
    },
    "704013": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704013,
@@ -8111,9 +8111,9 @@
     }
    },
    "704021": {
-    "tur": 6,
+    "type": 6,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704021,
@@ -8189,9 +8189,9 @@
     }
    },
    "704023": {
-    "tur": 6,
+    "type": 6,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704023,
@@ -8267,9 +8267,9 @@
     }
    },
    "704031": {
-    "tur": 6,
+    "type": 6,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704031,
@@ -8399,9 +8399,9 @@
     }
    },
    "704032": {
-    "tur": 6,
+    "type": 6,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704032,
@@ -8531,9 +8531,9 @@
     }
    },
    "704033": {
-    "tur": 6,
+    "type": 6,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704033,
@@ -8663,9 +8663,9 @@
     }
    },
    "704041": {
-    "tur": 6,
+    "type": 6,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704041,
@@ -8795,9 +8795,9 @@
     }
    },
    "704042": {
-    "tur": 6,
+    "type": 6,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704042,
@@ -8927,9 +8927,9 @@
     }
    },
    "704043": {
-    "tur": 6,
+    "type": 6,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704043,
@@ -9059,9 +9059,9 @@
     }
    },
    "704051": {
-    "tur": 6,
+    "type": 6,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704051,
@@ -9191,9 +9191,9 @@
     }
    },
    "704053": {
-    "tur": 6,
+    "type": 6,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704053,
@@ -9323,9 +9323,9 @@
     }
    },
    "704061": {
-    "tur": 6,
+    "type": 6,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704061,
@@ -9455,9 +9455,9 @@
     }
    },
    "704062": {
-    "tur": 6,
+    "type": 6,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704062,
@@ -9587,9 +9587,9 @@
     }
    },
    "704063": {
-    "tur": 6,
+    "type": 6,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704063,
@@ -9719,9 +9719,9 @@
     }
    },
    "704071": {
-    "tur": 6,
+    "type": 6,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704071,
@@ -9821,9 +9821,9 @@
     }
    },
    "704072": {
-    "tur": 6,
+    "type": 6,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704072,
@@ -9923,9 +9923,9 @@
     }
    },
    "704073": {
-    "tur": 6,
+    "type": 6,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704073,
@@ -10025,9 +10025,9 @@
     }
    },
    "704081": {
-    "tur": 6,
+    "type": 6,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704081,
@@ -10124,9 +10124,9 @@
     }
    },
    "704082": {
-    "tur": 6,
+    "type": 6,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704082,
@@ -10223,9 +10223,9 @@
     }
    },
    "704083": {
-    "tur": 6,
+    "type": 6,
     "gold": true,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704083,
@@ -10322,9 +10322,9 @@
     }
    },
    "704091": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704091,
@@ -10392,9 +10392,9 @@
     }
    },
    "704092": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704092,
@@ -10462,9 +10462,9 @@
     }
    },
    "704093": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704093,
@@ -10532,9 +10532,9 @@
     }
    },
    "704101": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704101,
@@ -10605,9 +10605,9 @@
     }
    },
    "704102": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704102,
@@ -10678,9 +10678,9 @@
     }
    },
    "704111": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704111,
@@ -10751,9 +10751,9 @@
     }
    },
    "704113": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704113,
@@ -10824,9 +10824,9 @@
     }
    },
    "704121": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704121,
@@ -10897,9 +10897,9 @@
     }
    },
    "704123": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704123,
@@ -10970,9 +10970,9 @@
     }
    },
    "704131": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704131,
@@ -11042,9 +11042,9 @@
     }
    },
    "704132": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704132,
@@ -11114,9 +11114,9 @@
     }
    },
    "704141": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704141,
@@ -11186,9 +11186,9 @@
     }
    },
    "704143": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704143,
@@ -11258,9 +11258,9 @@
     }
    },
    "704151": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704151,
@@ -11330,9 +11330,9 @@
     }
    },
    "704152": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704152,
@@ -11402,9 +11402,9 @@
     }
    },
    "704153": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704153,
@@ -11474,9 +11474,9 @@
     }
    },
    "704161": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704161,
@@ -11544,9 +11544,9 @@
     }
    },
    "704162": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704162,
@@ -11614,9 +11614,9 @@
     }
    },
    "704163": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704163,
@@ -11684,9 +11684,9 @@
     }
    },
    "704171": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704171,
@@ -11754,9 +11754,9 @@
     }
    },
    "704172": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704172,
@@ -11824,9 +11824,9 @@
     }
    },
    "704173": {
-    "tur": 6,
+    "type": 6,
     "gold": false,
-    "kaynak": "wiki",
+    "source": "wiki",
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 704173,
@@ -11906,12 +11906,12 @@
   "calendar": [
    {
     "id": "2026-08",
-    "baslangic": "2026-08-01",
-    "bitis": "2026-10-25"
+    "start": "2026-08-01",
+    "end_time": "2026-10-25"
    },
    {
     "id": "2026-11",
-    "baslangic": "2026-10-26"
+    "start": "2026-10-26"
    }
   ],
   "refresh_ladder": [
@@ -11952,8 +11952,8 @@
  "battle_pass": {
   "passes": {
    "halloween": {
-    "dosya": "pass_halloween2026.xml",
-    "kaynak": "kayıt (giriş demeti) ve resmî CDN XML'i",
+    "file": "pass_halloween2026.xml",
+    "source": "kayıt (giriş demeti) ve resmî CDN XML'i",
     "rewards": {
      "500363": {
       "reward": [
@@ -13821,8 +13821,8 @@
     }
    },
    "galactic_strife": {
-    "dosya": "pass_offline_galactic_strife.xml",
-    "kaynak": "yazılan: darkorbitwiki events/galactic-strife; 26 hedef, 176 Battle Key",
+    "file": "pass_offline_galactic_strife.xml",
+    "source": "yazılan: darkorbitwiki events/galactic-strife; 26 hedef, 176 Battle Key",
     "adaptation": "Gerçek oyunda 4-1..4-4 PvP: \"oyuncu yok et / oyunculara hasar\" hedefleri tek oyunculuda PvE karşılığıyla (4-1..4-4'te Deadly Battleray öldür; NPC hasarı); EMP-01, Cloak CPU, hasar alma ve mesafe 4-1..4-4 haritalarında.",
     "rewards": {
      "500324": {
@@ -16824,8 +16824,8 @@
     ]
    },
    "plutus": {
-    "dosya": "pass_offline_plutus.xml",
-    "kaynak": "yazılan: darkorbitwiki events/gauntlet-of-plutus; 27 hedef, 167 Battle Key",
+    "file": "pass_offline_plutus.xml",
+    "source": "yazılan: darkorbitwiki events/gauntlet-of-plutus; 27 hedef, 167 Battle Key",
     "adaptation": "Plutus hedefleri wiki'deki gibi (Easy 450-455 ve Normal 410-415 haritaları). \"First Face\" başlığı istemcide yok: aynı yuvadaki 500541 (Blast It!) kimliği.",
     "rewards": {
      "500538": {
@@ -19342,8 +19342,8 @@
     ]
    },
    "hitac": {
-    "dosya": "pass_offline_hitac.xml",
-    "kaynak": "yazılan: darkorbitwiki events/hitac-assault; 26 hedef, 171 Battle Key",
+    "file": "pass_offline_hitac.xml",
+    "source": "yazılan: darkorbitwiki events/hitac-assault; 26 hedef, 171 Battle Key",
     "adaptation": "Hitac 2.0/2.5 ve Minion 2.0/2.5 hasarı gezgin ana gemilerden (hitac.gezgin). \"Last Lap\" başlığı istemcide yok: pass'in son kimliği 500362 (Exhaustion).",
     "rewards": {
      "500342": {
@@ -21653,8 +21653,8 @@
     ]
    },
    "immortal_union": {
-    "dosya": "pass_valentine2026.xml",
-    "kaynak": "resmî CDN XML'i (ödüller, anahtarlar); koşullar ve hedefler wiki'den",
+    "file": "pass_valentine2026.xml",
+    "source": "resmî CDN XML'i (ödüller, anahtarlar); koşullar ve hedefler wiki'den",
     "adaptation": "Ödüller ve anahtarlar resmî XML'den (wiki ile 12/20 anahtar uyumu; XML kazanır); koşullar ve hedefler wiki'den. \"Damage any Players\" PvP: NPC hasarı. Wiki'nin 15 ve 20 hedefi tamamla satırları XML'de 500452 ve 500601.",
     "rewards": {
      "500434": {
@@ -23930,8 +23930,8 @@
     ]
    },
    "mimesis_mutiny": {
-    "dosya": "pass_offline_mimesis_mutiny.xml",
-    "kaynak": "yazılan: darkorbitwiki events/mimesis-mutiny; 27 hedef, 159 Battle Key",
+    "file": "pass_offline_mimesis_mutiny.xml",
+    "source": "yazılan: darkorbitwiki events/mimesis-mutiny; 27 hedef, 159 Battle Key",
     "adaptation": "Escort Score puanı için olay yok: eskort haritalarında NPC hasarı. Son hedef 500382 (Trick or Treat; wiki aynı adı verir).",
     "rewards": {
      "500467": {
@@ -26480,8 +26480,8 @@
     ]
    },
    "protegit": {
-    "dosya": "pass_offline_protegit.xml",
-    "kaynak": "yazılan: darkorbitwiki events/protegit-pandemonium; 25 hedef, 157 Battle Key",
+    "file": "pass_offline_protegit.xml",
+    "source": "yazılan: darkorbitwiki events/protegit-pandemonium; 25 hedef, 157 Battle Key",
     "adaptation": "Wiki'nin 25 hedefi; Chaos Alien CPU'ları savas_esya.alien_cpu cephane olayıyla.",
     "rewards": {
      "500412": {
@@ -28688,8 +28688,8 @@
     ]
    },
    "labyrinth": {
-    "dosya": "pass_offline_labyrinth.xml",
-    "kaynak": "yazılan: darkorbitwiki events/winter-event; 33 hedef, 184 Battle Key",
+    "file": "pass_offline_labyrinth.xml",
+    "source": "yazılan: darkorbitwiki events/winter-event; 33 hedef, 184 Battle Key",
     "adaptation": "Wiki'nin 33 hedefi (Complete 20 ve 25 Objectives: 500409 ve 500410, ikisi de sayfada \"Frozen Labyrinth\"). Labirent anahtarı resource_key_access-flb.",
     "rewards": {
      "500385": {
@@ -31552,8 +31552,8 @@
     ]
    },
    "world_boss": {
-    "dosya": "pass_offline_world_boss.xml",
-    "kaynak": "yazılan: darkorbitwiki events/treacherous-domain; 22 hedef, 147 Battle Key",
+    "file": "pass_offline_world_boss.xml",
+    "source": "yazılan: darkorbitwiki events/treacherous-domain; 22 hedef, 147 Battle Key",
     "adaptation": "Wiki'nin 24 hedefinden 22'si: Star Destroyer (15 anahtar) ve Shining Reserve (10 anahtar) istemci 1.1.115'te yok (quest_title yok), eklenmedi; toplam 147 anahtar (wiki 172). Treacherous Domain haritası 482.",
     "rewards": {
      "500706": {
@@ -33831,8 +33831,8 @@
     ]
    },
    "astral_ascension": {
-    "dosya": "pass_offline_astral_ascension.xml",
-    "kaynak": "yazılan: darkorbitwiki events/astral-ascension; 26 hedef, 170 Battle Key",
+    "file": "pass_offline_astral_ascension.xml",
+    "source": "yazılan: darkorbitwiki events/astral-ascension; 26 hedef, 170 Battle Key",
     "adaptation": "Dalga ve puan için olay/koşul türü yok: Astral haritalarında NPC hasarı (dalga x 2.000.000, puan x 10.000; uyarlama). Takvimde etkinliği yok (etkinlikler.json): pass etkinlik eklenince devreye girer.",
     "rewards": {
      "500655": {
@@ -36159,8 +36159,8 @@
     ]
    },
    "spacecup": {
-    "dosya": "pass_offline_spacecup.xml",
-    "kaynak": "yazılan: darkorbitwiki events/spacecup; 26 hedef, 176 Battle Key",
+    "file": "pass_offline_spacecup.xml",
+    "source": "yazılan: darkorbitwiki events/spacecup; 26 hedef, 176 Battle Key",
     "adaptation": "Spaceball/PvP hedefleri PvE karşılığıyla (4-4'te Deadly Battleray, NPC hasarı); Referee-Bot etkinlik haritalarında (resmî Türk forumu 135026 / 127757; etkinlikler.json spacecup). Takvimde etkinliği yok (etkinlikler.json): pass etkinlik eklenince devreye girer.",
     "rewards": {
      "500529": {
@@ -38535,8 +38535,8 @@
     ]
    },
    "plague_mutation": {
-    "dosya": "pass_offline_plague_mutation.xml",
-    "kaynak": "yazılan: resmî Türk forumu 154610 (Veba Mutasyonu, Haziran 2020) ve istemcinin ipucu metinleri; 22 hedef, 0 Battle Key",
+    "file": "pass_offline_plague_mutation.xml",
+    "source": "yazılan: resmî Türk forumu 154610 (Veba Mutasyonu, Haziran 2020) ve istemcinin ipucu metinleri; 22 hedef, 0 Battle Key",
     "adaptation": "22 hedef istemcinin başlıklarıyla (quest_title_500507-500528) forumun tablosundan eşlendi; biletli ödüller bpReward (anahtar yok, anahtar değişimi yok). İstemcinin ipucu metni forumla çelişince istemci (Wipe the Floor: 100 Enfeksiyon Mayını). Viral Kristallon / Gygerim Overlord hedefleri forum değerleriyle (sıraları istemci başlıklarına göre artmıyor: forum yazımı)",
     "rewards": {
      "500507": {
@@ -42772,7 +42772,7 @@
    292500,
    292500
   ],
-  "seviyeler": [
+  "levels": [
    [
     1,
     [
@@ -43227,10 +43227,10 @@
   "vip": "resource_recall-pass-vip-badge",
   "quests": [
    {
-    "kaynak": 701003,
-    "tur": 3,
+    "source": 701003,
+    "type": 3,
     "gold": false,
-    "puan": 35,
+    "points": 35,
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 1701003,
@@ -43291,10 +43291,10 @@
     }
    },
    {
-    "kaynak": 702002,
-    "tur": 3,
+    "source": 702002,
+    "type": 3,
     "gold": false,
-    "puan": 40,
+    "points": 40,
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 1702002,
@@ -43355,10 +43355,10 @@
     }
    },
    {
-    "kaynak": 700042,
-    "tur": 3,
+    "source": 700042,
+    "type": 3,
     "gold": false,
-    "puan": 30,
+    "points": 30,
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 1700042,
@@ -43481,10 +43481,10 @@
     }
    },
    {
-    "kaynak": 701007,
-    "tur": 3,
+    "source": 701007,
+    "type": 3,
     "gold": true,
-    "puan": 35,
+    "points": 35,
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 1701007,
@@ -43548,10 +43548,10 @@
     }
    },
    {
-    "kaynak": 702005,
-    "tur": 3,
+    "source": 702005,
+    "type": 3,
     "gold": true,
-    "puan": 40,
+    "points": 40,
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 1702005,
@@ -43612,10 +43612,10 @@
     }
    },
    {
-    "kaynak": 700014,
-    "tur": 6,
+    "source": 700014,
+    "type": 6,
     "gold": false,
-    "puan": 85,
+    "points": 85,
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 1700014,
@@ -43738,10 +43738,10 @@
     }
    },
    {
-    "kaynak": 700013,
-    "tur": 6,
+    "source": 700013,
+    "type": 6,
     "gold": false,
-    "puan": 85,
+    "points": 85,
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 1700013,
@@ -43864,10 +43864,10 @@
     }
    },
    {
-    "kaynak": 700044,
-    "tur": 6,
+    "source": 700044,
+    "type": 6,
     "gold": false,
-    "puan": 110,
+    "points": 110,
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 1700044,
@@ -43930,10 +43930,10 @@
     }
    },
    {
-    "kaynak": 702020,
-    "tur": 6,
+    "source": 702020,
+    "type": 6,
     "gold": false,
-    "puan": 125,
+    "points": 125,
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 1702020,
@@ -43997,10 +43997,10 @@
     }
    },
    {
-    "kaynak": 701016,
-    "tur": 6,
+    "source": 701016,
+    "type": 6,
     "gold": false,
-    "puan": 110,
+    "points": 110,
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 1701016,
@@ -44123,10 +44123,10 @@
     }
    },
    {
-    "kaynak": 701045,
-    "tur": 6,
+    "source": 701045,
+    "type": 6,
     "gold": true,
-    "puan": 110,
+    "points": 110,
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 1701045,
@@ -44189,10 +44189,10 @@
     }
    },
    {
-    "kaynak": 702022,
-    "tur": 6,
+    "source": 702022,
+    "type": 6,
     "gold": true,
-    "puan": 125,
+    "points": 125,
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 1702022,
@@ -44256,10 +44256,10 @@
     }
    },
    {
-    "kaynak": 701017,
-    "tur": 6,
+    "source": 701017,
+    "type": 6,
     "gold": true,
-    "puan": 110,
+    "points": 110,
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 1701017,
@@ -44320,10 +44320,10 @@
     }
    },
    {
-    "kaynak": 700026,
-    "tur": 9,
+    "source": 700026,
+    "type": 9,
     "gold": false,
-    "puan": 350,
+    "points": 350,
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 1700026,
@@ -44386,10 +44386,10 @@
     }
    },
    {
-    "kaynak": 700027,
-    "tur": 9,
+    "source": 700027,
+    "type": 9,
     "gold": false,
-    "puan": 350,
+    "points": 350,
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 1700027,
@@ -44452,10 +44452,10 @@
     }
    },
    {
-    "kaynak": 700028,
-    "tur": 9,
+    "source": 700028,
+    "type": 9,
     "gold": false,
-    "puan": 350,
+    "points": 350,
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 1700028,
@@ -44518,10 +44518,10 @@
     }
    },
    {
-    "kaynak": 700029,
-    "tur": 9,
+    "source": 700029,
+    "type": 9,
     "gold": false,
-    "puan": 350,
+    "points": 350,
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 1700029,
@@ -44596,10 +44596,10 @@
     }
    },
    {
-    "kaynak": 700030,
-    "tur": 9,
+    "source": 700030,
+    "type": 9,
     "gold": false,
-    "puan": 350,
+    "points": 350,
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 1700030,
@@ -44660,10 +44660,10 @@
     }
    },
    {
-    "kaynak": 700031,
-    "tur": 9,
+    "source": 700031,
+    "type": 9,
     "gold": false,
-    "puan": 350,
+    "points": 350,
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 1700031,
@@ -44724,10 +44724,10 @@
     }
    },
    {
-    "kaynak": 700032,
-    "tur": 9,
+    "source": 700032,
+    "type": 9,
     "gold": false,
-    "puan": 350,
+    "points": 350,
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 1700032,
@@ -44791,10 +44791,10 @@
     }
    },
    {
-    "kaynak": 700033,
-    "tur": 9,
+    "source": 700033,
+    "type": 9,
     "gold": false,
-    "puan": 350,
+    "points": 350,
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 1700033,
@@ -44858,10 +44858,10 @@
     }
    },
    {
-    "kaynak": 700034,
-    "tur": 9,
+    "source": 700034,
+    "type": 9,
     "gold": false,
-    "puan": 350,
+    "points": 350,
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 1700034,
@@ -44925,10 +44925,10 @@
     }
    },
    {
-    "kaynak": 700036,
-    "tur": 9,
+    "source": 700036,
+    "type": 9,
     "gold": false,
-    "puan": 350,
+    "points": 350,
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 1700036,
@@ -44989,10 +44989,10 @@
     }
    },
    {
-    "kaynak": 700037,
-    "tur": 9,
+    "source": 700037,
+    "type": 9,
     "gold": false,
-    "puan": 350,
+    "points": 350,
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 1700037,
@@ -45053,10 +45053,10 @@
     }
    },
    {
-    "kaynak": 700058,
-    "tur": 9,
+    "source": 700058,
+    "type": 9,
     "gold": false,
-    "puan": 350,
+    "points": 350,
     "definition": {
      "_": "QuestDefinitionModule",
      "id": 1700058,

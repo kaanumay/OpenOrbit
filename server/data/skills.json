@@ -2,7 +2,7 @@
  "_kaynak": "İstemcinin skilltree.xml'i (değerler, maliyetler, ön koşullar) ve darkorbitwiki (adlar, log diski, sıfırlama); tools/yetenekler.py. \"etki\": sunucunun bonus anahtarı (profil.mods); pvp_lazer bot oyuncularla. on_kosul \"toplam\": listedeki yeteneklerin puan toplamı en az; \"her_biri\": her birinde en az.",
  "skills": {
   "1": {
-   "ad": "Explosives",
+   "name": "Explosives",
    "values": [
     4,
     8,
@@ -14,35 +14,35 @@
    "effect": "mine_radius",
    "cost": [
     {
-     "kredi": 10000,
+     "credits": 10000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 20000,
+     "credits": 20000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 30000,
+     "credits": 30000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 40000,
+     "credits": 40000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 50000,
+     "credits": 50000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     }
    ],
    "prerequisite": [
     {
-     "puan": 1,
-     "tur": "toplam",
+     "points": 1,
+     "type": "total",
      "skills": [
       "5a",
       "2",
@@ -52,7 +52,7 @@
    ]
   },
   "2": {
-   "ad": "Tactics",
+   "name": "Tactics",
    "values": [
     2,
     4,
@@ -64,35 +64,35 @@
    "effect": "ep",
    "cost": [
     {
-     "kredi": 10000,
+     "credits": 10000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 20000,
+     "credits": 20000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 30000,
+     "credits": 30000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 40000,
+     "credits": 40000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 50000,
+     "credits": 50000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     }
    ],
    "prerequisite": []
   },
   "4": {
-   "ad": "Logistics",
+   "name": "Logistics",
    "values": [
     4,
     8,
@@ -104,35 +104,35 @@
    "effect": "cargo_space",
    "cost": [
     {
-     "kredi": 10000,
+     "credits": 10000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 20000,
+     "credits": 20000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 30000,
+     "credits": 30000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 40000,
+     "credits": 40000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 50000,
+     "credits": 50000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     }
    ],
    "prerequisite": [
     {
-     "puan": 1,
-     "tur": "toplam",
+     "points": 1,
+     "type": "total",
      "skills": [
       "5a",
       "2",
@@ -142,65 +142,65 @@
    ]
   },
   "5a": {
-   "ad": "Detonation I",
+   "name": "Detonation I",
    "values": [
     7,
     14
    ],
    "unit": "percent",
-   "effect": "mayin",
+   "effect": "mine",
    "cost": [
     {
-     "kredi": 10000,
+     "credits": 10000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 20000,
+     "credits": 20000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     }
    ],
    "prerequisite": []
   },
   "5b": {
-   "ad": "Detonation II",
+   "name": "Detonation II",
    "values": [
     21,
     28,
     50
    ],
    "unit": "percent",
-   "effect": "mayin",
+   "effect": "mine",
    "cost": [
     {
-     "kredi": 1000000,
+     "credits": 1000000,
      "seprom": 1000,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 2000000,
+     "credits": 2000000,
      "seprom": 2000,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 3000000,
+     "credits": 3000000,
      "seprom": 3000,
-     "puan": 1
+     "points": 1
     }
    ],
    "prerequisite": [
     {
-     "puan": 3,
-     "tur": "toplam",
+     "points": 3,
+     "type": "total",
      "skills": [
       "11",
       "14"
      ]
     },
     {
-     "puan": 2,
-     "tur": "each",
+     "points": 2,
+     "type": "each",
      "skills": [
       "5a"
      ]
@@ -208,7 +208,7 @@
    ]
   },
   "6": {
-   "ad": "Rocket Fusion",
+   "name": "Rocket Fusion",
    "values": [
     2,
     4,
@@ -217,38 +217,38 @@
     15
    ],
    "unit": "percent",
-   "effect": "roket",
+   "effect": "rocket",
    "cost": [
     {
-     "kredi": 100000,
+     "credits": 100000,
      "seprom": 100,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 200000,
+     "credits": 200000,
      "seprom": 200,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 300000,
+     "credits": 300000,
      "seprom": 300,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 400000,
+     "credits": 400000,
      "seprom": 400,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 500000,
+     "credits": 500000,
      "seprom": 500,
-     "puan": 1
+     "points": 1
     }
    ],
    "prerequisite": [
     {
-     "puan": 2,
-     "tur": "toplam",
+     "points": 2,
+     "type": "total",
      "skills": [
       "22a",
       "23a",
@@ -258,7 +258,7 @@
    ]
   },
   "8": {
-   "ad": "Shield Mechanics",
+   "name": "Shield Mechanics",
    "values": [
     2,
     4,
@@ -270,35 +270,35 @@
    "effect": "absorb",
    "cost": [
     {
-     "kredi": 1000000,
+     "credits": 1000000,
      "seprom": 1000,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 2000000,
+     "credits": 2000000,
      "seprom": 2000,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 3000000,
+     "credits": 3000000,
      "seprom": 3000,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 4000000,
+     "credits": 4000000,
      "seprom": 4000,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 5000000,
+     "credits": 5000000,
      "seprom": 5000,
-     "puan": 1
+     "points": 1
     }
    ],
    "prerequisite": [
     {
-     "puan": 3,
-     "tur": "toplam",
+     "points": 3,
+     "type": "total",
      "skills": [
       "18b"
      ]
@@ -306,7 +306,7 @@
    ]
   },
   "9": {
-   "ad": "Greed",
+   "name": "Greed",
    "values": [
     4,
     8,
@@ -315,38 +315,38 @@
     25
    ],
    "unit": "percent",
-   "effect": "kredi",
+   "effect": "credits",
    "cost": [
     {
-     "kredi": 1000000,
+     "credits": 1000000,
      "seprom": 1000,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 2000000,
+     "credits": 2000000,
      "seprom": 2000,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 3000000,
+     "credits": 3000000,
      "seprom": 3000,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 4000000,
+     "credits": 4000000,
      "seprom": 4000,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 5000000,
+     "credits": 5000000,
      "seprom": 5000,
-     "puan": 1
+     "points": 1
     }
    ],
    "prerequisite": [
     {
-     "puan": 3,
-     "tur": "toplam",
+     "points": 3,
+     "type": "total",
      "skills": [
       "11",
       "14"
@@ -355,7 +355,7 @@
    ]
   },
   "11": {
-   "ad": "Alien Hunter",
+   "name": "Alien Hunter",
    "values": [
     2,
     4,
@@ -367,35 +367,35 @@
    "effect": "npc_laser",
    "cost": [
     {
-     "kredi": 100000,
+     "credits": 100000,
      "seprom": 100,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 200000,
+     "credits": 200000,
      "seprom": 200,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 300000,
+     "credits": 300000,
      "seprom": 300,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 400000,
+     "credits": 400000,
      "seprom": 400,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 500000,
+     "credits": 500000,
      "seprom": 500,
-     "puan": 1
+     "points": 1
     }
    ],
    "prerequisite": [
     {
-     "puan": 2,
-     "tur": "each",
+     "points": 2,
+     "type": "each",
      "skills": [
       "6",
       "21a"
@@ -404,7 +404,7 @@
    ]
   },
   "13": {
-   "ad": "Engineering",
+   "name": "Engineering",
    "values": [
     5,
     10,
@@ -416,35 +416,35 @@
    "effect": "repair",
    "cost": [
     {
-     "kredi": 10000,
+     "credits": 10000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 20000,
+     "credits": 20000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 30000,
+     "credits": 30000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 40000,
+     "credits": 40000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 50000,
+     "credits": 50000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     }
    ],
    "prerequisite": [
     {
-     "puan": 1,
-     "tur": "toplam",
+     "points": 1,
+     "type": "total",
      "skills": [
       "5a",
       "2",
@@ -454,7 +454,7 @@
    ]
   },
   "14": {
-   "ad": "Tractor Beam I",
+   "name": "Tractor Beam I",
    "values": [
     1,
     2,
@@ -466,35 +466,35 @@
    "effect": "cargo_box",
    "cost": [
     {
-     "kredi": 100000,
+     "credits": 100000,
      "seprom": 100,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 200000,
+     "credits": 200000,
      "seprom": 200,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 300000,
+     "credits": 300000,
      "seprom": 300,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 400000,
+     "credits": 400000,
      "seprom": 400,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 500000,
+     "credits": 500000,
      "seprom": 500,
-     "puan": 1
+     "points": 1
     }
    ],
    "prerequisite": [
     {
-     "puan": 2,
-     "tur": "toplam",
+     "points": 2,
+     "type": "total",
      "skills": [
       "6",
       "21a",
@@ -504,7 +504,7 @@
    ]
   },
   "15": {
-   "ad": "Tractor Beam II",
+   "name": "Tractor Beam II",
    "values": [
     2,
     6,
@@ -516,35 +516,35 @@
    "effect": "bonus_box",
    "cost": [
     {
-     "kredi": 1000000,
+     "credits": 1000000,
      "seprom": 1000,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 2000000,
+     "credits": 2000000,
      "seprom": 2000,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 3000000,
+     "credits": 3000000,
      "seprom": 3000,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 4000000,
+     "credits": 4000000,
      "seprom": 4000,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 5000000,
+     "credits": 5000000,
      "seprom": 5000,
-     "puan": 1
+     "points": 1
     }
    ],
    "prerequisite": [
     {
-     "puan": 5,
-     "tur": "toplam",
+     "points": 5,
+     "type": "total",
      "skills": [
       "5b",
       "9",
@@ -554,7 +554,7 @@
    ]
   },
   "16a": {
-   "ad": "Evasive Maneuvers I",
+   "name": "Evasive Maneuvers I",
    "values": [
     2,
     4
@@ -563,20 +563,20 @@
    "effect": "evasion",
    "cost": [
     {
-     "kredi": 100000,
+     "credits": 100000,
      "seprom": 100,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 200000,
+     "credits": 200000,
      "seprom": 200,
-     "puan": 1
+     "points": 1
     }
    ],
    "prerequisite": [
     {
-     "puan": 2,
-     "tur": "toplam",
+     "points": 2,
+     "type": "total",
      "skills": [
       "20",
       "17"
@@ -585,7 +585,7 @@
    ]
   },
   "16b": {
-   "ad": "Evasive Maneuvers II",
+   "name": "Evasive Maneuvers II",
    "values": [
     6,
     8,
@@ -595,32 +595,32 @@
    "effect": "evasion",
    "cost": [
     {
-     "kredi": 1000000,
+     "credits": 1000000,
      "seprom": 1000,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 2000000,
+     "credits": 2000000,
      "seprom": 2000,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 3000000,
+     "credits": 3000000,
      "seprom": 3000,
-     "puan": 1
+     "points": 1
     }
    ],
    "prerequisite": [
     {
-     "puan": 3,
-     "tur": "toplam",
+     "points": 3,
+     "type": "total",
      "skills": [
       "8"
      ]
     },
     {
-     "puan": 2,
-     "tur": "each",
+     "points": 2,
+     "type": "each",
      "skills": [
       "16a"
      ]
@@ -628,7 +628,7 @@
    ]
   },
   "17": {
-   "ad": "Shield Engineering",
+   "name": "Shield Engineering",
    "values": [
     4,
     8,
@@ -640,35 +640,35 @@
    "effect": "kalkan",
    "cost": [
     {
-     "kredi": 10000,
+     "credits": 10000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 20000,
+     "credits": 20000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 30000,
+     "credits": 30000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 40000,
+     "credits": 40000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 50000,
+     "credits": 50000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     }
    ],
    "prerequisite": [
     {
-     "puan": 1,
-     "tur": "toplam",
+     "points": 1,
+     "type": "total",
      "skills": [
       "1",
       "4",
@@ -678,7 +678,7 @@
    ]
   },
   "18a": {
-   "ad": "Ship Hull I",
+   "name": "Ship Hull I",
    "values": [
     5000,
     10000
@@ -687,20 +687,20 @@
    "effect": "hp_flat",
    "cost": [
     {
-     "kredi": 10000,
+     "credits": 10000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 20000,
+     "credits": 20000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     }
    ],
    "prerequisite": []
   },
   "18b": {
-   "ad": "Ship Hull II",
+   "name": "Ship Hull II",
    "values": [
     15000,
     25000,
@@ -710,25 +710,25 @@
    "effect": "hp_flat",
    "cost": [
     {
-     "kredi": 100000,
+     "credits": 100000,
      "seprom": 100,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 200000,
+     "credits": 200000,
      "seprom": 200,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 300000,
+     "credits": 300000,
      "seprom": 300,
-     "puan": 1
+     "points": 1
     }
    ],
    "prerequisite": [
     {
-     "puan": 2,
-     "tur": "toplam",
+     "points": 2,
+     "type": "total",
      "skills": [
       "22a",
       "23a",
@@ -736,8 +736,8 @@
      ]
     },
     {
-     "puan": 2,
-     "tur": "each",
+     "points": 2,
+     "type": "each",
      "skills": [
       "18a"
      ]
@@ -745,7 +745,7 @@
    ]
   },
   "19": {
-   "ad": "Electro-Optics",
+   "name": "Electro-Optics",
    "values": [
     5,
     10,
@@ -757,35 +757,35 @@
    "effect": "laser_hit_chance",
    "cost": [
     {
-     "kredi": 1000000,
+     "credits": 1000000,
      "seprom": 1000,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 2000000,
+     "credits": 2000000,
      "seprom": 2000,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 3000000,
+     "credits": 3000000,
      "seprom": 3000,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 4000000,
+     "credits": 4000000,
      "seprom": 4000,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 5000000,
+     "credits": 5000000,
      "seprom": 5000,
-     "puan": 1
+     "points": 1
     }
    ],
    "prerequisite": [
     {
-     "puan": 5,
-     "tur": "toplam",
+     "points": 5,
+     "type": "total",
      "skills": [
       "5b",
       "9",
@@ -795,7 +795,7 @@
    ]
   },
   "20": {
-   "ad": "Heat-Seeking Misilles",
+   "name": "Heat-Seeking Misilles",
    "values": [
     1,
     2,
@@ -807,35 +807,35 @@
    "effect": "rocket_hit_chance",
    "cost": [
     {
-     "kredi": 10000,
+     "credits": 10000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 20000,
+     "credits": 20000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 30000,
+     "credits": 30000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 40000,
+     "credits": 40000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 50000,
+     "credits": 50000,
      "seprom": 0,
-     "puan": 1
+     "points": 1
     }
    ],
    "prerequisite": [
     {
-     "puan": 1,
-     "tur": "toplam",
+     "points": 1,
+     "type": "total",
      "skills": [
       "1",
       "4",
@@ -845,29 +845,29 @@
    ]
   },
   "21a": {
-   "ad": "Cruelty I",
+   "name": "Cruelty I",
    "values": [
     4,
     8
    ],
    "unit": "percent",
-   "effect": "onur",
+   "effect": "honor",
    "cost": [
     {
-     "kredi": 100000,
+     "credits": 100000,
      "seprom": 100,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 200000,
+     "credits": 200000,
      "seprom": 200,
-     "puan": 1
+     "points": 1
     }
    ],
    "prerequisite": [
     {
-     "puan": 2,
-     "tur": "toplam",
+     "points": 2,
+     "type": "total",
      "skills": [
       "22a",
       "23a",
@@ -877,43 +877,43 @@
    ]
   },
   "21b": {
-   "ad": "Cruelty II",
+   "name": "Cruelty II",
    "values": [
     12,
     16,
     25
    ],
    "unit": "percent",
-   "effect": "onur",
+   "effect": "honor",
    "cost": [
     {
-     "kredi": 1000000,
+     "credits": 1000000,
      "seprom": 1000,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 2000000,
+     "credits": 2000000,
      "seprom": 2000,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 3000000,
+     "credits": 3000000,
      "seprom": 3000,
-     "puan": 1
+     "points": 1
     }
    ],
    "prerequisite": [
     {
-     "puan": 3,
-     "tur": "toplam",
+     "points": 3,
+     "type": "total",
      "skills": [
       "19",
       "15"
      ]
     },
     {
-     "puan": 2,
-     "tur": "each",
+     "points": 2,
+     "type": "each",
      "skills": [
       "21a"
      ]
@@ -921,7 +921,7 @@
    ]
   },
   "22a": {
-   "ad": "Bounty Hunter I",
+   "name": "Bounty Hunter I",
    "values": [
     2,
     4
@@ -930,20 +930,20 @@
    "effect": "pvp_laser",
    "cost": [
     {
-     "kredi": 100000,
+     "credits": 100000,
      "seprom": 100,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 200000,
+     "credits": 200000,
      "seprom": 200,
-     "puan": 1
+     "points": 1
     }
    ],
    "prerequisite": [
     {
-     "puan": 2,
-     "tur": "toplam",
+     "points": 2,
+     "type": "total",
      "skills": [
       "20",
       "17"
@@ -952,7 +952,7 @@
    ]
   },
   "22b": {
-   "ad": "Bounty Hunter II",
+   "name": "Bounty Hunter II",
    "values": [
     6,
     8,
@@ -962,33 +962,33 @@
    "effect": "pvp_laser",
    "cost": [
     {
-     "kredi": 1000000,
+     "credits": 1000000,
      "seprom": 1000,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 2000000,
+     "credits": 2000000,
      "seprom": 2000,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 3000000,
+     "credits": 3000000,
      "seprom": 3000,
-     "puan": 1
+     "points": 1
     }
    ],
    "prerequisite": [
     {
-     "puan": 3,
-     "tur": "toplam",
+     "points": 3,
+     "type": "total",
      "skills": [
       "19",
       "15"
      ]
     },
     {
-     "puan": 2,
-     "tur": "each",
+     "points": 2,
+     "type": "each",
      "skills": [
       "22a"
      ]
@@ -996,7 +996,7 @@
    ]
   },
   "23a": {
-   "ad": "Luck I",
+   "name": "Luck I",
    "values": [
     2,
     4
@@ -1005,20 +1005,20 @@
    "effect": "bonus_uridium",
    "cost": [
     {
-     "kredi": 100000,
+     "credits": 100000,
      "seprom": 100,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 200000,
+     "credits": 200000,
      "seprom": 200,
-     "puan": 1
+     "points": 1
     }
    ],
    "prerequisite": [
     {
-     "puan": 2,
-     "tur": "toplam",
+     "points": 2,
+     "type": "total",
      "skills": [
       "4"
      ]
@@ -1026,7 +1026,7 @@
    ]
   },
   "23b": {
-   "ad": "Luck II",
+   "name": "Luck II",
    "values": [
     6,
     8,
@@ -1036,33 +1036,33 @@
    "effect": "bonus_uridium",
    "cost": [
     {
-     "kredi": 1000000,
+     "credits": 1000000,
      "seprom": 1000,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 2000000,
+     "credits": 2000000,
      "seprom": 2000,
-     "puan": 1
+     "points": 1
     },
     {
-     "kredi": 3000000,
+     "credits": 3000000,
      "seprom": 3000,
-     "puan": 1
+     "points": 1
     }
    ],
    "prerequisite": [
     {
-     "puan": 3,
-     "tur": "each",
+     "points": 3,
+     "type": "each",
      "skills": [
       "22b",
       "16b"
      ]
     },
     {
-     "puan": 2,
-     "tur": "each",
+     "points": 2,
+     "type": "each",
      "skills": [
       "23a"
      ]

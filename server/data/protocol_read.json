@@ -45020,7 +45020,7 @@
 "name": "net.bigpoint.darkorbit.com.module.porting.clan.ChangeClanFirmaRequest",
 "steps": [
 {
-"f": "firma",
+"f": "company",
 "t": "int",
 "x": [
 "or",

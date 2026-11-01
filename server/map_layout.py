@@ -13,9 +13,9 @@ import game_data as DATA
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 _D = DATA.load('map_layout.json')
-MAPS = {int(k): v for k, v in _D['haritalar'].items()}
+MAPS = {int(k): v for k, v in _D['maps'].items()}
 _WALLS = {m: [tuple(e[1:5]) for e in d.get('obstacles', [])] for m, d in MAPS.items()}
-MINE = _D['mayin']
+MINE = _D['mine']
 NO_ACCESS, SHIELD_DAMAGE, MINES = 5, 3, 10     # POIType (resmî sunucu kaydı: Palladium alanı "ShieldDamage", mayın alanı "Mines1")
 POLYGON, RECTANGLE = 1, 2                       # istemcinin ShapeType'ı (CIRCLE 0, POLYGON 1, RECTANGLE 2)
 NEBULA = 5                                      # POIDesign: Palladium alanının sisi
@@ -231,7 +231,7 @@ def mine_spots(map_id, gates, n=None):
     """Mayın alanlarına dağılan mayınların yerleri: engellerin ve portalların dışında (alan başına mayin.adet)."""
     out = []
     for rect in of(map_id).get('mine_fields', []):
-        for _ in range(MINE['adet'] if n is None else n):
+        for _ in range(MINE['count'] if n is None else n):
             p = free_spot(map_id, _in_map(map_id, rect), pad=100)
             if p and all(math.hypot(p[0] - g['x'], p[1] - g['y']) > MINE['portal_far'] for g in gates):
                 out.append(p)

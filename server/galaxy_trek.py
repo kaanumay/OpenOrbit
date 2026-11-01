@@ -14,7 +14,7 @@ Kurallar (resmî SSS, darkorbitwiki): 40 gezegen (8 bölge); her keşif 1 FTL Ke
 (+%5), Difficult %20 (+%9) ve türünün ödül paketi (sabit + alt paket çekilişi); gezegen %100 olunca sıradaki açılır; 13 ödül basamağı
 tamamlanan gezegen sayısıyla (unvanlar 16 ve 36'da); günde 10 görev (1 sabit giriş, 9 rastgele) FTL Key verir; etkinlik bitince
 anahtarlar silinir.
-Profilde: galaxy_trek {donem, gezegen (1-40), yuzde, tamam, alinan [basamak], gun, gorevler [kimlik], deger {kimlik: koşul
+Profilde: galaxy_trek {donem, gezegen (1-40), yuzde, tamam, alinan [basamak], gun, gorevler [kimlik], deger {uid: koşul
 değerleri}, biten [kimlik]}.
 """
 import datetime, json, os, random, time
@@ -45,7 +45,7 @@ def planets_xml():
     ev = []
     for i, e in all_events():
         rewards = ''.join('<reward lootId=%s amount="%d"/>' % (quoteattr(l), n) for l, n in e['fixed'])
-        ev.append('<event eventId="%d" resKey=%s degree=%s>%s</event>' % (i, quoteattr(e['metin'] % i), quoteattr(e['grade']), rewards))
+        ev.append('<event eventId="%d" resKey=%s degree=%s>%s</event>' % (i, quoteattr(e['text'] % i), quoteattr(e['grade']), rewards))
     planets = ''.join('<planet planetId="%d" resKey="SS_planet_name_%d"/>' % (i, i) for i in range(1, PLANETS + 1))
     return '<?xml version="1.0" encoding="UTF-8"?><spaceSearch><planets>%s</planets><planetEvents>%s</planetEvents></spaceSearch>' % (
         planets, ''.join(ev))
@@ -54,7 +54,7 @@ def planets_xml():
 def rewards_xml():
     out = []
     for t in D.get('steps', []):
-        rows = ''.join('<item lootId=%s amount="%d"/>' % (quoteattr(l), n) for l, n in t['esyalar'])
+        rows = ''.join('<item lootId=%s amount="%d"/>' % (quoteattr(l), n) for l, n in t['items'])
         title = '<title name=%s/>' % quoteattr(t['title']) if t.get('title') else ''
         out.append('<rangeBoundPackageEntry special="0" name="%d"><package><range from="%d"/>%s%s</package></rangeBoundPackageEntry>'
                    % (t['required'], t['required'], rows, title))    # satır anahtarı: gereken gezegen sayısı (metin ve al isteği)
@@ -86,7 +86,7 @@ class GalaxyTrek:
     @property
     def st(self):
         d = self.p.d.setdefault('galaxy_trek', {})
-        for k, v in (('planet', 1), ('yuzde', 0), ('tamam', 0), ('claimed', []), ('value', {}), ('finished', []), ('quests', [])):
+        for k, v in (('planet', 1), ('percent', 0), ('done', 0), ('claimed', []), ('value', {}), ('finished', []), ('quests', [])):
             d.setdefault(k, v)
         return d
 
@@ -98,28 +98,28 @@ class GalaxyTrek:
         """Yeni koşu: ilerleme sıfırlanır (kaynakta düşük güven: her koşu baştan)."""
         p = CAL.period(EVENT, now)
         period = int(p[0]) if p else 0
-        if self.p.d.get('galaxy_trek', {}).get('donem') != period:
+        if self.p.d.get('galaxy_trek', {}).get('period') != period:
             with self.p.lock:
-                self.p.d['galaxy_trek'] = {'donem': period}
+                self.p.d['galaxy_trek'] = {'period': period}
                 self.p.dirty = True
 
     def roll_day(self, now=None):
         """Günün görevleri: 1 sabit (giriş) + rastgele 9."""
         day = datetime.date.fromtimestamp(time.time() if now is None else now).isoformat()
         st = self.st
-        if st.get('gun') == day and st['quests']:
+        if st.get('day') == day and st['quests']:
             return
         fixed = [q['definition']['id'] for q in D.get('quests', []) if q.get('fixed')]
         rest = [q['definition']['id'] for q in D.get('quests', []) if not q.get('fixed')]
         pick = fixed + random.sample(rest, max(0, min(len(rest), D.get('daily', 10) - len(fixed))))
         with self.p.lock:
-            st.update(gun=day, quests=pick, value={}, finished=[])
+            st.update(day=day, quests=pick, value={}, finished=[])
             self.p.dirty = True
 
     # ------------------------------------------------------------ komutlar
     def info_cmd(self):
         st = self.st
-        return ('SpaceSearchInfoCommand', dict(planetIndex=min(st['planet'], PLANETS), planetPct=int(st['yuzde']), quantity=self.keys(),
+        return ('SpaceSearchInfoCommand', dict(planetIndex=min(st['planet'], PLANETS), planetPct=int(st['percent']), quantity=self.keys(),
                                                lootId=KEY, cost=D.get('cost', 1)))
 
     def key_cmd(self):
@@ -128,8 +128,8 @@ class GalaxyTrek:
     def sector_cmd(self):
         st = self.st
         return ('SpaceSearchSectorRewardsCommand', {'rewards': [
-            mod('SpaceSearchSectorRewards', unlock=st['tamam'] >= t['required'], count=min(st['tamam'], t['required']),
-                range=t['required'], received=t['kimlik'] in st['claimed']) for t in D.get('steps', [])]})
+            mod('SpaceSearchSectorRewards', unlock=st['done'] >= t['required'], count=min(st['done'], t['required']),
+                range=t['required'], received=t['uid'] in st['claimed']) for t in D.get('steps', [])]})
         # istemci satırda "(count/range)" yazar: count biten gezegen, range hedef (canlı: basamak numarası hedef sanılıyordu)
 
     def missions_cmd(self):
@@ -157,7 +157,7 @@ class GalaxyTrek:
         self.on = active(now)                     # olaylar sık gelir: etkinlik durumu saniyede bir
         if not self.on:
             st = self.p.d.get('galaxy_trek')
-            if st and st.get('donem') is not None:
+            if st and st.get('period') is not None:
                 n = self.keys()
                 msgs = []
                 if n:
@@ -170,7 +170,7 @@ class GalaxyTrek:
                 return msgs
             return []
         day = datetime.date.fromtimestamp(now).isoformat()
-        if self.st.get('gun') != day:
+        if self.st.get('day') != day:
             self.roll_period(now)
             self.roll_day(now)
         return []
@@ -196,7 +196,7 @@ class GalaxyTrek:
 
     def explore(self, count):
         st = self.st
-        if st['tamam'] >= PLANETS:
+        if st['done'] >= PLANETS:
             return [self.info_cmd()]
         count = min(count, self.keys() // max(1, D.get('cost', 1)))
         if count <= 0:
@@ -206,7 +206,7 @@ class GalaxyTrek:
         events, planets, got = [], [], {}
         kinds = D.get('events', [])
         for _ in range(count):
-            if st['tamam'] >= PLANETS:
+            if st['done'] >= PLANETS:
                 break
             e = random.choices(kinds, [k['chance'] for k in kinds])[0]
             eid = random.choice(e['ids'])
@@ -218,24 +218,24 @@ class GalaxyTrek:
                 l, n, _ = random.choices(rows, [r[2] for r in rows])[0]
                 got[l] = got.get(l, 0) + n
             with self.p.lock:
-                st['yuzde'] = min(100, st['yuzde'] + e['progress'])
+                st['percent'] = min(100, st['percent'] + e['progress'])
                 inc = e['progress']
-                if st['yuzde'] >= 100:
-                    st['tamam'] += 1
+                if st['percent'] >= 100:
+                    st['done'] += 1
                     if st['planet'] < PLANETS:
                         st['planet'] += 1
-                    st['yuzde'] = 0
+                    st['percent'] = 0
                 self.p.dirty = True
             if planets and planets[-1]['planetId'] == planet:
                 planets[-1]['increase'] += inc
-                planets[-1]['planetPct'] = 100 if st['planet'] != planet or st['tamam'] >= PLANETS else st['yuzde']
+                planets[-1]['planetPct'] = 100 if st['planet'] != planet or st['done'] >= PLANETS else st['percent']
             else:
                 planets.append(mod('PlanetCommand', planetId=planet, increase=inc,
-                                   planetPct=100 if st['planet'] != planet or st['tamam'] >= PLANETS else st['yuzde']))
+                                   planetPct=100 if st['planet'] != planet or st['done'] >= PLANETS else st['percent']))
         msgs = self.m.resource_msgs(KEY, self.keys(), -count)
         for l, n in sorted(got.items()):
             msgs += self.m.prize(l, n)
-        self.log('   Galaxy Trek: %d keşif, gezegen %d (%%%d), tamam %d' % (count, st['planet'], st['yuzde'], st['tamam']))
+        self.log('   Galaxy Trek: %d keşif, gezegen %d (%%%d), tamam %d' % (count, st['planet'], st['percent'], st['done']))
         return [('SpaceSearchEventsCommand', dict(rewards=[mod('RewardModule', lootId=l, amount=n) for l, n in sorted(got.items())],
                                                   eventIds=events, planets=planets)),
                 self.info_cmd(), self.key_cmd()] + msgs + self.m.money_msgs()
@@ -243,18 +243,18 @@ class GalaxyTrek:
     def claim(self, tier):
         st = self.st
         t = next((t for t in D.get('steps', []) if t['required'] == tier), None)     # al isteğinin count'u = range from
-        if not t or t['kimlik'] in st['claimed'] or st['tamam'] < t['required']:
+        if not t or t['uid'] in st['claimed'] or st['done'] < t['required']:
             return [self.sector_cmd()]
-        tier = t['kimlik']
+        tier = t['uid']
         with self.p.lock:
             st['claimed'].append(tier)
             self.p.dirty = True
         msgs = []
-        for l, n in t['esyalar']:
+        for l, n in t['items']:
             msgs += self.m.prize(l, n)
         if t.get('title') and self.titles:
             msgs += self.titles(t['title'])
-        self.log('   Galaxy Trek ödülü %d: %s %s' % (tier, t['esyalar'], t.get('title') or ''))
+        self.log('   Galaxy Trek ödülü %d: %s %s' % (tier, t['items'], t.get('title') or ''))
         return [self.sector_cmd()] + msgs + self.m.money_msgs()
 
     # ------------------------------------------------------------ görevler
@@ -277,7 +277,7 @@ class GalaxyTrek:
                     self.p.dirty = True
                 for r in q['definition']['rewards']:
                     msgs += self.m.prize(r['lootId'], r['amount'])
-                self.log('   Galaxy Trek görevi bitti: %s' % q['ad'])
+                self.log('   Galaxy Trek görevi bitti: %s' % q['name'])
         if msgs:
             msgs.append(self.key_cmd())                 # liste (SpaceSearchMissionListCommand) pencereyi açar: yalnız istekle
         return msgs

@@ -20,8 +20,8 @@ FORMATION = {'drone_formation_default': 0, 'drone_formation_f-01-tu': 1, 'drone_
              'drone_formation_f-04-st': 4, 'drone_formation_f-05-pi': 5}
 MIN_DRONES = {'drone_formation_f-02-ar': 4, 'drone_formation_f-05-pi': 6}
 # (unvan, istatistik, eşik): oyunun başarımları (data/basarimlar.json achievement_destroy_aliens, _experience, _honor)
-TITLES = (('title_achievement_honor-2', 'onur', 2500000), ('title_achievement_experience-2', 'ep', 10000000000),
-            ('title_achievement_destroy_aliens-2', 'npc', 1000000), ('title_achievement_honor-1', 'onur', 450000),
+TITLES = (('title_achievement_honor-2', 'honor', 2500000), ('title_achievement_experience-2', 'ep', 10000000000),
+            ('title_achievement_destroy_aliens-2', 'npc', 1000000), ('title_achievement_honor-1', 'honor', 450000),
             ('title_achievement_experience-1', 'ep', 100000000), ('title_achievement_destroy_aliens-1', 'npc', 1000))
 
 
@@ -36,7 +36,7 @@ def showiness(bot):
 
 def _can_afford(bot, currency, price):
     """Birikiminin küçük bir payıysa (tutumluya göre 4-10 katı varsa)."""
-    return bot.k['kredi' if currency == 'C' else 'uridyum'] >= price * (4 + 6 * bot.o('frugality'))
+    return bot.k['credits' if currency == 'C' else 'uridium'] >= price * (4 + 6 * bot.o('frugality'))
 
 
 # ------------------------------------------------------------------------------------------------------------ satın alma
@@ -56,7 +56,7 @@ def drone_sequence(bot):
 def drone_ids(bot):
     """Her dron için istemcinin (tasarım, görünüm) kimlikleri (0 standart), dron_dizisi sırasıyla."""
     dt = bot.k['gear'].get('drone_design') or {}
-    t, g = dt.get('tasarim') or [], dt.get('appearance') or []
+    t, g = dt.get('design') or [], dt.get('appearance') or []
     designs = K.ITEMS['drone_designs']
     out = []
     for i, _ in enumerate(drone_sequence(bot)):
@@ -72,7 +72,7 @@ def drone_preference(bot):
 def drone_looks():
     """Mağazada satılan kozmetik dron görünümleri (etkinlik fiyatlı pahalılar hariç: en çok 100.000)."""
     designs = K.ITEMS['drone_designs']
-    return sorted(l for l, v in designs.items() if v.get('yuva') == 'visual' and K.price(l) and K.price(l)[1] <= 100000
+    return sorted(l for l, v in designs.items() if v.get('slot') == 'visual' and K.price(l) and K.price(l)[1] <= 100000
                   and not v.get('per_event'))
 
 
@@ -83,7 +83,7 @@ def drone_shopping(bot):
     if not n:
         return
     dt = bot.k['gear'].setdefault('drone_design', {})
-    designs, looks = dt.setdefault('tasarim', []), dt.setdefault('appearance', [])
+    designs, looks = dt.setdefault('design', []), dt.setdefault('appearance', [])
     del designs[n:], looks[n:]
     designs += [''] * (n - len(designs))
     looks += [''] * (n - len(looks))
@@ -97,7 +97,7 @@ def drone_shopping(bot):
             f = K.price(loot)
             if f and _can_afford(bot, *f) and bot.pay(*f):
                 designs[i] = loot
-                bot.event('new_design', esya=loot)
+                bot.event('new_design', item=loot)
                 bot.loadout_changed()
                 return
         break                                            # parası yetmedi: sıradaki dron beklesin, kozmetiğe geç
@@ -108,7 +108,7 @@ def drone_shopping(bot):
         for i in range(n):
             if not looks[i] and f and _can_afford(bot, *f) and bot.pay(*f):
                 looks[i] = loot
-                bot.event('new_design', esya=loot)
+                bot.event('new_design', item=loot)
                 return
 
 
@@ -134,15 +134,15 @@ def shopping(bot, now):
         return
     bot._cosmetic_t = now + 1800
     e = bot.k['gear']
-    designs = e.get('tasarim')
-    if not designs or not designs.startswith(e['gemi'] + '_design_'):
-        option = cosmetic_designs(e['gemi'])
+    designs = e.get('design')
+    if not designs or not designs.startswith(e['ship'] + '_design_'):
+        option = cosmetic_designs(e['ship'])
         if option and bot.r.random() < 0.4 * showiness(bot):
-            loot = option[_stable_hash(bot, e['gemi']) % len(option)]          # her botun zevki: aynı gemide hep aynı tasarımı ister
+            loot = option[_stable_hash(bot, e['ship']) % len(option)]          # her botun zevki: aynı gemide hep aynı tasarımı ister
             f = K.price(loot)
             if f and _can_afford(bot, *f) and bot.pay(*f):
-                e['tasarim'] = loot
-                bot.event('new_design', esya=loot)
+                e['design'] = loot
+                bot.event('new_design', item=loot)
     drone_shopping(bot)
     owner = bot.k.setdefault('formations', ['drone_formation_default'])
     ist = formation_preference(bot)
@@ -160,14 +160,14 @@ def shopping(bot, now):
 def tip(bot):
     """ShipCreateCommand.typeId: giyilen tasarım ya da gemi."""
     e = bot.k['gear']
-    t = e.get('tasarim')
-    return t if t and t.startswith(e['gemi'] + '_design_') else e['gemi']
+    t = e.get('design')
+    return t if t and t.startswith(e['ship'] + '_design_') else e['ship']
 
 
 def rings(bot):
     """galaxyGatesDone: tamamladığı kapıların bitleri (kapi.RINGS)."""
     import galaxy_gates as GT
-    return sum(GT.RINGS.get(k, 0) for k in set((bot.k.get('kapi') or {}).get('tamam', ())))
+    return sum(GT.RINGS.get(k, 0) for k in set((bot.k.get('gate') or {}).get('done', ())))
 
 
 def drone_level(bot):
@@ -179,7 +179,7 @@ def title(bot):
     """Kazandığı en üst unvan; göstermeyi seçmeyen (gösterişsiz) bot için None."""
     if showiness(bot) < 0.35:
         return None
-    st = {'onur': bot.k['onur'], 'ep': bot.k['ep'], 'npc': bot.k['stats'].get('npc', 0)}
+    st = {'honor': bot.k['honor'], 'ep': bot.k['ep'], 'npc': bot.k['stats'].get('npc', 0)}
     return next((u for u, a, threshold in TITLES if st[a] >= threshold), None)
 
 
@@ -194,7 +194,7 @@ def messages(n):
     drones = drone_sequence(b)
     if drones:
         lv = drone_level(b)
-        body = '|'.join('%d|%d|%d|%d' % (K.ITEMS['drones'][d]['tur'], lv, t, g) for d, (t, g) in zip(drones, drone_ids(b)))
+        body = '|'.join('%d|%d|%d|%d' % (K.ITEMS['drones'][d]['type'], lv, t, g) for d, (t, g) in zip(drones, drone_ids(b)))
         f = FORMATION.get(b.k.get('formation') or '', 0)
         out.append(legacy('0|n|d|%d|%d|%s' % (n.id, f, body)))
     return out

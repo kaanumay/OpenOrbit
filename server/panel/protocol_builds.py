@@ -12,7 +12,7 @@ class Adapter:
         self.root, self.python, self.log, self.no_window = root, python, log, no_window
         self.tool = os.path.join(root, 'tools', 'il2cpp', 'protocol_update.py')
         self.lock = threading.Lock()
-        self.d = {'running': False, 'lines': [], 'summary': None, 'hata': None, 'baslangic': None, 'bitis': None, 'is': None}
+        self.d = {'running': False, 'lines': [], 'summary': None, 'error': None, 'start': None, 'end_time': None, 'is': None}
 
     def state(self):
         with self.lock:
@@ -22,7 +22,7 @@ class Adapter:
         with self.lock:
             if self.d['running']:
                 raise RuntimeError(_('The protocol tool is already running.'))
-            self.d = {'running': True, 'lines': [], 'summary': None, 'hata': None, 'baslangic': time.time(), 'bitis': None,
+            self.d = {'running': True, 'lines': [], 'summary': None, 'error': None, 'start': time.time(), 'end_time': None,
                       'is': kind}
         threading.Thread(target=self._run, args=(args,), daemon=True).start()
         return self.state()
@@ -57,15 +57,15 @@ class Adapter:
                 m = re.search(r'^istemci (\S+) ->', line)
                 if m:
                     with self.lock:
-                        self.d['summary'] = dict(self.d['summary'] or {}, surum=m.group(1))
+                        self.d['summary'] = dict(self.d['summary'] or {}, version=m.group(1))
             code = p.wait()
             if code:
                 with self.lock:
-                    self.d['hata'] = _('The tool failed (exit %d); see the last lines.', code)
+                    self.d['error'] = _('The tool failed (exit %d); see the last lines.', code)
         except Exception as e:
             with self.lock:
-                self.d['hata'] = repr(e)
+                self.d['error'] = repr(e)
         finally:
             with self.lock:
-                self.d['running'], self.d['bitis'] = False, time.time()
-            self.log('protokol aracı bitti: %s' % (self.d['hata'] or 'tamam'))
+                self.d['running'], self.d['end_time'] = False, time.time()
+            self.log('protokol aracı bitti: %s' % (self.d['error'] or 'done'))

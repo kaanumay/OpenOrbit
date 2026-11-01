@@ -1,11 +1,11 @@
 {
  "collectors": {
   "1": {
-   "ad": "dispatch_retriever_a01",
+   "name": "dispatch_retriever_a01",
    "code": "A-01",
    "series": "ammo",
-   "kademe": 1,
-   "aciklama": "dispatch_label_description_retriever_a01",
+   "tier": 1,
+   "description": "dispatch_label_description_retriever_a01",
    "sure_sn": 10800,
    "fee": {
     "currency_credits": 200000
@@ -15,11 +15,11 @@
    }
   },
   "2": {
-   "ad": "dispatch_retriever_a02",
+   "name": "dispatch_retriever_a02",
    "code": "A-02",
    "series": "ammo",
-   "kademe": 2,
-   "aciklama": "dispatch_label_description_retriever_a02",
+   "tier": 2,
+   "description": "dispatch_label_description_retriever_a02",
    "sure_sn": 21600,
    "fee": {
     "currency_uridium": 2000
@@ -29,11 +29,11 @@
    }
   },
   "3": {
-   "ad": "dispatch_retriever_a03",
+   "name": "dispatch_retriever_a03",
    "code": "A-03",
    "series": "ammo",
-   "kademe": 3,
-   "aciklama": "dispatch_label_description_retriever_a03",
+   "tier": 3,
+   "description": "dispatch_label_description_retriever_a03",
    "sure_sn": 21600,
    "fee": {
     "currency_uridium": 2000,
@@ -44,11 +44,11 @@
    }
   },
   "4": {
-   "ad": "dispatch_retriever_a04",
+   "name": "dispatch_retriever_a04",
    "code": "A-04",
    "series": "ammo",
-   "kademe": 4,
-   "aciklama": "dispatch_label_description_retriever_a04",
+   "tier": 4,
+   "description": "dispatch_label_description_retriever_a04",
    "sure_sn": 32400,
    "fee": {
     "currency_uridium": 5000,
@@ -59,11 +59,11 @@
    }
   },
   "5": {
-   "ad": "dispatch_retriever_a05",
+   "name": "dispatch_retriever_a05",
    "code": "A-05",
    "series": "ammo",
-   "kademe": 5,
-   "aciklama": "dispatch_label_description_retriever_a05",
+   "tier": 5,
+   "description": "dispatch_label_description_retriever_a05",
    "sure_sn": 43200,
    "fee": {
     "currency_uridium": 10000,
@@ -74,11 +74,11 @@
    }
   },
   "6": {
-   "ad": "dispatch_retriever_a06",
+   "name": "dispatch_retriever_a06",
    "code": "A-06",
    "series": "ammo",
-   "kademe": 6,
-   "aciklama": "dispatch_label_description_retriever_a06",
+   "tier": 6,
+   "description": "dispatch_label_description_retriever_a06",
    "sure_sn": 43200,
    "fee": {
     "currency_uridium": 10000,
@@ -89,11 +89,11 @@
    }
   },
   "7": {
-   "ad": "dispatch_retriever_b01",
+   "name": "dispatch_retriever_b01",
    "code": "B-01",
    "series": "basic",
-   "kademe": 1,
-   "aciklama": "dispatch_label_description_retriever_b01",
+   "tier": 1,
+   "description": "dispatch_label_description_retriever_b01",
    "sure_sn": 10800,
    "fee": {
     "currency_credits": 200000
@@ -103,11 +103,11 @@
    }
   },
   "8": {
-   "ad": "dispatch_retriever_b02",
+   "name": "dispatch_retriever_b02",
    "code": "B-02",
    "series": "basic",
-   "kademe": 2,
-   "aciklama": "dispatch_label_description_retriever_b02",
+   "tier": 2,
+   "description": "dispatch_label_description_retriever_b02",
    "sure_sn": 21600,
    "fee": {
     "currency_uridium": 2000
@@ -117,11 +117,11 @@
    }
   },
   "9": {
-   "ad": "dispatch_retriever_b03",
+   "name": "dispatch_retriever_b03",
    "code": "B-03",
    "series": "basic",
-   "kademe": 3,
-   "aciklama": "dispatch_label_description_retriever_b03",
+   "tier": 3,
+   "description": "dispatch_label_description_retriever_b03",
    "sure_sn": 21600,
    "fee": {
     "currency_uridium": 2000,
@@ -132,11 +132,11 @@
    }
   },
   "10": {
-   "ad": "dispatch_retriever_b04",
+   "name": "dispatch_retriever_b04",
    "code": "B-04",
    "series": "basic",
-   "kademe": 4,
-   "aciklama": "dispatch_label_description_retriever_b04",
+   "tier": 4,
+   "description": "dispatch_label_description_retriever_b04",
    "sure_sn": 32400,
    "fee": {
     "currency_uridium": 5000,
@@ -147,11 +147,11 @@
    }
   },
   "11": {
-   "ad": "dispatch_retriever_b05",
+   "name": "dispatch_retriever_b05",
    "code": "B-05",
    "series": "basic",
-   "kademe": 5,
-   "aciklama": "dispatch_label_description_retriever_b05",
+   "tier": 5,
+   "description": "dispatch_label_description_retriever_b05",
    "sure_sn": 43200,
    "fee": {
     "currency_uridium": 10000,
@@ -162,11 +162,11 @@
    }
   },
   "12": {
-   "ad": "dispatch_retriever_b06",
+   "name": "dispatch_retriever_b06",
    "code": "B-06",
    "series": "basic",
-   "kademe": 6,
-   "aciklama": "dispatch_label_description_retriever_b06",
+   "tier": 6,
+   "description": "dispatch_label_description_retriever_b06",
    "sure_sn": 43200,
    "fee": {
     "currency_uridium": 10000,
@@ -177,11 +177,11 @@
    }
   },
   "19": {
-   "ad": "dispatch_retriever_h03",
+   "name": "dispatch_retriever_h03",
    "code": "H-03",
    "series": "hitac",
-   "kademe": 3,
-   "aciklama": "dispatch_label_description_retriever_h03",
+   "tier": 3,
+   "description": "dispatch_label_description_retriever_h03",
    "sure_sn": 18000,
    "fee": {
     "currency_uridium": 5000,
@@ -192,11 +192,11 @@
    }
   },
   "20": {
-   "ad": "dispatch_retriever_h04",
+   "name": "dispatch_retriever_h04",
    "code": "H-04",
    "series": "hitac",
-   "kademe": 4,
-   "aciklama": "dispatch_label_description_retriever_h04",
+   "tier": 4,
+   "description": "dispatch_label_description_retriever_h04",
    "sure_sn": 25200,
    "fee": {
     "currency_uridium": 10000,
@@ -207,11 +207,11 @@
    }
   },
   "21": {
-   "ad": "dispatch_retriever_h05",
+   "name": "dispatch_retriever_h05",
    "code": "H-05",
    "series": "hitac",
-   "kademe": 5,
-   "aciklama": "dispatch_label_description_retriever_h05",
+   "tier": 5,
+   "description": "dispatch_label_description_retriever_h05",
    "sure_sn": 32400,
    "fee": {
     "currency_uridium": 15000,
@@ -222,11 +222,11 @@
    }
   },
   "13": {
-   "ad": "dispatch_retriever_r01",
+   "name": "dispatch_retriever_r01",
    "code": "R-01",
    "series": "resource",
-   "kademe": 1,
-   "aciklama": "dispatch_label_description_retriever_r01",
+   "tier": 1,
+   "description": "dispatch_label_description_retriever_r01",
    "sure_sn": 10800,
    "fee": {
     "currency_credits": 200000
@@ -236,11 +236,11 @@
    }
   },
   "14": {
-   "ad": "dispatch_retriever_r02",
+   "name": "dispatch_retriever_r02",
    "code": "R-02",
    "series": "resource",
-   "kademe": 2,
-   "aciklama": "dispatch_label_description_retriever_r02",
+   "tier": 2,
+   "description": "dispatch_label_description_retriever_r02",
    "sure_sn": 21600,
    "fee": {
     "currency_uridium": 2000
@@ -250,11 +250,11 @@
    }
   },
   "15": {
-   "ad": "dispatch_retriever_r03",
+   "name": "dispatch_retriever_r03",
    "code": "R-03",
    "series": "resource",
-   "kademe": 3,
-   "aciklama": "dispatch_label_description_retriever_r03",
+   "tier": 3,
+   "description": "dispatch_label_description_retriever_r03",
    "sure_sn": 21600,
    "fee": {
     "currency_uridium": 2000,
@@ -265,11 +265,11 @@
    }
   },
   "16": {
-   "ad": "dispatch_retriever_r04",
+   "name": "dispatch_retriever_r04",
    "code": "R-04",
    "series": "resource",
-   "kademe": 4,
-   "aciklama": "dispatch_label_description_retriever_r04",
+   "tier": 4,
+   "description": "dispatch_label_description_retriever_r04",
    "sure_sn": 32400,
    "fee": {
     "currency_uridium": 5000,
@@ -280,11 +280,11 @@
    }
   },
   "17": {
-   "ad": "dispatch_retriever_r05",
+   "name": "dispatch_retriever_r05",
    "code": "R-05",
    "series": "resource",
-   "kademe": 5,
-   "aciklama": "dispatch_label_description_retriever_r05",
+   "tier": 5,
+   "description": "dispatch_label_description_retriever_r05",
    "sure_sn": 43200,
    "fee": {
     "currency_uridium": 10000,
@@ -295,11 +295,11 @@
    }
   },
   "18": {
-   "ad": "dispatch_retriever_r06",
+   "name": "dispatch_retriever_r06",
    "code": "R-06",
    "series": "resource",
-   "kademe": 6,
-   "aciklama": "dispatch_label_description_retriever_r06",
+   "tier": 6,
+   "description": "dispatch_label_description_retriever_r06",
    "sure_sn": 43200,
    "fee": {
     "currency_uridium": 10000,
@@ -703,8 +703,8 @@
   "resource_collectable_ouroboros-alloy": 0.5
  },
  "slots": {
-  "baslangic": 2,
-  "azami": 5,
+  "start": 2,
+  "maximum": 5,
   "prices": {
    "3": {
     "currency_uridium": 50000
@@ -722,7 +722,7 @@
   4
  ],
  "dispatch_day_multiplier": 1.5,
- "kapi": {
+ "gate": {
   "ggeu": "resource_collectable_ggeu",
   "sure_sn": 3600
  },
@@ -771,7 +771,7 @@
      65,
      80
     ],
-    "kapi": [
+    "gate": [
      5,
      10
     ]
@@ -803,7 +803,7 @@
      65,
      80
     ],
-    "kapi": [
+    "gate": [
      5,
      10
     ]

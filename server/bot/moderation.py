@@ -11,12 +11,12 @@ import time
 
 from . import speech as SPC
 
-RULES = ('buyuk', 'sel', 'hakaret', 'reklam')
+RULES = ('caps', 'flood', 'insult', 'ads')
 TAG = 'CM'                    # moderatörün sohbette ve gemisinin üstünde gösterilen etiketi (klanlar alamaz: klan.ayrilmis)
 CHAT_ROLE = 'mod'              # istemci yamasıyla kendi renginde (panel/plugin/Yamalar.cs ModeratorRengi); admin rolü etiketi gizlerdi
 WARNING_SEC = 1800                  # uyarıdan sonra bu süre içindeki ikinci ihlal susturur
 _LINK = re.compile(r'(https?://|www\.|discord\.gg|\b[\w-]+\.(com|net|org|gg|io|ru|tr|de)\b)', re.I)
-CHANNELS = ('global', 'firma')
+CHANNELS = ('global', 'company')
 NOTICE = {'tr': 'Susturuldun: {0} dk kaldı.', 'en': 'You are muted: {0} min left.', 'de': 'Du bist stummgeschaltet: noch {0} Min.',
             'es': 'Estás silenciado: quedan {0} min.', 'fr': 'Tu es muet : encore {0} min.', 'pl': 'Jesteś wyciszony: zostało {0} min.',
             'pt': 'Você está silenciado: faltam {0} min.', 'ru': 'Вы заглушены: осталось {0} мин.'}
@@ -41,7 +41,7 @@ def sec(y):
 
 
 def _registry(y, name):
-    return y.__dict__.setdefault('mod_record', {}).setdefault(str(name).lower(), {'warning': 0, 'warning_time': 0, 'mutes': 0, 'bitis': 0,
+    return y.__dict__.setdefault('mod_record', {}).setdefault(str(name).lower(), {'warning': 0, 'warning_time': 0, 'mutes': 0, 'end_time': 0,
                                                                                'ban': False, 'last': []})
 
 
@@ -51,23 +51,23 @@ def violation(y, name, msg, now):
     k['last'] = [x for x in k['last'] if now - x[0] < 60] + [(now, str(msg).strip().lower())]
     letters = [c for c in str(msg) if c.isalpha()]
     if y.setting('rule_ads', True) and _LINK.search(msg):
-        return 'reklam'
+        return 'ads'
     if y.setting('rule_insult', True):
         from . import llm as LLM
-        if LLM.harmful(msg) or SPC.intent(msg)[0] == 'hakaret':
-            return 'hakaret'
+        if LLM.harmful(msg) or SPC.intent(msg)[0] == 'insult':
+            return 'insult'
     if y.setting('rule_flood', True) and (sum(1 for t, m in k['last'] if m == k['last'][-1][1]) >= 3
                                        or sum(1 for t, m in k['last'] if now - t < 10) >= 5):
-        return 'sel'
+        return 'flood'
     if y.setting('rule_caps', True) and len(letters) >= 8 and sum(c.isupper() for c in letters) / len(letters) > 0.7:
-        return 'buyuk'
+        return 'caps'
     return None
 
 
 def is_muted(y, name, now=None):
     """Kalan susturma/yasak süresi (sn) ya da 0."""
     k = y.__dict__.get('mod_record', {}).get(str(name).lower())
-    return max(0.0, k['bitis'] - (now or time.time())) if k else 0.0
+    return max(0.0, k['end_time'] - (now or time.time())) if k else 0.0
 
 
 def moderate(y, name, msg, channel, now, rol='chatter'):
@@ -87,27 +87,27 @@ def moderate(y, name, msg, channel, now, rol='chatter'):
         return None
     m = max(modes, key=lambda m: m.o('patience') * m.r.random())
     k = _registry(y, name)
-    if k['bitis'] > now:
+    if k['end_time'] > now:
         return None                                       # zaten susturulu (satırı zaten düştü)
     if now - k['warning_time'] > WARNING_SEC:
         k['warning'] = 0
     delay = m.r.uniform(2, 8)
     if k['warning'] == 0:
         k['warning'], k['warning_time'] = 1, now
-        y.speak(m, channel, SPC.template(m, 'mod_uyari_' + rule, ad=name), now=now + delay, priority=True)
+        y.speak(m, channel, SPC.template(m, 'mod_uyari_' + rule, name=name), now=now + delay, priority=True)
         return 'warning'
     k['warning'] = 0
     k['mutes'] += 1
     if k['mutes'] >= int(y.setting('ban_threshold', 3) or 3):
         hour = int(y.setting('ban_hours', 24) or 24)
-        k['bitis'], k['ban'], k['mutes'] = now + hour * 3600, True, 0
-        y.speak(m, channel, SPC.template(m, 'mod_yasak', ad=name, saat=hour), now=now + delay, priority=True)
+        k['end_time'], k['ban'], k['mutes'] = now + hour * 3600, True, 0
+        y.speak(m, channel, SPC.template(m, 'mod_ban', name=name, hour=hour), now=now + delay, priority=True)
         return 'ban'
     minutes = int(y.setting('mute_min', 10) or 10)
-    k['bitis'], k['ban'] = now + minutes * 60, False
-    y.speak(m, channel, SPC.template(m, 'mod_sustur', ad=name, dk=minutes), now=now + delay, priority=True)
+    k['end_time'], k['ban'] = now + minutes * 60, False
+    y.speak(m, channel, SPC.template(m, 'mod_mute', name=name, min=minutes), now=now + delay, priority=True)
     if b is not None:
-        b.memory.event(m.name, 'hakaret', now)               # susturulan bot moderatöre biraz kırgın
+        b.memory.event(m.name, 'insult', now)               # susturulan bot moderatöre biraz kırgın
     return 'mute'
 
 
@@ -132,4 +132,4 @@ def remind_rules(y, now):
     modes = [m for m in y.bots if getattr(m, 'moderator', False) and m.online]
     if modes:
         m = modes[int(now) % len(modes)]
-        y.speak(m, 'global', SPC.template(m, 'mod_kurallar'), now=now)
+        y.speak(m, 'global', SPC.template(m, 'mod_rules'), now=now)

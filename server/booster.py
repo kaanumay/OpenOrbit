@@ -21,8 +21,8 @@ ALIAS = O6['alias']                              # istemcinin tanımadığı boo
 ATTRS = ['ABILITY_COOLDOWN_TIME', 'COLLECT_RESOURCES', 'COLLECT_RESOURCES_NEWBIE', 'EXPERIENCE_POINTS', 'HITPOINTS', 'HONOUR_POINTS',
          'DAMAGE', 'REPAIR', 'SHIELD', 'SHIELD_REGENERATION']                      # kayıttaki sıra
 # istemcinin türü -> sunucunun bonus anahtarı (profil.mods(): formasyon ve dron tasarımlarıyla toplanır)
-MOD_KEYS = {'DAMAGE': ('lazer', 'roket'), 'HITPOINTS': ('can',), 'SHIELD': ('kalkan',), 'SHIELD_REGENERATION': ('shield_regen',),
-            'REPAIR': ('repair',), 'EXPERIENCE_POINTS': ('ep',), 'HONOUR_POINTS': ('onur',), 'COLLECT_RESOURCES': ('kargo',),
+MOD_KEYS = {'DAMAGE': ('laser', 'rocket'), 'HITPOINTS': ('can',), 'SHIELD': ('kalkan',), 'SHIELD_REGENERATION': ('shield_regen',),
+            'REPAIR': ('repair',), 'EXPERIENCE_POINTS': ('ep',), 'HONOUR_POINTS': ('honor',), 'COLLECT_RESOURCES': ('cargo',),
             'ABILITY_COOLDOWN_TIME': ('cooldown',)}
 
 
@@ -36,7 +36,7 @@ def is_booster(loot):
 
 
 def state(p):
-    """Profildeki boosterlar: lootId -> {bitis: mağazadakinin bittiği an, kalan: uzaylıdan düşenin kalan saniyesi}."""
+    """Profildeki boosterlar: lootId -> {end_time: mağazadakinin bittiği an, kalan: uzaylıdan düşenin kalan saniyesi}."""
     return p.d.setdefault('boosters', {})
 
 
@@ -44,7 +44,7 @@ def left(p, loot, now=None):
     e = state(p).get(loot)
     if not e:
         return 0
-    return max(0.0, e.get('bitis', 0) - (now or time.time())) + e.get('kalan', 0)
+    return max(0.0, e.get('end_time', 0) - (now or time.time())) + e.get('remaining', 0)
 
 
 def active(p, now=None):
@@ -85,13 +85,13 @@ def add(p, loot, n=1, seconds=None, hours=None):
         return
     now = time.time()
     with p.lock:
-        e = state(p).setdefault(loot, {'bitis': 0, 'kalan': 0})
+        e = state(p).setdefault(loot, {'end_time': 0, 'remaining': 0})
         if seconds is None:
-            h = hours or B['saat'].get(loot)
+            h = hours or B['hour'].get(loot)
             duration = h * 3600 if h else B['sure_sn']
-            e['bitis'] = max(e.get('bitis', 0), now) + n * duration * SET.multiplier('booster_sure')     # panel: booster süresi
+            e['end_time'] = max(e.get('end_time', 0), now) + n * duration * SET.multiplier('booster_sure')     # panel: booster süresi
         else:
-            e['kalan'] = e.get('kalan', 0) + seconds * SET.multiplier('booster_sure')
+            e['remaining'] = e.get('remaining', 0) + seconds * SET.multiplier('booster_sure')
         p.dirty = True
 
 
@@ -100,8 +100,8 @@ def tick(p, now, dt):
     gone = []
     with p.lock:
         for loot, e in list(state(p).items()):
-            if e.get('kalan', 0) > 0 and e.get('bitis', 0) <= now:
-                e['kalan'] = max(0, e['kalan'] - dt)
+            if e.get('remaining', 0) > 0 and e.get('end_time', 0) <= now:
+                e['remaining'] = max(0, e['remaining'] - dt)
                 p.dirty = True
             if left(p, loot, now) <= 0:
                 del state(p)[loot]
@@ -128,4 +128,4 @@ def drop_for(npc_name):
     if not kind or random.random() >= SET.chance('drop', d['probability'][kind], 'booster'):
         return None
     loot, hours = random.choice([(l, None) for l in d['kinds']] + [(l, 1) for l in d.get('kinds_1h', ())])     # 1 saatlik türler sabit 1 sa
-    return loot, hours or random.randint(*d['saat'])
+    return loot, hours or random.randint(*d['hour'])

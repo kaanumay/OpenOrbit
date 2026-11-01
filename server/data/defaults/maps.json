@@ -1,6 +1,6 @@
 {
  "5": {
-  "giris": [
+  "entry": [
    {
     "_m": "AssetCreateCommand",
     "designId": 0,
@@ -601,7 +601,7 @@
     }
    }
   ],
-  "hazir": [
+  "ready": [
    {
     "_m": "SpaceStationCommand",
     "posY": 2000,
@@ -783,8 +783,8 @@
   ]
  },
  "6": {
-  "giris": [],
-  "hazir": [
+  "entry": [],
+  "ready": [
    {
     "_m": "MapAssetActionAvailableCommand",
     "mapAssetId": 150000183,

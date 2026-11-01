@@ -2,531 +2,531 @@
  "_kaynak": "İstemcinin başarım XML'leri (tools/basarimlar.py). seviyeler: koşul sınıfı, islec/deger ya da kume (CheckSet öğeleri, eslesme ALL), olay (achievementEvent), parametreler, ic (iç koşullar), saklanir (store), reset_on_death (resetOnDeath); puan, unvan, odul (eylemler); derece: XML'deki grade sıradan farklıysa (kazanma satırı 0|A|ACG|<başarım>_<derece>). unvanlar: unvan anahtarı -> kimlik (kayıttakiler korunur, ötekiler 1000'den).",
  "achievements": {
   "achievement_seasonpass_202307": {
-   "grup": "SEASONPASS_Q2",
+   "group": "SEASONPASS_Q2",
    "etkin": true,
-   "etkinlik": "SeasonPass",
-   "seviyeler": [
+   "event": "SeasonPass",
+   "levels": [
     {
      "class_name": "LevelAbsolute",
      "operator": ">=",
      "value": 50,
-     "olay": "SEASONPASS_Q2",
-     "parametreler": {
+     "incident": "SEASONPASS_Q2",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 40,
+     "points": 40,
      "title": "title_seasonpass_202307_1"
     }
    ]
   },
   "achievement_seasonpass_202311": {
-   "grup": "SEASONPASS_Q3",
+   "group": "SEASONPASS_Q3",
    "etkin": true,
-   "etkinlik": "SeasonPass",
-   "seviyeler": [
+   "event": "SeasonPass",
+   "levels": [
     {
      "class_name": "LevelAbsolute",
      "operator": ">=",
      "value": 50,
-     "olay": "SEASONPASS_Q3",
-     "parametreler": {
+     "incident": "SEASONPASS_Q3",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 40,
+     "points": 40,
      "title": "title_seasonpass_202311_1"
     }
    ]
   },
   "achievement_seasonpass_202402": {
-   "grup": "SEASONPASS_Q4",
+   "group": "SEASONPASS_Q4",
    "etkin": true,
-   "etkinlik": "SeasonPass",
-   "seviyeler": [
+   "event": "SeasonPass",
+   "levels": [
     {
      "class_name": "LevelAbsolute",
      "operator": ">=",
      "value": 50,
-     "olay": "SEASONPASS_Q4",
-     "parametreler": {
+     "incident": "SEASONPASS_Q4",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 40,
+     "points": 40,
      "title": "title_seasonpass_202402_1"
     }
    ]
   },
   "achievement_seasonpass_202405": {
-   "grup": "SEASONPASS_Q5",
+   "group": "SEASONPASS_Q5",
    "etkin": true,
-   "etkinlik": "SeasonPass",
-   "seviyeler": [
+   "event": "SeasonPass",
+   "levels": [
     {
      "class_name": "LevelAbsolute",
      "operator": ">=",
      "value": 50,
-     "olay": "SEASONPASS_Q5",
-     "parametreler": {
+     "incident": "SEASONPASS_Q5",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 40,
+     "points": 40,
      "title": "title_seasonpass_202405_1"
     },
     {
      "class_name": "LevelAbsolute",
      "operator": ">=",
      "value": 80,
-     "olay": "SEASONPASS_Q5",
-     "parametreler": {
+     "incident": "SEASONPASS_Q5",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 40,
+     "points": 40,
      "title": "title_seasonpass_202405_2"
     }
    ]
   },
   "achievement_seasonpass_202408": {
-   "grup": "SEASONPASS_Q6",
+   "group": "SEASONPASS_Q6",
    "etkin": true,
-   "etkinlik": "SeasonPass",
-   "seviyeler": [
+   "event": "SeasonPass",
+   "levels": [
     {
      "class_name": "Level",
      "operator": ">=",
      "value": 50,
-     "olay": "SEASONPASS_Q6",
-     "parametreler": {
+     "incident": "SEASONPASS_Q6",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 40,
+     "points": 40,
      "title": "title_seasonpass_202408_1"
     },
     {
      "class_name": "Level",
      "operator": ">=",
      "value": 80,
-     "olay": "SEASONPASS_Q6",
-     "parametreler": {
+     "incident": "SEASONPASS_Q6",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 40,
+     "points": 40,
      "title": "title_seasonpass_202408_2"
     }
    ]
   },
   "achievement_seasonpass_202411": {
-   "grup": "SEASONPASS_Q7",
+   "group": "SEASONPASS_Q7",
    "etkin": true,
-   "etkinlik": "SeasonPass",
-   "seviyeler": [
+   "event": "SeasonPass",
+   "levels": [
     {
      "class_name": "Level",
      "operator": ">=",
      "value": 50,
-     "olay": "SEASONPASS_Q7",
-     "parametreler": {
+     "incident": "SEASONPASS_Q7",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 40,
+     "points": 40,
      "title": "title_seasonpass_202411_1"
     },
     {
      "class_name": "Level",
      "operator": ">=",
      "value": 80,
-     "olay": "SEASONPASS_Q7",
-     "parametreler": {
+     "incident": "SEASONPASS_Q7",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 40,
+     "points": 40,
      "title": "title_seasonpass_202411_2"
     }
    ]
   },
   "achievement_seasonpass_202502": {
-   "grup": "SEASONPASS_Q8",
+   "group": "SEASONPASS_Q8",
    "etkin": true,
-   "etkinlik": "SeasonPass",
-   "seviyeler": [
+   "event": "SeasonPass",
+   "levels": [
     {
      "class_name": "Level",
      "operator": ">=",
      "value": 50,
-     "olay": "SEASONPASS_Q8",
-     "parametreler": {
+     "incident": "SEASONPASS_Q8",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 40,
+     "points": 40,
      "title": "title_seasonpass_202502_1"
     },
     {
      "class_name": "Level",
      "operator": ">=",
      "value": 80,
-     "olay": "SEASONPASS_Q8",
-     "parametreler": {
+     "incident": "SEASONPASS_Q8",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 40,
+     "points": 40,
      "title": "title_seasonpass_202502_2"
     }
    ]
   },
   "achievement_seasonpass_202505": {
-   "grup": "SEASONPASS_Q9",
+   "group": "SEASONPASS_Q9",
    "etkin": true,
-   "etkinlik": "SeasonPass",
-   "seviyeler": [
+   "event": "SeasonPass",
+   "levels": [
     {
      "class_name": "Level",
      "operator": ">=",
      "value": 50,
-     "olay": "SEASONPASS_Q9",
-     "parametreler": {
+     "incident": "SEASONPASS_Q9",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 40,
+     "points": 40,
      "title": "title_seasonpass_202505_1"
     },
     {
      "class_name": "Level",
      "operator": ">=",
      "value": 80,
-     "olay": "SEASONPASS_Q9",
-     "parametreler": {
+     "incident": "SEASONPASS_Q9",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 40,
+     "points": 40,
      "title": "title_seasonpass_202505_2"
     }
    ]
   },
   "achievement_seasonpass_202508": {
-   "grup": "SEASONPASS_Q10",
+   "group": "SEASONPASS_Q10",
    "etkin": true,
-   "etkinlik": "SeasonPass",
-   "seviyeler": [
+   "event": "SeasonPass",
+   "levels": [
     {
      "class_name": "LevelAbsolute",
      "operator": ">=",
      "value": 50,
-     "olay": "SEASONPASS_Q10",
-     "parametreler": {
+     "incident": "SEASONPASS_Q10",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 40,
+     "points": 40,
      "title": "title_seasonpass_202508_1"
     },
     {
      "class_name": "LevelAbsolute",
      "operator": ">=",
      "value": 80,
-     "olay": "SEASONPASS_Q10",
-     "parametreler": {
+     "incident": "SEASONPASS_Q10",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 40,
+     "points": 40,
      "title": "title_seasonpass_202508_2"
     }
    ]
   },
   "achievement_seasonpass_202511": {
-   "grup": "SEASONPASS_Q11",
+   "group": "SEASONPASS_Q11",
    "etkin": true,
-   "etkinlik": "SeasonPass",
-   "seviyeler": [
+   "event": "SeasonPass",
+   "levels": [
     {
      "class_name": "LevelAbsolute",
      "operator": ">=",
      "value": 50,
-     "olay": "SEASONPASS_Q11",
-     "parametreler": {
+     "incident": "SEASONPASS_Q11",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 40,
+     "points": 40,
      "title": "title_seasonpass_202511_1"
     },
     {
      "class_name": "LevelAbsolute",
      "operator": ">=",
      "value": 80,
-     "olay": "SEASONPASS_Q11",
-     "parametreler": {
+     "incident": "SEASONPASS_Q11",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 40,
+     "points": 40,
      "title": "title_seasonpass_202511_2"
     }
    ]
   },
   "achievement_seasonpass_202602": {
-   "grup": "SEASONPASS_Q12",
+   "group": "SEASONPASS_Q12",
    "etkin": true,
-   "etkinlik": "SeasonPass",
-   "seviyeler": [
+   "event": "SeasonPass",
+   "levels": [
     {
      "class_name": "LevelAbsolute",
      "operator": ">=",
      "value": 50,
-     "olay": "SEASONPASS_Q12",
-     "parametreler": {
+     "incident": "SEASONPASS_Q12",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 40,
+     "points": 40,
      "title": "title_seasonpass_202602_1"
     },
     {
      "class_name": "LevelAbsolute",
      "operator": ">=",
      "value": 80,
-     "olay": "SEASONPASS_Q12",
-     "parametreler": {
+     "incident": "SEASONPASS_Q12",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 40,
+     "points": 40,
      "title": "title_seasonpass_202602_2"
     }
    ]
   },
   "achievement_seasonpass_202605": {
-   "grup": "SEASONPASS_Q13",
+   "group": "SEASONPASS_Q13",
    "etkin": true,
-   "etkinlik": "SeasonPass",
-   "seviyeler": [
+   "event": "SeasonPass",
+   "levels": [
     {
      "class_name": "LevelAbsolute",
      "operator": ">=",
      "value": 50,
-     "olay": "SEASONPASS_Q13",
-     "parametreler": {
+     "incident": "SEASONPASS_Q13",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 40,
+     "points": 40,
      "title": "title_seasonpass_202605_1"
     },
     {
      "class_name": "LevelAbsolute",
      "operator": ">=",
      "value": 80,
-     "olay": "SEASONPASS_Q13",
-     "parametreler": {
+     "incident": "SEASONPASS_Q13",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 40,
+     "points": 40,
      "title": "title_seasonpass_202605_2"
     }
    ]
   },
   "achievement_seasonpass_202608": {
-   "grup": "SEASONPASS_Q14",
+   "group": "SEASONPASS_Q14",
    "etkin": true,
-   "etkinlik": "SeasonPass",
-   "seviyeler": [
+   "event": "SeasonPass",
+   "levels": [
     {
      "class_name": "LevelAbsolute",
      "operator": ">=",
      "value": 50,
-     "olay": "SEASONPASS_Q14",
-     "parametreler": {
+     "incident": "SEASONPASS_Q14",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 40,
+     "points": 40,
      "title": "title_seasonpass_202608_1"
     },
     {
      "class_name": "LevelAbsolute",
      "operator": ">=",
      "value": 80,
-     "olay": "SEASONPASS_Q14",
-     "parametreler": {
+     "incident": "SEASONPASS_Q14",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 40,
+     "points": 40,
      "title": "title_seasonpass_202608_2"
     }
    ]
   },
   "achievement_misc_3d": {
-   "grup": "MISC",
+   "group": "MISC",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Uses3D",
      "operator": ">",
      "value": 0,
-     "olay": "USES_3D",
+     "incident": "USES_3D",
      "title": "title_achievement_multi-dimensional-pilot",
-     "puan": 20
+     "points": 20
     }
    ]
   },
   "achievement_destroy_aliens": {
-   "grup": "DESTROY",
+   "group": "DESTROY",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AvatarTypeKill",
      "operator": ">=",
      "value": 50,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "AvatarTypeKill",
      "operator": ">=",
      "value": 250,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ]
      },
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "AvatarTypeKill",
      "operator": ">=",
      "value": 1000,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ]
      },
      "title": "title_achievement_destroy_aliens-1",
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "AvatarTypeKill",
      "operator": ">=",
      "value": 100000,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ]
      },
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "AvatarTypeKill",
      "operator": ">=",
      "value": 1000000,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ]
      },
      "title": "title_achievement_destroy_aliens-2",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_collect_ammunition-box": {
-   "grup": "COLLECT",
+   "group": "COLLECT",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AssetCollect",
      "operator": ">=",
      "value": 100000,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "assetType": [
        "LASER"
       ]
      },
-     "puan": 10,
+     "points": 10,
      "grade": 2
     }
    ]
   },
   "achievement_collect_ammunition-shop": {
-   "grup": "COLLECT",
+   "group": "COLLECT",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Buy",
      "operator": ">=",
      "value": 100000,
-     "parametreler": {
+     "parameters": {
       "ammo": [
        {
         "type": "*"
        }
       ]
      },
-     "puan": 10,
+     "points": 10,
      "grade": 2
     }
    ]
   },
   "achievement_event_summer2014_assaulter": {
-   "grup": "EVENT_SUMMER_2014",
+   "group": "EVENT_SUMMER_2014",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AvatarTypeKill",
      "operator": ">=",
      "value": 1,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ],
@@ -535,67 +535,67 @@
       ]
      },
      "title": "title_achievement_event_summer2014_assaulter",
-     "puan": 400,
+     "points": 400,
      "grade": 5
     }
    ]
   },
   "achievement_event_battle-for-influence-legend": {
-   "grup": "EVENT_BATTLE_FOR_INFLUENCE",
+   "group": "EVENT_BATTLE_FOR_INFLUENCE",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "MetaAchievement",
      "operator": ">=",
      "value": 3,
-     "olay": "METAACHIEVED",
-     "parametreler": {
+     "incident": "METAACHIEVED",
+     "parameters": {
       "achievementId": [
        "achievement_event_battle-for-influence-points"
       ]
      },
      "title": "title_achievement_event_battle-for-influence-legend",
-     "puan": 20,
+     "points": 20,
      "grade": 5
     }
    ]
   },
   "achievement_event_battle-for-influence-points": {
-   "grup": "EVENT_BATTLE_FOR_INFLUENCE",
+   "group": "EVENT_BATTLE_FOR_INFLUENCE",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Influence",
      "operator": ">=",
      "value": 2500,
-     "olay": "INFLUENCE_GAINED",
-     "puan": 5
+     "incident": "INFLUENCE_GAINED",
+     "points": 5
     },
     {
      "class_name": "Influence",
      "operator": ">=",
      "value": 10000,
-     "olay": "INFLUENCE_GAINED",
+     "incident": "INFLUENCE_GAINED",
      "title": "title_achievement_event_battle-for-influence-points-1",
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "Influence",
      "operator": ">=",
      "value": 20000,
-     "olay": "INFLUENCE_GAINED",
+     "incident": "INFLUENCE_GAINED",
      "title": "title_achievement_event_battle-for-influence-points-2",
-     "puan": 20
+     "points": 20
     }
    ]
   },
   "achievement_event_battle-for-influence-quests": {
-   "grup": "EVENT_BATTLE_FOR_INFLUENCE",
+   "group": "EVENT_BATTLE_FOR_INFLUENCE",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestSelection",
      "set": [
@@ -612,111 +612,111 @@
       "512011"
      ],
      "matches": "ALL",
-     "olay": "QUEST",
+     "incident": "QUEST",
      "title": "title_achievement_event_battle-for-influence-quests",
-     "puan": 15,
+     "points": 15,
      "grade": 5
     }
    ]
   },
   "achievement_social_beacon-keeper": {
-   "grup": "SOCIAL",
+   "group": "SOCIAL",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "EquipItem",
-     "parametreler": {
+     "parameters": {
       "item": [
        "drone_designs_beacon"
       ]
      },
-     "puan": 50,
+     "points": 50,
      "title": "title_achievement_beacon-keeper",
      "grade": 5
     }
    ]
   },
   "achievement_collect_bonusboxes": {
-   "grup": "COLLECT",
+   "group": "COLLECT",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Collect",
      "operator": ">=",
      "value": 100,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "boxType": [
        "BONUS_BOX"
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "Collect",
      "operator": ">=",
      "value": 1000,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "boxType": [
        "BONUS_BOX"
       ]
      },
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "Collect",
      "operator": ">=",
      "value": 10000,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "boxType": [
        "BONUS_BOX"
       ]
      },
      "title": "title_achievement_collect_bonusboxes-1",
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "Collect",
      "operator": ">=",
      "value": 100000,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "boxType": [
        "BONUS_BOX"
       ]
      },
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "Collect",
      "operator": ">=",
      "value": 1000000,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "boxType": [
        "BONUS_BOX"
       ]
      },
      "title": "title_achievement_collect_bonusboxes-2",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_pet_bonusboxes": {
-   "grup": "PET",
+   "group": "PET",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Collect",
      "operator": ">=",
      "value": 500,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "boxType": [
        "BONUS_BOX"
       ],
@@ -724,15 +724,15 @@
        "PET"
       ]
      },
-     "puan": 5
+     "points": 5
     }
    ]
   },
   "achievement_misc_booster-event": {
-   "grup": "MISC",
+   "group": "MISC",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "BoosterTypeUsage",
      "set": [
@@ -746,16 +746,16 @@
       "18"
      ],
      "matches": "ALL",
-     "olay": "USED",
-     "puan": 5
+     "incident": "USED",
+     "points": 5
     }
    ]
   },
   "achievement_misc_booster": {
-   "grup": "MISC",
+   "group": "MISC",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "BoosterTypeUsage",
      "set": [
@@ -771,34 +771,34 @@
       "10"
      ],
      "matches": "ALL",
-     "olay": "USED",
-     "puan": 5
+     "incident": "USED",
+     "points": 5
     }
    ]
   },
   "achievement_factory_build-techs": {
-   "grup": "FACTORY",
+   "group": "FACTORY",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "TechFactory",
      "stored": false,
      "operator": ">=",
      "value": 3,
-     "puan": 25
+     "points": 25
     }
    ]
   },
   "achievement_event_summer2014_builders-guild": {
-   "grup": "EVENT_SUMMER_2014",
+   "group": "EVENT_SUMMER_2014",
    "etkin": true,
-   "etkinlik": "DominationEvent",
-   "seviyeler": [
+   "event": "DominationEvent",
+   "levels": [
     {
      "class_name": "BuildClanBattleStationModule",
-     "olay": "CBS_MODULE_INSTALLED",
-     "parametreler": {
+     "incident": "CBS_MODULE_INSTALLED",
+     "parameters": {
       "validMap": [
        "13",
        "14",
@@ -806,23 +806,23 @@
       ]
      },
      "title": "title_achievement_event_summer2014_builders-guild",
-     "puan": 100,
+     "points": 100,
      "grade": 4
     }
    ]
   },
   "achievement_destroy_centuryfalcon": {
-   "grup": "DESTROY",
+   "group": "DESTROY",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AvatarTypeKill",
      "stored": false,
      "operator": ">=",
      "value": 1,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ],
@@ -830,72 +830,72 @@
        "120"
       ]
      },
-     "puan": 10,
+     "points": 10,
      "grade": 2
     }
    ]
   },
   "achievement_factory_chaindestroyer": {
-   "grup": "FACTORY",
+   "group": "FACTORY",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "ChainImpulse",
      "stored": false,
      "operator": ">=",
      "value": 5,
-     "olay": "DESTROY",
-     "puan": 5
+     "incident": "DESTROY",
+     "points": 5
     }
    ]
   },
   "achievement_social_clan-create": {
-   "grup": "SOCIAL",
+   "group": "SOCIAL",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "ClanCreate",
      "stored": false,
      "operator": ">=",
      "value": 1,
-     "puan": 10
+     "points": 10
     }
    ]
   },
   "achievement_social_clan-join": {
-   "grup": "SOCIAL",
+   "group": "SOCIAL",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "ClanJoin",
      "stored": false,
      "operator": ">=",
      "value": 1,
-     "puan": 5
+     "points": 5
     }
    ]
   },
   "achievement_social_clan-member": {
-   "grup": "SOCIAL",
+   "group": "SOCIAL",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "ClanMember",
      "stored": false,
      "operator": ">=",
      "value": 5,
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "ClanMember",
      "stored": false,
      "operator": ">=",
      "value": 25,
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "ClanMember",
@@ -903,15 +903,15 @@
      "operator": ">=",
      "value": 50,
      "title": "title_achievement_social_clan-member",
-     "puan": 50
+     "points": 50
     }
    ]
   },
   "achievement_misc_legacy_cosmicadmiral": {
-   "grup": "MISC",
+   "group": "MISC",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": null,
      "title": "title_achievement_misc_legacy_cosmicadmiral"
@@ -919,215 +919,215 @@
    ]
   },
   "achievement_collect_credits": {
-   "grup": "COLLECT",
+   "group": "COLLECT",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Currency",
      "operator": ">=",
      "value": 1000000,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "currencyType": [
        "CREDITS"
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "Currency",
      "operator": ">=",
      "value": 5000000,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "currencyType": [
        "CREDITS"
       ]
      },
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "Currency",
      "operator": ">=",
      "value": 7500000,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "currencyType": [
        "CREDITS"
       ]
      },
      "title": "title_achievement_collect_credits-1",
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "Currency",
      "operator": ">=",
      "value": 15500000,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "currencyType": [
        "CREDITS"
       ]
      },
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "Currency",
      "operator": ">=",
      "value": 25500000,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "currencyType": [
        "CREDITS"
       ]
      },
      "title": "title_achievement_collect_credits-2",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_social_dailylogin": {
-   "grup": "SOCIAL",
+   "group": "SOCIAL",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Login",
      "operator": ">=",
      "value": 15,
-     "puan": 5
+     "points": 5
     }
    ]
   },
   "achievement_damagedealer": {
-   "grup": "GENERAL",
+   "group": "GENERAL",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Damage",
      "operator": ">=",
      "value": 5000000,
-     "olay": "CAUSED",
-     "puan": 5
+     "incident": "CAUSED",
+     "points": 5
     },
     {
      "class_name": "Damage",
      "operator": ">=",
      "value": 250000000,
-     "olay": "CAUSED",
-     "puan": 10
+     "incident": "CAUSED",
+     "points": 10
     },
     {
      "class_name": "Damage",
      "operator": ">=",
      "value": 1000000000,
-     "olay": "CAUSED",
+     "incident": "CAUSED",
      "title": "title_achievement_damagedealer-1",
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "Damage",
      "operator": ">=",
      "value": 10000000000,
-     "olay": "CAUSED",
-     "puan": 50
+     "incident": "CAUSED",
+     "points": 50
     },
     {
      "class_name": "Damage",
      "operator": ">=",
      "value": 15000000000,
-     "olay": "CAUSED",
+     "incident": "CAUSED",
      "title": "title_achievement_damagedealer-2",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_event_demaner-hunt": {
-   "grup": "EVENT_DEMANER_HUNT",
+   "group": "EVENT_DEMANER_HUNT",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "NPCSelectionKill",
      "operator": ">=",
      "value": 5,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "npcType": [
        "DEMANER_FREIGHTER"
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "NPCSelectionKill",
      "operator": ">=",
      "value": 25,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "npcType": [
        "DEMANER_FREIGHTER"
       ]
      },
-     "puan": 10,
+     "points": 10,
      "title": "title_achievement_event_demaner_hunt_2"
     },
     {
      "class_name": "NPCSelectionKill",
      "operator": ">=",
      "value": 50,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "npcType": [
        "DEMANER_FREIGHTER"
       ]
      },
-     "puan": 15,
+     "points": 15,
      "title": "title_achievement_event_demaner_hunt_3"
     },
     {
      "class_name": "NPCSelectionKill",
      "operator": ">=",
      "value": 100,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "npcType": [
        "DEMANER_FREIGHTER"
       ]
      },
-     "puan": 25,
+     "points": 25,
      "title": "title_achievement_event_demaner_hunt_4"
     }
    ]
   },
   "achievement_misc_destroy-admin": {
-   "grup": "MISC",
+   "group": "MISC",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "DestroyAdmin",
      "stored": false,
      "operator": ">=",
      "value": 1,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 10,
+     "points": 10,
      "grade": 2
     }
    ]
   },
   "achievement_misc_destroy-npc-all-types": {
-   "grup": "MISC",
+   "group": "MISC",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "NpcTypeDestroyed",
      "set": [
@@ -1168,22 +1168,22 @@
       "38"
      ],
      "matches": "ALL",
-     "olay": "DESTROY",
-     "puan": 5
+     "incident": "DESTROY",
+     "points": 5
     }
    ]
   },
   "achievement_misc_destroy-npc-radiation": {
-   "grup": "MISC",
+   "group": "MISC",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AvatarTypeKill",
      "operator": ">=",
      "value": 25,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ]
@@ -1193,42 +1193,42 @@
        "class_name": "InRadiation"
       }
      ],
-     "puan": 5
+     "points": 5
     }
    ]
   },
   "achievement_misc_destroy-player-deathless": {
-   "grup": "MISC",
+   "group": "MISC",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AvatarTypeKill",
      "reset_on_death": true,
      "operator": ">=",
      "value": 20,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 25,
+     "points": 25,
      "grade": 3
     }
    ]
   },
   "achievement_misc_destroy-player-mines": {
-   "grup": "MISC",
+   "group": "MISC",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "DestroyedByAmmunitionType",
      "operator": ">=",
      "value": 25,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ],
@@ -1236,16 +1236,16 @@
        "MINE"
       ]
      },
-     "puan": 10,
+     "points": 10,
      "grade": 2
     }
    ]
   },
   "achievement_misc_destroy-player-shiptype": {
-   "grup": "MISC",
+   "group": "MISC",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "DestroyedByShipType",
      "set": [
@@ -1260,28 +1260,28 @@
       "13"
      ],
      "matches": "ALL",
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 10,
+     "points": 10,
      "grade": 2
     }
    ]
   },
   "achievement_pvp_destroy-player-timed": {
-   "grup": "PVP",
+   "group": "PVP",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AvatarTypeKill",
      "operator": ">=",
      "value": 2,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "timeLimit": [
        {
         "unit": "SECONDS",
@@ -1292,15 +1292,15 @@
        "PLAYER"
       ]
      },
-     "puan": 10,
+     "points": 10,
      "grade": 2
     },
     {
      "class_name": "AvatarTypeKill",
      "operator": ">=",
      "value": 5,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "timeLimit": [
        {
         "unit": "SECONDS",
@@ -1312,85 +1312,85 @@
       ]
      },
      "title": "title_achievement_pvp_destroy-player-timed-1",
-     "puan": 25,
+     "points": 25,
      "grade": 3
     }
    ]
   },
   "achievement_pvp_destroy-player": {
-   "grup": "PVP",
+   "group": "PVP",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AvatarTypeKill",
      "operator": ">=",
      "value": 10,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "AvatarTypeKill",
      "operator": ">=",
      "value": 50,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "AvatarTypeKill",
      "operator": ">=",
      "value": 500,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
      "title": "title_achievement_pvp_destroy-player-1",
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "AvatarTypeKill",
      "operator": ">=",
      "value": 1000,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "AvatarTypeKill",
      "operator": ">=",
      "value": 10000,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
      "title": "title_achievement_pvp_destroy-player-2",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_misc_destroy-shiptype": {
-   "grup": "MISC",
+   "group": "MISC",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "DestroyedShipType",
      "set": [
@@ -1405,44 +1405,44 @@
       "13"
      ],
      "matches": "ALL",
-     "olay": "DESTROY",
-     "puan": 10,
+     "incident": "DESTROY",
+     "points": 10,
      "grade": 2
     }
    ]
   },
   "achievement_misc_destroyed-by-radiation": {
-   "grup": "MISC",
+   "group": "MISC",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Destruction",
      "stored": false,
      "operator": ">=",
      "value": 1,
-     "olay": "DESTROYED",
-     "parametreler": {
+     "incident": "DESTROYED",
+     "parameters": {
       "reason": [
        "RADIATION"
       ]
      },
-     "puan": 5
+     "points": 5
     }
    ]
   },
   "achievement_misc_destroyed-by-streuner": {
-   "grup": "MISC",
+   "group": "MISC",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "KilledByAvatarType",
      "stored": false,
      "operator": ">=",
      "value": 1,
-     "olay": "DESTROYED",
-     "parametreler": {
+     "incident": "DESTROYED",
+     "parameters": {
       "avatar": [
        "NPC"
       ],
@@ -1450,73 +1450,73 @@
        "1"
       ]
      },
-     "puan": 5
+     "points": 5
     }
    ]
   },
   "achievement_discover_distance": {
-   "grup": "DISCOVER",
+   "group": "DISCOVER",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Distance",
      "operator": ">=",
      "value": 100000,
-     "olay": "DISTANCE",
-     "puan": 5
+     "incident": "DISTANCE",
+     "points": 5
     },
     {
      "class_name": "Distance",
      "operator": ">=",
      "value": 1000000,
-     "olay": "DISTANCE",
-     "puan": 10
+     "incident": "DISTANCE",
+     "points": 10
     },
     {
      "class_name": "Distance",
      "operator": ">=",
      "value": 10000000,
-     "olay": "DISTANCE",
-     "puan": 25
+     "incident": "DISTANCE",
+     "points": 25
     },
     {
      "class_name": "Distance",
      "operator": ">=",
      "value": 100000000,
-     "olay": "DISTANCE",
+     "incident": "DISTANCE",
      "title": "title_achievement_discover_distance-2",
-     "puan": 50
+     "points": 50
     }
    ]
   },
   "achievement_event_domination-attack": {
-   "grup": "EVENT_DOMINATION",
+   "group": "EVENT_DOMINATION",
    "etkin": true,
-   "etkinlik": "DominationEvent",
-   "seviyeler": [
+   "event": "DominationEvent",
+   "levels": [
     {
      "class_name": "DominationBeaconTakeover",
-     "olay": "DOMINATION_BEACON_TAKEOVER_ASSIST_ALL",
+     "incident": "DOMINATION_BEACON_TAKEOVER_ASSIST_ALL",
      "operator": ">=",
      "value": 10,
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "DominationBeaconTakeover",
-     "olay": "DOMINATION_BEACON_TAKEOVER_ASSIST_ALL",
+     "incident": "DOMINATION_BEACON_TAKEOVER_ASSIST_ALL",
      "operator": ">=",
      "value": 100,
-     "puan": 20,
+     "points": 20,
      "title": "title_achievement_event_domination-4"
     }
    ]
   },
   "achievement_event_domination-military": {
-   "grup": "EVENT_DOMINATION",
+   "group": "EVENT_DOMINATION",
    "etkin": true,
-   "etkinlik": "DominationEvent",
-   "seviyeler": [
+   "event": "DominationEvent",
+   "levels": [
     {
      "class_name": "QuestSelection",
      "set": [
@@ -1533,383 +1533,383 @@
       "511011"
      ],
      "matches": "ATLEAST",
-     "olay": "QUEST",
-     "puan": 25,
+     "incident": "QUEST",
+     "points": 25,
      "title": "title_achievement_event_domination-2"
     }
    ]
   },
   "achievement_event_domination-quest-cubikon-gravekeeper": {
-   "grup": "GENERAL",
+   "group": "GENERAL",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestSelection",
      "set": [
       "122000"
      ],
      "matches": "ALL",
-     "olay": "QUEST",
-     "puan": 100,
+     "incident": "QUEST",
+     "points": 100,
      "title": "title_achievement_event_domination_reoccurring-cubikon-gravekeeper"
     }
    ]
   },
   "achievement_event_domination-quest-hidden-hunter": {
-   "grup": "GENERAL",
+   "group": "GENERAL",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestSelection",
      "set": [
       "122005"
      ],
      "matches": "ALL",
-     "olay": "QUEST",
-     "puan": 100,
+     "incident": "QUEST",
+     "points": 100,
      "title": "title_achievement_event_domination_reoccurring-hidden-hunter"
     }
    ]
   },
   "achievement_event_domination-quest-immoveable-object": {
-   "grup": "GENERAL",
+   "group": "GENERAL",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestSelection",
      "set": [
       "122004"
      ],
      "matches": "ALL",
-     "olay": "QUEST",
-     "puan": 100,
+     "incident": "QUEST",
+     "points": 100,
      "title": "title_achievement_event_domination_reoccurring-immoveable-object"
     }
    ]
   },
   "achievement_event_domination-quest-lord-of-dead": {
-   "grup": "GENERAL",
+   "group": "GENERAL",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestSelection",
      "set": [
       "122006"
      ],
      "matches": "ALL",
-     "olay": "QUEST",
-     "puan": 100,
+     "incident": "QUEST",
+     "points": 100,
      "title": "title_achievement_event_domination_reoccurring-lord-of-dead"
     }
    ]
   },
   "achievement_event_domination-quest-unstoppable-force": {
-   "grup": "GENERAL",
+   "group": "GENERAL",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestSelection",
      "set": [
       "122003"
      ],
      "matches": "ALL",
-     "olay": "QUEST",
-     "puan": 100,
+     "incident": "QUEST",
+     "points": 100,
      "title": "title_achievement_event_domination_reoccurring-unstoppable-force"
     }
    ]
   },
   "achievement_event_domination-space": {
-   "grup": "EVENT_DOMINATION",
+   "group": "EVENT_DOMINATION",
    "etkin": true,
-   "etkinlik": "DominationEvent",
-   "seviyeler": [
+   "event": "DominationEvent",
+   "levels": [
     {
      "class_name": "LaserDamage",
      "operator": ">=",
      "value": 5000000,
-     "olay": "DAMAGING",
-     "parametreler": {
+     "incident": "DAMAGING",
+     "parameters": {
       "npctype": [
        "DEMANER_FREIGHTER"
       ]
      },
-     "puan": 10,
+     "points": 10,
      "title": "title_achievement_event_domination-3"
     }
    ]
   },
   "achievement_event_domination-triumph": {
-   "grup": "EVENT_DOMINATION",
+   "group": "EVENT_DOMINATION",
    "etkin": true,
-   "etkinlik": "DominationEvent",
-   "seviyeler": [
+   "event": "DominationEvent",
+   "levels": [
     {
      "class_name": "MetaAchievement",
      "operator": ">=",
      "value": 2,
-     "olay": "METAACHIEVED",
-     "parametreler": {
+     "incident": "METAACHIEVED",
+     "parameters": {
       "achievementId": [
        "achievement_event_domination-attack"
       ]
      },
-     "puan": 35,
+     "points": 35,
      "title": "title_achievement_event_domination-1"
     }
    ]
   },
   "achievement_event_summer2014_dominator": {
-   "grup": "EVENT_SUMMER_2014",
+   "group": "EVENT_SUMMER_2014",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "DominationTakeover",
-     "olay": "DOMINATION_TAKEOVER",
+     "incident": "DOMINATION_TAKEOVER",
      "title": "title_achievement_event_summer2014_dominator",
-     "puan": 500,
+     "points": 500,
      "grade": 5
     }
    ]
   },
   "achievement_ability_double-minimap-reveal": {
-   "grup": "ABILITY",
+   "group": "ABILITY",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 75,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "DOUBLE_MINIMAP"
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 275,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "DOUBLE_MINIMAP"
       ]
      },
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 500,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "DOUBLE_MINIMAP"
       ]
      },
      "title": "title_achievement_ability_double-minimap-reveal-1",
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 1200,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "DOUBLE_MINIMAP"
       ]
      },
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 2500,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "DOUBLE_MINIMAP"
       ]
      },
      "title": "title_achievement_ability_double-minimap-reveal-2",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_ability_draw-fire": {
-   "grup": "ABILITY",
+   "group": "ABILITY",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 150,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "DRAW_FIRE"
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 350,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "DRAW_FIRE"
       ]
      },
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 800,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "DRAW_FIRE"
       ]
      },
      "title": "title_achievement_ability_draw-fire-1",
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 1600,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "DRAW_FIRE"
       ]
      },
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 3400,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "DRAW_FIRE"
       ]
      },
      "title": "title_achievement_ability_draw-fire-2",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_event_easter-eggs-galaxy-gate-firework": {
-   "grup": "EVENT_SECRET",
+   "group": "EVENT_SECRET",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "EggTriggerCount",
      "operator": ">=",
      "value": 1,
-     "olay": "EGG_TRIGGER",
-     "parametreler": {
+     "incident": "EGG_TRIGGER",
+     "parameters": {
       "eggTriggerType": [
        "GALAXY_GATE_FIREWORK"
       ]
      },
      "title": "title_achievement_event_easter-eggs-galaxy-gate-firework",
-     "puan": 20,
+     "points": 20,
      "grade": 5
     }
    ]
   },
   "achievement_event_easter-eggs-going-round-the-map": {
-   "grup": "EVENT_SECRET",
+   "group": "EVENT_SECRET",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "EggTriggerCount",
      "operator": ">=",
      "value": 1,
-     "olay": "EGG_TRIGGER",
-     "parametreler": {
+     "incident": "EGG_TRIGGER",
+     "parameters": {
       "eggTriggerType": [
        "GOING_ROUND_THE_MAP"
       ]
      },
-     "puan": 20,
+     "points": 20,
      "grade": 5
     }
    ]
   },
   "achievement_event_easter-eggs-minimap-ping": {
-   "grup": "EVENT_SECRET",
+   "group": "EVENT_SECRET",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "EggTriggerCount",
      "operator": ">=",
      "value": 1,
-     "olay": "EGG_TRIGGER",
-     "parametreler": {
+     "incident": "EGG_TRIGGER",
+     "parameters": {
       "eggTriggerType": [
        "MINIMAP_PING"
       ]
      },
      "title": "title_achievement_event_easter-eggs-minimap-ping",
-     "puan": 20,
+     "points": 20,
      "grade": 5
     }
    ]
   },
   "achievement_event_easter-eggs-rainbow-laser": {
-   "grup": "EVENT_SECRET",
+   "group": "EVENT_SECRET",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "EggTriggerCount",
      "operator": ">=",
      "value": 1,
-     "olay": "EGG_TRIGGER",
-     "parametreler": {
+     "incident": "EGG_TRIGGER",
+     "parameters": {
       "eggTriggerType": [
        "RAINBOW_LASER"
       ]
      },
      "title": "title_achievement_event_easter-eggs-rainbow-laser",
-     "puan": 20,
+     "points": 20,
      "grade": 5
     }
    ]
   },
   "achievement_event_empyrian": {
-   "grup": "EVENT_EMPYRIAN",
+   "group": "EVENT_EMPYRIAN",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "DesignMutationCount",
      "operator": ">=",
      "value": 200,
-     "olay": "CAUSED",
-     "parametreler": {
+     "incident": "CAUSED",
+     "parameters": {
       "mutatedDesignId": [
        "554",
        "555",
@@ -1922,15 +1922,15 @@
        "637"
       ]
      },
-     "puan": 40,
+     "points": 40,
      "title": "title_achievement_event_empyrian_1"
     },
     {
      "class_name": "DesignMutationCount",
      "operator": ">=",
      "value": 500,
-     "olay": "CAUSED",
-     "parametreler": {
+     "incident": "CAUSED",
+     "parameters": {
       "mutatedDesignId": [
        "554",
        "555",
@@ -1943,15 +1943,15 @@
        "637"
       ]
      },
-     "puan": 75,
+     "points": 75,
      "title": "title_achievement_event_empyrian_2"
     },
     {
      "class_name": "DesignMutationCount",
      "operator": ">=",
      "value": 1000,
-     "olay": "CAUSED",
-     "parametreler": {
+     "incident": "CAUSED",
+     "parameters": {
       "mutatedDesignId": [
        "554",
        "555",
@@ -1964,195 +1964,195 @@
        "637"
       ]
      },
-     "puan": 100,
+     "points": 100,
      "title": "title_achievement_event_empyrian_3"
     }
    ]
   },
   "achievement_pet_equip-aiprotocol": {
-   "grup": "PET",
+   "group": "PET",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Equipment",
      "stored": false,
      "operator": ">=",
      "value": 6,
-     "parametreler": {
+     "parameters": {
       "petprotocol": [
        {
         "type": "*"
        }
       ]
      },
-     "puan": 10
+     "points": 10
     }
    ]
   },
   "achievement_pet_equip-gear": {
-   "grup": "PET",
+   "group": "PET",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Equipment",
      "stored": false,
      "operator": ">=",
      "value": 6,
-     "parametreler": {
+     "parameters": {
       "petgear": [
        {
         "type": "GEAR"
        }
       ]
      },
-     "puan": 10
+     "points": 10
     }
    ]
   },
   "achievement_discover_equip-generator-shield": {
-   "grup": "DISCOVER",
+   "group": "DISCOVER",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Equipment",
      "stored": false,
      "operator": ">=",
      "value": 15,
-     "parametreler": {
+     "parameters": {
       "generator": [
        {
         "type": "SHIELD"
        }
       ]
      },
-     "puan": 10
+     "points": 10
     }
    ]
   },
   "achievement_discover_equip-generator-speed": {
-   "grup": "DISCOVER",
+   "group": "DISCOVER",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Equipment",
      "stored": false,
      "operator": ">=",
      "value": 15,
-     "parametreler": {
+     "parameters": {
       "generator": [
        {
         "type": "G3N_6900"
        }
       ]
      },
-     "puan": 10
+     "points": 10
     }
    ]
   },
   "achievement_discover_equip-laser": {
-   "grup": "DISCOVER",
+   "group": "DISCOVER",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Equipment",
      "stored": false,
      "operator": ">=",
      "value": 15,
-     "parametreler": {
+     "parameters": {
       "weapon": [
        {
         "type": "LF3"
        }
       ]
      },
-     "puan": 10
+     "points": 10
     }
    ]
   },
   "achievement_pet_equip-pet": {
-   "grup": "PET",
+   "group": "PET",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Equipment",
      "stored": false,
      "operator": ">=",
      "value": 15,
-     "puan": 25
+     "points": 25
     }
    ]
   },
   "achievement_discover_equip-shipdesign": {
-   "grup": "DISCOVER",
+   "group": "DISCOVER",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Equipment",
      "stored": false,
      "operator": ">=",
      "value": 1,
-     "parametreler": {
+     "parameters": {
       "ship": [
        {
         "type": "DESIGN"
        }
       ]
      },
-     "puan": 10
+     "points": 10
     }
    ]
   },
   "achievement_discover_equip-shipdesigns": {
-   "grup": "DISCOVER",
+   "group": "DISCOVER",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Equipment",
      "operator": ">=",
      "value": 5,
-     "parametreler": {
+     "parameters": {
       "ship": [
        {
         "type": "DESIGN"
        }
       ]
      },
-     "puan": 25
+     "points": 25
     }
    ]
   },
   "achievement_event_eternalgate-champion": {
-   "grup": "EVENT_ETERNALGATE",
+   "group": "EVENT_ETERNALGATE",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "IgnoredCondition",
      "stored": false,
      "title": "title_achievement_event_eternalgate-champion",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_event_eternalgate-kill": {
-   "grup": "EVENT_ETERNALGATE",
+   "group": "EVENT_ETERNALGATE",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AvatarTypeKill",
      "operator": ">=",
      "value": 100,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ],
@@ -2160,357 +2160,357 @@
        "254"
       ]
      },
-     "puan": 50
+     "points": 50
     }
    ]
   },
   "achievement_event_eternalgate-waves": {
-   "grup": "EVENT_ETERNALGATE",
+   "group": "EVENT_ETERNALGATE",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "ClearGalaxyGateWave",
      "operator": ">=",
      "value": 42,
-     "olay": "CLEAR_GALAXY_GATE_WAVE",
-     "parametreler": {
+     "incident": "CLEAR_GALAXY_GATE_WAVE",
+     "parameters": {
       "galaxyGateType": [
        "ETERNAL_GATE"
       ]
      },
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "ClearGalaxyGateWave",
      "operator": ">=",
      "value": 100,
-     "olay": "CLEAR_GALAXY_GATE_WAVE",
-     "parametreler": {
+     "incident": "CLEAR_GALAXY_GATE_WAVE",
+     "parameters": {
       "galaxyGateType": [
        "ETERNAL_GATE"
       ]
      },
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "ClearGalaxyGateWave",
      "operator": ">=",
      "value": 200,
-     "olay": "CLEAR_GALAXY_GATE_WAVE",
-     "parametreler": {
+     "incident": "CLEAR_GALAXY_GATE_WAVE",
+     "parameters": {
       "galaxyGateType": [
        "ETERNAL_GATE"
       ]
      },
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_experience": {
-   "grup": "GENERAL",
+   "group": "GENERAL",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Currency",
      "operator": ">=",
      "value": 100000,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "currencyType": [
        "EXPERIENCE"
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "Currency",
      "operator": ">=",
      "value": 1000000,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "currencyType": [
        "EXPERIENCE"
       ]
      },
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "Currency",
      "operator": ">=",
      "value": 100000000,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "currencyType": [
        "EXPERIENCE"
       ]
      },
      "title": "title_achievement_experience-1",
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "Currency",
      "operator": ">=",
      "value": 1000000000,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "currencyType": [
        "EXPERIENCE"
       ]
      },
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "Currency",
      "operator": ">=",
      "value": 10000000000,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "currencyType": [
        "EXPERIENCE"
       ]
      },
      "title": "title_achievement_experience-2",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_discover_extras": {
-   "grup": "DISCOVER",
+   "group": "DISCOVER",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Extras",
      "operator": ">=",
      "value": 10,
-     "puan": 5
+     "points": 5
     }
    ]
   },
   "achievement_drone_formation-change": {
-   "grup": "DRONE",
+   "group": "DRONE",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "DroneFormationChange",
      "operator": ">=",
      "value": 100,
-     "olay": "USED",
-     "puan": 5
+     "incident": "USED",
+     "points": 5
     },
     {
      "class_name": "DroneFormationChange",
      "operator": ">=",
      "value": 500,
-     "olay": "USED",
-     "puan": 10
+     "incident": "USED",
+     "points": 10
     },
     {
      "class_name": "DroneFormationChange",
      "operator": ">=",
      "value": 1000,
-     "olay": "USED",
+     "incident": "USED",
      "title": "title_achievement_drone_formation-change-1",
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "DroneFormationChange",
      "operator": ">=",
      "value": 10000,
-     "olay": "USED",
-     "puan": 50
+     "incident": "USED",
+     "points": 50
     },
     {
      "class_name": "DroneFormationChange",
      "operator": ">=",
      "value": 100000,
-     "olay": "USED",
+     "incident": "USED",
      "title": "title_achievement_drone_formation-change-2",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_drone_formation-drones": {
-   "grup": "DRONE",
+   "group": "DRONE",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "DroneFormationDroneAmount",
      "stored": false,
      "operator": ">=",
      "value": 6,
-     "olay": "USED",
-     "puan": 5
+     "incident": "USED",
+     "points": 5
     },
     {
      "class_name": "DroneFormationDroneAmount",
      "stored": false,
      "operator": ">=",
      "value": 10,
-     "olay": "USED",
-     "puan": 10
+     "incident": "USED",
+     "points": 10
     }
    ]
   },
   "achievement_ability_fortify": {
-   "grup": "ABILITY",
+   "group": "ABILITY",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 200,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "FORTIFY"
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 500,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "FORTIFY"
       ]
      },
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 800,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "FORTIFY"
       ]
      },
      "title": "title_achievement_ability_fortify-1",
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 1700,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "FORTIFY"
       ]
      },
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 2500,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "FORTIFY"
       ]
      },
      "title": "title_achievement_ability_fortify-2",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_social_friend-invites": {
-   "grup": "SOCIAL",
+   "group": "SOCIAL",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "FriendInvite",
      "operator": ">=",
      "value": 1,
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "FriendInvite",
      "operator": ">=",
      "value": 25,
      "title": "title_achievement_social_friend-invites",
-     "puan": 50
+     "points": 50
     }
    ]
   },
   "achievement_social_friendinvites": {
-   "grup": "SOCIAL",
+   "group": "SOCIAL",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "FriendInvites",
      "operator": ">=",
      "value": 5,
-     "puan": 50,
+     "points": 50,
      "title": "title_achievement_social_friendinvites-1"
     },
     {
      "class_name": "FriendInvites",
      "operator": ">=",
      "value": 10,
-     "puan": 200,
+     "points": 200,
      "title": "title_achievement_social_friendinvites-2"
     },
     {
      "class_name": "FriendInvites",
      "operator": ">=",
      "value": 25,
-     "puan": 500,
+     "points": 500,
      "title": "title_achievement_social_friendinvites-3"
     }
    ]
   },
   "achievement_social_friendlist-member": {
-   "grup": "SOCIAL",
+   "group": "SOCIAL",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "FriendMember",
      "stored": false,
      "operator": ">=",
      "value": 20,
-     "puan": 10
+     "points": 10
     }
    ]
   },
   "achievement_social_friendlist": {
-   "grup": "SOCIAL",
+   "group": "SOCIAL",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Friends",
      "operator": ">=",
      "value": 1,
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "Friends",
      "operator": ">=",
      "value": 20,
-     "puan": 10
+     "points": 10
     }
    ]
   },
   "achievement_misc_legacy_galacticfleetadmiral": {
-   "grup": "MISC",
+   "group": "MISC",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": null,
      "title": "title_achievement_misc_legacy_galacticfleetadmiral"
@@ -2518,110 +2518,110 @@
    ]
   },
   "achievement_misc_galaxy-gate-streuner": {
-   "grup": "MISC",
+   "group": "MISC",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "GalaxyGateDone",
-     "olay": "GALAXY_GATE",
-     "parametreler": {
+     "incident": "GALAXY_GATE",
+     "parameters": {
       "galaxyGateType": [
        "STREUNER_GATE"
       ]
      },
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "null": {
-   "grup": null,
+   "group": null,
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": []
+   "event": null,
+   "levels": []
   },
   "achievement_dispatch_gate": {
-   "grup": "DISPATCH",
+   "group": "DISPATCH",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Dispatch",
      "operator": ">=",
      "value": 5,
-     "olay": "DISPATCH_GATE",
-     "puan": 5
+     "incident": "DISPATCH_GATE",
+     "points": 5
     },
     {
      "class_name": "Dispatch",
      "operator": ">=",
      "value": 25,
-     "olay": "DISPATCH_GATE",
-     "puan": 10
+     "incident": "DISPATCH_GATE",
+     "points": 10
     },
     {
      "class_name": "Dispatch",
      "operator": ">=",
      "value": 50,
-     "olay": "DISPATCH_GATE",
-     "puan": 25,
+     "incident": "DISPATCH_GATE",
+     "points": 25,
      "title": "title_achievement_dispatch_gate_3"
     }
    ]
   },
   "achievement_gatejumps": {
-   "grup": "GENERAL",
+   "group": "GENERAL",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Gatejumps",
      "operator": ">=",
      "value": 500,
-     "olay": "JUMP",
-     "puan": 5
+     "incident": "JUMP",
+     "points": 5
     },
     {
      "class_name": "Gatejumps",
      "operator": ">=",
      "value": 5000,
-     "olay": "JUMP",
-     "puan": 10
+     "incident": "JUMP",
+     "points": 10
     },
     {
      "class_name": "Gatejumps",
      "operator": ">=",
      "value": 12500,
-     "olay": "JUMP",
+     "incident": "JUMP",
      "title": "title_achievement_gatejumps",
-     "puan": 25
+     "points": 25
     }
    ]
   },
   "achievement_event_gauntletofplutus-champion": {
-   "grup": "EVENT_GAUNTLETOFPLUTUS",
+   "group": "EVENT_GAUNTLETOFPLUTUS",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "IgnoredCondition",
      "stored": false,
      "title": "title_achievement_event_gauntletofplutus-champion",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_event_gauntletofplutus-kill-plutus": {
-   "grup": "EVENT_GAUNTLETOFPLUTUS",
+   "group": "EVENT_GAUNTLETOFPLUTUS",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AvatarTypeKill",
      "operator": ">=",
      "value": 1,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ],
@@ -2629,14 +2629,14 @@
        "218"
       ]
      },
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "AvatarTypeKill",
      "operator": ">=",
      "value": 10,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ],
@@ -2644,14 +2644,14 @@
        "218"
       ]
      },
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "AvatarTypeKill",
      "operator": ">=",
      "value": 30,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ],
@@ -2660,159 +2660,159 @@
       ]
      },
      "title": "title_achievement_event_gauntletofplutus-kill-plutus-30",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_event_gauntletofplutus-luck": {
-   "grup": "EVENT_GAUNTLETOFPLUTUS",
+   "group": "EVENT_GAUNTLETOFPLUTUS",
    "etkin": true,
-   "etkinlik": "GauntletOfPlutus",
-   "seviyeler": [
+   "event": "GauntletOfPlutus",
+   "levels": [
     {
      "class_name": "Currency",
      "stored": false,
      "operator": "==",
      "value": 4999999,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "currencyType": [
        "URIDIUM"
       ]
      },
      "title": "title_achievement_event_gauntletofplutus-luck",
-     "puan": 50
+     "points": 50
     }
    ]
   },
   "achievement_event_gauntletofplutus-score": {
-   "grup": "EVENT_GAUNTLETOFPLUTUS",
+   "group": "EVENT_GAUNTLETOFPLUTUS",
    "etkin": true,
-   "etkinlik": "GauntletOfPlutus",
-   "seviyeler": [
+   "event": "GauntletOfPlutus",
+   "levels": [
     {
      "class_name": "EventScore",
      "stored": false,
      "operator": ">=",
      "value": 1000,
-     "olay": "EVENT_SCORE",
-     "parametreler": {
+     "incident": "EVENT_SCORE",
+     "parameters": {
       "event": [
        "GauntletOfPlutus"
       ]
      },
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "EventScore",
      "stored": false,
      "operator": ">=",
      "value": 5000,
-     "olay": "EVENT_SCORE",
-     "parametreler": {
+     "incident": "EVENT_SCORE",
+     "parameters": {
       "event": [
        "GauntletOfPlutus"
       ]
      },
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "EventScore",
      "stored": false,
      "operator": ">=",
      "value": 10000,
-     "olay": "EVENT_SCORE",
-     "parametreler": {
+     "incident": "EVENT_SCORE",
+     "parameters": {
       "event": [
        "GauntletOfPlutus"
       ]
      },
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_drone_gold-champion": {
-   "grup": "DRONE",
+   "group": "DRONE",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "EquipItem",
-     "parametreler": {
+     "parameters": {
       "item": [
        "drone_designs_champion"
       ]
      },
-     "puan": 20,
+     "points": 20,
      "title": "title_goalrush-2024-1",
      "grade": 5
     }
    ]
   },
   "achievement_social_group-founder": {
-   "grup": "SOCIAL",
+   "group": "SOCIAL",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "GroupFounder",
      "stored": false,
      "operator": ">=",
      "value": 1,
-     "olay": "GROUP",
-     "puan": 5
+     "incident": "GROUP",
+     "points": 5
     }
    ]
   },
   "achievement_social_group-friend": {
-   "grup": "SOCIAL",
+   "group": "SOCIAL",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "GroupWithFriend",
      "operator": ">=",
      "value": 600,
-     "olay": "TIME",
-     "puan": 10,
+     "incident": "TIME",
+     "points": 10,
      "grade": 2
     }
    ]
   },
   "achievement_social_group-playtime": {
-   "grup": "SOCIAL",
+   "group": "SOCIAL",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "GroupMember",
      "operator": ">=",
      "value": 3000,
-     "olay": "TIME",
-     "puan": 10,
+     "incident": "TIME",
+     "points": 10,
      "grade": 2
     },
     {
      "class_name": "GroupMember",
      "operator": ">=",
      "value": 6000,
-     "olay": "TIME",
-     "puan": 25,
+     "incident": "TIME",
+     "points": 25,
      "grade": 3
     }
    ]
   },
   "achievement_event_halloween-assist-jelly-fish": {
-   "grup": "EVENT_HALLOWEEN",
+   "group": "EVENT_HALLOWEEN",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AvatarTypeKill",
      "operator": ">=",
      "value": 4,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ],
@@ -2820,22 +2820,22 @@
        "108"
       ]
      },
-     "puan": 100,
+     "points": 100,
      "title": "title_pumpkin-warrior"
     }
    ]
   },
   "achievement_event_halloween-curcubinator": {
-   "grup": "EVENT_HALLOWEEN",
+   "group": "EVENT_HALLOWEEN",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AvatarTypeKill",
      "operator": ">=",
      "value": 900,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ],
@@ -2843,22 +2843,22 @@
        "109"
       ]
      },
-     "puan": 100,
+     "points": 100,
      "title": "title_curcubinator-1"
     }
    ]
   },
   "achievement_event_halloween-kill-ghost-bosses": {
-   "grup": "EVENT_HALLOWEEN",
+   "group": "EVENT_HALLOWEEN",
    "etkin": true,
-   "etkinlik": "GhostBosses",
-   "seviyeler": [
+   "event": "GhostBosses",
+   "levels": [
     {
      "class_name": "NPCSelectionKill",
      "operator": ">=",
      "value": 25,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "npcType": [
        "BOSS_STREUNER",
        "BOSS_LORDAKIA",
@@ -2876,15 +2876,15 @@
        "BOSS_FRIGHTFUL_CURCUBITOR"
       ]
      },
-     "puan": 5,
+     "points": 5,
      "title": "title_ghost-bosses-1"
     },
     {
      "class_name": "NPCSelectionKill",
      "operator": ">=",
      "value": 50,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "npcType": [
        "BOSS_STREUNER",
        "BOSS_LORDAKIA",
@@ -2902,15 +2902,15 @@
        "BOSS_FRIGHTFUL_CURCUBITOR"
       ]
      },
-     "puan": 10,
+     "points": 10,
      "title": "title_ghost-bosses-2"
     },
     {
      "class_name": "NPCSelectionKill",
      "operator": ">=",
      "value": 100,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "npcType": [
        "BOSS_STREUNER",
        "BOSS_LORDAKIA",
@@ -2928,74 +2928,74 @@
        "BOSS_FRIGHTFUL_CURCUBITOR"
       ]
      },
-     "puan": 20,
+     "points": 20,
      "title": "title_ghost-bosses-3"
     }
    ]
   },
   "achievement_event_halloween-pumpkinator": {
-   "grup": "EVENT_HALLOWEEN",
+   "group": "EVENT_HALLOWEEN",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Collect",
      "operator": ">=",
      "value": 600,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "boxType": [
        "MINI_PUMPKIN"
       ]
      },
-     "puan": 100,
+     "points": 100,
      "title": "title_pumpkinator-1"
     }
    ]
   },
   "achievement_event_halloween-sweet-tooth": {
-   "grup": "EVENT_HALLOWEEN",
+   "group": "EVENT_HALLOWEEN",
    "etkin": true,
-   "etkinlik": "CandyCargo",
-   "seviyeler": [
+   "event": "CandyCargo",
+   "levels": [
     {
      "class_name": "Collect",
      "operator": ">=",
      "value": 2000,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "boxType": [
        "FROM_SHIP"
       ]
      },
-     "puan": 20
+     "points": 20
     }
    ]
   },
   "achievement_event_halloween2015-challenge": {
-   "grup": "EVENT_HALLOWEEN",
+   "group": "EVENT_HALLOWEEN",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "IgnoredCondition",
      "stored": false,
      "title": "title_achievement_event_halloween2015-challenge",
-     "puan": 300
+     "points": 300
     }
    ]
   },
   "achievement_event_halloween2015-kill-drones": {
-   "grup": "EVENT_HALLOWEEN",
+   "group": "EVENT_HALLOWEEN",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AvatarTypeKill",
      "operator": ">=",
      "value": 4,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ],
@@ -3004,153 +3004,153 @@
       ]
      },
      "title": "title_achievement_event_halloween2015-kill-drones",
-     "puan": 300
+     "points": 300
     }
    ]
   },
   "achievement_ability_healing-beam": {
-   "grup": "ABILITY",
+   "group": "ABILITY",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 200,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "HEALING_BEAM"
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 600,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "HEALING_BEAM"
       ]
      },
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 1500,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "HEALING_BEAM"
       ]
      },
      "title": "title_achievement_ability_healing-beam-1",
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 3500,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "HEALING_BEAM"
       ]
      },
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 8000,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "HEALING_BEAM"
       ]
      },
      "title": "title_achievement_ability_healing-beam-2",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_ability_healing-pod": {
-   "grup": "ABILITY",
+   "group": "ABILITY",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 400,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "HEALING_POD"
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 1200,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "HEALING_POD"
       ]
      },
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 3000,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "HEALING_POD"
       ]
      },
      "title": "title_achievement_ability_healing-pod-1",
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 5000,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "HEALING_POD"
       ]
      },
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 10000,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "HEALING_POD"
       ]
      },
      "title": "title_achievement_ability_healing-pod-2",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_discover_homemaps": {
-   "grup": "DISCOVER",
+   "group": "DISCOVER",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "DiscoverMaps",
      "set": [
@@ -3159,192 +3159,192 @@
       "9"
      ],
      "matches": "ALL",
-     "olay": "JUMP",
-     "parametreler": {
+     "incident": "JUMP",
+     "parameters": {
       "mapType": [
        "HOME"
       ]
      },
-     "puan": 5
+     "points": 5
     }
    ]
   },
   "achievement_honor": {
-   "grup": "GENERAL",
+   "group": "GENERAL",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Currency",
      "operator": ">=",
      "value": 100000,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "currencyType": [
        "HONOUR"
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "Currency",
      "operator": ">=",
      "value": 250000,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "currencyType": [
        "HONOUR"
       ]
      },
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "Currency",
      "operator": ">=",
      "value": 450000,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "currencyType": [
        "HONOUR"
       ]
      },
      "title": "title_achievement_honor-1",
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "Currency",
      "operator": ">=",
      "value": 1000000,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "currencyType": [
        "HONOUR"
       ]
      },
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "Currency",
      "operator": ">=",
      "value": 2500000,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "currencyType": [
        "HONOUR"
       ]
      },
      "title": "title_achievement_honor-2",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_misc_jackpot": {
-   "grup": "MISC",
+   "group": "MISC",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "IgnoredCondition",
      "stored": false,
      "title": "title_achievement_misc_jackpot-1",
-     "puan": 100,
+     "points": 100,
      "grade": 2
     }
    ]
   },
   "achievement_pet_kamikaze": {
-   "grup": "PET",
+   "group": "PET",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Kamikaze",
      "operator": ">=",
      "value": 10,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 5
+     "points": 5
     }
    ]
   },
   "achievement_lasershots": {
-   "grup": "GENERAL",
+   "group": "GENERAL",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AmmoShots",
      "operator": ">=",
      "value": 50000,
-     "olay": "SHOOT",
-     "parametreler": {
+     "incident": "SHOOT",
+     "parameters": {
       "weaponType": [
        "LASER"
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "AmmoShots",
      "operator": ">=",
      "value": 500000,
-     "olay": "SHOOT",
-     "parametreler": {
+     "incident": "SHOOT",
+     "parameters": {
       "weaponType": [
        "LASER"
       ]
      },
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "AmmoShots",
      "operator": ">=",
      "value": 2250000,
-     "olay": "SHOOT",
-     "parametreler": {
+     "incident": "SHOOT",
+     "parameters": {
       "weaponType": [
        "LASER"
       ]
      },
      "title": "title_achievement_lasershots-1",
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "AmmoShots",
      "operator": ">=",
      "value": 12500000,
-     "olay": "SHOOT",
-     "parametreler": {
+     "incident": "SHOOT",
+     "parameters": {
       "weaponType": [
        "LASER"
       ]
      },
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "AmmoShots",
      "operator": ">=",
      "value": 45000000,
-     "olay": "SHOOT",
-     "parametreler": {
+     "incident": "SHOOT",
+     "parameters": {
       "weaponType": [
        "LASER"
       ]
      },
      "title": "title_achievement_lasershots-2",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_misc_lasershow": {
-   "grup": "MISC",
+   "group": "MISC",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "LaserTypeUsage",
      "set": [
@@ -3356,8 +3356,8 @@
       "6"
      ],
      "matches": "ALL",
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "timeLimit": [
        {
         "unit": "SECONDS",
@@ -3365,15 +3365,15 @@
        }
       ]
      },
-     "puan": 5
+     "points": 5
     }
    ]
   },
   "achievement_discover_maps": {
-   "grup": "DISCOVER",
+   "group": "DISCOVER",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "DiscoverMaps",
      "set": [
@@ -3408,131 +3408,131 @@
       "29"
      ],
      "matches": "ALL",
-     "olay": "JUMP",
-     "parametreler": {
+     "incident": "JUMP",
+     "parameters": {
       "mapType": [
        "*"
       ]
      },
-     "puan": 10,
+     "points": 10,
      "grade": 2
     }
    ]
   },
   "achievement_ability_mark-target": {
-   "grup": "ABILITY",
+   "group": "ABILITY",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 250,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "MARK_TARGET",
        "NEUTRALIZING_MARKER"
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 600,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "MARK_TARGET",
        "NEUTRALIZING_MARKER"
       ]
      },
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 1600,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "MARK_TARGET",
        "NEUTRALIZING_MARKER"
       ]
      },
      "title": "title_achievement_ability_mark-target-1",
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 3200,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "MARK_TARGET",
        "NEUTRALIZING_MARKER"
       ]
      },
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 7000,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "MARK_TARGET",
        "NEUTRALIZING_MARKER"
       ]
      },
      "title": "title_achievement_ability_mark-target-2",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_skylab_maxout": {
-   "grup": "SKYLAB",
+   "group": "SKYLAB",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Skylab",
      "stored": false,
      "operator": ">=",
      "value": 15,
-     "puan": 10
+     "points": 10
     }
    ]
   },
   "achievement_event_summer2014_militant": {
-   "grup": "EVENT_SUMMER_2014",
+   "group": "EVENT_SUMMER_2014",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "DominationBeaconTakeover",
-     "olay": "DOMINATION_BEACON_TAKEOVER",
+     "incident": "DOMINATION_BEACON_TAKEOVER",
      "title": "title_achievement_event_summer2014_militant",
-     "puan": 50,
+     "points": 50,
      "grade": 3
     }
    ]
   },
   "achievement_misc_mines-trigger-deathless": {
-   "grup": "MISC",
+   "group": "MISC",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "TriggerMine",
      "reset_on_death": true,
      "operator": ">=",
      "value": 10,
-     "olay": "CAUSED",
-     "parametreler": {
+     "incident": "CAUSED",
+     "parameters": {
       "timeLimit": [
        {
         "unit": "SECONDS",
@@ -3543,470 +3543,470 @@
        "MINE"
       ]
      },
-     "puan": 5
+     "points": 5
     }
    ]
   },
   "achievement_mines": {
-   "grup": "GENERAL",
+   "group": "GENERAL",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AmmoShots",
      "operator": ">=",
      "value": 100,
-     "olay": "SHOOT",
-     "parametreler": {
+     "incident": "SHOOT",
+     "parameters": {
       "weaponType": [
        "MINE"
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "AmmoShots",
      "operator": ">=",
      "value": 500,
-     "olay": "SHOOT",
-     "parametreler": {
+     "incident": "SHOOT",
+     "parameters": {
       "weaponType": [
        "MINE"
       ]
      },
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "AmmoShots",
      "operator": ">=",
      "value": 2500,
-     "olay": "SHOOT",
-     "parametreler": {
+     "incident": "SHOOT",
+     "parameters": {
       "weaponType": [
        "MINE"
       ]
      },
      "title": "title_achievement_mines-1",
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "AmmoShots",
      "operator": ">=",
      "value": 5000,
-     "olay": "SHOOT",
-     "parametreler": {
+     "incident": "SHOOT",
+     "parameters": {
       "weaponType": [
        "MINE"
       ]
      },
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "AmmoShots",
      "operator": ">=",
      "value": 10000,
-     "olay": "SHOOT",
-     "parametreler": {
+     "incident": "SHOOT",
+     "parameters": {
       "weaponType": [
        "MINE"
       ]
      },
      "title": "title_achievement_mines-2",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_monthlyranking-general": {
-   "grup": "GENERAL",
+   "group": "GENERAL",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "IgnoredCondition",
      "stored": false,
      "operator": ">=",
      "value": 1,
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "IgnoredCondition",
      "stored": false,
      "operator": ">=",
      "value": 12,
-     "puan": 500
+     "points": 500
     }
    ]
   },
   "achievement_monthlyranking-pilot": {
-   "grup": "GENERAL",
+   "group": "GENERAL",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "IgnoredCondition",
      "stored": false,
      "operator": ">=",
      "value": 5,
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "IgnoredCondition",
      "stored": false,
      "operator": ">=",
      "value": 12,
-     "puan": 500
+     "points": 500
     }
    ]
   },
   "achievement_event_mwg-kills": {
-   "grup": "EVENT_MERCENARY_WAR_GAME",
+   "group": "EVENT_MERCENARY_WAR_GAME",
    "etkin": true,
-   "etkinlik": "MercenaryWarGame",
-   "seviyeler": [
+   "event": "MercenaryWarGame",
+   "levels": [
     {
      "class_name": "EventScore",
      "stored": false,
      "operator": ">=",
      "value": 500,
-     "olay": "EVENT_KILLS",
-     "parametreler": {
+     "incident": "EVENT_KILLS",
+     "parameters": {
       "event": [
        "MercenaryWarGame"
       ]
      },
      "title": "title_achievement_event_mwg-merc-ethereal",
-     "puan": 200
+     "points": 200
     }
    ]
   },
   "achievement_event_mwg-score": {
-   "grup": "EVENT_MERCENARY_WAR_GAME",
+   "group": "EVENT_MERCENARY_WAR_GAME",
    "etkin": true,
-   "etkinlik": "MercenaryWarGame",
-   "seviyeler": [
+   "event": "MercenaryWarGame",
+   "levels": [
     {
      "class_name": "EventScore",
      "stored": false,
      "operator": ">=",
      "value": 5000,
-     "olay": "EVENT_SCORE",
-     "parametreler": {
+     "incident": "EVENT_SCORE",
+     "parameters": {
       "event": [
        "MercenaryWarGame"
       ]
      },
      "title": "title_achievement_event_mwg-merc-elite",
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "EventScore",
      "stored": false,
      "operator": ">=",
      "value": 15000,
-     "olay": "EVENT_SCORE",
-     "parametreler": {
+     "incident": "EVENT_SCORE",
+     "parameters": {
       "event": [
        "MercenaryWarGame"
       ]
      },
      "title": "title_achievement_event_mwg-merc-legionnaire",
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "EventScore",
      "stored": false,
      "operator": ">=",
      "value": 30000,
-     "olay": "EVENT_SCORE",
-     "parametreler": {
+     "incident": "EVENT_SCORE",
+     "parameters": {
       "event": [
        "MercenaryWarGame"
       ]
      },
      "title": "title_achievement_event_mwg-merc-contractor_first",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_drone_normal-champion-25": {
-   "grup": "DRONE",
+   "group": "DRONE",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "EquipItem",
-     "parametreler": {
+     "parameters": {
       "item": [
        "drone_designs_champion"
       ]
      },
-     "puan": 10,
+     "points": 10,
      "title": "title_goalrush-2025",
      "grade": 5
     }
    ]
   },
   "achievement_drone_normal-champion-26": {
-   "grup": "DRONE",
+   "group": "DRONE",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "EquipItem",
-     "parametreler": {
+     "parameters": {
       "item": [
        "drone_designs_champion"
       ]
      },
-     "puan": 10,
+     "points": 10,
      "title": "title_goalrush-2026",
      "grade": 5
     }
    ]
   },
   "achievement_drone_normal-champion": {
-   "grup": "DRONE",
+   "group": "DRONE",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "EquipItem",
-     "parametreler": {
+     "parameters": {
       "item": [
        "drone_designs_champion"
       ]
      },
-     "puan": 10,
+     "points": 10,
      "title": "title_goalrush-2024-2",
      "grade": 5
     }
    ]
   },
   "achievement_misc_one-hit-wonder": {
-   "grup": "MISC",
+   "group": "MISC",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "OneHitWonder",
      "stored": false,
      "operator": ">=",
      "value": 1,
-     "olay": "DESTROY",
-     "puan": 25,
+     "incident": "DESTROY",
+     "points": 25,
      "grade": 3
     }
    ]
   },
   "achievement_misc_petkiller": {
-   "grup": "MISC",
+   "group": "MISC",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "PetKiller",
      "stored": false,
      "operator": ">=",
      "value": 1,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "PET"
       ]
      },
-     "puan": 5
+     "points": 5
     }
    ]
   },
   "achievement_petlevel": {
-   "grup": "GENERAL",
+   "group": "GENERAL",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Level",
      "stored": false,
      "operator": ">=",
      "value": 5,
-     "olay": "LEVEL",
-     "parametreler": {
+     "incident": "LEVEL",
+     "parameters": {
       "avatar": [
        "PET"
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "Level",
      "stored": false,
      "operator": ">=",
      "value": 10,
-     "olay": "LEVEL",
-     "parametreler": {
+     "incident": "LEVEL",
+     "parameters": {
       "avatar": [
        "PET"
       ]
      },
      "title": "title_achievement_petlevel-1",
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "Level",
      "stored": false,
      "operator": ">=",
      "value": 15,
-     "olay": "LEVEL",
-     "parametreler": {
+     "incident": "LEVEL",
+     "parameters": {
       "avatar": [
        "PET"
       ]
      },
      "title": "title_achievement_petlevel-2",
-     "puan": 25
+     "points": 25
     }
    ]
   },
   "achievement_event_plague-cure-players": {
-   "grup": "EVENT_PLAGUE",
+   "group": "EVENT_PLAGUE",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "PlagueActionCount",
      "operator": ">=",
      "value": 10,
-     "olay": "PLAGUE_CURE",
-     "parametreler": {
+     "incident": "PLAGUE_CURE",
+     "parameters": {
       "plagueActionType": [
        "OTHER"
       ]
      },
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "PlagueActionCount",
      "operator": ">=",
      "value": 50,
-     "olay": "PLAGUE_CURE",
-     "parametreler": {
+     "incident": "PLAGUE_CURE",
+     "parameters": {
       "plagueActionType": [
        "OTHER"
       ]
      },
      "title": "title_achievement_event_plague-cure-players-2",
-     "puan": 15
+     "points": 15
     },
     {
      "class_name": "PlagueActionCount",
      "operator": ">=",
      "value": 100,
-     "olay": "PLAGUE_CURE",
-     "parametreler": {
+     "incident": "PLAGUE_CURE",
+     "parameters": {
       "plagueActionType": [
        "OTHER"
       ]
      },
      "title": "title_achievement_event_plague-cure-players-3",
-     "puan": 30
+     "points": 30
     }
    ]
   },
   "achievement_event_plague-cure-self": {
-   "grup": "EVENT_PLAGUE",
+   "group": "EVENT_PLAGUE",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "PlagueActionCount",
      "operator": ">=",
      "value": 1,
-     "olay": "PLAGUE_CURE",
-     "parametreler": {
+     "incident": "PLAGUE_CURE",
+     "parameters": {
       "plagueActionType": [
        "SELF"
       ]
      },
-     "puan": 5,
+     "points": 5,
      "grade": 5
     }
    ]
   },
   "achievement_event_plague-getinfected": {
-   "grup": "EVENT_PLAGUE",
+   "group": "EVENT_PLAGUE",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "PlagueActionCount",
      "operator": ">=",
      "value": 1,
-     "olay": "PLAGUE_INFECT",
-     "parametreler": {
+     "incident": "PLAGUE_INFECT",
+     "parameters": {
       "plagueActionType": [
        "SELF"
       ]
      },
-     "puan": 5,
+     "points": 5,
      "grade": 5
     }
    ]
   },
   "achievement_event_plague-infect-players": {
-   "grup": "EVENT_PLAGUE",
+   "group": "EVENT_PLAGUE",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "PlagueActionCount",
      "operator": ">=",
      "value": 10,
-     "olay": "PLAGUE_INFECT",
-     "parametreler": {
+     "incident": "PLAGUE_INFECT",
+     "parameters": {
       "plagueActionType": [
        "OTHER"
       ]
      },
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "PlagueActionCount",
      "operator": ">=",
      "value": 50,
-     "olay": "PLAGUE_INFECT",
-     "parametreler": {
+     "incident": "PLAGUE_INFECT",
+     "parameters": {
       "plagueActionType": [
        "OTHER"
       ]
      },
      "title": "title_achievement_event_plague-infect-players-2",
-     "puan": 15
+     "points": 15
     },
     {
      "class_name": "PlagueActionCount",
      "operator": ">=",
      "value": 100,
-     "olay": "PLAGUE_INFECT",
-     "parametreler": {
+     "incident": "PLAGUE_INFECT",
+     "parameters": {
       "plagueActionType": [
        "OTHER"
       ]
      },
      "title": "title_achievement_event_plague-infect-players-3",
-     "puan": 30
+     "points": 30
     }
    ]
   },
   "achievement_event_plague-kill-boss": {
-   "grup": "EVENT_PLAGUE",
+   "group": "EVENT_PLAGUE",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AvatarTypeKill",
      "operator": ">=",
      "value": 1,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ],
@@ -4015,22 +4015,22 @@
       ]
      },
      "title": "title_achievement_event_plague-kill-boss",
-     "puan": 15,
+     "points": 15,
      "grade": 5
     }
    ]
   },
   "achievement_event_plague-kill-minions": {
-   "grup": "EVENT_PLAGUE",
+   "group": "EVENT_PLAGUE",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AvatarTypeKill",
      "operator": ">=",
      "value": 25,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ],
@@ -4039,58 +4039,58 @@
       ]
      },
      "title": "title_achievement_event_plague-kill-minions",
-     "puan": 15,
+     "points": 15,
      "grade": 5
     }
    ]
   },
   "achievement_event_plague-meta-healthy": {
-   "grup": "EVENT_PLAGUE",
+   "group": "EVENT_PLAGUE",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "MetaAchievement",
      "operator": ">=",
      "value": 5,
-     "olay": "METAACHIEVED",
-     "parametreler": {
+     "incident": "METAACHIEVED",
+     "parameters": {
       "achievementId": [
        "achievement_event_plague-cure-self"
       ]
      },
      "title": "title_achievement_event_plague-meta-healthy",
-     "puan": 20,
+     "points": 20,
      "grade": 5
     }
    ]
   },
   "achievement_event_plague-meta-infected": {
-   "grup": "EVENT_PLAGUE",
+   "group": "EVENT_PLAGUE",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "MetaAchievement",
      "operator": ">=",
      "value": 5,
-     "olay": "METAACHIEVED",
-     "parametreler": {
+     "incident": "METAACHIEVED",
+     "parameters": {
       "achievementId": [
        "achievement_event_plague-getinfected"
       ]
      },
      "title": "title_achievement_event_plague-meta-infected",
-     "puan": 20,
+     "points": 20,
      "grade": 5
     }
    ]
   },
   "achievement_event_plague-quests-healthy": {
-   "grup": "EVENT_PLAGUE",
+   "group": "EVENT_PLAGUE",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestSelection",
      "set": [
@@ -4106,18 +4106,18 @@
       "512042"
      ],
      "matches": "ALL",
-     "olay": "QUEST",
+     "incident": "QUEST",
      "title": "title_achievement_event_plague-quests-healthy",
-     "puan": 20,
+     "points": 20,
      "grade": 5
     }
    ]
   },
   "achievement_event_plague-quests-infected": {
-   "grup": "EVENT_PLAGUE",
+   "group": "EVENT_PLAGUE",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestSelection",
      "set": [
@@ -4128,155 +4128,155 @@
       "512032"
      ],
      "matches": "ALL",
-     "olay": "QUEST",
+     "incident": "QUEST",
      "title": "title_achievement_event_plague-quests-infected",
-     "puan": 15,
+     "points": 15,
      "grade": 5
     }
    ]
   },
   "achievement_player-cloaked": {
-   "grup": "GENERAL",
+   "group": "GENERAL",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "PlayerCloaked",
      "operator": ">=",
      "value": 60,
-     "olay": "TIME",
-     "puan": 5
+     "incident": "TIME",
+     "points": 5
     },
     {
      "class_name": "PlayerCloaked",
      "operator": ">=",
      "value": 300,
-     "olay": "TIME",
-     "puan": 10
+     "incident": "TIME",
+     "points": 10
     },
     {
      "class_name": "PlayerCloaked",
      "operator": ">=",
      "value": 600,
-     "olay": "TIME",
+     "incident": "TIME",
      "title": "title_achievement_player-cloaked",
-     "puan": 25
+     "points": 25
     }
    ]
   },
   "achievement_playerlevel": {
-   "grup": "GENERAL",
+   "group": "GENERAL",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Level",
      "stored": false,
      "operator": ">=",
      "value": 5,
-     "olay": "LEVEL",
-     "parametreler": {
+     "incident": "LEVEL",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "Level",
      "stored": false,
      "operator": ">=",
      "value": 10,
-     "olay": "LEVEL",
-     "parametreler": {
+     "incident": "LEVEL",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "Level",
      "stored": false,
      "operator": ">=",
      "value": 15,
-     "olay": "LEVEL",
-     "parametreler": {
+     "incident": "LEVEL",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
      "title": "title_achievement_playerlevel-1",
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "Level",
      "stored": false,
      "operator": ">=",
      "value": 20,
-     "olay": "LEVEL",
-     "parametreler": {
+     "incident": "LEVEL",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "Level",
      "stored": false,
      "operator": ">=",
      "value": 25,
-     "olay": "LEVEL",
-     "parametreler": {
+     "incident": "LEVEL",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
      "title": "title_achievement_playerlevel-2",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_playtime-enemymap": {
-   "grup": "GENERAL",
+   "group": "GENERAL",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "PlaytimeOnEnemyMap",
      "operator": ">=",
      "value": 360,
-     "olay": "TIME",
-     "parametreler": {
+     "incident": "TIME",
+     "parameters": {
       "map": [
        {
         "type": "ENEMY"
        }
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "PlaytimeOnEnemyMap",
      "operator": ">=",
      "value": 2500,
-     "olay": "TIME",
-     "parametreler": {
+     "incident": "TIME",
+     "parameters": {
       "map": [
        {
         "type": "ENEMY"
        }
       ]
      },
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "PlaytimeOnEnemyMap",
      "operator": ">=",
      "value": 12500,
-     "olay": "TIME",
-     "parametreler": {
+     "incident": "TIME",
+     "parameters": {
       "map": [
        {
         "type": "ENEMY"
@@ -4284,209 +4284,209 @@
       ]
      },
      "title": "title_achievement_playtime-enemymap",
-     "puan": 25
+     "points": 25
     }
    ]
   },
   "achievement_playtime-pvpmap": {
-   "grup": "GENERAL",
+   "group": "GENERAL",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "MapTypeCheck",
      "operator": ">=",
      "value": 360,
-     "olay": "TIME",
-     "parametreler": {
+     "incident": "TIME",
+     "parameters": {
       "mapType": [
        "PVP"
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "MapTypeCheck",
      "operator": ">=",
      "value": 1250,
-     "olay": "TIME",
-     "parametreler": {
+     "incident": "TIME",
+     "parameters": {
       "mapType": [
        "PVP"
       ]
      },
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "MapTypeCheck",
      "operator": ">=",
      "value": 2500,
-     "olay": "TIME",
-     "parametreler": {
+     "incident": "TIME",
+     "parameters": {
       "mapType": [
        "PVP"
       ]
      },
      "title": "title_achievement_playtime-pvpmap",
-     "puan": 25
+     "points": 25
     }
    ]
   },
   "achievement_playtime": {
-   "grup": "GENERAL",
+   "group": "GENERAL",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Playtime",
      "operator": ">=",
      "value": 2000,
-     "olay": "TIME",
-     "parametreler": {
+     "incident": "TIME",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "Playtime",
      "operator": ">=",
      "value": 10000,
-     "olay": "TIME",
-     "parametreler": {
+     "incident": "TIME",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "Playtime",
      "operator": ">=",
      "value": 35000,
-     "olay": "TIME",
-     "parametreler": {
+     "incident": "TIME",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
      "title": "title_achievement_playtime-1",
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "Playtime",
      "operator": ">=",
      "value": 65000,
-     "olay": "TIME",
-     "parametreler": {
+     "incident": "TIME",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "Playtime",
      "operator": ">=",
      "value": 125000,
-     "olay": "TIME",
-     "parametreler": {
+     "incident": "TIME",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
      "title": "title_achievement_playtime-2",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_pet_playtime": {
-   "grup": "PET",
+   "group": "PET",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Playtime",
      "operator": ">=",
      "value": 2500,
-     "olay": "TIME",
-     "parametreler": {
+     "incident": "TIME",
+     "parameters": {
       "avatar": [
        "PET"
       ]
      },
-     "puan": 5
+     "points": 5
     }
    ]
   },
   "achievement_social_profile-likes": {
-   "grup": "SOCIAL",
+   "group": "SOCIAL",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Profile",
      "stored": false,
      "operator": ">=",
      "value": 25,
-     "parametreler": {
+     "parameters": {
       "property": [
        {
         "type": "LIKE"
        }
       ]
      },
-     "puan": 25
+     "points": 25
     }
    ]
   },
   "achievement_social_profile-views": {
-   "grup": "SOCIAL",
+   "group": "SOCIAL",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Profile",
      "stored": false,
      "operator": ">=",
      "value": 25,
-     "parametreler": {
+     "parameters": {
       "property": [
        {
         "type": "VIEW"
        }
       ]
      },
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "Profile",
      "stored": false,
      "operator": ">=",
      "value": 100,
-     "parametreler": {
+     "parameters": {
       "property": [
        {
         "type": "VIEW"
        }
       ]
      },
-     "puan": 25
+     "points": 25
     }
    ]
   },
   "achievement_pet_prometium": {
-   "grup": "PET",
+   "group": "PET",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "CollectResource",
      "operator": ">=",
      "value": 1000,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "resourceType": [
        "PROMETIUM"
       ],
@@ -4494,383 +4494,383 @@
        "PET"
       ]
      },
-     "puan": 5
+     "points": 5
     }
    ]
   },
   "achievement_event_prosperous-gg": {
-   "grup": "EVENT_PROSPEROUS",
+   "group": "EVENT_PROSPEROUS",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "CollectPackage",
      "operator": ">=",
      "value": 1,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "packageId": [
        "package_event_reward-prosperous-alphabetagamma-sub"
       ]
      },
-     "puan": 0,
+     "points": 0,
      "title": "title_achievement_event_prosperous-gg_1"
     }
    ]
   },
   "achievement_event_prosperous": {
-   "grup": "EVENT_PROSPEROUS",
+   "group": "EVENT_PROSPEROUS",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "DesignMutationCount",
      "operator": ">=",
      "value": 200,
-     "olay": "CAUSED",
-     "parametreler": {
+     "incident": "CAUSED",
+     "parameters": {
       "mutatedDesignId": [
        "522",
        "523",
        "524"
       ]
      },
-     "puan": 40,
+     "points": 40,
      "title": "title_achievement_event_prosperous_1"
     },
     {
      "class_name": "DesignMutationCount",
      "operator": ">=",
      "value": 500,
-     "olay": "CAUSED",
-     "parametreler": {
+     "incident": "CAUSED",
+     "parameters": {
       "mutatedDesignId": [
        "522",
        "523",
        "524"
       ]
      },
-     "puan": 75,
+     "points": 75,
      "title": "title_achievement_event_prosperous_2"
     },
     {
      "class_name": "DesignMutationCount",
      "operator": ">=",
      "value": 1000,
-     "olay": "CAUSED",
-     "parametreler": {
+     "incident": "CAUSED",
+     "parameters": {
       "mutatedDesignId": [
        "522",
        "523",
        "524"
       ]
      },
-     "puan": 100,
+     "points": 100,
      "title": "title_achievement_event_prosperous_3"
     }
    ]
   },
   "achievement_ability_protect": {
-   "grup": "ABILITY",
+   "group": "ABILITY",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 300,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "PROTECT"
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 700,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "PROTECT"
       ]
      },
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 1800,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "PROTECT"
       ]
      },
      "title": "title_achievement_ability_protect-1",
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 3000,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "PROTECT"
       ]
      },
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 6500,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "PROTECT"
       ]
      },
      "title": "title_achievement_ability_protect-2",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_seasonpass_q1": {
-   "grup": "SEASONPASS_Q1",
+   "group": "SEASONPASS_Q1",
    "etkin": true,
-   "etkinlik": "SeasonPass",
-   "seviyeler": [
+   "event": "SeasonPass",
+   "levels": [
     {
      "class_name": "LevelAbsolute",
      "operator": ">=",
      "value": 50,
-     "parametreler": {
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 40,
+     "points": 40,
      "title": "title_seasonpass_q1_1"
     }
    ]
   },
   "achievement_quest_quests-deathless": {
-   "grup": "QUEST",
+   "group": "QUEST",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestDeathless",
      "reset_on_death": true,
      "operator": ">=",
      "value": 10,
-     "olay": "QUEST",
-     "puan": 10,
+     "incident": "QUEST",
+     "points": 10,
      "grade": 2
     }
    ]
   },
   "achievement_quest_quests": {
-   "grup": "QUEST",
+   "group": "QUEST",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Quest",
      "operator": ">=",
      "value": 5,
-     "olay": "QUEST",
-     "puan": 5
+     "incident": "QUEST",
+     "points": 5
     },
     {
      "class_name": "Quest",
      "operator": ">=",
      "value": 20,
-     "olay": "QUEST",
-     "puan": 10
+     "incident": "QUEST",
+     "points": 10
     },
     {
      "class_name": "Quest",
      "operator": ">=",
      "value": 50,
-     "olay": "QUEST",
+     "incident": "QUEST",
      "title": "title_achievement_quest_quests-1",
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "Quest",
      "operator": ">=",
      "value": 75,
-     "olay": "QUEST",
-     "puan": 50
+     "incident": "QUEST",
+     "points": 50
     },
     {
      "class_name": "Quest",
      "operator": ">=",
      "value": 100,
-     "olay": "QUEST",
+     "incident": "QUEST",
      "title": "title_achievement_quest_quests-2",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_worldboss_recoverhp-202506": {
-   "grup": "EVENT_PUBLIC_WORLD_BOSS",
+   "group": "EVENT_PUBLIC_WORLD_BOSS",
    "etkin": true,
-   "etkinlik": "PublicWorldBoss",
-   "seviyeler": [
+   "event": "PublicWorldBoss",
+   "levels": [
     {
      "class_name": "PublicWorldBossCondition",
      "operator": ">=",
      "value": 5000000,
-     "olay": "PUBLIC_WORLD_BOSS_2025",
-     "puan": 10,
+     "incident": "PUBLIC_WORLD_BOSS_2025",
+     "points": 10,
      "title": "title_worldboss_recoverhp_june2025"
     }
    ]
   },
   "achievement_worldboss_recoverhp-202606": {
-   "grup": "EVENT_PUBLIC_WORLD_BOSS",
+   "group": "EVENT_PUBLIC_WORLD_BOSS",
    "etkin": true,
-   "etkinlik": "PublicWorldBoss",
-   "seviyeler": [
+   "event": "PublicWorldBoss",
+   "levels": [
     {
      "class_name": "PublicWorldBossCondition",
      "operator": ">=",
      "value": 5000000,
-     "olay": "PUBLIC_WORLD_BOSS_2026",
-     "puan": 10,
+     "incident": "PUBLIC_WORLD_BOSS_2026",
+     "points": 10,
      "title": "title_worldboss_recoverhp_june2026"
     }
    ]
   },
   "achievement_dispatch_retriever": {
-   "grup": "DISPATCH",
+   "group": "DISPATCH",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Dispatch",
      "operator": ">=",
      "value": 5,
-     "olay": "DISPATCH_RETRIEVER",
-     "puan": 5
+     "incident": "DISPATCH_RETRIEVER",
+     "points": 5
     },
     {
      "class_name": "Dispatch",
      "operator": ">=",
      "value": 25,
-     "olay": "DISPATCH_RETRIEVER",
-     "puan": 10
+     "incident": "DISPATCH_RETRIEVER",
+     "points": 10
     },
     {
      "class_name": "Dispatch",
      "operator": ">=",
      "value": 50,
-     "olay": "DISPATCH_RETRIEVER",
-     "puan": 25,
+     "incident": "DISPATCH_RETRIEVER",
+     "points": 25,
      "title": "title_achievement_dispatch_retriever_3"
     }
    ]
   },
   "achievement_skylab_robot-boost": {
-   "grup": "SKYLAB",
+   "group": "SKYLAB",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "SkylabRobot",
      "operator": ">=",
      "value": 12,
-     "puan": 5
+     "points": 5
     }
    ]
   },
   "achievement_rocketshots": {
-   "grup": "GENERAL",
+   "group": "GENERAL",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AmmoShots",
      "operator": ">=",
      "value": 1000,
-     "olay": "SHOOT",
-     "parametreler": {
+     "incident": "SHOOT",
+     "parameters": {
       "weaponType": [
        "ROCKET_LAUNCHER"
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "AmmoShots",
      "operator": ">=",
      "value": 2000,
-     "olay": "SHOOT",
-     "parametreler": {
+     "incident": "SHOOT",
+     "parameters": {
       "weaponType": [
        "ROCKET_LAUNCHER"
       ]
      },
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "AmmoShots",
      "operator": ">=",
      "value": 10000,
-     "olay": "SHOOT",
-     "parametreler": {
+     "incident": "SHOOT",
+     "parameters": {
       "weaponType": [
        "ROCKET_LAUNCHER"
       ]
      },
      "title": "title_achievement_rocketshots-1",
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "AmmoShots",
      "operator": ">=",
      "value": 25000,
-     "olay": "SHOOT",
-     "parametreler": {
+     "incident": "SHOOT",
+     "parameters": {
       "weaponType": [
        "ROCKET_LAUNCHER"
       ]
      },
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "AmmoShots",
      "operator": ">=",
      "value": 50000,
-     "olay": "SHOOT",
-     "parametreler": {
+     "incident": "SHOOT",
+     "parameters": {
       "weaponType": [
        "ROCKET_LAUNCHER"
       ]
      },
      "title": "title_achievement_rocketshots-2",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_destroy_sae-saboteur": {
-   "grup": "DESTROY",
+   "group": "DESTROY",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AvatarTypeKill",
      "stored": true,
      "operator": ">=",
      "value": 30,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ],
@@ -4878,15 +4878,15 @@
        "553"
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "AvatarTypeKill",
      "stored": true,
      "operator": ">=",
      "value": 100,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ],
@@ -4894,15 +4894,15 @@
        "553"
       ]
      },
-     "puan": 15
+     "points": 15
     },
     {
      "class_name": "AvatarTypeKill",
      "stored": true,
      "operator": ">=",
      "value": 300,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ],
@@ -4910,282 +4910,282 @@
        "553"
       ]
      },
-     "puan": 20
+     "points": 20
     }
    ]
   },
   "achievement_trainingarena_season-bronze": {
-   "grup": "TRAINING_ARENA",
+   "group": "TRAINING_ARENA",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": null,
-     "puan": 600,
+     "points": 600,
      "title": "title_achievement_trainingarena_season-bronze",
      "grade": 5
     }
    ]
   },
   "achievement_trainingarena_season-elite": {
-   "grup": "TRAINING_ARENA",
+   "group": "TRAINING_ARENA",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": null,
-     "puan": 400,
+     "points": 400,
      "title": "title_achievement_trainingarena_season-elite",
      "grade": 5
     }
    ]
   },
   "achievement_trainingarena_season-gold": {
-   "grup": "TRAINING_ARENA",
+   "group": "TRAINING_ARENA",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": null,
-     "puan": 1000,
+     "points": 1000,
      "title": "title_achievement_trainingarena_season-gold",
      "grade": 5
     }
    ]
   },
   "achievement_trainingarena_season-silver": {
-   "grup": "TRAINING_ARENA",
+   "group": "TRAINING_ARENA",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": null,
-     "puan": 800,
+     "points": 800,
      "title": "title_achievement_trainingarena_season-silver",
      "grade": 5
     }
    ]
   },
   "achievement_trainingarena_season-veteran": {
-   "grup": "TRAINING_ARENA",
+   "group": "TRAINING_ARENA",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": null,
-     "puan": 200,
+     "points": 200,
      "title": "title_achievement_trainingarena_season-veteran",
      "grade": 5
     }
    ]
   },
   "achievement_trainingarena_season-warrior": {
-   "grup": "TRAINING_ARENA",
+   "group": "TRAINING_ARENA",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": null,
-     "puan": 100,
+     "points": 100,
      "title": "title_achievement_trainingarena_season-warrior",
      "grade": 5
     }
    ]
   },
   "achievement_skylab_seprom": {
-   "grup": "SKYLAB",
+   "group": "SKYLAB",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Skylab",
      "operator": ">=",
      "value": 100000,
-     "parametreler": {
+     "parameters": {
       "ore": [
        {
         "type": "SEPROM"
        }
       ]
      },
-     "puan": 5
+     "points": 5
     }
    ]
   },
   "achievement_ability_shield-recharge": {
-   "grup": "ABILITY",
+   "group": "ABILITY",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 200,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "SHIELD_RECHARGE"
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 600,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "SHIELD_RECHARGE"
       ]
      },
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 1500,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "SHIELD_RECHARGE"
       ]
      },
      "title": "title_achievement_ability_shield-recharge-1",
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 3500,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "SHIELD_RECHARGE"
       ]
      },
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 8000,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "SHIELD_RECHARGE"
       ]
      },
      "title": "title_achievement_ability_shield-recharge-2",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_discover_shipdesigns": {
-   "grup": "DISCOVER",
+   "group": "DISCOVER",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "ShipDesignCollect",
      "stored": false,
      "operator": ">=",
      "value": 10,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "shipDesignType": [
        "AMBER"
       ]
      },
-     "puan": 50
+     "points": 50
     }
    ]
   },
   "achievement_misc_skill-harmony": {
-   "grup": "FACTORY",
+   "group": "FACTORY",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "SkillDesign",
      "operator": ">=",
      "value": 1000000,
-     "olay": "CAUSED",
-     "parametreler": {
+     "incident": "CAUSED",
+     "parameters": {
       "type": [
        "INSTANT_HEAL"
       ]
      },
-     "puan": 10,
+     "points": 10,
      "grade": 2
     }
    ]
   },
   "achievement_misc_softie": {
-   "grup": "MISC",
+   "group": "MISC",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "PetKiller",
      "stored": false,
      "operator": ">=",
      "value": 1,
-     "olay": "DESTROYED",
-     "parametreler": {
+     "incident": "DESTROYED",
+     "parameters": {
       "avatar": [
        "PLAYER"
       ]
      },
-     "puan": 5
+     "points": 5
     }
    ]
   },
   "achievement_event_solarclash-2012-champion": {
-   "grup": "EVENT_SOLARCLASH_2012",
+   "group": "EVENT_SOLARCLASH_2012",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "IgnoredCondition",
      "stored": false,
      "title": "title_achievement_event_solarclash-2012-champion-3",
-     "puan": 100,
+     "points": 100,
      "grade": 5
     }
    ]
   },
   "achievement_event_solarclash-2012-collectionmarathon-champion": {
-   "grup": "EVENT_SOLARCLASH_2012",
+   "group": "EVENT_SOLARCLASH_2012",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "IgnoredCondition",
      "stored": false,
      "title": "title_achievement_event_solarclash-2012-collectionmarathon-champion-1",
-     "puan": 100,
+     "points": 100,
      "grade": 5
     }
    ]
   },
   "achievement_event_solarclash-2012-collectionmarathon": {
-   "grup": "EVENT_SOLARCLASH_2012",
+   "group": "EVENT_SOLARCLASH_2012",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestRating",
      "stored": false,
      "operator": ">=",
      "value": 500,
-     "olay": "QUESTRATING",
-     "parametreler": {
+     "incident": "QUESTRATING",
+     "parameters": {
       "trackedConditionId": [
        "3100"
       ]
      },
-     "puan": 25,
+     "points": 25,
      "grade": 3
     },
     {
@@ -5193,13 +5193,13 @@
      "stored": false,
      "operator": ">=",
      "value": 650,
-     "olay": "QUESTRATING",
-     "parametreler": {
+     "incident": "QUESTRATING",
+     "parameters": {
       "trackedConditionId": [
        "3100"
       ]
      },
-     "puan": 50,
+     "points": 50,
      "grade": 4
     },
     {
@@ -5207,111 +5207,111 @@
      "stored": false,
      "operator": ">=",
      "value": 800,
-     "olay": "QUESTRATING",
-     "parametreler": {
+     "incident": "QUESTRATING",
+     "parameters": {
       "trackedConditionId": [
        "3100"
       ]
      },
-     "puan": 100,
+     "points": 100,
      "grade": 5
     }
    ]
   },
   "achievement_event_solarclash-2012-completebronze": {
-   "grup": "EVENT_SOLARCLASH_2012",
+   "group": "EVENT_SOLARCLASH_2012",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "MetaAchievement",
      "operator": ">=",
      "value": 3,
-     "olay": "METAACHIEVED",
-     "parametreler": {
+     "incident": "METAACHIEVED",
+     "parameters": {
       "achievementId": [
        "achievement_event_solarclash-2012-orbitrace"
       ]
      },
      "title": "title_achievement_event_solarclash-2012-completebronze-1",
-     "puan": 100,
+     "points": 100,
      "grade": 3
     }
    ]
   },
   "achievement_event_solarclash-2012-completegold": {
-   "grup": "EVENT_SOLARCLASH_2012",
+   "group": "EVENT_SOLARCLASH_2012",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "MetaAchievement",
      "operator": ">=",
      "value": 5,
-     "olay": "METAACHIEVED",
-     "parametreler": {
+     "incident": "METAACHIEVED",
+     "parameters": {
       "achievementId": [
        "achievement_event_solarclash-2012-orbitrace"
       ]
      },
      "title": "title_achievement_event_solarclash-2012-completegold-3",
-     "puan": 100,
+     "points": 100,
      "grade": 5
     }
    ]
   },
   "achievement_event_solarclash-2012-completesilver": {
-   "grup": "EVENT_SOLARCLASH_2012",
+   "group": "EVENT_SOLARCLASH_2012",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "MetaAchievement",
      "operator": ">=",
      "value": 4,
-     "olay": "METAACHIEVED",
-     "parametreler": {
+     "incident": "METAACHIEVED",
+     "parameters": {
       "achievementId": [
        "achievement_event_solarclash-2012-orbitrace"
       ]
      },
      "title": "title_achievement_event_solarclash-2012-completesilver-2",
-     "puan": 100,
+     "points": 100,
      "grade": 4
     }
    ]
   },
   "achievement_event_solarclash-2012-hsg-champion": {
-   "grup": "EVENT_SOLARCLASH_2012",
+   "group": "EVENT_SOLARCLASH_2012",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "IgnoredCondition",
      "stored": false,
      "title": "title_achievement_event_solarclash-2012-hsg-champion-1",
-     "puan": 100,
+     "points": 100,
      "grade": 5
     }
    ]
   },
   "achievement_event_solarclash-2012-hsg": {
-   "grup": "EVENT_SOLARCLASH_2012",
+   "group": "EVENT_SOLARCLASH_2012",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestRating",
      "stored": false,
      "operator": ">=",
      "value": 2500,
-     "olay": "QUESTRATING",
-     "parametreler": {
+     "incident": "QUESTRATING",
+     "parameters": {
       "trackedConditionId": [
        "13337"
       ]
      },
-     "puan": 25,
+     "points": 25,
      "grade": 3
     },
     {
@@ -5319,13 +5319,13 @@
      "stored": false,
      "operator": ">=",
      "value": 7500,
-     "olay": "QUESTRATING",
-     "parametreler": {
+     "incident": "QUESTRATING",
+     "parameters": {
       "trackedConditionId": [
        "13337"
       ]
      },
-     "puan": 50,
+     "points": 50,
      "grade": 4
     },
     {
@@ -5333,48 +5333,48 @@
      "stored": false,
      "operator": ">=",
      "value": 9000,
-     "olay": "QUESTRATING",
-     "parametreler": {
+     "incident": "QUESTRATING",
+     "parameters": {
       "trackedConditionId": [
        "13337"
       ]
      },
-     "puan": 100,
+     "points": 100,
      "grade": 5
     }
    ]
   },
   "achievement_event_solarclash-2012-orbitrace-champion": {
-   "grup": "EVENT_SOLARCLASH_2012",
+   "group": "EVENT_SOLARCLASH_2012",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "IgnoredCondition",
      "stored": false,
      "title": "title_achievement_event_solarclash-2012-orbitrace-champion-1",
-     "puan": 100,
+     "points": 100,
      "grade": 5
     }
    ]
   },
   "achievement_event_solarclash-2012-orbitrace": {
-   "grup": "EVENT_SOLARCLASH_2012",
+   "group": "EVENT_SOLARCLASH_2012",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestRating",
      "stored": false,
      "operator": "<",
      "value": 360000,
-     "olay": "QUESTRATING",
-     "parametreler": {
+     "incident": "QUESTRATING",
+     "parameters": {
       "trackedConditionId": [
        "3098"
       ]
      },
-     "puan": 25,
+     "points": 25,
      "grade": 3
     },
     {
@@ -5382,13 +5382,13 @@
      "stored": false,
      "operator": "<",
      "value": 330000,
-     "olay": "QUESTRATING",
-     "parametreler": {
+     "incident": "QUESTRATING",
+     "parameters": {
       "trackedConditionId": [
        "3098"
       ]
      },
-     "puan": 50,
+     "points": 50,
      "grade": 4
     },
     {
@@ -5396,48 +5396,48 @@
      "stored": false,
      "operator": "<",
      "value": 300000,
-     "olay": "QUESTRATING",
-     "parametreler": {
+     "incident": "QUESTRATING",
+     "parameters": {
       "trackedConditionId": [
        "3098"
       ]
      },
-     "puan": 100,
+     "points": 100,
      "grade": 5
     }
    ]
   },
   "achievement_event_solarclash-2012-targetshooting-champion": {
-   "grup": "EVENT_SOLARCLASH_2012",
+   "group": "EVENT_SOLARCLASH_2012",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "IgnoredCondition",
      "stored": false,
      "title": "title_achievement_event_solarclash-2012-targetshooting-champion-1",
-     "puan": 100,
+     "points": 100,
      "grade": 5
     }
    ]
   },
   "achievement_event_solarclash-2012-targetshooting": {
-   "grup": "EVENT_SOLARCLASH_2012",
+   "group": "EVENT_SOLARCLASH_2012",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestRating",
      "stored": false,
      "operator": ">=",
      "value": 125,
-     "olay": "QUESTRATING",
-     "parametreler": {
+     "incident": "QUESTRATING",
+     "parameters": {
       "trackedConditionId": [
        "3082"
       ]
      },
-     "puan": 25,
+     "points": 25,
      "grade": 3
     },
     {
@@ -5445,13 +5445,13 @@
      "stored": false,
      "operator": ">=",
      "value": 180,
-     "olay": "QUESTRATING",
-     "parametreler": {
+     "incident": "QUESTRATING",
+     "parameters": {
       "trackedConditionId": [
        "3082"
       ]
      },
-     "puan": 50,
+     "points": 50,
      "grade": 4
     },
     {
@@ -5459,48 +5459,48 @@
      "stored": false,
      "operator": ">=",
      "value": 225,
-     "olay": "QUESTRATING",
-     "parametreler": {
+     "incident": "QUESTRATING",
+     "parameters": {
       "trackedConditionId": [
        "3082"
       ]
      },
-     "puan": 100,
+     "points": 100,
      "grade": 5
     }
    ]
   },
   "achievement_event_solarclash-2012-triathlon-champion": {
-   "grup": "EVENT_SOLARCLASH_2012",
+   "group": "EVENT_SOLARCLASH_2012",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "IgnoredCondition",
      "stored": false,
      "title": "title_achievement_event_solarclash-2012-triathlon-champion-1",
-     "puan": 100,
+     "points": 100,
      "grade": 5
     }
    ]
   },
   "achievement_event_solarclash-2012-triathlon": {
-   "grup": "EVENT_SOLARCLASH_2012",
+   "group": "EVENT_SOLARCLASH_2012",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestRating",
      "stored": false,
      "operator": "<",
      "value": 1200000,
-     "olay": "QUESTRATING",
-     "parametreler": {
+     "incident": "QUESTRATING",
+     "parameters": {
       "trackedConditionId": [
        "3130"
       ]
      },
-     "puan": 25,
+     "points": 25,
      "grade": 3
     },
     {
@@ -5508,13 +5508,13 @@
      "stored": false,
      "operator": "<",
      "value": 1020000,
-     "olay": "QUESTRATING",
-     "parametreler": {
+     "incident": "QUESTRATING",
+     "parameters": {
       "trackedConditionId": [
        "3130"
       ]
      },
-     "puan": 50,
+     "points": 50,
      "grade": 4
     },
     {
@@ -5522,221 +5522,221 @@
      "stored": false,
      "operator": "<",
      "value": 900000,
-     "olay": "QUESTRATING",
-     "parametreler": {
+     "incident": "QUESTRATING",
+     "parameters": {
       "trackedConditionId": [
        "3130"
       ]
      },
-     "puan": 100,
+     "points": 100,
      "grade": 5
     }
    ]
   },
   "achievement_event_springfight-2012-champion": {
-   "grup": "EVENT_SPRING_2012",
+   "group": "EVENT_SPRING_2012",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "IgnoredCondition",
      "stored": false,
      "title": "title_achievement_event_springfight-2012-champion",
-     "puan": 100,
+     "points": 100,
      "grade": 5
     }
    ]
   },
   "achievement_event_springfight-2012-eic": {
-   "grup": "EVENT_SPRING_2012",
+   "group": "EVENT_SPRING_2012",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "IgnoredCondition",
      "stored": false,
      "title": "title_achievement_event_springfight-2012-eic",
-     "puan": 100,
+     "points": 100,
      "grade": 5
     }
    ]
   },
   "achievement_event_springfight-2012-hunter": {
-   "grup": "EVENT_SPRING_2012",
+   "group": "EVENT_SPRING_2012",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "IgnoredCondition",
      "stored": false,
      "title": "title_achievement_event_springfight-2012-hunter",
-     "puan": 50,
+     "points": 50,
      "grade": 4
     }
    ]
   },
   "achievement_event_springfight-2012-mmo": {
-   "grup": "EVENT_SPRING_2012",
+   "group": "EVENT_SPRING_2012",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "IgnoredCondition",
      "stored": false,
      "title": "title_achievement_event_springfight-2012-mmo",
-     "puan": 100,
+     "points": 100,
      "grade": 5
     }
    ]
   },
   "achievement_event_springfight-2012-vru": {
-   "grup": "EVENT_SPRING_2012",
+   "group": "EVENT_SPRING_2012",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "IgnoredCondition",
      "stored": false,
      "title": "title_achievement_event_springfight-2012-vru",
-     "puan": 100,
+     "points": 100,
      "grade": 5
     }
    ]
   },
   "achievement_event_springfight-2014-influence-battle": {
-   "grup": "EVENT_SPRINGFIGHT_2014",
+   "group": "EVENT_SPRINGFIGHT_2014",
    "etkin": true,
-   "etkinlik": "SpringFight2014Achievement",
-   "seviyeler": [
+   "event": "SpringFight2014Achievement",
+   "levels": [
     {
      "class_name": "Influence",
      "operator": ">=",
      "value": 2500,
-     "olay": "INFLUENCE_GAINED",
+     "incident": "INFLUENCE_GAINED",
      "title": "title_achievement_event_springfight-2014-influence-battle-1",
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "Influence",
      "operator": ">=",
      "value": 15000,
-     "olay": "INFLUENCE_GAINED",
-     "puan": 10
+     "incident": "INFLUENCE_GAINED",
+     "points": 10
     },
     {
      "class_name": "Influence",
      "operator": ">=",
      "value": 20000,
-     "olay": "INFLUENCE_GAINED",
+     "incident": "INFLUENCE_GAINED",
      "title": "title_achievement_event_springfight-2014-influence-battle-2",
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "Influence",
      "operator": ">=",
      "value": 50000,
-     "olay": "INFLUENCE_GAINED",
-     "puan": 15
+     "incident": "INFLUENCE_GAINED",
+     "points": 15
     },
     {
      "class_name": "Influence",
      "operator": ">=",
      "value": 150000,
-     "olay": "INFLUENCE_GAINED",
+     "incident": "INFLUENCE_GAINED",
      "title": "title_achievement_event_springfight-2014-influence-battle-3",
-     "puan": 20
+     "points": 20
     }
    ]
   },
   "achievement_event_springfight2013-quests-high-eic": {
-   "grup": "EVENT_SPRINGFIGHT_2013",
+   "group": "EVENT_SPRINGFIGHT_2013",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestSelection",
-     "olay": "QUEST",
-     "puan": 100,
+     "incident": "QUEST",
+     "points": 100,
      "title": "title_achievement_event_springfight2013-eic-2",
      "grade": 5
     }
    ]
   },
   "achievement_event_springfight2013-quests-high-mmo": {
-   "grup": "EVENT_SPRINGFIGHT_2013",
+   "group": "EVENT_SPRINGFIGHT_2013",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestSelection",
-     "olay": "QUEST",
-     "puan": 100,
+     "incident": "QUEST",
+     "points": 100,
      "title": "title_achievement_event_springfight2013-mmo-2",
      "grade": 5
     }
    ]
   },
   "achievement_event_springfight2013-quests-high-vru": {
-   "grup": "EVENT_SPRINGFIGHT_2013",
+   "group": "EVENT_SPRINGFIGHT_2013",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestSelection",
-     "olay": "QUEST",
-     "puan": 100,
+     "incident": "QUEST",
+     "points": 100,
      "title": "title_achievement_event_springfight2013-vru-2",
      "grade": 5
     }
    ]
   },
   "achievement_event_springfight2013-quests-low-eic": {
-   "grup": "EVENT_SPRINGFIGHT_2013",
+   "group": "EVENT_SPRINGFIGHT_2013",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestSelection",
-     "olay": "QUEST",
-     "puan": 50,
+     "incident": "QUEST",
+     "points": 50,
      "title": "title_achievement_event_springfight2013-eic-1",
      "grade": 5
     }
    ]
   },
   "achievement_event_springfight2013-quests-low-mmo": {
-   "grup": "EVENT_SPRINGFIGHT_2013",
+   "group": "EVENT_SPRINGFIGHT_2013",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestSelection",
-     "olay": "QUEST",
-     "puan": 50,
+     "incident": "QUEST",
+     "points": 50,
      "title": "title_achievement_event_springfight2013-mmo-1",
      "grade": 5
     }
    ]
   },
   "achievement_event_springfight2013-quests-low-vru": {
-   "grup": "EVENT_SPRINGFIGHT_2013",
+   "group": "EVENT_SPRINGFIGHT_2013",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestSelection",
-     "olay": "QUEST",
-     "puan": 50,
+     "incident": "QUEST",
+     "points": 50,
      "title": "title_achievement_event_springfight2013-vru-1",
      "grade": 5
     }
    ]
   },
   "achievement_misc_legacy_starbornecommander": {
-   "grup": "MISC",
+   "group": "MISC",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": null,
      "title": "title_achievement_misc_legacy_starbornecommander"
@@ -5744,10 +5744,10 @@
    ]
   },
   "achievement_misc_legacy_stellarcaptain": {
-   "grup": "MISC",
+   "group": "MISC",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": null,
      "title": "title_achievement_misc_legacy_stellarcaptain"
@@ -5755,16 +5755,16 @@
    ]
   },
   "achievement_event_summer-mutation": {
-   "grup": "EVENT_SUMMER_MUTATION",
+   "group": "EVENT_SUMMER_MUTATION",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "DesignMutationCount",
      "operator": ">=",
      "value": 200,
-     "olay": "CAUSED",
-     "parametreler": {
+     "incident": "CAUSED",
+     "parameters": {
       "mutatedDesignId": [
        "240",
        "241",
@@ -5772,15 +5772,15 @@
        "540"
       ]
      },
-     "puan": 40,
+     "points": 40,
      "title": "title_achievement_event_summer-mutation_1"
     },
     {
      "class_name": "DesignMutationCount",
      "operator": ">=",
      "value": 500,
-     "olay": "CAUSED",
-     "parametreler": {
+     "incident": "CAUSED",
+     "parameters": {
       "mutatedDesignId": [
        "240",
        "241",
@@ -5788,15 +5788,15 @@
        "540"
       ]
      },
-     "puan": 75,
+     "points": 75,
      "title": "title_achievement_event_summer-mutation_2"
     },
     {
      "class_name": "DesignMutationCount",
      "operator": ">=",
      "value": 1000,
-     "olay": "CAUSED",
-     "parametreler": {
+     "incident": "CAUSED",
+     "parameters": {
       "mutatedDesignId": [
        "240",
        "241",
@@ -5804,16 +5804,16 @@
        "540"
       ]
      },
-     "puan": 100,
+     "points": 100,
      "title": "title_achievement_event_summer-mutation_3"
     }
    ]
   },
   "achievement_event_summerevent-2013-humanitys-hero": {
-   "grup": "EVENT_SUMMER_2013",
+   "group": "EVENT_SUMMER_2013",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestSelection",
      "set": [
@@ -5832,18 +5832,18 @@
       "1352"
      ],
      "matches": "ATLEAST",
-     "olay": "QUEST",
-     "puan": 100,
+     "incident": "QUEST",
+     "points": 100,
      "title": "title_achievement_summerevent-2013-humanitys-hero-1",
      "grade": 5
     }
    ]
   },
   "achievement_event_summerevent-2013-humanitys-savior": {
-   "grup": "EVENT_SUMMER_2013",
+   "group": "EVENT_SUMMER_2013",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestSelection",
      "set": [
@@ -5864,18 +5864,18 @@
       "1334"
      ],
      "matches": "ATLEAST",
-     "olay": "QUEST",
-     "puan": 50,
+     "incident": "QUEST",
+     "points": 50,
      "title": "title_achievement_summerevent-2013-humanitys-savior-1",
      "grade": 4
     }
    ]
   },
   "achievement_event_summerevent-2013-space-regiment": {
-   "grup": "EVENT_SUMMER_2013",
+   "group": "EVENT_SUMMER_2013",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestSelection",
      "set": [
@@ -5896,18 +5896,18 @@
       "1374"
      ],
      "matches": "ATLEAST",
-     "olay": "QUEST",
-     "puan": 100,
+     "incident": "QUEST",
+     "points": 100,
      "title": "title_achievement_summerevent-2013-space-regiment-1",
      "grade": 5
     }
    ]
   },
   "achievement_event_summerevent-2013-war-veteran": {
-   "grup": "EVENT_SUMMER_2013",
+   "group": "EVENT_SUMMER_2013",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestSelection",
      "set": [
@@ -5925,24 +5925,24 @@
       "1311"
      ],
      "matches": "ATLEAST",
-     "olay": "QUEST",
-     "puan": 100,
+     "incident": "QUEST",
+     "points": 100,
      "title": "title_achievement_summerevent-2013-war-veteran-1",
      "grade": 5
     }
    ]
   },
   "achievement_event_synk-kill": {
-   "grup": "EVENT_FROZENLABYRINTH",
+   "group": "EVENT_FROZENLABYRINTH",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AvatarTypeKill",
      "operator": ">=",
      "value": 1,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ],
@@ -5951,472 +5951,472 @@
       ]
      },
      "title": "title_achievement_event_synk-kill",
-     "puan": 50
+     "points": 50
     }
    ]
   },
   "achievement_worldboss_takedamage-202506": {
-   "grup": "EVENT_PUBLIC_WORLD_BOSS",
+   "group": "EVENT_PUBLIC_WORLD_BOSS",
    "etkin": true,
-   "etkinlik": "PublicWorldBoss",
-   "seviyeler": [
+   "event": "PublicWorldBoss",
+   "levels": [
     {
      "class_name": "PublicWorldBossCondition",
      "operator": ">=",
      "value": 5000000,
-     "olay": "PUBLIC_WORLD_BOSS_2025",
-     "puan": 10,
+     "incident": "PUBLIC_WORLD_BOSS_2025",
+     "points": 10,
      "title": "title_worldboss_takedamage_june2025"
     }
    ]
   },
   "achievement_worldboss_takedamage-202606": {
-   "grup": "EVENT_PUBLIC_WORLD_BOSS",
+   "group": "EVENT_PUBLIC_WORLD_BOSS",
    "etkin": true,
-   "etkinlik": "PublicWorldBoss",
-   "seviyeler": [
+   "event": "PublicWorldBoss",
+   "levels": [
     {
      "class_name": "PublicWorldBossCondition",
      "operator": ">=",
      "value": 5000000,
-     "olay": "PUBLIC_WORLD_BOSS_2026",
-     "puan": 10,
+     "incident": "PUBLIC_WORLD_BOSS_2026",
+     "points": 10,
      "title": "title_worldboss_takedamage_june2026"
     }
    ]
   },
   "achievement_teamdeathmatch-kills": {
-   "grup": "DESTROY",
+   "group": "DESTROY",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "TeamDeathMatchKill",
      "operator": ">=",
      "value": 200,
-     "olay": "DESTROY",
+     "incident": "DESTROY",
      "title": "title_teamdeathmatch_kills-1",
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "TeamDeathMatchKill",
      "operator": ">=",
      "value": 500,
-     "olay": "DESTROY",
+     "incident": "DESTROY",
      "title": "title_teamdeathmatch_kills-2",
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "TeamDeathMatchKill",
      "operator": ">=",
      "value": 1000,
-     "olay": "DESTROY",
+     "incident": "DESTROY",
      "title": "title_teamdeathmatch_kills-3",
-     "puan": 25
+     "points": 25
     }
    ]
   },
   "achievement_factory_tech-usage": {
-   "grup": "FACTORY",
+   "group": "FACTORY",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "TechUsage",
      "operator": ">=",
      "value": 100,
-     "olay": "USED",
-     "puan": 10,
+     "incident": "USED",
+     "points": 10,
      "grade": 2
     }
    ]
   },
   "achievement_test-dummy": {
-   "grup": "GENERAL",
+   "group": "GENERAL",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "TutorialFinished",
      "stored": false,
      "operator": ">=",
      "value": 1,
-     "olay": "TUTORIAL",
-     "puan": 5
+     "incident": "TUTORIAL",
+     "points": 5
     }
    ]
   },
   "achievement_event_thanksgiving-mutate-turkeys": {
-   "grup": "EVENT_THANKSGIVING",
+   "group": "EVENT_THANKSGIVING",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "DesignMutationCount",
      "operator": ">=",
      "value": 200,
-     "olay": "CAUSED",
-     "parametreler": {
+     "incident": "CAUSED",
+     "parameters": {
       "mutatedDesignId": [
        "120"
       ]
      },
-     "puan": 40,
+     "points": 40,
      "title": "title_master-roaster"
     },
     {
      "class_name": "DesignMutationCount",
      "operator": ">=",
      "value": 500,
-     "olay": "CAUSED",
-     "parametreler": {
+     "incident": "CAUSED",
+     "parameters": {
       "mutatedDesignId": [
        "120"
       ]
      },
-     "puan": 75,
+     "points": 75,
      "title": "title_master-roaster-2"
     },
     {
      "class_name": "DesignMutationCount",
      "operator": ">=",
      "value": 1000,
-     "olay": "CAUSED",
-     "parametreler": {
+     "incident": "CAUSED",
+     "parameters": {
       "mutatedDesignId": [
        "120"
       ]
      },
-     "puan": 100,
+     "points": 100,
      "title": "title_master-roaster-3"
     }
    ]
   },
   "achievement_skylab_transport": {
-   "grup": "SKYLAB",
+   "group": "SKYLAB",
    "etkin": false,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "SkylabTransport",
      "operator": ">=",
      "value": 1000,
-     "puan": 5
+     "points": 5
     }
    ]
   },
   "achievement_ability_travel-mode": {
-   "grup": "ABILITY",
+   "group": "ABILITY",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 200,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "TRAVEL_MODE"
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 500,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "TRAVEL_MODE"
       ]
      },
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 800,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "TRAVEL_MODE"
       ]
      },
      "title": "title_achievement_ability_travel-mode-1",
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 1700,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "TRAVEL_MODE"
       ]
      },
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 2500,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "TRAVEL_MODE"
       ]
      },
      "title": "title_achievement_ability_travel-mode-2",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_tutorial-finished": {
-   "grup": "GENERAL",
+   "group": "GENERAL",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "TutorialFinished",
      "stored": false,
      "operator": ">=",
      "value": 1,
-     "olay": "TUTORIAL",
-     "puan": 5
+     "incident": "TUTORIAL",
+     "points": 5
     }
    ]
   },
   "achievement_ability_ultimate-cloaking": {
-   "grup": "ABILITY",
+   "group": "ABILITY",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 150,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "ULTIMATE_CLOAKING"
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 500,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "ULTIMATE_CLOAKING"
       ]
      },
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 1250,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "ULTIMATE_CLOAKING"
       ]
      },
      "title": "title_achievement_ability_ultimate-cloaking-1",
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 3000,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "ULTIMATE_CLOAKING"
       ]
      },
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 7500,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "ULTIMATE_CLOAKING"
       ]
      },
      "title": "title_achievement_ability_ultimate-cloaking-2",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_ability_ultimate-emp": {
-   "grup": "ABILITY",
+   "group": "ABILITY",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 100,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "ULTIMATE_EMP",
        "JAMX_CREED"
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 250,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "ULTIMATE_EMP",
        "JAMX_CREED"
       ]
      },
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 800,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "ULTIMATE_EMP",
        "JAMX_CREED"
       ]
      },
      "title": "title_achievement_ability_ultimate-emp-1",
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 1500,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "ULTIMATE_EMP",
        "JAMX_CREED"
       ]
      },
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "AbilityType",
      "operator": ">=",
      "value": 3000,
-     "olay": "USED",
-     "parametreler": {
+     "incident": "USED",
+     "parameters": {
       "abilityType": [
        "ULTIMATE_EMP",
        "JAMX_CREED"
       ]
      },
      "title": "title_achievement_ability_ultimate-emp-2",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_collect_uridium": {
-   "grup": "COLLECT",
+   "group": "COLLECT",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "Currency",
      "operator": ">=",
      "value": 100000,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "currencyType": [
        "URIDIUM"
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "Currency",
      "operator": ">=",
      "value": 330000,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "currencyType": [
        "URIDIUM"
       ]
      },
-     "puan": 10
+     "points": 10
     },
     {
      "class_name": "Currency",
      "operator": ">=",
      "value": 500000,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "currencyType": [
        "URIDIUM"
       ]
      },
      "title": "title_achievement_collect_uridium-1",
-     "puan": 25
+     "points": 25
     },
     {
      "class_name": "Currency",
      "operator": ">=",
      "value": 1000000,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "currencyType": [
        "URIDIUM"
       ]
      },
-     "puan": 50
+     "points": 50
     },
     {
      "class_name": "Currency",
      "operator": ">=",
      "value": 2500000,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "currencyType": [
        "URIDIUM"
       ]
      },
      "title": "title_achievement_collect_uridium-2",
-     "puan": 100
+     "points": 100
     }
    ]
   },
   "achievement_event_valentine": {
-   "grup": "EVENT_VALENTINE",
+   "group": "EVENT_VALENTINE",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "BuildRecipe",
      "operator": ">=",
      "value": 142,
-     "olay": "BUILD",
-     "parametreler": {
+     "incident": "BUILD",
+     "parameters": {
       "recipeId": [
        "recipe_blueprint-fwx-com-multiple-valentine"
       ]
      },
-     "puan": 100,
+     "points": 100,
      "title": "title_achievement_event_valentine_1"
     }
    ],
@@ -6424,17 +6424,17 @@
    "_donem_sifir": "Resmî Türk forumu (Ölümsüz Birlik SSS): FWX-COM'u tek bir Ölümsüz Birlik etkinliğinde 142 kez üret; ilerleme sonraki etkinliğe taşınmaz"
   },
   "achievement_destroy_venerable-battleray": {
-   "grup": "DESTROY",
+   "group": "DESTROY",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AvatarTypeKill",
      "stored": true,
      "operator": ">=",
      "value": 5,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ],
@@ -6442,15 +6442,15 @@
        "121"
       ]
      },
-     "puan": 5
+     "points": 5
     },
     {
      "class_name": "AvatarTypeKill",
      "stored": true,
      "operator": ">=",
      "value": 25,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ],
@@ -6458,7 +6458,7 @@
        "121"
       ]
      },
-     "puan": 15,
+     "points": 15,
      "title": "title_achievement_venerable-battleray-2"
     },
     {
@@ -6466,8 +6466,8 @@
      "stored": true,
      "operator": ">=",
      "value": 50,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ],
@@ -6475,16 +6475,16 @@
        "121"
       ]
      },
-     "puan": 20,
+     "points": 20,
      "title": "title_achievement_venerable-battleray-3"
     }
    ]
   },
   "achievement_misc_whizzed": {
-   "grup": "MISC",
+   "group": "MISC",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "DesignMutation",
      "set": [
@@ -6513,22 +6513,22 @@
       "83"
      ],
      "matches": "ALL",
-     "olay": "AFFECTED_BY",
-     "puan": 5
+     "incident": "AFFECTED_BY",
+     "points": 5
     }
    ]
   },
   "achievement_event_wildpet-kill-wildpet1": {
-   "grup": "EVENT_WILDPET",
+   "group": "EVENT_WILDPET",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AvatarTypeKill",
      "operator": ">=",
      "value": 100,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ],
@@ -6536,21 +6536,21 @@
        "130"
       ]
      },
-     "puan": 10
+     "points": 10
     }
    ]
   },
   "achievement_event_wildpet-kill-wildpet10": {
-   "grup": "EVENT_WILDPET",
+   "group": "EVENT_WILDPET",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "AvatarTypeKill",
      "operator": ">=",
      "value": 100,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ],
@@ -6558,35 +6558,35 @@
        "139"
       ]
      },
-     "puan": 10
+     "points": 10
     }
    ]
   },
   "achievement_event_wildpet-kill-wildpetboss": {
-   "grup": "EVENT_WILDPET",
+   "group": "EVENT_WILDPET",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "NPCSelectionKill",
      "operator": ">=",
      "value": 1,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "npcType": [
        "WILDPET_BOSS_HARD",
        "WILDPET_BOSS_EASY"
       ]
      },
-     "puan": 25
+     "points": 25
     }
    ]
   },
   "achievement_event_wildpet-quests-high": {
-   "grup": "EVENT_WILDPET",
+   "group": "EVENT_WILDPET",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestSelection",
      "set": [
@@ -6606,16 +6606,16 @@
       "514098"
      ],
      "matches": "ALL",
-     "olay": "QUEST",
-     "puan": 15
+     "incident": "QUEST",
+     "points": 15
     }
    ]
   },
   "achievement_event_wildpet-quests-low": {
-   "grup": "EVENT_WILDPET",
+   "group": "EVENT_WILDPET",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestSelection",
      "set": [
@@ -6635,56 +6635,56 @@
       "505084"
      ],
      "matches": "ALL",
-     "olay": "QUEST",
-     "puan": 10
+     "incident": "QUEST",
+     "points": 10
     }
    ]
   },
   "achievement_event_summer2014_wingman": {
-   "grup": "EVENT_SUMMER_2014",
+   "group": "EVENT_SUMMER_2014",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "DominationBeaconTakeover",
-     "olay": "DOMINATION_BEACON_TAKEOVER_ASSIST",
+     "incident": "DOMINATION_BEACON_TAKEOVER_ASSIST",
      "title": "title_achievement_event_summer2014_wingman",
-     "puan": 25,
+     "points": 25,
      "grade": 3
     }
    ]
   },
   "achievement_event_winterevent2011-birthdaygate": {
-   "grup": "EVENT_WINTER_2011",
+   "group": "EVENT_WINTER_2011",
    "etkin": true,
-   "etkinlik": "WinterEvent2011",
-   "seviyeler": [
+   "event": "WinterEvent2011",
+   "levels": [
     {
      "class_name": "GalaxyGateDone",
      "operator": ">=",
      "value": 1,
-     "olay": "GALAXY_GATE",
-     "parametreler": {
+     "incident": "GALAXY_GATE",
+     "parameters": {
       "galaxyGateType": [
        "BIRTHDAY"
       ]
      },
-     "puan": 5
+     "points": 5
     }
    ]
   },
   "achievement_event_winterevent2011-crazysanta": {
-   "grup": "EVENT_WINTER_2011",
+   "group": "EVENT_WINTER_2011",
    "etkin": true,
-   "etkinlik": "WinterEvent2011_CrazySanta",
-   "seviyeler": [
+   "event": "WinterEvent2011_CrazySanta",
+   "levels": [
     {
      "class_name": "AvatarTypeKill",
      "stored": false,
      "operator": ">=",
      "value": 1,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ],
@@ -6692,41 +6692,41 @@
        "74"
       ]
      },
-     "puan": 5
+     "points": 5
     }
    ]
   },
   "achievement_event_winterevent2011-giftboxes": {
-   "grup": "EVENT_WINTER_2011",
+   "group": "EVENT_WINTER_2011",
    "etkin": true,
-   "etkinlik": "WinterEvent2011_GiftBoxes",
-   "seviyeler": [
+   "event": "WinterEvent2011_GiftBoxes",
+   "levels": [
     {
      "class_name": "Collect",
      "operator": ">=",
      "value": 250,
-     "olay": "COLLECT",
-     "parametreler": {
+     "incident": "COLLECT",
+     "parameters": {
       "boxType": [
        "GIFT_BOXES"
       ]
      },
-     "puan": 5
+     "points": 5
     }
    ]
   },
   "achievement_event_winterevent2011-icemeteoroid": {
-   "grup": "EVENT_WINTER_2011",
+   "group": "EVENT_WINTER_2011",
    "etkin": true,
-   "etkinlik": "WinterEvent2011_IceMeteroids",
-   "seviyeler": [
+   "event": "WinterEvent2011_IceMeteroids",
+   "levels": [
     {
      "class_name": "AvatarTypeKill",
      "stored": false,
      "operator": ">=",
      "value": 1,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ],
@@ -6734,15 +6734,15 @@
        "54"
       ]
      },
-     "puan": 5
+     "points": 5
     }
    ]
   },
   "achievement_event_winterevent2011-quests": {
-   "grup": "EVENT_WINTER_2011",
+   "group": "EVENT_WINTER_2011",
    "etkin": true,
-   "etkinlik": "WinterEvent2011_Quests",
-   "seviyeler": [
+   "event": "WinterEvent2011_Quests",
+   "levels": [
     {
      "class_name": "QuestSelection",
      "set": [
@@ -6782,24 +6782,24 @@
       "1185"
      ],
      "matches": "ATLEAST",
-     "olay": "QUEST",
-     "puan": 5,
+     "incident": "QUEST",
+     "points": 5,
      "reward": "package_event_reward-winterquests"
     }
    ]
   },
   "achievement_event_winterevent2011-supericemeteoroid": {
-   "grup": "EVENT_WINTER_2011",
+   "group": "EVENT_WINTER_2011",
    "etkin": true,
-   "etkinlik": "WinterEvent2011_IceMeteroids",
-   "seviyeler": [
+   "event": "WinterEvent2011_IceMeteroids",
+   "levels": [
     {
      "class_name": "AvatarTypeKill",
      "stored": false,
      "operator": ">=",
      "value": 1,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ],
@@ -6807,48 +6807,48 @@
        "55"
       ]
      },
-     "puan": 10,
+     "points": 10,
      "grade": 2
     }
    ]
   },
   "achievement_event_winterevent2012-birthdaygate": {
-   "grup": "EVENT_WINTER_2012",
+   "group": "EVENT_WINTER_2012",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "GalaxyGateDone",
      "operator": ">=",
      "value": 1,
-     "olay": "GALAXY_GATE",
-     "parametreler": {
+     "incident": "GALAXY_GATE",
+     "parameters": {
       "galaxyGateType": [
        "BIRTHDAY"
       ]
      },
-     "puan": 100,
+     "points": 100,
      "grade": 5
     }
    ]
   },
   "achievement_event_winterevent2012-calendar": {
-   "grup": "EVENT_WINTER_2012",
+   "group": "EVENT_WINTER_2012",
    "etkin": true,
-   "etkinlik": "WinterEvent2012",
-   "seviyeler": [
+   "event": "WinterEvent2012",
+   "levels": [
     {
      "class_name": null,
-     "puan": 100,
+     "points": 100,
      "grade": 5
     }
    ]
   },
   "achievement_event_winterevent2012-quests-high": {
-   "grup": "EVENT_WINTER_2012",
+   "group": "EVENT_WINTER_2012",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestSelection",
      "set": [
@@ -6885,18 +6885,18 @@
       "109400"
      ],
      "matches": "ATLEAST",
-     "olay": "QUEST",
-     "puan": 100,
+     "incident": "QUEST",
+     "points": 100,
      "title": "title_achievement_event_winterevent2012-full-pull-1",
      "grade": 5
     }
    ]
   },
   "achievement_event_winterevent2012-quests-low": {
-   "grup": "EVENT_WINTER_2012",
+   "group": "EVENT_WINTER_2012",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestSelection",
      "set": [
@@ -6933,46 +6933,46 @@
       "109300"
      ],
      "matches": "ATLEAST",
-     "olay": "QUEST",
-     "puan": 100,
+     "incident": "QUEST",
+     "points": 100,
      "title": "title_achievement_event_winterevent2012-the-whole-ten-yards-1",
      "grade": 5
     }
    ]
   },
   "achievement_event_winterevent2013-frostlord": {
-   "grup": "EVENT_SEASON_WINTER",
+   "group": "EVENT_SEASON_WINTER",
    "etkin": true,
-   "etkinlik": "SnowManMutation",
-   "seviyeler": [
+   "event": "SnowManMutation",
+   "levels": [
     {
      "class_name": "DesignMutationCount",
      "operator": ">=",
      "value": 20,
-     "olay": "CAUSED",
-     "parametreler": {
+     "incident": "CAUSED",
+     "parameters": {
       "mutatedDesignId": [
        "121"
       ]
      },
-     "puan": 50,
+     "points": 50,
      "title": "title_achievement_event_winterevent2013-frostlord",
      "grade": 4
     }
    ]
   },
   "achievement_event_winterevent2013-ice-breaker": {
-   "grup": "EVENT_SEASON_WINTER",
+   "group": "EVENT_SEASON_WINTER",
    "etkin": true,
-   "etkinlik": "IceMeteroids",
-   "seviyeler": [
+   "event": "IceMeteroids",
+   "levels": [
     {
      "class_name": "AvatarTypeKill",
      "stored": true,
      "operator": ">=",
      "value": 10,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ],
@@ -6980,17 +6980,17 @@
        "54"
       ]
      },
-     "puan": 100,
+     "points": 100,
      "title": "title_achievement_event_winterevent2013-ice-breaker",
      "grade": 5
     }
    ]
   },
   "achievement_event_winterevent2013-quests-31": {
-   "grup": "EVENT_WINTER_2013",
+   "group": "EVENT_WINTER_2013",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestSelection",
      "set": [
@@ -7058,18 +7058,18 @@
       "21093"
      ],
      "matches": "ATLEAST",
-     "olay": "QUEST",
-     "puan": 100,
+     "incident": "QUEST",
+     "points": 100,
      "title": "title_achievement_event_winterevent2013-quests-31",
      "grade": 4
     }
    ]
   },
   "achievement_event_winterevent2013-quests-62": {
-   "grup": "EVENT_WINTER_2013",
+   "group": "EVENT_WINTER_2013",
    "etkin": true,
-   "etkinlik": null,
-   "seviyeler": [
+   "event": null,
+   "levels": [
     {
      "class_name": "QuestSelection",
      "set": [
@@ -7137,25 +7137,25 @@
       "21093"
      ],
      "matches": "ATLEAST",
-     "olay": "QUEST",
-     "puan": 200,
+     "incident": "QUEST",
+     "points": 200,
      "title": "title_achievement_event_winterevent2013-quests-62",
      "grade": 5
     }
    ]
   },
   "achievement_event_winterevent2013-space-grinch": {
-   "grup": "EVENT_SEASON_WINTER",
+   "group": "EVENT_SEASON_WINTER",
    "etkin": true,
-   "etkinlik": "CrazySanta",
-   "seviyeler": [
+   "event": "CrazySanta",
+   "levels": [
     {
      "class_name": "AvatarTypeKill",
      "stored": true,
      "operator": ">=",
      "value": 10,
-     "olay": "DESTROY",
-     "parametreler": {
+     "incident": "DESTROY",
+     "parameters": {
       "avatar": [
        "NPC"
       ],
@@ -7163,30 +7163,30 @@
        "74"
       ]
      },
-     "puan": 100,
+     "points": 100,
      "title": "title_achievement_event_winterevent2013-space-grinch",
      "grade": 5
     }
    ]
   },
   "achievement_event_winterevent2014-quests-3014": {
-   "grup": "EVENT_WINTER_2014",
+   "group": "EVENT_WINTER_2014",
    "etkin": true,
-   "etkinlik": "Breach",
-   "seviyeler": [
+   "event": "Breach",
+   "levels": [
     {
      "class_name": null,
-     "puan": 300,
+     "points": 300,
      "title": "title_achievement_event_winterevent2014-quests-3014",
      "grade": 5
     }
    ]
   },
   "achievement_event_winterevent2014-the-melter": {
-   "grup": "EVENT_SEASON_WINTER",
+   "group": "EVENT_SEASON_WINTER",
    "etkin": true,
-   "etkinlik": "Breach",
-   "seviyeler": [
+   "event": "Breach",
+   "levels": [
     {
      "class_name": "QuestSelection",
      "set": [
@@ -7194,8 +7194,8 @@
       "516027"
      ],
      "matches": "ATLEAST",
-     "olay": "QUEST",
-     "puan": 1500,
+     "incident": "QUEST",
+     "points": 1500,
      "title": "title_achievement_event_winterevent2014-the-melter",
      "grade": 5
     }

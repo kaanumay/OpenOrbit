@@ -22,9 +22,9 @@ def scale_npc(n, hp=1.0, dmg=1.0, reward=1.0, extra=None):
     d = dict(n.d)
     d['hp'] = max(1, int(d['hp'] * hp))
     d['kalkan'] = int(d['kalkan'] * hp)
-    d['hasar'] = int(d['hasar'] * dmg)
+    d['damage'] = int(d['damage'] * dmg)
     d['reward'] = {k: int(v * reward) for k, v in d['reward'].items()}
-    d['kargo'] = {k: int(v * reward) for k, v in d.get('kargo', {}).items() if int(v * reward) > 0}
+    d['cargo'] = {k: int(v * reward) for k, v in d.get('cargo', {}).items() if int(v * reward) > 0}
     if extra:
         d.update(extra)
     n.d = d
@@ -89,7 +89,7 @@ class Run:
                     self.left = alive
                     w.send([screen('Aliens left: %d' % alive)])
                 return
-            if self.sub + 1 < len(self.wave()['gruplar']):
+            if self.sub + 1 < len(self.wave()['groups']):
                 self.sub += 1
                 self.phase, self.t = 'next', now + self.sub_sec
                 return
@@ -122,7 +122,7 @@ class Run:
     def spawn(self, now):
         w = self.w
         hx, hy = w.hero_pos(now)
-        for j, row in enumerate(self.wave()['gruplar'][self.sub]):
+        for j, row in enumerate(self.wave()['groups'][self.sub]):
             tip, count = row[0], row[1]
             keep = len(row) > 2 and row[2]
             if tip not in w.CFG_TYPES:

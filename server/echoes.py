@@ -25,7 +25,7 @@ import qfc as QF
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'pve_modes.json'), encoding='utf8'))['echoes']
-LEVELS = {l['seviye']: l for l in D['seviyeler']}
+LEVELS = {l['level']: l for l in D['levels']}
 PORTAL = 155900000            # + 0 X-1, + 1 başlat, + 2 gemi seçimi, + 3 çıkış, + 4 salona dönüş
 UI_TICKET, UI_RESET, UI_LEAVE = 1, 2, 5
 # istemci (ExpeditionShowUiCommandHandler): 3 kadro penceresini, 4 gemi seçim (başlat) penceresini kapatır. Onay ve Save düğmeleri
@@ -62,10 +62,10 @@ class Echoes:
     @property
     def st(self):
         s = self.p.d.setdefault('pve', {}).setdefault('echoes', {})
-        if s.get('donem') != period():
-            first, top = s.get('ilk', []), s.get('highest', 0)
+        if s.get('period') != period():
+            first, top = s.get('first', []), s.get('highest', 0)
             s.clear()
-            s.update(donem=period(), seviye=1, highest=0, sure=0, ilk=first, roster=[], none=[], order={}, run=False)
+            s.update(period=period(), level=1, highest=0, sure=0, first=first, roster=[], none=[], order={}, run=False)
             if top:                    # tek oyunculu sıralamada oynayan birinci: unvan info_cmd'de verilir (st profil kilidi altında da okunur)
                 s['title_pending'] = True
             self.p.dirty = True
@@ -78,19 +78,19 @@ class Echoes:
     def portals(self, map_id):
         import map_links as H
         out = []
-        if H.map_class(map_id) == D['giris'] and int(map_id) == KAPI.HOME_MAP.get(self.p.d['pilot'].get('factionId'), 5):
+        if H.map_class(map_id) == D['entry'] and int(map_id) == KAPI.HOME_MAP.get(self.p.d['pilot'].get('factionId'), 5):
             w, h = H.map_size(map_id)
             # resmî sunucu kaydı: 2-1'de bu tasarımın (300) portalı (11210, 6310), haritanın ortasında
-            out.append(dict(gateId=PORTAL, x=w // 2 + 710, y=h // 2 - 240, hedef=D['hall'], designId=D['portal'], kapi='echoes',
+            out.append(dict(gateId=PORTAL, x=w // 2 + 710, y=h // 2 - 240, target=D['hall'], designId=D['portal'], gate='echoes',
                             windowed='echoes_entry', arrival=HALL_ARRIVAL))
         elif int(map_id) == D['hall']:
             home = KAPI.HOME_MAP.get(self.p.d['pilot'].get('factionId'), 5)
-            out += [dict(gateId=PORTAL + 1, x=HALL_START[0], y=HALL_START[1], hedef=0, designId=301, kapi='echoes', windowed='echoes_start',
-                         ipucu='window_dse_title', in_place=True),
-                    dict(gateId=PORTAL + 2, x=HALL_SHIPS[0], y=HALL_SHIPS[1], hedef=0, kapi='echoes', windowed='echoes_ship',
-                         ipucu='window_dse_choose_ship_info', in_place=True),
-                    dict(gateId=PORTAL + 3, x=HALL_EXIT[0], y=HALL_EXIT[1], hedef=0, designId=1, kapi='echoes', windowed='echoes_exit',
-                         ipucu='ttip_jumpgate', hint_target=home, in_place=True)]
+            out += [dict(gateId=PORTAL + 1, x=HALL_START[0], y=HALL_START[1], target=0, designId=301, gate='echoes', windowed='echoes_start',
+                         tooltip='window_dse_title', in_place=True),
+                    dict(gateId=PORTAL + 2, x=HALL_SHIPS[0], y=HALL_SHIPS[1], target=0, gate='echoes', windowed='echoes_ship',
+                         tooltip='window_dse_choose_ship_info', in_place=True),
+                    dict(gateId=PORTAL + 3, x=HALL_EXIT[0], y=HALL_EXIT[1], target=0, designId=1, gate='echoes', windowed='echoes_exit',
+                         tooltip='ttip_jumpgate', hint_target=home, in_place=True)]
         return out
 
     def hangar_cmd(self):
@@ -112,14 +112,14 @@ class Echoes:
         s = self.p.d['ships'][str(sid)]
         row = ITEMS['ships'].get(s['lootId'], {})
         active = str(sid) == self.p.d['active_ship']
-        g = self.p.d['gemi'] if active else (s.get('hull') or {})
+        g = self.p.d['ship'] if active else (s.get('hull') or {})
         cfg = self.p.config(None, sid)
         hp = row.get('hp', 0)
         return mod('ExpeditionShipCommand', hangarId=int(s['hangarId']), generators=len(cfg.get('generators', [])), maxNano=hp,
-                   nano=int(g.get('nanoHull', 0)), maxShield=int(self.p.d['gemi'].get('shieldMax', 0)) if active else 0,
+                   nano=int(g.get('nanoHull', 0)), maxShield=int(self.p.d['ship'].get('shieldMax', 0)) if active else 0,
                    extras=len(cfg.get('extra', [])), hp=int(g.get('hitPoints', hp)), modules=len(cfg.get('upgrades', [])),
                    destroyed=int(s['hangarId']) in self.st['none'], lootId=self.p.ship_look(sid),
-                   shield=int(self.p.d['gemi'].get('shield', 0)) if active else 0, maxHp=hp, lasers=len(cfg.get('laser', [])),
+                   shield=int(self.p.d['ship'].get('shield', 0)) if active else 0, maxHp=hp, lasers=len(cfg.get('laser', [])),
                    rockets=len(cfg.get('rocket', [])))
 
     def sid_of(self, hid):
@@ -150,7 +150,7 @@ class Echoes:
     # ------------------------------------------------------------ seviye
     def level_no(self):
         """Bloğun içinde rastgele sıra: koşunun n. seviyesi hangi seviyenin haritası."""
-        n = self.st['seviye']
+        n = self.st['level']
         b = (n - 1) // 5
         if n % 5 == 0:
             return n
@@ -170,7 +170,7 @@ class Echoes:
         st = self.st
         if hid not in st['roster'] or hid in st['none'] or not sid:
             return None, [KAPI.screen('This ship cannot be used.')]
-        if st['seviye'] > len(LEVELS):
+        if st['level'] > len(LEVELS):
             return None, [KAPI.screen('All levels are cleared. Reset to start again.')]
         if not st['run']:
             if self.permits() < 1:
@@ -182,19 +182,19 @@ class Echoes:
         if sid != self.p.d['active_ship']:
             self.m.activate({'shipId': sid})
         lvl = LEVELS[self.level_no()]
-        self.level = dict(no=st['seviye'], harita=lvl['seviye'], tur=lvl['tur'], hid=hid, start=None)
-        dest = D['haritalar'][(st['seviye'] - 1) % len(D['haritalar'])]
-        self.log('   Echoes seviye %d (%s, %d. seviyenin haritası) -> %d' % (st['seviye'], lvl['tur'], lvl['seviye'], dest))
+        self.level = dict(no=st['level'], map=lvl['level'], type=lvl['type'], hid=hid, start=None)
+        dest = D['maps'][(st['level'] - 1) % len(D['maps'])]
+        self.log('   Echoes seviye %d (%s, %d. seviyenin haritası) -> %d' % (st['level'], lvl['type'], lvl['level'], dest))
         return dest, [('ExpeditionShowUiCommand', dict(type=UI_CLOSE_START, param0='', param1=''))]
 
     def waves(self):
-        return LEVELS[self.level['harita']]['waves']
+        return LEVELS[self.level['map']]['waves']
 
     def wave_count(self):
         return len(self.waves())
 
     def scale(self, n, i, wave):
-        lvl = LEVELS[self.level['harita']]
+        lvl = LEVELS[self.level['map']]
         f = (1 + D['scale_level'] * (self.level['no'] - 1)) * lvl.get('power', 1.0)
         return PS.scale_npc(n, f * lvl.get('can', 1.0), f, 1.0)        # can: yalnız can/kalkan çarpanı (45. seviyenin patronu)
 
@@ -208,19 +208,19 @@ class Echoes:
             world.add_gate(self.hall_portal(world))
             return None
         self.level['start'] = time.time()
-        self.level['bitis'] = self.level['start'] + (LEVELS[self.level['harita']].get('sure_sn') or D['sure_sn'])
+        self.level['end_time'] = self.level['start'] + (LEVELS[self.level['map']].get('sure_sn') or D['sure_sn'])
         world.gate = PS.Run(world, self, intro_sec=5, break_sec=4)
-        msgs = [('ExpeditionStartInstanceCommand', dict(seconds=int(self.level['bitis'] - self.level['start']))),
+        msgs = [('ExpeditionStartInstanceCommand', dict(seconds=int(self.level['end_time'] - self.level['start']))),
                 KAPI.screen('Level %d: %s' % (self.level['no'], {'destroy': 'Destroy all enemies.', 'guard': 'Protect the ship!',
                                                                 'escort': 'Escort the ship to its destination!',
-                                                                'boss': 'Destroy the boss!'}.get(self.level['tur'], '')), big=True)]
-        if self.level['tur'] in ('guard', 'escort'):
+                                                                'boss': 'Destroy the boss!'}.get(self.level['type'], '')), big=True)]
+        if self.level['type'] in ('guard', 'escort'):
             self.spawn_ally(world)
         world.send(msgs)
         return world.gate
 
     def spawn_ally(self, w):
-        kind = self.level['tur']
+        kind = self.level['type']
         tip = 'pm_ally_' + kind
         import map_links as H
         cx, cy = H.center(w.map_id)
@@ -231,7 +231,7 @@ class Echoes:
         self.ally_npc = n
         w.ally = self
         if kind == 'escort':
-            self.level['hedef'] = (w.map_w - 2500, cy)
+            self.level['target'] = (w.map_w - 2500, cy)
 
     ALLY_SURVIVE_SEC = 180           # uyarlama (kaynakta yok): dost gemi seviyenin en güçlü dalgasının ateşine bu kadar dayanır
 
@@ -239,10 +239,10 @@ class Echoes:
         """Dost geminin canı seviyenin ateş gücüne göre (en az data 'dost' değerleri). Sabit 400.000 + 200.000'de 2. seviyenin 5 Reflector
         Mimesis'i (50.000 hasar) onu 6 sn'de yok ediyordu: koru seviyeleri kazanılamıyordu (canlı test H75)."""
         import world as world_module
-        f = (1 + D['scale_level'] * (self.level['no'] - 1)) * LEVELS[self.level['harita']].get('power', 1.0)
+        f = (1 + D['scale_level'] * (self.level['no'] - 1)) * LEVELS[self.level['map']].get('power', 1.0)
         dps = 0.0
         for wave in self.waves():
-            w_dps = sum(c * float(world_module.CFG['types'].get(str(t), {}).get('hasar', 0)) for grp in wave['gruplar'] for t, c, *_ in grp)
+            w_dps = sum(c * float(world_module.CFG['types'].get(str(t), {}).get('damage', 0)) for grp in wave['groups'] for t, c, *_ in grp)
             dps = max(dps, w_dps)
         # take_shot: atışların yarısı dosta, hasar 0,7-1,0 (ort. 0,85), atış aralığı
         dps = dps * f * 0.5 * 0.85 / world_module.COMBAT['npc_attack_interval_sec']
@@ -264,7 +264,7 @@ class Echoes:
         import world as world_module
         n.next_shot = now + n.d.get('shot_interval_sec', world_module.COMBAT['npc_attack_interval_sec'])
         import settings as SET
-        dmg = int(n.d['hasar'] * random.uniform(0.8, 1.0) * SET.multiplier('npc_damage', 'dalga' if n.hunt else 'harita'))      # panel
+        dmg = int(n.d['damage'] * random.uniform(0.8, 1.0) * SET.multiplier('npc_damage', 'wave' if n.hunt else 'map'))      # panel
         to_shield = min(int(a.shield), int(dmg * 0.7))
         a.shield -= to_shield
         a.hp = max(0, a.hp - (dmg - to_shield))
@@ -284,12 +284,12 @@ class Echoes:
         lv, w = self.level, self.world
         if not lv:
             return
-        if now >= lv.get('bitis', now + 1):
+        if now >= lv.get('end_time', now + 1):
             self.fail('Time is up.')
             return
         a = self.ally_npc
-        if lv['tur'] == 'escort' and a and a.alive:
-            tx, ty = lv['hedef']
+        if lv['type'] == 'escort' and a and a.alive:
+            tx, ty = lv['target']
             ax, ay = a.mover.pos(now)
             if math.hypot(tx - ax, ty - ay) < 300:
                 self.win(now)
@@ -309,7 +309,7 @@ class Echoes:
     def wave_done(self, i, now):
         if i + 1 < self.wave_count():
             return 'ongoing'
-        if self.level['tur'] == 'escort' and self.ally_npc and self.ally_npc.alive:
+        if self.level['type'] == 'escort' and self.ally_npc and self.ally_npc.alive:
             return 'halt'                        # eşlik: dalgalar bitti, gemi varınca kazanılır
         self.win(now)
         return 'halt'
@@ -321,24 +321,24 @@ class Echoes:
         secs = int(now - lv['start'])
         n = lv['no']
         msgs = []
-        if n not in st['ilk']:
-            for loot, a in LEVELS[n]['ilk']:
+        if n not in st['first']:
+            for loot, a in LEVELS[n]['first']:
                 msgs += self.grant(loot, a)
-            st['ilk'].append(n)
-        t = D['tekrar']
+            st['first'].append(n)
+        t = D['repeat']
         msgs += self.grant('currency_uridium', t['uridium_base'] + t['uridium_level'] * n)
         msgs += self.grant('ammunition_laser_ucb-100', t['ucb_base'] + t['ucb_level'] * n)
         with self.p.lock:
-            st['seviye'] = n + 1
+            st['level'] = n + 1
             st['highest'] = max(st['highest'], n)
             st['sure'] = st.get('sure', 0) + secs
             self.p.dirty = True
-        self.p.ach('gate', tur='EXPEDITION_GATE')
+        self.p.ach('gate', type='EXPEDITION_GATE')
         self.level = None
         self.clear_ally()
         w.gate.phase = 'done'
         w.add_gate(self.hall_portal(w))
-        box = QF.echo_box(n) if lv['tur'] == 'boss' else None
+        box = QF.echo_box(n) if lv['type'] == 'boss' else None
         if box:                                                     # Echo sandığı (Aşama 9): geminin yanına, anahtarla açılır
             hx, hy = w.hero_pos(now)
             h = w.drop_box(box, hx + random.uniform(-150, 150), hy + random.uniform(-150, 150), None, None)
@@ -375,16 +375,16 @@ class Echoes:
         """Pusu (harita_duzeni 'pusu'; oyuncu bildirimi 2026-10-28): yok et seviyesinde dalganın j. grubu haritanın sabit noktasında
         bekler, oyuncu yaklaşınca saldırır -> (x, y, fark yarıçapı) ya da None."""
         import map_layout as ML
-        p = ML.of(self.world.map_id).get('ambush') if self.world and self.level and self.level['tur'] == 'destroy' else None
+        p = ML.of(self.world.map_id).get('ambush') if self.world and self.level and self.level['type'] == 'destroy' else None
         if not p:
             return None
         x, y = p['waypoints'][j % len(p['waypoints'])]
-        return x, y, p['yaricap']
+        return x, y, p['radius']
 
     def hall_portal(self, w):
         import map_links as H
         cx, cy = H.center(w.map_id)
-        return dict(gateId=PORTAL + 4, x=cx, y=cy + 1500, hedef=D['hall'], designId=301, kapi='echoes',
+        return dict(gateId=PORTAL + 4, x=cx, y=cy + 1500, target=D['hall'], designId=301, gate='echoes',
                     arrival=HALL_ARRIVAL)
 
     def on_death(self):
@@ -411,16 +411,16 @@ class Echoes:
     def info_cmd(self):
         st = self.st
         if st.get('title_pending') and self.titles:             # geçen ayın birincisi (wiki: Cosmic Tyrant)
-            self.titles(next(r['title'] for r in D['ranking'] if r['den'] == 1))
+            self.titles(next(r['title'] for r in D['ranking'] if r['from_'] == 1))
             st.pop('title_pending')
         me = st['highest']
         ranks = [mod('ExpeditionRankUserInfoCommand', rank=1, curLevel=me, clearanceTime=int(st.get('sure', 0)),
                      userId=self.p.d['pilot'].get('userId', 0), userName=self.p.d['pilot'].get('userName', ''))] if me else []
-        rewards = [mod('RankRewardCommand', rankType=13, rewardContentModuleList=[mod('RewardModule', lootId=l, amount=n) for l, n in r['esyalar']],
-                       rewardRange=mod('RankRewardRangeModule', **{'from': r['den'], 'to': r['e']})) for r in D['ranking']]
-        n = min(st['seviye'], len(LEVELS))
+        rewards = [mod('RankRewardCommand', rankType=13, rewardContentModuleList=[mod('RewardModule', lootId=l, amount=n) for l, n in r['items']],
+                       rewardRange=mod('RankRewardRangeModule', **{'from': r['from_'], 'to': r['e']})) for r in D['ranking']]
+        n = min(st['level'], len(LEVELS))
         lvl = LEVELS[n]
-        t = D['tekrar']
+        t = D['repeat']
         clear = mod('ExpeditionClearanceTimeCommand', seconds=int(st.get('sure', 0)), faction=mod('FactionModule',
                     faction=self.p.d['pilot'].get('factionId', 1)), userName=self.p.d['pilot'].get('userName', ''),
                     shipLootId=self.p.ship_look(), userId=self.p.d['pilot'].get('userId', 0))
@@ -430,7 +430,7 @@ class Echoes:
             keyCount=int(self.permits()), curLevel=n, rankRewards=rewards, ranks=ranks,
             failureCondition='window_dse_fail_con1', victoryCondition='window_dse_vic_con1', conditionNpcId=0,
             firstRewards=[mod('ExpeditionRewardCommand', lootId=l, amount=a if isinstance(a, int) else a[0])
-                          for l, a in (lvl['ilk'] if n not in st['ilk'] else [])],
+                          for l, a in (lvl['first'] if n not in st['first'] else [])],
             expeditionClearanceTimeCommand=clear, eventEndTime=end.strftime('%d.%m.%Y') + ' 23:59',
             timeLimit=int(lvl.get('sure_sn') or D['sure_sn']), popup=False, myRank=1 if me else -1,
             normalRewards=[mod('ExpeditionRewardCommand', lootId='currency_uridium', amount=t['uridium_base'] + t['uridium_level'] * n),
@@ -439,19 +439,19 @@ class Echoes:
 
     def jump_info_cmd(self):
         top = self.st['highest']
-        lv = [x for x in D['jump']['targets'] if self.st['seviye'] < x <= top]      # yalnız ilerisi: ilerlemede olan oyuncuya geri atlama penceresi açılmaz
+        lv = [x for x in D['jump']['targets'] if self.st['level'] < x <= top]      # yalnız ilerisi: ilerlemede olan oyuncuya geri atlama penceresi açılmaz
         return ('ExpeditionJumpLevelInfoCommand', dict(levels=lv, costs=[D['jump']['cost_block'] * ((x - 1) // 5) for x in lv]))
 
     def jump(self, f):
         from shop import stack_msg
         target = int(f.get('jumpTargetLevel') or 0)
         top = self.st['highest']
-        ok = target in D['jump']['targets'] and self.st['seviye'] < target <= top
+        ok = target in D['jump']['targets'] and self.st['level'] < target <= top
         cost = D['jump']['cost_block'] * ((target - 1) // 5)
         if ok and self.p.d['pilot'].get('uridium', 0) >= cost:
-            self.p.gain(uridyum=-cost, neden='expedition_jump')
+            self.p.gain(uridium=-cost, reason='expedition_jump')
             with self.p.lock:
-                self.st['seviye'] = target
+                self.st['level'] = target
                 self.p.dirty = True
             self.log('   Echoes: %d. seviyeye atlandı (%d U)' % (target, cost))
         else:
@@ -462,7 +462,7 @@ class Echoes:
 
     def reset(self):
         with self.p.lock:
-            self.st.update(seviye=1, roster=[], none=[], order={}, run=False)
+            self.st.update(level=1, roster=[], none=[], order={}, run=False)
             self.p.dirty = True
         self.log('   Echoes sıfırlandı')
         return [self.info_cmd()]
@@ -471,7 +471,7 @@ class Echoes:
         from shop import stack_msg
         ok = self.p.d['pilot'].get('uridium', 0) >= D['ticket_price']
         if ok:
-            self.p.gain(uridyum=-D['ticket_price'], neden='buy_expedition_ticket')
+            self.p.gain(uridium=-D['ticket_price'], reason='buy_expedition_ticket')
             self.p.add_resource(D['ticket'], 1)
         return [('ExpeditionBuyTicketCommand', dict(result=ok, stack=stack_msg('eqt_error_generic') if not ok else
                                                     mod('BaseStackCommand', type=0, enumBaseKey=0, stringBasekey='', argsList=[])))] + \

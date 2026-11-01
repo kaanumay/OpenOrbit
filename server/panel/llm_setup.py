@@ -23,7 +23,7 @@ SERVERS = {   # platform -> arşiv (Vulkan: NVIDIA, AMD ve Intel ekran kartları
     'mac-x64': dict(url=_GH + 'llama-%s-bin-macos-x64.tar.gz' % VERSION, size=12208100,
                     sha256='0d9e5c5bbeca9beda692e4a46560e83b2385dc79683bd949126b10e34c2ca7ce'),
 }
-MODEL = dict(ad='Qwen3-4B-Q4_K_M.gguf', url='https://huggingface.co/Qwen/Qwen3-4B-GGUF/resolve/main/Qwen3-4B-Q4_K_M.gguf',
+MODEL = dict(name='Qwen3-4B-Q4_K_M.gguf', url='https://huggingface.co/Qwen/Qwen3-4B-GGUF/resolve/main/Qwen3-4B-Q4_K_M.gguf',
              size=2497280256, sha256='7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5')
 CHUNK = 1 << 20
 MIN_MEMORY_GB = 8
@@ -65,11 +65,11 @@ class LlmSetup:
         self.stop = threading.Event()
         self.d = self._empty('none')
         self.samples = []
-        self.t = {'durum': 'none'}
+        self.t = {'state': 'none'}
 
     @staticmethod
     def _empty(state):
-        return {'durum': state, 'running': False, 'claimed': 0, 'toplam': 0, 'hiz': 0, 'time_left_sec': None, 'hata': None, 'part': None}
+        return {'state': state, 'running': False, 'claimed': 0, 'total': 0, 'speed': 0, 'time_left_sec': None, 'error': None, 'part': None}
 
     def folder(self):
         return os.path.join(PTH.SAVE, 'llm')
@@ -80,8 +80,8 @@ class LlmSetup:
                 d = json.load(fh)
         except (OSError, ValueError):
             return None
-        ok = d.get('surum') == VERSION and d.get('model') == MODEL['sha256'] and os.path.isfile(d.get('sunucu') or '') \
-            and os.path.isfile(os.path.join(self.folder(), MODEL['ad']))
+        ok = d.get('version') == VERSION and d.get('model') == MODEL['sha256'] and os.path.isfile(d.get('server') or '') \
+            and os.path.isfile(os.path.join(self.folder(), MODEL['name']))
         return d if ok else None
 
     def state(self):
@@ -90,20 +90,20 @@ class LlmSetup:
             t = dict(self.t)
         k = self.save()
         if not d['running'] and k:
-            d['durum'] = 'hazir' if k.get('test_ok') else 'built'
-        if not d['running'] and not k and d['durum'] in ('none', 'built', 'hazir'):
-            d['durum'] = 'none'
-            p = os.path.join(self.folder(), MODEL['ad'] + '.part')
+            d['state'] = 'ready' if k.get('test_ok') else 'built'
+        if not d['running'] and not k and d['state'] in ('none', 'built', 'ready'):
+            d['state'] = 'none'
+            p = os.path.join(self.folder(), MODEL['name'] + '.part')
             d['partial'] = os.path.getsize(p) if os.path.isfile(p) else 0
         pk = platform_key()
         d.update(test=t, size=MODEL['size'] + (SERVERS[pk]['size'] if pk else 0), platform=pk, destekli=bool(pk),
-                 memory_gb=memory_gb(), min_memory_gb=MIN_MEMORY_GB, cores=os.cpu_count(), model=MODEL['ad'], surum=VERSION,
+                 memory_gb=memory_gb(), min_memory_gb=MIN_MEMORY_GB, cores=os.cpu_count(), model=MODEL['name'], version=VERSION,
                  last_test=k.get('test') if k else None)
         return d
 
     def running(self):
         with self.lock:
-            return self.d['running'] or self.t.get('durum') == 'running'
+            return self.d['running'] or self.t.get('state') == 'running'
 
     # ------------------------------------------------------------ kurulum
     def start(self):
@@ -113,7 +113,7 @@ class LlmSetup:
                 if not pk:
                     raise DownloadError(_("There is no ready-made language model server for this computer's processor."))
                 self.stop.clear()
-                self.d = dict(self._empty('downloading'), running=True, toplam=MODEL['size'] + SERVERS[pk]['size'])
+                self.d = dict(self._empty('downloading'), running=True, total=MODEL['size'] + SERVERS[pk]['size'])
                 self.samples = []
                 threading.Thread(target=self._run, args=(pk,), daemon=True).start()
         return self.state()
@@ -127,7 +127,7 @@ class LlmSetup:
             raise DownloadError(_('Setup or test in progress.'))
         shutil.rmtree(self.folder(), ignore_errors=True)
         with self.lock:
-            self.d, self.t = self._empty('none'), {'durum': 'none'}
+            self.d, self.t = self._empty('none'), {'state': 'none'}
         return self.state()
 
     def _count(self, n):
@@ -139,9 +139,9 @@ class LlmSetup:
                 self.samples.pop(0)
             t0, b0 = self.samples[0]
             if now - t0 >= 1:
-                self.d['hiz'] = int((self.d['claimed'] - b0) / (now - t0))
-                remaining = max(0, self.d['toplam'] - self.d['claimed'])
-                self.d['time_left_sec'] = int(remaining / self.d['hiz']) if self.d['hiz'] > 0 else None
+                self.d['speed'] = int((self.d['claimed'] - b0) / (now - t0))
+                remaining = max(0, self.d['total'] - self.d['claimed'])
+                self.d['time_left_sec'] = int(remaining / self.d['speed']) if self.d['speed'] > 0 else None
 
     def _download(self, url, target, size, sha):
         """Dosyayı hedefe (yarım .part'tan sürerek) indir, SHA-256'yı doğrula."""
@@ -197,15 +197,15 @@ class LlmSetup:
             else:
                 self._count(s['size'])
             with self.lock:
-                self.d['part'] = MODEL['ad']
-            model = os.path.join(k, MODEL['ad'])
+                self.d['part'] = MODEL['name']
+            model = os.path.join(k, MODEL['name'])
             if not os.path.isfile(model):
                 self.log('dil modeli indiriliyor: %s' % MODEL['url'])
                 self._download(MODEL['url'], model, MODEL['size'], MODEL['sha256'])
             else:
                 self._count(MODEL['size'])
             with self.lock:
-                self.d.update(durum='installing', part=None)
+                self.d.update(state='installing', part=None)
             target = os.path.join(k, 'llama-' + VERSION)
             if os.path.isdir(target):
                 shutil.rmtree(target)
@@ -229,34 +229,34 @@ class LlmSetup:
                 os.chmod(server, 0o755)
             os.remove(archive)
             with open(os.path.join(k, 'install.json'), 'w', encoding='utf8') as fh:
-                json.dump({'surum': VERSION, 'sunucu': server, 'model': MODEL['sha256'], 'test_ok': False,
+                json.dump({'version': VERSION, 'server': server, 'model': MODEL['sha256'], 'test_ok': False,
                            'time': time.strftime('%Y-%m-%d %H:%M:%S')}, fh, indent=1)
             with self.lock:
-                self.d.update(durum='built', claimed=self.d['toplam'], time_left_sec=0)
+                self.d.update(state='built', claimed=self.d['total'], time_left_sec=0)
             self.log('dil modeli kuruldu: %s' % server)
         except Cancelled:
             with self.lock:
-                self.d['durum'] = 'stopped'
+                self.d['state'] = 'stopped'
         except DownloadError as e:
             with self.lock:
-                self.d.update(durum='hata', hata=str(e))
+                self.d.update(state='error', error=str(e))
             self.log('dil modeli kurulamadı: %s' % e)
         except (OSError, zipfile.BadZipFile, tarfile.TarError) as e:
             with self.lock:
-                self.d.update(durum='hata', hata=_('Could not write the file or the archive is corrupt: %s', e))
+                self.d.update(state='error', error=_('Could not write the file or the archive is corrupt: %s', e))
             self.log('dil modeli kurulamadı: %r' % e)
         finally:
             with self.lock:
-                self.d['running'], self.d['hiz'], self.d['part'] = False, 0, None
+                self.d['running'], self.d['speed'], self.d['part'] = False, 0, None
 
     # ------------------------------------------------------------ test
     def test(self):
         with self.lock:
-            if self.t.get('durum') == 'running':
+            if self.t.get('state') == 'running':
                 return self.state()
             if not self.save():
                 raise DownloadError(_('Install the language model first.'))
-            self.t = {'durum': 'running', 'start': time.time()}
+            self.t = {'state': 'running', 'start': time.time()}
         threading.Thread(target=self._test, daemon=True).start()
         return self.state()
 
@@ -264,15 +264,15 @@ class LlmSetup:
         """Seçili uzak sağlayıcının testi (bot/llm_saglayici.test): kısa bir soru, Türkçe yanıt."""
         from bot import llm_provider as PRV
         c = PRV.selected()
-        if PRV.PROVIDERS[c['kimlik']]['anahtar'] and not c['anahtar']:
+        if PRV.PROVIDERS[c['uid']]['anahtar'] and not c['anahtar']:
             raise DownloadError(_('Enter the API key first.'))
         if not c['model']:
             raise DownloadError(_('Choose a model first.'))
         with self.lock:
-            if self.t.get('durum') == 'running':
+            if self.t.get('state') == 'running':
                 return self.state()
-            self.t = {'durum': 'running', 'start': time.time(), 'provider': c['kimlik']}
-        threading.Thread(target=self._test_remote, args=(c['kimlik'],), daemon=True).start()
+            self.t = {'state': 'running', 'start': time.time(), 'provider': c['uid']}
+        threading.Thread(target=self._test_remote, args=(c['uid'],), daemon=True).start()
         return self.state()
 
     def _test_remote(self, uid):
@@ -280,12 +280,12 @@ class LlmSetup:
         try:
             r = PRV.test(self.log)
             with self.lock:
-                self.t = dict(r, durum='ok' if r['ok'] else 'hata', provider=uid,
-                              hata=None if r['ok'] else _('The model did not give the expected reply.'))
+                self.t = dict(r, state='ok' if r['ok'] else 'error', provider=uid,
+                              error=None if r['ok'] else _('The model did not give the expected reply.'))
             self.log('dil modeli sağlayıcı testi: %s' % r)
         except Exception as e:
             with self.lock:
-                self.t = {'durum': 'hata', 'hata': str(e), 'provider': uid}
+                self.t = {'state': 'error', 'error': str(e), 'provider': uid}
             self.log('dil modeli sağlayıcı testi başarısız: %r' % e)
 
     def _test(self):
@@ -297,9 +297,9 @@ class LlmSetup:
             with open(os.path.join(self.folder(), 'install.json'), 'w', encoding='utf8') as fh:
                 json.dump(k, fh, indent=1, ensure_ascii=False)
             with self.lock:
-                self.t = dict(r, durum='ok' if r['ok'] else 'hata', hata=None if r['ok'] else _('The model did not give the expected reply.'))
+                self.t = dict(r, state='ok' if r['ok'] else 'error', error=None if r['ok'] else _('The model did not give the expected reply.'))
             self.log('dil modeli testi: %s' % r)
         except Exception as e:
             with self.lock:
-                self.t = {'durum': 'hata', 'hata': str(e)}
+                self.t = {'state': 'error', 'error': str(e)}
             self.log('dil modeli testi başarısız: %r' % e)

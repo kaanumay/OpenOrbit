@@ -5,7 +5,7 @@ Luminium, Styxus ve Charopos Shard (valentine). Oranlar: Candy Corn 1, Golden Ca
 Luminium 1 ve en çok 10.000 onur (wiki Empyrian March), Battle Pass Key 5.000 (Immortal Union SSS); Valentine parçalarının oranı
 bilinmiyor (uyarlama 1). Resmî sunucu 24-48 saat sonra çevirir; burada etkinlik bitince (oturumun ilk adımında).
 Byte Remnant (Mimesis Mutiny) onura çevrilmez: etkinlik bittikten 24 saat sonra envanterden silinir (wiki; LATER).
-Profilde: etkinlik_sonu {etkinlik: dönemin başladığı zaman damgası} (etkinlik sürerken görülenler); etkinlik_silme {etkinlik: dönemin
+Profilde: etkinlik_sonu {event: dönemin başladığı zaman damgası} (etkinlik sürerken görülenler); etkinlik_silme {event: dönemin
 bitişi} (LATER'dekiler).
 """
 import event_gate as EKP
@@ -24,8 +24,8 @@ CONVERT = {
 # etkinlik -> bitince envanterden silinen CPU'lar (wiki: "Use your Bountiful Alien CPUs before the event ends as they will be removed")
 REMOVE = {}
 for _loot, _c in EKP.D.get('cpu', {}).items():
-    REMOVE.setdefault(_c['etkinlik'], []).append(_loot)
-    CONVERT.setdefault(_c['etkinlik'], [])
+    REMOVE.setdefault(_c['event'], []).append(_loot)
+    CONVERT.setdefault(_c['event'], [])
 # etkinlik -> (bitişten kaç saniye sonra, silinen kaynaklar): darkorbitwiki mimesis-mutiny "Byte Remnant ... removed 24 hours after the event ends"
 LATER = {'mimesis_mutiny': (24 * 3600, ['resource_collectable_byte-remnant'])}
 # etkinlik -> (unvan, sıra puanı): bitince ilk 10'a giren (puanı > 0) unvanı alır. Frozen Labyrinth Synk avı: Elite Marksman
@@ -67,7 +67,7 @@ class EventEnd:
                     if n > 0:
                         self.p.add_resource(loot, -n)
                         msgs += self.m.resource_msgs(loot, 0, -n)
-                        self.log('   %s bitti: %s x%d %d saat sonra silindi' % (CAL.EVENTS[ev]['ad'], loot, n, wait // 3600))
+                        self.log('   %s bitti: %s x%d %d saat sonra silindi' % (CAL.EVENTS[ev]['name'], loot, n, wait // 3600))
                 with self.p.lock:
                     del self.late[ev]
                     self.p.dirty = True
@@ -94,10 +94,10 @@ class EventEnd:
                     if n > 0:
                         self.p.add_resource(loot, -n)
                         msgs += self.m.resource_msgs(loot, 0, -n)
-                tot = self.p.gain(onur=hon, neden='event_honor')
-                msgs.append(legacy('0|LM|ST|HON|%d|%d' % (hon, tot['onur'])))
+                tot = self.p.gain(honor=hon, reason='event_honor')
+                msgs.append(legacy('0|LM|ST|HON|%d|%d' % (hon, tot['honor'])))
                 RT.note(self.p, text, count=hon)        # istemci %AMOUNT%'a count'u koyuyor, args'a bakmıyor (canlı tur 2)
-                self.log('   %s bitti: %s -> %d onur' % (CAL.EVENTS[ev]['ad'], {k: n for k, n in held.items() if n > 0}, hon))
+                self.log('   %s bitti: %s -> %d onur' % (CAL.EVENTS[ev]['name'], {k: n for k, n in held.items() if n > 0}, hon))
             for loot in REMOVE.get(ev, ()):
                 n = self.p.ammo(loot)
                 if n > 0:
@@ -105,14 +105,14 @@ class EventEnd:
                         self.p.d['ammunition'].pop(loot, None)
                         self.p.dirty = True
                     msgs += self.m.resource_msgs(loot, 0, -n)
-                    self.log('   %s bitti: %s x%d silindi' % (CAL.EVENTS[ev]['ad'], loot, n))
+                    self.log('   %s bitti: %s x%d silindi' % (CAL.EVENTS[ev]['name'], loot, n))
             if ev in TITLES:
                 title, score = TITLES[ev]
                 import community as TP
                 top, me = TP.ranking(self.p, score)
                 if score(self.p) > 0 and (me[0] or 1) <= 10:
                     RT.grant_title(self.p, title)
-                    self.log('   %s bitti: unvan %s' % (CAL.EVENTS[ev]['ad'], title))
+                    self.log('   %s bitti: unvan %s' % (CAL.EVENTS[ev]['name'], title))
             with self.p.lock:
                 del self.st[ev]
                 self.p.dirty = True

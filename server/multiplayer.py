@@ -15,7 +15,7 @@ ise buraya verir; oyun istemcisinin ilk paketi uzunlukla başlar).
        olsun diye geçici bir kimlikle değişir (kayıtların çoğu tohumun aynı kimliğiyle başlar), geri verilirken eskisine döner
        (kimlik alanlarında: kimlik_cevir). Aynı anahtarla yeniden giriş (bağlantı koptu, panel yeniden açıldı) oturumu ve
        sunucudaki son hâli sürdürür. adres: misafirin bu sunucuya bağlandığı adres (sohbetin adresi oradan).
-  GET  /misafir/profil?oturum=&anahtar=&surum=N&wait=25
+  GET  /misafir/profil?session=&anahtar=&version=N&wait=25
        uzun yoklama: kayıt N'den yeni bir sürüme gelince (oyun değişince 10 sn'de bir kaydeder; MisafirProfil.save) ya da süre
        dolunca -> {surum, bagli, bitti, profil (yeniyse)}. Misafirin paneli her yeni sürümü kendi kayıt yuvasına yazar.
   POST /misafir/cikis {oturum, anahtar}   -> son hâl; oturum biter (oyun açıksa bağlantı kapanır), kayıt kısa süre sonra silinir
@@ -32,7 +32,7 @@ açılır, misafir kabul etmez (OO_MULTIPLAYER misafir: false, adres 127.0.0.1);
        dosyaya doğrudan yazılır; kimliği sunucudaki başka bir oyuncununkiyle aynıysa bellekte kayda göre sabit geçici kimlik).
        Aynı yuva yeniden eklenirse (istemci yeniden açıldı) oturum sürer. Ana kayıt, aynı pilot adı ve dolu sunucu reddedilir.
   POST /yerel/cikar {anahtar, oturum}     -> bağlıysa oyun bağlantısı kapanır, son hâl yazılır, yuva bırakılır
-  GET  /yerel/oturum?oturum=              -> {uid, yol, kayit}: web.py ek istemcinin girişini bununla verir
+  GET  /yerel/oturum?session=              -> {uid, yol, kayit}: web.py ek istemcinin girişini bununla verir
 """
 import collections, gzip, hmac, json, os, random, re, secrets, socket, threading, time, zlib
 from urllib.parse import parse_qs, urlparse
@@ -96,7 +96,7 @@ def convert_ids(x, old, new_):
     müzayede, klan hesabı (balanceUserId). Yalnız adı kimlik olan alanlarda: para ve sayaçlara dokunulmaz."""
     if isinstance(x, dict):
         for k, v in x.items():
-            has_id = k == 'kim' or k.lower().endswith(('id', 'ids', 'idler'))
+            has_id = k == 'who' or k.lower().endswith(('id', 'ids', 'idler'))
             if has_id and v == old and not isinstance(v, bool):
                 x[k] = new_
             elif has_id and isinstance(v, list):
@@ -160,8 +160,8 @@ class Guest:
     def summary(self):
         p = self.profile.d if self.profile else {}
         pl = p.get('pilot') or {}
-        return {'oturum': self.token[:8], 'ad': pl.get('userName', '?'), 'seviye': pl.get('level', 1), 'ip': self.ip,
-                'connected': self.session is not None, 'giris': int(self.entry)}
+        return {'session': self.token[:8], 'name': pl.get('userName', '?'), 'level': pl.get('level', 1), 'ip': self.ip,
+                'connected': self.session is not None, 'entry': int(self.entry)}
 
 
 def _new_uid(full):
@@ -175,7 +175,7 @@ def valid_profile(d):
     """Gönderilen kayıt oynanabilir mi -> hata metni ya da None."""
     if not isinstance(d, dict):
         return 'kayıt bir JSON nesnesi değil'
-    pl, g, k = d.get('pilot'), d.get('gemi'), d.get('position')
+    pl, g, k = d.get('pilot'), d.get('ship'), d.get('position')
     if not (isinstance(pl, dict) and isinstance(g, dict) and isinstance(k, dict)):
         return 'kayıtta pilot, gemi ya da konum yok'
     if not isinstance(pl.get('userId'), int) or isinstance(pl.get('userId'), bool) or not str(pl.get('userName') or '').strip():
@@ -187,14 +187,14 @@ def valid_profile(d):
 
 def login(body, ip, seed, server_uid, main=None):
     """POST /misafir/giris -> (durum kodu, yanıt). ana: sunucunun kendi profili (adı başka oyuncuyla aynı olamaz)."""
-    if int(body.get('surum') or 0) != PROTOCOL:
-        return 409, {'hata': 'surum', 'message': 'Hesap gönderiminin sürümü farklı (sunucu %d): ikiniz de paneli güncelleyin.' % PROTOCOL}
+    if int(body.get('version') or 0) != PROTOCOL:
+        return 409, {'error': 'version', 'message': 'Hesap gönderiminin sürümü farklı (sunucu %d): ikiniz de paneli güncelleyin.' % PROTOCOL}
     if SETTINGS['password']:
         now = time.time()
         with COND:
             h = FAILED.get(ip)
             if h and h[1] > now:
-                return 429, {'hata': 'wait', 'message': 'Çok fazla yanlış şifre: %d saniye sonra yeniden dene.' % (h[1] - now + 1)}
+                return 429, {'error': 'wait', 'message': 'Çok fazla yanlış şifre: %d saniye sonra yeniden dene.' % (h[1] - now + 1)}
         if not equal(body.get('password'), SETTINGS['password']):
             with COND:
                 h = FAILED.setdefault(ip, [0, 0])
@@ -202,30 +202,30 @@ def login(body, ip, seed, server_uid, main=None):
                 if h[0] >= ATTEMPT_LIMIT:
                     h[:] = [0, now + LOCK_SEC]
                     log('arkadaş: %s için yanlış şifre sınırı, %d sn kilit' % (ip, LOCK_SEC))
-            return 403, {'hata': 'password', 'message': 'Katılma şifresi yanlış.'}
+            return 403, {'error': 'password', 'message': 'Katılma şifresi yanlış.'}
         with COND:
             FAILED.pop(ip, None)
     key = str(body.get('anahtar') or '')
     if len(key) < 16:
-        return 400, {'hata': 'anahtar', 'message': 'Misafir anahtarı eksik.'}
+        return 400, {'error': 'anahtar', 'message': 'Misafir anahtarı eksik.'}
     with COND:
         old = next((m for m in GUESTS.values() if equal(m.key, key) and not m.finished), None)
         if old:                                  # yeniden giriş: sunucudaki son hâl sürer
             old.last, old.ip = time.time(), ip
             old.address = str(body.get('address') or old.address)
-            log('misafir yeniden geldi: %s (%s)' % (old.summary()['ad'], ip))
-            return 200, {'oturum': old.token, 'uid': old.uid, 'surum': old.version, 'ongoing': True}
+            log('misafir yeniden geldi: %s (%s)' % (old.summary()['name'], ip))
+            return 200, {'session': old.token, 'uid': old.uid, 'version': old.version, 'ongoing': True}
         if sum(1 for m in GUESTS.values() if not m.finished) >= SETTINGS['max_count']:
-            return 503, {'hata': 'full', 'message': 'Sunucu dolu (en çok %d misafir).' % SETTINGS['max_count']}
-    d = body.get('profil')
+            return 503, {'error': 'full', 'message': 'Sunucu dolu (en çok %d misafir).' % SETTINGS['max_count']}
+    d = body.get('profile')
     err = valid_profile(d)
     if err:
-        return 400, {'hata': 'profil', 'message': 'Kayıt geçersiz: %s.' % err}
+        return 400, {'error': 'profile', 'message': 'Kayıt geçersiz: %s.' % err}
     name = str((d.get('pilot') or {}).get('userName') or '').strip().lower()
     with COND:
         names = {_name(m.profile) for m in GUESTS.values() if not m.finished and m.profile is not None} |             {_name(y.profile) for y in LOCAL_PLAYERS.values()} | ({_name(main)} if main is not None else set())
     if name in names:                               # sohbet, posta, grup, rehber ve klan oyuncuyu adıyla bulur (yerel_ekle gibi)
-        return 409, {'hata': 'ad', 'message': 'Sunucuda "%s" adlı bir pilot zaten var: aynı adla iki oyuncu sohbette, postada, grupta ve '
+        return 409, {'error': 'name', 'message': 'Sunucuda "%s" adlı bir pilot zaten var: aynı adla iki oyuncu sohbette, postada, grupta ve '
                                             'klanda karışır. Pilot adını değiştirip yeniden katıl.' % d['pilot']['userName']}
     with COND:
         uid = _new_uid({server_uid} | {m.uid for m in GUESTS.values()} | {y.uid for y in LOCAL_PLAYERS.values()})
@@ -235,13 +235,13 @@ def login(body, ip, seed, server_uid, main=None):
         m.publish(json.dumps(m.profile.d, ensure_ascii=False))
         GUESTS[m.token] = m
     log('misafir geldi: %s (%s), sunucudaki kimlik %d' % (d['pilot'].get('userName'), ip, uid))
-    return 200, {'oturum': m.token, 'uid': uid, 'surum': m.version, 'ongoing': False}
+    return 200, {'session': m.token, 'uid': uid, 'version': m.version, 'ongoing': False}
 
 
 def _guest(q):
     """Oturum ve anahtar tutan misafir ya da None."""
     with COND:
-        m = GUESTS.get(str(q.get('oturum') or ''))
+        m = GUESTS.get(str(q.get('session') or ''))
     if m and equal(m.key, q.get('anahtar')):
         return m
     return None
@@ -251,20 +251,20 @@ def poll_profile(q):
     """GET /misafir/profil: N'den yeni sürüm gelene ya da süre dolana dek bekler."""
     m = _guest(q)
     if not m:
-        return 404, {'hata': 'oturum', 'message': 'Bu sunucuda böyle bir misafir oturumu yok.'}
+        return 404, {'error': 'session', 'message': 'Bu sunucuda böyle bir misafir oturumu yok.'}
     try:
-        have, wait = int(q.get('surum') or 0), min(WAIT_MAX, max(0.0, float(q.get('wait') or 0)))
+        have, wait = int(q.get('version') or 0), min(WAIT_MAX, max(0.0, float(q.get('wait') or 0)))
     except ValueError:
-        return 400, {'hata': 'request'}
+        return 400, {'error': 'request'}
     end = time.time() + wait
     with COND:
         while m.version <= have and not m.finished and time.time() < end:
             COND.wait(max(0.05, end - time.time()))
         m.last = time.time()
-        out = {'surum': m.version, 'connected': m.session is not None, 'finished': m.finished}
+        out = {'version': m.version, 'connected': m.session is not None, 'finished': m.finished}
         new_ = m.version > have
     if new_:
-        out['profil'] = m.export()
+        out['profile'] = m.export()
     return 200, out
 
 
@@ -272,10 +272,10 @@ def exit(q, close_session):
     """POST /misafir/cikis: bağlıysa oyun bağlantısı kapanır, son hâl verilir, kayıt silinir."""
     m = _guest(q)
     if not m:
-        return 404, {'hata': 'oturum', 'message': 'Bu sunucuda böyle bir misafir oturumu yok.'}
+        return 404, {'error': 'session', 'message': 'Bu sunucuda böyle bir misafir oturumu yok.'}
     if not m.finished:
         finish(m, close_session, 'misafir ayrıldı')
-    return 200, {'surum': m.version, 'profil': m.export(), 'finished': True}
+    return 200, {'version': m.version, 'profile': m.export(), 'finished': True}
 
 
 def finish(m, close_session, reason):
@@ -290,7 +290,7 @@ def finish(m, close_session, reason):
     with COND:
         m.finished, m.end_time = True, time.time()
         COND.notify_all()
-    log('misafir oturumu bitti (%s): %s' % (reason, m.summary()['ad']))
+    log('misafir oturumu bitti (%s): %s' % (reason, m.summary()['name']))
 
 
 def find(sid):
@@ -372,8 +372,8 @@ class LocalPlayer:
 
     def summary(self):
         pl = self.profile.d.get('pilot') or {}
-        return {'oturum': self.token[:8], 'record': self.save, 'ad': pl.get('userName', '?'), 'seviye': pl.get('level', 1),
-                'uid': self.uid, 'connected': self.session is not None, 'giris': int(self.entry)}
+        return {'session': self.token[:8], 'record': self.save, 'name': pl.get('userName', '?'), 'level': pl.get('level', 1),
+                'uid': self.uid, 'connected': self.session is not None, 'entry': int(self.entry)}
 
 
 def _same_path(a, b):
@@ -388,40 +388,40 @@ def add_local(body, seed, main):
     """POST /yerel/ekle -> (durum kodu, yanıt). ana: sunucunun kendi profili (game.PROFIL)."""
     save, route = str(body.get('record') or ''), str(body.get('route') or '')
     if not re.fullmatch(r'[a-z0-9_]{1,40}', save) or os.path.basename(route) != 'profile.json' or not os.path.isfile(route):
-        return 400, {'hata': 'record', 'message': 'Kayıt bulunamadı.'}
+        return 400, {'error': 'record', 'message': 'Kayıt bulunamadı.'}
     if not os.path.normcase(os.path.realpath(route)).startswith(os.path.normcase(os.path.realpath(PTH.SAVES)) + os.sep):
-        return 400, {'hata': 'record', 'message': 'Kayıt, kayıt klasöründe değil.'}
+        return 400, {'error': 'record', 'message': 'Kayıt, kayıt klasöründe değil.'}
     if _same_path(route, main.path):
-        return 409, {'hata': 'main', 'message': 'Bu kayıt ana istemcide açık.'}
+        return 409, {'error': 'main', 'message': 'Bu kayıt ana istemcide açık.'}
     with COND:
         old = next((y for y in LOCAL_PLAYERS.values() if _same_path(y.route, route)), None)
         if old and old.finished:
-            return 409, {'hata': 'closing', 'message': 'Bu kaydın önceki istemcisi kapanıyor: birkaç saniye sonra yeniden dene.'}
+            return 409, {'error': 'closing', 'message': 'Bu kaydın önceki istemcisi kapanıyor: birkaç saniye sonra yeniden dene.'}
         if old:                                  # istemci yeniden açıldı: sunucudaki oturum sürer
             old.last = time.time()
-            return 200, {'oturum': old.token, 'uid': old.uid, 'ongoing': True}
+            return 200, {'session': old.token, 'uid': old.uid, 'ongoing': True}
         if sum(1 for y in LOCAL_PLAYERS.values() if not y.finished) >= LOCAL_MAX:
-            return 503, {'hata': 'full', 'message': 'Sunucuda en çok %d ek istemci açılabilir.' % LOCAL_MAX}
+            return 503, {'error': 'full', 'message': 'Sunucuda en çok %d ek istemci açılabilir.' % LOCAL_MAX}
         full = {main.user_id} | {m.uid for m in GUESTS.values() if not m.finished} | {y.uid for y in LOCAL_PLAYERS.values()}
     try:
         p = LocalProfile(seed, route, full, save)
     except (OSError, ValueError, KeyError, TypeError) as e:
-        return 400, {'hata': 'profil', 'message': 'Kayıt okunamadı: %s' % e}
+        return 400, {'error': 'profile', 'message': 'Kayıt okunamadı: %s' % e}
     err = valid_profile(p.d)
     if err:
-        return 400, {'hata': 'profil', 'message': 'Kayıt geçersiz: %s.' % err}
+        return 400, {'error': 'profile', 'message': 'Kayıt geçersiz: %s.' % err}
     with COND:
         names = {_name(main)} | {_name(m.profile) for m in GUESTS.values() if not m.finished} | {_name(y.profile) for y in LOCAL_PLAYERS.values()}
         if _name(p) in names:                       # sohbet, posta, grup ve rehber oyuncuyu adıyla bulur
-            return 409, {'hata': 'ad', 'message': 'Sunucuda "%s" adlı bir pilot zaten var: aynı adla iki oyuncu sohbette, postada ve '
+            return 409, {'error': 'name', 'message': 'Sunucuda "%s" adlı bir pilot zaten var: aynı adla iki oyuncu sohbette, postada ve '
                                                 'grupta karışır. Bu kaydın pilot adını değiştir.' % p.d['pilot']['userName']}
         if any(_same_path(y.route, route) for y in LOCAL_PLAYERS.values()):
-            return 409, {'hata': 'closing', 'message': 'Bu kayıt az önce açıldı.'}
+            return 409, {'error': 'closing', 'message': 'Bu kayıt az önce açıldı.'}
         y = LocalPlayer(secrets.token_urlsafe(18), save, route, p)
         LOCAL_PLAYERS[y.token] = y
     log('ek oyuncu: %s (kayıt %s), sunucudaki kimlik %d%s' % (p.d['pilot'].get('userName'), save, y.uid,
                                                              ' (geçici; asıl %d)' % p.original_uid if p.temporary else ''))
-    return 200, {'oturum': y.token, 'uid': y.uid, 'ongoing': False}
+    return 200, {'session': y.token, 'uid': y.uid, 'ongoing': False}
 
 
 def finish_local(y, close_session, reason):
@@ -441,17 +441,17 @@ def finish_local(y, close_session, reason):
     with COND:
         if y.session is None:
             LOCAL_PLAYERS.pop(y.token, None)
-    log('ek oyuncu bırakıldı (%s): %s' % (reason, y.summary()['ad']))
+    log('ek oyuncu bırakıldı (%s): %s' % (reason, y.summary()['name']))
 
 
 def remove_local(b, close_session):
     """POST /yerel/cikar."""
     with COND:
-        y = LOCAL_PLAYERS.get(str(b.get('oturum') or ''))
+        y = LOCAL_PLAYERS.get(str(b.get('session') or ''))
     if not y:
-        return 404, {'hata': 'oturum', 'message': 'Bu sunucuda böyle bir ek oyuncu yok.'}
+        return 404, {'error': 'session', 'message': 'Bu sunucuda böyle bir ek oyuncu yok.'}
     finish_local(y, close_session, 'istemci kapandı')
-    return 200, {'tamam': True}
+    return 200, {'done': True}
 
 
 def find_local(sid):
@@ -599,21 +599,21 @@ def http(c, addr, game):
         try:
             b = json.loads(body.decode('utf8') or '{}') if method == 'POST' else {}
         except ValueError:
-            return _reply(c, 400, {'hata': 'json'})
+            return _reply(c, 400, {'error': 'json'})
         if not isinstance(b, dict):
-            return _reply(c, 400, {'hata': 'json'})
+            return _reply(c, 400, {'error': 'json'})
         ip = addr[0]
         local = ip in ('127.0.0.1', '::1')
         management = local and SETTINGS['anahtar'] and equal(b.get('anahtar'), SETTINGS['anahtar'])
         if u.path.startswith('/misafir/') and not SETTINGS['guest']:
-            code, out = 403, {'hata': 'off', 'message': 'Bu sunucu misafir kabul etmiyor.'}
+            code, out = 403, {'error': 'off', 'message': 'Bu sunucu misafir kabul etmiyor.'}
         elif u.path == '/yerel/ekle' and method == 'POST' and management:
             code, out = add_local(b, game.TEMPLATE.entry.get('seed'), game.PROFILE)
         elif u.path == '/yerel/cikar' and method == 'POST' and management:
             code, out = remove_local(b, game.close_session)
         elif u.path == '/yerel/oturum' and local:
-            y = find_local(q.get('oturum'))
-            code, out = (200, {'uid': y.uid, 'route': y.route, 'record': y.save}) if y else (404, {'hata': 'oturum'})
+            y = find_local(q.get('session'))
+            code, out = (200, {'uid': y.uid, 'route': y.route, 'record': y.save}) if y else (404, {'error': 'session'})
         elif u.path == '/misafir/bilgi':
             code, out = 200, game.server_info()
         elif u.path == '/misafir/giris' and method == 'POST':
@@ -623,12 +623,12 @@ def http(c, addr, game):
         elif u.path == '/misafir/cikis' and method == 'POST':
             code, out = exit(b, game.close_session)
         elif u.path == '/yonetim/kick' and method == 'POST' and management:
-            m = next((x for x in entries() if x.token.startswith(str(b.get('oturum') or '-'))), None)
+            m = next((x for x in entries() if x.token.startswith(str(b.get('session') or '-'))), None)
             if m:
                 finish(m, game.close_session, 'sunucu çıkardı')
-            code, out = (200, {'tamam': True}) if m else (404, {'hata': 'oturum'})
+            code, out = (200, {'done': True}) if m else (404, {'error': 'session'})
         else:
-            code, out = 404, {'hata': 'none'}
+            code, out = 404, {'error': 'none'}
         if u.path not in ('/misafir/profil', '/yerel/oturum'):
             log('arkadaş: %s %s <- %s -> %d' % (method, u.path, ip, code))
         _reply(c, code, out, gz)

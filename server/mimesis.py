@@ -31,8 +31,8 @@ from legacy_protocol import legacy
 HERE = os.path.dirname(os.path.abspath(__file__))
 _PATH = os.path.join(HERE, 'data', 'major_content.json')
 D = (json.load(open(_PATH, encoding='utf8')) if os.path.exists(_PATH) else {}).get('mimesis', {})
-EVENT = D.get('etkinlik', 'mimesis_mutiny')
-MAPS = {int(v): int(k) for k, v in (D.get('haritalar') or {}).items()}       # harita -> firma
+EVENT = D.get('event', 'mimesis_mutiny')
+MAPS = {int(v): int(k) for k, v in (D.get('maps') or {}).items()}       # harita -> firma
 PORTAL_ID = EKP.PORTAL_BASE + 95                   # X-1 / X-8'deki Escort portalı
 EXIT_ID = EKP.PORTAL_BASE + 96
 FREIGHTER = 'mm_freighter'
@@ -45,16 +45,16 @@ BYTE = 'resource_collectable_byte-remnant'
 
 def _register():
     for k, v in (D.get('kinds') or {}).items():
-        t = {x: y for x, y in v.items() if x not in ('puan', 'byte')}
+        t = {x: y for x, y in v.items() if x not in ('points', 'byte')}
         if v.get('byte'):
             t['extra_reward'] = {BYTE: v['byte']}         # wiki aliens: öldürünce doğrudan Byte Remnant (kutudaki ayrıca)
         world_module.CFG['types'][k] = t
-    g = D.get('gemi')
+    g = D.get('ship')
     if g:
-        world_module.CFG['types'][FREIGHTER] = dict(ad=g['ad'], model=g['model'], npc_kimlik=g['npc_kimlik'], hp=g['min_hp'], kalkan=0,
-                                              hasar=0, hiz=g['hiz'], aggressive=False, friendly=True, reward={}, kargo={})
+        world_module.CFG['types'][FREIGHTER] = dict(name=g['name'], model=g['model'], npc_id=g['npc_id'], hp=g['min_hp'], kalkan=0,
+                                              damage=0, speed=g['speed'], aggressive=False, friendly=True, reward={}, cargo={})
     if D.get('ranking'):
-        RK.TABLES[RANK_TYPE] = {'ranges': [dict(den=r['den'], e=r['e'], esyalar=r['rewards'], title=r.get('title'))
+        RK.TABLES[RANK_TYPE] = {'ranges': [dict(from_=r['from_'], e=r['e'], items=r['rewards'], title=r.get('title'))
                                               for r in D['ranking']]}
 
 
@@ -109,8 +109,8 @@ class Mimesis:
     def st(self):
         d = self.p.d.setdefault('mimesis', {})
         today = datetime.date.today().isoformat()
-        if d.get('gun') != today:
-            d.update(gun=today, route=0)
+        if d.get('day') != today:
+            d.update(day=today, route=0)
         for k, v in (('trips', []), ('route', 0)):
             d.setdefault(k, v)
         return d
@@ -154,8 +154,8 @@ class Mimesis:
         sx, sy = station['posX'], station['posY']
         cx, cy = KAPI.MAP_W // 2, KAPI.MAP_H // 2
         x, y = int(sx + (cx - sx) * 0.35), int(sy + (cy - sy) * 0.35 - 1500)
-        return [dict(gateId=PORTAL_ID, x=x, y=y, hedef=0, designId=D.get('portal_design', 1), windowed='mimesis',
-                     ipucu=D.get('ipucu', 'ttip_jumpgate_escort'))]
+        return [dict(gateId=PORTAL_ID, x=x, y=y, target=0, designId=D.get('portal_design', 1), windowed='mimesis',
+                     tooltip=D.get('tooltip', 'ttip_jumpgate_escort'))]
 
     def portal_window(self, g, w, go):
         key, open_, close_left, next_left, end = run_state()
@@ -171,7 +171,7 @@ class Mimesis:
             w.send([legacy('0|A|STM|msg_mutiny_escort_no_key')])
             return
         self.p.add_resource(KEY, -1)
-        self.p.ach('spend', loot=KEY, adet=1)                      # Pass görevleri: "Escort Key kullan" (savas_bileti.py)
+        self.p.ach('spend', loot=KEY, count=1)                      # Pass görevleri: "Escort Key kullan" (savas_bileti.py)
         with self.p.lock:
             self.st['last'] = key
             self.p.dirty = True
@@ -210,9 +210,9 @@ class Mimesis:
         if not active(now):
             return self.event_end()
         msgs = []
-        if self.st.get('donem') is None:
+        if self.st.get('period') is None:
             with self.p.lock:
-                self.st['donem'] = (CAL.period(EVENT, now) or (now,))[0]
+                self.st['period'] = (CAL.period(EVENT, now) or (now,))[0]
                 self.p.dirty = True
         open_ = run_state(now)[1]
         if open_ != self.last_open:
@@ -227,7 +227,7 @@ class Mimesis:
         """Günlük "Freighter Protection" (uyarlama): radyasyon içinde 10.000 birim yol -> 1 Escort Key (günde bir)."""
         w = self.world
         st = self.st
-        if not w or w.hero_dead or st.get('key_day') == st['gun']:
+        if not w or w.hero_dead or st.get('key_day') == st['day']:
             self.last_pos = None
             return []
         pos = w.hero_pos(now)
@@ -251,7 +251,7 @@ class Mimesis:
         n = min(n, D.get('key_max', 100) - have)
         with self.p.lock:
             if daily:
-                st['key_day'] = st['gun']
+                st['key_day'] = st['day']
             self.p.dirty = True
         if n > 0:
             self.p.add_resource(KEY, n)
@@ -268,24 +268,24 @@ class Mimesis:
             self.st['trips'] = sorted(self.st['trips'] + [int(score)], reverse=True)[:50]
             self.p.dirty = True
         if success:
-            row = next((r for r in D['trip_tiers'] if score >= r['den'] and (r['e'] is None or score <= r['e'])), None)
+            row = next((r for r in D['trip_tiers'] if score >= r['from_'] and (r['e'] is None or score <= r['e'])), None)
             if row:
                 for loot, n in row['rewards']:
                     msgs += self.m.prize(loot, n)
-                msgs.append(KAPI.screen('Escort reward tier: %d+ points' % row['den'], big=True))
+                msgs.append(KAPI.screen('Escort reward tier: %d+ points' % row['from_'], big=True))
         msgs.append(('PayloadEscortScoreCommand', dict(totalScore=self.total(), runScore=int(score))))
         self.log('   Mimesis Mutiny seferi bitti: %d puan (%s), toplam %d' % (score, 'başarılı' if success else 'başarısız', self.total()))
         return msgs + self.m.money_msgs()
 
     def event_end(self):
         st = self.p.d.get('mimesis')
-        if not st or st.get('donem') is None:
+        if not st or st.get('period') is None:
             return []
         msgs = []
         total = sum(sorted(st.get('trips', []), reverse=True)[:D.get('best_trip_count', 10)])
         if total > 0:                             # etkinlik sonu sıralama ödülü (tek oyunculu: 1.)
             r = RK.TABLES[RANK_TYPE]['ranges'][0]
-            for loot, n in r['esyalar']:
+            for loot, n in r['items']:
                 msgs += self.m.prize(loot, n)
             if r.get('title') and self.titles:
                 msgs += self.titles(r['title'])
@@ -306,7 +306,7 @@ class MmRun:
 
     def __init__(self, mode, world, end):
         self.m, self.w = mode, world
-        self.g = {'ad': 'Mimesis Mutiny'}
+        self.g = {'name': 'Mimesis Mutiny'}
         now = time.time()
         self.end = end or now + D['sure_sn']
         self.leg = 0                                 # sıradaki rota noktası
@@ -323,7 +323,7 @@ class MmRun:
         s = WB.scale(mode.p, world, None)           # oyuncunun gücü (donanımın sürekli lazer hasarı / 60.000, 0,25-2,5)
         k = D['single_player']
         self.hp_f = k['can'] * s                     # uyarlama (canlı tur): sabit x0,3 / x0,5'te ilk dalga 356.000 canlık gemiyi 25 sn'de
-        self.dmg_f = k['hasar'] * max(0.5, min(1.5, s))     # yıkıyordu, oyuncu o sürede bir Mimesis'i bitiremiyordu
+        self.dmg_f = k['damage'] * max(0.5, min(1.5, s))     # yıkıyordu, oyuncu o sürede bir Mimesis'i bitiremiyordu
 
     @property
     def npcs(self):
@@ -334,7 +334,7 @@ class MmRun:
 
     def enter_msgs(self):
         self.spawn_ship()
-        self.spawn_wave(D['waves']['baslangic'], near=D['route'][0])
+        self.spawn_wave(D['waves']['start'], near=D['route'][0])
         return [self.score_cmd(), self.zone_poi()]
 
     def score_cmd(self):
@@ -357,9 +357,9 @@ class MmRun:
         """Gemi en güçlü dalganın ateşine dayanma_sn dayanır (Echoes'un toughen_ally'si; tek oyunculu hasar çarpanıyla)."""
         T = world_module.CFG['types']
         waves = D['waves']['waypoints'] + [D['waves']['beacon']]
-        dps = max(sum(c * float(T.get(t, {}).get('hasar', 0)) for t, c in wv) for wv in waves)
+        dps = max(sum(c * float(T.get(t, {}).get('damage', 0)) for t, c in wv) for wv in waves)
         dps *= self.dmg_f * 0.5 * 0.85 / world_module.COMBAT['npc_attack_interval_sec']
-        return int(max(D['gemi']['min_hp'], dps * D['gemi']['endure_sec']))
+        return int(max(D['ship']['min_hp'], dps * D['ship']['endure_sec']))
 
     def ship_pos(self, now=None):
         return self.ship.mover.pos(time.time() if now is None else now) if self.ship else D['route'][0]
@@ -368,14 +368,14 @@ class MmRun:
         x, y = self.ship_pos(now)
         return ('MapAddPOICommand', dict(inverted=True, poiTypeSpecification='', poiType=mod('POITypeModule', typeValue=8), shape=0,
                                          active=True, design=mod('POIDesignModule', designValue=10), poiId=POI_ZONE,
-                                         shapeCoordinates=[int(x), int(y), int(D['gemi']['protection_radius'])]))
+                                         shapeCoordinates=[int(x), int(y), int(D['ship']['protection_radius'])]))
 
     def safe_at(self, x, y, now):
         """Radyasyon kancası (dunya.radiation_tick): seferde koruma alanının içi, sonra çıkış portalının çevresi güvenli."""
         if self.phase == 'finished':
             return math.hypot(x - self.exit_x, y - self.exit_y) <= 1500
         sx, sy = self.ship_pos(now)
-        return math.hypot(x - sx, y - sy) <= D['gemi']['protection_radius']
+        return math.hypot(x - sx, y - sy) <= D['ship']['protection_radius']
 
     def take_shot(self, n, now):
         """Uzaylının atışı gemiye mi (menzildeyse yarı yarıya; Echoes'un kalıbı) -> True."""
@@ -387,7 +387,7 @@ class MmRun:
         if math.hypot(ax - nx, ay - ny) > w.npc_range(n) + 200:
             return False
         n.next_shot = now + n.d.get('shot_interval_sec', world_module.COMBAT['npc_attack_interval_sec'])
-        dmg = int(n.d['hasar'] * random.uniform(0.8, 1.0) * SET.multiplier('npc_damage', 'dalga' if n.hunt else 'harita'))
+        dmg = int(n.d['damage'] * random.uniform(0.8, 1.0) * SET.multiplier('npc_damage', 'wave' if n.hunt else 'map'))
         a.hp = max(0, a.hp - dmg)
         w.send([('AttackLaserRunCommand', dict(attackerId=n.id, targetId=a.id, laserColor=0, isDiminishedBySkillShield=False,
                                                skilledLaser=False, visualType=0)),
@@ -426,7 +426,7 @@ class MmRun:
             if self.done_at and now >= self.done_at + 300 and self.m.change_map and not w.hero_dead:
                 self.done_at = None
                 w.send([legacy('0|A|STM|msg_mutiny_escort_sent_home')])
-                w.later(2.0, lambda: self.m.change_map(self.m.home(), None, 'istasyon'))
+                w.later(2.0, lambda: self.m.change_map(self.m.home(), None, 'station'))
             return
         if now >= self.end:
             self.fail('msg_mutiny_escort_failed_time')
@@ -459,9 +459,9 @@ class MmRun:
             return
         hx, hy = w.hero_pos(now)
         ax, ay = a.mover.pos(now)
-        if w.hero_dead or math.hypot(hx - ax, hy - ay) > D['gemi']['protection_radius']:
+        if w.hero_dead or math.hypot(hx - ax, hy - ay) > D['ship']['protection_radius']:
             if a.mover.pos(now) != a.mover.pos(now + 0.5):           # oyuncu alandan çıktı: gemi durur
-                a.mover.go(ax, ay, D['gemi']['hiz'], now)
+                a.mover.go(ax, ay, D['ship']['speed'], now)
                 w.send([('MoveCommand', dict(userId=a.id, x=int(ax), y=int(ay), timeToTarget=0))])
             self.next_move = now + 0.5
             return
@@ -472,7 +472,7 @@ class MmRun:
             return
         step = min(d, 700)
         nx, ny = ax + (tx - ax) * step / d, ay + (ty - ay) * step / d
-        ms = a.mover.go(nx, ny, D['gemi']['hiz'], now)
+        ms = a.mover.go(nx, ny, D['ship']['speed'], now)
         self.next_move = now + ms / 1000.0
         w.send([('MoveCommand', dict(userId=a.id, x=int(nx), y=int(ny), timeToTarget=ms)), ('MapRemovePOICommand', {'poiId': POI_ZONE}),
                 self.zone_poi(now + ms / 2000.0)])
@@ -518,8 +518,8 @@ class MmRun:
         self.done_at = time.time()
         bx, by = D['route'][-1]
         self.exit_x, self.exit_y = min(bx, w.map_w - 1500), by
-        w.add_gate(dict(gateId=EXIT_ID, x=self.exit_x, y=self.exit_y, hedef=self.m.home(), designId=1, kapi=self.key, cikis=True,
-                        arrival='istasyon'))
+        w.add_gate(dict(gateId=EXIT_ID, x=self.exit_x, y=self.exit_y, target=self.m.home(), designId=1, gate=self.key, exit=True,
+                        arrival='station'))
         for i in self.alive_wave():
             n = w.npcs.get(i)
             if n:
@@ -530,9 +530,9 @@ class MmRun:
         t = (D.get('kinds') or {}).get(npc.tip)
         if not t or self.phase == 'finished':
             return []
-        self.score += t.get('puan', 0)
+        self.score += t.get('points', 0)
         msgs = [self.score_cmd()]
-        chance = 0.1 if t.get('puan', 0) >= 350 else 0                 # seçkin Mimesis: Escort Key (uyarlama)
+        chance = 0.1 if t.get('points', 0) >= 350 else 0                 # seçkin Mimesis: Escort Key (uyarlama)
         if chance and random.random() < chance:
             msgs += self.m.grant_keys(1)
         return msgs

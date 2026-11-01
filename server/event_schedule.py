@@ -47,25 +47,25 @@ def sessions(a, b):
     v = BIG_CONTENT.get('vortex')
     if v:
         duration, double = v.get('session_sec', 900), v.get('double_hour')
-        out.append({'kimlik': 'vortex', 'etkinlik': v.get('etkinlik'), 'ranges': [
+        out.append({'uid': 'vortex', 'event': v.get('event'), 'ranges': [
             [s, s + datetime.timedelta(seconds=duration), int(d.isoweekday() in v.get('double_days', []) and s - d == _hm(double or '99:00'))]
             for s, d in _starts(a, b, [_hm(x) for x in v.get('sessions', [])], duration=duration)]})
     for uid, key, day_list in (('world_boss', 'world_boss', range(7)), ('kristallon', 'kristallon_apotheosis', None)):
         p = BIG_CONTENT.get(key)
         if p:
             days = p.get('days', range(7)) if day_list is None else day_list
-            out.append({'kimlik': uid, 'etkinlik': p.get('etkinlik'), 'ranges': [
+            out.append({'uid': uid, 'event': p.get('event'), 'ranges': [
                 [d + _hm(x), d + _hm(y), 0] for d in CAL._days(a, b) if d.weekday() in days for x, y in p.get('windows', [])
                 if d + _hm(x) < b and d + _hm(y) > a]})
     m = BIG_CONTENT.get('mimesis')
     if m:
         duration, entry = m.get('sure_sn', 2700), m.get('entry_sec', 300)
-        out.append({'kimlik': 'mimesis', 'etkinlik': m.get('etkinlik'), 'ranges': [
+        out.append({'uid': 'mimesis', 'event': m.get('event'), 'ranges': [
             [s, s + datetime.timedelta(seconds=duration), s + datetime.timedelta(seconds=entry)]
             for s, _ in _starts(a, b, [datetime.timedelta(hours=h) for h in m.get('hours', [])], duration=duration)]})
     u = EX.get('title_hunt')
     if u:
-        out.append({'kimlik': 'title_hunt', 'etkinlik': u.get('etkinlik', 'title_hunt'),
+        out.append({'uid': 'title_hunt', 'event': u.get('event', 'title_hunt'),
                     'ranges': [[s, e, 0] for s, e in CAL._daily(a, b, lambda d: u.get('hours', []))]})
     for x in out:
         x['ranges'] = [r for r in x['ranges'] if r[1] > a and r[0] < b]
@@ -73,10 +73,10 @@ def sessions(a, b):
 
 
 def _sections(e):
-    for k in ('harita', 'map_extra'):
+    for k in ('map', 'map_extra'):
         v = e.get(k)
         for s in (v if isinstance(v, list) else [v] if v else []):
-            if 'hours' in s or 'donemler' in s:
+            if 'hours' in s or 'periods' in s:
                 yield s
 
 
@@ -103,13 +103,13 @@ def schedule(start, bit, always_open=False, statuses=None):
     for k, e in CAL.EVENTS.items():
         for i, s in enumerate(_sections(e)):
             iv = [_ts(r) + [0] for r in CAL.section_intervals(s, a, b, always_open)]
-            out[k]['sessions'].append({'kimlik': 'map_%d' % i, 'tur': 'alien' if 'alien_spawns' in s else 'kutu' if 'boxes' in s else 'harita',
-                                       'haritalar': s.get('haritalar', []), 'ranges': _cut(iv, out[k]['etkin'])})
+            out[k]['sessions'].append({'uid': 'map_%d' % i, 'type': 'alien' if 'alien_spawns' in s else 'box' if 'boxes' in s else 'map',
+                                       'maps': s.get('maps', []), 'ranges': _cut(iv, out[k]['etkin'])})
     for x in sessions(a, b):
-        if x['etkinlik'] in out:
+        if x['event'] in out:
             iv = [[start, bit, 0]] if always_open else [_ts(r) for r in x['ranges']]
-            out[x['etkinlik']]['sessions'].append({'kimlik': x['kimlik'], 'tur': 'session', 'haritalar': [],
-                                                   'ranges': _cut(iv, out[x['etkinlik']]['etkin'])})
+            out[x['event']]['sessions'].append({'uid': x['uid'], 'type': 'session', 'maps': [],
+                                                   'ranges': _cut(iv, out[x['event']]['etkin'])})
     return out
 
 

@@ -11,26 +11,26 @@ from .. import abstract_sim as S
 
 def rival(bot):
     import community as TP
-    name = bot.plan.get('ad')
+    name = bot.plan.get('name')
     return TP.find(name=name) if name else None
 
 
 @target
 class Duel(Goal):
-    name = 'duello'
+    name = 'duel'
     permission = 'pvp'
     min_sec = 300
 
     def eligible(self, bot, b):
         n = bot.k.get('intent') or {}
-        return n.get('hedef') == self.name and bool((n.get('plan') or {}).get('ad'))
+        return n.get('target') == self.name and bool((n.get('plan') or {}).get('name'))
 
     def points(self, bot, b):
         return 0.5 + 0.4 * bot.o('rekabet')
 
     def start(self, bot, b):
         bot.plan.update((bot.k.get('intent') or {}).get('plan') or {})
-        if not S.go(bot, bot.plan['harita'], b.y, b.now):
+        if not S.go(bot, bot.plan['map'], b.y, b.now):
             bot.plan['finished'] = True
 
     def abstract(self, bot, dt, y):
@@ -43,14 +43,14 @@ class Duel(Goal):
         m = int(o.profile.d['position'].get('mapId', 0))
         if m != bot.game_map and m in K.MAPS and K.can_enter(m, bot.firma, bot.level) and K.route(bot.game_map, m, bot.firma,
                                                                                                      bot.level):
-            bot.plan['harita'] = m
+            bot.plan['map'] = m
             S.go(bot, m, y)                             # haritayı değiştirdi: peşinden
         elif K.map_npcs(bot.game_map) and bot.r.random() < 0.3:
             S.farm(bot, dt * 0.3, y)                      # beklerken biraz uzaylı keser
 
     def concrete(self, bot, g, w, now):
         """Rakip bu dünyanın kahramanıysa ona doğru uçar; görüşe girince govde.pvp_hedefi onu seçer (düello hedefi önce)."""
-        if g.target is not None or str(bot.plan.get('ad', '')).lower() != str(w.p.d['pilot'].get('userName', '')).lower():
+        if g.target is not None or str(bot.plan.get('name', '')).lower() != str(w.p.d['pilot'].get('userName', '')).lower():
             return False
         if w.hero_dead:
             return False
@@ -64,4 +64,4 @@ class Duel(Goal):
 
     def finished(self, bot, b):
         n = bot.k.get('intent') or {}
-        return bot.plan.get('finished', False) or n.get('hedef') != self.name
+        return bot.plan.get('finished', False) or n.get('target') != self.name

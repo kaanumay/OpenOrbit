@@ -22,7 +22,7 @@ def accrue(p, n, reason=None):
     if n <= 0 or (reason and str(reason).startswith(SKIP)):
         return
     with p.lock:
-        p.d['bank'] = min(B['azami'], value(p) + n)
+        p.d['bank'] = min(B['maximum'], value(p) + n)
         p.dirty = True
 
 
@@ -31,7 +31,7 @@ def price(p):
 
 
 def info_cmd(p):
-    return ('UridiumBankInfoCommand', dict(maxValue=B['azami'], textKey='', secondsLeft=-1,
+    return ('UridiumBankInfoCommand', dict(maxValue=B['maximum'], textKey='', secondsLeft=-1,
                                            price='%d C' % price(p) if value(p) >= B['en_az'] else '', imgKey='', currentValue=value(p)))
 
 
@@ -40,7 +40,7 @@ def claim(p, money_msgs=None, log=print):
     if v < B['en_az'] or p.d['pilot'].get('credits', 0) < cost:
         log('   Uridium Bank: alınamadı (birikim %d, kredi %d / %d)' % (v, p.d['pilot'].get('credits', 0), cost))
         return [info_cmd(p)]
-    p.gain(kredi=-cost, uridyum=v, neden='title_uridium_bank')
+    p.gain(credits=-cost, uridium=v, reason='title_uridium_bank')
     with p.lock:
         p.d['bank'] = 0
         p.dirty = True

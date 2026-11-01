@@ -2,11 +2,11 @@
 
 Bir dil dosyası:
   kod, ad (dilin kendi adı), agirlik ("karışık" kadroda o dilden bot payı)
-  adlar      parcalar {liste: [...]} ve desenler [[ağırlık, desen]]: desende {liste}, {liste_k} (küçük harf), {a|b} (iki listeden),
+  adlar      parcalar {entries: [...]} ve desenler [[ağırlık, desen]]: desende {entries}, {liste_k} (küçük harf), {a|b} (iki listeden),
              {liste?} (yarı yarıya boş), {leet:liste}. Adlar oyunun ad kuralına uyar (Latin harf, rakam, _ . -).
-  kaliplar   durum -> satırlar (Normal kipin sohbeti; konusma.kalip). Alanlar: {ad} {harita} {seviye} {gemi} {etiket} {klan}
-             {lider} {kim} {esya}.
-  kisaltma   [[sözcük, kısaltma]] (botun üslubu), ascii {harf: yerine} ve ascii_oran (oyuncuların aksan düşürmesi)
+  kaliplar   durum -> satırlar (Normal kipin sohbeti; konusma.kalip). Alanlar: {name} {map} {level} {ship} {tag} {clan}
+             {leader} {who} {item}.
+  kisaltma   [[sözcük, kısaltma]] (botun üslubu), ascii {letter: yerine} ve ascii_oran (oyuncuların aksan düşürmesi)
   niyet      niyet -> sözcükler: oyuncunun o dildeki mesajının niyeti (konusma.niyet; tr/en'inkiler konusma'daki ifadelerde)
   tepki      kutlama, veda, donus, yoklama -> ifadeler ve oyun -> oyun sözcükleri: Gelişmiş kipte mesajın türü (llm.mesaj_turu;
              en'inkiler llm.TURLER)

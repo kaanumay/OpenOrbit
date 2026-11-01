@@ -172,14 +172,14 @@ class Downloader:
 
     @staticmethod
     def _blank(state):
-        return {'durum': state, 'running': False, 'claimed': 0, 'toplam': 0, 'unpacked_size': 0, 'dosya': '', 'done_files': 0,
-                'file_count': 0, 'hiz': 0, 'time_left_sec': None, 'hata': None, 'hedef': None, 'baslangic': None, 'bitis': None}
+        return {'state': state, 'running': False, 'claimed': 0, 'total': 0, 'unpacked_size': 0, 'file': '', 'done_files': 0,
+                'file_count': 0, 'speed': 0, 'time_left_sec': None, 'error': None, 'target': None, 'start': None, 'end_time': None}
 
     def state(self):
         with self.lock:
             d = json.loads(json.dumps(self.d))
-        if d['toplam']:
-            d['claimed'] = min(d['claimed'], d['toplam'])
+        if d['total']:
+            d['claimed'] = min(d['claimed'], d['total'])
         d['url'] = self.url
         d['partial'] = not d['running'] and os.path.isdir(self.stage)       # önceki indirmeden kalan dosyalar
         return d
@@ -194,7 +194,7 @@ class Downloader:
             if not busy:
                 self.connection = CONNECTIONS if fast else 1
                 self.stop.clear()
-                self.d = dict(self._blank('preparing'), running=True, baslangic=time.time())
+                self.d = dict(self._blank('preparing'), running=True, start=time.time())
                 self.samples = []
         if not busy:
             threading.Thread(target=self._run, daemon=True).start()
@@ -224,9 +224,9 @@ class Downloader:
                 self.samples.pop(0)
             t0, b0 = self.samples[0]
             if now - t0 >= 1:
-                self.d['hiz'] = int((self.d['claimed'] - b0) / (now - t0))
-                left = max(0, self.d['toplam'] - self.d['claimed'])
-                self.d['time_left_sec'] = int(left / self.d['hiz']) if self.d['hiz'] > 0 else None
+                self.d['speed'] = int((self.d['claimed'] - b0) / (now - t0))
+                left = max(0, self.d['total'] - self.d['claimed'])
+                self.d['time_left_sec'] = int(left / self.d['speed']) if self.d['speed'] > 0 else None
 
     def _set(self, **kw):
         with self.lock:
@@ -274,7 +274,7 @@ class Downloader:
             free = shutil.disk_usage(self.root).free
             if free < need + PAY:
                 raise DownloadError(_('Not enough disk space: %.1f GB needed, %.1f GB free.', (need + PAY) / LT, free / LT))
-            self._set(durum='downloading', toplam=sum(i.compress_size for i, p in items), unpacked_size=sum(i.file_size for i, p in items),
+            self._set(state='downloading', total=sum(i.compress_size for i, p in items), unpacked_size=sum(i.file_size for i, p in items),
                       claimed=sum(i.compress_size for i, p in items if p in done), file_count=len(items), done_files=len(done))
             self.log('istemci indiriliyor: %s (%d dosya, %d zaten var, %d bağlantı)' % (self.url, len(items), len(done), self.connection))
             for i, p in files:
@@ -300,7 +300,7 @@ class Downloader:
                     for i, p in g:
                         if self.stop.is_set():
                             raise Cancelled()
-                        self._set(dosya=os.path.relpath(p, self.stage))
+                        self._set(file=os.path.relpath(p, self.stage))
                         self._open(h, i, p)
                         with self.lock:
                             self.d['done_files'] += 1
@@ -313,7 +313,7 @@ class Downloader:
                 list(pool.map(open_chunk, groups))
             if errors:
                 raise next((e for e in errors if not isinstance(e, Cancelled)), errors[0])
-            self._set(durum='verifying', dosya='')
+            self._set(state='verifying', file='')
             c = self.check(self.stage)
             if not c['valid']:
                 raise DownloadError(_('The downloaded folder is not a DarkOrbit client: %s', ' '.join(c['issues'])))
@@ -326,28 +326,28 @@ class Downloader:
                     if k == 9:
                         raise
                     time.sleep(1)
-            self._set(durum='finished', hedef=target, claimed=self.d['toplam'], time_left_sec=0)
+            self._set(state='finished', target=target, claimed=self.d['total'], time_left_sec=0)
             self.log('istemci indirildi: %s' % target)
             if self.on_done:
                 self.on_done(target)
         except Cancelled:
-            self._set(durum='stopped')
+            self._set(state='stopped')
             self.log('istemci indirme durduruldu')
         except DownloadError as e:
-            self._set(durum='hata', hata=str(e))
+            self._set(state='error', error=str(e))
             self.log('istemci indirme hatası: %s' % e)
         except zipfile.BadZipFile as e:
-            self._set(durum='hata', hata=_('The archive arrived damaged (%s). Start again: only the missing files are downloaded.', e))
+            self._set(state='error', error=_('The archive arrived damaged (%s). Start again: only the missing files are downloaded.', e))
             self.log('istemci indirme: bozuk arşiv: %s' % e)
         except OSError as e:
-            self._set(durum='hata', hata=_('Could not write a file: %s', e))
+            self._set(state='error', error=_('Could not write a file: %s', e))
             self.log('istemci indirme: yazma hatası: %r' % e)
         except Exception as e:
-            self._set(durum='hata', hata=repr(e))
+            self._set(state='error', error=repr(e))
             self.log('istemci indirme: beklenmeyen hata: %r' % e)
         finally:
             if f is not None:
                 f.close()
             with self.lock:
-                self.d['running'], self.d['bitis'] = False, time.time()
-                self.d['hiz'] = 0
+                self.d['running'], self.d['end_time'] = False, time.time()
+                self.d['speed'] = 0

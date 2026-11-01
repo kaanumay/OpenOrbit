@@ -22,7 +22,7 @@ ACH = D['achievements']
 TITLES = D['titles']
 TITLE_KEYS = {v: k for k, v in TITLES.items()}
 EVENT_TITLE_BASE = 2000          # tabloda olmayan (etkinlik) unvanlar: 2000 + crc32 % 30000 (istemcide kimlik short)
-CURRENCY = {'CREDITS': 'kredi', 'URIDIUM': 'uridyum', 'EXPERIENCE': 'ep', 'HONOUR': 'onur'}
+CURRENCY = {'CREDITS': 'credits', 'URIDIUM': 'uridium', 'EXPERIENCE': 'ep', 'HONOUR': 'honor'}
 NEXT = 7                         # kayıt: nextAchievements 7 tane
 # etkinlik başarımları (EVENT_* grupları, sezon bileti, etkinlik özniteliği olanlar) yalnız o etkinlik açıkken ilerler; sunucuda
 # etkinlik yok, veri yerinde kalır. Bir etkinlik eklenince grubu (ya da etkinlik adı) buraya.
@@ -75,8 +75,8 @@ from legacy_protocol import legacy  # noqa: E402,F401  (eski metin protokolü: e
 
 
 def in_season(a):
-    seasonal = a['grup'].startswith(('EVENT_', 'SEASONPASS')) or a.get('etkinlik')
-    return not seasonal or a['grup'] in ACTIVE_EVENTS or a['grup'] in ALWAYS_GROUPS or a.get('etkinlik') in ACTIVE_EVENTS
+    seasonal = a['group'].startswith(('EVENT_', 'SEASONPASS')) or a.get('event')
+    return not seasonal or a['group'] in ACTIVE_EVENTS or a['group'] in ALWAYS_GROUPS or a.get('event') in ACTIVE_EVENTS
 
 
 def _index():
@@ -84,7 +84,7 @@ def _index():
     for aid, a in ACH.items():
         if not a['etkin'] or not in_season(a):
             continue
-        for c in a['seviyeler']:
+        for c in a['levels']:
             k = KINDS.get(c['class_name'])
             for kind in (k if isinstance(k, tuple) else (k,)) if k else ():
                 out.setdefault(kind, [])
@@ -108,14 +108,14 @@ def set_events(names):
     return True
 METAS = {}                       # başvurulan başarım -> MetaAchievement'lar (skor: onun tamamlanan seviyesi)
 for _aid, _a in ACH.items():
-    for _c in _a['seviyeler']:
+    for _c in _a['levels']:
         if _a['etkin'] and _c['class_name'] == 'MetaAchievement':
-            for _ref in _c.get('parametreler', {}).get('achievementId', []):
+            for _ref in _c.get('parameters', {}).get('achievementId', []):
                 METAS.setdefault(_ref, set()).add(_aid)
 
 
 def param(c, k):
-    return c.get('parametreler', {}).get(k, [])
+    return c.get('parameters', {}).get(k, [])
 
 
 def measure(c, kind, kw):
@@ -138,7 +138,7 @@ def measure(c, kind, kw):
             return None
         return ('add', 1)
     if s == 'AssetCollect':
-        return ('add', kw.get('adet', 0)) if kw.get('weapon') in param(c, 'assetType') else None
+        return ('add', kw.get('count', 0)) if kw.get('weapon') in param(c, 'assetType') else None
     if s in ('Quest', 'QuestDeathless'):
         return ('add', 1)
     if s in ('QuestSelection',):
@@ -148,11 +148,11 @@ def measure(c, kind, kw):
     if s == 'Gatejumps':
         return ('add', 1)
     if s == 'Influence':
-        return ('add', int(kw.get('puan', 0))) if kw.get('puan') else None
+        return ('add', int(kw.get('points', 0))) if kw.get('points') else None
     if s in ('Distance', 'Damage'):
-        return ('add', int(kw.get('adet', 0))) if kw.get('adet', 0) >= 1 else None
+        return ('add', int(kw.get('count', 0))) if kw.get('count', 0) >= 1 else None
     if s == 'AmmoShots':
-        return ('add', kw.get('adet', 1)) if kw.get('weapon') in param(c, 'weaponType') else None
+        return ('add', kw.get('count', 1)) if kw.get('weapon') in param(c, 'weaponType') else None
     if s == 'Playtime':
         return ('add', 1) if 'PET' not in param(c, 'avatar') or kw.get('pet') else None
     if s == 'PlaytimeOnEnemyMap':
@@ -166,55 +166,55 @@ def measure(c, kind, kw):
     if s == 'DroneFormationDroneAmount':
         return ('set', kw.get('drone', 0))
     if s == 'EquipItem':
-        return ('set', 1) if set(param(c, 'item')) & set(kw.get('esyalar', ())) else None
+        return ('set', 1) if set(param(c, 'item')) & set(kw.get('items', ())) else None
     if s == 'LaserTypeUsage':                               # 60 sn içinde kullanılan cephane türleri (dunya.py)
         return ('window', [str(i) for i in kw.get('items', [])])
     if s == 'TutorialFinished':                             # başlangıç görev zinciri (20000-20003) bitti
         return ('set', 1)
     if s == 'AbilityType':                                  # gemi yetenekleri (gemi_yetenek.py)
-        return ('add', 1) if kw.get('tur') in param(c, 'abilityType') else None
+        return ('add', 1) if kw.get('type') in param(c, 'abilityType') else None
     if s == 'GalaxyGateDone':
-        return ('add', 1) if kw.get('tur') in param(c, 'galaxyGateType') else None
+        return ('add', 1) if kw.get('type') in param(c, 'galaxyGateType') else None
     if s == 'Destruction':
-        return ('add', 1) if kw.get('neden') in param(c, 'reason') else None
+        return ('add', 1) if kw.get('reason') in param(c, 'reason') else None
     if s == 'KilledByAvatarType':
         if kw.get('npc') is None or 'NPC' not in param(c, 'avatar') or (param(c, 'id') and str(kw['npc']) not in param(c, 'id')):
             return None
         return ('add', 1)
-    if s == 'Level' and c.get('olay') == 'LEVEL':          # sezon biletinin Level'ları başka olayla (SEASONPASS_Q…)
+    if s == 'Level' and c.get('incident') == 'LEVEL':          # sezon biletinin Level'ları başka olayla (SEASONPASS_Q…)
         who = 'PLAYER' if kind == 'level' else 'PET'
         return ('set', kw.get('value', 0)) if who in param(c, 'avatar') else None
     if s == 'LevelAbsolute':                                # "Gold Season Pass'in 50 seviyesi": bu sezonun grubu (sezon.py)
-        return ('set', kw.get('value', 0)) if c.get('olay') == kw.get('grup') else None
+        return ('set', kw.get('value', 0)) if c.get('incident') == kw.get('group') else None
     if s == 'Dispatch':                                     # DISPATCH_RETRIEVER / DISPATCH_GATE
-        return ('add', 1) if c.get('olay') == kw.get('olay') else None
+        return ('add', 1) if c.get('incident') == kw.get('incident') else None
     if s == 'NPCSelectionKill':
-        hit = kw.get('avatar', 'NPC') == 'NPC' and set(ship_icons(kw.get('ad'))) & set(param(c, 'npcType'))
+        hit = kw.get('avatar', 'NPC') == 'NPC' and set(ship_icons(kw.get('name'))) & set(param(c, 'npcType'))
         return ('add', 1) if hit else None
     if s == 'EventScore':                                   # "bir etkinlikte N puan": etkinlik dönemindeki toplam
-        return ('set', kw.get('value', 0)) if kw.get('etkinlik') in param(c, 'event') and c.get('olay') == 'EVENT_SCORE' else None
+        return ('set', kw.get('value', 0)) if kw.get('event') in param(c, 'event') and c.get('incident') == 'EVENT_SCORE' else None
     if s == 'BuildRecipe':
-        return ('add', kw.get('adet', 1)) if kw.get('tarif') in param(c, 'recipeId') else None
+        return ('add', kw.get('count', 1)) if kw.get('recipe') in param(c, 'recipeId') else None
     if s == 'TriggerMine':                                  # "N mayını T saniyede, ölmeden": süre penceresindeki sayı
         limit = next((int(t.get('time', 0)) for t in param(c, 'timeLimit') if isinstance(t, dict)), 0)
         return ('times', limit) if kw.get('weapon') in param(c, 'weaponType') else None
     if s == 'CollectPackage':
-        return ('add', 1) if kw.get('paket') in param(c, 'packageId') else None
+        return ('add', 1) if kw.get('package') in param(c, 'packageId') else None
     if s == 'ClearGalaxyGateWave':                          # "Eternal Gate'te N. dalgaya ulaş": ulaşılan en yüksek dalga
-        return ('max', kw.get('dalga', 0)) if kw.get('tur') in param(c, 'galaxyGateType') else None
+        return ('max', kw.get('wave', 0)) if kw.get('type') in param(c, 'galaxyGateType') else None
     if s == 'Uses3D':                                       # 3B görünüm (DisplaySettingsModule.displayUse2d false)
         return ('set', 1) if kw.get('use2d') is False else None
     if s == 'EggTriggerCount':
-        return ('add', 1) if kw.get('tur') in param(c, 'eggTriggerType') else None
+        return ('add', 1) if kw.get('type') in param(c, 'eggTriggerType') else None
     if s == 'PublicWorldBossCondition':                     # recoverhp / takedamage (unvanın adında); yalnız bu yılın başarımı
         want = 'wb_heal' if 'recoverhp' in c.get('title', '') else 'wb_damage'
-        year = c.get('olay', '').endswith('_%d' % time.localtime().tm_year)
-        return ('add', int(kw.get('adet', 0))) if kind == want and year and kw.get('adet', 0) > 0 else None
+        year = c.get('incident', '').endswith('_%d' % time.localtime().tm_year)
+        return ('add', int(kw.get('count', 0))) if kind == want and year and kw.get('count', 0) > 0 else None
     return None
 
 
 def state(p):
-    return p.d.setdefault('achievements', {'score': {}, 'set': {}, 'seviye': {}, 'tarih': {}, 'titles': [], 'title': -1})
+    return p.d.setdefault('achievements', {'score': {}, 'set': {}, 'level': {}, 'date': {}, 'titles': [], 'title': -1})
 
 
 def target(c):
@@ -239,10 +239,10 @@ class Achievements:
 
     # ------------------------------------------------------------ durum
     def level(self, aid):
-        return state(self.p)['seviye'].get(aid, 0)
+        return state(self.p)['level'].get(aid, 0)
 
     def current(self, aid):
-        lv, levels = self.level(aid), ACH[aid]['seviyeler']
+        lv, levels = self.level(aid), ACH[aid]['levels']
         return levels[lv] if lv < len(levels) else None
 
     def score(self, aid, c=None):
@@ -273,7 +273,7 @@ class Achievements:
                     if c and c.get('reset_on_death') and (st['score'].get(aid) or st.get('time', {}).get(aid)):
                         st['score'][aid] = 0
                         st.get('time', {}).pop(aid, None)
-                        st['tarih'][aid] = now
+                        st['date'][aid] = now
                         self.p.dirty = True
             for aid in list(BY_KIND.get(kind, ())) + [a for a, k in SERVER_SIDE.items() if k == kind and ACH.get(a, {}).get('etkin')]:
                 c = self.current(aid)
@@ -288,8 +288,8 @@ class Achievements:
                     import event_calendar as CAL
                     span = CAL.period(ev)
                     key = int(span[0]) if span else 0
-                    if st.setdefault('donem', {}).get(aid) != key:
-                        st['donem'][aid] = key
+                    if st.setdefault('period', {}).get(aid) != key:
+                        st['period'][aid] = key
                         st['score'][aid] = 0
                         st['set'].pop(aid, None)
                 op, v = m
@@ -317,7 +317,7 @@ class Achievements:
                     if v not in c['set'] or v in st['set'].get(aid, []):
                         continue
                     st['set'].setdefault(aid, []).append(v)
-                st['tarih'][aid] = now
+                st['date'][aid] = now
                 changed.append(aid)
             if changed:
                 self.p.dirty = True
@@ -332,8 +332,8 @@ class Achievements:
             while self.met(aid, self.current(aid)):
                 c = self.current(aid)
                 with self.p.lock:
-                    st['seviye'][aid] = self.level(aid) + 1
-                    st['tarih'][aid] = time.strftime('%Y-%m-%d %H:%M:%S')
+                    st['level'][aid] = self.level(aid) + 1
+                    st['date'][aid] = time.strftime('%Y-%m-%d %H:%M:%S')
                     if c.get('title') and c['title'] not in st['titles']:
                         st['titles'].append(c['title'])
                     self.p.dirty = True
@@ -342,7 +342,7 @@ class Achievements:
                 # istemci metni ve simgeyi XML'in grade'iyle arar (<başarım>_<grade>_name); bazı başarımlarda sıradan farklı
                 # (achievement_destroy_centuryfalcon tek seviye, grade 2): canlı test H29, boş bildirim kutusu çıkıyordu
                 msgs.append(legacy('0|A|ACG|%s_%d|%d' % (aid, c.get('grade', lv), target(c))))
-                self.log('   başarım: %s seviye %d (+%d puan%s)' % (aid, lv, c.get('puan', 0),
+                self.log('   başarım: %s seviye %d (+%d puan%s)' % (aid, lv, c.get('points', 0),
                                                                    ', unvan %s' % c['title'] if c.get('title') else ''))
                 for meta in METAS.get(aid, ()):
                     with self.p.lock:
@@ -359,15 +359,15 @@ class Achievements:
         d = self.p.d
         done = self.event('level', value=d['pilot'].get('level', 1))
         if d.get('pet'):
-            done += self.event('pet_level', value=d['pet'].get('seviye', 0))
+            done += self.event('pet_level', value=d['pet'].get('level', 0))
         items = [x for v in d.get('equipment', {}).values() for x in v]
         items += [self.p.drone_design(x, s) for x in d.get('drones', []) for s in ('design', 'visual')]
         done += self.event('display', use2d=d.get('settings', {}).get('displaySettingsModule', {}).get('displayUse2d'))
-        return done + self.event('equip', esyalar=[x for x in items if x])
+        return done + self.event('equip', items=[x for x in items if x])
 
     # ------------------------------------------------------------ istemci
     def info(self, aid, level, score):
-        return mod('AchievementInfoCommand', lastUpdate=state(self.p)['tarih'].get(aid, ''), achievementId=aid, level=level,
+        return mod('AchievementInfoCommand', lastUpdate=state(self.p)['date'].get(aid, ''), achievementId=aid, level=level,
                    score=int(score))
 
     def list_cmd(self):
@@ -378,7 +378,7 @@ class Achievements:
                 continue
             lv = self.level(aid)
             if lv:
-                done.append(self.info(aid, lv, target(a['seviyeler'][lv - 1])))
+                done.append(self.info(aid, lv, target(a['levels'][lv - 1])))
             c = self.current(aid)
             if c and c['class_name'] and self.score(aid, c) > 0:
                 running.append((self.score(aid, c) / max(target(c), 1), self.info(aid, lv + 1, self.score(aid, c))))

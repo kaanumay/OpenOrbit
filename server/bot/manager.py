@@ -31,7 +31,7 @@ PRIME_POPULATION = 1.3              # yoğun saatte çevrimiçi olma eğilimi ç
 FRONTS = (16, 16, 29, 13, 14, 15)        # 4-4 iki kat, 4-5, 4-1, 4-2, 4-3
 
 DEFAULTS = {                 # paketin ayarları (panel/botlar.py aynı anahtarları doğrular)
-    'hiz': 1.0,                # ilerleme hızı çarpanı
+    'speed': 1.0,                # ilerleme hızı çarpanı
     'online_ratio': 0.6,     # botların çevrimiçi olma eğilimi çarpanı
     'max_online': 0,     # aynı anda en çok çevrimiçi (0: sınırsız)
     'catchup_hours': 4,          # oyuncu yokken geçen süreden benzetilen en çok saat (0: telafi yok)
@@ -56,8 +56,8 @@ DEFAULTS = {                 # paketin ayarları (panel/botlar.py aynı anahtarl
     'prime_end': 23,
     'prime_pvp': 2.0,          # yoğun saatte PvP isteği çarpanı (1: fark yok)
     'big_battle': True,       # yoğun saatte firmaların PvP botları ortak cephe haritasında toplanır
-    'permissions': {'shop': True, 'gorev': True, 'pvp': True, 'sohbet': True, 'klan': True, 'clan_found': True, 'arkadas': True,
-                'grup': True, 'auction': True, 'attack_player': True, 'yardim': True, 'box_stealing': True, 'kargo': True, 'roket': True, 'custom_ammunition': True, 'ekstra': True, 'mayin': True, 'lab': True, 'skylab': True, 'technology': True, 'booty': True, 'assembly': True, 'kapi': True, 'etkinlik': True, 'modes': True, 'clan_diplomacy': True, 'clan_order': True, 'gate_filler': True},
+    'permissions': {'shop': True, 'quest': True, 'pvp': True, 'sohbet': True, 'clan': True, 'clan_found': True, 'friend': True,
+                'group': True, 'auction': True, 'attack_player': True, 'assist': True, 'box_stealing': True, 'cargo': True, 'rocket': True, 'custom_ammunition': True, 'ekstra': True, 'mine': True, 'lab': True, 'skylab': True, 'technology': True, 'booty': True, 'assembly': True, 'gate': True, 'event': True, 'modes': True, 'clan_diplomacy': True, 'clan_order': True, 'gate_filler': True},
 }
 
 
@@ -96,7 +96,7 @@ class Manager(ChatEngine):
     def speed(self, bot):
         """Botun ilerleme hızı: paketin hızı x firmasının gücü."""
         fg = self.settings.get('company_power') or [1, 1, 1]
-        return float(self.settings.get('hiz', 1.0)) * float(fg[bot.firma - 1])
+        return float(self.settings.get('speed', 1.0)) * float(fg[bot.firma - 1])
 
     # ------------------------------------------------------------ yükleme / kayıt
     def load(self, now=None):
@@ -119,12 +119,12 @@ class Manager(ChatEngine):
         for roster_row in self.package.get('roster', []):
             k = old.get(str(roster_row['no']))
             if k is None:
-                k = dict(no=roster_row['no'], ad=roster_row['ad'], firma=roster_row['firma'], personality=roster_row['personality'], registered=not ordered)
+                k = dict(no=roster_row['no'], name=roster_row['name'], company=roster_row['company'], personality=roster_row['personality'], registered=not ordered)
                 new_.append(k)
             else:
-                k.update(ad=roster_row['ad'], firma=roster_row['firma'], personality=roster_row['personality'])      # panelde ad değişmiş olabilir
+                k.update(name=roster_row['name'], company=roster_row['company'], personality=roster_row['personality'])      # panelde ad değişmiş olabilir
             if self.mode == 'advanced' and not multilingual:
-                k['personality'] = dict(k['personality'], dil='en')      # dahili dil modeli yalnız İngilizce (llm.py; başka sağlayıcıda serbest)
+                k['personality'] = dict(k['personality'], lang='en')      # dahili dil modeli yalnız İngilizce (llm.py; başka sağlayıcıda serbest)
             b = Bot(k)
             b.permission = self.settings['permissions']
             b.rude = int(self.setting('rude_chat', 1))       # kaba sohbet düzeyi (llm.tarz, sohbet_motoru)
@@ -161,30 +161,30 @@ class Manager(ChatEngine):
         if not new_:
             return 0
         from . import society
-        lists = ('arkadas', 'incoming', 'outgoing', 'declined', 'blocked')
+        lists = ('friend', 'incoming', 'outgoing', 'declined', 'blocked')
         with self.lock:
             if not loading:
                 for e in new_:
-                    if e['tur'] != 'ad':
+                    if e['type'] != 'name':
                         continue
                     b = self.name_index.pop(NL._k(e['eski']), None)
                     if b is not None:
-                        b.k['ad'] = e['yeni']
+                        b.k['name'] = e['new']
                         self.name_index[b.name.lower()] = b
                         for x in self.package.get('roster', []):
                             if x['no'] == b.k['no']:
-                                x['ad'] = e['yeni']
+                                x['name'] = e['new']
                         if b.profile is not None:
                             society.update(b)          # oyundaki adı (gemisi bir sonraki görünüşte yeni adla)
             for b in self.bots:
                 h = b.memory.d
                 for e in new_:
-                    if e['tur'] == 'ad' and NL._k(e['eski']) in h:
+                    if e['type'] == 'name' and NL._k(e['eski']) in h:
                         x = h.pop(NL._k(e['eski']))
-                        x['ad'] = e['yeni']
-                        h[NL._k(e['yeni'])] = x
-                    elif e['tur'] == 'delete':
-                        h.pop(NL._k(e['ad']), None)
+                        x['name'] = e['new']
+                        h[NL._k(e['new'])] = x
+                    elif e['type'] == 'delete':
+                        h.pop(NL._k(e['name']), None)
                 r = b.k.get('contacts') or {}
                 for name in lists:
                     if isinstance(r.get(name), list):
@@ -208,7 +208,7 @@ class Manager(ChatEngine):
             return
         now = now or time.time()
         with self.lock:                                  # metin kilit içinde: dünya döngüsü sözlüklere eklerken yarım kalmasın
-            d = dict(surum=VERSION, t=now, name_log=self.name_log_n, bots={str(b.k['no']): b.save() for b in self.bots})
+            d = dict(version=VERSION, t=now, name_log=self.name_log_n, bots={str(b.k['no']): b.save() for b in self.bots})
             if self.llm is not None:
                 d['llm'] = self.llm.summary()                    # panelin kullanım satırı (son bir saat: istek, token)
             text = json.dumps(d, ensure_ascii=False, separators=(',', ':'))
@@ -304,7 +304,7 @@ class Manager(ChatEngine):
 
     def bot_tick(self, b, now):
         self.now = now
-        on_run = b.target is not None and b.target.name in ('kapi', 'mod') and not b.plan.get('finished')
+        on_run = b.target is not None and b.target.name in ('gate', 'mod') and not b.plan.get('finished')
         if now >= b.session_end and not b.en_route and b.dead_until <= now and not on_run:   # kapı/mod koşusu bitmeden çıkmaz
             if b.body is not None and b.body.alive and not b.__dict__.get('logout_ready'):
                 # haritanda görünen bot olduğu yerde yok olmaz: istasyonuna ya da bir portala uçup orada çıkar (govde.cikisa_git)
@@ -391,7 +391,7 @@ class Manager(ChatEngine):
 
     def entry(self, b, now, silent=False):
         if b.game_map not in K.MAPS:                  # kapıda (ya da kapanmış bir haritada) çıkmıştı: üste döner
-            b.k['harita'] = K.ev(b.firma)
+            b.k['map'] = K.ev(b.firma)
             b.plan = {}
         b.online = True
         b.session_end = now + PS.session_min(b.k['personality'], b.r) * 60
@@ -404,18 +404,18 @@ class Manager(ChatEngine):
         self.on_map.setdefault(b.game_map, set()).add(b)
         b._event_time = now
         if not silent and self.mode != 'simple' and b.r.random() < 0.25 * b.o('talkativeness'):
-            self.speak(b, b.r.choice(('global', 'firma')), SPC.template(b, 'selam'), now=now + b.r.uniform(5, 40))
+            self.speak(b, b.r.choice(('global', 'company')), SPC.template(b, 'greeting'), now=now + b.r.uniform(5, 40))
         for d in list(self.worlds):
             d.bot_online(b, True)
 
     def exit(self, b, now):
         if b.r.random() < 0.15 * b.o('talkativeness'):
-            self.speak(b, 'global', SPC.template(b, 'cikis'), now=now, immediate=True)
+            self.speak(b, 'global', SPC.template(b, 'exit'), now=now, immediate=True)
             self.chat_tick(now)
         b.online = False
         b.next_login = now + b.r.uniform(15, 120) * 60          # çıkınca bir süre girmez
         b.target = None
-        b.k['hedef'] = None
+        b.k['target'] = None
         b.body = None
         self.on_map.get(b.game_map, set()).discard(b)
         for d in list(self.worlds):
@@ -433,8 +433,8 @@ class Manager(ChatEngine):
             d.map_changed(b, old)
 
     def npc_killed(self, b, tip, n=1):
-        uid = K.NPC['types'].get(tip, {}).get('npc_kimlik')
-        if uid is not None and b.k.get('gorev'):
+        uid = K.NPC['types'].get(tip, {}).get('npc_id')
+        if uid is not None and b.k.get('quest'):
             QU.advance(b, QU.KILL_NPC, n=n, npc_id=uid, game_map=b.game_map, y=self)
 
     def bot_died(self, b, killer):
@@ -485,12 +485,12 @@ class Manager(ChatEngine):
                     continue
                 f = a.r.choice([f for f in companies if f != a.firma])
                 target = a.r.choice(companies[f])
-                if a.k.get('klan'):
+                if a.k.get('clan'):
                     from . import society as TP
                     combat = [h for h in companies[f] if TP.clan_relation(a, h) == 3]
                     if combat:
                         target = a.r.choice(combat)        # klan savaşı: haritadaki düşman klanın üyesi önce
-                if target.dead_until > now or a.k.get('klan') and TP.clan_relation(a, target) in (1, 2):
+                if target.dead_until > now or a.k.get('clan') and TP.clan_relation(a, target) in (1, 2):
                     continue
                 ratio = target.value()['power'] / max(0.5, a.value()['power'])
                 if not hunt and ratio > 0.9 + 0.6 * a.o('risk'):
@@ -498,7 +498,7 @@ class Manager(ChatEngine):
                 if ratio > 1.6 + a.o('risk') + a.mood['anger']:
                     continue                     # avda bile çok güçlüye saldırmaz
                 result = S.encounter(a, target, self, now)
-                if result and result[0] == 'won' and result[1].k.get('gorev'):
+                if result and result[0] == 'won' and result[1].k.get('quest'):
                     QU.advance(result[1], QU.KILL_PLAYERS, game_map=result[1].game_map, y=self)
 
     # ------------------------------------------------------------ hızlı ilerletme
@@ -590,7 +590,7 @@ def server(route, log=print):
                 log('   botlar: Gelişmiş kip ama dil modeli kurulu değil (Botlar > Gelişmiş kip): Normal kip gibi sürüyor')
         ACTIVE = y
         y.launch()
-        log('botlar: "%s" (%s, %d bot) %.1f sn' % (package.get('ad', uid), package.get('mode', 'normal'), len(y.bots), time.time() - t0))
+        log('botlar: "%s" (%s, %d bot) %.1f sn' % (package.get('name', uid), package.get('mode', 'normal'), len(y.bots), time.time() - t0))
 
     threading.Thread(target=rate, name='bots-setup', daemon=True).start()
 

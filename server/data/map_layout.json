@@ -7,16 +7,16 @@
   "5-4": "fandom 5-4: 5-2'den atlayınca haritanın sağ tarafında kırık portallardan birinin yanına ışınlanılır, çıkış portalı solda (30-50 civarı). Varış yerleri 5-3'ün sağdaki kırık portallarının (aynı boyut, 42000x26200) firma başına yerleri (UYARLAMA: 5-4 için kayıt yok; 5-2'nin 93 varışlarıyla aynı üç nokta). Enkaz engelleri ve 4-4 çıkışı kaynakta koordinatsız: kayıt gelene dek eklenmedi (harita.EXTRA_GATES: dönüş portalı 5-2'ye, solda)"
  },
  "_uyarlama": "X-BL portal güvenli bölgesi 500; 1-BL ve 3-BL'nin engel tasarımı ve görev vericinin yaklaşma bölgesi (150) BL-2'ninki (ölçülmedi); inlerin tam yeri; mayın türü ACM-01 ve sayısı (alan başına mayin_adet; emu-dark 150); mayın alanları harita dışına taşıyor (kayıttaki gibi), mayınlar harita içine düşer.",
- "mayin": {
-  "tur": "ammunition_mine_acm-01",
-  "adet": 150,
+ "mine": {
+  "type": "ammunition_mine_acm-01",
+  "count": 150,
   "renew_sec": [
    30,
    60
   ],
   "portal_far": 1500
  },
- "haritalar": {
+ "maps": {
   "476": {
    "_name": "DSE 3 (resmî istemcide Battlefield III)",
    "_kaynak": "Oyuncu bildirimi 2026-10-28, resmî oyunun mini harita görüntüsü (Battlefield III 143/76): ortada taralı engel (7.000-13.000 x 4.000-8.000), engelin altında solda ve sağda bekleyen uzaylı kümeleri",
@@ -46,7 +46,7 @@
       8500
      ]
     ],
-    "yaricap": 1500
+    "radius": 1500
    }
   },
   "1": {

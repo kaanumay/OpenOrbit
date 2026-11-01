@@ -55,7 +55,7 @@ def mapping(code='en'):
 def entries():
     """Arayüzün dil seçimi: kod, ad, yerel ayar ve çevrilmiş metin oranı (Türkçe sözlüğe göre: her metnin Türkçesi var)."""
     full = len(mapping('tr')) or 1
-    return [{'code': k, 'ad': name, 'local': local,
+    return [{'code': k, 'name': name, 'local': local,
              'coverage': 100 if k in ('tr', 'en') else min(100, round(100 * len(mapping(k)) / full))}
             for k, (name, local) in LANGUAGES.items()]
 

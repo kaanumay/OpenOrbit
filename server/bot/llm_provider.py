@@ -1,7 +1,7 @@
 """Gelişmiş kipin dil modeli sağlayıcısı: dahili yerel model (llm_sunucu: llama-server + Qwen3 4B) ya da kullanıcının seçtiği bir
 sağlayıcı (OpenAI, Anthropic, Gemini, DeepSeek ...; bilgisayardaki Ollama, LM Studio ya da başka bir OpenAI uyumlu sunucu).
 
-Seçim tek ve genel: save/llm/saglayici.json {secili, saglayicilar: {kimlik: {anahtar, adres, model}}}. Anahtarlar bot paketlerine
+Seçim tek ve genel: save/llm/saglayici.json {secili, saglayicilar: {uid: {anahtar, adres, model}}}. Anahtarlar bot paketlerine
 girmez; panel onları yalnız maskeli gösterir. Uzak istemci Sunucu ile aynı arayüzü sunar (baslat, sor, durdur): Beyin ikisini ayırt
 etmez. Dahili model yalnız İngilizce konuşur (Türkçede zayıf); öteki sağlayıcılarla botlar kendi dillerinde konuşur (cok_dilli).
 
@@ -18,23 +18,23 @@ import paths as PTH
 LOCAL = 'local'
 # kimlik -> ad, tür ('openai' uyumlu ya da 'anthropic'), varsayılan adres ve model, anahtar gerekir mi, bilgisayarda mı çalışır
 PROVIDERS = {
-    LOCAL: dict(ad='Dahili yerel model (Qwen3 4B)', tur='dahili', address='', model='', anahtar=False, local=True),
-    'openai': dict(ad='OpenAI', tur='openai', address='https://api.openai.com/v1', model='gpt-4.1-mini', anahtar=True, local=False),
-    'anthropic': dict(ad='Anthropic Claude', tur='anthropic', address='https://api.anthropic.com/v1', model='claude-haiku-5-5',
+    LOCAL: dict(name='Dahili yerel model (Qwen3 4B)', type='dahili', address='', model='', anahtar=False, local=True),
+    'openai': dict(name='OpenAI', type='openai', address='https://api.openai.com/v1', model='gpt-4.1-mini', anahtar=True, local=False),
+    'anthropic': dict(name='Anthropic Claude', type='anthropic', address='https://api.anthropic.com/v1', model='claude-haiku-5-5',
                       anahtar=True, local=False),
-    'gemini': dict(ad='Google Gemini', tur='openai', address='https://generativelanguage.googleapis.com/v1beta/openai',
+    'gemini': dict(name='Google Gemini', type='openai', address='https://generativelanguage.googleapis.com/v1beta/openai',
                    model='gemini-2.5-flash', anahtar=True, local=False),
-    'deepseek': dict(ad='DeepSeek', tur='openai', address='https://api.deepseek.com/v1', model='deepseek-chat', anahtar=True, local=False),
-    'openrouter': dict(ad='OpenRouter', tur='openai', address='https://openrouter.ai/api/v1', model='openai/gpt-4.1-mini', anahtar=True,
+    'deepseek': dict(name='DeepSeek', type='openai', address='https://api.deepseek.com/v1', model='deepseek-chat', anahtar=True, local=False),
+    'openrouter': dict(name='OpenRouter', type='openai', address='https://openrouter.ai/api/v1', model='openai/gpt-4.1-mini', anahtar=True,
                        local=False),
-    'groq': dict(ad='Groq', tur='openai', address='https://api.groq.com/openai/v1', model='llama-3.3-70b-versatile', anahtar=True,
+    'groq': dict(name='Groq', type='openai', address='https://api.groq.com/openai/v1', model='llama-3.3-70b-versatile', anahtar=True,
                  local=False),
-    'mistral': dict(ad='Mistral', tur='openai', address='https://api.mistral.ai/v1', model='mistral-small-latest', anahtar=True,
+    'mistral': dict(name='Mistral', type='openai', address='https://api.mistral.ai/v1', model='mistral-small-latest', anahtar=True,
                     local=False),
-    'xai': dict(ad='xAI Grok', tur='openai', address='https://api.x.ai/v1', model='grok-3-mini', anahtar=True, local=False),
-    'ollama': dict(ad='Ollama', tur='openai', address='http://127.0.0.1:11434/v1', model='qwen3:8b', anahtar=False, local=True),
-    'lmstudio': dict(ad='LM Studio', tur='openai', address='http://127.0.0.1:1234/v1', model='', anahtar=False, local=True),
-    'ozel': dict(ad='Özel (OpenAI uyumlu)', tur='openai', address='http://127.0.0.1:8080/v1', model='', anahtar=False, local=True),
+    'xai': dict(name='xAI Grok', type='openai', address='https://api.x.ai/v1', model='grok-3-mini', anahtar=True, local=False),
+    'ollama': dict(name='Ollama', type='openai', address='http://127.0.0.1:11434/v1', model='qwen3:8b', anahtar=False, local=True),
+    'lmstudio': dict(name='LM Studio', type='openai', address='http://127.0.0.1:1234/v1', model='', anahtar=False, local=True),
+    'special': dict(name='Özel (OpenAI uyumlu)', type='openai', address='http://127.0.0.1:8080/v1', model='', anahtar=False, local=True),
 }
 _THINK = re.compile(r'<think>.*?</think>\s*', re.S)
 _LOCK = threading.Lock()
@@ -49,7 +49,7 @@ def _route():
 
 
 def setting():
-    """{secili, saglayicilar: {kimlik: {anahtar, adres, model}}} (dosya yoksa dahili model)."""
+    """{secili, saglayicilar: {uid: {anahtar, adres, model}}} (dosya yoksa dahili model)."""
     try:
         with open(_route(), encoding='utf8') as fh:
             d = json.load(fh)
@@ -69,7 +69,7 @@ def selected():
 
 def full(uid, a):
     s = PROVIDERS[uid]
-    return {'kimlik': uid, 'tur': s['tur'], 'address': (a.get('address') or s['address']).rstrip('/'),
+    return {'uid': uid, 'type': s['type'], 'address': (a.get('address') or s['address']).rstrip('/'),
             'model': a.get('model') or s['model'], 'anahtar': a.get('anahtar') or ''}
 
 
@@ -88,10 +88,10 @@ def status():
     out = []
     for k, s in PROVIDERS.items():
         a = d['providers'].get(k) or {}
-        out.append({'kimlik': k, 'ad': s['ad'], 'tur': s['tur'], 'key_required': s['anahtar'], 'local': s['local'],
+        out.append({'uid': k, 'name': s['name'], 'type': s['type'], 'key_required': s['anahtar'], 'local': s['local'],
                     'address': a.get('address') or s['address'], 'model': a.get('model') or s['model'],
                     'default_url': s['address'], 'anahtar': mask(a.get('anahtar') or ''), 'has_key': bool(a.get('anahtar'))})
-    return {'selected': d['selected'], 'multilingual': multilingual(d['selected']), 'liste': out}
+    return {'selected': d['selected'], 'multilingual': multilingual(d['selected']), 'entries': out}
 
 
 def save(uid, address=None, model=None, key=None, sec=True):
@@ -127,11 +127,11 @@ def save(uid, address=None, model=None, key=None, sec=True):
 # ------------------------------------------------------------------------------------------------------------ HTTP
 def _headers(c):
     h = {'Content-Type': 'application/json', 'User-Agent': 'OpenOrbit'}
-    if c['tur'] == 'anthropic':
+    if c['type'] == 'anthropic':
         h.update({'x-api-key': c['anahtar'], 'anthropic-version': '2023-06-01'})
     elif c['anahtar']:
         h['Authorization'] = 'Bearer ' + c['anahtar']
-    if c['kimlik'] == 'openrouter':
+    if c['uid'] == 'openrouter':
         h.update({'HTTP-Referer': 'https://github.com/OpenOrbit', 'X-Title': 'OpenOrbit'})
     return h
 
@@ -185,7 +185,7 @@ def models(uid, address=None, key=None):
     if key:
         a['anahtar'] = key
     c = full(uid, a)
-    d = _call(c, '/models' + ('?limit=100' if c['tur'] == 'anthropic' else ''), timestamp=20)
+    d = _call(c, '/models' + ('?limit=100' if c['type'] == 'anthropic' else ''), timestamp=20)
     entries = d.get('data') if isinstance(d, dict) else d
     names = [str(m.get('id') or m.get('name') or '') for m in entries or [] if isinstance(m, dict)]
     return sorted({re.sub(r'^models/', '', x) for x in names if x})
@@ -222,7 +222,7 @@ class Remote:
 
     def __init__(self, c, log=print):
         self.c, self.log = c, log
-        self.name = '%s · %s' % (PROVIDERS[c['kimlik']]['ad'], c['model'] or '?')
+        self.name = '%s · %s' % (PROVIDERS[c['uid']]['name'], c['model'] or '?')
         self.port = None
         self.ready = False
         self.json_mode = 'schema'              # sema -> nesne -> istem (sağlayıcı reddettikçe)
@@ -231,7 +231,7 @@ class Remote:
         self.usage = {'request': 0, 'input': 0, 'cache': 0, 'output': 0}     # token sayımı (önbellekten gelen girdi ayrı)
 
     def launch(self, wait_sec=None):
-        if PROVIDERS[self.c['kimlik']]['anahtar'] and not self.c['anahtar']:
+        if PROVIDERS[self.c['uid']]['anahtar'] and not self.c['anahtar']:
             raise ProviderError('API anahtarı girilmemiş.')
         if not self.c['model']:
             raise ProviderError('Model seçilmemiş.')
@@ -253,7 +253,7 @@ class Remote:
         t0 = time.time()
         for _ in range(4):                  # her 400'de bir parametre ya da JSON basamağı düşer
             try:
-                text = (self._anthropic if self.c['tur'] == 'anthropic' else self._openai)(system, user, schema, max_count, temperature,
+                text = (self._anthropic if self.c['type'] == 'anthropic' else self._openai)(system, user, schema, max_count, temperature,
                                                                                             timestamp)
                 break
             except HttpError as e:
@@ -269,7 +269,7 @@ class Remote:
     def _adapt(self, text, schema):
         """400 yanıtına göre isteği değiştir -> yeniden denenebilir mi."""
         m = text.lower()
-        if self.c['tur'] == 'anthropic' and 'effort' in m and 'output_config' not in self.jump_to:
+        if self.c['type'] == 'anthropic' and 'effort' in m and 'output_config' not in self.jump_to:
             self.jump_to.add('output_config')          # eski model: effort yok (şema da istemde)
             self.json_mode = 'prompt'
             return True
@@ -280,7 +280,7 @@ class Remote:
                 return True
         if schema is not None and self.json_mode != 'prompt' and re.search(r'response_format|json_schema|json_object|output_config|'
                                                                        r'schema|format', m):
-            self.json_mode = 'object' if self.json_mode == 'schema' and self.c['tur'] == 'openai' else 'prompt'
+            self.json_mode = 'object' if self.json_mode == 'schema' and self.c['type'] == 'openai' else 'prompt'
             self.log('   botlar: sağlayıcı JSON şemasını kabul etmiyor, JSON kipi: %s' % self.json_mode)
             return True
         return False
@@ -309,7 +309,7 @@ class Remote:
         # sınır geniş: düşünen modeller düşünceyi de bu sınırdan harcar (yalnız üretilen kadar ödenir; Qwen3 1024'te kesiliyordu)
         body = {'model': self.c['model'], 'messages': [{'role': 'system', 'content': system}] + self._messages(user),
                  'temperature': temperature, 'max_tokens': max(max_count * 8, 4096)}
-        if self.c['kimlik'] == 'openai' or 'max_tokens' in self.jump_to:
+        if self.c['uid'] == 'openai' or 'max_tokens' in self.jump_to:
             body['max_completion_tokens'] = body.pop('max_tokens')
         for p in self.jump_to:
             body.pop(p, None)
@@ -353,7 +353,7 @@ class Remote:
 def client(slot=4, log=print):
     """Seçili sağlayıcının istemcisi: dahili model için llm_sunucu.Sunucu, öteki her sağlayıcı için Uzak."""
     c = selected()
-    if c['kimlik'] == LOCAL:
+    if c['uid'] == LOCAL:
         from . import llm_server as LS
         return LS.Server(slot, log)
     return Remote(c, log)
@@ -368,7 +368,7 @@ def test(log=print):
     opening = time.time() - t0
     response, duration = s.ask('You are a pilot in a space game. Answer briefly.',
                         'A friend wrote "selam, nasılsın?". Give JSON: in cevap a short reply in Turkish, in durum the word "TAMAM".',
-                        schema={'type': 'object', 'properties': {'cevap': {'type': 'string'}, 'durum': {'type': 'string'}},
-                              'required': ['cevap', 'durum']}, max_count=80)
-    ok = 'TAMAM' in str(response.get('durum', '')).upper()
+                        schema={'type': 'object', 'properties': {'cevap': {'type': 'string'}, 'state': {'type': 'string'}},
+                              'required': ['cevap', 'state']}, max_count=80)
+    ok = 'TAMAM' in str(response.get('state', '')).upper()
     return {'ok': ok, 'startup_sec': round(opening, 1), 'sure_sn': round(duration, 2), 'response': response.get('cevap'), 'provider': s.name}

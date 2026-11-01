@@ -67,15 +67,15 @@ class DailyReward:
         if not k:
             return None
         st = self.p.d.setdefault('mini_client', {})
-        if st.get('donem') != pid:
+        if st.get('period') != pid:
             with self.p.lock:
                 st.clear()
-                st.update(donem=pid, gun=None, n=0)
+                st.update(period=pid, day=None, n=0)
                 self.p.dirty = True
         return st
 
     def mini_claimable(self, st, now=None):
-        return st['n'] < len(mini_list(now)) and st['gun'] != today(now).isoformat()
+        return st['n'] < len(mini_list(now)) and st['day'] != today(now).isoformat()
 
     def mini_info(self, now=None):
         st = self.mini_state(now)
@@ -93,7 +93,7 @@ class DailyReward:
         l, n, s = mini_list()[st['n']]
         with self.p.lock:
             st['n'] += 1
-            st['gun'] = today().isoformat()
+            st['day'] = today().isoformat()
             self.p.dirty = True
         self.log('   Mini Client ödülü: gün %d %s x%d' % (st['n'], l, n))
         return self.reward(l, n) + [('MiniClientRewardDayInfoCommand', dict(isClaimable=False, daysClaimed=st['n']))]
@@ -103,7 +103,7 @@ class DailyReward:
         st = self.p.d.get('monthly_deluxe')
         if not st:
             return -1
-        d = (today(now) - datetime.date.fromisoformat(st['baslangic'])).days
+        d = (today(now) - datetime.date.fromisoformat(st['start'])).days
         return d if 0 <= d < len(DELUXE) else -1
 
     def deluxe_day_cmd(self, now=None):
@@ -121,7 +121,7 @@ class DailyReward:
         now = time.time() if now is None else now
         st = self.p.d.get('monthly_deluxe')
         if st and self.deluxe_day(now) >= 0:
-            end = datetime.datetime.combine(datetime.date.fromisoformat(st['baslangic']) + datetime.timedelta(days=len(DELUXE)),
+            end = datetime.datetime.combine(datetime.date.fromisoformat(st['start']) + datetime.timedelta(days=len(DELUXE)),
                                             datetime.time()).timestamp()
             left = int(end - now)
         else:
@@ -135,11 +135,11 @@ class DailyReward:
         st = self.p.d.get('monthly_deluxe')
         start = today()
         if st and self.deluxe_day() >= 0:
-            start = datetime.date.fromisoformat(st['baslangic']) + datetime.timedelta(days=len(DELUXE))
+            start = datetime.date.fromisoformat(st['start']) + datetime.timedelta(days=len(DELUXE))
             self.p.add_resource(DELUXE_ITEM, n)                          # sıradaki ay depoda (bitince başlar)
             return []
         with self.p.lock:
-            self.p.d['monthly_deluxe'] = {'baslangic': start.isoformat(), 'claimed': []}
+            self.p.d['monthly_deluxe'] = {'start': start.isoformat(), 'claimed': []}
             self.p.dirty = True
         if n > 1:
             self.p.add_resource(DELUXE_ITEM, n - 1)                      # kalan aylar depoda (yoksa yalnız bir ay veriliyordu)
@@ -164,7 +164,7 @@ class DailyReward:
         if st and self.deluxe_day() < 0 and self.p.resource(DELUXE_ITEM) > 0:
             self.p.add_resource(DELUXE_ITEM, -1)
             with self.p.lock:
-                self.p.d['monthly_deluxe'] = {'baslangic': today().isoformat(), 'claimed': []}
+                self.p.d['monthly_deluxe'] = {'start': today().isoformat(), 'claimed': []}
                 self.p.dirty = True
 
     # ------------------------------------------------------------ Unity istemcisi ödülü
@@ -172,18 +172,18 @@ class DailyReward:
     def parent(self):
         st = self.p.d.setdefault('unity_reward', {})
         if not st:
-            st.update(baslangic=today().isoformat(), value={}, tamam=[], claimed=[])
+            st.update(start=today().isoformat(), value={}, done=[], claimed=[])
             self.p.dirty = True
         return st
 
     def unity_day(self, now=None):
-        return (today(now) - datetime.date.fromisoformat(self.parent['baslangic'])).days
+        return (today(now) - datetime.date.fromisoformat(self.parent['start'])).days
 
     def unity_list(self, quests):
         st = self.parent
         return mod('EventQuestListCommand', quests=[
-            mod('EventQuestDefinitionModule', module=GT.with_state(q, st['value'].get(str(q['id']), {}), q['id'] in st['tamam']),
-                completed=q['id'] in st['tamam'], claimed=q['id'] in st['claimed']) for q in quests])
+            mod('EventQuestDefinitionModule', module=GT.with_state(q, st['value'].get(str(q['id']), {}), q['id'] in st['done']),
+                completed=q['id'] in st['done'], claimed=q['id'] in st['claimed']) for q in quests])
 
     def unity_cmd(self, now=None):
         d = self.unity_day(now)
@@ -198,7 +198,7 @@ class DailyReward:
             return []
         st, msgs, done = self.parent, [], []
         for q in UNITY[d]:
-            if q['id'] in st['tamam']:
+            if q['id'] in st['done']:
                 continue
             m, fin = GT.advance(self.p, q['rootCase'], st['value'].setdefault(str(q['id']), {}), kind, kw, self.map_id)
             msgs += m
@@ -206,7 +206,7 @@ class DailyReward:
                 done.append(q['id'])
         for q in done:
             with self.p.lock:
-                st['tamam'].append(q)
+                st['done'].append(q)
                 self.p.dirty = True
             msgs.append(('EventQuestCompletedCommand', dict(eventType='UnityClientReward', repeatableType='DAILY')))
             self.log('   Unity istemcisi ödül görevi bitti: %d' % q)
@@ -217,7 +217,7 @@ class DailyReward:
     def unity_claim(self, f):
         qid = int(f.get('questId') or 0)
         st = self.parent
-        if qid not in UNITY_Q or qid not in st['tamam'] or qid in st['claimed']:
+        if qid not in UNITY_Q or qid not in st['done'] or qid in st['claimed']:
             return [self.unity_cmd()]
         with self.p.lock:
             st['claimed'].append(qid)

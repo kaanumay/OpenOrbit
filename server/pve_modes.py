@@ -46,11 +46,11 @@ class PveModes:
         self.world = None
         self.extra_windows = {}                # başka modüllerin pencereli portalları: tür -> (portal, dünya, git)
         self.last_where = 'X-1'                # son açılan kapı penceresinin haritası (günlük giriş sayacı)
-        self.maps = {self.voyagers.D['harita']: self.voyagers}
-        for ids in self.trinity.D['haritalar'].values():
+        self.maps = {self.voyagers.D['map']: self.voyagers}
+        for ids in self.trinity.D['maps'].values():
             self.maps.update({m: self.trinity for m in ids})
-        self.maps.update({m: self.astral for m in AS.D['haritalar']})
-        self.maps.update({m: self.echoes for m in [EC.D['hall']] + EC.D['haritalar']})
+        self.maps.update({m: self.astral for m in AS.D['maps']})
+        self.maps.update({m: self.echoes for m in [EC.D['hall']] + EC.D['maps']})
         if self.ebl:
             self.maps.update({m: self.ebl for m in self.ebl.maps()})
 
@@ -111,22 +111,22 @@ class PveModes:
         Quarantine Zone, tek can; Subglacial CPU: X-1'de Permafrost Fissure). Kapı açıkken CPU yalnız cpu_can varsa kullanılır: o kadar
         can ekler (Subglacial +2; istemci metni "If it is already open, adds 2 lives")."""
         g, G, item = EKP.GATES[key], self.k.gate(key), EKP.GATES[key]['rule']['cpu']
-        if not self.k.here(g['giris'], w.map_id) or (G.get('hazir') and not g['rule'].get('cpu_hp')):
+        if not self.k.here(g['entry'], w.map_id) or (G.get('ready') and not g['rule'].get('cpu_hp')):
             return None
         if self.p.use_ammo(item) is None:
             return None
-        if G.get('hazir'):
+        if G.get('ready'):
             with self.p.lock:
                 G['can'] += g['rule']['cpu_hp']
                 self.p.dirty = True
-            self.log('   %s: +%d can (%d)' % (g['ad'], g['rule']['cpu_hp'], G['can']))
-            return [KAPI.screen('%s: %d lives added.' % (g['ad'], g['rule']['cpu_hp']), big=True)]
+            self.log('   %s: +%d can (%d)' % (g['name'], g['rule']['cpu_hp'], G['can']))
+            return [KAPI.screen('%s: %d lives added.' % (g['name'], g['rule']['cpu_hp']), big=True)]
         self.k.enter(key)
         for x in self.k.entry_portals(w.map_id, w.station):
-            if x['kapi'] == key:
+            if x['gate'] == key:
                 w.add_gate(x)
-        self.log('   %s: %s kapısı' % (item, g['ad']))
-        return [KAPI.screen('The %s gate has opened.' % g['ad'], big=True)]
+        self.log('   %s: %s kapısı' % (item, g['name']))
+        return [KAPI.screen('The %s gate has opened.' % g['name'], big=True)]
 
     # ------------------------------------------------------------ pencereli portallar
     def window(self, g):
@@ -135,7 +135,7 @@ class PveModes:
         w = self.world
         go = lambda dest, pos=None: w.later(0.2, lambda: self.change_map(dest, dict(g, windowed=None), pos))
         if kind in ('voyagers', 'trinity'):
-            self.last_where = g.get('giris', 'X-1')
+            self.last_where = g.get('entry', 'X-1')
             a = self.voyagers if kind == 'voyagers' else self.trinity
             w.send([a.window(self.last_where)])
         elif kind == 'astral':
@@ -217,14 +217,14 @@ class PveModes:
         if name == 'ExpeditionResetRequest':
             return e.reset()
         if name == 'ExpeditionBackRequest':
-            return self.jump(KAPI.HOME_MAP.get(self.p.d['pilot'].get('factionId'), 5), 'istasyon')       # Echoes'tan eve: istasyona
+            return self.jump(KAPI.HOME_MAP.get(self.p.d['pilot'].get('factionId'), 5), 'station')       # Echoes'tan eve: istasyona
         if name == 'EternalBlacklightChooseOptionRequest' and self.ebl:
             return self.ebl.choose(f)
         return []
 
     def jump(self, dest, pos=None):
         if self.change_map:
-            self.change_map(dest, {'kapi': 'pve'}, pos)
+            self.change_map(dest, {'gate': 'pve'}, pos)
         return []
 
     # ------------------------------------------------------------ giriş

@@ -71,8 +71,8 @@ def gear(map_id, power=1.0, r=random):
     full = max(0.25, min(1.0, pay * power * r.uniform(0.8, 1.1)))
     drones = max(0, min(8, int(round(drones * min(power, 1.3) * r.uniform(0.7, 1.2))))) if drone else 0
     slot = g['laser'] + drones * (2 if drone == 'drone_iris' else 1)
-    return {'gemi': ship, 'lazer': {laser: max(1, int(round(slot * full)))},
-            'kalkan': {shield: max(1, int(round(g['generators'] * full * 0.8)))}, 'hiz': {}, 'drone': {drone: drones} if drones else {},
+    return {'ship': ship, 'laser': {laser: max(1, int(round(slot * full)))},
+            'kalkan': {shield: max(1, int(round(g['generators'] * full * 0.8)))}, 'speed': {}, 'drone': {drone: drones} if drones else {},
             'ammunition': 'ammunition_laser_mcb-25' if power >= 1.4 else K.AMMO[0]}
 
 
@@ -91,13 +91,13 @@ def prepare(y, now):
             m, owner, _ = places[i % len(places)]
             b.k['simple_map'] = m
             if owner and r.random() < friend:
-                b.k['firma'] = owner
+                b.k['company'] = owner
             elif owner:
-                b.k['firma'] = r.choice([f for f in (1, 2, 3) if f != owner])
-        b.k['harita'] = m
+                b.k['company'] = r.choice([f for f in (1, 2, 3) if f != owner])
+        b.k['map'] = m
         b.k['gear'] = gear(m, power * r.uniform(0.85, 1.15), r)
         lv = CLASS_LEVEL.get(map_class(m), 5) + r.randint(-1, 2)
-        b.k['seviye'] = max(1, lv)
+        b.k['level'] = max(1, lv)
         b.loadout_changed()
         y.entry(b, now)
         b.session_end = float('inf')

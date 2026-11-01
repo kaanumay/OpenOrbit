@@ -74,14 +74,14 @@ def on_kill(killer, victim):
             kp.dirty = True
         honor = int(C['friend_honor'] * 2 ** (n - 1))
         credits = -min(-C['friend_credits'], kp.d['pilot'].get('credits', 0))
-        tot = kp.gain(onur=honor, kredi=credits, neden='friendly_kill')
+        tot = kp.gain(honor=honor, credits=credits, reason='friendly_kill')
         RT.note(kp, 'history_friendly_kill', name)
-        return killer.reward_msgs(tot, onur=honor, kredi=credits) + [legacy('0|A|STM|friendlyfire')]
+        return killer.reward_msgs(tot, honor=honor, credits=credits) + [legacy('0|A|STM|friendlyfire')]
     with kp.lock:
         g = kp.d.setdefault('pvp_daily', {})
-        if g.get('gun') != RT.today():
+        if g.get('day') != RT.today():
             g.clear()
-            g['gun'] = RT.today()
+            g['day'] = RT.today()
         k = str(vp.user_id)
         cnt = g.setdefault('victim', {}).get(k, 0) + 1
         g['victim'][k] = cnt
@@ -89,13 +89,13 @@ def on_kill(killer, victim):
     f = max(0.0, 1 - C['push_step'] * max(0, cnt - C['push_threshold']))
     if f <= 0:
         return [legacy('0|A|STM|msg_pusher_no_pushing')] + [D.stm('pusher_info_no_reward', '%NAME%', name)]
-    pts = RT.R.get('ship_points', {}).get(ship, {}).get('puan', 1)
+    pts = RT.R.get('ship_points', {}).get(ship, {}).get('points', 1)
     ep, honor = int(C['ep_points'] * pts * f), int(C['honor_points'] * pts * f)
-    tot = kp.gain(ep=ep, onur=honor, neden='bonus_abschussPlayer')
-    msgs += killer.reward_msgs(tot, ep=ep, onur=honor)
+    tot = kp.gain(ep=ep, honor=honor, reason='bonus_abschussPlayer')
+    msgs += killer.reward_msgs(tot, ep=ep, honor=honor)
     if f < 1:
         msgs.append(D.stm('pusher_info_less_reward', '%NAME%', name))
-    msgs += kp.ach('kill', avatar='PLAYER', gemi=ship) or []
+    msgs += kp.ach('kill', avatar='PLAYER', ship=ship) or []
     msgs += killer.quest('kill_player', ship=ship, faction=vf)
     msgs += killer.pvp_drone_points(ship)
     return msgs
@@ -111,11 +111,11 @@ def _hit(w, other, now, normal, shield=0, atype=1):
             factor *= max(0.0, 1 + other.p.mods().get('laser_taken', 0))
         normal, shield = int(round(normal * factor)), int(round(shield * factor))
         if shield > 0:
-            before = other.p.d['gemi'].get('shield', 0)
+            before = other.p.d['ship'].get('shield', 0)
             other.send(other.hurt_hero(shield, atype=atype, source_player=w, now=now, shield_only=True))
-            drained = max(0, before - other.p.d['gemi'].get('shield', 0))
+            drained = max(0, before - other.p.d['ship'].get('shield', 0))
             if drained:
-                g = w.p.d['gemi']
+                g = w.p.d['ship']
                 w.p.set_hull(shield=g.get('shield', 0) + drained)
                 w.send([('AttributeShieldUpdateCommand', {'shieldNow': int(g['shield']), 'shieldMax': int(g.get('shieldMax', 0))})])
         if normal > 0 and not other.hero_dead:
@@ -147,7 +147,7 @@ def rocket(w, other, now):
     if err:
         w.send(err)
         return True
-    rocket = w.p.d['selected']['roket']
+    rocket = w.p.d['selected']['rocket']
     if D.CIT.special(rocket) or rocket not in D.ITEMS['rockets']:
         w.send([('MessageCommand', dict(displayTarget=2, displayStyle=1,
             messageModule=D.mod('WildcardMessageModule', message=D.mod('MessageKeyListWildcardModule',
@@ -162,7 +162,7 @@ def rocket(w, other, now):
         w.send([D.range_exceeded(other.hid, D.COMBAT['rocket_range'], 0)])
         return True
     if w.p.use_ammo(rocket, 1) is None:
-        sub, msgs = w.ammo_out('roket', rocket, 1)
+        sub, msgs = w.ammo_out('rocket', rocket, 1)
         w.send(msgs)
         if not sub or sub not in D.ITEMS['rockets'] or D.CIT.special(sub) or w.p.use_ammo(sub, 1) is None:
             return True
@@ -179,12 +179,12 @@ def rocket(w, other, now):
     ms = w.abilities.rocket_ms(ms, now)
     w.rocket_ready = now + ms / 1000
     hit = random.random() < w.rocket_hit(rocket)
-    w.send(w.ammo_msgs(rocket) + [w.rocket_msg(other.hid, hit, D.ITEMS['rockets'][rocket].get('kimlik', 1)),
+    w.send(w.ammo_msgs(rocket) + [w.rocket_msg(other.hid, hit, D.ITEMS['rockets'][rocket].get('uid', 1)),
         ('MenuItemCooldownGroupTimerCommand', dict(timerState=D.mod('TimerStateModule', timerStateValue=2),
             cooldownType=D.mod('CooldownTypeModule', typeValue=4), maxTime=ms, time=ms))])
     r = D.ITEMS['rockets'][rocket]
-    damage = int(r.get('pvp_damage', r.get('hasar', 1000)) * random.uniform(0.85, 1.0)         # BDR-1211 oyunculara en çok 4.000
-                 * (1 + mods.get('roket', 0) + (mods.get('enemy_rocket', 0) if getattr(getattr(other, 'p', None), 'd', {}).get('pilot', {}).get('factionId') != w.p.d['pilot'].get('factionId') else 0))
+    damage = int(r.get('pvp_damage', r.get('damage', 1000)) * random.uniform(0.85, 1.0)         # BDR-1211 oyunculara en çok 4.000
+                 * (1 + mods.get('rocket', 0) + (mods.get('enemy_rocket', 0) if getattr(getattr(other, 'p', None), 'd', {}).get('pilot', {}).get('factionId') != w.p.d['pilot'].get('factionId') else 0))
                  * (1 + w.p.lab_bonus(1)))
     if w.p.lab_bonus(1):
         w.lab_spend(1)

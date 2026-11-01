@@ -57,7 +57,7 @@ class Mail:
             for k, v in (('order', 1), ('incoming', []), ('outgoing', []), ('notes', []), ('blacklist', [])):
                 d.setdefault(k, v)
             # eski kayıtlardaki Türkçe "Yerel sunucu" karşılaması (yabancı oyuncular ne olduğunu soruyordu) silinir
-            d['incoming'] = [r for r in d['incoming'] if not (r.get('sender') == 'DarkOrbit' and r.get('konu') == 'Yerel sunucu')]
+            d['incoming'] = [r for r in d['incoming'] if not (r.get('sender') == 'DarkOrbit' and r.get('subject') == 'Yerel sunucu')]
         if not self.d.get('welcome'):
             self.d['welcome'] = True
             self.add(INFO, 'messaging_systemMessage_1_subject', 'messaging_systemMessage_1_body')
@@ -75,8 +75,8 @@ class Mail:
         with self.p.lock:
             mid = self.d['order']
             self.d['order'] += 1
-            rec = {'id': mid, 'tur': kind, 'durum': UNREAD if inbox else READ, 'tarih': stamp(), 'konu': subject,
-                   'metin': body, 'sender': sender, 'sender_id': sender_id, 'attachments': [list(a) for a in attachments],
+            rec = {'id': mid, 'type': kind, 'state': UNREAD if inbox else READ, 'date': stamp(), 'subject': subject,
+                   'text': body, 'sender': sender, 'sender_id': sender_id, 'attachments': [list(a) for a in attachments],
                    'attachment_claimed': not attachments}
             if extra:
                 rec.update(extra)
@@ -92,23 +92,23 @@ class Mail:
         return ('UserMessageNewCommand', {'userMessageInfoCommand': self.info(rec, True), 'unreadCount': self.unread()})
 
     def unread(self):
-        return sum(1 for r in self.d['incoming'] if r['durum'] == UNREAD)
+        return sum(1 for r in self.d['incoming'] if r['state'] == UNREAD)
 
     def info(self, r, inbox):
         me = self.p.d['pilot']
-        base = dict(senderId=int(r.get('sender_id', 0)), replacements=r.get('replacements', ''), insertDate=r['tarih'],
+        base = dict(senderId=int(r.get('sender_id', 0)), replacements=r.get('replacements', ''), insertDate=r['date'],
                     boxId=r['id'], parent=False, isReceived=(2 if r.get('attachment_claimed') else 1) if inbox and r.get('attachments') else 0,
-                    messageId=r['id'], type=r['tur'], subject=r['konu'], body=r['metin'], status=r['durum'],
+                    messageId=r['id'], type=r['type'], subject=r['subject'], body=r['text'], status=r['state'],
                     attachments=[mod('LootModule', lootId=l, amount=n, modifier='') for l, n in r.get('attachments', [])])
-        if r['tur'] == AUCTION:
+        if r['type'] == AUCTION:
             return mod('UserMessageAuctionInfoCommand', **base, lootId=r.get('lootId', ''), auctionType=r.get('auctionType', ''),
                        amount=int(r.get('amount', 0)), msgType=int(r.get('msgType', 0)), auctionId=int(r.get('auctionId', 0)))
-        if r['tur'] == CLAN:
+        if r['type'] == CLAN:
             return mod('UserMessageClanInfoCommand', **base, clanTag=r.get('clanTag', ''), parentMessage=None,
                        senderName=r.get('sender', ''))
-        if r['tur'] == SYSTEM:
+        if r['type'] == SYSTEM:
             return mod('UserMessageSystemInfoCommand', **base, strs=list(r.get('strs', [])))
-        if r['tur'] == INFO:
+        if r['type'] == INFO:
             return mod('UserMessageInfoInfoCommand', **base)
         names = r.get('recipients') or ([me.get('userName', '')] if inbox else [])
         return mod('UserMessageInfoCommand', **base, bodyParams='', recipientIds=list(r.get('recipient_ids', [])), title='',
@@ -164,7 +164,7 @@ class Mail:
         if f.get('recipientType') == 'clan':                   # klanın sunucudaki üyeleri (çevrimdışı kaydı yüklü olmayan atlanır)
             import clan as KL
             k = KL.clan_of(self.p)
-            names = [u['ad'] for a, u in k['members'].items() if a == KL.name(self.p) or TP.find(name=a) is not None] if k else []
+            names = [u['name'] for a, u in k['members'].items() if a == KL.name(self.p) or TP.find(name=a) is not None] if k else []
         if not names:
             return reply(False, 'messaging_errorLayer_noRecipient')
         if f.get('recipientType') != 'clan' and len(names) > MAX_RECIPIENTS:
@@ -189,7 +189,7 @@ class Mail:
             if any(int(x.get('id', 0)) == self.p.user_id for x in (k.profile.d.get('mailer') or {}).get('blacklist', ())):
                 return reply(False, 'messaging_errorLayer_blacklisted')
             blocked = (k.profile.d.get('contacts') or {}).get('blocked') or []
-            if any(own.lower() == str(x.get('ad', x) if isinstance(x, dict) else x).lower() for x in blocked):
+            if any(own.lower() == str(x.get('name', x) if isinstance(x, dict) else x).lower() for x in blocked):
                 return reply(False, 'messaging_errorLayer_blocked')
         extra = {'recipients': [k.name if k else own for k in recipients], 'recipient_ids': [k.uid if k else self.p.user_id for k in recipients]}
         if clan:
@@ -224,7 +224,7 @@ class Mail:
         rows = self.find(inbox, ids)
         with self.p.lock:
             for r in rows:
-                r['durum'] = st
+                r['state'] = st
             self.p.dirty = True
         return [('UserMessageUpdateStatusCommand', {'unreadCount': self.unread(), 'textCommand': stack(), 'status': st,
                                                     'ids': [r['id'] for r in rows], 'inbox': inbox, 'success': bool(rows),
@@ -241,7 +241,7 @@ class Mail:
             for loot, n in r.get('attachments', []):
                 msgs += self.m.reward(loot, int(n)) if self.m else []
             done.append(r['id'])
-            self.log('   posta eki alındı: %s %s' % (r['konu'], r.get('attachments')))
+            self.log('   posta eki alındı: %s %s' % (r['subject'], r.get('attachments')))
         page = []
         if done:                                       # istemci Loot yanıtını işlemiyor: "Claimed" görünsün diye mesajın sayfası
             pos = next(i for i, r in enumerate(self.d['incoming']) if r['id'] == done[0])
@@ -250,7 +250,7 @@ class Mail:
 
     # -------------------------------------------------------- notlar
     def note_cmd(self, n):
-        return mod('UserMessageNoteInfoCommand', insertDate=n['tarih'], noteId=n['id'], body=n['metin'], subject=n['konu'])
+        return mod('UserMessageNoteInfoCommand', insertDate=n['date'], noteId=n['id'], body=n['text'], subject=n['subject'])
 
     def notes(self, name, f):
         notes = self.d['notes']
@@ -265,8 +265,8 @@ class Mail:
             with self.p.lock:
                 nid = self.d['order']
                 self.d['order'] += 1
-                notes.insert(0, {'id': nid, 'tarih': stamp(), 'konu': str(f.get('subject', ''))[:50],
-                                 'metin': str(f.get('body', ''))[:5000]})
+                notes.insert(0, {'id': nid, 'date': stamp(), 'subject': str(f.get('subject', ''))[:50],
+                                 'text': str(f.get('body', ''))[:5000]})
                 self.p.dirty = True
             return [('UserMessageNoteAddCommand', {'commandList': lst(), 'titleCommand': stack(), 'success': True,
                                                    'textCommand': stack()})]
@@ -275,7 +275,7 @@ class Mail:
         if name == 'UserMessageNoteUpdateRequest':
             if n:
                 with self.p.lock:
-                    n.update(konu=str(f.get('subject', ''))[:50], metin=str(f.get('body', ''))[:5000], tarih=stamp())
+                    n.update(subject=str(f.get('subject', ''))[:50], text=str(f.get('body', ''))[:5000], date=stamp())
                     self.p.dirty = True
             return [('UserMessageNoteUpdateCommand', {'textCommand': stack(), 'titleCommand': stack(), 'noteInfoCommandList': lst(),
                                                       'success': bool(n)})]
@@ -296,13 +296,13 @@ class Mail:
         bl = self.d['blacklist']
         uid = int(f.get('blackUserId') or 0)
         ids = lambda: [x['id'] for x in bl]
-        names = lambda: [x['ad'] for x in bl]
+        names = lambda: [x['name'] for x in bl]
         if name == 'BlackListGetRequest':
             return [('BlackListGetCommand', {'blackList': ids(), 'blackNameList': names()})]
         ok = False
         with self.p.lock:
             if name == 'BlackListAddRequest' and uid and uid != self.p.user_id and uid not in ids():
-                bl.append({'id': uid, 'ad': str(uid)})
+                bl.append({'id': uid, 'name': str(uid)})
                 ok = True
             elif name == 'BlackListDeleteRequest' and uid in ids():
                 bl[:] = [x for x in bl if x['id'] != uid]

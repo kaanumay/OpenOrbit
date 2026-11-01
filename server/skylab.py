@@ -28,7 +28,7 @@ import settings as SET
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 S = json.load(open(os.path.join(HERE, 'data', 'skylab.json'), encoding='utf8'))
-LEVELS, COSTS, MODULES, ORES = S['seviyeler'], S['costs'], S['modules'], S['ores']
+LEVELS, COSTS, MODULES, ORES = S['levels'], S['costs'], S['modules'], S['ores']
 COLLECTORS, REFINERIES, XENO = S['collectors'], S['refineries'], S['xeno']
 ROBOTS, TRANSPORT = S['robots'], S['transport']
 ORDER = ['DURANIUM_REFINERY', 'BASE_MODULE', 'ENDURIUM_COLLECTOR', 'SOLAR_MODULE', 'XENO_MODULE', 'PROMETID_REFINERY',
@@ -70,27 +70,27 @@ class Skylab:
         d = self.p.d.get('skylab')
         if not d:
             d = self.p.d['skylab'] = {
-                'modules': {k: {'seviye': v[0], 'etkin': v[1], 'upgrade': None} for k, v in S['baslangic']['modules'].items()},
-                'storage': {k: float(v) for k, v in S['baslangic']['storage'].items()},
+                'modules': {k: {'level': v[0], 'etkin': v[1], 'upgrade': None} for k, v in S['start']['modules'].items()},
+                'storage': {k: float(v) for k, v in S['start']['storage'].items()},
                 'robots': {}, 'backup': {}, 'transport': None, 'last': time.time()}
             self.p.dirty = True
         return d
 
     def module(self, key):
-        return self.st['modules'].setdefault(key, {'seviye': 0, 'etkin': False, 'upgrade': None})
+        return self.st['modules'].setdefault(key, {'level': 0, 'etkin': False, 'upgrade': None})
 
     def level(self, key):
-        return self.module(key)['seviye']
+        return self.module(key)['level']
 
     def levels(self):
         """Modül -> seviye (görev kabulünde şimdiki durum; Ö1)."""
-        return {k: m['seviye'] for k, m in self.st['modules'].items()}
+        return {k: m['level'] for k, m in self.st['modules'].items()}
 
     def state(self, key):
         m = self.module(key)
         if m.get('upgrade'):
             return 'UPGRADE'
-        return 'ACTIVE' if m['etkin'] and m['seviye'] > 0 else 'INACTIVE'
+        return 'ACTIVE' if m['etkin'] and m['level'] > 0 else 'INACTIVE'
 
     def working(self, key):
         return self.state(key) == 'ACTIVE'
@@ -137,7 +137,7 @@ class Skylab:
         ev = [m['upgrade'] for m in self.st['modules'].values() if m.get('upgrade')]
         ev += [b for rs in self.st['robots'].values() for _, b in rs]
         if self.st.get('transport'):
-            ev.append(self.st['transport']['bitis'])
+            ev.append(self.st['transport']['end_time'])
         return [e for e in ev if e > after]
 
     def advance(self, now=None):
@@ -165,7 +165,7 @@ class Skylab:
         while self.pending_quest:
             key, lv = self.pending_quest.pop(0)
             if self.quest and self.send:                     # görev: "Prometium collector'ı 1. seviyeye yükselt" (Ö1)
-                msgs = self.quest(modul=key, seviye=lv)
+                msgs = self.quest(module=key, level=lv)
                 if msgs:
                     self.send(msgs)
 
@@ -178,7 +178,7 @@ class Skylab:
             if self.working(key):
                 add(ore, self.production(key) * hours)
         if self.working('XENO_MODULE'):
-            add(XENO['cevher'], self.production('XENO_MODULE') * hours)
+            add(XENO['ore'], self.production('XENO_MODULE') * hours)
         for key in REFINE_ORDER:
             if not self.working(key):
                 continue
@@ -202,24 +202,24 @@ class Skylab:
             for _ in range(len(rs) - len(alive)):
                 spare = st['backup'].get(key) or []
                 if spare:
-                    alive.append([spare.pop(0), t + ROBOTS['omur_sn']])
+                    alive.append([spare.pop(0), t + ROBOTS['lifetime_sec']])
             st['robots'][key] = alive
         tr = st.get('transport')
-        if tr and tr['bitis'] <= t:
+        if tr and tr['end_time'] <= t:
             out += self.deliver(tr['cargo'])
             st['transport'] = None
         return out
 
     def finish_upgrade(self, key, code):
         m = self.module(key)
-        m['seviye'] += 1
+        m['level'] += 1
         m['upgrade'] = None
-        self.pending_quest.append((key, m['seviye']))      # gorev_bildir: kilit bırakılınca
+        self.pending_quest.append((key, m['level']))      # gorev_bildir: kilit bırakılınca
         others = self.consumption() - (self.energy(key) if self.working(key) else 0)
         if key not in ALWAYS_ON and others + self.energy(key) > self.solar():
             m['etkin'] = False                              # enerji yetmiyor: kapalı kalır
         self.p.dirty = True
-        self.log('   Skylab: %s seviye %d' % (key, m['seviye']))
+        self.log('   Skylab: %s seviye %d' % (key, m['level']))
         return [('_receipt', key, '', [], [code])]
 
     def deliver(self, load):
@@ -244,9 +244,9 @@ class Skylab:
         for key in ORDER:
             m = self.module(key)
             power = self.consumption() if key == 'SOLAR_MODULE' else (self.energy(key) if self.working(key) else 0)
-            mods.append(mod('SkylabMainViewModuleCommand', maxLevel=MODULES[key]['azami'], state=self.state(key), moduleType=key,
+            mods.append(mod('SkylabMainViewModuleCommand', maxLevel=MODULES[key]['maximum'], state=self.state(key), moduleType=key,
                             efficiency=self.bonus(key) if key in COLLECTORS else 0, currentPower=power,
-                            maxPower=self.solar() if key == 'SOLAR_MODULE' else -1, level=m['seviye']))
+                            maxPower=self.solar() if key == 'SOLAR_MODULE' else -1, level=m['level']))
         ores = [mod('SkylabStorageOreCommand', current=self.amount(o), oreId=int(o), capacity=self.capacity(o), oreName=ORES[o][0])
                 for o in ORE_ORDER]
         return ('SkylabMainViewCommand', {'listModule': mods, 'oreList': ores})
@@ -266,7 +266,7 @@ class Skylab:
         price = lambda kind: mod('SkylabRobotPriceCommand', priceType=ROBOTS[kind]['price'][0], value=self.robot_price(kind)[1])
         return mod('SkylabModuleProductivityCommand', type1Price=price('1'), efficienty=self.efficiency(key),
                    active=len(self.st['robots'].get(key, [])), robotsLeftTimeList=self.robots_left(key, now), type2Price=price('2'),
-                   bonus=self.bonus(key), maxActive=ROBOTS['azami'], inStorage=len(self.st['backup'].get(key, [])))
+                   bonus=self.bonus(key), maxActive=ROBOTS['maximum'], inStorage=len(self.st['backup'].get(key, [])))
 
     def receipt(self, construction='', subaction='', errors=(), success=()):
         """İstemci (UISkylabSystem.ShowTips) yalnız errorId'yi açılır pencerede gösterir; sucessId gelince pencere boş açılıyordu.
@@ -294,12 +294,12 @@ class Skylab:
         return [self.main_view(), self.receipt(construction, subaction, errors, success)]
 
     def upgrade_cost(self, key):
-        g, lv = MODULES[key]['grup'], self.level(key)
-        if not g or lv >= MODULES[key]['azami']:
+        g, lv = MODULES[key]['group'], self.level(key)
+        if not g or lv >= MODULES[key]['maximum']:
             return None
         c = COSTS[g][lv]
         f = lambda n: SET.price('service_price', n, 'skylab')  # panel: hizmet ücretleri (kredi ve uridyum; kaynaklar aynı)
-        return dict(c, kredi=f(c['kredi']), uridyum=f(c['uridyum']))
+        return dict(c, credits=f(c['credits']), uridium=f(c['uridium']))
 
     def ore_info(self, ore, n, cap=None):
         return mod('SkylabStorageOreCommand', current=int(n), oreId=int(ore), capacity=int(self.capacity(ore) if cap is None else cap),
@@ -311,9 +311,9 @@ class Skylab:
             return None
         m, c = self.module(key), self.upgrade_cost(key)
         left = max(0, int(m['upgrade'] - now)) if m.get('upgrade') else 0
-        upgrade = mod('SkylabModuleUpgradeCommand', timeLeft=left, credits=c['kredi'] if c else 0, terbium=c['kaynak'] if c else 0,
-                      uridiumInstant=self.finish_price(key, now) if left else (c['uridyum'] if c else 0),
-                      endurium=c['kaynak'] if c else 0, prometium=c['kaynak'] if c else 0, timeNormal=SET.duration(c['sure_sn'], 'skylab') // 60 if c else 0)
+        upgrade = mod('SkylabModuleUpgradeCommand', timeLeft=left, credits=c['credits'] if c else 0, terbium=c['source'] if c else 0,
+                      uridiumInstant=self.finish_price(key, now) if left else (c['uridium'] if c else 0),
+                      endurium=c['source'] if c else 0, prometium=c['source'] if c else 0, timeNormal=SET.duration(c['sure_sn'], 'skylab') // 60 if c else 0)
         info = mod('SkylabCollectorInfoCommand', production=self.production(key), maxTime=0, leftTime=0)
         prod, xeno, ores = None, mod('SkylabXenoInfoCommand', activeEfficiency=0, activeConsumption=0, inactiveConsumption=0,
                                      activeEnergy=0), []
@@ -325,20 +325,20 @@ class Skylab:
             n = self.production(key)
             ores = [self.ore_info(o, -n * k) for o, k in inputs.items()] + [self.ore_info(out, n)]
         elif key == 'XENO_MODULE':
-            use = self.production('PROMERIUM_REFINERY') * REFINERIES['PROMERIUM_REFINERY'][1].get(XENO['cevher'], 0) \
+            use = self.production('PROMERIUM_REFINERY') * REFINERIES['PROMERIUM_REFINERY'][1].get(XENO['ore'], 0) \
                 if self.working('PROMERIUM_REFINERY') else 0
             xeno = mod('SkylabXenoInfoCommand', activeEfficiency=self.production(key), activeConsumption=use, inactiveConsumption=0,
                        activeEnergy=self.energy(key))
-            ores = [self.ore_info(XENO['cevher'], self.production(key))]
+            ores = [self.ore_info(XENO['ore'], self.production(key))]
         elif key == 'STORAGE_MODULE':
-            nxt = row(self.level(key) + 1)['storage'] if self.level(key) < MODULES[key]['azami'] else None
+            nxt = row(self.level(key) + 1)['storage'] if self.level(key) < MODULES[key]['maximum'] else None
             ores = [self.ore_info(o, (nxt[ORES[o][1]] - self.capacity(o)) if nxt else 0, nxt[ORES[o][1]] if nxt else None)
                     for o in ORE_ORDER]
         elif key == 'TRANSPORT_MODULE':
             tr = self.st.get('transport')
             if tr:
                 info = mod('SkylabCollectorInfoCommand', production=int(sum(tr['cargo'].values())), maxTime=self.transport_time(tr['cargo']),
-                           leftTime=max(0, int(tr['bitis'] - now)))
+                           leftTime=max(0, int(tr['end_time'] - now)))
                 ores = [self.ore_info(o, n) for o, n in sorted(tr['cargo'].items(), key=lambda kv: ORE_ORDER.index(kv[0]))]
         return ('SkylabViewModuleBackCommand', dict(collectorInfo=info, upgrade=upgrade, productivity=prod, xenoInfo=xeno,
                                                     strorageInfo=mod('SkylabStorageInfoCommand', efficiency=self.efficiency(key)
@@ -351,13 +351,13 @@ class Skylab:
         m, now = self.module(key), now or time.time()
         if not m.get('upgrade'):
             return 0
-        c = COSTS[MODULES[key]['grup']][m['seviye']]
-        u = SET.price('service_price', c['uridyum'], 'skylab')
+        c = COSTS[MODULES[key]['group']][m['level']]
+        u = SET.price('service_price', c['uridium'], 'skylab')
         return max(1 if u else 0, int(math.ceil(u * (m['upgrade'] - now) / max(1, SET.duration(c['sure_sn'], 'skylab')))))
 
     def check_upgrade(self, key):
         """Yükseltilebilir mi -> hata kodu ya da None."""
-        if key not in MODULES or not MODULES[key]['grup'] or self.level(key) >= MODULES[key]['azami']:
+        if key not in MODULES or not MODULES[key]['group'] or self.level(key) >= MODULES[key]['maximum']:
             return 30
         if self.module(key).get('upgrade'):        # aynı anda birden çok modül yükseltilebilir (oyuncu bildirimi 2026-10-30); aynı modül bir kez
             return 42
@@ -375,22 +375,22 @@ class Skylab:
         if err:
             return [err], []
         c = self.upgrade_cost(key)
-        if INV.count(self.p, 'currency_credits') < c['kredi']:
+        if INV.count(self.p, 'currency_credits') < c['credits']:
             return [32], []
         for ore, code in UPGRADE_RES:
-            if self.amount(ore) < c['kaynak']:
+            if self.amount(ore) < c['source']:
                 return [code], []
-        INV.spend(self.p, {'currency_credits': c['kredi']}, reason='buy_SPECIAL', detail='skylab_' + key.lower())
+        INV.spend(self.p, {'currency_credits': c['credits']}, reason='buy_SPECIAL', detail='skylab_' + key.lower())
         with self.p.lock:
             for ore, _ in UPGRADE_RES:
-                self.st['storage'][ore] -= c['kaynak']
+                self.st['storage'][ore] -= c['source']
             m = self.module(key)
             m['upgrade'] = now + SET.duration(c['sure_sn'], 'skylab')       # panel: bekleme
-            if m['seviye'] == 0:
+            if m['level'] == 0:
                 m['etkin'] = True                          # yeni kurulan modül bitince çalışır (enerji yetiyorsa)
             self.p.dirty = True
-        self.log('   Skylab: %s -> %d yükseltmesi başladı (%d sn, %d C, %d x3 kaynak)' % (key, m['seviye'] + 1, c['sure_sn'], c['kredi'],
-                                                                                        c['kaynak']))
+        self.log('   Skylab: %s -> %d yükseltmesi başladı (%d sn, %d C, %d x3 kaynak)' % (key, m['level'] + 1, c['sure_sn'], c['credits'],
+                                                                                        c['source']))
         return [], [40]
 
     def instant_upgrade(self, key, now):
@@ -398,21 +398,21 @@ class Skylab:
         if err:
             return [err], []
         c = self.upgrade_cost(key)
-        if INV.missing(self.p, {'currency_uridium': c['uridyum']}):
+        if INV.missing(self.p, {'currency_uridium': c['uridium']}):
             return [44], []
-        INV.spend(self.p, {'currency_uridium': c['uridyum']}, reason='buy_SPECIAL', detail='skylab_' + key.lower())
+        INV.spend(self.p, {'currency_uridium': c['uridium']}, reason='buy_SPECIAL', detail='skylab_' + key.lower())
         with self.p.lock:
             if self.level(key) == 0:
                 self.module(key)['etkin'] = True
             self.finish_upgrade(key, 45)
         self.notify_quest()
-        self.log('   Skylab: %s anında yükseltildi (%d U)' % (key, c['uridyum']))
+        self.log('   Skylab: %s anında yükseltildi (%d U)' % (key, c['uridium']))
         return [], [45]
 
     def instant_finish(self, key, now):
         m = self.module(key)
         if not m.get('upgrade'):
-            return [30 if self.level(key) >= MODULES.get(key, {}).get('azami', 0) else 42], []
+            return [30 if self.level(key) >= MODULES.get(key, {}).get('maximum', 0) else 42], []
         price = self.finish_price(key, now)
         if INV.missing(self.p, {'currency_uridium': price}):
             return [44], []
@@ -429,7 +429,7 @@ class Skylab:
             return [], []
         with self.p.lock:
             m['upgrade'] = None
-            if m['seviye'] == 0:
+            if m['level'] == 0:
                 m['etkin'] = False
             self.p.dirty = True
         self.log('   Skylab: %s yükseltmesi iptal (harcananlar geri gelmez)' % key)
@@ -440,7 +440,7 @@ class Skylab:
         if key not in MODULES or key in ALWAYS_ON:
             return [], []
         if on:
-            if m['seviye'] <= 0:
+            if m['level'] <= 0:
                 return [36], []
             if m.get('upgrade'):
                 return [42], []
@@ -496,7 +496,7 @@ class Skylab:
             if mode == 'fast':
                 msgs = [x for x in self.deliver(load) if x[0] != '_receipt']
             else:
-                st['transport'] = {'bitis': now + self.transport_time(load), 'cargo': load}
+                st['transport'] = {'end_time': now + self.transport_time(load), 'cargo': load}
                 msgs = []
             self.p.dirty = True
         self.log('   Skylab: taşıma %s %s' % ('anında' if mode == 'fast' else 'başladı', load))
@@ -536,8 +536,8 @@ class Skylab:
         INV.spend(self.p, {loot: price}, reason='buy_SPECIAL', detail='skylab_robot')
         with self.p.lock:
             rs = self.st['robots'].setdefault(key, [])
-            if len(rs) < ROBOTS['azami']:
-                rs.append([int(kind), now + ROBOTS['omur_sn']])
+            if len(rs) < ROBOTS['maximum']:
+                rs.append([int(kind), now + ROBOTS['lifetime_sec']])
             else:
                 self.st['backup'].setdefault(key, []).append(int(kind))
             self.p.dirty = True

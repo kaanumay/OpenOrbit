@@ -16,8 +16,8 @@ import json, os, random
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, 'data', 'items_o6.json'), encoding='utf8'))['resonator']
-ITEMS, SOURCES, ATTR = D['esyalar'], D['sources'], D['attributes']
-RECIPES = {r['hedef']: r for r in D['recipes']}
+ITEMS, SOURCES, ATTR = D['items'], D['sources'], D['attributes']
+RECIPES = {r['target']: r for r in D['recipes']}
 INPUTS = {r['input'] for r in D['recipes'] if r.get('input')}
 STATE = 'resonators'                  # profil: itemId -> {'nitelik': [[ad, değer], …]}
 
@@ -60,11 +60,11 @@ def state(p, iid):
 def ensure(p, iid, rng=random):
     """Niteliksiz gelen rezonatör (ödül, GM): kalitesinin sayısı kadar rastgele nitelik."""
     st = state(p, iid)
-    loot = p.d['esyalar'].get(str(iid))
+    loot = p.d['items'].get(str(iid))
     if st is None and loot in ITEMS:
         e = ITEMS[loot]
         with p.lock:
-            st = p.d.setdefault(STATE, {})[str(iid)] = {'nitelik': fill(e['tur'], e['quality'], [], e['attribute_count'], rng)}
+            st = p.d.setdefault(STATE, {})[str(iid)] = {'attribute': fill(e['type'], e['quality'], [], e['attribute_count'], rng)}
             p.dirty = True
     return st
 
@@ -72,7 +72,7 @@ def ensure(p, iid, rng=random):
 def create(p, loot, attrs):
     iid = p.new_item(loot)
     with p.lock:
-        p.d.setdefault(STATE, {})[str(iid)] = {'nitelik': attrs}
+        p.d.setdefault(STATE, {})[str(iid)] = {'attribute': attrs}
         p.dirty = True
     return iid
 
@@ -80,17 +80,17 @@ def create(p, loot, attrs):
 def modifiers_str(p, iid):
     """Hangar ipucunun nitelik satırları (parcacik.modifiers_str biçimi: "AD,değer;…")."""
     st = ensure(p, iid) or {}
-    return ';'.join('%s,%g' % (a.upper(), v) for a, v in st.get('nitelik', []))
+    return ';'.join('%s,%g' % (a.upper(), v) for a, v in st.get('attribute', []))
 
 
 def best(p, kind='strike'):
-    """Oyuncunun en iyi rezonatörü (kalite, sonra nitelik toplamı) -> (itemId, {nitelik: değer}) ya da (None, {})."""
+    """Oyuncunun en iyi rezonatörü (kalite, sonra nitelik toplamı) -> (itemId, {attribute: değer}) ya da (None, {})."""
     rows = []
-    for i, loot in p.d['esyalar'].items():
+    for i, loot in p.d['items'].items():
         e = ITEMS.get(loot)
-        if e and e['tur'] == kind:
+        if e and e['type'] == kind:
             st = ensure(p, int(i)) or {}
-            attrs = {a: v for a, v in st.get('nitelik', [])}
+            attrs = {a: v for a, v in st.get('attribute', [])}
             rows.append(((e['order'], sum(attrs.values())), int(i), attrs))
     if not rows:
         return None, {}
@@ -105,7 +105,7 @@ def strike_mods(p):
 def source_for(p, kind):
     """C kalitesinin bedeli: oyuncunun en çok tuttuğu kaynak (eşitlikte sıradaki ilk)."""
     rows = sorted(SOURCES.items())
-    have = [(p.d.get('other_items', {}).get(l, 0), -k, l) for k, (l, s) in enumerate(rows) if s['tur'] == kind]
+    have = [(p.d.get('other_items', {}).get(l, 0), -k, l) for k, (l, s) in enumerate(rows) if s['type'] == kind]
     return max(have)[2] if have else None
 
 
@@ -114,11 +114,11 @@ def modules(p, table_key):
     out = {}
     for r in D['recipes']:
         if r.get('input'):
-            costs = [mod('SynthesisCostLootCommand', lootId=r['input'], amount=1, star=0, certain=True)] * r['adet']
+            costs = [mod('SynthesisCostLootCommand', lootId=r['input'], amount=1, star=0, certain=True)] * r['count']
         else:
-            costs = [mod('SynthesisCostLootCommand', lootId=source_for(p, r['tur']), amount=r['source_amount'], star=0, certain=False)]
-        costs.append(mod('SynthesisCostLootCommand', lootId='currency_uridium', amount=r['uridyum'], star=0, certain=False))
-        out.setdefault(r['tur'], []).append(mod('SynthesisModuleCommand', lootId=r['hedef'], star=0, moduleGroupType=table_key[r['tur']],
+            costs = [mod('SynthesisCostLootCommand', lootId=source_for(p, r['type']), amount=r['source_amount'], star=0, certain=False)]
+        costs.append(mod('SynthesisCostLootCommand', lootId='currency_uridium', amount=r['uridium'], star=0, certain=False))
+        out.setdefault(r['type'], []).append(mod('SynthesisModuleCommand', lootId=r['target'], star=0, moduleGroupType=table_key[r['type']],
                                                 costs=costs, affectedShip=0))
     return out
 
@@ -126,7 +126,7 @@ def modules(p, table_key):
 def group_cmd(p):
     s = D['synthesis']
     mods = modules(p, s['tables'])
-    return mod('SynthesisGroupCommand', button=s['button'], group=s['grup'], moduleList=[
+    return mod('SynthesisGroupCommand', button=s['button'], group=s['group'], moduleList=[
         mod('SynthesisModuleListCommand', moduleListGroupType=s['tables'][t], modules=mods.get(t, [])) for t in ('strike', 'aegis')])
 
 
@@ -139,30 +139,30 @@ def synth(sy, loot, ids, rng=random):
     removed = []
     if r.get('input'):
         free = set(sy.free_items())
-        ok = lambda i: i in free and p.d['esyalar'].get(str(i)) == r['input']
+        ok = lambda i: i in free and p.d['items'].get(str(i)) == r['input']
         ids = [i for i in dict.fromkeys(int(x) for x in ids) if ok(i)]
-        if len(ids) < r['adet']:
-            ids += [i for i in sorted(free) if ok(i) and i not in ids][:r['adet'] - len(ids)]
-        if len(ids) < r['adet']:
-            return sy.fail('%s yetmiyor (%d/%d)' % (r['input'], len(ids), r['adet']))
-        ids = ids[:r['adet']]
-        cost = {'currency_uridium': r['uridyum']}
+        if len(ids) < r['count']:
+            ids += [i for i in sorted(free) if ok(i) and i not in ids][:r['count'] - len(ids)]
+        if len(ids) < r['count']:
+            return sy.fail('%s yetmiyor (%d/%d)' % (r['input'], len(ids), r['count']))
+        ids = ids[:r['count']]
+        cost = {'currency_uridium': r['uridium']}
         if INV.spend(p, cost, 'buy_SPECIAL', 'resonator') is None:
             return sy.fail('bedel yetmiyor (%s)' % cost)
-        main = [a for a, _ in (ensure(p, ids[0]) or {}).get('nitelik', [])]
+        main = [a for a, _ in (ensure(p, ids[0]) or {}).get('attribute', [])]
         with p.lock:
             for i in ids:
-                p.d['esyalar'].pop(str(i), None)
+                p.d['items'].pop(str(i), None)
                 p.d.get(STATE, {}).pop(str(i), None)
             p.dirty = True
         removed = ids
-        attrs = fill(e['tur'], e['quality'], main, e['attribute_count'], rng)
+        attrs = fill(e['type'], e['quality'], main, e['attribute_count'], rng)
     else:
-        src = source_for(p, e['tur'])
-        cost = {src: r['source_amount'], 'currency_uridium': r['uridyum']}
+        src = source_for(p, e['type'])
+        cost = {src: r['source_amount'], 'currency_uridium': r['uridium']}
         if not src or INV.spend(p, cost, 'buy_SPECIAL', 'resonator') is None:
             return sy.fail('bedel yetmiyor (%s)' % cost)
-        attrs = fill(e['tur'], e['quality'], [SOURCES[src]['nitelik']], e['attribute_count'], rng)
+        attrs = fill(e['type'], e['quality'], [SOURCES[src]['attribute']], e['attribute_count'], rng)
     new = create(p, loot, attrs)
     msgs = [('InventoryItemRemovedCommand', {'itemId': i}) for i in removed] + INV.update_msgs(sy.m, p, list(cost))
     if sy.m:

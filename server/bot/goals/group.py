@@ -23,8 +23,8 @@ def leader(bot):
 
 @target
 class Group(Goal):
-    name = 'grup'
-    permission = 'grup'
+    name = 'group'
+    permission = 'group'
     min_sec = 300
 
     def eligible(self, bot, b):
@@ -42,7 +42,7 @@ class Group(Goal):
             bot.plan['finished'] = True
             return
         m = int(k.profile.d['position'].get('mapId', bot.game_map))
-        bot.plan.update(lider=k.uid, harita=m)
+        bot.plan.update(leader=k.uid, map=m)
         if m in K.MAPS and K.can_enter(m, bot.firma, bot.level):
             S.go(bot, m, y, now)
 
@@ -60,7 +60,7 @@ class Group(Goal):
 
     def concrete(self, bot, g, w, now):
         """Liderin yanında kal; lider bu dünyanın kahramanıysa ve saldırıyorsa onun hedefine saldır."""
-        uid = bot.plan.get('lider')
+        uid = bot.plan.get('leader')
         if uid != w.hid or w.hero_dead:
             return False
         if w.attacking and w.target in w.npcs and w.npcs[w.target].bot is None:
