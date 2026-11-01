@@ -1,5 +1,5 @@
 {
- "_description": "belgeler/wiki/boxes.md (darkorbitwiki: kutular) -> server/data/kutular.json: haritalardaki anahtarlı ganimet kutuları.\n\nKutu türleri istemcinin kendi adları (AddBoxCommand.boxType; çeviri dosyasında PIRATE_BOOTY = Green Booty Box …), anahtarlar\nistemcinin eşya kimlikleri (resource_booty-key …), anahtarsız toplama metni istemcinin msg_loot_failed_no_booty-key-* anahtarları,\nseyir defterine \"booty_key_<tür>_used\", HUD'daki anahtar sayacı eski protokolün \"0|A|<kod>|<adet>\" satırı (SetAttributeAssemblyHelper.AssembleBootyKeysUpdate: BK yeşil,\nBKR kırmızı, BKB mavi, BKS gümüş, BKBB obsidiyen, BKBLC / BKBLD Black Light Cipher / Decoder).\nİçerikler wiki'den: kırmızı, mavi ve obsidiyen kutuların grup ve grup içi olasılıkları ve adetleri aynen; yeşil, altın ve gümüş\nkutularda wiki adet ve olasılık vermiyor (adet ADET tablosu, ağırlık AGIRLIK tablosu: uyarlama). Black Light Cache: bir Centurion\ntasarımı (sahipse 10.000 uridyum, wiki); Black Light Crypt: X1 / X2 gemi modülleri (wiki'nin \"?\" satırları atlanır).\nKutu sayıları, yeniden doğma süreleri uyarlama; altın kutular ayın 2. ve 4. cuması; E8: Obsidian, R&B ve Apocalypse haftalık\nrotasyonda (takvim.py obsidian_booty, rb_booty, apocalypse_booty; gerçek oyunun bp-calendar'ı), Perseus' Blessing Perseus' Grace'te,\nBattle Pass Box Battle Pass'li etkinliklerde (içerik etkinliğin grubu: 'reward_event').\nE7: Astral (BKA), Prime Astral (BKAP), Apocalypse (MASQUE_BOOTY_BOX, BKM), Prometheus (BKPR), Perseus' Blessing (BKPG) ve\nLaurel (BKLL) kutuları; kodlar kayıttaki girişin \"0|A|BK…|0\" satırlarından adla eşlendi. Wiki adet vermeyenlerde adet ADET_E7\n(uyarlama); wiki'nin yazım hatalı ya da istemcide başka adla geçen satırları E7_NAMES'te (XHV02 = XV02, HP-XHU2 = HP-XU02, CC-A / CC-C =\nCosmic Class A / C, Prime Coupon = PrimeCoupon, Travel Permit = Deep Space Echoes bileti; Booster Package: damage booster'ın 10 saati,\nuyarlama). \"Package:\" satırları Epic tasarım paketidir: ['paket', [[lootId, adet] …], ağırlık], açılışta paketin hepsi verilir\n(ganimet.pick_all; sahip olunan tasarım paketten atlanır). Prometheus ve Laurel'in anahtarının kaynağı yok: takvimleri E8'in\netkinlikleri (prometheus, athena), o güne dek doğmazlar.\nModül kaynakları (uyarlama): ek mağazada satılan, wiki'ye göre bir etkinlikle kazanılan modüller o etkinliğin Battle Pass Box\nsütununa çok düşük ağırlıkla (BP_EK); Battle Pass'i olmayan Chromin Rush ve Eternal Gate'in modülleri o etkinliklerin araçlarına bırakıldı.\nÜreten: tools/kutular.py.",
+ "_description": "belgeler/wiki/boxes.md (darkorbitwiki: boxes) -> server/data/boxes.json: keyed loot boxes on the maps.\n\nBox types are the client's own names (AddBoxCommand.boxType; PIRATE_BOOTY = Green Booty Box in the translation file …), keys are the client's item ids (resource_booty-key …), the keyless pickup text is the client's msg_loot_failed_no_booty-key-* keys,\n\"booty_key_<type>_used\" in the logbook, the key counter in the HUD is the old protocol's \"0|A|<code>|<count>\" line (SetAttributeAssemblyHelper.AssembleBootyKeysUpdate: BK green,\nBKR red, BKB blue, BKS silver, BKBB obsidian, BKBLC / BKBLD Black Light Cipher / Decoder).\nContents are from the wiki: the group and in-group probabilities and quantities of the red, blue and obsidian boxes as is; for the green, gold and silver\nboxes the wiki gives no quantity or probability (quantity from the AMOUNTS table, weight from the WEIGHTS table: adaptation). Black Light Cache: a Centurion\ndesign (10,000 uridium if owned, wiki); Black Light Crypt: X1 / X2 ship modules (the wiki's \"?\" rows are skipped).\nBox counts and respawn times are adaptation; gold boxes are on the 2nd and 4th Friday of the month; E8: Obsidian, R&B and Apocalypse in weekly\nrotation (event_calendar.py obsidian_booty, rb_booty, apocalypse_booty; the real game's bp-calendar), Perseus' Blessing in Perseus' Grace,\nBattle Pass Box in events with a Battle Pass (contents are the event's group: 'reward_event').\nE7: Astral (BKA), Prime Astral (BKAP), Apocalypse (MASQUE_BOOTY_BOX, BKM), Prometheus (BKPR), Perseus' Blessing (BKPG) and\nLaurel (BKLL) boxes; the codes were matched by name from the \"0|A|BK…|0\" lines of the login in the recording. Where the wiki gives no quantity, the quantity is AMOUNTS_E7\n(adaptation); the wiki's misspelled rows or those that appear under another name in the client are in E7_NAMES (XHV02 = XV02, HP-XHU2 = HP-XU02, CC-A / CC-C =\nCosmic Class A / C, Prime Coupon = PrimeCoupon, Travel Permit = Deep Space Echoes ticket; Booster Package: 10 hours of the damage booster,\nadaptation). \"Package:\" rows are Epic design packages: ['package', [[lootId, count] …], weight], on opening the whole package is given\n(loot.pick_all; a design already owned is skipped from the package). Prometheus and Laurel's key has no source: their calendars are E8's\nevents (prometheus, athena), they do not spawn until that day.\nModule sources (adaptation): modules sold in the extra shop and, per the wiki, won through an event go into that event's Battle Pass Box\ncolumn with very low weight (BP_EXTRA); the modules of Chromin Rush and Eternal Gate, which have no Battle Pass, were left to those events' own tools.\nGenerated by: tools/boxes.py.",
  "maps": {
   "X-2..X-8": "^[123]-[2-8]$",
   "4-X": "^4-\\d$",
@@ -2488,7 +2488,7 @@
      2
     ]
    ],
-   "_forum_tr": "Resmî Türk forumu 1451139, 1455900: İzin Plus ve diğer öğeler (mayın, Ekstra Enerji, P.E.T. Yakıtı, Onarım Kuponu, Uridium/Kredi); adet ve ağırlıklar uyarlama"
+   "_forum_tr": "Official Turkish forum 1451139, 1455900: Permit Plus and other items (mine, Extra Energy, P.E.T. Fuel, Repair Voucher, Uridium/Credits); quantities and weights are adaptation"
   },
   "LAUREL_BOX": {
    "name": "Laurel Box",
@@ -3960,7 +3960,7 @@
      ]
     ]
    },
-   "_forum_tr": "Resmî Türk forumu: Plutus kutusu (A-BL %15, Nobilis Plus tasarımları %0,2, Orcus/Pusat P.E.T. %0,25/%0,3; NOS01/SEN01/TAR01 forumda yok: bu modüllerin tek kaynağı olduğu için %0,4 uyarlamayla kaldı), Astral (Mucosum %5, Astral Pusat Plus %1), Kış/Labirent (Citadel Plus Frost %0,5; XW01 forumda yok): her tablo toplamı %100"
+   "_forum_tr": "Official Turkish forum: Plutus box (A-BL 15%, Nobilis Plus designs 0.2%, Orcus/Pusat P.E.T. 0.25%/0.3%; NOS01/SEN01/TAR01 are not in the forum: since it is the only source of these modules they stay at 0.4% as an adaptation), Astral (Mucosum 5%, Astral Pusat Plus 1%), Winter/Labyrinth (Citadel Plus Frost 0.5%; XW01 is not in the forum): each table totals 100%"
   },
   "EMPYRIAN_BOOTY_BOX": {
    "name": "Empyrian Box",
@@ -4221,7 +4221,7 @@
      0.025
     ]
    ],
-   "_source": "wiki: aşama ve eşya olasılıkları, Epic tasarım paketleri"
+   "_source": "wiki: stage and item probabilities, Epic design packages"
   },
   "PROSPEROUS_BOOTY_BOX": {
    "name": "Prosperous Box",
@@ -4512,7 +4512,7 @@
      0.4
     ]
    ],
-   "_source": "wiki: aşama ve eşya olasılıkları, Epic tasarım paketleri; DMG-VEN01 (wiki: Plague Mutation ödülü, Prosperous'a eşlenir) %0,4 ağırlıkla (uyarlama)"
+   "_source": "wiki: stage and item probabilities, Epic design packages; DMG-VEN01 (wiki: Plague Mutation reward, mapped to Prosperous) with 0.4% weight (adaptation)"
   },
   "LUCENT_ALIEN_EGG_BOOTY_BOX": {
    "name": "Lucent Egg",
@@ -4764,7 +4764,7 @@
      0.5
     ]
    ],
-   "_source": "wiki: içerik (olasılık yok: tasarımlar %0,5 ağırlık, diğerleri 3; uyarlama)"
+   "_source": "wiki: contents (no probabilities: designs 0.5% weight, others 3; adaptation)"
   },
   "GREEN_ECHO_BOX": {
    "name": "Common Echo Chest",
@@ -5070,8 +5070,8 @@
     ]
    ],
    "_tool": "version_115",
-   "_source": "board-en 130459 (FAQ Kristallon Apotheosis): Emperor Kristallon yenilince 20 kutu; istemcinin box_APOTHEOSIS varlığı, HUD sayacı BKAPO"
+   "_source": "board-en 130459 (FAQ Kristallon Apotheosis): 20 boxes when Emperor Kristallon is defeated; the client's box_APOTHEOSIS asset, HUD counter BKAPO"
   }
  },
- "_event_boxes": "EMPYRIAN_BOOTY_BOX, PROSPEROUS_BOOTY_BOX, LUCENT_ALIEN_EGG_BOOTY_BOX tools/etkinlik_kutulari.py ile; takvim = etkinlik adı."
+ "_event_boxes": "EMPYRIAN_BOOTY_BOX, PROSPEROUS_BOOTY_BOX, LUCENT_ALIEN_EGG_BOOTY_BOX via tools/event_boxes.py; calendar = event name."
 }

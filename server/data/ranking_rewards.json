@@ -1,9 +1,9 @@
 {
- "_description": "Sıralama ödül tabloları -> server/data/sira_odulleri.json (yol haritası Ö1; sunucu: siralama.py).\n\nİstemcinin akışı: modun penceresi sıralama bilgisiyle ödül aralıklarını alır (PlutusInfoCommand.playerRanges,\nEternalBlacklightRankingEventInfoCommand / RogueLiteRankEventInfoCommand.playerRankRanges: RankRewardRangeModule {from, to}); ödül\nsekmesi her aralık için RankRewardRequest {ranking: aralığın başı, rankType} gönderir; yanıt RankRewardCommand {rankType,\nrewardContentModuleList [RewardModule {lootId, amount} | RewardTitleModule {titleKey}], rewardRange}. rankType istemcinin RankType'ı:\n2 Gauntlet of Plutus, 7 Eternal Black Light, 9 Astral Ascension (Rogue-Lite).\n\nKaynaklar:\n  2  belgeler/wiki/etkinlikler/gauntlet_of_plutus.json \"ranking\" (wiki etkinlik sayfasının kademeleri, metin)\n  7  belgeler/wiki/pve_modlari/eternal_black_light.json ebl.ranking.reward_sets[0] (2020 tablosu; sonraki setler aynı miktarlarla,\n     P.E.T. tasarımları olmadan); unvan en son setinki (Eylül 2026, \"Eternal King\")\n  9  server/data/yanitlar.json: kaydın RankRewardCommand'ları (Ekim 2026 Astral seti)\nTek oyunculuda sıralamada yalnız oyuncu var: tablolar pencerede görünür; dağıtım bot oyuncularla (Aşama 11).",
+ "_description": "Ranking reward tables -> server/data/ranking_rewards.json (roadmap Ö1; server: rankings.py).\n\nThe client's flow: the mode's window receives the reward ranges together with the ranking info (PlutusInfoCommand.playerRanges,\nEternalBlacklightRankingEventInfoCommand / RogueLiteRankEventInfoCommand.playerRankRanges: RankRewardRangeModule {from, to}); the reward\ntab sends RankRewardRequest {ranking: start of the range, rankType} for each range; the response is RankRewardCommand {rankType,\nrewardContentModuleList [RewardModule {lootId, amount} | RewardTitleModule {titleKey}], rewardRange}. rankType is the client's RankType:\n2 Gauntlet of Plutus, 7 Eternal Black Light, 9 Astral Ascension (Rogue-Lite).\n\nSources:\n  2  belgeler/wiki/etkinlikler/gauntlet_of_plutus.json \"ranking\" (tiers of the wiki event page, text)\n  7  belgeler/wiki/pve_modlari/eternal_black_light.json ebl.ranking.reward_sets[0] (2020 table; later sets with the same amounts,\n     without P.E.T. designs); the title is from the latest set (September 2026, \"Eternal King\")\n  9  server/data/responses.json: the recording's RankRewardCommands (October 2026 Astral set)\nIn single-player only the player is in the ranking: the tables are visible in the window; distribution with bot players (Phase 11).",
  "tables": {
   "2": {
    "name": "Gauntlet of Plutus",
-   "_source": "wiki etkinlik sayfası (gauntlet_of_plutus.json ranking); premium ay = 30 gün",
+   "_source": "wiki event page (gauntlet_of_plutus.json ranking); premium month = 30 days",
    "ranges": [
     {
      "from_": 1,
@@ -241,7 +241,7 @@
   },
   "7": {
    "name": "Eternal Black Light",
-   "_source": "forum 2020 tablosu (eternal_black_light.json reward_sets[0]; sonraki setler aynı miktarlarla, P.E.T. tasarımsız); unvan Eylül 2026 seti",
+   "_source": "forum 2020 table (eternal_black_light.json reward_sets[0]; later sets with the same amounts, without P.E.T. designs); title from the September 2026 set",
    "ranges": [
     {
      "from_": 1,
@@ -479,7 +479,7 @@
   },
   "9": {
    "name": "Astral Ascension",
-   "_source": "kayıt (yanitlar.json RankRewardCommand, Ekim 2026 seti)",
+   "_source": "recording (responses.json RankRewardCommand, October 2026 set)",
    "ranges": [
     {
      "from_": 1,
@@ -886,6 +886,6 @@
    "title_astralRankings-oct2027set1",
    "title_astralRankings-oct2027set2"
   ],
-  "_description": "İstemcinin set unvanları (loc_en; title_<sıralama>-<ay><yıl>set<n>): ödül anında tarihe göre seçilir (siralama.set_title; ayın 20'sinden önce set 1, sonra set 2; ayın ilk 3 günü önceki ayın set 2'si); listede yoksa tablonun unvanı. Resmî Türk forumu: her setin unvanı ayrı (Temmuz 2026 Eternal Sovereign/Emperor, Aralık 2025 Alchemist/Wanderer of the Rifts …)"
+  "_description": "The client's set titles (loc_en; title_<ranking>-<month><year>set<n>): chosen by date at reward time (rankings.set_title; before the 20th of the month set 1, after that set 2; in the first 3 days of the month the previous month's set 2); if not in the list, the table's title. Official Turkish forum: each set has its own title (July 2026 Eternal Sovereign/Emperor, December 2025 Alchemist/Wanderer of the Rifts ...)"
  }
 }

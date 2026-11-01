@@ -1,12 +1,12 @@
 {
- "_description": "Ekipman değerleri (darkorbitwiki.com, belgeler/wiki/lasers_ammo.md, rockets.md, extras_cpu_tech.md). Anahtarlar istemcinin lootId'leri.",
+ "_description": "Equipment values (darkorbitwiki.com, belgeler/wiki/lasers_ammo.md, rockets.md, extras_cpu_tech.md). Keys are the client's lootIds.",
  "lasers": {
   "equipment_weapon_laser_lf-1": {
    "damage": 65
   },
   "equipment_weapon_laser_mp-1": {
    "damage": 75,
-   "_not": "istemci: \"up to 75\" ve Equipment verisi 75; oyunculara 70 (wiki, bot oyuncularla)",
+   "_note": "istemci: \"up to 75\" ve Equipment verisi 75; oyunculara 70 (wiki, bot oyuncularla)",
    "pvp_damage": 70
   },
   "equipment_weapon_laser_lf-2": {
@@ -23,7 +23,7 @@
    "damage": 200,
    "extra_damage_5sec": 100,
    "alien_bonus": 0.15,
-   "_not": "Caucasus (darkorbitwiki lasers-and-ammunition; fandom Caucasus Laser 2021-08-25): 200 + 5 sn'de bir +100 overdrive, uzaylılara +%15; fandom DPS 250 (PvE) = 200 x 1,15 + 100, yani +%15 yalnız tabana"
+   "_note": "Caucasus (darkorbitwiki lasers-and-ammunition; fandom Caucasus Laser 2021-08-25): 200 + a +100 overdrive every 5 s, +15% against aliens; fandom DPS 250 (PvE) = 200 x 1.15 + 100, so the +15% applies only to the base"
   },
   "equipment_weapon_laser_lf-5": {
    "damage": 245
@@ -70,11 +70,11 @@
     0.24,
     0.25
    ],
-   "_not": "LF-5 Anchorlock: 3/10/15 adette isabette yavaşlatma; PvP set bonusu bot oyuncularla"
+   "_note": "LF-5 Anchorlock: slows on hit at 3/10/15 pieces; PvP set bonus with bot players"
   },
   "equipment_weapon_laser_lf-5-mf": {
    "damage": 452,
-   "_not": "istemcinin Equipment verisi 452 (wiki de 452); set bonusu ayrıca",
+   "_note": "the client's Equipment data 452 (the wiki also 452); set bonus separately",
    "set_bonus": [
     0,
     0,
@@ -101,7 +101,7 @@
     "maximum": 0.5,
     "multiplier": 1.0
    },
-   "_not": "Odysseus: kritik şansı lazer başına %3, 3+ lazerde +%9, en çok %50; kritik +%100 lazer hasarı"
+   "_note": "Odysseus: crit chance 3% per laser, +9% with 3+ lasers, at most 50%; crit +100% laser damage"
   },
   "equipment_weapon_laser_pr-l": {
    "damage": 210,
@@ -116,7 +116,7 @@
     "Steadfast": 3.5,
     "Strokelight": 3.5
    },
-   "_not": "Prometheus: x3,5 Black Light uzaylılarına (fandom Prometheus Laser listesi: Purpose XXI, Impulse II, Attend IX, Invoke XVI, Mindfire Behemoth; fandom Blacklight Maps: \"NPCs in the Blacklight maps\": X-BL sakinleri Abide I, Steadfast III, Strokelight Barrage da). Genel haritalarda dolaşan nadir Black Light uzaylıları (Capital I, Find VII, Attitude XIII, Observe X, Urge IV, Regard CXI) listede yok: fandom listesi onları anmaz (\"zayıflamış\"). Overdrive (+200) da çarpanla büyür (fandom Overdrive Mechanism; Impulse II'de 410 x 3,5)"
+   "_note": "Prometheus: x3.5 against Black Light aliens (fandom Prometheus Laser list: Purpose XXI, Impulse II, Attend IX, Invoke XVI, Mindfire Behemoth; fandom Blacklight Maps: \"NPCs in the Blacklight maps\": the X-BL inhabitants Abide I, Steadfast III, Strokelight Barrage too). The rare Black Light aliens roaming the general maps (Capital I, Find VII, Attitude XIII, Observe X, Urge IV, Regard CXI) are not in the list: the fandom list does not mention them (\"weakened\"). Overdrive (+200) also grows with the multiplier (fandom Overdrive Mechanism; 410 x 3.5 on Impulse II)"
   },
   "equipment_weapon_laser_am-l": {
    "damage": 205,
@@ -136,26 +136,26 @@
     "first_sec": 20,
     "next_sec": 10
    },
-   "_not": "Asmodeus: 3+ lazerde +%25; Fervor 5 basamakta toplam +%120 (set dahil)"
+   "_note": "Asmodeus: 3+ lazerde +%25; Fervor 5 basamakta toplam +%120 (set dahil)"
   },
   "equipment_weapon_laser_lf-4-hp": {
    "damage": 225,
-   "_not": "LF-4 Hyperplasmoid",
+   "_note": "LF-4 Hyperplasmoid",
    "hp_per_laser": 0.005
   },
   "equipment_weapon_laser_lf-4-md": {
    "damage": 230,
-   "_not": "LF-4 Magmadrill; oyunculara lazer başına +5 düz (wiki: hesabın en sonunda eklenir, lazer.flat_extra; PvP bot oyuncularla)",
+   "_note": "LF-4 Magmadrill; flat +5 per laser against players (wiki: added at the very end of the calculation, lasers.flat_extra; PvP with bot players)",
    "pvp_extra": 5
   },
   "equipment_weapon_laser_lf-4-pd": {
    "damage": 230,
-   "_not": "LF-4 Paritydrill; uzaylıya lazer başına +5 düz (darkorbitwiki \"flat +5 added at the end of all calculations\": 3 x LF-4-PD, MCB-50: 230 x 3 x 3 + 15 = 2085; lazer.flat_extra)",
+   "_note": "LF-4 Paritydrill; flat +5 per laser against aliens (darkorbitwiki \"flat +5 added at the end of all calculations\": 3 x LF-4-PD, MCB-50: 230 x 3 x 3 + 15 = 2085; lasers.flat_extra)",
    "alien_extra": 5
   },
   "equipment_weapon_laser_lf-4-unstable": {
    "damage": 174,
-   "_not": "Unstable LF-4: her isabette 128-220 rastgele (hasar: ortalama, gösterim)",
+   "_note": "Unstable LF-4: random 128-220 on every hit (damage: average, for display)",
    "damage_range": [
     128,
     220
@@ -165,7 +165,7 @@
    "damage": 125,
    "extra_damage_5sec": 38,
    "range": -0.25,
-   "_not": "SL-01"
+   "_note": "SL-01"
   },
   "equipment_weapon_laser_sl-02": {
    "damage": 142,
@@ -179,12 +179,12 @@
   },
   "equipment_weapon_laser_sll-01": {
    "damage": 130,
-   "_not": "SLL-01: uzaylılara 130, oyunculara 85",
+   "_note": "SLL-01: 130 against aliens, 85 against players",
    "pvp_damage": 85
   },
   "equipment_weapon_laser_sll-02": {
    "damage": 165,
-   "_not": "SLL-02, istemci: uzaylılara 165, oyunculara 90",
+   "_note": "SLL-02, client: 165 against aliens, 90 against players",
    "pvp_damage": 90
   },
   "equipment_weapon_laser_sll-03": {
@@ -194,12 +194,12 @@
   "equipment_weapon_laser_lf-p01": {
    "damage": 280,
    "pet_only": true,
-   "_not": "P.E.T. lazeri (gemiye takılmaz)"
+   "_note": "P.E.T. laser (cannot be fitted to the ship)"
   },
   "equipment_weapon_laser_lf-px01": {
    "damage": 280,
    "pet_only": true,
-   "_not": "P.E.T. lazeri; HEAT bonusu P.E.T. HEAT ile"
+   "_note": "P.E.T. lazeri; HEAT bonusu P.E.T. HEAT ile"
   },
   "equipment_weapon_laser_aa-1": {
    "damage": 180,
@@ -207,7 +207,7 @@
     "Mimesis": 1.6944,
     "Cyborg": 1.6944
    },
-   "_not": "Anti AI: yapay zekâ gemilerine (Mimesis ve Cyborg) 305, ötekilere 180 (istemci metni ve Equipment verisi; fandom AI ships: yapay zekâ gemileri Mimesis ve Cyborg)"
+   "_note": "Anti AI: to AI ships (Mimesis and Cyborg) 305, to others 180 (client text and Equipment data; fandom AI ships: the AI ships are Mimesis and Cyborg)"
   },
   "equipment_weapon_laser_aap-1": {
    "damage": 225,
@@ -216,11 +216,11 @@
     "Cyborg": 2.3333
    },
    "pet_only": true,
-   "_not": "Anti AI P.E.T.: yapay zekâ gemilerine (Mimesis ve Cyborg) 525, ötekilere 225; yalnız P.E.T."
+   "_note": "Anti AI P.E.T.: to AI ships (Mimesis and Cyborg) 525, to others 225; P.E.T. only"
   }
  },
  "payment_prices": {
-  "_description": "Tek oyunculu: mağazada 'Payment' (gerçek para) yazan eşyalar uridyumla satılır. Kategori varsayılanı, 'ozel' eşya başına fiyat (uyarlama, istenirse değiştir).",
+  "_description": "Single-player: items marked 'Payment' (real money) in the shop are sold for uridium. Category default, 'special' per-item price (adaptation, change if wanted).",
   "ship": 250000,
   "laser": 50000,
   "shipdesign": 50000,
@@ -259,7 +259,7 @@
   }
  },
  "payment_packages": {
-  "_description": "Paket -> içerik [[lootId, adet]] (istemcinin paket açıklamalarından). Burada olmayan paketlerin içeriği sunucuda henüz yok; satın alma reddedilir, uridyum düşmez.",
+  "_description": "Pack -> contents [[lootId, count]] (from the client's pack descriptions). The contents of packs not listed here are not yet on the server; the purchase is rejected, no uridium is deducted.",
   "package_event-deal-laser-osl": [
    [
     "equipment_weapon_laser_os-l",
@@ -3296,28 +3296,28 @@
    "multiplier": 6,
    "interval_sec": 3.0,
    "cooldown_group": 10,
-   "_not": "yavaş ateş: darkorbitwiki.com \"Beginners - how to fight\" rehberi \"x6 (cooldown 3 sec.)\""
+   "_note": "slow fire: darkorbitwiki.com \"Beginners - how to fight\" guide \"x6 (cooldown 3 sec.)\""
   },
   "ammunition_laser_rcb-140": {
    "multiplier": 7,
    "interval_sec": 3.0,
    "cooldown_group": 10,
-   "_not": "aynı rehber: \"x7 (cooldown 3 sec.)\""
+   "_note": "same guide: \"x7 (cooldown 3 sec.)\""
   },
   "ammunition_laser_job-100": {
    "multiplier": 3.5,
-   "_not": "istemci: \"Multiplies Laser Damage x2 PVP / x3.5 PVE\": uzaylılara x3,5, oyunculara x2",
+   "_note": "client: \"Multiplies Laser Damage x2 PVP / x3.5 PVE\": x3.5 against aliens, x2 against players",
    "pvp_multiplier": 2
   },
   "ammunition_laser_cbo-100": {
    "multiplier": 3,
    "shield_multiplier": 1,
-   "_not": "istemci: MCB-50 hasarı ve SAB-50'nin Shield Leech'inin yarısı (\"x3 / Shield Leech x1\")"
+   "_note": "client: MCB-50 damage and half of SAB-50's Shield Leech (\"x3 / Shield Leech x1\")"
   },
   "ammunition_laser_sab-50": {
    "multiplier": 0,
    "shield_multiplier": 2,
-   "_not": "yalnızca kalkan hasarı (kalkan emme x2)"
+   "_note": "shield damage only (shield absorb x2)"
   },
   "ammunition_laser_sbl-100": {
    "multiplier": 4,
@@ -3354,7 +3354,7 @@
    "day_multiplier": {
     "02-14": 8
    },
-   "_gun_carpan": "Resmî Türk forumu 161430 (Ölümsüz Birlik 2023-2025): 'Sadece 14 Şubat'ta: Charopos, Styxus ve Lanatum'a 8x hasar' (öteki günler 7x)"
+   "_day_multiplier": "Official Turkish forum 161430 (Immortal Union 2023-2025): 'Only on 14 February: 8x damage to Charopos, Styxus and Lanatum' (7x on other days)"
   },
   "ammunition_laser_emaa-20": {
    "multiplier": 4,
@@ -3362,7 +3362,7 @@
     "Mimesis": 7,
     "Cyborg": 7
    },
-   "_not": "istemci: \"4x damage, and a total of 7x damage against rogue Mimesis AI Ships\"; fandom EMAA-20: \"x7 damage to all Cyborg AI enemies\" (Cowering, Troublemaker, Demolition, Shielded, Singularity, Phasing)"
+   "_note": "istemci: \"4x damage, and a total of 7x damage against rogue Mimesis AI Ships\"; fandom EMAA-20: \"x7 damage to all Cyborg AI enemies\" (Cowering, Troublemaker, Demolition, Shielded, Singularity, Phasing)"
   },
   "ammunition_laser_idb-125": {
    "multiplier": 1,
@@ -3371,12 +3371,12 @@
     "maximum": 6,
     "reset_sec": 3.0
    },
-   "_not": "istemci: \"starts out weak at x1 laser damage, but it increases by 1.25 with each successful hit, up to x6 ... If it hasn't been used for 3 seconds, it resets back to x1\" (toplamalı okundu: x1, x2,25, x3,5, x4,75, x6)"
+   "_note": "client: \"starts out weak at x1 laser damage, but it increases by 1.25 with each successful hit, up to x6 ... If it hasn't been used for 3 seconds, it resets back to x1\" (read as additive: x1, x2.25, x3.5, x4.75, x6)"
   },
   "ammunition_laser_spacecup_group-a": {
    "multiplier": 4,
    "pvp_multiplier": 4,
-   "_not": "Cosmic Class A-H, istemci: \"deals x4 damage in PvP and xN in PvE\" (pvp_multiplier bot oyuncular gelince)"
+   "_note": "Cosmic Class A-H, istemci: \"deals x4 damage in PvP and xN in PvE\" (pvp_multiplier bot oyuncular gelince)"
   },
   "ammunition_laser_spacecup_group-b": {
    "multiplier": 4,
@@ -3408,7 +3408,7 @@
   }
  },
  "event_ammo": {
-  "_description": "Etkinlik süresince bir lazer cephanesinin listedeki uzaylılara olağandan fazla vurması (lazer.event_ammo, dunya.laser_damage; etkinlik takvim.is_active ile açık olmalı). Anahtar: etkinlik (etkinlikler.json), cephane, {carpan, tipler (npc.json tür anahtarları), adlar (uzaylı adında kelime olarak geçen)}. Çarpan cephanenin olağan çarpanının yerine geçer; en büyüğü. Kaynak: darkorbitwiki events/*.",
+  "_description": "While an event runs, a laser ammo hits the aliens in the list harder than usual (lasers.event_ammo, world.laser_damage; the event must be active via event_calendar.is_active). Key: event (events.json), ammunition, {multiplier, types (npc.json type keys), names (appearing as a word in the alien's name)}. The multiplier replaces the ammo's usual multiplier; the largest applies. Source: darkorbitwiki events/*.",
   "immortal_union": {
    "ammunition_laser_ucb-100": {
     "multiplier": 6,
@@ -3456,7 +3456,7 @@
      "event_sheer_chaos_interceptor",
      "event_sheer_chaos_annihilator"
     ],
-    "_source": "events/protegit-pandemonium: UCB-100 x6 (olağan x4) Chaos NPC'lere. İstemcide Chaos Devolarium = Devolarium Aberration, Chaos Kristallon = Kristallon Oddity, Chaos Uber Kristallon = UberKristallon Oddity (npc_name_200-209); Chaos Boss Lordakia, P.E.T. serisi, Scorcher, Ravager oyunda yok"
+    "_source": "events/protegit-pandemonium: UCB-100 x6 (usual x4) against Chaos NPCs. In the client Chaos Devolarium = Devolarium Aberration, Chaos Kristallon = Kristallon Oddity, Chaos Uber Kristallon = UberKristallon Oddity (npc_name_200-209); Chaos Boss Lordakia, the P.E.T. series, Scorcher, Ravager are not in the game"
    }
   },
   "empyrian": {
@@ -3477,7 +3477,7 @@
      "npc121",
      "80"
     ],
-    "_source": "events/empyrian-march: UCB-100 x7,5 (olağan x4): Boss Sibelon, Boss Lordakium, Boss Kristallon, Uber Devolarium, Uber Sibelon, Uber Lordakium, Uber Kristallon, Uber Saboteur, Uber Annihilator, Uber Battleray, Uber Barracuda, Deadly Battleray, Cubikon"
+    "_source": "events/empyrian-march: UCB-100 x7.5 (usual x4): Boss Sibelon, Boss Lordakium, Boss Kristallon, Uber Devolarium, Uber Sibelon, Uber Lordakium, Uber Kristallon, Uber Saboteur, Uber Annihilator, Uber Battleray, Uber Barracuda, Deadly Battleray, Cubikon"
    }
   },
   "hitac": {
@@ -3486,7 +3486,7 @@
     "names": [
      "Hitac"
     ],
-    "_source": "events/hitac-assault: RSB-75, bütün Hitac NPC'lerine x7,5 (olağan x6)"
+    "_source": "events/hitac-assault: RSB-75, x7.5 against all Hitac NPCs (usual x6)"
    }
   }
  },
@@ -3515,7 +3515,7 @@
    }
   }
  },
- "_lazer_renkleri_kaynak": "AttackLaserRunCommand.laserColor = istemcinin game.xml <lasers> class 0 \"type\"ı (her birinin kendi ışını, ışığı ve sesi: 0 kırmızı ses 0, 1 mavi ses 9, 2 yeşil ses 10, 3 beyaz ses 11, 4 mavi emici ses 13, 5 \"pommes schuss\" ses 39, 8 CBO-100, 10 RB-214, 109 PIB-100, 110 A-BL, 111 RCB-140, 112 IDB-125, 113 VB-142, 114 SBL-100). Kural: wiki (darkorbit.fandom.com Battery/LF-3) ve oyun forumu: x1-x3 her lazer setiyle kırmızı; geminin bütün lazer yuvaları LF-3 ise x1 ve x2 mavi, x3 yeşil; LF-4 ve diğerleri kırmızı; x4 (UCB-100) her setle beyaz. Kayıtta (LF-1 + LCB-10) laserColor 0. full_set: bütün yuvalar bu lazerle doluysa cephaneye göre tür.",
+ "_laser_colors_source": "AttackLaserRunCommand.laserColor = the \"type\" of the client's game.xml <lasers> class 0 (each has its own beam, light and sound: 0 red sound 0, 1 blue sound 9, 2 green sound 10, 3 white sound 11, 4 blue absorber sound 13, 5 \"pommes schuss\" sound 39, 8 CBO-100, 10 RB-214, 109 PIB-100, 110 A-BL, 111 RCB-140, 112 IDB-125, 113 VB-142, 114 SBL-100). Rule: wiki (darkorbit.fandom.com Battery/LF-3) and the game forum: x1-x3 red with every laser set; if all of the ship's laser slots are LF-3, x1 and x2 blue, x3 green; LF-4 and others red; x4 (UCB-100) white with every set. In the recording (LF-1 + LCB-10) laserColor 0. full_set: type by ammunition if all slots are filled with this laser.",
  "rockets": {
   "ammunition_rocket_r-310": {
    "damage": 1000,
@@ -3539,7 +3539,7 @@
   },
   "ammunition_rocket_bdr-1211": {
    "damage": 7500,
-   "_not": "istemci: uzaylılara en çok 7.500, öteki pilotlara en çok 4.000 (\"Average Damage 4000, 100% Hit chance\")",
+   "_note": "client: at most 7,500 against aliens, at most 4,000 against other pilots (\"Average Damage 4000, 100% Hit chance\")",
    "uid": 11,
    "hit": 1.0,
    "pvp_damage": 4000
@@ -3557,7 +3557,7 @@
     ]
    },
    "fx": "SABOTEUR_DEBUFF",
-   "_not": "DCR-250: hedefin hızı -%30, 5 sn"
+   "_note": "DCR-250: target's speed -30%, 5 s"
   },
   "ammunition_specialammo_pld-8": {
    "special": true,
@@ -3571,7 +3571,7 @@
      5
     ]
    },
-   "_not": "PLD-8: hedefin isabeti -%40, 5 sn (istemcide görseli yok)"
+   "_note": "PLD-8: target's hit chance -40%, 5 s (no visual in the client)"
   },
   "ammunition_specialammo_r-ic3": {
    "special": true,
@@ -3586,7 +3586,7 @@
     ]
    },
    "fx": "ICY_CUBE",
-   "_not": "R-IC3: hedef 2 sn donar"
+   "_note": "R-IC3: hedef 2 sn donar"
   },
   "ammunition_specialammo_k-300m": {
    "special": true,
@@ -3605,7 +3605,7 @@
     ]
    },
    "fx": "SABOTEUR_DEBUFF",
-   "_not": "K-300M: hasar istemcinin tablosundan (12.000); istemcide roket görsel kimliği yok, R-310'unki"
+   "_note": "K-300M: damage from the client's table (12,000); the client has no rocket visual id, R-310's is used"
   },
   "ammunition_rocket_agt-500": {
    "special": true,
@@ -3616,7 +3616,7 @@
    "uid": 1,
    "cooldown_group": 17,
    "cooldown_sec": 10,
-   "_not": "AGT-500: Agatus'a 125.000; bekleme wiki'de yok (uyarlama 10 sn); görsel kimliği yok"
+   "_note": "AGT-500: 125,000 to Agatus; cooldown is not on the wiki (adaptation 10 s); no visual id"
   },
   "ammunition_specialammo_wiz-x": {
    "special": true,
@@ -3628,7 +3628,7 @@
    "look_event": {
     "thanksgiving": 120
    },
-   "_not": "WIZ-X: hedefin görünümü bir süre başka gemi olur (VisualModifierCommand 25); süre wiki'de yok (uyarlama 10 sn), bekleme istemcinin tablosundan. Thanksgiving'de her isabet hindi (120; istemci thanksgiving-mutate-turkeys mutatedDesignId). Yeni yıl penceresi (31 Aralık - 4 Ocak: kardan adam 121, winterevent2013-frostlord), Empyrian March ve Prosperous Mutation sürerken isabetin %30'u etkinliğin tasarımı olur (darkorbitwiki events/*: \"you have a 30% chance to transform the target\"); kalanı rastgele uzaylı modeli. Tasarım kimlikleri istemcinin gemi tasarımı model alanı: Empyrian = wiki'nin 16 tasarımı + istemci başarımının Spectrum'u (581); Prosperous = wiki'nin Berserker 573, Goliath Plus 574, Citadel Plus 522 + istemci başarımının 522-524'ü. Astral Discovery (resmî Türk forumu 162019): Inferno Pusat 240, Sentinel 241, Diminisher 390, Berserker 540. Yapılmayanlar: Binary Bot / Sunburst Lordakium'un oyuncuyu SaNeJiEwZ'ye çevirmesi (tasarım kimliği kayıtta yok), P.E.T.-10 yasağı (oyunda P.E.T.-10 uzaylısı yok), kilit düşürme ve hitbox (görünüm-yalnız uyarlama)",
+   "_note": "WIZ-X: the target's appearance becomes another ship for a while (VisualModifierCommand 25); the duration is not on the wiki (adaptation 10 s), cooldown from the client's table. At Thanksgiving every hit is a turkey (120; client thanksgiving-mutate-turkeys mutatedDesignId). During the new year window (31 December - 4 January: snowman 121, winterevent2013-frostlord), Empyrian March and Prosperous Mutation, 30% of hits become the event's design (darkorbitwiki events/*: \"you have a 30% chance to transform the target\"); the rest a random alien model. Design ids are the client's ship design model field: Empyrian = the wiki's 16 designs + the Spectrum of the client achievement (581); Prosperous = the wiki's Berserker 573, Goliath Plus 574, Citadel Plus 522 + 522-524 of the client achievement. Astral Discovery (official Turkish forum 162019): Inferno Pusat 240, Sentinel 241, Diminisher 390, Berserker 540. Not done: Binary Bot / Sunburst Lordakium turning the player into SaNeJiEwZ (design id not in the recording), the P.E.T.-10 ban (there is no P.E.T.-10 alien in the game), lock drop and hitbox (appearance-only adaptation)",
    "look_chance": 0.3,
    "look_chances": {
     "snowman": [
@@ -3680,7 +3680,7 @@
     0.25,
     3
    ],
-   "_not": "SR-5: kalkana en çok 80.000, yarısı oyuncunun kalkanına; oyuncu 3 sn %25 yavaş; istemcide görsel kimliği yok"
+   "_note": "SR-5: at most 80,000 to the shield, half of it to the player's shield; player slowed 25% for 3 s; no visual id in the client"
   },
   "ammunition_specialammo_sp-100x": {
    "special": true,
@@ -3690,7 +3690,7 @@
    "uid": 1,
    "cooldown_group": 16,
    "cooldown_sec": 10,
-   "_not": "SP-100X: kalkanı atlar, gövdeye; istemcide görsel kimliği yok"
+   "_note": "SP-100X: bypasses the shield, hits the hull; no visual id in the client"
   },
   "ammunition_specialammo_rc-100": {
    "special": true,
@@ -3705,7 +3705,7 @@
     ]
    },
    "fx": "ICY_CUBE",
-   "_not": "RC-100: hedef 3 sn donar; görsel R-IC3 gibi"
+   "_note": "RC-100: target freezes for 3 s; visual like R-IC3"
   }
  },
  "repair_robots": {
@@ -3753,7 +3753,7 @@
   "equipment_generator_shield_sg3n-a02": {
    "shield": 2000,
    "absorb": 0.5,
-   "_not": "istemcinin Equipment verisi ve metni 2.000"
+   "_note": "istemcinin Equipment verisi ve metni 2.000"
   },
   "equipment_generator_shield_sg3n-a03": {
    "shield": 5000,
@@ -3778,7 +3778,7 @@
   "equipment_generator_shield_ugs-hp01": {
    "shield": 30000,
    "absorb": 0.8,
-   "_not": "istemcinin Equipment verisi; oyunda kaynağı yok"
+   "_note": "the client's Equipment data; no source in the game"
   },
   "equipment_generator_shield_fs-01": {
    "shield": 3200,
@@ -3798,20 +3798,20 @@
   "equipment_generator_shield_fs-04": {
    "shield": 11400,
    "absorb": 0.8,
-   "_not": "istemci: kalkan yenilenmesi +%6,25 (FS-01…04; yenilenme: gemide ve dronlarda takılı başına, profil.ship_mods)",
+   "_note": "client: shield regeneration +6.25% (FS-01…04; regeneration: per fitted one on the ship and on the drones, profile.ship_mods)",
    "regeneration": 0.0625
   },
   "equipment_generator_shield_sg3n-p01": {
    "shield": 11900,
    "absorb": 0.8,
    "pet_only": true,
-   "_not": "P.E.T. kalkan jeneratörü"
+   "_note": "P.E.T. shield generator"
   },
   "equipment_generator_shield_sg3n-px01": {
    "shield": 11900,
    "absorb": 0.8,
    "pet_only": true,
-   "_not": "P.E.T. kalkan jeneratörü; HEAT bonusu P.E.T. HEAT ile"
+   "_note": "P.E.T. shield generator; the HEAT bonus comes with the P.E.T. HEAT"
   }
  },
  "ships": {
@@ -4145,7 +4145,7 @@
      "home_laser": 0.5,
      "enemy_rocket": 1.0
     },
-    "_ev": "Hasar artışı (home_laser, enemy_rocket) yalnız uzaylılara ve düşman firma gemilerine; kendi firmasının oyuncusuna (klan savaşı) yok (resmî forum 127492)"
+    "_home": "The damage increase (home_laser, enemy_rocket) applies only against aliens and enemy company ships; not against a player of its own company (clan war) (official forum 127492)"
    }
   },
   "ship_liberator": {
@@ -4795,13 +4795,13 @@
    "source": "client"
   }
  },
- "_gemiler_kaynak": "belgeler/wiki/ships.md (wiki): can, lazer/jeneratör/ekstra yuvası, kargo, temel hız. Tasarım türevleri (G-*, V-*, A-/C-/S-, BB-Solemn, Raven, Ronin, Ignite) taban geminin değerleriyle (\"taban\"). Liberator temel hızı kayıttan: 2× G3N-7900 ile 350 gösteriliyor, wiki 300 diyor; 330 kullanıldı.",
+ "_ships_source": "belgeler/wiki/ships.md (wiki): HP, laser/generator/extra slots, cargo, base speed. Design derivatives (G-*, V-*, A-/C-/S-, BB-Solemn, Raven, Ronin, Ignite) with the base ship's values (\"base\"). Liberator base speed from the recording: with 2× G3N-7900 350 is shown, the wiki says 300; 330 was used.",
  "speed_diff": 56,
- "_hiz_farki_kaynak": "kayıt: AttributeShipSpeedUpdateCommand displaySpeed 350 -> newSpeed 294, 355 -> 299 (oyun içi hız = gösterilen - 56)",
+ "_speed_difference_source": "recording: AttributeShipSpeedUpdateCommand displaySpeed 350 -> newSpeed 294, 355 -> 299 (in-game speed = displayed - 56)",
  "shield_regen_sec": 0.04,
- "_kalkan_yenilenme_kaynak": "savaş dışında saniyede kalkanın %4'ü dolar. Kayıt (referans/20261025_152841_gercek): AttributeShieldUpdateCommand adımları 1.275/31.875 ve 1.785/44.625 = %4/sn; fandom Shield sayfası: 'default rate of 4% every second' (azami kalkanın oranı)",
+ "_shield_regen_source": "out of combat, 4% of the shield refills per second. Recording (referans/20261025_152841_gercek): AttributeShieldUpdateCommand steps 1,275/31,875 and 1,785/44,625 = 4%/s; fandom Shield page: 'default rate of 4% every second' (a fraction of max shield)",
  "regen_cooldown_sec": 15,
- "_yenilenme_bekleme_kaynak": "kalkan dolumu ve onarım robotu son vuruştan bu kadar sonra başlar. Kayıt: son alınan vuruştan ilk kalkan adımına 15,2-16 sn, onarım robotu (BeaconCommand repairRobotActive) 15,2-15,5 sn (adımlar saniyede bir); fandom Shield sayfası: 'out of combat for at least 15 seconds'. Öteki savaş koşulları (istasyon, ışınlanma, laboratuvar, müzik, P.E.T.) out_of_combat_sec'de",
+ "_regen_cooldown_source": "shield refill and the repair robot start this long after the last hit. Recording: from the last hit taken to the first shield step 15.2-16 s, repair robot (BeaconCommand repairRobotActive) 15.2-15.5 s (steps one per second); fandom Shield page: 'out of combat for at least 15 seconds'. The other combat conditions (station, teleport, lab, music, P.E.T.) are in out_of_combat_sec",
  "loot_types": {
   "equipment_weapon_laser_": "net.bigpoint.darkorbit.asset.weapon.LaserType",
   "equipment_weapon_rocketlauncher_": "net.bigpoint.darkorbit.asset.weapon.HellstormLauncherType",
@@ -4816,21 +4816,21 @@
   "equipment_aiprotocol_": "net.bigpoint.darkorbit.asset.pet.AIProtocolType",
   "pet_pet": "net.bigpoint.darkorbit.asset.pet.PetType"
  },
- "_loot_turleri_kaynak": "istemcinin Equipment.Initialize kodu ve kayıttaki HangarShipEquipmentInventoryItem.lootType",
+ "_loot_types_source": "the client's Equipment.Initialize code and HangarShipEquipmentInventoryItem.lootType in the recording",
  "damage_random": [
   0.76,
   1.0
  ],
- "_hasar_rastgele_kaynak": "kayıt: 1× LF-1 (65) + LCB-10 (x1) ile 50–64 hasar -> 65 × 0,76–1,0",
+ "_damage_random_source": "recording: with 1× LF-1 (65) + LCB-10 (x1), 50–64 damage -> 65 × 0.76–1.0",
  "out_of_combat_sec": 5,
- "_savas_disi_kaynak": "uyarlama: savaş durumu penceresi (istasyon işlemleri, ışınlanma, laboratuvar kalkan harcaması, savaş müziği, P.E.T. kalkanı ve onarımı); gemi kalkanı ve onarım robotu regen_cooldown_sec'i kullanır",
+ "_out_of_combat_source": "adaptation: the combat-state window (station operations, teleport, lab shield spending, combat music, P.E.T. shield and repair); ship shield and repair robot use regen_cooldown_sec",
  "death_screen": {
   "portal_uridium": 500,
   "in_place_uridium": 1000,
   "in_place_hp_ratio": 0.1,
   "in_place_protection_sec": 10
  },
- "_olum_ekrani_kaynak": "Ölüm ekranının tamir seçenekleri. İstasyonda tamir ücretsiz, tam canla. Yerinde tamir: canın %10'u ve 10 sn saldırı koruması, saldırınca kalkar (istemcinin ttip_killscreen_repair_location metni). Portal ve yerinde tamir fiyatları uyarlama (kaynaklarda yok).",
+ "_death_screen_source": "Repair options of the death screen. Repair at the station is free, with full HP. Repair in place: 10% of HP and 10 s of attack protection, removed when attacking (the client's ttip_killscreen_repair_location text). Portal and in-place repair prices are an adaptation (not in the sources).",
  "drones": {
   "drone_flax": {
    "type": 1,
@@ -5201,7 +5201,7 @@
     25,
     25
    ],
-   "_source": "Resmî Türk forumu 127526 'Droit Level Puanlaması Tablosu (Oyuncu İmhaları)': satır öldürülen gemi, sütun öldüren gemi; tabloda olmayan gemi Goliath sınıfı"
+   "_source": "Official Turkish forum 127526 'Droit Level Scoring Table (Player Kills)': row = killed ship, column = killing ship; a ship not in the table is Goliath class"
   }
  },
  "formations": {
@@ -5331,7 +5331,7 @@
   }
  },
  "formation_rules": {
-  "_not": "Formasyon başına satış/kullanım kuralı. asgari_dron: yeterli dron yoksa formasyon seçilmez (fandom: Arrow ve Dome 4, Heart ve Pincer 6 dron; Moth ve Turtle için değer yok; istemci ttip_inactive_not_enough_drones). takvim: yalnız o etkinlik sürerken satılır (Bat: Halloween, darkorbitwiki Pumpkin Fest; kayıttaki mağaza satırı isActiveEventItem=1); sahip olunan etkilenmez",
+  "_note": "Sale/use rule per formation. min_drones: the formation cannot be selected if there are not enough drones (fandom: Arrow and Dome 4, Heart and Pincer 6 drones; no value for Moth and Turtle; client ttip_inactive_not_enough_drones). calendar: sold only while that event runs (Bat: Halloween, darkorbitwiki Pumpkin Fest; the shop row in the recording has isActiveEventItem=1); owned ones are unaffected",
   "drone_formation_f-02-ar": {
    "min_drones": 4
   },
@@ -5348,7 +5348,7 @@
    "calendar": "halloween"
   }
  },
- "_dronlar_kaynak": "belgeler/wiki/drones_pet.md (wiki): Flax 1 yuva (kredi), Iris 2 yuva (uridyum), en çok 8; fiyat her dronla artar. Seviye puanları ve lazer/jeneratör bonusu, gemiye göre öldürme başına puan (Phoenix, Leonov, Liberator, Piranha, Bigboy, Goliath, Vengeance-Aegis sırasıyla; tabloda olmayan NPC ve gemiler için son sütun/0). Formasyon kimlikleri istemcinin game.xml <formations> bölümünden, bonuslar wiki'den: lazer/roket hasarı, kalkan, can, hız, emme (eklenir), kacinma (NPC isabeti düşer), roket_bekleme, ep, onur. Öteki anahtarlar (kalkan delme, kalkan dolumu/erimesi, mayın, fırlatıcı, NPC'ye ve PvP'ye hasar): _formasyon_anahtarlari. Apis ve Zeus (Aşama 6): 2 yuva, tür 3/4 (istemcinin dron dizgisi), birer tane, 8 Flax/Iris sınırının dışında (wiki: en çok 10 dron); Assembly'de 45 parçadan (parçası 24.000 / 33.000 U; fiyatlar parçaların toplamı, satılmaz: istemcide \"sellable\" yok).",
+ "_drones_source": "belgeler/wiki/drones_pet.md (wiki): Flax 1 slot (credits), Iris 2 slots (uridium), at most 8; the price rises with each drone. Level points and laser/generator bonus, points per kill by ship (Phoenix, Leonov, Liberator, Piranha, Bigboy, Goliath, Vengeance-Aegis respectively; for NPCs and ships not in the table, the last column/0). Formation IDs from the client's game.xml <formations> section, bonuses from the wiki: laser/rocket damage, shield, HP, speed, absorb (additive), evasion (lowers NPC hit chance), rocket_cooldown, ep, honor. The other keys (shield penetration, shield refill/decay, mine, launcher, damage to NPCs and PvP): _formation_keys. Apis and Zeus (Stage 6): 2 slots, type 3/4 (the client's drone string), one each, outside the 8 Flax/Iris limit (wiki: at most 10 drones); in Assembly from 45 parts (part 24,000 / 33,000 U; the prices are the sum of the parts, not sold: no \"sellable\" in the client).",
  "ores": {
   "kinds": {
    "0": "resource_ore_prometium",
@@ -5439,10 +5439,10 @@
   "harvest_sec": 0.5,
   "harvest_distance": 300,
   "palladium_energy": 15,
-  "_palladium": "Palladium yalnız 5-1 ve 5-3'te (wiki ve istemcinin eşya açıklaması); 5-1'de 50, 5-3'te 250, haritanın Palladium sisli alanında (emu-dark Field_01/Field_03; harita_duzeni.json); 5-2'deki korsan tüccarında 15 Palladium = 1 kapı enerjisi (belgeler/wiki/resources_refining.md; istemci: OreTradeInfoCommand palladiumExchangeRate, PIRATE_STATION)",
-  "_seprom_osmium": "Seprom 750 -> 1.500, Osmium 3.000 -> 6.000 (darkorbitwiki: \"en çok\"); öteki cevherler gibi taban + onur/bölen, 500.000 onurda tavan (bölen 666,666 ve 166,666 = 500.000/750 ve 500.000/3.000). OreTradeInfoCommand osmiumPrice artık ore_prices()'tan"
+  "_palladium": "Palladium only on 5-1 and 5-3 (wiki and the client's item description); 50 on 5-1, 250 on 5-3, in the map's Palladium fog area (emu-dark Field_01/Field_03; map_layout.json); at the pirate trader on 5-2 15 Palladium = 1 gate energy (belgeler/wiki/resources_refining.md; client: OreTradeInfoCommand palladiumExchangeRate, PIRATE_STATION)",
+  "_seprom_osmium": "Seprom 750 -> 1,500, Osmium 3,000 -> 6,000 (darkorbitwiki: \"at most\"); like the other ores base + honor/divisor, capped at 500,000 honor (divisors 666.666 and 166.666 = 500,000/750 and 500,000/3,000). OreTradeInfoCommand osmiumPrice now comes from ore_prices()"
  },
- "_cevherler_kaynak": "Türler istemcinin OreType enum'u ve resource_ore_* eşyaları. Haritalar (wiki, belgeler/wiki/maps.md ve resources_refining.md): X-1 Prometium/Endurium, X-2 üçü, X-3 ve X-4 Endurium/Terbium; kayıtta 2-1'de Prometium ve Endurium kümeleri. Adetler, küme büyüklüğü ve yeniden doğma uyarlama. Satış fiyatı [taban, onur böleni, üst sınır]: taban + onur/bölen, üst sınırlı (wiki); kayıttaki OreTradeInfoCommand taban fiyatları veriyor (Prometium 10, Endurium 15, Terbium 25, Prometid/Duranium 200, Promerium 500, Seprom 750, Osmium 3000). Her cevher kargoda 1 birim (kayıt: 73 cevherle boş alan 400 -> 327). Toplama yanıtı ~0,5 sn sonra (kayıt).",
+ "_ores_source": "Types are the client's OreType enum and resource_ore_* items. Maps (wiki, belgeler/wiki/maps.md and resources_refining.md): X-1 Prometium/Endurium, X-2 all three, X-3 and X-4 Endurium/Terbium; in the recording, Prometium and Endurium clusters on 2-1. Counts, cluster size and respawn are an adaptation. Sell price [base, honor divisor, cap]: base + honor/divisor, capped (wiki); the OreTradeInfoCommand in the recording gives the base prices (Prometium 10, Endurium 15, Terbium 25, Prometid/Duranium 200, Promerium 500, Seprom 750, Osmium 3000). Each ore takes 1 unit of cargo (recording: with 73 ores, free space 400 -> 327). Collection response after ~0.5 s (recording).",
  "lab": {
   "recipes": {
    "4": {
@@ -5492,7 +5492,7 @@
   },
   "maximum": 1000000
  },
- "_laboratuvar_kaynak": "Rafine tarifleri istemcinin game.xml <ores refiner> değerleri (wiki ile aynı): Prometid = 20 Prometium + 10 Endurium, Duranium = 10 Endurium + 20 Terbium, Promerium = 10 Prometid + 10 Duranium + 1 Xenomit. Yükseltme (LabItem: 0 lazer, 1 roket, 2 motor, 3 kalkan) bonusları wiki ve istemcinin lab_effect_* metinleri. Birimler istemcinin <refinementWindow><update><items>: lazer tur, roket adet, motor/kalkan dakika; 1 cevher = 10 tur/adet/dakika (birim, parça başına; resmî Resources FAQ: Prometid 10 birim, Duranium 10 dakika; wiki '1 ore for 10 shots'; kullanıcı bildirimi 2026-10-24: 1 Seprom 1 atış veriyordu; 2026-10-28'de motor/kalkana 1 dakika yapılmıştı, 2026-10-31'de 10 dakikaya geri alındı), parça başına en çok 1.000.000 birim (azami; Team DarkOrbit 2019: tavanı aşmış parçaya eklenmez, artan cevher kargoda kalır). Motor dakikası hareket ederken, kalkan dakikası savaşta harcanır (uyarlama). Başka cevherle yükseltme öncekini siler (istemci: lab_alert).",
+ "_lab_source": "Refine recipes are the values of the client's game.xml <ores refiner> (same as the wiki): Prometid = 20 Prometium + 10 Endurium, Duranium = 10 Endurium + 20 Terbium, Promerium = 10 Prometid + 10 Duranium + 1 Xenomit. Upgrade bonuses (LabItem: 0 laser, 1 rocket, 2 engine, 3 shield) from the wiki and the client's lab_effect_* texts. Units from the client's <refinementWindow><update><items>: laser rounds, rocket count, engine/shield minutes; 1 ore = 10 rounds/units/minutes (unit, per part; official Resources FAQ: Prometid 10 units, Duranium 10 minutes; wiki '1 ore for 10 shots'; user report 2026-10-24: 1 Seprom gave 1 shot; on 2026-10-28 engine/shield was set to 1 minute, on 2026-10-31 it was reverted to 10 minutes), at most 1,000,000 units per part (maximum; Team DarkOrbit 2019: nothing is added to a part that exceeded the cap, the leftover ore stays in cargo). Engine minutes are spent while moving, shield minutes in combat (adaptation). Upgrading with another ore erases the previous one (client: lab_alert).",
  "pet": {
   "loot": "pet_pet10",
   "name": "P.E.T.",
@@ -5914,8 +5914,8 @@
      0,
      108
     ],
-    "_not": "3X (4. seviye): menzil 3.000 + HEAT seviyesi başına 108 (wiki); kayıttaki mağazada 4. kademe satılmaz (1e9), edinme yolu yok (etkinlik/ödeme: kaynak kaydı yok)",
-    "_fiyat3": "G-AL3X/G-AR3X: forum 127074 'özel satış veya etkinlik'; tek oyunculuda mağazada (G-EL3X/G-RL3X'in fiyat/satış oranı)"
+    "_note": "3X (level 4): range 3,000 + 108 per HEAT level (wiki); level 4 is not sold in the shop in the recording (1e9), no way to acquire it (event/payment: no source recording)",
+    "_price3": "G-AL3X/G-AR3X: forum 127074 'special sale or event'; in single-player in the shop (the price/sale ratio of G-EL3X/G-RL3X)"
    },
    "equipment_petgear_g-ar1": {
     "type": 5,
@@ -5937,8 +5937,8 @@
      0,
      108
     ],
-    "_not": "3X (4. seviye): menzil 3.000 + HEAT seviyesi başına 108 (wiki); kayıttaki mağazada 4. kademe satılmaz (1e9), edinme yolu yok (etkinlik/ödeme: kaynak kaydı yok)",
-    "_fiyat3": "G-AL3X/G-AR3X: forum 127074 'özel satış veya etkinlik'; tek oyunculuda mağazada (G-EL3X/G-RL3X'in fiyat/satış oranı)"
+    "_note": "3X (level 4): range 3,000 + 108 per HEAT level (wiki); level 4 is not sold in the shop in the recording (1e9), no way to acquire it (event/payment: no source recording)",
+    "_price3": "G-AL3X/G-AR3X: forum 127074 'special sale or event'; in single-player in the shop (the price/sale ratio of G-EL3X/G-RL3X)"
    },
    "equipment_petgear_g-el1": {
     "type": 6,
@@ -5960,7 +5960,7 @@
      0,
      180
     ],
-    "_not": "3X (4. seviye, P.E.T. seviye 20): 50.000 U (kayıttaki LevelDataList), menzil 5.000 + HEAT seviyesi başına 180 (wiki)"
+    "_note": "3X (level 4, P.E.T. level 20): 50,000 U (the recording's LevelDataList), range 5,000 + 180 per HEAT level (wiki)"
    },
    "equipment_petgear_g-rl1": {
     "type": 7,
@@ -5982,7 +5982,7 @@
      0,
      180
     ],
-    "_not": "3X (4. seviye, P.E.T. seviye 20): 25.000 U (kayıttaki LevelDataList), menzil 5.000 + HEAT seviyesi başına 180 (wiki)"
+    "_note": "3X (level 4, P.E.T. level 20): 25,000 U (the recording's LevelDataList), range 5,000 + 180 per HEAT level (wiki)"
    },
    "equipment_petgear_g-tra1": {
     "type": 8,
@@ -6002,7 +6002,7 @@
      0.3
     ],
     "trade_fuel": 50,
-    "_adaptation": "trade_fuel: her satışın bir kerelik yakıt bedeli. İstemci \"You have to use P.E.T. fuel to trade\" (desc_trade_window_costs_petgear_trade) der; miktar hiçbir kaynakta yok (darkorbitwiki, fandom, resmî Pet 10 SSS, rapor_MEK MEK-P12). Resmî forum \"[GI] P.E.T 10 Cargo Trader\" (2015): \"one-time cost\" (Thaumanovic), satışta 39 yakıt, \"minute payout\" (SauronL), 50-100 yakıt (başka oyuncu). Sabit 50 = 12,5 U (1.000 yakıt 250 U), seviye 7 P.E.T.'in (33/dk) ~1,5 dakikalık tüketimi; AI-ECO ve panelin pet_yakit çarpanı uygulanır"
+    "_adaptation": "trade_fuel: a one-time fuel cost for each sale. The client says \"You have to use P.E.T. fuel to trade\" (desc_trade_window_costs_petgear_trade); the amount is in no source (darkorbitwiki, fandom, official Pet 10 FAQ, rapor_MEK MEK-P12). Official forum \"[GI] P.E.T 10 Cargo Trader\" (2015): \"one-time cost\" (Thaumanovic), 39 fuel per sale, \"minute payout\" (SauronL), 50-100 fuel (another player). Fixed 50 = 12.5 U (1,000 fuel 250 U), about 1.5 minutes of consumption of a level 7 P.E.T. (33/min); AI-ECO and the panel's pet_fuel multiplier apply"
    },
    "equipment_petgear_g-rep1": {
     "type": 9,
@@ -6074,7 +6074,7 @@
     ],
     "duration_sec": 5,
     "cooldown_sec": 15,
-    "_not": "Resmî Türk forumu 127074: 5 sn onarım, 15 sn bekleme; yakıt (extra_fuel) etkinleştirme başına"
+    "_note": "Official Turkish forum 127074: 5 s repair, 15 s cooldown; fuel (extra_fuel) per activation"
    },
    "equipment_petgear_cgm-02": {
     "type": 12,
@@ -6115,14 +6115,14 @@
     ],
     "heat_sec": 7,
     "cooldown_sec": 60,
-    "_not": "wiki; bekleme_sn uyarlama (istemcide bekleme mesajları var, süre yok)"
+    "_note": "wiki; cooldown_sec is an adaptation (the client has cooldown messages, no duration)"
    },
    "equipment_petgear_g-hpl1": {
     "type": 16,
     "duration_sec": 20,
     "cooldown_sec": 240,
     "pet_damage": 1.25,
-    "_not": "Resmî Türk forumu 127074 (P.E.T. Kullanım Kılavuzu): bağlıyken gemiye gelen gövde hasarı P.E.T.'e geçer, P.E.T. korumada ve '%25 ekstra hasar' verir; 20 sn, 240 sn bekleme; 'daha yüksek oranda yakıt tüketir' (oran yok: beacon'ların %30'u, uyarlama)",
+    "_note": "Official Turkish forum 127074 (P.E.T. User Guide): while linked, hull damage that would hit the ship passes to the P.E.T., the P.E.T. is in protection and deals '25% extra damage'; 20 s, 240 s cooldown; 'consumes fuel at a higher rate' (no rate given: 30% of the beacons', adaptation)",
     "fuel_multiplier": 1.3
    },
    "equipment_petgear_g-bc1": {
@@ -6134,7 +6134,7 @@
      "laser": 0.035,
      "rocket": 0.035
     },
-    "_not": "Resmî Türk forumu 127074 ve 156747: seviye 1 süre 120 sn, etki %3,5, bekleme 240 sn, etkinken %30 daha fazla yakıt; menzil 1.000 uyarlama",
+    "_note": "Official Turkish forum 127074 and 156747: level 1 duration 120 s, effect 3.5%, cooldown 240 s, 30% more fuel while active; range 1,000 adaptation",
     "fuel_multiplier": 1.3
    },
    "equipment_petgear_g-bh1": {
@@ -6145,16 +6145,16 @@
     "bonus": {
      "hp": 0.035
     },
-    "_not": "Resmî Türk forumu 127074 ve 156747: seviye 1 süre 120 sn, etki %3,5, bekleme 240 sn, etkinken %30 daha fazla yakıt; menzil 1.000 uyarlama",
+    "_note": "Official Turkish forum 127074 and 156747: level 1 duration 120 s, effect 3.5%, cooldown 240 s, 30% more fuel while active; range 1,000 adaptation",
     "fuel_multiplier": 1.3
    },
    "equipment_petgear_g-rt1": {
     "type": 15,
-    "none": "düşman P.E.T.'i gerekir (bot oyuncular)"
+    "none": "requires an enemy P.E.T. (bot players)"
    },
    "equipment_petgear_g-mm1": {
     "type": 17,
-    "none": "yalnız oyunculara hasar verir (bot oyuncular)"
+    "none": "damages only players (bot players)"
    }
   },
   "protocols": {
@@ -6444,7 +6444,7 @@
    "pet_designs_red": 161,
    "pet_designs_spectrum-eostra": 301
   },
-  "_designs": "P.E.T. tasarımı -> uzaydaki görünüm (game.xml class=\"pet\" türleri; tools/pet_tasarimlari.py). Takılı tasarım seviyenin görünümünün yerine geçer; eşlenemeyenler görünümü değiştirmez.",
+  "_designs": "P.E.T. design -> appearance in space (game.xml class=\"pet\" types; tools/pet_designs.py). A fitted design replaces the level's appearance; those that cannot be mapped do not change the appearance.",
   "heat": {
    "levels": [
     {
@@ -6507,7 +6507,7 @@
     0.04,
     0.08
    ],
-   "_source": "wiki (P.E.T. HEAT): wiki eşikleri 150/300/450/600/750 (5. satırdaki \"100\" yazım hatası), bonuslar birikir, soğuma gecikmeleri 12 sa/24 sa/24 sa/15 dk/5 dk, 7 HEAT yuvası (lazer ya da kalkan jeneratörü) 4. seviyeden etkin, LF-PX01/SG3N-PX01 HEAT seviyesine göre +%0,5/1/2/4/8. Gerçek kayıt (20261025_152841_gercek, PetHeatUpdateCommand): seviye 0'da petHeatAmountMax 75 (çubuk azamisi bir sonraki eşik) ve etkin P.E.T. dakikada +1,8957 (savaşta fark görülmedi: combat_gain_sec 0); kayıt yalnız seviye 0'ı gösterdiğinden eşikler wiki'nin 150/300/450/600/750'sinin yarısı (75/150/225/300/375; varsayım, HEAT atlayan oturum kaydı gerekir). AI-AH protokolü kazancı artırır; gecikme bitince saniyede 0,5 puan soğur, bir alt seviyeye inince o seviyenin gecikmesi başlar. Bonuslar P.E.T. uzaydayken gemiye; can bonusu P.E.T.'in kendi canına (kayıt: seviye 20 P.E.T.'lerin azami canı (50.000 + G-HP1) x1,10 / x1,20, AI-HP'yle x1,14; E5)."
+   "_source": "wiki (P.E.T. HEAT): wiki thresholds 150/300/450/600/750 (the \"100\" in the 5th row is a typo), bonuses accumulate, cooling delays 12 h/24 h/24 h/15 min/5 min, 7 HEAT slots (laser or shield generator) active from the 4th level, LF-PX01/SG3N-PX01 +0.5/1/2/4/8% by HEAT level. Real recording (20261025_152841_gercek, PetHeatUpdateCommand): at level 0 petHeatAmountMax 75 (the bar max is the next threshold) and the active P.E.T. gains +1.8957 per minute (no difference seen in combat: combat_gain_sec 0); since the recording shows only level 0, the thresholds are half of the wiki's 150/300/450/600/750 (75/150/225/300/375; assumption, a session recording that skips HEAT levels is needed). The AI-AH protocol raises the gain; after the delay ends it cools 0.5 points per second, and when it drops to a lower level that level's delay starts. Bonuses go to the ship while the P.E.T. is in space; the HP bonus goes to the P.E.T.'s own HP (recording: the max HP of level 20 P.E.T.s (50,000 + G-HP1) x1.10 / x1.20, x1.14 with AI-HP; E5)."
   },
   "hp_upgrade": {
    "loot": "pet_upgrade-g-hp1",
@@ -6534,9 +6534,9 @@
     50000,
     50000
    ],
-   "_source": "wiki (P.E.T. seviye tablosu MAX HP / HP UPGRADE): her yükseltme +10.000 can; P.E.T. seviyesi kadar yükseltme (seviye 20: 250.000); n. yükseltmenin fiyatı tablonun n. satırı. Mağazada G-HP1 (istemci: pet_upgrade-g-hp1, buy_pet_hull)."
+   "_source": "wiki (P.E.T. level table MAX HP / HP UPGRADE): each upgrade +10,000 HP; as many upgrades as the P.E.T. level (level 20: 250,000); the price of the n-th upgrade is the n-th row of the table. G-HP1 in the shop (client: pet_upgrade-g-hp1, buy_pet_hull)."
   },
-  "fuel_formula": "Dakikalık tüketim seviye tablosundan (gerçek kayıt: seviye 7 = 33, 13 = 44). Resmî forum 127074'ün '1 + 2 x seviye + 2 x protokol + 4 x dişli' formülü her zaman tek sayı verir, kayıttaki 44'ü üretemez: uygulanmadı. Çarpanlar: yakıt protokolü, Kombo Koruma, etkin beacon/HP Link x1,3, ısı seviyesi başına +%5 (forum: 'yüksek ısıda daha fazla yakıt'; oran uyarlama)",
+  "fuel_formula": "Per-minute consumption from the level table (real recording: level 7 = 33, 13 = 44). The formula '1 + 2 x level + 2 x protocol + 4 x gear' of official forum 127074 always gives an odd number and cannot produce the recording's 44: not applied. Multipliers: fuel protocol, Combo Protection, active beacon/HP Link x1.3, +5% per heat level (forum: 'more fuel at high heat'; rate is an adaptation)",
   "kamikaze_banned": [
    "1-1",
    "2-1",
@@ -6544,7 +6544,7 @@
    "LoW"
   ]
  },
- "_pet_kaynak": "belgeler/wiki/drones_pet.md (wiki). Mağazada P.E.T.-10 50.000 U (kayıttaki ShopItemListCommand 'pet'). Can 50.000: kayıttaki seviye 13 P.E.T.'in en çok canı 55.000 (wiki'deki 250.000'e kadar can satın alınan yükseltmelerle; sunucuda yok). En çok yakıt 100.000 ve seviye eşikleri (petExperiencePointsUntilNextLevel = sonraki seviyenin toplam EP'si) kayıttan. Gemi türü seviyeye göre istemcinin game.xml'i (12: 1-3, 13: 4-6, 14: 7-9, 15: 10-12, 22: 13-15). Yakıt kullanımı dakika başına: gerçek kayıtta seviye 7 P.E.T. dakikada tam 33 harcıyor (wiki tablosu 53), önceki kayıtta seviye 13 ~44 (wiki 75); tablo wiki değerlerinin 0,6 katı, bu iki seviye kayıttan (ESYA2). Seviye bonusları (hasar/kalkan) wiki'deki çift/tek seviye etkileri, birikimli değil son değer. Yuvalar: lazer, dişli ve protokol seviye tablosundaki kadar açık; jeneratör yuvası seviyeyle gelmez (kayıtta seviye 7'de maxGeneratorSlots 2, 3. yuva 5.000 U): başlangıç 2 + satın alınanlar; fazlası hangarda yuva numarasına göre uridyumla açılır (wiki fiyatları). Hotkey yakıt 1.000 birim (istemcinin log_msg_bought_fuel_hotkey metni), 250 U (gerçek kayıt: krediye dokunmadan -250 U; wiki 0,25 U/birim). Uzaylılar P.E.T.'e ateş etmez (gerçek oyunda yalnız düşman oyuncular; kullanıcı bildirimi 2026-10-24). Tamirden sonra can azaminin repair_hp kadarı (gerçek kayıt: 3.500 / 70.000 = %5; tam canla Kamikaze kullanılamıyordu, kullanıcı bildirimi 2026-10-24); kamikaze eşiği uyarlama. Dişli ve protokoller 3 seviye: fiyat ve etkiler seviye listesi (wiki); seviye 2 için P.E.T. seviye 4, seviye 3 için 8 gerekir. Hangar eşyasında level = seviye - 1 (istemci 1. seviyeyi \"Level: 0\" gösterir). Koruma modunda P.E.T. hedefin near_distance kadar yanına gider; gemiden combat_distance uzaktaki NPC ile savaşmaz (uyarlama). E5: protokollerin 4. seviyesi (wiki) P.E.T. seviyesi 20 ister (wiki \"Access to fourth level equipment\"); kayıttaki LevelDataList'in 4. kademesinde yalnız AI-ECO 105.000 U, ötekiler 0 (istemci pet_gear_shop_level_limit: mağazadan alınmaz). G-HR1 fiyatı kayıttan (10.000 / 15.000 / 32.000). G-KK1 beklemesi 120/60/30 sn (wiki), başlangıç haritalarında seçilmez (istemci iletisi); eşik 0,2 uyarlama, geminin canı da tetikler (istemci \"your P.E.T. or ship\"). G-TRA1 satış bonusu +%5/15/30 (wiki, istemci \"Trade bonus\"); ticaretin yakıt bedelinin miktarı yok (doğrulanmadı, uygulanmadı). C-SR2'nin ek yakıtı onarım başına (istemci \"Uses extra fuel for each repair\"; wiki 200/400/750).",
+ "_pet_source": "belgeler/wiki/drones_pet.md (wiki). P.E.T.-10 is 50,000 U in the shop (ShopItemListCommand 'pet' in the recording). HP 50,000: the max HP of the level 13 P.E.T. in the recording is 55,000 (the wiki's up to 250,000 HP comes from purchased upgrades; not on the server). Max fuel 100,000 and the level thresholds (petExperiencePointsUntilNextLevel = the next level's total EP) from the recording. Ship type by level from the client's game.xml (12: 1-3, 13: 4-6, 14: 7-9, 15: 10-12, 22: 13-15). Fuel use per minute: in the real recording a level 7 P.E.T. spends exactly 33 per minute (wiki table 53), in the earlier recording level 13 ~44 (wiki 75); the table is 0.6x the wiki values, these two levels from the recording (ESYA2). Level bonuses (damage/shield) are the wiki's even/odd level effects, not cumulative, the final value. Slots: laser, gear and protocol are as open as in the level table; the generator slot does not come with level (in the recording at level 7 maxGeneratorSlots 2, the 3rd slot 5,000 U): initial 2 + purchased; more are unlocked in the hangar by slot number with uridium (wiki prices). Hotkey fuel 1,000 units (the client's log_msg_bought_fuel_hotkey text), 250 U (real recording: -250 U without touching credits; wiki 0.25 U/unit). Aliens do not shoot the P.E.T. (in the real game only enemy players; user report 2026-10-24). After repair, HP is repair_hp of max (real recording: 3,500 / 70,000 = 5%; Kamikaze could not be used at full HP, user report 2026-10-24); the kamikaze threshold is an adaptation. Gears and protocols have 3 levels: price and effects are the level list (wiki); level 2 requires P.E.T. level 4, level 3 requires 8. For a hangar item level = level - 1 (the client shows level 1 as \"Level: 0\"). In protection mode the P.E.T. goes to near_distance next to the target; it does not fight an NPC farther than combat_distance from the ship (adaptation). E5: the 4th level of the protocols (wiki) requires P.E.T. level 20 (wiki \"Access to fourth level equipment\"); in the 4th tier of the recording's LevelDataList only AI-ECO is 105,000 U, the others 0 (client pet_gear_shop_level_limit: not bought from the shop). G-HR1 price from the recording (10,000 / 15,000 / 32,000). G-KK1 cooldown 120/60/30 s (wiki), not selectable on the starting maps (client message); threshold 0.2 adaptation, the ship's HP also triggers it (client \"your P.E.T. or ship\"). G-TRA1 sale bonus +5/15/30% (wiki, client \"Trade bonus\"); the amount of the trade's fuel cost is not given (not verified, not implemented). C-SR2's extra fuel is per repair (client \"Uses extra fuel for each repair\"; wiki 200/400/750).",
  "drone_designs": {
   "drone_designs_havoc": {
    "id": 1,
@@ -7379,9 +7379,9 @@
    "slot": "visual"
   }
  },
- "_drone_designs_source": "Kimlikler istemcinin game.xml <drones><designs> listesi (uzaydaki '0|n|d|…|tür|seviye|tasarım|görünüm' alanları). Yuva istemcinin DroneItem kodundan: DroneDesignType 'design' (bonuslu), DroneCustomizationType 'visual' (yalnız görünüm). Bonuslar wiki (belgeler/wiki/drones_pet.md): per_drone her tasarımlı drona, takim sahip olunan bütün dronlar aynı tasarımı taşıyınca (istemcinin Havoc metni: 'If all of the drones are equipped'; wiki 10 dron der). npc = NPC'lere hasar (lazer ve roket). Champion ülke tasarımları (drone-champion-*) ve Champion yalnız görünüm (wiki: Visual drone designs kozmetiktir; Aşama 5). E5: takım bonusları istemcinin metinlerinden: dron_lazer yalnız dronların lazerine (Havoc \"all of the drones will profit from a laser cannon efficiency bonus\" %10, Cerberus %5, Inferno Cerberus \"Laser Efficiency\" %8), bekleme gemi yeteneklerinin beklemesi (Archeron %8, Inferno Cerberus %10, Hermes %10), Hermes mayın, roket ve Hellstorm beklemesi -%10, Lepus top hasarı +%10 ve top isabeti +%5 (top, cannon_hit). Hermes'in dron başına bonusu (istemci anmıyor) ve Spartan'ın \"damage and HP\" kapsamı (sunucu yalnız lazer) wiki'den, doğrulanmadı. ETKINLIK: etkinlik_basina {etkinlik (takvim anahtarı), npc_lazer}: görünüm tasarımının, etkinlik sürerken takılı her biri için geçici NPC lazer hasarı bonusu (profil.design_mods; darkorbitwiki Apocalypse Booty Box: efsane %0,6, nadir %0,3, standart %0,2). Goal Rush'ın Champion/Eostra bonusu bilinçli yok (etkinlikler.json goal_rush._kaynak).",
+ "_drone_designs_source": "IDs are from the client's game.xml <drones><designs> list (the '0|n|d|…|type|level|design|appearance' fields in space). Slot from the client's DroneItem code: DroneDesignType 'design' (with bonus), DroneCustomizationType 'visual' (appearance only). Bonuses from the wiki (belgeler/wiki/drones_pet.md): per_drone for every drone with the design, set_bonus when all owned drones carry the same design (the client's Havoc text: 'If all of the drones are equipped'; the wiki says 10 drones). npc = damage to NPCs (laser and rocket). Champion country designs (drone-champion-*) and Champion are appearance only (wiki: Visual drone designs are cosmetic; Stage 5). E5: set bonuses from the client's texts: drone_laser applies only to the drones' lasers (Havoc \"all of the drones will profit from a laser cannon efficiency bonus\" 10%, Cerberus 5%, Inferno Cerberus \"Laser Efficiency\" 8%), cooldown is the cooldown of ship abilities (Archeron 8%, Inferno Cerberus 10%, Hermes 10%), Hermes mine, rocket and Hellstorm cooldown -10%, Lepus cannon damage +10% and cannon hit +5% (top, cannon_hit). Hermes's per-drone bonus (the client does not mention it) and the scope of Spartan's \"damage and HP\" (the server covers only lasers) are from the wiki, not verified. EVENT: per_event {event (calendar key), npc_laser}: a temporary NPC laser damage bonus from the appearance design, for each one worn while the event runs (profile.design_mods; darkorbitwiki Apocalypse Booty Box: legendary 0.6%, rare 0.3%, standard 0.2%). Goal Rush's Champion/Eostra bonus is deliberately absent (events.json goal_rush._source).",
  "extra_shop": {
-  "_description": "Kayıttaki mağazada olmayan, tek oyunculuda başka yoldan alınamayan eşyalar (galaksi kapıları yok). Uridyum fiyatı uyarlama; Demon tasarımı mağazada 100.000 U.",
+  "_description": "Items not in the shop in the recording and not obtainable any other way in single-player (no galaxy gates). Uridium price is an adaptation; the Demon design is 100,000 U in the shop.",
   "customization": [
    {
     "lootId": "drone_designs_havoc",
@@ -9219,35 +9219,35 @@
     "uridium": 10000,
     "template": "package_event-deal-stellar2022-1",
     "calendar": "chromin",
-    "_source": "resmî Türk forumu Chromin Rush duyuruları: \"uygun fiyata 60.000 Chromin\" paketi (istemcinin Chromin Pack öğesi); fiyat 10.000 U uyarlama. XL/XXL eklenmedi: adetleri kaynakta yok, istemcide simgeleri yok (canlı 2026-10-26)"
+    "_source": "official Turkish forum Chromin Rush announcements: \"60,000 Chromin at a fair price\" pack (the client's Chromin Pack item); price 10,000 U adaptation. XL/XXL not added: their quantities are not in the source, no icons in the client (live 2026-10-26)"
    },
    {
     "lootId": "deal_blackBooty",
     "uridium": 21000,
     "template": "package_event-deal-stellar2022-1",
     "calendar": "obsidian_booty",
-    "_source": "resmî Türk forumu (Obsidyen, Apocalypse, Kırmızı ve Mavi kutu SSS): anahtar paketleri (Küçük 5 … Platin 135); istemcide tek \"deal\" öğesi var: 5 anahtar, anahtar başı 4.200 U (Laurel anahtar paketiyle aynı oran; uyarlama)"
+    "_source": "official Turkish forum (Obsidian, Apocalypse, Red and Blue box FAQ): key packs (Small 5 … Platinum 135); the client has a single \"deal\" item: 5 keys, 4,200 U per key (same rate as the Laurel key pack; adaptation)"
    },
    {
     "lootId": "deal_masqueBooty",
     "uridium": 21000,
     "template": "package_event-deal-stellar2022-1",
     "calendar": "apocalypse_booty",
-    "_source": "resmî Türk forumu (Obsidyen, Apocalypse, Kırmızı ve Mavi kutu SSS): anahtar paketleri (Küçük 5 … Platin 135); istemcide tek \"deal\" öğesi var: 5 anahtar, anahtar başı 4.200 U (Laurel anahtar paketiyle aynı oran; uyarlama)"
+    "_source": "official Turkish forum (Obsidian, Apocalypse, Red and Blue box FAQ): key packs (Small 5 … Platinum 135); the client has a single \"deal\" item: 5 keys, 4,200 U per key (same rate as the Laurel key pack; adaptation)"
    },
    {
     "lootId": "deal_booty-key-overhaul-march-red",
     "uridium": 2500,
     "template": "resource_booty-key",
     "calendar": "rb_booty",
-    "_source": "Resmî Türk forumu 130230/127496 (Kırmızı ve Mavi Korsan Kutuları): anahtarlar etkinlikte ödemeyle satılır, Assembly'de kırmızı 10 Scrap/5 Aurus/3 Schism, mavi 20/10/5; mavi kutuda şanslar kırmızının iki katı. Tek oyunculu uyarlama: R&B etkinliği sürerken anahtar başına uridyum (kırmızı 2.500 U, mavi 5.000 U; tarifin malzeme oranı); istemcide simgesi olan deal_booty-key-overhaul-march-red/blue öğeleri (\"Red/Blue Booty Key\"; resource_booty-key-red/blue ve deal_booty-key-red/blue beyaz simge, canlı 2026-10-30) yeşil anahtarın şablonuyla, içerik 1 anahtar (oyuncu bildirimi 2026-10-30: etkinlikte mağazada yoktu)"
+    "_source": "Official Turkish forum 130230/127496 (Red and Blue Pirate Boxes): keys are sold for payment during the event, in Assembly red 10 Scrap/5 Aurus/3 Schism, blue 20/10/5; chances in the blue box are twice the red's. Single-player adaptation: while the R&B event runs, uridium per key (red 2,500 U, blue 5,000 U; the recipe's ingredient ratio); the deal_booty-key-overhaul-march-red/blue items that have an icon in the client (\"Red/Blue Booty Key\"; resource_booty-key-red/blue and deal_booty-key-red/blue white icon, live 2026-10-30) use the green key's template, contents 1 key (player report 2026-10-30: it was not in the shop during the event)"
    },
    {
     "lootId": "deal_booty-key-overhaul-march-blue",
     "uridium": 5000,
     "template": "resource_booty-key",
     "calendar": "rb_booty",
-    "_source": "Resmî Türk forumu 130230/127496 (Kırmızı ve Mavi Korsan Kutuları): anahtarlar etkinlikte ödemeyle satılır, Assembly'de kırmızı 10 Scrap/5 Aurus/3 Schism, mavi 20/10/5; mavi kutuda şanslar kırmızının iki katı. Tek oyunculu uyarlama: R&B etkinliği sürerken anahtar başına uridyum (kırmızı 2.500 U, mavi 5.000 U; tarifin malzeme oranı); istemcide simgesi olan deal_booty-key-overhaul-march-red/blue öğeleri (\"Red/Blue Booty Key\"; resource_booty-key-red/blue ve deal_booty-key-red/blue beyaz simge, canlı 2026-10-30) yeşil anahtarın şablonuyla, içerik 1 anahtar (oyuncu bildirimi 2026-10-30: etkinlikte mağazada yoktu)"
+    "_source": "Official Turkish forum 130230/127496 (Red and Blue Pirate Boxes): keys are sold for payment during the event, in Assembly red 10 Scrap/5 Aurus/3 Schism, blue 20/10/5; chances in the blue box are twice the red's. Single-player adaptation: while the R&B event runs, uridium per key (red 2,500 U, blue 5,000 U; the recipe's ingredient ratio); the deal_booty-key-overhaul-march-red/blue items that have an icon in the client (\"Red/Blue Booty Key\"; resource_booty-key-red/blue and deal_booty-key-red/blue white icon, live 2026-10-30) use the green key's template, contents 1 key (player report 2026-10-30: it was not in the shop during the event)"
    }
   ],
   "ammunition": [
@@ -9513,7 +9513,7 @@
     "template": "ammunition_specialammo_emp-01",
     "calendar": "winter",
     "fixed": true,
-    "_source": "forum Soğuk Dalga SSS 1298683, kış SSS 1380212: etkinlik boyunca dükkânda birimi 300 U"
+    "_source": "forum Cold Wave FAQ 1298683, winter FAQ 1380212: during the event 300 U per unit in the store"
    },
    {
     "lootId": "ammunition_specialammo_wiz-x",
@@ -9521,7 +9521,7 @@
     "template": "ammunition_specialammo_emp-01",
     "calendar": "winter",
     "fixed": true,
-    "_source": "forum kış SSS 1380212: etkinlik cephanesi dükkânda; fiyat fiyatlar.json"
+    "_source": "forum winter FAQ 1380212: event ammo in the store; price in prices.json"
    },
    {
     "lootId": "ammunition_laser_vb-142",
@@ -9529,7 +9529,7 @@
     "template": "ammunition_laser_job-100",
     "calendar": "immortal_union",
     "fixed": true,
-    "_source": "forum Ölümsüz Birlik SSS: etkinlik süresince dükkândan 5 Uridium"
+    "_source": "forum Immortal Union FAQ: 5 Uridium from the store for the duration of the event"
    },
    {
     "lootId": "ammunition_laser_spacecup_group-a",
@@ -9537,7 +9537,7 @@
     "template": "ammunition_laser_job-100",
     "calendar": "spacecup",
     "fixed": true,
-    "_source": "forum Space Cup SSS: CC-A..H etkinlik sonuna dek mağazada; fiyat fiyatlar.json (group-c/d 1,5 U)"
+    "_source": "forum Space Cup FAQ: CC-A..H in the shop until the end of the event; price in prices.json (group-c/d 1.5 U)"
    },
    {
     "lootId": "ammunition_laser_spacecup_group-b",
@@ -9545,7 +9545,7 @@
     "template": "ammunition_laser_job-100",
     "calendar": "spacecup",
     "fixed": true,
-    "_source": "forum Space Cup SSS: CC-A..H etkinlik sonuna dek mağazada; fiyat fiyatlar.json (group-c/d 1,5 U)"
+    "_source": "forum Space Cup FAQ: CC-A..H in the shop until the end of the event; price in prices.json (group-c/d 1.5 U)"
    },
    {
     "lootId": "ammunition_laser_spacecup_group-c",
@@ -9553,7 +9553,7 @@
     "template": "ammunition_laser_job-100",
     "calendar": "spacecup",
     "fixed": true,
-    "_source": "forum Space Cup SSS: CC-A..H etkinlik sonuna dek mağazada; fiyat fiyatlar.json (group-c/d 1,5 U)"
+    "_source": "forum Space Cup FAQ: CC-A..H in the shop until the end of the event; price in prices.json (group-c/d 1.5 U)"
    },
    {
     "lootId": "ammunition_laser_spacecup_group-d",
@@ -9561,7 +9561,7 @@
     "template": "ammunition_laser_job-100",
     "calendar": "spacecup",
     "fixed": true,
-    "_source": "forum Space Cup SSS: CC-A..H etkinlik sonuna dek mağazada; fiyat fiyatlar.json (group-c/d 1,5 U)"
+    "_source": "forum Space Cup FAQ: CC-A..H in the shop until the end of the event; price in prices.json (group-c/d 1.5 U)"
    },
    {
     "lootId": "ammunition_laser_spacecup_group-e",
@@ -9569,7 +9569,7 @@
     "template": "ammunition_laser_job-100",
     "calendar": "spacecup",
     "fixed": true,
-    "_source": "forum Space Cup SSS: CC-A..H etkinlik sonuna dek mağazada; fiyat fiyatlar.json (group-c/d 1,5 U)"
+    "_source": "forum Space Cup FAQ: CC-A..H in the shop until the end of the event; price in prices.json (group-c/d 1.5 U)"
    },
    {
     "lootId": "ammunition_laser_spacecup_group-f",
@@ -9577,7 +9577,7 @@
     "template": "ammunition_laser_job-100",
     "calendar": "spacecup",
     "fixed": true,
-    "_source": "forum Space Cup SSS: CC-A..H etkinlik sonuna dek mağazada; fiyat fiyatlar.json (group-c/d 1,5 U)"
+    "_source": "forum Space Cup FAQ: CC-A..H in the shop until the end of the event; price in prices.json (group-c/d 1.5 U)"
    },
    {
     "lootId": "ammunition_laser_spacecup_group-g",
@@ -9585,7 +9585,7 @@
     "template": "ammunition_laser_job-100",
     "calendar": "spacecup",
     "fixed": true,
-    "_source": "forum Space Cup SSS: CC-A..H etkinlik sonuna dek mağazada; fiyat fiyatlar.json (group-c/d 1,5 U)"
+    "_source": "forum Space Cup FAQ: CC-A..H in the shop until the end of the event; price in prices.json (group-c/d 1.5 U)"
    },
    {
     "lootId": "ammunition_laser_spacecup_group-h",
@@ -9593,7 +9593,7 @@
     "template": "ammunition_laser_job-100",
     "calendar": "spacecup",
     "fixed": true,
-    "_source": "forum Space Cup SSS: CC-A..H etkinlik sonuna dek mağazada; fiyat fiyatlar.json (group-c/d 1,5 U)"
+    "_source": "forum Space Cup FAQ: CC-A..H in the shop until the end of the event; price in prices.json (group-c/d 1.5 U)"
    }
   ],
   "booster": [
@@ -9706,7 +9706,7 @@
     "lootId": "ship_liberator",
     "credits": 40000,
     "template": "ship_piranha",
-    "_not": "oyuncu isteği 2026-10-30: kayıttaki mağazada yok; botlar da alır (bot/katalog.fiyatlar)"
+    "_note": "player request 2026-10-30: not in the shop in the recording; bots buy it too (bot/catalog.prices)"
    },
    {
     "lootId": "ship_disruptor",
@@ -11819,7 +11819,7 @@
    "booster_bb-01": 72,
    "booster_qr-01": 72
   },
-  "_saat": "mağazadan / ödülle gelen boosterın süresi, istemcinin Booster verisinin Hours alanı (açıklamalardaki %HOURS%; E5, MEK-7); listede olmayanlar (B01/B02 ailesi, DMG-H01, DMG-PVP01, NPC, P-EP-B01) sure_sn: 10 saat",
+  "_hours": "the duration of a booster that comes from the shop / as a reward, the Hours field of the client's Booster data (%HOURS% in the descriptions; E5, MEK-7); those not in the list (B01/B02 family, DMG-H01, DMG-PVP01, NPC, P-EP-B01) duration_sec: 10 hours",
   "drop": {
    "probability": {
     "boss": 0.03,
@@ -11851,22 +11851,22 @@
     "booster_npc-b02",
     "booster_rep-s01"
    ],
-   "_source": "darkorbitwiki equipment/boosters: Boss/Uber uzaylıdan 1-10 sa B01 türleri ve P-EP-B01 (P.E.T. EP) ile 1 saatlik DLB, NPC-B01/B02 ve REP-S01; türler eşit ağırlıkla, kinds_1h sabit 1 sa (olasılık uyarlama)"
+   "_source": "darkorbitwiki equipment/boosters: from Boss/Uber aliens 1-10 h B01 types and P-EP-B01 (P.E.T. EP), with 1-hour DLB, NPC-B01/B02 and REP-S01; types equally weighted, kinds_1h fixed 1 h (probability is an adaptation)"
   },
-  "_dmg_pvp01": "DMG-PVP01, istemcinin Booster verisi: DAMAGE 1 (uzaylılara da), DAMAGE_PVP 5 ve DAMAGE_FACTIONS 4 (oyunculara: bot oyuncularla)",
+  "_dmg_pvp01": "DMG-PVP01, the client's Booster data: DAMAGE 1 (against aliens too), DAMAGE_PVP 5 and DAMAGE_FACTIONS 4 (against players: with bot players)",
   "special_chance_sources": [
    "resource_collectable_hybrid-alloy",
    "resource_collectable_indoctrineoil"
   ],
-  "_ozel_sans": "PRC-B00 / PRC-B01 (istemcinin metni): Hybrid Alloy ve Indoctrine Oil düşme olasılığı %20 / %50 artar (uzaylının ek ödülündeki olasılık çarpılır; dunya.extra_loot). Mağazadaki PRC-B00 gerçek zamanla 1 saat (saat).",
-  "_dlb2_ephon": "Assembly tariflerinin boosterları (istemcinin metinleri): DMG-DLB2 DMG-DLB ile aynı hasar bonusu; EPHON-1 \"Boosts the Experience and Honor you gain by 100%\". Önceden tanınmayıp görünmez depoya düşüyordu (2026-10-22).",
-  "_istemci_dokuz": "istemcinin Booster verisi (E4, 2026-10-22 eksik taraması MEK-6): KAPPA-B01 hasar/EP/kalkan 5, EP-50 ve HON-50 50, REP-S01 onarım 10; RC-B01 / RM-B01 etkinlik puanı olasılığı 30 / miktarı 100 ve PRM-B00 Hybrid Alloy / Indoctrine Oil miktarı 100 (RC-B00 / RM-B00 / PRM-B01'in anahtarları); AS-B01 Agate Splinter miktarı +%100 (dunya.extra_loot); DROPCH-B01 Proxium olasılığı +%25 (Proxium sunucuda yok: etki noktası yok, RWRDDBL-B01 gibi)"
+  "_special_chance": "PRC-B00 / PRC-B01 (client text): Hybrid Alloy and Indoctrine Oil drop chance increases by 20% / 50% (the chance in the alien's extra reward is multiplied; world.extra_loot). PRC-B00 in the shop is 1 hour in real time (hour).",
+  "_dlb2_ephon": "Boosters of the Assembly recipes (client texts): DMG-DLB2 has the same damage bonus as DMG-DLB; EPHON-1 \"Boosts the Experience and Honor you gain by 100%\". Previously it was not recognized and fell into the invisible storage (2026-10-22).",
+  "_client_nine": "the client's Booster data (E4, 2026-10-22 missing-items scan MEK-6): KAPPA-B01 damage/EP/shield 5, EP-50 and HON-50 50, REP-S01 repair 10; RC-B01 / RM-B01 event point chance 30 / amount 100 and PRM-B00 Hybrid Alloy / Indoctrine Oil amount 100 (the keys of RC-B00 / RM-B00 / PRM-B01); AS-B01 Agate Splinter amount +100% (world.extra_loot); DROPCH-B01 Proxium chance +25% (Proxium is not on the server: no effect point, like RWRDDBL-B01)"
  },
- "_boosterlar_kaynak": "belgeler/wiki/extras_cpu_tech.md (darkorbitwiki Extras/Boosters): B01 hasar/can/onarım/EP/onur +%10, kalkan +%25, kalkan yenilenmesi +%10, uzaylı kaynağı +%25, yetenek beklemesi -%20; B02 (paylaşımlı) aynı, kalkan yenilenmesi +%25, bekleme -%30 (paylaşım tek oyunculu oyunda yok); DMG-H01 hasar +%2 ve isabet +%8; DMG-PVP01 NPC'ye hasar +%1. 10 saat, mağazada 10.000 U. Tür üst sınırları wiki tablosundan (hasar %35, can %30, kalkan %80, kalkan yenilenmesi %50, onarım %30, EP %200, onur %180, kaynak %100, bekleme %55). Boss/Uber uzaylıdan 1-10 saatlik booster düşer (wiki); olasılık (Boss %3, Uber %6) ve türler uyarlama. PRC-B00 bilinmiyor (satılmaz). ABILITY_COOLDOWN_TIME gemi yetenekleri yokken yalnız gösterilir. Günlük ödül ve uzaylı boosterları (wiki): EP-DLB +%25, HON-DLB +%25, DMG-DLB +%5, SHD-DLB +%25, HP-DLB +%10, CD-DLB -%5, NPC-B01/B02 uzaylılara hasar +%10, P-EP-B01 P.E.T. EP +%10 (gösterge türü yok: yalnız etki).",
+ "_boosters_source": "belgeler/wiki/extras_cpu_tech.md (darkorbitwiki Extras/Boosters): B01 damage/HP/repair/EP/honor +10%, shield +25%, shield regeneration +10%, alien resource +25%, ability cooldown -20%; B02 (shared) same, shield regeneration +25%, cooldown -30% (sharing does not exist in single-player); DMG-H01 damage +2% and hit +8%; DMG-PVP01 damage to NPCs +1%. 10 hours, 10,000 U in the shop. Per-type caps from the wiki table (damage 35%, HP 30%, shield 80%, shield regeneration 50%, repair 30%, EP 200%, honor 180%, resource 100%, cooldown 55%). Boss/Uber aliens drop 1-10 hour boosters (wiki); the probability (Boss 3%, Uber 6%) and the types are an adaptation. PRC-B00 is unknown (not sold). ABILITY_COOLDOWN_TIME is only displayed while there are no ship abilities. Daily reward and alien boosters (wiki): EP-DLB +25%, HON-DLB +25%, DMG-DLB +5%, SHD-DLB +25%, HP-DLB +10%, CD-DLB -5%, NPC-B01/B02 damage to aliens +10%, P-EP-B01 P.E.T. EP +10% (no indicator type: effect only).",
  "sale_ratio": 0.1,
- "_satis_orani_kaynak": "Hangarda satış (HangarShipSellItemRequest, HangarShipSellDroneRequest): fiyatın %10'u aynı para biriminde. Uyarlama: kayıtta satış yok, istemci fiyat göstermiyor, wiki fiyat vermiyor. Takılı eşya satılmaz.",
- "_hedef_carpan": "lazer_cephane target_multiplier: adı geçen uzaylıya karşı normal çarpanın yerine (büyük/küçük harf ayrımsız, kelime sınırıyla; istemcinin metinleri: SBL-100 x8 Sibelon/Sibelonit ve Boss/Uber sürümleri, A-BL x8 Invoke/Behemoth, RB-214 x8 Demaner, VB-142 x7 Styxus/Charopos/Lanatum, EMAA-20 x7 Mimesis). shield_multiplier: yalnız kalkanı vuran ve çektiğini oyuncuya veren kısım (Shield Leech: SAB-50 x2, CBO-100 x1)",
- "_gemi_bonuslari": "gemiler.bonus: geminin kalıcı pasifi. İstemcinin açıklamalarından (items_ship_*_description; E5): Solace/Sentinel kalkan +%10, Spectrum +%25, Diminisher/Venom hasar +%5, Cyborg +%10, Hammerclaw can +%25, Mimesis kalkan +%10 ve kalkan delme +%5, Goliath-X lazer ve EP +%2, G-Surgeon hasar/onur/EP +%6. Yalnız wiki (ships.md; istemci sayı vermiyor, doğrulanmadı): Solace Plus kalkan +%15, Spectrum Plus +%25, Hecate ve Hecate Plus hasar +%7 ve kalkan +%10, Hammerclaw Plus can +%25, Spearhead Plus kaçınma +%5, Solaris Plus takılı modül başına hasar +%3 (per_module, en çok 4). Tasarım türevleri (G-/V-/A-/C-/S-, BB-Solemn) ships.md'den; pvp_hasar bot oyuncularla. module_multiplier: takılı gemi modüllerinin nitelikleri (Orcus \"boosted by 1.75x\", eksiler de). stim_barrier (Pusat Plus): sans olasılıkla gövde hasarının oran'ı alınmaz ve cana eklenir (wiki: 1.000 -> 900 alınır, 100 onarılır; msg_stim_barrier_activated). extra_rocket_chance (Tartarus Plus): fırlatıcı salvosunda +1 roket (\"1 in 5 chance\"). Leonov map_bonus kendi firmasının X-1..X-4'ünde (istemci \"in your Company's sectors\"): +96.000 can, +%50 hasar, +%100 roket, +%100 kalkan, +20 hız (hiz_mutlak), +500 kargo (cargo_absolute). Kargo istemcinin gemi verisinden (Pusat 1.000, Solace/Spectrum 1.600, V-Lightning 1.100). Citadel 2 roket yuvası (ships.md). G-Saturn +%20 can (ships.md; Kronos kapısının şanslı ödülü, mağazada yok). Holo'nun Black Shield'ı: takılı modül başına azami can +20.000, en çok 60.000 (resmî Protegit Pandemonium SSS'si 2021: 'by 20,000 HP (max: 60,000 HP)'; can_mutlak, module_max 3). Goliath Plus per_heat: P.E.T.'in her HEAT bonusu HEAT seviyesi başına +%1 (wiki; istemci \"improves its own P.E.T.10 HEAT abilities as well as its own stats modifiers\" sayı vermiyor, doğrulanmadı).",
+ "_sell_ratio_source": "Selling in the hangar (HangarShipSellItemRequest, HangarShipSellDroneRequest): 10% of the price in the same currency. Adaptation: there is no sale in the recording, the client shows no price, the wiki gives no price. Equipped items cannot be sold.",
+ "_target_multiplier": "laser_ammo target_multiplier: replaces the normal multiplier against the named alien (case-insensitive, with a word boundary; the client's texts: SBL-100 x8 Sibelon/Sibelonit and the Boss/Uber versions, A-BL x8 Invoke/Behemoth, RB-214 x8 Demaner, VB-142 x7 Styxus/Charopos/Lanatum, EMAA-20 x7 Mimesis). shield_multiplier: only the part that hits the shield and gives what it takes to the player (Shield Leech: SAB-50 x2, CBO-100 x1)",
+ "_ship_bonuses": "ships.bonus: the ship's permanent passive. From the client's descriptions (items_ship_*_description; E5): Solace/Sentinel shield +10%, Spectrum +25%, Diminisher/Venom damage +5%, Cyborg +10%, Hammerclaw HP +25%, Mimesis shield +10% and shield penetration +5%, Goliath-X laser and EP +2%, G-Surgeon damage/honor/EP +6%. Wiki only (ships.md; the client gives no number, not verified): Solace Plus shield +15%, Spectrum Plus +25%, Hecate and Hecate Plus damage +7% and shield +10%, Hammerclaw Plus HP +25%, Spearhead Plus evasion +5%, Solaris Plus damage +3% per installed module (per_module, at most 4). Design derivatives (G-/V-/A-/C-/S-, BB-Solemn) from ships.md; pvp_damage with bot players. module_multiplier: the attributes of installed ship modules (Orcus \"boosted by 1.75x\", negatives too). stim_barrier (Pusat Plus): with a probability (chance), a fraction (ratio) of hull damage is not taken and is added to HP (wiki: 1,000 -> 900 taken, 100 repaired; msg_stim_barrier_activated). extra_rocket_chance (Tartarus Plus): +1 rocket in the launcher salvo (\"1 in 5 chance\"). Leonov map_bonus in its own company's X-1..X-4 (client \"in your Company's sectors\"): +96,000 HP, +50% damage, +100% rocket, +100% shield, +20 speed (speed_absolute), +500 cargo (cargo_absolute). Cargo from the client's ship data (Pusat 1,000, Solace/Spectrum 1,600, V-Lightning 1,100). Citadel 2 rocket slots (ships.md). G-Saturn +20% HP (ships.md; the lucky reward of the Kronos gate, not in the shop). Holo's Black Shield: max HP +20,000 per installed module, at most 60,000 (official Protegit Pandemonium FAQ 2021: 'by 20,000 HP (max: 60,000 HP)'; hp_flat, module_max 3). Goliath Plus per_heat: each HEAT bonus of the P.E.T. +1% per HEAT level (wiki; the client \"improves its own P.E.T.10 HEAT abilities as well as its own stats modifiers\" gives no number, not verified).",
  "extras": {
   "equipment_extra_cpu_sle-01": {
    "extra_slot": 2
@@ -11882,7 +11882,7 @@
   },
   "equipment_extra_cpu_g3x-crgo-x": {
    "cargo_multiplier": 2.0,
-   "_not": "kargo iki katı (uyarlama: wiki değer vermiyor)"
+   "_note": "double cargo (adaptation: the wiki gives no value)"
   },
   "equipment_extra_cpu_rok-t01": {
    "rocket_cooldown": 0.5
@@ -11902,7 +11902,7 @@
     "threshold": 1000,
     "count": 10000
    },
-   "_not": "AM-CPU: 1.000 altında 10.000 mermi"
+   "_note": "AM-CPU: 10,000 rounds under 1,000"
   },
   "equipment_extra_cpu_rb-x": {
    "auto_pickup": {
@@ -11910,7 +11910,7 @@
     "threshold": 100,
     "count": 500
    },
-   "_not": "RB-CPU: 100 altında 500 roket"
+   "_note": "RB-CPU: 500 rockets under 100"
   },
   "equipment_extra_cpu_fb-x": {
    "auto_pickup": {
@@ -11950,30 +11950,30 @@
     "ship_goliath_design_jade",
     "ship_goliath_design_sapphire"
    ],
-   "_not": "HM-7: 100 satış hakkı; Goliath'ın Amber, Jade ya da Sapphire tasarımına sahip olanlar için sınırsız (darkorbitwiki/fandom \"eski kural\"; istemci items_equipment_extra_hmd-07_hint_unlimited)"
+   "_note": "HM-7: 100 sale allowances; unlimited for those who own Goliath's Amber, Jade or Sapphire design (darkorbitwiki/fandom \"old rule\"; client items_equipment_extra_hmd-07_hint_unlimited)"
   },
   "equipment_extra_cpu_rd-x": {
-   "_not": "radar: diplomasi renkleri (bot oyuncularla)"
+   "_note": "radar: diplomasi renkleri (bot oyuncularla)"
   },
   "equipment_extra_cpu_anti-z1": {
    "right": 1,
    "serum": true,
    "cooldown_sec": 60,
-   "_not": "Serum CPU: 1 doz; takılıyken bulaşan enfeksiyonu (IM-01) kendiliğinden iyileştirir, doz harcanır, sonraki iyileştirme 60 sn sonra (istemci: \"1 dose. Automatically cures you of any infections or parasites\"; wiki: kullanım sonrası 60 sn bekleme); fiyat 108 U gerçek mağaza kaydından (catalog)"
+   "_note": "Serum CPU: 1 dose; while equipped it automatically cures the infection (IM-01) you catch, a dose is spent, the next cure after 60 s (client: \"1 dose. Automatically cures you of any infections or parasites\"; wiki: 60 s cooldown after use); price 108 U from a real shop recording (catalog)"
   },
   "equipment_extra_cpu_anti-z1-xl": {
    "right": 10,
    "serum": true,
    "cooldown_sec": 60,
-   "_not": "Serum CPU XL: 10 doz (istemci: \"10 doses. Automatically cures you or another pilot of any infections or parasites\"); başka pilotu iyileştirme yok (tek oyunculu); fiyat 972 U gerçek mağaza kaydından"
+   "_note": "Serum CPU XL: 10 doses (client: \"10 doses. Automatically cures you or another pilot of any infections or parasites\"); no curing another pilot (single-player); price 972 U from a real shop recording"
   },
   "equipment_extra_cpu_rg-sl": {
    "auto_cannon": true,
-   "_not": "lazer saldırısında seçili slug kendiliğinden (Aşama 9b)"
+   "_note": "in a laser attack the selected slug automatically (Stage 9b)"
   },
   "equipment_extra_cpu_ags-x": {
    "auto_drive": true,
-   "_not": "lazer saldırısında seçili GSP kendiliğinden (Aşama 9b)"
+   "_note": "in a laser attack the selected GSP automatically (Stage 9b)"
   },
   "equipment_extra_cpu_jp-01": {
    "right": 10,
@@ -11985,7 +11985,7 @@
      "X-4"
     ]
    },
-   "_not": "ana haritaya (X-1) 10 atlama; yalnız X-1..X-4'ten"
+   "_note": "10 jumps to the main map (X-1); only from X-1..X-4"
   },
   "equipment_extra_cpu_jp-02": {
    "right": 20,
@@ -11995,7 +11995,7 @@
      "BL-"
     ]
    },
-   "_not": "ana haritaya 20 atlama; 5-X ve BL'den olmaz"
+   "_note": "ana haritaya 20 atlama; 5-X ve BL'den olmaz"
   },
   "equipment_extra_cpu_ajp-01": {
    "advanced_jump": true,
@@ -12005,7 +12005,7 @@
      "BL-"
     ]
    },
-   "_not": "istenen haritaya; atlama kuponu ya da uridyum (savas_esyalari.gelismis_atlama)"
+   "_note": "istenen haritaya; atlama kuponu ya da uridyum (savas_esyalari.gelismis_atlama)"
   },
   "equipment_extra_cpu_cl04k-xs": {
    "right": 1,
@@ -12021,11 +12021,11 @@
   },
   "equipment_extra_cpu_aim-01": {
    "aim": 0.25,
-   "_not": "ıska oranı -%25, atış başına 10 Xenomit"
+   "_note": "miss rate -25%, 10 Xenomit per shot"
   },
   "equipment_extra_cpu_aim-02": {
    "aim": 0.5,
-   "_not": "ıska oranı -%50, atış başına 10 Xenomit"
+   "_note": "miss rate -50%, 10 Xenomit per shot"
   },
   "equipment_extra_cpu_ish-01": {
    "insta_shield": true
@@ -12035,30 +12035,30 @@
   },
   "equipment_extra_cpu_arol-x": {
    "auto_rocket": true,
-   "_not": "lazer saldırısında seçili roket kendiliğinden"
+   "_note": "in a laser attack the selected rocket automatically"
   },
   "equipment_extra_cpu_rllb-x": {
    "auto_launcher": true,
-   "_not": "lazer saldırısında dolu fırlatıcı kendiliğinden"
+   "_note": "in a laser attack the filled launcher automatically"
   },
   "equipment_extra_cpu_dr-01": {
-   "_not": "dron onarım CPU'su: dronlar hasar almıyor (wiki: eskidi)"
+   "_note": "drone repair CPU: drones take no damage (wiki: outdated)"
   },
   "equipment_extra_cpu_dr-02": {
-   "_not": "dron onarım CPU'su: dronlar hasar almıyor (wiki: eskidi)"
+   "_note": "drone repair CPU: drones take no damage (wiki: outdated)"
   },
   "equipment_extra_cpu_pa-x": {
-   "_not": "Peace Ambassador: PvP koruması (bot oyuncularla)"
+   "_note": "Peace Ambassador: PvP protection (with bot players)"
   }
  },
- "_ekstralar": "Ekstralar ve CPU'lar (belgeler/wiki/extras_cpu_tech.md; ekstra.py). Etkin CPU'lar (Jump, gizlenme, AIM, AROL-X, RL-LB, Smart Bomb, Insta-Shield) aynı tabloda kisayol alanıyla.",
- "_formasyon_anahtarlari": "formasyonlar (belgeler/wiki/drones_pet.md): lazer, roket, npc (uzaylılara lazer+roket), npc_lazer (uzaylılara lazer), pvp_lazer (oyunculara; bot oyuncular gelince), mayin, kalkan, can, hiz, emme (kalkan emme; 3D Drill \"Shield Spread\" da), kacinma, kalkan_delme (uzaylının kalkan emmesini düşürür: Moth +%20, Double Arrow +%10, Pincer -%10), shield_refill_sec (saniyede azami kalkanın oranı kadar dolum, savaşta da; shield_refill_max sınırı: Diamond %1 en çok 5.000, 3D Dome %0,5), shield_decay_sec (saniyede azami kalkanın oranı kadar erime, savaş dışında da: Moth, 3D Wheel; istemci \"drains shields by 5% per second\"), roket_bekleme, fircatici_bekleme (roket fırlatıcısı: Star +%33, 3D Ring +%25, 3D Dome -%25), ep, onur. Turtle istemcide yalnız lazer ve roket -%7,5 (\"laser and rocket damage decrease by 7.5%\"; E5)",
- "_roketler": "roketler (belgeler/wiki/rockets.md; görsel kimlikleri ve bekleme grupları istemcinin kodundan): hasar, kimlik (0|v mesajındaki roket görseli), ozel (kendi bekleme grubu: cooldown_group = istemcinin CooldownType'ı, bekleme_sn), etki {state: [değer, sn]} (durum.py: yavas, isabet, donuk), fx (0|n|fx görseli), target_multiplier. Ayrıca: hull_only (SP-100X), shield_damage/shield_steal/self_slow (SR-5), look_sec (WIZ-X). isabet: roketin taban isabeti (yoksa npc.json roket_isabet); wikiwiki 弾薬 R-310 %70, PLT-2026 %80, PLT-2021 %90, PLT-3030 %65 (istemci items_ammunition_rocket_plt-3030_description \"lower accuracy rate\").",
+ "_extras": "Extras and CPUs (belgeler/wiki/extras_cpu_tech.md; extras.py). Active CPUs (Jump, cloaking, AIM, AROL-X, RL-LB, Smart Bomb, Insta-Shield) in the same table with a shortcuts field.",
+ "_formation_keys": "formations (belgeler/wiki/drones_pet.md): laser, rocket, npc (laser+rocket against aliens), npc_laser (laser against aliens), pvp_laser (against players; once bot players exist), mine_lance, shield, hp, speed, absorb (shield absorb; 3D Drill \"Shield Spread\" too), evasion, shield_penetration (lowers an alien's shield absorb: Moth +20%, Double Arrow +10%, Pincer -10%), shield_refill_sec (refill of that fraction of max shield per second, in combat too; limited by shield_refill_max: Diamond 1% at most 5,000, 3D Dome 0.5%), shield_decay_sec (decay of that fraction of max shield per second, out of combat too: Moth, 3D Wheel; client \"drains shields by 5% per second\"), rocket_cooldown, launcher_cooldown (rocket launcher: Star +33%, 3D Ring +25%, 3D Dome -25%), ep, honor. In the client Turtle is only laser and rocket -7.5% (\"laser and rocket damage decrease by 7.5%\"; E5)",
+ "_rockets": "rockets (belgeler/wiki/rockets.md; visual IDs and cooldown groups from the client's code): damage, uid (the rocket visual in the 0|v message), special (own cooldown group: cooldown_group = the client's CooldownType, cooldown_sec), effect {state: [value, s]} (status_effects.py: slow, hit, frozen), fx (0|n|fx visual), target_multiplier. Also: hull_only (SP-100X), shield_damage/shield_steal/self_slow (SR-5), look_sec (WIZ-X). hit: the rocket's base hit chance (if absent npc.json rocket_hit_chance); wikiwiki 弾薬 R-310 70%, PLT-2026 80%, PLT-2021 90%, PLT-3030 65% (client items_ammunition_rocket_plt-3030_description \"lower accuracy rate\").",
  "combat_items": {
-  "_source": "belgeler/wiki/extras_cpu_tech.md, rockets.md; istemcinin kodu (mayın türleri, bekleme grupları ve süreleri, EMP menzili 455, fırlatıcı menzili 650). Uyarlamalar _not alanlarında.",
+  "_source": "belgeler/wiki/extras_cpu_tech.md, rockets.md; the client's code (mine types, cooldown groups and durations, EMP range 455, launcher range 650). Adaptations in the _not fields.",
   "mine": {
    "npc_adaptation": true,
-   "_npc_not": "Yerel tek oyunculu PvE uyarlaması: NPC mayın tetikler ve etkilenir. Resmî oyunda sıradan mayınlar oyuncu gemilerini etkiler.",
+   "_npc_note": "Local single-player PvE adaptation: NPCs trigger mines and are affected. In the official game ordinary mines affect player ships.",
    "cooldown_group": 1,
    "cooldown_sec": 30,
    "arm_sec": 5,
@@ -12068,7 +12068,7 @@
    "stack_distance": 60,
    "map_limit": 20,
    "self_damage": true,
-   "_not": "bekleme istemcinin tablosundan; kurulma 5 sn istemci resource_faq/attack_mines_p \"activated 5 seconds after being launched\" (SLM-01 1 sn: items_ammunition_mine_slm-01_description); ömür, tetik ve patlama yarıçapı, üst üste koyma mesafesi ve harita sınırı uyarlama (istemci tanımlamıyor; patlama halkası 300). self_damage: wiki Smart Bomb için \"kendi gemine zarar vermez\" diyor, yani mayın verir"
+   "_note": "cooldown from the client's table; arming 5 s per client resource_faq/attack_mines_p \"activated 5 seconds after being launched\" (SLM-01 1 s: items_ammunition_mine_slm-01_description); lifetime, trigger and blast radius, stacking distance and map limit are an adaptation (the client does not define them; blast ring 300). self_damage: the wiki says of Smart Bomb \"does not damage your own ship\", so a mine does"
   },
   "mines": {
    "ammunition_mine_acm-01": {
@@ -12087,7 +12087,7 @@
     "damage_type": "direct",
     "hp": 0.2,
     "lifetime_sec": 15,
-    "_source": "Curcubitor'un Trick mayını (istemcinin curcubitorMine modeli): resmî sunucu kaydı 2026-10-27, ölümden 1,4 sn sonra öldüğü yerde typeId 20, 15 sn sonra kalkar; etkisi DDM-01 gibi (wiki: canın %20'si)"
+    "_source": "Curcubitor's Trick mine (the client's curcubitorMine model): official server recording 2026-10-27, 1.4 s after its death a typeId 20 appears where it died, removed after 15 s; effect like DDM-01 (wiki: 20% of HP)"
    },
    "ammunition_mine_sabm-01": {
     "tip": 3,
@@ -12115,7 +12115,7 @@
      "damage_bonus": 0.1,
      "hp": -0.15
     },
-    "_not": "Parasite Tide Event FAQ: 900 sn; +%10 hasar, -%15 gövde, -%10 hız; tekrar bulaşma süreyi yeniler"
+    "_note": "Parasite Tide Event FAQ: 900 s; +10% damage, -15% hull, -10% speed; re-infection renews the duration"
    },
    "ammunition_mine_agl-m01": {
     "tip": 26,
@@ -12127,7 +12127,7 @@
     "lifetime_sec": 300,
     "cooldown_group": 59,
     "cooldown_sec": 300,
-    "_not": "Agatus ve Spinel en yakın yeme gelir; 300 sn ömür/bekleme resmî SSS; 2000 birim yarıçap yerel uyarlama"
+    "_note": "Agatus and Spinel come to the nearest bait; 300 s lifetime/cooldown from the official FAQ; 2000 unit radius is a local adaptation"
    }
   },
   "smart_bomb": {
@@ -12140,7 +12140,7 @@
    "hp": 0.2,
    "cooldown_group": 2,
    "cooldown_sec": 60,
-   "_not": "yarıçap uyarlama; bekleme istemcinin tablosundan (wiki \"mayınlarla aynı\" diyor)"
+   "_note": "radius is an adaptation; cooldown from the client's table (the wiki says \"same as mines\")"
   },
   "insta_shield": {
    "menu": "equipment_extra_cpu_ish-01",
@@ -12157,7 +12157,7 @@
    "daze_sec": 3,
    "cooldown_group": 9,
    "cooldown_sec": 35,
-   "_not": "uzaylıların hedefi sıfırlanır (daze_sec ateş etmez: wikiwiki EMP-01 \"約3秒間\"), oyuncunun yavaşlatmaları kalkar"
+   "_note": "aliens' target is reset (daze_sec no shooting: wikiwiki EMP-01 \"約3秒間\"), the player's slows are removed"
   },
   "jump_cpu": {
    "menu": "equipment_extra_cpu_jp",
@@ -12168,19 +12168,19 @@
     "2": 5,
     "3": 9
    },
-   "_not": "JP-01/JP-02 geri sayımsız, portal gibi anında (oyuncu bildirimi 2026-10-27, gerçek oyun; kayıtta başarılı CPU atlaması yok)",
+   "_note": "JP-01/JP-02 have no countdown, instant like a portal (player report 2026-10-27, real game; no successful CPU jump in the recording)",
    "graveyard_chance": 0.02,
-   "_mezarlik_sansi": "wiki (Cubikon Graveyard): \"CPU bütün oyuncuların her 1.000 atlamasında bir oyuncuyu mezarlığa ışınlar\"; tek oyunculu uyarlama: JP-01/JP-02 atlamalarının %2'si",
+   "_graveyard_chance": "wiki (Cubikon Graveyard): \"the CPU teleports one player to the graveyard on every 1,000 jumps of all players\"; single-player adaptation: 2% of JP-01/JP-02 jumps",
    "countdown_sec_ajp": 10,
-   "_geri_sayim_sn_ajp": "Resmî Türk forumu 127075: '10 saniyelik geri sayım sonrası geminiz seçmiş olduğunuz haritanın herhangi bir yerinde çıkacaktır.'"
+   "_countdown_sec_ajp": "Official Turkish forum 127075: 'after the 10-second countdown your ship will appear anywhere on the map you selected.'"
   },
   "advanced_jump": {
    "menu": "equipment_extra_cpu_ajp-01",
    "voucher": "resource_jumpvoucher",
    "cooldown_sec": 120,
-   "_bekleme_sn": "Resmî Türk forumu 127075: atlayıştan sonra tekrar kullanmak için 120 saniye soğuma (istemci ttip_block_cooldown)",
+   "_cooldown_sec": "Official Turkish forum 127075: 120 seconds of cooldown to use again after the jump (client ttip_block_cooldown)",
    "price": 850,
-   "_not": "Kuponsuz atlamanın uridyum fiyatı kaynak ve hedef haritaya göre (price_table); tabloda olmayan hedefte fiyat (en yüksek satır)",
+   "_note": "The uridium price of a jump without a voucher by source and target map (price_table); the price for a target not in the table (the highest row)",
    "price_table": {
     "1-1": {
      "1-2": 100,
@@ -13053,7 +13053,7 @@
      "3-8": 175
     }
    },
-   "_fiyat_tablosu": "Resmî Türk forumu 127075 (Atlama Kuponu ve İleri düzey Jump CPU) iki tablosu, satır kaynak harita; gerçek kayıttaki üç JCPU|I listesiyle (4-5, 2-8, 2-1 kaynakları) birebir. Forumdaki 2-2 -> 1-2 '115' yazım hatası 175; ikinci tablonun 3-1..3-4 diye yazılan son satırları 3-5..3-8."
+   "_price_table": "the two tables of official Turkish forum 127075 (Jump Voucher and Advanced Jump CPU), row = source map; exactly matches the three JCPU|I lists in the real recording (sources 4-5, 2-8, 2-1). The '115' typo for 2-2 -> 1-2 in the forum is 175; the last rows of the second table, written as 3-1..3-4, are 3-5..3-8."
   },
   "cloak_cpu": {
    "menu": "equipment_extra_cpu_cl04k"
@@ -13112,8 +13112,8 @@
    },
    "refill_sec": 1.0,
    "range": 650,
-   "_not": "dolum her roket için istemcinin tablosundaki 1 sn (tahmin); menzil istemciden. HellstormAttackCommand.currentLoad bütün salvo adedidir; istemci AttackRocketRun.Run roketleri i*0,5/adet arayla eğri yörüngede uçurur. InitRocketCurve uçuşu max(1, mesafe/500) + 0,3 sn (tek roket için ek süre yok); hasar son roket varınca (savas_esya.salvo_time). Her rokete ayrı currentLoad=1 komutu göndermek yerel Hellstorm yörüngesini düzleştiriyordu.",
-   "_not_plus": "Plus fırlatıcılar (HST-2 türevleri, tür 2): kapasite istemci metninden (Hydra 5, Neptune 5, Triskelion 3, Ouroboros 6); roket hasarı ve ek bonuslar wiki rockets.md (Hydra +%30 can +%25 kalkan, Neptune +%5 hasar, Triskelion yetenek beklemesi -%25); yükseltme istemcinin seviye tablosuyla"
+   "_note": "reload is 1 s per rocket from the client's table (estimate); range from the client. HellstormAttackCommand.currentLoad is the total salvo count; the client's AttackRocketRun.Run flies the rockets on a curved trajectory spaced i*0.5/count apart. InitRocketCurve flight is max(1, distance/500) + 0.3 s (no extra time for a single rocket); damage when the last rocket arrives (combat_items.salvo_time). Sending a separate currentLoad=1 command for each rocket flattened the local Hellstorm trajectory.",
+   "_note_plus": "Plus launchers (HST-2 derivatives, type 2): capacity from the client text (Hydra 5, Neptune 5, Triskelion 3, Ouroboros 6); rocket damage and extra bonuses from the wiki rockets.md (Hydra +30% HP +25% shield, Neptune +5% damage, Triskelion ability cooldown -25%); upgrade with the client's level table"
   },
   "launcher_ammo": {
    "ammunition_rocketlauncher_hstrm-01": {
@@ -13265,26 +13265,26 @@
      "gg_kronos_10_2",
      "gg_kronos_10_3"
     ],
-    "_source": "Resmî Türk forumu 127576 (Hangar-Ekstralar): Saturn Verici CPU yakınında rastgele bir Saturn uzaylısı çıkarır (Venom, Sentinel, Spectrum, Diminisher, Solace, Spearhead, Citadel, Aegis, Goliath); Galaksi Kapısı dışındaki Saturn'ler PvP görevlerinde düşman oyuncu sayılır; X-5..X-8, X-BL ve savaş haritalarında. Türler Kronos kapısının Saturn uzaylıları"
+    "_source": "Official Turkish forum 127576 (Hangar-Extras): the Saturn Transmitter CPU spawns a random Saturn alien near you (Venom, Sentinel, Spectrum, Diminisher, Solace, Spearhead, Citadel, Aegis, Goliath); Saturns outside the Galaxy Gate count as enemy players in PvP quests; on X-5..X-8, X-BL and battle maps. The types are the Saturn aliens of the Kronos gate"
    }
   },
-  "_uzayli_cpu": "Chaos Alien CPU'ları ve Cubi Portal (istemcinin metinleri): haritası (X-3..X-7 sınıfı ya da 4-x savaş haritası) uygunsa yakına kademesinden rastgele bir uzaylı; haritada CPU uzaylısı yaşarken yenisi doğmaz (msg_aliencpu_npc_already_exists), güvenli bölgede kullanılmaz (msg_aliencpu_dmz). Bekleme grupları istemcinin CooldownType'ı (ALIEN_CPU 56, CUBI_PORTAL 55); süre uyarlama. Kademeler uyarlama (common: Aberration/Oddity, rare: Boss ve Uber, legend: Awakened ve Sheer Chaos); \"Chaos Cubikon\"un istemcide ayrı NPC'si yok: Cubikon. Kaos türleri tools/etkinlik_uzaylilari.py. Saturn Transmitter (ss-cpu): Satürn uzaylıları oyuncu sayılır (bot oyuncular); Ice Portal (frozen-portal) kaynaksız; Bountiful Alien CPU BİLİNEN (Aşama 7b)",
+  "_alien_cpu": "Chaos Alien CPUs and Cubi Portal (client texts): if its map is suitable (X-3..X-7 class or a 4-x battle map), a random alien from its tier spawns near you; while a CPU alien is alive on the map a new one does not spawn (msg_aliencpu_npc_already_exists), not usable in a safe zone (msg_aliencpu_dmz). Cooldown groups are the client's CooldownType (ALIEN_CPU 56, CUBI_PORTAL 55); duration is an adaptation. Tiers are an adaptation (common: Aberration/Oddity, rare: Boss and Uber, legend: Awakened and Sheer Chaos); \"Chaos Cubikon\" has no separate NPC in the client: Cubikon. Chaos types in tools/event_aliens.py. Saturn Transmitter (ss-cpu): Saturn aliens count as players (bot players); Ice Portal (frozen-portal) has no source; Bountiful Alien CPU KNOWN (Stage 7b)",
   "ghost": {
    "menu": "ammunition_specialammo_ghostifier",
    "duration_sec": 60,
    "visual": 26,
    "cooldown_group": 53,
    "cooldown_sec": 120,
-   "_not": "istemci: \"Make your ship ghostly for a minute!\"; VisualModifier GHOST_EFFECT (26), CooldownType VISUAL_PERK_GHOST_EFFECT (53); bekleme 120 sn: resmî Bigpoint forumu (fandom Vortex of Terror \"The Ghostifier\": 60 sn, bekleme 120 sn, tüketilir, EMP gibi)"
+   "_note": "client: \"Make your ship ghostly for a minute!\"; VisualModifier GHOST_EFFECT (26), CooldownType VISUAL_PERK_GHOST_EFFECT (53); cooldown 120 s: official Bigpoint forum (fandom Vortex of Terror \"The Ghostifier\": 60 s, cooldown 120 s, consumed, like EMP)"
   },
   "formation": {
    "cooldown_group": 47,
    "cooldown_sec": 2.0,
-   "_not": "Wait between two drone formation changes. Group = client CooldownType DRONE_FORMATION (47), the cooldownGroup of every drone_formation_* menu item. 2 s: board-fr.darkorbit.com \"Lexique 2.0 [Drones & Formations de Drones]\" #12 (Team DarkOrbit, 2025-02-05)."
+   "_note": "Wait between two drone formation changes. Group = client CooldownType DRONE_FORMATION (47), the cooldownGroup of every drone_formation_* menu item. 2 s: board-fr.darkorbit.com \"Lexique 2.0 [Drones & Formations de Drones]\" #12 (Team DarkOrbit, 2025-02-05)."
   }
  },
  "technology": {
-  "_source": "belgeler/wiki/extras_cpu_tech.md (wiki: etkiler); görseller istemcinin kodundan (VisualModifierCommand gorsel, 0|n|A|S|SBU, 0|n|ECI, 0|n|BT, 0|n|NNK). Süre ve beklemelerin çoğu ne wiki'de ne istemcide var: uyarlama. Eşyalar Assembly ile (yol haritası Aşama 5) profilin \"teknoloji\" sayacına girer. Bekleme: Backup Shield 2 ve Battle Repair Bot 2 600 sn, Speed Burst 180 sn (darkorbitwiki etkinlik sayfaları); Burning Trail, Explosive Charging Blob ve NPC Nuke için yalnız eski fandom 20 dk var, güncel wiki ve istemci sayı vermiyor: 120 sn uyarlama kaldı (BT/ECB/NNK istemcide \"minutes\" birimli ama değersiz). Beklemeler çevrimdışıyken de işler (fandom'un \"giriş yapılmayınca durur\" kuralı güncel kaynakta yok: uyarlama).",
+  "_source": "belgeler/wiki/extras_cpu_tech.md (wiki: effects); visuals from the client's code (VisualModifierCommand visual, 0|n|A|S|SBU, 0|n|ECI, 0|n|BT, 0|n|NNK). Most durations and cooldowns are neither on the wiki nor in the client: adaptation. Items go into the profile's \"technology\" counter via Assembly (roadmap Stage 5). Cooldown: Backup Shield 2 and Battle Repair Bot 2 600 s, Speed Burst 180 s (darkorbitwiki event pages); for Burning Trail, Explosive Charging Blob and NPC Nuke only the old fandom 20 min exists, the current wiki and client give no number: 120 s adaptation remained (BT/ECB/NNK have \"minutes\" units in the client but no value). Cooldowns also run while offline (the fandom's \"stops while not logged in\" rule is not in a current source: adaptation).",
   "ammo_types": [
    "ammunition_laser_lcb-10",
    "ammunition_laser_mcb-25",
@@ -13297,39 +13297,39 @@
     "duration_sec": 900,
     "cooldown_sec": 900,
     "laser_hp": 0.1,
-    "_not": "lazer hasarının %10'u cana; SAB-50, RSB-75 gibi özel cephaneyle çalışmaz (yalnız cephaneler); süre ve bekleme uyarlama"
+    "_note": "10% of laser damage goes to HP; does not work with special ammo such as SAB-50, RSB-75 (ammunition types only); duration and cooldown are an adaptation"
    },
    "tech_chain-impulse": {
     "cooldown_sec": 60,
     "damage": 10000,
     "target": 7,
     "radius": 700,
-    "_not": "yarıçap ve bekleme uyarlama"
+    "_note": "radius and cooldown are an adaptation"
    },
    "tech_precision-targeter": {
     "duration_sec": 900,
     "cooldown_sec": 300,
     "rocket_full_hit": true,
-    "_not": "roketler hep isabet eder; süre istemci tf_tech_RPM_1_data_duration \"15 minutes\", bekleme wikiwiki TECH CENTER \"5分\""
+    "_note": "rockets always hit; duration from client tf_tech_RPM_1_data_duration \"15 minutes\", cooldown from wikiwiki TECH CENTER \"5分\""
    },
    "tech_backup-shields": {
     "cooldown_sec": 120,
     "shield": 75000,
     "old": "SBU",
-    "_not": "kalkan doluyken kullanılmaz; bekleme uyarlama"
+    "_note": "not usable while the shield is full; cooldown is an adaptation"
    },
    "tech_shield-backup2": {
     "cooldown_sec": 600,
     "shield": 400000,
     "old": "SBU2",
-    "_not": "bekleme 600 sn: darkorbitwiki events/agatus-breach \"Cooldown: 600s\" (fandom 20 dk, eski)"
+    "_note": "bekleme 600 sn: darkorbitwiki events/agatus-breach \"Cooldown: 600s\" (fandom 20 dk, eski)"
    },
    "tech_battle-repair-bot": {
     "visual": 60,
     "duration_sec": 10,
     "cooldown_sec": 120,
     "hp_sec": 10000,
-    "_not": "savaşta da onarır; süre uyarlama"
+    "_note": "also repairs in combat; duration is an adaptation"
    },
    "tech_battle-repair-bot2": {
     "visual": 61,
@@ -13337,7 +13337,7 @@
     "cooldown_sec": 600,
     "hp_sec": 20000,
     "shield_per_sec": 35000,
-    "_not": "bekleme 600 sn: darkorbitwiki events/agatus-breach \"Cooldown: 600s\" (fandom 20 dk, eski)"
+    "_note": "bekleme 600 sn: darkorbitwiki events/agatus-breach \"Cooldown: 600s\" (fandom 20 dk, eski)"
    },
    "tech_explosive-charging-blob": {
     "visual": 73,
@@ -13348,7 +13348,7 @@
      350000
     ],
     "radius": 500,
-    "_not": "istemci tf_tech_ECB_descr: 6 sn sonra patlar, en çok 350.000; dolum süresi boyunca hasar 50.000'den 350.000'e çıkar, sonunda çevredeki uzaylılara patlar; gemi yok olursa o anki hasarla patlar (uyarlama: istemcide hedefe yapışır)"
+    "_note": "client tf_tech_ECB_descr: explodes after 6 s, at most 350,000; over the charging time the damage rises from 50,000 to 350,000, and at the end it explodes on the aliens around; if the ship is destroyed it explodes with the damage at that moment (adaptation: in the client it sticks to the target)"
    },
    "tech_burning-trail": {
     "duration_sec": 10,
@@ -13356,7 +13356,7 @@
     "damage": 40000,
     "trigger": 150,
     "lifetime_sec": 30,
-    "_not": "istemci tf_tech_BT_descr: 10 sn ateş izi; aralik_sn saniyede bir yük bırakır (en çok 5: wiki \"en çok 200.000\"; aralık uyarlama); uzaylı yaklaşınca 40.000 (uyarlama)",
+    "_note": "client tf_tech_BT_descr: 10 s fire trail; drops a charge every interval_sec seconds (at most 5: wiki \"at most 200,000\"; interval is an adaptation); 40,000 when an alien approaches (adaptation)",
     "interval_sec": 2
    },
    "tech_npc-nuke": {
@@ -13365,8 +13365,8 @@
     "damage": 100000,
     "interval_sec": 10,
     "radius": 700,
-    "_adaptation": "yarıçap 700 kaynakta yok (Chain Impulse ile aynı); bekleme 120 sn (wiki: 20 dk)",
-    "_not": "istemci items_tech_npc-nuke_description: gemi çevresindeki uzaylılara 10 sn'de bir 100.000 (toplam 600.000); hedef gerekmez"
+    "_adaptation": "radius 700 is not in the sources (same as Chain Impulse); cooldown 120 s (wiki: 20 min)",
+    "_note": "client items_tech_npc-nuke_description: 100,000 to the aliens around the ship every 10 s (600,000 total); no target needed"
    },
    "tech_anti-ai-emergency-reserves": {
     "visual": 100,
@@ -13381,7 +13381,7 @@
     "radius": 500,
     "slow": 0.3,
     "damage_per_sec": 1000,
-    "_not": "yavaşlatma ve hasar wiki'de yok (uyarlama)"
+    "_note": "slow and damage are not on the wiki (adaptation)"
    },
    "tech_anti-mine-transmitter": {
     "visual": 96,
@@ -13394,13 +13394,13 @@
     "duration_sec": 2,
     "cooldown_sec": 180,
     "speed": 1800,
-    "_not": "bekleme 180 sn: darkorbitwiki events/immortal-union ve protegit-pandemonium \"Cooldown: 180s\""
+    "_note": "bekleme 180 sn: darkorbitwiki events/immortal-union ve protegit-pandemonium \"Cooldown: 180s\""
    },
    "tech_versus-laser-overdrive": {
     "duration_sec": 900,
     "cooldown_sec": 900,
     "base_laser": 500,
-    "_not": "darkorbitwiki tech-items: taban lazer hasarı +500 (lazer başına; gemi ve dron lazerleri), 15 dk; yalnız Vortex of Greed haritasında (483) kullanılır, gemi haritadan ayrılınca ya da orada yok olunca etki silinir (teknoloji.py, dunya.laser_damage). İstemci: \"substantial PvP damage boost\"",
+    "_note": "darkorbitwiki tech-items: base laser damage +500 (per laser; ship and drone lasers), 15 min; usable only on the Vortex of Greed map (483), the effect is removed when the ship leaves the map or is destroyed there (technology.py, world.laser_damage). Client: \"substantial PvP damage boost\"",
     "map_only": [
      483
     ]
@@ -13441,14 +13441,14 @@
    10000
   ]
  },
- "_satis_degerleri": "Mağazada fiyatı olmayan eşyaların (kutu, kapı, Assembly, paket ödülleri) satış değeri, uyarlama: lazer, kalkan ve hız jeneratörü aynı tablodaki en güçlü uridyumlu mağaza eşyasının fiyatına gücüyle oranlanır (LF-4 = LF-3 fiyatı x 200/150); ötekiler bu tablodaki önekle. Satış bu değerin sale_ratio'sı.",
- "_client_ships": "kaynak \"istemci\" olan gemiler istemcinin gemi verisinden (tools/eksik_gemiler.py): can, yuvalar, kargo, temel hız; yetenekleri ship_abilities.json.",
+ "_sell_values": "Sell value of items with no shop price (boxes, gates, Assembly, pack rewards), adaptation: laser, shield and speed generators are scaled by power against the price of the strongest uridium shop item in the same table (LF-4 = LF-3 price x 200/150); the others by the prefix in this table. Selling gives this value's sale_ratio.",
+ "_client_ships": "ships with source \"client\" come from the client's ship data (tools/missing_ships.py): HP, slots, cargo, base speed; their abilities are in ship_abilities.json.",
  "upgrade_hour": {
   "discount": 0.25,
-  "_not": "Upgrade Hour (istemci: bn_upgradeBounsHour_content \"25% Uridium discount on all upgrades during this cosmic hour\"): yükseltmelerin uridyum maliyeti %25 az. Ne zaman olduğu takvimde (data/etkinlikler.json yukseltme_saati: cumartesi ve pazar 20:00-21:00, uyarlama)."
+  "_note": "Upgrade Hour (client: bn_upgradeBounsHour_content \"25% Uridium discount on all upgrades during this cosmic hour\"): the uridium cost of upgrades is 25% less. When it happens is in the calendar (data/events.json upgrade_hour: Saturday and Sunday 20:00-21:00, adaptation)."
  },
- "_odeme_paketleri_pass": "Season Pass / Monthly Deluxe paketleri (Aşama 7): istemcinin paket açıklamalarından; package_event-deal-season-point adedi açıklamada yok (300, uyarlama).",
- "_extra_shop_particle": "Aşama 9b (tools/parcacik.py): ödemeyle/etkinlikle gelen eşyalar uridyumla — Energy eşyaları 50.000, Pulse Core 50, OptiGrad Chip 200, Horizon Shard 500, Containment Node 2.000, SD/CGL Fragment 250, GSP-300 20, A04 slug'ları 300 (uyarlama)",
+ "_payment_packages_pass": "Season Pass / Monthly Deluxe packs (Stage 7): from the client's pack descriptions; the quantity of package_event-deal-season-point is not in the description (300, adaptation).",
+ "_extra_shop_particle": "Stage 9b (tools/particle.py): items that come via payment/events, for uridium — Energy items 50,000, Pulse Core 50, OptiGrad Chip 200, Horizon Shard 500, Containment Node 2,000, SD/CGL Fragment 250, GSP-300 20, A04 slugs 300 (adaptation)",
  "designs": {
   "ship_centurion_design_centurion-ability1": {
    "bonus": {
@@ -13797,9 +13797,9 @@
    "hp": 350000
   }
  },
- "_designs": "giyilen tasarımın kendi değerleri (tools/tasarim_degerleri.py; profil.ship_row): hp, base_speed ve yuvalar istemcinin gemi verisinden (taban gemiden farklıysa), bonus wiki ships.md'den (taban geminin bonusuna eklenir), per_module/module_max takılı gemi modülü başına",
- "_ek_magaza_e4": "E4 (2026-10-22 eksik taraması): tek oyunculuda hiçbir kaynağı olmayan gemiler (Disruptor, Tempest, Holo, Retiarus, N-Diplomat, N-Envoy; istemci Holo için \"Battle Pass Key exchange\" diyor), Epion/Osiris/Prometheus/Smite Holo, 40 gemi modülü (istemcide kaynak metni yok), PIR-100, BDR-1212, AGL-M01, RC-100, Repair Robot S, Explosive Charging Blob ve etkisi olan boosterlar uridyumla; fiyatlar uyarlama (gemiler V-Lightning, modüller tekil 50.000 / XU-XW-XOF 100.000). Modüller jeneratör sekmesinde: extras sekmesi 255 ürün sınırında (SHOP_MAX; istemcinin bu sekmede başka türü göstermesi canlıda doğrulanmadı). Etki noktası olmayan RC-B01 ve RM-B01 satılmaz (BİLİNEN Ö6); DROPCH-B01 ve RWRDDBL-B01 Proxium etkisi KAPI2'de geldiği için Permafrost Fissure ile satılır (devir: 3 saat 10.000 U, Ultimate Proxium Booster ikisi 4'er saat 24.000 U; wiki fiyat vermez, uyarlama)",
- "_ek_magaza_esya2": "ESYA2 (2026-10-26 wiki taraması): AGL-M01 250 U (darkorbitwiki events/agatus-breach etkinlik mağazası; E4'te 100 U idi); AGT-500 125 U yalnız Agatus Breach sürerken (takvim agatus; aynı sayfa). AGT-500 sayfasında \"Damage: 25.000 / Agatus: 125.000\" (esyalar.json roketler). Ayrıca: Champion America/Argentina/Brazil/Mexico dron tasarımları 200.000 U (Goal Rush mağazası, takvim goal_rush); SBP-01 Super Booster Pack (deal_50-cent-boosterPack: DMG-B02 + SHD-B02 + HP-B02, 10 sa; wiki 0,99 USD, fiyat market dengesinin paket kuralı); Ghostifier 15 U ve 10'luk Ghostifier Pack XL 130 U (wiki yalnız \"Payment\" diyor, fiyatlar uyarlama: WIZ-X gibi kozmetik tüketim); SG3N-P01 10.000 U ve SG3N-PX01 30.000 U (uyarlama; wiki shop payments), P.E.T. Equipment Bundle S (1 LF-P01 + 1 SG3N-P01, 17.000 U). Bundle M ve L AI-HP4 (seviye 4 protokol) içerir; paket içeriğinde seviye yok, eklenmedi Bu satırlar \"sabit\": true (fiyatı kaynaktan; tools/market_dengesi.py dengelemez). Etkinlik anahtar ve parça paketleri (KUTULAR-36; içerik tools/odeme_paketleri.py ANAHTAR, istemcinin açıklamasından): Prosperous (cny*), Empyrian, Spring Sabotage (Lucent, takvim bahar), Perseus, Summons of Athena (Laurel), Galaxy Trek (FTL) ve Treacherous Domain (Infiltrator Fragment) paketleri extras sekmesinde, etkinlik sürerken; fiyat market dengesinin paket kuralı (anahtar 5.000 U). Astral Booty Key paketlerinin içeriği var, satırı yok: takvimde Astral Ascension etkinliği yok (etkinlikler.json)",
+ "_designs": "the worn design's own values (tools/design_values.py; profile.ship_row): hp, base_speed and slots from the client's ship data (if different from the base ship), bonus from the wiki ships.md (added to the base ship's bonus), per_module/module_max per installed ship module",
+ "_extra_shop_e4": "E4 (2026-10-22 missing-items scan): ships with no source in single-player (Disruptor, Tempest, Holo, Retiarus, N-Diplomat, N-Envoy; the client says \"Battle Pass Key exchange\" for Holo), Epion/Osiris/Prometheus/Smite Holo, 40 ship modules (no source text in the client), PIR-100, BDR-1212, AGL-M01, RC-100, Repair Robot S, Explosive Charging Blob and boosters that have an effect, for uridium; prices are an adaptation (ships: V-Lightning; modules 50,000 each / XU-XW-XOF 100,000). Modules are on the generator tab: the extras tab is at the 255-item limit (SHOP_MAX; that the client shows another type in this tab was not verified live). RC-B01 and RM-B01, which have no effect point, are not sold (KNOWN ISSUES Ö6); DROPCH-B01 and RWRDDBL-B01 are sold with Permafrost Fissure because the Proxium effect arrives in KAPI2 (rollover: 3 hours 10,000 U, Ultimate Proxium Booster both 4 hours each 24,000 U; the wiki gives no price, adaptation)",
+ "_extra_shop_item2": "ESYA2 (2026-10-26 wiki scan): AGL-M01 250 U (darkorbitwiki events/agatus-breach event shop; it was 100 U in E4); AGT-500 125 U only while Agatus Breach runs (calendar agatus; same page). The AGT-500 page has \"Damage: 25.000 / Agatus: 125.000\" (items.json rockets). Also: Champion America/Argentina/Brazil/Mexico drone designs 200,000 U (Goal Rush shop, calendar goal_rush); SBP-01 Super Booster Pack (deal_50-cent-boosterPack: DMG-B02 + SHD-B02 + HP-B02, 10 h; wiki 0.99 USD, price per the market balance's pack rule); Ghostifier 15 U and the 10-piece Ghostifier Pack XL 130 U (the wiki only says \"Payment\", prices are an adaptation: cosmetic consumable like WIZ-X); SG3N-P01 10,000 U and SG3N-PX01 30,000 U (adaptation; wiki shop payments), P.E.T. Equipment Bundle S (1 LF-P01 + 1 SG3N-P01, 17,000 U). Bundle M and L contain AI-HP4 (level 4 protocol); there is no level in the pack contents, so it was not added. These rows are \"fixed\": true (price from the source; tools/market_balance.py does not balance them). Event key and part packs (KUTULAR-36; contents from tools/payment_packages.py KEY, from the client's description): Prosperous (cny*), Empyrian, Spring Sabotage (Lucent, calendar spring), Perseus, Summons of Athena (Laurel), Galaxy Trek (FTL) and Treacherous Domain (Infiltrator Fragment) packs on the extras tab, while the event runs; price per the market balance's pack rule (key 5,000 U). Astral Booty Key packs have contents but no row: there is no Astral Ascension event in the calendar (events.json)",
  "shop_discount": {
   "ratio": 0.25,
   "premium_rate": 0.05,
@@ -13809,18 +13809,18 @@
    "resource_shop-discount-days-3": 3,
    "resource_shop-discount-week-1": 7
   },
-  "_not": "Shop Discount (günlük giriş ödülü; istemci \"Shop Discount for 1 week\", item_tooltip_shop_discount_variable \"Uridium-Rabatt von %SHOPDISCOUNT%%\"): alınınca süresi eklenir, uridyumla alımlar oran kadar ucuz; girişte UserInventoryModule.activePremiumDiscount. Oran uyarlama (bn_halloweenShopDiscount \"-10%\"); istemcinin indirimli fiyatı gösterip göstermediği canlıda doğrulanmadı. premium_rate: Premium (tek oyunculuda herkes) tüm uridyum eşyalarında -%5 (istemci breakingNewsContent_permPremiumAdvantages \"5% off all Uridium items!\"); Shop Discount ile toplanır (Premium %5 + Shop Discount %10 = %15)",
-  "_oran": "Günlük giriş Shop Discount %25 (resmî forum 133611; istemci item_tooltip_shop_discount_30: Premium'un %5'iyle %30)"
+  "_note": "Shop Discount (daily login reward; client \"Shop Discount for 1 week\", item_tooltip_shop_discount_variable \"Uridium-Rabatt von %SHOPDISCOUNT%%\"): when received its duration is added, uridium purchases are cheaper by the ratio; on login UserInventoryModule.activePremiumDiscount. The ratio is an adaptation (bn_halloweenShopDiscount \"-10%\"); whether the client shows the discounted price was not verified live. premium_rate: Premium (everyone in single-player) -5% on all uridium items (client breakingNewsContent_permPremiumAdvantages \"5% off all Uridium items!\"); stacks with Shop Discount (Premium 5% + Shop Discount 10% = 15%)",
+  "_ratio": "Daily login Shop Discount 25% (official forum 133611; client item_tooltip_shop_discount_30: 30% with Premium's 5%)"
  },
- "_extra_shop_cosmetic": "İstemcinin gemi tasarımları (ShipDesignType), dron görünümleri (DroneCustomizationType), bonuslu dron tasarımları (DroneDesignType) ve P.E.T. tasarımları (PetCustomizationType) içinden tek oyunculuda hiçbir kaynağı olmayanlar mağazaya: gemi tasarımları \"shipdesign\" sekmesine (sekme 255 ürün sınırında: magaza.shop_list ek tasarımları yalnız hangardaki gemiler için gösterir), dron ve P.E.T. tasarımları \"customization\" sekmesine (kayıtta P.E.T. tasarım paketleri de bu sekmede: package_pd-*). Kaynak sayılanlar: kayıttaki mağaza listeleri ve öteki araçların ek mağaza satırları (gösterilen paketlerin içeriğiyle), ödül verileri (kutular, kapılar, etkinlikler, biletler, görevler, günlük giriş, sıralama ödülleri, Dispatch, müzayede, dükkânlar, modlar …), Assembly'de sürekli ya da etkinlikle görünen tarifler (assembly.event_recipes'in kuralı), Ö6, rezonatör ve Synthesis tarifleri. İstemcinin metinleri bu tasarımların kaynağını söylemiyor; fiyat market dengesinin sınıf değeri (tools/market_dengesi.py value: gemi tasarımı 50.000 U, premium temalar 100.000, ülke tasarımları 20.000; P.E.T. tasarımı 40.000; dron görünümü 5.000), satırın uridyum alanında (fiyatlar.json'da satırı yok; market_dengesi yeniden çalıştırılırsa E4'ün uyarlama fiyatları da değişir). Sunucunun veremediği tasarımlar (Magaza.contents None; taban gemisi esyalar.json'da olmayan gemi tasarımları) atlanır.",
- "_lf3": "LF-3: uzaylıya düz +15 (istemci items_equipment_weapon_laser_lf-3_description 'increased by 15', resmî forum 161353 '+15 ekstra hasar'); LF-4-PD gibi cephane çarpanından sonra eklenir",
+ "_extra_shop_cosmetic": "Of the client's ship designs (ShipDesignType), drone appearances (DroneCustomizationType), drone designs with bonuses (DroneDesignType) and P.E.T. designs (PetCustomizationType), those with no source in single-player go to the shop: ship designs to the \"shipdesign\" tab (the tab is at the 255-item limit: shop.shop_list shows the extra designs only for ships in the hangar), drone and P.E.T. designs to the \"customization\" tab (in the recording the P.E.T. design packs are also in this tab: package_pd-*). Counted as sources: the shop lists in the recording and the extra shop rows of other tools (with the contents of the displayed packs), reward data (boxes, gates, events, tickets, quests, daily login, ranking rewards, Dispatch, auction, stores, modes …), recipes that appear permanently or with an event in Assembly (the rule of assembly.event_recipes), Ö6, Resonator and Synthesis recipes. The client's texts do not say where these designs come from; the price is the market balance's class value (tools/market_balance.py value: ship design 50,000 U, premium themes 100,000, country designs 20,000; P.E.T. design 40,000; drone appearance 5,000), in the row's uridium field (no row in prices.json; if market_balance is re-run, E4's adaptation prices change too). Designs the server cannot give (Shop.contents None; ship designs whose base ship is not in items.json) are skipped.",
+ "_lf3": "LF-3: flat +15 against aliens (client items_equipment_weapon_laser_lf-3_description 'increased by 15', official forum 161353 '+15 extra damage'); added after the ammo multiplier, like LF-4-PD",
  "ship_sale": {
   "ship_tartarus": [
    "credits",
    500000
   ]
  },
- "_satis_gemi": "İstemcinin satış değeri olmayan gemiler: resmî forum 160373 (Tartarus 'satış değeri 500.000 Kredi')",
+ "_sell_ship": "Ships without a sell value in the client: official forum 160373 (Tartarus 'sell value 500,000 Credits')",
  "favorite_ship_limit": 10,
  "player_kill": {
   "honor_points": 100,
@@ -13829,7 +13829,7 @@
   "push_step": 0.15,
   "friend_honor": -100,
   "friend_credits": -1000,
-  "_source": "Resmî Türk forumu 127379 (Pushing): aynı oyuncuyu günde 5'ten fazla kesince her seferinde %15 az şeref/TP, 0'a inince imha sayılmaz; 127509 ve 127321: kendi şirketinin gemisini (ve P.E.T.'ini) kesmek kazanç vermez, katlanan eksi şeref (-100, -200, -400 …) ve -1.000 kredi",
-  "_adaptation": "taban ödül kaynakta yok: şeref 100 x, TP 1.000 x kurbanın rütbe gemi puanı (rutbe.json ship_points)"
+  "_source": "Official Turkish forum 127379 (Pushing): killing the same player more than 5 times a day gives 15% less honor/EP each time, and once it reaches 0 the kill does not count; 127509 and 127321: killing a ship (and P.E.T.) of your own company gives no gain, a compounding negative honor (-100, -200, -400 …) and -1,000 credits",
+  "_adaptation": "the base reward is not in the source: honor 100 x, EP 1,000 x the victim's rank ship points (ranks.json ship_points)"
  }
 }

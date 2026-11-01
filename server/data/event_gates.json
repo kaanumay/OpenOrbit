@@ -1,5 +1,5 @@
 {
- "_description": "Etkinlik kapıları ve Frozen Labyrinth -> server/data/event_gates.json (yol haritası Aşama 7b; sunucu: etkinlik_kapi.py,\nlabirent.py).\n\nKaynaklar belgeler/wiki/etkinlikler/ (darkorbitwiki, fandom ve resmî forumdan derlenen veri):\n  gauntlet_of_plutus.json   Easy (X-1, haritalar 450-455, portal 235) ve Normal (X-8, 410-415, portal 24): 5 harita dalgaları rastgele\n                            sırayla, patron haritasında 4 kule + Plutus; günde bir giriş (iki mod birlikte), 5 can, süre ölçülür.\n                            Easy'de uzaylılar yarı güçte ve yarı ödüllü (wiki: \"2x weaker\").\n  vortex_of_terror.json     Halloween; X-4, 8 harita (227, 230-236, istemci \"GG Trial of Terror\"), portal 81; 12 saat bekleme; \"ya da\"\n                            dalgalarından biri girişte rastgele seçilir (wiki seçimi anlatmıyor); bitiş ödülü yok, Frightful Curcubitor\n                            kutusu düşürür.\n  kutular_ve_etkinlikler.json  Birthday Gate (Y6, harita 57 \"GG Y6\", portal 15): 11 Aralık, 3 can, yılda bir.\n  frozen_labyrinth.json     16 harita (430-445, ATLAS A-C giriş), bölgeler, 2019 kapı tablosu, uzaylılar, anahtar düşme olasılıkları,\n                            Skoll, Synk.\n  permafrost_fissure.json   Permafrost Fissure (X-1, Subglacial CPU, istemcinin harita 228'i): 10 bölümün 45 dalgası tek kapıda, UFO ve\n                            Ufonit'in Proxium kutuları, bitiş ödülü (Proxium Drop Booster ...). cold_wave_2014.json: The Breach (Easy ve\n                            Hard; 20 can, 3 dalga). devolarium_attack.json: Devolarium Attack (yalnız \"Preemptive Strike Force\" görevi\n                            sürerken; harita 223). plutus_deney.json: Plutus' Experiments (üç risk, kule, uzaylı kademeleri, kutu tablosu,\n                            ilerleme puanı takası) -> 'deney' bölümü (sunucu: plutus_deney.py).\nGörünümler istemcinin game.xml'i ve lib_ships'i (gemi türü / npcId): Cote Lo 260/213, Kodkod 261/214, Aura Dun Jig 262/215,\nLac Lion 263/216, Natal Nap 264/217, Plutus 265/218, Plutus Warhead 266/219, Plutus Turret 267/220, Ufonit 21/26, Demon Drone 151\n(\"deamon drone npc\"), Frightful Curcubitor 317, Frozen Icy 103/221, Frozen Kristallin 109/222, Frozen Kristallon\n154/223, Frozen Boss Kristallin 110/224, Frozen Boss Kristallon 155/225, Frozen Meteoroid 101/226, Frozen Super Meteoroid 33/227,\nSkoll 127/280, Synk 271/228 (demaNeR kapilar.json'dan). Kutu türleri istemcinin lib_collectables'ı (GOP_EASY_BOX, GOP_NORMAL_BOX, DEMON_BOX,\nFRIGHTFUL_CURCUBITOR_BOSS_BOX, FROZEN_LABYRINTH_BOX …).\nUyarlamalar (kaynak vermediği için) \"_uyarlama\" notlarında: Demon Drone ve Frightful Curcubitor değerleri, Warhead hasarı, kutu\nadetleri ve olasılıkları, labirent nüfusu, Synk ve Skoll aralıkları, hızlar.",
+ "_description": "Event gates and Frozen Labyrinth -> server/data/event_gates.json (roadmap Phase 7b; server: event_gate.py,\nlabyrinth.py).\n\nSources belgeler/wiki/etkinlikler/ (data compiled from darkorbitwiki, fandom and the official forum):\n  gauntlet_of_plutus.json   Easy (X-1, maps 450-455, portal 235) and Normal (X-8, 410-415, portal 24): waves of 5 maps in random\n                            order, 4 towers + Plutus on the boss map; one entry per day (both modes together), 5 lives, time is measured.\n                            In Easy the aliens are at half strength and give half rewards (wiki: \"2x weaker\").\n  vortex_of_terror.json     Halloween; X-4, 8 maps (227, 230-236, client \"GG Trial of Terror\"), portal 81; 12-hour cooldown; one of the \"or\"\n                            waves is chosen at random on entry (the wiki does not describe the choice); no completion reward, Frightful Curcubitor\n                            drops a box.\n  kutular_ve_etkinlikler.json  Birthday Gate (Y6, map 57 \"GG Y6\", portal 15): 11 December, 3 lives, once a year.\n  frozen_labyrinth.json     16 maps (430-445, ATLAS A-C entry), regions, 2019 gate table, aliens, key drop probabilities,\n                            Skoll, Synk.\n  permafrost_fissure.json   Permafrost Fissure (X-1, Subglacial CPU, the client's map 228): 45 waves of 10 sections in a single gate, UFO and\n                            Ufonit's Proxium boxes, completion reward (Proxium Drop Booster ...). cold_wave_2014.json: The Breach (Easy and\n                            Hard; 20 lives, 3 waves). devolarium_attack.json: Devolarium Attack (only while the \"Preemptive Strike Force\" quest\n                            is active; map 223). plutus_deney.json: Plutus' Experiments (three risks, tower, alien tiers, box table,\n                            progress point exchange) -> 'experiment' section (server: plutus_experiments.py).\nAppearances are from the client's game.xml and lib_ships (ship type / npcId): Cote Lo 260/213, Kodkod 261/214, Aura Dun Jig 262/215,\nLac Lion 263/216, Natal Nap 264/217, Plutus 265/218, Plutus Warhead 266/219, Plutus Turret 267/220, Ufonit 21/26, Demon Drone 151\n(\"deamon drone npc\"), Frightful Curcubitor 317, Frozen Icy 103/221, Frozen Kristallin 109/222, Frozen Kristallon\n154/223, Frozen Boss Kristallin 110/224, Frozen Boss Kristallon 155/225, Frozen Meteoroid 101/226, Frozen Super Meteoroid 33/227,\nSkoll 127/280, Synk 271/228 (demaNeR from gates.json). Box types are the client's lib_collectables (GOP_EASY_BOX, GOP_NORMAL_BOX, DEMON_BOX,\nFRIGHTFUL_CURCUBITOR_BOSS_BOX, FROZEN_LABYRINTH_BOX …).\nAdaptations (since the source gives none) are in the \"_adaptation\" notes: Demon Drone and Frightful Curcubitor values, Warhead damage, box\ncounts and probabilities, labyrinth population, Synk and Skoll intervals, speeds.",
  "gates": {
   "plutus_easy": {
    "uid": 1,
@@ -445,7 +445,7 @@
           1
          ]
         ],
-        "_source": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
+        "_source": "wiki gate page \"Plutus Box\" (gives no probability: equal)"
        }
       }
      ],
@@ -693,7 +693,7 @@
           1
          ]
         ],
-        "_source": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
+        "_source": "wiki gate page \"Plutus Box\" (gives no probability: equal)"
        }
       }
      ],
@@ -1157,7 +1157,7 @@
           1
          ]
         ],
-        "_source": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
+        "_source": "wiki gate page \"Plutus Box\" (gives no probability: equal)"
        }
       }
      ],
@@ -1545,7 +1545,7 @@
           1
          ]
         ],
-        "_source": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
+        "_source": "wiki gate page \"Plutus Box\" (gives no probability: equal)"
        }
       }
      ],
@@ -2097,7 +2097,7 @@
           1
          ]
         ],
-        "_source": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
+        "_source": "wiki gate page \"Plutus Box\" (gives no probability: equal)"
        }
       }
      ],
@@ -2432,7 +2432,7 @@
      },
      "cargo": {},
      "count": 1,
-     "_adaptation": "wiki 350.000 hasar (tek atış); tek oyunculuda 20.000 (Easy 10.000)"
+     "_adaptation": "wiki 350,000 damage (single shot); in single-player 20,000 (Easy 10,000)"
     },
     "bountiful": {
      "type": "263",
@@ -2463,7 +2463,7 @@
       "probability": 1.0,
       "lifetime_sec": 600,
       "mod": "one_of",
-      "_source": "wiki \"Bountiful Alien CPU content\"; adetler uyarlama (Normal Kolay'ın iki katı: forum 143902)",
+      "_source": "wiki \"Bountiful Alien CPU content\"; quantities are adaptation (Normal is twice Easy: forum 143902)",
       "contents": [
        [
         "equipment_weapon_laser_lf-4-hp",
@@ -2571,7 +2571,7 @@
      ]
     ]
    },
-   "_reward": "fandom: bitişte 4.000-4.500 PIB-100 (Easy yarısı); EP/onur/kredi/uridyum Plutus'un kendi ödülünde (wiki); Cubi Portal CPU (darkorbitwiki equipment/cpu: Gauntlet of Plutus etkinliği), olasılık uyarlama: Easy %1, Normal %2",
+   "_reward": "fandom: at the end 4,000-4,500 PIB-100 (half of that on Easy); EP/honor/credits/uridium are in Plutus' own reward (wiki); Cubi Portal CPU (darkorbitwiki equipment/cpu: Gauntlet of Plutus event), probability is adaptation: Easy 1%, Normal 2%",
    "messages": {
     "done": {
      "caps": "key:log_msg_gg_completed_gop_easy"
@@ -3018,7 +3018,7 @@
           1
          ]
         ],
-        "_source": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
+        "_source": "wiki gate page \"Plutus Box\" (gives no probability: equal)"
        }
       }
      ],
@@ -3256,7 +3256,7 @@
           1
          ]
         ],
-        "_source": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
+        "_source": "wiki gate page \"Plutus Box\" (gives no probability: equal)"
        }
       }
      ],
@@ -3710,7 +3710,7 @@
           1
          ]
         ],
-        "_source": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
+        "_source": "wiki gate page \"Plutus Box\" (gives no probability: equal)"
        }
       }
      ],
@@ -4088,7 +4088,7 @@
           1
          ]
         ],
-        "_source": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
+        "_source": "wiki gate page \"Plutus Box\" (gives no probability: equal)"
        }
       }
      ],
@@ -4630,7 +4630,7 @@
           1
          ]
         ],
-        "_source": "wiki kapı sayfası \"Plutus Box\" (olasılık vermiyor: eşit)"
+        "_source": "wiki gate page \"Plutus Box\" (gives no probability: equal)"
        }
       }
      ],
@@ -4935,7 +4935,7 @@
         "probability": 0.35,
         "lifetime_sec": 900,
         "mod": "one_of",
-        "_source": "forum 2019: %35; içerik wiki",
+        "_source": "forum 2019: 35%; contents wiki",
         "contents": [
          [
           "currency_uridium",
@@ -5062,7 +5062,7 @@
      },
      "cargo": {},
      "count": 1,
-     "_adaptation": "wiki 350.000 hasar (tek atış); tek oyunculuda 20.000 (Easy 10.000)"
+     "_adaptation": "wiki 350,000 damage (single shot); in single-player 20,000 (Easy 10,000)"
     },
     "bountiful": {
      "type": "263",
@@ -5093,7 +5093,7 @@
       "probability": 1.0,
       "lifetime_sec": 600,
       "mod": "one_of",
-      "_source": "wiki \"Bountiful Alien CPU content\"; adetler uyarlama (Normal Kolay'ın iki katı: forum 143902)",
+      "_source": "wiki \"Bountiful Alien CPU content\"; quantities are adaptation (Normal is twice Easy: forum 143902)",
       "contents": [
        [
         "equipment_weapon_laser_lf-4-hp",
@@ -5211,7 +5211,7 @@
      ]
     ]
    },
-   "_reward": "fandom: bitişte 4.000-4.500 PIB-100 (Easy yarısı); EP/onur/kredi/uridyum Plutus'un kendi ödülünde (wiki); Cubi Portal CPU (darkorbitwiki equipment/cpu: Gauntlet of Plutus etkinliği), olasılık uyarlama: Easy %1, Normal %2",
+   "_reward": "fandom: at the end 4,000-4,500 PIB-100 (half of that on Easy); EP/honor/credits/uridium are in Plutus' own reward (wiki); Cubi Portal CPU (darkorbitwiki equipment/cpu: Gauntlet of Plutus event), probability is adaptation: Easy 1%, Normal 2%",
    "messages": {
     "done": {
      "caps": "key:log_msg_gg_completed_gop"
@@ -5690,7 +5690,7 @@
         "uridium": 1000
        },
        "cargo": {},
-       "_adaptation": "kaynak değer vermiyor",
+       "_adaptation": "the source gives no value",
        "count": 1,
        "box": {
         "type": "DEMON_BOX",
@@ -6457,7 +6457,7 @@
         "uridium": 1000
        },
        "cargo": {},
-       "_adaptation": "kaynak değer vermiyor",
+       "_adaptation": "the source gives no value",
        "count": 1,
        "box": {
         "type": "DEMON_BOX",
@@ -7335,7 +7335,7 @@
         "uridium": 1000
        },
        "cargo": {},
-       "_adaptation": "kaynak değer vermiyor",
+       "_adaptation": "the source gives no value",
        "count": 1,
        "box": {
         "type": "DEMON_BOX",
@@ -7772,7 +7772,7 @@
         "uridium": 1000
        },
        "cargo": {},
-       "_adaptation": "kaynak değer vermiyor",
+       "_adaptation": "the source gives no value",
        "count": 1,
        "box": {
         "type": "DEMON_BOX",
@@ -8239,7 +8239,7 @@
         "uridium": 10000
        },
        "cargo": {},
-       "_adaptation": "kaynak değer vermiyor",
+       "_adaptation": "the source gives no value",
        "count": 1,
        "box": {
         "type": "FRIGHTFUL_CURCUBITOR_BOSS_BOX",
@@ -8364,9 +8364,9 @@
    },
    "reward": {},
    "dark": true,
-   "_dark": "haritalar karanlık, yalnız geminin baktığı yön aydınlık (kullanıcının gerçek oyundaki gözlemi; istemcide VisualModifier FLASHLIGHT 62 / FlashLightEffect; kamuya açık kaynaklarda yazılı değil)",
-   "_source": "wiki vortex-of-terrors-gate (8 harita, 90 Curcubitor; 2023 oyuncu yorumu da 90), resmî forum SSS 2020-2026 (X-4, 12 saat bekleme, bitiş ödülü yok, kapıda Curcubitor yalnız Treat bırakır); can 5 eski sürümden (SSS can sayısı vermiyor)",
-   "_adaptation": "\"ya da\" dalgalarından biri rastgele; Box A Uber, Box B Boss (%25), Box C Curcubitor (%15) uzaylılarından (kaynak hangisinin düşürdüğünü vermiyor); Frightful Curcubitor yapışkan bomba ve Curcubitor çağırır",
+   "_dark": "the maps are dark, only the direction the ship is facing is lit (the user's observation in the real game; the client's VisualModifier FLASHLIGHT 62 / FlashLightEffect; not written in public sources)",
+   "_source": "wiki vortex-of-terrors-gate (8 maps, 90 Curcubitors; a 2023 player comment also says 90), official forum FAQ 2020-2026 (X-4, 12-hour cooldown, no completion reward, in the gate Curcubitor only drops Treat); lives 5 from the old version (the FAQ does not give a life count)",
+   "_adaptation": "one of the \"or\" waves at random; Box A from Uber, Box B from Boss (25%), Box C from Curcubitor (15%) aliens (the source does not say which one drops it); Frightful Curcubitor uses a sticky bomb and summons Curcubitor",
    "messages": {
     "done": {
      "caps": "key:log_msg_gg_completed_tunnel_of_terror"
@@ -9115,8 +9115,8 @@
      ]
     ]
    },
-   "_source": "fandom ve JP wiki (Y6, 2012): 13 dalga, güç çarpanları, ödül sandığı; 3 can, yılda bir (11 Aralık)",
-   "_adaptation": "EP JP wiki'nin 221.333'ü (fandom 2.324.000); BDR-1212 hesap yaşına göre -> 2.500 BDR-1211",
+   "_source": "fandom and JP wiki (Y6, 2012): 13 waves, power multipliers, reward chest; 3 lives, once a year (11 December)",
+   "_adaptation": "EP is the JP wiki's 221,333 (fandom 2,324,000); BDR-1212 depends on account age -> 2,500 BDR-1211",
    "messages": {
     "done": {
      "caps": "key:log_msg_gg_completed_bday"
@@ -9417,7 +9417,7 @@
     }
    },
    "_source": "darkorbitwiki quarantine-zone, resmî SSS: Immunizer CPU, tek can, 50 Viral Kristallon sonra Gygerim Overlord, Quarantine Box",
-   "_adaptation": "tek oyunculu (2-8 oyuncu yerine), ek dalga sayıları, Overlord’un ölüm ışını uzaylı yeteneği (uzayli_yetenekleri.json 128), uzaktakini seçmesi yok",
+   "_adaptation": "single-player (instead of 2-8 players), extra wave counts, the Overlord's death beam alien ability (alien_abilities.json 128), no picking of the far one",
    "messages": {
     "done": {
      "caps": "key:log_msg_gg_completed_quarantine_zone"
@@ -10834,7 +10834,7 @@
         "5": 200,
         "6": 25
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1000,
@@ -10928,8 +10928,8 @@
      ]
     }
    ],
-   "_source": "darkorbitwiki compromising-invasion: 8 ana dalga ve grup değerleri, 100.000 can; ödül 100. elit görevinki",
-   "_adaptation": "kapı 22. seviyede X-1’de; ödül 122106 (100. elit görev) tarafından verilir; kapı görev etkinken bitirilince görev tamamlanır (kapının kendi ödülü yok: aynı iki tasarım ikinci kez verilirdi; \"bir_kez\" de yok: kapıyı görevi almadan bitiren pilot 122106 için sonsuza kadar takılı kalırdı)",
+   "_source": "darkorbitwiki compromising-invasion: 8 main waves and group values, 100,000 HP; the reward is that of the 100th elite quest",
+   "_adaptation": "the gate is at level 22 on X-1; the reward is given by 122106 (100th elite quest); if the gate is finished while the quest is active, the quest is completed (the gate has no reward of its own: the same two designs would be given a second time; there is also no \"once\": a pilot who finished the gate without taking the quest would be stuck on 122106 forever)",
    "messages": {
     "done": {
      "caps": "key:log_msg_gg_completed_black_light"
@@ -11432,7 +11432,7 @@
           10
          ]
         ],
-        "_source": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
+        "_source": "official Turkish forum 128431: one of the ammunitions (ratios) and also Proxium"
        }
       },
       {
@@ -11976,7 +11976,7 @@
           10
          ]
         ],
-        "_source": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
+        "_source": "official Turkish forum 128431: one of the ammunitions (ratios) and also Proxium"
        }
       }
      ],
@@ -12475,7 +12475,7 @@
           10
          ]
         ],
-        "_source": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
+        "_source": "official Turkish forum 128431: one of the ammunitions (ratios) and also Proxium"
        }
       }
      ],
@@ -13057,7 +13057,7 @@
           10
          ]
         ],
-        "_source": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
+        "_source": "official Turkish forum 128431: one of the ammunitions (ratios) and also Proxium"
        }
       }
      ],
@@ -13682,7 +13682,7 @@
           10
          ]
         ],
-        "_source": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
+        "_source": "official Turkish forum 128431: one of the ammunitions (ratios) and also Proxium"
        }
       }
      ],
@@ -13953,7 +13953,7 @@
           10
          ]
         ],
-        "_source": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
+        "_source": "official Turkish forum 128431: one of the ammunitions (ratios) and also Proxium"
        }
       }
      ],
@@ -14089,7 +14089,7 @@
           20
          ]
         ],
-        "_source": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
+        "_source": "official Turkish forum 128431: one of the ammunitions (ratios) and also Proxium"
        }
       }
      ],
@@ -14540,7 +14540,7 @@
           10
          ]
         ],
-        "_source": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
+        "_source": "official Turkish forum 128431: one of the ammunitions (ratios) and also Proxium"
        }
       }
      ],
@@ -14906,7 +14906,7 @@
           10
          ]
         ],
-        "_source": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
+        "_source": "official Turkish forum 128431: one of the ammunitions (ratios) and also Proxium"
        }
       }
      ],
@@ -15326,7 +15326,7 @@
           10
          ]
         ],
-        "_source": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
+        "_source": "official Turkish forum 128431: one of the ammunitions (ratios) and also Proxium"
        }
       },
       {
@@ -15664,7 +15664,7 @@
           10
          ]
         ],
-        "_source": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
+        "_source": "official Turkish forum 128431: one of the ammunitions (ratios) and also Proxium"
        }
       },
       {
@@ -16001,7 +16001,7 @@
           20
          ]
         ],
-        "_source": "resmî Türk forumu 128431: cephanelerden biri (oranlar) ve ayrıca Proxium"
+        "_source": "official Turkish forum 128431: one of the ammunitions (ratios) and also Proxium"
        }
       },
       {
@@ -16143,8 +16143,8 @@
      ]
     ]
    },
-   "_source": "fandom Permafrost Fissure (belgeler/wiki/etkinlikler/permafrost_fissure.json): 10 haritadaki 45 dalga, UFO ve Ufonit kutuları, bitiş ödülleri; istemci metni: Subglacial CPU kapıyı HQ yakınında açar, açıksa 2 can ekler",
-   "_adaptation": "istemcide tek harita (228): 10 harita bölümü art arda aynı haritada; can, portal tasarımı ve X-1 girişi kaynaksız; aynı dalgadaki uzaylıların hepsi birlikte doğar (wiki \"Spawn Group\"); Sibelon, Devolarium … sunucunun kendi NPC türleri",
+   "_source": "fandom Permafrost Fissure (belgeler/wiki/etkinlikler/permafrost_fissure.json): 45 waves over 10 maps, UFO and Ufonit boxes, completion rewards; client text: Subglacial CPU opens the gate near HQ, adds 2 lives if it is open",
+   "_adaptation": "a single map in the client (228): 10 map sections one after another on the same map; HP, portal design and X-1 entry have no source; all aliens in the same wave spawn together (wiki \"Spawn Group\"); Sibelon, Devolarium … are the server's own NPC types",
    "messages": {
     "done": {
      "caps": "key:log_msg_gg_completed_permafrost_fissure"
@@ -16456,8 +16456,8 @@
      ]
     ]
    },
-   "_source": "fandom Winter events \"Cold Wave 2014\" (belgeler/wiki/etkinlikler/cold_wave_2014.json): 3 dalga, 20 can, Easy 1/5, iki ödül tablosu; istemci haritaları 77 (Easy) ve 78 (Hard), tamamlama metinleri log_msg_gg_completed_coldwave_easy/hard",
-   "_adaptation": "Kronos Gate parçası verilmez (sunucunun 21 parçalık Kronos tablosu sekiz kapıdan; Cold Wave onlardan değil, Easy’de miktar wiki’de bozuk); uzaylı değerleri sunucunun etkinlik NPC’leri ve Skoll (wiki can/hasar vermiyor); portal tasarımı 77/78 (harita numaralarıyla aynı, tahmin); kış etkinliği (kis) penceresinde",
+   "_source": "fandom Winter events \"Cold Wave 2014\" (belgeler/wiki/etkinlikler/cold_wave_2014.json): 3 waves, 20 lives, Easy 1/5, two reward tables; client maps 77 (Easy) and 78 (Hard), completion texts log_msg_gg_completed_coldwave_easy/hard",
+   "_adaptation": "no Kronos Gate part is given (the server's 21-part Kronos table comes from eight gates; Cold Wave is not among them, and the amount in Easy is corrupted in the wiki); alien values are the server's event NPCs and Skoll (the wiki gives no HP/damage); portal design 77/78 (same as the map numbers, a guess); in the winter event (winter) window",
    "messages": {
     "done": {
      "caps": "key:log_msg_gg_completed_coldwave_easy"
@@ -16774,8 +16774,8 @@
      ]
     ]
    },
-   "_source": "fandom Winter events \"Cold Wave 2014\" (belgeler/wiki/etkinlikler/cold_wave_2014.json): 3 dalga, 20 can, Easy 1/5, iki ödül tablosu; istemci haritaları 77 (Easy) ve 78 (Hard), tamamlama metinleri log_msg_gg_completed_coldwave_easy/hard",
-   "_adaptation": "Kronos Gate parçası verilmez (sunucunun 21 parçalık Kronos tablosu sekiz kapıdan; Cold Wave onlardan değil, Easy’de miktar wiki’de bozuk); uzaylı değerleri sunucunun etkinlik NPC’leri ve Skoll (wiki can/hasar vermiyor); portal tasarımı 77/78 (harita numaralarıyla aynı, tahmin); kış etkinliği (kis) penceresinde",
+   "_source": "fandom Winter events \"Cold Wave 2014\" (belgeler/wiki/etkinlikler/cold_wave_2014.json): 3 waves, 20 lives, Easy 1/5, two reward tables; client maps 77 (Easy) and 78 (Hard), completion texts log_msg_gg_completed_coldwave_easy/hard",
+   "_adaptation": "no Kronos Gate part is given (the server's 21-part Kronos table comes from eight gates; Cold Wave is not among them, and the amount in Easy is corrupted in the wiki); alien values are the server's event NPCs and Skoll (the wiki gives no HP/damage); portal design 77/78 (same as the map numbers, a guess); in the winter event (winter) window",
    "messages": {
     "done": {
      "caps": "key:log_msg_gg_completed_coldwave_hard"
@@ -17120,8 +17120,8 @@
      ]
     ]
    },
-   "_source": "fandom Devolarium Attack ve Preemptive Strike Force (belgeler/wiki/etkinlikler/devolarium_attack.json): 4 dalga (hepsi x1, son Devolarium yarım canlı ve kalkansız), ödül; yalnız \"Preemptive Strike Force\" (20012) görevi sürerken; istemci haritası 223",
-   "_adaptation": "can ve portal tasarımı kaynaksız; wiki’deki \"her gemide 100.000+ can\" kapıya özgü bir kural değil (gemilerin genel canı), oyuncuya buff verilmez",
+   "_source": "fandom Devolarium Attack and Preemptive Strike Force (belgeler/wiki/etkinlikler/devolarium_attack.json): 4 waves (all x1, the last Devolarium has half HP and no shield), reward; only while the \"Preemptive Strike Force\" (20012) quest is active; client map 223",
+   "_adaptation": "HP and portal design have no source; the wiki's \"100,000+ HP on every ship\" is not a gate-specific rule (it is the ships' general HP), the player gets no buff",
    "messages": {
     "done": {
      "caps": "key:galaxy_gate_starter_done"
@@ -20141,7 +20141,7 @@
        100
       ]
      ],
-     "_source": "wiki ve resmî Türk forumu 158403: Synk ödül kutusu (BDR-1212 500-1.000 ve BDR-1211 1.000-2.000; unvan başarımla)"
+     "_source": "wiki and official Turkish forum 158403: Synk reward box (BDR-1212 500-1,000 and BDR-1211 1,000-2,000; title via achievement)"
     }
    },
    "lab_iceterion": {
@@ -20173,7 +20173,7 @@
       600
      ]
     },
-    "_adaptation": "IceMine istemcide ayrı eşya değil: yavaşlatan mayın (SLM-01) görünümü; aralık, sayı ve menzil uyarlama"
+    "_adaptation": "IceMine is not a separate item in the client: the appearance of the slowing mine (SLM-01); interval, count and range are adaptation"
    }
   },
   "key_cost": 1,
@@ -20225,8 +20225,8 @@
     23
    ]
   ],
-  "_source": "wiki (bölgeler, uzaylılar, anahtar olasılıkları, Skoll, Synk ödülü), fandom 2019 kapı tablosu (bölge köşe kapıları; 2020 tablosu da belgede), istemci FrozenLabyrinth* komutları",
-  "_adaptation": "nüfus (kaynak yalnız meteorları sayıyor), Skoll her 5 dakikada %35 olasılıkla bulunulan haritada, Synk 5-10 dakikada rastgele harita ve bölgede; açık saatler tek oyunculuda bütün gün; Iceterion yok (değeri bilinmiyor)"
+  "_source": "wiki (regions, aliens, key probabilities, Skoll, Synk reward), fandom 2019 gate table (region corner gates; the 2020 table is also in the document), client FrozenLabyrinth* commands",
+  "_adaptation": "population (the source only counts meteors), Skoll on the current map with 35% probability every 5 minutes, Synk on a random map and region every 5-10 minutes; opening hours are all day in single-player; no Iceterion (value unknown)"
  },
  "experiment": {
   "event": "plutus",
@@ -21594,8 +21594,8 @@
     ]
    }
   ],
-  "_source": "fandom Plutus Experiment Event (belgeler/wiki/etkinlikler/plutus_deney.json): üç risk, kutu kademeleri (hasar aralığı -> ilerleme puanı, Tarnom, Opitite, ekstralar), ilerleme puanı takası; istemci metinleri msg_npc_spawning_beacon_*",
-  "_adaptation": "takvimde Plutus’ Experiments yok: Gauntlet of Plutus penceresinde (takvimde plutus_deney varsa o); işaret kulesi 401-404 haritalarında değil X-1 / X-5 / 4-4’te doğar; hangi uzaylının çıkacağını belirleyen hasar eşikleri, Overlord/Devourer toplam canı, ekstra şansları (chance %10, small %2, rare %0,5) kaynaksız; High Risk PvP yerine PvE; ilerleme penceresi ölü olduğundan puan eşiklerinin ödülü ulaşılınca otomatik, sıfırlama (15.000 uridyum) yok"
+  "_source": "fandom Plutus Experiment Event (belgeler/wiki/etkinlikler/plutus_deney.json): three risks, box tiers (damage range -> progress points, Tarnom, Opitite, extras), progress point exchange; client texts msg_npc_spawning_beacon_*",
+  "_adaptation": "Plutus’ Experiments is not in the calendar: it runs in the Gauntlet of Plutus window (if the calendar has plutus_deney, that one); the beacon tower spawns on X-1 / X-5 / 4-4, not on maps 401-404; the damage thresholds that determine which alien appears, the Overlord/Devourer total HP and the extra chances (chance 10%, small 2%, rare 0.5%) have no source; PvE instead of High Risk PvP; since the progress window is dead, the reward of the point thresholds is given automatically when reached, there is no reset (15,000 uridium)"
  },
  "cpu": {
   "ammunition_specialammo_bountiful-alien-cpu-normal": {
@@ -21612,7 +21612,7 @@
    ],
    "event": "plutus",
    "npc_limit": 250,
-   "_source": "darkorbitwiki gauntlet-of-plutus-gate / equipment/cpu: Normal X-5..X-8, Easy X-3..X-5 ve savaş haritaları (4-x); 250 NPC üstünde, DMZ’de ve CPU uzaylısı yaşarken kullanılamaz; etkinlik bitince silinir. Bekleme: öteki uzaylı CPU’ları gibi (uyarlama)"
+   "_source": "darkorbitwiki gauntlet-of-plutus-gate / equipment/cpu: Normal X-5..X-8, Easy X-3..X-5 and battle maps (4-x); cannot be used above 250 NPCs, in the DMZ, or while a CPU alien is alive; deleted when the event ends. Cooldown: like the other alien CPUs (adaptation)"
   },
   "ammunition_specialammo_bountiful-alien-cpu-easy": {
    "maps": [
@@ -21627,7 +21627,7 @@
    ],
    "event": "plutus",
    "npc_limit": 250,
-   "_source": "darkorbitwiki gauntlet-of-plutus-gate / equipment/cpu: Normal X-5..X-8, Easy X-3..X-5 ve savaş haritaları (4-x); 250 NPC üstünde, DMZ’de ve CPU uzaylısı yaşarken kullanılamaz; etkinlik bitince silinir. Bekleme: öteki uzaylı CPU’ları gibi (uyarlama)"
+   "_source": "darkorbitwiki gauntlet-of-plutus-gate / equipment/cpu: Normal X-5..X-8, Easy X-3..X-5 and battle maps (4-x); cannot be used above 250 NPCs, in the DMZ, or while a CPU alien is alive; deleted when the event ends. Cooldown: like the other alien CPUs (adaptation)"
   }
  }
 }

@@ -310,7 +310,7 @@
    }
   }
  },
- "_retrievers": "İstemcinin kodundan (DarkOrbit.DispatchRetrieverDefinition$$InitList): ad/aciklama istemcinin metin anahtarları, seri (ammo/basic/resource/hitac), kademe, sure_sn, ucret (gönderme), aninda (anında bitirme).",
+ "_retrievers": "From the client's code (DarkOrbit.DispatchRetrieverDefinition$$InitList): name/description are the client's text keys, series (ammo/basic/resource/hitac), tier, duration_sec, fee (sending), instant (instant finish).",
  "rewards": {
   "A-01": [
    "resource_collectable_permit",
@@ -743,7 +743,7 @@
    "currency_experience": 10000
   }
  },
- "_stable_hash": "Her dönüşün sabit kalemleri, seri başına (gerçek kayıt 20261025_152841_gercek satır 936 ve 1097: iki R-01 dönüşünün ilk iki kalemi Solidus x2 ve currency_experience 10000). Ammunition serisinin havuzunda Solidus yok: yalnız EXP. Adetler toplayıcının kademe çarpanıyla artar; öteki serilerin (B, H, A) sabitleri kayıtta yok: R-01 biçimi uyarlama.",
+ "_stable_hash": "Fixed items of each return, per series (real recording 20261025_152841_gercek lines 936 and 1097: the first two items of two R-01 returns were Solidus x2 and currency_experience 10000). The Ammunition series pool has no Solidus: only EXP. Quantities grow with the retriever's tier multiplier; the fixed items of the other series (B, H, A) are not in the recording: the R-01 form is adaptation.",
  "event_rewards": {
   "chaos_omen": {
    "resource_collectable_chaos-fragment": {
@@ -810,8 +810,8 @@
    }
   }
  },
- "_etkinlik_oduller": "Etkinlik sürerken dönüşe eklenen kalem (takvim.py etkinlik anahtarı -> lootId -> toplayıcı kodu: [en az, en çok]). darkorbitwiki events/chaos-omen: Chaos Fragment Retriever Dispatch'ten (R-01 5-10, R-02 10-20, R-03 15-25, R-04 20-30, R-05 35-50, R-06 65-80) ve Gate Dispatch'ten gelir; kapı için sayı verilmiyor: 'kapi' R-01 aralığı (uyarlama). Protegit Pandemonium'da da sürer (ETKINLIKLER-27); adetler Dispatch Day çarpanından etkilenmez.",
- "_source": "Ödül listeleri, yuva fiyatları, Dispatch Day (pazartesi, cuma) ve kapı gönderimi (1 GGEU, dalga 1'deki kurulu kapı) wiki'den (darkorbitwiki.com/dispatch-retriever, /dispatch-gate; belgeler/arastirma/sistemler_modlar.md 1.15). Uyarlama (wiki adet ve olasılık vermiyor): her gönderimde listeden reward_count farklı ödül; adet base_count x (1 + tier_increase x (kademe-1)), tekil olanlar 1; seyrek olanların seçilme ağırlığı düşük; Dispatch Day'de adetler x1,5; kapı gönderimi 1 saat. Gerçek sunucu kaydına göre (20261025_152841_gercek): dönüş başına 4 farklı rastgele kalem ve sabit kalemler (sabit); kademe 1 adetleri kayıttan (Scrap 2, Mucosum 8, Tetrathrin 1, Bifenon 4, Polychromium 6, her alloy 1); kayıtta olmayan kalemlerin adetleri uyarlama. Etkinlik ödülleri: event_rewards.",
+ "_event_rewards": "Item added to the return while the event runs (event_calendar.py event key -> lootId -> retriever code: [min, max]). darkorbitwiki events/chaos-omen: Chaos Fragment comes from Retriever Dispatch (R-01 5-10, R-02 10-20, R-03 15-25, R-04 20-30, R-05 35-50, R-06 65-80) and from Gate Dispatch; no quantity is given for the gate: 'gate' uses the R-01 range (adaptation). It continues in Protegit Pandemonium too (ETKINLIKLER-27); the quantities are not affected by the Dispatch Day multiplier.",
+ "_source": "Reward lists, slot prices, Dispatch Day (Monday, Friday) and gate dispatch (1 GGEU, the gate installed at wave 1) from the wiki (darkorbitwiki.com/dispatch-retriever, /dispatch-gate; belgeler/arastirma/sistemler_modlar.md 1.15). Adaptation (the wiki gives no quantities or probabilities): in each dispatch reward_count different rewards from the list; quantity base_count x (1 + tier_increase x (tier-1)), single ones 1; rare ones have a low selection weight; on Dispatch Day quantities x1.5; gate dispatch 1 hour. According to the real server recording (20261025_152841_gercek): 4 different random items per return and fixed items (fixed); tier 1 quantities from the recording (Scrap 2, Mucosum 8, Tetrathrin 1, Bifenon 4, Polychromium 6, each alloy 1); quantities of items not in the recording are adaptation. Event rewards: event_rewards.",
  "tier_count": {
   "resource_collectable_mucosum": [
    6,
@@ -1096,5 +1096,5 @@
    ]
   }
  },
- "_kademe_adet": "Resmî Türk forumu 160334 'Toplayıcılar ve Kapı Sevkiyatı': 91 oyun içi dönüş penceresi (belgeler/forum_tr/gorseller/160334/toplayici_ornekleri.json). Sabit Solidus R 2/6/12/30/100, B 3/9/15/40/100, H-03..05 18/40/55; A serisinde Solidus yok, A-01/A-02 her dönüşte LCB-10 ve PLT-2026, A-03..A-05 MCB-25. Garantili TP kademe 1-2 10.000, 3-4 50.000, 5 100.000 (forum). Yan kalemlerin adedi kalem x kademe tablosundan (örnekler arasında ara değer; örnek olmayan kademe ve 6. kademe uyarlama); tabloda olmayan kalem eski doğrusal tier_increase ile. Dispatch Day x1,5 hepsine."
+ "_tier_count": "Official Turkish forum 160334 'Collectors and Gate Dispatch': 91 in-game return windows (belgeler/forum_tr/gorseller/160334/toplayici_ornekleri.json). Fixed Solidus R 2/6/12/30/100, B 3/9/15/40/100, H-03..05 18/40/55; the A series has no Solidus, A-01/A-02 give LCB-10 and PLT-2026 on every return, A-03..A-05 MCB-25. Guaranteed TP tier 1-2 10,000, 3-4 50,000, 5 100,000 (forum). The quantity of side items comes from the item x tier table (interpolated between examples; tiers without examples and tier 6 are adaptation); items not in the table use the old linear tier_increase. Dispatch Day x1.5 for all."
 }

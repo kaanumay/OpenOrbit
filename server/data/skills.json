@@ -1,5 +1,5 @@
 {
- "_source": "İstemcinin skilltree.xml'i (değerler, maliyetler, ön koşullar) ve darkorbitwiki (adlar, log diski, sıfırlama); tools/yetenekler.py. \"etki\": sunucunun bonus anahtarı (profil.mods); pvp_lazer bot oyuncularla. on_kosul \"toplam\": listedeki yeteneklerin puan toplamı en az; \"her_biri\": her birinde en az.",
+ "_source": "The client's skilltree.xml (values, costs, prerequisites) and darkorbitwiki (names, log disk, reset); tools/skills.py. \"effect\": the server's bonus key (profile.mods); pvp_laser with bot players. prerequisite \"total\": the sum of points of the listed skills is at least; \"each\": at least in each of them.",
  "skills": {
   "1": {
    "name": "Explosives",

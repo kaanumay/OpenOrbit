@@ -1,5 +1,5 @@
 {
- "_description": "NPC türleri ve harita doğurma listeleri. tip = istemcideki gemi tipi (ShipCreateCommand.typeId, ShipSelectionCommand.shipType). Değerler darkorbitwiki.com'dan (belgeler/wiki/aliens.md); 'kayit' işaretliler gerçek sunucu kaydından (belgeler/istemci/kayit_analizi.md); 'uyarlama' işaretliler tahmindir. Black Light adları resmî sunucudaki gibi iki ters bölüyle başlar (\\\\ Impulse II //; kayıt 2026-10-25).",
+ "_description": "NPC types and map spawn lists. type = the ship type in the client (ShipCreateCommand.typeId, ShipSelectionCommand.shipType). Values are from darkorbitwiki.com (belgeler/wiki/aliens.md); those marked 'recording' are from the real server recording (belgeler/istemci/kayit_analizi.md); those marked 'adaptation' are estimates. Black Light names start with two reversed slashes as on the official server (\\\\ Impulse II //; recording 2026-10-25).",
  "types": {
   "84": {
    "name": "-=[ Streuner ]=-",
@@ -19,7 +19,7 @@
     "0": 10,
     "1": 10
    },
-   "_source": "wiki; ödül ve kargo kayıtla doğrulandı (400/2/400/1, Prometium 10 + Endurium 10); hız kayıttan (172: 364 MoveCommand, ör. 508 birim / 2.955 ms); pasiflik kayıtla doğrulandı (8 Streuner'in 6'sı yalnız vurulunca ateş etti)",
+   "_source": "wiki; reward and cargo verified by the recording (400/2/400/1, Prometium 10 + Endurium 10); speed from the recording (172: 364 MoveCommand, e.g. 508 units / 2,955 ms); passivity verified by the recording (6 of 8 Streuners fired only when hit)",
    "npc_id": 1
   },
   "152": {
@@ -40,7 +40,7 @@
     "0": 12,
     "2": 12
    },
-   "_source": "wiki; hız uyarlama; saldırgan (fandom)",
+   "_source": "wiki; speed adaptation; aggressive (fandom)",
    "npc_id": 152
   },
   "153": {
@@ -61,7 +61,7 @@
     "0": 15,
     "2": 15
    },
-   "_source": "wiki; hız kayıttan (478 birim / 2.250 ms = 212); kalkan emme %90 (fandom)",
+   "_source": "wiki; speed from the recording (478 units / 2,250 ms = 212); shield absorb 90% (fandom)",
    "npc_id": 153,
    "shield_absorb": 0.9
   },
@@ -84,7 +84,7 @@
     "2": 20,
     "1": 20
    },
-   "_source": "wiki; hız kayıttan (395 birim / 1.633 ms = 242; fandom 320 diyor, kayıt çürütüyor); saldırganlık uyarlama",
+   "_source": "wiki; speed from the recording (395 units / 1,633 ms = 242; fandom says 320, the recording refutes it); aggressiveness adaptation",
    "npc_id": 2,
    "extra_reward": {
     "resource_collectable_mucosum": 2
@@ -111,7 +111,7 @@
     "4": 10,
     "3": 1
    },
-   "_source": "wiki; hız kayıtla doğrulandı (489 birim / 2.020 ms = 242); saldırganlık uyarlama",
+   "_source": "wiki; speed verified by the recording (489 units / 2,020 ms = 242); aggressiveness adaptation",
    "npc_id": 15,
    "extra_reward": {
     "resource_collectable_mucosum": 6,
@@ -140,7 +140,7 @@
     "2": 10,
     "1": 40
    },
-   "_source": "wiki; tip kimliği istemcinin lib_ships.xml'inden (23 = StreunerBoss); hız uyarlama",
+   "_source": "wiki; type id from the client's lib_ships.xml (23 = StreunerBoss); speed adaptation",
    "npc_id": 14,
    "extra_reward": {
     "resource_logfile": {
@@ -171,7 +171,7 @@
     "5": 16,
     "6": 2
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: devolarium); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: devolarium); speed, aggressiveness adaptation",
    "npc_id": 3,
    "extra_reward": {
     "resource_collectable_boltrum": 1
@@ -199,7 +199,7 @@
     "5": 8,
     "6": 1
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: mordon); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: mordon); speed, aggressiveness adaptation",
    "npc_id": 4,
    "extra_reward": {
     "resource_collectable_scrapium": 2
@@ -226,7 +226,7 @@
     "4": 2,
     "5": 2
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: saimon); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: saimon); speed, aggressiveness adaptation",
    "npc_id": 6,
    "extra_reward": {
     "resource_collectable_scrapium": 2
@@ -255,7 +255,7 @@
     "6": 8,
     "3": 8
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: boss_mordon); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: boss_mordon); speed, aggressiveness adaptation",
    "npc_id": 16,
    "extra_reward": {
     "resource_collectable_scrapium": 6,
@@ -288,7 +288,7 @@
     "6": 1,
     "3": 2
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: boss_saimon); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: boss_saimon); speed, aggressiveness adaptation",
    "npc_id": 17,
    "extra_reward": {
     "resource_collectable_scrapium": 6,
@@ -321,7 +321,7 @@
     "6": 8,
     "3": 8
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: boss_devolarium); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: boss_devolarium); speed, aggressiveness adaptation",
    "npc_id": 18,
    "extra_reward": {
     "resource_collectable_boltrum": 3,
@@ -353,7 +353,7 @@
     "5": 32,
     "6": 4
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: sibelon); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: sibelon); speed, aggressiveness adaptation",
    "npc_id": 5,
    "extra_reward": {
     "resource_collectable_boltrum": 1
@@ -382,7 +382,7 @@
     "6": 16,
     "3": 32
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: boss_sibelon); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: boss_sibelon); speed, aggressiveness adaptation",
    "npc_id": 20,
    "extra_reward": {
     "resource_collectable_boltrum": 3,
@@ -414,7 +414,7 @@
     "5": 8,
     "6": 1
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: sibelonit); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: sibelonit); speed, aggressiveness adaptation",
    "npc_id": 7,
    "extra_reward": {
     "resource_collectable_mucosum": 2
@@ -442,7 +442,7 @@
     "5": 64,
     "6": 8
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: lordakium); hız uyarlama; vurulmadıkça saldırmaz (fandom)",
+   "_source": "wiki (belgeler/wiki/aliens.md: lordakium); speed adaptation; does not attack unless hit (fandom)",
    "npc_id": 8,
    "extra_reward": {
     "resource_collectable_mucosum": 2
@@ -471,7 +471,7 @@
     "6": 4,
     "3": 8
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: boss_sibelonit); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: boss_sibelonit); speed, aggressiveness adaptation",
    "npc_id": 19,
    "extra_reward": {
     "resource_collectable_mucosum": 6,
@@ -504,7 +504,7 @@
     "6": 32,
     "3": 32
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: boss_lordakium); hız uyarlama; vurulmadıkça saldırmaz (fandom)",
+   "_source": "wiki (belgeler/wiki/aliens.md: boss_lordakium); speed adaptation; does not attack unless hit (fandom)",
    "npc_id": 21,
    "extra_reward": {
     "resource_collectable_mucosum": 6,
@@ -536,7 +536,7 @@
     "5": 16,
     "6": 1
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: kristallin); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: kristallin); speed, aggressiveness adaptation",
    "npc_id": 9,
    "extra_reward": {
     "resource_collectable_prismatium": 1
@@ -565,7 +565,7 @@
     "5": 128,
     "6": 16
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: kristallon); hız uyarlama; vurulmadıkça saldırmaz (fandom); kalkan emme %90 (fandom)",
+   "_source": "wiki (belgeler/wiki/aliens.md: kristallon); speed adaptation; does not attack unless hit (fandom); shield absorption 90% (fandom)",
    "npc_id": 10,
    "extra_reward": {
     "resource_collectable_prismatium": 1
@@ -595,7 +595,7 @@
     "6": 64,
     "3": 160
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: cubikon); hız fandom (30), saldırganlık uyarlama; kalkan emme %80 (fandom)",
+   "_source": "wiki (belgeler/wiki/aliens.md: cubikon); speed fandom (30), aggressiveness adaptation; shield absorption 80% (fandom)",
    "npc_id": 13,
    "extra_reward": {
     "resource_collectable_bifenon": 2
@@ -625,7 +625,7 @@
     "6": 4,
     "3": 6
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: boss_kristallin); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: boss_kristallin); speed, aggressiveness adaptation",
    "npc_id": 22,
    "extra_reward": {
     "resource_collectable_prismatium": 3,
@@ -659,7 +659,7 @@
     "6": 64,
     "3": 64
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: boss_kristallon); hız uyarlama; vurulmadıkça saldırmaz (fandom)",
+   "_source": "wiki (belgeler/wiki/aliens.md: boss_kristallon); speed adaptation; does not attack unless hit (fandom)",
    "npc_id": 23,
    "extra_reward": {
     "resource_collectable_prismatium": 3,
@@ -684,7 +684,7 @@
     "uridium": 16
    },
    "cargo": {},
-   "_source": "wiki (belgeler/wiki/aliens.md: plagued_kristallin); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: plagued_kristallin); speed, aggressiveness adaptation",
    "npc_id": 161
   },
   "85": {
@@ -710,7 +710,7 @@
     "6": 1,
     "3": 4
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: streuner_r); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: streuner_r); speed, aggressiveness adaptation",
    "npc_id": 11
   },
   "34": {
@@ -735,7 +735,7 @@
     "5": 32,
     "3": 4
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: boss_streuner_r); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: boss_streuner_r); speed, aggressiveness adaptation",
    "npc_id": 24,
    "extra_reward": {
     "resource_logfile": {
@@ -766,7 +766,7 @@
     "5": 80,
     "6": 20
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: impulse_ii); hız, saldırganlık uyarlama; hız resmî Türk forumu 141806 (450)",
+   "_source": "wiki (belgeler/wiki/aliens.md: impulse_ii); speed, aggressiveness adaptation; speed official Turkish forum 141806 (450)",
    "npc_id": 175,
    "extra_reward": {
     "resource_collectable_rinusk": [
@@ -774,7 +774,7 @@
      25
     ]
    },
-   "_model_notu": "istemci: npcId 175 = Black Light 1 (213) tasarımı \"Impulse II\""
+   "_model_note": "client: npcId 175 = Black Light 1 (213) design \"Impulse II\""
   },
   "36": {
    "name": "( UberStreuner )",
@@ -797,7 +797,7 @@
     "4": 2,
     "5": 2
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: uber_streuner); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: uber_streuner); speed, aggressiveness adaptation",
    "npc_id": 28
   },
   "37": {
@@ -823,7 +823,7 @@
     "6": 2,
     "3": 2
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: uber_lordakia); hız fandom (250); saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: uber_lordakia); speed fandom (250); aggressiveness adaptation",
    "npc_id": 29,
    "extra_reward": {
     "resource_collectable_mucosum": 10
@@ -852,7 +852,7 @@
     "6": 16,
     "3": 8
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: uber_mordon); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: uber_mordon); speed, aggressiveness adaptation",
    "npc_id": 30,
    "extra_reward": {
     "resource_collectable_scrapium": 10
@@ -881,7 +881,7 @@
     "6": 2,
     "3": 4
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: uber_saimon); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: uber_saimon); speed, aggressiveness adaptation",
    "npc_id": 31,
    "extra_reward": {
     "resource_collectable_scrapium": 10
@@ -909,7 +909,7 @@
     "6": 16,
     "3": 16
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: uber_devolarium); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: uber_devolarium); speed, aggressiveness adaptation",
    "npc_id": 32,
    "extra_reward": {
     "resource_collectable_boltrum": 5
@@ -938,7 +938,7 @@
     "6": 8,
     "3": 16
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: uber_sibelonit); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: uber_sibelonit); speed, aggressiveness adaptation",
    "npc_id": 33,
    "extra_reward": {
     "resource_collectable_mucosum": 10
@@ -966,7 +966,7 @@
     "6": 64,
     "3": 64
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: uber_sibelon); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: uber_sibelon); speed, aggressiveness adaptation",
    "npc_id": 34,
    "extra_reward": {
     "resource_collectable_boltrum": 5
@@ -995,7 +995,7 @@
     "6": 64,
     "3": 128
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: uber_lordakium); hız uyarlama; vurulmadıkça saldırmaz (fandom)",
+   "_source": "wiki (belgeler/wiki/aliens.md: uber_lordakium); speed adaptation; does not attack unless hit (fandom)",
    "npc_id": 35,
    "extra_reward": {
     "resource_collectable_mucosum": 10
@@ -1023,7 +1023,7 @@
     "6": 16,
     "3": 16
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: uber_kristallin); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: uber_kristallin); speed, aggressiveness adaptation",
    "npc_id": 36,
    "extra_reward": {
     "resource_collectable_prismatium": 5,
@@ -1054,7 +1054,7 @@
     "6": 128,
     "3": 128
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: uber_kristallon); hız uyarlama; vurulmadıkça saldırmaz (fandom); kalkan emme %90 (fandom)",
+   "_source": "wiki (belgeler/wiki/aliens.md: uber_kristallon); speed adaptation; does not attack unless hit (fandom); shield absorption 90% (fandom)",
    "npc_id": 37,
    "extra_reward": {
     "resource_collectable_prismatium": 5,
@@ -1085,7 +1085,7 @@
     "6": 8,
     "3": 16
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: uber_streuner_r); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: uber_streuner_r); speed, aggressiveness adaptation",
    "npc_id": 38
   },
   "111": {
@@ -1110,7 +1110,7 @@
     "5": 18,
     "6": 2
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: interceptor); hız darkorbitwiki Vortex of Greed (base_stats_normal_version); saldırganlık uyarlama; \"CHANCE:\" ek ödüllerinin oranı wiki'de yok: %25 (uyarlama)",
+   "_source": "wiki (belgeler/wiki/aliens.md: interceptor); speed darkorbitwiki Vortex of Greed (base_stats_normal_version); aggressiveness adaptation; the rate of the \"CHANCE:\" extra rewards is not on the wiki: 25% (adaptation)",
    "npc_id": 58,
    "extra_reward": {
     "resource_collectable_bifenon": {
@@ -1142,7 +1142,7 @@
     "5": 24,
     "6": 4
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: barracuda); hız darkorbitwiki Vortex of Greed (base_stats_normal_version); saldırganlık uyarlama; \"CHANCE:\" ek ödüllerinin oranı wiki'de yok: %25 (uyarlama)",
+   "_source": "wiki (belgeler/wiki/aliens.md: barracuda); speed darkorbitwiki Vortex of Greed (base_stats_normal_version); aggressiveness adaptation; the rate of the \"CHANCE:\" extra rewards is not on the wiki: 25% (adaptation)",
    "npc_id": 59,
    "extra_reward": {
     "resource_collectable_bifenon": {
@@ -1174,7 +1174,7 @@
     "5": 32,
     "6": 8
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: saboteur); hız darkorbitwiki Vortex of Greed (base_stats_normal_version); saldırganlık uyarlama; \"CHANCE:\" ek ödüllerinin oranı wiki'de yok: %25 (uyarlama)",
+   "_source": "wiki (belgeler/wiki/aliens.md: saboteur); speed darkorbitwiki Vortex of Greed (base_stats_normal_version); aggressiveness adaptation; the rate of the \"CHANCE:\" extra rewards is not on the wiki: 25% (adaptation)",
    "npc_id": 60,
    "extra_reward": {
     "resource_collectable_bifenon": {
@@ -1207,7 +1207,7 @@
     "6": 12,
     "3": 3
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: annihilator); hız, saldırganlık uyarlama; \"CHANCE:\" ek ödüllerinin oranı wiki'de yok: %25 (uyarlama)",
+   "_source": "wiki (belgeler/wiki/aliens.md: annihilator); speed, aggressiveness adaptation; the rate of the \"CHANCE:\" extra rewards is not on the wiki: 25% (adaptation)",
    "npc_id": 61,
    "extra_reward": {
     "resource_collectable_bifenon": {
@@ -1240,7 +1240,7 @@
     "6": 8,
     "3": 4
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: battleray); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: battleray); speed, aggressiveness adaptation",
    "npc_id": 62,
    "extra_reward": {
     "resource_collectable_bifenon": 2,
@@ -1262,7 +1262,7 @@
     "uridium": 265
    },
    "cargo": {},
-   "_source": "wiki (belgeler/wiki/aliens.md: deadly_battleray); hız darkorbitwiki Vortex of Greed (base_stats_normal_version); saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: deadly_battleray); speed darkorbitwiki Vortex of Greed (base_stats_normal_version); aggressiveness adaptation",
    "npc_id": 121,
    "extra_reward": {
     "resource_collectable_bifenon": 2,
@@ -1270,7 +1270,7 @@
     "resource_collectable_aurus": 3
    },
    "model": "115",
-   "_model_notu": "istemci: Battleray (115) tasarımı \"Deadly Battleray\""
+   "_model_note": "client: Battleray (115) design \"Deadly Battleray\""
   },
   "257": {
    "name": "( Uber Interceptor )",
@@ -1294,7 +1294,7 @@
     "5": 72,
     "6": 16
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: uber_interceptor); hız, saldırganlık uyarlama; kalkan emme %60 (fandom); \"CHANCE:\" ek ödüllerinin oranı wiki'de yok: %25 (uyarlama)",
+   "_source": "wiki (belgeler/wiki/aliens.md: uber_interceptor); speed, aggressiveness adaptation; shield absorption 60% (fandom); the rate of the \"CHANCE:\" extra rewards is not in the wiki: 25% (adaptation)",
    "npc_id": 163,
    "extra_reward": {
     "resource_collectable_bifenon": {
@@ -1336,7 +1336,7 @@
     "5": 100,
     "6": 10
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: uber_barracuda); hız uyarlama; vurulmadıkça saldırmaz (fandom); \"CHANCE:\" ek ödüllerinin oranı wiki'de yok: %25 (uyarlama)",
+   "_source": "wiki (belgeler/wiki/aliens.md: uber_barracuda); speed adaptation; does not attack unless hit (fandom); the rate of the \"CHANCE:\" extra rewards is not in the wiki: 25% (adaptation)",
    "npc_id": 164,
    "extra_reward": {
     "resource_collectable_bifenon": {
@@ -1377,7 +1377,7 @@
     "5": 120,
     "6": 32
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: uber_saboteur); hız uyarlama; vurulmadıkça saldırmaz (fandom); \"CHANCE:\" ek ödüllerinin oranı wiki'de yok: %25 (uyarlama)",
+   "_source": "wiki (belgeler/wiki/aliens.md: uber_saboteur); speed adaptation; does not attack unless hit (fandom); the rate of the \"CHANCE:\" extra rewards is not in the wiki: 25% (adaptation)",
    "npc_id": 165,
    "extra_reward": {
     "resource_collectable_bifenon": {
@@ -1418,7 +1418,7 @@
     "6": 48,
     "3": 8
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: uber_annihilator); hız uyarlama; vurulmadıkça saldırmaz (fandom); kalkan emme %85 (fandom); \"CHANCE:\" ek ödüllerinin oranı wiki'de yok: %25 (uyarlama)",
+   "_source": "wiki (belgeler/wiki/aliens.md: uber_annihilator); speed adaptation; does not attack unless hit (fandom); shield absorption 85% (fandom); the rate of the \"CHANCE:\" extra rewards is not in the wiki: 25% (adaptation)",
    "npc_id": 166,
    "extra_reward": {
     "resource_ore_palladium": 4,
@@ -1465,7 +1465,7 @@
     "6": 80,
     "3": 8
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: uber_battleray); hız uyarlama; vurulmadıkça saldırmaz (fandom)",
+   "_source": "wiki (belgeler/wiki/aliens.md: uber_battleray); speed adaptation; does not attack unless hit (fandom)",
    "npc_id": 167,
    "extra_reward": {
     "resource_collectable_bifenon": 1,
@@ -1495,7 +1495,7 @@
     "5": 200,
     "6": 26
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: attend_ix); hız, saldırganlık uyarlama; hız resmî Türk forumu 141806 (150)",
+   "_source": "wiki (belgeler/wiki/aliens.md: attend_ix); speed, aggressiveness adaptation; speed official Turkish forum 141806 (150)",
    "npc_id": 176,
    "extra_reward": {
     "resource_collectable_rinusk": [
@@ -1507,7 +1507,7 @@
      15
     ]
    },
-   "_model_notu": "istemci: npcId 176 = Black Light 2 (217)"
+   "_model_note": "istemci: npcId 176 = Black Light 2 (217)"
   },
   "221": {
    "name": "\\\\ Invoke XVI //",
@@ -1523,7 +1523,7 @@
     "uridium": 2000
    },
    "cargo": {},
-   "_source": "wiki (belgeler/wiki/aliens.md: invoke_xvi); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: invoke_xvi); speed, aggressiveness adaptation",
    "npc_id": 177,
    "extra_reward": {
     "resource_collectable_rinusk": [
@@ -1539,8 +1539,8 @@
      25
     ]
    },
-   "_model_notu": "istemci: npcId 177 = Black Light 3 (221)",
-   "_hiz_notu": "wiki: Invoke XVI hareketsiz (belgeler/wiki/aliens.md)",
+   "_model_note": "istemci: npcId 177 = Black Light 3 (221)",
+   "_speed_note": "wiki: Invoke XVI hareketsiz (belgeler/wiki/aliens.md)",
    "chest": {
     "type": "INVOKE_XVI_BOX_3",
     "count": 5,
@@ -1563,7 +1563,7 @@
       ]
      ]
     ],
-    "_source": "wiki invoke-xvi: hasara göre sandık (Rinusk, Blacklight Trace; daha çok hasara daha iyi sandık, en çok 5). Tek oyunculuda en iyi kademe (_3) ve 5 sandık; adetler uyarlama (ek ödülün beşte biri)"
+    "_source": "wiki invoke-xvi: chest by damage (Rinusk, Blacklight Trace; more damage a better chest, at most 5). In single-player the best tier (_3) and 5 chests; counts are an adaptation (a fifth of the extra reward)"
    }
   },
   "225": {
@@ -1580,7 +1580,7 @@
     "uridium": 5000
    },
    "cargo": {},
-   "_source": "wiki (belgeler/wiki/aliens.md: mindfire_behemoth); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: mindfire_behemoth); speed, aggressiveness adaptation",
    "npc_id": 178,
    "extra_reward": {
     "resource_collectable_rinusk": [
@@ -1600,7 +1600,7 @@
      41
     ]
    },
-   "_model_notu": "istemci: npcId 178 = Black Light 4 (225)",
+   "_model_note": "istemci: npcId 178 = Black Light 4 (225)",
    "chest": {
     "type": "MINDFIRE_BEHEMOTH_BOX_3",
     "count": 8,
@@ -1638,7 +1638,7 @@
       22500000
      ]
     ],
-    "_source": "wiki mindfire-behemot: hasara göre sandık (Rinusk, Blacklight Trace, Mindfire Cerebrum; en çok 8), 45.000 U ve 180.000.000 kredi sandıklara bölünür. Tek oyunculuda en iyi kademe (_3) ve 8 sandık; Rinusk/Trace/Cerebrum adetleri uyarlama (ek ödülün sekizde biri)"
+    "_source": "wiki mindfire-behemot: chest by damage (Rinusk, Blacklight Trace, Mindfire Cerebrum; at most 8), 45,000 U and 180,000,000 credits are divided among the chests. In single-player the best tier (_3) and 8 chests; the Rinusk/Trace/Cerebrum counts are an adaptation (an eighth of the extra reward)"
    }
   },
   "214": {
@@ -1656,9 +1656,9 @@
     "uridium": 5
    },
    "cargo": {},
-   "_source": "wiki (belgeler/wiki/aliens.md: purpose_xxi); hız uyarlama; vurulmadıkça saldırmaz (fandom)",
+   "_source": "wiki (belgeler/wiki/aliens.md: purpose_xxi); speed adaptation; does not attack unless hit (fandom)",
    "npc_id": 174,
-   "_model_notu": "istemci: npcId 174 = Unidentified Black Light yellow (214); resmî sunucu kaydı (2026-10-25): ShipCreateCommand.typeId 213 (Impulse II modeli)",
+   "_model_note": "client: npcId 174 = Unidentified Black Light yellow (214); official server recording (2026-10-25): ShipCreateCommand.typeId 213 (Impulse II model)",
    "model": "213"
   },
   "81": {
@@ -1683,7 +1683,7 @@
     "5": 16,
     "6": 2
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: protegit); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: protegit); speed, aggressiveness adaptation",
    "npc_id": 12
   },
   "npc173": {
@@ -1704,10 +1704,10 @@
     "2": 40,
     "1": 40
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: lordakium_spore); hız Lordakia'nınki (aynı gövde), saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: lordakium_spore); speed is Lordakia's (same hull), aggressiveness adaptation",
    "npc_id": 173,
    "model": "71",
-   "_model_notu": "istemci: game.xml'de kendi türü yok; görünüm Lordakia (71): fandom ve darkorbitwiki görseli küçük Lordakia"
+   "_model_note": "client: no type of its own in game.xml; appearance Lordakia (71): the fandom and darkorbitwiki image is a small Lordakia"
   },
   "90": {
    "name": "-=[ Century Falcon ]=-",
@@ -1731,9 +1731,9 @@
     "6": 1,
     "3": 1
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: century_falcon_low); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: century_falcon_low); speed, aggressiveness adaptation",
    "npc_id": 120,
-   "_model_notu": "istemci: Century Falcon (90); LoW sürümü"
+   "_model_note": "client: Century Falcon (90); LoW version"
   },
   "npc179": {
    "name": "\\\\ Urge IV //",
@@ -1750,7 +1750,7 @@
     "uridium": 5000
    },
    "cargo": {},
-   "_source": "wiki (belgeler/wiki/aliens.md: urge_iv); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: urge_iv); speed, aggressiveness adaptation",
    "npc_id": 179,
    "extra_reward": {
     "resource_collectable_tetrathrin": 150,
@@ -1758,7 +1758,7 @@
     "resource_collectable_indoctrineoil": 35
    },
    "model": "216",
-   "_model_notu": "resmî sunucu kaydı (2026-10-25): ShipCreateCommand.typeId 216"
+   "_model_note": "official server recording (2026-10-25): ShipCreateCommand.typeId 216"
   },
   "215": {
    "name": "\\\\ Attitude XIII //",
@@ -1776,7 +1776,7 @@
    "cargo": {
     "7": 3000
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: attitude_xiii); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: attitude_xiii); speed, aggressiveness adaptation",
    "npc_id": 180
   },
   "216": {
@@ -1793,7 +1793,7 @@
     "uridium": 50000
    },
    "cargo": {},
-   "_source": "wiki (belgeler/wiki/aliens.md: capital_i); hız, saldırganlık uyarlama; hp, damage uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: capital_i); speed, aggressiveness adaptation; hp, damage adaptation",
    "npc_id": 181
   },
   "218": {
@@ -1810,7 +1810,7 @@
     "uridium": 5000
    },
    "cargo": {},
-   "_source": "wiki (belgeler/wiki/aliens.md: regard_cxi); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: regard_cxi); speed, aggressiveness adaptation",
    "npc_id": 182,
    "extra_reward": {
     "resource_collectable_tetrathrin": 150,
@@ -1834,7 +1834,7 @@
    "cargo": {
     "7": 3000
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: observe_x); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: observe_x); speed, aggressiveness adaptation",
    "npc_id": 183
   },
   "220": {
@@ -1851,7 +1851,7 @@
     "uridium": 50000
    },
    "cargo": {},
-   "_source": "wiki (belgeler/wiki/aliens.md: find_vii); hız, saldırganlık uyarlama; hp, damage fandom What's new (darkorbitwiki \"?\")",
+   "_source": "wiki (belgeler/wiki/aliens.md: find_vii); speed, aggressiveness adaptation; hp, damage fandom What's new (darkorbitwiki \"?\")",
    "npc_id": 184
   },
   "npc268": {
@@ -1876,10 +1876,10 @@
     "5": 25,
     "6": 2
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: abide_i); hız, saldırganlık uyarlama; damage uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: abide_i); speed, aggressiveness adaptation; damage adaptation",
    "npc_id": 268,
    "model": "214",
-   "_model_notu": "istemci: npcId 268 = Black Light yellow (214) \"Abide I\""
+   "_model_note": "istemci: npcId 268 = Black Light yellow (214) \"Abide I\""
   },
   "npc269": {
    "name": "\\\\ Steadfast III //",
@@ -1903,10 +1903,10 @@
     "5": 25,
     "6": 2
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: steadfast_iii); hız, saldırganlık uyarlama; damage uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: steadfast_iii); speed, aggressiveness adaptation; damage adaptation",
    "npc_id": 269,
    "model": "217",
-   "_model_notu": "istemci: Black Light 2 (217) tasarımı \"SteadFast III\""
+   "_model_note": "client: Black Light 2 (217) design \"SteadFast III\""
   },
   "330": {
    "name": "-=[: The Stinger :]=-",
@@ -1930,7 +1930,7 @@
     "6": 256,
     "3": 1024
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: stinger); hız, saldırganlık uyarlama; ödül = normal ödül + ilk 8 hasar vereni ödülü (tek oyunculuk uyarlaması); kalkan emme, isabet fandom; hız resmî Türk forumu 160525",
+   "_source": "wiki (belgeler/wiki/aliens.md: stinger); speed, aggressiveness adaptation; reward = normal reward + top-8 damage dealers reward (single-player adaptation); shield absorption, hit chance fandom; speed official Turkish forum 160525",
    "npc_id": 281,
    "extra_reward": {
     "resource_collectable_darksilver-coin": 75,
@@ -1986,7 +1986,7 @@
     "6": 64,
     "3": 256
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: pike); hız, saldırganlık uyarlama; \"CHANCE:\" ek ödüllerinin oranı wiki'de yok: %25 (uyarlama); kalkan emme, isabet, menzil fandom; hız resmî Türk forumu 160525",
+   "_source": "wiki (belgeler/wiki/aliens.md: pike); speed, aggressiveness adaptation; the rate of the \"CHANCE:\" extra rewards is not in the wiki: 25% (adaptation); shield absorption, hit chance, range fandom; speed official Turkish forum 160525",
    "npc_id": 282,
    "extra_reward": {
     "resource_collectable_darksilver-coin": 5,
@@ -2021,7 +2021,7 @@
     "6": 8,
     "3": 16
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: barb); hız, saldırganlık uyarlama; \"CHANCE:\" ek ödüllerinin oranı wiki'de yok: %25 (uyarlama); kalkan emme, isabet, menzil fandom; hız resmî Türk forumu 160525",
+   "_source": "wiki (belgeler/wiki/aliens.md: barb); speed, aggressiveness adaptation; the rate of the \"CHANCE:\" extra rewards is not in the wiki: 25% (adaptation); shield absorption, hit chance, range fandom; speed official Turkish forum 160525",
    "npc_id": 283,
    "extra_reward": {
     "resource_collectable_darksilver-coin": {
@@ -2055,7 +2055,7 @@
     "6": 4,
     "3": 8
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: lanternfish); hız, saldırganlık uyarlama; \"CHANCE:\" ek ödüllerinin oranı wiki'de yok: %25 (uyarlama); kalkan emme, isabet, menzil fandom; hız resmî Türk forumu 160525",
+   "_source": "wiki (belgeler/wiki/aliens.md: lanternfish); speed, aggressiveness adaptation; the rate of the \"CHANCE:\" extra rewards is not in the wiki: 25% (adaptation); shield absorption, hit chance, range fandom; speed official Turkish forum 160525",
    "npc_id": 284,
    "extra_reward": {
     "resource_collectable_darksilver-coin": {
@@ -2088,7 +2088,7 @@
     "5": 32,
     "6": 2
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: spookfish); hız, saldırganlık uyarlama; \"CHANCE:\" ek ödüllerinin oranı wiki'de yok: %25 (uyarlama); kalkan emme, isabet, menzil fandom; hız resmî Türk forumu 160525",
+   "_source": "wiki (belgeler/wiki/aliens.md: spookfish); speed, aggressiveness adaptation; the rate of the \"CHANCE:\" extra rewards is not in the wiki: 25% (adaptation); shield absorption, hit chance, range fandom; speed official Turkish forum 160525",
    "npc_id": 285,
    "extra_reward": {
     "resource_collectable_darksilver-coin": {
@@ -2121,7 +2121,7 @@
     "5": 4,
     "3": 1
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: vagrant_low); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: vagrant_low); speed, aggressiveness adaptation",
    "npc_id": 42
   },
   "93": {
@@ -2145,7 +2145,7 @@
     "5": 8,
     "3": 2
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: marauder_low); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: marauder_low); speed, aggressiveness adaptation",
    "npc_id": 43
   },
   "92": {
@@ -2169,7 +2169,7 @@
     "5": 4,
     "3": 1
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: outcast_low); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: outcast_low); speed, aggressiveness adaptation",
    "npc_id": 44
   },
   "91": {
@@ -2193,7 +2193,7 @@
     "5": 4,
     "3": 1
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: corsair_low); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: corsair_low); speed, aggressiveness adaptation",
    "npc_id": 45
   },
   "96": {
@@ -2217,7 +2217,7 @@
     "5": 4,
     "3": 1
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: hooligan_low); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: hooligan_low); speed, aggressiveness adaptation",
    "npc_id": 46
   },
   "97": {
@@ -2242,7 +2242,7 @@
     "6": 2,
     "3": 1
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: ravager_low); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: ravager_low); speed, aggressiveness adaptation",
    "npc_id": 47
   },
   "95": {
@@ -2267,7 +2267,7 @@
     "6": 2,
     "3": 1
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: convict_low); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: convict_low); speed, aggressiveness adaptation",
    "npc_id": 48
   },
   "uber_protegit": {
@@ -2292,7 +2292,7 @@
     "6": 16,
     "3": 16
    },
-   "_source": "wiki (belgeler/wiki/aliens.md: uber_protegit); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: uber_protegit); speed, aggressiveness adaptation",
    "npc_id": 53,
    "model": "81"
   },
@@ -2310,7 +2310,7 @@
     "uridium": 4000
    },
    "cargo": {},
-   "_source": "wiki (belgeler/wiki/aliens.md: strokelight_barrage); hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: strokelight_barrage); speed, aggressiveness adaptation",
    "npc_id": 266,
    "extra_reward": {
     "resource_collectable_rinusk": [
@@ -2326,7 +2326,7 @@
      96
     ]
    },
-   "_model_notu": "istemci: \"Strokelight Barrage Boss (Blacklight Event)\" (320)"
+   "_model_note": "istemci: \"Strokelight Barrage Boss (Blacklight Event)\" (320)"
   },
   "event_spinel_x3": {
    "name": "-=[ Spinel ]=-",
@@ -2355,7 +2355,7 @@
     "X-3"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: spinel_x3); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: spinel_x3); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_spinel_x4": {
    "name": "-=[ Spinel ]=-",
@@ -2384,7 +2384,7 @@
     "X-4"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: spinel_x4); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: spinel_x4); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_spinel_x5": {
    "name": "-=[ Spinel ]=-",
@@ -2413,7 +2413,7 @@
     "X-5"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: spinel_x5); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: spinel_x5); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_spinel_x6": {
    "name": "-=[ Spinel ]=-",
@@ -2442,7 +2442,7 @@
     "X-6"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: spinel_x6); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: spinel_x6); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_spinel_x7": {
    "name": "-=[ Spinel ]=-",
@@ -2471,7 +2471,7 @@
     "X-7"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: spinel_x7); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: spinel_x7); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_spinel_x8": {
    "name": "-=[ Spinel ]=-",
@@ -2500,7 +2500,7 @@
     "X-8"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: spinel_x8); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: spinel_x8); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_agatus_x3": {
    "name": "-=[ Agatus ]=-",
@@ -2530,7 +2530,7 @@
     "X-3"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: agatus_x3); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: agatus_x3); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_agatus_x4": {
    "name": "-=[ Agatus ]=-",
@@ -2560,7 +2560,7 @@
     "X-4"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: agatus_x4); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: agatus_x4); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_agatus_x5": {
    "name": "-=[ Agatus ]=-",
@@ -2590,7 +2590,7 @@
     "X-5"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: agatus_x5); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: agatus_x5); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_agatus_x6": {
    "name": "-=[ Agatus ]=-",
@@ -2620,7 +2620,7 @@
     "X-6"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: agatus_x6); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: agatus_x6); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_agatus_x7": {
    "name": "-=[ Agatus ]=-",
@@ -2650,7 +2650,7 @@
     "X-7"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: agatus_x7); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: agatus_x7); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_agatus_x8": {
    "name": "-=[ Agatus ]=-",
@@ -2680,7 +2680,7 @@
     "X-8"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: agatus_x8); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: agatus_x8); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_chaos_protegit_x2": {
    "name": "-=[ Chaos Protegit ]=-",
@@ -2709,7 +2709,7 @@
     "X-2"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: chaos_protegit_x2); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: chaos_protegit_x2); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_chaos_protegit_x3": {
    "name": "-=[ Chaos Protegit ]=-",
@@ -2738,7 +2738,7 @@
     "X-3"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: chaos_protegit_x3); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: chaos_protegit_x3); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_chaos_protegit_x4": {
    "name": "-=[ Chaos Protegit ]=-",
@@ -2767,7 +2767,7 @@
     "X-4"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: chaos_protegit_x4); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: chaos_protegit_x4); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_chaos_protegit_x5": {
    "name": "-=[ Chaos Protegit ]=-",
@@ -2796,7 +2796,7 @@
     "X-5"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: chaos_protegit_x5); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: chaos_protegit_x5); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_chaos_protegit_x6": {
    "name": "-=[ Chaos Protegit ]=-",
@@ -2825,7 +2825,7 @@
     "X-6"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: chaos_protegit_x6); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: chaos_protegit_x6); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_chaos_protegit_x7": {
    "name": "-=[ Chaos Protegit ]=-",
@@ -2854,7 +2854,7 @@
     "X-7"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: chaos_protegit_x7); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: chaos_protegit_x7); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_chaos_protegit_x8": {
    "name": "-=[ Chaos Protegit ]=-",
@@ -2883,7 +2883,7 @@
     "X-8"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: chaos_protegit_x8); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: chaos_protegit_x8); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_hitac_underling_x2": {
    "name": "Hitac-Underling",
@@ -2905,7 +2905,7 @@
     "X-2"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: hitac_underling_x2); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: hitac_underling_x2); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_hitac_underling_x3": {
    "name": "Hitac-Underling",
@@ -2927,7 +2927,7 @@
     "X-3"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: hitac_underling_x3); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: hitac_underling_x3); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_hitac_underling_x4": {
    "name": "Hitac-Underling",
@@ -2949,7 +2949,7 @@
     "X-4"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: hitac_underling_x4); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: hitac_underling_x4); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_hitac_underling_x5": {
    "name": "Hitac-Underling",
@@ -2971,7 +2971,7 @@
     "X-5"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: hitac_underling_x5); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: hitac_underling_x5); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_hitac_underling_x6": {
    "name": "Hitac-Underling",
@@ -2993,7 +2993,7 @@
     "X-6"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: hitac_underling_x6); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: hitac_underling_x6); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_hitac_underling_x7": {
    "name": "Hitac-Underling",
@@ -3015,7 +3015,7 @@
     "X-7"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: hitac_underling_x7); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: hitac_underling_x7); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_hitac_underling_x8": {
    "name": "Hitac-Underling",
@@ -3037,7 +3037,7 @@
     "X-8"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: hitac_underling_x8); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: hitac_underling_x8); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_hitac_underboss_x2": {
    "name": "Hitac-Underboss",
@@ -3059,7 +3059,7 @@
     "X-2"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: hitac_underboss_x2); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: hitac_underboss_x2); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_hitac_underboss_x3": {
    "name": "Hitac-Underboss",
@@ -3081,7 +3081,7 @@
     "X-3"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: hitac_underboss_x3); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: hitac_underboss_x3); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_hitac_underboss_x4": {
    "name": "Hitac-Underboss",
@@ -3103,7 +3103,7 @@
     "X-4"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: hitac_underboss_x4); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: hitac_underboss_x4); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_hitac_underboss_x5": {
    "name": "Hitac-Underboss",
@@ -3125,7 +3125,7 @@
     "X-5"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: hitac_underboss_x5); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: hitac_underboss_x5); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_hitac_underboss_x6": {
    "name": "Hitac-Underboss",
@@ -3147,7 +3147,7 @@
     "X-6"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: hitac_underboss_x6); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: hitac_underboss_x6); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_hitac_underboss_x7": {
    "name": "Hitac-Underboss",
@@ -3169,7 +3169,7 @@
     "X-7"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: hitac_underboss_x7); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: hitac_underboss_x7); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_hitac_underboss_x8": {
    "name": "Hitac-Underboss",
@@ -3191,7 +3191,7 @@
     "X-8"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: hitac_underboss_x8); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: hitac_underboss_x8); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_curcubitor_x2": {
    "name": "-=[ Curcubitor ]=-",
@@ -3219,7 +3219,7 @@
     "X-2"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: curcubitor_x2); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: curcubitor_x2); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_curcubitor_x3": {
    "name": "-=[ Curcubitor ]=-",
@@ -3247,7 +3247,7 @@
     "X-3"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: curcubitor_x3); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: curcubitor_x3); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_curcubitor_x4": {
    "name": "-=[ Curcubitor ]=-",
@@ -3276,7 +3276,7 @@
     "X-4"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: curcubitor_x4); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: curcubitor_x4); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_curcubitor_x5": {
    "name": "-=[ Curcubitor ]=-",
@@ -3304,7 +3304,7 @@
     "X-5"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: curcubitor_x5); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: curcubitor_x5); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_curcubitor_x6": {
    "name": "-=[ Curcubitor ]=-",
@@ -3332,7 +3332,7 @@
     "X-6"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: curcubitor_x6); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: curcubitor_x6); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_curcubitor_x7": {
    "name": "-=[ Curcubitor ]=-",
@@ -3360,7 +3360,7 @@
     "X-7"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: curcubitor_x7); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: curcubitor_x7); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_curcubitor_x8": {
    "name": "-=[ Curcubitor ]=-",
@@ -3388,7 +3388,7 @@
     "X-8"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: curcubitor_x8); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: curcubitor_x8); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_boss_curcubitor_x2": {
    "name": "-=[ Boss Curcubitor ]=-",
@@ -3419,7 +3419,7 @@
     "X-2"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: boss_curcubitor_x2); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: boss_curcubitor_x2); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_boss_curcubitor_x3": {
    "name": "-=[ Boss Curcubitor ]=-",
@@ -3450,7 +3450,7 @@
     "X-3"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: boss_curcubitor_x3); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: boss_curcubitor_x3); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_boss_curcubitor_x4": {
    "name": "-=[ Boss Curcubitor ]=-",
@@ -3481,7 +3481,7 @@
     "X-4"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: boss_curcubitor_x4); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: boss_curcubitor_x4); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_boss_curcubitor_x5": {
    "name": "-=[ Boss Curcubitor ]=-",
@@ -3512,7 +3512,7 @@
     "X-5"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: boss_curcubitor_x5); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: boss_curcubitor_x5); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_boss_curcubitor_x6": {
    "name": "-=[ Boss Curcubitor ]=-",
@@ -3543,7 +3543,7 @@
     "X-6"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: boss_curcubitor_x6); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: boss_curcubitor_x6); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_boss_curcubitor_x7": {
    "name": "-=[ Boss Curcubitor ]=-",
@@ -3574,7 +3574,7 @@
     "X-7"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: boss_curcubitor_x7); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: boss_curcubitor_x7); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_boss_curcubitor_x8": {
    "name": "-=[ Boss Curcubitor ]=-",
@@ -3605,7 +3605,7 @@
     "X-8"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: boss_curcubitor_x8); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: boss_curcubitor_x8); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_icy": {
    "name": "Icy",
@@ -3639,7 +3639,7 @@
     "X-8"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: icy); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: icy); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_ice_meteoroid": {
    "name": "Ice Meteoroid",
@@ -3674,7 +3674,7 @@
     "X-8"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: ice_meteoroid); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: ice_meteoroid); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_super_ice_meteoroid": {
    "name": "Super Ice Meteoroid",
@@ -3707,7 +3707,7 @@
     "4-4"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: super_ice_meteoroid); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: super_ice_meteoroid); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_lanatum_x2": {
    "name": "-=[ Lanatum ]=-",
@@ -3736,7 +3736,7 @@
     "X-2"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: lanatum_x2); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: lanatum_x2); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_lanatum_x3": {
    "name": "-=[ Lanatum ]=-",
@@ -3765,7 +3765,7 @@
     "X-3"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: lanatum_x3); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: lanatum_x3); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_lanatum_x4": {
    "name": "-=[ Lanatum ]=-",
@@ -3794,7 +3794,7 @@
     "X-4"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: lanatum_x4); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: lanatum_x4); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_lanatum_x5": {
    "name": "-=[ Lanatum ]=-",
@@ -3823,7 +3823,7 @@
     "X-5"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: lanatum_x5); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: lanatum_x5); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_lanatum_x6": {
    "name": "-=[ Lanatum ]=-",
@@ -3852,7 +3852,7 @@
     "X-6"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: lanatum_x6); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: lanatum_x6); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_lanatum_x7": {
    "name": "-=[ Lanatum ]=-",
@@ -3881,7 +3881,7 @@
     "X-7"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: lanatum_x7); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: lanatum_x7); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_lanatum_x8": {
    "name": "-=[ Lanatum ]=-",
@@ -3910,7 +3910,7 @@
     "X-8"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: lanatum_x8); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: lanatum_x8); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_styxus_x2": {
    "name": "-=[ Styxus ]=-",
@@ -3940,7 +3940,7 @@
     "X-2"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: styxus_x2); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: styxus_x2); appearance from the client's game.xml; speed, aggressiveness adaptation",
    "box": {
     "type": "STYXUS_BOX",
     "probability": 1.0,
@@ -4048,7 +4048,7 @@
     "X-3"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: styxus_x3); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: styxus_x3); appearance from the client's game.xml; speed, aggressiveness adaptation",
    "box": {
     "type": "STYXUS_BOX",
     "probability": 1.0,
@@ -4156,7 +4156,7 @@
     "X-4"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: styxus_x4); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: styxus_x4); appearance from the client's game.xml; speed, aggressiveness adaptation",
    "box": {
     "type": "STYXUS_BOX",
     "probability": 1.0,
@@ -4264,7 +4264,7 @@
     "X-5"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: styxus_x5); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: styxus_x5); appearance from the client's game.xml; speed, aggressiveness adaptation",
    "box": {
     "type": "STYXUS_BOX",
     "probability": 1.0,
@@ -4372,7 +4372,7 @@
     "X-6"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: styxus_x6); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: styxus_x6); appearance from the client's game.xml; speed, aggressiveness adaptation",
    "box": {
     "type": "STYXUS_BOX",
     "probability": 1.0,
@@ -4480,7 +4480,7 @@
     "X-7"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: styxus_x7); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: styxus_x7); appearance from the client's game.xml; speed, aggressiveness adaptation",
    "box": {
     "type": "STYXUS_BOX",
     "probability": 1.0,
@@ -4588,7 +4588,7 @@
     "X-8"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: styxus_x8); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: styxus_x8); appearance from the client's game.xml; speed, aggressiveness adaptation",
    "box": {
     "type": "STYXUS_BOX",
     "probability": 1.0,
@@ -4696,7 +4696,7 @@
     "X-2"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: charopos_x2); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: charopos_x2); appearance from the client's game.xml; speed, aggressiveness adaptation",
    "box": {
     "type": "CHAROPOS_BOX",
     "probability": 1.0,
@@ -4804,7 +4804,7 @@
     "X-3"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: charopos_x3); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: charopos_x3); appearance from the client's game.xml; speed, aggressiveness adaptation",
    "box": {
     "type": "CHAROPOS_BOX",
     "probability": 1.0,
@@ -4912,7 +4912,7 @@
     "X-4"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: charopos_x4); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: charopos_x4); appearance from the client's game.xml; speed, aggressiveness adaptation",
    "box": {
     "type": "CHAROPOS_BOX",
     "probability": 1.0,
@@ -5020,7 +5020,7 @@
     "X-5"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: charopos_x5); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: charopos_x5); appearance from the client's game.xml; speed, aggressiveness adaptation",
    "box": {
     "type": "CHAROPOS_BOX",
     "probability": 1.0,
@@ -5128,7 +5128,7 @@
     "X-6"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: charopos_x6); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: charopos_x6); appearance from the client's game.xml; speed, aggressiveness adaptation",
    "box": {
     "type": "CHAROPOS_BOX",
     "probability": 1.0,
@@ -5236,7 +5236,7 @@
     "X-7"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: charopos_x7); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: charopos_x7); appearance from the client's game.xml; speed, aggressiveness adaptation",
    "box": {
     "type": "CHAROPOS_BOX",
     "probability": 1.0,
@@ -5344,7 +5344,7 @@
     "X-8"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: charopos_x8); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: charopos_x8); appearance from the client's game.xml; speed, aggressiveness adaptation",
    "box": {
     "type": "CHAROPOS_BOX",
     "probability": 1.0,
@@ -5449,7 +5449,7 @@
     "6": 8,
     "3": 2
    },
-   "_source": "wiki/fandom: Santa-1100101 harita başına ödül (X-3 EP yazım hatası 38.400); can/kalkan/hasar aralıkta haritaya göre"
+   "_source": "wiki/fandom: Santa-1100101 reward per map (X-3 EP typo 38,400); hp/shield/damage within the range according to the map"
   },
   "event_santa_x3": {
    "name": "Santa-1100101",
@@ -5476,7 +5476,7 @@
     "6": 11,
     "3": 2
    },
-   "_source": "wiki/fandom: Santa-1100101 harita başına ödül (X-3 EP yazım hatası 38.400); can/kalkan/hasar aralıkta haritaya göre"
+   "_source": "wiki/fandom: Santa-1100101 reward per map (X-3 EP typo 38,400); hp/shield/damage within the range according to the map"
   },
   "event_santa_x4": {
    "name": "Santa-1100101",
@@ -5503,7 +5503,7 @@
     "6": 14,
     "3": 3
    },
-   "_source": "wiki/fandom: Santa-1100101 harita başına ödül (X-3 EP yazım hatası 38.400); can/kalkan/hasar aralıkta haritaya göre"
+   "_source": "wiki/fandom: Santa-1100101 reward per map (X-3 EP typo 38,400); hp/shield/damage within the range according to the map"
   },
   "event_santa_4_5": {
    "name": "Santa-1100101",
@@ -5530,7 +5530,7 @@
     "6": 18,
     "3": 4
    },
-   "_source": "wiki/fandom: Santa-1100101 harita başına ödül (X-3 EP yazım hatası 38.400); can/kalkan/hasar aralıkta haritaya göre"
+   "_source": "wiki/fandom: Santa-1100101 reward per map (X-3 EP typo 38,400); hp/shield/damage within the range according to the map"
   },
   "event_santa_x5": {
    "name": "Santa-1100101",
@@ -5557,7 +5557,7 @@
     "6": 21,
     "3": 5
    },
-   "_source": "wiki/fandom: Santa-1100101 harita başına ödül (X-3 EP yazım hatası 38.400); can/kalkan/hasar aralıkta haritaya göre"
+   "_source": "wiki/fandom: Santa-1100101 reward per map (X-3 EP typo 38,400); hp/shield/damage within the range according to the map"
   },
   "event_santa_x6": {
    "name": "Santa-1100101",
@@ -5584,7 +5584,7 @@
     "6": 25,
     "3": 6
    },
-   "_source": "wiki/fandom: Santa-1100101 harita başına ödül (X-3 EP yazım hatası 38.400); can/kalkan/hasar aralıkta haritaya göre"
+   "_source": "wiki/fandom: Santa-1100101 reward per map (X-3 EP typo 38,400); hp/shield/damage within the range according to the map"
   },
   "event_santa_x7": {
    "name": "Santa-1100101",
@@ -5611,7 +5611,7 @@
     "6": 28,
     "3": 7
    },
-   "_source": "wiki/fandom: Santa-1100101 harita başına ödül (X-3 EP yazım hatası 38.400); can/kalkan/hasar aralıkta haritaya göre"
+   "_source": "wiki/fandom: Santa-1100101 reward per map (X-3 EP typo 38,400); hp/shield/damage within the range according to the map"
   },
   "event_santa_x8": {
    "name": "Santa-1100101",
@@ -5638,7 +5638,7 @@
     "6": 32,
     "3": 8
    },
-   "_source": "wiki/fandom: Santa-1100101 harita başına ödül (X-3 EP yazım hatası 38.400); can/kalkan/hasar aralıkta haritaya göre"
+   "_source": "wiki/fandom: Santa-1100101 reward per map (X-3 EP typo 38,400); hp/shield/damage within the range according to the map"
   },
   "event_hitac_minion": {
    "name": "Hitac-Minion 2.5",
@@ -5685,10 +5685,10 @@
      "cooldown_sec": 300,
      "when_all_dead": true,
      "guard": {"radius": [150, 350], "leash": 1500},
-     "_bekleme": "Yedekler yardımcıların hepsi yok edilince, 300 sn sonra (uyarlama; fandom Hitac Event: \"There are replacement Minions inside the Mothership\"; oyuncu bildirimi 2026-10-30: 90 sn her çağrıdan sayılıyor, yardımcılar 1-2 dakikada yenileniyordu). koru: yardımcılar ana gemiye bağlı (fandom: \"six Hitac-Minions attached to it\"), ana gemiden 1.500 birim uzaklaşan oyuncuyu bırakır"
+     "_cooldown": "Replacements come 300 s after all the helpers are destroyed (adaptation; fandom Hitac Event: \"There are replacement Minions inside the Mothership\"; player report 2026-10-30: 90 s was counted from every summon, the helpers were being renewed in 1-2 minutes). guard: the helpers are tied to the mothership (fandom: \"six Hitac-Minions attached to it\"), they let go of a player who moves 1,500 units away from the mothership"
     }
    },
-   "_source": "wiki: Hitac 2.5 (rota 1-3 > 1-4 > 3-4 > 3-3 > 2-4 > 2-3); fandom 2012: altı yardımcı yaşarken kalkanlı, yenileri ana gemiden çıkar (vurulunca çağırır; bekleme uyarlama)"
+   "_source": "wiki: Hitac 2.5 (route 1-3 > 1-4 > 3-4 > 3-3 > 2-4 > 2-3); fandom 2012: shielded while the six helpers are alive, new ones come out of the mothership (summons when hit; cooldown adaptation)"
   },
   "event_saimon_aberration": {
    "name": "-=[ Saimon Aberration ]=-",
@@ -5768,7 +5768,7 @@
      "probability": 0.02
     }
    },
-   "_source": "taban -=[ Saimon ]=- x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (common kademesi; miktar aralığı uyarlama)"
+   "_source": "base -=[ Saimon ]=- x1.25 (adaptation; not in the wiki); appearance from the client's game.xml; spawns the Chaos Alien CPU; reward package wiki protegit-pandemonium (common tier; amount range adaptation)"
   },
   "event_boss_saimon_aberration": {
    "name": "..::{ Boss Saimon Aberration }::..",
@@ -5854,7 +5854,7 @@
      "probability": 0.02
     }
    },
-   "_source": "taban ..::{ Boss Saimon }::.. x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (rare kademesi; miktar aralığı uyarlama)"
+   "_source": "base ..::{ Boss Saimon }::.. x1.25 (adaptation; not in the wiki); appearance from the client's game.xml; spawns the Chaos Alien CPU; reward package wiki protegit-pandemonium (rare tier; amount range adaptation)"
   },
   "event_mordon_aberration": {
    "name": "-=[ Mordon Aberration ]=-",
@@ -5935,7 +5935,7 @@
      "probability": 0.02
     }
    },
-   "_source": "taban -=[ Mordon ]=- x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (common kademesi; miktar aralığı uyarlama)"
+   "_source": "base -=[ Mordon ]=- x1.25 (adaptation; not in the wiki); appearance from the client's game.xml; spawns the Chaos Alien CPU; reward package wiki protegit-pandemonium (common tier; amount range adaptation)"
   },
   "event_boss_mordon_aberration": {
    "name": "..::{ Boss Mordon Aberration }::..",
@@ -6021,7 +6021,7 @@
      "probability": 0.02
     }
    },
-   "_source": "taban ..::{ Boss Mordon }::.. x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (rare kademesi; miktar aralığı uyarlama)"
+   "_source": "base ..::{ Boss Mordon }::.. x1.25 (adaptation; not in the wiki); appearance from the client's game.xml; spawns the Chaos Alien CPU; reward package wiki protegit-pandemonium (rare tier; amount range adaptation)"
   },
   "event_devolarium_aberration": {
    "name": "-=[ Devolarium Aberration ]=-",
@@ -6102,7 +6102,7 @@
      "probability": 0.02
     }
    },
-   "_source": "taban -=[ Devolarium ]=- x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (common kademesi; miktar aralığı uyarlama)"
+   "_source": "base -=[ Devolarium ]=- x1.25 (adaptation; not in the wiki); appearance from the client's game.xml; spawns the Chaos Alien CPU; reward package wiki protegit-pandemonium (common tier; amount range adaptation)"
   },
   "event_kristallin_oddity": {
    "name": "-=[ Kristallin Oddity ]=-",
@@ -6183,7 +6183,7 @@
      "probability": 0.02
     }
    },
-   "_source": "taban -=[ Kristallin ]=- x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (common kademesi; miktar aralığı uyarlama)"
+   "_source": "base -=[ Kristallin ]=- x1.25 (adaptation; not in the wiki); appearance from the client's game.xml; spawns the Chaos Alien CPU; reward package wiki protegit-pandemonium (common tier; amount range adaptation)"
   },
   "event_boss_kristallin_oddity": {
    "name": "..::{ Boss Kristallin Oddity }::..",
@@ -6269,7 +6269,7 @@
      "probability": 0.02
     }
    },
-   "_source": "taban ..::{ Boss Kristallin }::.. x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (rare kademesi; miktar aralığı uyarlama)"
+   "_source": "base ..::{ Boss Kristallin }::.. x1.25 (adaptation; not in the wiki); appearance from the client's game.xml; spawns the Chaos Alien CPU; reward package wiki protegit-pandemonium (rare tier; amount range adaptation)"
   },
   "event_kristallon_oddity": {
    "name": "-=[ Kristallon Oddity ]=-",
@@ -6350,7 +6350,7 @@
      "probability": 0.02
     }
    },
-   "_source": "taban -=[ Kristallon ]=- x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (common kademesi; miktar aralığı uyarlama)"
+   "_source": "base -=[ Kristallon ]=- x1.25 (adaptation; not in the wiki); appearance from the client's game.xml; spawns the Chaos Alien CPU; reward package wiki protegit-pandemonium (common tier; amount range adaptation)"
   },
   "event_boss_kristallon_oddity": {
    "name": "..::{ Boss Kristallon Oddity }::..",
@@ -6436,7 +6436,7 @@
      "probability": 0.02
     }
    },
-   "_source": "taban ..::{ Boss Kristallon }::.. x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (rare kademesi; miktar aralığı uyarlama)"
+   "_source": "base ..::{ Boss Kristallon }::.. x1.25 (adaptation; not in the wiki); appearance from the client's game.xml; spawns the Chaos Alien CPU; reward package wiki protegit-pandemonium (rare tier; amount range adaptation)"
   },
   "event_uber_kristallon_oddity": {
    "name": "( Uber Kristallon Oddity )",
@@ -6522,7 +6522,7 @@
      "probability": 0.02
     }
    },
-   "_source": "taban ( UberKristallon ) x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (rare kademesi; miktar aralığı uyarlama)"
+   "_source": "base ( UberKristallon ) x1.25 (adaptation; not in the wiki); appearance from the client's game.xml; spawns the Chaos Alien CPU; reward package wiki protegit-pandemonium (rare tier; amount range adaptation)"
   },
   "event_awakened_lordakium": {
    "name": "-=[ Awakened Lordakium ]=-",
@@ -6620,7 +6620,7 @@
      "probability": 0.02
     }
    },
-   "_source": "taban -=[ Lordakium ]=- x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (legend kademesi; miktar aralığı uyarlama)"
+   "_source": "base -=[ Lordakium ]=- x1.25 (adaptation; not in the wiki); appearance from the client's game.xml; spawns the Chaos Alien CPU; reward package wiki protegit-pandemonium (legend tier; amount range adaptation)"
   },
   "event_awakened_overlord": {
    "name": "-=[ Awakened Overlord ]=-",
@@ -6719,7 +6719,7 @@
      "probability": 0.02
     }
    },
-   "_source": "taban ..::{ Boss Lordakium }::... x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (legend kademesi; miktar aralığı uyarlama)"
+   "_source": "base ..::{ Boss Lordakium }::... x1.25 (adaptation; not in the wiki); appearance from the client's game.xml; spawns the Chaos Alien CPU; reward package wiki protegit-pandemonium (legend tier; amount range adaptation)"
   },
   "event_awakened_devourer": {
    "name": "-=[ Awakened Devourer ]=-",
@@ -6818,7 +6818,7 @@
      "probability": 0.02
     }
    },
-   "_source": "taban ( UberLordakium ) x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (legend kademesi; miktar aralığı uyarlama)"
+   "_source": "base ( UberLordakium ) x1.25 (adaptation; not in the wiki); appearance from the client's game.xml; spawns the Chaos Alien CPU; reward package wiki protegit-pandemonium (legend tier; amount range adaptation)"
   },
   "event_sheer_chaos_interceptor": {
    "name": "-=[ Sheer Chaos Interceptor ]=-",
@@ -6908,7 +6908,7 @@
      "probability": 0.08
     }
    },
-   "_source": "taban -=[ Interceptor ]=- x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (legend kademesi; miktar aralığı uyarlama)"
+   "_source": "base -=[ Interceptor ]=- x1.25 (adaptation; not in the wiki); appearance from the client's game.xml; spawns the Chaos Alien CPU; reward package wiki protegit-pandemonium (legend tier; amount range adaptation)"
   },
   "event_sheer_chaos_annihilator": {
    "name": "-=[ Sheer Chaos Annihilator ]=-",
@@ -7007,7 +7007,7 @@
      "probability": 0.08
     }
    },
-   "_source": "taban -=[ Annihilator ]=- x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (legend kademesi; miktar aralığı uyarlama)"
+   "_source": "base -=[ Annihilator ]=- x1.25 (adaptation; not in the wiki); appearance from the client's game.xml; spawns the Chaos Alien CPU; reward package wiki protegit-pandemonium (legend tier; amount range adaptation)"
   },
   "event_sheer_chaos_protegit": {
    "name": "-=[ Sheer Chaos Protegit ]=-",
@@ -7097,7 +7097,7 @@
      "probability": 0.08
     }
    },
-   "_source": "taban -=[ Protegit ]=- x1.25 (uyarlama; wiki'de yok); görünüm istemcinin game.xml'i; Chaos Alien CPU'su doğurur; ödül paketi wiki protegit-pandemonium (legend kademesi; miktar aralığı uyarlama)"
+   "_source": "base -=[ Protegit ]=- x1.25 (adaptation; not in the wiki); appearance from the client's game.xml; spawns the Chaos Alien CPU; reward package wiki protegit-pandemonium (legend tier; amount range adaptation)"
   },
   "event_hexor_mimesis": {
    "name": "-=[ Hexor Mimesis ]=-",
@@ -7132,7 +7132,7 @@
     "4-4"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: hexor_mimesis); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: hexor_mimesis); appearance from the client's game.xml; speed, aggressiveness adaptation",
    "extra_reward": {
     "resource_collectable_byte-remnant": 5
    }
@@ -7170,7 +7170,7 @@
     "4-4"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: raging_mimesis); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: raging_mimesis); appearance from the client's game.xml; speed, aggressiveness adaptation",
    "extra_reward": {
     "resource_collectable_byte-remnant": 10
    }
@@ -7208,7 +7208,7 @@
     "4-4"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: cloning_mimesis); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: cloning_mimesis); appearance from the client's game.xml; speed, aggressiveness adaptation",
    "extra_reward": {
     "resource_collectable_byte-remnant": 25
    }
@@ -7246,7 +7246,7 @@
     "4-4"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: cloned_mimesis); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: cloned_mimesis); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_terror_mimesis": {
    "name": "-=[ Terror Mimesis ]=-",
@@ -7281,7 +7281,7 @@
     "4-4"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: terror_mimesis); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: terror_mimesis); appearance from the client's game.xml; speed, aggressiveness adaptation",
    "extra_reward": {
     "resource_collectable_byte-remnant": 35
    }
@@ -7319,7 +7319,7 @@
     "4-4"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: kamikaze_mimesis); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama"
+   "_source": "wiki (belgeler/wiki/aliens.md: kamikaze_mimesis); appearance from the client's game.xml; speed, aggressiveness adaptation"
   },
   "event_reflector_mimesis": {
    "name": "-=[ Reflector Mimesis ]=-",
@@ -7354,7 +7354,7 @@
     "4-4"
    ],
    "event": true,
-   "_source": "wiki (belgeler/wiki/aliens.md: reflector_mimesis); görünüm istemcinin game.xml'i; hız, saldırganlık uyarlama",
+   "_source": "wiki (belgeler/wiki/aliens.md: reflector_mimesis); appearance from the client's game.xml; speed, aggressiveness adaptation",
    "extra_reward": {
     "resource_collectable_byte-remnant": 50
    }
@@ -7404,10 +7404,10 @@
      "cooldown_sec": 300,
      "when_all_dead": true,
      "guard": {"radius": [150, 350], "leash": 1500},
-     "_bekleme": "Yedekler yardımcıların hepsi yok edilince, 300 sn sonra (uyarlama; fandom Hitac Event: \"There are replacement Minions inside the Mothership\"; oyuncu bildirimi 2026-10-30: 90 sn her çağrıdan sayılıyor, yardımcılar 1-2 dakikada yenileniyordu). koru: yardımcılar ana gemiye bağlı (fandom: \"six Hitac-Minions attached to it\"), ana gemiden 1.500 birim uzaklaşan oyuncuyu bırakır"
+     "_cooldown": "Replacements come 300 s after all the helpers are destroyed (adaptation; fandom Hitac Event: \"There are replacement Minions inside the Mothership\"; player report 2026-10-30: 90 s was counted from every summon, the helpers were being renewed in 1-2 minutes). guard: the helpers are tied to the mothership (fandom: \"six Hitac-Minions attached to it\"), they let go of a player who moves 1,500 units away from the mothership"
     }
    },
-   "_source": "wiki: Hitac 2.0 (rota 4-1 > 4-2 > 4-3); davranış Hitac 2.5 ile aynı (uyarlama)"
+   "_source": "wiki: Hitac 2.0 (route 4-1 > 4-2 > 4-3); behavior same as Hitac 2.5 (adaptation)"
   },
   "seeker_rocket": {
    "name": "Seeker Rocket",
@@ -7425,7 +7425,7 @@
     "uridium": 0
    },
    "cargo": {},
-   "_source": "fandom (Seeker Rocket): Streuner Rocketeer'ın çağırdığı intihar roketi, vurulup yok edilebilir; can ve ödülsüzlük uyarlama (hız oyuncu + 20: uzayli_yetenekleri.json 159)"
+   "_source": "fandom (Seeker Rocket): suicide rocket summoned by Streuner Rocketeer, can be shot down; hp and no-reward adaptation (speed player + 20: alien_abilities.json 159)"
   },
   "event_mirror_clone": {
    "name": "-=[ Mirror Mimesis Clone ]=-",
@@ -7444,7 +7444,7 @@
    "cargo": {},
    "maps": [],
    "event": true,
-   "_source": "darkorbitwiki (Mirror Mimesis): zayıf klonlar; can/kalkan %10, hasar %20, ödülsüz (uyarlama; mm_mirror'dan)"
+   "_source": "darkorbitwiki (Mirror Mimesis): weak clones; hp/shield 10%, damage 20%, no reward (adaptation; from mm_mirror)"
   },
   "event_cubikon_chaos": {
    "name": "-=[ Chaos Cubikon ]=-",
@@ -7513,7 +7513,7 @@
      "probability": 0.02
     }
    },
-   "_source": "taban Cubikon x1.25 (uyarlama; wiki'de yok); ödül paketi wiki protegit-pandemonium (Chaos Cubikon; miktarı \"?\" olanlar yazılmadı)"
+   "_source": "base Cubikon x1.25 (adaptation; not in the wiki); reward package wiki protegit-pandemonium (Chaos Cubikon; those with amount \"?\" were not written)"
   },
   "event_binary_x2": {
    "name": "-=[ Binary Bot ]=-",
@@ -7540,7 +7540,7 @@
     "6": 8,
     "3": 2
    },
-   "_source": "wiki darkorbitwiki Binary Bot (Santa Bot ile aynı tablo): harita başına ödül; can/kalkan/hasar aralıkta haritaya göre (etk_santa_* ile)"
+   "_source": "wiki darkorbitwiki Binary Bot (same table as Santa Bot): reward per map; hp/shield/damage within the range according to the map (with etk_santa_*)"
   },
   "event_binary_x3": {
    "name": "-=[ Binary Bot ]=-",
@@ -7567,7 +7567,7 @@
     "6": 11,
     "3": 2
    },
-   "_source": "wiki darkorbitwiki Binary Bot (Santa Bot ile aynı tablo): harita başına ödül; can/kalkan/hasar aralıkta haritaya göre (etk_santa_* ile)"
+   "_source": "wiki darkorbitwiki Binary Bot (same table as Santa Bot): reward per map; hp/shield/damage within the range according to the map (with etk_santa_*)"
   },
   "event_binary_x4": {
    "name": "-=[ Binary Bot ]=-",
@@ -7594,7 +7594,7 @@
     "6": 14,
     "3": 3
    },
-   "_source": "wiki darkorbitwiki Binary Bot (Santa Bot ile aynı tablo): harita başına ödül; can/kalkan/hasar aralıkta haritaya göre (etk_santa_* ile)"
+   "_source": "wiki darkorbitwiki Binary Bot (same table as Santa Bot): reward per map; hp/shield/damage within the range according to the map (with etk_santa_*)"
   },
   "event_binary_4_5": {
    "name": "-=[ Binary Bot ]=-",
@@ -7621,7 +7621,7 @@
     "6": 18,
     "3": 4
    },
-   "_source": "wiki darkorbitwiki Binary Bot (Santa Bot ile aynı tablo): harita başına ödül; can/kalkan/hasar aralıkta haritaya göre (etk_santa_* ile)"
+   "_source": "wiki darkorbitwiki Binary Bot (same table as Santa Bot): reward per map; hp/shield/damage within the range according to the map (with etk_santa_*)"
   },
   "event_binary_x5": {
    "name": "-=[ Binary Bot ]=-",
@@ -7648,7 +7648,7 @@
     "6": 21,
     "3": 5
    },
-   "_source": "wiki darkorbitwiki Binary Bot (Santa Bot ile aynı tablo): harita başına ödül; can/kalkan/hasar aralıkta haritaya göre (etk_santa_* ile)"
+   "_source": "wiki darkorbitwiki Binary Bot (same table as Santa Bot): reward per map; hp/shield/damage within the range according to the map (with etk_santa_*)"
   },
   "event_binary_x6": {
    "name": "-=[ Binary Bot ]=-",
@@ -7675,7 +7675,7 @@
     "6": 25,
     "3": 6
    },
-   "_source": "wiki darkorbitwiki Binary Bot (Santa Bot ile aynı tablo): harita başına ödül; can/kalkan/hasar aralıkta haritaya göre (etk_santa_* ile)"
+   "_source": "wiki darkorbitwiki Binary Bot (same table as Santa Bot): reward per map; hp/shield/damage within the range according to the map (with etk_santa_*)"
   },
   "event_binary_x7": {
    "name": "-=[ Binary Bot ]=-",
@@ -7702,7 +7702,7 @@
     "6": 28,
     "3": 7
    },
-   "_source": "wiki darkorbitwiki Binary Bot (Santa Bot ile aynı tablo): harita başına ödül; can/kalkan/hasar aralıkta haritaya göre (etk_santa_* ile)"
+   "_source": "wiki darkorbitwiki Binary Bot (same table as Santa Bot): reward per map; hp/shield/damage within the range according to the map (with etk_santa_*)"
   },
   "event_binary_x8": {
    "name": "-=[ Binary Bot ]=-",
@@ -7729,7 +7729,7 @@
     "6": 32,
     "3": 8
    },
-   "_source": "wiki darkorbitwiki Binary Bot (Santa Bot ile aynı tablo): harita başına ödül; can/kalkan/hasar aralıkta haritaya göre (etk_santa_* ile)"
+   "_source": "wiki darkorbitwiki Binary Bot (same table as Santa Bot): reward per map; hp/shield/damage within the range according to the map (with etk_santa_*)"
   },
   "event_infiltration_boss_kristallon": {
    "name": "-=[ Boss Kristallon ]=-",
@@ -7754,7 +7754,7 @@
     "6": 128,
     "3": 128
    },
-   "_source": "Boss Kristallon (35) x Uber Kristallon (45) ganimeti: fandom Infiltration (gizli Boss Kristallon, Uber Kristallon'un ganimetini verir); sızma komandosu olarak gelir (sizma.py)",
+   "_source": "Boss Kristallon (35) x Uber Kristallon (45) loot: fandom Infiltration (hidden Boss Kristallon, drops Uber Kristallon's loot); arrives as an infiltration commando (infiltration.py)",
    "npc_id": 23,
    "extra_reward": {
     "resource_collectable_prismatium": 5,
@@ -7793,8 +7793,8 @@
      "probability": 0.25
     }
    },
-   "_source": "Resmî Türk forumu 1885 (NPC'ler ve Verdikleri Ödüller): Sunburst Lordakium, özel günlerde X-2..X-8 ve 4-X; DP 400.000, kalkan 600.000, hasar 3.500-4.500 + WIZ-X roketi; 51.200 TP, 156 şeref, 409.600 kredi, 128 U; kargo P/E/T 300, Pd/Du 128, Pr 16, Xe 4. İstemci npc_name_76",
-   "_adaptation": "görünüm Lordakium (model 77); WIZ-X düşmesi %25 (forum 'Vız roketi' saldırısı: oyuncuya WIZ-X etkisi yerine ganimet)"
+   "_source": "Official Turkish forum 1885 (NPCs and Their Rewards): Sunburst Lordakium, on special days X-2..X-8 and 4-X; HP 400,000, shield 600,000, damage 3,500-4,500 + WIZ-X rocket; 51,200 EP, 156 honor, 409,600 credits, 128 U; cargo P/E/T 300, Pd/Du 128, Pr 16, Xe 4. Client npc_name_76",
+   "_adaptation": "appearance Lordakium (model 77); WIZ-X drop 25% (forum 'WIZ-X rocket' attack: loot to the player instead of the WIZ-X effect)"
   },
   "event_referee_x2": {
    "name": "Referee-Bot",
@@ -7817,7 +7817,7 @@
     "uridium": 1280
    },
    "cargo": {},
-   "_source": "resmî Türk forumu 135026 (Hakem Botu): harita başına can ve ödül (4-X satırı 4-1..4-5); yalnız CBO-100 ve CBR hasar verir; saldırgan, \"oldukça yavaş\" (hız 150 uyarlama); kalkan forumda yok (0); hasar aynı haritanın Santa-1100101'inden (uyarlama). Görünüm: istemcide Referee-Bot modeli yok (npc_name_75 yalnız adı), forum 127755 \"Refeere BOT (Santa BOT)\": Santa modeli 32"
+   "_source": "official Turkish forum 135026 (Referee Bot): hp and reward per map (4-X row = 4-1..4-5); only CBO-100 and CBR deal damage; aggressive, \"quite slow\" (speed 150 adaptation); shield not in the forum (0); damage from the same map's Santa-1100101 (adaptation). Appearance: no Referee-Bot model in the client (npc_name_75 is only the name), forum 127755 \"Refeere BOT (Santa BOT)\": Santa model 32"
   },
   "event_referee_x3": {
    "name": "Referee-Bot",
@@ -7840,7 +7840,7 @@
     "uridium": 1920
    },
    "cargo": {},
-   "_source": "resmî Türk forumu 135026 (Hakem Botu): harita başına can ve ödül (4-X satırı 4-1..4-5); yalnız CBO-100 ve CBR hasar verir; saldırgan, \"oldukça yavaş\" (hız 150 uyarlama); kalkan forumda yok (0); hasar aynı haritanın Santa-1100101'inden (uyarlama). Görünüm: istemcide Referee-Bot modeli yok (npc_name_75 yalnız adı), forum 127755 \"Refeere BOT (Santa BOT)\": Santa modeli 32"
+   "_source": "official Turkish forum 135026 (Referee Bot): hp and reward per map (4-X row = 4-1..4-5); only CBO-100 and CBR deal damage; aggressive, \"quite slow\" (speed 150 adaptation); shield not in the forum (0); damage from the same map's Santa-1100101 (adaptation). Appearance: no Referee-Bot model in the client (npc_name_75 is only the name), forum 127755 \"Refeere BOT (Santa BOT)\": Santa model 32"
   },
   "event_referee_x4": {
    "name": "Referee-Bot",
@@ -7863,7 +7863,7 @@
     "uridium": 2560
    },
    "cargo": {},
-   "_source": "resmî Türk forumu 135026 (Hakem Botu): harita başına can ve ödül (4-X satırı 4-1..4-5); yalnız CBO-100 ve CBR hasar verir; saldırgan, \"oldukça yavaş\" (hız 150 uyarlama); kalkan forumda yok (0); hasar aynı haritanın Santa-1100101'inden (uyarlama). Görünüm: istemcide Referee-Bot modeli yok (npc_name_75 yalnız adı), forum 127755 \"Refeere BOT (Santa BOT)\": Santa modeli 32"
+   "_source": "official Turkish forum 135026 (Referee Bot): hp and reward per map (4-X row = 4-1..4-5); only CBO-100 and CBR deal damage; aggressive, \"quite slow\" (speed 150 adaptation); shield not in the forum (0); damage from the same map's Santa-1100101 (adaptation). Appearance: no Referee-Bot model in the client (npc_name_75 is only the name), forum 127755 \"Refeere BOT (Santa BOT)\": Santa model 32"
   },
   "event_referee_4x": {
    "name": "Referee-Bot",
@@ -7886,7 +7886,7 @@
     "uridium": 3840
    },
    "cargo": {},
-   "_source": "resmî Türk forumu 135026 (Hakem Botu): harita başına can ve ödül (4-X satırı 4-1..4-5); yalnız CBO-100 ve CBR hasar verir; saldırgan, \"oldukça yavaş\" (hız 150 uyarlama); kalkan forumda yok (0); hasar aynı haritanın Santa-1100101'inden (uyarlama). Görünüm: istemcide Referee-Bot modeli yok (npc_name_75 yalnız adı), forum 127755 \"Refeere BOT (Santa BOT)\": Santa modeli 32"
+   "_source": "official Turkish forum 135026 (Referee Bot): hp and reward per map (4-X row = 4-1..4-5); only CBO-100 and CBR deal damage; aggressive, \"quite slow\" (speed 150 adaptation); shield not in the forum (0); damage from the same map's Santa-1100101 (adaptation). Appearance: no Referee-Bot model in the client (npc_name_75 is only the name), forum 127755 \"Refeere BOT (Santa BOT)\": Santa model 32"
   },
   "event_referee_x5": {
    "name": "Referee-Bot",
@@ -7909,7 +7909,7 @@
     "uridium": 5120
    },
    "cargo": {},
-   "_source": "resmî Türk forumu 135026 (Hakem Botu): harita başına can ve ödül (4-X satırı 4-1..4-5); yalnız CBO-100 ve CBR hasar verir; saldırgan, \"oldukça yavaş\" (hız 150 uyarlama); kalkan forumda yok (0); hasar aynı haritanın Santa-1100101'inden (uyarlama). Görünüm: istemcide Referee-Bot modeli yok (npc_name_75 yalnız adı), forum 127755 \"Refeere BOT (Santa BOT)\": Santa modeli 32"
+   "_source": "official Turkish forum 135026 (Referee Bot): hp and reward per map (4-X row = 4-1..4-5); only CBO-100 and CBR deal damage; aggressive, \"quite slow\" (speed 150 adaptation); shield not in the forum (0); damage from the same map's Santa-1100101 (adaptation). Appearance: no Referee-Bot model in the client (npc_name_75 is only the name), forum 127755 \"Refeere BOT (Santa BOT)\": Santa model 32"
   },
   "event_referee_x6": {
    "name": "Referee-Bot",
@@ -7932,7 +7932,7 @@
     "uridium": 7680
    },
    "cargo": {},
-   "_source": "resmî Türk forumu 135026 (Hakem Botu): harita başına can ve ödül (4-X satırı 4-1..4-5); yalnız CBO-100 ve CBR hasar verir; saldırgan, \"oldukça yavaş\" (hız 150 uyarlama); kalkan forumda yok (0); hasar aynı haritanın Santa-1100101'inden (uyarlama). Görünüm: istemcide Referee-Bot modeli yok (npc_name_75 yalnız adı), forum 127755 \"Refeere BOT (Santa BOT)\": Santa modeli 32"
+   "_source": "official Turkish forum 135026 (Referee Bot): hp and reward per map (4-X row = 4-1..4-5); only CBO-100 and CBR deal damage; aggressive, \"quite slow\" (speed 150 adaptation); shield not in the forum (0); damage from the same map's Santa-1100101 (adaptation). Appearance: no Referee-Bot model in the client (npc_name_75 is only the name), forum 127755 \"Refeere BOT (Santa BOT)\": Santa model 32"
   },
   "event_referee_x7": {
    "name": "Referee-Bot",
@@ -7955,7 +7955,7 @@
     "uridium": 10240
    },
    "cargo": {},
-   "_source": "resmî Türk forumu 135026 (Hakem Botu): harita başına can ve ödül (4-X satırı 4-1..4-5); yalnız CBO-100 ve CBR hasar verir; saldırgan, \"oldukça yavaş\" (hız 150 uyarlama); kalkan forumda yok (0); hasar aynı haritanın Santa-1100101'inden (uyarlama). Görünüm: istemcide Referee-Bot modeli yok (npc_name_75 yalnız adı), forum 127755 \"Refeere BOT (Santa BOT)\": Santa modeli 32"
+   "_source": "official Turkish forum 135026 (Referee Bot): hp and reward per map (4-X row = 4-1..4-5); only CBO-100 and CBR deal damage; aggressive, \"quite slow\" (speed 150 adaptation); shield not in the forum (0); damage from the same map's Santa-1100101 (adaptation). Appearance: no Referee-Bot model in the client (npc_name_75 is only the name), forum 127755 \"Refeere BOT (Santa BOT)\": Santa model 32"
   },
   "event_referee_x8": {
    "name": "Referee-Bot",
@@ -7978,7 +7978,7 @@
     "uridium": 12800
    },
    "cargo": {},
-   "_source": "resmî Türk forumu 135026 (Hakem Botu): harita başına can ve ödül (4-X satırı 4-1..4-5); yalnız CBO-100 ve CBR hasar verir; saldırgan, \"oldukça yavaş\" (hız 150 uyarlama); kalkan forumda yok (0); hasar aynı haritanın Santa-1100101'inden (uyarlama). Görünüm: istemcide Referee-Bot modeli yok (npc_name_75 yalnız adı), forum 127755 \"Refeere BOT (Santa BOT)\": Santa modeli 32"
+   "_source": "official Turkish forum 135026 (Referee Bot): hp and reward per map (4-X row = 4-1..4-5); only CBO-100 and CBR deal damage; aggressive, \"quite slow\" (speed 150 adaptation); shield not in the forum (0); damage from the same map's Santa-1100101 (adaptation). Appearance: no Referee-Bot model in the client (npc_name_75 is only the name), forum 127755 \"Refeere BOT (Santa BOT)\": Santa model 32"
   },
   "event_demaner_freighter": {
    "name": "DemaNeR Freighter",
@@ -7997,7 +7997,7 @@
     "uridium": 30000
    },
    "cargo": {},
-   "_source": "resmî Türk forumu 132357 (Demaner Freighter Avı 2016-2020): DP 20.000.000, kalkan 180.000.000, hız 120, lazer 15.000, ödül 30.000 U / 12 M kredi / 3 M TP / 30.000 şeref (sıralama puanı rutbe.json'da); model istemcinin game.xml'i (type 126, npcId 116). Yapılmayan: çevredeki oyuncu başına %3,33 kalkan azalması (tek oyunculu), DCR-250 roketi (hasarı kaynakta yok)"
+   "_source": "official Turkish forum 132357 (Demaner Freighter Hunt 2016-2020): HP 20,000,000, shield 180,000,000, speed 120, laser 15,000, reward 30,000 U / 12 M credits / 3 M EP / 30,000 honor (ranking points in ranks.json); model from the client's game.xml (type 126, npcId 116). Not implemented: 3.33% shield reduction per nearby player (single-player), DCR-250 rocket (its damage is not in the source)"
   },
   "event_demaner": {
    "name": "-=[ DemaNeR ]=-",
@@ -8020,7 +8020,7 @@
     "1": 100,
     "2": 100
    },
-   "_source": "resmî Türk forumu 132357 (2020): küçük Demaner'ın imha ödülü 24 U / 50.000 kredi, kargosu 100 Prometium / Endurium / Terbium; can, kalkan, hasar ve hız Delta kapısının DemaNeR'inden (kapilar.json; uyarlama)"
+   "_source": "official Turkish forum 132357 (2020): small Demaner kill reward 24 U / 50,000 credits, cargo 100 Prometium / Endurium / Terbium; hp, shield, damage and speed from the Delta gate's DemaNeR (gates.json; adaptation)"
   },
   "event_i_hitac": {
    "name": "I-Hitac",
@@ -8048,7 +8048,7 @@
     "5": 550,
     "6": 1500
    },
-   "_source": "resmî Türk forumu 129632 (Toplama Zamanı / Hatching Out 2018): Hastalıklı HITAC 60 M can, 35 M kalkan, %80 yayılım, hız 120, lazer 15.000; ödül ve cevherler forumdan; model istemcinin game.xml'i (Infected Hitac Mothership 245, npcId 125)"
+   "_source": "official Turkish forum 129632 (Toplama Zamanı / Hatching Out 2018): Infected HITAC 60 M hp, 35 M shield, 80% spread, speed 120, laser 15,000; reward and ores from the forum; model from the client's game.xml (Infected Hitac Mothership 245, npcId 125)"
   },
   "event_i_egg": {
    "name": "Biomech Egg",
@@ -8067,7 +8067,7 @@
     "uridium": 2
    },
    "cargo": {},
-   "_source": "resmî Türk forumu 129632: yumurta DP 12.000, ödül 2 U / 500 kredi / 10 TP / 1 şeref; I-Hitac 30 sn'de bir bırakır, 90 sn kalır; model game.xml (Infected alien egg 247, npcId 126)"
+   "_source": "official Turkish forum 129632: egg HP 12,000, reward 2 U / 500 credits / 10 EP / 1 honor; releases an I-Hitac every 30 s, which stays 90 s; model game.xml (Infected alien egg 247, npcId 126)"
   },
   "event_i_gygerthrall": {
    "name": "I-Gygerthrall",
@@ -8088,7 +8088,7 @@
     "uridium": 20
    },
    "cargo": {},
-   "_source": "resmî Türk forumu 129632: I-Gygerthrall DP 35.000, kalkan 30.000, %70 yayılım, hız 340, menzil 500, lazer 1.200; ödül 20 U / 5.000 kredi / 6.000 TP / 30 şeref; model game.xml (246, npcId 127)"
+   "_source": "official Turkish forum 129632: I-Gygerthrall HP 35,000, shield 30,000, 70% spread, speed 340, range 500, laser 1,200; reward 20 U / 5,000 credits / 6,000 EP / 30 honor; model game.xml (246, npcId 127)"
   },
   "event_gygerthrall": {
    "name": "-=[ Gygerthrall ]=-",
@@ -8107,7 +8107,7 @@
     "uridium": 16
    },
    "cargo": {},
-   "_source": "resmî Türk forumu 130098 (Epidemi Alarmı): Gygerthrall DP 60.000, kalkan 50.000, ödül 16 U / 12.800 kredi / 6.400 TP / 32 şeref; hasar ve hız Karantina Bölgesi'nin Gygerthrall'ından (pve_modlari.json pm_gygerthrall; uyarlama)"
+   "_source": "official Turkish forum 130098 (Epidemic Alert): Gygerthrall HP 60,000, shield 50,000, reward 16 U / 12,800 credits / 6,400 EP / 32 honor; damage and speed from the Quarantine Zone's Gygerthrall (pve_modes.json pm_gygerthrall; adaptation)"
   },
   "event_plagued_gygerthrall": {
    "name": "-=[ Plagued Gygerthrall ]=-",
@@ -8126,7 +8126,7 @@
     "uridium": 16
    },
    "cargo": {},
-   "_source": "resmî Türk forumu 130098: Plagued Gygerthrall (X-6) DP 90.000, kalkan 75.000, ödül 16 U / 12.800 kredi / 6.400 TP / 32 şeref; Plagued Kristallin öldürülünce doğar; hasar ve hız uyarlama; model game.xml (246, npcId 154)"
+   "_source": "official Turkish forum 130098: Plagued Gygerthrall (X-6) HP 90,000, shield 75,000, reward 16 U / 12,800 credits / 6,400 EP / 32 honor; spawns when Plagued Kristallin is killed; damage and speed adaptation; model game.xml (246, npcId 154)"
   },
   "event_plagued_kristallin": {
    "name": "-=[ Plagued Kristallin ]=-",
@@ -8143,7 +8143,7 @@
     "uridium": 16
    },
    "cargo": {},
-   "_source": "Plagued Kristallin'in (252) etkinlik sürümü: Veba Mutasyonu'nda X-4 ve X-5'te doğar (resmî Türk forumu 154610), etkinlik bitince doğmaz",
+   "_source": "Event version of Plagued Kristallin (252): spawns on X-4 and X-5 in Plague Mutation (official Turkish forum 154610), does not spawn after the event ends",
    "npc_id": 161,
    "model": "252",
    "event": true
@@ -8172,7 +8172,7 @@
    },
    "npc_id": 99,
    "model": "ship_aegis",
-   "_source": "resmî sunucu kaydı 2026-10-27: X-4..X-8, 4-X ve BL haritalarında dolaşan Saturn gemisi (ad, model, hız, expansionStage; kahramana kendiliğinden ateş etmedi: saldırgan değil). Can, kalkan, hasar, ödül ve kargo Kronos Kapısının aynı gemisinden (kapilar.json; uyarlama)"
+   "_source": "official server recording 2026-10-27: Saturn ship roaming the X-4..X-8, 4-X and BL maps (name, model, speed, expansionStage; did not fire at the hero on its own: not aggressive). HP, shield, damage, reward and cargo from the same ship of the Kronos Gate (gates.json; adaptation)"
   },
   "saturn_diminisher": {
    "name": "-={ Saturn Diminisher }=-",
@@ -8198,7 +8198,7 @@
    },
    "npc_id": 90,
    "model": "ship_diminisher",
-   "_source": "resmî sunucu kaydı 2026-10-27: X-4..X-8, 4-X ve BL haritalarında dolaşan Saturn gemisi (ad, model, hız, expansionStage; kahramana kendiliğinden ateş etmedi: saldırgan değil). Can, kalkan, hasar, ödül ve kargo Kronos Kapısının aynı gemisinden (kapilar.json; uyarlama); can ve kalkan kayıttan (ShipSelectionCommand 1.500.000 / 450.001)"
+   "_source": "official server recording 2026-10-27: Saturn ship roaming the X-4..X-8, 4-X and BL maps (name, model, speed, expansionStage; did not fire at the hero on its own: not aggressive). HP, shield, damage, reward and cargo from the same ship of the Kronos Gate (gates.json; adaptation); hp and shield from the recording (ShipSelectionCommand 1,500,000 / 450,001)"
   },
   "saturn_goliath": {
    "name": "-={ Saturn Goliath }=-",
@@ -8224,7 +8224,7 @@
    },
    "npc_id": 85,
    "model": "ship_goliath",
-   "_source": "resmî sunucu kaydı 2026-10-27: X-4..X-8, 4-X ve BL haritalarında dolaşan Saturn gemisi (ad, model, hız, expansionStage; kahramana kendiliğinden ateş etmedi: saldırgan değil). Can, kalkan, hasar, ödül ve kargo Kronos Kapısının aynı gemisinden (kapilar.json; uyarlama)"
+   "_source": "official server recording 2026-10-27: Saturn ship roaming the X-4..X-8, 4-X and BL maps (name, model, speed, expansionStage; did not fire at the hero on its own: not aggressive). HP, shield, damage, reward and cargo from the same ship of the Kronos Gate (gates.json; adaptation)"
   },
   "saturn_sentinel": {
    "name": "-={ Saturn Sentinel }=-",
@@ -8250,7 +8250,7 @@
    },
    "npc_id": 88,
    "model": "ship_sentinel",
-   "_source": "resmî sunucu kaydı 2026-10-27: X-4..X-8, 4-X ve BL haritalarında dolaşan Saturn gemisi (ad, model, hız, expansionStage; kahramana kendiliğinden ateş etmedi: saldırgan değil). Can, kalkan, hasar, ödül ve kargo Kronos Kapısının aynı gemisinden (kapilar.json; uyarlama)"
+   "_source": "official server recording 2026-10-27: Saturn ship roaming the X-4..X-8, 4-X and BL maps (name, model, speed, expansionStage; did not fire at the hero on its own: not aggressive). HP, shield, damage, reward and cargo from the same ship of the Kronos Gate (gates.json; adaptation)"
   },
   "saturn_solace": {
    "name": "-={ Saturn Solace }=-",
@@ -8276,7 +8276,7 @@
    },
    "npc_id": 91,
    "model": "ship_solace",
-   "_source": "resmî sunucu kaydı 2026-10-27: X-4..X-8, 4-X ve BL haritalarında dolaşan Saturn gemisi (ad, model, hız, expansionStage; kahramana kendiliğinden ateş etmedi: saldırgan değil). Can, kalkan, hasar, ödül ve kargo Kronos Kapısının aynı gemisinden (kapilar.json; uyarlama)"
+   "_source": "official server recording 2026-10-27: Saturn ship roaming the X-4..X-8, 4-X and BL maps (name, model, speed, expansionStage; did not fire at the hero on its own: not aggressive). HP, shield, damage, reward and cargo from the same ship of the Kronos Gate (gates.json; adaptation)"
   },
   "saturn_spectrum": {
    "name": "-={ Saturn Spectrum }=-",
@@ -8302,7 +8302,7 @@
    },
    "npc_id": 89,
    "model": "ship_spectrum",
-   "_source": "resmî sunucu kaydı 2026-10-27: X-4..X-8, 4-X ve BL haritalarında dolaşan Saturn gemisi (ad, model, hız, expansionStage; kahramana kendiliğinden ateş etmedi: saldırgan değil). Can, kalkan, hasar, ödül ve kargo Kronos Kapısının aynı gemisinden (kapilar.json; uyarlama)"
+   "_source": "official server recording 2026-10-27: Saturn ship roaming the X-4..X-8, 4-X and BL maps (name, model, speed, expansionStage; did not fire at the hero on its own: not aggressive). HP, shield, damage, reward and cargo from the same ship of the Kronos Gate (gates.json; adaptation)"
   },
   "saturn_venom": {
    "name": "-={ Saturn Venom }=-",
@@ -8328,7 +8328,7 @@
    },
    "npc_id": 87,
    "model": "ship_venom",
-   "_source": "resmî sunucu kaydı 2026-10-27: X-4..X-8, 4-X ve BL haritalarında dolaşan Saturn gemisi (ad, model, hız, expansionStage; kahramana kendiliğinden ateş etmedi: saldırgan değil). Can, kalkan, hasar, ödül ve kargo Kronos Kapısının aynı gemisinden (kapilar.json; uyarlama)"
+   "_source": "official server recording 2026-10-27: Saturn ship roaming the X-4..X-8, 4-X and BL maps (name, model, speed, expansionStage; did not fire at the hero on its own: not aggressive). HP, shield, damage, reward and cargo from the same ship of the Kronos Gate (gates.json; adaptation)"
   },
   "pm_blighted_kristallon": {
    "name": "-=[ Blighted Kristallon ]=-",
@@ -8354,7 +8354,7 @@
      }
     ]
    },
-   "_source": "darkorbitwiki: Blighted Kristallon X-7 (ölünce 1-3 Blighted Gygerthrall), Alloy Box %50; resmî Türk forumu 154610 (Veba Mutasyonu): X-5, X-6 ve X-7; resmî sunucu kaydı 2026-10-27: 33 haritalık turda yalnız X-7'de (1-7, 2-7, 3-7), X-5 ve X-6'da görülmedi; nüfus uyarlama"
+   "_source": "darkorbitwiki: Blighted Kristallon X-7 (on death 1-3 Blighted Gygerthrall), Alloy Box 50%; official Turkish forum 154610 (Plague Mutation): X-5, X-6 and X-7; official server recording 2026-10-27: in a 33-map round only on X-7 (1-7, 2-7, 3-7), not seen on X-5 and X-6; population adaptation"
   },
   "pm_blighted_gygerthrall": {
    "name": "-=[ Blighted Gygerthrall ]=-",
@@ -8445,7 +8445,7 @@
     }
    ],
    "bonus_boxes": 20,
-   "_source": "tür listesi istemcinin spacemap-config.xml'inden (1-2/2-2/3-2: Streuner, Lordakia, Boss Streuner, Boss Lordakia, Recruit, Aider); adetler uyarlama"
+   "_source": "type list from the client's spacemap-config.xml (1-2/2-2/3-2: Streuner, Lordakia, Boss Streuner, Boss Lordakia, Recruit, Aider); counts are an adaptation"
   },
   "1": {
    "_name": "1-1",
@@ -8464,7 +8464,7 @@
     }
    ],
    "bonus_boxes": 20,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (X-1)"
+   "_source": "types from spacemap-config.xml; counts are an adaptation (X-1)"
   },
   "2": {
    "_name": "1-2",
@@ -8495,7 +8495,7 @@
     }
    ],
    "bonus_boxes": 20,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (X-2)"
+   "_source": "types from spacemap-config.xml; counts are an adaptation (X-2)"
   },
   "3": {
    "_name": "1-3",
@@ -8530,7 +8530,7 @@
     }
    ],
    "bonus_boxes": 15,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (X-3)"
+   "_source": "types from spacemap-config.xml; counts are an adaptation (X-3)"
   },
   "4": {
    "_name": "1-4",
@@ -8565,7 +8565,7 @@
     }
    ],
    "bonus_boxes": 15,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (X-4)"
+   "_source": "types from spacemap-config.xml; counts are an adaptation (X-4)"
   },
   "7": {
    "_name": "2-3",
@@ -8600,7 +8600,7 @@
     }
    ],
    "bonus_boxes": 15,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (X-3)"
+   "_source": "types from spacemap-config.xml; counts are an adaptation (X-3)"
   },
   "8": {
    "_name": "2-4",
@@ -8631,7 +8631,7 @@
     }
    ],
    "bonus_boxes": 15,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (X-4)"
+   "_source": "types from spacemap-config.xml; counts are an adaptation (X-4)"
   },
   "9": {
    "_name": "3-1",
@@ -8650,7 +8650,7 @@
     }
    ],
    "bonus_boxes": 20,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (X-1)"
+   "_source": "types from spacemap-config.xml; counts are an adaptation (X-1)"
   },
   "10": {
    "_name": "3-2",
@@ -8681,7 +8681,7 @@
     }
    ],
    "bonus_boxes": 20,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (X-2)"
+   "_source": "types from spacemap-config.xml; counts are an adaptation (X-2)"
   },
   "11": {
    "_name": "3-3",
@@ -8716,7 +8716,7 @@
     }
    ],
    "bonus_boxes": 15,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (X-3)"
+   "_source": "types from spacemap-config.xml; counts are an adaptation (X-3)"
   },
   "12": {
    "_name": "3-4",
@@ -8747,7 +8747,7 @@
     }
    ],
    "bonus_boxes": 15,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (X-4)"
+   "_source": "types from spacemap-config.xml; counts are an adaptation (X-4)"
   },
   "13": {
    "_name": "4-1",
@@ -8762,7 +8762,7 @@
     }
    ],
    "bonus_boxes": 8,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (4-X)"
+   "_source": "types from spacemap-config.xml; counts are an adaptation (4-X)"
   },
   "14": {
    "_name": "4-2",
@@ -8773,7 +8773,7 @@
     }
    ],
    "bonus_boxes": 8,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (4-X)"
+   "_source": "types from spacemap-config.xml; counts are an adaptation (4-X)"
   },
   "15": {
    "_name": "4-3",
@@ -8788,7 +8788,7 @@
     }
    ],
    "bonus_boxes": 8,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (4-X)"
+   "_source": "types from spacemap-config.xml; counts are an adaptation (4-X)"
   },
   "16": {
    "_name": "4-4",
@@ -8799,7 +8799,7 @@
     }
    ],
    "bonus_boxes": 8,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (4-X)",
+   "_source": "types from spacemap-config.xml; counts are an adaptation (4-X)",
    "size": [
     42000,
     26200
@@ -8830,7 +8830,7 @@
     }
    ],
    "bonus_boxes": 12,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (X-5)"
+   "_source": "types from spacemap-config.xml; counts are an adaptation (X-5)"
   },
   "18": {
    "_name": "1-6",
@@ -8857,7 +8857,7 @@
     }
    ],
    "bonus_boxes": 12,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (X-6), 4 Cubikon fandom",
+   "_source": "types from spacemap-config.xml; counts are an adaptation (X-6), 4 Cubikon fandom",
    "fixed_spots": {
     "80": [
      [
@@ -8926,7 +8926,7 @@
     }
    ],
    "bonus_boxes": 12,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (X-7)",
+   "_source": "types from spacemap-config.xml; counts are an adaptation (X-7)",
    "scheduled": [
     {
      "tip": "215",
@@ -8967,7 +8967,7 @@
     }
    ],
    "bonus_boxes": 12,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (X-8)",
+   "_source": "types from spacemap-config.xml; counts are an adaptation (X-8)",
    "scheduled": [
     {
      "tip": "216",
@@ -9020,7 +9020,7 @@
     }
    ],
    "bonus_boxes": 12,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (X-5)"
+   "_source": "types from spacemap-config.xml; counts are an adaptation (X-5)"
   },
   "22": {
    "_name": "2-6",
@@ -9047,7 +9047,7 @@
     }
    ],
    "bonus_boxes": 12,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (X-6), 4 Cubikon fandom",
+   "_source": "types from spacemap-config.xml; counts are an adaptation (X-6), 4 Cubikon fandom",
    "fixed_spots": {
     "80": [
      [
@@ -9120,7 +9120,7 @@
     }
    ],
    "bonus_boxes": 12,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (X-7)",
+   "_source": "types from spacemap-config.xml; counts are an adaptation (X-7)",
    "scheduled": [
     {
      "tip": "215",
@@ -9165,7 +9165,7 @@
     }
    ],
    "bonus_boxes": 12,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (X-8)",
+   "_source": "types from spacemap-config.xml; counts are an adaptation (X-8)",
    "scheduled": [
     {
      "tip": "216",
@@ -9218,7 +9218,7 @@
     }
    ],
    "bonus_boxes": 12,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (X-5)"
+   "_source": "types from spacemap-config.xml; counts are an adaptation (X-5)"
   },
   "26": {
    "_name": "3-6",
@@ -9245,7 +9245,7 @@
     }
    ],
    "bonus_boxes": 12,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (X-6), 4 Cubikon fandom",
+   "_source": "types from spacemap-config.xml; counts are an adaptation (X-6), 4 Cubikon fandom",
    "fixed_spots": {
     "80": [
      [
@@ -9310,7 +9310,7 @@
     }
    ],
    "bonus_boxes": 12,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (X-7)",
+   "_source": "types from spacemap-config.xml; counts are an adaptation (X-7)",
    "scheduled": [
     {
      "tip": "215",
@@ -9347,7 +9347,7 @@
     }
    ],
    "bonus_boxes": 12,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (X-8)",
+   "_source": "types from spacemap-config.xml; counts are an adaptation (X-8)",
    "scheduled": [
     {
      "tip": "216",
@@ -9488,7 +9488,7 @@
     }
    ],
    "bonus_boxes": 8,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (4-5)",
+   "_source": "types from spacemap-config.xml; counts are an adaptation (4-5)",
    "size": [
     42000,
     26200
@@ -9500,8 +9500,8 @@
      14100
     ],
     "graveyard_chance": 0.2,
-    "_source": "fandom 4-5 ve Wormhole: haritanın ortasındaki beyaz delikte gizli portal; J ile ya Cubikon Mezarlığı'na ya rastgele bir haritaya (resmî Türk forumu 127347: solucan deliği de atlama CPU'ları gibi şansla mezarlığa). Konum istemcinin mini haritasındaki (minimap-29) beyaz deliğin merkezi; oyuncu bildirimi 2026-10-28",
-    "_adaptation": "mezarlık şansı %20 (tek oyunculu; atlama CPU'sununki %2); rastgele harita AJP-01 listesinden (seviyenin açtığı, 5-X/BL ve düşman X-1 dışı)"
+    "_source": "fandom 4-5 and Wormhole: hidden portal in the white hole in the middle of the map; with J either to the Cubikon Graveyard or to a random map (official Turkish forum 127347: the wormhole, like jump CPUs, sends to the graveyard by chance). Position is the center of the white hole in the client's minimap (minimap-29); player report 2026-10-28",
+    "_adaptation": "graveyard chance 20% (single-player; the jump CPU's is 2%); random map from the AJP-01 list (unlocked by level, excluding 5-X/BL and the enemy X-1)"
    }
   },
   "91": {
@@ -9533,7 +9533,7 @@
     }
    ],
    "bonus_boxes": 8,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (5-1)",
+   "_source": "types from spacemap-config.xml; counts are an adaptation (5-1)",
    "size": [
     42000,
     26200
@@ -9576,7 +9576,7 @@
     }
    ],
    "bonus_boxes": 8,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (5-2)",
+   "_source": "types from spacemap-config.xml; counts are an adaptation (5-2)",
    "scheduled": [
     {
      "tip": "npc179",
@@ -9629,7 +9629,7 @@
     }
    ],
    "bonus_boxes": 8,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (5-3)",
+   "_source": "types from spacemap-config.xml; counts are an adaptation (5-3)",
    "size": [
     42000,
     26200
@@ -9686,7 +9686,7 @@
     }
    ],
    "bonus_boxes": 8,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (X-BL)"
+   "_source": "types from spacemap-config.xml; counts are an adaptation (X-BL)"
   },
   "307": {
    "_name": "BL-2",
@@ -9729,7 +9729,7 @@
     }
    ],
    "bonus_boxes": 8,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (X-BL)"
+   "_source": "types from spacemap-config.xml; counts are an adaptation (X-BL)"
   },
   "308": {
    "_name": "BL-3",
@@ -9764,7 +9764,7 @@
     }
    ],
    "bonus_boxes": 8,
-   "_source": "türler spacemap-config.xml; adetler uyarlama (X-BL)"
+   "_source": "types from spacemap-config.xml; counts are an adaptation (X-BL)"
   },
   "42": {
    "_name": "???",
@@ -9779,9 +9779,9 @@
     }
    ],
    "bonus_boxes": 200,
-   "_source": "türler wiki (belgeler/wiki/maps.md); adetler uyarlama (???): fandom \"vast numbers of Cubikon and Uber Protegit\", \"many Bonus Boxes covering the entire map\", forum 127347 \"bol miktarda bonus\", \"sürekli olarak Cubikon ve refakatçi gemileri Uber Protegitler gelmeye başlar\" (oyuncu bildirimi 2026-10-30: 4 Cubikon, 12 Uber Protegit, 40 kutu seyrek kalıyordu; harita 21.000x13.100'de ekran başına ~2 kutu)",
+   "_source": "types from the wiki (belgeler/wiki/maps.md); counts are an adaptation (???): fandom \"vast numbers of Cubikon and Uber Protegit\", \"many Bonus Boxes covering the entire map\", forum 127347 \"bonus in abundance\", \"Cubikons and their escort ships Uber Protegits keep arriving continuously\" (player report 2026-10-30: 4 Cubikon, 12 Uber Protegit, 40 boxes stayed sparse; on a 21,000x13,100 map ~2 boxes per screen)",
    "no_stealth": true,
-   "_kurallar": "Cubikon Mezarlığı (wiki, belgeler/arastirma/pve_icerik.md 2.38): girişte gizlenme kalkar ve kullanılamaz, yavaşlatan hava (oran uyarlama), her yerde bonus kutusu (ilki 1.000 UCB-100, değeri giderek LCB-10'a düşer); çıkış yalnız atlama CPU'su ya da ölüm. Giriş: atlama CPU'su (esyalar.json graveyard_chance) ya da 4-5'teki gizli, yer değiştiren solucan deliği. Onarımlar ücretsiz (fandom Cubikon's Graveyard: \"repairs are free\"): ölüm ekranındaki yerinde onarım da bedelsiz (free_repair; dunya.repair_offers).",
+   "_rules": "Cubikon Graveyard (wiki, belgeler/arastirma/pve_icerik.md 2.38): cloaking is removed on entry and cannot be used, slowing air (rate is an adaptation), a bonus box everywhere (the first is 1,000 UCB-100, the value gradually drops to LCB-10); exit only via jump CPU or death. Entry: jump CPU (items.json graveyard_chance) or the hidden, moving wormhole on 4-5. Repairs are free (fandom Cubikon's Graveyard: \"repairs are free\"): in-place repair on the death screen is also free (free_repair; world.repair_offers).",
    "free_repair": true,
    "bonus_ucb_cap": [
     [
@@ -9794,7 +9794,7 @@
      1000
     ]
    ],
-   "_bonus_ucb_tavan": "Resmî Türk forumu 127347 (Sürpriz ??? Harita): kutular 1.000'er UCB-100 verir, bu ziyarette toplanan UCB-100 100.000'e ulaşınca LCB-10 (adet uyarlama). Haritanın kalıcı yavaşlatması yok: Uber Protegit'ler yavaşlatan atış yapar"
+   "_bonus_ucb_cap": "Official Turkish forum 127347 (Surprise ??? Map): boxes give 1,000 UCB-100 each, when the UCB-100 collected on this visit reaches 100,000 it becomes LCB-10 (count is an adaptation). The map has no permanent slow: Uber Protegits fire slowing shots"
   },
   "94": {
    "_name": "5-4",
@@ -9821,12 +9821,12 @@
     }
    ],
    "bonus_boxes": 8,
-   "_source": "türler wiki (belgeler/wiki/maps.md); adetler uyarlama (5-4)",
+   "_source": "types from the wiki (belgeler/wiki/maps.md); counts are an adaptation (5-4)",
    "size": [
     42000,
     26200
    ],
-   "_kurallar": "5-4 (wiki): portalı 5-2'de, girişi bir Gümüş Booty Key (Assembly gelene dek anahtar yoksa 25 Darksilver Coin, uyarlama); sabit nüfus 1 The Stinger, 5 Pike, 12 Barb, 25 Lanternfish, 40 Spookfish. Gümüş sandıklar anahtarlı kutularla (yol haritası Aşama 5)."
+   "_rules": "5-4 (wiki): portal on 5-2, entry with a Silver Booty Key (if there is no key until Assembly arrives, 25 Darksilver Coin, adaptation); fixed population 1 The Stinger, 5 Pike, 12 Barb, 25 Lanternfish, 40 Spookfish. Silver chests with keyed boxes (roadmap Stage 5)."
   }
  },
  "map_size": [
@@ -9834,7 +9834,7 @@
   13100
  ],
  "combat": {
-  "_source": "kayıttan gözlenen: lazer aralığı ~1,1 sn; LF-1 + LCB-10 ile 50–64 hasar; NPC kalkanı hasarın %70'ini emer; R-310 roketi 850–1000 hasar, 4 sn bekleme, ~0,8 sn uçuş",
+  "_source": "observed from the recording: laser interval ~1.1 s; 50–64 damage with LF-1 + LCB-10; the NPC shield absorbs 70% of the damage; R-310 rocket 850–1000 damage, 4 s cooldown, ~0.8 s flight",
   "laser_interval_sec": 1.1,
   "laser_damage": [
    48,
@@ -9850,12 +9850,12 @@
   "rocket_flight_sec": 0.8,
   "rocket_range": 900,
   "rocket_hit_chance": 0.8,
-  "_roket_isabet": "roketin kendi isabeti yoksa taban (esyalar.json roketler.<id>.isabet: R-310 %70, PLT-2026 %80, PLT-2021 %90, PLT-3030 %65, BDR-1211 %100; özel cephane bu taban, uyarlama); Heat-Seeking Missiles yeteneği (roket_isabet) ve DMG-H01 boosterı (isabet) artırır, PLD-8 gibi etkiler düşürür",
+  "_rocket_hit": "if the rocket has no hit chance of its own, the base (items.json rockets.<id>.hit: R-310 70%, PLT-2026 80%, PLT-2021 90%, PLT-3030 65%, BDR-1211 100%; special ammo this base, adaptation); raised by the Heat-Seeking Missiles ability (rocket_hit_chance) and the DMG-H01 booster (hit), lowered by effects like PLD-8",
   "npc_shield_absorb": 0.7,
-  "_npc_kalkan_emme": "Varsayılan kalkan emme oranı; türün kalkan_emme değeri varsa o (fandom: Aider Streuner, Kristallon, Uber Kristallon %90, Cubikon %80, Uber Annihilator %85, Uber Interceptor %60)",
+  "_npc_shield_absorb": "Default shield absorb ratio; if the type has a shield_absorb value, that one applies (fandom: Aider Streuner, Kristallon, Uber Kristallon 90%, Cubikon 80%, Uber Annihilator 85%, Uber Interceptor 60%)",
   "npc_hit_chance": 0.7,
   "npc_range": 450,
-  "_npc_menzil": "Uzaylıların ateş menzili (türün menzil alanı yoksa): özel sunucu kodu (Ow, Attackable.AttackRange: uzaylı 450, oyuncu lazeri 700); DarkBot uzaylıları 550-610 birimden döner (çevirme). Önceden 600: dönerken çok uzaktan vuruluyordu (kullanıcı bildirimi 2026-10-25, Boss Sibelon). Kristallon ailesi 550 (fandom: \"en uzun menzil\")",
+  "_npc_range": "Aliens' firing range (if the type has no range field): private server code (Ow, Attackable.AttackRange: alien 450, player laser 700); DarkBot aliens turn back at 550-610 units (turning). Previously 600: they were hit from too far while turning (user report 2026-10-25, Boss Sibelon). Kristallon family 550 (fandom: \"longest range\")",
   "npc_attack_interval_sec": 1.1,
   "respawn_sec": [
    12,
@@ -9875,17 +9875,17 @@
     "saturn_"
    ]
   },
-  "_pasif_takip": "Saldırgan olmayan uzaylı oyuncuyu izler: mesafe içindeyse gezinme adımı oyuncuya doğru (± sapma radyan), yakin'dan öteye gelmez, ateş etmez. Resmî sunucu kaydı (2026-10-25/27, oyuncuya ateş etmemiş uzaylıların 1.500 birim içindeki adımları): Kristallon %81 yaklaşan adım (yön kosinüsü 0,68), Lordakium 0,70, Boss Lordakium 0,86, Cubikon 0,49, Blighted Kristallon 0,39, Plagued Kristallin 0,32, Purpose XXI 0,28; Streuner -0,02, Aider Streuner 0,16 ve Saturn gemileri (eksi) izlemez: haric (tür ya da önek). Oyuncu bildirimi 2026-10-28",
-  "_npc_fark_mesafe": "uyarlama: saldırgan NPC oyuncuyu bu mesafede fark edip kovalar (önceden 500; güvenli bölgede fark etmez)",
+  "_passive_follow": "A non-aggressive alien follows the player: within distance, the wandering step is toward the player (± spread radians), never comes closer than nearby, does not fire. Official server recording (2026-10-25/27, steps within 1,500 units of aliens that did not fire at the player): Kristallon 81% approaching steps (direction cosine 0.68), Lordakium 0.70, Boss Lordakium 0.86, Cubikon 0.49, Blighted Kristallon 0.39, Plagued Kristallin 0.32, Purpose XXI 0.28; Streuner -0.02, Aider Streuner 0.16 and Saturn ships (negative) do not follow: exclude (type or prefix). Player report 2026-10-28",
+  "_npc_notice_distance": "adaptation: an aggressive NPC notices the player at this distance and chases (previously 500; does not notice in a safe zone)",
   "sight_range": 1800,
   "view_drop": 1800,
-  "_gorus_mesafesi": "Kayıt: gerçek sunucu NPC'leri kahramana ~1.800 birimde ShipCreateCommand ile gösteriyor (23 olay, 1.223-1.907, ortanca ~1.730), uzaklaşınca ShipRemoveCommand ile kaldırıyor (15 olay, 1.519-1.783); belirgin gecikme payı yok, bırakma da 1.800 (kahraman konumu MoveRequest'ten ±150).",
+  "_view_distance": "Recording: the real server shows NPCs to the hero with ShipCreateCommand at ~1,800 units (23 events, 1,223-1,907, median ~1,730) and removes them with ShipRemoveCommand when they move away (15 events, 1,519-1,783); there is no noticeable delay margin, the drop is also 1,800 (hero position from MoveRequest ±150).",
   "radiation_percent": [
    0.01,
    0.05
   ],
   "radiation_increase_sec": 3,
-  "_radyasyon": "darkorbit.fandom.com Radiation zone: harita sınırı dışında saniyede azami canın %1'i, %5'e kadar artar. Artış hızı (3 sn'de bir +%1) uyarlama; kalkanı değil gövdeyi vurur.",
+  "_radiation": "darkorbit.fandom.com Radiation zone: outside the map boundary 1% of max HP per second, rising up to 5%. The rate of increase (+1% every 3 s) is an adaptation; it hits the hull, not the shield.",
   "x1_cargo": [
    [
     7,
@@ -9904,7 +9904,7 @@
     0
    ]
   ],
-  "_x1_kargo": "darkorbit.fandom.com Hall of Fame: X-1 haritalarında yüksek seviyede NPC kargosu azalır: seviye 7 %50, 8 %25, 9 %13, 10 ve üstü hiç (alçak seviyelilerin haritası).",
+  "_x1_cargo": "darkorbit.fandom.com Hall of Fame: on X-1 maps NPC cargo decreases at high levels: level 7 50%, 8 25%, 9 13%, 10 and above none (the map of low-level players).",
   "x1_reward": [
    [
     7,
@@ -9927,12 +9927,12 @@
     0
    ]
   ],
-  "_x1_odul": "darkorbitwiki.com aliens (Streuner, Recruit/Aider Streuner): seviye 7'den kendi X-1 haritanda öldürmek ödülü kısmen ya da tamamen azaltır, 15'ten hiç ödül yok (EP, onur, kredi, uridyum). Ara basamaklar uyarlama; düşman X-1'inde ceza yok. Bonus kutusunun içeriği (kredi, uridyum, cephane adedi) de aynı basamakla azalır (fandom 1-1, 2-1, Lowers: bonus kutuları da; dunya.take_box).",
+  "_x1_reward": "darkorbitwiki.com aliens (Streuner, Recruit/Aider Streuner): from level 7, killing on your own X-1 map reduces the reward partially or completely, from 15 there is no reward at all (EP, honor, credits, uridium). Intermediate steps are an adaptation; no penalty on the enemy X-1. The contents of the bonus box (credits, uridium, ammo counts) also shrink by the same step (fandom 1-1, 2-1, Lowers: bonus boxes too; world.take_box).",
   "box_sight": 1000,
   "box_drop": 1150,
-  "_kutu_gorus": "Kayıt: kutular ve cevherler kahramana ~1.000 birim kala AddBoxCommand/AddOreCommand ile geliyor, uzaklaşınca toplanmadan RemoveCollectableCommand (161 kez, 900-1.150 birim). Bırakma uzaklığı uyarlama.",
+  "_box_view": "Recording: boxes and ores arrive via AddBoxCommand/AddOreCommand when ~1,000 units from the hero, and when moving away without being collected they are removed via RemoveCollectableCommand (161 times, 900-1,150 units). The drop distance is an adaptation.",
   "npc_fixed_range": 1000,
-  "_npc_menzil_sabit": "hareketsiz uzaylıların (Mindfire Behemoth, Cubikon …) ateş menzili: oyuncunun lazer (700) ve roket (900) menzilinden uzun olmalı, yoksa karşılık vermeden kesilirler (wiki: Behemoth \"en uzun menzil\"; değer uyarlama)",
+  "_npc_range_fixed": "firing range of stationary aliens (Mindfire Behemoth, Cubikon …): must be longer than the player's laser (700) and rocket (900) range, otherwise they are cut down without retaliating (wiki: Behemoth \"longest range\"; value is an adaptation)",
   "respawn_special": {
    "boss": [
     90,
@@ -9979,9 +9979,9 @@
     1200
    ]
   },
-  "_yeniden_dogma_ozel": "Boss/Uber, Cubikon (80), Battleray (115), Deadly Battleray (npc121), Invoke XVI (221) ve Mindfire Behemoth (225) sıradan uzaylı gibi 12-25 sn'de dönmesin. Anahtar: tür ya da ada göre \"boss\" (..::{), \"uber\". Battleray 7-10 dk, Deadly Battleray 5-5,5 dk, Behemoth 15-16 dk fandom, Invoke XVI 15 dk (board-fr 127829 s. 69; en çok 3 Invoke); Strokelight Barrage (320) Behemoth gibi; Boss/Uber ve Cubikon uyarlama (Cubikon 2-3 dk; oyuncu bildirimi 2026-10-31: 5-10 dk çok uzundu); The Stinger (330) fandom (Stinger): yok edilince 2 saat sonra yeniden doğar (haritada en çok 1; 85 milyon canlı patron 12 sn'de dönmesin) Demaner Freighter 20 dk (resmî Türk forumu 132357: \"Her 20 dakikada bir\"), I-Hitac 15-20 dk (uyarlama).",
+  "_respawn_special": "Boss/Uber, Cubikon (80), Battleray (115), Deadly Battleray (npc121), Invoke XVI (221) and Mindfire Behemoth (225) should not come back in 12-25 s like an ordinary alien. Key: by type or name \"boss\" (..::{), \"uber\". Battleray 7-10 min, Deadly Battleray 5-5.5 min, Behemoth 15-16 min fandom, Invoke XVI 15 min (board-fr 127829 p. 69; at most 3 Invoke); Strokelight Barrage (320) like Behemoth; Boss/Uber and Cubikon adaptation (Cubikon 2-3 min; player report 2026-10-31: 5-10 min was too long); The Stinger (330) fandom (Stinger): respawns 2 hours after being destroyed (at most 1 on the map; an 85-million-HP boss should not return in 12 s) Demaner Freighter 20 min (official Turkish forum 132357: \"Every 20 minutes\"), I-Hitac 15-20 min (adaptation).",
   "scheduled_duration_sec": 3600,
-  "_zamanli": "Zaman çizelgeli Black Light başıboşları (haritalar.zamanli; wiki saatleri, yerel saat): saatinden sonra bu kadar saniye içinde haritaya gelinirse doğar (uyarlama); ölünce o saat bir daha doğmaz (profil zamanli)."
+  "_timed": "Black Light strays on a time schedule (maps.scheduled; wiki hours, local time): if you come to the map within this many seconds after the hour it spawns (adaptation); once killed, that hour it does not spawn again (profile scheduled)."
  },
  "bonus_boxes": [
   [
@@ -10061,7 +10061,7 @@
    1
   ]
  ],
- "_map_note": "Kayıtta olmayan haritalar tools/npc_haritalari.py ile üretildi. \"model\": istemciye gönderilen gemi modeli (tür anahtarından farklıysa). \"boyut\": büyük haritalar (maps-config.xml scaleFactor 2).",
+ "_map_note": "Maps not in the recording were generated with tools/npc_maps.py. \"model\": the ship model sent to the client (if different from the type key). \"size\": large maps (maps-config.xml scaleFactor 2).",
  "bonus_box_4x": [
   [
    "ammunition_laser_lcb-10",
@@ -10140,11 +10140,11 @@
    2
   ]
  ],
- "_bonus_kutu_4x": "belgeler/wiki/boxes.md normal_box_4x: 4-X haritalarındaki zengin bonus kutusu",
- "_davranis": "Tür başına isteğe bağlı alanlar (yoksa savas değerleri): fark_mesafe (saldırgan türün oyuncuyu fark ettiği uzaklık), shot_interval_sec, isabet, menzil; davranis: spawn_on_death [{tur, adet}] (ölünce doğanlar, yeniden doğmaz), summon_on_hit {tur, adet, en_cok, bekleme_sn}, yenilenme {can_sn, shield_per_sec, bekleme_sn} (vurulmadan geçen süre), invulnerable_while_summons_live (bool). İçerik (Cubikon, Lordakium sporları, Battleray …) yol haritasının 4. aşamasında.",
- "_ek_odul": "tipler.ek_odul: ölünce ek ödül {lootId: adet} (aliens.md \"Extra destroy rewards\"; Palladium kargoya, ötekiler kaynak deposuna). Olasılıklı ödüller (Stinger: 20-40 Isochronate, %45 …) henüz yok.",
- "_event_kinds": "etk_* türleri tools/etkinlik_uzaylilari.py ile (harita etkinlikleri, Aşama 7).",
+ "_bonus_box_4x": "belgeler/wiki/boxes.md normal_box_4x: the rich bonus box on 4-X maps",
+ "_behavior": "Optional fields per type (if absent, the combat values): notice_distance (the distance at which an aggressive type notices the player), shot_interval_sec, hit, range; behavior: spawn_on_death [{type, count}] (those that spawn on death, they do not respawn), summon_on_hit {type, count, max_count, cooldown_sec}, regeneration {hp_sec, shield_per_sec, cooldown_sec} (time passed without being hit), invulnerable_while_summons_live (bool). Content (Cubikon, Lordakium spores, Battleray …) in stage 4 of the roadmap.",
+ "_extra_reward": "types.extra_reward: extra reward on death {lootId: count} (aliens.md \"Extra destroy rewards\"; Palladium goes to cargo, the others to the resource storage). Probabilistic rewards (Stinger: 20-40 Isochronate, 45% …) are not there yet.",
+ "_event_kinds": "event_* types via tools/event_aliens.py (map events, Stage 7).",
  "_event_boxes": "etk_santa_*, etk_hitac_* tools/etkinlik_kutulari.py ile.",
- "_forum_tr": "Resmî Türk forumu (2026-10-26): Darksilver hızları ve Stinger/Pike (160525), Impulse II/Attend IX hızları (141806), LF-4 geliştirme Bifenon tablosu (129125: Interceptor %20, Deadly Battleray 2, Uber Kristallon %30, Uber Kristallin %25), Boss'larda 1 ve Uber Kristallon'da 2 günlük dosyası (127585; oran %5 uyarlama), Protegit hızı 420 (127543)",
- "_forum_tr_plagued": "Plagued Kristallin kalıcı olarak yalnız X-6'da (istemcinin spacemap-config.xml'i, darkorbitwiki X-6); X-4 ve X-5'te yalnız Veba Mutasyonu etkinliğinde (resmî Türk forumu 154610: etkinlik süresince X-4, X-5, X-6'da doğma oranı artar): etkinlikler.json plague_mutation harita_ek, etk_plagued_kristallin 2'şer (adet uyarlama)"
+ "_forum_tr": "Official Turkish forum (2026-10-26): Darksilver speeds and Stinger/Pike (160525), Impulse II/Attend IX speeds (141806), LF-4 upgrade Bifenon table (129125: Interceptor 20%, Deadly Battleray 2, Uber Kristallon 30%, Uber Kristallin 25%), 1 log file from Bosses and 2 from Uber Kristallon (127585; the 5% rate is an adaptation), Protegit speed 420 (127543)",
+ "_forum_tr_plagued": "Plagued Kristallin permanently only on X-6 (the client's spacemap-config.xml, darkorbitwiki X-6); on X-4 and X-5 only in the Plague Mutation event (official Turkish forum 154610: during the event the spawn rate increases on X-4, X-5, X-6): events.json plague_mutation map_extra, event_plagued_kristallin 2 each (counts are an adaptation)"
 }

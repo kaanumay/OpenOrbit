@@ -1,5 +1,5 @@
 {
- "_description": "İstemcinin eşya verisi (tools/il2cpp/istemci_verisi.py; Aşama 6). yukseltmeler / disassembly: sınıf -> esyalar, sonuc, seviyeler [{seviye, sure_sn, maliyet, atla (süreyi atlama bedeli, yükseltmede Isochronate)}] (Disassembly maliyetinde eksi adet geri verilir). esyalar: lootId -> tur, sinif, takilir, satis (sellable), yukseltme [{tur, yuzde (seviye başına), azami, hesap}], onarim, yuvalar; gemilerde kimlik, model, can, hiz, kargo, fiyat, yetenekler [{ad, sure, bekleme}].",
+ "_description": "The client's item data (tools/il2cpp/client_data.py; Phase 6). upgrades / disassembly: class -> items, result, levels [{level, duration_sec, cost, jump_to (cost to skip the duration, Isochronate for upgrades)}] (in the Disassembly cost, a negative amount is returned). items: lootId -> type, class, equippable, selling (sellable), upgrade [{type, percent (per level), maximum, calc}], repair, slots; for ships id, model, hp, speed, cargo, price, abilities [{name, duration, cooldown}].",
  "upgrades": {
   "upgrade_upgrade-class0-drone": {
    "items": [

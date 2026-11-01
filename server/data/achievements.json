@@ -1,5 +1,5 @@
 {
- "_source": "İstemcinin başarım XML'leri (tools/basarimlar.py). seviyeler: koşul sınıfı, islec/deger ya da kume (CheckSet öğeleri, eslesme ALL), olay (achievementEvent), parametreler, ic (iç koşullar), saklanir (store), reset_on_death (resetOnDeath); puan, unvan, odul (eylemler); derece: XML'deki grade sıradan farklıysa (kazanma satırı 0|A|ACG|<başarım>_<derece>). unvanlar: unvan anahtarı -> kimlik (kayıttakiler korunur, ötekiler 1000'den).",
+ "_source": "Client's achievement XMLs (tools/achievements.py). levels: condition class, operator/value or set (CheckSet items, match ALL), event (achievementEvent), parameters, inner (inner conditions), stored (store), reset_on_death (resetOnDeath); points, title, reward (actions); grade: if it differs from the XML's grade order (win line 0|A|ACG|<achievement>_<grade>). titles: title key -> id (recorded ones are kept, the rest start from 1000).",
  "achievements": {
   "achievement_seasonpass_202307": {
    "group": "SEASONPASS_Q2",
@@ -6421,7 +6421,7 @@
     }
    ],
    "period_reset": "immortal_union",
-   "_donem_sifir": "Resmî Türk forumu (Ölümsüz Birlik SSS): FWX-COM'u tek bir Ölümsüz Birlik etkinliğinde 142 kez üret; ilerleme sonraki etkinliğe taşınmaz"
+   "_period_zero": "Official Turkish forum (Immortal Union FAQ): craft FWX-COM 142 times within a single Immortal Union event; progress does not carry over to the next event"
   },
   "achievement_destroy_venerable-battleray": {
    "group": "DESTROY",

@@ -1,5 +1,5 @@
 {
- "_description": "Uridyumla çalışan dükkân pencereleri -> server/data/dukkanlar.json, esyalar.json (ek_magaza, odeme_paketleri, payment_prices)",
+ "_description": "Windows of shops that run on uridium -> server/data/stores.json, items.json (extra_shop, payment_packages, payment_prices)",
  "_source": "belgeler/wiki/dukkanlar_o7.json; dukkanlar_o7",
  "mileage": {
   "calendar": "mileage_market",
@@ -724,7 +724,7 @@
     "priority": 18
    }
   ],
-  "_adaptation": "fiyatlar uridyum (suggested_uridium); jeton paketleri mağazada (Extras) etkinlik süresince birer kez"
+  "_adaptation": "prices are uridium (suggested_uridium); token packs in the shop (Extras), once each for the duration of the event"
  },
  "vip": {
   "calendar": "vip_merchant",
@@ -744,7 +744,7 @@
    {
     "id": "event-deal-unstable-shard-xl",
     "lootId": "package_event-deal-unstable-shard-xl",
-    "name": "XL Unstable Shard Deal (çeviride 'Unstable Shard Bundles')",
+    "name": "XL Unstable Shard Deal (in the translation 'Unstable Shard Bundles')",
     "contents": [
      [
       "resource_collectable_unstable-shard",
@@ -756,7 +756,7 @@
    {
     "id": "event-deal-permit-l",
     "lootId": "package_event-deal-permit-l",
-    "name": "Retriever Permit Pack L (çeviride 'Retriever Permit Packs')",
+    "name": "Retriever Permit Pack L (in the translation 'Retriever Permit Packs')",
     "contents": [
      [
       "resource_collectable_permit",
@@ -968,7 +968,7 @@
     "order": 8
    }
   ],
-  "_adaptation": "takas satırları oyuncu iletilerinden ve uyarlama; VIP paketlerinin içerikleri kısmen uyarlama"
+  "_adaptation": "exchange rows are from player messages and adaptation; the contents of the VIP packages are partly adaptation"
  },
  "returnee": {
   "wait_days": 14,
@@ -1122,7 +1122,7 @@
    }
   ],
   "min_level": 2,
-  "_adaptation": "kampanya 15 gün, takvim 7 gün; hoş geldin ve takvim ödülleri, paket içerikleri uyarlama (resmî liste yok)"
+  "_adaptation": "campaign 15 days, calendar 7 days; welcome and calendar rewards, package contents are adaptation (no official list)"
  },
  "pre_bf": {
   "calendar": "pre_prometheus",
@@ -1279,7 +1279,7 @@
    "4": 10,
    "5": 15
   },
-  "_adaptation": "pencere yalnız bilgi; Prometheus Day paketlerinin (bfnov*) içerikleri istemcide metin: indirimleri uygulanmıyor"
+  "_adaptation": "window is info only; the contents of the Prometheus Day packages (bfnov*) are text in the client: their discounts are not applied"
  },
  "rehero": {
   "calendar": "return_of_hero",
@@ -4442,8 +4442,8 @@
    "Orion",
    "Vega"
   ],
-  "_source": "takas listesi ve bağlanma süresi (girişten 24 saat): board-en 130459 (FAQ Kristallon Apotheosis)",
-  "_adaptation": "görevler Season Pass havuzundan (13 tekrarsız + günde 5, 7 gün) ve anahtar ödülü uyarlama; veteran sanal (botlar gelince gerçek)"
+  "_source": "exchange list and binding period (24 hours from login): board-en 130459 (FAQ Kristallon Apotheosis)",
+  "_adaptation": "quests are from the Season Pass pool (13 non-repeating + 5 per day, 7 days) and the key reward is an adaptation; the veteran is virtual (real once bots arrive)"
  },
  "stellar": {
   "level": [
@@ -4660,6 +4660,6 @@
     ]
    }
   ],
-  "_adaptation": "hesap başına bir kez, seviye 5 ve üstü (istemcinin düğme kuralı 5-14; tek oyunculuda Solaris'in tek yolu, üst sınır yok); fiyat uyarlama; Forerunner/Warden EP 327.680.000 -> 32.768.000 (tek oyunculu)"
+  "_adaptation": "once per account, level 5 and above (the client's button rule is 5-14; in single-player the only route to Solaris, no upper limit); price is an adaptation; Forerunner/Warden EP 327,680,000 -> 32,768,000 (single-player)"
  }
 }

@@ -1,7 +1,7 @@
 {
- "_description": "Clan Battle Station -> server/data/cbs.json (yol haritası Ö5).",
- "_source": "Resmî DarkOrbit FR CBS FAQ (modüller, 2023-01-05), DE CBS FAQ (2019-04-06), RU CBS FAQ (2020-10-25; 2017 dengelemesi): board-fr.darkorbit.com/threads/lexique-2-0-station-de-combat-de-clan.133912, board-de.darkorbit.com/threads/faq-clan-battlestations-cbs.2972, board-ru.darkorbit.com/threads/klanovye-boevye-stancii-kbs-faq.1453, board-en.darkorbit.com/threads/clan-battle-station-faq.819.",
- "_adaptation": "Silah hasarı/canı/menzili/isabeti, Hull/REPM/booster canları ve booster azami %3-10 değerleri resmî FAQ değerleri; can/hasar seviye başına +%2 (L16 = L1 x 1,30). Deflector birikim hızı seviye başına tabanın +%1'i (120 dk/sa -> L16 138 dk/sa; prime time x5). Deflector modülünün ayrı 1.040.000 can değeri kaynakta doğrulanmamış yerel değerdir. Sayısal atış aralıkları (lazer 1,5/2,5/3 sn, roket 4 sn), onarım hızı, kurulum süresi (50 sn), deflector birikimi (48 sa), acil onarım bedeli (500 U), modül yıkma ödülleri, prime time 18:00-21:00 ve uzaylı baskınları tek oyunculu uyarlamadır. Sanal rakip modül canı/hasarı varsayılan olarak tam değerdedir (çarpan 1,0); önceden 0,2/0,05 idi. Mevcut kayıtların hasarlı modül canı otomatik doldurulmaz.",
+ "_description": "Clan Battle Station -> server/data/cbs.json (roadmap Ö5).",
+ "_source": "Official DarkOrbit FR CBS FAQ (modules, 2023-01-05), DE CBS FAQ (2019-04-06), RU CBS FAQ (2020-10-25; 2017 balancing): board-fr.darkorbit.com/threads/lexique-2-0-station-de-combat-de-clan.133912, board-de.darkorbit.com/threads/faq-clan-battlestations-cbs.2972, board-ru.darkorbit.com/threads/klanovye-boevye-stancii-kbs-faq.1453, board-en.darkorbit.com/threads/clan-battle-station-faq.819.",
+ "_adaptation": "Weapon damage/HP/range/accuracy, Hull/REPM/booster HP and the booster maximum 3-10% values are the official FAQ values; HP/damage +2% per level (L16 = L1 x 1.30). Deflector accumulation rate is +1% of the base per level (120 min/h -> L16 138 min/h; prime time x5). The Deflector module's separate 1,040,000 HP value is a local value not verified in the source. Numeric fire intervals (laser 1.5/2.5/3 s, rocket 4 s), repair speed, installation time (50 s), deflector accumulation (48 h), emergency repair cost (500 U), module demolition rewards, prime time 18:00-21:00 and alien raids are single-player adaptation. Virtual rival module HP/damage is at full value by default (multiplier 1.0); it used to be 0.2/0.05. Damaged module HP in existing saves is not refilled automatically.",
  "asteroids": [
   {
    "uid": 1,
@@ -816,9 +816,9 @@
   "damage_multiplier": 1.0
  },
  "on_build_deflector_min": 1440,
- "_forum_127469": "Resmî Türk forumu 127469 (KSİ SSS): acil tamir 20 dakika x 7.500 dp/s; yeni kurulan istasyonda deflektör açık ve 1440 dakika yüklü (on_build_off_min artık kullanılmıyor)",
+ "_forum_127469": "Official Turkish forum 127469 (CBS FAQ): emergency repair 20 minutes x 7,500 HP/s; a newly built station has the deflector on and charged for 1440 minutes (on_build_off_min is no longer used)",
  "bot_clan": {
-  "_adaptation": "Bot klanlarının istasyonu (bot/klan_us.py): modüller klan kasasından krediyle alınır (oyunda Assembly'de kaynakla üretilir; fiyatlar uyarlama: tam takım yaklaşık 10 M, kurulmuş istasyonun seviye yükseltmesi fiyat x level_multiplier x yeni seviye, L15'e dek modül başına ~30 M: tam seviye istasyon nadir). Yıkılan modülün onarımı fiyatın repair_ratio'ı; yükseltme klan başına upgrade_sec'de bir; kurma süresi build_min aralığında (oyuncunun 5-60 dakikası içinde); saldırıda savunma çağrısı defense_sec'de bir.",
+  "_adaptation": "Bot clans' station (bot/clan_stations.py): modules are bought with credits from the clan treasury (in the game they are produced in Assembly with resources; prices are adaptation: a full set about 10 M, upgrading the level of an established station costs price x level_multiplier x new level, up to L15 about 30 M per module: a full-level station is rare). Repair of a destroyed module costs repair_ratio of the price; upgrade once per clan every upgrade_sec; build time within build_min (within the player's 5-60 minutes); defense call during an attack once every defense_sec.",
   "price": {
    "module_hulm-1": 1600000,
    "module_defm-1": 1400000,

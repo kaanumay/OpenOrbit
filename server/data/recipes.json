@@ -1,5 +1,5 @@
 {
- "_description": "Assembly tarifleri istemcinin kodundan (tools/il2cpp/istemci_verisi.py; DarkOrbit.Recipe$$Initialize): kullanim (UsingStrategy), gorunurluk (Visibility), en_cok (MaxUses; null sınırsız), olcek (CostScalingFactor), yigilir (Stackable), sure_sn (BuildTimeSec), parcalar, sonuc. kayitta: kayıttaki AssemblyRecipeContentModule sırası (o gün açık olanlar), gecici: kayıtta süreli tarifin bitişi (\"sezon\": Season Pass sezonuyla biter; sayı: bitiş anı, Unix saniyesi).",
+ "_description": "Assembly recipes from the client's code (tools/il2cpp/client_data.py; DarkOrbit.Recipe$$Initialize): usage (UsingStrategy), visibility (Visibility), max_count (MaxUses; null unlimited), scale (CostScalingFactor), stackable (Stackable), duration_sec (BuildTimeSec), parts, result. recorded: order of AssemblyRecipeContentModule in the recording (those open that day), temporary: end of a timed recipe in the recording (\"season\": ends with the Season Pass season; number: end moment, Unix seconds).",
  "recipes": {
   "recipe_blueprint-1hbooster-cd": {
    "usage": "ALWAYS_USABLE",

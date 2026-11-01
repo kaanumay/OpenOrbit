@@ -1,5 +1,5 @@
 {
- "_description": "Ö4'ün büyük PvE içerikleri -> server/data/buyuk_icerikler.json ve takvim girişleri (server/data/etkinlikler.json) (yol haritası Ö4).",
+ "_description": "Ö4's major PvE content -> server/data/major_content.json and the calendar entries (server/data/events.json) (roadmap Ö4).",
  "vortex": {
   "event": "vortex_of_greed",
   "map": 483,
@@ -284,8 +284,8 @@
     ]
    }
   },
-  "_source": "vortex_of_greed.json: resmî SSS 2025-08, kayıttaki yanıt 2026-10-15 (dükkân ve haftalık sınır), istemcinin metinleri; tools/buyuk_icerikler.py",
-  "_adaptation": "Uzaylılar normal türlerinin 1,5 katı can/kalkan (kaynak yalnız \"daha çok can\" diyor); hazine sahibinin ödülü 500 SC + 1 CNC + unvan; tahliye yarıçapı 500 ve konumlar oyuncudan 3.000 uzakta; ölünce taşınan paralar SAE_SHIP_BOX; tek harita (483); Vanguard uridyumla (mağaza)."
+  "_source": "vortex_of_greed.json: official FAQ 2025-08, the response in the recording 2026-10-15 (store and weekly limit), the client's texts; tools/major_content.py",
+  "_adaptation": "Aliens have 1.5 times the HP/shield of their normal types (the source only says \"more HP\"); the treasure holder's reward 500 SC + 1 CNC + title; evacuation radius 500 and locations 3,000 away from the player; the coins carried on death: SAE_SHIP_BOX; single map (483); Vanguard for uridium (shop)."
  },
  "world_boss": {
   "event": "world_boss",
@@ -428,7 +428,7 @@
     "warning_sec": 3,
     "width": 250,
     "damage_max_hp_ratio": 0.35,
-    "direction": "Fortress'ten kilitli hedefe doğru, harita kenarına kadar"
+    "direction": "From the Fortress toward the locked target, to the edge of the map"
    }
   },
   "mine_thresholds": [
@@ -1130,7 +1130,7 @@
   "part": "resource_collectable_infiltrator-fragment",
   "fragment_honor": 1,
   "_source": "world_boss_2025.json: resmî SSS 2025/2026 (EN, TR), darkorbitwiki, istemcinin metinleri ve game.xml; tools/buyuk_icerikler.py",
-  "_adaptation": "NPC değerleri ve saldırıların hasarları kaynakta yok (araştırmanın tek oyunculu önerileri, s=1); can oyuncunun gücüne göre ölçeklenir (guc); kademe eşikleri savaşın Fortress canının katları; sıralama sanal (kaldırılan can payından); Guardian kalkanları toplamsal (4 etkin = dokunulmaz)."
+  "_adaptation": "NPC values and attack damages are not in the source (the research's single-player suggestions, s=1); HP scales with the player's power (power); tier thresholds are multiples of the Fortress's HP in the fight; ranking is virtual (from the removed HP share); Guardian shields are additive (4 active = invulnerable)."
  },
  "mimesis": {
   "event": "mimesis_mutiny",
@@ -2442,8 +2442,8 @@
    "pm_reflectormimesis": 0.5
   },
   "key_uridium": 5000,
-  "_source": "mimesis_mutiny.json: resmî SSS 2020-2026, darkorbitwiki (Mimesis türleri, boxes/mimesis-box, galaxy-gates/mimesis-mutiny-gate: Mimesis Chest), istemcinin metinleri ve game.xml; tools/buyuk_icerikler.py",
-  "_adaptation": "Rota (4 nokta + fener), dalgalar ve puanlar kaynakta yok (araştırmanın önerileri); tek oyunculu: dalgalar oyuncunun gücüyle (World Boss ölçeği): can x0,3 x güç, hasar x0,25 x güç (0,5-1,5); EM Freighter canı en güçlü dalganın 240 sn ateşine dayanacak kadar (en az 2.000.000); sıralama sanal (oyuncu 1.); firma haritaları: MMO 433, EIC 436, VRU 430 (her firmanın ilk Escort haritası); Byte Remnant türün ödülüne doğrudan (ek_odul; mimesis._register) ve kutuya; kutu miktarları, ağırlıkları ve MINI_BOSS / BOSS eşlemesi kaynakta yok (normal kutu: türün Byte ödülünün yarısı; elit kutu: yarısı ile tamamı arası + bir satır); buff çekilişi mimesis_sandik.py."
+  "_source": "mimesis_mutiny.json: official FAQ 2020-2026, darkorbitwiki (Mimesis types, boxes/mimesis-box, galaxy-gates/mimesis-mutiny-gate: Mimesis Chest), the client's texts and game.xml; tools/major_content.py",
+  "_adaptation": "The route (4 points + beacon), waves and points are not in the source (the research's suggestions); single-player: waves scale with the player's power (World Boss scale): HP x0.3 x power, damage x0.25 x power (0.5-1.5); the EM Freighter's HP is enough to withstand 240 s of fire from the strongest wave (at least 2,000,000); ranking is virtual (player 1st); company maps: MMO 433, EIC 436, VRU 430 (each company's first Escort map); Byte Remnant goes directly to the type's reward (extra_reward; mimesis._register) and to the box; box quantities, weights and the MINI_BOSS / BOSS mapping are not in the source (normal box: half of the type's Byte reward; elite box: between half and all of it + one row); buff draw in mimesis_chest.py."
  },
  "kristallon_apotheosis": {
   "event": "kristallon_apotheosis",
@@ -3015,8 +3015,8 @@
     4
    ]
   ],
-  "_source": "board-en 130459 (FAQ Kristallon Apotheosis); istemci 1.1.115 (pencere apotheosis, harita 510, portal 307, VisualModifier 158 buz, 159 yarık, 160 radyasyon kılavuzu); tools/surum_115.py; yenilgi olasılıkları ve haftalık sınırlar resmî sunucu kaydı (2026-10-25)",
-  "_adaptation": "Tek oyunculu: sunucu çapındaki toplama hedefi oyuncunun kendi puanı (1000); toplama uzaylıları harita başına 4 + 1-2 (Icy, Kristallon, Boss Kristallon kopyaları, güçleri haritanın 'guc'ü), 15 sn'de yeniden doğar. Patronun canı, hasarı ve saldırıların zamanı, alanı, hasarı uyarlama (canı oyuncunun gücüyle, dunya_patronu.scale; seviye başına +%15); evreler %66 ve %33'te. Haftalık sıra tek oyunculuda haftanın yenilgi sayısından: 3+ 1., 2 2., 1 4. (ödülleri pazar sıfırlanınca). Katılım ödülü verilen hasar patronun canının %1'ini geçince.",
+  "_source": "board-en 130459 (FAQ Kristallon Apotheosis); client 1.1.115 (window apotheosis, map 510, portal 307, VisualModifier 158 ice, 159 rift, 160 radiation guide); tools/version_115.py; defeat probabilities and weekly limits from the official server recording (2026-10-25)",
+  "_adaptation": "Single-player: the server-wide collection goal is the player's own points (1000); collection aliens per map 4 + 1-2 (copies of Icy, Kristallon, Boss Kristallon, their power is the map's 'power'), respawn in 15 s. The boss's HP, damage and the timing, area and damage of attacks are an adaptation (HP by the player's power, world_boss.scale; +15% per level); phases at 66% and 33%. Weekly rank in single-player from the week's defeat count: 3+ 1st, 2 2nd, 1 4th (rewards when it resets on Sunday). The participation reward is given once the damage dealt exceeds 1% of the boss's HP.",
   "weekly_limit": {
    "participation": 3,
    "defeats": 3,

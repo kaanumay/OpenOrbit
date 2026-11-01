@@ -1,5 +1,5 @@
 {
- "_source": "tools/rutbe.py: uzaylı ve gemi puanları resmi sunucunun Hall of Fame puan ayrıntılarından (oyun verisi), rütbeler ve formül belgeler/wiki/progression.md (wiki).",
+ "_source": "tools/ranks.py: alien and ship points from the official server's Hall of Fame point details (game data), ranks and formula from belgeler/wiki/progression.md (wiki).",
  "npc_points": {
   "1": {
    "name": "-=[ Streuner ]=-",
@@ -1710,7 +1710,7 @@
   "ship_yamato": 2,
   "ship_yamato-ronin": 2
  },
- "_gemi_turu": "rütbe formülündeki gemi türü: istemcinin game.xml shipId'si (Phoenix 1 … Goliath 10, Citadel 11, Aegis 12, Spearhead 13); tasarımlar ve türevler taban geminin kimliğiyle (kayıt: Liberator 5 -> 5.000 puan). Tabanı klasik gemi olmayanlar (Tartarus …) 10 (uyarlama)",
+ "_ship_type": "ship type in the rank formula: the client's game.xml shipId (Phoenix 1 ... Goliath 10, Citadel 11, Aegis 12, Spearhead 13); designs and derivatives use the base ship's id (recording: Liberator 5 -> 5,000 points). Those whose base is not a classic ship (Tartarus ...) 10 (adaptation)",
  "formula": {
   "ep": 1e-05,
   "honor": 0.01,
@@ -1748,11 +1748,11 @@
   420000,
   550000
  ],
- "_esikler": "tek oyunculu uyarlama: gerçek oyunda rütbe her gün şirketteki oyuncular arasındaki sıraya göre verilir (Chief General 1 kişi … Basic Space Pilot %20). Şirkette başka oyuncu olmadığından rütbe, rütbe puanının bu eşiklerine göre (rütbe N için en az esikler[N-1]); bot oyuncular gelince (Aşama 11) gerçek sıralamaya dönülebilir",
+ "_thresholds": "single-player adaptation: in the real game the rank is given every day by position among the players in the company (Chief General 1 person ... Basic Space Pilot 20%). Since there are no other players in the company, the rank is derived from these thresholds of rank points (for rank N at least thresholds[N-1]); when bot players arrive (Phase 11) the real ranking can be restored",
  "outlaw": {
   "honor": -500,
   "icon": 5000,
-  "_not": "onur -500 ve altı: gemide 5000 simgesi (istemcide yalnız simge; Outlaw olduğu çıkarım). Tek oyunculuda onur eksiye düşmüyor (PvP ile, Aşama 11)"
+  "_note": "honor -500 and below: icon 5000 on the ship (only the icon in the client; that it is Outlaw is an inference). In single-player honor does not go negative (with PvP, Phase 11)"
  },
- "_gemi_turu_forum": "Tabloda olmayan ve klasik olmayan gemi 0 (gerçek kayıt: Sentinel 0); Goliath 10 (resmî forum 127585)"
+ "_ship_type_forum": "A ship not in the table and not classic is 0 (real recording: Sentinel 0); Goliath 10 (official forum 127585)"
 }

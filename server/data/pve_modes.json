@@ -1,5 +1,5 @@
 {
- "_description": "Sonsuz ve rogue-lite PvE modları -> server/data/pve_modlari.json (yol haritası Aşama 8; sunucu: pve_modlari.py, arena.py,\nebl.py, astral.py, echoes.py).\n\nKaynaklar belgeler/wiki/pve_modlari/ (darkorbitwiki, resmî forum SSS'leri, fandom; derlenmiş JSON) ve kayıttaki yanıtlar\n(server/data/yanitlar.json: Trinity Trials geçişi, OS modülü tablosu, ödül açıklamaları; Deep Space Echoes bilgisi ve sıralama\nödülleri). Görünümler istemcinin game.xml'i (gemi türü / npcId): Whisper = Terror Shrike 396/517, Voidmare = Nightmare Reaper\n395/516, Pyrospire 385/512, Magma Stalker 386/513, Vinespire 387/514, Spore Stalker 388/515, P.E.T. Scout/Decoy/Raider 130-132,\nGygerim Overlord 248/128, Gygerthrall 128/123, Mimesis 278-294, Missile Storm 9371/407, Ufonit 21/26, Cowering Cyborg 296/253,\nUnidentified Destroyer 100/50. Portal tasarımları lib_portals: Voyagers 306, Trinity 304, Expedition 300/301, Astral 86 ve kapı\ntürleri 87-100. Haritalar maps-config: Voyager 509, Hellfire I-V 499-503, Genome I-V 504-508, Astral 466-468, Command Hall 473,\nDSE 1-8 474-481.\nKaynağın vermediği değerler (dalga dizilişleri, kutu adetleri, ölçekler …) uyarlama; her bölümün '_uyarlama' notunda.",
+ "_description": "Endless and rogue-lite PvE modes -> server/data/pve_modes.json (roadmap Phase 8; server: pve_modes.py, arena.py,\nebl.py, astral.py, echoes.py).\n\nSources belgeler/wiki/pve_modlari/ (darkorbitwiki, official forum FAQs, fandom; compiled JSON) and the answers in the recording\n(server/data/responses.json: Trinity Trials clear, OS module table, reward descriptions; Deep Space Echoes info and ranking\nrewards). Appearances from the client's game.xml (ship type / npcId): Whisper = Terror Shrike 396/517, Voidmare = Nightmare Reaper\n395/516, Pyrospire 385/512, Magma Stalker 386/513, Vinespire 387/514, Spore Stalker 388/515, P.E.T. Scout/Decoy/Raider 130-132,\nGygerim Overlord 248/128, Gygerthrall 128/123, Mimesis 278-294, Missile Storm 9371/407, Ufonit 21/26, Cowering Cyborg 296/253,\nUnidentified Destroyer 100/50. Portal designs lib_portals: Voyagers 306, Trinity 304, Expedition 300/301, Astral 86 and gate\ntypes 87-100. Maps maps-config: Voyager 509, Hellfire I-V 499-503, Genome I-V 504-508, Astral 466-468, Command Hall 473,\nDSE 1-8 474-481.\nValues the source does not give (wave sequences, box counts, scales ...) are adaptation; in each section's '_adaptation' note.",
  "voyagers": {
   "map": 509,
   "entry": [
@@ -2113,8 +2113,8 @@
     20
    ]
   },
-  "_source": "darkorbitwiki voyagers-ascent, resmî forum; Whisper/Voidmare değerleri zorluk başına",
-  "_adaptation": "dalga dizilişleri (kaynakta yok), Nightmare değerleri (Expert x 1,8), SD Fragment = Igni Shard, CGL Fragment = resource_beacon-crystal (istemcinin çevirisi: Chronotic Gravitron Lens Fragment)"
+  "_source": "darkorbitwiki voyagers-ascent, official forum; Whisper/Voidmare values per difficulty",
+  "_adaptation": "wave sequences (not in the source), Nightmare values (Expert x 1.8), SD Fragment = Igni Shard, CGL Fragment = resource_beacon-crystal (client translation: Chronotic Gravitron Lens Fragment)"
  },
  "trinity": {
   "maps": {
@@ -6263,8 +6263,8 @@
    ]
   },
   "skip_per_minute": 1,
-  "_source": "resmî Trinity Trials SSS (kurallar, OS tablosu, geçiş puanları), kayıttaki geçiş ve ödül açıklaması, darkorbitwiki uzaylı değerleri",
-  "_adaptation": "dalga dizilişleri (kaynakta yok), OS atlama bedeli (kalan dakika başına 1 Xyralith), paket içerikleri"
+  "_source": "official Trinity Trials FAQ (rules, OS table, clear points), clear and reward descriptions in the recording, darkorbitwiki alien values",
+  "_adaptation": "wave sequences (not in the source), OS skip cost (1 Xyralith per remaining minute), package contents"
  },
  "astral": {
   "cpu": "ammunition_ggportal_astral-cpu",
@@ -7596,8 +7596,8 @@
     "15": 5.0
    }
   },
-  "_source": "resmî forum SSS 2022-2026, darkorbitwiki: 15 rift (5 ve 10 ara patron, 15 son patron), kiralık gemiler ve yüklemesi, kapı türleri, rift sonu ödülleri, puan formülü",
-  "_adaptation": "rift dalgaları kaynaktaki iki örnek koşudan (kapı türü normal/çılgın), güçlenme oranları, patron çarpanları, ödül havuzları ve seviyeleri (kaynak yalnız \"oyunda görülür\" diyor), Salvage Core ve anahtar olasılıkları"
+  "_source": "official forum FAQ 2022-2026, darkorbitwiki: 15 rifts (intermediate bosses at 5 and 10, final boss at 15), rental ships and their loadout, gate types, end-of-rift rewards, score formula",
+  "_adaptation": "rift waves from the two sample runs in the source (gate type normal/frenzied), strengthening ratios, boss multipliers, reward pools and their levels (the source only says \"seen in game\"), Salvage Core and key probabilities"
  },
  "echoes": {
   "level_requirement": 15,
@@ -10581,7 +10581,7 @@
     ],
     "duration_sec": null,
     "power": 1.5,
-    "_adaptation": "kaynakta yok: 31. seviyenin dalgaları"
+    "_adaptation": "not in the source: waves of level 31"
    },
    {
     "level": 42,
@@ -10683,7 +10683,7 @@
     ],
     "duration_sec": 300,
     "power": 1.5,
-    "_adaptation": "kaynakta yok: 32. seviyenin dalgaları"
+    "_adaptation": "not in the source: waves of level 32"
    },
    {
     "level": 43,
@@ -10779,7 +10779,7 @@
     ],
     "duration_sec": null,
     "power": 1.5,
-    "_adaptation": "kaynakta yok: 33. seviyenin dalgaları"
+    "_adaptation": "not in the source: waves of level 33"
    },
    {
     "level": 44,
@@ -10835,13 +10835,13 @@
     ],
     "duration_sec": null,
     "power": 1.5,
-    "_adaptation": "kaynakta yok: 34. seviyenin dalgaları"
+    "_adaptation": "not in the source: waves of level 34"
    },
    {
     "level": 45,
     "type": "boss",
     "hp": 9.375,
-    "_can": "Oyuncu bildirimi 2026-10-28 (Emperor Sibelon zayıf): tek Emperor'un canı/kalkanı 6,4 M ile 40. ve 50. seviyelerin Gygerim Overlord'unun (60 M) onda biriydi, önceki seviyelerin dalgalarından da zayıftı. Can ve kalkan Overlord'unkine (60 M) çıkar, hasar aynı kalır",
+    "_hp": "Player report 2026-10-28 (Emperor Sibelon weak): the single Emperor's hp/shield of 6.4 M was a tenth of the Gygerim Overlord's (60 M) at levels 40 and 50, and also weaker than the waves of earlier levels. HP and shield are raised to the Overlord's (60 M), damage stays the same",
     "waves": [
      {
       "name": "boss",
@@ -11002,7 +11002,7 @@
     ],
     "duration_sec": null,
     "power": 1.5,
-    "_adaptation": "kaynakta yok: 36. seviyenin dalgaları"
+    "_adaptation": "not in the source: waves of level 36"
    },
    {
     "level": 47,
@@ -11063,7 +11063,7 @@
     ],
     "duration_sec": null,
     "power": 1.5,
-    "_adaptation": "kaynakta yok: 37. seviyenin dalgaları"
+    "_adaptation": "not in the source: waves of level 37"
    },
    {
     "level": 48,
@@ -11129,7 +11129,7 @@
     ],
     "duration_sec": null,
     "power": 1.5,
-    "_adaptation": "kaynakta yok: 38. seviyenin dalgaları"
+    "_adaptation": "not in the source: waves of level 38"
    },
    {
     "level": 49,
@@ -11203,7 +11203,7 @@
     ],
     "duration_sec": null,
     "power": 1.5,
-    "_adaptation": "kaynakta yok: 39. seviyenin dalgaları"
+    "_adaptation": "not in the source: waves of level 39"
    },
    {
     "level": 50,
@@ -11492,8 +11492,8 @@
     "window_dse_fail_con1"
    ]
   },
-  "_source": "darkorbitwiki deep-space-echoes-gate (1-40. seviye dalgaları, ilk geçiş ödülleri), resmî SSS (kurallar, seviye türleri), kayıttaki ExpeditionInfoCommand (sıralama ödülleri, koşul metinleri)",
-  "_adaptation": "41-49 dalgaları (31-39 x1,5), 40/45/50 patronları, güçlenme, süre (10 dk), tekrar ödülü, atlama bedeli, korunacak ve eşlik edilecek gemi (EM Freighter, Demaner Freighter görünümü) ve değerleri"
+  "_source": "darkorbitwiki deep-space-echoes-gate (waves of levels 1-40, first-clear rewards), official FAQ (rules, level types), ExpeditionInfoCommand in the recording (ranking rewards, condition texts)",
+  "_adaptation": "waves 41-49 (31-39 x1.5), bosses at 40/45/50, strengthening, duration (10 min), repeat reward, skip cost, ship to protect and escort (EM Freighter, Demaner Freighter appearance) and their values"
  },
  "ebl": {
   "cpu": "ammunition_ggportal_eternal-blacklight-cpu",
@@ -12399,8 +12399,8 @@
   ],
   "part": "resource_collectable_blacklight-shard",
   "level": 17,
-  "_source": "darkorbitwiki eternal-blacklight-gate, resmî forum SSS (EN/ES/RU), fandom: 51 dalga, 6 oda, tur başına x1,8, kontrol noktaları ve booster puanları, ölüm ödülü kademeleri, 75.000 uridyum sınırı",
-  "_adaptation": "zayıf/güçlü dalga sürümleri ödül oranıyla (can ve hasar da), Saturn Bastion değerleri, booster kademe olasılıkları (60/30/10), isabet booster değerleri, IAC olasılığı ve adedi; Strokelight Barrage hareket etmez, mayın bırakmaz"
+  "_source": "darkorbitwiki eternal-blacklight-gate, official forum FAQ (EN/ES/RU), fandom: 51 waves, 6 rooms, x1.8 per round, checkpoints and booster points, death reward tiers, 75,000 uridium limit",
+  "_adaptation": "weak/strong wave versions with reward ratio (also hp and damage), Saturn Bastion values, booster tier probabilities (60/30/10), hit booster values, IAC probability and count; Strokelight Barrage does not move, does not drop mines"
  },
  "kinds": {
   "pm_whisper_1": {
@@ -13139,7 +13139,7 @@
     "uridium": 20
    },
    "cargo": {},
-   "_adaptation": "değer kaynakta yok"
+   "_adaptation": "value not in the source"
   },
   "pm_petdecoy": {
    "name": "-=[ P.E.T. Decoy ]=-",
@@ -13157,7 +13157,7 @@
     "uridium": 10
    },
    "cargo": {},
-   "_adaptation": "değer kaynakta yok"
+   "_adaptation": "value not in the source"
   },
   "pm_saturndefcom": {
    "name": "-=[ Saturn Defcom ]=-",
@@ -13244,7 +13244,7 @@
     "uridium": 112
    },
    "cargo": {},
-   "_adaptation": "değer kaynakta yok"
+   "_adaptation": "value not in the source"
   },
   "pm_saturnspearhead": {
    "name": "-=[ Saturn Spearhead ]=-",
@@ -13404,7 +13404,7 @@
     "uridium": 30
    },
    "cargo": {},
-   "_adaptation": "değer kaynakta yok"
+   "_adaptation": "value not in the source"
   },
   "pm_ufonit": {
    "name": "-=[ Ufonit ]=-",
@@ -13422,7 +13422,7 @@
     "uridium": 32
    },
    "cargo": {},
-   "_source": "vortex_of_terror.json (fandom): can, kalkan, hasar, ödül; hız \"Between 290-310\""
+   "_source": "vortex_of_terror.json (fandom): hp, shield, damage, reward; speed \"Between 290-310\""
   },
   "pm_unidentifieddestroyer": {
    "name": "-=[ Unidentified Destroyer ]=-",
@@ -13440,7 +13440,7 @@
     "uridium": 125
    },
    "cargo": {},
-   "_adaptation": "değer kaynakta yok"
+   "_adaptation": "value not in the source"
   },
   "pm_reflectormimesis": {
    "name": "-=[ Reflector Mimesis ]=-",
@@ -13483,7 +13483,7 @@
     "uridium": 75
    },
    "cargo": {},
-   "_adaptation": "değer kaynakta yok"
+   "_adaptation": "value not in the source"
   },
   "pm_bosskucurbium": {
    "name": "..::{ Boss Kucurbium }::..",

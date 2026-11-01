@@ -1,5 +1,5 @@
 {
- "_description": "Eksik eşya sistemleri -> server/data/esyalar_o6.json ve esyalar.json ek_magaza (yol haritası Ö6).",
+ "_description": "Missing item systems -> server/data/items_o6.json and items.json extra_shop (roadmap Ö6).",
  "_source": "belgeler/wiki/esyalar_o6.json; tools/esyalar_o6.py",
  "phrases": {
   "items": [
@@ -39,7 +39,7 @@
   "cooldown_sec": 20,
   "duration_sec": 5,
   "price_uridium": 50,
-  "_adaptation": "fiyat (istemcinin 999 U değeri bilinmeyen eşyanın yer tutucusu); süre 5 sn ve ortak bekleme 20 sn resmî Mimesis Mutiny SSS'sinden"
+  "_adaptation": "price (the client's 999 U value is a placeholder for an unknown item); duration 5 s and shared cooldown 20 s from the official Mimesis Mutiny FAQ"
  },
  "boosters": {
   "kinds": {
@@ -62,7 +62,7 @@
     "proxium": 100
    }
   },
-  "_kinds": "istemcinin BoosterAttributes'i: bb-01 COLLECT_RESOURCES_NEWBIE 100 (bonus kutusu x2), qr-01 SalvageEffect AMOUNT 100 (görev ödülü x2, uridyum hariç), prm-b01 AMOUNT 100 (Hybrid Alloy / Indoctrine Oil x2), rc-b00 / rm-b00 etkinlik puanı olasılığı +%20 / miktarı +%50, rwrddbl-b01 Proxium x2 (Proxium sunucuda yok: etki noktası yok)",
+  "_kinds": "the client's BoosterAttributes: bb-01 COLLECT_RESOURCES_NEWBIE 100 (bonus box x2), qr-01 SalvageEffect AMOUNT 100 (quest reward x2, except uridium), prm-b01 AMOUNT 100 (Hybrid Alloy / Indoctrine Oil x2), rc-b00 / rm-b00 event point chance +20% / amount +50%, rwrddbl-b01 Proxium x2 (Proxium is not on the server: no effect point)",
   "alias": {
    "booster_max-bp01": [
     [
@@ -121,7 +121,7 @@
     ]
    ]
   },
-  "_aliases": "istemcinin tanımadığı boosterlar [[booster, saat]] (MAX-BP01: beş B01 10 saat; NBX/NQR 72 saat; PCOMB 3 saat; eşdeğerlerin istemcideki saatleri, E5)",
+  "_aliases": "boosters the client does not recognize [[booster, hours]] (MAX-BP01: five B01 10 hours; NBX/NQR 72 hours; PCOMB 3 hours; the equivalents' hours in the client, E5)",
   "shop": {
    "booster_bb-01": 10000,
    "booster_qr-01": 10000,
@@ -795,7 +795,7 @@
     "aegis": "synthesis_resonator_aegis"
    }
   },
-  "_adaptation": "Resonator yayımlanmamış içerik: kaliteye bölünmüş aralıklar, nitelik adedi (1,2,2,3,3,4,4), tarifler (C: türün 3 kaynağı + 1.000 U; üstü 4 alt kalite + uridyum), başarı %100 (pencerede oran yok), kaynakların mağaza fiyatı, \"en iyi Strike Resonator etkin\" kuralı (hangarda yuvası yok)."
+  "_adaptation": "Resonator is unreleased content: ranges divided by quality, attribute count (1,2,2,3,3,4,4), recipes (C: the type's 3 sources + 1,000 U; above that 4 lower qualities + uridium), success 100% (no rate in the window), the shop price of the sources, the \"best Strike Resonator active\" rule (no slot in the hangar)."
  },
  "extra_recipes": {
   "group": "title_assembly",
@@ -1091,6 +1091,6 @@
     "adaptation": true
    }
   ],
-  "_adaptation": "malzemeler istemcinin benzer tariflerinden (belgeler/wiki/esyalar_o6.json tarifler.liste); USABLE_ONCE tasarımlar bir kez"
+  "_adaptation": "ingredients from the client's similar recipes (belgeler/wiki/esyalar_o6.json tarifler.liste); USABLE_ONCE designs once"
  }
 }

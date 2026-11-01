@@ -1,5 +1,5 @@
 {
- "_description": "Ö3 etkinlikleri (tools/ek_etkinlikler.py; kaynak belgeler/wiki/etkinlikler/). Bölümler modüllerinde açıklanıyor.",
+ "_description": "Ö3 events (tools/extra_events.py; source belgeler/wiki/etkinlikler/). The sections are described in their modules.",
  "chromin": {
   "maximum": 160000,
   "honor_ratio": 7,
@@ -29,8 +29,8 @@
     600
    ]
   ],
-  "_source": "hitac_chromin.json chromin: 160.000 sınırı, etkinlik sonunda 1:7 onur, kapılar (Kappa, Epsilon, Zeta, Delta, Kuiper, Kronos; kapilar.json streuner = Kuiper Gate), kutu türleri CHROMIN_BOX_1..3, altı kapı için de kapı başına 2.700 (darkorbitwiki chromin-rush, 2026-10-01)",
-  "_adaptation": "Uzaylı başına miktar kapı toplamının (2.700) uzaylının gücüne (can + kalkan) oranı; uzaylıların %40'ı kutu düşürür (miktar ona göre). Sınırı aşan Chromin başına 10 kredi (oranı kaynakta yok). Kutunun büyüklüğü miktara göre (150, 600 eşikleri)."
+  "_source": "hitac_chromin.json chromin: 160,000 limit, 1:7 honor at the end of the event, gates (Kappa, Epsilon, Zeta, Delta, Kuiper, Kronos; in gates.json streuner = Kuiper Gate), box types CHROMIN_BOX_1..3, 2,700 per gate for all six gates (darkorbitwiki chromin-rush, 2026-10-01)",
+  "_adaptation": "Per-alien quantity is the ratio of the gate total (2,700) to the alien's strength (HP + shield); 40% of aliens drop a box (quantity accordingly). 10 credits per Chromin over the limit (ratio not in the source). Box size by quantity (thresholds 150, 600)."
  },
  "hitac_lottery": {
   "word": "HITAC",
@@ -468,8 +468,8 @@
     0.06
    ]
   ],
-  "_source": "hitac_chromin.json: HITAC 5 harf, her zaman eksik harf; Minion kutusu %50 harf ve 300 MCB-50; Underling %0,5, Underboss %18; ana gemi kutusundan 1 kapsül; dönüştürücü 2024-2026 tablosu (40 paket, toplam %100). Harf olasılıkları: {\"Hitac-Minion cargo box (classic Hitac event 2012-2015)\": 50.0, \"HITAC MINION box (Hitac Assault, Hitac 2.0 / 2.5 motherships)\": null, \"Easy Hitac Minion box (low-level version)\": null, \"Hitac Underling (X-2..X-8)\": 0.5, \"Hitac Underboss (X-2..X-8)\": 18.0, \"HITAC MOTHERSHIP box (darkorbitwiki)\": null}",
-  "_adaptation": "Kutu türleri istemcinin adları (HITAC_MINION, HITAC_UNDERBOSS, HITAC). Underling ve Underboss her öldüğünde kutu düşer: harf wiki şansıyla, yanında içerikten eşit ağırlıkla bir satır (kalemler darkorbitwiki hitac-assault; miktarlar ve şans kaynakta yok: uyarlama). Ana gemi kutusu kapsülün yanında 50 ACM-1 ve 1.000 PLT-3030 (wiki) verir; Backup Shield 2, Battle Repair Bot 2, Explosive Charging Blob ve NPC Nuke her biri %5 (şans kaynakta yok: uyarlama). end_draw: wiki \"end-of-event lottery (used capsules)\", ödül sayısı örnek başına 3 paket; tek oyunculuda çekilişin tek katılımcısı olarak Capsule Converter'da harcanan her kapsül bir hak, her hak havuzdan en çok 3 sahip olunmayan ödül (olasılık kaynakta yok: eşit). Kapsülün uridyum fiyatı mağaza dengesinde."
+  "_source": "hitac_chromin.json: HITAC 5 letters, always a missing letter; Minion box 50% letter and 300 MCB-50; Underling 0.5%, Underboss 18%; 1 capsule from the mothership box; converter 2024-2026 table (40 packages, total 100%). Letter probabilities: {\"Hitac-Minion cargo box (classic Hitac event 2012-2015)\": 50.0, \"HITAC MINION box (Hitac Assault, Hitac 2.0 / 2.5 motherships)\": null, \"Easy Hitac Minion box (low-level version)\": null, \"Hitac Underling (X-2..X-8)\": 0.5, \"Hitac Underboss (X-2..X-8)\": 18.0, \"HITAC MOTHERSHIP box (darkorbitwiki)\": null}",
+  "_adaptation": "Box types are the client's names (HITAC_MINION, HITAC_UNDERBOSS, HITAC). A box drops every time an Underling and an Underboss dies: a letter with the wiki chance, and next to it a row from the contents with equal weight (items from darkorbitwiki hitac-assault; quantities and chance not in the source: adaptation). The mothership box gives 50 ACM-1 and 1,000 PLT-3030 (wiki) next to the capsule; Backup Shield 2, Battle Repair Bot 2, Explosive Charging Blob and NPC Nuke 5% each (chance not in the source: adaptation). end_draw: wiki \"end-of-event lottery (used capsules)\", reward count 3 packages per sample; in single-player, as the draw's only participant, each capsule spent at the Capsule Converter is one entry, and each entry gives up to 3 unowned rewards from the pool (probability not in the source: equal). The capsule's uridium price is in the shop balance."
  },
  "title_hunt": {
   "event": "title_hunt",
@@ -607,8 +607,8 @@
     }
    ]
   },
-  "_source": "hitac_chromin.json title_frenzy: 4 unvan, X-2..X-8 Underling'leri, saatler, kayıp koşulları, 2024-2026 sıralama ödülleri (her sıra kalıcı unvanı da alır), setler 12-20 ve 22-30 Ağustos 2026",
-  "_adaptation": "Rakipler sanal (müzayede rakiplerinin adları): dakikada %8 olasılıkla uzaylıdaki unvanı kapar, 5-25 dk tutar. Puan tutulan dakika. İki set tek dönem gibi (takvimde iki aralık; her biri kendi ödülünü verir)."
+  "_source": "hitac_chromin.json title_frenzy: 4 titles, X-2..X-8 Underlings, hours, loss conditions, 2024-2026 ranking rewards (each rank also gets the permanent title), sets 12-20 and 22-30 August 2026",
+  "_adaptation": "Rivals are virtual (the names of the auction rivals): each minute an 8% chance to grab the title from the alien, holding it for 5-25 min. The score is the minutes held. The two sets are like a single period (two ranges in the calendar; each gives its own reward)."
  },
  "fever": {
   "days": [
@@ -784,8 +784,8 @@
    454,
    455
   ],
-  "_source": "diger_etkinlikler.json fever: saatler (hafta içi 19-21, hafta sonu 13-15 ve 19-21), Galactic Strife 09-2020 takımı (istemcinin metinleriyle aynı), ölünce üste ya da en yakın portalda ücretsiz onarım; Black Light Fever setleri (setler): darkorbitwiki eternal-black-light (17-23 Eylül ve 25 Eylül - 1 Ekim 2026)",
-  "_adaptation": "Asıl oyunda PvP haritalarında: tek oyunculuda Hitac'ın normal haritaları (X-2..X-8), Black Light ve Gauntlet of Plutus; oyuncu gemisine hasar yerine uzaylı hasarı. Black Light haftaları (fever_black_light takvimi) kendi setiyle ve yalnız BL haritalarında; yılda bir (52 haftada bir) tekrarlanır.",
+  "_source": "diger_etkinlikler.json fever: hours (weekdays 19-21, weekends 13-15 and 19-21), Galactic Strife 09-2020 team (same as the client's texts), free repair at base or the nearest portal on death; Black Light Fever sets (sets): darkorbitwiki eternal-black-light (17-23 September and 25 September - 1 October 2026)",
+  "_adaptation": "In the original game on PvP maps: in single-player Hitac's normal maps (X-2..X-8), Black Light and Gauntlet of Plutus; alien damage instead of damage to the player's ship. Black Light weeks (fever_black_light calendar) with their own set and only on BL maps; repeats once a year (every 52 weeks).",
   "sets": [
    {
     "start": "2026-09-25",
@@ -2146,7 +2146,7 @@
       }
      }
     ],
-    "_source": "forum 151229 Mimesis Kasım 2025 Hararet Seti 2"
+    "_source": "forum 151229 Mimesis November 2025 Fever Set 2"
    },
    {
     "start": "2025-11-12",
@@ -2341,7 +2341,7 @@
       }
      }
     ],
-    "_source": "forum 151229 Mimesis Kasım 2025 Hararet Seti 1"
+    "_source": "forum 151229 Mimesis November 2025 Fever Set 1"
    },
    {
     "start": "2025-03-20",
@@ -10294,8 +10294,8 @@
   "voucher": "resource_collectable_galaxy-coupon",
   "portal_design": 15,
   "tooltip": "ttip_jumpgate_bday2025",
-  "_source": "fiesta_gate.json: 5 zorluk (kupon 1/5/10/15/23, AP 5/30/60/100/160), sırayla açılır, tek can, başarısızlıkta kupon gider; 50 seviyelik AP çizgisi (toplam 9.600); tamamlama ödülleri (darkorbitwiki olasılıkları); uzaylılar Chronospire, Veil Stalker ve Trinity Trials'ın Pyrospire, Magma Stalker, Vinespire, Spore Stalker'ı",
-  "_adaptation": "Harita zorluk başına (494-498: Tranquil..Mythic). Dalgalar (6/8/10/12/15) ve uzaylı adetleri uyarlama; uzaylıların can/kalkanı Trinity Trials kademeleri (easy..nightmare: Mythic değerleri wiki'yle aynı), ödülleri wiki'nin Standard ve Mythic değerleri arasında. Portalın görünümü Birthday Gate'inki (15)."
+  "_source": "fiesta_gate.json: 5 difficulties (voucher 1/5/10/15/23, AP 5/30/60/100/160), unlocked in order, single life, the voucher is lost on failure; 50-level AP track (total 9,600); completion rewards (darkorbitwiki probabilities); aliens Chronospire, Veil Stalker and Trinity Trials' Pyrospire, Magma Stalker, Vinespire, Spore Stalker",
+  "_adaptation": "Map per difficulty (494-498: Tranquil..Mythic). Waves (6/8/10/12/15) and alien counts are adaptation; the aliens' HP/shield are the Trinity Trials tiers (easy..nightmare: the Mythic values are the same as the wiki), the rewards are between the wiki's Standard and Mythic values. The portal's appearance is the Birthday Gate's (15)."
  },
  "galaxy_trek": {
   "planet": 40,
@@ -12191,8 +12191,8 @@
     "key": "SS_planet_name_40"
    }
   ],
-  "_source": "galaxy_trek.json: 40 gezegen / 8 bölge, keşif 1 FTL Key (1/5/10), olaylar %50/30/20 (+%3/5/9) ve 2026-09 ödül paketleri, 13 basamak (Stellar Raider 16, Starfield Vanquisher 36, 40: 2x LF-5 Mortifier), 16 görev (toplam 60 anahtar), günde 10 görev (1 sabit, 9 rastgele); anahtarlar etkinlik bitince silinir",
-  "_adaptation": "%100'ü aşan ilerleme sonraki gezegene geçmez (kaynakta yok). \"1 Month Premium\" basamağı yerine 100.000 uridyum (tek oyunculuda hep Premium). İlerleme her koşuda sıfırlanır (kaynakta düşük güven). Sabit görev giriş."
+  "_source": "galaxy_trek.json: 40 planets / 8 regions, exploration 1 FTL Key (1/5/10), events 50%/30%/20% (+3%/5%/9%) and 2026-09 reward packages, 13 steps (Stellar Raider 16, Starfield Vanquisher 36, 40: 2x LF-5 Mortifier), 16 quests (total 60 keys), 10 quests per day (1 fixed, 9 random); the keys are deleted when the event ends",
+  "_adaptation": "Progress above 100% does not carry over to the next planet (not in the source). 100,000 uridium instead of the \"1 Month Premium\" step (always Premium in single-player). Progress resets every run (low confidence in the source). Fixed quest entry."
  },
  "infiltration": {
   "duration_sec": 600,
@@ -12227,8 +12227,8 @@
    "type": "event_infiltration_boss_kristallon",
    "probability": 0.25
   },
-  "_source": "diger_etkinlikler.json infiltration: 10 dakika, gizli komandolar (ateş etmez), vurulunca görünür, olağan uzaylıdan fazla ödül, X-1'de değil, akşam 19-22 turları, Şükran Günü 24 Kasım - 5 Aralık; gizli Boss Kristallon (bulunup yok edilince Uber Kristallon'un ganimetini verir; fandom Infiltration)",
-  "_adaptation": "Takım 6 uzaylı (kaynak yok), ödül 2x (kaynaklar 2x/4x), tur arası 2 dk; türler Saimon, Mordon, Sibelonit, Kristallin, Protegit, Kristallon, Interceptor (kaynaktaki örnekler); takım oyuncunun firmasının haritasında. Gizli Boss Kristallon (npc.json etk_sizma_boss_kristallon) turun %25'inde bir komandonun yerine gelir (kaynakta olasılık yok)."
+  "_source": "diger_etkinlikler.json infiltration: 10 minutes, hidden commandos (do not fire), become visible when hit, more reward than ordinary aliens, not on X-1, evening rounds 19-22, Thanksgiving 24 November - 5 December; hidden Boss Kristallon (when found and destroyed gives Uber Kristallon's loot; fandom Infiltration)",
+  "_adaptation": "Team of 6 aliens (no source), reward 2x (sources 2x/4x), 2 min between rounds; types Saimon, Mordon, Sibelonit, Kristallin, Protegit, Kristallon, Interceptor (the examples in the source); the team is on the map of the player's company. The hidden Boss Kristallon (npc.json event_infiltration_boss_kristallon) takes the place of a commando in 25% of rounds (no probability in the source)."
  },
  "invasion": {
   "gates": {
@@ -25346,9 +25346,9 @@
     48
    ]
   ],
-  "_source": "diger_etkinlikler.json invasion: kapılar X-1 (5-9), X-3 (10-14), X-5 (15+), 22 dalga (Streuner .. Boss Kucurbium; sonra baştan), uzaylı başına firmaya 1 puan, kazanan firmalara 1 hafta +%10/+%5/+%3 hasar, çıkış yalnız ölerek, ücretsiz onarım; Kucurbium değerleri darkorbitwiki",
-  "_adaptation": "Haritalar firma ve kademeyle (61-69: MMO/EIC/VRU sırasıyla). Dalga adetleri, kademe çarpanları (can/kalkan/hasar x1/x2/x3; ödül her kademede aynı: resmî forum 127530), \"SaNeJiEwZ\" dalgaları yerine Uber Sibelon / Kristallon. Öteki firmaların puanı sanal (dakikada 20-60); oyuncunun firması da sanal ekip puanı alır, oyuncunun her öldürmesi +1. Hasar ödülü DMG-B01 booster'ı (168 / 84 / 48 saat). Kucurbium görünümü Curcubitor'unki.",
-  "_forum_tr": "Resmî Türk forumu 127530 (İstila Haritası): ödüller kademeler arasında eşit (x1/x1,5/x2 kaldırıldı); Boss Kucurbium küçükleri yaşarken Insta-Shield'lı (kalici)"
+  "_source": "diger_etkinlikler.json invasion: gates X-1 (5-9), X-3 (10-14), X-5 (15+), 22 waves (Streuner .. Boss Kucurbium; then it starts over), 1 point per alien for the company, the winning companies get +10%/+5%/+3% damage for 1 week, exit only by dying, free repair; Kucurbium values darkorbitwiki",
+  "_adaptation": "Maps by company and tier (61-69: MMO/EIC/VRU in that order). Wave counts, tier multipliers (HP/shield/damage x1/x2/x3; the reward is the same in every tier: official forum 127530), Uber Sibelon / Kristallon instead of the \"SaNeJiEwZ\" waves. The other companies' score is virtual (20-60 per minute); the player's company also gets a virtual team score, each player kill +1. The damage reward is the DMG-B01 booster (168 / 84 / 48 hours). Kucurbium's appearance is Curcubitor's.",
+  "_forum_tr": "Official Turkish forum 127530 (Invasion Map): rewards are equal across tiers (x1/x1.5/x2 removed); Boss Kucurbium has Insta-Shield while its minions are alive (permanent)"
  },
  "urgent_quests": {
   "play_sec": 2700,
@@ -25360,7 +25360,7 @@
    4
   ],
   "reward_multiplier": 3,
-  "_source": "diger_etkinlikler.json urgent_missions: uzun aralıksız uzaylı avında çıkar, yalnız üste kabul, süresi dolunca kaybolur, hedefler sıradan uzaylılar (2 Streuner, 2 Lordakia, 2 Mordon örneği)",
-  "_adaptation": "45 dk aralıksız oyun ve 150 öldürmeden sonra (en çok saatte bir), 20 dk süre, haritanın 3 türünden 2-4'er; ödül hedeflerin ödüllerinin 3 katı (asıl oyunda azalan ödülleri düzeltiyordu, sunucuda azalan ödül yok)."
+  "_source": "diger_etkinlikler.json urgent_missions: appears after a long uninterrupted alien hunt, accepted only at base, disappears when time runs out, the targets are ordinary aliens (example 2 Streuner, 2 Lordakia, 2 Mordon)",
+  "_adaptation": "After 45 min of continuous play and 150 kills (at most once an hour), 20 min duration, 2-4 each of the map's 3 types; the reward is 3 times the targets' rewards (in the original game it compensated for the decreasing rewards; there is no decreasing reward on the server)."
  }
 }

@@ -1,6 +1,6 @@
 {
- "_source": "Süre, bekleme ve etkiler belgeler/wiki/ships.md (darkorbitwiki). Menü öğeleri istemcinin kısayol menüsünden (kayıttaki MenuInitializationCommand, 'ship_abilities' kategorisi, 65 öğe). Görseller istemcinin kodundan: AbilityEffectActivationCommand.selectedAbilityId = istemcinin beceri kodu (EventAssemblySkills: 1 Solace, 2 Diminisher, 3 Spectrum, 4 Sentinel, 5 Venom, 6 hız efekti 'speed-buff-effect'), AbilityStartCommand: 102 Draw Fire, 106 Target Marker (MarkedByRecon), 110 EMP görseli, 111 mini harita (AddDoubleMinimapRevealEffect), 101 Aegis HP Repair ve 104 Shield Repair (istemci bu kimliklerde abilitySounds 90 aegisHPRepair ve 91 aegisShieldRecharge seslerini çalar; belgeler/istemci/gorseller.md). Repair Pod haritaya HEALING_POD (AssetType 33) nesnesi koyar ('varlik'; canlı deneme 2026-10-17). Fortify ve Protection gemi görünümü ('gorunum': istemcinin VisualModifier'ı, VisualModifierCommand; 8 FORTIFY zırh, 9 PROTECT_OWNER kırmızı halka; canlı deneme 2026-10-17). Ultimate Cloak'un görseli kesinleşmedi.",
- "_effects": "hp_percent: anında azami canın oranı; can_onar / kalkan_onar: süre boyunca toplam (saniyede eşit); mods: süre boyunca profil bonusları (hiz, lazer, damage_taken, laser_taken, kalkan_hasari; sabit_hiz: gösterilen hız bu değere ayarlanır, 0 = kıpırdamaz); target_shield_damage: hedefin kalkanına giden hasar çarpanı süre boyunca (1,5 = kalkan emdiği payın 1,5 katı erir, gövde payı değişmez; Weaken Shields), shield_loss: etki bitince KENDİ kalkanından oran gider (Weaken Shields); yansit: alınan hasarın bu oranı (indirimden önceki ham hasar) saldırana döner, mods.alinan_hasar ile birlikte (Revenge); teleport_to_target: hedefin konumuna ışınlan (Sleight; menzil sınırı yok, hedef_yavaslat ile hedef yavaşlar); zehir: hedefin gövdesine saniyede bir vuruş (ilk, artis, en_cok, toplam); target_damage: işaretli hedefe hasar bonusu; draw_fire: menzildeki uzaylılar saldırır; gizlen: uzaylılar görmez (saldırınca, kutu toplayınca, atlayınca biter); gorus: görüş mesafesi çarpanı; roket_bekleme_ms: roket bekleme süresi. E5: hedef_kalkan_kapat: hedefin kalkanından oran süre boyunca kapanır, bitince geri (Shield Disarray); target_fire_interval: hedefin lazer beklemesi [en az, en çok] sn (DDoL); yuk {source: oldurme | zincir, azami, menzil (etkin değilken yük başına lazer menzili), mods (harcanan yük başına), artan (her yük bir öncekinden bu kadar fazla), azami_hiz}: yük biriktiren yetenek, yüksüz basılmaz, etkinleşince yükler harcanır (Momentum, Stockpile, Volt Discharge); ters_cevir: takılı modüllerin eksi nitelikleri artıya, eksi yoksa bu bonuslar (Self Reversal); dolum {saniyede, azami, split_radius}: hedefe dolan vuruş, dolunca / süre bitince / hedef menzilden çıkınca (Charge Shot); kalkan_erit: saniyede azami kalkanın oranı kadar erime, close_at_zero: 0'da yetenek biter (Scramble, Supercharge Plus); ucgen_patlama {hasar, yaricap, uzaklik}: hedefin arkasında üçgen üç patlama (Triple Barrage); sonraki_gsp: bir sonraki Singularity Drive atışına bir kez (Quantum Amplifier); lazer_yansit: laser_taken'in azalttığı hasar saldırana döner (Prismatic Reflecting); olumsuz: can 1'de kalınca bu kadar sn dokunulmaz ve yetenek biter (Volt Back-up); launcher_damage, top, top_bekleme: mods anahtarları (fırlatıcı hasarı, Particle Cannon hasarı ve beklemesi).",
+ "_source": "Duration, cooldown and effects belgeler/wiki/ships.md (darkorbitwiki). Menu items from the client's shortcut menu (MenuInitializationCommand in the recording, 'ship_abilities' category, 65 items). Visuals from the client's code: AbilityEffectActivationCommand.selectedAbilityId = the client's skill code (EventAssemblySkills: 1 Solace, 2 Diminisher, 3 Spectrum, 4 Sentinel, 5 Venom, 6 speed effect 'speed-buff-effect'), AbilityStartCommand: 102 Draw Fire, 106 Target Marker (MarkedByRecon), 110 EMP visual, 111 minimap (AddDoubleMinimapRevealEffect), 101 Aegis HP Repair and 104 Shield Repair (for these ids the client plays abilitySounds 90 aegisHPRepair and 91 aegisShieldRecharge; belgeler/istemci/gorseller.md). Repair Pod places a HEALING_POD (AssetType 33) object on the map ('entity'; live test 2026-10-17). Fortify and Protection ship appearance ('appearance': the client's VisualModifier, VisualModifierCommand; 8 FORTIFY armor, 9 PROTECT_OWNER red ring; live test 2026-10-17). The visual of Ultimate Cloak is not settled.",
+ "_effects": "hp_percent: ratio of max hp, instantly; hp_repair / shield_repair: total over the duration (equal per second); mods: profile bonuses over the duration (speed, laser, damage_taken, laser_taken, shield_damage_taken; fixed_speed: the displayed speed is set to this value, 0 = does not move); target_shield_damage: damage multiplier to the target's shield over the duration (1.5 = the shield melts 1.5 times the share it absorbs, hull share unchanged; Weaken Shields), shield_loss: when the effect ends, this ratio of the player's OWN shield is lost (Weaken Shields); mirror: this ratio of the damage taken (raw damage before reduction) returns to the attacker, together with mods.damage_taken (Revenge); teleport_to_target: teleport to the target's position (Sleight; no range limit, the target slows down via target_slow); poison: one hit per second on the target's hull (first, increase, max_count, total); target_damage: damage bonus on the marked target; draw_fire: aliens in range attack; cloak: aliens cannot see (ends on attacking, collecting a box, jumping); vision: view distance multiplier; rocket_cooldown_ms: rocket cooldown. E5: target_shield_off: this ratio of the target's shield is switched off over the duration, restored when it ends (Shield Disarray); target_fire_interval: the target's laser cooldown [min, max] s (DDoL); cargo {source: kills | chain, maximum, range (laser range per charge when not active), mods (per spent charge), ramp (each charge adds this much more than the previous one), max_speed}: an ability that accumulates charges, cannot be pressed without charges, charges are spent when it becomes active (Momentum, Stockpile, Volt Discharge); reverse: negative attributes of equipped modules become positive, if there are no negatives these bonuses (Self Reversal); reload {per_second, maximum, split_radius}: a hit that fills up on the target, when full / when time ends / when the target leaves range (Charge Shot); shield_melt: the shield melts by this ratio of the max shield per second, close_at_zero: the ability ends at 0 (Scramble, Supercharge Plus); triangle_blast {damage, radius, distance}: three explosions in a triangle behind the target (Triple Barrage); next_gsp: once, on the next Singularity Drive shot (Quantum Amplifier); reflect_laser: the damage reduced by laser_taken returns to the attacker (Prismatic Reflecting); undying: when hp is left at 1, invulnerable for this many s and the ability ends (Volt Back-up); launcher_damage, top, cannon_cooldown: mods keys (launcher damage, Particle Cannon damage and cooldown).",
  "skills": {
   "ability_solace": {
    "name": "Nano-Cluster Repairer",
@@ -26,7 +26,7 @@
     "shield_loss": 0.3
    },
    "targeted": true,
-   "_not": "istemci: düşmanın kalkanına giden hasar +%50 (kalkan, emdiği payın 1,5 katı erir, gövdeye geçen pay aynı); etki bitince KENDİ kalkanının %30'u gider",
+   "_note": "client: damage to the enemy's shield +50% (the shield melts 1.5 times the share it absorbs, the share passing to the hull is the same); when the effect ends 30% of the player's OWN shield is lost",
    "visual": {
     "effect": 2
    },
@@ -155,7 +155,7 @@
     "launch": 102
    },
    "achievement": "DRAW_FIRE",
-   "_not": "menzil wiki'de yok (uyarlama 1000)"
+   "_note": "menzil wiki'de yok (uyarlama 1000)"
   },
   "ability_citadel_travel": {
    "name": "Travel",
@@ -177,7 +177,7 @@
    "cooldown_sec": 60,
    "effect": {},
    "achievement": "PROTECT",
-   "_not": "grup üyelerinin hasarını üstlenir; tek oyunculuda etkisi yok (bot oyuncularla)",
+   "_note": "takes over the group members' damage; no effect in single-player (with bot players)",
    "visual": {
     "appearance": 9
    }
@@ -215,7 +215,7 @@
     "launch": 110
    },
    "achievement": "ULTIMATE_EMP",
-   "_not": "düşman gemi yeteneklerini durdurur; uzaylıların yeteneği yok (bot oyuncularla)"
+   "_note": "stops enemy ship abilities; aliens have no abilities (with bot players)"
   },
   "ability_spearhead_target-marker": {
    "name": "Target Marker",
@@ -229,7 +229,7 @@
     "launch": 106
    },
    "achievement": "MARK_TARGET",
-   "_not": "hasar yüzdesi wiki'de yok (uyarlama %5)"
+   "_note": "damage percentage is not in the wiki (adaptation 5%)"
   },
   "ability_spearhead_double-minimap": {
    "name": "Recon",
@@ -265,14 +265,14 @@
    "effect": {
     "rocket_cooldown_ms": 1000
    },
-   "_not": "bekleme istemcinin gemi verisinden (Tartarus 24 sn, Tartarus Plus 72 sn); normal roket beklemesinin de 1 sn'ye inmesi doğrulanmadı (istemci: fırlatıcının \"one second instead of three\")"
+   "_note": "cooldown from the client's ship data (Tartarus 24 s, Tartarus Plus 72 s); that the normal rocket cooldown also drops to 1 s is unverified (client: the launcher's \"one second instead of three\")"
   },
   "ability_basilisk_noxious-nebula": {
    "name": "Noxious Nebula",
    "duration_sec": 0,
    "cooldown_sec": 60,
    "effect": {},
-   "_not": "yalnız oyunculara etki eder: bot oyuncularla (Aşama 11)",
+   "_note": "affects only players: with bot players (Phase 11)",
    "text": [
     "msg_noxious_nebula_activated",
     "msg_noxious_nebula_stopped"
@@ -288,7 +288,7 @@
      "rocket": 0.05
     }
    },
-   "_not": "grup ve depolanan yük yok",
+   "_note": "no group and no stored charge",
    "text": [
     "msg_heightened_valour_activated",
     "msg_heightened_valour_stopped"
@@ -299,7 +299,7 @@
    "duration_sec": 0,
    "cooldown_sec": 60,
    "effect": {},
-   "_not": "grup üyesinin kalkan hasarını üstlenir: bot oyuncularla",
+   "_note": "takes over the group member's shield damage: with bot players",
    "text": [
     "msg_shield_link_activated",
     "msg_shield_link_stopped"
@@ -312,7 +312,7 @@
    "effect": {
     "rage_hp": 1.0
    },
-   "_not": "kaybedilen her %1 can +%1 lazer hasarı",
+   "_note": "each 1% hp lost gives +1% laser damage",
    "text": [
     "msg_berserk_activated",
     "msg_berserk_stopped"
@@ -329,7 +329,7 @@
      "damage_taken": -0.95
     }
    },
-   "_not": "istemci: alınan hasarın %100'ü doğrudan saldırana döner, oyuncu hasarın yalnız %5'ini alır, gemi yavaşlar; yansıyan miktar indirimden önceki ham hasardır",
+   "_note": "client: 100% of the damage taken goes directly back to the attacker, the player takes only 5% of the damage, the ship slows down; the reflected amount is the raw damage before reduction",
    "text": [
     "msg_revenge_activated",
     "msg_revenge_stopped"
@@ -354,7 +354,7 @@
    "duration_sec": 0,
    "cooldown_sec": 60,
    "effect": {},
-   "_not": "yalnız oyunculara etki eder: bot oyuncularla (Aşama 11)",
+   "_note": "affects only players: with bot players (Phase 11)",
    "text": [
     "msg_redirect_activated",
     "msg_redirect_stopped"
@@ -368,7 +368,7 @@
     "target_shield_off": 0.5
    },
    "targeted": true,
-   "_not": "istemci: hedefin kalkanının %50'si süre boyunca kapanır, bitince kapanan miktar geri eklenir",
+   "_note": "client: 50% of the target's shield is switched off over the duration, the switched-off amount is added back when it ends",
    "text": [
     "msg_shield_disarray_activated",
     "msg_shield_disarray_stopped"
@@ -384,7 +384,7 @@
      5
     ]
    },
-   "_not": "istemci: hedefin lazer beklemesi süre boyunca 3-5 sn arası rastgele (metin oyuncuyla sınırlamıyor: uzaylılara da; doğrulanmadı)",
+   "_note": "client: the target's laser cooldown is random between 3-5 s over the duration (the text does not limit it to players: aliens too; unverified)",
    "targeted": true,
    "text": [
     "msg_ddol_activated",
@@ -405,7 +405,7 @@
    "duration_sec": 0,
    "cooldown_sec": 60,
    "effect": {},
-   "_not": "istemci/wiki: süre boyunca GRUP ÜYELERİNİN verdiği hasarın %20'si bitişte 700 birim içindeki grup üyelerine eşit HP olarak dağılır; tek başına oynayanın grubu yok: bot oyuncularla (Aşama 11)",
+   "_note": "client/wiki: over the duration, 20% of the damage dealt by GROUP MEMBERS is distributed at the end as equal HP to group members within 700 units; a solo player has no group: with bot players (Phase 11)",
    "text": [
     "msg_reallocate_activated",
     "msg_reallocate_stopped"
@@ -416,7 +416,7 @@
    "duration_sec": 0,
    "cooldown_sec": 60,
    "effect": {},
-   "_not": "yalnız oyunculara etki eder: bot oyuncularla (Aşama 11)",
+   "_note": "affects only players: with bot players (Phase 11)",
    "text": [
     "msg_particle_beam_activated",
     "msg_particle_beam_stopped"
@@ -427,7 +427,7 @@
    "duration_sec": 0,
    "cooldown_sec": 60,
    "effect": {},
-   "_not": "yalnız oyunculara etki eder: bot oyuncularla (Aşama 11)",
+   "_note": "affects only players: with bot players (Phase 11)",
    "text": [
     "msg_particle_beam_plus_activated",
     "msg_particle_beam_plus_stopped"
@@ -447,7 +447,7 @@
      }
     }
    },
-   "_not": "istemci: uzaylı öldürme bir yük (en çok 10); etkin değilken yük başına menzil +5; etkinleşince kalkan +%0,2, her yük öncekinden %0,2 fazla (10 yükte +%11); yükler sıfırlanır",
+   "_note": "client: an alien kill is one charge (max 10); while inactive, +5 range per charge; on activation, shield +0.2%, each charge 0.2% more than the previous (+11% at 10 charges); charges reset",
    "text": [
     "msg_stockpile_activated",
     "msg_stockpile_stopped"
@@ -464,7 +464,7 @@
      "speed": 0.1
     }
    },
-   "_not": "istemci: takılı modüllerin eksi nitelikleri süre boyunca artıya döner; eksi yoksa hasar ve hız bonusu (wiki +%10/+%10)",
+   "_note": "client: the negative attributes of equipped modules turn positive for the duration; if there are no negatives, a damage and speed bonus (wiki +10%/+10%)",
    "text": [
     "msg_self_reversal_activated",
     "msg_self_reversal_stopped"
@@ -475,7 +475,7 @@
    "duration_sec": 0,
    "cooldown_sec": 60,
    "effect": {},
-   "_not": "yalnız oyunculara etki eder: bot oyuncularla (Aşama 11)",
+   "_note": "affects only players: with bot players (Phase 11)",
    "text": [
     "msg_enemy_reversal_activated",
     "msg_enemy_reversal_stopped"
@@ -491,7 +491,7 @@
      "ratio": 0.8
     }
    },
-   "_not": "istemci: alan hedefin konumunda, içindekiler %80 yavaş; yarıçap uyarlama (600)",
+   "_note": "client: the area is at the target's position, those inside are 80% slower; radius is an adaptation (600)",
    "targeted": true,
    "text": [
     "msg_gravitational_anchoractivated",
@@ -505,7 +505,7 @@
    "effect": {
     "next_gsp": 0.1
    },
-   "_not": "istemci: Singularity Drive saldırı hasarı +%10 (süresi 0: bir sonraki atışa; doğrulanmadı)",
+   "_note": "client: Singularity Drive attack damage +10% (duration 0: until the next shot; unverified)",
    "text": [
     "msg_charge_shot_hyperion_activated",
     "msg_charge_shot_hyperion_stopped"
@@ -516,7 +516,7 @@
    "duration_sec": 0,
    "cooldown_sec": 60,
    "effect": {},
-   "_not": "yalnız oyunculara etki eder: bot oyuncularla (Aşama 11)",
+   "_note": "affects only players: with bot players (Phase 11)",
    "text": [
     "msg_spread_activated",
     "msg_spread_stopped"
@@ -531,7 +531,7 @@
     "target_slow": 0.6
    },
    "targeted": true,
-   "_not": "istemci: hedeflenen gemiye ışınlan, sonra hedefin hızı süre boyunca %60 düşer (metin yalnız oyuncularla sınırlamıyor: uzaylıya da; Spread'den farkı); hedef seçili olması yeter (menzil sınırı yok)",
+   "_note": "client: teleport to the targeted ship, then the target's speed drops 60% for the duration (the text does not restrict it to players: aliens too; difference from Spread); having the target selected is enough (no range limit)",
    "text": [
     "msg_sleight_activated",
     "msg_sleight_stopped"
@@ -562,7 +562,7 @@
     "shield_melt": 0.1,
     "close_at_zero": true
    },
-   "_not": "istemci: kalkan süre boyunca erir, 0'da kapanır; saniyede azami kalkanın %10'u (wiki)"
+   "_note": "client: the shield melts away over the duration, shuts off at 0; 10% of max shield per second (wiki)"
   },
   "ability_mimesis_phase-out": {
    "name": "Phase Out",
@@ -574,7 +574,7 @@
    "visual": {
     "appearance": 4
    },
-   "_not": "istemci: rastgele yöne 50 birim ışınlar (korsan haritası, Galaksi Kapısı, CSZ, UBA hariç); VisualModifier PHASE_OUT (4) gemiyi süre boyunca soldurur, bitişte anlık MoveCommand gemiyi yeni yerine koyar (canlı K6)"
+   "_note": "client: teleports 50 units in a random direction (except pirate map, Galaxy Gate, CSZ, UBA); VisualModifier PHASE_OUT (4) fades the ship for the duration, at the end an instant MoveCommand places the ship at its new position (live K6)"
   },
   "ability_orcus_assimilate": {
    "name": "Assimilate",
@@ -583,7 +583,7 @@
    "effect": {
     "absorb_hp": 0.8
    },
-   "_not": "uzaylı hasarının %80'i cana döner",
+   "_note": "80% of alien damage is returned as HP",
    "text": [
     "msg_assimilate_activated",
     "msg_assimilate_stopped"
@@ -596,7 +596,7 @@
    "effect": {
     "last_stand": true
    },
-   "_not": "ölümcül vuruşta can dolar"
+   "_note": "HP is restored on a lethal hit"
   },
   "ability_paladin_ripper": {
    "name": "Ripper",
@@ -644,7 +644,7 @@
     }
    },
    "targeted": true,
-   "_not": "istemci: menzildeki hedefe yük biriktirir, dolunca ya da hedef menzilden çıkınca biriken vurur; 300.000 (wiki) süre boyunca dolar",
+   "_note": "client: accumulates charge on the target in range, strikes with the accumulated charge when full or when the target leaves range; charges over a duration of 300,000 (wiki)",
    "text": [
     "msg_charge_shot_activated",
     "msg_charge_shot_stopped"
@@ -679,7 +679,7 @@
     }
    },
    "targeted": true,
-   "_not": "istemci: dolum bitince vurur; wiki: saniyede +45.000, en çok 450.000, hedefin 200 çevresindekilere bölünür, dolarken hız -%10",
+   "_note": "client: strikes when charging finishes; wiki: +45,000 per second, max 450,000, split among those within 200 of the target, speed -10% while charging",
    "text": [
     "msg_charge_shot_plus_activated",
     "msg_charge_shot_plus_stopped"
@@ -697,7 +697,7 @@
     },
     "shield_melt": 0.1
    },
-   "_not": "istemci: hız, Particle Cannon beklemesi kısalır ve hasarı artar, saniyede kalkan kaybı (wiki: bekleme -%50, hasar +%10, kalkan -%10/sn)",
+   "_note": "client: speed, the Particle Cannon cooldown shortens and its damage increases, shield loss per second (wiki: cooldown -50%, damage +10%, shield -10%/s)",
    "text": [
     "msg_supercharge_plus_activated",
     "msg_supercharge_plus_stopped"
@@ -725,7 +725,7 @@
      "per_second": 10000
     }
    },
-   "_not": "yarıçap uyarlama",
+   "_note": "radius is an adaptation",
    "text": [
     "msg_incinerate_activated",
     "msg_incinerate_stopped"
@@ -752,7 +752,7 @@
    "cooldown_sec": 60,
    "effect": {},
    "achievement": "JAMX_CREED",
-   "_not": "yalnız oyunculara etki eder: bot oyuncularla (Aşama 11)",
+   "_note": "affects only players: with bot players (Phase 11)",
    "text": [
     "msg_jamx_creed_activated",
     "msg_jamx_creed_stopped"
@@ -770,7 +770,7 @@
     }
    },
    "targeted": true,
-   "_not": "istemci: hedefi işaretler (lazer hasarı artar; wiki +%4), kendi hızı +%5; hedefin kalkan delmesi -%50 (PvP)",
+   "_note": "client: marks the target (laser damage increases; wiki +4%), own speed +5%; the target's shield penetration -50% (PvP)",
    "text": [
     "msg_neutralizing_marker_activated",
     "msg_neutralizing_marker_stopped"
@@ -787,7 +787,7 @@
     },
     "reflect_laser": true
    },
-   "_not": "istemci: gelen lazer hasarı -%70, azaltılan kısım saldırana döner; kendi lazeri -%50",
+   "_note": "client: incoming laser damage -70%, the reduced portion returns to the attacker; own laser -50%",
    "text": [
     "msg_prismatic_reflecting_activated",
     "msg_prismatic_reflecting_stopped"
@@ -803,7 +803,7 @@
      "launcher_damage": 0.2
     }
    },
-   "_not": "istemci: fırlatıcıyı doldurur, fırlatıcı hasarı +%20 (yalnız fırlatıcı)",
+   "_note": "client: fills the launcher, launcher damage +20% (launcher only)",
    "text": [
     "msg_rapid_fire_plus_activated",
     "msg_rapid_fire_plus_stopped"
@@ -856,7 +856,7 @@
      }
     }
    },
-   "_not": "istemci: Voltage Link'in her atlaması bir yük (en çok 20), etkinleşince hepsi harcanır; yük başına lazer +%0,75 (wiki)",
+   "_note": "client: each jump of Voltage Link is one charge (max 20), all are spent on activation; laser +0.75% per charge (wiki)",
    "text": [
     "msg_volt_discharge_activated",
     "msg_volt_discharge_stopped"
@@ -869,7 +869,7 @@
    "effect": {
     "undying": 3
    },
-   "_not": "istemci: süre boyunca can 1'in altına inmez, ardından 3 sn dokunulmaz ve yetenek beklemeye girer",
+   "_note": "client: for the duration HP does not drop below 1, then 3 s of invulnerability and the ability goes on cooldown",
    "text": [
     "msg_volt_backup_activated",
     "msg_volt_backup_stopped"
@@ -890,7 +890,7 @@
      "max_speed": 750
     }
    },
-   "_not": "istemci: uzaylı öldürme bir yük (en çok 20); etkin değilken yük başına menzil +5; etkinleşince yük başına hız +%1,5 (en çok 750), yükler sıfırlanır",
+   "_note": "client: an alien kill is one charge (max 20); while inactive, +5 range per charge; on activation, +1.5% speed per charge (max 750), charges reset",
    "text": [
     "msg_momentum_activated",
     "msg_momentum_stopped"
@@ -908,14 +908,14 @@
     }
    },
    "targeted": true,
-   "_not": "istemci: hedefin arkasında üçgen üç patlama, her biri 20.000; üst üste binen alanlar toplanır. Yarıçap 200 (resmî Türk forumu 158403 Kış SSS); aralık uyarlama (150)",
+   "_note": "client: three triangular explosions behind the target, 20,000 each; overlapping areas add up. Radius 200 (official Turkish forum 158403 Winter FAQ); interval is an adaptation (150)",
    "text": [
     "msg_triple_barrage_activated",
     null
    ]
   }
  },
- "_gemiler": "Gemi -> yetenekleri; Elite/Veteran tasarımları ana geminin yetenekleriyle, carpanlar wiki'deki tasarım bonusları (sure, bekleme, etki). Defcom/Raven Ultimate Cloaking, Yamato/Ronin Travel (wiki): istemcide kendi öğeleri yok, Spearhead'in ve Citadel'in öğesi kullanılır. A-Elite'in onarım çarpanı yok: istemcinin kısa süreleri (Shield Repair 4 sn, HP Repair 6 sn) aynı toplamla \"%20/%10 faster\"ı zaten veriyor (E5).",
+ "_ships": "Ship -> abilities; Elite/Veteran designs use the main ship's abilities, multipliers are the design bonuses from the wiki (duration, cooldown, effect). Defcom/Raven Ultimate Cloaking, Yamato/Ronin Travel (wiki): no items of their own in the client, Spearhead's and Citadel's items are used. A-Elite has no repair multiplier: the client's short durations (Shield Repair 4 s, HP Repair 6 s) with the same total already give \"20%/10% faster\" (E5).",
  "ships": {
   "ship_aegis": {
    "skills": [
@@ -2354,5 +2354,5 @@
    }
   }
  },
- "_private": "gemi -> yetenek -> sure_sn/bekleme_sn: istemcinin gemi verisinden (tools/ship_abilities.py); etki çarpanları (\"carpanlar\") wiki'den kalır, süre ve bekleme ozel'den."
+ "_private": "ship -> ability -> duration_sec/cooldown_sec: from the client's ship data (tools/ship_abilities.py); effect multipliers (\"multipliers\") remain from the wiki, duration and cooldown from special."
 }

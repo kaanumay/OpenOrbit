@@ -1,10 +1,10 @@
 {
- "_description": "Market dengesi: mağazada gerçek parayla (Payment) satılan ve tek oyunculuda eklenen (ek_magaza) bütün ürünlerin fiyatları tek",
+ "_description": "Market balance: prices of all products sold for real money (Payment) in the store and those added in single-player (ek_magaza) at a single",
  "_source": "tools/market_dengesi.py",
  "exchange_rate": 100,
  "package_discount": 0.85,
  "protection": 1.25,
- "_rule": "değer = kayıttaki mağaza fiyatı ya da sınıf değeri; tek ürün fiyatı = değer; paket = max(toplam x 0.85, uridyum x 1.25); 2 anlamlı basamak; içeriği tamamen kredi sınıfı olan kredi",
+ "_rule": "value = store price in the recording or class value; single-product price = value; package = max(total x 0.85, uridium x 1.25); 2 significant digits; credits whose content is entirely credit class",
  "values": {
   "currency_uridium": 1,
   "currency_credits": 0.01,

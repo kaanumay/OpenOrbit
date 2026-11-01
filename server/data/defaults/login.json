@@ -1,5 +1,5 @@
 {
- "source": "paylaşılabilir varsayılan şablon (tools/sablon_paylas.py; hesap ve oyuncu kimlikleri takma)",
+ "source": "shareable default template (tools/template_sharing.py; account and player ids are aliased)",
  "entry": [
   {
    "_m": "EnergyUpdateCommand",

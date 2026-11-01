@@ -1,5 +1,5 @@
 {
- "_description": "Galaksi Kapıları (tools/kapilar.py ile belgeler/wiki/galaxy_gates.md wiki verisinden). Uzaylı türleri sunucunun NPC türleri ya da istemcinin gemi türleri (\"oyuncu\": oyuncunun kendi görünümü); kapıda hepsi saldırgan. \"gruplar\": alt dalgalar, her biri [uzaylı sırası, adet] listesi. \"kalici\": alt dalgalardan bağımsız, diğerleri ölmeden hasar almaz (Zeta Devourer; kapının kalkan_ara_sn'si varsa grup bitince kalkanı bu kadar iner, refakat grupları onun çevresinde shield_spawn uzaklıkta doğar). \"group_counter\": grubun pencerenin dalga sayacındaki payı (yoksa 1). \"_estimate\": wiki vermediği için tahmin edilen değerler. Sabitler: kayıt (enerji fiyatı 100 U, çekiliş olasılıkları, çekiliş adetleri), wiki (can fiyatları, hafta sonu -%15, Kronos günü cumartesi iki parça), istemci metinleri (en çok 5 çarpan = x6) ve uyarlamalar (çekiliş miktarları, mola ve bekleme süreleri, kopya parçanın eksik parçaya dönme olasılığı, Zeta/Kuiper dalgalarının haritalara dağılımı).",
+ "_description": "Galaxy Gates (via tools/gates.py from the belgeler/wiki/galaxy_gates.md wiki data). Alien types are the server's NPC types or the client's ship types (\"player\": the player's own appearance); in the gate all are aggressive. \"groups\": sub-waves, each a list of [alien order, count]. \"permanent\": independent of the sub-waves, takes no damage until the others die (Zeta Devourer; if the gate has shield_gap, when a group ends its shield goes down by that much, escort groups spawn around it at shield_spawn distance). \"group_counter\": the group's share in the window's wave counter (1 if absent). \"_estimate\": values estimated because the wiki gives none. Constants: recording (energy price 100 U, draw probabilities, draw counts), wiki (life prices, weekend -15%, Kronos day Saturday two parts), client texts (max 5 multipliers = x6) and adaptations (draw quantities, break and cooldown durations, the probability of a duplicate part turning into a missing part, the distribution of Zeta/Kuiper waves over the maps).",
  "gates": {
   "alpha": {
    "uid": 1,
@@ -38,7 +38,7 @@
         "0": 10,
         "2": 10
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -93,7 +93,7 @@
         "2": 40,
         "1": 40
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -151,7 +151,7 @@
         "5": 8,
         "6": 1
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -208,7 +208,7 @@
         "4": 2,
         "5": 2
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -266,7 +266,7 @@
         "5": 16,
         "6": 2
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -324,7 +324,7 @@
         "5": 16,
         "6": 1
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -382,7 +382,7 @@
         "5": 32,
         "6": 4
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -440,7 +440,7 @@
         "5": 8,
         "6": 1
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -498,7 +498,7 @@
         "5": 128,
         "6": 16
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -556,7 +556,7 @@
         "5": 16,
         "6": 2
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -708,7 +708,7 @@
         "0": 20,
         "2": 20
        },
-       "_reward_source": "düzeltme (tools/kapilar.py ODUL_DUZELTME)"
+       "_reward_source": "correction (tools/gates.py ODUL_DUZELTME)"
       }
      ],
      "groups": [
@@ -763,7 +763,7 @@
         "2": 80,
         "1": 80
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -821,7 +821,7 @@
         "5": 16,
         "6": 2
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -878,7 +878,7 @@
         "4": 4,
         "5": 4
        },
-       "_reward_source": "düzeltme (tools/kapilar.py ODUL_DUZELTME)"
+       "_reward_source": "correction (tools/gates.py ODUL_DUZELTME)"
       }
      ],
      "groups": [
@@ -936,7 +936,7 @@
         "5": 32,
         "6": 4
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -994,7 +994,7 @@
         "5": 32,
         "6": 2
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -1052,7 +1052,7 @@
         "5": 64,
         "6": 8
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -1110,7 +1110,7 @@
         "5": 16,
         "6": 2
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -1168,7 +1168,7 @@
         "5": 256,
         "6": 32
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -1226,7 +1226,7 @@
         "5": 32,
         "6": 4
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -1378,7 +1378,7 @@
         "0": 30,
         "2": 30
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -1433,7 +1433,7 @@
         "2": 120,
         "1": 120
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -1491,7 +1491,7 @@
         "5": 24,
         "6": 3
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -1548,7 +1548,7 @@
         "4": 6,
         "5": 6
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -1606,7 +1606,7 @@
         "5": 48,
         "6": 6
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -1664,7 +1664,7 @@
         "5": 48,
         "6": 3
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -1722,7 +1722,7 @@
         "5": 96,
         "6": 12
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -1780,7 +1780,7 @@
         "5": 24,
         "6": 3
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -1838,7 +1838,7 @@
         "5": 384,
         "6": 48
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -1896,7 +1896,7 @@
         "5": 48,
         "6": 6
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -2048,7 +2048,7 @@
         "0": 40,
         "2": 40
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "73",
@@ -2074,7 +2074,7 @@
         "5": 16,
         "6": 2
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "75",
@@ -2099,7 +2099,7 @@
         "4": 4,
         "5": 4
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -2122,7 +2122,7 @@
        ]
       ]
      ],
-     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "official Turkish forum FAQ and fandom Galaxy Gates (tools/gates.py FORUM_LINEUP)"
     },
     {
      "name": "II",
@@ -2148,7 +2148,7 @@
         "0": 20,
         "2": 20
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "85",
@@ -2174,7 +2174,7 @@
         "5": 60,
         "6": 4
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "protected": true
       }
      ],
@@ -2193,7 +2193,7 @@
      "group_counter": [
       2
      ],
-     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "official Turkish forum FAQ and fandom Galaxy Gates (tools/gates.py FORUM_LINEUP)"
     },
     {
      "name": "III",
@@ -2223,7 +2223,7 @@
         "5": 16,
         "6": 2
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "75",
@@ -2249,7 +2249,7 @@
         "5": 4,
         "6": 2
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "78",
@@ -2275,7 +2275,7 @@
         "5": 32,
         "6": 2
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -2298,7 +2298,7 @@
        ]
       ]
      ],
-     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "official Turkish forum FAQ and fandom Galaxy Gates (tools/gates.py FORUM_LINEUP)"
     },
     {
      "name": "IV",
@@ -2325,7 +2325,7 @@
         "2": 80,
         "1": 80
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "77",
@@ -2351,7 +2351,7 @@
         "5": 128,
         "6": 16
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "protected": true
       }
      ],
@@ -2370,7 +2370,7 @@
      "group_counter": [
       2
      ],
-     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "official Turkish forum FAQ and fandom Galaxy Gates (tools/gates.py FORUM_LINEUP)"
     },
     {
      "name": "V",
@@ -2397,7 +2397,7 @@
         "2": 80,
         "1": 80
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "31",
@@ -2423,7 +2423,7 @@
         "5": 32,
         "6": 4
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "25",
@@ -2448,7 +2448,7 @@
         "4": 8,
         "5": 8
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -2471,7 +2471,7 @@
        ]
       ]
      ],
-     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "official Turkish forum FAQ and fandom Galaxy Gates (tools/gates.py FORUM_LINEUP)"
     },
     {
      "name": "VI",
@@ -2501,7 +2501,7 @@
         "5": 16,
         "6": 2
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "74",
@@ -2527,7 +2527,7 @@
         "5": 96,
         "6": 12
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "protected": true
       }
      ],
@@ -2546,7 +2546,7 @@
      "group_counter": [
       2
      ],
-     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "official Turkish forum FAQ and fandom Galaxy Gates (tools/gates.py FORUM_LINEUP)"
     },
     {
      "name": "VII",
@@ -2576,7 +2576,7 @@
         "5": 16,
         "6": 2
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "78",
@@ -2602,7 +2602,7 @@
         "5": 48,
         "6": 3
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "34",
@@ -2628,7 +2628,7 @@
         "5": 32,
         "6": 2
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -2680,7 +2680,7 @@
         "5": 256,
         "6": 32
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "protected": true
       },
       {
@@ -2707,7 +2707,7 @@
         "5": 48,
         "6": 3
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -2725,7 +2725,7 @@
      "group_counter": [
       2
      ],
-     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "official Turkish forum FAQ and fandom Galaxy Gates (tools/gates.py FORUM_LINEUP)"
     },
     {
      "name": "IX",
@@ -2755,7 +2755,7 @@
         "5": 32,
         "6": 4
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "28",
@@ -2781,7 +2781,7 @@
         "5": 256,
         "6": 32
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "protected": true
       }
      ],
@@ -2822,7 +2822,7 @@
       2,
       2
      ],
-     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "official Turkish forum FAQ and fandom Galaxy Gates (tools/gates.py FORUM_LINEUP)"
     },
     {
      "name": "X",
@@ -2853,7 +2853,7 @@
         "6": 44,
         "3": 22
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -2876,7 +2876,7 @@
        ]
       ]
      ],
-     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "official Turkish forum FAQ and fandom Galaxy Gates (tools/gates.py FORUM_LINEUP)"
     }
    ],
    "reward": {
@@ -3012,7 +3012,7 @@
         "5": 4,
         "3": 1
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -3064,7 +3064,7 @@
         "5": 4,
         "3": 1
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "93",
@@ -3090,7 +3090,7 @@
         "5": 8,
         "3": 2
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -3113,7 +3113,7 @@
        ]
       ]
      ],
-     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "official Turkish forum FAQ and fandom Galaxy Gates (tools/gates.py FORUM_LINEUP)"
     },
     {
      "name": "III",
@@ -3143,7 +3143,7 @@
         "5": 8,
         "3": 2
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "92",
@@ -3171,7 +3171,7 @@
         "7": 1,
         "3": 4
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -3223,7 +3223,7 @@
         "5": 8,
         "3": 2
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "92",
@@ -3251,7 +3251,7 @@
         "7": 1,
         "3": 4
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -3305,7 +3305,7 @@
         "7": 1,
         "3": 4
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "91",
@@ -3333,7 +3333,7 @@
         "7": 2,
         "3": 8
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -3387,7 +3387,7 @@
         "7": 2,
         "3": 8
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "92",
@@ -3415,7 +3415,7 @@
         "7": 1,
         "3": 4
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "96",
@@ -3443,7 +3443,7 @@
         "7": 4,
         "3": 12
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -3497,7 +3497,7 @@
         "7": 2,
         "3": 8
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "96",
@@ -3525,7 +3525,7 @@
         "7": 4,
         "3": 12
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -3579,7 +3579,7 @@
         "7": 4,
         "3": 12
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "97",
@@ -3607,7 +3607,7 @@
         "7": 8,
         "3": 16
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -3661,7 +3661,7 @@
         "7": 4,
         "3": 12
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "97",
@@ -3689,7 +3689,7 @@
         "7": 8,
         "3": 16
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "95",
@@ -3717,7 +3717,7 @@
         "7": 16,
         "3": 24
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -3771,7 +3771,7 @@
         "7": 16,
         "3": 24
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -3813,7 +3813,7 @@
         "7": 8,
         "3": 16
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "95",
@@ -3841,7 +3841,7 @@
         "7": 16,
         "3": 24
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -3961,7 +3961,7 @@
    "hp": 5,
    "kronos_part": 1,
    "shield_gap_sec": 10,
-   "_kalkan_ara_sn": "Devourer (kalici): refakat grubu yaşarken Insta-Shield açık, hasar almaz; grup bitince kalkan bu kadar saniye iner, sonra yeniden açılır ve sonraki grup Devourer'ın çevresinde doğar; son gruptan sonra hep kapalı; Devourer ölünce dalga hemen biter (fandom Galaxy Gates: \"dropped for 10(?) seconds\"). Son dalgada bir grup türlerinin hepsi birlikte (normal, Boss, Uber), sayaçta tür başına bir alt dalga (group_counter)",
+   "_shield_interval_sec": "Devourer (permanent): while the escort group is alive Insta-Shield is on and it takes no damage; when the group is finished the shield drops for this many seconds, then comes back up and the next group spawns around the Devourer; always off after the last group; when the Devourer dies the wave ends immediately (fandom Galaxy Gates: \"dropped for 10(?) seconds\"). In the last wave one group has all of its types together (normal, Boss, Uber), with one sub-wave per type in the counter (group_counter)",
    "waves": [
     {
      "name": "I",
@@ -4676,7 +4676,7 @@
         "0": 20,
         "2": 20
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "85",
@@ -4702,7 +4702,7 @@
         "5": 8,
         "6": 8
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "23",
@@ -4777,7 +4777,7 @@
         "6": 8,
         "3": 8
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "71",
@@ -4853,7 +4853,7 @@
         "6": 2,
         "3": 2
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "75",
@@ -5326,7 +5326,7 @@
         "0": 20,
         "2": 20
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "94",
@@ -5352,7 +5352,7 @@
         "5": 4,
         "3": 1
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "100",
@@ -5379,7 +5379,7 @@
         "6": 2,
         "7": 1
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -5431,7 +5431,7 @@
         "5": 8,
         "3": 2
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "99",
@@ -5458,7 +5458,7 @@
         "6": 4,
         "7": 2
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "31",
@@ -5485,7 +5485,7 @@
         "6": 10,
         "3": 8
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -5537,7 +5537,7 @@
         "5": 16,
         "3": 2
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "72",
@@ -5563,7 +5563,7 @@
         "5": 16,
         "6": 2
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "103",
@@ -5589,7 +5589,7 @@
         "5": 16,
         "6": 2
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -5642,7 +5642,7 @@
         "6": 4,
         "3": 8
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "91",
@@ -5670,7 +5670,7 @@
         "7": 2,
         "3": 8
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "99",
@@ -5697,7 +5697,7 @@
         "6": 4,
         "7": 2
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -5751,7 +5751,7 @@
         "7": 4,
         "3": 12
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "78",
@@ -5777,7 +5777,7 @@
         "5": 16,
         "6": 1
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "102",
@@ -5804,7 +5804,7 @@
         "6": 16,
         "7": 8
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -5856,7 +5856,7 @@
         "5": 18,
         "6": 2
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "112",
@@ -5882,7 +5882,7 @@
         "5": 24,
         "6": 4
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "kamikaze_threshold": null
        }
@@ -5912,7 +5912,7 @@
         "6": 12,
         "3": 12
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": null
        }
@@ -5968,7 +5968,7 @@
         "6": 32,
         "3": 32
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "81",
@@ -5994,7 +5994,7 @@
         "5": 16,
         "6": 2
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "46",
@@ -6021,7 +6021,7 @@
         "6": 16,
         "3": 32
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -6074,7 +6074,7 @@
         "6": 32,
         "3": 64
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "38",
@@ -6101,7 +6101,7 @@
         "6": 2,
         "3": 4
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -6155,7 +6155,7 @@
         "7": 16,
         "3": 24
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "29",
@@ -6182,7 +6182,7 @@
         "6": 4,
         "3": 6
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "11",
@@ -6209,7 +6209,7 @@
         "6": 44,
         "3": 22
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -6262,7 +6262,7 @@
         "6": 64,
         "3": 128
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -6303,7 +6303,7 @@
         "6": 1,
         "3": 1
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -6661,7 +6661,7 @@
        ]
       ]
      ],
-     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "official Turkish forum FAQ and fandom Galaxy Gates (tools/gates.py FORUM_LINEUP)"
     },
     {
      "name": "IV",
@@ -6742,7 +6742,7 @@
        ]
       ]
      ],
-     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "official Turkish forum FAQ and fandom Galaxy Gates (tools/gates.py FORUM_LINEUP)"
     },
     {
      "name": "V",
@@ -6821,7 +6821,7 @@
        ]
       ]
      ],
-     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "official Turkish forum FAQ and fandom Galaxy Gates (tools/gates.py FORUM_LINEUP)"
     },
     {
      "name": "VI",
@@ -7105,7 +7105,7 @@
         "4": 20,
         "5": 20
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1000,
@@ -7136,7 +7136,7 @@
         "4": 20,
         "5": 20
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1500,
@@ -7193,7 +7193,7 @@
         "4": 50,
         "5": 50
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1500,
@@ -7224,7 +7224,7 @@
         "4": 50,
         "5": 50
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1500,
@@ -7287,7 +7287,7 @@
         "4": 50,
         "5": 50
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1500,
@@ -7318,7 +7318,7 @@
         "4": 50,
         "5": 50
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1500,
@@ -7353,7 +7353,7 @@
        ]
       ]
      ],
-     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "official Turkish forum FAQ and fandom Galaxy Gates (tools/gates.py FORUM_LINEUP)"
     },
     {
      "name": "IV",
@@ -7383,7 +7383,7 @@
         "5": 100,
         "6": 12
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1000,
@@ -7447,7 +7447,7 @@
         "5": 75,
         "6": 8
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1000,
@@ -7479,7 +7479,7 @@
         "5": 100,
         "6": 12
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1000,
@@ -7543,7 +7543,7 @@
         "5": 75,
         "6": 8
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1000,
@@ -7607,7 +7607,7 @@
         "5": 100,
         "6": 12
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1000,
@@ -7639,7 +7639,7 @@
         "5": 100,
         "6": 12
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1000,
@@ -7671,7 +7671,7 @@
         "5": 100,
         "6": 12
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1000,
@@ -7703,7 +7703,7 @@
         "5": 100,
         "6": 12
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1000,
@@ -7735,7 +7735,7 @@
         "5": 100,
         "6": 12
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1000,
@@ -7805,7 +7805,7 @@
         "5": 75,
         "6": 8
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1000,
@@ -7837,7 +7837,7 @@
         "5": 100,
         "6": 12
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1000,
@@ -7907,7 +7907,7 @@
         "5": 75,
         "6": 8
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1000,
@@ -7939,7 +7939,7 @@
         "5": 75,
         "6": 8
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1000,
@@ -7980,7 +7980,7 @@
        ]
       ]
      ],
-     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "official Turkish forum FAQ and fandom Galaxy Gates (tools/gates.py FORUM_LINEUP)"
     },
     {
      "name": "X",
@@ -8010,7 +8010,7 @@
         "5": 75,
         "6": 8
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1000,
@@ -8042,7 +8042,7 @@
         "5": 100,
         "6": 12
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1000,
@@ -8071,7 +8071,7 @@
        ]
       ]
      ],
-     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "official Turkish forum FAQ and fandom Galaxy Gates (tools/gates.py FORUM_LINEUP)"
     },
     {
      "name": "XI",
@@ -8101,7 +8101,7 @@
         "5": 75,
         "6": 8
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1000,
@@ -8133,7 +8133,7 @@
         "5": 200,
         "6": 20
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1000,
@@ -8165,7 +8165,7 @@
         "5": 100,
         "6": 12
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1000,
@@ -8197,7 +8197,7 @@
         "5": 100,
         "6": 12
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1000,
@@ -8261,7 +8261,7 @@
         "5": 100,
         "6": 12
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1000,
@@ -8293,7 +8293,7 @@
         "5": 100,
         "6": 12
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1000,
@@ -8325,7 +8325,7 @@
         "5": 100,
         "6": 12
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1000,
@@ -8383,7 +8383,7 @@
         "5": 200,
         "6": 25
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "behavior": {
         "rocket": {
          "damage": 1000,
@@ -8415,7 +8415,7 @@
         "5": 16,
         "6": 2
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -9077,7 +9077,7 @@
         "5": 15,
         "6": 1
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "158",
@@ -9096,7 +9096,7 @@
         "uridium": 10
        },
        "cargo": {},
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "_estimate": [
         "can/kalkan/hasar"
        ]
@@ -9152,7 +9152,7 @@
         "6": 8,
         "3": 16
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "25",
@@ -9179,7 +9179,7 @@
         "6": 1,
         "3": 2
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "158",
@@ -9198,7 +9198,7 @@
         "uridium": 10
        },
        "cargo": {},
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "_estimate": [
         "can/kalkan/hasar"
        ]
@@ -9228,7 +9228,7 @@
         "6": 1,
         "3": 4
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "_estimate": [
         "can/kalkan/hasar"
        ]
@@ -9256,7 +9256,7 @@
         "4": 4,
         "5": 4
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -9297,7 +9297,7 @@
        ]
       ]
      ],
-     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "official Turkish forum FAQ and fandom Galaxy Gates (tools/gates.py FORUM_LINEUP)"
     },
     {
      "name": "III",
@@ -9328,7 +9328,7 @@
         "6": 1,
         "3": 4
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "_estimate": [
         "can/kalkan/hasar"
        ]
@@ -9350,7 +9350,7 @@
         "uridium": 200
        },
        "cargo": {},
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "150",
@@ -9377,7 +9377,7 @@
         "6": 1,
         "3": 4
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "_estimate": [
         "can/kalkan/hasar"
        ]
@@ -9399,7 +9399,7 @@
         "uridium": 10
        },
        "cargo": {},
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "_estimate": [
         "can/kalkan/hasar"
        ]
@@ -9429,7 +9429,7 @@
         "6": 16,
         "3": 32
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "150",
@@ -9456,7 +9456,7 @@
         "6": 1,
         "3": 4
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "_estimate": [
         "can/kalkan/hasar"
        ]
@@ -9478,7 +9478,7 @@
         "uridium": 200
        },
        "cargo": {},
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "150",
@@ -9505,7 +9505,7 @@
         "6": 1,
         "3": 4
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "_estimate": [
         "can/kalkan/hasar"
        ]
@@ -9527,7 +9527,7 @@
         "uridium": 200
        },
        "cargo": {},
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "158",
@@ -9546,7 +9546,7 @@
         "uridium": 10
        },
        "cargo": {},
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "_estimate": [
         "can/kalkan/hasar"
        ]
@@ -9636,7 +9636,7 @@
         "uridium": 100
        },
        "cargo": {},
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "_estimate": [
         "can/kalkan/hasar"
        ]
@@ -9666,7 +9666,7 @@
         "6": 1,
         "3": 4
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "_estimate": [
         "can/kalkan/hasar"
        ]
@@ -9688,7 +9688,7 @@
         "uridium": 200
        },
        "cargo": {},
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "158",
@@ -9707,7 +9707,7 @@
         "uridium": 10
        },
        "cargo": {},
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "_estimate": [
         "can/kalkan/hasar"
        ]
@@ -9737,7 +9737,7 @@
         "6": 64,
         "3": 64
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "25",
@@ -9764,7 +9764,7 @@
         "6": 1,
         "3": 2
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -9889,7 +9889,7 @@
        ]
       ]
      ],
-     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "official Turkish forum FAQ and fandom Galaxy Gates (tools/gates.py FORUM_LINEUP)"
     },
     {
      "name": "V",
@@ -9912,7 +9912,7 @@
         "uridium": 10
        },
        "cargo": {},
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "_estimate": [
         "can/kalkan/hasar"
        ]
@@ -9934,7 +9934,7 @@
         "uridium": 6000
        },
        "cargo": {},
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "_estimate": [
         "can/kalkan/hasar"
        ]
@@ -9964,7 +9964,7 @@
         "6": 1,
         "3": 4
        },
-       "_reward_source": "wiki kapı",
+       "_reward_source": "wiki gate",
        "_estimate": [
         "can/kalkan/hasar"
        ]
@@ -9986,7 +9986,7 @@
         "uridium": 200
        },
        "cargo": {},
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       },
       {
        "type": "47",
@@ -10013,7 +10013,7 @@
         "6": 64,
         "3": 64
        },
-       "_reward_source": "wiki kapı"
+       "_reward_source": "wiki gate"
       }
      ],
      "groups": [
@@ -10108,7 +10108,7 @@
        ]
       ]
      ],
-     "_lineup_source": "resmî Türk forumu SSS ve fandom Galaxy Gates (tools/kapilar.py FORUM_DIZILIM)"
+     "_lineup_source": "official Turkish forum FAQ and fandom Galaxy Gates (tools/gates.py FORUM_LINEUP)"
     }
    ],
    "reward": {
@@ -10486,7 +10486,7 @@
    ]
   }
  },
- "_schism": "Giriş bayrağı AllGatesSchism (gerçek trafikte süresiz açık; istemci haberi \"guaranteed rewards for all GGs (Schism)\"): her tamamlamada aralıktan Schism (wiki Booty günü miktarları); Delta, Kronos ve Kuiper'in sabit Schism'inin yerine (üstüne mi yerine mi doğrulanmadı).",
+ "_schism": "Login flag AllGatesSchism (open indefinitely in real traffic; client news \"guaranteed rewards for all GGs (Schism)\"): on every completion Schism from the range (wiki Booty day amounts); replaces the fixed Schism of Delta, Kronos and Kuiper (whether it comes on top of it or replaces it is not verified).",
  "countdown": [
   5,
   4,
@@ -10494,7 +10494,7 @@
   2,
   1
  ],
- "_messages": "Kapı haritasındaki ekran mesajları (istemcinin MessageCommand komutu: buyuk = büyük bildirim + günlük, kisa = üstte kısa mesaj). İstemci İngilizce olduğu için İngilizce; \"key:\" ile başlayanlar istemcinin kendi çeviri metni. {gate} kapı adı, {wave} dalga numarası, {total} dalga sayısı, {sec} saniye, {groups} alt dalga, {remaining} kalan uzaylı, {name} uzaylı adı, {sk} Kronos parçası tekil/çoğul (s/p; adedi %COUNT%). Geri sayım ve dalga başı gerçek oyunun görüntüsünden (kullanıcı, 2026-10-28): \"-=- 1 -=-\", \"-=- 0 -=-\", kalan can (istemcinin lifes_left metni, kapi.py), \"Map Alpha - Wave 5\". \"dalga_kalan\" bütün uzaylılar doğduktan sonra 3 ve daha az kalınca; \"kalan\" kalkanlı patronun refakat grubunda.",
+ "_messages": "On-screen messages on the gate map (the client's MessageCommand: caps = large notification + log, short = brief message at the top). English because the client is English; those beginning with \"key:\" are the client's own translation text. {gate} gate name, {wave} wave number, {total} wave count, {sec} seconds, {groups} sub-waves, {remaining} remaining aliens, {name} alien name, {sk} Kronos part singular/plural (s/p; the count is %COUNT%). Countdown and wave start from the footage of the real game (user, 2026-10-28): \"-=- 1 -=-\", \"-=- 0 -=-\", remaining lives (the client's lifes_left text, galaxy_gates.py), \"Map Alpha - Wave 5\". \"wave_remaining\" when 3 or fewer remain after all aliens have spawned; \"remaining\" in the escort group of a shielded boss.",
  "messages": {
   "entry": {
    "short": "Galaxy Gate {gate}: {total} attack waves."
@@ -10546,8 +10546,8 @@
   }
  },
  "bonus": {
-  "_source": "Kaydın GalaxyGateBuilderInfoCommand'ı: üç kapıda bonus (bonusGGRewardModules {claimed, countdown sn, lootId, amount}: Delta LF-4 HP, Epsilon 1.050.000 onur, Kappa P.E.T. G-Champion Lava; geri sayım 22.002 sn), istemci (GateVo.ParseBonusGReward: kapının ilk bonusu, geri sayımı kendisi işletir; metinler title_bonus_gg_reward, msg_bonus_gg_reward_info / _time_left / _collected) ve darkorbitwiki Galaxy Gates Events \"Bonus Rewards For The First Completing\" (ödül havuzu ve gemi şansı).",
-  "_adaptation": "Kayıttaki bonuslar sabit kalıntıydı (süre hep 22.002 sn, ödül verilmiyordu); kayıt Pazar günü alındı ve bonus açıktı, bu yüzden wiki'nin 'her Salı' takvimi yerine her dönem. Sunucu her dönemde (panel: kapi_bonus_saat, varsayılan 24 saat, gece yarısına hizalı) kapılardan kapi_bonus_adet kadarını ve ödüllerini rastgele seçer (dönem içinde sabit; aralıklı ödüller de, dönemin tohumuyla); kapı dönem bitmeden tamamlanınca (Dispatch'in kapı gönderimi dahil) ödül bir kez verilir. Havuz wiki'nin listesi (kayıttaki üç ödül bunun içinde); miktarlı ödüller panelin kapi_bonus_carpan'ıyla (tek eşyalar bir tane). ship_chance: istemci metni 'There's also a chance to get a Cyborg, Hammerclaw, or Mimesis ship' ve wiki (sahip olunan gemi yerine 10.000 uridyum); olasılık wiki'de yok (uyarlama, VARSAYILAN_SANS).",
+  "_source": "The recording's GalaxyGateBuilderInfoCommand: bonus on three gates (bonusGGRewardModules {claimed, countdown s, lootId, amount}: Delta LF-4 HP, Epsilon 1,050,000 honor, Kappa P.E.T. G-Champion Lava; countdown 22,002 s), the client (GateVo.ParseBonusGReward: the gate's first bonus, runs the countdown itself; texts title_bonus_gg_reward, msg_bonus_gg_reward_info / _time_left / _collected) and darkorbitwiki Galaxy Gates Events \"Bonus Rewards For The First Completing\" (reward pool and ship chance).",
+  "_adaptation": "The bonuses in the recording were a fixed leftover (duration always 22,002 s, no reward was given); the recording was taken on a Sunday with the bonus active, so it applies every period instead of the wiki's 'every Tuesday' schedule. In every period (panel: gate_bonus_hours, default 24 hours, aligned to midnight) the server randomly picks gate_bonus_count of the gates and their rewards (fixed within the period; ranged rewards too, using the period's seed); when a gate is completed before the period ends (including Dispatch's gate dispatch) the reward is given once. The pool is the wiki's list (the three rewards in the recording are in it); quantity rewards use the panel's gate_bonus_multiplier (single items give one). ship_chance: client text 'There's also a chance to get a Cyborg, Hammerclaw, or Mimesis ship' and the wiki (10,000 uridium instead of an owned ship); the probability is not on the wiki (adaptation, DEFAULT_LUCKY_CHANCE).",
   "gates": [
    "alpha",
    "beta",
