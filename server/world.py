@@ -3372,8 +3372,6 @@ class World:
         else:
             self._effect_destination = None
             ms = mover.go(*target, speed, now)
-        if self.shared:                         # other players on a shared map see the new pace too (as on_move)
-            self.shared.movement(self, target[0], target[1], ms)
         msgs.append(('MoveCommand', dict(userId=self.hid, x=int(target[0]), y=int(target[1]), timeToTarget=ms)))
         return msgs
 

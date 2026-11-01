@@ -1122,7 +1122,10 @@ class Session:
                 msgs = self.shop.switch_config(parts[2])
                 if msgs and w:
                     with w.lock:           # a flight already under way takes the new config's speed at once
-                        msgs += w.respeed_flight(before)
+                        moves = w.respeed_flight(before)
+                        if moves and w.shared:     # the session's send is not mirrored (World.send is): the others see the new pace too
+                            w.shared.mirror(w, moves)
+                    msgs += moves
                 if msgs:
                     self.send(msgs, 'config switch')
             elif key == 'i' and len(parts) > 1 and parts[1].isdigit():
